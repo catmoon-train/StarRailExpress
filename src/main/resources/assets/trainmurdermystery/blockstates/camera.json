@@ -1,0 +1,20 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "starrailexpress:block/camera",
+      "y": 180
+    },
+    "facing=east": {
+      "model": "starrailexpress:block/camera",
+      "y": 270
+    },
+    "facing=south": {
+      "model": "starrailexpress:block/camera",
+      "y": 0
+    },
+    "facing=west": {
+      "model": "starrailexpress:block/camera",
+      "y": 90
+    }
+  }
+}

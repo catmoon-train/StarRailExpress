@@ -1,0 +1,47 @@
+{
+  "argument.harpymodloader.role.notfound": "Passenger role %s not found",
+  "argument.harpymodloader.role.found-multiple": "Multiple roles found for %s",
+  "argument.harpymodloader.modifier.notfound": "Modifier %s not found",
+  "argument.harpymodloader.modifier.found-multiple": "Multiple modifiers found for %s",
+
+  "commands.setenabledrole.unchanged": "No changes made",
+  "commands.setenabledrole.enable.success": "Passenger role %s has been enabled",
+  "commands.setenabledrole.disable.success": "Passenger role %s has been disabled",
+
+  "commands.setenabledmodifier.unchanged": "No changes made",
+  "commands.setenabledmodifier.enable.success": "Modifier %s has been enabled",
+  "commands.setenabledmodifier.disable.success": "Modifier %s has been disabled",
+
+  "commands.forcerole.success": "Forced passenger role %s to player %s",
+  "commands.forcerole.query": "Player %s is forced to have role %s",
+  "commands.forcerole.query.none": "Player %s does not have a forced passenger role",
+
+  "commands.listroles.role.title": "§bPassenger Roles",
+  "commands.listroles.modifier.title": "§eModifiers",
+  "commands.listroles.status.enabled.text": "§a[Enabled]",
+  "commands.listroles.status.enabled.hover": "§cClick to disable\n%s",
+  "commands.listroles.status.disabled.text": "§c[Disabled]",
+  "commands.listroles.status.disabled.hover": "§aClick to enable\n%s",
+
+
+  "commands.setrolecount.killer.set": "Killer count set to %s",
+  "commands.setrolecount.killer.auto": "Killer count set to auto calculation",
+  "commands.setrolecount.detective.set": "Detective count set to %s",
+  "commands.setrolecount.detective.auto": "Detective count set to auto calculation",
+  "commands.setrolecount.reset": "Killer and Detective counts reset to auto calculation",
+
+  "commands.changerole.success.changed": "Changed player %3$s's role from %1$s to %2$s",
+  "commands.changerole.success.assigned": "Assigned role %1$s to player %2$s",
+  "commands.changerole.player.notification": "Your role has been changed to %1$s",
+
+  "announcement.modifier": "Modifiers ",
+  "announcement.no_modifiers": "No Modifiers",
+
+  "commands.tmm.setroleweight.success": "Role %s weight has been set to %d",
+  "commands.tmm.setroleweight.failed": "Failed to set role weight",
+  
+  "commands.tmm.togglecustomroleweights.success": "Custom role weights have been %s",
+  
+  "commands.tmm.checkweights.entry": "%s: Killer=%s, Vigilante=%s",
+  "commands.tmm.checkweights.header": "=== Player Weights ==="
+}

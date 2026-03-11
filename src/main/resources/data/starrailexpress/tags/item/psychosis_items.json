@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": [
+    "noellesroles:master_key",
+    "noellesroles:antidote",
+    "noellesroles:toxin"
+  ]
+}

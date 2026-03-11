@@ -1,0 +1,84 @@
+{
+  "announcement.goals.jester": "Найдите убийц и объединитесь с ними.",
+  "announcement.role.jester": "Шут",
+
+  "announcement.goals.morphling": "Обмани всех.",
+  "announcement.role.morphling": "Имитатор",
+
+  "announcement.goals.awesome_binglus": "Превосходный Бунглус",
+  "announcement.role.awesome_binglus": "Превосходный Бунглус",
+
+  "announcement.goals.conductor": "Используйте мастер-ключ, чтобы открыть любую дверь в поезде!",
+  "announcement.role.conductor": "Кондуктор",
+
+  "announcement.goals.the_insane_damned_paranoid_killer": "Я слышу голоса мёртвых.",
+  "announcement.role.the_insane_damned_paranoid_killer": "Безумный Проклятый Параноидальный Убийца Смерти, Разрушения и Вафель",
+  "announcement.win.the_insane_damned_paranoid_killer": "Убийцы победили!",
+
+  "announcement.goals.bartender": "Смотрите на игроков, которые пьют сквозь стены!",
+  "announcement.role.bartender": "Пьяница",
+
+  "announcement.goals.phantom": "Станьте невидимыми, но остерегайтесь столкновений с другими игракоми.",
+  "announcement.role.phantom": "Фантом",
+
+  "announcement.goals.noisemaker": "Оповещайте игроков о вашем местоположении в случае смерти.",
+  "announcement.role.noisemaker": "Шумный парень",
+
+  "announcement.goals.voodoo": "Выберите другого игрока, который умрёт с вами.",
+  "announcement.role.voodoo": "Вуду",
+  "hud.voodoo.player_deaths_only": "Причиной смерти вуду должен быть другой игрок!",
+
+  "announcement.goals.swapper": "Меняйтесь местами с другими игроками.",
+  "announcement.role.swapper": "Обменник",
+  "hud.swapper.first_player_selection": "Выберите первого игрока для обмена",
+  "hud.swapper.second_player_selection": "Выберите второго игрока для обмена",
+
+  "announcement.goals.coroner": "Получите информацию о мертвых телах.",
+  "announcement.role.coroner": "Детектив",
+  "announcement.win.coroner": "Пассажиры победили!",
+  "hud.coroner.sanity_requirements": "Необходимо 50% рассудка, чтобы использовать эту способность",
+  "hud.coroner.death_info": "Погиб %s с назад ",
+
+  "announcement.goals.executioner": "Станьте убийцей, как только ваша цель умрет (от рук не-убийцы).",
+  "announcement.role.executioner": "Жнец",
+  "hud.executioner.target": "Цель Жнеца: %s",
+
+  "announcement.goals.trapper": "Узнайте роли других игроков.",
+  "announcement.role.trapper": "Мастер ловушек",
+
+  "announcement.goals.recaller": "Телепортируйтесь в любое место на поезде!",
+  "announcement.role.recaller": "Телепортатор",
+
+  "announcement.goals.better_vigilante": "Уххххххххххххх",
+  "announcement.role.better_vigilante": "Линчеватель, но лучше",
+
+  "announcement.goals.vulture": "Пожирайте чужие тела, чтобы стать убийцей.",
+  "announcement.role.vulture": "Стервятник",
+  "hud.vulture.eat": "Нажмите %s чтобы съесть!",
+  "hud.vulture.already_consumed": "Это тело уже съедено.",
+
+  "item.noellesroles.fake_revolver": "Поддельный револьвер",
+  "item.noellesroles.master_key": "Мастер-ключ",
+  "item.noellesroles.fake_knife": "Поддельный нож",
+  "item.noellesroles.defense_vial": "Защитная ампула",
+  "item.noellesroles.defense_vial.tooltip": "Щелкните ПКМ по подносу с едой/напитками, чтобы использовать\nОчищает всё содержимое подноса от яда\nДаёт дополнительную жизнь любому, кто выпьет защищённый напиток\nНе видно другим игрокам.",
+  "item.noellesroles.delusion_vial": "Ампула заблуждения",
+  "item.noellesroles.delusion_vial.tooltip": "Щелкните ПКМ по подносу с едой/напитками, чтобы использовать\nПоддельный яд, который работает как обычный,\nно не может причинить вреда жертве.",
+
+
+  "death_reason.starrailexpress.gun_shot": "от пулевого ранения.",
+  "death_reason.starrailexpress.knife_stab": "от ножевого ранения!",
+  "death_reason.starrailexpress.generic": "по неизвестной причине.",
+  "death_reason.starrailexpress.bat_hit": "от удара битой!",
+  "death_reason.starrailexpress.grenade": "от взрыва!",
+  "death_reason.starrailexpress.poison": "от отравления!",
+  "death_reason.starrailexpress.fell_out_of_train": "от падения с поезда.",
+  "death_reason.noellesroles.voodoo": "от магии вуду.",
+
+  "tip.phantom": "Нажмите %s чтобы стать невидимым!",
+  "tip.recaller.place": "Нажмите %s чтобы сохранить текущую позицию!",
+  "tip.recaller.teleport": "Нажмите %s чтобы телепортироваться!",
+  "tip.vulture": "%s/%s тел съедено.",
+  "tip.recaller.not_enough_money": "100\uE781 необходимо для телепортации.",
+  "tip.noellesroles.cooldown": "способность можно использовать через %sс"
+}

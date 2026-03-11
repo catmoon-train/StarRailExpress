@@ -1,0 +1,30 @@
+{
+	"format_version": "1.21.6",
+	"credit": "Made with Blockbench",
+	"parent": "item/generated",
+	"textures": {
+		"layer0": "stupid_express:item/lighter"
+	},
+	"display": {
+		"thirdperson_righthand": {
+			"rotation": [35, -90, 0],
+			"translation": [0, 0, 1],
+			"scale": [0.325, 0.325, 0.325]
+		},
+		"thirdperson_lefthand": {
+			"rotation": [35, 90, 0],
+			"translation": [0, 0, 1],
+			"scale": [0.325, 0.325, 0.325]
+		},
+		"firstperson_righthand": {
+			"rotation": [35, -90, 0],
+			"translation": [0, 3, 2],
+			"scale": [0.4, 0.4, 0.4]
+		},
+		"firstperson_lefthand": {
+			"rotation": [35, 90, 0],
+			"translation": [0, 3, 2],
+			"scale": [0.4, 0.4, 0.4]
+		}
+	}
+}

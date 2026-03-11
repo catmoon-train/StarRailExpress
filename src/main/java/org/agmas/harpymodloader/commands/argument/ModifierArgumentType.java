@@ -1,0 +1,67 @@
+package org.agmas.harpymodloader.commands.argument;
+
+import com.mojang.brigadier.StringReader;
+import com.mojang.brigadier.arguments.ArgumentType;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
+import com.mojang.brigadier.suggestion.Suggestions;
+import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.SharedSuggestionProvider;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import org.agmas.harpymodloader.modifiers.HMLModifiers;
+import org.agmas.harpymodloader.modifiers.Modifier;
+
+public class ModifierArgumentType implements ArgumentType<Modifier> {
+    public static final DynamicCommandExceptionType MODIFIER_EMPTY = new DynamicCommandExceptionType(input -> Component.translatable("argument.harpymodloader.modifier.notfound", input));
+    public static final DynamicCommandExceptionType MODIFIER_MULTIPLE = new DynamicCommandExceptionType(input -> Component.translatable("argument.harpymodloader.modifier.found-multiple", input));
+    private static final Collection<String> EXAMPLES = Arrays.asList("foo", "foo:bar", "012");
+
+    public static ModifierArgumentType create() {
+        return new ModifierArgumentType();
+    }
+
+    public static Modifier getModifier(CommandContext<CommandSourceStack> context, String name) {
+        return context.getArgument(name, Modifier.class);
+    }
+
+    @Override
+    public Modifier parse(final StringReader reader) throws CommandSyntaxException {
+        String input = new StringReader(reader).readString();
+        ResourceLocation modifierId = null;
+        try {
+            modifierId = ResourceLocation.read(reader);
+        } catch (CommandSyntaxException ignored) {
+        }
+        List<Modifier> result = new ArrayList<>();
+        for (final Modifier modifier : HMLModifiers.MODIFIERS) {
+            if (modifier.identifier().equals(modifierId) || modifier.identifier().getPath().startsWith(input)) {
+                result.add(modifier);
+            }
+        }
+        if (result.isEmpty()) {
+            throw MODIFIER_EMPTY.create(input);
+        }
+        if (result.size() > 1) {
+            throw MODIFIER_MULTIPLE.create(input);
+        }
+        return result.getFirst();
+    }
+
+    @Override
+    public <S> CompletableFuture<Suggestions> listSuggestions(final CommandContext<S> context, final SuggestionsBuilder builder) {
+        return SharedSuggestionProvider.suggestResource(HMLModifiers.MODIFIERS.stream(), builder, Modifier::identifier, Modifier::getName);
+    }
+
+    @Override
+    public Collection<String> getExamples() {
+        return EXAMPLES;
+    }
+}

@@ -1,0 +1,23 @@
+{
+  "variants": {
+    "half=lower,facing=north": {
+      "model": "noellesroles:block/vending_machines",
+      "y": 180
+    },
+    "half=lower,facing=east": {
+      "model": "noellesroles:block/vending_machines",
+      "y": 270
+    },
+    "half=lower,facing=south": {
+      "model": "noellesroles:block/vending_machines",
+      "y": 0
+    },
+    "half=lower,facing=west": {
+      "model": "noellesroles:block/vending_machines",
+      "y": 90
+    },
+    "half=upper":{
+      "model": "noellesroles:block/vending_machines_top"
+    }
+  }
+}

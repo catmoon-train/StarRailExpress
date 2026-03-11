@@ -1,0 +1,18 @@
+{
+    "parent": "item/generated",
+    "textures": {
+        "layer0": "noellesroles:item/master_key"
+    },
+    "display": {
+        "thirdperson_righthand": {
+            "rotation": [53.25, -90, 0],
+            "translation": [0, -1, -2.25],
+            "scale": [0.5, 0.5, 0.5]
+        },
+        "firstperson_righthand": {
+            "rotation": [68.75, -90, 0],
+            "translation": [4, 1, -1.5],
+            "scale": [0.5, 0.5, 0.5]
+        }
+    }
+}

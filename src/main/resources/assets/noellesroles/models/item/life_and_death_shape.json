@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "noellesroles:item/life_and_death_shape"
+  }
+}

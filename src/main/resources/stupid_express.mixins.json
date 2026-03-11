@@ -1,0 +1,27 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "pro.fazeclan.river.stupid_express.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "accessor.PlayerPoisonComponentAccessor",
+    "modifier.allergist.AllergistEatMixin",
+    "modifier.loose_end.LooseEndBarClearMixin",
+    "modifier.secretive.SecretiveDeathMixin",
+    "modifier.split_personality.QuitVoiceMixin",
+    "modifier.split_personality.SplitPersonalityServerInputBlockMixin",
+    "modifier.taskmaster.TaskmasterGiveCoinsMixin",
+    "role.arsonist.ArsonistKeepAliveMixin",
+    "role.avaricious.AvariciousGoldPayout",
+    "role.avaricious.AvariciousPassiveIncomeDestroyer",
+    "role.initiate.InitiateBuyMixin",
+    "role.initiate.InitiateCoinsOnMoodMixin",
+    "role.necromancer.NecromancerStatsMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  }
+}

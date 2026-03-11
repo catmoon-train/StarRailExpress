@@ -1,0 +1,129 @@
+{
+	"format_version": "1.9.0",
+	"credit": "Made with Blockbench",
+	"textures": {
+		"0": "starrailexpress:block/camera",
+		"particle": "starrailexpress:block/camera"
+	},
+	"elements": [
+		{
+			"from": [6, 0, 15],
+			"to": [10, 3, 16],
+			"rotation": {"angle": 0, "axis": "y", "origin": [7, 0, 14]},
+			"faces": {
+				"north": {"uv": [0, 0, 4, 3], "texture": "#0"},
+				"east": {"uv": [4, 9, 5, 12], "texture": "#0"},
+				"south": {"uv": [0, 3, 4, 6], "texture": "#0"},
+				"west": {"uv": [5, 9, 6, 12], "texture": "#0"},
+				"up": {"uv": [12, 5, 8, 4], "texture": "#0"},
+				"down": {"uv": [12, 5, 8, 6], "texture": "#0"}
+			}
+		},
+		{
+			"from": [7, 2.1, 10.75],
+			"to": [9, 4.1, 13.75],
+			"rotation": {"angle": 0, "axis": "y", "origin": [7, 1.1, 10.75]},
+			"faces": {
+				"north": {"uv": [0, 9, 2, 11], "texture": "#0"},
+				"east": {"uv": [4, 0, 7, 2], "texture": "#0"},
+				"south": {"uv": [2, 9, 4, 11], "texture": "#0"},
+				"west": {"uv": [4, 2, 7, 4], "texture": "#0"},
+				"up": {"uv": [6, 7, 4, 4], "texture": "#0"},
+				"down": {"uv": [2, 6, 0, 9], "texture": "#0"}
+			}
+		},
+		{
+			"from": [6.9, 3.25, 9.9],
+			"to": [9.1, 4.45, 13.1],
+			"rotation": {"angle": 0, "axis": "y", "origin": [7, 2.35, 10]},
+			"faces": {
+				"north": {"uv": [0, 11, 2, 12], "texture": "#0"},
+				"east": {"uv": [8, 6, 11, 7], "texture": "#0"},
+				"south": {"uv": [11, 0, 13, 1], "texture": "#0"},
+				"west": {"uv": [6, 9, 9, 10], "texture": "#0"},
+				"up": {"uv": [4, 9, 2, 6], "texture": "#0"},
+				"down": {"uv": [8, 4, 6, 7], "texture": "#0"}
+			}
+		},
+		{
+			"from": [8.8, 2.4, 10.3],
+			"to": [9.2, 3.8, 12.7],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8.5, 2.1, 10]},
+			"faces": {
+				"north": {"uv": [11, 1, 12, 3], "texture": "#0"},
+				"east": {"uv": [7, 0, 10, 2], "texture": "#0"},
+				"south": {"uv": [2, 11, 3, 13], "texture": "#0"},
+				"west": {"uv": [7, 2, 10, 4], "texture": "#0"},
+				"up": {"uv": [10, 12, 9, 9], "texture": "#0"},
+				"down": {"uv": [11, 0, 10, 3], "texture": "#0"}
+			}
+		},
+		{
+			"from": [6.8, 2.4, 10.3],
+			"to": [7.2, 3.8, 12.7],
+			"rotation": {"angle": 0, "axis": "y", "origin": [7.5, 2.1, 10]},
+			"faces": {
+				"north": {"uv": [3, 11, 4, 13], "texture": "#0"},
+				"east": {"uv": [4, 7, 7, 9], "texture": "#0"},
+				"south": {"uv": [11, 8, 12, 10], "texture": "#0"},
+				"west": {"uv": [7, 7, 10, 9], "texture": "#0"},
+				"up": {"uv": [7, 13, 6, 10], "texture": "#0"},
+				"down": {"uv": [8, 10, 7, 13], "texture": "#0"}
+			}
+		},
+		{
+			"from": [7.5, 0.9, 13],
+			"to": [8.5, 1.9, 16],
+			"rotation": {"angle": -45, "axis": "x", "origin": [8, 1.4, 14.5]},
+			"faces": {
+				"north": {"uv": [11, 6, 12, 7], "texture": "#0"},
+				"east": {"uv": [10, 3, 13, 4], "texture": "#0"},
+				"south": {"uv": [12, 1, 13, 2], "texture": "#0"},
+				"west": {"uv": [10, 7, 13, 8], "texture": "#0"},
+				"up": {"uv": [9, 13, 8, 10], "texture": "#0"},
+				"down": {"uv": [11, 8, 10, 11], "texture": "#0"}
+			}
+		},
+		{
+			"from": [7.6, 0.65, 12.6],
+			"to": [8.4, 2.45, 13.4],
+			"rotation": {"angle": -22.5, "axis": "x", "origin": [8, 2.05, 13]},
+			"faces": {
+				"north": {"uv": [10, 11, 11, 13], "texture": "#0"},
+				"east": {"uv": [11, 10, 12, 12], "texture": "#0"},
+				"south": {"uv": [0, 12, 1, 14], "texture": "#0"},
+				"west": {"uv": [1, 12, 2, 14], "texture": "#0"},
+				"up": {"uv": [13, 3, 12, 2], "texture": "#0"},
+				"down": {"uv": [5, 12, 4, 13], "texture": "#0"}
+			}
+		}
+	],
+	"display": {
+		"thirdperson_righthand": {
+			"translation": [0, 4.75, -8]
+		},
+		"thirdperson_lefthand": {
+			"translation": [0, 4.75, -8]
+		},
+		"firstperson_righthand": {
+			"translation": [4.25, 6.25, -11.5]
+		},
+		"firstperson_lefthand": {
+			"translation": [0, 8.75, -9]
+		},
+		"gui": {
+			"rotation": [163.75, -22, 180],
+			"translation": [2.5, 6.75, 0]
+		},
+		"head": {
+			"translation": [0, 11.25, -14.5]
+		},
+		"fixed": {
+			"translation": [0, 0.25, -7]
+		},
+		"on_shelf": {
+			"rotation": [0, 180, 0],
+			"translation": [0, 0, 4]
+		}
+	}
+}

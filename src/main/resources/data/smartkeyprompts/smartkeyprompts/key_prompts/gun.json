@@ -1,0 +1,24 @@
+{
+  "modid": "starrailexpress_gun",
+  "vars": {
+    "modLoaded": "isModLoaded('starrailexpress')",
+    "mainHandItem": "mainHandItem()",
+    "keyUse": "getKeyByDesc('key.use')",
+    "screenOpen": "isScreenOpen()",
+    "isCameraPlayer": "isCameraPlayer()",
+    "holdingKnife": "mainHandItem() == 'starrailexpress:revolver'"
+  },
+  "entries": [
+    {
+      "when": {
+        "modLoaded": "true",
+        "holdingKnife": "true",
+        "screenOpen": "false",
+        "isCameraPlayer": "true"
+      },
+      "then": [
+        "custom('starrailexpress_gun', keyUse, 'key.starrailexpress.shot')"
+      ]
+    }
+  ]
+}

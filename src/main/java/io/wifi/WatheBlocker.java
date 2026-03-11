@@ -1,0 +1,271 @@
+package io.wifi;
+
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import net.fabricmc.loader.api.FabricLoader;
+import net.fabricmc.loader.api.entrypoint.PreLaunchEntrypoint;
+
+public class WatheBlocker implements PreLaunchEntrypoint {
+    private static final Logger LOGGER = LoggerFactory.getLogger(WatheBlocker.class);
+
+    private static final String TARGET_MOD_ID = "wathe";
+    private static final Set<String> BLOCKED_MIXIN_CONFIGS = Set.of(
+            "wathe.mixins.json");
+
+    private static final ArrayList<String> WatheWhiteList = new ArrayList<>(
+            List.of("dev.doctor4t.wathe.client.model.WatheModelLayers"));
+
+    @Override
+    public void onPreLaunch() {
+        blockAllStaticInit(); // ← 最先执行，类加载前装好变换器
+        blockEntrypoints();
+        blockAccessWidener();
+        blockCustomData();
+    }
+
+    private void blockAllStaticInit() {
+        try {
+            ClassLoader cl = Thread.currentThread().getContextClassLoader();
+            java.lang.reflect.Method getDelegateMethod = cl.getClass().getDeclaredMethod("getDelegate");
+            getDelegateMethod.setAccessible(true);
+            Object delegate = getDelegateMethod.invoke(cl);
+
+            java.lang.reflect.Method getMixinTransformer = delegate.getClass()
+                    .getDeclaredMethod("getMixinTransformer");
+            getMixinTransformer.setAccessible(true);
+            Object mixinTransformer = getMixinTransformer.invoke(delegate);
+
+            // delegate 字段里找存放 transformer 的字段
+            Field transformerField = null;
+            Class<?> clazz = delegate.getClass();
+            while (clazz != null && clazz != Object.class) {
+                for (Field f : clazz.getDeclaredFields()) {
+                    f.setAccessible(true);
+                    Object val = f.get(delegate);
+                    if (val == mixinTransformer) {
+                        transformerField = f;
+                        break;
+                    }
+                }
+                if (transformerField != null)
+                    break;
+                clazz = clazz.getSuperclass();
+            }
+
+            if (transformerField == null) {
+                LOGGER.error("[WatheBlocker] 未找到存放 MixinTransformer 的字段");
+                return;
+            }
+
+            LOGGER.info("[WatheBlocker] 找到 transformer 字段: {} in {}",
+                    transformerField.getName(), transformerField.getDeclaringClass().getSimpleName());
+            java.lang.reflect.Method getPreMixin = delegate.getClass()
+                    .getDeclaredMethod("getPreMixinClassByteArray", String.class, boolean.class);
+            getPreMixin.setAccessible(true);
+
+            Object wrapper = java.lang.reflect.Proxy.newProxyInstance(
+                    mixinTransformer.getClass().getClassLoader(),
+                    mixinTransformer.getClass().getInterfaces(),
+                    (proxy, method, args) -> {
+                        Object result = method.invoke(mixinTransformer, args);
+
+                        // 只处理 wathe 自身类的 <clinit>，不再回退其他类
+                        if (method.getName().equals("transformClassBytes")
+                                && args != null && args.length == 3
+                                && args[0] instanceof String name
+                                && name.startsWith("dev.doctor4t.wathe.")
+                                && result instanceof byte[] bytes) {
+                            if (!WatheWhiteList.contains(name))
+                                return stripClinit(bytes, name);
+                        }
+
+                        return result;
+                    });
+            transformerField.set(delegate, wrapper);
+            LOGGER.info("[WatheBlocker] 已安装 <clinit> 移除器");
+
+        } catch (Exception e) {
+            LOGGER.error("[WatheBlocker] blockAllStaticInit 失败", e);
+        }
+    }
+
+    private byte[] stripClinit(byte[] bytes, String className) {
+        try {
+            org.objectweb.asm.ClassReader cr = new org.objectweb.asm.ClassReader(bytes);
+            org.objectweb.asm.ClassWriter cw = new org.objectweb.asm.ClassWriter(cr, 0);
+
+            cr.accept(new org.objectweb.asm.ClassVisitor(org.objectweb.asm.Opcodes.ASM9, cw) {
+                @Override
+                public org.objectweb.asm.MethodVisitor visitMethod(
+                        int access, String name, String descriptor,
+                        String signature, String[] exceptions) {
+                    if (name.equals("<clinit>")) {
+                        LOGGER.info("[WatheBlocker] 已清空 {}.{}", className, "<clinit>");
+                        // 写入空的 <clinit>（只有 RETURN），让类正常加载但不执行任何静态初始化
+                        org.objectweb.asm.MethodVisitor mv = super.visitMethod(
+                                access, name, descriptor, signature, exceptions);
+                        mv.visitCode();
+                        mv.visitInsn(org.objectweb.asm.Opcodes.RETURN);
+                        mv.visitMaxs(0, 0);
+                        mv.visitEnd();
+                        return null; // 返回 null 阻止 ClassReader 继续把原方法体写进去
+                    }
+                    return super.visitMethod(access, name, descriptor, signature, exceptions);
+                }
+            }, 0);
+
+            return cw.toByteArray();
+        } catch (Exception e) {
+            LOGGER.warn("[WatheBlocker] stripClinit 失败: {}", className, e);
+            return bytes;
+        }
+    }
+
+    private void blockEntrypoints() {
+        FabricLoader.getInstance().getModContainer(TARGET_MOD_ID).ifPresentOrElse(
+                container -> {
+                    try {
+                        Object meta = container.getMetadata();
+                        Field entrypointsField = findField(meta, Map.class,
+                                "entrypoints", "entrypointKeys", "entrypointMap");
+
+                        if (entrypointsField == null) {
+                            LOGGER.warn("[WatheBlocker] 未找到 entrypoints 字段，所有字段：");
+                            printAllFields(meta);
+                            return;
+                        }
+
+                        @SuppressWarnings("unchecked")
+                        Map<String, ?> entrypoints = (Map<String, ?>) entrypointsField.get(meta);
+                        LOGGER.info("[WatheBlocker] 移除前的入口点: {}", entrypoints.keySet());
+                        // ✅ 直接替换字段为新的空 Map，绕过 unmodifiableMap 限制
+                        entrypointsField.set(meta, new java.util.HashMap<>());
+                        LOGGER.info("[WatheBlocker] 已清空 {} 的所有入口点", TARGET_MOD_ID);
+
+                    } catch (Exception e) {
+                        LOGGER.error("[WatheBlocker] 清空入口点失败", e);
+                    }
+                },
+                () -> LOGGER.warn("[WatheBlocker] 未找到 mod: {}", TARGET_MOD_ID));
+    }
+
+    private void blockMixins2() {
+        FabricLoader.getInstance().getModContainer(TARGET_MOD_ID).ifPresentOrElse(
+                container -> {
+                    try {
+                        Object meta = container.getMetadata();
+                        Field customField = findField(meta, java.util.Collection.class,
+                                "mixins");
+
+                        if (customField == null) {
+                            LOGGER.warn("[WatheBlocker] 未找到 mixins 字段，所有字段：");
+                            printAllFields(meta);
+                            return;
+                        }
+
+                        @SuppressWarnings("unchecked")
+                        Collection<String> custom = (Collection<String>) customField
+                                .get(meta);
+                        LOGGER.info("[WatheBlocker] 移除 mixins 数据: {}", custom.size());
+                        // ✅ 直接替换字段为新的空 Collection
+                        customField.set(meta, java.util.Collections.unmodifiableCollection(List.of()));
+                        LOGGER.info("[WatheBlocker] 已清空 {} 的 mixins 数据", TARGET_MOD_ID);
+
+                    } catch (Exception e) {
+                        LOGGER.error("[WatheBlocker] 清空 mixins 数据失败", e);
+                    }
+                },
+                () -> LOGGER.warn("[WatheBlocker] 未找到 mod: {}", TARGET_MOD_ID));
+    }
+
+    private void blockAccessWidener() {
+        FabricLoader.getInstance().getModContainer(TARGET_MOD_ID).ifPresentOrElse(
+                container -> {
+                    try {
+                        Object meta = container.getMetadata();
+                        Field customField = findField(meta, String.class,
+                                "accessWidener");
+
+                        if (customField == null) {
+                            LOGGER.warn("[WatheBlocker] 未找到 accessWidener 字段，所有字段：");
+                            printAllFields(meta);
+                            return;
+                        }
+
+                        String custom = (String) customField.get(meta);
+                        LOGGER.info("[WatheBlocker] 移除 accessWidener 数据: {}", custom);
+                        // ✅ 直接替换字段为新的空 Map
+                        customField.set(meta, "");
+                        LOGGER.info("[WatheBlocker] 已清空 {} 的 accessWidener 数据", TARGET_MOD_ID);
+
+                    } catch (Exception e) {
+                        LOGGER.error("[WatheBlocker] 清空 accessWidener 数据失败", e);
+                    }
+                },
+                () -> LOGGER.warn("[WatheBlocker] 未找到 mod: {}", TARGET_MOD_ID));
+    }
+
+    private void blockCustomData() {
+        FabricLoader.getInstance().getModContainer(TARGET_MOD_ID).ifPresentOrElse(
+                container -> {
+                    try {
+                        Object meta = container.getMetadata();
+                        Field customField = findField(meta, Map.class,
+                                "custom", "customValues", "customData");
+
+                        if (customField == null) {
+                            LOGGER.warn("[WatheBlocker] 未找到 custom 字段，所有字段：");
+                            printAllFields(meta);
+                            return;
+                        }
+
+                        @SuppressWarnings("unchecked")
+                        Map<String, ?> custom = (Map<String, ?>) customField.get(meta);
+                        LOGGER.info("[WatheBlocker] 移除前的 custom 数据: {}", custom.keySet());
+                        // ✅ 直接替换字段为新的空 Map
+                        Map<String, ?> map = new java.util.HashMap<String, Object>(custom);
+                        map.remove("loom:injected_interfaces");
+                        map.remove("cardinal-components");
+                        customField.set(meta, map);
+                        LOGGER.info("[WatheBlocker] 已清空 {} 的 custom 数据", TARGET_MOD_ID);
+
+                    } catch (Exception e) {
+                        LOGGER.error("[WatheBlocker] 清空 custom 数据失败", e);
+                    }
+                },
+                () -> LOGGER.warn("[WatheBlocker] 未找到 mod: {}", TARGET_MOD_ID));
+    }
+
+    /** 遍历类及其父类，查找指定名称且类型匹配的字段 */
+    private Field findField(Object obj, Class<?> expectedType, String... names) {
+        Class<?> clazz = obj.getClass();
+        while (clazz != null && clazz != Object.class) {
+            for (String name : names) {
+                try {
+                    Field f = clazz.getDeclaredField(name);
+                    f.setAccessible(true);
+                    if (expectedType.isAssignableFrom(f.getType())) {
+                        return f;
+                    }
+                } catch (NoSuchFieldException ignored) {
+                }
+            }
+            clazz = clazz.getSuperclass();
+        }
+        return null;
+    }
+
+    private void printAllFields(Object obj) {
+        for (Field f : obj.getClass().getDeclaredFields()) {
+            LOGGER.warn("  - {} : {}", f.getName(), f.getType().getName());
+        }
+    }
+}

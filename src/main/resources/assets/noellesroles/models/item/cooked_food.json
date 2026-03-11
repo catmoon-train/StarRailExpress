@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "noellesroles:item/foodstuff"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "custom_model_data": 1
+      },
+      "model": "noellesroles:item/cooked_food/1"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 2
+      },
+      "model": "noellesroles:item/cooked_food/2"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 3
+      },
+      "model": "noellesroles:item/cooked_food/3"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 4
+      },
+      "model": "noellesroles:item/cooked_food/4"
+    }
+  ]
+}

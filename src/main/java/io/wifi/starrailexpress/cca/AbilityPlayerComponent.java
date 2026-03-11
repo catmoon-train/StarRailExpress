@@ -1,0 +1,180 @@
+package io.wifi.starrailexpress.cca;
+
+import io.wifi.starrailexpress.api.RoleComponent;
+import io.wifi.starrailexpress.SRE;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
+import org.jetbrains.annotations.NotNull;
+import org.ladysnake.cca.api.v3.component.ComponentKey;
+import org.ladysnake.cca.api.v3.component.ComponentRegistry;
+import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
+import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
+
+/**
+ * 通用技能组件
+ *
+ * 用于管理玩家的技能冷却时间和使用次数
+ * 该组件会自动在客户端和服务端之间同步
+ *
+ * 功能：
+ * - 冷却时间管理（自动递减）
+ * - 技能使用次数限制
+ * - 自动同步到客户端（用于 HUD 显示）
+ */
+public class AbilityPlayerComponent implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
+
+    @Override
+    public boolean shouldSyncWith(ServerPlayer player) {
+        return player == this.player;
+    }
+
+    /** 组件键 - 用于从玩家获取此组件 */
+    public static final ComponentKey<AbilityPlayerComponent> KEY = ComponentRegistry.getOrCreate(SRE.id("ability"),
+            AbilityPlayerComponent.class);
+
+    // 持有该组件的玩家
+    private final Player player;
+
+    // 技能冷却时间（tick）
+    public int cooldown = 0;
+
+    // 技能剩余使用次数（-1 表示无限制）
+    public int charges = -1;
+
+    // 最大使用次数（用于 HUD 显示）
+    public int maxCharges = -1;
+
+    /**
+     * 构造函数
+     */
+    public AbilityPlayerComponent(Player player) {
+        this.player = player;
+    }
+
+    @Override
+    public Player getPlayer() {
+        return this.player;
+    }
+
+    /**
+     * 重置组件状态
+     * 在游戏开始时或角色分配时调用
+     */
+    @Override
+    public void reset() {
+        this.cooldown = 0;
+        this.charges = -1;
+        this.maxCharges = -1;
+        this.sync();
+    }
+
+    @Override
+    public void clear() {
+        this.reset();
+    }
+
+    /**
+     * 设置冷却时间
+     * 
+     * @param ticks 冷却时间（tick），20 tick = 1 秒
+     */
+    public void setCooldown(int ticks) {
+        this.cooldown = ticks;
+        this.sync();
+    }
+
+    /**
+     * 设置技能使用次数
+     * 
+     * @param charges 使用次数
+     */
+    public void setCharges(int charges) {
+        this.charges = charges;
+        this.maxCharges = charges;
+        this.sync();
+    }
+
+    /**
+     * 使用一次技能
+     * 
+     * @return 是否成功使用
+     */
+    static int TICK_R;
+
+    public boolean useAbility() {
+        if (canUseAbility()) {
+            final var gameWorldComponent = GameWorldComponent.KEY.get(this.player.level());
+            final var role = gameWorldComponent.getRole(this.player);
+            if (role == null) {
+                return false;
+            } else {
+                role.onAbilityUse(this.player);
+            }
+            charges--;
+        }
+
+        return true;
+    }
+
+    /**
+     * 检查技能是否可用
+     */
+    public boolean canUseAbility() {
+        return cooldown <= 0 && (charges == -1 || charges > 0);
+    }
+
+    /**
+     * 获取冷却时间（秒）
+     */
+    public float getCooldownSeconds() {
+        return cooldown / 20.0f;
+    }
+
+    /**
+     * 同步到客户端
+     */
+    public void sync() {
+        KEY.sync(this.player);
+    }
+
+    // ==================== Tick 处理 ====================
+
+    @Override
+    public void serverTick() {
+        // 服务端每 tick 减少冷却时间
+        if (this.cooldown > 0) {
+            this.cooldown--;
+            // 每秒同步一次（而不是每 tick），减少网络压力
+            if (++TICK_R % 60 == 0 || this.cooldown == 0) {
+                sync();
+
+            }
+        }
+    }
+
+    @Override
+    public void clientTick() {
+        // 客户端也进行冷却计算（用于预测显示）
+        if (this.cooldown > 1) {
+            this.cooldown--;
+        }
+    }
+
+    // ==================== NBT 序列化 ====================
+
+    @Override
+    public void writeToNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+        tag.putInt("cooldown", this.cooldown);
+        tag.putInt("charges", this.charges);
+        tag.putInt("maxCharges", this.maxCharges);
+    }
+
+    @Override
+    public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+        this.cooldown = tag.contains("cooldown") ? tag.getInt("cooldown") : 0;
+        this.charges = tag.contains("charges") ? tag.getInt("charges") : -1;
+        this.maxCharges = tag.contains("maxCharges") ? tag.getInt("maxCharges") : -1;
+    }
+}

@@ -1,0 +1,55 @@
+{
+  "vertex": "starrailexpress:crazy",
+  "fragment": "starrailexpress:crazy",
+  "attributes": [
+    "Position",
+    "UV0"
+  ],
+  "samplers": [
+    {
+      "name": "DiffuseSampler"
+    }
+  ],
+  "uniforms": [
+    {
+      "name": "Time",
+      "type": "float",
+      "values": [0.0]
+    },
+    {
+      "name": "GameTime",
+      "type": "float",
+      "values": [0.0]
+    },
+    {
+      "name": "ScreenSize",
+      "type": "vec2",
+      "values": [1.0, 1.0]
+    },
+    {
+      "name": "Intensity",
+      "type": "float",
+      "values": [0.0]
+    },
+    {
+      "name": "DistortionStrength",
+      "type": "float",
+      "values": [0.0]
+    },
+    {
+      "name": "ChromaticAberration",
+      "type": "float",
+      "values": [0.0]
+    },
+    {
+      "name": "FlickerSpeed",
+      "type": "float",
+      "values": [0.0]
+    },
+    {
+      "name": "ScanlineStrength",
+      "type": "float",
+      "values": [0.0]
+    }
+  ]
+}

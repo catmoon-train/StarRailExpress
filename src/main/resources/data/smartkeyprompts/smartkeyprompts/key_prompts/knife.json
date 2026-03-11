@@ -1,0 +1,24 @@
+{
+  "modid": "starrailexpress_knife",
+  "vars": {
+    "modLoaded": "isModLoaded('starrailexpress')",
+    "mainHandItem": "mainHandItem()",
+    "keyUse": "getKeyByDesc('key.use')",
+    "screenOpen": "isScreenOpen()",
+    "isCameraPlayer": "isCameraPlayer()",
+    "holdingKnife": "mainHandItem() == 'starrailexpress:knife'"
+  },
+  "entries": [
+    {
+      "when": {
+        "modLoaded": "true",
+        "holdingKnife": "true",
+        "screenOpen": "false",
+        "isCameraPlayer": "true"
+      },
+      "then": [
+        "custom('starrailexpress_knife', keyUse, 'key.starrailexpress.assassinate')"
+      ]
+    }
+  ]
+}

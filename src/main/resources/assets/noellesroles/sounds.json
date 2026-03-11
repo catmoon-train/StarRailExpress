@@ -1,0 +1,96 @@
+{
+	"noellesroles.gamber_died": {
+		"sounds": [
+			"noellesroles:gamber_died"
+		],
+		"subtitle": "subtitles.gamber_died"
+	},
+	"noellesroles.to_be_continued": {
+		"sounds": [
+			{
+				"name": "noellesroles:to_be_continued",
+				"stream": true
+			}
+		],
+		"subtitle": "subtitles.to_be_continued"
+	},
+	"noellesroles.gongxifacai": {
+		"sounds": [
+			{
+				"name": "noellesroles:gongxifacai",
+				"stream": true
+			}
+		],
+		"subtitle": "subtitles.gongxifacai"
+	},
+	"noellesroles.dio_spawn": {
+		"sounds": [
+			{
+				"name": "noellesroles:dio_spawn",
+				"stream": true
+			}
+		],
+		"subtitle": "subtitles.dio_spawn"
+	},
+	"noellesroles.harpy_welcome": {
+		"sounds": [
+			{
+				"name": "noellesroles:harpy_welcome",
+				"stream": true
+			}
+		],
+		"subtitle": "subtitles.harpy_welcome"
+	},
+	"noellesroles.wind": {
+		"sounds": [
+			{
+				"name": "noellesroles:wind",
+				"stream": true
+			}
+		],
+		"subtitle": "subtitles.noellesroles.wind"
+	},
+	"noellesroles.jester": {
+		"sounds": [
+			{
+				"name": "noellesroles:jester/axel_f",
+				"stream": true
+			},
+			{
+				"name": "noellesroles:jester/un_owen",
+				"stream": true
+			},
+			{
+				"name": "noellesroles:jester/yaosemountain",
+				"stream": true
+			},
+			{
+				"name": "noellesroles:jester/zombieempiror_song",
+				"stream": true
+			},
+			{
+				"name": "noellesroles:jester/shake_and_sway",
+				"stream": true
+			}
+		],
+		"subtitle": "subtitles.noellesroles.jester"
+	},
+	"noellesroles.time_stop": {
+		"sounds": [
+			{
+				"name": "noellesroles:time_stop",
+				"stream": true
+			}
+		],
+		"subtitle": "subtitles.noellesroles.time_stop"
+	},
+	"noellesroles.time_start": {
+		"sounds": [
+			{
+				"name": "noellesroles:time_start",
+				"stream": true
+			}
+		],
+		"subtitle": "subtitles.noellesroles.time_start"
+	}
+}

@@ -1,0 +1,34 @@
+{
+	"music_disc.lava_chicken_cut": {
+		"sounds": [
+			{
+				"name": "minecraft:records/lava_chicken_cutted",
+				"stream": true
+			}
+		]
+	},
+	"music_disc.creator_cut": {
+		"sounds": [
+			{
+				"name": "minecraft:records/creator_cutted",
+				"stream": true
+			}
+		]
+	},
+	"music_disc.broken_moon": {
+		"sounds": [
+			{
+				"name": "minecraft:records/broken_moon",
+				"stream": true
+			}
+		]
+	},
+	"music_disc.pigstep_cut": {
+		"sounds": [
+			{
+				"name": "minecraft:records/pig_step_cutted",
+				"stream": true
+			}
+		]
+	}
+}

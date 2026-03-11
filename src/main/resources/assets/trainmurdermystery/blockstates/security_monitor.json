@@ -1,0 +1,20 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "starrailexpress:block/security_monitor",
+      "y": 180
+    },
+    "facing=east": {
+      "model": "starrailexpress:block/security_monitor",
+      "y": 270
+    },
+    "facing=south": {
+      "model": "starrailexpress:block/security_monitor",
+      "y": 0
+    },
+    "facing=west": {
+      "model": "starrailexpress:block/security_monitor",
+      "y": 90
+    }
+  }
+}

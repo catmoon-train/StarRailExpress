@@ -1,0 +1,30 @@
+{
+	"format_version": "1.21.6",
+	"credit": "Made with Blockbench",
+	"parent": "item/generated",
+	"textures": {
+		"layer0": "stupid_express:item/jerry_can"
+	},
+	"display": {
+		"thirdperson_righthand": {
+			"rotation": [70, -90, 0],
+			"translation": [0, -1.75, -2.25],
+			"scale": [0.625, 0.625, 0.625]
+		},
+		"thirdperson_lefthand": {
+			"rotation": [70, 90, 0],
+			"translation": [0, -1.75, -2.25],
+			"scale": [0.625, 0.625, 0.625]
+		},
+		"firstperson_righthand": {
+			"rotation": [0, -90, 0],
+			"translation": [-0.5, 2.5, 1.25],
+			"scale": [0.75, 0.75, 0.75]
+		},
+		"firstperson_lefthand": {
+			"rotation": [0, 90, 0],
+			"translation": [-0.5, 2.5, 1.25],
+			"scale": [0.75, 0.75, 0.75]
+		}
+	}
+}
