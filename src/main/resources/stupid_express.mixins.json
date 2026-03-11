@@ -23,5 +23,6 @@
   },
   "overwrites": {
     "requireAnnotations": true
-  }
+  },
+  "client": []
 }

@@ -227,31 +227,31 @@ public class SREClient implements ClientModInitializer {
         // Block Entity Renderers
         BlockEntityRenderers.register(
                 TMMBlockEntities.SMALL_GLASS_DOOR,
-                ctx -> new SmallDoorBlockEntityRenderer(SRE.id("textures/entity/small_glass_door.png"), ctx));
+                ctx -> new SmallDoorBlockEntityRenderer(SRE.watheId("textures/entity/small_glass_door.png"), ctx));
         BlockEntityRenderers.register(
                 TMMBlockEntities.SMALL_WOOD_DOOR,
-                ctx -> new SmallDoorBlockEntityRenderer(SRE.id("textures/entity/small_wood_door.png"), ctx));
+                ctx -> new SmallDoorBlockEntityRenderer(SRE.watheId("textures/entity/small_wood_door.png"), ctx));
         BlockEntityRenderers.register(
                 TMMBlockEntities.ANTHRACITE_STEEL_DOOR,
-                ctx -> new SmallDoorBlockEntityRenderer(SRE.id("textures/entity/anthracite_steel_door.png"), ctx));
+                ctx -> new SmallDoorBlockEntityRenderer(SRE.watheId("textures/entity/anthracite_steel_door.png"), ctx));
         BlockEntityRenderers.register(
                 TMMBlockEntities.KHAKI_STEEL_DOOR,
-                ctx -> new SmallDoorBlockEntityRenderer(SRE.id("textures/entity/khaki_steel_door.png"), ctx));
+                ctx -> new SmallDoorBlockEntityRenderer(SRE.watheId("textures/entity/khaki_steel_door.png"), ctx));
         BlockEntityRenderers.register(
                 TMMBlockEntities.MAROON_STEEL_DOOR,
-                ctx -> new SmallDoorBlockEntityRenderer(SRE.id("textures/entity/maroon_steel_door.png"), ctx));
+                ctx -> new SmallDoorBlockEntityRenderer(SRE.watheId("textures/entity/maroon_steel_door.png"), ctx));
         BlockEntityRenderers.register(
                 TMMBlockEntities.MUNTZ_STEEL_DOOR,
-                ctx -> new SmallDoorBlockEntityRenderer(SRE.id("textures/entity/muntz_steel_door.png"), ctx));
+                ctx -> new SmallDoorBlockEntityRenderer(SRE.watheId("textures/entity/muntz_steel_door.png"), ctx));
         BlockEntityRenderers.register(
                 TMMBlockEntities.NAVY_STEEL_DOOR,
-                ctx -> new SmallDoorBlockEntityRenderer(SRE.id("textures/entity/navy_steel_door.png"), ctx));
+                ctx -> new SmallDoorBlockEntityRenderer(SRE.watheId("textures/entity/navy_steel_door.png"), ctx));
         BlockEntityRenderers.register(
                 TMMBlockEntities.WHEEL,
-                ctx -> new WheelBlockEntityRenderer(SRE.id("textures/entity/wheel.png"), ctx));
+                ctx -> new WheelBlockEntityRenderer(SRE.watheId("textures/entity/wheel.png"), ctx));
         BlockEntityRenderers.register(
                 TMMBlockEntities.RUSTED_WHEEL,
-                ctx -> new WheelBlockEntityRenderer(SRE.id("textures/entity/rusted_wheel.png"), ctx));
+                ctx -> new WheelBlockEntityRenderer(SRE.watheId("textures/entity/rusted_wheel.png"), ctx));
         BlockEntityRenderers.register(
                 TMMBlockEntities.BEVERAGE_PLATE,
                 PlateBlockEntityRenderer::new);

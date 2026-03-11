@@ -3,13 +3,12 @@
   "minVersion": "0.8",
   "package": "org.agmas.harpymodloader.mixin",
   "compatibilityLevel": "JAVA_21",
-  "mixins": [
-
-  ],
+  "mixins": [],
   "injectors": {
     "defaultRequire": 1
   },
   "overwrites": {
     "requireAnnotations": true
-  }
+  },
+  "client": []
 }
