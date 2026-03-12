@@ -454,7 +454,15 @@ public class RoleIntroduceScreen extends Screen {
         Component subText = getCardSubText(role); // 见下方
         if (subText != null) {
             String subStr = font.plainSubstrByWidth(subText.getString(), textMaxW);
-            int subColor = new java.awt.Color(subText.getStyle().getColor().getValue()).getRGB();
+            int subColor = java.awt.Color.WHITE.getRGB();
+            var style = subText.getStyle();
+            if (style != null) {
+                var textcolor = style.getColor();
+                if (textcolor != null) {
+                    subColor = new java.awt.Color(textcolor.getValue()).getRGB();
+                }
+            }
+
             g.drawString(font, subStr, textX, subY, subColor, false);
         }
         // ── 选中时：右侧指示条 + 外发光 ──────────────────────────
