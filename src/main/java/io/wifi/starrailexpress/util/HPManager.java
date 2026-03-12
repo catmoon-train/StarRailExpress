@@ -11,25 +11,25 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 
-public class HandParticleManager {
-    private final CopyOnWriteArrayList<HandParticle> particles = new CopyOnWriteArrayList<>();
+public class HPManager {
+    private final CopyOnWriteArrayList<HandParticle> p_arr = new CopyOnWriteArrayList<>();
     public static Vector3f vector;
 
     public void spawn(HandParticle p) {
-        particles.add(p);
+        p_arr.add(p);
     }
 
     public void tick() {
-        if (particles.isEmpty()) return;
+        if (p_arr.isEmpty()) return;
 
-        particles.forEach(handParticle -> {
-            if (!handParticle.tick(1f)) particles.remove(handParticle);
+        p_arr.forEach(handParticle -> {
+            if (!handParticle.tick(1f)) p_arr.remove(handParticle);
         });
     }
 
     public void render(PoseStack matrices, MultiBufferSource vertexConsumers, int light) {
         vector = new Vector3f(0f, 0f, 1f);
-        if (particles.isEmpty()) return;
+        if (p_arr.isEmpty()) return;
 
         PoseStack.Pose entry = matrices.last();
         Matrix4f model = entry.pose();
@@ -37,7 +37,7 @@ public class HandParticleManager {
         Vector3f right = new Vector3f(1, 0, 0);
         Vector3f up = new Vector3f(0, 1, 0);
 
-        for (HandParticle p : particles) {
+        for (HandParticle p : p_arr) {
             RenderType rl = p.renderLayerFactory.apply(p.texture);
             VertexConsumer consumer = vertexConsumers.getBuffer(rl);
 

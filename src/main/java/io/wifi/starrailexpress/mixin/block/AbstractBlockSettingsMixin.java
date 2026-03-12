@@ -15,7 +15,7 @@ public class AbstractBlockSettingsMixin implements BlockSettingsAdditions {
     private boolean tmm$collidable = true; // 默认值与原版一致
 
     @Override
-    public BlockBehaviour.Properties tmm$setCollidable(boolean collidable) {
+    public BlockBehaviour.Properties SRE$setCol(boolean collidable) {
         this.hasCollision = collidable;
         return (BlockBehaviour.Properties) (Object) this;
     }

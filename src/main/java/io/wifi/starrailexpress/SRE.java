@@ -28,6 +28,7 @@ import io.wifi.starrailexpress.network.original.AnnounceEndingPayload;
 import io.wifi.starrailexpress.network.original.AnnounceWelcomePayload;
 import io.wifi.starrailexpress.network.original.GunDropPayload;
 import io.wifi.starrailexpress.network.original.GunShootPayload;
+import io.wifi.starrailexpress.network.original.KnifeStabPayload;
 import io.wifi.starrailexpress.network.original.NoteEditPayload;
 import io.wifi.starrailexpress.network.original.NunchuckHitPayload;
 import io.wifi.starrailexpress.network.original.ShootMuzzleS2CPayload;
@@ -286,8 +287,8 @@ public class SRE extends StarRailExpressID implements ModInitializer {
         PayloadTypeRegistry.playS2C().register(ShootMuzzleS2CPayload.ID, ShootMuzzleS2CPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(SniperScopeStateS2CPayload.TYPE,
                 SniperScopeStateS2CPayload.STREAM_CODEC);
-        PayloadTypeRegistry.playS2C().register(PoisonUtils.PoisonOverlayPayload.ID,
-                PoisonUtils.PoisonOverlayPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(PoisonComponentUtils.PoisonOverlayPayload.ID,
+                PoisonComponentUtils.PoisonOverlayPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(GunDropPayload.ID, GunDropPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(TaskCompletePayload.ID, TaskCompletePayload.CODEC);
         PayloadTypeRegistry.playS2C().register(AnnounceWelcomePayload.ID, AnnounceWelcomePayload.CODEC);

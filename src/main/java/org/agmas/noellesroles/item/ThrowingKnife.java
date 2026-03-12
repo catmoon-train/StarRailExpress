@@ -7,7 +7,7 @@ import io.wifi.starrailexpress.api.Role;
 import io.wifi.starrailexpress.cca.GameWorldComponent;
 import io.wifi.starrailexpress.compat.CrosshairaddonsCompat;
 import io.wifi.starrailexpress.item.KnifeItem;
-import io.wifi.starrailexpress.util.KnifeStabPayload;
+import io.wifi.starrailexpress.network.original.KnifeStabPayload;
 import io.wifi.starrailexpress.SRE;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.core.registries.BuiltInRegistries;

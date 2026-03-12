@@ -252,7 +252,7 @@ public class GeneralStatsPanel extends AbstractWidget {
 
             double newThumbTop = mouseY - scrollbarY - scrollbarClickedY;
             double newScrollRatio = newThumbTop / (scrollbarHeight - thumbHeight);
-            newScrollRatio = MathHelper.clamp(newScrollRatio, 0, 1);
+            newScrollRatio = Mth.clamp(newScrollRatio, 0, 1);
             setScrollY((int) (newScrollRatio * maxScroll));
             return true;
         }

@@ -51,9 +51,9 @@ public class HeldItemRendererMixin {
         if (entity instanceof Player playerEntity
                 && (stack.is(TMMItemTags.GUNS) || (this.mainHandItem.getItem() instanceof RevolverItem))) {
             if (playerEntity.getUUID() != Minecraft.getInstance().player.getUUID()) {
-                MatrixParticleManager.setMuzzlePosForPlayer(playerEntity, MatrixUtils.matrixToVec(matrices));
+                MatrixParticleManager.muzzlePosForPlayer$set(playerEntity, MatrixUtils.matrixToVec(matrices));
             } else if (!renderMode.firstPerson()) {
-                MatrixParticleManager.setMuzzlePosForPlayer(playerEntity, MatrixUtils.matrixToVec(matrices));
+                MatrixParticleManager.muzzlePosForPlayer$set(playerEntity, MatrixUtils.matrixToVec(matrices));
             }
         }
     }

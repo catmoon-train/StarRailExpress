@@ -84,9 +84,9 @@ import io.wifi.starrailexpress.network.packet.SyncRoomToPlayerPayload;
 import io.wifi.starrailexpress.network.packet.SyncSpecificWaypointVisibilityPacket;
 import io.wifi.starrailexpress.network.packet.SyncWaypointVisibilityPacket;
 import io.wifi.starrailexpress.network.packet.SyncWaypointsPacket;
-import io.wifi.starrailexpress.util.HandParticleManager;
+import io.wifi.starrailexpress.util.HPManager;
 import io.wifi.starrailexpress.util.MatrixParticleManager;
-import io.wifi.starrailexpress.util.PoisonUtils;
+import io.wifi.starrailexpress.util.PoisonComponentUtils;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
@@ -122,7 +122,7 @@ import net.minecraft.world.phys.Vec3;
 
 public class SREClient implements ClientModInitializer {
     private static float soundLevel = 0f;
-    public static HandParticleManager handParticleManager;
+    public static HPManager handParticleManager;
     public static Map<Player, Vec3> particleMap;
     private static boolean prevGameRunning;
     public static GameWorldComponent gameComponent;
@@ -158,7 +158,7 @@ public class SREClient implements ClientModInitializer {
         // ModVersionPacket
 
         // Initialize ScreenParticle
-        handParticleManager = new HandParticleManager();
+        handParticleManager = new HPManager();
         particleMap = new HashMap<>();
         // Custom Baked Models
         ModelLoadingPlugin.register(new KnifeModelLoadingPlugin());
@@ -398,7 +398,7 @@ public class SREClient implements ClientModInitializer {
                 if (shooter.getId() == client.player.getId()
                         && client.options.getCameraType() == CameraType.FIRST_PERSON)
                     return;
-                Vec3 muzzlePos = MatrixParticleManager.getMuzzlePosForPlayer(shooter);
+                Vec3 muzzlePos = MatrixParticleManager.muzzlePosForPlayer$get(shooter);
                 if (muzzlePos != null)
                     client.level.addParticle(TMMParticles.GUNSHOT, muzzlePos.x, muzzlePos.y, muzzlePos.z, 0, 0, 0);
             });
@@ -412,8 +412,8 @@ public class SREClient implements ClientModInitializer {
                 }
             });
         });
-        ClientPlayNetworking.registerGlobalReceiver(PoisonUtils.PoisonOverlayPayload.ID,
-                new PoisonUtils.PoisonOverlayPayload.Receiver());
+        ClientPlayNetworking.registerGlobalReceiver(PoisonComponentUtils.PoisonOverlayPayload.ID,
+                new PoisonComponentUtils.PoisonOverlayPayload.Receiver());
         ClientPlayNetworking.registerGlobalReceiver(GunDropPayload.ID, new GunDropPayload.Receiver());
         ClientPlayNetworking.registerGlobalReceiver(AnnounceWelcomePayload.ID, (payload, context) -> {
             if (payload.role() == null)

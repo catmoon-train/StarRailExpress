@@ -303,7 +303,7 @@ public interface WatheBridgerBlocks {
 
     // Op
     Block BARRIER_PANEL = registrar.createWithItem("barrier_panel", new BarrierPanelBlock(BlockBehaviour.Properties.ofFullCopy(ANTHRACITE_STEEL_PANEL).strength(-1.0F, 3600000.8F).noOcclusion().sound(SoundType.STONE)), new Item.Properties().rarity(Rarity.EPIC), CreativeModeTabs.OP_BLOCKS);
-    Block LIGHT_BARRIER = registrar.createWithItem("light_barrier", new LightBarrierBlock(((BlockSettingsAdditions) BlockBehaviour.Properties.ofFullCopy(Blocks.BARRIER)).tmm$setCollidable(false)), new Item.Properties().rarity(Rarity.EPIC), CreativeModeTabs.OP_BLOCKS);
+    Block LIGHT_BARRIER = registrar.createWithItem("light_barrier", new LightBarrierBlock(((BlockSettingsAdditions) BlockBehaviour.Properties.ofFullCopy(Blocks.BARRIER)).SRE$setCol(false)), new Item.Properties().rarity(Rarity.EPIC), CreativeModeTabs.OP_BLOCKS);
 
     private static Block createBranch(String name, Block wood, BlockRegistrar registrar) {
         return registrar.createWithItem(name, new BranchBlock(BlockBehaviour.Properties.ofFullCopy(wood).mapColor(wood.defaultMapColor())), WatheBridgerItems.DECORATION_GROUP);

@@ -3,7 +3,7 @@ package org.agmas.noellesroles.mixin.roles.puppeteer;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.TMMSounds;
-import io.wifi.starrailexpress.util.KnifeStabPayload;
+import io.wifi.starrailexpress.network.original.KnifeStabPayload;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;

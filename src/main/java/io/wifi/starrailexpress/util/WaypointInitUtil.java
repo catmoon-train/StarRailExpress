@@ -16,7 +16,7 @@ public class WaypointInitUtil {
         manager.loadFromFile();
         
         // 初始化路径点可见性管理器
-        WaypointVisibilityManager visibilityManager = WaypointVisibilityManager.get(server);
+        WaypointVisibilityManager.get(server);
         // 可选：从保存的数据中恢复可见性状态
     }
 }

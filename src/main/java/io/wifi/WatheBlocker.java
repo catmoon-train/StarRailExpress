@@ -19,9 +19,9 @@ public class WatheBlocker implements PreLaunchEntrypoint {
     // "wathe.mixins.json");
 
     private static final HashSet<String> WatheWhiteList = new HashSet<>(
-            List.of("dev.doctor4t.wathe.client.model.WatheModelLayers"));
+            List.of("dev.doctor4t.wathe.client.model.WatheModelLayers", "dev.doctor4t.wathe.Wathe"));
     private static final HashSet<String> WatheWhiteListPrefix = new HashSet<>(
-            List.of());
+            List.of("dev.doctor4t.wathe.util"));
 
     @Override
     public void onPreLaunch() {

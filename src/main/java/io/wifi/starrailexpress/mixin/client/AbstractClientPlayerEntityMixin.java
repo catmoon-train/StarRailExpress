@@ -3,7 +3,7 @@ package io.wifi.starrailexpress.mixin.client;
 import com.mojang.authlib.GameProfile;
 import io.wifi.starrailexpress.cca.PlayerPoisonComponent;
 import io.wifi.starrailexpress.client.SREClient;
-import io.wifi.starrailexpress.util.PoisonUtils;
+import io.wifi.starrailexpress.util.PoisonComponentUtils;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
@@ -26,6 +26,6 @@ public abstract class AbstractClientPlayerEntityMixin extends Player {
         }
         float original = cir.getReturnValueF();
 
-        cir.setReturnValue(original * PoisonUtils.getFovMultiplier(1f, PlayerPoisonComponent.KEY.get(this)));
+        cir.setReturnValue(original * PoisonComponentUtils.getFovMultiplier(1f, PlayerPoisonComponent.KEY.get(this)));
     }
 }

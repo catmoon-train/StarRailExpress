@@ -6,7 +6,7 @@ import io.wifi.starrailexpress.compat.CrosshairaddonsCompat;
 import io.wifi.starrailexpress.game.GameFunctions;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.index.TMMSounds;
-import io.wifi.starrailexpress.util.KnifeStabPayload;
+import io.wifi.starrailexpress.network.original.KnifeStabPayload;
 import io.wifi.starrailexpress.SRE;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.core.registries.BuiltInRegistries;

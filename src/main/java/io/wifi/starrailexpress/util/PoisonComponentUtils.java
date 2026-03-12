@@ -25,7 +25,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
-public class PoisonUtils {
+public class PoisonComponentUtils {
     public static float getFovMultiplier(float tickDelta, PlayerPoisonComponent poisonComponent) {
         if (!poisonComponent.pulsing) return 1f;
 

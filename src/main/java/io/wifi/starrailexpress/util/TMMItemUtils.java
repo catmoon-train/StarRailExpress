@@ -7,6 +7,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
+// Author: wifi_left
 public class TMMItemUtils {
     public static int clearItem(Player player, Item item) {
         Predicate<ItemStack> predicate = (itemStack) -> {

@@ -7,7 +7,6 @@ import com.google.gson.JsonSyntaxException;
 import io.wifi.starrailexpress.cca.PlayerStatsComponent;
 import io.wifi.starrailexpress.data.PlayerStatsData;
 import io.wifi.starrailexpress.SRE;
-import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;

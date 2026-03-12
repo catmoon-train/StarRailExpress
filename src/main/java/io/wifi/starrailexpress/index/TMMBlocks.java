@@ -634,7 +634,7 @@ public interface TMMBlocks {
                     .strength(-1.0F, 3600000.8F).noOcclusion().sound(SoundType.STONE)),
             new Item.Properties().rarity(Rarity.EPIC), CreativeModeTabs.OP_BLOCKS);
     Block LIGHT_BARRIER = registrar.createWithItem("light_barrier", new LightBarrierBlock(
-            ((BlockSettingsAdditions) BlockBehaviour.Properties.ofFullCopy(Blocks.BARRIER)).tmm$setCollidable(false)),
+            ((BlockSettingsAdditions) BlockBehaviour.Properties.ofFullCopy(Blocks.BARRIER)).SRE$setCol(false)),
             new Item.Properties().rarity(Rarity.EPIC), CreativeModeTabs.OP_BLOCKS);
     Block CAMERA = registrar.createWithItem("camera",
             new CameraBlock(BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).noOcclusion()), TMMItems.DECORATION_GROUP);

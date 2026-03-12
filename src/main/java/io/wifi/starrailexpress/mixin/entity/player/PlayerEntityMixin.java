@@ -20,7 +20,7 @@ import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.item.CocktailItem;
 import io.wifi.starrailexpress.util.PlayerStaminaGetter;
-import io.wifi.starrailexpress.util.PoisonUtils;
+import io.wifi.starrailexpress.util.PoisonComponentUtils;
 import io.wifi.starrailexpress.util.Scheduler;
 import io.wifi.starrailexpress.SRE;
 import net.minecraft.core.BlockPos;
@@ -217,7 +217,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements PlayerSt
 				this.poisonSleepTask.cancel();
 
 			this.poisonSleepTask = Scheduler.schedule(
-					() -> PoisonUtils.bedPoison(serverPlayer),
+					() -> PoisonComponentUtils.bedPoison(serverPlayer),
 					40);
 		}
 	}

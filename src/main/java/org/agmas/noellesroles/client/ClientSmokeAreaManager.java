@@ -96,23 +96,25 @@ public class ClientSmokeAreaManager {
                 double offsetX = (world.random.nextDouble() - 0.5) * radius * 2;
                 double offsetY = -1d + world.random.nextDouble() * 4.5; // 增加高度范围
                 double offsetZ = (world.random.nextDouble() - 0.5) * radius * 2;
-
+                int motionX = world.random.nextBoolean() ? -1 : 1;
+                int motionY = world.random.nextBoolean() ? -1 : 1;
+                int motionZ = world.random.nextBoolean() ? -1 : 1;
                 // 主要烟雾粒子（增加数量）
                 // ParticleEffect parameters, boolean alwaysSpawn, double x, double y, double z,
                 // double velocityX, double velocityY, double velocityZ
                 world.addAlwaysVisibleParticle(ParticleTypes.CAMPFIRE_COSY_SMOKE, true, center.x + offsetX,
-                        center.y + offsetY, center.z + offsetZ, 0.1, 0.1, 0.1);
+                        center.y + offsetY, center.z + offsetZ, 0.1 * motionX, 0.1 * motionY, 0.1 * motionZ);
 
                 // 大量添加大型烟雾粒子
                 if (i % 3 == 0) {
                     world.addAlwaysVisibleParticle(ParticleTypes.LARGE_SMOKE, true, center.x + offsetX,
-                            center.y + offsetY, center.z + offsetZ, 0.15, 0.15, 0.15);
+                            center.y + offsetY, center.z + offsetZ, 0.15 * motionX, 0.15 * motionY, 0.15 * motionZ);
                 }
 
                 // 添加普通烟雾粒子
                 if (i % 5 == 0) {
                     world.addAlwaysVisibleParticle(ParticleTypes.SMOKE, true, center.x + offsetX, center.y + offsetY,
-                            center.z + offsetZ, 0.12, 0.12, 0.12);
+                            center.z + offsetZ, 0.12 * motionX, 0.12 * motionY, 0.12 * motionZ);
                 }
             }
         }

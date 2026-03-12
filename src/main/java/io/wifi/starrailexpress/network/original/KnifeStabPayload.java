@@ -1,4 +1,4 @@
-package io.wifi.starrailexpress.util;
+package io.wifi.starrailexpress.network.original;
 
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.GameWorldComponent;
