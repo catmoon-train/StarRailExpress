@@ -63,7 +63,7 @@ public class RoundTextRenderer {
             context.pose().scale(2.6f, 2.6f, 1f);
             int color = isLooseEnds ? 0x9F0000 : 0xFFFFFF;
             if (welcomeTime <= 180) {
-                Component welcomeText = isLooseEnds ? Component.translatable("announcement.loose_ends.welcome")
+                Component welcomeText = isLooseEnds ? Component.translatable("announcement.star.loose_ends.welcome")
                         : role.welcomeText;
                 context.drawString(renderer, welcomeText, -renderer.width(welcomeText) / 2, -12, color);
             }
@@ -71,7 +71,7 @@ public class RoundTextRenderer {
             context.pose().pushPose();
             context.pose().scale(1.2f, 1.2f, 1f);
             if (welcomeTime <= 120) {
-                Component premiseText = isLooseEnds ? Component.translatable("announcement.loose_ends.premise")
+                Component premiseText = isLooseEnds ? Component.translatable("announcement.star.loose_ends.premise")
                         : role.premiseText.apply(killers);
                 context.drawString(renderer, premiseText, -renderer.width(premiseText) / 2, 0, color);
             }
@@ -79,15 +79,15 @@ public class RoundTextRenderer {
             context.pose().pushPose();
             context.pose().scale(1f, 1f, 1f);
             if (welcomeTime <= 60) {
-                Component goalText = isLooseEnds ? Component.translatable("announcement.loose_ends.goal")
+                Component goalText = isLooseEnds ? Component.translatable("announcement.star.loose_ends.goal")
                         : role.goalText.apply(targets);
                 context.drawString(renderer, goalText, -renderer.width(goalText) / 2, 14, color);
             }
             if (welcomeTime <= 120) {
                 boolean canJump = SREClient.gameComponent.isJumpAvailable();
                 MutableComponent canJumpTip = canJump
-                        ? Component.translatable("announcement.tip.can_jump").withStyle(ChatFormatting.GREEN)
-                        : Component.translatable("announcement.tip.cant_jump").withStyle(ChatFormatting.YELLOW);
+                        ? Component.translatable("announcement.star.tip.can_jump").withStyle(ChatFormatting.GREEN)
+                        : Component.translatable("announcement.star.tip.cant_jump").withStyle(ChatFormatting.YELLOW);
                 context.drawString(renderer, canJumpTip, -renderer.width(canJumpTip) / 2, 28, color);
             }
             context.pose().popPose();
@@ -165,15 +165,15 @@ public class RoundTextRenderer {
 
                 }
 
-                context.drawString(renderer, Component.translatable("announcement.title.neutral"),
+                context.drawString(renderer, Component.translatable("announcement.star.title.neutral"),
                         -renderer.width(
-                                Component.translatable("announcement.title.neutral"))
+                                Component.translatable("announcement.star.title.neutral"))
                                 / 2 - 90,
                         (loose_endsTotal > 1) ? (14 + 16 + 32 * ((loose_endsTotal) / 2)) : 14, Color.YELLOW.getRGB());
                 if (loose_endsTotal > 1) {
-                    context.drawString(renderer, Component.translatable("announcement.role.loose_end"),
+                    context.drawString(renderer, Component.translatable("announcement.star.role.loose_end"),
                             -renderer.width(
-                                    Component.translatable("announcement.role.loose_end"))
+                                    Component.translatable("announcement.star.role.loose_end"))
                                     / 2 - 90,
                             14, new Color(160, 0, 0).getRGB());
                 }
@@ -233,7 +233,7 @@ public class RoundTextRenderer {
                         context.pose().pushPose();
                         context.pose().scale(0.32f, 0.32f, 1f);
                         context.pose().translate(38, 36, 200);
-                        var text = Component.translatable("announcement.role." + role1.getIdentifier().getPath());
+                        var text = Component.translatable("announcement.star.role." + role1.getIdentifier().getPath());
                         context.drawString(renderer,
                                 text, -(renderer.width(text) / 2), 0,
                                 role1.getColor());
@@ -242,7 +242,7 @@ public class RoundTextRenderer {
                         context.pose().pushPose();
                         context.pose().scale(0.32f, 0.32f, 1f);
                         context.pose().translate(38, 36, 200);
-                        var text = Component.translatable("announcement.role.unknown");
+                        var text = Component.translatable("announcement.star.role.unknown");
                         context.drawString(renderer,
                                 text, -(renderer.width(text) / 2), 0,
                                 0xffffff);

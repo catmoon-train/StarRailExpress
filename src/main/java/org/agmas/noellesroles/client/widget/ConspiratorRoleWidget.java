@@ -29,7 +29,7 @@ public class ConspiratorRoleWidget extends Button {
     public ConspiratorRoleWidget(ConspiratorScreen screen, int x, int y, int width, int height,
             @NotNull Role role, int index) {
         super(x, y, width, height,
-                ((role == null) ? Component.translatable("announcement.role.null") : RoleUtils.getRoleName(role)),
+                ((role == null) ? Component.translatable("announcement.star.role.null") : RoleUtils.getRoleName(role)),
                 (button) -> screen.onRoleSelected(role),
                 DEFAULT_NARRATION);
         this.screen = screen;
@@ -42,7 +42,7 @@ public class ConspiratorRoleWidget extends Button {
     protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
         Font textRenderer = Minecraft.getInstance().font;
         // String roleName =
-        // Component.translatable("announcement.role.null").getString();
+        // Component.translatable("announcement.star.role.null").getString();
         // 获取角色颜色
         Color roleColor = Color.WHITE;
         if (role != null) {
@@ -72,7 +72,7 @@ public class ConspiratorRoleWidget extends Button {
         context.renderOutline(getX(), getY(), buttonWidth, buttonHeight, borderColor.getRGB());
 
         // 绘制角色名称
-        Component roleName = Component.translatable("announcement.role.null");
+        Component roleName = Component.translatable("announcement.star.role.null");
         if (role != null) {
             roleName = RoleUtils.getRoleName(role);
         }

@@ -35,11 +35,11 @@ public class Modifier {
     }
 
     public MutableComponent getName(boolean color) {
-        // Log.info(LogCategory.GENERAL, Language.getInstance().hasTranslation("announcement.modifier." + identifier().getPath())+"");
-        if (!Language.getInstance().has("announcement.modifier." + identifier().toLanguageKey()) && Language.getInstance().has("announcement.modifier." + identifier().getPath())) {
-            return Component.translatable("announcement.modifier." + identifier().getPath());
+        // Log.info(LogCategory.GENERAL, Language.getInstance().hasTranslation("announcement.star.modifier." + identifier().getPath())+"");
+        if (!Language.getInstance().has("announcement.star.modifier." + identifier().toLanguageKey()) && Language.getInstance().has("announcement.star.modifier." + identifier().getPath())) {
+            return Component.translatable("announcement.star.modifier." + identifier().getPath());
         }
-        final MutableComponent text = Component.translatable("announcement.modifier." + identifier().toLanguageKey());
+        final MutableComponent text = Component.translatable("announcement.star.modifier." + identifier().toLanguageKey());
         if (color) {
             return text.withColor(color());
         }

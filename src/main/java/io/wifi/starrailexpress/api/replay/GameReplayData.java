@@ -111,7 +111,7 @@ public class GameReplayData {
 
     public MutableComponent getWinningTitle() {
         if (winningTitle == null) {
-            return Component.translatable("announcement.win." + getWinningTeam().toLowerCase());
+            return Component.translatable("announcement.star.win." + getWinningTeam().toLowerCase());
         }
         return winningTitle;
     }

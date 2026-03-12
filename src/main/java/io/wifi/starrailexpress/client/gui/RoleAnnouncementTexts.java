@@ -64,20 +64,20 @@ public class RoleAnnouncementTexts {
         public RoleAnnouncementText(ResourceLocation id, int colour) {
             this.id = id;
             this.colour = colour;
-            this.roleText = Component.translatable("announcement.role." + this.id.getPath().toLowerCase())
+            this.roleText = Component.translatable("announcement.star.role." + this.id.getPath().toLowerCase())
                     .withColor(this.colour);
-            this.titleText = Component.translatable("announcement.title." + this.id.getPath().toLowerCase())
+            this.titleText = Component.translatable("announcement.star.title." + this.id.getPath().toLowerCase())
                     .withColor(this.colour);
-            this.welcomeText = Component.translatable("announcement.welcome", this.roleText).withColor(0xF0F0F0);
+            this.welcomeText = Component.translatable("announcement.star.welcome", this.roleText).withColor(0xF0F0F0);
             this.premiseText = (count) -> Component
-                    .translatable(count == 1 ? "announcement.premise" : "announcement.premises", count);
+                    .translatable(count == 1 ? "announcement.star.premise" : "announcement.star.premises", count);
             this.goalText = (count) -> Component
                     .translatable(
-                            (count == 1 ? "announcement.goals." : "announcement.goals.")
+                            (count == 1 ? "announcement.star.goals." : "announcement.star.goals.")
                                     + this.id.getPath().toLowerCase(),
                             count)
                     .withColor(this.colour);
-            this.winText = Component.translatable("announcement.win." + this.id.getPath().toLowerCase())
+            this.winText = Component.translatable("announcement.star.win." + this.id.getPath().toLowerCase())
                     .withColor(this.colour);
         }
 
@@ -106,32 +106,32 @@ public class RoleAnnouncementTexts {
                 case PASSENGERS, TIME -> this.id.getPath().equals("killer") ? this.getLoseText() : this.winText;
                 case KILLERS -> this.id.getPath().equals("killer") ? this.winText : this.getLoseText();
                 case GAMBLER ->
-                    Component.translatable("announcement.win.gambler", winner)
+                    Component.translatable("announcement.star.win.gambler", winner)
                             .withColor(new Color(128, 0, 128).getRGB());
                 case RECORDER ->
-                    Component.translatable("announcement.win.recorder", winner)
+                    Component.translatable("announcement.star.win.recorder", winner)
                             .withColor(new Color(128, 128, 128).getRGB());
                 case NIAN_SHOU ->
-                    Component.translatable("announcement.win.nianshou", winner)
+                    Component.translatable("announcement.star.win.nianshou", winner)
                             .withColor(new Color(255, 69, 0).getRGB());
                 case LOVERS ->
-                    Component.translatable("announcement.win.lovers", winner)
+                    Component.translatable("announcement.star.win.lovers", winner)
                             .withColor(new Color(243, 138, 255).getRGB());
                 case LOOSE_END -> {
                     ResourceLocation looseEndRoleId = ResourceLocation.fromNamespaceAndPath("starrailexpress",
                             "loose_end");
                     RoleAnnouncementText looseEndText = ROLE_ANNOUNCEMENT_TEXTS.get(looseEndRoleId);
                     int looseEndColor = looseEndText != null ? looseEndText.colour : 0x9F0000;
-                    yield Component.translatable("announcement.win.loose_end", winner).withColor(looseEndColor);
+                    yield Component.translatable("announcement.star.win.loose_end", winner).withColor(looseEndColor);
                 }
                 case NO_PLAYER ->
-                    Component.translatable("announcement.win.noplayer", winner).withColor(Color.LIGHT_GRAY.getRGB());
+                    Component.translatable("announcement.star.win.noplayer", winner).withColor(Color.LIGHT_GRAY.getRGB());
                 case CUSTOM ->
-                    Component.translatable("announcement.win." + roundEnd.CustomWinnerID, winner)
+                    Component.translatable("announcement.star.win." + roundEnd.CustomWinnerID, winner)
                             .withColor(roundEnd.CustomWinnerColor);
                 case CUSTOM_COMPONENT ->
                     Component.literal("").withColor(roundEnd.CustomWinnerColor).append(roundEnd.CustomWinnerTitle);
-                default -> Component.translatable("announcement.win.unknown", winner).withColor(Color.ORANGE.getRGB());
+                default -> Component.translatable("announcement.star.win.unknown", winner).withColor(Color.ORANGE.getRGB());
             };
         }
     }

@@ -30,8 +30,6 @@ public interface WatheBridgerItems {
     ResourceKey<CreativeModeTab> DECORATION_GROUP = EQUIPMENT_GROUP;
 
     Item KEY = registrar.create("key", new KeyItem(new Item.Properties().stacksTo(1)), EQUIPMENT_GROUP);
-    Item IRON_DOOR_KEY = registrar.create("iron_door_key",
-            new IronDoorKeyItem(new Item.Properties().stacksTo(1).durability(3)), EQUIPMENT_GROUP);
     Item LOCKPICK = registrar.create("lockpick", new LockpickItem(new Item.Properties().stacksTo(1)),
             EQUIPMENT_GROUP);
     Item KNIFE = registrar.create("knife", new KnifeItem(new Item.Properties().stacksTo(1)), EQUIPMENT_GROUP);
@@ -75,17 +73,9 @@ public interface WatheBridgerItems {
     static void initialize() {
         registrar.registerEntries();
 
-        Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, BUILDING_GROUP, FabricItemGroup.builder()
-                .title(Component.translatable("itemGroup.starrailexpress.compact"))
-                .icon(() -> new ItemStack(WatheBridgerBlocks.TARNISHED_GOLD_PILLAR))
-                .build());
-        Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, DECORATION_GROUP, FabricItemGroup.builder()
-                .title(Component.translatable("itemGroup.starrailexpress.decoration"))
-                .icon(() -> new ItemStack(WatheBridgerBlocks.TARNISHED_GOLD_VENT_SHAFT))
-                .build());
         Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, EQUIPMENT_GROUP, FabricItemGroup.builder()
-                .title(Component.translatable("itemGroup.starrailexpress.equipment"))
-                .icon(() -> new ItemStack(KEY))
+                .title(Component.translatable("itemGroup.starrailexpress.compact"))
+                .icon(() -> new ItemStack(WatheBridgerItems.PSYCHO_MODE))
                 .build());
 
         // 注册蓄力物品

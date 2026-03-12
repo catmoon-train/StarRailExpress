@@ -166,7 +166,7 @@ public class AdmirerPlayerComponent implements RoleComponent, ServerTickingCompo
         // 发送转化消息
         serverPlayer.displayClientMessage(
                 Component.translatable("message.noellesroles.admirer.transform",
-                        Component.translatable("announcement.role." + selectedRole.identifier().getPath()))
+                        Component.translatable("announcement.star.role." + selectedRole.identifier().getPath()))
                         .withStyle(ChatFormatting.RED, ChatFormatting.BOLD),
                 true);
 

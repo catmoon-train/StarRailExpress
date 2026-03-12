@@ -44,7 +44,7 @@ public class ReplayDisplayUtils {
         if (id == null) {
             return Component.literal(roleId);
         }
-        String translationKey = "announcement.role." + id.getPath();
+        String translationKey = "announcement.star.role." + id.getPath();
         var translated = Component.translatable(translationKey);
         return translated;
     }

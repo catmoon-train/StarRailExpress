@@ -291,7 +291,7 @@ public class StarRailMurderGameMode extends GameMode {
         for (ServerPlayer player : players) {
             var modifiers = worldModifierComponent.getDisplayableModifiers(player);
             if (!modifiers.isEmpty()) {
-                MutableComponent modifiersText = Component.translatable("announcement.modifier")
+                MutableComponent modifiersText = Component.translatable("announcement.star.modifier")
                         .withStyle(ChatFormatting.GRAY)
                         .append(ComponentUtils.formatList(modifiers, Component.literal(", "),
                                 modifier -> modifier.getName(false).withColor(modifier.color)));
@@ -299,7 +299,7 @@ public class StarRailMurderGameMode extends GameMode {
             } else {
                 if (!HMLModifiers.MODIFIERS.isEmpty()) {
                     player.displayClientMessage(
-                            Component.translatable("announcement.no_modifiers").withStyle(ChatFormatting.DARK_GRAY),
+                            Component.translatable("announcement.star.no_modifiers").withStyle(ChatFormatting.DARK_GRAY),
                             true);
                 }
             }

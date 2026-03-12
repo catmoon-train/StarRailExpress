@@ -483,7 +483,7 @@ public class GameFunctionsCommand {
       // 最后批量建议
       suggestions.forEach((t) -> {
         if (t != null) {
-          builder.suggest(t, Component.translatable("announcement.win." + t));
+          builder.suggest(t, Component.translatable("announcement.star.win." + t));
         }
       });
 

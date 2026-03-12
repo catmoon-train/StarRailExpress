@@ -53,7 +53,7 @@ public class PsychologistHudMixin {
         Font textRenderer = client.font;
         
         // 标题
-        Component titleText = Component.translatable("announcement.role.psychologist").withStyle(ChatFormatting.AQUA, ChatFormatting.BOLD);
+        Component titleText = Component.translatable("announcement.star.role.psychologist").withStyle(ChatFormatting.AQUA, ChatFormatting.BOLD);
         context.drawString(textRenderer, titleText, x, y, 0xFFFFFF);
         y += 12;
         

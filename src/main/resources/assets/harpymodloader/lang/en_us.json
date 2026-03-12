@@ -34,8 +34,8 @@
   "commands.changerole.success.assigned": "Assigned role %1$s to player %2$s",
   "commands.changerole.player.notification": "Your role has been changed to %1$s",
 
-  "announcement.modifier": "Modifiers ",
-  "announcement.no_modifiers": "No Modifiers",
+  "announcement.star.modifier": "Modifiers ",
+  "announcement.star.no_modifiers": "No Modifiers",
 
   "commands.tmm.setroleweight.success": "Role %s weight has been set to %d",
   "commands.tmm.setroleweight.failed": "Failed to set role weight",

@@ -58,7 +58,7 @@ public class InventoryIntroductionRenderer {
                if (roleName != null) {
                   int x = 10;
                   int y = 10;
-                  Component roleNameComponent = Component.translatable("announcement.role." + roleName)
+                  Component roleNameComponent = Component.translatable("announcement.star.role." + roleName)
                         .withStyle(ChatFormatting.BOLD);
                   Component roleInfoComponent = Component.translatable("info.screen.roleid." + roleName);
                   PoseStack poseStack = context.pose();

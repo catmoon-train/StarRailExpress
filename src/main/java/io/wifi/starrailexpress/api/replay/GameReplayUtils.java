@@ -37,12 +37,12 @@ public class GameReplayUtils {
     }
 
     public static Component getRoleNameWithRoleColor(String path) {
-        String translationKey = "announcement.role." + path;
+        String translationKey = "announcement.star.role." + path;
         return Component.translatable(translationKey).withColor(getRoleColor(path));
     }
 
     public static Component getRoleNameWithSourceTMMColor(String path) {
-        String translationKey = "announcement.role." + path;
+        String translationKey = "announcement.star.role." + path;
         return Component.translatable(translationKey).withStyle(getTMMRoleColor(path));
     }
 

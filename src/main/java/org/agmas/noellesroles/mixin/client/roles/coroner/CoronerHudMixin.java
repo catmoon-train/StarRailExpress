@@ -87,7 +87,7 @@ public abstract class CoronerHudMixin {
                 if (role == null)
                     role = TMMRoles.CIVILIAN;
                 Component roleInfo = Component.translatable("hud.coroner.role_info").withColor(CommonColors.RED)
-                        .append(Component.translatable("announcement.role." + role.identifier().getPath())
+                        .append(Component.translatable("announcement.star.role." + role.identifier().getPath())
                                 .withColor(role.color()));
                 if (hasPenalty) {
                     roleInfo = Component.translatable("message.noellesroles.penalty.limit")
@@ -182,7 +182,7 @@ public abstract class CoronerHudMixin {
                         && !bodyDeathReasonComponent.vultured) {
                     Component roleInfo = Component.translatable("hud.coroner.role_info").withColor(CommonColors.RED)
                             .append(Component
-                                    .translatable("announcement.role." + bodyDeathReasonComponent.playerRole.getPath())
+                                    .translatable("announcement.star.role." + bodyDeathReasonComponent.playerRole.getPath())
                                     .withColor(foundRole.color()));
                     if (hasPenalty) {
                         roleInfo = Component.translatable("message.noellesroles.penalty.limit.role");

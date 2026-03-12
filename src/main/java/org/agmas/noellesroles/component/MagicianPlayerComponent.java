@@ -126,7 +126,7 @@ public class MagicianPlayerComponent implements RoleComponent, ServerTickingComp
             // Noellesroles.LOGGER.info(this.player.level().isClientSide ? "Client" :
             // "Server");
             player.displayClientMessage(Component.translatable("message.magician.you_are_playing_as")
-                    .append(Component.translatable("announcement.role." + disguiseRole.getPath()))
+                    .append(Component.translatable("announcement.star.role." + disguiseRole.getPath()))
                     .withStyle(ChatFormatting.GOLD), true);
         }
         sync();

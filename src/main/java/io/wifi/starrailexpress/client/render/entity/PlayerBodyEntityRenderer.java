@@ -28,8 +28,8 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 
 public class PlayerBodyEntityRenderer<T extends LivingEntity, M extends EntityModel<T>> extends LivingEntityRenderer<PlayerBodyEntity, PlayerModel<PlayerBodyEntity>> {
-    public static final ResourceLocation DEFAULT_TEXTURE = SRE.id("textures/entity/player_body_default.png");
-    private static final ResourceLocation SKELETON_TEXTURE = SRE.id("textures/entity/player_skeleton.png");
+    public static final ResourceLocation DEFAULT_TEXTURE = SRE.watheId("textures/entity/player_body_default.png");
+    private static final ResourceLocation SKELETON_TEXTURE = SRE.watheId("textures/entity/player_skeleton.png");
 
     protected PlayerSkeletonEntityModel<PlayerBodyEntity> skeletonModel;
 

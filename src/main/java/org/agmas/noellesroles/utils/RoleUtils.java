@@ -227,7 +227,7 @@ public class RoleUtils {
     public static MutableComponent getRoleName(ResourceLocation roleIdentifier) {
         if (roleIdentifier == null)
             return null;
-        String translationKey = "announcement.role." + roleIdentifier.getPath();
+        String translationKey = "announcement.star.role." + roleIdentifier.getPath();
         return Component.translatable(translationKey);
     }
 

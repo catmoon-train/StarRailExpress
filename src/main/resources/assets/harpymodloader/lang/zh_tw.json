@@ -34,8 +34,8 @@
   "commands.changerole.success.assigned": "已將玩家 %2$s 的角色設定為 %1$s",
   "commands.changerole.player.notification": "您的角色已更改為 %1$s",
 
-  "announcement.modifier": "附加詞條 ",
-  "announcement.no_modifiers": "沒有附加詞條",
+  "announcement.star.modifier": "附加詞條 ",
+  "announcement.star.no_modifiers": "沒有附加詞條",
 
   "commands.tmm.setroleweight.success": "角色 %s 的權重已設定為 %d",
   "commands.tmm.setroleweight.failed": "設定角色權重失敗",

@@ -53,7 +53,7 @@ public abstract class SplitPersonalityHudMixin {
 
         // 显示双重人格状态标题
         context.drawString(renderer,
-                Component.translatable("announcement.modifier.stupid_express.split_personality"),
+                Component.translatable("announcement.star.modifier.stupid_express.split_personality"),
                 x, y, 0xFFFF55);
 
         // 显示当前活跃人格状态

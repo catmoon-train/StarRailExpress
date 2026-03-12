@@ -110,7 +110,7 @@ public class RoleNameRenderer {
                             context.pose().translate(0, 20 + renderer.lineHeight, 0);
                             if (target != null) {
                                 roleText1 = Component
-                                        .translatable("announcement.role." + targetRole2.identifier().getPath());
+                                        .translatable("announcement.star.role." + targetRole2.identifier().getPath());
                                 MutableComponent roleText2 = OnKillerCohortDisplay.EVENT.invoker()
                                         .onCohortRender(target);
                                 if (roleText2 != null) {
