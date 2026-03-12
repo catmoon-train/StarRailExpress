@@ -65,7 +65,7 @@ public class RoleManageConfigUI {
                     entryBuilder
                             .startBooleanToggle(
                                     Component.translatable("option.starrailexpress.role_enable_option",
-                                            RoleUtils.getRoleOrModifierNameWithColor(roleId)),
+                                            RoleUtils.getRoleName(roleId)),
                                     info.getValue())
                             .setDefaultValue(true) // Recommended: Used when user click "Reset"
                             .setTooltip(Component.translatable("option.starrailexpress.role_id_tooltip",
@@ -79,7 +79,7 @@ public class RoleManageConfigUI {
                     entryBuilder
                             .startBooleanToggle(
                                     Component.translatable("option.starrailexpress.modifier_enable_option",
-                                            RoleUtils.getRoleOrModifierNameWithColor(roleId)),
+                                            RoleUtils.getModifierName(roleId)),
                                     info.getValue())
                             .setDefaultValue(true) // Recommended: Used when user click "Reset"
                             .setTooltip(Component.translatable("option.starrailexpress.role_id_tooltip",

@@ -274,6 +274,16 @@ public class RoleUtils {
         return Component.translatable("info.screen.roleid." + selectedRole.getIdentifier().getPath());
     }
 
+    public static MutableComponent getModifierName(ResourceLocation modifier) {
+        return Component
+                .translatable("announcement.star.modifier." + modifier.getPath());
+    }
+
+    public static MutableComponent getModifierName(Modifier modifier) {
+        return Component
+                .translatable("announcement.star.modifier." + modifier.identifier().getPath());
+    }
+
     public static MutableComponent getModifierDescription(Modifier modifier) {
         return Component
                 .translatable("info.screen.modifier." + modifier.identifier().getPath());
