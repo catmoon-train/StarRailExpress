@@ -999,13 +999,16 @@ public class GameFunctions {
                 if (bartenderPlayerComponent != null) {
                     bartenderPlayerComponent.clear();
                 }
-                serverPlayerEntity
-                        .sendSystemMessage(
-                                Component
-                                        .translatable("message.death_reason.prefix",
-                                                Component.literal("").withStyle(ChatFormatting.LIGHT_PURPLE)
-                                                        .append(deathMessageComponent))
-                                        .withStyle(ChatFormatting.DARK_RED));
+                var cantSend = SRE.cantSendReplay.stream().anyMatch((pre) -> {
+                    return pre.test(serverPlayerEntity);
+                });
+                if (!cantSend) {
+                    serverPlayerEntity.sendSystemMessage(
+                            Component.translatable("message.death_reason.prefix", Component.literal("")
+                                    .withStyle(ChatFormatting.LIGHT_PURPLE)
+                                    .append(deathMessageComponent))
+                                    .withStyle(ChatFormatting.DARK_RED));
+                }
             } else {
                 return;
             }

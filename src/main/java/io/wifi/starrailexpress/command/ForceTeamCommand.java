@@ -2,7 +2,6 @@ package io.wifi.starrailexpress.command;
 
 import com.mojang.brigadier.CommandDispatcher;
 
-
 import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
 import org.jetbrains.annotations.NotNull;
 
@@ -18,22 +17,28 @@ import net.minecraft.server.level.ServerPlayer;
 public class ForceTeamCommand {
     public static void register(@NotNull CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("forceTeam").requires(source -> source.hasPermission(2))
-                .then(Commands.literal("innocent").then(Commands.argument("players", EntityArgument.players())
+                .then(Commands.literal("innocent").then(Commands
+                        .argument("players", EntityArgument.players())
                         .executes(context -> forceTeam(context.getSource(),
                                 EntityArgument.getPlayers(context, "players"), 1))))
-                .then(Commands.literal("neutral").then(Commands.argument("players", EntityArgument.players())
+                .then(Commands.literal("neutral").then(Commands
+                        .argument("players", EntityArgument.players())
                         .executes(context -> forceTeam(context.getSource(),
                                 EntityArgument.getPlayers(context, "players"), 2))))
-                .then(Commands.literal("neutral_for_killer").then(Commands.argument("players", EntityArgument.players())
+                .then(Commands.literal("neutral_for_killer").then(Commands
+                        .argument("players", EntityArgument.players())
                         .executes(context -> forceTeam(context.getSource(),
                                 EntityArgument.getPlayers(context, "players"), 3))))
-                .then(Commands.literal("killer").then(Commands.argument("players", EntityArgument.players())
+                .then(Commands.literal("killer").then(Commands
+                        .argument("players", EntityArgument.players())
                         .executes(context -> forceTeam(context.getSource(),
                                 EntityArgument.getPlayers(context, "players"), 4))))
-                .then(Commands.literal("vigilante").then(Commands.argument("players", EntityArgument.players())
+                .then(Commands.literal("vigilante").then(Commands
+                        .argument("players", EntityArgument.players())
                         .executes(context -> forceTeam(context.getSource(),
                                 EntityArgument.getPlayers(context, "players"), 5))))
-                .then(Commands.literal("reset").then(Commands.argument("players", EntityArgument.players())
+                .then(Commands.literal("reset").then(Commands
+                        .argument("players", EntityArgument.players())
                         .executes(context -> forceTeam(context.getSource(),
                                 EntityArgument.getPlayers(context, "players"), -1)))));
     }
@@ -42,9 +47,7 @@ public class ForceTeamCommand {
             int roleType) {
 
         for (var player : players) {
-            if (roleType == -1) {
-                PlayerRoleWeightManager.forceTeam(player.getUUID(), roleType);
-            }
+            PlayerRoleWeightManager.forceTeam(player.getUUID(), roleType);
         }
         if (roleType == -1) {
             source.sendSuccess(
@@ -54,17 +57,20 @@ public class ForceTeamCommand {
                     true);
             return 1;
         }
-        final String[] TypeMappings = { "All", "Innocent", "Neutral", "Neutral for killers", "Killer", "Vigilante" };
+        final String[] TypeMappings = { "All", "Innocent", "Neutral", "Neutral for killers", "Killer",
+                "Vigilante" };
         if (players.size() == 1) {
             ServerPlayer player = players.iterator().next();
             source.sendSuccess(
                     () -> Component
-                            .translatable("Force %s Team: %s", player.getName().getString(), TypeMappings[roleType])
+                            .translatable("Force %s Team: %s", player.getName().getString(),
+                                    TypeMappings[roleType])
                             .withStyle(ChatFormatting.GOLD),
                     true);
         } else {
             source.sendSuccess(
-                    () -> Component.translatable("Force %s players team: %s", players.size(), TypeMappings[roleType])
+                    () -> Component.translatable("Force %s players team: %s", players.size(),
+                            TypeMappings[roleType])
                             .withStyle(style -> style.withColor(0x00FF00)),
                     true);
         }
