@@ -88,9 +88,9 @@ public class ChairWheelRaceGame extends GameMode {
                             op.playNotifySound(SoundEvents.FIREWORK_ROCKET_SHOOT, SoundSource.PLAYERS, 1.0F, 1.0F);
                             op.playNotifySound(SoundEvents.FIREWORK_ROCKET_LAUNCH, SoundSource.PLAYERS, 1.0F, 1.0F);
                         });
-                        Component msg = Component.translatable("announcement.star.wheelgame.win.prefix")
+                        Component msg = Component.translatable("announcement.star.wheelgame.win.star.prefix")
                                 .withStyle(ChatFormatting.GOLD)
-                                .append(Component.translatable("announcement.star.wheelgame.win.rank",
+                                .append(Component.translatable("announcement.star.wheelgame.win.star.rank",
                                         player.getScoreboardName(), isWin.indexOf(player) + 1))
                                 .withStyle(ChatFormatting.AQUA);
                         serverLevel.players().forEach((o) -> {
@@ -116,8 +116,8 @@ public class ChairWheelRaceGame extends GameMode {
         roundComponent.CustomWinnerID = "chiar_wheel_race";
         // roundComponent
         var player = isWin.isEmpty() ? null : isWin.getFirst();
-        roundComponent.CustomWinnerSubtitle = Component.translatable("game.win.chair_wheel_race.subtitle");
-        roundComponent.CustomWinnerTitle = Component.translatable("game.win.chair_wheel_race",
+        roundComponent.CustomWinnerSubtitle = Component.translatable("game.win.star.chair_wheel_race.subtitle");
+        roundComponent.CustomWinnerTitle = Component.translatable("game.win.star.chair_wheel_race",
                 player == null ? "滚木" : player.getScoreboardName());
         roundComponent.setWinStatus(GameFunctions.WinStatus.CUSTOM_COMPONENT);
         roundComponent.sync();

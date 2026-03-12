@@ -309,21 +309,21 @@ public class RoundTextRenderer {
     private static MutableComponent getWinMessage(GameRoundEndComponent roundEnd, Player winner) {
         if (roundEnd.getWinStatus().equals(WinStatus.CUSTOM)) {
             if (winner != null) {
-                return Component.translatable("game.win." + roundEnd.CustomWinnerID,
+                return Component.translatable("game.win.star." + roundEnd.CustomWinnerID,
                         winner.getDisplayName());
             } else {
                 Component winners = roundEnd.getCustomWinners();
-                return Component.translatable("game.win." + roundEnd.CustomWinnerID, winners);
+                return Component.translatable("game.win.star." + roundEnd.CustomWinnerID, winners);
             }
         } else if (roundEnd.getWinStatus().equals(WinStatus.CUSTOM_COMPONENT)) {
             if (roundEnd.CustomWinnerSubtitle != null)
                 return Component.literal("").append(roundEnd.CustomWinnerSubtitle);
         }
         if (winner != null) {
-            return Component.translatable("game.win." + roundEnd.getWinStatus().name().toLowerCase().toLowerCase(),
+            return Component.translatable("game.win.star." + roundEnd.getWinStatus().name().toLowerCase().toLowerCase(),
                     winner.getDisplayName());
         }
-        return Component.translatable("game.win." + roundEnd.getWinStatus().name().toLowerCase().toLowerCase());
+        return Component.translatable("game.win.star." + roundEnd.getWinStatus().name().toLowerCase().toLowerCase());
 
     }
 

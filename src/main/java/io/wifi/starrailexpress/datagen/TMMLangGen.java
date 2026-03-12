@@ -108,10 +108,10 @@ public class TMMLangGen extends FabricLanguageProvider {
         builder.add(TextUtils.getItemTranslationKey(TMMItems.BLACKOUT) + ".tooltip", "Turn off all lights aboard for 15 to 20 seconds\nUse your instinct [left-alt] to see your targets in the dark\nActivated instantly on purchase, 5 minute cooldown");
         builder.add(TextUtils.getItemTranslationKey(TMMItems.NOTE) + ".tooltip", "Write a message and pin it for others to see\nSneak-use to write a message, then use on a wall or floor to place\nInvisible in hand");
 
-        builder.add("game.win.killers", "The killers reached their kill count, they win!");
-        builder.add("game.win.passengers", "All killers were eliminated: the passengers win!");
-        builder.add("game.win.time", "The killers ran out of time: the passengers win!");
-        builder.add("game.win.loose_end", "They tied all of their loose ends!");
+        builder.add("game.win.star.killers", "The killers reached their kill count, they win!");
+        builder.add("game.win.star.passengers", "All killers were eliminated: the passengers win!");
+        builder.add("game.win.star.time", "The killers ran out of time: the passengers win!");
+        builder.add("game.win.star.loose_end", "They tied all of their loose ends!");
 
         builder.add("key.starrailexpress.instinct", "Instinct");
         builder.add("key.starrailexpress.stats", "统计面板");
