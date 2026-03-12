@@ -12,7 +12,7 @@ public class SREGameModes {
 
     public static final ResourceLocation MURDER_ID = SRE.id("murder");
     public static final ResourceLocation DISCOVERY_ID = SRE.id("discovery");
-    public static final ResourceLocation LOOSE_ENDS_ID = SRE.id("loose_ends");
+    public static final ResourceLocation LOOSE_ENDS_ID = SRE.watheId("loose_ends");
 
     public static final GameMode MURDER = registerGameMode(MURDER_ID, new StarRailMurderGameMode(MURDER_ID));
     public static final GameMode LOOSE_ENDS = registerGameMode(LOOSE_ENDS_ID, new LooseEndsGameMode(LOOSE_ENDS_ID));

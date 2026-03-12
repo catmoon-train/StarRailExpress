@@ -3,7 +3,6 @@ package io.wifi.starrailexpress.command;
 import com.mojang.brigadier.CommandDispatcher;
 
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
-import io.wifi.starrailexpress.SRE;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
@@ -13,21 +12,17 @@ public class ReloadReadyAreaCommand {
         dispatcher.register(
                 Commands.literal("tmm:reloadReadyArea")
                         .requires(source -> source.hasPermission(2))
-                        .executes(context -> reloadReadyArea(context.getSource()))
-        );
+                        .executes(context -> reloadReadyArea(context.getSource())));
     }
 
     private static int reloadReadyArea(CommandSourceStack source) {
-        return SRE.executeSupporterCommand(source,
-                () -> {
-                    AreasWorldComponent areasComponent = AreasWorldComponent.KEY.get(source.getLevel());
-                    areasComponent.reloadReadyArea();
-                    source.sendSuccess(
-                        () -> Component.translatable("commands.sre.reloadreadyarea.success")
-                            .withStyle(style -> style.withColor(0x00FF00)),
-                        true
-                    );
-                }
-        );
+
+        AreasWorldComponent areasComponent = AreasWorldComponent.KEY.get(source.getLevel());
+        areasComponent.reloadReadyArea();
+        source.sendSuccess(
+                () -> Component.translatable("commands.sre.reloadreadyarea.success")
+                        .withStyle(style -> style.withColor(0x00FF00)),
+                true);
+        return 1;
     }
 }

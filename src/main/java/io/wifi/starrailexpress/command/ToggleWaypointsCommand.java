@@ -11,7 +11,6 @@ import io.wifi.starrailexpress.data.WaypointVisibilityManager;
 import io.wifi.starrailexpress.network.PacketTracker;
 import io.wifi.starrailexpress.network.packet.SyncSpecificWaypointVisibilityPacket;
 import io.wifi.starrailexpress.network.packet.SyncWaypointVisibilityPacket;
-import io.wifi.starrailexpress.SRE;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
@@ -111,7 +110,7 @@ public class ToggleWaypointsCommand {
     }
 
     private static int toggleWaypoints(CommandContext<CommandSourceStack> context, Collection<ServerPlayer> targets, Boolean visibilityState, String path, String name) throws CommandSyntaxException {
-        CommandSourceStack source = context.getSource();
+        // CommandSourceStack source = context.getSource();
         
         if (path != null && name != null) {
             // 操作特定路径点

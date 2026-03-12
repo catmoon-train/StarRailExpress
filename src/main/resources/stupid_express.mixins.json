@@ -24,5 +24,22 @@
   "overwrites": {
     "requireAnnotations": true
   },
-  "client": []
+  "client": [
+    "client.modifier.lovers.LoversHudMixin",
+    "client.modifier.refugee.RefugeeHudMixin",
+    "client.modifier.split_personality.BanSpectatorGuiMove",
+    "client.modifier.split_personality.InventoryScreenSplitPersonalityMixin",
+    "client.modifier.split_personality.KeyBindingMixin",
+    "client.modifier.split_personality.SplitPersonalityHudMixin",
+    "client.modifier.split_personality.SplitPersonalityInputBlockMixin",
+    "client.modifier.split_personality.SplitPersonalityPlayerHideMixin",
+    "client.modifier.split_personality.SplitPersonalityPositionSyncMixin",
+    "client.modifier.split_personality.SplitPersonalityVisibilityMixin",
+    "client.role.amnesiac.AmnesiacHudMixin",
+    "client.role.arsonist.ArsonistHudMixin",
+    "client.role.arsonist.ArsonistInstinctMixin",
+    "client.role.initiate.InitiateCoinMixin",
+    "client.role.initiate.InitiateShopMixin",
+    "client.role.necromancer.NecromancerHudMixin"
+  ]
 }

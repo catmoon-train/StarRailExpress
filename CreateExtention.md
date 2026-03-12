@@ -81,5 +81,5 @@ client下创建___Screen.java类继承Screen作为新GUI
 
 ## 翻译
 
-在cn_us.json 和 zh_cn.json中添加注册的id对应的汉化（根据已有汉化即可）
+在en_us.json 和 zh_cn.json中添加注册的id对应的汉化（根据已有汉化即可）
 

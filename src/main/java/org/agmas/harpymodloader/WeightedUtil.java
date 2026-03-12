@@ -2,14 +2,13 @@ package org.agmas.harpymodloader;
 
 import java.util.*;
 
-
 //by canyuesama
 public class WeightedUtil<T> {
-    private final Map<T, Float> weights;
-    private final List<T> keys;
-    private  List<Float> cumulativeWeights;
-    private float totalWeight;
-    private final Random random;
+    protected final Map<T, Float> weights;
+    protected final List<T> keys;
+    protected  List<Float> cumulativeWeights;
+    protected float totalWeight;
+    protected final Random random;
 
     public WeightedUtil(Map<T, Float> weights) {
         if (weights == null) {

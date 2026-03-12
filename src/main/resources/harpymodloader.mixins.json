@@ -3,12 +3,20 @@
   "minVersion": "0.8",
   "package": "org.agmas.harpymodloader.mixin",
   "compatibilityLevel": "JAVA_21",
-  "mixins": [],
+  "mixins": [
+    "CollisionMixin",
+    "GameFunctionsMixin",
+    "ModifierAndRoleResetMixin",
+    "PlayerWeightResetMixin",
+    "VannilaStartMixin"
+  ],
   "injectors": {
     "defaultRequire": 1
   },
   "overwrites": {
     "requireAnnotations": true
   },
-  "client": []
+  "client": [
+    "client.InnocenceReliantWinTextMixin"
+  ]
 }

@@ -50,7 +50,6 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.synchronization.SingletonArgumentInfo;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -207,11 +206,8 @@ public class SRE extends StarRailExpressID implements ModInitializer {
             GiveRoomKeyCommand.register(dispatcher);
             StartCommand.register(dispatcher);
             StopCommand.register(dispatcher);
-            EnableWeightsCommand.register(dispatcher);
-            CheckWeightsCommand.register(dispatcher);
-            ResetWeightsCommand.register(dispatcher);
             SetVisualCommand.register(dispatcher);
-            ForceRoleCommand.register(dispatcher);
+            ForceTeamCommand.register(dispatcher);
             SetTimerCommand.register(dispatcher);
             MoneyCommand.register(dispatcher);
             CustomReplayEventCommand.register(dispatcher, registryAccess);
@@ -411,15 +407,6 @@ public class SRE extends StarRailExpressID implements ModInitializer {
     }
 
     public static final ResourceLocation COMMAND_ACCESS = id("commandaccess");
-
-    public static int executeSupporterCommand(CommandSourceStack source, Runnable runnable) {
-        ServerPlayer player = source.getPlayer();
-        if (player == null || !player.getClass().equals(ServerPlayer.class))
-            return 0;
-        runnable.run();
-        return 1;
-
-    }
 
     public static @NotNull Boolean isSupporter(Player player) {
         Optional<Entitlements> entitlements = Entitlements.token().get(player.getUUID());

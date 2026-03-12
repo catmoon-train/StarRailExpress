@@ -4,9 +4,7 @@
 
 由于 `Trainmurdermystery` 版权协议为 ARR，而我们重新写了许多的 Wathe 功能，即使想要发布，也十分困难。因此，有了这一个模组。
 
-我们使用了 AI 对原版 `TrainMuderMystery` 进行了重写，如有雷同，纯属巧合。
-
-代码为 `Mojang Mappings` 写的。
+我们对原版 `TrainMuderMystery` 进行了重写，并且切换到了 `Mojang Mappings`。部分代码无可避免地使用到了原版的内容。如有雷同，纯属巧合。
 
 但由于我们仍需要 Wathe 的基础装饰方块，所以本模组需要 Wathe 作为前置，即使他无法执行任何功能。
 

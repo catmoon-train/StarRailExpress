@@ -6,6 +6,7 @@ import net.minecraft.world.entity.player.Player;
 import io.wifi.starrailexpress.api.Role;
 
 public class PlayerRoleWeightManager {
+    public static HashMap<UUID, Integer> ForcePlayerTeam = new HashMap<>();
     public static HashMap<UUID, WeightInfo> playerWeights = new HashMap<>();
 
     public static double getRoleWeightPercent(UUID player, int type) {
@@ -257,6 +258,14 @@ public class PlayerRoleWeightManager {
                 return this.vigilanteWeight;
             }
             return -1;
+        }
+    }
+
+    public static void forceTeam(UUID player, int roleType) {
+        if (roleType == -1) {
+            ForcePlayerTeam.remove(player);
+        } else {
+            ForcePlayerTeam.put(player, roleType);
         }
     }
 

@@ -26,7 +26,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import org.agmas.harpymodloader.Harpymodloader;
-import org.agmas.harpymodloader.WeightedUtil;
+import org.agmas.harpymodloader.RoleWeightedUtil;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
 import org.agmas.harpymodloader.events.GameInitializeEvent;
@@ -44,7 +44,7 @@ import org.agmas.harpymodloader.modifiers.Modifier;
 
 public class StarRailMurderGameMode extends GameMode {
     public StarRailMurderGameMode(ResourceLocation identifier) {
-        super(identifier,10, 2);
+        super(identifier, 10, 2);
     }
 
     @Override
@@ -126,7 +126,7 @@ public class StarRailMurderGameMode extends GameMode {
 
         gameWorldComponent.syncRoles();
         // 同步职业
-        
+
         for (ServerPlayer player : players) {
             var role = gameWorldComponent.getRole(player);
             var roleType = PlayerRoleWeightManager.getRoleType(role);
@@ -145,6 +145,7 @@ public class StarRailMurderGameMode extends GameMode {
         Harpymodloader.FORCED_MODDED_ROLE.clear();
         Harpymodloader.FORCED_MODDED_ROLE_FLIP.clear();
         Harpymodloader.FORCED_MODDED_MODIFIER.clear();
+        PlayerRoleWeightManager.ForcePlayerTeam.clear();
     }
 
     // 执行指定函数的辅助方法
@@ -290,13 +291,15 @@ public class StarRailMurderGameMode extends GameMode {
         for (ServerPlayer player : players) {
             var modifiers = worldModifierComponent.getDisplayableModifiers(player);
             if (!modifiers.isEmpty()) {
-                MutableComponent modifiersText = Component.translatable("announcement.modifier").withStyle(ChatFormatting.GRAY)
+                MutableComponent modifiersText = Component.translatable("announcement.modifier")
+                        .withStyle(ChatFormatting.GRAY)
                         .append(ComponentUtils.formatList(modifiers, Component.literal(", "),
                                 modifier -> modifier.getName(false).withColor(modifier.color)));
                 player.displayClientMessage(modifiersText, true);
             } else {
                 if (!HMLModifiers.MODIFIERS.isEmpty()) {
-                    player.displayClientMessage(Component.translatable("announcement.no_modifiers").withStyle(ChatFormatting.DARK_GRAY),
+                    player.displayClientMessage(
+                            Component.translatable("announcement.no_modifiers").withStyle(ChatFormatting.DARK_GRAY),
                             true);
                 }
             }
@@ -389,14 +392,11 @@ public class StarRailMurderGameMode extends GameMode {
 
         // 展开关联角色
         List<RoleInstant> roleInstantList = new ArrayList<>();
-        int i = 0;
         allRoles.removeIf((r) -> {
             return forcedRoles.containsValue(r);
         });
         for (Role role : allRoles) {
-            Harpymodloader.LOGGER.debug("INIT ROLES: [{}]" + role.identifier().toString(), i);
             roleInstantList.add(new RoleInstant(UUID.randomUUID(), role));
-            i++;
         }
         List<RoleInstant> expandedRoles = RoleAssignmentManager.expandWithCompanionRoles(roleInstantList);
 
@@ -424,11 +424,59 @@ public class StarRailMurderGameMode extends GameMode {
                         (existing, replacement) -> existing, // 如果键重复，保留第一个值
                         LinkedHashMap::new));
         var hashMap = new HashMap<>(collect);
-        WeightedUtil<RoleInstant> roleSelector = new WeightedUtil<>(hashMap);
+        {
+            var roleSelectors = new HashMap<Integer, RoleWeightedUtil>();
+            {
+                var roleIdToRoleMaps = new HashMap<Integer, HashMap<RoleInstant, Float>>();
+                for (var entry : hashMap.entrySet()) {
+                    var role = entry.getKey();
+                    Float roleWeight = entry.getValue();
+                    int roleType = PlayerRoleWeightManager.getRoleType(role.role());
+                    if (!roleIdToRoleMaps.containsKey(roleType)) {
+                        roleIdToRoleMaps.put(roleType, new HashMap<>());
+                    }
+                    roleIdToRoleMaps.get(roleType).put(role, roleWeight);
+                }
+                for (var entry : roleIdToRoleMaps.entrySet()) {
+                    roleSelectors.putIfAbsent(entry.getKey(), new RoleWeightedUtil(entry.getValue()));
+                }
+            }
+            {
+                // 分配forceTeam
+                for (var entry : PlayerRoleWeightManager.ForcePlayerTeam.entrySet()) {
+                    UUID playerUid = entry.getKey();
+                    var selectedPlayer = unassignedPlayers.stream().filter((p) -> p.getUUID().equals(playerUid))
+                            .findFirst().orElse(null);
+                    if (selectedPlayer == null)
+                        continue;
+                    int roleType = entry.getValue();
+                    var roleSelector = roleSelectors.get(roleType);
+                    if (roleSelector == null)
+                        continue;
+                    RoleInstant roleInstant = roleSelector.selectRandomKeyBasedOnWeightsAndRemoved();
+                    Role selectedRole = null;
+                    if (roleInstant != null) {
+                        hashMap.remove(roleInstant);
+                        selectedRole = roleInstant.role();
+                        roleAssignments.put(selectedPlayer, selectedRole);
+                        unassignedPlayers.remove(selectedPlayer);
+                        Harpymodloader.LOGGER.debug(
+                                "Assign player [{}] to {} ({})",
+                                playerUid, selectedRole.getIdentifier().toString(),
+                                roleType);
+                    } else {
+                        Harpymodloader.LOGGER.warn(
+                                "Couldn't force player [{}]'s role to {} because there are no roles available for him.",
+                                playerUid,
+                                roleType);
+                    }
+                }
+            }
+        }
 
+        RoleWeightedUtil roleSelector = new RoleWeightedUtil(hashMap);
         // 分配展开后的角色给未分配的玩家
         Collections.shuffle(unassignedPlayers);
-
         while (unassignedPlayers.size() > 0 && roleSelector.size() > 0) {
             RoleInstant roleInstant = roleSelector.selectRandomKeyBasedOnWeightsAndRemoved();
             Role selectedRole = null;
@@ -454,7 +502,7 @@ public class StarRailMurderGameMode extends GameMode {
 
     }
 
-     @Override
+    @Override
     public void tickServerGameLoop(ServerLevel serverWorld, GameWorldComponent gameWorldComponent) {
         GameFunctions.WinStatus winStatus = GameFunctions.WinStatus.NONE;
 
@@ -542,8 +590,8 @@ public class StarRailMurderGameMode extends GameMode {
         }
         if (winStatus != GameFunctions.WinStatus.NONE
                 && gameWorldComponent.getGameStatus() == GameWorldComponent.GameStatus.ACTIVE) {
-                GameRoundEndComponent.KEY.get(serverWorld).setRoundEndData(serverWorld.players(), winStatus);
-                GameFunctions.stopGame(serverWorld);
+            GameRoundEndComponent.KEY.get(serverWorld).setRoundEndData(serverWorld.players(), winStatus);
+            GameFunctions.stopGame(serverWorld);
         }
     }
 

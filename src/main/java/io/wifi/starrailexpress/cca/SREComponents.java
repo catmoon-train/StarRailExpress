@@ -55,7 +55,6 @@ public class SREComponents
 
     @Override
     public void registerScoreboardComponentFactories(@NotNull ScoreboardComponentFactoryRegistry registry) {
-        registry.registerScoreboardComponent(ScoreboardRoleSelectorComponent.KEY, ScoreboardRoleSelectorComponent::new);
         // 注册新的GameScoreboardComponent
         registry.registerScoreboardComponent(GameScoreboardComponent.KEY, GameScoreboardComponent::new);
     }
