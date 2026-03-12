@@ -1,6 +1,7 @@
 package org.agmas.harpymodloader.client.ui;
 
 import java.util.HashMap;
+import java.util.Map.Entry;
 
 import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
 import org.agmas.harpymodloader.modifiers.HMLModifiers;
@@ -39,6 +40,8 @@ public class RoleManageConfigUI {
                 .getOrCreateCategory(Component.translatable("category.starrailexpress.config.role"));
         ConfigCategory modifierCategory = builder
                 .getOrCreateCategory(Component.translatable("category.starrailexpress.config.modifier"));
+        ConfigCategory otherCategory = builder
+                .getOrCreateCategory(Component.translatable("category.starrailexpress.config.other"));
         if (RoleEnableStatus.isEmpty()) {
             RoleEnableStatus.clear();
             for (var info : TMMRoles.ROLES.keySet()) {
@@ -53,9 +56,9 @@ public class RoleManageConfigUI {
             ModifierEnableStatus.clear();
             for (var info : HMLModifiers.MODIFIERS) {
                 if (HarpyModLoaderConfig.HANDLER.instance().disabledModifiers.contains(info.identifier().toString())) {
-                    RoleEnableStatus.put(info.identifier(), false);
+                    ModifierEnableStatus.put(info.identifier(), false);
                 } else {
-                    RoleEnableStatus.put(info.identifier(), true);
+                    ModifierEnableStatus.put(info.identifier(), true);
                 }
             }
         }
@@ -89,14 +92,24 @@ public class RoleManageConfigUI {
         }
 
         builder.setSavingRunnable(() -> {
-            // Serialise the config into the config file. This will be called last after all
-            // variables are updated.
+            HarpyModLoaderConfig.HANDLER.instance().disabled.clear();
+            for (Entry<ResourceLocation, Boolean> entry : RoleEnableStatus.entrySet()) {
+                if (!entry.getValue()) {
+                    HarpyModLoaderConfig.HANDLER.instance().disabled.add(entry.getKey().toString());
+                }
+            }
+            HarpyModLoaderConfig.HANDLER.instance().disabledModifiers.clear();
+            for (Entry<ResourceLocation, Boolean> entry : RoleEnableStatus.entrySet()) {
+                if (!entry.getValue()) {
+                    HarpyModLoaderConfig.HANDLER.instance().disabledModifiers.add(entry.getKey().toString());
+                }
+            }
         });
         return builder.build();
     }
 
     public static void startConfigUI() {
-    Screen screen = getScreen(Minecraft.getInstance().screen);
+        Screen screen = getScreen(Minecraft.getInstance().screen);
 
         Minecraft.getInstance().setScreen(screen);
     }

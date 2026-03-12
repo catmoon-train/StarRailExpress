@@ -44,7 +44,7 @@
       "io.wifi.starrailexpress.compat.TrainVoicePlugin"
     ],
     "modmenu":[
-      "org.agmas.harpymodloader.client.modmenu.Entry"
+      "org.agmas.harpymodloader.client.modmenu.StarRailConfigEntry"
     ]
   },
   "accessWidener": "StarRailExpress.accesswidener",

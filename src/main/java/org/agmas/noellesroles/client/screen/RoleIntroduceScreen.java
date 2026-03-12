@@ -172,6 +172,10 @@ public class RoleIntroduceScreen extends Screen {
     // ══════════════════════════════════════════════════════════════════
     // 构造
     // ══════════════════════════════════════════════════════════════════
+    public RoleIntroduceScreen() {
+        super(Component.translatable("gui.roleintroduce.select_role.title"));
+        availableRoles.addAll(Noellesroles.getAllRolesSorted(true));
+    }
 
     public RoleIntroduceScreen(Player player) {
         super(Component.translatable("gui.roleintroduce.select_role.title"));
@@ -308,10 +312,9 @@ public class RoleIntroduceScreen extends Screen {
         }
 
         detailLines.addAll(font.split(Component.empty()
-                .append(Component.translatable("screen.roleintroduce.detail.name")
-                        .withStyle(ChatFormatting.DARK_GRAY))
-                .append(" ")
-                .append(RoleUtils.getRoleOrModifierNameWithColor(selectedRole)), textW));
+                .append(Component.translatable("screen.roleintroduce.detail.name",
+                        RoleUtils.getRoleOrModifierNameWithColor(selectedRole)))
+                .withStyle(ChatFormatting.DARK_GRAY), textW));
         detailLines.add(FormattedCharSequence.EMPTY);
 
         detailLines.addAll(font.split(
@@ -640,11 +643,11 @@ public class RoleIntroduceScreen extends Screen {
         g.renderOutline(bIconX, bIconY, bIconSize, bIconSize,
                 (rawColor & 0x00FFFFFF) | 0xAA000000);
 
-        g.drawString(font, Component.empty()
-                .append("【 ")
-                .append(RoleUtils.getRoleOrModifierTypeName(selectedRole)
-                        .copy().withStyle(ChatFormatting.BOLD, ChatFormatting.AQUA))
-                .append(" 】"),
+        g.drawString(font,
+                Component.translatable("gui.roleintroduce.right.warp",
+                        RoleUtils.getRoleOrModifierTypeName(selectedRole)
+                                .withStyle(ChatFormatting.BOLD, ChatFormatting.AQUA),
+                        RoleUtils.getRoleOrModifierNameWithColor(selectedRole)),
                 bIconX + bIconSize + 5, panelY + (BANNER_H - font.lineHeight) / 2,
                 0xFFFFFF, true);
 

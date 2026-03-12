@@ -24,6 +24,7 @@ import io.wifi.starrailexpress.SRE;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
@@ -275,13 +276,20 @@ public class RoleUtils {
     }
 
     public static MutableComponent getModifierName(ResourceLocation modifier) {
-        return Component
-                .translatable("announcement.star.modifier." + modifier.getPath());
+        if (!Language.getInstance().has("announcement.star.modifier." + modifier.toLanguageKey())
+                && Language.getInstance().has("announcement.star.modifier." + modifier.getPath())) {
+            return Component.translatable("announcement.star.modifier." + modifier.getPath());
+        }
+        final MutableComponent text = Component.translatable("announcement.star.modifier." + modifier.toLanguageKey());
+        return text;
     }
 
     public static MutableComponent getModifierName(Modifier modifier) {
-        return Component
-                .translatable("announcement.star.modifier." + modifier.identifier().getPath());
+        return modifier.getName();
+    }
+
+    public static MutableComponent getModifierNameWithColor(Modifier modifier) {
+        return modifier.getName(true);
     }
 
     public static MutableComponent getModifierDescription(Modifier modifier) {
