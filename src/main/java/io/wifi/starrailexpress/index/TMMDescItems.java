@@ -16,7 +16,6 @@ public interface TMMDescItems {
         introItems.add(TMMItems.GRENADE);
         introItems.add(TMMItems.IRON_DOOR_KEY);
         introItems.add(TMMItems.KEY);
-        introItems.add(TMMItems.LETTER);
         introItems.add(TMMItems.LOCKPICK);
         introItems.add(TMMItems.NOTE);
         introItems.add(TMMItems.POISON_VIAL);

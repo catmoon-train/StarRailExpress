@@ -1,6 +1,7 @@
 {
   "item.trainmurdermystery.bat.desc": "原版攻击逻辑，左键打人。",
   "item.trainmurdermystery.defense_vial.desc": "亡命徒可直接右键饮用获得护盾。\n普通玩家可以右键托盘，将防御药剂倒在托盘上。\n下一个拿取防御药剂的玩家食用/饮用物品后即可获得护盾。\n此方法获得的护盾最多获得1层。",
+  "item.noellesroles.bucket_of_h2so4.desc": "清道夫道具。\n右键尸体可以清除。",
   "item.noellesroles.cooked_food.desc": "由厨师烹饪。烹饪后带有各种效果。",
   "item.noellesroles.letter.desc": "开启任务点透视时，拿着信封可以看到物品售货机。",
   "item.noellesroles.master_key.desc": "可以开启任何门的钥匙。",
