@@ -5,7 +5,7 @@ import io.wifi.starrailexpress.api.Role;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.GameWorldComponent;
 import io.wifi.starrailexpress.event.OnPlayerDeath;
-
+import io.wifi.starrailexpress.game.WTLooseEndsGameMode;
 import io.wifi.starrailexpress.network.RemoveStatusBarPayload;
 import io.wifi.starrailexpress.SRE;
 import net.fabricmc.api.ModInitializer;
@@ -83,6 +83,8 @@ public class StupidExpress implements ModInitializer {
         LoversWinCheckEvent.register();
         OnPlayerDeath.EVENT.register((victim, deathReason) -> {
             var gameWorldComponent = GameWorldComponent.KEY.get(victim.level());
+            if (gameWorldComponent.getGameMode() instanceof WTLooseEndsGameMode)
+                return;
             var modifierComponent = WorldModifierComponent.KEY.get(victim.level());
             if (gameWorldComponent != null) {
                 Role role = gameWorldComponent.getRole(victim);
@@ -108,7 +110,6 @@ public class StupidExpress implements ModInitializer {
                 ServerPlayNetworking.send(serverPlayer, payload);
             });
         });
-
 
         SRE.cantSendReplay.add(
                 (player -> {

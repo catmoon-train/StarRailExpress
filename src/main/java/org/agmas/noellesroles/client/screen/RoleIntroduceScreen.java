@@ -28,13 +28,7 @@ import java.util.function.Predicate;
 public class RoleIntroduceScreen extends Screen {
 
     // ══════════════════════════════════════════════════════════════════
-    // 【可自定义分类】
-    // 每个 RoleCategory 包含：
-    // - labelKey : 翻译键，或直接当显示文本使用
-    // - color : 标签激活颜色（ARGB）
-    // - filter : 判断某条目是否属于此分类的谓词
-    //
-    // 如需新增分类，只需在 CATEGORIES 列表末尾追加一项即可。
+    // 【可自定义分类】在 CATEGORIES 末尾追加即可，无需改动其他代码。
     // ══════════════════════════════════════════════════════════════════
 
     public static class RoleCategory {
@@ -49,59 +43,40 @@ public class RoleIntroduceScreen extends Screen {
         }
     }
 
-    /**
-     * 分类列表——可自由增删改。
-     * filter 谓词接收 Role 或 Modifier，返回 true 表示属于该分类。
-     */
     public static final List<RoleCategory> CATEGORIES = new ArrayList<>();
 
     static {
-        // ── 全部 ────────────────────────────────────────────────────
         CATEGORIES.add(new RoleCategory(
-                "screen.roleintroduce.category.all",
-                0xFF5577CC,
-                item -> true));
+                "screen.roleintroduce.category.all", 0xFF5577CC, item -> true));
 
-        // ── 无辜者（type 0 / 1） ─────────────────────────────────────
         CATEGORIES.add(new RoleCategory(
-                "display.type.role.innocent",
-                0xFF44BB66,
+                "display.type.role.innocent", 0xFF44BB66,
                 item -> item instanceof Role r
                         && (PlayerRoleWeightManager.getRoleType(r) == 0
                                 || PlayerRoleWeightManager.getRoleType(r) == 1)));
 
-        // ── 自警（type 5） ──────────────────────────────────────────
         CATEGORIES.add(new RoleCategory(
-                "display.type.role.vigilante",
-                0xFF22BBCC,
+                "display.type.role.vigilante", 0xFF22BBCC,
                 item -> item instanceof Role r
                         && PlayerRoleWeightManager.getRoleType(r) == 5));
 
-        // ── 中立（type 2） ──────────────────────────────────────────
         CATEGORIES.add(new RoleCategory(
-                "display.type.role.neutral",
-                0xFFCCAA22,
+                "display.type.role.neutral", 0xFFCCAA22,
                 item -> item instanceof Role r
                         && PlayerRoleWeightManager.getRoleType(r) == 2));
 
-        // ── 中立杀手（type 3） ───────────────────────────────────────
         CATEGORIES.add(new RoleCategory(
-                "display.type.role.neutral_killer",
-                0xFFAA44CC,
+                "display.type.role.neutral_for_killer", 0xFFAA44CC,
                 item -> item instanceof Role r
                         && PlayerRoleWeightManager.getRoleType(r) == 3));
 
-        // ── 杀手（type 4） ──────────────────────────────────────────
         CATEGORIES.add(new RoleCategory(
-                "display.type.role.killer",
-                0xFFCC2233,
+                "display.type.role.killer", 0xFFCC2233,
                 item -> item instanceof Role r
                         && PlayerRoleWeightManager.getRoleType(r) == 4));
 
-        // ── 修饰符 ──────────────────────────────────────────────────
         CATEGORIES.add(new RoleCategory(
-                "screen.roleintroduce.category.modifier",
-                0xFF8877BB,
+                "screen.roleintroduce.category.modifier", 0xFF8877BB,
                 item -> item instanceof Modifier));
     }
 
@@ -121,11 +96,11 @@ public class RoleIntroduceScreen extends Screen {
     private static final int SCROLL_MIN_THUMB = 20;
     private static final int BANNER_H = 26;
 
-    /** 分类标签栏总高度（含上下间距） */
-    private static final int CATEGORY_BAR_H = 20;
-    /** 单个标签的垂直内边距 */
-    private static final int TAB_PAD_V = 3;
-    /** 标签间水平间隔 */
+    /** 搜索框与分类标签共享的顶部行高度 */
+    private static final int TOP_BAR_H = 18;
+    /** 搜索框与分类标签之间的水平间距 */
+    private static final int TOP_BAR_GAP = 6;
+    /** 分类标签之间的间距 */
     private static final int TAB_GAP = 2;
 
     // ══════════════════════════════════════════════════════════════════
@@ -146,11 +121,10 @@ public class RoleIntroduceScreen extends Screen {
     }
 
     private static ResourceLocation getTypeIcon(Object role) {
-        if (role instanceof Role rrole) {
-            return TYPE_ICON_MAP.getOrDefault("role_" + PlayerRoleWeightManager.getRoleType(rrole), ICON_DEFAULT);
-        } else {
-            return TYPE_ICON_MAP.getOrDefault("modifier", ICON_DEFAULT);
-        }
+        if (role instanceof Role rrole)
+            return TYPE_ICON_MAP.getOrDefault(
+                    "role_" + PlayerRoleWeightManager.getRoleType(rrole), ICON_DEFAULT);
+        return TYPE_ICON_MAP.getOrDefault("modifier", ICON_DEFAULT);
     }
 
     // ══════════════════════════════════════════════════════════════════
@@ -164,9 +138,11 @@ public class RoleIntroduceScreen extends Screen {
     private int panelX, panelY, panelH;
     private int leftX, rightX;
 
-    // 当前选中分类（索引）
+    /** 顶部行（搜索框 + 分类标签）的 Y 坐标 */
+    private int topBarY;
+
+    // 分类标签布局缓存（renderCategoryBar 写入，mouseClicked 读取）
     private int selectedCategoryIndex = 0;
-    // 每个分类标签的 x 坐标及宽度，用于点击检测（在 renderCategoryBar 中填充）
     private final int[] tabX = new int[64];
     private final int[] tabW = new int[64];
 
@@ -177,7 +153,6 @@ public class RoleIntroduceScreen extends Screen {
     private double dragListStartY = 0;
     private int dragListStartOffset = 0;
 
-    // 卡片悬停动画（0~1）
     private final Map<Object, Float> hoverAnims = new HashMap<>();
 
     // 右侧详情滚动
@@ -213,9 +188,8 @@ public class RoleIntroduceScreen extends Screen {
         computeLayout();
         initSearchBox();
         refreshFilter();
-        if (selectedRole == null && !filteredItems.isEmpty()) {
+        if (selectedRole == null && !filteredItems.isEmpty())
             selectedRole = filteredItems.get(0);
-        }
         rebuildDetailLines();
         initCloseButton();
     }
@@ -229,15 +203,17 @@ public class RoleIntroduceScreen extends Screen {
         panelH = height - panelY - 42;
         leftX = panelX;
         rightX = panelX + leftW;
+        // 顶部行紧贴 panelY 上方
+        topBarY = panelY - TOP_BAR_H - 4;
     }
 
     private void initSearchBox() {
+        // 搜索框仅占左侧面板宽度
+        int sx = leftX;
         int sw = leftW - 2;
-        int sx = leftX + 1;
-        int sy = panelY - 22;
 
         if (searchWidget == null) {
-            searchWidget = new EditBox(font, sx, sy, sw, 18, Component.empty());
+            searchWidget = new EditBox(font, sx, topBarY, sw, TOP_BAR_H, Component.empty());
             searchWidget.setHint(
                     Component.translatable("screen.noellesroles.search.placeholder")
                             .withStyle(ChatFormatting.GRAY));
@@ -249,7 +225,7 @@ public class RoleIntroduceScreen extends Screen {
                 rebuildDetailLines();
             });
         } else {
-            searchWidget.setPosition(sx, sy);
+            searchWidget.setPosition(sx, topBarY);
             searchWidget.setWidth(sw);
             removeWidget(searchWidget);
         }
@@ -265,14 +241,12 @@ public class RoleIntroduceScreen extends Screen {
             removeWidget(closeButton);
             closeButton = null;
         }
-        int btnW = 100;
-        int btnH = 18;
-        int btnX = (width - btnW) / 2;
-        int btnY = panelY + panelH + 8;
-
+        int btnW = 100, btnH = 18;
         closeButton = Button.builder(
-                Component.translatable("gui.back").withStyle(ChatFormatting.GRAY),
-                btn -> onClose()).bounds(btnX, btnY, btnW, btnH).build();
+                Component.translatable("gui.back").withStyle(ChatFormatting.WHITE),
+                btn -> onClose())
+                .bounds((width - btnW) / 2, panelY + panelH + 8, btnW, btnH)
+                .build();
         addRenderableWidget(closeButton);
     }
 
@@ -290,9 +264,8 @@ public class RoleIntroduceScreen extends Screen {
             String name = RoleUtils.getRoleName(role).getString();
             if (searchContent == null
                     || name.toLowerCase().contains(searchContent.toLowerCase())
-                    || role.identifier().toString().contains(searchContent.toLowerCase())) {
+                    || role.identifier().toString().contains(searchContent.toLowerCase()))
                 filteredItems.add(role);
-            }
         }
         for (Modifier mod : HMLModifiers.MODIFIERS) {
             if (!cat.filter.test(mod))
@@ -300,26 +273,23 @@ public class RoleIntroduceScreen extends Screen {
             String name = mod.getName().getString();
             if (searchContent == null
                     || name.toLowerCase().contains(searchContent.toLowerCase())
-                    || mod.identifier().toString().contains(searchContent.toLowerCase())) {
+                    || mod.identifier().toString().contains(searchContent.toLowerCase()))
                 filteredItems.add(mod);
-            }
         }
-        int areaH = listAreaH();
         int totalH = filteredItems.size() * (CARD_H + CARD_SPACING) - CARD_SPACING;
-        maxListScroll = Math.max(0, totalH - areaH);
+        maxListScroll = Math.max(0, totalH - listAreaH());
         listScrollOffset = Mth.clamp(listScrollOffset, 0, maxListScroll);
     }
 
     private RoleCategory currentCategory() {
-        if (selectedCategoryIndex >= 0 && selectedCategoryIndex < CATEGORIES.size()) {
-            return CATEGORIES.get(selectedCategoryIndex);
-        }
-        return CATEGORIES.get(0);
+        return (selectedCategoryIndex >= 0 && selectedCategoryIndex < CATEGORIES.size())
+                ? CATEGORIES.get(selectedCategoryIndex)
+                : CATEGORIES.get(0);
     }
 
-    /** 列表实际可用高度（减去分类栏） */
+    /** 左侧列表可用高度（面板全高，不再扣除分类栏） */
     private int listAreaH() {
-        return panelH - PANEL_PAD * 2 - CATEGORY_BAR_H - 2;
+        return panelH - PANEL_PAD * 2;
     }
 
     private void rebuildDetailLines() {
@@ -331,7 +301,9 @@ public class RoleIntroduceScreen extends Screen {
 
         if (selectedRole instanceof Role role) {
             detailLines.addAll(font.split(
-                    Component.translatable("announcement.star.goals." + role.identifier().getPath()), textW));
+                    Component.translatable(
+                            "announcement.star.goals." + role.identifier().getPath()),
+                    textW));
             detailLines.add(FormattedCharSequence.EMPTY);
         }
 
@@ -339,8 +311,7 @@ public class RoleIntroduceScreen extends Screen {
                 .append(Component.translatable("screen.roleintroduce.detail.name")
                         .withStyle(ChatFormatting.DARK_GRAY))
                 .append(" ")
-                .append(RoleUtils.getRoleOrModifierNameWithColor(selectedRole)),
-                textW));
+                .append(RoleUtils.getRoleOrModifierNameWithColor(selectedRole)), textW));
         detailLines.add(FormattedCharSequence.EMPTY);
 
         detailLines.addAll(font.split(
@@ -360,9 +331,8 @@ public class RoleIntroduceScreen extends Screen {
                         .copy().withStyle(ChatFormatting.WHITE),
                 textW));
 
-        int visH = detailContentH();
         int totalTextH = detailLines.size() * (font.lineHeight + 2);
-        maxDetailScroll = Math.max(0, totalTextH - visH);
+        maxDetailScroll = Math.max(0, totalTextH - detailContentH());
         detailScrollOffset = 0;
     }
 
@@ -376,32 +346,33 @@ public class RoleIntroduceScreen extends Screen {
 
     @Override
     public void render(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
-        super.render(g, mouseX, mouseY, partialTick);
-
+        // 渲染背景
         renderBackground(g, mouseX, mouseY, partialTick);
+        // render要放在renderBackground后，其余前，否则会被遮挡。
+        super.render(g, mouseX, mouseY, partialTick);
+        // 其余代码
         renderLeftPanel(g, mouseX, mouseY);
         renderRightPanel(g, mouseX, mouseY);
 
-        g.fillGradient(0, 0, width, panelY - 22, 0xBB000000, 0x00000000);
-        g.drawCenteredString(font, this.title, width / 2, 8, 0xEEEEFF);
+        // ── 分类标签：紧接搜索框右侧，与搜索框同高同 Y ────────────
+        int catBarX = rightX + TOP_BAR_GAP;
+        int catBarW = rightW - TOP_BAR_GAP;
+        renderCategoryBar(g, mouseX, mouseY, catBarX, topBarY, catBarW, TOP_BAR_H);
 
+        // 顶部遮罩 + 标题
+        g.fillGradient(0, 0, width, topBarY - 4, 0xBB000000, 0x00000000);
+        g.drawCenteredString(font, this.title, width / 2, 8, 0xEEEEFF);
     }
 
     // ══════════════════════════════════════════════════════════════════
-    // 左侧面板
+    // 左侧面板（纯列表，不含分类栏）
     // ══════════════════════════════════════════════════════════════════
 
     private void renderLeftPanel(GuiGraphics g, int mouseX, int mouseY) {
         drawPanelBg(g, leftX, panelY, leftW, panelH);
 
-        // ── 分类标签栏 ─────────────────────────────────────────────
-        int catBarY = panelY + PANEL_PAD;
-        renderCategoryBar(g, mouseX, mouseY, leftX + PANEL_PAD, catBarY,
-                leftW - PANEL_PAD * 2);
-
-        // ── 卡片列表区 ─────────────────────────────────────────────
         int areaX = leftX + PANEL_PAD;
-        int areaY = catBarY + CATEGORY_BAR_H + 2;
+        int areaY = panelY + PANEL_PAD;
         int areaW = leftW - PANEL_PAD * 2 - SCROLL_W - 2;
         int areaH = listAreaH();
 
@@ -410,7 +381,6 @@ public class RoleIntroduceScreen extends Screen {
         for (int i = 0; i < filteredItems.size(); i++) {
             Object role = filteredItems.get(i);
             int cardY = areaY + i * (CARD_H + CARD_SPACING) - listScrollOffset;
-
             if (cardY + CARD_H < areaY || cardY > areaY + areaH)
                 continue;
 
@@ -433,7 +403,6 @@ public class RoleIntroduceScreen extends Screen {
                     leftX + leftW / 2, areaY + areaH / 2, 0xFF5555);
         }
 
-        // ── 左侧滚动条 ─────────────────────────────────────────────
         int sbX = leftX + leftW - PANEL_PAD - SCROLL_W;
         int totalH = Math.max(1, filteredItems.size() * (CARD_H + CARD_SPACING));
         renderVScrollbar(g, sbX, areaY, areaH,
@@ -441,28 +410,28 @@ public class RoleIntroduceScreen extends Screen {
                 mouseX, mouseY, isDraggingListScroll);
     }
 
-    // ── 分类标签栏渲染 ──────────────────────────────────────────────────
+    // ══════════════════════════════════════════════════════════════════
+    // 分类标签栏（搜索框右侧，与搜索框等高）
+    // ══════════════════════════════════════════════════════════════════
 
     /**
-     * 渲染横向分类标签栏。
-     * 标签宽度自适应文本，超出总宽时等比压缩。
-     * 同时填充 tabX[] / tabW[] 供点击检测使用。
+     * @param barX 起始 X（= rightX + TOP_BAR_GAP）
+     * @param barY 起始 Y（= topBarY，与搜索框顶对齐）
+     * @param barW 可用宽度
+     * @param barH 高度（= TOP_BAR_H，与搜索框等高）
      */
     private void renderCategoryBar(GuiGraphics g, int mouseX, int mouseY,
-            int barX, int barY, int barW) {
+            int barX, int barY, int barW, int barH) {
         int n = CATEGORIES.size();
-        int tabH = CATEGORY_BAR_H - 2;
 
-        // 计算各标签自然宽度
+        // 计算自然宽度
         int[] naturalW = new int[n];
-        int totalNatural = TAB_GAP * (n - 1); // 间隔
+        int totalNatural = TAB_GAP * (n - 1);
         for (int i = 0; i < n; i++) {
             String label = Component.translatable(CATEGORIES.get(i).labelKey).getString();
-            naturalW[i] = font.width(label) + 8; // 左右各 4px padding
+            naturalW[i] = font.width(label) + 10; // 左右各 5px
             totalNatural += naturalW[i];
         }
-
-        // 如果自然宽度超出，等比压缩
         float scale = totalNatural > barW ? (float) barW / totalNatural : 1f;
 
         int curX = barX;
@@ -472,58 +441,51 @@ public class RoleIntroduceScreen extends Screen {
             tabW[i] = tw;
 
             boolean active = (i == selectedCategoryIndex);
-            boolean hovered = !active && isInRect(mouseX, mouseY, curX, barY, tw, tabH);
+            boolean hovered = !active && isInRect(mouseX, mouseY, curX, barY, tw, barH);
+            int baseColor = CATEGORIES.get(i).activeColor;
 
-            RoleCategory cat = CATEGORIES.get(i);
-            int baseColor = cat.activeColor;
-
-            // 标签背景
             if (active) {
-                // 激活：亮色渐变 + 底部无边框（与列表融合）
-                g.fillGradient(curX, barY, curX + tw, barY + tabH,
-                        blendColors(0xFF0E1020, baseColor, 0.55f),
-                        blendColors(0xFF0A0C18, baseColor, 0.35f));
-                // 顶部彩色高亮条
-                g.fill(curX, barY, curX + tw, barY + 2, baseColor);
-                // 左右描边
-                g.fill(curX, barY, curX + 1, barY + tabH, (baseColor & 0x00FFFFFF) | 0xBB000000);
-                g.fill(curX + tw - 1, barY, curX + tw, barY + tabH,
-                        (baseColor & 0x00FFFFFF) | 0xBB000000);
-                // 底部留白（与列表区连通）
-                g.fill(curX + 1, barY + tabH - 1, curX + tw - 1, barY + tabH, 0x00000000);
-            } else if (hovered) {
-                g.fillGradient(curX, barY, curX + tw, barY + tabH,
-                        blendColors(0xFF0E1020, baseColor, 0.25f),
-                        blendColors(0xFF0A0C18, baseColor, 0.12f));
-                g.fill(curX, barY, curX + tw, barY + 1,
-                        (baseColor & 0x00FFFFFF) | 0x66000000);
-                g.renderOutline(curX, barY, tw, tabH,
+                // 激活：彩色渐变背景 + 底部指示条
+                g.fillGradient(curX, barY, curX + tw, barY + barH,
+                        blendColors(0xFF0D1020, baseColor, 0.50f),
+                        blendColors(0xFF0A0C18, baseColor, 0.28f));
+                g.fill(curX, barY + barH - 2, curX + tw, barY + barH, baseColor);
+                g.fill(curX, barY, curX + 1, barY + barH,
+                        (baseColor & 0x00FFFFFF) | 0xAA000000);
+                g.fill(curX + tw - 1, barY, curX + tw, barY + barH,
+                        (baseColor & 0x00FFFFFF) | 0xAA000000);
+                g.fill(curX + 1, barY, curX + tw - 1, barY + 1,
                         (baseColor & 0x00FFFFFF) | 0x55000000);
+            } else if (hovered) {
+                g.fillGradient(curX, barY, curX + tw, barY + barH,
+                        blendColors(0xFF0D1020, baseColor, 0.22f),
+                        blendColors(0xFF0A0C18, baseColor, 0.10f));
+                g.fill(curX, barY + barH - 1, curX + tw, barY + barH,
+                        (baseColor & 0x00FFFFFF) | 0x66000000);
+                g.renderOutline(curX, barY, tw, barH,
+                        (baseColor & 0x00FFFFFF) | 0x44000000);
             } else {
-                g.fill(curX, barY, curX + tw, barY + tabH, 0x44111828);
-                g.fill(curX, barY, curX + tw, barY + 1, 0x33FFFFFF);
-                g.renderOutline(curX, barY, tw, tabH, 0x33334466);
+                g.fill(curX, barY, curX + tw, barY + barH, 0x33111828);
+                g.renderOutline(curX, barY, tw, barH, 0x33334466);
             }
 
-            // 标签文字（截断）
-            String label = Component.translatable(cat.labelKey).getString();
+            String label = Component.translatable(CATEGORIES.get(i).labelKey).getString();
             String truncated = font.plainSubstrByWidth(label, tw - 4);
-            int textColor = active ? (baseColor | 0xFF000000) : (hovered ? 0xFFCCDDFF : 0xFF8899BB);
+            int textColor = active ? (baseColor | 0xFF000000)
+                    : hovered ? 0xFFCCDDFF
+                            : 0xFF7788AA;
             g.drawCenteredString(font, truncated,
                     curX + tw / 2,
-                    barY + (tabH - font.lineHeight) / 2,
+                    barY + (barH - font.lineHeight) / 2,
                     textColor);
 
             curX += tw + TAB_GAP;
         }
-
-        // 标签栏底部分割线（与列表区衔接）
-        int lineY = barY + tabH;
-        g.fillGradient(barX, lineY, barX + barW, lineY + 2,
-                0x55334466, 0x00000000);
     }
 
-    // ── 单张横条卡片 ───────────────────────────────────────────────────
+    // ══════════════════════════════════════════════════════════════════
+    // 单张卡片
+    // ══════════════════════════════════════════════════════════════════
 
     private void renderListCard(GuiGraphics g, Object role,
             int x, int y, int w, int h,
@@ -531,14 +493,8 @@ public class RoleIntroduceScreen extends Screen {
         int rawColor = RoleUtils.getRoleOrModifierColor(role);
         int roleColor = rawColor | 0xFF000000;
 
-        int outerBorder;
-        if (selected) {
-            outerBorder = 0xFF6688EE;
-        } else if (hover > 0.05f) {
-            outerBorder = blendColors(0xFF2A3060, 0xFF5566BB, hover);
-        } else {
-            outerBorder = 0xFF2A3060;
-        }
+        int outerBorder = selected ? 0xFF6688EE
+                : (hover > 0.05f ? blendColors(0xFF2A3060, 0xFF5566BB, hover) : 0xFF2A3060);
         g.fill(x, y, x + w, y + h, outerBorder);
 
         int bgL, bgR;
@@ -562,76 +518,64 @@ public class RoleIntroduceScreen extends Screen {
         g.fillGradient(x + 1 + barW, y + 1, x + 1 + barW + 4, y + h - 1,
                 (rawColor & 0x00FFFFFF) | 0x40000000, 0x00000000);
 
-        int iconPadV = (h - ICON_SIZE) / 2;
         int iconX = x + 1 + barW + 5;
-        int iconY = y + iconPadV;
-
-        int iconBgColor = blendColors(0xFF0A0C18, roleColor, 0.25f);
-        g.fill(iconX, iconY, iconX + ICON_SIZE, iconY + ICON_SIZE, iconBgColor);
-
+        int iconY = y + (h - ICON_SIZE) / 2;
+        g.fill(iconX, iconY, iconX + ICON_SIZE, iconY + ICON_SIZE,
+                blendColors(0xFF0A0C18, roleColor, 0.25f));
         boolean iconOk = false;
         try {
-            ResourceLocation icon = getTypeIcon(role);
-            g.blit(icon, iconX, iconY, 0f, 0f, ICON_SIZE, ICON_SIZE, ICON_SIZE, ICON_SIZE);
+            g.blit(getTypeIcon(role), iconX, iconY, 0f, 0f,
+                    ICON_SIZE, ICON_SIZE, ICON_SIZE, ICON_SIZE);
             iconOk = true;
         } catch (Exception ignored) {
         }
-
         if (!iconOk) {
-            int tintBg = blendColors(0xFF111320, roleColor, 0.55f);
-            g.fill(iconX, iconY, iconX + ICON_SIZE, iconY + ICON_SIZE, tintBg);
-
+            g.fill(iconX, iconY, iconX + ICON_SIZE, iconY + ICON_SIZE,
+                    blendColors(0xFF111320, roleColor, 0.55f));
             String initial = RoleUtils.getRoleOrModifierName(role).getString();
-            if (!initial.isEmpty()) {
-                String ch = String.valueOf(initial.charAt(0)).toUpperCase();
+            if (!initial.isEmpty())
                 g.drawCenteredString(font,
-                        Component.literal(ch).withStyle(ChatFormatting.BOLD),
+                        Component.literal(String.valueOf(initial.charAt(0)).toUpperCase())
+                                .withStyle(ChatFormatting.BOLD),
                         iconX + ICON_SIZE / 2,
-                        iconY + (ICON_SIZE - font.lineHeight) / 2,
-                        0xFFFFFF);
-            }
+                        iconY + (ICON_SIZE - font.lineHeight) / 2, 0xFFFFFF);
         }
-
-        int iconBorder = blendColors(roleColor, 0xFFFFFFFF, 0.3f);
-        g.renderOutline(iconX, iconY, ICON_SIZE, ICON_SIZE, iconBorder);
+        g.renderOutline(iconX, iconY, ICON_SIZE, ICON_SIZE,
+                blendColors(roleColor, 0xFFFFFFFF, 0.3f));
 
         int textX = iconX + ICON_SIZE + 5;
         int textMaxW = w - (textX - x) - 6;
 
-        int typeColor = selected ? 0xFF88CCEE : blendColors(0xFF5577AA, 0xFF88BBDD, hover);
-        String typeStr = font.plainSubstrByWidth(
-                RoleUtils.getRoleOrModifierTypeName(role).getString(), textMaxW);
-        g.drawString(font, typeStr, textX, y + 5, typeColor, false);
+        g.drawString(font,
+                font.plainSubstrByWidth(
+                        RoleUtils.getRoleOrModifierTypeName(role).getString(), textMaxW),
+                textX, y + 5,
+                selected ? 0xFF88CCEE : blendColors(0xFF5577AA, 0xFF88BBDD, hover), false);
 
         int nameY = y + 5 + font.lineHeight + 1;
-        int nameColor = selected ? 0xFFFFDD88 : (hover > 0.3f ? 0xFFEEEEFF : 0xFFCCCCDD);
-        Component nameComp = RoleUtils.getRoleOrModifierNameWithColor(role);
-        List<FormattedCharSequence> nameLines = font.split(nameComp, textMaxW);
-        if (!nameLines.isEmpty()) {
-            g.drawString(font, nameLines.get(0), textX, nameY, nameColor, selected);
-        }
+        List<FormattedCharSequence> nameLines = font.split(
+                RoleUtils.getRoleOrModifierNameWithColor(role), textMaxW);
+        if (!nameLines.isEmpty())
+            g.drawString(font, nameLines.get(0), textX, nameY,
+                    selected ? 0xFFFFDD88 : (hover > 0.3f ? 0xFFEEEEFF : 0xFFCCCCDD), selected);
 
-        int subY = nameY + font.lineHeight + 1;
         Component subText = getCardSubText(role);
         if (subText != null) {
-            String subStr = font.plainSubstrByWidth(subText.getString(), textMaxW);
-            int subColor = java.awt.Color.WHITE.getRGB();
-            var style = subText.getStyle();
-            if (style != null) {
-                var textcolor = style.getColor();
-                if (textcolor != null) {
-                    subColor = new java.awt.Color(textcolor.getValue()).getRGB();
-                }
-            }
-            g.drawString(font, subStr, textX, subY, subColor, false);
+            int subColor = 0xFFFFFFFF;
+            var tc = subText.getStyle().getColor();
+            if (tc != null)
+                subColor = new java.awt.Color(tc.getValue()).getRGB();
+            g.drawString(font,
+                    font.plainSubstrByWidth(subText.getString(), textMaxW),
+                    textX, nameY + font.lineHeight + 1, subColor, false);
         }
 
         if (selected) {
             int indX = x + w - 4;
             g.fill(indX, y + 3, indX + 3, y + h - 3,
                     blendColors(roleColor, 0xFFFFFFFF, 0.7f));
-            int glowColor = (rawColor & 0x00FFFFFF) | 0x55000000;
-            g.renderOutline(x - 1, y - 1, w + 2, h + 2, glowColor);
+            g.renderOutline(x - 1, y - 1, w + 2, h + 2,
+                    (rawColor & 0x00FFFFFF) | 0x55000000);
         }
     }
 
@@ -641,22 +585,19 @@ public class RoleIntroduceScreen extends Screen {
 
     private Component getCardSubText(Object role) {
         if (role instanceof Role r) {
-            int type = PlayerRoleWeightManager.getRoleType(r);
-            switch (type) {
-                case 0, 1:
-                    return Component.translatable("display.type.role.innocent").withStyle(ChatFormatting.GREEN);
-                case 2:
-                    return Component.translatable("display.type.role.neutral").withStyle(ChatFormatting.YELLOW);
-                case 3:
-                    return Component.translatable("display.type.role.neutral_for_killer")
-                            .withStyle(ChatFormatting.LIGHT_PURPLE);
-                case 4:
-                    return Component.translatable("display.type.role.killer").withStyle(ChatFormatting.RED);
-                case 5:
-                    return Component.translatable("display.type.role.vigilante").withStyle(ChatFormatting.AQUA);
-                default:
-                    return Component.literal("UNKNOWN");
-            }
+            return switch (PlayerRoleWeightManager.getRoleType(r)) {
+                case 0, 1 -> Component.translatable("display.type.role.innocent")
+                        .withStyle(ChatFormatting.GREEN);
+                case 2 -> Component.translatable("display.type.role.neutral")
+                        .withStyle(ChatFormatting.YELLOW);
+                case 3 -> Component.translatable("display.type.role.neutral_for_killer")
+                        .withStyle(ChatFormatting.LIGHT_PURPLE);
+                case 4 -> Component.translatable("display.type.role.killer")
+                        .withStyle(ChatFormatting.RED);
+                case 5 -> Component.translatable("display.type.role.vigilante")
+                        .withStyle(ChatFormatting.AQUA);
+                default -> Component.literal("UNKNOWN");
+            };
         }
         return Component.literal("");
     }
@@ -674,45 +615,37 @@ public class RoleIntroduceScreen extends Screen {
 
         int rawColor = RoleUtils.getRoleOrModifierColor(selectedRole);
 
-        g.fillGradient(rightX + 1, panelY + 1,
-                rightX + rightW / 2, panelY + BANNER_H,
-                (rawColor & 0x00FFFFFF) | 0xCC000000,
-                (rawColor & 0x00FFFFFF) | 0x44000000);
-        g.fillGradient(rightX + rightW / 2, panelY + 1,
-                rightX + rightW - 1, panelY + BANNER_H,
-                (rawColor & 0x00FFFFFF) | 0x44000000,
-                0x00000000);
+        g.fillGradient(rightX + 1, panelY + 1, rightX + rightW / 2, panelY + BANNER_H,
+                (rawColor & 0x00FFFFFF) | 0xCC000000, (rawColor & 0x00FFFFFF) | 0x44000000);
+        g.fillGradient(rightX + rightW / 2, panelY + 1, rightX + rightW - 1, panelY + BANNER_H,
+                (rawColor & 0x00FFFFFF) | 0x44000000, 0x00000000);
 
         int bIconSize = BANNER_H - 6;
         int bIconX = rightX + PANEL_PAD;
         int bIconY = panelY + 3;
-        int bIconBg = blendColors(0xFF0A0C18, rawColor | 0xFF000000, 0.3f);
-        g.fill(bIconX, bIconY, bIconX + bIconSize, bIconY + bIconSize, bIconBg);
+        g.fill(bIconX, bIconY, bIconX + bIconSize, bIconY + bIconSize,
+                blendColors(0xFF0A0C18, rawColor | 0xFF000000, 0.3f));
         try {
-            g.blit(getTypeIcon(selectedRole),
-                    bIconX, bIconY, 0f, 0f, bIconSize, bIconSize, bIconSize, bIconSize);
+            g.blit(getTypeIcon(selectedRole), bIconX, bIconY, 0f, 0f,
+                    bIconSize, bIconSize, bIconSize, bIconSize);
         } catch (Exception ignored) {
-            String initial = RoleUtils.getRoleOrModifierName(selectedRole).getString();
-            if (!initial.isEmpty()) {
+            String s = RoleUtils.getRoleOrModifierName(selectedRole).getString();
+            if (!s.isEmpty())
                 g.drawCenteredString(font,
-                        Component.literal(String.valueOf(initial.charAt(0)).toUpperCase())
+                        Component.literal(String.valueOf(s.charAt(0)).toUpperCase())
                                 .withStyle(ChatFormatting.BOLD),
                         bIconX + bIconSize / 2,
-                        bIconY + (bIconSize - font.lineHeight) / 2,
-                        0xFFFFFF);
-            }
+                        bIconY + (bIconSize - font.lineHeight) / 2, 0xFFFFFF);
         }
         g.renderOutline(bIconX, bIconY, bIconSize, bIconSize,
                 (rawColor & 0x00FFFFFF) | 0xAA000000);
 
-        Component typeTag = Component.empty()
+        g.drawString(font, Component.empty()
                 .append("【 ")
                 .append(RoleUtils.getRoleOrModifierTypeName(selectedRole)
                         .copy().withStyle(ChatFormatting.BOLD, ChatFormatting.AQUA))
-                .append(" 】");
-        g.drawString(font, typeTag,
-                bIconX + bIconSize + 5,
-                panelY + (BANNER_H - font.lineHeight) / 2,
+                .append(" 】"),
+                bIconX + bIconSize + 5, panelY + (BANNER_H - font.lineHeight) / 2,
                 0xFFFFFF, true);
 
         int textX0 = rightX + PANEL_PAD;
@@ -725,16 +658,15 @@ public class RoleIntroduceScreen extends Screen {
         int lineH = font.lineHeight + 2;
         int lineY = textY0 - detailScrollOffset;
         for (FormattedCharSequence line : detailLines) {
-            if (lineY + lineH > textY0 && lineY < textY0 + contentH) {
-                g.drawString(font, line, textX0, lineY, java.awt.Color.WHITE.getRGB(), false);
-            }
+            if (lineY + lineH > textY0 && lineY < textY0 + contentH)
+                g.drawString(font, line, textX0, lineY,
+                        java.awt.Color.WHITE.getRGB(), false);
             lineY += lineH;
         }
-
         g.disableScissor();
 
-        int sbX = rightX + rightW - PANEL_PAD - SCROLL_W;
-        renderVScrollbar(g, sbX, textY0, contentH,
+        renderVScrollbar(g,
+                rightX + rightW - PANEL_PAD - SCROLL_W, textY0, contentH,
                 detailScrollOffset, maxDetailScroll,
                 Math.max(1, detailLines.size() * lineH),
                 mouseX, mouseY, isDraggingDetailScroll);
@@ -750,20 +682,17 @@ public class RoleIntroduceScreen extends Screen {
         g.fill(x + 1, y + 1, x + w - 1, y + 2, 0x22FFFFFF);
     }
 
-    private void renderVScrollbar(GuiGraphics g,
-            int x, int y, int h,
+    private void renderVScrollbar(GuiGraphics g, int x, int y, int h,
             int scrollOffset, int maxScroll, int totalContentH,
             int mouseX, int mouseY, boolean dragging) {
         g.fill(x, y, x + SCROLL_W, y + h, 0xFF111828);
         g.fill(x + 1, y + 1, x + SCROLL_W - 1, y + h - 1, 0x55334466);
-
         if (maxScroll <= 0)
             return;
 
         float ratio = Math.min(1f, (float) h / Math.max(1, totalContentH));
         int thumbH = Math.max(SCROLL_MIN_THUMB, (int) (h * ratio));
         int thumbY = y + (int) ((h - thumbH) * ((float) scrollOffset / maxScroll));
-
         boolean hl = dragging || isInRect(mouseX, mouseY, x, thumbY, SCROLL_W, thumbH);
 
         g.fill(x, thumbY, x + SCROLL_W, thumbY + thumbH,
@@ -785,17 +714,14 @@ public class RoleIntroduceScreen extends Screen {
     @Override
     public boolean mouseClicked(double mx, double my, int button) {
         if (button == 0) {
-            // ── 分类标签点击 ──────────────────────────────────────
-            int catBarY = panelY + PANEL_PAD;
-            int tabH = CATEGORY_BAR_H - 2;
+            // ── 分类标签点击（搜索框右侧）────────────────────────
             for (int i = 0; i < CATEGORIES.size(); i++) {
                 if (tabW[i] > 0 && isInRect((int) mx, (int) my,
-                        tabX[i], catBarY, tabW[i], tabH)) {
+                        tabX[i], topBarY, tabW[i], TOP_BAR_H)) {
                     if (selectedCategoryIndex != i) {
                         selectedCategoryIndex = i;
                         listScrollOffset = 0;
                         refreshFilter();
-                        // 若当前选中项不在新分类中，重置选中
                         if (selectedRole != null && !filteredItems.contains(selectedRole)) {
                             selectedRole = filteredItems.isEmpty() ? null : filteredItems.get(0);
                             rebuildDetailLines();
@@ -807,7 +733,7 @@ public class RoleIntroduceScreen extends Screen {
 
             // ── 卡片点击 ──────────────────────────────────────────
             int areaX = leftX + PANEL_PAD;
-            int areaY = panelY + PANEL_PAD + CATEGORY_BAR_H + 2;
+            int areaY = panelY + PANEL_PAD;
             int areaW = leftW - PANEL_PAD * 2 - SCROLL_W - 2;
             int areaH = listAreaH();
 
@@ -825,25 +751,22 @@ public class RoleIntroduceScreen extends Screen {
 
             // ── 左侧滚动条 ────────────────────────────────────────
             int lsbX = leftX + leftW - PANEL_PAD - SCROLL_W;
-            if (isInRect((int) mx, (int) my, lsbX, areaY, SCROLL_W, areaH)) {
-                if (maxListScroll > 0) {
-                    isDraggingListScroll = true;
-                    dragListStartY = my;
-                    dragListStartOffset = listScrollOffset;
-                }
+            if (isInRect((int) mx, (int) my, lsbX, areaY, SCROLL_W, areaH)
+                    && maxListScroll > 0) {
+                isDraggingListScroll = true;
+                dragListStartY = my;
+                dragListStartOffset = listScrollOffset;
                 return true;
             }
 
             // ── 右侧滚动条 ────────────────────────────────────────
             int rsbX = rightX + rightW - PANEL_PAD - SCROLL_W;
             int textY0 = panelY + BANNER_H + PANEL_PAD;
-            int dH = detailContentH();
-            if (isInRect((int) mx, (int) my, rsbX, textY0, SCROLL_W, dH)) {
-                if (maxDetailScroll > 0) {
-                    isDraggingDetailScroll = true;
-                    dragDetailStartY = my;
-                    dragDetailStartOffset = detailScrollOffset;
-                }
+            if (isInRect((int) mx, (int) my, rsbX, textY0, SCROLL_W, detailContentH())
+                    && maxDetailScroll > 0) {
+                isDraggingDetailScroll = true;
+                dragDetailStartY = my;
+                dragDetailStartOffset = detailScrollOffset;
                 return true;
             }
         }
@@ -855,27 +778,25 @@ public class RoleIntroduceScreen extends Screen {
         if (isDraggingListScroll && maxListScroll > 0) {
             int areaH = listAreaH();
             int totalH = Math.max(1, filteredItems.size() * (CARD_H + CARD_SPACING));
-            float ratio = Math.min(1f, (float) areaH / totalH);
-            int thumbH = Math.max(SCROLL_MIN_THUMB, (int) (areaH * ratio));
+            int thumbH = Math.max(SCROLL_MIN_THUMB,
+                    (int) (areaH * Math.min(1f, (float) areaH / totalH)));
             double trackH = areaH - thumbH;
-            if (trackH > 0) {
+            if (trackH > 0)
                 listScrollOffset = Mth.clamp(
                         (int) (dragListStartOffset + (my - dragListStartY) / trackH * maxListScroll),
                         0, maxListScroll);
-            }
             return true;
         }
         if (isDraggingDetailScroll && maxDetailScroll > 0) {
             int contentH = detailContentH();
             int totalTextH = Math.max(1, detailLines.size() * (font.lineHeight + 2));
-            float ratio = Math.min(1f, (float) contentH / totalTextH);
-            int thumbH = Math.max(SCROLL_MIN_THUMB, (int) (contentH * ratio));
+            int thumbH = Math.max(SCROLL_MIN_THUMB,
+                    (int) (contentH * Math.min(1f, (float) contentH / totalTextH)));
             double trackH = contentH - thumbH;
-            if (trackH > 0) {
+            if (trackH > 0)
                 detailScrollOffset = Mth.clamp(
                         (int) (dragDetailStartOffset + (my - dragDetailStartY) / trackH * maxDetailScroll),
                         0, maxDetailScroll);
-            }
             return true;
         }
         return super.mouseDragged(mx, my, button, dx, dy);
@@ -883,14 +804,12 @@ public class RoleIntroduceScreen extends Screen {
 
     @Override
     public boolean mouseReleased(double mx, double my, int button) {
-        isDraggingListScroll = false;
-        isDraggingDetailScroll = false;
+        isDraggingListScroll = isDraggingDetailScroll = false;
         return super.mouseReleased(mx, my, button);
     }
 
     @Override
     public boolean mouseScrolled(double mx, double my, double scrollX, double scrollY) {
-        // 左侧面板（包含标签栏和列表）
         if (mx >= leftX && mx < leftX + leftW && my >= panelY && my < panelY + panelH) {
             listScrollOffset = Mth.clamp(
                     (int) (listScrollOffset - scrollY * (CARD_H + CARD_SPACING)),
@@ -912,27 +831,27 @@ public class RoleIntroduceScreen extends Screen {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (keyCode == 265 || keyCode == 264) { // ↑ ↓
-            int idx = filteredItems.indexOf(selectedRole);
-            idx += (keyCode == 265 ? -1 : 1);
+        // ↑ ↓ 移动选中卡片
+        if (keyCode == 265 || keyCode == 264) {
+            int idx = filteredItems.indexOf(selectedRole) + (keyCode == 265 ? -1 : 1);
             idx = Mth.clamp(idx, 0, filteredItems.size() - 1);
             if (idx >= 0 && idx < filteredItems.size()) {
                 selectedRole = filteredItems.get(idx);
                 rebuildDetailLines();
                 int cardY = idx * (CARD_H + CARD_SPACING);
-                if (cardY < listScrollOffset) {
+                if (cardY < listScrollOffset)
                     listScrollOffset = cardY;
-                } else if (cardY + CARD_H > listScrollOffset + listAreaH()) {
+                else if (cardY + CARD_H > listScrollOffset + listAreaH())
                     listScrollOffset = cardY + CARD_H - listAreaH();
-                }
                 listScrollOffset = Mth.clamp(listScrollOffset, 0, maxListScroll);
             }
             return true;
         }
-        // 左右方向键切换分类
-        if (keyCode == 263 || keyCode == 262) { // ← →
-            int newIdx = selectedCategoryIndex + (keyCode == 263 ? -1 : 1);
-            newIdx = Mth.clamp(newIdx, 0, CATEGORIES.size() - 1);
+        // ← → 切换分类
+        if (keyCode == 263 || keyCode == 262) {
+            int newIdx = Mth.clamp(
+                    selectedCategoryIndex + (keyCode == 263 ? -1 : 1),
+                    0, CATEGORIES.size() - 1);
             if (newIdx != selectedCategoryIndex) {
                 selectedCategoryIndex = newIdx;
                 listScrollOffset = 0;

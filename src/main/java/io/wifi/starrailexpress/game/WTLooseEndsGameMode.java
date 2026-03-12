@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 @SuppressWarnings("deprecation")
-public class LooseEndsGameMode extends GameMode {
+public class WTLooseEndsGameMode extends GameMode {
     public static final List<Supplier<ItemStack>> looseEndsItems = new ArrayList<>();
 
     static {
@@ -38,8 +38,8 @@ public class LooseEndsGameMode extends GameMode {
         });
     }
 
-    public LooseEndsGameMode(ResourceLocation identifier) {
-        super(identifier, 120, 2);
+    public WTLooseEndsGameMode(ResourceLocation identifier) {
+        super(identifier, 10, 2);
     }
 
     @Override

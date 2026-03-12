@@ -683,7 +683,7 @@
   "death_reason.starrailexpress.gun_shot": "子弹",
   "death_reason.starrailexpress.knife_stab": "刀",
   "death_reason.starrailexpress.poison": "中毒",
-  "item.trainmurdermystery.limited_inventory.cooldown": "\u00a77冷却: %s 秒",
+  "item.starrailexpress.limited_inventory.cooldown": "\u00a77冷却: %s 秒",
   "sre.replay.event": "\u00a76[游戏事件] \u00a7r ",
   "info.screen.roleid.discovery_civilian": "平民阵营\n占位符角色。",
   "info.screen.roleid.civilian": "平民阵营\n你没有任何特殊能力，努力在这趟旅程中活下去。",

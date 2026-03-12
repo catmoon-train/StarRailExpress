@@ -35,5 +35,12 @@
   "commands.tmm.setroleweight.failed": "设置角色权重失败",
   "commands.tmm.togglecustomroleweights.success": "自定义角色权重已%s",
   "commands.tmm.checkweights.entry": "%s: 杀手=%s, 警卫=%s",
-  "commands.tmm.checkweights.header": "=== 玩家权重 ==="
+  "commands.tmm.checkweights.header": "=== 玩家权重 ===",
+  "============== CONFIG ==============": "",
+  "title.starrailexpress.role_config": "哈比角色管理",
+  "category.starrailexpress.config.role": "角色",
+  "category.starrailexpress.config.modifier": "修饰符",
+  "option.starrailexpress.role_id_tooltip":"ID: %s",
+  "option.starrailexpress.role_enable_option":"职业：%s",
+  "option.starrailexpress.modifier_enable_option":"修饰符：%s"
 }

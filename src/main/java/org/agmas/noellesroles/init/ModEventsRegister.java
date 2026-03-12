@@ -491,7 +491,7 @@ public class ModEventsRegister {
                         }
                     }
                 }
-                if (aliveGhost + aliveKillers >= alivePlayers) {
+                if (aliveGhost >= 1 && aliveKillers >= 1 && aliveGhost + aliveKillers >= alivePlayers) {
                     GameFunctions.serverAsynTaskLists.add(new ServerTaskInfoClasses.SchedulerTask(8 * 20, () -> {
                         players.forEach((p) -> {
                             p.playNotifySound(NRSounds.TO_BE_CONTINUED, SoundSource.MASTER, 0.5f, 1f);

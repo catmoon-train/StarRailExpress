@@ -10,7 +10,7 @@
   "icon": "assets/noellesroles/icon.png",
   "environment": "*",
   "entrypoints": {
-    "mixinsquared":[
+    "mixinsquared": [
       "io.wifi.WatheMixinBlocker"
     ],
     "preLaunch": [
@@ -42,6 +42,9 @@
       "org.agmas.noellesroles.voice.NoellesrolesVoiceChatPlugin",
       "pro.fazeclan.river.stupid_express.StupidExpressVoiceChatPlugin",
       "io.wifi.starrailexpress.compat.TrainVoicePlugin"
+    ],
+    "modmenu":[
+      "org.agmas.harpymodloader.client.modmenu.Entry"
     ]
   },
   "accessWidener": "StarRailExpress.accesswidener",
@@ -164,6 +167,13 @@
   ],
   "depends": {
     "minecraft": "1.21.1",
-    "wathe": "*"
+    "wathe": "*",
+    "cloth-config": "*",
+    "modmenu": "*",
+    "voicechat": "*",
+    "architectury": "*",
+    "exposure_polaroid": "*",
+    "exposure": "*",
+    "midnightlib": "*"
   }
 }

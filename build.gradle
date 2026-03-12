@@ -26,7 +26,8 @@ repositories {
     // Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
     // See https://docs.gradle.org/current/userguide/declaring_repositories.html
     // for more information about repositories.
-
+    maven { url "https://maven.shedaniel.me/" }
+    maven { url "https://maven.terraformersmc.com/releases/" }
     maven {
         name = "Ladysnake Mods"
         url = 'https://maven.ladysnake.org/releases'
@@ -105,7 +106,10 @@ dependencies {
     // modRuntimeOnly files("libs/fzzy_config-0.7.5+1.21.jar")
     modRuntimeOnly "de.maxhenkel.voicechat:voicechat-api:${voicechat_api_version}:fabric-stub"
     modApi "maven.modrinth:sodium:${sodium_version}-fabric"
-    modApi "maven.modrinth:cloth-config:15.0.140+fabric"
+    modApi("me.shedaniel.cloth:cloth-config-fabric:15.0.140") {
+        exclude(group: "net.fabricmc.fabric-api")
+    }
+    modApi "maven.modrinth:modmenu:11.0.3"
     modRuntimeOnly("org.anarres:jcpp:${jcpp_version}")
     modImplementation("io.github.douira:glsl-transformer:${glslTransformer_version}")
 }
