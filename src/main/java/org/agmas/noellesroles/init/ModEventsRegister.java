@@ -432,6 +432,17 @@ public class ModEventsRegister {
     private static boolean isEnabled = false;
 
     public static void registerEvents() {
+        /**
+         * 这只会发生在客户端
+         */
+        SRE.cantUseChatHud.add((p) -> {
+            var deathPenalty = ModComponents.DEATH_PENALTY.get(p);
+            if (deathPenalty.hasPenalty()) {
+                if (deathPenalty.chatEnabled == false)
+                    return true;
+            }
+            return false;
+        });
         // 所有枪械公用冷却
         OnRevolverUsed.EVENT.register((player, target) -> {
             if (!player.isCreative()) {

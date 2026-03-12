@@ -20,6 +20,7 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
     private final Player player;
     public long penaltyExpiry = 0;
     public UUID limitCameraUUID = null;
+    public boolean chatEnabled = false;
 
     public void clearAll() {
         this.reset();
@@ -142,11 +143,19 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
     @Override
     public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.penaltyExpiry = tag.getLong("penaltyExpiry");
+        if (tag.contains("chatEnabled")) {
+            this.chatEnabled = tag.getBoolean("chatEnabled");
+        } else {
+            this.chatEnabled = true;
+        }
     }
 
     @Override
     public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
         tag.putLong("penaltyExpiry", this.penaltyExpiry);
+        if (this.limitCameraUUID != null) {
+            tag.putBoolean("chatEnabled", false);
+        }
     }
 
     @Override

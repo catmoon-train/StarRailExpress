@@ -16,6 +16,7 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 
 import org.agmas.noellesroles.Noellesroles;
+import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.component.PlayerVolumeComponent;
 import org.agmas.noellesroles.effects.TimeStopEffect;
 import org.agmas.noellesroles.init.ModEffects;
@@ -117,6 +118,12 @@ public class NoellesrolesVoiceChatPlugin implements VoicechatPlugin {
         return true;
       }
     }
+    var deathPenalty = ModComponents.DEATH_PENALTY.get(receiverPlayer);
+    if (deathPenalty.hasPenalty()) {
+      if (deathPenalty.limitCameraUUID != null) {
+        return true;
+      }
+    }
     return false;
   }
 
@@ -182,8 +189,8 @@ public class NoellesrolesVoiceChatPlugin implements VoicechatPlugin {
                     }
                   }
                 });
-              }
-              else CommanderHandler.vcparanoidEvent(gameWorldComponent, player, event);
+              } else
+                CommanderHandler.vcparanoidEvent(gameWorldComponent, player, event);
             }
           }
         }
