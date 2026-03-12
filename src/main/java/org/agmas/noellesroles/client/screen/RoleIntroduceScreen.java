@@ -7,9 +7,12 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
@@ -315,14 +318,6 @@ public class RoleIntroduceScreen extends Screen {
 
         int textW = rightW - PANEL_PAD * 2 - SCROLL_W - 4;
 
-        if (selectedRole instanceof Role role) {
-            detailLines.addAll(font.split(
-                    Component.translatable(
-                            "announcement.star.goals." + role.identifier().getPath()),
-                    textW));
-            detailLines.add(FormattedCharSequence.EMPTY);
-        }
-
         detailLines.addAll(font.split(Component.empty()
                 .append(Component.translatable("screen.roleintroduce.detail.name",
                         RoleUtils.getRoleOrModifierNameWithColor(selectedRole).withStyle(ChatFormatting.BOLD)))
@@ -331,7 +326,13 @@ public class RoleIntroduceScreen extends Screen {
                         .withStyle(ChatFormatting.DARK_GRAY))
                 .withStyle(ChatFormatting.DARK_GRAY), textW));
         detailLines.add(FormattedCharSequence.EMPTY);
-
+        if (selectedRole instanceof Role role) {
+            detailLines.addAll(font.split(
+                    Component.translatable(
+                            "announcement.star.goals." + role.identifier().getPath()),
+                    textW));
+            detailLines.add(FormattedCharSequence.EMPTY);
+        }
         detailLines.addAll(font.split(
                 Component.translatable("screen.roleintroduce.detail.description")
                         .withStyle(ChatFormatting.YELLOW),
@@ -773,6 +774,9 @@ public class RoleIntroduceScreen extends Screen {
                     if (selectedCategoryIndex != i) {
                         selectedCategoryIndex = i;
                         listScrollOffset = 0;
+
+                        this.minecraft.getSoundManager()
+                                .play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1f));
                         refreshFilter();
                         if (selectedRole != null && !filteredItems.contains(selectedRole)) {
                             selectedRole = filteredItems.isEmpty() ? null : filteredItems.get(0);
@@ -795,6 +799,9 @@ public class RoleIntroduceScreen extends Screen {
                     if (isInRect((int) mx, (int) my, areaX, cardY, areaW, CARD_H)) {
                         selectedRole = filteredItems.get(i);
                         rebuildDetailLines();
+
+                        this.minecraft.getSoundManager()
+                                .play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1f));
                         return true;
                     }
                 }
