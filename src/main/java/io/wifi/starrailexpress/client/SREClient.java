@@ -51,7 +51,6 @@ import io.wifi.starrailexpress.event.AllowOtherCameraType;
 import io.wifi.starrailexpress.event.OnGetInstinctHighlight;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameFunctions;
-import io.wifi.starrailexpress.game.LooseEndsGameMode;
 import io.wifi.starrailexpress.index.TMMBlockEntities;
 import io.wifi.starrailexpress.index.TMMBlocks;
 import io.wifi.starrailexpress.index.TMMEntities;
@@ -689,9 +688,6 @@ public class SREClient implements ClientModInitializer {
         if (SREClient.gameComponent != null) {
             var role = SREClient.gameComponent.getRole(player);
             if (role != null) {
-                if (role == TMMRoles.LOOSE_END) {
-                    return !(gameComponent.getGameMode() instanceof LooseEndsGameMode);
-                }
                 canUseInstinct = role.canUseInstinct();
             }
         }

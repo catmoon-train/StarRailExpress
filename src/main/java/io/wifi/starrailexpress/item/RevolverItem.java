@@ -66,7 +66,6 @@ public class RevolverItem extends Item {
                     return InteractionResultHolder.fail(stack);
                 }
             }
-
         }
         return InteractionResultHolder.consume(stack);
     }

@@ -41,12 +41,14 @@ public record GunShootPayload(int target) implements CustomPacketPayload {
     public static class Receiver implements ServerPlayNetworking.PlayPayloadHandler<GunShootPayload> {
         @Override
         public void receive(@NotNull GunShootPayload payload, ServerPlayNetworking.@NotNull Context context) {
+            SRE.LOGGER.info("FUCK SHOT Recieved");
             ServerPlayer player = context.player();
             ItemStack mainHandStack = player.getMainHandItem();
             if (!mainHandStack.is(TMMItemTags.GUNS))
                 return;
             if (player.getCooldowns().isOnCooldown(mainHandStack.getItem()))
                 return;
+            SRE.LOGGER.info("FUCK SHOT PLAY SOUND");
 
             player.level().playSound(null, player.getX(), player.getEyeY(), player.getZ(),
                     TMMSounds.ITEM_REVOLVER_CLICK, SoundSource.PLAYERS, 0.5f,

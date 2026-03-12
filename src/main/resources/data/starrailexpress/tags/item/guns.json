@@ -1,6 +1,8 @@
 {
   "replace": false,
   "values": [
+    "trainmurdermystery:revolver",
+    "trainmurdermystery:derringer",
     "noellesroles:fake_revolver",
     "noellesroles:bandit_revolver",
     "noellesroles:patroller_revolver",

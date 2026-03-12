@@ -61,11 +61,11 @@ public class WatheBlocker implements PreLaunchEntrypoint {
             }
 
             if (transformerField == null) {
-                LOGGER.error("[WatheBlocker] 未找到存放 MixinTransformer 的字段");
+                LOGGER.error("[WatheBlocker] could not find MixinTransformer");
                 return;
             }
 
-            LOGGER.info("[WatheBlocker] 找到 transformer 字段: {} in {}",
+            LOGGER.info("[WatheBlocker] find transformer: {} in {}",
                     transformerField.getName(), transformerField.getDeclaringClass().getSimpleName());
             java.lang.reflect.Method getPreMixin = delegate.getClass()
                     .getDeclaredMethod("getPreMixinClassByteArray", String.class, boolean.class);
@@ -176,7 +176,7 @@ public class WatheBlocker implements PreLaunchEntrypoint {
                         LOGGER.info("[WatheBlocker] remove accessWidener data: {}", custom);
                         // ✅ 直接替换字段为新的空 Map
                         customField.set(meta, "");
-                        LOGGER.info("[WatheBlocker] Cleared {} 的 accessWidener data", TARGET_MOD_ID);
+                        LOGGER.info("[WatheBlocker] Cleared {} accessWidener data", TARGET_MOD_ID);
 
                     } catch (Exception e) {
                         LOGGER.error("[WatheBlocker] Clear accessWidener failed! ", e);
@@ -207,7 +207,7 @@ public class WatheBlocker implements PreLaunchEntrypoint {
                         map.remove("loom:injected_interfaces");
                         map.remove("cardinal-components");
                         customField.set(meta, map);
-                        LOGGER.info("[WatheBlocker] cleared {} 的 custom data!", TARGET_MOD_ID);
+                        LOGGER.info("[WatheBlocker] cleared {} custom data!", TARGET_MOD_ID);
 
                     } catch (Exception e) {
                         LOGGER.error("[WatheBlocker] cleared custom failed! ", e);

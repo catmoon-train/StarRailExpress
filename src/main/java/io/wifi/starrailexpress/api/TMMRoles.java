@@ -23,7 +23,7 @@ public class TMMRoles {
     public static final Role KILLER = registerRole(
             new NoramlRole(SRE.id("killer"), 0xC13838, false, true, Role.MoodType.FAKE, -1, true));
     public static final Role LOOSE_END = registerRole(
-            new NoramlRole(SRE.id("loose_end"), 0x9F0000, false, false, Role.MoodType.NONE, -1, false));
+            new NoramlRole(SRE.id("loose_end"), 0x9F0000, false, false, Role.MoodType.NONE, -1, false)).setCanSeeTime(true).setCanUseInstinct(true);
 
     public static Role registerRole(Role role) {
         ROLES.put(role.identifier(), role);

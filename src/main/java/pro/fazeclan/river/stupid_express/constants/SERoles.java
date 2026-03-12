@@ -46,7 +46,7 @@ public class SERoles {
             Role.MoodType.FAKE,
             -1,
             true
-    ));
+    )).setCanUseInstinct(true);
 
     public static Role AVARICIOUS = registerRole(new NoramlRole(
             StupidExpress.id("avaricious"),

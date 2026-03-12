@@ -933,7 +933,6 @@ public class ModRoles {
    * 在模组初始化时调用
    */
   public static void init() {
-    TMMRoles.LOOSE_END.setCanUseInstinct(true);
     // ModRoles.RECORDER;
     // ModRoles.JESTER.setCanUseInstinct(true);
     // ==================== 注册乘客阵营角色 ====================
@@ -1120,7 +1119,7 @@ public class ModRoles {
     ADMIRER = TMMRoles.registerRole(new NoramlRole(
         ADMIRER_ID, // 角色 ID
         new Color(255, 192, 203).getRGB(), false, false, Role.MoodType.FAKE, Integer.MAX_VALUE,
-        true)).setComponentKey(AdmirerPlayerComponent.KEY).setNeutralForKiller(true)
+        true)).setComponentKey(AdmirerPlayerComponent.KEY).setNeutralForKiller(true).setCanUseInstinct(true)
         .setCanSeeTeammateKiller(false);
 
     // 傀儡师角色 - 中立阵营（初始）
