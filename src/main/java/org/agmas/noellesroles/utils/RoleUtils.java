@@ -22,6 +22,7 @@ import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import io.wifi.starrailexpress.network.original.AnnounceWelcomePayload;
 import io.wifi.starrailexpress.SRE;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.locale.Language;
@@ -357,6 +358,55 @@ public class RoleUtils {
             return m.identifier();
         } else {
             return null;
+        }
+    }
+
+    public static MutableComponent getRoleOrModifierOrItemNameWithColor(Object selectedRole) {
+        if (selectedRole instanceof Item it) {
+            return it.getDescription().copy().withStyle(ChatFormatting.WHITE);
+        } else {
+            return getRoleOrModifierNameWithColor(selectedRole);
+        }
+    }
+
+    public static ResourceLocation getRoleOrModifierOrItemIdentifier(Object selectedRole) {
+        if (selectedRole instanceof Item it) {
+            return BuiltInRegistries.ITEM.getKey(it);
+        } else {
+            return getRoleOrModifierIdentifier(selectedRole);
+        }
+    }
+
+    public static Component getRoleOrModifierOrItemName(Object selectedRole) {
+        if (selectedRole instanceof Item it) {
+            return it.getDescription().copy();
+        } else {
+            return getRoleOrModifierName(selectedRole);
+        }
+    }
+
+    public static MutableComponent getRoleOrModifierOrItemTypeName(Object role) {
+        if (role instanceof Item) {
+            return Component.translatable("display.type.item");
+        } else {
+            return getRoleOrModifierTypeName(role);
+        }
+    }
+
+    public static MutableComponent getRoleOrModifierOrItemDescription(Object selectedRole) {
+        if (selectedRole instanceof Item it) {
+            String key = it.getDescriptionId() + ".desc";
+            if (Language.getInstance().has(key))
+                return Component.translatable(key);
+            else {
+                String key2 = it.getDescriptionId() + ".tooltip";
+                if (Language.getInstance().has(key2))
+                    return Component.translatable(key2);
+                else
+                    return it.getDescription().copy();
+            }
+        } else {
+            return getRoleOrModifierDescription(selectedRole);
         }
     }
 }

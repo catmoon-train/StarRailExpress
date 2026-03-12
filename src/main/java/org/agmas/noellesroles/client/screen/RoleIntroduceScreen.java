@@ -2,12 +2,14 @@ package org.agmas.noellesroles.client.screen;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.Role;
+import io.wifi.starrailexpress.index.TMMDescItems;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -15,6 +17,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 
 import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
 import org.agmas.harpymodloader.modifiers.HMLModifiers;
@@ -82,6 +85,10 @@ public class RoleIntroduceScreen extends Screen {
         CATEGORIES.add(new RoleCategory(
                 "screen.roleintroduce.category.modifier", 0xFF8877BB,
                 item -> item instanceof Modifier));
+
+        CATEGORIES.add(new RoleCategory(
+                "screen.roleintroduce.category.item", 0x55FF22BB,
+                item -> item instanceof Item));
     }
 
     // ══════════════════════════════════════════════════════════════════
@@ -182,14 +189,12 @@ public class RoleIntroduceScreen extends Screen {
     }
 
     public RoleIntroduceScreen(Screen parent) {
-        super(Component.translatable("gui.roleintroduce.select_role.title"));
-        availableRoles.addAll(Noellesroles.getAllRolesSorted(true));
+        this();
         this.parent = parent;
     }
 
     public RoleIntroduceScreen(Player player) {
-        super(Component.translatable("gui.roleintroduce.select_role.title"));
-        availableRoles.addAll(Noellesroles.getAllRolesSorted(true));
+        this();
     }
 
     // ══════════════════════════════════════════════════════════════════
@@ -294,6 +299,15 @@ public class RoleIntroduceScreen extends Screen {
                     || mod.identifier().toString().contains(searchContent.toLowerCase()))
                 filteredItems.add(mod);
         }
+        for (Item mod : TMMDescItems.introItems) {
+            if (!cat.filter.test(mod))
+                continue;
+            String name = mod.getDescription().getString();
+            if (searchContent == null
+                    || name.toLowerCase().contains(searchContent.toLowerCase())
+                    || BuiltInRegistries.ITEM.getKey(mod).toString().contains(searchContent.toLowerCase()))
+                filteredItems.add(mod);
+        }
         int totalH = filteredItems.size() * (CARD_H + CARD_SPACING) - CARD_SPACING;
         maxListScroll = Math.max(0, totalH - listAreaH());
         listScrollOffset = Mth.clamp(listScrollOffset, 0, maxListScroll);
@@ -319,9 +333,9 @@ public class RoleIntroduceScreen extends Screen {
 
         detailLines.addAll(font.split(Component.empty()
                 .append(Component.translatable("screen.roleintroduce.detail.name",
-                        RoleUtils.getRoleOrModifierNameWithColor(selectedRole).withStyle(ChatFormatting.BOLD)))
+                        RoleUtils.getRoleOrModifierOrItemNameWithColor(selectedRole).withStyle(ChatFormatting.BOLD)))
                 .append(Component.translatable("screen.roleintroduce.detail.name.id.warp",
-                        RoleUtils.getRoleOrModifierIdentifier(selectedRole).toString())
+                        RoleUtils.getRoleOrModifierOrItemIdentifier(selectedRole).toString())
                         .withStyle(ChatFormatting.DARK_GRAY))
                 .withStyle(ChatFormatting.DARK_GRAY), textW));
         detailLines.add(FormattedCharSequence.EMPTY);
@@ -331,6 +345,12 @@ public class RoleIntroduceScreen extends Screen {
                             "announcement.star.goals." + role.identifier().getPath()),
                     textW));
             detailLines.add(FormattedCharSequence.EMPTY);
+        } else if (selectedRole instanceof Item it) {
+            var story_key = it.getDescriptionId() + ".tooltip";
+            if (Language.getInstance().has(story_key)) {
+                detailLines.addAll(font.split(Component.translatable(story_key).withStyle(ChatFormatting.GRAY), textW));
+                detailLines.add(FormattedCharSequence.EMPTY);
+            }
         }
         detailLines.addAll(font.split(
                 Component.translatable("screen.roleintroduce.detail.description")
@@ -344,12 +364,12 @@ public class RoleIntroduceScreen extends Screen {
         detailLines.addAll(font.split(
                 Component.literal(sb.toString()).withStyle(ChatFormatting.DARK_GRAY), textW));
         detailLines.addAll(font.split(
-                RoleUtils.getRoleOrModifierDescription(selectedRole)
+                RoleUtils.getRoleOrModifierOrItemDescription(selectedRole)
                         .copy().withStyle(ChatFormatting.WHITE),
                 textW));
         {
-            String story_key = "star.story." + (selectedRole instanceof Role ? "role" : "modifier") + "."
-                    + RoleUtils.getRoleOrModifierIdentifier(selectedRole).getPath();
+            String story_key = "star.story." + getObjectType(selectedRole) + "."
+                    + getObjectPath((selectedRole));
             if (Language.getInstance().has(story_key)) {
                 detailLines.add(FormattedCharSequence.EMPTY);
                 detailLines.addAll(font.split(
@@ -366,8 +386,8 @@ public class RoleIntroduceScreen extends Screen {
         }
 
         {
-            String story_key = "star.settings." + (selectedRole instanceof Role ? "role" : "modifier") + "."
-                    + RoleUtils.getRoleOrModifierIdentifier(selectedRole).getPath();
+            String story_key = "star.settings." + getObjectType(selectedRole) + "."
+                    + getObjectPath(selectedRole);
             if (Language.getInstance().has(story_key)) {
                 detailLines.add(FormattedCharSequence.EMPTY);
                 detailLines.addAll(font.split(
@@ -385,6 +405,24 @@ public class RoleIntroduceScreen extends Screen {
         int totalTextH = detailLines.size() * (font.lineHeight + 2);
         maxDetailScroll = Math.max(0, totalTextH - detailContentH());
         detailScrollOffset = 0;
+    }
+
+    private String getObjectPath(Object it) {
+        if (it instanceof Item) {
+            return RoleUtils.getRoleOrModifierOrItemIdentifier(it).toLanguageKey();
+        } else {
+            return RoleUtils.getRoleOrModifierOrItemIdentifier(it).getPath();
+        }
+    }
+
+    private String getObjectType(Object it) {
+        if (it instanceof Item)
+            return "item";
+        if (it instanceof Modifier)
+            return "modifier";
+        if (it instanceof Role)
+            return "role";
+        return "unknown";
     }
 
     private int detailContentH() {
@@ -575,16 +613,22 @@ public class RoleIntroduceScreen extends Screen {
         g.fill(iconX, iconY, iconX + ICON_SIZE, iconY + ICON_SIZE,
                 blendColors(0xFF0A0C18, roleColor, 0.25f));
         boolean iconOk = false;
-        try {
-            g.blit(getTypeIcon(role), iconX, iconY, 0f, 0f,
-                    ICON_SIZE, ICON_SIZE, ICON_SIZE, ICON_SIZE);
+        if (role instanceof Item it) {
             iconOk = true;
-        } catch (Exception ignored) {
+            g.renderItem(it.getDefaultInstance(), iconX + 5, iconY + 5);
+        } else {
+            try {
+                g.blit(getTypeIcon(role), iconX, iconY, 0f, 0f,
+                        ICON_SIZE, ICON_SIZE, ICON_SIZE, ICON_SIZE);
+                iconOk = true;
+            } catch (Exception ignored) {
+            }
         }
+
         if (!iconOk) {
             g.fill(iconX, iconY, iconX + ICON_SIZE, iconY + ICON_SIZE,
                     blendColors(0xFF111320, roleColor, 0.55f));
-            String initial = RoleUtils.getRoleOrModifierName(role).getString();
+            String initial = RoleUtils.getRoleOrModifierOrItemName(role).getString();
             if (!initial.isEmpty())
                 g.drawCenteredString(font,
                         Component.literal(String.valueOf(initial.charAt(0)).toUpperCase())
@@ -600,13 +644,13 @@ public class RoleIntroduceScreen extends Screen {
 
         g.drawString(font,
                 font.plainSubstrByWidth(
-                        RoleUtils.getRoleOrModifierTypeName(role).getString(), textMaxW),
+                        RoleUtils.getRoleOrModifierOrItemTypeName(role).getString(), textMaxW),
                 textX, y + 5,
                 selected ? 0xFF88CCEE : blendColors(0xFF5577AA, 0xFF88BBDD, hover), false);
 
         int nameY = y + 5 + font.lineHeight + 1;
         List<FormattedCharSequence> nameLines = font.split(
-                RoleUtils.getRoleOrModifierNameWithColor(role), textMaxW);
+                RoleUtils.getRoleOrModifierOrItemNameWithColor(role), textMaxW);
         if (!nameLines.isEmpty())
             g.drawString(font, nameLines.get(0), textX, nameY,
                     selected ? 0xFFFFDD88 : (hover > 0.3f ? 0xFFEEEEFF : 0xFFCCCCDD), selected);
@@ -681,7 +725,7 @@ public class RoleIntroduceScreen extends Screen {
             g.blit(getTypeIcon(selectedRole), bIconX, bIconY, 0f, 0f,
                     bIconSize, bIconSize, bIconSize, bIconSize);
         } catch (Exception ignored) {
-            String s = RoleUtils.getRoleOrModifierName(selectedRole).getString();
+            String s = RoleUtils.getRoleOrModifierOrItemName(selectedRole).getString();
             if (!s.isEmpty())
                 g.drawCenteredString(font,
                         Component.literal(String.valueOf(s.charAt(0)).toUpperCase())
@@ -694,9 +738,9 @@ public class RoleIntroduceScreen extends Screen {
 
         g.drawString(font,
                 Component.translatable("gui.roleintroduce.right.warp",
-                        RoleUtils.getRoleOrModifierTypeName(selectedRole)
+                        RoleUtils.getRoleOrModifierOrItemTypeName(selectedRole)
                                 .withStyle(ChatFormatting.BOLD, ChatFormatting.AQUA),
-                        RoleUtils.getRoleOrModifierName(selectedRole)),
+                        RoleUtils.getRoleOrModifierOrItemName(selectedRole)),
                 bIconX + bIconSize + 5, panelY + (BANNER_H - font.lineHeight) / 2,
                 0xFFFFFF, true);
 
