@@ -1,6 +1,11 @@
 {
-  "star.story.item.trainmurdermystery.bat": "球棒 故事",
-  "star.settings.item.trainmurdermystery.bat": "球棒 设定",
-  "item.trainmurdermystery.bat.desc": "球棒介绍",
-  "item.trainmurdermystery.bat.tooltip": "球棒TOOLTIP"
+  "item.trainmurdermystery.bat.desc": "原版攻击逻辑，左键打人。",
+  "item.trainmurdermystery.defense_vial.desc": "亡命徒可直接右键饮用获得护盾。\n普通玩家可以右键托盘，将防御药剂倒在托盘上。\n下一个拿取防御药剂的玩家食用/饮用物品后即可获得护盾。\n此方法获得的护盾最多获得1层。",
+  "item.noellesroles.cooked_food.desc": "由厨师烹饪。烹饪后带有各种效果。",
+  "item.noellesroles.letter.desc": "开启任务点透视时，拿着信封可以看到物品售货机。",
+  "item.noellesroles.master_key.desc": "可以开启任何门的钥匙。",
+  "item.noellesroles.role_mine.desc": "未实装物品",
+  "item.noellesroles.master_key_p.desc": "可以开启普通木门的钥匙。有使用次数限制。",
+  "item.trainmurdermystery.iron_door_key.desc": "可以开启铁门的钥匙。有使用次数限制。",
+  "item.trainmurdermystery.key.desc": "钥匙，用于开启自己的房间。\n开启任务点透视时，拿着钥匙可以看到自己的房间门。"
 }

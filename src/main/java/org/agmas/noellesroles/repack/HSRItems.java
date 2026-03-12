@@ -1,6 +1,7 @@
 package org.agmas.noellesroles.repack;
 
 import dev.doctor4t.ratatouille.util.registrar.ItemRegistrar;
+import io.wifi.starrailexpress.index.TMMDescItems;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -33,6 +34,7 @@ public class HSRItems {
     @SuppressWarnings("unchecked")
     public static Item register(Item item, String id) {
         var registeredItem = registrar.create(id, item, new ResourceKey[] { HSR_CREATIVE_GROUP });
+        TMMDescItems.introItems.add(registeredItem);
         return registeredItem;
     }
 
