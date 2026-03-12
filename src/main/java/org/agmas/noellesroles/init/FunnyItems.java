@@ -1,6 +1,7 @@
 package org.agmas.noellesroles.init;
 
 import dev.doctor4t.ratatouille.util.registrar.ItemRegistrar;
+import io.wifi.starrailexpress.index.TMMDescItems;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -24,7 +25,7 @@ public class FunnyItems {
       new BowenBadgeItem(new Item.Properties().stacksTo(1)),
       "bowen_badge");
   public static final Item SHISIYE = register(
-    new ShisiyeItem(new Item.Properties().stacksTo(1).food(Foods.HONEY_BOTTLE)),
+      new ShisiyeItem(new Item.Properties().stacksTo(1).food(Foods.HONEY_BOTTLE)),
       "shisiye");
   public static final Item PROBLEM_SET = register(
       new ProblemSetItem(new Item.Properties().stacksTo(1)),
@@ -37,7 +38,7 @@ public class FunnyItems {
     var registeredItem = registrar.create(id, item, new ResourceKey[] { MISC_CREATIVE_GROUP });
     // Item registeredItem = Registry.register(BuiltInRegistries.ITEM, itemID,
     // item);
-
+    TMMDescItems.introItems.add(registeredItem);
     // Return the registered item!
     return registeredItem;
   }

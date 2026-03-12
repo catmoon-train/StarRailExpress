@@ -2,6 +2,7 @@ package pro.fazeclan.river.stupid_express.constants;
 
 import dev.doctor4t.ratatouille.util.registrar.ItemRegistrar;
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.index.TMMDescItems;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -26,6 +27,8 @@ public class SEItems {
 
     public static void init() {
         registrar.registerEntries();
+        TMMDescItems.introItems.add(JERRY_CAN);
+        TMMDescItems.introItems.add(LIGHTER);
     }
 
 }

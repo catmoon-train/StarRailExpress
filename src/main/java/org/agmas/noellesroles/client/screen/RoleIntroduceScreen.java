@@ -721,17 +721,21 @@ public class RoleIntroduceScreen extends Screen {
         int bIconY = panelY + 3;
         g.fill(bIconX, bIconY, bIconX + bIconSize, bIconY + bIconSize,
                 blendColors(0xFF0A0C18, rawColor | 0xFF000000, 0.3f));
-        try {
-            g.blit(getTypeIcon(selectedRole), bIconX, bIconY, 0f, 0f,
-                    bIconSize, bIconSize, bIconSize, bIconSize);
-        } catch (Exception ignored) {
-            String s = RoleUtils.getRoleOrModifierOrItemName(selectedRole).getString();
-            if (!s.isEmpty())
-                g.drawCenteredString(font,
-                        Component.literal(String.valueOf(s.charAt(0)).toUpperCase())
-                                .withStyle(ChatFormatting.BOLD),
-                        bIconX + bIconSize / 2,
-                        bIconY + (bIconSize - font.lineHeight) / 2, 0xFFFFFF);
+        if (selectedRole instanceof Item it) {
+            g.renderItem(it.getDefaultInstance(), bIconX + (bIconSize - 16) / 2, bIconY + (bIconSize - 16) / 2);
+        } else {
+            try {
+                g.blit(getTypeIcon(selectedRole), bIconX, bIconY, 0f, 0f,
+                        bIconSize, bIconSize, bIconSize, bIconSize);
+            } catch (Exception ignored) {
+                String s = RoleUtils.getRoleOrModifierOrItemName(selectedRole).getString();
+                if (!s.isEmpty())
+                    g.drawCenteredString(font,
+                            Component.literal(String.valueOf(s.charAt(0)).toUpperCase())
+                                    .withStyle(ChatFormatting.BOLD),
+                            bIconX + bIconSize / 2,
+                            bIconY + (bIconSize - font.lineHeight) / 2, 0xFFFFFF);
+            }
         }
         g.renderOutline(bIconX, bIconY, bIconSize, bIconSize,
                 (rawColor & 0x00FFFFFF) | 0xAA000000);

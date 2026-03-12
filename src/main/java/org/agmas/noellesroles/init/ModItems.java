@@ -33,6 +33,7 @@ import org.agmas.noellesroles.item.charge_item.ToxinChargeItem;
 import org.agmas.noellesroles.repack.HSRItems;
 import org.agmas.noellesroles.utils.LocalDateData;
 
+import io.wifi.starrailexpress.index.TMMDescItems;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.item.KnifeItem;
 
@@ -463,6 +464,7 @@ public class ModItems {
         var registeredItem = registrar.create(id, item, new ResourceKey[] { MISC_CREATIVE_GROUP });
         // Item registeredItem = Registry.register(BuiltInRegistries.ITEM, itemID,
         // item);
+        TMMDescItems.introItems.add(registeredItem);
 
         // Return the registered item!
         return registeredItem;
