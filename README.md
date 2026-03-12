@@ -23,7 +23,7 @@
 
 ## 本 DLC 特性
 ### 角色
-我们融合了 `Harpymodloader`、`StupidExpress`、`Noellesroles`，并且加入了许多我们自己的原创角色、修饰符。
+我们融合了 `Harpymodloader`、`StupidExpress`、`Noellesroles`、`Harpy Simple Roles`、`KinsWathe`的部分角色与修饰符，并且加入了许多我们自己的原创角色、修饰符。
 ### 物品、实体、方块
 我们为列车增加了更多的物品、实体、方块，您可以在游戏物品栏里查看
 ### 功能
