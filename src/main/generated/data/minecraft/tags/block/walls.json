@@ -1,15 +1,15 @@
 {
   "values": [
-    "starrailexpress:tarnished_gold_wall",
-    "starrailexpress:gold_wall",
-    "starrailexpress:pristine_gold_wall",
-    "starrailexpress:metal_sheet_wall",
-    "starrailexpress:stainless_steel_wall",
-    "starrailexpress:marble_wall",
-    "starrailexpress:marble_tile_wall",
-    "starrailexpress:dark_marble_wall",
-    "starrailexpress:white_hull_wall",
-    "starrailexpress:black_hull_wall",
-    "starrailexpress:black_hull_sheet_wall"
+    "trainmurdermystery:tarnished_gold_wall",
+    "trainmurdermystery:gold_wall",
+    "trainmurdermystery:pristine_gold_wall",
+    "trainmurdermystery:metal_sheet_wall",
+    "trainmurdermystery:stainless_steel_wall",
+    "trainmurdermystery:marble_wall",
+    "trainmurdermystery:marble_tile_wall",
+    "trainmurdermystery:dark_marble_wall",
+    "trainmurdermystery:white_hull_wall",
+    "trainmurdermystery:black_hull_wall",
+    "trainmurdermystery:black_hull_sheet_wall"
   ]
 }

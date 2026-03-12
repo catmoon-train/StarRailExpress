@@ -6,585 +6,706 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 
 import org.agmas.harpymodloader.modifiers.HMLModifiers;
 import org.agmas.harpymodloader.modifiers.Modifier;
 import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.client.widget.SelectedRoleIntroTextWidget;
 import org.agmas.noellesroles.utils.RoleUtils;
-import java.util.ArrayList;
-import java.util.List;
 
-import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.Tooltip;
-import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.util.Mth;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class RoleIntroduceScreen extends Screen {
-    private final List<Role> availableRoles = new ArrayList<>();
-    private int CARDS_PER_ROW = 5;
-    private int ROWS_PER_PAGE = 1;
-    private int CARDS_PER_PAGE = 5;
-    // 搜索框
-    private EditBox searchWidget = null;
-    private String searchContent = null;
-    private int totalPages = 0;
 
-    private List<RoleCardWidget> roleCardWidgets = new ArrayList<>();
+    // ─── 布局常量 ───────────────────────────────────────────────────
+    private static final int MAX_USABLE_WIDTH  = 700;
+    private static final float USABLE_RATIO    = 0.9f;
+    private static final float LEFT_RATIO      = 0.30f;
 
-    // 卡牌尺寸
-    private int CARD_WIDTH = 60;
-    private int CARD_HEIGHT = 80;
-    private int CARD_SPACING_X = 15;
-    private int CARD_SPACING_Y = 15;
+    // ─── 左侧卡片常量 ─────────────────────────────────────────────────
+    private static final int CARD_WIDTH        = 86;
+    private static final int CARD_HEIGHT       = 110;
+    private static final int CARD_SPACING      = 10;
+    private static final int H_SCROLL_H        = 6;   // 横向滚动条高度
+    private static final int PANEL_PADDING     = 8;
 
-    private int currentRolePage = 0; // 当前角色页码
-    private Button prevPageButton;
-    private Button nextPageButton;
-    private SelectedRoleIntroTextWidget selectedRoleIntroWidget;
-    private Object selectedRole;
+    // ─── 右侧滚动条常量 ───────────────────────────────────────────────
+    private static final int V_SCROLL_W        = 6;
+    private static final int SCROLL_MIN_THUMB  = 20;
 
-    /**
-     * 选择阶段：搜索职业
-     */
-    private void onRoleSearch(String text) {
-        if (text.isEmpty()) {
-            searchContent = null;
-        } else {
-            searchContent = text;
-        }
-        currentRolePage = 0;
-        totalPages = 0;
-        refreshRoleSelection();
-    }
+    // ─── 数据 ──────────────────────────────────────────────────────
+    private final List<Role>   availableRoles  = new ArrayList<>();
+    private final List<Object> filteredItems   = new ArrayList<>();
+
+    // ─── 布局（init时计算） ────────────────────────────────────────────
+    private int usableWidth, leftW, rightW;
+    private int panelX, panelY, panelH;
+    private int leftX, rightX;
+
+    // ─── 左侧卡片横向滚动 ─────────────────────────────────────────────
+    /** 横向像素偏移（滚动位置） */
+    private int   cardScrollOffset = 0;
+    /** 最大可滚动量 */
+    private int   maxCardScroll    = 0;
+    /** 拖动滚动条时的起始信息 */
+    private boolean isDraggingCardScroll = false;
+    private double  dragCardStartMouseX  = 0;
+    private int     dragCardStartOffset  = 0;
+    /** 每个卡片的悬停动画进度 0.0~1.0 */
+    private final Map<Object, Float> hoverAnims = new HashMap<>();
+
+    // ─── 右侧详情面板 ─────────────────────────────────────────────────
+    private Object selectedRole = null;
+    /** 预包行后的文本行列表 */
+    private final List<FormattedCharSequence> detailLines = new ArrayList<>();
+    private int detailScrollOffset = 0;
+    private int maxDetailScroll    = 0;
+    private boolean isDraggingDetailScroll = false;
+    private double  dragDetailStartMouseY  = 0;
+    private int     dragDetailStartOffset  = 0;
+    /** "查看详情"按钮 */
+    private Button viewDetailButton = null;
+
+    // ─── 搜索 ──────────────────────────────────────────────────────
+    private EditBox searchWidget   = null;
+    private String  searchContent  = null;
+
+    // ══════════════════════════════════════════════════════════════════
+    //  构造
+    // ══════════════════════════════════════════════════════════════════
 
     public RoleIntroduceScreen(Player player) {
         super(Component.translatable("gui.roleintroduce.select_role.title"));
-
-        // 加载可用角色
-        availableRoles.clear();
         availableRoles.addAll(Noellesroles.getAllRolesSorted(true));
     }
 
-    /**
-     * 初始化角色选择阶段
-     */
-    private void initRoleSelection() {
-        if (availableRoles.isEmpty()) {
-            onClose();
-            return;
-        }
-        if (selectedRoleIntroWidget != null) {
-            selectedRoleIntroWidget = null;
-            this.removeWidget(selectedRoleIntroWidget);
-        }
-        // 过滤搜索结果
-        List<Role> filteredRoles = new ArrayList<>();
-        for (Role role : availableRoles) {
-            String roleName = RoleUtils.getRoleName(role).getString();
-            if (searchContent == null || roleName.toLowerCase().contains(searchContent.toLowerCase())
-                    || role.identifier().toString().contains(searchContent.toLowerCase())) {
-                filteredRoles.add(role);
-            }
-        }
-        // 过滤搜索结果
-        List<Modifier> filteredModifiers = new ArrayList<>();
-        for (Modifier role : HMLModifiers.MODIFIERS) {
-            String roleName = role.getName().getString();
-            if (searchContent == null || roleName.toLowerCase().contains(searchContent.toLowerCase())
-                    || role.identifier().toString().contains(searchContent.toLowerCase())) {
-                filteredModifiers.add(role);
-            }
-        }
-
-        var filtered = new ArrayList<Object>();
-        filtered.addAll(filteredRoles);
-        filtered.addAll(filteredModifiers);
-        // 翻页相关
-        // 动态定义
-        CARDS_PER_ROW = 5; // 每行最多5个卡牌
-        ROWS_PER_PAGE = 1; // 每页最多1行
-        CARDS_PER_PAGE = CARDS_PER_ROW * ROWS_PER_PAGE; // 每页最多8个卡牌
-
-        CARD_WIDTH = 100;
-        CARD_HEIGHT = 120;
-        CARD_SPACING_X = 15;
-        CARD_SPACING_Y = 15;
-        // BIG: 854/492
-        // SMALL: 427/240
-        boolean isSmallUI = false;
-        if (this.height <= 400)
-            isSmallUI = true;
-        if (isSmallUI) {
-            CARD_WIDTH = 60;
-            CARD_HEIGHT = 60;
-        }
-        // LoggerFactory.getLogger("gamblerScreen").info("[W/H] " + this.width + "/" +
-        // this.height);
-        totalPages = (int) Math.ceil(filtered.size() / (double) CARDS_PER_PAGE);
-
-        // 确保当前页码有效
-        if (totalPages > 0) {
-            currentRolePage = Mth.clamp(currentRolePage, 0, totalPages - 1);
-        } else {
-            currentRolePage = 0;
-        }
-
-        // 计算当前页的角色范围
-        int startIndex = currentRolePage * CARDS_PER_PAGE;
-        int endIndex = Math.min(startIndex + CARDS_PER_PAGE, filtered.size());
-
-        // 计算布局 - 居中显示卡牌
-        int totalCardsWidth = CARDS_PER_ROW * CARD_WIDTH + (CARDS_PER_ROW - 1) * CARD_SPACING_X;
-        int totalCardsHeight = ROWS_PER_PAGE * CARD_HEIGHT + (ROWS_PER_PAGE - 1) * CARD_SPACING_Y;
-        int startX = (width - totalCardsWidth) / 2;
-        int startY = (height - totalCardsHeight) / 2 - (isSmallUI ? 20 : 30); // 向上偏移给下部分提示留空间
-
-        // 清空旧的卡牌组件
-        for (RoleCardWidget widget : roleCardWidgets) {
-            this.removeWidget(widget);
-        }
-        roleCardWidgets.clear();
-
-        // 添加当前页的角色卡牌
-        for (int i = startIndex; i < endIndex; i++) {
-            Object role = filtered.get(i);
-            int indexOnPage = i - startIndex;
-            int col = indexOnPage % CARDS_PER_ROW;
-            int row = indexOnPage / CARDS_PER_ROW;
-
-            int x = startX + col * (CARD_WIDTH + CARD_SPACING_X);
-            int y = startY + row * (CARD_HEIGHT + CARD_SPACING_Y);
-
-            RoleCardWidget card = new RoleCardWidget(x, y, CARD_WIDTH, CARD_HEIGHT, role, i);
-            roleCardWidgets.add(card);
-            addRenderableWidget(card);
-        }
-        // 添加翻页按钮
-        int buttonWidth = 80;
-        int buttonHeight = 25;
-        int buttonY = startY + totalCardsHeight + (isSmallUI ? 10 : 20);
-
-        // 移除旧的翻页按钮
-        if (prevPageButton != null) {
-            this.removeWidget(prevPageButton);
-        }
-        if (nextPageButton != null) {
-            this.removeWidget(nextPageButton);
-        }
-
-        // 上一页按钮
-        prevPageButton = Button.builder(
-                Component.translatable("screen.noellesroles.gambler.prev_page"),
-                button -> {
-                    if (currentRolePage > 0) {
-                        currentRolePage--;
-                        refreshRoleSelection();
-                    }
-                })
-                .bounds(width / 2 - buttonWidth - 30, buttonY, buttonWidth, buttonHeight)
-                .build();
-        prevPageButton.active = currentRolePage > 0;
-        addRenderableWidget(prevPageButton);
-
-        // 下一页按钮
-        nextPageButton = Button.builder(
-                Component.translatable("screen.noellesroles.gambler.next_page"),
-                button -> {
-                    if (currentRolePage < totalPages - 1) {
-                        currentRolePage++;
-                        refreshRoleSelection();
-                    }
-                })
-                .bounds(width / 2 + 30, buttonY, buttonWidth, buttonHeight)
-                .build();
-        nextPageButton.active = currentRolePage < totalPages - 1;
-        addRenderableWidget(nextPageButton);
-
-        int searchWidth = isSmallUI ? 200 : 400;
-        int searchX = (width - searchWidth) / 2;
-        int searchY = startY - (isSmallUI ? 30 : 50);
-        // 添加搜索框（如果不存在）
-        if (searchWidget == null) {
-
-            searchWidget = new EditBox(font, searchX, searchY, searchWidth, 20, Component.nullToEmpty(""));
-            searchWidget.setHint(Component.translatable("screen.noellesroles.search.placeholder")
-                    .withStyle(ChatFormatting.GRAY));
-            searchWidget.setEditable(true);
-            searchWidget.setResponder(this::onRoleSearch);
-            addRenderableWidget(searchWidget);
-        } else {
-            searchWidget.setPosition(searchX, searchY);
-            searchWidget.setWidth(searchWidth);
-            this.removeWidget(searchWidget);
-            this.addRenderableWidget(searchWidget);
-            // 解决奇怪问题
-        }
-        // 根据搜索结果设置搜索框颜色
-        if (filtered.isEmpty() && !searchContent.isEmpty()) {
-            searchWidget.setTextColor(0xFFAA0000); // 红色，表示没有搜索结果
-        } else {
-            searchWidget.setTextColor(0xFFFFFFFF); // 白色
-        }
-    }
-
-    /**
-     * 刷新角色选择界面
-     */
-    private void refreshRoleSelection() {
-        roleCardWidgets.forEach(this::removeWidget);
-        if (prevPageButton != null)
-            removeWidget(prevPageButton);
-        if (nextPageButton != null)
-            removeWidget(nextPageButton);
-        roleCardWidgets.clear();
-        initRoleSelection();
-    }
-
-    /**
-     * 角色被选中时调用
-     */
-    public void onRoleSelected(Object role) {
-        if (minecraft == null || minecraft.player == null)
-            return;
-        this.minecraft.setScreen(new RoleIntroduceDetailScreen(role, this));
-    }
+    // ══════════════════════════════════════════════════════════════════
+    //  初始化
+    // ══════════════════════════════════════════════════════════════════
 
     @Override
     protected void init() {
         super.init();
-        initRoleSelection();
-    }
-
-    @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        // 渲染渐变背景
-        renderBackground(guiGraphics, mouseX, mouseY, partialTick);
-
-        // 绘制标题背景
-        int titleBgY = 20;
-        int titleBgHeight = 40;
-        guiGraphics.fillGradient(0, titleBgY, width, titleBgY + titleBgHeight,
-                0x80000000, 0x00000000);
-
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
-
-        // 绘制标题
-        guiGraphics.drawCenteredString(font, this.title, width / 2, 30, 0xFFFFFF);
-
-        // 绘制页码信息
-        if (totalPages > 0) {
-            Component pageInfo = Component.translatable("screen.noellesroles.gambler.page_info",
-                    currentRolePage + 1, totalPages)
-                    .withStyle(ChatFormatting.YELLOW);
-            guiGraphics.drawCenteredString(font, pageInfo, width / 2, 60, 0xFFFFFF);
+        computeLayout();
+        initSearchBox();
+        refreshFilter();
+        // 默认选中第一个
+        if (selectedRole == null && !filteredItems.isEmpty()) {
+            selectedRole = filteredItems.get(0);
         }
-
-        // 绘制提示
-        Component hint = Component.translatable("screen.roleintroduce.hint")
-                .withStyle(ChatFormatting.GRAY);
-        guiGraphics.drawCenteredString(font, hint, width / 2, height - 30, 0x888888);
-
+        rebuildDetailLines();
+        initViewDetailButton();
     }
 
-    @Override
-    public void renderBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        // 创建更现代化的渐变背景
-        int topColor = 0xFF1A1A2E; // 深蓝色
-        int bottomColor = 0xFF16213E; // 更深的蓝色
-        guiGraphics.fillGradient(0, 0, width, height, topColor, bottomColor);
+    /** 根据当前屏幕尺寸计算所有布局量 */
+    private void computeLayout() {
+        usableWidth = Math.min((int)(width  * USABLE_RATIO), MAX_USABLE_WIDTH);
+        leftW       = (int)(usableWidth * LEFT_RATIO);
+        rightW      = usableWidth - leftW;
+        panelX      = (width  - usableWidth) / 2;
+        panelY      = 48;                              // 标题 + 搜索框下方
+        panelH      = height - panelY - 18;
+        leftX       = panelX;
+        rightX      = panelX + leftW;
+    }
 
-        // 添加一些装饰性粒子效果（可选）
-        if (minecraft.level != null) {
-            long time = minecraft.level.getGameTime();
-            for (int i = 0; i < 20; i++) {
-                float x = (float) ((time * 0.5 + i * 50) % width);
-                float y = (float) ((Math.sin(time * 0.02 + i) * 20 + height / 2 + i * 10) % height);
-                float size = 2 + (float) Math.sin(time * 0.1 + i) * 1;
-                int alpha = (int) (100 + 155 * Math.sin(time * 0.05 + i));
-                int starColor = (alpha << 24) | 0xFFFFFF;
-                guiGraphics.fill((int) x, (int) y, (int) (x + size), (int) (y + size), starColor);
+    private void initSearchBox() {
+        int searchW = leftW - 2;
+        int searchX = leftX + 1;
+        int searchY = panelY - 22;
+
+        if (searchWidget == null) {
+            searchWidget = new EditBox(font, searchX, searchY, searchW, 18, Component.empty());
+            searchWidget.setHint(
+                    Component.translatable("screen.noellesroles.search.placeholder")
+                              .withStyle(ChatFormatting.GRAY));
+            searchWidget.setResponder(text -> {
+                searchContent = text.isEmpty() ? null : text;
+                cardScrollOffset = 0;
+                refreshFilter();
+                // 搜索后自动选首项
+                if (!filteredItems.isEmpty()) {
+                    selectedRole = filteredItems.get(0);
+                } else {
+                    selectedRole = null;
+                }
+                rebuildDetailLines();
+                initViewDetailButton();
+            });
+        } else {
+            searchWidget.setPosition(searchX, searchY);
+            searchWidget.setWidth(searchW);
+            removeWidget(searchWidget);
+        }
+        addRenderableWidget(searchWidget);
+
+        // 搜索框颜色
+        boolean noResult = filteredItems.isEmpty() && searchContent != null && !searchContent.isEmpty();
+        searchWidget.setTextColor(noResult ? 0xFFAA2222 : 0xFFFFFFFF);
+    }
+
+    private void initViewDetailButton() {
+        if (viewDetailButton != null) {
+            removeWidget(viewDetailButton);
+            viewDetailButton = null;
+        }
+        if (selectedRole == null) return;
+
+        int btnW = Math.min(rightW - 20, 160);
+        int btnH = 20;
+        int btnX = rightX + (rightW - btnW) / 2;
+        int btnY = panelY + panelH - btnH - PANEL_PADDING;
+
+        viewDetailButton = Button.builder(
+                Component.translatable("screen.roleintroduce.view_detail").withStyle(ChatFormatting.GOLD),
+                btn -> openDetailScreen()
+        ).bounds(btnX, btnY, btnW, btnH).build();
+        addRenderableWidget(viewDetailButton);
+    }
+
+    // ══════════════════════════════════════════════════════════════════
+    //  数据过滤 & 详情构建
+    // ══════════════════════════════════════════════════════════════════
+
+    private void refreshFilter() {
+        filteredItems.clear();
+
+        for (Role role : availableRoles) {
+            String name = RoleUtils.getRoleName(role).getString();
+            if (searchContent == null
+                    || name.toLowerCase().contains(searchContent.toLowerCase())
+                    || role.identifier().toString().contains(searchContent.toLowerCase())) {
+                filteredItems.add(role);
             }
         }
+        for (Modifier mod : HMLModifiers.MODIFIERS) {
+            String name = mod.getName().getString();
+            if (searchContent == null
+                    || name.toLowerCase().contains(searchContent.toLowerCase())
+                    || mod.identifier().toString().contains(searchContent.toLowerCase())) {
+                filteredItems.add(mod);
+            }
+        }
+
+        // 更新最大横向滚动
+        int cardAreaW = leftW - PANEL_PADDING * 2;
+        int totalW = filteredItems.size() * (CARD_WIDTH + CARD_SPACING) - CARD_SPACING;
+        maxCardScroll = Math.max(0, totalW - cardAreaW);
+        cardScrollOffset = Mth.clamp(cardScrollOffset, 0, maxCardScroll);
     }
 
-    /**
-     * 角色卡牌小部件
-     */
-    private class RoleCardWidget extends AbstractWidget {
-        private final Object role;
-        private boolean hovered;
-        private float hoverAnimation = 0f;
+    /** 将选中角色的详情文字包行，缓存到 detailLines */
+    private void rebuildDetailLines() {
+        detailLines.clear();
 
-        public static MutableComponent MakeCardMessage(Object role) {
-            return Component.translatable("gui.roleintroduce.card.display_name",
-                    RoleUtils.getRoleOrModifierTypeName(role).withStyle(ChatFormatting.AQUA),
-                    RoleUtils.getRoleOrModifierNameWithColor(role)).withStyle(ChatFormatting.GOLD);
-        }
+        if (selectedRole == null) return;
 
-        public RoleCardWidget(int x, int y, int width, int height, Object role, int index) {
-            super(x, y, width, height, MakeCardMessage(role));
-            this.role = role;
-            // 设置工具提示
-            Component tooltip = Component
-                    .translatable("screen.roleintroduce.click_to_select", RoleUtils.getRoleOrModifierTypeName(role),
-                            RoleUtils.getRoleOrModifierNameWithColor(role),
-                            RoleUtils.getRoleOrModifierDescription(role).withStyle(ChatFormatting.WHITE))
-                    .withStyle(ChatFormatting.GOLD);
-            this.setTooltip(Tooltip.create(tooltip));
-        }
+        int textW = rightW - PANEL_PADDING * 2 - V_SCROLL_W - 4;
 
-        @Override
-        public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-            this.hovered = isMouseOver(mouseX, mouseY);
+        // ── 类型标签 ──
+        Component typeLabel = Component.translatable("screen.roleintroduce.detail.type")
+                .withStyle(ChatFormatting.DARK_GRAY);
+        Component typeName = RoleUtils.getRoleOrModifierTypeName(selectedRole)
+                .copy().withStyle(ChatFormatting.AQUA);
+        detailLines.addAll(font.split(
+                Component.empty().append(typeLabel).append(" ").append(typeName), textW));
+
+        detailLines.add(FormattedCharSequence.EMPTY);
+
+        // ── 名称 ──
+        Component nameLabel = Component.translatable("screen.roleintroduce.detail.name")
+                .withStyle(ChatFormatting.DARK_GRAY);
+        Component roleName = RoleUtils.getRoleOrModifierNameWithColor(selectedRole);
+        detailLines.addAll(font.split(
+                Component.empty().append(nameLabel).append(" ").append(roleName), textW));
+
+        detailLines.add(FormattedCharSequence.EMPTY);
+
+        // ── 描述分割线 ──
+        detailLines.addAll(font.split(
+                Component.translatable("screen.roleintroduce.detail.description")
+                         .withStyle(ChatFormatting.YELLOW), textW));
+
+        // 细线用重复横线模拟
+        StringBuilder line = new StringBuilder();
+        int dashCount = textW / font.width("-");
+        for (int i = 0; i < dashCount; i++) line.append("-");
+        detailLines.addAll(font.split(
+                Component.literal(line.toString()).withStyle(ChatFormatting.DARK_GRAY), textW));
+
+        // ── 描述正文 ──
+        Component desc = RoleUtils.getRoleOrModifierDescription(selectedRole)
+                .copy().withStyle(ChatFormatting.WHITE);
+        detailLines.addAll(font.split(desc, textW));
+
+        // 计算最大滚动量
+        int visibleH = detailContentH();
+        int totalTextH = detailLines.size() * (font.lineHeight + 2);
+        maxDetailScroll = Math.max(0, totalTextH - visibleH);
+        detailScrollOffset = 0;
+    }
+
+    /** 详情文本区域的可视高度（留出按钮空间） */
+    private int detailContentH() {
+        // 底部保留按钮 + padding
+        return panelH - PANEL_PADDING * 2 - 24;
+    }
+
+    // ══════════════════════════════════════════════════════════════════
+    //  渲染
+    // ══════════════════════════════════════════════════════════════════
+
+    @Override
+    public void render(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
+        renderBackground(g, mouseX, mouseY, partialTick);
+
+        renderLeftPanel(g, mouseX, mouseY, partialTick);
+        renderRightPanel(g, mouseX, mouseY);
+
+        // 顶部标题条
+        g.fillGradient(0, 0, width, panelY - 22, 0xCC000000, 0x00000000);
+        g.drawCenteredString(font, this.title, width / 2, 8, 0xFFFFFF);
+
+        // 底部提示
+        Component hint = Component.translatable("screen.roleintroduce.hint")
+                .withStyle(ChatFormatting.DARK_GRAY);
+        g.drawCenteredString(font, hint, width / 2, height - 14, 0x666666);
+
+        // 渲染子组件（搜索框、按钮等）
+        super.render(g, mouseX, mouseY, partialTick);
+    }
+
+    // ─── 左侧面板 ──────────────────────────────────────────────────
+
+    private void renderLeftPanel(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
+        // 面板背景
+        drawPanel(g, leftX, panelY, leftW, panelH);
+
+        int cardAreaX  = leftX  + PANEL_PADDING;
+        int cardAreaY  = panelY + PANEL_PADDING;
+        int cardAreaW  = leftW  - PANEL_PADDING * 2;
+        // 留出底部滚动条空间
+        int cardAreaH  = panelH - PANEL_PADDING * 2 - H_SCROLL_H - 6;
+        // 卡片垂直居中
+        int cardY      = cardAreaY + (cardAreaH - CARD_HEIGHT) / 2;
+
+        // ── 用 enableScissor 裁剪卡片区域 ──
+        g.enableScissor(cardAreaX, cardAreaY,
+                        cardAreaX + cardAreaW, cardAreaY + cardAreaH);
+
+        for (int i = 0; i < filteredItems.size(); i++) {
+            Object role  = filteredItems.get(i);
+            int cardX = cardAreaX + i * (CARD_WIDTH + CARD_SPACING) - cardScrollOffset;
+
+            // 不在视口就跳过
+            if (cardX + CARD_WIDTH < cardAreaX || cardX > cardAreaX + cardAreaW) continue;
+
+            boolean hovered = isInRect(mouseX, mouseY, cardX, cardY, CARD_WIDTH, CARD_HEIGHT);
+            boolean selected = role.equals(selectedRole);
 
             // 更新悬停动画
-            float targetHover = hovered ? 1f : 0f;
-            hoverAnimation = Mth.lerp(0.2f, hoverAnimation, targetHover);
+            float anim = hoverAnims.getOrDefault(role, 0f);
+            anim = Mth.lerp(0.25f, anim, hovered ? 1f : 0f);
+            hoverAnims.put(role, anim);
 
-            // 计算卡牌位置和大小（带有悬停效果）
-            int renderX = getX();
-            int renderY = getY();
-            int renderWidth = width;
-            int renderHeight = height;
-
-            if (hoverAnimation > 0) {
-                float scale = 1 + hoverAnimation * 0.1f;
-                renderWidth = (int) (width * scale);
-                renderHeight = (int) (height * scale);
-                renderX = getX() - (renderWidth - width) / 2;
-                renderY = getY() - (renderHeight - height) / 2;
-            }
-
-            // 绘制卡牌背景
-            drawCardBackground(guiGraphics, renderX, renderY, renderWidth, renderHeight);
-
-            // 绘制角色图标（如果有）
-            drawRoleIcon(guiGraphics, renderX, renderY, renderWidth, renderHeight);
-
-            // 绘制角色名称
-            drawRoleName(guiGraphics, renderX, renderY, renderWidth, renderHeight);
-
-            // 绘制边框和效果
-            drawCardEffects(guiGraphics, renderX, renderY, renderWidth, renderHeight);
+            renderCard(g, role, cardX, cardY, CARD_WIDTH, CARD_HEIGHT, anim, selected);
         }
 
-        private void drawCardBackground(GuiGraphics guiGraphics, int x, int y, int width, int height) {
-            // 主背景（渐变）
-            int topColor = 0xFF2D3047; // 深蓝紫色
-            int bottomColor = 0xFF1C1E2E; // 更深的紫色
+        g.disableScissor();
 
-            // 如果悬停，改变颜色
-            if (hoverAnimation > 0) {
-                topColor = blendColors(topColor, 0xFF3D4077, hoverAnimation);
-                bottomColor = blendColors(bottomColor, 0xFF2C2E5E, hoverAnimation);
-            }
-
-            // 绘制圆角矩形背景
-            // int cornerRadius = 10;
-            guiGraphics.fill(x, y, x + width, y + height, 0xFF000000); // 黑色边框
-
-            // 主背景填充
-            guiGraphics.fill(x + 1, y + 1, x + width - 1, y + height - 1, topColor);
-
-            // 底部渐变
-            int gradientHeight = height / 3;
-            for (int i = 0; i < gradientHeight; i++) {
-                float progress = (float) i / gradientHeight;
-                int color = blendColors(topColor, bottomColor, progress);
-                guiGraphics.fill(x + 1, y + height - gradientHeight + i - 1,
-                        x + width - 1, y + height - gradientHeight + i, color);
-            }
+        // 搜索结果为空时提示
+        if (filteredItems.isEmpty()) {
+            g.drawCenteredString(font,
+                    Component.translatable("screen.noellesroles.search.empty")
+                             .withStyle(ChatFormatting.RED),
+                    leftX + leftW / 2, panelY + panelH / 2, 0xFFFFFF);
         }
 
-        private void drawRoleIcon(GuiGraphics guiGraphics, int x, int y, int width, int height) {
-            // 这里可以绘制角色的图标
-            // 示例：绘制一个简单的占位符图标
-            int iconSize = Math.min(width, height) / 2;
-            int iconX = x + (width - iconSize) / 2;
-            int iconY = y + height / 4 - iconSize / 4;
+        // 横向滚动条
+        int sbY = panelY + panelH - PANEL_PADDING - H_SCROLL_H;
+        renderHScrollbar(g, cardAreaX, sbY, cardAreaW, mouseX, mouseY);
+    }
 
-            // 图标背景（圆形）
-            guiGraphics.fill(iconX - 2, iconY - 2, iconX + iconSize + 2, iconY + iconSize + 2, 0x80000000);
+    /** 渲染单张卡片 */
+    private void renderCard(GuiGraphics g, Object role,
+                            int x, int y, int w, int h,
+                            float hover, boolean selected) {
+        int roleColor = RoleUtils.getRoleOrModifierColor(role);
 
-            // 绘制一个简单的职业图标
-            int iconColor = getRoleColor();
-            guiGraphics.fill(iconX, iconY, iconX + iconSize, iconY + iconSize, iconColor);
-
-            // 图标边框
-            guiGraphics.renderOutline(iconX, iconY, iconSize, iconSize, 0xFFFFFFFF);
-
-            // 绘制职业首字母
-            String initial = RoleUtils.getRoleOrModifierName(role).getString().substring(0, 1);
-            int textX = iconX + iconSize / 2 - font.width(initial) / 2;
-            int textY = iconY + iconSize / 2 - font.lineHeight / 2;
-            guiGraphics.drawString(font, initial, textX, textY, 0xFFFFFF, true);
+        // 悬停/选中时小幅放大
+        if (hover > 0.01f || selected) {
+            float scale = 1f + (selected ? 0.05f : hover * 0.06f);
+            int dw = (int)((w * scale) - w);
+            int dh = (int)((h * scale) - h);
+            x -= dw / 2; y -= dh / 2; w += dw; h += dh;
         }
 
-        private void drawRoleName(GuiGraphics guiGraphics, int x, int y, int width, int height) {
-            // 名称背景条
-            int nameBarY = y + height * 2 / 3;
-            int nameBarHeight = height / 3;
-            guiGraphics.fill(x, nameBarY, x + width, y + height, 0x80000000);
+        // 黑色描边
+        g.fill(x, y, x + w, y + h, 0xFF000000);
+        // 主背景
+        int bgTop = selected ? 0xFF283060 : blendColors(0xFF1E2040, 0xFF2D3580, hover);
+        int bgBot = selected ? 0xFF1A204A : blendColors(0xFF161828, 0xFF232A60, hover);
+        g.fillGradient(x + 1, y + 1, x + w - 1, y + h - 1, bgTop, bgBot);
 
-            // 绘制角色名称
-            Component name = getMessage();
-            List<FormattedCharSequence> wrappedName = font.split(name, width - 10);
+        // 顶部颜色条
+        g.fill(x + 1, y + 1, x + w - 1, y + 5, roleColor | 0xFF000000);
 
-            int nameY = nameBarY + (nameBarHeight - wrappedName.size() * font.lineHeight) / 2;
+        // 图标区域
+        int iconSize = w * 5 / 12;
+        int iconX    = x + (w - iconSize) / 2;
+        int iconY    = y + 12;
+        g.fill(iconX - 1, iconY - 1, iconX + iconSize + 1, iconY + iconSize + 1,
+               (roleColor & 0xFFFFFF) | 0x40000000);
+        g.fill(iconX, iconY, iconX + iconSize, iconY + iconSize,
+               (roleColor & 0xFFFFFF) | 0x80000000);
+        g.renderOutline(iconX, iconY, iconSize, iconSize, (roleColor & 0xFFFFFF) | 0xCC000000);
 
-            for (FormattedCharSequence line : wrappedName) {
-                int lineWidth = font.width(line);
-                int lineX = x + (width - lineWidth) / 2;
-                guiGraphics.drawString(font, line, lineX, nameY, 0xFFFFFF, true);
-                nameY += font.lineHeight;
-            }
+        // 首字母
+        String initial = RoleUtils.getRoleOrModifierName(role).getString();
+        if (!initial.isEmpty()) {
+            initial = String.valueOf(initial.charAt(0)).toUpperCase();
+        }
+        g.drawCenteredString(font, Component.literal(initial).withStyle(ChatFormatting.BOLD),
+                x + w / 2, iconY + iconSize / 2 - font.lineHeight / 2, 0xFFFFFF);
 
-            // 如果有选中状态，显示选中标记
-            if (role.equals(selectedRole)) {
-                int checkSize = 8;
-                int checkX = x + width - checkSize - 5;
-                int checkY = nameBarY + 5;
-                guiGraphics.fill(checkX, checkY, checkX + checkSize, checkY + checkSize, 0xFF00FF00);
-                guiGraphics.drawCenteredString(font, "✓", checkX + checkSize / 2, checkY - 1, 0x000000);
-            }
+        // 角色名称（包行，底部居中）
+        Component nameComp = RoleUtils.getRoleOrModifierNameWithColor(role);
+        List<FormattedCharSequence> nameLines = font.split(nameComp, w - 6);
+        int maxLines = 2;
+        int nameAreaY = iconY + iconSize + 5;
+        int nameAreaH = y + h - 4 - nameAreaY;
+        int totalNameH = Math.min(nameLines.size(), maxLines) * font.lineHeight;
+        int lineY = nameAreaY + (nameAreaH - totalNameH) / 2;
+        for (int li = 0; li < Math.min(nameLines.size(), maxLines); li++) {
+            FormattedCharSequence ln = nameLines.get(li);
+            g.drawString(font, ln, x + (w - font.width(ln)) / 2, lineY, 0xFFFFFF, true);
+            lineY += font.lineHeight;
         }
 
-        private void drawCardEffects(GuiGraphics guiGraphics, int x, int y, int width, int height) {
-            // 边框
-            int borderColor = 0xFF444488;
-            if (hoverAnimation > 0) {
-                borderColor = blendColors(borderColor, 0xFF8888FF, hoverAnimation);
-            }
-            guiGraphics.renderOutline(x, y, width, height, borderColor);
+        // 边框
+        int borderColor;
+        if (selected) {
+            borderColor = 0xFFAABBFF;
+        } else {
+            borderColor = blendColors(0xFF334466, 0xFF7788CC, hover);
+        }
+        g.renderOutline(x, y, w, h, borderColor);
 
-            // 悬停时的发光效果
-            if (hoverAnimation > 0) {
-                int glowColor = (int) (hoverAnimation * 100) << 24 | 0x8888FF;
-                for (int i = 1; i <= 3; i++) {
-                    guiGraphics.renderOutline(x - i, y - i, width + i * 2, height + i * 2, glowColor);
+        // 选中发光
+        if (selected) {
+            g.renderOutline(x - 1, y - 1, w + 2, h + 2, 0x888ABAFF);
+            g.renderOutline(x - 2, y - 2, w + 4, h + 4, 0x405585EE);
+        }
+    }
+
+    /** 渲染横向滚动条 */
+    private void renderHScrollbar(GuiGraphics g, int x, int y, int w, int mouseX, int mouseY) {
+        // 轨道
+        g.fill(x, y, x + w, y + H_SCROLL_H, 0x33FFFFFF);
+        if (maxCardScroll <= 0) return;
+
+        int totalW   = filteredItems.size() * (CARD_WIDTH + CARD_SPACING);
+        float ratio  = Math.min(1f, (float) w / totalW);
+        int thumbW   = Math.max(SCROLL_MIN_THUMB, (int)(w * ratio));
+        int thumbX   = x + (int)((w - thumbW) * ((float) cardScrollOffset / maxCardScroll));
+
+        boolean hovered = isInRect(mouseX, mouseY, thumbX, y, thumbW, H_SCROLL_H)
+                          || isDraggingCardScroll;
+        g.fill(thumbX, y, thumbX + thumbW, y + H_SCROLL_H,
+               hovered ? 0xDDCCDDFF : 0x88AABBFF);
+    }
+
+    // ─── 右侧面板 ──────────────────────────────────────────────────
+
+    private void renderRightPanel(GuiGraphics g, int mouseX, int mouseY) {
+        drawPanel(g, rightX, panelY, rightW, panelH);
+
+        if (selectedRole == null) {
+            g.drawCenteredString(font,
+                    Component.translatable("screen.roleintroduce.select_hint")
+                             .withStyle(ChatFormatting.GRAY),
+                    rightX + rightW / 2, panelY + panelH / 2, 0x888888);
+            return;
+        }
+
+        // ── 彩色顶部横幅 ──
+        int roleColor = RoleUtils.getRoleOrModifierColor(selectedRole);
+        int bannerH   = 28;
+        g.fillGradient(rightX + 1, panelY + 1,
+                       rightX + rightW - 1, panelY + bannerH,
+                       (roleColor & 0xFFFFFF) | 0xAA000000,
+                       0x00000000);
+
+        // 横幅上显示类型标签
+        Component typeTag = Component.empty()
+                .append("[ ")
+                .append(RoleUtils.getRoleOrModifierTypeName(selectedRole)
+                                 .copy().withStyle(ChatFormatting.BOLD))
+                .append(" ]");
+        g.drawCenteredString(font, typeTag,
+                rightX + rightW / 2, panelY + (bannerH - font.lineHeight) / 2 + 1,
+                0xFFFFFF);
+
+        // ── 文本区域 ──
+        int textX      = rightX + PANEL_PADDING;
+        int textY      = panelY + bannerH + PANEL_PADDING;
+        int textW      = rightW - PANEL_PADDING * 2 - V_SCROLL_W - 4;
+        int contentH   = detailContentH();
+        int scrollBarX = rightX + rightW - PANEL_PADDING - V_SCROLL_W;
+
+        // 裁剪文本
+        g.enableScissor(rightX + 1, textY, rightX + rightW - V_SCROLL_W - 4, textY + contentH);
+
+        int lineH = font.lineHeight + 2;
+        int lineY = textY - detailScrollOffset;
+        for (FormattedCharSequence line : detailLines) {
+            if (lineY + lineH >= textY && lineY <= textY + contentH) {
+                g.drawString(font, line, textX, lineY, 0xFFFFFF, false);
+            }
+            lineY += lineH;
+        }
+
+        g.disableScissor();
+
+        // ── 纵向滚动条 ──
+        renderVScrollbar(g, scrollBarX, textY, contentH, mouseX, mouseY);
+
+        // ── 按钮上方细线分隔 ──
+        int sepY = panelY + panelH - 28;
+        g.fill(rightX + PANEL_PADDING, sepY, rightX + rightW - PANEL_PADDING, sepY + 1, 0x44FFFFFF);
+    }
+
+    /** 渲染纵向滚动条 */
+    private void renderVScrollbar(GuiGraphics g, int x, int y, int h, int mouseX, int mouseY) {
+        // 轨道
+        g.fill(x, y, x + V_SCROLL_W, y + h, 0x33FFFFFF);
+        if (maxDetailScroll <= 0) return;
+
+        int totalTextH = detailLines.size() * (font.lineHeight + 2);
+        float ratio    = Math.min(1f, (float) h / totalTextH);
+        int thumbH     = Math.max(SCROLL_MIN_THUMB, (int)(h * ratio));
+        int thumbY     = y + (int)((h - thumbH) * ((float) detailScrollOffset / maxDetailScroll));
+
+        boolean hovered = isInRect(mouseX, mouseY, x, thumbY, V_SCROLL_W, thumbH)
+                          || isDraggingDetailScroll;
+        g.fill(x, thumbY, x + V_SCROLL_W, thumbY + thumbH,
+               hovered ? 0xDDCCDDFF : 0x88AABBFF);
+    }
+
+    // ─── 通用面板背景 ──────────────────────────────────────────────
+
+    private void drawPanel(GuiGraphics g, int x, int y, int w, int h) {
+        // 填充
+        g.fillGradient(x, y, x + w, y + h, 0xCC0D1020, 0xCC141828);
+        // 边框
+        g.renderOutline(x, y, w, h, 0xFF2A3860);
+        // 内侧高光（顶部一条亮线）
+        g.fill(x + 1, y + 1, x + w - 1, y + 2, 0x22FFFFFF);
+    }
+
+    // ─── 背景 ──────────────────────────────────────────────────────
+
+    @Override
+    public void renderBackground(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
+        // 深蓝渐变底色
+        g.fillGradient(0, 0, width, height, 0xFF0E1420, 0xFF0A0F1C);
+
+        // 星点动画
+        if (minecraft != null && minecraft.level != null) {
+            long t = minecraft.level.getGameTime();
+            for (int i = 0; i < 24; i++) {
+                float sx = (float)((t * 0.4 + i * 61.8) % width);
+                float sy = (float)((Math.sin(t * 0.015 + i * 1.2) * 30 + height * 0.5 + i * 9.7) % height);
+                int sz = (int)(1.5f + Math.sin(t * 0.08 + i) * 0.8f);
+                int alpha = (int)(80 + 140 * ((Math.sin(t * 0.04 + i) + 1) * 0.5));
+                g.fill((int)sx, (int)sy, (int)sx + sz, (int)sy + sz, (alpha << 24) | 0xCCDDFF);
+            }
+        }
+    }
+
+    // ══════════════════════════════════════════════════════════════════
+    //  鼠标事件
+    // ══════════════════════════════════════════════════════════════════
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (button == 0) {
+
+            // ── 点击左侧卡片 ──
+            int cardAreaX = leftX + PANEL_PADDING;
+            int cardAreaY = panelY + PANEL_PADDING;
+            int cardAreaW = leftW - PANEL_PADDING * 2;
+            int cardAreaH = panelH - PANEL_PADDING * 2 - H_SCROLL_H - 6;
+            int cardY     = cardAreaY + (cardAreaH - CARD_HEIGHT) / 2;
+
+            if (isInRect((int)mouseX, (int)mouseY, cardAreaX, cardAreaY, cardAreaW, cardAreaH)) {
+                for (int i = 0; i < filteredItems.size(); i++) {
+                    int cardX = cardAreaX + i * (CARD_WIDTH + CARD_SPACING) - cardScrollOffset;
+                    if (isInRect((int)mouseX, (int)mouseY, cardX, cardY, CARD_WIDTH, CARD_HEIGHT)) {
+                        Object clicked = filteredItems.get(i);
+                        if (clicked.equals(selectedRole)) {
+                            // 双击同一张牌 → 直接进入详情
+                            openDetailScreen();
+                        } else {
+                            selectedRole = clicked;
+                            rebuildDetailLines();
+                            initViewDetailButton();
+                        }
+                        return true;
+                    }
                 }
             }
 
-            // 顶部装饰条
-            int topBarHeight = 5;
-            guiGraphics.fill(x + 1, y + 1, x + width - 1, y + topBarHeight, getRoleColor());
-        }
-
-        private int getRoleColor() {
-            // 根据职业类型返回不同的颜色
-            // 这里只是一个示例，您可以根据实际的职业属性返回不同的颜色
-            return (RoleUtils.getRoleOrModifierColor(role));
-        }
-
-        private int blendColors(int color1, int color2, float ratio) {
-            int r1 = (color1 >> 16) & 0xFF;
-            int g1 = (color1 >> 8) & 0xFF;
-            int b1 = color1 & 0xFF;
-
-            int r2 = (color2 >> 16) & 0xFF;
-            int g2 = (color2 >> 8) & 0xFF;
-            int b2 = color2 & 0xFF;
-
-            int r = (int) (r1 + (r2 - r1) * ratio);
-            int g = (int) (g1 + (g2 - g1) * ratio);
-            int b = (int) (b1 + (b2 - b1) * ratio);
-
-            return (0xFF << 24) | (r << 16) | (g << 8) | b;
-        }
-
-        @Override
-        public void onClick(double mouseX, double mouseY) {
-            RoleIntroduceScreen.this.onRoleSelected(role);
-        }
-
-        @Override
-        protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
-            // 无障碍功能支持
-            narrationElementOutput.add(NarratedElementType.TITLE, getMessage());
-            if (role.equals(selectedRole)) {
-                narrationElementOutput.add(NarratedElementType.HINT,
-                        Component.translatable("screen.noellesroles.gambler.narration.selected"));
-            }
-        }
-
-        @Override
-        public boolean mouseClicked(double mouseX, double mouseY, int button) {
-            if (this.active && this.visible && this.isValidClickButton(button) && this.clicked(mouseX, mouseY)) {
-                this.playDownSound(Minecraft.getInstance().getSoundManager());
-                this.onClick(mouseX, mouseY);
+            // ── 拖动横向滚动条 ──
+            int sbY = panelY + panelH - PANEL_PADDING - H_SCROLL_H;
+            if (isInRect((int)mouseX, (int)mouseY, cardAreaX, sbY, cardAreaW, H_SCROLL_H)) {
+                isDraggingCardScroll = true;
+                dragCardStartMouseX  = mouseX;
+                dragCardStartOffset  = cardScrollOffset;
                 return true;
             }
-            return false;
+
+            // ── 拖动纵向滚动条 ──
+            int vsbX   = rightX + rightW - PANEL_PADDING - V_SCROLL_W;
+            int textY  = panelY + 28 + PANEL_PADDING;
+            int vsbH   = detailContentH();
+            if (isInRect((int)mouseX, (int)mouseY, vsbX, textY, V_SCROLL_W, vsbH)) {
+                isDraggingDetailScroll = true;
+                dragDetailStartMouseY  = mouseY;
+                dragDetailStartOffset  = detailScrollOffset;
+                return true;
+            }
         }
+
+        return super.mouseClicked(mouseX, mouseY, button);
     }
 
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        // 支持键盘导航
-        if (keyCode == 265) { // 上箭头
-            navigateCards(-CARDS_PER_ROW);
+    public boolean mouseDragged(double mouseX, double mouseY, int button,
+                                double deltaX, double deltaY) {
+        if (isDraggingCardScroll && maxCardScroll > 0) {
+            int cardAreaW = leftW - PANEL_PADDING * 2;
+            int totalW    = filteredItems.size() * (CARD_WIDTH + CARD_SPACING);
+            double scrollRatio = (double) maxCardScroll / (cardAreaW);
+            // thumb 占比
+            float thumbRatio = Math.min(1f, (float) cardAreaW / totalW);
+            int   thumbW     = Math.max(SCROLL_MIN_THUMB, (int)(cardAreaW * thumbRatio));
+            double trackW    = cardAreaW - thumbW;
+            double delta     = (mouseX - dragCardStartMouseX) / trackW * maxCardScroll;
+            cardScrollOffset = Mth.clamp((int)(dragCardStartOffset + delta), 0, maxCardScroll);
             return true;
-        } else if (keyCode == 264) { // 下箭头
-            navigateCards(CARDS_PER_ROW);
-            return true;
-        } else if (keyCode == 263) { // 左箭头
-            navigateCards(-1);
-            return true;
-        } else if (keyCode == 262) { // 右箭头
-            navigateCards(1);
-            return true;
-        } else if (keyCode == 257 || keyCode == 335) { // Enter 或 Numpad Enter
-            if (selectedRole != null && roleCardWidgets.stream().anyMatch(card -> card.role.equals(selectedRole))) {
-                onRoleSelected(selectedRole);
-                return true;
-            }
         }
 
+        if (isDraggingDetailScroll && maxDetailScroll > 0) {
+            int contentH  = detailContentH();
+            int totalTextH = detailLines.size() * (font.lineHeight + 2);
+            float thumbRatio = Math.min(1f, (float) contentH / totalTextH);
+            int   thumbH    = Math.max(SCROLL_MIN_THUMB, (int)(contentH * thumbRatio));
+            double trackH   = contentH - thumbH;
+            double delta    = (mouseY - dragDetailStartMouseY) / trackH * maxDetailScroll;
+            detailScrollOffset = Mth.clamp((int)(dragDetailStartOffset + delta), 0, maxDetailScroll);
+            return true;
+        }
+
+        return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
+    }
+
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        isDraggingCardScroll   = false;
+        isDraggingDetailScroll = false;
+        return super.mouseReleased(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        // 左侧区域 → 横向滚动
+        if (mouseX >= leftX && mouseX <= leftX + leftW
+                && mouseY >= panelY && mouseY <= panelY + panelH) {
+            cardScrollOffset = Mth.clamp(
+                    (int)(cardScrollOffset - scrollY * (CARD_WIDTH / 2.0)),
+                    0, maxCardScroll);
+            return true;
+        }
+        // 右侧区域 → 纵向滚动
+        if (mouseX >= rightX && mouseX <= rightX + rightW
+                && mouseY >= panelY && mouseY <= panelY + panelH) {
+            detailScrollOffset = Mth.clamp(
+                    (int)(detailScrollOffset - scrollY * (font.lineHeight + 2) * 3),
+                    0, maxDetailScroll);
+            return true;
+        }
+        return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+    }
+
+    // ══════════════════════════════════════════════════════════════════
+    //  键盘事件
+    // ══════════════════════════════════════════════════════════════════
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        // Left / Right → 切换选中卡片
+        if (keyCode == 263 || keyCode == 262) {
+            int idx = filteredItems.indexOf(selectedRole);
+            idx = keyCode == 263 ? idx - 1 : idx + 1;
+            idx = Mth.clamp(idx, 0, filteredItems.size() - 1);
+            if (idx >= 0 && idx < filteredItems.size()) {
+                selectedRole = filteredItems.get(idx);
+                rebuildDetailLines();
+                initViewDetailButton();
+                // 让选中卡片尽量可见
+                int cardAreaW = leftW - PANEL_PADDING * 2;
+                int cardX = idx * (CARD_WIDTH + CARD_SPACING);
+                if (cardX < cardScrollOffset) {
+                    cardScrollOffset = cardX;
+                } else if (cardX + CARD_WIDTH > cardScrollOffset + cardAreaW) {
+                    cardScrollOffset = cardX + CARD_WIDTH - cardAreaW;
+                }
+                cardScrollOffset = Mth.clamp(cardScrollOffset, 0, maxCardScroll);
+            }
+            return true;
+        }
+        // Enter → 查看详情
+        if ((keyCode == 257 || keyCode == 335) && selectedRole != null) {
+            openDetailScreen();
+            return true;
+        }
         return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
-    private void navigateCards(int delta) {
-        if (roleCardWidgets.isEmpty())
-            return;
+    // ══════════════════════════════════════════════════════════════════
+    //  跳转详情页
+    // ══════════════════════════════════════════════════════════════════
 
-        // 查找当前选中卡牌的索引
-        int currentIndex = -1;
-        for (int i = 0; i < roleCardWidgets.size(); i++) {
-            if (roleCardWidgets.get(i).role.equals(selectedRole)) {
-                currentIndex = i;
-                break;
-            }
-        }
+    private void openDetailScreen() {
+        if (minecraft == null || minecraft.player == null || selectedRole == null) return;
+        minecraft.setScreen(new RoleIntroduceDetailScreen(selectedRole, this));
+    }
 
-        // 计算新索引
-        int newIndex = currentIndex + delta;
-        if (newIndex < 0) {
-            if (prevPageButton.isActive()) {
-                prevPageButton.onClick(0, 0);
-                newIndex = roleCardWidgets.size() - 1;
-            } else {
-                newIndex = 0;
-            }
-        }
-        if (newIndex >= roleCardWidgets.size()) {
-            if (nextPageButton.isActive()) {
-                newIndex = 0;
-                nextPageButton.onClick(0, 0);
-            } else {
-                newIndex = roleCardWidgets.size() - 1;
-            }
-        }
+    // ══════════════════════════════════════════════════════════════════
+    //  工具方法
+    // ══════════════════════════════════════════════════════════════════
 
-        if (newIndex >= 0 && newIndex < roleCardWidgets.size()) {
-            selectedRole = roleCardWidgets.get(newIndex).role;
-        }
+    /** 判断点 (px,py) 是否在矩形 [x, y, x+w, y+h] 内 */
+    private static boolean isInRect(int px, int py, int x, int y, int w, int h) {
+        return px >= x && px < x + w && py >= y && py < y + h;
+    }
 
+    /** 线性混合两个 ARGB 颜色（忽略 alpha，结果 alpha=0xFF） */
+    private static int blendColors(int c1, int c2, float t) {
+        if (t <= 0f) return c1;
+        if (t >= 1f) return c2;
+        int r = (int)(((c1 >> 16) & 0xFF) + (((c2 >> 16) & 0xFF) - ((c1 >> 16) & 0xFF)) * t);
+        int g = (int)(((c1 >>  8) & 0xFF) + (((c2 >>  8) & 0xFF) - ((c1 >>  8) & 0xFF)) * t);
+        int b = (int)(( c1        & 0xFF) + (( c2        & 0xFF) - ( c1        & 0xFF)) * t);
+        return 0xFF000000 | (r << 16) | (g << 8) | b;
     }
 }
