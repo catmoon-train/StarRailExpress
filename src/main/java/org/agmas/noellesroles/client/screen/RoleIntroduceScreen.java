@@ -647,7 +647,7 @@ public class RoleIntroduceScreen extends Screen {
                 Component.translatable("gui.roleintroduce.right.warp",
                         RoleUtils.getRoleOrModifierTypeName(selectedRole)
                                 .withStyle(ChatFormatting.BOLD, ChatFormatting.AQUA),
-                        RoleUtils.getRoleOrModifierNameWithColor(selectedRole)),
+                        RoleUtils.getRoleOrModifierName(selectedRole)),
                 bIconX + bIconSize + 5, panelY + (BANNER_H - font.lineHeight) / 2,
                 0xFFFFFF, true);
 
