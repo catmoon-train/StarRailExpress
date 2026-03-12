@@ -82,6 +82,7 @@ import io.wifi.starrailexpress.event.OnGameTrueStarted;
 import io.wifi.starrailexpress.event.OnPlayerDeath;
 import io.wifi.starrailexpress.event.OnPlayerDeathWithKiller;
 import io.wifi.starrailexpress.event.OnPlayerKilledPlayer;
+import io.wifi.starrailexpress.event.OnRevolverUsed;
 import io.wifi.starrailexpress.event.OnTeammateKilledTeammate;
 import io.wifi.starrailexpress.event.ShouldDropOnDeath;
 import io.wifi.starrailexpress.game.GameConstants;
@@ -431,6 +432,43 @@ public class ModEventsRegister {
     private static boolean isEnabled = false;
 
     public static void registerEvents() {
+        // 所有枪械公用冷却
+        OnRevolverUsed.EVENT.register((player, target) -> {
+            if (!player.isCreative()) {
+                var cooldowns = player.getCooldowns();
+                ItemStack mainHandStack = player.getMainHandItem();
+                var items = new ArrayList<>(MCItemsUtils.getItemsByTag(player.serverLevel(), TMMItemTags.GUNS));
+                // Noellesroles.LOGGER.info("itemSize:" + items.size());
+                int REVOLVER_COOLDOWN = GameConstants.ITEM_COOLDOWNS.getOrDefault(TMMItems.REVOLVER, 0);
+                items.remove(ModItems.FAKE_REVOLVER);
+                if (mainHandStack.is(ModItems.ONCE_REVOLVER)) {
+                    items.remove(ModItems.ONCE_REVOLVER);
+                }
+                items.remove(ModItems.PATROLLER_REVOLVER);
+                if (mainHandStack.is(ModItems.PATROLLER_REVOLVER)) {
+                    cooldowns.addCooldown(ModItems.PATROLLER_REVOLVER, REVOLVER_COOLDOWN / 5);
+                } else {
+                    cooldowns.addCooldown(ModItems.PATROLLER_REVOLVER, REVOLVER_COOLDOWN / 8);
+                }
+                // cooldowns.addCooldown(ModItems.PATROLLER_REVOLVER, 3 * 20);
+                items.forEach((item) -> {
+                    cooldowns.addCooldown(item,
+                            (Integer) GameConstants.ITEM_COOLDOWNS.getOrDefault(item, REVOLVER_COOLDOWN));
+                });
+            }
+        });
+        // JOJO 两倍冷却
+        OnRevolverUsed.EVENT.register((player, target) -> {
+            var gameWorldComponent = GameWorldComponent.KEY.get(player.level());
+            ItemStack mainHandStack = player.getMainHandItem();
+            if (mainHandStack.is(TMMItemTags.GUNS)) {
+                if (gameWorldComponent.isRole(player, ModRoles.JOJO)) {
+                    player.getCooldowns().addCooldown(mainHandStack.getItem(),
+                            (Integer) GameConstants.ITEM_COOLDOWNS.getOrDefault(mainHandStack.getItem(), 0) * 2);
+                }
+            }
+        });
+        ExecutionerPlayerComponent.registerBackfireEvent();
         HoanMeirinFistPunchHandler.register();
         VoodooDeathHandler.registerEvents();
         PlayerStatsBeforeRefugee.beforeLoadFunc = (player) -> {

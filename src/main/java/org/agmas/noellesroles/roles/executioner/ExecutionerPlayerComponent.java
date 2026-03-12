@@ -1,14 +1,16 @@
 package org.agmas.noellesroles.roles.executioner;
 
 import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.event.AllowShootRevolverDrop;
 import io.wifi.starrailexpress.game.GameFunctions;
-import net.minecraft.server.level.ServerPlayer;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
+
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleComponent;
 import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
@@ -184,6 +186,25 @@ public class ExecutionerPlayerComponent implements RoleComponent, ServerTickingC
 
     @Override
     public void clientTick() {
+
+    }
+
+    public static void registerBackfireEvent() {
+        AllowShootRevolverDrop.EVENT.register((player, target) -> {
+            GameWorldComponent gameWorldComponent = (GameWorldComponent) GameWorldComponent.KEY.get(player.level());
+            if (gameWorldComponent.isRole(player, ModRoles.EXECUTIONER)) {
+                ExecutionerPlayerComponent executionerPlayerComponent = ExecutionerPlayerComponent.KEY.get(player);
+                if (executionerPlayerComponent.target != null
+                        && executionerPlayerComponent.target.equals(target.getUUID())) {
+                    return AllowShootRevolverDrop.ShouldDropResult.TRUE;
+                }
+            }
+            if (gameWorldComponent.isRole(target, ModRoles.VOODOO)
+                    && NoellesRolesConfig.HANDLER.instance().voodooShotLikeEvil) {
+                return AllowShootRevolverDrop.ShouldDropResult.TRUE;
+            }
+            return AllowShootRevolverDrop.ShouldDropResult.PASS;
+        });
 
     }
 }

@@ -79,7 +79,7 @@ public class StupidExpress implements ModInitializer {
                 refugeeC.reset();
             }
         });
-        EventRegister.register();
+        StupidEventRegister.register();
         LoversWinCheckEvent.register();
         OnPlayerDeath.EVENT.register((victim, deathReason) -> {
             var gameWorldComponent = GameWorldComponent.KEY.get(victim.level());

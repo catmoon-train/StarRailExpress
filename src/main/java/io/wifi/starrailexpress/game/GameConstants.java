@@ -138,6 +138,7 @@ public interface GameConstants {
     }
 
     interface DeathReasons {
+        ResourceLocation BACKFIRE = SRE.id("backfire");
         ResourceLocation GENERIC = SRE.id("generic");
         ResourceLocation KNIFE = SRE.id("knife_stab");
         ResourceLocation REVOLVER = SRE.id("revolver_shot");

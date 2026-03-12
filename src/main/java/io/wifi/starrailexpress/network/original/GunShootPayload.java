@@ -2,6 +2,9 @@ package io.wifi.starrailexpress.network.original;
 
 import io.wifi.starrailexpress.cca.GameWorldComponent;
 import io.wifi.starrailexpress.cca.PlayerMoodComponent;
+import io.wifi.starrailexpress.event.AllowShootRevolverDrop;
+import io.wifi.starrailexpress.event.IsShootBackFire;
+import io.wifi.starrailexpress.event.OnRevolverUsed;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameFunctions;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
@@ -21,7 +24,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -66,7 +68,7 @@ public record GunShootPayload(int target) implements CustomPacketPayload {
                 }
             }
 
-            if (player.serverLevel().getEntity(payload.target()) instanceof Player target
+            if (player.serverLevel().getEntity(payload.target()) instanceof ServerPlayer target
                     && target.distanceTo(player) < 70.0) {
                 GameWorldComponent game = GameWorldComponent.KEY.get(player.level());
                 Item revolver = TMMItems.REVOLVER;
@@ -81,13 +83,21 @@ public record GunShootPayload(int target) implements CustomPacketPayload {
                         return;
                     }
                 }
-                if (game.isInnocent(target) && !player.isCreative() && mainHandStack.is(revolver)) {
+                backfire = IsShootBackFire.EVENT.invoker().isShootBackFire(player, target);
+                boolean shouldDropRevolver = game.isInnocent(target) && !player.isCreative()
+                        && mainHandStack.is(revolver);
+                var dropresult = AllowShootRevolverDrop.EVENT.invoker().allowDrop(player, target);
+                if (dropresult.equals(AllowShootRevolverDrop.ShouldDropResult.FALSE)) {
+                    shouldDropRevolver = false;
+                } else if (dropresult.equals(AllowShootRevolverDrop.ShouldDropResult.TRUE)) {
+                    shouldDropRevolver = true;
+                }
+                if (backfire) {
+                    GameFunctions.killPlayer(player, true, null, GameConstants.DeathReasons.BACKFIRE);
+                } else if (shouldDropRevolver) {
                     // backfire: if you kill an innocent you have a chance of shooting yourself
                     // instead
-                    if (game.isInnocent(player) && player.getRandom().nextFloat() <= game.getBackfireChance()) {
-                        backfire = true;
-                        GameFunctions.killPlayer(player, true, player, deathReason);
-                    } else {
+                    {
                         Scheduler.schedule(() -> {
                             if (!context.player().getInventory().contains((s) -> s.is(TMMItemTags.GUNS)))
                                 return;
@@ -108,6 +118,10 @@ public record GunShootPayload(int target) implements CustomPacketPayload {
                     mainHandStack.set(SREDataComponentTypes.USED, false);
                     GameFunctions.killPlayer(target, true, player, deathReason);
                 }
+                OnRevolverUsed.EVENT.invoker().onPlayerShoot(player, target);
+
+            } else {
+                OnRevolverUsed.EVENT.invoker().onPlayerShoot(player, null);
             }
 
             player.level().playSound(null, player.getX(), player.getEyeY(), player.getZ(),

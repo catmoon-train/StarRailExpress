@@ -27,7 +27,7 @@ import pro.fazeclan.river.stupid_express.modifier.split_personality.cca.SplitPer
 import pro.fazeclan.river.stupid_express.role.necromancer.cca.NecromancerComponent;
 import pro.fazeclan.river.stupid_express.utils.StupidRoleUtils;
 
-public class EventRegister {
+public class StupidEventRegister {
     private static void clearAllKnives(Player player) {
         TMMItemUtils.clearItem(player, TMMItems.KNIFE);
     }
