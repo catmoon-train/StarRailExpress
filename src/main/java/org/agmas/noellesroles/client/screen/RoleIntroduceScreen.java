@@ -7,6 +7,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
@@ -30,6 +31,7 @@ public class RoleIntroduceScreen extends Screen {
     // ══════════════════════════════════════════════════════════════════
     // 【可自定义分类】在 CATEGORIES 末尾追加即可，无需改动其他代码。
     // ══════════════════════════════════════════════════════════════════
+    Screen parent = null;
 
     public static class RoleCategory {
         public final String labelKey;
@@ -177,6 +179,12 @@ public class RoleIntroduceScreen extends Screen {
         availableRoles.addAll(Noellesroles.getAllRolesSorted(true));
     }
 
+    public RoleIntroduceScreen(Screen parent) {
+        super(Component.translatable("gui.roleintroduce.select_role.title"));
+        availableRoles.addAll(Noellesroles.getAllRolesSorted(true));
+        this.parent = parent;
+    }
+
     public RoleIntroduceScreen(Player player) {
         super(Component.translatable("gui.roleintroduce.select_role.title"));
         availableRoles.addAll(Noellesroles.getAllRolesSorted(true));
@@ -245,15 +253,19 @@ public class RoleIntroduceScreen extends Screen {
             removeWidget(closeButton);
             closeButton = null;
         }
-        int btnW = 100, btnH = 18;
+        int btnW = rightX - leftX, btnH = 18;
         closeButton = Button.builder(
                 Component.translatable("gui.back").withStyle(ChatFormatting.WHITE),
                 btn -> onClose())
                 .bounds((width - btnW) / 2, panelY + panelH + 8, btnW, btnH)
                 .build();
-        addRenderableWidget(closeButton);
+        // addRenderableWidget(closeButton);
     }
 
+    @Override
+    public void onClose() {
+        this.minecraft.setScreen(parent);
+    }
     // ══════════════════════════════════════════════════════════════════
     // 数据
     // ══════════════════════════════════════════════════════════════════
@@ -313,7 +325,10 @@ public class RoleIntroduceScreen extends Screen {
 
         detailLines.addAll(font.split(Component.empty()
                 .append(Component.translatable("screen.roleintroduce.detail.name",
-                        RoleUtils.getRoleOrModifierNameWithColor(selectedRole)))
+                        RoleUtils.getRoleOrModifierNameWithColor(selectedRole).withStyle(ChatFormatting.BOLD)))
+                .append(Component.translatable("screen.roleintroduce.detail.name.id.warp",
+                        RoleUtils.getRoleOrModifierIdentifier(selectedRole).toString())
+                        .withStyle(ChatFormatting.DARK_GRAY))
                 .withStyle(ChatFormatting.DARK_GRAY), textW));
         detailLines.add(FormattedCharSequence.EMPTY);
 
@@ -328,12 +343,45 @@ public class RoleIntroduceScreen extends Screen {
             sb.append("─");
         detailLines.addAll(font.split(
                 Component.literal(sb.toString()).withStyle(ChatFormatting.DARK_GRAY), textW));
-
         detailLines.addAll(font.split(
                 RoleUtils.getRoleOrModifierDescription(selectedRole)
                         .copy().withStyle(ChatFormatting.WHITE),
                 textW));
+        {
+            String story_key = "star.story." + (selectedRole instanceof Role ? "role" : "modifier") + "."
+                    + RoleUtils.getRoleOrModifierIdentifier(selectedRole).getPath();
+            if (Language.getInstance().has(story_key)) {
+                detailLines.add(FormattedCharSequence.EMPTY);
+                detailLines.addAll(font.split(
+                        Component.translatable("screen.roleintroduce.detail.story")
+                                .withStyle(ChatFormatting.GREEN),
+                        textW));
+                detailLines.addAll(font.split(
+                        Component.literal(sb.toString()).withStyle(ChatFormatting.DARK_GRAY), textW));
 
+                detailLines.addAll(font.split(
+                        Component.translatable(story_key).withStyle(ChatFormatting.WHITE),
+                        textW));
+            }
+        }
+
+        {
+            String story_key = "star.settings." + (selectedRole instanceof Role ? "role" : "modifier") + "."
+                    + RoleUtils.getRoleOrModifierIdentifier(selectedRole).getPath();
+            if (Language.getInstance().has(story_key)) {
+                detailLines.add(FormattedCharSequence.EMPTY);
+                detailLines.addAll(font.split(
+                        Component.translatable("screen.roleintroduce.detail.settings")
+                                .withStyle(ChatFormatting.AQUA),
+                        textW));
+                detailLines.addAll(font.split(
+                        Component.literal(sb.toString()).withStyle(ChatFormatting.DARK_GRAY), textW));
+
+                detailLines.addAll(font.split(
+                        Component.translatable(story_key).withStyle(ChatFormatting.WHITE),
+                        textW));
+            }
+        }
         int totalTextH = detailLines.size() * (font.lineHeight + 2);
         maxDetailScroll = Math.max(0, totalTextH - detailContentH());
         detailScrollOffset = 0;
@@ -361,10 +409,11 @@ public class RoleIntroduceScreen extends Screen {
         int catBarX = rightX + TOP_BAR_GAP;
         int catBarW = rightW - TOP_BAR_GAP;
         renderCategoryBar(g, mouseX, mouseY, catBarX, topBarY, catBarW, TOP_BAR_H);
-
         // 顶部遮罩 + 标题
         g.fillGradient(0, 0, width, topBarY - 4, 0xBB000000, 0x00000000);
         g.drawCenteredString(font, this.title, width / 2, 8, 0xEEEEFF);
+        g.drawCenteredString(font, Component.translatable("screen.roleintroduce.hint").withStyle(ChatFormatting.GRAY),
+                width / 2, height - 24, 0xEEEEFF);
     }
 
     // ══════════════════════════════════════════════════════════════════

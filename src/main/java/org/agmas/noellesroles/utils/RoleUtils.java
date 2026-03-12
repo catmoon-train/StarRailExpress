@@ -349,4 +349,14 @@ public class RoleUtils {
         }
         //
     }
+
+    public static ResourceLocation getRoleOrModifierIdentifier(Object role) {
+        if (role instanceof Role r) {
+            return r.identifier();
+        } else if (role instanceof Modifier m) {
+            return m.identifier();
+        } else {
+            return null;
+        }
+    }
 }

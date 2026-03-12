@@ -22,6 +22,7 @@ public class SettingMenuScreen extends Screen {
     final int BUTTON_WIDTH = 200;
     final int BUTTON_HEIGHT = 20;
     final int MARGIN = 4;
+    final int buttonCount = 6;
 
     @Override
     public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
@@ -38,7 +39,6 @@ public class SettingMenuScreen extends Screen {
     @Override
     protected void init() {
         super.init();
-        int buttonCount = 5;
         int maxWidth = this.width;
         int maxHeight = this.height;
         int buttonX = maxWidth / 2 - BUTTON_WIDTH / 2;
@@ -82,8 +82,16 @@ public class SettingMenuScreen extends Screen {
         {
             var btn1 = Button
                     .builder(Component.translatable("screen.starrailexpress.settings.introduction"), (bbtn) -> {
-                        var screen = new RoleIntroduceScreen();
+                        var screen = new RoleIntroduceScreen(this);
                         this.minecraft.setScreen(screen);
+                    }).bounds(buttonX, buttonY, BUTTON_WIDTH, BUTTON_HEIGHT).build();
+            this.addRenderableWidget(btn1);
+            buttonY += (BUTTON_HEIGHT + MARGIN);
+        }
+        {
+            var btn1 = Button
+                    .builder(Component.translatable("gui.back"), (bbtn) -> {
+                        this.minecraft.setScreen(parent);
                     }).bounds(buttonX, buttonY, BUTTON_WIDTH, BUTTON_HEIGHT).build();
             this.addRenderableWidget(btn1);
             buttonY += (BUTTON_HEIGHT + MARGIN);
