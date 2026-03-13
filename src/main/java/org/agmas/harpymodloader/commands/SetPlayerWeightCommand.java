@@ -19,10 +19,11 @@ import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
 public class SetPlayerWeightCommand {
 
   public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
-    dispatcher.register(Commands.literal("playerRoleWeight")
+    dispatcher.register(Commands.literal("myRoleWeight")
         .executes(context -> executeGet(context.getSource(),
             context.getSource().getPlayer(),
-            0))
+            0)));
+    dispatcher.register(Commands.literal("playerRoleWeight")
         .requires(serverCommandSource -> serverCommandSource.hasPermission(2))
         .then(Commands.argument("player", EntityArgument.player())
             .then(Commands.literal("get")
