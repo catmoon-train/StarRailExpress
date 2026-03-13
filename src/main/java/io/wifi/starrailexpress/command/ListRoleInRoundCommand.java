@@ -37,11 +37,9 @@ public class ListRoleInRoundCommand {
             var modifierTexts = Component.literal("");
             var modifiers = worldModifierComponent.getModifiers(player);
             if (!modifiers.isEmpty()) {
-                modifierTexts = Component.translatable("announcement.star.modifier")
-                        .withStyle(ChatFormatting.GRAY)
-                        .append(ComponentUtils.formatList(modifiers,
+                modifierTexts = (ComponentUtils.formatList(modifiers,
                                 modifier -> Component.translatable("[%s]", modifier.getName(false))
-                                        .withColor(modifier.color)));
+                                        .withColor(modifier.color))).copy();
             }
             texts = texts.append(
                     Component.translatable("\n%s: %s%s",

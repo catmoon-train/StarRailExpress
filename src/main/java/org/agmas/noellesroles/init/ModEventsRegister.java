@@ -64,6 +64,7 @@ import org.slf4j.LoggerFactory;
 import io.wifi.starrailexpress.api.Role;
 import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.cca.GameRoundEndComponent;
 import io.wifi.starrailexpress.cca.GameWorldComponent;
 import io.wifi.starrailexpress.cca.PlayerMoodComponent;
@@ -856,6 +857,10 @@ public class ModEventsRegister {
                 if (gameWorldComponent.isRole(p, ModRoles.STAR)) {
                     if (p.getScoreboardName().equals(starPlayerName)) {
                         if (GameFunctions.isPlayerAliveAndSurvival(p)) {
+                            SRE.REPLAY_MANAGER.recordCustomEvent(
+                                    Component.translatable("hud.noellesroles.star.dead.life_and_death_shape.event",
+                                            GameReplayUtils.getReplayPlayerDisplayText(p, true),
+                                            GameReplayUtils.getReplayPlayerDisplayText(player, true)));
                             p.displayClientMessage(Component.translatable(
                                     "hud.noellesroles.star.dead.life_and_death_shape", player.getDisplayName())
                                     .withStyle(ChatFormatting.YELLOW, ChatFormatting.BOLD), true);

@@ -740,6 +740,7 @@
   "hud.noellesroles.star.you_have_did.life_and_death_shape": "你已经签名过一次生死状了，无法继续签名。",
   "hud.noellesroles.star.dead.life_and_death_shape": "你的生死状签名让你为 %s 抵挡了一次致命伤害！",
   "hud.noellesroles.star.dead.life_and_death_shape.victim": "%s 的生死状签名为你抵挡了一次致命伤害！",
+  "hud.noellesroles.star.dead.life_and_death_shape.event": "%s 的生死状签名为 %s 抵挡了伤害。",
   "hud.noellesroles.star.title": "明星",
   "hud.noellesroles.star.glowing": "✨ 发光中 ✨",
   "hud.noellesroles.star.next_glow": "下次发光：%s秒",
