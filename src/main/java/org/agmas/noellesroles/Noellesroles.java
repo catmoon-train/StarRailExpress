@@ -159,9 +159,6 @@ public class Noellesroles implements ModInitializer {
         );
         HSRConstants.init();
         Harpymodloader.HIDDEN_MODIFIERS.add(SEModifiers.REFUGEE.identifier().getPath());
-        TMMRoles.DISCOVERY_CIVILIAN.setNeutrals(true);
-        TMMRoles.DISCOVERY_CIVILIAN.setInnocent(false);
-        TMMRoles.DISCOVERY_CIVILIAN.setCanUseInstinct(true);
         // 初始化模组角色列表
         ModRoles.init();
         // 初始化修饰符

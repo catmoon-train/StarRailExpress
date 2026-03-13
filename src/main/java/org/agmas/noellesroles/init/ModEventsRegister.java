@@ -617,7 +617,10 @@ public class ModEventsRegister {
             if (GameFunctions.isPlayerAliveAndSurvival(killer)) {
                 if (isInnocent) {
                     GameWorldComponent gameWorldComponent = GameWorldComponent.KEY.get(victim.level());
-
+                    if (gameWorldComponent.isRole(victim, TMMRoles.DISCOVERY_CIVILIAN)) {
+                        // 跳过游客惩罚
+                        return;
+                    }
                     // 检查是否是疯狂模式下的魔术师，如果是则不算误杀
                     if (gameWorldComponent.isRole(victim, ModRoles.MAGICIAN)) {
                         var psychoComponent = PlayerPsychoComponent.KEY.get(victim);
