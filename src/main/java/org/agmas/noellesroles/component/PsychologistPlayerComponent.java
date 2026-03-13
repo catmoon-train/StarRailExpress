@@ -36,6 +36,8 @@ public class PsychologistPlayerComponent implements RoleComponent, ServerTicking
     /** 组件键 - 用于从玩家获取此组件 */
     public static final ComponentKey<PsychologistPlayerComponent> KEY = ModComponents.PSYCHOLOGIST;
 
+    final static boolean isStopPsychoFuncEnable = false;
+
     @Override
     public Player getPlayer() {
         return player;
@@ -181,12 +183,14 @@ public class PsychologistPlayerComponent implements RoleComponent, ServerTicking
         if (target instanceof ServerPlayer serverTarget) {
             serverTarget.displayClientMessage(Component.translatable("message.noellesroles.psychologist.being_healed",
                     player.getName().getString()).withStyle(ChatFormatting.GREEN), true);
-            StarPlayerPsychoComponent ppc = StarPlayerPsychoComponent.KEY.get(serverTarget);
-            if (ppc.psychoTicks > 0) {
-                this.cooldown = 60 * 20;
-                ppc.stopPsycho();
-                this.completeHealing(serverTarget);
-                return true;
+            if (isStopPsychoFuncEnable) {
+                StarPlayerPsychoComponent ppc = StarPlayerPsychoComponent.KEY.get(serverTarget);
+                if (ppc.psychoTicks > 0) {
+                    this.cooldown = 60 * 20;
+                    ppc.stopPsycho();
+                    this.completeHealing(serverTarget);
+                    return true;
+                }
             }
         }
 
