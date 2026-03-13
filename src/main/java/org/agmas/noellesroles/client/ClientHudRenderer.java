@@ -713,7 +713,8 @@ public class ClientHudRenderer {
 
             // 显示当前选择的药剂
             int currentPotionIndex = alchemistComponent.getCurrentPotionIndex();
-            Component potionName = Component.translatable("potion.noellesroles." + org.agmas.noellesroles.component.AlchemistPlayerComponent.getPotionKey(currentPotionIndex));
+            Component potionName = Component.translatable("potion.noellesroles."
+                    + org.agmas.noellesroles.component.AlchemistPlayerComponent.getPotionKey(currentPotionIndex));
             Component potionLabel = Component.translatable("hud.alchemist.current_potion")
                     .withStyle(ChatFormatting.WHITE);
             guiGraphics.drawString(font, potionLabel, xOffset - font.width(potionLabel) - font.width(potionName), dy,
