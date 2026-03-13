@@ -22,7 +22,7 @@ public class RoleAnnouncementTexts {
             RoleAnnouncementText role) {
         ROLE_ANNOUNCEMENT_TEXTS.put(roleId, role);
         LoggerFactory.getLogger(RoleAnnouncementTexts.class)
-                .info("Register Harpy Job: " + role.getId().getPath());
+                .debug("Register Harpy Job: " + role.getId().getPath());
         return role;
     }
 
