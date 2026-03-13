@@ -299,7 +299,8 @@ public class StarRailMurderGameMode extends GameMode {
             } else {
                 if (!HMLModifiers.MODIFIERS.isEmpty()) {
                     player.displayClientMessage(
-                            Component.translatable("announcement.star.no_modifiers").withStyle(ChatFormatting.DARK_GRAY),
+                            Component.translatable("announcement.star.no_modifiers")
+                                    .withStyle(ChatFormatting.DARK_GRAY),
                             true);
                 }
             }
@@ -354,6 +355,7 @@ public class StarRailMurderGameMode extends GameMode {
                         role.canUseKiller() &&
                         !role.isInnocent() &&
                         role != TMMRoles.CIVILIAN);
+
         List<Role> assignedKillers = killerPool.selectRoles(killerCount);
 
         // 警卫池 - 使用无限重复模式，因为警卫职业数量有限
@@ -381,6 +383,7 @@ public class StarRailMurderGameMode extends GameMode {
                         !role.isNeutrals() &&
                         role.isInnocent() &&
                         role != TMMRoles.CIVILIAN);
+        civilianPool.setIgnoreRoleOccupiedCount(true);
         List<Role> assignedCivilians = civilianPool.selectRoles(civilianCount);
 
         // 第四步：合并所有分配的角色（包括处理关联角色）
@@ -392,13 +395,6 @@ public class StarRailMurderGameMode extends GameMode {
 
         // 展开关联角色
         List<RoleInstant> roleInstantList = new ArrayList<>();
-        allRoles.removeIf((r) -> {
-            return forcedRoles.containsValue(r);
-        });
-        for (Role role : allRoles) {
-            roleInstantList.add(new RoleInstant(UUID.randomUUID(), role));
-        }
-        List<RoleInstant> expandedRoles = RoleAssignmentManager.expandWithCompanionRoles(roleInstantList);
 
         // 第五步：为未分配的玩家分配角色
         List<ServerPlayer> unassignedPlayers = new ArrayList<>();
@@ -407,6 +403,11 @@ public class StarRailMurderGameMode extends GameMode {
                 unassignedPlayers.add(player);
             }
         }
+
+        for (Role role : allRoles) {
+            roleInstantList.add(new RoleInstant(UUID.randomUUID(), role));
+        }
+        List<RoleInstant> expandedRoles = RoleAssignmentManager.expandWithCompanionRoles(roleInstantList);
 
         // 创建权重分布用于分配展开后的角色
         List<Map.Entry<RoleInstant, Float>> roleWeights = new ArrayList<>();

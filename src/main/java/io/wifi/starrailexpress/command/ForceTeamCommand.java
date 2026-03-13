@@ -20,7 +20,7 @@ public class ForceTeamCommand {
         .argument("players", EntityArgument.players())
         .then(Commands.literal("innocent")
             .executes(context -> forceTeam(context.getSource(),
-                EntityArgument.getPlayers(context, "players"), 1))))
+                EntityArgument.getPlayers(context, "players"), 1)))
         .then(Commands.literal("neutral")
             .executes(context -> forceTeam(context.getSource(),
                 EntityArgument.getPlayers(context, "players"), 2)))
@@ -35,7 +35,7 @@ public class ForceTeamCommand {
                 EntityArgument.getPlayers(context, "players"), 5)))
         .then(Commands.literal("reset")
             .executes(context -> forceTeam(context.getSource(),
-                EntityArgument.getPlayers(context, "players"), -1))));
+                EntityArgument.getPlayers(context, "players"), -1)))));
   }
 
   private static int forceTeam(@NotNull CommandSourceStack source, @NotNull Collection<ServerPlayer> players,

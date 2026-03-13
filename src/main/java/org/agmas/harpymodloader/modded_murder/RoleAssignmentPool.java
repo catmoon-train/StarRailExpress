@@ -19,8 +19,10 @@ public class RoleAssignmentPool {
     private final Map<ResourceLocation, Integer> roleCountMap;
     private final String poolName;
     private final boolean allowUnlimitedRepeats;
+    public boolean ignoreeRoleOccupiedCount = false;
 
-    private RoleAssignmentPool(String poolName, WeightedUtil<Role> roleWeights, Map<ResourceLocation, Integer> roleCountMap,
+    private RoleAssignmentPool(String poolName, WeightedUtil<Role> roleWeights,
+            Map<ResourceLocation, Integer> roleCountMap,
             boolean allowUnlimitedRepeats) {
         this.poolName = poolName;
         this.roleWeights = roleWeights;
@@ -117,6 +119,8 @@ public class RoleAssignmentPool {
                     int roleOccupiedCount = role.getOccupiedRoleCount();
                     if (roleOccupiedCount <= 0)
                         roleOccupiedCount = 1;
+                    if(ignoreeRoleOccupiedCount)
+                        roleOccupiedCount = 1;
                     if (i + roleOccupiedCount <= needCount) {
                         selected.add(role);
                         needCount = needCount - (roleOccupiedCount - 1);
@@ -184,5 +188,9 @@ public class RoleAssignmentPool {
             roleWeights.removeKey(selectedRole);
             return selectRoleWithCountCheck();
         }
+    }
+
+    public void setIgnoreRoleOccupiedCount(boolean b) {
+        this.ignoreeRoleOccupiedCount = b;
     }
 }
