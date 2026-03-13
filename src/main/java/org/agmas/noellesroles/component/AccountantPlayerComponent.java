@@ -324,6 +324,7 @@ public class AccountantPlayerComponent implements RoleComponent, ServerTickingCo
 
     /**
      * 检查被标记玩家的金币数变化
+     * 判断是否上升/下降超过100金币
      */
     private void checkMarkedPlayerBalance() {
         if (!(player instanceof ServerPlayer serverPlayer))
@@ -353,15 +354,29 @@ public class AccountantPlayerComponent implements RoleComponent, ServerTickingCo
         int currentBalance = targetShop.balance;
         int difference = currentBalance - markedPlayerInitialBalance;
 
-        if (difference > 0) {
-            // 金币上升
+        if (difference > 100) {
+            // 金币上升超过100
+            serverPlayer.displayClientMessage(
+                    Component.translatable("message.noellesroles.accountant.expense.increased_over_100",
+                            target.getDisplayName(), difference)
+                            .withStyle(ChatFormatting.GOLD),
+                    true);
+        } else if (difference < -100) {
+            // 金币下降超过100
+            serverPlayer.displayClientMessage(
+                    Component.translatable("message.noellesroles.accountant.expense.decreased_over_100",
+                            target.getDisplayName(), -difference)
+                            .withStyle(ChatFormatting.DARK_RED),
+                    true);
+        } else if (difference > 0) {
+            // 金币上升但未超过100
             serverPlayer.displayClientMessage(
                     Component.translatable("message.noellesroles.accountant.expense.increased",
                             target.getDisplayName(), difference)
                             .withStyle(ChatFormatting.GREEN),
                     true);
         } else if (difference < 0) {
-            // 金币下降
+            // 金币下降但未超过100
             serverPlayer.displayClientMessage(
                     Component.translatable("message.noellesroles.accountant.expense.decreased",
                             target.getDisplayName(), -difference)
