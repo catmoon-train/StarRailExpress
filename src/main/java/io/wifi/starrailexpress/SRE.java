@@ -206,6 +206,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
     private void registerCommands() {
         CommandRegistrationCallback.EVENT.register(((dispatcher, registryAccess, environment) -> {
             GiveRoomKeyCommand.register(dispatcher);
+            ListRoleInRoundCommand.register(dispatcher);
             StartCommand.register(dispatcher);
             StopCommand.register(dispatcher);
             SetVisualCommand.register(dispatcher);
