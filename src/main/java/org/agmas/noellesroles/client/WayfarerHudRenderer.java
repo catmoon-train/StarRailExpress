@@ -1,12 +1,12 @@
 package org.agmas.noellesroles.client;
 
+import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
 import org.agmas.noellesroles.component.WayfarerPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.game.GameFunctions;
 import io.github.mortuusars.exposure.util.color.Color;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 
@@ -15,7 +15,7 @@ import net.minecraft.world.entity.player.Player;
 
 public class WayfarerHudRenderer {
     public static void registerRendererEvent() {
-        HudRenderCallback.EVENT.register((guiGraphics, deltaTracker) -> {
+        RoleHudRenderCallback.EVENT.register(ModRoles.WAYFARER.identifier(),(guiGraphics, deltaTracker) -> {
             // 渲染红尘客的提示
             var client = Minecraft.getInstance();
             if (client == null)

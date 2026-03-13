@@ -3,6 +3,7 @@ package org.agmas.noellesroles.client;
 import java.awt.Color;
 
 import org.agmas.noellesroles.AttendantHandler;
+import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.component.NoellesRolesAbilityPlayerComponent;
 import org.agmas.noellesroles.component.RecorderPlayerComponent;
@@ -10,37 +11,170 @@ import org.agmas.noellesroles.component.BloodFeudistPlayerComponent;
 import org.agmas.noellesroles.component.ClockmakerPlayerComponent;
 import org.agmas.noellesroles.component.HoanMeirinPlayerComponent;
 import org.agmas.noellesroles.entity.WheelchairEntity;
+import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.roles.commander.CommanderHudRender;
 import org.agmas.noellesroles.roles.fortuneteller.FortunetellerPlayerComponent;
+import org.agmas.noellesroles.roles.ghost.GhostPlayerComponent;
+import org.agmas.noellesroles.roles.noise_maker.NoiseMakerPlayerComponent;
 import org.agmas.noellesroles.roles.thief.ThiefPlayerComponent;
 
-import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.Role;
 import io.wifi.starrailexpress.cca.BartenderPlayerComponent;
+import io.wifi.starrailexpress.cca.GameTimeComponent;
 import io.wifi.starrailexpress.cca.PlayerShopComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 
 public class ClientHudRenderer {
-
-    public static void registerRenderersEvent() {
-        CommanderHudRender.register();
-        WayfarerHudRenderer.registerRendererEvent();
+    public static void registerFather() {
         HudRenderCallback.EVENT.register((guiGraphics, deltaTracker) -> {
-            // 记录员
             var client = Minecraft.getInstance();
             if (client == null)
                 return;
             if (client.player == null)
                 return;
-            if (SREClient.gameComponent == null
-                    || !SREClient.gameComponent.isRole(client.player, ModRoles.RECORDER)) {
+            if (SREClient.gameComponent == null) {
                 return;
             }
+            Role role = SREClient.gameComponent.getRole(client.player);
+            if (role == null)
+                return;
+            var consumer = RoleHudRenderCallback.EVENT.getConsumer(role.identifier());
+            if (consumer != null) {
+                try {
+                    consumer.accept(guiGraphics, deltaTracker);
+                } catch (Exception e) {
+                    RoleHudRenderCallback.EVENT.removeConsumer(role.identifier());
+                    SRE.LOGGER.error("[ROLE HUD ERROR] Error while render role hud of {}. Removed it.",
+                            role.identifier(), e);
+                    client.player.displayClientMessage(
+                            Component.translatable("[CLIENT ERROR] Error while rendering Role Hud for %s.\n%s",
+                                    role.identifier().toString(), e.getMessage()).withStyle(ChatFormatting.RED),
+                            false);
+                    client.player.displayClientMessage(
+                            Component.translatable("[CLIENT ERROR] Error while rendering Role Hud for %s.\n%s",
+                                    role.identifier().toString(), e.getMessage()).withStyle(ChatFormatting.RED),
+                            true);
+                }
+            }
+        });
+    }
+
+    public static void registerRenderersEvent() {
+        registerFather();
+        registerSons();
+    }
+
+    public static void registerSons() {
+        RoleHudRenderCallback.EVENT.register(ModRoles.GLITCH_ROBOT_ID, (context, tickCounter) -> {
+            Minecraft client = Minecraft.getInstance();
+            Component text = null;
+            int color = 0xffffff;
+            if (!client.player.getSlot(103).get().is(ModItems.NIGHT_VISION_GLASSES))
+                return;
+            text = Component.translatable("info.glitch_robot.take_off_glasses.tip",
+                    Component.keybind("key.noellesroles.ability"));
+
+            int screenWidth = client.getWindow().getGuiScaledWidth();
+            int screenHeight = client.getWindow().getGuiScaledHeight();
+            int textWidth = client.font.width(text);
+
+            // 右下角显示，留出一些边距
+            int x = screenWidth - textWidth - 10;
+            int y = screenHeight - 20;
+
+            context.drawString(client.font, text, x, y, color);
+        });
+        RoleHudRenderCallback.EVENT.register(ModRoles.NOISEMAKER_ID, (context, tickCounter) -> {
+            Minecraft client = Minecraft.getInstance();
+            Component text = null;
+            int color = 0xffffff;
+            NoiseMakerPlayerComponent noisemakerComponent = NoiseMakerPlayerComponent.KEY.get(client.player);
+            if (client.player.getActiveEffectsMap().containsKey(MobEffects.LUCK)) {
+                MobEffectInstance eff = client.player.getEffect(MobEffects.LUCK);
+                int seconds = eff.getDuration() / 20;
+                text = Component.translatable("gui.noellesroles.noisemaker.during", seconds);
+                color = 0x00fff7; // 青蓝色
+            } else if (noisemakerComponent.cooldown > 0) {
+                int seconds = (noisemakerComponent.cooldown) / 20;
+                text = Component.translatable("gui.noellesroles.noisemaker.cooldown", seconds);
+                color = 0xFF5555; // 红色
+            } else {
+                text = Component.translatable("gui.noellesroles.noisemaker.ready");
+                color = 0x55FF55; // 绿色
+            }
+            int screenWidth = client.getWindow().getGuiScaledWidth();
+            int screenHeight = client.getWindow().getGuiScaledHeight();
+            int textWidth = client.font.width(text);
+
+            // 右下角显示，留出一些边距
+            int x = screenWidth - textWidth - 10;
+            int y = screenHeight - 20;
+
+            context.drawString(client.font, text, x, y, color);
+        });
+
+        RoleHudRenderCallback.EVENT.register(ModRoles.GHOST_ID, (context, tickCounter) -> {
+            Minecraft client = Minecraft.getInstance();
+            Component text = null;
+            int color = 0xffffff;
+            GhostPlayerComponent ghostComponent = GhostPlayerComponent.KEY.get(client.player);
+            if (!ghostComponent.abilityUnlocked) {
+                // 计算解锁剩余时间
+                GameTimeComponent gameTime = GameTimeComponent.KEY.get(client.level);
+                if (gameTime != null) {
+                    long remainingTicks = gameTime.getTime();
+                    if (remainingTicks > GhostPlayerComponent.UNLOCK_REMAINING_TICKS) {
+                        // 剩余时间 > 3分钟，显示还需要多少时间到解锁
+                        long ticksUntilUnlock = remainingTicks - GhostPlayerComponent.UNLOCK_REMAINING_TICKS;
+                        int secondsUntilUnlock = ((int) ticksUntilUnlock + 19) / 20;
+                        text = Component.translatable("gui.noellesroles.ghost.not_unlocked", secondsUntilUnlock);
+                        color = 0xFFFF00; // 黄色
+                    } else {
+                        // 已到解锁时间但还没解锁，显示准备解锁
+                        text = Component.translatable("gui.noellesroles.ghost.unlocking");
+                        color = 0xFFAA00; // 橙色
+                    }
+                } else {
+                    // 如果无法获取游戏时间，显示等待状态
+                    text = Component.translatable("gui.noellesroles.ghost.waiting");
+                    color = 0xFFAA00; // 橙色
+                }
+            } else if (ghostComponent.invisibilityTicks > 0) {
+                int seconds = (ghostComponent.invisibilityTicks) / 20;
+                text = Component.translatable("gui.noellesroles.ghost.during", seconds);
+                color = 0x00fff7; // 青蓝色
+            } else if (ghostComponent.cooldown > 0) {
+                int seconds = (ghostComponent.cooldown) / 20;
+                text = Component.translatable("gui.noellesroles.ghost.cooldown", seconds);
+                color = 0xFF5555; // 红色
+            } else {
+                text = Component.translatable("gui.noellesroles.ghost.ready");
+                color = 0x55FF55; // 绿色
+            }
+            int screenWidth = client.getWindow().getGuiScaledWidth();
+            int screenHeight = client.getWindow().getGuiScaledHeight();
+            int textWidth = client.font.width(text);
+
+            // 右下角显示，留出一些边距
+            int x = screenWidth - textWidth - 10;
+            int y = screenHeight - 20;
+
+            context.drawString(client.font, text, x, y, color);
+        });
+
+        CommanderHudRender.register();
+        WayfarerHudRenderer.registerRendererEvent();
+        RoleHudRenderCallback.EVENT.register(ModRoles.RECORDER.identifier(), (guiGraphics, deltaTracker) -> {
+            // 记录员
+            var client = Minecraft.getInstance();
             int screenWidth = guiGraphics.guiWidth();
             int screenHeight = guiGraphics.guiHeight();
             var font = client.font;
@@ -62,16 +196,8 @@ public class ClientHudRenderer {
                     Color.WHITE.getRGB());
             return;
         });
-        HudRenderCallback.EVENT.register((guiGraphics, deltaTracker) -> {
+        RoleHudRenderCallback.EVENT.register(ModRoles.CLOCKMAKER_ID, (guiGraphics, deltaTracker) -> {
             var client = Minecraft.getInstance();
-            if (client == null)
-                return;
-            if (client.player == null)
-                return;
-            if (SREClient.gameComponent == null
-                    || !SREClient.gameComponent.isRole(client.player, ModRoles.CLOCKMAKER)) {
-                return;
-            }
             int screenWidth = guiGraphics.guiWidth();
             int screenHeight = guiGraphics.guiHeight();
             var font = client.font;
@@ -91,16 +217,9 @@ public class ClientHudRenderer {
                     Color.WHITE.getRGB());
             return;
         });
-        HudRenderCallback.EVENT.register((guiGraphics, deltaTracker) -> {
+        RoleHudRenderCallback.EVENT.register(ModRoles.CLEANER_ID, (guiGraphics, deltaTracker) -> {
             // 渲染清道夫的提示
             var client = Minecraft.getInstance();
-            if (client == null)
-                return;
-            if (client.player == null)
-                return;
-            if (SREClient.gameComponent == null || !SREClient.gameComponent.isRole(client.player, ModRoles.CLEANER)) {
-                return;
-            }
             int screenWidth = guiGraphics.guiWidth();
             int screenHeight = guiGraphics.guiHeight();
             var font = client.font;
@@ -122,17 +241,9 @@ public class ClientHudRenderer {
             }
             return;
         });
-        HudRenderCallback.EVENT.register((guiGraphics, deltaTracker) -> {
+        RoleHudRenderCallback.EVENT.register(ModRoles.JOJO_ID, (guiGraphics, deltaTracker) -> {
             // 渲染JOJO的提示
             var client = Minecraft.getInstance();
-            if (client == null)
-                return;
-            if (client.player == null)
-                return;
-            if (SREClient.gameComponent == null
-                    || !SREClient.gameComponent.isRole(client.player, ModRoles.JOJO)) {
-                return;
-            }
             int screenWidth = guiGraphics.guiWidth();
             int screenHeight = guiGraphics.guiHeight();
             var font = client.font;
@@ -157,17 +268,9 @@ public class ClientHudRenderer {
             }
             return;
         });
-        HudRenderCallback.EVENT.register((guiGraphics, deltaTracker) -> {
+        RoleHudRenderCallback.EVENT.register(ModRoles.MAID_SAKUYA_ID, (guiGraphics, deltaTracker) -> {
             // 渲染SAKUYA的提示
             var client = Minecraft.getInstance();
-            if (client == null)
-                return;
-            if (client.player == null)
-                return;
-            if (SREClient.gameComponent == null
-                    || !SREClient.gameComponent.isRole(client.player, ModRoles.MAID_SAKUYA)) {
-                return;
-            }
             int screenWidth = guiGraphics.guiWidth();
             int screenHeight = guiGraphics.guiHeight();
             var font = client.font;
@@ -189,17 +292,9 @@ public class ClientHudRenderer {
             }
             return;
         });
-        HudRenderCallback.EVENT.register((guiGraphics, deltaTracker) -> {
+        RoleHudRenderCallback.EVENT.register(ModRoles.HOAN_MEIRIN_ID, (guiGraphics, deltaTracker) -> {
             // 渲染红美铃的提示
             var client = Minecraft.getInstance();
-            if (client == null)
-                return;
-            if (client.player == null)
-                return;
-            if (SREClient.gameComponent == null
-                    || !SREClient.gameComponent.isRole(client.player, ModRoles.HOAN_MEIRIN)) {
-                return;
-            }
             int screenWidth = guiGraphics.guiWidth();
             int screenHeight = guiGraphics.guiHeight();
             var font = client.font;
@@ -253,17 +348,9 @@ public class ClientHudRenderer {
             }
             return;
         });
-        HudRenderCallback.EVENT.register((guiGraphics, deltaTracker) -> {
+        RoleHudRenderCallback.EVENT.register(ModRoles.WIND_YAOSE_ID, (guiGraphics, deltaTracker) -> {
             // 渲染风精灵的提示
             var client = Minecraft.getInstance();
-            if (client == null)
-                return;
-            if (client.player == null)
-                return;
-            if (SREClient.gameComponent == null
-                    || !SREClient.gameComponent.isRole(client.player, ModRoles.WIND_YAOSE)) {
-                return;
-            }
             int screenWidth = guiGraphics.guiWidth();
             int screenHeight = guiGraphics.guiHeight();
             var font = client.font;
@@ -285,17 +372,9 @@ public class ClientHudRenderer {
             }
             return;
         });
-        HudRenderCallback.EVENT.register((guiGraphics, deltaTracker) -> {
+        RoleHudRenderCallback.EVENT.register(ModRoles.EXAMPLER_ID, (guiGraphics, deltaTracker) -> {
             // 渲染小镇做题家的提示
             var client = Minecraft.getInstance();
-            if (client == null)
-                return;
-            if (client.player == null)
-                return;
-            if (SREClient.gameComponent == null
-                    || !SREClient.gameComponent.isRole(client.player, ModRoles.EXAMPLER)) {
-                return;
-            }
             int screenWidth = guiGraphics.guiWidth();
             int screenHeight = guiGraphics.guiHeight();
             var font = client.font;
@@ -340,17 +419,9 @@ public class ClientHudRenderer {
                     Color.WHITE.getRGB());
             return;
         });
-        HudRenderCallback.EVENT.register((guiGraphics, deltaTracker) -> {
+        RoleHudRenderCallback.EVENT.register(ModRoles.FORTUNETELLER_ID, (guiGraphics, deltaTracker) -> {
             // 渲染算命大师的提示
             var client = Minecraft.getInstance();
-            if (client == null)
-                return;
-            if (client.player == null)
-                return;
-            if (SREClient.gameComponent == null
-                    || !SREClient.gameComponent.isRole(client.player, ModRoles.FORTUNETELLER)) {
-                return;
-            }
             int screenWidth = guiGraphics.guiWidth();
             int screenHeight = guiGraphics.guiHeight();
             var font = client.font;
@@ -394,16 +465,9 @@ public class ClientHudRenderer {
 
             return;
         });
-        HudRenderCallback.EVENT.register((guiGraphics, deltaTracker) -> {
+        RoleHudRenderCallback.EVENT.register(ModRoles.OLDMAN_ID, (guiGraphics, deltaTracker) -> {
             // 渲染老人的提示
             var client = Minecraft.getInstance();
-            if (client == null)
-                return;
-            if (client.player == null)
-                return;
-            if (SREClient.gameComponent == null || !SREClient.gameComponent.isRole(client.player, ModRoles.OLDMAN)) {
-                return;
-            }
             int screenWidth = guiGraphics.guiWidth();
             int screenHeight = guiGraphics.guiHeight();
             var font = client.font;
@@ -418,65 +482,53 @@ public class ClientHudRenderer {
 
             return;
         });
-        HudRenderCallback.EVENT.register((guiGraphics, deltaTracker) -> {
+        RoleHudRenderCallback.EVENT.register(ModRoles.BARTENDER_ID, (guiGraphics, deltaTracker) -> {
             // 渲染酒保的提示
             var client = Minecraft.getInstance();
-            if (client == null)
+
+            var comc = BartenderPlayerComponent.KEY.maybeGet(client.player).orElse(null);
+            if (comc == null)
                 return;
-            if (client.player == null)
+            if (comc.getArmor() <= 0)
                 return;
-            if (SREClient.gameComponent != null && (SREClient.gameComponent.isRole(client.player, ModRoles.BARTENDER)
-                    || SREClient.gameComponent.isRole(client.player, TMMRoles.LOOSE_END))) {
-                var comc = BartenderPlayerComponent.KEY.maybeGet(client.player).orElse(null);
-                if (comc == null)
-                    return;
-                if (comc.getArmor() <= 0)
-                    return;
-                int screenWidth = guiGraphics.guiWidth();
-                int screenHeight = guiGraphics.guiHeight();
-                var font = client.font;
-                int yOffset = screenHeight - 10 - font.lineHeight; // 右下角
-                int xOffset = screenWidth - 10; // 距离右边缘
-                var text = Component.translatable("hud.bartender.has_armor", comc.getArmor())
-                        .withStyle(ChatFormatting.GOLD);
-                guiGraphics.drawString(font, text, xOffset - font.width(text), yOffset, Color.WHITE.getRGB());
+            int screenWidth = guiGraphics.guiWidth();
+            int screenHeight = guiGraphics.guiHeight();
+            var font = client.font;
+            int yOffset = screenHeight - 10 - font.lineHeight; // 右下角
+            int xOffset = screenWidth - 10; // 距离右边缘
+            var text = Component.translatable("hud.bartender.has_armor", comc.getArmor())
+                    .withStyle(ChatFormatting.GOLD);
+            guiGraphics.drawString(font, text, xOffset - font.width(text), yOffset, Color.WHITE.getRGB());
+            return;
+
+        });
+        RoleHudRenderCallback.EVENT.register(ModRoles.ATTENDANT_ID, (guiGraphics, deltaTracker) -> {
+            Minecraft client = Minecraft.getInstance();
+            var comc = NoellesRolesAbilityPlayerComponent.KEY.maybeGet(client.player).orElse(null);
+            if (comc == null)
                 return;
+            int screenWidth = guiGraphics.guiWidth();
+            int screenHeight = guiGraphics.guiHeight();
+            var font = client.font;
+            int yOffset = screenHeight - 10 - font.lineHeight; // 右下角
+            int xOffset = screenWidth - 10; // 距离右边缘
+            var text = Component.literal("");
+            if (comc.cooldown <= 0) {
+                text.append(Component.translatable("hud.noellesroles.attendant.available",
+                        Component.keybind("key.noellesroles.ability"), AttendantHandler.area_distance)
+                        .withStyle(ChatFormatting.GOLD));
+            } else {
+                text.append(Component.translatable("hud.noellesroles.attendant.cooldown", (comc.cooldown / 20))
+                        .withStyle(ChatFormatting.RED));
             }
 
-            if (SREClient.gameComponent != null && SREClient.gameComponent.isRole(client.player, ModRoles.ATTENDANT)) {
-                var comc = NoellesRolesAbilityPlayerComponent.KEY.maybeGet(client.player).orElse(null);
-                if (comc == null)
-                    return;
-                int screenWidth = guiGraphics.guiWidth();
-                int screenHeight = guiGraphics.guiHeight();
-                var font = client.font;
-                int yOffset = screenHeight - 10 - font.lineHeight; // 右下角
-                int xOffset = screenWidth - 10; // 距离右边缘
-                var text = Component.literal("");
-                if (comc.cooldown <= 0) {
-                    text.append(Component.translatable("hud.noellesroles.attendant.available",
-                            Component.keybind("key.noellesroles.ability"), AttendantHandler.area_distance)
-                            .withStyle(ChatFormatting.GOLD));
-                } else {
-                    text.append(Component.translatable("hud.noellesroles.attendant.cooldown", (comc.cooldown / 20))
-                            .withStyle(ChatFormatting.RED));
-                }
-
-                guiGraphics.drawString(font, text, xOffset - font.width(text), yOffset, Color.WHITE.getRGB());
-                return;
-            }
+            guiGraphics.drawString(font, text, xOffset - font.width(text), yOffset, Color.WHITE.getRGB());
+            return;
         });
 
         // 小偷HUD
-        HudRenderCallback.EVENT.register((guiGraphics, deltaTracker) -> {
+        RoleHudRenderCallback.EVENT.register(ModRoles.THIEF_ID, (guiGraphics, deltaTracker) -> {
             var client = Minecraft.getInstance();
-            if (client == null)
-                return;
-            if (client.player == null)
-                return;
-            if (SREClient.gameComponent == null || !SREClient.gameComponent.isRole(client.player, ModRoles.THIEF)) {
-                return;
-            }
 
             int screenWidth = guiGraphics.guiWidth();
             int screenHeight = guiGraphics.guiHeight();
@@ -529,16 +581,8 @@ public class ClientHudRenderer {
         });
 
         // 仇杀客HUD
-        HudRenderCallback.EVENT.register((guiGraphics, deltaTracker) -> {
+        RoleHudRenderCallback.EVENT.register(ModRoles.BLOOD_FEUDIST_ID, (guiGraphics, deltaTracker) -> {
             var client = Minecraft.getInstance();
-            if (client == null)
-                return;
-            if (client.player == null)
-                return;
-            if (SREClient.gameComponent == null
-                    || !SREClient.gameComponent.isRole(client.player, ModRoles.BLOOD_FEUDIST)) {
-                return;
-            }
 
             int screenWidth = guiGraphics.guiWidth();
             int screenHeight = guiGraphics.guiHeight();
@@ -591,16 +635,8 @@ public class ClientHudRenderer {
         });
 
         // 会计HUD
-        HudRenderCallback.EVENT.register((guiGraphics, deltaTracker) -> {
+        RoleHudRenderCallback.EVENT.register(ModRoles.ACCOUNTANT_ID, (guiGraphics, deltaTracker) -> {
             var client = Minecraft.getInstance();
-            if (client == null)
-                return;
-            if (client.player == null)
-                return;
-            if (SREClient.gameComponent == null
-                    || !SREClient.gameComponent.isRole(client.player, ModRoles.ACCOUNTANT)) {
-                return;
-            }
 
             int screenWidth = guiGraphics.guiWidth();
             int screenHeight = guiGraphics.guiHeight();
@@ -651,7 +687,7 @@ public class ClientHudRenderer {
         });
 
         // 药剂师HUD
-        HudRenderCallback.EVENT.register((guiGraphics, deltaTracker) -> {
+        RoleHudRenderCallback.EVENT.register(ModRoles.ALCHEMIST_ID, (guiGraphics, deltaTracker) -> {
             var client = Minecraft.getInstance();
             if (client == null)
                 return;
@@ -745,5 +781,4 @@ public class ClientHudRenderer {
             default -> 0;
         };
     }
-
 }

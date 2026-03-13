@@ -1,18 +1,18 @@
 package org.agmas.noellesroles.roles.commander;
 
+import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
 import org.agmas.noellesroles.component.NoellesRolesAbilityPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 
 import io.wifi.starrailexpress.client.SREClient;
 import io.github.mortuusars.exposure.util.color.Color;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 
 public class CommanderHudRender {
     public static void register() {
-        HudRenderCallback.EVENT.register((guiGraphics, deltaTracker) -> {
+        RoleHudRenderCallback.EVENT.register(ModRoles.WAYFARER_ID,(guiGraphics, deltaTracker) -> {
             var client = Minecraft.getInstance();
             if (client == null)
                 return;
