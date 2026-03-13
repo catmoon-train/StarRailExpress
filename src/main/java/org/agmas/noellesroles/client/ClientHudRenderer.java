@@ -713,7 +713,7 @@ public class ClientHudRenderer {
 
             // 显示当前选择的药剂
             int currentPotionIndex = alchemistComponent.getCurrentPotionIndex();
-            Component potionName = Component.translatable("potion.noellesroles." + getPotionKey(currentPotionIndex));
+            Component potionName = Component.translatable("potion.noellesroles." + org.agmas.noellesroles.component.AlchemistPlayerComponent.getPotionKey(currentPotionIndex));
             Component potionLabel = Component.translatable("hud.alchemist.current_potion")
                     .withStyle(ChatFormatting.WHITE);
             guiGraphics.drawString(font, potionLabel, xOffset - font.width(potionLabel) - font.width(potionName), dy,
@@ -722,7 +722,7 @@ public class ClientHudRenderer {
             dy -= font.lineHeight + 4;
 
             // 显示调制花费
-            int goldCost = getPotionCost(currentPotionIndex);
+            int goldCost = org.agmas.noellesroles.component.AlchemistPlayerComponent.getPotionCost(currentPotionIndex);
             Component costText = Component.translatable("hud.alchemist.craft_cost", goldCost,
                     org.agmas.noellesroles.component.AlchemistPlayerComponent.MATERIALS_TO_CRAFT)
                     .withStyle(ChatFormatting.GOLD);
@@ -753,32 +753,5 @@ public class ClientHudRenderer {
                     .withStyle(ChatFormatting.GRAY);
             guiGraphics.drawString(font, toggleText, xOffset - font.width(toggleText), dy, Color.WHITE.getRGB());
         });
-    }
-
-    /**
-     * 获取药剂的key（用于翻译）
-     */
-    private static String getPotionKey(int potionIndex) {
-        return switch (potionIndex) {
-            case org.agmas.noellesroles.component.AlchemistPlayerComponent.POTION_ADRENALINE -> "adrenaline";
-            case org.agmas.noellesroles.component.AlchemistPlayerComponent.POTION_ANTIBIOTIC -> "antibiotic";
-            case org.agmas.noellesroles.component.AlchemistPlayerComponent.POTION_HEDINGHONG -> "hedinghong";
-            case org.agmas.noellesroles.component.AlchemistPlayerComponent.POTION_DOGSKIN_PLASTER -> "dogskin_plaster";
-            default -> "unknown";
-        };
-    }
-
-    /**
-     * 获取药剂的调制金币花费
-     */
-    private static int getPotionCost(int potionIndex) {
-        return switch (potionIndex) {
-            case org.agmas.noellesroles.component.AlchemistPlayerComponent.POTION_ADRENALINE,
-                    org.agmas.noellesroles.component.AlchemistPlayerComponent.POTION_ANTIBIOTIC ->
-                100;
-            case org.agmas.noellesroles.component.AlchemistPlayerComponent.POTION_HEDINGHONG -> 175;
-            case org.agmas.noellesroles.component.AlchemistPlayerComponent.POTION_DOGSKIN_PLASTER -> 150;
-            default -> 0;
-        };
     }
 }

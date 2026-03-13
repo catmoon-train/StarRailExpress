@@ -353,7 +353,7 @@ public class AlchemistPlayerComponent implements RoleComponent, ServerTickingCom
     /**
      * 获取药剂的调制金币花费
      */
-    private int getPotionCost(int potionIndex) {
+    public static int getPotionCost(int potionIndex) {
         return switch (potionIndex) {
             case POTION_ADRENALINE, POTION_ANTIBIOTIC -> 100;
             case POTION_HEDINGHONG -> 200;
@@ -363,9 +363,22 @@ public class AlchemistPlayerComponent implements RoleComponent, ServerTickingCom
     }
 
     /**
+     * 获取药剂的key（用于翻译）
+     */
+    public static String getPotionKey(int potionIndex) {
+        return switch (potionIndex) {
+            case org.agmas.noellesroles.component.AlchemistPlayerComponent.POTION_ADRENALINE -> "adrenaline";
+            case org.agmas.noellesroles.component.AlchemistPlayerComponent.POTION_ANTIBIOTIC -> "antibiotic";
+            case org.agmas.noellesroles.component.AlchemistPlayerComponent.POTION_HEDINGHONG -> "hedinghong";
+            case org.agmas.noellesroles.component.AlchemistPlayerComponent.POTION_DOGSKIN_PLASTER -> "dogskin_plaster";
+            default -> "unknown";
+        };
+    }
+
+    /**
      * 获取药剂的物品栈
      */
-    private ItemStack getPotionItemStack(int potionIndex) {
+    public static ItemStack getPotionItemStack(int potionIndex) {
         return switch (potionIndex) {
             case POTION_ADRENALINE -> new ItemStack(ModItems.ADRENALINE);
             case POTION_ANTIBIOTIC -> new ItemStack(ModItems.ANTIBIOTIC);
