@@ -822,5 +822,6 @@
   "skin.knife.edge_knife": "锋刃刀",
   "message.kick.outdated_client": "你的客户端版本已经过时了！服务端版本%s，你的版本%s",
   "message.death_reason.null": "很抱歉，无法获取到你的死亡信息。这可能出现了一些错误。",
-  "message.death_reason.prefix": "[你的死因] %s"
+  "message.death_reason.prefix": "[你的死因] %s",
+  "message.replay_manager.dead": " [死亡]"
 }

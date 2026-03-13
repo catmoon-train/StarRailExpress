@@ -99,7 +99,7 @@ public class ReplayDisplayUtils {
 
             // 添加死亡标记
             if (!isAlive) {
-                playerComponent.append(Component.literal("[死亡]"));
+                playerComponent.append(Component.translatable("message.replay_manager.dead").withStyle(ChatFormatting.DARK_RED));
             }
 
             playerComponent.append(Component.literal(" (").withStyle(ChatFormatting.GRAY))
