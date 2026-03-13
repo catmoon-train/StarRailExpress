@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.component;
 
 import org.agmas.noellesroles.role.ModRoles;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.game.GameFunctions;
 import io.wifi.starrailexpress.index.TMMItems;
 import org.jetbrains.annotations.NotNull;
@@ -113,7 +113,7 @@ public class AvengerPlayerComponent implements RoleComponent, ServerTickingCompo
         if (!(player instanceof ServerPlayer serverPlayer))
             return;
 
-        GameWorldComponent gameWorld = GameWorldComponent.KEY.get(serverPlayer.level());
+        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(serverPlayer.level());
         if (!gameWorld.isRole(player, ModRoles.AVENGER)) {
             return;
         }
@@ -209,7 +209,7 @@ public class AvengerPlayerComponent implements RoleComponent, ServerTickingCompo
 
     @Override
     public void serverTick() {
-        GameWorldComponent gameWorld = GameWorldComponent.KEY.get(player.level());
+        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.level());
 
         // 只有复仇者角色才处理
         if (!gameWorld.isRole(player, ModRoles.AVENGER))

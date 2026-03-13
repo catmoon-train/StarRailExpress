@@ -3,8 +3,8 @@ package org.agmas.noellesroles;
 import org.agmas.noellesroles.component.ConspiratorPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 
-import io.wifi.starrailexpress.cca.GameWorldComponent;
-import io.wifi.starrailexpress.cca.PlayerPoisonComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.StarPlayerPoisonComponent;
 import io.wifi.starrailexpress.event.EarlyKillPlayer;
 import io.wifi.starrailexpress.game.GameFunctions;
 import io.wifi.starrailexpress.SRE;
@@ -17,8 +17,8 @@ public class TrueKillerFinder {
             if (!(victim instanceof ServerPlayer serverVictim))
                 return null;
             // Noellesroles.LOGGER.info("!!!");
-            var gameWorldComponent = GameWorldComponent.KEY.get(victim.level());
-            var poisonerC = PlayerPoisonComponent.KEY.maybeGet(victim).orElse(null);
+            var gameWorldComponent = StarGameWorldComponent.KEY.get(victim.level());
+            var poisonerC = StarPlayerPoisonComponent.KEY.maybeGet(victim).orElse(null);
             if (poisonerC != null) {
                 if (poisonerC.poisoner != null && poisonerC.poisonTicks >= 0) {
                     var poisonerP = serverVictim.level().getPlayerByUUID(poisonerC.poisoner);

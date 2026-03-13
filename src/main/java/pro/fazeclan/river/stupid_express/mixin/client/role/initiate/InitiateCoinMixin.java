@@ -1,7 +1,7 @@
 package pro.fazeclan.river.stupid_express.mixin.client.role.initiate;
 
-import io.wifi.starrailexpress.cca.GameWorldComponent;
-import io.wifi.starrailexpress.cca.PlayerShopComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
 import io.wifi.starrailexpress.client.gui.StoreRenderer;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -34,8 +34,8 @@ public class InitiateCoinMixin {
             float delta,
             CallbackInfo ci
     ) {
-        if (GameWorldComponent.KEY.get(player.level()).isRole(player, SERoles.INITIATE)) {
-            int balance = PlayerShopComponent.KEY.get(player).balance;
+        if (StarGameWorldComponent.KEY.get(player.level()).isRole(player, SERoles.INITIATE)) {
+            int balance = StarPlayerShopComponent.KEY.get(player).balance;
             if (view.getTarget() != (float) balance) {
                 offsetDelta = (float) balance > view.getTarget() ?  0.6f : -0.6f;
                 view.setTarget((float) balance);

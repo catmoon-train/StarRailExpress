@@ -1,8 +1,8 @@
 package org.agmas.noellesroles.component;
 
 import  org.agmas.noellesroles.role.ModRoles;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
-import io.wifi.starrailexpress.cca.PlayerShopComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
 import io.wifi.starrailexpress.game.GameFunctions;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -43,7 +43,7 @@ public class SlipperyGhostPlayerComponent implements RoleComponent, ServerTickin
     @Override
     public void serverTick() {
         // 检查玩家是否为滑头鬼
-        GameWorldComponent gameWorld = GameWorldComponent.KEY.get(player.level());
+        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.level());
         if (!gameWorld.isRole(player, ModRoles.SLIPPERY_GHOST)) {
             return;
         }
@@ -66,7 +66,7 @@ public class SlipperyGhostPlayerComponent implements RoleComponent, ServerTickin
             tickCounter = 0;
             
             // 获取商店组件并增加余额
-            PlayerShopComponent shopComponent = PlayerShopComponent.KEY.get(player);
+            StarPlayerShopComponent shopComponent = StarPlayerShopComponent.KEY.get(player);
             shopComponent.addToBalance(PASSIVE_INCOME_AMOUNT);
         }
         

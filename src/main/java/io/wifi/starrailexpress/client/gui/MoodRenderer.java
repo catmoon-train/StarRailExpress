@@ -2,9 +2,9 @@ package io.wifi.starrailexpress.client.gui;
 
 import io.wifi.starrailexpress.api.Role;
 import io.wifi.starrailexpress.api.SREGameModes;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
-import io.wifi.starrailexpress.cca.PlayerMoodComponent;
-import io.wifi.starrailexpress.cca.PlayerPsychoComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.StarPlayerMoodComponent;
+import io.wifi.starrailexpress.cca.StarPlayerPsychoComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.SRE;
@@ -35,7 +35,7 @@ public class MoodRenderer {
     public static final ResourceLocation MOOD_PSYCHO = SRE.watheId("hud/mood_psycho");
     public static final ResourceLocation MOOD_PSYCHO_HIT = SRE.watheId("hud/mood_psycho_hit");
     public static final ResourceLocation MOOD_PSYCHO_EYES = SRE.watheId("hud/mood_psycho_eyes");
-    private static final Map<PlayerMoodComponent.Task, TaskRenderer> renderers = new HashMap<>();
+    private static final Map<StarPlayerMoodComponent.Task, TaskRenderer> renderers = new HashMap<>();
     public static Random random = new Random();
     public static float arrowProgress = 1f;
     public static float moodRender = 0f;
@@ -46,29 +46,29 @@ public class MoodRenderer {
     @Environment(EnvType.CLIENT)
     public static void renderHud(@NotNull Player player, Font textRenderer, GuiGraphics context,
             DeltaTracker tickCounter) {
-        GameWorldComponent gameWorldComponent = GameWorldComponent.KEY.get(player.level());
+        StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(player.level());
         if (!gameWorldComponent.isRunning() || !SREClient.isPlayerAliveAndInSurvival()
                 || gameWorldComponent.getGameMode() != SREGameModes.MURDER)
             return;
-        PlayerMoodComponent component = PlayerMoodComponent.KEY.get(player);
+        StarPlayerMoodComponent component = StarPlayerMoodComponent.KEY.get(player);
         float oldMood = moodRender;
         moodRender = Mth.lerp(tickCounter.getGameTimeDeltaPartialTick(true) / 8, moodRender, component.getMood());
         moodAlpha = Mth.lerp(tickCounter.getGameTimeDeltaPartialTick(true) / 16, moodAlpha,
                 renderers.isEmpty() ? 0f : 1f);
-        PlayerPsychoComponent psycho = PlayerPsychoComponent.KEY.get(player);
+        StarPlayerPsychoComponent psycho = StarPlayerPsychoComponent.KEY.get(player);
         if (psycho.getPsychoTicks() > 0) {
             renderPsycho(player, textRenderer, context, psycho, tickCounter);
             return;
         }
-        for (PlayerMoodComponent.Task task : component.tasks.keySet()) {
+        for (StarPlayerMoodComponent.Task task : component.tasks.keySet()) {
             if (!renderers.containsKey(task)) {
                 for (TaskRenderer renderer : renderers.values())
                     renderer.index++;
                 renderers.put(task, new TaskRenderer());
             }
         }
-        ArrayList<PlayerMoodComponent.Task> toRemove = new ArrayList<>();
-        for (PlayerMoodComponent.Task taskType : PlayerMoodComponent.Task.values()) {
+        ArrayList<StarPlayerMoodComponent.Task> toRemove = new ArrayList<>();
+        for (StarPlayerMoodComponent.Task taskType : StarPlayerMoodComponent.Task.values()) {
             TaskRenderer task = renderers.get(taskType);
             if (task != null) {
                 task.present = false;
@@ -76,7 +76,7 @@ public class MoodRenderer {
                     toRemove.add(taskType);
             }
         }
-        for (PlayerMoodComponent.Task task : toRemove)
+        for (StarPlayerMoodComponent.Task task : toRemove)
             renderers.remove(task);
         if (!toRemove.isEmpty()) {
             ArrayList<TaskRenderer> renderersList = new ArrayList<>(renderers.values());
@@ -85,7 +85,7 @@ public class MoodRenderer {
                 renderersList.get(i).index = i;
         }
         TaskRenderer maxRenderer = null;
-        for (Map.Entry<PlayerMoodComponent.Task, TaskRenderer> entry : renderers.entrySet()) {
+        for (Map.Entry<StarPlayerMoodComponent.Task, TaskRenderer> entry : renderers.entrySet()) {
             TaskRenderer renderer = entry.getValue();
             context.pose().pushPose();
             context.pose().translate(0, 10 * renderer.offset, 0);
@@ -167,7 +167,7 @@ public class MoodRenderer {
     }
 
     private static void renderPsycho(@NotNull Player player, @NotNull Font renderer, @NotNull GuiGraphics context,
-            PlayerPsychoComponent component, @NotNull DeltaTracker tickCounter) {
+            StarPlayerPsychoComponent component, @NotNull DeltaTracker tickCounter) {
         int colour = Mth.hsvToRgb(0F, 1.0F, 0.5F);
         MutableComponent text = Component.translatable("game.psycho_mode.text").withColor(colour);
         int width = renderer.width(text);
@@ -231,7 +231,7 @@ public class MoodRenderer {
         public boolean present = false;
         public Component text = Component.empty();
 
-        public boolean tick(PlayerMoodComponent.TrainTask present, float delta) {
+        public boolean tick(StarPlayerMoodComponent.TrainTask present, float delta) {
             if (present != null)
                 this.text = Component.translatable("task." + (SREClient.isKiller() ? "fake" : "feel"))
                         .append(Component.translatable("task." + present.getName()));

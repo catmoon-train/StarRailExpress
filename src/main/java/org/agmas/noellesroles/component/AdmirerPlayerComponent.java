@@ -7,7 +7,7 @@ import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import io.wifi.starrailexpress.api.RoleComponent;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
@@ -153,7 +153,7 @@ public class AdmirerPlayerComponent implements RoleComponent, ServerTickingCompo
 
         // 为所有杀手阵营角色（canUseKiller = true）给予初始金币
         if (selectedRole.canUseKiller()) {
-            io.wifi.starrailexpress.cca.PlayerShopComponent shopComponent = io.wifi.starrailexpress.cca.PlayerShopComponent.KEY
+            io.wifi.starrailexpress.cca.StarPlayerShopComponent shopComponent = io.wifi.starrailexpress.cca.StarPlayerShopComponent.KEY
                     .get(player);
             shopComponent.addToBalance(200);
             shopComponent.sync();
@@ -225,7 +225,7 @@ public class AdmirerPlayerComponent implements RoleComponent, ServerTickingCompo
     private void checkBoundTarget() {
         if (player.level().getGameTime() % 20 == 0) {
             Player boundTarget = getBoundTarget();
-            var gameCp = GameWorldComponent.KEY.get(this.player.level());
+            var gameCp = StarGameWorldComponent.KEY.get(this.player.level());
             if (gameCp != null && gameCp.isRunning()) {
                 if (GameFunctions.isPlayerAliveAndSurvival(this.player)) {
                     if (boundTarget == null || !GameFunctions.isPlayerAliveAndSurvival(boundTarget)) {
@@ -314,7 +314,7 @@ public class AdmirerPlayerComponent implements RoleComponent, ServerTickingCompo
      * 检查是否是活跃的慕恋者
      */
     public boolean isActiveAdmirer() {
-        if (!GameWorldComponent.KEY.get(player.level()).isRole(player, ModRoles.ADMIRER))
+        if (!StarGameWorldComponent.KEY.get(player.level()).isRole(player, ModRoles.ADMIRER))
             return false;
         return isAdmirerMarked && !hasTransformed;
     }
@@ -344,7 +344,7 @@ public class AdmirerPlayerComponent implements RoleComponent, ServerTickingCompo
         // 检查玩家是否存活
         if (!GameFunctions.isPlayerAliveAndSurvival(player))
             return;
-        var gameWorldComponent = GameWorldComponent.KEY.get(player.level());
+        var gameWorldComponent = StarGameWorldComponent.KEY.get(player.level());
         if (!gameWorldComponent.isSkillAvailable) {
             // player.displayClientMessage(
             //         Component.translatable("message.tip.skill_disabled").withStyle(ChatFormatting.RED), true);

@@ -17,7 +17,7 @@ import io.wifi.starrailexpress.block.TrimmedBedBlock;
 import io.wifi.starrailexpress.block_entity.BeveragePlateBlockEntity;
 import io.wifi.starrailexpress.block_entity.SmallDoorBlockEntity;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.event.OnTrainAreaHaveReseted;
 import io.wifi.starrailexpress.game.GameFunctions;
 import io.wifi.starrailexpress.item.CocktailItem;
@@ -40,7 +40,7 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 public class MapScanner {
     public static void registerMapScanEvent() {
         OnTrainAreaHaveReseted.EVENT.register((serverLevel) -> {
-            if (GameWorldComponent.KEY.get(serverLevel).getGameMode() instanceof ChairWheelRaceGame) {
+            if (StarGameWorldComponent.KEY.get(serverLevel).getGameMode() instanceof ChairWheelRaceGame) {
                 Noellesroles.LOGGER.info("Skip scanner (wheel game)");
                 return;
             }

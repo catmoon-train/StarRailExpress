@@ -14,8 +14,8 @@ import com.google.common.collect.Multimap;
 
 import io.wifi.starrailexpress.api.Role;
 import io.wifi.starrailexpress.api.TMMRoles;
-import io.wifi.starrailexpress.cca.GameRoundEndComponent;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameRoundEndComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.game.GameFunctions;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
@@ -47,7 +47,7 @@ import net.minecraft.world.item.ItemStack;
 public class RoleUtils {
     public static void customWinnerWin(ServerLevel serverWorld, GameFunctions.WinStatus WinStatus,
             @Nullable String winnerId, @Nullable OptionalInt winnerColor) {
-        var roundComponent = GameRoundEndComponent.KEY.get(serverWorld);
+        var roundComponent = StarGameRoundEndComponent.KEY.get(serverWorld);
         if (winnerId != null) {
             if (roundComponent != null) {
                 roundComponent.CustomWinnerID = winnerId;
@@ -60,7 +60,7 @@ public class RoleUtils {
                 }
             }
         }
-        GameRoundEndComponent.KEY.get(serverWorld).setRoundEndData(serverWorld.players(),
+        StarGameRoundEndComponent.KEY.get(serverWorld).setRoundEndData(serverWorld.players(),
                 WinStatus);
         GameFunctions.stopGame(serverWorld);
     }
@@ -198,7 +198,7 @@ public class RoleUtils {
     }
 
     public static void sendWelcomeAnnouncement(ServerPlayer player) {
-        GameWorldComponent gameWorldComponent = (GameWorldComponent) GameWorldComponent.KEY
+        StarGameWorldComponent gameWorldComponent = (StarGameWorldComponent) StarGameWorldComponent.KEY
                 .get(player.level());
         final var size = gameWorldComponent.getAllKillerTeamPlayers().size();
         ServerPlayNetworking.send(player, new AnnounceWelcomePayload(
@@ -211,7 +211,7 @@ public class RoleUtils {
 
     public static void changeRole(Player player, Role role, boolean record) {
 
-        GameWorldComponent gameWorldComponent = GameWorldComponent.KEY.get(player.level());
+        StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(player.level());
         // 删除旧职业
         var oldRole = gameWorldComponent.getRole(player);
         if (oldRole != null) {

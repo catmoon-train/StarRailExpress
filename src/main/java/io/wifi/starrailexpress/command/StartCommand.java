@@ -5,7 +5,7 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 
 import io.wifi.starrailexpress.api.GameMode;
 import io.wifi.starrailexpress.api.SREGameModes;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.command.argument.GameModeArgumentType;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameFunctions;
@@ -30,7 +30,7 @@ public class StartCommand {
     }
 
     private static int execute(CommandSourceStack source, GameMode gameMode, int minutes) {
-        if (GameWorldComponent.KEY.get(source.getLevel()).isRunning()) {
+        if (StarGameWorldComponent.KEY.get(source.getLevel()).isRunning()) {
             source.sendFailure(Component.translatable("game.start_error.game_running"));
             return -1;
         }

@@ -1,6 +1,6 @@
 package pro.fazeclan.river.stupid_express.mixin.client.role.necromancer;
 
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.RoleNameRenderer;
 import net.minecraft.client.DeltaTracker;
@@ -10,7 +10,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 
-import org.agmas.noellesroles.component.NoellesRolesAbilityPlayerComponent;
+import org.agmas.noellesroles.component.StarAbilityPlayerComponent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -24,7 +24,7 @@ public class NecromancerHudMixin {
 
     @Inject(method = "renderHud", at = @At("TAIL"))
     private static void replaceRoleHud(Font renderer, LocalPlayer player, GuiGraphics context, DeltaTracker tickCounter, CallbackInfo ci) {
-        GameWorldComponent gameWorldComponent = GameWorldComponent.KEY.get(player.level());
+        StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(player.level());
         if (StupidExpressClient.targetBody == null) {
             return;
         }
@@ -40,7 +40,7 @@ public class NecromancerHudMixin {
             if (nc.getAvailableRevives() < 1) {
                 status = Component.translatable("hud.stupid_express.necromancer.no_possible_revive");
             }
-            NoellesRolesAbilityPlayerComponent cooldown = NoellesRolesAbilityPlayerComponent.KEY.get(p);
+            StarAbilityPlayerComponent cooldown = StarAbilityPlayerComponent.KEY.get(p);
             if (cooldown.hasCooldown()) {
                 status = Component.translatable("hud.stupid_express.necromancer.cooldown", cooldown.getCooldown()/20);
             }

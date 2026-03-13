@@ -3,7 +3,7 @@ package org.agmas.noellesroles.mixin.client.roles;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.component.PuppeteerPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -43,7 +43,7 @@ public abstract class PuppeteerHudMixin {
 
         // 检查玩家是否是傀儡师（包括操控假人时角色临时变更的情况）
         // 操控假人时角色会变成其他杀手，但 isActivePuppeteer() 仍然返回 true
-        GameWorldComponent gameWorld = GameWorldComponent.KEY.get(client.level);
+        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(client.level);
         final var role = gameWorld.getRole(client.player);
         if (role==null)return;
         if (!role.getIdentifier().equals(ModRoles.PUPPETEER_ID) && !puppeteerComp.isActivePuppeteer()) return;

@@ -2,7 +2,7 @@ package pro.fazeclan.river.stupid_express.mixin.role.avaricious;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.game.StarRailMurderGameMode;
 import net.minecraft.server.level.ServerPlayer;
 
@@ -22,7 +22,7 @@ public class AvariciousPassiveIncomeDestroyer {
     )
     private boolean noPassiveIncomeKiller(
             boolean original,
-            @Local(name = "gameWorldComponent") GameWorldComponent component,
+            @Local(name = "gameWorldComponent") StarGameWorldComponent component,
             @Local(name = "player") ServerPlayer player
     ) {
         return original && !component.isRole(player, SERoles.AVARICIOUS);

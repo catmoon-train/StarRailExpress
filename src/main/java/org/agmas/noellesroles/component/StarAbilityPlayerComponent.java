@@ -10,7 +10,7 @@ import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import io.wifi.starrailexpress.api.RoleComponent;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.game.GameFunctions;
 
 import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
@@ -27,7 +27,7 @@ import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
  * - 技能使用次数限制
  * - 自动同步到客户端（用于 HUD 显示）
  */
-public class NoellesRolesAbilityPlayerComponent
+public class StarAbilityPlayerComponent
         implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
 
     @Override
@@ -36,7 +36,7 @@ public class NoellesRolesAbilityPlayerComponent
     }
 
     /** 组件键 - 用于从玩家获取此组件 */
-    public static final ComponentKey<NoellesRolesAbilityPlayerComponent> KEY = ModComponents.ABILITY;
+    public static final ComponentKey<StarAbilityPlayerComponent> KEY = ModComponents.ABILITY;
 
     // 持有该组件的玩家
     private final Player player;
@@ -56,7 +56,7 @@ public class NoellesRolesAbilityPlayerComponent
     /**
      * 构造函数
      */
-    public NoellesRolesAbilityPlayerComponent(Player player) {
+    public StarAbilityPlayerComponent(Player player) {
         this.player = player;
     }
 
@@ -161,7 +161,7 @@ public class NoellesRolesAbilityPlayerComponent
         }
         if (this.player.level().getGameTime() % 20 == 0) {
             if (GameFunctions.isPlayerAliveAndSurvival(this.player)) {
-                GameWorldComponent gameWorldComponent = GameWorldComponent.KEY.get(this.player.level());
+                StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(this.player.level());
                 if (gameWorldComponent.isRole(this.player, ModRoles.WIND_YAOSE)) {
                     var effect = player.getEffect(MobEffects.INVISIBILITY);
                     if (effect == null || effect.getDuration() <= 30) {

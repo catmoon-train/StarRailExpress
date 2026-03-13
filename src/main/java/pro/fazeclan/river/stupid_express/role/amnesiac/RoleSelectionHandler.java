@@ -1,8 +1,8 @@
 package pro.fazeclan.river.stupid_express.role.amnesiac;
 
 import io.wifi.starrailexpress.api.Role;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
-import io.wifi.starrailexpress.cca.PlayerShopComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
 import io.wifi.starrailexpress.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.index.TMMItems;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
@@ -31,7 +31,7 @@ public class RoleSelectionHandler {
             if (!interacting.gameMode.isSurvival()) {
                 return InteractionResult.PASS;
             }
-            GameWorldComponent gameWorldComponent = GameWorldComponent.KEY.get(player.level());
+            StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(player.level());
             if (!gameWorldComponent.isRole(player, SERoles.AMNESIAC)) {
                 return InteractionResult.PASS;
             }
@@ -60,7 +60,7 @@ public class RoleSelectionHandler {
             // 清除物品栏中的所有刀
             clearAllKnives(interacting);
 
-            PlayerShopComponent playerShopComponent = PlayerShopComponent.KEY.get(interacting);
+            StarPlayerShopComponent playerShopComponent = StarPlayerShopComponent.KEY.get(interacting);
             StupidRoleUtils.changeRole(interacting, role);
 
             playerShopComponent.setBalance(200);

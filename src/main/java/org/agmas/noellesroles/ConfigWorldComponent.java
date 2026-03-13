@@ -94,7 +94,7 @@ public class ConfigWorldComponent implements AutoSyncedComponent, ServerTickingC
                     // 倒计时结束，发放金币
                     ServerPlayer player = serverLevel.getServer().getPlayerList().getPlayer(playerUUID);
                     if (player != null && io.wifi.starrailexpress.game.GameFunctions.isPlayerAliveAndSurvival(player)) {
-                        io.wifi.starrailexpress.cca.PlayerShopComponent shopComponent = io.wifi.starrailexpress.cca.PlayerShopComponent.KEY.get(player);
+                        io.wifi.starrailexpress.cca.StarPlayerShopComponent shopComponent = io.wifi.starrailexpress.cca.StarPlayerShopComponent.KEY.get(player);
                         shopComponent.addToBalance(100);
 
                         player.displayClientMessage(

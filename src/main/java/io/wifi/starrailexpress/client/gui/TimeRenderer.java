@@ -1,8 +1,8 @@
 package io.wifi.starrailexpress.client.gui;
 
 import io.wifi.starrailexpress.api.Role;
-import io.wifi.starrailexpress.cca.GameTimeComponent;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameTimeComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameFunctions;
 import net.minecraft.client.gui.Font;
@@ -17,10 +17,10 @@ public class TimeRenderer {
     public static float offsetDelta = 0f;
 
     public static void renderHud(Font renderer, @NotNull LocalPlayer player, @NotNull GuiGraphics context, float delta) {
-        GameWorldComponent gameWorldComponent = GameWorldComponent.KEY.get(player.level());
+        StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(player.level());
         Role role = gameWorldComponent.getRole(player);
         if (gameWorldComponent.isRunning() && (role != null && role.canSeeTime() || GameFunctions.isPlayerSpectatingOrCreative(player))) {
-            int time = GameTimeComponent.KEY.get(player.level()).getTime();
+            int time = StarGameTimeComponent.KEY.get(player.level()).getTime();
             if (Math.abs(view.getTarget() - time) > 10) offsetDelta = time > view.getTarget() ? .6f : -.6f;
             if (time < GameConstants.getInTicks(1, 0)) {
                 offsetDelta = -0.9f;

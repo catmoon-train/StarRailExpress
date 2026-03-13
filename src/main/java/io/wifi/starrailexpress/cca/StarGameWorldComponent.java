@@ -34,9 +34,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 
-public class GameWorldComponent implements AutoSyncedComponent, ServerTickingComponent, ClientTickingComponent {
-    public static final ComponentKey<GameWorldComponent> KEY = ComponentRegistry.getOrCreate(SRE.id("game"),
-            GameWorldComponent.class);
+public class StarGameWorldComponent implements AutoSyncedComponent, ServerTickingComponent, ClientTickingComponent {
+    public static final ComponentKey<StarGameWorldComponent> KEY = ComponentRegistry.getOrCreate(SRE.id("game"),
+            StarGameWorldComponent.class);
     private final Level world;
     private RoleWorldComponent roleWorldComponent = null;
     private boolean canJump = false;
@@ -71,7 +71,7 @@ public class GameWorldComponent implements AutoSyncedComponent, ServerTickingCom
         return syncRole;
     }
 
-    public GameWorldComponent setSyncRole(boolean syncRole) {
+    public StarGameWorldComponent setSyncRole(boolean syncRole) {
         this.syncRole = syncRole;
         return this;
     }
@@ -107,12 +107,12 @@ public class GameWorldComponent implements AutoSyncedComponent, ServerTickingCom
 
     private float backfireChance = 0f;
 
-    public GameWorldComponent(Level world) {
+    public StarGameWorldComponent(Level world) {
         this.world = world;
     }
 
     public void sync() {
-        GameWorldComponent.KEY.sync(this.world);
+        StarGameWorldComponent.KEY.sync(this.world);
     }
 
     public boolean isBound() {
@@ -475,7 +475,7 @@ public class GameWorldComponent implements AutoSyncedComponent, ServerTickingCom
         }
 
         if (serverWorld.getServer().overworld().equals(serverWorld)) {
-            TrainWorldComponent trainComponent = TrainWorldComponent.KEY.get(serverWorld);
+            StarTrainWorldComponent trainComponent = StarTrainWorldComponent.KEY.get(serverWorld);
 
             // spectator limits
             if (trainComponent.getSpeed() > 0) {
@@ -491,7 +491,7 @@ public class GameWorldComponent implements AutoSyncedComponent, ServerTickingCom
                 for (ServerPlayer player : serverWorld.players()) {
                     if (GameFunctions.isPlayerAliveAndSurvival(player)) {
                         // kill players who fell off the train
-                        if (GameWorldComponent.KEY.get(world).getRole(player) == null) {
+                        if (StarGameWorldComponent.KEY.get(world).getRole(player) == null) {
                             player.setGameMode(net.minecraft.world.level.GameType.SPECTATOR);
                         }
                         if (GameFunctions.isPlayerAliveAndSurvival(player)) {

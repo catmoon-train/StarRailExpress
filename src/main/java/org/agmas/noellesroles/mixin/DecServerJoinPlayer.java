@@ -16,11 +16,11 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import io.wifi.starrailexpress.cca.PlayerMoodComponent;
-import io.wifi.starrailexpress.cca.PlayerNoteComponent;
-import io.wifi.starrailexpress.cca.PlayerPoisonComponent;
-import io.wifi.starrailexpress.cca.PlayerPsychoComponent;
-import io.wifi.starrailexpress.cca.PlayerShopComponent;
+import io.wifi.starrailexpress.cca.StarPlayerMoodComponent;
+import io.wifi.starrailexpress.cca.StarPlayerNoteComponent;
+import io.wifi.starrailexpress.cca.StarPlayerPoisonComponent;
+import io.wifi.starrailexpress.cca.StarPlayerPsychoComponent;
+import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
 import io.wifi.starrailexpress.SRE;
 
 @Mixin(PlayerList.class)
@@ -42,12 +42,12 @@ public class DecServerJoinPlayer {
         RoleUtils.RemoveAllEffects(serverPlayer);
         RoleUtils.RemoveAllPlayerAttributes(serverPlayer);
         (InsaneKillerPlayerComponent.KEY.get(serverPlayer)).reset();
-        ((PlayerMoodComponent) PlayerMoodComponent.KEY.get(serverPlayer)).reset();
-        ((PlayerShopComponent) PlayerShopComponent.KEY.get(serverPlayer)).reset();
+        ((StarPlayerMoodComponent) StarPlayerMoodComponent.KEY.get(serverPlayer)).reset();
+        ((StarPlayerShopComponent) StarPlayerShopComponent.KEY.get(serverPlayer)).reset();
         (SplitPersonalityComponent.KEY.get(serverPlayer)).clear();
-        ((PlayerPoisonComponent) PlayerPoisonComponent.KEY.get(serverPlayer)).reset();
-        ((PlayerPsychoComponent) PlayerPsychoComponent.KEY.get(serverPlayer)).reset();
-        ((PlayerNoteComponent) PlayerNoteComponent.KEY.get(serverPlayer)).reset();
+        ((StarPlayerPoisonComponent) StarPlayerPoisonComponent.KEY.get(serverPlayer)).reset();
+        ((StarPlayerPsychoComponent) StarPlayerPsychoComponent.KEY.get(serverPlayer)).reset();
+        ((StarPlayerNoteComponent) StarPlayerNoteComponent.KEY.get(serverPlayer)).reset();
         ConfigWorldComponent.KEY.get(serverPlayer.level()).sync();
     }
 

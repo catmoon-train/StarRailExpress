@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.component;
 
-import io.wifi.starrailexpress.cca.GameWorldComponent;
-import io.wifi.starrailexpress.cca.PlayerPsychoComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.StarPlayerPsychoComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.network.TriggerStatusBarPayload;
 import io.wifi.starrailexpress.util.ShopEntry;
@@ -64,7 +64,7 @@ public class MagicianPlayerComponent implements RoleComponent, ServerTickingComp
      */
     public boolean startFakePsycho() {
         // 使用原版疯狂模式系统
-        var psychoComponent = PlayerPsychoComponent.KEY.get(player);
+        var psychoComponent = StarPlayerPsychoComponent.KEY.get(player);
         if (psychoComponent == null) {
             return false;
         }
@@ -80,7 +80,7 @@ public class MagicianPlayerComponent implements RoleComponent, ServerTickingComp
         psychoComponent.setArmour(GameConstants.getPsychoModeArmour());
 
         // 更新疯狂模式计数
-        GameWorldComponent gameWorldComponent = GameWorldComponent.KEY.get(player.level());
+        StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(player.level());
         gameWorldComponent.setPsychosActive(gameWorldComponent.getPsychosActive() + 1);
 
         // 发送状态栏

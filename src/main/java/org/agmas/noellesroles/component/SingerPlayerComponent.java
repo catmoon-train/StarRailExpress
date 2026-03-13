@@ -2,8 +2,8 @@ package org.agmas.noellesroles.component;
 
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
-import io.wifi.starrailexpress.cca.PlayerMoodComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.StarPlayerMoodComponent;
 import io.wifi.starrailexpress.game.GameFunctions;
 import io.wifi.starrailexpress.SRE;
 
@@ -144,7 +144,7 @@ public class SingerPlayerComponent implements RoleComponent, ServerTickingCompon
     public boolean isActiveSinger() {
         if (!isActive || player == null || player.level().isClientSide())
             return false;
-        GameWorldComponent gameWorld = GameWorldComponent.KEY.get(player.level());
+        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.level());
         return gameWorld.isRole(player, ModRoles.SINGER);
     }
 
@@ -287,7 +287,7 @@ public class SingerPlayerComponent implements RoleComponent, ServerTickingCompon
                     ));
                     break;
                 case 2:
-                    var pmd = PlayerMoodComponent.KEY.get(target);
+                    var pmd = StarPlayerMoodComponent.KEY.get(target);
                     if (pmd != null) {
                         float nmd = pmd.getMood();
                         nmd += 0.01; // 60 * 0.01 = 0.6

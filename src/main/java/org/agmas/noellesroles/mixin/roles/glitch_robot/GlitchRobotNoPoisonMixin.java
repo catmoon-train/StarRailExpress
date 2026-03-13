@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.mixin.roles.glitch_robot;
 
-import io.wifi.starrailexpress.cca.GameWorldComponent;
-import io.wifi.starrailexpress.cca.PlayerPoisonComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.StarPlayerPoisonComponent;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.role.ModRoles;
 import org.spongepowered.asm.mixin.Mixin;
@@ -12,14 +12,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.UUID;
 
-@Mixin(PlayerPoisonComponent.class)
+@Mixin(StarPlayerPoisonComponent.class)
 public abstract class GlitchRobotNoPoisonMixin {
 
     @Shadow private Player player;
 
     @Inject(method = "setPoisonTicks", at = @At("HEAD"), cancellable = true)
     private void glitchRobotNoPoison(int ticks, UUID poisoner, CallbackInfo ci) {
-        GameWorldComponent gameWorld = GameWorldComponent.KEY.get(this.player.level());
+        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(this.player.level());
         if (gameWorld.isRole(this.player, ModRoles.GLITCH_ROBOT)) {
             ci.cancel();
         }

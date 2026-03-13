@@ -1,7 +1,7 @@
 package io.wifi.starrailexpress.event;
 
-import io.wifi.starrailexpress.cca.GameWorldComponent;
-import io.wifi.starrailexpress.cca.PlayerMoodComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.StarPlayerMoodComponent;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 
 import net.minecraft.world.InteractionResult;
@@ -24,13 +24,13 @@ public class PlayerInteractionHandler {
     public static void register() {
         UseBlockCallback.EVENT.register((player, world, hand, hitResult) -> {
             if (!world.isClientSide) {
-                GameWorldComponent game = GameWorldComponent.KEY.get(world);
+                StarGameWorldComponent game = StarGameWorldComponent.KEY.get(world);
 
                 if (game.isRunning() && !player.isCreative() && !player.isSpectator()) {
                     BlockState state = world.getBlockState(hitResult.getBlockPos());
                     Block block = state.getBlock();
                     if(state.is(Blocks.NOTE_BLOCK)){
-                        var moodC = PlayerMoodComponent.KEY.get(player);
+                        var moodC = StarPlayerMoodComponent.KEY.get(player);
                         if(moodC!=null){
                             moodC.playNoteBlock();
                         }

@@ -3,8 +3,8 @@ package org.agmas.noellesroles.mixin.roles.gambler;
 import io.wifi.starrailexpress.api.Role;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
-import io.wifi.starrailexpress.cca.PlayerShopComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
 import io.wifi.starrailexpress.game.GameFunctions;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import net.minecraft.resources.ResourceLocation;
@@ -45,7 +45,7 @@ public class GamblerDeathMixin {
 		final var world = victim.level();
 		if (world.isClientSide)
 			return;
-		GameWorldComponent gameWorldComponent = GameWorldComponent.KEY.get(world);
+		StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(world);
 		if (gameWorldComponent.isRole(victim, ModRoles.GAMBLER)) {
 			GamblerPlayerComponent gamblerPlayerComponent = GamblerPlayerComponent.KEY.get(victim);
 			// 掉枪
@@ -116,7 +116,7 @@ public class GamblerDeathMixin {
 					// final var size = serverPlayer.serverLevel().players().size();
 					RoleUtils.sendWelcomeAnnouncement(serverPlayer);
 				}
-				PlayerShopComponent playerShopComponent = (PlayerShopComponent) PlayerShopComponent.KEY.get(victim);
+				StarPlayerShopComponent playerShopComponent = (StarPlayerShopComponent) StarPlayerShopComponent.KEY.get(victim);
 				playerShopComponent.setBalance(150);
 				// 取消死亡，玩家会在自己的房间复活
 				teleport(victim);

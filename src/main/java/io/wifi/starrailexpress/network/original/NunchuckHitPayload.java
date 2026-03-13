@@ -1,6 +1,6 @@
 package io.wifi.starrailexpress.network.original;
 
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.cca.PlayerNunchuckComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameFunctions;
@@ -57,7 +57,7 @@ public record NunchuckHitPayload(int targetId, int direction) implements CustomP
         }
 
         // 检查游戏状态
-        GameWorldComponent game = GameWorldComponent.KEY.get(attacker.level());
+        StarGameWorldComponent game = StarGameWorldComponent.KEY.get(attacker.level());
         final var role = game.getRole(attacker);
         if (role != null && !role.onGunHit(attacker, target)) {
             return;

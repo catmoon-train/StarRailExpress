@@ -2,7 +2,7 @@ package io.wifi.starrailexpress.client.gui;
 
 import dev.doctor4t.ratatouille.util.TextUtils;
 import io.wifi.starrailexpress.cca.AutoStartComponent;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.cca.MapVotingComponent;
 import io.wifi.starrailexpress.client.InputHandler;
 import io.wifi.starrailexpress.game.GameFunctions;
@@ -20,7 +20,7 @@ import net.minecraft.world.level.Level;
 
 public class LobbyPlayersRenderer {
     public static void renderHud(Font font, @NotNull LocalPlayer player, @NotNull GuiGraphics guiGraphics) {
-        GameWorldComponent game = GameWorldComponent.KEY.get(player.level());
+        StarGameWorldComponent game = StarGameWorldComponent.KEY.get(player.level());
         if (!game.isRunning()) {
             Level world = player.level();
             List<? extends Player> players = world.players();
@@ -69,7 +69,7 @@ public class LobbyPlayersRenderer {
         guiGraphics.drawString(font, playerCountText, textX, textY, 0xFFFFFFFF, false);
     }
     
-    private static void drawAutoStartInfo(GuiGraphics guiGraphics, Font font, Level world, GameWorldComponent game) {
+    private static void drawAutoStartInfo(GuiGraphics guiGraphics, Font font, Level world, StarGameWorldComponent game) {
         AutoStartComponent autoStartComponent = AutoStartComponent.KEY.get(world);
         if (autoStartComponent.isAutoStartActive()) {
             int readyPlayerCount = GameFunctions.getReadyPlayerCount(world);

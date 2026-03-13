@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.item;
 
-import io.wifi.starrailexpress.cca.GameWorldComponent;
-import io.wifi.starrailexpress.cca.PlayerShopComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
 import io.wifi.starrailexpress.game.GameFunctions;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
@@ -89,8 +89,8 @@ public class BombItem extends Item {
         ServerLevel serverLevel = player.serverLevel();
         serverLevel.players().forEach(
                 target -> {
-                    if (GameWorldComponent.KEY.get(serverLevel).isRole(target, ModRoles.BOMBER)) {
-                        PlayerShopComponent playerShopComponent = PlayerShopComponent.KEY.get(target);
+                    if (StarGameWorldComponent.KEY.get(serverLevel).isRole(target, ModRoles.BOMBER)) {
+                        StarPlayerShopComponent playerShopComponent = StarPlayerShopComponent.KEY.get(target);
                         playerShopComponent.setBalance(90 + playerShopComponent.balance);
                         playerShopComponent.sync();
                     }

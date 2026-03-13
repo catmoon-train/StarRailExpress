@@ -1,6 +1,6 @@
 package org.agmas.noellesroles.roles.executioner;
 
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.event.AllowShootRevolverDrop;
 import io.wifi.starrailexpress.game.GameFunctions;
 import org.agmas.noellesroles.Noellesroles;
@@ -70,7 +70,7 @@ public class ExecutionerPlayerComponent implements RoleComponent, ServerTickingC
     public void serverTick() {
         // 如果目标已经死亡且executioner尚未获胜，解锁商店并重置目标
         if (target == null) {
-            GameWorldComponent gameWorldComponent = (GameWorldComponent) GameWorldComponent.KEY.get(player.level());
+            StarGameWorldComponent gameWorldComponent = (StarGameWorldComponent) StarGameWorldComponent.KEY.get(player.level());
             if (gameWorldComponent == null)
                 return;
             if (!gameWorldComponent.isRunning())
@@ -81,7 +81,7 @@ public class ExecutionerPlayerComponent implements RoleComponent, ServerTickingC
 
         }
         if (target != null && !won) {
-            GameWorldComponent gameWorldComponent = (GameWorldComponent) GameWorldComponent.KEY.get(player.level());
+            StarGameWorldComponent gameWorldComponent = (StarGameWorldComponent) StarGameWorldComponent.KEY.get(player.level());
             if (gameWorldComponent == null)
                 return;
             if (!gameWorldComponent.isRunning())
@@ -115,7 +115,7 @@ public class ExecutionerPlayerComponent implements RoleComponent, ServerTickingC
             return;
         }
 
-        GameWorldComponent gameWorldComponent = (GameWorldComponent) GameWorldComponent.KEY.get(player.level());
+        StarGameWorldComponent gameWorldComponent = (StarGameWorldComponent) StarGameWorldComponent.KEY.get(player.level());
         if (gameWorldComponent == null)
             return;
         List<Player> eligibleTargets = new ArrayList<>();
@@ -190,7 +190,7 @@ public class ExecutionerPlayerComponent implements RoleComponent, ServerTickingC
 
     public static void registerBackfireEvent() {
         AllowShootRevolverDrop.EVENT.register((player, target) -> {
-            GameWorldComponent gameWorldComponent = (GameWorldComponent) GameWorldComponent.KEY.get(player.level());
+            StarGameWorldComponent gameWorldComponent = (StarGameWorldComponent) StarGameWorldComponent.KEY.get(player.level());
             if (gameWorldComponent.isRole(player, ModRoles.EXECUTIONER)) {
                 ExecutionerPlayerComponent executionerPlayerComponent = ExecutionerPlayerComponent.KEY.get(player);
                 if (executionerPlayerComponent.target != null

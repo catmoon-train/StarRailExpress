@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.roles.commander;
 
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
-import org.agmas.noellesroles.component.NoellesRolesAbilityPlayerComponent;
+import org.agmas.noellesroles.component.StarAbilityPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 
 import io.wifi.starrailexpress.client.SREClient;
@@ -19,7 +19,7 @@ public class CommanderHudRender {
             if (client.player == null)
                 return;
             if (SREClient.gameComponent != null && SREClient.gameComponent.isRole(client.player, ModRoles.COMMANDER)) {
-                var comc = NoellesRolesAbilityPlayerComponent.KEY.maybeGet(client.player).orElse(null);
+                var comc = StarAbilityPlayerComponent.KEY.maybeGet(client.player).orElse(null);
                 if (comc == null)
                     return;
                 int screenWidth = guiGraphics.guiWidth();

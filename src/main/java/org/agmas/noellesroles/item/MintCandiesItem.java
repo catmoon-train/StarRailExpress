@@ -1,8 +1,8 @@
 package org.agmas.noellesroles.item;
 
-import io.wifi.starrailexpress.cca.GameWorldComponent;
-import io.wifi.starrailexpress.cca.PlayerMoodComponent;
-import io.wifi.starrailexpress.cca.PlayerShopComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.StarPlayerMoodComponent;
+import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
 import io.wifi.starrailexpress.game.GameFunctions;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -37,7 +37,7 @@ public class MintCandiesItem extends Item {
         ItemStack itemStack = user.getItemInHand(hand);
         
         // 检查游戏是否正在进行
-        GameWorldComponent gameWorld = GameWorldComponent.KEY.get(world);
+        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(world);
         if (!gameWorld.isRunning()) {
             return InteractionResultHolder.pass(itemStack);
         }
@@ -58,12 +58,12 @@ public class MintCandiesItem extends Item {
         if (user instanceof Player player) {
             if (!world.isClientSide()) {
                 // 恢复san值
-                PlayerMoodComponent moodComponent = PlayerMoodComponent.KEY.get(player);
+                StarPlayerMoodComponent moodComponent = StarPlayerMoodComponent.KEY.get(player);
                 float currentMood = moodComponent.getMood();
                 float newMood = Math.min(1.0f, currentMood + SANITY_RESTORE_AMOUNT);
                 moodComponent.setMood(newMood);
                 moodComponent.sync();
-                final var playerShopComponent = PlayerShopComponent.KEY.get(player);
+                final var playerShopComponent = StarPlayerShopComponent.KEY.get(player);
                 playerShopComponent.setBalance(playerShopComponent.balance +15);
                 // 播放吃东西的音效
                 world.playSound(null, player.blockPosition(),

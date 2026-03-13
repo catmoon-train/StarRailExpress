@@ -2,10 +2,10 @@ package io.wifi.starrailexpress.game;
 
 import io.wifi.starrailexpress.api.GameMode;
 import io.wifi.starrailexpress.api.TMMRoles;
-import io.wifi.starrailexpress.cca.GameRoundEndComponent;
-import io.wifi.starrailexpress.cca.GameTimeComponent;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
-import io.wifi.starrailexpress.cca.TrainWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameRoundEndComponent;
+import io.wifi.starrailexpress.cca.StarGameTimeComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.StarTrainWorldComponent;
 import io.wifi.starrailexpress.event.AllowGameEnd;
 import io.wifi.starrailexpress.game.GameFunctions.WinStatus;
 import io.wifi.starrailexpress.index.TMMItems;
@@ -43,9 +43,9 @@ public class WTLooseEndsGameMode extends GameMode {
     }
 
     @Override
-    public void initializeGame(ServerLevel serverWorld, GameWorldComponent gameWorldComponent,
+    public void initializeGame(ServerLevel serverWorld, StarGameWorldComponent gameWorldComponent,
             List<ServerPlayer> players) {
-        TrainWorldComponent.KEY.get(serverWorld).setTimeOfDay(TrainWorldComponent.TimeOfDay.SUNDOWN);
+        StarTrainWorldComponent.KEY.get(serverWorld).setTimeOfDay(StarTrainWorldComponent.TimeOfDay.SUNDOWN);
 
         for (ServerPlayer player : players) {
             player.getInventory().clearContent();
@@ -78,11 +78,11 @@ public class WTLooseEndsGameMode extends GameMode {
     }
 
     @Override
-    public void tickServerGameLoop(ServerLevel serverWorld, GameWorldComponent gameWorldComponent) {
+    public void tickServerGameLoop(ServerLevel serverWorld, StarGameWorldComponent gameWorldComponent) {
         GameFunctions.WinStatus winStatus = GameFunctions.WinStatus.NONE;
 
         // check if out of time
-        if (!GameTimeComponent.KEY.get(serverWorld).hasTime())
+        if (!StarGameTimeComponent.KEY.get(serverWorld).hasTime())
             winStatus = GameFunctions.WinStatus.TIME;
 
         // check if last person standing in loose end
@@ -109,13 +109,13 @@ public class WTLooseEndsGameMode extends GameMode {
 
         // game end on win and display
         if (winStatus != GameFunctions.WinStatus.NONE
-                && gameWorldComponent.getGameStatus() == GameWorldComponent.GameStatus.ACTIVE) {
+                && gameWorldComponent.getGameStatus() == StarGameWorldComponent.GameStatus.ACTIVE) {
             var modifiedStatus = AllowGameEnd.EVENT.invoker().allowGameEnd(serverWorld, winStatus, true);
             if (!modifiedStatus.equals(GameFunctions.WinStatus.NONE)) {
                 if (!modifiedStatus.equals(GameFunctions.WinStatus.NOT_MODIFY)) {
                     winStatus = modifiedStatus;
                 }
-                GameRoundEndComponent.KEY.get(serverWorld).setRoundEndData(serverWorld.players(), winStatus);
+                StarGameRoundEndComponent.KEY.get(serverWorld).setRoundEndData(serverWorld.players(), winStatus);
                 GameFunctions.stopGame(serverWorld);
             }
         }

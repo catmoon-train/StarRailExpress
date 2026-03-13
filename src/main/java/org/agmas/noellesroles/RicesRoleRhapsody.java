@@ -3,8 +3,8 @@ package org.agmas.noellesroles;
 import io.wifi.starrailexpress.api.Role;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.block_entity.DoorBlockEntity;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
-import io.wifi.starrailexpress.cca.PlayerShopComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
 import io.wifi.starrailexpress.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.game.GameFunctions;
 import io.wifi.starrailexpress.index.TMMItems;
@@ -178,7 +178,7 @@ public class RicesRoleRhapsody implements ModInitializer {
                 return net.minecraft.world.InteractionResult.PASS;
 
             // 检查玩家是否是傀儡师
-            GameWorldComponent gameWorld = GameWorldComponent.KEY.get(world);
+            StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(world);
             if (gameWorld.isRole(player, ModRoles.DIO)) {
                 DIOPlayerComponent dioPlayerComponent = DIOPlayerComponent.KEY.get(player);
                 boolean success = dioPlayerComponent.feedOnCorpse(body);
@@ -331,7 +331,7 @@ public class RicesRoleRhapsody implements ModInitializer {
 
         // 处理阴谋家猜测包
         ServerPlayNetworking.registerGlobalReceiver(CONSPIRATOR_PACKET, (payload, context) -> {
-            GameWorldComponent gameWorld = GameWorldComponent.KEY.get(context.player().level());
+            StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(context.player().level());
 
             // 验证玩家是阴谋家
             if (!gameWorld.isRole(context.player(), ModRoles.CONSPIRATOR))
@@ -379,7 +379,7 @@ public class RicesRoleRhapsody implements ModInitializer {
 
         // 处理电报员消息包
         ServerPlayNetworking.registerGlobalReceiver(TELEGRAPHER_PACKET, (payload, context) -> {
-            GameWorldComponent gameWorld = GameWorldComponent.KEY.get(context.player().level());
+            StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(context.player().level());
 
             // 验证玩家是电报员
             if (!gameWorld.isRole(context.player(), ModRoles.TELEGRAPHER))
@@ -562,7 +562,7 @@ public class RicesRoleRhapsody implements ModInitializer {
 
         // 处理私家侦探审查包
         ServerPlayNetworking.registerGlobalReceiver(DETECTIVE_PACKET, (payload, context) -> {
-            GameWorldComponent gameWorld = GameWorldComponent.KEY.get(context.player().level());
+            StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(context.player().level());
 
             // 验证玩家是私家侦探
             if (!gameWorld.isRole(context.player(), ModRoles.DETECTIVE))
@@ -584,7 +584,7 @@ public class RicesRoleRhapsody implements ModInitializer {
             }
 
             // 获取玩家商店组件，检查金币
-            PlayerShopComponent shopComponent = PlayerShopComponent.KEY.get(context.player());
+            StarPlayerShopComponent shopComponent = StarPlayerShopComponent.KEY.get(context.player());
             if (shopComponent.balance < DetectivePlayerComponent.INSPECT_COST) {
                 context.player().displayClientMessage(
                         Component.translatable("message.noellesroles.detective.insufficient_funds"), true);
@@ -642,7 +642,7 @@ public class RicesRoleRhapsody implements ModInitializer {
 
         // 处理拳击手技能包
         ServerPlayNetworking.registerGlobalReceiver(BOXER_ABILITY_PACKET, (payload, context) -> {
-            GameWorldComponent gameWorld = GameWorldComponent.KEY.get(context.player().level());
+            StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(context.player().level());
 
             // 验证玩家是拳击手
             if (!gameWorld.isRole(context.player(), ModRoles.BOXER))
@@ -709,7 +709,7 @@ public class RicesRoleRhapsody implements ModInitializer {
 
         // 处理运动员技能包
         ServerPlayNetworking.registerGlobalReceiver(ATHLETE_ABILITY_PACKET, (payload, context) -> {
-            GameWorldComponent gameWorld = GameWorldComponent.KEY.get(context.player().level());
+            StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(context.player().level());
 
             // 验证玩家是运动员
             if (!gameWorld.isRole(context.player(), ModRoles.ATHLETE))
@@ -747,7 +747,7 @@ public class RicesRoleRhapsody implements ModInitializer {
 
         // 处理设陷者技能包
         ServerPlayNetworking.registerGlobalReceiver(TRAPPER_PACKET, (payload, context) -> {
-            GameWorldComponent gameWorld = GameWorldComponent.KEY.get(context.player().level());
+            StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(context.player().level());
 
             // 验证玩家是设陷者
             if (!gameWorld.isRole(context.player(), ModRoles.TRAPPER))
@@ -764,7 +764,7 @@ public class RicesRoleRhapsody implements ModInitializer {
 
         // 处理明星技能包
         ServerPlayNetworking.registerGlobalReceiver(STAR_ABILITY_PACKET, (payload, context) -> {
-            GameWorldComponent gameWorld = GameWorldComponent.KEY.get(context.player().level());
+            StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(context.player().level());
 
             // 验证玩家是明星
             if (!gameWorld.isRole(context.player(), ModRoles.STAR))
@@ -781,7 +781,7 @@ public class RicesRoleRhapsody implements ModInitializer {
 
         // 处理歌手技能包
         ServerPlayNetworking.registerGlobalReceiver(SINGER_ABILITY_PACKET, (payload, context) -> {
-            GameWorldComponent gameWorld = GameWorldComponent.KEY.get(context.player().level());
+            StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(context.player().level());
 
             // 验证玩家是歌手
             if (!gameWorld.isRole(context.player(), ModRoles.SINGER))
@@ -798,7 +798,7 @@ public class RicesRoleRhapsody implements ModInitializer {
 
         // 处理心理学家治疗包
         ServerPlayNetworking.registerGlobalReceiver(PSYCHOLOGIST_PACKET, (payload, context) -> {
-            GameWorldComponent gameWorld = GameWorldComponent.KEY.get(context.player().level());
+            StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(context.player().level());
 
             // 验证玩家是心理学家
             if (!gameWorld.isRole(context.player(), ModRoles.PSYCHOLOGIST))
@@ -823,7 +823,7 @@ public class RicesRoleRhapsody implements ModInitializer {
 
         // 处理傀儡师技能包
         ServerPlayNetworking.registerGlobalReceiver(PUPPETEER_PACKET, (payload, context) -> {
-            GameWorldComponent gameWorld = GameWorldComponent.KEY.get(context.player().level());
+            StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(context.player().level());
 
             // 获取傀儡师组件
             PuppeteerPlayerComponent puppeteerComp = ModComponents.PUPPETEER.get(context.player());
@@ -929,7 +929,7 @@ public class RicesRoleRhapsody implements ModInitializer {
      */
     public static void onRoleAssigned(Player player, Role role) {
         // 重置玩家的技能冷却
-        NoellesRolesAbilityPlayerComponent abilityComponent = ModComponents.ABILITY.get(player);
+        StarAbilityPlayerComponent abilityComponent = ModComponents.ABILITY.get(player);
         abilityComponent.reset();
 
         // ==================== 清除其他角色的组件状态 ====================
@@ -963,8 +963,6 @@ public class RicesRoleRhapsody implements ModInitializer {
             }
         }
 
-        // 获取游戏世界组件（用于判断角色）
-        // GameWorldComponent gameWorld = GameWorldComponent.KEY.get(player.getWorld());
 
         // ==================== 复仇者角色处理 ====================
         if (role.equals(ModRoles.AVENGER)) {
@@ -1090,7 +1088,7 @@ public class RicesRoleRhapsody implements ModInitializer {
         // ==================== 傀儡师角色处理 ====================
         if (role.equals(ModRoles.PUPPETEER)) {
             PuppeteerPlayerComponent puppeteerComponent = ModComponents.PUPPETEER.get(player);
-            GameWorldComponent gameWorld = GameWorldComponent.KEY.get(player.level());
+            StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.level());
 
             // 只有在游戏进行中且傀儡师已被标记时才保留状态（假人死亡返回本体的情况）
             // 游戏结束或新分配角色时都应该重置组件

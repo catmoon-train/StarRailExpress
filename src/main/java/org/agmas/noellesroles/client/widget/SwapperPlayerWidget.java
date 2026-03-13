@@ -14,7 +14,7 @@ import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.GameType;
-import org.agmas.noellesroles.component.NoellesRolesAbilityPlayerComponent;
+import org.agmas.noellesroles.component.StarAbilityPlayerComponent;
 import org.agmas.noellesroles.packet.SwapperC2SPacket;
 import org.jetbrains.annotations.NotNull;
 
@@ -36,7 +36,7 @@ public class SwapperPlayerWidget extends Button{
     public SwapperPlayerWidget(LimitedInventoryScreen screen, int x, int y, @NotNull PlayerInfo disguiseTarget) {
         super(x, y, 16, 16, Component.nullToEmpty(disguiseTarget.getProfile().getName()), (a) -> {
             net.minecraft.client.player.AbstractClientPlayer player = Minecraft.getInstance().player;
-            if (player != null && (NoellesRolesAbilityPlayerComponent.KEY.get(player)).cooldown == 0) {
+            if (player != null && (StarAbilityPlayerComponent.KEY.get(player)).cooldown == 0) {
                 if (player.level().getPlayerByUUID(disguiseTarget.getProfile().getId()) == null) return;
                 if (playerChoiceOne != null) {
                     ClientPlayNetworking.send(new SwapperC2SPacket(playerChoiceOne, disguiseTarget.getProfile().getId()));
@@ -62,7 +62,7 @@ public class SwapperPlayerWidget extends Button{
         net.minecraft.client.player.AbstractClientPlayer player = Minecraft.getInstance().player;
         if (player == null) return;
         
-        NoellesRolesAbilityPlayerComponent abilityComp = NoellesRolesAbilityPlayerComponent.KEY.get(player);
+        StarAbilityPlayerComponent abilityComp = StarAbilityPlayerComponent.KEY.get(player);
         
         super.renderWidget(context, mouseX, mouseY, delta);
         if (abilityComp.cooldown == 0) {

@@ -13,7 +13,7 @@ import org.agmas.noellesroles.role.ModRoles;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
 import io.wifi.starrailexpress.api.RoleComponent;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.game.GameFunctions;
 
 public class DeathPenaltyComponent implements RoleComponent, ServerTickingComponent {
@@ -35,7 +35,7 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
                 return;
             }
             if (this.penaltyExpiry < 0) {
-                GameWorldComponent gameWorldComponent = GameWorldComponent.KEY.get(player.level());
+                StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(player.level());
                 if (limitCameraUUID != null) {
                     Player cameraPlayer = this.player.level().getPlayerByUUID(limitCameraUUID);
                     if (cameraPlayer != null && GameFunctions.isPlayerAliveAndSurvival(cameraPlayer)) {

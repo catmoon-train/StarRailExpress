@@ -124,12 +124,11 @@ public class SRE extends StarRailExpressID implements ModInitializer {
     private void initCCAAuto() {
         TMMRoles.addRoleComponents(PlayerAFKComponent.KEY);
         TMMRoles.addRoleComponents(DynamicCoinComponent.KEY);
-        TMMRoles.addRoleComponents(AbilityPlayerComponent.KEY);
-        TMMRoles.addRoleComponents(PlayerPsychoComponent.KEY);
-        TMMRoles.addRoleComponents(PlayerMoodComponent.KEY);
-        TMMRoles.addRoleComponents(PlayerNoteComponent.KEY);
-        TMMRoles.addRoleComponents(PlayerPoisonComponent.KEY);
-        TMMRoles.addRoleComponents(PlayerShopComponent.KEY);
+        TMMRoles.addRoleComponents(StarPlayerPsychoComponent.KEY);
+        TMMRoles.addRoleComponents(StarPlayerMoodComponent.KEY);
+        TMMRoles.addRoleComponents(StarPlayerNoteComponent.KEY);
+        TMMRoles.addRoleComponents(StarPlayerPoisonComponent.KEY);
+        TMMRoles.addRoleComponents(StarPlayerShopComponent.KEY);
     }
 
     private void initConfig() {
@@ -156,7 +155,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
 
     private void registerServerLifecycleEvents() {
         EntitySleepEvents.ALLOW_SLEEP_TIME.register((player, pos, isNight) -> {
-            if (GameWorldComponent.KEY.get(player.level()).isRunning())
+            if (StarGameWorldComponent.KEY.get(player.level()).isRunning())
                 return InteractionResult.SUCCESS;
             return InteractionResult.PASS;
         });
@@ -241,7 +240,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
 
     private void registerServerPlayConnectionEvents() {
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
-            GameWorldComponent gameWorldComponent = GameWorldComponent.KEY.get(handler.player.level());
+            StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(handler.player.level());
             if (REPLAY_MANAGER != null) {
                 var role = gameWorldComponent.getRole(handler.player);
                 if (role != null) {
@@ -251,7 +250,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
             }
         });
         ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
-            GameWorldComponent gameWorldComponent = GameWorldComponent.KEY.get(handler.player.level());
+            StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(handler.player.level());
             if (REPLAY_MANAGER != null) {
                 var role = gameWorldComponent.getRole(handler.player);
                 if (role != null) {

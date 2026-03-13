@@ -1,7 +1,7 @@
 package io.wifi.starrailexpress.item;
 
 import io.wifi.starrailexpress.cca.BartenderPlayerComponent;
-import io.wifi.starrailexpress.cca.PlayerMoodComponent;
+import io.wifi.starrailexpress.cca.StarPlayerMoodComponent;
 import io.wifi.starrailexpress.SRE;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -34,7 +34,7 @@ public class CocktailItem extends Item {
             }
             CriteriaTriggers.CONSUME_ITEM.trigger(serverPlayerEntity, stack);
             serverPlayerEntity.awardStat(Stats.ITEM_USED.get(this));
-            PlayerMoodComponent.KEY.get(serverPlayerEntity).drinkCocktail();
+            StarPlayerMoodComponent.KEY.get(serverPlayerEntity).drinkCocktail();
             if (SRE.REPLAY_MANAGER != null) {
                 SRE.REPLAY_MANAGER.recordItemUse(user.getUUID(), BuiltInRegistries.ITEM.getKey(this));
             }

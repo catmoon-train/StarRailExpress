@@ -1,6 +1,6 @@
 package org.agmas.noellesroles.mixin.client.roles;
 
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.game.GameFunctions;
 import io.wifi.starrailexpress.util.TMMItemUtils;
@@ -72,7 +72,7 @@ public class BomberHudMixin {
             return;
 
         // 检查是否是炸弹客
-        GameWorldComponent gameWorld = GameWorldComponent.KEY.get(client.level);
+        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(client.level);
         if (!gameWorld.isRole(client.player, ModRoles.BOMBER))
             return;
 

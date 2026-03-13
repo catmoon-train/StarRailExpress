@@ -2,7 +2,7 @@ package org.agmas.noellesroles.mixin.client.roles.bartender;
 
 import io.wifi.starrailexpress.api.Role;
 import io.wifi.starrailexpress.block_entity.BeveragePlateBlockEntity;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.game.GameFunctions;
 import io.wifi.starrailexpress.index.TMMParticles;
@@ -33,7 +33,7 @@ public class DefenseVialViewMixin {
                 canSeePoison = role.identifier().getPath().equals(ModRoles.BARTENDER.identifier().getPath())
                         || role.identifier().getPath().equals(ModRoles.POISONER.identifier().getPath());
                 if (!canSeePoison) {
-                    if (GameWorldComponent.isKillerTeamRoleStatic(role))
+                    if (StarGameWorldComponent.isKillerTeamRoleStatic(role))
                         if (world.players().stream().anyMatch((p) -> {
                             return GameFunctions.isPlayerAliveAndSurvival(p)
                                     && SREClient.gameComponent.isRole(p, ModRoles.POISONER);

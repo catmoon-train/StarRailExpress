@@ -1,6 +1,6 @@
 package pro.fazeclan.river.stupid_express.role.arsonist.item;
 
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.game.GameFunctions;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -27,7 +27,7 @@ public class LighterItem extends Item {
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand interactionHand) {
-        GameWorldComponent gwc = GameWorldComponent.KEY.get(level);
+        StarGameWorldComponent gwc = StarGameWorldComponent.KEY.get(level);
 
         if (!(level instanceof ServerLevel serverLevel)) {
             return InteractionResultHolder.pass(player.getItemInHand(interactionHand));

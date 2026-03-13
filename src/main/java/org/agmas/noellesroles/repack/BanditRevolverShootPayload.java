@@ -1,6 +1,6 @@
 package org.agmas.noellesroles.repack;
 
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameFunctions;
 import io.wifi.starrailexpress.index.TMMItems;
@@ -62,7 +62,7 @@ public record BanditRevolverShootPayload(int target) implements CustomPacketPayl
                 if (var6 instanceof Player) {
                     Player target = (Player) var6;
                     if ((double) target.distanceTo(player) < (double) 100) {
-                        GameWorldComponent game = (GameWorldComponent) GameWorldComponent.KEY.get(player.level());
+                        StarGameWorldComponent game = (StarGameWorldComponent) StarGameWorldComponent.KEY.get(player.level());
                         boolean backfire = false;
                         if (game.isInnocent(target) && !player.isCreative()) {
                             // \

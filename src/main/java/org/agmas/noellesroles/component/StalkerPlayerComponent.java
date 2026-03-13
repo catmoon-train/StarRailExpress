@@ -8,7 +8,7 @@ import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import io.wifi.starrailexpress.api.RoleComponent;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 
 import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
@@ -293,7 +293,7 @@ public class StalkerPlayerComponent implements RoleComponent, ServerTickingCompo
      * 进入二阶段后盾牌消失
      */
     public void advanceToPhase2() {
-        var gameWorldComponent = GameWorldComponent.KEY.get(player.level());
+        var gameWorldComponent = StarGameWorldComponent.KEY.get(player.level());
         if (!gameWorldComponent.isSkillAvailable) {
             // player.displayClientMessage(
             //         Component.translatable("message.tip.skill_disabled").withStyle(ChatFormatting.RED), true);
@@ -673,7 +673,7 @@ public class StalkerPlayerComponent implements RoleComponent, ServerTickingCompo
      * 检查是否是活跃的跟踪者
      */
     public boolean isActiveStalker() {
-        GameWorldComponent gameWorldComponent = GameWorldComponent.KEY.get(player.level());
+        StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(player.level());
         if (gameWorldComponent == null)
             return false;
         if (!gameWorldComponent.isRole(player, ModRoles.STALKER))

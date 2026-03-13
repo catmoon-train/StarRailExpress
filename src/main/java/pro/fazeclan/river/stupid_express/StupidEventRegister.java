@@ -8,7 +8,7 @@ import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
 import io.wifi.starrailexpress.api.Role;
 import io.wifi.starrailexpress.api.TMMRoles;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.event.OnPlayerDeathWithKiller;
 import io.wifi.starrailexpress.game.GameFunctions;
 import io.wifi.starrailexpress.index.TMMItems;
@@ -35,7 +35,7 @@ public class StupidEventRegister {
     public static void register() {
         // 死灵
         OnPlayerDeathWithKiller.EVENT.register((victim, killer, deathReason) -> {
-            var component = GameWorldComponent.KEY.get(victim.level());
+            var component = StarGameWorldComponent.KEY.get(victim.level());
             if (component.canUseKillerFeatures(victim)) {
                 var nc = NecromancerComponent.KEY.get(victim.level());
                 nc.increaseAvailableRevives();
@@ -46,7 +46,7 @@ public class StupidEventRegister {
         OnPlayerDeathWithKiller.EVENT.register((victim, killer, deathReason) -> {
 
             var level = (ServerLevel) victim.level();
-            var gameWorldComponent = GameWorldComponent.KEY.get(level);
+            var gameWorldComponent = StarGameWorldComponent.KEY.get(level);
 
             if (!gameWorldComponent.isRole(victim, SERoles.INITIATE)) {
                 return;
@@ -86,7 +86,7 @@ public class StupidEventRegister {
         // 初学杀错人
         OnPlayerDeathWithKiller.EVENT.register((victim, killer, deathReason) -> {
             var level = (ServerLevel) victim.level();
-            var gameWorldComponent = GameWorldComponent.KEY.get(level);
+            var gameWorldComponent = StarGameWorldComponent.KEY.get(level);
             if (killer == null)
                 return;
             if (!gameWorldComponent.isRole(killer, SERoles.INITIATE))
@@ -114,7 +114,7 @@ public class StupidEventRegister {
             // StupidExpress.LOGGER.info(victim.getDisplayName().getString()+" Dead, by
             // "+killer.getDispla);
             var level = (ServerLevel) victim.level();
-            var gameWorldComponent = GameWorldComponent.KEY.get(level);
+            var gameWorldComponent = StarGameWorldComponent.KEY.get(level);
             if (!gameWorldComponent.isRole(victim, SERoles.INITIATE))
                 return;
             if (!gameWorldComponent.isSkillAvailable) {

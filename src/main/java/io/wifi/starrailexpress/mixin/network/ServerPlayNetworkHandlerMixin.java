@@ -3,7 +3,7 @@ package io.wifi.starrailexpress.mixin.network;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 
-import io.wifi.starrailexpress.cca.PlayerPsychoComponent;
+import io.wifi.starrailexpress.cca.StarPlayerPsychoComponent;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.SRE;
 import net.minecraft.network.protocol.game.ServerboundSetCarriedItemPacket;
@@ -24,7 +24,7 @@ public class ServerPlayNetworkHandlerMixin {
             original.call(packet);
             return;
         }
-        PlayerPsychoComponent component = PlayerPsychoComponent.KEY.get(this.player);
+        StarPlayerPsychoComponent component = StarPlayerPsychoComponent.KEY.get(this.player);
         if (component.getPsychoTicks() > 0 && !this.player.getInventory().getItem(packet.getSlot()).is(TMMItems.BAT))
             return;
         original.call(packet);

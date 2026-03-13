@@ -2,7 +2,7 @@
 package org.agmas.noellesroles.item;
 
 import io.wifi.starrailexpress.api.Role;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.particle.HandParticle;
 import io.wifi.starrailexpress.client.render.TMMRenderLayers;
@@ -36,7 +36,7 @@ public class OnceRevolverItem extends Item {
     public InteractionResultHolder<ItemStack> use(@NotNull Level world, @NotNull Player user, InteractionHand hand) {
         ItemStack stack = user.getItemInHand(hand);
         stack.hurtAndBreak(1, user, EquipmentSlot.MAINHAND);
-        GameWorldComponent gameComponent;
+        StarGameWorldComponent gameComponent;
         Role role;
         if (world.isClientSide) {
             gameComponent = SREClient.gameComponent;
@@ -61,7 +61,7 @@ public class OnceRevolverItem extends Item {
             spawnHandParticle();
             user.getCooldowns().addCooldown(TMMItems.REVOLVER, 5 * 20);
         } else {
-            gameComponent = (GameWorldComponent) GameWorldComponent.KEY.get(world);
+            gameComponent = (StarGameWorldComponent) StarGameWorldComponent.KEY.get(world);
             role = gameComponent.getRole(user);
             if (role != null && !role.onUseGun(user)) {
                 return InteractionResultHolder.fail(stack);

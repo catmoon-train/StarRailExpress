@@ -1,7 +1,7 @@
 package io.wifi.starrailexpress.mixin.gui;
 
 import com.kreezcraft.localizedchat.commands.TalkChat;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import org.spongepowered.asm.mixin.Mixin;
@@ -14,7 +14,7 @@ public class TalkChatMixin {
     @Inject(method = "isPlayerOpped", at = @At("RETURN"), cancellable = true)
     private static void execute(MinecraftServer server, ServerPlayer player, CallbackInfoReturnable<Boolean> cir) {
         if (cir.getReturnValue() == false){
-            GameWorldComponent gameWorldComponent = GameWorldComponent.KEY.get(player.level());
+            StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(player.level());
             if(
                     gameWorldComponent == null || !gameWorldComponent.isRunning() || !player.isSpectator()
             ){

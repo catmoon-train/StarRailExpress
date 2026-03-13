@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.roles.gambler;
 
 import io.wifi.starrailexpress.api.Role;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.index.TMMItems;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.HolderLookup;
@@ -76,7 +76,7 @@ public class GamblerPlayerComponent implements RoleComponent, ServerTickingCompo
         if (player.level().isClientSide)
             return;
 
-        GameWorldComponent gameWorld = GameWorldComponent.KEY.get(player.level());
+        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.level());
         if (!gameWorld.isRole(player, ModRoles.GAMBLER))
             return;
         if (!gameWorld.isRunning())

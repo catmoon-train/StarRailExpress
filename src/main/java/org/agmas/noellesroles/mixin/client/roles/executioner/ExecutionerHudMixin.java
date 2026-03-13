@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.mixin.client.roles.executioner;
 
 import com.llamalad7.mixinextras.sugar.Local;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.RoleNameRenderer;
 import net.minecraft.client.DeltaTracker;
@@ -38,7 +38,7 @@ public abstract class ExecutionerHudMixin {
         }
         if (Minecraft.getInstance().player.isSpectator())
             return;
-        GameWorldComponent gameWorldComponent = (GameWorldComponent) GameWorldComponent.KEY.get(player.level());
+        StarGameWorldComponent gameWorldComponent = (StarGameWorldComponent) StarGameWorldComponent.KEY.get(player.level());
 
         // 检查是否是Executioner角色且存活
         if (Minecraft.getInstance().player != null

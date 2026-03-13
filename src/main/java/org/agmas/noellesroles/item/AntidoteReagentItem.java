@@ -1,6 +1,6 @@
 package org.agmas.noellesroles.item;
 
-import io.wifi.starrailexpress.cca.PlayerPoisonComponent;
+import io.wifi.starrailexpress.cca.StarPlayerPoisonComponent;
 import io.wifi.starrailexpress.game.GameFunctions;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
@@ -34,7 +34,7 @@ public class AntidoteReagentItem extends Item {
 
                 if (hitResult instanceof net.minecraft.world.phys.EntityHitResult entityHitResult) {
                     if (entityHitResult.getEntity() instanceof Player target) {
-                        PlayerPoisonComponent component = PlayerPoisonComponent.KEY.get(target);
+                        StarPlayerPoisonComponent component = StarPlayerPoisonComponent.KEY.get(target);
                         boolean isPoisoned = component.poisonTicks > 0;
 
                         if (isPoisoned) {

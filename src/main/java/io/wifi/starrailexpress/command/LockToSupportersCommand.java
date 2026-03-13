@@ -2,7 +2,7 @@ package io.wifi.starrailexpress.command;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import java.util.UUID;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -18,7 +18,7 @@ public class LockToSupportersCommand {
     }
 
     private static int execute(CommandSourceStack source, boolean value) {
-        GameWorldComponent.KEY.get(source.getLevel()).setLockedToSupporters(value);
+        StarGameWorldComponent.KEY.get(source.getLevel()).setLockedToSupporters(value);
         
         if (value) {
             source.sendSuccess(

@@ -1,7 +1,7 @@
 package pro.fazeclan.river.stupid_express.mixin.role.initiate;
 
-import io.wifi.starrailexpress.cca.GameWorldComponent;
-import io.wifi.starrailexpress.cca.PlayerShopComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
 import io.wifi.starrailexpress.index.TMMSounds;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import pro.fazeclan.river.stupid_express.constants.SERoles;
 
-@Mixin(PlayerShopComponent.class)
+@Mixin(StarPlayerShopComponent.class)
 public abstract class InitiateBuyMixin {
 
     @Shadow
@@ -35,7 +35,7 @@ public abstract class InitiateBuyMixin {
             cancellable = true
     )
     private void initiateBuyItem(int index, CallbackInfo ci) {
-        var gameWorldComponent = GameWorldComponent.KEY.get(player.level());
+        var gameWorldComponent = StarGameWorldComponent.KEY.get(player.level());
         if (gameWorldComponent.isRole(player, SERoles.INITIATE)) {
             var entry = SERoles.INITIATE_SHOP.get(index);
 

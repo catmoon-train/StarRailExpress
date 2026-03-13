@@ -1,6 +1,6 @@
 package io.wifi.starrailexpress.item;
 
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.ScopeOverlayRenderer;
 import io.wifi.starrailexpress.client.particle.HandParticle;
@@ -115,7 +115,7 @@ public class SniperRifleItem extends Item {
             }
         } else {
             // 服务端逻辑
-            GameWorldComponent gameWorldComponent = GameWorldComponent.KEY.get(world);
+            StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(world);
             final var role = gameWorldComponent.getRole(user);
             if (role != null) {
                 if (!role.onUseGun(user)) {

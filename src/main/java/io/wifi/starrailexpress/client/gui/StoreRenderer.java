@@ -1,8 +1,8 @@
 package io.wifi.starrailexpress.client.gui;
 
 import io.wifi.starrailexpress.api.Role;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
-import io.wifi.starrailexpress.cca.PlayerShopComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -19,13 +19,13 @@ public class StoreRenderer {
 
     public static void renderHud(Font renderer, @NotNull LocalPlayer player, @NotNull GuiGraphics context,
             float delta) {
-        GameWorldComponent gameWorldComponent = GameWorldComponent.KEY.get(player.level());
+        StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(player.level());
         Role role = gameWorldComponent.getRole(player);
         if (role == null) {
             return;
         }
         if (role.canSeeCoin()) {
-            int balance = PlayerShopComponent.KEY.get(player).balance;
+            int balance = StarPlayerShopComponent.KEY.get(player).balance;
             if (view.getTarget() != balance) {
                 offsetDelta = balance > view.getTarget() ? .6f : -.6f;
                 view.setTarget(balance);

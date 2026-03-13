@@ -17,7 +17,7 @@ import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
 import io.wifi.starrailexpress.api.RoleComponent;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.game.GameFunctions;
 import pro.fazeclan.river.stupid_express.StupidExpress;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
@@ -197,7 +197,7 @@ public class SplitPersonalityComponent implements RoleComponent, ServerTickingCo
         if (this.temporaryRevivalStartTick > 0) {
             return false;
         }
-        if (!GameWorldComponent.KEY.get(player.level()).isSkillAvailable) {
+        if (!StarGameWorldComponent.KEY.get(player.level()).isSkillAvailable) {
             // 技能不可用
             return false;
         }

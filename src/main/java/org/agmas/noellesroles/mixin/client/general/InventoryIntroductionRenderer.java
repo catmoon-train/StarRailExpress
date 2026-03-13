@@ -3,7 +3,7 @@ package org.agmas.noellesroles.mixin.client.general;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.wifi.starrailexpress.api.Role;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
 import io.wifi.starrailexpress.util.TooltipUtil;
@@ -46,7 +46,7 @@ public class InventoryIntroductionRenderer {
    public void render(GuiGraphics context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
       LocalPlayer player = Minecraft.getInstance().player;
       if (player != null) {
-         GameWorldComponent gameWorldComponent = SREClient.gameComponent;
+         StarGameWorldComponent gameWorldComponent = SREClient.gameComponent;
          if (gameWorldComponent != null) {
             // Role
             float scale = getScare(context.guiHeight());

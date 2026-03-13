@@ -22,9 +22,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class GameRoundEndComponent implements AutoSyncedComponent {
-    public static final ComponentKey<GameRoundEndComponent> KEY = ComponentRegistry
-            .getOrCreate(io.wifi.starrailexpress.SRE.id("round_end"), GameRoundEndComponent.class);
+public class StarGameRoundEndComponent implements AutoSyncedComponent {
+    public static final ComponentKey<StarGameRoundEndComponent> KEY = ComponentRegistry
+            .getOrCreate(io.wifi.starrailexpress.SRE.id("round_end"), StarGameRoundEndComponent.class);
     private final Level world;
     public final List<RoundEndData> players = new ArrayList<>();
     private GameFunctions.WinStatus winStatus = GameFunctions.WinStatus.NONE;
@@ -35,7 +35,7 @@ public class GameRoundEndComponent implements AutoSyncedComponent {
     public String CustomWinnerID = "";
     public int CustomWinnerColor = 0;
 
-    public GameRoundEndComponent(Level world) {
+    public StarGameRoundEndComponent(Level world) {
         this.world = world;
     }
 
@@ -58,7 +58,7 @@ public class GameRoundEndComponent implements AutoSyncedComponent {
         this.players.clear();
         for (ServerPlayer player : players) {
             RoleAnnouncementTexts.RoleAnnouncementText role = RoleAnnouncementTexts.BLANK;
-            GameWorldComponent game = GameWorldComponent.KEY.get(this.world);
+            StarGameWorldComponent game = StarGameWorldComponent.KEY.get(this.world);
             if (game.canUseKillerFeatures(player)) {
                 role = RoleAnnouncementTexts.getRoleAnnouncementText(TMMRoles.KILLER.identifier());
             } else if (game.isRole(player, TMMRoles.VIGILANTE)) {

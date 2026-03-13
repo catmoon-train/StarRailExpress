@@ -7,9 +7,10 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 
 import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
-import io.wifi.starrailexpress.cca.GameRoundEndComponent;
-import io.wifi.starrailexpress.cca.GameTimeComponent;
-import io.wifi.starrailexpress.cca.WorldBlackoutComponent;
+import io.wifi.starrailexpress.cca.StarGameRoundEndComponent;
+import io.wifi.starrailexpress.cca.StarGameTimeComponent;
+import io.wifi.starrailexpress.cca.StarPlayerPsychoComponent;
+import io.wifi.starrailexpress.cca.StarWorldBlackoutComponent;
 import io.wifi.starrailexpress.game.GameFunctions;
 import io.wifi.starrailexpress.game.GameFunctions.WinStatus;
 import io.wifi.starrailexpress.game.ServerTaskInfoClasses.ServerTaskInfo;
@@ -63,13 +64,14 @@ public class GameFunctionsCommand {
               .then(Commands.literal("gametime").executes((context) -> {
                 var source = context.getSource();
                 try {
-                  var gameTimeComponent = GameTimeComponent.KEY.get(source.getLevel());
+                  var gameTimeComponent = StarGameTimeComponent.KEY.get(source.getLevel());
                   int leftTime = gameTimeComponent.getTime();
                   float leftTimeSeconds = leftTime / 20;
                   float leftTimeMinutes = leftTimeSeconds / 60;
                   float leftTimeSeconds2 = leftTimeSeconds % 60;
                   source.sendSuccess(() -> Component.translatable("Left Time: %s",
-                      String.format("%02.0f:%02.0f", leftTimeMinutes, leftTimeSeconds2)).withStyle(ChatFormatting.GREEN),
+                      String.format("%02.0f:%02.0f", leftTimeMinutes, leftTimeSeconds2))
+                      .withStyle(ChatFormatting.GREEN),
                       false);
                 } catch (Exception e) {
                   e.printStackTrace();
@@ -315,6 +317,11 @@ public class GameFunctionsCommand {
               }).then(Commands.literal("stop").executes((context) -> {
                 return executeBlackout(context, 0);
               })))
+              .then(Commands.literal("psycho").executes((context) -> {
+                return executePsycho(context, -1);
+              }).then(Commands.literal("stop").executes((context) -> {
+                return executePsycho(context, 0);
+              })))
               .then(Commands.literal("kill")
                   .then(Commands.argument("victim", EntityArgument.player())
                       .then(Commands.argument("death_reason", ResourceLocationArgument.id())
@@ -365,9 +372,28 @@ public class GameFunctionsCommand {
     return 1;
   }
 
+  private static int executePsycho(CommandContext<CommandSourceStack> context, int time) {
+    var source = context.getSource();
+    var player = source.getPlayer();
+    if (player == null) {
+      source.sendFailure(Component.literal("This command should be run by a player!").withStyle(ChatFormatting.RED));
+      return 0;
+    }
+    var ppc = StarPlayerPsychoComponent.KEY.get(player);
+    if (time != 0) {
+      ppc.startPsycho();
+      context.getSource()
+          .sendSuccess(() -> Component.translatable("Triggered %s Psycho!", player.getScoreboardName()), true);
+    } else {
+      ppc.stopPsycho();
+      context.getSource()
+          .sendSuccess(() -> Component.translatable("Stopped %s Psycho!", player.getScoreboardName()), true);
+    }
+    return 1;
+  }
+
   public static int executeBlackout(CommandContext<CommandSourceStack> context, int time) {
-    var wbc = WorldBlackoutComponent.KEY.get(context.getSource().getLevel());
-    Noellesroles.LOGGER.info("Reset Points: " + GameFunctions.resetPoints.size());
+    var wbc = StarWorldBlackoutComponent.KEY.get(context.getSource().getLevel());
     if (time != 0) {
       wbc.triggerBlackout();
       context.getSource()
@@ -395,7 +421,7 @@ public class GameFunctionsCommand {
       context.getSource().sendFailure(Component.literal("Unknown WinStatus ID!").withStyle(ChatFormatting.RED));
       return 0;
     }
-    var roundComponent = GameRoundEndComponent.KEY.get(context.getSource().getLevel());
+    var roundComponent = StarGameRoundEndComponent.KEY.get(context.getSource().getLevel());
     roundComponent.setRoundEndData(context.getSource().getLevel().players(), winStatus);
     roundComponent.sync();
     context.getSource()
@@ -407,7 +433,7 @@ public class GameFunctionsCommand {
   public static int executeCustomWinWithOnlyId(CommandContext<CommandSourceStack> context) {
     String id = StringArgumentType.getString(context, "id");
     int color = ModColorArgument.getColor(context, "color");
-    var roundComponent = GameRoundEndComponent.KEY.get(context.getSource().getLevel());
+    var roundComponent = StarGameRoundEndComponent.KEY.get(context.getSource().getLevel());
     roundComponent.CustomWinnerID = id;
     // roundComponent
     roundComponent.CustomWinnerSubtitle = null;
@@ -445,7 +471,7 @@ public class GameFunctionsCommand {
         return 0;
       }
     }
-    var roundComponent = GameRoundEndComponent.KEY.get(context.getSource().getLevel());
+    var roundComponent = StarGameRoundEndComponent.KEY.get(context.getSource().getLevel());
     roundComponent.CustomWinnerID = id;
     roundComponent.CustomWinnerColor = color;
     roundComponent.CustomWinnerSubtitle = subtitle;

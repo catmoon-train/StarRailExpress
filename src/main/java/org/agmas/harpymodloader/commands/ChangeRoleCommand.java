@@ -5,7 +5,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
 import io.wifi.starrailexpress.api.Role;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.SRE;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -37,7 +37,7 @@ public class ChangeRoleCommand {
             Role newRole = RoleArgumentType.getRole(context, "role");
 
             // 获取游戏世界组件
-            GameWorldComponent gameWorldComponent = GameWorldComponent.KEY.get(targetPlayer.level());
+            StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(targetPlayer.level());
 
             // 获取玩家当前角色
             Role oldRole = gameWorldComponent.getRole(targetPlayer);

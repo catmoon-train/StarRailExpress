@@ -1,6 +1,6 @@
 package org.agmas.noellesroles.mixin;
 
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameFunctions;
 import net.minecraft.world.damagesource.DamageSource;
@@ -16,7 +16,7 @@ public class SpawnMixin {
     public void onDeath(DamageSource damageSource, CallbackInfo ci) {
         final var player = (Player) (Object) this;
         if (GameFunctions.isPlayerAliveAndSurvival(player)) {
-            final var gameWorldComponent = GameWorldComponent.KEY.get(player.level());
+            final var gameWorldComponent = StarGameWorldComponent.KEY.get(player.level());
             if (gameWorldComponent != null) {
                 if (gameWorldComponent.isRunning()) {
                     ci.cancel();

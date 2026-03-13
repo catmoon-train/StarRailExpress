@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.component;
 
 import io.wifi.starrailexpress.api.Role;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.game.GameFunctions;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.TMMSounds;
@@ -86,7 +86,7 @@ public class BetterVigilantePlayerComponent implements RoleComponent, ServerTick
      */
     public boolean isActiveBetterVigilante() {
 
-        GameWorldComponent gameWorld = GameWorldComponent.KEY.get(player.level());
+        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.level());
         return gameWorld.isRole(player, ModRoles.BETTER_VIGILANTE);
     }
 
@@ -99,7 +99,7 @@ public class BetterVigilantePlayerComponent implements RoleComponent, ServerTick
         if (player.level().isClientSide())
             return 0;
 
-        GameWorldComponent gameWorld = GameWorldComponent.KEY.get(player.level());
+        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.level());
         ServerLevel serverWorld = (ServerLevel) player.level();
 
         int count = 0;

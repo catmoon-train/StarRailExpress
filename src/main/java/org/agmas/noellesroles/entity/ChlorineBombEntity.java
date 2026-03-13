@@ -1,6 +1,6 @@
 package org.agmas.noellesroles.entity;
 
-import io.wifi.starrailexpress.cca.PlayerPoisonComponent;
+import io.wifi.starrailexpress.cca.StarPlayerPoisonComponent;
 import io.wifi.starrailexpress.game.GameFunctions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
@@ -71,7 +71,7 @@ public class ChlorineBombEntity extends ThrowableItemProjectile {
 
         for (ServerPlayer player : players) {
             // 设置玩家中毒状态（参考毒针的实现）
-            PlayerPoisonComponent poisonComponent = PlayerPoisonComponent.KEY.get(player);
+            StarPlayerPoisonComponent poisonComponent = StarPlayerPoisonComponent.KEY.get(player);
 
             // 设置中毒时间为30秒（600 ticks），投掷者为攻击者
             Player thrower = this.getOwner() instanceof Player ? (Player) this.getOwner() : null;

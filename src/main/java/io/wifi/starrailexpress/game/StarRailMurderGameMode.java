@@ -3,11 +3,11 @@ package io.wifi.starrailexpress.game;
 import io.wifi.starrailexpress.api.GameMode;
 import io.wifi.starrailexpress.api.Role;
 import io.wifi.starrailexpress.api.TMMRoles;
-import io.wifi.starrailexpress.cca.GameRoundEndComponent;
-import io.wifi.starrailexpress.cca.GameTimeComponent;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
-import io.wifi.starrailexpress.cca.PlayerShopComponent;
-import io.wifi.starrailexpress.cca.TrainWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameRoundEndComponent;
+import io.wifi.starrailexpress.cca.StarGameTimeComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
+import io.wifi.starrailexpress.cca.StarTrainWorldComponent;
 import io.wifi.starrailexpress.event.AllowGameEnd;
 import io.wifi.starrailexpress.network.original.AnnounceWelcomePayload;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -48,7 +48,7 @@ public class StarRailMurderGameMode extends GameMode {
     }
 
     @Override
-    public void finalizeGame(ServerLevel serverWorld, GameWorldComponent gameWorldComponent) {
+    public void finalizeGame(ServerLevel serverWorld, StarGameWorldComponent gameWorldComponent) {
         // 执行游戏结束时的函数
         executeFunction(serverWorld.getServer().createCommandSourceStack(), "harpymodloader:end_game");
 
@@ -64,7 +64,7 @@ public class StarRailMurderGameMode extends GameMode {
     }
 
     @Override
-    public void initializeGame(ServerLevel serverWorld, GameWorldComponent gameWorldComponent,
+    public void initializeGame(ServerLevel serverWorld, StarGameWorldComponent gameWorldComponent,
             List<ServerPlayer> players) {
         if (!Harpymodloader.isMojangVerify) {
             return;
@@ -75,8 +75,8 @@ public class StarRailMurderGameMode extends GameMode {
 
         HarpyModLoaderConfig.HANDLER.load();
 
-        ((TrainWorldComponent) TrainWorldComponent.KEY.get(serverWorld))
-                .setTimeOfDay(TrainWorldComponent.TimeOfDay.MIDNIGHT);
+        ((StarTrainWorldComponent) StarTrainWorldComponent.KEY.get(serverWorld))
+                .setTimeOfDay(StarTrainWorldComponent.TimeOfDay.MIDNIGHT);
         gameWorldComponent.clearRoleMap();
         for (ServerPlayer player : players) {
             ResetPlayerEvent.EVENT.invoker().resetPlayer(player);
@@ -93,7 +93,7 @@ public class StarRailMurderGameMode extends GameMode {
         assignRole(serverWorld, gameWorldComponent, players);
     }
 
-    private void assignRole(ServerLevel serverWorld, GameWorldComponent gameWorldComponent,
+    private void assignRole(ServerLevel serverWorld, StarGameWorldComponent gameWorldComponent,
             List<ServerPlayer> players) {
         // 新的模块化角色分配流程
         Map<Player, Role> roleAssignments = assignRolesToPlayers(serverWorld, players);
@@ -113,7 +113,7 @@ public class StarRailMurderGameMode extends GameMode {
                 value.getDefaultItems().forEach(item -> key.getInventory().placeItemBackInInventory(item));
                 Harpymodloader.LOGGER.debug("Assigned role " + value.getIdentifier() + " to " + key.getName());
                 if (value.canUseKiller()) {
-                    PlayerShopComponent playerShopComponent = PlayerShopComponent.KEY.get(key);
+                    StarPlayerShopComponent playerShopComponent = StarPlayerShopComponent.KEY.get(key);
                     playerShopComponent.setBalance(100 + playerShopComponent.balance);
                 }
             } else {
@@ -188,7 +188,7 @@ public class StarRailMurderGameMode extends GameMode {
     }
 
     public void assignModifiers(int desiredModifierCount, ServerLevel serverWorld,
-            GameWorldComponent gameWorldComponent,
+            StarGameWorldComponent gameWorldComponent,
             List<ServerPlayer> players) {
         WorldModifierComponent worldModifierComponent = WorldModifierComponent.KEY.get(serverWorld);
         worldModifierComponent.getModifiers().clear();
@@ -504,11 +504,11 @@ public class StarRailMurderGameMode extends GameMode {
     }
 
     @Override
-    public void tickServerGameLoop(ServerLevel serverWorld, GameWorldComponent gameWorldComponent) {
+    public void tickServerGameLoop(ServerLevel serverWorld, StarGameWorldComponent gameWorldComponent) {
         GameFunctions.WinStatus winStatus = GameFunctions.WinStatus.NONE;
 
         // check if out of time
-        if (!GameTimeComponent.KEY.get(serverWorld).hasTime())
+        if (!StarGameTimeComponent.KEY.get(serverWorld).hasTime())
             winStatus = GameFunctions.WinStatus.TIME;
 
         boolean civilianAlive = false;
@@ -517,7 +517,7 @@ public class StarRailMurderGameMode extends GameMode {
             if (gameWorldComponent.canUseKillerFeatures(player)) {
                 Integer balanceToAdd = GameConstants.PASSIVE_MONEY_TICKER.apply(serverWorld.getGameTime());
                 if (balanceToAdd > 0)
-                    PlayerShopComponent.KEY.get(player).addToBalance(balanceToAdd);
+                    StarPlayerShopComponent.KEY.get(player).addToBalance(balanceToAdd);
             }
 
             // check if some civilians are still alive
@@ -570,7 +570,7 @@ public class StarRailMurderGameMode extends GameMode {
                 if (!hasOtherAlive) {
                     winStatus = GameFunctions.WinStatus.LOOSE_END;
                     // 补充 CustomWinnerID: loose_end
-                    var roundEnd = GameRoundEndComponent.KEY.get(serverWorld);
+                    var roundEnd = StarGameRoundEndComponent.KEY.get(serverWorld);
                     roundEnd.CustomWinnerID = "loose_end";
                     roundEnd.CustomWinnerPlayers.add(lastLooseEnd.getUUID());
                 } else {
@@ -590,8 +590,8 @@ public class StarRailMurderGameMode extends GameMode {
             winStatus = modifiedWinStatus;
         }
         if (winStatus != GameFunctions.WinStatus.NONE
-                && gameWorldComponent.getGameStatus() == GameWorldComponent.GameStatus.ACTIVE) {
-            GameRoundEndComponent.KEY.get(serverWorld).setRoundEndData(serverWorld.players(), winStatus);
+                && gameWorldComponent.getGameStatus() == StarGameWorldComponent.GameStatus.ACTIVE) {
+            StarGameRoundEndComponent.KEY.get(serverWorld).setRoundEndData(serverWorld.players(), winStatus);
             GameFunctions.stopGame(serverWorld);
         }
     }

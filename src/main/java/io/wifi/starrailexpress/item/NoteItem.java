@@ -1,6 +1,6 @@
 package io.wifi.starrailexpress.item;
 
-import io.wifi.starrailexpress.cca.PlayerNoteComponent;
+import io.wifi.starrailexpress.cca.StarPlayerNoteComponent;
 import io.wifi.starrailexpress.entity.NoteEntity;
 import io.wifi.starrailexpress.index.TMMEntities;
 import io.wifi.starrailexpress.util.AdventureUsable;
@@ -34,7 +34,7 @@ public class NoteItem extends Item implements AdventureUsable {
     public InteractionResult useOn(@NotNull UseOnContext context) {
         Player player = context.getPlayer();
         if (player == null || player.isShiftKeyDown()) return InteractionResult.PASS;
-        PlayerNoteComponent component = PlayerNoteComponent.KEY.get(player);
+        StarPlayerNoteComponent component = StarPlayerNoteComponent.KEY.get(player);
         if (!component.written) {
             player.displayClientMessage(Component.literal("我应该先写下点东西").withColor(Mth.hsvToRgb(0F, 1.0F, 0.6F)), true);
             return InteractionResult.PASS;

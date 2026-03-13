@@ -1,6 +1,6 @@
 package org.agmas.noellesroles.item;
 
-import io.wifi.starrailexpress.cca.PlayerShopComponent;
+import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
@@ -65,7 +65,7 @@ public class PassbookItem extends Item {
      * 存钱：清空玩家身上的金币，存入存折
      */
     private void depositMoney(ServerPlayer player, ItemStack itemStack) {
-        PlayerShopComponent shopComponent = PlayerShopComponent.KEY.get(player);
+        StarPlayerShopComponent shopComponent = StarPlayerShopComponent.KEY.get(player);
         int balance = shopComponent.balance;
 
         if (balance <= 0) {
@@ -95,7 +95,7 @@ public class PassbookItem extends Item {
      */
     private void withdrawMoney(ServerPlayer player, ItemStack itemStack, int balance, InteractionHand hand) {
         // 增加玩家金币
-        PlayerShopComponent shopComponent = PlayerShopComponent.KEY.get(player);
+        StarPlayerShopComponent shopComponent = StarPlayerShopComponent.KEY.get(player);
         shopComponent.balance += balance;
         shopComponent.sync();
 

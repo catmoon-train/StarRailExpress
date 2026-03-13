@@ -3,7 +3,7 @@ package io.wifi.starrailexpress.command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 
-import io.wifi.starrailexpress.cca.GameTimeComponent;
+import io.wifi.starrailexpress.cca.StarGameTimeComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -25,7 +25,7 @@ public class SetTimerCommand {
 
     private static int setTimer(CommandSourceStack source, int minutes, int seconds) {
 
-        GameTimeComponent.KEY.get(source.getLevel()).setTime(GameConstants.getInTicks(minutes, seconds));
+        StarGameTimeComponent.KEY.get(source.getLevel()).setTime(GameConstants.getInTicks(minutes, seconds));
         source.sendSuccess(
                 () -> Component.translatable("commands.sre.settimer", minutes, seconds)
                         .withStyle(style -> style.withColor(0x00FF00)),

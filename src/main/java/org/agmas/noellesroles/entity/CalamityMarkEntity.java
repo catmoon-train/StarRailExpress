@@ -4,7 +4,7 @@ package org.agmas.noellesroles.entity;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.component.TrapperPlayerComponent;
 import  org.agmas.noellesroles.role.ModRoles;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.game.GameFunctions;
 import java.util.List;
 import java.util.Optional;
@@ -111,7 +111,7 @@ public class CalamityMarkEntity extends Entity {
             return;
         }
         
-        GameWorldComponent gameWorld = GameWorldComponent.KEY.get(level());
+        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(level());
         if (!gameWorld.isRole(owner, ModRoles.TRAPPER)) {
             this.discard();
             return;
@@ -150,7 +150,7 @@ public class CalamityMarkEntity extends Entity {
                 }
                 
                 // 排除其他杀手阵营玩家（同阵营不触发）
-                GameWorldComponent gameWorld = GameWorldComponent.KEY.get(world);
+                StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(world);
                 if (gameWorld.canUseKillerFeatures(player)) {
                     return false;
                 }

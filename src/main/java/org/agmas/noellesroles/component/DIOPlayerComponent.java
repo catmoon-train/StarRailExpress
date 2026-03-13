@@ -1,8 +1,8 @@
 package org.agmas.noellesroles.component;
 
 import io.wifi.starrailexpress.api.RoleComponent;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
-import io.wifi.starrailexpress.cca.PlayerShopComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
 import io.wifi.starrailexpress.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.event.AllowPlayerDeath;
 import io.wifi.starrailexpress.game.GameFunctions;
@@ -197,7 +197,7 @@ public class DIOPlayerComponent implements RoleComponent, ServerTickingComponent
 
     static {
         AllowPlayerDeath.EVENT.register((player, resourceLocation) -> {
-            if (GameWorldComponent.KEY.get(player.level()).isRole(player, ModRoles.DIO)) {
+            if (StarGameWorldComponent.KEY.get(player.level()).isRole(player, ModRoles.DIO)) {
                 DIOPlayerComponent dio = KEY.getNullable(player);
                 if (dio == null)
                     return true;
@@ -337,7 +337,7 @@ public class DIOPlayerComponent implements RoleComponent, ServerTickingComponent
                     true);
         }
 
-        PlayerShopComponent.KEY.get(player).addToBalance(MONEY_PER_FEED);
+        StarPlayerShopComponent.KEY.get(player).addToBalance(MONEY_PER_FEED);
 
         // 给予速度加成
         player.addEffect(new MobEffectInstance(
@@ -481,7 +481,7 @@ public class DIOPlayerComponent implements RoleComponent, ServerTickingComponent
         if (getPlayer() == null)
             return;
         Level level = getPlayer().level();
-        if (!GameWorldComponent.KEY.get(level).isRole(player, ModRoles.DIO)) {
+        if (!StarGameWorldComponent.KEY.get(level).isRole(player, ModRoles.DIO)) {
             return;
         }
         if (level.canSeeSky(getPlayer().blockPosition())) {

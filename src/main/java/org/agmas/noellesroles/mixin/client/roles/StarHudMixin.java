@@ -3,7 +3,7 @@ package org.agmas.noellesroles.mixin.client.roles;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.component.StarPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -36,7 +36,7 @@ public abstract class StarHudMixin {
         if (client.player == null || client.level == null) return;
         if(client.player.isSpectator()) return;
         // 检查玩家是否是明星
-        GameWorldComponent gameWorld = GameWorldComponent.KEY.get(client.level);
+        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(client.level);
         if (!gameWorld.isRole(client.player, ModRoles.STAR)) return;
         
         // 获取明星组件

@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.component;
 
 import io.wifi.starrailexpress.api.Role;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.game.GameFunctions;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.Noellesroles;
@@ -105,7 +105,7 @@ public class RecorderPlayerComponent implements RoleComponent, ServerTickingComp
             return;
         }
 
-        GameWorldComponent gameWorld = GameWorldComponent.KEY.get(player.level());
+        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.level());
         Player target = player.level().getPlayerByUUID(targetUuid);
         boolean isCorrect = false;
 
@@ -170,7 +170,7 @@ public class RecorderPlayerComponent implements RoleComponent, ServerTickingComp
         if (!(player instanceof ServerPlayer))
             return;
 
-        GameWorldComponent gameWorld = GameWorldComponent.KEY.get(player.level());
+        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.level());
         int correctGuesses = 0;
 
         for (Map.Entry<UUID, ResourceLocation> entry : guesses.entrySet()) {
@@ -245,7 +245,7 @@ public class RecorderPlayerComponent implements RoleComponent, ServerTickingComp
         if (!(player.level() instanceof net.minecraft.server.level.ServerLevel))
             return;
 
-        GameWorldComponent gameWorld = GameWorldComponent.KEY.get(player.level());
+        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.level());
         if (!gameWorld.isRole(player, ModRoles.RECORDER))
             return;
 
@@ -270,21 +270,6 @@ public class RecorderPlayerComponent implements RoleComponent, ServerTickingComp
         if (!(player.level() instanceof net.minecraft.server.level.ServerLevel))
             return;
 
-        // GameWorldComponent gameWorld = GameWorldComponent.KEY.get(player.level());
-        // List<ResourceLocation> roles = new ArrayList<>();
-        // for (Player p : player.level().players()) {
-        // if (p.getUUID().equals(player.getUUID()))
-        // continue;
-
-        // Role role = gameWorld.getRole(p);
-        // if (role != null) {
-        // if (!roles.contains(role.identifier())) {
-        // roles.add(role.identifier());
-        // }
-        // }
-        // }
-
-        // setAvailableRoles(roles);
     }
 
     @Override

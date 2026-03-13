@@ -27,7 +27,7 @@ import org.agmas.noellesroles.component.InsaneKillerPlayerComponent;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.component.MonitorPlayerComponent;
 import org.agmas.noellesroles.component.NianShouPlayerComponent;
-import org.agmas.noellesroles.component.NoellesRolesAbilityPlayerComponent;
+import org.agmas.noellesroles.component.StarAbilityPlayerComponent;
 import org.agmas.noellesroles.component.PuppeteerPlayerComponent;
 import org.agmas.noellesroles.component.RecorderPlayerComponent;
 import org.agmas.noellesroles.component.StalkerPlayerComponent;
@@ -65,12 +65,12 @@ import io.wifi.starrailexpress.api.Role;
 import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.api.replay.GameReplayUtils;
-import io.wifi.starrailexpress.cca.GameRoundEndComponent;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
-import io.wifi.starrailexpress.cca.PlayerMoodComponent;
-import io.wifi.starrailexpress.cca.PlayerPsychoComponent;
-import io.wifi.starrailexpress.cca.PlayerShopComponent;
-import io.wifi.starrailexpress.cca.WorldBlackoutComponent;
+import io.wifi.starrailexpress.cca.StarGameRoundEndComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.StarPlayerMoodComponent;
+import io.wifi.starrailexpress.cca.StarPlayerPsychoComponent;
+import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
+import io.wifi.starrailexpress.cca.StarWorldBlackoutComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.compat.TrainVoicePlugin;
 import io.wifi.starrailexpress.entity.NoteEntity;
@@ -147,7 +147,7 @@ public class ModEventsRegister {
             return false;
 
         // 检查受害者是否是拳击手
-        GameWorldComponent gameWorld = GameWorldComponent.KEY.get(victim.level());
+        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(victim.level());
         if (!gameWorld.isRole(victim, ModRoles.BOXER))
             return false;
 
@@ -271,7 +271,7 @@ public class ModEventsRegister {
         if (victim == null || victim.level().isClientSide())
             return;
 
-        GameWorldComponent gameWorldComponent = GameWorldComponent.KEY.get(victim.level());
+        StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(victim.level());
         if (!gameWorldComponent.isRole(victim, ModRoles.GLITCH_ROBOT))
             return;
 
@@ -280,7 +280,7 @@ public class ModEventsRegister {
     }
 
     private static void handleDeathPenalty(Player victim) {
-        GameWorldComponent gameWorldComponent = GameWorldComponent.KEY.get(victim.level());
+        StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(victim.level());
         boolean doctorAlive = false;
         boolean looseEndAlive = false;
         // boolean INSANE_alive = false;
@@ -380,7 +380,7 @@ public class ModEventsRegister {
         if (victim == null || victim.level().isClientSide())
             return;
 
-        GameWorldComponent gameWorld = GameWorldComponent.KEY.get(victim.level());
+        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(victim.level());
         if (!gameWorld.isRole(victim, ModRoles.DOCTOR))
             return;
 
@@ -471,7 +471,7 @@ public class ModEventsRegister {
         });
         // JOJO 两倍冷却
         OnRevolverUsed.EVENT.register((player, target) -> {
-            var gameWorldComponent = GameWorldComponent.KEY.get(player.level());
+            var gameWorldComponent = StarGameWorldComponent.KEY.get(player.level());
             ItemStack mainHandStack = player.getMainHandItem();
             if (mainHandStack.is(TMMItemTags.GUNS)) {
                 if (gameWorldComponent.isRole(player, ModRoles.JOJO)) {
@@ -488,7 +488,7 @@ public class ModEventsRegister {
         };
         OnGameEnd.EVENT.register((world, gameWorldComponent) -> {
             HoanMeirinFistPunchHandler.PUNCH_RECORDS.clear();
-            GameRoundEndComponent roundEnd = GameRoundEndComponent.KEY.get(world);
+            StarGameRoundEndComponent roundEnd = StarGameRoundEndComponent.KEY.get(world);
             if (roundEnd.getWinStatus().equals(GameFunctions.WinStatus.TIME)) {
                 int alivePlayers = 0, aliveKillers = 0, aliveGhost = 0;
                 var players = world.players();
@@ -513,7 +513,7 @@ public class ModEventsRegister {
             }
         });
         OnVendingMachinesBuyItems.EVENT.register((player, itemStack) -> {
-            var gameWorldComponent = GameWorldComponent.KEY.get(player.level());
+            var gameWorldComponent = StarGameWorldComponent.KEY.get(player.level());
             if (itemStack.stack().is(ModItems.ONCE_REVOLVER)) {
                 var role = gameWorldComponent.getRole(player);
                 if (role != null) {
@@ -527,7 +527,7 @@ public class ModEventsRegister {
             return true;
         });
         UseEntityCallback.EVENT.register((player, level, interactionHand, entity, entityHitResult) -> {
-            var gameC = GameWorldComponent.KEY.get(level);
+            var gameC = StarGameWorldComponent.KEY.get(level);
             if (!gameC.isRole(player, TMMRoles.VIGILANTE))
                 return InteractionResult.PASS;
             if (!gameC.isRunning())
@@ -552,7 +552,7 @@ public class ModEventsRegister {
         });
         SRE.canDrop.add((player) -> {
             var mainHandItem = player.getMainHandItem();
-            var gameWorldComponent = GameWorldComponent.KEY.get(player.level());
+            var gameWorldComponent = StarGameWorldComponent.KEY.get(player.level());
 
             if (gameWorldComponent.isRole(player, ModRoles.BAKA)) {
                 if (mainHandItem.is(FunnyItems.PROBLEM_SET)) {
@@ -616,14 +616,14 @@ public class ModEventsRegister {
         OnTeammateKilledTeammate.EVENT.register((victim, killer, isInnocent, deathReason) -> {
             if (GameFunctions.isPlayerAliveAndSurvival(killer)) {
                 if (isInnocent) {
-                    GameWorldComponent gameWorldComponent = GameWorldComponent.KEY.get(victim.level());
+                    StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(victim.level());
                     if (gameWorldComponent.isRole(victim, TMMRoles.DISCOVERY_CIVILIAN)) {
                         // 跳过游客惩罚
                         return;
                     }
                     // 检查是否是疯狂模式下的魔术师，如果是则不算误杀
                     if (gameWorldComponent.isRole(victim, ModRoles.MAGICIAN)) {
-                        var psychoComponent = PlayerPsychoComponent.KEY.get(victim);
+                        var psychoComponent = StarPlayerPsychoComponent.KEY.get(victim);
                         if (psychoComponent != null && psychoComponent.getPsychoTicks() > 0) {
                             // 魔术师处于疯狂模式，不算误杀
                             return;
@@ -667,7 +667,7 @@ public class ModEventsRegister {
             final var world = victim.level();
             if (world.isClientSide)
                 return;
-            GameWorldComponent gameWorldComponent = GameWorldComponent.KEY.get(world);
+            StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(world);
             if (gameWorldComponent.isRole(victim, ModRoles.BROADCASTER)) {
                 String last_message = null;
 
@@ -699,7 +699,7 @@ public class ModEventsRegister {
             }
         });
         OnPlayerDeathWithKiller.EVENT.register((victim, killer, deathReason) -> {
-            GameWorldComponent gameWorld = GameWorldComponent.KEY.get(victim.level());
+            StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(victim.level());
             if (gameWorld == null)
                 return;
             var refugeeC = RefugeeComponent.KEY.get(victim.level());
@@ -744,7 +744,7 @@ public class ModEventsRegister {
             }
         });
         OnPlayerKilledPlayer.EVENT.register((victim, killer, deathReason) -> {
-            var gameWorldComponent = GameWorldComponent.KEY.get(victim.level());
+            var gameWorldComponent = StarGameWorldComponent.KEY.get(victim.level());
 
             // 强盗的金钱盗取逻辑
             if (gameWorldComponent.isRole(killer, ModRoles.BANDIT)) {
@@ -802,7 +802,7 @@ public class ModEventsRegister {
             FortunetellerPlayerComponent.KEY.get(playerEntity).reset();
             PuppeteerPlayerComponent.KEY.get(playerEntity).clear();
             RoleUtils.RemoveAllEffects(playerEntity);
-            GameWorldComponent gameWorldComponent = GameWorldComponent.KEY.get(playerEntity.level());
+            StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(playerEntity.level());
             if (gameWorldComponent.isRole(playerEntity,
                     ModRoles.THE_INSANE_DAMNED_PARANOID_KILLER_OF_DOOM_DEATH_DESTRUCTION_AND_WAFFLES)) {
                 final var insaneKillerPlayerComponent = InsaneKillerPlayerComponent.KEY.get(playerEntity);
@@ -848,7 +848,7 @@ public class ModEventsRegister {
         });
         AfterShieldAllowPlayerDeathWithKiller.EVENT.register((player, killer, deathReason) -> {
 
-            GameWorldComponent gameWorldComponent = GameWorldComponent.KEY.get(player.level());
+            StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(player.level());
             if (gameWorldComponent.isRole(player, ModRoles.STAR)) {
                 return true;
             }
@@ -880,7 +880,7 @@ public class ModEventsRegister {
             return true;
         });
         AllowPlayerDeath.EVENT.register((player, deathReason) -> {
-            GameWorldComponent gameWorldComponent = GameWorldComponent.KEY.get(player.level());
+            StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(player.level());
             WorldModifierComponent worldModifierComponent = WorldModifierComponent.KEY.get(player.level());
             for (var p : player.level().players()) {
                 if (gameWorldComponent.isRole(p, ModRoles.FORTUNETELLER)) {
@@ -907,9 +907,9 @@ public class ModEventsRegister {
                 return true;
             if (identifier.getPath().equals("heart_attack"))
                 return true;
-            GameWorldComponent gameWorldComponent = GameWorldComponent.KEY.get(playerEntity.level());
+            StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(playerEntity.level());
             if (gameWorldComponent.isRole(playerEntity, ModRoles.JESTER)) {
-                PlayerPsychoComponent component = PlayerPsychoComponent.KEY.get(playerEntity);
+                StarPlayerPsychoComponent component = StarPlayerPsychoComponent.KEY.get(playerEntity);
                 if (component.getPsychoTicks() > GameConstants.getInTicks(0, 44)) {
                     return false;
                 }
@@ -917,7 +917,7 @@ public class ModEventsRegister {
             return true;
         }));
         CanSeePoison.EVENT.register((player) -> {
-            GameWorldComponent gameWorldComponent = (GameWorldComponent) GameWorldComponent.KEY.get(player.level());
+            StarGameWorldComponent gameWorldComponent = (StarGameWorldComponent) StarGameWorldComponent.KEY.get(player.level());
             if (gameWorldComponent.isRole((Player) player, ModRoles.BARTENDER)) {
                 return true;
             }
@@ -945,7 +945,7 @@ public class ModEventsRegister {
                 var magicianComponent = ModComponents.MAGICIAN.maybeGet(player).orElse(null);
                 if (magicianComponent != null) {
                     // 停止疯狂模式（如果之前存在）
-                    var psychoComponent = PlayerPsychoComponent.KEY.get(player);
+                    var psychoComponent = StarPlayerPsychoComponent.KEY.get(player);
                     if (psychoComponent != null) {
                         psychoComponent.reset();
                     }
@@ -956,7 +956,7 @@ public class ModEventsRegister {
                 // 检查是否有指挥官，如果有则加入指挥官频道
                 boolean hasCommander = player.getServer().getPlayerList().getPlayers().stream()
                         .anyMatch(p -> {
-                            GameWorldComponent gw = GameWorldComponent.KEY.get(p.level());
+                            StarGameWorldComponent gw = StarGameWorldComponent.KEY.get(p.level());
                             var ro = gw.getRole(p);
                             if (ro != null) {
                                 return ro.identifier().equals(ModRoles.COMMANDER_ID);
@@ -981,10 +981,10 @@ public class ModEventsRegister {
                 tpc.reset();
             }
             if (role.identifier().equals(ModRoles.MAID_SAKUYA.identifier())) {
-                PlayerShopComponent.KEY.get(player).setBalance(100);
+                StarPlayerShopComponent.KEY.get(player).setBalance(100);
             }
             if (role.identifier().equals(ModRoles.JOJO.identifier())) {
-                PlayerShopComponent.KEY.get(player).setBalance(100);
+                StarPlayerShopComponent.KEY.get(player).setBalance(100);
             }
             // 初始化记录员
             if (role.identifier().equals(ModRoles.RECORDER.identifier())) {
@@ -992,7 +992,7 @@ public class ModEventsRegister {
                 tpc.initRecorder();
             }
             if (role.identifier().equals(ModRoles.EXAMPLER.identifier())) {
-                var tpc = NoellesRolesAbilityPlayerComponent.KEY.get(player);
+                var tpc = StarAbilityPlayerComponent.KEY.get(player);
                 tpc.reset();
                 tpc.charges = 0;
                 tpc.sync();
@@ -1043,13 +1043,13 @@ public class ModEventsRegister {
                 // 现在在NoellesRolesAbilityPlayerComponent serverTick中处理。
                 return;
             }
-            NoellesRolesAbilityPlayerComponent abilityPlayerComponent = (NoellesRolesAbilityPlayerComponent) NoellesRolesAbilityPlayerComponent.KEY
+            StarAbilityPlayerComponent abilityPlayerComponent = (StarAbilityPlayerComponent) StarAbilityPlayerComponent.KEY
                     .get(player);
             abilityPlayerComponent.cooldown = NoellesRolesConfig.HANDLER.instance().generalCooldownTicks;
 
             if (role.equals(ModRoles.BROADCASTER)) {
                 abilityPlayerComponent.cooldown = 0;
-                PlayerShopComponent playerShopComponent = PlayerShopComponent.KEY.get(player);
+                StarPlayerShopComponent playerShopComponent = StarPlayerShopComponent.KEY.get(player);
                 playerShopComponent.setBalance(200);
                 playerShopComponent.sync();
             } else {
@@ -1059,7 +1059,7 @@ public class ModEventsRegister {
                 ExecutionerPlayerComponent executionerPlayerComponent = (ExecutionerPlayerComponent) ExecutionerPlayerComponent.KEY
                         .get(player);
                 executionerPlayerComponent.won = false;
-                PlayerShopComponent playerShopComponent = (PlayerShopComponent) PlayerShopComponent.KEY.get(player);
+                StarPlayerShopComponent playerShopComponent = (StarPlayerShopComponent) StarPlayerShopComponent.KEY.get(player);
                 executionerPlayerComponent.reset();
                 playerShopComponent.setBalance(100);
                 executionerPlayerComponent.sync();
@@ -1085,7 +1085,7 @@ public class ModEventsRegister {
 
             // 更新所有记录员的可用角色列表
             for (ServerPlayer p : player.getServer().getPlayerList().getPlayers()) {
-                if (GameWorldComponent.KEY.get(p.level()).isRole(p, ModRoles.RECORDER)) {
+                if (StarGameWorldComponent.KEY.get(p.level()).isRole(p, ModRoles.RECORDER)) {
                     RecorderPlayerComponent.KEY.get(p).updateAvailableRoles();
                 }
             }
@@ -1154,7 +1154,7 @@ public class ModEventsRegister {
             // }
             RicesRoleRhapsody.onRoleAssigned(player, role);
             if (role.identifier().equals(ModRoles.ELF.identifier())) {
-                PlayerShopComponent shopComponent = PlayerShopComponent.KEY.get(player);
+                StarPlayerShopComponent shopComponent = StarPlayerShopComponent.KEY.get(player);
                 shopComponent.setBalance(45);
                 return;
             }
@@ -1183,13 +1183,13 @@ public class ModEventsRegister {
             ServerSmokeAreaManager.tick();
             HallucinationAreaManager.tick();
 
-            GameWorldComponent gameWorldComponent = GameWorldComponent.KEY.get(server.overworld());
+            StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(server.overworld());
             if (gameWorldComponent.isRunning()) {
                 var all_players = server.getPlayerList().getPlayers();
                 for (ServerPlayer player : all_players) {
                     if (gameWorldComponent.isRole(player, ModRoles.ELF)) {
                         if (server.overworld().getGameTime() % 200 == 0) {
-                            PlayerShopComponent plsc = PlayerShopComponent.KEY.get(player);
+                            StarPlayerShopComponent plsc = StarPlayerShopComponent.KEY.get(player);
                             if (plsc != null) {
                                 plsc.addToBalance(5);
                             }
@@ -1268,7 +1268,7 @@ public class ModEventsRegister {
 
         OnGameTrueStarted.EVENT.register((serverLevel) -> {
             HoanMeirinFistPunchHandler.PUNCH_RECORDS.clear();
-            var blackoutComponent = WorldBlackoutComponent.KEY.get(serverLevel);
+            var blackoutComponent = StarWorldBlackoutComponent.KEY.get(serverLevel);
 
             GameFunctions.serverAsynTaskLists.add(new ServerTaskInfoClasses.SchedulerTask(20, () -> {
                 blackoutComponent.triggerBlackout();
@@ -1277,7 +1277,7 @@ public class ModEventsRegister {
                 blackoutComponent.reset();
             }));
 
-            GameWorldComponent gameWorldComponent = GameWorldComponent.KEY.get(serverLevel);
+            StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(serverLevel);
             WorldModifierComponent worldModifierComponent = WorldModifierComponent.KEY.get(serverLevel);
             boolean hasDio = serverLevel.players().stream().anyMatch(p -> gameWorldComponent.isRole(p, ModRoles.DIO));
             serverLevel.players().forEach(p -> {
@@ -1405,7 +1405,7 @@ public class ModEventsRegister {
 
         // 服务器Tick事件 - 处理复活/老人跑步事件
         ServerTickEvents.END_SERVER_TICK.register(server -> {
-            var gameWorldComponent = GameWorldComponent.KEY.maybeGet(server.overworld()).orElse(null);
+            var gameWorldComponent = StarGameWorldComponent.KEY.maybeGet(server.overworld()).orElse(null);
             if (gameWorldComponent == null || !gameWorldComponent.isRunning()) {
                 return;
             }
@@ -1413,11 +1413,11 @@ public class ModEventsRegister {
                 if (server.overworld().getGameTime() % 20 == 0) {
                     if (GameFunctions.isPlayerAliveAndSurvival(player)) {
                         if (gameWorldComponent.isRole(player, ModRoles.OLDMAN)) {
-                            var pmc = PlayerMoodComponent.KEY.get(player);
+                            var pmc = StarPlayerMoodComponent.KEY.get(player);
                             if (!(pmc.tasks.isEmpty())
-                                    && pmc.tasks.getOrDefault(PlayerMoodComponent.Task.EXERCISE, null) != null) {
+                                    && pmc.tasks.getOrDefault(StarPlayerMoodComponent.Task.EXERCISE, null) != null) {
                                 if (pmc.tasks.get(
-                                        PlayerMoodComponent.Task.EXERCISE) instanceof PlayerMoodComponent.ExerciseTask et) {
+                                        StarPlayerMoodComponent.Task.EXERCISE) instanceof StarPlayerMoodComponent.ExerciseTask et) {
                                     et.timer = 0;
                                 }
                             }
@@ -1466,7 +1466,7 @@ public class ModEventsRegister {
 
         // 示例：监听是否能看到毒药
         // CanSeePoison.EVENT.register((player) -> {
-        // GameWorldComponent gameWorld = GameWorldComponent.KEY.get(player.getWorld());
+        // StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.getWorld());
         // if (gameWorld.isRole(player, ModRoles.YOUR_ROLE)) {
         // return true;
         // }
@@ -1477,7 +1477,7 @@ public class ModEventsRegister {
     public static void registerPredicate() {
         OnPlayerDeath.EVENT.register((victim, deathReason) -> {
             TMMItemUtils.clearItem(victim, ModItems.BOMB);
-            var gameWorldComponent = GameWorldComponent.KEY.get(victim.level());
+            var gameWorldComponent = StarGameWorldComponent.KEY.get(victim.level());
             if (victim.getVehicle() instanceof WheelchairEntity we) {
                 if (gameWorldComponent.isRole(victim, ModRoles.OLDMAN)) {
                     we.discard();
@@ -1499,7 +1499,7 @@ public class ModEventsRegister {
         SRE.canUseOtherPerson.add((role -> role.getIdentifier()
                 .equals(ModRoles.MANIPULATOR_ID)));
         SRE.canCollide.add(a -> {
-            final var gameWorldComponent = GameWorldComponent.KEY.get(a.level());
+            final var gameWorldComponent = StarGameWorldComponent.KEY.get(a.level());
             if (gameWorldComponent.isRole(a,
                     ModRoles.THE_INSANE_DAMNED_PARANOID_KILLER_OF_DOOM_DEATH_DESTRUCTION_AND_WAFFLES)) {
                 if (InsaneKillerPlayerComponent.KEY.get(a).isActive) {
@@ -1530,7 +1530,7 @@ public class ModEventsRegister {
                     if (modifiers.isModifier(serverPlayer.getUUID(), SEModifiers.FEATHER)) {
                         return true;
                     }
-                    var gameComp = GameWorldComponent.KEY.get(serverPlayer.level());
+                    var gameComp = StarGameWorldComponent.KEY.get(serverPlayer.level());
                     if (gameComp != null) {
                         if (gameComp.isRole(serverPlayer,
                                 ModRoles.THE_INSANE_DAMNED_PARANOID_KILLER_OF_DOOM_DEATH_DESTRUCTION_AND_WAFFLES)) {

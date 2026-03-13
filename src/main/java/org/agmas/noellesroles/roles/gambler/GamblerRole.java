@@ -8,7 +8,7 @@ import org.agmas.noellesroles.utils.RoleUtils;
 
 import io.wifi.starrailexpress.api.Role;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
-import io.wifi.starrailexpress.cca.PlayerShopComponent;
+import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
 import io.wifi.starrailexpress.game.GameFunctions;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import io.wifi.starrailexpress.SRE;
@@ -47,7 +47,7 @@ public class GamblerRole extends Role {
                         Noellesroles.id("gamble_self_kill"));
                 RoleUtils.changeRole(player, role);
 
-                PlayerShopComponent playerShopComponent = (PlayerShopComponent) PlayerShopComponent.KEY.get(player);
+                StarPlayerShopComponent playerShopComponent = (StarPlayerShopComponent) StarPlayerShopComponent.KEY.get(player);
                 playerShopComponent.addToBalance(50);
 
                 if (player instanceof ServerPlayer serverPlayer) {

@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.mixin.roles.jester;
 
-import io.wifi.starrailexpress.cca.GameWorldComponent;
-import io.wifi.starrailexpress.cca.PlayerPsychoComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.StarPlayerPsychoComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameFunctions;
 import net.minecraft.resources.ResourceLocation;
@@ -19,9 +19,9 @@ public abstract class JesterJestMixin {
     private static void jesterJest(Player victim, boolean spawnBody, Player killer, ResourceLocation identifier, CallbackInfo ci) {
         try {
         if (killer != null) {
-            GameWorldComponent gameWorldComponent = GameWorldComponent.KEY.get(victim.level());
+            StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(victim.level());
             if (gameWorldComponent.isRole(victim, ModRoles.JESTER) && !gameWorldComponent.isRole(killer, ModRoles.JESTER) && gameWorldComponent.isInnocent(killer)) {
-                PlayerPsychoComponent component = PlayerPsychoComponent.KEY.get(victim);
+                StarPlayerPsychoComponent component = StarPlayerPsychoComponent.KEY.get(victim);
                 if (component.getPsychoTicks() <= 0) {
                     component.startPsycho();
                     component.psychoTicks = GameConstants.getInTicks(0, 45);

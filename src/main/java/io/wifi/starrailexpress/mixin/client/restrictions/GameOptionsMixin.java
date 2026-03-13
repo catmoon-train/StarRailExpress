@@ -3,7 +3,7 @@ package io.wifi.starrailexpress.mixin.client.restrictions;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 
 import io.wifi.starrailexpress.api.Role;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.event.AllowOtherCameraType;
 import io.wifi.starrailexpress.game.GameFunctions;

@@ -20,14 +20,14 @@ import org.ladysnake.cca.api.v3.component.ComponentRegistry;
 import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
-public class PlayerPsychoComponent implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
-    public static final ComponentKey<PlayerPsychoComponent> KEY = ComponentRegistry.getOrCreate(SRE.id("psycho"),
-            PlayerPsychoComponent.class);
+public class StarPlayerPsychoComponent implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
+    public static final ComponentKey<StarPlayerPsychoComponent> KEY = ComponentRegistry.getOrCreate(SRE.id("psycho"),
+            StarPlayerPsychoComponent.class);
     private final Player player;
     public int psychoTicks = -1;
     public int armour = 1;
 
-    public PlayerPsychoComponent(Player player) {
+    public StarPlayerPsychoComponent(Player player) {
         this.player = player;
     }
 
@@ -101,7 +101,7 @@ public class PlayerPsychoComponent implements RoleComponent, ServerTickingCompon
         if (ShopEntry.insertStackInFreeSlot(this.player, new ItemStack(TMMItems.BAT))) {
             this.setPsychoTicks(GameConstants.getPsychoTimer());
             this.setArmour(GameConstants.getPsychoModeArmour());
-            GameWorldComponent gameWorldComponent = GameWorldComponent.KEY.get(this.player.level());
+            StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(this.player.level());
             gameWorldComponent.setPsychosActive(gameWorldComponent.getPsychosActive() + 1);
             if (player instanceof ServerPlayer serverPlayer) {
                 ServerPlayNetworking.send(serverPlayer, new TriggerStatusBarPayload("Psycho"));
@@ -117,7 +117,7 @@ public class PlayerPsychoComponent implements RoleComponent, ServerTickingCompon
     }
 
     public int stopPsycho() {
-        GameWorldComponent gameWorldComponent = GameWorldComponent.KEY.get(this.player.level());
+        StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(this.player.level());
         int result = gameWorldComponent.getPsychosActive();
         gameWorldComponent.setPsychosActive(result - 1);
         this.psychoTicks = -1;
@@ -135,7 +135,7 @@ public class PlayerPsychoComponent implements RoleComponent, ServerTickingCompon
             if (this.player instanceof ServerPlayer sp) {
                 var players = sp.level().players();
                 for (var pl : players) {
-                    var ppc = PlayerPsychoComponent.KEY.maybeGet(pl).orElse(null);
+                    var ppc = StarPlayerPsychoComponent.KEY.maybeGet(pl).orElse(null);
                     if (ppc != null) {
                         if (ppc.psychoTicks > 0) {
                             count++;
@@ -143,7 +143,7 @@ public class PlayerPsychoComponent implements RoleComponent, ServerTickingCompon
                     }
                 }
             }
-            GameWorldComponent gameWorldComponent = GameWorldComponent.KEY.get(this.player.level());
+            StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(this.player.level());
             gameWorldComponent.setPsychosActive(count, shouldSync);
         }
 

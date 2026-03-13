@@ -5,7 +5,7 @@ import java.awt.Color;
 import org.agmas.noellesroles.AttendantHandler;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
 import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.component.NoellesRolesAbilityPlayerComponent;
+import org.agmas.noellesroles.component.StarAbilityPlayerComponent;
 import org.agmas.noellesroles.component.RecorderPlayerComponent;
 import org.agmas.noellesroles.component.BloodFeudistPlayerComponent;
 import org.agmas.noellesroles.component.ClockmakerPlayerComponent;
@@ -22,8 +22,8 @@ import org.agmas.noellesroles.roles.thief.ThiefPlayerComponent;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.Role;
 import io.wifi.starrailexpress.cca.BartenderPlayerComponent;
-import io.wifi.starrailexpress.cca.GameTimeComponent;
-import io.wifi.starrailexpress.cca.PlayerShopComponent;
+import io.wifi.starrailexpress.cca.StarGameTimeComponent;
+import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.ChatFormatting;
@@ -128,7 +128,7 @@ public class ClientHudRenderer {
             GhostPlayerComponent ghostComponent = GhostPlayerComponent.KEY.get(client.player);
             if (!ghostComponent.abilityUnlocked) {
                 // 计算解锁剩余时间
-                GameTimeComponent gameTime = GameTimeComponent.KEY.get(client.level);
+                StarGameTimeComponent gameTime = StarGameTimeComponent.KEY.get(client.level);
                 if (gameTime != null) {
                     long remainingTicks = gameTime.getTime();
                     if (remainingTicks > GhostPlayerComponent.UNLOCK_REMAINING_TICKS) {
@@ -225,7 +225,7 @@ public class ClientHudRenderer {
             var font = client.font;
             int yOffset = screenHeight - 10 - font.lineHeight; // 右下角
             int xOffset = screenWidth - 10; // 距离右边缘
-            var abpc = NoellesRolesAbilityPlayerComponent.KEY.get(client.player);
+            var abpc = StarAbilityPlayerComponent.KEY.get(client.player);
             if (abpc.cooldown > 0) {
                 var text = Component
                         .translatable("hud.cleaner.cooldown", abpc.cooldown / 20)
@@ -249,7 +249,7 @@ public class ClientHudRenderer {
             var font = client.font;
             int yOffset = screenHeight - 10 - font.lineHeight; // 右下角
             int xOffset = screenWidth - 10; // 距离右边缘
-            var abpc = NoellesRolesAbilityPlayerComponent.KEY.get(client.player);
+            var abpc = StarAbilityPlayerComponent.KEY.get(client.player);
             if (abpc.cooldown > 0) {
                 var text = Component
                         .translatable("hud.jojo.cooldown", abpc.cooldown / 20)
@@ -276,7 +276,7 @@ public class ClientHudRenderer {
             var font = client.font;
             int yOffset = screenHeight - 10 - font.lineHeight; // 右下角
             int xOffset = screenWidth - 10; // 距离右边缘
-            var abpc = NoellesRolesAbilityPlayerComponent.KEY.get(client.player);
+            var abpc = StarAbilityPlayerComponent.KEY.get(client.player);
             if (abpc.cooldown > 0) {
                 var text = Component
                         .translatable("hud.maid_sakuya.cooldown", abpc.cooldown / 20)
@@ -356,7 +356,7 @@ public class ClientHudRenderer {
             var font = client.font;
             int yOffset = screenHeight - 10 - font.lineHeight; // 右下角
             int xOffset = screenWidth - 10; // 距离右边缘
-            var abpc = NoellesRolesAbilityPlayerComponent.KEY.get(client.player);
+            var abpc = StarAbilityPlayerComponent.KEY.get(client.player);
             if (abpc.cooldown > 0) {
                 var text = Component
                         .translatable("hud.wind_yaose.cooldown", abpc.cooldown / 20)
@@ -380,8 +380,8 @@ public class ClientHudRenderer {
             var font = client.font;
             int yOffset = screenHeight - 10 - font.lineHeight; // 右下角
             int xOffset = screenWidth - 10; // 距离右边缘
-            var abpc = NoellesRolesAbilityPlayerComponent.KEY.get(client.player);
-            var psc = PlayerShopComponent.KEY.get(client.player);
+            var abpc = StarAbilityPlayerComponent.KEY.get(client.player);
+            var psc = StarPlayerShopComponent.KEY.get(client.player);
             if (abpc.cooldown > 0) {
                 var text = Component
                         .translatable("hud.exampler.cooldown", abpc.cooldown / 20)
@@ -427,7 +427,7 @@ public class ClientHudRenderer {
             var font = client.font;
             int yOffset = screenHeight - 10 - font.lineHeight; // 右下角
             int xOffset = screenWidth - 10; // 距离右边缘
-            var abpc = NoellesRolesAbilityPlayerComponent.KEY.get(client.player);
+            var abpc = StarAbilityPlayerComponent.KEY.get(client.player);
             var fpc = FortunetellerPlayerComponent.KEY.get(client.player);
             if (!fpc.protectedPlayers.isEmpty()) {
                 int dy = yOffset - font.lineHeight * 2 - 12;
@@ -504,7 +504,7 @@ public class ClientHudRenderer {
         });
         RoleHudRenderCallback.EVENT.register(ModRoles.ATTENDANT_ID, (guiGraphics, deltaTracker) -> {
             Minecraft client = Minecraft.getInstance();
-            var comc = NoellesRolesAbilityPlayerComponent.KEY.maybeGet(client.player).orElse(null);
+            var comc = StarAbilityPlayerComponent.KEY.maybeGet(client.player).orElse(null);
             if (comc == null)
                 return;
             int screenWidth = guiGraphics.guiWidth();
@@ -542,7 +542,7 @@ public class ClientHudRenderer {
 
             // 显示当前模式
             Component progress = Component.literal("");
-            var shopC = PlayerShopComponent.KEY.get(client.player);
+            var shopC = StarPlayerShopComponent.KEY.get(client.player);
             progress = Component.translatable("message.thief.honor_cost", shopC.balance, thiefComponent.honorCost)
                     .withStyle(ChatFormatting.GOLD);
             Component modeText;

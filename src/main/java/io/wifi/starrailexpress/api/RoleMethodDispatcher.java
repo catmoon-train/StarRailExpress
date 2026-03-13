@@ -1,6 +1,6 @@
 package io.wifi.starrailexpress.api;
 
-import io.wifi.starrailexpress.cca.PlayerShopComponent;
+import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -52,17 +52,17 @@ public class RoleMethodDispatcher {
         Role role = getCurrentRole(player);
         if (role != null) {
             if (role.isInnocent()) {
-                PlayerShopComponent shopComponent = PlayerShopComponent.KEY.get(player);
+                StarPlayerShopComponent shopComponent = StarPlayerShopComponent.KEY.get(player);
                 shopComponent.addToBalance(50);
             }
             if (role.isNeutrals() || (!role.canUseKiller() && !role.isInnocent())) {
-                PlayerShopComponent shopComponent = PlayerShopComponent.KEY.get(player);
+                StarPlayerShopComponent shopComponent = StarPlayerShopComponent.KEY.get(player);
                 shopComponent.addToBalance(50);
             } else if (role.canUseKiller()) {
                 player.level().players().forEach(
                         a -> {
                             if (role.canUseKiller()) {
-                                PlayerShopComponent shopComponent = PlayerShopComponent.KEY.get(a);
+                                StarPlayerShopComponent shopComponent = StarPlayerShopComponent.KEY.get(a);
                                 shopComponent.addToBalance(5);
                             }
                         });
@@ -202,7 +202,7 @@ public class RoleMethodDispatcher {
             return null;
         }
 
-        var gameComponent = io.wifi.starrailexpress.cca.GameWorldComponent.KEY.get(player.level());
+        var gameComponent = io.wifi.starrailexpress.cca.StarGameWorldComponent.KEY.get(player.level());
         return gameComponent.getRole(player);
     }
 }

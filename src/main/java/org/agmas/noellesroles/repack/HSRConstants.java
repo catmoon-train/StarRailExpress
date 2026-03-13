@@ -1,6 +1,6 @@
 package org.agmas.noellesroles.repack;
 
-import io.wifi.starrailexpress.cca.PlayerShopComponent;
+import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.ShopEntry;
 import org.jetbrains.annotations.NotNull;
@@ -39,7 +39,7 @@ public class HSRConstants {
         // 黑暗降临/150
         POISONER_SHOP_ENTRIES.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), 150, ShopEntry.Type.TOOL) {
             public boolean onBuy(@NotNull Player player) {
-                return PlayerShopComponent.useBlackout(player);
+                return StarPlayerShopComponent.useBlackout(player);
             }
         });
         POISONER_SHOP_ENTRIES.add(new ShopEntry(new ItemStack(TMMItems.NOTE, 4), 10, ShopEntry.Type.TOOL));
@@ -54,7 +54,7 @@ public class HSRConstants {
         BANDIT_SHOP_ENTRIES.add(new ShopEntry(TMMItems.BODY_BAG.getDefaultInstance(), 200, ShopEntry.Type.TOOL));
         BANDIT_SHOP_ENTRIES.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), 200, ShopEntry.Type.TOOL) {
             public boolean onBuy(@NotNull Player player) {
-                return PlayerShopComponent.useBlackout(player);
+                return StarPlayerShopComponent.useBlackout(player);
             }
         });
         BANDIT_SHOP_ENTRIES.add(new ShopEntry(new ItemStack(TMMItems.NOTE, 4), 10, ShopEntry.Type.TOOL));

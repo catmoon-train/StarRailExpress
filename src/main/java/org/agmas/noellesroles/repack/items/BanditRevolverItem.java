@@ -1,6 +1,6 @@
 package org.agmas.noellesroles.repack.items;
 
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.game.GameFunctions;
 
@@ -55,7 +55,7 @@ public class BanditRevolverItem extends Item {
                 ClientPlayNetworking.send(new BanditRevolverShootPayload(-1));
             }
         } else {
-            final var gameComponent = GameWorldComponent.KEY.get(world);
+            final var gameComponent = StarGameWorldComponent.KEY.get(world);
             if (gameComponent != null) {
                 final var role = gameComponent.getRole(user);
                 if (role != null) {

@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.game.GameFunctions;
 
 /**
@@ -37,7 +37,7 @@ public abstract class SingerHudMixin {
         if(client.player.isSpectator()) return;
 
         // 检查玩家是否是歌手
-        GameWorldComponent gameWorld = GameWorldComponent.KEY.get(client.level);
+        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(client.level);
         if (!gameWorld.isRole(client.player, ModRoles.SINGER))
             return;
         // 检查玩家是否存活

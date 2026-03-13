@@ -1,6 +1,5 @@
 package io.wifi.starrailexpress.api;
 
-import io.wifi.starrailexpress.cca.AbilityPlayerComponent;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +21,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 
+import org.agmas.noellesroles.component.StarAbilityPlayerComponent;
 import org.jetbrains.annotations.Nullable;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 
@@ -300,8 +300,8 @@ public abstract class Role {
 
     }
 
-    public static AbilityPlayerComponent getCooldownComponent(Player player) {
-        return AbilityPlayerComponent.KEY.get(player);
+    public static StarAbilityPlayerComponent getCooldownComponent(Player player) {
+        return StarAbilityPlayerComponent.KEY.get(player);
     }
 
     public void onAbilityUse(Player player) {

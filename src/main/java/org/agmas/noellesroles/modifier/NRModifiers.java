@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.modifier;
 
 import io.wifi.starrailexpress.api.Role;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import net.minecraft.server.level.ServerPlayer;
 import org.agmas.harpymodloader.events.ModifierAssigned;
 import org.agmas.harpymodloader.events.ModifierRemoved;
@@ -50,7 +50,7 @@ public class NRModifiers {
             }
 
             var level = serverPlayer.serverLevel();
-            var gameWorld = GameWorldComponent.KEY.get(level);
+            var gameWorld = StarGameWorldComponent.KEY.get(level);
 
             // 检查玩家是否是好人阵营（包括平民和警长阵营）
             // 并且不能是杀手阵营或中立阵营

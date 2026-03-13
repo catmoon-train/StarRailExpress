@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.component;
 
 import io.wifi.starrailexpress.api.RoleComponent;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.game.GameFunctions;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.ParticleTypes;
@@ -46,7 +46,7 @@ public class GlitchRobotPlayerComponent implements RoleComponent, ServerTickingC
 
     @Override
     public void serverTick() {
-        GameWorldComponent gameWorld = GameWorldComponent.KEY.get(player.level());
+        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.level());
         if (!gameWorld.isRole(player, ModRoles.GLITCH_ROBOT)) {
             return;
         }
@@ -119,7 +119,7 @@ public class GlitchRobotPlayerComponent implements RoleComponent, ServerTickingC
 
     @Override
     public void clientTick() {
-        var gameComp = GameWorldComponent.KEY.maybeGet(player.level()).orElse(null);
+        var gameComp = StarGameWorldComponent.KEY.maybeGet(player.level()).orElse(null);
         if (gameComp == null || !gameComp.isRole(player, ModRoles.GLITCH_ROBOT)) {
             return;
         }

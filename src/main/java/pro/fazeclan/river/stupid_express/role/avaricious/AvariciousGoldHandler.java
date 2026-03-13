@@ -1,6 +1,6 @@
 package pro.fazeclan.river.stupid_express.role.avaricious;
 
-import io.wifi.starrailexpress.cca.PlayerShopComponent;
+import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
 import io.wifi.starrailexpress.event.OnGameTrueStarted;
 import io.wifi.starrailexpress.game.GameConstants;
 import org.agmas.harpymodloader.events.ModdedRoleAssigned;
@@ -44,7 +44,7 @@ public class AvariciousGoldHandler {
         });
         ModdedRoleAssigned.EVENT.register(((player, role) -> {
             if (role.equals(SERoles.AVARICIOUS)) {
-                PlayerShopComponent shop = PlayerShopComponent.KEY.get(player);
+                StarPlayerShopComponent shop = StarPlayerShopComponent.KEY.get(player);
                 shop.setBalance(STARTING_BALANCE);
                 playerBonusMap.put(player.getUUID(), 0); // 初始化连续奖励计数
             }

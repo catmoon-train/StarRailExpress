@@ -4,7 +4,7 @@ import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.roles.gambler.GamblerPlayerComponent;
 import org.agmas.noellesroles.utils.RoleUtils;
 
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.game.GameFunctions;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -35,7 +35,7 @@ public class GamblerHudMixin {
         if(client.player.isSpectator()) return;
 
         // 检查是否是赌徒
-        GameWorldComponent gameWorld = GameWorldComponent.KEY.get(client.level);
+        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(client.level);
         if (!gameWorld.isRole(client.player, ModRoles.GAMBLER))
             return;
 

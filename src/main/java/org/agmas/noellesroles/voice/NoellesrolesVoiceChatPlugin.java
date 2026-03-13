@@ -9,7 +9,7 @@ import de.maxhenkel.voicechat.api.events.EventRegistration;
 import de.maxhenkel.voicechat.api.events.LocationalSoundPacketEvent;
 import de.maxhenkel.voicechat.api.events.MicrophonePacketEvent;
 import de.maxhenkel.voicechat.api.events.StaticSoundPacketEvent;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.game.GameFunctions;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffects;
@@ -49,7 +49,7 @@ public class NoellesrolesVoiceChatPlugin implements VoicechatPlugin {
     var pvc = PlayerVolumeComponent.KEY.get(receiverPlayer);
     if (receiverPlayer.isSpectator() && pvc.vtMode) {
       if (senderPlayer.isSpectator()
-          && GameWorldComponent.KEY.get(senderPlayer.level()).isRunning()) {
+          && StarGameWorldComponent.KEY.get(senderPlayer.level()).isRunning()) {
         event.cancel();
         return;
       }
@@ -71,7 +71,7 @@ public class NoellesrolesVoiceChatPlugin implements VoicechatPlugin {
     var pvc = PlayerVolumeComponent.KEY.get(receiverPlayer);
     if (receiverPlayer.isSpectator() && pvc.vtMode) {
       if (senderPlayer.isSpectator()
-          && GameWorldComponent.KEY.get(senderPlayer.level()).isRunning()) {
+          && StarGameWorldComponent.KEY.get(senderPlayer.level()).isRunning()) {
         event.cancel();
         return;
       }
@@ -93,7 +93,7 @@ public class NoellesrolesVoiceChatPlugin implements VoicechatPlugin {
     var pvc = PlayerVolumeComponent.KEY.get(receiverPlayer);
     if (receiverPlayer.isSpectator() && pvc.vtMode) {
       if (senderPlayer.isSpectator()
-          && GameWorldComponent.KEY.get(senderPlayer.level()).isRunning()) {
+          && StarGameWorldComponent.KEY.get(senderPlayer.level()).isRunning()) {
         event.cancel();
         return;
       }
@@ -166,7 +166,7 @@ public class NoellesrolesVoiceChatPlugin implements VoicechatPlugin {
         var vctplayer = vcplayer.getPlayer();
         if (vctplayer != null) {
           var player = (ServerPlayer) vctplayer;
-          GameWorldComponent gameWorldComponent = GameWorldComponent.KEY.get(player.level());
+          StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(player.level());
           if (gameWorldComponent != null) {
             if (GameFunctions.isPlayerAliveAndSurvival(player)) {
               if (gameWorldComponent.isRole(player, ModRoles.NOISEMAKER)) {

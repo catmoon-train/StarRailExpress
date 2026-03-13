@@ -23,18 +23,4 @@ public abstract class ExecutionerShopScreenMixin extends LimitedHandledScreen<In
     public ExecutionerShopScreenMixin(InventoryMenu handler, Inventory inventory, Component title) {
         super(handler, inventory, title);
     }
-
-    // @Inject(method = "init", at = @At("HEAD"))
-    // void onInit(CallbackInfo ci) {
-    //     GameWorldComponent gameWorldComponent = GameWorldComponent.KEY.get(player.getWorld());
-    //     
-    //     // 检查是否是Executioner角色
-    //     if (gameWorldComponent.isRole(player, Noellesroles.EXECUTIONER)) {
-    //         ExecutionerPlayerComponent executionerComponent = ExecutionerPlayerComponent.KEY.get(player);
-    //         
-    //         // 检查商店是否已解锁
-    //         if (executionerComponent.shopUnlocked) {
-    //         }
-    //     }
-    // }
 }

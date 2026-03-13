@@ -1,6 +1,6 @@
 package org.agmas.noellesroles.mixin.client.roles.phantom;
 
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -11,7 +11,7 @@ import net.minecraft.util.CommonColors;
 import net.minecraft.world.effect.MobEffects;
 
 import org.agmas.noellesroles.client.NoellesrolesClient;
-import org.agmas.noellesroles.component.NoellesRolesAbilityPlayerComponent;
+import org.agmas.noellesroles.component.StarAbilityPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -31,9 +31,9 @@ public abstract class PhantomHudMixin {
         }
         if (Minecraft.getInstance().player.isSpectator())
             return;
-        GameWorldComponent gameWorldComponent = (GameWorldComponent) GameWorldComponent.KEY
+        StarGameWorldComponent gameWorldComponent = (StarGameWorldComponent) StarGameWorldComponent.KEY
                 .get(Minecraft.getInstance().player.level());
-        NoellesRolesAbilityPlayerComponent abilityPlayerComponent = (NoellesRolesAbilityPlayerComponent) NoellesRolesAbilityPlayerComponent.KEY
+        StarAbilityPlayerComponent abilityPlayerComponent = (StarAbilityPlayerComponent) StarAbilityPlayerComponent.KEY
                 .get(Minecraft.getInstance().player);
         if (gameWorldComponent.isRole(Minecraft.getInstance().player, ModRoles.PHANTOM)) {
             int drawY = context.guiHeight();

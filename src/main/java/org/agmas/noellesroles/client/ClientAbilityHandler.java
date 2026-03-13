@@ -7,7 +7,7 @@ import org.agmas.noellesroles.packet.AbilityWithTargetC2SPacket;
 import org.agmas.noellesroles.packet.VultureEatC2SPacket;
 import org.agmas.noellesroles.role.ModRoles;
 
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
@@ -21,7 +21,7 @@ public class ClientAbilityHandler {
         if (Minecraft.getInstance().player == null)
             return;
 
-        GameWorldComponent gameWorldComponent = (GameWorldComponent) GameWorldComponent.KEY
+        StarGameWorldComponent gameWorldComponent = (StarGameWorldComponent) StarGameWorldComponent.KEY
                 .get(Minecraft.getInstance().player.level());
 
         // 优先处理炸弹客，避免被 onAbilityKeyPressed 干扰

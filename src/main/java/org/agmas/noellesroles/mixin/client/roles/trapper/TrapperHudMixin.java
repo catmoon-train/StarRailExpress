@@ -2,7 +2,7 @@ package org.agmas.noellesroles.mixin.client.roles.trapper;
 
 import org.agmas.noellesroles.component.TrapperPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.game.GameFunctions;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -34,7 +34,7 @@ public class TrapperHudMixin {
         if (client.player.isSpectator())
             return;
         // 检查是否是设陷者
-        GameWorldComponent gameWorld = GameWorldComponent.KEY.get(client.level);
+        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(client.level);
         if (!gameWorld.isRole(client.player, ModRoles.TRAPPER)) return;
         
         // 检查玩家是否存活

@@ -15,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 
 import io.wifi.starrailexpress.api.RoleComponent;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.game.GameFunctions;
 import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.DeathInfo;
@@ -107,7 +107,7 @@ public class HoanMeirinPlayerComponent
     @Override
     public void serverTick() {
         // 服务端每 tick 减少冷却时间
-        var gameWorldComponent = GameWorldComponent.KEY.get(player.level());
+        var gameWorldComponent = StarGameWorldComponent.KEY.get(player.level());
         if (!gameWorldComponent.isRunning())
             return;
         if (!gameWorldComponent.isRole(player, ModRoles.HOAN_MEIRIN))
@@ -161,7 +161,7 @@ public class HoanMeirinPlayerComponent
 
     @Override
     public void clientTick() {
-        var gameWorldComponent = GameWorldComponent.KEY.get(player.level());
+        var gameWorldComponent = StarGameWorldComponent.KEY.get(player.level());
         if (!gameWorldComponent.isRunning())
             return;
         if (!gameWorldComponent.isRole(player, ModRoles.HOAN_MEIRIN))

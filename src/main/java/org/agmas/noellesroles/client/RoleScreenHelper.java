@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.client;
 
 import io.wifi.starrailexpress.api.Role;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import java.awt.*;
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -46,7 +46,7 @@ public class RoleScreenHelper<T> {
      * 检查当前玩家是否拥有该角色。
      */
     public boolean isRoleActive() {
-        GameWorldComponent gameWorldComponent = (GameWorldComponent) GameWorldComponent.KEY.get(player.level());
+        StarGameWorldComponent gameWorldComponent = (StarGameWorldComponent) StarGameWorldComponent.KEY.get(player.level());
         return gameWorldComponent.isRole(player, role);
     }
 

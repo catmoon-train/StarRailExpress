@@ -1,6 +1,6 @@
 package io.wifi.starrailexpress.item;
 
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.game.GameFunctions;
 import io.wifi.starrailexpress.network.original.NunchuckHitPayload;
@@ -47,7 +47,7 @@ public class NunchuckItem extends Item {
             }
         } else {
             // 服务端检查角色权限
-            GameWorldComponent gameWorldComponent = GameWorldComponent.KEY.get(world);
+            StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(world);
             final var role = gameWorldComponent.getRole(user);
             if (role != null && !role.onUseGun(user)) {
                 return InteractionResultHolder.fail(stack);

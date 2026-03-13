@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.mixin;
 
 import io.wifi.starrailexpress.api.TMMRoles;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.init.ModItems;
@@ -26,7 +26,7 @@ public class MagicianPlayerEntityMixin {
     @Inject(method = "attack", at = @At("HEAD"), cancellable = true)
     private void noellesroles$handleFakeBatAttack(Entity target, CallbackInfo ci) {
         Player player = (Player) (Object) this;
-        GameWorldComponent gameWorld = GameWorldComponent.KEY.get(player.level());
+        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.level());
 
         // 检查是否是魔术师手持假球棒攻击玩家
         var magicianRole = TMMRoles.ROLES.get(ModRoles.MAGICIAN_ID);

@@ -40,7 +40,7 @@ public class SwapperPlayerComponent implements RoleComponent, ServerTickingCompo
 
     public void startSwap(UUID t1, UUID t2) {
 
-        NoellesRolesAbilityPlayerComponent abilityPlayerComponent = NoellesRolesAbilityPlayerComponent.KEY
+        StarAbilityPlayerComponent abilityPlayerComponent = StarAbilityPlayerComponent.KEY
                 .get(this.player);
         Player player1 = player.level().getPlayerByUUID(t1);
         Player player2 = player.level().getPlayerByUUID(t2);
@@ -118,7 +118,7 @@ public class SwapperPlayerComponent implements RoleComponent, ServerTickingCompo
             player2.displayClientMessage(Component.translatable("message.noellesroles.swapper.swapped"), true);
 
             // 设置冷却
-            NoellesRolesAbilityPlayerComponent abilityPlayerComponent = NoellesRolesAbilityPlayerComponent.KEY
+            StarAbilityPlayerComponent abilityPlayerComponent = StarAbilityPlayerComponent.KEY
                     .get(player);
             abilityPlayerComponent.cooldown = GameConstants.getInTicks(0,
                     NoellesRolesConfig.HANDLER.instance().swapperSwapCooldown);

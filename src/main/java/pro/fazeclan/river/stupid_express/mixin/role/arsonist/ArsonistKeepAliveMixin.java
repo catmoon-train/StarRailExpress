@@ -1,7 +1,7 @@
 package pro.fazeclan.river.stupid_express.mixin.role.arsonist;
 
 import com.llamalad7.mixinextras.sugar.Local;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.game.GameFunctions;
 import io.wifi.starrailexpress.game.StarRailMurderGameMode;
 import net.minecraft.server.level.ServerLevel;
@@ -21,7 +21,7 @@ public class ArsonistKeepAliveMixin {
 
     @Inject(method = "tickServerGameLoop", at = @At(value = "FIELD", target = "Lio/wifi/starrailexpress/game/GameFunctions$WinStatus;NONE:Lio/wifi/starrailexpress/game/GameFunctions$WinStatus;", ordinal = 3, opcode = Opcodes.GETSTATIC), cancellable = true)
     private void keepAlive(
-            ServerLevel serverWorld, GameWorldComponent gameWorldComponent, CallbackInfo ci,
+            ServerLevel serverWorld, StarGameWorldComponent gameWorldComponent, CallbackInfo ci,
             @Local(name = "winStatus") GameFunctions.WinStatus winStatus) {
         var config = StupidExpress.CONFIG;
         if (config.rolesSection.arsonistSection.arsonistKeepsGameGoing) {

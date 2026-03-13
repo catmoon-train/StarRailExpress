@@ -7,8 +7,8 @@ import org.agmas.harpymodloader.component.WorldModifierComponent;
 import io.wifi.starrailexpress.api.Role;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.BartenderPlayerComponent;
-import io.wifi.starrailexpress.cca.PlayerMoodComponent;
-import io.wifi.starrailexpress.cca.PlayerShopComponent;
+import io.wifi.starrailexpress.cca.StarPlayerMoodComponent;
+import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
 import io.wifi.starrailexpress.compat.TrainVoicePlugin;
 import io.wifi.starrailexpress.event.OnPlayerDeath;
 import io.wifi.starrailexpress.game.GameFunctions;
@@ -70,8 +70,8 @@ public record PlayerStatsBeforeRefugee(Vec3 pos, int money, ListTag inventory, V
         player.setXRot(playerStats.rotation().x);
         player.setYRot(playerStats.rotation().y);
         TrainVoicePlugin.resetPlayer(player.getUUID());
-        var shopComponent = PlayerShopComponent.KEY.get(player);
-        var moodComponent = PlayerMoodComponent.KEY.get(player);
+        var shopComponent = StarPlayerShopComponent.KEY.get(player);
+        var moodComponent = StarPlayerMoodComponent.KEY.get(player);
         shopComponent.balance = playerStats.money();
         moodComponent.setMood(playerStats.mood());
         shopComponent.sync();
@@ -82,8 +82,8 @@ public record PlayerStatsBeforeRefugee(Vec3 pos, int money, ListTag inventory, V
         var inventory = player.getInventory();
         ListTag listTag = new ListTag();
         inventory.save(listTag);
-        var shopComponent = PlayerShopComponent.KEY.get(player);
-        var moodComponent = PlayerMoodComponent.KEY.get(player);
+        var shopComponent = StarPlayerShopComponent.KEY.get(player);
+        var moodComponent = StarPlayerMoodComponent.KEY.get(player);
         int armorAmount = BartenderPlayerComponent.KEY.get(player).getArmor();
         var playerStats = new PlayerStatsBeforeRefugee(player.position(),
                 shopComponent.balance, listTag.copy(), player.getRotationVector(),

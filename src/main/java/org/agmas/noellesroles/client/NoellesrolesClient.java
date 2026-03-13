@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import io.wifi.starrailexpress.cca.GameTimeComponent;
+import io.wifi.starrailexpress.cca.StarGameTimeComponent;
 import io.wifi.starrailexpress.client.StatusInit;
 import net.minecraft.client.CameraType;
 
@@ -62,9 +62,9 @@ import com.mojang.blaze3d.platform.InputConstants;
 import dev.doctor4t.ratatouille.client.util.ambience.AmbienceUtil;
 import dev.doctor4t.ratatouille.client.util.ambience.BackgroundAmbience;
 import dev.doctor4t.ratatouille.util.TextUtils;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
-import io.wifi.starrailexpress.cca.PlayerMoodComponent;
-import io.wifi.starrailexpress.cca.PlayerPsychoComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.StarPlayerMoodComponent;
+import io.wifi.starrailexpress.cca.StarPlayerPsychoComponent;
 import io.wifi.starrailexpress.client.StaminaRenderer;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
@@ -176,7 +176,7 @@ public class NoellesrolesClient implements ClientModInitializer {
                                     return false;
                                 return (level.players().stream().anyMatch((p) -> {
                                     if (SREClient.gameComponent.isRole(p, ModRoles.JESTER)) {
-                                        if (PlayerPsychoComponent.KEY.get(p).getPsychoTicks() > 0) {
+                                        if (StarPlayerPsychoComponent.KEY.get(p).getPsychoTicks() > 0) {
                                             return true;
                                         }
                                     }
@@ -192,7 +192,7 @@ public class NoellesrolesClient implements ClientModInitializer {
         EntityModelLayerRegistry.registerModelLayer(WheelchairEntityModel.LAYER_LOCATION,
                 WheelchairEntityModel::createBodyLayer);
         AllowNameRender.EVENT.register((target) -> {
-            GameWorldComponent gameWorldComponent = (GameWorldComponent) GameWorldComponent.KEY.get(target.level());
+            StarGameWorldComponent gameWorldComponent = (StarGameWorldComponent) StarGameWorldComponent.KEY.get(target.level());
             if (gameWorldComponent.isRole(target,
                     ModRoles.THE_INSANE_DAMNED_PARANOID_KILLER_OF_DOOM_DEATH_DESTRUCTION_AND_WAFFLES)) {
                 var insaneComponent = InsaneKillerPlayerComponent.KEY.get(target);
@@ -448,7 +448,7 @@ public class NoellesrolesClient implements ClientModInitializer {
             clientPositions.clear();
             LocalPlayer player = context.player();
             Level level = player.level();
-            TimeStopEffect.freezeStatedTime = GameTimeComponent.KEY.get(level).time;
+            TimeStopEffect.freezeStatedTime = StarGameTimeComponent.KEY.get(level).time;
             TimeStopEffect.freezeMaxTime = payload.times();
             lastTimeStopRenderPlayer.clear();
             ClientLevel clientLevel = Minecraft.getInstance().level;
@@ -617,7 +617,7 @@ public class NoellesrolesClient implements ClientModInitializer {
                 (stack, world, entity, seed) -> {
                     // 如果持有者是炸弹客，始终可见
                     if (entity instanceof Player player) {
-                        GameWorldComponent gameWorldComponent = GameWorldComponent.KEY.get(player.level());
+                        StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(player.level());
                         if (gameWorldComponent.isRole(player, ModRoles.BOMBER)) {
                             return 1.0F;
                         }
@@ -653,7 +653,7 @@ public class NoellesrolesClient implements ClientModInitializer {
                 if (SREClient.gameComponent.isRunning()) {
                     boolean canDisplay = false;
                     if (SREClient.isPlayerAliveAndInSurvival()) {
-                        var playerMood = PlayerMoodComponent.KEY.get(Minecraft.getInstance().player);
+                        var playerMood = StarPlayerMoodComponent.KEY.get(Minecraft.getInstance().player);
                         if (playerMood != null) {
                             canDisplay = !playerMood.tasks.isEmpty();
                         }

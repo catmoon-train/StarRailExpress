@@ -1,7 +1,7 @@
 package io.wifi.starrailexpress.network.original;
 
 import io.wifi.starrailexpress.api.TMMRoles;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameFunctions;
 import io.wifi.starrailexpress.index.TMMItems;
@@ -34,7 +34,7 @@ public record KnifeStabPayload(int target) implements CustomPacketPayload {
                 return;
             if (target.distanceTo(player) > 3.0)
                 return;
-            GameWorldComponent game = GameWorldComponent.KEY.get(player.level());
+            StarGameWorldComponent game = StarGameWorldComponent.KEY.get(player.level());
             final var role = game.getRole(player);
             if (role != null) {
                 if (!role.onUseKnifeHit(player, target)) {
@@ -45,7 +45,7 @@ public record KnifeStabPayload(int target) implements CustomPacketPayload {
             target.playSound(TMMSounds.ITEM_KNIFE_STAB, 1.0f, 1.0f);
             player.swing(InteractionHand.MAIN_HAND);
             if (!player.isCreative()
-                    && !GameWorldComponent.KEY.get(player.level()).isRole(player, TMMRoles.LOOSE_END)) {
+                    && !StarGameWorldComponent.KEY.get(player.level()).isRole(player, TMMRoles.LOOSE_END)) {
                 player.getCooldowns().addCooldown(TMMItems.KNIFE, GameConstants.ITEM_COOLDOWNS.get(TMMItems.KNIFE));
             }
         }

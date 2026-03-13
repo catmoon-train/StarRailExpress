@@ -1,8 +1,8 @@
 package org.agmas.noellesroles.component;
 
 import io.wifi.starrailexpress.api.TMMRoles;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
-import io.wifi.starrailexpress.cca.PlayerShopComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -94,7 +94,7 @@ public class BloodFeudistPlayerComponent implements RoleComponent, CommonTicking
         if (player.level().isClientSide) {
             return;
         }
-        var gwc = GameWorldComponent.KEY.get(this.player.level());
+        var gwc = StarGameWorldComponent.KEY.get(this.player.level());
         if (!gwc.isRole(player, ModRoles.BLOOD_FEUDIST))
             return;
         // 根据开关状态应用药水效果
@@ -154,7 +154,7 @@ public class BloodFeudistPlayerComponent implements RoleComponent, CommonTicking
         accidentalKillCount++;
 
         // 每次误杀都给100金币
-        PlayerShopComponent shop = PlayerShopComponent.KEY.get(player);
+        StarPlayerShopComponent shop = StarPlayerShopComponent.KEY.get(player);
         shop.addToBalance(100);
 
         if (player instanceof ServerPlayer sp) {
@@ -197,7 +197,7 @@ public class BloodFeudistPlayerComponent implements RoleComponent, CommonTicking
         // 3人误杀：额外150金币
         if (accidentalKillCount >= 3 && !gotExtra150) {
             gotExtra150 = true;
-            PlayerShopComponent shop = PlayerShopComponent.KEY.get(player);
+            StarPlayerShopComponent shop = StarPlayerShopComponent.KEY.get(player);
             shop.addToBalance(150);
             if (player instanceof ServerPlayer sp) {
                 sp.sendSystemMessage(Component.translatable("message.noellesroles.blood_feudist.extra150")

@@ -13,10 +13,10 @@ import org.agmas.noellesroles.roles.framing.FramingShopEntry;
 import org.jetbrains.annotations.NotNull;
 
 import io.wifi.starrailexpress.api.TMMRoles;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
-import io.wifi.starrailexpress.cca.PlayerPsychoComponent;
-import io.wifi.starrailexpress.cca.PlayerShopComponent;
-import io.wifi.starrailexpress.cca.WorldBlackoutComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.StarPlayerPsychoComponent;
+import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
+import io.wifi.starrailexpress.cca.StarWorldBlackoutComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.ShopContent;
 import io.wifi.starrailexpress.index.TMMItems;
@@ -143,7 +143,7 @@ public class RoleShopHandler {
         ShopEntry.Type.WEAPON) {
       @Override
       public boolean onBuy(Player player) {
-        var psycc = PlayerPsychoComponent.KEY.get(player);
+        var psycc = StarPlayerPsychoComponent.KEY.get(player);
         boolean success = psycc.startPsycho();
         if (success) {
           player.getCooldowns().addCooldown(TMMItems.PSYCHO_MODE, 20 * 60);
@@ -192,7 +192,7 @@ public class RoleShopHandler {
           player.getCooldowns().addCooldown(TMMItems.BLACKOUT,
               Math.min((Integer) GameConstants.ITEM_COOLDOWNS
                   .getOrDefault(TMMItems.BLACKOUT, 0), 60));
-          boolean triggered = ((WorldBlackoutComponent) WorldBlackoutComponent.KEY
+          boolean triggered = ((StarWorldBlackoutComponent) StarWorldBlackoutComponent.KEY
               .get(player.level()))
               .triggerBlackout();
           if (triggered) {
@@ -213,7 +213,7 @@ public class RoleShopHandler {
         public boolean onBuy(@NotNull Player player) {
           // 启动疯狂模式
           if (TMMItemUtils.hasItem(player, TMMItems.PSYCHO_MODE) > 0) {
-            if (PlayerPsychoComponent.KEY.get(player).startPsycho()) {
+            if (StarPlayerPsychoComponent.KEY.get(player).startPsycho()) {
               TMMItemUtils.clearItem(player, TMMItems.PSYCHO_MODE, 1);
               return true;
             }
@@ -378,7 +378,7 @@ public class RoleShopHandler {
           player.getCooldowns().addCooldown(TMMItems.BLACKOUT,
               Math.min((Integer) GameConstants.ITEM_COOLDOWNS
                   .getOrDefault(TMMItems.BLACKOUT, 0), 60));
-          boolean triggered = ((WorldBlackoutComponent) WorldBlackoutComponent.KEY
+          boolean triggered = ((StarWorldBlackoutComponent) StarWorldBlackoutComponent.KEY
               .get(player.level()))
               .triggerBlackout();
           if (triggered) {
@@ -492,7 +492,7 @@ public class RoleShopHandler {
         public boolean onBuy(Player player) {
           var itemStack = Items.WRITTEN_BOOK.getDefaultInstance();
           var players = player.level().players();
-          var gameWorldComponent = GameWorldComponent.KEY.get(player.level());
+          var gameWorldComponent = StarGameWorldComponent.KEY.get(player.level());
           players.removeIf((p) -> {
             return gameWorldComponent.getRole(p) == null;
           });
@@ -760,7 +760,7 @@ public class RoleShopHandler {
       public boolean onBuy(@NotNull Player player) {
         player.getCooldowns().addCooldown(TMMItems.BLACKOUT,
             60 * 20);
-        boolean triggered = ((WorldBlackoutComponent) WorldBlackoutComponent.KEY
+        boolean triggered = ((StarWorldBlackoutComponent) StarWorldBlackoutComponent.KEY
             .get(player.level()))
             .triggerBlackout();
         if (triggered) {
@@ -818,7 +818,7 @@ public class RoleShopHandler {
         new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), SREConfig.blackoutPrice,
             ShopEntry.Type.TOOL) {
           public boolean onBuy(@NotNull Player player) {
-            return PlayerShopComponent.useBlackout(player);
+            return StarPlayerShopComponent.useBlackout(player);
           }
         });
 
@@ -850,7 +850,7 @@ public class RoleShopHandler {
     NIAN_SHOU_SHOP.add(
         new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), 200, ShopEntry.Type.TOOL) {
           public boolean onBuy(@NotNull Player player) {
-            return PlayerShopComponent.useBlackout(player);
+            return StarPlayerShopComponent.useBlackout(player);
           }
         });
 
@@ -1043,7 +1043,7 @@ public class RoleShopHandler {
     // 关灯 - 150金币
     BANDIT_SHOP.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), 150, ShopEntry.Type.TOOL) {
       public boolean onBuy(@NotNull Player player) {
-        return PlayerShopComponent.useBlackout(player);
+        return StarPlayerShopComponent.useBlackout(player);
       }
     });
 

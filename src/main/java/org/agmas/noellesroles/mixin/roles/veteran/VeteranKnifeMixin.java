@@ -1,6 +1,6 @@
 package org.agmas.noellesroles.mixin.roles.veteran;
 
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameFunctions;
 import io.wifi.starrailexpress.index.TMMItems;
@@ -44,7 +44,7 @@ public abstract class VeteranKnifeMixin {
             return;
 
         // 检查击杀者是否是退伍军人
-        GameWorldComponent gameWorld = GameWorldComponent.KEY.get(killer.level());
+        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(killer.level());
         if (!gameWorld.isRole(killer, ModRoles.VETERAN))
             return;
 

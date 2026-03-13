@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.item;
 
-import io.wifi.starrailexpress.cca.GameTimeComponent;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameTimeComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.game.GameFunctions;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
@@ -42,7 +42,7 @@ public class PocketWatchItem extends Item {
         ItemStack itemStack = player.getItemInHand(hand);
 
         // 检查游戏是否正在进行
-        GameWorldComponent gameWorld = GameWorldComponent.KEY.get(world);
+        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(world);
         if (!gameWorld.isRunning()) {
             return InteractionResultHolder.pass(itemStack);
         }
@@ -75,7 +75,7 @@ public class PocketWatchItem extends Item {
         }
 
         // 获取游戏时间
-        GameTimeComponent gameTime = GameTimeComponent.KEY.get(world);
+        StarGameTimeComponent gameTime = StarGameTimeComponent.KEY.get(world);
         long gameTicks = gameTime.getTime();
         int gameSeconds = (int) (gameTicks / 20);
         int minutes = gameSeconds / 60;

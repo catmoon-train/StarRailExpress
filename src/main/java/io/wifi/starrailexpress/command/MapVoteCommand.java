@@ -3,7 +3,7 @@ package io.wifi.starrailexpress.command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.data.ServerMapConfig;
 import io.wifi.starrailexpress.game.GameFunctions;
 import io.wifi.starrailexpress.network.ShowSelectedMapUIPayload;
@@ -31,7 +31,7 @@ public class MapVoteCommand {
             source.sendFailure(Component.literal("Game is starting! You cannot open map voting screen!"));
             return 0;
         }
-        GameWorldComponent gameWorldComponent = GameWorldComponent.KEY.get(source.getLevel());
+        StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(source.getLevel());
         if (gameWorldComponent.isRunning()) {
             source.sendFailure(Component.literal("Game has started! You cannot open map voting screen!"));
             return 0;

@@ -1,7 +1,7 @@
 package io.wifi.starrailexpress.client.gui.screen.ingame;
 
 import io.wifi.starrailexpress.api.Role;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.StoreRenderer;
 import io.wifi.starrailexpress.game.GameConstants;
@@ -69,7 +69,7 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
 
     public List<ShopEntry> getShopEntries() {
 
-        var gameWorldComponent = GameWorldComponent.KEY.get(this.player.level());
+        var gameWorldComponent = StarGameWorldComponent.KEY.get(this.player.level());
         if (gameWorldComponent == null)
             return List.of();
         if (SREClient.gameComponent != null && SREClient.isPlayerAliveAndInSurvival()) {

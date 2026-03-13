@@ -5,7 +5,7 @@ import java.util.UUID;
 
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 
-import io.wifi.starrailexpress.cca.GameRoundEndComponent;
+import io.wifi.starrailexpress.cca.StarGameRoundEndComponent;
 import io.wifi.starrailexpress.event.AllowGameEnd;
 import io.wifi.starrailexpress.game.GameFunctions;
 import io.wifi.starrailexpress.game.GameFunctions.WinStatus;
@@ -31,7 +31,7 @@ public class LoversWinCheckEvent {
                     // check for only lovers win condition
                     if (loversComponent.won()) {
                         UUID loverUuid = loversComponent.getLover();
-                        var gameRoundEndComponent = GameRoundEndComponent.KEY.get(serverWorld);
+                        var gameRoundEndComponent = StarGameRoundEndComponent.KEY.get(serverWorld);
                         gameRoundEndComponent.CustomWinnerPlayers.clear();
                         gameRoundEndComponent.CustomWinnerPlayers.add(player.getUUID());
                         gameRoundEndComponent.CustomWinnerPlayers.add(loverUuid);

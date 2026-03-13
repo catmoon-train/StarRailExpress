@@ -1,6 +1,6 @@
 package org.agmas.noellesroles.mixin.client.roles.executioner;
 
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedHandledScreen;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
 import io.wifi.starrailexpress.game.GameFunctions;
@@ -42,7 +42,7 @@ public abstract class ExecutionerScreenMixin extends LimitedHandledScreen<Invent
             return; // 如果未启用，则不显示选择界面
         }
         
-        GameWorldComponent gameWorldComponent = (GameWorldComponent) GameWorldComponent.KEY.get(player.level());
+        StarGameWorldComponent gameWorldComponent = (StarGameWorldComponent) StarGameWorldComponent.KEY.get(player.level());
         
         // 检查是否是Executioner角色
         if (gameWorldComponent.isRole(player, ModRoles.EXECUTIONER)) {

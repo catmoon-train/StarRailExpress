@@ -42,9 +42,9 @@ import static io.wifi.starrailexpress.SRE.isSkyVisibleAdjacent;
 import java.util.*;
 import java.util.function.Function;
 
-public class PlayerMoodComponent implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
-    public static final ComponentKey<PlayerMoodComponent> KEY = ComponentRegistry.getOrCreate(SRE.id("mood"),
-            PlayerMoodComponent.class);
+public class StarPlayerMoodComponent implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
+    public static final ComponentKey<StarPlayerMoodComponent> KEY = ComponentRegistry.getOrCreate(SRE.id("mood"),
+            StarPlayerMoodComponent.class);
     private final Player player;
     public final Map<Task, TrainTask> tasks = new HashMap<>();
     public final Map<Task, Integer> timesGotten = new HashMap<>();
@@ -53,7 +53,7 @@ public class PlayerMoodComponent implements RoleComponent, ServerTickingComponen
     private final HashMap<UUID, ItemStack> psychosisItems = new HashMap<>();
     private static List<Item> cachedPsychosisItems = null;
 
-    public PlayerMoodComponent(Player player) {
+    public StarPlayerMoodComponent(Player player) {
         this.player = player;
     }
 
@@ -104,7 +104,7 @@ public class PlayerMoodComponent implements RoleComponent, ServerTickingComponen
 
     @Override
     public void clientTick() {
-        if (!GameWorldComponent.KEY.get(this.player.level()).isRunning() || !SREClient.isPlayerAliveAndInSurvival())
+        if (!StarGameWorldComponent.KEY.get(this.player.level()).isRunning() || !SREClient.isPlayerAliveAndInSurvival())
             return;
         if (!this.tasks.isEmpty()) {
             if (this.mood > 0)
@@ -145,7 +145,7 @@ public class PlayerMoodComponent implements RoleComponent, ServerTickingComponen
     @Override
     public void serverTick() {
 
-        GameWorldComponent gameWorldComponent = GameWorldComponent.KEY.get(this.player.level());
+        StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(this.player.level());
         if (!gameWorldComponent.isRunning() || !GameFunctions.isPlayerAliveAndSurvival(this.player))
             return;
         boolean shouldSync = false;
@@ -243,7 +243,7 @@ public class PlayerMoodComponent implements RoleComponent, ServerTickingComponen
     }
 
     public float getMood() {
-        GameWorldComponent gameWorldComponent = GameWorldComponent.KEY.get(this.player.level());
+        StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(this.player.level());
 
         Role role = gameWorldComponent.getRole(player);
         if (gameWorldComponent.isRunning() && role != null && role.getMoodType() == Role.MoodType.REAL) {
@@ -253,7 +253,7 @@ public class PlayerMoodComponent implements RoleComponent, ServerTickingComponen
     }
 
     public void setMood(float mood) {
-        Role role = GameWorldComponent.KEY.get(this.player.level()).getRole(player);
+        Role role = StarGameWorldComponent.KEY.get(this.player.level()).getRole(player);
 
         if (role != null && role.getMoodType() == Role.MoodType.REAL) {
             float clampedMood = Math.clamp(mood, 0, 1);

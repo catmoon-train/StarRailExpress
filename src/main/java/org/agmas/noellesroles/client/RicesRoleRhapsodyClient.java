@@ -14,7 +14,7 @@ import org.agmas.noellesroles.item.WrittenNoteItem;
 import org.agmas.noellesroles.packet.*;
 import org.agmas.noellesroles.role.ModRoles;
 
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.game.GameFunctions;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -99,7 +99,7 @@ public class RicesRoleRhapsodyClient implements ClientModInitializer {
                 return;
 
             // 检查是否是阴谋家
-            GameWorldComponent gameWorld = GameWorldComponent.KEY.get(client.level);
+            StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(client.level);
             if (!gameWorld.isRole(client.player, ModRoles.CONSPIRATOR))
                 return;
 
@@ -156,14 +156,14 @@ public class RicesRoleRhapsodyClient implements ClientModInitializer {
         if (client.player == null)
             return true;
         // 获取游戏世界组件
-        GameWorldComponent gameWorld = GameWorldComponent.KEY.get(client.player.level());
+        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(client.player.level());
         if (gameWorld.isRole(client.player, ModRoles.NIAN_SHOU)) {
             ClientPlayNetworking.send(new AbilityC2SPacket());
             return true;
         }
         // 获取玩家的技能组件
         @SuppressWarnings("unused")
-        NoellesRolesAbilityPlayerComponent abilityComponent = NoellesRolesAbilityPlayerComponent.KEY.get(client.player);
+        StarAbilityPlayerComponent abilityComponent = StarAbilityPlayerComponent.KEY.get(client.player);
         if (gameWorld.isRole(client.player, ModRoles.PUPPETEER) &&
                 PuppeteerPlayerComponent.KEY.get(client.player).isActivePuppeteer()) {
             // 检查玩家是否存活
@@ -668,7 +668,7 @@ public class RicesRoleRhapsodyClient implements ClientModInitializer {
         if (client.player == null)
             return false;
 
-        GameWorldComponent gameWorld = GameWorldComponent.KEY.get(client.player.level());
+        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(client.player.level());
         return gameWorld.isRole(client.player, role);
     }
 }

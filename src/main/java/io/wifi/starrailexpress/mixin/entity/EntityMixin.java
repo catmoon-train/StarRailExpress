@@ -4,7 +4,7 @@ import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 
 import io.wifi.starrailexpress.api.Role;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.cca.PlayerAFKComponent;
 import io.wifi.starrailexpress.SRE;
 import net.minecraft.server.level.ServerPlayer;
@@ -36,7 +36,7 @@ public class EntityMixin {
     }
     @WrapMethod(method = "canCollideWith")
     protected boolean tmm$solid(Entity other, Operation<Boolean> original) {
-        final var gameWorldComponent = GameWorldComponent.KEY.get(this.level);
+        final var gameWorldComponent = StarGameWorldComponent.KEY.get(this.level);
         if (gameWorldComponent.isRunning()) {
             Entity self = (Entity) (Object) this;
             if (SRE.canCollideEntity.stream().anyMatch(p -> p.test(self) || p.test( other))){

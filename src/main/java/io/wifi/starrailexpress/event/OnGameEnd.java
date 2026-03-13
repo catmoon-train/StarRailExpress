@@ -6,7 +6,7 @@ import net.minecraft.world.item.ItemStack;
 
 import static net.fabricmc.fabric.api.event.EventFactory.createArrayBacked;
 
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 
 public interface OnGameEnd {
 
@@ -21,5 +21,5 @@ public interface OnGameEnd {
                 }
             });
 
-    void onGameEnd(ServerLevel serverLevel, GameWorldComponent gameWorldComponent);
+    void onGameEnd(ServerLevel serverLevel, StarGameWorldComponent gameWorldComponent);
 }

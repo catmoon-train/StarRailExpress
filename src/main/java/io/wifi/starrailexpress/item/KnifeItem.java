@@ -1,6 +1,6 @@
 package io.wifi.starrailexpress.item;
 
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.cca.PlayerSkinsComponent;
 import io.wifi.starrailexpress.compat.CrosshairaddonsCompat;
 import io.wifi.starrailexpress.game.GameFunctions;
@@ -112,7 +112,7 @@ public class KnifeItem extends Item implements ItemWithSkin {
         }
         if (remainingUseTicks >= this.getUseDuration(stack, user) - 8 || !(user instanceof Player attacker) || !world.isClientSide)
             return;
-        GameWorldComponent game = GameWorldComponent.KEY.get(world);
+        StarGameWorldComponent game = StarGameWorldComponent.KEY.get(world);
         final var role = game.getRole(attacker);
         if (role != null){
             if (!role.onUseKnife(attacker)) {

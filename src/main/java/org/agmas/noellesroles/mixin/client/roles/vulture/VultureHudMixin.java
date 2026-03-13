@@ -1,6 +1,6 @@
 package org.agmas.noellesroles.mixin.client.roles.vulture;
 
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -8,7 +8,7 @@ import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 
-import org.agmas.noellesroles.component.NoellesRolesAbilityPlayerComponent;
+import org.agmas.noellesroles.component.StarAbilityPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.roles.vulture.VulturePlayerComponent;
 import org.spongepowered.asm.mixin.Mixin;
@@ -28,8 +28,8 @@ public abstract class VultureHudMixin {
         }
         if (Minecraft.getInstance().player.isSpectator())
             return;
-        GameWorldComponent gameWorldComponent = (GameWorldComponent) GameWorldComponent.KEY.get(Minecraft.getInstance().player.level());
-        NoellesRolesAbilityPlayerComponent abilityPlayerComponent = (NoellesRolesAbilityPlayerComponent) NoellesRolesAbilityPlayerComponent.KEY.get(Minecraft.getInstance().player);
+        StarGameWorldComponent gameWorldComponent = (StarGameWorldComponent) StarGameWorldComponent.KEY.get(Minecraft.getInstance().player.level());
+        StarAbilityPlayerComponent abilityPlayerComponent = (StarAbilityPlayerComponent) StarAbilityPlayerComponent.KEY.get(Minecraft.getInstance().player);
         if (gameWorldComponent.isRole(Minecraft.getInstance().player, ModRoles.VULTURE)) {
             VulturePlayerComponent vulturePlayerComponent = VulturePlayerComponent.KEY.get(Minecraft.getInstance().player);
             int drawY = context.guiHeight();

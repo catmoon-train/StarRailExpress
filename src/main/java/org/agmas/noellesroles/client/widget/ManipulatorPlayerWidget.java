@@ -15,7 +15,7 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.GameType;
-import org.agmas.noellesroles.component.NoellesRolesAbilityPlayerComponent;
+import org.agmas.noellesroles.component.StarAbilityPlayerComponent;
 import org.agmas.noellesroles.packet.ManipulatorC2SPacket;
 import org.agmas.noellesroles.roles.manipulator.ManipulatorPlayerComponent;
 import org.jetbrains.annotations.NotNull;
@@ -38,7 +38,7 @@ public class ManipulatorPlayerWidget extends Button {
             AbstractClientPlayer player = Minecraft.getInstance().player;
             if (player != null) {
                 ManipulatorPlayerComponent manipulatorComp = ManipulatorPlayerComponent.KEY.get(player);
-                NoellesRolesAbilityPlayerComponent abilityComp = NoellesRolesAbilityPlayerComponent.KEY.get(player);
+                StarAbilityPlayerComponent abilityComp = StarAbilityPlayerComponent.KEY.get(player);
 
                 if (abilityComp.cooldown <= 0 && !manipulatorComp.isControlling) {
                     ClientPlayNetworking.send(new ManipulatorC2SPacket(targetPlayer.getProfile().getId()));
@@ -62,7 +62,7 @@ public class ManipulatorPlayerWidget extends Button {
         if (player == null) return;
         
         ManipulatorPlayerComponent manipulatorComp = ManipulatorPlayerComponent.KEY.get(player);
-        NoellesRolesAbilityPlayerComponent abilityComp = NoellesRolesAbilityPlayerComponent.KEY.get(player);
+        StarAbilityPlayerComponent abilityComp = StarAbilityPlayerComponent.KEY.get(player);
 
         boolean canControl = abilityComp.cooldown <= 0 && !manipulatorComp.isControlling;
 

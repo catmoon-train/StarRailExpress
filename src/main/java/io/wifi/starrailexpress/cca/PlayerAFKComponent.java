@@ -108,7 +108,7 @@ public class PlayerAFKComponent implements RoleComponent, ServerTickingComponent
         if (!SRE.isPlayerInGame(this.player))
             return;
 
-        if (!GameWorldComponent.KEY.get(this.player.level()).isRunning())
+        if (!StarGameWorldComponent.KEY.get(this.player.level()).isRunning())
             return;
         if (player.isSpectator()) {
             this.lastActionTime = 0;
@@ -163,7 +163,7 @@ public class PlayerAFKComponent implements RoleComponent, ServerTickingComponent
         if (!SRE.isPlayerInGame(this.player))
             return;
 
-        if (!GameWorldComponent.KEY.get(this.player.level()).isRunning())
+        if (!StarGameWorldComponent.KEY.get(this.player.level()).isRunning())
             return;
         if (player.isSpectator()) {
             this.lastActionTime = 0;

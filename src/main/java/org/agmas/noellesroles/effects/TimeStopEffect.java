@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.effects;
 
-import io.wifi.starrailexpress.cca.GameTimeComponent;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameTimeComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.game.GameFunctions;
 import io.wifi.starrailexpress.network.TriggerStatusBarPayload;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -57,10 +57,10 @@ public class TimeStopEffect extends MobEffect {
     public static void triggerStart(ServerPlayer serverPlayer, int time, Component displaySkillTitle) {
         canMovePlayers.clear();
         canMovePlayers.add(serverPlayer.getUUID());
-        GameWorldComponent gameWorldComponent = GameWorldComponent.KEY.get(serverPlayer.level());
+        StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(serverPlayer.level());
         var broadcastMessage = displaySkillTitle;
 
-        GameTimeComponent gameTimeComponent = GameTimeComponent.KEY.get(serverPlayer.level());
+        StarGameTimeComponent gameTimeComponent = StarGameTimeComponent.KEY.get(serverPlayer.level());
         gameTimeComponent.setTime(gameTimeComponent.time + time);
         ServerPlayNetworking.send(serverPlayer, new TriggerStatusBarPayload("Time_Stop"));
         serverPlayer.serverLevel().players().forEach(

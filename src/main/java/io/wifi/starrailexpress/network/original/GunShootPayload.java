@@ -1,7 +1,7 @@
 package io.wifi.starrailexpress.network.original;
 
-import io.wifi.starrailexpress.cca.GameWorldComponent;
-import io.wifi.starrailexpress.cca.PlayerMoodComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.StarPlayerMoodComponent;
 import io.wifi.starrailexpress.event.AllowShootRevolverDrop;
 import io.wifi.starrailexpress.event.IsShootBackFire;
 import io.wifi.starrailexpress.event.OnRevolverUsed;
@@ -72,7 +72,7 @@ public record GunShootPayload(int target) implements CustomPacketPayload {
 
             if (player.serverLevel().getEntity(payload.target()) instanceof ServerPlayer target
                     && target.distanceTo(player) < 70.0) {
-                GameWorldComponent game = GameWorldComponent.KEY.get(player.level());
+                StarGameWorldComponent game = StarGameWorldComponent.KEY.get(player.level());
                 Item revolver = TMMItems.REVOLVER;
                 boolean isDerringer = mainHandStack.is(TMMItems.DERRINGER);
                 ResourceLocation deathReason = isDerringer ? GameConstants.DeathReasons.DERRINGER
@@ -111,7 +111,7 @@ public record GunShootPayload(int target) implements CustomPacketPayload {
                                 item.setThrower(player);
                             }
                             PacketTracker.sendToClient(player, new GunDropPayload());
-                            PlayerMoodComponent.KEY.get(player).setMood(0);
+                            StarPlayerMoodComponent.KEY.get(player).setMood(0);
                         }, 4);
                     }
                 }

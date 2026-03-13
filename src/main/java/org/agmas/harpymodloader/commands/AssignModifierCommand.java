@@ -4,7 +4,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
@@ -33,7 +33,7 @@ public class AssignModifierCommand {
         }
         ServerPlayer targetPlayer = EntityArgument.getPlayer(context, "player");
         Modifier modifier = ModifierArgumentType.getModifier(context, "modifier");
-        GameWorldComponent game = GameWorldComponent.KEY.get(targetPlayer.level());
+        StarGameWorldComponent game = StarGameWorldComponent.KEY.get(targetPlayer.level());
         // 获取游戏世界组件
         WorldModifierComponent worldModifierComponent = WorldModifierComponent.KEY.get(targetPlayer.level());
 

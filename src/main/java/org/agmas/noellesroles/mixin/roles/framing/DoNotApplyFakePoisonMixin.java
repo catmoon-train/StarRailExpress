@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.mixin.roles.framing;
 
-import io.wifi.starrailexpress.cca.GameWorldComponent;
-import io.wifi.starrailexpress.cca.PlayerPoisonComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.StarPlayerPoisonComponent;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.role.ModRoles;
@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.UUID;
 
-@Mixin(PlayerPoisonComponent.class)
+@Mixin(StarPlayerPoisonComponent.class)
 public abstract class DoNotApplyFakePoisonMixin {
 
     @Shadow @Final private Player player;
@@ -28,7 +28,7 @@ public abstract class DoNotApplyFakePoisonMixin {
 
     @Inject(method = "serverTick", at = @At("HEAD"), cancellable = true)
     private void defenseVialApply(CallbackInfo ci) {
-        GameWorldComponent gameWorldComponent = GameWorldComponent.KEY.get(player.level());
+        StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(player.level());
             if (gameWorldComponent.getRole(poisoner) == null) return;
             if (gameWorldComponent.isRole(poisoner, ModRoles.JESTER)) {
                 // Don't interfere with any custom non-killer poisoning roles from other mods

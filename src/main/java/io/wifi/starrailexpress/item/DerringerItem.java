@@ -1,6 +1,6 @@
 package io.wifi.starrailexpress.item;
 
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.particle.HandParticle;
 import io.wifi.starrailexpress.client.render.TMMRenderLayers;
@@ -64,7 +64,7 @@ public class DerringerItem extends RevolverItem {
                 }
             }
         } else {
-            GameWorldComponent gameComponent = GameWorldComponent.KEY.get(world);
+            StarGameWorldComponent gameComponent = StarGameWorldComponent.KEY.get(world);
             if (gameComponent != null) {
                 final var role = gameComponent.getRole(user);
                 if (role != null) {

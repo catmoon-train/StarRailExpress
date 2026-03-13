@@ -22,7 +22,7 @@ import org.agmas.noellesroles.utils.RoleUtils;
 import io.wifi.starrailexpress.api.Role;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.BartenderPlayerComponent;
-import io.wifi.starrailexpress.cca.PlayerPoisonComponent;
+import io.wifi.starrailexpress.cca.StarPlayerPoisonComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.event.OnGetInstinctHighlight;
@@ -330,7 +330,7 @@ public class InstinctRenderer {
 
                 var target_role = SREClient.gameComponent.getRole(target_player);
                 BartenderPlayerComponent bartenderPlayerComponent = BartenderPlayerComponent.KEY.get(target_player);
-                PlayerPoisonComponent playerPoisonComponent = PlayerPoisonComponent.KEY.get(target_player);
+                StarPlayerPoisonComponent playerPoisonComponent = StarPlayerPoisonComponent.KEY.get(target_player);
                 if (SREClient.gameComponent.isRole(self, ModRoles.BETTER_VIGILANTE)) {
                     var betterC = BetterVigilantePlayerComponent.KEY.get(self);
                     if (betterC.lastStandActivated) {

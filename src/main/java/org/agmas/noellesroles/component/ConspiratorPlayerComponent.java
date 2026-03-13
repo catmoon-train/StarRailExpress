@@ -1,10 +1,10 @@
 package org.agmas.noellesroles.component;
 
-import io.wifi.starrailexpress.cca.PlayerShopComponent;
+import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.role.ModRoles;
 import io.wifi.starrailexpress.api.Role;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.game.GameFunctions;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
@@ -134,7 +134,7 @@ public class ConspiratorPlayerComponent implements RoleComponent, ServerTickingC
             return false;
 
         // 获取目标的实际角色
-        GameWorldComponent gameWorld = GameWorldComponent.KEY.get(player.level());
+        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.level());
         Role actualRole = gameWorld.getRole(target);
 
         if (actualRole == null)
@@ -171,7 +171,7 @@ public class ConspiratorPlayerComponent implements RoleComponent, ServerTickingC
                 newTarget.guessCorrect = true;
                 newTarget.deathCountdown = DEATH_COUNTDOWN;
             }
-            final var playerShopComponent = PlayerShopComponent.KEY.get(player);
+            final var playerShopComponent = StarPlayerShopComponent.KEY.get(player);
             playerShopComponent.setBalance(100 + playerShopComponent.balance);
 
             serverPlayer.displayClientMessage(
@@ -280,7 +280,7 @@ public class ConspiratorPlayerComponent implements RoleComponent, ServerTickingC
 
     @Override
     public void serverTick() {
-        GameWorldComponent gameWorld = GameWorldComponent.KEY.get(player.level());
+        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.level());
 
         // 只有阴谋家角色才处理
         if (!gameWorld.isRole(player, ModRoles.CONSPIRATOR))

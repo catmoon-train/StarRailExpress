@@ -1,6 +1,6 @@
 package pro.fazeclan.river.stupid_express.mixin.client.role.initiate;
 
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedHandledScreen;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
 import net.minecraft.client.player.LocalPlayer;
@@ -28,7 +28,7 @@ public abstract class InitiateShopMixin extends LimitedHandledScreen<InventoryMe
 
     @Inject(method = "init", at = @At("HEAD"))
     private void initiateShopEntries(CallbackInfo ci) {
-        var gameWorldComponent = GameWorldComponent.KEY.get(player.level());
+        var gameWorldComponent = StarGameWorldComponent.KEY.get(player.level());
         if (gameWorldComponent.isRole(player, SERoles.INITIATE)) {
             var screen = (LimitedInventoryScreen) (Object) this;
             var entries = SERoles.INITIATE_SHOP;

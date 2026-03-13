@@ -1,6 +1,6 @@
 package pro.fazeclan.river.stupid_express.constants;
 
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.game.GameFunctions;
 import io.wifi.starrailexpress.SRE;
 import net.minecraft.server.level.ServerPlayer;
@@ -237,7 +237,7 @@ public class SEModifiers {
             }
 
             var level = person.serverLevel();
-            var gameComponent = GameWorldComponent.KEY.get(level);
+            var gameComponent = StarGameWorldComponent.KEY.get(level);
 
             // 选择另一个同阵营作为第二人格
             var fatherRole = gameComponent.getRole(player);
@@ -253,7 +253,7 @@ public class SEModifiers {
                     fatherRoleType = 0;
                 } else if (fatherRole.isNeutralForKiller() && fatherRole.isNeutrals()) {
                     fatherRoleType = 3;
-                } else if (GameWorldComponent.isKillerTeamRoleStatic(fatherRole)) {
+                } else if (StarGameWorldComponent.isKillerTeamRoleStatic(fatherRole)) {
                     fatherRoleType = 2;
                 } else {
                     fatherRoleType = 1;

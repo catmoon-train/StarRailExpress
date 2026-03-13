@@ -2,7 +2,7 @@ package io.wifi.starrailexpress.mixin.entity.item;
 
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import io.wifi.starrailexpress.util.TMMItemUtils;
 import io.wifi.starrailexpress.SRE;
@@ -41,7 +41,7 @@ public abstract class ItemEntityMixin {
             }
             return;
         }
-        if ((GameWorldComponent.KEY.get(player.level()).canPickUpRevolver(player)
+        if ((StarGameWorldComponent.KEY.get(player.level()).canPickUpRevolver(player)
                 && !player.equals(this.getOwner()))) {
             // 在拾取物品之前调用角色的onPickupItem方法
             if (TMMItemUtils.hasItem(player, TMMItemTags.GUNS) > 0) {

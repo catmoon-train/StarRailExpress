@@ -110,8 +110,6 @@ public class SERoles {
             if (playerList.isEmpty()) {
                 return;
             }
-            // var level = playerList.getFirst().level();
-            // var gameWorldComponent = GameWorldComponent.KEY.get(level);
             var killerRoleCount = (int) Math.floor((float) playerList.size() / (float) 6);
 
             if (killerRoleCount > 1) {

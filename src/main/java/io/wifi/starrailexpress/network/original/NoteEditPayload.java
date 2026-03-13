@@ -1,6 +1,6 @@
 package io.wifi.starrailexpress.network.original;
 
-import io.wifi.starrailexpress.cca.PlayerNoteComponent;
+import io.wifi.starrailexpress.cca.StarPlayerNoteComponent;
 import io.wifi.starrailexpress.SRE;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.FriendlyByteBuf;
@@ -21,7 +21,7 @@ public record NoteEditPayload(String line1, String line2, String line3, String l
     public static class Receiver implements ServerPlayNetworking.PlayPayloadHandler<NoteEditPayload> {
         @Override
         public void receive(@NotNull NoteEditPayload payload, ServerPlayNetworking.@NotNull Context context) {
-            PlayerNoteComponent.KEY.get(context.player()).setNote(payload.line1(), payload.line2(), payload.line3(), payload.line4());
+            StarPlayerNoteComponent.KEY.get(context.player()).setNote(payload.line1(), payload.line2(), payload.line3(), payload.line4());
         }
     }
 }

@@ -1,6 +1,6 @@
 package org.agmas.noellesroles.component;
 
-import io.wifi.starrailexpress.cca.PlayerShopComponent;
+import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
 
 import org.agmas.noellesroles.init.ModEntities;
 import org.agmas.noellesroles.init.ModItems;
@@ -12,8 +12,8 @@ import org.agmas.noellesroles.utils.RoleUtils;
 
 import io.wifi.starrailexpress.api.Role;
 import io.wifi.starrailexpress.api.TMMRoles;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
-import io.wifi.starrailexpress.cca.PlayerPsychoComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.StarPlayerPsychoComponent;
 import io.wifi.starrailexpress.game.GameFunctions;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.TMMItemUtils;
@@ -200,7 +200,7 @@ public class PuppeteerPlayerComponent implements RoleComponent, ServerTickingCom
     public void collectBody(UUID bodyOwnerUuid, int totalPlayers) {
         if (!canCollectBody())
             return;
-        var gameWorldComponent = GameWorldComponent.KEY.get(player.level());
+        var gameWorldComponent = StarGameWorldComponent.KEY.get(player.level());
         if (!gameWorldComponent.isSkillAvailable) {
             player.displayClientMessage(
                     Component.translatable("message.tip.skill_disabled").withStyle(ChatFormatting.RED), true);
@@ -243,8 +243,6 @@ public class PuppeteerPlayerComponent implements RoleComponent, ServerTickingCom
         this.phase = 2;
 
         if (player instanceof ServerPlayer serverPlayer) {
-            // 添加杀手角色标记（使傀儡师可以使用杀手功能）
-            // GameWorldComponent gameWorld = GameWorldComponent.KEY.get(player.level());
 
             // 发送阶段转换消息
             serverPlayer.displayClientMessage(
@@ -303,7 +301,7 @@ public class PuppeteerPlayerComponent implements RoleComponent, ServerTickingCom
         // 随机选择杀手职业
         puppetRole = getRandomKillerRole();
 
-        final var playerShopComponent = PlayerShopComponent.KEY.get(player);
+        final var playerShopComponent = StarPlayerShopComponent.KEY.get(player);
         int money = 100 + playerShopComponent.balance;
         // if (playerShopComponent != null) {
         // money = playerShopComponent.balance;
@@ -531,7 +529,7 @@ public class PuppeteerPlayerComponent implements RoleComponent, ServerTickingCom
         loadInventory(originalInventory);
         TMMItemUtils.clearItem(serverPlayer, TMMItems.BAT);
         // 停止疯魔
-        var ppc = PlayerPsychoComponent.KEY.get(player);
+        var ppc = StarPlayerPsychoComponent.KEY.get(player);
         if (ppc.psychoTicks > 0)
             ppc.stopPsycho();
         // 清除假人状态，但保留收集的尸体信息
@@ -540,7 +538,7 @@ public class PuppeteerPlayerComponent implements RoleComponent, ServerTickingCom
         puppetEntityUuid = null;
         puppetSkinUuid = null;
         puppetRole = null;
-        PlayerShopComponent playerShop = PlayerShopComponent.KEY.get(serverPlayer);
+        StarPlayerShopComponent playerShop = StarPlayerShopComponent.KEY.get(serverPlayer);
         final var balance = playerShop.balance;
         // 恢复为傀儡师角色
 

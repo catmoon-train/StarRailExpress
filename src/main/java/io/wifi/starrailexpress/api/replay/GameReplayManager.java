@@ -5,8 +5,8 @@ import com.google.gson.GsonBuilder;
 
 import io.wifi.starrailexpress.api.Role;
 import io.wifi.starrailexpress.api.TMMRoles;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
-import io.wifi.starrailexpress.cca.GameRoundEndComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameRoundEndComponent;
 import io.wifi.starrailexpress.game.GameFunctions;
 import io.wifi.starrailexpress.game.GameFunctions.WinStatus;
 import io.wifi.starrailexpress.SRE;
@@ -293,7 +293,7 @@ public class GameReplayManager {
     currentReplayData.setPlayerRoles(roleMap);
   }
 
-  public void updateRolesFromComponent(io.wifi.starrailexpress.cca.GameWorldComponent component) {
+  public void updateRolesFromComponent(io.wifi.starrailexpress.cca.StarGameWorldComponent component) {
     currentReplayData
         .setCivilianPlayers(component.getAllWithRole(io.wifi.starrailexpress.api.TMMRoles.CIVILIAN));
     currentReplayData
@@ -310,7 +310,7 @@ public class GameReplayManager {
     currentReplayData.setPlayerRoles(roleMap);
   }
 
-  public void finalizeReplay(GameFunctions.WinStatus winStatus, GameRoundEndComponent roundEndData) {
+  public void finalizeReplay(GameFunctions.WinStatus winStatus, StarGameRoundEndComponent roundEndData) {
     currentReplayData.setWinningTitle(null);
     if (winStatus.equals(WinStatus.CUSTOM)) {
       currentReplayData.setWinningTeam(roundEndData.CustomWinnerID);
@@ -380,7 +380,7 @@ public class GameReplayManager {
     ReplayEvent event1 = convertReplayEvent(event, provider);
     try {
       var text = currentReplayData.toText(this, currentReplayData, event1);
-      GameWorldComponent gameWorldComponent = GameWorldComponent.KEY.get(SRE.SERVER.overworld());
+      StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(SRE.SERVER.overworld());
       SRE.SERVER.getPlayerList().getPlayers().forEach(
           player -> {
             if (gameWorldComponent != null && gameWorldComponent.isRunning()

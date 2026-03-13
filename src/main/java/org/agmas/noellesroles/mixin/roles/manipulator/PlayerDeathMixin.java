@@ -1,6 +1,6 @@
 package org.agmas.noellesroles.mixin.roles.manipulator;
 
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.game.GameFunctions;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
@@ -18,7 +18,7 @@ public class PlayerDeathMixin {
    @Inject(method = "killPlayer(Lnet/minecraft/world/entity/player/Player;ZLnet/minecraft/world/entity/player/Player;Lnet/minecraft/resources/ResourceLocation;)V", at = @At("HEAD"))
    private static void noe$killPlayer(Player victim, boolean spawnBody, Player killer, ResourceLocation deathReason, CallbackInfo ci) {
        final var level = victim.level();
-       final var gameWorldComponent = GameWorldComponent.KEY.get(level);
+       final var gameWorldComponent = StarGameWorldComponent.KEY.get(level);
        if (gameWorldComponent != null && gameWorldComponent.isRunning() ) {
            final var inControlCCA = InControlCCA.KEY.get(victim);
            if (inControlCCA != null) {

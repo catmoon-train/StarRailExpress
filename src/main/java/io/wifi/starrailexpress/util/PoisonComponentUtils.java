@@ -1,7 +1,7 @@
 package io.wifi.starrailexpress.util;
 
 import io.wifi.starrailexpress.block_entity.TrimmedBedBlockEntity;
-import io.wifi.starrailexpress.cca.PlayerPoisonComponent;
+import io.wifi.starrailexpress.cca.StarPlayerPoisonComponent;
 import io.wifi.starrailexpress.network.PacketTracker;
 import io.wifi.starrailexpress.SRE;
 import net.fabricmc.api.EnvType;
@@ -26,7 +26,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.UUID;
 
 public class PoisonComponentUtils {
-    public static float getFovMultiplier(float tickDelta, PlayerPoisonComponent poisonComponent) {
+    public static float getFovMultiplier(float tickDelta, StarPlayerPoisonComponent poisonComponent) {
         if (!poisonComponent.pulsing) return 1f;
 
         poisonComponent.pulseProgress += tickDelta * 0.1f;
@@ -45,7 +45,7 @@ public class PoisonComponentUtils {
         return result;
     }
 
-    private static float getResult(PlayerPoisonComponent poisonComponent, float minAmplitude, float maxAmplitude) {
+    private static float getResult(StarPlayerPoisonComponent poisonComponent, float minAmplitude, float maxAmplitude) {
         float amplitude = minAmplitude + (maxAmplitude - minAmplitude) * (1f - ((float) poisonComponent.poisonTicks / 1200f));
 
         float result;
@@ -69,18 +69,18 @@ public class PoisonComponentUtils {
 
         if (!world.isClientSide) {
             blockEntity.setHasScorpion(false, null);
-            int poisonTicks = PlayerPoisonComponent.KEY.get(player).poisonTicks;
+            int poisonTicks = StarPlayerPoisonComponent.KEY.get(player).poisonTicks;
 
             UUID poisoner = blockEntity.getPoisoner();
 
             if (poisonTicks == -1) {
-                PlayerPoisonComponent.KEY.get(player).setPoisonTicks(
-                        world.getRandom().nextIntBetweenInclusive(PlayerPoisonComponent.clampTime.getA(), PlayerPoisonComponent.clampTime.getB()),
+                StarPlayerPoisonComponent.KEY.get(player).setPoisonTicks(
+                        world.getRandom().nextIntBetweenInclusive(StarPlayerPoisonComponent.clampTime.getA(), StarPlayerPoisonComponent.clampTime.getB()),
                         poisoner
                 );
             } else {
-                PlayerPoisonComponent.KEY.get(player).setPoisonTicks(
-                        Mth.clamp(poisonTicks - world.getRandom().nextIntBetweenInclusive(100, 300), 0, PlayerPoisonComponent.clampTime.getB()),
+                StarPlayerPoisonComponent.KEY.get(player).setPoisonTicks(
+                        Mth.clamp(poisonTicks - world.getRandom().nextIntBetweenInclusive(100, 300), 0, StarPlayerPoisonComponent.clampTime.getB()),
                         poisoner
                 );
             }

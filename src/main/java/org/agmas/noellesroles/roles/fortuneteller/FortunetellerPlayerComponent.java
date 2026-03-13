@@ -1,6 +1,6 @@
 package org.agmas.noellesroles.roles.fortuneteller;
 
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.game.GameFunctions;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
@@ -76,7 +76,7 @@ public class FortunetellerPlayerComponent implements RoleComponent, ServerTickin
     }
 
     public void serverTick() {
-        GameWorldComponent gameWorld = GameWorldComponent.KEY.get(player.level());
+        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.level());
         if (!gameWorld.isRole(player, ModRoles.FORTUNETELLER)) {
             return;
         }

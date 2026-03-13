@@ -14,7 +14,7 @@ import org.agmas.noellesroles.component.BroadcasterPlayerComponent;
 import org.agmas.noellesroles.component.InsaneKillerPlayerComponent;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.component.MonitorPlayerComponent;
-import org.agmas.noellesroles.component.NoellesRolesAbilityPlayerComponent;
+import org.agmas.noellesroles.component.StarAbilityPlayerComponent;
 import org.agmas.noellesroles.component.SwapperPlayerComponent;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.entity.ThrowingKnifeEntity;
@@ -33,9 +33,9 @@ import org.agmas.noellesroles.utils.RoleUtils;
 
 import io.wifi.starrailexpress.api.Role;
 import io.wifi.starrailexpress.api.TMMRoles;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
-import io.wifi.starrailexpress.cca.PlayerMoodComponent;
-import io.wifi.starrailexpress.cca.PlayerShopComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.StarPlayerMoodComponent;
+import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
 import io.wifi.starrailexpress.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameFunctions;
@@ -78,7 +78,7 @@ public class ModPacketsReciever {
               }
               return false;
             }).findFirst().ifPresent(entry -> {
-              PlayerShopComponent playerShopComponent = PlayerShopComponent.KEY.get(player);
+              StarPlayerShopComponent playerShopComponent = StarPlayerShopComponent.KEY.get(player);
               if (playerShopComponent.balance < entry.price()) {
                 player.displayClientMessage(Component.translatable("noellesroles.not_enough_money")
                     .withStyle(ChatFormatting.RED), true);
@@ -158,10 +158,10 @@ public class ModPacketsReciever {
           offHandItem.shrink(1);
         }
       }
-      var gameWorldComponent = GameWorldComponent.KEY.get(player.level());
+      var gameWorldComponent = StarGameWorldComponent.KEY.get(player.level());
 
       if (payload.success()) {
-        var psc = PlayerShopComponent.KEY.get(player);
+        var psc = StarPlayerShopComponent.KEY.get(player);
         if (isForced) {
           player.displayClientMessage(
               Component.translatable("death_reason.noellesroles.success").withStyle(ChatFormatting.GREEN), true);
@@ -182,7 +182,7 @@ public class ModPacketsReciever {
         if (gameWorldComponent.isRole(player, ModRoles.BAKA)) {
           player.displayClientMessage(
               Component.translatable("message.baka.problem_set.failed").withStyle(ChatFormatting.YELLOW), true);
-          var pmc = PlayerMoodComponent.KEY.get(player);
+          var pmc = StarPlayerMoodComponent.KEY.get(player);
           pmc.setMood(pmc.getMood() * 0.3f);
           return;
         }
@@ -197,7 +197,7 @@ public class ModPacketsReciever {
             return gameWorldComponent.isRole(p, ModRoles.EXAMPLER);
           }).findFirst().orElse(null);
           if (killer != null) {
-            var abpc = NoellesRolesAbilityPlayerComponent.KEY.get(killer);
+            var abpc = StarAbilityPlayerComponent.KEY.get(killer);
             abpc.charges++;
             // Noellesroles.LOGGER.info("Increase 1");
             if (abpc.charges >= 3) {
@@ -211,7 +211,7 @@ public class ModPacketsReciever {
             abpc.sync();
           }
           if (GameFunctions.isPlayerAliveAndSurvival(player)) {
-            var psc = PlayerShopComponent.KEY.get(player);
+            var psc = StarPlayerShopComponent.KEY.get(player);
             if (psc.balance >= 100) {
               psc.addToBalance(-100);
               player.displayClientMessage(
@@ -255,9 +255,9 @@ public class ModPacketsReciever {
       RoleUtils.insertStackInFreeSlot(player, cooked_food);
     });
     ServerPlayNetworking.registerGlobalReceiver(ModPackets.MORPH_PACKET, (payload, context) -> {
-      GameWorldComponent gameWorldComponent = (GameWorldComponent) GameWorldComponent.KEY
+      StarGameWorldComponent gameWorldComponent = (StarGameWorldComponent) StarGameWorldComponent.KEY
           .get(context.player().level());
-      NoellesRolesAbilityPlayerComponent abilityPlayerComponent = (NoellesRolesAbilityPlayerComponent) NoellesRolesAbilityPlayerComponent.KEY
+      StarAbilityPlayerComponent abilityPlayerComponent = (StarAbilityPlayerComponent) StarAbilityPlayerComponent.KEY
           .get(context.player());
 
       if (payload.player() == null)
@@ -285,9 +285,9 @@ public class ModPacketsReciever {
 
     // 操纵师数据包处理
     ServerPlayNetworking.registerGlobalReceiver(ModPackets.MANIPULATOR_PACKET, (payload, context) -> {
-      GameWorldComponent gameWorldComponent = (GameWorldComponent) GameWorldComponent.KEY
+      StarGameWorldComponent gameWorldComponent = (StarGameWorldComponent) StarGameWorldComponent.KEY
           .get(context.player().level());
-      NoellesRolesAbilityPlayerComponent abilityPlayerComponent = (NoellesRolesAbilityPlayerComponent) NoellesRolesAbilityPlayerComponent.KEY
+      StarAbilityPlayerComponent abilityPlayerComponent = (StarAbilityPlayerComponent) StarAbilityPlayerComponent.KEY
           .get(context.player());
 
       if (payload.player() == null)
@@ -339,14 +339,14 @@ public class ModPacketsReciever {
     });
     ServerPlayNetworking.registerGlobalReceiver(ModPackets.VULTURE_PACKET, (payload, context) -> {
       final var player = context.player();
-      GameWorldComponent gameWorldComponent = (GameWorldComponent) GameWorldComponent.KEY
+      StarGameWorldComponent gameWorldComponent = (StarGameWorldComponent) StarGameWorldComponent.KEY
           .get(player.level());
       if (!gameWorldComponent.isSkillAvailable) {
         player.displayClientMessage(
             Component.translatable("message.tip.skill_disabled").withStyle(ChatFormatting.RED), true);
         return;
       }
-      NoellesRolesAbilityPlayerComponent abilityPlayerComponent = (NoellesRolesAbilityPlayerComponent) NoellesRolesAbilityPlayerComponent.KEY
+      StarAbilityPlayerComponent abilityPlayerComponent = (StarAbilityPlayerComponent) StarAbilityPlayerComponent.KEY
           .get(player);
 
       if (gameWorldComponent.isRole(player, ModRoles.VULTURE)
@@ -383,7 +383,7 @@ public class ModPacketsReciever {
                 shuffledKillerRoles.add(TMMRoles.KILLER);
               Collections.shuffle(shuffledKillerRoles);
 
-              PlayerShopComponent playerShopComponent = (PlayerShopComponent) PlayerShopComponent.KEY
+              StarPlayerShopComponent playerShopComponent = (StarPlayerShopComponent) StarPlayerShopComponent.KEY
                   .get(player);
               final var first = shuffledKillerRoles.getFirst();
               // gameWorldComponent.addRole(player, first);
@@ -403,10 +403,10 @@ public class ModPacketsReciever {
       }
     });
     ServerPlayNetworking.registerGlobalReceiver(ModPackets.SWAP_PACKET, (payload, context) -> {
-      GameWorldComponent gameWorldComponent = (GameWorldComponent) GameWorldComponent.KEY
+      StarGameWorldComponent gameWorldComponent = (StarGameWorldComponent) StarGameWorldComponent.KEY
           .get(context.player().level());
       if (gameWorldComponent.isRole(context.player(), ModRoles.SWAPPER)) {
-        NoellesRolesAbilityPlayerComponent abilityPlayerComponent = NoellesRolesAbilityPlayerComponent.KEY
+        StarAbilityPlayerComponent abilityPlayerComponent = StarAbilityPlayerComponent.KEY
             .get(context.player());
         if (!abilityPlayerComponent.canUseAbility())
           return;
@@ -431,7 +431,7 @@ public class ModPacketsReciever {
             return; // 如果未启用，则忽略该数据包
           }
 
-          GameWorldComponent gameWorldComponent = (GameWorldComponent) GameWorldComponent.KEY
+          StarGameWorldComponent gameWorldComponent = (StarGameWorldComponent) StarGameWorldComponent.KEY
               .get(context.player().level());
           if (gameWorldComponent.isRole(context.player(), ModRoles.EXECUTIONER)) {
             ExecutionerPlayerComponent executionerPlayerComponent = ExecutionerPlayerComponent.KEY
@@ -463,10 +463,10 @@ public class ModPacketsReciever {
     });
     ServerPlayNetworking.registerGlobalReceiver(org.agmas.noellesroles.packet.BroadcasterC2SPacket.ID,
         (payload, context) -> {
-          NoellesRolesAbilityPlayerComponent abilityPlayerComponent = NoellesRolesAbilityPlayerComponent.KEY
+          StarAbilityPlayerComponent abilityPlayerComponent = StarAbilityPlayerComponent.KEY
               .get(context.player());
-          GameWorldComponent gameWorldComponent = GameWorldComponent.KEY.get(context.player().level());
-          PlayerShopComponent playerShopComponent = PlayerShopComponent.KEY.get(context.player());
+          StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(context.player().level());
+          StarPlayerShopComponent playerShopComponent = StarPlayerShopComponent.KEY.get(context.player());
           if (!GameFunctions.isPlayerAliveAndSurvival(context.player())) {
             context.player().displayClientMessage(
                 Component.translatable("message.noellesroles.fuck_death_send"),
@@ -525,7 +525,7 @@ public class ModPacketsReciever {
     });
     ServerPlayNetworking.registerGlobalReceiver(ModPackets.INSANE_KILLER_ABILITY_PACKET, (payload, context) -> {
       ServerPlayer player = (ServerPlayer) context.player();
-      var gameWorldComponent = GameWorldComponent.KEY.get(player.level());
+      var gameWorldComponent = StarGameWorldComponent.KEY.get(player.level());
       if (!gameWorldComponent.isSkillAvailable) {
         player.displayClientMessage(
             Component.translatable("message.tip.skill_disabled").withStyle(ChatFormatting.RED), true);
@@ -608,7 +608,7 @@ public class ModPacketsReciever {
     });
 
     ServerPlayNetworking.registerGlobalReceiver(ModPackets.MONITOR_MARK_PACKET, (payload, context) -> {
-      GameWorldComponent gameWorldComponent = (GameWorldComponent) GameWorldComponent.KEY
+      StarGameWorldComponent gameWorldComponent = (StarGameWorldComponent) StarGameWorldComponent.KEY
           .get(context.player().level());
       if (gameWorldComponent.isRole(context.player(), ModRoles.MONITOR)) {
         MonitorPlayerComponent monitorComponent = MonitorPlayerComponent.KEY.get(context.player());

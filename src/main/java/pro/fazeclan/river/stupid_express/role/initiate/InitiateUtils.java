@@ -1,7 +1,7 @@
 package pro.fazeclan.river.stupid_express.role.initiate;
 
-import io.wifi.starrailexpress.cca.GameTimeComponent;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameTimeComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameFunctions;
 import io.wifi.starrailexpress.index.TMMItems;
@@ -35,7 +35,7 @@ public class InitiateUtils {
     public static void InitiateChange() {
         ServerTickEvents.END_SERVER_TICK.register((MinecraftServer server) -> {
             boolean isGameRuning = false;
-            var gameWorldComponent = GameWorldComponent.KEY.get(server.overworld());
+            var gameWorldComponent = StarGameWorldComponent.KEY.get(server.overworld());
             if (gameWorldComponent != null) {
                 if (gameWorldComponent.isRunning()) {
                     isGameRuning = true;
@@ -53,7 +53,7 @@ public class InitiateUtils {
 
             var playerList = server.getPlayerList().getPlayers();
             var level = playerList.getFirst().level();
-            var gameTimeComponent = GameTimeComponent.KEY.get(level);
+            var gameTimeComponent = StarGameTimeComponent.KEY.get(level);
 
             // 检查是否有初学者
             List<ServerPlayer> initiates = playerList.stream()

@@ -37,7 +37,7 @@ public class AutoStartComponent implements AutoSyncedComponent, CommonTickingCom
 
     @Override
     public void tick() {
-        GameWorldComponent gameWorldComponent = GameWorldComponent.KEY.get(this.world);
+        StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(this.world);
         if (gameWorldComponent.isRunning())
             return;
 
@@ -46,7 +46,7 @@ public class AutoStartComponent implements AutoSyncedComponent, CommonTickingCom
 
         if (GameFunctions.getReadyPlayerCount(world) >= gameWorldComponent.getGameMode().minPlayerCount) {
             if (this.time-- <= 0 && this.world instanceof ServerLevel serverWorld) {
-                if (gameWorldComponent.getGameStatus() == GameWorldComponent.GameStatus.INACTIVE) {
+                if (gameWorldComponent.getGameStatus() == StarGameWorldComponent.GameStatus.INACTIVE) {
                     GameMode gameMode = SREGameModes.MURDER;
                     GameFunctions.startGame(serverWorld, gameMode,
                             GameConstants.getInTicks(gameMode.defaultStartTime, 0));
@@ -70,7 +70,7 @@ public class AutoStartComponent implements AutoSyncedComponent, CommonTickingCom
 
     @Override
     public boolean shouldSyncWith(ServerPlayer serverPlayer) {
-        GameWorldComponent gameWorldComponent = GameWorldComponent.KEY.get(this.world);
+        StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(this.world);
         if (gameWorldComponent.isRunning()) {
             return false;
         }

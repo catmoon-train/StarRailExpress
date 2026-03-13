@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.component;
 
-import io.wifi.starrailexpress.cca.PlayerShopComponent;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -131,7 +131,7 @@ public class AlchemistPlayerComponent implements RoleComponent, ServerTickingCom
 
     @Override
     public void serverTick() {
-        GameWorldComponent gameWorldComponent = GameWorldComponent.KEY.get(player.level());
+        StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(player.level());
         if (!gameWorldComponent.isRunning())
             return;
         if (!gameWorldComponent.isRole(player, ModRoles.ALCHEMIST))
@@ -234,7 +234,7 @@ public class AlchemistPlayerComponent implements RoleComponent, ServerTickingCom
 
         // 检查金币是否足够
         int goldCost = getPotionCost(currentPotionIndex);
-        PlayerShopComponent shopComponent = PlayerShopComponent.KEY.get(player);
+        StarPlayerShopComponent shopComponent = StarPlayerShopComponent.KEY.get(player);
         if (shopComponent.balance < goldCost) {
             serverPlayer.displayClientMessage(
                     Component.translatable("message.noellesroles.alchemist.insufficient_gold", goldCost)
@@ -399,7 +399,7 @@ public class AlchemistPlayerComponent implements RoleComponent, ServerTickingCom
 
     @Override
     public void clientTick() {
-        GameWorldComponent gameWorldComponent = GameWorldComponent.KEY.get(player.level());
+        StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(player.level());
         if (!gameWorldComponent.isRunning())
             return;
         if (!gameWorldComponent.isRole(player, ModRoles.ALCHEMIST))

@@ -19,7 +19,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.llamalad7.mixinextras.sugar.Local;
 
 import io.wifi.starrailexpress.api.TMMRoles;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.RoleNameRenderer;
 import io.wifi.starrailexpress.game.GameFunctions;
@@ -105,7 +105,7 @@ public abstract class CustomRolesRoleNameRendererMixin {
     @Inject(method = "renderHud", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;getDisplayName()Lnet/minecraft/network/chat/Component;"))
     private static void b(Font renderer, @NotNull LocalPlayer player, GuiGraphics context, DeltaTracker tickCounter,
             CallbackInfo ci, @Local Player target) {
-        GameWorldComponent gameWorldComponent = SREClient.gameComponent;
+        StarGameWorldComponent gameWorldComponent = SREClient.gameComponent;
         WorldModifierComponent worldModifierComponent = WorldModifierComponent.KEY.get(player.level());
         if (gameWorldComponent.getRole(target) != null) {
             NoellesrolesClient.hudTarget = target;

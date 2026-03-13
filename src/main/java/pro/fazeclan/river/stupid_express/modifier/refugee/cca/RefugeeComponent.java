@@ -160,7 +160,7 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         int size = serverLevel.getPlayers(GameFunctions::isPlayerAliveAndSurvival).size();
         bartenderPlayerComponent.removeArmor(-1 * (Math.clamp(size / 6, 1, 3)));
         player.setGameMode(GameType.ADVENTURE);
-        WorldBlackoutComponent.KEY.get(player.level()).triggerBlackout();
+        StarWorldBlackoutComponent.KEY.get(player.level()).triggerBlackout();
         // Remove body entity
         var bodies = serverLevel.getAllEntities();
 
@@ -182,7 +182,7 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         StupidRoleUtils.sendWelcomeAnnouncement(player);
 
         TrainVoicePlugin.resetPlayer(player.getUUID());
-        GameTimeComponent gameTimeComponent = GameTimeComponent.KEY.get(serverLevel);
+        StarGameTimeComponent gameTimeComponent = StarGameTimeComponent.KEY.get(serverLevel);
         lastTime = gameTimeComponent.getTime();
         gameTimeComponent.setTime(gameTimeComponent.getTime() + 120 * 20);
         WorldModifierComponent worldModifierComponent = WorldModifierComponent.KEY.get(serverLevel);
@@ -206,7 +206,7 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
             SavePlayersStats();
         }
         isAnyRevivals = true;
-        var gameWorldComponent = GameWorldComponent.KEY.get(this.level);
+        var gameWorldComponent = StarGameWorldComponent.KEY.get(this.level);
         gameWorldComponent.disableSkillsAndSync();
         this.sync();
     }
@@ -218,7 +218,7 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         List<ServerPlayer> players = serverLevel.getServer().getPlayerList().getPlayers();
         players_stats.clear();
         for (var player : players) {
-            var ppc = PlayerPsychoComponent.KEY.get(player);
+            var ppc = StarPlayerPsychoComponent.KEY.get(player);
             if (ppc.psychoTicks > 0) {
                 ppc.stopPsycho();
             }
@@ -234,7 +234,7 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
             return;
         }
         List<ServerPlayer> players = serverLevel.getServer().getPlayerList().getPlayers();
-        var gameWorldComponent = GameWorldComponent.KEY.get(level);
+        var gameWorldComponent = StarGameWorldComponent.KEY.get(level);
         var entities = serverLevel.getAllEntities();
         var bodies = new HashMap<UUID, PlayerBodyEntity>();
         for (var entity : entities) {
@@ -244,7 +244,7 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         }
         WorldModifierComponent worldModifierComponent = WorldModifierComponent.KEY.get(this.level);
         for (var player : players) {
-            var ppc = PlayerPsychoComponent.KEY.get(player);
+            var ppc = StarPlayerPsychoComponent.KEY.get(player);
             if (ppc.psychoTicks > 0) {
                 ppc.stopPsycho();
             }
@@ -272,9 +272,9 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         if (!(who instanceof ServerPlayer sp)) {
             return;
         }
-        GameTimeComponent gameTimeComponent = GameTimeComponent.KEY.get(sp.level());
+        StarGameTimeComponent gameTimeComponent = StarGameTimeComponent.KEY.get(sp.level());
         gameTimeComponent.setTime(lastTime);
-        var gameWorldComponent = GameWorldComponent.KEY.get(sp.level());
+        var gameWorldComponent = StarGameWorldComponent.KEY.get(sp.level());
         var a = sp.getServer().getPlayerList().getPlayers().stream().anyMatch((p) -> {
             if (!GameFunctions.isPlayerAliveAndSurvival(p) || p.getUUID().equals(who.getUUID())) {
                 return false;

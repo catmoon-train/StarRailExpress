@@ -3,7 +3,7 @@ package io.wifi.starrailexpress.item;
 import java.util.ArrayList;
 
 import io.wifi.starrailexpress.cca.BartenderPlayerComponent;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;
@@ -14,7 +14,7 @@ import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
 
 public class DefenseItem extends Item {
-    public static GameWorldComponent gameWorldComponent = null;
+    public static StarGameWorldComponent gameWorldComponent = null;
     public static ArrayList<String> canUseByRightClickRolePaths = new ArrayList<>();
 
     public DefenseItem(Properties properties) {
@@ -35,7 +35,7 @@ public class DefenseItem extends Item {
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand interactionHand) {
         ItemStack itemStack = player.getItemInHand(interactionHand);
         if (gameWorldComponent == null) {
-            gameWorldComponent = GameWorldComponent.KEY.get(level);
+            gameWorldComponent = StarGameWorldComponent.KEY.get(level);
         }
         if (gameWorldComponent != null) {
             var role = gameWorldComponent.getRole(player);
@@ -52,7 +52,7 @@ public class DefenseItem extends Item {
     @Override
     public ItemStack finishUsingItem(ItemStack itemStack, Level level, LivingEntity livingEntity) {
         if (gameWorldComponent == null) {
-            gameWorldComponent = GameWorldComponent.KEY.get(level);
+            gameWorldComponent = StarGameWorldComponent.KEY.get(level);
         }
         if (gameWorldComponent != null) {
             var role = gameWorldComponent.getRole(livingEntity.getUUID());

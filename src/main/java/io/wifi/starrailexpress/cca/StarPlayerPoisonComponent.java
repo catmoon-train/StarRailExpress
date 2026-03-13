@@ -20,9 +20,9 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.entity.player.Player;
 
-public class PlayerPoisonComponent implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
-    public static final ComponentKey<PlayerPoisonComponent> KEY = ComponentRegistry.getOrCreate(SRE.id("poison"),
-            PlayerPoisonComponent.class);
+public class StarPlayerPoisonComponent implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
+    public static final ComponentKey<StarPlayerPoisonComponent> KEY = ComponentRegistry.getOrCreate(SRE.id("poison"),
+            StarPlayerPoisonComponent.class);
     public static final Tuple<Integer, Integer> clampTime = new Tuple<>(800, 1400);
     private final Player player;
     public int poisonTicks = -1;
@@ -31,12 +31,12 @@ public class PlayerPoisonComponent implements RoleComponent, ServerTickingCompon
     public float pulseProgress = 0f;
     public boolean pulsing = false;
     public UUID poisoner;
-    private static GameWorldComponent gameWorldComponent = null;
+    private static StarGameWorldComponent gameWorldComponent = null;
     public static ArrayList<String> canSyncedRolePaths = new ArrayList<>();
 
-    public PlayerPoisonComponent(Player player) {
+    public StarPlayerPoisonComponent(Player player) {
         this.player = player;
-        gameWorldComponent = GameWorldComponent.KEY.get(this.player.level());
+        gameWorldComponent = StarGameWorldComponent.KEY.get(this.player.level());
     }
 
     @Override
@@ -44,7 +44,7 @@ public class PlayerPoisonComponent implements RoleComponent, ServerTickingCompon
         if (player == this.player)
             return true;
         if (gameWorldComponent == null) {
-            gameWorldComponent = GameWorldComponent.KEY.get(this.player.level());
+            gameWorldComponent = StarGameWorldComponent.KEY.get(this.player.level());
         }
         if (gameWorldComponent != null) {
             var role = gameWorldComponent.getRole(player);

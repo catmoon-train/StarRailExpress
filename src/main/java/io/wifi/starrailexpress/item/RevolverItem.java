@@ -1,6 +1,6 @@
 package io.wifi.starrailexpress.item;
 
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.particle.HandParticle;
 import io.wifi.starrailexpress.client.render.TMMRenderLayers;
@@ -59,7 +59,7 @@ public class RevolverItem extends Item {
         } else {
             // 在服务端消耗耐久度
             // stack.setDamage(stack.getDamage() + 1);
-            GameWorldComponent gameWorldComponent = GameWorldComponent.KEY.get(world);
+            StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(world);
             final var role = gameWorldComponent.getRole(user);
             if (role != null) {
                 if (!role.onUseGun(user)) {

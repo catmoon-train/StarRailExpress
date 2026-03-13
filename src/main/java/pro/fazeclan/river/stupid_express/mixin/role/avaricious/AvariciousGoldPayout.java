@@ -1,7 +1,7 @@
 package pro.fazeclan.river.stupid_express.mixin.role.avaricious;
 
-import io.wifi.starrailexpress.cca.GameWorldComponent;
-import io.wifi.starrailexpress.cca.PlayerShopComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
 import io.wifi.starrailexpress.game.GameFunctions;
 import io.wifi.starrailexpress.game.StarRailMurderGameMode;
 import io.wifi.starrailexpress.index.TMMSounds;
@@ -23,7 +23,7 @@ public class AvariciousGoldPayout {
 
     @Inject(method = "tickServerGameLoop", at = @At("TAIL"))
     private void payout(
-            ServerLevel serverWorld, GameWorldComponent gameWorldComponent, CallbackInfo ci) {
+            ServerLevel serverWorld, StarGameWorldComponent gameWorldComponent, CallbackInfo ci) {
         
         long time = serverWorld.getGameTime();
 
@@ -84,7 +84,7 @@ public class AvariciousGoldPayout {
                 int totalPayout = nearbyPlayers * payoutPerPlayer;
                 // 确保不超过150金币上限
                 totalPayout = Math.min(totalPayout, 150);
-                PlayerShopComponent.KEY.get(player).addToBalance(totalPayout);
+                StarPlayerShopComponent.KEY.get(player).addToBalance(totalPayout);
                 player.playNotifySound(TMMSounds.UI_SHOP_BUY, SoundSource.PLAYERS, 10.0f, 0.5f);
             }
         }

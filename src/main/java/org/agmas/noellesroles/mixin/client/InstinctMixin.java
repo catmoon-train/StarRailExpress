@@ -1,6 +1,6 @@
 package org.agmas.noellesroles.mixin.client;
 
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
 
 import org.agmas.noellesroles.component.BetterVigilantePlayerComponent;
@@ -35,7 +35,7 @@ public abstract class InstinctMixin {
             cir.cancel();
             return;
         }
-        GameWorldComponent gameWorldComponent = (GameWorldComponent) GameWorldComponent.KEY.get(player.level());
+        StarGameWorldComponent gameWorldComponent = (StarGameWorldComponent) StarGameWorldComponent.KEY.get(player.level());
         if (gameWorldComponent.isRole(player, ModRoles.BETTER_VIGILANTE)) {
             var betterC = BetterVigilantePlayerComponent.KEY.get(player);
             if (betterC.lastStandActivated) {
@@ -55,7 +55,7 @@ public abstract class InstinctMixin {
 
         // 遍历所有玩家，检查是否有操纵师正在控制当前玩家
         for (Player otherPlayer : player.level().players()) {
-            GameWorldComponent gameWorldComponent = GameWorldComponent.KEY.get(otherPlayer.level());
+            StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(otherPlayer.level());
             if (gameWorldComponent.isRole(otherPlayer, ModRoles.MANIPULATOR)) {
                 ManipulatorPlayerComponent manipulatorComponent = ManipulatorPlayerComponent.KEY.get(otherPlayer);
                 if (manipulatorComponent.isControlling &&

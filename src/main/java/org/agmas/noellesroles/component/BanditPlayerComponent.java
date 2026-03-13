@@ -1,8 +1,8 @@
 package org.agmas.noellesroles.component;
 
-import io.wifi.starrailexpress.cca.PlayerShopComponent;
+import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
 import org.agmas.noellesroles.role.ModRoles;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import io.wifi.starrailexpress.api.RoleComponent;
@@ -67,12 +67,12 @@ public class BanditPlayerComponent implements RoleComponent, ServerTickingCompon
         if (!(victim instanceof ServerPlayer victimPlayer))
             return;
 
-        GameWorldComponent gameWorld = GameWorldComponent.KEY.get(player.level());
+        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.level());
         if (!gameWorld.isRole(player, ModRoles.BANDIT))
             return;
 
         // 获取受害者的金钱
-        PlayerShopComponent victimShop = PlayerShopComponent.KEY.get(victim);
+        StarPlayerShopComponent victimShop = StarPlayerShopComponent.KEY.get(victim);
         int victimBalance = victimShop.balance;
 
         if (victimBalance > 0) {
@@ -84,7 +84,7 @@ public class BanditPlayerComponent implements RoleComponent, ServerTickingCompon
             victimShop.sync();
             
             // 增加强盗的金钱
-            PlayerShopComponent killerShop = PlayerShopComponent.KEY.get(player);
+            StarPlayerShopComponent killerShop = StarPlayerShopComponent.KEY.get(player);
             killerShop.balance += stolenAmount;
             killerShop.sync();
 

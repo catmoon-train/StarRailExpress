@@ -48,7 +48,7 @@ import io.wifi.starrailexpress.api.NormalRole;
 import io.wifi.starrailexpress.api.Role;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.BartenderPlayerComponent;
-import io.wifi.starrailexpress.cca.PlayerPoisonComponent;
+import io.wifi.starrailexpress.cca.StarPlayerPoisonComponent;
 import io.wifi.starrailexpress.client.gui.RoleAnnouncementTexts;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
@@ -1245,8 +1245,8 @@ public class ModRoles {
         false // 显示计分板
     )).setVigilanteTeam(true).setCanPickUpRevolver(true).setComponentKey(ModComponents.BEST_VIGILANTE);
 
-    PlayerPoisonComponent.canSyncedRolePaths.add(ModRoles.POISONER_ID.getPath());
-    PlayerPoisonComponent.canSyncedRolePaths.add(ModRoles.BARTENDER_ID.getPath());
+    StarPlayerPoisonComponent.canSyncedRolePaths.add(ModRoles.POISONER_ID.getPath());
+    StarPlayerPoisonComponent.canSyncedRolePaths.add(ModRoles.BARTENDER_ID.getPath());
     BartenderPlayerComponent.canSyncedRolePaths.add(ModRoles.BARTENDER_ID.getPath());
     BartenderPlayerComponent.canSyncedRolePaths.add(ModRoles.CHEF_ID.getPath());
   }

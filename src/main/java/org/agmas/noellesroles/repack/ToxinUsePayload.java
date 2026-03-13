@@ -1,6 +1,6 @@
 package org.agmas.noellesroles.repack;
 
-import io.wifi.starrailexpress.cca.PlayerPoisonComponent;
+import io.wifi.starrailexpress.cca.StarPlayerPoisonComponent;
 
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.FriendlyByteBuf;
@@ -32,7 +32,7 @@ public record ToxinUsePayload(int target) implements CustomPacketPayload {
             Entity var5 = player.serverLevel().getEntity(payload.target());
             if (var5 instanceof Player target) {
                 if (!((double)target.distanceTo(player) > (double)3.0F)) {
-                    ((PlayerPoisonComponent)PlayerPoisonComponent.KEY.get(target)).setPoisonTicks(HSRConstants.toxinPoisonTime, player.getUUID());
+                    ((StarPlayerPoisonComponent)StarPlayerPoisonComponent.KEY.get(target)).setPoisonTicks(HSRConstants.toxinPoisonTime, player.getUUID());
                     player.playSound(HSRSounds.ITEM_SYRINGE_STAB, 0.15F, 1.0F);
                     player.swing(InteractionHand.MAIN_HAND);
                     if (!player.isCreative()) {

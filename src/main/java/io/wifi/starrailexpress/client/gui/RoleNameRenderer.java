@@ -1,8 +1,8 @@
 package io.wifi.starrailexpress.client.gui;
 
 import io.wifi.starrailexpress.api.Role;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
-import io.wifi.starrailexpress.cca.PlayerPsychoComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.StarPlayerPsychoComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.entity.NoteEntity;
 import io.wifi.starrailexpress.event.AllowNameRender;
@@ -50,7 +50,7 @@ public class RoleNameRenderer {
     @SuppressWarnings("unused")
     public static void renderHud(Font renderer, @NotNull LocalPlayer player, GuiGraphics context,
             DeltaTracker tickCounter) {
-        GameWorldComponent component = GameWorldComponent.KEY.get(player.level());
+        StarGameWorldComponent component = StarGameWorldComponent.KEY.get(player.level());
         if (player.level().getBrightness(LightLayer.BLOCK, BlockPos.containing(player.getEyePosition())) < 3
                 && player.level().getBrightness(LightLayer.SKY, BlockPos.containing(player.getEyePosition())) < 10)
             return;
@@ -77,7 +77,7 @@ public class RoleNameRenderer {
             } else {
                 targetRole = TrainRole.BYSTANDER;
             }
-            boolean shouldObfuscate = PlayerPsychoComponent.KEY.get(target).getPsychoTicks() > 0;
+            boolean shouldObfuscate = StarPlayerPsychoComponent.KEY.get(target).getPsychoTicks() > 0;
             nametag = shouldObfuscate ? Component.literal("urscrewed" + "X".repeat(player.getRandom().nextInt(8)))
                     .withStyle(style -> style.applyFormats(ChatFormatting.OBFUSCATED, ChatFormatting.DARK_RED))
                     : nametag;

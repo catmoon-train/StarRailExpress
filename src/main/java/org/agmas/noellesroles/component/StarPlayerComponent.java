@@ -1,8 +1,8 @@
 package org.agmas.noellesroles.component;
 
 import org.agmas.noellesroles.role.ModRoles;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
-import io.wifi.starrailexpress.cca.PlayerShopComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
 import io.wifi.starrailexpress.game.GameFunctions;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
@@ -110,7 +110,7 @@ public class StarPlayerComponent implements RoleComponent, ServerTickingComponen
     public boolean isActiveStar() {
         if (!isActive || player == null || player.level().isClientSide())
             return false;
-        GameWorldComponent gameWorld = GameWorldComponent.KEY.get(player.level());
+        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.level());
         return gameWorld.isRole(player, ModRoles.STAR);
     }
 
@@ -192,7 +192,7 @@ public class StarPlayerComponent implements RoleComponent, ServerTickingComponen
         if (balanceAwardCount >= 150) {
             balanceAwardCount = 150;
         }
-        PlayerShopComponent.KEY.get(serverPlayer).addToBalance(balanceAwardCount);
+        StarPlayerShopComponent.KEY.get(serverPlayer).addToBalance(balanceAwardCount);
         // 发送消息给明星玩家
         serverPlayer.displayClientMessage(
                 Component.translatable("message.noellesroles.star.ability_used", affectedCount)

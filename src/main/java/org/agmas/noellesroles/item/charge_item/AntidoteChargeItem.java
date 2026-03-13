@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.item.charge_item;
 
 import io.wifi.starrailexpress.api.ChargeableItem;
-import io.wifi.starrailexpress.cca.PlayerPoisonComponent;
+import io.wifi.starrailexpress.cca.StarPlayerPoisonComponent;
 import io.wifi.starrailexpress.client.StaminaRenderer;
 import io.wifi.starrailexpress.game.GameFunctions;
 import net.minecraft.network.chat.Component;

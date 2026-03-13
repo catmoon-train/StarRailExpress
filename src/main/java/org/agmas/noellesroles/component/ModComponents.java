@@ -48,9 +48,9 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
             ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "awesome"),
             AwesomePlayerComponent.class);
 
-    public static final ComponentKey<NoellesRolesAbilityPlayerComponent> ABILITY = ComponentRegistry.getOrCreate(
+    public static final ComponentKey<StarAbilityPlayerComponent> ABILITY = ComponentRegistry.getOrCreate(
             ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "ability"),
-            NoellesRolesAbilityPlayerComponent.class);
+            StarAbilityPlayerComponent.class);
 
     public static final ComponentKey<AvengerPlayerComponent> AVENGER = ComponentRegistry.getOrCreate(
             ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "avenger"),
@@ -233,7 +233,7 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
                 .end(AwesomePlayerComponent::new);
         registry.beginRegistration(Player.class, ABILITY)
                 .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
-                .end(NoellesRolesAbilityPlayerComponent::new);
+                .end(StarAbilityPlayerComponent::new);
         registry.beginRegistration(Player.class, PATROLLER)
                 .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
                 .end(PatrollerPlayerComponent::new);

@@ -7,7 +7,7 @@ import org.agmas.noellesroles.component.DIOPlayerComponent;
 import org.agmas.noellesroles.component.HoanMeirinPlayerComponent;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.component.NianShouPlayerComponent;
-import org.agmas.noellesroles.component.NoellesRolesAbilityPlayerComponent;
+import org.agmas.noellesroles.component.StarAbilityPlayerComponent;
 import org.agmas.noellesroles.component.PlayerVolumeComponent;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.effects.TimeStopEffect;
@@ -25,8 +25,8 @@ import org.agmas.noellesroles.roles.recaller.RecallerPlayerComponent;
 import org.agmas.noellesroles.roles.thief.ThiefPlayerComponent;
 import org.agmas.noellesroles.utils.RoleUtils;
 
-import io.wifi.starrailexpress.cca.GameWorldComponent;
-import io.wifi.starrailexpress.cca.PlayerShopComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameFunctions;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -47,9 +47,9 @@ public class AbilityHandler {
     public static void handler(AbilityC2SPacket payload, Context context) {
         // 通用技能服务端处理
 
-        NoellesRolesAbilityPlayerComponent abilityPlayerComponent = (NoellesRolesAbilityPlayerComponent) NoellesRolesAbilityPlayerComponent.KEY
+        StarAbilityPlayerComponent abilityPlayerComponent = (StarAbilityPlayerComponent) StarAbilityPlayerComponent.KEY
                 .get(context.player());
-        GameWorldComponent gameWorldComponent = (GameWorldComponent) GameWorldComponent.KEY
+        StarGameWorldComponent gameWorldComponent = (StarGameWorldComponent) StarGameWorldComponent.KEY
                 .get(context.player().level());
         final ServerPlayer player = context.player();
         if (player.hasEffect(ModEffects.TIME_STOP) && !TimeStopEffect.canMovePlayers.contains(player.getUUID())) {
@@ -189,7 +189,7 @@ public class AbilityHandler {
                         true);
                 return;
             } else {
-                PlayerShopComponent playerShopComponent = PlayerShopComponent.KEY.get(context.player());
+                StarPlayerShopComponent playerShopComponent = StarPlayerShopComponent.KEY.get(context.player());
                 if (playerShopComponent.balance < 300) {
                     player.displayClientMessage(
                             Component.translatable("message.noellesroles.insufficient_funds_money", 300)
@@ -231,7 +231,7 @@ public class AbilityHandler {
         if (gameWorldComponent.isRole(context.player(), ModRoles.RECALLER)
                 && abilityPlayerComponent.cooldown <= 0) {
             RecallerPlayerComponent recallerPlayerComponent = RecallerPlayerComponent.KEY.get(context.player());
-            PlayerShopComponent playerShopComponent = PlayerShopComponent.KEY.get(context.player());
+            StarPlayerShopComponent playerShopComponent = StarPlayerShopComponent.KEY.get(context.player());
             if (!recallerPlayerComponent.placed) {
                 abilityPlayerComponent.cooldown = GameConstants.getInTicks(0,
                         NoellesRolesConfig.HANDLER.instance().recallerMarkCooldown);
@@ -393,12 +393,12 @@ public class AbilityHandler {
     }
 
     public static void handlerWithTarget(AbilityWithTargetC2SPacket payload, Context context) {
-        NoellesRolesAbilityPlayerComponent abilityPlayerComponent = (NoellesRolesAbilityPlayerComponent) NoellesRolesAbilityPlayerComponent.KEY
+        StarAbilityPlayerComponent abilityPlayerComponent = (StarAbilityPlayerComponent) StarAbilityPlayerComponent.KEY
                 .get(context.player());
 
-        PlayerShopComponent playerShopComponent = PlayerShopComponent.KEY
+        StarPlayerShopComponent playerShopComponent = StarPlayerShopComponent.KEY
                 .get(context.player());
-        GameWorldComponent gameWorldComponent = (GameWorldComponent) GameWorldComponent.KEY
+        StarGameWorldComponent gameWorldComponent = (StarGameWorldComponent) StarGameWorldComponent.KEY
                 .get(context.player().level());
         final ServerPlayer player = context.player();
         if (player.hasEffect(ModEffects.TIME_STOP) && !TimeStopEffect.canMovePlayers.contains(player.getUUID())) {

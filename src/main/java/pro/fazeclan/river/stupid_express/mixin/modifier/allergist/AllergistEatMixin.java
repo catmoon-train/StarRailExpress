@@ -1,6 +1,6 @@
 package pro.fazeclan.river.stupid_express.mixin.modifier.allergist;
 
-import io.wifi.starrailexpress.cca.PlayerPoisonComponent;
+import io.wifi.starrailexpress.cca.StarPlayerPoisonComponent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -52,7 +52,7 @@ public abstract class AllergistEatMixin extends LivingEntity {
             return;
         } else if (random < 66) {
             // Clear poison once
-            PlayerPoisonComponent poisonComponent = PlayerPoisonComponent.KEY.get(player);
+            StarPlayerPoisonComponent poisonComponent = StarPlayerPoisonComponent.KEY.get(player);
             if (((PlayerPoisonComponentAccessor) poisonComponent).getPoisonTicks() > 0) {
                 poisonComponent.setPoisonTicks(0, null);
                 player.displayClientMessage(

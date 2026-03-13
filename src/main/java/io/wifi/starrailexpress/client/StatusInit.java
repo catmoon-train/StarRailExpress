@@ -1,6 +1,6 @@
 package io.wifi.starrailexpress.client;
 
-import io.wifi.starrailexpress.cca.PlayerPsychoComponent;
+import io.wifi.starrailexpress.cca.StarPlayerPsychoComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import net.minecraft.client.Minecraft;
 
@@ -16,7 +16,7 @@ public class StatusInit {
 
    static {
        statusBars.put("Psycho", new StatusBar("Psycho", "\u00a76狂暴模式", () -> {
-           final var playerPsychoComponent = PlayerPsychoComponent.KEY.get(Minecraft.getInstance().player);
+           final var playerPsychoComponent = StarPlayerPsychoComponent.KEY.get(Minecraft.getInstance().player);
            if (playerPsychoComponent == null){
                return 0.0f;
            }

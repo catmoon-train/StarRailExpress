@@ -5,7 +5,7 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.command.argument.MapLoadArgumentType;
 import io.wifi.starrailexpress.game.GameFunctions;
 import io.wifi.starrailexpress.game.MapManager;
@@ -72,7 +72,7 @@ public class SwitchMapCommand {
     ServerLevel serverWorld = source.getLevel();
 
     // 检查游戏是否正在运行
-    GameWorldComponent gameComponent = GameWorldComponent.KEY.get(serverWorld);
+    StarGameWorldComponent gameComponent = StarGameWorldComponent.KEY.get(serverWorld);
     if (gameComponent.isRunning()) {
       source.sendFailure(Component.translatable("commands.sre.switchmap.error.game_running"));
       return -1;
@@ -95,7 +95,7 @@ public class SwitchMapCommand {
     ServerLevel serverWorld = source.getLevel();
 
     // 检查游戏是否正在运行
-    GameWorldComponent gameComponent = GameWorldComponent.KEY.get(serverWorld);
+    StarGameWorldComponent gameComponent = StarGameWorldComponent.KEY.get(serverWorld);
     if (gameComponent.isRunning()) {
       source.sendFailure(Component.translatable("commands.sre.switchmap.error.game_running"));
       return -1;
@@ -144,7 +144,7 @@ public class SwitchMapCommand {
     ServerLevel serverWorld = source.getLevel();
 
     // 检查游戏是否正在运行
-    GameWorldComponent gameComponent = GameWorldComponent.KEY.get(serverWorld);
+    StarGameWorldComponent gameComponent = StarGameWorldComponent.KEY.get(serverWorld);
     if (gameComponent.isRunning()) {
       source.sendFailure(Component.translatable("commands.sre.switchmap.error.game_running"));
       return -1;

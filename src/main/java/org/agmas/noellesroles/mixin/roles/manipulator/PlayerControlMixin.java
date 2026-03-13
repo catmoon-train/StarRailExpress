@@ -1,6 +1,6 @@
 package org.agmas.noellesroles.mixin.roles.manipulator;
 
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.game.GameFunctions;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -25,7 +25,7 @@ public class PlayerControlMixin {
         Player player = (Player) (Object) this;
 
         if (player instanceof ServerPlayer serverPlayer) {
-            final var gameWorldComponent = GameWorldComponent.KEY.get(serverPlayer.serverLevel());
+            final var gameWorldComponent = StarGameWorldComponent.KEY.get(serverPlayer.serverLevel());
             if (gameWorldComponent.isRunning() && GameFunctions.isPlayerAliveAndSurvival(serverPlayer)) {
                 final var inControlCCA = InControlCCA.KEY.get(serverPlayer);
                 if (inControlCCA.isControlling) {

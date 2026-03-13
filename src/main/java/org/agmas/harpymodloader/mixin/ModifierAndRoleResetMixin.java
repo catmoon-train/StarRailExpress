@@ -1,7 +1,7 @@
 package org.agmas.harpymodloader.mixin;
 
 
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.game.GameFunctions;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -19,7 +19,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class ModifierAndRoleResetMixin {
     @Inject(method = "resetPlayer", at = @At("HEAD"))
     private static void a(ServerPlayer player, CallbackInfo ci) {
-        GameWorldComponent gameComponent = (GameWorldComponent)GameWorldComponent.KEY.get(player.level());
+        StarGameWorldComponent gameComponent = (StarGameWorldComponent)StarGameWorldComponent.KEY.get(player.level());
         if (gameComponent.getRole(player) != null) {
             ModdedRoleRemoved.EVENT.invoker().removeModdedRole(player, gameComponent.getRole(player));
         }

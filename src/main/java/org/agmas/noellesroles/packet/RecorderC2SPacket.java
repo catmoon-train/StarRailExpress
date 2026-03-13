@@ -4,7 +4,7 @@ import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.component.RecorderPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -39,7 +39,7 @@ public record RecorderC2SPacket(UUID targetUuid, String roleId) implements Custo
         ServerPlayer player = context.player();
 
         context.server().execute(() -> {
-            GameWorldComponent gameWorld = GameWorldComponent.KEY.get(player.level());
+            StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.level());
 
             if (!gameWorld.isRole(player, ModRoles.RECORDER))
                 return;

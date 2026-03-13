@@ -1,8 +1,8 @@
 package org.agmas.noellesroles.mixin.roles.host;
 
-import io.wifi.starrailexpress.cca.GameWorldComponent;
-import io.wifi.starrailexpress.cca.PlayerPsychoComponent;
-import io.wifi.starrailexpress.cca.PlayerShopComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.StarPlayerPsychoComponent;
+import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameFunctions;
 import net.minecraft.resources.ResourceLocation;
@@ -18,9 +18,9 @@ public class MoneyIncreaseMixin {
     @Inject(method = "killPlayer(Lnet/minecraft/world/entity/player/Player;ZLnet/minecraft/world/entity/player/Player;Lnet/minecraft/resources/ResourceLocation;)V", at = @At("HEAD"))
     private static void increaseMoney(Player victim, boolean spawnBody, Player killer, ResourceLocation identifier, CallbackInfo ci) {
         if (killer != null) {
-            GameWorldComponent gameWorldComponent = (GameWorldComponent) GameWorldComponent.KEY.get(victim.level());
+            StarGameWorldComponent gameWorldComponent = (StarGameWorldComponent) StarGameWorldComponent.KEY.get(victim.level());
             if (gameWorldComponent.isRole(victim, ModRoles.CONDUCTOR) && !gameWorldComponent.isInnocent(killer)) {
-                PlayerShopComponent component = PlayerShopComponent.KEY.get(killer);
+                StarPlayerShopComponent component = StarPlayerShopComponent.KEY.get(killer);
                 component.addToBalance(100);
             }
         }
@@ -28,9 +28,9 @@ public class MoneyIncreaseMixin {
     @Inject(method = "killPlayer(Lnet/minecraft/world/entity/player/Player;ZLnet/minecraft/world/entity/player/Player;Lnet/minecraft/resources/ResourceLocation;)V", at = @At("HEAD"), cancellable = true)
     private static void jesterJest(Player victim, boolean spawnBody, Player killer, ResourceLocation identifier, CallbackInfo ci) {
         if (killer != null) {
-            GameWorldComponent gameWorldComponent = (GameWorldComponent) GameWorldComponent.KEY.get(victim.level());
+            StarGameWorldComponent gameWorldComponent = (StarGameWorldComponent) StarGameWorldComponent.KEY.get(victim.level());
             if (gameWorldComponent.isRole(victim, ModRoles.JESTER) && !gameWorldComponent.isRole(killer, ModRoles.JESTER) && gameWorldComponent.isInnocent(killer)) {
-                PlayerPsychoComponent component = (PlayerPsychoComponent)PlayerPsychoComponent.KEY.get(victim);
+                StarPlayerPsychoComponent component = (StarPlayerPsychoComponent)StarPlayerPsychoComponent.KEY.get(victim);
                 if (component.getPsychoTicks() <= 0) {
                     component.startPsycho();
                     component.psychoTicks = GameConstants.getInTicks(0, 45);

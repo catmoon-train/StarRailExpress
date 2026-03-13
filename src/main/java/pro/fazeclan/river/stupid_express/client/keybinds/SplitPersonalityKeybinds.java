@@ -10,7 +10,7 @@ import net.minecraft.network.chat.Component;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.lwjgl.glfw.GLFW;
 
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.event.OnOpenInventory;
 import pro.fazeclan.river.stupid_express.modifier.split_personality.cca.SplitPersonalityComponent;
 import pro.fazeclan.river.stupid_express.client.network.SplitPersonalityClientPackets;
@@ -49,7 +49,7 @@ public class SplitPersonalityKeybinds {
             return;
         if (!WorldModifierComponent.KEY.get(player.level()).isModifier(player, SEModifiers.SPLIT_PERSONALITY))
             return;
-        if(!GameWorldComponent.KEY.get(player.level()).isSkillAvailable){
+        if(!StarGameWorldComponent.KEY.get(player.level()).isSkillAvailable){
             player.displayClientMessage(Component.translatable("hud.stupid_express.split_personality.not_available")
                     .withStyle(ChatFormatting.RED), true);
             return;

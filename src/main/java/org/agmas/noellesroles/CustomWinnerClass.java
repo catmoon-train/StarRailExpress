@@ -4,7 +4,7 @@ import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.roles.thief.ThiefPlayerComponent;
 
 import io.wifi.starrailexpress.api.TMMRoles;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.event.AllowGameEnd;
 import io.wifi.starrailexpress.game.GameFunctions;
 import io.wifi.starrailexpress.game.GameFunctions.WinStatus;
@@ -17,7 +17,7 @@ public class CustomWinnerClass {
                 return WinStatus.NOT_MODIFY;
             }
 
-            var gameComponent = GameWorldComponent.KEY.get(serverLevel);
+            var gameComponent = StarGameWorldComponent.KEY.get(serverLevel);
 
             // 检查是否有小偷存活
             boolean hasThiefAlive = false;

@@ -2,7 +2,7 @@ package io.wifi.starrailexpress.client.gui.screen.ingame;
 
 import com.mojang.blaze3d.platform.Lighting;
 
-import io.wifi.starrailexpress.cca.PlayerNoteComponent;
+import io.wifi.starrailexpress.cca.StarPlayerNoteComponent;
 import io.wifi.starrailexpress.network.original.NoteEditPayload;
 import io.wifi.starrailexpress.SRE;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -45,7 +45,7 @@ public class NoteScreen extends Screen {
                 string -> this.minecraft.font.width(string) <= 90
         );
         if (this.minecraft.player == null) return;
-        PlayerNoteComponent component = PlayerNoteComponent.KEY.get(this.minecraft.player);
+        StarPlayerNoteComponent component = StarPlayerNoteComponent.KEY.get(this.minecraft.player);
         System.arraycopy(component.text, 0, this.text, 0, Math.min(component.text.length, this.text.length));
     }
 
@@ -160,13 +160,13 @@ public class NoteScreen extends Screen {
     private void setCurrentRowMessage(String message) {
         this.text[this.currentRow] = message;
         if (this.minecraft == null || this.minecraft.player == null) return;
-        PlayerNoteComponent.KEY.get(this.minecraft.player).setNote(this.text[0], this.text[1], this.text[2], this.text[3]);
+        StarPlayerNoteComponent.KEY.get(this.minecraft.player).setNote(this.text[0], this.text[1], this.text[2], this.text[3]);
     }
 
     private void resetEditing() {
         if (this.minecraft == null || this.minecraft.player == null) return;
         Arrays.fill(this.text, "");
-        PlayerNoteComponent.KEY.get(this.minecraft.player).setNote(this.text[0], this.text[1], this.text[2], this.text[3]);
+        StarPlayerNoteComponent.KEY.get(this.minecraft.player).setNote(this.text[0], this.text[1], this.text[2], this.text[3]);
     }
 
     private void finishEditing() {

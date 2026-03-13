@@ -4,7 +4,7 @@ import com.mojang.serialization.MapCodec;
 import io.wifi.starrailexpress.api.GameMode;
 import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.block.entity.HornBlockEntity;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameFunctions;
 import io.wifi.starrailexpress.index.TMMBlockEntities;
@@ -72,7 +72,7 @@ public class HornBlock extends BaseEntityBlock {
                     world.playSound(null, mid.x(), mid.y() + 3, mid.z(), TMMSounds.AMBIENT_TRAIN_HORN, SoundSource.AMBIENT, 100.0f, 1.0f);
 
                 // start game
-                if (isOp && !GameWorldComponent.KEY.get(serverWorld).isRunning()) {
+                if (isOp && !StarGameWorldComponent.KEY.get(serverWorld).isRunning()) {
                     GameMode gameMode = SREGameModes.MURDER;
                     GameFunctions.startGame(serverWorld, gameMode, GameConstants.getInTicks(gameMode.defaultStartTime, 0));
                 }

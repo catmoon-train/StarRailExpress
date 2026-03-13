@@ -1,13 +1,13 @@
 package org.agmas.noellesroles.roles.commander;
 
 import org.agmas.noellesroles.commands.BroadcastCommand;
-import org.agmas.noellesroles.component.NoellesRolesAbilityPlayerComponent;
+import org.agmas.noellesroles.component.StarAbilityPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 
 import de.maxhenkel.voicechat.api.VoicechatConnection;
 import de.maxhenkel.voicechat.api.events.MicrophonePacketEvent;
 import io.wifi.starrailexpress.api.Role;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.game.GameFunctions;
 import net.fabricmc.fabric.api.message.v1.ServerMessageEvents;
 import net.minecraft.ChatFormatting;
@@ -26,12 +26,12 @@ public class CommanderHandler {
         return false;
     }
 
-    public static void vcparanoidEvent(GameWorldComponent gameWorldComponent, ServerPlayer player,
+    public static void vcparanoidEvent(StarGameWorldComponent gameWorldComponent, ServerPlayer player,
             MicrophonePacketEvent event) {
         var api = event.getVoicechat();
         if (gameWorldComponent.isRole(player, ModRoles.COMMANDER)) {
             if (GameFunctions.isPlayerAliveAndSurvival(player)) {
-                var napc = NoellesRolesAbilityPlayerComponent.KEY.get(player);
+                var napc = StarAbilityPlayerComponent.KEY.get(player);
                 if (napc.status == 1) { // 给杀手广播
                     event.cancel();
                     player.level().players().forEach((p) -> {
@@ -60,7 +60,7 @@ public class CommanderHandler {
                 return;
             player.server.getPlayerList().getPlayers().forEach(p -> {
                 if (gameWorldComponent.isRole(p, ModRoles.COMMANDER)) {
-                    var napc = NoellesRolesAbilityPlayerComponent.KEY.get(p);
+                    var napc = StarAbilityPlayerComponent.KEY.get(p);
                     if (napc.status == 1) {
                         VoicechatConnection con = api.getConnectionOf(p.getUUID());
                         if (con != null && con.isInstalled() && con.isConnected()) {
@@ -79,12 +79,12 @@ public class CommanderHandler {
     public static void registerChatEvent() {
         // 指挥官说话
         ServerMessageEvents.ALLOW_CHAT_MESSAGE.register((message, serverPlayer, bound) -> {
-            GameWorldComponent gameWorldComponent = GameWorldComponent.KEY.get(serverPlayer.level());
+            StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(serverPlayer.level());
             if (gameWorldComponent.isRole(serverPlayer, ModRoles.COMMANDER)) {
                 if (!GameFunctions.isPlayerAliveAndSurvival(serverPlayer)) {
                     return true;
                 }
-                var napc = NoellesRolesAbilityPlayerComponent.KEY.get(serverPlayer);
+                var napc = StarAbilityPlayerComponent.KEY.get(serverPlayer);
                 if (napc.status == 1) { // 杀手频道
                     var broadcastMessage = Component
                             .translatable("message.commander.broadcast_prefix",
@@ -112,7 +112,7 @@ public class CommanderHandler {
         });
         // 杀手说话
         ServerMessageEvents.ALLOW_CHAT_MESSAGE.register((message, serverPlayer, bound) -> {
-            GameWorldComponent gameWorldComponent = GameWorldComponent.KEY.get(serverPlayer.level());
+            StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(serverPlayer.level());
             if(GameFunctions.isPlayerSpectatingOrCreative(serverPlayer))
                 return true;
             if (gameWorldComponent.isRole(serverPlayer, ModRoles.COMMANDER))
@@ -125,7 +125,7 @@ public class CommanderHandler {
 
             serverPlayer.server.getPlayerList().getPlayers().forEach((p) -> {
                 if (gameWorldComponent.isRole(p, ModRoles.COMMANDER)) {
-                    var napc = NoellesRolesAbilityPlayerComponent.KEY.get(p);
+                    var napc = StarAbilityPlayerComponent.KEY.get(p);
                     if (napc.status == 1) { // 杀手频道
                         var broadcastMessage = Component
                                 .translatable("message.commander.recieve_broadcast_prefix",
@@ -144,7 +144,7 @@ public class CommanderHandler {
     }
 
     public static void tryActiveAbility(ServerPlayer player) {
-        var napc = NoellesRolesAbilityPlayerComponent.KEY.get(player);
+        var napc = StarAbilityPlayerComponent.KEY.get(player);
         if (napc.status == 1) {
             napc.status = -1;
             player.displayClientMessage(Component

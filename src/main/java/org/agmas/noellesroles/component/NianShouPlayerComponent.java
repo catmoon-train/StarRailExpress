@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.component;
 
-import io.wifi.starrailexpress.cca.GameWorldComponent;
-import io.wifi.starrailexpress.cca.WorldBlackoutComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.StarWorldBlackoutComponent;
 import io.wifi.starrailexpress.game.GameFunctions;
 import io.wifi.starrailexpress.index.TMMEntities;
 import io.wifi.starrailexpress.index.TMMItems;
@@ -111,7 +111,7 @@ public class NianShouPlayerComponent implements RoleComponent, ServerTickingComp
         if (!(player instanceof ServerPlayer serverPlayer))
             return;
 
-        GameWorldComponent gameWorld = GameWorldComponent.KEY.get(player.level());
+        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.level());
         if (!gameWorld.isRole(player, ModRoles.NIAN_SHOU))
             return;
         if (!GameFunctions.isPlayerAliveAndSurvival(serverPlayer))
@@ -147,7 +147,7 @@ public class NianShouPlayerComponent implements RoleComponent, ServerTickingComp
         int lightLevel = player.level().getRawBrightness(player.blockPosition(),
                 net.minecraft.world.level.LightLayer.BLOCK.ordinal());
         // Noellesroles.LOGGER.info("LightLevel:" + lightLevel);
-        var blackOut = WorldBlackoutComponent.KEY.maybeGet(player.level()).orElse(null);
+        var blackOut = StarWorldBlackoutComponent.KEY.maybeGet(player.level()).orElse(null);
         if (lightLevel <= 5 || (blackOut != null && blackOut.isBlackoutActive())) {
             if (!inDarkness) {
                 // 刚进入黑暗
@@ -246,13 +246,13 @@ public class NianShouPlayerComponent implements RoleComponent, ServerTickingComp
         // 检查游戏时间是否剩余5分钟（300秒 = 6000 ticks）
         if (player.level() instanceof ServerLevel serverLevel) {
             // 获取游戏剩余时间
-            int remainingTime = io.wifi.starrailexpress.cca.GameTimeComponent.KEY.get(serverLevel).getTime();
+            int remainingTime = io.wifi.starrailexpress.cca.StarGameTimeComponent.KEY.get(serverLevel).getTime();
 
             // 剩余5分钟（300秒 = 6000 ticks）且未播放过
             // 只有在剩余时间刚变为6000 ticks时触发（避免重复触发）
             if (remainingTime == 6000 && !gongXiFaCaiPlaying) {
                 // 检查年兽是否存活
-                GameWorldComponent gameWorld = GameWorldComponent.KEY.get(serverLevel);
+                StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(serverLevel);
                 boolean hasAliveNianShou = false;
                 for (Player p : serverLevel.players()) {
                     if (gameWorld.isRole(p, ModRoles.NIAN_SHOU) && GameFunctions.isPlayerAliveAndSurvival(p)) {
@@ -273,12 +273,12 @@ public class NianShouPlayerComponent implements RoleComponent, ServerTickingComp
                         if (GameFunctions.isPlayerAliveAndSurvival(p)) {
                             if (p instanceof ServerPlayer sp) {
 
-                                io.wifi.starrailexpress.cca.PlayerShopComponent shopComponent = io.wifi.starrailexpress.cca.PlayerShopComponent.KEY
+                                io.wifi.starrailexpress.cca.StarPlayerShopComponent shopComponent = io.wifi.starrailexpress.cca.StarPlayerShopComponent.KEY
                                         .get(p);
                                 shopComponent.addToBalance(100);
 
                                 // 回满san值
-                                io.wifi.starrailexpress.cca.PlayerMoodComponent moodComponent = io.wifi.starrailexpress.cca.PlayerMoodComponent.KEY
+                                io.wifi.starrailexpress.cca.StarPlayerMoodComponent moodComponent = io.wifi.starrailexpress.cca.StarPlayerMoodComponent.KEY
                                         .get(p);
                                 moodComponent.setMood(1f);
 

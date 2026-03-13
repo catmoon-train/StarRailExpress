@@ -2,7 +2,7 @@ package org.agmas.harpymodloader.mixin;
 
 
 import io.wifi.starrailexpress.api.SREGameModes;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.game.GameFunctions;
 import net.minecraft.server.level.ServerLevel;
 import org.agmas.harpymodloader.Harpymodloader;
@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class GameFunctionsMixin {
     @Inject(method = "initializeGame", at = @At("HEAD"))
     private static void a(ServerLevel serverWorld, CallbackInfo ci) {
-        GameWorldComponent gameComponent = (GameWorldComponent)GameWorldComponent.KEY.get(serverWorld);
+        StarGameWorldComponent gameComponent = (StarGameWorldComponent)StarGameWorldComponent.KEY.get(serverWorld);
         if (gameComponent.getGameMode().equals(SREGameModes.MURDER) && !Harpymodloader.wantsToStartVannila) {
             gameComponent.setGameMode(Harpymodloader.MODDED_GAMEMODE);
         }

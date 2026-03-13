@@ -7,9 +7,9 @@ import com.mojang.datafixers.util.Either;
 
 import io.wifi.starrailexpress.api.Role;
 import io.wifi.starrailexpress.cca.BartenderPlayerComponent;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
-import io.wifi.starrailexpress.cca.PlayerMoodComponent;
-import io.wifi.starrailexpress.cca.PlayerPoisonComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.StarPlayerMoodComponent;
+import io.wifi.starrailexpress.cca.StarPlayerPoisonComponent;
 import io.wifi.starrailexpress.compat.CrosshairaddonsCompat;
 import io.wifi.starrailexpress.event.AllowPlayerPunching;
 import io.wifi.starrailexpress.event.IsPlayerPunchable;
@@ -100,7 +100,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements PlayerSt
 		if (SRE.isLobby) {
 			return;
 		}
-		GameWorldComponent gameComponent = GameWorldComponent.KEY.get(this.level());
+		StarGameWorldComponent gameComponent = StarGameWorldComponent.KEY.get(this.level());
 		final var player = (Player) (Object) this;
 		if (GameFunctions.isPlayerAliveAndSurvival(player) && gameComponent != null && gameComponent.isRunning()) {
 			Role role = gameComponent.getRole(player);
@@ -175,16 +175,16 @@ public abstract class PlayerEntityMixin extends LivingEntity implements PlayerSt
 		String poisoner = stack.getOrDefault(SREDataComponentTypes.POISONER, null);
 		String armorer = stack.getOrDefault(SREDataComponentTypes.ARMORER, null);
 		if (poisoner != null) {
-			int poisonTicks = PlayerPoisonComponent.KEY.get(this).poisonTicks;
+			int poisonTicks = StarPlayerPoisonComponent.KEY.get(this).poisonTicks;
 			if (poisonTicks == -1) {
-				PlayerPoisonComponent.KEY.get(this).setPoisonTicks(
-						world.getRandom().nextIntBetweenInclusive(PlayerPoisonComponent.clampTime.getA(),
-								PlayerPoisonComponent.clampTime.getB()),
+				StarPlayerPoisonComponent.KEY.get(this).setPoisonTicks(
+						world.getRandom().nextIntBetweenInclusive(StarPlayerPoisonComponent.clampTime.getA(),
+								StarPlayerPoisonComponent.clampTime.getB()),
 						UUID.fromString(poisoner));
 			} else {
-				PlayerPoisonComponent.KEY.get(this)
+				StarPlayerPoisonComponent.KEY.get(this)
 						.setPoisonTicks(Mth.clamp(poisonTicks - world.getRandom().nextIntBetweenInclusive(100, 300), 0,
-								PlayerPoisonComponent.clampTime.getB()), UUID.fromString(poisoner));
+								StarPlayerPoisonComponent.clampTime.getB()), UUID.fromString(poisoner));
 			}
 			// this.playSound(SoundEvents.WITCH_DRINK, 1f, 1f);
 		}
@@ -239,7 +239,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements PlayerSt
 			return;
 		}
 		if (!(stack.getItem() instanceof CocktailItem)) {
-			PlayerMoodComponent.KEY.get(this).eatFood();
+			StarPlayerMoodComponent.KEY.get(this).eatFood();
 		}
 	}
 

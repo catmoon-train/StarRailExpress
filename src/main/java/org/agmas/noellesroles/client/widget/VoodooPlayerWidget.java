@@ -12,7 +12,7 @@ import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.Level;
-import org.agmas.noellesroles.component.NoellesRolesAbilityPlayerComponent;
+import org.agmas.noellesroles.component.StarAbilityPlayerComponent;
 import org.agmas.noellesroles.packet.MorphC2SPacket;
 import org.agmas.noellesroles.roles.voodoo.VoodooPlayerComponent;
 
@@ -44,7 +44,7 @@ public class VoodooPlayerWidget extends Button {
 
         VoodooPlayerComponent voodooPlayerComponent = (VoodooPlayerComponent) VoodooPlayerComponent.KEY.get(player);
 
-        final var abilityPlayerComponent = NoellesRolesAbilityPlayerComponent.KEY.get(player);
+        final var abilityPlayerComponent = StarAbilityPlayerComponent.KEY.get(player);
         if (abilityPlayerComponent == null)
             return;
         final var target = voodooPlayerComponent.target;

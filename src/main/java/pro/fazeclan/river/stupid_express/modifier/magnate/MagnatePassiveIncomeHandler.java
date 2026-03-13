@@ -1,8 +1,8 @@
 package pro.fazeclan.river.stupid_express.modifier.magnate;
 
 import io.wifi.starrailexpress.api.Role;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
-import io.wifi.starrailexpress.cca.PlayerShopComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -28,7 +28,7 @@ public class MagnatePassiveIncomeHandler {
         }
 
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-            GameWorldComponent gameWorld = GameWorldComponent.KEY.get(player.serverLevel());
+            StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.serverLevel());
             WorldModifierComponent modifierComponent = WorldModifierComponent.KEY.get(player.serverLevel());
 
             // Check if player has magnate modifier
@@ -42,7 +42,7 @@ public class MagnatePassiveIncomeHandler {
                 continue;
             }
 
-            PlayerShopComponent shop = PlayerShopComponent.KEY.get(player);
+            StarPlayerShopComponent shop = StarPlayerShopComponent.KEY.get(player);
             shop.addToBalance(PASSIVE_INCOME_AMOUNT);
             shop.sync();
         }

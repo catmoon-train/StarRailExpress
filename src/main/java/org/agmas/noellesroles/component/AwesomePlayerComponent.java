@@ -9,7 +9,7 @@ import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import io.wifi.starrailexpress.api.RoleComponent;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.event.OnPlayerDeath;
 import io.wifi.starrailexpress.game.GameFunctions;
 
@@ -86,12 +86,12 @@ public class AwesomePlayerComponent implements RoleComponent, ServerTickingCompo
         this.sync();
     }
 
-    public static GameWorldComponent gameWorldComponent = null;
+    public static StarGameWorldComponent gameWorldComponent = null;
 
     @Override
     public boolean shouldSyncWith(ServerPlayer sp) {
         if (gameWorldComponent == null) {
-            gameWorldComponent = GameWorldComponent.KEY.get(sp.level());
+            gameWorldComponent = StarGameWorldComponent.KEY.get(sp.level());
         }
         if (gameWorldComponent.isRole(sp, ModRoles.AWESOME_BINGLUS)) {
             return true;

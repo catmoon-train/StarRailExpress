@@ -1,7 +1,7 @@
 package io.wifi.starrailexpress.mixin.server;
 
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.api.replay.GameReplayManager;
 // import io.wifi.starrailexpress.cca.MapVotingComponent;
 import io.wifi.starrailexpress.network.SyncMapConfigPayload;
@@ -27,7 +27,7 @@ public class DecServerJoinPlayer {
         if (SRE.isLobby)
             return;
         GameReplayManager.playerNames.put(serverPlayer.getUUID(), serverPlayer.getScoreboardName());
-        final var gameWorldComponent = GameWorldComponent.KEY.get(serverPlayer.level());
+        final var gameWorldComponent = StarGameWorldComponent.KEY.get(serverPlayer.level());
 
         // MapVotingComponent mapVotingComponent = MapVotingComponent.KEY.get(serverPlayer.level());
 //        if (mapVotingComponent.isVotingActive()){
@@ -60,7 +60,7 @@ public class DecServerJoinPlayer {
         }
         SyncMapConfigPayload.sendToPlayer(serverPlayer);
         gameWorldComponent.setSyncRole(true);
-        GameWorldComponent.KEY.syncWith(serverPlayer, (ComponentProvider) serverPlayer.level());
+        StarGameWorldComponent.KEY.syncWith(serverPlayer, (ComponentProvider) serverPlayer.level());
         gameWorldComponent.setSyncRole(false);
     }
 }

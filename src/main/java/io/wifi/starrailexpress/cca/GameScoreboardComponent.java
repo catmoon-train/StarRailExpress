@@ -107,8 +107,8 @@ public class GameScoreboardComponent implements CommonTickingComponent {
         if (server == null) return;
 
         // 更新游戏计时器
-        GameWorldComponent gameComponent = GameWorldComponent.KEY.get(world);
-        GameTimeComponent timeComponent = GameTimeComponent.KEY.get(world);
+        StarGameWorldComponent gameComponent = StarGameWorldComponent.KEY.get(world);
+        StarGameTimeComponent timeComponent = StarGameTimeComponent.KEY.get(world);
 
         if (gameComponent.isRunning() && timeComponent != null) {
             // 更新倒计时 (剩余时间)

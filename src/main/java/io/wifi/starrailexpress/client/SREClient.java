@@ -20,9 +20,9 @@ import dev.doctor4t.ratatouille.client.util.ambience.BackgroundAmbience;
 import io.wifi.starrailexpress.api.Role;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.block.SecurityMonitorBlock;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
-import io.wifi.starrailexpress.cca.PlayerMoodComponent;
-import io.wifi.starrailexpress.cca.TrainWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.StarPlayerMoodComponent;
+import io.wifi.starrailexpress.cca.StarTrainWorldComponent;
 import io.wifi.starrailexpress.client.gui.MapDetailsRenderer;
 import io.wifi.starrailexpress.client.gui.RoleAnnouncementTexts;
 import io.wifi.starrailexpress.client.gui.RoundTextRenderer;
@@ -124,9 +124,9 @@ public class SREClient implements ClientModInitializer {
     public static HPManager handParticleManager;
     public static Map<Player, Vec3> particleMap;
     private static boolean prevGameRunning;
-    public static GameWorldComponent gameComponent;
-    public static TrainWorldComponent trainComponent;
-    public static PlayerMoodComponent moodComponent;
+    public static StarGameWorldComponent gameComponent;
+    public static StarTrainWorldComponent trainComponent;
+    public static StarPlayerMoodComponent moodComponent;
     public static int intervalTime = 0;
     public static boolean isInLobby = false;
     public static final Map<UUID, PlayerInfo> PLAYER_ENTRIES_CACHE = new HashMap<>();
@@ -261,9 +261,9 @@ public class SREClient implements ClientModInitializer {
 
         // Caching components
         ClientTickEvents.START_WORLD_TICK.register(clientWorld -> {
-            gameComponent = GameWorldComponent.KEY.get(clientWorld);
-            trainComponent = TrainWorldComponent.KEY.get(clientWorld);
-            moodComponent = PlayerMoodComponent.KEY.get(Minecraft.getInstance().player);
+            gameComponent = StarGameWorldComponent.KEY.get(clientWorld);
+            trainComponent = StarTrainWorldComponent.KEY.get(clientWorld);
+            moodComponent = StarPlayerMoodComponent.KEY.get(Minecraft.getInstance().player);
         });
 
         // Lock options
@@ -337,7 +337,7 @@ public class SREClient implements ClientModInitializer {
             prevGameRunning = gameComponent.isRunning();
 
             // Fade sound with game start / stop fade
-            GameWorldComponent component = GameWorldComponent.KEY.get(clientWorld);
+            StarGameWorldComponent component = StarGameWorldComponent.KEY.get(clientWorld);
             if (component.getFade() > 0) {
                 Minecraft.getInstance().getSoundManager().updateSourceVolume(SoundSource.MASTER,
                         Mth.map(component.getFade(), 0, GameConstants.FADE_TIME, soundLevel, 0));
@@ -577,7 +577,7 @@ public class SREClient implements ClientModInitializer {
         });
     }
 
-    public static TrainWorldComponent getTrainComponent() {
+    public static StarTrainWorldComponent getTrainComponent() {
         return trainComponent;
     }
 
@@ -651,7 +651,7 @@ public class SREClient implements ClientModInitializer {
         if (!isInstinctEnabled()) {
             return -1;
         }
-        GameWorldComponent gameWorldComponent = (GameWorldComponent) GameWorldComponent.KEY
+        StarGameWorldComponent gameWorldComponent = (StarGameWorldComponent) StarGameWorldComponent.KEY
                 .get(Minecraft.getInstance().player.level());
         // if (target instanceof PlayerBodyEntity) return 0x606060;
         if (target instanceof ItemEntity || target instanceof NoteEntity || target instanceof FirecrackerEntity)

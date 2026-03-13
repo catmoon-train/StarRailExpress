@@ -1,7 +1,7 @@
 package io.wifi.starrailexpress.client.gui;
 
 import io.wifi.starrailexpress.api.TMMRoles;
-import io.wifi.starrailexpress.cca.GameRoundEndComponent;
+import io.wifi.starrailexpress.cca.StarGameRoundEndComponent;
 import io.wifi.starrailexpress.game.GameFunctions;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -100,7 +100,7 @@ public class RoleAnnouncementTexts {
         }
 
         public @Nullable Component getEndText(GameFunctions.@NotNull WinStatus status, Component winner,
-                GameRoundEndComponent roundEnd) {
+                StarGameRoundEndComponent roundEnd) {
             return switch (status) {
                 case NONE -> null;
                 case PASSENGERS, TIME -> this.id.getPath().equals("killer") ? this.getLoseText() : this.winText;

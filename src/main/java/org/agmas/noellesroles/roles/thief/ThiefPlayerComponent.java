@@ -2,8 +2,8 @@ package org.agmas.noellesroles.roles.thief;
 
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
-import io.wifi.starrailexpress.cca.PlayerShopComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
 import io.wifi.starrailexpress.game.GameFunctions;
 import net.minecraft.ChatFormatting;
 import org.agmas.noellesroles.utils.RoleUtils;
@@ -185,7 +185,7 @@ public class ThiefPlayerComponent implements RoleComponent, ServerTickingCompone
         if (!(player instanceof ServerPlayer serverPlayer)) {
             return false;
         }
-        var gameWorldComponent = GameWorldComponent.KEY.get(player.level());
+        var gameWorldComponent = StarGameWorldComponent.KEY.get(player.level());
         if (!gameWorldComponent.isSkillAvailable) {
             return false;
         }
@@ -194,7 +194,7 @@ public class ThiefPlayerComponent implements RoleComponent, ServerTickingCompone
             return false;
         }
 
-        GameWorldComponent gameWorld = GameWorldComponent.KEY.get(player.level());
+        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.level());
 
         // 检查角色
         if (!gameWorld.isRole(player, ModRoles.THIEF)) {
@@ -240,7 +240,7 @@ public class ThiefPlayerComponent implements RoleComponent, ServerTickingCompone
         }
 
         // 获取目标金钱
-        PlayerShopComponent targetShop = PlayerShopComponent.KEY.get(target);
+        StarPlayerShopComponent targetShop = StarPlayerShopComponent.KEY.get(target);
         int targetBalance = targetShop.balance;
 
         // 检查目标金币是否足够
@@ -257,7 +257,7 @@ public class ThiefPlayerComponent implements RoleComponent, ServerTickingCompone
         targetShop.balance -= STEAL_MONEY_AMOUNT;
         targetShop.sync();
 
-        PlayerShopComponent thiefShop = PlayerShopComponent.KEY.get(player);
+        StarPlayerShopComponent thiefShop = StarPlayerShopComponent.KEY.get(player);
         thiefShop.balance += STEAL_MONEY_AMOUNT;
         thiefShop.sync();
 
@@ -311,7 +311,7 @@ public class ThiefPlayerComponent implements RoleComponent, ServerTickingCompone
         }
 
         // 统计可偷取物品数量
-        var gameWorldComponent = GameWorldComponent.KEY.get(target.level());
+        var gameWorldComponent = StarGameWorldComponent.KEY.get(target.level());
 
         ArrayList<StolenableItemInfo> arr = new ArrayList<>();
         for (int i = 0; i < target.getInventory().items.size(); i++) {
@@ -409,7 +409,7 @@ public class ThiefPlayerComponent implements RoleComponent, ServerTickingCompone
      * 判断物品是否可以被偷取
      * 只允许偷取指定的武器和道具
      */
-    private boolean canStealItem(ItemStack stack, Player target, GameWorldComponent gameWorldComponent) {
+    private boolean canStealItem(ItemStack stack, Player target, StarGameWorldComponent gameWorldComponent) {
         if (stack.isEmpty())
             return false;
 
@@ -545,7 +545,7 @@ public class ThiefPlayerComponent implements RoleComponent, ServerTickingCompone
         }
 
         // 检查物品是否可以出售（使用与偷物品相同的逻辑）
-        GameWorldComponent gameWorld = GameWorldComponent.KEY.get(player.level());
+        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.level());
         if (!canSellItem(heldItem, gameWorld)) {
             serverPlayer.displayClientMessage(
                     Component.translatable("message.noellesroles.thief.cannot_sell_item")
@@ -558,7 +558,7 @@ public class ThiefPlayerComponent implements RoleComponent, ServerTickingCompone
         player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, ItemStack.EMPTY);
 
         // 给予50金币
-        PlayerShopComponent thiefShop = PlayerShopComponent.KEY.get(player);
+        StarPlayerShopComponent thiefShop = StarPlayerShopComponent.KEY.get(player);
         thiefShop.balance += 50;
         thiefShop.sync();
 
@@ -578,7 +578,7 @@ public class ThiefPlayerComponent implements RoleComponent, ServerTickingCompone
      * 判断物品是否可以出售
      * 只允许出售可偷取的物品（不检查目标阵营）
      */
-    private boolean canSellItem(ItemStack stack, GameWorldComponent gameWorldComponent) {
+    private boolean canSellItem(ItemStack stack, StarGameWorldComponent gameWorldComponent) {
         if (stack.isEmpty())
             return false;
 
@@ -722,13 +722,13 @@ public class ThiefPlayerComponent implements RoleComponent, ServerTickingCompone
             return;
         }
 
-        GameWorldComponent gameWorld = GameWorldComponent.KEY.get(player.level());
+        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.level());
         if (!gameWorld.isRole(player, ModRoles.THIEF)) {
             return;
         }
 
         // 给予200金币
-        PlayerShopComponent thiefShop = PlayerShopComponent.KEY.get(player);
+        StarPlayerShopComponent thiefShop = StarPlayerShopComponent.KEY.get(player);
         thiefShop.balance += 200;
         thiefShop.sync();
 
@@ -744,7 +744,7 @@ public class ThiefPlayerComponent implements RoleComponent, ServerTickingCompone
      * 手持小偷的荣誉（金锭）回房间睡觉则胜利
      */
     public static boolean checkThiefVictory(ServerLevel serverLevel) {
-        GameWorldComponent gameWorld = GameWorldComponent.KEY.get(serverLevel);
+        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(serverLevel);
 
         // 检查是否有小偷存活
         boolean hasThiefAlive = false;
@@ -791,10 +791,10 @@ public class ThiefPlayerComponent implements RoleComponent, ServerTickingCompone
     @Override
     public void serverTick() {
         // 减少冷却
-        var gwc = GameWorldComponent.KEY.get(player.level());
+        var gwc = StarGameWorldComponent.KEY.get(player.level());
         if (!gwc.isRole(player, ModRoles.THIEF))
             return;
-        var psc = PlayerShopComponent.KEY.get(player);
+        var psc = StarPlayerShopComponent.KEY.get(player);
         if (player.level().getGameTime() % 20 == 0) {
             if (psc.balance >= this.honorCost) {
                 if (RoleUtils.insertStackInFreeSlot(player, Items.GOLD_INGOT.getDefaultInstance())) {

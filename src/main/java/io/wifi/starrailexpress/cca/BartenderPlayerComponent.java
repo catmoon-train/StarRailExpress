@@ -34,7 +34,7 @@ public class BartenderPlayerComponent implements RoleComponent, ServerTickingCom
     public HashMap<Integer, Integer> glowTicks = new HashMap<>();
 
     public static ArrayList<String> canSyncedRolePaths = new ArrayList<>();
-    private static GameWorldComponent gameWorldComponent = null;
+    private static StarGameWorldComponent gameWorldComponent = null;
 
     public int getArmor() {
         return armor;
@@ -68,7 +68,7 @@ public class BartenderPlayerComponent implements RoleComponent, ServerTickingCom
         if (player == this.player)
             return true;
         if (gameWorldComponent == null) {
-            gameWorldComponent = GameWorldComponent.KEY.get(this.player.level());
+            gameWorldComponent = StarGameWorldComponent.KEY.get(this.player.level());
         }
         if (gameWorldComponent != null) {
             var role = gameWorldComponent.getRole(player);
@@ -91,7 +91,7 @@ public class BartenderPlayerComponent implements RoleComponent, ServerTickingCom
     public BartenderPlayerComponent(Player player) {
         this.player = player;
         if (gameWorldComponent == null) {
-            gameWorldComponent = GameWorldComponent.KEY.get(this.player.level());
+            gameWorldComponent = StarGameWorldComponent.KEY.get(this.player.level());
         }
     }
 

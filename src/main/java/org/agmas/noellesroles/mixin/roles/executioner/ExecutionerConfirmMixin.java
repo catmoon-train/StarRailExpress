@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.mixin.roles.executioner;
 
-import io.wifi.starrailexpress.cca.GameWorldComponent;
-import io.wifi.starrailexpress.cca.PlayerShopComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
 import io.wifi.starrailexpress.game.GameFunctions;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.roles.executioner.ExecutionerPlayerComponent;
@@ -22,7 +22,7 @@ public class ExecutionerConfirmMixin {
         final var world = victim.level();
         if (world == null)
             return;
-        GameWorldComponent gameWorldComponent = GameWorldComponent.KEY.get(world);
+        StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(world);
         if (gameWorldComponent == null)
             return;
 
@@ -35,7 +35,7 @@ public class ExecutionerConfirmMixin {
             // if (gameWorldComponent.getRole(killer).canUseKiller()) invalidKill = true;
             // }
             ExecutionerPlayerComponent executionerPlayerComponent = ExecutionerPlayerComponent.KEY.get(executioner);
-            PlayerShopComponent playerShopComponent = (PlayerShopComponent) PlayerShopComponent.KEY.get(executioner);
+            StarPlayerShopComponent playerShopComponent = (StarPlayerShopComponent) StarPlayerShopComponent.KEY.get(executioner);
             if (executionerPlayerComponent.target != null
                     && executionerPlayerComponent.target.equals(victim.getUUID())) {
                 executionerPlayerComponent.assignRandomTarget();

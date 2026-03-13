@@ -2,7 +2,7 @@ package org.agmas.noellesroles.mixin.client.roles.magician;
 
 import io.wifi.starrailexpress.api.Role;
 import io.wifi.starrailexpress.api.TMMRoles;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -40,7 +40,7 @@ public abstract class MagicianDisguiseHudMixin {
             return;
         }
 
-        GameWorldComponent gameWorld = GameWorldComponent.KEY.get(client.level);
+        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(client.level);
         Role magicianRole = TMMRoles.ROLES.get(ModRoles.MAGICIAN_ID);
         if (magicianRole == null) {
             // 魔术师角色未注册

@@ -9,7 +9,7 @@ import org.agmas.noellesroles.role.ModRoles;
 import io.wifi.starrailexpress.block.SmallDoorBlock;
 import io.wifi.starrailexpress.block_entity.DoorBlockEntity;
 import io.wifi.starrailexpress.block_entity.SmallDoorBlockEntity;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.util.AdventureUsable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -49,7 +49,7 @@ public class ScrewdriverItem extends Item implements AdventureUsable {
         if (player == null)
             return InteractionResult.PASS;
 
-        GameWorldComponent gameWorld = GameWorldComponent.KEY.get(world);
+        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(world);
         boolean isEngineer = gameWorld.isRole(player, ModRoles.ENGINEER);
         boolean isLockSmith = gameWorld.isRole(player, ModRoles.LOCKSMITH);
         // 检查是否为门方块

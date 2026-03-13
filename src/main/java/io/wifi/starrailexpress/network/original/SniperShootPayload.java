@@ -1,6 +1,6 @@
 package io.wifi.starrailexpress.network.original;
 
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameFunctions;
 import io.wifi.starrailexpress.index.TMMItems;
@@ -87,7 +87,7 @@ public record SniperShootPayload(Action action, int targetOrShooterId) implement
                     // 处理目标命中
                     if (player.serverLevel().getEntity(payload.targetOrShooterId()) instanceof Player target
                             && target.distanceTo(player) < 200.0) {
-                        var game = GameWorldComponent.KEY.get(player.level());
+                        var game = StarGameWorldComponent.KEY.get(player.level());
 
                         // 检查角色权限
                         final var role = game.getRole(player);

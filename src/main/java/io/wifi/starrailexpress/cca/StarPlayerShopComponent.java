@@ -25,13 +25,13 @@ import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
 import java.util.List;
 
-public class PlayerShopComponent implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
-    public static final ComponentKey<PlayerShopComponent> KEY = ComponentRegistry.getOrCreate(SRE.id("shop"),
-            PlayerShopComponent.class);
+public class StarPlayerShopComponent implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
+    public static final ComponentKey<StarPlayerShopComponent> KEY = ComponentRegistry.getOrCreate(SRE.id("shop"),
+            StarPlayerShopComponent.class);
     private final Player player;
     public int balance = 0;
 
-    public PlayerShopComponent(Player player) {
+    public StarPlayerShopComponent(Player player) {
         this.player = player;
     }
 
@@ -106,7 +106,7 @@ public class PlayerShopComponent implements RoleComponent, ServerTickingComponen
     }
 
     private @NotNull List<ShopEntry> getShopEntries() {
-        final var gameWorldComponent = GameWorldComponent.KEY.get(player.level());
+        final var gameWorldComponent = StarGameWorldComponent.KEY.get(player.level());
         final var role = gameWorldComponent.getRole(player);
         if (gameWorldComponent != null && role != null && isPlayerAliveAndSurvival(player)) {
             final var shopEntries = ShopContent.getShopEntries(
@@ -134,7 +134,7 @@ public class PlayerShopComponent implements RoleComponent, ServerTickingComponen
     public static boolean useBlackout(@NotNull Player player) {
         player.getCooldowns().addCooldown(TMMItems.BLACKOUT,
                 GameConstants.ITEM_COOLDOWNS.getOrDefault(TMMItems.BLACKOUT, 0));
-        boolean triggered = WorldBlackoutComponent.KEY.get(player.level()).triggerBlackout();
+        boolean triggered = StarWorldBlackoutComponent.KEY.get(player.level()).triggerBlackout();
         if (triggered) {
             SRE.REPLAY_MANAGER.recordSkillUsed(player.getUUID(), BuiltInRegistries.ITEM.getKey(TMMItems.BLACKOUT));
         }
@@ -144,7 +144,7 @@ public class PlayerShopComponent implements RoleComponent, ServerTickingComponen
     public static boolean usePsychoMode(@NotNull Player player) {
         player.getCooldowns().addCooldown(TMMItems.PSYCHO_MODE,
                 GameConstants.ITEM_COOLDOWNS.getOrDefault(TMMItems.PSYCHO_MODE, 0));
-        boolean started = PlayerPsychoComponent.KEY.get(player).startPsycho();
+        boolean started = StarPlayerPsychoComponent.KEY.get(player).startPsycho();
         if (started) {
             SRE.REPLAY_MANAGER.recordSkillUsed(player.getUUID(), BuiltInRegistries.ITEM.getKey(TMMItems.PSYCHO_MODE));
         }

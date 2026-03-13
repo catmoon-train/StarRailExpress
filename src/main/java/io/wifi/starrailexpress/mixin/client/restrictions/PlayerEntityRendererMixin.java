@@ -4,7 +4,7 @@ import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import io.wifi.starrailexpress.cca.PlayerPsychoComponent;
+import io.wifi.starrailexpress.cca.StarPlayerPsychoComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.SRE;
 import net.minecraft.client.Minecraft;
@@ -33,7 +33,7 @@ public class PlayerEntityRendererMixin {
     @Inject(method = "getTextureLocation(Lnet/minecraft/client/player/AbstractClientPlayer;)Lnet/minecraft/resources/ResourceLocation;", at = @At("HEAD"), cancellable = true)
     private void tmm$psychoSkinTexture(
             AbstractClientPlayer abstractClientPlayerEntity, CallbackInfoReturnable<ResourceLocation> cir) {
-        if (PlayerPsychoComponent.KEY.get(abstractClientPlayerEntity).getPsychoTicks() > 0) {
+        if (StarPlayerPsychoComponent.KEY.get(abstractClientPlayerEntity).getPsychoTicks() > 0) {
             PlayerSkin.Model model = abstractClientPlayerEntity.getSkin().model();
             String suffix = (model == PlayerSkin.Model.SLIM) ? "_thin" : "";
             ResourceLocation texture = SRE.id("textures/entity/psycho" + suffix + ".png");
@@ -44,7 +44,7 @@ public class PlayerEntityRendererMixin {
 
     @ModifyVariable(method = "renderHand", at = @At("STORE"), ordinal = 0)
     private ResourceLocation tmm$psychoArmTexture(ResourceLocation skinTexture) {
-        if (PlayerPsychoComponent.KEY.get(Minecraft.getInstance().player).getPsychoTicks() > 0) {
+        if (StarPlayerPsychoComponent.KEY.get(Minecraft.getInstance().player).getPsychoTicks() > 0) {
             PlayerSkin.Model model = Minecraft.getInstance().player.getSkin().model();
             String suffix = model == PlayerSkin.Model.SLIM ? "_thin" : "";
             return SRE.id("textures/entity/psycho" + suffix + ".png");

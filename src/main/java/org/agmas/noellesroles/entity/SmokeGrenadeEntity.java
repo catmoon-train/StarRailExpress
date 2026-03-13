@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.entity;
 
 
-import io.wifi.starrailexpress.cca.PlayerMoodComponent;
+import io.wifi.starrailexpress.cca.StarPlayerMoodComponent;
 import io.wifi.starrailexpress.game.GameFunctions;
 import org.agmas.noellesroles.init.ModItems;
 
@@ -131,7 +131,7 @@ public class SmokeGrenadeEntity extends ThrowableItemProjectile {
         );
         
         for (ServerPlayer player : players) {
-            PlayerMoodComponent moodComponent = PlayerMoodComponent.KEY.get(player);
+            StarPlayerMoodComponent moodComponent = StarPlayerMoodComponent.KEY.get(player);
             // 设置san值为0（疯狂状态）
             moodComponent.setMood(0.25f);
             moodComponent.sync();

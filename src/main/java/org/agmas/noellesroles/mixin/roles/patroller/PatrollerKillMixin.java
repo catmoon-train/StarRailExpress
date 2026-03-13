@@ -1,6 +1,6 @@
 package org.agmas.noellesroles.mixin.roles.patroller;
 
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.game.GameFunctions;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
@@ -35,7 +35,7 @@ public class PatrollerKillMixin {
         if (victim == null || victim.level().isClientSide())
             return;
 
-        GameWorldComponent gameWorld = GameWorldComponent.KEY.get(victim.level());
+        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(victim.level());
         WorldModifierComponent modifierComponent = WorldModifierComponent.KEY.get(victim.level());
         if (gameWorld == null || !gameWorld.isRunning())
             return;

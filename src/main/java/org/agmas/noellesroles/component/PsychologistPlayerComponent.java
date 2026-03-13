@@ -1,12 +1,15 @@
 package org.agmas.noellesroles.component;
 
 import org.agmas.noellesroles.role.ModRoles;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
-import io.wifi.starrailexpress.cca.PlayerMoodComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.StarPlayerMoodComponent;
+import io.wifi.starrailexpress.cca.StarPlayerPsychoComponent;
 import io.wifi.starrailexpress.game.GameFunctions;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import io.wifi.starrailexpress.api.RoleComponent;
+
+import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
 import java.util.UUID;
@@ -28,10 +31,11 @@ import net.minecraft.world.phys.Vec3;
  * - 对方不动，超过10秒可以把对方san回复满
  * - 3分钟冷却
  */
-public class PsychologistPlayerComponent implements RoleComponent, ServerTickingComponent {
+public class PsychologistPlayerComponent implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
 
     /** 组件键 - 用于从玩家获取此组件 */
     public static final ComponentKey<PsychologistPlayerComponent> KEY = ModComponents.PSYCHOLOGIST;
+
     @Override
     public Player getPlayer() {
         return player;
@@ -113,7 +117,7 @@ public class PsychologistPlayerComponent implements RoleComponent, ServerTicking
             return false;
 
         // 检查自己的san是否满（使用阈值比较，因为san值是0.0-1.0的浮点数）
-        PlayerMoodComponent selfMood = PlayerMoodComponent.KEY.get(player);
+        StarPlayerMoodComponent selfMood = StarPlayerMoodComponent.KEY.get(player);
         float currentSan = selfMood.getMood();
         return currentSan >= SANITY_THRESHOLD;
     }
@@ -137,7 +141,7 @@ public class PsychologistPlayerComponent implements RoleComponent, ServerTicking
         }
 
         // 验证是心理学家
-        GameWorldComponent gameWorld = GameWorldComponent.KEY.get(player.level());
+        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.level());
         if (!gameWorld.isRole(player, ModRoles.PSYCHOLOGIST)) {
             return false;
         }
@@ -177,6 +181,13 @@ public class PsychologistPlayerComponent implements RoleComponent, ServerTicking
         if (target instanceof ServerPlayer serverTarget) {
             serverTarget.displayClientMessage(Component.translatable("message.noellesroles.psychologist.being_healed",
                     player.getName().getString()).withStyle(ChatFormatting.GREEN), true);
+            StarPlayerPsychoComponent ppc = StarPlayerPsychoComponent.KEY.get(serverTarget);
+            if (ppc.psychoTicks > 0) {
+                this.cooldown = 60 * 20;
+                ppc.stopPsycho();
+                this.completeHealing(serverTarget);
+                return true;
+            }
         }
 
         this.sync();
@@ -207,7 +218,7 @@ public class PsychologistPlayerComponent implements RoleComponent, ServerTicking
      */
     private void completeHealing(Player target) {
         // 恢复目标的san值到满（san值范围是0.0-1.0）
-        PlayerMoodComponent targetMood = PlayerMoodComponent.KEY.get(target);
+        StarPlayerMoodComponent targetMood = StarPlayerMoodComponent.KEY.get(target);
         targetMood.setMood(FULL_SANITY); // 1.0f 表示满san
         targetMood.sync();
 
@@ -276,7 +287,7 @@ public class PsychologistPlayerComponent implements RoleComponent, ServerTicking
             // 客户端通过isHealing或cooldown判断
             return isHealing || cooldown > 0;
         }
-        GameWorldComponent gameWorld = GameWorldComponent.KEY.get(player.level());
+        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.level());
         return gameWorld.isRole(player, ModRoles.PSYCHOLOGIST);
     }
 
@@ -285,7 +296,7 @@ public class PsychologistPlayerComponent implements RoleComponent, ServerTicking
     @Override
     public void serverTick() {
         // 验证是心理学家
-        GameWorldComponent gameWorld = GameWorldComponent.KEY.get(player.level());
+        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.level());
         if (!gameWorld.isRole(player, ModRoles.PSYCHOLOGIST)) {
             return;
         }
@@ -294,7 +305,7 @@ public class PsychologistPlayerComponent implements RoleComponent, ServerTicking
         if (this.cooldown > 0) {
             this.cooldown--;
             // 每秒同步一次
-            if (this.cooldown % 20 == 0 || this.cooldown == 0) {
+            if (this.cooldown % 200 == 0 || this.cooldown == 0) {
                 this.sync();
             }
         }
@@ -366,6 +377,13 @@ public class PsychologistPlayerComponent implements RoleComponent, ServerTicking
         this.healingTargetName = tag.contains("healingTargetName") ? tag.getString("healingTargetName") : "";
         if (tag.hasUUID("healingTarget")) {
             this.healingTarget = tag.getUUID("healingTarget");
+        }
+    }
+
+    @Override
+    public void clientTick() {
+        if (this.cooldown > 1) {
+            this.cooldown--;
         }
     }
 }

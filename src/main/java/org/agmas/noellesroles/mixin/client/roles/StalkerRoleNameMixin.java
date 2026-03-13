@@ -3,7 +3,7 @@ package org.agmas.noellesroles.mixin.client.roles;
 import org.agmas.noellesroles.component.AdmirerPlayerComponent;
 import org.agmas.noellesroles.component.StalkerPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.RoleNameRenderer;
 import net.minecraft.ChatFormatting;
@@ -42,7 +42,7 @@ public class StalkerRoleNameMixin {
         Minecraft client = Minecraft.getInstance();
         if (client.player == null || client.level == null)
             return;
-        GameWorldComponent gameWorld = GameWorldComponent.KEY.get(client.player.level());
+        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(client.player.level());
 
         // 只有旁观者或创作模式能看到详细信息
         if (!SREClient.isPlayerSpectatingOrCreative())

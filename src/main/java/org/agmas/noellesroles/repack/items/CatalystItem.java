@@ -1,6 +1,6 @@
 package org.agmas.noellesroles.repack.items;
 
-import io.wifi.starrailexpress.cca.PlayerPoisonComponent;
+import io.wifi.starrailexpress.cca.StarPlayerPoisonComponent;
 import io.wifi.starrailexpress.game.GameFunctions;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -30,7 +30,7 @@ public class CatalystItem extends Item {
             // 遍历所有玩家
             for (Player target : level.players()) {
                 if (GameFunctions.isPlayerAliveAndSurvival(target)) {
-                    PlayerPoisonComponent poisonComponent = PlayerPoisonComponent.KEY.get(target);
+                    StarPlayerPoisonComponent poisonComponent = StarPlayerPoisonComponent.KEY.get(target);
                     // 如果玩家中毒
                     if (((PlayerPoisonComponentAccessor) poisonComponent).getPoisonTicks() > 0) {
                         // 立即杀死玩家

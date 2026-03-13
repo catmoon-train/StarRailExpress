@@ -1,6 +1,6 @@
 package org.agmas.noellesroles.mixin.client.roles;
 
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.game.GameFunctions;
 import net.minecraft.client.Minecraft;
 import net.minecraft.ChatFormatting;
@@ -34,7 +34,7 @@ public abstract class MonitorHudMixin {
         if (client.player.isSpectator())
             return;
 
-        GameWorldComponent gameWorld = GameWorldComponent.KEY.get(client.level);
+        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(client.level);
         if (!gameWorld.isRole(client.player, ModRoles.MONITOR))
             return;
         if (!GameFunctions.isPlayerAliveAndSurvival(client.player))

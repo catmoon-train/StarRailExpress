@@ -2,8 +2,8 @@ package org.agmas.noellesroles.mixin.client.roles.coroner;
 
 import io.wifi.starrailexpress.api.Role;
 import io.wifi.starrailexpress.api.TMMRoles;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
-import io.wifi.starrailexpress.cca.PlayerMoodComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.StarPlayerMoodComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.RoleNameRenderer;
 import io.wifi.starrailexpress.entity.PlayerBodyEntity;
@@ -28,7 +28,7 @@ import pro.fazeclan.river.stupid_express.modifier.split_personality.cca.SplitPer
 
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.client.NoellesrolesClient;
-import org.agmas.noellesroles.component.NoellesRolesAbilityPlayerComponent;
+import org.agmas.noellesroles.component.StarAbilityPlayerComponent;
 import org.agmas.noellesroles.component.InsaneKillerPlayerComponent;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.role.ModRoles;
@@ -51,7 +51,7 @@ public abstract class CoronerHudMixin {
     @Inject(method = "renderHud", at = @At("TAIL"))
     private static void coronerRoleNameRenderer(Font renderer, LocalPlayer player, GuiGraphics context,
             DeltaTracker tickCounter, CallbackInfo ci) {
-        GameWorldComponent gameWorldComponent = (GameWorldComponent) GameWorldComponent.KEY.get(player.level());
+        StarGameWorldComponent gameWorldComponent = (StarGameWorldComponent) StarGameWorldComponent.KEY.get(player.level());
 
         if (NoellesrolesClient.targetFakeBody != null) {
             if (gameWorldComponent.isRole(Minecraft.getInstance().player, ModRoles.CORONER)
@@ -74,7 +74,7 @@ public abstract class CoronerHudMixin {
                         }
                     }
                 }
-                PlayerMoodComponent moodComponent = (PlayerMoodComponent) PlayerMoodComponent.KEY
+                StarPlayerMoodComponent moodComponent = (StarPlayerMoodComponent) StarPlayerMoodComponent.KEY
                         .get(Minecraft.getInstance().player);
                 if (moodComponent.isLowerThanMid() && SREClient.isPlayerAliveAndInSurvival()) {
                     Component name = Component.translatable("hud.coroner.sanity_requirements");
@@ -126,7 +126,7 @@ public abstract class CoronerHudMixin {
                 context.pose().translate((float) context.guiWidth() / 2.0F, (float) context.guiHeight() / 2.0F + 6.0F,
                         0.0F);
                 context.pose().scale(0.6F, 0.6F, 1.0F);
-                PlayerMoodComponent moodComponent = (PlayerMoodComponent) PlayerMoodComponent.KEY
+                StarPlayerMoodComponent moodComponent = (StarPlayerMoodComponent) StarPlayerMoodComponent.KEY
                         .get(Minecraft.getInstance().player);
                 if (moodComponent.isLowerThanMid() && SREClient.isPlayerAliveAndInSurvival()) {
                     // Text name = Text.literal("50% sanity required to use ability");
@@ -195,7 +195,7 @@ public abstract class CoronerHudMixin {
                                 .withColor(ModRoles.VULTURE.color());
                         context.drawString(renderer, roleInfo, -renderer.width(roleInfo) / 2, 48, CommonColors.WHITE);
                     } else {
-                        NoellesRolesAbilityPlayerComponent abilityPlayerComponent = NoellesRolesAbilityPlayerComponent.KEY
+                        StarAbilityPlayerComponent abilityPlayerComponent = StarAbilityPlayerComponent.KEY
                                 .get(player);
                         if (abilityPlayerComponent.cooldown <= 0 && SREClient.isPlayerAliveAndInSurvival()) {
                             Component roleInfo = Component

@@ -4,7 +4,7 @@ import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.role.ModRoles;
 
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 
 import io.wifi.starrailexpress.event.OnPlayerDeathWithKiller;
 import io.wifi.starrailexpress.game.GameFunctions;
@@ -14,7 +14,7 @@ public class VoodooDeathHandler {
     public static void registerEvents() {
         OnPlayerDeathWithKiller.EVENT.register((victim, killer, deathReason) -> {
             if (NoellesRolesConfig.HANDLER.instance().voodooNonKillerDeaths || killer != null) {
-                GameWorldComponent gameWorldComponent = (GameWorldComponent) GameWorldComponent.KEY.get(victim.level());
+                StarGameWorldComponent gameWorldComponent = (StarGameWorldComponent) StarGameWorldComponent.KEY.get(victim.level());
                 if (gameWorldComponent.isRole(victim, ModRoles.VOODOO)) {
                     VoodooPlayerComponent voodooPlayerComponent = (VoodooPlayerComponent) VoodooPlayerComponent.KEY
                             .get(victim);

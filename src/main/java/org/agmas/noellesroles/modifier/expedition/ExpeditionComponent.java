@@ -2,7 +2,7 @@ package org.agmas.noellesroles.modifier.expedition;
 
 import io.wifi.starrailexpress.api.Role;
 import io.wifi.starrailexpress.api.RoleComponent;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.game.GameFunctions;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -80,7 +80,7 @@ public class ExpeditionComponent implements RoleComponent, ServerTickingComponen
         if (player.level().isClientSide())
             return 0;
 
-        GameWorldComponent gameWorld = GameWorldComponent.KEY.get(player.level());
+        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.level());
         ServerLevel serverWorld = (ServerLevel) player.level();
 
         int count = 0;
@@ -120,7 +120,7 @@ public class ExpeditionComponent implements RoleComponent, ServerTickingComponen
             return;
 
         // 切换角色为红海军
-        GameWorldComponent gameWorld = GameWorldComponent.KEY.get(player.level());
+        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.level());
         if (!gameWorld.isRole(player, ModRoles.GHOST)) { // 确保不是小透明
             RoleUtils.changeRole(player, ModRoles.BETTER_VIGILANTE);
 
@@ -162,7 +162,7 @@ public class ExpeditionComponent implements RoleComponent, ServerTickingComponen
      */
     private boolean isGoodFaction() {
         try {
-            GameWorldComponent gameWorld = GameWorldComponent.KEY.get(player.level());
+            StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.level());
             Role role = gameWorld.getRole(player);
             return role != null && role.isInnocent() && !role.canUseKiller() && !role.isNeutrals();
         } catch (Exception e) {
@@ -197,7 +197,7 @@ public class ExpeditionComponent implements RoleComponent, ServerTickingComponen
         if (!isGoodFaction())
             return;
 
-        GameWorldComponent gameWorld = GameWorldComponent.KEY.get(player.level());
+        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.level());
 
         // 只有游戏进行中才检测
         if (!gameWorld.isRunning())

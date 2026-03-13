@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.component;
 
 import io.wifi.starrailexpress.api.RoleComponent;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.game.GameFunctions;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -54,7 +54,7 @@ public class PatrollerPlayerComponent implements RoleComponent, ServerTickingCom
     }
 
     public void onNearbyDeath() {
-        var gameWorldComponent = GameWorldComponent.KEY.get(player.level());
+        var gameWorldComponent = StarGameWorldComponent.KEY.get(player.level());
         if (!gameWorldComponent.isSkillAvailable) {
             // player.displayClientMessage(
             //         Component.translatable("message.tip.skill_disabled").withStyle(ChatFormatting.RED), true);

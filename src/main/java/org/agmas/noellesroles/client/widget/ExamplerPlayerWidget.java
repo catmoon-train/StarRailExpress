@@ -1,6 +1,6 @@
 package org.agmas.noellesroles.client.widget;
 
-import io.wifi.starrailexpress.cca.PlayerShopComponent;
+import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
 import io.wifi.starrailexpress.util.ShopEntry;
@@ -16,7 +16,7 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.GameType;
-import org.agmas.noellesroles.component.NoellesRolesAbilityPlayerComponent;
+import org.agmas.noellesroles.component.StarAbilityPlayerComponent;
 import org.agmas.noellesroles.packet.AbilityWithTargetC2SPacket;
 import java.awt.*;
 
@@ -34,8 +34,8 @@ public class ExamplerPlayerWidget extends Button {
     public ExamplerPlayerWidget(LimitedInventoryScreen screen, int x, int y, PlayerInfo target) {
         super(x, y, 16, 16, Component.nullToEmpty(target.getProfile().getName()), (a) -> {
             AbstractClientPlayer player = Minecraft.getInstance().player;
-            if (player != null && (NoellesRolesAbilityPlayerComponent.KEY.get(player)).cooldown <= 0
-                    && (PlayerShopComponent.KEY.get(player)).balance >= 50) {
+            if (player != null && (StarAbilityPlayerComponent.KEY.get(player)).cooldown <= 0
+                    && (StarPlayerShopComponent.KEY.get(player)).balance >= 50) {
                 ClientPlayNetworking.send(new AbilityWithTargetC2SPacket(target.getProfile().getId()));
             }
         }, DEFAULT_NARRATION);
@@ -57,8 +57,8 @@ public class ExamplerPlayerWidget extends Button {
         if (player == null)
             return;
 
-        NoellesRolesAbilityPlayerComponent component = NoellesRolesAbilityPlayerComponent.KEY.get(player);
-        PlayerShopComponent shopComponent = PlayerShopComponent.KEY.get(player);
+        StarAbilityPlayerComponent component = StarAbilityPlayerComponent.KEY.get(player);
+        StarPlayerShopComponent shopComponent = StarPlayerShopComponent.KEY.get(player);
 
         if (component.cooldown <= 0 && shopComponent.balance >= 50) {
             super.renderWidget(context, mouseX, mouseY, delta);

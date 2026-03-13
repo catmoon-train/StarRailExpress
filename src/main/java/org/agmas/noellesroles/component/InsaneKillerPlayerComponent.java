@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.component;
 
-import io.wifi.starrailexpress.cca.GameWorldComponent;
-import io.wifi.starrailexpress.cca.PlayerShopComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
 import io.wifi.starrailexpress.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.event.AfterShieldAllowPlayerDeath;
 import io.wifi.starrailexpress.game.GameFunctions;
@@ -85,7 +85,7 @@ public class InsaneKillerPlayerComponent
     public static void registerEvent() {
 
         AfterShieldAllowPlayerDeath.EVENT.register(((playerEntity, identifier) -> {
-            var gameWorldComponent = GameWorldComponent.KEY.get(playerEntity.level());
+            var gameWorldComponent = StarGameWorldComponent.KEY.get(playerEntity.level());
             if (gameWorldComponent.isRole(playerEntity,
                     ModRoles.THE_INSANE_DAMNED_PARANOID_KILLER_OF_DOOM_DEATH_DESTRUCTION_AND_WAFFLES)) {
                 if (!gameWorldComponent.isSkillAvailable) {
@@ -139,7 +139,7 @@ public class InsaneKillerPlayerComponent
             serverPlayer.playNotifySound(SoundEvents.BEACON_ACTIVATE, SoundSource.PLAYERS, 1.0f, 1.0f);
         }
 
-        PlayerShopComponent.KEY.get(player).addToBalance(100);
+        StarPlayerShopComponent.KEY.get(player).addToBalance(100);
         player.removeEffect(MobEffects.MOVEMENT_SLOWDOWN);
         sync();
     }
@@ -225,7 +225,7 @@ public class InsaneKillerPlayerComponent
 
     @Override
     public void serverTick() {
-        if (!GameWorldComponent.KEY.get(player.level()).isRole(player,
+        if (!StarGameWorldComponent.KEY.get(player.level()).isRole(player,
                 ModRoles.THE_INSANE_DAMNED_PARANOID_KILLER_OF_DOOM_DEATH_DESTRUCTION_AND_WAFFLES))
             return;
         if (cooldown > 0) {

@@ -2,11 +2,11 @@ package org.agmas.noellesroles.game;
 
 import io.wifi.starrailexpress.api.GameMode;
 import io.wifi.starrailexpress.api.TMMRoles;
-import io.wifi.starrailexpress.cca.GameRoundEndComponent;
-import io.wifi.starrailexpress.cca.GameTimeComponent;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameRoundEndComponent;
+import io.wifi.starrailexpress.cca.StarGameTimeComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.cca.PlayerAFKComponent;
-import io.wifi.starrailexpress.cca.TrainWorldComponent;
+import io.wifi.starrailexpress.cca.StarTrainWorldComponent;
 import io.wifi.starrailexpress.game.GameFunctions;
 import io.wifi.starrailexpress.game.ServerTaskInfoClasses;
 import net.fabricmc.loader.impl.util.log.Log;
@@ -53,7 +53,7 @@ public class ChairWheelRaceGame extends GameMode {
     public List<ServerPlayer> isWin = new ArrayList<>();
 
     @Override
-    public void tickServerGameLoop(ServerLevel serverLevel, GameWorldComponent gameWorldComponent) {
+    public void tickServerGameLoop(ServerLevel serverLevel, StarGameWorldComponent gameWorldComponent) {
         // 倒计时逻辑
         if (serverLevel.getGameTime() % 60 == 0) {
             for (ServerPlayer player : serverLevel.players()) {
@@ -103,7 +103,7 @@ public class ChairWheelRaceGame extends GameMode {
             }
         });
 
-        if (!((GameTimeComponent) GameTimeComponent.KEY.get(serverLevel)).hasTime()
+        if (!((StarGameTimeComponent) StarGameTimeComponent.KEY.get(serverLevel)).hasTime()
                 || isWin.size() >= serverLevel.getPlayers(GameFunctions::isPlayerAliveAndSurvival).size()) {
             endGame(serverLevel, gameWorldComponent);
         }
@@ -111,8 +111,8 @@ public class ChairWheelRaceGame extends GameMode {
 
     int gamePrepareTime = 0;
 
-    public void endGame(ServerLevel serverLevel, GameWorldComponent gameWorldComponent) {
-        var roundComponent = GameRoundEndComponent.KEY.get(serverLevel);
+    public void endGame(ServerLevel serverLevel, StarGameWorldComponent gameWorldComponent) {
+        var roundComponent = StarGameRoundEndComponent.KEY.get(serverLevel);
         roundComponent.CustomWinnerID = "chiar_wheel_race";
         // roundComponent
         var player = isWin.isEmpty() ? null : isWin.getFirst();
@@ -126,11 +126,11 @@ public class ChairWheelRaceGame extends GameMode {
     }
 
     @Override
-    public void initializeGame(ServerLevel serverLevel, GameWorldComponent gameWorldComponent,
+    public void initializeGame(ServerLevel serverLevel, StarGameWorldComponent gameWorldComponent,
             List<ServerPlayer> list) {
         GameInitializeEvent.EVENT.invoker().initializeGame(serverLevel, gameWorldComponent, list);
-        ((TrainWorldComponent) TrainWorldComponent.KEY.get(serverLevel))
-                .setTimeOfDay(TrainWorldComponent.TimeOfDay.DAY);
+        ((StarTrainWorldComponent) StarTrainWorldComponent.KEY.get(serverLevel))
+                .setTimeOfDay(StarTrainWorldComponent.TimeOfDay.DAY);
         isWin.clear();
         gamePrepareTime = 20 * 10;
         executeFunction(serverLevel.getServer().createCommandSourceStack(), "harpymodloader:chair_wheel_race/init");

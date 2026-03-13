@@ -41,18 +41,18 @@ import io.wifi.starrailexpress.block_entity.SprinklerBlockEntity;
 import io.wifi.starrailexpress.block_entity.TrimmedBedBlockEntity;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.BartenderPlayerComponent;
-import io.wifi.starrailexpress.cca.GameRoundEndComponent;
+import io.wifi.starrailexpress.cca.StarGameRoundEndComponent;
 import io.wifi.starrailexpress.cca.GameScoreboardComponent;
-import io.wifi.starrailexpress.cca.GameTimeComponent;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
-import io.wifi.starrailexpress.cca.PlayerMoodComponent;
-import io.wifi.starrailexpress.cca.PlayerNoteComponent;
-import io.wifi.starrailexpress.cca.PlayerPoisonComponent;
-import io.wifi.starrailexpress.cca.PlayerPsychoComponent;
-import io.wifi.starrailexpress.cca.PlayerShopComponent;
+import io.wifi.starrailexpress.cca.StarGameTimeComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.StarPlayerMoodComponent;
+import io.wifi.starrailexpress.cca.StarPlayerNoteComponent;
+import io.wifi.starrailexpress.cca.StarPlayerPoisonComponent;
+import io.wifi.starrailexpress.cca.StarPlayerPsychoComponent;
+import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
 import io.wifi.starrailexpress.cca.PlayerStatsComponent;
-import io.wifi.starrailexpress.cca.TrainWorldComponent;
-import io.wifi.starrailexpress.cca.WorldBlackoutComponent;
+import io.wifi.starrailexpress.cca.StarTrainWorldComponent;
+import io.wifi.starrailexpress.cca.StarWorldBlackoutComponent;
 import io.wifi.starrailexpress.compat.TrainVoicePlugin;
 import io.wifi.starrailexpress.entity.FirecrackerEntity;
 import io.wifi.starrailexpress.entity.NoteEntity;
@@ -200,7 +200,7 @@ public class GameFunctions {
     public static void startGame(ServerLevel world, GameMode gameMode, int time) {
         if (SRE.isLobby || isStartingGame)
             return;
-        if (GameWorldComponent.KEY.get(world).isRunning()) {
+        if (StarGameWorldComponent.KEY.get(world).isRunning()) {
             return;
         }
         isStartingGame = true;
@@ -263,15 +263,15 @@ public class GameFunctions {
         for (ServerPlayer player : world.players()) {
             ServerPlayNetworking.send(player, new CloseUiPayload());
         }
-        GameWorldComponent game = GameWorldComponent.KEY.get(world);
+        StarGameWorldComponent game = StarGameWorldComponent.KEY.get(world);
         AreasWorldComponent areas = AreasWorldComponent.KEY.get(world);
         int playerCount = Math.toIntExact(world.players().stream()
                 .filter(serverPlayerEntity -> (areas.getReadyArea().contains(serverPlayerEntity.position()))).count());
         game.setGameMode(gameMode);
-        GameTimeComponent.KEY.get(world).setResetTime(time);
+        StarGameTimeComponent.KEY.get(world).setResetTime(time);
 
         if (playerCount >= gameMode.minPlayerCount) {
-            game.setGameStatus(GameWorldComponent.GameStatus.STARTING);
+            game.setGameStatus(StarGameWorldComponent.GameStatus.STARTING);
 
             // 初始化计分板组件
             GameScoreboardComponent scoreboardComponent = GameScoreboardComponent.KEY
@@ -288,9 +288,9 @@ public class GameFunctions {
     }
 
     public static void stopGame(ServerLevel world) {
-        GameWorldComponent component = GameWorldComponent.KEY.get(world);
+        StarGameWorldComponent component = StarGameWorldComponent.KEY.get(world);
         component.ticksUntilNextResetAttempt = 0;
-        component.setGameStatus(GameWorldComponent.GameStatus.STOPPING);
+        component.setGameStatus(StarGameWorldComponent.GameStatus.STOPPING);
     }
 
     private static void executeFunction(CommandSourceStack source, String function) {
@@ -304,7 +304,7 @@ public class GameFunctions {
     public static void initializeGame(ServerLevel serverWorld) {
         isStartingGame = false;
 
-        GameWorldComponent gameComponent = GameWorldComponent.KEY.get(serverWorld);
+        StarGameWorldComponent gameComponent = StarGameWorldComponent.KEY.get(serverWorld);
         gameComponent.isSkillAvailable = true;
         // AreasWorldComponent areasWorldComponent =
         // AreasWorldComponent.KEY.get(serverWorld);
@@ -331,7 +331,7 @@ public class GameFunctions {
         SRE.REPLAY_MANAGER.updateRolesFromComponent(gameComponent);
 
         // Set game status to ACTIVE after roles are assigned
-        gameComponent.setGameStatus(GameWorldComponent.GameStatus.ACTIVE);
+        gameComponent.setGameStatus(StarGameWorldComponent.GameStatus.ACTIVE);
 
         gameComponent.sync();
 
@@ -427,16 +427,16 @@ public class GameFunctions {
     // public static Map<TaskPointType, List<BlockPos>> taskPoints = new
     // HashMap<>();
 
-    private static void baseInitialize(ServerLevel serverWorld, GameWorldComponent gameComponent,
+    private static void baseInitialize(ServerLevel serverWorld, StarGameWorldComponent gameComponent,
             List<ServerPlayer> players) {
         if (SRE.isLobby)
             return;
         AreasWorldComponent areas = AreasWorldComponent.KEY.get(serverWorld);
         startTime = System.currentTimeMillis();
 
-        TrainWorldComponent.KEY.get(serverWorld).reset();
-        WorldBlackoutComponent.KEY.get(serverWorld).reset();
-        serverWorld.setDayTime(TrainWorldComponent.TimeOfDay.SUNDOWN.time);
+        StarTrainWorldComponent.KEY.get(serverWorld).reset();
+        StarWorldBlackoutComponent.KEY.get(serverWorld).reset();
+        serverWorld.setDayTime(StarTrainWorldComponent.TimeOfDay.SUNDOWN.time);
         serverWorld.getGameRules().getRule(GameRules.RULE_KEEPINVENTORY).set(true, serverWorld.getServer());
         serverWorld.getGameRules().getRule(GameRules.RULE_WEATHER_CYCLE).set(false, serverWorld.getServer());
         // serverWorld.getGameRules().getRule(GameRules.RULE_DAYLIGHT).set(false,
@@ -470,12 +470,12 @@ public class GameFunctions {
         // clear items, clear previous game data
         for (ServerPlayer serverPlayerEntity : players) {
             serverPlayerEntity.getInventory().clearContent();
-            PlayerMoodComponent.KEY.get(serverPlayerEntity).reset();
-            PlayerShopComponent.KEY.get(serverPlayerEntity).reset();
-            PlayerPoisonComponent.KEY.get(serverPlayerEntity).reset();
-            PlayerPsychoComponent.KEY.get(serverPlayerEntity).reset();
-            PlayerNoteComponent.KEY.get(serverPlayerEntity).reset();
-            PlayerShopComponent.KEY.get(serverPlayerEntity).reset();
+            StarPlayerMoodComponent.KEY.get(serverPlayerEntity).reset();
+            StarPlayerShopComponent.KEY.get(serverPlayerEntity).reset();
+            StarPlayerPoisonComponent.KEY.get(serverPlayerEntity).reset();
+            StarPlayerPsychoComponent.KEY.get(serverPlayerEntity).reset();
+            StarPlayerNoteComponent.KEY.get(serverPlayerEntity).reset();
+            StarPlayerShopComponent.KEY.get(serverPlayerEntity).reset();
             if (!isVoiceChatMissing()) {
                 TrainVoicePlugin.resetPlayer(serverPlayerEntity.getUUID());
             }
@@ -486,7 +486,7 @@ public class GameFunctions {
                 serverPlayerEntity.getCooldowns().removeCooldown(item);
         }
         gameComponent.clearRoleMap(true);
-        GameTimeComponent.KEY.get(serverWorld).reset();
+        StarGameTimeComponent.KEY.get(serverWorld).reset();
 
         // reset train 已经提前重置
         // gameComponent.queueTrainReset();
@@ -582,9 +582,9 @@ public class GameFunctions {
         serverTaskQueue.clear();
         serverAsynTaskLists.clear();
         isStartingGame = false;
-        GameRoundEndComponent roundEnd = GameRoundEndComponent.KEY.get(world);
+        StarGameRoundEndComponent roundEnd = StarGameRoundEndComponent.KEY.get(world);
         RoleMethodDispatcher.onEndGame(world);
-        GameWorldComponent gameComponent = GameWorldComponent.KEY.get(world);
+        StarGameWorldComponent gameComponent = StarGameWorldComponent.KEY.get(world);
         // var areasWorldComponent = AreasWorldComponent.KEY.get(world);
         gameComponent.isSkillAvailable = false;
 
@@ -626,7 +626,7 @@ public class GameFunctions {
                     }
                     break;
                 case KILLERS:
-                    if (GameWorldComponent.isKillerTeamRoleStatic(playerRole) && !playerRole.isInnocent()) {
+                    if (StarGameWorldComponent.isKillerTeamRoleStatic(playerRole) && !playerRole.isInnocent()) {
                         // String roleidentifier = playerRole.identifier().getPath();
                         // 魔术师不算胜利
                         isWinner = true;
@@ -720,11 +720,11 @@ public class GameFunctions {
             SRE.REPLAY_MANAGER.showReplayToPlayer(player);
         }
 
-        WorldBlackoutComponent.KEY.get(world).reset();
-        TrainWorldComponent trainComponent = TrainWorldComponent.KEY.get(world);
+        StarWorldBlackoutComponent.KEY.get(world).reset();
+        StarTrainWorldComponent trainComponent = StarTrainWorldComponent.KEY.get(world);
         trainComponent.setSpeed(0);
 
-        trainComponent.setTimeOfDay(TrainWorldComponent.TimeOfDay.NOON);
+        trainComponent.setTimeOfDay(StarTrainWorldComponent.TimeOfDay.NOON);
 
         resetEntities(world);
 
@@ -736,9 +736,9 @@ public class GameFunctions {
         // reset game component
         roundEnd.CustomWinnerPlayers.clear();
 
-        GameTimeComponent.KEY.get(world).reset();
+        StarGameTimeComponent.KEY.get(world).reset();
         gameComponent.clearRoleMap();
-        gameComponent.setGameStatus(GameWorldComponent.GameStatus.INACTIVE);
+        gameComponent.setGameStatus(StarGameWorldComponent.GameStatus.INACTIVE);
         trainComponent.setTime(0);
         gameComponent.sync();
 
@@ -751,11 +751,11 @@ public class GameFunctions {
 
     public static void resetPlayer(ServerPlayer player) {
         TMMItemUtils.clearItem(player, (item) -> true, -1);
-        PlayerMoodComponent.KEY.get(player).reset();
-        PlayerShopComponent.KEY.get(player).reset();
-        PlayerPoisonComponent.KEY.get(player).reset();
-        PlayerPsychoComponent.KEY.get(player).reset();
-        PlayerNoteComponent.KEY.get(player).reset();
+        StarPlayerMoodComponent.KEY.get(player).reset();
+        StarPlayerShopComponent.KEY.get(player).reset();
+        StarPlayerPoisonComponent.KEY.get(player).reset();
+        StarPlayerPsychoComponent.KEY.get(player).reset();
+        StarPlayerNoteComponent.KEY.get(player).reset();
         BartenderPlayerComponent.KEY.get(player).reset();
         if (!isVoiceChatMissing()) {
             TrainVoicePlugin.resetPlayer(player.getUUID());
@@ -794,7 +794,7 @@ public class GameFunctions {
         else
             killer = _killer;
         _killer = killer;
-        PlayerPsychoComponent component = PlayerPsychoComponent.KEY.get(victim);
+        StarPlayerPsychoComponent component = StarPlayerPsychoComponent.KEY.get(victim);
         if (killer != null && killer instanceof ServerPlayer serverPlayer) {
             final var triggerScreenEdgeEffectPayload = new TriggerScreenEdgeEffectPayload(Color.WHITE.getRGB(), 600,
                     0.6f);
@@ -810,7 +810,7 @@ public class GameFunctions {
         }
 
         // Check if victim has a role assigned - if not, skip role-dependent logic
-        GameWorldComponent gameWorldComponent = GameWorldComponent.KEY.get(victim.level());
+        StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(victim.level());
         if (gameWorldComponent.getRole(victim) == null) {
             // Player doesn't have a role (game not started or joined mid-game), don't kill
             // them
@@ -986,7 +986,7 @@ public class GameFunctions {
                 serverPlayerEntity.setGameMode(net.minecraft.world.level.GameType.SPECTATOR);
                 OnPlayerDeath.EVENT.invoker().onPlayerDeath(victim, deathReason);
                 OnPlayerDeathWithKiller.EVENT.invoker().onPlayerDeath(victim, killer, deathReason);
-                PlayerPoisonComponent poisonComponent = PlayerPoisonComponent.KEY.maybeGet(serverPlayerEntity)
+                StarPlayerPoisonComponent poisonComponent = StarPlayerPoisonComponent.KEY.maybeGet(serverPlayerEntity)
                         .orElse(null);
                 BartenderPlayerComponent bartenderPlayerComponent = BartenderPlayerComponent.KEY
                         .maybeGet(serverPlayerEntity)
@@ -1014,10 +1014,10 @@ public class GameFunctions {
             }
 
             // 杀手击杀获得金钱奖励
-            if (killer != null && GameWorldComponent.KEY.get(killer.level()).canUseKillerFeatures(killer)) {
+            if (killer != null && StarGameWorldComponent.KEY.get(killer.level()).canUseKillerFeatures(killer)) {
                 int gift = OnGiveKillerBalance.EVENT.invoker().onGiveKillerBalance(victim, killer, deathReason);
                 gift += GameConstants.getMoneyPerKill();
-                PlayerShopComponent.KEY.get(killer).addToBalance(gift);
+                StarPlayerShopComponent.KEY.get(killer).addToBalance(gift);
             }
             if (killer != null) {
                 inventory_label: for (List<ItemStack> list : killer.getInventory().compartments) {
@@ -1031,7 +1031,7 @@ public class GameFunctions {
                 }
             }
 
-            PlayerMoodComponent.KEY.get(victim).reset();
+            StarPlayerMoodComponent.KEY.get(victim).reset();
 
             for (List<ItemStack> list : victim.getInventory().compartments) {
                 for (int i = 0; i < list.size(); i++) {
@@ -1044,7 +1044,7 @@ public class GameFunctions {
             }
 
             if (gameWorldComponent.isInnocent(victim)) {
-                final var gameTimeComponent = GameTimeComponent.KEY.get(victim.level());
+                final var gameTimeComponent = StarGameTimeComponent.KEY.get(victim.level());
 
                 if (gameTimeComponent != null) {
                     {
@@ -1104,7 +1104,7 @@ public class GameFunctions {
     public static boolean tryResetTrain(ServerLevel serverWorld) {
         if (SRE.isLobby)
             return false;
-        if (!GameWorldComponent.KEY.get(serverWorld).isRunning())
+        if (!StarGameWorldComponent.KEY.get(serverWorld).isRunning())
             return false;
         if (SREConfig.enableAutoTrainReset) {
             return tryAutoTrainReset(serverWorld);

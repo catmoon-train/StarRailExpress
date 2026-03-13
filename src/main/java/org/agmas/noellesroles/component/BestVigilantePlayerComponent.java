@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.component;
 
 import io.wifi.starrailexpress.api.RoleComponent;
-import io.wifi.starrailexpress.cca.GameWorldComponent;
+import io.wifi.starrailexpress.cca.StarGameWorldComponent;
 import io.wifi.starrailexpress.game.GameFunctions;
 import io.wifi.starrailexpress.index.TMMItems;
 import net.minecraft.core.HolderLookup;
@@ -69,7 +69,7 @@ public class BestVigilantePlayerComponent implements RoleComponent, ServerTickin
      * 检查是否是活跃的更好的义警
      */
     public boolean isActiveBestVigilante() {
-        GameWorldComponent gameWorld = GameWorldComponent.KEY.get(player.level());
+        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.level());
         return gameWorld.isRole(player, ModRoles.BEST_VIGILANTE);
     }
 
@@ -111,7 +111,7 @@ public class BestVigilantePlayerComponent implements RoleComponent, ServerTickin
             return;
 
         // 在游戏开始时给予手榴弹
-        GameWorldComponent gameWorld = GameWorldComponent.KEY.get(player.level());
+        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.level());
         if (gameWorld.isRunning() && !givenGrenade) {
             giveStartingGrenade();
         }

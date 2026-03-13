@@ -29,14 +29,14 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
-public class WorldBlackoutComponent implements ServerTickingComponent {
-    public static final ComponentKey<WorldBlackoutComponent> KEY = ComponentRegistry.getOrCreate(SRE.id("blackout"),
-            WorldBlackoutComponent.class);
+public class StarWorldBlackoutComponent implements ServerTickingComponent {
+    public static final ComponentKey<StarWorldBlackoutComponent> KEY = ComponentRegistry.getOrCreate(SRE.id("blackout"),
+            StarWorldBlackoutComponent.class);
     private final Level world;
     public final List<BlackoutDetails> blackouts = new ArrayList<>();
     public int blackOutRemainingTicks = 0;
 
-    public WorldBlackoutComponent(Level world) {
+    public StarWorldBlackoutComponent(Level world) {
         this.world = world;
     }
 
@@ -91,7 +91,7 @@ public class WorldBlackoutComponent implements ServerTickingComponent {
         if (this.world instanceof ServerLevel serverWorld) {
             for (ServerPlayer player : serverWorld.players()) {
                 if (GameFunctions.isPlayerAliveAndSurvival(player)) {
-                    final var role = GameWorldComponent.KEY.get(world).getRole(player);
+                    final var role = StarGameWorldComponent.KEY.get(world).getRole(player);
                     if (role != null) {
                         if ((!role.canUseKiller())) {
                             player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 200, 0, false, false, false));
