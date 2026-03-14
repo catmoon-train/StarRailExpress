@@ -160,7 +160,7 @@ public class RoleShopHandler {
     initShops();
     ShopContent.register();
     {
-      // 马晨絮商店
+      // 布袋鬼商店
       var MA_CHEN_XU_SHOP = new ArrayList<ShopEntry>();
       // 刀 - 130金币
       MA_CHEN_XU_SHOP.add(new ShopEntry(
