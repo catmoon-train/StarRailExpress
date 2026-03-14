@@ -41,13 +41,14 @@ public class RoleAssignmentManager {
      * @param tryLevel       尝试匹配等级。0：完全相同，1：忽略中立阵营，2：包含平民，3：包括所有
      * @return
      */
-    public static boolean tryRemoveARole(SRERole companion, List<RoleInstant> expandedRoles, List<SRERole> companionRoles,
+    public static boolean tryRemoveARole(SRERole companion, List<RoleInstant> expandedRoles,
+            List<SRERole> companionRoles,
             List<SRERole> companedRoles, int tryLevel) {
         final boolean[] isRemoved = { false };
 
         expandedRoles.removeIf(ro -> {
-            var r = ro.role();
             if (!isRemoved[0]) {
+                var r = ro.role();
                 boolean conditionMet = false;
                 if (tryLevel == 0) {
                     conditionMet = (PlayerRoleWeightManager
@@ -97,10 +98,7 @@ public class RoleAssignmentManager {
             SRERole companion = getCompanionRole(role.role());
             if (companion != null) {
                 companedRoles.add(role.role());
-                int removeCount = role.role().getOccupiedRoleCount();
-                if (removeCount < 0)
-                    removeCount = 0;
-                for (int i = 0; i < removeCount; i++) {
+                {
                     if (!tryRemoveARole(companion, expandedRoles, companionRoles, companedRoles, 0)) {
                         if (!tryRemoveARole(companion, expandedRoles, companionRoles, companedRoles, 1)) {
                             if (!tryRemoveARole(companion, expandedRoles, companionRoles, companedRoles, 2)) {
@@ -118,7 +116,8 @@ public class RoleAssignmentManager {
         }
 
         expandedRoles.addAll(
-                companionRoles.stream().map(r -> new StarRailMurderGameMode.RoleInstant(UUID.randomUUID(), r)).toList());
+                companionRoles.stream().map(r -> new StarRailMurderGameMode.RoleInstant(UUID.randomUUID(), r))
+                        .toList());
         return expandedRoles;
     }
 

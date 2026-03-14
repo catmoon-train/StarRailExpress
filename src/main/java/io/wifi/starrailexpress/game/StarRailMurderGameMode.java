@@ -97,7 +97,7 @@ public class StarRailMurderGameMode extends GameMode {
             List<ServerPlayer> players) {
         // 新的模块化角色分配流程
         Map<Player, SRERole> roleAssignments = assignRolesToPlayers(serverWorld, players);
-        OnGamePlayerRolesConfirm.EVENT.invoker().beforeAssignRole(roleAssignments);
+        OnGamePlayerRolesConfirm.EVENT.invoker().beforeAssignRole(serverWorld, roleAssignments);
         // 计算有特殊角色的玩家数量（用于AnnounceWelcomePayload）
         long killCount = roleAssignments.values().stream()
                 .filter(role -> role != null && role != TMMRoles.CIVILIAN && role.canUseKiller())
@@ -475,8 +475,10 @@ public class StarRailMurderGameMode extends GameMode {
             }
         }
 
+
         RoleWeightedUtil roleSelector = new RoleWeightedUtil(hashMap);
         // 分配展开后的角色给未分配的玩家
+
         Collections.shuffle(unassignedPlayers);
         while (unassignedPlayers.size() > 0 && roleSelector.size() > 0) {
             RoleInstant roleInstant = roleSelector.selectRandomKeyBasedOnWeightsAndRemoved();

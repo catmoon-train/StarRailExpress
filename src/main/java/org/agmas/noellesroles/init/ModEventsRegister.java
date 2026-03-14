@@ -13,6 +13,7 @@ import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
 import org.agmas.harpymodloader.events.ModdedRoleAssigned;
 import org.agmas.harpymodloader.events.ModdedRoleRemoved;
+import org.agmas.harpymodloader.events.OnGamePlayerRolesConfirm;
 import org.agmas.noellesroles.*;
 import org.agmas.noellesroles.commands.BroadcastCommand;
 import org.agmas.noellesroles.component.AvengerPlayerComponent;
@@ -122,7 +123,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemCooldowns;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.GameRules;
 import pro.fazeclan.river.stupid_express.constants.SEItems;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 import pro.fazeclan.river.stupid_express.constants.SERoles;
@@ -1274,6 +1274,41 @@ public class ModEventsRegister {
             }
             return true;
         });
+        OnGamePlayerRolesConfirm.EVENT.register((serverLevel, roleAssignments) -> {
+            String currentMap = "unknown";
+            if (serverLevel.getServer() != null) {
+                var areas = io.wifi.starrailexpress.cca.AreasWorldComponent.KEY.get(serverLevel);
+                if (areas != null && areas.mapName != null) {
+                    currentMap = areas.mapName;
+                }
+            }
+            {
+                boolean isMachenxuMap = false;
+                String[] machenxuMap = NoellesRolesConfig.HANDLER.instance().maChenXuMaps.split(Pattern.quote("|"));
+                if (machenxuMap != null && machenxuMap.length > 0) {
+                    isMachenxuMap = Arrays.asList(machenxuMap).contains(currentMap);
+                }
+                if (isMachenxuMap) {
+                    boolean hasMachenXu = false;
+                    var canChangeRolePlayers = new ArrayList<Player>();
+                    for (var entry : roleAssignments.entrySet()) {
+                        if (RoleUtils.compareRole(entry.getValue(), ModRoles.MA_CHEN_XU)) {
+                            hasMachenXu = true;
+                            break;
+                        } else {
+                            if (entry.getValue().canUseKiller()) {
+                                canChangeRolePlayers.add(entry.getKey());
+                            }
+                        }
+                    }
+                    if (!hasMachenXu && !canChangeRolePlayers.isEmpty()) {
+                        Collections.shuffle(canChangeRolePlayers);
+                        roleAssignments.put(canChangeRolePlayers.getFirst(), ModRoles.MA_CHEN_XU);
+                    }
+
+                }
+            }
+        });
 
         OnGameTrueStarted.EVENT.register((serverLevel) -> {
             HoanMeirinFistPunchHandler.PUNCH_RECORDS.clear();
@@ -1289,12 +1324,7 @@ public class ModEventsRegister {
             SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(serverLevel);
             WorldModifierComponent worldModifierComponent = WorldModifierComponent.KEY.get(serverLevel);
             boolean hasDio = serverLevel.players().stream().anyMatch(p -> gameWorldComponent.isRole(p, ModRoles.DIO));
-            boolean[] hasMaChenXu = { false };
             serverLevel.players().forEach(p -> {
-                if (gameWorldComponent.isRole(p, ModRoles.MA_CHEN_XU)) {
-                    hasMaChenXu[0] = true;
-                }
-
                 if (worldModifierComponent.isModifier(p, NRModifiers.EXPEDITION)) {
                     SRERole role = gameWorldComponent.getRole(p);
                     var expeditionComponent = ExpeditionComponent.KEY.get(p);
@@ -1378,35 +1408,6 @@ public class ModEventsRegister {
                                     .translatable("message.noellesroles.nianshou.firecrackers_distributed")
                                     .withStyle(net.minecraft.ChatFormatting.GOLD),
                             true);
-                }
-            }
-            String currentMap = "unknown";
-            if (serverLevel.getServer() != null) {
-                var areas = io.wifi.starrailexpress.cca.AreasWorldComponent.KEY.get(serverLevel);
-                if (areas != null && areas.mapName != null) {
-                    currentMap = areas.mapName;
-                }
-            }
-            {
-                boolean isMachenxuMap = false;
-                String[] machenxuMap = NoellesRolesConfig.HANDLER.instance().maChenXuMaps.split(Pattern.quote("|"));
-                if (machenxuMap != null && machenxuMap.length > 0) {
-                    isMachenxuMap = Arrays.asList(machenxuMap).contains(currentMap);
-                }
-                if (isMachenxuMap) {
-                    if (!hasMaChenXu[0]) {
-                        var players = serverLevel.players();
-                        players.removeIf(p -> !gameWorldComponent.canUseKillerFeatures(p));
-                        Collections.shuffle(players);
-                        if (players.size() > 0) {
-                            var p = players.getFirst();
-                            RoleUtils.changeRole(p, ModRoles.MA_CHEN_XU);
-                            hasMaChenXu[0] = true;
-                        }
-                    }
-                }
-                if (hasMaChenXu[0]) {
-                    serverLevel.getGameRules().getRule(GameRules.RULE_WEATHER_CYCLE).set(true, serverLevel.getServer());
                 }
             }
         });
