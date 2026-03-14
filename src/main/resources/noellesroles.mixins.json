@@ -7,7 +7,6 @@
   "mixins": [
     "AbstractContainerMenuMixin",
     "DecServerJoinPlayer",
-    "EntityClear",
     "EntityMixinForInvisible",
     "MagicianKillerCountMixin",
     "MagicianPlayerEntityMixin",

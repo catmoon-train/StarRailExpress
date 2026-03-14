@@ -18,7 +18,10 @@ import java.util.function.UnaryOperator;
 
 import io.wifi.starrailexpress.api.replay.GameReplayData;
 import net.exmo.ssr.nametag.NameTagInventoryComponent;
+
+import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.packet.NameTagSyncPayload;
+import org.agmas.noellesroles.utils.EntityClearUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -456,14 +459,14 @@ public class GameUtils {
         Map<UUID, String> nameTagMap = new HashMap<>();
         for (ServerPlayer player : serverWorld.players()) {
             NameTagInventoryComponent nameTagInventoryComponent = NameTagInventoryComponent.KEY.get(player);
-            if (!nameTagInventoryComponent.CurrentNameTag.isEmpty()){
+            if (!nameTagInventoryComponent.CurrentNameTag.isEmpty()) {
                 nameTagMap.put(player.getUUID(), nameTagInventoryComponent.CurrentNameTag);
             }
             player.removeVehicle();
             resetPlayer(player);
         }
         NameTagSyncPayload payload = new NameTagSyncPayload(nameTagMap);
-        for (ServerPlayer player : players){
+        for (ServerPlayer player : players) {
             ServerPlayNetworking.send(player, payload);
         }
 
@@ -1290,6 +1293,9 @@ public class GameUtils {
             entity.discard();
         for (NoteEntity entity : serverWorld.getEntities(TMMEntities.NOTE, entity -> true))
             entity.discard();
+        EntityClearUtils.clearAllEntities(serverWorld);
+        SRE.LOGGER.info("Kill all related entities in game world!");
+
     }
 
     @SuppressWarnings("deprecation")

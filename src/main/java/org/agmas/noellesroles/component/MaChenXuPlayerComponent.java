@@ -344,7 +344,9 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
 
         // 随机获得一个鬼术
         addRandomGhostSkill();
-
+        if (!ghostSkills.contains("prayer_rain")) {
+            ghostSkills.add("prayer_rain");
+        }
         if (player instanceof ServerPlayer serverPlayer) {
             serverPlayer.displayClientMessage(
                     Component.translatable("message.noellesroles.ma_chen_xu.stage_advance",
@@ -484,8 +486,13 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
      * 使用祈雨大招
      */
     public void usePrayerRain() {
-        if (stage < 3)
+        if (stage < 3) {
+            player.displayClientMessage(
+                    Component.translatable("tip.noellesroles.not_enough_energy")
+                            .withStyle(ChatFormatting.RED),
+                    true);
             return;
+        }
         if (!(player instanceof ServerPlayer serverPlayer))
             return;
 
@@ -795,7 +802,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
 
     @Override
     public void writeToNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
-        if (this.stage <= 1) // 神秘优化
+        if (this.stage <= 0) // 神秘优化
             return;
         tag.putInt("stage", this.stage);
         tag.putInt("totalSanLoss", this.totalSanLoss);
@@ -1424,6 +1431,9 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
                     break;
                 case "instant_silence":
                     useInstantSilence();
+                    break;
+                case "prayer_rain":
+                    usePrayerRain();
                     break;
                 default:
                     break;

@@ -80,7 +80,6 @@ public class RoleMethodDispatcher {
                                 if (roleComponent != null) {
                                     roleComponent.clear();
                                     componentKey.sync(player);
-
                                 }
                             });
                 });
