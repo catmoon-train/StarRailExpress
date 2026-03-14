@@ -1,5 +1,6 @@
 {
   "unknown": "未知",
+  "info.screen.roleid.guest_ghost": "平民阵营\n特殊地图职业。",
   "info.screen.roleid.discovery_civilian": "平民阵营\n特殊模式专用职业。",
   "info.screen.roleid.civilian": "平民阵营\n你没有任何特殊能力，努力在这趟旅程中活下去。",
   "info.screen.roleid.killer": "杀手阵营\n你是一名普通的杀手。\n拥有最基础的杀手商店。\n你的目标是杀光所有平民。",
@@ -101,6 +102,7 @@
   "info.screen.modifier.split_personality": "修饰符\n两人共用一具身体，每60s切换一次人格或者按键主动切换。\n默认为第一人格的皮肤。\n另一个人格可以听到当前人格的声音并看到画面。\n本体死亡时，两个人格需选择“欺骗”或“奉献” 。\n若两个人格都选择“欺骗”则本体直接死亡。\n若一个选“欺骗”一个选“奉献”，“欺骗”的一方复活，“奉献”的一方直接死亡。\n若两个人格都选择“奉献”，则两个人格均复活，但存活时间只有60s且保留生前物品栏。\n\u00a7c\u00a7l当你们在难民时刻死去，你们不会复活。\u00a7r",
   "info.screen.modifier.expedition": "修饰符\n当场上只剩下2名好人时，你的职业将切换为红海军。\n仅在平民阵营中生效。",
   "==================== 正文 ====================": "",
+  "announcement.star.role.guest_ghost": "诡客",
   "announcement.star.role.ma_chen_xu": "马晨絮",
   "announcement.star.role.jojo": "承太郎",
   "announcement.star.goals.jojo": "因此，就由我来制裁你。",
