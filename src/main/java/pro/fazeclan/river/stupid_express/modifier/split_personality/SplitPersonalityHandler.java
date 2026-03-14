@@ -73,7 +73,7 @@ public class SplitPersonalityHandler {
             boolean needDeath = handleDeathChoices(p_sb, nComp);
             if (needDeath) {
                 p_sb.setGameMode(GameType.ADVENTURE);
-                nComp.reset();
+                nComp.init();
                 resetSplitComponent(p_sb);
                 GameUtils.killPlayer(p_sb, false, null, StupidExpress.id("split_personality"));
             } else {
@@ -88,7 +88,7 @@ public class SplitPersonalityHandler {
             boolean needDeath = handleDeathChoices(p_sa, nComp);
             if (needDeath) {
                 p_sa.setGameMode(GameType.ADVENTURE);
-                nComp.reset();
+                nComp.init();
                 resetSplitComponent(p_sa);
 
                 GameUtils.killPlayer(p_sa, false, null, StupidExpress.id("split_personality"));
@@ -107,7 +107,7 @@ public class SplitPersonalityHandler {
     private static void resetSplitComponent(ServerPlayer player) {
         WorldModifierComponent.KEY.get(player.level()).removeModifier(player.getUUID(),
                 SEModifiers.SPLIT_PERSONALITY);
-        SplitPersonalityComponent.KEY.get(player).reset();
+        SplitPersonalityComponent.KEY.get(player).init();
         SkinSplitPersonalityComponent.KEY.get(player).clear();
     }
 

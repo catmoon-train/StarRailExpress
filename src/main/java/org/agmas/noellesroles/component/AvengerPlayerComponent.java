@@ -60,7 +60,7 @@ public class AvengerPlayerComponent implements RoleComponent, ServerTickingCompo
      * 重置组件状态
      */
     @Override
-    public void reset() {
+    public void init() {
         this.targetPlayer = null;
         this.activated = false;
         this.killerUuid = null;

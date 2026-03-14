@@ -46,13 +46,13 @@ public class BanditPlayerComponent implements RoleComponent, ServerTickingCompon
      * 在游戏开始时或角色分配时调用
      */
     @Override
-    public void reset() {
+    public void init() {
         this.sync();
     }
 
     @Override
     public void clear() {
-        this.reset();
+        this.init();
     }
 
     /**

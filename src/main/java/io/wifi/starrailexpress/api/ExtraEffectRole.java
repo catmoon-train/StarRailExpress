@@ -11,10 +11,18 @@ import net.minecraft.world.effect.MobEffectInstance;
  * 这个 Role 会自带药水效果，每1s更新一次。
  */
 public class ExtraEffectRole extends NormalRole {
+    public ArrayList<MobEffectInstance> playerEffects = new ArrayList<>();
+
     public ExtraEffectRole(ResourceLocation identifier, int color, boolean isInnocent, boolean canUseKiller,
             MoodType moodType, int maxSprintTime, boolean canSeeTime, ArrayList<MobEffectInstance> playerEffects) {
         this(identifier, color, isInnocent, canUseKiller, moodType, maxSprintTime, canSeeTime);
-        this.playerEffects = playerEffects;
+        this.playerEffects.addAll(playerEffects);
+    }
+
+    public ExtraEffectRole(ResourceLocation identifier, int color, boolean isInnocent, boolean canUseKiller,
+            MoodType moodType, int maxSprintTime, boolean canSeeTime, MobEffectInstance playerEffects) {
+        this(identifier, color, isInnocent, canUseKiller, moodType, maxSprintTime, canSeeTime);
+        this.playerEffects.add(playerEffects);
     }
 
     public ExtraEffectRole(ResourceLocation identifier, int color, boolean isInnocent, boolean canUseKiller,
@@ -35,8 +43,6 @@ public class ExtraEffectRole extends NormalRole {
         playerEffects.add(effect);
         return this;
     }
-
-    public ArrayList<MobEffectInstance> playerEffects = new ArrayList<>();
 
     @Override
     public void serverTick(ServerPlayer player) {

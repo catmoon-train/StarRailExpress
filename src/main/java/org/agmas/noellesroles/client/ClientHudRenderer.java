@@ -108,9 +108,9 @@ public class ClientHudRenderer {
 
       // 进化进度
       int nextThreshold = switch (component.stage) {
-        case 1 -> 50;
-        case 2 -> 120;
-        case 3 -> 200;
+        case 1 -> component.stage1Need;
+        case 2 -> component.stage2Need;
+        case 3 -> component.stage3Need;
         default -> -1;
       };
 
@@ -194,6 +194,19 @@ public class ClientHudRenderer {
                       "hud.noellesroles.ma_chen_xu.skill." + component.ghostSkills.get(component.nowSelectedSkill))
                       .withStyle(ChatFormatting.AQUA))
               .withStyle(ChatFormatting.GOLD);
+          context.drawString(textRenderer, mimicryText, x, y, 0xFFFFFF);
+          y += 12;
+        }
+        {
+          Component mimicryText = Component
+              .translatable("message.noellesroles.ma_chen_xu.tip_for_skill",NoellesrolesClient.abilityBind.getTranslatedKeyMessage())
+              .withStyle(ChatFormatting.GRAY);
+          context.drawString(textRenderer, mimicryText, x, y, 0xFFFFFF);
+          y += 12;
+        }
+        
+        {
+          Component mimicryText = component.getNowCooldownText();
           context.drawString(textRenderer, mimicryText, x, y, 0xFFFFFF);
           y += 12;
         }

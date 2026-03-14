@@ -57,7 +57,7 @@ public class PostmanPlayerComponent implements RoleComponent {
      * 重置组件状态
      */
     @Override
-    public void reset() {
+    public void init() {
         this.deliveryTarget = null;
         this.postmanItem = ItemStack.EMPTY;
         this.targetItem = ItemStack.EMPTY;
@@ -70,7 +70,7 @@ public class PostmanPlayerComponent implements RoleComponent {
 
     @Override
     public void clear() {
-        this.reset();
+        this.init();
     }
     
     /**

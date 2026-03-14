@@ -1,6 +1,7 @@
 package org.agmas.noellesroles.component;
 
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
@@ -37,6 +38,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 
 import org.agmas.noellesroles.Noellesroles;
+import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.agmas.noellesroles.entity.KuiXiPuppetEntity;
 import org.agmas.noellesroles.init.ModEntities;
 
@@ -174,6 +176,10 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
     public int nowSelectedSkill = 0;
     private final Random random = new Random();
 
+    public int stage1Need = 50;
+    public int stage2Need = 120;
+    public int stage3Need = 300;
+
     /**
      * 构造函数
      */
@@ -191,11 +197,33 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         return this.player == player;
     }
 
+    public void initMaxPlayers() {
+        int player_size = this.player.level().players().size();
+        if (player_size <= 12) {
+            stage1Need = 50;
+            stage2Need = 120;
+            stage3Need = 200;
+        } else if (player_size <= 24) {
+            stage1Need = 80;
+            stage2Need = 200;
+            stage3Need = 300;
+        } else if (player_size <= 32) {
+            stage1Need = 100;
+            stage2Need = 250;
+            stage3Need = 350;
+        } else {
+            stage1Need = 150;
+            stage2Need = 250;
+            stage3Need = 400;
+        }
+    }
+
     /**
-     * 重置组件状态
+     * 初始化组件状态
      */
     @Override
-    public void reset() {
+    public void init() {
+        this.initMaxPlayers();
         this.nowSelectedSkill = 0;
         this.stage = 1;
         this.totalSanLoss = 0;
@@ -301,11 +329,11 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
     public void checkStageAdvance() {
         int oldStage = stage;
 
-        if (stage == 1 && totalSanLoss >= 50) {
+        if (stage == 1 && totalSanLoss >= stage1Need) {
             advanceToStage2();
-        } else if (stage == 2 && totalSanLoss >= 120) {
+        } else if (stage == 2 && totalSanLoss >= stage2Need) {
             advanceToStage3();
-        } else if (stage == 3 && totalSanLoss >= 200) {
+        } else if (stage == 3 && totalSanLoss >= stage3Need) {
             advanceToStage4();
         }
 
@@ -486,6 +514,8 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
      * 使用祈雨大招
      */
     public void usePrayerRain() {
+        if (otherworldActive)
+            return;
         if (stage < 3) {
             player.displayClientMessage(
                     Component.translatable("tip.noellesroles.not_enough_energy")
@@ -790,14 +820,120 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         }
     }
 
+    public Component getNowCooldownText() {
+
+        if (ghostSkills.isEmpty())
+            return null;
+        if (this.nowSelectedSkill >= ghostSkills.size()) {
+            return null;
+        }
+        var skillId = ghostSkills.get(this.nowSelectedSkill);
+        switch (skillId) {
+            case "parasite":
+                if (parasiteCooldown <= 0)
+                    return Component.translatable("message.noellesroles.ma_chen_xu.available",
+                            NoellesrolesClient.abilityBind.getTranslatedKeyMessage())
+                            .withStyle(ChatFormatting.GREEN);
+                return Component.translatable("message.noellesroles.ma_chen_xu.cooldown",
+                        Component.translatable("hud.noellesroles.ma_chen_xu.skill." + skillId), parasiteCooldown / 20)
+                        .withStyle(ChatFormatting.YELLOW);
+            case "blink":
+                if (blinkCooldown <= 0)
+                    return Component.translatable("message.noellesroles.ma_chen_xu.available",
+                            NoellesrolesClient.abilityBind.getTranslatedKeyMessage())
+                            .withStyle(ChatFormatting.GREEN);
+                return Component
+                        .translatable("message.noellesroles.ma_chen_xu.cooldown",
+                                Component.translatable("hud.noellesroles.ma_chen_xu.skill." + skillId),
+                                blinkCooldown / 20)
+                        .withStyle(ChatFormatting.YELLOW);
+            case "swift_wind":
+                if (swiftWindCooldown <= 0)
+                    return Component.translatable("message.noellesroles.ma_chen_xu.available",
+                            NoellesrolesClient.abilityBind.getTranslatedKeyMessage())
+                            .withStyle(ChatFormatting.GREEN);
+                return Component.translatable("message.noellesroles.ma_chen_xu.cooldown",
+                        Component.translatable("hud.noellesroles.ma_chen_xu.skill." + skillId), swiftWindCooldown / 20)
+                        .withStyle(ChatFormatting.YELLOW);
+            case "spirit_walk":
+                if (spiritWalkCooldown <= 0)
+                    return Component.translatable("message.noellesroles.ma_chen_xu.available",
+                            NoellesrolesClient.abilityBind.getTranslatedKeyMessage())
+                            .withStyle(ChatFormatting.GREEN);
+                return Component.translatable("message.noellesroles.ma_chen_xu.cooldown",
+                        Component.translatable("hud.noellesroles.ma_chen_xu.skill." + skillId), spiritWalkCooldown / 20)
+                        .withStyle(ChatFormatting.YELLOW);
+            case "puppet_show":
+                if (puppetShowCooldown <= 0)
+                    return Component.translatable("message.noellesroles.ma_chen_xu.available",
+                            NoellesrolesClient.abilityBind.getTranslatedKeyMessage())
+                            .withStyle(ChatFormatting.GREEN);
+                return Component.translatable("message.noellesroles.ma_chen_xu.cooldown",
+                        Component.translatable("hud.noellesroles.ma_chen_xu.skill." + skillId), puppetShowCooldown / 20)
+                        .withStyle(ChatFormatting.YELLOW);
+            case "false_mimicry":
+                if (falseMimicryUsed)
+                    return Component.translatable("hud.noellesroles.ma_chen_xu.false_mimicry_used")
+                            .withStyle(ChatFormatting.RED);
+                return Component.translatable("message.noellesroles.ma_chen_xu.available",
+                        NoellesrolesClient.abilityBind.getTranslatedKeyMessage())
+                        .withStyle(ChatFormatting.GREEN);
+            case "instant_silence":
+                if (instantSilenceCooldown <= 0)
+                    return Component.translatable("message.noellesroles.ma_chen_xu.available",
+                            NoellesrolesClient.abilityBind.getTranslatedKeyMessage())
+                            .withStyle(ChatFormatting.GREEN);
+                return Component.translatable("message.noellesroles.ma_chen_xu.cooldown",
+                        Component.translatable("hud.noellesroles.ma_chen_xu.skill." + skillId),
+                        instantSilenceCooldown / 20)
+                        .withStyle(ChatFormatting.YELLOW);
+            case "prayer_rain":
+                if (otherworldDuration <= 0 && !otherworldActive)
+                    return Component.translatable("message.noellesroles.ma_chen_xu.available",
+                            NoellesrolesClient.abilityBind.getTranslatedKeyMessage())
+                            .withStyle(ChatFormatting.GREEN);
+                return Component.translatable("message.noellesroles.ma_chen_xu.cooldown",
+                        Component.translatable("hud.noellesroles.ma_chen_xu.skill." + skillId), otherworldDuration / 20)
+                        .withStyle(ChatFormatting.YELLOW);
+            default:
+                break;
+        }
+        return null;
+    }
+
     @Override
     public void clientTick() {
         // 客户端tick处理
-        if (otherworldActive) {
+        if (spiritWalkDuration > 1)
+            spiritWalkDuration--;
+        if (otherworldActive && otherworldDuration > 1) {
             otherworldDuration--;
+        }
+        if (prayerRainDuration > 1) {
+            prayerRainDuration--;
+        }
+        if (blinkCooldown > 1)
+            blinkCooldown--;
+        if (parasiteCooldown > 1)
+            parasiteCooldown--;
+        if (swiftWindCooldown > 1)
+            swiftWindCooldown--;
+        if (frenzyRainCooldown > 1)
+            frenzyRainCooldown--;
+        if (puppetShowCooldown > 1)
+            puppetShowCooldown--;
+        if (spiritWalkCooldown > 1)
+            spiritWalkCooldown--;
+        if (instantSilenceCooldown > 1)
+            instantSilenceCooldown--;
+        if (this.player.isSprinting()) {
+            this.chargeSwiftWind();
         }
         if (frenzyRainCooldown > 1) {
             frenzyRainCooldown--;
+        }
+        if (frenzyRainActive && frenzyRainDuration > 1) {
+            frenzyRainDuration--;
         }
     }
 
@@ -821,7 +957,11 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         tag.putInt("blinkCooldown", this.blinkCooldown);
         tag.putInt("parasiteCooldown", this.parasiteCooldown);
         tag.putInt("frenzyRainCooldown", this.frenzyRainCooldown);
+        tag.putInt("stage1Need", this.stage1Need);
+        tag.putInt("stage2Need", this.stage2Need);
+        tag.putInt("stage3Need", this.stage3Need);
         tag.putBoolean("shieldActive", this.shieldActive);
+        tag.putInt("nowSelectedSkill", this.nowSelectedSkill);
 
         // 保存鬼术列表
         CompoundTag skillsTag = new CompoundTag();
@@ -851,6 +991,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         this.fearTimer = tag.contains("fearTimer") ? tag.getInt("fearTimer") : 0;
         this.otherworldActive = tag.contains("otherworldActive") && tag.getBoolean("otherworldActive");
         this.otherworldTimer = tag.contains("otherworldTimer") ? tag.getInt("otherworldTimer") : 0;
+        this.nowSelectedSkill = tag.contains("nowSelectedSkill") ? tag.getInt("nowSelectedSkill") : 0;
         this.otherworldDuration = tag.contains("otherworldDuration") ? tag.getInt("otherworldDuration") : 0;
         this.prayerRainActive = tag.contains("prayerRainActive") && tag.getBoolean("prayerRainActive");
         this.prayerRainDuration = tag.contains("prayerRainDuration") ? tag.getInt("prayerRainDuration") : 0;
@@ -858,6 +999,9 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         this.frenzyRainDuration = tag.contains("frenzyRainDuration") ? tag.getInt("frenzyRainDuration") : 0;
         this.frenzyRainCooldown = tag.contains("frenzyRainCooldown") ? tag.getInt("frenzyRainCooldown") : 0;
         this.shieldActive = tag.contains("shieldActive") && tag.getBoolean("shieldActive");
+        this.stage1Need = tag.contains("stage1Need") ? tag.getInt("stage1Need") : 50;
+        this.stage2Need = tag.contains("stage2Need") ? tag.getInt("stage2Need") : 150;
+        this.stage3Need = tag.contains("stage3Need") ? tag.getInt("stage3Need") : 200;
 
         // 读取鬼术列表
         this.ghostSkills.clear();
@@ -1103,7 +1247,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         ItemStack copiedItem = heldItem.copy();
 
         // 给予复制的物品
-        if (!serverPlayer.getInventory().add(copiedItem)) {
+        if (!RoleUtils.insertStackInFreeSlot(player, copiedItem)) {
             // 背包满了，掉落到地上
             serverPlayer.drop(copiedItem, false);
         }
@@ -1117,7 +1261,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
 
         serverPlayer.displayClientMessage(
                 Component.translatable("message.noellesroles.ma_chen_xu.false_mimicry.copied",
-                        copiedItem.getDisplayName())
+                        heldItem.getDisplayName())
                         .withStyle(ChatFormatting.GOLD),
                 true);
         sync();
@@ -1134,6 +1278,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
                         Component.translatable("message.noellesroles.ma_chen_xu.swift_wind.charged")
                                 .withStyle(ChatFormatting.GREEN),
                         true);
+                this.sync();
             }
         }
     }
@@ -1270,7 +1415,8 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         }
 
         // 传送玩家
-        serverPlayer.teleportTo(targetPos.x, targetPos.y, targetPos.z);
+        serverPlayer.setDeltaMovement(targetPos.x - currentPos.x, targetPos.y - currentPos.y,
+                targetPos.z - currentPos.z);
 
         // 播放目标位置音效和粒子
         serverPlayer.level().playSound(null, serverPlayer.blockPosition(),
@@ -1398,6 +1544,14 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         if (this.nowSelectedSkill >= this.ghostSkills.size()) {
             this.nowSelectedSkill = 0;
         }
+        Component mimicryText = Component
+                .translatable("message.noellesroles.ma_chen_xu.now_sel_skill",
+                        Component.translatable(
+                                "hud.noellesroles.ma_chen_xu.skill." + ghostSkills.get(nowSelectedSkill))
+                                .withStyle(ChatFormatting.AQUA))
+                .withStyle(ChatFormatting.GOLD);
+        this.player.displayClientMessage(mimicryText, true);
+        this.sync();
     }
 
     public void tryActiveAbility() {

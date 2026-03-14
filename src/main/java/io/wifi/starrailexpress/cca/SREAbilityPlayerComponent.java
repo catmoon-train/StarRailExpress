@@ -60,7 +60,7 @@ public class SREAbilityPlayerComponent
      * 在游戏开始时或角色分配时调用
      */
     @Override
-    public void reset() {
+    public void init() {
         this.cooldown = 0;
         this.charges = -1;
         this.maxCharges = -1;
@@ -70,7 +70,7 @@ public class SREAbilityPlayerComponent
 
     @Override
     public void clear() {
-        this.reset();
+        this.init();
     }
 
     /**

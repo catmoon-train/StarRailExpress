@@ -37,13 +37,13 @@ public class DynamicShopComponent implements RoleComponent, ServerTickingCompone
     }
 
     @Override
-    public void reset() {
+    public void init() {
         coins = new HashMap<>() ;
     }
 
     @Override
     public void clear(){
-        reset();
+        init();
     }
     @Override
     public void clientTick() {

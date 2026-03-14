@@ -37,7 +37,7 @@ public class CursedComponent implements RoleComponent {
         return this.cursed != null && this.cursed.equals(player.getUUID());
     }
 
-    public void reset() {
+    public void init() {
         this.cursed = null;
         sync();
     }
@@ -60,7 +60,7 @@ public class CursedComponent implements RoleComponent {
 
     @Override
     public void clear() {
-        this.reset();
+        this.init();
     }
 
     @Override

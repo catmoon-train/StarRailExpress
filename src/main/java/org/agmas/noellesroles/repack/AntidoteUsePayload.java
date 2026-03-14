@@ -32,7 +32,7 @@ public record AntidoteUsePayload(int target) implements CustomPacketPayload {
             Entity var5 = player.serverLevel().getEntity(payload.target());
             if (var5 instanceof Player target) {
                 if (!((double)target.distanceTo(player) > (double)3.0F)) {
-                    ((SREPlayerPoisonComponent)SREPlayerPoisonComponent.KEY.get(target)).reset();
+                    ((SREPlayerPoisonComponent)SREPlayerPoisonComponent.KEY.get(target)).init();
                     target.playSound(HSRSounds.ITEM_SYRINGE_STAB, 0.4F, 1.0F);
                     player.swing(InteractionHand.MAIN_HAND);
                     if (!player.isCreative()) {

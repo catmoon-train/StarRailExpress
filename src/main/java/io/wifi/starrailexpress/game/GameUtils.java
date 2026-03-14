@@ -484,12 +484,12 @@ public class GameUtils {
         // clear items, clear previous game data
         for (ServerPlayer serverPlayerEntity : players) {
             serverPlayerEntity.getInventory().clearContent();
-            SREPlayerMoodComponent.KEY.get(serverPlayerEntity).reset();
-            SREPlayerShopComponent.KEY.get(serverPlayerEntity).reset();
-            SREPlayerPoisonComponent.KEY.get(serverPlayerEntity).reset();
-            SREPlayerPsychoComponent.KEY.get(serverPlayerEntity).reset();
-            SREPlayerNoteComponent.KEY.get(serverPlayerEntity).reset();
-            SREPlayerShopComponent.KEY.get(serverPlayerEntity).reset();
+            SREPlayerMoodComponent.KEY.get(serverPlayerEntity).init();
+            SREPlayerShopComponent.KEY.get(serverPlayerEntity).init();
+            SREPlayerPoisonComponent.KEY.get(serverPlayerEntity).init();
+            SREPlayerPsychoComponent.KEY.get(serverPlayerEntity).init();
+            SREPlayerNoteComponent.KEY.get(serverPlayerEntity).init();
+            SREPlayerShopComponent.KEY.get(serverPlayerEntity).init();
             if (!TrainVoicePlugin.isVoiceChatMissing()) {
                 TrainVoicePlugin.resetPlayer(serverPlayerEntity.getUUID());
             }
@@ -765,12 +765,12 @@ public class GameUtils {
 
     public static void resetPlayer(ServerPlayer player) {
         TMMItemUtils.clearItem(player, (item) -> true, -1);
-        SREPlayerMoodComponent.KEY.get(player).reset();
-        SREPlayerShopComponent.KEY.get(player).reset();
-        SREPlayerPoisonComponent.KEY.get(player).reset();
-        SREPlayerPsychoComponent.KEY.get(player).reset();
-        SREPlayerNoteComponent.KEY.get(player).reset();
-        BartenderPlayerComponent.KEY.get(player).reset();
+        SREPlayerMoodComponent.KEY.get(player).init();
+        SREPlayerShopComponent.KEY.get(player).init();
+        SREPlayerPoisonComponent.KEY.get(player).init();
+        SREPlayerPsychoComponent.KEY.get(player).init();
+        SREPlayerNoteComponent.KEY.get(player).init();
+        BartenderPlayerComponent.KEY.get(player).init();
         if (!TrainVoicePlugin.isVoiceChatMissing()) {
             TrainVoicePlugin.resetPlayer(player.getUUID());
         }
@@ -1045,7 +1045,7 @@ public class GameUtils {
                 }
             }
 
-            SREPlayerMoodComponent.KEY.get(victim).reset();
+            SREPlayerMoodComponent.KEY.get(victim).init();
 
             for (List<ItemStack> list : victim.getInventory().compartments) {
                 for (int i = 0; i < list.size(); i++) {

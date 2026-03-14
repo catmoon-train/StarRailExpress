@@ -44,7 +44,7 @@ import net.minecraft.world.item.ItemStack;
 /**
  * 角色相关工具
  */
-public class RoleUtils {
+public class RoleUtils extends MCItemsUtils {
     public static void customWinnerWin(ServerLevel serverWorld, GameUtils.WinStatus WinStatus,
             @Nullable String winnerId, @Nullable OptionalInt winnerColor) {
         var roundComponent = SREGameRoundEndComponent.KEY.get(serverWorld);
@@ -110,18 +110,6 @@ public class RoleUtils {
                 return true;
             }
         }
-        return false;
-    }
-
-    public static boolean insertStackInFreeSlot(@NotNull Player player, ItemStack stackToInsert) {
-        for (int i = 0; i < 9; ++i) {
-            ItemStack stack = player.getInventory().getItem(i);
-            if (stack.isEmpty()) {
-                player.getInventory().setItem(i, stackToInsert);
-                return true;
-            }
-        }
-
         return false;
     }
 

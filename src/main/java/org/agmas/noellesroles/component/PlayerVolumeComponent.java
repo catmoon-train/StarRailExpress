@@ -61,7 +61,7 @@ public class PlayerVolumeComponent
      * 在游戏开始时或角色分配时调用
      */
     @Override
-    public void reset() {
+    public void init() {
         this.volume = -1;
         this.left_time = -1;
         this.sync();
@@ -69,7 +69,7 @@ public class PlayerVolumeComponent
 
     @Override
     public void clear() {
-        this.reset();
+        this.init();
     }
 
     /**

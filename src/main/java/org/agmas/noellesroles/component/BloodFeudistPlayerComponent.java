@@ -65,7 +65,7 @@ public class BloodFeudistPlayerComponent implements RoleComponent, CommonTicking
     }
 
     @Override
-    public void reset() {
+    public void init() {
         this.accidentalKillCount = 0;
         this.gotSpeed1 = false;
         this.gotHaste2 = false;
@@ -79,7 +79,7 @@ public class BloodFeudistPlayerComponent implements RoleComponent, CommonTicking
 
     @Override
     public void clear() {
-        this.reset();
+        this.init();
     }
 
     /**

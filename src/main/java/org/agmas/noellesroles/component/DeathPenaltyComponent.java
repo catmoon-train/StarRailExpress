@@ -23,7 +23,7 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
     public boolean chatEnabled = false;
 
     public void clearAll() {
-        this.reset();
+        this.init();
     }
 
     public void check() {
@@ -31,7 +31,7 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
             return;
         } else {
             if (GameUtils.isPlayerAliveAndSurvival(this.player)) {
-                this.reset();
+                this.init();
                 return;
             }
             if (this.penaltyExpiry < 0) {
@@ -73,7 +73,7 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
                         true);
                 player.sendSystemMessage(
                         Component.translatable("message.noellesroles.penalty.unlimit").withStyle(ChatFormatting.GREEN));
-                this.reset();
+                this.init();
                 return;
                 // 亡语杀手限制
             } else {
@@ -82,7 +82,7 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
                             .withStyle(ChatFormatting.GREEN), true);
                     player.sendSystemMessage(Component.translatable("message.noellesroles.penalty.unlimit")
                             .withStyle(ChatFormatting.GREEN));
-                    this.reset();
+                    this.init();
                     return;
                 }
             }
@@ -121,7 +121,7 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
     }
 
     @Override
-    public void reset() {
+    public void init() {
         this.penaltyExpiry = 0;
         if (!player.level().isClientSide) {
             if (limitCameraUUID != null) {
@@ -137,7 +137,7 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
 
     @Override
     public void clear() {
-        this.reset();
+        this.init();
     }
 
     @Override

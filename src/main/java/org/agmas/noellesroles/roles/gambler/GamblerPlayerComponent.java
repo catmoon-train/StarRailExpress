@@ -48,7 +48,7 @@ public class GamblerPlayerComponent implements RoleComponent, ServerTickingCompo
     }
 
     @Override
-    public void reset() {
+    public void init() {
         this.usedAbility = false;
         this.availableRoles.clear();
         this.selectedRole = null;
@@ -58,7 +58,7 @@ public class GamblerPlayerComponent implements RoleComponent, ServerTickingCompo
 
     @Override
     public void clear() {
-        this.reset();
+        this.init();
     }
 
     public GamblerPlayerComponent(Player player) {

@@ -39,11 +39,11 @@ public class SREPlayerAFKComponent implements RoleComponent, ServerTickingCompon
 
     @Override
     public void clear() {
-        reset();
+        init();
     }
 
     @Override
-    public void reset() {
+    public void init() {
         this.resetAFKTimer();
     }
 

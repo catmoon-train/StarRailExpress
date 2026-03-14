@@ -39,14 +39,14 @@ public class PatrollerPlayerComponent implements RoleComponent, ServerTickingCom
     }
 
     @Override
-    public void reset() {
+    public void init() {
         this.hasTriggered = false;
         sync();
     }
 
     @Override
     public void clear() {
-        this.reset();
+        this.init();
     }
 
     public void sync() {

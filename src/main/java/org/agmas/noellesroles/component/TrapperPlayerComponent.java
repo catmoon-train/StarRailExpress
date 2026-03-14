@@ -112,7 +112,7 @@ public class TrapperPlayerComponent implements RoleComponent, ServerTickingCompo
      * 在游戏开始时或角色分配时调用
      */
     @Override
-    public void reset() {
+    public void init() {
         this.trapCharges = MAX_TRAP_CHARGES;
         this.rechargeTimer = 0;
         this.isTrapperMarked = true;

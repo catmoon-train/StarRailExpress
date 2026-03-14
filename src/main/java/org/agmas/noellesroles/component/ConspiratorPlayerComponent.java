@@ -84,7 +84,7 @@ public class ConspiratorPlayerComponent implements RoleComponent, ServerTickingC
      * 重置组件状态
      */
     @Override
-    public void reset() {
+    public void init() {
         this.targetList.clear();
         this.hasKilled = false;
         this.wrongGuessCount = 0;
@@ -93,7 +93,7 @@ public class ConspiratorPlayerComponent implements RoleComponent, ServerTickingC
 
     @Override
     public void clear() {
-        this.reset();
+        this.init();
     }
 
     /**

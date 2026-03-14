@@ -75,7 +75,7 @@ public abstract class PlayerResetMixin {
         RoleUtils.RemoveAllPlayerAttributes(player);
         RoleUtils.RemoveAllEffects(player);
         player.setLastHurtMob(null);
-        TemporaryEffectPlayerComponent.KEY.get(player).reset();
+        TemporaryEffectPlayerComponent.KEY.get(player).init();
         BloodFeudistPlayerComponent.KEY.get(player).clear();
         SplitPersonalityComponent.KEY.get(player).clear();
         SkinSplitPersonalityComponent.KEY.get(player).clear();
@@ -84,19 +84,19 @@ public abstract class PlayerResetMixin {
         (WayfarerPlayerComponent.KEY.get(player)).clear();
         (HoanMeirinPlayerComponent.KEY.get(player)).clear();
 
-        ((MorphlingPlayerComponent) MorphlingPlayerComponent.KEY.get(player)).reset();
-        ((VoodooPlayerComponent) VoodooPlayerComponent.KEY.get(player)).reset();
-        (RecallerPlayerComponent.KEY.get(player)).reset();
-        (VulturePlayerComponent.KEY.get(player)).reset();
-        (ExecutionerPlayerComponent.KEY.get(player)).reset();
+        ((MorphlingPlayerComponent) MorphlingPlayerComponent.KEY.get(player)).init();
+        ((VoodooPlayerComponent) VoodooPlayerComponent.KEY.get(player)).init();
+        (RecallerPlayerComponent.KEY.get(player)).init();
+        (VulturePlayerComponent.KEY.get(player)).init();
+        (ExecutionerPlayerComponent.KEY.get(player)).init();
 
-        FortunetellerPlayerComponent.KEY.get(player).reset();
+        FortunetellerPlayerComponent.KEY.get(player).init();
 
         BartenderPlayerComponent barComc = BartenderPlayerComponent.KEY.get(player);
-        barComc.reset();
+        barComc.init();
 
         AwesomePlayerComponent awesomeComp = ModComponents.AWESOME.get(player);
-        awesomeComp.reset();
+        awesomeComp.init();
 
         StalkerPlayerComponent stalkerComp = ModComponents.STALKER.get(player);
         stalkerComp.clearAll();

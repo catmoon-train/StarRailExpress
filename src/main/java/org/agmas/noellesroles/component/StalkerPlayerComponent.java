@@ -176,7 +176,7 @@ public class StalkerPlayerComponent implements RoleComponent, ServerTickingCompo
      * 在游戏开始时或角色分配时调用
      */
     @Override
-    public void reset() {
+    public void init() {
         this.phase = 1;
         this.energy = 0;
         this.phase2Kills = 0;

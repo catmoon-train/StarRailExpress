@@ -90,7 +90,7 @@ public class AdmirerPlayerComponent implements RoleComponent, ServerTickingCompo
      * 在游戏开始时或角色分配时调用
      */
     @Override
-    public void reset() {
+    public void init() {
         this.energy = 0;
         this.isGazing = false;
         this.gazingTargetCount = 0;

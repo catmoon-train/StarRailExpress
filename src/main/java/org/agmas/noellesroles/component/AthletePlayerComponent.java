@@ -66,7 +66,7 @@ public class AthletePlayerComponent implements RoleComponent, ServerTickingCompo
      * 在游戏开始时或角色分配时调用
      */
     @Override
-    public void reset() {
+    public void init() {
         this.cooldown = 1200; // 开局60秒冷却
         this.speedTicks = 0;
         this.isSprinting = false;
@@ -75,7 +75,7 @@ public class AthletePlayerComponent implements RoleComponent, ServerTickingCompo
 
     @Override
     public void clear() {
-        this.reset();
+        this.init();
     }
     
     /**

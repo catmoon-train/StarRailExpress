@@ -43,7 +43,7 @@ public class DefibrillatorComponent implements RoleComponent {
     }
 
     @Override
-    public void reset() {
+    public void init() {
         this.protectionExpiry = 0;
         this.isDead = false;
         this.resurrectionTime = 0;
@@ -54,7 +54,7 @@ public class DefibrillatorComponent implements RoleComponent {
 
     @Override
     public void clear() {
-        this.reset();
+        this.init();
     }
 
     @Override

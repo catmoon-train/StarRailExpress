@@ -50,7 +50,7 @@ public class TemporaryEffectPlayerComponent implements RoleComponent, ServerTick
     }
     
     @Override
-    public void reset() {
+    public void init() {
         this.staminaBoost = 0f;
         this.dogskinPlasterProtectionEnd = 0;
         this.sync();
@@ -58,7 +58,7 @@ public class TemporaryEffectPlayerComponent implements RoleComponent, ServerTick
     
     @Override
     public void clear() {
-        this.reset();
+        this.init();
     }
     
     @Override

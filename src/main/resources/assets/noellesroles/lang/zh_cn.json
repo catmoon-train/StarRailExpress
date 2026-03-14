@@ -1435,6 +1435,7 @@
   "hud.noellesroles.ma_chen_xu.ghost_skill_cooldown": "鬼术冷却: %s秒",
   "hud.noellesroles.ma_chen_xu.ghost_skill_ready": "鬼术就绪",
   "message.noellesroles.ma_chen_xu.prayer_rain_activated": "祈雨已激活！",
+  "message.noellesroles.ma_chen_xu.false_mimicry.no_item": "手上没有物品！",
   "message.noellesroles.ma_chen_xu.false_mimicry.copied": "已复制 %s",
   "message.noellesroles.ma_chen_xu.swift_wind.charged": "掠风充能完毕！",
   "message.noellesroles.ma_chen_xu.instant_silence.cooldown": "瞬寂冷却中: %ss",
@@ -1452,7 +1453,8 @@
   "message.noellesroles.kui_xi.activated": "傀戏！召唤傀儡！",
   "message.noellesroles.kui_xi.puppet_destroyed": "傀儡被摧毁了！",
   "message.noellesroles.wei_mo.activated": "伪摹！复制了手持物品！",
-  "message.noellesroles.wei_mo.no_item": "手中没有可复制的物品！",
+  "message.noellesroles.false_mimicry.no_item": "手中没有可复制的物品！",
+  "message.noellesroles.false_mimicry.already_used": "伪摹已经使用过了！",
   "message.noellesroles.wei_mo.already_used": "伪摹已经使用过了！",
   "==================== 布袋鬼效果 ====================": "",
   "effect.noellesroles.fear_mark": "恐惧标记",
@@ -1483,10 +1485,14 @@
   "hud.noellesroles.ma_chen_xu.skill.false_mimicry": "伪摹",
   "hud.noellesroles.ma_chen_xu.skill.parasite": "寄生",
   "hud.noellesroles.ma_chen_xu.skill.blink": "闪现",
+  "hud.noellesroles.ma_chen_xu.skill.prayer_rain": "祈雨",
   "hud.noellesroles.ma_chen_xu.skill.spirit_walk": "傩面游魂",
   "hud.noellesroles.ma_chen_xu.skill.instant_silence": "瞬寂",
   "message.noellesroles.ma_chen_xu.parasite.infected": "你被寄生了。",
   "message.noellesroles.ma_chen_xu.spirit_walk.enter": "你已进入傩面游魂",
   "message.noellesroles.ma_chen_xu.spirit_walk.exit": "你已退出傩面游魂",
-  "message.noellesroles.ma_chen_xu.now_sel_skill": "当前选择技能：%s"
+  "message.noellesroles.ma_chen_xu.now_sel_skill": "当前选择技能：%s",
+  "message.noellesroles.ma_chen_xu.tip_for_skill": "潜行时按下 %s 切换技能",
+  "message.noellesroles.ma_chen_xu.available": "技能就绪。按下 %s 触发技能。",
+  "message.noellesroles.ma_chen_xu.cooldown": "技能 %s 冷却中：%ss"
 }

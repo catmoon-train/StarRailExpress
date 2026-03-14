@@ -35,7 +35,7 @@ public class NoellesRolesConfig {
     @SerialEntry(comment = "Areas that will spawn Swast. Use | to split maps.")
     @AutoGen(category = "General")
     @StringField
-    public String maChenXuMaps = "qiyucun";
+    public String maChenXuMaps = "areas1";
 
     @SerialEntry(comment = "Areas that will spawn Swast. Use | to split maps.")
     @AutoGen(category = "General")

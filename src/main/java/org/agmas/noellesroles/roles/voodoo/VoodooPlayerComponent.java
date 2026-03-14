@@ -21,14 +21,14 @@ public class VoodooPlayerComponent implements RoleComponent {
         return player;
     }
     @Override
-    public void reset() {
+    public void init() {
         this.target = player.getUUID();
         this.sync();
     }
 
     @Override
     public void clear() {
-        this.reset();
+        this.init();
     }
 
     public VoodooPlayerComponent(Player player) {

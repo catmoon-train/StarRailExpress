@@ -25,7 +25,7 @@ public class RecallerPlayerComponent implements RoleComponent, ServerTickingComp
         return player;
     }
     @Override
-    public void reset() {
+    public void init() {
         this.placed = false;
         this.x = 0;
         this.y = 0;
@@ -35,7 +35,7 @@ public class RecallerPlayerComponent implements RoleComponent, ServerTickingComp
 
     @Override
     public void clear() {
-        this.reset();
+        this.init();
     }
 
     public RecallerPlayerComponent(Player player) {

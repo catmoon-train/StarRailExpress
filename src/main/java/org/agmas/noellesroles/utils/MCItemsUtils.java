@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import io.wifi.starrailexpress.util.TMMItemUtils;
@@ -17,6 +18,17 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 public class MCItemsUtils extends TMMItemUtils {
+    public static boolean insertStackInFreeSlot(@NotNull Player player, ItemStack stackToInsert) {
+        for (int i = 0; i < 9; ++i) {
+            ItemStack stack = player.getInventory().getItem(i);
+            if (stack.isEmpty()) {
+                player.getInventory().setItem(i, stackToInsert);
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     public static List<Item> getItemsByTag(ServerLevel level, TagKey<Item> tag) {
         var opt2 = level.getServer().registryAccess()

@@ -1,7 +1,10 @@
 package org.agmas.noellesroles.init;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import io.wifi.starrailexpress.network.RemoveStatusBarPayload;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -119,6 +122,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemCooldowns;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.GameRules;
 import pro.fazeclan.river.stupid_express.constants.SEItems;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 import pro.fazeclan.river.stupid_express.constants.SERoles;
@@ -486,7 +490,7 @@ public class ModEventsRegister {
         HoanMeirinFistPunchHandler.register();
         VoodooDeathHandler.registerEvents();
         PlayerStatsBeforeRefugee.beforeLoadFunc = (player) -> {
-            ModComponents.DEATH_PENALTY.get(player).reset();
+            ModComponents.DEATH_PENALTY.get(player).init();
         };
         OnGameEnd.EVENT.register((world, gameWorldComponent) -> {
             HoanMeirinFistPunchHandler.PUNCH_RECORDS.clear();
@@ -801,14 +805,14 @@ public class ModEventsRegister {
 
         WayfarerPlayerComponent.registerEvents();
         OnPlayerDeath.EVENT.register((playerEntity, reason) -> {
-            FortunetellerPlayerComponent.KEY.get(playerEntity).reset();
+            FortunetellerPlayerComponent.KEY.get(playerEntity).init();
             PuppeteerPlayerComponent.KEY.get(playerEntity).clear();
             RoleUtils.RemoveAllEffects(playerEntity);
             SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(playerEntity.level());
             if (gameWorldComponent.isRole(playerEntity,
                     ModRoles.THE_INSANE_DAMNED_PARANOID_KILLER_OF_DOOM_DEATH_DESTRUCTION_AND_WAFFLES)) {
                 final var insaneKillerPlayerComponent = InsaneKillerPlayerComponent.KEY.get(playerEntity);
-                insaneKillerPlayerComponent.reset();
+                insaneKillerPlayerComponent.init();
             }
             if (gameWorldComponent.isRole(playerEntity, ModRoles.JOJO)) {
                 int dropCount = 1 + MCItemsUtils.hasItem(playerEntity, TMMItemTags.GUNS);
@@ -845,7 +849,7 @@ public class ModEventsRegister {
 
             if (gameWorldComponent.isRole(playerEntity, ModRoles.BETTER_VIGILANTE)) {
                 final var betterVigilantePlayerComponent = BetterVigilantePlayerComponent.KEY.get(playerEntity);
-                betterVigilantePlayerComponent.reset();
+                betterVigilantePlayerComponent.init();
             }
         });
         AfterShieldAllowPlayerDeathWithKiller.EVENT.register((player, killer, deathReason) -> {
@@ -950,7 +954,7 @@ public class ModEventsRegister {
                     // 停止疯狂模式（如果之前存在）
                     var psychoComponent = SREPlayerPsychoComponent.KEY.get(player);
                     if (psychoComponent != null) {
-                        psychoComponent.reset();
+                        psychoComponent.init();
                     }
 
                     // 随机分配一个杀手身份给魔术师（原版杀手、毒师和清道夫除外）
@@ -977,11 +981,11 @@ public class ModEventsRegister {
             BloodFeudistPlayerComponent.registerEvents();
             if (role.identifier().equals(ModRoles.DIO.identifier())) {
                 var tpc = DIOPlayerComponent.KEY.get(player);
-                tpc.reset();
+                tpc.init();
             }
             if (role.identifier().equals(ModRoles.HOAN_MEIRIN.identifier())) {
                 var tpc = HoanMeirinPlayerComponent.KEY.get(player);
-                tpc.reset();
+                tpc.init();
             }
             if (role.identifier().equals(ModRoles.MAID_SAKUYA.identifier())) {
                 SREPlayerShopComponent.KEY.get(player).setBalance(100);
@@ -996,7 +1000,7 @@ public class ModEventsRegister {
             }
             if (role.identifier().equals(ModRoles.EXAMPLER.identifier())) {
                 var tpc = SREAbilityPlayerComponent.KEY.get(player);
-                tpc.reset();
+                tpc.init();
                 tpc.charges = 0;
                 tpc.sync();
                 return;
@@ -1020,13 +1024,13 @@ public class ModEventsRegister {
             if (role.identifier().equals(ModRoles.ACCOUNTANT.identifier())) {
                 // 会计角色初始化
                 var accountantComponent = org.agmas.noellesroles.component.AccountantPlayerComponent.KEY.get(player);
-                accountantComponent.reset();
+                accountantComponent.init();
                 return;
             }
             if (role.identifier().equals(ModRoles.ALCHEMIST.identifier())) {
                 // 药剂师角色初始化
                 var alchemistComponent = org.agmas.noellesroles.component.AlchemistPlayerComponent.KEY.get(player);
-                alchemistComponent.reset();
+                alchemistComponent.init();
                 return;
             }
             if (role.identifier().equals(TMMRoles.KILLER.identifier())) {
@@ -1064,14 +1068,14 @@ public class ModEventsRegister {
                 executionerPlayerComponent.won = false;
                 SREPlayerShopComponent playerShopComponent = (SREPlayerShopComponent) SREPlayerShopComponent.KEY
                         .get(player);
-                executionerPlayerComponent.reset();
+                executionerPlayerComponent.init();
                 playerShopComponent.setBalance(100);
                 executionerPlayerComponent.sync();
             }
             if (role.equals(ModRoles.VULTURE)) {
                 if (VulturePlayerComponent.KEY.isProvidedBy(player)) {
                     VulturePlayerComponent vulturePlayerComponent = VulturePlayerComponent.KEY.get(player);
-                    vulturePlayerComponent.reset();
+                    vulturePlayerComponent.init();
                     vulturePlayerComponent.bodiesRequired = Math.max(1, (int) ((player.level().players().size() / 3f)
                             - Math.floor(player.level().players().size() / 6f)));
                     vulturePlayerComponent.sync();
@@ -1079,7 +1083,7 @@ public class ModEventsRegister {
             }
             if (role.equals(ModRoles.THE_INSANE_DAMNED_PARANOID_KILLER_OF_DOOM_DEATH_DESTRUCTION_AND_WAFFLES)) {
                 final var insaneKillerPlayerComponent = InsaneKillerPlayerComponent.KEY.get(player);
-                insaneKillerPlayerComponent.reset();
+                insaneKillerPlayerComponent.init();
                 insaneKillerPlayerComponent.sync();
             }
             if (role.equals(ModRoles.RECORDER)) {
@@ -1095,7 +1099,7 @@ public class ModEventsRegister {
             }
             if (role.equals(ModRoles.RECORDER)) {
                 final var recorderPlayerComponent = RecorderPlayerComponent.KEY.get(player);
-                recorderPlayerComponent.reset();
+                recorderPlayerComponent.init();
                 recorderPlayerComponent.sync();
             }
             // 使用映射表添加初始物品
@@ -1104,32 +1108,32 @@ public class ModEventsRegister {
             if (role.equals(ModRoles.GAMBLER)) {
                 org.agmas.noellesroles.roles.gambler.GamblerPlayerComponent gamblerPlayerComponent = org.agmas.noellesroles.roles.gambler.GamblerPlayerComponent.KEY
                         .get(player);
-                gamblerPlayerComponent.reset();
+                gamblerPlayerComponent.init();
                 gamblerPlayerComponent.sync();
             }
 
             if (role.equals(ModRoles.NOISEMAKER)) {
                 org.agmas.noellesroles.roles.noise_maker.NoiseMakerPlayerComponent noiseMakerPlayerComponent = org.agmas.noellesroles.roles.noise_maker.NoiseMakerPlayerComponent.KEY
                         .get(player);
-                noiseMakerPlayerComponent.reset();
+                noiseMakerPlayerComponent.init();
                 noiseMakerPlayerComponent.sync();
             }
             if (role.equals(ModRoles.GHOST)) {
                 org.agmas.noellesroles.roles.ghost.GhostPlayerComponent ghostPlayerComponent = org.agmas.noellesroles.roles.ghost.GhostPlayerComponent.KEY
                         .get(player);
-                ghostPlayerComponent.reset();
+                ghostPlayerComponent.init();
                 ghostPlayerComponent.sync();
             }
             // 操纵师角色初始化
             if (role.equals(ModRoles.MANIPULATOR)) {
                 ManipulatorPlayerComponent manipulatorPlayerComponent = ManipulatorPlayerComponent.KEY.get(player);
-                manipulatorPlayerComponent.reset();
+                manipulatorPlayerComponent.init();
                 manipulatorPlayerComponent.sync();
             }
             if (role.equals(ModRoles.BOMBER)) {
                 if (role.equals(ModRoles.MONITOR)) {
                     MonitorPlayerComponent monitorComponent = MonitorPlayerComponent.KEY.get(player);
-                    monitorComponent.reset();
+                    monitorComponent.init();
                     monitorComponent.sync();
                 }
                 // bomberPlayerComponent.reset(); // 如果有 reset 方法
@@ -1171,14 +1175,14 @@ public class ModEventsRegister {
             if (role.equals(ModRoles.NIAN_SHOU)) {
                 var comc = NianShouPlayerComponent.KEY.maybeGet(player).orElse(null);
                 if (comc != null) {
-                    comc.reset();
+                    comc.init();
                 }
             }
             if (role.equals(ModRoles.PUPPETEER)) {
                 var comc = PuppeteerPlayerComponent.KEY.maybeGet(player).orElse(null);
                 if (comc != null) {
                     if (!comc.isActivePuppeteer())
-                        comc.reset();
+                        comc.init();
                 }
             }
         });
@@ -1284,7 +1288,12 @@ public class ModEventsRegister {
             SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(serverLevel);
             WorldModifierComponent worldModifierComponent = WorldModifierComponent.KEY.get(serverLevel);
             boolean hasDio = serverLevel.players().stream().anyMatch(p -> gameWorldComponent.isRole(p, ModRoles.DIO));
+            boolean[] hasMaChenXu = { false };
             serverLevel.players().forEach(p -> {
+                if (gameWorldComponent.isRole(p, ModRoles.MA_CHEN_XU)) {
+                    hasMaChenXu[0] = true;
+                }
+
                 if (worldModifierComponent.isModifier(p, NRModifiers.EXPEDITION)) {
                     SRERole role = gameWorldComponent.getRole(p);
                     var expeditionComponent = ExpeditionComponent.KEY.get(p);
@@ -1320,7 +1329,7 @@ public class ModEventsRegister {
                 ));
 
                 if (hasDio) {
-                    GameUtils.serverTaskQueue.add(new ServerTaskInfoClasses.SchedulerTask(20 * 8, () -> {
+                    GameUtils.serverAsynTaskLists.add(new ServerTaskInfoClasses.SchedulerTask(20 * 8, () -> {
                         if (p != null) {
                             p.playNotifySound(NRSounds.DIO_SPAWN, SoundSource.PLAYERS, 0.5F, 1.0F);
                         }
@@ -1368,6 +1377,35 @@ public class ModEventsRegister {
                                     .translatable("message.noellesroles.nianshou.firecrackers_distributed")
                                     .withStyle(net.minecraft.ChatFormatting.GOLD),
                             true);
+                }
+            }
+            String currentMap = "unknown";
+            if (serverLevel.getServer() != null) {
+                var areas = io.wifi.starrailexpress.cca.AreasWorldComponent.KEY.get(serverLevel);
+                if (areas != null && areas.mapName != null) {
+                    currentMap = areas.mapName;
+                }
+            }
+            {
+                boolean isMachenxuMap = false;
+                String[] machenxuMap = NoellesRolesConfig.HANDLER.instance().maChenXuMaps.split(Pattern.quote("|"));
+                if (machenxuMap != null && machenxuMap.length > 0) {
+                    isMachenxuMap = Arrays.asList(machenxuMap).contains(currentMap);
+                }
+                if (isMachenxuMap) {
+                    if (!hasMaChenXu[0]) {
+                        var players = serverLevel.players();
+                        players.removeIf(p -> !gameWorldComponent.canUseKillerFeatures(p));
+                        Collections.shuffle(players);
+                        if (players.size() > 0) {
+                            var p = players.getFirst();
+                            RoleUtils.changeRole(p, ModRoles.MA_CHEN_XU);
+                            hasMaChenXu[0] = true;
+                        }
+                    }
+                }
+                if (hasMaChenXu[0]) {
+                    serverLevel.getGameRules().getRule(GameRules.RULE_WEATHER_CYCLE).set(true, serverLevel.getServer());
                 }
             }
         });
@@ -1453,7 +1491,7 @@ public class ModEventsRegister {
                         }
                     }
                     TrainVoicePlugin.resetPlayer(player.getUUID());
-                    component.reset();
+                    component.init();
 
                     player.displayClientMessage(Component.translatable("message.noellesroles.defibrillator.revived"),
                             true);

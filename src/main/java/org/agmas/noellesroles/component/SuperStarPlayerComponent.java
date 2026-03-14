@@ -76,7 +76,7 @@ public class SuperStarPlayerComponent implements RoleComponent, ServerTickingCom
      * 在游戏开始时或角色分配时调用
      */
     @Override
-    public void reset() {
+    public void init() {
         this.isGlowing = false;
         this.glowTicksRemaining = 0;
         this.abilityCooldown = 0;

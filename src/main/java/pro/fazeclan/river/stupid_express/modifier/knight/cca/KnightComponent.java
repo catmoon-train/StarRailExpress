@@ -37,7 +37,7 @@ public class KnightComponent implements RoleComponent {
         return this.knight != null && this.knight.equals(player.getUUID());
     }
 
-    public void reset() {
+    public void init() {
         this.knight = null;
         sync();
     }
@@ -60,7 +60,7 @@ public class KnightComponent implements RoleComponent {
 
     @Override
     public void clear() {
-        this.reset();
+        this.init();
     }
 
     @Override

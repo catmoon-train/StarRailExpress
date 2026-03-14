@@ -52,7 +52,7 @@ public class AntibioticItem extends Item {
                     if (attacker instanceof ServerPlayer player) {
                         if (!((double)target.distanceTo(player) > 3.0F)) {
                             final var playerPoisonComponent = SREPlayerPoisonComponent.KEY.get(target);
-                            ((SREPlayerPoisonComponent) playerPoisonComponent).reset();
+                            ((SREPlayerPoisonComponent) playerPoisonComponent).init();
                             playerPoisonComponent.sync();
                             target.playSound(HSRSounds.ITEM_SYRINGE_STAB, 0.4F, 1.0F);
                             final var blockPos = target.blockPosition();

@@ -160,7 +160,7 @@ public class MagicianPlayerComponent implements RoleComponent, ServerTickingComp
     }
 
     @Override
-    public void reset() {
+    public void init() {
         disguiseRoleId = null;
         sync();
     }
@@ -171,6 +171,6 @@ public class MagicianPlayerComponent implements RoleComponent, ServerTickingComp
 
     @Override
     public void clear() {
-        this.reset();
+        this.init();
     }
 }

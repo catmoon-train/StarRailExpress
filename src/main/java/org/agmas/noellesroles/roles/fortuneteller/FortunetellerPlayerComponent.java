@@ -38,14 +38,14 @@ public class FortunetellerPlayerComponent implements RoleComponent, ServerTickin
     }
 
     @Override
-    public void reset() {
+    public void init() {
         this.protectedPlayers.clear();
         this.sync();
     }
 
     @Override
     public void clear() {
-        this.reset();
+        this.init();
     }
 
     public FortunetellerPlayerComponent(Player player) {

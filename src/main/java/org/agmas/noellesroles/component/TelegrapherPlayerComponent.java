@@ -47,14 +47,14 @@ public class TelegrapherPlayerComponent implements RoleComponent {
      * 重置组件状态
      */
     @Override
-    public void reset() {
+    public void init() {
         this.remainingUses = MAX_USES;
         this.sync();
     }
 
     @Override
     public void clear() {
-        this.reset();
+        this.init();
     }
 
     /**

@@ -30,12 +30,12 @@ public class BomberPlayerComponent implements RoleComponent {
     }
 
     @Override
-    public void reset() {
+    public void init() {
     }
 
     @Override
     public void clear() {
-        this.reset();
+        this.init();
     }
 
     public void buyBomb() {

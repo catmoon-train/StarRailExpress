@@ -161,7 +161,7 @@ public class NameTagInventoryComponent implements RoleComponent {
     }
 
     @Override
-    public void reset() {
+    public void init() {
         this.nameTags.clear();
         this.CurrentNameTag = "";
         this.sync();
@@ -169,7 +169,7 @@ public class NameTagInventoryComponent implements RoleComponent {
 
     @Override
     public void clear() {
-        this.reset();
+        this.init();
     }
 
     /**

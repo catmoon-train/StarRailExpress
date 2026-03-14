@@ -8,7 +8,7 @@ import org.ladysnake.cca.api.v3.component.sync.AutoSyncedComponent;
  */
 public interface RoleComponent extends AutoSyncedComponent {
     Player getPlayer();
-    void reset();
+    void init();
     void clear();
 
     @Override

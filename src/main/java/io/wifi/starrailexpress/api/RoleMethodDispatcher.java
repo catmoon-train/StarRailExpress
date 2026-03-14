@@ -126,7 +126,7 @@ public class RoleMethodDispatcher {
         if (role.isAutoReset()) {
             ComponentKey<? extends RoleComponent> componentKey = role.getComponentKey();
             if (componentKey != null) {
-                componentKey.get(player).reset();
+                componentKey.get(player).init();
             }
         }
     }

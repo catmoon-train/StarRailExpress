@@ -49,7 +49,7 @@ public class ExpeditionComponent implements RoleComponent, ServerTickingComponen
     }
 
     @Override
-    public void reset() {
+    public void init() {
         this.roleSwitched = false;
         this.checkTimer = 0;
         this.sync();

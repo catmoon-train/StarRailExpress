@@ -153,7 +153,7 @@ public class SwapperPlayerComponent implements RoleComponent, ServerTickingCompo
     }
 
     @Override
-    public void reset() {
+    public void init() {
         isSwapping = false;
         swapTimer = 0;
         target1 = null;
@@ -162,6 +162,6 @@ public class SwapperPlayerComponent implements RoleComponent, ServerTickingCompo
 
     @Override
     public void clear() {
-        this.reset();
+        this.init();
     }
 }

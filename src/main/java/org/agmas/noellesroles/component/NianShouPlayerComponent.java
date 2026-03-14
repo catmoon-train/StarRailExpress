@@ -54,7 +54,7 @@ public class NianShouPlayerComponent implements RoleComponent, ServerTickingComp
     }
 
     @Override
-    public void reset() {
+    public void init() {
         this.redPacketCount = 0;
         this.tasksCompleted = 0;
         this.darknessShieldTriggered = false;
@@ -67,7 +67,7 @@ public class NianShouPlayerComponent implements RoleComponent, ServerTickingComp
 
     @Override
     public void clear() {
-        this.reset();
+        this.init();
     }
 
     public int getRedPacketCount() {

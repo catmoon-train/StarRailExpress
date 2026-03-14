@@ -57,7 +57,7 @@ public class BartenderPlayerComponent implements RoleComponent, ServerTickingCom
         this.sync();
     }
 
-    public void reset() {
+    public void init() {
         this.glowTicks.clear();
         this.armor = 0;
         this.sync_with_all();

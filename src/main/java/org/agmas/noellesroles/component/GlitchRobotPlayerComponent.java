@@ -34,14 +34,14 @@ public class GlitchRobotPlayerComponent implements RoleComponent, ServerTickingC
     }
 
     @Override
-    public void reset() {
+    public void init() {
         this.glitchTimer = 0;
         this.sync();
     }
 
     @Override
     public void clear() {
-        this.reset();
+        this.init();
     }
 
     @Override

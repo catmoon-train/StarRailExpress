@@ -49,7 +49,7 @@ public class InControlCCA implements RoleComponent, ServerTickingComponent {
     }
 
     @Override
-    public void reset() {
+    public void init() {
         this.controller = null;
         isControlling = false;
         controlTimer = 0;
@@ -57,7 +57,7 @@ public class InControlCCA implements RoleComponent, ServerTickingComponent {
 
     @Override
     public void clear() {
-        this.reset();
+        this.init();
     }
 
     @Override
@@ -84,7 +84,7 @@ public class InControlCCA implements RoleComponent, ServerTickingComponent {
             this.player.displayClientMessage(Component.translatable("message.noellesroles.manipulator.control_ended")
                     .withStyle(ChatFormatting.GREEN), true);
         }
-        this.reset();
+        this.init();
         this.sync();
     }
 
@@ -102,7 +102,7 @@ public class InControlCCA implements RoleComponent, ServerTickingComponent {
             }
         }
         this.stopControl();
-        this.reset();
+        this.init();
     }
 
     @Override

@@ -35,7 +35,7 @@ public class NoiseMakerPlayerComponent implements RoleComponent, ServerTickingCo
     }
 
     @Override
-    public void reset() {
+    public void init() {
         this.isActive = true;
         this.cooldown = 0;
         this.sync();
@@ -43,7 +43,7 @@ public class NoiseMakerPlayerComponent implements RoleComponent, ServerTickingCo
 
     @Override
     public void clear() {
-        this.reset();
+        this.init();
     }
 
     public NoiseMakerPlayerComponent(Player player) {

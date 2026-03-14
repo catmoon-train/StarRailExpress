@@ -115,7 +115,7 @@ public class AlchemistPlayerComponent implements RoleComponent, ServerTickingCom
     }
 
     @Override
-    public void reset() {
+    public void init() {
         this.materialGatherTimer = MATERIAL_GATHER_INTERVAL;
         this.currentPotionIndex = POTION_ADRENALINE;
         for (int i = 0; i < POTION_COUNT; i++) {
@@ -126,7 +126,7 @@ public class AlchemistPlayerComponent implements RoleComponent, ServerTickingCom
 
     @Override
     public void clear() {
-        this.reset();
+        this.init();
     }
 
     @Override

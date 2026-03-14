@@ -83,7 +83,7 @@ public class SlipperyGhostPlayerComponent implements RoleComponent, ServerTickin
      * 重置组件
      */
     @Override
-    public void reset() {
+    public void init() {
         this.tickCounter = 0;
         this.blankCartridgeCooldown = 0;
         this.blackoutCooldown = 0;
@@ -92,7 +92,7 @@ public class SlipperyGhostPlayerComponent implements RoleComponent, ServerTickin
 
     @Override
     public void clear() {
-        this.reset();
+        this.init();
     }
     
     /**

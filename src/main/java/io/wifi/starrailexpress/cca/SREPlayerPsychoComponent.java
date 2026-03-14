@@ -46,7 +46,7 @@ public class SREPlayerPsychoComponent implements RoleComponent, ServerTickingCom
     }
 
     @Override
-    public void reset() {
+    public void init() {
         this.stopPsychoAndRefreshPsychoCount(true);
         this.sync();
         this.psychoTicks = -1;
@@ -113,7 +113,7 @@ public class SREPlayerPsychoComponent implements RoleComponent, ServerTickingCom
 
     @Override
     public void clear() {
-        reset();
+        init();
     }
 
     public int stopPsycho() {

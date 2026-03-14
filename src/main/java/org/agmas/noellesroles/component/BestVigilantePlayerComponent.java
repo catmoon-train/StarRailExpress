@@ -47,7 +47,7 @@ public class BestVigilantePlayerComponent implements RoleComponent, ServerTickin
      * 重置组件状态
      */
     @Override
-    public void reset() {
+    public void init() {
         this.givenGrenade = false;
         this.sync();
     }

@@ -120,7 +120,7 @@ public class AccountantPlayerComponent implements RoleComponent, ServerTickingCo
     }
 
     @Override
-    public void reset() {
+    public void init() {
         this.passiveIncomeTimer = 0;
         this.currentMode = MODE_INCOME;
         this.markedPlayerUUID = null;
@@ -131,7 +131,7 @@ public class AccountantPlayerComponent implements RoleComponent, ServerTickingCo
 
     @Override
     public void clear() {
-        this.reset();
+        this.init();
     }
 
     @Override

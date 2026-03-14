@@ -145,7 +145,7 @@ public class InsaneKillerPlayerComponent
     }
 
     @Override
-    public void reset() {
+    public void init() {
         isActive = false;
         cooldown = 200;
         // Noellesroles.LOGGER.info("Trigger insane reset");
@@ -168,7 +168,7 @@ public class InsaneKillerPlayerComponent
     @Override
     public void clear() {
         // Noellesroles.LOGGER.info("Trigger insane clear");
-        this.reset();
+        this.init();
     }
 
     public void toggleAbility() {

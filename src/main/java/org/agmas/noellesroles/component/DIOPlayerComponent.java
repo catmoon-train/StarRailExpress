@@ -129,7 +129,7 @@ public class DIOPlayerComponent implements RoleComponent, ServerTickingComponent
      * 在游戏开始时或角色分配时调用
      */
     @Override
-    public void reset() {
+    public void init() {
         this.totalFeedCount = 0;
         this.timeStopCharges = 0;
 

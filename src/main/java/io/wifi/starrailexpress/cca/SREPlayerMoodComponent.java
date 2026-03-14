@@ -72,7 +72,7 @@ public class SREPlayerMoodComponent implements RoleComponent, ServerTickingCompo
     }
 
     @Override
-    public void reset() {
+    public void init() {
         this.tasks.clear();
         this.timesGotten.clear();
         this.nextTaskTimer = GameConstants.TIME_TO_FIRST_TASK;
@@ -83,7 +83,7 @@ public class SREPlayerMoodComponent implements RoleComponent, ServerTickingCompo
 
     @Override
     public void clear() {
-        this.reset();
+        this.init();
     }
 
     private List<Item> getPsychosisItemPool() {

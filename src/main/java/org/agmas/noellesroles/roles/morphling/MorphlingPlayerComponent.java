@@ -30,7 +30,7 @@ public class MorphlingPlayerComponent implements RoleComponent, ServerTickingCom
     public int tickR = 0;
 
     @Override
-    public void reset() {
+    public void init() {
         this.stopMorph();
         this.sync();
     }
@@ -42,7 +42,7 @@ public class MorphlingPlayerComponent implements RoleComponent, ServerTickingCom
 
     @Override
     public void clear() {
-        this.reset();
+        this.init();
     }
 
     @Override

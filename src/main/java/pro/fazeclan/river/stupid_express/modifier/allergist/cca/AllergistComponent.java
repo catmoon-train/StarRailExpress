@@ -36,7 +36,7 @@ public class AllergistComponent implements RoleComponent {
         return this.allergist != null && !this.allergist.equals(UUID.fromString("e1e89fbb-3beb-492a-b1be-46a4ce19c9d1"));
     }
 
-    public void reset() {
+    public void init() {
         this.allergist = null;
         sync();
     }
@@ -57,7 +57,7 @@ public class AllergistComponent implements RoleComponent {
 
     @Override
     public void clear() {
-        this.reset();
+        this.init();
     }
 
     @Override

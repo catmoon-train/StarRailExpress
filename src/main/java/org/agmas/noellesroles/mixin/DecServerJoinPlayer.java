@@ -36,18 +36,18 @@ public class DecServerJoinPlayer {
             pl.clear();
             modifierComponent.sync();
         }
-        SplitPersonalityComponent.KEY.get(serverPlayer).reset();
+        SplitPersonalityComponent.KEY.get(serverPlayer).init();
         SkinSplitPersonalityComponent.KEY.get(serverPlayer).clear();
         serverPlayer.getInventory().clearContent();
         RoleUtils.RemoveAllEffects(serverPlayer);
         RoleUtils.RemoveAllPlayerAttributes(serverPlayer);
-        (InsaneKillerPlayerComponent.KEY.get(serverPlayer)).reset();
-        ((SREPlayerMoodComponent) SREPlayerMoodComponent.KEY.get(serverPlayer)).reset();
-        ((SREPlayerShopComponent) SREPlayerShopComponent.KEY.get(serverPlayer)).reset();
+        (InsaneKillerPlayerComponent.KEY.get(serverPlayer)).init();
+        ((SREPlayerMoodComponent) SREPlayerMoodComponent.KEY.get(serverPlayer)).init();
+        ((SREPlayerShopComponent) SREPlayerShopComponent.KEY.get(serverPlayer)).init();
         (SplitPersonalityComponent.KEY.get(serverPlayer)).clear();
-        ((SREPlayerPoisonComponent) SREPlayerPoisonComponent.KEY.get(serverPlayer)).reset();
-        ((SREPlayerPsychoComponent) SREPlayerPsychoComponent.KEY.get(serverPlayer)).reset();
-        ((SREPlayerNoteComponent) SREPlayerNoteComponent.KEY.get(serverPlayer)).reset();
+        ((SREPlayerPoisonComponent) SREPlayerPoisonComponent.KEY.get(serverPlayer)).init();
+        ((SREPlayerPsychoComponent) SREPlayerPsychoComponent.KEY.get(serverPlayer)).init();
+        ((SREPlayerNoteComponent) SREPlayerNoteComponent.KEY.get(serverPlayer)).init();
         ConfigWorldComponent.KEY.get(serverPlayer.level()).sync();
     }
 

@@ -124,7 +124,7 @@ public class ThiefPlayerComponent implements RoleComponent, ServerTickingCompone
     }
 
     @Override
-    public void reset() {
+    public void init() {
         this.cooldown = ABILITY_COOLDOWN;
         this.currentMode = MODE_STEAL_MONEY;
         this.isInSelectionMode = false;
@@ -133,7 +133,7 @@ public class ThiefPlayerComponent implements RoleComponent, ServerTickingCompone
 
     @Override
     public void clear() {
-        this.reset();
+        this.init();
         this.pendingNotifications.clear();
     }
 

@@ -79,7 +79,7 @@ public class BoxerPlayerComponent implements RoleComponent, ServerTickingCompone
      * 在游戏开始时或角色分配时调用
      */
     @Override
-    public void reset() {
+    public void init() {
         this.cooldown = INITIAL_COOLDOWN; // 开局60秒冷却
         this.invulnerabilityTicks = 0;
         this.isInvulnerable = false;
@@ -88,7 +88,7 @@ public class BoxerPlayerComponent implements RoleComponent, ServerTickingCompone
 
     @Override
     public void clear() {
-        this.reset();
+        this.init();
     }
 
     @Override

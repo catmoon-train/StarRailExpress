@@ -13,6 +13,8 @@ import org.agmas.noellesroles.modifier.expedition.ExpeditionComponent;
 import org.agmas.noellesroles.role.ModRoles;
 
 import java.awt.Color;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * NoellesRoles 修饰符注册类
@@ -33,6 +35,7 @@ public class NRModifiers {
      */
     public static void init() {
         EXPEDITION.civilianOnly = true;
+        EXPEDITION.cannotBeAppliedTo = new ArrayList<>(List.of(ModRoles.GHOST));
         assignModifierComponents();
     }
 
@@ -65,33 +68,37 @@ public class NRModifiers {
                     Noellesroles.LOGGER.info("Expedition modifier assigned to player: " + player.getName().getString());
                 }
             } else {
-                Noellesroles.LOGGER.info("Expedition modifier not assigned to killer/neutral: " + player.getName().getString());
+                Noellesroles.LOGGER
+                        .info("Expedition modifier not assigned to killer/neutral: " + player.getName().getString());
             }
         });
 
         // // 角色分配事件 - 检查是否需要移除远征队修饰符
         // ModdedRoleAssigned.EVENT.register((player, role) -> {
-        //     if (!(player instanceof ServerPlayer)) {
-        //         return;
-        //     }
+        // if (!(player instanceof ServerPlayer)) {
+        // return;
+        // }
 
-        //     // 检查玩家是否有远征队修饰符
-        //     var expeditionComponent = ExpeditionComponent.KEY.get(player);
-        //     if (expeditionComponent != null && expeditionComponent.isExpedition()) {
-        //         // 检查新角色是否是好人阵营
-        //         // 如果不是好人阵营（是杀手或中立），则清除远征队组件
-        //         if (role != null && (!role.isInnocent() || role.canUseKiller() || role.isNeutrals())) {
-        //             // 清除远征队组件
-        //             expeditionComponent.clear();
-        //             expeditionComponent.sync();
+        // // 检查玩家是否有远征队修饰符
+        // var expeditionComponent = ExpeditionComponent.KEY.get(player);
+        // if (expeditionComponent != null && expeditionComponent.isExpedition()) {
+        // // 检查新角色是否是好人阵营
+        // // 如果不是好人阵营（是杀手或中立），则清除远征队组件
+        // if (role != null && (!role.isInnocent() || role.canUseKiller() ||
+        // role.isNeutrals())) {
+        // // 清除远征队组件
+        // expeditionComponent.clear();
+        // expeditionComponent.sync();
 
-        //             // 注意：由于 Harpymodloader 的修饰符系统限制，我们只能清除组件功能
-        //             // 修饰符本身仍然保留在系统中，但不会生效
-        //             // 这是为了防止某些角色（如赌徒、慕恋者）变成杀手后仍保留远征队能力
+        // // 注意：由于 Harpymodloader 的修饰符系统限制，我们只能清除组件功能
+        // // 修饰符本身仍然保留在系统中，但不会生效
+        // // 这是为了防止某些角色（如赌徒、慕恋者）变成杀手后仍保留远征队能力
 
-        //             Noellesroles.LOGGER.info("Expedition modifier effect disabled for player due to role change: " + player.getName().getString() + ", new role: " + role.identifier());
-        //         }
-        //     }
+        // Noellesroles.LOGGER.info("Expedition modifier effect disabled for player due
+        // to role change: " + player.getName().getString() + ", new role: " +
+        // role.identifier());
+        // }
+        // }
         // });
 
         // 远征队修饰符移除事件

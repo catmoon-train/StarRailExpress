@@ -29,14 +29,14 @@ public class SREPlayerNoteComponent implements RoleComponent {
     }
 
     @Override
-    public void reset() {
+    public void init() {
         this.text = new String[]{"", "", "", ""};
         this.written = false;
         this.sync();
     }
     @Override
     public void clear(){
-        reset();
+        init();
     }
     public void setNote(@NotNull String s, String s1, String s2, String s3) {
         this.text = new String[]{s, s1, s2, s3};

@@ -96,7 +96,7 @@ public class PsychologistPlayerComponent implements RoleComponent, ServerTicking
      * 在游戏开始时或角色分配时调用
      */
     @Override
-    public void reset() {
+    public void init() {
         this.cooldown = 0;
         this.healingTarget = null;
         this.healingTargetName = "";
@@ -108,7 +108,7 @@ public class PsychologistPlayerComponent implements RoleComponent, ServerTicking
 
     @Override
     public void clear() {
-        this.reset();
+        this.init();
     }
 
     /**

@@ -531,8 +531,8 @@ public class RicesRoleRhapsody implements ModInitializer {
                         consumeDeliveryBox(postmanPlayer);
 
                         // 重置双方状态（这会触发 isDeliveryActive() 返回 false）
-                        postmanComp.reset();
-                        targetComp.reset();
+                        postmanComp.init();
+                        targetComp.init();
 
                         // 关闭双方界面
                         if (context.player() instanceof ServerPlayer serverPlayer) {
@@ -553,10 +553,10 @@ public class RicesRoleRhapsody implements ModInitializer {
                         Player target = context.player().level().getPlayerByUUID(postmanComp.deliveryTarget);
                         if (target != null) {
                             PostmanPlayerComponent targetComp = ModComponents.POSTMAN.get(target);
-                            targetComp.reset();
+                            targetComp.init();
                         }
                     }
-                    postmanComp.reset();
+                    postmanComp.init();
                 }
             }
         });
@@ -931,7 +931,7 @@ public class RicesRoleRhapsody implements ModInitializer {
     public static void onRoleAssigned(Player player, SRERole role) {
         // 重置玩家的技能冷却
         SREAbilityPlayerComponent abilityComponent = ModComponents.ABILITY.get(player);
-        abilityComponent.reset();
+        abilityComponent.init();
 
         // ==================== 清除其他角色的组件状态 ====================
         // 当角色改变时，需要清除之前角色的组件状态
@@ -983,14 +983,14 @@ public class RicesRoleRhapsody implements ModInitializer {
         if (role.equals(ModRoles.CONSPIRATOR)) {
             // 重置阴谋家组件
             ConspiratorPlayerComponent conspiratorComponent = ModComponents.CONSPIRATOR.get(player);
-            conspiratorComponent.reset();
+            conspiratorComponent.init();
         }
 
         // ==================== 滑头鬼角色处理 ====================
         if (role.equals(ModRoles.SLIPPERY_GHOST)) {
             // 重置滑头鬼组件
             SlipperyGhostPlayerComponent slipperyGhostComponent = ModComponents.SLIPPERY_GHOST.get(player);
-            slipperyGhostComponent.reset();
+            slipperyGhostComponent.init();
         }
 
         // ==================== 工程师角色处理 ====================
@@ -1003,70 +1003,70 @@ public class RicesRoleRhapsody implements ModInitializer {
         if (role.equals(ModRoles.BOXER)) {
             // 重置拳击手组件 - 设置开局冷却
             BoxerPlayerComponent boxerComponent = ModComponents.BOXER.get(player);
-            boxerComponent.reset();
+            boxerComponent.init();
         }
 
         // ==================== 邮差角色处理 ====================
         if (role.equals(ModRoles.POSTMAN)) {
             // 重置邮差组件
             PostmanPlayerComponent postmanComponent = ModComponents.POSTMAN.get(player);
-            postmanComponent.reset();
+            postmanComponent.init();
         }
 
         // ==================== 私家侦探角色处理 ====================
         if (role.equals(ModRoles.DETECTIVE)) {
             // 重置私家侦探组件
             DetectivePlayerComponent detectiveComponent = ModComponents.DETECTIVE.get(player);
-            detectiveComponent.reset();
+            detectiveComponent.init();
         }
 
         // ==================== 电报员角色处理 ====================
         if (role.equals(ModRoles.TELEGRAPHER)) {
             // 重置电报员组件
             TelegrapherPlayerComponent telegrapherComponent = ModComponents.TELEGRAPHER.get(player);
-            telegrapherComponent.reset();
+            telegrapherComponent.init();
         }
 
         // ==================== 跟踪者角色处理 ====================
         if (role.equals(ModRoles.STALKER)) {
             // 重置跟踪者组件
             StalkerPlayerComponent stalkerComponent = ModComponents.STALKER.get(player);
-            stalkerComponent.reset();
+            stalkerComponent.init();
         }
 
         // ==================== 运动员角色处理 ====================
         if (role.equals(ModRoles.ATHLETE)) {
             // 重置运动员组件
             AthletePlayerComponent athleteComponent = ModComponents.ATHLETE.get(player);
-            athleteComponent.reset();
+            athleteComponent.init();
         }
 
         // ==================== 慕恋者角色处理 ====================
         if (role.equals(ModRoles.ADMIRER)) {
             // 重置慕恋者组件
             AdmirerPlayerComponent admirerComponent = ModComponents.ADMIRER.get(player);
-            admirerComponent.reset();
+            admirerComponent.init();
         }
 
         // ==================== 设陷者角色处理 ====================
         if (role.equals(ModRoles.TRAPPER)) {
             // 重置设陷者组件
             TrapperPlayerComponent trapperComponent = ModComponents.TRAPPER.get(player);
-            trapperComponent.reset();
+            trapperComponent.init();
         }
 
         // ==================== 明星角色处理 ====================
         if (role.equals(ModRoles.SUPERSTAR)) {
             // 重置明星组件
             SuperStarPlayerComponent starComponent = ModComponents.STAR.get(player);
-            starComponent.reset();
+            starComponent.init();
         }
 
         // ==================== 退伍军人角色处理 ====================
         if (role.equals(ModRoles.VETERAN)) {
             // 重置退伍军人组件
             VeteranPlayerComponent veteranComponent = ModComponents.VETERAN.get(player);
-            veteranComponent.reset();
+            veteranComponent.init();
 
             // 给予一把刀
             player.addItem(new ItemStack(TMMItems.KNIFE));
@@ -1076,14 +1076,14 @@ public class RicesRoleRhapsody implements ModInitializer {
         if (role.equals(ModRoles.SINGER)) {
             // 重置歌手组件
             SingerPlayerComponent singerComponent = ModComponents.SINGER.get(player);
-            singerComponent.reset();
+            singerComponent.init();
         }
 
         // ==================== 心理学家角色处理 ====================
         if (role.equals(ModRoles.PSYCHOLOGIST)) {
             // 重置心理学家组件
             PsychologistPlayerComponent psychComponent = ModComponents.PSYCHOLOGIST.get(player);
-            psychComponent.reset();
+            psychComponent.init();
         }
 
         // ==================== 傀儡师角色处理 ====================
@@ -1098,7 +1098,7 @@ public class RicesRoleRhapsody implements ModInitializer {
                 LOGGER.info("Puppeteer returned to body - keeping existing state");
             } else {
                 LOGGER.info("Puppeteer reset - new game or new puppeteer assignment");
-                puppeteerComponent.reset();
+                puppeteerComponent.init();
             }
         }
 

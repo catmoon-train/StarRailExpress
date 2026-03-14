@@ -249,7 +249,7 @@ public class StupidEventRegister {
 
             if (cursedComponent.isCursed() && killer != null) {
                 // Transfer curse
-                cursedComponent.reset();
+                cursedComponent.init();
                 WorldModifierComponent worldModifierComponent = WorldModifierComponent.KEY.get(victim.level());
                 worldModifierComponent.removeModifier(victim.getUUID(), SEModifiers.CURSED);
 

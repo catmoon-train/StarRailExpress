@@ -66,14 +66,14 @@ public class AwesomePlayerComponent implements RoleComponent, ServerTickingCompo
     }
 
     @Override
-    public void reset() {
+    public void init() {
         this.nearByDeathTime = 0;
         this.sync();
     }
 
     @Override
     public void clear() {
-        this.reset();
+        this.init();
     }
 
     /**

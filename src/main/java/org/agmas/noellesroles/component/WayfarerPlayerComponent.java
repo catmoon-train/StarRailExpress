@@ -92,7 +92,7 @@ public class WayfarerPlayerComponent implements RoleComponent, ServerTickingComp
      * 在游戏开始时或角色分配时调用
      */
     @Override
-    public void reset() {
+    public void init() {
         this.phase = 0;
         this.killer = null;
         this.deathReason = null;
@@ -102,7 +102,7 @@ public class WayfarerPlayerComponent implements RoleComponent, ServerTickingComp
 
     @Override
     public void clear() {
-        this.reset();
+        this.init();
     }
 
     /**
@@ -236,7 +236,7 @@ public class WayfarerPlayerComponent implements RoleComponent, ServerTickingComp
                         wayC.startPhaseTwo();
                         return;
                     } else {
-                        wayC.reset();
+                        wayC.init();
                         GameUtils.killPlayer(killer, true, null, Noellesroles.id("wayfarer_error"));
                         return;
                     }

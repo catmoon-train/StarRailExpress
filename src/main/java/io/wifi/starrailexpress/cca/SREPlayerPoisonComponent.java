@@ -65,7 +65,7 @@ public class SREPlayerPoisonComponent implements RoleComponent, ServerTickingCom
     }
 
     @Override
-    public void reset() {
+    public void init() {
         this.poisonTicks = -1;
         this.poisonPulseCooldown = 0;
         this.initialPoisonTicks = 0;
@@ -76,7 +76,7 @@ public class SREPlayerPoisonComponent implements RoleComponent, ServerTickingCom
 
     @Override
     public void clear() {
-        this.reset();
+        this.init();
     }
 
     public void sync_with_all() {

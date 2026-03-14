@@ -52,7 +52,7 @@ public class RecorderPlayerComponent implements RoleComponent, ServerTickingComp
     }
 
     @Override
-    public void reset() {
+    public void init() {
         this.guesses.clear();
         this.availableRoles.clear();
         this.startPlayers.clear();
@@ -72,7 +72,7 @@ public class RecorderPlayerComponent implements RoleComponent, ServerTickingComp
 
     @Override
     public void clear() {
-        this.reset();
+        this.init();
     }
 
     public List<ResourceLocation> getAvailableRoles() {

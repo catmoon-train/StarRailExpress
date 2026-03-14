@@ -52,7 +52,7 @@ public class InventoryIntroductionRenderer {
             float scale = getScare(context.guiHeight());
             SRERole role = gameWorldComponent.getRole(player);
             Font font = Minecraft.getInstance().font;
-            final int MAX_WIDTH = (int)(context.guiWidth() / scale / 3);
+            final int MAX_WIDTH = (int) (context.guiWidth() / scale / 3);
 
             if (role != null) {
                String roleName = role.getIdentifier().getPath();
@@ -74,15 +74,18 @@ public class InventoryIntroductionRenderer {
                   int currentY = y + roleNameHeight + 2;
                   List<FormattedCharSequence> infoLines = font.split(roleInfoComponent, MAX_WIDTH);
                   int i = 0;
+                  int maxInfoWidth = 0;
                   for (FormattedCharSequence line : infoLines) {
                      i++;
                      if (currentY >= (float) context.guiHeight() / 3) {
                         float lineY = (float) currentY / scale;
                         var moreInfo = Component.translatable("info.screen.role.see_more")
                               .withStyle(ChatFormatting.GRAY);
+                        maxInfoWidth = Math.max(maxInfoWidth, font.width(moreInfo));
                         context.drawString(font, moreInfo, (int) scaledX, (int) lineY, 11184810);
                         break;
                      }
+                     maxInfoWidth = Math.max(maxInfoWidth, font.width(line));
                      float lineY = (float) currentY / scale;
                      context.drawString(font, line, (int) scaledX, (int) lineY, 11184810);
                      currentY += (int) (9.0F * scale) + 2;
@@ -94,9 +97,6 @@ public class InventoryIntroductionRenderer {
                   int var10000 = (int) (9.0F * scale);
                   int totalHeight = var10000 + infoLineCount * (int) (9.0F * scale) + infoLineCount * 2 + 2;
                   int scaledNameWidth = (int) ((float) font.width(roleNameComponent) * scale);
-                  int maxInfoWidth = infoLines.stream().mapToInt((component) -> {
-                     return (int) ((float) font.width(component) * scale);
-                  }).max().orElse(0);
                   int maxWidth = Math.max(scaledNameWidth, maxInfoWidth);
                   this.drawScaledBackground(context, x, y, maxWidth, totalHeight);
                }

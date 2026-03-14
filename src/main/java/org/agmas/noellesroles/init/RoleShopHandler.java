@@ -168,7 +168,7 @@ public class RoleShopHandler {
       // 刀 - 130金币
       MA_CHEN_XU_SHOP.add(new ShopEntry(
           TMMItems.KNIFE.getDefaultInstance(),
-          130,
+          200,
           ShopEntry.Type.WEAPON));
 
       // 开锁器 - 100金币
@@ -216,13 +216,13 @@ public class RoleShopHandler {
       // 手枪 - 320金币
       MA_CHEN_XU_SHOP.add(new ShopEntry(
           TMMItems.REVOLVER.getDefaultInstance(),
-          320,
+          400,
           ShopEntry.Type.WEAPON));
 
       // 手雷 - 330金币
       MA_CHEN_XU_SHOP.add(new ShopEntry(
           TMMItems.GRENADE.getDefaultInstance(),
-          330,
+          400,
           ShopEntry.Type.WEAPON));
 
       // 撬棍 - 80金币

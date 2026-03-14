@@ -164,7 +164,7 @@ public class PostmanScreenHandler extends AbstractContainerMenu {
 
         // 保存对方的 UUID，然后先 reset 自己（防止对方再通知回来造成循环）
         UUID targetUuid = component.deliveryTarget;
-        component.reset();
+        component.init();
 
         // 通知对方取消传递并关闭界面
         if (targetUuid != null) {

@@ -46,7 +46,7 @@ public class GhostPlayerComponent implements RoleComponent, ServerTickingCompone
     }
 
     @Override
-    public void reset() {
+    public void init() {
         this.isActive = true;
         this.cooldown = 0;
         this.invisibilityTicks = 0;
@@ -58,7 +58,7 @@ public class GhostPlayerComponent implements RoleComponent, ServerTickingCompone
 
     @Override
     public void clear() {
-        this.reset();
+        this.init();
     }
 
     public GhostPlayerComponent(Player player) {

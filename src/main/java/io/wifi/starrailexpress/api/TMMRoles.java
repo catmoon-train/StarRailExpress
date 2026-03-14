@@ -3,6 +3,8 @@ package io.wifi.starrailexpress.api;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.SRE;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 
@@ -23,7 +25,16 @@ public class TMMRoles {
     public static final SRERole KILLER = registerRole(
             new NormalRole(SRE.id("killer"), 0xC13838, false, true, SRERole.MoodType.FAKE, -1, true));
     public static final SRERole LOOSE_END = registerRole(
-            new NormalRole(SRE.id("loose_end"), 0x9F0000, false, false, SRERole.MoodType.NONE, -1, false)).setCanSeeTime(true).setCanUseInstinct(true);
+            new ExtraEffectRole(SRE.id("loose_end"), 0x9F0000, false, false, SRERole.MoodType.NONE, -1, false,
+                    new MobEffectInstance(
+                            MobEffects.MOVEMENT_SPEED,
+                            30 * 20, // 持续时间 60s（tick）
+                            0, // 等级（0 = 速度 I）
+                            true, // ambient（环境效果，如信标）
+                            false, // showParticles（显示粒子）
+                            true // showIcon（显示图标）
+                    )))
+            .setCanSeeTime(true).setCanUseInstinct(true);
 
     public static SRERole registerRole(SRERole role) {
         ROLES.put(role.identifier(), role);

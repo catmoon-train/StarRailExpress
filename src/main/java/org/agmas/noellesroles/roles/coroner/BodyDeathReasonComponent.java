@@ -24,7 +24,7 @@ public class BodyDeathReasonComponent implements RoleComponent, ServerTickingCom
     public PlayerBodyEntity playerBodyEntity;
 
     @Override
-    public void reset() {
+    public void init() {
         this.sync();
     }
 
@@ -35,7 +35,7 @@ public class BodyDeathReasonComponent implements RoleComponent, ServerTickingCom
 
     @Override
     public void clear() {
-        this.reset();
+        this.init();
     }
 
     public BodyDeathReasonComponent(PlayerBodyEntity playerBodyEntity) {

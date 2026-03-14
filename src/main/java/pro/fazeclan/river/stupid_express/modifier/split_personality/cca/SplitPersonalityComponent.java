@@ -334,7 +334,7 @@ public class SplitPersonalityComponent implements RoleComponent, ServerTickingCo
     }
 
     // ========== 重置 ==========
-    public void reset() {
+    public void init() {
         this.mainPersonality = null;
         this.secondPersonality = null;
         this.currentActivePerson = null;
@@ -427,9 +427,9 @@ public class SplitPersonalityComponent implements RoleComponent, ServerTickingCo
     public void serverTick() {
         if (mainPersonality == null || secondPersonality == null) {
             if (mainPersonality == null && secondPersonality != null) {
-                reset();
+                init();
             } else if (mainPersonality != null && secondPersonality == null) {
-                reset();
+                init();
             }
             return;
         }
@@ -453,7 +453,7 @@ public class SplitPersonalityComponent implements RoleComponent, ServerTickingCo
                 this.setTemporaryRevivalStartTick(-1); // 防止重复杀死
                 if (GameUtils.isPlayerAliveAndSurvival(player)) {
                     ServerPlayNetworking.send(sp, new SplitBackCamera());
-                    this.reset();
+                    this.init();
                     WorldModifierComponent modifierComponent = WorldModifierComponent.KEY.get(player.level());
                     modifierComponent.removeModifier(player.getUUID(), SEModifiers.SPLIT_PERSONALITY);
                     var deathReason = StupidExpress.id("split_personality");
@@ -533,6 +533,6 @@ public class SplitPersonalityComponent implements RoleComponent, ServerTickingCo
 
     @Override
     public void clear() {
-        this.reset();
+        this.init();
     }
 }
