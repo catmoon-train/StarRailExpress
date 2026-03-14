@@ -3,6 +3,8 @@ package net.exmo.ssr.nametag;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import io.wifi.StarRailExpressID;
+import io.wifi.starrailexpress.SRE;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
@@ -17,7 +19,6 @@ public class NameTagCommand {
         // /nametag add <nameTag> [target] - 添加名片
         dispatcher.register(Commands.literal("nametag:add")
                 .then(Commands.argument("nameTag", StringArgumentType.string())
-                        .executes(context -> addNametag(context, EntityArgument.getPlayer(context, "target")))
                         .then(Commands.argument("target", EntityArgument.player())
                                 .executes(context -> addNametag(context, EntityArgument.getPlayer(context, "target"))))));
 
@@ -63,17 +64,24 @@ public class NameTagCommand {
      * 添加名片
      */
     private static int addNametag(CommandContext<CommandSourceStack> context, ServerPlayer target) {
-        String nameTag = StringArgumentType.getString(context, "nameTag");
-        NameTagInventoryComponent component = NameTagInventoryComponent.KEY.get(target);
-        
-        component.addNameTag(nameTag);
-        
-        context.getSource().sendSuccess(() -> 
-                Component.literal("已为玩家 ")
-                    .append(target.getDisplayName())
-                    .append(Component.literal(" 添加名片: "))
-                    .append(Component.literal(nameTag)), true);
-        
+        try {
+
+
+            String nameTag = StringArgumentType.getString(context, "nameTag");
+            NameTagInventoryComponent component = NameTagInventoryComponent.KEY.get(target);
+
+            component.addNameTag(nameTag);
+
+            context.getSource().sendSuccess(() ->
+                    Component.literal("已为玩家 ")
+                            .append(target.getDisplayName())
+                            .append(Component.literal(" 添加名片: "))
+                            .append(Component.literal(nameTag)), true);
+
+        }catch (Exception e){
+            context.getSource().sendFailure(Component.literal("添加名片失败"));
+            SRE.LOGGER.error("添加名片失败", e);
+        }
         return 1;
     }
 
