@@ -148,6 +148,7 @@ public interface GameConstants {
         ResourceLocation POISON = SRE.id("poison");
         ResourceLocation FELL_OUT_OF_TRAIN = SRE.id("fell_out_of_train");
         ResourceLocation ARROW = SRE.id("arrow");
+        ResourceLocation TRIDENT = SRE.id("trident");
         ResourceLocation SNIPER_RIFLE = SRE.id("sniper_rifle");
         ResourceLocation SNIPER_RIFLE_BACKFIRE = SRE.id("sniper_rifle_backfire");
         ResourceLocation NUNCHUCK = SRE.id("nunchuck_hit");

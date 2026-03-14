@@ -1,4 +1,4 @@
-{
+r{
   "unknown": "未知",
   "info.screen.roleid.elf": "警長陣營\n你無法撿起手槍，開局自帶一把弓，可在商店中購買弩、毒箭、光靈箭。\n毒箭：被射中的人直接死亡\n光靈箭：被射中的人會發光，若光靈箭被射在牆面上則顯示6格半徑內的玩家人數。\n如果射殺了好人，則自己也會死亡。\n遊俠死後手上的弓和弩會變成左輪手槍掉在地上。",
   "info.screen.roleid.wind_yaose": "中立陣營\n與殺手一同勝利\n永久隱身\n擁有風精靈透視\n主動技能: 將附近一定範圍內玩家的音量調至5%%\n商店可購買風彈，風彈可將一定範圍內的玩家彈開。",
@@ -305,6 +305,8 @@
   "death_reason.noellesroles.dio_final_carnival_cancel": "狂歡結束",
   "death_reason.starrailexpress.arrow": "被箭射死",
   "death_reason.noellesroles.arrow": "被箭射死",
+  "death_reason.starrailexpress.trident": "被三叉戟刺死",
+  "death_reason.noellesroles.trident": "被三叉戟刺死",
   "death_reason.starrailexpress.voodoo": "巫毒魔法",
   "hud.coroner.death_info": "死於 %s秒前，死因是",
   "hud.coroner.role_info": "身份為",

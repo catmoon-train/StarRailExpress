@@ -15,7 +15,8 @@ public interface OnPlayerKilledPlayer {
         GRENADE,
         BAT,
         POISON,
-        ARROW
+        ARROW,
+        TRIDENT
     }
     Event<OnPlayerKilledPlayer> EVENT = createArrayBacked(OnPlayerKilledPlayer.class, listeners -> (victim, killer, reason) -> {
         for (OnPlayerKilledPlayer listener : listeners) {

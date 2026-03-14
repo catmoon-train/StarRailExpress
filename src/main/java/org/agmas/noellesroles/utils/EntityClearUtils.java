@@ -33,6 +33,11 @@ public class EntityClearUtils {
             java.util.List<net.minecraft.world.entity.Entity> entitiesToRemove = new java.util.ArrayList<>();
 
             world.getAllEntities().forEach((entity) -> {
+                // 三叉戟实体不应该被清理
+                if (entity instanceof net.minecraft.world.entity.projectile.ThrownTrident) {
+                    return;
+                }
+
                 if (entity instanceof LockEntity ||
                         entity instanceof AreaEffectCloud ||
                         entity instanceof ItemEntity ||

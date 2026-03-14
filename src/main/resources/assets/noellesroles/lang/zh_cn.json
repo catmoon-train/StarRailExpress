@@ -319,6 +319,8 @@
   "death_reason.noellesroles.dio_final_carnival_cancel": "狂欢结束",
   "death_reason.starrailexpress.arrow": "被箭射死",
   "death_reason.noellesroles.arrow": "被箭射死",
+  "death_reason.starrailexpress.trident": "被三叉戟刺死",
+  "death_reason.noellesroles.trident": "被三叉戟刺死",
   "death_reason.starrailexpress.voodoo": "巫毒魔法",
   "hud.coroner.death_info": "死于 %s秒前，死因是",
   "hud.coroner.role_info": "身份为",
