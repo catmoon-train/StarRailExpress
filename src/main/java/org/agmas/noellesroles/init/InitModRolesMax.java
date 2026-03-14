@@ -36,7 +36,10 @@ public class InitModRolesMax {
         // 工程师每局只能有 1 个
         Harpymodloader.setRoleMaximum(ModRoles.ENGINEER_ID, 1);
         Harpymodloader.setRoleMaximum(ModRoles.LOCKSMITH_ID, 0);
+        Harpymodloader.setRoleMaximum(ModRoles.MA_CHEN_XU, 0);
+        Harpymodloader.setRoleMaximum(ModRoles.GUEST_GHOST, 0);
         Harpymodloader.setOccupationRole(ModRoles.ENGINEER, ModRoles.LOCKSMITH);
+        Harpymodloader.setOccupationRole(ModRoles.MA_CHEN_XU, ModRoles.GUEST_GHOST);
 
         // 拳击手每局只能有 1 个
         Harpymodloader.setRoleMaximum(ModRoles.BOXER_ID, 1);
