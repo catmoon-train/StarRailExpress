@@ -171,20 +171,7 @@ public class RecorderPlayerComponent implements RoleComponent, ServerTickingComp
             return;
 
         SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
-        int correctGuesses = 0;
-
-        for (Map.Entry<UUID, ResourceLocation> entry : guesses.entrySet()) {
-            UUID targetUuid = entry.getKey();
-            ResourceLocation guessedRoleId = entry.getValue();
-
-            Player target = player.level().getPlayerByUUID(targetUuid);
-            if (target != null) {
-                SRERole actualRole = gameWorld.getRole(target);
-                if (actualRole != null && actualRole.identifier().equals(guessedRoleId)) {
-                    correctGuesses++;
-                }
-            }
-        }
+        int correctGuesses = guesses.size();
 
         var players = player.level().players();
         int totalPlayers = 0;

@@ -11,6 +11,7 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.cca.SREPlayerPoisonComponent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +29,11 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 
 import org.agmas.noellesroles.Noellesroles;
@@ -35,15 +41,16 @@ import org.agmas.noellesroles.entity.KuiXiPuppetEntity;
 import org.agmas.noellesroles.init.ModEntities;
 
 /**
- * 马晨絮组件
+ * 布袋鬼组件
  *
- * 管理马晨絮的四段成长机制：
+ * 管理布袋鬼的四段成长机制：
  * - 阶段1（初级鬼）：基础恐惧机制
  * - 阶段2（中级鬼）：增强恐惧+移速+鬼术
  * - 阶段3（高级鬼）：更强恐惧+鬼术+祈雨大招
  * - 阶段4（极致鬼）：最强形态+护盾
  */
 public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
+
     /** 组件键 - 用于从玩家获取此组件 */
     public static final ComponentKey<MaChenXuPlayerComponent> KEY = ModComponents.MA_CHEN_XU;
 
@@ -91,8 +98,12 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
     public static final int GHOST_SKILL_COOLDOWN_SPIRIT_WALK = 700; // 35秒
     public static final int GHOST_SKILL_COOLDOWN_PUPPET_SHOW = 1200; // 60秒
 
-    // ==================== 状态变量 ====================
+    /** 新增鬼术冷却时间 */
+    public static final int GHOST_SKILL_COOLDOWN_INSTANT_SILENCE = 600; // 30秒
+    public static final int GHOST_SKILL_COOLDOWN_BLINK = 400; // 20秒
+    public static final int GHOST_SKILL_COOLDOWN_PARASITE = 1800; // 90秒
 
+    // ==================== 状态变量 ====================
     private final Player player;
 
     /** 当前阶段（1、2、3、4） */
@@ -139,6 +150,11 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
     public int spiritWalkCooldown = 0;
     public int puppetShowCooldown = 0;
 
+    /** 新增鬼术冷却时间 */
+    public int instantSilenceCooldown = 0;
+    public int blinkCooldown = 0;
+    public int parasiteCooldown = 0;
+
     /** 掠风技能状态 */
     public boolean swiftWindActive = false;
     public int swiftWindDuration = 0;
@@ -155,6 +171,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
     /** 伪摹技能是否已使用 */
     public boolean falseMimicryUsed = false;
 
+    public int nowSelectedSkill = 0;
     private final Random random = new Random();
 
     /**
@@ -179,6 +196,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
      */
     @Override
     public void reset() {
+        this.nowSelectedSkill = 0;
         this.stage = 1;
         this.totalSanLoss = 0;
         this.fearTimer = 0;
@@ -195,6 +213,9 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         this.swiftWindCooldown = 0;
         this.spiritWalkCooldown = 0;
         this.puppetShowCooldown = 0;
+        this.instantSilenceCooldown = 0;
+        this.blinkCooldown = 0;
+        this.parasiteCooldown = 0;
         this.swiftWindActive = false;
         this.swiftWindDuration = 0;
         this.swiftWindChargeTime = 0;
@@ -239,6 +260,9 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         this.swiftWindCooldown = 0;
         this.spiritWalkCooldown = 0;
         this.puppetShowCooldown = 0;
+        this.instantSilenceCooldown = 0;
+        this.blinkCooldown = 0;
+        this.parasiteCooldown = 0;
         this.swiftWindActive = false;
         this.swiftWindDuration = 0;
         this.swiftWindChargeTime = 0;
@@ -251,7 +275,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
     }
 
     /**
-     * 检查是否是活跃的马晨絮
+     * 检查是否是活跃的布袋鬼
      */
     public boolean isActiveMaChenXu() {
         SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
@@ -375,6 +399,15 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         if (!ghostSkills.contains("puppet_show")) {
             availableSkills.add("puppet_show");
         }
+        if (!ghostSkills.contains("instant_silence")) {
+            availableSkills.add("instant_silence");
+        }
+        if (!ghostSkills.contains("blink")) {
+            availableSkills.add("blink");
+        }
+        if (!ghostSkills.contains("parasite")) {
+            availableSkills.add("parasite");
+        }
         if (!ghostSkills.contains("false_mimicry")) {
             availableSkills.add("false_mimicry");
         }
@@ -385,7 +418,9 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
 
             if (player instanceof ServerPlayer serverPlayer) {
                 serverPlayer.displayClientMessage(
-                        Component.translatable("message.noellesroles.ma_chen_xu.ghost_skill_acquired", skill)
+                        Component
+                                .translatable("message.noellesroles.ma_chen_xu.ghost_skill_acquired",
+                                        Component.translatable("hud.noellesroles.ma_chen_xu.skill." + skill))
                                 .withStyle(ChatFormatting.GOLD),
                         true);
             }
@@ -458,7 +493,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         SREPlayerShopComponent playerShopComponent = SREPlayerShopComponent.KEY.get(serverPlayer);
         if (playerShopComponent.balance < PRAYER_RAIN_COST) {
             serverPlayer.displayClientMessage(
-                    Component.translatable("message.noellesroles.insufficient_money")
+                    Component.translatable("message.noellesroles.insufficient_funds")
                             .withStyle(ChatFormatting.RED),
                     true);
             return;
@@ -502,7 +537,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         SREPlayerShopComponent playerShopComponent = SREPlayerShopComponent.KEY.get(serverPlayer);
         if (playerShopComponent.balance < FRENZY_RAIN_COST) {
             serverPlayer.displayClientMessage(
-                    Component.translatable("message.noellesroles.insufficient_money")
+                    Component.translatable("message.noellesroles.insufficient_funds")
                             .withStyle(ChatFormatting.RED),
                     true);
             return;
@@ -664,6 +699,9 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
                 ));
             }
         }
+        if (this.player.isSprinting()) {
+            this.chargeSwiftWind();
+        }
         // 处理恐惧机制
         processFearMechanism();
 
@@ -692,6 +730,17 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         }
         if (spiritWalkCooldown > 0) {
             spiritWalkCooldown--;
+        }
+
+        // 处理新增鬼术冷却
+        if (instantSilenceCooldown > 0) {
+            instantSilenceCooldown--;
+        }
+        if (blinkCooldown > 0) {
+            blinkCooldown--;
+        }
+        if (parasiteCooldown > 0) {
+            parasiteCooldown--;
         }
         if (puppetShowCooldown > 0) {
             puppetShowCooldown--;
@@ -755,6 +804,9 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         tag.putInt("prayerRainDuration", this.prayerRainDuration);
         tag.putBoolean("frenzyRainActive", this.frenzyRainActive);
         tag.putInt("frenzyRainDuration", this.frenzyRainDuration);
+        tag.putInt("instantSilenceCooldown", this.instantSilenceCooldown);
+        tag.putInt("blinkCooldown", this.blinkCooldown);
+        tag.putInt("parasiteCooldown", this.parasiteCooldown);
         tag.putInt("frenzyRainCooldown", this.frenzyRainCooldown);
         tag.putBoolean("shieldActive", this.shieldActive);
 
@@ -796,6 +848,9 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
 
         // 读取鬼术列表
         this.ghostSkills.clear();
+        this.instantSilenceCooldown = tag.contains("instantSilenceCooldown") ? tag.getInt("instantSilenceCooldown") : 0;
+        this.blinkCooldown = tag.contains("blinkCooldown") ? tag.getInt("blinkCooldown") : 0;
+        this.parasiteCooldown = tag.contains("parasiteCooldown") ? tag.getInt("parasiteCooldown") : 0;
         if (tag.contains("ghostSkills")) {
             CompoundTag skillsTag = tag.getCompound("ghostSkills");
             int size = skillsTag.getInt("size");
@@ -832,7 +887,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         if (swiftWindCooldown > 0) {
             serverPlayer.displayClientMessage(
                     Component
-                            .translatable("message.noellesroles.ma_chen_xu.swift_wind.cooldown", swiftWindCooldown / 20)
+                            .translatable("tip.noellesroles.ability_cooldown", swiftWindCooldown / 20)
                             .withStyle(ChatFormatting.RED),
                     true);
             return;
@@ -841,7 +896,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         // 检查风能是否充足（需要奔跑15秒 = 300 tick）
         if (swiftWindChargeTime < 300) {
             serverPlayer.displayClientMessage(
-                    Component.translatable("message.noellesroles.ma_chen_xu.swift_wind.not_enough_energy")
+                    Component.translatable("tip.noellesroles.not_enough_energy")
                             .withStyle(ChatFormatting.RED),
                     true);
             return;
@@ -870,7 +925,9 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
                 1.0F, 1.2F);
 
         serverPlayer.displayClientMessage(
-                Component.translatable("message.noellesroles.ma_chen_xu.swift_wind.activated")
+                Component
+                        .translatable("tip.noellesroles.activated.with_name",
+                                Component.translatable("hud.noellesroles.ma_chen_xu.skill.swift_wind"))
                         .withStyle(ChatFormatting.AQUA),
                 true);
 
@@ -900,7 +957,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         if (spiritWalkCooldown > 0) {
             serverPlayer.displayClientMessage(
                     Component
-                            .translatable("message.noellesroles.ma_chen_xu.spirit_walk.cooldown",
+                            .translatable("tip.noellesroles.ability_cooldown",
                                     spiritWalkCooldown / 20)
                             .withStyle(ChatFormatting.RED),
                     true);
@@ -969,7 +1026,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         if (puppetShowCooldown > 0) {
             serverPlayer.displayClientMessage(
                     Component
-                            .translatable("message.noellesroles.ma_chen_xu.puppet_show.cooldown",
+                            .translatable("tip.noellesroles.ability_cooldown",
                                     puppetShowCooldown / 20)
                             .withStyle(ChatFormatting.RED),
                     true);
@@ -995,7 +1052,9 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
                 1.0F, 0.8F);
 
         serverPlayer.displayClientMessage(
-                Component.translatable("message.noellesroles.ma_chen_xu.puppet_show.summoned")
+                Component
+                        .translatable("tip.noellesroles.activated.with_name",
+                                Component.translatable("hud.noellesroles.ma_chen_xu.skill.puppet_show"))
                         .withStyle(ChatFormatting.DARK_PURPLE),
                 true);
 
@@ -1066,7 +1125,306 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         }
     }
 
+    // ==================== 新增鬼术使用方法 ====================
+
+    /**
+     * 使用瞬寂鬼术
+     * 使瞄准指定目标定立在原地3秒，CD：30秒
+     */
+    public void useInstantSilence() {
+        if (!(player instanceof ServerPlayer serverPlayer))
+            return;
+        if (instantSilenceCooldown > 0) {
+            serverPlayer.displayClientMessage(
+                    Component
+                            .translatable("message.noellesroles.ma_chen_xu.instant_silence.cooldown",
+                                    instantSilenceCooldown / 20)
+                            .withStyle(ChatFormatting.RED),
+                    true);
+            return;
+        }
+
+        // 获取玩家视线方向的目标
+        HitResult hitResult = serverPlayer.pick(10.0, 1.0F, false);
+        Player target = null;
+
+        if (hitResult instanceof EntityHitResult entityHit && entityHit.getEntity() instanceof Player) {
+            target = (Player) entityHit.getEntity();
+        } else {
+            // 如果没有直接瞄准，寻找视线方向最近的玩家
+            Vec3 eyePos = serverPlayer.getEyePosition();
+            Vec3 lookVec = serverPlayer.getViewVector(1.0F);
+            Vec3 endPos = eyePos.add(lookVec.scale(10.0));
+
+            AABB searchArea = new AABB(eyePos, endPos).inflate(2.0);
+            List<Player> nearbyPlayers = serverPlayer.level().getEntitiesOfClass(Player.class, searchArea);
+
+            double closestDistance = Double.MAX_VALUE;
+            for (Player nearbyPlayer : nearbyPlayers) {
+                if (nearbyPlayer.equals(serverPlayer) || !GameUtils.isPlayerAliveAndSurvival(nearbyPlayer))
+                    continue;
+
+                double distance = eyePos.distanceTo(nearbyPlayer.getEyePosition());
+                if (distance < closestDistance) {
+                    closestDistance = distance;
+                    target = nearbyPlayer;
+                }
+            }
+        }
+
+        if (target == null || !GameUtils.isPlayerAliveAndSurvival(target)) {
+            serverPlayer.displayClientMessage(
+                    Component.translatable("message.noellesroles.ma_chen_xu.instant_silence.no_target")
+                            .withStyle(ChatFormatting.RED),
+                    true);
+            return;
+        }
+
+        // 设置冷却时间
+        instantSilenceCooldown = GHOST_SKILL_COOLDOWN_INSTANT_SILENCE;
+
+        // 给目标添加缓慢效果（定身3秒）
+        target.addEffect(new MobEffectInstance(
+                MobEffects.MOVEMENT_SLOWDOWN,
+                60, // 3秒
+                255, // 最高等级，完全无法移动
+                false,
+                true,
+                true));
+
+        // 同时添加挖掘疲劳防止攻击
+        target.addEffect(new MobEffectInstance(
+                MobEffects.DIG_SLOWDOWN,
+                60, // 3秒
+                255,
+                false,
+                false,
+                true));
+
+        // 播放音效
+        serverPlayer.level().playSound(null, target.blockPosition(),
+                SoundEvents.ENCHANTMENT_TABLE_USE, SoundSource.PLAYERS,
+                1.0F, 0.5F);
+
+        // 生成粒子效果
+        if (serverPlayer.level() instanceof ServerLevel serverLevel) {
+            serverLevel.sendParticles(ParticleTypes.SOUL,
+                    target.getX(), target.getY() + 1.0, target.getZ(),
+                    20, 0.5, 0.5, 0.5, 0.02);
+        }
+
+        serverPlayer.displayClientMessage(
+                Component
+                        .translatable("message.noellesroles.ma_chen_xu.instant_silence.activated",
+                                target.getDisplayName())
+                        .withStyle(ChatFormatting.DARK_PURPLE),
+                true);
+
+        sync();
+    }
+
+    /**
+     * 使用闪现鬼术
+     * 向鼠标指向的方向飞速前进，获得五秒钟缓慢效果，CD：30秒
+     */
+    public void useBlink() {
+        if (!(player instanceof ServerPlayer serverPlayer))
+            return;
+        if (blinkCooldown > 0) {
+            serverPlayer.displayClientMessage(
+                    Component.translatable("tip.noellesroles.ability_cooldown", blinkCooldown / 20)
+                            .withStyle(ChatFormatting.RED),
+                    true);
+            return;
+        }
+
+        // 设置冷却时间
+        blinkCooldown = GHOST_SKILL_COOLDOWN_BLINK;
+
+        // 获取玩家视线方向
+        Vec3 lookVec = serverPlayer.getViewVector(1.0F);
+
+        // 向视线方向飞速前进（传送约10格距离）
+        double blinkDistance = 10.0;
+        Vec3 currentPos = serverPlayer.position();
+        Vec3 targetPos = currentPos.add(lookVec.scale(blinkDistance));
+
+        // 播放起始位置音效和粒子
+        if (serverPlayer.level() instanceof ServerLevel serverLevel) {
+            serverLevel.sendParticles(ParticleTypes.REVERSE_PORTAL,
+                    currentPos.x, currentPos.y + 1.0, currentPos.z,
+                    30, 0.3, 0.5, 0.3, 0.05);
+        }
+
+        // 传送玩家
+        serverPlayer.teleportTo(targetPos.x, targetPos.y, targetPos.z);
+
+        // 播放目标位置音效和粒子
+        serverPlayer.level().playSound(null, serverPlayer.blockPosition(),
+                SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS,
+                1.0F, 1.5F);
+
+        if (serverPlayer.level() instanceof ServerLevel serverLevel) {
+            serverLevel.sendParticles(ParticleTypes.REVERSE_PORTAL,
+                    targetPos.x, targetPos.y + 1.0, targetPos.z,
+                    30, 0.3, 0.5, 0.3, 0.05);
+        }
+
+        // 给自己添加缓慢效果5秒
+        serverPlayer.addEffect(new MobEffectInstance(
+                MobEffects.MOVEMENT_SLOWDOWN,
+                100, // 5秒
+                1, // 缓慢II
+                false,
+                true,
+                true));
+
+        serverPlayer.displayClientMessage(
+                Component
+                        .translatable("tip.noellesroles.activated.with_name",
+                                Component.translatable("hud.noellesroles.ma_chen_xu.skill.blink"))
+                        .withStyle(ChatFormatting.DARK_AQUA),
+                true);
+
+        sync();
+    }
+
+    /**
+     * 使用寄生鬼术
+     * 瞄准目标，让对方中毒，中毒一分钟后死去，CD：90秒
+     * 参考 ChlorineBombEntity 的中毒实现
+     */
+    public void useParasite() {
+        if (!(player instanceof ServerPlayer serverPlayer))
+            return;
+        if (parasiteCooldown > 0) {
+            serverPlayer.displayClientMessage(
+                    Component.translatable("tip.noellesroles.ability_cooldown", parasiteCooldown / 20)
+                            .withStyle(ChatFormatting.RED),
+                    true);
+            return;
+        }
+
+        // 获取玩家视线方向的目标
+        HitResult hitResult = serverPlayer.pick(10.0, 1.0F, false);
+        Player target = null;
+
+        if (hitResult instanceof EntityHitResult entityHit && entityHit.getEntity() instanceof Player) {
+            target = (Player) entityHit.getEntity();
+        } else {
+            // 如果没有直接瞄准，寻找视线方向最近的玩家
+            Vec3 eyePos = serverPlayer.getEyePosition();
+            Vec3 lookVec = serverPlayer.getViewVector(1.0F);
+            Vec3 endPos = eyePos.add(lookVec.scale(10.0));
+
+            AABB searchArea = new AABB(eyePos, endPos).inflate(2.0);
+            List<Player> nearbyPlayers = serverPlayer.level().getEntitiesOfClass(Player.class, searchArea);
+
+            double closestDistance = Double.MAX_VALUE;
+            for (Player nearbyPlayer : nearbyPlayers) {
+                if (nearbyPlayer.equals(serverPlayer) || !GameUtils.isPlayerAliveAndSurvival(nearbyPlayer))
+                    continue;
+
+                double distance = eyePos.distanceTo(nearbyPlayer.getEyePosition());
+                if (distance < closestDistance) {
+                    closestDistance = distance;
+                    target = nearbyPlayer;
+                }
+            }
+        }
+
+        if (target == null || !GameUtils.isPlayerAliveAndSurvival(target)) {
+            serverPlayer.displayClientMessage(
+                    Component.translatable("tip.noellesroles.no_target")
+                            .withStyle(ChatFormatting.RED),
+                    true);
+            return;
+        }
+
+        // 设置冷却时间
+        parasiteCooldown = GHOST_SKILL_COOLDOWN_PARASITE;
+
+        // 参考 ChlorineBombEntity 的中毒实现，使用 SREPlayerPoisonComponent
+        // 设置中毒时间为60秒（1200 ticks），60秒后死亡
+        SREPlayerPoisonComponent poisonComponent = SREPlayerPoisonComponent.KEY.get(target);
+        poisonComponent.setPoisonTicks(1200, serverPlayer.getUUID());
+        poisonComponent.sync();
+
+        // 播放音效
+        serverPlayer.level().playSound(null, target.blockPosition(),
+                SoundEvents.WITHER_AMBIENT, SoundSource.PLAYERS,
+                0.8F, 1.2F);
+
+        // 生成寄生粒子效果
+        if (serverPlayer.level() instanceof ServerLevel serverLevel) {
+            serverLevel.sendParticles(ParticleTypes.SPORE_BLOSSOM_AIR,
+                    target.getX(), target.getY() + 1.0, target.getZ(),
+                    30, 0.5, 0.8, 0.5, 0.02);
+        }
+
+        serverPlayer.displayClientMessage(
+                Component
+                        .translatable("tip.noellesroles.activated.with_name_and_target", target.getDisplayName(),
+                                Component.translatable("hud.noellesroles.ma_chen_xu.skill.parasite"))
+                        .withStyle(ChatFormatting.DARK_GREEN),
+                true);
+
+        // 给目标一个提示
+        if (target instanceof ServerPlayer targetPlayer) {
+            targetPlayer.displayClientMessage(
+                    Component.translatable("message.noellesroles.ma_chen_xu.parasite.infected")
+                            .withStyle(ChatFormatting.DARK_GREEN, ChatFormatting.ITALIC),
+                    false);
+        }
+
+        sync();
+    }
+
+    public void changeSkill() {
+        this.nowSelectedSkill++;
+        if (this.nowSelectedSkill >= this.ghostSkills.size()) {
+            this.nowSelectedSkill = 0;
+        }
+    }
+
     public void tryActiveAbility() {
-        
+        if (player.isShiftKeyDown()) {
+            // 切换技能
+            this.changeSkill();
+        } else {
+            // 触发技能
+            if (ghostSkills.isEmpty())
+                return;
+            if (this.nowSelectedSkill >= ghostSkills.size()) {
+                return;
+            }
+            var skillId = ghostSkills.get(this.nowSelectedSkill);
+            switch (skillId) {
+                case "parasite":
+                    useParasite();
+                    break;
+                case "blink":
+                    useBlink();
+                    break;
+                case "swift_wind":
+                    // 掠风
+                    useSwiftWind();
+                    break;
+                case "spirit_walk":
+                    useSpiritWalk();
+                    break;
+                case "puppet_show":
+                    usePuppetShow();
+                    break;
+                case "false_mimicry":
+                    useFalseMimicry();
+                    break;
+                case "instant_silence":
+                    useInstantSilence();
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 }
