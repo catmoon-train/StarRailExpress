@@ -21,7 +21,7 @@ public abstract class DoNotApplyFakePoisonMixin {
     @Shadow public int poisonTicks;
 
 
-    @Shadow public abstract void reset();
+    @Shadow public abstract void init();
 
     @Shadow public UUID poisoner;
 
@@ -32,7 +32,7 @@ public abstract class DoNotApplyFakePoisonMixin {
             if (gameWorldComponent.isRole(poisoner, ModRoles.JESTER)) {
                 // Don't interfere with any custom non-killer poisoning roles from other mods
                 if (poisonTicks <= 5) {
-                    reset();
+                    init();
                     ci.cancel();
                 }
             }
