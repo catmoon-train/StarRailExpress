@@ -840,6 +840,14 @@ public class ModEventsRegister {
                 }
             }
 
+            if (gameWorldComponent.isRole(playerEntity, ModRoles.SEA_KING)) {
+                int tridentCount = TMMItemUtils.clearItem(playerEntity, net.minecraft.world.item.Items.TRIDENT);
+                while (tridentCount > 0) {
+                    playerEntity.drop(TMMItems.REVOLVER.getDefaultInstance(), false);
+                    tridentCount--;
+                }
+            }
+
             if (gameWorldComponent.isRole(playerEntity, ModRoles.SWAST)) {
                 int sniperRifleCount = TMMItemUtils.clearItem(playerEntity, TMMItems.SNIPER_RIFLE);
                 while (sniperRifleCount > 0) {

@@ -447,12 +447,46 @@ public class InitModRolesMax {
                 Harpymodloader.setRoleMaximum(ModRoles.MARTIAL_ARTS_INSTRUCTOR_ID, MARTIAL_ARTS_INSTRUCTOR_COUNT);
                 Harpymodloader.setRoleMaximum(ModRoles.BEST_VIGILANTE_ID, BEST_VIGILANTE_COUNT);
 
+                // 海王初始为0
+                int SEA_KING_COUNT = 0;
+                // 判断是否为海王可用地图 (areas14)
+                boolean isSeaKingMap = false;
+                String[] seaKingMaps = NoellesRolesConfig.HANDLER.instance().seaKingMaps.split(Pattern.quote("|"));
+                if (seaKingMaps != null && seaKingMaps.length > 0) {
+                    isSeaKingMap = Arrays.asList(seaKingMaps).contains(currentMap);
+                }
+                // 如果是海王可用地图且有可用警卫位置，100%概率生成海王
+                if (isSeaKingMap && currentTotal > 0) {
+                    SEA_KING_COUNT = 1;
+                    // 随机选择替换的角色
+                    int replaceTarget = random.nextInt(3);
+                    if (replaceTarget == 0 && PATROLLER_COUNT > 0) {
+                        PATROLLER_COUNT--;
+                    } else if (replaceTarget == 1 && MARTIAL_ARTS_INSTRUCTOR_COUNT > 0) {
+                        MARTIAL_ARTS_INSTRUCTOR_COUNT--;
+                    } else if (replaceTarget == 2 && ELF_COUNT > 0) {
+                        ELF_COUNT--;
+                    } else if (PATROLLER_COUNT > 0) {
+                        PATROLLER_COUNT--;
+                    } else if (MARTIAL_ARTS_INSTRUCTOR_COUNT > 0) {
+                        MARTIAL_ARTS_INSTRUCTOR_COUNT--;
+                    } else if (ELF_COUNT > 0) {
+                        ELF_COUNT--;
+                    }
+                    // 更新警卫职业数量
+                    Harpymodloader.setRoleMaximum(ModRoles.PATROLLER, PATROLLER_COUNT);
+                    Harpymodloader.setRoleMaximum(ModRoles.ELF, ELF_COUNT);
+                    Harpymodloader.setRoleMaximum(ModRoles.MARTIAL_ARTS_INSTRUCTOR_ID, MARTIAL_ARTS_INSTRUCTOR_COUNT);
+                }
+                Harpymodloader.setRoleMaximum(ModRoles.SEA_KING_ID, SEA_KING_COUNT);
+
                 if (allSpecialPoliceCount == 0) {
                     Harpymodloader.setRoleMaximum(ModRoles.PATROLLER, 0);
                     Harpymodloader.setRoleMaximum(ModRoles.ELF, 0);
                     Harpymodloader.setRoleMaximum(ModRoles.SWAST_ID, 0);
                     Harpymodloader.setRoleMaximum(ModRoles.MARTIAL_ARTS_INSTRUCTOR_ID, 0);
                     Harpymodloader.setRoleMaximum(ModRoles.BEST_VIGILANTE_ID, 0);
+                    Harpymodloader.setRoleMaximum(ModRoles.SEA_KING_ID, 0);
                 }
             }
             // WRITER (作家) - 0.2%概率生成

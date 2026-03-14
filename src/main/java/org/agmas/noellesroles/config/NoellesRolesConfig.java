@@ -42,6 +42,11 @@ public class NoellesRolesConfig {
     @StringField
     public String swastMaps = "areas1|areas3|areas4|areas7|areas10";
 
+    @SerialEntry(comment = "Areas that will spawn Sea King. Use | to split maps.")
+    @AutoGen(category = "General")
+    @StringField
+    public String seaKingMaps = "areas14";
+
     @SerialEntry(comment = "Role - The chance of egg roles")
     @AutoGen(category = "General")
     @IntField

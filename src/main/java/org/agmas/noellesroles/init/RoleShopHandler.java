@@ -100,6 +100,8 @@ public class RoleShopHandler {
   public static ArrayList<ShopEntry> SWAST_SHOP = new ArrayList<>();
   // ==================== 武术教官商店 ====================
   public static ArrayList<ShopEntry> MARTIAL_ARTS_INSTRUCTOR_SHOP = new ArrayList<>();
+  // ==================== 海王商店 ====================
+  public static ArrayList<ShopEntry> SEA_KING_SHOP = new ArrayList<>();
 
   /**
    * 初始化框架角色商店
@@ -778,6 +780,11 @@ public class RoleShopHandler {
       ShopContent.customEntries.put(
           ModRoles.MARTIAL_ARTS_INSTRUCTOR_ID, MARTIAL_ARTS_INSTRUCTOR_SHOP);
     }
+    // 海王商店
+    {
+      ShopContent.customEntries.put(
+          ModRoles.SEA_KING_ID, SEA_KING_SHOP);
+    }
 
     // 故障机器人商店
     {
@@ -1251,5 +1258,12 @@ public class RoleShopHandler {
         TMMItems.IRON_DOOR_KEY.getDefaultInstance(),
         75,
         ShopEntry.Type.TOOL));
+
+    // 海王商店
+    // 普通三叉戟 - 300金币
+    SEA_KING_SHOP.add(new ShopEntry(
+        Items.TRIDENT.getDefaultInstance(),
+        300,
+        ShopEntry.Type.WEAPON));
   }
 }

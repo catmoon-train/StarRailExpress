@@ -143,6 +143,7 @@ public class ModRoles {
   public static final ResourceLocation ALCHEMIST_ID = Noellesroles.id("alchemist");
   public static final ResourceLocation SWAST_ID = Noellesroles.id("swast");
   public static final ResourceLocation MARTIAL_ARTS_INSTRUCTOR_ID = Noellesroles.id("martial_arts_instructor");
+  public static final ResourceLocation SEA_KING_ID = Noellesroles.id("sea_king");
 
   // 杀手阵营角色 ID
   public static ResourceLocation MORPHLING_ID = Noellesroles.id("morphling");
@@ -551,6 +552,29 @@ public class ModRoles {
   public static SRERole MARTIAL_ARTS_INSTRUCTOR = TMMRoles.registerRole(new NormalRole(
       MARTIAL_ARTS_INSTRUCTOR_ID, // 角色 ID
       new Color(255, 215, 0).getRGB(), // 金黄色 - 代表武术的荣耀与威严
+      true, // isInnocent = 乘客阵营
+      false, // canUseKiller = 无杀手能力
+      SRERole.MoodType.REAL, // 真实心情
+      TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
+      false // 不隐藏计分板
+  )).setCanSeeCoin(true).setVigilanteTeam(true).setCanPickUpRevolver(false);
+
+  /**
+   * 海王角色
+   * - 属于警长阵营 (isInnocent = true, setVigilanteTeam = true)
+   * - 仅在areas14地图生成
+   * - 不能使用杀手能力 (canUseKiller = false)
+   * - 真实心情系统
+   * - 标准冲刺时间
+   * - 在计分板上显示
+   * - 无法捡起左轮手枪
+   * - 开局物品：忠诚3的三叉戟
+   * - 专属商店：普通三叉戟(300金币)
+   */
+  // 海王角色 - 警长阵营
+  public static SRERole SEA_KING = TMMRoles.registerRole(new NormalRole(
+      SEA_KING_ID, // 角色 ID
+      new Color(0, 180, 216).getRGB(), // 海洋蓝 - 代表海王的海洋力量
       true, // isInnocent = 乘客阵营
       false, // canUseKiller = 无杀手能力
       SRERole.MoodType.REAL, // 真实心情
