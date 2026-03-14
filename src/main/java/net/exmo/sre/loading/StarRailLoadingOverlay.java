@@ -215,7 +215,7 @@ public class StarRailLoadingOverlay extends Overlay {
      */
     private void drawProgressBar(GuiGraphics graphics, int width, int height,
                                  float progress, float alpha, float time) {
-        int barWidth = 600;          // 总宽度
+        int barWidth = 450;          // 总宽度
         int barHeight = 6;           // 细条高度
         int barX = (width - barWidth) / 2;
         int barY = height - 80;      // 距离底部80像素
