@@ -77,7 +77,7 @@ public class ClientHudRenderer {
 
   public static void registerSons() {
     RoleHudRenderCallback.EVENT.register(ModRoles.MA_CHEN_XU_ID, (context, tickCounter)->{
-       // 获取马晨絮组件
+       // 获取布袋鬼组件
        var client = Minecraft.getInstance();
         MaChenXuPlayerComponent component = MaChenXuPlayerComponent.KEY.get(client.player);
         if (component == null)

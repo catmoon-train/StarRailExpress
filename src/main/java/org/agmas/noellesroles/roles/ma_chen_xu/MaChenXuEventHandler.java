@@ -7,7 +7,7 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.event.AllowPlayerDeath;
 
 /**
- * 马晨絮事件处理器
+ * 布袋鬼事件处理器
  */
 public class MaChenXuEventHandler {
 

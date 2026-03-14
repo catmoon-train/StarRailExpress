@@ -41,9 +41,9 @@ import org.agmas.noellesroles.entity.KuiXiPuppetEntity;
 import org.agmas.noellesroles.init.ModEntities;
 
 /**
- * 马晨絮组件
+ * 布袋鬼组件
  *
- * 管理马晨絮的四段成长机制：
+ * 管理布袋鬼的四段成长机制：
  * - 阶段1（初级鬼）：基础恐惧机制
  * - 阶段2（中级鬼）：增强恐惧+移速+鬼术
  * - 阶段3（高级鬼）：更强恐惧+鬼术+祈雨大招
@@ -275,7 +275,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
     }
 
     /**
-     * 检查是否是活跃的马晨絮
+     * 检查是否是活跃的布袋鬼
      */
     public boolean isActiveMaChenXu() {
         SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
