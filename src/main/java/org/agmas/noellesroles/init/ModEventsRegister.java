@@ -49,6 +49,7 @@ import org.agmas.noellesroles.roles.conspirator.ConspiratorKilledPlayer;
 import org.agmas.noellesroles.roles.executioner.ExecutionerPlayerComponent;
 import org.agmas.noellesroles.roles.fortuneteller.FortunetellerPlayerComponent;
 import org.agmas.noellesroles.roles.hoan_meirin.HoanMeirinFistPunchHandler;
+import org.agmas.noellesroles.roles.ma_chen_xu.MaChenXuEventHandler;
 import org.agmas.noellesroles.roles.manipulator.ManipulatorPlayerComponent;
 import org.agmas.noellesroles.roles.thief.ThiefPlayerComponent;
 import org.agmas.noellesroles.roles.voodoo.VoodooDeathHandler;
@@ -436,6 +437,8 @@ public class ModEventsRegister {
         /**
          * 这只会发生在客户端
          */
+        MaChenXuEventHandler.register();
+
         SRE.cantUseChatHud.add((p) -> {
             var deathPenalty = ModComponents.DEATH_PENALTY.get(p);
             if (deathPenalty.hasPenalty()) {
@@ -917,7 +920,8 @@ public class ModEventsRegister {
             return true;
         }));
         CanSeePoison.EVENT.register((player) -> {
-            SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY.get(player.level());
+            SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY
+                    .get(player.level());
             if (gameWorldComponent.isRole((Player) player, ModRoles.BARTENDER)) {
                 return true;
             }
@@ -1059,7 +1063,8 @@ public class ModEventsRegister {
                 ExecutionerPlayerComponent executionerPlayerComponent = (ExecutionerPlayerComponent) ExecutionerPlayerComponent.KEY
                         .get(player);
                 executionerPlayerComponent.won = false;
-                SREPlayerShopComponent playerShopComponent = (SREPlayerShopComponent) SREPlayerShopComponent.KEY.get(player);
+                SREPlayerShopComponent playerShopComponent = (SREPlayerShopComponent) SREPlayerShopComponent.KEY
+                        .get(player);
                 executionerPlayerComponent.reset();
                 playerShopComponent.setBalance(100);
                 executionerPlayerComponent.sync();
@@ -1466,7 +1471,8 @@ public class ModEventsRegister {
 
         // 示例：监听是否能看到毒药
         // CanSeePoison.EVENT.register((player) -> {
-        // StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.getWorld());
+        // StarGameWorldComponent gameWorld =
+        // StarGameWorldComponent.KEY.get(player.getWorld());
         // if (gameWorld.isRole(player, ModRoles.YOUR_ROLE)) {
         // return true;
         // }

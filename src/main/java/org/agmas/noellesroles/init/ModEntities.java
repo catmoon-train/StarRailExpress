@@ -133,7 +133,18 @@ public class ModEntities {
                     .trackRangeBlocks(4)
                     .trackedUpdateRate(10)
                     .build());
-
+    /**
+     * 傀戏傀儡实体类型
+     */
+    @SuppressWarnings("deprecation")
+    public static final EntityType<KuiXiPuppetEntity> KUIXI_PUPPET = Registry.register(
+            BuiltInRegistries.ENTITY_TYPE,
+            Noellesroles.id("kuixi_puppet"),
+            FabricEntityTypeBuilder.create(MobCategory.MISC, KuiXiPuppetEntity::new)
+                    .dimensions(EntityDimensions.fixed(0.6f, 1.8f)) // 玩家大小
+                    .trackRangeBlocks(64)
+                    .trackedUpdateRate(3)
+                    .build());
     /**
      * 诱饵弹实体 - 可投掷物品，落地时播放5声左轮手枪射击声
      */
@@ -156,8 +167,8 @@ public class ModEntities {
         FabricDefaultAttributeRegistry.register(WHEELCHAIR, WheelchairEntity.createAttributes());
         // 注册傀儡本体实体属性（LivingEntity 必须注册属性才能生成）
         FabricDefaultAttributeRegistry.register(PUPPETEER_BODY, LivingEntity.createLivingAttributes());
+        FabricDefaultAttributeRegistry.register(KUIXI_PUPPET, LivingEntity.createLivingAttributes());
         // 注册操纵师本体实体属性
         FabricDefaultAttributeRegistry.register(MANIPULATOR_BODY, LivingEntity.createLivingAttributes());
     }
-
 }

@@ -47,6 +47,9 @@ public class StupidExpress implements ModInitializer {
         ArrayList<SRERole> clone = new ArrayList<>(TMMRoles.ROLES.values());
         clone.removeIf(
                 r -> HarpyModLoaderConfig.HANDLER.instance().disabled.contains(r.getIdentifier().toString()));
+        clone.removeIf(r -> r.identifier().equals(TMMRoles.DISCOVERY_CIVILIAN.identifier()));
+        clone.removeIf(r -> r.identifier().equals(TMMRoles.LOOSE_END.identifier()));
+        
         return clone;
     }
 
@@ -55,6 +58,8 @@ public class StupidExpress implements ModInitializer {
         clone.removeIf(
                 r -> !r.canUseKiller()
                         || HarpyModLoaderConfig.HANDLER.instance().disabled.contains(r.getIdentifier().toString()));
+        clone.removeIf(r -> r.identifier().equals(TMMRoles.DISCOVERY_CIVILIAN.identifier()));
+        clone.removeIf(r -> r.identifier().equals(TMMRoles.LOOSE_END.identifier()));
         return clone;
     }
 

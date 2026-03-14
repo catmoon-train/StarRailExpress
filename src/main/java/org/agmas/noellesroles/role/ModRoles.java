@@ -100,6 +100,7 @@ public class ModRoles {
   // 建议格式：MOD_ID:role_name
 
   // 乘客阵营角色 ID
+  public static final ResourceLocation MA_CHEN_XU_ID = Noellesroles.id("ma_chen_xu");
   public static ResourceLocation JESTER_ID = Noellesroles.id("jester");
   public static ResourceLocation CONDUCTOR_ID = Noellesroles.id("conductor");
   public static ResourceLocation BARTENDER_ID = Noellesroles.id("bartender");
@@ -184,6 +185,15 @@ public class ModRoles {
   public static final ResourceLocation DIO_ID = Noellesroles.id("dio");
   public static final ResourceLocation JOJO_ID = Noellesroles.id("jojo");
 
+  public static SRERole MA_CHEN_XU = TMMRoles.registerRole(new NormalRole(
+                MA_CHEN_XU_ID, // 角色 ID
+                new Color(75, 0, 130).getRGB(), // 深紫色 - 代表恐惧与神秘
+                false, // isInnocent = 非乘客阵营（杀手）
+                true, // canUseKiller = 有杀手能力
+                SRERole.MoodType.FAKE, // 假心情
+                Integer.MAX_VALUE, // 无限冲刺时间
+                true // 隐藏计分板
+        )).setComponentKey(ModComponents.MA_CHEN_XU).setCanSeeCoin(true);
   // MAID_SAKUYA 十六夜咲夜
   public static SRERole MAID_SAKUYA = TMMRoles.registerRole(new NormalRole(
       MAID_SAKUYA_ID, // 角色 ID

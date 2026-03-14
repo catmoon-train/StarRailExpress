@@ -150,7 +150,8 @@
       "starrailexpress:player_stats",
       "starrailexpress:ability",
       "starrailexpress:bartender",
-      "starrailexpress:player_nunchuck"
+      "starrailexpress:player_nunchuck",
+      "noellesroles:ma_chen_xu"
     ],
     "loom:injected_interfaces": {
       "net/minecraft/class_5483/class_5496": [
