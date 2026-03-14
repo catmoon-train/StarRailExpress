@@ -1,569 +1,303 @@
+// GeneralStatsPanel.java (重写后)
 package io.wifi.starrailexpress.client.gui.screen;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-
 import io.wifi.starrailexpress.cca.SREPlayerStatsComponent;
-import io.wifi.starrailexpress.util.MathHelper;
 import io.wifi.starrailexpress.SRE;
+import net.exmo.sre.nametag.NameTagInventoryComponent;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.Renderable;
-import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.platform.Window;
 
 public class GeneralStatsPanel extends AbstractWidget {
     private final SREPlayerStatsComponent stats;
     private final int screenWidth;
-    private int scrollY = 0; // 当前滚动偏移（像素）
-    private int maxScroll = 0; // 最大滚动距离（内容高度 - 容器高度）
-    private boolean isDraggingScrollbar = false; // 是否正在拖动滚动条
-    private int scrollbarClickedY = 0; // 点击滑块时鼠标的 Y 坐标（相对于滑块顶部）
-    private final List<Renderable> renderables = new ArrayList<>();
-    private final List<GuiEventListener> children = new ArrayList<>();
-    // 滚动条尺寸
-    private static final int totalContentHeight = 400;
-    private static final int SCROLLBAR_WIDTH = 6;
-    private static final int SCROLLBAR_COLOR = 0xFF808080; // 轨道颜色
-    private static final int SCROLLBAR_THUMB_COLOR = 0xFFC0C0C0; // 滑块颜色
+    private int scrollY = 0;
+    private int maxScroll = 0;
+    private boolean isDraggingScrollbar = false;
+    private double dragStartY = 0;
+    private int dragStartOffset = 0;
+    private Font font;
 
-    public GeneralStatsPanel(int x, int y, int width, int height, SREPlayerStatsComponent stats, int screenWidth,
-            int screenHeight) {
+    private static final int SCROLLBAR_WIDTH = 6;
+    private static final int CONTENT_PAD = 10;
+    private static final int CARD_SPACING = 8;
+    private static final int CARD_COLOR = 0xFF1A1F2E;
+
+    public GeneralStatsPanel(int x, int y, int width, int height, SREPlayerStatsComponent stats, int screenWidth, int screenHeight) {
         super(x, y, width, height, Component.empty());
         this.stats = stats;
         this.screenWidth = screenWidth;
-        setupComponents();
     }
-    public void init(){
+
+    public void init() {
         updateScrollMax();
     }
-    public void updateScrollMax() {
-        maxScroll = Math.max(0, totalContentHeight - this.height);
-    }
-    // @Override
-    // public boolean mouseScrolled(double mouseX, double mouseY, double scrollX,
-    // double scrollY) {
-    // this.scrollY += (int) scrollY;
-    // if (this.scrollY > this.maxScroll) {
-    // this.scrollY = this.maxScroll;
-    // }
-    // if (this.scrollY < 0) {
-    // this.scrollY = 0;
-    // }
-    // return true;
-    // }
 
-    /**
-     * 重新计算最大滚动距离
-     */
-    // private void recalcMaxScroll(int totalContentHeight) {
-    // // for (GuiEventListener child : children) {
-    // // // 假设所有子组件垂直排列，y 坐标是相对于容器顶部的绝对位置
-    // // // 你需要根据实际布局计算总高度，这里简化：每个子组件的高度累加
-    // // totalContentHeight += child.getRectangle().height();
-    // // }
-    // maxScroll = Math.max(0, totalContentHeight - this.height);
-    // // 如果当前滚动超出新范围，调整
-    // scrollY = Mth.clamp(scrollY, 0, maxScroll);
-    // }
-
-    private void addRenderable(Renderable renderable) {
-        renderables.add(renderable);
-        if (renderable instanceof GuiEventListener) {
-            children.add((GuiEventListener) renderable);
-        }
+    private void updateScrollMax() {
+        int contentHeight = estimateContentHeight();
+        maxScroll = Math.max(0, contentHeight - height);
+        scrollY = Mth.clamp(scrollY, 0, maxScroll);
     }
 
-    private void addWidget(GuiEventListener widget) {
-        children.add(widget);
-        if (widget instanceof Renderable) {
-            renderables.add((Renderable) widget);
-        }
-    }
-
-    private void setupComponents() {
-        // 不需要创建子组件，所有渲染在 renderWidget 中完成
-        // 保留内部组件作为渲染对象
-        // ResourceLocation skinTexture = getPlayerSkinTexture();
-        // if (skinTexture != null) {
-        // // PlayerHeadComponent headComponent = new PlayerHeadComponent(
-        // // getX() + 10,
-        // // getY(),
-        // // 32,
-        // // skinTexture);
-        // // addRenderable(headComponent);
-        // }
-        // 底部贴图
-        // BottomTextureComponent bottomTexture = new BottomTextureComponent(
-        // getX() + 10,
-        // 520,
-        // getWidth() - 2 * 10,
-        // 64);
-        // addRenderable(bottomTexture);
-    }
-
-    private ResourceLocation getPlayerSkinTexture() {
-        Minecraft minecraft = Minecraft.getInstance();
-        if (minecraft.player == null || minecraft.getConnection() == null) {
-            return null;
-        }
-        PlayerInfo playerInfo = minecraft.getConnection().getPlayerInfo(minecraft.player.getUUID());
-        if (playerInfo == null) {
-            return null;
-        }
-        return playerInfo.getSkin().texture();
-    }
-
-    private String formatPlayTime(long ticks) {
-        long seconds = ticks / 20;
-        long minutes = seconds / 60;
-        long hours = minutes / 60;
-        long days = hours / 24;
-
-        if (days > 0) {
-            return Component.translatable("screen." + SRE.MOD_ID + ".player_stats.time.days_hours_minutes", days,
-                    hours % 24, minutes % 60).getString();
-        } else if (hours > 0) {
-            return Component
-                    .translatable("screen." + SRE.MOD_ID + ".player_stats.time.hours_minutes", hours, minutes % 60)
-                    .getString();
-        } else if (minutes > 0) {
-            return Component
-                    .translatable("screen." + SRE.MOD_ID + ".player_stats.time.minutes_seconds", minutes, seconds % 60)
-                    .getString();
-        } else {
-            return Component.translatable("screen." + SRE.MOD_ID + ".player_stats.time.seconds", seconds).getString();
-        }
-    }
-
-    private double getKdRatio(int kills, int deaths) {
-        if (deaths == 0) {
-            return kills;
-        }
-        return (double) kills / deaths;
-    }
-
-    private double getWinRate(int wins, int gamesPlayed) {
-        if (gamesPlayed == 0) {
-            return 0.0;
-        }
-        return (double) wins / gamesPlayed * 100.0;
-    }
-
-    /**
-     * 绘制滚动条
-     */
-    private void drawScrollbar(GuiGraphics context, int mouseX, int mouseY) {
-        if (maxScroll <= 0)
-            return; // 内容不需要滚动时不显示滚动条
-
-        int scrollbarX = getX() + width - SCROLLBAR_WIDTH;
-        int scrollbarY = getY();
-        int scrollbarHeight = height;
-
-        // 绘制轨道
-        context.fill(scrollbarX, scrollbarY, scrollbarX + SCROLLBAR_WIDTH, scrollbarY + scrollbarHeight,
-                SCROLLBAR_COLOR);
-
-        // 计算滑块高度和位置
-        float contentRatio = (float) height / (height + maxScroll);
-        int thumbHeight = (int) (contentRatio * scrollbarHeight);
-        thumbHeight = Mth.clamp(thumbHeight, 10, scrollbarHeight); // 滑块最小高度 10px
-
-        int thumbY = scrollbarY + (int) ((float) scrollY / maxScroll * (scrollbarHeight - thumbHeight));
-
-        // 绘制滑块
-        context.fill(scrollbarX, thumbY, scrollbarX + SCROLLBAR_WIDTH, thumbY + thumbHeight, SCROLLBAR_THUMB_COLOR);
+    private int estimateContentHeight() {
+        int y = 0;
+        y += 60; // 玩家信息区
+        y += 40; // 通用统计标题
+        y += 120; // 通用统计两列
+        y += CARD_SPACING;
+        y += 4 * 70; // 四个阵营卡片 (每个约70px)
+        return y;
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        // 先判断点击是否在滚动条上
-        if (isMouseOverScrollbar(mouseX, mouseY)) {
-            // 计算滑块位置，判断是否点击了滑块
-            int scrollbarX = getX() + width - SCROLLBAR_WIDTH;
-            int scrollbarY = getY();
-            int scrollbarHeight = height;
-            float contentRatio = (float) height / (height + maxScroll);
-            int thumbHeight = (int) (contentRatio * scrollbarHeight);
-            thumbHeight = Mth.clamp(thumbHeight, 10, scrollbarHeight);
-            int thumbY = scrollbarY + (int) ((float) scrollY / maxScroll * (scrollbarHeight - thumbHeight));
+    protected void renderWidget(GuiGraphics g, int mx, int my, float delta) {
+        font = Minecraft.getInstance().font;
+        // 面板背景
+        drawPanelBg(g, getX(), getY(), width, height);
 
-            if (mouseY >= thumbY && mouseY <= thumbY + thumbHeight) {
-                // 点击了滑块，开始拖动
-                isDraggingScrollbar = true;
-                scrollbarClickedY = (int) (mouseY - thumbY);
-                return true;
-            } else {
-                // 点击在轨道上，跳转到对应位置
-                double clickRelative = (mouseY - scrollbarY) / scrollbarHeight;
-                setScrollY((int) (clickRelative * maxScroll));
-                return true;
-            }
-        }
+        int areaX = getX() + CONTENT_PAD;
+        int areaY = getY() + CONTENT_PAD;
+        int areaW = width - CONTENT_PAD * 2 - SCROLLBAR_WIDTH - 4;
+        int areaH = height - CONTENT_PAD * 2;
 
-        // 否则将点击事件转发给子组件（坐标需减去容器偏移并加上滚动偏移）
-        double childMouseX = mouseX - getX();
-        double childMouseY = mouseY - getY() + scrollY;
+        enableScissor(areaX, areaY, areaX + areaW, areaY + areaH);
 
-        for (var child : children) {
-            if (child.mouseClicked(childMouseX + child.getRectangle().left(), childMouseY + child.getRectangle().top(),
-                    button)) {
-                return true;
-            }
-        }
-        return false;
-    }
+        int currentY = areaY - scrollY;
+        int leftColX = areaX;
+        int rightColX = areaX + areaW / 2 + 10;
 
-    @Override
-    public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        if (isDraggingScrollbar) {
-            isDraggingScrollbar = false;
-            return true;
-        }
+        // ---- 玩家信息卡片 ----
+        currentY = drawPlayerCard(g, leftColX, currentY, areaW) + CARD_SPACING;
 
-        // 转发给子组件
-        double childMouseX = mouseX - getX();
-        double childMouseY = mouseY - getY() + scrollY;
-        for (var child : children) {
-            if (child.mouseReleased(childMouseX + child.getRectangle().left(), childMouseY + child.getRectangle().top(),
-                    button)) {
-                return true;
-            }
-        }
-        return false;
-    }
+        // ---- 通用统计标题 ----
+        drawSectionHeader(g, leftColX, currentY, areaW, Component.translatable("screen." + SRE.MOD_ID + ".player_stats.general_stats"));
+        currentY += 25;
 
-    @Override
-    public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
-        if (isDraggingScrollbar) {
-            // 根据鼠标拖动更新滚动偏移
-            int scrollbarY = getY();
-            int scrollbarHeight = height;
-            float contentRatio = (float) height / (height + maxScroll);
-            int thumbHeight = (int) (contentRatio * scrollbarHeight);
-            thumbHeight = Mth.clamp(thumbHeight, 10, scrollbarHeight);
+        // ---- 通用统计两列 ----
+        int statY = currentY;
+        drawStatPair(g, leftColX, statY, "screen." + SRE.MOD_ID + ".player_stats.total_play_time", formatPlayTime(stats.getTotalPlayTime()));
+        drawStatPair(g, leftColX + areaW / 2 + 10, statY, "screen." + SRE.MOD_ID + ".player_stats.total_games_played", String.valueOf(stats.getTotalGamesPlayed()));
+        statY += 20;
+        drawStatPair(g, leftColX, statY, "screen." + SRE.MOD_ID + ".player_stats.total_kills", String.valueOf(stats.getTotalKills()));
+        drawStatPair(g, leftColX + areaW / 2 + 10, statY, "screen." + SRE.MOD_ID + ".player_stats.total_team_kills", String.valueOf(stats.getTotalTeamKills()));
+        statY += 20;
+        drawStatPair(g, leftColX, statY, "screen." + SRE.MOD_ID + ".player_stats.total_deaths", String.valueOf(stats.getTotalDeaths()));
+        drawStatPair(g, leftColX + areaW / 2 + 10, statY, "screen." + SRE.MOD_ID + ".player_stats.total_wins", String.valueOf(stats.getTotalWins()));
+        statY += 20;
+        drawStatPair(g, leftColX, statY, "screen." + SRE.MOD_ID + ".player_stats.total_losses", String.valueOf(stats.getTotalLosses()));
+        drawStatPair(g, leftColX + areaW / 2 + 10, statY, "screen." + SRE.MOD_ID + ".player_stats.win_rate", String.format("%.2f%%", getWinRate(stats.getTotalWins(), stats.getTotalGamesPlayed())));
+        statY += 20;
+//        drawStatPair(g, leftColX, statY, "screen." + SRE.MOD_ID + ".player_stats.kd_ratio", String.format("%.2f", getKdRatio(stats.getTotalKills(), stats.getTotalDeaths())));
+        drawStatPair(g, leftColX, statY, "screen." + SRE.MOD_ID + ".player_stats.total_lovers_wins", String.valueOf(stats.getTotalLoversWins()));
 
-            double newThumbTop = mouseY - scrollbarY - scrollbarClickedY;
-            double newScrollRatio = newThumbTop / (scrollbarHeight - thumbHeight);
-            newScrollRatio = Mth.clamp(newScrollRatio, 0, 1);
-            setScrollY((int) (newScrollRatio * maxScroll));
-            return true;
-        }
-        return false;
-    }
+        currentY = statY + 30;
 
-    @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
-        // 处理鼠标滚轮滚动，verticalAmount 通常为滚动距离（正数向上，负数向下）
-        if (isMouseOver(mouseX, mouseY)) {
-            int delta = (int) (-verticalAmount * 10); // 每次滚动10像素，方向取反以符合直觉
-            setScrollY(scrollY + delta);
-            return true;
-        }
-        return false;
-    }
-
-    private void setScrollY(int newScroll) {
-        scrollY = Mth.clamp(newScroll, 0, maxScroll);
-    }
-
-    private boolean isMouseOverScrollbar(double mouseX, double mouseY) {
-        int scrollbarX = getX() + width - SCROLLBAR_WIDTH;
-        return mouseX >= scrollbarX && mouseX <= scrollbarX + SCROLLBAR_WIDTH
-                && mouseY >= getY() && mouseY <= getY() + height;
-    }
-
-    @Override
-    public boolean isMouseOver(double mouseX, double mouseY) {
-        // 判断鼠标是否在容器区域内（包括滚动条区域）
-        return mouseX >= getX() && mouseX <= getX() + width
-                && mouseY >= getY() && mouseY <= getY() + height;
-    }
-
-    @Override
-    protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-        // 绘制面板背景（可选）
-        // graphics.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(),
-        // 0x40000000);
-        graphics.enableScissor(getX(), getY(), getX() + width, getY() + height);
-        int leftPanelX = getX();
-        int leftPanelWidth = getWidth();
-        int currentY = getY() - this.scrollY;
-        int leftColumnX = leftPanelX + 10;
-
-        // 玩家名称（如果没有头部）
-        ResourceLocation skinTexture = getPlayerSkinTexture();
-        if (skinTexture == null && Minecraft.getInstance().player != null) {
-            String playerName = Minecraft.getInstance().player.getDisplayName().getString();
-            int playerNameWidth = Minecraft.getInstance().font.width(playerName);
-            int centeredX = leftColumnX + (leftPanelWidth - 20 - playerNameWidth) / 2; // 考虑左右10像素边距
-            graphics.drawString(Minecraft.getInstance().font,
-                    Minecraft.getInstance().player.getDisplayName().copy()
-                            .withStyle(style -> style.withColor(0xFFFFA0).withBold(true)),
-                    centeredX, currentY, 0xFFFFA0);
-            currentY += Minecraft.getInstance().font.lineHeight + 15;
-        } else if (skinTexture != null) {
-            currentY += 32 + 15;
-        }
-
-        // 通用统计数据标题
-        String statsTitle = Component.translatable("screen." + SRE.MOD_ID + ".player_stats.general_stats").getString();
-        int titleWidth = Minecraft.getInstance().font.width(statsTitle);
-        int centeredTitleX = leftColumnX + (leftPanelWidth - 20 - titleWidth) / 2;
-        graphics.drawString(Minecraft.getInstance().font,
-                Component.translatable("screen." + SRE.MOD_ID + ".player_stats.general_stats")
-                        .withStyle(style -> style.withBold(true)),
-                centeredTitleX, currentY, 0xFFFFFFFF);
-        currentY += Minecraft.getInstance().font.lineHeight + 10;
-
-        // 两列布局
-        int columnWidth = (leftPanelWidth - 2 * 10) / 2 - 5;
-        int rightColumnX = leftColumnX + columnWidth + 10;
-        int columnStartY = currentY;
-
-        // 左列数据
-        drawStatLabelCentered(graphics, leftColumnX, columnStartY,
-                "screen." + SRE.MOD_ID + ".player_stats.total_play_time", formatPlayTime(stats.getTotalPlayTime()),
-                columnWidth);
-        columnStartY += 20;
-        drawStatLabelCentered(graphics, leftColumnX, columnStartY,
-                "screen." + SRE.MOD_ID + ".player_stats.total_games_played",
-                String.valueOf(stats.getTotalGamesPlayed()), columnWidth);
-        columnStartY += 20;
-        drawStatLabelCentered(graphics, leftColumnX, columnStartY, "screen." + SRE.MOD_ID + ".player_stats.total_kills",
-                String.valueOf(stats.getTotalKills()), columnWidth);
-        columnStartY += 20;
-        drawStatLabelCentered(graphics, leftColumnX, columnStartY,
-                "screen." + SRE.MOD_ID + ".player_stats.total_team_kills", String.valueOf(stats.getTotalTeamKills()),
-                columnWidth);
-        columnStartY += 20;
-        drawStatLabelCentered(graphics, leftColumnX, columnStartY,
-                "screen." + SRE.MOD_ID + ".player_stats.total_deaths", String.valueOf(stats.getTotalDeaths()),
-                columnWidth);
-        columnStartY += 20;
-        drawStatLabelCentered(graphics, leftColumnX, columnStartY,
-                "screen." + SRE.MOD_ID + ".player_stats.total_lovers_wins", String.valueOf(stats.getTotalLoversWins()),
-                columnWidth);
-        columnStartY += 20;
-
-        // 右列数据
-        int rightColumnStartY = currentY;
-        drawStatLabelCentered(graphics, rightColumnX, rightColumnStartY,
-                "screen." + SRE.MOD_ID + ".player_stats.total_wins", String.valueOf(stats.getTotalWins()), columnWidth);
-        rightColumnStartY += 20;
-        drawStatLabelCentered(graphics, rightColumnX, rightColumnStartY,
-                "screen." + SRE.MOD_ID + ".player_stats.total_losses", String.valueOf(stats.getTotalLosses()),
-                columnWidth);
-        rightColumnStartY += 20;
-        drawStatLabelCentered(graphics, rightColumnX, rightColumnStartY,
-                "screen." + SRE.MOD_ID + ".player_stats.win_rate",
-                String.format("%.2f%%", getWinRate(stats.getTotalWins(), stats.getTotalGamesPlayed())), columnWidth);
-        rightColumnStartY += 20;
-        drawStatLabelCentered(graphics, rightColumnX, rightColumnStartY,
-                "screen." + SRE.MOD_ID + ".player_stats.kd_ratio",
-                String.format("%.2f", getKdRatio(stats.getTotalKills(), stats.getTotalDeaths())), columnWidth);
-        rightColumnStartY += 20;
-
-        // 阵营统计部分（从左列结束位置开始）
-        currentY = columnStartY;
-        currentY += 10;
-        drawFactionStats(graphics, leftColumnX, currentY, leftPanelWidth - 20);
-
-        // 渲染子组件（头部和底部贴图）
-        for (Renderable renderable : renderables) {
-            renderable.render(graphics, mouseX, mouseY, delta);
-        }
-        graphics.disableScissor();
-        // 绘制滚动条（在内容之上）
-        drawScrollbar(graphics, mouseX, mouseY);
-    }
-
-    private void drawFactionStats(GuiGraphics graphics, int x, int y, int width) {
-        // 平民阵营统计
-        drawFactionSection(graphics, x, y, width,
-                "screen." + SRE.MOD_ID + ".player_stats.civilian_stats",
-                "screen." + SRE.MOD_ID + ".player_stats.total_civilian_games",
-                "screen." + SRE.MOD_ID + ".player_stats.total_civilian_wins",
-                "screen." + SRE.MOD_ID + ".player_stats.civilian_win_rate",
-                "screen." + SRE.MOD_ID + ".player_stats.civilian_kd_ratio",
+        // ---- 阵营统计卡片 ----
+        drawFactionCard(g, leftColX, currentY, areaW,
+                Component.translatable("screen." + SRE.MOD_ID + ".player_stats.civilian_stats").withStyle(s -> s.withColor(0xFF44BB66)),
                 stats.getTotalCivilianGames(), stats.getTotalCivilianWins(),
                 stats.getTotalCivilianKills(), stats.getTotalCivilianDeaths());
+        currentY += 70 + CARD_SPACING;
 
-        y += 50;
-
-        // 杀手阵营统计
-        drawFactionSection(graphics, x, y, width,
-                "screen." + SRE.MOD_ID + ".player_stats.killer_stats",
-                "screen." + SRE.MOD_ID + ".player_stats.total_killer_games",
-                "screen." + SRE.MOD_ID + ".player_stats.total_killer_wins",
-                "screen." + SRE.MOD_ID + ".player_stats.killer_win_rate",
-                "screen." + SRE.MOD_ID + ".player_stats.killer_kd_ratio",
+        drawFactionCard(g, leftColX, currentY, areaW,
+                Component.translatable("screen." + SRE.MOD_ID + ".player_stats.killer_stats").withStyle(s -> s.withColor(0xFFCC2233)),
                 stats.getTotalKillerGames(), stats.getTotalKillerWins(),
                 stats.getTotalKillerKills(), stats.getTotalKillerDeaths());
+        currentY += 70 + CARD_SPACING;
 
-        y += 50;
-
-        // 中立阵营统计
-        drawFactionSection(graphics, x, y, width,
-                "screen." + SRE.MOD_ID + ".player_stats.neutral_stats",
-                "screen." + SRE.MOD_ID + ".player_stats.total_neutral_games",
-                "screen." + SRE.MOD_ID + ".player_stats.total_neutral_wins",
-                "screen." + SRE.MOD_ID + ".player_stats.neutral_win_rate",
-                "screen." + SRE.MOD_ID + ".player_stats.neutral_kd_ratio",
+        drawFactionCard(g, leftColX, currentY, areaW,
+                Component.translatable("screen." + SRE.MOD_ID + ".player_stats.neutral_stats").withStyle(s -> s.withColor(0xFFCCAA22)),
                 stats.getTotalNeutralGames(), stats.getTotalNeutralWins(),
                 stats.getTotalNeutralKills(), stats.getTotalNeutralDeaths());
+        currentY += 70 + CARD_SPACING;
 
-        y += 50;
-
-        // 警长阵营统计
-        drawFactionSection(graphics, x, y, width,
-                "screen." + SRE.MOD_ID + ".player_stats.sheriff_stats",
-                "screen." + SRE.MOD_ID + ".player_stats.total_sheriff_games",
-                "screen." + SRE.MOD_ID + ".player_stats.total_sheriff_wins",
-                "screen." + SRE.MOD_ID + ".player_stats.sheriff_win_rate",
-                "screen." + SRE.MOD_ID + ".player_stats.sheriff_kd_ratio",
+        drawFactionCard(g, leftColX, currentY, areaW,
+                Component.translatable("screen." + SRE.MOD_ID + ".player_stats.sheriff_stats").withStyle(s -> s.withColor(0xFF22BBCC)),
                 stats.getTotalSheriffGames(), stats.getTotalSheriffWins(),
                 stats.getTotalSheriffKills(), stats.getTotalSheriffDeaths());
+
+        disableScissor();
+
+        // 滚动条
+        if (maxScroll > 0) {
+            int scrollbarX = getX() + width - CONTENT_PAD - SCROLLBAR_WIDTH;
+            int contentH = estimateContentHeight();
+            renderVScrollbar(g, scrollbarX, areaY, areaH, scrollY, maxScroll, contentH, mx, my, isDraggingScrollbar);
+        }
     }
 
-    private void drawFactionSection(GuiGraphics graphics, int x, int y, int width,
-            String titleKey, String gamesKey, String winsKey, String winRateKey, String kdRatioKey,
-            int games, int wins, int kills, int deaths) {
-        // 绘制标题
-        String title = Component.translatable(titleKey).getString();
-        int titleWidth = Minecraft.getInstance().font.width(title);
-        int titleX = x + (width - titleWidth) / 2;
-        graphics.drawString(Minecraft.getInstance().font,
-                Component.translatable(titleKey).withStyle(style -> style.withColor(0xFFFFFF).withBold(true)),
-                titleX, y, 0xFFFFFF);
+    private int drawPlayerCard(GuiGraphics g, int x, int y, int width) {
+        int cardHeight = 50;
+        drawCardBg(g, x, y, width, cardHeight, 0xFF2A2F3F);
 
-        // 两列布局
-        int columnWidth = width / 2 - 5;
-        int rightColumnX = x + columnWidth + 10;
-        int lineY = y + 15;
+        PlayerInfo info = Minecraft.getInstance().getConnection().getPlayerInfo(Minecraft.getInstance().player.getUUID());
+        if (info != null && info.getSkin().texture() != null) {
+            ResourceLocation skin = info.getSkin().texture();
+            RenderSystem.enableBlend();
+            g.pose().pushPose();
+            g.pose().translate(x + 5,  y + 5, 0);
+            g.pose().scale(4f, 4f, 0);
+            float offColour =  1f;
+            g.innerBlit(skin, 0, 8, 0, 8, 0, 8 / 64f, 16 / 64f, 8 / 64f, 16 / 64f, 1f, offColour,
+                    offColour, 1f);
+            g.pose().translate(-0.5, -0.5, 0);
+            g.pose().scale(1.125f, 1.125f, 1f);
+            g.innerBlit(skin, 0, 8, 0, 8, 0, 40 / 64f, 48 / 64f, 8 / 64f, 16 / 64f, 1f, offColour,
+                    offColour, 1f);
+            g.pose().popPose();
+        } else {
+            g.fill(x + 5, y + 5, x + 45, y + 45, 0xFF333333);
+        }
 
-        // 左列：场次和胜场
-        drawStatLabelCentered(graphics, x, lineY, gamesKey, String.valueOf(games), columnWidth);
-        lineY += 12;
-        drawStatLabelCentered(graphics, x, lineY, winsKey, String.valueOf(wins), columnWidth);
+        String name = Minecraft.getInstance().player.getDisplayName().getString();
+        g.drawString(font, Component.literal(name).withStyle(s -> s.withBold(true).withColor(0xFFFFAA00)),
+                x + 55, y + 10, 0xFFFFAA00);
+        String currentNameTag = NameTagInventoryComponent.KEY.get(Minecraft.getInstance().player).CurrentNameTag;
+        if (currentNameTag != null && !currentNameTag.isEmpty()) {
+            g.drawString(font, Component.translatable(currentNameTag).withStyle(s -> s.withColor(0xFF55FF55)),
+                    x + 55, y + 22, 0xFF55FF55);
+        }
+//        g.drawString(font, Component.translatable("screen." + SRE.MOD_ID + ".player_stats.player_id", targetPlayerUuid.toString().substring(0, 8)),
+//                x + 55, y + 25, 0xFFAAAAAA);
 
-        // 右列：胜率和K/D比
-        lineY = y + 15;
-        drawStatLabelCentered(graphics, rightColumnX, lineY, winRateKey,
-                String.format("%.2f%%", getWinRate(wins, games)), columnWidth);
-        lineY += 12;
-        drawStatLabelCentered(graphics, rightColumnX, lineY, kdRatioKey,
-                String.format("%.2f", getKdRatio(kills, deaths)), columnWidth);
+        return y + cardHeight;
+    }
+
+    private void drawSectionHeader(GuiGraphics g, int x, int y, int width, Component title) {
+        g.drawString(font, title.copy().withStyle(s -> s.withBold(true)), x, y, 0xFFFFFFFF);
+        g.fill(x, y + font.lineHeight + 2, x + width, y + font.lineHeight + 3, 0x33FFFFFF);
+    }
+
+    private void drawStatPair(GuiGraphics g, int x, int y, String key, String value) {
+        Component label = Component.translatable(key).withStyle(s -> s.withColor(0xFFAAAAAA));
+        Component val = Component.literal(value).withStyle(s -> s.withColor(0xFFFFDD88));
+        g.drawString(font, label, x, y, 0xFFAAAAAA);
+        g.drawString(font, val, x + 100, y, 0xFFFFDD88);
+    }
+
+    private void drawFactionCard(GuiGraphics g, int x, int y, int width, Component title, int games, int wins, int kills, int deaths) {
+        drawCardBg(g, x, y, width, 65, 0xFF252B38);
+        g.drawString(font, title, x + 8, y + 6, title.getStyle().getColor() != null ? title.getStyle().getColor().getValue() : 0xFFFFFFFF);
+
+        int left = x + 8;
+        int right = x + width / 2 + 5;
+
+        g.drawString(font, Component.translatable("screen." + SRE.MOD_ID + ".player_stats.games", games), left, y + 22, 0xFFCCCCCC);
+        g.drawString(font, Component.translatable("screen." + SRE.MOD_ID + ".player_stats.wins", wins), left, y + 36, 0xFFCCCCCC);
+        g.drawString(font, Component.translatable("screen." + SRE.MOD_ID + ".player_stats.win_rate", String.format("%.1f%%", getWinRate(wins, games))), right, y + 22, 0xFFCCCCCC);
+//        g.drawString(font, Component.translatable("screen." + SRE.MOD_ID + ".player_stats.kd", String.format("%.2f", getKdRatio(kills, deaths))), right, y + 36, 0xFFCCCCCC);
+    }
+
+    private void drawCardBg(GuiGraphics g, int x, int y, int w, int h, int color) {
+        g.fill(x, y, x + w, y + h, color);
+        g.renderOutline(x, y, w, h, 0xFF3A4050);
+        g.fill(x + 1, y + 1, x + w - 1, y + 2, 0x22FFFFFF);
+    }
+
+    private void drawPanelBg(GuiGraphics g, int x, int y, int w, int h) {
+        g.fillGradient(x, y, x + w, y + h, 0xD80C1020, 0xD8101828);
+        g.renderOutline(x, y, w, h, 0xFF1E3060);
+        g.fill(x + 1, y + 1, x + w - 1, y + 2, 0x22FFFFFF);
+    }
+
+    private void renderVScrollbar(GuiGraphics g, int x, int y, int h, int offset, int max, int totalH, int mx, int my, boolean dragging) {
+        g.fill(x, y, x + SCROLLBAR_WIDTH, y + h, 0xFF111828);
+        g.fill(x + 1, y + 1, x + SCROLLBAR_WIDTH - 1, y + h - 1, 0x55334466);
+        if (max <= 0) return;
+
+        float ratio = Math.min(1f, (float) h / totalH);
+        int thumbH = Math.max(20, (int) (h * ratio));
+        int thumbY = y + (int) ((h - thumbH) * ((float) offset / max));
+        boolean hl = dragging || (mx >= x && mx <= x + SCROLLBAR_WIDTH && my >= thumbY && my <= thumbY + thumbH);
+        g.fill(x, thumbY, x + SCROLLBAR_WIDTH, thumbY + thumbH, hl ? 0xFF8899CC : 0xFF556699);
+        g.fill(x + 1, thumbY + 1, x + SCROLLBAR_WIDTH - 1, thumbY + thumbH - 1, hl ? 0xFFAABBEE : 0xFF7788BB);
+        g.fill(x + 1, thumbY + 1, x + SCROLLBAR_WIDTH - 1, thumbY + 3, 0x44FFFFFF);
+    }
+
+    private void enableScissor(int x0, int y0, int x1, int y1) {
+        Window w = Minecraft.getInstance().getWindow();
+        int scale = (int) w.getGuiScale();
+        int sy0 = (int) (w.getScreenHeight() - y1 * scale);
+        RenderSystem.enableScissor(x0 * scale, sy0, (x1 - x0) * scale, (y1 - y0) * scale);
+    }
+
+    private void disableScissor() { RenderSystem.disableScissor(); }
+
+    @Override
+    public boolean mouseClicked(double mx, double my, int button) {
+        if (button == 0 && isMouseOver(mx, my)) {
+            int scrollbarX = getX() + width - CONTENT_PAD - SCROLLBAR_WIDTH;
+            int areaY = getY() + CONTENT_PAD;
+            int areaH = height - CONTENT_PAD * 2;
+            if (mx >= scrollbarX && mx <= scrollbarX + SCROLLBAR_WIDTH && my >= areaY && my <= areaY + areaH && maxScroll > 0) {
+                isDraggingScrollbar = true;
+                dragStartY = my;
+                dragStartOffset = scrollY;
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
-    protected void updateWidgetNarration(
-            net.minecraft.client.gui.narration.NarrationElementOutput narrationElementOutput) {
-        // 无需 narration
+    public boolean mouseReleased(double mx, double my, int button) {
+        isDraggingScrollbar = false;
+        return false;
     }
 
-    public void setVisible(boolean visible) {
-        this.visible = visible;
-    }
-
-    private void drawStatLabel(GuiGraphics graphics, int x, int y, String translationKey, String value) {
-        graphics.drawString(Minecraft.getInstance().font,
-                Component.translatable(translationKey, value).withStyle(style -> style.withColor(0xFFCCCCCC)),
-                x, y, 0xFFCCCCCC);
-    }
-
-    private void drawStatLabelCentered(GuiGraphics graphics, int x, int y, String translationKey, String value,
-            int columnWidth) {
-        String text = Component.translatable(translationKey, value).getString();
-        int textWidth = Minecraft.getInstance().font.width(text);
-        int centeredX = x + (columnWidth - textWidth) / 2;
-        graphics.drawString(Minecraft.getInstance().font,
-                Component.translatable(translationKey, value).withStyle(style -> style.withColor(0xFFCCCCCC)),
-                centeredX, y, 0xFFCCCCCC);
-    }
-
-    public int getScreenWidth() {
-        return screenWidth;
-    }
-
-    /**
-     * 渲染玩家头部的自定义组件
-     */
-    private static class PlayerHeadComponent extends AbstractWidget {
-        private final ResourceLocation skinTexture;
-        private final int size;
-
-        public PlayerHeadComponent(int x, int y, int size, ResourceLocation skinTexture) {
-            super(x, y, size, size, Component.empty());
-            this.skinTexture = skinTexture;
-            this.size = size;
+    @Override
+    public boolean mouseDragged(double mx, double my, int button, double dx, double dy) {
+        if (isDraggingScrollbar && maxScroll > 0) {
+            int areaH = height - CONTENT_PAD * 2;
+            int totalH = estimateContentHeight();
+            int thumbH = Math.max(20, (int) (areaH * Math.min(1f, (float) areaH / totalH)));
+            double trackH = areaH - thumbH;
+            if (trackH > 0) {
+                scrollY = (int) (dragStartOffset + (my - dragStartY) / trackH * maxScroll);
+                scrollY = Mth.clamp(scrollY, 0, maxScroll);
+            }
+            return true;
         }
-
-        @Override
-        protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-            if (skinTexture == null)
-                return;
-
-            RenderSystem.enableBlend();
-            graphics.pose().pushPose();
-            graphics.pose().translate(getX(), getY(), 0);
-            // 渲染头部（8x8 纹理区域，位于 8,8 到 16,16）
-            graphics.blit(skinTexture, 0, 0, size, size, 8, 8, 8, 8, 64, 64);
-            // 渲染头盔层（40,8 到 48,16）
-            graphics.blit(skinTexture, 0, 0, size, size, 40, 8, 8, 8, 64, 64);
-            graphics.pose().popPose();
-            RenderSystem.disableBlend();
-        }
-
-        @Override
-        protected void updateWidgetNarration(
-                net.minecraft.client.gui.narration.NarrationElementOutput narrationElementOutput) {
-            // 无需 narration
-        }
+        return false;
     }
 
-    /**
-     * 渲染底部贴图的自定义组件
-     */
-    private static class BottomTextureComponent extends AbstractWidget {
-        private static final ResourceLocation TEXTURE = PlayerStatsScreen.ID; // 使用 PlayerStatsScreen 的 ID
-
-        public BottomTextureComponent(int x, int y, int width, int height) {
-            super(x, y, width, height, Component.empty());
+    @Override
+    public boolean mouseScrolled(double mx, double my, double horiz, double vert) {
+        if (isMouseOver(mx, my)) {
+            scrollY = Mth.clamp(scrollY - (int) (vert * 20), 0, maxScroll);
+            return true;
         }
-
-        @Override
-        protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-            if (TEXTURE == null)
-                return;
-            RenderSystem.enableBlend();
-            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-            graphics.pose().pushPose();
-            graphics.pose().translate(getX() + getWidth() / 2f, getY() + getHeight() / 2f, 0);
-            int height = 254;
-            int width = 497;
-            float scale = 0.28f;
-            graphics.pose().scale(scale, scale, 1f);
-            int xOffset = 0;
-            int yOffset = 0;
-            graphics.innerBlit(TEXTURE, (int) (xOffset - width / 2f), (int) (xOffset + width / 2f),
-                    (int) (yOffset - height / 2f), (int) (yOffset + height / 2f), 0, 0, 1f, 0, 1f, 1f, 1f, 1f, 1f);
-            graphics.pose().popPose();
-
-            RenderSystem.disableBlend();
-        }
-
-        @Override
-        protected void updateWidgetNarration(
-                net.minecraft.client.gui.narration.NarrationElementOutput narrationElementOutput) {
-            // 无需 narration
-        }
+        return false;
     }
+
+    @Override
+    public boolean isMouseOver(double mx, double my) {
+        return mx >= getX() && mx <= getX() + width && my >= getY() && my <= getY() + height;
+    }
+
+    @Override
+    protected void updateWidgetNarration(net.minecraft.client.gui.narration.NarrationElementOutput out) {}
+
+    public void setVisible(boolean visible) { this.visible = visible; }
+
+    private String formatPlayTime(long ticks) {
+        long sec = ticks / 20;
+        long min = sec / 60;
+        long hour = min / 60;
+        long day = hour / 24;
+        if (day > 0) return day + "d " + (hour % 24) + "h " + (min % 60) + "m";
+        if (hour > 0) return hour + "h " + (min % 60) + "m";
+        if (min > 0) return min + "m " + (sec % 60) + "s";
+        return sec + "s";
+    }
+
+    private double getKdRatio(int kills, int deaths) { return deaths == 0 ? kills : (double) kills / deaths; }
+    private double getWinRate(int wins, int games) { return games == 0 ? 0 : (double) wins / games * 100; }
 }

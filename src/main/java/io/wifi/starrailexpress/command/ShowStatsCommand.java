@@ -3,6 +3,7 @@ package io.wifi.starrailexpress.command;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import io.wifi.starrailexpress.cca.SREPlayerStatsComponent;
 import io.wifi.starrailexpress.network.ShowStatsPayload;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.commands.CommandSourceStack;
@@ -50,6 +51,7 @@ public class ShowStatsCommand {
     }
 
     private static void openStatsScreen(ServerPlayer player, UUID targetPlayerUuid) {
+        SREPlayerStatsComponent.KEY.get( player).syncNow();
         ServerPlayNetworking.send(player, new ShowStatsPayload(targetPlayerUuid));
     }
 }

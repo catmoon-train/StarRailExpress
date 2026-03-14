@@ -235,6 +235,7 @@ public class SREPlayerStatsComponent implements AutoSyncedComponent, ServerTicki
         tag.putInt("TotalSheriffWins", totalSheriffWins);
         tag.putInt("TotalSheriffKills", totalSheriffKills);
         tag.putInt("TotalSheriffDeaths", totalSheriffDeaths);
+        writeRolesNbt(tag, wrapperLookup);
     }
 
     /**
@@ -268,6 +269,18 @@ public class SREPlayerStatsComponent implements AutoSyncedComponent, ServerTicki
         }
         tag.put("RoleStats", roleStatsList);
     }
+    public void writeRolesNbt(@NotNull CompoundTag tag, HolderLookup.Provider wrapperLookup) {
+
+        ListTag roleStatsList = new ListTag();
+        for (Map.Entry<ResourceLocation, RoleStats> entry : roleStats.entrySet()) {
+            CompoundTag roleTag = new CompoundTag();
+            roleTag.putString("RoleId", entry.getKey().toString());
+            entry.getValue().writeToNbt(roleTag, wrapperLookup);
+            roleStatsList.add(roleTag);
+        }
+        tag.put("RoleStats", roleStatsList);
+    }
+
 
     // Getter 和 Setter 方法
     public long getTotalPlayTime() {

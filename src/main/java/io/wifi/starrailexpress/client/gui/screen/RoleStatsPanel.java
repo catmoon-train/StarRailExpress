@@ -1,15 +1,15 @@
-
+// RoleStatsPanel.java (重写后)
 package io.wifi.starrailexpress.client.gui.screen;
 
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
-
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREPlayerStatsComponent;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.replay.ReplayDisplayUtils;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.EditBox;
@@ -19,619 +19,443 @@ import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.BiConsumer;
 
 public class RoleStatsPanel implements Renderable, GuiEventListener, NarratableEntry {
-    private final SREPlayerStatsComponent stats; // 玩家统计数据组件
-    private SRERole selectedRole; // 当前选中的角色
-    private SREPlayerStatsComponent.RoleStats selectedRoleStats; // 当前选中角色的统计数据
-    private ScrollableRoleListComponent roleListComponent; // 滚动角色列表组件
-    private RoleDetailsComponent roleDetailsComponent; // 角色详情组件
-    private EditBox searchBox; // 搜索框
+    private final SREPlayerStatsComponent stats;
+    private SRERole selectedRole;
+    private SREPlayerStatsComponent.RoleStats selectedRoleStats;
+    private ScrollableRoleListComponent roleListComponent;
+    private RoleDetailsComponent roleDetailsComponent;
+    private EditBox searchBox;
 
-    private final int x; // 组件X坐标
-    private final int y; // 组件Y坐标
-    private final int width; // 组件宽度
-    private final int height; // 组件高度
-    private boolean visible = true; // 组件是否可见
-    private final List<GuiEventListener> children = new ArrayList<>(); // 子事件监听器列表
-    private final List<Renderable> renderables = new ArrayList<>(); // 可渲染对象列表
-    private static void enableScissor(float x0, float y0, float x1, float y1) {
-        Window window = Minecraft.getInstance().getWindow();
-        int screenHeight = window.getScreenHeight();
-        int scissorX = (int) (x0 * window.getGuiScale());
-        int scissorY = (int) (screenHeight - (y1 * window.getGuiScale()));
-        int scissorWidth = (int) ((x1 - x0) * window.getGuiScale());
-        int scissorHeight = (int) ((y1 - y0) * window.getGuiScale());
-        RenderSystem.enableScissor(scissorX, scissorY, scissorWidth, scissorHeight);
-    }
-    /**
-     * 构造函数
-     * @param x X坐标
-     * @param y Y坐标
-     * @param width 宽度
-     * @param height 高度
-     * @param stats 玩家统计数据
-     */
+    private final int x, y, width, height;
+    private boolean visible = true;
+    private final List<GuiEventListener> children = new ArrayList<>();
+    private final List<Renderable> renderables = new ArrayList<>();
+
     public RoleStatsPanel(int x, int y, int width, int height, SREPlayerStatsComponent stats) {
-        this.x = x;
-        this.y = y;
-        this.width = width;
-        this.height = height;
-        this.stats = stats;
+        this.x = x; this.y = y; this.width = width; this.height = height; this.stats = stats;
         setupComponents();
     }
 
-    // 获取组件位置和尺寸的方法
-    public int getX() {
-        return x;
-    }
-
-    public int getY() {
-        return y;
-    }
-
-    public int getWidth() {
-        return width;
-    }
-
-    public int getHeight() {
-        return height;
-    }
-
-    /**
-     * 添加可渲染组件
-     * @param renderable 可渲染对象
-     */
-    private void addRenderableWidget(Renderable renderable) {
-        if (renderable instanceof GuiEventListener) {
-            children.add((GuiEventListener) renderable);
-        }
-        renderables.add(renderable);
-    }
-
-    /**
-     * 添加事件监听组件
-     * @param widget GUI事件监听器
-     */
-    private void addWidget(GuiEventListener widget) {
-        children.add(widget);
-        if (widget instanceof Renderable) {
-            renderables.add((Renderable) widget);
-        }
-    }
-
-    /**
-     * 添加组件到渲染列表
-     * @param component 要添加的组件
-     */
-    private void addComponent(Renderable component) {
-        renderables.add(component);
-    }
-
-    /**
-     * 设置界面组件
-     */
     private void setupComponents() {
-        int rightPanelContentX = getX();
-        int rightPanelContentWidth = getWidth();
-        int currentY = getY();
-
-        titleY = currentY;
-        currentY += Minecraft.getInstance().font.lineHeight + 15;
-
-        // 创建搜索框
-        searchBox = new EditBox(
-                Minecraft.getInstance().font,
-                rightPanelContentX,
-                currentY,
-                rightPanelContentWidth,
-                20,
-                Component.translatable("screen." + SRE.MOD_ID + ".player_stats.search_role")
-        );
-        searchBox.setHint(Component.translatable("screen." + SRE.MOD_ID + ".player_stats.search_role"));
+        int searchX = x + 10;
+        int searchY = y + 30;
+        int searchW = width - 20;
+        searchBox = new EditBox(Minecraft.getInstance().font, searchX, searchY, searchW, 20,
+                Component.translatable("screen." + SRE.MOD_ID + ".player_stats.search_role"));
+        searchBox.setHint(Component.translatable("screen." + SRE.MOD_ID + ".player_stats.search_role").withStyle(s -> s.withColor(0xFF888888)));
         searchBox.setMaxLength(50);
         searchBox.setResponder(this::onSearchTextChanged);
-        this.addRenderableWidget(searchBox);
-        currentY += searchBox.getHeight() + 10;
+        addRenderableWidget(searchBox);
 
-        // 计算可用高度并创建角色列表
-        int availableHeight = getHeight() - (currentY - getY()) - 15;
-        int roleListHeight = Math.max(50, availableHeight / 2);
-        roleListComponent = new ScrollableRoleListComponent(
-                rightPanelContentX,
-                currentY,
-                rightPanelContentWidth,
-                roleListHeight,
-                this::onRoleSelected
-        );
+        int listY = searchY + 25;
+        int listH = (height - (listY - y)) / 2 - 5;
+        roleListComponent = new ScrollableRoleListComponent(x + 10, listY, width - 20, listH, this::onRoleSelected);
+        addRenderableWidget(roleListComponent);
 
-        // 准备角色数据并排序
+        int detailY = listY + listH + 10;
+        int detailH = height - (detailY - y) - 10;
+        roleDetailsComponent = new RoleDetailsComponent(x + 10, detailY, width - 20, detailH);
+        addRenderableWidget(roleDetailsComponent);
+
         List<SRERole> roles = new ArrayList<>();
         Map<ResourceLocation, SREPlayerStatsComponent.RoleStats> roleStatsMap = stats.getRoleStats();
         for (SRERole role : TMMRoles.ROLES.values()) {
-            if (roleStatsMap.containsKey(role.identifier())) {
-                roles.add(role);
-            }
+            if (roleStatsMap.containsKey(role.identifier())) roles.add(role);
         }
-        roles.sort(Comparator.comparing(role -> role.identifier().getPath()));
+        roles.sort(Comparator.comparing(r -> r.identifier().getPath()));
         roleListComponent.setRoles(roles, roleStatsMap);
-        this.addRenderableWidget(roleListComponent);
-        currentY += roleListHeight + 15;
-
-        // 创建角色详情组件
-        roleDetailsComponent = new RoleDetailsComponent(
-                rightPanelContentX,
-                currentY,
-                rightPanelContentWidth,
-                getHeight() - (currentY - getY())
-        );
-        this.addRenderableWidget(roleDetailsComponent);
-
-        // 如果有角色数据，则选择第一个角色
-        if (!roles.isEmpty()) {
-            onRoleSelected(roles.getFirst(), roleStatsMap.get(roles.getFirst().identifier()));
-        }
-        searchBox.setFocused(true);
+        if (!roles.isEmpty()) onRoleSelected(roles.get(0), roleStatsMap.get(roles.get(0).identifier()));
     }
 
-    private int titleY; // 标题Y坐标
+    private void onSearchTextChanged(String s) { roleListComponent.filterRoles(s); }
 
-    /**
-     * 处理搜索文本变化
-     * @param searchText 搜索文本
-     */
-    private void onSearchTextChanged(String searchText) {
-        roleListComponent.filterRoles(searchText);
+    private void onRoleSelected(SRERole r, SREPlayerStatsComponent.RoleStats rs) {
+        selectedRole = r;
+        selectedRoleStats = rs;
+        roleDetailsComponent.setRole(r, rs);
     }
 
-    /**
-     * 处理角色选择事件
-     * @param role 选中的角色
-     * @param roleStats 选中角色的统计数据
-     */
-    private void onRoleSelected(SRERole role, SREPlayerStatsComponent.RoleStats roleStats) {
-        selectedRole = role;
-        selectedRoleStats = roleStats;
-        roleDetailsComponent.setRole(role, roleStats);
+    private void addRenderableWidget(Renderable r) {
+        renderables.add(r);
+        if (r instanceof GuiEventListener) children.add((GuiEventListener) r);
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+    public void render(GuiGraphics g, int mx, int my, float delta) {
         if (!visible) return;
-        graphics.drawString(Minecraft.getInstance().font,
-                Component.translatable("screen." + SRE.MOD_ID + ".player_stats.role_stats").withStyle(style -> style.withBold(true)),
-                getX(), titleY, 0xFFFFFFFF);
-
-        for (Renderable renderable : renderables) {
-            renderable.render(graphics, mouseX, mouseY, delta);
-        }
+        drawPanelBg(g, x, y, width, height);
+        g.drawString(Minecraft.getInstance().font,
+                Component.translatable("screen." + SRE.MOD_ID + ".player_stats.role_stats").withStyle(s -> s.withBold(true)),
+                x + 10, y + 10, 0xFFFFFFFF);
+        for (Renderable r : renderables) r.render(g, mx, my, delta);
     }
 
-    /**
-     * 设置组件可见性
-     * @param visible 是否可见
-     */
-    public void setVisible(boolean visible) {
-        this.visible = visible;
+    private void drawPanelBg(GuiGraphics g, int x, int y, int w, int h) {
+        g.fillGradient(x, y, x + w, y + h, 0xD80C1020, 0xD8101828);
+        g.renderOutline(x, y, w, h, 0xFF1E3060);
+        g.fill(x + 1, y + 1, x + w - 1, y + 2, 0x22FFFFFF);
     }
 
-    @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (searchBox.isFocused() && searchBox.keyPressed(keyCode, scanCode, modifiers)) {
-            return true;
-        }
-        for (GuiEventListener child : children) {
-            if (child != searchBox && child.keyPressed(keyCode, scanCode, modifiers)) {
-                return true;
-            }
-        }
+    public void setVisible(boolean v) { this.visible = v; }
+
+    @Override public boolean keyPressed(int k, int s, int m) {
+        if (searchBox.isFocused() && searchBox.keyPressed(k, s, m)) return true;
+        for (GuiEventListener c : children) if (c.keyPressed(k, s, m)) return true;
         return false;
     }
-
-    @Override
-    public boolean charTyped(char chr, int modifiers) {
-        if (searchBox.isFocused()) {
-            return searchBox.charTyped(chr, modifiers);
-        }
+    @Override public boolean charTyped(char c, int m) { return searchBox.isFocused() && searchBox.charTyped(c, m); }
+    @Override public boolean mouseClicked(double mx, double my, int b) {
+        if (searchBox.mouseClicked(mx, my, b)) return true;
+        for (GuiEventListener c : children) if (c.mouseClicked(mx, my, b)) return true;
         return false;
     }
-
-    @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (searchBox.mouseClicked(mouseX, mouseY, button)) {
-            return true;
-        }
-        for (GuiEventListener child : children) {
-            if (child != searchBox && child.mouseClicked(mouseX, mouseY, button)) {
-                return true;
-            }
-        }
+    @Override public boolean mouseScrolled(double mx, double my, double sx, double sy) {
+        for (GuiEventListener c : children) if (c.mouseScrolled(mx, my, sx, sy)) return true;
         return false;
     }
-
-    @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
-        if (roleListComponent.mouseScrolled(mouseX, mouseY, scrollX, scrollY)) {
-            return true;
-        }
-        for (GuiEventListener child : children) {
-            if (child != roleListComponent && child.mouseScrolled(mouseX, mouseY, scrollX, scrollY)) {
-                return true;
-            }
-        }
+    @Override public boolean mouseDragged(double mx, double my, int b, double dx, double dy) {
+        for (GuiEventListener c : children) if (c.mouseDragged(mx, my, b, dx, dy)) return true;
         return false;
     }
+    @Override public boolean isFocused() { return searchBox.isFocused(); }
+    @Override public void setFocused(boolean f) { searchBox.setFocused(f); }
+    @Override public NarrationPriority narrationPriority() { return NarrationPriority.NONE; }
+    @Override public void updateNarration(NarrationElementOutput o) {}
 
-    @Override
-    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
-        if (roleListComponent.mouseDragged(mouseX, mouseY, button, dragX, dragY)) {
-            return true;
-        }
-        for (GuiEventListener child : children) {
-            if (child != roleListComponent && child.mouseDragged(mouseX, mouseY, button, dragX, dragY)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    @Override
-    public boolean isFocused() {
-        return searchBox.isFocused();
-    }
-
-    @Override
-    public void setFocused(boolean focused) {
-        searchBox.setFocused(focused);
-    }
-
-    @Override
-    public NarrationPriority narrationPriority() {
-        return NarrationPriority.NONE;
-    }
-
-    @Override
-    public void updateNarration(NarrationElementOutput narrationElementOutput) {
-    }
-
-    /**
-     * 获取当前选中的角色
-     * @return 选中的角色
-     */
-    public SRERole getSelectedRole() {
-        return selectedRole;
-    }
-
-    /**
-     * 获取当前选中角色的统计数据
-     * @return 角色统计数据
-     */
-    public SREPlayerStatsComponent.RoleStats getSelectedRoleStats() {
-        return selectedRoleStats;
-    }
-
-    /**
-     * 滚动角色列表组件 - 用于显示可滚动的角色列表
-     */
+    // ========== 内部类：可滚动角色列表 ==========
     private static class ScrollableRoleListComponent extends AbstractWidget {
-        private final BiConsumer<SRERole, SREPlayerStatsComponent.RoleStats> onRoleSelected; // 角色选择回调
-        private List<SRERole> allRoles; // 所有角色列表
-        private Map<ResourceLocation, SREPlayerStatsComponent.RoleStats> roleStatsMap; // 角色统计数据映射
-        private List<SRERole> filteredRoles; // 过滤后的角色列表
-        private double scrollAmount = 0.0; // 滚动量
-        private static final int SCROLLBAR_WIDTH = 6; // 滚动条宽度
-        private final int itemHeight = 24; // 每个项目的高度
-        private SRERole selectedRole; // 选中的角色
-        private double initialMouseY = -1; // 初始鼠标Y坐标（用于拖拽滚动）
-        private double initialScrollAmount; // 初始滚动量
+        private final BiConsumer<SRERole, SREPlayerStatsComponent.RoleStats> onSelect;
+        private List<SRERole> allRoles = new ArrayList<>();
+        private Map<ResourceLocation, SREPlayerStatsComponent.RoleStats> roleStatsMap = new HashMap<>();
+        private List<SRERole> filteredRoles = new ArrayList<>();
+        private double scrollAmount = 0.0;
+        private static final int SCROLLBAR_W = 6;
+        private final int ITEM_H = 40;
+        private SRERole selectedRole;
+        private boolean draggingScroll = false;
+        private double dragStartY = 0;
+        private double dragStartScroll = 0;
 
-        /**
-         * 构造函数
-         * @param x X坐标
-         * @param y Y坐标
-         * @param width 宽度
-         * @param height 高度
-         * @param onRoleSelected 角色选择回调
-         */
-        public ScrollableRoleListComponent(int x, int y, int width, int height, BiConsumer<SRERole, SREPlayerStatsComponent.RoleStats> onRoleSelected) {
-            super(x, y, width, height, Component.empty());
-            this.onRoleSelected = onRoleSelected;
-            this.allRoles = new ArrayList<>();
-            this.filteredRoles = new ArrayList<>();
+        public ScrollableRoleListComponent(int x, int y, int w, int h, BiConsumer<SRERole, SREPlayerStatsComponent.RoleStats> cb) {
+            super(x, y, w, h, Component.empty());
+            this.onSelect = cb;
         }
 
-        /**
-         * 设置角色列表
-         * @param roles 角色列表
-         * @param roleStatsMap 角色统计数据映射
-         */
-        public void setRoles(List<SRERole> roles, Map<ResourceLocation, SREPlayerStatsComponent.RoleStats> roleStatsMap) {
-            this.allRoles = roles;
-            this.roleStatsMap = roleStatsMap;
-            this.filteredRoles = new ArrayList<>(roles);
-            if (!filteredRoles.isEmpty()) {
-                selectedRole = filteredRoles.getFirst();
-            }
+        public void setRoles(List<SRERole> roles, Map<ResourceLocation, SREPlayerStatsComponent.RoleStats> map) {
+            allRoles = roles;
+            roleStatsMap = map;
+            filteredRoles = new ArrayList<>(roles);
+            if (!filteredRoles.isEmpty()) selectedRole = filteredRoles.get(0);
         }
 
-        /**
-         * 根据搜索文本过滤角色
-         * @param searchText 搜索文本
-         */
-        public void filterRoles(String searchText) {
-            if (searchText == null || searchText.isEmpty()) {
-                filteredRoles = new ArrayList<>(allRoles);
-            } else {
+        public void filterRoles(String search) {
+            if (search == null || search.isEmpty()) filteredRoles = new ArrayList<>(allRoles);
+            else {
                 filteredRoles = allRoles.stream()
-                        .filter(role -> ReplayDisplayUtils.getRoleDisplayName(role.identifier().toString()).getString().toLowerCase().contains(searchText.toLowerCase()))
+                        .filter(r -> ReplayDisplayUtils.getRoleDisplayName(r.identifier().toString()).getString().toLowerCase().contains(search.toLowerCase()))
                         .toList();
             }
-            setScrollAmount(0.0);
+            scrollAmount = 0;
             if (!filteredRoles.isEmpty() && (selectedRole == null || !filteredRoles.contains(selectedRole))) {
-                selectedRole = filteredRoles.getFirst();
-                onRoleSelected.accept(selectedRole, roleStatsMap.get(selectedRole.identifier()));
+                selectedRole = filteredRoles.get(0);
+                onSelect.accept(selectedRole, roleStatsMap.get(selectedRole.identifier()));
             } else if (filteredRoles.isEmpty()) {
                 selectedRole = null;
-                onRoleSelected.accept(null, null);
+                onSelect.accept(null, null);
             }
         }
 
         @Override
-        protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-            // 启用剪切矩形以限制渲染区域
+        protected void renderWidget(GuiGraphics g, int mx, int my, float delta) {
             enableScissor(getX(), getY(), getX() + getWidth(), getY() + getHeight());
-            
-            graphics.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), 0x80000000);
-            graphics.renderOutline(getX(), getY(), getWidth(), getHeight(), 0xFFAAAAAA);
 
-            int visibleItemCount = getHeight() / itemHeight;
-            int startIndex = (int) (getScrollAmount() / itemHeight);
-            int endIndex = Math.min(startIndex + visibleItemCount + 1, filteredRoles.size()); // +1 确保部分项目被渲染
+            int startIdx = (int) (scrollAmount / ITEM_H);
+            int endIdx = Math.min(startIdx + (getHeight() / ITEM_H) + 1, filteredRoles.size());
 
-            // 渲染可见的角色项
-            for (int i = startIndex; i < endIndex; i++) {
+            for (int i = startIdx; i < endIdx; i++) {
                 SRERole role = filteredRoles.get(i);
-                SREPlayerStatsComponent.RoleStats stats = roleStatsMap.get(role.identifier());
-                int itemY = getY() + (i * itemHeight) - (int) getScrollAmount();
-                boolean isSelected = role.equals(selectedRole);
-                graphics.fill(getX(), itemY, getX() + getWidth(), itemY + itemHeight, isSelected ? 0x60FFFFFF : 0x20FFFFFF);
+                SREPlayerStatsComponent.RoleStats rs = roleStatsMap.get(role.identifier());
+                int itemY = getY() + i * ITEM_H - (int) scrollAmount;
+                boolean selected = role.equals(selectedRole);
+                boolean hovered = !selected && mx >= getX() && mx <= getX() + getWidth() - SCROLLBAR_W - 2 &&
+                        my >= itemY && my <= itemY + ITEM_H;
 
-                Component displayName = ReplayDisplayUtils.getRoleDisplayName(role.identifier().toString());
-                int nameWidth = Minecraft.getInstance().font.width(displayName);
-                int maxNameWidth = getWidth() - 25;
-                if (nameWidth > maxNameWidth) {
-                    String truncatedText = Minecraft.getInstance().font.plainSubstrByWidth(displayName.getString(), maxNameWidth - 3) + "...";
-                    graphics.drawString(Minecraft.getInstance().font, truncatedText, getX() + 5, itemY + 5, role.getColor());
-                } else {
-                    graphics.drawString(Minecraft.getInstance().font, displayName, getX() + 5, itemY + 5, role.getColor());
-                }
-
-                if (stats != null) {
-                    String briefStats = String.format("游玩：%d, 胜利：%d", stats.getTimesPlayed(), stats.getWinsAsRole());
-                    int statsWidth = Minecraft.getInstance().font.width(briefStats);
-                    int maxStatsWidth = getWidth() - 25;
-                    if (statsWidth > maxStatsWidth) {
-                        String truncatedStats = Minecraft.getInstance().font.plainSubstrByWidth(briefStats, maxStatsWidth - 3) + "...";
-                        graphics.drawString(Minecraft.getInstance().font, truncatedStats, getX() + 5, itemY + 15, 0xFFCCCCCC);
-                    } else {
-                        graphics.drawString(Minecraft.getInstance().font, briefStats, getX() + 5, itemY + 15, 0xFFCCCCCC);
-                    }
-                }
+                drawRoleCard(g, role, rs, getX(), itemY, getWidth() - SCROLLBAR_W - 4, ITEM_H, hovered, selected);
             }
 
-            // 渲染滚动条
-            if (scrollbarVisible()) {
-                int scrollbarX = getX() + getWidth() - SCROLLBAR_WIDTH;
-                int scrollbarHeight = (int) ((float) getHeight() * getHeight() / getMaxPosition());
-                scrollbarHeight = Math.max(32, scrollbarHeight); // 最小滚动条高度
-                scrollbarHeight = Math.min(getHeight() - 8, scrollbarHeight); // 最大滚动条高度
+            disableScissor();
 
-                int scrollbarY = getY() + (int) (getScrollAmount() * (getHeight() - scrollbarHeight) / getMaxScroll());
-                if (scrollbarY < getY()) {
-                    scrollbarY = getY();
-                }
-
-                graphics.fill(scrollbarX, getY(), scrollbarX + SCROLLBAR_WIDTH, getY() + getHeight(), 0x80000000); // 滚动条背景
-                graphics.fill(scrollbarX, scrollbarY, scrollbarX + SCROLLBAR_WIDTH, scrollbarY + scrollbarHeight, 0xFFAAAAAA); // 滚动条手柄
+            // 滚动条
+            int totalH = filteredRoles.size() * ITEM_H;
+            if (totalH > getHeight()) {
+                int scrollbarX = getX() + getWidth() - SCROLLBAR_W;
+                int scrollbarY = getY();
+                int scrollbarH = getHeight();
+                float ratio = (float) scrollbarH / totalH;
+                int thumbH = Math.max(20, (int) (scrollbarH * ratio));
+                int maxScroll = totalH - scrollbarH;
+                int thumbY = scrollbarY + (int) ((scrollAmount / maxScroll) * (scrollbarH - thumbH));
+                boolean hl = draggingScroll || (mx >= scrollbarX && mx <= scrollbarX + SCROLLBAR_W && my >= thumbY && my <= thumbY + thumbH);
+                g.fill(scrollbarX, scrollbarY, scrollbarX + SCROLLBAR_W, scrollbarY + scrollbarH, 0xFF111828);
+                g.fill(scrollbarX + 1, scrollbarY + 1, scrollbarX + SCROLLBAR_W - 1, scrollbarY + scrollbarH - 1, 0x55334466);
+                g.fill(scrollbarX, thumbY, scrollbarX + SCROLLBAR_W, thumbY + thumbH, hl ? 0xFF8899CC : 0xFF556699);
+                g.fill(scrollbarX + 1, thumbY + 1, scrollbarX + SCROLLBAR_W - 1, thumbY + thumbH - 1, hl ? 0xFFAABBEE : 0xFF7788BB);
             }
-            
-            // 禁用剪切矩形
-            RenderSystem.disableScissor();
         }
 
-        /**
-         * 检查滚动条是否可见
-         * @return 滚动条是否可见
-         */
-        private boolean scrollbarVisible() {
-            return getMaxScroll() > 0;
+        private void drawRoleCard(GuiGraphics g, SRERole role, SREPlayerStatsComponent.RoleStats rs, int x, int y, int w, int h, boolean hover, boolean selected) {
+            int color = role.getColor() | 0xFF000000;
+            int bg = selected ? 0xFF2A3A5A : hover ? blendColors(0xFF1A1F2E, color, 0.3f) : 0xFF1A1F2E;
+            g.fill(x, y, x + w, y + h, bg);
+            g.renderOutline(x, y, w, h, selected ? color : (hover ? blendColors(color, 0xFFFFFFFF, 0.3f) : 0xFF2A2F3F));
+
+            // 图标
+            ResourceLocation icon = getTypeIcon(role);
+            if (icon != null) {
+                RenderSystem.enableBlend();
+                g.blit(icon, x + 5, y + 5, 0, 0, 30, 30, 30, 30);
+                RenderSystem.disableBlend();
+            } else {
+                g.fill(x + 5, y + 5, x + 35, y + 35, 0xFF333333);
+            }
+
+            // 名称
+            Component name = ReplayDisplayUtils.getRoleDisplayName(role.identifier().toString());
+            g.drawString(Minecraft.getInstance().font, name, x + 40, y + 6, role.getColor());
+            // 类型
+            Component type = getRoleTypeDisplay(role);
+            g.drawString(Minecraft.getInstance().font, type, x + 40, y + 18, 0xFFAAAAAA);
+            // 简略统计
+            if (rs != null) {
+                String brief = "场次: " + rs.getTimesPlayed() + "  胜场: " + rs.getWinsAsRole();
+                g.drawString(Minecraft.getInstance().font, brief, x + 40, y + 28, 0xFFCCCCCC);
+            }
         }
 
-        /**
-         * 获取最大滚动值
-         * @return 最大滚动值
-         */
-        private int getMaxScroll() {
-            return Math.max(0, filteredRoles.size() * itemHeight - getHeight());
+        private Component getRoleTypeDisplay(SRERole r) {
+            return switch (PlayerRoleWeightManager.getRoleType(r)) {
+                case 0,1 -> Component.translatable("display.type.role.innocent").withStyle(s -> s.withColor(0xFF44BB66));
+                case 2 -> Component.translatable("display.type.role.neutral").withStyle(s -> s.withColor(0xFFCCAA22));
+                case 3 -> Component.translatable("display.type.role.neutral_for_killer").withStyle(s -> s.withColor(0xFFAA44CC));
+                case 4 -> Component.translatable("display.type.role.killer").withStyle(s -> s.withColor(0xFFCC2233));
+                case 5 -> Component.translatable("display.type.role.vigilante").withStyle(s -> s.withColor(0xFF22BBCC));
+                default -> Component.literal("Unknown");
+            };
         }
 
-        /**
-         * 获取当前滚动量
-         * @return 当前滚动量
-         */
-        private double getScrollAmount() {
-            return scrollAmount;
-        }
-
-        /**
-         * 设置滚动量
-         * @param amount 滚动量
-         */
-        private void setScrollAmount(double amount) {
-            scrollAmount = Math.max(0, Math.min(amount, getMaxScroll()));
-        }
-
-        /**
-         * 获取最大位置
-         * @return 最大位置
-         */
-        private int getMaxPosition() {
-            return filteredRoles.size() * itemHeight;
+        private ResourceLocation getTypeIcon(SRERole role) {
+            int type = PlayerRoleWeightManager.getRoleType(role);
+            return switch (type) {
+                case 0,1 -> ResourceLocation.tryParse("wathe:textures/gui/sprites/hud/mood_happy.png");
+                case 2 -> ResourceLocation.tryParse("noellesroles:textures/gui/sprites/hud/mood_neu.png");
+                case 3 -> ResourceLocation.tryParse("noellesroles:textures/gui/sprites/hud/mood_jester.png");
+                case 4 -> ResourceLocation.tryParse("wathe:textures/gui/sprites/hud/mood_killer.png");
+                case 5 -> ResourceLocation.tryParse("noellesroles:textures/gui/sprites/hud/mood_vig.png");
+                default -> null;
+            };
         }
 
         @Override
-        public boolean mouseClicked(double mouseX, double mouseY, int button) {
-            if (!isMouseOver(mouseX, mouseY)) return false;
-
-            boolean isScrollbarClicked = mouseX >= getX() + getWidth() - SCROLLBAR_WIDTH && mouseX <= getX() + getWidth();
-            if (isScrollbarClicked && scrollbarVisible()) {
-                initialMouseY = mouseY;
-                initialScrollAmount = getScrollAmount();
+        public boolean mouseClicked(double mx, double my, int btn) {
+            if (!isMouseOver(mx, my)) return false;
+            // 滚动条
+            int scrollbarX = getX() + getWidth() - SCROLLBAR_W;
+            if (mx >= scrollbarX && mx <= scrollbarX + SCROLLBAR_W && my >= getY() && my <= getY() + getHeight()) {
+                draggingScroll = true;
+                dragStartY = my;
+                dragStartScroll = scrollAmount;
                 return true;
             }
-
-            int relativeY = (int) (mouseY - getY() + getScrollAmount());
-            int clickedIndex = relativeY / itemHeight;
-
-            if (clickedIndex >= 0 && clickedIndex < filteredRoles.size()) {
-                selectedRole = filteredRoles.get(clickedIndex);
-                onRoleSelected.accept(selectedRole, roleStatsMap.get(selectedRole.identifier()));
+            // 卡片
+            int idx = (int) ((my - getY() + scrollAmount) / ITEM_H);
+            if (idx >= 0 && idx < filteredRoles.size()) {
+                selectedRole = filteredRoles.get(idx);
+                onSelect.accept(selectedRole, roleStatsMap.get(selectedRole.identifier()));
                 return true;
             }
             return false;
         }
 
-        @Override
-        public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
-            if (!isMouseOver(mouseX, mouseY)) return false;
-            setScrollAmount(getScrollAmount() - scrollY * itemHeight / 2.0);
-            return true;
+        @Override public boolean mouseDragged(double mx, double my, int btn, double dx, double dy) {
+            if (draggingScroll) {
+                int totalH = filteredRoles.size() * ITEM_H;
+                int scrollbarH = getHeight();
+                int maxScroll = totalH - scrollbarH;
+                if (maxScroll > 0) {
+                    float ratio = (float) scrollbarH / totalH;
+                    int thumbH = Math.max(20, (int) (scrollbarH * ratio));
+                    double trackH = scrollbarH - thumbH;
+                    if (trackH > 0) {
+                        double newScroll = dragStartScroll + (my - dragStartY) / trackH * maxScroll;
+                        scrollAmount = Mth.clamp(newScroll, 0, maxScroll);
+                    }
+                }
+                return true;
+            }
+            return false;
         }
 
+        @Override public boolean mouseReleased(double mx, double my, int btn) { draggingScroll = false; return false; }
+
+        @Override public boolean mouseScrolled(double mx, double my, double sx, double sy) {
+            if (isMouseOver(mx, my)) {
+                int totalH = filteredRoles.size() * ITEM_H;
+                int maxScroll = Math.max(0, totalH - getHeight());
+                scrollAmount = Mth.clamp(scrollAmount - sy * ITEM_H / 2, 0, maxScroll);
+                return true;
+            }
+            return false;
+        }
+
+        @Override protected void updateWidgetNarration(NarrationElementOutput o) {}
+    }
+
+    // ========== 内部类：角色详情 ==========
+    private static class RoleDetailsComponent extends AbstractWidget {
+        private SRERole role;
+        private SREPlayerStatsComponent.RoleStats roleStats;
+        private int scrollY = 0, maxScroll = 0;
+        private boolean draggingScroll = false;
+        private double dragStartY, dragStartScroll;
+        private static final int SCROLLBAR_W = 6;
+
+        public RoleDetailsComponent(int x, int y, int w, int h) { super(x, y, w, h, Component.empty()); }
+
+        public void setRole(SRERole r, SREPlayerStatsComponent.RoleStats rs) { role = r; roleStats = rs; scrollY = 0; }
+        private Font font;
         @Override
-        public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
-            if (button == 0 && isMouseOver(mouseX, mouseY)) {
-                boolean isDraggingScrollbar = mouseX >= getX() + getWidth() - SCROLLBAR_WIDTH && mouseX <= getX() + getWidth();
+        protected void renderWidget(GuiGraphics g, int mx, int my, float delta) {
+            font = Minecraft.getInstance().font;
+            drawPanelBg(g, getX(), getY(), getWidth(), getHeight());
+            if (role == null || roleStats == null) {
+                g.drawCenteredString(font, Component.translatable("screen.starrailexpress.select_hint"), getX() + getWidth()/2, getY() + getHeight()/2, 0x888888);
+                return;
+            }
 
-                if (isDraggingScrollbar && scrollbarVisible()) {
-                    int scrollbarHeight = (int) ((float) getHeight() * getHeight() / getMaxPosition());
-                    scrollbarHeight = Math.max(32, scrollbarHeight);
-                    scrollbarHeight = Math.min(getHeight() - 8, scrollbarHeight);
+            int contentX = getX() + 10;
+            int contentY = getY() + 10 - scrollY;
+            int contentW = getWidth() - 20 - SCROLLBAR_W - 4;
+            int lineH = font.lineHeight + 2;
 
-                    double scrollRange = getHeight() - scrollbarHeight;
-                    double scrollPerPixel = (double) getMaxScroll() / scrollRange;
+            enableScissor(getX() + 1, getY() + 1, getX() + getWidth() - SCROLLBAR_W - 2, getY() + getHeight() - 1);
 
-                    double newScrollAmount = initialScrollAmount + (mouseY - initialMouseY) * scrollPerPixel;
-                    setScrollAmount(newScrollAmount);
+            // 标题
+            Component name = ReplayDisplayUtils.getRoleDisplayName(role.identifier().toString()).copy().withStyle(s -> s.withBold(true));
+            g.drawString(font, name, contentX, contentY, role.getColor());
+            contentY += lineH + 4;
+
+            // 统计行
+            drawStatLine(g, contentX, contentY, "screen." + SRE.MOD_ID + ".player_stats.times_played", roleStats.getTimesPlayed()); contentY += lineH;
+            drawStatLine(g, contentX, contentY, "screen." + SRE.MOD_ID + ".player_stats.wins_short", roleStats.getWinsAsRole()); contentY += lineH;
+            drawStatLine(g, contentX, contentY, "screen." + SRE.MOD_ID + ".player_stats.kills", roleStats.getKillsAsRole()); contentY += lineH;
+            drawStatLine(g, contentX, contentY, "screen." + SRE.MOD_ID + ".player_stats.team_kills", roleStats.getTeamKillsAsRole()); contentY += lineH;
+            drawStatLine(g, contentX, contentY, "screen." + SRE.MOD_ID + ".player_stats.deaths", roleStats.getDeathsAsRole()); contentY += lineH;
+
+            double winRate = roleStats.getTimesPlayed() > 0 ? (double) roleStats.getWinsAsRole() / roleStats.getTimesPlayed() * 100 : 0;
+            double kd = roleStats.getDeathsAsRole() > 0 ? (double) roleStats.getKillsAsRole() / roleStats.getDeathsAsRole() : roleStats.getKillsAsRole();
+            drawStatLine(g, contentX, contentY, "screen." + SRE.MOD_ID + ".player_stats.win_rate_short", String.format("%.2f%%", winRate)); contentY += lineH;
+//            drawStatLine(g, contentX, contentY, "screen." + SRE.MOD_ID + ".player_stats.kd_ratio", String.format("%.2f", kd));
+
+            disableScissor();
+
+            // 滚动条
+            int contentEndY = contentY + lineH; // 最后一行内容的底部
+            int totalH = contentEndY - getY() - 10;
+            if (totalH > getHeight()) {
+                maxScroll = totalH - getHeight();
+                scrollY = Mth.clamp(scrollY, 0, maxScroll);
+                int sbX = getX() + getWidth() - SCROLLBAR_W - 4;
+                int sbY = getY();
+                int sbH = getHeight();
+                float ratio = (float) sbH / totalH;
+                int thumbH = Math.max(20, (int) (sbH * ratio));
+                int thumbY = sbY + (int) ((float) scrollY / maxScroll * (sbH - thumbH));
+                boolean hl = draggingScroll || (mx >= sbX && mx <= sbX + SCROLLBAR_W && my >= thumbY && my <= thumbY + thumbH);
+                g.fill(sbX, sbY, sbX + SCROLLBAR_W, sbY + sbH, 0xFF111828);
+                g.fill(sbX + 1, sbY + 1, sbX + SCROLLBAR_W - 1, sbY + sbH - 1, 0x55334466);
+                g.fill(sbX, thumbY, sbX + SCROLLBAR_W, thumbY + thumbH, hl ? 0xFF8899CC : 0xFF556699);
+                g.fill(sbX + 1, thumbY + 1, sbX + SCROLLBAR_W - 1, thumbY + thumbH - 1, hl ? 0xFFAABBEE : 0xFF7788BB);
+            } else {
+                maxScroll = 0;
+            }
+        }
+
+        private void drawStatLine(GuiGraphics g, int x, int y, String key, Object val) {
+            Component label = Component.translatable(key).withStyle(s -> s.withColor(0xFFAAAAAA));
+            Component value = Component.literal(String.valueOf(val)).withStyle(s -> s.withColor(0xFFFFDD88));
+            g.drawString(font, label, x, y, 0xFFAAAAAA);
+            g.drawString(font, value, x + 120, y, 0xFFFFDD88);
+        }
+
+        private void drawPanelBg(GuiGraphics g, int x, int y, int w, int h) {
+            g.fillGradient(x, y, x + w, y + h, 0xD80C1020, 0xD8101828);
+            g.renderOutline(x, y, w, h, 0xFF1E3060);
+            g.fill(x + 1, y + 1, x + w - 1, y + 2, 0x22FFFFFF);
+        }
+
+        @Override public boolean mouseClicked(double mx, double my, int btn) {
+            if (btn == 0 && isMouseOver(mx, my) && maxScroll > 0) {
+                int sbX = getX() + getWidth() - SCROLLBAR_W - 4;
+                if (mx >= sbX && mx <= sbX + SCROLLBAR_W) {
+                    draggingScroll = true;
+                    dragStartY = my;
+                    dragStartScroll = scrollY;
                     return true;
                 }
             }
             return false;
         }
 
-        @Override
-        public boolean mouseReleased(double mouseX, double mouseY, int button) {
-            return super.mouseReleased(mouseX, mouseY, button);
+        @Override public boolean mouseDragged(double mx, double my, int btn, double dx, double dy) {
+            if (draggingScroll && maxScroll > 0) {
+                int sbH = getHeight();
+                int totalH = (int) (getHeight() + maxScroll);
+                float ratio = (float) sbH / totalH;
+                int thumbH = Math.max(20, (int) (sbH * ratio));
+                double trackH = sbH - thumbH;
+                if (trackH > 0) {
+                    double newScroll = dragStartScroll + (my - dragStartY) / trackH * maxScroll;
+                    scrollY = Mth.clamp((int) newScroll, 0, maxScroll);
+                }
+                return true;
+            }
+            return false;
         }
 
-        @Override
-        protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
+        @Override public boolean mouseReleased(double mx, double my, int btn) { draggingScroll = false; return false; }
+
+        @Override public boolean mouseScrolled(double mx, double my, double sx, double sy) {
+            if (isMouseOver(mx, my) && maxScroll > 0) {
+                scrollY = Mth.clamp(scrollY - (int) (sy * 20), 0, maxScroll);
+                return true;
+            }
+            return false;
         }
+
+        @Override protected void updateWidgetNarration(NarrationElementOutput o) {}
     }
 
-    /**
-     * 角色详情组件 - 显示选中角色的详细统计数据
-     */
-    private static class RoleDetailsComponent extends AbstractWidget {
-        private SRERole role; // 角色
-        private SREPlayerStatsComponent.RoleStats roleStats; // 角色统计数据
-
-        /**
-         * 构造函数
-         * @param x X坐标
-         * @param y Y坐标
-         * @param width 宽度
-         * @param height 高度
-         */
-        public RoleDetailsComponent(int x, int y, int width, int height) {
-            super(x, y, width, height, Component.empty());
-        }
-
-        /**
-         * 设置要显示的角色和统计数据
-         * @param role 角色
-         * @param roleStats 角色统计数据
-         */
-        public void setRole(SRERole role, SREPlayerStatsComponent.RoleStats roleStats) {
-            this.role = role;
-            this.roleStats = roleStats;
-        }
-
-        @Override
-        protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-            if (role == null || roleStats == null) {
-                graphics.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), 0x80000000);
-                graphics.renderOutline(getX(), getY(), getWidth(), getHeight(), 0xFFAAAAAA);
-                return;
-            }
-
-            graphics.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight() + 10, 0x80000000);
-            graphics.renderOutline(getX(), getY(), getWidth(), getHeight() + 10, 0xFFAAAAAA);
-
-            int currentY = getY() + 5;
-            Component roleName = ReplayDisplayUtils.getRoleDisplayName(role.identifier().toString());
-            graphics.drawString(Minecraft.getInstance().font,
-                    roleName.copy().withStyle(style -> style.withBold(true)),
-                    getX() + 5, currentY, role.getColor());
-            currentY += Minecraft.getInstance().font.lineHeight + 10;
-
-            // 渲染各种统计数据
-            drawStatLine(graphics, currentY, "screen." + SRE.MOD_ID + ".player_stats.times_played", roleStats.getTimesPlayed());
-            currentY += 10;
-            drawStatLine(graphics, currentY, "screen." + SRE.MOD_ID + ".player_stats.wins", roleStats.getWinsAsRole());
-            currentY += 10;
-            drawStatLine(graphics, currentY, "screen." + SRE.MOD_ID + ".player_stats.kills", roleStats.getKillsAsRole());
-            currentY += 10;
-            drawStatLine(graphics, currentY, "screen." + SRE.MOD_ID + ".player_stats.team_kills", roleStats.getTeamKillsAsRole());
-            currentY += 10;
-            drawStatLine(graphics, currentY, "screen." + SRE.MOD_ID + ".player_stats.deaths", roleStats.getDeathsAsRole());
-            currentY += 10;
-
-            // 计算并显示胜率
-            int gamesPlayed = roleStats.getTimesPlayed();
-            int wins = roleStats.getWinsAsRole();
-            double winRate = gamesPlayed > 0 ? (double) wins / gamesPlayed * 100 : 0.0;
-            drawStatLine(graphics, currentY, "screen." + SRE.MOD_ID + ".player_stats.win_rate", String.format("%.2f%%", winRate));
-            currentY += 10;
-
-            // 计算并显示击杀死亡比
-            int kills = roleStats.getKillsAsRole();
-            int deaths = roleStats.getDeathsAsRole();
-            double kdRatio = deaths > 0 ? (double) kills / deaths : kills;
-            drawStatLine(graphics, currentY, "screen." + SRE.MOD_ID + ".player_stats.kd_ratio", String.format("%.2f", kdRatio));
-        }
-
-        /**
-         * 绘制统计行
-         * @param graphics 图形上下文
-         * @param y Y坐标
-         * @param translationKey 翻译键
-         * @param value 值
-         */
-        private void drawStatLine(GuiGraphics graphics, int y, String translationKey, Object value) {
-            Component text = Component.translatable(translationKey, value);
-            graphics.drawString(Minecraft.getInstance().font, text, getX() + 10, y, 0xFFCCCCCC);
-        }
-
-        @Override
-        protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
-            // 不需要叙述
-        }
+    // 工具方法
+    private static void enableScissor(int x0, int y0, int x1, int y1) {
+        Window w = Minecraft.getInstance().getWindow();
+        int scale = (int) w.getGuiScale();
+        int sy0 = (int) (w.getScreenHeight() - y1 * scale);
+        RenderSystem.enableScissor(x0 * scale, sy0, (x1 - x0) * scale, (y1 - y0) * scale);
+    }
+    private static void disableScissor() { RenderSystem.disableScissor(); }
+    private static int blendColors(int c1, int c2, float t) {
+        if (t <= 0) return c1;
+        if (t >= 1) return c2;
+        int r = (int)(((c1 >> 16) & 0xFF) + (((c2 >> 16) & 0xFF) - ((c1 >> 16) & 0xFF)) * t);
+        int g = (int)(((c1 >> 8) & 0xFF) + (((c2 >> 8) & 0xFF) - ((c1 >> 8) & 0xFF)) * t);
+        int b = (int)((c1 & 0xFF) + ((c2 & 0xFF) - (c1 & 0xFF)) * t);
+        return 0xFF000000 | (r << 16) | (g << 8) | b;
     }
 }

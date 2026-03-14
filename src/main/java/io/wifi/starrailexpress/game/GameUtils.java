@@ -17,7 +17,7 @@ import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 
 import io.wifi.starrailexpress.api.replay.GameReplayData;
-import net.exmo.ssr.nametag.NameTagInventoryComponent;
+import net.exmo.sre.nametag.NameTagInventoryComponent;
 
 import org.agmas.noellesroles.packet.NameTagSyncPayload;
 import org.agmas.noellesroles.utils.EntityClearUtils;

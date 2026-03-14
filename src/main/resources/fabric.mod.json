@@ -165,6 +165,7 @@
     "stupid_express.mixins.json",
     "harpymodloader.mixins.json",
     "starrailexpress.mixins.json",
+    "starrailexpress_exmo.mixins.json",
     "wathe_blocker.mixins.json"
   ],
   "depends": {

@@ -2,9 +2,7 @@ package io.wifi.starrailexpress.mixin.gui;
 
 import com.kreezcraft.localizedchat.CommonClass;
 import com.kreezcraft.localizedchat.ConfigCache;
-import com.kreezcraft.localizedchat.commands.TalkChat;
-import io.wifi.starrailexpress.cca.SREGameWorldComponent;
-import net.exmo.ssr.nametag.NameTagInventoryComponent;
+import net.exmo.sre.nametag.NameTagInventoryComponent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.MinecraftServer;
@@ -13,9 +11,6 @@ import net.minecraft.world.entity.player.Player;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Unique;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import static com.kreezcraft.localizedchat.CommonClass.compareCoordinatesDistance;
 import static com.kreezcraft.localizedchat.CommonClass.playerName;

@@ -167,9 +167,11 @@ public class RoleInitialItems {
         INITIAL_ITEMS_MAP.put(ModRoles.MARTIAL_ARTS_INSTRUCTOR, martialArtsInstructorItems);
 
         // 海王初始物品 - 三叉戟
-        // TODO: 添加忠诚3附魔
+        // 附魔在在三叉戟mixin 因为需要level
         List<Supplier<ItemStack>> seaKingItems = new ArrayList<>();
-        seaKingItems.add(Items.TRIDENT::getDefaultInstance);
+        Supplier<ItemStack> getDefaultInstance = Items.TRIDENT::getDefaultInstance;
+//        getDefaultInstance.get().enchant(BuiltInRegistries.Enchant, 3);
+        seaKingItems.add(getDefaultInstance);
         INITIAL_ITEMS_MAP.put(ModRoles.SEA_KING, seaKingItems);
     }
 

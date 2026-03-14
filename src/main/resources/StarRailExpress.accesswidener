@@ -12,10 +12,14 @@ accessible class net/minecraft/client/resources/SkinManager$CacheKey
 accessible class net/minecraft/client/renderer/texture/SimpleTexture$TextureImage
 accessible field net/minecraft/world/entity/player/Inventory compartments Ljava/util/List;
 accessible field net/minecraft/client/gui/GuiGraphics sprites Lnet/minecraft/client/gui/GuiSpriteManager;
-
+accessible field net/minecraft/client/gui/screens/LevelLoadingScreen progressListener Lnet/minecraft/server/level/progress/StoringChunkProgressListener;
 accessible method net/minecraft/client/gui/GuiGraphics innerBlit (Lnet/minecraft/resources/ResourceLocation;IIIIIFFFFFFFF)V
 accessible class net/minecraft/world/item/ItemCooldowns$CooldownInstance
 accessible field net/minecraft/world/item/ItemCooldowns$CooldownInstance endTime I
 accessible field net/minecraft/world/item/ItemCooldowns tickCount I
 accessible method net/minecraft/client/Camera setRotation (FF)V
 accessible method net/minecraft/client/Camera setPosition (Lnet/minecraft/world/phys/Vec3;)V
+accessible field net/minecraft/client/gui/screens/LoadingOverlay minecraft Lnet/minecraft/client/Minecraft;
+accessible field net/minecraft/client/gui/screens/LoadingOverlay reload Lnet/minecraft/server/packs/resources/ReloadInstance;
+accessible field net/minecraft/client/gui/screens/LoadingOverlay onFinish Ljava/util/function/Consumer;
+accessible field net/minecraft/client/gui/screens/LoadingOverlay fadeIn Z

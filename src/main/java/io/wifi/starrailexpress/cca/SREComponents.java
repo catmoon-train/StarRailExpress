@@ -1,6 +1,6 @@
 package io.wifi.starrailexpress.cca;
 
-import net.exmo.ssr.nametag.NameTagInventoryComponent;
+import net.exmo.sre.nametag.NameTagInventoryComponent;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.entity.EntityComponentFactoryRegistry;

@@ -1,34 +1,36 @@
+// PlayerStatsScreen.java (重写后)
 package io.wifi.starrailexpress.client.gui.screen;
 
 import java.util.UUID;
-
 import org.jetbrains.annotations.NotNull;
-
 import io.wifi.starrailexpress.cca.SREPlayerStatsComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.SRE;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
- 
+import net.minecraft.util.Mth;
+
 public class PlayerStatsScreen extends Screen {
     private SREPlayerStatsComponent stats;
     private final UUID targetPlayerUuid;
     private GeneralStatsPanel generalStatsPanel;
     private RoleStatsPanel roleStatsPanel;
-    private Button generalStatsButton;
-    private Button roleStatsButton;
- 
+
     private static final int GENERAL_STATS_VIEW = 0;
     private static final int ROLE_STATS_VIEW = 1;
     private int currentView = GENERAL_STATS_VIEW;
- 
+
     public static final @NotNull ResourceLocation ID = SRE.watheId("textures/gui/game.png");
-    
+
+    // 分类标签相关
+    private int tabX, tabY, tabWidth, tabHeight;
+    private static final int TAB_W = 100;
+    private static final int TAB_H = 22;
+
     public PlayerStatsScreen(UUID targetPlayerUuid) {
         super(Component.translatable("screen." + SRE.MOD_ID + ".player_stats.title"));
         this.targetPlayerUuid = targetPlayerUuid;
@@ -41,99 +43,123 @@ public class PlayerStatsScreen extends Screen {
     @Override
     protected void init() {
         super.init();
-        int screenWidth = this.width;
-        int screenHeight = this.height;
-        int panelWidth = (int) (screenWidth * 0.6);
-        int panelHeight = (int) (screenHeight * 0.7);
-        int panelX = (screenWidth - panelWidth) / 2;
-        int panelY = (screenHeight - panelHeight) / 2;
+        // 计算标签位置
+        tabX = (width - TAB_W * 2 - 10) / 2;
+        tabY = 38;
+        tabWidth = TAB_W;
+        tabHeight = TAB_H;
 
-        // 切换按钮
-        int buttonWidth = 100;
-        int buttonHeight = 20;
-        int buttonSpacing = 10;
-        int totalButtonWidth = (buttonWidth * 2) + buttonSpacing;
-        int buttonX = (screenWidth - totalButtonWidth) / 2;
-        int buttonY = panelY + 10;
+        int panelWidth = (int) (width * 0.6);
+        int panelHeight = (int) (height * 0.7);
+        int panelX = (width - panelWidth) / 2;
+        int panelY = tabY + tabHeight + 10;
 
-        generalStatsButton = Button.builder(
-                Component.translatable("screen." + SRE.MOD_ID + ".player_stats.general_stats_button"),
-                (button) -> this.switchView(GENERAL_STATS_VIEW)
-        ).pos(buttonX, buttonY).size(buttonWidth, buttonHeight).build();
-        this.addRenderableWidget(generalStatsButton);
-
-        roleStatsButton = Button.builder(
-                Component.translatable("screen." + SRE.MOD_ID + ".player_stats.role_stats_button"),
-                (button) -> this.switchView(ROLE_STATS_VIEW)
-        ).pos(buttonX + buttonWidth + buttonSpacing, buttonY).size(buttonWidth, buttonHeight).build();
-        this.addRenderableWidget(roleStatsButton);
-
-        // 初始化面板
         generalStatsPanel = new GeneralStatsPanel(
-                panelX,
-                buttonY + buttonHeight + 10,
-                panelWidth,
-                panelHeight - buttonHeight - 10,
-                stats,
-                screenWidth,
-                screenHeight
+                panelX, panelY, panelWidth, panelHeight - (panelY - (tabY + tabHeight + 10)),
+                stats, width, height
         );
         generalStatsPanel.init();
-        this.addRenderableWidget(generalStatsPanel);
+        addRenderableWidget(generalStatsPanel);
 
         roleStatsPanel = new RoleStatsPanel(
-                panelX,
-                buttonY + buttonHeight + 10,
-                panelWidth,
-                panelHeight - buttonHeight - 10,
+                panelX, panelY, panelWidth, panelHeight - (panelY - (tabY + tabHeight + 10)),
                 stats
         );
-        this.addRenderableWidget(roleStatsPanel);
+        addRenderableWidget(roleStatsPanel);
 
-        // 默认显示通用统计
-        switchView(GENERAL_STATS_VIEW);
+        switchView(currentView);
     }
 
     private void switchView(int view) {
-        this.currentView = view;
+        currentView = view;
         generalStatsPanel.setVisible(view == GENERAL_STATS_VIEW);
         roleStatsPanel.setVisible(view == ROLE_STATS_VIEW);
-
-        generalStatsButton.active = (view != GENERAL_STATS_VIEW);
-        roleStatsButton.active = (view != ROLE_STATS_VIEW);
     }
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-        // 渲染背景（半透明黑色）
-        graphics.fillGradient(0, 0, this.width, this.height, 0xC0101010, 0xD0101010);
-        // 渲染标题
+        // 背景渐变
+        graphics.fillGradient(0, 0, width, height, 0xC0102030, 0xD0081018);
         super.render(graphics, mouseX, mouseY, delta);
-        graphics.drawCenteredString(this.font, this.title, this.width / 2, (int)(32), 0xFFFFFFFF);
+        renderTabBar(graphics, mouseX, mouseY);
+        // 标题
+        graphics.drawCenteredString(font, title, width / 2, 16, 0xEEEEFF);
+    }
+
+    private void renderTabBar(GuiGraphics g, int mx, int my) {
+        int[] tabColors = {0xFF5577CC, 0xFFAA44CC}; // 通用 / 角色
+        String[] labels = {
+                Component.translatable("screen." + SRE.MOD_ID + ".player_stats.general_stats_button").getString(),
+                Component.translatable("screen." + SRE.MOD_ID + ".player_stats.role_stats_button").getString()
+        };
+
+        for (int i = 0; i < 2; i++) {
+            int x = tabX + i * (tabWidth + 10);
+            boolean active = (i == currentView);
+            boolean hovered = !active && mx >= x && mx <= x + tabWidth && my >= tabY && my <= tabY + tabHeight;
+            int baseColor = tabColors[i];
+
+            // 背景
+            if (active) {
+                g.fillGradient(x, tabY, x + tabWidth, tabY + tabHeight,
+                        blendColors(0xFF0D1020, baseColor, 0.50f),
+                        blendColors(0xFF0A0C18, baseColor, 0.28f));
+                g.fill(x, tabY + tabHeight - 2, x + tabWidth, tabY + tabHeight, baseColor);
+                g.fill(x, tabY, x + 1, tabY + tabHeight, (baseColor & 0x00FFFFFF) | 0xAA000000);
+                g.fill(x + tabWidth - 1, tabY, x + tabWidth, tabY + tabHeight, (baseColor & 0x00FFFFFF) | 0xAA000000);
+                g.fill(x + 1, tabY, x + tabWidth - 1, tabY + 1, (baseColor & 0x00FFFFFF) | 0x55000000);
+            } else if (hovered) {
+                g.fillGradient(x, tabY, x + tabWidth, tabY + tabHeight,
+                        blendColors(0xFF0D1020, baseColor, 0.22f),
+                        blendColors(0xFF0A0C18, baseColor, 0.10f));
+                g.fill(x, tabY + tabHeight - 1, x + tabWidth, tabY + tabHeight, (baseColor & 0x00FFFFFF) | 0x66000000);
+                g.renderOutline(x, tabY, tabWidth, tabHeight, (baseColor & 0x00FFFFFF) | 0x44000000);
+            } else {
+                g.fill(x, tabY, x + tabWidth, tabY + tabHeight, 0x33111828);
+                g.renderOutline(x, tabY, tabWidth, tabHeight, 0x33334466);
+            }
+
+            String truncated = font.plainSubstrByWidth(labels[i], tabWidth - 8);
+            int textColor = active ? (baseColor | 0xFF000000) : hovered ? 0xFFCCDDFF : 0xFF7788AA;
+            g.drawCenteredString(font, truncated, x + tabWidth / 2, tabY + (tabHeight - font.lineHeight) / 2, textColor);
+        }
+    }
+
+    @Override
+    public boolean mouseClicked(double mx, double my, int button) {
+        for (int i = 0; i < 2; i++) {
+            int x = tabX + i * (tabWidth + 10);
+            if (mx >= x && mx <= x + tabWidth && my >= tabY && my <= tabY + tabHeight) {
+                switchView(i);
+                return true;
+            }
+        }
+        return super.mouseClicked(mx, my, button);
     }
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (super.keyPressed(keyCode, scanCode, modifiers)) {
-            return true;
-        }
-        if (keyCode == Minecraft.getInstance().options.keyInventory.getDefaultKey().getValue() || keyCode == SREClient.statsKeybind.getDefaultKey().getValue()) {
-            this.onClose();
+        if (super.keyPressed(keyCode, scanCode, modifiers)) return true;
+        if (keyCode == Minecraft.getInstance().options.keyInventory.hashCode()||
+                keyCode == SREClient.statsKeybind.hashCode()) {
+            onClose();
             return true;
         }
         return false;
     }
 
     @Override
-    public void tick() {
-        // 屏幕 tick
-    }
+    public void tick() {}
 
-    public int getCurrentView() {
-        return currentView;
-    }
+    public int getCurrentView() { return currentView; }
+    public UUID getTargetPlayerUuid() { return targetPlayerUuid; }
 
-    public UUID getTargetPlayerUuid() {
-        return targetPlayerUuid;
+    private static int blendColors(int c1, int c2, float t) {
+        if (t <= 0f) return c1;
+        if (t >= 1f) return c2;
+        int r = (int)(((c1 >> 16) & 0xFF) + (((c2 >> 16) & 0xFF) - ((c1 >> 16) & 0xFF)) * t);
+        int g = (int)(((c1 >> 8) & 0xFF) + (((c2 >> 8) & 0xFF) - ((c1 >> 8) & 0xFF)) * t);
+        int b = (int)((c1 & 0xFF) + ((c2 & 0xFF) - (c1 & 0xFF)) * t);
+        return 0xFF000000 | (r << 16) | (g << 8) | b;
     }
 }

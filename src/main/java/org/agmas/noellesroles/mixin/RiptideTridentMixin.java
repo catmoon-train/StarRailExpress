@@ -1,12 +1,18 @@
 package org.agmas.noellesroles.mixin;
 
+import dev.doctor4t.wathe.cca.GameWorldComponent;
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.phys.AABB;
+import org.agmas.noellesroles.role.ModRoles;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -30,7 +36,12 @@ public class RiptideTridentMixin {
         ItemStack mainHandItem = player.getMainHandItem();
         if (!mainHandItem.is(Items.TRIDENT))
             return;
-        
+        ServerLevel serverLevel = serverPlayer.serverLevel();
+        if (SREGameWorldComponent.KEY.get(serverLevel).isRole(player.getUUID(), ModRoles.SEA_KING)){
+            mainHandItem.enchant(serverLevel.registryAccess().registryOrThrow(Registries.ENCHANTMENT).holders().filter(holder -> {
+                return holder.is((Enchantments.RIPTIDE));
+            }).findFirst().get(),3);
+        }
         // 检查三叉戟是否有激流附魔
         boolean hasRiptide = false;
         for (var entry : mainHandItem.getEnchantments().entrySet()) {
@@ -52,7 +63,7 @@ public class RiptideTridentMixin {
         // 在激流状态期间持续检测碰撞
         // 检测碰撞 - 使用扩大的碰撞箱，参考波纹勋章的实现方式
         AABB hitBox = player.getBoundingBox().inflate(1.5);
-        List<ServerPlayer> nearbyPlayers = serverPlayer.serverLevel().getEntitiesOfClass(
+        List<ServerPlayer> nearbyPlayers = serverLevel.getEntitiesOfClass(
                 ServerPlayer.class, 
                 hitBox
         );

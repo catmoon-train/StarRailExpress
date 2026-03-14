@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Predicate;
 
+import net.exmo.sre.EXSREClient;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.include.com.google.gson.JsonSyntaxException;
@@ -152,6 +153,7 @@ public class SREClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+        new EXSREClient().onInitializeClient();
         // Load config
         ModWhitelistClient.onInitializeClient();
         // ModVersionPacket

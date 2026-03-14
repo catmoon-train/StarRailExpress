@@ -1,15 +1,11 @@
-package net.exmo.ssr.nametag;
+package net.exmo.sre.nametag;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import io.wifi.StarRailExpressID;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.RoleComponent;
-import io.wifi.starrailexpress.cca.SREPlayerNunchuckComponent;
 import io.wifi.syncrequests.SyncRequests;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.language.I18n;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
