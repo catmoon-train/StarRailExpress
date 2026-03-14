@@ -383,11 +383,19 @@ public class RoleIntroduceScreen extends Screen {
                     textW));
             detailLines.add(FormattedCharSequence.EMPTY);
         } else if (selectedRole instanceof Item it) {
-            detailLines.addAll(it.getDefaultInstance()
-                    .getTooltipLines(Item.TooltipContext.EMPTY, minecraft.player, TooltipFlag.NORMAL)
-                    .stream()
-                    .peek(component -> component.getStyle().applyFormat(ChatFormatting.GRAY))
-                    .map(Component::getVisualOrderText).toList());
+            try {
+                detailLines.addAll(it.getDefaultInstance()
+                        .getTooltipLines(Item.TooltipContext.EMPTY, minecraft.player, TooltipFlag.NORMAL)
+                        .stream()
+                        .peek(component -> component.getStyle().applyFormat(ChatFormatting.GRAY))
+                        .map(Component::getVisualOrderText).toList());
+            } catch (Exception e) {
+                detailLines.addAll(
+                        font.split(Component.translatable("screen.roleintroduce.error", e.getMessage())
+                                .withStyle(ChatFormatting.RED), textW));
+                // SRE.LOGGER.error("Error while getting tooltip. ", e);
+            }
+
             detailLines.add(FormattedCharSequence.EMPTY);
         }
         detailLines.addAll(font.split(
@@ -481,14 +489,21 @@ public class RoleIntroduceScreen extends Screen {
                                     Component.literal("■ ").append(priceLabel),
                                     textW));
 
-                            // 第二行：物品描述（如果有）
-                            var description = stack
-                                    .getTooltipLines(Item.TooltipContext.EMPTY, minecraft.player, TooltipFlag.NORMAL)
-                                    .stream()
-                                    .peek(component -> component.getStyle().applyFormat(ChatFormatting.GRAY))
-                                    .map(Component::getVisualOrderText).toList();
-                            if (!description.isEmpty()) {
-                                detailLines.addAll(description);
+                            try {
+                                // 第二行：物品描述（如果有）
+                                var description = stack
+                                        .getTooltipLines(Item.TooltipContext.EMPTY, minecraft.player,
+                                                TooltipFlag.NORMAL)
+                                        .stream()
+                                        .peek(component -> component.getStyle().applyFormat(ChatFormatting.GRAY))
+                                        .map(Component::getVisualOrderText).toList();
+                                if (!description.isEmpty()) {
+                                    detailLines.addAll(description);
+                                }
+                            } catch (Exception e) {
+                                detailLines.addAll(
+                                        font.split(Component.translatable("screen.roleintroduce.error", e.getMessage())
+                                                .withStyle(ChatFormatting.RED), textW));
                             }
                             detailLines.add(FormattedCharSequence.EMPTY);
                             itemIndex++;

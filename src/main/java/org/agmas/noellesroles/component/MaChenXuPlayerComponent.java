@@ -793,6 +793,9 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
     @Override
     public void clientTick() {
         // 客户端tick处理
+        if (otherworldActive) {
+            otherworldDuration--;
+        }
         if (frenzyRainCooldown > 1) {
             frenzyRainCooldown--;
         }

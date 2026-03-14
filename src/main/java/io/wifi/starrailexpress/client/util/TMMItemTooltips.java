@@ -56,7 +56,10 @@ public class TMMItemTooltips {
     }
 
     private static void addCooldownText(Item item, List<Component> tooltipList, @NotNull ItemStack itemStack) {
-        if (!itemStack.is(item)) return;
+        if (!itemStack.is(item))
+            return;
+        if (Minecraft.getInstance().player == null)
+            return;
         ItemCooldowns itemCooldownManager = Minecraft.getInstance().player.getCooldowns();
         if (itemCooldownManager.isOnCooldown(item)) {
             ItemCooldowns.CooldownInstance knifeEntry = itemCooldownManager.cooldowns.get(item);
