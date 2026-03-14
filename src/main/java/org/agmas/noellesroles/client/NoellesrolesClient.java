@@ -32,6 +32,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.agmas.noellesroles.block_entity.VendingMachinesBlockEntity;
+import org.agmas.noellesroles.client.commands.SettingsCommand;
 import org.agmas.noellesroles.effects.TimeStopEffect;
 import org.agmas.noellesroles.init.*;
 import org.agmas.noellesroles.Noellesroles;
@@ -766,6 +767,11 @@ public class NoellesrolesClient implements ClientModInitializer {
         // 7. 注册血粒子
         bloodMain.init();
 
+        // 注册客户端命令
+        registerCommands();
+    }
+    private void registerCommands() {
+        SettingsCommand.register();
     }
 
     private void ShowBroadcastMessage(Component message) {
