@@ -855,6 +855,9 @@ public class GameUtils {
                         case "arrow":
                             eventDeathReason = OnPlayerKilledPlayer.DeathReason.ARROW;
                             break;
+                        case "trident":
+                            eventDeathReason = OnPlayerKilledPlayer.DeathReason.TRIDENT;
+                            break;
                         default:
                             eventDeathReason = OnPlayerKilledPlayer.DeathReason.UNKNOWN;
                     }

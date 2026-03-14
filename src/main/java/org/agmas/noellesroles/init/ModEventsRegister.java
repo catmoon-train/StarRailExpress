@@ -647,6 +647,7 @@ public class ModEventsRegister {
                                 || deathReason.getPath().equals("gun_shot")
                                 || deathReason.getPath().equals("hoan_meirin_attack")
                                 || deathReason.getPath().equals("arrow")
+                                || deathReason.getPath().equals("trident")
                                 || deathReason.getPath().equals("knife_stab")
                                 || deathReason.getPath().equals("fell_out_of_train")
                                 || deathReason.getPath().equals("poison")
