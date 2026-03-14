@@ -20,6 +20,7 @@ import java.util.UUID;
 
 import io.wifi.starrailexpress.cca.SREGameTimeComponent;
 import io.wifi.starrailexpress.client.StatusInit;
+import io.wifi.starrailexpress.client.gui.RoleNameRenderer;
 import net.minecraft.client.CameraType;
 
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -322,6 +323,9 @@ public class NoellesrolesClient implements ClientModInitializer {
             bloodMain.enabled = payload.enabled();
             LoggerFactory.getLogger(this.getClass())
                     .info("Blood Particle status: " + (bloodMain.enabled ? "Enabled" : "Disabled"));
+        });
+        ClientPlayNetworking.registerGlobalReceiver(NameTagSyncPayload.ID, (payload, context) -> {
+            RoleNameRenderer.displayTags.putAll(payload.nametags());
         });
         ClientPlayNetworking.registerGlobalReceiver(OpenLockGuiS2CPacket.ID, (payload, context) -> {
             final var client = context.client();

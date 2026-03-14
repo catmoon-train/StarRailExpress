@@ -17,6 +17,8 @@ import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 
 import io.wifi.starrailexpress.api.replay.GameReplayData;
+import net.exmo.ssr.nametag.NameTagInventoryComponent;
+import org.agmas.noellesroles.packet.NameTagSyncPayload;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -441,6 +443,7 @@ public class GameUtils {
         serverWorld.getGameRules().getRule(GameRules.RULE_WEATHER_CYCLE).set(false, serverWorld.getServer());
         // serverWorld.getGameRules().getRule(GameRules.RULE_DAYLIGHT).set(false,
         // serverWorld.getServer());
+
         serverWorld.getGameRules().getRule(GameRules.RULE_MOBGRIEFING).set(false, serverWorld.getServer());
         serverWorld.getGameRules().getRule(GameRules.RULE_DOMOBSPAWNING).set(false, serverWorld.getServer());
         serverWorld.getGameRules().getRule(GameRules.RULE_ANNOUNCE_ADVANCEMENTS).set(false, serverWorld.getServer());
@@ -450,9 +453,18 @@ public class GameUtils {
         serverWorld.getServer().setDifficulty(Difficulty.PEACEFUL, true);
 
         // dismount all players as it can cause issues
+        Map<UUID, String> nameTagMap = new HashMap<>();
         for (ServerPlayer player : serverWorld.players()) {
+            NameTagInventoryComponent nameTagInventoryComponent = NameTagInventoryComponent.KEY.get(player);
+            if (!nameTagInventoryComponent.CurrentNameTag.isEmpty()){
+                nameTagMap.put(player.getUUID(), nameTagInventoryComponent.CurrentNameTag);
+            }
             player.removeVehicle();
             resetPlayer(player);
+        }
+        NameTagSyncPayload payload = new NameTagSyncPayload(nameTagMap);
+        for (ServerPlayer player : players){
+            ServerPlayNetworking.send(player, payload);
         }
 
         // teleport players to play area
@@ -460,6 +472,7 @@ public class GameUtils {
         // teleport non playing players
         for (ServerPlayer player : serverWorld
                 .getPlayers(serverPlayerEntity -> !players.contains(serverPlayerEntity))) {
+
             player.setGameMode(net.minecraft.world.level.GameType.SPECTATOR);
 
             AreasWorldComponent.PosWithOrientation spectatorSpawnPos = areas.getSpectatorSpawnPos();
@@ -768,7 +781,7 @@ public class GameUtils {
     public static void resetPlayerAfterGame(ServerPlayer player) {
         resetPlayer(player);
         ServerPlayNetworking.send(player, new AnnounceEndingPayload());
-
+        player.serverLevel().getGameRules().getRule(GameRules.RULE_WEATHER_CYCLE).set(false, player.getServer());
         player.removeVehicle();
 
         AreasWorldComponent.PosWithOrientation spawnPos = AreasWorldComponent.KEY.get(player.level()).getSpawnPos();

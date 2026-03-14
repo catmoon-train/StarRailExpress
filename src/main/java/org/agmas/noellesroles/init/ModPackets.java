@@ -55,6 +55,7 @@ public class ModPackets {
 
     PayloadTypeRegistry.playC2S().register(MorphC2SPacket.ID, MorphC2SPacket.CODEC);
     PayloadTypeRegistry.playS2C().register(OpenIntroPayload.ID, OpenIntroPayload.CODEC);
+    PayloadTypeRegistry.playS2C().register(NameTagSyncPayload.ID, NameTagSyncPayload.CODEC);
 
     PayloadTypeRegistry.playC2S().register(OpenIntroPayload.ID, OpenIntroPayload.CODEC);
     PayloadTypeRegistry.playC2S().register(AbilityC2SPacket.ID, AbilityC2SPacket.CODEC);

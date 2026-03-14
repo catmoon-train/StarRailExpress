@@ -46,18 +46,18 @@ public class CommonTalkChatMixin {
                 return false;
             } else {
                 String var10000 = ConfigCache.angleBraceColor;
-                Component senderMessage = Component.literal(var10000 + "<" + ConfigCache.nameColor + playerName(sender).getString() + ConfigCache.angleBraceColor + "> " + ConfigCache.defaultColor + message);
+                Component senderMessage = somePrefix(sender).append(Component.literal(var10000 + "<" + ConfigCache.nameColor + playerName(sender).getString() + ConfigCache.angleBraceColor + "> " + ConfigCache.defaultColor + message));
                 server.getPlayerList().broadcastSystemMessage(senderMessage, (player) -> {
                     if (sender.getUUID().equals(player.getUUID())) {
-                        player.sendSystemMessage(somePrefix(player).append(senderMessage));
+                        player.sendSystemMessage(senderMessage);
                     } else {
                         if (!ConfigCache.opAsPlayer && server.getPlayerList().getOps().get(sender.getGameProfile()) != null) {
-                            return somePrefix(player).append(senderMessage);
+                            return (senderMessage);
                         }
 
                         if (compareCoordinatesDistance(sender.blockPosition(), player.blockPosition()) <= (double)ConfigCache.talkRange) {
 
-                            return somePrefix(player).append(senderMessage);
+                            return (senderMessage);
                         }
                     }
 

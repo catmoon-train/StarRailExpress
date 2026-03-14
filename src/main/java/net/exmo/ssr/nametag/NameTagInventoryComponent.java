@@ -8,6 +8,7 @@ import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.cca.SREPlayerNunchuckComponent;
 import io.wifi.syncrequests.SyncRequests;
+import net.minecraft.client.resources.language.I18n;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -123,7 +124,8 @@ public class NameTagInventoryComponent implements RoleComponent {
         if (getPlayer().isSpectator()){
             nameTag.append(Component.translatable("starrailexpress.tag.spectator").append(" "));
         }
-        nameTag.append(Component.translatable(CurrentNameTag));
+        MutableComponent translatable = Component.translatable( CurrentNameTag);
+        nameTag.append(translatable).append(" ");
         return nameTag;
     }
     @Override

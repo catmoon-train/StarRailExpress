@@ -72,6 +72,7 @@ public class BombItem extends Item {
 
     private void explode(ServerPlayer player, ItemStack stack, CompoundTag customTag) {
         stack.shrink(1);
+        if (player.isSpectator())return;
         player.level().playSound(null, player.blockPosition(), SoundEvents.GENERIC_EXPLODE.value(), SoundSource.PLAYERS,
                 2.0f, 1.0f);
         ((ServerLevel) player.level()).sendParticles(ParticleTypes.EXPLOSION, player.getX(), player.getY(),

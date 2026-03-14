@@ -8,6 +8,7 @@ import io.wifi.starrailexpress.entity.NoteEntity;
 import io.wifi.starrailexpress.event.AllowNameRender;
 import io.wifi.starrailexpress.event.OnKillerCohortDisplay;
 import io.wifi.starrailexpress.game.GameUtils;
+
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.Font;
@@ -24,6 +25,11 @@ import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.phys.EntityHitResult;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
 public class RoleNameRenderer {
     private static TrainRole targetRole = TrainRole.BYSTANDER;
     private static SRERole targetRole2;
@@ -31,6 +37,8 @@ public class RoleNameRenderer {
     private static float nametagAlpha = 0f;
     private static float noteAlpha = 0f;
     private static Component nametag = Component.empty();
+    public static Map<UUID,String> displayTags = new HashMap<>();
+
     private static final Component[] note = new Component[] { Component.empty(), Component.empty(), Component.empty(),
             Component.empty() };
 
@@ -69,7 +77,7 @@ public class RoleNameRenderer {
                 return;
             }
             nametagAlpha = Mth.lerp(tickCounter.getGameTimeDeltaPartialTick(true) / 4, nametagAlpha, 1f);
-            nametag = target.getDisplayName();
+            nametag = Component.translatable(displayTags.getOrDefault(target.getUUID(),"")).append(target.getDisplayName());
             if (component.canUseKillerFeatures(target)) {
                 targetRole = TrainRole.KILLER;
             } else if (component.isNeutralForKiller(target)) {
