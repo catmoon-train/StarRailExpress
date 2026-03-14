@@ -332,6 +332,7 @@ public abstract class Role {
     }
 
     private Consumer<LimitedInventoryScreen> addChild;
+    private boolean canAutoAddMoney = false;
 
     public enum MoodType {
         NONE, REAL, FAKE
@@ -360,6 +361,10 @@ public abstract class Role {
         this.canUseInstinct = this.canUseKiller;
     }
 
+    public Role setCanAutoAddMoney(boolean bl){
+        this.canAutoAddMoney = bl;
+        return this;
+    }
     public Role addChild(Consumer<LimitedInventoryScreen> addChild) {
         this.addChild = addChild;
         return this;
@@ -420,5 +425,9 @@ public abstract class Role {
 
     public boolean isGambler() {
         return false;
+    }
+
+    public boolean canAutoAddMoney() {
+        return this.canAutoAddMoney;
     }
 }

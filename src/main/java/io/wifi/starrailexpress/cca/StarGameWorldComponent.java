@@ -623,4 +623,10 @@ public class StarGameWorldComponent implements AutoSyncedComponent, ServerTickin
             return true;
         return false;
     }
+
+    public boolean canAutoAddMoney(ServerPlayer player) {
+        var role = this.getRole(player);
+        if(role==null) return false;
+        return role.canAutoAddMoney();
+    }
 }

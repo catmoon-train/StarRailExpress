@@ -514,7 +514,7 @@ public class StarRailMurderGameMode extends GameMode {
         boolean civilianAlive = false;
         for (ServerPlayer player : serverWorld.players()) {
             // passive money
-            if (gameWorldComponent.canUseKillerFeatures(player)) {
+            if (gameWorldComponent.canAutoAddMoney(player)) {
                 Integer balanceToAdd = GameConstants.PASSIVE_MONEY_TICKER.apply(serverWorld.getGameTime());
                 if (balanceToAdd > 0)
                     StarPlayerShopComponent.KEY.get(player).addToBalance(balanceToAdd);

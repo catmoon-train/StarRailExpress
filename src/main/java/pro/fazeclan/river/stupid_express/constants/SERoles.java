@@ -1,6 +1,6 @@
 package pro.fazeclan.river.stupid_express.constants;
 
-import io.wifi.starrailexpress.api.NoramlRole;
+import io.wifi.starrailexpress.api.NormalRole;
 import io.wifi.starrailexpress.api.NormalRole;
 import io.wifi.starrailexpress.api.Role;
 import io.wifi.starrailexpress.api.TMMRoles;
@@ -38,7 +38,7 @@ public class SERoles {
             false
     ));
 
-    public static Role ARSONIST = registerRole(new NoramlRole(
+    public static Role ARSONIST = registerRole(new NormalRole(
             StupidExpress.id("arsonist"),
             0xfc9526,
             false,
@@ -48,7 +48,7 @@ public class SERoles {
             true
     )).setCanUseInstinct(true);
 
-    public static Role AVARICIOUS = registerRole(new NoramlRole(
+    public static Role AVARICIOUS = registerRole(new NormalRole(
             StupidExpress.id("avaricious"),
             0x8f00ff,
             false,
@@ -58,7 +58,7 @@ public class SERoles {
             true
     ));
 
-    public static Role NECROMANCER = registerRole(new NoramlRole(
+    public static Role NECROMANCER = registerRole(new NormalRole(
             StupidExpress.id("necromancer"),
             0x9457ff,
             false,

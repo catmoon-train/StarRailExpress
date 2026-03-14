@@ -17,7 +17,7 @@ public class AvariciousPassiveIncomeDestroyer {
             method = "tickServerGameLoop",
             at = @At(
                     value = "INVOKE",
-                    target = "Lio/wifi/starrailexpress/cca/GameWorldComponent;canUseKillerFeatures(Lnet/minecraft/world/entity/player/Player;)Z"
+                    target = "Lio/wifi/starrailexpress/cca/StarGameWorldComponent;canUseKillerFeatures(Lnet/minecraft/world/entity/player/Player;)Z"
             )
     )
     private boolean noPassiveIncomeKiller(

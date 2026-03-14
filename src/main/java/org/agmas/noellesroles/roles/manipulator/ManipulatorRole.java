@@ -1,11 +1,11 @@
 package org.agmas.noellesroles.roles.manipulator;
 
-import io.wifi.starrailexpress.api.NoramlRole;
+import io.wifi.starrailexpress.api.NormalRole;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
-public class ManipulatorRole extends NoramlRole {
+public class ManipulatorRole extends NormalRole {
     public ManipulatorRole(ResourceLocation identifier, int color, boolean isInnocent, boolean canUseKiller, MoodType moodType, int maxSprintTime, boolean canSeeTime) {
         super(identifier, color, isInnocent, canUseKiller, moodType, maxSprintTime, canSeeTime);
     }
