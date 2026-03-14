@@ -92,7 +92,6 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
     public static final int GHOST_SKILL_COOLDOWN_PUPPET_SHOW = 1200; // 60秒
 
     // ==================== 状态变量 ====================
-
     private final Player player;
 
     /** 当前阶段（1、2、3、4） */
@@ -155,6 +154,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
     /** 伪摹技能是否已使用 */
     public boolean falseMimicryUsed = false;
 
+    public int nowSelectedSkill = 0;
     private final Random random = new Random();
 
     /**
@@ -179,6 +179,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
      */
     @Override
     public void reset() {
+        this.nowSelectedSkill = 0;
         this.stage = 1;
         this.totalSanLoss = 0;
         this.fearTimer = 0;
@@ -664,6 +665,9 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
                 ));
             }
         }
+        if (this.player.isSprinting()) {
+            this.chargeSwiftWind();
+        }
         // 处理恐惧机制
         processFearMechanism();
 
@@ -1066,7 +1070,16 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         }
     }
 
+    public void changeSkill() {
+        this.nowSelectedSkill++;
+        if (this.nowSelectedSkill >= this.ghostSkills.size()) {
+            this.nowSelectedSkill = 0;
+        }
+    }
+
     public void tryActiveAbility() {
-        
+        if (player.isShiftKeyDown()) {
+            this.changeSkill();
+        }
     }
 }
