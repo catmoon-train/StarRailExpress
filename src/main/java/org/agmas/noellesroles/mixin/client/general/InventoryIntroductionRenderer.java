@@ -6,7 +6,6 @@ import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
-import io.wifi.starrailexpress.util.TooltipUtil;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
@@ -16,6 +15,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.FormattedCharSequence;
 
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.utils.RoleUtils;
@@ -52,6 +52,7 @@ public class InventoryIntroductionRenderer {
             float scale = getScare(context.guiHeight());
             SRERole role = gameWorldComponent.getRole(player);
             Font font = Minecraft.getInstance().font;
+            final int MAX_WIDTH = (int)(context.guiWidth() / scale / 4);
 
             if (role != null) {
                String roleName = role.getIdentifier().getPath();
@@ -71,21 +72,26 @@ public class InventoryIntroductionRenderer {
                   Objects.requireNonNull(font);
                   int roleNameHeight = (int) (9.0F * scale);
                   int currentY = y + roleNameHeight + 2;
-                  List<Component> infoLines = TooltipUtil.sprit(roleInfoComponent);
-
-                  for (Iterator<Component> var22 = infoLines.iterator(); var22
-                        .hasNext(); currentY += (int) (9.0F * scale) + 2) {
-                     Component line = (Component) var22.next();
+                  List<FormattedCharSequence> infoLines = font.split(roleInfoComponent, MAX_WIDTH);
+                  int i = 0;
+                  for (FormattedCharSequence line : infoLines) {
+                     i++;
+                     if (currentY >= (float) context.guiHeight() / 3) {
+                        float lineY = (float) currentY / scale;
+                        var moreInfo = Component.translatable("info.screen.role.see_more")
+                              .withStyle(ChatFormatting.GRAY);
+                        context.drawString(font, moreInfo, (int) scaledX, (int) lineY, 11184810);
+                        break;
+                     }
                      float lineY = (float) currentY / scale;
                      context.drawString(font, line, (int) scaledX, (int) lineY, 11184810);
-                     Objects.requireNonNull(font);
+                     currentY += (int) (9.0F * scale) + 2;
                   }
 
                   poseStack.popPose();
-                  int infoLineCount = infoLines.size();
+                  int infoLineCount = i;
                   Objects.requireNonNull(font);
                   int var10000 = (int) (9.0F * scale);
-                  Objects.requireNonNull(font);
                   int totalHeight = var10000 + infoLineCount * (int) (9.0F * scale) + infoLineCount * 2 + 2;
                   int scaledNameWidth = (int) ((float) font.width(roleNameComponent) * scale);
                   int maxInfoWidth = infoLines.stream().mapToInt((component) -> {
@@ -115,12 +121,10 @@ public class InventoryIntroductionRenderer {
                      Objects.requireNonNull(font);
                      int modifierNameHeight = (int) (9.0F * scale);
                      int currentY = y + modifierNameHeight + 2;
-                     List<Component> infoLines = TooltipUtil.sprit(modifierInfoComponent);
+                     List<FormattedCharSequence> infoLines = font.split(modifierInfoComponent, MAX_WIDTH);
 
                      int infoLineCount = infoLines.size();
-                     Objects.requireNonNull(font);
                      int var10000 = (int) (9.0F * scale);
-                     Objects.requireNonNull(font);
                      int totalHeight = var10000 + infoLineCount * (int) (9.0F * scale) + infoLineCount * 2 + 2;
                      int scaledNameWidth = (int) ((float) font.width(modifierNameComponent) * scale);
                      int maxInfoWidth = infoLines.stream().mapToInt((component) -> {
@@ -131,19 +135,17 @@ public class InventoryIntroductionRenderer {
                            scaledY - totalHeight / scale, scale,
                            16777215,
                            4210752);
-                     for (Iterator<Component> var22 = infoLines.iterator(); var22
+                     for (Iterator<FormattedCharSequence> var22 = infoLines.iterator(); var22
                            .hasNext(); currentY += (int) (9.0F * scale) + 2) {
-                        Component line = (Component) var22.next();
+                        FormattedCharSequence line = var22.next();
                         float lineY = (float) currentY / scale;
                         context.drawString(font, line, (int) (scaledX), (int) (lineY - totalHeight / scale), 11184810);
-                        Objects.requireNonNull(font);
                      }
                      poseStack.popPose();
 
                      this.drawScaledBackground(context, x, y - totalHeight, maxWidth, totalHeight);
                      y -= (totalHeight + 10);
                   }
-
                }
             }
          }

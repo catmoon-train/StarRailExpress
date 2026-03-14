@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import org.agmas.noellesroles.component.MaChenXuPlayerComponent;
 import org.agmas.noellesroles.component.SingerPlayerComponent;
 import org.agmas.noellesroles.repack.HSRConstants;
 import org.agmas.noellesroles.repack.HSRItems;
@@ -38,6 +39,7 @@ import net.minecraft.world.item.component.WrittenBookContent;
 import pro.fazeclan.river.stupid_express.constants.SERoles;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.network.Filterable;
 import net.minecraft.world.entity.player.Player;
@@ -181,10 +183,13 @@ public class RoleShopHandler {
               .withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD));
       var frenzyRainLore = new ArrayList<Component>();
       frenzyRainLore.add(Component.translatable("item.noellesroles.ma_chen_xu.frenzy_rain.lore1")
+          .setStyle(Style.EMPTY.withItalic(false))
           .withStyle(ChatFormatting.GRAY));
       frenzyRainLore.add(Component.translatable("item.noellesroles.ma_chen_xu.frenzy_rain.lore2")
+          .setStyle(Style.EMPTY.withItalic(false))
           .withStyle(ChatFormatting.GRAY));
       frenzyRainLore.add(Component.translatable("item.noellesroles.ma_chen_xu.frenzy_rain.lore3")
+          .setStyle(Style.EMPTY.withItalic(false))
           .withStyle(ChatFormatting.GRAY));
       frenzyRainItem.set(DataComponents.LORE, new ItemLore(frenzyRainLore));
 
@@ -193,8 +198,8 @@ public class RoleShopHandler {
         public boolean onBuy(@NotNull Player player) {
           var component = org.agmas.noellesroles.component.ModComponents.MA_CHEN_XU.get(player);
           if (component != null) {
-            component.useFrenzyRain();
-            return true;
+            player.getCooldowns().addCooldown(frenzyRainItem.getItem(), MaChenXuPlayerComponent.FRENZY_RAIN_COOLDOWN);
+            return component.useFrenzyRain();
           }
           return false;
         }

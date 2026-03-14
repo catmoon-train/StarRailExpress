@@ -520,9 +520,9 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
      * 使用下雨[狂热]技能
      * 使用后地图进入小雨状态，全图好人SAN掉落速度翻倍，获得一层护盾，持续20秒，鬼术冷却刷新，CD 150秒
      */
-    public void useFrenzyRain() {
+    public boolean useFrenzyRain() {
         if (!(player instanceof ServerPlayer serverPlayer))
-            return;
+            return false;
 
         // 检查冷却时间
         if (frenzyRainCooldown > 0) {
@@ -530,7 +530,8 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
                     Component.translatable("gui.noellesroles.ma_chen_xu.frenzy_rain_cooldown", frenzyRainCooldown / 20)
                             .withStyle(ChatFormatting.RED),
                     true);
-            return;
+            return false;
+
         }
 
         // 检查金币
@@ -540,7 +541,8 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
                     Component.translatable("message.noellesroles.insufficient_funds")
                             .withStyle(ChatFormatting.RED),
                     true);
-            return;
+            return false;
+
         }
 
         // 扣除金币
@@ -579,6 +581,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
                 MobEffects.MOVEMENT_SPEED, FRENZY_RAIN_DURATION, 1, false, false, true));
 
         this.sync();
+        return true;
     }
 
     /**
