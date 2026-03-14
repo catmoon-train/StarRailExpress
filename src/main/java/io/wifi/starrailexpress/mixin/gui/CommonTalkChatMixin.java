@@ -25,9 +25,7 @@ public class CommonTalkChatMixin {
     @Unique
     private static MutableComponent somePrefix(Player mainPlayer) {
         if (mainPlayer instanceof ServerPlayer ){
-            if (mainPlayer.isSpectator()){
                 return NameTagInventoryComponent.KEY.get(mainPlayer).generate();
-            }
         }
         return Component.literal("");
     }
