@@ -186,14 +186,14 @@ public class ModRoles {
   public static final ResourceLocation JOJO_ID = Noellesroles.id("jojo");
 
   public static SRERole MA_CHEN_XU = TMMRoles.registerRole(new NormalRole(
-                MA_CHEN_XU_ID, // 角色 ID
-                new Color(75, 0, 130).getRGB(), // 深紫色 - 代表恐惧与神秘
-                false, // isInnocent = 非乘客阵营（杀手）
-                true, // canUseKiller = 有杀手能力
-                SRERole.MoodType.FAKE, // 假心情
-                Integer.MAX_VALUE, // 无限冲刺时间
-                true // 隐藏计分板
-        )).setComponentKey(ModComponents.MA_CHEN_XU).setCanSeeCoin(true);
+      MA_CHEN_XU_ID, // 角色 ID
+      new Color(75, 0, 130).getRGB(), // 深紫色 - 代表恐惧与神秘
+      false, // isInnocent = 非乘客阵营（杀手）
+      true, // canUseKiller = 有杀手能力
+      SRERole.MoodType.FAKE, // 假心情
+      Integer.MAX_VALUE, // 无限冲刺时间
+      true // 隐藏计分板
+  )).setComponentKey(ModComponents.MA_CHEN_XU).setCanSeeCoin(true);
   // MAID_SAKUYA 十六夜咲夜
   public static SRERole MAID_SAKUYA = TMMRoles.registerRole(new NormalRole(
       MAID_SAKUYA_ID, // 角色 ID

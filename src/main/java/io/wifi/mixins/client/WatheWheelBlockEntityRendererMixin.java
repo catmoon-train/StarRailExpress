@@ -1,7 +1,6 @@
 package io.wifi.mixins.client;
 
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 
 import dev.doctor4t.wathe.client.render.block_entity.WheelBlockEntityRenderer;
 

@@ -31,6 +31,12 @@ public class NoellesRolesConfig {
     @Boolean
     public boolean shitpostRoles = false;
 
+    
+    @SerialEntry(comment = "Areas that will spawn Swast. Use | to split maps.")
+    @AutoGen(category = "General")
+    @StringField
+    public String maChenXuMaps = "qiyucun";
+
     @SerialEntry(comment = "Areas that will spawn Swast. Use | to split maps.")
     @AutoGen(category = "General")
     @StringField

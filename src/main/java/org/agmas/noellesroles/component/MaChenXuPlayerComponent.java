@@ -6,11 +6,9 @@ import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
-import dev.doctor4t.wathe.cca.GameWorldComponent;
-import dev.doctor4t.wathe.cca.PlayerShopComponent;
-import dev.doctor4t.wathe.game.GameFunctions;
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 
@@ -207,7 +205,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
 
         // 给予初始金币80
         if (player instanceof ServerPlayer serverPlayer) {
-            PlayerShopComponent playerShopComponent = PlayerShopComponent.KEY.get(serverPlayer);
+            SREPlayerShopComponent playerShopComponent = SREPlayerShopComponent.KEY.get(serverPlayer);
             playerShopComponent.setBalance(playerShopComponent.balance + 80);
             playerShopComponent.sync();
         }
@@ -400,7 +398,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         // 给所有好人添加失明效果
         Level world = player.level();
         for (Player target : world.players()) {
-            if (GameFunctions.isPlayerAliveAndSurvival(target) && !isKiller(target)) {
+            if (GameUtils.isPlayerAliveAndSurvival(target) && !isKiller(target)) {
                 target.addEffect(new MobEffectInstance(
                         MobEffects.BLINDNESS, duration, 0, false, false, false));
             }
@@ -413,7 +411,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
      * 检查玩家是否是杀手
      */
     private boolean isKiller(Player target) {
-        GameWorldComponent gameWorldComponent = GameWorldComponent.KEY.get(target.level());
+        SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(target.level());
         if (gameWorldComponent == null)
             return false;
         return gameWorldComponent.getRole(target).canUseKiller();
@@ -430,7 +428,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         // 这里需要实现SAN值检查逻辑
 
         // 击杀目标
-        GameFunctions.killPlayer(target, true, player, GameConstants.DeathReasons.KNIFE);
+        GameUtils.killPlayer(target, true, player, GameConstants.DeathReasons.KNIFE);
 
         // 减少里世界时间
         if (otherworldActive) {
@@ -454,7 +452,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
             return;
 
         // 检查金币
-        PlayerShopComponent playerShopComponent = PlayerShopComponent.KEY.get(serverPlayer);
+        SREPlayerShopComponent playerShopComponent = SREPlayerShopComponent.KEY.get(serverPlayer);
         if (playerShopComponent.balance < PRAYER_RAIN_COST) {
             serverPlayer.displayClientMessage(
                     Component.translatable("message.noellesroles.insufficient_money")
@@ -498,7 +496,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         }
 
         // 检查金币
-        PlayerShopComponent playerShopComponent = PlayerShopComponent.KEY.get(serverPlayer);
+        SREPlayerShopComponent playerShopComponent = SREPlayerShopComponent.KEY.get(serverPlayer);
         if (playerShopComponent.balance < FRENZY_RAIN_COST) {
             serverPlayer.displayClientMessage(
                     Component.translatable("message.noellesroles.insufficient_money")
@@ -577,7 +575,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
                 for (Player target : world.players()) {
                     if (target.equals(player))
                         continue;
-                    if (!GameFunctions.isPlayerAliveAndSurvival(target))
+                    if (!GameUtils.isPlayerAliveAndSurvival(target))
                         continue;
                     if (isKiller(target))
                         continue;
@@ -606,7 +604,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
 
                 Level world = player.level();
                 for (Player target : world.players()) {
-                    if (!GameFunctions.isPlayerAliveAndSurvival(target))
+                    if (!GameUtils.isPlayerAliveAndSurvival(target))
                         continue;
                     if (isKiller(target))
                         continue;
@@ -625,7 +623,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
                 // 移除所有好人的失明效果
                 Level world = player.level();
                 for (Player target : world.players()) {
-                    if (GameFunctions.isPlayerAliveAndSurvival(target) && !isKiller(target)) {
+                    if (GameUtils.isPlayerAliveAndSurvival(target) && !isKiller(target)) {
                         target.removeEffect(MobEffects.BLINDNESS);
                     }
                 }

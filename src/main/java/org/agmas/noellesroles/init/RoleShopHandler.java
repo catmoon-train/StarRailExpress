@@ -12,7 +12,6 @@ import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.roles.framing.FramingShopEntry;
 import org.jetbrains.annotations.NotNull;
 
-import dev.doctor4t.wathe.cca.PlayerShopComponent;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
@@ -204,7 +203,7 @@ public class RoleShopHandler {
       // 关灯 - 120金币
       MA_CHEN_XU_SHOP.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), 120, ShopEntry.Type.TOOL) {
         public boolean onBuy(@NotNull Player player) {
-          return PlayerShopComponent.useBlackout(player);
+          return SREPlayerShopComponent.useBlackout(player);
         }
       });
 
