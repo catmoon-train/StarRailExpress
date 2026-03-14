@@ -1,6 +1,6 @@
 package org.agmas.noellesroles.component;
 
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -92,7 +92,7 @@ public class MonitorPlayerComponent implements RoleComponent, ServerTickingCompo
         if (this.markedTarget != null) {
             if (!this.player.level().isClientSide()) {
                 Player targetPlayer = this.player.getServer().getPlayerList().getPlayer(this.markedTarget);
-                if (targetPlayer == null || !GameFunctions.isPlayerAliveAndSurvival(targetPlayer)) {
+                if (targetPlayer == null || !GameUtils.isPlayerAliveAndSurvival(targetPlayer)) {
                     // 目标不存在或已死亡，清除标记
                     this.markedTarget = null;
                     Component targetPlayerName = Component.translatable("gui.noellesroles.monitor.unknown");

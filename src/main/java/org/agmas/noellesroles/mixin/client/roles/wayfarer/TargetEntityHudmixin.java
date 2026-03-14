@@ -1,6 +1,6 @@
 package org.agmas.noellesroles.mixin.client.roles.wayfarer;
 
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.RoleNameRenderer;
 import net.minecraft.client.DeltaTracker;
@@ -24,7 +24,7 @@ public class TargetEntityHudmixin {
     @Inject(method = "renderHud", at = @At("TAIL"))
     private static void replaceRoleHud(Font renderer, LocalPlayer player, GuiGraphics context, DeltaTracker tickCounter,
             CallbackInfo ci) {
-        StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(player.level());
+        SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
         if (StupidExpressClient.targetBody == null) {
             return;
         }

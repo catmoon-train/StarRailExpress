@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.client;
 
-import io.wifi.starrailexpress.api.Role;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import java.awt.*;
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -16,7 +16,7 @@ import net.minecraft.client.player.LocalPlayer;
 public class RoleScreenHelper<T> {
     private final LocalPlayer player;
     private final PlayerPaginationHelper<T> paginationHelper;
-    private final Role role;
+    private final SRERole role;
     private final BiConsumer<GuiGraphics, Point> extraDrawer;
     private final Supplier<List<T>> entriesSupplier;
 
@@ -30,7 +30,7 @@ public class RoleScreenHelper<T> {
      * @param entriesSupplier 提供玩家条目列表的 Supplier
      */
     public RoleScreenHelper(LocalPlayer player,
-                            Role role,
+                            SRERole role,
                             PlayerPaginationHelper.PlayerWidgetCreator<T> widgetCreator,
                             PlayerPaginationHelper.PaginationTextProvider textProvider,
                             BiConsumer<GuiGraphics, Point> extraDrawer,
@@ -46,7 +46,7 @@ public class RoleScreenHelper<T> {
      * 检查当前玩家是否拥有该角色。
      */
     public boolean isRoleActive() {
-        StarGameWorldComponent gameWorldComponent = (StarGameWorldComponent) StarGameWorldComponent.KEY.get(player.level());
+        SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY.get(player.level());
         return gameWorldComponent.isRole(player, role);
     }
 

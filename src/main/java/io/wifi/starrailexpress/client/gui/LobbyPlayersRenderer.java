@@ -2,10 +2,10 @@ package io.wifi.starrailexpress.client.gui;
 
 import dev.doctor4t.ratatouille.util.TextUtils;
 import io.wifi.starrailexpress.cca.AutoStartComponent;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.MapVotingComponent;
 import io.wifi.starrailexpress.client.InputHandler;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 
@@ -20,12 +20,12 @@ import net.minecraft.world.level.Level;
 
 public class LobbyPlayersRenderer {
     public static void renderHud(Font font, @NotNull LocalPlayer player, @NotNull GuiGraphics guiGraphics) {
-        StarGameWorldComponent game = StarGameWorldComponent.KEY.get(player.level());
+        SREGameWorldComponent game = SREGameWorldComponent.KEY.get(player.level());
         if (!game.isRunning()) {
             Level world = player.level();
             List<? extends Player> players = world.players();
             int count = players.size();
-            int readyPlayerCount = GameFunctions.getReadyPlayerCount(world);
+            int readyPlayerCount = GameUtils.getReadyPlayerCount(world);
             
             // 绘制玩家计数信息
             drawPlayerCountInfo(guiGraphics, font, readyPlayerCount, count);
@@ -69,10 +69,10 @@ public class LobbyPlayersRenderer {
         guiGraphics.drawString(font, playerCountText, textX, textY, 0xFFFFFFFF, false);
     }
     
-    private static void drawAutoStartInfo(GuiGraphics guiGraphics, Font font, Level world, StarGameWorldComponent game) {
+    private static void drawAutoStartInfo(GuiGraphics guiGraphics, Font font, Level world, SREGameWorldComponent game) {
         AutoStartComponent autoStartComponent = AutoStartComponent.KEY.get(world);
         if (autoStartComponent.isAutoStartActive()) {
-            int readyPlayerCount = GameFunctions.getReadyPlayerCount(world);
+            int readyPlayerCount = GameUtils.getReadyPlayerCount(world);
             
             // 计算位置（在玩家计数下方）
             int bgWidth = 200;

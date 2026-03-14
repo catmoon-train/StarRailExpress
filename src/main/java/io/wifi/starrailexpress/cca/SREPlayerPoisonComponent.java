@@ -2,7 +2,7 @@ package io.wifi.starrailexpress.cca;
 
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.game.GameConstants;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.SRE;
 import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.NotNull;
@@ -20,9 +20,9 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.entity.player.Player;
 
-public class StarPlayerPoisonComponent implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
-    public static final ComponentKey<StarPlayerPoisonComponent> KEY = ComponentRegistry.getOrCreate(SRE.id("poison"),
-            StarPlayerPoisonComponent.class);
+public class SREPlayerPoisonComponent implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
+    public static final ComponentKey<SREPlayerPoisonComponent> KEY = ComponentRegistry.getOrCreate(SRE.id("poison"),
+            SREPlayerPoisonComponent.class);
     public static final Tuple<Integer, Integer> clampTime = new Tuple<>(800, 1400);
     private final Player player;
     public int poisonTicks = -1;
@@ -31,12 +31,12 @@ public class StarPlayerPoisonComponent implements RoleComponent, ServerTickingCo
     public float pulseProgress = 0f;
     public boolean pulsing = false;
     public UUID poisoner;
-    private static StarGameWorldComponent gameWorldComponent = null;
+    private static SREGameWorldComponent gameWorldComponent = null;
     public static ArrayList<String> canSyncedRolePaths = new ArrayList<>();
 
-    public StarPlayerPoisonComponent(Player player) {
+    public SREPlayerPoisonComponent(Player player) {
         this.player = player;
-        gameWorldComponent = StarGameWorldComponent.KEY.get(this.player.level());
+        gameWorldComponent = SREGameWorldComponent.KEY.get(this.player.level());
     }
 
     @Override
@@ -44,7 +44,7 @@ public class StarPlayerPoisonComponent implements RoleComponent, ServerTickingCo
         if (player == this.player)
             return true;
         if (gameWorldComponent == null) {
-            gameWorldComponent = StarGameWorldComponent.KEY.get(this.player.level());
+            gameWorldComponent = SREGameWorldComponent.KEY.get(this.player.level());
         }
         if (gameWorldComponent != null) {
             var role = gameWorldComponent.getRole(player);
@@ -130,7 +130,7 @@ public class StarPlayerPoisonComponent implements RoleComponent, ServerTickingCo
             this.poisonTicks--;
             if (this.poisonTicks == 0) {
                 this.poisonTicks = -1;
-                GameFunctions.killPlayer(this.player, true,
+                GameUtils.killPlayer(this.player, true,
                         this.poisoner == null ? null : this.player.level().getPlayerByUUID(this.poisoner),
                         GameConstants.DeathReasons.POISON);
                 this.poisoner = null;

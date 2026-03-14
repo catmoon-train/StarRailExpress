@@ -221,7 +221,7 @@ public class MapVotingComponent implements AutoSyncedComponent, CommonTickingCom
                     "function harpymodloader:vote_over");
 
             // 开始游戏
-            // GameFunctions.startGame(server.overworld(), gameComponent.getGameMode());
+            // GameUtils.startGame(server.overworld(), gameComponent.getGameMode());
         }
 
         // 发送投票结果给所有玩家

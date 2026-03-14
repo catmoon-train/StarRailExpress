@@ -1,9 +1,9 @@
 package org.agmas.noellesroles.modifier.expedition;
 
-import io.wifi.starrailexpress.api.Role;
+import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.RoleComponent;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -80,15 +80,15 @@ public class ExpeditionComponent implements RoleComponent, ServerTickingComponen
         if (player.level().isClientSide())
             return 0;
 
-        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.level());
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
         ServerLevel serverWorld = (ServerLevel) player.level();
 
         int count = 0;
         for (Player p : serverWorld.players()) {
-            if (!GameFunctions.isPlayerAliveAndSurvival(p))
+            if (!GameUtils.isPlayerAliveAndSurvival(p))
                 continue;
 
-            Role role = gameWorld.getRole(p);
+            SRERole role = gameWorld.getRole(p);
             if (role == null)
                 continue;
 
@@ -120,7 +120,7 @@ public class ExpeditionComponent implements RoleComponent, ServerTickingComponen
             return;
 
         // 切换角色为红海军
-        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.level());
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
         if (!gameWorld.isRole(player, ModRoles.GHOST)) { // 确保不是小透明
             RoleUtils.changeRole(player, ModRoles.BETTER_VIGILANTE);
 
@@ -162,8 +162,8 @@ public class ExpeditionComponent implements RoleComponent, ServerTickingComponen
      */
     private boolean isGoodFaction() {
         try {
-            StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.level());
-            Role role = gameWorld.getRole(player);
+            SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
+            SRERole role = gameWorld.getRole(player);
             return role != null && role.isInnocent() && !role.canUseKiller() && !role.isNeutrals();
         } catch (Exception e) {
             return false;
@@ -182,7 +182,7 @@ public class ExpeditionComponent implements RoleComponent, ServerTickingComponen
     @Override
     public void serverTick() {
         // 检查玩家是否存活
-        if (!GameFunctions.isPlayerAliveAndSurvival(player))
+        if (!GameUtils.isPlayerAliveAndSurvival(player))
             return;
 
         // 如果已经切换过角色，不需要再检测
@@ -197,7 +197,7 @@ public class ExpeditionComponent implements RoleComponent, ServerTickingComponen
         if (!isGoodFaction())
             return;
 
-        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.level());
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
 
         // 只有游戏进行中才检测
         if (!gameWorld.isRunning())

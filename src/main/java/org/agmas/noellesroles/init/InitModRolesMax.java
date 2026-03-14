@@ -13,7 +13,7 @@ import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.role.ModRoles;
 
-import io.wifi.starrailexpress.api.Role;
+import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import pro.fazeclan.river.stupid_express.StupidExpress;
@@ -196,7 +196,7 @@ public class InitModRolesMax {
             final int players_count = serverLevel.getServer().getPlayerCount();
             {
                 // 杀手中立
-                var neutralRoles = new ArrayList<Role>(TMMRoles.ROLES.values());
+                var neutralRoles = new ArrayList<SRERole>(TMMRoles.ROLES.values());
                 neutralRoles.removeIf((r) -> {
                     if (r.isNeutrals() && r.isNeutralForKiller())
                         return false;

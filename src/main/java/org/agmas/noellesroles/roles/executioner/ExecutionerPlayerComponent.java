@@ -1,8 +1,8 @@
 package org.agmas.noellesroles.roles.executioner;
 
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.event.AllowShootRevolverDrop;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.role.ModRoles;
@@ -70,7 +70,7 @@ public class ExecutionerPlayerComponent implements RoleComponent, ServerTickingC
     public void serverTick() {
         // 如果目标已经死亡且executioner尚未获胜，解锁商店并重置目标
         if (target == null) {
-            StarGameWorldComponent gameWorldComponent = (StarGameWorldComponent) StarGameWorldComponent.KEY.get(player.level());
+            SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY.get(player.level());
             if (gameWorldComponent == null)
                 return;
             if (!gameWorldComponent.isRunning())
@@ -81,7 +81,7 @@ public class ExecutionerPlayerComponent implements RoleComponent, ServerTickingC
 
         }
         if (target != null && !won) {
-            StarGameWorldComponent gameWorldComponent = (StarGameWorldComponent) StarGameWorldComponent.KEY.get(player.level());
+            SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY.get(player.level());
             if (gameWorldComponent == null)
                 return;
             if (!gameWorldComponent.isRunning())
@@ -90,7 +90,7 @@ public class ExecutionerPlayerComponent implements RoleComponent, ServerTickingC
                 return;
 
             Player targetPlayer = player.level().getPlayerByUUID(target);
-            if (targetPlayer == null || GameFunctions.isPlayerEliminated(targetPlayer)) {
+            if (targetPlayer == null || GameUtils.isPlayerEliminated(targetPlayer)) {
                 // 目标死亡，解锁商店并分配新目标
                 this.shopUnlocked = true;
                 this.target = null;
@@ -115,7 +115,7 @@ public class ExecutionerPlayerComponent implements RoleComponent, ServerTickingC
             return;
         }
 
-        StarGameWorldComponent gameWorldComponent = (StarGameWorldComponent) StarGameWorldComponent.KEY.get(player.level());
+        SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY.get(player.level());
         if (gameWorldComponent == null)
             return;
         List<Player> eligibleTargets = new ArrayList<>();
@@ -125,7 +125,7 @@ public class ExecutionerPlayerComponent implements RoleComponent, ServerTickingC
             if (p.getUUID().equals(player.getUUID())) {
                 continue; // 跳过自己
             }
-            if (!GameFunctions.isPlayerAliveAndSurvival(p)) {
+            if (!GameUtils.isPlayerAliveAndSurvival(p)) {
                 continue; // 只考虑存活玩家
             }
             final var role = gameWorldComponent.getRole(p);
@@ -190,7 +190,7 @@ public class ExecutionerPlayerComponent implements RoleComponent, ServerTickingC
 
     public static void registerBackfireEvent() {
         AllowShootRevolverDrop.EVENT.register((player, target) -> {
-            StarGameWorldComponent gameWorldComponent = (StarGameWorldComponent) StarGameWorldComponent.KEY.get(player.level());
+            SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY.get(player.level());
             if (gameWorldComponent.isRole(player, ModRoles.EXECUTIONER)) {
                 ExecutionerPlayerComponent executionerPlayerComponent = ExecutionerPlayerComponent.KEY.get(player);
                 if (executionerPlayerComponent.target != null

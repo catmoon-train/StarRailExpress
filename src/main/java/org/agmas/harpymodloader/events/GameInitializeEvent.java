@@ -8,7 +8,7 @@ import static net.fabricmc.fabric.api.event.EventFactory.createArrayBacked;
 
 import java.util.List;
 
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 
 public interface GameInitializeEvent {
 
@@ -19,6 +19,6 @@ public interface GameInitializeEvent {
                 }
             });
 
-    void initializeGame(ServerLevel serverWorld, StarGameWorldComponent gameWorldComponent,
+    void initializeGame(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent,
             List<ServerPlayer> players);
 }

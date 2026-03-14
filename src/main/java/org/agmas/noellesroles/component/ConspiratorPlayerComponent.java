@@ -1,11 +1,11 @@
 package org.agmas.noellesroles.component;
 
-import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
+import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.role.ModRoles;
-import io.wifi.starrailexpress.api.Role;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.game.GameUtils;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import io.wifi.starrailexpress.api.RoleComponent;
@@ -134,8 +134,8 @@ public class ConspiratorPlayerComponent implements RoleComponent, ServerTickingC
             return false;
 
         // 获取目标的实际角色
-        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.level());
-        Role actualRole = gameWorld.getRole(target);
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
+        SRERole actualRole = gameWorld.getRole(target);
 
         if (actualRole == null)
             return false;
@@ -171,7 +171,7 @@ public class ConspiratorPlayerComponent implements RoleComponent, ServerTickingC
                 newTarget.guessCorrect = true;
                 newTarget.deathCountdown = DEATH_COUNTDOWN;
             }
-            final var playerShopComponent = StarPlayerShopComponent.KEY.get(player);
+            final var playerShopComponent = SREPlayerShopComponent.KEY.get(player);
             playerShopComponent.setBalance(100 + playerShopComponent.balance);
 
             serverPlayer.displayClientMessage(
@@ -217,7 +217,7 @@ public class ConspiratorPlayerComponent implements RoleComponent, ServerTickingC
 
                 // 使用自杀死因
                 ResourceLocation deathReason = Noellesroles.id("conspiracy_backfire");
-                GameFunctions.killPlayer(player, true, null, deathReason);
+                GameUtils.killPlayer(player, true, null, deathReason);
 
                 // 重置状态
                 this.targetList.clear();
@@ -259,7 +259,7 @@ public class ConspiratorPlayerComponent implements RoleComponent, ServerTickingC
         if (targetUuid == null)
             return false;
         Player target = player.level().getPlayerByUUID(targetUuid);
-        return target != null && GameFunctions.isPlayerAliveAndSurvival(target);
+        return target != null && GameUtils.isPlayerAliveAndSurvival(target);
     }
 
     /**
@@ -280,7 +280,7 @@ public class ConspiratorPlayerComponent implements RoleComponent, ServerTickingC
 
     @Override
     public void serverTick() {
-        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.level());
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
 
         // 只有阴谋家角色才处理
         if (!gameWorld.isRole(player, ModRoles.CONSPIRATOR))
@@ -302,7 +302,7 @@ public class ConspiratorPlayerComponent implements RoleComponent, ServerTickingC
                     if (targetInfo.deathCountdown % 200 == 0 && targetInfo.deathCountdown > 0) {
                         Player target = player.level().getPlayerByUUID(targetInfo.targetPlayer);
                         if (target instanceof ServerPlayer targetServer
-                                && GameFunctions.isPlayerAliveAndSurvival(target)) {
+                                && GameUtils.isPlayerAliveAndSurvival(target)) {
                             targetServer.displayClientMessage(
                                     Component
                                             .translatable("message.noellesroles.conspirator.countdown",
@@ -316,10 +316,10 @@ public class ConspiratorPlayerComponent implements RoleComponent, ServerTickingC
                 // 倒计时结束，目标死亡
                 if (targetInfo.deathCountdown <= 0) {
                     Player target = player.level().getPlayerByUUID(targetInfo.targetPlayer);
-                    if (target != null && GameFunctions.isPlayerAliveAndSurvival(target)) {
+                    if (target != null && GameUtils.isPlayerAliveAndSurvival(target)) {
                         // 使用心脏麻痹死因（隐藏真实原因）
                         ResourceLocation deathReason = Noellesroles.id("heart_attack");
-                        GameFunctions.killPlayer(target, true, player, deathReason);
+                        GameUtils.killPlayer(target, true, player, deathReason);
 
                         this.hasKilled = true;
 

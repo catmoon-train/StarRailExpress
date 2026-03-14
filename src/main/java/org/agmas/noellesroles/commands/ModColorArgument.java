@@ -8,7 +8,7 @@ import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 
-import io.wifi.starrailexpress.api.Role;
+import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -73,7 +73,7 @@ public class ModColorArgument implements ArgumentType<Integer> {
         String lowerInput = input.toLowerCase(Locale.ROOT);
         if (lowerInput.startsWith("role_") && lowerInput.length() >= 6) {
             lowerInput = lowerInput.substring("role_".length());
-            for (Role role : TMMRoles.ROLES.values()) {
+            for (SRERole role : TMMRoles.ROLES.values()) {
                 Integer color = role.getColor();
                 if (color != null && role.identifier().getPath().equalsIgnoreCase(lowerInput)) {
                     if (color < minimum || color > maximum) {
@@ -122,7 +122,7 @@ public class ModColorArgument implements ArgumentType<Integer> {
             }
         }
         // 2. 建议所有职业
-        for (Role role : TMMRoles.ROLES.values()) {
+        for (SRERole role : TMMRoles.ROLES.values()) {
             Integer color = role.getColor();
             if (color != null) {
                 String name = "role_" + role.identifier().getPath();

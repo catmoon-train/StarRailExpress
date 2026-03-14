@@ -14,14 +14,14 @@ public class SREComponents
         implements WorldComponentInitializer, EntityComponentInitializer, ScoreboardComponentInitializer {
     @Override
     public void registerWorldComponentFactories(@NotNull WorldComponentFactoryRegistry registry) {
-        registry.register(StarTrainWorldComponent.KEY, StarTrainWorldComponent::new);
-        registry.register(StarGameWorldComponent.KEY, StarGameWorldComponent::new);
-        registry.register(RoleWorldComponent.KEY, RoleWorldComponent::new);
+        registry.register(SRETrainWorldComponent.KEY, SRETrainWorldComponent::new);
+        registry.register(SREGameWorldComponent.KEY, SREGameWorldComponent::new);
+        registry.register(SRERoleWorldComponent.KEY, SRERoleWorldComponent::new);
         registry.register(AreasWorldComponent.KEY, AreasWorldComponent::new);
-        registry.register(StarWorldBlackoutComponent.KEY, StarWorldBlackoutComponent::new);
-        registry.register(StarGameTimeComponent.KEY, StarGameTimeComponent::new);
+        registry.register(SREWorldBlackoutComponent.KEY, SREWorldBlackoutComponent::new);
+        registry.register(SREGameTimeComponent.KEY, SREGameTimeComponent::new);
         registry.register(AutoStartComponent.KEY, AutoStartComponent::new);
-        registry.register(StarGameRoundEndComponent.KEY, StarGameRoundEndComponent::new);
+        registry.register(SREGameRoundEndComponent.KEY, SREGameRoundEndComponent::new);
         registry.register(MapVotingComponent.KEY, MapVotingComponent::new);
     }
 
@@ -29,32 +29,32 @@ public class SREComponents
     public void registerEntityComponentFactories(@NotNull EntityComponentFactoryRegistry registry) {
         registry.beginRegistration(Player.class, BartenderPlayerComponent.KEY)
                 .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(BartenderPlayerComponent::new);
-        registry.beginRegistration(Player.class, StarPlayerMoodComponent.KEY)
-                .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(StarPlayerMoodComponent::new);
-        registry.beginRegistration(Player.class, StarPlayerShopComponent.KEY)
-                .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(StarPlayerShopComponent::new);
-        registry.beginRegistration(Player.class, DynamicCoinComponent.KEY)
-                .respawnStrategy(RespawnCopyStrategy.ALWAYS_COPY).end(DynamicCoinComponent::new);
-        registry.beginRegistration(Player.class, StarPlayerPoisonComponent.KEY)
-                .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(StarPlayerPoisonComponent::new);
-        registry.beginRegistration(Player.class, StarPlayerPsychoComponent.KEY)
-                .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(StarPlayerPsychoComponent::new);
-        registry.beginRegistration(Player.class, StarPlayerNoteComponent.KEY)
-                .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(StarPlayerNoteComponent::new);
-        registry.beginRegistration(Player.class, PlayerStatsComponent.KEY)
-                .respawnStrategy(RespawnCopyStrategy.ALWAYS_COPY).end(PlayerStatsComponent::new);
-        registry.beginRegistration(Player.class, PlayerAFKComponent.KEY).respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
-                .end(PlayerAFKComponent::new);
-        registry.beginRegistration(Player.class, PlayerSkinsComponent.KEY)
-                .respawnStrategy(RespawnCopyStrategy.ALWAYS_COPY).end(PlayerSkinsComponent::new);
-        registry.beginRegistration(Player.class, PlayerNunchuckComponent.KEY)
-                .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(PlayerNunchuckComponent::new);
+        registry.beginRegistration(Player.class, SREPlayerMoodComponent.KEY)
+                .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(SREPlayerMoodComponent::new);
+        registry.beginRegistration(Player.class, SREPlayerShopComponent.KEY)
+                .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(SREPlayerShopComponent::new);
+        registry.beginRegistration(Player.class, DynamicShopComponent.KEY)
+                .respawnStrategy(RespawnCopyStrategy.ALWAYS_COPY).end(DynamicShopComponent::new);
+        registry.beginRegistration(Player.class, SREPlayerPoisonComponent.KEY)
+                .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(SREPlayerPoisonComponent::new);
+        registry.beginRegistration(Player.class, SREPlayerPsychoComponent.KEY)
+                .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(SREPlayerPsychoComponent::new);
+        registry.beginRegistration(Player.class, SREPlayerNoteComponent.KEY)
+                .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(SREPlayerNoteComponent::new);
+        registry.beginRegistration(Player.class, SREPlayerStatsComponent.KEY)
+                .respawnStrategy(RespawnCopyStrategy.ALWAYS_COPY).end(SREPlayerStatsComponent::new);
+        registry.beginRegistration(Player.class, SREPlayerAFKComponent.KEY).respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
+                .end(SREPlayerAFKComponent::new);
+        registry.beginRegistration(Player.class, SREPlayerSkinsComponent.KEY)
+                .respawnStrategy(RespawnCopyStrategy.ALWAYS_COPY).end(SREPlayerSkinsComponent::new);
+        registry.beginRegistration(Player.class, SREPlayerNunchuckComponent.KEY)
+                .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(SREPlayerNunchuckComponent::new);
     }
 
     @Override
     public void registerScoreboardComponentFactories(@NotNull ScoreboardComponentFactoryRegistry registry) {
         // 注册新的GameScoreboardComponent
-        registry.registerScoreboardComponent(GameScoreboardComponent.KEY, GameScoreboardComponent::new);
+        registry.registerScoreboardComponent(SREGameScoreboardComponent.KEY, SREGameScoreboardComponent::new);
     }
 
 }

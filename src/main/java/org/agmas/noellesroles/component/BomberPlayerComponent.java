@@ -1,6 +1,6 @@
 package org.agmas.noellesroles.component;
 
-import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
+import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.index.TMMSounds;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
@@ -42,7 +42,7 @@ public class BomberPlayerComponent implements RoleComponent {
         if (player.level().isClientSide)
             return;
 
-        StarPlayerShopComponent shopComponent = StarPlayerShopComponent.KEY.get(player);
+        SREPlayerShopComponent shopComponent = SREPlayerShopComponent.KEY.get(player);
         if (shopComponent.balance >= BOMB_COST) {
             shopComponent.addToBalance(-BOMB_COST);
 

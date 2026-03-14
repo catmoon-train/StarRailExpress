@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.item;
 
 import io.wifi.starrailexpress.block_entity.DoorBlockEntity;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.util.AdventureUsable;
 import io.wifi.starrailexpress.SRE;
@@ -189,7 +189,7 @@ public class FireAxeItem extends Item implements AdventureUsable {
     }
 
     public static HitResult getFireAxeTarget(Player user) {
-        return ProjectileUtil.getHitResultOnViewVector(user, entity -> entity instanceof Player player && GameFunctions.isPlayerAliveAndSurvival(player), 3f);
+        return ProjectileUtil.getHitResultOnViewVector(user, entity -> entity instanceof Player player && GameUtils.isPlayerAliveAndSurvival(player), 3f);
     }
 
     @Override

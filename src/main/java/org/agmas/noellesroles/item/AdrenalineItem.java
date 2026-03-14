@@ -1,8 +1,8 @@
 package org.agmas.noellesroles.item;
 
-import io.wifi.starrailexpress.api.Role;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -59,8 +59,8 @@ public class AdrenalineItem extends Item {
                         if (!((double)target.distanceTo(player) > 3.0F)) {
                             if (target instanceof Player targetPlayer) {
                                 // 检查目标玩家是否已经是无限体力
-                                StarGameWorldComponent gameComponent = StarGameWorldComponent.KEY.get(targetPlayer.level());
-                                Role role = gameComponent.getRole(targetPlayer);
+                                SREGameWorldComponent gameComponent = SREGameWorldComponent.KEY.get(targetPlayer.level());
+                                SRERole role = gameComponent.getRole(targetPlayer);
                                 boolean isInfiniteStamina = (role != null && role.getMaxSprintTime(targetPlayer) == Integer.MAX_VALUE);
                                 
                                 // 如果不是无限体力，则增加体力上限
@@ -90,7 +90,7 @@ public class AdrenalineItem extends Item {
     public static HitResult getAdrenalineTarget(Player user) {
         return ProjectileUtil.getHitResultOnViewVector(user, (entity) -> {
             if (entity instanceof Player player) {
-                if (GameFunctions.isPlayerAliveAndSurvival(player)) {
+                if (GameUtils.isPlayerAliveAndSurvival(player)) {
                     return true;
                 }
             }

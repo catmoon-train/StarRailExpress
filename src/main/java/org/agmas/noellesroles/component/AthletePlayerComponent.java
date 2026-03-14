@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.component;
 
 import  org.agmas.noellesroles.role.ModRoles;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -95,7 +95,7 @@ public class AthletePlayerComponent implements RoleComponent, ServerTickingCompo
         }
         
         // 验证是运动员
-        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.level());
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
         if (!gameWorld.isRole(player, ModRoles.ATHLETE)) {
             return false;
         }

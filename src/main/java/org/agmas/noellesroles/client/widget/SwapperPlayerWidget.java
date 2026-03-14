@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.client.widget;
 
+import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
 import io.wifi.starrailexpress.util.ShopEntry;
@@ -14,7 +15,7 @@ import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.GameType;
-import org.agmas.noellesroles.component.StarAbilityPlayerComponent;
+
 import org.agmas.noellesroles.packet.SwapperC2SPacket;
 import org.jetbrains.annotations.NotNull;
 
@@ -36,7 +37,7 @@ public class SwapperPlayerWidget extends Button{
     public SwapperPlayerWidget(LimitedInventoryScreen screen, int x, int y, @NotNull PlayerInfo disguiseTarget) {
         super(x, y, 16, 16, Component.nullToEmpty(disguiseTarget.getProfile().getName()), (a) -> {
             net.minecraft.client.player.AbstractClientPlayer player = Minecraft.getInstance().player;
-            if (player != null && (StarAbilityPlayerComponent.KEY.get(player)).cooldown == 0) {
+            if (player != null && (SREAbilityPlayerComponent.KEY.get(player)).cooldown == 0) {
                 if (player.level().getPlayerByUUID(disguiseTarget.getProfile().getId()) == null) return;
                 if (playerChoiceOne != null) {
                     ClientPlayNetworking.send(new SwapperC2SPacket(playerChoiceOne, disguiseTarget.getProfile().getId()));
@@ -62,7 +63,7 @@ public class SwapperPlayerWidget extends Button{
         net.minecraft.client.player.AbstractClientPlayer player = Minecraft.getInstance().player;
         if (player == null) return;
         
-        StarAbilityPlayerComponent abilityComp = StarAbilityPlayerComponent.KEY.get(player);
+        SREAbilityPlayerComponent abilityComp = SREAbilityPlayerComponent.KEY.get(player);
         
         super.renderWidget(context, mouseX, mouseY, delta);
         if (abilityComp.cooldown == 0) {

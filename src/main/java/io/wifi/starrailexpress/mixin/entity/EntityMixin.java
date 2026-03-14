@@ -3,9 +3,9 @@ package io.wifi.starrailexpress.mixin.entity;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 
-import io.wifi.starrailexpress.api.Role;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
-import io.wifi.starrailexpress.cca.PlayerAFKComponent;
+import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerAFKComponent;
 import io.wifi.starrailexpress.SRE;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -30,13 +30,13 @@ public class EntityMixin {
         Entity self = (Entity) (Object)this;
         if (self instanceof ServerPlayer serverPlayer){
             // 更新该玩家的最后移动时间
-            PlayerAFKComponent.KEY.maybeGet(serverPlayer).ifPresent(PlayerAFKComponent::updateActivity);
+            SREPlayerAFKComponent.KEY.maybeGet(serverPlayer).ifPresent(SREPlayerAFKComponent::updateActivity);
 
         }
     }
     @WrapMethod(method = "canCollideWith")
     protected boolean tmm$solid(Entity other, Operation<Boolean> original) {
-        final var gameWorldComponent = StarGameWorldComponent.KEY.get(this.level);
+        final var gameWorldComponent = SREGameWorldComponent.KEY.get(this.level);
         if (gameWorldComponent.isRunning()) {
             Entity self = (Entity) (Object) this;
             if (SRE.canCollideEntity.stream().anyMatch(p -> p.test(self) || p.test( other))){

@@ -1,8 +1,9 @@
 package org.agmas.noellesroles.component;
 
 import io.wifi.starrailexpress.api.RoleComponent;
+import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.game.GameConstants;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -40,16 +41,16 @@ public class SwapperPlayerComponent implements RoleComponent, ServerTickingCompo
 
     public void startSwap(UUID t1, UUID t2) {
 
-        StarAbilityPlayerComponent abilityPlayerComponent = StarAbilityPlayerComponent.KEY
+        SREAbilityPlayerComponent abilityPlayerComponent = SREAbilityPlayerComponent.KEY
                 .get(this.player);
         Player player1 = player.level().getPlayerByUUID(t1);
         Player player2 = player.level().getPlayerByUUID(t2);
-        if (!GameFunctions.isPlayerAliveAndSurvival(player1)) {
+        if (!GameUtils.isPlayerAliveAndSurvival(player1)) {
             this.player.displayClientMessage(
                     Component.translatable("message.swapper.failed.died", player1.getDisplayName()), true);
             return;
         }
-        if (!GameFunctions.isPlayerAliveAndSurvival(player2)) {
+        if (!GameUtils.isPlayerAliveAndSurvival(player2)) {
             this.player.displayClientMessage(
                     Component.translatable("message.swapper.failed.died", player2.getDisplayName()), true);
             return;
@@ -85,10 +86,10 @@ public class SwapperPlayerComponent implements RoleComponent, ServerTickingCompo
 
         Player player1 = player.level().getPlayerByUUID(target1);
         Player player2 = player.level().getPlayerByUUID(target2);
-        if (!GameFunctions.isPlayerAliveAndSurvival(player1)) {
+        if (!GameUtils.isPlayerAliveAndSurvival(player1)) {
             return;
         }
-        if (!GameFunctions.isPlayerAliveAndSurvival(player2)) {
+        if (!GameUtils.isPlayerAliveAndSurvival(player2)) {
             return;
         }
         if ((player1.getVehicle() == null && player2.getVehicle() == null)
@@ -118,7 +119,7 @@ public class SwapperPlayerComponent implements RoleComponent, ServerTickingCompo
             player2.displayClientMessage(Component.translatable("message.noellesroles.swapper.swapped"), true);
 
             // 设置冷却
-            StarAbilityPlayerComponent abilityPlayerComponent = StarAbilityPlayerComponent.KEY
+            SREAbilityPlayerComponent abilityPlayerComponent = SREAbilityPlayerComponent.KEY
                     .get(player);
             abilityPlayerComponent.cooldown = GameConstants.getInTicks(0,
                     NoellesRolesConfig.HANDLER.instance().swapperSwapCooldown);

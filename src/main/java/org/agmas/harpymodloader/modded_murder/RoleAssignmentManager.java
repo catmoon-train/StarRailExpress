@@ -1,6 +1,6 @@
 package org.agmas.harpymodloader.modded_murder;
 
-import io.wifi.starrailexpress.api.Role;
+import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.game.StarRailMurderGameMode;
 import io.wifi.starrailexpress.game.StarRailMurderGameMode.RoleInstant;
 
@@ -21,14 +21,14 @@ public class RoleAssignmentManager {
      * @param role 主角色
      * @return 关联的角色，如果没有则返回null
      */
-    public static Role getCompanionRole(Role role) {
+    public static SRERole getCompanionRole(SRERole role) {
         return Harpymodloader.Occupations_Roles.get(role);
     }
 
     /**
      * 检查一个角色是否有关联角色
      */
-    public static boolean hasCompanionRole(Role role) {
+    public static boolean hasCompanionRole(SRERole role) {
         return Harpymodloader.Occupations_Roles.containsKey(role);
     }
 
@@ -41,8 +41,8 @@ public class RoleAssignmentManager {
      * @param tryLevel       尝试匹配等级。0：完全相同，1：忽略中立阵营，2：包含平民，3：包括所有
      * @return
      */
-    public static boolean tryRemoveARole(Role companion, List<RoleInstant> expandedRoles, List<Role> companionRoles,
-            List<Role> companedRoles, int tryLevel) {
+    public static boolean tryRemoveARole(SRERole companion, List<RoleInstant> expandedRoles, List<SRERole> companionRoles,
+            List<SRERole> companedRoles, int tryLevel) {
         final boolean[] isRemoved = { false };
 
         expandedRoles.removeIf(ro -> {
@@ -90,11 +90,11 @@ public class RoleAssignmentManager {
             List<StarRailMurderGameMode.RoleInstant> roles) {
         List<StarRailMurderGameMode.RoleInstant> oldRoles = new ArrayList<>(roles);
         List<StarRailMurderGameMode.RoleInstant> expandedRoles = new ArrayList<>(roles);
-        List<Role> companionRoles = new ArrayList<>();
-        List<Role> companedRoles = new ArrayList<>();
+        List<SRERole> companionRoles = new ArrayList<>();
+        List<SRERole> companedRoles = new ArrayList<>();
 
         for (var role : oldRoles) {
-            Role companion = getCompanionRole(role.role());
+            SRERole companion = getCompanionRole(role.role());
             if (companion != null) {
                 companedRoles.add(role.role());
                 int removeCount = role.role().getOccupiedRoleCount();
@@ -130,11 +130,11 @@ public class RoleAssignmentManager {
      * @param player       玩家
      * @param role         要分配的角色
      */
-    public static void assignRoleWithCompanion(Map<Player, Role> playerToRole, Player player, Role role) {
+    public static void assignRoleWithCompanion(Map<Player, SRERole> playerToRole, Player player, SRERole role) {
         playerToRole.put(player, role);
 
         // 如果该角色有关联角色，需要为其他玩家分配相应的关联角色
-        Role companionRole = getCompanionRole(role);
+        SRERole companionRole = getCompanionRole(role);
         if (companionRole != null) {
             Harpymodloader.LOGGER.debug(
                     String.format("Role %s has companion role %s",
@@ -145,7 +145,7 @@ public class RoleAssignmentManager {
     /**
      * 获取所有角色对应关系
      */
-    public static Map<Role, Role> getOccupationsRoles() {
+    public static Map<SRERole, SRERole> getOccupationsRoles() {
         return Harpymodloader.Occupations_Roles;
     }
 
@@ -159,7 +159,7 @@ public class RoleAssignmentManager {
     /**
      * 添加角色对应关系
      */
-    public static void addOccupationRole(Role mainRole, Role companionRole) {
+    public static void addOccupationRole(SRERole mainRole, SRERole companionRole) {
         Harpymodloader.Occupations_Roles.put(mainRole, companionRole);
     }
 }

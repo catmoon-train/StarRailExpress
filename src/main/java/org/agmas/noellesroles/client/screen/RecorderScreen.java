@@ -8,7 +8,7 @@ import org.agmas.noellesroles.component.RecorderPlayerComponent;
 import org.agmas.noellesroles.packet.RecorderC2SPacket;
 import org.agmas.noellesroles.utils.RoleUtils;
 
-import io.wifi.starrailexpress.api.Role;
+import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.ChatFormatting;
@@ -52,7 +52,7 @@ public class RecorderScreen extends Screen {
     private RecorderPlayerComponent recorderPlayerComponent = null;
 
     // 角色列表
-    private List<Role> roles = new ArrayList<>();
+    private List<SRERole> roles = new ArrayList<>();
 
     // Widget 列表
     private List<RecorderPlayerWidget> playerWidgets = new ArrayList<>();
@@ -319,7 +319,7 @@ public class RecorderScreen extends Screen {
         if (searchText != null) {
             lowerCasedSearchText = searchText.toLowerCase();
         }
-        for (Role role : roles) {
+        for (SRERole role : roles) {
             String roleName = RoleUtils.getRoleName(role).getString();
             String roleId = "";
             if (role != null) {
@@ -409,7 +409,7 @@ public class RecorderScreen extends Screen {
     /**
      * 角色被选中时调用
      */
-    public void onRoleSelected(Role role) {
+    public void onRoleSelected(SRERole role) {
         if (selectedPlayer == null)
             return;
         if (minecraft == null || minecraft.player == null)

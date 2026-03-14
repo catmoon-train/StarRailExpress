@@ -1,7 +1,7 @@
 package pro.fazeclan.river.stupid_express.role.arsonist.item;
 
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -27,7 +27,7 @@ public class LighterItem extends Item {
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand interactionHand) {
-        StarGameWorldComponent gwc = StarGameWorldComponent.KEY.get(level);
+        SREGameWorldComponent gwc = SREGameWorldComponent.KEY.get(level);
 
         if (!(level instanceof ServerLevel serverLevel)) {
             return InteractionResultHolder.pass(player.getItemInHand(interactionHand));
@@ -44,15 +44,15 @@ public class LighterItem extends Item {
         }
         var server = player.getServer();
         var players = server.getPlayerList().getPlayers();
-        var alivePlayers = players.stream().filter(GameFunctions::isPlayerAliveAndSurvival).toList();
+        var alivePlayers = players.stream().filter(GameUtils::isPlayerAliveAndSurvival).toList();
         var dousedCountComponent = DousedPlayerComponent.KEY.get(player);
         var dousedCount = dousedCountComponent.dousedCount;
         if (dousedCount >= (int) (alivePlayers.size() * 0.3)) {
             // 杀死所有存活且被泼油的玩家
             for (ServerPlayer target : players) {
                 if (DousedPlayerComponent.KEY.get(target).getDoused()
-                        && GameFunctions.isPlayerAliveAndSurvival(target)) {
-                    GameFunctions.killPlayer(target, true, player, StupidExpress.id("ignited"));
+                        && GameUtils.isPlayerAliveAndSurvival(target)) {
+                    GameUtils.killPlayer(target, true, player, StupidExpress.id("ignited"));
                 }
                 DousedPlayerComponent.KEY.get(target).reset();
             }
@@ -60,16 +60,16 @@ public class LighterItem extends Item {
             player.playNotifySound(SoundEvents.FLINTANDSTEEL_USE, SoundSource.PLAYERS, 1.0f, 1.0f);
             player.displayClientMessage(Component.translatable("item.stupid_express.lighter.used"), true);
             player.playNotifySound(SoundEvents.FIRE_AMBIENT, SoundSource.BLOCKS, 1f, 1f);
-            var playersLeft = players.stream().filter(GameFunctions::isPlayerAliveAndSurvival).count();
+            var playersLeft = players.stream().filter(GameUtils::isPlayerAliveAndSurvival).count();
             if (playersLeft <= 1) {
                 // 纵火犯独立胜利统计：使用 RoleUtils.customWinnerWin
-                StupidRoleUtils.customWinnerWin(serverLevel, GameFunctions.WinStatus.CUSTOM,
+                StupidRoleUtils.customWinnerWin(serverLevel, GameUtils.WinStatus.CUSTOM,
                         SERoles.ARSONIST.identifier().getPath(),
                         java.util.OptionalInt.of(SERoles.ARSONIST.color()));
             }
         } else {
             player.playNotifySound(SoundEvents.FIRE_EXTINGUISH, SoundSource.PLAYERS, 1.0f, 1.0f);
-            GameFunctions.killPlayer(player, true, player, StupidExpress.id("failed_ignite"));
+            GameUtils.killPlayer(player, true, player, StupidExpress.id("failed_ignite"));
         }
         player.getCooldowns().addCooldown(Items.COMMAND_BLOCK_MINECART, 20 * 20);
         return InteractionResultHolder.pass(player.getItemInHand(interactionHand));

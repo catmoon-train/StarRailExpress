@@ -14,7 +14,7 @@ import java.util.List;
 
 import org.agmas.noellesroles.role.ModRoles;
 
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 
 public class SignedPaperItem extends Item {
 
@@ -61,6 +61,6 @@ public class SignedPaperItem extends Item {
     }
 
     public static boolean isStarPlayer(Player player) {
-        return StarGameWorldComponent.KEY.get(player.level()).isRole(player, ModRoles.STAR);
+        return SREGameWorldComponent.KEY.get(player.level()).isRole(player, ModRoles.SUPERSTAR);
     }
 }

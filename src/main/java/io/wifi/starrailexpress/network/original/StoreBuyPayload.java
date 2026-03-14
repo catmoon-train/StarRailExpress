@@ -1,6 +1,6 @@
 package io.wifi.starrailexpress.network.original;
 
-import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
+import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.SRE;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.FriendlyByteBuf;
@@ -21,7 +21,7 @@ public record StoreBuyPayload(int index) implements CustomPacketPayload {
     public static class Receiver implements ServerPlayNetworking.PlayPayloadHandler<StoreBuyPayload> {
         @Override
         public void receive(@NotNull StoreBuyPayload payload, ServerPlayNetworking.@NotNull Context context) {
-            StarPlayerShopComponent.KEY.get(context.player()).tryBuy(payload.index());
+            SREPlayerShopComponent.KEY.get(context.player()).tryBuy(payload.index());
         }
     }
 }

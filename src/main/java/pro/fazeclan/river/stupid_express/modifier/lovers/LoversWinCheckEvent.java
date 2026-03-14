@@ -5,10 +5,10 @@ import java.util.UUID;
 
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 
-import io.wifi.starrailexpress.cca.StarGameRoundEndComponent;
+import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
 import io.wifi.starrailexpress.event.AllowGameEnd;
-import io.wifi.starrailexpress.game.GameFunctions;
-import io.wifi.starrailexpress.game.GameFunctions.WinStatus;
+import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.game.GameUtils.WinStatus;
 import net.minecraft.server.level.ServerPlayer;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 import pro.fazeclan.river.stupid_express.modifier.lovers.cca.LoversComponent;
@@ -19,7 +19,7 @@ public class LoversWinCheckEvent {
         AllowGameEnd.EVENT.register((serverWorld, winStatus, isLooseend) -> {
             if (isLooseend)
                 return WinStatus.NOT_MODIFY;
-            var remainingPlayers = serverWorld.getPlayers(GameFunctions::isPlayerAliveAndSurvival);
+            var remainingPlayers = serverWorld.getPlayers(GameUtils::isPlayerAliveAndSurvival);
             var worldModifierComponent = WorldModifierComponent.KEY.get(serverWorld);
             for (ServerPlayer player : remainingPlayers) {
                 if (worldModifierComponent.isModifier(player, SEModifiers.LOVERS)) {
@@ -31,7 +31,7 @@ public class LoversWinCheckEvent {
                     // check for only lovers win condition
                     if (loversComponent.won()) {
                         UUID loverUuid = loversComponent.getLover();
-                        var gameRoundEndComponent = StarGameRoundEndComponent.KEY.get(serverWorld);
+                        var gameRoundEndComponent = SREGameRoundEndComponent.KEY.get(serverWorld);
                         gameRoundEndComponent.CustomWinnerPlayers.clear();
                         gameRoundEndComponent.CustomWinnerPlayers.add(player.getUUID());
                         gameRoundEndComponent.CustomWinnerPlayers.add(loverUuid);

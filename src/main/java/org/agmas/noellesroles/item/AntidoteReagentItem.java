@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.item;
 
-import io.wifi.starrailexpress.cca.StarPlayerPoisonComponent;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.cca.SREPlayerPoisonComponent;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -34,7 +34,7 @@ public class AntidoteReagentItem extends Item {
 
                 if (hitResult instanceof net.minecraft.world.phys.EntityHitResult entityHitResult) {
                     if (entityHitResult.getEntity() instanceof Player target) {
-                        StarPlayerPoisonComponent component = StarPlayerPoisonComponent.KEY.get(target);
+                        SREPlayerPoisonComponent component = SREPlayerPoisonComponent.KEY.get(target);
                         boolean isPoisoned = component.poisonTicks > 0;
 
                         if (isPoisoned) {
@@ -55,7 +55,7 @@ public class AntidoteReagentItem extends Item {
     }
 
     public static HitResult getTarget(Player user) {
-        return ProjectileUtil.getHitResultOnViewVector(user, entity -> entity instanceof Player player && GameFunctions.isPlayerAliveAndSurvival(player), 10f);
+        return ProjectileUtil.getHitResultOnViewVector(user, entity -> entity instanceof Player player && GameUtils.isPlayerAliveAndSurvival(player), 10f);
     }
     @Override
     public int getUseDuration(ItemStack stack, LivingEntity entity) {

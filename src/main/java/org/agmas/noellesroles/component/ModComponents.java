@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.component;
 
+import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.entity.PlayerBodyEntity;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
@@ -48,9 +49,9 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
             ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "awesome"),
             AwesomePlayerComponent.class);
 
-    public static final ComponentKey<StarAbilityPlayerComponent> ABILITY = ComponentRegistry.getOrCreate(
+    public static final ComponentKey<SREAbilityPlayerComponent> ABILITY = ComponentRegistry.getOrCreate(
             ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "ability"),
-            StarAbilityPlayerComponent.class);
+            SREAbilityPlayerComponent.class);
 
     public static final ComponentKey<AvengerPlayerComponent> AVENGER = ComponentRegistry.getOrCreate(
             ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "avenger"),
@@ -107,9 +108,9 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
             ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "trapper"),
             TrapperPlayerComponent.class);
 
-    public static final ComponentKey<StarPlayerComponent> STAR = ComponentRegistry.getOrCreate(
+    public static final ComponentKey<SuperStarPlayerComponent> STAR = ComponentRegistry.getOrCreate(
             ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "star"),
-            StarPlayerComponent.class);
+            SuperStarPlayerComponent.class);
 
     public static final ComponentKey<VeteranPlayerComponent> VETERAN = ComponentRegistry.getOrCreate(
             ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "veteran"),
@@ -233,7 +234,7 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
                 .end(AwesomePlayerComponent::new);
         registry.beginRegistration(Player.class, ABILITY)
                 .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
-                .end(StarAbilityPlayerComponent::new);
+                .end(SREAbilityPlayerComponent::new);
         registry.beginRegistration(Player.class, PATROLLER)
                 .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
                 .end(PatrollerPlayerComponent::new);
@@ -304,7 +305,7 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
         // 注册明星组件 - 存储发光状态和技能冷却
         registry.beginRegistration(Player.class, STAR)
                 .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
-                .end(StarPlayerComponent::new);
+                .end(SuperStarPlayerComponent::new);
 
         // 注册退伍军人组件 - 存储刀使用状态
         registry.beginRegistration(Player.class, VETERAN)

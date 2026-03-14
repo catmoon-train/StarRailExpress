@@ -1,13 +1,13 @@
 // Source code is decompiled from a .class file using FernFlower decompiler (from Intellij IDEA).
 package org.agmas.noellesroles.item;
 
-import io.wifi.starrailexpress.api.Role;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.particle.HandParticle;
 import io.wifi.starrailexpress.client.render.TMMRenderLayers;
 import io.wifi.starrailexpress.compat.CrosshairaddonsCompat;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.network.original.GunShootPayload;
 import io.wifi.StarRailExpressID;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -31,8 +31,8 @@ public class PatrollerRevolverItem extends Item {
 
     public InteractionResultHolder<ItemStack> use(@NotNull Level world, @NotNull Player user, InteractionHand hand) {
         ItemStack stack = user.getItemInHand(hand);
-        StarGameWorldComponent gameComponent;
-        Role role;
+        SREGameWorldComponent gameComponent;
+        SRERole role;
         if (world.isClientSide) {
             gameComponent = SREClient.gameComponent;
             if (gameComponent != null) {
@@ -55,7 +55,7 @@ public class PatrollerRevolverItem extends Item {
             user.setXRot(user.getXRot() - 4.0F);
             spawnHandParticle();
         } else {
-            gameComponent = (StarGameWorldComponent) StarGameWorldComponent.KEY.get(world);
+            gameComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY.get(world);
             role = gameComponent.getRole(user);
             if (role != null && !role.onUseGun(user)) {
                 return InteractionResultHolder.fail(stack);
@@ -79,7 +79,7 @@ public class PatrollerRevolverItem extends Item {
         return ProjectileUtil.getHitResultOnViewVector(user, (entity) -> {
             boolean var10000;
             if (entity instanceof Player player) {
-                if (GameFunctions.isPlayerAliveAndSurvival(player)) {
+                if (GameUtils.isPlayerAliveAndSurvival(player)) {
                     var10000 = true;
                     return var10000;
                 }

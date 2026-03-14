@@ -1,8 +1,8 @@
 package org.agmas.noellesroles.entity;
 
 
-import io.wifi.starrailexpress.cca.StarPlayerMoodComponent;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
+import io.wifi.starrailexpress.game.GameUtils;
 import org.agmas.noellesroles.init.ModItems;
 
 import java.util.List;
@@ -56,7 +56,7 @@ public class SmokeGrenadeEntity extends ThrowableItemProjectile {
         
         // 检查是否直接命中玩家
         if (entityHitResult.getEntity() instanceof Player player) {
-            if (GameFunctions.isPlayerAliveAndSurvival(player)) {
+            if (GameUtils.isPlayerAliveAndSurvival(player)) {
                 directHit = true;
                 directHitTarget = player;
             }
@@ -127,11 +127,11 @@ public class SmokeGrenadeEntity extends ThrowableItemProjectile {
         
         List<ServerPlayer> players = world.getEntitiesOfClass(
                 ServerPlayer.class, area,
-                player -> GameFunctions.isPlayerAliveAndSurvival(player) && player != this.getOwner()
+                player -> GameUtils.isPlayerAliveAndSurvival(player) && player != this.getOwner()
         );
         
         for (ServerPlayer player : players) {
-            StarPlayerMoodComponent moodComponent = StarPlayerMoodComponent.KEY.get(player);
+            SREPlayerMoodComponent moodComponent = SREPlayerMoodComponent.KEY.get(player);
             // 设置san值为0（疯狂状态）
             moodComponent.setMood(0.25f);
             moodComponent.sync();

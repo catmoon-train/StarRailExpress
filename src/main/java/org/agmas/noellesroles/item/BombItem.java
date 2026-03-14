@@ -1,8 +1,8 @@
 package org.agmas.noellesroles.item;
 
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
-import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -85,12 +85,12 @@ public class BombItem extends Item {
             killer = player.level().getPlayerByUUID(owner);
         if (killer == null)
             killer = player;
-        GameFunctions.killPlayer(player, true, killer, Noellesroles.id("bomb_death"));
+        GameUtils.killPlayer(player, true, killer, Noellesroles.id("bomb_death"));
         ServerLevel serverLevel = player.serverLevel();
         serverLevel.players().forEach(
                 target -> {
-                    if (StarGameWorldComponent.KEY.get(serverLevel).isRole(target, ModRoles.BOMBER)) {
-                        StarPlayerShopComponent playerShopComponent = StarPlayerShopComponent.KEY.get(target);
+                    if (SREGameWorldComponent.KEY.get(serverLevel).isRole(target, ModRoles.BOMBER)) {
+                        SREPlayerShopComponent playerShopComponent = SREPlayerShopComponent.KEY.get(target);
                         playerShopComponent.setBalance(90 + playerShopComponent.balance);
                         playerShopComponent.sync();
                     }

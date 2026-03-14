@@ -1,6 +1,6 @@
 package org.agmas.noellesroles.client.screen;
 
-import io.wifi.starrailexpress.api.Role;
+import io.wifi.starrailexpress.api.SRERole;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -30,8 +30,8 @@ import net.minecraft.util.Mth;
 
 public class GamblerScreen extends Screen {
     private final GamblerPlayerComponent component;
-    private final List<Role> availableRoles = new ArrayList<>();
-    private Role selectedRole;
+    private final List<SRERole> availableRoles = new ArrayList<>();
+    private SRERole selectedRole;
     private int CARDS_PER_ROW = 5;
     private int ROWS_PER_PAGE = 1;
     private int CARDS_PER_PAGE = 5;
@@ -74,7 +74,7 @@ public class GamblerScreen extends Screen {
 
         // 加载可用角色
         for (ResourceLocation roleId : component.availableRoles) {
-            for (Role role : Noellesroles.getAllRoles()) {
+            for (SRERole role : Noellesroles.getAllRoles()) {
                 if (role.identifier().equals(roleId)) {
                     availableRoles.add(role);
                     break;
@@ -83,7 +83,7 @@ public class GamblerScreen extends Screen {
         }
 
         if (component.selectedRole != null) {
-            for (Role role : availableRoles) {
+            for (SRERole role : availableRoles) {
                 if (role.identifier().equals(component.selectedRole)) {
                     selectedRole = role;
                     break;
@@ -105,8 +105,8 @@ public class GamblerScreen extends Screen {
             this.removeWidget(selectedRoleIntroWidget);
         }
         // 过滤搜索结果
-        List<Role> filteredRoles = new ArrayList<>();
-        for (Role role : availableRoles) {
+        List<SRERole> filteredRoles = new ArrayList<>();
+        for (SRERole role : availableRoles) {
             String roleName = RoleUtils.getRoleName(role).getString();
             if (searchContent == null || roleName.toLowerCase().contains(searchContent.toLowerCase())
                     || role.identifier().toString().contains(searchContent.toLowerCase())) {
@@ -162,7 +162,7 @@ public class GamblerScreen extends Screen {
 
         // 添加当前页的角色卡牌
         for (int i = startIndex; i < endIndex; i++) {
-            Role role = filteredRoles.get(i);
+            SRERole role = filteredRoles.get(i);
             int indexOnPage = i - startIndex;
             int col = indexOnPage % CARDS_PER_ROW;
             int row = indexOnPage / CARDS_PER_ROW;
@@ -264,7 +264,7 @@ public class GamblerScreen extends Screen {
     /**
      * 角色被选中时调用
      */
-    public void onRoleSelected(Role role) {
+    public void onRoleSelected(SRERole role) {
         if (minecraft == null || minecraft.player == null)
             return;
 
@@ -404,11 +404,11 @@ public class GamblerScreen extends Screen {
      * 角色卡牌小部件
      */
     private class RoleCardWidget extends AbstractWidget {
-        private final Role role;
+        private final SRERole role;
         private boolean hovered;
         private float hoverAnimation = 0f;
 
-        public RoleCardWidget(int x, int y, int width, int height, Role role, int index) {
+        public RoleCardWidget(int x, int y, int width, int height, SRERole role, int index) {
             super(x, y, width, height, RoleUtils.getRoleName(role));
             this.role = role;
             // 设置工具提示

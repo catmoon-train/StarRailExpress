@@ -3,7 +3,7 @@ package org.agmas.noellesroles.client.screen;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
+import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -56,7 +56,7 @@ public class VendingMachinesGui extends AbstractPixelScreen {
     private final DroppedItem droppedItem = new DroppedItem();
 
     private BiPredicate<ItemStack, Integer> purchaseCheck = (stack, price) -> {
-        return (StarPlayerShopComponent.KEY.get(Minecraft.getInstance().player).balance >= price);
+        return (SREPlayerShopComponent.KEY.get(Minecraft.getInstance().player).balance >= price);
 
     };
     private BiConsumer<ItemStack, Integer> onPurchaseTriggered = (stack, price) -> {
@@ -1109,7 +1109,7 @@ public class VendingMachinesGui extends AbstractPixelScreen {
         }
 
         // 获取玩家金钱
-        StarPlayerShopComponent shopComponent = StarPlayerShopComponent.KEY.get(this.minecraft.player);
+        SREPlayerShopComponent shopComponent = SREPlayerShopComponent.KEY.get(this.minecraft.player);
         int balance = shopComponent.balance;
 
         // 创建金钱显示文本

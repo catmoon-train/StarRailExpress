@@ -11,9 +11,6 @@
     "modifier.split_personality.QuitVoiceMixin",
     "modifier.split_personality.SplitPersonalityServerInputBlockMixin",
     "modifier.taskmaster.TaskmasterGiveCoinsMixin",
-    "role.arsonist.ArsonistKeepAliveMixin",
-    "role.avaricious.AvariciousGoldPayout",
-    "role.avaricious.AvariciousPassiveIncomeDestroyer",
     "role.initiate.InitiateBuyMixin",
     "role.initiate.InitiateCoinsOnMoodMixin",
     "role.necromancer.NecromancerStatsMixin"

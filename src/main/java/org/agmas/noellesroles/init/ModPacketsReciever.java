@@ -14,7 +14,6 @@ import org.agmas.noellesroles.component.BroadcasterPlayerComponent;
 import org.agmas.noellesroles.component.InsaneKillerPlayerComponent;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.component.MonitorPlayerComponent;
-import org.agmas.noellesroles.component.StarAbilityPlayerComponent;
 import org.agmas.noellesroles.component.SwapperPlayerComponent;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.entity.ThrowingKnifeEntity;
@@ -31,14 +30,15 @@ import org.agmas.noellesroles.roles.voodoo.VoodooPlayerComponent;
 import org.agmas.noellesroles.roles.vulture.VulturePlayerComponent;
 import org.agmas.noellesroles.utils.RoleUtils;
 
-import io.wifi.starrailexpress.api.Role;
+import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
-import io.wifi.starrailexpress.cca.StarPlayerMoodComponent;
-import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
+import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
+import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.game.GameConstants;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.item.CocktailItem;
 import io.wifi.starrailexpress.util.ShopEntry;
@@ -78,7 +78,7 @@ public class ModPacketsReciever {
               }
               return false;
             }).findFirst().ifPresent(entry -> {
-              StarPlayerShopComponent playerShopComponent = StarPlayerShopComponent.KEY.get(player);
+              SREPlayerShopComponent playerShopComponent = SREPlayerShopComponent.KEY.get(player);
               if (playerShopComponent.balance < entry.price()) {
                 player.displayClientMessage(Component.translatable("noellesroles.not_enough_money")
                     .withStyle(ChatFormatting.RED), true);
@@ -158,10 +158,10 @@ public class ModPacketsReciever {
           offHandItem.shrink(1);
         }
       }
-      var gameWorldComponent = StarGameWorldComponent.KEY.get(player.level());
+      var gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
 
       if (payload.success()) {
-        var psc = StarPlayerShopComponent.KEY.get(player);
+        var psc = SREPlayerShopComponent.KEY.get(player);
         if (isForced) {
           player.displayClientMessage(
               Component.translatable("death_reason.noellesroles.success").withStyle(ChatFormatting.GREEN), true);
@@ -182,7 +182,7 @@ public class ModPacketsReciever {
         if (gameWorldComponent.isRole(player, ModRoles.BAKA)) {
           player.displayClientMessage(
               Component.translatable("message.baka.problem_set.failed").withStyle(ChatFormatting.YELLOW), true);
-          var pmc = StarPlayerMoodComponent.KEY.get(player);
+          var pmc = SREPlayerMoodComponent.KEY.get(player);
           pmc.setMood(pmc.getMood() * 0.3f);
           return;
         }
@@ -197,7 +197,7 @@ public class ModPacketsReciever {
             return gameWorldComponent.isRole(p, ModRoles.EXAMPLER);
           }).findFirst().orElse(null);
           if (killer != null) {
-            var abpc = StarAbilityPlayerComponent.KEY.get(killer);
+            var abpc = SREAbilityPlayerComponent.KEY.get(killer);
             abpc.charges++;
             // Noellesroles.LOGGER.info("Increase 1");
             if (abpc.charges >= 3) {
@@ -210,8 +210,8 @@ public class ModPacketsReciever {
             }
             abpc.sync();
           }
-          if (GameFunctions.isPlayerAliveAndSurvival(player)) {
-            var psc = StarPlayerShopComponent.KEY.get(player);
+          if (GameUtils.isPlayerAliveAndSurvival(player)) {
+            var psc = SREPlayerShopComponent.KEY.get(player);
             if (psc.balance >= 100) {
               psc.addToBalance(-100);
               player.displayClientMessage(
@@ -219,7 +219,7 @@ public class ModPacketsReciever {
                       ChatFormatting.BOLD),
                   true);
             } else {
-              GameFunctions.killPlayer(player, true, killer, Noellesroles.id("fail_exam"));
+              GameUtils.killPlayer(player, true, killer, Noellesroles.id("fail_exam"));
             }
           }
         } else {
@@ -227,8 +227,8 @@ public class ModPacketsReciever {
               Component.translatable("message.baka.not_baka.problem_set.failed").withStyle(ChatFormatting.YELLOW),
               true);
           // 如果是baka给的则杀死玩家
-          if (GameFunctions.isPlayerAliveAndSurvival(player)) {
-            GameFunctions.killPlayer(player, true, null, Noellesroles.id("baka"));
+          if (GameUtils.isPlayerAliveAndSurvival(player)) {
+            GameUtils.killPlayer(player, true, null, Noellesroles.id("baka"));
           }
         }
         // player.displayClientMessage(Component.literal("Failed"), true);
@@ -255,9 +255,9 @@ public class ModPacketsReciever {
       RoleUtils.insertStackInFreeSlot(player, cooked_food);
     });
     ServerPlayNetworking.registerGlobalReceiver(ModPackets.MORPH_PACKET, (payload, context) -> {
-      StarGameWorldComponent gameWorldComponent = (StarGameWorldComponent) StarGameWorldComponent.KEY
+      SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY
           .get(context.player().level());
-      StarAbilityPlayerComponent abilityPlayerComponent = (StarAbilityPlayerComponent) StarAbilityPlayerComponent.KEY
+      SREAbilityPlayerComponent abilityPlayerComponent = (SREAbilityPlayerComponent) SREAbilityPlayerComponent.KEY
           .get(context.player());
 
       if (payload.player() == null)
@@ -285,9 +285,9 @@ public class ModPacketsReciever {
 
     // 操纵师数据包处理
     ServerPlayNetworking.registerGlobalReceiver(ModPackets.MANIPULATOR_PACKET, (payload, context) -> {
-      StarGameWorldComponent gameWorldComponent = (StarGameWorldComponent) StarGameWorldComponent.KEY
+      SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY
           .get(context.player().level());
-      StarAbilityPlayerComponent abilityPlayerComponent = (StarAbilityPlayerComponent) StarAbilityPlayerComponent.KEY
+      SREAbilityPlayerComponent abilityPlayerComponent = (SREAbilityPlayerComponent) SREAbilityPlayerComponent.KEY
           .get(context.player());
 
       if (payload.player() == null)
@@ -339,18 +339,18 @@ public class ModPacketsReciever {
     });
     ServerPlayNetworking.registerGlobalReceiver(ModPackets.VULTURE_PACKET, (payload, context) -> {
       final var player = context.player();
-      StarGameWorldComponent gameWorldComponent = (StarGameWorldComponent) StarGameWorldComponent.KEY
+      SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY
           .get(player.level());
       if (!gameWorldComponent.isSkillAvailable) {
         player.displayClientMessage(
             Component.translatable("message.tip.skill_disabled").withStyle(ChatFormatting.RED), true);
         return;
       }
-      StarAbilityPlayerComponent abilityPlayerComponent = (StarAbilityPlayerComponent) StarAbilityPlayerComponent.KEY
+      SREAbilityPlayerComponent abilityPlayerComponent = (SREAbilityPlayerComponent) SREAbilityPlayerComponent.KEY
           .get(player);
 
       if (gameWorldComponent.isRole(player, ModRoles.VULTURE)
-          && GameFunctions.isPlayerAliveAndSurvival(player)) {
+          && GameUtils.isPlayerAliveAndSurvival(player)) {
         if (abilityPlayerComponent.cooldown > 0)
           return;
         abilityPlayerComponent.sync();
@@ -372,7 +372,7 @@ public class ModPacketsReciever {
             player.playSound(SoundEvents.PLAYER_BURP, 1.0F, 0.5F);
             player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 40, 2));
             if (vulturePlayerComponent.bodiesEaten >= vulturePlayerComponent.bodiesRequired) {
-              ArrayList<Role> shuffledKillerRoles = new ArrayList<>(Noellesroles.getEnableKillerRoles());
+              ArrayList<SRERole> shuffledKillerRoles = new ArrayList<>(Noellesroles.getEnableKillerRoles());
               shuffledKillerRoles.removeIf(role -> role.identifier().equals(ModRoles.EXECUTIONER_ID)
                   || role.identifier().equals(ModRoles.POISONER_ID)
                   || role.identifier().equals(ModRoles.DIO_ID)
@@ -383,7 +383,7 @@ public class ModPacketsReciever {
                 shuffledKillerRoles.add(TMMRoles.KILLER);
               Collections.shuffle(shuffledKillerRoles);
 
-              StarPlayerShopComponent playerShopComponent = (StarPlayerShopComponent) StarPlayerShopComponent.KEY
+              SREPlayerShopComponent playerShopComponent = (SREPlayerShopComponent) SREPlayerShopComponent.KEY
                   .get(player);
               final var first = shuffledKillerRoles.getFirst();
               // gameWorldComponent.addRole(player, first);
@@ -403,10 +403,10 @@ public class ModPacketsReciever {
       }
     });
     ServerPlayNetworking.registerGlobalReceiver(ModPackets.SWAP_PACKET, (payload, context) -> {
-      StarGameWorldComponent gameWorldComponent = (StarGameWorldComponent) StarGameWorldComponent.KEY
+      SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY
           .get(context.player().level());
       if (gameWorldComponent.isRole(context.player(), ModRoles.SWAPPER)) {
-        StarAbilityPlayerComponent abilityPlayerComponent = StarAbilityPlayerComponent.KEY
+        SREAbilityPlayerComponent abilityPlayerComponent = SREAbilityPlayerComponent.KEY
             .get(context.player());
         if (!abilityPlayerComponent.canUseAbility())
           return;
@@ -431,7 +431,7 @@ public class ModPacketsReciever {
             return; // 如果未启用，则忽略该数据包
           }
 
-          StarGameWorldComponent gameWorldComponent = (StarGameWorldComponent) StarGameWorldComponent.KEY
+          SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY
               .get(context.player().level());
           if (gameWorldComponent.isRole(context.player(), ModRoles.EXECUTIONER)) {
             ExecutionerPlayerComponent executionerPlayerComponent = ExecutionerPlayerComponent.KEY
@@ -441,7 +441,7 @@ public class ModPacketsReciever {
 
             if (payload.target() != null) {
               Player targetPlayer = context.player().level().getPlayerByUUID(payload.target());
-              if (targetPlayer != null && GameFunctions.isPlayerAliveAndSurvival(targetPlayer)) {
+              if (targetPlayer != null && GameUtils.isPlayerAliveAndSurvival(targetPlayer)) {
                 if (gameWorldComponent.getRole(targetPlayer).isInnocent()) {
                   executionerPlayerComponent.setTarget(payload.target());
                 } else {
@@ -463,11 +463,11 @@ public class ModPacketsReciever {
     });
     ServerPlayNetworking.registerGlobalReceiver(org.agmas.noellesroles.packet.BroadcasterC2SPacket.ID,
         (payload, context) -> {
-          StarAbilityPlayerComponent abilityPlayerComponent = StarAbilityPlayerComponent.KEY
+          SREAbilityPlayerComponent abilityPlayerComponent = SREAbilityPlayerComponent.KEY
               .get(context.player());
-          StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(context.player().level());
-          StarPlayerShopComponent playerShopComponent = StarPlayerShopComponent.KEY.get(context.player());
-          if (!GameFunctions.isPlayerAliveAndSurvival(context.player())) {
+          SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(context.player().level());
+          SREPlayerShopComponent playerShopComponent = SREPlayerShopComponent.KEY.get(context.player());
+          if (!GameUtils.isPlayerAliveAndSurvival(context.player())) {
             context.player().displayClientMessage(
                 Component.translatable("message.noellesroles.fuck_death_send"),
                 true);
@@ -525,7 +525,7 @@ public class ModPacketsReciever {
     });
     ServerPlayNetworking.registerGlobalReceiver(ModPackets.INSANE_KILLER_ABILITY_PACKET, (payload, context) -> {
       ServerPlayer player = (ServerPlayer) context.player();
-      var gameWorldComponent = StarGameWorldComponent.KEY.get(player.level());
+      var gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
       if (!gameWorldComponent.isSkillAvailable) {
         player.displayClientMessage(
             Component.translatable("message.tip.skill_disabled").withStyle(ChatFormatting.RED), true);
@@ -553,7 +553,7 @@ public class ModPacketsReciever {
         return;
 
       // 检查目标是否存活
-      if (!GameFunctions.isPlayerAliveAndSurvival(target)) {
+      if (!GameUtils.isPlayerAliveAndSurvival(target)) {
         player.displayClientMessage(
             Component.translatable("item.noellesroles.fire_axe.target_dead")
                 .withStyle(ChatFormatting.RED),
@@ -596,7 +596,7 @@ public class ModPacketsReciever {
       }
 
       // 执行击杀
-      GameFunctions.killPlayer(target, true, player, org.agmas.noellesroles.item.FireAxeItem.DEATH_REASON_FIRE_AXE);
+      GameUtils.killPlayer(target, true, player, org.agmas.noellesroles.item.FireAxeItem.DEATH_REASON_FIRE_AXE);
       target.playSound(TMMSounds.ITEM_KNIFE_STAB, 1.0f, 1.0f);
       player.swing(InteractionHand.MAIN_HAND);
 
@@ -608,7 +608,7 @@ public class ModPacketsReciever {
     });
 
     ServerPlayNetworking.registerGlobalReceiver(ModPackets.MONITOR_MARK_PACKET, (payload, context) -> {
-      StarGameWorldComponent gameWorldComponent = (StarGameWorldComponent) StarGameWorldComponent.KEY
+      SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY
           .get(context.player().level());
       if (gameWorldComponent.isRole(context.player(), ModRoles.MONITOR)) {
         MonitorPlayerComponent monitorComponent = MonitorPlayerComponent.KEY.get(context.player());
@@ -617,7 +617,7 @@ public class ModPacketsReciever {
         if (monitorComponent.canUseAbility()) {
           if (payload.target() != null) {
             Player targetPlayer = context.player().level().getPlayerByUUID(payload.target());
-            if (targetPlayer != null && GameFunctions.isPlayerAliveAndSurvival(targetPlayer)) {
+            if (targetPlayer != null && GameUtils.isPlayerAliveAndSurvival(targetPlayer)) {
               // 标记目标
               monitorComponent.markTarget(payload.target());
 

@@ -1,9 +1,9 @@
 package pro.fazeclan.river.stupid_express.role.initiate;
 
-import io.wifi.starrailexpress.cca.StarGameTimeComponent;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameTimeComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameConstants;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.server.MinecraftServer;
@@ -35,7 +35,7 @@ public class InitiateUtils {
     public static void InitiateChange() {
         ServerTickEvents.END_SERVER_TICK.register((MinecraftServer server) -> {
             boolean isGameRuning = false;
-            var gameWorldComponent = StarGameWorldComponent.KEY.get(server.overworld());
+            var gameWorldComponent = SREGameWorldComponent.KEY.get(server.overworld());
             if (gameWorldComponent != null) {
                 if (gameWorldComponent.isRunning()) {
                     isGameRuning = true;
@@ -53,11 +53,11 @@ public class InitiateUtils {
 
             var playerList = server.getPlayerList().getPlayers();
             var level = playerList.getFirst().level();
-            var gameTimeComponent = StarGameTimeComponent.KEY.get(level);
+            var gameTimeComponent = SREGameTimeComponent.KEY.get(level);
 
             // 检查是否有初学者
             List<ServerPlayer> initiates = playerList.stream()
-                    .filter(p -> GameFunctions.isPlayerAliveAndSurvival(p)
+                    .filter(p -> GameUtils.isPlayerAliveAndSurvival(p)
                             && (gameWorldComponent.isRole(p, SERoles.INITIATE)))
                     .collect(Collectors.toList());
 

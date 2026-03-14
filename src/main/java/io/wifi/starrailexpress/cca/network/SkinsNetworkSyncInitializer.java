@@ -1,6 +1,6 @@
 package io.wifi.starrailexpress.cca.network;
 
-import io.wifi.starrailexpress.cca.PlayerSkinsComponent;
+import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
 import io.wifi.starrailexpress.SREConfig;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
@@ -54,7 +54,7 @@ public class SkinsNetworkSyncInitializer {
      */
     private static void onPlayerJoin(ServerPlayer player) {
         try {
-            PlayerSkinsComponent skinsComponent = PlayerSkinsComponent.KEY.get(player);
+            SREPlayerSkinsComponent skinsComponent = SREPlayerSkinsComponent.KEY.get(player);
             if (skinsComponent != null) {
                 // 初始化网络同步，连接到TCP服务器
                 skinsComponent.initializeNetworkSync(NETWORK_HOST, NETWORK_PORT, NETWORK_KEY);
@@ -74,7 +74,7 @@ public class SkinsNetworkSyncInitializer {
      */
     private static void onPlayerDisconnect(ServerPlayer player) {
         try {
-            PlayerSkinsComponent skinsComponent = PlayerSkinsComponent.KEY.get(player);
+            SREPlayerSkinsComponent skinsComponent = SREPlayerSkinsComponent.KEY.get(player);
             if (skinsComponent != null && skinsComponent.isNetworkSyncEnabled()) {
                 // 异步执行最后一次同步和断开连接
                 skinsComponent.pullSkinsFromNetwork();

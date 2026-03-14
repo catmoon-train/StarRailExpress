@@ -1,16 +1,16 @@
 package io.wifi.starrailexpress.api.replay;
 
-import io.wifi.starrailexpress.api.Role;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import java.util.List;
 import java.util.UUID;
 
-public record GameReplay(int playerCount, GameFunctions.WinStatus winningTeam, List<ReplayPlayerInfo> players,
+public record GameReplay(int playerCount, GameUtils.WinStatus winningTeam, List<ReplayPlayerInfo> players,
                          List<ReplayEvent> timelineEvents) {
 
-    public record ReplayPlayerInfo(UUID uuid, String name, Role finalRole) {
+    public record ReplayPlayerInfo(UUID uuid, String name, SRERole finalRole) {
     }
 
     public enum EventType {
@@ -61,6 +61,6 @@ public record GameReplay(int playerCount, GameFunctions.WinStatus winningTeam, L
     public record PsychoStateChangeDetails(UUID playerUuid, int oldState, int newState) implements EventDetails {}
     public record KeyUsedDetails(UUID playerUuid, ResourceLocation keyItemId, BlockPos doorPos) implements EventDetails {}
     public record BlackoutEventDetails(long duration) implements EventDetails {}
-    public record RoundEndDetails(GameFunctions.WinStatus roundResult) implements EventDetails {}
+    public record RoundEndDetails(GameUtils.WinStatus roundResult) implements EventDetails {}
     public record CustomEventDetails(ResourceLocation eventId, String data) implements EventDetails {}
 }

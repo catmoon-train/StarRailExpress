@@ -1,6 +1,6 @@
 package org.agmas.noellesroles.component;
 
-import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
+import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 
 import org.agmas.noellesroles.init.ModEntities;
 import org.agmas.noellesroles.init.ModItems;
@@ -10,11 +10,11 @@ import org.agmas.noellesroles.entity.PuppeteerBodyEntity;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 
-import io.wifi.starrailexpress.api.Role;
+import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
-import io.wifi.starrailexpress.cca.StarPlayerPsychoComponent;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.TMMItemUtils;
 
@@ -113,7 +113,7 @@ public class PuppeteerPlayerComponent implements RoleComponent, ServerTickingCom
     public UUID puppetSkinUuid = null;
 
     /** 假人时的临时角色 */
-    public Role puppetRole = null;
+    public SRERole puppetRole = null;
 
     /** 是否已标记为傀儡师 */
     public boolean isPuppeteerMarked = false;
@@ -200,7 +200,7 @@ public class PuppeteerPlayerComponent implements RoleComponent, ServerTickingCom
     public void collectBody(UUID bodyOwnerUuid, int totalPlayers) {
         if (!canCollectBody())
             return;
-        var gameWorldComponent = StarGameWorldComponent.KEY.get(player.level());
+        var gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
         if (!gameWorldComponent.isSkillAvailable) {
             player.displayClientMessage(
                     Component.translatable("message.tip.skill_disabled").withStyle(ChatFormatting.RED), true);
@@ -301,7 +301,7 @@ public class PuppeteerPlayerComponent implements RoleComponent, ServerTickingCom
         // 随机选择杀手职业
         puppetRole = getRandomKillerRole();
 
-        final var playerShopComponent = StarPlayerShopComponent.KEY.get(player);
+        final var playerShopComponent = SREPlayerShopComponent.KEY.get(player);
         int money = 100 + playerShopComponent.balance;
         // if (playerShopComponent != null) {
         // money = playerShopComponent.balance;
@@ -379,7 +379,7 @@ public class PuppeteerPlayerComponent implements RoleComponent, ServerTickingCom
      * 获取随机杀手职业
      * 动态获取所有注册的杀手阵营角色（canUseKiller = true）
      */
-    private Role getRandomKillerRole() {
+    private SRERole getRandomKillerRole() {
         final var availableKillerRoles = getAvailableKillerRoles();
 
         if (availableKillerRoles.isEmpty()) {
@@ -395,11 +395,11 @@ public class PuppeteerPlayerComponent implements RoleComponent, ServerTickingCom
      * 获取可用的杀手角色列表
      * 动态获取所有注册的杀手阵营角色（canUseKiller = true）
      */
-    private List<Role> getAvailableKillerRoles() {
-        List<Role> killerRoles = new ArrayList<>();
+    private List<SRERole> getAvailableKillerRoles() {
+        List<SRERole> killerRoles = new ArrayList<>();
 
         // 遍历所有注册的角色，筛选出杀手阵营角色
-        for (Role role : Noellesroles.getEnableKillerRoles()) {
+        for (SRERole role : Noellesroles.getEnableKillerRoles()) {
             // 杀手阵营：canUseKiller = true
             // 排除傀儡师自己（避免傀儡师变成傀儡师）
             if (role.identifier().equals(ModRoles.STALKER_ID))
@@ -477,7 +477,7 @@ public class PuppeteerPlayerComponent implements RoleComponent, ServerTickingCom
         puppetEntityUuid = null;
         puppetSkinUuid = null;
         puppetRole = null;
-        GameFunctions.killPlayer(serverPlayer, true, null);
+        GameUtils.killPlayer(serverPlayer, true, null);
         // 发送消息
         serverPlayer.displayClientMessage(
                 Component.translatable("message.noellesroles.puppeteer.body_died")
@@ -529,7 +529,7 @@ public class PuppeteerPlayerComponent implements RoleComponent, ServerTickingCom
         loadInventory(originalInventory);
         TMMItemUtils.clearItem(serverPlayer, TMMItems.BAT);
         // 停止疯魔
-        var ppc = StarPlayerPsychoComponent.KEY.get(player);
+        var ppc = SREPlayerPsychoComponent.KEY.get(player);
         if (ppc.psychoTicks > 0)
             ppc.stopPsycho();
         // 清除假人状态，但保留收集的尸体信息
@@ -538,7 +538,7 @@ public class PuppeteerPlayerComponent implements RoleComponent, ServerTickingCom
         puppetEntityUuid = null;
         puppetSkinUuid = null;
         puppetRole = null;
-        StarPlayerShopComponent playerShop = StarPlayerShopComponent.KEY.get(serverPlayer);
+        SREPlayerShopComponent playerShop = SREPlayerShopComponent.KEY.get(serverPlayer);
         final var balance = playerShop.balance;
         // 恢复为傀儡师角色
 
@@ -616,7 +616,7 @@ public class PuppeteerPlayerComponent implements RoleComponent, ServerTickingCom
         if (!isActivePuppeteer())
             return;
         // 检查玩家是否存活
-        if (!GameFunctions.isPlayerAliveAndSurvival(player))
+        if (!GameUtils.isPlayerAliveAndSurvival(player))
             return;
 
         // 处理回收冷却

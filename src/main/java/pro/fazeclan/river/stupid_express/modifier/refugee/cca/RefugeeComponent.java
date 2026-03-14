@@ -15,7 +15,7 @@ import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.compat.TrainVoicePlugin;
 import io.wifi.starrailexpress.entity.PlayerBodyEntity;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.network.RemoveStatusBarPayload;
 import io.wifi.starrailexpress.network.TriggerStatusBarPayload;
 import io.wifi.starrailexpress.SRE;
@@ -87,8 +87,8 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
                 data.isDead = true;
                 for (var player : level.players()) {
                     if (player.getUUID().equals(data.uuid)) {
-                        if (GameFunctions.isPlayerAliveAndSurvival(player)) {
-                            GameFunctions.killPlayer(player, true, null);
+                        if (GameUtils.isPlayerAliveAndSurvival(player)) {
+                            GameUtils.killPlayer(player, true, null);
                             break;
                         }
                     }
@@ -147,7 +147,7 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
             return; // Player is offline
         }
 
-        var i = GameFunctions.roomToPlayer.get(data.uuid);
+        var i = GameUtils.roomToPlayer.get(data.uuid);
         if (i == null) {
             i = 1;
         }
@@ -157,10 +157,10 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         player.teleportTo(serverLevel, roomPosition.x, roomPosition.y, roomPosition.z, player.getYRot(),
                 player.getXRot());
         BartenderPlayerComponent bartenderPlayerComponent = BartenderPlayerComponent.KEY.get(player);
-        int size = serverLevel.getPlayers(GameFunctions::isPlayerAliveAndSurvival).size();
+        int size = serverLevel.getPlayers(GameUtils::isPlayerAliveAndSurvival).size();
         bartenderPlayerComponent.removeArmor(-1 * (Math.clamp(size / 6, 1, 3)));
         player.setGameMode(GameType.ADVENTURE);
-        StarWorldBlackoutComponent.KEY.get(player.level()).triggerBlackout();
+        SREWorldBlackoutComponent.KEY.get(player.level()).triggerBlackout();
         // Remove body entity
         var bodies = serverLevel.getAllEntities();
 
@@ -182,7 +182,7 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         StupidRoleUtils.sendWelcomeAnnouncement(player);
 
         TrainVoicePlugin.resetPlayer(player.getUUID());
-        StarGameTimeComponent gameTimeComponent = StarGameTimeComponent.KEY.get(serverLevel);
+        SREGameTimeComponent gameTimeComponent = SREGameTimeComponent.KEY.get(serverLevel);
         lastTime = gameTimeComponent.getTime();
         gameTimeComponent.setTime(gameTimeComponent.getTime() + 120 * 20);
         WorldModifierComponent worldModifierComponent = WorldModifierComponent.KEY.get(serverLevel);
@@ -206,7 +206,7 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
             SavePlayersStats();
         }
         isAnyRevivals = true;
-        var gameWorldComponent = StarGameWorldComponent.KEY.get(this.level);
+        var gameWorldComponent = SREGameWorldComponent.KEY.get(this.level);
         gameWorldComponent.disableSkillsAndSync();
         this.sync();
     }
@@ -218,11 +218,11 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         List<ServerPlayer> players = serverLevel.getServer().getPlayerList().getPlayers();
         players_stats.clear();
         for (var player : players) {
-            var ppc = StarPlayerPsychoComponent.KEY.get(player);
+            var ppc = SREPlayerPsychoComponent.KEY.get(player);
             if (ppc.psychoTicks > 0) {
                 ppc.stopPsycho();
             }
-            boolean isAlive = GameFunctions.isPlayerAliveAndSurvival(player);
+            boolean isAlive = GameUtils.isPlayerAliveAndSurvival(player);
             if (isAlive) {
                 players_stats.put(player.getUUID(), PlayerStatsBeforeRefugee.SaveFromPlayer(player, true));
             }
@@ -234,7 +234,7 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
             return;
         }
         List<ServerPlayer> players = serverLevel.getServer().getPlayerList().getPlayers();
-        var gameWorldComponent = StarGameWorldComponent.KEY.get(level);
+        var gameWorldComponent = SREGameWorldComponent.KEY.get(level);
         var entities = serverLevel.getAllEntities();
         var bodies = new HashMap<UUID, PlayerBodyEntity>();
         for (var entity : entities) {
@@ -244,7 +244,7 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         }
         WorldModifierComponent worldModifierComponent = WorldModifierComponent.KEY.get(this.level);
         for (var player : players) {
-            var ppc = StarPlayerPsychoComponent.KEY.get(player);
+            var ppc = SREPlayerPsychoComponent.KEY.get(player);
             if (ppc.psychoTicks > 0) {
                 ppc.stopPsycho();
             }
@@ -272,11 +272,11 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         if (!(who instanceof ServerPlayer sp)) {
             return;
         }
-        StarGameTimeComponent gameTimeComponent = StarGameTimeComponent.KEY.get(sp.level());
+        SREGameTimeComponent gameTimeComponent = SREGameTimeComponent.KEY.get(sp.level());
         gameTimeComponent.setTime(lastTime);
-        var gameWorldComponent = StarGameWorldComponent.KEY.get(sp.level());
+        var gameWorldComponent = SREGameWorldComponent.KEY.get(sp.level());
         var a = sp.getServer().getPlayerList().getPlayers().stream().anyMatch((p) -> {
-            if (!GameFunctions.isPlayerAliveAndSurvival(p) || p.getUUID().equals(who.getUUID())) {
+            if (!GameUtils.isPlayerAliveAndSurvival(p) || p.getUUID().equals(who.getUUID())) {
                 return false;
             }
             var r = gameWorldComponent.getRole(p);

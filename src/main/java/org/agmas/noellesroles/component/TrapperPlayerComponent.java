@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.component;
 
 
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import org.agmas.noellesroles.init.ModEntities;
 import org.agmas.noellesroles.entity.CalamityMarkEntity;
 import org.jetbrains.annotations.NotNull;
@@ -385,7 +385,7 @@ public class TrapperPlayerComponent implements RoleComponent, ServerTickingCompo
             if (remaining > 0) {
                 // 找到受害者
                 Player victim = world.getPlayerByUUID(victimUuid);
-                if (victim != null && GameFunctions.isPlayerAliveAndSurvival(victim)) {
+                if (victim != null && GameUtils.isPlayerAliveAndSurvival(victim)) {
                     // 锁定位置
                     Vec3 prisonPos = prisonPositions.get(victimUuid);
                     if (prisonPos != null) {

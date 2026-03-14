@@ -1,6 +1,6 @@
 package org.agmas.noellesroles.entity;
 
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -55,7 +55,7 @@ public class ThrowingKnifeEntity extends AbstractArrow {
                 serverLevel.players().forEach(player -> {
                     serverLevel.playSound(player, location.x, location.y, location.z, SoundEvents.CHAIN_HIT, SoundSource.PLAYERS, 1.0f, 1.0f);
                 });
-                        GameFunctions.killPlayer(serverPlayer, true, (ServerPlayer) getOwner(), Noellesroles.id("throwing_knife_hit"));
+                        GameUtils.killPlayer(serverPlayer, true, (ServerPlayer) getOwner(), Noellesroles.id("throwing_knife_hit"));
                 this.remove(RemovalReason.KILLED);
             }
         }

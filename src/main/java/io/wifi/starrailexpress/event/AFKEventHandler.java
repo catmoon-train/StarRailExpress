@@ -1,6 +1,6 @@
 package io.wifi.starrailexpress.event;
 
-import io.wifi.starrailexpress.cca.PlayerAFKComponent;
+import io.wifi.starrailexpress.cca.SREPlayerAFKComponent;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
@@ -17,7 +17,7 @@ public class AFKEventHandler {
         // 当玩家使用物品时更新AFK计时器
         UseItemCallback.EVENT.register((player, world, hand) -> {
             if (player != null) {
-                PlayerAFKComponent afkComponent = PlayerAFKComponent.KEY.maybeGet(player).orElse(null);
+                SREPlayerAFKComponent afkComponent = SREPlayerAFKComponent.KEY.maybeGet(player).orElse(null);
                 if (afkComponent != null) {
                     afkComponent.updateActivity();
                     // 调用角色的技能使用方法
@@ -30,7 +30,7 @@ public class AFKEventHandler {
         // 当玩家与方块交互时更新AFK计时器
         UseBlockCallback.EVENT.register((player, world, hand, hitResult) -> {
             if (player != null) {
-                PlayerAFKComponent afkComponent = PlayerAFKComponent.KEY.maybeGet(player).orElse(null);
+                SREPlayerAFKComponent afkComponent = SREPlayerAFKComponent.KEY.maybeGet(player).orElse(null);
                 if (afkComponent != null) {
                     afkComponent.updateActivity();
                     return io.wifi.starrailexpress.api.RoleMethodDispatcher.callOnUseBlock(player, world, hand, hitResult);
@@ -42,7 +42,7 @@ public class AFKEventHandler {
         // 当玩家与实体交互时更新AFK计时器
         UseEntityCallback.EVENT.register((player, world, hand, entity, hitResult) -> {
             if (player != null) {
-                PlayerAFKComponent afkComponent = PlayerAFKComponent.KEY.maybeGet(player).orElse(null);
+                SREPlayerAFKComponent afkComponent = SREPlayerAFKComponent.KEY.maybeGet(player).orElse(null);
                 if (afkComponent != null) {
                     afkComponent.updateActivity();
                 }

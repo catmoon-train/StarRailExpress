@@ -12,11 +12,11 @@ import org.jetbrains.annotations.Nullable;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
-import io.wifi.starrailexpress.api.Role;
+import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
-import io.wifi.starrailexpress.cca.StarGameRoundEndComponent;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import io.wifi.starrailexpress.network.original.AnnounceWelcomePayload;
@@ -45,9 +45,9 @@ import net.minecraft.world.item.ItemStack;
  * 角色相关工具
  */
 public class RoleUtils {
-    public static void customWinnerWin(ServerLevel serverWorld, GameFunctions.WinStatus WinStatus,
+    public static void customWinnerWin(ServerLevel serverWorld, GameUtils.WinStatus WinStatus,
             @Nullable String winnerId, @Nullable OptionalInt winnerColor) {
-        var roundComponent = StarGameRoundEndComponent.KEY.get(serverWorld);
+        var roundComponent = SREGameRoundEndComponent.KEY.get(serverWorld);
         if (winnerId != null) {
             if (roundComponent != null) {
                 roundComponent.CustomWinnerID = winnerId;
@@ -60,9 +60,9 @@ public class RoleUtils {
                 }
             }
         }
-        StarGameRoundEndComponent.KEY.get(serverWorld).setRoundEndData(serverWorld.players(),
+        SREGameRoundEndComponent.KEY.get(serverWorld).setRoundEndData(serverWorld.players(),
                 WinStatus);
-        GameFunctions.stopGame(serverWorld);
+        GameUtils.stopGame(serverWorld);
     }
 
     public static void playSound(ServerPlayer serverPlayer, SoundEvent soundEvent, SoundSource soundSource,
@@ -198,20 +198,20 @@ public class RoleUtils {
     }
 
     public static void sendWelcomeAnnouncement(ServerPlayer player) {
-        StarGameWorldComponent gameWorldComponent = (StarGameWorldComponent) StarGameWorldComponent.KEY
+        SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY
                 .get(player.level());
         final var size = gameWorldComponent.getAllKillerTeamPlayers().size();
         ServerPlayNetworking.send(player, new AnnounceWelcomePayload(
                 gameWorldComponent.getRole(player).getIdentifier().toString(), size, 0));
     }
 
-    public static void changeRole(Player player, Role role) {
+    public static void changeRole(Player player, SRERole role) {
         changeRole(player, role, true);
     }
 
-    public static void changeRole(Player player, Role role, boolean record) {
+    public static void changeRole(Player player, SRERole role, boolean record) {
 
-        StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(player.level());
+        SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
         // 删除旧职业
         var oldRole = gameWorldComponent.getRole(player);
         if (oldRole != null) {
@@ -236,7 +236,7 @@ public class RoleUtils {
     /**
      * 获取角色的显示名称
      */
-    public static MutableComponent getRoleName(Role role) {
+    public static MutableComponent getRoleName(SRERole role) {
         // 尝试获取翻译后的角色名称
         return getRoleName(role.identifier());
     }
@@ -246,7 +246,7 @@ public class RoleUtils {
      * 
      * @return 返回是否相等
      */
-    public static boolean compareRole(Role role_a, Role role_b) {
+    public static boolean compareRole(SRERole role_a, SRERole role_b) {
         if (role_a == null && role_b == null)
             return true;
         if (role_a == null || role_b == null)
@@ -259,18 +259,18 @@ public class RoleUtils {
      * 
      * @return 返回Role
      */
-    public static Role getRoleFromName(String roleName) {
+    public static SRERole getRoleFromName(String roleName) {
         var roles = Noellesroles.id(roleName);
         return TMMRoles.ROLES.get(roles);
     }
 
-    public static Role getRole(ResourceLocation role) {
+    public static SRERole getRole(ResourceLocation role) {
         if (role == null)
             return null;
         return TMMRoles.ROLES.get(role);
     }
 
-    public static MutableComponent getRoleDescription(Role selectedRole) {
+    public static MutableComponent getRoleDescription(SRERole selectedRole) {
         if (selectedRole == null)
             return null;
         return Component.translatable("info.screen.roleid." + selectedRole.getIdentifier().getPath());
@@ -299,7 +299,7 @@ public class RoleUtils {
     }
 
     public static Component getRoleOrModifierName(Object role) {
-        if (role instanceof Role r) {
+        if (role instanceof SRERole r) {
             return getRoleName(r);
         } else if (role instanceof Modifier m) {
             return m.getName(false);
@@ -311,7 +311,7 @@ public class RoleUtils {
     public static MutableComponent getRoleOrModifierNameWithColor(Object role) {
         if (role == null)
             return Component.translatable("Unknown");
-        if (role instanceof Role r) {
+        if (role instanceof SRERole r) {
             return getRoleName(r).withColor(0xff000000 | r.color());
         } else if (role instanceof Modifier m) {
             return m.getName(true);
@@ -321,7 +321,7 @@ public class RoleUtils {
     }
 
     public static MutableComponent getRoleOrModifierDescription(Object role) {
-        if (role instanceof Role r) {
+        if (role instanceof SRERole r) {
             return getRoleDescription(r);
         } else if (role instanceof Modifier m) {
             return getModifierDescription(m);
@@ -331,7 +331,7 @@ public class RoleUtils {
     }
 
     public static int getRoleOrModifierColor(Object role) {
-        if (role instanceof Role r) {
+        if (role instanceof SRERole r) {
             return 0xff000000 | r.color();
         } else if (role instanceof Modifier m) {
             return 0xff000000 | m.color();
@@ -341,7 +341,7 @@ public class RoleUtils {
     }
 
     public static MutableComponent getRoleOrModifierTypeName(Object role) {
-        if (role instanceof Role) {
+        if (role instanceof SRERole) {
             return Component.translatable("display.type.role");
         } else if (role instanceof Modifier) {
             return Component.translatable("display.type.modifier");
@@ -352,7 +352,7 @@ public class RoleUtils {
     }
 
     public static ResourceLocation getRoleOrModifierIdentifier(Object role) {
-        if (role instanceof Role r) {
+        if (role instanceof SRERole r) {
             return r.identifier();
         } else if (role instanceof Modifier m) {
             return m.identifier();

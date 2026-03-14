@@ -4,14 +4,14 @@ import java.util.function.Consumer;
 
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 
-import io.wifi.starrailexpress.api.Role;
+import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.BartenderPlayerComponent;
-import io.wifi.starrailexpress.cca.StarPlayerMoodComponent;
-import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
+import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
+import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.compat.TrainVoicePlugin;
 import io.wifi.starrailexpress.event.OnPlayerDeath;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.SRE;
 import net.minecraft.nbt.ListTag;
@@ -33,8 +33,8 @@ public record PlayerStatsBeforeRefugee(Vec3 pos, int money, ListTag inventory, V
             var worldModifierComponent = WorldModifierComponent.KEY.get(level);
             if (worldModifierComponent.isModifier(victim.getUUID(), SEModifiers.REFUGEE)) {
                 var refugeeComponent = RefugeeComponent.KEY.get(level);
-                Vec3 pos = GameFunctions.getSpawnPos(AreasWorldComponent.KEY.get(level),
-                        GameFunctions.roomToPlayer.get(victim.getUUID()));
+                Vec3 pos = GameUtils.getSpawnPos(AreasWorldComponent.KEY.get(level),
+                        GameUtils.roomToPlayer.get(victim.getUUID()));
                 if (pos != null) {
                     refugeeComponent.addPendingRevival(victim.getUUID(), pos.x(), pos.y() + 1, pos.z());
                 } else {
@@ -44,7 +44,7 @@ public record PlayerStatsBeforeRefugee(Vec3 pos, int money, ListTag inventory, V
         });
     }
 
-    public static void LoadToPlayer(ServerPlayer player, PlayerStatsBeforeRefugee playerStats, Role role,
+    public static void LoadToPlayer(ServerPlayer player, PlayerStatsBeforeRefugee playerStats, SRERole role,
             RefugeeComponent refugeeComponent, WorldModifierComponent worldModifierComponent) {
         if (playerStats == null)
             return;
@@ -61,7 +61,7 @@ public record PlayerStatsBeforeRefugee(Vec3 pos, int money, ListTag inventory, V
         BartenderPlayerComponent bartenderPlayerComponent = BartenderPlayerComponent.KEY.get(player);
         
         bartenderPlayerComponent.armor = playerStats.shieldAmount;
-        if (!GameFunctions.isPlayerAliveAndSurvival(player)) {
+        if (!GameUtils.isPlayerAliveAndSurvival(player)) {
             SRE.REPLAY_MANAGER.recordPlayerRevival(player.getUUID(), role);
             player.setGameMode(GameType.ADVENTURE);
         }
@@ -70,8 +70,8 @@ public record PlayerStatsBeforeRefugee(Vec3 pos, int money, ListTag inventory, V
         player.setXRot(playerStats.rotation().x);
         player.setYRot(playerStats.rotation().y);
         TrainVoicePlugin.resetPlayer(player.getUUID());
-        var shopComponent = StarPlayerShopComponent.KEY.get(player);
-        var moodComponent = StarPlayerMoodComponent.KEY.get(player);
+        var shopComponent = SREPlayerShopComponent.KEY.get(player);
+        var moodComponent = SREPlayerMoodComponent.KEY.get(player);
         shopComponent.balance = playerStats.money();
         moodComponent.setMood(playerStats.mood());
         shopComponent.sync();
@@ -82,8 +82,8 @@ public record PlayerStatsBeforeRefugee(Vec3 pos, int money, ListTag inventory, V
         var inventory = player.getInventory();
         ListTag listTag = new ListTag();
         inventory.save(listTag);
-        var shopComponent = StarPlayerShopComponent.KEY.get(player);
-        var moodComponent = StarPlayerMoodComponent.KEY.get(player);
+        var shopComponent = SREPlayerShopComponent.KEY.get(player);
+        var moodComponent = SREPlayerMoodComponent.KEY.get(player);
         int armorAmount = BartenderPlayerComponent.KEY.get(player).getArmor();
         var playerStats = new PlayerStatsBeforeRefugee(player.position(),
                 shopComponent.balance, listTag.copy(), player.getRotationVector(),

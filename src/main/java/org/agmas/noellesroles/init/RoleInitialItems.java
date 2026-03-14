@@ -8,7 +8,7 @@ import java.util.function.Supplier;
 
 import org.agmas.noellesroles.role.ModRoles;
 
-import io.wifi.starrailexpress.api.Role;
+import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.index.TMMItems;
 import net.minecraft.core.component.DataComponents;
@@ -18,7 +18,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.Unbreakable;
 
 public class RoleInitialItems {
-    public static final Map<Role, List<Supplier<ItemStack>>> INITIAL_ITEMS_MAP = new HashMap<>();
+    public static final Map<SRERole, List<Supplier<ItemStack>>> INITIAL_ITEMS_MAP = new HashMap<>();
 
     /**
      * 获取指定角色的初始物品列表
@@ -26,7 +26,7 @@ public class RoleInitialItems {
      * @param role 角色
      * @return 初始物品列表
      */
-    public static List<ItemStack> getInitialItemsForRole(Role role, Player player) {
+    public static List<ItemStack> getInitialItemsForRole(SRERole role, Player player) {
         List<ItemStack> result = new ArrayList<>();
         List<Supplier<ItemStack>> itemSuppliers = RoleInitialItems.INITIAL_ITEMS_MAP.get(role);
         if (itemSuppliers != null) {
@@ -46,7 +46,7 @@ public class RoleInitialItems {
      * @param player 玩家
      * @param role   角色
      */
-    public static void addInitialItemsForRole(Player player, Role role) {
+    public static void addInitialItemsForRole(Player player, SRERole role) {
         List<Supplier<ItemStack>> itemSuppliers = RoleInitialItems.INITIAL_ITEMS_MAP.get(role);
         if (itemSuppliers != null) {
             for (Supplier<ItemStack> itemSupplier : itemSuppliers) {

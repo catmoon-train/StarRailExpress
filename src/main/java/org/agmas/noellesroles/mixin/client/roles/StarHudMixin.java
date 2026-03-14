@@ -1,9 +1,9 @@
 package org.agmas.noellesroles.mixin.client.roles;
 
 import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.component.StarPlayerComponent;
+import org.agmas.noellesroles.component.SuperStarPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -36,11 +36,11 @@ public abstract class StarHudMixin {
         if (client.player == null || client.level == null) return;
         if(client.player.isSpectator()) return;
         // 检查玩家是否是明星
-        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(client.level);
-        if (!gameWorld.isRole(client.player, ModRoles.STAR)) return;
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(client.level);
+        if (!gameWorld.isRole(client.player, ModRoles.SUPERSTAR)) return;
         
         // 获取明星组件
-        StarPlayerComponent starComp = ModComponents.STAR.get(client.player);
+        SuperStarPlayerComponent starComp = ModComponents.STAR.get(client.player);
         if (!starComp.isActive) return;
         
         Font textRenderer = this.getFont();

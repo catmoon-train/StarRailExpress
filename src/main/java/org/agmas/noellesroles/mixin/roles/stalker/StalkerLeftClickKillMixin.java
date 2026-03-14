@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.mixin.roles.stalker;
 
 import io.wifi.starrailexpress.game.GameConstants;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -37,10 +37,10 @@ public abstract class StalkerLeftClickKillMixin {
             return;
 
         // 检查目标是否存活
-        if (!GameFunctions.isPlayerAliveAndSurvival(attacker))
+        if (!GameUtils.isPlayerAliveAndSurvival(attacker))
             return;
         // 检查目标是否存活
-        if (!GameFunctions.isPlayerAliveAndSurvival(targetPlayer))
+        if (!GameUtils.isPlayerAliveAndSurvival(targetPlayer))
             return;
 
         // 获取跟踪者组件
@@ -70,7 +70,7 @@ public abstract class StalkerLeftClickKillMixin {
         }
 
         // 二阶段：左键直接击杀
-        GameFunctions.killPlayer(targetPlayer, true, attacker, GameConstants.DeathReasons.KNIFE);
+        GameUtils.killPlayer(targetPlayer, true, attacker, GameConstants.DeathReasons.KNIFE);
 
         // 触发攻击冷却
         stalkerComp.triggerAttackCooldown();

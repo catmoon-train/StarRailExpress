@@ -1,6 +1,7 @@
 package org.agmas.noellesroles.client.widget;
 
-import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
+import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
+import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
 import io.wifi.starrailexpress.util.ShopEntry;
@@ -16,7 +17,7 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.GameType;
-import org.agmas.noellesroles.component.StarAbilityPlayerComponent;
+
 import org.agmas.noellesroles.packet.AbilityWithTargetC2SPacket;
 import java.awt.*;
 
@@ -34,8 +35,8 @@ public class ExamplerPlayerWidget extends Button {
     public ExamplerPlayerWidget(LimitedInventoryScreen screen, int x, int y, PlayerInfo target) {
         super(x, y, 16, 16, Component.nullToEmpty(target.getProfile().getName()), (a) -> {
             AbstractClientPlayer player = Minecraft.getInstance().player;
-            if (player != null && (StarAbilityPlayerComponent.KEY.get(player)).cooldown <= 0
-                    && (StarPlayerShopComponent.KEY.get(player)).balance >= 50) {
+            if (player != null && (SREAbilityPlayerComponent.KEY.get(player)).cooldown <= 0
+                    && (SREPlayerShopComponent.KEY.get(player)).balance >= 50) {
                 ClientPlayNetworking.send(new AbilityWithTargetC2SPacket(target.getProfile().getId()));
             }
         }, DEFAULT_NARRATION);
@@ -57,8 +58,8 @@ public class ExamplerPlayerWidget extends Button {
         if (player == null)
             return;
 
-        StarAbilityPlayerComponent component = StarAbilityPlayerComponent.KEY.get(player);
-        StarPlayerShopComponent shopComponent = StarPlayerShopComponent.KEY.get(player);
+        SREAbilityPlayerComponent component = SREAbilityPlayerComponent.KEY.get(player);
+        SREPlayerShopComponent shopComponent = SREPlayerShopComponent.KEY.get(player);
 
         if (component.cooldown <= 0 && shopComponent.balance >= 50) {
             super.renderWidget(context, mouseX, mouseY, delta);

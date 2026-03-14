@@ -1,6 +1,6 @@
 package org.agmas.noellesroles.mixin;
 
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.network.original.AnnounceWelcomePayload;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -32,7 +32,7 @@ public class MagicianKillerCountMixin {
             target = "Lnet/fabricmc/fabric/api/networking/v1/ServerPlayNetworking;send(Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/network/protocol/common/custom/CustomPacketPayload;)V"
         )
     )
-    private static void modifyAnnounceWelcomePayload(Args args, ServerLevel serverWorld, StarGameWorldComponent gameWorldComponent, List<ServerPlayer> players) {
+    private static void modifyAnnounceWelcomePayload(Args args, ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent, List<ServerPlayer> players) {
         // 获取第二个参数（AnnounceWelcomePayload）
         Object payload = args.get(1);
         

@@ -1,8 +1,8 @@
 package org.agmas.noellesroles.repack;
 
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameConstants;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
@@ -62,7 +62,8 @@ public record BanditRevolverShootPayload(int target) implements CustomPacketPayl
                 if (var6 instanceof Player) {
                     Player target = (Player) var6;
                     if ((double) target.distanceTo(player) < (double) 100) {
-                        StarGameWorldComponent game = (StarGameWorldComponent) StarGameWorldComponent.KEY.get(player.level());
+                        SREGameWorldComponent game = (SREGameWorldComponent) SREGameWorldComponent.KEY
+                                .get(player.level());
                         boolean backfire = false;
                         if (game.isInnocent(target) && !player.isCreative()) {
                             // \
@@ -74,7 +75,7 @@ public record BanditRevolverShootPayload(int target) implements CustomPacketPayl
                             }
                             if (shouldDrop) {
                                 Scheduler.schedule(() -> {
-                                    if (MCItemsUtils.clearItem(player, (s) -> s.is(TMMItemTags.GUNS)) > 0) {
+                                    if (MCItemsUtils.clearItem(player, TMMItemTags.GUNS, 1) > 0) {
                                         ItemEntity item = player.drop(TMMItems.REVOLVER.getDefaultInstance(), false,
                                                 false);
                                         if (item != null) {
@@ -88,7 +89,7 @@ public record BanditRevolverShootPayload(int target) implements CustomPacketPayl
                             }
                         }
                         if (!backfire) {
-                            GameFunctions.killPlayer(target, true, player, GameConstants.DeathReasons.REVOLVER);
+                            GameUtils.killPlayer(target, true, player, GameConstants.DeathReasons.REVOLVER);
                         }
                     }
                 }

@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.mixin.roles.manipulator;
 
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 
@@ -25,12 +25,12 @@ public class PlayerControlMixin {
         Player player = (Player) (Object) this;
 
         if (player instanceof ServerPlayer serverPlayer) {
-            final var gameWorldComponent = StarGameWorldComponent.KEY.get(serverPlayer.serverLevel());
-            if (gameWorldComponent.isRunning() && GameFunctions.isPlayerAliveAndSurvival(serverPlayer)) {
+            final var gameWorldComponent = SREGameWorldComponent.KEY.get(serverPlayer.serverLevel());
+            if (gameWorldComponent.isRunning() && GameUtils.isPlayerAliveAndSurvival(serverPlayer)) {
                 final var inControlCCA = InControlCCA.KEY.get(serverPlayer);
                 if (inControlCCA.isControlling) {
                     // 只有生存模式的玩家才会随机移动
-                    if (!GameFunctions.isPlayerAliveAndSurvival(serverPlayer)) {
+                    if (!GameUtils.isPlayerAliveAndSurvival(serverPlayer)) {
                         RandomMoveData.randomMoveData.remove(serverPlayer);
                         return;
                     }

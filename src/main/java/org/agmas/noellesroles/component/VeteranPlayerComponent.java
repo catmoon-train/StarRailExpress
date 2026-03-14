@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.component;
 
 import  org.agmas.noellesroles.role.ModRoles;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -55,7 +55,7 @@ public class VeteranPlayerComponent implements RoleComponent {
      */
     public boolean isActiveVeteran() {
         if (player.level().isClientSide()) return false;
-        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.level());
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
         return gameWorld.isRole(player, ModRoles.VETERAN);
     }
     

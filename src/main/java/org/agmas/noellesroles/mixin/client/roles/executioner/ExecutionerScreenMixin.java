@@ -1,9 +1,9 @@
 package org.agmas.noellesroles.mixin.client.roles.executioner;
 
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedHandledScreen;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import org.agmas.noellesroles.client.widget.ExecutionerPlayerWidget;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.role.ModRoles;
@@ -42,7 +42,7 @@ public abstract class ExecutionerScreenMixin extends LimitedHandledScreen<Invent
             return; // 如果未启用，则不显示选择界面
         }
         
-        StarGameWorldComponent gameWorldComponent = (StarGameWorldComponent) StarGameWorldComponent.KEY.get(player.level());
+        SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY.get(player.level());
         
         // 检查是否是Executioner角色
         if (gameWorldComponent.isRole(player, ModRoles.EXECUTIONER)) {
@@ -55,7 +55,7 @@ public abstract class ExecutionerScreenMixin extends LimitedHandledScreen<Invent
                 // 筛选出平民阵营且存活的玩家
                 entries.removeIf((e) -> {
                     if (e.getUUID().equals(player.getUUID())) return true;
-                    if (!GameFunctions.isPlayerAliveAndSurvival(e)) return true;
+                    if (!GameUtils.isPlayerAliveAndSurvival(e)) return true;
                     return !gameWorldComponent.getRole(e).isInnocent();
                 });
                 

@@ -1,6 +1,6 @@
 package io.wifi.starrailexpress.client.gui.screen;
 
-import io.wifi.starrailexpress.cca.PlayerSkinsComponent;
+import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.network.UpdateSkinSelectedPayload;
 import io.wifi.starrailexpress.SRE;
@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SkinManagementScreen extends Screen {
-    private final PlayerSkinsComponent skinsComponent;
+    private final SREPlayerSkinsComponent skinsComponent;
     private final Player player;
     private SkinSelectionList skinList;
     private Button backButton;
@@ -42,7 +42,7 @@ public class SkinManagementScreen extends Screen {
     public SkinManagementScreen() {
         super(Component.translatable("screen.starrailexpress.skins.title"));
         this.player = Minecraft.getInstance().player;
-        this.skinsComponent = PlayerSkinsComponent.KEY.get(this.player);
+        this.skinsComponent = SREPlayerSkinsComponent.KEY.get(this.player);
     }
 
     @Override

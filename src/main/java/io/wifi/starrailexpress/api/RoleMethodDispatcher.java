@@ -1,6 +1,6 @@
 package io.wifi.starrailexpress.api;
 
-import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
+import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -28,7 +28,7 @@ public class RoleMethodDispatcher {
      */
     public static void callOnDeath(Player victim, boolean spawnBody, @Nullable Player killer,
             ResourceLocation deathReason) {
-        Role role = getCurrentRole(victim);
+        SRERole role = getCurrentRole(victim);
         if (role != null) {
             role.onDeath(victim, spawnBody, killer, deathReason);
         }
@@ -39,7 +39,7 @@ public class RoleMethodDispatcher {
      */
     public static void callOnKill(Player victim, boolean spawnBody, @Nullable Player killer,
             ResourceLocation deathReason) {
-        Role role = getCurrentRole(killer);
+        SRERole role = getCurrentRole(killer);
         if (role != null) {
             role.onKill(victim, spawnBody, killer, deathReason);
         }
@@ -49,20 +49,20 @@ public class RoleMethodDispatcher {
      * 调用玩家角色的 onFinishQuest 方法
      */
     public static void callOnFinishQuest(Player player, String quest) {
-        Role role = getCurrentRole(player);
+        SRERole role = getCurrentRole(player);
         if (role != null) {
             if (role.isInnocent()) {
-                StarPlayerShopComponent shopComponent = StarPlayerShopComponent.KEY.get(player);
+                SREPlayerShopComponent shopComponent = SREPlayerShopComponent.KEY.get(player);
                 shopComponent.addToBalance(50);
             }
             if (role.isNeutrals() || (!role.canUseKiller() && !role.isInnocent())) {
-                StarPlayerShopComponent shopComponent = StarPlayerShopComponent.KEY.get(player);
+                SREPlayerShopComponent shopComponent = SREPlayerShopComponent.KEY.get(player);
                 shopComponent.addToBalance(50);
             } else if (role.canUseKiller()) {
                 player.level().players().forEach(
                         a -> {
                             if (role.canUseKiller()) {
-                                StarPlayerShopComponent shopComponent = StarPlayerShopComponent.KEY.get(a);
+                                SREPlayerShopComponent shopComponent = SREPlayerShopComponent.KEY.get(a);
                                 shopComponent.addToBalance(5);
                             }
                         });
@@ -104,7 +104,7 @@ public class RoleMethodDispatcher {
      * 调用玩家角色的 onPickupItem 方法
      */
     public static boolean callOnPickupItem(Player player, Item item) {
-        Role role = getCurrentRole(player);
+        SRERole role = getCurrentRole(player);
         if (role != null) {
             return !role.cantPickupItem(player).test(item);
         }
@@ -115,13 +115,14 @@ public class RoleMethodDispatcher {
      * 调用玩家角色的 serverTick 方法
      */
     public static void callServerTick(ServerPlayer player) {
-        Role role = getCurrentRole(player);
+        var gameComponent = io.wifi.starrailexpress.cca.SREGameWorldComponent.KEY.get(player.level());
+        SRERole role = gameComponent.getRole(player);
         if (role != null) {
-            role.serverTick(player);
+            role.serverGameTickEvent(player, gameComponent);
         }
     }
 
-    public static void onInit(Role role, MinecraftServer minecraftServer, ServerPlayer player) {
+    public static void onInit(SRERole role, MinecraftServer minecraftServer, ServerPlayer player) {
         role.onInit(minecraftServer, player);
         if (role.isAutoReset()) {
             ComponentKey<? extends RoleComponent> componentKey = role.getComponentKey();
@@ -135,9 +136,10 @@ public class RoleMethodDispatcher {
      * 调用玩家角色的 clientTick 方法
      */
     public static void callClientTick(Player player) {
-        Role role = getCurrentRole(player);
+        var gameComponent = io.wifi.starrailexpress.cca.SREGameWorldComponent.KEY.get(player.level());
+        SRERole role = gameComponent.getRole(player);
         if (role != null) {
-            role.clientTick(player);
+            role.clientGameTickEvent(player, gameComponent);
         }
     }
 
@@ -145,7 +147,7 @@ public class RoleMethodDispatcher {
      * 调用玩家角色的 rightClickEntity 方法
      */
     public static void callRightClickEntity(Player player, Entity victim) {
-        Role role = getCurrentRole(player);
+        SRERole role = getCurrentRole(player);
         if (role != null) {
             role.rightClickEntity(player, victim);
         }
@@ -155,7 +157,7 @@ public class RoleMethodDispatcher {
      * 调用玩家角色的 leftClickEntity 方法
      */
     public static void callLeftClickEntity(Player player, Entity victim) {
-        Role role = getCurrentRole(player);
+        SRERole role = getCurrentRole(player);
         if (role != null) {
             role.leftClickEntity(player, victim);
         }
@@ -165,7 +167,7 @@ public class RoleMethodDispatcher {
      * 调用玩家角色的 onItemUse 方法
      */
     public static InteractionResultHolder<ItemStack> callOnItemUse(Player player, Level world, InteractionHand hand) {
-        Role role = getCurrentRole(player);
+        SRERole role = getCurrentRole(player);
         if (role != null) {
             return role.onItemUse(player, world, hand);
         }
@@ -176,7 +178,7 @@ public class RoleMethodDispatcher {
      * 调用玩家角色的 onAbilityUse 方法
      */
     public static void callOnAbilityUse(Player player) {
-        Role role = getCurrentRole(player);
+        SRERole role = getCurrentRole(player);
         if (role != null) {
             role.onAbilityUse(player);
         }
@@ -187,7 +189,7 @@ public class RoleMethodDispatcher {
      */
     public static InteractionResult callOnUseBlock(Player player, Level world, InteractionHand hand,
             BlockHitResult hitResult) {
-        Role role = getCurrentRole(player);
+        SRERole role = getCurrentRole(player);
         if (role != null) {
             return role.onUseBlock(player, world, hand, hitResult);
         }
@@ -197,12 +199,12 @@ public class RoleMethodDispatcher {
     /**
      * 获取玩家当前的角色
      */
-    private static Role getCurrentRole(Player player) {
+    private static SRERole getCurrentRole(Player player) {
         if (player.level() == null) {
             return null;
         }
 
-        var gameComponent = io.wifi.starrailexpress.cca.StarGameWorldComponent.KEY.get(player.level());
+        var gameComponent = io.wifi.starrailexpress.cca.SREGameWorldComponent.KEY.get(player.level());
         return gameComponent.getRole(player);
     }
 }

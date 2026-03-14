@@ -1,13 +1,13 @@
 package org.agmas.noellesroles.mixin.roles.thief;
 
-import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
+import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(StarPlayerShopComponent.class)
+@Mixin(SREPlayerShopComponent.class)
 public abstract class DelayedCoinDisplayMixin {
     
     @Shadow public int balance;

@@ -19,10 +19,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.llamalad7.mixinextras.sugar.Local;
 
 import io.wifi.starrailexpress.api.TMMRoles;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.RoleNameRenderer;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -87,8 +87,8 @@ public abstract class CustomRolesRoleNameRendererMixin {
             if (SREClient.gameComponent.isRole(Minecraft.getInstance().player.getUUID(), ModRoles.ATTENDANT)) {
                 String room_name_ = "No Room";
 
-                if (GameFunctions.roomToPlayer.containsKey(NoellesrolesClient.hudTarget.getUUID())) {
-                    int room_number = GameFunctions.roomToPlayer.get(NoellesrolesClient.hudTarget.getUUID());
+                if (GameUtils.roomToPlayer.containsKey(NoellesrolesClient.hudTarget.getUUID())) {
+                    int room_number = GameUtils.roomToPlayer.get(NoellesrolesClient.hudTarget.getUUID());
                     room_name_ = "Room " + room_number;
                 }
                 var room_name = Component.translatable("message.noellesroles.attendant.room_show",
@@ -105,7 +105,7 @@ public abstract class CustomRolesRoleNameRendererMixin {
     @Inject(method = "renderHud", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;getDisplayName()Lnet/minecraft/network/chat/Component;"))
     private static void b(Font renderer, @NotNull LocalPlayer player, GuiGraphics context, DeltaTracker tickCounter,
             CallbackInfo ci, @Local Player target) {
-        StarGameWorldComponent gameWorldComponent = SREClient.gameComponent;
+        SREGameWorldComponent gameWorldComponent = SREClient.gameComponent;
         WorldModifierComponent worldModifierComponent = WorldModifierComponent.KEY.get(player.level());
         if (gameWorldComponent.getRole(target) != null) {
             NoellesrolesClient.hudTarget = target;

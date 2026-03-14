@@ -1,8 +1,8 @@
 package org.agmas.noellesroles.component;
 
 import org.agmas.noellesroles.role.ModRoles;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
@@ -113,7 +113,7 @@ public class AvengerPlayerComponent implements RoleComponent, ServerTickingCompo
         if (!(player instanceof ServerPlayer serverPlayer))
             return;
 
-        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(serverPlayer.level());
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(serverPlayer.level());
         if (!gameWorld.isRole(player, ModRoles.AVENGER)) {
             return;
         }
@@ -125,7 +125,7 @@ public class AvengerPlayerComponent implements RoleComponent, ServerTickingCompo
             Player targetPlayer = player.level().getPlayerByUUID(uuid);
             if (targetPlayer == null)
                 return;
-            if (role.isInnocent() && GameFunctions.isPlayerAliveAndSurvival(targetPlayer)) {
+            if (role.isInnocent() && GameUtils.isPlayerAliveAndSurvival(targetPlayer)) {
                 innocentPlayers.add(uuid);
             }
         });
@@ -190,7 +190,7 @@ public class AvengerPlayerComponent implements RoleComponent, ServerTickingCompo
         if (targetPlayer == null)
             return false;
         Player target = player.level().getPlayerByUUID(targetPlayer);
-        return target != null && GameFunctions.isPlayerAliveAndSurvival(target);
+        return target != null && GameUtils.isPlayerAliveAndSurvival(target);
     }
 
     /**
@@ -209,7 +209,7 @@ public class AvengerPlayerComponent implements RoleComponent, ServerTickingCompo
 
     @Override
     public void serverTick() {
-        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.level());
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
 
         // 只有复仇者角色才处理
         if (!gameWorld.isRole(player, ModRoles.AVENGER))

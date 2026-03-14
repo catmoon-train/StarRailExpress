@@ -3,7 +3,7 @@ package io.wifi.starrailexpress.command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import io.wifi.starrailexpress.cca.PlayerSkinsComponent;
+import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
 import io.wifi.starrailexpress.command.argument.SkinArgumentType;
 import io.wifi.starrailexpress.util.SkinManager;
 import net.minecraft.commands.CommandBuildContext;
@@ -79,7 +79,7 @@ public class ManageSkinsCommand {
         int successes = 0;
         for (Player player : players) {
             // 锁定（移除）指定物品类型的皮肤
-            PlayerSkinsComponent skinsComponent = PlayerSkinsComponent.KEY.get(player);
+            SREPlayerSkinsComponent skinsComponent = SREPlayerSkinsComponent.KEY.get(player);
             skinsComponent.lockSkinForItemType(BuiltInRegistries.ITEM.getKey(item.getItem()).toString(), skin);
             context.getSource().sendSuccess(() -> Component.literal(
                     "Removed skin '" + skin + "' for item type '" + item + "' from " + player.getName().getString()),
@@ -114,7 +114,7 @@ public class ManageSkinsCommand {
         Collection<? extends Player> players = EntityArgument.getPlayers(context, "targets");
 
         for (Player player : players) {
-            PlayerSkinsComponent skinsComponent = PlayerSkinsComponent.KEY.get(player);
+            SREPlayerSkinsComponent skinsComponent = SREPlayerSkinsComponent.KEY.get(player);
             StringBuilder result = new StringBuilder("Skins for " + player.getName().getString() + ":\n");
 
             // 显示已装备的皮肤

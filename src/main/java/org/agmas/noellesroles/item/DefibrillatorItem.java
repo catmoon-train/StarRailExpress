@@ -1,6 +1,6 @@
 package org.agmas.noellesroles.item;
 
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -35,7 +35,7 @@ public class DefibrillatorItem extends Item {
                 if (hitResult instanceof net.minecraft.world.phys.EntityHitResult entityHitResult) {
                     if (entityHitResult.getEntity() instanceof Player target) {
                         // 检查目标是否为存活的玩家
-                        if (!GameFunctions.isPlayerAliveAndSurvival(target)) {
+                        if (!GameUtils.isPlayerAliveAndSurvival(target)) {
                             player.displayClientMessage(
                                     Component.translatable("message.noellesroles.defibrillator.must_target_alive"),
                                     true);

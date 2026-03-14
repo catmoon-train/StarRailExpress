@@ -1,6 +1,6 @@
 package pro.fazeclan.river.stupid_express.modifier.lovers.cca;
 
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
@@ -51,17 +51,17 @@ public class LoversComponent implements AutoSyncedComponent {
             return false;
         }
         var serverLevel = (ServerLevel) serverPlayer.level();
-        if (GameFunctions.isPlayerEliminated(this.player)) {
+        if (GameUtils.isPlayerEliminated(this.player)) {
             return false;
         }
         var lover = getLoverAsPlayer();
         if (lover == null) {
             return false;
         }
-        if (GameFunctions.isPlayerEliminated(lover)) {
+        if (GameUtils.isPlayerEliminated(lover)) {
             return false;
         }
-        var remainingPlayers = serverLevel.getPlayers(GameFunctions::isPlayerAliveAndSurvival);
+        var remainingPlayers = serverLevel.getPlayers(GameUtils::isPlayerAliveAndSurvival);
         return remainingPlayers.size() == 2;
     }
 

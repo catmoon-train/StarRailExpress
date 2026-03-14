@@ -3,7 +3,7 @@ package io.wifi.starrailexpress.cca;
 import io.wifi.starrailexpress.api.GameMode;
 import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.game.GameConstants;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.SRE;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -37,18 +37,18 @@ public class AutoStartComponent implements AutoSyncedComponent, CommonTickingCom
 
     @Override
     public void tick() {
-        StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(this.world);
+        SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(this.world);
         if (gameWorldComponent.isRunning())
             return;
 
         if (this.startTime <= 0 && this.time <= 0)
             return;
 
-        if (GameFunctions.getReadyPlayerCount(world) >= gameWorldComponent.getGameMode().minPlayerCount) {
+        if (GameUtils.getReadyPlayerCount(world) >= gameWorldComponent.getGameMode().minPlayerCount) {
             if (this.time-- <= 0 && this.world instanceof ServerLevel serverWorld) {
-                if (gameWorldComponent.getGameStatus() == StarGameWorldComponent.GameStatus.INACTIVE) {
+                if (gameWorldComponent.getGameStatus() == SREGameWorldComponent.GameStatus.INACTIVE) {
                     GameMode gameMode = SREGameModes.MURDER;
-                    GameFunctions.startGame(serverWorld, gameMode,
+                    GameUtils.startGame(serverWorld, gameMode,
                             GameConstants.getInTicks(gameMode.defaultStartTime, 0));
                     return;
                 }
@@ -70,7 +70,7 @@ public class AutoStartComponent implements AutoSyncedComponent, CommonTickingCom
 
     @Override
     public boolean shouldSyncWith(ServerPlayer serverPlayer) {
-        StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(this.world);
+        SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(this.world);
         if (gameWorldComponent.isRunning()) {
             return false;
         }

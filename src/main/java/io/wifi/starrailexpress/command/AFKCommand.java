@@ -3,7 +3,7 @@ package io.wifi.starrailexpress.command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
-import io.wifi.starrailexpress.cca.PlayerAFKComponent;
+import io.wifi.starrailexpress.cca.SREPlayerAFKComponent;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
@@ -33,7 +33,7 @@ public class AFKCommand {
             return 0;
         }
 
-        PlayerAFKComponent afkComponent = PlayerAFKComponent.KEY.maybeGet(player).orElse(null);
+        SREPlayerAFKComponent afkComponent = SREPlayerAFKComponent.KEY.maybeGet(player).orElse(null);
         if (afkComponent != null) {
             afkComponent.resetAFKTimer();
             context.getSource().sendSuccess(() -> Component.literal("AFK计时器已重置"), false);
@@ -51,7 +51,7 @@ public class AFKCommand {
             return 0;
         }
 
-        PlayerAFKComponent afkComponent = PlayerAFKComponent.KEY.maybeGet(player).orElse(null);
+        SREPlayerAFKComponent afkComponent = SREPlayerAFKComponent.KEY.maybeGet(player).orElse(null);
         if (afkComponent != null) {
             float afkProgress = afkComponent.getAFKProgress();
             int afkTime = afkComponent.getAFKTime();
@@ -89,7 +89,7 @@ public class AFKCommand {
         int seconds = IntegerArgumentType.getInteger(context, "seconds");
         int ticks = seconds * 20; // 转换为游戏刻度
 
-        PlayerAFKComponent afkComponent = PlayerAFKComponent.KEY.maybeGet(player).orElse(null);
+        SREPlayerAFKComponent afkComponent = SREPlayerAFKComponent.KEY.maybeGet(player).orElse(null);
         if (afkComponent != null) {
             afkComponent.setAFKTime(ticks);
             context.getSource().sendSuccess(() -> Component.literal("AFK时间已设置为 " + seconds + " 秒 (" + ticks + " ticks)"), false);
@@ -107,7 +107,7 @@ public class AFKCommand {
             int ticks = seconds * 20; // 转换为游戏刻度
 
             for (ServerPlayer target : targets) {
-                PlayerAFKComponent afkComponent = PlayerAFKComponent.KEY.maybeGet(target).orElse(null);
+                SREPlayerAFKComponent afkComponent = SREPlayerAFKComponent.KEY.maybeGet(target).orElse(null);
                 if (afkComponent != null) {
                     afkComponent.setAFKTime(ticks);
                 }

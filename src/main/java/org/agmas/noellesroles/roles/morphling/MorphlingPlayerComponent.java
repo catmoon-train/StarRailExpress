@@ -9,7 +9,7 @@ import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentProvider;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
 import io.wifi.starrailexpress.api.RoleComponent;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 
 import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
@@ -69,7 +69,7 @@ public class MorphlingPlayerComponent implements RoleComponent, ServerTickingCom
     }
 
     public void serverTick() {
-        if (!StarGameWorldComponent.KEY.get(this.player.level()).isRole(this.player, ModRoles.MORPHLING))
+        if (!SREGameWorldComponent.KEY.get(this.player.level()).isRole(this.player, ModRoles.MORPHLING))
             return;
         if (this.morphTicks != 0) {
             ++tickR;

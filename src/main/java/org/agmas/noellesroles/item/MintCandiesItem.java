@@ -1,9 +1,9 @@
 package org.agmas.noellesroles.item;
 
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
-import io.wifi.starrailexpress.cca.StarPlayerMoodComponent;
-import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
+import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -37,13 +37,13 @@ public class MintCandiesItem extends Item {
         ItemStack itemStack = user.getItemInHand(hand);
         
         // 检查游戏是否正在进行
-        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(world);
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(world);
         if (!gameWorld.isRunning()) {
             return InteractionResultHolder.pass(itemStack);
         }
         
         // 检查玩家是否存活
-        if (!GameFunctions.isPlayerAliveAndSurvival(user)) {
+        if (!GameUtils.isPlayerAliveAndSurvival(user)) {
             return InteractionResultHolder.pass(itemStack);
         }
         
@@ -58,12 +58,12 @@ public class MintCandiesItem extends Item {
         if (user instanceof Player player) {
             if (!world.isClientSide()) {
                 // 恢复san值
-                StarPlayerMoodComponent moodComponent = StarPlayerMoodComponent.KEY.get(player);
+                SREPlayerMoodComponent moodComponent = SREPlayerMoodComponent.KEY.get(player);
                 float currentMood = moodComponent.getMood();
                 float newMood = Math.min(1.0f, currentMood + SANITY_RESTORE_AMOUNT);
                 moodComponent.setMood(newMood);
                 moodComponent.sync();
-                final var playerShopComponent = StarPlayerShopComponent.KEY.get(player);
+                final var playerShopComponent = SREPlayerShopComponent.KEY.get(player);
                 playerShopComponent.setBalance(playerShopComponent.balance +15);
                 // 播放吃东西的音效
                 world.playSound(null, player.blockPosition(),

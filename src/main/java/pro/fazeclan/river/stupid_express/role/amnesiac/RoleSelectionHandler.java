@@ -1,8 +1,8 @@
 package pro.fazeclan.river.stupid_express.role.amnesiac;
 
-import io.wifi.starrailexpress.api.Role;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
-import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
+import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.index.TMMItems;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
@@ -31,7 +31,7 @@ public class RoleSelectionHandler {
             if (!interacting.gameMode.isSurvival()) {
                 return InteractionResult.PASS;
             }
-            StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(player.level());
+            SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
             if (!gameWorldComponent.isRole(player, SERoles.AMNESIAC)) {
                 return InteractionResult.PASS;
             }
@@ -43,7 +43,7 @@ public class RoleSelectionHandler {
                  player.displayClientMessage(Component.translatable("message.stupid_express.generic.skill_not_available"), true);
                 return InteractionResult.PASS;
             }
-            Role role = gameWorldComponent.getRole(victim.getPlayerUuid());
+            SRERole role = gameWorldComponent.getRole(victim.getPlayerUuid());
             if (role.identifier().equals(SERoles.INITIATE.identifier())) {
                 player.displayClientMessage(
                         Component.translatable("msg.amnesiac.change_role.failed_initiate")
@@ -60,7 +60,7 @@ public class RoleSelectionHandler {
             // 清除物品栏中的所有刀
             clearAllKnives(interacting);
 
-            StarPlayerShopComponent playerShopComponent = StarPlayerShopComponent.KEY.get(interacting);
+            SREPlayerShopComponent playerShopComponent = SREPlayerShopComponent.KEY.get(interacting);
             StupidRoleUtils.changeRole(interacting, role);
 
             playerShopComponent.setBalance(200);

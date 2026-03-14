@@ -4,7 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 
-import io.wifi.starrailexpress.cca.PlayerAFKComponent;
+import io.wifi.starrailexpress.cca.SREPlayerAFKComponent;
 import io.wifi.starrailexpress.SRE;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -99,7 +99,7 @@ public class AFKRenderer {
             return;
 
         LocalPlayer player = mc.player;
-        PlayerAFKComponent afkComponent = PlayerAFKComponent.KEY.maybeGet(player).orElse(null);
+        SREPlayerAFKComponent afkComponent = SREPlayerAFKComponent.KEY.maybeGet(player).orElse(null);
 
         if (afkComponent == null)
             return;
@@ -454,7 +454,7 @@ public class AFKRenderer {
     public static void tick() {
         // 客户端每刻执行的逻辑
         if (mc.player != null) {
-            PlayerAFKComponent afkComponent = PlayerAFKComponent.KEY.maybeGet(mc.player).orElse(null);
+            SREPlayerAFKComponent afkComponent = SREPlayerAFKComponent.KEY.maybeGet(mc.player).orElse(null);
             if (afkComponent != null) {
                 // 检查是否需要重置AFK计时器
                 // 这里可以添加更多判断条件

@@ -1,8 +1,8 @@
 package org.agmas.noellesroles.mixin.client.roles;
 
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.util.TMMItemUtils;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -72,12 +72,12 @@ public class BomberHudMixin {
             return;
 
         // 检查是否是炸弹客
-        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(client.level);
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(client.level);
         if (!gameWorld.isRole(client.player, ModRoles.BOMBER))
             return;
 
         // 检查玩家是否存活
-        if (!GameFunctions.isPlayerAliveAndSurvival(client.player))
+        if (!GameUtils.isPlayerAliveAndSurvival(client.player))
             return;
 
         // 计算背包中的炸弹数量

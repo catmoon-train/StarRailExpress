@@ -19,7 +19,7 @@ import io.wifi.starrailexpress.block_entity.SmallDoorBlockEntity;
 import io.wifi.starrailexpress.block_entity.SprinklerBlockEntity;
 import io.wifi.starrailexpress.block_entity.TrimmedBedBlockEntity;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
-import io.wifi.starrailexpress.game.GameFunctions.BlockEntityInfo;
+import io.wifi.starrailexpress.game.GameUtils.BlockEntityInfo;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import net.minecraft.ChatFormatting;
@@ -85,7 +85,7 @@ public class ServerTaskInfoClasses {
             if (SREConfig.verboseTrainResetLogs) {
                 SRE.LOGGER.info("Resetting train " + areas.mapName);
             }
-            GameFunctions.resetPoints.clear();
+            GameUtils.resetPoints.clear();
             backupMinPos = BlockPos.containing(areas.getResetTemplateArea().getMinPosition());
             backupMaxPos = BlockPos.containing(areas.getResetTemplateArea().getMaxPosition());
             backupTrainBox = BoundingBox.fromCorners(backupMinPos, backupMaxPos);
@@ -155,29 +155,29 @@ public class ServerTaskInfoClasses {
                             BlockInWorld cachedBlockPosition = new BlockInWorld(serverWorld, blockPos6, true);
                             BlockState blockState = cachedBlockPosition.getState();
                             if (blockState.getBlock() instanceof SmallDoorBlock) {
-                                GameFunctions.resetPoints.add(blockPos7);
+                                GameUtils.resetPoints.add(blockPos7);
                             } else if (blockState.getBlock() instanceof TrimmedBedBlock) {
                                 if (blockState.getValue(TrimmedBedBlock.PART).equals(BedPart.HEAD)) {
-                                    GameFunctions.resetPoints.add(blockPos7);
+                                    GameUtils.resetPoints.add(blockPos7);
                                 }
                             } else if (blockState.getBlock() instanceof FoodPlatterBlock) {
-                                GameFunctions.resetPoints.add(blockPos7);
+                                GameUtils.resetPoints.add(blockPos7);
                             } else if (blockState.getBlock() instanceof LecternBlock) {
                                 if (serverWorld.getBlockEntity(blockPos7) instanceof LecternBlockEntity) {
-                                    GameFunctions.resetPoints.add(blockPos7);
+                                    GameUtils.resetPoints.add(blockPos7);
                                 }
                             } else if (blockState.getBlock() instanceof SprinklerBlock) {
-                                GameFunctions.resetPoints.add(blockPos7);
+                                GameUtils.resetPoints.add(blockPos7);
                             } else if (blockState.getBlock() instanceof NeonPillarBlock) {
-                                GameFunctions.resetPoints.add(blockPos7);
+                                GameUtils.resetPoints.add(blockPos7);
                             } else if (blockState.getBlock() instanceof NeonTubeBlock) {
-                                GameFunctions.resetPoints.add(blockPos7);
+                                GameUtils.resetPoints.add(blockPos7);
                             } else if (blockState.getBlock() instanceof NeonTubeBlock) {
-                                GameFunctions.resetPoints.add(blockPos7);
+                                GameUtils.resetPoints.add(blockPos7);
                             } else if (blockState.getBlock() instanceof ToggleableFacingLightBlock) {
-                                GameFunctions.resetPoints.add(blockPos7);
+                                GameUtils.resetPoints.add(blockPos7);
                             } else if (blockState.getBlock() instanceof VentHatchBlock) {
-                                GameFunctions.resetPoints.add(blockPos7);
+                                GameUtils.resetPoints.add(blockPos7);
                             }
                         }
                     }
@@ -229,11 +229,11 @@ public class ServerTaskInfoClasses {
             });
             if (shouldStartGame) {
                 SRE.LOGGER.info("RESETING MAP FINISHED. STARTING RESET TASK BLOCKS.");
-                // GameFunctions.trueStartGame(this.serverWorld, this.gameMode, this.time);
-                var task = new ServerTaskInfoClasses.OnlySomeBlockResetTask(GameFunctions.resetPoints,
+                // GameUtils.trueStartGame(this.serverWorld, this.gameMode, this.time);
+                var task = new ServerTaskInfoClasses.OnlySomeBlockResetTask(GameUtils.resetPoints,
                         serverWorld,
                         gameMode, time);
-                GameFunctions.serverTaskQueue.addLast(task);
+                GameUtils.serverTaskQueue.addLast(task);
             }
             MapResetManager.saveArea(serverWorld);
         }
@@ -263,9 +263,9 @@ public class ServerTaskInfoClasses {
         public void resetBlock() {
             SRE.LOGGER.info("RESETING MAP: {}/{}", this.progress, this.totalProgress);
             ServerLevel serverWorld = this.world;
-            ArrayList<GameFunctions.BlockInfo> list3 = new ArrayList<>(); // 仅更新方块状态
-            ArrayList<GameFunctions.BlockInfo> list2 = new ArrayList<>();
-            // ArrayList<GameFunctions.BlockInfo> list_Doorlike = new ArrayList<>();
+            ArrayList<GameUtils.BlockInfo> list3 = new ArrayList<>(); // 仅更新方块状态
+            ArrayList<GameUtils.BlockInfo> list2 = new ArrayList<>();
+            // ArrayList<GameUtils.BlockInfo> list_Doorlike = new ArrayList<>();
             for (int i = 0; i <= MAX_RESET_PER && this.progress < this.totalProgress; i++, this.progress++) {
                 BlockPos blockPos6 = blocks.get(this.progress);
                 BlockPos blockPos7 = blockPos6;
@@ -295,11 +295,11 @@ public class ServerTaskInfoClasses {
                             BlockEntityInfo blockEntityInfo = new BlockEntityInfo(
                                     entity.saveCustomOnly(serverWorld.registryAccess()),
                                     entity.components());
-                            list2.add(new GameFunctions.BlockInfo(blockPos7, blockState, blockEntityInfo));
+                            list2.add(new GameUtils.BlockInfo(blockPos7, blockState, blockEntityInfo));
                         }
                     } else if (blockState.getValue(SmallDoorBlock.HALF).equals(DoubleBlockHalf.UPPER)) {
                         blockState = blockState.setValue(SmallDoorBlock.OPEN, false);
-                        list2.add(new GameFunctions.BlockInfo(blockPos7, blockState, null));
+                        list2.add(new GameUtils.BlockInfo(blockPos7, blockState, null));
                     }
                 } else if (blockState.getBlock() instanceof TrimmedBedBlock) {
                     if (blockState.getValue(TrimmedBedBlock.PART).equals(BedPart.HEAD)) {
@@ -309,7 +309,7 @@ public class ServerTaskInfoClasses {
                             BlockEntityInfo blockEntityInfo = new BlockEntityInfo(
                                     entity.saveCustomOnly(serverWorld.registryAccess()),
                                     entity.components());
-                            list3.add(new GameFunctions.BlockInfo(blockPos7, blockState, blockEntityInfo));
+                            list3.add(new GameUtils.BlockInfo(blockPos7, blockState, blockEntityInfo));
                             // deque.addLast(blockPos6); // Add to end to process last
                         }
                     }
@@ -320,14 +320,14 @@ public class ServerTaskInfoClasses {
                         BlockEntityInfo blockEntityInfo = new BlockEntityInfo(
                                 entity.saveCustomOnly(serverWorld.registryAccess()),
                                 entity.components());
-                        list3.add(new GameFunctions.BlockInfo(blockPos7, blockState, blockEntityInfo));
+                        list3.add(new GameUtils.BlockInfo(blockPos7, blockState, blockEntityInfo));
                     }
                 } else if (blockState.getBlock() instanceof LecternBlock) {
                     if (serverWorld.getBlockEntity(blockPos6) instanceof LecternBlockEntity entity) {
                         BlockEntityInfo blockEntityInfo = new BlockEntityInfo(
                                 entity.saveCustomOnly(serverWorld.registryAccess()),
                                 entity.components());
-                        list3.add(new GameFunctions.BlockInfo(blockPos7, blockState, blockEntityInfo));
+                        list3.add(new GameUtils.BlockInfo(blockPos7, blockState, blockEntityInfo));
                     }
                 } else if (blockState.getBlock() instanceof SprinklerBlock) {
                     if (serverWorld.getBlockEntity(blockPos6) instanceof SprinklerBlockEntity entity) {
@@ -336,47 +336,47 @@ public class ServerTaskInfoClasses {
                                 entity.saveCustomOnly(serverWorld.registryAccess()),
                                 entity.components());
                         blockState = blockState.setValue(SprinklerBlock.POWERED, false);
-                        list3.add(new GameFunctions.BlockInfo(blockPos7, blockState, blockEntityInfo));
+                        list3.add(new GameUtils.BlockInfo(blockPos7, blockState, blockEntityInfo));
                     }
                 } else if (blockState.getBlock() instanceof NeonPillarBlock) {
                     blockState = blockState.setValue(NeonPillarBlock.ACTIVE, true);
                     blockState = blockState.setValue(NeonPillarBlock.LIT, true);
-                    list2.add(new GameFunctions.BlockInfo(blockPos7, blockState, null));
+                    list2.add(new GameUtils.BlockInfo(blockPos7, blockState, null));
                 } else if (blockState.getBlock() instanceof NeonTubeBlock) {
                     blockState = blockState.setValue(NeonTubeBlock.ACTIVE, true);
                     blockState = blockState.setValue(NeonTubeBlock.LIT, true);
-                    list2.add(new GameFunctions.BlockInfo(blockPos7, blockState, null));
+                    list2.add(new GameUtils.BlockInfo(blockPos7, blockState, null));
                 } else if (blockState.getBlock() instanceof NeonTubeBlock) {
                     blockState = blockState.setValue(NeonTubeBlock.ACTIVE, true);
                     blockState = blockState.setValue(NeonTubeBlock.LIT, true);
-                    list2.add(new GameFunctions.BlockInfo(blockPos7, blockState, null));
+                    list2.add(new GameUtils.BlockInfo(blockPos7, blockState, null));
                 } else if (blockState.getBlock() instanceof ToggleableFacingLightBlock) {
                     blockState = blockState.setValue(ToggleableFacingLightBlock.ACTIVE, true);
                     blockState = blockState.setValue(ToggleableFacingLightBlock.LIT, true);
-                    list2.add(new GameFunctions.BlockInfo(blockPos7, blockState, null));
+                    list2.add(new GameUtils.BlockInfo(blockPos7, blockState, null));
                 } else if (blockState.getBlock() instanceof VentHatchBlock) {
                     blockState = blockState.setValue(VentHatchBlock.OPEN, false);
-                    list2.add(new GameFunctions.BlockInfo(blockPos7, blockState, null));
+                    list2.add(new GameUtils.BlockInfo(blockPos7, blockState, null));
                 }
             }
 
-            List<GameFunctions.BlockInfo> list4 = Lists.newArrayList();
+            List<GameUtils.BlockInfo> list4 = Lists.newArrayList();
             list4.addAll(list2); // Only doors
-            List<GameFunctions.BlockInfo> list_onlyBlockEntity = Lists.newArrayList();
+            List<GameUtils.BlockInfo> list_onlyBlockEntity = Lists.newArrayList();
             list_onlyBlockEntity.addAll(list2);
             list_onlyBlockEntity.addAll(list3);
-            List<GameFunctions.BlockInfo> list6 = Lists.newArrayList();
+            List<GameUtils.BlockInfo> list6 = Lists.newArrayList();
             list6.addAll(list4);
             list6.addAll(list3);
-            List<GameFunctions.BlockInfo> list5 = Lists.reverse(list6);
+            List<GameUtils.BlockInfo> list5 = Lists.reverse(list6);
             // list_Doorlike
             // Clear only the door locations with barrier blocks
-            for (GameFunctions.BlockInfo blockInfo : list5) {
+            for (GameUtils.BlockInfo blockInfo : list5) {
                 BlockEntity blockEntity3 = serverWorld.getBlockEntity(blockInfo.pos());
                 Clearable.tryClear(blockEntity3);
             }
 
-            for (GameFunctions.BlockInfo blockInfo : list4) {
+            for (GameUtils.BlockInfo blockInfo : list4) {
                 serverWorld.setBlock(blockInfo.pos(), Blocks.BARRIER.defaultBlockState(), Block.UPDATE_CLIENTS);
             }
 
@@ -384,7 +384,7 @@ public class ServerTaskInfoClasses {
             int mx = 1;
 
             // Place the doors back
-            for (GameFunctions.BlockInfo blockInfo2 : list4) {
+            for (GameUtils.BlockInfo blockInfo2 : list4) {
                 if (serverWorld.setBlock(blockInfo2.pos(), blockInfo2.state(),
                         Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE)) {
                     mx++;
@@ -393,7 +393,7 @@ public class ServerTaskInfoClasses {
             }
 
             // Restore block entities for doors
-            for (GameFunctions.BlockInfo blockInfo2x : list_onlyBlockEntity) {
+            for (GameUtils.BlockInfo blockInfo2x : list_onlyBlockEntity) {
                 BlockEntity blockEntity4 = serverWorld.getBlockEntity(blockInfo2x.pos());
                 if (blockInfo2x.blockEntityInfo() != null && blockEntity4 != null) {
                     blockEntity4.loadCustomOnly(blockInfo2x.blockEntityInfo().nbt(), serverWorld.registryAccess());
@@ -401,7 +401,7 @@ public class ServerTaskInfoClasses {
                     blockEntity4.setChanged();
                 }
             }
-            for (GameFunctions.BlockInfo blockInfo2x : list5) {
+            for (GameUtils.BlockInfo blockInfo2x : list5) {
                 serverWorld.blockUpdated(blockInfo2x.pos(), blockInfo2x.state().getBlock());
                 serverWorld.getLightEngine().checkBlock(blockInfo2x.pos());
             }
@@ -437,7 +437,7 @@ public class ServerTaskInfoClasses {
 
             if (shouldStartGame) {
                 SRE.LOGGER.info("RESETING MAP FINISHED. STARTING THE GAME.");
-                GameFunctions.trueStartGame(this.world, this.gameMode, this.time);
+                GameUtils.trueStartGame(this.world, this.gameMode, this.time);
                 //
                 this.world.players().forEach((p) -> {
                     p.displayClientMessage(

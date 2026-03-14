@@ -3,7 +3,7 @@ package org.agmas.noellesroles.client.widget;
 import org.agmas.noellesroles.client.screen.GamblerScreen;
 import org.agmas.noellesroles.utils.RoleUtils;
 
-import io.wifi.starrailexpress.api.Role;
+import io.wifi.starrailexpress.api.SRERole;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
@@ -22,12 +22,12 @@ import net.minecraft.network.chat.Component;
 public class GamblerRoleWidget extends Button {
 
     public final GamblerScreen screen;
-    public final Role role;
+    public final SRERole role;
     private final int buttonWidth;
     private final int buttonHeight;
 
     public GamblerRoleWidget(GamblerScreen screen, int x, int y, int width, int height,
-            @NotNull Role role, int index) {
+            @NotNull SRERole role, int index) {
         super(x, y, width, height, RoleUtils.getRoleName(role),
                 (button) -> screen.onRoleSelected(role),
                 DEFAULT_NARRATION);

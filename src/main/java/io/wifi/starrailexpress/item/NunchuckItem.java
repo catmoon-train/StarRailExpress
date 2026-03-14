@@ -1,8 +1,8 @@
 package io.wifi.starrailexpress.item;
 
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.network.original.NunchuckHitPayload;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.world.InteractionHand;
@@ -47,7 +47,7 @@ public class NunchuckItem extends Item {
             }
         } else {
             // 服务端检查角色权限
-            StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(world);
+            SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(world);
             final var role = gameWorldComponent.getRole(user);
             if (role != null && !role.onUseGun(user)) {
                 return InteractionResultHolder.fail(stack);
@@ -65,7 +65,7 @@ public class NunchuckItem extends Item {
 
         HitResult hitResult = ProjectileUtil.getHitResultOnViewVector(user,
                 entity -> entity instanceof Player player &&
-                        GameFunctions.isPlayerAliveAndSurvival(player) &&
+                        GameUtils.isPlayerAliveAndSurvival(player) &&
                         player != user,
                 4.0F);
 

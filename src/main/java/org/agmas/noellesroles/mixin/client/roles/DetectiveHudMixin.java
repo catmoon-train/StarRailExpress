@@ -2,8 +2,8 @@ package org.agmas.noellesroles.mixin.client.roles;
 
 import org.agmas.noellesroles.component.DetectivePlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -33,11 +33,11 @@ public class DetectiveHudMixin {
         if(client.player.isSpectator()) return;
         
         // 检查是否是私家侦探
-        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(client.level);
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(client.level);
         if (!gameWorld.isRole(client.player, ModRoles.DETECTIVE)) return;
         
         // 检查玩家是否存活
-        if (!GameFunctions.isPlayerAliveAndSurvival(client.player)) return;
+        if (!GameUtils.isPlayerAliveAndSurvival(client.player)) return;
         
         // 获取私家侦探组件
         DetectivePlayerComponent detectiveComponent = DetectivePlayerComponent.KEY.get(client.player);

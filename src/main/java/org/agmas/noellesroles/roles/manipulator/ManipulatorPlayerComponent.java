@@ -1,7 +1,7 @@
 
 package org.agmas.noellesroles.roles.manipulator;
 
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -109,7 +109,7 @@ public class ManipulatorPlayerComponent implements RoleComponent, ServerTickingC
         if (targetUuid.equals(player.getUUID()))
             return;
 
-        if (!GameFunctions.isPlayerAliveAndSurvival(targetPlayer))
+        if (!GameUtils.isPlayerAliveAndSurvival(targetPlayer))
             return;
         isControlling = true;
         float percent = 0.5f;
@@ -117,7 +117,7 @@ public class ManipulatorPlayerComponent implements RoleComponent, ServerTickingC
         var players = sp.level().players();
         int playerCount = players.size();
         for (var spp : players) {
-            if (GameFunctions.isPlayerAliveAndSurvival(spp)) {
+            if (GameUtils.isPlayerAliveAndSurvival(spp)) {
                 alivePlayerCount++;
             }
         }
@@ -194,7 +194,7 @@ public class ManipulatorPlayerComponent implements RoleComponent, ServerTickingC
     @Override
     public void serverTick() {
 
-        if (!GameFunctions.isPlayerAliveAndSurvival(player)) {
+        if (!GameUtils.isPlayerAliveAndSurvival(player)) {
             if (this.isControlling) {
                 this.stopControl(false);
             }

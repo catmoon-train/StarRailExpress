@@ -4,9 +4,9 @@ package io.wifi.starrailexpress.client.gui.screen;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 
-import io.wifi.starrailexpress.api.Role;
+import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
-import io.wifi.starrailexpress.cca.PlayerStatsComponent;
+import io.wifi.starrailexpress.cca.SREPlayerStatsComponent;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.replay.ReplayDisplayUtils;
 import net.minecraft.client.Minecraft;
@@ -27,9 +27,9 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 
 public class RoleStatsPanel implements Renderable, GuiEventListener, NarratableEntry {
-    private final PlayerStatsComponent stats; // 玩家统计数据组件
-    private Role selectedRole; // 当前选中的角色
-    private PlayerStatsComponent.RoleStats selectedRoleStats; // 当前选中角色的统计数据
+    private final SREPlayerStatsComponent stats; // 玩家统计数据组件
+    private SRERole selectedRole; // 当前选中的角色
+    private SREPlayerStatsComponent.RoleStats selectedRoleStats; // 当前选中角色的统计数据
     private ScrollableRoleListComponent roleListComponent; // 滚动角色列表组件
     private RoleDetailsComponent roleDetailsComponent; // 角色详情组件
     private EditBox searchBox; // 搜索框
@@ -58,7 +58,7 @@ public class RoleStatsPanel implements Renderable, GuiEventListener, NarratableE
      * @param height 高度
      * @param stats 玩家统计数据
      */
-    public RoleStatsPanel(int x, int y, int width, int height, PlayerStatsComponent stats) {
+    public RoleStatsPanel(int x, int y, int width, int height, SREPlayerStatsComponent stats) {
         this.x = x;
         this.y = y;
         this.width = width;
@@ -152,9 +152,9 @@ public class RoleStatsPanel implements Renderable, GuiEventListener, NarratableE
         );
 
         // 准备角色数据并排序
-        List<Role> roles = new ArrayList<>();
-        Map<ResourceLocation, PlayerStatsComponent.RoleStats> roleStatsMap = stats.getRoleStats();
-        for (Role role : TMMRoles.ROLES.values()) {
+        List<SRERole> roles = new ArrayList<>();
+        Map<ResourceLocation, SREPlayerStatsComponent.RoleStats> roleStatsMap = stats.getRoleStats();
+        for (SRERole role : TMMRoles.ROLES.values()) {
             if (roleStatsMap.containsKey(role.identifier())) {
                 roles.add(role);
             }
@@ -195,7 +195,7 @@ public class RoleStatsPanel implements Renderable, GuiEventListener, NarratableE
      * @param role 选中的角色
      * @param roleStats 选中角色的统计数据
      */
-    private void onRoleSelected(Role role, PlayerStatsComponent.RoleStats roleStats) {
+    private void onRoleSelected(SRERole role, SREPlayerStatsComponent.RoleStats roleStats) {
         selectedRole = role;
         selectedRoleStats = roleStats;
         roleDetailsComponent.setRole(role, roleStats);
@@ -304,7 +304,7 @@ public class RoleStatsPanel implements Renderable, GuiEventListener, NarratableE
      * 获取当前选中的角色
      * @return 选中的角色
      */
-    public Role getSelectedRole() {
+    public SRERole getSelectedRole() {
         return selectedRole;
     }
 
@@ -312,7 +312,7 @@ public class RoleStatsPanel implements Renderable, GuiEventListener, NarratableE
      * 获取当前选中角色的统计数据
      * @return 角色统计数据
      */
-    public PlayerStatsComponent.RoleStats getSelectedRoleStats() {
+    public SREPlayerStatsComponent.RoleStats getSelectedRoleStats() {
         return selectedRoleStats;
     }
 
@@ -320,14 +320,14 @@ public class RoleStatsPanel implements Renderable, GuiEventListener, NarratableE
      * 滚动角色列表组件 - 用于显示可滚动的角色列表
      */
     private static class ScrollableRoleListComponent extends AbstractWidget {
-        private final BiConsumer<Role, PlayerStatsComponent.RoleStats> onRoleSelected; // 角色选择回调
-        private List<Role> allRoles; // 所有角色列表
-        private Map<ResourceLocation, PlayerStatsComponent.RoleStats> roleStatsMap; // 角色统计数据映射
-        private List<Role> filteredRoles; // 过滤后的角色列表
+        private final BiConsumer<SRERole, SREPlayerStatsComponent.RoleStats> onRoleSelected; // 角色选择回调
+        private List<SRERole> allRoles; // 所有角色列表
+        private Map<ResourceLocation, SREPlayerStatsComponent.RoleStats> roleStatsMap; // 角色统计数据映射
+        private List<SRERole> filteredRoles; // 过滤后的角色列表
         private double scrollAmount = 0.0; // 滚动量
         private static final int SCROLLBAR_WIDTH = 6; // 滚动条宽度
         private final int itemHeight = 24; // 每个项目的高度
-        private Role selectedRole; // 选中的角色
+        private SRERole selectedRole; // 选中的角色
         private double initialMouseY = -1; // 初始鼠标Y坐标（用于拖拽滚动）
         private double initialScrollAmount; // 初始滚动量
 
@@ -339,7 +339,7 @@ public class RoleStatsPanel implements Renderable, GuiEventListener, NarratableE
          * @param height 高度
          * @param onRoleSelected 角色选择回调
          */
-        public ScrollableRoleListComponent(int x, int y, int width, int height, BiConsumer<Role, PlayerStatsComponent.RoleStats> onRoleSelected) {
+        public ScrollableRoleListComponent(int x, int y, int width, int height, BiConsumer<SRERole, SREPlayerStatsComponent.RoleStats> onRoleSelected) {
             super(x, y, width, height, Component.empty());
             this.onRoleSelected = onRoleSelected;
             this.allRoles = new ArrayList<>();
@@ -351,7 +351,7 @@ public class RoleStatsPanel implements Renderable, GuiEventListener, NarratableE
          * @param roles 角色列表
          * @param roleStatsMap 角色统计数据映射
          */
-        public void setRoles(List<Role> roles, Map<ResourceLocation, PlayerStatsComponent.RoleStats> roleStatsMap) {
+        public void setRoles(List<SRERole> roles, Map<ResourceLocation, SREPlayerStatsComponent.RoleStats> roleStatsMap) {
             this.allRoles = roles;
             this.roleStatsMap = roleStatsMap;
             this.filteredRoles = new ArrayList<>(roles);
@@ -396,8 +396,8 @@ public class RoleStatsPanel implements Renderable, GuiEventListener, NarratableE
 
             // 渲染可见的角色项
             for (int i = startIndex; i < endIndex; i++) {
-                Role role = filteredRoles.get(i);
-                PlayerStatsComponent.RoleStats stats = roleStatsMap.get(role.identifier());
+                SRERole role = filteredRoles.get(i);
+                SREPlayerStatsComponent.RoleStats stats = roleStatsMap.get(role.identifier());
                 int itemY = getY() + (i * itemHeight) - (int) getScrollAmount();
                 boolean isSelected = role.equals(selectedRole);
                 graphics.fill(getX(), itemY, getX() + getWidth(), itemY + itemHeight, isSelected ? 0x60FFFFFF : 0x20FFFFFF);
@@ -549,8 +549,8 @@ public class RoleStatsPanel implements Renderable, GuiEventListener, NarratableE
      * 角色详情组件 - 显示选中角色的详细统计数据
      */
     private static class RoleDetailsComponent extends AbstractWidget {
-        private Role role; // 角色
-        private PlayerStatsComponent.RoleStats roleStats; // 角色统计数据
+        private SRERole role; // 角色
+        private SREPlayerStatsComponent.RoleStats roleStats; // 角色统计数据
 
         /**
          * 构造函数
@@ -568,7 +568,7 @@ public class RoleStatsPanel implements Renderable, GuiEventListener, NarratableE
          * @param role 角色
          * @param roleStats 角色统计数据
          */
-        public void setRole(Role role, PlayerStatsComponent.RoleStats roleStats) {
+        public void setRole(SRERole role, SREPlayerStatsComponent.RoleStats roleStats) {
             this.role = role;
             this.roleStats = roleStats;
         }

@@ -3,7 +3,7 @@ package io.wifi.starrailexpress.cca;
 import com.mojang.authlib.GameProfile;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.client.gui.RoleAnnouncementTexts;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -22,12 +22,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class StarGameRoundEndComponent implements AutoSyncedComponent {
-    public static final ComponentKey<StarGameRoundEndComponent> KEY = ComponentRegistry
-            .getOrCreate(io.wifi.starrailexpress.SRE.id("round_end"), StarGameRoundEndComponent.class);
+public class SREGameRoundEndComponent implements AutoSyncedComponent {
+    public static final ComponentKey<SREGameRoundEndComponent> KEY = ComponentRegistry
+            .getOrCreate(io.wifi.starrailexpress.SRE.id("round_end"), SREGameRoundEndComponent.class);
     private final Level world;
     public final List<RoundEndData> players = new ArrayList<>();
-    private GameFunctions.WinStatus winStatus = GameFunctions.WinStatus.NONE;
+    private GameUtils.WinStatus winStatus = GameUtils.WinStatus.NONE;
     public ArrayList<UUID> CustomWinnerPlayers = new ArrayList<>();
 
     public Component CustomWinnerTitle = null;
@@ -35,7 +35,7 @@ public class StarGameRoundEndComponent implements AutoSyncedComponent {
     public String CustomWinnerID = "";
     public int CustomWinnerColor = 0;
 
-    public StarGameRoundEndComponent(Level world) {
+    public SREGameRoundEndComponent(Level world) {
         this.world = world;
     }
 
@@ -54,11 +54,11 @@ public class StarGameRoundEndComponent implements AutoSyncedComponent {
         }
     }
 
-    public void setRoundEndData(@NotNull List<ServerPlayer> players, GameFunctions.WinStatus winStatus) {
+    public void setRoundEndData(@NotNull List<ServerPlayer> players, GameUtils.WinStatus winStatus) {
         this.players.clear();
         for (ServerPlayer player : players) {
             RoleAnnouncementTexts.RoleAnnouncementText role = RoleAnnouncementTexts.BLANK;
-            StarGameWorldComponent game = StarGameWorldComponent.KEY.get(this.world);
+            SREGameWorldComponent game = SREGameWorldComponent.KEY.get(this.world);
             if (game.canUseKillerFeatures(player)) {
                 role = RoleAnnouncementTexts.getRoleAnnouncementText(TMMRoles.KILLER.identifier());
             } else if (game.isRole(player, TMMRoles.VIGILANTE)) {
@@ -75,7 +75,7 @@ public class StarGameRoundEndComponent implements AutoSyncedComponent {
                 // }
             }
             this.players.add(new RoundEndData(player.getGameProfile(), role,
-                    !io.wifi.starrailexpress.game.GameFunctions.isPlayerAliveAndSurvival(player), false));
+                    !io.wifi.starrailexpress.game.GameUtils.isPlayerAliveAndSurvival(player), false));
         }
         this.winStatus = winStatus;
         this.sync();
@@ -98,11 +98,11 @@ public class StarGameRoundEndComponent implements AutoSyncedComponent {
         return Component.empty();
     }
 
-    public GameFunctions.WinStatus getWinStatus() {
+    public GameUtils.WinStatus getWinStatus() {
         return winStatus;
     }
 
-    public void setWinStatus(GameFunctions.WinStatus winStatus) {
+    public void setWinStatus(GameUtils.WinStatus winStatus) {
         this.winStatus = winStatus;
         this.sync();
     }
@@ -115,7 +115,7 @@ public class StarGameRoundEndComponent implements AutoSyncedComponent {
         // this.CustomWinnerPlayers.add(NbtUtils.loadUUID((CompoundTag) element));
         for (Tag element : tag.getList("players", 10))
             this.players.add(new RoundEndData((CompoundTag) element));
-        this.winStatus = GameFunctions.WinStatus.values()[tag.getInt("winstatus")];
+        this.winStatus = GameUtils.WinStatus.values()[tag.getInt("winstatus")];
         if (tag.contains("winner_title")) {
             String winner_title = tag.getString("winner_title");
             try {
@@ -139,7 +139,7 @@ public class StarGameRoundEndComponent implements AutoSyncedComponent {
     }
 
     public boolean didWin(UUID uuid) {
-        if (GameFunctions.WinStatus.NONE == this.winStatus)
+        if (GameUtils.WinStatus.NONE == this.winStatus)
             return false;
         for (RoundEndData detail : this.players) {
             if (!detail.player.getId().equals(uuid))

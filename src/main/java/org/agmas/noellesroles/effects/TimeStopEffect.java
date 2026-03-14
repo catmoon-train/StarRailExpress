@@ -1,8 +1,8 @@
 package org.agmas.noellesroles.effects;
 
-import io.wifi.starrailexpress.cca.StarGameTimeComponent;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.cca.SREGameTimeComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.network.TriggerStatusBarPayload;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.chat.Component;
@@ -57,10 +57,10 @@ public class TimeStopEffect extends MobEffect {
     public static void triggerStart(ServerPlayer serverPlayer, int time, Component displaySkillTitle) {
         canMovePlayers.clear();
         canMovePlayers.add(serverPlayer.getUUID());
-        StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(serverPlayer.level());
+        SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(serverPlayer.level());
         var broadcastMessage = displaySkillTitle;
 
-        StarGameTimeComponent gameTimeComponent = StarGameTimeComponent.KEY.get(serverPlayer.level());
+        SREGameTimeComponent gameTimeComponent = SREGameTimeComponent.KEY.get(serverPlayer.level());
         gameTimeComponent.setTime(gameTimeComponent.time + time);
         ServerPlayNetworking.send(serverPlayer, new TriggerStatusBarPayload("Time_Stop"));
         serverPlayer.serverLevel().players().forEach(
@@ -73,7 +73,7 @@ public class TimeStopEffect extends MobEffect {
 
                     BroadcastCommand.BroadcastMessage(player, broadcastMessage);
 
-                    if (!GameFunctions.isPlayerAliveAndSurvival(player)) {
+                    if (!GameUtils.isPlayerAliveAndSurvival(player)) {
                         if (WorldModifierComponent.KEY.get(player.level()).isModifier(player,
                                 SEModifiers.SPLIT_PERSONALITY)) {
 

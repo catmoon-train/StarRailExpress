@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.component;
 
-import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -136,7 +136,7 @@ public class AccountantPlayerComponent implements RoleComponent, ServerTickingCo
 
     @Override
     public void serverTick() {
-        StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(player.level());
+        SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
         if (gameWorldComponent == null)
             return;
         if (!gameWorldComponent.isRunning())
@@ -182,7 +182,7 @@ public class AccountantPlayerComponent implements RoleComponent, ServerTickingCo
         if (!(player instanceof ServerPlayer serverPlayer))
             return;
 
-        StarPlayerShopComponent shopComponent = StarPlayerShopComponent.KEY.get(player);
+        SREPlayerShopComponent shopComponent = SREPlayerShopComponent.KEY.get(player);
         shopComponent.balance += PASSIVE_INCOME_AMOUNT;
         shopComponent.sync();
 
@@ -225,7 +225,7 @@ public class AccountantPlayerComponent implements RoleComponent, ServerTickingCo
             return;
 
         // 检查金币是否足够
-        StarPlayerShopComponent shopComponent = StarPlayerShopComponent.KEY.get(player);
+        SREPlayerShopComponent shopComponent = SREPlayerShopComponent.KEY.get(player);
         if (shopComponent.balance < SKILL_COST) {
             serverPlayer.displayClientMessage(
                     Component.translatable("message.noellesroles.accountant.insufficient_funds", SKILL_COST)
@@ -266,7 +266,7 @@ public class AccountantPlayerComponent implements RoleComponent, ServerTickingCo
         }
 
         // 检查目标玩家金币数量
-        StarPlayerShopComponent targetShop = StarPlayerShopComponent.KEY.get(target);
+        SREPlayerShopComponent targetShop = SREPlayerShopComponent.KEY.get(target);
         int targetBalance = targetShop.balance;
 
         if (targetBalance >= INCOME_QUERY_THRESHOLD) {
@@ -309,7 +309,7 @@ public class AccountantPlayerComponent implements RoleComponent, ServerTickingCo
 
         // 标记玩家
         markedPlayerUUID = target.getUUID();
-        StarPlayerShopComponent targetShop = StarPlayerShopComponent.KEY.get(target);
+        SREPlayerShopComponent targetShop = SREPlayerShopComponent.KEY.get(target);
         markedPlayerInitialBalance = targetShop.balance;
         markTimer = EXPENSE_QUERY_TIME_RANGE;
 
@@ -350,7 +350,7 @@ public class AccountantPlayerComponent implements RoleComponent, ServerTickingCo
         }
 
         // 对比金币数
-        StarPlayerShopComponent targetShop = StarPlayerShopComponent.KEY.get(target);
+        SREPlayerShopComponent targetShop = SREPlayerShopComponent.KEY.get(target);
         int currentBalance = targetShop.balance;
         int difference = currentBalance - markedPlayerInitialBalance;
 

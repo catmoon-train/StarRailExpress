@@ -1,7 +1,7 @@
 package pro.fazeclan.river.stupid_express.role.arsonist;
 
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -24,7 +24,7 @@ public class OilDousingHandler {
             if (!interacting.gameMode.isSurvival()) {
                 return InteractionResult.PASS;
             }
-            StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(player.level());
+            SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
             if (!gameWorldComponent.isRole(player, SERoles.ARSONIST)) {
                 return InteractionResult.PASS;
             }
@@ -47,7 +47,7 @@ public class OilDousingHandler {
                 return InteractionResult.PASS;
             }
             if (interacting.gameMode.isSurvival()) {
-                var alivePlayers = ((ServerLevel) level).getPlayers(GameFunctions::isPlayerAliveAndSurvival);
+                var alivePlayers = ((ServerLevel) level).getPlayers(GameUtils::isPlayerAliveAndSurvival);
                 var playerCount = alivePlayers.size();
                 var dousedPlayers = alivePlayers.stream().filter(p -> DousedPlayerComponent.KEY.get(p).getDoused())
                         .toList();

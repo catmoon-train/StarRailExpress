@@ -1,8 +1,8 @@
 package org.agmas.noellesroles.mixin;
 
 import io.wifi.starrailexpress.api.TMMRoles;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
-import io.wifi.starrailexpress.cca.StarPlayerPsychoComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
 import org.spongepowered.asm.mixin.Mixin;
@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
  * PlayerPsychoComponentMixin
  * - 在疯狂模式停止时，清除魔术师的假球棒
  */
-@Mixin(StarPlayerPsychoComponent.class)
+@Mixin(SREPlayerPsychoComponent.class)
 public class PlayerPsychoComponentMixin {
 
     /**
@@ -23,10 +23,10 @@ public class PlayerPsychoComponentMixin {
      */
     @Inject(method = "stopPsycho", at = @At("TAIL"))
     private void noellesroles$clearFakeBatWhenPsychoEnds(CallbackInfoReturnable<Integer> cir) {
-        StarPlayerPsychoComponent psychoComponent = (StarPlayerPsychoComponent) (Object) this;
+        SREPlayerPsychoComponent psychoComponent = (SREPlayerPsychoComponent) (Object) this;
         var player = psychoComponent.getPlayer();
         
-        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.level());
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
         var magicianRole = TMMRoles.ROLES.get(ModRoles.MAGICIAN_ID);
         
         // 检查是否是魔术师

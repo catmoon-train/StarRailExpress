@@ -1,9 +1,9 @@
 package io.wifi.starrailexpress.network.original;
 
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
-import io.wifi.starrailexpress.cca.PlayerNunchuckComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerNunchuckComponent;
 import io.wifi.starrailexpress.game.GameConstants;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.item.NunchuckItem;
@@ -57,20 +57,20 @@ public record NunchuckHitPayload(int targetId, int direction) implements CustomP
         }
 
         // 检查游戏状态
-        StarGameWorldComponent game = StarGameWorldComponent.KEY.get(attacker.level());
+        SREGameWorldComponent game = SREGameWorldComponent.KEY.get(attacker.level());
         final var role = game.getRole(attacker);
         if (role != null && !role.onGunHit(attacker, target)) {
             return;
         }
 
         // 检查目标是否存活
-        if (!GameFunctions.isPlayerAliveAndSurvival(target)) {
+        if (!GameUtils.isPlayerAliveAndSurvival(target)) {
             return;
         }
 
         // 获取攻击者的双节棍组件
-        PlayerNunchuckComponent attackerComponent = PlayerNunchuckComponent.KEY.get(attacker);
-        PlayerNunchuckComponent.AttackRecord attackRecord = attackerComponent.getAttackRecord();
+        SREPlayerNunchuckComponent attackerComponent = SREPlayerNunchuckComponent.KEY.get(attacker);
+        SREPlayerNunchuckComponent.AttackRecord attackRecord = attackerComponent.getAttackRecord();
 
         // 检查该招式是否在7秒冷却中
         if (attackerComponent.isMoveOnCooldown(direction_, 140)) {
@@ -113,8 +113,8 @@ public record NunchuckHitPayload(int targetId, int direction) implements CustomP
         boolean targetNearBlock = NunchuckItem.isPlayerNearBlock(target);
 
         // 获取目标的击打记录组件
-        PlayerNunchuckComponent targetComponent = PlayerNunchuckComponent.KEY.get(target);
-        PlayerNunchuckComponent.HitRecord record = targetComponent.getHitRecord(attacker.getUUID());
+        SREPlayerNunchuckComponent targetComponent = SREPlayerNunchuckComponent.KEY.get(target);
+        SREPlayerNunchuckComponent.HitRecord record = targetComponent.getHitRecord(attacker.getUUID());
 
         boolean shouldKill = false;
 
@@ -140,7 +140,7 @@ public record NunchuckHitPayload(int targetId, int direction) implements CustomP
 
         // 如果应该击杀，执行击杀
         if (shouldKill) {
-            GameFunctions.killPlayer(target, true, attacker, GameConstants.DeathReasons.NUNCHUCK);
+            GameUtils.killPlayer(target, true, attacker, GameConstants.DeathReasons.NUNCHUCK);
             targetComponent.clearHitRecord(attacker.getUUID());
 
             // 设置物品冷却

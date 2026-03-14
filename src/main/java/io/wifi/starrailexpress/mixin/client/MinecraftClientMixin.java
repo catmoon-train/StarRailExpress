@@ -5,7 +5,7 @@ import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
-import io.wifi.starrailexpress.cca.StarPlayerPsychoComponent;
+import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
@@ -45,7 +45,7 @@ public class MinecraftClientMixin {
     @WrapOperation(method = "handleKeybinds", at = @At(value = "FIELD", target = "Lnet/minecraft/world/entity/player/Inventory;selected:I"))
     private void tmm$invalid(@NotNull Inventory instance, int value, Operation<Void> original) {
         int oldSlot = instance.selected;
-        StarPlayerPsychoComponent component = StarPlayerPsychoComponent.KEY.get(instance.player);
+        SREPlayerPsychoComponent component = SREPlayerPsychoComponent.KEY.get(instance.player);
         if (component.getPsychoTicks() > 0 &&
                 (instance.getItem(oldSlot).is(TMMItems.BAT)) &&
                 (!instance.getItem(value).is(TMMItems.BAT))

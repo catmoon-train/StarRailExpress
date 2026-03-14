@@ -11,16 +11,16 @@ import org.jetbrains.annotations.NotNull;
 import com.mojang.authlib.GameProfile;
 import com.mojang.blaze3d.systems.RenderSystem;
 
-import io.wifi.starrailexpress.api.Role;
+import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.api.TMMRoles;
-import io.wifi.starrailexpress.cca.StarGameRoundEndComponent;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.event.OnRoundStartWelcomeTimmer;
 import io.wifi.starrailexpress.game.GameConstants;
-import io.wifi.starrailexpress.game.GameFunctions;
-import io.wifi.starrailexpress.game.GameFunctions.WinStatus;
+import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.game.GameUtils.WinStatus;
 import io.wifi.starrailexpress.index.TMMSounds;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -47,11 +47,11 @@ public class RoundTextRenderer {
     public static int targets = 0;
     public static int endTime = 0;
 
-    public static Map<UUID, Role> lastRole = new HashMap<>();
+    public static Map<UUID, SRERole> lastRole = new HashMap<>();
 
     @SuppressWarnings("IntegerDivisionInFloatingPointContext")
     public static void renderHud(Font renderer, LocalPlayer player, @NotNull GuiGraphics context, float partialTicks) {
-        boolean isLooseEnds = StarGameWorldComponent.KEY.get(player.level()).getGameMode() == SREGameModes.LOOSE_ENDS;
+        boolean isLooseEnds = SREGameWorldComponent.KEY.get(player.level()).getGameMode() == SREGameModes.LOOSE_ENDS;
 
         if (welcomeTime > 0) {
             if (welcomeTime <= WELCOME_DURATION - GameConstants.FADE_TIME + 15) {
@@ -93,10 +93,10 @@ public class RoundTextRenderer {
             context.pose().popPose();
             context.pose().popPose();
         }
-        StarGameWorldComponent game = StarGameWorldComponent.KEY.get(player.level());
+        SREGameWorldComponent game = SREGameWorldComponent.KEY.get(player.level());
         if (endTime > 0 && endTime < END_DURATION - (GameConstants.FADE_TIME * 2) && !game.isRunning()) {
-            StarGameRoundEndComponent roundEnd = StarGameRoundEndComponent.KEY.get(player.level());
-            if (roundEnd.getWinStatus() == GameFunctions.WinStatus.NONE)
+            SREGameRoundEndComponent roundEnd = SREGameRoundEndComponent.KEY.get(player.level());
+            if (roundEnd.getWinStatus() == GameUtils.WinStatus.NONE)
                 return;
             Player winner = null;
             if (game.getLooseEndWinner() != null)
@@ -120,7 +120,7 @@ public class RoundTextRenderer {
                 context.drawString(renderer, RoleAnnouncementTexts.LOOSE_END.titleText,
                         -renderer.width(RoleAnnouncementTexts.LOOSE_END.titleText) / 2, 14, 0xFFFFFF);
                 int looseEnds = 0;
-                for (StarGameRoundEndComponent.RoundEndData entry : roundEnd.players) {
+                for (SREGameRoundEndComponent.RoundEndData entry : roundEnd.players) {
                     context.pose().pushPose();
                     context.pose().scale(2f, 2f, 1f);
                     context.pose().translate(((looseEnds % 6) - 3.5) * 12, 14 + (looseEnds / 6) * 12, 0);
@@ -154,7 +154,7 @@ public class RoundTextRenderer {
                 int vigilanteTotal = 1;
                 int loose_endsTotal = 1;
 
-                for (StarGameRoundEndComponent.RoundEndData entry : roundEnd.players) {
+                for (SREGameRoundEndComponent.RoundEndData entry : roundEnd.players) {
                     final var role1 = lastRole.get(entry.player().getId());
                     if (role1 != null)
                         if (role1.identifier().getPath().equals(TMMRoles.LOOSE_END.identifier().getPath())) {
@@ -190,7 +190,7 @@ public class RoundTextRenderer {
                 int killers = 0;
                 int loose_ends = 0;
 
-                for (StarGameRoundEndComponent.RoundEndData entry : roundEnd.players) {
+                for (SREGameRoundEndComponent.RoundEndData entry : roundEnd.players) {
                     context.pose().pushPose();
                     context.pose().scale(2f, 2f, 1f);
 
@@ -198,7 +198,7 @@ public class RoundTextRenderer {
                         continue;
 
                     final var role1 = lastRole.get(entry.player().getId());
-                    final Role role2 = role1;
+                    final SRERole role2 = role1;
 
                     if (role1 == null || role1 != null && role1.isInnocent() && !role1.canUseKiller()
                             && ((role2 != null && !role2.isNeutrals() && !role2.isVigilanteTeam()))) {
@@ -306,7 +306,7 @@ public class RoundTextRenderer {
 
     }
 
-    private static MutableComponent getWinMessage(StarGameRoundEndComponent roundEnd, Player winner) {
+    private static MutableComponent getWinMessage(SREGameRoundEndComponent roundEnd, Player winner) {
         if (roundEnd.getWinStatus().equals(WinStatus.CUSTOM)) {
             if (winner != null) {
                 return Component.translatable("game.win.star." + roundEnd.CustomWinnerID,
@@ -366,7 +366,7 @@ public class RoundTextRenderer {
                 if (endTime == END_DURATION - (GameConstants.FADE_TIME * 2)) {
                     if (player != null)
                         player.level().playSeededSound(player, player.getX(), player.getY(), player.getZ(),
-                                StarGameRoundEndComponent.KEY.get(player.level()).didWin(player.getUUID())
+                                SREGameRoundEndComponent.KEY.get(player.level()).didWin(player.getUUID())
                                         ? TMMSounds.UI_PIANO_WIN
                                         : TMMSounds.UI_PIANO_LOSE,
                                 SoundSource.MASTER, 10f, 1f, player.getRandom().nextLong());

@@ -11,13 +11,13 @@ import org.ladysnake.cca.api.v3.component.tick.CommonTickingComponent;
 
 import io.wifi.starrailexpress.SRE;
 
-public class StarGameTimeComponent implements AutoSyncedComponent, CommonTickingComponent {
-    public static final ComponentKey<StarGameTimeComponent> KEY = ComponentRegistry.getOrCreate(SRE.id("time"), StarGameTimeComponent.class);
+public class SREGameTimeComponent implements AutoSyncedComponent, CommonTickingComponent {
+    public static final ComponentKey<SREGameTimeComponent> KEY = ComponentRegistry.getOrCreate(SRE.id("time"), SREGameTimeComponent.class);
     public final Level world;
     public int resetTime;
     public int time;
 
-    public StarGameTimeComponent(Level world) {
+    public SREGameTimeComponent(Level world) {
         this.world = world;
     }
 
@@ -39,7 +39,7 @@ public class StarGameTimeComponent implements AutoSyncedComponent, CommonTicking
                 return;
             }
         }
-        if (!StarGameWorldComponent.KEY.get(this.world).isRunning()) return;
+        if (!SREGameWorldComponent.KEY.get(this.world).isRunning()) return;
         if (this.time <= 0) return;
         this.time--;
         // 从每400tick增加到每600tick同步（30秒）
@@ -49,7 +49,7 @@ public class StarGameTimeComponent implements AutoSyncedComponent, CommonTicking
         if (this.time % 20 == 0) { // 每秒更新一次计分板
             final var server = this.world.getServer();
             if (server==null)return;
-            GameScoreboardComponent scoreboardComponent = GameScoreboardComponent.KEY.get(server.getScoreboard());
+            SREGameScoreboardComponent scoreboardComponent = SREGameScoreboardComponent.KEY.get(server.getScoreboard());
             scoreboardComponent.updateGameTimers(this.world);
         }
     }

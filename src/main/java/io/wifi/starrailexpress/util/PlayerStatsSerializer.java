@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 
-import io.wifi.starrailexpress.cca.PlayerStatsComponent;
+import io.wifi.starrailexpress.cca.SREPlayerStatsComponent;
 import io.wifi.starrailexpress.data.PlayerStatsData;
 import io.wifi.starrailexpress.SRE;
 import org.jetbrains.annotations.NotNull;
@@ -23,7 +23,7 @@ public class PlayerStatsSerializer {
     /**
      * 将 PlayerStatsComponent 转换为 JSON 字符串
      */
-    public static String toJson(PlayerStatsComponent component) {
+    public static String toJson(SREPlayerStatsComponent component) {
         PlayerStatsData data = toData(component);
         return GSON.toJson(data);
     }
@@ -38,7 +38,7 @@ public class PlayerStatsSerializer {
     /**
      * 将 PlayerStatsComponent 转换为 PlayerStatsData
      */
-    public static PlayerStatsData toData(PlayerStatsComponent component) {
+    public static PlayerStatsData toData(SREPlayerStatsComponent component) {
         PlayerStatsData data = new PlayerStatsData();
         
         // 设置玩家 UUID
@@ -88,7 +88,7 @@ public class PlayerStatsSerializer {
      * 注意：这个方法现在在 PlayerStatsComponent 内部实现
      * 保留这个方法是为了向后兼容，但实际调用 PlayerStatsComponent 的 applyData 方法
      */
-    public static void applyData(@NotNull PlayerStatsData data, @NotNull PlayerStatsComponent component) {
+    public static void applyData(@NotNull PlayerStatsData data, @NotNull SREPlayerStatsComponent component) {
         // 这个方法现在在 PlayerStatsComponent 内部实现
         // 这里只记录日志，实际应用在 PlayerStatsComponent 中完成
         SRE.LOGGER.debug("Applying player stats data for UUID: {}", data.getUuid());
@@ -98,8 +98,8 @@ public class PlayerStatsSerializer {
      * 从 PlayerStatsData 创建 PlayerStatsComponent
      * 注意：这个方法需要 Player 对象，通常用于数据恢复
      */
-    public static PlayerStatsComponent fromData(PlayerStatsData data, net.minecraft.world.entity.player.Player player) {
-        PlayerStatsComponent component = new PlayerStatsComponent(player);
+    public static SREPlayerStatsComponent fromData(PlayerStatsData data, net.minecraft.world.entity.player.Player player) {
+        SREPlayerStatsComponent component = new SREPlayerStatsComponent(player);
 
         // 应用基础统计数据
         component.setTotalPlayTime(data.getTotalPlayTime());
@@ -114,35 +114,35 @@ public class PlayerStatsSerializer {
         // 阵营统计数据通过 setter 设置 (直接赋值而不增加统计次数)
         // 注意:这里使用反射直接设置值,因为setter会增加计数
         try {
-            java.lang.reflect.Field civilianGamesField = PlayerStatsComponent.class.getDeclaredField("totalCivilianGames");
+            java.lang.reflect.Field civilianGamesField = SREPlayerStatsComponent.class.getDeclaredField("totalCivilianGames");
             civilianGamesField.setAccessible(true);
             civilianGamesField.setInt(component, data.getTotalCivilianGames());
 
-            java.lang.reflect.Field civilianWinsField = PlayerStatsComponent.class.getDeclaredField("totalCivilianWins");
+            java.lang.reflect.Field civilianWinsField = SREPlayerStatsComponent.class.getDeclaredField("totalCivilianWins");
             civilianWinsField.setAccessible(true);
             civilianWinsField.setInt(component, data.getTotalCivilianWins());
 
-            java.lang.reflect.Field killerGamesField = PlayerStatsComponent.class.getDeclaredField("totalKillerGames");
+            java.lang.reflect.Field killerGamesField = SREPlayerStatsComponent.class.getDeclaredField("totalKillerGames");
             killerGamesField.setAccessible(true);
             killerGamesField.setInt(component, data.getTotalKillerGames());
 
-            java.lang.reflect.Field killerWinsField = PlayerStatsComponent.class.getDeclaredField("totalKillerWins");
+            java.lang.reflect.Field killerWinsField = SREPlayerStatsComponent.class.getDeclaredField("totalKillerWins");
             killerWinsField.setAccessible(true);
             killerWinsField.setInt(component, data.getTotalKillerWins());
 
-            java.lang.reflect.Field neutralGamesField = PlayerStatsComponent.class.getDeclaredField("totalNeutralGames");
+            java.lang.reflect.Field neutralGamesField = SREPlayerStatsComponent.class.getDeclaredField("totalNeutralGames");
             neutralGamesField.setAccessible(true);
             neutralGamesField.setInt(component, data.getTotalNeutralGames());
 
-            java.lang.reflect.Field neutralWinsField = PlayerStatsComponent.class.getDeclaredField("totalNeutralWins");
+            java.lang.reflect.Field neutralWinsField = SREPlayerStatsComponent.class.getDeclaredField("totalNeutralWins");
             neutralWinsField.setAccessible(true);
             neutralWinsField.setInt(component, data.getTotalNeutralWins());
 
-            java.lang.reflect.Field sheriffGamesField = PlayerStatsComponent.class.getDeclaredField("totalSheriffGames");
+            java.lang.reflect.Field sheriffGamesField = SREPlayerStatsComponent.class.getDeclaredField("totalSheriffGames");
             sheriffGamesField.setAccessible(true);
             sheriffGamesField.setInt(component, data.getTotalSheriffGames());
 
-            java.lang.reflect.Field sheriffWinsField = PlayerStatsComponent.class.getDeclaredField("totalSheriffWins");
+            java.lang.reflect.Field sheriffWinsField = SREPlayerStatsComponent.class.getDeclaredField("totalSheriffWins");
             sheriffWinsField.setAccessible(true);
             sheriffWinsField.setInt(component, data.getTotalSheriffWins());
         } catch (Exception e) {
@@ -152,7 +152,7 @@ public class PlayerStatsSerializer {
         // 应用角色统计数据
         data.getRoleStats().forEach((roleIdStr, roleData) -> {
             net.minecraft.resources.ResourceLocation roleId = net.minecraft.resources.ResourceLocation.parse(roleIdStr);
-            PlayerStatsComponent.RoleStats roleStats = component.getOrCreateRoleStats(roleId);
+            SREPlayerStatsComponent.RoleStats roleStats = component.getOrCreateRoleStats(roleId);
             // 注意：RoleStats 的 setter 方法现在在内部类中可用
             roleStats.setTimesPlayed(roleData.getTimesPlayed());
             roleStats.setKillsAsRole(roleData.getKillsAsRole());

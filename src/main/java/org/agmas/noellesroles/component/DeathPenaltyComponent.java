@@ -13,8 +13,8 @@ import org.agmas.noellesroles.role.ModRoles;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
 import io.wifi.starrailexpress.api.RoleComponent;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.game.GameUtils;
 
 public class DeathPenaltyComponent implements RoleComponent, ServerTickingComponent {
     private final Player player;
@@ -30,15 +30,15 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
         if (!this.hasPenalty()) {
             return;
         } else {
-            if (GameFunctions.isPlayerAliveAndSurvival(this.player)) {
+            if (GameUtils.isPlayerAliveAndSurvival(this.player)) {
                 this.reset();
                 return;
             }
             if (this.penaltyExpiry < 0) {
-                StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(player.level());
+                SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
                 if (limitCameraUUID != null) {
                     Player cameraPlayer = this.player.level().getPlayerByUUID(limitCameraUUID);
-                    if (cameraPlayer != null && GameFunctions.isPlayerAliveAndSurvival(cameraPlayer)) {
+                    if (cameraPlayer != null && GameUtils.isPlayerAliveAndSurvival(cameraPlayer)) {
                         return;
                     }
                 }
@@ -46,7 +46,7 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
                 boolean CONSPIRATOR_alive = false;
                 for (Player p : player.level().players()) {
                     if (gameWorldComponent.isRole(p, ModRoles.CONSPIRATOR)
-                            && GameFunctions.isPlayerAliveAndSurvival(p)) {
+                            && GameUtils.isPlayerAliveAndSurvival(p)) {
                         CONSPIRATOR_alive = true;
                     }
                     if (CONSPIRATOR_alive) {
@@ -165,7 +165,7 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
                 if (limitCameraUUID != null) {
                     if (!sp.getCamera().getUUID().equals(limitCameraUUID)) {
                         var target = sp.level().getPlayerByUUID(limitCameraUUID);
-                        if (target != null && GameFunctions.isPlayerAliveAndSurvival(target)) {
+                        if (target != null && GameUtils.isPlayerAliveAndSurvival(target)) {
                             sp.setCamera(target);
                         } else {
                             sp.setCamera(null);

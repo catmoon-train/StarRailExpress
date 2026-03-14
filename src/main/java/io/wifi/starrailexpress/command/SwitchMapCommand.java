@@ -5,9 +5,9 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.command.argument.MapLoadArgumentType;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.MapManager;
 import io.wifi.starrailexpress.game.MapResetManager;
 import net.minecraft.commands.CommandSourceStack;
@@ -58,7 +58,7 @@ public class SwitchMapCommand {
       MapResetManager.scanArea(serverLevel, areas);
       MapResetManager.saveArea(serverLevel);
       context.getSource().sendSuccess(() -> Component.literal(
-          "Scanned Successfully! Found " + GameFunctions.resetPoints.size() + " blocks should be reseted!"), true);
+          "Scanned Successfully! Found " + GameUtils.resetPoints.size() + " blocks should be reseted!"), true);
     } catch (Exception e) {
       e.printStackTrace();
       context.getSource().sendSuccess(() -> Component.literal(
@@ -72,7 +72,7 @@ public class SwitchMapCommand {
     ServerLevel serverWorld = source.getLevel();
 
     // 检查游戏是否正在运行
-    StarGameWorldComponent gameComponent = StarGameWorldComponent.KEY.get(serverWorld);
+    SREGameWorldComponent gameComponent = SREGameWorldComponent.KEY.get(serverWorld);
     if (gameComponent.isRunning()) {
       source.sendFailure(Component.translatable("commands.sre.switchmap.error.game_running"));
       return -1;
@@ -95,7 +95,7 @@ public class SwitchMapCommand {
     ServerLevel serverWorld = source.getLevel();
 
     // 检查游戏是否正在运行
-    StarGameWorldComponent gameComponent = StarGameWorldComponent.KEY.get(serverWorld);
+    SREGameWorldComponent gameComponent = SREGameWorldComponent.KEY.get(serverWorld);
     if (gameComponent.isRunning()) {
       source.sendFailure(Component.translatable("commands.sre.switchmap.error.game_running"));
       return -1;
@@ -144,7 +144,7 @@ public class SwitchMapCommand {
     ServerLevel serverWorld = source.getLevel();
 
     // 检查游戏是否正在运行
-    StarGameWorldComponent gameComponent = StarGameWorldComponent.KEY.get(serverWorld);
+    SREGameWorldComponent gameComponent = SREGameWorldComponent.KEY.get(serverWorld);
     if (gameComponent.isRunning()) {
       source.sendFailure(Component.translatable("commands.sre.switchmap.error.game_running"));
       return -1;

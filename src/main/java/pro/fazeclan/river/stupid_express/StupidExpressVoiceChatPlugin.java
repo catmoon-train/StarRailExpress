@@ -67,7 +67,7 @@ public class StupidExpressVoiceChatPlugin implements VoicechatPlugin {
 
         // if (gameWorldComponent.isRole(p,
         // Noellesroles.THE_INSANE_DAMNED_PARANOID_KILLER_OF_DOOM_DEATH_DESTRUCTION_AND_WAFFLES)
-        // && GameFunctions.isPlayerAliveAndSurvival(p)) {
+        // && GameUtils.isPlayerAliveAndSurvival(p)) {
         // if (players.distanceTo(p) <= api.getVoiceChatDistance()) {
         // VoicechatConnection con = api.getConnectionOf(p.getUuid());
         // api.sendLocationalSoundPacketTo(con,

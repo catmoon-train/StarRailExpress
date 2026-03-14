@@ -3,7 +3,7 @@ package io.wifi.starrailexpress.command;
 import com.google.common.collect.ImmutableList;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
-import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
+import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import java.util.Collection;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -45,8 +45,8 @@ public class MoneyCommand {
     int total = 0;
 
     for (Entity target : targets) {
-      StarPlayerShopComponent.KEY.get(target).setBalance(amount);
-      total += StarPlayerShopComponent.KEY.get(target).balance;
+      SREPlayerShopComponent.KEY.get(target).setBalance(amount);
+      total += SREPlayerShopComponent.KEY.get(target).balance;
     }
 
     if (targets.size() == 1) {
@@ -68,13 +68,13 @@ public class MoneyCommand {
   private static int executeAdd(CommandSourceStack source, Collection<? extends Entity> targets, int amount) {
     int total = 0;
     for (Entity target : targets) {
-      StarPlayerShopComponent.KEY.get(target).addToBalance(amount);
-      total += StarPlayerShopComponent.KEY.get(target).balance;
+      SREPlayerShopComponent.KEY.get(target).addToBalance(amount);
+      total += SREPlayerShopComponent.KEY.get(target).balance;
     }
 
     if (targets.size() == 1) {
       Entity target = targets.iterator().next();
-      int money = StarPlayerShopComponent.KEY.get(target).balance;
+      int money = SREPlayerShopComponent.KEY.get(target).balance;
 
       source.sendSuccess(
           () -> Component
@@ -92,7 +92,7 @@ public class MoneyCommand {
 
   private static int executeGet(CommandSourceStack source, Collection<? extends Entity> targets) {
     final int total = targets.stream().mapToInt(target -> {
-      var ba = StarPlayerShopComponent.KEY.maybeGet(target).orElse(null);
+      var ba = SREPlayerShopComponent.KEY.maybeGet(target).orElse(null);
       if (ba != null) {
         return ba.balance;
       }

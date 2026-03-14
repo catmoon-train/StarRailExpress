@@ -4,8 +4,8 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 
-import io.wifi.starrailexpress.cca.StarTrainWorldComponent;
-import io.wifi.starrailexpress.cca.StarWorldBlackoutComponent;
+import io.wifi.starrailexpress.cca.SRETrainWorldComponent;
+import io.wifi.starrailexpress.cca.SREWorldBlackoutComponent;
 import io.wifi.starrailexpress.command.argument.TimeOfDayArgumentType;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -16,7 +16,7 @@ public class SetVisualCommand {
         dispatcher.register(Commands.literal("tmm:setVisual")
                 .requires(source -> source.hasPermission(2))
                 .then(Commands.literal("blackout").executes(context -> {
-                    StarWorldBlackoutComponent.KEY.get(context.getSource().getLevel()).triggerBlackout();
+                    SREWorldBlackoutComponent.KEY.get(context.getSource().getLevel()).triggerBlackout();
                     context.getSource().sendSuccess(() -> Component.literal("Blackout triggered!"), true);
                     return 1;
                 }))
@@ -46,7 +46,7 @@ public class SetVisualCommand {
     }
 
     private static int reset(CommandSourceStack source) {
-        StarTrainWorldComponent trainWorldComponent = StarTrainWorldComponent.KEY.get(source.getLevel());
+        SRETrainWorldComponent trainWorldComponent = SRETrainWorldComponent.KEY.get(source.getLevel());
         trainWorldComponent.reset();
         source.sendSuccess(
                 () -> Component.translatable("commands.sre.setvisual.reset")
@@ -57,7 +57,7 @@ public class SetVisualCommand {
 
     private static int executeSnow(CommandSourceStack source, boolean enabled) {
 
-        StarTrainWorldComponent.KEY.get(source.getLevel()).setSnow(enabled);
+        SRETrainWorldComponent.KEY.get(source.getLevel()).setSnow(enabled);
         source.sendSuccess(
                 () -> Component.translatable("commands.sre.setvisual.snow", enabled)
                         .withStyle(style -> style.withColor(0x00FF00)),
@@ -67,7 +67,7 @@ public class SetVisualCommand {
 
     private static int executeFog(CommandSourceStack source, boolean enabled) {
 
-        StarTrainWorldComponent.KEY.get(source.getLevel()).setFog(enabled);
+        SRETrainWorldComponent.KEY.get(source.getLevel()).setFog(enabled);
         source.sendSuccess(
                 () -> Component.translatable("commands.sre.setvisual.fog", enabled)
                         .withStyle(style -> style.withColor(0x00FF00)),
@@ -78,7 +78,7 @@ public class SetVisualCommand {
 
     private static int executeHud(CommandSourceStack source, boolean enabled) {
 
-        StarTrainWorldComponent.KEY.get(source.getLevel()).setHud(enabled);
+        SRETrainWorldComponent.KEY.get(source.getLevel()).setHud(enabled);
         source.sendSuccess(
                 () -> Component.translatable("commands.sre.setvisual.hud", enabled)
                         .withStyle(style -> style.withColor(0x00FF00)),
@@ -89,7 +89,7 @@ public class SetVisualCommand {
 
     private static int executeSpeed(CommandSourceStack source, int speed) {
 
-        StarTrainWorldComponent.KEY.get(source.getLevel()).setSpeed(speed);
+        SRETrainWorldComponent.KEY.get(source.getLevel()).setSpeed(speed);
         source.sendSuccess(
                 () -> Component.translatable("commands.sre.setvisual.trainspeed", speed)
                         .withStyle(style -> style.withColor(0x00FF00)),
@@ -98,9 +98,9 @@ public class SetVisualCommand {
 
     }
 
-    private static int executeTimeOfDay(CommandSourceStack source, StarTrainWorldComponent.TimeOfDay timeOfDay) {
+    private static int executeTimeOfDay(CommandSourceStack source, SRETrainWorldComponent.TimeOfDay timeOfDay) {
 
-        StarTrainWorldComponent.KEY.get(source.getLevel()).setTimeOfDay(timeOfDay);
+        SRETrainWorldComponent.KEY.get(source.getLevel()).setTimeOfDay(timeOfDay);
         source.sendSuccess(
                 () -> Component.translatable("commands.sre.setvisual.time", timeOfDay)
                         .withStyle(style -> style.withColor(0x00FF00)),

@@ -9,9 +9,9 @@ import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import io.wifi.starrailexpress.api.RoleComponent;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.event.OnPlayerDeath;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 
 import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
@@ -51,7 +51,7 @@ public class AwesomePlayerComponent implements RoleComponent, ServerTickingCompo
         OnPlayerDeath.EVENT.register((victim, resourceLocation) -> {
             var players = victim.level().players();
             for (var player : players) {
-                if (GameFunctions.isPlayerAliveAndSurvival(player)) {
+                if (GameUtils.isPlayerAliveAndSurvival(player)) {
                     if (player.distanceToSqr(victim) <= 25) {
                         AwesomePlayerComponent component = AwesomePlayerComponent.KEY.maybeGet(player).orElse(null);
                         if (component != null) {
@@ -86,12 +86,12 @@ public class AwesomePlayerComponent implements RoleComponent, ServerTickingCompo
         this.sync();
     }
 
-    public static StarGameWorldComponent gameWorldComponent = null;
+    public static SREGameWorldComponent gameWorldComponent = null;
 
     @Override
     public boolean shouldSyncWith(ServerPlayer sp) {
         if (gameWorldComponent == null) {
-            gameWorldComponent = StarGameWorldComponent.KEY.get(sp.level());
+            gameWorldComponent = SREGameWorldComponent.KEY.get(sp.level());
         }
         if (gameWorldComponent.isRole(sp, ModRoles.AWESOME_BINGLUS)) {
             return true;

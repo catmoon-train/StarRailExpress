@@ -3,9 +3,9 @@ package org.agmas.noellesroles.mixin.client.roles;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.component.PsychologistPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
-import io.wifi.starrailexpress.cca.StarPlayerMoodComponent;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -36,11 +36,11 @@ public class PsychologistHudMixin {
         if(client.player.isSpectator()) return;
         
         // 检查是否是心理学家
-        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(client.level);
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(client.level);
         if (!gameWorld.isRole(client.player, ModRoles.PSYCHOLOGIST)) return;
         
         // 检查玩家是否存活
-        if (!GameFunctions.isPlayerAliveAndSurvival(client.player)) return;
+        if (!GameUtils.isPlayerAliveAndSurvival(client.player)) return;
         
         // 获取心理学家组件
         PsychologistPlayerComponent psychComp = ModComponents.PSYCHOLOGIST.get(client.player);
@@ -58,7 +58,7 @@ public class PsychologistHudMixin {
         y += 12;
         
         // 检查自己的san值（游戏中san值范围是0.0-1.0，需要转换为百分比显示）
-        StarPlayerMoodComponent selfMood = StarPlayerMoodComponent.KEY.get(client.player);
+        SREPlayerMoodComponent selfMood = SREPlayerMoodComponent.KEY.get(client.player);
         float sanity = selfMood.getMood();  // 0.0 到 1.0
         int sanityPercent = (int)(sanity * 100);  // 转换为百分比
         ChatFormatting sanColor = sanity >= 0.99f ? ChatFormatting.GREEN :

@@ -30,8 +30,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class PlayerStatsComponent implements AutoSyncedComponent, ServerTickingComponent {
-    public static final ComponentKey<PlayerStatsComponent> KEY = ComponentRegistry.getOrCreate(SRE.id("player_stats"), PlayerStatsComponent.class);
+public class SREPlayerStatsComponent implements AutoSyncedComponent, ServerTickingComponent {
+    public static final ComponentKey<SREPlayerStatsComponent> KEY = ComponentRegistry.getOrCreate(SRE.id("player_stats"), SREPlayerStatsComponent.class);
     private final Player player;
     private long totalPlayTime = 0;
     private int totalGamesPlayed = 0;
@@ -78,7 +78,7 @@ public class PlayerStatsComponent implements AutoSyncedComponent, ServerTickingC
     private long playTimeSinceLastSync = 0;
     private int statChangesSinceLastSync = 0;
 
-    public PlayerStatsComponent(Player player) {
+    public SREPlayerStatsComponent(Player player) {
         this.player = player;
     }
 
@@ -764,13 +764,13 @@ public class PlayerStatsComponent implements AutoSyncedComponent, ServerTickingC
 
         public void setTimesPlayed(int timesPlayed) {
             this.timesPlayed = timesPlayed;
-            PlayerStatsComponent.this.markDirty();
+            SREPlayerStatsComponent.this.markDirty();
         }
 
         public void incrementTimesPlayed() {
             this.timesPlayed++;
-            PlayerStatsComponent.this.markDirty();
-            PlayerStatsComponent.this.markNeedsSync();
+            SREPlayerStatsComponent.this.markDirty();
+            SREPlayerStatsComponent.this.markNeedsSync();
         }
 
         public int getKillsAsRole() {
@@ -779,13 +779,13 @@ public class PlayerStatsComponent implements AutoSyncedComponent, ServerTickingC
 
         public void setKillsAsRole(int killsAsRole) {
             this.killsAsRole = killsAsRole;
-            PlayerStatsComponent.this.markDirty();
+            SREPlayerStatsComponent.this.markDirty();
         }
 
         public void incrementKillsAsRole() {
             this.killsAsRole++;
-            PlayerStatsComponent.this.markDirty();
-            PlayerStatsComponent.this.markNeedsSync();
+            SREPlayerStatsComponent.this.markDirty();
+            SREPlayerStatsComponent.this.markNeedsSync();
         }
 
         public int getDeathsAsRole() {
@@ -794,13 +794,13 @@ public class PlayerStatsComponent implements AutoSyncedComponent, ServerTickingC
 
         public void setDeathsAsRole(int deathsAsRole) {
             this.deathsAsRole = deathsAsRole;
-            PlayerStatsComponent.this.markDirty();
+            SREPlayerStatsComponent.this.markDirty();
         }
 
         public void incrementDeathsAsRole() {
             this.deathsAsRole++;
-            PlayerStatsComponent.this.markDirty();
-            PlayerStatsComponent.this.markNeedsSync();
+            SREPlayerStatsComponent.this.markDirty();
+            SREPlayerStatsComponent.this.markNeedsSync();
         }
 
         public int getWinsAsRole() {
@@ -809,13 +809,13 @@ public class PlayerStatsComponent implements AutoSyncedComponent, ServerTickingC
 
         public void setWinsAsRole(int winsAsRole) {
             this.winsAsRole = winsAsRole;
-            PlayerStatsComponent.this.markDirty();
+            SREPlayerStatsComponent.this.markDirty();
         }
 
         public void incrementWinsAsRole() {
             this.winsAsRole++;
-            PlayerStatsComponent.this.markDirty();
-            PlayerStatsComponent.this.markNeedsSync();
+            SREPlayerStatsComponent.this.markDirty();
+            SREPlayerStatsComponent.this.markNeedsSync();
         }
 
         public int getLossesAsRole() {
@@ -824,13 +824,13 @@ public class PlayerStatsComponent implements AutoSyncedComponent, ServerTickingC
 
         public void setLossesAsRole(int lossesAsRole) {
             this.lossesAsRole = lossesAsRole;
-            PlayerStatsComponent.this.markDirty();
+            SREPlayerStatsComponent.this.markDirty();
         }
 
         public void incrementLossesAsRole() {
             this.lossesAsRole++;
-            PlayerStatsComponent.this.markDirty();
-            PlayerStatsComponent.this.markNeedsSync();
+            SREPlayerStatsComponent.this.markDirty();
+            SREPlayerStatsComponent.this.markNeedsSync();
         }
 
         public int getTeamKillsAsRole() {
@@ -839,13 +839,13 @@ public class PlayerStatsComponent implements AutoSyncedComponent, ServerTickingC
 
         public void setTeamKillsAsRole(int teamKillsAsRole) {
             this.teamKillsAsRole = teamKillsAsRole;
-            PlayerStatsComponent.this.markDirty();
+            SREPlayerStatsComponent.this.markDirty();
         }
 
         public void incrementTeamKillsAsRole() {
             this.teamKillsAsRole++;
-            PlayerStatsComponent.this.markDirty();
-            PlayerStatsComponent.this.markNeedsSync();
+            SREPlayerStatsComponent.this.markDirty();
+            SREPlayerStatsComponent.this.markNeedsSync();
         }
     }
 }

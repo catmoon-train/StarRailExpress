@@ -1,6 +1,6 @@
 package io.wifi.starrailexpress.network;
 
-import io.wifi.starrailexpress.cca.PlayerSkinsComponent;
+import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
 import io.wifi.starrailexpress.client.StatusBarHUD;
 import io.wifi.starrailexpress.client.StatusInit;
 import io.wifi.starrailexpress.SRE;
@@ -37,7 +37,7 @@ public record UpdateSkinSelectedPayload(String id, String name) implements Custo
     public static void registerReceiver() {
         ServerPlayNetworking.registerGlobalReceiver(ID, (payload, context) -> {
             context.server().execute(() -> {
-                PlayerSkinsComponent playerSkinsComponent = PlayerSkinsComponent.KEY.get(context.player());
+                SREPlayerSkinsComponent playerSkinsComponent = SREPlayerSkinsComponent.KEY.get(context.player());
                 if (!playerSkinsComponent.isSkinUnlockedForItemType(payload.id, payload.name))return;
                 playerSkinsComponent.setEquippedSkinForItemType(payload.id, payload.name);
                 playerSkinsComponent.sync();

@@ -5,7 +5,7 @@ import org.agmas.noellesroles.component.WayfarerPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 
 import io.wifi.starrailexpress.client.SREClient;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.github.mortuusars.exposure.util.color.Color;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -26,7 +26,7 @@ public class WayfarerHudRenderer {
                     || !SREClient.gameComponent.isRole(client.player, ModRoles.WAYFARER)) {
                 return;
             }
-            if (!GameFunctions.isPlayerAliveAndSurvival(client.player))
+            if (!GameUtils.isPlayerAliveAndSurvival(client.player))
                 return;
             // int screenWidth = guiGraphics.guiWidth();
             int screenHeight = guiGraphics.guiHeight();

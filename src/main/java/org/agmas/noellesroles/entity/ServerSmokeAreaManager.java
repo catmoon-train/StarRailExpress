@@ -1,6 +1,6 @@
 package org.agmas.noellesroles.entity;
 
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -112,7 +112,7 @@ public class ServerSmokeAreaManager {
             
             List<ServerPlayer> players = world.getEntitiesOfClass(
                     ServerPlayer.class, area,
-                    GameFunctions::isPlayerAliveAndSurvival
+                    GameUtils::isPlayerAliveAndSurvival
             );
             
             for (ServerPlayer player : players) {

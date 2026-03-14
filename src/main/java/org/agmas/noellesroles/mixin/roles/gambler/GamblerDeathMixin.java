@@ -1,11 +1,11 @@
 package org.agmas.noellesroles.mixin.roles.gambler;
 
-import io.wifi.starrailexpress.api.Role;
+import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
-import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -29,11 +29,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import static io.wifi.starrailexpress.game.GameFunctions.getSpawnPos;
-import static io.wifi.starrailexpress.game.GameFunctions.roomToPlayer;
+import static io.wifi.starrailexpress.game.GameUtils.getSpawnPos;
+import static io.wifi.starrailexpress.game.GameUtils.roomToPlayer;
 import static org.agmas.noellesroles.role.ModRoles.EXECUTIONER_ID;
 
-@Mixin(GameFunctions.class)
+@Mixin(GameUtils.class)
 public class GamblerDeathMixin {
 	@Inject(method = "killPlayer(Lnet/minecraft/world/entity/player/Player;ZLnet/minecraft/world/entity/player/Player;Lnet/minecraft/resources/ResourceLocation;)V", at = @At("HEAD"), cancellable = true)
 	private static void onGamblerDeath(Player victim, boolean spawnBody, Player killer, ResourceLocation identifier,
@@ -45,7 +45,7 @@ public class GamblerDeathMixin {
 		final var world = victim.level();
 		if (world.isClientSide)
 			return;
-		StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(world);
+		SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(world);
 		if (gameWorldComponent.isRole(victim, ModRoles.GAMBLER)) {
 			GamblerPlayerComponent gamblerPlayerComponent = GamblerPlayerComponent.KEY.get(victim);
 			// 掉枪
@@ -72,8 +72,8 @@ public class GamblerDeathMixin {
 
 				// 变成正义阵营（vigilante）
 				// 随机选择一个警长阵营角色
-				ArrayList<Role> vigilanteRoles = new ArrayList<>();
-				for (Role role : TMMRoles.ROLES.values()) {
+				ArrayList<SRERole> vigilanteRoles = new ArrayList<>();
+				for (SRERole role : TMMRoles.ROLES.values()) {
 					if (role.isVigilanteTeam() && !HarpyModLoaderConfig.HANDLER.instance().disabled
 							.contains(role.identifier().getPath())) {
 						vigilanteRoles.add(role);
@@ -85,7 +85,7 @@ public class GamblerDeathMixin {
 				}
 
 				Collections.shuffle(vigilanteRoles);
-				Role selectedRole = vigilanteRoles.get(0);
+				SRERole selectedRole = vigilanteRoles.get(0);
 
 				RoleUtils.changeRole(victim, selectedRole);
 
@@ -102,7 +102,7 @@ public class GamblerDeathMixin {
 				gamblerPlayerComponent.sync();
 
 				// 变成杀手阵营
-				ArrayList<Role> shuffledKillerRoles = new ArrayList<>(Noellesroles.getEnableKillerRoles());
+				ArrayList<SRERole> shuffledKillerRoles = new ArrayList<>(Noellesroles.getEnableKillerRoles());
 				shuffledKillerRoles.removeIf(role -> role.identifier().equals(EXECUTIONER_ID)
 						|| Harpymodloader.VANNILA_ROLES.contains(role) || !role.canUseKiller()
 						|| HarpyModLoaderConfig.HANDLER.instance().disabled.contains(role.identifier().getPath()));
@@ -116,7 +116,7 @@ public class GamblerDeathMixin {
 					// final var size = serverPlayer.serverLevel().players().size();
 					RoleUtils.sendWelcomeAnnouncement(serverPlayer);
 				}
-				StarPlayerShopComponent playerShopComponent = (StarPlayerShopComponent) StarPlayerShopComponent.KEY.get(victim);
+				SREPlayerShopComponent playerShopComponent = (SREPlayerShopComponent) SREPlayerShopComponent.KEY.get(victim);
 				playerShopComponent.setBalance(150);
 				// 取消死亡，玩家会在自己的房间复活
 				teleport(victim);
@@ -132,7 +132,7 @@ public class GamblerDeathMixin {
 								player.playSound(SoundEvents.GENERIC_EXPLODE.value(), 1.2F, 1.4F);
 							});
 					// 补充 CustomWinnerID: gambler
-					RoleUtils.customWinnerWin(serverWorld, GameFunctions.WinStatus.GAMBLER, "gambler", null);
+					RoleUtils.customWinnerWin(serverWorld, GameUtils.WinStatus.GAMBLER, "gambler", null);
 				}
 				return;
 			}

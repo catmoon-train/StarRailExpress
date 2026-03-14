@@ -1,11 +1,11 @@
 package io.wifi.starrailexpress.item;
 
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.particle.HandParticle;
 import io.wifi.starrailexpress.client.render.TMMRenderLayers;
 import io.wifi.starrailexpress.client.util.TMMItemTooltips;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.network.original.GunShootPayload;
 import io.wifi.StarRailExpressID;
@@ -64,7 +64,7 @@ public class DerringerItem extends RevolverItem {
                 }
             }
         } else {
-            StarGameWorldComponent gameComponent = StarGameWorldComponent.KEY.get(world);
+            SREGameWorldComponent gameComponent = SREGameWorldComponent.KEY.get(world);
             if (gameComponent != null) {
                 final var role = gameComponent.getRole(user);
                 if (role != null) {
@@ -101,6 +101,6 @@ public class DerringerItem extends RevolverItem {
     }
 
     public static HitResult getGunTarget(Player user) {
-        return ProjectileUtil.getHitResultOnViewVector(user, entity -> entity instanceof Player player && GameFunctions.isPlayerAliveAndSurvival(player), 25F);
+        return ProjectileUtil.getHitResultOnViewVector(user, entity -> entity instanceof Player player && GameUtils.isPlayerAliveAndSurvival(player), 25F);
     }
 }

@@ -24,10 +24,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public class PlayerSkinsComponent implements AutoSyncedComponent, ServerTickingComponent {
-    private static final Logger logger = LoggerFactory.getLogger(PlayerSkinsComponent.class);
-    public static final ComponentKey<PlayerSkinsComponent> KEY = ComponentRegistry.getOrCreate(SRE.id("player_skins"),
-            PlayerSkinsComponent.class);
+public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTickingComponent {
+    private static final Logger logger = LoggerFactory.getLogger(SREPlayerSkinsComponent.class);
+    public static final ComponentKey<SREPlayerSkinsComponent> KEY = ComponentRegistry.getOrCreate(SRE.id("player_skins"),
+            SREPlayerSkinsComponent.class);
     public static final ResourceLocation WEAPON_SKINS_DATA_ID = SRE.id("weapon_skins");
 
     private static final Gson GSON = new GsonBuilder().create();
@@ -42,7 +42,7 @@ public class PlayerSkinsComponent implements AutoSyncedComponent, ServerTickingC
     // private static final long NETWORK_SYNC_INTERVAL = 20000; // 每 20 秒同步一次到网络
     private boolean isNetworkSyncEnabled = false;
 
-    public PlayerSkinsComponent(Player player) {
+    public SREPlayerSkinsComponent(Player player) {
         this.player = player;
         this.equippedSkins = new HashMap<>();
         this.unlockedSkins = new HashMap<>();

@@ -4,7 +4,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
-import io.wifi.starrailexpress.api.Role;
+import io.wifi.starrailexpress.api.SRERole;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
@@ -29,8 +29,8 @@ public class SetCompanionRoleCommand {
         if(!Harpymodloader.isMojangVerify) {
             return 1;
         }
-        Role primaryRole = RoleArgumentType.getRole(context, "primaryRole");
-        Role companionRole = RoleArgumentType.getRole(context, "companionRole");
+        SRERole primaryRole = RoleArgumentType.getRole(context, "primaryRole");
+        SRERole companionRole = RoleArgumentType.getRole(context, "companionRole");
         
         // 更新配置
         HarpyModLoaderConfig.HANDLER.instance().companionRoles.put(
@@ -53,7 +53,7 @@ public class SetCompanionRoleCommand {
     }
     
     private static int removeCompanion(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
-        Role primaryRole = RoleArgumentType.getRole(context, "primaryRole");
+        SRERole primaryRole = RoleArgumentType.getRole(context, "primaryRole");
         
         // 从配置中移除
         if (HarpyModLoaderConfig.HANDLER.instance().companionRoles.remove(primaryRole.identifier()) != null) {

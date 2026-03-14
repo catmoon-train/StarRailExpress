@@ -1,10 +1,10 @@
 package org.agmas.noellesroles.mixin.client.roles.bartender;
 
-import io.wifi.starrailexpress.api.Role;
+import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.block_entity.BeveragePlateBlockEntity;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMParticles;
 
 import org.agmas.noellesroles.role.ModRoles;
@@ -26,16 +26,16 @@ public class DefenseVialViewMixin {
     private static void view(Level world, BlockPos pos, BlockState state, BlockEntity blockEntity, CallbackInfo ci) {
         if (blockEntity instanceof BeveragePlateBlockEntity tray) {
             if (tray.getPoisoner() != null) {
-                Role role = SREClient.gameComponent.getRole(Minecraft.getInstance().player);
+                SRERole role = SREClient.gameComponent.getRole(Minecraft.getInstance().player);
                 if (role == null)
                     return;
                 boolean canSeePoison = false;
                 canSeePoison = role.identifier().getPath().equals(ModRoles.BARTENDER.identifier().getPath())
                         || role.identifier().getPath().equals(ModRoles.POISONER.identifier().getPath());
                 if (!canSeePoison) {
-                    if (StarGameWorldComponent.isKillerTeamRoleStatic(role))
+                    if (SREGameWorldComponent.isKillerTeamRoleStatic(role))
                         if (world.players().stream().anyMatch((p) -> {
-                            return GameFunctions.isPlayerAliveAndSurvival(p)
+                            return GameUtils.isPlayerAliveAndSurvival(p)
                                     && SREClient.gameComponent.isRole(p, ModRoles.POISONER);
                         })) {
                             canSeePoison = true;
@@ -50,7 +50,7 @@ public class DefenseVialViewMixin {
                 }
             }
             if (tray.getArmorer() != null) {
-                Role role = SREClient.gameComponent.getRole(Minecraft.getInstance().player);
+                SRERole role = SREClient.gameComponent.getRole(Minecraft.getInstance().player);
                 if (role == null)
                     return;
                 // LoggerFactory.getLogger("defense").info("Helloworld");

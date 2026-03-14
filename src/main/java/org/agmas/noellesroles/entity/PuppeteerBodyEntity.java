@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.entity;
 
 import com.mojang.authlib.GameProfile;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.component.PuppeteerPlayerComponent;
 
@@ -123,7 +123,7 @@ public class PuppeteerBodyEntity extends LivingEntity {
         if (level().isClientSide())
             return;
 
-        final var gameWorldComponent = StarGameWorldComponent.KEY.get(level());
+        final var gameWorldComponent = SREGameWorldComponent.KEY.get(level());
         if (gameWorldComponent != null) {
             if (!gameWorldComponent.isRunning()) {
                 discard();

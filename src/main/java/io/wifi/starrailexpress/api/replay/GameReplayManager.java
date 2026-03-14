@@ -3,12 +3,12 @@ package io.wifi.starrailexpress.api.replay;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import io.wifi.starrailexpress.api.Role;
+import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
-import io.wifi.starrailexpress.cca.StarGameRoundEndComponent;
-import io.wifi.starrailexpress.game.GameFunctions;
-import io.wifi.starrailexpress.game.GameFunctions.WinStatus;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
+import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.game.GameUtils.WinStatus;
 import io.wifi.starrailexpress.SRE;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -40,14 +40,14 @@ public class GameReplayManager {
     this.server = server;
     this.currentReplayData = new GameReplayData();
     // this.playerNames = new HashMap<>();
-    this.currentReplay = new GameReplay(0, GameFunctions.WinStatus.NONE, new java.util.ArrayList<>(),
+    this.currentReplay = new GameReplay(0, GameUtils.WinStatus.NONE, new java.util.ArrayList<>(),
         new java.util.ArrayList<>());
   }
 
   public void resetReplay() {
     this.currentReplayData = new GameReplayData();
     // this.playerNames.clear();
-    this.currentReplay = new GameReplay(0, GameFunctions.WinStatus.NONE, new java.util.ArrayList<>(),
+    this.currentReplay = new GameReplay(0, GameUtils.WinStatus.NONE, new java.util.ArrayList<>(),
         new java.util.ArrayList<>());
   }
 
@@ -246,7 +246,7 @@ public class GameReplayManager {
     return new ReplayEvent(eventType, dataEvent.getTimestamp(), details);
   }
 
-  public void initializeReplay(List<ServerPlayer> players, HashMap<UUID, Role> roles) {
+  public void initializeReplay(List<ServerPlayer> players, HashMap<UUID, SRERole> roles) {
     resetReplay();
     for (ServerPlayer player : players) {
       recordPlayerName(player);
@@ -276,7 +276,7 @@ public class GameReplayManager {
 
     // 填充玩家角色映射
     Map<UUID, String> roleMap = new HashMap<>();
-    for (Map.Entry<UUID, Role> entry : roles.entrySet()) {
+    for (Map.Entry<UUID, SRERole> entry : roles.entrySet()) {
       roleMap.put(entry.getKey(), entry.getValue().identifier().toString());
       // 确保所有玩家的名称都被记录，即使他们尚未在游戏中被显式记录
       if (!playerNames.containsKey(entry.getKey())) {
@@ -293,7 +293,7 @@ public class GameReplayManager {
     currentReplayData.setPlayerRoles(roleMap);
   }
 
-  public void updateRolesFromComponent(io.wifi.starrailexpress.cca.StarGameWorldComponent component) {
+  public void updateRolesFromComponent(io.wifi.starrailexpress.cca.SREGameWorldComponent component) {
     currentReplayData
         .setCivilianPlayers(component.getAllWithRole(io.wifi.starrailexpress.api.TMMRoles.CIVILIAN));
     currentReplayData
@@ -304,13 +304,13 @@ public class GameReplayManager {
         .setLooseEndPlayers(component.getAllWithRole(io.wifi.starrailexpress.api.TMMRoles.LOOSE_END));
 
     Map<UUID, String> roleMap = new HashMap<>();
-    for (Map.Entry<UUID, io.wifi.starrailexpress.api.Role> entry : component.getRoles().entrySet()) {
+    for (Map.Entry<UUID, io.wifi.starrailexpress.api.SRERole> entry : component.getRoles().entrySet()) {
       roleMap.put(entry.getKey(), entry.getValue().identifier().toString());
     }
     currentReplayData.setPlayerRoles(roleMap);
   }
 
-  public void finalizeReplay(GameFunctions.WinStatus winStatus, StarGameRoundEndComponent roundEndData) {
+  public void finalizeReplay(GameUtils.WinStatus winStatus, SREGameRoundEndComponent roundEndData) {
     currentReplayData.setWinningTitle(null);
     if (winStatus.equals(WinStatus.CUSTOM)) {
       currentReplayData.setWinningTeam(roundEndData.CustomWinnerID);
@@ -380,11 +380,11 @@ public class GameReplayManager {
     ReplayEvent event1 = convertReplayEvent(event, provider);
     try {
       var text = currentReplayData.toText(this, currentReplayData, event1);
-      StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(SRE.SERVER.overworld());
+      SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(SRE.SERVER.overworld());
       SRE.SERVER.getPlayerList().getPlayers().forEach(
           player -> {
             if (gameWorldComponent != null && gameWorldComponent.isRunning()
-                && !GameFunctions.isPlayerAliveAndSurvival(player)) {
+                && !GameUtils.isPlayerAliveAndSurvival(player)) {
               try {
 
                 if (text != null) {
@@ -423,12 +423,12 @@ public class GameReplayManager {
     return addEvent(GameReplayData.EventType.PLAYER_KILL, killerUuid, victimUuid, deathReasonStr, null);
   }
 
-  public void recordPlayerRevival(UUID player, Role role) {
+  public void recordPlayerRevival(UUID player, SRERole role) {
     String rolen = role.identifier().getPath();
     addEvent(GameReplayData.EventType.PLAYER_REVIVAL, player, null, "", rolen);
   }
 
-  public void recordPlayerRoleChange(UUID player, Role oldRole, Role newRole) {
+  public void recordPlayerRoleChange(UUID player, SRERole oldRole, SRERole newRole) {
     String old_role_str = "unknown";
     String new_role_str = "unknown";
     if (oldRole != null)

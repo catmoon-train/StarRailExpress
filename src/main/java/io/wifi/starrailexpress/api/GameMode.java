@@ -1,6 +1,6 @@
 package io.wifi.starrailexpress.api;
 
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -38,11 +38,11 @@ public abstract class GameMode {
 
     public void tickClientGameLoop() {}
 
-    public abstract void tickServerGameLoop(ServerLevel serverWorld, StarGameWorldComponent gameWorldComponent);
+    public abstract void tickServerGameLoop(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent);
 
-    public abstract void initializeGame(ServerLevel serverWorld, StarGameWorldComponent gameWorldComponent, List<ServerPlayer> players);
+    public abstract void initializeGame(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent, List<ServerPlayer> players);
 
-    public void finalizeGame(ServerLevel serverWorld, StarGameWorldComponent gameWorldComponent) {
+    public void finalizeGame(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent) {
 
     }
 }

@@ -3,7 +3,7 @@ package org.agmas.harpymodloader.modded_murder;
 import java.util.HashMap;
 import java.util.UUID;
 import net.minecraft.world.entity.player.Player;
-import io.wifi.starrailexpress.api.Role;
+import io.wifi.starrailexpress.api.SRERole;
 
 public class PlayerRoleWeightManager {
     public static HashMap<UUID, Integer> ForcePlayerTeam = new HashMap<>();
@@ -82,7 +82,7 @@ public class PlayerRoleWeightManager {
      *         - 4: Killer
      *         - 5: Vigilante
      */
-    public static int getRoleType(Role role) {
+    public static int getRoleType(SRERole role) {
         if (role == null)
             return -1;
 
@@ -112,7 +112,7 @@ public class PlayerRoleWeightManager {
         return -1; // Unknown
     }
 
-    public static int getRoleType_OnlyDistinctKiller(Role r) {
+    public static int getRoleType_OnlyDistinctKiller(SRERole r) {
         int rt = getRoleType(r);
         if (rt == -1)
             return -1;
@@ -122,7 +122,7 @@ public class PlayerRoleWeightManager {
         return rt;
     }
 
-    public static int getRoleType_IgnoreNeutralType(Role r) {
+    public static int getRoleType_IgnoreNeutralType(SRERole r) {
         int rt = getRoleType(r);
         if (rt == -1)
             return -1;

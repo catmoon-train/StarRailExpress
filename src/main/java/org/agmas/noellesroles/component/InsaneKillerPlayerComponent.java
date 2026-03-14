@@ -1,10 +1,10 @@
 package org.agmas.noellesroles.component;
 
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
-import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.event.AfterShieldAllowPlayerDeath;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.SRE;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
@@ -52,7 +52,7 @@ public class InsaneKillerPlayerComponent
     }
 
     public void nearDeathTick() {
-        if (!GameFunctions.isPlayerAliveAndSurvival(player))
+        if (!GameUtils.isPlayerAliveAndSurvival(player))
             return;
         List<Entity> entities = player.level().getEntities(player,
                 player.getBoundingBox().inflate(2), (entity) -> {
@@ -85,7 +85,7 @@ public class InsaneKillerPlayerComponent
     public static void registerEvent() {
 
         AfterShieldAllowPlayerDeath.EVENT.register(((playerEntity, identifier) -> {
-            var gameWorldComponent = StarGameWorldComponent.KEY.get(playerEntity.level());
+            var gameWorldComponent = SREGameWorldComponent.KEY.get(playerEntity.level());
             if (gameWorldComponent.isRole(playerEntity,
                     ModRoles.THE_INSANE_DAMNED_PARANOID_KILLER_OF_DOOM_DEATH_DESTRUCTION_AND_WAFFLES)) {
                 if (!gameWorldComponent.isSkillAvailable) {
@@ -139,7 +139,7 @@ public class InsaneKillerPlayerComponent
             serverPlayer.playNotifySound(SoundEvents.BEACON_ACTIVATE, SoundSource.PLAYERS, 1.0f, 1.0f);
         }
 
-        StarPlayerShopComponent.KEY.get(player).addToBalance(100);
+        SREPlayerShopComponent.KEY.get(player).addToBalance(100);
         player.removeEffect(MobEffects.MOVEMENT_SLOWDOWN);
         sync();
     }
@@ -225,7 +225,7 @@ public class InsaneKillerPlayerComponent
 
     @Override
     public void serverTick() {
-        if (!StarGameWorldComponent.KEY.get(player.level()).isRole(player,
+        if (!SREGameWorldComponent.KEY.get(player.level()).isRole(player,
                 ModRoles.THE_INSANE_DAMNED_PARANOID_KILLER_OF_DOOM_DEATH_DESTRUCTION_AND_WAFFLES))
             return;
         if (cooldown > 0) {
@@ -240,7 +240,7 @@ public class InsaneKillerPlayerComponent
             nearDeathTick();
             deathState--;
             if (deathState == 1) {
-                GameFunctions.killPlayer(player, true, null, Noellesroles.id("insane_killer_death"));
+                GameUtils.killPlayer(player, true, null, Noellesroles.id("insane_killer_death"));
             }
             if (deathState % 100 == 0 || deathState == 1 || deathState == 0) {
                 sync();

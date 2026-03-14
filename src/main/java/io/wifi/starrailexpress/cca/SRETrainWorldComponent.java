@@ -13,9 +13,9 @@ import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
 import io.wifi.starrailexpress.SRE;
 
-public class StarTrainWorldComponent implements AutoSyncedComponent, ServerTickingComponent, ClientTickingComponent {
-    public static final ComponentKey<StarTrainWorldComponent> KEY = ComponentRegistry.getOrCreate(SRE.id("train"),
-            StarTrainWorldComponent.class);
+public class SRETrainWorldComponent implements AutoSyncedComponent, ServerTickingComponent, ClientTickingComponent {
+    public static final ComponentKey<SRETrainWorldComponent> KEY = ComponentRegistry.getOrCreate(SRE.id("train"),
+            SRETrainWorldComponent.class);
 
     private final Level world;
     private int speed = 0; // im km/h
@@ -25,14 +25,14 @@ public class StarTrainWorldComponent implements AutoSyncedComponent, ServerTicki
     private boolean hud = true;
     private TimeOfDay timeOfDay = TimeOfDay.DAY;
 
-    public StarTrainWorldComponent(Level world) {
+    public SRETrainWorldComponent(Level world) {
         this.world = world;
     }
 
     private boolean needsSync = false;
 
     private void sync() {
-        StarTrainWorldComponent.KEY.sync(this.world);
+        SRETrainWorldComponent.KEY.sync(this.world);
         this.needsSync = false;
     }
 

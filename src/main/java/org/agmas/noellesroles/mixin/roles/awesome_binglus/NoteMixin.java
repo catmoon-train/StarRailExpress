@@ -1,8 +1,8 @@
 package org.agmas.noellesroles.mixin.roles.awesome_binglus;
 
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
-import io.wifi.starrailexpress.cca.StarPlayerNoteComponent;
-import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerNoteComponent;
+import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.entity.NoteEntity;
 import io.wifi.starrailexpress.index.TMMEntities;
 import io.wifi.starrailexpress.item.NoteItem;
@@ -30,7 +30,7 @@ public abstract class NoteMixin extends Item {
 
     // private static HitResult getTarget(Player user) {
     // return ProjectileUtil.getHitResultOnViewVector(user, entity -> entity
-    // instanceof Player player && GameFunctions.isPlayerAliveAndSurvival(player),
+    // instanceof Player player && GameUtils.isPlayerAliveAndSurvival(player),
     // 4f);
     // }
 
@@ -38,12 +38,12 @@ public abstract class NoteMixin extends Item {
     public InteractionResult interactLivingEntity(ItemStack itemStack, Player player, LivingEntity livingEntity,
             InteractionHand interactionHand) {
         if (player instanceof ServerPlayer serverPlayer) {
-            StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(serverPlayer.level());
+            SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(serverPlayer.level());
             if (gameWorld.isRole(player, ModRoles.AWESOME_BINGLUS)) {
-                final var playerShopComponent = StarPlayerShopComponent.KEY.get(serverPlayer);
+                final var playerShopComponent = SREPlayerShopComponent.KEY.get(serverPlayer);
                 if (playerShopComponent.balance >= 75) {
                     if (player != null && !player.isShiftKeyDown()) {
-                        StarPlayerNoteComponent component = (StarPlayerNoteComponent) StarPlayerNoteComponent.KEY.get(player);
+                        SREPlayerNoteComponent component = (SREPlayerNoteComponent) SREPlayerNoteComponent.KEY.get(player);
                         if (!component.written) {
                             player.displayClientMessage(Component.translatable("message.note.write_sth")
                                     .withColor(Mth.hsvToRgb(0.0F, 1.0F, 0.6F)), true);

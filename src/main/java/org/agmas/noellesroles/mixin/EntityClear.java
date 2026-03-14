@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.mixin;
 
 import io.wifi.starrailexpress.api.GameMode;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.server.level.ServerLevel;
 
 import org.agmas.noellesroles.Noellesroles;
@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 /**
  * 清除实体 Mixin
  */
-@Mixin(GameFunctions.class)
+@Mixin(GameUtils.class)
 public class EntityClear {
     /**
      * 在 resetEntities 方法尾部注入，清除所有实体

@@ -1,6 +1,6 @@
 package org.agmas.noellesroles;
 
-import io.wifi.starrailexpress.api.Role;
+import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.api.TMMRoles;
 import net.fabricmc.api.ModInitializer;
@@ -37,7 +37,7 @@ public class Noellesroles implements ModInitializer {
     public static final String MOD_ID = "noellesroles";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
-    public static final ArrayList<Role> VANNILA_ROLES = new ArrayList<>();
+    public static final ArrayList<SRERole> VANNILA_ROLES = new ArrayList<>();
     public static final ArrayList<ResourceLocation> VANNILA_ROLE_IDS = new ArrayList<>();
     public static final String fuckMojang = Decode("4075a514cc856d7e4bdf11132a9178b9337997a6955635e5c56e07ff089b3a7a");
 
@@ -45,13 +45,13 @@ public class Noellesroles implements ModInitializer {
     // ==================== 初始物品配置 ====================
     public static String isOnlineMode = null;
 
-    public static List<Role> getAllRoles() {
-        ArrayList<Role> clone = new ArrayList<>(TMMRoles.ROLES.values());
+    public static List<SRERole> getAllRoles() {
+        ArrayList<SRERole> clone = new ArrayList<>(TMMRoles.ROLES.values());
         return clone;
     }
 
-    public static List<Role> getEnableRoles_ServerSide() {
-        ArrayList<Role> clone = new ArrayList<>(TMMRoles.ROLES.values());
+    public static List<SRERole> getEnableRoles_ServerSide() {
+        ArrayList<SRERole> clone = new ArrayList<>(TMMRoles.ROLES.values());
         clone.removeIf(
                 r -> {
                     if (HarpyModLoaderConfig.HANDLER.instance().disabled.contains(r.getIdentifier().toString()))
@@ -73,7 +73,7 @@ public class Noellesroles implements ModInitializer {
      *         - 3: Neturals for killer
      *         - 4: Killer
      */
-    public static int getRoleType$Int(Role role) {
+    public static int getRoleType$Int(SRERole role) {
         if (role == null)
             return -1;
         if (role.isInnocent() && !role.canUseKiller()) {
@@ -101,12 +101,12 @@ public class Noellesroles implements ModInitializer {
         return -1; // Unknown
     }
 
-    public static List<Role> getAllRolesSorted() {
+    public static List<SRERole> getAllRolesSorted() {
         return getAllRolesSorted(false);
     }
 
-    public static List<Role> getAllRolesSorted(boolean killerFirst) {
-        ArrayList<Role> clone = new ArrayList<>(TMMRoles.ROLES.values());
+    public static List<SRERole> getAllRolesSorted(boolean killerFirst) {
+        ArrayList<SRERole> clone = new ArrayList<>(TMMRoles.ROLES.values());
         Collator collator = Collator.getInstance();
         clone.sort((a, b) -> {
             int rt_a = getRoleType$Int(a);
@@ -136,8 +136,8 @@ public class Noellesroles implements ModInitializer {
         return "ad636239a06098ecbc3176df6c0e1a3aaaecb1db2f6a71180ec5a26940bd4c8b";
     }
 
-    public static List<Role> getEnableKillerRoles() {
-        ArrayList<Role> clone = new ArrayList<>(TMMRoles.ROLES.values());
+    public static List<SRERole> getEnableKillerRoles() {
+        ArrayList<SRERole> clone = new ArrayList<>(TMMRoles.ROLES.values());
         clone.removeIf(
                 r -> !r.canUseKiller()
                         || r.getIdentifier() == ModRoles.DIO_ID

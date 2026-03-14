@@ -7,7 +7,7 @@ import org.agmas.noellesroles.client.widget.ConspiratorRoleWidget;
 import org.agmas.noellesroles.packet.ConspiratorC2SPacket;
 import org.agmas.noellesroles.utils.RoleUtils;
 
-import io.wifi.starrailexpress.api.Role;
+import io.wifi.starrailexpress.api.SRERole;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
@@ -45,7 +45,7 @@ public class ConspiratorScreen extends Screen {
     private List<AbstractClientPlayer> players = new ArrayList<>();
 
     // 角色列表
-    private List<Role> roles = new ArrayList<>();
+    private List<SRERole> roles = new ArrayList<>();
 
     // Widget 列表
     private List<ConspiratorPlayerWidget> playerWidgets = new ArrayList<>();
@@ -347,7 +347,7 @@ public class ConspiratorScreen extends Screen {
      * 角色被选中时调用
      */
     @SuppressWarnings("unused")
-    public void onRoleSelected(Role role) {
+    public void onRoleSelected(SRERole role) {
         if (selectedPlayer == null)
             return;
         if (minecraft == null || minecraft.player == null)

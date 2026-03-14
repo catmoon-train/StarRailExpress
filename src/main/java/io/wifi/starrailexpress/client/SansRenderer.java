@@ -4,11 +4,11 @@ import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
-import io.wifi.starrailexpress.cca.StarPlayerMoodComponent;
-import io.wifi.starrailexpress.cca.StarPlayerPsychoComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
+import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.game.GameConstants;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.util.MathHelper;
 import io.wifi.starrailexpress.SRE;
 import net.minecraft.client.Minecraft;
@@ -41,7 +41,7 @@ public class SansRenderer {
 
     private final Minecraft m_mc;
 
-    private StarPlayerMoodComponent m_cap;
+    private SREPlayerMoodComponent m_cap;
     private PostProcessor m_post;
     private final Random m_random = new Random();
     private float m_dt;
@@ -157,7 +157,7 @@ public class SansRenderer {
         Minecraft mc = Minecraft.getInstance();
         m_post.addSinglePassEntry("insanity", pass -> {
             return processPlayer(mc.player, cap -> {
-                if (cap.getMood() > .35f && StarPlayerPsychoComponent.KEY.get(mc.player).psychoTicks <= 0)
+                if (cap.getMood() > .35f && SREPlayerPsychoComponent.KEY.get(mc.player).psychoTicks <= 0)
                     return false;
                 
                 var effect = pass.getEffect();
@@ -273,8 +273,8 @@ public class SansRenderer {
 //        });
     }
 
-    private boolean processPlayer(LocalPlayer player, Function<StarPlayerMoodComponent, Boolean> action) {
-        StarPlayerMoodComponent cap = StarPlayerMoodComponent.KEY.get(player);
+    private boolean processPlayer(LocalPlayer player, Function<SREPlayerMoodComponent, Boolean> action) {
+        SREPlayerMoodComponent cap = SREPlayerMoodComponent.KEY.get(player);
         return player != null &&
                 (!player.isCreative() && !player.isSpectator()) &&
                 cap.getMood() >= 0 &&
@@ -339,10 +339,10 @@ public class SansRenderer {
     }
 
     public void tick(@NotNull LocalPlayer player, @NotNull GuiGraphics context, float dt) {
-        if (m_mc.player == null || m_mc.isPaused() || m_mc.player.isCreative() || m_mc.player.isSpectator() || !StarGameWorldComponent.KEY.get(player.level()).isRunning())
+        if (m_mc.player == null || m_mc.isPaused() || m_mc.player.isCreative() || m_mc.player.isSpectator() || !SREGameWorldComponent.KEY.get(player.level()).isRunning())
             return;
 
-        m_cap = StarPlayerMoodComponent.KEY.get(m_mc.player);
+        m_cap = SREPlayerMoodComponent.KEY.get(m_mc.player);
         if (m_cap == null)
             return;
 

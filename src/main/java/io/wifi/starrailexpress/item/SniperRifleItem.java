@@ -1,12 +1,12 @@
 package io.wifi.starrailexpress.item;
 
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.ScopeOverlayRenderer;
 import io.wifi.starrailexpress.client.particle.HandParticle;
 import io.wifi.starrailexpress.client.render.TMMRenderLayers;
 import io.wifi.starrailexpress.compat.CrosshairaddonsCompat;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.network.original.SniperShootPayload;
 import io.wifi.starrailexpress.util.SniperProjectileUtil;
@@ -115,7 +115,7 @@ public class SniperRifleItem extends Item {
             }
         } else {
             // 服务端逻辑
-            StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(world);
+            SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(world);
             final var role = gameWorldComponent.getRole(user);
             if (role != null) {
                 if (!role.onUseGun(user)) {
@@ -204,7 +204,7 @@ public class SniperRifleItem extends Item {
 
     public static HitResult getGunTarget(Player user) {
         return SniperProjectileUtil.getSniperHitResult(user,
-                entity -> entity instanceof Player player && GameFunctions.isPlayerAliveAndSurvival(player), 200F);
+                entity -> entity instanceof Player player && GameUtils.isPlayerAliveAndSurvival(player), 200F);
     }
 
     // 倍镜相关方法

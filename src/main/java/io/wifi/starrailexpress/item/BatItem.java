@@ -1,6 +1,6 @@
 package io.wifi.starrailexpress.item;
 
-import io.wifi.starrailexpress.cca.StarPlayerPsychoComponent;
+import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.SRE;
 
 import java.util.List;
@@ -27,7 +27,7 @@ public class BatItem extends Item {
     @Override
     public InteractionResultHolder<ItemStack> use(Level world, Player user, InteractionHand hand) {
         if (user.isCreative()) {
-            StarPlayerPsychoComponent playerPsychoComponent = StarPlayerPsychoComponent.KEY.get(user);
+            SREPlayerPsychoComponent playerPsychoComponent = SREPlayerPsychoComponent.KEY.get(user);
             if (playerPsychoComponent.getPsychoTicks() > 0) {
                 playerPsychoComponent.stopPsycho();
             } else {

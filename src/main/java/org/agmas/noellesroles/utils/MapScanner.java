@@ -17,9 +17,9 @@ import io.wifi.starrailexpress.block.TrimmedBedBlock;
 import io.wifi.starrailexpress.block_entity.BeveragePlateBlockEntity;
 import io.wifi.starrailexpress.block_entity.SmallDoorBlockEntity;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.event.OnTrainAreaHaveReseted;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.item.CocktailItem;
 import io.wifi.starrailexpress.SRE;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -40,7 +40,7 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 public class MapScanner {
     public static void registerMapScanEvent() {
         OnTrainAreaHaveReseted.EVENT.register((serverLevel) -> {
-            if (StarGameWorldComponent.KEY.get(serverLevel).getGameMode() instanceof ChairWheelRaceGame) {
+            if (SREGameWorldComponent.KEY.get(serverLevel).getGameMode() instanceof ChairWheelRaceGame) {
                 Noellesroles.LOGGER.info("Skip scanner (wheel game)");
                 return;
             }
@@ -48,7 +48,7 @@ public class MapScanner {
             var areas = AreasWorldComponent.KEY.get(serverLevel);
             MapScannerManager.loadOrScanAndSaveScannerArea(serverLevel, areas);
             for (var player : serverLevel.players()) {
-                ServerPlayNetworking.send(player, new ScanAllTaskPointsPayload(GameFunctions.taskBlocks));
+                ServerPlayNetworking.send(player, new ScanAllTaskPointsPayload(GameUtils.taskBlocks));
             }
         });
     }
@@ -56,10 +56,10 @@ public class MapScanner {
     public static void scanAllTaskBlocks(ServerLevel serverLevel) {
         SRE.LOGGER.info("Start to scan points!");
         ServerLevel localLevel = serverLevel;
-        if (GameFunctions.taskBlocks == null) {
-            GameFunctions.taskBlocks = new HashMap<>();
+        if (GameUtils.taskBlocks == null) {
+            GameUtils.taskBlocks = new HashMap<>();
         }
-        GameFunctions.taskBlocks.clear();
+        GameUtils.taskBlocks.clear();
         var areas = AreasWorldComponent.KEY.get(serverLevel);
         BlockPos backupMinPos = BlockPos.containing(areas.getResetTemplateArea().getMinPosition());
         BlockPos backupMaxPos = BlockPos.containing(areas.getResetTemplateArea().getMaxPosition());
@@ -76,27 +76,27 @@ public class MapScanner {
                         continue;
                     // blockCounts++;
                     if (blockState.is(ModBlocks.VENDING_MACHINES_BLOCK) && blockState.getValue(VendingMachinesBlock.HALF).equals(DoubleBlockHalf.LOWER)) {
-                        GameFunctions.taskBlocks.put(blockPos6, 11);
+                        GameUtils.taskBlocks.put(blockPos6, 11);
                     } else if (blockState.is(Blocks.NOTE_BLOCK)) {
-                        GameFunctions.taskBlocks.put(blockPos6, 10);
+                        GameUtils.taskBlocks.put(blockPos6, 10);
                     } else if (blockState.is(Blocks.BLACK_CONCRETE)) {
                         BlockPos blockPos7 = new BlockPos(m, l + 1, k);
                         var blockState2 = localLevel.getBlockState(blockPos7);
                         if (blockState2.is(BlockTags.WOOL_CARPETS) || blockState2.is(BlockTags.AIR)) {
-                            GameFunctions.taskBlocks.put(blockPos6, 5);
+                            GameUtils.taskBlocks.put(blockPos6, 5);
                         }
                     } else if (blockState.getBlock() instanceof TrimmedBedBlock
                             && blockState.getValue(BlockStateProperties.BED_PART).equals(BedPart.HEAD)) {
-                        GameFunctions.taskBlocks.put(blockPos6, 4);
+                        GameUtils.taskBlocks.put(blockPos6, 4);
                     } else if (blockState.getBlock() instanceof ToiletBlock) {
-                        GameFunctions.taskBlocks.put(blockPos6, 8);
+                        GameUtils.taskBlocks.put(blockPos6, 8);
                     } else if (blockState.getBlock() instanceof MountableBlock) {
-                        GameFunctions.taskBlocks.put(blockPos6, 9);
+                        GameUtils.taskBlocks.put(blockPos6, 9);
                     } else if (blockState.getBlock() instanceof SmallDoorBlock
                             && blockState.getValue(SmallDoorBlock.HALF).equals(DoubleBlockHalf.LOWER)) {
                         if (localLevel.getBlockEntity(blockPos6) instanceof SmallDoorBlockEntity entity) {
                             if (entity.getKeyName() != null && !entity.getKeyName().isEmpty())
-                                GameFunctions.taskBlocks.put(blockPos6, 7);
+                                GameUtils.taskBlocks.put(blockPos6, 7);
                         }
                     } else if (blockState.getBlock() instanceof FoodPlatterBlock) {
                         if (localLevel.getBlockEntity(blockPos6) instanceof BeveragePlateBlockEntity entity) {
@@ -105,11 +105,11 @@ public class MapScanner {
                                 ItemStack item_0 = items.get(0);
                                 Item item_ = item_0.getItem();
                                 if ((item_ instanceof CocktailItem)) {
-                                    GameFunctions.taskBlocks.put(blockPos6, 2);
+                                    GameUtils.taskBlocks.put(blockPos6, 2);
                                 } else {
                                     FoodProperties foodPro = item_0.get(DataComponents.FOOD);
                                     if (foodPro != null) {
-                                        GameFunctions.taskBlocks.put(blockPos6, 1);
+                                        GameUtils.taskBlocks.put(blockPos6, 1);
                                     }
                                 }
                             }
@@ -117,15 +117,15 @@ public class MapScanner {
                         }
                     } else if (blockState.getBlock() instanceof LecternBlock) {
                         if (blockState.getValue(LecternBlock.HAS_BOOK)) {
-                            GameFunctions.taskBlocks.put(blockPos6, 6);
+                            GameUtils.taskBlocks.put(blockPos6, 6);
                         }
                     } else if (blockState.getBlock() instanceof SprinklerBlock) {
-                        GameFunctions.taskBlocks.put(blockPos6, 3);
+                        GameUtils.taskBlocks.put(blockPos6, 3);
                     }
                 }
             }
         }
-        SRE.LOGGER.info("Successed scanned task points! Total {}.", GameFunctions.taskBlocks.size());
+        SRE.LOGGER.info("Successed scanned task points! Total {}.", GameUtils.taskBlocks.size());
         // Minecraft.getInstance().player.displayClientMessage(
         // Component
         // .translatable("msg.noellesroles.taskpoint.available",

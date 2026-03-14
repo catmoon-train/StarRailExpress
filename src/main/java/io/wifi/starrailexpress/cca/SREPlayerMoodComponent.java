@@ -1,12 +1,12 @@
 package io.wifi.starrailexpress.cca;
 
-import io.wifi.starrailexpress.api.Role;
+import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.block.ToiletBlock;
 import io.wifi.starrailexpress.block.entity.SeatEntity;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.game.GameConstants;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.tag.TMMBlockTags;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import io.wifi.starrailexpress.network.original.TaskCompletePayload;
@@ -42,9 +42,9 @@ import static io.wifi.starrailexpress.SRE.isSkyVisibleAdjacent;
 import java.util.*;
 import java.util.function.Function;
 
-public class StarPlayerMoodComponent implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
-    public static final ComponentKey<StarPlayerMoodComponent> KEY = ComponentRegistry.getOrCreate(SRE.id("mood"),
-            StarPlayerMoodComponent.class);
+public class SREPlayerMoodComponent implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
+    public static final ComponentKey<SREPlayerMoodComponent> KEY = ComponentRegistry.getOrCreate(SRE.id("mood"),
+            SREPlayerMoodComponent.class);
     private final Player player;
     public final Map<Task, TrainTask> tasks = new HashMap<>();
     public final Map<Task, Integer> timesGotten = new HashMap<>();
@@ -53,7 +53,7 @@ public class StarPlayerMoodComponent implements RoleComponent, ServerTickingComp
     private final HashMap<UUID, ItemStack> psychosisItems = new HashMap<>();
     private static List<Item> cachedPsychosisItems = null;
 
-    public StarPlayerMoodComponent(Player player) {
+    public SREPlayerMoodComponent(Player player) {
         this.player = player;
     }
 
@@ -104,7 +104,7 @@ public class StarPlayerMoodComponent implements RoleComponent, ServerTickingComp
 
     @Override
     public void clientTick() {
-        if (!StarGameWorldComponent.KEY.get(this.player.level()).isRunning() || !SREClient.isPlayerAliveAndInSurvival())
+        if (!SREGameWorldComponent.KEY.get(this.player.level()).isRunning() || !SREClient.isPlayerAliveAndInSurvival())
             return;
         if (!this.tasks.isEmpty()) {
             if (this.mood > 0)
@@ -145,8 +145,8 @@ public class StarPlayerMoodComponent implements RoleComponent, ServerTickingComp
     @Override
     public void serverTick() {
 
-        StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(this.player.level());
-        if (!gameWorldComponent.isRunning() || !GameFunctions.isPlayerAliveAndSurvival(this.player))
+        SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(this.player.level());
+        if (!gameWorldComponent.isRunning() || !GameUtils.isPlayerAliveAndSurvival(this.player))
             return;
         boolean shouldSync = false;
         if (!this.tasks.isEmpty()) {
@@ -189,7 +189,7 @@ public class StarPlayerMoodComponent implements RoleComponent, ServerTickingComp
             this.tasks.remove(task.getType());
             // 更新计分板上的任务计数
             if (this.player instanceof ServerPlayer serverPlayer) {
-                GameScoreboardComponent scoreboardComponent = GameScoreboardComponent.KEY
+                SREGameScoreboardComponent scoreboardComponent = SREGameScoreboardComponent.KEY
                         .get(serverPlayer.getServer().getScoreboard());
                 scoreboardComponent.incrementPlayerTaskCount(this.player);
 
@@ -243,19 +243,19 @@ public class StarPlayerMoodComponent implements RoleComponent, ServerTickingComp
     }
 
     public float getMood() {
-        StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(this.player.level());
+        SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(this.player.level());
 
-        Role role = gameWorldComponent.getRole(player);
-        if (gameWorldComponent.isRunning() && role != null && role.getMoodType() == Role.MoodType.REAL) {
+        SRERole role = gameWorldComponent.getRole(player);
+        if (gameWorldComponent.isRunning() && role != null && role.getMoodType() == SRERole.MoodType.REAL) {
             return this.mood;
         } else
             return 1;
     }
 
     public void setMood(float mood) {
-        Role role = StarGameWorldComponent.KEY.get(this.player.level()).getRole(player);
+        SRERole role = SREGameWorldComponent.KEY.get(this.player.level()).getRole(player);
 
-        if (role != null && role.getMoodType() == Role.MoodType.REAL) {
+        if (role != null && role.getMoodType() == SRERole.MoodType.REAL) {
             float clampedMood = Math.clamp(mood, 0, 1);
             // 只有当情绪变化超过0.05时才同步（减少网络占用）
             if (Math.abs(this.mood - clampedMood) > 0.01f) {

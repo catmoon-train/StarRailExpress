@@ -1,11 +1,11 @@
 package io.wifi.starrailexpress.item;
 
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.particle.HandParticle;
 import io.wifi.starrailexpress.client.render.TMMRenderLayers;
 import io.wifi.starrailexpress.compat.CrosshairaddonsCompat;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.network.original.GunShootPayload;
 import io.wifi.StarRailExpressID;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -59,7 +59,7 @@ public class RevolverItem extends Item {
         } else {
             // 在服务端消耗耐久度
             // stack.setDamage(stack.getDamage() + 1);
-            StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(world);
+            SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(world);
             final var role = gameWorldComponent.getRole(user);
             if (role != null) {
                 if (!role.onUseGun(user)) {
@@ -85,6 +85,6 @@ public class RevolverItem extends Item {
 
     public static HitResult getGunTarget(Player user) {
         return ProjectileUtil.getHitResultOnViewVector(user,
-                entity -> entity instanceof Player player && GameFunctions.isPlayerAliveAndSurvival(player), 20F);
+                entity -> entity instanceof Player player && GameUtils.isPlayerAliveAndSurvival(player), 20F);
     }
 }

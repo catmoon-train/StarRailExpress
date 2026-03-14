@@ -6,7 +6,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 
-import static io.wifi.starrailexpress.cca.PlayerSkinsComponent.KEY;
+import static io.wifi.starrailexpress.cca.SREPlayerSkinsComponent.KEY;
 
 public interface TMMCosmetics {
     // 不再重复注册，而是使用PlayerSkinsComponent中已注册的实例

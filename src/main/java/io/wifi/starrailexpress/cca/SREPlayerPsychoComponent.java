@@ -2,7 +2,7 @@ package io.wifi.starrailexpress.cca;
 
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.game.GameConstants;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.network.RemoveStatusBarPayload;
 import io.wifi.starrailexpress.network.TriggerStatusBarPayload;
@@ -20,14 +20,14 @@ import org.ladysnake.cca.api.v3.component.ComponentRegistry;
 import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
-public class StarPlayerPsychoComponent implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
-    public static final ComponentKey<StarPlayerPsychoComponent> KEY = ComponentRegistry.getOrCreate(SRE.id("psycho"),
-            StarPlayerPsychoComponent.class);
+public class SREPlayerPsychoComponent implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
+    public static final ComponentKey<SREPlayerPsychoComponent> KEY = ComponentRegistry.getOrCreate(SRE.id("psycho"),
+            SREPlayerPsychoComponent.class);
     private final Player player;
     public int psychoTicks = -1;
     public int armour = 1;
 
-    public StarPlayerPsychoComponent(Player player) {
+    public SREPlayerPsychoComponent(Player player) {
         this.player = player;
     }
 
@@ -64,7 +64,7 @@ public class StarPlayerPsychoComponent implements RoleComponent, ServerTickingCo
         this.psychoTicks--;
         if (this.player.getMainHandItem().is(TMMItems.BAT))
             return;
-        if (GameFunctions.isPlayerAliveAndSurvival(player)) {
+        if (GameUtils.isPlayerAliveAndSurvival(player)) {
             for (int i = 0; i < 9; i++) {
                 if (!this.player.getInventory().getItem(i).is(TMMItems.BAT))
                     continue;
@@ -101,7 +101,7 @@ public class StarPlayerPsychoComponent implements RoleComponent, ServerTickingCo
         if (ShopEntry.insertStackInFreeSlot(this.player, new ItemStack(TMMItems.BAT))) {
             this.setPsychoTicks(GameConstants.getPsychoTimer());
             this.setArmour(GameConstants.getPsychoModeArmour());
-            StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(this.player.level());
+            SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(this.player.level());
             gameWorldComponent.setPsychosActive(gameWorldComponent.getPsychosActive() + 1);
             if (player instanceof ServerPlayer serverPlayer) {
                 ServerPlayNetworking.send(serverPlayer, new TriggerStatusBarPayload("Psycho"));
@@ -117,7 +117,7 @@ public class StarPlayerPsychoComponent implements RoleComponent, ServerTickingCo
     }
 
     public int stopPsycho() {
-        StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(this.player.level());
+        SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(this.player.level());
         int result = gameWorldComponent.getPsychosActive();
         gameWorldComponent.setPsychosActive(result - 1);
         this.psychoTicks = -1;
@@ -135,7 +135,7 @@ public class StarPlayerPsychoComponent implements RoleComponent, ServerTickingCo
             if (this.player instanceof ServerPlayer sp) {
                 var players = sp.level().players();
                 for (var pl : players) {
-                    var ppc = StarPlayerPsychoComponent.KEY.maybeGet(pl).orElse(null);
+                    var ppc = SREPlayerPsychoComponent.KEY.maybeGet(pl).orElse(null);
                     if (ppc != null) {
                         if (ppc.psychoTicks > 0) {
                             count++;
@@ -143,7 +143,7 @@ public class StarPlayerPsychoComponent implements RoleComponent, ServerTickingCo
                     }
                 }
             }
-            StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(this.player.level());
+            SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(this.player.level());
             gameWorldComponent.setPsychosActive(count, shouldSync);
         }
 

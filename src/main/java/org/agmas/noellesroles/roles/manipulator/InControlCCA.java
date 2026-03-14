@@ -11,7 +11,7 @@ import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
 import io.wifi.starrailexpress.api.RoleComponent;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -107,7 +107,7 @@ public class InControlCCA implements RoleComponent, ServerTickingComponent {
 
     @Override
     public void serverTick() {
-        if (!GameFunctions.isPlayerAliveAndSurvival(player)) {
+        if (!GameUtils.isPlayerAliveAndSurvival(player)) {
             if (this.isControlling) {
                 this.stopControlFromUpstream(false);
             }

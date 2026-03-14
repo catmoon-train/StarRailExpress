@@ -22,10 +22,10 @@ import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.component.HoanMeirinPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.event.AfterShieldAllowPlayerDeathWithKiller;
 import io.wifi.starrailexpress.event.AllowPlayerPunching;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 
 public class HoanMeirinFistPunchHandler {
 
@@ -58,7 +58,7 @@ public class HoanMeirinFistPunchHandler {
         List<Player> nearby = epicenter.level().getEntitiesOfClass(
                 Player.class,
                 searchBox,
-                e -> e != epicenter && GameFunctions.isPlayerAliveAndSurvival(e));
+                e -> e != epicenter && GameUtils.isPlayerAliveAndSurvival(e));
 
         for (Player target : nearby) {
             double dx = target.getX() - origin.x;
@@ -89,14 +89,14 @@ public class HoanMeirinFistPunchHandler {
 
     public static void register() {
         AfterShieldAllowPlayerDeathWithKiller.EVENT.register((player, killer, deathReason) -> {
-            if (StarGameWorldComponent.KEY.get(player.level()).isRole(player, ModRoles.HOAN_MEIRIN)) {
+            if (SREGameWorldComponent.KEY.get(player.level()).isRole(player, ModRoles.HOAN_MEIRIN)) {
                 var hmpc = HoanMeirinPlayerComponent.KEY.get(player);
                 return !hmpc.triggerArmor(player, killer, deathReason);
             }
             return true;
         });
         AllowPlayerPunching.EVENT.register((player) -> {
-            if (StarGameWorldComponent.KEY.get(player.level()).isRole(player, ModRoles.HOAN_MEIRIN)) {
+            if (SREGameWorldComponent.KEY.get(player.level()).isRole(player, ModRoles.HOAN_MEIRIN)) {
                 // 必须空手（主手持空气）
                 ItemStack mainHand = player.getMainHandItem();
                 if (mainHand.isEmpty()) {
@@ -117,13 +117,13 @@ public class HoanMeirinFistPunchHandler {
     public static InteractionResult onEntityDamaged(Player attacker, Level level, InteractionHand hand, Entity entity,
             EntityHitResult hitResult) {
         // 仅在服务端处理，且攻击者必须是玩家
-        var gameWorldComponent = StarGameWorldComponent.KEY.get(level);
-        if (!GameFunctions.isPlayerAliveAndSurvival(attacker))
+        var gameWorldComponent = SREGameWorldComponent.KEY.get(level);
+        if (!GameUtils.isPlayerAliveAndSurvival(attacker))
             return InteractionResult.PASS;
         if (!(entity instanceof Player victim)) {
             return InteractionResult.PASS;
         }
-        if (!GameFunctions.isPlayerAliveAndSurvival(victim))
+        if (!GameUtils.isPlayerAliveAndSurvival(victim))
             return InteractionResult.PASS;
         if (!gameWorldComponent.isRole(attacker, ModRoles.HOAN_MEIRIN))
             return InteractionResult.PASS;
@@ -164,7 +164,7 @@ public class HoanMeirinFistPunchHandler {
 
             // 取消普通伤害，改用即死逻辑
             // 使用 hurt + setHealth(0) 确保触发死亡事件和战利品
-            GameFunctions.killPlayer(victim, true, attacker, Noellesroles.id("hoan_meirin_attack"));
+            GameUtils.killPlayer(victim, true, attacker, Noellesroles.id("hoan_meirin_attack"));
 
             sendActionBar(attacker,
                     Component.translatable("message.hoan_meirin_attack.3").withStyle(ChatFormatting.RED));

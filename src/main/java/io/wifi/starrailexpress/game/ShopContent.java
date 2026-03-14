@@ -1,7 +1,7 @@
 package io.wifi.starrailexpress.game;
 
 import io.wifi.starrailexpress.api.TMMRoles;
-import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
+import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.ShopEntry;
 import io.wifi.starrailexpress.SREConfig;
@@ -26,7 +26,7 @@ public class ShopContent {
             defaultEntries.add(new ShopEntry(TMMItems.PSYCHO_MODE.getDefaultInstance(), SREConfig.psychoModePrice, ShopEntry.Type.WEAPON) {
                 @Override
                 public boolean onBuy(@NotNull Player player) {
-                    return StarPlayerShopComponent.usePsychoMode(player);
+                    return SREPlayerShopComponent.usePsychoMode(player);
                 }
             });
             // defaultEntries.add(new ShopEntry(TMMItems.POISON_VIAL.getDefaultInstance(), TMMConfig.poisonVialPrice, ShopEntry.Type.POISON));
@@ -38,7 +38,7 @@ public class ShopContent {
             defaultEntries.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), SREConfig.blackoutPrice, ShopEntry.Type.TOOL) {
                 @Override
                 public boolean onBuy(@NotNull Player player) {
-                    return StarPlayerShopComponent.useBlackout(player);
+                    return SREPlayerShopComponent.useBlackout(player);
                 }
             });
             defaultEntries.add(new ShopEntry(new ItemStack(TMMItems.NOTE, 4), SREConfig.notePrice, ShopEntry.Type.TOOL));

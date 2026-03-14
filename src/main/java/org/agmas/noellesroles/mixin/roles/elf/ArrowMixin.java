@@ -1,8 +1,8 @@
 package org.agmas.noellesroles.mixin.roles.elf;
 
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.entity.PlayerBodyEntity;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import net.minecraft.ChatFormatting;
@@ -43,9 +43,9 @@ public class ArrowMixin {
             }
             if (arrow instanceof Arrow) {
                 if (arrow.getOwner() instanceof ServerPlayer serverPlayer) {
-                    if (StarGameWorldComponent.KEY.get(serverPlayer.serverLevel()).isRole(serverPlayer, ModRoles.ELF)) {
+                    if (SREGameWorldComponent.KEY.get(serverPlayer.serverLevel()).isRole(serverPlayer, ModRoles.ELF)) {
                         isHit = true;
-                        GameFunctions.killPlayer(player, true, serverPlayer, SRE.id("arrow"));
+                        GameUtils.killPlayer(player, true, serverPlayer, SRE.id("arrow"));
                     }
                 }
             }
@@ -82,7 +82,7 @@ public class ArrowMixin {
         AbstractArrow arrow = (AbstractArrow) (Object) this;
         if (arrow instanceof SpectralArrow arrow1) {
             if (arrow.getOwner() instanceof ServerPlayer serverPlayer) {
-                if (StarGameWorldComponent.KEY.get(serverPlayer.serverLevel()).isRole(serverPlayer, ModRoles.ELF)) {
+                if (SREGameWorldComponent.KEY.get(serverPlayer.serverLevel()).isRole(serverPlayer, ModRoles.ELF)) {
                     // 获取箭矢击中的位置
                     BlockPos hitPos = blockHitResult.getBlockPos();
                     // 获取附近玩家列表（例如半径为5格）

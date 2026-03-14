@@ -4,7 +4,7 @@ import org.agmas.noellesroles.component.StalkerPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 
 import io.wifi.starrailexpress.client.SREClient;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -55,7 +55,7 @@ public class StalkerHudMixin {
             return;
 
         // 检查玩家是否存活
-        if (!GameFunctions.isPlayerAliveAndSurvival(client.player))
+        if (!GameUtils.isPlayerAliveAndSurvival(client.player))
             return;
 
         // 渲染位置 - 左下角

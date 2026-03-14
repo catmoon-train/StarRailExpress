@@ -9,7 +9,7 @@ import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 
-import io.wifi.starrailexpress.api.Role;
+import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,7 +25,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.agmas.harpymodloader.Harpymodloader;
 
-public class RoleArgumentType implements ArgumentType<Role> {
+public class RoleArgumentType implements ArgumentType<SRERole> {
     public static final DynamicCommandExceptionType ROLE_EMPTY = new DynamicCommandExceptionType(input -> Component.translatable("argument.harpymodloader.role.notfound", input));
     public static final DynamicCommandExceptionType ROLE_MULTIPLE = new DynamicCommandExceptionType(input -> Component.translatable("argument.harpymodloader.role.found-multiple", input));
     private static final Collection<String> EXAMPLES = Arrays.asList("foo", "foo:bar", "012");
@@ -48,20 +48,20 @@ public class RoleArgumentType implements ArgumentType<Role> {
         return new RoleArgumentType(skipVanilla);
     }
 
-    public static Role getRole(CommandContext<CommandSourceStack> context, String name) {
-        return context.getArgument(name, Role.class);
+    public static SRERole getRole(CommandContext<CommandSourceStack> context, String name) {
+        return context.getArgument(name, SRERole.class);
     }
 
     @Override
-    public Role parse(final StringReader reader) throws CommandSyntaxException {
+    public SRERole parse(final StringReader reader) throws CommandSyntaxException {
         ResourceLocation roleId = null;
         String input = new StringReader(reader).readString();
         try {
             roleId = ResourceLocation.read(reader);
         } catch (CommandSyntaxException ignored) {
         }
-        List<Role> matchRoles = new ArrayList<>();
-        for (final Role role : TMMRoles.ROLES.values()) {
+        List<SRERole> matchRoles = new ArrayList<>();
+        for (final SRERole role : TMMRoles.ROLES.values()) {
             if (skipVanilla && Harpymodloader.VANNILA_ROLES.contains(role)) {
                 continue;
             }
@@ -83,7 +83,7 @@ public class RoleArgumentType implements ArgumentType<Role> {
         return SharedSuggestionProvider.suggestResource(
                 TMMRoles.ROLES.values().stream().filter(role -> !skipVanilla || !Harpymodloader.VANNILA_ROLES.contains(role)),
                 builder,
-                Role::identifier,
+                SRERole::identifier,
                 Harpymodloader::getRoleName
         );
     }

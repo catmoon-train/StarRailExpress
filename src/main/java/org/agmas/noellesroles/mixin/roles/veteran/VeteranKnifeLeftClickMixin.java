@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.mixin.roles.veteran;
 
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -26,10 +26,10 @@ public abstract class VeteranKnifeLeftClickMixin {
         if (!(target instanceof Player targetPlayer))
             return;
 
-        if (!GameFunctions.isPlayerAliveAndSurvival(targetPlayer))
+        if (!GameUtils.isPlayerAliveAndSurvival(targetPlayer))
             return;
 
-        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(attacker.level());
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(attacker.level());
         if (gameWorld.isRole(attacker, SERoles.INITIATE) || gameWorld.isRole(attacker, ModRoles.VETERAN)) {
             ItemStack mainHand = attacker.getItemInHand(InteractionHand.MAIN_HAND);
             if (mainHand.is(TMMItems.KNIFE)) {

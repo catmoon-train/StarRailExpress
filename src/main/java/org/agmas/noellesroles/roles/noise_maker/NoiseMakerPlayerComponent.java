@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.roles.noise_maker;
 
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -63,14 +63,14 @@ public class NoiseMakerPlayerComponent implements RoleComponent, ServerTickingCo
     }
 
     public void serverTick() {
-        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.level());
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
         if (!gameWorld.isRole(player, ModRoles.NOISEMAKER)) {
             return;
         }
         if (!gameWorld.isRunning()) {
             return;
         }
-        if (!GameFunctions.isPlayerAliveAndSurvival(player)) {
+        if (!GameUtils.isPlayerAliveAndSurvival(player)) {
             return;
         }
         if (cooldown > 0) {
@@ -98,7 +98,7 @@ public class NoiseMakerPlayerComponent implements RoleComponent, ServerTickingCo
                 ChatFormatting.BOLD);
 
         if (player instanceof ServerPlayer serverPlayer) {
-            var gameWorldComponent = StarGameWorldComponent.KEY.get(serverPlayer.level());
+            var gameWorldComponent = SREGameWorldComponent.KEY.get(serverPlayer.level());
             player.level().playSound(null, serverPlayer.blockPosition(), SoundEvents.NOTE_BLOCK_HARP.value(),
                     SoundSource.PLAYERS, 2F, 0F);
             for (ServerPlayer p : serverPlayer.serverLevel().players()) {

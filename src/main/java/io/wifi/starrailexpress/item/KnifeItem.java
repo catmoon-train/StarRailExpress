@@ -1,9 +1,9 @@
 package io.wifi.starrailexpress.item;
 
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
-import io.wifi.starrailexpress.cca.PlayerSkinsComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
 import io.wifi.starrailexpress.compat.CrosshairaddonsCompat;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.network.original.KnifeStabPayload;
@@ -97,7 +97,7 @@ public class KnifeItem extends Item implements ItemWithSkin {
         if (entity instanceof Player player) {
             if (itemStack.get(SREDataComponentTypes.SKIN) == null) {
                 // 使用玩家的CCA组件来获取和设置皮肤
-                itemStack.set(SREDataComponentTypes.SKIN, PlayerSkinsComponent.KEY.get( player).getEquippedSkinForItemType(BuiltInRegistries.ITEM.getKey(this).toString()));
+                itemStack.set(SREDataComponentTypes.SKIN, SREPlayerSkinsComponent.KEY.get( player).getEquippedSkinForItemType(BuiltInRegistries.ITEM.getKey(this).toString()));
             }
         }
     }
@@ -112,7 +112,7 @@ public class KnifeItem extends Item implements ItemWithSkin {
         }
         if (remainingUseTicks >= this.getUseDuration(stack, user) - 8 || !(user instanceof Player attacker) || !world.isClientSide)
             return;
-        StarGameWorldComponent game = StarGameWorldComponent.KEY.get(world);
+        SREGameWorldComponent game = SREGameWorldComponent.KEY.get(world);
         final var role = game.getRole(attacker);
         if (role != null){
             if (!role.onUseKnife(attacker)) {
@@ -131,7 +131,7 @@ public class KnifeItem extends Item implements ItemWithSkin {
     }
 
     public static HitResult getKnifeTarget(Player user) {
-        return ProjectileUtil.getHitResultOnViewVector(user, entity -> entity instanceof Player player && GameFunctions.isPlayerAliveAndSurvival(player), 4f);
+        return ProjectileUtil.getHitResultOnViewVector(user, entity -> entity instanceof Player player && GameUtils.isPlayerAliveAndSurvival(player), 4f);
     }
 
     @Override

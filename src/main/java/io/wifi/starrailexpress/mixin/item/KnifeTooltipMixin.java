@@ -1,7 +1,7 @@
 package io.wifi.starrailexpress.mixin.item;
 
 import dev.doctor4t.ratatouille.util.TextUtils;
-import io.wifi.starrailexpress.cca.PlayerSkinsComponent;
+import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
 import io.wifi.starrailexpress.index.TMMCosmetics;
 import io.wifi.starrailexpress.item.Colors;
 import io.wifi.starrailexpress.item.KnifeItem;
@@ -34,7 +34,7 @@ public abstract class KnifeTooltipMixin extends Item {
         skinName = TMMCosmetics.getSkin(itemStack);
         if (skinName.equals("default")) {
             if (player != null) {
-                PlayerSkinsComponent skinsComponent = PlayerSkinsComponent.KEY.get(player);
+                SREPlayerSkinsComponent skinsComponent = SREPlayerSkinsComponent.KEY.get(player);
                 skinName = skinsComponent.getSkinFromDataSync(itemStack);
             } else {
                 skinName = "default";

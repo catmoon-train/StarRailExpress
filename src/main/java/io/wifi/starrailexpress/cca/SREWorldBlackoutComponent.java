@@ -1,7 +1,7 @@
 package io.wifi.starrailexpress.cca;
 
 import io.wifi.starrailexpress.game.GameConstants;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMProperties;
 import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.SRE;
@@ -29,14 +29,14 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
-public class StarWorldBlackoutComponent implements ServerTickingComponent {
-    public static final ComponentKey<StarWorldBlackoutComponent> KEY = ComponentRegistry.getOrCreate(SRE.id("blackout"),
-            StarWorldBlackoutComponent.class);
+public class SREWorldBlackoutComponent implements ServerTickingComponent {
+    public static final ComponentKey<SREWorldBlackoutComponent> KEY = ComponentRegistry.getOrCreate(SRE.id("blackout"),
+            SREWorldBlackoutComponent.class);
     private final Level world;
     public final List<BlackoutDetails> blackouts = new ArrayList<>();
     public int blackOutRemainingTicks = 0;
 
-    public StarWorldBlackoutComponent(Level world) {
+    public SREWorldBlackoutComponent(Level world) {
         this.world = world;
     }
 
@@ -74,7 +74,7 @@ public class StarWorldBlackoutComponent implements ServerTickingComponent {
     public boolean triggerBlackout() {
         if (this.blackOutRemainingTicks > 0)
             return false;
-        for (var pos : GameFunctions.resetPoints) {
+        for (var pos : GameUtils.resetPoints) {
             BlockState state = this.world.getBlockState(pos);
             if (!state.hasProperty(BlockStateProperties.LIT) || !state.hasProperty(TMMProperties.ACTIVE))
                 continue;
@@ -90,8 +90,8 @@ public class StarWorldBlackoutComponent implements ServerTickingComponent {
         }
         if (this.world instanceof ServerLevel serverWorld) {
             for (ServerPlayer player : serverWorld.players()) {
-                if (GameFunctions.isPlayerAliveAndSurvival(player)) {
-                    final var role = StarGameWorldComponent.KEY.get(world).getRole(player);
+                if (GameUtils.isPlayerAliveAndSurvival(player)) {
+                    final var role = SREGameWorldComponent.KEY.get(world).getRole(player);
                     if (role != null) {
                         if ((!role.canUseKiller())) {
                             player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 200, 0, false, false, false));

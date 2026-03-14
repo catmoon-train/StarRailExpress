@@ -1,6 +1,6 @@
 package pro.fazeclan.river.stupid_express.role.arsonist.cca;
 
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
@@ -52,7 +52,7 @@ public class DousedPlayerComponent implements ServerTickingComponent, ClientTick
 
     @Override
     public boolean shouldSyncWith(ServerPlayer player) {
-        StarGameWorldComponent gamep = StarGameWorldComponent.KEY.get(player.level());
+        SREGameWorldComponent gamep = SREGameWorldComponent.KEY.get(player.level());
         if (gamep != null && gamep.isRole(player, SERoles.ARSONIST))
             return true;
         return false;

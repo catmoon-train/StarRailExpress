@@ -1,9 +1,9 @@
 package pro.fazeclan.river.stupid_express;
 
 import dev.doctor4t.ratatouille.util.registrar.SoundEventRegistrar;
-import io.wifi.starrailexpress.api.Role;
+import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.event.OnPlayerDeath;
 import io.wifi.starrailexpress.game.WTLooseEndsGameMode;
 import io.wifi.starrailexpress.network.RemoveStatusBarPayload;
@@ -43,15 +43,15 @@ public class StupidExpress implements ModInitializer {
 
     public static final StupidExpressConfig CONFIG = StupidExpressConfig.getInstance();
 
-    public static List<Role> getEnableRoles() {
-        ArrayList<Role> clone = new ArrayList<>(TMMRoles.ROLES.values());
+    public static List<SRERole> getEnableRoles() {
+        ArrayList<SRERole> clone = new ArrayList<>(TMMRoles.ROLES.values());
         clone.removeIf(
                 r -> HarpyModLoaderConfig.HANDLER.instance().disabled.contains(r.getIdentifier().toString()));
         return clone;
     }
 
-    public static List<Role> getEnableKillerRoles() {
-        ArrayList<Role> clone = new ArrayList<>(TMMRoles.ROLES.values());
+    public static List<SRERole> getEnableKillerRoles() {
+        ArrayList<SRERole> clone = new ArrayList<>(TMMRoles.ROLES.values());
         clone.removeIf(
                 r -> !r.canUseKiller()
                         || HarpyModLoaderConfig.HANDLER.instance().disabled.contains(r.getIdentifier().toString()));
@@ -82,12 +82,12 @@ public class StupidExpress implements ModInitializer {
         StupidEventRegister.register();
         LoversWinCheckEvent.register();
         OnPlayerDeath.EVENT.register((victim, deathReason) -> {
-            var gameWorldComponent = StarGameWorldComponent.KEY.get(victim.level());
+            var gameWorldComponent = SREGameWorldComponent.KEY.get(victim.level());
             if (gameWorldComponent.getGameMode() instanceof WTLooseEndsGameMode)
                 return;
             var modifierComponent = WorldModifierComponent.KEY.get(victim.level());
             if (gameWorldComponent != null) {
-                Role role = gameWorldComponent.getRole(victim);
+                SRERole role = gameWorldComponent.getRole(victim);
                 if (role != null) {
                     if (role.identifier().getPath().equals(TMMRoles.LOOSE_END.identifier().getPath())) {
                         var refugeeComponent = RefugeeComponent.KEY.get(victim.level());
@@ -119,7 +119,7 @@ public class StupidExpress implements ModInitializer {
         SRE.cantUseChatHud.add(
                 (player -> {
                     WorldModifierComponent modifierComponent = WorldModifierComponent.KEY.get(player.level());
-                    StarGameWorldComponent gameComponent = StarGameWorldComponent.KEY.get(player.level());
+                    SREGameWorldComponent gameComponent = SREGameWorldComponent.KEY.get(player.level());
                     var role = gameComponent.getRole(player);
                     return role != null && !SRE.canUseChatHud.stream().anyMatch((pre) -> pre.test(role))
                             && modifierComponent.isModifier(player, SEModifiers.SPLIT_PERSONALITY);

@@ -7,12 +7,12 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 
 import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
-import io.wifi.starrailexpress.cca.StarGameRoundEndComponent;
-import io.wifi.starrailexpress.cca.StarGameTimeComponent;
-import io.wifi.starrailexpress.cca.StarPlayerPsychoComponent;
-import io.wifi.starrailexpress.cca.StarWorldBlackoutComponent;
-import io.wifi.starrailexpress.game.GameFunctions;
-import io.wifi.starrailexpress.game.GameFunctions.WinStatus;
+import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
+import io.wifi.starrailexpress.cca.SREGameTimeComponent;
+import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
+import io.wifi.starrailexpress.cca.SREWorldBlackoutComponent;
+import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.game.GameUtils.WinStatus;
 import io.wifi.starrailexpress.game.ServerTaskInfoClasses.ServerTaskInfo;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.game.MapResetManager;
@@ -64,7 +64,7 @@ public class GameFunctionsCommand {
               .then(Commands.literal("gametime").executes((context) -> {
                 var source = context.getSource();
                 try {
-                  var gameTimeComponent = StarGameTimeComponent.KEY.get(source.getLevel());
+                  var gameTimeComponent = SREGameTimeComponent.KEY.get(source.getLevel());
                   int leftTime = gameTimeComponent.getTime();
                   float leftTimeSeconds = leftTime / 20;
                   float leftTimeMinutes = leftTimeSeconds / 60;
@@ -95,7 +95,7 @@ public class GameFunctionsCommand {
                     source.sendSystemMessage(
                         Component.literal("Sync Task Queue:\n").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
                     int idx = 0;
-                    for (ServerTaskInfo inf : GameFunctions.serverTaskQueue) {
+                    for (ServerTaskInfo inf : GameUtils.serverTaskQueue) {
                       source.sendSystemMessage(Component.translatable("[%s] %s", idx, inf.getClass().getSimpleName())
                           .withStyle(ChatFormatting.AQUA));
                       idx++;
@@ -103,24 +103,24 @@ public class GameFunctionsCommand {
                     source.sendSystemMessage(
                         Component.literal("Asyn Task List:\n").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
                     idx = 0;
-                    for (ServerTaskInfo inf : GameFunctions.serverAsynTaskLists) {
+                    for (ServerTaskInfo inf : GameUtils.serverAsynTaskLists) {
                       source.sendSystemMessage(Component.translatable("[%s] %s", idx, inf.getClass().getSimpleName())
                           .withStyle(ChatFormatting.AQUA));
                       idx++;
                     }
                     source.sendSuccess(() -> {
                       return Component.translatable("Sync Task Queue size: %s\nAsyn Task List size: %s",
-                          GameFunctions.serverTaskQueue.size(),
-                          GameFunctions.serverAsynTaskLists.size()).withStyle(ChatFormatting.GOLD);
+                          GameUtils.serverTaskQueue.size(),
+                          GameUtils.serverAsynTaskLists.size()).withStyle(ChatFormatting.GOLD);
                     }, false);
-                    // GameFunctions.serverTaskQueue;
-                    // GameFunctions.;
+                    // GameUtils.serverTaskQueue;
+                    // GameUtils.;
                     return 1;
                   }))
                   .then(Commands.literal("clear")
                       .then(Commands.literal("task_queue").executes((context) -> {
                         var source = context.getSource();
-                        GameFunctions.serverTaskQueue.clear();
+                        GameUtils.serverTaskQueue.clear();
                         source.sendSuccess(() -> {
                           return Component.literal("Cleared all task queues!");
                         }, true);
@@ -128,7 +128,7 @@ public class GameFunctionsCommand {
                       }))
                       .then(Commands.literal("task_list").executes((context) -> {
                         var source = context.getSource();
-                        GameFunctions.serverAsynTaskLists.clear();
+                        GameUtils.serverAsynTaskLists.clear();
                         source.sendSuccess(() -> {
                           return Component.literal("Cleared all asyn tasks list!");
                         }, true);
@@ -140,8 +140,8 @@ public class GameFunctionsCommand {
                             var source = context.getSource();
 
                             int tid = IntegerArgumentType.getInteger(context, "tid");
-                            if (tid >= 0 && tid < GameFunctions.serverTaskQueue.size()) {
-                              var task = GameFunctions.serverTaskQueue.get(tid);
+                            if (tid >= 0 && tid < GameUtils.serverTaskQueue.size()) {
+                              var task = GameUtils.serverTaskQueue.get(tid);
                               task.cancelled = true;
                               source.sendSuccess(() -> Component
                                   .translatable("Cancelled task %s (tid: %s)!", task.getClass().getSimpleName(), tid)
@@ -154,7 +154,7 @@ public class GameFunctionsCommand {
                           }))
                           .then(Commands.literal("all").executes((context) -> {
                             var source = context.getSource();
-                            GameFunctions.serverTaskQueue.forEach((t) -> {
+                            GameUtils.serverTaskQueue.forEach((t) -> {
                               t.cancelled = true;
                             });
                             source.sendSuccess(() -> {
@@ -167,8 +167,8 @@ public class GameFunctionsCommand {
                             var source = context.getSource();
 
                             int tid = IntegerArgumentType.getInteger(context, "tid");
-                            if (tid >= 0 && tid < GameFunctions.serverAsynTaskLists.size()) {
-                              var task = GameFunctions.serverAsynTaskLists.get(tid);
+                            if (tid >= 0 && tid < GameUtils.serverAsynTaskLists.size()) {
+                              var task = GameUtils.serverAsynTaskLists.get(tid);
                               task.cancelled = true;
                               source.sendSuccess(() -> Component
                                   .translatable("Cancelled task %s (tid: %s)!", task.getClass().getSimpleName(), tid)
@@ -181,7 +181,7 @@ public class GameFunctionsCommand {
                           }))
                           .then(Commands.literal("all").executes((context) -> {
                             var source = context.getSource();
-                            GameFunctions.serverAsynTaskLists.forEach((t) -> {
+                            GameUtils.serverAsynTaskLists.forEach((t) -> {
                               t.cancelled = true;
                             });
                             source.sendSuccess(() -> {
@@ -208,12 +208,12 @@ public class GameFunctionsCommand {
               .then(Commands.literal("reset")
                   .then(Commands.literal("sync")
                       .then(Commands.literal("copy").executes((context) -> {
-                        GameFunctions.tryAutoTrainReset(context.getSource().getLevel());
+                        GameUtils.tryAutoTrainReset(context.getSource().getLevel());
                         context.getSource().sendSuccess(() -> Component.literal("Normal Reset(copy)!"), true);
                         return 1;
                       }))
                       .then(Commands.literal("simple").executes((context) -> {
-                        GameFunctions.tryResetTrainOnlySomeBlock(context.getSource().getLevel());
+                        GameUtils.tryResetTrainOnlySomeBlock(context.getSource().getLevel());
                         context.getSource().sendSuccess(() -> Component.literal("Simple Reset (clean points only)!"),
                             true);
 
@@ -228,7 +228,7 @@ public class GameFunctionsCommand {
                             world, null, 0);
                         task.shouldStartGame = false;
 
-                        GameFunctions.serverTaskQueue.add(task);
+                        GameUtils.serverTaskQueue.add(task);
                         context.getSource()
                             .sendSuccess(() -> Component.literal("Add server reset task: Normal Reset(copy)!"), true);
                         return 1;
@@ -238,9 +238,9 @@ public class GameFunctionsCommand {
                         var world = context.getSource().getLevel();
                         MapResetManager.loadArea(world);
                         ServerTaskInfoClasses.OnlySomeBlockResetTask task = new ServerTaskInfoClasses.OnlySomeBlockResetTask(
-                            GameFunctions.resetPoints, world, null, 0);
+                            GameUtils.resetPoints, world, null, 0);
                         task.shouldStartGame = false;
-                        GameFunctions.serverTaskQueue.add(task);
+                        GameUtils.serverTaskQueue.add(task);
                         context.getSource().sendSuccess(
                             () -> Component.literal("Add server reset task: Simple Reset (clean points only)!"),
                             true);
@@ -262,18 +262,18 @@ public class GameFunctionsCommand {
                 MapResetManager.saveArea(level);
                 context.getSource().sendSuccess(
                     () -> Component.translatable("Scanned and saved reset points for map %s ! Total %s blocks!",
-                        Component.nullToEmpty(areas.mapName), GameFunctions.resetPoints.size()),
+                        Component.nullToEmpty(areas.mapName), GameUtils.resetPoints.size()),
                     true);
                 MapScannerManager.scanAndSaveScannerArea(level, areas);
                 HashMap<Integer, Boolean> map = new HashMap<>();
-                for (Entry<BlockPos, Integer> entry : GameFunctions.taskBlocks.entrySet()) {
+                for (Entry<BlockPos, Integer> entry : GameUtils.taskBlocks.entrySet()) {
                   map.putIfAbsent(entry.getValue(), true);
                 }
                 context.getSource().sendSuccess(
                     () -> Component.translatable("Scanned Task points! Total %s types!", map.size()), true);
 
                 for (var player : context.getSource().getLevel().players()) {
-                  ServerPlayNetworking.send(player, new ScanAllTaskPointsPayload(GameFunctions.taskBlocks));
+                  ServerPlayNetworking.send(player, new ScanAllTaskPointsPayload(GameUtils.taskBlocks));
                 }
                 return 1;
               })
@@ -292,7 +292,7 @@ public class GameFunctionsCommand {
                     MapResetManager.saveArea(level);
                     context.getSource().sendSuccess(
                         () -> Component.translatable("Scanned and saved reset points for map %s ! Total %s blocks!",
-                            Component.nullToEmpty(areas.mapName), GameFunctions.resetPoints.size()),
+                            Component.nullToEmpty(areas.mapName), GameUtils.resetPoints.size()),
                         true);
                     return 1;
                   }))
@@ -301,14 +301,14 @@ public class GameFunctionsCommand {
                     var areas = AreasWorldComponent.KEY.get(level);
                     MapScannerManager.scanAndSaveScannerArea(level, areas);
                     HashMap<Integer, Boolean> map = new HashMap<>();
-                    for (Entry<BlockPos, Integer> entry : GameFunctions.taskBlocks.entrySet()) {
+                    for (Entry<BlockPos, Integer> entry : GameUtils.taskBlocks.entrySet()) {
                       map.putIfAbsent(entry.getValue(), true);
                     }
                     context.getSource().sendSuccess(
                         () -> Component.translatable("Scanned Task points! Total %s types!", map.size()), true);
 
                     for (var player : context.getSource().getLevel().players()) {
-                      ServerPlayNetworking.send(player, new ScanAllTaskPointsPayload(GameFunctions.taskBlocks));
+                      ServerPlayNetworking.send(player, new ScanAllTaskPointsPayload(GameUtils.taskBlocks));
                     }
                     return 1;
                   })))
@@ -364,7 +364,7 @@ public class GameFunctionsCommand {
       @Nullable ServerPlayer killer, ResourceLocation deathReason, boolean spawnBody) {
     ResourceLocation deathReasonRL = deathReason;
     final String deathReasonT = deathReasonRL.toLanguageKey();
-    GameFunctions.killPlayer(victim, spawnBody, killer, deathReasonRL);
+    GameUtils.killPlayer(victim, spawnBody, killer, deathReasonRL);
     context.getSource()
         .sendSuccess(() -> Component.translatable("Killed player %s by %s with reason %s (Spawn body: %s)",
             victim.getDisplayName(), (killer == null ? Component.literal("System") : killer.getDisplayName()),
@@ -379,13 +379,17 @@ public class GameFunctionsCommand {
       source.sendFailure(Component.literal("This command should be run by a player!").withStyle(ChatFormatting.RED));
       return 0;
     }
-    var ppc = StarPlayerPsychoComponent.KEY.get(player);
+    var ppc = SREPlayerPsychoComponent.KEY.get(player);
+    if(ppc.psychoTicks>0){
+      source.sendFailure(Component.literal("The player is already in psycho mode!").withStyle(ChatFormatting.RED));
+      return 0;
+    }
     if (time != 0) {
       ppc.startPsycho();
       context.getSource()
           .sendSuccess(() -> Component.translatable("Triggered %s Psycho!", player.getScoreboardName()), true);
     } else {
-      ppc.stopPsycho();
+      ppc.stopPsychoAndRefreshPsychoCount(true);
       context.getSource()
           .sendSuccess(() -> Component.translatable("Stopped %s Psycho!", player.getScoreboardName()), true);
     }
@@ -393,7 +397,7 @@ public class GameFunctionsCommand {
   }
 
   public static int executeBlackout(CommandContext<CommandSourceStack> context, int time) {
-    var wbc = StarWorldBlackoutComponent.KEY.get(context.getSource().getLevel());
+    var wbc = SREWorldBlackoutComponent.KEY.get(context.getSource().getLevel());
     if (time != 0) {
       wbc.triggerBlackout();
       context.getSource()
@@ -421,19 +425,19 @@ public class GameFunctionsCommand {
       context.getSource().sendFailure(Component.literal("Unknown WinStatus ID!").withStyle(ChatFormatting.RED));
       return 0;
     }
-    var roundComponent = StarGameRoundEndComponent.KEY.get(context.getSource().getLevel());
+    var roundComponent = SREGameRoundEndComponent.KEY.get(context.getSource().getLevel());
     roundComponent.setRoundEndData(context.getSource().getLevel().players(), winStatus);
     roundComponent.sync();
     context.getSource()
         .sendSuccess(() -> Component.translatable("Stop the game with WinStatus ID [%s]", id), true);
-    GameFunctions.stopGame(context.getSource().getLevel());
+    GameUtils.stopGame(context.getSource().getLevel());
     return 1;
   }
 
   public static int executeCustomWinWithOnlyId(CommandContext<CommandSourceStack> context) {
     String id = StringArgumentType.getString(context, "id");
     int color = ModColorArgument.getColor(context, "color");
-    var roundComponent = StarGameRoundEndComponent.KEY.get(context.getSource().getLevel());
+    var roundComponent = SREGameRoundEndComponent.KEY.get(context.getSource().getLevel());
     roundComponent.CustomWinnerID = id;
     // roundComponent
     roundComponent.CustomWinnerSubtitle = null;
@@ -444,7 +448,7 @@ public class GameFunctionsCommand {
     roundComponent.sync();
     context.getSource()
         .sendSuccess(() -> Component.translatable("Stop the game with custom winner id [%s] (CUSTOM)", id), true);
-    GameFunctions.stopGame(context.getSource().getLevel());
+    GameUtils.stopGame(context.getSource().getLevel());
     return 1;
   }
 
@@ -471,7 +475,7 @@ public class GameFunctionsCommand {
         return 0;
       }
     }
-    var roundComponent = StarGameRoundEndComponent.KEY.get(context.getSource().getLevel());
+    var roundComponent = SREGameRoundEndComponent.KEY.get(context.getSource().getLevel());
     roundComponent.CustomWinnerID = id;
     roundComponent.CustomWinnerColor = color;
     roundComponent.CustomWinnerSubtitle = subtitle;
@@ -482,17 +486,17 @@ public class GameFunctionsCommand {
     context.getSource().sendSuccess(
         () -> Component.translatable("Stop the game with custom winner id [%s] (CUSTOM_COMPONENT)", id), true);
 
-    GameFunctions.stopGame(context.getSource().getLevel());
+    GameUtils.stopGame(context.getSource().getLevel());
     return 1;
   }
 
   public static class WinStatusSuggestions {
     public static List<WinStatus> allWinStatus = removeSome(
-        new ArrayList<>(Arrays.asList(GameFunctions.WinStatus.values())));
+        new ArrayList<>(Arrays.asList(GameUtils.WinStatus.values())));
 
     public static List<WinStatus> removeSome(List<WinStatus> list) {
       list.removeIf(
-          (t) -> t.equals(GameFunctions.WinStatus.CUSTOM) || t.equals(GameFunctions.WinStatus.CUSTOM_COMPONENT));
+          (t) -> t.equals(GameUtils.WinStatus.CUSTOM) || t.equals(GameUtils.WinStatus.CUSTOM_COMPONENT));
       return list;
     }
 
@@ -503,7 +507,7 @@ public class GameFunctionsCommand {
       // 添加自定义 ID 到 Set
 
       allWinStatus.stream()
-          .map(GameFunctions.WinStatus::toString)
+          .map(GameUtils.WinStatus::toString)
           .filter(id -> id.toLowerCase(Locale.ROOT).startsWith(remaining))
           .forEach(suggestions::add);
       // 最后批量建议

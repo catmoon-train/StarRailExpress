@@ -6,7 +6,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 
-import io.wifi.starrailexpress.api.Role;
+import io.wifi.starrailexpress.api.SRERole;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
@@ -33,7 +33,7 @@ public class SetEnabledRoleCommand {
         if(!Harpymodloader.isMojangVerify) {
             return 1;
         }
-        Role role = RoleArgumentType.getRole(context, "role");
+        SRERole role = RoleArgumentType.getRole(context, "role");
         boolean enabled = BoolArgumentType.getBool(context, "enabled");
         HarpyModLoaderConfig.HANDLER.save();
         String roleId = role.identifier().toString();

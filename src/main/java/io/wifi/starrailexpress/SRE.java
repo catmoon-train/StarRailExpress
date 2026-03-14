@@ -3,7 +3,7 @@ package io.wifi.starrailexpress;
 import com.google.common.reflect.Reflection;
 
 import io.wifi.StarRailExpressID;
-import io.wifi.starrailexpress.api.Role;
+import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.api.replay.GameReplayData;
 import io.wifi.starrailexpress.api.replay.GameReplayManager;
@@ -79,8 +79,8 @@ public class SRE extends StarRailExpressID implements ModInitializer {
     public static GameReplayManager REPLAY_MANAGER;
     public static final Networking NETWORKING = new Networking();
     public static boolean isLobby = false;
-    public static List<Predicate<Role>> canUseOtherPerson = new ArrayList<>();
-    public static List<Predicate<Role>> canUseChatHud = new ArrayList<>();
+    public static List<Predicate<SRERole>> canUseOtherPerson = new ArrayList<>();
+    public static List<Predicate<SRERole>> canUseChatHud = new ArrayList<>();
     public static List<Predicate<Player>> canUseChatHudPlayer = new ArrayList<>();
     public static List<Predicate<Player>> cantUseChatHud = new ArrayList<>();
     public static List<Predicate<Player>> canCollide = new ArrayList<>();
@@ -97,7 +97,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
     }
 
     public static void SendRoomInfoToPlayer(ServerPlayer player) {
-        ServerPlayNetworking.send(player, new SyncRoomToPlayerPayload(GameFunctions.roomToPlayer));
+        ServerPlayNetworking.send(player, new SyncRoomToPlayerPayload(GameUtils.roomToPlayer));
     }
 
     @Override
@@ -122,13 +122,13 @@ public class SRE extends StarRailExpressID implements ModInitializer {
     }
 
     private void initCCAAuto() {
-        TMMRoles.addRoleComponents(PlayerAFKComponent.KEY);
-        TMMRoles.addRoleComponents(DynamicCoinComponent.KEY);
-        TMMRoles.addRoleComponents(StarPlayerPsychoComponent.KEY);
-        TMMRoles.addRoleComponents(StarPlayerMoodComponent.KEY);
-        TMMRoles.addRoleComponents(StarPlayerNoteComponent.KEY);
-        TMMRoles.addRoleComponents(StarPlayerPoisonComponent.KEY);
-        TMMRoles.addRoleComponents(StarPlayerShopComponent.KEY);
+        TMMRoles.addRoleComponents(SREPlayerAFKComponent.KEY);
+        TMMRoles.addRoleComponents(DynamicShopComponent.KEY);
+        TMMRoles.addRoleComponents(SREPlayerPsychoComponent.KEY);
+        TMMRoles.addRoleComponents(SREPlayerMoodComponent.KEY);
+        TMMRoles.addRoleComponents(SREPlayerNoteComponent.KEY);
+        TMMRoles.addRoleComponents(SREPlayerPoisonComponent.KEY);
+        TMMRoles.addRoleComponents(SREPlayerShopComponent.KEY);
     }
 
     private void initConfig() {
@@ -155,11 +155,11 @@ public class SRE extends StarRailExpressID implements ModInitializer {
 
     private void registerServerLifecycleEvents() {
         EntitySleepEvents.ALLOW_SLEEP_TIME.register((player, pos, isNight) -> {
-            if (StarGameWorldComponent.KEY.get(player.level()).isRunning())
+            if (SREGameWorldComponent.KEY.get(player.level()).isRunning())
                 return InteractionResult.SUCCESS;
             return InteractionResult.PASS;
         });
-        GameFunctions.registerEventForServerTickForDoingResetTasks();
+        GameUtils.registerEventForServerTickForDoingResetTasks();
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
             SERVER = server;
             GAME = new StarRailMurderGameMode(SRE.id("murder"));
@@ -240,7 +240,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
 
     private void registerServerPlayConnectionEvents() {
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
-            StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(handler.player.level());
+            SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(handler.player.level());
             if (REPLAY_MANAGER != null) {
                 var role = gameWorldComponent.getRole(handler.player);
                 if (role != null) {
@@ -250,7 +250,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
             }
         });
         ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
-            StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(handler.player.level());
+            SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(handler.player.level());
             if (REPLAY_MANAGER != null) {
                 var role = gameWorldComponent.getRole(handler.player);
                 if (role != null) {
@@ -418,7 +418,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
     }
 
     public static boolean isPlayerInGame(Player player) {
-        return GameFunctions.isPlayerAliveAndSurvival(player);
+        return GameUtils.isPlayerAliveAndSurvival(player);
     }
 
     public static class Networking {

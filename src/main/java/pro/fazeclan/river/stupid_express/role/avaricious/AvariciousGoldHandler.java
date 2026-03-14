@@ -1,8 +1,16 @@
 package pro.fazeclan.river.stupid_express.role.avaricious;
 
-import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.event.OnGameTrueStarted;
 import io.wifi.starrailexpress.game.GameConstants;
+import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.index.TMMSounds;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
+
 import org.agmas.harpymodloader.events.ModdedRoleAssigned;
 import pro.fazeclan.river.stupid_express.constants.SERoles;
 
@@ -44,11 +52,69 @@ public class AvariciousGoldHandler {
         });
         ModdedRoleAssigned.EVENT.register(((player, role) -> {
             if (role.equals(SERoles.AVARICIOUS)) {
-                StarPlayerShopComponent shop = StarPlayerShopComponent.KEY.get(player);
+                SREPlayerShopComponent shop = SREPlayerShopComponent.KEY.get(player);
                 shop.setBalance(STARTING_BALANCE);
                 playerBonusMap.put(player.getUUID(), 0); // 初始化连续奖励计数
             }
         }));
+    }
+
+    public static void playerServerTick(ServerPlayer player, SREGameWorldComponent gameWorldComponent) {
+        var serverWorld = player.serverLevel();
+        long time = serverWorld.getGameTime();
+
+        if (AvariciousGoldHandler.gameStartTime == -1) {
+            AvariciousGoldHandler.gameStartTime = time;
+            return;
+        }
+
+        long elapsed = time - AvariciousGoldHandler.gameStartTime;
+        long timeinterval = elapsed % AvariciousGoldHandler.TIMER_TICKS;
+
+        if (elapsed % AvariciousGoldHandler.TIMER_TICKS != 0) {
+            if (elapsed % 20 == 0) {
+                player.sendSystemMessage(
+                        Component.translatable(
+                                "hud.stupid_express.avaricious.payout_timer",
+                                ((AvariciousGoldHandler.TIMER_TICKS - timeinterval) / 20))
+                                .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD),
+                        true);
+            }
+            return;
+        }
+
+        int nearbyPlayers = 0;
+        for (ServerPlayer other : serverWorld.players()) {
+            if (GameUtils.isPlayerEliminated(other))
+                continue;
+            if (other == player)
+                continue;
+            if (other.distanceTo(player) <= AvariciousGoldHandler.MAX_DISTANCE)
+                nearbyPlayers++;
+        }
+
+        if (nearbyPlayers > 0) {
+            int totalPlayers = serverWorld.players().size();
+            // 计算平均距离
+            double totalDistance = 0.0;
+            for (ServerPlayer other : serverWorld.players()) {
+                if (GameUtils.isPlayerEliminated(other))
+                    continue;
+                if (other == player)
+                    continue;
+                if (other.distanceTo(player) <= AvariciousGoldHandler.MAX_DISTANCE) {
+                    totalDistance += other.distanceTo(player);
+                }
+            }
+            double avgDistance = totalDistance / nearbyPlayers;
+
+            int payoutPerPlayer = AvariciousGoldHandler.calculatePayout(totalPlayers, nearbyPlayers, avgDistance);
+            int totalPayout = nearbyPlayers * payoutPerPlayer;
+            // 确保不超过150金币上限
+            totalPayout = Math.min(totalPayout, 150);
+            SREPlayerShopComponent.KEY.get(player).addToBalance(totalPayout);
+            player.playNotifySound(TMMSounds.UI_SHOP_BUY, SoundSource.PLAYERS, 10.0f, 0.5f);
+        }
     }
 
     // public static void payout() {

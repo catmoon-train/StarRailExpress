@@ -1,7 +1,7 @@
 package pro.fazeclan.river.stupid_express.modifier.split_personality;
 
 import io.wifi.starrailexpress.event.AllowPlayerDeath;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -75,7 +75,7 @@ public class SplitPersonalityHandler {
                 p_sb.setGameMode(GameType.ADVENTURE);
                 nComp.reset();
                 resetSplitComponent(p_sb);
-                GameFunctions.killPlayer(p_sb, false, null, StupidExpress.id("split_personality"));
+                GameUtils.killPlayer(p_sb, false, null, StupidExpress.id("split_personality"));
             } else {
                 p_sb.teleportTo(player.getX(), player.getY(), player.getZ());
                 p_sb.setGameMode(GameType.ADVENTURE);
@@ -91,7 +91,7 @@ public class SplitPersonalityHandler {
                 nComp.reset();
                 resetSplitComponent(p_sa);
 
-                GameFunctions.killPlayer(p_sa, false, null, StupidExpress.id("split_personality"));
+                GameUtils.killPlayer(p_sa, false, null, StupidExpress.id("split_personality"));
             } else {
                 p_sa.teleportTo(player.getX(), player.getY(), player.getZ());
                 p_sa.setGameMode(GameType.ADVENTURE);

@@ -1,8 +1,8 @@
 package org.agmas.noellesroles.repack.items;
 
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
-import io.wifi.starrailexpress.cca.StarPlayerPoisonComponent;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerPoisonComponent;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -47,14 +47,14 @@ public class ToxinItem extends Item {
                         Entity target1 = entityHitResult.getEntity();
                         if (user instanceof ServerPlayer player) {
                             if (target1 instanceof Player target) {
-                                ((StarPlayerPoisonComponent) StarPlayerPoisonComponent.KEY.get(target))
+                                ((SREPlayerPoisonComponent) SREPlayerPoisonComponent.KEY.get(target))
                                         .setPoisonTicks(HSRConstants.toxinPoisonTime, player.getUUID());
                                 player.playSound(HSRSounds.ITEM_SYRINGE_STAB, 0.15F, 1.0F);
                                 player.swing(InteractionHand.MAIN_HAND);
                                 if (!player.isCreative()) {
                                     player.getMainHandItem().shrink(1);
                                     if (player.level() instanceof ServerLevel slevel) {
-                                        var gameComponent = StarGameWorldComponent.KEY.get(player.level());
+                                        var gameComponent = SREGameWorldComponent.KEY.get(player.level());
                                         slevel.players().forEach((pl) -> {
                                             if (pl.distanceToSqr(player) <= 100) {
                                                 if (gameComponent.isRole(pl, ModRoles.DOCTOR)) {
@@ -83,7 +83,7 @@ public class ToxinItem extends Item {
         return ProjectileUtil.getHitResultOnViewVector(user, (entity) -> {
             boolean var10000;
             if (entity instanceof Player player) {
-                if (GameFunctions.isPlayerAliveAndSurvival(player)) {
+                if (GameUtils.isPlayerAliveAndSurvival(player)) {
                     var10000 = true;
                     return var10000;
                 }

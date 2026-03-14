@@ -1,7 +1,7 @@
 package io.wifi.starrailexpress.entity;
 
 import io.wifi.starrailexpress.game.GameConstants;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMEntities;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.TMMParticles;
@@ -45,9 +45,9 @@ public class GrenadeEntity extends ThrowableItemProjectile {
             Vec3 explosionPos = this.position().add(0.0D, 0.5D, 0.0D);
             for (ServerPlayer player : world.getPlayers(serverPlayerEntity ->
                     this.getBoundingBox().inflate(EXPLOSION_RADIUS).contains(serverPlayerEntity.position()) &&
-                            GameFunctions.isPlayerAliveAndSurvival(serverPlayerEntity))) {
+                            GameUtils.isPlayerAliveAndSurvival(serverPlayerEntity))) {
                 if (hasExplosionExposure(explosionPos, player)) {
-                    GameFunctions.killPlayer(player, true, this.getOwner() instanceof Player playerEntity ? playerEntity : null, GameConstants.DeathReasons.GRENADE);
+                    GameUtils.killPlayer(player, true, this.getOwner() instanceof Player playerEntity ? playerEntity : null, GameConstants.DeathReasons.GRENADE);
                 }
             }
 

@@ -1,6 +1,6 @@
 package io.wifi.starrailexpress.util;
 
-import io.wifi.starrailexpress.cca.PlayerSkinsComponent;
+import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
 import io.wifi.starrailexpress.index.TMMCosmetics;
 import io.wifi.starrailexpress.SRE;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -37,7 +37,7 @@ public class SkinUtils {
         if (itemStack.getItem() instanceof io.wifi.starrailexpress.item.ItemWithSkin) {
             TMMCosmetics.setSkin(player, itemStack, skinName);
             // 同时更新玩家皮肤组件
-            PlayerSkinsComponent skinsComponent = PlayerSkinsComponent.KEY.get(player);
+            SREPlayerSkinsComponent skinsComponent = SREPlayerSkinsComponent.KEY.get(player);
             String itemTypeName = getItemTypeName(itemStack);
             skinsComponent.setEquippedSkinForItemType(itemTypeName, skinName);
             // 更新数据同步
@@ -69,7 +69,7 @@ public class SkinUtils {
      * @return 皮肤统计信息字符串
      */
     public static String getPlayerSkinStats(Player player) {
-        PlayerSkinsComponent skinsComponent = PlayerSkinsComponent.KEY.get(player);
+        SREPlayerSkinsComponent skinsComponent = SREPlayerSkinsComponent.KEY.get(player);
         Map<String, String> equippedSkins = skinsComponent.getEquippedSkins();
         Map<String, Map<String, Boolean>> unlockedSkins = skinsComponent.getUnlockedSkins();
         
@@ -92,7 +92,7 @@ public class SkinUtils {
      * @param player 玩家
      */
     public static void resetPlayerSkins(Player player) {
-        PlayerSkinsComponent skinsComponent = PlayerSkinsComponent.KEY.get(player);
+        SREPlayerSkinsComponent skinsComponent = SREPlayerSkinsComponent.KEY.get(player);
         skinsComponent.getEquippedSkins().clear();
         skinsComponent.getUnlockedSkins().clear();
     }

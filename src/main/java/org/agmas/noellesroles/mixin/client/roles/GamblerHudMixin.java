@@ -4,8 +4,8 @@ import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.roles.gambler.GamblerPlayerComponent;
 import org.agmas.noellesroles.utils.RoleUtils;
 
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -35,12 +35,12 @@ public class GamblerHudMixin {
         if(client.player.isSpectator()) return;
 
         // 检查是否是赌徒
-        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(client.level);
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(client.level);
         if (!gameWorld.isRole(client.player, ModRoles.GAMBLER))
             return;
 
         // 检查玩家是否存活
-        if (!GameFunctions.isPlayerAliveAndSurvival(client.player))
+        if (!GameUtils.isPlayerAliveAndSurvival(client.player))
             return;
 
         // 获取赌徒组件

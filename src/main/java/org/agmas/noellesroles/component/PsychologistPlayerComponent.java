@@ -1,10 +1,10 @@
 package org.agmas.noellesroles.component;
 
 import org.agmas.noellesroles.role.ModRoles;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
-import io.wifi.starrailexpress.cca.StarPlayerMoodComponent;
-import io.wifi.starrailexpress.cca.StarPlayerPsychoComponent;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
+import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
+import io.wifi.starrailexpress.game.GameUtils;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import io.wifi.starrailexpress.api.RoleComponent;
@@ -119,7 +119,7 @@ public class PsychologistPlayerComponent implements RoleComponent, ServerTicking
             return false;
 
         // 检查自己的san是否满（使用阈值比较，因为san值是0.0-1.0的浮点数）
-        StarPlayerMoodComponent selfMood = StarPlayerMoodComponent.KEY.get(player);
+        SREPlayerMoodComponent selfMood = SREPlayerMoodComponent.KEY.get(player);
         float currentSan = selfMood.getMood();
         return currentSan >= SANITY_THRESHOLD;
     }
@@ -143,7 +143,7 @@ public class PsychologistPlayerComponent implements RoleComponent, ServerTicking
         }
 
         // 验证是心理学家
-        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.level());
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
         if (!gameWorld.isRole(player, ModRoles.PSYCHOLOGIST)) {
             return false;
         }
@@ -156,7 +156,7 @@ public class PsychologistPlayerComponent implements RoleComponent, ServerTicking
         }
 
         // 检查目标是否存活
-        if (!GameFunctions.isPlayerAliveAndSurvival(target)) {
+        if (!GameUtils.isPlayerAliveAndSurvival(target)) {
             player.displayClientMessage(Component.translatable("message.noellesroles.psychologist.invalid_target"),
                     true);
             return false;
@@ -184,7 +184,7 @@ public class PsychologistPlayerComponent implements RoleComponent, ServerTicking
             serverTarget.displayClientMessage(Component.translatable("message.noellesroles.psychologist.being_healed",
                     player.getName().getString()).withStyle(ChatFormatting.GREEN), true);
             if (isStopPsychoFuncEnable) {
-                StarPlayerPsychoComponent ppc = StarPlayerPsychoComponent.KEY.get(serverTarget);
+                SREPlayerPsychoComponent ppc = SREPlayerPsychoComponent.KEY.get(serverTarget);
                 if (ppc.psychoTicks > 0) {
                     this.cooldown = 60 * 20;
                     ppc.stopPsycho();
@@ -222,7 +222,7 @@ public class PsychologistPlayerComponent implements RoleComponent, ServerTicking
      */
     private void completeHealing(Player target) {
         // 恢复目标的san值到满（san值范围是0.0-1.0）
-        StarPlayerMoodComponent targetMood = StarPlayerMoodComponent.KEY.get(target);
+        SREPlayerMoodComponent targetMood = SREPlayerMoodComponent.KEY.get(target);
         targetMood.setMood(FULL_SANITY); // 1.0f 表示满san
         targetMood.sync();
 
@@ -291,7 +291,7 @@ public class PsychologistPlayerComponent implements RoleComponent, ServerTicking
             // 客户端通过isHealing或cooldown判断
             return isHealing || cooldown > 0;
         }
-        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.level());
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
         return gameWorld.isRole(player, ModRoles.PSYCHOLOGIST);
     }
 
@@ -300,7 +300,7 @@ public class PsychologistPlayerComponent implements RoleComponent, ServerTicking
     @Override
     public void serverTick() {
         // 验证是心理学家
-        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.level());
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
         if (!gameWorld.isRole(player, ModRoles.PSYCHOLOGIST)) {
             return;
         }
@@ -319,7 +319,7 @@ public class PsychologistPlayerComponent implements RoleComponent, ServerTicking
             Player target = player.level().getPlayerByUUID(healingTarget);
 
             // 检查目标是否还存在且存活
-            if (target == null || !GameFunctions.isPlayerAliveAndSurvival(target)) {
+            if (target == null || !GameUtils.isPlayerAliveAndSurvival(target)) {
                 stopHealing("message.noellesroles.psychologist.target_lost");
                 return;
             }

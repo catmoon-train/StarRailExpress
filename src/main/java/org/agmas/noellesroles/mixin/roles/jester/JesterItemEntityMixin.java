@@ -1,6 +1,6 @@
 package org.agmas.noellesroles.mixin.roles.jester;
 
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.role.ModRoles;
@@ -17,7 +17,7 @@ public abstract class JesterItemEntityMixin {
         try {
 
 
-            StarGameWorldComponent gameWorldComponent = (StarGameWorldComponent) StarGameWorldComponent.KEY.get(player.level());
+            SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY.get(player.level());
             if (!player.isCreative() && gameWorldComponent.isRole(player, ModRoles.JESTER)) {
                 ci.cancel();
             }

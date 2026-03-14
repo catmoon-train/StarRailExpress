@@ -1,6 +1,6 @@
 package org.agmas.noellesroles.item;
 
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -80,7 +80,7 @@ public class DogskinPlasterItem extends Item {
     public static HitResult getDogskinPlasterTarget(Player user) {
         return ProjectileUtil.getHitResultOnViewVector(user, (entity) -> {
             if (entity instanceof Player player) {
-                if (GameFunctions.isPlayerAliveAndSurvival(player)) {
+                if (GameUtils.isPlayerAliveAndSurvival(player)) {
                     return true;
                 }
             }

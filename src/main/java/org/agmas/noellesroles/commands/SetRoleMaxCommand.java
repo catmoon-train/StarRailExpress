@@ -7,7 +7,7 @@ import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import io.wifi.starrailexpress.api.TMMRoles;
-import io.wifi.starrailexpress.api.Role;
+import io.wifi.starrailexpress.api.SRERole;
 import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.jetbrains.annotations.NotNull;
@@ -23,7 +23,7 @@ public class SetRoleMaxCommand {
                     .then(Commands.literal("setmax")
                             .then(Commands.argument("role", ResourceLocationArgument.id())
                                     .suggests((context, builder) -> {
-                                        for (Role role : TMMRoles.ROLES.values()) {
+                                        for (SRERole role : TMMRoles.ROLES.values()) {
                                             ResourceLocation id = role.identifier();
                                             builder.suggest(id.toString());
                                         }
@@ -35,8 +35,8 @@ public class SetRoleMaxCommand {
                                                         "role");
                                                 int value = IntegerArgumentType.getInteger(context, "value");
 
-                                                Role roleObj = null;
-                                                for (Role role : TMMRoles.ROLES.values()) {
+                                                SRERole roleObj = null;
+                                                for (SRERole role : TMMRoles.ROLES.values()) {
                                                     if (role.identifier().equals(roleId)) {
                                                         roleObj = role;
                                                         break;

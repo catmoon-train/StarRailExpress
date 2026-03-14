@@ -1,7 +1,7 @@
 package org.agmas.harpymodloader.modifiers;
 
 
-import io.wifi.starrailexpress.api.Role;
+import io.wifi.starrailexpress.api.SRERole;
 import java.util.ArrayList;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
@@ -12,12 +12,12 @@ public class Modifier {
 
     public ResourceLocation identifier;
     public int color;
-    public ArrayList<Role> cannotBeAppliedTo;
-    public ArrayList<Role> canOnlyBeAppliedTo;
+    public ArrayList<SRERole> cannotBeAppliedTo;
+    public ArrayList<SRERole> canOnlyBeAppliedTo;
     public boolean killerOnly;
     public boolean civilianOnly;
 
-    public Modifier(ResourceLocation identifier, int color, ArrayList<Role> cannotBeAppliedTo, ArrayList<Role> canOnlyBeAppliedTo, boolean killerOnly, boolean civilianOnly) {
+    public Modifier(ResourceLocation identifier, int color, ArrayList<SRERole> cannotBeAppliedTo, ArrayList<SRERole> canOnlyBeAppliedTo, boolean killerOnly, boolean civilianOnly) {
         this.identifier = identifier;
         this.color = color;
         this.cannotBeAppliedTo = cannotBeAppliedTo;
@@ -50,19 +50,19 @@ public class Modifier {
         return this.color;
     }
 
-    public ArrayList<Role> canOnlyBeAppliedTo() {
+    public ArrayList<SRERole> canOnlyBeAppliedTo() {
         return canOnlyBeAppliedTo;
     }
 
-    public ArrayList<Role> cannotBeAppliedTo() {
+    public ArrayList<SRERole> cannotBeAppliedTo() {
         return cannotBeAppliedTo;
     }
 
-    public void setCannotBeAppliedTo(ArrayList<Role> cannotBeAppliedTo) {
+    public void setCannotBeAppliedTo(ArrayList<SRERole> cannotBeAppliedTo) {
         this.cannotBeAppliedTo = cannotBeAppliedTo;
     }
 
-    public void setCanOnlyBeAppliedTo(ArrayList<Role> canOnlyBeAppliedTo) {
+    public void setCanOnlyBeAppliedTo(ArrayList<SRERole> canOnlyBeAppliedTo) {
         this.canOnlyBeAppliedTo = canOnlyBeAppliedTo;
     }
 }

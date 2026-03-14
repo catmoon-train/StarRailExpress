@@ -1,6 +1,6 @@
 package org.agmas.noellesroles.mixin.client.roles.conductor;
 
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.gui.RoleNameRenderer;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -25,7 +25,7 @@ public class MasterKeyHudMixin {
         }
         if (Minecraft.getInstance().player.isSpectator())
             return;
-        StarGameWorldComponent gameWorldComponent = (StarGameWorldComponent) StarGameWorldComponent.KEY.get(player.level());
+        SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY.get(player.level());
         if (player.getMainHandItem().is(ModItems.MASTER_KEY) && !ConfigWorldComponent.KEY.get(player.level()).masterKeyIsVisible) {
             context.pose().pushPose();
             context.pose().translate((float) context.guiWidth() / 2.0F, (float) context.guiHeight() / 2.0F + 6.0F, 0.0F);

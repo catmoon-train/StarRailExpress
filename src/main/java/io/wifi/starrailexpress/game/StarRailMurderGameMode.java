@@ -1,13 +1,13 @@
 package io.wifi.starrailexpress.game;
 
 import io.wifi.starrailexpress.api.GameMode;
-import io.wifi.starrailexpress.api.Role;
+import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
-import io.wifi.starrailexpress.cca.StarGameRoundEndComponent;
-import io.wifi.starrailexpress.cca.StarGameTimeComponent;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
-import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
-import io.wifi.starrailexpress.cca.StarTrainWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
+import io.wifi.starrailexpress.cca.SREGameTimeComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
+import io.wifi.starrailexpress.cca.SRETrainWorldComponent;
 import io.wifi.starrailexpress.event.AllowGameEnd;
 import io.wifi.starrailexpress.network.original.AnnounceWelcomePayload;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -48,7 +48,7 @@ public class StarRailMurderGameMode extends GameMode {
     }
 
     @Override
-    public void finalizeGame(ServerLevel serverWorld, StarGameWorldComponent gameWorldComponent) {
+    public void finalizeGame(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent) {
         // 执行游戏结束时的函数
         executeFunction(serverWorld.getServer().createCommandSourceStack(), "harpymodloader:end_game");
 
@@ -64,7 +64,7 @@ public class StarRailMurderGameMode extends GameMode {
     }
 
     @Override
-    public void initializeGame(ServerLevel serverWorld, StarGameWorldComponent gameWorldComponent,
+    public void initializeGame(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent,
             List<ServerPlayer> players) {
         if (!Harpymodloader.isMojangVerify) {
             return;
@@ -75,8 +75,8 @@ public class StarRailMurderGameMode extends GameMode {
 
         HarpyModLoaderConfig.HANDLER.load();
 
-        ((StarTrainWorldComponent) StarTrainWorldComponent.KEY.get(serverWorld))
-                .setTimeOfDay(StarTrainWorldComponent.TimeOfDay.MIDNIGHT);
+        ((SRETrainWorldComponent) SRETrainWorldComponent.KEY.get(serverWorld))
+                .setTimeOfDay(SRETrainWorldComponent.TimeOfDay.MIDNIGHT);
         gameWorldComponent.clearRoleMap();
         for (ServerPlayer player : players) {
             ResetPlayerEvent.EVENT.invoker().resetPlayer(player);
@@ -93,10 +93,10 @@ public class StarRailMurderGameMode extends GameMode {
         assignRole(serverWorld, gameWorldComponent, players);
     }
 
-    private void assignRole(ServerLevel serverWorld, StarGameWorldComponent gameWorldComponent,
+    private void assignRole(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent,
             List<ServerPlayer> players) {
         // 新的模块化角色分配流程
-        Map<Player, Role> roleAssignments = assignRolesToPlayers(serverWorld, players);
+        Map<Player, SRERole> roleAssignments = assignRolesToPlayers(serverWorld, players);
         OnGamePlayerRolesConfirm.EVENT.invoker().beforeAssignRole(roleAssignments);
         // 计算有特殊角色的玩家数量（用于AnnounceWelcomePayload）
         long killCount = roleAssignments.values().stream()
@@ -104,7 +104,7 @@ public class StarRailMurderGameMode extends GameMode {
                 .count();
 
         // 统一应用角色分配并触发相应事件
-        for (Map.Entry<Player, Role> entry : roleAssignments.entrySet()) {
+        for (Map.Entry<Player, SRERole> entry : roleAssignments.entrySet()) {
             final var key = entry.getKey();
             final var value = entry.getValue();
             if (value != null) {
@@ -113,7 +113,7 @@ public class StarRailMurderGameMode extends GameMode {
                 value.getDefaultItems().forEach(item -> key.getInventory().placeItemBackInInventory(item));
                 Harpymodloader.LOGGER.debug("Assigned role " + value.getIdentifier() + " to " + key.getName());
                 if (value.canUseKiller()) {
-                    StarPlayerShopComponent playerShopComponent = StarPlayerShopComponent.KEY.get(key);
+                    SREPlayerShopComponent playerShopComponent = SREPlayerShopComponent.KEY.get(key);
                     playerShopComponent.setBalance(100 + playerShopComponent.balance);
                 }
             } else {
@@ -188,7 +188,7 @@ public class StarRailMurderGameMode extends GameMode {
     }
 
     public void assignModifiers(int desiredModifierCount, ServerLevel serverWorld,
-            StarGameWorldComponent gameWorldComponent,
+            SREGameWorldComponent gameWorldComponent,
             List<ServerPlayer> players) {
         WorldModifierComponent worldModifierComponent = WorldModifierComponent.KEY.get(serverWorld);
         worldModifierComponent.getModifiers().clear();
@@ -311,23 +311,23 @@ public class StarRailMurderGameMode extends GameMode {
      * 新的模块化角色分配方法
      * 处理强制角色、计算各类型角色数量、创建角色池、分配角色以及处理关联角色
      */
-    private Map<Player, Role> assignRolesToPlayers(ServerLevel serverWorld, List<ServerPlayer> players) {
-        Map<Player, Role> roleAssignments = new HashMap<>();
+    private Map<Player, SRERole> assignRolesToPlayers(ServerLevel serverWorld, List<ServerPlayer> players) {
+        Map<Player, SRERole> roleAssignments = new HashMap<>();
         for (Player player : players) {
             roleAssignments.put(player, null);
         }
 
         // 第一步：处理强制分配的角色
-        Map<UUID, Role> forcedRoles = new HashMap<>(Harpymodloader.FORCED_MODDED_ROLE_FLIP);
+        Map<UUID, SRERole> forcedRoles = new HashMap<>(Harpymodloader.FORCED_MODDED_ROLE_FLIP);
         int killerCount = SetRoleCountCommand.getKillerCount(players.size());
         int vigilanteCount = SetRoleCountCommand.getVigilanteCount(players.size());
         int neutralsCount = SetRoleCountCommand.getNatureCount(players.size());
 
         // 处理强制分配的角色，减少对应角色类型的数量需求
-        for (Map.Entry<UUID, Role> entry : forcedRoles.entrySet()) {
+        for (Map.Entry<UUID, SRERole> entry : forcedRoles.entrySet()) {
             Player player = serverWorld.getPlayerByUUID(entry.getKey());
             if (player != null) {
-                Role role = entry.getValue();
+                SRERole role = entry.getValue();
                 if (role != null) {
                     roleAssignments.put(player, role);
 
@@ -356,11 +356,11 @@ public class StarRailMurderGameMode extends GameMode {
                         !role.isInnocent() &&
                         role != TMMRoles.CIVILIAN);
 
-        List<Role> assignedKillers = killerPool.selectRoles(killerCount);
+        List<SRERole> assignedKillers = killerPool.selectRoles(killerCount);
 
         // 警卫池 - 使用无限重复模式，因为警卫职业数量有限
-        RoleAssignmentPool vigilantePool = RoleAssignmentPool.create("Vigilante", Role::isVigilanteTeam);
-        List<Role> assignedVigilantes = vigilantePool.selectRoles(vigilanteCount);
+        RoleAssignmentPool vigilantePool = RoleAssignmentPool.create("Vigilante", SRERole::isVigilanteTeam);
+        List<SRERole> assignedVigilantes = vigilantePool.selectRoles(vigilanteCount);
 
         // 中立池
         RoleAssignmentPool neutralsPool = RoleAssignmentPool.create("Neutrals",
@@ -369,7 +369,7 @@ public class StarRailMurderGameMode extends GameMode {
                                 !role.isInnocent()) || role.isNeutrals())
                         &&
                         role != TMMRoles.CIVILIAN));
-        List<Role> assignedNatures = neutralsPool.selectRoles(neutralsCount);
+        List<SRERole> assignedNatures = neutralsPool.selectRoles(neutralsCount);
 
         // 第三步：计算平民数量（只分配基础非平民角色，不包含补充的平民角色）
         int assignedSpecialCount = assignedKillers.size() + assignedVigilantes.size() + assignedNatures.size();
@@ -384,10 +384,10 @@ public class StarRailMurderGameMode extends GameMode {
                         role.isInnocent() &&
                         role != TMMRoles.CIVILIAN);
         civilianPool.setIgnoreRoleOccupiedCount(true);
-        List<Role> assignedCivilians = civilianPool.selectRoles(civilianCount);
+        List<SRERole> assignedCivilians = civilianPool.selectRoles(civilianCount);
 
         // 第四步：合并所有分配的角色（包括处理关联角色）
-        List<Role> allRoles = new ArrayList<>();
+        List<SRERole> allRoles = new ArrayList<>();
         allRoles.addAll(assignedKillers);
         allRoles.addAll(assignedVigilantes);
         allRoles.addAll(assignedNatures);
@@ -404,7 +404,7 @@ public class StarRailMurderGameMode extends GameMode {
             }
         }
 
-        for (Role role : allRoles) {
+        for (SRERole role : allRoles) {
             roleInstantList.add(new RoleInstant(UUID.randomUUID(), role));
         }
         List<RoleInstant> expandedRoles = RoleAssignmentManager.expandWithCompanionRoles(roleInstantList);
@@ -455,7 +455,7 @@ public class StarRailMurderGameMode extends GameMode {
                     if (roleSelector == null)
                         continue;
                     RoleInstant roleInstant = roleSelector.selectRandomKeyBasedOnWeightsAndRemoved();
-                    Role selectedRole = null;
+                    SRERole selectedRole = null;
                     if (roleInstant != null) {
                         hashMap.remove(roleInstant);
                         selectedRole = roleInstant.role();
@@ -480,7 +480,7 @@ public class StarRailMurderGameMode extends GameMode {
         Collections.shuffle(unassignedPlayers);
         while (unassignedPlayers.size() > 0 && roleSelector.size() > 0) {
             RoleInstant roleInstant = roleSelector.selectRandomKeyBasedOnWeightsAndRemoved();
-            Role selectedRole = null;
+            SRERole selectedRole = null;
             if (roleInstant != null) {
                 selectedRole = roleInstant.role();
             }
@@ -499,17 +499,17 @@ public class StarRailMurderGameMode extends GameMode {
         return roleAssignments;
     }
 
-    public record RoleInstant(UUID uuid, Role role) {
+    public record RoleInstant(UUID uuid, SRERole role) {
 
     }
 
     @Override
-    public void tickServerGameLoop(ServerLevel serverWorld, StarGameWorldComponent gameWorldComponent) {
-        GameFunctions.WinStatus winStatus = GameFunctions.WinStatus.NONE;
+    public void tickServerGameLoop(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent) {
+        GameUtils.WinStatus winStatus = GameUtils.WinStatus.NONE;
 
         // check if out of time
-        if (!StarGameTimeComponent.KEY.get(serverWorld).hasTime())
-            winStatus = GameFunctions.WinStatus.TIME;
+        if (!SREGameTimeComponent.KEY.get(serverWorld).hasTime())
+            winStatus = GameUtils.WinStatus.TIME;
 
         boolean civilianAlive = false;
         for (ServerPlayer player : serverWorld.players()) {
@@ -517,39 +517,39 @@ public class StarRailMurderGameMode extends GameMode {
             if (gameWorldComponent.canAutoAddMoney(player)) {
                 Integer balanceToAdd = GameConstants.PASSIVE_MONEY_TICKER.apply(serverWorld.getGameTime());
                 if (balanceToAdd > 0)
-                    StarPlayerShopComponent.KEY.get(player).addToBalance(balanceToAdd);
+                    SREPlayerShopComponent.KEY.get(player).addToBalance(balanceToAdd);
             }
 
             // check if some civilians are still alive
-            if (gameWorldComponent.isInnocent(player) && !GameFunctions.isPlayerEliminated(player)) {
+            if (gameWorldComponent.isInnocent(player) && !GameUtils.isPlayerEliminated(player)) {
                 civilianAlive = true;
             }
         }
 
         // check killer win condition (killed all civilians)
         if (!civilianAlive) {
-            winStatus = GameFunctions.WinStatus.KILLERS;
+            winStatus = GameUtils.WinStatus.KILLERS;
         }
 
         // check passenger win condition (all killers are dead)
-        if (winStatus == GameFunctions.WinStatus.NONE) {
-            winStatus = GameFunctions.WinStatus.PASSENGERS;
+        if (winStatus == GameUtils.WinStatus.NONE) {
+            winStatus = GameUtils.WinStatus.PASSENGERS;
             for (UUID player : gameWorldComponent.getAllKillerPlayers()) {
-                if (!GameFunctions.isPlayerEliminated(serverWorld.getPlayerByUUID(player))) {
-                    winStatus = GameFunctions.WinStatus.NONE;
+                if (!GameUtils.isPlayerEliminated(serverWorld.getPlayerByUUID(player))) {
+                    winStatus = GameUtils.WinStatus.NONE;
                 }
             }
         }
 
         // 检查场上是否存在亡命徒
-        if (winStatus != GameFunctions.WinStatus.NONE) {
+        if (winStatus != GameUtils.WinStatus.NONE) {
             boolean hasLooseEndAlive = false;
             ServerPlayer lastLooseEnd = null;
             int looseEndCount = 0;
 
             for (ServerPlayer player : serverWorld.players()) {
                 if (gameWorldComponent.isRole(player, TMMRoles.LOOSE_END)
-                        && !GameFunctions.isPlayerEliminated(player)) {
+                        && !GameUtils.isPlayerEliminated(player)) {
                     hasLooseEndAlive = true;
                     looseEndCount++;
                     lastLooseEnd = player;
@@ -562,37 +562,37 @@ public class StarRailMurderGameMode extends GameMode {
                 boolean hasOtherAlive = false;
                 for (ServerPlayer player : serverWorld.players()) {
                     if (!gameWorldComponent.isRole(player, TMMRoles.LOOSE_END)
-                            && !GameFunctions.isPlayerEliminated(player)) {
+                            && !GameUtils.isPlayerEliminated(player)) {
                         hasOtherAlive = true;
                         break;
                     }
                 }
                 if (!hasOtherAlive) {
-                    winStatus = GameFunctions.WinStatus.LOOSE_END;
+                    winStatus = GameUtils.WinStatus.LOOSE_END;
                     // 补充 CustomWinnerID: loose_end
-                    var roundEnd = StarGameRoundEndComponent.KEY.get(serverWorld);
+                    var roundEnd = SREGameRoundEndComponent.KEY.get(serverWorld);
                     roundEnd.CustomWinnerID = "loose_end";
                     roundEnd.CustomWinnerPlayers.add(lastLooseEnd.getUUID());
                 } else {
                     // 有其他玩家存活，游戏继续
-                    winStatus = GameFunctions.WinStatus.NONE;
+                    winStatus = GameUtils.WinStatus.NONE;
                 }
             } else if (hasLooseEndAlive) {
                 // 有多个亡命徒或其他情况，游戏继续
-                winStatus = GameFunctions.WinStatus.NONE;
+                winStatus = GameUtils.WinStatus.NONE;
             }
         }
 
         // game end on win and display
-        GameFunctions.WinStatus modifiedWinStatus = AllowGameEnd.EVENT.invoker().allowGameEnd(serverWorld,
+        GameUtils.WinStatus modifiedWinStatus = AllowGameEnd.EVENT.invoker().allowGameEnd(serverWorld,
                 winStatus, false);
-        if (!modifiedWinStatus.equals(GameFunctions.WinStatus.NOT_MODIFY)) {
+        if (!modifiedWinStatus.equals(GameUtils.WinStatus.NOT_MODIFY)) {
             winStatus = modifiedWinStatus;
         }
-        if (winStatus != GameFunctions.WinStatus.NONE
-                && gameWorldComponent.getGameStatus() == StarGameWorldComponent.GameStatus.ACTIVE) {
-            StarGameRoundEndComponent.KEY.get(serverWorld).setRoundEndData(serverWorld.players(), winStatus);
-            GameFunctions.stopGame(serverWorld);
+        if (winStatus != GameUtils.WinStatus.NONE
+                && gameWorldComponent.getGameStatus() == SREGameWorldComponent.GameStatus.ACTIVE) {
+            SREGameRoundEndComponent.KEY.get(serverWorld).setRoundEndData(serverWorld.players(), winStatus);
+            GameUtils.stopGame(serverWorld);
         }
     }
 

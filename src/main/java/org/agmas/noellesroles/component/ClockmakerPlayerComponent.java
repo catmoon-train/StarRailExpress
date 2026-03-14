@@ -1,8 +1,8 @@
 package org.agmas.noellesroles.component;
 
-import io.wifi.starrailexpress.cca.StarGameTimeComponent;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
-import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
+import io.wifi.starrailexpress.cca.SREGameTimeComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
@@ -91,7 +91,7 @@ public class ClockmakerPlayerComponent implements RoleComponent, ServerTickingCo
         }
 
         // 验证是钟表匠
-        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.level());
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
         if (!gameWorld.isRole(player, org.agmas.noellesroles.role.ModRoles.CLOCKMAKER)) {
             return false;
         }
@@ -103,7 +103,7 @@ public class ClockmakerPlayerComponent implements RoleComponent, ServerTickingCo
         }
 
         // 检查游戏时间是否已到最小值
-        StarGameTimeComponent gameTime = StarGameTimeComponent.KEY.get(player.level());
+        SREGameTimeComponent gameTime = SREGameTimeComponent.KEY.get(player.level());
         long currentTime = gameTime.getTime();
         if (currentTime <= MIN_GAME_TIME_TICKS) {
             player.displayClientMessage(Component.translatable("message.noellesroles.clockmaker.min_time_reached").withStyle(ChatFormatting.RED), true);
@@ -111,7 +111,7 @@ public class ClockmakerPlayerComponent implements RoleComponent, ServerTickingCo
         }
 
         // 检查金币
-        StarPlayerShopComponent shopComponent = StarPlayerShopComponent.KEY.get(player);
+        SREPlayerShopComponent shopComponent = SREPlayerShopComponent.KEY.get(player);
         if (shopComponent.balance < SKILL_COST) {
             player.displayClientMessage(Component.translatable("message.noellesroles.clockmaker.insufficient_funds", SKILL_COST).withStyle(ChatFormatting.RED), true);
             return true;
@@ -143,7 +143,7 @@ public class ClockmakerPlayerComponent implements RoleComponent, ServerTickingCo
         // 获取当前游戏时间
         Level level = player.level();
 
-        StarGameTimeComponent gameTime = StarGameTimeComponent.KEY.get(level);
+        SREGameTimeComponent gameTime = SREGameTimeComponent.KEY.get(level);
         long currentTime = gameTime.getTime();
 
         // 计算新的游戏时间
@@ -180,7 +180,7 @@ public class ClockmakerPlayerComponent implements RoleComponent, ServerTickingCo
      * 获取当前游戏时间（秒）
      */
     public long getCurrentGameTimeSeconds() {
-        StarGameTimeComponent gameTime = StarGameTimeComponent.KEY.get(player.level());
+        SREGameTimeComponent gameTime = SREGameTimeComponent.KEY.get(player.level());
         return gameTime.getTime() / 20;
     }
 
@@ -193,13 +193,13 @@ public class ClockmakerPlayerComponent implements RoleComponent, ServerTickingCo
         }
 
         // 检查游戏时间是否已到最小值
-        StarGameTimeComponent gameTime = StarGameTimeComponent.KEY.get(player.level());
+        SREGameTimeComponent gameTime = SREGameTimeComponent.KEY.get(player.level());
         if (gameTime.getTime() <= MIN_GAME_TIME_TICKS) {
             return false;
         }
 
         // 检查金币
-        StarPlayerShopComponent shopComponent = StarPlayerShopComponent.KEY.get(player);
+        SREPlayerShopComponent shopComponent = SREPlayerShopComponent.KEY.get(player);
         return shopComponent.balance >= SKILL_COST;
     }
 
@@ -213,7 +213,7 @@ public class ClockmakerPlayerComponent implements RoleComponent, ServerTickingCo
     @Override
     public void serverTick() {
         // 验证是钟表匠
-        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.level());
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
         if (!gameWorld.isRole(player, org.agmas.noellesroles.role.ModRoles.CLOCKMAKER)) {
             return;
         }

@@ -1,6 +1,6 @@
 package pro.fazeclan.river.stupid_express.mixin.modifier.loose_end;
 
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.network.RemoveStatusBarPayload;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.level.ServerLevel;
@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(GameFunctions.class)
+@Mixin(GameUtils.class)
 public class LooseEndBarClearMixin {
     @Inject(method = "stopGame", at = @At("HEAD"))
     private static void stopGame(ServerLevel world, CallbackInfo ci){

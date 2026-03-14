@@ -2,12 +2,12 @@ package org.agmas.noellesroles.game;
 
 import io.wifi.starrailexpress.api.GameMode;
 import io.wifi.starrailexpress.api.TMMRoles;
-import io.wifi.starrailexpress.cca.StarGameRoundEndComponent;
-import io.wifi.starrailexpress.cca.StarGameTimeComponent;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
-import io.wifi.starrailexpress.cca.PlayerAFKComponent;
-import io.wifi.starrailexpress.cca.StarTrainWorldComponent;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
+import io.wifi.starrailexpress.cca.SREGameTimeComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerAFKComponent;
+import io.wifi.starrailexpress.cca.SRETrainWorldComponent;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.ServerTaskInfoClasses;
 import net.fabricmc.loader.impl.util.log.Log;
 import net.fabricmc.loader.impl.util.log.LogCategory;
@@ -53,11 +53,11 @@ public class ChairWheelRaceGame extends GameMode {
     public List<ServerPlayer> isWin = new ArrayList<>();
 
     @Override
-    public void tickServerGameLoop(ServerLevel serverLevel, StarGameWorldComponent gameWorldComponent) {
+    public void tickServerGameLoop(ServerLevel serverLevel, SREGameWorldComponent gameWorldComponent) {
         // 倒计时逻辑
         if (serverLevel.getGameTime() % 60 == 0) {
             for (ServerPlayer player : serverLevel.players()) {
-                PlayerAFKComponent.KEY.get(player).updateActivity();
+                SREPlayerAFKComponent.KEY.get(player).updateActivity();
             }
         }
         if (gamePrepareTime > 0) {
@@ -77,7 +77,7 @@ public class ChairWheelRaceGame extends GameMode {
         }
 
         serverLevel.players().forEach(player -> {
-            if (GameFunctions.isPlayerAliveAndSurvival(player)) {
+            if (GameUtils.isPlayerAliveAndSurvival(player)) {
                 if (player.getVehicle() instanceof WheelchairEntity wheelchairEntity) {
                     if (serverLevel.getBlockState(player.getOnPos().above(-1)).getBlock() == Blocks.DIAMOND_BLOCK) {
                         isWin.add(player);
@@ -103,34 +103,34 @@ public class ChairWheelRaceGame extends GameMode {
             }
         });
 
-        if (!((StarGameTimeComponent) StarGameTimeComponent.KEY.get(serverLevel)).hasTime()
-                || isWin.size() >= serverLevel.getPlayers(GameFunctions::isPlayerAliveAndSurvival).size()) {
+        if (!((SREGameTimeComponent) SREGameTimeComponent.KEY.get(serverLevel)).hasTime()
+                || isWin.size() >= serverLevel.getPlayers(GameUtils::isPlayerAliveAndSurvival).size()) {
             endGame(serverLevel, gameWorldComponent);
         }
     }
 
     int gamePrepareTime = 0;
 
-    public void endGame(ServerLevel serverLevel, StarGameWorldComponent gameWorldComponent) {
-        var roundComponent = StarGameRoundEndComponent.KEY.get(serverLevel);
+    public void endGame(ServerLevel serverLevel, SREGameWorldComponent gameWorldComponent) {
+        var roundComponent = SREGameRoundEndComponent.KEY.get(serverLevel);
         roundComponent.CustomWinnerID = "chiar_wheel_race";
         // roundComponent
         var player = isWin.isEmpty() ? null : isWin.getFirst();
         roundComponent.CustomWinnerSubtitle = Component.translatable("game.win.star.chair_wheel_race.subtitle");
         roundComponent.CustomWinnerTitle = Component.translatable("game.win.star.chair_wheel_race",
                 player == null ? "滚木" : player.getScoreboardName());
-        roundComponent.setWinStatus(GameFunctions.WinStatus.CUSTOM_COMPONENT);
+        roundComponent.setWinStatus(GameUtils.WinStatus.CUSTOM_COMPONENT);
         roundComponent.sync();
         executeFunction(serverLevel.getServer().createCommandSourceStack(), "harpymodloader:chair_wheel_race/over");
-        GameFunctions.stopGame(serverLevel);
+        GameUtils.stopGame(serverLevel);
     }
 
     @Override
-    public void initializeGame(ServerLevel serverLevel, StarGameWorldComponent gameWorldComponent,
+    public void initializeGame(ServerLevel serverLevel, SREGameWorldComponent gameWorldComponent,
             List<ServerPlayer> list) {
         GameInitializeEvent.EVENT.invoker().initializeGame(serverLevel, gameWorldComponent, list);
-        ((StarTrainWorldComponent) StarTrainWorldComponent.KEY.get(serverLevel))
-                .setTimeOfDay(StarTrainWorldComponent.TimeOfDay.DAY);
+        ((SRETrainWorldComponent) SRETrainWorldComponent.KEY.get(serverLevel))
+                .setTimeOfDay(SRETrainWorldComponent.TimeOfDay.DAY);
         isWin.clear();
         gamePrepareTime = 20 * 10;
         executeFunction(serverLevel.getServer().createCommandSourceStack(), "harpymodloader:chair_wheel_race/init");
@@ -138,7 +138,7 @@ public class ChairWheelRaceGame extends GameMode {
             player.addEffect(new MobEffectInstance(MobEffects.BAD_OMEN, 20 * 5));
             gameWorldComponent.addRole(player, TMMRoles.DISCOVERY_CIVILIAN, false);
         }
-        GameFunctions.serverAsynTaskLists.add(new ServerTaskInfoClasses.SchedulerTask(120, () -> {
+        GameUtils.serverAsynTaskLists.add(new ServerTaskInfoClasses.SchedulerTask(120, () -> {
             for (ServerPlayer player : list) {
                 var chair = new WheelchairEntity(ModEntities.WHEELCHAIR, serverLevel);
                 chair.setPos(player.getX(), player.getY(), player.getZ());

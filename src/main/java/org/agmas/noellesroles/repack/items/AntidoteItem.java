@@ -1,10 +1,8 @@
 package org.agmas.noellesroles.repack.items;
 
-import io.wifi.starrailexpress.cca.StarPlayerPoisonComponent;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.cca.SREPlayerPoisonComponent;
+import io.wifi.starrailexpress.game.GameUtils;
 
-
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -21,7 +19,6 @@ import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
-import org.agmas.noellesroles.repack.AntidoteUsePayload;
 import org.agmas.noellesroles.repack.HSRConstants;
 import org.agmas.noellesroles.repack.HSRItems;
 import org.agmas.noellesroles.repack.HSRSounds;
@@ -51,8 +48,8 @@ public class AntidoteItem extends Item {
 
 
                                 if (!((double)target.distanceTo(player) > (double)3.0F)) {
-                                    final var playerPoisonComponent = StarPlayerPoisonComponent.KEY.get(target);
-                                    ((StarPlayerPoisonComponent) playerPoisonComponent).reset();
+                                    final var playerPoisonComponent = SREPlayerPoisonComponent.KEY.get(target);
+                                    ((SREPlayerPoisonComponent) playerPoisonComponent).reset();
                                     playerPoisonComponent.sync();
                                     target.playSound(HSRSounds.ITEM_SYRINGE_STAB, 0.4F, 1.0F);
                                     final var blockPos = target.blockPosition();
@@ -77,7 +74,7 @@ public class AntidoteItem extends Item {
         return ProjectileUtil.getHitResultOnViewVector(user, (entity) -> {
             boolean var10000;
             if (entity instanceof Player player) {
-                if (GameFunctions.isPlayerAliveAndSurvival(player)) {
+                if (GameUtils.isPlayerAliveAndSurvival(player)) {
                     var10000 = true;
                     return var10000;
                 }

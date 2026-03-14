@@ -14,10 +14,10 @@ import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
 import io.wifi.starrailexpress.api.GameMode;
-import io.wifi.starrailexpress.api.Role;
+import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.game.GameConstants;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.SRE;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -34,11 +34,11 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 
-public class StarGameWorldComponent implements AutoSyncedComponent, ServerTickingComponent, ClientTickingComponent {
-    public static final ComponentKey<StarGameWorldComponent> KEY = ComponentRegistry.getOrCreate(SRE.id("game"),
-            StarGameWorldComponent.class);
+public class SREGameWorldComponent implements AutoSyncedComponent, ServerTickingComponent, ClientTickingComponent {
+    public static final ComponentKey<SREGameWorldComponent> KEY = ComponentRegistry.getOrCreate(SRE.id("game"),
+            SREGameWorldComponent.class);
     private final Level world;
-    private RoleWorldComponent roleWorldComponent = null;
+    private SRERoleWorldComponent roleWorldComponent = null;
     private boolean canJump = false;
     private boolean lockedToSupporters = false;
     private boolean enableWeights = false;
@@ -71,7 +71,7 @@ public class StarGameWorldComponent implements AutoSyncedComponent, ServerTickin
         return syncRole;
     }
 
-    public StarGameWorldComponent setSyncRole(boolean syncRole) {
+    public SREGameWorldComponent setSyncRole(boolean syncRole) {
         this.syncRole = syncRole;
         return this;
     }
@@ -103,16 +103,16 @@ public class StarGameWorldComponent implements AutoSyncedComponent, ServerTickin
 
     private UUID looseEndWinner;
 
-    private GameFunctions.WinStatus lastWinStatus = GameFunctions.WinStatus.NONE;
+    private GameUtils.WinStatus lastWinStatus = GameUtils.WinStatus.NONE;
 
     private float backfireChance = 0f;
 
-    public StarGameWorldComponent(Level world) {
+    public SREGameWorldComponent(Level world) {
         this.world = world;
     }
 
     public void sync() {
-        StarGameWorldComponent.KEY.sync(this.world);
+        SREGameWorldComponent.KEY.sync(this.world);
     }
 
     public boolean isBound() {
@@ -149,66 +149,66 @@ public class StarGameWorldComponent implements AutoSyncedComponent, ServerTickin
         return this.gameStatus == GameStatus.ACTIVE || this.gameStatus == GameStatus.STOPPING;
     }
 
-    public void addRole(Player player, Role role) {
+    public void addRole(Player player, SRERole role) {
         this.addRole(player.getUUID(), role);
     }
 
-    public void addRole(Player player, Role role, boolean sync) {
+    public void addRole(Player player, SRERole role, boolean sync) {
         this.addRole(player.getUUID(), role, sync);
     }
 
     public void syncRoles() {
         if (roleWorldComponent == null) {
-            roleWorldComponent = RoleWorldComponent.KEY.get(world);
+            roleWorldComponent = SRERoleWorldComponent.KEY.get(world);
         }
         roleWorldComponent.sync();
     }
 
-    public void addRole(UUID player, Role role, boolean sync) {
+    public void addRole(UUID player, SRERole role, boolean sync) {
         if (roleWorldComponent == null) {
-            roleWorldComponent = RoleWorldComponent.KEY.get(world);
+            roleWorldComponent = SRERoleWorldComponent.KEY.get(world);
         }
         roleWorldComponent.addRole(player, role, sync);
     }
 
-    public void addRole(UUID player, Role role) {
+    public void addRole(UUID player, SRERole role) {
         if (roleWorldComponent == null) {
-            roleWorldComponent = RoleWorldComponent.KEY.get(world);
+            roleWorldComponent = SRERoleWorldComponent.KEY.get(world);
         }
         roleWorldComponent.addRole(player, role);
     }
 
-    public void resetRole(Role role) {
+    public void resetRole(SRERole role) {
         if (roleWorldComponent == null) {
-            roleWorldComponent = RoleWorldComponent.KEY.get(world);
+            roleWorldComponent = SRERoleWorldComponent.KEY.get(world);
         }
         roleWorldComponent.resetRole(role);
     }
 
-    public void setRoles(List<UUID> players, Role role) {
+    public void setRoles(List<UUID> players, SRERole role) {
         if (roleWorldComponent == null) {
-            roleWorldComponent = RoleWorldComponent.KEY.get(world);
+            roleWorldComponent = SRERoleWorldComponent.KEY.get(world);
         }
         roleWorldComponent.setRoles(players, role);
     }
 
-    public HashMap<UUID, Role> getRoles() {
+    public HashMap<UUID, SRERole> getRoles() {
         if (roleWorldComponent == null) {
-            roleWorldComponent = RoleWorldComponent.KEY.get(world);
+            roleWorldComponent = SRERoleWorldComponent.KEY.get(world);
         }
         return roleWorldComponent.getRoles();
     }
 
-    public Role getRole(Player player) {
+    public SRERole getRole(Player player) {
         if (roleWorldComponent == null) {
-            roleWorldComponent = RoleWorldComponent.KEY.get(world);
+            roleWorldComponent = SRERoleWorldComponent.KEY.get(world);
         }
         return roleWorldComponent.getRole(player);
     }
 
-    public @Nullable Role getRole(UUID uuid) {
+    public @Nullable SRERole getRole(UUID uuid) {
         if (roleWorldComponent == null) {
-            roleWorldComponent = RoleWorldComponent.KEY.get(world);
+            roleWorldComponent = SRERoleWorldComponent.KEY.get(world);
         }
         return roleWorldComponent.getRole(uuid);
     }
@@ -220,7 +220,7 @@ public class StarGameWorldComponent implements AutoSyncedComponent, ServerTickin
      */
     public List<UUID> getAllKillerPlayers() {
         if (roleWorldComponent == null) {
-            roleWorldComponent = RoleWorldComponent.KEY.get(world);
+            roleWorldComponent = SRERoleWorldComponent.KEY.get(world);
         }
         return roleWorldComponent.getAllKillerPlayers();
     }
@@ -232,28 +232,28 @@ public class StarGameWorldComponent implements AutoSyncedComponent, ServerTickin
      */
     public List<UUID> getAllKillerTeamPlayers() {
         if (roleWorldComponent == null) {
-            roleWorldComponent = RoleWorldComponent.KEY.get(world);
+            roleWorldComponent = SRERoleWorldComponent.KEY.get(world);
         }
         return roleWorldComponent.getAllKillerTeamPlayers();
     }
 
-    public List<UUID> getAllWithRole(Role role) {
+    public List<UUID> getAllWithRole(SRERole role) {
         if (roleWorldComponent == null) {
-            roleWorldComponent = RoleWorldComponent.KEY.get(world);
+            roleWorldComponent = SRERoleWorldComponent.KEY.get(world);
         }
         return roleWorldComponent.getAllWithRole(role);
     }
 
-    public boolean isRole(@NotNull Player player, Role role) {
+    public boolean isRole(@NotNull Player player, SRERole role) {
         if (roleWorldComponent == null) {
-            roleWorldComponent = RoleWorldComponent.KEY.get(world);
+            roleWorldComponent = SRERoleWorldComponent.KEY.get(world);
         }
         return roleWorldComponent.isRole(player, role);
     }
 
-    public boolean isRole(@NotNull UUID uuid, Role role) {
+    public boolean isRole(@NotNull UUID uuid, SRERole role) {
         if (roleWorldComponent == null) {
-            roleWorldComponent = RoleWorldComponent.KEY.get(world);
+            roleWorldComponent = SRERoleWorldComponent.KEY.get(world);
         }
         return roleWorldComponent.isRole(uuid, role);
     }
@@ -272,7 +272,7 @@ public class StarGameWorldComponent implements AutoSyncedComponent, ServerTickin
 
     public void clearRoleMap(boolean sync) {
         if (roleWorldComponent == null) {
-            roleWorldComponent = RoleWorldComponent.KEY.get(world);
+            roleWorldComponent = SRERoleWorldComponent.KEY.get(world);
         }
         roleWorldComponent.clearRoleMap(sync);
         setPsychosActive(0, sync);
@@ -336,12 +336,12 @@ public class StarGameWorldComponent implements AutoSyncedComponent, ServerTickin
     }
 
     @Deprecated
-    public GameFunctions.WinStatus getLastWinStatus() {
+    public GameUtils.WinStatus getLastWinStatus() {
         return lastWinStatus;
     }
 
     @Deprecated
-    public void setLastWinStatus(GameFunctions.WinStatus lastWinStatus) {
+    public void setLastWinStatus(GameUtils.WinStatus lastWinStatus) {
         this.lastWinStatus = lastWinStatus;
         this.sync();
     }
@@ -453,10 +453,10 @@ public class StarGameWorldComponent implements AutoSyncedComponent, ServerTickin
         // 重置移动到游戏开始前
         // // attempt to reset the play area
         // if (--ticksUntilNextResetAttempt == 0) {
-        // if (GameFunctions.tryResetTrain(serverWorld)) {
+        // if (GameUtils.tryResetTrain(serverWorld)) {
         // queueTrainReset();
         // } else {
-        // // GameFunctions.getAllTaskPoints(serverWorld);
+        // // GameUtils.getAllTaskPoints(serverWorld);
         // ticksUntilNextResetAttempt = -1;
         // OnTrainAreaHaveReseted.EVENT.invoker().onWorldHaveReseted(serverWorld);
         // }
@@ -467,34 +467,35 @@ public class StarGameWorldComponent implements AutoSyncedComponent, ServerTickin
             for (ServerPlayer player : serverWorld.players()) {
                 if (!isRunning() && (player.isSpectator()
                         && serverWorld.getServer().getProfilePermissions(player.getGameProfile()) < 2
-                        || (GameFunctions.isPlayerAliveAndSurvival(player)
+                        || (GameUtils.isPlayerAliveAndSurvival(player)
                                 && areas.playArea.contains(player.position())))) {
-                    GameFunctions.resetPlayerAfterGame(player);
+                    GameUtils.resetPlayerAfterGame(player);
                 }
             }
         }
 
         if (serverWorld.getServer().overworld().equals(serverWorld)) {
-            StarTrainWorldComponent trainComponent = StarTrainWorldComponent.KEY.get(serverWorld);
+            SRETrainWorldComponent trainComponent = SRETrainWorldComponent.KEY.get(serverWorld);
 
             // spectator limits
             if (trainComponent.getSpeed() > 0) {
                 for (ServerPlayer player : serverWorld.players()) {
-                    if (!GameFunctions.isPlayerAliveAndSurvival(player) && isBound()
-                            && !GameFunctions.isPlayerCreative(player)) {
-                        GameFunctions.limitPlayerToBox(player, areas.playArea);
+                    if (!GameUtils.isPlayerAliveAndSurvival(player) && isBound()
+                            && !GameUtils.isPlayerCreative(player)) {
+                        GameUtils.limitPlayerToBox(player, areas.playArea);
                     }
                 }
             }
 
             if (this.isRunning()) {
                 for (ServerPlayer player : serverWorld.players()) {
-                    if (GameFunctions.isPlayerAliveAndSurvival(player)) {
+                    if (GameUtils.isPlayerAliveAndSurvival(player)) {
                         // kill players who fell off the train
-                        if (StarGameWorldComponent.KEY.get(world).getRole(player) == null) {
+                        var gameWorldComponent = SREGameWorldComponent.KEY.get(world);
+                        if (gameWorldComponent.getRole(player) == null) {
                             player.setGameMode(net.minecraft.world.level.GameType.SPECTATOR);
                         }
-                        if (GameFunctions.isPlayerAliveAndSurvival(player)) {
+                        if (GameUtils.isPlayerAliveAndSurvival(player)) {
                             isPlayerOutGameAreas(player, areas);
                         }
 
@@ -507,8 +508,8 @@ public class StarGameWorldComponent implements AutoSyncedComponent, ServerTickin
 
                 // Update total play time for active players
                 for (ServerPlayer player : serverWorld.players()) {
-                    if (GameFunctions.isPlayerAliveAndSurvival(player)) {
-                        PlayerStatsComponent.KEY.get(player).addPlayTime(1);
+                    if (GameUtils.isPlayerAliveAndSurvival(player)) {
+                        SREPlayerStatsComponent.KEY.get(player).addPlayTime(1);
                     }
                 }
                 if (gameMode == null) {
@@ -538,7 +539,7 @@ public class StarGameWorldComponent implements AutoSyncedComponent, ServerTickin
                 .getBlock();
         if (player.getY() < areas.playArea.minY
                 || !areas.canSwim && (block == Blocks.WATER && block1 == Blocks.WATER && block2 == Blocks.WATER)) {
-            GameFunctions.killPlayer(player, false,
+            GameUtils.killPlayer(player, false,
                     player.getLastAttacker() instanceof Player killerPlayer ? killerPlayer : null,
                     GameConstants.DeathReasons.FELL_OUT_OF_TRAIN);
         }
@@ -546,7 +547,7 @@ public class StarGameWorldComponent implements AutoSyncedComponent, ServerTickin
 
     private void tickCommon() {
         if (roleWorldComponent == null) {
-            roleWorldComponent = RoleWorldComponent.KEY.get(world);
+            roleWorldComponent = SRERoleWorldComponent.KEY.get(world);
         }
         // fade and start / stop game
         if (this.getGameStatus() == GameStatus.STARTING || this.getGameStatus() == GameStatus.STOPPING) {
@@ -555,9 +556,9 @@ public class StarGameWorldComponent implements AutoSyncedComponent, ServerTickin
             if (this.getFade() >= GameConstants.FADE_TIME + GameConstants.FADE_PAUSE) {
                 if (world instanceof ServerLevel serverWorld) {
                     if (this.getGameStatus() == GameStatus.STARTING)
-                        GameFunctions.initializeGame(serverWorld);
+                        GameUtils.initializeGame(serverWorld);
                     if (this.getGameStatus() == GameStatus.STOPPING)
-                        GameFunctions.finalizeGame(serverWorld);
+                        GameUtils.finalizeGame(serverWorld);
                 } else {
                     if (this.getGameStatus() == GameStatus.STARTING)
                         this.setGameStatus(GameStatus.ACTIVE);
@@ -584,7 +585,7 @@ public class StarGameWorldComponent implements AutoSyncedComponent, ServerTickin
         return getRole(player) != null && getRole(player).canSeeTeammateKiller();
     }
 
-    public boolean isKillerTeamRole(Role role) {
+    public boolean isKillerTeamRole(SRERole role) {
         if (role == null)
             return false;
         if (role.canUseKiller())
@@ -614,7 +615,7 @@ public class StarGameWorldComponent implements AutoSyncedComponent, ServerTickin
         return false;
     }
 
-    public static boolean isKillerTeamRoleStatic(Role role) {
+    public static boolean isKillerTeamRoleStatic(SRERole role) {
         if (role == null)
             return false;
         if (role.canUseKiller())
@@ -626,7 +627,8 @@ public class StarGameWorldComponent implements AutoSyncedComponent, ServerTickin
 
     public boolean canAutoAddMoney(ServerPlayer player) {
         var role = this.getRole(player);
-        if(role==null) return false;
+        if (role == null)
+            return false;
         return role.canAutoAddMoney();
     }
 }

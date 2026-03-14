@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.roles.gambler;
 
-import io.wifi.starrailexpress.api.Role;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.index.TMMItems;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.HolderLookup;
@@ -76,7 +76,7 @@ public class GamblerPlayerComponent implements RoleComponent, ServerTickingCompo
         if (player.level().isClientSide)
             return;
 
-        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.level());
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
         if (!gameWorld.isRole(player, ModRoles.GAMBLER))
             return;
         if (!gameWorld.isRunning())
@@ -93,10 +93,10 @@ public class GamblerPlayerComponent implements RoleComponent, ServerTickingCompo
     }
 
     private void drawNewRole() {
-        List<Role> allRoles = new ArrayList<>(Noellesroles.getEnableRoles_ServerSide());
+        List<SRERole> allRoles = new ArrayList<>(Noellesroles.getEnableRoles_ServerSide());
 
         // 过滤掉禁用的角色、赌徒自己、已经在列表中的角色
-        List<Role> validRoles = allRoles.stream()
+        List<SRERole> validRoles = allRoles.stream()
                 .filter(role -> !HarpyModLoaderConfig.HANDLER.instance().disabled.contains(role.identifier().getPath()))
                 .filter(role -> !role.identifier().equals(ModRoles.GAMBLER_ID))
                 .filter(role -> !role.identifier().equals(ModRoles.DIO_ID))
@@ -109,7 +109,7 @@ public class GamblerPlayerComponent implements RoleComponent, ServerTickingCompo
 
         if (!validRoles.isEmpty()) {
             Collections.shuffle(validRoles);
-            Role drawnRole = validRoles.getFirst();
+            SRERole drawnRole = validRoles.getFirst();
             if (player instanceof ServerPlayer serverPlayer) {
 
                 if (drawnRole.canUseKiller()) {

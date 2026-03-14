@@ -1,7 +1,7 @@
 package org.agmas.harpymodloader.events;
 
 
-import io.wifi.starrailexpress.api.Role;
+import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.RoleMethodDispatcher;
 import net.fabricmc.fabric.api.event.Event;
 import net.minecraft.server.level.ServerPlayer;
@@ -19,5 +19,5 @@ public interface ModdedRoleAssigned {
         }
     });
 
-    void assignModdedRole(Player player, Role role);
+    void assignModdedRole(Player player, SRERole role);
 }

@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.mixin.roles.patroller;
 
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ClipContext;
@@ -26,7 +26,7 @@ import static org.agmas.noellesroles.component.AdmirerPlayerComponent.GAZE_DISTA
 
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 
-@Mixin(GameFunctions.class)
+@Mixin(GameUtils.class)
 public class PatrollerKillMixin {
 
     @Inject(method = "killPlayer(Lnet/minecraft/world/entity/player/Player;ZLnet/minecraft/world/entity/player/Player;Lnet/minecraft/resources/ResourceLocation;)V", at = @At("HEAD"))
@@ -35,7 +35,7 @@ public class PatrollerKillMixin {
         if (victim == null || victim.level().isClientSide())
             return;
 
-        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(victim.level());
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(victim.level());
         WorldModifierComponent modifierComponent = WorldModifierComponent.KEY.get(victim.level());
         if (gameWorld == null || !gameWorld.isRunning())
             return;
@@ -57,7 +57,7 @@ public class PatrollerKillMixin {
                         continue;
                 }
             } else {
-                if (!GameFunctions.isPlayerAliveAndSurvival(player))
+                if (!GameUtils.isPlayerAliveAndSurvival(player))
                     continue;
             }
 
@@ -77,7 +77,7 @@ public class PatrollerKillMixin {
 
         if (boundTarget == null)
             return false;
-        if (!GameFunctions.isPlayerAliveAndSurvival(boundTarget))
+        if (!GameUtils.isPlayerAliveAndSurvival(boundTarget))
             return false;
 
         Vec3 eyePos = player.getEyePosition();

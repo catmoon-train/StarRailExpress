@@ -4,7 +4,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
-import io.wifi.starrailexpress.api.Role;
+import io.wifi.starrailexpress.api.SRERole;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
@@ -34,7 +34,7 @@ public class ForceRoleCommand {
             context.getSource().sendSuccess(() -> Component.translatable("commands.forcerole.query.none", targetPlayer.getDisplayName()), false);
             return 0;
         }
-        Role role = Harpymodloader.FORCED_MODDED_ROLE_FLIP.get(targetPlayer.getUUID());
+        SRERole role = Harpymodloader.FORCED_MODDED_ROLE_FLIP.get(targetPlayer.getUUID());
         Component roleText = Harpymodloader.getRoleName(role).withColor(role.color()).withStyle(style ->
                 style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal(role.identifier().toString())))
         );
@@ -44,7 +44,7 @@ public class ForceRoleCommand {
 
     private static int execute(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         ServerPlayer targetPlayer = EntityArgument.getPlayer(context, "player");
-        Role role = RoleArgumentType.getRole(context, "role");
+        SRERole role = RoleArgumentType.getRole(context, "role");
         Harpymodloader.addToForcedRoles(role, targetPlayer);
         final MutableComponent roleText = Harpymodloader.getRoleName(role).withColor(role.color()).withStyle(style ->
                 style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal(role.identifier().toString()))));

@@ -1,7 +1,7 @@
 package pro.fazeclan.river.stupid_express.constants;
 
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.SRE;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -199,7 +199,7 @@ public class SEModifiers {
             var arrs = new ArrayList<>(level.players());
             Collections.shuffle(arrs);
             for (var can_i_love : arrs) {
-                if (GameFunctions.isPlayerAliveAndSurvival(can_i_love)) {
+                if (GameUtils.isPlayerAliveAndSurvival(can_i_love)) {
                     if (!lover.equals(can_i_love)) {
                         loverTwo = can_i_love;
                         break;
@@ -237,7 +237,7 @@ public class SEModifiers {
             }
 
             var level = person.serverLevel();
-            var gameComponent = StarGameWorldComponent.KEY.get(level);
+            var gameComponent = SREGameWorldComponent.KEY.get(level);
 
             // 选择另一个同阵营作为第二人格
             var fatherRole = gameComponent.getRole(player);
@@ -253,7 +253,7 @@ public class SEModifiers {
                     fatherRoleType = 0;
                 } else if (fatherRole.isNeutralForKiller() && fatherRole.isNeutrals()) {
                     fatherRoleType = 3;
-                } else if (StarGameWorldComponent.isKillerTeamRoleStatic(fatherRole)) {
+                } else if (SREGameWorldComponent.isKillerTeamRoleStatic(fatherRole)) {
                     fatherRoleType = 2;
                 } else {
                     fatherRoleType = 1;
@@ -263,7 +263,7 @@ public class SEModifiers {
             var arrs = new ArrayList<>(level.players());
             Collections.shuffle(arrs);
             for (var candidate : arrs) {
-                if (GameFunctions.isPlayerAliveAndSurvival(candidate)) {
+                if (GameUtils.isPlayerAliveAndSurvival(candidate)) {
                     if (!person.equals(candidate)) {
                         if (gameComponent != null) {
                             var role = gameComponent.getRole(candidate);

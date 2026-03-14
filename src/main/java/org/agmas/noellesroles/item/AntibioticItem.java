@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.item;
 
-import io.wifi.starrailexpress.cca.StarPlayerPoisonComponent;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.cca.SREPlayerPoisonComponent;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -51,8 +51,8 @@ public class AntibioticItem extends Item {
                     Entity target = entityHitResult.getEntity();
                     if (attacker instanceof ServerPlayer player) {
                         if (!((double)target.distanceTo(player) > 3.0F)) {
-                            final var playerPoisonComponent = StarPlayerPoisonComponent.KEY.get(target);
-                            ((StarPlayerPoisonComponent) playerPoisonComponent).reset();
+                            final var playerPoisonComponent = SREPlayerPoisonComponent.KEY.get(target);
+                            ((SREPlayerPoisonComponent) playerPoisonComponent).reset();
                             playerPoisonComponent.sync();
                             target.playSound(HSRSounds.ITEM_SYRINGE_STAB, 0.4F, 1.0F);
                             final var blockPos = target.blockPosition();
@@ -72,7 +72,7 @@ public class AntibioticItem extends Item {
     public static HitResult getAntibioticTarget(Player user) {
         return ProjectileUtil.getHitResultOnViewVector(user, (entity) -> {
             if (entity instanceof Player player) {
-                if (GameFunctions.isPlayerAliveAndSurvival(player)) {
+                if (GameUtils.isPlayerAliveAndSurvival(player)) {
                     return true;
                 }
             }

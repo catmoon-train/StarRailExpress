@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.component;
 
-import io.wifi.starrailexpress.game.GameFunctions;
-import io.wifi.starrailexpress.game.GameFunctions.WinStatus;
+import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.game.GameUtils.WinStatus;
 import io.wifi.starrailexpress.index.TMMEntities;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.TMMItemUtils;
@@ -15,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import io.wifi.starrailexpress.api.RoleComponent;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.event.AfterShieldAllowPlayerDeath;
 import io.wifi.starrailexpress.event.OnPlayerKilledPlayer;
@@ -117,17 +117,17 @@ public class WayfarerPlayerComponent implements RoleComponent, ServerTickingComp
     @Override
     public void serverTick() {
         // 检查玩家是否存活
-        if (!GameFunctions.isPlayerAliveAndSurvival(player))
+        if (!GameUtils.isPlayerAliveAndSurvival(player))
             return;
         var level = this.player.level();
-        if (!StarGameWorldComponent.KEY.get(level).isRole(this.player, ModRoles.WAYFARER))
+        if (!SREGameWorldComponent.KEY.get(level).isRole(this.player, ModRoles.WAYFARER))
             return;
         if (this.phase == 1) {
             if (level.getGameTime() % 20 == 0) {
                 if (this.killer != null) {
                     var killerP = level.getPlayerByUUID(this.killer);
                     if (killerP == null || this.deathReason == null
-                            || !GameFunctions.isPlayerAliveAndSurvival(killerP)) {
+                            || !GameUtils.isPlayerAliveAndSurvival(killerP)) {
                         this.stopFindKiller_KillerDead();
                     }
                 }
@@ -152,7 +152,7 @@ public class WayfarerPlayerComponent implements RoleComponent, ServerTickingComp
     }
 
     private void stopFindKiller_KillerDead() {
-        var gameWorldComponent = StarGameWorldComponent.KEY.get(player.level());
+        var gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
         if (!gameWorldComponent.isSkillAvailable) {
             player.displayClientMessage(
                     Component.translatable("message.tip.skill_disabled").withStyle(ChatFormatting.RED), true);
@@ -205,7 +205,7 @@ public class WayfarerPlayerComponent implements RoleComponent, ServerTickingComp
 
     public static void registerEvents() {
         AfterShieldAllowPlayerDeath.EVENT.register((victim, deathReason) -> {
-            StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(victim.level());
+            SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(victim.level());
             if (gameWorldComponent.isRole(victim, ModRoles.WAYFARER)) {
                 TMMItemUtils.clearItem(victim, TMMItems.KNIFE);
                 var wayC = WayfarerPlayerComponent.KEY.get(victim);
@@ -227,7 +227,7 @@ public class WayfarerPlayerComponent implements RoleComponent, ServerTickingComp
         OnPlayerKilledPlayer.EVENT.register((victim, killer, reason) -> {
             if (killer == null)
                 return;
-            StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(victim.level());
+            SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(victim.level());
             if (gameWorldComponent.isRole(killer, ModRoles.WAYFARER)) {
                 TMMItemUtils.clearItem(killer, TMMItems.KNIFE);
                 var wayC = WayfarerPlayerComponent.KEY.get(killer);
@@ -237,7 +237,7 @@ public class WayfarerPlayerComponent implements RoleComponent, ServerTickingComp
                         return;
                     } else {
                         wayC.reset();
-                        GameFunctions.killPlayer(killer, true, null, Noellesroles.id("wayfarer_error"));
+                        GameUtils.killPlayer(killer, true, null, Noellesroles.id("wayfarer_error"));
                         return;
                     }
                 }
@@ -246,7 +246,7 @@ public class WayfarerPlayerComponent implements RoleComponent, ServerTickingComp
         UseEntityCallback.EVENT.register((player, level, interactionHand, entity, entityHitResult) -> {
             if (!(entity instanceof PlayerBodyEntity be))
                 return net.minecraft.world.InteractionResult.PASS;
-            StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(level);
+            SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(level);
             if (gameWorldComponent.isRole(player, ModRoles.WAYFARER)) {
 
                 var wayC = WayfarerPlayerComponent.KEY.get(player);
@@ -267,7 +267,7 @@ public class WayfarerPlayerComponent implements RoleComponent, ServerTickingComp
                 UUID killerUid = be.getKillerUuid();
                 Player targetKiller = level.getPlayerByUUID(killerUid);
                 // bodyDeathReasonComponent
-                if (targetKiller == null || !GameFunctions.isPlayerAliveAndSurvival(targetKiller)) {
+                if (targetKiller == null || !GameUtils.isPlayerAliveAndSurvival(targetKiller)) {
                     player.displayClientMessage(
                             Component.translatable("message.noellesroles.wayfarer.select.killer_died")
                                     .withStyle(ChatFormatting.RED),
@@ -284,7 +284,7 @@ public class WayfarerPlayerComponent implements RoleComponent, ServerTickingComp
     }
 
     public void startPhaseThree(ResourceLocation trueDeathReason) {
-        var gameWorldComponent = StarGameWorldComponent.KEY.get(player.level());
+        var gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
         if (!gameWorldComponent.isSkillAvailable) {
             player.displayClientMessage(
                     Component.translatable("message.tip.skill_disabled").withStyle(ChatFormatting.RED), true);
@@ -342,7 +342,7 @@ public class WayfarerPlayerComponent implements RoleComponent, ServerTickingComp
     }
 
     public void startPhaseTwo() {
-        var gameWorldComponent = StarGameWorldComponent.KEY.get(player.level());
+        var gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
         if (!gameWorldComponent.isSkillAvailable) {
             player.displayClientMessage(
                     Component.translatable("message.tip.skill_disabled").withStyle(ChatFormatting.RED), true);
@@ -368,7 +368,7 @@ public class WayfarerPlayerComponent implements RoleComponent, ServerTickingComp
 
     public void startFindKiller(PlayerBodyEntity be, @Nullable Player targetVictim, @NotNull Player targetKiller,
             BodyDeathReasonComponent bodyDeathReasonComponent) {
-        var gameWorldComponent = StarGameWorldComponent.KEY.get(player.level());
+        var gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
         if (!gameWorldComponent.isSkillAvailable) {
             player.displayClientMessage(
                     Component.translatable("message.tip.skill_disabled").withStyle(ChatFormatting.RED), true);
@@ -387,7 +387,7 @@ public class WayfarerPlayerComponent implements RoleComponent, ServerTickingComp
                 }
             }
             if (!hasKey) {
-                int roomNumber = GameFunctions.roomToPlayer.getOrDefault(be.getPlayerUuid(), 0);
+                int roomNumber = GameUtils.roomToPlayer.getOrDefault(be.getPlayerUuid(), 0);
                 String roomName = "Room " + roomNumber;
                 var keyItem = TMMItems.KEY.getDefaultInstance();
                 ItemStack itemStack = new ItemStack(TMMItems.KEY);

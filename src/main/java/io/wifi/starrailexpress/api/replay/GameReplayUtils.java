@@ -3,7 +3,7 @@ package io.wifi.starrailexpress.api.replay;
 import java.util.UUID;
 
 import io.wifi.starrailexpress.api.TMMRoles;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.SRE;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -117,8 +117,8 @@ public class GameReplayUtils {
                 : TMMRoles.CIVILIAN.identifier().toString();
         sourceRoleId = ReplayDisplayUtils.getRolePath(sourceRoleId);
         String sourceRoleIdNow = playerUid != null
-                ? StarGameWorldComponent.KEY.get(SRE.SERVER.getLevel(Level.OVERWORLD)).getRole(playerUid) == null ? null
-                        : StarGameWorldComponent.KEY.get(SRE.SERVER.getLevel(Level.OVERWORLD)).getRole(playerUid)
+                ? SREGameWorldComponent.KEY.get(SRE.SERVER.getLevel(Level.OVERWORLD)).getRole(playerUid) == null ? null
+                        : SREGameWorldComponent.KEY.get(SRE.SERVER.getLevel(Level.OVERWORLD)).getRole(playerUid)
                                 .identifier().getPath()
                 : null;
         sourceRoleIdNow = ReplayDisplayUtils.getRolePath(sourceRoleIdNow);

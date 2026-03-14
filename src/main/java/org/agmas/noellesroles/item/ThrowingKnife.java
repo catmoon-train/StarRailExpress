@@ -3,8 +3,8 @@ package org.agmas.noellesroles.item;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.packet.TryThrowKnifePacket;
 
-import io.wifi.starrailexpress.api.Role;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.compat.CrosshairaddonsCompat;
 import io.wifi.starrailexpress.item.KnifeItem;
 import io.wifi.starrailexpress.network.original.KnifeStabPayload;
@@ -30,8 +30,8 @@ public class ThrowingKnife extends KnifeItem {
             if (remainingUseTicks < this.getUseDuration(stack, user) - 8 && user instanceof Player) {
                 Player attacker = (Player) user;
                 if (world.isClientSide) {
-                    StarGameWorldComponent game = (StarGameWorldComponent) StarGameWorldComponent.KEY.get(world);
-                    Role role = game.getRole(attacker);
+                    SREGameWorldComponent game = (SREGameWorldComponent) SREGameWorldComponent.KEY.get(world);
+                    SRERole role = game.getRole(attacker);
                     if (role != null && !role.onUseKnife(attacker)) {
                         return;
                     }

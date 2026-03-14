@@ -1,10 +1,11 @@
 package pro.fazeclan.river.stupid_express.role.necromancer;
 
 import de.maxhenkel.voicechat.api.VoicechatConnection;
-import io.wifi.starrailexpress.api.Role;
+import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
-import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
+import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.SRE;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
@@ -17,7 +18,6 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.GameType;
 import org.agmas.harpymodloader.Harpymodloader;
-import org.agmas.noellesroles.component.StarAbilityPlayerComponent;
 import org.jetbrains.annotations.NotNull;
 import pro.fazeclan.river.stupid_express.constants.SERoles;
 import pro.fazeclan.river.stupid_express.role.necromancer.cca.NecromancerComponent;
@@ -50,7 +50,7 @@ public class RevivalSelectionHandler {
             if (!interacting.gameMode.isSurvival()) {
                 return InteractionResult.PASS;
             }
-            StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(player.level());
+            SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
             if (!gameWorldComponent.isRole(player, SERoles.NECROMANCER)) {
                 return InteractionResult.PASS;
             }
@@ -76,7 +76,7 @@ public class RevivalSelectionHandler {
             }
 
             // activate cooldown
-            StarAbilityPlayerComponent cooldown = StarAbilityPlayerComponent.KEY.get(player);
+            SREAbilityPlayerComponent cooldown = SREAbilityPlayerComponent.KEY.get(player);
             if (cooldown.hasCooldown()) {
                 return InteractionResult.PASS;
             }
@@ -85,7 +85,7 @@ public class RevivalSelectionHandler {
             nc.sync();
 
             // get random killer role
-            var roles = new ArrayList<Role>();
+            var roles = new ArrayList<SRERole>();
             roles.add(TMMRoles.KILLER);
             Collections.shuffle(roles);
 
@@ -106,7 +106,7 @@ public class RevivalSelectionHandler {
 
             StupidRoleUtils.changeRole(revived, selectedRole);
             SRE.REPLAY_MANAGER.recordPlayerRevival(revived.getUUID(), selectedRole);
-            StarPlayerShopComponent playerShopComponent = StarPlayerShopComponent.KEY.get(revived);
+            SREPlayerShopComponent playerShopComponent = SREPlayerShopComponent.KEY.get(revived);
             playerShopComponent.setBalance(200);
 
             StupidRoleUtils.sendWelcomeAnnouncement(revived);

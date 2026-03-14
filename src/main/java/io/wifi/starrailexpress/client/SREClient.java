@@ -17,12 +17,12 @@ import com.mojang.blaze3d.platform.InputConstants;
 import dev.doctor4t.ratatouille.client.util.OptionLocker;
 import dev.doctor4t.ratatouille.client.util.ambience.AmbienceUtil;
 import dev.doctor4t.ratatouille.client.util.ambience.BackgroundAmbience;
-import io.wifi.starrailexpress.api.Role;
+import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.block.SecurityMonitorBlock;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
-import io.wifi.starrailexpress.cca.StarPlayerMoodComponent;
-import io.wifi.starrailexpress.cca.StarTrainWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
+import io.wifi.starrailexpress.cca.SRETrainWorldComponent;
 import io.wifi.starrailexpress.client.gui.MapDetailsRenderer;
 import io.wifi.starrailexpress.client.gui.RoleAnnouncementTexts;
 import io.wifi.starrailexpress.client.gui.RoundTextRenderer;
@@ -50,7 +50,7 @@ import io.wifi.starrailexpress.entity.NoteEntity;
 import io.wifi.starrailexpress.event.AllowOtherCameraType;
 import io.wifi.starrailexpress.event.OnGetInstinctHighlight;
 import io.wifi.starrailexpress.game.GameConstants;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMBlockEntities;
 import io.wifi.starrailexpress.index.TMMBlocks;
 import io.wifi.starrailexpress.index.TMMEntities;
@@ -124,9 +124,9 @@ public class SREClient implements ClientModInitializer {
     public static HPManager handParticleManager;
     public static Map<Player, Vec3> particleMap;
     private static boolean prevGameRunning;
-    public static StarGameWorldComponent gameComponent;
-    public static StarTrainWorldComponent trainComponent;
-    public static StarPlayerMoodComponent moodComponent;
+    public static SREGameWorldComponent gameComponent;
+    public static SRETrainWorldComponent trainComponent;
+    public static SREPlayerMoodComponent moodComponent;
     public static int intervalTime = 0;
     public static boolean isInLobby = false;
     public static final Map<UUID, PlayerInfo> PLAYER_ENTRIES_CACHE = new HashMap<>();
@@ -261,9 +261,9 @@ public class SREClient implements ClientModInitializer {
 
         // Caching components
         ClientTickEvents.START_WORLD_TICK.register(clientWorld -> {
-            gameComponent = StarGameWorldComponent.KEY.get(clientWorld);
-            trainComponent = StarTrainWorldComponent.KEY.get(clientWorld);
-            moodComponent = StarPlayerMoodComponent.KEY.get(Minecraft.getInstance().player);
+            gameComponent = SREGameWorldComponent.KEY.get(clientWorld);
+            trainComponent = SRETrainWorldComponent.KEY.get(clientWorld);
+            moodComponent = SREPlayerMoodComponent.KEY.get(Minecraft.getInstance().player);
         });
 
         // Lock options
@@ -337,7 +337,7 @@ public class SREClient implements ClientModInitializer {
             prevGameRunning = gameComponent.isRunning();
 
             // Fade sound with game start / stop fade
-            StarGameWorldComponent component = StarGameWorldComponent.KEY.get(clientWorld);
+            SREGameWorldComponent component = SREGameWorldComponent.KEY.get(clientWorld);
             if (component.getFade() > 0) {
                 Minecraft.getInstance().getSoundManager().updateSourceVolume(SoundSource.MASTER,
                         Mth.map(component.getFade(), 0, GameConstants.FADE_TIME, soundLevel, 0));
@@ -454,8 +454,8 @@ public class SREClient implements ClientModInitializer {
             } else {
                 SRE.LOGGER.info("Sync RoomToPlayer info from server.");
             }
-            GameFunctions.roomToPlayer.clear();
-            GameFunctions.roomToPlayer.putAll(data);
+            GameUtils.roomToPlayer.clear();
+            GameUtils.roomToPlayer.putAll(data);
         });
         ClientPlayNetworking.registerGlobalReceiver(ShowSelectedMapUIPayload.ID, (payload, context) -> {
             var str = payload.serverConfig();
@@ -548,10 +548,6 @@ public class SREClient implements ClientModInitializer {
 
         // Register client tick event for stats keybind
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            LocalPlayer player = client.player;
-            if (player != null && player.level() != null) {
-                io.wifi.starrailexpress.api.RoleMethodDispatcher.callClientTick(player);
-            }
             if (SREClient.gameComponent == null)
                 return;
 
@@ -577,7 +573,7 @@ public class SREClient implements ClientModInitializer {
         });
     }
 
-    public static StarTrainWorldComponent getTrainComponent() {
+    public static SRETrainWorldComponent getTrainComponent() {
         return trainComponent;
     }
 
@@ -630,11 +626,11 @@ public class SREClient implements ClientModInitializer {
     }
 
     public static boolean isPlayerAliveAndInSurvival() {
-        return GameFunctions.isPlayerAliveAndSurvival(Minecraft.getInstance().player);
+        return GameUtils.isPlayerAliveAndSurvival(Minecraft.getInstance().player);
     }
 
     public static boolean isPlayerSpectatingOrCreative() {
-        return GameFunctions.isPlayerSpectatingOrCreative(Minecraft.getInstance().player);
+        return GameUtils.isPlayerSpectatingOrCreative(Minecraft.getInstance().player);
     }
 
     public static boolean isKiller() {
@@ -651,15 +647,15 @@ public class SREClient implements ClientModInitializer {
         if (!isInstinctEnabled()) {
             return -1;
         }
-        StarGameWorldComponent gameWorldComponent = (StarGameWorldComponent) StarGameWorldComponent.KEY
+        SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY
                 .get(Minecraft.getInstance().player.level());
         // if (target instanceof PlayerBodyEntity) return 0x606060;
         if (target instanceof ItemEntity || target instanceof NoteEntity || target instanceof FirecrackerEntity)
             return 0xDB9D00;
         if (target instanceof Player targetPlayer) {
             if (!(targetPlayer).isSpectator()) {
-                if (GameFunctions.isPlayerSpectatingOrCreative(Minecraft.getInstance().player)) {
-                    Role role = gameWorldComponent.getRole(targetPlayer);
+                if (GameUtils.isPlayerSpectatingOrCreative(Minecraft.getInstance().player)) {
+                    SRERole role = gameWorldComponent.getRole(targetPlayer);
                     if (role == null) {
                         return (TMMRoles.CIVILIAN.color());
                     } else {

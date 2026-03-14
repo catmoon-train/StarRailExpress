@@ -1,7 +1,7 @@
 package org.agmas.harpymodloader.events;
 
 
-import io.wifi.starrailexpress.api.Role;
+import io.wifi.starrailexpress.api.SRERole;
 import net.fabricmc.fabric.api.event.Event;
 import net.minecraft.world.entity.player.Player;
 
@@ -16,5 +16,5 @@ public interface OnGamePlayerRolesConfirm {
         }
     });
 
-    void beforeAssignRole(Map<Player, Role> roleAssignments);
+    void beforeAssignRole(Map<Player, SRERole> roleAssignments);
 }

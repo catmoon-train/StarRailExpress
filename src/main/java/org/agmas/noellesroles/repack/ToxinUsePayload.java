@@ -1,6 +1,6 @@
 package org.agmas.noellesroles.repack;
 
-import io.wifi.starrailexpress.cca.StarPlayerPoisonComponent;
+import io.wifi.starrailexpress.cca.SREPlayerPoisonComponent;
 
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.FriendlyByteBuf;
@@ -15,7 +15,7 @@ import org.agmas.noellesroles.Noellesroles;
 import org.jetbrains.annotations.NotNull;
 
 public record ToxinUsePayload(int target) implements CustomPacketPayload {
-    public static final CustomPacketPayload.Type<ToxinUsePayload> ID = new CustomPacketPayload.Type(Noellesroles.id("toxinuse"));
+    public static final CustomPacketPayload.Type<ToxinUsePayload> ID = new CustomPacketPayload.Type<>(Noellesroles.id("toxinuse"));
     public static final StreamCodec<FriendlyByteBuf, ToxinUsePayload> CODEC;
 
     public CustomPacketPayload.Type<? extends CustomPacketPayload> type() {
@@ -32,7 +32,7 @@ public record ToxinUsePayload(int target) implements CustomPacketPayload {
             Entity var5 = player.serverLevel().getEntity(payload.target());
             if (var5 instanceof Player target) {
                 if (!((double)target.distanceTo(player) > (double)3.0F)) {
-                    ((StarPlayerPoisonComponent)StarPlayerPoisonComponent.KEY.get(target)).setPoisonTicks(HSRConstants.toxinPoisonTime, player.getUUID());
+                    ((SREPlayerPoisonComponent)SREPlayerPoisonComponent.KEY.get(target)).setPoisonTicks(HSRConstants.toxinPoisonTime, player.getUUID());
                     player.playSound(HSRSounds.ITEM_SYRINGE_STAB, 0.15F, 1.0F);
                     player.swing(InteractionHand.MAIN_HAND);
                     if (!player.isCreative()) {

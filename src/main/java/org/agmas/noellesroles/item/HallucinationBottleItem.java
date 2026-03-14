@@ -1,6 +1,6 @@
 package org.agmas.noellesroles.item;
 
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import org.agmas.noellesroles.entity.HallucinationAreaManager;
@@ -129,7 +129,7 @@ public class HallucinationBottleItem extends Item {
         
         List<ServerPlayer> players = world.getEntitiesOfClass(
                 ServerPlayer.class, area,
-                player -> GameFunctions.isPlayerAliveAndSurvival(player) && player != user
+                player -> GameUtils.isPlayerAliveAndSurvival(player) && player != user
         );
         
         for (ServerPlayer player : players) {

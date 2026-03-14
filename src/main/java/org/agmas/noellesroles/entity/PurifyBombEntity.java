@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.entity;
 
-import io.wifi.starrailexpress.cca.StarPlayerPoisonComponent;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.cca.SREPlayerPoisonComponent;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -68,12 +68,12 @@ public class PurifyBombEntity extends ThrowableItemProjectile {
 
         List<ServerPlayer> players = world.getEntitiesOfClass(
                 ServerPlayer.class, area,
-                player -> GameFunctions.isPlayerAliveAndSurvival(player)
+                player -> GameUtils.isPlayerAliveAndSurvival(player)
         );
 
         for (ServerPlayer player : players) {
             // 获取玩家的中毒组件
-            StarPlayerPoisonComponent poisonComponent = StarPlayerPoisonComponent.KEY.get(player);
+            SREPlayerPoisonComponent poisonComponent = SREPlayerPoisonComponent.KEY.get(player);
 
             // 如果玩家处于中毒状态，则清除中毒
             if (((PlayerPoisonComponentAccessor) poisonComponent).getPoisonTicks() > 0) {

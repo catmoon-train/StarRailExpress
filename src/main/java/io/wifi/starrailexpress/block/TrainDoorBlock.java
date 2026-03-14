@@ -1,7 +1,7 @@
 package io.wifi.starrailexpress.block;
 
 import io.wifi.starrailexpress.block_entity.SmallDoorBlockEntity;
-import io.wifi.starrailexpress.cca.StarTrainWorldComponent;
+import io.wifi.starrailexpress.cca.SRETrainWorldComponent;
 import io.wifi.starrailexpress.event.AllowPlayerOpenLockedDoor;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.TMMSounds;
@@ -39,7 +39,7 @@ public class TrainDoorBlock extends SmallDoorBlock {
             }
             if (player.isCreative()
                     || AllowPlayerOpenLockedDoor.EVENT.invoker().allowOpen(player)
-                    || StarTrainWorldComponent.KEY.get(world).getSpeed() == 0) {
+                    || SRETrainWorldComponent.KEY.get(world).getSpeed() == 0) {
                 return open(state, world, entity, lowerPos);
             } else {
                 ItemStack mainHandItem = player.getMainHandItem();

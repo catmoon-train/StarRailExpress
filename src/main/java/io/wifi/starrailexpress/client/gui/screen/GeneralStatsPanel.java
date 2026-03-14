@@ -2,7 +2,7 @@ package io.wifi.starrailexpress.client.gui.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 
-import io.wifi.starrailexpress.cca.PlayerStatsComponent;
+import io.wifi.starrailexpress.cca.SREPlayerStatsComponent;
 import io.wifi.starrailexpress.util.MathHelper;
 import io.wifi.starrailexpress.SRE;
 import net.minecraft.client.Minecraft;
@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GeneralStatsPanel extends AbstractWidget {
-    private final PlayerStatsComponent stats;
+    private final SREPlayerStatsComponent stats;
     private final int screenWidth;
     private int scrollY = 0; // 当前滚动偏移（像素）
     private int maxScroll = 0; // 最大滚动距离（内容高度 - 容器高度）
@@ -33,7 +33,7 @@ public class GeneralStatsPanel extends AbstractWidget {
     private static final int SCROLLBAR_COLOR = 0xFF808080; // 轨道颜色
     private static final int SCROLLBAR_THUMB_COLOR = 0xFFC0C0C0; // 滑块颜色
 
-    public GeneralStatsPanel(int x, int y, int width, int height, PlayerStatsComponent stats, int screenWidth,
+    public GeneralStatsPanel(int x, int y, int width, int height, SREPlayerStatsComponent stats, int screenWidth,
             int screenHeight) {
         super(x, y, width, height, Component.empty());
         this.stats = stats;

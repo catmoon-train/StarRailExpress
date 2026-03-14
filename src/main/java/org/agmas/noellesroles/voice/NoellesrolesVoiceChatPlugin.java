@@ -9,8 +9,8 @@ import de.maxhenkel.voicechat.api.events.EventRegistration;
 import de.maxhenkel.voicechat.api.events.LocationalSoundPacketEvent;
 import de.maxhenkel.voicechat.api.events.MicrophonePacketEvent;
 import de.maxhenkel.voicechat.api.events.StaticSoundPacketEvent;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
@@ -49,7 +49,7 @@ public class NoellesrolesVoiceChatPlugin implements VoicechatPlugin {
     var pvc = PlayerVolumeComponent.KEY.get(receiverPlayer);
     if (receiverPlayer.isSpectator() && pvc.vtMode) {
       if (senderPlayer.isSpectator()
-          && StarGameWorldComponent.KEY.get(senderPlayer.level()).isRunning()) {
+          && SREGameWorldComponent.KEY.get(senderPlayer.level()).isRunning()) {
         event.cancel();
         return;
       }
@@ -71,7 +71,7 @@ public class NoellesrolesVoiceChatPlugin implements VoicechatPlugin {
     var pvc = PlayerVolumeComponent.KEY.get(receiverPlayer);
     if (receiverPlayer.isSpectator() && pvc.vtMode) {
       if (senderPlayer.isSpectator()
-          && StarGameWorldComponent.KEY.get(senderPlayer.level()).isRunning()) {
+          && SREGameWorldComponent.KEY.get(senderPlayer.level()).isRunning()) {
         event.cancel();
         return;
       }
@@ -93,7 +93,7 @@ public class NoellesrolesVoiceChatPlugin implements VoicechatPlugin {
     var pvc = PlayerVolumeComponent.KEY.get(receiverPlayer);
     if (receiverPlayer.isSpectator() && pvc.vtMode) {
       if (senderPlayer.isSpectator()
-          && StarGameWorldComponent.KEY.get(senderPlayer.level()).isRunning()) {
+          && SREGameWorldComponent.KEY.get(senderPlayer.level()).isRunning()) {
         event.cancel();
         return;
       }
@@ -166,9 +166,9 @@ public class NoellesrolesVoiceChatPlugin implements VoicechatPlugin {
         var vctplayer = vcplayer.getPlayer();
         if (vctplayer != null) {
           var player = (ServerPlayer) vctplayer;
-          StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(player.level());
+          SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
           if (gameWorldComponent != null) {
-            if (GameFunctions.isPlayerAliveAndSurvival(player)) {
+            if (GameUtils.isPlayerAliveAndSurvival(player)) {
               if (gameWorldComponent.isRole(player, ModRoles.NOISEMAKER)) {
                 event.cancel();
                 player.level().players().forEach((p) -> {

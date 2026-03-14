@@ -5,16 +5,16 @@ import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.mojang.datafixers.util.Either;
 
-import io.wifi.starrailexpress.api.Role;
+import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.BartenderPlayerComponent;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
-import io.wifi.starrailexpress.cca.StarPlayerMoodComponent;
-import io.wifi.starrailexpress.cca.StarPlayerPoisonComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
+import io.wifi.starrailexpress.cca.SREPlayerPoisonComponent;
 import io.wifi.starrailexpress.compat.CrosshairaddonsCompat;
 import io.wifi.starrailexpress.event.AllowPlayerPunching;
 import io.wifi.starrailexpress.event.IsPlayerPunchable;
 import io.wifi.starrailexpress.game.GameConstants;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.TMMSounds;
@@ -74,7 +74,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements PlayerSt
 			return original;
 		}
 		final var player = (Player) (Object) this;
-		if (GameFunctions.isPlayerAliveAndSurvival(player)) {
+		if (GameUtils.isPlayerAliveAndSurvival(player)) {
 			float speedModifier = 1.0f;
 
 			if (player.hasEffect(MobEffects.MOVEMENT_SPEED)) {
@@ -100,10 +100,10 @@ public abstract class PlayerEntityMixin extends LivingEntity implements PlayerSt
 		if (SRE.isLobby) {
 			return;
 		}
-		StarGameWorldComponent gameComponent = StarGameWorldComponent.KEY.get(this.level());
+		SREGameWorldComponent gameComponent = SREGameWorldComponent.KEY.get(this.level());
 		final var player = (Player) (Object) this;
-		if (GameFunctions.isPlayerAliveAndSurvival(player) && gameComponent != null && gameComponent.isRunning()) {
-			Role role = gameComponent.getRole(player);
+		if (GameUtils.isPlayerAliveAndSurvival(player) && gameComponent != null && gameComponent.isRunning()) {
+			SRERole role = gameComponent.getRole(player);
 			int maxSprintTime = Integer.MAX_VALUE;
 			if (role != null) {
 				maxSprintTime = role.getMaxSprintTime(player);
@@ -136,7 +136,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements PlayerSt
 
 		if (getMainHandItem().is(TMMItems.BAT) && target instanceof Player playerTarget
 				&& this.getAttackStrengthScale(0.5F) >= 1f) {
-			GameFunctions.killPlayer(playerTarget, true, self, GameConstants.DeathReasons.BAT);
+			GameUtils.killPlayer(playerTarget, true, self, GameConstants.DeathReasons.BAT);
 			CrosshairaddonsCompat.onAttack(target);
 			self.getCommandSenderWorld().playSound(self,
 					playerTarget.getX(), playerTarget.getEyeY(), playerTarget.getZ(),
@@ -147,7 +147,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements PlayerSt
 
 		// 双节棍左键和Shift+左键攻击处理
 		if (getMainHandItem().is(TMMItems.NUNCHUCK) && target instanceof Player playerTarget
-				&& GameFunctions.isPlayerAliveAndSurvival(playerTarget) && self instanceof ServerPlayer spself) {
+				&& GameUtils.isPlayerAliveAndSurvival(playerTarget) && self instanceof ServerPlayer spself) {
 			boolean isShiftLeftClick = self.isShiftKeyDown();
 			int direction = isShiftLeftClick ? 2 : 1; // Shift+左键=2(向后), 左键=1(向右)
 			io.wifi.starrailexpress.network.original.NunchuckHitPayload
@@ -156,7 +156,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements PlayerSt
 			return;
 		}
 
-		if (!GameFunctions.isPlayerAliveAndSurvival(self) || this.getMainHandItem().is(TMMItems.KNIFE)
+		if (!GameUtils.isPlayerAliveAndSurvival(self) || this.getMainHandItem().is(TMMItems.KNIFE)
 				|| IsPlayerPunchable.EVENT.invoker().gotPunchable(target)
 				|| AllowPlayerPunching.EVENT.invoker().allowPunching(self)) {
 			// 在攻击实体之前调用角色的左键点击实体方法
@@ -175,16 +175,16 @@ public abstract class PlayerEntityMixin extends LivingEntity implements PlayerSt
 		String poisoner = stack.getOrDefault(SREDataComponentTypes.POISONER, null);
 		String armorer = stack.getOrDefault(SREDataComponentTypes.ARMORER, null);
 		if (poisoner != null) {
-			int poisonTicks = StarPlayerPoisonComponent.KEY.get(this).poisonTicks;
+			int poisonTicks = SREPlayerPoisonComponent.KEY.get(this).poisonTicks;
 			if (poisonTicks == -1) {
-				StarPlayerPoisonComponent.KEY.get(this).setPoisonTicks(
-						world.getRandom().nextIntBetweenInclusive(StarPlayerPoisonComponent.clampTime.getA(),
-								StarPlayerPoisonComponent.clampTime.getB()),
+				SREPlayerPoisonComponent.KEY.get(this).setPoisonTicks(
+						world.getRandom().nextIntBetweenInclusive(SREPlayerPoisonComponent.clampTime.getA(),
+								SREPlayerPoisonComponent.clampTime.getB()),
 						UUID.fromString(poisoner));
 			} else {
-				StarPlayerPoisonComponent.KEY.get(this)
+				SREPlayerPoisonComponent.KEY.get(this)
 						.setPoisonTicks(Mth.clamp(poisonTicks - world.getRandom().nextIntBetweenInclusive(100, 300), 0,
-								StarPlayerPoisonComponent.clampTime.getB()), UUID.fromString(poisoner));
+								SREPlayerPoisonComponent.clampTime.getB()), UUID.fromString(poisoner));
 			}
 			// this.playSound(SoundEvents.WITCH_DRINK, 1f, 1f);
 		}
@@ -239,7 +239,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements PlayerSt
 			return;
 		}
 		if (!(stack.getItem() instanceof CocktailItem)) {
-			StarPlayerMoodComponent.KEY.get(this).eatFood();
+			SREPlayerMoodComponent.KEY.get(this).eatFood();
 		}
 	}
 

@@ -19,8 +19,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class GameScoreboardComponent implements CommonTickingComponent {
-    public static final ComponentKey<GameScoreboardComponent> KEY = ComponentRegistry.getOrCreate(SRE.id("gamescoreboard"), GameScoreboardComponent.class);
+public class SREGameScoreboardComponent implements CommonTickingComponent {
+    public static final ComponentKey<SREGameScoreboardComponent> KEY = ComponentRegistry.getOrCreate(SRE.id("gamescoreboard"), SREGameScoreboardComponent.class);
     private final Scoreboard scoreboard;
     private final MinecraftServer server;
 
@@ -34,7 +34,7 @@ public class GameScoreboardComponent implements CommonTickingComponent {
     private final Map<UUID, Integer> playerCompletedTasks = new HashMap<>();
     private int totalRequiredTasks = 0; // 平民获胜所需的总任务数
 
-    public GameScoreboardComponent(Scoreboard scoreboard, MinecraftServer server) {
+    public SREGameScoreboardComponent(Scoreboard scoreboard, MinecraftServer server) {
         this.scoreboard = scoreboard;
         this.server = server;
     }
@@ -107,8 +107,8 @@ public class GameScoreboardComponent implements CommonTickingComponent {
         if (server == null) return;
 
         // 更新游戏计时器
-        StarGameWorldComponent gameComponent = StarGameWorldComponent.KEY.get(world);
-        StarGameTimeComponent timeComponent = StarGameTimeComponent.KEY.get(world);
+        SREGameWorldComponent gameComponent = SREGameWorldComponent.KEY.get(world);
+        SREGameTimeComponent timeComponent = SREGameTimeComponent.KEY.get(world);
 
         if (gameComponent.isRunning() && timeComponent != null) {
             // 更新倒计时 (剩余时间)

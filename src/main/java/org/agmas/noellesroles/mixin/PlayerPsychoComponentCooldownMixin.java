@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.mixin;
 
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
-import io.wifi.starrailexpress.cca.StarPlayerPsychoComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.SREConfig;
 import net.minecraft.world.entity.player.Player;
@@ -32,12 +32,12 @@ public class PlayerPsychoComponentCooldownMixin {
         }
 
         // 检查玩家角色
-        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.level());
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
         if (gameWorld != null && gameWorld.isRole(player, ModRoles.BLOOD_FEUDIST)) {
             // 仇杀客的疯狂模式冷却时间改为30秒（600 ticks）
             // 原版CD为300秒（6000 ticks）
             player.getCooldowns().addCooldown(TMMItems.PSYCHO_MODE, 15 * 20+SREConfig.psychoModeCooldown);
-            StarPlayerPsychoComponent psychoComponent = StarPlayerPsychoComponent.KEY.get(player);
+            SREPlayerPsychoComponent psychoComponent = SREPlayerPsychoComponent.KEY.get(player);
             psychoComponent.setPsychoTicks(20 * 22);
         }
     }

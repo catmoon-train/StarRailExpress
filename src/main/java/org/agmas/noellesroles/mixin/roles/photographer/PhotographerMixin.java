@@ -1,6 +1,6 @@
 package org.agmas.noellesroles.mixin.roles.photographer;
 
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.github.mortuusars.exposure.world.camera.frame.Frame;
 import io.github.mortuusars.exposure.world.entity.CameraHolder;
 import io.github.mortuusars.exposure.world.item.camera.CameraItem;
@@ -38,7 +38,7 @@ public class PhotographerMixin {
             serverPlayer.serverLevel().players().forEach(
                     serverPlayer1 -> {
                         if (serverPlayer1!=serverPlayer){
-                            if (GameFunctions.isPlayerAliveAndSurvival(serverPlayer1)){
+                            if (GameUtils.isPlayerAliveAndSurvival(serverPlayer1)){
                                 if (isBoundTargetVisible(serverPlayer1, serverPlayer)){
                                     serverPlayer1.sendSystemMessage(
                                             Component.translatable("message.noellesroles.photographer.blindness"),
@@ -62,7 +62,7 @@ public class PhotographerMixin {
 
         if (boundTarget == null)
             return false;
-        if (!GameFunctions.isPlayerAliveAndSurvival(boundTarget))
+        if (!GameUtils.isPlayerAliveAndSurvival(boundTarget))
             return false;
 
         Vec3 eyePos = player.getEyePosition();

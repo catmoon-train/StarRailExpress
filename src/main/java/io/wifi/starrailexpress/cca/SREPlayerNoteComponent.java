@@ -9,13 +9,13 @@ import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
 
-public class StarPlayerNoteComponent implements RoleComponent {
-    public static final ComponentKey<StarPlayerNoteComponent> KEY = ComponentRegistry.getOrCreate(SRE.id("note"), StarPlayerNoteComponent.class);
+public class SREPlayerNoteComponent implements RoleComponent {
+    public static final ComponentKey<SREPlayerNoteComponent> KEY = ComponentRegistry.getOrCreate(SRE.id("note"), SREPlayerNoteComponent.class);
     public final Player player;
     public String[] text = new String[]{"", "", "", ""};
     public boolean written = false;
 
-    public StarPlayerNoteComponent(Player player) {
+    public SREPlayerNoteComponent(Player player) {
         this.player = player;
     }
 

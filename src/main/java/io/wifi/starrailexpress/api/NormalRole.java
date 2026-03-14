@@ -2,7 +2,7 @@ package io.wifi.starrailexpress.api;
 
 import net.minecraft.resources.ResourceLocation;
 
-public class NormalRole extends Role {
+public class NormalRole extends SRERole {
     /**
      * @param identifier    the mod id and name of the role
      * @param color         the role announcement color
@@ -16,7 +16,7 @@ public class NormalRole extends Role {
     public NormalRole(ResourceLocation identifier, int color, boolean isInnocent, boolean canUseKiller,
             MoodType moodType, int maxSprintTime, boolean canSeeTime) {
         super(identifier, color, isInnocent, canUseKiller, moodType, maxSprintTime, canSeeTime);
-        this.setCanAutoAddMoney(canUseKiller);
+        this.setPassiveIncome(canUseKiller);
         this.setNeutrals(isInnocent == false && canUseKiller == false);
     }
 }

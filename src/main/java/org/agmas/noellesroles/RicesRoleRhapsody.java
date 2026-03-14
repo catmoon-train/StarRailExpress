@@ -1,12 +1,13 @@
 package org.agmas.noellesroles;
 
-import io.wifi.starrailexpress.api.Role;
+import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.block_entity.DoorBlockEntity;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
-import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
+import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.entity.PlayerBodyEntity;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.TMMItemUtils;
 import net.fabricmc.api.ModInitializer;
@@ -65,7 +66,7 @@ public class RicesRoleRhapsody implements ModInitializer {
     // ==================== 常量定义 ====================
 
     // ==================== 原版角色列表（用于判断） ====================
-    public static final ArrayList<Role> VANILLA_ROLES = new ArrayList<>();
+    public static final ArrayList<SRERole> VANILLA_ROLES = new ArrayList<>();
     public static final ArrayList<ResourceLocation> VANILLA_ROLE_IDS = new ArrayList<>();
 
     // ==================== 网络包 ID ====================
@@ -174,11 +175,11 @@ public class RicesRoleRhapsody implements ModInitializer {
                 return net.minecraft.world.InteractionResult.PASS;
 
             // 检查玩家是否存活
-            if (!GameFunctions.isPlayerAliveAndSurvival(player))
+            if (!GameUtils.isPlayerAliveAndSurvival(player))
                 return net.minecraft.world.InteractionResult.PASS;
 
             // 检查玩家是否是傀儡师
-            StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(world);
+            SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(world);
             if (gameWorld.isRole(player, ModRoles.DIO)) {
                 DIOPlayerComponent dioPlayerComponent = DIOPlayerComponent.KEY.get(player);
                 boolean success = dioPlayerComponent.feedOnCorpse(body);
@@ -331,14 +332,14 @@ public class RicesRoleRhapsody implements ModInitializer {
 
         // 处理阴谋家猜测包
         ServerPlayNetworking.registerGlobalReceiver(CONSPIRATOR_PACKET, (payload, context) -> {
-            StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(context.player().level());
+            SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(context.player().level());
 
             // 验证玩家是阴谋家
             if (!gameWorld.isRole(context.player(), ModRoles.CONSPIRATOR))
                 return;
 
             // 验证玩家存活
-            if (!GameFunctions.isPlayerAliveAndSurvival(context.player()))
+            if (!GameUtils.isPlayerAliveAndSurvival(context.player()))
                 return;
 
             // 验证目标玩家
@@ -379,14 +380,14 @@ public class RicesRoleRhapsody implements ModInitializer {
 
         // 处理电报员消息包
         ServerPlayNetworking.registerGlobalReceiver(TELEGRAPHER_PACKET, (payload, context) -> {
-            StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(context.player().level());
+            SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(context.player().level());
 
             // 验证玩家是电报员
             if (!gameWorld.isRole(context.player(), ModRoles.TELEGRAPHER))
                 return;
 
             // 验证玩家存活
-            if (!GameFunctions.isPlayerAliveAndSurvival(context.player()))
+            if (!GameUtils.isPlayerAliveAndSurvival(context.player()))
                 return;
 
             // 验证消息不为空
@@ -401,7 +402,7 @@ public class RicesRoleRhapsody implements ModInitializer {
         // 处理邮差传递包
         ServerPlayNetworking.registerGlobalReceiver(POSTMAN_PACKET, (payload, context) -> {
             // 验证玩家存活
-            if (!GameFunctions.isPlayerAliveAndSurvival(context.player()))
+            if (!GameUtils.isPlayerAliveAndSurvival(context.player()))
                 return;
 
             // 获取玩家的邮差组件
@@ -415,7 +416,7 @@ public class RicesRoleRhapsody implements ModInitializer {
 
                     // 验证目标玩家存在且存活
                     Player target = context.player().level().getPlayerByUUID(payload.targetPlayer());
-                    if (target == null || !GameFunctions.isPlayerAliveAndSurvival(target))
+                    if (target == null || !GameUtils.isPlayerAliveAndSurvival(target))
                         return;
 
                     // 开始传递
@@ -562,14 +563,14 @@ public class RicesRoleRhapsody implements ModInitializer {
 
         // 处理私家侦探审查包
         ServerPlayNetworking.registerGlobalReceiver(DETECTIVE_PACKET, (payload, context) -> {
-            StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(context.player().level());
+            SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(context.player().level());
 
             // 验证玩家是私家侦探
             if (!gameWorld.isRole(context.player(), ModRoles.DETECTIVE))
                 return;
 
             // 验证玩家存活
-            if (!GameFunctions.isPlayerAliveAndSurvival(context.player()))
+            if (!GameUtils.isPlayerAliveAndSurvival(context.player()))
                 return;
 
             // 获取私家侦探组件
@@ -584,7 +585,7 @@ public class RicesRoleRhapsody implements ModInitializer {
             }
 
             // 获取玩家商店组件，检查金币
-            StarPlayerShopComponent shopComponent = StarPlayerShopComponent.KEY.get(context.player());
+            SREPlayerShopComponent shopComponent = SREPlayerShopComponent.KEY.get(context.player());
             if (shopComponent.balance < DetectivePlayerComponent.INSPECT_COST) {
                 context.player().displayClientMessage(
                         Component.translatable("message.noellesroles.detective.insufficient_funds"), true);
@@ -593,7 +594,7 @@ public class RicesRoleRhapsody implements ModInitializer {
 
             // 验证目标玩家
             Player target = context.player().level().getPlayerByUUID(payload.targetUuid());
-            if (target == null || !GameFunctions.isPlayerAliveAndSurvival(target)) {
+            if (target == null || !GameUtils.isPlayerAliveAndSurvival(target)) {
                 context.player().displayClientMessage(
                         Component.translatable("message.noellesroles.detective.invalid_target"), true);
                 return;
@@ -642,14 +643,14 @@ public class RicesRoleRhapsody implements ModInitializer {
 
         // 处理拳击手技能包
         ServerPlayNetworking.registerGlobalReceiver(BOXER_ABILITY_PACKET, (payload, context) -> {
-            StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(context.player().level());
+            SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(context.player().level());
 
             // 验证玩家是拳击手
             if (!gameWorld.isRole(context.player(), ModRoles.BOXER))
                 return;
 
             // 验证玩家存活
-            if (!GameFunctions.isPlayerAliveAndSurvival(context.player()))
+            if (!GameUtils.isPlayerAliveAndSurvival(context.player()))
                 return;
 
             // 获取拳击手组件
@@ -669,7 +670,7 @@ public class RicesRoleRhapsody implements ModInitializer {
                 return;
 
             // 验证玩家存活
-            if (!GameFunctions.isPlayerAliveAndSurvival(context.player()))
+            if (!GameUtils.isPlayerAliveAndSurvival(context.player()))
                 return;
 
             // 只有一阶段和二阶段能使用窥视
@@ -693,7 +694,7 @@ public class RicesRoleRhapsody implements ModInitializer {
                 return;
 
             // 验证玩家存活
-            if (!GameFunctions.isPlayerAliveAndSurvival(context.player()))
+            if (!GameUtils.isPlayerAliveAndSurvival(context.player()))
                 return;
 
             // 只有三阶段能使用突进
@@ -709,14 +710,14 @@ public class RicesRoleRhapsody implements ModInitializer {
 
         // 处理运动员技能包
         ServerPlayNetworking.registerGlobalReceiver(ATHLETE_ABILITY_PACKET, (payload, context) -> {
-            StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(context.player().level());
+            SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(context.player().level());
 
             // 验证玩家是运动员
             if (!gameWorld.isRole(context.player(), ModRoles.ATHLETE))
                 return;
 
             // 验证玩家存活
-            if (!GameFunctions.isPlayerAliveAndSurvival(context.player()))
+            if (!GameUtils.isPlayerAliveAndSurvival(context.player()))
                 return;
 
             // 获取运动员组件
@@ -735,7 +736,7 @@ public class RicesRoleRhapsody implements ModInitializer {
             if (!admirerComp.isActiveAdmirer())
                 return;
             // 验证玩家存活
-            if (!GameFunctions.isPlayerAliveAndSurvival(context.player()))
+            if (!GameUtils.isPlayerAliveAndSurvival(context.player()))
                 return;
 
             if (payload.gazing()) {
@@ -747,14 +748,14 @@ public class RicesRoleRhapsody implements ModInitializer {
 
         // 处理设陷者技能包
         ServerPlayNetworking.registerGlobalReceiver(TRAPPER_PACKET, (payload, context) -> {
-            StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(context.player().level());
+            SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(context.player().level());
 
             // 验证玩家是设陷者
             if (!gameWorld.isRole(context.player(), ModRoles.TRAPPER))
                 return;
 
             // 验证玩家存活
-            if (!GameFunctions.isPlayerAliveAndSurvival(context.player()))
+            if (!GameUtils.isPlayerAliveAndSurvival(context.player()))
                 return;
 
             // 获取设陷者组件并尝试放置陷阱
@@ -764,31 +765,31 @@ public class RicesRoleRhapsody implements ModInitializer {
 
         // 处理明星技能包
         ServerPlayNetworking.registerGlobalReceiver(STAR_ABILITY_PACKET, (payload, context) -> {
-            StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(context.player().level());
+            SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(context.player().level());
 
             // 验证玩家是明星
-            if (!gameWorld.isRole(context.player(), ModRoles.STAR))
+            if (!gameWorld.isRole(context.player(), ModRoles.SUPERSTAR))
                 return;
 
             // 验证玩家存活
-            if (!GameFunctions.isPlayerAliveAndSurvival(context.player()))
+            if (!GameUtils.isPlayerAliveAndSurvival(context.player()))
                 return;
 
             // 获取明星组件并使用技能
-            StarPlayerComponent starComp = ModComponents.STAR.get(context.player());
+            SuperStarPlayerComponent starComp = ModComponents.STAR.get(context.player());
             starComp.useAbility();
         });
 
         // 处理歌手技能包
         ServerPlayNetworking.registerGlobalReceiver(SINGER_ABILITY_PACKET, (payload, context) -> {
-            StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(context.player().level());
+            SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(context.player().level());
 
             // 验证玩家是歌手
             if (!gameWorld.isRole(context.player(), ModRoles.SINGER))
                 return;
 
             // 验证玩家存活
-            if (!GameFunctions.isPlayerAliveAndSurvival(context.player()))
+            if (!GameUtils.isPlayerAliveAndSurvival(context.player()))
                 return;
 
             // 获取歌手组件并使用技能
@@ -798,14 +799,14 @@ public class RicesRoleRhapsody implements ModInitializer {
 
         // 处理心理学家治疗包
         ServerPlayNetworking.registerGlobalReceiver(PSYCHOLOGIST_PACKET, (payload, context) -> {
-            StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(context.player().level());
+            SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(context.player().level());
 
             // 验证玩家是心理学家
             if (!gameWorld.isRole(context.player(), ModRoles.PSYCHOLOGIST))
                 return;
 
             // 验证玩家存活
-            if (!GameFunctions.isPlayerAliveAndSurvival(context.player()))
+            if (!GameUtils.isPlayerAliveAndSurvival(context.player()))
                 return;
 
             // 验证目标玩家
@@ -823,7 +824,7 @@ public class RicesRoleRhapsody implements ModInitializer {
 
         // 处理傀儡师技能包
         ServerPlayNetworking.registerGlobalReceiver(PUPPETEER_PACKET, (payload, context) -> {
-            StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(context.player().level());
+            SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(context.player().level());
 
             // 获取傀儡师组件
             PuppeteerPlayerComponent puppeteerComp = ModComponents.PUPPETEER.get(context.player());
@@ -837,7 +838,7 @@ public class RicesRoleRhapsody implements ModInitializer {
             }
 
             // 验证玩家存活
-            if (!GameFunctions.isPlayerAliveAndSurvival(context.player()))
+            if (!GameUtils.isPlayerAliveAndSurvival(context.player()))
                 return;
 
             switch (payload.action()) {
@@ -905,7 +906,7 @@ public class RicesRoleRhapsody implements ModInitializer {
         for (Player player : victim.level().players()) {
             if (player.equals(victim))
                 continue;
-            if (!GameFunctions.isPlayerAliveAndSurvival(player))
+            if (!GameUtils.isPlayerAliveAndSurvival(player))
                 continue;
             if (player.distanceToSqr(victim) > 25)
                 continue; // 5格距离
@@ -927,9 +928,9 @@ public class RicesRoleRhapsody implements ModInitializer {
      * @param player 被分配角色的玩家
      * @param role   分配的角色
      */
-    public static void onRoleAssigned(Player player, Role role) {
+    public static void onRoleAssigned(Player player, SRERole role) {
         // 重置玩家的技能冷却
-        StarAbilityPlayerComponent abilityComponent = ModComponents.ABILITY.get(player);
+        SREAbilityPlayerComponent abilityComponent = ModComponents.ABILITY.get(player);
         abilityComponent.reset();
 
         // ==================== 清除其他角色的组件状态 ====================
@@ -1055,9 +1056,9 @@ public class RicesRoleRhapsody implements ModInitializer {
         }
 
         // ==================== 明星角色处理 ====================
-        if (role.equals(ModRoles.STAR)) {
+        if (role.equals(ModRoles.SUPERSTAR)) {
             // 重置明星组件
-            StarPlayerComponent starComponent = ModComponents.STAR.get(player);
+            SuperStarPlayerComponent starComponent = ModComponents.STAR.get(player);
             starComponent.reset();
         }
 
@@ -1088,7 +1089,7 @@ public class RicesRoleRhapsody implements ModInitializer {
         // ==================== 傀儡师角色处理 ====================
         if (role.equals(ModRoles.PUPPETEER)) {
             PuppeteerPlayerComponent puppeteerComponent = ModComponents.PUPPETEER.get(player);
-            StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.level());
+            SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
 
             // 只有在游戏进行中且傀儡师已被标记时才保留状态（假人死亡返回本体的情况）
             // 游戏结束或新分配角色时都应该重置组件
@@ -1142,7 +1143,7 @@ public class RicesRoleRhapsody implements ModInitializer {
     /**
      * 判断角色是否为原版角色
      */
-    public static boolean isVanillaRole(Role role) {
+    public static boolean isVanillaRole(SRERole role) {
         return VANILLA_ROLES.contains(role);
     }
 

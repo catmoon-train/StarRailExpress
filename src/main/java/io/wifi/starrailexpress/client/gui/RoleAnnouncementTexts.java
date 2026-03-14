@@ -1,8 +1,8 @@
 package io.wifi.starrailexpress.client.gui;
 
 import io.wifi.starrailexpress.api.TMMRoles;
-import io.wifi.starrailexpress.cca.StarGameRoundEndComponent;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
+import io.wifi.starrailexpress.game.GameUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;
@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.function.Function;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import io.wifi.starrailexpress.api.Role;
+import io.wifi.starrailexpress.api.SRERole;
 
 public class RoleAnnouncementTexts {
     public static final Map<ResourceLocation, RoleAnnouncementText> ROLE_ANNOUNCEMENT_TEXTS = new HashMap<>();
@@ -38,7 +38,7 @@ public class RoleAnnouncementTexts {
     // 为现有职业注册公告文本
     static {
         // 为每个注册的角色创建对应的公告文本
-        for (Role role : TMMRoles.ROLES.values()) {
+        for (SRERole role : TMMRoles.ROLES.values()) {
             ResourceLocation roleId = role.identifier();
             registerRoleAnnouncementText(roleId, new RoleAnnouncementText(roleId, role.getColor()));
         }
@@ -99,8 +99,8 @@ public class RoleAnnouncementTexts {
             }
         }
 
-        public @Nullable Component getEndText(GameFunctions.@NotNull WinStatus status, Component winner,
-                StarGameRoundEndComponent roundEnd) {
+        public @Nullable Component getEndText(GameUtils.@NotNull WinStatus status, Component winner,
+                SREGameRoundEndComponent roundEnd) {
             return switch (status) {
                 case NONE -> null;
                 case PASSENGERS, TIME -> this.id.getPath().equals("killer") ? this.getLoseText() : this.winText;

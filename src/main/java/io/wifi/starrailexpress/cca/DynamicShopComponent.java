@@ -15,12 +15,12 @@ import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DynamicCoinComponent implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
-    public static final ComponentKey<DynamicCoinComponent> KEY = ComponentRegistry.getOrCreate(SRE.id("dynamic_shop"), DynamicCoinComponent.class);
+public class DynamicShopComponent implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
+    public static final ComponentKey<DynamicShopComponent> KEY = ComponentRegistry.getOrCreate(SRE.id("dynamic_shop"), DynamicShopComponent.class);
     private final Player player;
     private Map<ResourceLocation,Integer> coins;
 
-    public DynamicCoinComponent(Player player) {
+    public DynamicShopComponent(Player player) {
         this.player = player;
         coins = new HashMap<>() ;
     }

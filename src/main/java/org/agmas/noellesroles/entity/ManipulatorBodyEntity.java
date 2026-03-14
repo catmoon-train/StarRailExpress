@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.entity;
 
 import com.mojang.authlib.GameProfile;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import org.agmas.noellesroles.roles.manipulator.ManipulatorPlayerComponent;
 
 import java.util.Optional;
@@ -98,7 +98,7 @@ public class ManipulatorBodyEntity extends LivingEntity {
         if (level().isClientSide())
             return;
 
-        final var gameWorldComponent = StarGameWorldComponent.KEY.get(level());
+        final var gameWorldComponent = SREGameWorldComponent.KEY.get(level());
         if (gameWorldComponent != null) {
             if (!gameWorldComponent.isRunning()) {
                 this.discard();

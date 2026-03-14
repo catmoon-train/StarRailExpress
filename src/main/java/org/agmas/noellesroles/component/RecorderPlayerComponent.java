@@ -1,8 +1,8 @@
 package org.agmas.noellesroles.component;
 
-import io.wifi.starrailexpress.api.Role;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.game.GameUtils;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.role.ModRoles;
@@ -105,7 +105,7 @@ public class RecorderPlayerComponent implements RoleComponent, ServerTickingComp
             return;
         }
 
-        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.level());
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
         Player target = player.level().getPlayerByUUID(targetUuid);
         boolean isCorrect = false;
 
@@ -124,7 +124,7 @@ public class RecorderPlayerComponent implements RoleComponent, ServerTickingComp
         }
         serverPlayer.getCooldowns().addCooldown(ModItems.WRITTEN_NOTE, cooldownSeconds * 20);
         if (target != null) {
-            Role actualRole = gameWorld.getRole(target);
+            SRERole actualRole = gameWorld.getRole(target);
             if (actualRole != null && actualRole.identifier().equals(roleId)) {
                 isCorrect = true;
             }
@@ -149,7 +149,7 @@ public class RecorderPlayerComponent implements RoleComponent, ServerTickingComp
 
             if (wrongGuessCount >= MAX_WRONG_GUESSES) {
                 // 猜错10次，立刻死亡
-                GameFunctions.killPlayer(player, true, null, Noellesroles.id("recorder_mistake"));
+                GameUtils.killPlayer(player, true, null, Noellesroles.id("recorder_mistake"));
                 serverPlayer.displayClientMessage(
                         Component.translatable("message.noellesroles.recorder.died_from_mistakes")
                                 .withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD),
@@ -170,7 +170,7 @@ public class RecorderPlayerComponent implements RoleComponent, ServerTickingComp
         if (!(player instanceof ServerPlayer))
             return;
 
-        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.level());
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
         int correctGuesses = 0;
 
         for (Map.Entry<UUID, ResourceLocation> entry : guesses.entrySet()) {
@@ -179,7 +179,7 @@ public class RecorderPlayerComponent implements RoleComponent, ServerTickingComp
 
             Player target = player.level().getPlayerByUUID(targetUuid);
             if (target != null) {
-                Role actualRole = gameWorld.getRole(target);
+                SRERole actualRole = gameWorld.getRole(target);
                 if (actualRole != null && actualRole.identifier().equals(guessedRoleId)) {
                     correctGuesses++;
                 }
@@ -206,7 +206,7 @@ public class RecorderPlayerComponent implements RoleComponent, ServerTickingComp
         if (correctGuesses >= requiredCorrect) {
             if (player.level() instanceof net.minecraft.server.level.ServerLevel serverLevel) {
                 // 补充 CustomWinnerID: recorder
-                RoleUtils.customWinnerWin(serverLevel, GameFunctions.WinStatus.RECORDER, "recorder", null);
+                RoleUtils.customWinnerWin(serverLevel, GameUtils.WinStatus.RECORDER, "recorder", null);
             }
 
             // 广播胜利消息
@@ -245,7 +245,7 @@ public class RecorderPlayerComponent implements RoleComponent, ServerTickingComp
         if (!(player.level() instanceof net.minecraft.server.level.ServerLevel))
             return;
 
-        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.level());
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
         if (!gameWorld.isRole(player, ModRoles.RECORDER))
             return;
 

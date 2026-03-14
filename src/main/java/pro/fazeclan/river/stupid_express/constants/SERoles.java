@@ -1,8 +1,7 @@
 package pro.fazeclan.river.stupid_express.constants;
 
 import io.wifi.starrailexpress.api.NormalRole;
-import io.wifi.starrailexpress.api.NormalRole;
-import io.wifi.starrailexpress.api.Role;
+import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 // import io.wifi.starrailexpress.cca.GameWorldComponent;
 import io.wifi.starrailexpress.index.TMMItems;
@@ -26,57 +25,54 @@ import java.util.HashMap;
 import java.util.List;
 
 public class SERoles {
-    private static final HashMap<String, Role> ROLES = new HashMap<>();
+    private static final HashMap<String, SRERole> ROLES = new HashMap<>();
 
-    public static Role AMNESIAC = registerRole(new NormalRole(
+    public static SRERole AMNESIAC = registerRole(new NormalRole(
             StupidExpress.id("amnesiac"),
             0x9baae8,
             false,
             false,
-            Role.MoodType.REAL,
+            SRERole.MoodType.REAL,
             TMMRoles.CIVILIAN.getMaxSprintTime(),
-            false
-    ));
+            false)).setPassiveIncome(false);
 
-    public static Role ARSONIST = registerRole(new NormalRole(
+    public static SRERole ARSONIST = registerRole(new NormalRole(
             StupidExpress.id("arsonist"),
             0xfc9526,
             false,
             false,
-            Role.MoodType.FAKE,
+            SRERole.MoodType.FAKE,
             -1,
-            true
-    )).setCanUseInstinct(true);
+            true)).setCanUseInstinct(true);
 
-    public static Role AVARICIOUS = registerRole(new NormalRole(
+    public static SRERole AVARICIOUS = registerRole(new NormalRole(
             StupidExpress.id("avaricious"),
             0x8f00ff,
             false,
             true,
-            Role.MoodType.FAKE,
+            SRERole.MoodType.FAKE,
             -1,
-            true
-    ));
+            true)).setServerGameTickEvent((player, gameWorldComponent) -> {
+                AvariciousGoldHandler.playerServerTick(player, gameWorldComponent);
+            }).setPassiveIncome(false);
 
-    public static Role NECROMANCER = registerRole(new NormalRole(
+    public static SRERole NECROMANCER = registerRole(new NormalRole(
             StupidExpress.id("necromancer"),
             0x9457ff,
             false,
             true,
-            Role.MoodType.FAKE,
+            SRERole.MoodType.FAKE,
             -1,
-            true
-    ));
+            true));
 
-    public static Role INITIATE = registerRole(new NormalRole(
+    public static SRERole INITIATE = registerRole(new NormalRole(
             StupidExpress.id("initiate"),
             0xffd154,
             false,
             false,
-            Role.MoodType.REAL,
+            SRERole.MoodType.REAL,
             TMMRoles.CIVILIAN.getMaxSprintTime(),
-            true
-    ));
+            true));
 
     public static List<ShopEntry> INITIATE_SHOP = Util.make(new ArrayList<>(), entries -> {
         entries.add(new BuyableShopEntry(TMMItems.KNIFE.getDefaultInstance(), 200, ShopEntry.Type.WEAPON));
@@ -130,7 +126,7 @@ public class SERoles {
 
     }
 
-    public static Role registerRole(Role role) {
+    public static SRERole registerRole(SRERole role) {
         TMMRoles.registerRole(role);
         ROLES.put(role.identifier().getPath(), role);
         return role;

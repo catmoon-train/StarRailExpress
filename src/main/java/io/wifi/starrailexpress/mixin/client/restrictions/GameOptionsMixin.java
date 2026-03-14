@@ -2,11 +2,11 @@ package io.wifi.starrailexpress.mixin.client.restrictions;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 
-import io.wifi.starrailexpress.api.Role;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.event.AllowOtherCameraType;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.SRE;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
@@ -38,7 +38,7 @@ public class GameOptionsMixin {
                 default:
             }
         }
-        if (GameFunctions.isPlayerAliveAndSurvival(Minecraft.getInstance().player)) {
+        if (GameUtils.isPlayerAliveAndSurvival(Minecraft.getInstance().player)) {
             if (SREClient.gameComponent != null) {
                 final var role = SREClient.gameComponent.getRole(Minecraft.getInstance().player);
 

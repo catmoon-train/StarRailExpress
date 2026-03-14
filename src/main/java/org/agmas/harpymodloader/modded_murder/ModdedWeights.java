@@ -2,7 +2,7 @@ package org.agmas.harpymodloader.modded_murder;
 
 
 
-import io.wifi.starrailexpress.api.Role;
+import io.wifi.starrailexpress.api.SRERole;
 import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
 
 import java.util.HashMap;
@@ -12,11 +12,11 @@ import net.minecraft.resources.ResourceLocation;
 
 public class ModdedWeights {
 
-    public static Map<Role, HashMap<UUID, Integer>> roleRounds = new HashMap<>();
+    public static Map<SRERole, HashMap<UUID, Integer>> roleRounds = new HashMap<>();
     public static Map<ResourceLocation,Float> getWeights(){
         return HarpyModLoaderConfig.HANDLER.instance().roleWeights;
     }
-    public static float getRoleWeight(Role role){
+    public static float getRoleWeight(SRERole role){
         var customWeight = getWeights().get(role.identifier());
         if (customWeight != null && customWeight > 0) {
             return customWeight;

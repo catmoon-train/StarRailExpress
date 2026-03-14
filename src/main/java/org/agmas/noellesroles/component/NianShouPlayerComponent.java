@@ -1,8 +1,8 @@
 package org.agmas.noellesroles.component;
 
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
-import io.wifi.starrailexpress.cca.StarWorldBlackoutComponent;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREWorldBlackoutComponent;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMEntities;
 import io.wifi.starrailexpress.index.TMMItems;
 import net.minecraft.ChatFormatting;
@@ -111,10 +111,10 @@ public class NianShouPlayerComponent implements RoleComponent, ServerTickingComp
         if (!(player instanceof ServerPlayer serverPlayer))
             return;
 
-        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.level());
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
         if (!gameWorld.isRole(player, ModRoles.NIAN_SHOU))
             return;
-        if (!GameFunctions.isPlayerAliveAndSurvival(serverPlayer))
+        if (!GameUtils.isPlayerAliveAndSurvival(serverPlayer))
             return;
         // 检查黑暗环境并触发护盾和速度
         checkDarkness();
@@ -147,7 +147,7 @@ public class NianShouPlayerComponent implements RoleComponent, ServerTickingComp
         int lightLevel = player.level().getRawBrightness(player.blockPosition(),
                 net.minecraft.world.level.LightLayer.BLOCK.ordinal());
         // Noellesroles.LOGGER.info("LightLevel:" + lightLevel);
-        var blackOut = StarWorldBlackoutComponent.KEY.maybeGet(player.level()).orElse(null);
+        var blackOut = SREWorldBlackoutComponent.KEY.maybeGet(player.level()).orElse(null);
         if (lightLevel <= 5 || (blackOut != null && blackOut.isBlackoutActive())) {
             if (!inDarkness) {
                 // 刚进入黑暗
@@ -236,7 +236,7 @@ public class NianShouPlayerComponent implements RoleComponent, ServerTickingComp
                                 true);
                     }
                     // 杀死年兽（使用鞭炮死亡原因）
-                    GameFunctions.killPlayer(player, true, null, Noellesroles.id("nianshou_firecrackers"));
+                    GameUtils.killPlayer(player, true, null, Noellesroles.id("nianshou_firecrackers"));
                 }
             }
         }
@@ -246,16 +246,16 @@ public class NianShouPlayerComponent implements RoleComponent, ServerTickingComp
         // 检查游戏时间是否剩余5分钟（300秒 = 6000 ticks）
         if (player.level() instanceof ServerLevel serverLevel) {
             // 获取游戏剩余时间
-            int remainingTime = io.wifi.starrailexpress.cca.StarGameTimeComponent.KEY.get(serverLevel).getTime();
+            int remainingTime = io.wifi.starrailexpress.cca.SREGameTimeComponent.KEY.get(serverLevel).getTime();
 
             // 剩余5分钟（300秒 = 6000 ticks）且未播放过
             // 只有在剩余时间刚变为6000 ticks时触发（避免重复触发）
             if (remainingTime == 6000 && !gongXiFaCaiPlaying) {
                 // 检查年兽是否存活
-                StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(serverLevel);
+                SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(serverLevel);
                 boolean hasAliveNianShou = false;
                 for (Player p : serverLevel.players()) {
-                    if (gameWorld.isRole(p, ModRoles.NIAN_SHOU) && GameFunctions.isPlayerAliveAndSurvival(p)) {
+                    if (gameWorld.isRole(p, ModRoles.NIAN_SHOU) && GameUtils.isPlayerAliveAndSurvival(p)) {
                         hasAliveNianShou = true;
                         break;
                     }
@@ -270,15 +270,15 @@ public class NianShouPlayerComponent implements RoleComponent, ServerTickingComp
 
                     // 为所有存活玩家发放100金币并回满san值
                     for (Player p : serverLevel.players()) {
-                        if (GameFunctions.isPlayerAliveAndSurvival(p)) {
+                        if (GameUtils.isPlayerAliveAndSurvival(p)) {
                             if (p instanceof ServerPlayer sp) {
 
-                                io.wifi.starrailexpress.cca.StarPlayerShopComponent shopComponent = io.wifi.starrailexpress.cca.StarPlayerShopComponent.KEY
+                                io.wifi.starrailexpress.cca.SREPlayerShopComponent shopComponent = io.wifi.starrailexpress.cca.SREPlayerShopComponent.KEY
                                         .get(p);
                                 shopComponent.addToBalance(100);
 
                                 // 回满san值
-                                io.wifi.starrailexpress.cca.StarPlayerMoodComponent moodComponent = io.wifi.starrailexpress.cca.StarPlayerMoodComponent.KEY
+                                io.wifi.starrailexpress.cca.SREPlayerMoodComponent moodComponent = io.wifi.starrailexpress.cca.SREPlayerMoodComponent.KEY
                                         .get(p);
                                 moodComponent.setMood(1f);
 

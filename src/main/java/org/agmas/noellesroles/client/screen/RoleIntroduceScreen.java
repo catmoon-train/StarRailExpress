@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.client.screen;
 
 import io.wifi.starrailexpress.SRE;
-import io.wifi.starrailexpress.api.Role;
+import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.index.TMMDescItems;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
@@ -58,28 +58,28 @@ public class RoleIntroduceScreen extends Screen {
 
         CATEGORIES.add(new RoleCategory(
                 "display.type.role.innocent", 0xFF44BB66,
-                item -> item instanceof Role r
+                item -> item instanceof SRERole r
                         && (PlayerRoleWeightManager.getRoleType(r) == 0
                                 || PlayerRoleWeightManager.getRoleType(r) == 1)));
 
         CATEGORIES.add(new RoleCategory(
                 "display.type.role.vigilante", 0xFF22BBCC,
-                item -> item instanceof Role r
+                item -> item instanceof SRERole r
                         && PlayerRoleWeightManager.getRoleType(r) == 5));
 
         CATEGORIES.add(new RoleCategory(
                 "display.type.role.neutral", 0xFFCCAA22,
-                item -> item instanceof Role r
+                item -> item instanceof SRERole r
                         && PlayerRoleWeightManager.getRoleType(r) == 2));
 
         CATEGORIES.add(new RoleCategory(
                 "display.type.role.neutral_for_killer", 0xFFAA44CC,
-                item -> item instanceof Role r
+                item -> item instanceof SRERole r
                         && PlayerRoleWeightManager.getRoleType(r) == 3));
 
         CATEGORIES.add(new RoleCategory(
                 "display.type.role.killer", 0xFFCC2233,
-                item -> item instanceof Role r
+                item -> item instanceof SRERole r
                         && PlayerRoleWeightManager.getRoleType(r) == 4));
 
         CATEGORIES.add(new RoleCategory(
@@ -132,7 +132,7 @@ public class RoleIntroduceScreen extends Screen {
     }
 
     private static ResourceLocation getTypeIcon(Object role) {
-        if (role instanceof Role rrole)
+        if (role instanceof SRERole rrole)
             return TYPE_ICON_MAP.getOrDefault(
                     "role_" + PlayerRoleWeightManager.getRoleType(rrole), ICON_DEFAULT);
         return TYPE_ICON_MAP.getOrDefault("modifier", ICON_DEFAULT);
@@ -142,7 +142,7 @@ public class RoleIntroduceScreen extends Screen {
     // 状态
     // ══════════════════════════════════════════════════════════════════
 
-    private final List<Role> availableRoles = new ArrayList<>();
+    private final List<SRERole> availableRoles = new ArrayList<>();
     private final List<Object> filteredItems = new ArrayList<>();
 
     private int usableWidth, leftW, rightW;
@@ -281,7 +281,7 @@ public class RoleIntroduceScreen extends Screen {
         filteredItems.clear();
         RoleCategory cat = currentCategory();
 
-        for (Role role : availableRoles) {
+        for (SRERole role : availableRoles) {
             if (!cat.filter.test(role))
                 continue;
             String name = RoleUtils.getRoleName(role).getString();
@@ -339,7 +339,7 @@ public class RoleIntroduceScreen extends Screen {
                         .withStyle(ChatFormatting.DARK_GRAY))
                 .withStyle(ChatFormatting.DARK_GRAY), textW));
         detailLines.add(FormattedCharSequence.EMPTY);
-        if (selectedRole instanceof Role role) {
+        if (selectedRole instanceof SRERole role) {
             detailLines.addAll(font.split(
                     Component.translatable(
                             "announcement.star.goals." + role.identifier().getPath()),
@@ -420,7 +420,7 @@ public class RoleIntroduceScreen extends Screen {
             return "item";
         if (it instanceof Modifier)
             return "modifier";
-        if (it instanceof Role)
+        if (it instanceof SRERole)
             return "role";
         return "unknown";
     }
@@ -680,7 +680,7 @@ public class RoleIntroduceScreen extends Screen {
     // ══════════════════════════════════════════════════════════════════
 
     private Component getCardSubText(Object role) {
-        if (role instanceof Role r) {
+        if (role instanceof SRERole r) {
             return switch (PlayerRoleWeightManager.getRoleType(r)) {
                 case 0, 1 -> Component.translatable("display.type.role.innocent")
                         .withStyle(ChatFormatting.GREEN);

@@ -1,7 +1,7 @@
 // Source code is decompiled from a .class file using FernFlower decompiler (from Intellij IDEA).
 package org.agmas.noellesroles.item;
 
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
@@ -19,7 +19,7 @@ public class ProblemSetItem extends Item {
         ItemStack stack = user.getItemInHand(hand);
         
         // 验证：玩家必须存活
-        if (!GameFunctions.isPlayerAliveAndSurvival(user)) {
+        if (!GameUtils.isPlayerAliveAndSurvival(user)) {
             return InteractionResultHolder.fail(stack);
         }
         

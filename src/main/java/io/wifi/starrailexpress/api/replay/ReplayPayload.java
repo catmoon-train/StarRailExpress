@@ -33,8 +33,8 @@ public record ReplayPayload(GameReplay replay) implements CustomPacketPayload {
     private static GameReplay readReplay(FriendlyByteBuf buf) {
         return null;
         // int playerCount = buf.readInt();
-        // GameFunctions.WinStatus winningTeam =
-        // buf.readEnum(GameFunctions.WinStatus.class);
+        // GameUtils.WinStatus winningTeam =
+        // buf.readEnum(GameUtils.WinStatus.class);
 
         // int numPlayers = buf.readInt();
         // List<GameReplay.ReplayPlayerInfo> players = new ArrayList<>();

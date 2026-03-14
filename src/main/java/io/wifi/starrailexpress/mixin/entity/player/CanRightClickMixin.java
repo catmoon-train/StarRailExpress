@@ -1,6 +1,6 @@
 package io.wifi.starrailexpress.mixin.entity.player;
 
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.util.CantRightClickBlocks;
 import dev.upcraft.datasync.api.ext.DataSyncPlayerExt;
 import io.wifi.starrailexpress.SRE;
@@ -49,7 +49,7 @@ public abstract class CanRightClickMixin extends LivingEntity implements DataSyn
                 }
             }
         }
-        if (!GameFunctions.isPlayerAliveAndSurvival(player)) {
+        if (!GameUtils.isPlayerAliveAndSurvival(player)) {
             return;
         }
 

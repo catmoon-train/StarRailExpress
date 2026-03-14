@@ -1,8 +1,8 @@
 package org.agmas.noellesroles.component;
 
-import io.wifi.starrailexpress.api.Role;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.TMMSounds;
 import net.minecraft.core.HolderLookup;
@@ -86,7 +86,7 @@ public class BetterVigilantePlayerComponent implements RoleComponent, ServerTick
      */
     public boolean isActiveBetterVigilante() {
 
-        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.level());
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
         return gameWorld.isRole(player, ModRoles.BETTER_VIGILANTE);
     }
 
@@ -99,15 +99,15 @@ public class BetterVigilantePlayerComponent implements RoleComponent, ServerTick
         if (player.level().isClientSide())
             return 0;
 
-        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.level());
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
         ServerLevel serverWorld = (ServerLevel) player.level();
 
         int count = 0;
         for (Player p : serverWorld.players()) {
-            if (!GameFunctions.isPlayerAliveAndSurvival(p))
+            if (!GameUtils.isPlayerAliveAndSurvival(p))
                 continue;
 
-            Role role = gameWorld.getRole(p);
+            SRERole role = gameWorld.getRole(p);
             if (role == null)
                 continue;
 
@@ -167,7 +167,7 @@ public class BetterVigilantePlayerComponent implements RoleComponent, ServerTick
         // 只有活跃的红海军才需要检测
         if (!isActiveBetterVigilante())
             return;
-        if (!GameFunctions.isPlayerAliveAndSurvival(player))
+        if (!GameUtils.isPlayerAliveAndSurvival(player))
             return;
 
         // 如果已经激活了最后防线，不需要再检测

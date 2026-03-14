@@ -4,7 +4,7 @@ import java.util.UUID;
 
 import org.jetbrains.annotations.NotNull;
 
-import io.wifi.starrailexpress.cca.PlayerStatsComponent;
+import io.wifi.starrailexpress.cca.SREPlayerStatsComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.SRE;
 import net.minecraft.client.Minecraft;
@@ -16,7 +16,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
  
 public class PlayerStatsScreen extends Screen {
-    private PlayerStatsComponent stats;
+    private SREPlayerStatsComponent stats;
     private final UUID targetPlayerUuid;
     private GeneralStatsPanel generalStatsPanel;
     private RoleStatsPanel roleStatsPanel;
@@ -34,7 +34,7 @@ public class PlayerStatsScreen extends Screen {
         this.targetPlayerUuid = targetPlayerUuid;
         Player targetPlayer = Minecraft.getInstance().level.getPlayerByUUID(targetPlayerUuid);
         if (targetPlayer != null) {
-            this.stats = PlayerStatsComponent.KEY.get(targetPlayer);
+            this.stats = SREPlayerStatsComponent.KEY.get(targetPlayer);
         }
     }
 

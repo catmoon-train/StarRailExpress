@@ -3,7 +3,7 @@ package io.wifi.starrailexpress.command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.utils.RoleUtils;
@@ -27,7 +27,7 @@ public class ListRoleInRoundCommand {
         var level = source.getLevel();
         if (level == null)
             level = source.getServer().overworld();
-        var gameWorldComponent = StarGameWorldComponent.KEY.get(level);
+        var gameWorldComponent = SREGameWorldComponent.KEY.get(level);
         WorldModifierComponent worldModifierComponent = WorldModifierComponent.KEY.get(level);
         var texts = Component.literal("")
                 .append(Component.literal("Roles:").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));

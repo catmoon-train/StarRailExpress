@@ -4,7 +4,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 
-import io.wifi.starrailexpress.cca.PlayerSkinsComponent;
+import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
 import io.wifi.starrailexpress.SREConfig;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -26,7 +26,7 @@ public class SkinsNetworkSyncCommand {
                 .then(Commands.literal("config")
                         .then(Commands.literal("stop").executes((ctx) -> {
                             SkinsNetworkSyncInitializer.isEnabled = false;
-                            PlayerSkinsComponent.disableGlobalNetworkSync();
+                            SREPlayerSkinsComponent.disableGlobalNetworkSync();
                             SREConfig.itemSkinSyncServerEnabled = false;
                             return 1;
                         }))
@@ -100,7 +100,7 @@ public class SkinsNetworkSyncCommand {
         }
 
         try {
-            PlayerSkinsComponent component = PlayerSkinsComponent.KEY.get(player);
+            SREPlayerSkinsComponent component = SREPlayerSkinsComponent.KEY.get(player);
             if (component == null) {
                 source.sendFailure(Component.literal("§c无法获取玩家皮肤组件"));
                 return 0;
@@ -132,7 +132,7 @@ public class SkinsNetworkSyncCommand {
         }
 
         try {
-            PlayerSkinsComponent component = PlayerSkinsComponent.KEY.get(player);
+            SREPlayerSkinsComponent component = SREPlayerSkinsComponent.KEY.get(player);
             if (component == null) {
                 source.sendFailure(Component.literal("§c无法获取玩家皮肤组件"));
                 return 0;
@@ -163,7 +163,7 @@ public class SkinsNetworkSyncCommand {
         }
 
         try {
-            PlayerSkinsComponent component = PlayerSkinsComponent.KEY.get(player);
+            SREPlayerSkinsComponent component = SREPlayerSkinsComponent.KEY.get(player);
             if (component == null) {
                 source.sendFailure(Component.literal("§c无法获取玩家皮肤组件"));
                 return 0;
@@ -197,7 +197,7 @@ public class SkinsNetworkSyncCommand {
         }
 
         try {
-            PlayerSkinsComponent component = PlayerSkinsComponent.KEY.get(player);
+            SREPlayerSkinsComponent component = SREPlayerSkinsComponent.KEY.get(player);
             if (component == null) {
                 source.sendFailure(Component.literal("§c无法获取玩家皮肤组件"));
                 return 0;
@@ -228,7 +228,7 @@ public class SkinsNetworkSyncCommand {
         }
 
         try {
-            PlayerSkinsComponent component = PlayerSkinsComponent.KEY.get(player);
+            SREPlayerSkinsComponent component = SREPlayerSkinsComponent.KEY.get(player);
             if (component == null) {
                 source.sendFailure(Component.literal("§c无法获取玩家皮肤组件"));
                 return 0;

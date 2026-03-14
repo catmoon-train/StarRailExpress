@@ -1,8 +1,8 @@
 package io.wifi.starrailexpress.network.original;
 
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameConstants;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.item.SniperRifleItem;
@@ -87,7 +87,7 @@ public record SniperShootPayload(Action action, int targetOrShooterId) implement
                     // 处理目标命中
                     if (player.serverLevel().getEntity(payload.targetOrShooterId()) instanceof Player target
                             && target.distanceTo(player) < 200.0) {
-                        var game = StarGameWorldComponent.KEY.get(player.level());
+                        var game = SREGameWorldComponent.KEY.get(player.level());
 
                         // 检查角色权限
                         final var role = game.getRole(player);
@@ -116,7 +116,7 @@ public record SniperShootPayload(Action action, int targetOrShooterId) implement
                         if (game.isInnocent(target) && !player.isCreative()) {
                             if (game.isInnocent(player) && player.getRandom().nextFloat() <= game.getBackfireChance()) {
                                 // 反向击发
-                                GameFunctions.killPlayer(player, true, player, GameConstants.DeathReasons.SNIPER_RIFLE_BACKFIRE);
+                                GameUtils.killPlayer(player, true, player, GameConstants.DeathReasons.SNIPER_RIFLE_BACKFIRE);
                                 return;
                             } else {
                                 // 掉落左轮手枪
@@ -125,7 +125,7 @@ public record SniperShootPayload(Action action, int targetOrShooterId) implement
                             }
                         }
 
-                        GameFunctions.killPlayer(target, true, player, GameConstants.DeathReasons.SNIPER_RIFLE);
+                        GameUtils.killPlayer(target, true, player, GameConstants.DeathReasons.SNIPER_RIFLE);
                     }
                 }
                 case RELOAD -> {

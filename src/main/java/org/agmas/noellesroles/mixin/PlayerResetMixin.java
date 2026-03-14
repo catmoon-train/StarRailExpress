@@ -1,7 +1,8 @@
 package org.agmas.noellesroles.mixin;
 
 import io.wifi.starrailexpress.cca.BartenderPlayerComponent;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.util.TMMItemUtils;
 
 import org.agmas.noellesroles.component.*;
@@ -35,10 +36,10 @@ import pro.fazeclan.river.stupid_express.modifier.split_personality.cca.SplitPer
 /**
  * 玩家重置 Mixin
  * 
- * 在游戏结束时（GameFunctions.resetPlayer 被调用）清除所有自定义组件的状态
+ * 在游戏结束时（GameUtils.resetPlayer 被调用）清除所有自定义组件的状态
  * 这确保了下一局游戏开始时玩家不会有残留的状态
  */
-@Mixin(GameFunctions.class)
+@Mixin(GameUtils.class)
 public abstract class PlayerResetMixin {
 
     /**
@@ -113,7 +114,7 @@ public abstract class PlayerResetMixin {
         admirerComp.clear();
 
         // 清除其他自定义组件状态
-        StarAbilityPlayerComponent abilityComp = ModComponents.ABILITY.get(player);
+        SREAbilityPlayerComponent abilityComp = ModComponents.ABILITY.get(player);
         abilityComp.clear();
 
         AvengerPlayerComponent avengerComp = ModComponents.AVENGER.get(player);

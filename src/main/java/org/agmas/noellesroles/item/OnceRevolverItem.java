@@ -1,13 +1,13 @@
 // Source code is decompiled from a .class file using FernFlower decompiler (from Intellij IDEA).
 package org.agmas.noellesroles.item;
 
-import io.wifi.starrailexpress.api.Role;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.particle.HandParticle;
 import io.wifi.starrailexpress.client.render.TMMRenderLayers;
 import io.wifi.starrailexpress.compat.CrosshairaddonsCompat;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.network.original.GunShootPayload;
 import io.wifi.StarRailExpressID;
@@ -36,8 +36,8 @@ public class OnceRevolverItem extends Item {
     public InteractionResultHolder<ItemStack> use(@NotNull Level world, @NotNull Player user, InteractionHand hand) {
         ItemStack stack = user.getItemInHand(hand);
         stack.hurtAndBreak(1, user, EquipmentSlot.MAINHAND);
-        StarGameWorldComponent gameComponent;
-        Role role;
+        SREGameWorldComponent gameComponent;
+        SRERole role;
         if (world.isClientSide) {
             gameComponent = SREClient.gameComponent;
             if (gameComponent != null) {
@@ -61,7 +61,7 @@ public class OnceRevolverItem extends Item {
             spawnHandParticle();
             user.getCooldowns().addCooldown(TMMItems.REVOLVER, 5 * 20);
         } else {
-            gameComponent = (StarGameWorldComponent) StarGameWorldComponent.KEY.get(world);
+            gameComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY.get(world);
             role = gameComponent.getRole(user);
             if (role != null && !role.onUseGun(user)) {
                 return InteractionResultHolder.fail(stack);
@@ -82,7 +82,7 @@ public class OnceRevolverItem extends Item {
         return ProjectileUtil.getHitResultOnViewVector(user, (entity) -> {
             boolean var10000;
             if (entity instanceof Player player) {
-                if (GameFunctions.isPlayerAliveAndSurvival(player)) {
+                if (GameUtils.isPlayerAliveAndSurvival(player)) {
                     var10000 = true;
                     return var10000;
                 }

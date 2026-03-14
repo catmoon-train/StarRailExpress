@@ -7,7 +7,7 @@ import org.agmas.noellesroles.client.widget.ConspiratorRoleWidget;
 import org.agmas.noellesroles.client.widget.GuessPlayerWidget;
 import org.agmas.noellesroles.utils.RoleUtils;
 
-import io.wifi.starrailexpress.api.Role;
+import io.wifi.starrailexpress.api.SRERole;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -65,7 +65,7 @@ public class GuessRoleScreen extends Screen {
     private List<PlayerInfo> players = new ArrayList<>();
 
     // 角色列表
-    private List<Role> roles = new ArrayList<>();
+    private List<SRERole> roles = new ArrayList<>();
 
     // Widget 列表
     private List<GuessPlayerWidget> playerWidgets = new ArrayList<>();
@@ -292,7 +292,7 @@ public class GuessRoleScreen extends Screen {
 
         // 计算分页
         int filteredCount = 0;
-        for (Role role : roles) {
+        for (SRERole role : roles) {
             String roleName = "";
             if (role != null)
                 roleName = RoleUtils.getRoleName(role).getString();
@@ -459,7 +459,7 @@ public class GuessRoleScreen extends Screen {
     /**
      * 角色被选中时调用
      */
-    public void onRoleSelected(Role role) {
+    public void onRoleSelected(SRERole role) {
         if (selectedPlayer == null)
             return;
 

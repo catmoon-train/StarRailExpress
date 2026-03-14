@@ -20,16 +20,16 @@ import java.util.UUID;
  * 玩家双节棍组件
  * 用于追踪玩家被双节棍击打的记录
  */
-public class PlayerNunchuckComponent implements AutoSyncedComponent, ServerTickingComponent {
-    public static final ComponentKey<PlayerNunchuckComponent> KEY = ComponentRegistry.getOrCreate(
-            SRE.id("player_nunchuck"), PlayerNunchuckComponent.class);
+public class SREPlayerNunchuckComponent implements AutoSyncedComponent, ServerTickingComponent {
+    public static final ComponentKey<SREPlayerNunchuckComponent> KEY = ComponentRegistry.getOrCreate(
+            SRE.id("player_nunchuck"), SREPlayerNunchuckComponent.class);
 
     public final Player player;
     private final Map<UUID, HitRecord> hitRecords = new HashMap<>(); // 记录被该玩家击打的记录
     private AttackRecord attackRecord = null; // 记录该玩家使用双节棍的记录
     private final Map<Integer, Long> moveCooldowns = new HashMap<>(); // 记录每个招式的使用时间 (direction -> last use time)
 
-    public PlayerNunchuckComponent(Player player) {
+    public SREPlayerNunchuckComponent(Player player) {
         this.player = player;
     }
 

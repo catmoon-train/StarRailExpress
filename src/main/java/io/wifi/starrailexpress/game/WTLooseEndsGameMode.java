@@ -2,12 +2,12 @@ package io.wifi.starrailexpress.game;
 
 import io.wifi.starrailexpress.api.GameMode;
 import io.wifi.starrailexpress.api.TMMRoles;
-import io.wifi.starrailexpress.cca.StarGameRoundEndComponent;
-import io.wifi.starrailexpress.cca.StarGameTimeComponent;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
-import io.wifi.starrailexpress.cca.StarTrainWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
+import io.wifi.starrailexpress.cca.SREGameTimeComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SRETrainWorldComponent;
 import io.wifi.starrailexpress.event.AllowGameEnd;
-import io.wifi.starrailexpress.game.GameFunctions.WinStatus;
+import io.wifi.starrailexpress.game.GameUtils.WinStatus;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.network.original.AnnounceWelcomePayload;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -43,9 +43,9 @@ public class WTLooseEndsGameMode extends GameMode {
     }
 
     @Override
-    public void initializeGame(ServerLevel serverWorld, StarGameWorldComponent gameWorldComponent,
+    public void initializeGame(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent,
             List<ServerPlayer> players) {
-        StarTrainWorldComponent.KEY.get(serverWorld).setTimeOfDay(StarTrainWorldComponent.TimeOfDay.SUNDOWN);
+        SRETrainWorldComponent.KEY.get(serverWorld).setTimeOfDay(SRETrainWorldComponent.TimeOfDay.SUNDOWN);
 
         for (ServerPlayer player : players) {
             player.getInventory().clearContent();
@@ -78,18 +78,18 @@ public class WTLooseEndsGameMode extends GameMode {
     }
 
     @Override
-    public void tickServerGameLoop(ServerLevel serverWorld, StarGameWorldComponent gameWorldComponent) {
-        GameFunctions.WinStatus winStatus = GameFunctions.WinStatus.NONE;
+    public void tickServerGameLoop(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent) {
+        GameUtils.WinStatus winStatus = GameUtils.WinStatus.NONE;
 
         // check if out of time
-        if (!StarGameTimeComponent.KEY.get(serverWorld).hasTime())
-            winStatus = GameFunctions.WinStatus.TIME;
+        if (!SREGameTimeComponent.KEY.get(serverWorld).hasTime())
+            winStatus = GameUtils.WinStatus.TIME;
 
         // check if last person standing in loose end
         int playersLeft = 0;
         Player lastPlayer = null;
         for (Player player : serverWorld.players()) {
-            if (GameFunctions.isPlayerAliveAndSurvival(player)) {
+            if (GameUtils.isPlayerAliveAndSurvival(player)) {
                 playersLeft++;
                 lastPlayer = player;
             }
@@ -98,25 +98,25 @@ public class WTLooseEndsGameMode extends GameMode {
         if (playersLeft <= 0) {
             var modifiedWinStatus = AllowGameEnd.EVENT.invoker().allowGameEnd(serverWorld, WinStatus.NO_PLAYER, true);
             if (!modifiedWinStatus.equals(WinStatus.NONE)) {
-                GameFunctions.stopGame(serverWorld);
+                GameUtils.stopGame(serverWorld);
             }
         }
 
         if (playersLeft == 1) {
             gameWorldComponent.setLooseEndWinner(lastPlayer.getUUID());
-            winStatus = GameFunctions.WinStatus.LOOSE_END;
+            winStatus = GameUtils.WinStatus.LOOSE_END;
         }
 
         // game end on win and display
-        if (winStatus != GameFunctions.WinStatus.NONE
-                && gameWorldComponent.getGameStatus() == StarGameWorldComponent.GameStatus.ACTIVE) {
+        if (winStatus != GameUtils.WinStatus.NONE
+                && gameWorldComponent.getGameStatus() == SREGameWorldComponent.GameStatus.ACTIVE) {
             var modifiedStatus = AllowGameEnd.EVENT.invoker().allowGameEnd(serverWorld, winStatus, true);
-            if (!modifiedStatus.equals(GameFunctions.WinStatus.NONE)) {
-                if (!modifiedStatus.equals(GameFunctions.WinStatus.NOT_MODIFY)) {
+            if (!modifiedStatus.equals(GameUtils.WinStatus.NONE)) {
+                if (!modifiedStatus.equals(GameUtils.WinStatus.NOT_MODIFY)) {
                     winStatus = modifiedStatus;
                 }
-                StarGameRoundEndComponent.KEY.get(serverWorld).setRoundEndData(serverWorld.players(), winStatus);
-                GameFunctions.stopGame(serverWorld);
+                SREGameRoundEndComponent.KEY.get(serverWorld).setRoundEndData(serverWorld.players(), winStatus);
+                GameUtils.stopGame(serverWorld);
             }
         }
     }

@@ -12,7 +12,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 
 import io.wifi.starrailexpress.block_entity.SmallDoorBlockEntity;
-import io.wifi.starrailexpress.cca.StarPlayerMoodComponent;
+import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.index.TMMItems;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
@@ -262,7 +262,7 @@ public class TaskBlockOverlayRenderer {
          * 11: 售货机
          */
 
-        var playerMood = StarPlayerMoodComponent.KEY.get(Minecraft.getInstance().player);
+        var playerMood = SREPlayerMoodComponent.KEY.get(Minecraft.getInstance().player);
         if (playerMood != null) {
             for (var task : playerMood.tasks.values()) {
                 switch (task.getType()) {

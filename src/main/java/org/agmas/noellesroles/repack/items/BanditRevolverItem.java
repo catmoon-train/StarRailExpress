@@ -1,8 +1,8 @@
 package org.agmas.noellesroles.repack.items;
 
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.world.InteractionHand;
@@ -55,7 +55,7 @@ public class BanditRevolverItem extends Item {
                 ClientPlayNetworking.send(new BanditRevolverShootPayload(-1));
             }
         } else {
-            final var gameComponent = StarGameWorldComponent.KEY.get(world);
+            final var gameComponent = SREGameWorldComponent.KEY.get(world);
             if (gameComponent != null) {
                 final var role = gameComponent.getRole(user);
                 if (role != null) {
@@ -72,7 +72,7 @@ public class BanditRevolverItem extends Item {
         return ProjectileUtil.getHitResultOnViewVector(user, (entity) -> {
             boolean var10000;
             if (entity instanceof Player player) {
-                if (GameFunctions.isPlayerAliveAndSurvival(player)) {
+                if (GameUtils.isPlayerAliveAndSurvival(player)) {
                     var10000 = true;
                     return var10000;
                 }

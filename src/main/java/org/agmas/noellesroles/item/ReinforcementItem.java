@@ -11,7 +11,7 @@ import io.wifi.starrailexpress.block.SmallDoorBlock;
 import io.wifi.starrailexpress.block.TrainDoorBlock;
 import io.wifi.starrailexpress.block_entity.DoorBlockEntity;
 import io.wifi.starrailexpress.block_entity.SmallDoorBlockEntity;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.util.AdventureUsable;
 import io.wifi.starrailexpress.SRE;
 import net.minecraft.ChatFormatting;
@@ -53,7 +53,7 @@ public class ReinforcementItem extends Item implements AdventureUsable {
         if (player == null)
             return InteractionResult.PASS;
 
-        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(world);
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(world);
         boolean isEngineer = gameWorld.isRole(player, ModRoles.ENGINEER);
         boolean isLockSmith = gameWorld.isRole(player, ModRoles.LOCKSMITH);
         // 检查是否为门方块

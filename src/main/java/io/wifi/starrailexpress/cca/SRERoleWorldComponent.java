@@ -13,7 +13,7 @@ import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
 import org.ladysnake.cca.api.v3.component.sync.AutoSyncedComponent;
 
-import io.wifi.starrailexpress.api.Role;
+import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.SRE;
 import net.minecraft.core.HolderLookup;
@@ -22,26 +22,26 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
-public class RoleWorldComponent implements AutoSyncedComponent {
-    public static final ComponentKey<RoleWorldComponent> KEY = ComponentRegistry.getOrCreate(SRE.id("roles"),
-            RoleWorldComponent.class);
+public class SRERoleWorldComponent implements AutoSyncedComponent {
+    public static final ComponentKey<SRERoleWorldComponent> KEY = ComponentRegistry.getOrCreate(SRE.id("roles"),
+            SRERoleWorldComponent.class);
     private final Level world;
-    HashMap<String, Role> pathToRole = new HashMap<>();
+    HashMap<String, SRERole> pathToRole = new HashMap<>();
 
-    private final HashMap<UUID, Role> roles = new HashMap<>();
+    private final HashMap<UUID, SRERole> roles = new HashMap<>();
 
-    public RoleWorldComponent(Level world) {
+    public SRERoleWorldComponent(Level world) {
         this.world = world;
     }
 
-    public void addRole(Player player, Role role) {
+    public void addRole(Player player, SRERole role) {
         if (player == null) {
             return;
         }
         this.addRole(player.getUUID(), role);
     }
 
-    public void addRole(UUID player, Role role, boolean sync) {
+    public void addRole(UUID player, SRERole role, boolean sync) {
         if (player == null) {
             return;
         }
@@ -50,15 +50,15 @@ public class RoleWorldComponent implements AutoSyncedComponent {
             this.sync();
     }
 
-    public void addRole(UUID player, Role role) {
+    public void addRole(UUID player, SRERole role) {
         this.addRole(player, role, true);
     }
 
-    public void resetRole(Role role) {
+    public void resetRole(SRERole role) {
         this.resetRole(role, true);
     }
 
-    public void resetRole(Role role, boolean sync) {
+    public void resetRole(SRERole role, boolean sync) {
         roles.entrySet().removeIf(entry -> entry.getValue() == role);
         if (sync)
             this.sync();
@@ -68,7 +68,7 @@ public class RoleWorldComponent implements AutoSyncedComponent {
         KEY.sync(this.world);
     }
 
-    public void setRoles(List<UUID> players, Role role) {
+    public void setRoles(List<UUID> players, SRERole role) {
         if (players == null) {
             return;
         }
@@ -82,18 +82,18 @@ public class RoleWorldComponent implements AutoSyncedComponent {
         this.sync();
     }
 
-    public HashMap<UUID, Role> getRoles() {
+    public HashMap<UUID, SRERole> getRoles() {
         return roles;
     }
 
-    public Role getRole(Player player) {
+    public SRERole getRole(Player player) {
         if (player == null) {
             return null;
         }
         return getRole(player.getUUID());
     }
 
-    public @Nullable Role getRole(UUID uuid) {
+    public @Nullable SRERole getRole(UUID uuid) {
         if (uuid == null) {
             return null;
         }
@@ -122,7 +122,7 @@ public class RoleWorldComponent implements AutoSyncedComponent {
         return ret;
     }
 
-    public List<UUID> getAllWithRole(Role role) {
+    public List<UUID> getAllWithRole(SRERole role) {
         List<UUID> ret = new ArrayList<>();
         roles.forEach((uuid, playerRole) -> {
             if (playerRole == role) {
@@ -133,14 +133,14 @@ public class RoleWorldComponent implements AutoSyncedComponent {
         return ret;
     }
 
-    public boolean isRole(@NotNull Player player, Role role) {
+    public boolean isRole(@NotNull Player player, SRERole role) {
         if (player == null) {
             return role == null;
         }
         return isRole(player.getUUID(), role);
     }
 
-    public boolean isRole(@NotNull UUID uuid, Role role) {
+    public boolean isRole(@NotNull UUID uuid, SRERole role) {
         if (uuid == null) {
             return role == null;
         }
@@ -183,7 +183,7 @@ public class RoleWorldComponent implements AutoSyncedComponent {
         }
     }
 
-    public @Nullable Role getRoleFromPath(String path) {
+    public @Nullable SRERole getRoleFromPath(String path) {
         if (pathToRole.containsKey(path)) {
             return pathToRole.get(path);
         } else {
@@ -199,7 +199,7 @@ public class RoleWorldComponent implements AutoSyncedComponent {
         return getRole(player) != null && getRole(player).canSeeTeammateKiller();
     }
 
-    public boolean isKillerTeamRole(Role role) {
+    public boolean isKillerTeamRole(SRERole role) {
         if (role == null)
             return false;
         if (role.canUseKiller())
@@ -222,7 +222,7 @@ public class RoleWorldComponent implements AutoSyncedComponent {
         return false;
     }
 
-    public static boolean isKillerTeamRoleStatic(Role role) {
+    public static boolean isKillerTeamRoleStatic(SRERole role) {
         if (role == null)
             return false;
         if (role.canUseKiller())
@@ -254,7 +254,7 @@ public class RoleWorldComponent implements AutoSyncedComponent {
                     if (playerUid == null)
                         continue;
 
-                    Role role = getRoleFromPath(rolePath);
+                    SRERole role = getRoleFromPath(rolePath);
                     if (role != null) {
                         this.roles.putIfAbsent(playerUid, role);
                     }
@@ -268,12 +268,12 @@ public class RoleWorldComponent implements AutoSyncedComponent {
         if (this.roles.isEmpty())
             return;
         var roleInfoCompund = new CompoundTag();
-        for (Entry<UUID, Role> info : roles.entrySet()) {
+        for (Entry<UUID, SRERole> info : roles.entrySet()) {
             UUID pUuid = info.getKey();
             if (pUuid == null)
                 continue;
             String keyName = pUuid.toString();
-            Role role = info.getValue();
+            SRERole role = info.getValue();
             if (role == null)
                 continue;
             String roleId = role.identifier().getPath();

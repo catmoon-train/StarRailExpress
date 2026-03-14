@@ -1,6 +1,6 @@
 package org.agmas.noellesroles.mixin.client.roles.admirer;
 
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -35,7 +35,7 @@ public class AdmirerHudMixin {
             return;
 
         // 检查玩家是否存活
-        if (!GameFunctions.isPlayerAliveAndSurvival(client.player))
+        if (!GameUtils.isPlayerAliveAndSurvival(client.player))
             return;
 
         // 渲染位置 - 左下角

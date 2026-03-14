@@ -7,7 +7,6 @@ import org.agmas.noellesroles.component.DIOPlayerComponent;
 import org.agmas.noellesroles.component.HoanMeirinPlayerComponent;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.component.NianShouPlayerComponent;
-import org.agmas.noellesroles.component.StarAbilityPlayerComponent;
 import org.agmas.noellesroles.component.PlayerVolumeComponent;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.effects.TimeStopEffect;
@@ -25,10 +24,11 @@ import org.agmas.noellesroles.roles.recaller.RecallerPlayerComponent;
 import org.agmas.noellesroles.roles.thief.ThiefPlayerComponent;
 import org.agmas.noellesroles.utils.RoleUtils;
 
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
-import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
+import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.game.GameConstants;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.Context;
 import net.minecraft.ChatFormatting;
@@ -47,9 +47,9 @@ public class AbilityHandler {
     public static void handler(AbilityC2SPacket payload, Context context) {
         // 通用技能服务端处理
 
-        StarAbilityPlayerComponent abilityPlayerComponent = (StarAbilityPlayerComponent) StarAbilityPlayerComponent.KEY
+        SREAbilityPlayerComponent abilityPlayerComponent = (SREAbilityPlayerComponent) SREAbilityPlayerComponent.KEY
                 .get(context.player());
-        StarGameWorldComponent gameWorldComponent = (StarGameWorldComponent) StarGameWorldComponent.KEY
+        SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY
                 .get(context.player().level());
         final ServerPlayer player = context.player();
         if (player.hasEffect(ModEffects.TIME_STOP) && !TimeStopEffect.canMovePlayers.contains(player.getUUID())) {
@@ -189,7 +189,7 @@ public class AbilityHandler {
                         true);
                 return;
             } else {
-                StarPlayerShopComponent playerShopComponent = StarPlayerShopComponent.KEY.get(context.player());
+                SREPlayerShopComponent playerShopComponent = SREPlayerShopComponent.KEY.get(context.player());
                 if (playerShopComponent.balance < 300) {
                     player.displayClientMessage(
                             Component.translatable("message.noellesroles.insufficient_funds_money", 300)
@@ -200,7 +200,7 @@ public class AbilityHandler {
                 playerShopComponent.addToBalance(-300);
                 abilityPlayerComponent.setCooldown(240 * 20);
                 player.serverLevel().players().forEach(sp -> {
-                    if (GameFunctions.isPlayerAliveAndSurvival(sp)) {
+                    if (GameUtils.isPlayerAliveAndSurvival(sp)) {
                         ServerPlayNetworking.send(sp, new ProblemScreenOpenC2SPacket(true, 3));
                     }
                 });
@@ -231,7 +231,7 @@ public class AbilityHandler {
         if (gameWorldComponent.isRole(context.player(), ModRoles.RECALLER)
                 && abilityPlayerComponent.cooldown <= 0) {
             RecallerPlayerComponent recallerPlayerComponent = RecallerPlayerComponent.KEY.get(context.player());
-            StarPlayerShopComponent playerShopComponent = StarPlayerShopComponent.KEY.get(context.player());
+            SREPlayerShopComponent playerShopComponent = SREPlayerShopComponent.KEY.get(context.player());
             if (!recallerPlayerComponent.placed) {
                 abilityPlayerComponent.cooldown = GameConstants.getInTicks(0,
                         NoellesRolesConfig.HANDLER.instance().recallerMarkCooldown);
@@ -393,12 +393,12 @@ public class AbilityHandler {
     }
 
     public static void handlerWithTarget(AbilityWithTargetC2SPacket payload, Context context) {
-        StarAbilityPlayerComponent abilityPlayerComponent = (StarAbilityPlayerComponent) StarAbilityPlayerComponent.KEY
+        SREAbilityPlayerComponent abilityPlayerComponent = (SREAbilityPlayerComponent) SREAbilityPlayerComponent.KEY
                 .get(context.player());
 
-        StarPlayerShopComponent playerShopComponent = StarPlayerShopComponent.KEY
+        SREPlayerShopComponent playerShopComponent = SREPlayerShopComponent.KEY
                 .get(context.player());
-        StarGameWorldComponent gameWorldComponent = (StarGameWorldComponent) StarGameWorldComponent.KEY
+        SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY
                 .get(context.player().level());
         final ServerPlayer player = context.player();
         if (player.hasEffect(ModEffects.TIME_STOP) && !TimeStopEffect.canMovePlayers.contains(player.getUUID())) {

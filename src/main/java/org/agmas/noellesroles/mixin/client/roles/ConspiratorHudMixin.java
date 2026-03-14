@@ -2,7 +2,7 @@ package org.agmas.noellesroles.mixin.client.roles;
 
 import org.agmas.noellesroles.component.ConspiratorPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.RoleNameRenderer;
 import net.minecraft.ChatFormatting;
@@ -30,7 +30,7 @@ public class ConspiratorHudMixin {
         if (client.player == null) return;
         if(client.player.isSpectator()) return;
         
-        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(client.player.level());
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(client.player.level());
         if (!gameWorld.isRole(client.player, ModRoles.CONSPIRATOR)) return;
         if (!SREClient.isPlayerAliveAndInSurvival()) return;
         

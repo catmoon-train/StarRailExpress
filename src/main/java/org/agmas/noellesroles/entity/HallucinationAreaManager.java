@@ -1,6 +1,6 @@
 package org.agmas.noellesroles.entity;
 
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -59,7 +59,7 @@ public class HallucinationAreaManager {
      * 对玩家应用迷幻效果（视角随机偏移 + 反胃效果）
      */
     public static void applyHallucinationToPlayer(ServerPlayer player) {
-        if (player == null || !GameFunctions.isPlayerAliveAndSurvival(player)) {
+        if (player == null || !GameUtils.isPlayerAliveAndSurvival(player)) {
             return;
         }
         
@@ -174,7 +174,7 @@ public class HallucinationAreaManager {
             
             List<ServerPlayer> players = world.getEntitiesOfClass(
                     ServerPlayer.class, area,
-                    player -> GameFunctions.isPlayerAliveAndSurvival(player) && player != owner
+                    player -> GameUtils.isPlayerAliveAndSurvival(player) && player != owner
             );
             
             for (ServerPlayer player : players) {

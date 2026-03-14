@@ -1,14 +1,14 @@
 package org.agmas.noellesroles.component;
 
 import io.wifi.starrailexpress.game.GameConstants;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
 
 import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import io.wifi.starrailexpress.api.RoleComponent;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 
 import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
@@ -293,7 +293,7 @@ public class StalkerPlayerComponent implements RoleComponent, ServerTickingCompo
      * 进入二阶段后盾牌消失
      */
     public void advanceToPhase2() {
-        var gameWorldComponent = StarGameWorldComponent.KEY.get(player.level());
+        var gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
         if (!gameWorldComponent.isSkillAvailable) {
             // player.displayClientMessage(
             //         Component.translatable("message.tip.skill_disabled").withStyle(ChatFormatting.RED), true);
@@ -525,7 +525,7 @@ public class StalkerPlayerComponent implements RoleComponent, ServerTickingCompo
         for (Player target : world.players()) {
             if (target.equals(player))
                 continue;
-            if (!GameFunctions.isPlayerAliveAndSurvival(target))
+            if (!GameUtils.isPlayerAliveAndSurvival(target))
                 continue;
 
             Vec3 targetPos = target.getEyePosition();
@@ -614,7 +614,7 @@ public class StalkerPlayerComponent implements RoleComponent, ServerTickingCompo
         for (Player target : player.level().players()) {
             if (target.equals(player))
                 continue;
-            if (!GameFunctions.isPlayerAliveAndSurvival(target))
+            if (!GameUtils.isPlayerAliveAndSurvival(target))
                 continue;
 
             // 检查目标是否在突进路径上
@@ -651,7 +651,7 @@ public class StalkerPlayerComponent implements RoleComponent, ServerTickingCompo
             return;
 
         // 使用刀刺死因
-        GameFunctions.killPlayer(target, true, player, GameConstants.DeathReasons.KNIFE);
+        GameUtils.killPlayer(target, true, player, GameConstants.DeathReasons.KNIFE);
 
         // 减少三阶段倒计时
         onExecution();
@@ -673,7 +673,7 @@ public class StalkerPlayerComponent implements RoleComponent, ServerTickingCompo
      * 检查是否是活跃的跟踪者
      */
     public boolean isActiveStalker() {
-        StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(player.level());
+        SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
         if (gameWorldComponent == null)
             return false;
         if (!gameWorldComponent.isRole(player, ModRoles.STALKER))
@@ -711,7 +711,7 @@ public class StalkerPlayerComponent implements RoleComponent, ServerTickingCompo
             return;
 
         // 检查玩家是否存活
-        if (!GameFunctions.isPlayerAliveAndSurvival(player))
+        if (!GameUtils.isPlayerAliveAndSurvival(player))
             return;
 
         // 二阶段及以上禁止冲刺

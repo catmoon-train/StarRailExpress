@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import io.wifi.starrailexpress.cca.StarGameTimeComponent;
+import io.wifi.starrailexpress.cca.SREGameTimeComponent;
 import io.wifi.starrailexpress.client.StatusInit;
 import net.minecraft.client.CameraType;
 
@@ -62,9 +62,9 @@ import com.mojang.blaze3d.platform.InputConstants;
 import dev.doctor4t.ratatouille.client.util.ambience.AmbienceUtil;
 import dev.doctor4t.ratatouille.client.util.ambience.BackgroundAmbience;
 import dev.doctor4t.ratatouille.util.TextUtils;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
-import io.wifi.starrailexpress.cca.StarPlayerMoodComponent;
-import io.wifi.starrailexpress.cca.StarPlayerPsychoComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
+import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.client.StaminaRenderer;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
@@ -74,7 +74,7 @@ import io.wifi.starrailexpress.event.AllowNameRender;
 import io.wifi.starrailexpress.event.OnKillerCohortDisplay;
 import io.wifi.starrailexpress.event.OnRoundStartWelcomeTimmer;
 import io.wifi.starrailexpress.game.GameConstants;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.network.BreakArmorPayload;
@@ -176,7 +176,7 @@ public class NoellesrolesClient implements ClientModInitializer {
                                     return false;
                                 return (level.players().stream().anyMatch((p) -> {
                                     if (SREClient.gameComponent.isRole(p, ModRoles.JESTER)) {
-                                        if (StarPlayerPsychoComponent.KEY.get(p).getPsychoTicks() > 0) {
+                                        if (SREPlayerPsychoComponent.KEY.get(p).getPsychoTicks() > 0) {
                                             return true;
                                         }
                                     }
@@ -192,7 +192,7 @@ public class NoellesrolesClient implements ClientModInitializer {
         EntityModelLayerRegistry.registerModelLayer(WheelchairEntityModel.LAYER_LOCATION,
                 WheelchairEntityModel::createBodyLayer);
         AllowNameRender.EVENT.register((target) -> {
-            StarGameWorldComponent gameWorldComponent = (StarGameWorldComponent) StarGameWorldComponent.KEY.get(target.level());
+            SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY.get(target.level());
             if (gameWorldComponent.isRole(target,
                     ModRoles.THE_INSANE_DAMNED_PARANOID_KILLER_OF_DOOM_DEATH_DESTRUCTION_AND_WAFFLES)) {
                 var insaneComponent = InsaneKillerPlayerComponent.KEY.get(target);
@@ -448,7 +448,7 @@ public class NoellesrolesClient implements ClientModInitializer {
             clientPositions.clear();
             LocalPlayer player = context.player();
             Level level = player.level();
-            TimeStopEffect.freezeStatedTime = StarGameTimeComponent.KEY.get(level).time;
+            TimeStopEffect.freezeStatedTime = SREGameTimeComponent.KEY.get(level).time;
             TimeStopEffect.freezeMaxTime = payload.times();
             lastTimeStopRenderPlayer.clear();
             ClientLevel clientLevel = Minecraft.getInstance().level;
@@ -617,7 +617,7 @@ public class NoellesrolesClient implements ClientModInitializer {
                 (stack, world, entity, seed) -> {
                     // 如果持有者是炸弹客，始终可见
                     if (entity instanceof Player player) {
-                        StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(player.level());
+                        SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
                         if (gameWorldComponent.isRole(player, ModRoles.BOMBER)) {
                             return 1.0F;
                         }
@@ -634,7 +634,7 @@ public class NoellesrolesClient implements ClientModInitializer {
         OnMessageBelowMoneyRenderer.EVENT.register((minecraft, guiGraphics, deltaTracker) -> {
             if (SREClient.gameComponent != null && minecraft != null && minecraft.player != null) {
                 if (SREClient.gameComponent.isRunning()) {
-                    if (GameFunctions.isPlayerAliveAndSurvival(minecraft.player)) {
+                    if (GameUtils.isPlayerAliveAndSurvival(minecraft.player)) {
                         if (!SREClient.gameComponent.isSkillAvailable) {
                             //
                             return new MutableComponentResult(
@@ -653,7 +653,7 @@ public class NoellesrolesClient implements ClientModInitializer {
                 if (SREClient.gameComponent.isRunning()) {
                     boolean canDisplay = false;
                     if (SREClient.isPlayerAliveAndInSurvival()) {
-                        var playerMood = StarPlayerMoodComponent.KEY.get(Minecraft.getInstance().player);
+                        var playerMood = SREPlayerMoodComponent.KEY.get(Minecraft.getInstance().player);
                         if (playerMood != null) {
                             canDisplay = !playerMood.tasks.isEmpty();
                         }
@@ -683,7 +683,7 @@ public class NoellesrolesClient implements ClientModInitializer {
                                             .translatable("message.tip.for_killer",
                                                     Component.keybind("key." + SRE.MOD_ID + ".instinct"))
                                             .withStyle(ChatFormatting.WHITE));
-                        } else if (GameFunctions.isPlayerEliminated(minecraft.player)) {
+                        } else if (GameUtils.isPlayerEliminated(minecraft.player)) {
                             return new MutableComponentResult(
                                     Component
                                             .translatable("message.tip.for_killer",

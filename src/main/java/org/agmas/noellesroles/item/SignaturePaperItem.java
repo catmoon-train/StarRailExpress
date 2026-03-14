@@ -1,8 +1,8 @@
 package org.agmas.noellesroles.item;
 
-import org.agmas.noellesroles.component.StarAbilityPlayerComponent;
 import org.agmas.noellesroles.init.ModItems;
 
+import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
@@ -28,7 +28,7 @@ public class SignaturePaperItem extends Item {
         if (itemStack.is(ModItems.SIGNATURE_PAPER)) {
             if (player.isShiftKeyDown()) {
                 // 生死状
-                var abpc = StarAbilityPlayerComponent.KEY.get(player);
+                var abpc = SREAbilityPlayerComponent.KEY.get(player);
                 if (abpc.charges == -1) {
                     abpc.setCharges(0);
                     itemStack = ModItems.LIFE_AND_DEATH_SHAPE.getDefaultInstance();

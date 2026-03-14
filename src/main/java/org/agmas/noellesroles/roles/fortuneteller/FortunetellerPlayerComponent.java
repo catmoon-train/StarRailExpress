@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.roles.fortuneteller;
 
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -76,14 +76,14 @@ public class FortunetellerPlayerComponent implements RoleComponent, ServerTickin
     }
 
     public void serverTick() {
-        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.level());
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
         if (!gameWorld.isRole(player, ModRoles.FORTUNETELLER)) {
             return;
         }
         if (!gameWorld.isRunning()) {
             return;
         }
-        if (!GameFunctions.isPlayerAliveAndSurvival(player)) {
+        if (!GameUtils.isPlayerAliveAndSurvival(player)) {
             return;
         }
         boolean shouldSync = false;

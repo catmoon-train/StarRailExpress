@@ -1,6 +1,6 @@
 package pro.fazeclan.river.stupid_express.mixin.client.modifier.lovers;
 
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.RoleNameRenderer;
 import net.minecraft.client.DeltaTracker;
@@ -54,9 +54,9 @@ public abstract class LoversHudMixin {
                 name = Component.translatable("tip.stupid_express.lovers.partner", loverInfo.getProfile().getName());
             }
 
-            var role = StarGameWorldComponent.KEY.get(clientWorld).getRole(clientPlayer);
+            var role = SREGameWorldComponent.KEY.get(clientWorld).getRole(clientPlayer);
             if (role != null) {
-                if (StarGameWorldComponent.KEY.get(clientWorld).getRole(clientPlayer).identifier().equals(ResourceLocation.parse("noellesroles:executioner"))) {
+                if (SREGameWorldComponent.KEY.get(clientWorld).getRole(clientPlayer).identifier().equals(ResourceLocation.parse("noellesroles:executioner"))) {
                     textYPos -= 15;
                 }
             }

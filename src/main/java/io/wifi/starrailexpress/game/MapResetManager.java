@@ -41,7 +41,7 @@ public class MapResetManager {
     public static Gson gson = new Gson();
 
     public static void scanArea(ServerLevel serverWorld, AreasWorldComponent areas) {
-        GameFunctions.resetPoints.clear();
+        GameUtils.resetPoints.clear();
 
         if (areas.noReset) {
             SRE.LOGGER.info("No nedd to scan: no reset flag found. " + areas.toString());
@@ -61,28 +61,28 @@ public class MapResetManager {
                     BlockPos blockPos6 = new BlockPos(m, l, k);
                     BlockState blockState = serverWorld.getBlockState(blockPos6);
                     if (blockState.getBlock() instanceof SmallDoorBlock) {
-                        GameFunctions.resetPoints.add(blockPos6);
+                        GameUtils.resetPoints.add(blockPos6);
                     } else if (blockState.getBlock() instanceof TrimmedBedBlock) {
                         if (blockState.getValue(TrimmedBedBlock.PART).equals(BedPart.HEAD)) {
-                            GameFunctions.resetPoints.add(blockPos6);
+                            GameUtils.resetPoints.add(blockPos6);
                         }
                     } else if (blockState.getBlock() instanceof FoodPlatterBlock) {
-                        GameFunctions.resetPoints.add(blockPos6);
+                        GameUtils.resetPoints.add(blockPos6);
 
                     } else if (blockState.getBlock() instanceof LecternBlock) {
                         if (serverWorld.getBlockEntity(blockPos6) instanceof LecternBlockEntity) {
-                            GameFunctions.resetPoints.add(blockPos6);
+                            GameUtils.resetPoints.add(blockPos6);
                         }
                     } else if (blockState.getBlock() instanceof SprinklerBlock) {
-                        GameFunctions.resetPoints.add(blockPos6);
+                        GameUtils.resetPoints.add(blockPos6);
                     } else if (blockState.getBlock() instanceof NeonPillarBlock) {
-                        GameFunctions.resetPoints.add(blockPos6);
+                        GameUtils.resetPoints.add(blockPos6);
                     } else if (blockState.getBlock() instanceof NeonTubeBlock) {
-                        GameFunctions.resetPoints.add(blockPos6);
+                        GameUtils.resetPoints.add(blockPos6);
                     } else if (blockState.getBlock() instanceof ToggleableFacingLightBlock) {
-                        GameFunctions.resetPoints.add(blockPos6);
+                        GameUtils.resetPoints.add(blockPos6);
                     } else if (blockState.getBlock() instanceof VentHatchBlock) {
-                        GameFunctions.resetPoints.add(blockPos6);
+                        GameUtils.resetPoints.add(blockPos6);
                     }
                 }
             }
@@ -106,7 +106,7 @@ public class MapResetManager {
         File mapConfigFile = mapConfigPath.toFile();
         try {
             FileWriter writer = new FileWriter(mapConfigFile);
-            MapResetInfos infos = new MapResetInfos(GameFunctions.resetPoints);
+            MapResetInfos infos = new MapResetInfos(GameUtils.resetPoints);
             gson.toJson(infos, writer);
             writer.close();
             SRE.LOGGER.info("Successfully cache reset points for map: " + mapName);
@@ -116,7 +116,7 @@ public class MapResetManager {
     }
 
     public static void loadArea(ServerLevel world) {
-        GameFunctions.resetPoints.clear();
+        GameUtils.resetPoints.clear();
         var areaC = AreasWorldComponent.KEY.get(world);
         String mapName = areaC.mapName;
         if (mapName == null)
@@ -134,7 +134,7 @@ public class MapResetManager {
             FileReader reader = new FileReader(mapConfigFile);
             JsonObject jsonObject = JsonParser.parseReader(reader).getAsJsonObject();
             MapResetInfos mapinfos = gson.fromJson(jsonObject, MapResetInfos.class);
-            GameFunctions.resetPoints = mapinfos.blocks;
+            GameUtils.resetPoints = mapinfos.blocks;
             reader.close();
         } catch (Exception e) {
             e.printStackTrace();

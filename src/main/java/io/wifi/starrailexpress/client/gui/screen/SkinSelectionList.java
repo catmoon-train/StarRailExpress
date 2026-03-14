@@ -1,6 +1,6 @@
 package io.wifi.starrailexpress.client.gui.screen;
 
-import io.wifi.starrailexpress.cca.PlayerSkinsComponent;
+import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -29,7 +29,7 @@ public class SkinSelectionList extends ObjectSelectionList<SkinSelectionList.Ski
     private final String itemTypeName;
     private final ItemStack itemType;
 
-    private final PlayerSkinsComponent skinsComponent;
+    private final SREPlayerSkinsComponent skinsComponent;
     private final List<String> availableSkins = new ArrayList<>();
     private final Consumer<String> onSkinSelected;
 
@@ -55,7 +55,7 @@ public class SkinSelectionList extends ObjectSelectionList<SkinSelectionList.Ski
 
     public SkinSelectionList(SkinManagementScreen parentScreen, Minecraft mc,
             int x, int width, int height, int y, ItemStack itemType,
-            PlayerSkinsComponent skinsComponent, Consumer<String> onSkinSelected) {
+            SREPlayerSkinsComponent skinsComponent, Consumer<String> onSkinSelected) {
         super(mc, width, height, y, ENTRY_HEIGHT);
         // 设置列表的 X 位置
         this.setX(x);

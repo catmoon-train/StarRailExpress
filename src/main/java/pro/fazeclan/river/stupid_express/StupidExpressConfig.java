@@ -1,13 +1,5 @@
 package pro.fazeclan.river.stupid_express;
 
-//import me.fzzyhmstrs.fzzy_config.api.FileType;
-//import me.fzzyhmstrs.fzzy_config.api.SaveType;
-//import me.fzzyhmstrs.fzzy_config.config.Config;
-//import me.fzzyhmstrs.fzzy_config.config.ConfigSection;
-//import me.fzzyhmstrs.fzzy_config.util.EnumTranslatable;
-//import org.jetbrains.annotations.NotNull;
-
-
 public class StupidExpressConfig
       //  extends Config
 {
@@ -26,7 +18,7 @@ public class StupidExpressConfig
 
         public ArsonistSection arsonistSection = new ArsonistSection();
         public static class ArsonistSection {
-            public boolean arsonistKeepsGameGoing = false;
+            public boolean arsonistKeepsGameGoing = true;
         }
 
         public InitiateSection initiateSection = new InitiateSection();

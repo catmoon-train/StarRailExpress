@@ -3,7 +3,7 @@ package io.wifi.starrailexpress.command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
@@ -19,7 +19,7 @@ public class SetBoundCommand {
 
     private static int execute(CommandSourceStack source, boolean enabled) {
 
-        StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(source.getLevel());
+        SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(source.getLevel());
         gameWorldComponent.setBound(enabled);
 
         if (enabled) {

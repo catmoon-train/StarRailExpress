@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 
 public class KnightHandler {
     public static void init() {
@@ -24,7 +24,7 @@ public class KnightHandler {
                     continue;
 
                 // 只有冒险模式的玩家才能作为交换目标
-                if (GameFunctions.isPlayerAliveAndSurvival(player)) {
+                if (GameUtils.isPlayerAliveAndSurvival(player)) {
                     targets.add(player);
                 }
 
@@ -33,7 +33,7 @@ public class KnightHandler {
                     int light = player.level().getBrightness(LightLayer.BLOCK, player.blockPosition());
                     if (light < 2) {
                         // 侠客也必须是冒险模式才能使用交换能力
-                        if (GameFunctions.isPlayerAliveAndSurvival(player)) {
+                        if (GameUtils.isPlayerAliveAndSurvival(player)) {
                             knights.add(player);
                         }
                     }

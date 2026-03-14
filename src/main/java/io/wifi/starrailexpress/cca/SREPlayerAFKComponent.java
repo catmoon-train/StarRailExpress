@@ -1,7 +1,7 @@
 package io.wifi.starrailexpress.cca;
 
 import io.wifi.starrailexpress.api.RoleComponent;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import net.minecraft.core.HolderLookup;
@@ -13,15 +13,15 @@ import org.ladysnake.cca.api.v3.component.ComponentRegistry;
 import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
-public class PlayerAFKComponent implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
-    public static final ComponentKey<PlayerAFKComponent> KEY = ComponentRegistry.getOrCreate(SRE.id("afk"),
-            PlayerAFKComponent.class);
+public class SREPlayerAFKComponent implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
+    public static final ComponentKey<SREPlayerAFKComponent> KEY = ComponentRegistry.getOrCreate(SRE.id("afk"),
+            SREPlayerAFKComponent.class);
     private final Player player;
     private int afkTime = 0; // 挂机时间（刻）
     private int lastActionTime = 0; // 最后操作时间（刻）
     private boolean isAFK = false; // 是否挂机
 
-    public PlayerAFKComponent(Player player) {
+    public SREPlayerAFKComponent(Player player) {
         this.player = player;
         this.lastActionTime = 0;
         this.afkTime = 0;
@@ -108,7 +108,7 @@ public class PlayerAFKComponent implements RoleComponent, ServerTickingComponent
         if (!SRE.isPlayerInGame(this.player))
             return;
 
-        if (!StarGameWorldComponent.KEY.get(this.player.level()).isRunning())
+        if (!SREGameWorldComponent.KEY.get(this.player.level()).isRunning())
             return;
         if (player.isSpectator()) {
             this.lastActionTime = 0;
@@ -126,7 +126,7 @@ public class PlayerAFKComponent implements RoleComponent, ServerTickingComponent
         }
         if (this.lastActionTime >= deathThreshold) {
             // 如果达到死亡阈值，直接杀死玩家
-            GameFunctions.killPlayer(this.player, true, null, SRE.id("death_afk"));
+            GameUtils.killPlayer(this.player, true, null, SRE.id("death_afk"));
         } else if (this.lastActionTime >= afkThreshold && !this.isAFK) {
             this.isAFK = true;
             if (tickR % 400 == 0) { // 20s同步一次
@@ -163,7 +163,7 @@ public class PlayerAFKComponent implements RoleComponent, ServerTickingComponent
         if (!SRE.isPlayerInGame(this.player))
             return;
 
-        if (!StarGameWorldComponent.KEY.get(this.player.level()).isRunning())
+        if (!SREGameWorldComponent.KEY.get(this.player.level()).isRunning())
             return;
         if (player.isSpectator()) {
             this.lastActionTime = 0;

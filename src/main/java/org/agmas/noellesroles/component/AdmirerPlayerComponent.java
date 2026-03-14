@@ -1,13 +1,13 @@
 package org.agmas.noellesroles.component;
 
-import io.wifi.starrailexpress.api.Role;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.game.GameUtils;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import io.wifi.starrailexpress.api.RoleComponent;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
@@ -140,7 +140,7 @@ public class AdmirerPlayerComponent implements RoleComponent, ServerTickingCompo
             return;
 
         // 获取操纵师角色
-        Role selectedRole = ModRoles.MANIPULATOR;
+        SRERole selectedRole = ModRoles.MANIPULATOR;
 
         // 清除慕恋者标记
         this.isAdmirerMarked = true;
@@ -153,7 +153,7 @@ public class AdmirerPlayerComponent implements RoleComponent, ServerTickingCompo
 
         // 为所有杀手阵营角色（canUseKiller = true）给予初始金币
         if (selectedRole.canUseKiller()) {
-            io.wifi.starrailexpress.cca.StarPlayerShopComponent shopComponent = io.wifi.starrailexpress.cca.StarPlayerShopComponent.KEY
+            io.wifi.starrailexpress.cca.SREPlayerShopComponent shopComponent = io.wifi.starrailexpress.cca.SREPlayerShopComponent.KEY
                     .get(player);
             shopComponent.addToBalance(200);
             shopComponent.sync();
@@ -184,7 +184,7 @@ public class AdmirerPlayerComponent implements RoleComponent, ServerTickingCompo
         for (Player target : world.players()) {
             if (target.equals(player))
                 continue;
-            if (!GameFunctions.isPlayerAliveAndSurvival(target))
+            if (!GameUtils.isPlayerAliveAndSurvival(target))
                 continue;
             candidates.add(target);
         }
@@ -225,10 +225,10 @@ public class AdmirerPlayerComponent implements RoleComponent, ServerTickingCompo
     private void checkBoundTarget() {
         if (player.level().getGameTime() % 20 == 0) {
             Player boundTarget = getBoundTarget();
-            var gameCp = StarGameWorldComponent.KEY.get(this.player.level());
+            var gameCp = SREGameWorldComponent.KEY.get(this.player.level());
             if (gameCp != null && gameCp.isRunning()) {
-                if (GameFunctions.isPlayerAliveAndSurvival(this.player)) {
-                    if (boundTarget == null || !GameFunctions.isPlayerAliveAndSurvival(boundTarget)) {
+                if (GameUtils.isPlayerAliveAndSurvival(this.player)) {
+                    if (boundTarget == null || !GameUtils.isPlayerAliveAndSurvival(boundTarget)) {
                         if (player instanceof ServerPlayer serverPlayer) {
                             serverPlayer.displayClientMessage(
                                     Component.translatable("message.noellesroles.admirer.target_died")
@@ -264,7 +264,7 @@ public class AdmirerPlayerComponent implements RoleComponent, ServerTickingCompo
         Player boundTarget = getBoundTarget();
         if (boundTarget == null)
             return false;
-        if (!GameFunctions.isPlayerAliveAndSurvival(boundTarget))
+        if (!GameUtils.isPlayerAliveAndSurvival(boundTarget))
             return false;
 
         Vec3 eyePos = player.getEyePosition();
@@ -314,7 +314,7 @@ public class AdmirerPlayerComponent implements RoleComponent, ServerTickingCompo
      * 检查是否是活跃的慕恋者
      */
     public boolean isActiveAdmirer() {
-        if (!StarGameWorldComponent.KEY.get(player.level()).isRole(player, ModRoles.ADMIRER))
+        if (!SREGameWorldComponent.KEY.get(player.level()).isRole(player, ModRoles.ADMIRER))
             return false;
         return isAdmirerMarked && !hasTransformed;
     }
@@ -342,9 +342,9 @@ public class AdmirerPlayerComponent implements RoleComponent, ServerTickingCompo
             return;
 
         // 检查玩家是否存活
-        if (!GameFunctions.isPlayerAliveAndSurvival(player))
+        if (!GameUtils.isPlayerAliveAndSurvival(player))
             return;
-        var gameWorldComponent = StarGameWorldComponent.KEY.get(player.level());
+        var gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
         if (!gameWorldComponent.isSkillAvailable) {
             // player.displayClientMessage(
             //         Component.translatable("message.tip.skill_disabled").withStyle(ChatFormatting.RED), true);

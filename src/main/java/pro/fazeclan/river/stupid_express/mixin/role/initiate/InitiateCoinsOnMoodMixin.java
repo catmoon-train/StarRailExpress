@@ -1,9 +1,9 @@
 package pro.fazeclan.river.stupid_express.mixin.role.initiate;
 
 import io.wifi.starrailexpress.api.TMMRoles;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
-import io.wifi.starrailexpress.cca.StarPlayerMoodComponent;
-import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
+import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import net.minecraft.world.entity.player.Player;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import pro.fazeclan.river.stupid_express.constants.SERoles;
 
-@Mixin(StarPlayerMoodComponent.class)
+@Mixin(SREPlayerMoodComponent.class)
 public abstract class InitiateCoinsOnMoodMixin {
 
     @Shadow
@@ -25,7 +25,7 @@ public abstract class InitiateCoinsOnMoodMixin {
 
     @Inject(method = "setMood", at = @At("HEAD"))
     private void initiateCoinsForMoodUp(float mood, CallbackInfo ci) {
-        var gameWorldComponent = StarGameWorldComponent.KEY.get(player.level());
+        var gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
         if (mood < getMood()) {
             return;
         }
@@ -36,7 +36,7 @@ public abstract class InitiateCoinsOnMoodMixin {
                 .anyMatch(role -> role.identifier().getNamespace().equals("noellesroles"))) {
             return;
         }
-        var shopComponent = StarPlayerShopComponent.KEY.get(player);
+        var shopComponent = SREPlayerShopComponent.KEY.get(player);
         shopComponent.addToBalance(50);
     }
 

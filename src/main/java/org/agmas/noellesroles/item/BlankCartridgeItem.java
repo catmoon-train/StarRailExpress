@@ -1,6 +1,6 @@
 package org.agmas.noellesroles.item;
 
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -56,7 +56,7 @@ public class BlankCartridgeItem extends Item {
         }
 
         // 检查目标是否存活
-        if (!GameFunctions.isPlayerAliveAndSurvival(target)) {
+        if (!GameUtils.isPlayerAliveAndSurvival(target)) {
             return InteractionResult.FAIL;
         }
 

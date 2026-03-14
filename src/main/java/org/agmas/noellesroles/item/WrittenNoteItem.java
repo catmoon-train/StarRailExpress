@@ -1,6 +1,6 @@
 package org.agmas.noellesroles.item;
 
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import org.agmas.noellesroles.client.screen.RecorderScreen;
 import org.agmas.noellesroles.role.ModRoles;
 import net.minecraft.client.Minecraft;
@@ -21,7 +21,7 @@ public class WrittenNoteItem extends Item {
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
         if (level.isClientSide) {
             // 检查是否为记录员角色
-            StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(level);
+            SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(level);
             if (gameWorld.isRole(player, ModRoles.RECORDER)) {
                 if (openScreenCallback != null) {
                     openScreenCallback.run();

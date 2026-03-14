@@ -2,9 +2,9 @@ package org.agmas.noellesroles.component;
 
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
-import io.wifi.starrailexpress.cca.StarPlayerMoodComponent;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.SRE;
 
 import org.jetbrains.annotations.NotNull;
@@ -144,7 +144,7 @@ public class SingerPlayerComponent implements RoleComponent, ServerTickingCompon
     public boolean isActiveSinger() {
         if (!isActive || player == null || player.level().isClientSide())
             return false;
-        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.level());
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
         return gameWorld.isRole(player, ModRoles.SINGER);
     }
 
@@ -263,7 +263,7 @@ public class SingerPlayerComponent implements RoleComponent, ServerTickingCompon
         ServerLevel world = serverPlayer.serverLevel();
 
         for (Player target : world.players()) {
-            if (!GameFunctions.isPlayerAliveAndSurvival(target))
+            if (!GameUtils.isPlayerAliveAndSurvival(target))
                 continue;
 
             double distance = target.distanceToSqr(player);
@@ -287,7 +287,7 @@ public class SingerPlayerComponent implements RoleComponent, ServerTickingCompon
                     ));
                     break;
                 case 2:
-                    var pmd = StarPlayerMoodComponent.KEY.get(target);
+                    var pmd = SREPlayerMoodComponent.KEY.get(target);
                     if (pmd != null) {
                         float nmd = pmd.getMood();
                         nmd += 0.01; // 60 * 0.01 = 0.6

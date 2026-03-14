@@ -4,10 +4,10 @@ import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.roles.thief.ThiefPlayerComponent;
 
 import io.wifi.starrailexpress.api.TMMRoles;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.event.AllowGameEnd;
-import io.wifi.starrailexpress.game.GameFunctions;
-import io.wifi.starrailexpress.game.GameFunctions.WinStatus;
+import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.game.GameUtils.WinStatus;
 
 public class CustomWinnerClass {
 
@@ -17,14 +17,14 @@ public class CustomWinnerClass {
                 return WinStatus.NOT_MODIFY;
             }
 
-            var gameComponent = StarGameWorldComponent.KEY.get(serverLevel);
+            var gameComponent = SREGameWorldComponent.KEY.get(serverLevel);
 
             // 检查是否有小偷存活
             boolean hasThiefAlive = false;
             int thiefCount = 0;
             int alivePlayerCount = 0;
             for (var player : serverLevel.players()) {
-                if (GameFunctions.isPlayerAliveAndSurvival(player)) {
+                if (GameUtils.isPlayerAliveAndSurvival(player)) {
                     alivePlayerCount++;
                     if (gameComponent.isRole(player, ModRoles.THIEF)) {
                         hasThiefAlive = true;
@@ -57,7 +57,7 @@ public class CustomWinnerClass {
             if (winStatus.equals(WinStatus.TIME) || winStatus.equals(WinStatus.PASSENGERS) || winStatus.equals(WinStatus.LOOSE_END)) {
                 var players = serverLevel.players();
                 for (var player : players) {
-                    if (GameFunctions.isPlayerAliveAndSurvival(player))
+                    if (GameUtils.isPlayerAliveAndSurvival(player))
                         if (gameComponent.isRole(player, ModRoles.NIAN_SHOU)) {
                             // 年兽存活时，使用 RoleUtils.customWinnerWin 设置 CustomWinnerID
                             // RoleUtils.customWinnerWin(serverLevel, WinStatus.NIAN_SHOU, "nianshou", null);
@@ -68,7 +68,7 @@ public class CustomWinnerClass {
             if (winStatus.equals(WinStatus.LOOSE_END)) {
                 var players = serverLevel.players();
                 for (var player : players) {
-                    if (GameFunctions.isPlayerAliveAndSurvival(player))
+                    if (GameUtils.isPlayerAliveAndSurvival(player))
                         if (gameComponent.isRole(player, TMMRoles.LOOSE_END)) {
                             return WinStatus.LOOSE_END;
                         }

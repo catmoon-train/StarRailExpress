@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.mixin.roles.awesome_binglus;
 
 import io.wifi.starrailexpress.entity.NoteEntity;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
@@ -32,7 +32,7 @@ public abstract class NoteEntityMixin extends Entity {
                     final Optional<? extends Player> first = level().players().stream().filter(player -> player.getUUID().toString().equals(attached)).findFirst();
                     if (first.isPresent()){
                         Player player = first.get();
-                        if (!GameFunctions.isPlayerAliveAndSurvival(player)){
+                        if (!GameUtils.isPlayerAliveAndSurvival(player)){
                             note.remove(Entity.RemovalReason.DISCARDED);
                         }
                         double yawRadians = Math.toRadians(player.getYRot());

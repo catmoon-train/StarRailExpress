@@ -1,8 +1,11 @@
 package io.wifi.starrailexpress.api;
 
+import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.ToIntFunction;
@@ -21,26 +24,57 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 
-import org.agmas.noellesroles.component.StarAbilityPlayerComponent;
 import org.jetbrains.annotations.Nullable;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 
-public abstract class Role {
+public abstract class SRERole {
     private ResourceLocation identifier;
     private boolean canSeeCoin = true;
     private boolean canUseInstinct = false;
     private int occupiedRoleCount = 1;
+    public BiConsumer<ServerPlayer, SREGameWorldComponent> serverTickEvent = null;
+    public BiConsumer<Player, SREGameWorldComponent> clientTickEvent = null;
+
+    public SRERole setClientGameTickEvent(BiConsumer<Player, SREGameWorldComponent> event) {
+        this.clientTickEvent = event;
+        return this;
+    };
+
+    public SRERole setServerGameTickEvent(BiConsumer<ServerPlayer, SREGameWorldComponent> event) {
+        this.serverTickEvent = event;
+        return this;
+    };
+
+    public void autoGameTickEvent(Player player, SREGameWorldComponent gameWorldComponent) {
+        if (player instanceof ServerPlayer sl) {
+            this.serverGameTickEvent(sl, gameWorldComponent);
+        } else {
+            this.clientGameTickEvent(player, gameWorldComponent);
+        }
+    }
+
+    public void clientGameTickEvent(Player player, SREGameWorldComponent gameWorldComponent) {
+        if (clientTickEvent != null)
+            clientTickEvent.accept(player, gameWorldComponent);
+        clientTick(player);
+    }
+
+    public void serverGameTickEvent(ServerPlayer player, SREGameWorldComponent gameWorldComponent) {
+        if (serverTickEvent != null)
+            serverTickEvent.accept(player, gameWorldComponent);
+        serverTick(player);
+    }
 
     public int getOccupiedRoleCount() {
         return this.occupiedRoleCount;
     }
 
-    public Role setOccupiedRoleCount(int occupiedRoleCount) {
+    public SRERole setOccupiedRoleCount(int occupiedRoleCount) {
         this.occupiedRoleCount = occupiedRoleCount;
         return this;
     }
 
-    public Role setCanUseInstinct(boolean canUseInstinct) {
+    public SRERole setCanUseInstinct(boolean canUseInstinct) {
         this.canUseInstinct = canUseInstinct;
         return this;
     }
@@ -49,27 +83,27 @@ public abstract class Role {
         return this.canUseInstinct;
     }
 
-    public Role setColor(int color) {
+    public SRERole setColor(int color) {
         this.color = color;
         return this;
     }
 
-    public Role setIdentifier(ResourceLocation identifier) {
+    public SRERole setIdentifier(ResourceLocation identifier) {
         this.identifier = identifier;
         return this;
     }
 
-    public Role setInnocent(boolean innocent) {
+    public SRERole setInnocent(boolean innocent) {
         isInnocent = innocent;
         return this;
     }
 
-    public Role setCanUseKiller(boolean canUseKiller) {
+    public SRERole setCanUseKiller(boolean canUseKiller) {
         this.canUseKiller = canUseKiller;
         return this;
     }
 
-    public Role setMoodType(MoodType moodType) {
+    public SRERole setMoodType(MoodType moodType) {
         this.moodType = moodType;
         return this;
     }
@@ -78,17 +112,17 @@ public abstract class Role {
         return this.customSprintTimeGetter;
     }
 
-    public Role setMaxSprintTime(ToIntFunction<Player> func) {
+    public SRERole setMaxSprintTime(ToIntFunction<Player> func) {
         this.customSprintTimeGetter = func;
         return this;
     }
 
-    public Role setMaxSprintTime(int maxSprintTime) {
+    public SRERole setMaxSprintTime(int maxSprintTime) {
         this.maxSprintTime = maxSprintTime;
         return this;
     }
 
-    public Role setCanSeeTime(boolean canSeeTime) {
+    public SRERole setCanSeeTime(boolean canSeeTime) {
         this.canSeeTime = canSeeTime;
         return this;
     }
@@ -102,7 +136,7 @@ public abstract class Role {
         return autoReset;
     }
 
-    public Role setAutoReset(boolean autoReset) {
+    public SRERole setAutoReset(boolean autoReset) {
         this.autoReset = autoReset;
         return this;
     }
@@ -133,23 +167,23 @@ public abstract class Role {
         return this.canSeeTeammateKiller;
     }
 
-    public Role setCanSeeTeammateKiller(boolean canSeeKiller) {
+    public SRERole setCanSeeTeammateKiller(boolean canSeeKiller) {
         this.canSeeTeammateKiller = canSeeKiller;
         return this;
     }
 
-    public Role setNeutralForKiller(boolean forKiller) {
+    public SRERole setNeutralForKiller(boolean forKiller) {
         this.isNeutralForKiller = forKiller;
         this.isNeutrals = true;
         return this;
     }
 
-    public Role setNeutrals(boolean neutrals) {
+    public SRERole setNeutrals(boolean neutrals) {
         this.isNeutrals = neutrals;
         return this;
     }
 
-    public Role setVigilanteTeam(boolean vigilanteTeam) {
+    public SRERole setVigilanteTeam(boolean vigilanteTeam) {
         isVigilanteTeam = vigilanteTeam;
         return this;
     }
@@ -162,7 +196,7 @@ public abstract class Role {
         return ableToPickUpRevolver;
     }
 
-    public Role setAbleToPickUpRevolver(boolean ableToPickUpRevolver) {
+    public SRERole setAbleToPickUpRevolver(boolean ableToPickUpRevolver) {
         this.ableToPickUpRevolver = ableToPickUpRevolver;
         return this;
     }
@@ -171,7 +205,7 @@ public abstract class Role {
         return componentKey;
     }
 
-    public Role setComponentKey(ComponentKey<? extends RoleComponent> componentKey) {
+    public SRERole setComponentKey(ComponentKey<? extends RoleComponent> componentKey) {
         this.componentKey = componentKey;
         return this;
     }
@@ -194,7 +228,7 @@ public abstract class Role {
         return canSeeTime;
     }
 
-    public Role setAddChild(Consumer<LimitedInventoryScreen> addChild) {
+    public SRERole setAddChild(Consumer<LimitedInventoryScreen> addChild) {
         this.addChild = addChild;
         return this;
     }
@@ -300,8 +334,8 @@ public abstract class Role {
 
     }
 
-    public static StarAbilityPlayerComponent getCooldownComponent(Player player) {
-        return StarAbilityPlayerComponent.KEY.get(player);
+    public static SREAbilityPlayerComponent getCooldownComponent(Player player) {
+        return SREAbilityPlayerComponent.KEY.get(player);
     }
 
     public void onAbilityUse(Player player) {
@@ -348,7 +382,7 @@ public abstract class Role {
      * @param maxSprintTime the maximum sprint time in ticks
      * @param canSeeTime    if the role can see the game timer
      */
-    public Role(ResourceLocation identifier, int color, boolean isInnocent, boolean canUseKiller, MoodType moodType,
+    public SRERole(ResourceLocation identifier, int color, boolean isInnocent, boolean canUseKiller, MoodType moodType,
             int maxSprintTime, boolean canSeeTime) {
         this.identifier = identifier;
         this.color = color;
@@ -361,11 +395,22 @@ public abstract class Role {
         this.canUseInstinct = this.canUseKiller;
     }
 
-    public Role setCanAutoAddMoney(boolean bl){
+    public SRERole setCanAutoAddMoney(boolean bl) {
         this.canAutoAddMoney = bl;
         return this;
     }
-    public Role addChild(Consumer<LimitedInventoryScreen> addChild) {
+
+    public SRERole setCanHavePassiveIncome(boolean bl) {
+        this.canAutoAddMoney = bl;
+        return this;
+    }
+
+    public SRERole setPassiveIncome(boolean bl) {
+        this.canAutoAddMoney = bl;
+        return this;
+    }
+
+    public SRERole addChild(Consumer<LimitedInventoryScreen> addChild) {
         this.addChild = addChild;
         return this;
     }
@@ -409,7 +454,7 @@ public abstract class Role {
         return this.ableToPickUpRevolver;
     }
 
-    public Role setCanSeeCoin(boolean able) {
+    public SRERole setCanSeeCoin(boolean able) {
         this.canSeeCoin = able;
         return this;
     }
@@ -418,7 +463,7 @@ public abstract class Role {
         return this.canSeeCoin;
     }
 
-    public Role setCanPickUpRevolver(boolean able) {
+    public SRERole setCanPickUpRevolver(boolean able) {
         this.ableToPickUpRevolver = able;
         return this;
     }

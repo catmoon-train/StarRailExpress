@@ -6,11 +6,11 @@ import java.util.Random;
 
 import org.agmas.noellesroles.ModDataComponentTypes;
 import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.component.StarAbilityPlayerComponent;
 
-import io.wifi.starrailexpress.cca.StarPlayerMoodComponent;
-import io.wifi.starrailexpress.cca.StarPlayerMoodComponent.TrainTask;
-import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
+import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
+import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
+import io.wifi.starrailexpress.cca.SREPlayerMoodComponent.TrainTask;
+import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -79,7 +79,7 @@ public class ChefFoodItem extends Item {
                     ));
                     break;
                 case 2:
-                    var mm = StarPlayerMoodComponent.KEY.maybeGet(livingEntity).orElse(null);
+                    var mm = SREPlayerMoodComponent.KEY.maybeGet(livingEntity).orElse(null);
                     if (mm != null) {
                         float nowMood = mm.getMood();
                         nowMood += (duration / 20);
@@ -90,7 +90,7 @@ public class ChefFoodItem extends Item {
                     break;
                 case 3:
                     if (livingEntity instanceof Player p) {
-                        StarAbilityPlayerComponent pa = StarAbilityPlayerComponent.KEY.get(p);
+                        SREAbilityPlayerComponent pa = SREAbilityPlayerComponent.KEY.get(p);
                         if (pa.cooldown > 0) {
                             pa.cooldown -= duration;
                             if (pa.cooldown < 0)
@@ -110,7 +110,7 @@ public class ChefFoodItem extends Item {
                     ));
                     break;
                 case 5:
-                    var mm2 = StarPlayerMoodComponent.KEY.maybeGet(livingEntity).orElse(null);
+                    var mm2 = SREPlayerMoodComponent.KEY.maybeGet(livingEntity).orElse(null);
                     if (mm2 != null) {
                         mm2.tasks.clear();
                         TrainTask task = mm2.generateTask();
@@ -133,7 +133,7 @@ public class ChefFoodItem extends Item {
                     ));
                     break;
                 case 7:
-                    var pmmc = StarPlayerShopComponent.KEY.maybeGet(livingEntity).orElse(null);
+                    var pmmc = SREPlayerShopComponent.KEY.maybeGet(livingEntity).orElse(null);
                     pmmc.addToBalance((int) duration);
                     break;
                 case -1:

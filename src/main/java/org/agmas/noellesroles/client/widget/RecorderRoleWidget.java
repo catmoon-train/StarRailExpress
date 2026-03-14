@@ -3,7 +3,7 @@ package org.agmas.noellesroles.client.widget;
 import org.agmas.noellesroles.client.screen.RecorderScreen;
 import org.agmas.noellesroles.utils.RoleUtils;
 
-import io.wifi.starrailexpress.api.Role;
+import io.wifi.starrailexpress.api.SRERole;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -15,12 +15,12 @@ import java.awt.*;
 public class RecorderRoleWidget extends Button {
 
     public final RecorderScreen screen;
-    public final Role role;
+    public final SRERole role;
     private final int buttonWidth;
     private final int buttonHeight;
 
     public RecorderRoleWidget(RecorderScreen screen, int x, int y, int width, int height,
-            Role role, int index) {
+            SRERole role, int index) {
         super(x, y, width, height, getRoleName(role),
                 (button) -> screen.onRoleSelected(role),
                 DEFAULT_NARRATION);
@@ -30,7 +30,7 @@ public class RecorderRoleWidget extends Button {
         this.buttonHeight = height;
     }
 
-    private static Component getRoleName(Role role) {
+    private static Component getRoleName(SRERole role) {
         return RoleUtils.getRoleName(role);
     }
 

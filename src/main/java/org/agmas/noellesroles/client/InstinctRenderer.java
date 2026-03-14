@@ -19,14 +19,14 @@ import org.agmas.noellesroles.roles.manipulator.ManipulatorPlayerComponent;
 import org.agmas.noellesroles.utils.MCItemsUtils;
 import org.agmas.noellesroles.utils.RoleUtils;
 
-import io.wifi.starrailexpress.api.Role;
+import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.BartenderPlayerComponent;
-import io.wifi.starrailexpress.cca.StarPlayerPoisonComponent;
+import io.wifi.starrailexpress.cca.SREPlayerPoisonComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.event.OnGetInstinctHighlight;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.TMMItemUtils;
@@ -48,7 +48,7 @@ public class InstinctRenderer {
             if (Minecraft.getInstance() == null)
                 return -1;
             var self = Minecraft.getInstance().player;
-            if (!GameFunctions.isPlayerAliveAndSurvival(self))
+            if (!GameUtils.isPlayerAliveAndSurvival(self))
                 return -1;
             if (self == null)
                 return -1;
@@ -68,7 +68,7 @@ public class InstinctRenderer {
             if (Minecraft.getInstance() == null)
                 return -1;
             var self = Minecraft.getInstance().player;
-            if (GameFunctions.isPlayerAliveAndSurvival(self))
+            if (GameUtils.isPlayerAliveAndSurvival(self))
                 return -1;
             if (self == null)
                 return -1;
@@ -92,7 +92,7 @@ public class InstinctRenderer {
             if (Minecraft.getInstance() == null)
                 return -1;
             var self = Minecraft.getInstance().player;
-            if (GameFunctions.isPlayerSpectatingOrCreative(self))
+            if (GameUtils.isPlayerSpectatingOrCreative(self))
                 return -1;
             if (self == null)
                 return -1;
@@ -129,7 +129,7 @@ public class InstinctRenderer {
             if (SREClient.gameComponent == null) {
                 return -1;
             }
-            if (GameFunctions.isPlayerSpectatingOrCreative(client.player))
+            if (GameUtils.isPlayerSpectatingOrCreative(client.player))
                 return -1;
             if (target instanceof Player) {
                 PuppeteerPlayerComponent selfPuppeteerComp = ModComponents.PUPPETEER.get(client.player);
@@ -148,7 +148,7 @@ public class InstinctRenderer {
                 return -1;
             if (Minecraft.getInstance().player == null)
                 return -1;
-            if (GameFunctions.isPlayerSpectatingOrCreative(Minecraft.getInstance().player))
+            if (GameUtils.isPlayerSpectatingOrCreative(Minecraft.getInstance().player))
                 return -1;
             Player player = Minecraft.getInstance().player;
             if (!SREClient.gameComponent.isRole(Minecraft.getInstance().player, SERoles.INITIATE)) {
@@ -174,7 +174,7 @@ public class InstinctRenderer {
                 return -1;
             if (Minecraft.getInstance().player == null)
                 return -1;
-            if (GameFunctions.isPlayerSpectatingOrCreative(Minecraft.getInstance().player))
+            if (GameUtils.isPlayerSpectatingOrCreative(Minecraft.getInstance().player))
                 return -1;
             if (SREClient.gameComponent == null) {
                 return -1;
@@ -202,7 +202,7 @@ public class InstinctRenderer {
             var self = Minecraft.getInstance().player;
             if (self == null)
                 return -1;
-            if (GameFunctions.isPlayerSpectatingOrCreative(self))
+            if (GameUtils.isPlayerSpectatingOrCreative(self))
                 return -1;
             if (SREClient.gameComponent == null) {
                 return -1;
@@ -237,7 +237,7 @@ public class InstinctRenderer {
             var self = Minecraft.getInstance().player;
             if (self == null)
                 return -1;
-            if (GameFunctions.isPlayerSpectatingOrCreative(self))
+            if (GameUtils.isPlayerSpectatingOrCreative(self))
                 return -1;
             if (SREClient.gameComponent == null) {
                 return -1;
@@ -263,7 +263,7 @@ public class InstinctRenderer {
             var self = Minecraft.getInstance().player;
             if (self == null)
                 return -1;
-            if (GameFunctions.isPlayerSpectatingOrCreative(self))
+            if (GameUtils.isPlayerSpectatingOrCreative(self))
                 return -1;
             if (SREClient.gameComponent == null) {
                 return -1;
@@ -306,7 +306,7 @@ public class InstinctRenderer {
                 // 不开直觉，默认有
                 // 红尘客
                 if (SREClient.gameComponent.isRole(self, ModRoles.WAYFARER)) {
-                    if (GameFunctions.isPlayerAliveAndSurvival(target_player)) {
+                    if (GameUtils.isPlayerAliveAndSurvival(target_player)) {
                         var wayC = WayfarerPlayerComponent.KEY.get(self);
                         if (wayC.phase == 1) {
                             if (wayC.killer != null) {
@@ -319,7 +319,7 @@ public class InstinctRenderer {
                 }
                 // JOJO
                 if (SREClient.gameComponent.isRole(self, ModRoles.JOJO)) {
-                    if (GameFunctions.isPlayerAliveAndSurvival(target_player)) {
+                    if (GameUtils.isPlayerAliveAndSurvival(target_player)) {
                         if (target_player.distanceTo(self) <= 3) {
                             if (SREClient.gameComponent.isRole(target_player, ModRoles.DIO)) {
                                 return ModRoles.DIO.color();
@@ -330,7 +330,7 @@ public class InstinctRenderer {
 
                 var target_role = SREClient.gameComponent.getRole(target_player);
                 BartenderPlayerComponent bartenderPlayerComponent = BartenderPlayerComponent.KEY.get(target_player);
-                StarPlayerPoisonComponent playerPoisonComponent = StarPlayerPoisonComponent.KEY.get(target_player);
+                SREPlayerPoisonComponent playerPoisonComponent = SREPlayerPoisonComponent.KEY.get(target_player);
                 if (SREClient.gameComponent.isRole(self, ModRoles.BETTER_VIGILANTE)) {
                     var betterC = BetterVigilantePlayerComponent.KEY.get(self);
                     if (betterC.lastStandActivated) {
@@ -405,7 +405,7 @@ public class InstinctRenderer {
                 // 需要开启直觉
                 if (!hasInstinct)
                     return -1;
-                if (GameFunctions.isPlayerSpectatingOrCreative(self))
+                if (GameUtils.isPlayerSpectatingOrCreative(self))
                     return -1; // 旁观默认高亮
                 // 直觉看不到旁观
                 if ((target_player).isSpectator())
@@ -542,13 +542,13 @@ public class InstinctRenderer {
         });
     }
 
-    private static int getRoleColor(Role target_role) {
+    private static int getRoleColor(SRERole target_role) {
         if (target_role == null)
             return TMMRoles.CIVILIAN.color();
         return target_role.color();
     }
 
-    private static boolean isKillerTeam(Role role) {
+    private static boolean isKillerTeam(SRERole role) {
         if (role == null)
             return false;
         if (role.canUseKiller())

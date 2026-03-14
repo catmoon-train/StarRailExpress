@@ -15,8 +15,8 @@ import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 
 import io.wifi.starrailexpress.api.RoleComponent;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.DeathInfo;
 import io.wifi.starrailexpress.SRE;
@@ -107,7 +107,7 @@ public class HoanMeirinPlayerComponent
     @Override
     public void serverTick() {
         // 服务端每 tick 减少冷却时间
-        var gameWorldComponent = StarGameWorldComponent.KEY.get(player.level());
+        var gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
         if (!gameWorldComponent.isRunning())
             return;
         if (!gameWorldComponent.isRole(player, ModRoles.HOAN_MEIRIN))
@@ -120,10 +120,10 @@ public class HoanMeirinPlayerComponent
                 shouldSync = true;
             }
         }
-        if (GameFunctions.isPlayerAliveAndSurvival(player)) {
+        if (GameUtils.isPlayerAliveAndSurvival(player)) {
             int nearByPlayerCount = 0;
             for (var p : this.player.level().players()) {
-                if (!GameFunctions.isPlayerAliveAndSurvival(p))
+                if (!GameUtils.isPlayerAliveAndSurvival(p))
                     continue;
                 if (p.getUUID().equals(player.getUUID()))
                     continue;
@@ -155,18 +155,18 @@ public class HoanMeirinPlayerComponent
 
     public void killPlayerBecauseLonely() {
         this.loneyTime = 0;
-        GameFunctions.killPlayer(player, true, null, Noellesroles.id("hoan_meirin_lonely"));
+        GameUtils.killPlayer(player, true, null, Noellesroles.id("hoan_meirin_lonely"));
         this.sync();
     }
 
     @Override
     public void clientTick() {
-        var gameWorldComponent = StarGameWorldComponent.KEY.get(player.level());
+        var gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
         if (!gameWorldComponent.isRunning())
             return;
         if (!gameWorldComponent.isRole(player, ModRoles.HOAN_MEIRIN))
             return;
-        if (!GameFunctions.isPlayerAliveAndSurvival(player))
+        if (!GameUtils.isPlayerAliveAndSurvival(player))
             return;
         // 客户端也进行冷却计算（用于预测显示）
         if (this.cooldown > 0) {
@@ -174,7 +174,7 @@ public class HoanMeirinPlayerComponent
         }
         int nearByPlayerCount = 0;
         for (var p : this.player.level().players()) {
-            if (!GameFunctions.isPlayerAliveAndSurvival(p))
+            if (!GameUtils.isPlayerAliveAndSurvival(p))
                 continue;
             if (player.getUUID().equals(p.getUUID()))
                 continue;

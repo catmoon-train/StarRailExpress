@@ -1,8 +1,8 @@
 package org.agmas.noellesroles.mixin.roles.veteran;
 
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameConstants;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -19,10 +19,10 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * Mixin 注入到 GameFunctions.killPlayer 方法
+ * Mixin 注入到 GameUtils.killPlayer 方法
  * 用于处理退伍军人击杀后刀消失的逻辑
  */
-@Mixin(GameFunctions.class)
+@Mixin(GameUtils.class)
 public abstract class VeteranKnifeMixin {
 
     /**
@@ -44,7 +44,7 @@ public abstract class VeteranKnifeMixin {
             return;
 
         // 检查击杀者是否是退伍军人
-        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(killer.level());
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(killer.level());
         if (!gameWorld.isRole(killer, ModRoles.VETERAN))
             return;
 

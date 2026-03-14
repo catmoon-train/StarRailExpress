@@ -17,8 +17,8 @@ import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
 import io.wifi.starrailexpress.api.RoleComponent;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.game.GameUtils;
 import pro.fazeclan.river.stupid_express.StupidExpress;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 import pro.fazeclan.river.stupid_express.network.SplitBackCamera;
@@ -197,7 +197,7 @@ public class SplitPersonalityComponent implements RoleComponent, ServerTickingCo
         if (this.temporaryRevivalStartTick > 0) {
             return false;
         }
-        if (!StarGameWorldComponent.KEY.get(player.level()).isSkillAvailable) {
+        if (!SREGameWorldComponent.KEY.get(player.level()).isSkillAvailable) {
             // 技能不可用
             return false;
         }
@@ -451,14 +451,14 @@ public class SplitPersonalityComponent implements RoleComponent, ServerTickingCo
             if (this.getTemporaryRevivalStartTick() == 1) {
                 // 超时，强制死亡
                 this.setTemporaryRevivalStartTick(-1); // 防止重复杀死
-                if (GameFunctions.isPlayerAliveAndSurvival(player)) {
+                if (GameUtils.isPlayerAliveAndSurvival(player)) {
                     ServerPlayNetworking.send(sp, new SplitBackCamera());
                     this.reset();
                     WorldModifierComponent modifierComponent = WorldModifierComponent.KEY.get(player.level());
                     modifierComponent.removeModifier(player.getUUID(), SEModifiers.SPLIT_PERSONALITY);
                     var deathReason = StupidExpress.id("split_personality");
                     // StupidExpress.LOGGER.info("From:" + deathReason.toString());
-                    GameFunctions.killPlayer(player, true, null, deathReason);
+                    GameUtils.killPlayer(player, true, null, deathReason);
                     player.displayClientMessage(
                             net.minecraft.network.chat.Component
                                     .translatable("msg.stupid_express.split_personality.almostdead")

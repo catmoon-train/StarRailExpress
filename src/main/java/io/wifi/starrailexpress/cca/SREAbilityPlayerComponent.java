@@ -1,18 +1,13 @@
-package org.agmas.noellesroles.component;
+package io.wifi.starrailexpress.cca;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 
-import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.component.ModComponents;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import io.wifi.starrailexpress.api.RoleComponent;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
-import io.wifi.starrailexpress.game.GameFunctions;
-
 import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
@@ -27,7 +22,7 @@ import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
  * - 技能使用次数限制
  * - 自动同步到客户端（用于 HUD 显示）
  */
-public class StarAbilityPlayerComponent
+public class SREAbilityPlayerComponent
         implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
 
     @Override
@@ -36,7 +31,7 @@ public class StarAbilityPlayerComponent
     }
 
     /** 组件键 - 用于从玩家获取此组件 */
-    public static final ComponentKey<StarAbilityPlayerComponent> KEY = ModComponents.ABILITY;
+    public static final ComponentKey<SREAbilityPlayerComponent> KEY = ModComponents.ABILITY;
 
     // 持有该组件的玩家
     private final Player player;
@@ -56,7 +51,7 @@ public class StarAbilityPlayerComponent
     /**
      * 构造函数
      */
-    public StarAbilityPlayerComponent(Player player) {
+    public SREAbilityPlayerComponent(Player player) {
         this.player = player;
     }
 
@@ -159,35 +154,11 @@ public class StarAbilityPlayerComponent
                 this.sync();
             }
         }
-        if (this.player.level().getGameTime() % 20 == 0) {
-            if (GameFunctions.isPlayerAliveAndSurvival(this.player)) {
-                StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(this.player.level());
-                if (gameWorldComponent.isRole(this.player, ModRoles.WIND_YAOSE)) {
-                    var effect = player.getEffect(MobEffects.INVISIBILITY);
-                    if (effect == null || effect.getDuration() <= 30) {
-                        player.addEffect(new MobEffectInstance(
-                                MobEffects.INVISIBILITY,
-                                60 * 20, // 持续时间 60s（tick）
-                                1, // 等级（0 = 速度 I）
-                                true, // ambient（环境效果，如信标）
-                                false, // showParticles（显示粒子）
-                                true // showIcon（显示图标）
-                        ));
-                    }
-                }
-                if (gameWorldComponent.isRole(this.player, ModRoles.OLDMAN)) {
-                    var effect = player.getEffect(MobEffects.MOVEMENT_SLOWDOWN);
-                    if (effect == null || effect.getDuration() <= 30) {
-                        player.addEffect(new MobEffectInstance(
-                                MobEffects.MOVEMENT_SLOWDOWN,
-                                60 * 20, // 持续时间 60s（tick）
-                                1, // 等级（0 = 速度 I）
-                                true, // ambient（环境效果，如信标）
-                                false, // showParticles（显示粒子）
-                                true // showIcon（显示图标）
-                        ));
-                    }
-                }
+        var gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
+        if (gameWorldComponent.isRunning()) {
+            var role = gameWorldComponent.getRole(player);
+            if (role != null) {
+                role.clientGameTickEvent(player, gameWorldComponent);
             }
         }
     }
@@ -197,6 +168,10 @@ public class StarAbilityPlayerComponent
         // 客户端也进行冷却计算（用于预测显示）
         if (this.cooldown > 1) {
             this.cooldown--;
+        }
+
+        if (SREGameWorldComponent.KEY.get(this.player.level()).isRunning()) {
+            io.wifi.starrailexpress.api.RoleMethodDispatcher.callClientTick(this.player);
         }
     }
 

@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 
-import io.wifi.starrailexpress.cca.StarPlayerMoodComponent;
+import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
@@ -33,7 +33,7 @@ public class MoodChangeCommand {
     private static int execute(CommandSourceStack source, Collection<? extends Entity> targets, float mood) {
 
         for (Entity target : targets) {
-            StarPlayerMoodComponent moodComponent = StarPlayerMoodComponent.KEY.get(target);
+            SREPlayerMoodComponent moodComponent = SREPlayerMoodComponent.KEY.get(target);
             moodComponent.setMood(mood);
         }
 

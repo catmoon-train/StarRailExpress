@@ -4,8 +4,8 @@ import net.fabricmc.fabric.api.event.Event;
 import net.minecraft.server.level.ServerLevel;
 import static net.fabricmc.fabric.api.event.EventFactory.createArrayBacked;
 
-import io.wifi.starrailexpress.game.GameFunctions;
-import io.wifi.starrailexpress.game.GameFunctions.WinStatus;
+import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.game.GameUtils.WinStatus;
 
 public interface AllowGameEnd {
 
@@ -39,5 +39,5 @@ public interface AllowGameEnd {
             });
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    WinStatus allowGameEnd(ServerLevel serverWorld, GameFunctions.WinStatus winStatus, boolean isLooseEndsMode);
+    WinStatus allowGameEnd(ServerLevel serverWorld, GameUtils.WinStatus winStatus, boolean isLooseEndsMode);
 }

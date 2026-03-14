@@ -1,6 +1,6 @@
 package org.agmas.noellesroles.mixin.cca;
 
-import io.wifi.starrailexpress.cca.StarPlayerMoodComponent;
+import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import org.agmas.noellesroles.component.TemporaryEffectPlayerComponent;
 import net.minecraft.world.entity.player.Player;
 
@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  * PlayerMoodComponent Mixin
  * 用于实现狗皮膏药的san值保护效果
  */
-@Mixin(value = StarPlayerMoodComponent.class, remap = false)
+@Mixin(value = SREPlayerMoodComponent.class, remap = false)
 public abstract class PlayerMoodComponentMixin {
     
     @Shadow

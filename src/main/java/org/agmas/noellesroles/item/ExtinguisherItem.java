@@ -1,6 +1,6 @@
 package org.agmas.noellesroles.item;
 
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.util.AdventureUsable;
 import io.wifi.starrailexpress.SRE;
 import net.minecraft.ChatFormatting;
@@ -133,7 +133,7 @@ public class ExtinguisherItem extends Item implements AdventureUsable {
             if (target == player) continue;
 
             // 跳过不在生存模式的玩家
-            if (!GameFunctions.isPlayerAliveAndSurvival(target)) continue;
+            if (!GameUtils.isPlayerAliveAndSurvival(target)) continue;
 
             // 计算距离
             double distance = player.distanceTo(target);

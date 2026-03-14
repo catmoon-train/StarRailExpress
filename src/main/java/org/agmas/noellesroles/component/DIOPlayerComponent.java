@@ -1,11 +1,11 @@
 package org.agmas.noellesroles.component;
 
 import io.wifi.starrailexpress.api.RoleComponent;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
-import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.event.AllowPlayerDeath;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.DustParticleOptions;
@@ -197,7 +197,7 @@ public class DIOPlayerComponent implements RoleComponent, ServerTickingComponent
 
     static {
         AllowPlayerDeath.EVENT.register((player, resourceLocation) -> {
-            if (StarGameWorldComponent.KEY.get(player.level()).isRole(player, ModRoles.DIO)) {
+            if (SREGameWorldComponent.KEY.get(player.level()).isRole(player, ModRoles.DIO)) {
                 DIOPlayerComponent dio = KEY.getNullable(player);
                 if (dio == null)
                     return true;
@@ -337,7 +337,7 @@ public class DIOPlayerComponent implements RoleComponent, ServerTickingComponent
                     true);
         }
 
-        StarPlayerShopComponent.KEY.get(player).addToBalance(MONEY_PER_FEED);
+        SREPlayerShopComponent.KEY.get(player).addToBalance(MONEY_PER_FEED);
 
         // 给予速度加成
         player.addEffect(new MobEffectInstance(
@@ -438,7 +438,7 @@ public class DIOPlayerComponent implements RoleComponent, ServerTickingComponent
                             .withStyle(ChatFormatting.RED),
                     true);
         }
-        GameFunctions.killPlayer(player, true, null, Noellesroles.id("dio_final_carnival_cancel"));
+        GameUtils.killPlayer(player, true, null, Noellesroles.id("dio_final_carnival_cancel"));
 
         this.sync();
     }
@@ -481,7 +481,7 @@ public class DIOPlayerComponent implements RoleComponent, ServerTickingComponent
         if (getPlayer() == null)
             return;
         Level level = getPlayer().level();
-        if (!StarGameWorldComponent.KEY.get(level).isRole(player, ModRoles.DIO)) {
+        if (!SREGameWorldComponent.KEY.get(level).isRole(player, ModRoles.DIO)) {
             return;
         }
         if (level.canSeeSky(getPlayer().blockPosition())) {

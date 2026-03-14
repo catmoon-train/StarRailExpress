@@ -1,6 +1,6 @@
 package org.agmas.harpymodloader.modded_murder;
 
-import io.wifi.starrailexpress.api.Role;
+import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.harpymodloader.WeightedUtil;
@@ -15,13 +15,13 @@ import net.minecraft.resources.ResourceLocation;
  * 避免重复代码，提高可维护性
  */
 public class RoleAssignmentPool {
-    private final WeightedUtil<Role> roleWeights;
+    private final WeightedUtil<SRERole> roleWeights;
     private final Map<ResourceLocation, Integer> roleCountMap;
     private final String poolName;
     private final boolean allowUnlimitedRepeats;
     public boolean ignoreeRoleOccupiedCount = false;
 
-    private RoleAssignmentPool(String poolName, WeightedUtil<Role> roleWeights,
+    private RoleAssignmentPool(String poolName, WeightedUtil<SRERole> roleWeights,
             Map<ResourceLocation, Integer> roleCountMap,
             boolean allowUnlimitedRepeats) {
         this.poolName = poolName;
@@ -37,7 +37,7 @@ public class RoleAssignmentPool {
      * @param filter   角色过滤条件（返回true表示该角色应该被包含在池中）
      * @return 创建的RoleAssignmentPool实例
      */
-    public static RoleAssignmentPool create(String poolName, Predicate<Role> filter) {
+    public static RoleAssignmentPool create(String poolName, Predicate<SRERole> filter) {
         return createInternal(poolName, filter, false);
     }
 
@@ -49,17 +49,17 @@ public class RoleAssignmentPool {
      * @param filter   角色过滤条件（返回true表示该角色应该被包含在池中）
      * @return 创建的RoleAssignmentPool实例
      */
-    public static RoleAssignmentPool createUnlimited(String poolName, Predicate<Role> filter) {
+    public static RoleAssignmentPool createUnlimited(String poolName, Predicate<SRERole> filter) {
         return createInternal(poolName, filter, true);
     }
 
     /**
      * 内部方法：创建角色分配池
      */
-    private static RoleAssignmentPool createInternal(String poolName, Predicate<Role> filter,
+    private static RoleAssignmentPool createInternal(String poolName, Predicate<SRERole> filter,
             boolean allowUnlimitedRepeats) {
         // 获取所有符合条件的角色
-        ArrayList<Role> availableRoles = new ArrayList<>(TMMRoles.ROLES.values());
+        ArrayList<SRERole> availableRoles = new ArrayList<>(TMMRoles.ROLES.values());
         availableRoles.removeIf(
                 role -> HarpyModLoaderConfig.HANDLER.instance().disabled.contains(role.identifier().toString())
                         || role.identifier().equals(TMMRoles.DISCOVERY_CIVILIAN.identifier())
@@ -67,8 +67,8 @@ public class RoleAssignmentPool {
                         !filter.test(role));
 
         // 构建权重映射
-        HashMap<Role, Float> roleWeights = new HashMap<>();
-        for (Role role : availableRoles) {
+        HashMap<SRERole, Float> roleWeights = new HashMap<>();
+        for (SRERole role : availableRoles) {
             float weight = 1f;
             if (HarpyModLoaderConfig.HANDLER.instance().useCustomRoleWeights) {
                 weight = ModdedWeights.getRoleWeight(role);
@@ -80,7 +80,7 @@ public class RoleAssignmentPool {
 
         // 构建计数映射
         Map<ResourceLocation, Integer> countMap = new HashMap<>();
-        for (Role role : availableRoles) {
+        for (SRERole role : availableRoles) {
             if (allowUnlimitedRepeats) {
                 // 无限模式：使用大数字表示无限
                 countMap.put(role.identifier(), Integer.MAX_VALUE);
@@ -98,7 +98,7 @@ public class RoleAssignmentPool {
      * 
      * @return 选中的角色，如果池为空则返回null
      */
-    public Role selectRole() {
+    public SRERole selectRole() {
         return selectRoleWithCountCheck();
     }
 
@@ -108,13 +108,13 @@ public class RoleAssignmentPool {
      * @param count 要选择的角色数量
      * @return 选中的角色列表
      */
-    public List<Role> selectRoles(int count) {
+    public List<SRERole> selectRoles(int count) {
         final int maxTrial = 3;
         int needCount = count;
-        List<Role> selected = new ArrayList<>();
+        List<SRERole> selected = new ArrayList<>();
         for (int i = 0; i < needCount; i++) {
             for (int j = 0; j < maxTrial; j++) {
-                Role role = selectRole();
+                SRERole role = selectRole();
                 if (role != null) {
                     int roleOccupiedCount = role.getOccupiedRoleCount();
                     if (roleOccupiedCount <= 0)
@@ -164,12 +164,12 @@ public class RoleAssignmentPool {
     /**
      * 内部方法：根据权重和计数限制选择角色
      */
-    private Role selectRoleWithCountCheck() {
+    private SRERole selectRoleWithCountCheck() {
         if (isEmpty()) {
             return null;
         }
 
-        Role selectedRole = roleWeights.selectRandomKeyBasedOnWeights();
+        SRERole selectedRole = roleWeights.selectRandomKeyBasedOnWeights();
         if (selectedRole == null) {
             return null;
         }

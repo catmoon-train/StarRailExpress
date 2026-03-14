@@ -1,6 +1,6 @@
 package org.agmas.noellesroles.entity;
 
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -76,7 +76,7 @@ public class FlashGrenadeEntity extends ThrowableItemProjectile {
 
         List<ServerPlayer> players = world.getEntitiesOfClass(
                 ServerPlayer.class, area,
-                player -> GameFunctions.isPlayerAliveAndSurvival(player)
+                player -> GameUtils.isPlayerAliveAndSurvival(player)
         );
 
         // 闪光弹位置（稍微偏上，考虑到玩家眼睛高度）

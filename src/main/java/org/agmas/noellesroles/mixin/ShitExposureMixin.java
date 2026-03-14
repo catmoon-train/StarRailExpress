@@ -13,7 +13,7 @@ import io.github.mortuusars.exposure.util.supporter.Patreon;
 /**
  * 玩家重置 Mixin
  * 
- * 在游戏结束时（GameFunctions.resetPlayer 被调用）清除所有自定义组件的状态
+ * 在游戏结束时（GameUtils.resetPlayer 被调用）清除所有自定义组件的状态
  * 这确保了下一局游戏开始时玩家不会有残留的状态
  */
 @Mixin(Patreon.Tier.class)

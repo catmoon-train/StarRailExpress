@@ -10,7 +10,7 @@ import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import org.agmas.noellesroles.Noellesroles;
 
 import io.wifi.starrailexpress.block.SmallDoorBlock;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -90,8 +90,8 @@ public class BowenBadgeItem extends Item implements AdventureUsable{
             // 施加击退效果，将目标推开
             targetPlayer.push(knockbackDir.x * 2.5, 0.5, knockbackDir.z * 2.5);
 
-            if (GameFunctions.isPlayerAliveAndSurvival(targetPlayer)) {
-                GameFunctions.killPlayer(targetPlayer, true, player, Noellesroles.id("bowen"));
+            if (GameUtils.isPlayerAliveAndSurvival(targetPlayer)) {
+                GameUtils.killPlayer(targetPlayer, true, player, Noellesroles.id("bowen"));
             }
             break;
         }
@@ -274,7 +274,7 @@ public class BowenBadgeItem extends Item implements AdventureUsable{
 
         level.playSound(null, player, holder.value(), SoundSource.PLAYERS, 1.0F,
                 0.8F + level.random.nextFloat() * 0.4F);
-        if (GameFunctions.isPlayerAliveAndSurvival(player)) {
+        if (GameUtils.isPlayerAliveAndSurvival(player)) {
             applyCooldownToItem(player, itemStack);
         }
     }

@@ -1,8 +1,8 @@
 package io.wifi.starrailexpress.voting;
 
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.MapVotingComponent;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.SRE;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.Level;
@@ -24,14 +24,14 @@ public class MapVotingManager {
     }
 
     public void startVoting(int votingTimeSeconds) {
-        if (GameFunctions.isStartingGame) {
+        if (GameUtils.isStartingGame) {
             SRE.LOGGER.warn("Voting start failed: Game is starting!");
             return;
         }
         MinecraftServer server = SRE.SERVER;
         if (server != null) {
             Level level = server.overworld();
-            StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(level);
+            SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(level);
             if (gameWorldComponent.isRunning()) {
                 SRE.LOGGER.warn("Voting start failed: Game has already started!");
                 return;

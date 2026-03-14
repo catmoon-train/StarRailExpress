@@ -1,17 +1,18 @@
 package io.wifi.starrailexpress.network.original;
 
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
-import io.wifi.starrailexpress.cca.StarPlayerMoodComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.event.AllowShootRevolverDrop;
 import io.wifi.starrailexpress.event.IsShootBackFire;
 import io.wifi.starrailexpress.event.OnRevolverUsed;
 import io.wifi.starrailexpress.game.GameConstants;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.network.PacketTracker;
 import io.wifi.starrailexpress.util.Scheduler;
+import io.wifi.starrailexpress.util.TMMItemUtils;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
@@ -72,7 +73,7 @@ public record GunShootPayload(int target) implements CustomPacketPayload {
 
             if (player.serverLevel().getEntity(payload.target()) instanceof ServerPlayer target
                     && target.distanceTo(player) < 70.0) {
-                StarGameWorldComponent game = StarGameWorldComponent.KEY.get(player.level());
+                SREGameWorldComponent game = SREGameWorldComponent.KEY.get(player.level());
                 Item revolver = TMMItems.REVOLVER;
                 boolean isDerringer = mainHandStack.is(TMMItems.DERRINGER);
                 ResourceLocation deathReason = isDerringer ? GameConstants.DeathReasons.DERRINGER
@@ -95,30 +96,28 @@ public record GunShootPayload(int target) implements CustomPacketPayload {
                     shouldDropRevolver = true;
                 }
                 if (backfire) {
-                    GameFunctions.killPlayer(player, true, null, GameConstants.DeathReasons.BACKFIRE);
+                    GameUtils.killPlayer(player, true, null, GameConstants.DeathReasons.BACKFIRE);
                 } else if (shouldDropRevolver) {
                     // backfire: if you kill an innocent you have a chance of shooting yourself
                     // instead
                     {
                         Scheduler.schedule(() -> {
-                            if (!context.player().getInventory().contains((s) -> s.is(TMMItemTags.GUNS)))
+                            if (TMMItemUtils.clearItem(player, TMMItemTags.GUNS, 1) <= 0)
                                 return;
-                            player.getInventory().clearOrCountMatchingItems((s) -> s.is(revolver), 1,
-                                    player.getInventory());
                             ItemEntity item = player.drop(revolver.getDefaultInstance(), false, false);
                             if (item != null) {
                                 item.setPickUpDelay(10);
                                 item.setThrower(player);
                             }
                             PacketTracker.sendToClient(player, new GunDropPayload());
-                            StarPlayerMoodComponent.KEY.get(player).setMood(0);
+                            SREPlayerMoodComponent.KEY.get(player).setMood(0);
                         }, 4);
                     }
                 }
 
                 if (!backfire) {
                     mainHandStack.set(SREDataComponentTypes.USED, false);
-                    GameFunctions.killPlayer(target, true, player, deathReason);
+                    GameUtils.killPlayer(target, true, player, deathReason);
                 }
                 OnRevolverUsed.EVENT.invoker().onPlayerShoot(player, target);
 

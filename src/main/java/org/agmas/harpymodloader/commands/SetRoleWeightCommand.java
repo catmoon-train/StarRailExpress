@@ -4,7 +4,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
-import io.wifi.starrailexpress.api.Role;
+import io.wifi.starrailexpress.api.SRERole;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
@@ -26,7 +26,7 @@ public class SetRoleWeightCommand {
                                         FloatArgumentType.getFloat(context, "weight"))))));
     }
 
-    private static int execute(CommandSourceStack source, Role role, float weight) throws CommandSyntaxException {
+    private static int execute(CommandSourceStack source, SRERole role, float weight) throws CommandSyntaxException {
         if(!Harpymodloader.isMojangVerify) {
             return 1;
         }

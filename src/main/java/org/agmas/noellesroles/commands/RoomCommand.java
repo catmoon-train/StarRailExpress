@@ -4,7 +4,7 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.context.CommandContext;
 
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
@@ -35,7 +35,7 @@ public class RoomCommand {
                                 Component
                                         .translatable("%s: %s", p.getDisplayName(),
                                                 RoomNumberToStr(
-                                                        GameFunctions.roomToPlayer.getOrDefault(p.getUUID(), -1)))
+                                                        GameUtils.roomToPlayer.getOrDefault(p.getUUID(), -1)))
                                         .withStyle(ChatFormatting.AQUA));
             }
             context.getSource().sendSuccess(() -> {
@@ -56,7 +56,7 @@ public class RoomCommand {
             context.getSource().sendSuccess(() -> {
                 return Component
                         .translatable("%s: %s", p.getDisplayName(),
-                                RoomNumberToStr(GameFunctions.roomToPlayer.getOrDefault(p.getUUID(), -1)))
+                                RoomNumberToStr(GameUtils.roomToPlayer.getOrDefault(p.getUUID(), -1)))
                         .append(Component.literal("\nRoom Count: " + areas.getRoomCount())
                                 .withStyle(ChatFormatting.GOLD))
                         .withStyle(ChatFormatting.GREEN);

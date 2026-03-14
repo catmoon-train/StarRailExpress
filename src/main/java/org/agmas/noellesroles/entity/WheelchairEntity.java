@@ -6,7 +6,7 @@ import java.util.List;
 import org.agmas.noellesroles.game.ChairWheelRaceGame;
 import org.agmas.noellesroles.init.ModItems;
 
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
@@ -37,7 +37,7 @@ public class WheelchairEntity extends Mob {
     private ItemStack item = ItemStack.EMPTY;
     // 新增：前进速度相关
     private float forwardSpeed = 0.0f; // 当前沿朝向的速度（正前负后）
-    private StarGameWorldComponent gameWorldComponent;
+    private SREGameWorldComponent gameWorldComponent;
     private Vec3 lastPos = null;
     private static final float FORWARD_ACCELERATION = 0.02f; // 每 tick 速度增量
     private static final float FORWARD_FRICTION = 0.8f; // 无输入时每 tick 乘系数
@@ -90,7 +90,7 @@ public class WheelchairEntity extends Mob {
     public void tickRidden(Player player, Vec3 vec3) {
         super.tickRidden(player, vec3);
         if (this.level().getGameTime() % 20 == 0) {
-            var gameC = StarGameWorldComponent.KEY.get(player.level());
+            var gameC = SREGameWorldComponent.KEY.get(player.level());
             if (gameC.getGameMode() instanceof ChairWheelRaceGame) {
             } else {
                 this.durability--;
@@ -210,7 +210,7 @@ public class WheelchairEntity extends Mob {
     public float maxUpStep() {
         float f = 0.6F;
         if (gameWorldComponent == null) {
-            var gameComp = StarGameWorldComponent.KEY.maybeGet(this.level()).orElse(null);
+            var gameComp = SREGameWorldComponent.KEY.maybeGet(this.level()).orElse(null);
             if (gameComp != null) {
                 this.gameWorldComponent = gameComp;
             } else {

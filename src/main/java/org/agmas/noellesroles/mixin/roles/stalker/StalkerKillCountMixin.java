@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.mixin.roles.stalker;
 
 import io.wifi.starrailexpress.game.GameConstants;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.component.ModComponents;
@@ -12,10 +12,10 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * Mixin 注入到 GameFunctions.killPlayer 方法
+ * Mixin 注入到 GameUtils.killPlayer 方法
  * 用于记录跟踪者的击杀数（二阶段）
  */
-@Mixin(GameFunctions.class)
+@Mixin(GameUtils.class)
 public abstract class StalkerKillCountMixin {
 
     /**

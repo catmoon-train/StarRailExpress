@@ -1,6 +1,6 @@
 package org.agmas.noellesroles.mixin.client;
 
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -34,7 +34,7 @@ public class LobbyCreditsHudMixin {
             return;
 
         // 检查是否有HUD组件
-        StarGameWorldComponent game = StarGameWorldComponent.KEY.get(player.level());
+        SREGameWorldComponent game = SREGameWorldComponent.KEY.get(player.level());
 
         // 只在游戏未开始时显示（大厅阶段）
         if (!game.isRunning()) {

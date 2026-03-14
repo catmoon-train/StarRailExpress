@@ -13,7 +13,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.SRE;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -88,7 +88,7 @@ public class MapScannerManager {
         File mapConfigFile = mapConfigPath.toFile();
         try {
             FileWriter writer = new FileWriter(mapConfigFile);
-            MapScannerInfos infos = new MapScannerInfos(GameFunctions.taskBlocks);
+            MapScannerInfos infos = new MapScannerInfos(GameUtils.taskBlocks);
             gson.toJson(infos, writer);
             writer.close();
             SRE.LOGGER.info("Successfully cache scanner points for map: " + mapName);
@@ -98,7 +98,7 @@ public class MapScannerManager {
     }
 
     public static boolean loadArea(ServerLevel world) {
-        GameFunctions.taskBlocks.clear();
+        GameUtils.taskBlocks.clear();
         var areaC = AreasWorldComponent.KEY.get(world);
         String mapName = areaC.mapName;
         if (mapName == null)
@@ -116,7 +116,7 @@ public class MapScannerManager {
             FileReader reader = new FileReader(mapConfigFile);
             JsonObject jsonObject = JsonParser.parseReader(reader).getAsJsonObject();
             MapScannerInfos mapinfos = gson.fromJson(jsonObject, MapScannerInfos.class);
-            GameFunctions.taskBlocks = mapinfos.getInfos();
+            GameUtils.taskBlocks = mapinfos.getInfos();
             reader.close();
         } catch (Exception e) {
             e.printStackTrace();

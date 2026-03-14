@@ -1,6 +1,6 @@
 package pro.fazeclan.river.stupid_express.mixin.client.role.arsonist;
 
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.RoleNameRenderer;
 import net.minecraft.client.DeltaTracker;
@@ -28,7 +28,7 @@ public class ArsonistHudMixin {
 
     @Inject(method = "renderHud", at = @At("TAIL"))
     private static void replaceRoleHud(Font renderer, LocalPlayer player, GuiGraphics context, DeltaTracker tickCounter, CallbackInfo ci) {
-        StarGameWorldComponent gameWorldComponent = StarGameWorldComponent.KEY.get(player.level());
+        SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
         if (StupidExpressClient.target == null) {
             return;
         }
@@ -45,7 +45,7 @@ public class ArsonistHudMixin {
         }
     }
 
-    @Inject(method = "renderHud", at = @At(value = "INVOKE", target = "Lio/wifi/starrailexpress/game/GameFunctions;isPlayerSpectatingOrCreative(Lnet/minecraft/world/entity/player/Player;)Z"))
+    @Inject(method = "renderHud", at = @At(value = "INVOKE", target = "Lio/wifi/starrailexpress/game/GameUtils;isPlayerSpectatingOrCreative(Lnet/minecraft/world/entity/player/Player;)Z"))
     private static void playerRaycast(Font renderer, LocalPlayer player, GuiGraphics context, DeltaTracker tickCounter, CallbackInfo ci) {
         float range = RoleNameRenderer.getPlayerRange(player);
         HitResult line = ProjectileUtil.getHitResultOnViewVector(player, entity -> entity instanceof Player, range);

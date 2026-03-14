@@ -1,9 +1,9 @@
 package io.wifi.starrailexpress.client;
 
 import io.wifi.starrailexpress.api.ChargeableItemRegistry;
-import io.wifi.starrailexpress.api.Role;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.PlayerStaminaGetter;
 import io.wifi.starrailexpress.SREConfig;
@@ -64,9 +64,9 @@ public class StaminaRenderer {
 
 		@Override
 		public float getMaxStamina(Player clientPlayerEntity) {
-			StarGameWorldComponent gameComponent = StarGameWorldComponent.KEY.get(clientPlayerEntity.level());
-			if (GameFunctions.isPlayerAliveAndSurvival(clientPlayerEntity) && gameComponent != null ) {
-				Role role = gameComponent.getRole(clientPlayerEntity);
+			SREGameWorldComponent gameComponent = SREGameWorldComponent.KEY.get(clientPlayerEntity.level());
+			if (GameUtils.isPlayerAliveAndSurvival(clientPlayerEntity) && gameComponent != null ) {
+				SRERole role = gameComponent.getRole(clientPlayerEntity);
 				if (role == null) {
 					return 0;
 				}

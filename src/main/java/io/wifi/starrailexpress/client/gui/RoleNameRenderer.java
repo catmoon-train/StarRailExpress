@@ -1,13 +1,13 @@
 package io.wifi.starrailexpress.client.gui;
 
-import io.wifi.starrailexpress.api.Role;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
-import io.wifi.starrailexpress.cca.StarPlayerPsychoComponent;
+import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.entity.NoteEntity;
 import io.wifi.starrailexpress.event.AllowNameRender;
 import io.wifi.starrailexpress.event.OnKillerCohortDisplay;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.Font;
@@ -26,7 +26,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class RoleNameRenderer {
     private static TrainRole targetRole = TrainRole.BYSTANDER;
-    private static Role targetRole2;
+    private static SRERole targetRole2;
     private static MutableComponent roleText1;
     private static float nametagAlpha = 0f;
     private static float noteAlpha = 0f;
@@ -41,7 +41,7 @@ public class RoleNameRenderer {
                     return 16f;
                 }
         }
-        if (GameFunctions.isPlayerSpectatingOrCreative(player)) {
+        if (GameUtils.isPlayerSpectatingOrCreative(player)) {
             return 8f;
         }
         return 2f;
@@ -50,12 +50,12 @@ public class RoleNameRenderer {
     @SuppressWarnings("unused")
     public static void renderHud(Font renderer, @NotNull LocalPlayer player, GuiGraphics context,
             DeltaTracker tickCounter) {
-        StarGameWorldComponent component = StarGameWorldComponent.KEY.get(player.level());
+        SREGameWorldComponent component = SREGameWorldComponent.KEY.get(player.level());
         if (player.level().getBrightness(LightLayer.BLOCK, BlockPos.containing(player.getEyePosition())) < 3
                 && player.level().getBrightness(LightLayer.SKY, BlockPos.containing(player.getEyePosition())) < 10)
             return;
         float range = getPlayerRange(player);
-        range = range * (GameFunctions.isPlayerSpectatingOrCreative(player) ? 1f : 1f);
+        range = range * (GameUtils.isPlayerSpectatingOrCreative(player) ? 1f : 1f);
         Player target = null;
         if (ProjectileUtil.getHitResultOnViewVector(player, entity -> entity instanceof Player player1,
                 range) instanceof EntityHitResult entityHitResult
@@ -77,7 +77,7 @@ public class RoleNameRenderer {
             } else {
                 targetRole = TrainRole.BYSTANDER;
             }
-            boolean shouldObfuscate = StarPlayerPsychoComponent.KEY.get(target).getPsychoTicks() > 0;
+            boolean shouldObfuscate = SREPlayerPsychoComponent.KEY.get(target).getPsychoTicks() > 0;
             nametag = shouldObfuscate ? Component.literal("urscrewed" + "X".repeat(player.getRandom().nextInt(8)))
                     .withStyle(style -> style.applyFormats(ChatFormatting.OBFUSCATED, ChatFormatting.DARK_RED))
                     : nametag;

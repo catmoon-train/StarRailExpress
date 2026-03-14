@@ -3,7 +3,7 @@ package org.agmas.harpymodloader.commands;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import io.wifi.starrailexpress.api.Role;
+import io.wifi.starrailexpress.api.SRERole;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
@@ -31,8 +31,8 @@ public class SetOccupationRoleCommand {
         if(!Harpymodloader.isMojangVerify) {
             return 1;
         }
-        Role mainRole = RoleArgumentType.getRole(context, "mainRole");
-        Role companionRole = RoleArgumentType.getRole(context, "companionRole");
+        SRERole mainRole = RoleArgumentType.getRole(context, "mainRole");
+        SRERole companionRole = RoleArgumentType.getRole(context, "companionRole");
 
         if (mainRole.equals(companionRole)) {
             context.getSource().sendFailure(Component.literal("Main role and companion role cannot be the same!"));
@@ -50,7 +50,7 @@ public class SetOccupationRoleCommand {
     }
 
     private static int removeOccupationRole(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
-        Role role = RoleArgumentType.getRole(context, "role");
+        SRERole role = RoleArgumentType.getRole(context, "role");
 
         if (!Harpymodloader.hasOccupationRole(role)) {
             context.getSource().sendFailure(Component.literal("Role " + role.identifier() + " has no occupation role!"));

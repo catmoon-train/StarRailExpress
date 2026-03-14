@@ -1,9 +1,9 @@
 package org.agmas.noellesroles.component;
 
 import org.agmas.noellesroles.role.ModRoles;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
-import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -28,14 +28,14 @@ import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
  *
  * 明星为好人阵营（乘客阵营）
  */
-public class StarPlayerComponent implements RoleComponent, ServerTickingComponent {
+public class SuperStarPlayerComponent implements RoleComponent, ServerTickingComponent {
     @Override
     public Player getPlayer() {
         return player;
     }
 
     /** 组件键 - 用于从玩家获取此组件 */
-    public static final ComponentKey<StarPlayerComponent> KEY = ModComponents.STAR;
+    public static final ComponentKey<SuperStarPlayerComponent> KEY = ModComponents.STAR;
 
     // ==================== 常量定义 ====================
 
@@ -67,7 +67,7 @@ public class StarPlayerComponent implements RoleComponent, ServerTickingComponen
     /**
      * 构造函数
      */
-    public StarPlayerComponent(Player player) {
+    public SuperStarPlayerComponent(Player player) {
         this.player = player;
     }
 
@@ -110,8 +110,8 @@ public class StarPlayerComponent implements RoleComponent, ServerTickingComponen
     public boolean isActiveStar() {
         if (!isActive || player == null || player.level().isClientSide())
             return false;
-        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.level());
-        return gameWorld.isRole(player, ModRoles.STAR);
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
+        return gameWorld.isRole(player, ModRoles.SUPERSTAR);
     }
 
     /**
@@ -144,7 +144,7 @@ public class StarPlayerComponent implements RoleComponent, ServerTickingComponen
         for (Player target : world.players()) {
             if (target.equals(player))
                 continue;
-            if (!GameFunctions.isPlayerAliveAndSurvival(target))
+            if (!GameUtils.isPlayerAliveAndSurvival(target))
                 continue;
 
             double distance = target.distanceToSqr(player);
@@ -192,7 +192,7 @@ public class StarPlayerComponent implements RoleComponent, ServerTickingComponen
         if (balanceAwardCount >= 150) {
             balanceAwardCount = 150;
         }
-        StarPlayerShopComponent.KEY.get(serverPlayer).addToBalance(balanceAwardCount);
+        SREPlayerShopComponent.KEY.get(serverPlayer).addToBalance(balanceAwardCount);
         // 发送消息给明星玩家
         serverPlayer.displayClientMessage(
                 Component.translatable("message.noellesroles.star.ability_used", affectedCount)

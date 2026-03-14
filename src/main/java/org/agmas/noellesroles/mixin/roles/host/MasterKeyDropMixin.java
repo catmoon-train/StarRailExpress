@@ -1,6 +1,6 @@
 package org.agmas.noellesroles.mixin.roles.host;
 
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.agmas.noellesroles.init.ModItems;
@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(GameFunctions.class)
+@Mixin(GameUtils.class)
 public abstract class MasterKeyDropMixin {
 
     @Inject(method = "shouldDropOnDeath", at = @At("HEAD"), cancellable = true)

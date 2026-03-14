@@ -1,9 +1,9 @@
 package org.agmas.noellesroles.roles.ghost;
 
-import io.wifi.starrailexpress.cca.StarGameTimeComponent;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
-import io.wifi.starrailexpress.cca.StarPlayerShopComponent;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.cca.SREGameTimeComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMSounds;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
@@ -78,21 +78,21 @@ public class GhostPlayerComponent implements RoleComponent, ServerTickingCompone
     }
 
     public void serverTick() {
-        StarGameWorldComponent gameWorld = StarGameWorldComponent.KEY.get(player.level());
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
         if (!gameWorld.isRole(player, ModRoles.GHOST)) {
             return;
         }
         if (!gameWorld.isRunning()) {
             return;
         }
-        if (!GameFunctions.isPlayerAliveAndSurvival(player)) {
+        if (!GameUtils.isPlayerAliveAndSurvival(player)) {
             return;
         }
 
         // 检查技能解锁（当游戏剩余3分钟时解锁）
         if (!abilityUnlocked) {
             // 获取游戏剩余时间
-            StarGameTimeComponent gameTime = StarGameTimeComponent.KEY.get(player.level());
+            SREGameTimeComponent gameTime = SREGameTimeComponent.KEY.get(player.level());
             if (gameTime != null) {
                 long remainingTicks = gameTime.getTime();
                 // 当剩余时间 <= 3分钟时解锁
@@ -142,7 +142,7 @@ public class GhostPlayerComponent implements RoleComponent, ServerTickingCompone
             return;
         }
 
-        StarPlayerShopComponent shopComponent = StarPlayerShopComponent.KEY.get(player);
+        SREPlayerShopComponent shopComponent = SREPlayerShopComponent.KEY.get(player);
         if (shopComponent.balance < 150) {
             player.displayClientMessage(Component.translatable("message.noellesroles.insufficient_funds"), true);
             if (player instanceof ServerPlayer serverPlayer) {
@@ -189,7 +189,7 @@ public class GhostPlayerComponent implements RoleComponent, ServerTickingCompone
      * 当场上平民阵营只剩小透明时，将游戏时间设为2分钟（如果当前时间更长）
      * 并广播提示
      */
-    private void checkLastStand(StarGameWorldComponent gameWorld) {
+    private void checkLastStand(SREGameWorldComponent gameWorld) {
         if (!(player instanceof ServerPlayer serverPlayer)) {
             return;
         }
@@ -203,7 +203,7 @@ public class GhostPlayerComponent implements RoleComponent, ServerTickingCompone
         boolean hasGhost = false;
 
         for (var p : player.level().players()) {
-            if (!GameFunctions.isPlayerAliveAndSurvival(p)) {
+            if (!GameUtils.isPlayerAliveAndSurvival(p)) {
                 continue;
             }
             var role = gameWorld.getRole(p.getUUID());
@@ -222,7 +222,7 @@ public class GhostPlayerComponent implements RoleComponent, ServerTickingCompone
         // 如果存活平民阵营只有1人，且是小透明
         if (aliveCivilianCount == 1 && hasGhost) {
             // 获取游戏时间
-            StarGameTimeComponent gameTime = StarGameTimeComponent.KEY.get(player.level());
+            SREGameTimeComponent gameTime = SREGameTimeComponent.KEY.get(player.level());
             if (gameTime != null) {
                 long currentTicks = gameTime.getTime();
                 // 如果当前时间超过2分钟，则设置为2分钟

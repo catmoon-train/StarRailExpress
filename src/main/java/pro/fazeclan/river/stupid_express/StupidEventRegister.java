@@ -6,24 +6,24 @@ import java.util.Collections;
 import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
-import io.wifi.starrailexpress.api.Role;
+import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
-import io.wifi.starrailexpress.cca.StarGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.event.OnPlayerDeathWithKiller;
-import io.wifi.starrailexpress.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.TMMItemUtils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 import pro.fazeclan.river.stupid_express.constants.SERoles;
 import pro.fazeclan.river.stupid_express.modifier.cursed.cca.CursedComponent;
 import pro.fazeclan.river.stupid_express.modifier.lovers.cca.LoversComponent;
 import pro.fazeclan.river.stupid_express.modifier.split_personality.cca.SplitPersonalityComponent;
+import pro.fazeclan.river.stupid_express.role.arsonist.ArsonistWinChecker;
 import pro.fazeclan.river.stupid_express.role.necromancer.cca.NecromancerComponent;
 import pro.fazeclan.river.stupid_express.utils.StupidRoleUtils;
 
@@ -34,8 +34,9 @@ public class StupidEventRegister {
 
     public static void register() {
         // 死灵
+        ArsonistWinChecker.registerEvent();
         OnPlayerDeathWithKiller.EVENT.register((victim, killer, deathReason) -> {
-            var component = StarGameWorldComponent.KEY.get(victim.level());
+            var component = SREGameWorldComponent.KEY.get(victim.level());
             if (component.canUseKillerFeatures(victim)) {
                 var nc = NecromancerComponent.KEY.get(victim.level());
                 nc.increaseAvailableRevives();
@@ -46,7 +47,7 @@ public class StupidEventRegister {
         OnPlayerDeathWithKiller.EVENT.register((victim, killer, deathReason) -> {
 
             var level = (ServerLevel) victim.level();
-            var gameWorldComponent = StarGameWorldComponent.KEY.get(level);
+            var gameWorldComponent = SREGameWorldComponent.KEY.get(level);
 
             if (!gameWorldComponent.isRole(victim, SERoles.INITIATE)) {
                 return;
@@ -86,13 +87,13 @@ public class StupidEventRegister {
         // 初学杀错人
         OnPlayerDeathWithKiller.EVENT.register((victim, killer, deathReason) -> {
             var level = (ServerLevel) victim.level();
-            var gameWorldComponent = StarGameWorldComponent.KEY.get(level);
+            var gameWorldComponent = SREGameWorldComponent.KEY.get(level);
             if (killer == null)
                 return;
             if (!gameWorldComponent.isRole(killer, SERoles.INITIATE))
                 return;
             if (!gameWorldComponent.isRole(victim, SERoles.INITIATE)) {
-                Role newInitiateRole;
+                SRERole newInitiateRole;
                 newInitiateRole = SERoles.AMNESIAC;
 
                 // 技能可用
@@ -105,7 +106,7 @@ public class StupidEventRegister {
                     }
                 }
 
-                GameFunctions.killPlayer(killer, true, null, StupidExpress.id("failed_initiation"));
+                GameUtils.killPlayer(killer, true, null, StupidExpress.id("failed_initiation"));
                 return;
             }
         });
@@ -114,7 +115,7 @@ public class StupidEventRegister {
             // StupidExpress.LOGGER.info(victim.getDisplayName().getString()+" Dead, by
             // "+killer.getDispla);
             var level = (ServerLevel) victim.level();
-            var gameWorldComponent = StarGameWorldComponent.KEY.get(level);
+            var gameWorldComponent = SREGameWorldComponent.KEY.get(level);
             if (!gameWorldComponent.isRole(victim, SERoles.INITIATE))
                 return;
             if (!gameWorldComponent.isSkillAvailable) {
@@ -122,7 +123,7 @@ public class StupidEventRegister {
                         Component.translatable("message.stupid_express.generic.skill_not_available"), true);
                 return;
             }
-            Role newInitiateRole;
+            SRERole newInitiateRole;
 
             if (killer == null) {
                 newInitiateRole = SERoles.AMNESIAC;
@@ -130,7 +131,7 @@ public class StupidEventRegister {
                 return;
             } else {
                 // 初学者被杀死（包括被炸弹炸死、摔死等非玩家攻击，以及被非初学者玩家杀死）
-                Role killerRole = gameWorldComponent.getRole(killer);
+                SRERole killerRole = gameWorldComponent.getRole(killer);
                 if (killerRole == null) {
                     newInitiateRole = SERoles.AMNESIAC;
                 } else if (gameWorldComponent.isKillerTeamRole(killerRole)) {
@@ -220,8 +221,8 @@ public class StupidEventRegister {
             var level = victim.level();
             var lover = level.getPlayerByUUID(component.getLover());
             if (lover != null) {
-                if (GameFunctions.isPlayerAliveAndSurvival(lover)) {
-                    GameFunctions.killPlayer(
+                if (GameUtils.isPlayerAliveAndSurvival(lover)) {
+                    GameUtils.killPlayer(
                             lover,
                             true,
                             killer,
@@ -231,7 +232,7 @@ public class StupidEventRegister {
                     if (wmc.isModifier(lover, SEModifiers.SPLIT_PERSONALITY)) {
                         var splc = SplitPersonalityComponent.KEY.get(lover);
                         if (!splc.isDeath()) {
-                            GameFunctions.killPlayer(
+                            GameUtils.killPlayer(
                                     lover,
                                     true,
                                     killer,
