@@ -1,5 +1,6 @@
 {
   "unknown": "未知",
+  "info.screen.role.see_more": "... (更多信息请查看职业介绍)",
   "info.screen.roleid.discovery_civilian": "平民阵营\n特殊模式专用职业。",
   "info.screen.roleid.civilian": "平民阵营\n你没有任何特殊能力，努力在这趟旅程中活下去。",
   "info.screen.roleid.killer": "杀手阵营\n你是一名普通的杀手。\n拥有最基础的杀手商店。\n你的目标是杀光所有平民。",
@@ -1433,7 +1434,6 @@
   "message.noellesroles.ma_chen_xu.instant_silence.cooldown": "瞬寂冷却中: %ss",
   "message.noellesroles.ma_chen_xu.instant_silence.no_target": "瞬寂没有目标！",
   "message.noellesroles.ma_chen_xu.instant_silence.activated": "已对 %s 使用瞬寂！",
-  "==================== 马晨絮鬼术 ====================": "",
   "==================== 布袋鬼鬼术 ====================": "",
   "ghost_skill.noellesroles.lue_feng": "掠风",
   "ghost_skill.noellesroles.nuo_mian_you_hun": "傩面游魂",
