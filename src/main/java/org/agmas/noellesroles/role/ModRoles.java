@@ -167,6 +167,7 @@ public class ModRoles {
   public static final ResourceLocation MANIPULATOR_ID = Noellesroles.id("manipulator");
   public static final ResourceLocation BANDIT_ID = Noellesroles.id("bandit");
   public static final ResourceLocation BLOOD_FEUDIST_ID = Noellesroles.id("blood_feudist");
+  public static final ResourceLocation GUEST_GHOST_ID = Noellesroles.id("guest_ghost");
 
   // 中立阵营
   public static final ResourceLocation STALKER_ID = Noellesroles.id("stalker");
@@ -184,7 +185,15 @@ public class ModRoles {
   public static final ResourceLocation WAYFARER_ID = Noellesroles.id("wayfarer");
   public static final ResourceLocation DIO_ID = Noellesroles.id("dio");
   public static final ResourceLocation JOJO_ID = Noellesroles.id("jojo");
-
+  public static SRERole GUEST_GHOST = TMMRoles.registerRole(new NormalRole(
+      GUEST_GHOST_ID, // 角色 ID
+      new Color(75, 245, 130).getRGB(), // 深紫色 - 代表恐惧与神秘
+      true, // isInnocent = 非乘客阵营（杀手）
+      false, // canUseKiller = 有杀手能力
+      SRERole.MoodType.REAL, // 假心情
+      TMMRoles.CIVILIAN.getMaxSprintTime(), // 无限冲刺时间
+      true // 隐藏计分板
+  )).setComponentKey(ModComponents.MA_CHEN_XU).setCanSeeCoin(true).setOccupiedRoleCount(2);
   public static SRERole MA_CHEN_XU = TMMRoles.registerRole(new NormalRole(
       MA_CHEN_XU_ID, // 角色 ID
       new Color(75, 0, 130).getRGB(), // 深紫色 - 代表恐惧与神秘
