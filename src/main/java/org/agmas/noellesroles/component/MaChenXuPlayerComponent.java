@@ -44,18 +44,6 @@ import org.agmas.noellesroles.init.ModEntities;
  * - 阶段4（极致鬼）：最强形态+护盾
  */
 public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
-    public static abstract class MaChenXuSkill {
-        public String name;
-
-        public String getSkillName() {
-            return name;
-        }
-
-        public MaChenXuSkill() {
-        }
-
-        public abstract void trigger();
-    };
 
     /** 组件键 - 用于从玩家获取此组件 */
     public static final ComponentKey<MaChenXuPlayerComponent> KEY = ModComponents.MA_CHEN_XU;
@@ -1101,7 +1089,24 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
             if (this.nowSelectedSkill >= ghostSkills.size()) {
                 return;
             }
-            ghostSkills.get(this.nowSelectedSkill);
+            var skillId = ghostSkills.get(this.nowSelectedSkill);
+            switch (skillId) {
+                case "swift_wind":
+                    // 掠风
+                    useSwiftWind();
+                    break;
+                case "spirit_walk":
+                    useSpiritWalk();
+                    break;
+                case "puppet_show":
+                    usePuppetShow();
+                    break;
+                case "false_mimicry":
+                    useFalseMimicry();
+                    break;
+                default:
+                    break;
+            }
         }
     }
 }
