@@ -52,7 +52,7 @@ public class InventoryIntroductionRenderer {
             float scale = getScare(context.guiHeight());
             SRERole role = gameWorldComponent.getRole(player);
             Font font = Minecraft.getInstance().font;
-            final int MAX_WIDTH = (int)(context.guiWidth() / scale / 4);
+            final int MAX_WIDTH = (int)(context.guiWidth() / scale / 3);
 
             if (role != null) {
                String roleName = role.getIdentifier().getPath();
