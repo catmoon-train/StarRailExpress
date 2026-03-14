@@ -22,6 +22,8 @@ public class ShopEntry extends dev.doctor4t.wathe.util.ShopEntry {
     }
 
     public boolean canBuy(@NotNull Player player) {
+        if (this.stack().isEmpty())
+            return false;
         return true;
     }
 }
