@@ -1296,7 +1296,6 @@ public class GameUtils {
             entity.discard();
         EntityClearUtils.clearAllEntities(serverWorld);
         SRE.LOGGER.info("Kill all related entities in game world!");
-
     }
 
     @SuppressWarnings("deprecation")

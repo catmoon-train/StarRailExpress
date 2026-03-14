@@ -23,6 +23,7 @@ import io.wifi.starrailexpress.game.ShopContent;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.ShopEntry;
 import io.wifi.starrailexpress.util.TMMItemUtils;
+import io.github.mortuusars.exposure_polaroid.ExposurePolaroid;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import net.minecraft.ChatFormatting;
@@ -499,10 +500,8 @@ public class RoleShopHandler {
     {
       List<ShopEntry> entries = new ArrayList<>();
       // 拍立得相机 - 75金币
-      if (BuiltInRegistries.ITEM
-          .containsKey(ResourceLocation.parse("exposure_polaroid:instant_camera"))) {
-        var item = BuiltInRegistries.ITEM
-            .get(ResourceLocation.parse("exposure_polaroid:instant_camera"));
+      {
+        var item = ExposurePolaroid.Items.INSTANT_CAMERA.get();
         if (item != null) {
           final var defaultInstance = item.getDefaultInstance();
           entries.add(new ShopEntry(defaultInstance, 75, ShopEntry.Type.TOOL) {
@@ -515,10 +514,8 @@ public class RoleShopHandler {
         }
       }
       // 拍立得相纸 - 75金币
-      if (BuiltInRegistries.ITEM
-          .containsKey(ResourceLocation.parse("exposure_polaroid:instant_color_slide"))) {
-        var item = BuiltInRegistries.ITEM
-            .get(ResourceLocation.parse("exposure_polaroid:instant_color_slide"));
+      {
+        var item =  ExposurePolaroid.Items.INSTANT_COLOR_SLIDE.get();
         if (item != null) {
           final var defaultInstance = item.getDefaultInstance();
           entries.add(new ShopEntry(defaultInstance, 75, ShopEntry.Type.TOOL) {
