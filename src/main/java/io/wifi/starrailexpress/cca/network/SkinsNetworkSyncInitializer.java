@@ -2,6 +2,7 @@ package io.wifi.starrailexpress.cca.network;
 
 import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
 import io.wifi.starrailexpress.SREConfig;
+import net.exmo.ssr.nametag.NameTagInventoryComponent;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.server.level.ServerPlayer;
@@ -17,9 +18,9 @@ public class SkinsNetworkSyncInitializer {
 
     public static boolean isEnabled = false;
     // 网络服务器配置
-    public static String NETWORK_HOST = "exmaple.com";
-    public static int NETWORK_PORT = 80;
-    public static String NETWORK_KEY = "";
+    public static String NETWORK_HOST = SREConfig.itemSkinSyncServerHost;
+    public static int NETWORK_PORT = SREConfig.itemSkinSyncServerPort;
+    public static String NETWORK_KEY = SREConfig.itemSkinSyncServerKey;
 
     /**
      * 注册服务器连接事件
@@ -54,7 +55,11 @@ public class SkinsNetworkSyncInitializer {
      */
     private static void onPlayerJoin(ServerPlayer player) {
         try {
+            String NETWORK_HOST = SREConfig.itemSkinSyncServerHost;
+             int NETWORK_PORT = SREConfig.itemSkinSyncServerPort;
+            String NETWORK_KEY = SREConfig.itemSkinSyncServerKey;
             SREPlayerSkinsComponent skinsComponent = SREPlayerSkinsComponent.KEY.get(player);
+            NameTagInventoryComponent nameTagInventoryComponent = NameTagInventoryComponent.KEY.get(player);
             if (skinsComponent != null) {
                 // 初始化网络同步，连接到TCP服务器
                 skinsComponent.initializeNetworkSync(NETWORK_HOST, NETWORK_PORT, NETWORK_KEY);
@@ -63,6 +68,12 @@ public class SkinsNetworkSyncInitializer {
                 skinsComponent.pullSkinsFromNetwork();
 
                 logger.info("玩家 {} 的皮肤网络同步已初始化", player.getName().getString());
+            }
+            if (nameTagInventoryComponent != null) {
+                // 同步玩家标签
+                nameTagInventoryComponent.initializeNetworkSync(NETWORK_HOST, NETWORK_PORT, NETWORK_KEY);
+                nameTagInventoryComponent.syncFromLinkedServer();
+                nameTagInventoryComponent.sync();
             }
         } catch (Exception e) {
             logger.error("初始化玩家 {} 的皮肤网络同步时出错", player.getName().getString(), e);
