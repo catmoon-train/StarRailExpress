@@ -1,6 +1,6 @@
 package io.wifi.starrailexpress.game;
 
-import static io.wifi.starrailexpress.compat.TrainVoicePlugin.isVoiceChatMissing;
+import io.wifi.starrailexpress.compat.TrainVoicePlugin;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -19,7 +19,6 @@ import java.util.function.UnaryOperator;
 import io.wifi.starrailexpress.api.replay.GameReplayData;
 import net.exmo.ssr.nametag.NameTagInventoryComponent;
 
-import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.packet.NameTagSyncPayload;
 import org.agmas.noellesroles.utils.EntityClearUtils;
 import org.jetbrains.annotations.NotNull;
@@ -58,7 +57,6 @@ import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.cca.SREPlayerStatsComponent;
 import io.wifi.starrailexpress.cca.SRETrainWorldComponent;
 import io.wifi.starrailexpress.cca.SREWorldBlackoutComponent;
-import io.wifi.starrailexpress.compat.TrainVoicePlugin;
 import io.wifi.starrailexpress.entity.FirecrackerEntity;
 import io.wifi.starrailexpress.entity.NoteEntity;
 import io.wifi.starrailexpress.entity.PlayerBodyEntity;
@@ -492,7 +490,7 @@ public class GameUtils {
             SREPlayerPsychoComponent.KEY.get(serverPlayerEntity).reset();
             SREPlayerNoteComponent.KEY.get(serverPlayerEntity).reset();
             SREPlayerShopComponent.KEY.get(serverPlayerEntity).reset();
-            if (!isVoiceChatMissing()) {
+            if (!TrainVoicePlugin.isVoiceChatMissing()) {
                 TrainVoicePlugin.resetPlayer(serverPlayerEntity.getUUID());
             }
 
@@ -773,7 +771,7 @@ public class GameUtils {
         SREPlayerPsychoComponent.KEY.get(player).reset();
         SREPlayerNoteComponent.KEY.get(player).reset();
         BartenderPlayerComponent.KEY.get(player).reset();
-        if (!isVoiceChatMissing()) {
+        if (!TrainVoicePlugin.isVoiceChatMissing()) {
             TrainVoicePlugin.resetPlayer(player.getUUID());
         }
 
@@ -1070,7 +1068,7 @@ public class GameUtils {
                     }
                 }
             }
-            if (!isVoiceChatMissing()) {
+            if (!TrainVoicePlugin.isVoiceChatMissing()) {
                 TrainVoicePlugin.addPlayer(victim.getUUID());
             }
         }
