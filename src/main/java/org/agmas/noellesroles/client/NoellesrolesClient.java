@@ -196,7 +196,8 @@ public class NoellesrolesClient implements ClientModInitializer {
         EntityModelLayerRegistry.registerModelLayer(WheelchairEntityModel.LAYER_LOCATION,
                 WheelchairEntityModel::createBodyLayer);
         AllowNameRender.EVENT.register((target) -> {
-            SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY.get(target.level());
+            SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY
+                    .get(target.level());
             if (gameWorldComponent.isRole(target,
                     ModRoles.THE_INSANE_DAMNED_PARANOID_KILLER_OF_DOOM_DEATH_DESTRUCTION_AND_WAFFLES)) {
                 var insaneComponent = InsaneKillerPlayerComponent.KEY.get(target);
@@ -283,12 +284,12 @@ public class NoellesrolesClient implements ClientModInitializer {
                 if (client.player != null) {
                     if (client.player.getMainHandItem().getItem() == ModItems.LETTER_ITEM) {
                         SRERole role = SREClient.gameComponent.getRole(client.player);
-                        if (role!=null) {
-                            client.setScreen(new RoleIntroduceScreen(client.player,role));
-                        }else {
+                        if (role != null) {
+                            client.setScreen(new RoleIntroduceScreen(client.player, role));
+                        } else {
                             client.setScreen(new RoleIntroduceScreen(client.player));
                         }
-                        }else {
+                    } else {
                         client.setScreen(new RoleIntroduceScreen(client.player));
                     }
                 }
@@ -770,6 +771,7 @@ public class NoellesrolesClient implements ClientModInitializer {
         // 注册客户端命令
         registerCommands();
     }
+
     private void registerCommands() {
         SettingsCommand.register();
     }

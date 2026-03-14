@@ -21,12 +21,11 @@ public class LetterItem extends Item {
     }
 
     public InteractionResultHolder<ItemStack> use(@NotNull Level world, @NotNull Player user, InteractionHand hand) {
-
-         if (!user.level().isClientSide()) {
-             if (user instanceof ServerPlayer sp) {
-                 ServerPlayNetworking.send(sp, new OpenIntroPayload());
-             }
-         }
-         return InteractionResultHolder.success(user.getItemInHand(hand));
+        if (!user.level().isClientSide()) {
+            if (user instanceof ServerPlayer sp) {
+                ServerPlayNetworking.send(sp, new OpenIntroPayload());
+            }
+        }
+        return InteractionResultHolder.success(user.getItemInHand(hand));
     }
 }

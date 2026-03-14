@@ -160,7 +160,7 @@ public class RoleIntroduceScreen extends Screen {
     private int selectedCategoryIndex = 0;
     private final int[] tabX = new int[64];
     private final int[] tabW = new int[64];
-    
+
     // 分类标签栏滚动
     private int categoryScrollOffset = 0;
     private int maxCategoryScroll = 0;
@@ -185,15 +185,15 @@ public class RoleIntroduceScreen extends Screen {
     private boolean isDraggingDetailScroll = false;
     private double dragDetailStartY = 0;
     private int dragDetailStartOffset = 0;
-    
+
     // 商店物品渲染位置记录
     private final List<ShopItemRenderInfo> shopItemRenderInfos = new ArrayList<>();
-    
+
     public static class ShopItemRenderInfo {
         public final ItemStack stack;
         public final int x;
         public final int y;
-        
+
         public ShopItemRenderInfo(ItemStack stack, int x, int y) {
             this.stack = stack;
             this.x = x;
@@ -218,7 +218,8 @@ public class RoleIntroduceScreen extends Screen {
         this();
         this.parent = parent;
     }
-    public RoleIntroduceScreen(Screen parent,SRERole sreRole) {
+
+    public RoleIntroduceScreen(Screen parent, SRERole sreRole) {
         this();
         this.parent = parent;
         this.selectedRole = sreRole;
@@ -227,7 +228,8 @@ public class RoleIntroduceScreen extends Screen {
     public RoleIntroduceScreen(Player player) {
         this();
     }
-    public RoleIntroduceScreen(Player player,SRERole sreRole) {
+
+    public RoleIntroduceScreen(Player player, SRERole sreRole) {
         this();
         this.selectedRole = sreRole;
     }
@@ -381,15 +383,16 @@ public class RoleIntroduceScreen extends Screen {
                     textW));
             detailLines.add(FormattedCharSequence.EMPTY);
         } else if (selectedRole instanceof Item it) {
-            var story_key = it.getDescriptionId() + ".tooltip";
-            if (Language.getInstance().has(story_key)) {
-                detailLines.addAll(font.split(Component.translatable(story_key).withStyle(ChatFormatting.GRAY), textW));
-                detailLines.add(FormattedCharSequence.EMPTY);
-            }
+            detailLines.addAll(it.getDefaultInstance()
+                    .getTooltipLines(Item.TooltipContext.EMPTY, minecraft.player, TooltipFlag.NORMAL)
+                    .stream()
+                    .peek(component -> component.getStyle().applyFormat(ChatFormatting.GRAY))
+                    .map(Component::getVisualOrderText).toList());
+            detailLines.add(FormattedCharSequence.EMPTY);
         }
         detailLines.addAll(font.split(
                 Component.translatable("screen.roleintroduce.detail.description")
-                        .withStyle(ChatFormatting.YELLOW),
+                        .withStyle(ChatFormatting.YELLOW, ChatFormatting.BOLD),
                 textW));
 
         int dashCount = textW / Math.max(1, font.width("─"));
@@ -409,7 +412,7 @@ public class RoleIntroduceScreen extends Screen {
                 detailLines.add(FormattedCharSequence.EMPTY);
                 detailLines.addAll(font.split(
                         Component.translatable("screen.roleintroduce.detail.story")
-                                .withStyle(ChatFormatting.GREEN),
+                                .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD),
                         textW));
                 detailLines.addAll(font.split(
                         Component.literal(sb.toString()).withStyle(ChatFormatting.DARK_GRAY), textW));
@@ -427,7 +430,7 @@ public class RoleIntroduceScreen extends Screen {
                 detailLines.add(FormattedCharSequence.EMPTY);
                 detailLines.addAll(font.split(
                         Component.translatable("screen.roleintroduce.detail.settings")
-                                .withStyle(ChatFormatting.AQUA),
+                                .withStyle(ChatFormatting.AQUA, ChatFormatting.BOLD),
                         textW));
                 detailLines.addAll(font.split(
                         Component.literal(sb.toString()).withStyle(ChatFormatting.DARK_GRAY), textW));
@@ -438,23 +441,23 @@ public class RoleIntroduceScreen extends Screen {
             }
         }
         {
-            //商店显示
-            if (selectedRole instanceof SRERole sreRole){
+            // 商店显示
+            if (selectedRole instanceof SRERole sreRole) {
                 var shop_content = ShopContent.getShopEntries(sreRole.identifier());
-                
+
                 if (!shop_content.isEmpty()) {
                     detailLines.add(FormattedCharSequence.EMPTY);
                     detailLines.addAll(font.split(
                             Component.translatable("screen.roleintroduce.detail.shop")
                                     .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD),
                             textW));
-                    
+
                     detailLines.addAll(font.split(
                             Component.literal(sb.toString()).withStyle(ChatFormatting.DARK_GRAY), textW));
-                    
+
                     // 清空上一次的物品渲染信息
                     shopItemRenderInfos.clear();
-                    
+
                     // 显示每个商店物品
                     int itemIndex = 0;
                     for (ShopEntry entry : shop_content) {
@@ -462,23 +465,26 @@ public class RoleIntroduceScreen extends Screen {
                         if (!stack.isEmpty()) {
                             // 计算物品渲染位置（在文本区域内）- 不考虑滚动偏移
                             int itemX = rightX + PANEL_PAD + 4; // 左边距
-                            int itemY = panelY + BANNER_H + PANEL_PAD + 
-                                       (detailLines.size() * (font.lineHeight + 2)) + 2;
-                            
+                            int itemY = panelY + BANNER_H + PANEL_PAD +
+                                    (detailLines.size() * (font.lineHeight + 2)) + 2;
+
                             // 记录物品渲染信息
-                            //shopItemRenderInfos.add(new ShopItemRenderInfo(stack.copy(), itemX, itemY));
-                            
+                            // shopItemRenderInfos.add(new ShopItemRenderInfo(stack.copy(), itemX, itemY));
+
                             // 价格标签
-                            Component priceLabel = Component.translatable("screen.roleintroduce.shop.price", entry.price())
+                            Component priceLabel = Component
+                                    .translatable("screen.roleintroduce.shop.price", entry.price())
                                     .withStyle(ChatFormatting.GOLD);
-                            
+
                             // 第一行：物品图标占位 + 价格
                             detailLines.addAll(font.split(
                                     Component.literal("■ ").append(priceLabel),
                                     textW));
-                            
+
                             // 第二行：物品描述（如果有）
-                            var description = stack.getTooltipLines(Item.TooltipContext.EMPTY, minecraft.player, TooltipFlag.NORMAL).stream()
+                            var description = stack
+                                    .getTooltipLines(Item.TooltipContext.EMPTY, minecraft.player, TooltipFlag.NORMAL)
+                                    .stream()
                                     .peek(component -> component.getStyle().applyFormat(ChatFormatting.GRAY))
                                     .map(Component::getVisualOrderText).toList();
                             if (!description.isEmpty()) {
@@ -488,13 +494,12 @@ public class RoleIntroduceScreen extends Screen {
                             itemIndex++;
                         }
                     }
-                    
+
                     detailLines.add(FormattedCharSequence.EMPTY);
                 }
             }
 
         }
-
 
         int totalTextH = detailLines.size() * (font.lineHeight + 2);
         maxDetailScroll = Math.max(0, totalTextH - detailContentH());
@@ -857,7 +862,7 @@ public class RoleIntroduceScreen extends Screen {
                         java.awt.Color.WHITE.getRGB(), false);
             lineY += lineH;
         }
-        
+
         // 渲染商店物品模型
         for (ShopItemRenderInfo itemInfo : shopItemRenderInfos) {
             // 调整 Y 坐标以考虑滚动
@@ -866,7 +871,7 @@ public class RoleIntroduceScreen extends Screen {
                 g.renderItem(itemInfo.stack, itemInfo.x, adjustedY);
             }
         }
-        
+
         g.disableScissor();
 
         renderVScrollbar(g,
