@@ -502,6 +502,8 @@ public class RoleIntroduceScreen extends Screen {
                                 }
                             } catch (Exception e) {
                                 detailLines.addAll(
+                                        font.split(stack.getDisplayName(), textW));
+                                detailLines.addAll(
                                         font.split(Component.translatable("screen.roleintroduce.error", e.getMessage())
                                                 .withStyle(ChatFormatting.RED), textW));
                             }
