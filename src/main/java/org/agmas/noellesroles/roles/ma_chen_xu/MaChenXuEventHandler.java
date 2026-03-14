@@ -8,6 +8,7 @@ import org.agmas.noellesroles.component.MaChenXuPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.event.AllowPlayerDeath;
 import io.wifi.starrailexpress.game.GameUtils;
 
 /**
@@ -31,6 +32,14 @@ public class MaChenXuEventHandler {
         PlayerBlockBreakEvents.BEFORE.register((world, player, pos, state, blockEntity) -> {
             if (player instanceof ServerPlayer serverPlayer) {
                 handlePlayerMovement(serverPlayer);
+            }
+            return true;
+        });
+        AllowPlayerDeath.EVENT.register((victim, deathReason) -> {
+            if (SREGameWorldComponent.KEY.get(victim.level()).isRole(victim, ModRoles.MA_CHEN_XU)) {
+                if (MaChenXuPlayerComponent.KEY.get(victim).spiritWalkActive) {
+                    return false;
+                }
             }
             return true;
         });

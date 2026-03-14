@@ -8,8 +8,8 @@ import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
-import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 
 import java.util.ArrayList;
@@ -29,6 +29,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.item.ItemStack;
+
+import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.entity.KuiXiPuppetEntity;
 import org.agmas.noellesroles.init.ModEntities;
 
@@ -42,16 +44,15 @@ import org.agmas.noellesroles.init.ModEntities;
  * - 阶段4（极致鬼）：最强形态+护盾
  */
 public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
-
     /** 组件键 - 用于从玩家获取此组件 */
     public static final ComponentKey<MaChenXuPlayerComponent> KEY = ModComponents.MA_CHEN_XU;
 
     // ==================== 常量定义 ====================
 
     /** 恐惧范围（格） */
-    public static final double FEAR_RANGE_STAGE_1 = 20.0;
-    public static final double FEAR_RANGE_STAGE_2 = 30.0;
-    public static final double FEAR_RANGE_STAGE_3 = 20.0;
+    public static final double FEAR_RANGE_STAGE_1 = 10.0;
+    public static final double FEAR_RANGE_STAGE_2 = 10.0;
+    public static final double FEAR_RANGE_STAGE_3 = 15.0;
 
     /** 恐惧SAN掉落间隔（tick） */
     public static final int FEAR_INTERVAL = 200; // 10秒
@@ -300,7 +301,8 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
 
         if (player instanceof ServerPlayer serverPlayer) {
             serverPlayer.displayClientMessage(
-                    Component.translatable("message.noellesroles.ma_chen_xu.stage2_advance")
+                    Component.translatable("message.noellesroles.ma_chen_xu.stage_advance",
+                            Component.translatable("hud.noellesroles.ma_chen_xu.phase2"))
                             .withStyle(ChatFormatting.DARK_PURPLE, ChatFormatting.BOLD),
                     false);
 
@@ -321,7 +323,8 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
 
         if (player instanceof ServerPlayer serverPlayer) {
             serverPlayer.displayClientMessage(
-                    Component.translatable("message.noellesroles.ma_chen_xu.stage3_advance")
+                    Component.translatable("message.noellesroles.ma_chen_xu.stage_advance",
+                            Component.translatable("hud.noellesroles.ma_chen_xu.phase3"))
                             .withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD),
                     false);
 
@@ -345,7 +348,9 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
 
         if (player instanceof ServerPlayer serverPlayer) {
             serverPlayer.displayClientMessage(
-                    Component.translatable("message.noellesroles.ma_chen_xu.stage4_advance")
+                    Component
+                            .translatable("message.noellesroles.ma_chen_xu.stage_advance",
+                                    Component.translatable("hud.noellesroles.ma_chen_xu.phase4"))
                             .withStyle(ChatFormatting.BLACK, ChatFormatting.BOLD),
                     false);
 
@@ -412,9 +417,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
      */
     private boolean isKiller(Player target) {
         SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(target.level());
-        if (gameWorldComponent == null)
-            return false;
-        return gameWorldComponent.getRole(target).canUseKiller();
+        return gameWorldComponent.isKillerTeam(target);
     }
 
     /**
@@ -428,7 +431,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         // 这里需要实现SAN值检查逻辑
 
         // 击杀目标
-        GameUtils.killPlayer(target, true, player, GameConstants.DeathReasons.KNIFE);
+        GameUtils.killPlayer(target, true, player, Noellesroles.id("machenxu"));
 
         // 减少里世界时间
         if (otherworldActive) {
@@ -583,6 +586,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
                     double distance = playerPos.distanceTo(target.position());
                     if (distance <= range) {
                         // 这里需要实现SAN值减少逻辑
+                        SREPlayerMoodComponent.KEY.get(target).addMood(sanLoss / 100);
                         addSanLoss(sanLoss);
                     }
                 }
@@ -904,7 +908,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         }
 
         spiritWalkActive = true;
-        spiritWalkDuration = 120; // 6秒
+        spiritWalkDuration = 20 * 6; // 6秒
         spiritWalkCooldown = GHOST_SKILL_COOLDOWN_SPIRIT_WALK;
 
         // 给予隐身效果
@@ -1060,5 +1064,9 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
                         true);
             }
         }
+    }
+
+    public void tryActiveAbility() {
+        
     }
 }

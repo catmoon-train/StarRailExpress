@@ -5,6 +5,7 @@ import org.agmas.noellesroles.component.BomberPlayerComponent;
 import org.agmas.noellesroles.component.ClockmakerPlayerComponent;
 import org.agmas.noellesroles.component.DIOPlayerComponent;
 import org.agmas.noellesroles.component.HoanMeirinPlayerComponent;
+import org.agmas.noellesroles.component.MaChenXuPlayerComponent;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.component.NianShouPlayerComponent;
 import org.agmas.noellesroles.component.PlayerVolumeComponent;
@@ -164,6 +165,10 @@ public class AbilityHandler {
                             .withStyle(ChatFormatting.GREEN),
                     true);
             context.player().removeEffect(MobEffects.NIGHT_VISION);
+            return;
+        }
+        if (gameWorldComponent.isRole(context.player(), ModRoles.MA_CHEN_XU)) {
+            MaChenXuPlayerComponent.KEY.get(context.player()).tryActiveAbility();
             return;
         }
         if (gameWorldComponent.isRole(context.player(), ModRoles.COMMANDER)) {

@@ -192,6 +192,14 @@ public class InitModRolesMax {
 
     public static void registerDynamic() {
         GameInitializeEvent.EVENT.register((serverLevel, gameWorldComponent, players) -> {
+            // 获取当前地图ID
+            String currentMap = "unknown";
+            if (serverLevel.getServer() != null) {
+                var areas = io.wifi.starrailexpress.cca.AreasWorldComponent.KEY.get(serverLevel);
+                if (areas != null && areas.mapName != null) {
+                    currentMap = areas.mapName;
+                }
+            }
             var areasWorldComponent = AreasWorldComponent.KEY.get(serverLevel);
             final int players_count = serverLevel.getServer().getPlayerCount();
             {
@@ -301,7 +309,19 @@ public class InitModRolesMax {
             } else {
                 Harpymodloader.setRoleMaximum(ModRoles.BLOOD_FEUDIST_ID, 0);
             }
-
+            // machenxu
+            {
+                boolean isMachenxuMap = false;
+                String[] machenxuMap = NoellesRolesConfig.HANDLER.instance().maChenXuMaps.split(Pattern.quote("|"));
+                if (machenxuMap != null && machenxuMap.length > 0) {
+                    isMachenxuMap = Arrays.asList(machenxuMap).contains(currentMap);
+                }
+                if (isMachenxuMap) {
+                    Harpymodloader.setRoleMaximum(ModRoles.MA_CHEN_XU, 1);
+                } else {
+                    Harpymodloader.setRoleMaximum(ModRoles.MA_CHEN_XU, 0);
+                }
+            }
             // 特殊警卫数量
             {
                 int allSpecialPoliceCount = 0;
@@ -364,15 +384,6 @@ public class InitModRolesMax {
                 // 特警和更好的义警初始为0
                 int SWAST_COUNT = 0;
                 int BEST_VIGILANTE_COUNT = 0;
-
-                // 获取当前地图ID
-                String currentMap = "unknown";
-                if (serverLevel.getServer() != null) {
-                    var areas = io.wifi.starrailexpress.cca.AreasWorldComponent.KEY.get(serverLevel);
-                    if (areas != null && areas.mapName != null) {
-                        currentMap = areas.mapName;
-                    }
-                }
 
                 // 判断是否为特警可用地图 (areas1, areas3, areas4, areas7, areas10)
                 boolean isSwastMap = false;
