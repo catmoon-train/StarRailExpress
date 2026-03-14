@@ -418,7 +418,9 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
 
             if (player instanceof ServerPlayer serverPlayer) {
                 serverPlayer.displayClientMessage(
-                        Component.translatable("message.noellesroles.ma_chen_xu.ghost_skill_acquired", skill)
+                        Component
+                                .translatable("message.noellesroles.ma_chen_xu.ghost_skill_acquired",
+                                        Component.translatable("hud.noellesroles.ma_chen_xu.skill." + skill))
                                 .withStyle(ChatFormatting.GOLD),
                         true);
             }
@@ -491,7 +493,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         SREPlayerShopComponent playerShopComponent = SREPlayerShopComponent.KEY.get(serverPlayer);
         if (playerShopComponent.balance < PRAYER_RAIN_COST) {
             serverPlayer.displayClientMessage(
-                    Component.translatable("message.noellesroles.insufficient_money")
+                    Component.translatable("message.noellesroles.insufficient_funds")
                             .withStyle(ChatFormatting.RED),
                     true);
             return;
@@ -535,7 +537,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         SREPlayerShopComponent playerShopComponent = SREPlayerShopComponent.KEY.get(serverPlayer);
         if (playerShopComponent.balance < FRENZY_RAIN_COST) {
             serverPlayer.displayClientMessage(
-                    Component.translatable("message.noellesroles.insufficient_money")
+                    Component.translatable("message.noellesroles.insufficient_funds")
                             .withStyle(ChatFormatting.RED),
                     true);
             return;
@@ -885,7 +887,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         if (swiftWindCooldown > 0) {
             serverPlayer.displayClientMessage(
                     Component
-                            .translatable("message.noellesroles.ma_chen_xu.swift_wind.cooldown", swiftWindCooldown / 20)
+                            .translatable("tip.noellesroles.ability_cooldown", swiftWindCooldown / 20)
                             .withStyle(ChatFormatting.RED),
                     true);
             return;
@@ -894,7 +896,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         // 检查风能是否充足（需要奔跑15秒 = 300 tick）
         if (swiftWindChargeTime < 300) {
             serverPlayer.displayClientMessage(
-                    Component.translatable("message.noellesroles.ma_chen_xu.swift_wind.not_enough_energy")
+                    Component.translatable("tip.noellesroles.not_enough_energy")
                             .withStyle(ChatFormatting.RED),
                     true);
             return;
@@ -923,7 +925,9 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
                 1.0F, 1.2F);
 
         serverPlayer.displayClientMessage(
-                Component.translatable("message.noellesroles.ma_chen_xu.swift_wind.activated")
+                Component
+                        .translatable("tip.noellesroles.activated.with_name",
+                                Component.translatable("hud.noellesroles.ma_chen_xu.skill.swift_wind"))
                         .withStyle(ChatFormatting.AQUA),
                 true);
 
@@ -953,7 +957,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         if (spiritWalkCooldown > 0) {
             serverPlayer.displayClientMessage(
                     Component
-                            .translatable("message.noellesroles.ma_chen_xu.spirit_walk.cooldown",
+                            .translatable("tip.noellesroles.ability_cooldown",
                                     spiritWalkCooldown / 20)
                             .withStyle(ChatFormatting.RED),
                     true);
@@ -1022,7 +1026,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         if (puppetShowCooldown > 0) {
             serverPlayer.displayClientMessage(
                     Component
-                            .translatable("message.noellesroles.ma_chen_xu.puppet_show.cooldown",
+                            .translatable("tip.noellesroles.ability_cooldown",
                                     puppetShowCooldown / 20)
                             .withStyle(ChatFormatting.RED),
                     true);
@@ -1048,7 +1052,9 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
                 1.0F, 0.8F);
 
         serverPlayer.displayClientMessage(
-                Component.translatable("message.noellesroles.ma_chen_xu.puppet_show.summoned")
+                Component
+                        .translatable("tip.noellesroles.activated.with_name",
+                                Component.translatable("hud.noellesroles.ma_chen_xu.skill.puppet_show"))
                         .withStyle(ChatFormatting.DARK_PURPLE),
                 true);
 
@@ -1226,7 +1232,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
             return;
         if (blinkCooldown > 0) {
             serverPlayer.displayClientMessage(
-                    Component.translatable("message.noellesroles.ma_chen_xu.blink.cooldown", blinkCooldown / 20)
+                    Component.translatable("tip.noellesroles.ability_cooldown", blinkCooldown / 20)
                             .withStyle(ChatFormatting.RED),
                     true);
             return;
@@ -1274,7 +1280,9 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
                 true));
 
         serverPlayer.displayClientMessage(
-                Component.translatable("message.noellesroles.ma_chen_xu.blink.activated")
+                Component
+                        .translatable("tip.noellesroles.activated.with_name",
+                                Component.translatable("hud.noellesroles.ma_chen_xu.skill.blink"))
                         .withStyle(ChatFormatting.DARK_AQUA),
                 true);
 
@@ -1291,7 +1299,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
             return;
         if (parasiteCooldown > 0) {
             serverPlayer.displayClientMessage(
-                    Component.translatable("message.noellesroles.ma_chen_xu.parasite.cooldown", parasiteCooldown / 20)
+                    Component.translatable("tip.noellesroles.ability_cooldown", parasiteCooldown / 20)
                             .withStyle(ChatFormatting.RED),
                     true);
             return;
@@ -1327,7 +1335,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
 
         if (target == null || !GameUtils.isPlayerAliveAndSurvival(target)) {
             serverPlayer.displayClientMessage(
-                    Component.translatable("message.noellesroles.ma_chen_xu.parasite.no_target")
+                    Component.translatable("tip.noellesroles.no_target")
                             .withStyle(ChatFormatting.RED),
                     true);
             return;
@@ -1355,7 +1363,9 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         }
 
         serverPlayer.displayClientMessage(
-                Component.translatable("message.noellesroles.ma_chen_xu.parasite.activated", target.getDisplayName())
+                Component
+                        .translatable("tip.noellesroles.activated.with_name_and_target", target.getDisplayName(),
+                                Component.translatable("hud.noellesroles.ma_chen_xu.skill.parasite"))
                         .withStyle(ChatFormatting.DARK_GREEN),
                 true);
 
@@ -1390,6 +1400,12 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
             }
             var skillId = ghostSkills.get(this.nowSelectedSkill);
             switch (skillId) {
+                case "parasite":
+                    useParasite();
+                    break;
+                case "blink":
+                    useBlink();
+                    break;
                 case "swift_wind":
                     // 掠风
                     useSwiftWind();
@@ -1402,6 +1418,9 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
                     break;
                 case "false_mimicry":
                     useFalseMimicry();
+                    break;
+                case "instant_silence":
+                    useInstantSilence();
                     break;
                 default:
                     break;
