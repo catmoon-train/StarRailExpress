@@ -1063,6 +1063,8 @@
   "screen.roleintroduce.detail.description": "描述",
   "screen.roleintroduce.select_hint": "← 从左侧选择一个项目",
   "screen.roleintroduce.view_detail": "查看详情",
+  "screen.roleintroduce.shop.price": "物品价格: %s\uE781",
+  "screen.roleintroduce.detail.shop": "商店",
   "screen.noellesroles.search.empty": "没有匹配的项目",
   "display.type.item": "物品",
   "display.type.modifier": "修饰符",

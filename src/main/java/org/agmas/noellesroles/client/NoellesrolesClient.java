@@ -18,9 +18,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameTimeComponent;
 import io.wifi.starrailexpress.client.StatusInit;
 import io.wifi.starrailexpress.client.gui.RoleNameRenderer;
+import io.wifi.starrailexpress.client.util.TMMClientUtils;
 import net.minecraft.client.CameraType;
 
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -30,6 +32,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.agmas.noellesroles.block_entity.VendingMachinesBlockEntity;
+import org.agmas.noellesroles.client.commands.SettingsCommand;
 import org.agmas.noellesroles.effects.TimeStopEffect;
 import org.agmas.noellesroles.init.*;
 import org.agmas.noellesroles.Noellesroles;
@@ -278,7 +281,16 @@ public class NoellesrolesClient implements ClientModInitializer {
             final var client = context.client();
             client.execute(() -> {
                 if (client.player != null) {
-                    client.setScreen(new RoleIntroduceScreen(client.player));
+                    if (client.player.getMainHandItem().getItem() == ModItems.LETTER_ITEM) {
+                        SRERole role = SREClient.gameComponent.getRole(client.player);
+                        if (role!=null) {
+                            client.setScreen(new RoleIntroduceScreen(client.player,role));
+                        }else {
+                            client.setScreen(new RoleIntroduceScreen(client.player));
+                        }
+                        }else {
+                        client.setScreen(new RoleIntroduceScreen(client.player));
+                    }
                 }
             });
         });
@@ -755,6 +767,11 @@ public class NoellesrolesClient implements ClientModInitializer {
         // 7. 注册血粒子
         bloodMain.init();
 
+        // 注册客户端命令
+        registerCommands();
+    }
+    private void registerCommands() {
+        SettingsCommand.register();
     }
 
     private void ShowBroadcastMessage(Component message) {

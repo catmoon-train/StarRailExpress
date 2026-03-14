@@ -8,6 +8,7 @@ import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.cca.SREPlayerNunchuckComponent;
 import io.wifi.syncrequests.SyncRequests;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -36,7 +37,7 @@ public class NameTagInventoryComponent implements RoleComponent {
             SRE.id("nametag_inventory"), NameTagInventoryComponent.class);
 
     private final Player player;
-    public List<String> nameTags = new ArrayList<>();
+    public ArrayList<String> nameTags = new ArrayList<>();
     public String CurrentNameTag = "";
     
     // HTTP 网络同步管理器
@@ -135,7 +136,9 @@ public class NameTagInventoryComponent implements RoleComponent {
 
     @Override
     public void readFromNbt(CompoundTag compoundTag, HolderLookup.Provider provider) {
-        nameTags = compoundTag.getList("nameTags", 8).stream().map(Tag::getAsString).toList();
+        nameTags.clear();
+        nameTags.addAll(compoundTag.getList("nameTags", 8).stream().map(Tag::getAsString).toList());
+
         CurrentNameTag = compoundTag.getString("CurrentNameTag");
     }
 
@@ -282,7 +285,8 @@ public class NameTagInventoryComponent implements RoleComponent {
                             newNameTags.add((String) item);
                         }
                     }
-                    this.nameTags = newNameTags;
+                    this.nameTags.clear();
+                    this.nameTags.addAll(newNameTags);
                 }
             }
 

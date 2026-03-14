@@ -85,7 +85,6 @@ dependencies {
     modImplementation "maven.modrinth:ratatouille:1.4.3-1.21.1"
     modApi "maven.modrinth:wathe:1.3.2-1.21.1"
     // Other libs
-    modApi files("libs/uilib-1.0.1-1.21.1-fabric.jar")
     modApi files("libs/HandheldMoon-fabric-1.21.1-1.0.0.jar")
     modApi files("libs/modernfix-fabric-5.25.1+mc1.21.1.jar")
     modApi files("libs/fabric-carpet-1.21-1.4.147+v240613.jar")

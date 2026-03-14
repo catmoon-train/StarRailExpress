@@ -2,6 +2,8 @@ package org.agmas.noellesroles.client.screen;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.game.ShopContent;
+import io.wifi.starrailexpress.util.ShopEntry;
 import io.wifi.starrailexpress.index.TMMDescItems;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
@@ -19,6 +21,8 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
 import org.agmas.harpymodloader.modifiers.HMLModifiers;
 import org.agmas.harpymodloader.modifiers.Modifier;
@@ -156,6 +160,13 @@ public class RoleIntroduceScreen extends Screen {
     private int selectedCategoryIndex = 0;
     private final int[] tabX = new int[64];
     private final int[] tabW = new int[64];
+    
+    // 分类标签栏滚动
+    private int categoryScrollOffset = 0;
+    private int maxCategoryScroll = 0;
+    private boolean isDraggingCategoryScroll = false;
+    private double dragCategoryStartY = 0;
+    private int dragCategoryStartOffset = 0;
 
     // 左侧列表滚动
     private int listScrollOffset = 0;
@@ -174,6 +185,21 @@ public class RoleIntroduceScreen extends Screen {
     private boolean isDraggingDetailScroll = false;
     private double dragDetailStartY = 0;
     private int dragDetailStartOffset = 0;
+    
+    // 商店物品渲染位置记录
+    private final List<ShopItemRenderInfo> shopItemRenderInfos = new ArrayList<>();
+    
+    public static class ShopItemRenderInfo {
+        public final ItemStack stack;
+        public final int x;
+        public final int y;
+        
+        public ShopItemRenderInfo(ItemStack stack, int x, int y) {
+            this.stack = stack;
+            this.x = x;
+            this.y = y;
+        }
+    }
 
     // Widgets
     private EditBox searchWidget = null;
@@ -192,9 +218,18 @@ public class RoleIntroduceScreen extends Screen {
         this();
         this.parent = parent;
     }
+    public RoleIntroduceScreen(Screen parent,SRERole sreRole) {
+        this();
+        this.parent = parent;
+        this.selectedRole = sreRole;
+    }
 
     public RoleIntroduceScreen(Player player) {
         this();
+    }
+    public RoleIntroduceScreen(Player player,SRERole sreRole) {
+        this();
+        this.selectedRole = sreRole;
     }
 
     // ══════════════════════════════════════════════════════════════════
@@ -402,6 +437,65 @@ public class RoleIntroduceScreen extends Screen {
                         textW));
             }
         }
+        {
+            //商店显示
+            if (selectedRole instanceof SRERole sreRole){
+                var shop_content = ShopContent.getShopEntries(sreRole.identifier());
+                
+                if (!shop_content.isEmpty()) {
+                    detailLines.add(FormattedCharSequence.EMPTY);
+                    detailLines.addAll(font.split(
+                            Component.translatable("screen.roleintroduce.detail.shop")
+                                    .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD),
+                            textW));
+                    
+                    detailLines.addAll(font.split(
+                            Component.literal(sb.toString()).withStyle(ChatFormatting.DARK_GRAY), textW));
+                    
+                    // 清空上一次的物品渲染信息
+                    shopItemRenderInfos.clear();
+                    
+                    // 显示每个商店物品
+                    int itemIndex = 0;
+                    for (ShopEntry entry : shop_content) {
+                        ItemStack stack = entry.stack();
+                        if (!stack.isEmpty()) {
+                            // 计算物品渲染位置（在文本区域内）- 不考虑滚动偏移
+                            int itemX = rightX + PANEL_PAD + 4; // 左边距
+                            int itemY = panelY + BANNER_H + PANEL_PAD + 
+                                       (detailLines.size() * (font.lineHeight + 2)) + 2;
+                            
+                            // 记录物品渲染信息
+                            //shopItemRenderInfos.add(new ShopItemRenderInfo(stack.copy(), itemX, itemY));
+                            
+                            // 价格标签
+                            Component priceLabel = Component.translatable("screen.roleintroduce.shop.price", entry.price())
+                                    .withStyle(ChatFormatting.GOLD);
+                            
+                            // 第一行：物品图标占位 + 价格
+                            detailLines.addAll(font.split(
+                                    Component.literal("■ ").append(priceLabel),
+                                    textW));
+                            
+                            // 第二行：物品描述（如果有）
+                            var description = stack.getTooltipLines(Item.TooltipContext.EMPTY, minecraft.player, TooltipFlag.NORMAL).stream()
+                                    .peek(component -> component.getStyle().applyFormat(ChatFormatting.GRAY))
+                                    .map(Component::getVisualOrderText).toList();
+                            if (!description.isEmpty()) {
+                                detailLines.addAll(description);
+                            }
+                            detailLines.add(FormattedCharSequence.EMPTY);
+                            itemIndex++;
+                        }
+                    }
+                    
+                    detailLines.add(FormattedCharSequence.EMPTY);
+                }
+            }
+
+        }
+
+
         int totalTextH = detailLines.size() * (font.lineHeight + 2);
         maxDetailScroll = Math.max(0, totalTextH - detailContentH());
         detailScrollOffset = 0;
@@ -763,6 +857,16 @@ public class RoleIntroduceScreen extends Screen {
                         java.awt.Color.WHITE.getRGB(), false);
             lineY += lineH;
         }
+        
+        // 渲染商店物品模型
+        for (ShopItemRenderInfo itemInfo : shopItemRenderInfos) {
+            // 调整 Y 坐标以考虑滚动
+            int adjustedY = itemInfo.y + detailScrollOffset;
+            if (adjustedY >= textY0 && adjustedY < textY0 + contentH) {
+                g.renderItem(itemInfo.stack, itemInfo.x, adjustedY);
+            }
+        }
+        
         g.disableScissor();
 
         renderVScrollbar(g,
