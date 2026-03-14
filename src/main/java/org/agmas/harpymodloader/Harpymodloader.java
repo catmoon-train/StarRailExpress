@@ -167,8 +167,7 @@ public class Harpymodloader implements ModInitializer {
         if (role.identifier().getNamespace().equalsIgnoreCase("starrailexpress")) {
             return Component.translatable("announcement.star.role." + role.identifier().getPath());
         }
-        if (!Language.getInstance().has("announcement.star.role." + role.identifier().toLanguageKey())
-                && Language.getInstance().has("announcement.star.role." + role.identifier().getPath())) {
+        if (!Language.getInstance().has("announcement.star.role." + role.identifier().toLanguageKey())) {
             return Component.translatable("announcement.star.role." + role.identifier().getPath());
         }
         return Component.translatable("announcement.star.role." + role.identifier().toLanguageKey());

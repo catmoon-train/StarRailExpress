@@ -853,4 +853,8 @@ public class SREPlayerMoodComponent implements RoleComponent, ServerTickingCompo
         }
     }
 
+    public void addMood(float value) {
+        this.setMood(this.mood + value);
+    }
+
 }

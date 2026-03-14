@@ -438,7 +438,6 @@ public class ModEventsRegister {
          * 这只会发生在客户端
          */
         MaChenXuEventHandler.register();
-
         SRE.cantUseChatHud.add((p) -> {
             var deathPenalty = ModComponents.DEATH_PENALTY.get(p);
             if (deathPenalty.hasPenalty()) {
