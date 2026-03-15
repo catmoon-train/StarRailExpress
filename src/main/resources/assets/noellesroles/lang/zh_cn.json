@@ -1527,5 +1527,6 @@
   "message.noellesroles.ma_chen_xu.tip_for_skill": "潜行时按下 %s 切换技能",
   "message.noellesroles.ma_chen_xu.available": "技能就绪。按下 %s 触发技能。",
   "message.noellesroles.ma_chen_xu.cooldown": "技能 %s 冷却中：%ss",
-  "message.noellesroles.ma_chen_xu.shield": "护盾剩余 %ss"
+  "message.noellesroles.ma_chen_xu.shield": "护盾剩余 %ss",
+  "message.noellesroles.ma_chen_xu.trigger_shield": "护盾触发"
 }

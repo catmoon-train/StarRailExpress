@@ -3,8 +3,11 @@ package org.agmas.noellesroles.roles.ma_chen_xu;
 import org.agmas.noellesroles.component.MaChenXuPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.event.AllowPlayerDeath;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 
 /**
  * 布袋鬼事件处理器
@@ -21,6 +24,8 @@ public class MaChenXuEventHandler {
                 if (compc.shieldDuration > 0) {
                     compc.shieldDuration = 0;
                     compc.sync();
+                    SRE.REPLAY_MANAGER.breakArmor(victim.getUUID());
+                    victim.displayClientMessage(Component.translatable("message.noellesroles.ma_chen_xu.trigger_shield").withStyle(ChatFormatting.GOLD), true);
                     return false;
                 }
                 if (compc.otherworldActive) {
