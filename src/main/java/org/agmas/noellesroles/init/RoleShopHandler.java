@@ -863,6 +863,18 @@ public class RoleShopHandler {
       });
       ShopContent.customEntries.put(ModRoles.GLITCH_ROBOT_ID, glitchRobotShop);
     }
+
+    // 潜水员商店
+    {
+      List<ShopEntry> diverShop = new ArrayList<>();
+      // 潜水头盔 - 125金币
+      diverShop.add(new ShopEntry(ModItems.DIVING_HELMET.getDefaultInstance(), 125,
+          ShopEntry.Type.TOOL));
+      // 潜水靴 - 225金币
+      diverShop.add(new ShopEntry(ModItems.DIVING_BOOTS.getDefaultInstance(), 225,
+          ShopEntry.Type.TOOL));
+      ShopContent.customEntries.put(ModRoles.DIVER_ID, diverShop);
+    }
   }
 
   /**

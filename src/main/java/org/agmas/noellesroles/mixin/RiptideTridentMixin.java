@@ -8,11 +8,13 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.phys.AABB;
+import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -38,6 +40,30 @@ public class RiptideTridentMixin {
         // 检查是否是海王或水鬼角色
         boolean isSeaKing = SREGameWorldComponent.KEY.get(serverLevel).isRole(player.getUUID(), ModRoles.SEA_KING);
         boolean isWaterGhost = SREGameWorldComponent.KEY.get(serverLevel).isRole(player.getUUID(), ModRoles.WATER_GHOST);
+
+        // 潜水靴深海探索者3附魔 - 所有玩家检查脚部装备
+        ItemStack feetItem = player.getItemBySlot(EquipmentSlot.FEET);
+        if (feetItem.is(ModItems.DIVING_BOOTS)) {
+            boolean hasDepthStrider = false;
+            for (java.util.Map.Entry<net.minecraft.core.Holder<net.minecraft.world.item.enchantment.Enchantment>, Integer> entry : feetItem.getEnchantments().entrySet()) {
+                String enchantmentId = entry.getKey().unwrapKey().map(key -> key.location().toString()).orElse("");
+                if (enchantmentId.contains("minecraft:depth_strider")) {
+                    hasDepthStrider = true;
+                    // 检查等级是否为3，如果不是则更新
+                    if (entry.getValue() != 3) {
+                        feetItem.remove(DataComponents.ENCHANTMENTS);
+                        hasDepthStrider = false;
+                    }
+                    break;
+                }
+            }
+            if (!hasDepthStrider) {
+                // 没有深海探索者附魔，或者等级不对，添加深海探索者3
+                feetItem.enchant(serverLevel.registryAccess().registryOrThrow(Registries.ENCHANTMENT).holders().filter(holder -> {
+                    return holder.is((Enchantments.DEPTH_STRIDER));
+                }).findFirst().get(), 3);
+            }
+        }
 
         if (!isSeaKing && !isWaterGhost)
             return;

@@ -205,7 +205,13 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
 
   public static final ComponentKey<AccountantPlayerComponent> ACCOUNTANT = AccountantPlayerComponent.KEY;
 
-  public static final ComponentKey<WaterGhostPlayerComponent> WATER_GHOST = WaterGhostPlayerComponent.KEY;
+  public static final ComponentKey<WaterGhostPlayerComponent> WATER_GHOST = ComponentRegistry.getOrCreate(
+      ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "water_ghost"),
+      WaterGhostPlayerComponent.class);
+
+  public static final ComponentKey<DiverPlayerComponent> DIVER = ComponentRegistry.getOrCreate(
+      ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "diver"),
+      DiverPlayerComponent.class);
 
   public static final ComponentKey<AlchemistPlayerComponent> ALCHEMIST = AlchemistPlayerComponent.KEY;
 
@@ -462,6 +468,11 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
     registry.beginRegistration(Player.class, ALCHEMIST)
         .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
         .end(AlchemistPlayerComponent::new);
+
+    // 注册潜水员组件 - 存储技能状态
+    registry.beginRegistration(Player.class, DIVER)
+        .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
+        .end(DiverPlayerComponent::new);
 
     // 注册水鬼组件 - 存储技能冷却、干涸死亡计时
     registry.beginRegistration(Player.class, WATER_GHOST)

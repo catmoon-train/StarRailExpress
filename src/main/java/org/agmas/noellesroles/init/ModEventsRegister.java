@@ -1609,6 +1609,7 @@ public class ModEventsRegister {
                 "noellesroles:throwing_knife",
                 "noellesroles:shisiye",
                 "noellesroles:signed_paper",
+                "noellesroles:diving_helmet",
                 "noellesroles:life_and_death_shape",
                 "minecraft:clock",
                 "noellesroles:passbook",

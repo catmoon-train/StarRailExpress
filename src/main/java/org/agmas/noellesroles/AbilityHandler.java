@@ -167,6 +167,46 @@ public class AbilityHandler {
             context.player().removeEffect(MobEffects.NIGHT_VISION);
             return;
         }
+        if (gameWorldComponent.isRole(context.player(), ModRoles.DIVER)) {
+            if (!RoleUtils.isPlayerHasFreeSlot(context.player())) {
+                context.player().displayClientMessage(
+                        Component.translatable("message.hotbar.full").withStyle(ChatFormatting.RED), true);
+                return;
+            }
+
+            boolean removedAny = false;
+
+            // 检查并移除头盔
+            ItemStack headItem = context.player().getSlot(103).get();
+            if (!headItem.isEmpty()) {
+                RoleUtils.insertStackInFreeSlot(context.player(), headItem.copy());
+                context.player().getInventory().armor.set(3, ItemStack.EMPTY);
+                removedAny = true;
+            }
+
+            // 检查并移除靴子
+            ItemStack feetItem = context.player().getSlot(100).get();
+            if (!feetItem.isEmpty()) {
+                RoleUtils.insertStackInFreeSlot(context.player(), feetItem.copy());
+                context.player().getInventory().armor.set(0, ItemStack.EMPTY);
+                removedAny = true;
+            }
+
+            if (removedAny) {
+                context.player().displayClientMessage(
+                        Component.translatable("info.diver.remove_equipment.success")
+                                .withStyle(ChatFormatting.GREEN),
+                        true);
+                context.player().removeEffect(MobEffects.WATER_BREATHING);
+                context.player().removeEffect(MobEffects.DOLPHINS_GRACE);
+            } else {
+                context.player().displayClientMessage(
+                        Component.translatable("info.diver.no_equipment")
+                                .withStyle(ChatFormatting.RED),
+                        true);
+            }
+            return;
+        }
         if (gameWorldComponent.isRole(context.player(), ModRoles.MA_CHEN_XU)) {
             MaChenXuPlayerComponent.KEY.get(context.player()).tryActiveAbility();
             return;
