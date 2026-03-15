@@ -1,16 +1,12 @@
 package org.agmas.noellesroles.init;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.regex.Pattern;
-
 import io.wifi.starrailexpress.network.RemoveStatusBarPayload;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
-import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
 import org.agmas.harpymodloader.events.ModdedRoleAssigned;
 import org.agmas.harpymodloader.events.ModdedRoleRemoved;
 import org.agmas.harpymodloader.events.OnGamePlayerRolesConfirm;
@@ -848,6 +844,14 @@ public class ModEventsRegister {
                 }
             }
 
+            if (gameWorldComponent.isRole(playerEntity, ModRoles.WATER_GHOST)) {
+                int tridentCount = TMMItemUtils.clearItem(playerEntity, net.minecraft.world.item.Items.TRIDENT);
+                while (tridentCount > 0) {
+                    playerEntity.drop(TMMItems.REVOLVER.getDefaultInstance(), false);
+                    tridentCount--;
+                }
+            }
+
             if (gameWorldComponent.isRole(playerEntity, ModRoles.SWAST)) {
                 int sniperRifleCount = TMMItemUtils.clearItem(playerEntity, TMMItems.SNIPER_RIFLE);
                 while (sniperRifleCount > 0) {
@@ -1241,15 +1245,6 @@ public class ModEventsRegister {
                 }
             }
         }));
-        if (!NoellesRolesConfig.HANDLER.instance().shitpostRoles) {
-            HarpyModLoaderConfig.HANDLER.load();
-
-            if (!HarpyModLoaderConfig.HANDLER.instance().disabled.contains(ModRoles.BETTER_VIGILANTE_ID.getPath())) {
-                HarpyModLoaderConfig.HANDLER.instance().disabled.add(ModRoles.BETTER_VIGILANTE_ID.getPath());
-            }
-
-            HarpyModLoaderConfig.HANDLER.save();
-        }
         // // 监听角色分配事件 - 这是最重要的事件！
         // // 当玩家被分配角色时触发，可以在这里给予初始物品、设置初始状态等
         // ModdedRoleAssigned.EVENT.register((player, role) -> {
@@ -1292,9 +1287,9 @@ public class ModEventsRegister {
             }
             {
                 boolean isMachenxuMap = false;
-                String[] machenxuMap = NoellesRolesConfig.HANDLER.instance().maChenXuMaps.split(Pattern.quote("|"));
-                if (machenxuMap != null && machenxuMap.length > 0) {
-                    isMachenxuMap = Arrays.asList(machenxuMap).contains(currentMap);
+                var machenxuMap = new ArrayList<>(NoellesRolesConfig.HANDLER.instance().maChenXuMaps);
+                if (machenxuMap != null && machenxuMap.size() > 0) {
+                    isMachenxuMap = machenxuMap.contains(currentMap);
                 }
                 if (isMachenxuMap) {
                     boolean hasMachenXu = false;

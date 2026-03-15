@@ -44,7 +44,7 @@
       "io.wifi.starrailexpress.compat.TrainVoicePlugin"
     ],
     "modmenu":[
-      "org.agmas.harpymodloader.client.modmenu.StarRailConfigEntry"
+      "io.wifi.ConfigCompact.modmenu.StarRailConfigEntry"
     ]
   },
   "accessWidener": "StarRailExpress.accesswidener",
@@ -111,6 +111,7 @@
       "noellesroles:temporary_effect",
       "noellesroles:awesome",
       "noellesroles:accountant",
+      "noellesroles:water_ghost",
       "noellesroles:alchemist",
       "stupid_express:doused",
       "stupid_express:custom_winner",

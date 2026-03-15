@@ -144,6 +144,7 @@ public class ModRoles {
   public static final ResourceLocation SWAST_ID = Noellesroles.id("swast");
   public static final ResourceLocation MARTIAL_ARTS_INSTRUCTOR_ID = Noellesroles.id("martial_arts_instructor");
   public static final ResourceLocation SEA_KING_ID = Noellesroles.id("sea_king");
+  public static final ResourceLocation WATER_GHOST_ID = Noellesroles.id("water_ghost");
 
   // 杀手阵营角色 ID
   public static ResourceLocation MORPHLING_ID = Noellesroles.id("morphling");
@@ -581,6 +582,29 @@ public class ModRoles {
       TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
       false // 不隐藏计分板
   )).setCanSeeCoin(true).setVigilanteTeam(true).setCanPickUpRevolver(false);
+
+  /**
+   * 水鬼角色
+   *
+   * 杀手阵营，假心情，无限体力
+   *
+   * 武器：激流2三叉戟（Mixin实现）
+   *
+   * 商店：可花费100金币购买开锁器，150金币购买下雨
+   *
+   * 技能：按下技能键获得10秒海豚的恩惠1，冷却40秒
+   *
+   * 被动：在非水中环境超过90秒时会死亡（死因：干涸而死）
+   */
+  public static SRERole WATER_GHOST = TMMRoles.registerRole(new NormalRole(
+      WATER_GHOST_ID, // 角色 ID
+      new Color(30, 100, 180).getRGB(), // 深蓝色 - 代表水鬼的水属性
+      false, // isInnocent = 非乘客阵营（杀手）
+      true, // canUseKiller = 有杀手能力
+      SRERole.MoodType.FAKE, // 假心情
+      Integer.MAX_VALUE, // 无限体力
+      true // 隐藏计分板
+  )).setComponentKey(ModComponents.WATER_GHOST).setCanSeeCoin(true);
 
   // 杀手阵营角色
   public static SRERole CLEANER = TMMRoles

@@ -102,6 +102,8 @@ public class RoleShopHandler {
   public static ArrayList<ShopEntry> MARTIAL_ARTS_INSTRUCTOR_SHOP = new ArrayList<>();
   // ==================== 海王商店 ====================
   public static ArrayList<ShopEntry> SEA_KING_SHOP = new ArrayList<>();
+  // ==================== 水鬼商店 ====================
+  public static ArrayList<ShopEntry> WATER_GHOST_SHOP = new ArrayList<>();
 
   /**
    * 初始化框架角色商店
@@ -120,6 +122,47 @@ public class RoleShopHandler {
 
     // 初始化仇杀客商店
     initializeBloodFeudistShop();
+  }
+
+  /**
+   * 初始化水鬼商店
+   * - 开锁器：100金币
+   * - 下雨：150金币
+   */
+  public static void initializeWaterGhostShop() {
+    // 开锁器 - 100金币
+    WATER_GHOST_SHOP.add(new ShopEntry(
+        TMMItems.LOCKPICK.getDefaultInstance(),
+        100,
+        ShopEntry.Type.TOOL));
+
+    // 下雨 - 150金币（参考ma_chen_xu的狂热下雨实现，但只保留下雨能力）
+    ItemStack rainItem = Items.BARRIER.getDefaultInstance();
+    rainItem.set(DataComponents.ITEM_NAME,
+        Component.translatable("item.noellesroles.water_ghost.rain")
+            .withStyle(ChatFormatting.BLUE, ChatFormatting.BOLD));
+    var rainLore = new ArrayList<Component>();
+    rainLore.add(Component.translatable("item.noellesroles.water_ghost.rain.lore1")
+        .setStyle(Style.EMPTY.withItalic(false))
+        .withStyle(ChatFormatting.GRAY));
+    rainLore.add(Component.translatable("item.noellesroles.water_ghost.rain.lore2")
+        .setStyle(Style.EMPTY.withItalic(false))
+        .withStyle(ChatFormatting.GRAY));
+    rainLore.add(Component.translatable("item.noellesroles.water_ghost.rain.lore3")
+        .setStyle(Style.EMPTY.withItalic(false))
+        .withStyle(ChatFormatting.GRAY));
+    rainItem.set(DataComponents.LORE, new ItemLore(rainLore));
+
+    WATER_GHOST_SHOP.add(new ShopEntry(rainItem, 150, ShopEntry.Type.TOOL) {
+      @Override
+      public boolean onBuy(@NotNull Player player) {
+        var component = org.agmas.noellesroles.component.WaterGhostPlayerComponent.KEY.get(player);
+        if (component != null) {
+          return component.buyRain();
+        }
+        return false;
+      }
+    });
   }
 
   /**
@@ -786,6 +829,12 @@ public class RoleShopHandler {
           ModRoles.SEA_KING_ID, SEA_KING_SHOP);
     }
 
+    // 水鬼商店
+    {
+      ShopContent.customEntries.put(
+          ModRoles.WATER_GHOST_ID, WATER_GHOST_SHOP);
+    }
+
     // 故障机器人商店
     {
       List<ShopEntry> glitchRobotShop = new ArrayList<>();
@@ -1265,5 +1314,8 @@ public class RoleShopHandler {
         Items.TRIDENT.getDefaultInstance(),
         300,
         ShopEntry.Type.WEAPON));
+
+    // 水鬼商店
+    initializeWaterGhostShop();
   }
 }

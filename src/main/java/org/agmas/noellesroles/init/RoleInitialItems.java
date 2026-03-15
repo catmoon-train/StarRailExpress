@@ -173,6 +173,15 @@ public class RoleInitialItems {
 //        getDefaultInstance.get().enchant(BuiltInRegistries.Enchant, 3);
         seaKingItems.add(getDefaultInstance);
         INITIAL_ITEMS_MAP.put(ModRoles.SEA_KING, seaKingItems);
+
+        // 水鬼初始物品 - 三叉戟
+        // 激流附魔在RiptideTridentMixin中动态添加
+        List<Supplier<ItemStack>> waterGhostItems = new ArrayList<>();
+        waterGhostItems.add(() -> {
+            ItemStack trident = Items.TRIDENT.getDefaultInstance();
+            return trident;
+        });
+        INITIAL_ITEMS_MAP.put(ModRoles.WATER_GHOST, waterGhostItems);
     }
 
 }

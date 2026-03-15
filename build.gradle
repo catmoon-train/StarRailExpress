@@ -95,7 +95,6 @@ dependencies {
     modImplementation "org.ladysnake.cardinal-components-api:cardinal-components-entity:${project.cca_version}"
     modImplementation "org.ladysnake.cardinal-components-api:cardinal-components-world:${project.cca_version}"
     modImplementation "org.ladysnake.cardinal-components-api:cardinal-components-scoreboard:${project.cca_version}"
-    modImplementation "dev.isxander:yet-another-config-lib:${project.yacl_version}"
 
     implementation "de.maxhenkel.voicechat:voicechat-api:${voicechat_api_version}"
     modImplementation "dev.upcraft.datasync:datasync-minecraft-${project.minecraft_version}-fabric:${project.datasync_version}"
