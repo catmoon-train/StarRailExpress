@@ -177,7 +177,6 @@
     "voicechat": "*",
     "architectury": "*",
     "exposure_polaroid": "*",
-    "exposure": "*",
-    "midnightlib": "*"
+    "exposure": "*"
   }
 }
