@@ -16,7 +16,7 @@ import org.agmas.harpymodloader.commands.argument.ModifierArgumentType;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.harpymodloader.events.ModifierAssigned;
 import org.agmas.harpymodloader.events.ModifierRemoved;
-import org.agmas.harpymodloader.modifiers.Modifier;
+import org.agmas.harpymodloader.modifiers.SREModifier;
 
 public class AssignModifierCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
@@ -32,7 +32,7 @@ public class AssignModifierCommand {
             return 1;
         }
         ServerPlayer targetPlayer = EntityArgument.getPlayer(context, "player");
-        Modifier modifier = ModifierArgumentType.getModifier(context, "modifier");
+        SREModifier modifier = ModifierArgumentType.getModifier(context, "modifier");
         SREGameWorldComponent game = SREGameWorldComponent.KEY.get(targetPlayer.level());
         // 获取游戏世界组件
         WorldModifierComponent worldModifierComponent = WorldModifierComponent.KEY.get(targetPlayer.level());

@@ -12,7 +12,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.harpymodloader.commands.argument.ModifierArgumentType;
-import org.agmas.harpymodloader.modifiers.Modifier;
+import org.agmas.harpymodloader.modifiers.SREModifier;
 
 public class ForceModifierCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
@@ -28,7 +28,7 @@ public class ForceModifierCommand {
             return 1;
         }
         ServerPlayer targetPlayer = EntityArgument.getPlayer(context, "player");
-        Modifier modifier = ModifierArgumentType.getModifier(context, "modifier");
+        SREModifier modifier = ModifierArgumentType.getModifier(context, "modifier");
         Harpymodloader.addToForcedModifiers(modifier, targetPlayer);
         final MutableComponent modifierName = modifier.getName(true).withStyle(style ->
                 style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal(modifier.identifier().toString()))));

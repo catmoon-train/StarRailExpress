@@ -11,7 +11,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.harpymodloader.modifiers.HMLModifiers;
-import org.agmas.harpymodloader.modifiers.Modifier;
+import org.agmas.harpymodloader.modifiers.SREModifier;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
@@ -23,7 +23,7 @@ public class WorldModifierComponent implements AutoSyncedComponent, ServerTickin
     public static final ComponentKey<WorldModifierComponent> KEY = ComponentRegistry
             .getOrCreate(ResourceLocation.fromNamespaceAndPath(Harpymodloader.MOD_ID, "modifier"), WorldModifierComponent.class);
     private final Level world;
-    public HashMap<UUID, ArrayList<Modifier>> modifiers = new HashMap<>();
+    public HashMap<UUID, ArrayList<SREModifier>> modifiers = new HashMap<>();
 
     public WorldModifierComponent(Level world) {
         this.world = world;
@@ -35,32 +35,32 @@ public class WorldModifierComponent implements AutoSyncedComponent, ServerTickin
     }
 
     @Deprecated
-    public boolean isRole(@NotNull Player player, Modifier modifier) {
+    public boolean isRole(@NotNull Player player, SREModifier modifier) {
         return isModifier(player, modifier);
     }
 
     @Deprecated
-    public boolean isRole(@NotNull UUID uuid, Modifier modifier) {
+    public boolean isRole(@NotNull UUID uuid, SREModifier modifier) {
         return isModifier(uuid, modifier);
     }
 
-    public boolean isModifier(@NotNull Player player, Modifier modifier) {
+    public boolean isModifier(@NotNull Player player, SREModifier modifier) {
         return this.isModifier(player.getUUID(), modifier);
     }
 
-    public boolean isModifier(@NotNull UUID uuid, Modifier modifier) {
+    public boolean isModifier(@NotNull UUID uuid, SREModifier modifier) {
         return getModifiers(uuid).contains(modifier);
     }
 
-    public HashMap<UUID, ArrayList<Modifier>> getModifiers() {
+    public HashMap<UUID, ArrayList<SREModifier>> getModifiers() {
         return this.modifiers;
     }
 
-    public ArrayList<Modifier> getModifiers(Player player) {
+    public ArrayList<SREModifier> getModifiers(Player player) {
         return this.getModifiers(player.getUUID());
     }
 
-    public ArrayList<Modifier> getModifiers(UUID uuid) {
+    public ArrayList<SREModifier> getModifiers(UUID uuid) {
         synchronized (this.modifiers) {
             if (!modifiers.containsKey(uuid))
                 modifiers.put(uuid, new ArrayList<>());
@@ -68,7 +68,7 @@ public class WorldModifierComponent implements AutoSyncedComponent, ServerTickin
         }
     }
 
-    public List<UUID> getAllWithModifier(Modifier modifier) {
+    public List<UUID> getAllWithModifier(SREModifier modifier) {
         List<UUID> ret = new ArrayList<>();
         synchronized (this.modifiers) {
             this.modifiers.forEach((uuid, playerModifier) -> {
@@ -80,7 +80,7 @@ public class WorldModifierComponent implements AutoSyncedComponent, ServerTickin
         return ret;
     }
 
-    public void setModifiers(List<UUID> players, Modifier modifier) {
+    public void setModifiers(List<UUID> players, SREModifier modifier) {
 
         for (UUID player : players) {
             addModifier(player, modifier);
@@ -89,7 +89,7 @@ public class WorldModifierComponent implements AutoSyncedComponent, ServerTickin
 
     }
 
-    public void removeModifier(UUID player, Modifier modifier, boolean sync) {
+    public void removeModifier(UUID player, SREModifier modifier, boolean sync) {
         synchronized (this.modifiers) {
             var pp = getModifiers(player);
             if (pp != null) {
@@ -100,17 +100,17 @@ public class WorldModifierComponent implements AutoSyncedComponent, ServerTickin
             this.sync();
     }
 
-    public void removeModifier(UUID player, Modifier modifier) {
+    public void removeModifier(UUID player, SREModifier modifier) {
         this.removeModifier(player, modifier, true);
     }
 
-    public void addModifier(UUID player, Modifier modifier, boolean sync) {
+    public void addModifier(UUID player, SREModifier modifier, boolean sync) {
         getModifiers(player).add(modifier);
         if (sync)
             this.sync();
     }
 
-    public void addModifier(UUID player, Modifier modifier) {
+    public void addModifier(UUID player, SREModifier modifier) {
         this.addModifier(player, modifier, true);
     }
 
@@ -118,7 +118,7 @@ public class WorldModifierComponent implements AutoSyncedComponent, ServerTickin
     public void readFromNbt(CompoundTag nbtCompound, HolderLookup.Provider wrapperLookup) {
 
         modifiers.clear();
-        for (Modifier modifier : HMLModifiers.MODIFIERS) {
+        for (SREModifier modifier : HMLModifiers.MODIFIERS) {
             setModifiers(this.uuidListFromNbt(nbtCompound, modifier.identifier().toString()), modifier);
         }
     }
@@ -126,10 +126,10 @@ public class WorldModifierComponent implements AutoSyncedComponent, ServerTickin
     @Override
     public void writeToNbt(CompoundTag nbtCompound, HolderLookup.Provider wrapperLookup) {
         synchronized (this.modifiers) {
-            for (Modifier modifier : HMLModifiers.MODIFIERS) {
+            for (SREModifier modifier : HMLModifiers.MODIFIERS) {
                 // 在同步块内直接查找，避免嵌套同步调用
                 List<UUID> uuidsWithModifier = new ArrayList<>();
-                for (Map.Entry<UUID, ArrayList<Modifier>> entry : this.modifiers.entrySet()) {
+                for (Map.Entry<UUID, ArrayList<SREModifier>> entry : this.modifiers.entrySet()) {
                     if (entry.getValue().contains(modifier)) {
                         uuidsWithModifier.add(entry.getKey());
                     }
@@ -168,8 +168,8 @@ public class WorldModifierComponent implements AutoSyncedComponent, ServerTickin
         return ret;
     }
 
-    public ArrayList<Modifier> getDisplayableModifiers(Player player) {
-        var modifiers = new ArrayList<Modifier>(this.getModifiers(player.getUUID()));
+    public ArrayList<SREModifier> getDisplayableModifiers(Player player) {
+        var modifiers = new ArrayList<SREModifier>(this.getModifiers(player.getUUID()));
         modifiers.removeIf((modifier) -> {
             if (Harpymodloader.HIDDEN_MODIFIERS.contains(modifier.identifier().getPath())) {
                 return true;

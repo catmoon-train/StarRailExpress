@@ -1,7 +1,6 @@
 package pro.fazeclan.river.stupid_express.constants;
 
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
-import io.wifi.starrailexpress.event.OnGameTrueStarted;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.SRE;
 import net.minecraft.server.level.ServerPlayer;
@@ -16,7 +15,7 @@ import org.agmas.harpymodloader.events.ModifierAssigned;
 import org.agmas.harpymodloader.events.ModifierRemoved;
 import org.agmas.harpymodloader.events.ResetPlayerEvent;
 import org.agmas.harpymodloader.modifiers.HMLModifiers;
-import org.agmas.harpymodloader.modifiers.Modifier;
+import org.agmas.harpymodloader.modifiers.SREModifier;
 
 import pro.fazeclan.river.stupid_express.StupidExpress;
 import pro.fazeclan.river.stupid_express.modifier.lovers.cca.LoversComponent;
@@ -35,7 +34,7 @@ public class SEModifiers {
     private static AttributeModifier tallModifier = new AttributeModifier(
             StupidExpress.id("tall_modifier"), 0.0763, AttributeModifier.Operation.ADD_VALUE);
 
-    public static Modifier LOVERS = HMLModifiers.registerModifier(new Modifier(
+    public static SREModifier LOVERS = HMLModifiers.registerModifier(new SREModifier(
             StupidExpress.id("lovers"),
             0xf38aff,
             null,
@@ -43,7 +42,7 @@ public class SEModifiers {
             false,
             false));
 
-    public static Modifier REFUGEE = HMLModifiers.registerModifier(new Modifier(
+    public static SREModifier REFUGEE = HMLModifiers.registerModifier(new SREModifier(
             StupidExpress.id("refugee"),
             0x55ff55,
             null,
@@ -51,7 +50,7 @@ public class SEModifiers {
             false,
             false));
 
-    public static Modifier TINY = HMLModifiers.registerModifier(new Modifier(
+    public static SREModifier TINY = HMLModifiers.registerModifier(new SREModifier(
             StupidExpress.id("tiny"),
             new Color(255, 166, 0).getRGB(),
             null,
@@ -59,7 +58,7 @@ public class SEModifiers {
             false,
             false));
 
-    public static Modifier TALL = HMLModifiers.registerModifier(new Modifier(
+    public static SREModifier TALL = HMLModifiers.registerModifier(new SREModifier(
             StupidExpress.id("tall"),
             new Color(0, 255, 0).getRGB(),
             null,
@@ -67,7 +66,7 @@ public class SEModifiers {
             false,
             false));
 
-    public static Modifier FEATHER = HMLModifiers.registerModifier(new Modifier(
+    public static SREModifier FEATHER = HMLModifiers.registerModifier(new SREModifier(
             StupidExpress.id("feather"),
             new Color(255, 236, 161).getRGB(),
             null,
@@ -75,7 +74,7 @@ public class SEModifiers {
             false,
             false));
 
-    public static Modifier MAGNATE = HMLModifiers.registerModifier(new Modifier(
+    public static SREModifier MAGNATE = HMLModifiers.registerModifier(new SREModifier(
             StupidExpress.id("magnate"),
             new Color(255, 255, 0).getRGB(),
             null,
@@ -83,7 +82,7 @@ public class SEModifiers {
             false,
             false));
 
-    public static Modifier TASKMASTER = HMLModifiers.registerModifier(new Modifier(
+    public static SREModifier TASKMASTER = HMLModifiers.registerModifier(new SREModifier(
             StupidExpress.id("taskmaster"),
             new Color(255, 51, 153).getRGB(),
             null,
@@ -91,7 +90,7 @@ public class SEModifiers {
             false,
             false));
 
-    public static Modifier ALLERGIST = HMLModifiers.registerModifier(new Modifier(
+    public static SREModifier ALLERGIST = HMLModifiers.registerModifier(new SREModifier(
             StupidExpress.id("allergist"),
             new Color(112, 255, 162).getRGB(),
             null,
@@ -99,7 +98,7 @@ public class SEModifiers {
             false,
             false));
 
-    public static Modifier CURSED = HMLModifiers.registerModifier(new Modifier(
+    public static SREModifier CURSED = HMLModifiers.registerModifier(new SREModifier(
             StupidExpress.id("cursed"),
             new Color(75, 0, 130).getRGB(),
             null,
@@ -107,7 +106,7 @@ public class SEModifiers {
             false,
             false));
 
-    public static Modifier SECRETIVE = HMLModifiers.registerModifier(new Modifier(
+    public static SREModifier SECRETIVE = HMLModifiers.registerModifier(new SREModifier(
             StupidExpress.id("secretive"),
             new Color(50, 50, 50).getRGB(),
             null,
@@ -115,7 +114,7 @@ public class SEModifiers {
             false,
             false));
 
-    public static Modifier KNIGHT = HMLModifiers.registerModifier(new Modifier(
+    public static SREModifier KNIGHT = HMLModifiers.registerModifier(new SREModifier(
             StupidExpress.id("knight"),
             new Color(192, 192, 192).getRGB(),
             null,
@@ -123,7 +122,7 @@ public class SEModifiers {
             false,
             false));
 
-    public static Modifier SPLIT_PERSONALITY = HMLModifiers.registerModifier(new Modifier(
+    public static SREModifier SPLIT_PERSONALITY = HMLModifiers.registerModifier(new SREModifier(
             StupidExpress.id("split_personality"),
             new Color(138, 43, 226).getRGB(),
             null,
@@ -214,14 +213,6 @@ public class SEModifiers {
             var worldModifierComponent = WorldModifierComponent.KEY.get(level);
             worldModifierComponent.addModifier(loverTwo.getUUID(), LOVERS); // visually show lovers on the other player
         }));
-        OnGameTrueStarted.EVENT.register((serverLevel)->{
-            // var wmc = WorldModifierComponent.KEY.get(serverLevel);
-            // for (ServerPlayer player : serverLevel.players()) {
-            //     if(wmc.isModifier(player, SEModifiers.SPLIT_PERSONALITY)){
-            //         // SplitPersonalityComponent.KEY.get(player);
-            //     }
-            // }
-        });
         /// SPLIT_PERSONALITY
         ModifierAssigned.EVENT.register(((player, modifier) -> {
             if (!modifier.equals(SPLIT_PERSONALITY)) {

@@ -26,7 +26,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
 import org.agmas.harpymodloader.modifiers.HMLModifiers;
-import org.agmas.harpymodloader.modifiers.Modifier;
+import org.agmas.harpymodloader.modifiers.SREModifier;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.utils.RoleUtils;
 
@@ -89,7 +89,7 @@ public class RoleIntroduceScreen extends Screen {
 
         CATEGORIES.add(new RoleCategory(
                 "screen.roleintroduce.category.modifier", 0xFF8877BB,
-                item -> item instanceof Modifier));
+                item -> item instanceof SREModifier));
 
         CATEGORIES.add(new RoleCategory(
                 "screen.roleintroduce.category.item", 0x55FF22BB,
@@ -328,7 +328,7 @@ public class RoleIntroduceScreen extends Screen {
                     || role.identifier().toString().contains(searchContent.toLowerCase()))
                 filteredItems.add(role);
         }
-        for (Modifier mod : HMLModifiers.MODIFIERS) {
+        for (SREModifier mod : HMLModifiers.MODIFIERS) {
             if (!cat.filter.test(mod))
                 continue;
             String name = mod.getName().getString();
@@ -533,7 +533,7 @@ public class RoleIntroduceScreen extends Screen {
     private String getObjectType(Object it) {
         if (it instanceof Item)
             return "item";
-        if (it instanceof Modifier)
+        if (it instanceof SREModifier)
             return "modifier";
         if (it instanceof SRERole)
             return "role";

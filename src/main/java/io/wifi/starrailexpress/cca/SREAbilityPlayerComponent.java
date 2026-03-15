@@ -4,6 +4,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 
+import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.component.ModComponents;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
@@ -172,6 +173,10 @@ public class SREAbilityPlayerComponent
 
         if (SREGameWorldComponent.KEY.get(this.player.level()).isRunning()) {
             io.wifi.starrailexpress.api.RoleMethodDispatcher.callClientTick(this.player);
+            var modifiers = WorldModifierComponent.KEY.get(this.player.level()).getModifiers(this.player);
+            for (var mo : modifiers) {
+                mo.clientGameTickEvent(player);
+            }
         }
     }
 

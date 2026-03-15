@@ -1099,10 +1099,15 @@ public class GameUtils {
         return player != null && !player.isSpectator() && !player.isCreative();
     }
 
-    public static boolean isPlayerAliveAndSurvival(Player player) {
-        if (isPlayerSplitPersonalityAndSurvive(player) == SPAliveResult.ALIVE)
+    public static boolean isPlayerAliveAndSurvival(Player player, WorldModifierComponent worldModifierComponent) {
+        if (isPlayerSplitPersonalityAndSurvive(player, worldModifierComponent) == SPAliveResult.ALIVE)
             return true;
         return isPlayerAliveAndSurvivalIgnoreShitSplit(player);
+    }
+
+    public static boolean isPlayerAliveAndSurvival(Player player) {
+        var worldModifierComponent = WorldModifierComponent.KEY.get(player.level());
+        return isPlayerAliveAndSurvival(player, worldModifierComponent);
     }
 
     public static boolean isPlayerCreative(Player player) {
@@ -1120,7 +1125,13 @@ public class GameUtils {
     }
 
     public static SPAliveResult isPlayerSplitPersonalityAndSurvive(Player player) {
-        if (WorldModifierComponent.KEY.get(player.level()).isModifier(player, SEModifiers.SPLIT_PERSONALITY)) {
+        var worldModifierComponent = WorldModifierComponent.KEY.get(player.level());
+        return isPlayerSplitPersonalityAndSurvive(player, worldModifierComponent);
+    }
+
+    public static SPAliveResult isPlayerSplitPersonalityAndSurvive(Player player,
+            WorldModifierComponent worldModifierComponent) {
+        if (worldModifierComponent.isModifier(player, SEModifiers.SPLIT_PERSONALITY)) {
             if (player.isSpectator()) {
                 if (!SplitPersonalityComponent.KEY.get(player).isDeath()) {
                     return SPAliveResult.ALIVE;

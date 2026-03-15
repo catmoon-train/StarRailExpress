@@ -17,9 +17,9 @@ import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.agmas.harpymodloader.modifiers.HMLModifiers;
-import org.agmas.harpymodloader.modifiers.Modifier;
+import org.agmas.harpymodloader.modifiers.SREModifier;
 
-public class ModifierArgumentType implements ArgumentType<Modifier> {
+public class ModifierArgumentType implements ArgumentType<SREModifier> {
     public static final DynamicCommandExceptionType MODIFIER_EMPTY = new DynamicCommandExceptionType(input -> Component.translatable("argument.harpymodloader.modifier.notfound", input));
     public static final DynamicCommandExceptionType MODIFIER_MULTIPLE = new DynamicCommandExceptionType(input -> Component.translatable("argument.harpymodloader.modifier.found-multiple", input));
     private static final Collection<String> EXAMPLES = Arrays.asList("foo", "foo:bar", "012");
@@ -28,20 +28,20 @@ public class ModifierArgumentType implements ArgumentType<Modifier> {
         return new ModifierArgumentType();
     }
 
-    public static Modifier getModifier(CommandContext<CommandSourceStack> context, String name) {
-        return context.getArgument(name, Modifier.class);
+    public static SREModifier getModifier(CommandContext<CommandSourceStack> context, String name) {
+        return context.getArgument(name, SREModifier.class);
     }
 
     @Override
-    public Modifier parse(final StringReader reader) throws CommandSyntaxException {
+    public SREModifier parse(final StringReader reader) throws CommandSyntaxException {
         String input = new StringReader(reader).readString();
         ResourceLocation modifierId = null;
         try {
             modifierId = ResourceLocation.read(reader);
         } catch (CommandSyntaxException ignored) {
         }
-        List<Modifier> result = new ArrayList<>();
-        for (final Modifier modifier : HMLModifiers.MODIFIERS) {
+        List<SREModifier> result = new ArrayList<>();
+        for (final SREModifier modifier : HMLModifiers.MODIFIERS) {
             if (modifier.identifier().equals(modifierId) || modifier.identifier().getPath().startsWith(input)) {
                 result.add(modifier);
             }
@@ -57,7 +57,7 @@ public class ModifierArgumentType implements ArgumentType<Modifier> {
 
     @Override
     public <S> CompletableFuture<Suggestions> listSuggestions(final CommandContext<S> context, final SuggestionsBuilder builder) {
-        return SharedSuggestionProvider.suggestResource(HMLModifiers.MODIFIERS.stream(), builder, Modifier::identifier, Modifier::getName);
+        return SharedSuggestionProvider.suggestResource(HMLModifiers.MODIFIERS.stream(), builder, SREModifier::identifier, SREModifier::getName);
     }
 
     @Override

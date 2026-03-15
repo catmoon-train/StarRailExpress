@@ -24,7 +24,7 @@ import org.agmas.harpymodloader.commands.argument.ModifierArgumentType;
 import org.agmas.harpymodloader.commands.argument.RoleArgumentType;
 import org.agmas.harpymodloader.modded_murder.ModdedWeights;
 import org.agmas.harpymodloader.modifiers.HMLModifiers;
-import org.agmas.harpymodloader.modifiers.Modifier;
+import org.agmas.harpymodloader.modifiers.SREModifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +44,7 @@ public class Harpymodloader implements ModInitializer {
     public static HashMap<SRERole, List<UUID>> FORCED_MODDED_ROLE = new HashMap<>();
     public static HashMap<UUID, SRERole> FORCED_MODDED_ROLE_FLIP = new HashMap<>();
 
-    public static HashMap<Modifier, List<UUID>> FORCED_MODDED_MODIFIER = new HashMap<>();
+    public static HashMap<SREModifier, List<UUID>> FORCED_MODDED_MODIFIER = new HashMap<>();
 
     public static ArrayList<SRERole> VANNILA_ROLES = new ArrayList<>();
     public static ArrayList<SRERole> SPECIAL_ROLES = new ArrayList<>();
@@ -112,7 +112,7 @@ public class Harpymodloader implements ModInitializer {
         }
     }
 
-    public static void addToForcedModifiers(Modifier modifier, Player player) {
+    public static void addToForcedModifiers(SREModifier modifier, Player player) {
         if (!FORCED_MODDED_MODIFIER.containsKey(modifier))
             FORCED_MODDED_MODIFIER.put(modifier, new ArrayList<>());
         FORCED_MODDED_MODIFIER.get(modifier).add(player.getUUID());

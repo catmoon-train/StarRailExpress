@@ -12,7 +12,7 @@ import net.minecraft.network.chat.HoverEvent;
 import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.harpymodloader.commands.argument.ModifierArgumentType;
 import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
-import org.agmas.harpymodloader.modifiers.Modifier;
+import org.agmas.harpymodloader.modifiers.SREModifier;
 
 public class SetEnabledModifierCommand {
     public static final SimpleCommandExceptionType ROLE_UNCHANGED_EXCEPTION = new SimpleCommandExceptionType(Component.translatable("commands.setenabledmodifier.unchanged"));
@@ -34,7 +34,7 @@ public class SetEnabledModifierCommand {
             return 1;
         }
         boolean enabled = BoolArgumentType.getBool(context, "enabled");
-        Modifier modifier = ModifierArgumentType.getModifier(context, "modifier");
+        SREModifier modifier = ModifierArgumentType.getModifier(context, "modifier");
         HarpyModLoaderConfig.HANDLER.save();
         final String modifierId = modifier.identifier().toString();
         boolean disabled = HarpyModLoaderConfig.HANDLER.instance().disabledModifiers.contains(modifierId);

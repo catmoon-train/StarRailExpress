@@ -1,5 +1,6 @@
 package io.wifi.starrailexpress.api;
 
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -113,8 +114,13 @@ public class RoleMethodDispatcher {
     /**
      * 调用玩家角色的 serverTick 方法
      */
+
     public static void callServerTick(ServerPlayer player) {
         var gameComponent = io.wifi.starrailexpress.cca.SREGameWorldComponent.KEY.get(player.level());
+        callServerTick(player, gameComponent);
+    }
+
+    public static void callServerTick(ServerPlayer player, SREGameWorldComponent gameComponent) {
         SRERole role = gameComponent.getRole(player);
         if (role != null) {
             role.serverGameTickEvent(player, gameComponent);
