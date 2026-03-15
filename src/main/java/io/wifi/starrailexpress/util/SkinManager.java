@@ -1,18 +1,76 @@
 package io.wifi.starrailexpress.util;
 
 import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
+import io.wifi.starrailexpress.item.Colors;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Random;
 
 /**
  * 皮肤管理工具类，用于处理物品皮肤相关的操作
  */
 public class SkinManager {
+    public static class Skin {
+        public final int color;
+        public final String tooltipName;
+        public final Random random;
 
+        Skin(int color, String tooltipName) {
+            this.color = color;
+            this.tooltipName = tooltipName;
+            this.random = new Random();
+        }
+
+        public String getName() {
+            return this.tooltipName.toLowerCase(Locale.ROOT);
+        }
+
+        public int getColor() {
+            return this.color;
+        }
+
+        public static Skin fromString(String name) {
+            if (skinMap.containsKey(name.toLowerCase(Locale.ROOT))) {
+                return skinMap.get(name.toLowerCase(Locale.ROOT));
+            }
+            return skinMap.get("default");
+        }
+
+//        public static Skin getNext(Skin skin) {
+//            Skin[] values = Skin.values();
+//            return values[(skin.ordinal() + 1) % values.length];
+//        }
+    }
+    public static final Skin DEFAULT_SKIN = new Skin(Colors.LIGHT_GRAY, "Kitchen Knife");
+    protected static final Map<String, Skin> skinMap = new HashMap<>();
+    static {
+        // toolTipName 请使用材质文件名（或者说材质文件请使用同名,除了default）
+        skinMap.put("default", DEFAULT_SKIN);
+        skinMap.put("ceremonial", new Skin(0xFFD98C28, "Ceremonial Dagger"));
+        skinMap.put("pick", new Skin(0xFF8D4A51, "knife_pick"));
+        skinMap.put("diagonal_blade", new Skin(0xFF4AEDFF, "knife_diamond_knife"));
+        skinMap.put("dagger", new Skin(0xFF808080, "knife_dagger"));
+        skinMap.put("rainbow_knife", new Skin(0xFFFFFFFF, "knife_rainbow_knife"));
+        skinMap.put("fly_cutter", new Skin(0xFFE0E0E0, "knife_fly_cutter"));
+        skinMap.put("storm_blade", new Skin(0xFF4A90E2, "knife_storm_blade"));
+        skinMap.put("dragon_blade", new Skin(0xFFFF4444, "knife_dragon_blade"));
+        skinMap.put("chopper", new Skin(0xFF8B4513, "knife_chopper"));
+        skinMap.put("neptune_knife", new Skin(0xFF1E90FF, "knife_neptune_knife"));
+        skinMap.put("colorful_folding_knife", new Skin(0xFFFF69B4, "knife_colorful_folding_knife"));
+        skinMap.put("edge_knife", new Skin(0xFFC0C0C0, "knife_edge_knife"));
+    }
+    public static Map<String, Skin> getSkins() {
+        return skinMap;
+    }
     /**
      * 获取玩家当前装备的皮肤名称
      *

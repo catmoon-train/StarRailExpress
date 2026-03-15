@@ -13,8 +13,10 @@ import io.wifi.starrailexpress.util.SkinManager;
 import io.wifi.starrailexpress.util.SkinUtils;
 import net.minecraft.commands.SharedSuggestionProvider;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class SkinArgumentType     implements ArgumentType<String> {
@@ -82,6 +84,6 @@ public class SkinArgumentType     implements ArgumentType<String> {
     }
     @Override
     public Collection<String> getExamples() {
-        return Arrays.stream(KnifeItem.Skin.values()).map(KnifeItem.Skin::toString).toList();
+        return new ArrayList<>(SkinManager.getSkins().keySet());
     }
 }
