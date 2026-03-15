@@ -19,9 +19,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static io.wifi.starrailexpress.mod_whitelist.server.config.MismatchType.INSTALLED_BUT_SHOULD_NOT_INSTALL;
-import static io.wifi.starrailexpress.mod_whitelist.server.config.MismatchType.UNINSTALLED_BUT_SHOULD_INSTALL;
-
 /**
  * Server-side network handler for mod whitelist system
  * Receives and validates mod information from players

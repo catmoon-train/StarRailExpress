@@ -42,7 +42,6 @@ import org.agmas.noellesroles.game.ChairWheelRaceGame;
 import org.agmas.noellesroles.modifier.NRModifiers;
 import org.agmas.noellesroles.modifier.expedition.ExpeditionComponent;
 import org.agmas.noellesroles.packet.BloodConfigS2CPacket;
-import org.agmas.noellesroles.repack.HSRItems;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.roles.commander.CommanderHandler;
 import org.agmas.noellesroles.roles.conspirator.ConspiratorKilledPlayer;
@@ -68,7 +67,6 @@ import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
-import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.cca.SREWorldBlackoutComponent;
@@ -116,7 +114,6 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemCooldowns;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import pro.fazeclan.river.stupid_express.constants.SEItems;
@@ -1203,33 +1200,6 @@ public class ModEventsRegister {
             // 更新烟雾区域和迷幻区域
             ServerSmokeAreaManager.tick();
             HallucinationAreaManager.tick();
-
-            SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(server.overworld());
-            if (gameWorldComponent.isRunning()) {
-                var all_players = server.getPlayerList().getPlayers();
-                for (ServerPlayer player : all_players) {
-                    if (gameWorldComponent.isRole(player, ModRoles.ELF)) {
-                        if (server.overworld().getGameTime() % 200 == 0) {
-                            SREPlayerShopComponent plsc = SREPlayerShopComponent.KEY.get(player);
-                            if (plsc != null) {
-                                plsc.addToBalance(5);
-                            }
-                        }
-                    }
-                }
-                if (!Noellesroles.gunsCooled) {
-                    int gunCooldownTicks = 30 * 20;
-                    for (ServerPlayer player : all_players) {
-                        ItemCooldowns itemCooldownManager = player.getCooldowns();
-                        itemCooldownManager.addCooldown(TMMItems.REVOLVER, gunCooldownTicks);
-                        itemCooldownManager.addCooldown(TMMItems.KNIFE, gunCooldownTicks);
-                        itemCooldownManager.addCooldown(ModItems.FAKE_REVOLVER, gunCooldownTicks);
-                    }
-                    Noellesroles.gunsCooled = true;
-                }
-            } else {
-                Noellesroles.gunsCooled = false;
-            }
         }));
         ServerTickEvents.START_SERVER_TICK.register(((server) -> {
             if (TimeStopEffect.freezeTime > 0) {
@@ -1349,9 +1319,6 @@ public class ModEventsRegister {
                         }
                     }
                 }
-                p.getCooldowns().addCooldown(HSRItems.BANDIT_REVOLVER, 30 * 20);
-                p.getCooldowns().addCooldown(ModItems.PATROLLER_REVOLVER, 30 * 20);
-                p.getCooldowns().addCooldown(ModItems.THROWING_KNIFE, 30 * 20);
 
                 p.addEffect(new MobEffectInstance(
                         MobEffects.WATER_BREATHING,
@@ -1457,21 +1424,6 @@ public class ModEventsRegister {
                 return;
             }
             for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-                if (server.overworld().getGameTime() % 20 == 0) {
-                    if (GameUtils.isPlayerAliveAndSurvival(player)) {
-                        if (gameWorldComponent.isRole(player, ModRoles.OLDMAN)) {
-                            var pmc = SREPlayerMoodComponent.KEY.get(player);
-                            if (!(pmc.tasks.isEmpty())
-                                    && pmc.tasks.getOrDefault(SREPlayerMoodComponent.Task.EXERCISE, null) != null) {
-                                if (pmc.tasks.get(
-                                        SREPlayerMoodComponent.Task.EXERCISE) instanceof SREPlayerMoodComponent.ExerciseTask et) {
-                                    et.timer = 0;
-                                }
-                            }
-                        }
-                    }
-                }
-
                 DefibrillatorComponent component = ModComponents.DEFIBRILLATOR.get(player);
                 if (component.isDead && player.isSpectator()
                         && player.level().getGameTime() >= component.resurrectionTime) {

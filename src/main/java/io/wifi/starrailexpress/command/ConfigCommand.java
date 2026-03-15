@@ -29,6 +29,7 @@ public class ConfigCommand {
         CommandSourceStack source = context.getSource();
         try {
             SREConfig.reload();
+            SREConfig.HANDLER.syncToClient(source.getServer());
             HarpyModLoaderConfig.HANDLER.load();
             NoellesRolesConfig.HANDLER.load();
             StupidExpressConfig.HANDLER.load();

@@ -3,6 +3,7 @@ package io.wifi.starrailexpress;
 import com.google.common.reflect.Reflection;
 
 import io.wifi.StarRailExpressID;
+import io.wifi.ConfigCompact.ConfigEvents;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.api.replay.GameReplayData;
@@ -132,7 +133,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
     }
 
     private void initConfig() {
-        SREConfig.init();
+        ConfigEvents.register();
     }
 
     private void initConstants() {
@@ -264,7 +265,6 @@ public class SRE extends StarRailExpressID implements ModInitializer {
 
     private void registerPayloadTypes() {
         // Mod Whitelist Payload
-        PayloadTypeRegistry.playS2C().register(SyncConfigPayload.ID, SyncConfigPayload.CODEC);
 
         PayloadTypeRegistry.playC2S().register(
                 io.wifi.starrailexpress.mod_whitelist.common.network.ModWhitelistPayload.ID,

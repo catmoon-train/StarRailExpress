@@ -71,7 +71,6 @@ import io.wifi.starrailexpress.network.RemoveStatusBarPayload;
 import io.wifi.starrailexpress.network.SecurityCameraModePayload;
 import io.wifi.starrailexpress.network.ShowSelectedMapUIPayload;
 import io.wifi.starrailexpress.network.ShowStatsPayload;
-import io.wifi.starrailexpress.network.SyncConfigPayload;
 import io.wifi.starrailexpress.network.SyncMapConfigPayload;
 import io.wifi.starrailexpress.network.TriggerScreenEdgeEffectPayload;
 import io.wifi.starrailexpress.network.TriggerStatusBarPayload;
@@ -89,6 +88,7 @@ import io.wifi.starrailexpress.network.packet.SyncWaypointsPacket;
 import io.wifi.starrailexpress.util.HPManager;
 import io.wifi.starrailexpress.util.MatrixParticleManager;
 import io.wifi.starrailexpress.util.PoisonComponentUtils;
+import io.wifi.ConfigCompact.ClientConfigEvents;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
@@ -155,6 +155,7 @@ public class SREClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+        ClientConfigEvents.register();
         new EXSREClient().onInitializeClient();
         // Load config
         ModWhitelistClient.onInitializeClient();
@@ -287,10 +288,6 @@ public class SREClient implements ClientModInitializer {
         OptionLocker.overrideSoundCategoryVolume("player", 1.0);
         OptionLocker.overrideSoundCategoryVolume("ambient", 1.0);
         OptionLocker.overrideSoundCategoryVolume("voice", 1.0);
-
-        ClientPlayNetworking.registerGlobalReceiver(SyncConfigPayload.ID, (payload,context)->{
-            
-        });
         ClientPlayNetworking.registerGlobalReceiver(SecurityCameraModePayload.ID,
                 new SecurityCameraModePayload.ClientReceiver());
         ClientPlayNetworking.registerGlobalReceiver(IsLobbyConfigPayload.ID, (payload, context) -> {

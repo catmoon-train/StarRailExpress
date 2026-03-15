@@ -280,7 +280,7 @@ public class ModRoles {
                   false, // showParticles（显示粒子）
                   true // showIcon（显示图标）
               )))
-      .setCanSeeCoin(true);
+      .setCanSeeCoin(true).setServerGameTickEvent((p, g) -> RoleTickers.oldmanTick(p, g));
   // 算命大师
   public static SRERole FORTUNETELLER = TMMRoles.registerRole(
       new NormalRole(FORTUNETELLER_ID, new Color(239, 228, 176).getRGB(),
@@ -291,7 +291,7 @@ public class ModRoles {
       new NormalRole(ELF_ID, new Color(106, 255, 179).getRGB(),
           true, false, SRERole.MoodType.REAL,
           TMMRoles.CIVILIAN.getMaxSprintTime(), false))
-      .setVigilanteTeam(true).setCanSeeCoin(true).setCanPickUpRevolver(false);
+      .setVigilanteTeam(true).setCanSeeCoin(true).setCanPickUpRevolver(false).setCanAutoAddMoney(true);
   public static SRERole WIND_YAOSE = TMMRoles.registerRole(
       new ExtraEffectRole(WIND_YAOSE_ID, new Color(106, 255, 179).getRGB(),
           false, false, SRERole.MoodType.FAKE,
@@ -544,7 +544,7 @@ public class ModRoles {
           false, // showParticles（显示粒子）
           true // showIcon（显示图标）
       )))
-  .setCanSeeCoin(true).setComponentKey(org.agmas.noellesroles.component.DiverPlayerComponent.KEY);
+      .setCanSeeCoin(true).setComponentKey(org.agmas.noellesroles.component.DiverPlayerComponent.KEY);
 
   /**
    * 特警角色
@@ -620,7 +620,7 @@ public class ModRoles {
           false, // showParticles（显示粒子）
           true // showIcon（显示图标）
       )))
-  .setCanSeeCoin(true).setVigilanteTeam(true).setCanPickUpRevolver(false);
+      .setCanSeeCoin(true).setVigilanteTeam(true).setCanPickUpRevolver(false);
 
   /**
    * 水鬼角色
@@ -652,7 +652,7 @@ public class ModRoles {
           false, // showParticles（显示粒子）
           true // showIcon（显示图标）
       )))
-  .setComponentKey(ModComponents.WATER_GHOST).setCanSeeCoin(true);
+      .setComponentKey(ModComponents.WATER_GHOST).setCanSeeCoin(true);
 
   // 杀手阵营角色
   public static SRERole CLEANER = TMMRoles

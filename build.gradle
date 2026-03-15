@@ -78,7 +78,6 @@ dependencies {
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
     modApi files("libs/architectury-13.0.8-fabric.jar")
     modCompileOnly("dev.lambdaurora.lambdynamiclights:lambdynamiclights-api:4.8.7+1.21.1")
-    modApi files("libs/ForgeConfigAPIPort-v21.1.6-1.21.1-Fabric.jar")
     modImplementation("dev.lambdaurora.lambdynamiclights:lambdynamiclights-runtime:4.8.7+1.21.1")
     modImplementation("dev.lambdaurora.lambdynamiclights:lambdynamiclights-runtime:4.8.7+1.21.1")
     // Wathe Items
@@ -109,6 +108,7 @@ dependencies {
     }
     modApi "maven.modrinth:modmenu:11.0.3"
     modRuntimeOnly("org.anarres:jcpp:${jcpp_version}")
+    modRuntimeOnly files("libs/ForgeConfigAPIPort-v21.1.6-1.21.1-Fabric.jar")
     modImplementation("io.github.douira:glsl-transformer:${glslTransformer_version}")
 }
 
