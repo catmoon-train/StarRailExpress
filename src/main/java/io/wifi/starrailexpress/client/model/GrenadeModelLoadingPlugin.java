@@ -15,7 +15,7 @@ public class GrenadeModelLoadingPlugin implements ModelLoadingPlugin {
     public static final ModelResourceLocation NEW_GRENADE_MODEL_ID = ModelResourceLocation
             .inventory(SRE.id("grenade"));
 
-    public static ResourceLocation getModelLocation(SkinManager.GrenadeSkin skin, Variant variant) {
+    public static ResourceLocation getModelLocation(SkinManager.Skin skin, Variant variant) {
         if (skin == SkinManager.GrenadeSkin.GRENADE_DEFAULT_SKIN) {
             return GRENADE_MODEL_ID.id().withPath(path -> "item/%s".formatted(GRENADE_MODEL_ID.id().getPath()));
         }
@@ -30,7 +30,7 @@ public class GrenadeModelLoadingPlugin implements ModelLoadingPlugin {
     public void onInitializeModelLoader(Context pluginContext) {
         for (SkinManager.Skin skin : SkinManager.getSkins("grenade").values()) {
             for (Variant variant : Variant.values()) {
-                pluginContext.addModels(getModelLocation((SkinManager.GrenadeSkin) skin, variant));
+                pluginContext.addModels(getModelLocation(skin, variant));
             }
         }
 

@@ -2,7 +2,6 @@ package io.wifi.starrailexpress.client.model;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.util.SkinManager;
-import io.wifi.starrailexpress.util.SkinManager.KnifeSkin;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
@@ -13,7 +12,7 @@ public class KnifeModelLoadingPlugin implements ModelLoadingPlugin {
     public static final ModelResourceLocation KNIFE_MODEL_ID = ModelResourceLocation.inventory(SRE.TMMId("knife"));
     public static final ModelResourceLocation NEW_KNIFE_MODEL_ID = ModelResourceLocation.inventory(SRE.id("knife"));
 
-    public static ResourceLocation getModelLocation(SkinManager.KnifeSkin skin, Variant variant) {
+    public static ResourceLocation getModelLocation(SkinManager.Skin skin, Variant variant) {
         if (skin == SkinManager.KnifeSkin.DEFAULT_SKIN) {
             return KNIFE_MODEL_ID.id().withPath(path -> "item/%s".formatted(KNIFE_MODEL_ID.id().getPath()));
         }
@@ -29,7 +28,7 @@ public class KnifeModelLoadingPlugin implements ModelLoadingPlugin {
         // make sure all models get loaded
         for (SkinManager.Skin skin : SkinManager.getSkins("knife").values()) {
             for (Variant variant : Variant.values()) {
-                pluginContext.addModels(getModelLocation((KnifeSkin) skin, variant));
+                pluginContext.addModels(getModelLocation(skin, variant));
             }
         }
 

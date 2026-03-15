@@ -30,7 +30,7 @@ public class RevolverModelLoadingPlugin implements ModelLoadingPlugin {
     public void onInitializeModelLoader(Context pluginContext) {
         for (SkinManager.Skin skin : SkinManager.getSkins("revolver").values()) {
             for (Variant variant : Variant.values()) {
-                pluginContext.addModels(getModelLocation((SkinManager.RevolverSkin) skin, variant));
+                pluginContext.addModels(getModelLocation(skin, variant));
             }
         }
 

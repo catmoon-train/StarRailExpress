@@ -15,7 +15,7 @@ import java.util.Locale;
  * 皮肤管理工具类，用于处理物品皮肤相关的操作
  */
 public class SkinManager {
-    public static abstract class Skin {
+    public static class Skin {
         public final int color;
         public final String tooltipName;
 
@@ -49,134 +49,120 @@ public class SkinManager {
         // }
     }
 
-    public static class KnifeSkin extends Skin {
-        public static final KnifeSkin DEFAULT_SKIN = new KnifeSkin(Colors.LIGHT_GRAY, "default");
-
-        KnifeSkin(int color, String tooltipName) {
-            super(color, tooltipName);
-        }
+    public static class KnifeSkin {
+        public static final Skin DEFAULT_SKIN = new Skin(Colors.LIGHT_GRAY, "default");
     }
 
     // Revolver skins
-    public static class RevolverSkin extends Skin {
-        public static final RevolverSkin REVOLVER_DEFAULT_SKIN = new RevolverSkin(Colors.GRAY, "default");
-
-        RevolverSkin(int color, String tooltipName) {
-            super(color, tooltipName);
-        }
+    public static class RevolverSkin {
+        public static final Skin REVOLVER_DEFAULT_SKIN = new Skin(Colors.GRAY, "default");
     }
 
     // Grenade skins
-    public static class GrenadeSkin extends Skin {
-        public static final GrenadeSkin GRENADE_DEFAULT_SKIN = new GrenadeSkin(Colors.GRAY, "default");
-
-        GrenadeSkin(int color, String tooltipName) {
-            super(color, tooltipName);
-        }
+    public static class GrenadeSkin {
+        public static final Skin GRENADE_DEFAULT_SKIN = new Skin(Colors.GRAY, "default");
     }
 
     // Bat skins
-    public static class BatSkin extends Skin {
-        public static final BatSkin BAT_DEFAULT_SKIN = new BatSkin(Colors.GRAY, "default");
+    public static class BatSkin {
+        public static final Skin BAT_DEFAULT_SKIN = new Skin(Colors.GRAY, "default");
+    }
 
-        BatSkin(int color, String tooltipName) {
-            super(color, tooltipName);
-        }
+    public static void registerSkin(String skinType, String skinID, int color) {
+        skinMap.putIfAbsent(skinType, new HashMap<>());
+        skinMap.get(skinType).put(skinID, new Skin(color, skinID));
+    }
+    public static class SkinTypes {
+        public static final String KNIFE = "knife";
+        public static final String REVOLVER = "revolver";
+        public static final String BAT = "bat";
+        public static final String GRENADE = "grenade";
     }
 
     protected static final HashMap<String, HashMap<String, Skin>> skinMap = new HashMap<>();
     static {
-        HashMap<String, Skin> knifeSkin = new HashMap<>();
-        HashMap<String, Skin> revolverknifeSkin = new HashMap<>();
-        HashMap<String, Skin> batSkin = new HashMap<>();
-        HashMap<String, Skin> grenadeSkin = new HashMap<>();
+        skinMap.put(SkinTypes.KNIFE, new HashMap<>());
+        skinMap.put(SkinTypes.REVOLVER, new HashMap<>());
+        skinMap.put(SkinTypes.BAT, new HashMap<>());
+        skinMap.put(SkinTypes.GRENADE, new HashMap<>());
+        // 默认材质
+        skinMap.get(SkinTypes.KNIFE).put("default", KnifeSkin.DEFAULT_SKIN);
+        
+        skinMap.get(SkinTypes.BAT).put("default", BatSkin.BAT_DEFAULT_SKIN);
+        skinMap.get(SkinTypes.GRENADE).put("default", GrenadeSkin.GRENADE_DEFAULT_SKIN);
+        skinMap.get(SkinTypes.REVOLVER).put("default", RevolverSkin.REVOLVER_DEFAULT_SKIN);
 
-        // toolTipName 请使用材质文件名（或者说材质文件请使用同名,除了default）
-        knifeSkin.put("default", KnifeSkin.DEFAULT_SKIN);
-        knifeSkin.put("ceremonial", new KnifeSkin(0xFFD98C28, "ceremonial"));
-        knifeSkin.put("pick", new KnifeSkin(0xFF8D4A51, "pick"));
-        knifeSkin.put("diamond_knife", new KnifeSkin(0xFF4AEDFF, "diamond_knife"));
-        knifeSkin.put("dagger", new KnifeSkin(0xFF808080, "dagger"));
-        knifeSkin.put("rainbow_knife", new KnifeSkin(0xFFFFFFFF, "rainbow_knife"));
-        knifeSkin.put("fly_cutter", new KnifeSkin(0xFFE0E0E0, "fly_cutter"));
-        knifeSkin.put("storm_blade", new KnifeSkin(0xFF4A90E2, "storm_blade"));
-        knifeSkin.put("dragon_blade", new KnifeSkin(0xFFFF4444, "dragon_blade"));
-        knifeSkin.put("chopper", new KnifeSkin(0xFF8B4513, "chopper"));
-        knifeSkin.put("neptune_knife", new KnifeSkin(0xFF1E90FF, "neptune_knife"));
-        knifeSkin.put("colorful_folding_knife", new KnifeSkin(0xFFFF69B4, "colorful_folding_knife"));
-        knifeSkin.put("edge_knife", new KnifeSkin(0xFFC0C0C0, "edge_knife"));
-        knifeSkin.put("blue_curved_knife", new KnifeSkin(0xFF1E90FF, "blue_curved_knife"));
-        knifeSkin.put("balisong", new KnifeSkin(0xFFC0C0C0, "balisong"));
-        knifeSkin.put("black_blade", new KnifeSkin(0xFF1A1A1A, "black_blade"));
-        knifeSkin.put("blade_of_blood_red", new KnifeSkin(0xFF8B0000, "blade_of_blood_red"));
-        knifeSkin.put("blue_knife", new KnifeSkin(0xFF4169E1, "blue_knife"));
-        knifeSkin.put("carrot_knife", new KnifeSkin(0xFFFF8C00, "carrot_knife"));
-        knifeSkin.put("cat_paw", new KnifeSkin(0xFFFFDAB9, "cat_paw"));
-        knifeSkin.put("cultist", new KnifeSkin(0xFF2F4F4F, "cultist"));
-        knifeSkin.put("cutter_knife", new KnifeSkin(0xFFA9A9A9, "cutter_knife"));
-        knifeSkin.put("dart", new KnifeSkin(0xFF4682B4, "dart"));
-        knifeSkin.put("diamond_knife", new KnifeSkin(0xFF4AEDFF, "diamond_knife"));
-        knifeSkin.put("dusks_epitaph", new KnifeSkin(0xFF483D8B, "dusks_epitaph"));
-        knifeSkin.put("fork", new KnifeSkin(0xFFC0C0C0, "fork"));
-        knifeSkin.put("icicle", new KnifeSkin(0xFFADD8E6, "icicle"));
-        knifeSkin.put("light_sword", new KnifeSkin(0xFFFFFF00, "light_sword"));
-        knifeSkin.put("machete", new KnifeSkin(0xFF2E8B57, "machete"));
-        knifeSkin.put("matchstick_sword", new KnifeSkin(0xFFDEB887, "matchstick_sword"));
-        knifeSkin.put("missing_source", new KnifeSkin(0xFF808080, "missing_source"));
-        knifeSkin.put("missing_sword", new KnifeSkin(0xFFA0A0A0, "missing_sword"));
-        knifeSkin.put("moqingyu", new KnifeSkin(0xFF228B22, "moqingyu"));
-        knifeSkin.put("nail", new KnifeSkin(0xFF696969, "nail"));
-        knifeSkin.put("peach_stick", new KnifeSkin(0xFFFFE4B5, "peach_stick"));
-        knifeSkin.put("red_light_sword", new KnifeSkin(0xFFFF4500, "red_light_sword"));
-        knifeSkin.put("starlight", new KnifeSkin(0xFF87CEEB, "starlight"));
-        knifeSkin.put("sword_in_stone", new KnifeSkin(0xFF778899, "sword_in_stone"));
-        knifeSkin.put("astral_defense", new KnifeSkin(0xFF9370DB, "astral_defense"));
-        knifeSkin.put("harpy_star", new KnifeSkin(0xFFFFF8DC, "harpy_star"));
-        knifeSkin.put("quenched_titanium", new KnifeSkin(0xFFB87333, "quenched_titanium"));
-        knifeSkin.put("tianjie_bit", new KnifeSkin(0xFFFF6347, "tianjie_bit"));
+        // API
+        registerSkin(SkinTypes.KNIFE, "ceremonial", 0xFFD98C28);
+        registerSkin(SkinTypes.KNIFE, "pick", 0xFF8D4A51);
+        registerSkin(SkinTypes.KNIFE, "diamond_knife", 0xFF4AEDFF);
+        registerSkin(SkinTypes.KNIFE, "dagger", 0xFF808080);
+        registerSkin(SkinTypes.KNIFE, "rainbow_knife", 0xFFFFFFFF);
+        registerSkin(SkinTypes.KNIFE, "fly_cutter", 0xFFE0E0E0);
+        registerSkin(SkinTypes.KNIFE, "storm_blade", 0xFF4A90E2);
+        registerSkin(SkinTypes.KNIFE, "dragon_blade", 0xFFFF4444);
+        registerSkin(SkinTypes.KNIFE, "chopper", 0xFF8B4513);
+        registerSkin(SkinTypes.KNIFE, "neptune_knife", 0xFF1E90FF);
+        registerSkin(SkinTypes.KNIFE, "colorful_folding_knife", 0xFFFF69B4);
+        registerSkin(SkinTypes.KNIFE, "edge_knife", 0xFFC0C0C0);
+        registerSkin(SkinTypes.KNIFE, "blue_curved_knife", 0xFF1E90FF);
+        registerSkin(SkinTypes.KNIFE, "balisong", 0xFFC0C0C0);
+        registerSkin(SkinTypes.KNIFE, "black_blade", 0xFF1A1A1A);
+        registerSkin(SkinTypes.KNIFE, "blade_of_blood_red", 0xFF8B0000);
+        registerSkin(SkinTypes.KNIFE, "blue_knife", 0xFF4169E1);
+        registerSkin(SkinTypes.KNIFE, "carrot_knife", 0xFFFF8C00);
+        registerSkin(SkinTypes.KNIFE, "cat_paw", 0xFFFFDAB9);
+        registerSkin(SkinTypes.KNIFE, "cultist", 0xFF2F4F4F);
+        registerSkin(SkinTypes.KNIFE, "cutter_knife", 0xFFA9A9A9);
+        registerSkin(SkinTypes.KNIFE, "dart", 0xFF4682B4);
+        registerSkin(SkinTypes.KNIFE, "diamond_knife", 0xFF4AEDFF);
+        registerSkin(SkinTypes.KNIFE, "dusks_epitaph", 0xFF483D8B);
+        registerSkin(SkinTypes.KNIFE, "fork", 0xFFC0C0C0);
+        registerSkin(SkinTypes.KNIFE, "icicle", 0xFFADD8E6);
+        registerSkin(SkinTypes.KNIFE, "light_sword", 0xFFFFFF00);
+        registerSkin(SkinTypes.KNIFE, "machete", 0xFF2E8B57);
+        registerSkin(SkinTypes.KNIFE, "matchstick_sword", 0xFFDEB887);
+        registerSkin(SkinTypes.KNIFE, "missing_source", 0xFF808080);
+        registerSkin(SkinTypes.KNIFE, "missing_sword", 0xFFA0A0A0);
+        registerSkin(SkinTypes.KNIFE, "moqingyu", 0xFF228B22);
+        registerSkin(SkinTypes.KNIFE, "nail", 0xFF696969);
+        registerSkin(SkinTypes.KNIFE, "peach_stick", 0xFFFFE4B5);
+        registerSkin(SkinTypes.KNIFE, "red_light_sword", 0xFFFF4500);
+        registerSkin(SkinTypes.KNIFE, "starlight", 0xFF87CEEB);
+        registerSkin(SkinTypes.KNIFE, "sword_in_stone", 0xFF778899);
+        registerSkin(SkinTypes.KNIFE, "astral_defense", 0xFF9370DB);
+        registerSkin(SkinTypes.KNIFE, "harpy_star", 0xFFFFF8DC);
+        registerSkin(SkinTypes.KNIFE, "quenched_titanium", 0xFFB87333);
+        registerSkin(SkinTypes.KNIFE, "tianjie_bit", 0xFFFF6347);
 
         // Initialize revolver skins
-        revolverknifeSkin.put("default", RevolverSkin.REVOLVER_DEFAULT_SKIN);
-        revolverknifeSkin.put("double_pistol", new RevolverSkin(0xFF808080, "double_pistol"));
-        revolverknifeSkin.put("heavy_pistol", new RevolverSkin(0xFF404040, "heavy_pistol"));
-        revolverknifeSkin.put("knife_gun", new RevolverSkin(0xFF606060, "knife_gun"));
-        revolverknifeSkin.put("potato_launcher", new RevolverSkin(0xFFD2B48C, "potato_launcher"));
-        revolverknifeSkin.put("stick_gun", new RevolverSkin(0xFF8B4513, "stick_gun"));
-        revolverknifeSkin.put("water_gun", new RevolverSkin(0xFF4169E1, "water_gun"));
-        revolverknifeSkin.put("west_revolver", new RevolverSkin(0xFF8B7355, "west_revolver"));
-        revolverknifeSkin.put("white_gun", new RevolverColorSkin(0xFFFAFAFA, "white_gun"));
-        revolverknifeSkin.put("desert_eagle", new RevolverSkin(0xFFC0C0C0, "desert_eagle"));
+        registerSkin(SkinTypes.REVOLVER, "double_pistol", 0xFF808080);
+        registerSkin(SkinTypes.REVOLVER, "heavy_pistol", 0xFF404040);
+        registerSkin(SkinTypes.REVOLVER, "knife_gun", 0xFF606060);
+        registerSkin(SkinTypes.REVOLVER, "potato_launcher", 0xFFD2B48C);
+        registerSkin(SkinTypes.REVOLVER, "stick_gun", 0xFF8B4513);
+        registerSkin(SkinTypes.REVOLVER, "water_gun", 0xFF4169E1);
+        registerSkin(SkinTypes.REVOLVER, "west_revolver", 0xFF8B7355);
+        registerSkin(SkinTypes.REVOLVER, "white_gun", 0xFFFAFAFA);
+        registerSkin(SkinTypes.REVOLVER, "desert_eagle", 0xFFC0C0C0);
 
         // Initialize grenade skins
-        grenadeSkin.put("default", GrenadeSkin.GRENADE_DEFAULT_SKIN);
-        grenadeSkin.put("big_bomb", new GrenadeSkin(0xFF000000, "big_bomb"));
-        grenadeSkin.put("fire_charge", new GrenadeSkin(0xFFFF4500, "fire_charge"));
-        grenadeSkin.put("magnetic_bomb", new GrenadeSkin(0xFF0000FF, "magnetic_bomb"));
-        grenadeSkin.put("mobile", new GrenadeSkin(0xFF00CED1, "mobile"));
-        grenadeSkin.put("oppo", new GrenadeSkin(0xFF00FF7F, "oppo"));
-        grenadeSkin.put("gas_cylinder", new GrenadeSkin(0xFF808080, "gas_cylinder"));
+        registerSkin(SkinTypes.GRENADE, "big_bomb", 0xFF000000);
+        registerSkin(SkinTypes.GRENADE, "fire_charge", 0xFFFF4500);
+        registerSkin(SkinTypes.GRENADE, "magnetic_bomb", 0xFF0000FF);
+        registerSkin(SkinTypes.GRENADE, "mobile", 0xFF00CED1);
+        registerSkin(SkinTypes.GRENADE, "oppo", 0xFF00FF7F);
+        registerSkin(SkinTypes.GRENADE, "gas_cylinder", 0xFF808080);
 
         // Initialize bat skins
-        batSkin.put("default", BatSkin.BAT_DEFAULT_SKIN);
-        batSkin.put("bread", new BatSkin(0xFFF5DEB3, "bread"));
-        batSkin.put("red_axe", new BatSkin(0xFFDC143C, "red_axe"));
-        batSkin.put("steel_tube", new BatSkin(0xFF4682B4, "steel_tube"));
-        batSkin.put("wolfteeth_mace", new BatSkin(0xFF708090, "wolfteeth_mace"));
-        skinMap.put("knife", knifeSkin);
-        skinMap.put("bat", batSkin);
-        skinMap.put("revolver", revolverknifeSkin);
-        skinMap.put("grenade", grenadeSkin);
+        registerSkin(SkinTypes.BAT, "bread", 0xFFF5DEB3);
+        registerSkin(SkinTypes.BAT, "red_axe", 0xFFDC143C);
+        registerSkin(SkinTypes.BAT, "steel_tube", 0xFF4682B4);
+        registerSkin(SkinTypes.BAT, "wolfteeth_mace", 0xFF708090);
     }
 
     public static ResourceLocation getResourceLocationOfItem(Item item) {
         return BuiltInRegistries.ITEM.getKey(item);
-    }
-
-    // Helper class for revolver skins with special color
-    private static class RevolverColorSkin extends RevolverSkin {
-        RevolverColorSkin(int color, String tooltipName) {
-            super(color, tooltipName);
-        }
     }
 
     public static HashMap<String, Skin> getSkins(Item it) {
@@ -205,7 +191,7 @@ public class SkinManager {
      */
     public static String getEquippedSkin(Player player, ItemStack itemStack) {
         // ItemStack数据优先级高于玩家自身
-        if(itemStack.has(SREDataComponentTypes.SKIN)){
+        if (itemStack.has(SREDataComponentTypes.SKIN)) {
             return itemStack.get(SREDataComponentTypes.SKIN);
         }
         // 从玩家component获取
