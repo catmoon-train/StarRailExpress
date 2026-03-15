@@ -393,7 +393,6 @@ public class TMMModelGen extends FabricModelProvider {
         generator.generateFlatItem(TMMItems.COSMOPOLITAN, SMALL_ITEM);
         generator.generateFlatItem(TMMItems.CHAMPAGNE, SMALL_ITEM);
         generator.generateFlatItem(TMMItems.GRENADE, SMALL_ITEM);
-        generator.generateFlatItem(TMMItems.THROWN_GRENADE, SMALL_ITEM);
         generator.generateFlatItem(TMMItems.FIRECRACKER, SMALL_ITEM);
     }
 

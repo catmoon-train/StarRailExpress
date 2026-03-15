@@ -1,6 +1,7 @@
 package org.agmas.noellesroles.item;
 
 import io.wifi.starrailexpress.index.TMMSounds;
+import io.wifi.starrailexpress.item.KnifeItem;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;
@@ -11,7 +12,7 @@ import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
-public class FakeKnifeItem extends Item {
+public class FakeKnifeItem extends KnifeItem {
     public FakeKnifeItem(Item.Properties settings) {
         super(settings);
     }
@@ -29,5 +30,9 @@ public class FakeKnifeItem extends Item {
 
     public int getUseDuration(ItemStack stack, LivingEntity user) {
         return 72000;
+    }
+
+    @Override
+    public void releaseUsing(ItemStack stack, Level world, LivingEntity user, int remainingUseTicks) {
     }
 }
