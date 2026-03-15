@@ -834,5 +834,19 @@
   "message.replay_manager.dead": " [死亡]",
   "starrailexpress.tag.spectator": "\u00a77[旁观]",
   "starrailexpress.tag.old_man": "\u00a7a[老资历]",
-  "starrailexpress.tag.god": "\u00a7e[神明]"
+  "starrailexpress.tag.god": "\u00a7e[神明]",
+  "changelog.title": "更新日志",
+  "changelog.continue.title": "按下任意按键以继续",
+  "changelog.continue.subtitle": "Press any key to continue",
+  "changelog.main_menu.title": "MAIN MENU",
+  "changelog.main_menu.subtitle": "主菜单",
+  "changelog.copyright": "© StarRailExpress / The Last Voyage of the Harpy Express",
+  "menu.sre.multiplayer": "开始游戏（多人游戏）",
+  "menu.sre.singleplayer": "单人游戏",
+  "menu.sre.options": "设置",
+  "menu.sre.join_qq": "加入 QQ 群",
+  "menu.sre.join_discord": "加入 Discord",
+  "menu.sre.wiki": "WIKI",
+  "menu.sre.mod_config": "模组设置",
+  "menu.sre.quit": "退出游戏"
 }
