@@ -1,6 +1,8 @@
 package org.agmas.noellesroles.client.screen;
 
 import io.wifi.StarRailExpressID;
+import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
+import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.index.TMMItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -8,6 +10,7 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -149,6 +152,7 @@ public class ViewLotteryPoolScreen extends AbstractPixelScreen{
                     curX = (width - totalPixels) / 2;
                     curY += (ITEM_PIXELS_SIZE + QUALITY_BAR_PIXELS_SIZE + COL_INTERVAL_PIXELS) * pixelSize;
                 }
+                String itemName = itemNames.get(j);
                 ItemCard itemCard = new ItemCard(
                         curX, curY,
                         pixelSize,
@@ -161,9 +165,26 @@ public class ViewLotteryPoolScreen extends AbstractPixelScreen{
                                                 + ".png"),
                         button -> {
                             // TODO : itemNames.get(j)-使用该物品名获取具体物品然后进行展示
+                            ItemStack itemStack = null;
+                            // 设置itemStack
+                            if (itemName.startsWith("knife/")) {
+                                itemStack = TMMItems.KNIFE.getDefaultInstance();
+                            }
+                            else if (itemName.startsWith("gun/")) {
+                                itemStack = TMMItems.REVOLVER.getDefaultInstance();
+                            }
+                            else if (itemName.startsWith("bat/")) {
+                                itemStack = TMMItems.BAT.getDefaultInstance();
+                            }
+                            else if (itemName.startsWith("grenade/")) {
+                                itemStack = TMMItems.GRENADE.getDefaultInstance();
+                            }
                             Minecraft minecraft = Minecraft.getInstance();
-                            ItemStack itemStack = TMMItems.KNIFE.getDefaultInstance();
-                            minecraft.setScreen(new DisplayItemScreen(itemStack,this));
+                            if (itemStack != null) {
+                                String trueName = itemName.substring(itemName.indexOf('/') + 1);
+                                itemStack.set(SREDataComponentTypes.SKIN, trueName);
+                                minecraft.setScreen(new DisplayItemScreen(itemStack,this));
+                            }
                         });
                 addRenderableWidget(itemCard);
                 itemCardsGroup.getLast().add(itemCard);

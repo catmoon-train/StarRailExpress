@@ -1,9 +1,15 @@
 package org.agmas.noellesroles.utils.lottery;
 
+import io.wifi.StarRailExpressID;
+import io.wifi.starrailexpress.index.TMMItems;
+import io.wifi.starrailexpress.item.KnifeItem;
+import io.wifi.starrailexpress.util.SkinManager;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.Noellesroles;
+import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.utils.Pair;
 
 import java.nio.file.Path;
@@ -53,9 +59,31 @@ public class LotteryManager {
                 level += qualityListGroupConfigs.get(i).first;
                 if (curNum < level * maxGranularity) {
                     List<String> curQualityList = qualityListGroupConfigs.get(i).second;
-                    // TODO : 为玩家解锁皮肤
-                    // TODO : 处理重复皮肤
                     int resultIdx = randomSource.nextInt(curQualityList.size());
+                    // TODO : 使用配置文件存储皮肤物品类型
+                    ItemStack itemStack = null;
+                    // 设置itemStack
+                    if (curQualityList.get(resultIdx).startsWith("knife/")) {
+                        itemStack = TMMItems.KNIFE.getDefaultInstance();
+                    }
+                    else if (curQualityList.get(resultIdx).startsWith("gun/")) {
+                        itemStack = TMMItems.REVOLVER.getDefaultInstance();
+                    }
+                    else if (curQualityList.get(resultIdx).startsWith("bat/")) {
+                        itemStack = TMMItems.BAT.getDefaultInstance();
+                    }
+                    else if (curQualityList.get(resultIdx).startsWith("grenade/")) {
+                        itemStack = TMMItems.GRENADE.getDefaultInstance();
+                    }
+                    if (itemStack != null) {
+                        // 去除前缀
+                        String trueName = curQualityList.get(resultIdx).substring(curQualityList.get(resultIdx).indexOf('/') + 1);
+                        if (SkinManager.isSkinUnlocked(player, itemStack, trueName))
+                            // 处理重复皮肤
+                            SkinManager.addCoinNum(player, (int) (baseLootConsumeCoin * getSkinToCoinPercentage(i)));
+                        else
+                            SkinManager.unlockSkin(player, itemStack, trueName);
+                    }
                     int resultQuality = i;
                     LotteryRecordStorage.getInstance().updatePlayerLotteryData(player.getUUID(),
                             lotteryRecordData -> lotteryRecordData.lotteryItems.add(
@@ -98,29 +126,23 @@ public class LotteryManager {
         private final List<Pair<Double, List<String>>> qualityListGroupConfigs;
     }
 
-    public ResourceLocation getQualityBgResourceLocation(int index) {
-        if (index < 0)
-            return qualityBgList[0];
-        else if (index >= qualityBgList.length)
-            return qualityBgList[qualityBgList.length - 1];
-        return qualityBgList[index];
-    }
-
     /** 检查玩家的抽奖次数 > 0 */
     public boolean canRoll(ServerPlayer player) {
         if (player == null)
             return false;
 
-        LotteryRecordData lotteryRecordData = LotteryRecordStorage.getInstance()
-                .getPlayerLotteryRecord(player.getUUID());
-        return lotteryRecordData.lotteryChance > 0;
+//        LotteryRecordData lotteryRecordData = LotteryRecordStorage.getInstance()
+//                .getPlayerLotteryRecord(player.getUUID());
+//        return lotteryRecordData.lotteryChance > 0;
+        return SkinManager.getLootChance(player) > 0;
     }
 
     /** 添加抽奖机会 */
     public void addOrDegreeLotteryChance(ServerPlayer player, int chance) {
-        LotteryRecordStorage.getInstance().updatePlayerLotteryData(player.getUUID(),
-                lotteryRecordData -> lotteryRecordData.lotteryChance += chance);
-        LotteryRecordStorage.getInstance().savePlayerData(player.getUUID());
+//        LotteryRecordStorage.getInstance().updatePlayerLotteryData(player.getUUID(),
+//                lotteryRecordData -> lotteryRecordData.lotteryChance += chance);
+//        LotteryRecordStorage.getInstance().savePlayerData(player.getUUID());
+        SkinManager.addLootChance(player, chance);
     }
 
     /**
@@ -169,6 +191,22 @@ public class LotteryManager {
 
     public void sortPools() {
         lotteryPoolList.sort(Comparator.comparingInt(LotteryPool::getPoolID));
+    }
+
+    public static ResourceLocation getQualityBgResourceLocation(int index) {
+        if (index < 0)
+            return qualityBgList[0];
+        else if (index >= qualityBgList.length)
+            return qualityBgList[qualityBgList.length - 1];
+        return qualityBgList[index];
+    }
+
+    public static float getSkinToCoinPercentage(int idx) {
+        if (idx < 0)
+            return skinToCoin[0];
+        else if (idx >= skinToCoin.length)
+            return skinToCoin[skinToCoin.length - 1];
+        return skinToCoin[idx];
     }
 
     // TODO :
@@ -244,6 +282,17 @@ public class LotteryManager {
 
     private static LotteryManager instance = null;
 
+    private static final ResourceLocation[] qualityBgList = {
+            ResourceLocation.fromNamespaceAndPath("noellesroles", "textures/gui/loot/common_skin.png"),
+            ResourceLocation.fromNamespaceAndPath("noellesroles", "textures/gui/loot/uncommon_skin.png"),
+            ResourceLocation.fromNamespaceAndPath("noellesroles", "textures/gui/loot/rare_skin.png"),
+            ResourceLocation.fromNamespaceAndPath("noellesroles", "textures/gui/loot/epic_skin.png"),
+            ResourceLocation.fromNamespaceAndPath("noellesroles", "textures/gui/loot/legendary_skin.png"),
+    };
+    /** 不同品质重复皮肤对应折算的为单抽硬币数量的比例 */
+    private static final float[] skinToCoin = {
+            0.1f, 0.125f, 0.25f, 0.5f, 1f
+    };
     /**
      * 抽奖粒度
      * <p>
@@ -252,13 +301,8 @@ public class LotteryManager {
      * </p>
      */
     public static final int maxGranularity = 1000;
+    /** 抽奖消耗的硬币数量 */
+    public static final int baseLootConsumeCoin = 648;
     private final ArrayList<LotteryPool> lotteryPoolList = new ArrayList<>();
     private final String defaultPoolItem = "coin_common";
-    private static final ResourceLocation[] qualityBgList = {
-            ResourceLocation.fromNamespaceAndPath("noellesroles", "textures/gui/loot/common_skin.png"),
-            ResourceLocation.fromNamespaceAndPath("noellesroles", "textures/gui/loot/uncommon_skin.png"),
-            ResourceLocation.fromNamespaceAndPath("noellesroles", "textures/gui/loot/rare_skin.png"),
-            ResourceLocation.fromNamespaceAndPath("noellesroles", "textures/gui/loot/epic_skin.png"),
-            ResourceLocation.fromNamespaceAndPath("noellesroles", "textures/gui/loot/legendary_skin.png"),
-    };
 }

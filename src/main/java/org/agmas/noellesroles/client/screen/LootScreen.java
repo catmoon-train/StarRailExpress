@@ -1,5 +1,7 @@
 package org.agmas.noellesroles.client.screen;
 
+import io.wifi.starrailexpress.index.SREDataComponentTypes;
+import io.wifi.starrailexpress.index.TMMItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -9,6 +11,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec2;
 import org.agmas.noellesroles.client.animation.AbstractAnimation;
 import org.agmas.noellesroles.client.animation.BezierAnimation;
@@ -387,6 +390,28 @@ public class LootScreen extends AbstractPixelScreen {
                     centerX - font.width(Component.literal(itemName)) / 2,
                     height / 2 + (int)(endCard.getHeight() * (deltaScale + 1f)) / 2 + cardInterval * pixelSize,
                     0xFFFFFFFF);
+
+            // 显示item，如果放着可能有一定性能消耗，但是这个界面持续时间一般很短，影响不大
+            ItemStack itemStack = null;
+            // 设置itemStack
+            if (itemName.startsWith("knife/")) {
+                itemStack = TMMItems.KNIFE.getDefaultInstance();
+            }
+            else if (itemName.startsWith("gun/")) {
+                itemStack = TMMItems.REVOLVER.getDefaultInstance();
+            }
+            else if (itemName.startsWith("bat/")) {
+                itemStack = TMMItems.BAT.getDefaultInstance();
+            }
+            else if (itemName.startsWith("grenade/")) {
+                itemStack = TMMItems.GRENADE.getDefaultInstance();
+            }
+            if (itemStack != null) {
+                Minecraft minecraft = Minecraft.getInstance();
+                String trueName = itemName.substring(itemName.indexOf('/') + 1);
+                itemStack.set(SREDataComponentTypes.SKIN, trueName);
+                minecraft.setScreen(new DisplayItemScreen(itemStack,this));
+            }
         }
         timerWidget.onRenderUpdate(delta);
 

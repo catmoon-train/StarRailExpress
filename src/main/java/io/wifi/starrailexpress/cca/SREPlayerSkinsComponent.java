@@ -36,6 +36,8 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
     private final Player player;
     private Map<String, String> equippedSkins; // 存储当前装备的皮肤 {itemName -> skinName}
     private Map<String, Map<String, Boolean>> unlockedSkins; // 存储解锁的皮肤 {itemName -> {skinName -> isUnlocked}}
+    private Integer lootChance;
+    private Integer coinNum;
 
     // HTTP 网络同步管理器
     public static SyncRequests syncRequests = null;
@@ -47,6 +49,8 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
         this.player = player;
         this.equippedSkins = new HashMap<>();
         this.unlockedSkins = new HashMap<>();
+        this.lootChance = 0;
+        this.coinNum = 0;
     }
 
     public void sync() {
@@ -106,6 +110,24 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
         // }
     }
 
+    /** 获取当前玩家抽奖次数 */
+    public Integer getLootChance() {
+        return this.lootChance;
+    }
+    /** 获取当前玩家金币数量 */
+    public Integer getCoinNum() {
+        return this.coinNum;
+    }
+    public void addLootChance(Integer num) {
+        this.lootChance += num;
+        // 触发网络同步
+        markSkinDataChanged();
+    }
+    public void addCoinNum(Integer num) {
+        this.coinNum += num;
+        // 触发网络同步
+        markSkinDataChanged();
+    }
     /**
      * 获取当前装备的皮肤名称
      */
@@ -311,6 +333,8 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
                     Map<String, Object> skinData = new HashMap<>();
                     skinData.put("equipped", this.equippedSkins);
                     skinData.put("unlocked", this.deepCopyUnlockedSkins());
+                    skinData.put("lootChance", this.lootChance);
+                    skinData.put("coinNum", this.coinNum);
                     skinData.put("version", System.currentTimeMillis());
                     skinData.put("timestamp", System.currentTimeMillis());
 
@@ -396,6 +420,20 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
                 if (unlocked instanceof Map) {
                     Map<String, Map<String, Boolean>> unlockedData = (Map<String, Map<String, Boolean>>) unlocked;
                     this.unlockedSkins = this.deepCopyMap(unlockedData);
+                }
+            }
+
+            if (skinData.containsKey("lootChance")) {
+                Object lootChance = skinData.get("lootChance");
+                if (lootChance instanceof Number) {
+                    this.lootChance = (Integer) skinData.get("lootChance");
+                }
+            }
+
+            if (skinData.containsKey("coinNum")) {
+                Object coinNum = skinData.get("coinNum");
+                if (coinNum instanceof Number) {
+                    this.coinNum = (Integer) skinData.get("coinNum");
                 }
             }
 

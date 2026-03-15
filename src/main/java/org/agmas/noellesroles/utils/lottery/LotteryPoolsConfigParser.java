@@ -16,13 +16,13 @@ public class LotteryPoolsConfigParser {
     /** 从文件解析配置 */
     public static LotteryPoolsConfig parse(Path configPath){
         if(!Files.exists(configPath)){
-            Noellesroles.LOGGER.warn("Lottery Pools Config file is not found: {}", configPath);
+            Noellesroles.LOGGER.warn("[LootSys] Lottery Pools Config file is not found: {}", configPath);
         }
         try (Reader reader = Files.newBufferedReader(configPath)){
             return  GSON.fromJson(reader, LotteryPoolsConfig.class);
         }
         catch (Exception e){
-            Noellesroles.LOGGER.error("Failed to parse Lottery Pools config : {}", configPath, e);
+            Noellesroles.LOGGER.error("[LootSys] Failed to parse Lottery Pools config : {}", configPath, e);
             return null;
         }
     }
@@ -31,7 +31,7 @@ public class LotteryPoolsConfigParser {
             return GSON.fromJson(configJson, LotteryPoolsConfig.class);
         }
         catch (Exception e){
-            Noellesroles.LOGGER.error("Failed to parse Lottery Pools config JSON string", e);
+            Noellesroles.LOGGER.error("[LootSys] Failed to parse Lottery Pools config JSON string", e);
             return null;
         }
     }

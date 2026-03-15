@@ -197,6 +197,24 @@ public class SkinManager {
         return skinMap;
     }
 
+    public static Integer getLootChance(Player player) {
+        SREPlayerSkinsComponent skinsComponent = SREPlayerSkinsComponent.KEY.get(player);
+        return skinsComponent.getLootChance();
+    }
+    public static void addLootChance(Player player, Integer chance) {
+        SREPlayerSkinsComponent skinsComponent = SREPlayerSkinsComponent.KEY.get(player);
+        skinsComponent.addLootChance(chance);
+        skinsComponent.syncSkinsToClient();
+    }
+    public static Integer getCoinNum(Player player) {
+        SREPlayerSkinsComponent skinsComponent = SREPlayerSkinsComponent.KEY.get(player);
+        return skinsComponent.getCoinNum();
+    }
+    public static void addCoinNum(Player player, Integer num) {
+        SREPlayerSkinsComponent skinsComponent = SREPlayerSkinsComponent.KEY.get(player);
+        skinsComponent.addCoinNum(num);
+        skinsComponent.syncSkinsToClient();
+    }
     /**
      * 获取玩家当前装备的皮肤名称
      *
