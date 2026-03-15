@@ -46,7 +46,6 @@ public class SettingMenuScreen extends Screen {
     @Override
     public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
-
         context.drawCenteredString(font, title, width / 2, 30, 0xFFFFFF);
     }
 
@@ -76,12 +75,13 @@ public class SettingMenuScreen extends Screen {
                     }).bounds(buttonX, buttonY, BUTTON_WIDTH, BUTTON_HEIGHT).build();
             if (!showSettings) {
                 btn1.active = false;
-                btn1.setTooltip(Tooltip.create(Component.translatable("screen.starrailexpress.settings.unable").withStyle(ChatFormatting.RED)));
+                btn1.setTooltip(Tooltip.create(Component.translatable("screen.starrailexpress.settings.unable")
+                        .withStyle(ChatFormatting.RED)));
             }
             this.addRenderableWidget(btn1);
             buttonY += (BUTTON_HEIGHT + MARGIN);
         }
-        if (showSettings) {
+        {
             var btn1 = Button
                     .builder(Component.translatable("screen.starrailexpress.settings.noellesroles"), (bbtn) -> {
                         if (!showSettings) {
@@ -90,10 +90,15 @@ public class SettingMenuScreen extends Screen {
                         var screen = NoellesRolesConfig.HANDLER.generateGui().generateScreen(this);
                         this.minecraft.setScreen(screen);
                     }).bounds(buttonX, buttonY, BUTTON_WIDTH, BUTTON_HEIGHT).build();
+            if (!showSettings) {
+                btn1.active = false;
+                btn1.setTooltip(Tooltip.create(Component.translatable("screen.starrailexpress.settings.unable")
+                        .withStyle(ChatFormatting.RED)));
+            }
             this.addRenderableWidget(btn1);
             buttonY += (BUTTON_HEIGHT + MARGIN);
         }
-        if (showSettings) {
+        {
             var btn1 = Button
                     .builder(Component.translatable("screen.starrailexpress.settings.harpymodloader"), (bbtn) -> {
                         if (!showSettings) {
@@ -102,10 +107,15 @@ public class SettingMenuScreen extends Screen {
                         var screen = HarpyModLoaderConfig.HANDLER.generateGui().generateScreen(this);
                         this.minecraft.setScreen(screen);
                     }).bounds(buttonX, buttonY, BUTTON_WIDTH, BUTTON_HEIGHT).build();
+            if (!showSettings) {
+                btn1.active = false;
+                btn1.setTooltip(Tooltip.create(Component.translatable("screen.starrailexpress.settings.unable")
+                        .withStyle(ChatFormatting.RED)));
+            }
             this.addRenderableWidget(btn1);
             buttonY += (BUTTON_HEIGHT + MARGIN);
         }
-        if (showSettings) {
+        {
             var btn1 = Button
                     .builder(Component.translatable("screen.starrailexpress.settings.stupid_express"), (bbtn) -> {
                         if (!showSettings) {
@@ -114,10 +124,15 @@ public class SettingMenuScreen extends Screen {
                         var screen = StupidExpressConfig.HANDLER.generateGui().generateScreen(this);
                         this.minecraft.setScreen(screen);
                     }).bounds(buttonX, buttonY, BUTTON_WIDTH, BUTTON_HEIGHT).build();
+            if (!showSettings) {
+                btn1.active = false;
+                btn1.setTooltip(Tooltip.create(Component.translatable("screen.starrailexpress.settings.unable")
+                        .withStyle(ChatFormatting.RED)));
+            }
             this.addRenderableWidget(btn1);
             buttonY += (BUTTON_HEIGHT + MARGIN);
         }
-        if (showSettings) {
+        {
             var btn1 = Button
                     .builder(Component.translatable("screen.starrailexpress.settings.role_modifier"), (bbtn) -> {
                         if (!showSettings) {
@@ -126,6 +141,11 @@ public class SettingMenuScreen extends Screen {
                         var screen = RoleManageConfigUI.getScreen(this);
                         this.minecraft.setScreen(screen);
                     }).bounds(buttonX, buttonY, BUTTON_WIDTH, BUTTON_HEIGHT).build();
+            if (!showSettings) {
+                btn1.active = false;
+                btn1.setTooltip(Tooltip.create(Component.translatable("screen.starrailexpress.settings.unable")
+                        .withStyle(ChatFormatting.RED)));
+            }
             this.addRenderableWidget(btn1);
             buttonY += (BUTTON_HEIGHT + MARGIN);
         }

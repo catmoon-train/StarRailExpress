@@ -6,7 +6,6 @@ import java.util.HashMap;
 
 import com.google.gson.Gson;
 
-import io.wifi.ConfigCompact.ConfigClassHandler.SyncInfo;
 import io.wifi.ConfigCompact.annotation.ConfigSync;
 import io.wifi.ConfigCompact.config_gui_provider.GenericEnumGuiProvider;
 import io.wifi.ConfigCompact.config_gui_provider.GenericMapGuiProvider;
@@ -113,10 +112,10 @@ public class ConfigClassHandler<T extends ConfigData> {
         }
         Object target = null;
         try {
+            @SuppressWarnings("unchecked")
             var tt = (Class<ConfigData>) type;
             target = instance(tt);
         } catch (Exception e) {
-
             SRE.LOGGER.error("Sync config failed. Config Type from server: {}", id, e);
             return;
         }
@@ -126,13 +125,47 @@ public class ConfigClassHandler<T extends ConfigData> {
                 Field field = type.getDeclaredField(info.fieldName);
                 // 如果是私有字段，允许访问
                 field.setAccessible(true);
-
+                Class<?> fieldType = field.getType();
                 // 将字段值设置到目标对象
-                field.set(target, info.fieldContent);
+                var ctx = convertValue(info.fieldContent, fieldType);
+                field.set(target, ctx);
             } catch (Exception e) {
                 SRE.LOGGER.error("Sync config failed: {}.{}", id, info.fieldName, e);
             }
         }
+        SRE.LOGGER.info("Successed recieved config from server: {}", id);
+    }
+
+    private static Object convertValue(Object value, Class<?> targetType) {
+        if (value == null)
+            return null;
+
+        // 如果类型兼容，直接返回
+        if (targetType.isInstance(value)) {
+            return value;
+        }
+
+        // 处理基本类型的自动拆装箱
+        if (targetType.isPrimitive()) {
+            if (targetType == int.class && value instanceof Number) {
+                return ((Number) value).intValue();
+            }
+            if (targetType == boolean.class && value instanceof Boolean) {
+                return value; // Boolean 可以直接赋值给 boolean（自动拆箱）
+            }
+        }
+
+        // 处理字符串到其他类型的转换（可选）
+        if (value instanceof String) {
+            String str = (String) value;
+            if (targetType == Integer.class || targetType == int.class) {
+                return Integer.parseInt(str);
+            }
+            // 其他类型转换...
+        }
+
+        // 无法转换，保留原值，后续 field.set 会抛出 IllegalArgumentException
+        return value;
     }
 
     private static String encodeToJson(SyncInfoPack pack) {
