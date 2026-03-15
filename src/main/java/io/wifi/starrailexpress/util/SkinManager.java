@@ -130,6 +130,10 @@ public class SkinManager {
         knifeSkin.put("red_light_sword", new KnifeSkin(0xFFFF4500, "red_light_sword"));
         knifeSkin.put("starlight", new KnifeSkin(0xFF87CEEB, "starlight"));
         knifeSkin.put("sword_in_stone", new KnifeSkin(0xFF778899, "sword_in_stone"));
+        knifeSkin.put("astral_defense", new KnifeSkin(0xFF9370DB, "astral_defense"));
+        knifeSkin.put("harpy_star", new KnifeSkin(0xFFFFF8DC, "harpy_star"));
+        knifeSkin.put("quenched_titanium", new KnifeSkin(0xFFB87333, "quenched_titanium"));
+        knifeSkin.put("tianjie_bit", new KnifeSkin(0xFFFF6347, "tianjie_bit"));
 
         // Initialize revolver skins
         revolverknifeSkin.put("default", RevolverSkin.REVOLVER_DEFAULT_SKIN);
@@ -141,6 +145,7 @@ public class SkinManager {
         revolverknifeSkin.put("water_gun", new RevolverSkin(0xFF4169E1, "water_gun"));
         revolverknifeSkin.put("west_revolver", new RevolverSkin(0xFF8B7355, "west_revolver"));
         revolverknifeSkin.put("white_gun", new RevolverColorSkin(0xFFFAFAFA, "white_gun"));
+        revolverknifeSkin.put("desert_eagle", new RevolverSkin(0xFFC0C0C0, "desert_eagle"));
 
         // Initialize grenade skins
         grenadeSkin.put("default", GrenadeSkin.GRENADE_DEFAULT_SKIN);
@@ -149,6 +154,7 @@ public class SkinManager {
         grenadeSkin.put("magnetic_bomb", new GrenadeSkin(0xFF0000FF, "magnetic_bomb"));
         grenadeSkin.put("mobile", new GrenadeSkin(0xFF00CED1, "mobile"));
         grenadeSkin.put("oppo", new GrenadeSkin(0xFF00FF7F, "oppo"));
+        grenadeSkin.put("gas_cylinder", new GrenadeSkin(0xFF808080, "gas_cylinder"));
 
         // Initialize bat skins
         batSkin.put("default", BatSkin.BAT_DEFAULT_SKIN);
