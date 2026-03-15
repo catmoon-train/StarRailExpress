@@ -797,7 +797,7 @@ public class GameUtils {
     }
 
     public static boolean isPlayerEliminated(Player player) {
-        if (isPlayerSplitPersonalityAndSurvive(player))
+        if (isPlayerSplitPersonalityAndSurvive(player) == SPAliveResult.ALIVE)
             return false;
         return player == null || !player.isAlive() || player.isCreative() || player.isSpectator();
     }
@@ -1090,7 +1090,7 @@ public class GameUtils {
     }
 
     public static boolean isPlayerSpectator(Player p) {
-        if (isPlayerSplitPersonalityAndSurvive(p))
+        if (isPlayerSplitPersonalityAndSurvive(p) == SPAliveResult.ALIVE)
             return false;
         return p.isSpectator();
     }
@@ -1100,7 +1100,7 @@ public class GameUtils {
     }
 
     public static boolean isPlayerAliveAndSurvival(Player player) {
-        if (isPlayerSplitPersonalityAndSurvive(player))
+        if (isPlayerSplitPersonalityAndSurvive(player) == SPAliveResult.ALIVE)
             return true;
         return isPlayerAliveAndSurvivalIgnoreShitSplit(player);
     }
@@ -1110,26 +1110,30 @@ public class GameUtils {
     }
 
     public static boolean isPlayerSpectatingOrCreative(Player player) {
-        if (isPlayerSplitPersonalityAndSurvive(player))
+        if (isPlayerSplitPersonalityAndSurvive(player) == SPAliveResult.ALIVE)
             return false;
         return isPlayerSpectatingOrCreativeIgnoreShitSplit(player);
     }
 
-    public static boolean isPlayerSplitPersonalityAndSurvive(Player player) {
+    public static enum SPAliveResult {
+        ALIVE, DEAD, NOT
+    }
+
+    public static SPAliveResult isPlayerSplitPersonalityAndSurvive(Player player) {
         if (WorldModifierComponent.KEY.get(player.level()).isModifier(player, SEModifiers.SPLIT_PERSONALITY)) {
             if (player.isSpectator()) {
                 if (!SplitPersonalityComponent.KEY.get(player).isDeath()) {
-                    return true;
+                    return SPAliveResult.ALIVE;
                 } else {
-                    return false;
+                    return SPAliveResult.DEAD;
                 }
             } else if (player.isCreative()) {
-                return false;
+                return SPAliveResult.DEAD;
             } else {
-                return true;
+                return SPAliveResult.ALIVE;
             }
         }
-        return false;
+        return SPAliveResult.NOT;
     }
 
     public static boolean isPlayerSpectatingOrCreativeIgnoreShitSplit(Player player) {

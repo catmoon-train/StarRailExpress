@@ -1,6 +1,7 @@
 package pro.fazeclan.river.stupid_express.constants;
 
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.event.OnGameTrueStarted;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.SRE;
 import net.minecraft.server.level.ServerPlayer;
@@ -10,9 +11,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collections;
-import net.minecraft.world.level.GameType;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
-import org.agmas.harpymodloader.events.GameInitializeEvent;
 import org.agmas.harpymodloader.events.ModifierAssigned;
 import org.agmas.harpymodloader.events.ModifierRemoved;
 import org.agmas.harpymodloader.events.ResetPlayerEvent;
@@ -141,18 +140,6 @@ public class SEModifiers {
         pro.fazeclan.river.stupid_express.modifier.knight.KnightHandler.init();
         pro.fazeclan.river.stupid_express.modifier.split_personality.SplitPersonalityHandler.init();
 
-        GameInitializeEvent.EVENT.register(
-                (serverLevel, gameWorldComponent, serverPlayers) -> {
-                    serverPlayers.forEach(
-                            player -> {
-                                var splitPersonalityComponent2 = pro.fazeclan.river.stupid_express.modifier.split_personality.cca.SplitPersonalityComponent.KEY
-                                        .get(player);
-                                splitPersonalityComponent2.init();
-                                SkinSplitPersonalityComponent skinSplitPersonalityComponent2 = SkinSplitPersonalityComponent.KEY
-                                        .get(player);
-                                skinSplitPersonalityComponent2.clear();
-                            });
-                });
         ResetPlayerEvent.EVENT.register(player -> {
             var splitPersonalityComponent2 = pro.fazeclan.river.stupid_express.modifier.split_personality.cca.SplitPersonalityComponent.KEY
                     .get(player);
@@ -227,6 +214,14 @@ public class SEModifiers {
             var worldModifierComponent = WorldModifierComponent.KEY.get(level);
             worldModifierComponent.addModifier(loverTwo.getUUID(), LOVERS); // visually show lovers on the other player
         }));
+        OnGameTrueStarted.EVENT.register((serverLevel)->{
+            // var wmc = WorldModifierComponent.KEY.get(serverLevel);
+            // for (ServerPlayer player : serverLevel.players()) {
+            //     if(wmc.isModifier(player, SEModifiers.SPLIT_PERSONALITY)){
+            //         // SplitPersonalityComponent.KEY.get(player);
+            //     }
+            // }
+        });
         /// SPLIT_PERSONALITY
         ModifierAssigned.EVENT.register(((player, modifier) -> {
             if (!modifier.equals(SPLIT_PERSONALITY)) {
@@ -303,8 +298,10 @@ public class SEModifiers {
                         player.getScoreboardName());
                 return;
             }
-            secondPersonality.setGameMode(GameType.SPECTATOR);
-            secondPersonality.setCamera(person);
+            // 给第二人格添加修饰符
+            var worldModifierComponent = WorldModifierComponent.KEY.get(level);
+            worldModifierComponent.addModifier(secondPersonality.getUUID(), SPLIT_PERSONALITY); 
+
             // 为两个人格都设置SplitPersonalityComponent
             var componentOne = SplitPersonalityComponent.KEY.get(person);
             componentOne.setMainPersonality(person.getUUID());
@@ -325,9 +322,6 @@ public class SEModifiers {
             final var skinSplitPersonalityComponent = SkinSplitPersonalityComponent.KEY.get(secondPersonality);
             skinSplitPersonalityComponent.setSkinToAppearAs(player.getUUID());
             skinSplitPersonalityComponent.sync();
-
-            var worldModifierComponent = WorldModifierComponent.KEY.get(level);
-            worldModifierComponent.addModifier(secondPersonality.getUUID(), SPLIT_PERSONALITY); // 给第二人格添加修饰符
         }));
 
         /// TINY & TALL & FEATHER & ALLERGIST & CURSED & SECRETIVE & KNIGHT &
