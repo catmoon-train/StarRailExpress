@@ -4,12 +4,12 @@ import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
 import org.agmas.noellesroles.client.screen.RoleIntroduceScreen;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 
-import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import pro.fazeclan.river.stupid_express.StupidExpressConfig;
 
 public class SettingMenuScreen extends Screen {
     Screen parent;
@@ -22,7 +22,7 @@ public class SettingMenuScreen extends Screen {
     final int BUTTON_WIDTH = 200;
     final int BUTTON_HEIGHT = 20;
     final int MARGIN = 4;
-    final int buttonCount = 6;
+    final int buttonCount = 7;
 
     @Override
     public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
@@ -55,7 +55,7 @@ public class SettingMenuScreen extends Screen {
         {
             var btn1 = Button
                     .builder(Component.translatable("screen.starrailexpress.settings.tmm"), (bbtn) -> {
-                        var screen = SREConfig.getScreen(this, SRE.MOD_ID);
+                        var screen = SREConfig.HANDLER.generateGui().generateScreen(this);
                         this.minecraft.setScreen(screen);
                     }).bounds(buttonX, buttonY, BUTTON_WIDTH, BUTTON_HEIGHT).build();
             this.addRenderableWidget(btn1);
@@ -65,6 +65,15 @@ public class SettingMenuScreen extends Screen {
             var btn1 = Button
                     .builder(Component.translatable("screen.starrailexpress.settings.harpymodloader"), (bbtn) -> {
                         var screen = HarpyModLoaderConfig.HANDLER.generateGui().generateScreen(this);
+                        this.minecraft.setScreen(screen);
+                    }).bounds(buttonX, buttonY, BUTTON_WIDTH, BUTTON_HEIGHT).build();
+            this.addRenderableWidget(btn1);
+            buttonY += (BUTTON_HEIGHT + MARGIN);
+        }
+        {
+            var btn1 = Button
+                    .builder(Component.translatable("screen.starrailexpress.settings.stupid_express"), (bbtn) -> {
+                        var screen = StupidExpressConfig.HANDLER.generateGui().generateScreen(this);
                         this.minecraft.setScreen(screen);
                     }).bounds(buttonX, buttonY, BUTTON_WIDTH, BUTTON_HEIGHT).build();
             this.addRenderableWidget(btn1);
