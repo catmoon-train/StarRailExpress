@@ -73,8 +73,6 @@ public class StarRailMurderGameMode extends GameMode {
 
         Harpymodloader.refreshRoles();
 
-        HarpyModLoaderConfig.HANDLER.load();
-
         ((SRETrainWorldComponent) SRETrainWorldComponent.KEY.get(serverWorld))
                 .setTimeOfDay(SRETrainWorldComponent.TimeOfDay.MIDNIGHT);
         gameWorldComponent.clearRoleMap();

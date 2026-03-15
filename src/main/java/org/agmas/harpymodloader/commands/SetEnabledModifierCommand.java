@@ -42,9 +42,13 @@ public class SetEnabledModifierCommand {
 
         if (disabled && enabled) {
             HarpyModLoaderConfig.HANDLER.instance().disabledModifiers.remove(modifierId);
+            HarpyModLoaderConfig.HANDLER.save();
+
             context.getSource().sendSuccess(() -> Component.translatable("commands.setenabledmodifier.enable.success", modifierName), true);
         } else if (!disabled && !enabled) {
             HarpyModLoaderConfig.HANDLER.instance().disabledModifiers.add(modifierId);
+            HarpyModLoaderConfig.HANDLER.save();
+
             context.getSource().sendSuccess(() -> Component.translatable("commands.setenabledmodifier.disable.success", modifierName), true);
         } else {
             throw ROLE_UNCHANGED_EXCEPTION.create();

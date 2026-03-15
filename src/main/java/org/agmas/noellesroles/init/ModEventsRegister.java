@@ -7,7 +7,6 @@ import io.wifi.starrailexpress.network.RemoveStatusBarPayload;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
-import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
 import org.agmas.harpymodloader.events.ModdedRoleAssigned;
 import org.agmas.harpymodloader.events.ModdedRoleRemoved;
 import org.agmas.harpymodloader.events.OnGamePlayerRolesConfirm;
@@ -1246,15 +1245,6 @@ public class ModEventsRegister {
                 }
             }
         }));
-        if (!NoellesRolesConfig.HANDLER.instance().shitpostRoles) {
-            HarpyModLoaderConfig.HANDLER.load();
-
-            if (!HarpyModLoaderConfig.HANDLER.instance().disabled.contains(ModRoles.BETTER_VIGILANTE_ID.getPath())) {
-                HarpyModLoaderConfig.HANDLER.instance().disabled.add(ModRoles.BETTER_VIGILANTE_ID.getPath());
-            }
-
-            HarpyModLoaderConfig.HANDLER.save();
-        }
         // // 监听角色分配事件 - 这是最重要的事件！
         // // 当玩家被分配角色时触发，可以在这里给予初始物品、设置初始状态等
         // ModdedRoleAssigned.EVENT.register((player, role) -> {

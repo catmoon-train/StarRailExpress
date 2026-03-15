@@ -48,6 +48,17 @@ public class ConfigClassHandler<T extends ConfigData> {
         }
     }
 
+    
+    public void reset() {
+        try {
+            var config = ((ConfigManager<T>) AutoConfig
+                    .getConfigHolder(type));
+            config.resetToDefault();
+        } catch (ClassCastException e) {
+            // 理论上不会发生，除非 cloth-config 换了实现
+            throw new RuntimeException("Failed to reload config", e);
+        }
+    }
     public void save() {
         try {
             var config = ((ConfigManager<T>) AutoConfig

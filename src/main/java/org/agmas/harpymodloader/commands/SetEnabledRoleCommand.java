@@ -42,9 +42,11 @@ public class SetEnabledRoleCommand {
 
         if (disabled && enabled) {
             HarpyModLoaderConfig.HANDLER.instance().disabled.remove(roleId);
+            HarpyModLoaderConfig.HANDLER.save();
             context.getSource().sendSuccess(() -> Component.translatable("commands.setenabledrole.enable.success", roleText), true);
         } else if (!disabled && !enabled) {
             HarpyModLoaderConfig.HANDLER.instance().disabled.add(roleId);
+            HarpyModLoaderConfig.HANDLER.save();
             context.getSource().sendSuccess(() -> Component.translatable("commands.setenabledrole.disable.success", roleText), true);
         } else throw ROLE_UNCHANGED_EXCEPTION.create();
 
