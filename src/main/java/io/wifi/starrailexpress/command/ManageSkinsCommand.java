@@ -57,8 +57,8 @@ public class ManageSkinsCommand {
                 // 解锁指定物品类型的皮肤
                 SkinManager.unlockSkinForItemType(player, BuiltInRegistries.ITEM.getKey(item.getItem()).toString(),
                         skin);
-                context.getSource().sendSuccess(() -> Component.literal(
-                        "Gave skin '" + skin + "' for item type '" + item + "' to " + player.getName().getString()),
+                context.getSource().sendSuccess(() -> Component.translatable(
+                        "Gave skin %s for item type %s to %s", skin, item.getItem().getDescription(), player.getName()),
                         true);
 
                 successes++;
@@ -81,8 +81,8 @@ public class ManageSkinsCommand {
             // 锁定（移除）指定物品类型的皮肤
             SREPlayerSkinsComponent skinsComponent = SREPlayerSkinsComponent.KEY.get(player);
             skinsComponent.lockSkinForItemType(BuiltInRegistries.ITEM.getKey(item.getItem()).toString(), skin);
-            context.getSource().sendSuccess(() -> Component.literal(
-                    "Removed skin '" + skin + "' for item type '" + item + "' from " + player.getName().getString()),
+            context.getSource().sendSuccess(() -> Component.translatable(
+                        "Removed skin %s for item type %s to %s", skin, item.getItem().getDescription(), player.getName()),
                     true);
             skinsComponent.syncSkinsToClient();
             // skinsComponent.syncSkinsToNetwork();
@@ -102,8 +102,8 @@ public class ManageSkinsCommand {
             // 设置指定物品类型的装备皮肤
             SkinManager.setEquippedSkinForItemType(player, BuiltInRegistries.ITEM.getKey(item.getItem()).toString(),
                     skin);
-            context.getSource().sendSuccess(() -> Component.literal("Set equipped skin to '" + skin
-                    + "' for item type '" + item + "' for " + player.getName().getString()), true);
+            context.getSource().sendSuccess(() -> Component.translatable(
+                        "Set equipped skin to %s for item type %s to %s", skin, item.getItem().getDescription(), player.getName()), true);
             successes++;
         }
 

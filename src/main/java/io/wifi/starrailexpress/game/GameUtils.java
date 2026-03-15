@@ -20,13 +20,14 @@ import io.wifi.starrailexpress.api.replay.GameReplayData;
 import net.exmo.sre.nametag.NameTagInventoryComponent;
 
 import org.agmas.harpymodloader.component.WorldModifierComponent;
+import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.packet.NameTagSyncPayload;
 import org.agmas.noellesroles.utils.EntityClearUtils;
+import org.agmas.noellesroles.utils.MCItemsUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import com.google.common.collect.Lists;
-
 import io.wifi.starrailexpress.api.GameMode;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.RoleMethodDispatcher;
@@ -82,6 +83,7 @@ import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.index.TMMEntities;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.TMMSounds;
+import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import io.wifi.starrailexpress.network.BreakArmorPayload;
 import io.wifi.starrailexpress.network.CloseUiPayload;
 import io.wifi.starrailexpress.network.TriggerScreenEdgeEffectPayload;
@@ -375,11 +377,29 @@ public class GameUtils {
                 }
             }
         }
+        addItemCooldowns(serverWorld);
         OnGameTrueStarted.EVENT.invoker().onGameTrueStarted(serverWorld);
         // --- 结束新增统计数据更新逻辑 ---
         executeFunction(serverWorld.getServer().createCommandSourceStack(),
                 "harpymodloader:start_game_" + MapManager.last_start_map);
         OnTrainAreaHaveReseted.EVENT.invoker().onWorldHaveReseted(serverWorld);
+    }
+
+    public static void addItemCooldowns(ServerLevel world) {
+        for (ServerPlayer player : world.players()) {
+            var cooldowns = player.getCooldowns();
+            var items = new ArrayList<>(MCItemsUtils.getItemsByTag(player.serverLevel(), TMMItemTags.GUNS));
+            // Noellesroles.LOGGER.info("itemSize:" + items.size());
+            int REVOLVER_COOLDOWN = GameConstants.ITEM_COOLDOWNS.getOrDefault(TMMItems.REVOLVER, 0);
+            int KNIFE_COOLDOWN = GameConstants.ITEM_COOLDOWNS.getOrDefault(TMMItems.KNIFE, 0);
+            items.forEach((item) -> {
+                cooldowns.addCooldown(item,
+                        (Integer) GameConstants.ITEM_COOLDOWNS.getOrDefault(item, REVOLVER_COOLDOWN));
+            });
+            cooldowns.addCooldown(ModItems.SP_KNIFE, KNIFE_COOLDOWN);
+            cooldowns.addCooldown(TMMItems.KNIFE, KNIFE_COOLDOWN);
+            cooldowns.addCooldown(ModItems.FAKE_REVOLVER, REVOLVER_COOLDOWN);
+        }
     }
 
     public static Vec3 getSpawnPos(AreasWorldComponent areas, int room) {

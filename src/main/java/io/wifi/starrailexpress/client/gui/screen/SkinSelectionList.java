@@ -271,7 +271,7 @@ public class SkinSelectionList extends ObjectSelectionList<SkinSelectionList.Ski
             // 皮肤名称
             String itemTypeKey = (itemTypeName.replaceAll(":", "."));
             Component displayName = Component.translatableWithFallback(
-                    "screen.starrailexpress.skins." + itemTypeKey + "." + skinLowerName + ".name",
+                    "screen.sre.skins." + itemTypeKey + "." + skinLowerName + ".name",
                     formatSkinName(skinLowerName));
 
             int nameColor = isCurrent ? 0xFF55FF55 : TEXT_COLOR;
@@ -279,7 +279,7 @@ public class SkinSelectionList extends ObjectSelectionList<SkinSelectionList.Ski
 
             // 皮肤描述
             Component description = Component.translatableWithFallback(
-                    "screen.starrailexpress.skins." + itemTypeKey + "." + skinLowerName + ".desc",
+                    "screen.sre.skins." + itemTypeKey + "." + skinLowerName + ".desc",
                     formatSkinName(skinLowerName));
 
             int descColor = TEXT_SECONDARY_COLOR;
@@ -313,8 +313,8 @@ public class SkinSelectionList extends ObjectSelectionList<SkinSelectionList.Ski
             drawRoundedRectBorder(guiGraphics, buttonX, buttonY, buttonWidth, buttonHeight, 0, borderColor);
 
             // 按钮文字
-            Component buttonText = isCurrent ? Component.translatable("screen.starrailexpress.skins.equipped")
-                    : Component.translatable("screen.starrailexpress.skins.equip");
+            Component buttonText = isCurrent ? Component.translatable("screen.sre.skins.equipped")
+                    : Component.translatable("screen.sre.skins.equip");
 
             int textColor = isCurrent ? 0xFF00FF00 : 0xFFFFFFFF;
             int textX = buttonX + buttonWidth / 2 - Minecraft.getInstance().font.width(buttonText) / 2;
@@ -369,8 +369,8 @@ public class SkinSelectionList extends ObjectSelectionList<SkinSelectionList.Ski
 
         @Override
         public @NotNull Component getNarration() {
-            return Component.translatable("screen.starrailexpress.skins.narration",
-                    skinName.equals("default") ? Component.translatable("screen.starrailexpress.skins.default_skin")
+            return Component.translatable("screen.sre.skins.narration",
+                    skinName.equals("default") ? Component.translatable("screen.sre.skins.default_skin")
                             : Component.literal(skinName));
         }
     }

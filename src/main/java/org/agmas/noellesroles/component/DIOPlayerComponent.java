@@ -30,6 +30,8 @@ import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
+import dev.doctor4t.wathe.game.GameFunctions;
+
 /**
  * 迪奥组件
  *
@@ -438,9 +440,8 @@ public class DIOPlayerComponent implements RoleComponent, ServerTickingComponent
                             .withStyle(ChatFormatting.RED),
                     true);
         }
+        this.clear();
         GameUtils.killPlayer(player, true, null, Noellesroles.id("dio_final_carnival_cancel"));
-
-        this.sync();
     }
 
     /**
@@ -484,6 +485,8 @@ public class DIOPlayerComponent implements RoleComponent, ServerTickingComponent
         if (!SREGameWorldComponent.KEY.get(level).isRole(player, ModRoles.DIO)) {
             return;
         }
+        if (!GameFunctions.isPlayerAliveAndSurvival(player))
+            return;
         if (level.canSeeSky(getPlayer().blockPosition())) {
             if (level.isDay() && level.getGameTime() % 20 == 0) {
                 if (getPlayer().getRemainingFireTicks() <= 0) {

@@ -1,4 +1,4 @@
-package io.wifi.starrailexpress.network;
+package io.wifi.ConfigCompact.network;
 
 import io.wifi.starrailexpress.SRE;
 import net.minecraft.network.FriendlyByteBuf;

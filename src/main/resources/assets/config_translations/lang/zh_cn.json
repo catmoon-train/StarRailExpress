@@ -1,6 +1,7 @@
 {
   "=== MENU ===": "",
   "screen.starrailexpress.settings": "设置",
+  "screen.starrailexpress.settings.unable": "你无法修改设置：当前正处于游戏中且你没有权限修改.",
   "screen.starrailexpress.settings.tmm": "通用设置",
   "screen.starrailexpress.settings.noellesroles": "Noellesroles 设置",
   "screen.starrailexpress.settings.stupid_express": "Stupid Express 设置",

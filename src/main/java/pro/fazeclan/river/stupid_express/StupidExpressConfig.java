@@ -33,7 +33,6 @@ public class StupidExpressConfig implements ConfigData {
         public static class AmnesiacSection {
             public boolean amnesiacGlowsDifferently = false;
         }
-
     }
 
     @CollapsibleObject
@@ -48,5 +47,4 @@ public class StupidExpressConfig implements ConfigData {
             public boolean loversKnowImmediately = true;
         }
     }
-
 }
