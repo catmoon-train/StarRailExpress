@@ -34,7 +34,7 @@ public class SEModifiers {
 
     // Attribute modifier for tall players
     private static AttributeModifier tallModifier = new AttributeModifier(
-            StupidExpress.id("tall_modifier"), 0.11, AttributeModifier.Operation.ADD_VALUE);
+            StupidExpress.id("tall_modifier"), 0.0763, AttributeModifier.Operation.ADD_VALUE);
 
     public static Modifier LOVERS = HMLModifiers.registerModifier(new Modifier(
             StupidExpress.id("lovers"),
