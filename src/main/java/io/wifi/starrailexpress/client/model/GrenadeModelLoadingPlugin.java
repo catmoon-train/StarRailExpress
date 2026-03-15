@@ -9,6 +9,8 @@ import net.minecraft.util.StringRepresentable;
 
 public class GrenadeModelLoadingPlugin implements ModelLoadingPlugin {
 
+    public static final ModelResourceLocation THROWN_GRENADE_MODEL_ID = ModelResourceLocation
+            .inventory(SRE.TMMId("thrown_grenade"));
     public static final ModelResourceLocation GRENADE_MODEL_ID = ModelResourceLocation
             .inventory(SRE.TMMId("grenade"));
 
@@ -36,6 +38,8 @@ public class GrenadeModelLoadingPlugin implements ModelLoadingPlugin {
 
         pluginContext.modifyModelOnLoad().register((unbakedModel, context) -> {
             if (GRENADE_MODEL_ID.equals(context.topLevelId())) {
+                return new GrenadeModel(unbakedModel);
+            }else if(THROWN_GRENADE_MODEL_ID.equals(context.topLevelId())){
                 return new GrenadeModel(unbakedModel);
             }
             return unbakedModel;
