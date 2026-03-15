@@ -8,13 +8,18 @@ import net.minecraft.util.StringRepresentable;
 
 public class GrenadeModelLoadingPlugin implements ModelLoadingPlugin {
 
-    public static final ModelResourceLocation GRENADE_MODEL_ID = ModelResourceLocation.inventory(ResourceLocation.tryParse("starrailexpress:grenade"));
+    public static final ModelResourceLocation GRENADE_MODEL_ID = ModelResourceLocation
+            .inventory(ResourceLocation.tryParse("starrailexpress:grenade"));
 
     public static ResourceLocation getModelLocation(SkinManager.GrenadeSkin skin, Variant variant) {
-        var skinPart = skin == SkinManager.GrenadeSkin.GRENADE_DEFAULT_SKIN ? "" : "_%s".formatted(skin.getName());
+        if (skin == SkinManager.GrenadeSkin.GRENADE_DEFAULT_SKIN) {
+            return GRENADE_MODEL_ID.id().withPath(path -> "item/%s".formatted(GRENADE_MODEL_ID.id().getPath()));
+        }
+        var skinPart = "%s".formatted(skin.getName());
         var variantPart = variant == Variant.DEFAULT ? "" : "_%s".formatted(variant.getSerializedName());
 
-        return GRENADE_MODEL_ID.id().withPath(path -> "item/%s%s%s".formatted(GRENADE_MODEL_ID.id().getPath(), skinPart, variantPart));
+        return GRENADE_MODEL_ID.id().withPath(
+                path -> "item/skins/%s/%s%s".formatted(GRENADE_MODEL_ID.id().getPath(), skinPart, variantPart));
     }
 
     @Override
@@ -26,7 +31,7 @@ public class GrenadeModelLoadingPlugin implements ModelLoadingPlugin {
         }
 
         pluginContext.modifyModelOnLoad().register((unbakedModel, context) -> {
-            if(GRENADE_MODEL_ID.equals(context.topLevelId())) {
+            if (GRENADE_MODEL_ID.equals(context.topLevelId())) {
                 return new GrenadeModel(unbakedModel);
             }
             return unbakedModel;

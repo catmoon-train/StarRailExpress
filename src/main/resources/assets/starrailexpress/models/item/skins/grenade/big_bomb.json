@@ -1,5 +1,5 @@
 {
-	"parent": "item/generated",
+	"parent": "starrailexpress:item/grenade",
 	"textures": {
 		"layer0": "starrailexpress:item/grenade/big_bomb"
 	},

@@ -1,7 +1,6 @@
 package io.wifi.starrailexpress.util;
 
 import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
-import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.item.Colors;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -61,7 +60,7 @@ public class SkinManager {
 
     // Revolver skins
     public static class RevolverSkin extends Skin {
-        public static final KnifeSkin REVOLVER_DEFAULT_SKIN = new KnifeSkin(Colors.GRAY, "revolver");
+        public static final RevolverSkin REVOLVER_DEFAULT_SKIN = new RevolverSkin(Colors.GRAY, "default");
 
         RevolverSkin(int color, String tooltipName) {
             super(color, tooltipName);
@@ -69,8 +68,8 @@ public class SkinManager {
     }
 
     // Grenade skins
-    public static class GrenadeSkin extends KnifeSkin {
-        public static final KnifeSkin GRENADE_DEFAULT_SKIN = new KnifeSkin(Colors.GRAY, "grenade");
+    public static class GrenadeSkin extends Skin {
+        public static final GrenadeSkin GRENADE_DEFAULT_SKIN = new GrenadeSkin(Colors.GRAY, "default");
 
         GrenadeSkin(int color, String tooltipName) {
             super(color, tooltipName);
@@ -78,8 +77,8 @@ public class SkinManager {
     }
 
     // Bat skins
-    public static class BatSkin extends KnifeSkin {
-        public static final KnifeSkin BAT_DEFAULT_SKIN = new KnifeSkin(Colors.GRAY, "bat");
+    public static class BatSkin extends Skin {
+        public static final BatSkin BAT_DEFAULT_SKIN = new BatSkin(Colors.GRAY, "default");
 
         BatSkin(int color, String tooltipName) {
             super(color, tooltipName);
@@ -158,10 +157,10 @@ public class SkinManager {
         batSkin.put("red_axe", new BatSkin(0xFFDC143C, "red_axe"));
         batSkin.put("steel_tube", new BatSkin(0xFF4682B4, "steel_tube"));
         batSkin.put("wolfteeth_mace", new BatSkin(0xFF708090, "wolfteeth_mace"));
-        skinMap.put(getResourceLocationOfItem(TMMItems.KNIFE).getPath(), knifeSkin);
-        skinMap.put(getResourceLocationOfItem(TMMItems.BAT).getPath(), batSkin);
-        skinMap.put(getResourceLocationOfItem(TMMItems.REVOLVER).getPath(), revolverknifeSkin);
-        skinMap.put(getResourceLocationOfItem(TMMItems.GRENADE).getPath(), grenadeSkin);
+        skinMap.put("knife", knifeSkin);
+        skinMap.put("bat", batSkin);
+        skinMap.put("revolver", revolverknifeSkin);
+        skinMap.put("grenade", grenadeSkin);
     }
 
     public static ResourceLocation getResourceLocationOfItem(Item item) {
