@@ -1,4 +1,5 @@
 package net.exmo.sre.loading;
+
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.logging.LogUtils;
@@ -12,16 +13,18 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.LogoRenderer;
 import net.minecraft.client.gui.components.SplashRenderer;
-
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.gui.screens.multiplayer.SafetyScreen;
 import net.minecraft.client.gui.screens.options.OptionsScreen;
 import net.minecraft.client.gui.screens.worldselection.SelectWorldScreen;
-
+import net.minecraft.client.renderer.PanoramaRenderer;
+import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.resources.language.I18n;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
-
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
@@ -30,10 +33,8 @@ import org.slf4j.Logger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.platform.Window;
-import net.minecraft.client.gui.GuiGraphics;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 @Environment(EnvType.CLIENT)
 public class StarRailExpressTitleScreen extends Screen {
@@ -42,9 +43,22 @@ public class StarRailExpressTitleScreen extends Screen {
     private static final String QQ_GROUP_URL = "https://qm.qq.com/q/8XXqKRjT7q";
     private static final String DISCORD_URL = "https://discord.gg/T7R5NkMHt3";
     private static final String WIKI_URL = "https://docs.qq.com/smartsheet/DUUNVaFJTdmFTQ0Ry?tab=sc_bw1NDg";
-    private static final int MENU_START_X = 70;
-    private static final int MENU_START_Y_OFFSET = 110;
-    private static final int MENU_SPACING = 26;
+
+    // 基础尺寸常量（用于缩放）
+    private static final int BASE_MENU_START_X = 70;
+    private static final int BASE_MENU_START_Y_OFFSET = 110;
+    private static final int BASE_MENU_SPACING = 26;
+    private static final int BASE_LEFT_PANEL_X = 38;
+    private static final int BASE_LEFT_PANEL_Y = 78;
+    private static final int BASE_LEFT_PANEL_W = 230;
+    private static final int BASE_LEFT_PANEL_H = 270; // 固定部分高度
+    private static final int BASE_RIGHT_PANEL_W = 450;
+    private static final int BASE_RIGHT_PANEL_HEADER_H = 24;
+    private static final int BASE_RIGHT_PANEL_BODY_H = 270;
+    private static final int BASE_RIGHT_PANEL_X_OFFSET = 36; // 右侧面板距右边距离
+    private static final int BASE_RIGHT_PANEL_Y = 86;
+    private static final int BASE_SCROLLBAR_WIDTH = 6;
+    private static final int BASE_ANIM_OFFSET = 22; // 菜单动画偏移
 
     @Nullable
     private SplashRenderer splash;
@@ -115,6 +129,23 @@ public class StarRailExpressTitleScreen extends Screen {
             "1、修复了老人轮椅 bug 2、修复了一堆双重人格和亡命徒的 bug 4、修了一堆小 bug 5、修复纵火犯在打火机进入冷却之后点火也会导致点火失败的 bug 6、修了一堆地图 bug 7、加入了 him 8、移除了 him"
     );
 
+    // 缩放相关
+    private float globalScale = 1.0F;
+    private int scaledMenuStartX;
+    private int scaledMenuStartYOffset;
+    private int scaledMenuSpacing;
+    private int scaledLeftPanelX;
+    private int scaledLeftPanelY;
+    private int scaledLeftPanelW;
+    private int scaledLeftPanelH;
+    private int scaledRightPanelW;
+    private int scaledRightPanelHeaderH;
+    private int scaledRightPanelBodyH;
+    private int scaledRightPanelXOffset;
+    private int scaledRightPanelY;
+    private int scaledScrollbarWidth;
+    private int scaledAnimOffset;
+
     public StarRailExpressTitleScreen() {
         this(false);
     }
@@ -128,12 +159,36 @@ public class StarRailExpressTitleScreen extends Screen {
         this.logoRenderer = (LogoRenderer) Objects.requireNonNullElseGet(logoRenderer, () -> new LogoRenderer(false));
     }
 
+    private int scale(int value) {
+        return (int) (value * globalScale);
+    }
+
     @Override
     protected void init() {
+
+        // 计算缩放系数（以高度720为基准，只缩小不放大）
+        this.globalScale = Math.min(this.height / 720.0f, 1.0f);
+
+        // 计算缩放后的布局参数
+        this.scaledMenuStartX = scale(BASE_MENU_START_X);
+        this.scaledMenuStartYOffset = scale(BASE_MENU_START_Y_OFFSET);
+        // 菜单项间距：至少18px（字体高度14+最小间距4），避免文字重叠
+        this.scaledMenuSpacing = Math.max(18, scale(BASE_MENU_SPACING));
+        this.scaledLeftPanelX = scale(BASE_LEFT_PANEL_X);
+        this.scaledLeftPanelY = scale(BASE_LEFT_PANEL_Y);
+        this.scaledLeftPanelW = (BASE_LEFT_PANEL_W);
+        this.scaledRightPanelW = scale(BASE_RIGHT_PANEL_W);
+        this.scaledRightPanelHeaderH = scale(BASE_RIGHT_PANEL_HEADER_H);
+        this.scaledRightPanelBodyH = scale(BASE_RIGHT_PANEL_BODY_H);
+        this.scaledRightPanelXOffset = scale(BASE_RIGHT_PANEL_X_OFFSET);
+        this.scaledRightPanelY = scale(BASE_RIGHT_PANEL_Y);
+        this.scaledScrollbarWidth = scale(BASE_SCROLLBAR_WIDTH);
+        this.scaledAnimOffset = scale(BASE_ANIM_OFFSET);
+
         this.screenOpenTime = Util.getMillis();
         this.menuEntries.clear();
-        
-        // 解析更新日志
+
+        // 解析更新日志（传入缩放后的面板宽度用于文字换行）
         this.parsedChangelogLines = parseChangelogLines(this.changelogRawLines);
 
         if (this.splash == null) {
@@ -149,7 +204,7 @@ public class StarRailExpressTitleScreen extends Screen {
         }
 
         // 文字菜单
-        int baseY = this.height / 2 - MENU_START_Y_OFFSET / 2;
+        int baseY = this.height / 2 - scaledMenuStartYOffset / 2;
 
         this.menuEntries.add(new MenuEntry(
                 Component.translatable("menu.sre.multiplayer"),
@@ -179,17 +234,12 @@ public class StarRailExpressTitleScreen extends Screen {
                 Component.translatable("menu.sre.join_discord"),
                 () -> Util.getPlatform().openUri(DISCORD_URL)
         ));
-//        this.menuEntries.add(new MenuEntry(
-//                Component.translatable("menu.sre.wiki"),
-//                () -> Util.getPlatform().openUri(WIKI_URL)
-//        ));
 
         this.menuEntries.add(new MenuEntry(
                 Component.translatable("menu.sre.mod_config"),
                 () -> {
                     if (FabricLoader.getInstance().isModLoaded("modmenu")) {
                         this.minecraft.setScreen(ModMenuApi.createModsScreen(this));
-                        return;
                     }
                 }
         ));
@@ -199,12 +249,19 @@ public class StarRailExpressTitleScreen extends Screen {
                 () -> this.minecraft.stop()
         ));
 
+        // 设置菜单项位置（使用缩放后的坐标）
         for (int i = 0; i < this.menuEntries.size(); i++) {
             MenuEntry entry = this.menuEntries.get(i);
-            entry.x = MENU_START_X;
-            entry.y = baseY + i * MENU_SPACING;
+            entry.x = scaledMenuStartX;
+            entry.y = baseY + i * scaledMenuSpacing;
             entry.index = i;
         }
+
+        // 计算左侧面板高度（固定部分缩放 + 菜单项高度 + 底部边距）
+        int scaledLeftPanelHBase = scale(BASE_LEFT_PANEL_H);
+        int scaledBottomMargin = scale(12);
+        // 注意：菜单项行高14不缩放，因为字体大小不变
+        this.scaledLeftPanelH = scaledLeftPanelHBase + menuEntries.size() * 14 + scaledBottomMargin;
     }
 
     private boolean realmsNotificationsEnabled() {
@@ -238,13 +295,18 @@ public class StarRailExpressTitleScreen extends Screen {
     public boolean shouldCloseOnEsc() {
         return false;
     }
+    public static CompletableFuture<Void> preloadResources(TextureManager textureManager, Executor executor) {
+        return CompletableFuture.allOf(textureManager.preload(LogoRenderer.MINECRAFT_LOGO, executor), textureManager.preload(LogoRenderer.MINECRAFT_EDITION, executor), textureManager.preload(PanoramaRenderer.PANORAMA_OVERLAY, executor), CUBE_MAP.preload(textureManager, executor));
+    }
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
-        this.renderPanorama(guiGraphics, delta);
-        this.renderModernOverlay(guiGraphics);
 
-        // 版本信息
+        PANORAMA.render(guiGraphics, this.width, this.height, this.panoramaFade, delta);
+//        this.renderPanorama(guiGraphics, delta);
+//        this.renderModernOverlay(guiGraphics);
+
+        // 版本信息（不缩放，保持固定像素位置）
         String version = "StarRailExpress " + "3.4.0.1";
         if (Minecraft.checkModStatus().shouldReportAsModified()) {
             version += I18n.get("menu.modded");
@@ -279,7 +341,7 @@ public class StarRailExpressTitleScreen extends Screen {
         float pulse = 0.65F + 0.35F * (float) Math.sin((Util.getMillis() - this.screenOpenTime) / 180.0D);
         int alpha = (int) (this.continueAlpha * pulse * 255.0F);
         int color = (alpha << 24) | 0xF3F6FB;
-        int subColor = ((int)(alpha * 0.6F) << 24) | 0xAAB3C2;
+        int subColor = ((int) (alpha * 0.6F) << 24) | 0xAAB3C2;
 
         int cx = this.width / 2;
         int cy = this.height / 2 + 40;
@@ -288,32 +350,23 @@ public class StarRailExpressTitleScreen extends Screen {
         guiGraphics.drawString(this.font, sub, cx - subWidth / 2, cy + 16, subColor, false);
     }
 
-    public static int entryHeight = 0;
     private void renderMainMenu(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
-        int leftPanelX = 38;
-        int leftPanelY = 78;
-        int leftPanelW = 230;
-        int leftPanelH = 200;
+        // 左侧面板
+        drawPanel(guiGraphics, scaledLeftPanelX, scaledLeftPanelY, scaledLeftPanelW, scaledLeftPanelH, 0x5A0E1117, 0xAA1A1F2A);
 
-        // 渲染 Logo 到左上角
-//        this.logoRenderer.renderLogo(guiGraphics, leftPanelX + 60, 20F, (int) 1.0F);
-        // 左侧半透明面板
-        drawPanel(guiGraphics, leftPanelX, leftPanelY, leftPanelW, leftPanelH+menuEntries.size()*14+12, 0x5A0E1117, 0xAA1A1F2A);
-
-        // 标题
-        guiGraphics.drawString(this.font, I18n.get("changelog.main_menu.title"), leftPanelX + 18, leftPanelY + 14, 0xDDE6F5, false);
-        guiGraphics.drawString(this.font, I18n.get("changelog.main_menu.subtitle"), leftPanelX + 18, leftPanelY + 28, 0x7F8A9E, false);
+        // 标题（内部偏移不缩放，保持相对面板位置）
+        guiGraphics.drawString(this.font, I18n.get("changelog.main_menu.title"), scaledLeftPanelX + 18, scaledLeftPanelY + 14, 0xDDE6F5, false);
+        guiGraphics.drawString(this.font, I18n.get("changelog.main_menu.subtitle"), scaledLeftPanelX + 18, scaledLeftPanelY + 28, 0x7F8A9E, false);
 
         // 左侧菜单
         for (MenuEntry entry : this.menuEntries) {
             this.renderMenuEntry(guiGraphics, entry, mouseX, mouseY);
         }
 
-
         // 右侧更新日志
         this.renderChangelog(guiGraphics, mouseX, mouseY);
 
-        // 底部版权
+        // 底部版权（不缩放）
         String copyright = I18n.get("changelog.copyright");
         guiGraphics.drawString(this.font, copyright, 8, this.height - 28, 0x7F8A9E, false);
     }
@@ -324,7 +377,7 @@ public class StarRailExpressTitleScreen extends Screen {
         float eased = easeOutCubic(localProgress);
 
         int finalX = entry.x;
-        int drawX = (int) (finalX - (1.0F - eased) * 22.0F);
+        int drawX = (int) (finalX - (1.0F - eased) * scaledAnimOffset);
         int drawY = entry.y;
         int textWidth = this.font.width(entry.text);
 
@@ -337,7 +390,7 @@ public class StarRailExpressTitleScreen extends Screen {
         int baseColor = lerpColor(entry.hoverAnim, 0xC6CFDB, 0xFFFFFF);
         int accentColor = lerpColor(entry.hoverAnim, 0x3AA6FF, 0x7FDBFF);
 
-        // 左侧装饰线
+        // 左侧装饰线（线宽1px不缩放）
         int lineHeight = 10;
         int lineAlpha = (int) (120 + entry.hoverAnim * 100);
         guiGraphics.fill(drawX - 14, drawY + 2, drawX - 12, drawY + 2 + lineHeight,
@@ -358,29 +411,24 @@ public class StarRailExpressTitleScreen extends Screen {
         entry.renderY = drawY;
         entry.renderWidth = textWidth + 16;
         entry.renderHeight = 14;
-
     }
 
     private void renderChangelog(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        int panelW = 250;
-        int panelHeaderH = 24;
-        int panelBodyH = 145;
-        int x = this.width - panelW - 36;
-        int y = 86;
-        int textMaxWidth = panelW - 30; // 减去左右边距和滚动条空间
-
-        int currentBodyH = (int) (panelBodyH * this.changelogExpandAnim);
+        int x = this.width - scaledRightPanelW - scaledRightPanelXOffset;
+        int y = scaledRightPanelY;
+        int currentBodyH = (int) (scaledRightPanelBodyH * this.changelogExpandAnim);
+        int textMaxWidth = scaledRightPanelW - scale(30); // 文字区域最大宽度
 
         // 标题栏
-        drawPanel(guiGraphics, x, y, panelW, panelHeaderH, 0x7A10141B, 0xCC1B2230);
+        drawPanel(guiGraphics, x, y, scaledRightPanelW, scaledRightPanelHeaderH, 0x7A10141B, 0xCC1B2230);
 
         String foldText = this.changelogExpanded ? I18n.get("changelog.title") + "  [-]" : I18n.get("changelog.title") + "  [+]";
         guiGraphics.drawString(this.font, foldText, x + 12, y + 8, 0xE8EEF8, false);
 
         // 可折叠内容
         if (currentBodyH > 4) {
-            drawPanel(guiGraphics, x, y + panelHeaderH + 2, panelW, currentBodyH, 0x520C1016, 0xA0181E28);
-        
+            drawPanel(guiGraphics, x, y + scaledRightPanelHeaderH + 2, scaledRightPanelW, currentBodyH, 0x520C1016, 0xA0181E28);
+
             // 计算最大滚动距离
             int totalContentHeight = this.parsedChangelogLines.stream()
                     .mapToInt(entry -> entry.totalHeight)
@@ -388,19 +436,17 @@ public class StarRailExpressTitleScreen extends Screen {
             int visibleHeight = currentBodyH - 24;
             this.changelogMaxScroll = Math.max(0, totalContentHeight - visibleHeight);
             this.changelogScrollOffset = Mth.clamp(this.changelogScrollOffset, 0.0F, this.changelogMaxScroll);
-        
-            // 启用剔除区域（只渲染面板内的内容）
-            enableScissor(x, y + panelHeaderH + 2, x + panelW, y + panelHeaderH + 2 + currentBodyH);
-        
+
+            // 启用剔除区域
+            enableScissor(x, y + scaledRightPanelHeaderH + 2, x + scaledRightPanelW, y + scaledRightPanelHeaderH + 2 + currentBodyH);
+
             try {
                 // 渲染滚动内容
-                int textY = y + panelHeaderH + 12;
+                int textY = y + scaledRightPanelHeaderH + 12;
                 int currentY = textY - (int) this.changelogScrollOffset;
                 for (ChangelogEntry entry : this.parsedChangelogLines) {
-                    if (currentY >= textY - 80 && currentY <= y +( panelHeaderH + currentBodyH)*3) {
-                        // 使用 split 进行自动换行渲染
-                        int maxLineWidth = textMaxWidth;
-                        var wrappedLines = this.font.split(entry.text, maxLineWidth);
+                    if (currentY >= textY - 80 && currentY <= y + (scaledRightPanelHeaderH + currentBodyH) * 3) {
+                        var wrappedLines = this.font.split(entry.text, textMaxWidth - entry.x);
                         int lineOffset = 0;
                         for (var line : wrappedLines) {
                             guiGraphics.drawString(this.font, line, x + entry.x, currentY + lineOffset, entry.color, entry.shadow);
@@ -410,28 +456,25 @@ public class StarRailExpressTitleScreen extends Screen {
                     currentY += entry.totalHeight;
                 }
             } finally {
-                // 禁用剔除
                 RenderSystem.disableScissor();
             }
 
             // 渲染滚动条
             if (this.changelogMaxScroll > 0) {
-                int scrollbarWidth = 6;
-                int scrollbarX = x + panelW - scrollbarWidth - 4;
-                int scrollbarTop = y + panelHeaderH + 6;
-                int scrollbarBottom = y + panelHeaderH + currentBodyH - 6;
+                int scrollbarX = x + scaledRightPanelW - scaledScrollbarWidth - 4; // 4px右边距不缩放
+                int scrollbarTop = y + scaledRightPanelHeaderH + 6;
+                int scrollbarBottom = y + scaledRightPanelHeaderH + currentBodyH - 6;
                 int scrollbarTrackHeight = scrollbarBottom - scrollbarTop;
-                
+
                 float scrollProgress = this.changelogScrollOffset / this.changelogMaxScroll;
                 int thumbHeight = Math.max(20, (int) (scrollbarTrackHeight * (visibleHeight / (float) totalContentHeight)));
                 int thumbY = scrollbarTop + (int) (scrollProgress * (scrollbarTrackHeight - thumbHeight));
-                
+
                 // 滚动条轨道
-                guiGraphics.fill(scrollbarX, scrollbarTop, scrollbarX + scrollbarWidth, scrollbarBottom, 0x40FFFFFF);
-                
+                guiGraphics.fill(scrollbarX, scrollbarTop, scrollbarX + scaledScrollbarWidth, scrollbarBottom, 0x40FFFFFF);
                 // 滚动条滑块
                 int thumbAlpha = this.changelogDragging ? 0xAA : 0x66;
-                guiGraphics.fill(scrollbarX, thumbY, scrollbarX + scrollbarWidth, thumbY + thumbHeight, 
+                guiGraphics.fill(scrollbarX, thumbY, scrollbarX + scaledScrollbarWidth, thumbY + thumbHeight,
                         (thumbAlpha << 24) | 0x88AACC);
             }
         }
@@ -439,73 +482,73 @@ public class StarRailExpressTitleScreen extends Screen {
 
     private List<ChangelogEntry> parseChangelogLines(List<String> rawLines) {
         List<ChangelogEntry> entries = new ArrayList<>();
-        int baseX = 12;
-        int textMaxWidth = 220; // panelW - 30
-        
+        int baseX = 12; // 不缩放，因为相对于面板左边距
+        int textMaxWidth = scaledRightPanelW - scale(30); // 使用缩放后的面板宽度
+
         for (String line : rawLines) {
             if (line.isEmpty()) {
                 entries.add(new ChangelogEntry(Component.literal(""), baseX, 12, 12, 0xB8C0CC, false));
                 continue;
             }
-            
+
             if (line.startsWith("###")) {
                 String text = line.substring(3).trim();
                 Component styledText = Component.literal(text).withStyle(s -> s.withBold(true));
                 var wrapped = this.font.split(styledText, textMaxWidth - baseX);
                 entries.add(new ChangelogEntry(
-                    styledText,
-                    baseX, 
-                    14, 
-                    wrapped.size() * 14,
-                    0xDDE6F5, 
-                    false
+                        styledText,
+                        baseX,
+                        14,
+                        wrapped.size() * 14,
+                        0xDDE6F5,
+                        false
                 ));
             } else if (line.startsWith("##")) {
                 String text = line.substring(2).trim();
                 Component styledText = Component.literal(text).withStyle(s -> s.withBold(true));
                 var wrapped = this.font.split(styledText, textMaxWidth - baseX);
                 entries.add(new ChangelogEntry(
-                    styledText,
-                    baseX, 
-                    13,
-                    wrapped.size() * 13,
-                    0xF0F4FF, 
-                    false
+                        styledText,
+                        baseX,
+                        13,
+                        wrapped.size() * 13,
+                        0xF0F4FF,
+                        false
                 ));
             } else if (line.startsWith("#")) {
                 String text = line.substring(1).trim();
                 Component styledText = Component.literal(text).withStyle(s -> s.withBold(true));
                 var wrapped = this.font.split(styledText, textMaxWidth - baseX);
                 entries.add(new ChangelogEntry(
-                    styledText,
-                    baseX, 
-                    16,
-                    wrapped.size() * 16,
-                    0xFFFFFF, 
-                    false
+                        styledText,
+                        baseX,
+                        16,
+                        wrapped.size() * 16,
+                        0xFFFFFF,
+                        false
                 ));
             } else {
                 Component normalText = Component.literal(line);
                 var wrapped = this.font.split(normalText, textMaxWidth - baseX);
                 entries.add(new ChangelogEntry(
-                    normalText,
-                    baseX, 
-                    12,
-                    wrapped.size() * 12,
-                    0xB8C0CC, 
-                    false
+                        normalText,
+                        baseX,
+                        12,
+                        wrapped.size() * 12,
+                        0xB8C0CC,
+                        false
                 ));
             }
         }
-        
+
         return entries;
     }
 
     private static class ChangelogEntry {
         final Component text;
         final int x;
-        final int lineHeight;      // 单行高度
-        final int totalHeight;     // 总高度（考虑换行后）
+        final int lineHeight;
+        final int totalHeight;
         final int color;
         final boolean shadow;
 
@@ -534,13 +577,16 @@ public class StarRailExpressTitleScreen extends Screen {
         guiGraphics.fill(x + w - 1, y, x + w, y + h, border);
     }
 
-    protected void renderPanorama(GuiGraphics guiGraphics, float delta) {
-        PANORAMA.render(guiGraphics, this.width, this.height, this.panoramaFade, delta);
-    }
+//    protected void renderPanorama(GuiGraphics guiGraphics, float delta) {
+//        // 假设 PANORAMA 是某个静态全景图渲染器
+//        // PANORAMA.render(guiGraphics, this.width, this.height, this.panoramaFade, delta);
+//    }
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         if (this.waitingForContinue) {
+            // 播放点击音效
+            this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
             this.waitingForContinue = false;
             this.menuAnimProgress = 0.0F;
             return true;
@@ -556,6 +602,7 @@ public class StarRailExpressTitleScreen extends Screen {
     @Override
     public boolean charTyped(char codePoint, int modifiers) {
         if (this.waitingForContinue) {
+            this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
             this.waitingForContinue = false;
             this.menuAnimProgress = 0.0F;
             return true;
@@ -566,16 +613,13 @@ public class StarRailExpressTitleScreen extends Screen {
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
         if (!this.waitingForContinue && this.changelogExpanded) {
-            int panelW = 250;
-            int panelHeaderH = 24;
-            int panelBodyH = 145;
-            int x = this.width - panelW - 36;
-            int y = 86;
-            int currentBodyH = (int) (panelBodyH * this.changelogExpandAnim);
+            int x = this.width - scaledRightPanelW - scaledRightPanelXOffset;
+            int y = scaledRightPanelY;
+            int currentBodyH = (int) (scaledRightPanelBodyH * this.changelogExpandAnim);
 
             // 检查鼠标是否在更新日志区域内
-            if (mouseX >= x && mouseX <= x + panelW 
-                    && mouseY >= y + panelHeaderH + 2 && mouseY <= y + panelHeaderH + currentBodyH) {
+            if (mouseX >= x && mouseX <= x + scaledRightPanelW
+                    && mouseY >= y + scaledRightPanelHeaderH + 2 && mouseY <= y + scaledRightPanelHeaderH + currentBodyH) {
                 if (this.changelogMaxScroll > 0) {
                     this.changelogScrollOffset = Mth.clamp(
                             (float) (this.changelogScrollOffset - verticalAmount * 8.0),
@@ -593,22 +637,19 @@ public class StarRailExpressTitleScreen extends Screen {
     public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
         if (this.changelogDragging && button == 0) {
             if (this.changelogMaxScroll > 0) {
-                int panelW = 250;
-                int panelHeaderH = 24;
-                int panelBodyH = 145;
-                int x = this.width - panelW - 36;
-                int y = 86;
-                int currentBodyH = (int) (panelBodyH * this.changelogExpandAnim);
-                
-                int scrollbarTop = y + panelHeaderH + 6;
-                int scrollbarBottom = y + panelHeaderH + currentBodyH - 6;
+                int x = this.width - scaledRightPanelW - scaledRightPanelXOffset;
+                int y = scaledRightPanelY;
+                int currentBodyH = (int) (scaledRightPanelBodyH * this.changelogExpandAnim);
+
+                int scrollbarTop = y + scaledRightPanelHeaderH + 6;
+                int scrollbarBottom = y + scaledRightPanelHeaderH + currentBodyH - 6;
                 int scrollbarTrackHeight = scrollbarBottom - scrollbarTop;
                 int visibleHeight = currentBodyH - 24;
                 int totalContentHeight = this.parsedChangelogLines.stream()
                         .mapToInt(entry -> entry.totalHeight)
                         .sum();
                 int thumbHeight = Math.max(20, (int) (scrollbarTrackHeight * (visibleHeight / (float) totalContentHeight)));
-                
+
                 float deltaScroll = (float) (dragY * (this.changelogMaxScroll / (scrollbarTrackHeight - thumbHeight)));
                 this.changelogScrollOffset = Mth.clamp(
                         this.changelogScrollOffset + deltaScroll,
@@ -624,33 +665,30 @@ public class StarRailExpressTitleScreen extends Screen {
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (this.waitingForContinue) {
+            this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
             this.waitingForContinue = false;
             this.menuAnimProgress = 0.0F;
             return true;
         }
 
         // 点击更新日志标题折叠
-        int panelW = 250;
-        int x = this.width - panelW - 36;
-        int y = 86;
-        int headerH = 24;
+        int x = this.width - scaledRightPanelW - scaledRightPanelXOffset;
+        int y = scaledRightPanelY;
 
-        if (mouseX >= x && mouseX <= x + panelW && mouseY >= y && mouseY <= y + headerH) {
+        if (mouseX >= x && mouseX <= x + scaledRightPanelW && mouseY >= y && mouseY <= y + scaledRightPanelHeaderH) {
+            this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
             this.changelogExpanded = !this.changelogExpanded;
             return true;
         }
 
         // 检查是否点击了滚动条
         if (!this.waitingForContinue && this.changelogExpanded && button == 0) {
-            int panelBodyH = 145;
-            int panelHeaderH = 24;
-            int currentBodyH = (int) (panelBodyH * this.changelogExpandAnim);
-            int scrollbarWidth = 6;
-            int scrollbarX = x + panelW - scrollbarWidth - 4;
-            int scrollbarTop = y + panelHeaderH + 6;
-            int scrollbarBottom = y + panelHeaderH + currentBodyH - 6;
-            
-            if (mouseX >= scrollbarX && mouseX <= scrollbarX + scrollbarWidth
+            int currentBodyH = (int) (scaledRightPanelBodyH * this.changelogExpandAnim);
+            int scrollbarX = x + scaledRightPanelW - scaledScrollbarWidth - 4;
+            int scrollbarTop = y + scaledRightPanelHeaderH + 6;
+            int scrollbarBottom = y + scaledRightPanelHeaderH + currentBodyH - 6;
+
+            if (mouseX >= scrollbarX && mouseX <= scrollbarX + scaledScrollbarWidth
                     && mouseY >= scrollbarTop && mouseY <= scrollbarBottom) {
                 this.changelogDragging = true;
                 this.lastMouseY = mouseY;
@@ -662,6 +700,7 @@ public class StarRailExpressTitleScreen extends Screen {
         for (MenuEntry entry : this.menuEntries) {
             if (mouseX >= entry.renderX && mouseX <= entry.renderX + entry.renderWidth
                     && mouseY >= entry.renderY - 2 && mouseY <= entry.renderY + entry.renderHeight) {
+                this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
                 entry.onPress.run();
                 return true;
             }
