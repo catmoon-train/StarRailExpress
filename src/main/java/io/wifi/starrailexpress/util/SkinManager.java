@@ -55,7 +55,7 @@ public class SkinManager {
     static {
         // toolTipName 请使用材质文件名（或者说材质文件请使用同名,除了default）
         skinMap.put("default", DEFAULT_SKIN);
-        skinMap.put("ceremonial", new Skin(0xFFD98C28, "Ceremonial Dagger"));
+        skinMap.put("ceremonial", new Skin(0xFFD98C28, "ceremonial_dagger"));
         skinMap.put("pick", new Skin(0xFF8D4A51, "knife_pick"));
         skinMap.put("diagonal_blade", new Skin(0xFF4AEDFF, "knife_diamond_knife"));
         skinMap.put("dagger", new Skin(0xFF808080, "knife_dagger"));
