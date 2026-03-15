@@ -187,8 +187,8 @@ public class StarRailExpressTitleScreen extends Screen {
         } catch (Exception e) {
             LOGGER.error("[SRE] Failed to load update_logs.md", e);
         }
-        return List.of("# 更新日志加载失败",
-                "请确认 assets/starrailexpress/texts/update_logs.md 已存在于资源包中");
+        return List.of("# Load logs error.",
+                "Make sure assets/starrailexpress/texts/update_logs.md is existed!");
     }
 
     // ─────────────────────────────────────────────────────────────────
@@ -302,7 +302,7 @@ public class StarRailExpressTitleScreen extends Screen {
 
     @Override
     public void render(GuiGraphics g, int mouseX, int mouseY, float delta) {
-        renderPanorama(g, delta);
+        // renderPanorama(g, delta);
         renderModernOverlay(g);
 
         // 版本号（左下角）
@@ -590,7 +590,7 @@ public class StarRailExpressTitleScreen extends Screen {
                 && mouseX >= lPanelX && mouseX <= lPanelX + lPanelW
                 && mouseY >= menuViewportTop && mouseY <= menuViewportBottom) {
             this.menuScrollOffset = Mth.clamp(
-                    (float) (this.menuScrollOffset - verticalAmount * 8.0), 0, this.menuMaxScroll);
+                    (float) (this.menuScrollOffset - verticalAmount * 12.0), 0, this.menuMaxScroll);
             return true;
         }
 
@@ -603,7 +603,7 @@ public class StarRailExpressTitleScreen extends Screen {
                     && mouseY >= lPanelY + HEADER_H + 2
                     && mouseY <= lPanelY + HEADER_H + 2 + currentBodyH) {
                 this.changelogScrollOffset = Mth.clamp(
-                        (float) (this.changelogScrollOffset - verticalAmount * 8.0),
+                        (float) (this.changelogScrollOffset - verticalAmount * 16.0),
                         0, this.changelogMaxScroll);
                 return true;
             }
