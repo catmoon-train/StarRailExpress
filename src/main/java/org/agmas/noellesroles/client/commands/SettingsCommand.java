@@ -13,8 +13,10 @@ public class SettingsCommand {
                 (dispatcher, registryAccess)-> {
                     dispatcher.register(ClientCommandManager.literal("Settings")
                             .executes(context-> {
-                                context.getSource().getPlayer().sendSystemMessage(Component.literal("Settings"));
-                                Minecraft.getInstance().setScreen(new SettingsScreen());
+                                var source = context.getSource();
+                                source.getPlayer().sendSystemMessage(Component.literal("Settings"));
+                                
+                                source.getClient().setScreen(new SettingsScreen());
                                 return 1;
                             })
                     );

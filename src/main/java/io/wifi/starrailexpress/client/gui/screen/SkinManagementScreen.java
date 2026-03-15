@@ -40,7 +40,7 @@ public class SkinManagementScreen extends Screen {
     private static final int PANEL_COLOR = 0x90303030;
 
     public SkinManagementScreen() {
-        super(Component.translatable("screen.starrailexpress.skins.title"));
+        super(Component.translatable("screen.sre.skins.title"));
         this.player = Minecraft.getInstance().player;
         this.skinsComponent = SREPlayerSkinsComponent.KEY.get(this.player);
     }
@@ -137,7 +137,7 @@ public class SkinManagementScreen extends Screen {
             // 显示空状态
             addRenderableWidget(new CenteredText(
                     screenWidth / 2, listTop + listHeight / 2,
-                    Component.translatable("screen.starrailexpress.skins.no_items"),
+                    Component.translatable("screen.sre.skins.no_items"),
                     0xFFAAAAAA));
             return;
         }
@@ -185,19 +185,19 @@ public class SkinManagementScreen extends Screen {
 
         // 刷新按钮
         refreshButton = Button.builder(
-                Component.translatable("screen.starrailexpress.skins.refresh"),
+                Component.translatable("screen.sre.skins.refresh"),
                 button -> refreshSkinPanels()).pos((screenWidth - buttonWidth * 2 - buttonSpacing) / 2, buttonY)
                 .size(buttonWidth, buttonHeight)
                 .build();
 
         refreshButton.setTooltip(Tooltip.create(
-                Component.translatable("screen.starrailexpress.skins.refresh_tooltip")));
+                Component.translatable("screen.sre.skins.refresh_tooltip")));
 
         addRenderableWidget(refreshButton);
 
         // 返回按钮
         backButton = Button.builder(
-                Component.translatable("screen.starrailexpress.skins.back"),
+                Component.translatable("screen.sre.skins.back"),
                 button -> this.onClose()).pos(refreshButton.getX() + buttonWidth + buttonSpacing, buttonY)
                 .size(buttonWidth, buttonHeight)
                 .build();
@@ -263,7 +263,7 @@ public class SkinManagementScreen extends Screen {
 
     private void renderInstructions(GuiGraphics graphics) {
         // 底部说明文本
-        Component instructions = Component.translatable("screen.starrailexpress.skins.instructions");
+        Component instructions = Component.translatable("screen.sre.skins.instructions");
         graphics.drawCenteredString(font, instructions, width / 2, height - 12, 0xFF888888);
 
         // 皮肤统计
@@ -279,7 +279,7 @@ public class SkinManagementScreen extends Screen {
         }
 
         if (totalSkins > 0) {
-            Component stats = Component.translatable("screen.starrailexpress.skins.stats",
+            Component stats = Component.translatable("screen.sre.skins.stats",
                     unlockedSkins, totalSkins);
             graphics.drawString(font, stats, 10, 10, 0xFFAAAAAA, false);
         }

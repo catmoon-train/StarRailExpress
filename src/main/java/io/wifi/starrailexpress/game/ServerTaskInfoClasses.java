@@ -19,6 +19,7 @@ import io.wifi.starrailexpress.block_entity.SmallDoorBlockEntity;
 import io.wifi.starrailexpress.block_entity.SprinklerBlockEntity;
 import io.wifi.starrailexpress.block_entity.TrimmedBedBlockEntity;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
+import io.wifi.starrailexpress.cca.SREWorldBlackoutComponent;
 import io.wifi.starrailexpress.game.GameUtils.BlockEntityInfo;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
@@ -447,7 +448,15 @@ public class ServerTaskInfoClasses {
                 if (SREConfig.verboseTrainResetLogs) {
                     SRE.LOGGER.info("RESETING MAP FINISHED. STARTING THE GAME.");
                 }
-                GameUtils.trueStartGame(this.world, this.gameMode, this.time);
+                var blackoutComponent = SREWorldBlackoutComponent.KEY.get(this.world);
+                blackoutComponent.triggerBlackout();
+                GameUtils.serverTaskQueue.add(new ServerTaskInfoClasses.SchedulerTask(5, () -> {
+                    blackoutComponent.reset();
+                }));
+                
+                GameUtils.serverTaskQueue.add(new ServerTaskInfoClasses.SchedulerTask(5, () -> {
+                    GameUtils.trueStartGame(this.world, this.gameMode, this.time);
+                }));
                 //
                 this.world.players().forEach((p) -> {
                     p.displayClientMessage(

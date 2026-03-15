@@ -9,10 +9,10 @@ import net.fabricmc.api.Environment;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.screens.LoadingOverlay;
+// import net.minecraft.client.gui.screens.LoadingOverlay;
 import net.minecraft.client.gui.screens.Overlay;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.RenderType;
+// import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.SimpleTexture;
 import net.minecraft.client.resources.metadata.texture.TextureMetadataSection;
 import net.minecraft.resources.ResourceLocation;
@@ -49,15 +49,15 @@ public class StarRailLoadingOverlay extends Overlay {
     private float animationTime; // 用于列车晃动和光点流动
 
     // 纹理资源（请将对应图片放入 assets/yourmod/textures/gui/ 下）
-    private static final ResourceLocation TRAIN_TEXTURE = ResourceLocation.fromNamespaceAndPath(SRE.MOD_ID, "textures/gui/starrail_train.png");
+    // private static final ResourceLocation TRAIN_TEXTURE = ResourceLocation.fromNamespaceAndPath(SRE.MOD_ID, "textures/gui/starrail_train.png");
     private static final ResourceLocation BG_TEXTURE = ResourceLocation.fromNamespaceAndPath(SRE.MOD_ID, "background.png");
-    private static final ResourceLocation PROGRESS_BAR_BG = ResourceLocation.fromNamespaceAndPath("yourmod", "textures/gui/progress_bar_bg.png");
-    private static final ResourceLocation PROGRESS_BAR_FILL = ResourceLocation.fromNamespaceAndPath("yourmod", "textures/gui/progress_bar_fill.png");
-    private static final ResourceLocation SPOT_TEXTURE = ResourceLocation.fromNamespaceAndPath("yourmod", "textures/gui/spot.png"); // 光点纹理（可选）
+    // private static final ResourceLocation PROGRESS_BAR_BG = ResourceLocation.fromNamespaceAndPath("yourmod", "textures/gui/progress_bar_bg.png");
+    // private static final ResourceLocation PROGRESS_BAR_FILL = ResourceLocation.fromNamespaceAndPath("yourmod", "textures/gui/progress_bar_fill.png");
+    // private static final ResourceLocation SPOT_TEXTURE = ResourceLocation.fromNamespaceAndPath("yourmod", "textures/gui/spot.png"); // 光点纹理（可选）
 
     public static void registerTextures(Minecraft minecraft) {
         minecraft.getTextureManager().register(BG_TEXTURE, new ConfigTexture(BG_TEXTURE));
-        minecraft.getTextureManager().register(TRAIN_TEXTURE, new SimpleTexture(TRAIN_TEXTURE));
+        // minecraft.getTextureManager().register(TRAIN_TEXTURE, new SimpleTexture(TRAIN_TEXTURE));
     }
     @Environment(EnvType.CLIENT)
     static class LogoTexture extends SimpleTexture {
@@ -173,7 +173,7 @@ public class StarRailLoadingOverlay extends Overlay {
         RenderSystem.enableBlend();
         RenderSystem.blendEquation(32774);
         RenderSystem.defaultBlendFunc();
-        RenderSystem.setShaderTexture(0, TRAIN_TEXTURE);
+        // RenderSystem.setShaderTexture(0, TRAIN_TEXTURE);
         graphics.blit(BG_TEXTURE, 0, 0, 0, 0, width, height, width, height);
 
 

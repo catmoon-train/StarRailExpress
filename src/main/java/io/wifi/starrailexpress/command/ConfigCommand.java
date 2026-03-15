@@ -33,6 +33,7 @@ public class ConfigCommand {
             HarpyModLoaderConfig.HANDLER.load();
             NoellesRolesConfig.HANDLER.load();
             StupidExpressConfig.HANDLER.load();
+            StupidExpressConfig.HANDLER.syncToClient(source.getServer());
             RoleShopHandler.shopRegister();
             source.sendSuccess(
                     () -> Component.translatable("commands.sre.config.reload")

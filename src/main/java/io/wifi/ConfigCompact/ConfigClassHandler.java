@@ -133,13 +133,12 @@ public class ConfigClassHandler<T extends ConfigData> {
                 SRE.LOGGER.error("Sync config failed: {}.{}", id, info.fieldName, e);
             }
         }
-        SRE.LOGGER.info("Successed recieved config from server: {}", id);
+        SRE.LOGGER.info("Successed recieved config from server: {}", type.getSimpleName());
     }
 
     private static Object convertValue(Object value, Class<?> targetType) {
         if (value == null)
             return null;
-
         // 如果类型兼容，直接返回
         if (targetType.isInstance(value)) {
             return value;
@@ -155,13 +154,10 @@ public class ConfigClassHandler<T extends ConfigData> {
             }
         }
 
-        // 处理字符串到其他类型的转换（可选）
-        if (value instanceof String) {
-            String str = (String) value;
-            if (targetType == Integer.class || targetType == int.class) {
-                return Integer.parseInt(str);
-            }
-            // 其他类型转换...
+        try {
+            value = gson.fromJson(gson.toJson(value), targetType);
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e);
         }
 
         // 无法转换，保留原值，后续 field.set 会抛出 IllegalArgumentException
