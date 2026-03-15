@@ -823,5 +823,19 @@
   "skin.knife.edge_knife": "鋒刃刀",
   "message.kick.outdated_client": "你的客戶端版本已經過時了！服務端版本%s，你的版本%s",
   "message.death_reason.null": "很抱歉，無法獲取到你的死亡資訊。這可能出現了一些錯誤。",
-  "message.death_reason.prefix": "[你的死因] %s"
+  "message.death_reason.prefix": "[你的死因] %s",
+  "changelog.title": "更新日誌",
+  "changelog.continue.title": "按下任意按鍵以繼續",
+  "changelog.continue.subtitle": "Press any key to continue",
+  "changelog.main_menu.title": "MAIN MENU",
+  "changelog.main_menu.subtitle": "主菜單",
+  "changelog.copyright": "© StarRailExpress / The Last Voyage of the Harpy Express",
+  "menu.sre.multiplayer": "開始遊戲（多人遊戲）",
+  "menu.sre.singleplayer": "單人遊戲",
+  "menu.sre.options": "設置",
+  "menu.sre.join_qq": "加入 QQ 群",
+  "menu.sre.join_discord": "加入 Discord",
+  "menu.sre.wiki": "WIKI",
+  "menu.sre.mod_config": "模組設置",
+  "menu.sre.quit": "退出遊戲"
 }

@@ -1,12 +1,10 @@
 package net.exmo.mixin;
 
+import net.exmo.sre.loading.StarRailExpressTitleScreen;
 import net.exmo.sre.loading.StarRailLoadingOverlay;
 import net.exmo.sre.loading.TrainLoadingScreen;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.LevelLoadingScreen;
-import net.minecraft.client.gui.screens.LoadingOverlay;
-import net.minecraft.client.gui.screens.Overlay;
-import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.*;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
@@ -18,6 +16,9 @@ public class LoadingScreenMixin {
 
         if (screen instanceof LevelLoadingScreen levelLoadingScreen) {
             return new TrainLoadingScreen(levelLoadingScreen.progressListener);
+        }
+        if (screen instanceof TitleScreen titleScreen){
+            return  new StarRailExpressTitleScreen();
         }
         return screen;
     }

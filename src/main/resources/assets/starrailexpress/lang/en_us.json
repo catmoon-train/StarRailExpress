@@ -1,3 +1,16 @@
 {
-  "We do not have English translation yet": "Welcome to contribute"
+  "changelog.title": "Changelog",
+  "changelog.continue.title": "Press any key to continue",
+  "changelog.continue.subtitle": "Press any key to continue",
+  "changelog.main_menu.title": "MAIN MENU",
+  "changelog.main_menu.subtitle": "Main Menu",
+  "changelog.copyright": "© StarRailExpress / The Last Voyage of the Harpy Express",
+  "menu.sre.multiplayer": "Start Game (Multiplayer)",
+  "menu.sre.singleplayer": "Singleplayer",
+  "menu.sre.options": "Options",
+  "menu.sre.join_qq": "Join QQ Group",
+  "menu.sre.join_discord": "Join Discord",
+  "menu.sre.wiki": "WIKI",
+  "menu.sre.mod_config": "Mod Config",
+  "menu.sre.quit": "Quit Game"
 }
