@@ -472,15 +472,14 @@ public class RoleIntroduceScreen extends Screen {
                                         font.split(Component.translatable("screen.roleintroduce.error", e.getMessage())
                                                 .withStyle(ChatFormatting.RED), textW));
                             }
-                            detailLines.add(FormattedCharSequence.EMPTY);
                             itemIndex++;
+                            if (itemIndex < shop_content.size()) {
+                                detailLines.add(FormattedCharSequence.EMPTY);
+                            }
                         }
                     }
-
-                    detailLines.add(FormattedCharSequence.EMPTY);
                 }
             }
-
         }
         {
             String story_key = "star.story." + getObjectType(selectedRole) + "."

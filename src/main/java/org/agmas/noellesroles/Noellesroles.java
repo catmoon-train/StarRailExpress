@@ -22,7 +22,6 @@ import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.RightClickBlockManager;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.agmas.noellesroles.blood.BloodMain;
-import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.repack.HSRConstants;
 import org.agmas.noellesroles.repack.HSRItems;
 import org.agmas.noellesroles.repack.HSRSounds;
@@ -170,7 +169,6 @@ public class Noellesroles implements ModInitializer {
         initializeVanillaRoles();
 
         // 加载配置
-        NoellesRolesConfig.HANDLER.load();
         RicesRoleRhapsody.onInitialize1();
 
         // 初始化系统组件

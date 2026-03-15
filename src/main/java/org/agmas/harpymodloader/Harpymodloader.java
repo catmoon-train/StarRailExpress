@@ -22,7 +22,6 @@ import java.util.UUID;
 import org.agmas.harpymodloader.commands.*;
 import org.agmas.harpymodloader.commands.argument.ModifierArgumentType;
 import org.agmas.harpymodloader.commands.argument.RoleArgumentType;
-import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
 import org.agmas.harpymodloader.modded_murder.ModdedWeights;
 import org.agmas.harpymodloader.modifiers.HMLModifiers;
 import org.agmas.harpymodloader.modifiers.Modifier;
@@ -72,7 +71,6 @@ public class Harpymodloader implements ModInitializer {
                 server.getScoreboard().addPlayerTeam("harpymodloader_game");
             }
         });
-        HarpyModLoaderConfig.HANDLER.load();
         VANNILA_ROLES.add(TMMRoles.LOOSE_END);
         VANNILA_ROLES.add(TMMRoles.CIVILIAN);
         VANNILA_ROLES.add(TMMRoles.KILLER);
