@@ -394,7 +394,7 @@ public class StarRailExpressTitleScreen extends Screen {
                 int textY = y + panelHeaderH + 12;
                 int currentY = textY - (int) this.changelogScrollOffset;
                 for (ChangelogEntry entry : this.parsedChangelogLines) {
-                    if (currentY >= textY - 20 && currentY <= y + panelHeaderH + currentBodyH) {
+                    if (currentY >= textY - 80 && currentY <= y +( panelHeaderH + currentBodyH)*3) {
                         // 使用 split 进行自动换行渲染
                         int maxLineWidth = textMaxWidth;
                         var wrappedLines = this.font.split(entry.text, maxLineWidth);
