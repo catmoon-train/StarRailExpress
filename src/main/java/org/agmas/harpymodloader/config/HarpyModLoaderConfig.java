@@ -3,7 +3,6 @@ package org.agmas.harpymodloader.config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry.Gui.Tooltip;
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
-import net.minecraft.resources.ResourceLocation;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -31,7 +30,7 @@ public class HarpyModLoaderConfig implements ConfigData {
 
     // Custom weights for roles - maps role identifiers to their custom weight
     // values")
-    public HashMap<ResourceLocation, Float> roleWeights = new HashMap<>();
+    public HashMap<String, Float> roleWeights = new HashMap<>();
 
     // Whether to use custom role weights instead of default round-based weights")
     public boolean useCustomRoleWeights = true;

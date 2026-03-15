@@ -135,12 +135,12 @@
   "text.autoconfig.noellesroles.option.credit": "魔法设置",
   "=== StupidExpress ===": "",
   "text.autoconfig.stupid_express.title": "Star Rail Express StupidExpress 配置",
-  "text.autoconfig.stupid_express.option.rolesSection": "职业选项",
+  "text.autoconfig.stupid_express.option.rolesSection": "职业选项（服务端）",
   "text.autoconfig.stupid_express.option.rolesSection.arsonistSection": "纵火犯选项",
   "text.autoconfig.stupid_express.option.rolesSection.arsonistSection.arsonistKeepsGameGoing": "纵火犯死前会让游戏继续进行",
   "text.autoconfig.stupid_express.option.rolesSection.amnesiacSection": "失忆患者选项",
   "text.autoconfig.stupid_express.option.rolesSection.amnesiacSection.amnesiacGlowsDifferently": "杀手眼中失忆患者不同的颜色高亮",
-  "text.autoconfig.stupid_express.option.modifiersSection": "修饰符选项",
+  "text.autoconfig.stupid_express.option.modifiersSection": "修饰符选项（服务端）",
   "text.autoconfig.stupid_express.option.modifiersSection.loversSection": "恋人选项",
   "text.autoconfig.stupid_express.option.modifiersSection.loversSection.loversKnowImmediately": "恋人能够知道彼此"
 }

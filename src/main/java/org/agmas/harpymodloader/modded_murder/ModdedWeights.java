@@ -8,16 +8,15 @@ import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import net.minecraft.resources.ResourceLocation;
 
 public class ModdedWeights {
 
     public static Map<SRERole, HashMap<UUID, Integer>> roleRounds = new HashMap<>();
-    public static Map<ResourceLocation,Float> getWeights(){
+    public static Map<String,Float> getWeights(){
         return HarpyModLoaderConfig.HANDLER.instance().roleWeights;
     }
     public static float getRoleWeight(SRERole role){
-        var customWeight = getWeights().get(role.identifier());
+        var customWeight = getWeights().get(role.identifier().toString());
         if (customWeight != null && customWeight > 0) {
             return customWeight;
         }

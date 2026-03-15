@@ -806,5 +806,7 @@
   "menu.sre.join_discord": "加入 Discord",
   "menu.sre.wiki": "WIKI",
   "menu.sre.mod_config": "模组设置",
+  "menu.sre.role_introduction": "职业介绍",
+  "menu.sre.feedback": "反馈BUG",
   "menu.sre.quit": "退出游戏"
 }
