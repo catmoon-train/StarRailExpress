@@ -349,7 +349,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
         ServerPlayer sp = context.player();
         boolean isJoin = payload.isJoin();
         if (isJoin) {
-            if (sp.isSpectator()) {
+            if (GameUtils.isPlayerSpectator(sp)) {
                 TrainVoicePlugin.addPlayer(sp.getUUID());
             }
         } else {
