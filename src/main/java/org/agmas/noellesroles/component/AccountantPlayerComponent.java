@@ -224,6 +224,29 @@ public class AccountantPlayerComponent implements RoleComponent, ServerTickingCo
         if (!(player instanceof ServerPlayer serverPlayer))
             return;
 
+        // 根据当前模式执行技能
+        if (currentMode == MODE_INCOME) {
+            executeIncomeSkill(serverPlayer);
+        } else {
+            executeExpenseSkill(serverPlayer);
+        }
+    }
+
+    /**
+     * 执行收入模式技能
+     * 查看准星对准的玩家的金币量是否超过300
+     */
+    private void executeIncomeSkill(ServerPlayer serverPlayer) {
+        // 获取准星对准的玩家
+        Player target = getTargetPlayer(serverPlayer);
+        if (target == null) {
+            serverPlayer.displayClientMessage(
+                    Component.translatable("message.noellesroles.accountant.no_target")
+                            .withStyle(ChatFormatting.RED),
+                    true);
+            return;
+        }
+
         // 检查金币是否足够
         SREPlayerShopComponent shopComponent = SREPlayerShopComponent.KEY.get(player);
         if (shopComponent.balance < SKILL_COST) {
@@ -238,32 +261,9 @@ public class AccountantPlayerComponent implements RoleComponent, ServerTickingCo
         shopComponent.balance -= SKILL_COST;
         shopComponent.sync();
 
-        // 根据当前模式执行技能
-        if (currentMode == MODE_INCOME) {
-            executeIncomeSkill(serverPlayer);
-        } else {
-            executeExpenseSkill(serverPlayer);
-        }
-    }
-
-    /**
-     * 执行收入模式技能
-     * 查看准星对准的玩家的金币量是否超过300
-     */
-    private void executeIncomeSkill(ServerPlayer serverPlayer) {
         // 播放钟的声音
         serverPlayer.level().playSound(null, serverPlayer.getX(), serverPlayer.getY(), serverPlayer.getZ(),
                 SoundEvents.BELL_BLOCK, SoundSource.PLAYERS, 0.5F, 1.0F);
-
-        // 获取准星对准的玩家
-        Player target = getTargetPlayer(serverPlayer);
-        if (target == null) {
-            serverPlayer.displayClientMessage(
-                    Component.translatable("message.noellesroles.accountant.no_target")
-                            .withStyle(ChatFormatting.RED),
-                    true);
-            return;
-        }
 
         // 检查目标玩家金币数量
         SREPlayerShopComponent targetShop = SREPlayerShopComponent.KEY.get(target);
@@ -293,10 +293,6 @@ public class AccountantPlayerComponent implements RoleComponent, ServerTickingCo
      * 标记一名玩家，20秒后对比其金币数变化
      */
     private void executeExpenseSkill(ServerPlayer serverPlayer) {
-        // 播放翻书声
-        serverPlayer.level().playSound(null, serverPlayer.getX(), serverPlayer.getY(), serverPlayer.getZ(),
-                SoundEvents.BOOK_PAGE_TURN, SoundSource.PLAYERS, 1.0F, 1.0F);
-
         // 获取准星对准的玩家
         Player target = getTargetPlayer(serverPlayer);
         if (target == null) {
@@ -306,6 +302,24 @@ public class AccountantPlayerComponent implements RoleComponent, ServerTickingCo
                     true);
             return;
         }
+
+        // 检查金币是否足够
+        SREPlayerShopComponent shopComponent = SREPlayerShopComponent.KEY.get(player);
+        if (shopComponent.balance < SKILL_COST) {
+            serverPlayer.displayClientMessage(
+                    Component.translatable("message.noellesroles.accountant.insufficient_funds", SKILL_COST)
+                            .withStyle(ChatFormatting.RED),
+                    true);
+            return;
+        }
+
+        // 扣除金币
+        shopComponent.balance -= SKILL_COST;
+        shopComponent.sync();
+
+        // 播放翻书声
+        serverPlayer.level().playSound(null, serverPlayer.getX(), serverPlayer.getY(), serverPlayer.getZ(),
+                SoundEvents.BOOK_PAGE_TURN, SoundSource.PLAYERS, 1.0F, 1.0F);
 
         // 标记玩家
         markedPlayerUUID = target.getUUID();
