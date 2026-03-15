@@ -50,6 +50,7 @@ public class SREReceivingLevelScreen extends ReceivingLevelScreen {
     }
     @Override
     public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        PANORAMA.render(graphics, mouseY, mouseX, mouseY, partialTick);
         // 不绘制默认背景，我们已自己绘制渐变
     }
     private final List<TrainLoadingScreen.StarParticle> stars = new ArrayList<>();
@@ -81,7 +82,7 @@ public class SREReceivingLevelScreen extends ReceivingLevelScreen {
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         // 1. 绘制深邃的太空背景
         renderBackground(graphics, mouseX, mouseY, partialTick);
-        graphics.fillGradient(0, 0, width, height, 0xFF0A0A1A, 0xFF101020);
+        graphics.fillGradient(0, 0, width, height, 0x010A0A1A, 0x01101020);
 
         // 2. 绘制星空粒子
         renderStars(graphics, partialTick);
