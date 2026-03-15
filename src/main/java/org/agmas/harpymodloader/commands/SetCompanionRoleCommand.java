@@ -26,53 +26,42 @@ public class SetCompanionRoleCommand {
     }
 
     private static int execute(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
-        if(!Harpymodloader.isMojangVerify) {
+        if (!Harpymodloader.isMojangVerify) {
             return 1;
         }
         SRERole primaryRole = RoleArgumentType.getRole(context, "primaryRole");
         SRERole companionRole = RoleArgumentType.getRole(context, "companionRole");
-        
-        // 更新配置
-        HarpyModLoaderConfig.HANDLER.instance().companionRoles.put(
-            primaryRole.identifier(), 
-            companionRole.identifier()
-        );
-        
+
         HarpyModLoaderConfig.HANDLER.save();
-        
+
         Component primaryRoleText = Harpymodloader.getRoleName(primaryRole).withColor(primaryRole.color());
         Component companionRoleText = Harpymodloader.getRoleName(companionRole).withColor(companionRole.color());
-        
+
         context.getSource().sendSuccess(
-            () -> Component.translatable("commands.sre.setcompanionrole.success", 
-                primaryRoleText, companionRoleText), 
-            true
-        );
-        
+                () -> Component.translatable("commands.sre.setcompanionrole.success",
+                        primaryRoleText, companionRoleText),
+                true);
+
         return 1;
     }
-    
+
     private static int removeCompanion(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         SRERole primaryRole = RoleArgumentType.getRole(context, "primaryRole");
-        
+
         // 从配置中移除
-        if (HarpyModLoaderConfig.HANDLER.instance().companionRoles.remove(primaryRole.identifier()) != null) {
-            HarpyModLoaderConfig.HANDLER.save();
-            
+        if (Harpymodloader.Occupations_Roles.remove(primaryRole) != null) {
             Component primaryRoleText = Harpymodloader.getRoleName(primaryRole).withColor(primaryRole.color());
-            
+
             context.getSource().sendSuccess(
-                () -> Component.translatable("commands.sre.removecompanionrole.success", primaryRoleText), 
-                true
-            );
+                    () -> Component.translatable("commands.sre.removecompanionrole.success", primaryRoleText),
+                    true);
         } else {
             context.getSource().sendSuccess(
-                () -> Component.translatable("commands.sre.removecompanionrole.notfound", 
-                    Harpymodloader.getRoleName(primaryRole).withColor(primaryRole.color())), 
-                false
-            );
+                    () -> Component.translatable("commands.sre.removecompanionrole.notfound",
+                            Harpymodloader.getRoleName(primaryRole).withColor(primaryRole.color())),
+                    false);
         }
-        
+
         return 1;
     }
 }

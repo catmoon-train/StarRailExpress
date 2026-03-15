@@ -257,6 +257,7 @@ public class GameUtils {
         if (SRE.isLobby)
             return;
         // 延迟5s
+        SRE.LOGGER.info("Game Started!");
         serverAsynTaskLists.add(new ServerTaskInfoClasses.SchedulerTask(100, () -> {
             resetEntities(world);
         }));
@@ -593,6 +594,7 @@ public class GameUtils {
     public static ArrayList<Predicate<Entry<Player, String>>> CustomWinnersPredicates = new ArrayList<>();
 
     public static void finalizeGame(ServerLevel world) {
+        SRE.LOGGER.info("Game Stopped!");
         serverTaskQueue.clear();
         serverAsynTaskLists.clear();
         isStartingGame = false;

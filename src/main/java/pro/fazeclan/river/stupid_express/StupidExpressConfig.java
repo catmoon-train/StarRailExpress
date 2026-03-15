@@ -19,12 +19,6 @@ public class StupidExpressConfig implements ConfigData {
 
     public static class RolesSection {
         @CollapsibleObject
-        public NecromancerSection necromancerSection = new NecromancerSection();
-
-        public static class NecromancerSection {
-            public boolean necromancerHasShop = false;
-        }
-        @CollapsibleObject
         public ArsonistSection arsonistSection = new ArsonistSection();
 
         public static class ArsonistSection {
@@ -32,27 +26,9 @@ public class StupidExpressConfig implements ConfigData {
         }
 
         @CollapsibleObject
-        public InitiateSection initiateSection = new InitiateSection();
-
-        public static class InitiateSection {
-
-            public enum InitiateFallbackOptions {
-                AMNESIAC,
-                KILLER,
-                NEUTRAL;
-                // @Override
-                // public @NotNull String prefix() {
-                // return "stupid_express.config.initiate_fallback_options";
-                // }
-            }
-
-            public InitiateFallbackOptions initiateFallbackRole = InitiateFallbackOptions.AMNESIAC;
-        }
-        @CollapsibleObject
         public AmnesiacSection amnesiacSection = new AmnesiacSection();
 
         public static class AmnesiacSection {
-            public boolean bodiesGlowToAmnesiac = true;
             public boolean amnesiacGlowsDifferently = false;
         }
 
@@ -67,8 +43,6 @@ public class StupidExpressConfig implements ConfigData {
 
         public static class LoversSection {
             public boolean loversKnowImmediately = true;
-            public boolean loversWinWithKillers = false;
-            public boolean loversWinWithCivilians = true;
         }
     }
 

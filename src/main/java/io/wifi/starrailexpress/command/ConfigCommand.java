@@ -11,6 +11,7 @@ import io.wifi.starrailexpress.SREConfig;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
+import pro.fazeclan.river.stupid_express.StupidExpressConfig;
 
 public class ConfigCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
@@ -25,11 +26,11 @@ public class ConfigCommand {
 
     private static int reloadConfig(CommandContext<CommandSourceStack> context) {
         CommandSourceStack source = context.getSource();
-
         try {
             SREConfig.reload();
             HarpyModLoaderConfig.HANDLER.load();
             NoellesRolesConfig.HANDLER.load();
+            StupidExpressConfig.HANDLER.load();
             source.sendSuccess(
                     () -> Component.translatable("commands.sre.config.reload")
                             .withStyle(style -> style.withColor(0x00FF00)),

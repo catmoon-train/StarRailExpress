@@ -5,6 +5,7 @@ import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
 
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
+import me.shedaniel.autoconfig.annotation.ConfigEntry.Gui.Tooltip;
 
 @Config(name = "starrailexpress")
 public class SREConfig implements ConfigData {
@@ -13,24 +14,22 @@ public class SREConfig implements ConfigData {
             SREConfig.class);
     // 客户端专用配置 - 仅在客户端环境生效
 
-    @ConfigEntry.Category(value = "client")
     @ConfigEntry.Gui.Tooltip
     public static boolean ultraPerfMode = false;
 
-    @ConfigEntry.Category(value = "client")
     public static boolean disableScreenShake = true;
 
-    @ConfigEntry.Category(value = "client")
     public static boolean disableStaminaBarSmoothing = false;
 
-    @ConfigEntry.Category(value = "client")
     public static boolean enableSecurityCameraHUD = true; // 启用安全摄像头HUD显示
 
     // 随机地图设置
     @ConfigEntry.Category(value = "map")
+    @Tooltip
     public static int mapRandomCount = -1;
 
     @ConfigEntry.Category(value = "map")
+    @Tooltip(count = 3)
     public static boolean isLobby = false;
 
     @ConfigEntry.Category(value = "shop")

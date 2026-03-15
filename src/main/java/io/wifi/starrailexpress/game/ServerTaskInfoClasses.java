@@ -191,7 +191,9 @@ public class ServerTaskInfoClasses {
             count++;
 
             if (area.noReset) {
-                SRE.LOGGER.info("NO RESET MAP!");
+                if (SREConfig.verboseTrainResetLogs) {
+                    SRE.LOGGER.info("NO RESET MAP!");
+                }
                 return true;
             }
             if (this.progress >= this.totalProgress) {
@@ -199,7 +201,9 @@ public class ServerTaskInfoClasses {
             }
 
             if (count % 10 == 1) {
-                SRE.LOGGER.info("RESETING MAP: {}/{}", this.progress, this.totalProgress);
+                if (SREConfig.verboseTrainResetLogs) {
+                    SRE.LOGGER.info("RESETING MAP: {}/{}", this.progress, this.totalProgress);
+                }
                 this.serverWorld.players().forEach((p) -> {
                     p.displayClientMessage(
                             Component
@@ -228,7 +232,9 @@ public class ServerTaskInfoClasses {
                         true);
             });
             if (shouldStartGame) {
-                SRE.LOGGER.info("RESETING MAP FINISHED. STARTING RESET TASK BLOCKS.");
+                if (SREConfig.verboseTrainResetLogs) {
+                    SRE.LOGGER.info("RESETING MAP FINISHED. STARTING RESET TASK BLOCKS.");
+                }
                 // GameUtils.trueStartGame(this.serverWorld, this.gameMode, this.time);
                 var task = new ServerTaskInfoClasses.OnlySomeBlockResetTask(GameUtils.resetPoints,
                         serverWorld,
@@ -261,7 +267,9 @@ public class ServerTaskInfoClasses {
         }
 
         public void resetBlock() {
-            SRE.LOGGER.info("RESETING MAP: {}/{}", this.progress, this.totalProgress);
+            if (SREConfig.verboseTrainResetLogs) {
+                SRE.LOGGER.info("RESETING MAP: {}/{}", this.progress, this.totalProgress);
+            }
             ServerLevel serverWorld = this.world;
             ArrayList<GameUtils.BlockInfo> list3 = new ArrayList<>(); // 仅更新方块状态
             ArrayList<GameUtils.BlockInfo> list2 = new ArrayList<>();
@@ -436,7 +444,9 @@ public class ServerTaskInfoClasses {
         public void onFinished() {
 
             if (shouldStartGame) {
-                SRE.LOGGER.info("RESETING MAP FINISHED. STARTING THE GAME.");
+                if (SREConfig.verboseTrainResetLogs) {
+                    SRE.LOGGER.info("RESETING MAP FINISHED. STARTING THE GAME.");
+                }
                 GameUtils.trueStartGame(this.world, this.gameMode, this.time);
                 //
                 this.world.players().forEach((p) -> {

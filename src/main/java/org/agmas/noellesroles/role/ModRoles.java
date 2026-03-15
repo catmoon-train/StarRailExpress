@@ -114,7 +114,6 @@ public class ModRoles {
   public static ResourceLocation GHOST_ID = Noellesroles.id("ghost");
   public static ResourceLocation DOCTOR_ID = Noellesroles.id("doctor");
   public static ResourceLocation ATTENDANT_ID = Noellesroles.id("attendant");
-  public static ResourceLocation SHERIFF_ID = Noellesroles.id("sheriff");
   public static ResourceLocation CORONER_ID = Noellesroles.id("coroner");
   public static ResourceLocation PATROLLER_ID = Noellesroles.id("patroller");
   public static final ResourceLocation GLITCH_ROBOT_ID = Noellesroles.id("glitch_robot");
