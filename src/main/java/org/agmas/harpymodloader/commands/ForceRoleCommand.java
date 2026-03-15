@@ -21,7 +21,7 @@ public class ForceRoleCommand {
                 .requires(serverCommandSource -> serverCommandSource.hasPermission(2))
                 .then(Commands.argument("player", EntityArgument.player())
                         .executes(ForceRoleCommand::query)
-                        .then(Commands.argument("role", RoleArgumentType.skipVanilla())
+                        .then(Commands.argument("role", RoleArgumentType.create())
                                 .executes(ForceRoleCommand::execute))));
     }
 
