@@ -1,8 +1,7 @@
 package io.wifi.starrailexpress.util;
 
 import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
-import io.wifi.starrailexpress.index.TMMCosmetics;
-import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.index.SRECosmetics;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -16,18 +15,6 @@ import java.util.Map;
 public class SkinUtils {
     
     /**
-     * 获取物品当前皮肤名称
-     * @param itemStack 物品堆栈
-     * @return 皮肤名称
-     */
-    public static String getItemSkin(ItemStack itemStack) {
-        if (itemStack.getItem() instanceof io.wifi.starrailexpress.item.ItemWithSkin) {
-            return TMMCosmetics.getSkin(itemStack);
-        }
-        return "default";
-    }
-    
-    /**
      * 设置物品皮肤
      * @param player 玩家
      * @param itemStack 物品堆栈
@@ -35,7 +22,7 @@ public class SkinUtils {
      */
     public static void setItemSkin(Player player, ItemStack itemStack, String skinName) {
         if (itemStack.getItem() instanceof io.wifi.starrailexpress.item.ItemWithSkin) {
-            TMMCosmetics.setSkin(player, itemStack, skinName);
+            SRECosmetics.setSkin(player, itemStack, skinName);
             // 同时更新玩家皮肤组件
             SREPlayerSkinsComponent skinsComponent = SREPlayerSkinsComponent.KEY.get(player);
             String itemTypeName = getItemTypeName(itemStack);
@@ -52,15 +39,6 @@ public class SkinUtils {
      */
     public static boolean isItemSkinnable(ItemStack itemStack) {
         return itemStack.getItem() instanceof io.wifi.starrailexpress.item.ItemWithSkin;
-    }
-    
-    /**
-     * 获取物品的皮肤配置ID
-     * @param itemStack 物品堆栈
-     * @return 皮肤配置ID
-     */
-    public static String getSkinConfigId(ItemStack itemStack) {
-        return SRE.MOD_ID + ":" + getItemSkin(itemStack);
     }
     
     /**

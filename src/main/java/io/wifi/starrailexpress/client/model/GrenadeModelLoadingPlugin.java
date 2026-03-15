@@ -1,6 +1,5 @@
 package io.wifi.starrailexpress.client.model;
 
-import io.wifi.starrailexpress.item.GrenadeItem;
 import io.wifi.starrailexpress.util.SkinManager;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.minecraft.client.resources.model.ModelResourceLocation;
@@ -20,7 +19,7 @@ public class GrenadeModelLoadingPlugin implements ModelLoadingPlugin {
 
     @Override
     public void onInitializeModelLoader(Context pluginContext) {
-        for (SkinManager.Skin skin : SkinManager.getGrenadeSkins().values()) {
+        for (SkinManager.Skin skin : SkinManager.getSkins("grenade").values()) {
             for (Variant variant : Variant.values()) {
                 pluginContext.addModels(getModelLocation((SkinManager.GrenadeSkin) skin, variant));
             }

@@ -26,7 +26,8 @@ import java.util.Objects;
 
 public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTickingComponent {
     private static final Logger logger = LoggerFactory.getLogger(SREPlayerSkinsComponent.class);
-    public static final ComponentKey<SREPlayerSkinsComponent> KEY = ComponentRegistry.getOrCreate(SRE.id("player_skins"),
+    public static final ComponentKey<SREPlayerSkinsComponent> KEY = ComponentRegistry.getOrCreate(
+            SRE.id("player_skins"),
             SREPlayerSkinsComponent.class);
     public static final ResourceLocation WEAPON_SKINS_DATA_ID = SRE.id("weapon_skins");
 
@@ -85,6 +86,7 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
     public static void disableGlobalNetworkSync() {
         syncRequests = null;
     }
+
     /**
      * 禁用网络同步
      */
@@ -275,9 +277,12 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
     /**
      * 标准化物品名称
      */
-    private String normalizeItemName(String itemTypeName) {
+    public static String normalizeItemName(String itemTypeName) {
         // 将物品类型名称标准化为小写，去除空格等
-        return itemTypeName.toLowerCase().trim().replaceAll("[^a-z0-9_:]", "");
+        var itr = ResourceLocation.tryParse(itemTypeName);
+        if (itr == null)
+            return itemTypeName;
+        return itr.getPath();
     }
 
     /**

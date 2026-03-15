@@ -8,11 +8,10 @@ import net.minecraft.world.item.component.CustomData;
 
 import static io.wifi.starrailexpress.cca.SREPlayerSkinsComponent.KEY;
 
-public interface TMMCosmetics {
+public interface SRECosmetics {
     // 不再重复注册，而是使用PlayerSkinsComponent中已注册的实例
 
-    static String getSkin(ItemStack itemStack) {
-
+    static String getSkin(String itemName, ItemStack itemStack) {
         // ItemStack数据优先级高于玩家自身
         CustomData customData = itemStack.get(DataComponents.CUSTOM_DATA);
         if (customData != null)
@@ -28,8 +27,6 @@ public interface TMMCosmetics {
         // 获取物品的owner NBT数据，如果没有则使用默认UUID
         String skin =
                 itemStack.getOrDefault(SREDataComponentTypes.SKIN, "default");
-
-
         return skin;
 
     }
@@ -40,6 +37,5 @@ public interface TMMCosmetics {
         playerSkinsComponent.getEquippedSkins().put(BuiltInRegistries.ITEM.getKey(itemStack.getItem()).toString(),
                 skinName);
         playerSkinsComponent.sync();
-
     }
 }

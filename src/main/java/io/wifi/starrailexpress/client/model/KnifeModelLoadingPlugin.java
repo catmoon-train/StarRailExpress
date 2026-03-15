@@ -13,7 +13,7 @@ public class KnifeModelLoadingPlugin implements ModelLoadingPlugin {
     public static final ModelResourceLocation KNIFE_MODEL_ID = ModelResourceLocation.inventory(KnifeItem.ITEM_ID);
 
     public static ResourceLocation getModelLocation(SkinManager.Skin skin, Variant variant) {
-        var skinPart = skin == SkinManager.DEFAULT_SKIN ? "" : "_%s".formatted(skin.getName());
+        var skinPart = skin == SkinManager.KnifeSkin.DEFAULT_SKIN ? "" : "_%s".formatted(skin.getName());
         var variantPart = variant == Variant.DEFAULT ? "" : "_%s".formatted(variant.getSerializedName());
 
         return KNIFE_MODEL_ID.id().withPath(path -> "item/%s%s%s".formatted(KNIFE_MODEL_ID.id().getPath(), skinPart, variantPart));
@@ -22,7 +22,7 @@ public class KnifeModelLoadingPlugin implements ModelLoadingPlugin {
     @Override
     public void onInitializeModelLoader(Context pluginContext) {
         // make sure all models get loaded
-        for (SkinManager.Skin skin : SkinManager.getSkins().values()) {
+        for (SkinManager.Skin skin : SkinManager.getSkins("knife").values()) {
             for (Variant variant : Variant.values()) {
                 pluginContext.addModels(getModelLocation(skin, variant));
             }

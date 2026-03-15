@@ -9,6 +9,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -269,7 +270,11 @@ public class SkinSelectionList extends ObjectSelectionList<SkinSelectionList.Ski
             int infoY = y + 10;
             String skinLowerName = skinName.toLowerCase();
             // 皮肤名称
-            String itemTypeKey = (itemTypeName.replaceAll(":", "."));
+            var rl = ResourceLocation.tryParse(itemTypeName);
+            String itemTypeKey = itemTypeName;
+            if (rl != null) {
+                itemTypeKey = rl.getPath();
+            }
             Component displayName = Component.translatableWithFallback(
                     "screen.sre.skins." + itemTypeKey + "." + skinLowerName + ".name",
                     formatSkinName(skinLowerName));

@@ -1,6 +1,5 @@
 package io.wifi.starrailexpress.client.model;
 
-import io.wifi.starrailexpress.item.RevolverItem;
 import io.wifi.starrailexpress.util.SkinManager;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.minecraft.client.resources.model.ModelResourceLocation;
@@ -11,7 +10,7 @@ public class RevolverModelLoadingPlugin implements ModelLoadingPlugin {
 
     public static final ModelResourceLocation REVOLVER_MODEL_ID = ModelResourceLocation.inventory(ResourceLocation.tryParse("starrailexpress:revolver"));
 
-    public static ResourceLocation getModelLocation(SkinManager.RevolverSkin skin, Variant variant) {
+    public static ResourceLocation getModelLocation(SkinManager.Skin skin, Variant variant) {
         var skinPart = skin == SkinManager.RevolverSkin.REVOLVER_DEFAULT_SKIN ? "" : "_%s".formatted(skin.getName());
         var variantPart = variant == Variant.DEFAULT ? "" : "_%s".formatted(variant.getSerializedName());
 
@@ -20,7 +19,7 @@ public class RevolverModelLoadingPlugin implements ModelLoadingPlugin {
 
     @Override
     public void onInitializeModelLoader(Context pluginContext) {
-        for (SkinManager.Skin skin : SkinManager.getRevolverSkins().values()) {
+        for (SkinManager.Skin skin : SkinManager.getSkins("revolver").values()) {
             for (Variant variant : Variant.values()) {
                 pluginContext.addModels(getModelLocation((SkinManager.RevolverSkin) skin, variant));
             }

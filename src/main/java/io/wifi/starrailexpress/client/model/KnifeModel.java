@@ -1,10 +1,7 @@
 package io.wifi.starrailexpress.client.model;
 
-
-
-import io.wifi.starrailexpress.index.TMMCosmetics;
+import io.wifi.starrailexpress.index.SRECosmetics;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
-import io.wifi.starrailexpress.item.KnifeItem;
 import io.wifi.starrailexpress.util.SkinManager;
 import net.fabricmc.fabric.api.renderer.v1.render.RenderContext;
 
@@ -25,7 +22,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
-import org.agmas.noellesroles.utils.Pair;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -55,8 +51,9 @@ public class KnifeModel implements UnbakedModel, BakedModel {
     }
 
     @Override
-    public @Nullable BakedModel bake(ModelBaker baker, Function<Material, TextureAtlasSprite> textureGetter, ModelState settings) {
-        for (SkinManager.Skin skin : SkinManager.getSkins().values()) {
+    public @Nullable BakedModel bake(ModelBaker baker, Function<Material, TextureAtlasSprite> textureGetter,
+            ModelState settings) {
+        for (SkinManager.Skin skin : SkinManager.getSkins("knife").values()) {
             for (KnifeModelLoadingPlugin.Variant variant : KnifeModelLoadingPlugin.Variant.values()) {
                 var bakedModel = baker.bake(KnifeModelLoadingPlugin.getModelLocation(skin, variant), settings);
                 if (bakeModels.containsKey(skin.getName()))
@@ -76,19 +73,21 @@ public class KnifeModel implements UnbakedModel, BakedModel {
         return false;
     }
 
-    private static final Set<ItemDisplayContext> IN_HAND = EnumSet.of(ItemDisplayContext.THIRD_PERSON_LEFT_HAND, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, ItemDisplayContext.HEAD, ItemDisplayContext.FIXED);
+    private static final Set<ItemDisplayContext> IN_HAND = EnumSet.of(ItemDisplayContext.THIRD_PERSON_LEFT_HAND,
+            ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, ItemDisplayContext.HEAD, ItemDisplayContext.FIXED);
 
     @Override
     public void emitItemQuads(ItemStack stack, Supplier<RandomSource> randomSupplier, RenderContext context) {
         var mode = context.itemTransformationMode();
-        var variant = mode.firstPerson() || IN_HAND.contains(mode) ? KnifeModelLoadingPlugin.Variant.IN_HAND : KnifeModelLoadingPlugin.Variant.DEFAULT;
-        
+        var variant = mode.firstPerson() || IN_HAND.contains(mode) ? KnifeModelLoadingPlugin.Variant.IN_HAND
+                : KnifeModelLoadingPlugin.Variant.DEFAULT;
+
         // 从玩家的CCA组件获取皮肤，而不是仅依赖TMMCosmetics
         String skinName = stack.get(SREDataComponentTypes.SKIN);
         if (skinName == null) {
             skinName = getSkinFromPlayerComponent(stack);
         }
-        var skin = SkinManager.Skin.fromString(skinName);
+        var skin = SkinManager.Skin.fromString("knife", skinName);
 
         if (bakeModels.containsKey(skin.getName()) && bakeModels.get(skin.getName()).containsKey(variant))
             bakeModels.get(skin.getName()).get(variant).emitItemQuads(stack, randomSupplier, context);
@@ -105,7 +104,7 @@ public class KnifeModel implements UnbakedModel, BakedModel {
             return SkinManager.getEquippedSkin(player, stack);
         }
         // 如果无法获取玩家或组件，则回退到原始方法
-        return TMMCosmetics.getSkin(stack);
+        return SRECosmetics.getSkin("knife", stack);
     }
 
     @Override
@@ -149,6 +148,7 @@ public class KnifeModel implements UnbakedModel, BakedModel {
     }
 
     private BakedModel getDefaultModel() {
-        return bakeModels.get(SkinManager.DEFAULT_SKIN.getName()).get(KnifeModelLoadingPlugin.Variant.DEFAULT);
+        return bakeModels.get(SkinManager.KnifeSkin.DEFAULT_SKIN.getName())
+                .get(KnifeModelLoadingPlugin.Variant.DEFAULT);
     }
 }

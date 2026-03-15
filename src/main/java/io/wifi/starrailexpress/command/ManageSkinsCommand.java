@@ -3,8 +3,13 @@ package io.wifi.starrailexpress.command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.suggestion.Suggestions;
+import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+
+import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
 import io.wifi.starrailexpress.command.argument.SkinArgumentType;
+import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.SkinManager;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
@@ -13,11 +18,16 @@ import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.item.ItemArgument;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 
 import static io.wifi.starrailexpress.SRE.LOGGER;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 public class ManageSkinsCommand {
 
@@ -28,17 +38,26 @@ public class ManageSkinsCommand {
                 .then(Commands.literal("give")
                         .then(Commands.argument("targets", EntityArgument.players())
                                 .then(Commands.argument("item", ItemArgument.item(context))
+                                        .suggests(ManageSkinsCommand::suggestSkinableItems)
                                         .then(Commands.argument("skin", SkinArgumentType.string())
+                                                .suggests(ManageSkinsCommand::suggestSkins)
+
                                                 .executes(ManageSkinsCommand::giveSkin)))))
                 .then(Commands.literal("take")
                         .then(Commands.argument("targets", EntityArgument.players())
                                 .then(Commands.argument("item", ItemArgument.item(context))
+                                        .suggests(ManageSkinsCommand::suggestSkinableItems)
                                         .then(Commands.argument("skin", SkinArgumentType.string())
+                                                .suggests(ManageSkinsCommand::suggestSkins)
+
                                                 .executes(ManageSkinsCommand::takeSkin)))))
                 .then(Commands.literal("setequipped")
                         .then(Commands.argument("targets", EntityArgument.players())
                                 .then(Commands.argument("item", ItemArgument.item(context))
-                                        .then(Commands.argument("skin", SkinArgumentType.string())
+                                        .suggests(ManageSkinsCommand::suggestSkinableItems)
+                                        .then(Commands.argument("skin", SkinArgumentType.string()).suggests(null)
+                                                .suggests(ManageSkinsCommand::suggestSkins)
+
                                                 .executes(ManageSkinsCommand::setEquippedSkin)))))
                 .then(Commands.literal("list")
                         .then(Commands.argument("targets", EntityArgument.players())
@@ -82,7 +101,7 @@ public class ManageSkinsCommand {
             SREPlayerSkinsComponent skinsComponent = SREPlayerSkinsComponent.KEY.get(player);
             skinsComponent.lockSkinForItemType(BuiltInRegistries.ITEM.getKey(item.getItem()).toString(), skin);
             context.getSource().sendSuccess(() -> Component.translatable(
-                        "Removed skin %s for item type %s to %s", skin, item.getItem().getDescription(), player.getName()),
+                    "Removed skin %s for item type %s to %s", skin, item.getItem().getDescription(), player.getName()),
                     true);
             skinsComponent.syncSkinsToClient();
             // skinsComponent.syncSkinsToNetwork();
@@ -103,11 +122,57 @@ public class ManageSkinsCommand {
             SkinManager.setEquippedSkinForItemType(player, BuiltInRegistries.ITEM.getKey(item.getItem()).toString(),
                     skin);
             context.getSource().sendSuccess(() -> Component.translatable(
-                        "Set equipped skin to %s for item type %s to %s", skin, item.getItem().getDescription(), player.getName()), true);
+                    "Set equipped skin to %s for item type %s to %s", skin, item.getItem().getDescription(),
+                    player.getName()), true);
             successes++;
         }
 
         return successes;
+    }
+
+    private static CompletableFuture<Suggestions> suggestSkins(CommandContext<CommandSourceStack> context,
+            SuggestionsBuilder builder) {
+        var item = ItemArgument.getItem(context, "item").getItem();
+
+        String remaining = builder.getRemaining().toLowerCase(Locale.ROOT);
+        Set<String> suggestions = new HashSet<>();
+        // 添加自定义 ID 到 Set
+        var itemId = SkinManager.getResourceLocationOfItem(item);
+        if (itemId == null) {
+            return builder.buildFuture();
+        }
+        var skins = SkinManager.getSkins(itemId.getPath());
+        skins.keySet().stream().filter(id -> id.toLowerCase(Locale.ROOT).startsWith(remaining))
+                .forEach(suggestions::add);
+        // 最后批量建议
+        suggestions.forEach((s) -> {
+            builder.suggest(s,
+                    Component.translatableWithFallback("screen.sre.skins." + itemId.getPath() + "." + s + ".name", s));
+        });
+
+        return builder.buildFuture();
+    }
+
+    private static CompletableFuture<Suggestions> suggestSkinableItems(CommandContext<CommandSourceStack> context,
+            SuggestionsBuilder builder) {
+        String remaining = builder.getRemaining().toLowerCase(Locale.ROOT);
+        Set<String> suggestions = new HashSet<>();
+        // 添加自定义 ID 到 Set
+
+        TMMItems.SkinnableItem.stream()
+                .map(SkinManager::getResourceLocationOfItem)
+                .map(ResourceLocation::toString)
+                .filter(id -> id.toLowerCase(Locale.ROOT).startsWith(remaining))
+                .forEach(suggestions::add);
+        // 最后批量建议
+        suggestions.forEach((s) -> {
+            var t = ResourceLocation.tryParse(s);
+            if (t != null) {
+                builder.suggest(s, GameReplayUtils.getItemDisplayName(t));
+            }
+        });
+
+        return builder.buildFuture();
     }
 
     private static int listSkins(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {

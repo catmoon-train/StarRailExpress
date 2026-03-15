@@ -1,6 +1,5 @@
 package io.wifi.starrailexpress.client.model;
 
-import io.wifi.starrailexpress.item.BatItem;
 import io.wifi.starrailexpress.util.SkinManager;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.minecraft.client.resources.model.ModelResourceLocation;
@@ -20,7 +19,7 @@ public class BatModelLoadingPlugin implements ModelLoadingPlugin {
 
     @Override
     public void onInitializeModelLoader(Context pluginContext) {
-        for (SkinManager.Skin skin : SkinManager.getBatSkins().values()) {
+        for (SkinManager.Skin skin : SkinManager.getSkins("bat").values()) {
             for (Variant variant : Variant.values()) {
                 pluginContext.addModels(getModelLocation((SkinManager.BatSkin) skin, variant));
             }

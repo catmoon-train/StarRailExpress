@@ -1,7 +1,6 @@
 package io.wifi.starrailexpress.client.model;
 
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
-import io.wifi.starrailexpress.item.GrenadeItem;
 import io.wifi.starrailexpress.util.SkinManager;
 import net.fabricmc.fabric.api.renderer.v1.render.RenderContext;
 import net.minecraft.client.Minecraft;
@@ -47,10 +46,12 @@ public class GrenadeModel implements UnbakedModel, BakedModel {
     }
 
     @Override
-    public @Nullable BakedModel bake(ModelBaker baker, Function<Material, TextureAtlasSprite> textureGetter, ModelState settings) {
-        for (SkinManager.Skin skin : SkinManager.getGrenadeSkins().values()) {
+    public @Nullable BakedModel bake(ModelBaker baker, Function<Material, TextureAtlasSprite> textureGetter,
+            ModelState settings) {
+        for (SkinManager.Skin skin : SkinManager.getSkins("grenade").values()) {
             for (GrenadeModelLoadingPlugin.Variant variant : GrenadeModelLoadingPlugin.Variant.values()) {
-                var bakedModel = baker.bake(GrenadeModelLoadingPlugin.getModelLocation((SkinManager.GrenadeSkin) skin, variant), settings);
+                var bakedModel = baker.bake(
+                        GrenadeModelLoadingPlugin.getModelLocation((SkinManager.GrenadeSkin) skin, variant), settings);
                 if (bakeModels.containsKey(skin.getName()))
                     bakeModels.get(skin.getName()).put(variant, bakedModel);
                 else {
@@ -68,18 +69,20 @@ public class GrenadeModel implements UnbakedModel, BakedModel {
         return false;
     }
 
-    private static final Set<ItemDisplayContext> IN_HAND = EnumSet.of(ItemDisplayContext.THIRD_PERSON_LEFT_HAND, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, ItemDisplayContext.HEAD, ItemDisplayContext.FIXED);
+    private static final Set<ItemDisplayContext> IN_HAND = EnumSet.of(ItemDisplayContext.THIRD_PERSON_LEFT_HAND,
+            ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, ItemDisplayContext.HEAD, ItemDisplayContext.FIXED);
 
     @Override
     public void emitItemQuads(ItemStack stack, Supplier<RandomSource> randomSupplier, RenderContext context) {
         var mode = context.itemTransformationMode();
-        var variant = mode.firstPerson() || IN_HAND.contains(mode) ? GrenadeModelLoadingPlugin.Variant.IN_HAND : GrenadeModelLoadingPlugin.Variant.DEFAULT;
-        
+        var variant = mode.firstPerson() || IN_HAND.contains(mode) ? GrenadeModelLoadingPlugin.Variant.IN_HAND
+                : GrenadeModelLoadingPlugin.Variant.DEFAULT;
+
         String skinName = stack.get(SREDataComponentTypes.SKIN);
         if (skinName == null) {
             skinName = getSkinFromPlayerComponent(stack);
         }
-        var skin = SkinManager.GrenadeSkin.fromString(skinName);
+        var skin = SkinManager.Skin.fromString("grenade", skinName);
 
         if (bakeModels.containsKey(skin.getName()) && bakeModels.get(skin.getName()).containsKey(variant))
             bakeModels.get(skin.getName()).get(variant).emitItemQuads(stack, randomSupplier, context);
@@ -136,6 +139,7 @@ public class GrenadeModel implements UnbakedModel, BakedModel {
     }
 
     private BakedModel getDefaultModel() {
-        return bakeModels.get(SkinManager.GrenadeSkin.GRENADE_DEFAULT_SKIN.getName()).get(GrenadeModelLoadingPlugin.Variant.DEFAULT);
+        return bakeModels.get(SkinManager.GrenadeSkin.GRENADE_DEFAULT_SKIN.getName())
+                .get(GrenadeModelLoadingPlugin.Variant.DEFAULT);
     }
 }

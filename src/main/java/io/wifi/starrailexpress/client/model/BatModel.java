@@ -1,7 +1,6 @@
 package io.wifi.starrailexpress.client.model;
 
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
-import io.wifi.starrailexpress.item.BatItem;
 import io.wifi.starrailexpress.util.SkinManager;
 import net.fabricmc.fabric.api.renderer.v1.render.RenderContext;
 import net.minecraft.client.Minecraft;
@@ -47,10 +46,12 @@ public class BatModel implements UnbakedModel, BakedModel {
     }
 
     @Override
-    public @Nullable BakedModel bake(ModelBaker baker, Function<Material, TextureAtlasSprite> textureGetter, ModelState settings) {
-        for (SkinManager.Skin skin : SkinManager.getBatSkins().values()) {
+    public @Nullable BakedModel bake(ModelBaker baker, Function<Material, TextureAtlasSprite> textureGetter,
+            ModelState settings) {
+        for (SkinManager.Skin skin : SkinManager.getSkins("bat").values()) {
             for (BatModelLoadingPlugin.Variant variant : BatModelLoadingPlugin.Variant.values()) {
-                var bakedModel = baker.bake(BatModelLoadingPlugin.getModelLocation((SkinManager.BatSkin) skin, variant), settings);
+                var bakedModel = baker.bake(BatModelLoadingPlugin.getModelLocation((SkinManager.BatSkin) skin, variant),
+                        settings);
                 if (bakeModels.containsKey(skin.getName()))
                     bakeModels.get(skin.getName()).put(variant, bakedModel);
                 else {
@@ -68,18 +69,20 @@ public class BatModel implements UnbakedModel, BakedModel {
         return false;
     }
 
-    private static final Set<ItemDisplayContext> IN_HAND = EnumSet.of(ItemDisplayContext.THIRD_PERSON_LEFT_HAND, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, ItemDisplayContext.HEAD, ItemDisplayContext.FIXED);
+    private static final Set<ItemDisplayContext> IN_HAND = EnumSet.of(ItemDisplayContext.THIRD_PERSON_LEFT_HAND,
+            ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, ItemDisplayContext.HEAD, ItemDisplayContext.FIXED);
 
     @Override
     public void emitItemQuads(ItemStack stack, Supplier<RandomSource> randomSupplier, RenderContext context) {
         var mode = context.itemTransformationMode();
-        var variant = mode.firstPerson() || IN_HAND.contains(mode) ? BatModelLoadingPlugin.Variant.IN_HAND : BatModelLoadingPlugin.Variant.DEFAULT;
-        
+        var variant = mode.firstPerson() || IN_HAND.contains(mode) ? BatModelLoadingPlugin.Variant.IN_HAND
+                : BatModelLoadingPlugin.Variant.DEFAULT;
+
         String skinName = stack.get(SREDataComponentTypes.SKIN);
         if (skinName == null) {
             skinName = getSkinFromPlayerComponent(stack);
         }
-        var skin = SkinManager.BatSkin.fromString(skinName);
+        var skin = SkinManager.Skin.fromString("bat", skinName);
 
         if (bakeModels.containsKey(skin.getName()) && bakeModels.get(skin.getName()).containsKey(variant))
             bakeModels.get(skin.getName()).get(variant).emitItemQuads(stack, randomSupplier, context);
@@ -136,6 +139,7 @@ public class BatModel implements UnbakedModel, BakedModel {
     }
 
     private BakedModel getDefaultModel() {
-        return bakeModels.get(SkinManager.BatSkin.BAT_DEFAULT_SKIN.getName()).get(BatModelLoadingPlugin.Variant.DEFAULT);
+        return bakeModels.get(SkinManager.BatSkin.BAT_DEFAULT_SKIN.getName())
+                .get(BatModelLoadingPlugin.Variant.DEFAULT);
     }
 }

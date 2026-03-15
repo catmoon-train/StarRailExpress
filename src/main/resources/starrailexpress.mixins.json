@@ -87,7 +87,7 @@
     "gui.ScreenDrawableGetMixin",
     "input.KeyboardHandlerMixin",
     "input.MouseHandlerMixin",
-    "item.KnifeTooltipMixin",
+    "item.SkinTooltipMixin",
     "whitelist.ClientLoginPacketMixin"
   ]
 }
