@@ -642,6 +642,7 @@ public class ModPacketsReciever {
         }
       }
     });
+    ServerPlayNetworking.registerGlobalReceiver(ModPackets.WATER_GHOST_SKILL_PACKET, org.agmas.noellesroles.packet.WaterGhostUseSkillC2SPacket::handle);
   }
 
 }

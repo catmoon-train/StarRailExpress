@@ -132,6 +132,7 @@
     "client.roles.vulture.VultureEatenBodyMixin",
     "client.roles.vulture.VultureHudMixin",
     "client.roles.wayfarer.TargetEntityHudmixin",
+    "client.roles.waterghost.WaterGhostHudMixin",
     "client.time_stop.CantControlMixin",
     "client.time_stop.EntityCantUpdatePositionMixin",
     "client.time_stop.GameRendererMixin",
