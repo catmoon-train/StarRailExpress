@@ -3,7 +3,6 @@ package io.wifi.starrailexpress.client.gui.screen;
 import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.network.UpdateSkinSelectedPayload;
-import io.wifi.starrailexpress.SRE;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;

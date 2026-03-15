@@ -661,7 +661,7 @@ public class PuppeteerPlayerComponent implements RoleComponent, ServerTickingCom
             if (player.level().getGameTime() % 60 == 0) {
                 int clearCount = 0;
                 clearCount += TMMItemUtils.clearItem(player, TMMItems.KNIFE);
-                clearCount += TMMItemUtils.clearItem(player, TMMItems.THROWN_GRENADE);
+                clearCount += TMMItemUtils.clearItem(player, TMMItems.GRENADE);
                 clearCount += TMMItemUtils.clearItem(player, ModItems.THROWING_KNIFE);
                 clearCount += TMMItemUtils.clearItem(player, ModItems.ONCE_REVOLVER);
                 clearCount += TMMItemUtils.clearItem(player, ModItems.PATROLLER_REVOLVER);

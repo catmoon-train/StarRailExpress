@@ -29,7 +29,7 @@ public class GrenadeEntity extends ThrowableItemProjectile {
 
     @Override
     protected Item getDefaultItem() {
-        return TMMItems.THROWN_GRENADE;
+        return TMMItems.GRENADE;
     }
 
     @Override

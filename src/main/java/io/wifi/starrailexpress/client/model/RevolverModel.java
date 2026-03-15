@@ -54,7 +54,7 @@ public class RevolverModel implements UnbakedModel, BakedModel {
         for (SkinManager.Skin skin : SkinManager.getSkins("revolver").values()) {
             for (RevolverModelLoadingPlugin.Variant variant : RevolverModelLoadingPlugin.Variant.values()) {
                 var bakedModel = baker.bake(
-                        RevolverModelLoadingPlugin.getModelLocation((SkinManager.RevolverSkin) skin, variant),
+                        RevolverModelLoadingPlugin.getModelLocation(skin, variant),
                         settings);
                 if (bakeModels.containsKey(skin.getName()))
                     bakeModels.get(skin.getName()).put(variant, bakedModel);

@@ -15,7 +15,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.data.BlockFamily;
 
 import net.minecraft.data.models.BlockModelGenerators;
-import net.minecraft.data.models.BlockModelGenerators.BlockFamilyProvider;
 import net.minecraft.data.models.ItemModelGenerators;
 import net.minecraft.data.models.blockstates.Condition;
 import net.minecraft.data.models.blockstates.MultiPartGenerator;
@@ -393,7 +392,6 @@ public class TMMModelGen extends FabricModelProvider {
         generator.generateFlatItem(TMMItems.COSMOPOLITAN, SMALL_ITEM);
         generator.generateFlatItem(TMMItems.CHAMPAGNE, SMALL_ITEM);
         generator.generateFlatItem(TMMItems.GRENADE, SMALL_ITEM);
-        generator.generateFlatItem(TMMItems.THROWN_GRENADE, SMALL_ITEM);
         generator.generateFlatItem(TMMItems.FIRECRACKER, SMALL_ITEM);
     }
 

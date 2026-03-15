@@ -3,7 +3,6 @@ package io.wifi.starrailexpress.client.model;
 import io.wifi.starrailexpress.index.SRECosmetics;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.util.SkinManager;
-import io.wifi.starrailexpress.util.SkinManager.KnifeSkin;
 import net.fabricmc.fabric.api.renderer.v1.render.RenderContext;
 
 import net.minecraft.client.Minecraft;
@@ -56,7 +55,7 @@ public class KnifeModel implements UnbakedModel, BakedModel {
             ModelState settings) {
         for (SkinManager.Skin skin : SkinManager.getSkins("knife").values()) {
             for (KnifeModelLoadingPlugin.Variant variant : KnifeModelLoadingPlugin.Variant.values()) {
-                var bakedModel = baker.bake(KnifeModelLoadingPlugin.getModelLocation((KnifeSkin) skin, variant),
+                var bakedModel = baker.bake(KnifeModelLoadingPlugin.getModelLocation(skin, variant),
                         settings);
                 if (bakeModels.containsKey(skin.getName()))
                     bakeModels.get(skin.getName()).put(variant, bakedModel);
@@ -106,7 +105,7 @@ public class KnifeModel implements UnbakedModel, BakedModel {
             return SkinManager.getEquippedSkin(player, stack);
         }
         // 如果无法获取玩家或组件，则回退到原始方法
-        return SRECosmetics.getSkin("knife", stack);
+        return SRECosmetics.getSkin(stack);
     }
 
     @Override

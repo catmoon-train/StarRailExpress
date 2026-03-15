@@ -50,7 +50,7 @@ public class BatModel implements UnbakedModel, BakedModel {
             ModelState settings) {
         for (SkinManager.Skin skin : SkinManager.getSkins("bat").values()) {
             for (BatModelLoadingPlugin.Variant variant : BatModelLoadingPlugin.Variant.values()) {
-                var bakedModel = baker.bake(BatModelLoadingPlugin.getModelLocation((SkinManager.BatSkin) skin, variant),
+                var bakedModel = baker.bake(BatModelLoadingPlugin.getModelLocation(skin, variant),
                         settings);
                 if (bakeModels.containsKey(skin.getName()))
                     bakeModels.get(skin.getName()).put(variant, bakedModel);

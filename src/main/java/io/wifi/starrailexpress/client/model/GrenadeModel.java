@@ -51,7 +51,7 @@ public class GrenadeModel implements UnbakedModel, BakedModel {
         for (SkinManager.Skin skin : SkinManager.getSkins("grenade").values()) {
             for (GrenadeModelLoadingPlugin.Variant variant : GrenadeModelLoadingPlugin.Variant.values()) {
                 var bakedModel = baker.bake(
-                        GrenadeModelLoadingPlugin.getModelLocation((SkinManager.GrenadeSkin) skin, variant), settings);
+                        GrenadeModelLoadingPlugin.getModelLocation(skin, variant), settings);
                 if (bakeModels.containsKey(skin.getName()))
                     bakeModels.get(skin.getName()).put(variant, bakedModel);
                 else {

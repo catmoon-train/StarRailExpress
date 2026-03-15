@@ -1,6 +1,7 @@
 package org.agmas.noellesroles.item;
 
 import io.wifi.starrailexpress.index.TMMSounds;
+import io.wifi.starrailexpress.item.GrenadeItem;
 import io.wifi.starrailexpress.SRE;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.sounds.SoundSource;
@@ -8,7 +9,6 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
@@ -20,7 +20,7 @@ import org.jetbrains.annotations.NotNull;
  * - 有拉栓动作，但不会放出手雷
  * - 模仿真实手雷的使用方式，用于迷惑敌人
  */
-public class FakeGrenadeItem extends Item {
+public class FakeGrenadeItem extends GrenadeItem {
     public static final int MAX_CHARGE_TIME = 20; // 最大蓄力时间（ticks），对应1秒
 
     public FakeGrenadeItem(Properties properties) {

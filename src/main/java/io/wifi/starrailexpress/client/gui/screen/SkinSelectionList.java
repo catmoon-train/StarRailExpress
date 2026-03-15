@@ -1,20 +1,17 @@
 package io.wifi.starrailexpress.client.gui.screen;
 
 import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
+import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ObjectSelectionList;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.CustomData;
-
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -254,10 +251,7 @@ public class SkinSelectionList extends ObjectSelectionList<SkinSelectionList.Ski
             int textY = iconY + iconSize / 2 - 8;
             // itemType.
             ItemStack skinedItem = itemType.copy();
-            CompoundTag tag = new CompoundTag();
-            tag.putString("train_custom_skin", skinName);
-            CustomData customData = CustomData.of(tag);
-            skinedItem.set(DataComponents.CUSTOM_DATA, customData);
+            skinedItem.set(SREDataComponentTypes.SKIN, this.skinName);
             guiGraphics.renderFakeItem(skinedItem, textX, textY);
 
             // 图标边框

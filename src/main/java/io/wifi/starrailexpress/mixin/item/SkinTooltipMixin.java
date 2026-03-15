@@ -48,7 +48,7 @@ public abstract class SkinTooltipMixin {
         }
 
         String skinName = "default";
-        skinName = SRECosmetics.getSkin(itemName, itemStack);
+        skinName = SRECosmetics.getSkin(itemStack);
         if (skinName.equals("default")) {
             if (player != null) {
                 SREPlayerSkinsComponent skinsComponent = SREPlayerSkinsComponent.KEY.get(player);
