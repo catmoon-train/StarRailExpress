@@ -6,7 +6,7 @@
     "keyUse": "getKeyByDesc('key.use')",
     "screenOpen": "isScreenOpen()",
     "isCameraPlayer": "isCameraPlayer()",
-    "holdingKnife": "mainHandItem() == 'starrailexpress:knife'"
+    "holdingKnife": "mainHandItem() == 'trainmurdermystery:knife'"
   },
   "entries": [
     {

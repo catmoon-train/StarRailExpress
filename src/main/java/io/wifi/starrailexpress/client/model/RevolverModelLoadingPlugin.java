@@ -8,13 +8,18 @@ import net.minecraft.util.StringRepresentable;
 
 public class RevolverModelLoadingPlugin implements ModelLoadingPlugin {
 
-    public static final ModelResourceLocation REVOLVER_MODEL_ID = ModelResourceLocation.inventory(ResourceLocation.tryParse("starrailexpress:revolver"));
+    public static final ModelResourceLocation REVOLVER_MODEL_ID = ModelResourceLocation
+            .inventory(ResourceLocation.tryParse("starrailexpress:revolver"));
 
     public static ResourceLocation getModelLocation(SkinManager.Skin skin, Variant variant) {
-        var skinPart = skin == SkinManager.RevolverSkin.REVOLVER_DEFAULT_SKIN ? "" : "_%s".formatted(skin.getName());
+        if (skin == SkinManager.RevolverSkin.REVOLVER_DEFAULT_SKIN) {
+            return REVOLVER_MODEL_ID.id().withPath(path -> "item/%s".formatted(REVOLVER_MODEL_ID.id().getPath()));
+        }
+        var skinPart = "%s".formatted(skin.getName());
         var variantPart = variant == Variant.DEFAULT ? "" : "_%s".formatted(variant.getSerializedName());
 
-        return REVOLVER_MODEL_ID.id().withPath(path -> "item/%s%s%s".formatted(REVOLVER_MODEL_ID.id().getPath(), skinPart, variantPart));
+        return REVOLVER_MODEL_ID.id().withPath(
+                path -> "item/skins/%s/%s%s".formatted(REVOLVER_MODEL_ID.id().getPath(), skinPart, variantPart));
     }
 
     @Override
@@ -26,7 +31,7 @@ public class RevolverModelLoadingPlugin implements ModelLoadingPlugin {
         }
 
         pluginContext.modifyModelOnLoad().register((unbakedModel, context) -> {
-            if(REVOLVER_MODEL_ID.equals(context.topLevelId())) {
+            if (REVOLVER_MODEL_ID.equals(context.topLevelId())) {
                 return new RevolverModel(unbakedModel);
             }
             return unbakedModel;
