@@ -62,7 +62,8 @@ public abstract class SkinTooltipMixin {
 
         if (skin != null) {
             list.add(Component.translatable("tip.skin").withStyle(style -> style.withColor(Colors.GRAY))
-                    .append(Component.translatable("screen.sre.skins." + itemName + "." + (skin.tooltipName))
+                    .append(Component.translatableWithFallback(
+                            "screen.sre.skins." + itemName + "." + (skin.tooltipName) + ".name", skin.tooltipName)
                             .withStyle(style -> style.withColor(skin.getColor()))));
         }
     }
