@@ -3,8 +3,10 @@ import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.logging.LogUtils;
 import com.mojang.realmsclient.gui.screens.RealmsNotificationsScreen;
+import com.terraformersmc.modmenu.api.ModMenuApi;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -185,9 +187,10 @@ public class StarRailExpressTitleScreen extends Screen {
         this.menuEntries.add(new MenuEntry(
                 Component.translatable("menu.sre.mod_config"),
                 () -> {
-                    // 这里替换成你的模组设置界面
-                    // 例如: this.minecraft.setScreen(new YourModConfigScreen(this));
-                    LOGGER.info("点击了模组设置，但当前未绑定具体界面");
+                    if (FabricLoader.getInstance().isModLoaded("modmenu")) {
+                        this.minecraft.setScreen(ModMenuApi.createModsScreen(this));
+                        return;
+                    }
                 }
         ));
 
