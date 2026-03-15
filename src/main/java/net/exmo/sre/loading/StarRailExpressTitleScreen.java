@@ -177,10 +177,10 @@ public class StarRailExpressTitleScreen extends Screen {
                 Component.translatable("menu.sre.join_discord"),
                 () -> Util.getPlatform().openUri(DISCORD_URL)
         ));
-        this.menuEntries.add(new MenuEntry(
-                Component.translatable("menu.sre.wiki"),
-                () -> Util.getPlatform().openUri(WIKI_URL)
-        ));
+//        this.menuEntries.add(new MenuEntry(
+//                Component.translatable("menu.sre.wiki"),
+//                () -> Util.getPlatform().openUri(WIKI_URL)
+//        ));
 
         this.menuEntries.add(new MenuEntry(
                 Component.translatable("menu.sre.mod_config"),
