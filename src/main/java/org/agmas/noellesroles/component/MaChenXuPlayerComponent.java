@@ -142,7 +142,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
     public int frenzyRainCooldown = 0;
 
     /** 护盾是否激活（阶段4） */
-    public boolean shieldActive = false;
+    public int shieldDuration = 0;
 
     /** 已获得的鬼术列表 */
     public List<String> ghostSkills = new ArrayList<>();
@@ -236,7 +236,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         this.frenzyRainActive = false;
         this.frenzyRainDuration = 0;
         this.frenzyRainCooldown = 0;
-        this.shieldActive = false;
+        this.shieldDuration = 0;
         this.ghostSkills.clear();
         this.swiftWindCooldown = 0;
         this.spiritWalkCooldown = 0;
@@ -283,7 +283,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         this.frenzyRainActive = false;
         this.frenzyRainDuration = 0;
         this.frenzyRainCooldown = 0;
-        this.shieldActive = false;
+        this.shieldDuration = 0;
         this.ghostSkills.clear();
         this.swiftWindCooldown = 0;
         this.spiritWalkCooldown = 0;
@@ -397,8 +397,8 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         // 随机获得一个鬼术
         addRandomGhostSkill();
 
-        // 获得护盾
-        this.shieldActive = true;
+        // 获得 20s 护盾
+        this.shieldDuration = 20 * 20;
 
         if (player instanceof ServerPlayer serverPlayer) {
             serverPlayer.displayClientMessage(
@@ -570,22 +570,6 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
             return false;
 
         }
-
-        // 检查金币
-        SREPlayerShopComponent playerShopComponent = SREPlayerShopComponent.KEY.get(serverPlayer);
-        if (playerShopComponent.balance < FRENZY_RAIN_COST) {
-            serverPlayer.displayClientMessage(
-                    Component.translatable("message.noellesroles.insufficient_funds")
-                            .withStyle(ChatFormatting.RED),
-                    true);
-            return false;
-
-        }
-
-        // 扣除金币
-        playerShopComponent.setBalance(playerShopComponent.balance - FRENZY_RAIN_COST);
-        playerShopComponent.sync();
-
         // 激活下雨[狂热]
         this.frenzyRainActive = true;
         this.frenzyRainDuration = FRENZY_RAIN_DURATION;
@@ -594,15 +578,14 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         this.frenzyRainCooldown = FRENZY_RAIN_COOLDOWN;
 
         // 获得一层护盾
-        this.shieldActive = true;
+        this.shieldDuration = 20 * 20;
 
         // 刷新所有鬼术冷却
         this.swiftWindCooldown = 0;
         this.spiritWalkCooldown = 0;
         this.puppetShowCooldown = 0;
 
-        // 激活里世界效果（SAN掉落翻倍）
-        activateOtherworld(FRENZY_RAIN_DURATION);
+        // 激活SAN掉落翻倍
 
         serverPlayer.displayClientMessage(
                 Component.translatable("message.noellesroles.ma_chen_xu.frenzy_rain_activated")
@@ -739,6 +722,8 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
                 ));
             }
         }
+        if (shieldDuration > 0)
+            shieldDuration--;
         if (this.player.isSprinting()) {
             this.chargeSwiftWind();
         }
@@ -904,6 +889,8 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
     @Override
     public void clientTick() {
         // 客户端tick处理
+        if (shieldDuration > 1)
+            shieldDuration--;
         if (spiritWalkDuration > 1)
             spiritWalkDuration--;
         if (otherworldActive && otherworldDuration > 1) {
@@ -960,7 +947,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         tag.putInt("stage1Need", this.stage1Need);
         tag.putInt("stage2Need", this.stage2Need);
         tag.putInt("stage3Need", this.stage3Need);
-        tag.putBoolean("shieldActive", this.shieldActive);
+        tag.putInt("shieldDuration", this.shieldDuration);
         tag.putInt("nowSelectedSkill", this.nowSelectedSkill);
 
         // 保存鬼术列表
@@ -998,7 +985,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         this.frenzyRainActive = tag.contains("frenzyRainActive") && tag.getBoolean("frenzyRainActive");
         this.frenzyRainDuration = tag.contains("frenzyRainDuration") ? tag.getInt("frenzyRainDuration") : 0;
         this.frenzyRainCooldown = tag.contains("frenzyRainCooldown") ? tag.getInt("frenzyRainCooldown") : 0;
-        this.shieldActive = tag.contains("shieldActive") && tag.getBoolean("shieldActive");
+        this.shieldDuration = tag.contains("shieldDuration") ? tag.getInt("shieldDuration") : 0;
         this.stage1Need = tag.contains("stage1Need") ? tag.getInt("stage1Need") : 50;
         this.stage2Need = tag.contains("stage2Need") ? tag.getInt("stage2Need") : 150;
         this.stage3Need = tag.contains("stage3Need") ? tag.getInt("stage3Need") : 200;

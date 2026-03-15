@@ -199,16 +199,23 @@ public class ClientHudRenderer {
         }
         {
           Component mimicryText = Component
-              .translatable("message.noellesroles.ma_chen_xu.tip_for_skill",NoellesrolesClient.abilityBind.getTranslatedKeyMessage())
+              .translatable("message.noellesroles.ma_chen_xu.tip_for_skill",
+                  NoellesrolesClient.abilityBind.getTranslatedKeyMessage())
               .withStyle(ChatFormatting.GRAY);
           context.drawString(textRenderer, mimicryText, x, y, 0xFFFFFF);
           y += 12;
         }
-        
+
         {
           Component mimicryText = component.getNowCooldownText();
           context.drawString(textRenderer, mimicryText, x, y, 0xFFFFFF);
           y += 12;
+        }
+        if (component.shieldDuration > 0) {
+          int shieldRemaing = component.shieldDuration / 20;
+          Component mimicryText = Component.translatable("message.noellesroles.ma_chen_xu.shield", shieldRemaing);
+          context.drawString(textRenderer, mimicryText, context.guiWidth() - textRenderer.width(mimicryText) - 10,
+              context.guiHeight() - 20, 0xFFFFFF);
         }
       }
     });

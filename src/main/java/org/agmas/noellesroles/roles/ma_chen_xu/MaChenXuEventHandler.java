@@ -17,7 +17,13 @@ public class MaChenXuEventHandler {
     public static void register() {
         AllowPlayerDeath.EVENT.register((victim, deathReason) -> {
             if (SREGameWorldComponent.KEY.get(victim.level()).isRole(victim, ModRoles.MA_CHEN_XU)) {
-                if (MaChenXuPlayerComponent.KEY.get(victim).spiritWalkActive) {
+                var compc = MaChenXuPlayerComponent.KEY.get(victim);
+                if(compc.shieldActive){
+                    compc.shieldActive = false;
+                    compc.sync();
+                    return false;
+                }
+                if (compc.otherworldActive) {
                     return false;
                 }
             }
