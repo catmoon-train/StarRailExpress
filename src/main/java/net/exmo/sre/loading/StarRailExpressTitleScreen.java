@@ -235,6 +235,10 @@ public class StarRailExpressTitleScreen extends Screen {
         this.menuEntries.add(new MenuEntry(
                 Component.translatable("menu.sre.feedback"),
                 () -> Util.getPlatform().openUri(FEEDBACK_URL)));
+
+        this.menuEntries.add(new MenuEntry(
+                Component.translatable("menu.sre.role_introduction"),
+                () -> this.minecraft.setScreen(new RoleIntroduceScreen(this))));
         this.menuEntries.add(new MenuEntry(
                 Component.translatable("menu.sre.options"),
                 () -> this.minecraft.setScreen(new OptionsScreen(this, this.minecraft.options))));
@@ -244,9 +248,6 @@ public class StarRailExpressTitleScreen extends Screen {
                     if (FabricLoader.getInstance().isModLoaded("modmenu"))
                         this.minecraft.setScreen(ModMenuApi.createModsScreen(this));
                 }));
-        this.menuEntries.add(new MenuEntry(
-                Component.translatable("menu.sre.role_introduction"),
-                () -> this.minecraft.setScreen(new RoleIntroduceScreen(this))));
         this.menuEntries.add(new MenuEntry(
                 Component.translatable("menu.sre.quit"),
                 () -> this.minecraft.stop()));
