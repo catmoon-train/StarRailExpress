@@ -1,23 +1,38 @@
 package io.wifi.starrailexpress.item;
 
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
+import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
+import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.SRE;
 
 import java.util.List;
 
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 
-public class BatItem extends Item {
+public class BatItem extends Item implements ItemWithSkin {
+    public static final ResourceLocation ITEM_ID = SRE.id("bat");
     public BatItem(Properties settings) {
         super(settings);
+    }
+
+    @Override
+    public void inventoryTick(ItemStack itemStack, Level level, Entity entity, int i, boolean bl) {
+        super.inventoryTick(itemStack, level, entity, i, bl);
+        if (entity instanceof Player player) {
+            if (itemStack.get(SREDataComponentTypes.SKIN) == null) {
+                itemStack.set(SREDataComponentTypes.SKIN, SREPlayerSkinsComponent.KEY.get(player).getEquippedSkinForItemType(BuiltInRegistries.ITEM.getKey(this).toString()));
+            }
+        }
     }
 
     @Override

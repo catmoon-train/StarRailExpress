@@ -1,13 +1,9 @@
 package io.wifi.starrailexpress.client.model;
 
-
-
-import io.wifi.starrailexpress.index.TMMCosmetics;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
-import io.wifi.starrailexpress.item.KnifeItem;
+import io.wifi.starrailexpress.item.RevolverItem;
 import io.wifi.starrailexpress.util.SkinManager;
 import net.fabricmc.fabric.api.renderer.v1.render.RenderContext;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
@@ -25,22 +21,21 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
-import org.agmas.noellesroles.utils.Pair;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class KnifeModel implements UnbakedModel, BakedModel {
+public class RevolverModel implements UnbakedModel, BakedModel {
 
     /**
      * indexed by skin, then variant!
      */
-    private final Map<String, Map<KnifeModelLoadingPlugin.Variant, BakedModel>> bakeModels = new HashMap<>();
+    private final Map<String, Map<RevolverModelLoadingPlugin.Variant, BakedModel>> bakeModels = new HashMap<>();
     private final UnbakedModel defaultUnbakedModel;
 
-    public KnifeModel(UnbakedModel defaultUnbakedModel) {
+    public RevolverModel(UnbakedModel defaultUnbakedModel) {
         this.defaultUnbakedModel = defaultUnbakedModel;
     }
 
@@ -56,9 +51,9 @@ public class KnifeModel implements UnbakedModel, BakedModel {
 
     @Override
     public @Nullable BakedModel bake(ModelBaker baker, Function<Material, TextureAtlasSprite> textureGetter, ModelState settings) {
-        for (SkinManager.Skin skin : SkinManager.getSkins().values()) {
-            for (KnifeModelLoadingPlugin.Variant variant : KnifeModelLoadingPlugin.Variant.values()) {
-                var bakedModel = baker.bake(KnifeModelLoadingPlugin.getModelLocation(skin, variant), settings);
+        for (SkinManager.Skin skin : SkinManager.getRevolverSkins().values()) {
+            for (RevolverModelLoadingPlugin.Variant variant : RevolverModelLoadingPlugin.Variant.values()) {
+                var bakedModel = baker.bake(RevolverModelLoadingPlugin.getModelLocation((SkinManager.RevolverSkin) skin, variant), settings);
                 if (bakeModels.containsKey(skin.getName()))
                     bakeModels.get(skin.getName()).put(variant, bakedModel);
                 else {
@@ -81,14 +76,13 @@ public class KnifeModel implements UnbakedModel, BakedModel {
     @Override
     public void emitItemQuads(ItemStack stack, Supplier<RandomSource> randomSupplier, RenderContext context) {
         var mode = context.itemTransformationMode();
-        var variant = mode.firstPerson() || IN_HAND.contains(mode) ? KnifeModelLoadingPlugin.Variant.IN_HAND : KnifeModelLoadingPlugin.Variant.DEFAULT;
+        var variant = mode.firstPerson() || IN_HAND.contains(mode) ? RevolverModelLoadingPlugin.Variant.IN_HAND : RevolverModelLoadingPlugin.Variant.DEFAULT;
         
-        // 从玩家的CCA组件获取皮肤，而不是仅依赖TMMCosmetics
         String skinName = stack.get(SREDataComponentTypes.SKIN);
         if (skinName == null) {
             skinName = getSkinFromPlayerComponent(stack);
         }
-        var skin = SkinManager.Skin.fromString(skinName);
+        var skin = SkinManager.RevolverSkin.fromString(skinName);
 
         if (bakeModels.containsKey(skin.getName()) && bakeModels.get(skin.getName()).containsKey(variant))
             bakeModels.get(skin.getName()).get(variant).emitItemQuads(stack, randomSupplier, context);
@@ -96,16 +90,12 @@ public class KnifeModel implements UnbakedModel, BakedModel {
             getDefaultModel().emitItemQuads(stack, randomSupplier, context);
     }
 
-    /**
-     * 从玩家的CCA组件获取皮肤名称
-     */
     private String getSkinFromPlayerComponent(ItemStack stack) {
         Player player = Minecraft.getInstance().player;
         if (player != null) {
             return SkinManager.getEquippedSkin(player, stack);
         }
-        // 如果无法获取玩家或组件，则回退到原始方法
-        return TMMCosmetics.getSkin(stack);
+        return "default";
     }
 
     @Override
@@ -149,6 +139,6 @@ public class KnifeModel implements UnbakedModel, BakedModel {
     }
 
     private BakedModel getDefaultModel() {
-        return bakeModels.get(SkinManager.DEFAULT_SKIN.getName()).get(KnifeModelLoadingPlugin.Variant.DEFAULT);
+        return bakeModels.get(SkinManager.RevolverSkin.REVOLVER_DEFAULT_SKIN.getName()).get(RevolverModelLoadingPlugin.Variant.DEFAULT);
     }
 }

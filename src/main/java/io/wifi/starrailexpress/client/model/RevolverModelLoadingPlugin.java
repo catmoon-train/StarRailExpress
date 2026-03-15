@@ -1,37 +1,34 @@
 package io.wifi.starrailexpress.client.model;
 
-
-import io.wifi.starrailexpress.item.KnifeItem;
+import io.wifi.starrailexpress.item.RevolverItem;
 import io.wifi.starrailexpress.util.SkinManager;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringRepresentable;
 
-public class KnifeModelLoadingPlugin implements ModelLoadingPlugin {
+public class RevolverModelLoadingPlugin implements ModelLoadingPlugin {
 
-    public static final ModelResourceLocation KNIFE_MODEL_ID = ModelResourceLocation.inventory(KnifeItem.ITEM_ID);
+    public static final ModelResourceLocation REVOLVER_MODEL_ID = ModelResourceLocation.inventory(ResourceLocation.tryParse("starrailexpress:revolver"));
 
-    public static ResourceLocation getModelLocation(SkinManager.Skin skin, Variant variant) {
-        var skinPart = skin == SkinManager.DEFAULT_SKIN ? "" : "_%s".formatted(skin.getName());
+    public static ResourceLocation getModelLocation(SkinManager.RevolverSkin skin, Variant variant) {
+        var skinPart = skin == SkinManager.RevolverSkin.REVOLVER_DEFAULT_SKIN ? "" : "_%s".formatted(skin.getName());
         var variantPart = variant == Variant.DEFAULT ? "" : "_%s".formatted(variant.getSerializedName());
 
-        return KNIFE_MODEL_ID.id().withPath(path -> "item/%s%s%s".formatted(KNIFE_MODEL_ID.id().getPath(), skinPart, variantPart));
+        return REVOLVER_MODEL_ID.id().withPath(path -> "item/%s%s%s".formatted(REVOLVER_MODEL_ID.id().getPath(), skinPart, variantPart));
     }
 
     @Override
     public void onInitializeModelLoader(Context pluginContext) {
-        // make sure all models get loaded
-        for (SkinManager.Skin skin : SkinManager.getSkins().values()) {
+        for (SkinManager.Skin skin : SkinManager.getRevolverSkins().values()) {
             for (Variant variant : Variant.values()) {
-                pluginContext.addModels(getModelLocation(skin, variant));
+                pluginContext.addModels(getModelLocation((SkinManager.RevolverSkin) skin, variant));
             }
         }
 
         pluginContext.modifyModelOnLoad().register((unbakedModel, context) -> {
-            // replace the original knife model with our custom one
-            if(KNIFE_MODEL_ID.equals(context.topLevelId())) {
-                return new KnifeModel(unbakedModel);
+            if(REVOLVER_MODEL_ID.equals(context.topLevelId())) {
+                return new RevolverModel(unbakedModel);
             }
             return unbakedModel;
         });

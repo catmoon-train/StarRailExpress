@@ -37,6 +37,9 @@ import io.wifi.starrailexpress.client.gui.screen.PlayerStatsScreen;
 import io.wifi.starrailexpress.client.gui.screen.SkinManagementScreen;
 import io.wifi.starrailexpress.client.gui.screen.WaypointHUD;
 import io.wifi.starrailexpress.client.model.KnifeModelLoadingPlugin;
+import io.wifi.starrailexpress.client.model.RevolverModelLoadingPlugin;
+import io.wifi.starrailexpress.client.model.GrenadeModelLoadingPlugin;
+import io.wifi.starrailexpress.client.model.BatModelLoadingPlugin;
 import io.wifi.starrailexpress.client.model.TMMModelLayers;
 import io.wifi.starrailexpress.client.render.block_entity.PlateBlockEntityRenderer;
 import io.wifi.starrailexpress.client.render.block_entity.SmallDoorBlockEntityRenderer;
@@ -165,6 +168,9 @@ public class SREClient implements ClientModInitializer {
         particleMap = new HashMap<>();
         // Custom Baked Models
         ModelLoadingPlugin.register(new KnifeModelLoadingPlugin());
+        ModelLoadingPlugin.register(new RevolverModelLoadingPlugin());
+        ModelLoadingPlugin.register(new GrenadeModelLoadingPlugin());
+        ModelLoadingPlugin.register(new BatModelLoadingPlugin());
         // Register particle factories
         TMMParticles.registerFactories();
 

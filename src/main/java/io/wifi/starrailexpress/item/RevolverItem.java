@@ -1,14 +1,19 @@
 package io.wifi.starrailexpress.item;
 
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.particle.HandParticle;
 import io.wifi.starrailexpress.client.render.TMMRenderLayers;
 import io.wifi.starrailexpress.compat.CrosshairaddonsCompat;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.network.original.GunShootPayload;
+import io.wifi.starrailexpress.SRE;
 import io.wifi.StarRailExpressID;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
@@ -22,9 +27,20 @@ import net.minecraft.world.phys.HitResult;
 import org.jetbrains.annotations.NotNull;
 
 
-public class RevolverItem extends Item {
+public class RevolverItem extends Item implements ItemWithSkin {
+    public static final ResourceLocation ITEM_ID = SRE.id("revolver");
     public RevolverItem(Properties settings) {
         super(settings.durability(4)); // 设置最大耐久度为4
+    }
+
+    @Override
+    public void inventoryTick(ItemStack itemStack, Level level, Entity entity, int i, boolean bl) {
+        super.inventoryTick(itemStack, level, entity, i, bl);
+        if (entity instanceof Player player) {
+            if (itemStack.get(SREDataComponentTypes.SKIN) == null) {
+                itemStack.set(SREDataComponentTypes.SKIN, SREPlayerSkinsComponent.KEY.get(player).getEquippedSkinForItemType(BuiltInRegistries.ITEM.getKey(this).toString()));
+            }
+        }
     }
 
     @Override
