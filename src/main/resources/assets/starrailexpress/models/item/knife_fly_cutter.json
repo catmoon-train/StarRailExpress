@@ -1,7 +1,7 @@
 {
 	"parent": "item/generated",
 	"textures": {
-		"layer0": "starrailexpress:item/knife_fly_cutter"
+		"layer0": "starrailexpress:item/knife/fly_cutter"
 	},
 	"display": {
 		"thirdperson_righthand": {

@@ -1,7 +1,7 @@
 {
 	"parent": "item/generated",
 	"textures": {
-		"layer0": "starrailexpress:item/knife_storm_blade"
+		"layer0": "starrailexpress:item/knife/storm_blade"
 	},
 	"display": {
 		"thirdperson_righthand": {
