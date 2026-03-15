@@ -55,7 +55,7 @@ public class SettingMenuScreen extends Screen {
         {
             var btn1 = Button
                     .builder(Component.translatable("screen.starrailexpress.settings.tmm"), (bbtn) -> {
-                        var screen = SREConfig.HANDLER.generateGui().generateScreen(parent);
+                        var screen = SREConfig.HANDLER.generateGui().generateScreen(this);
                         this.minecraft.setScreen(screen);
                     }).bounds(buttonX, buttonY, BUTTON_WIDTH, BUTTON_HEIGHT).build();
             this.addRenderableWidget(btn1);
