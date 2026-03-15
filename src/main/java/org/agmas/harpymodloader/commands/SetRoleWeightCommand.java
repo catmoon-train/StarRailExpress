@@ -31,7 +31,7 @@ public class SetRoleWeightCommand {
             return 1;
         }
         // 更新配置中的角色权重
-        HarpyModLoaderConfig.HANDLER.instance().roleWeights.put(role.identifier(), weight);
+        HarpyModLoaderConfig.HANDLER.instance().roleWeights.put(role.identifier().toString(), weight);
         
         // 保存配置
         HarpyModLoaderConfig.HANDLER.save();

@@ -85,7 +85,7 @@ public class RoleManageConfigUI {
                             .setDefaultValue(true) // Recommended: Used when user click "Reset"
                             .setTooltip(Component.translatable("option.starrailexpress.role_id_tooltip",
                                     info.getKey().toString()))
-                            .setSaveConsumer(newValue -> RoleEnableStatus.put(roleId, newValue))
+                            .setSaveConsumer(newValue -> ModifierEnableStatus.put(roleId, newValue))
                             .build());
         }
 
@@ -97,7 +97,7 @@ public class RoleManageConfigUI {
                 }
             }
             HarpyModLoaderConfig.HANDLER.instance().disabledModifiers.clear();
-            for (Entry<ResourceLocation, Boolean> entry : RoleEnableStatus.entrySet()) {
+            for (Entry<ResourceLocation, Boolean> entry : ModifierEnableStatus.entrySet()) {
                 if (!entry.getValue()) {
                     HarpyModLoaderConfig.HANDLER.instance().disabledModifiers.add(entry.getKey().toString());
                 }
