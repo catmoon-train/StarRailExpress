@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
+import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
@@ -488,10 +489,11 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
             }
 
             if (this.isRunning()) {
+                var gameWorldComponent = SREGameWorldComponent.KEY.get(world);
+                var worldModifierComponent = WorldModifierComponent.KEY.get(world);
                 for (ServerPlayer player : serverWorld.players()) {
-                    if (GameUtils.isPlayerAliveAndSurvival(player)) {
+                    if (GameUtils.isPlayerAliveAndSurvival(player, worldModifierComponent)) {
                         // kill players who fell off the train
-                        var gameWorldComponent = SREGameWorldComponent.KEY.get(world);
                         if (gameWorldComponent.getRole(player) == null) {
                             player.setGameMode(net.minecraft.world.level.GameType.SPECTATOR);
                         }
@@ -502,7 +504,11 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
                         // put players with no role in spectator mode
 
                         // 调用角色的服务器端tick方法
-                        io.wifi.starrailexpress.api.RoleMethodDispatcher.callServerTick(player);
+                        io.wifi.starrailexpress.api.RoleMethodDispatcher.callServerTick(player, gameWorldComponent);
+                        var modifiers = worldModifierComponent.getModifiers(player);
+                        for (var mo : modifiers) {
+                            mo.serverGameTickEvent(player);
+                        }
                     }
                 }
 

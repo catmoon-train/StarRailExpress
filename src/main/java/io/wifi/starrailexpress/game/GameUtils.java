@@ -19,6 +19,7 @@ import java.util.function.UnaryOperator;
 import io.wifi.starrailexpress.api.replay.GameReplayData;
 import net.exmo.sre.nametag.NameTagInventoryComponent;
 
+import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.packet.NameTagSyncPayload;
 import org.agmas.noellesroles.utils.EntityClearUtils;
 import org.jetbrains.annotations.NotNull;
@@ -129,6 +130,8 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.portal.DimensionTransition;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import pro.fazeclan.river.stupid_express.constants.SEModifiers;
+import pro.fazeclan.river.stupid_express.modifier.split_personality.cca.SplitPersonalityComponent;
 
 public class GameUtils {
     public static HashMap<BlockPos, Integer> taskBlocks = new HashMap<>();
@@ -794,6 +797,8 @@ public class GameUtils {
     }
 
     public static boolean isPlayerEliminated(Player player) {
+        if (isPlayerSplitPersonalityAndSurvive(player) == SPAliveResult.ALIVE)
+            return false;
         return player == null || !player.isAlive() || player.isCreative() || player.isSpectator();
     }
 
@@ -1084,8 +1089,25 @@ public class GameUtils {
                 || ShouldDropOnDeath.EVENT.invoker().shouldDrop(stack));
     }
 
-    public static boolean isPlayerAliveAndSurvival(Player player) {
+    public static boolean isPlayerSpectator(Player p) {
+        if (isPlayerSplitPersonalityAndSurvive(p) == SPAliveResult.ALIVE)
+            return false;
+        return p.isSpectator();
+    }
+
+    public static boolean isPlayerAliveAndSurvivalIgnoreShitSplit(Player player) {
         return player != null && !player.isSpectator() && !player.isCreative();
+    }
+
+    public static boolean isPlayerAliveAndSurvival(Player player, WorldModifierComponent worldModifierComponent) {
+        if (isPlayerSplitPersonalityAndSurvive(player, worldModifierComponent) == SPAliveResult.ALIVE)
+            return true;
+        return isPlayerAliveAndSurvivalIgnoreShitSplit(player);
+    }
+
+    public static boolean isPlayerAliveAndSurvival(Player player) {
+        var worldModifierComponent = WorldModifierComponent.KEY.get(player.level());
+        return isPlayerAliveAndSurvival(player, worldModifierComponent);
     }
 
     public static boolean isPlayerCreative(Player player) {
@@ -1093,6 +1115,39 @@ public class GameUtils {
     }
 
     public static boolean isPlayerSpectatingOrCreative(Player player) {
+        if (isPlayerSplitPersonalityAndSurvive(player) == SPAliveResult.ALIVE)
+            return false;
+        return isPlayerSpectatingOrCreativeIgnoreShitSplit(player);
+    }
+
+    public static enum SPAliveResult {
+        ALIVE, DEAD, NOT
+    }
+
+    public static SPAliveResult isPlayerSplitPersonalityAndSurvive(Player player) {
+        var worldModifierComponent = WorldModifierComponent.KEY.get(player.level());
+        return isPlayerSplitPersonalityAndSurvive(player, worldModifierComponent);
+    }
+
+    public static SPAliveResult isPlayerSplitPersonalityAndSurvive(Player player,
+            WorldModifierComponent worldModifierComponent) {
+        if (worldModifierComponent.isModifier(player, SEModifiers.SPLIT_PERSONALITY)) {
+            if (player.isSpectator()) {
+                if (!SplitPersonalityComponent.KEY.get(player).isDeath()) {
+                    return SPAliveResult.ALIVE;
+                } else {
+                    return SPAliveResult.DEAD;
+                }
+            } else if (player.isCreative()) {
+                return SPAliveResult.DEAD;
+            } else {
+                return SPAliveResult.ALIVE;
+            }
+        }
+        return SPAliveResult.NOT;
+    }
+
+    public static boolean isPlayerSpectatingOrCreativeIgnoreShitSplit(Player player) {
         return player != null && (player.isSpectator() || player.isCreative());
     }
 

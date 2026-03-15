@@ -22,10 +22,9 @@ import java.util.UUID;
 import org.agmas.harpymodloader.commands.*;
 import org.agmas.harpymodloader.commands.argument.ModifierArgumentType;
 import org.agmas.harpymodloader.commands.argument.RoleArgumentType;
-import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
 import org.agmas.harpymodloader.modded_murder.ModdedWeights;
 import org.agmas.harpymodloader.modifiers.HMLModifiers;
-import org.agmas.harpymodloader.modifiers.Modifier;
+import org.agmas.harpymodloader.modifiers.SREModifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,12 +39,15 @@ public class Harpymodloader implements ModInitializer {
     public static HashMap<SRERole, SRERole> Occupations_Roles = new HashMap<>();
 
     public static HashMap<ResourceLocation, Integer> ROLE_MAX = new HashMap<>();
+    /**
+     * 最大修饰符数量，-1为无限制
+     */
     public static HashMap<ResourceLocation, Integer> MODIFIER_MAX = new HashMap<>();
 
     public static HashMap<SRERole, List<UUID>> FORCED_MODDED_ROLE = new HashMap<>();
     public static HashMap<UUID, SRERole> FORCED_MODDED_ROLE_FLIP = new HashMap<>();
 
-    public static HashMap<Modifier, List<UUID>> FORCED_MODDED_MODIFIER = new HashMap<>();
+    public static HashMap<SREModifier, List<UUID>> FORCED_MODDED_MODIFIER = new HashMap<>();
 
     public static ArrayList<SRERole> VANNILA_ROLES = new ArrayList<>();
     public static ArrayList<SRERole> SPECIAL_ROLES = new ArrayList<>();
@@ -72,7 +74,6 @@ public class Harpymodloader implements ModInitializer {
                 server.getScoreboard().addPlayerTeam("harpymodloader_game");
             }
         });
-        HarpyModLoaderConfig.HANDLER.load();
         VANNILA_ROLES.add(TMMRoles.LOOSE_END);
         VANNILA_ROLES.add(TMMRoles.CIVILIAN);
         VANNILA_ROLES.add(TMMRoles.KILLER);
@@ -114,7 +115,7 @@ public class Harpymodloader implements ModInitializer {
         }
     }
 
-    public static void addToForcedModifiers(Modifier modifier, Player player) {
+    public static void addToForcedModifiers(SREModifier modifier, Player player) {
         if (!FORCED_MODDED_MODIFIER.containsKey(modifier))
             FORCED_MODDED_MODIFIER.put(modifier, new ArrayList<>());
         FORCED_MODDED_MODIFIER.get(modifier).add(player.getUUID());

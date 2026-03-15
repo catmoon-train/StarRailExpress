@@ -519,15 +519,15 @@ public class InitModRolesMax {
 
         /// TINY
         StupidExpress.LOGGER.info("Modifier [Tiny] enabled in this round!");
-        Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("tiny"), players / random.nextInt(4, 12));
+        Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("tiny"), players / random.nextInt(4, 18));
 
         /// TALL
         StupidExpress.LOGGER.info("Modifier [Tall] enabled in this round!");
-        Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("tall"), players / random.nextInt(4, 12));
+        Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("tall"), players / random.nextInt(4, 18));
 
         /// FEATHER
         StupidExpress.LOGGER.info("Modifier [Feather] enabled in this round!");
-        Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("feather"), 2);
+        Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("feather"), players / random.nextInt(8, 32));
 
         /// MAGNATE
         if (random.nextInt(0, 100) < 50) {
@@ -540,7 +540,7 @@ public class InitModRolesMax {
         /// TASKMASTER
         if (random.nextInt(0, 100) < 30) {
             StupidExpress.LOGGER.info("Modifier [Taskmaster] enabled in this round!");
-            Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("taskmaster"), players / random.nextInt(8, 12));
+            Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("taskmaster"), players / random.nextInt(8, 24));
         } else {
             Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("taskmaster"), 0);
         }
@@ -564,7 +564,7 @@ public class InitModRolesMax {
         /// SECRETIVE
         if (players >= 12 && random.nextInt(0, 100) < 20) {
             StupidExpress.LOGGER.info("Modifier [Secretive] enabled in this round! (2)");
-            Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("secretive"), players / random.nextInt(8, 12));
+            Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("secretive"), players / random.nextInt(8, 24));
         } else {
             StupidExpress.LOGGER.info("Modifier [Secretive] enabled in this round! (1)");
             Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("secretive"), 1);

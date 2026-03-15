@@ -40,7 +40,7 @@ import org.agmas.harpymodloader.modded_murder.RoleAssignmentManager;
 import org.agmas.harpymodloader.modded_murder.RoleAssignmentPool;
 import org.agmas.harpymodloader.commands.SetRoleCountCommand;
 import org.agmas.harpymodloader.modifiers.HMLModifiers;
-import org.agmas.harpymodloader.modifiers.Modifier;
+import org.agmas.harpymodloader.modifiers.SREModifier;
 
 public class StarRailMurderGameMode extends GameMode {
     public StarRailMurderGameMode(ResourceLocation identifier) {
@@ -192,7 +192,7 @@ public class StarRailMurderGameMode extends GameMode {
         worldModifierComponent.getModifiers().clear();
 
         // 使用临时映射存储要添加的修饰符，避免在遍历过程中修改数据结构
-        Map<UUID, List<Modifier>> tempModifierAssignments = new HashMap<>();
+        Map<UUID, List<SREModifier>> tempModifierAssignments = new HashMap<>();
         var allModifiers = new ArrayList<>(HMLModifiers.MODIFIERS);
         int killerMods = (int) allModifiers.stream().filter(modifier -> modifier.killerOnly).count();
         Collections.shuffle(allModifiers);
@@ -226,8 +226,9 @@ public class StarRailMurderGameMode extends GameMode {
                     break;
                 }
 
-                if (Harpymodloader.MODIFIER_MAX.containsKey(mod.identifier)) {
-                    if (playersAssigned >= Harpymodloader.MODIFIER_MAX.get(mod.identifier)) {
+                int m_max = Harpymodloader.MODIFIER_MAX.getOrDefault(mod.identifier, 1);
+                if (m_max != -1) {
+                    if (playersAssigned >= m_max) {
                         break;
                     }
                 }
@@ -274,9 +275,9 @@ public class StarRailMurderGameMode extends GameMode {
         }
 
         // 统一将临时存储的修饰符添加到组件中
-        for (Map.Entry<UUID, List<Modifier>> entry : tempModifierAssignments.entrySet()) {
+        for (Map.Entry<UUID, List<SREModifier>> entry : tempModifierAssignments.entrySet()) {
             UUID playerUuid = entry.getKey();
-            for (Modifier mod : entry.getValue()) {
+            for (SREModifier mod : entry.getValue()) {
                 var p = serverWorld.getPlayerByUUID(playerUuid);
                 worldModifierComponent.addModifier(playerUuid, mod, false);
                 ModifierAssigned.EVENT.invoker().assignModifier(p, mod);
@@ -472,7 +473,6 @@ public class StarRailMurderGameMode extends GameMode {
                 }
             }
         }
-
 
         RoleWeightedUtil roleSelector = new RoleWeightedUtil(hashMap);
         // 分配展开后的角色给未分配的玩家

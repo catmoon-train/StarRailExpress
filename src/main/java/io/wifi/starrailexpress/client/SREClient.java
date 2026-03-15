@@ -10,7 +10,6 @@ import java.util.function.Predicate;
 
 import net.exmo.sre.EXSREClient;
 
-import org.agmas.noellesroles.init.RoleShopHandler;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.include.com.google.gson.JsonSyntaxException;
@@ -54,7 +53,6 @@ import io.wifi.starrailexpress.event.AllowOtherCameraType;
 import io.wifi.starrailexpress.event.OnGetInstinctHighlight;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
-import io.wifi.starrailexpress.game.ShopContent;
 import io.wifi.starrailexpress.index.TMMBlockEntities;
 import io.wifi.starrailexpress.index.TMMBlocks;
 import io.wifi.starrailexpress.index.TMMEntities;
@@ -369,7 +367,7 @@ public class SREClient implements ClientModInitializer {
             if (gameComponent != null) {
                 if (gameComponent.isRunning()) {
                     if (client != null && client.player != null) {
-                        if (client.player.isSpectator()) {
+                        if (GameUtils.isPlayerSpectator(client.player)) {
                             intervalTime++;
                             if (intervalTime >= 30 * 10) { // 30s
                                 if (TrainVoicePlugin.CLIENT_API != null) {

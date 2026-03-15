@@ -9,7 +9,7 @@ import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.harpymodloader.events.ModdedRoleRemoved;
 import org.agmas.harpymodloader.events.ModifierRemoved;
 import org.agmas.harpymodloader.events.ResetPlayerEvent;
-import org.agmas.harpymodloader.modifiers.Modifier;
+import org.agmas.harpymodloader.modifiers.SREModifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -24,7 +24,7 @@ public class ModifierAndRoleResetMixin {
             ModdedRoleRemoved.EVENT.invoker().removeModdedRole(player, gameComponent.getRole(player));
         }
         WorldModifierComponent worldModifierComponent = WorldModifierComponent.KEY.get(player.level());
-        for (Modifier modifier : worldModifierComponent.getModifiers(player)) {
+        for (SREModifier modifier : worldModifierComponent.getModifiers(player)) {
             ModifierRemoved.EVENT.invoker().removeModifier(player, modifier);
         }
         ResetPlayerEvent.EVENT.invoker().resetPlayer(player);

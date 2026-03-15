@@ -5,7 +5,7 @@ import java.awt.Color;
 import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.harpymodloader.client.HarpymodloaderClient;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
-import org.agmas.harpymodloader.modifiers.Modifier;
+import org.agmas.harpymodloader.modifiers.SREModifier;
 import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.role.ModRoles;
@@ -49,7 +49,7 @@ public abstract class CustomRolesRoleNameRendererMixin {
             if (SREClient.isPlayerSpectatingOrCreative()) {
                 MutableComponent name = Harpymodloader.getRoleName(HarpymodloaderClient.hudRole);
                 if (HarpymodloaderClient.modifiers != null) {
-                    for (Modifier modifier : HarpymodloaderClient.modifiers) {
+                    for (SREModifier modifier : HarpymodloaderClient.modifiers) {
                         name.append(
                                 Component.literal(" [").append(modifier.getName()).append("]")
                                         .withColor(modifier.color));

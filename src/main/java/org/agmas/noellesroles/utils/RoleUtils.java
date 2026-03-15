@@ -4,7 +4,7 @@ import java.util.OptionalInt;
 
 import org.agmas.harpymodloader.events.ModdedRoleAssigned;
 import org.agmas.harpymodloader.events.ModdedRoleRemoved;
-import org.agmas.harpymodloader.modifiers.Modifier;
+import org.agmas.harpymodloader.modifiers.SREModifier;
 import org.agmas.noellesroles.Noellesroles;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -273,15 +273,15 @@ public class RoleUtils extends MCItemsUtils {
         return text;
     }
 
-    public static MutableComponent getModifierName(Modifier modifier) {
+    public static MutableComponent getModifierName(SREModifier modifier) {
         return modifier.getName();
     }
 
-    public static MutableComponent getModifierNameWithColor(Modifier modifier) {
+    public static MutableComponent getModifierNameWithColor(SREModifier modifier) {
         return modifier.getName(true);
     }
 
-    public static MutableComponent getModifierDescription(Modifier modifier) {
+    public static MutableComponent getModifierDescription(SREModifier modifier) {
         return Component
                 .translatable("info.screen.modifier." + modifier.identifier().getPath());
     }
@@ -289,7 +289,7 @@ public class RoleUtils extends MCItemsUtils {
     public static Component getRoleOrModifierName(Object role) {
         if (role instanceof SRERole r) {
             return getRoleName(r);
-        } else if (role instanceof Modifier m) {
+        } else if (role instanceof SREModifier m) {
             return m.getName(false);
         } else {
             return Component.literal("Unknown");
@@ -301,7 +301,7 @@ public class RoleUtils extends MCItemsUtils {
             return Component.translatable("Unknown");
         if (role instanceof SRERole r) {
             return getRoleName(r).withColor(0xff000000 | r.color());
-        } else if (role instanceof Modifier m) {
+        } else if (role instanceof SREModifier m) {
             return m.getName(true);
         } else {
             return Component.translatable("Unknown");
@@ -311,7 +311,7 @@ public class RoleUtils extends MCItemsUtils {
     public static MutableComponent getRoleOrModifierDescription(Object role) {
         if (role instanceof SRERole r) {
             return getRoleDescription(r);
-        } else if (role instanceof Modifier m) {
+        } else if (role instanceof SREModifier m) {
             return getModifierDescription(m);
         } else {
             return Component.literal("Unknown");
@@ -321,7 +321,7 @@ public class RoleUtils extends MCItemsUtils {
     public static int getRoleOrModifierColor(Object role) {
         if (role instanceof SRERole r) {
             return 0xff000000 | r.color();
-        } else if (role instanceof Modifier m) {
+        } else if (role instanceof SREModifier m) {
             return 0xff000000 | m.color();
         } else {
             return java.awt.Color.WHITE.getRGB();
@@ -331,7 +331,7 @@ public class RoleUtils extends MCItemsUtils {
     public static MutableComponent getRoleOrModifierTypeName(Object role) {
         if (role instanceof SRERole) {
             return Component.translatable("display.type.role");
-        } else if (role instanceof Modifier) {
+        } else if (role instanceof SREModifier) {
             return Component.translatable("display.type.modifier");
         } else {
             return Component.translatable("display.type.unknown");
@@ -342,7 +342,7 @@ public class RoleUtils extends MCItemsUtils {
     public static ResourceLocation getRoleOrModifierIdentifier(Object role) {
         if (role instanceof SRERole r) {
             return r.identifier();
-        } else if (role instanceof Modifier m) {
+        } else if (role instanceof SREModifier m) {
             return m.identifier();
         } else {
             return null;

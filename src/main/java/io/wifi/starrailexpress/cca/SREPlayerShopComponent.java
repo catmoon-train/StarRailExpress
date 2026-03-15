@@ -2,6 +2,7 @@ package io.wifi.starrailexpress.cca;
 
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.game.GameConstants;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.ShopContent;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.TMMSounds;
@@ -17,6 +18,7 @@ import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
+
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
@@ -101,14 +103,10 @@ public class SREPlayerShopComponent implements RoleComponent, ServerTickingCompo
         this.sync();
     }
 
-    public static boolean isPlayerAliveAndSurvival(Player player) {
-        return player != null && !player.isSpectator() && !player.isCreative();
-    }
-
     private @NotNull List<ShopEntry> getShopEntries() {
         final var gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
         final var role = gameWorldComponent.getRole(player);
-        if (gameWorldComponent != null && role != null && isPlayerAliveAndSurvival(player)) {
+        if (gameWorldComponent != null && role != null && GameUtils.isPlayerAliveAndSurvival(player)) {
             final var shopEntries = ShopContent.getShopEntries(
                     role.getIdentifier());
             if (!shopEntries.isEmpty()) {

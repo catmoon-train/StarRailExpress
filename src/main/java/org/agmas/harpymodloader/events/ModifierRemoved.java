@@ -2,7 +2,7 @@ package org.agmas.harpymodloader.events;
 
 import net.fabricmc.fabric.api.event.Event;
 import net.minecraft.world.entity.player.Player;
-import org.agmas.harpymodloader.modifiers.Modifier;
+import org.agmas.harpymodloader.modifiers.SREModifier;
 
 import static net.fabricmc.fabric.api.event.EventFactory.createArrayBacked;
 
@@ -14,5 +14,5 @@ public interface ModifierRemoved {
         }
     });
 
-    void removeModifier(Player player, Modifier modifier);
+    void removeModifier(Player player, SREModifier modifier);
 }

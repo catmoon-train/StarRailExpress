@@ -245,6 +245,9 @@ public class SplitPersonalityComponent implements RoleComponent, ServerTickingCo
 
         // 确保另一个玩家存在且是服务器玩家
         if (otherPlayer == null || !(otherPlayer instanceof ServerPlayer otherServerPlayer)) {
+            clear();
+            WorldModifierComponent.KEY.get(player.level()).removeModifier(player.getUUID(),
+                    SEModifiers.SPLIT_PERSONALITY);
             return;
         }
 
@@ -426,10 +429,8 @@ public class SplitPersonalityComponent implements RoleComponent, ServerTickingCo
     @Override
     public void serverTick() {
         if (mainPersonality == null || secondPersonality == null) {
-            if (mainPersonality == null && secondPersonality != null) {
-                init();
-            } else if (mainPersonality != null && secondPersonality == null) {
-                init();
+            if (mainPersonality != secondPersonality) {
+                clear();
             }
             return;
         }
@@ -437,6 +438,7 @@ public class SplitPersonalityComponent implements RoleComponent, ServerTickingCo
             return;
 
         if (!WorldModifierComponent.KEY.get(player.level()).isModifier(player, SEModifiers.SPLIT_PERSONALITY)) {
+            clear();
             return;
         }
         boolean needsSync = false;
@@ -500,9 +502,9 @@ public class SplitPersonalityComponent implements RoleComponent, ServerTickingCo
             handleNormalMode(serverPlayer);
         }
 
-        // 控制同步频率：每5秒同步一次，或者有重要状态变化时同步
+        // 控制同步频率：每10秒同步一次，或者有重要状态变化时同步
         int ticksSinceLastSync = baseTickCounter - lastSyncTick;
-        if (needsSync || ticksSinceLastSync >= 100) { // 100 ticks = 5 seconds
+        if (needsSync || ticksSinceLastSync >= 200) { // 200 ticks = 5 seconds
             sync();
             lastSyncTick = baseTickCounter;
         }
@@ -521,6 +523,14 @@ public class SplitPersonalityComponent implements RoleComponent, ServerTickingCo
             Player activePlayer = serverPlayer.serverLevel().getPlayerByUUID(currentActivePerson);
             if (activePlayer != null && serverPlayer.getCamera() != activePlayer) {
                 serverPlayer.setCamera(activePlayer);
+            } else {
+                if (activePlayer == null) {
+                    // 找不到说明退了
+                    WorldModifierComponent.KEY.get(serverPlayer.level()).removeModifier(serverPlayer.getUUID(),
+                            SEModifiers.SPLIT_PERSONALITY);
+                    this.clear();
+                    serverPlayer.setGameMode(GameType.ADVENTURE);
+                }
             }
         } else {
             // 如果是活跃人格，确保不是旁观者模式
