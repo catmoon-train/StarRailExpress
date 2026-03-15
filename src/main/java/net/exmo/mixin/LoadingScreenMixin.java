@@ -1,5 +1,6 @@
 package net.exmo.mixin;
 
+import net.exmo.sre.loading.SREReceivingLevelScreen;
 import net.exmo.sre.loading.StarRailExpressTitleScreen;
 import net.exmo.sre.loading.StarRailLoadingOverlay;
 import net.exmo.sre.loading.TrainLoadingScreen;
@@ -15,7 +16,10 @@ public class LoadingScreenMixin {
     private Screen setScreen(Screen screen) {
 
         if (screen instanceof LevelLoadingScreen levelLoadingScreen) {
-            return new TrainLoadingScreen(levelLoadingScreen.progressListener);
+            return new TrainLoadingScreen(levelLoadingScreen.progressListener,()->false  );
+        }
+        if (screen instanceof ReceivingLevelScreen receivingLevelScreen) {
+            return new SREReceivingLevelScreen(receivingLevelScreen.levelReceived, receivingLevelScreen.reason);
         }
         if (screen instanceof TitleScreen titleScreen){
             return  new StarRailExpressTitleScreen();
