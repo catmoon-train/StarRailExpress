@@ -5,6 +5,7 @@ import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
 import io.wifi.starrailexpress.index.TMMCosmetics;
 import io.wifi.starrailexpress.item.Colors;
 import io.wifi.starrailexpress.item.KnifeItem;
+import io.wifi.starrailexpress.util.SkinManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -41,7 +42,7 @@ public abstract class KnifeTooltipMixin extends Item {
 
             }
         }
-        KnifeItem.Skin skin = KnifeItem.Skin.fromString(skinName);
+        SkinManager.Skin skin = SkinManager.Skin.fromString(skinName);
 
         if (skin != null) {
             list.add(Component.translatable("tip.skin").withStyle(style -> style.withColor(Colors.GRAY))

@@ -25,12 +25,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
+import org.agmas.noellesroles.utils.Pair;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -39,7 +37,7 @@ public class KnifeModel implements UnbakedModel, BakedModel {
     /**
      * indexed by skin, then variant!
      */
-    private final BakedModel[][] bakedModels = new BakedModel[KnifeItem.Skin.values().length][KnifeModelLoadingPlugin.Variant.values().length];
+    private final Map<String, Map<KnifeModelLoadingPlugin.Variant, BakedModel>> bakeModels = new HashMap<>();
     private final UnbakedModel defaultUnbakedModel;
 
     public KnifeModel(UnbakedModel defaultUnbakedModel) {
@@ -58,9 +56,15 @@ public class KnifeModel implements UnbakedModel, BakedModel {
 
     @Override
     public @Nullable BakedModel bake(ModelBaker baker, Function<Material, TextureAtlasSprite> textureGetter, ModelState settings) {
-        for (KnifeItem.Skin skin : KnifeItem.Skin.values()) {
+        for (SkinManager.Skin skin : SkinManager.getSkins().values()) {
             for (KnifeModelLoadingPlugin.Variant variant : KnifeModelLoadingPlugin.Variant.values()) {
-                bakedModels[skin.ordinal()][variant.ordinal()] = baker.bake(KnifeModelLoadingPlugin.getModelLocation(skin, variant), settings);
+                var bakedModel = baker.bake(KnifeModelLoadingPlugin.getModelLocation(skin, variant), settings);
+                if (bakeModels.containsKey(skin.getName()))
+                    bakeModels.get(skin.getName()).put(variant, bakedModel);
+                else {
+                    bakeModels.put(skin.getName(), new HashMap<>());
+                    bakeModels.get(skin.getName()).put(variant, bakedModel);
+                }
             }
         }
 
@@ -84,9 +88,10 @@ public class KnifeModel implements UnbakedModel, BakedModel {
         if (skinName == null) {
             skinName = getSkinFromPlayerComponent(stack);
         }
-        var skin = KnifeItem.Skin.fromString(skinName);
+        var skin = SkinManager.Skin.fromString(skinName);
 
-        bakedModels[skin.ordinal()][variant.ordinal()].emitItemQuads(stack, randomSupplier, context);
+        if (bakeModels.containsKey(skin.getName()) && bakeModels.get(skin.getName()).containsKey(variant))
+            bakeModels.get(skin.getName()).get(variant).emitItemQuads(stack, randomSupplier, context);
     }
 
     /**
@@ -142,6 +147,6 @@ public class KnifeModel implements UnbakedModel, BakedModel {
     }
 
     private BakedModel getDefaultModel() {
-        return bakedModels[KnifeItem.Skin.DEFAULT.ordinal()][KnifeModelLoadingPlugin.Variant.DEFAULT.ordinal()];
+        return bakeModels.get(SkinManager.DEFAULT_SKIN.getName()).get(KnifeModelLoadingPlugin.Variant.DEFAULT);
     }
 }

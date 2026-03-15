@@ -1,7 +1,7 @@
 {
 	"parent": "item/generated",
 	"textures": {
-		"layer0": "starrailexpress:item/knife_chopper"
+		"layer0": "starrailexpress:item/knife/chopper"
 	},
 	"display": {
 		"thirdperson_righthand": {
