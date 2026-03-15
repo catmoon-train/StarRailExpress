@@ -10,6 +10,8 @@ import org.agmas.harpymodloader.modifiers.HMLModifiers;
 import org.agmas.harpymodloader.modifiers.Modifier;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.modifier.expedition.ExpeditionComponent;
+import org.agmas.noellesroles.modifier.introverted.IntrovertedModifier;
+import org.agmas.noellesroles.modifier.taxed.TaxedModifier;
 import org.agmas.noellesroles.role.ModRoles;
 
 import java.awt.Color;
@@ -30,13 +32,34 @@ public class NRModifiers {
             false,
             false));
 
+    /** 内向修饰符 */
+    public static Modifier INTROVERTED = HMLModifiers.registerModifier(new Modifier(
+            Noellesroles.id("introverted"),
+            0x9B7FD4, // 紫色
+            null,
+            null,
+            false,
+            false));
+
+    /** 纳税修饰符 */
+    public static Modifier TAXED = HMLModifiers.registerModifier(new Modifier(
+            Noellesroles.id("taxed"),
+            0xFC8E26, // 橙色
+            null,
+            null,
+            false,
+            false));
+
     /**
      * 初始化修饰符系统
      */
     public static void init() {
         EXPEDITION.civilianOnly = true;
         EXPEDITION.cannotBeAppliedTo = new ArrayList<>(List.of(ModRoles.GHOST));
+        INTROVERTED.civilianOnly = true;
         assignModifierComponents();
+        IntrovertedModifier.init();
+        TaxedModifier.init();
     }
 
     /**
