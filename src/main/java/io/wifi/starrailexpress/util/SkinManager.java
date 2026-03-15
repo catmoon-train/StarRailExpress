@@ -1,14 +1,13 @@
 package io.wifi.starrailexpress.util;
 
 import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
+import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.item.Colors;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.CustomData;
 import java.util.HashMap;
 import java.util.Locale;
 
@@ -38,7 +37,7 @@ public class SkinManager {
                 return null;
             }
             var childSkinMap = skinMap.get(itemType);
-            if (childSkinMap.containsKey(name)) {
+            if (childSkinMap.containsKey(name.toLowerCase(Locale.ROOT))) {
                 return childSkinMap.get(name.toLowerCase(Locale.ROOT));
             }
             return childSkinMap.get("default");
@@ -200,17 +199,9 @@ public class SkinManager {
      */
     public static String getEquippedSkin(Player player, ItemStack itemStack) {
         // ItemStack数据优先级高于玩家自身
-        CustomData customData = itemStack.get(DataComponents.CUSTOM_DATA);
-        if (customData != null)
-            if (customData.contains("train_custom_skin")) {
-                var tags = customData.copyTag();
-                var skin_tag = tags.get("train_custom_skin");
-
-                String skinName = skin_tag.getAsString();
-                if (skinName != null) {
-                    return skinName;
-                }
-            }
+        if(itemStack.has(SREDataComponentTypes.SKIN)){
+            return itemStack.get(SREDataComponentTypes.SKIN);
+        }
         // 从玩家component获取
         SREPlayerSkinsComponent skinsComponent = SREPlayerSkinsComponent.KEY.get(player);
         return skinsComponent.getSkinFromDataSync(itemStack);

@@ -106,7 +106,7 @@ public class KnifeModel implements UnbakedModel, BakedModel {
             return SkinManager.getEquippedSkin(player, stack);
         }
         // 如果无法获取玩家或组件，则回退到原始方法
-        return SRECosmetics.getSkin("knife", stack);
+        return SRECosmetics.getSkin(stack);
     }
 
     @Override

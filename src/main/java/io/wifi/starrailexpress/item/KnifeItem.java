@@ -34,7 +34,7 @@ public class KnifeItem extends Item implements ItemWithSkin {
      * (target, killer)
      */
     // public static BiConsumer<ServerPlayer, ServerPlayer> PlayerKilledPlayer;
-    public static final ResourceLocation ITEM_ID = SRE.id("knife");
+    public static final ResourceLocation ITEM_ID = SRE.TMMId("knife");
     @Override
     public InteractionResultHolder<ItemStack> use(Level world, @NotNull Player user, InteractionHand hand) {
         ItemStack itemStack = user.getItemInHand(hand);

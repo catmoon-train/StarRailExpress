@@ -1,5 +1,6 @@
 package io.wifi.starrailexpress.client.model;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.util.SkinManager;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.minecraft.client.resources.model.ModelResourceLocation;
@@ -9,7 +10,10 @@ import net.minecraft.util.StringRepresentable;
 public class GrenadeModelLoadingPlugin implements ModelLoadingPlugin {
 
     public static final ModelResourceLocation GRENADE_MODEL_ID = ModelResourceLocation
-            .inventory(ResourceLocation.tryParse("starrailexpress:grenade"));
+            .inventory(SRE.TMMId("grenade"));
+
+    public static final ModelResourceLocation NEW_GRENADE_MODEL_ID = ModelResourceLocation
+            .inventory(SRE.id("grenade"));
 
     public static ResourceLocation getModelLocation(SkinManager.GrenadeSkin skin, Variant variant) {
         if (skin == SkinManager.GrenadeSkin.GRENADE_DEFAULT_SKIN) {
@@ -18,8 +22,8 @@ public class GrenadeModelLoadingPlugin implements ModelLoadingPlugin {
         var skinPart = "%s".formatted(skin.getName());
         var variantPart = variant == Variant.DEFAULT ? "" : "_%s".formatted(variant.getSerializedName());
 
-        return GRENADE_MODEL_ID.id().withPath(
-                path -> "item/skins/%s/%s%s".formatted(GRENADE_MODEL_ID.id().getPath(), skinPart, variantPart));
+        return NEW_GRENADE_MODEL_ID.id().withPath(
+                path -> "item/skins/%s/%s%s".formatted(NEW_GRENADE_MODEL_ID.id().getPath(), skinPart, variantPart));
     }
 
     @Override

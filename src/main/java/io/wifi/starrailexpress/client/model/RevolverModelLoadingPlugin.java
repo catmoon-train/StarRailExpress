@@ -1,5 +1,6 @@
 package io.wifi.starrailexpress.client.model;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.util.SkinManager;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.minecraft.client.resources.model.ModelResourceLocation;
@@ -9,7 +10,10 @@ import net.minecraft.util.StringRepresentable;
 public class RevolverModelLoadingPlugin implements ModelLoadingPlugin {
 
     public static final ModelResourceLocation REVOLVER_MODEL_ID = ModelResourceLocation
-            .inventory(ResourceLocation.tryParse("starrailexpress:revolver"));
+            .inventory(SRE.TMMId("revolver"));
+
+    public static final ModelResourceLocation NEW_REVOLVER_MODEL_ID = ModelResourceLocation
+            .inventory(SRE.id("revolver"));
 
     public static ResourceLocation getModelLocation(SkinManager.Skin skin, Variant variant) {
         if (skin == SkinManager.RevolverSkin.REVOLVER_DEFAULT_SKIN) {
@@ -18,8 +22,8 @@ public class RevolverModelLoadingPlugin implements ModelLoadingPlugin {
         var skinPart = "%s".formatted(skin.getName());
         var variantPart = variant == Variant.DEFAULT ? "" : "_%s".formatted(variant.getSerializedName());
 
-        return REVOLVER_MODEL_ID.id().withPath(
-                path -> "item/skins/%s/%s%s".formatted(REVOLVER_MODEL_ID.id().getPath(), skinPart, variantPart));
+        return NEW_REVOLVER_MODEL_ID.id().withPath(
+                path -> "item/skins/%s/%s%s".formatted(NEW_REVOLVER_MODEL_ID.id().getPath(), skinPart, variantPart));
     }
 
     @Override

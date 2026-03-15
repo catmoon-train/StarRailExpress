@@ -18,7 +18,7 @@ public class ItemSkinMixin {
     private void arsenal$setTridentOwner(ItemStack itemStack, Level level, Entity entity, int i, boolean bl, CallbackInfo ci) {
         if (itemStack.getItem() instanceof ItemWithSkin && entity instanceof Player player) {
             if (itemStack.get(SREDataComponentTypes.SKIN) == null) {
-                itemStack.set(SREDataComponentTypes.SKIN, SREPlayerSkinsComponent.KEY.get( player).getEquippedSkin(itemStack));
+                itemStack.set(SREDataComponentTypes.SKIN, SREPlayerSkinsComponent.KEY.get(player).getEquippedSkin(itemStack));
             }
         }
     }
