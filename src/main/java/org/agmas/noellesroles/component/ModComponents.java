@@ -205,6 +205,8 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
 
   public static final ComponentKey<AccountantPlayerComponent> ACCOUNTANT = AccountantPlayerComponent.KEY;
 
+  public static final ComponentKey<WaterGhostPlayerComponent> WATER_GHOST = WaterGhostPlayerComponent.KEY;
+
   public static final ComponentKey<AlchemistPlayerComponent> ALCHEMIST = AlchemistPlayerComponent.KEY;
 
   public static final ComponentKey<DIOPlayerComponent> DIO = ComponentRegistry.getOrCreate(
@@ -460,6 +462,11 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
     registry.beginRegistration(Player.class, ALCHEMIST)
         .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
         .end(AlchemistPlayerComponent::new);
+
+    // 注册水鬼组件 - 存储技能冷却、干涸死亡计时
+    registry.beginRegistration(Player.class, WATER_GHOST)
+        .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
+        .end(WaterGhostPlayerComponent::new);
 
     // 注册迪奥组件 - 存储时间停止、吸食尸体、最后的狂欢状态
     registry.beginRegistration(Player.class, DIO)

@@ -4,6 +4,7 @@ import dev.doctor4t.wathe.cca.GameWorldComponent;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -27,24 +28,66 @@ public class RiptideTridentMixin {
     private void noellesroles$checkRiptideCollision(CallbackInfo ci) {
         if (SRE.isLobby)
             return;
-        
+
         Player player = (Player) (Object) this;
         if (!(player instanceof ServerPlayer serverPlayer))
             return;
-        
+
+        ServerLevel serverLevel = serverPlayer.serverLevel();
+
+        // 检查是否是海王或水鬼角色
+        boolean isSeaKing = SREGameWorldComponent.KEY.get(serverLevel).isRole(player.getUUID(), ModRoles.SEA_KING);
+        boolean isWaterGhost = SREGameWorldComponent.KEY.get(serverLevel).isRole(player.getUUID(), ModRoles.WATER_GHOST);
+
+        if (!isSeaKing && !isWaterGhost)
+            return;
+
         // 检查主手是否持有三叉戟
         ItemStack mainHandItem = player.getMainHandItem();
         if (!mainHandItem.is(Items.TRIDENT))
             return;
-        ServerLevel serverLevel = serverPlayer.serverLevel();
-        if (SREGameWorldComponent.KEY.get(serverLevel).isRole(player.getUUID(), ModRoles.SEA_KING)){
-            mainHandItem.enchant(serverLevel.registryAccess().registryOrThrow(Registries.ENCHANTMENT).holders().filter(holder -> {
-                return holder.is((Enchantments.RIPTIDE));
-            }).findFirst().get(),3);
+
+        // 统一处理海王和水鬼的附魔
+        if (isSeaKing){
+            // 海王：忠诚3
+            boolean hasLoyalty = false;
+            for (java.util.Map.Entry<net.minecraft.core.Holder<net.minecraft.world.item.enchantment.Enchantment>, Integer> entry : mainHandItem.getEnchantments().entrySet()) {
+                String enchantmentId = entry.getKey().unwrapKey().map(key -> key.location().toString()).orElse("");
+                if (enchantmentId.contains("minecraft:loyalty")) {
+                    hasLoyalty = true;
+                    break;
+                }
+            }
+            if (!hasLoyalty) {
+                mainHandItem.enchant(serverLevel.registryAccess().registryOrThrow(Registries.ENCHANTMENT).holders().filter(holder -> {
+                    return holder.is((Enchantments.LOYALTY));
+                }).findFirst().get(),3);
+            }
+        } else if (isWaterGhost) {
+            // 水鬼：激流2（先检查是否已有激流附魔）
+            boolean hasRiptide = false;
+            for (java.util.Map.Entry<net.minecraft.core.Holder<net.minecraft.world.item.enchantment.Enchantment>, Integer> entry : mainHandItem.getEnchantments().entrySet()) {
+                String enchantmentId = entry.getKey().unwrapKey().map(key -> key.location().toString()).orElse("");
+                if (enchantmentId.contains("minecraft:riptide")) {
+                    hasRiptide = true;
+                    // 检查等级是否为2，如果不是则更新
+                    if (entry.getValue() != 2) {
+                        mainHandItem.remove(DataComponents.ENCHANTMENTS);
+                        hasRiptide = false;
+                    }
+                    break;
+                }
+            }
+            if (!hasRiptide) {
+                // 没有激流附魔，或者等级不对，添加激流2
+                mainHandItem.enchant(serverLevel.registryAccess().registryOrThrow(Registries.ENCHANTMENT).holders().filter(holder -> {
+                    return holder.is((Enchantments.RIPTIDE));
+                }).findFirst().get(), 2);
+            }
         }
         // 检查三叉戟是否有激流附魔
         boolean hasRiptide = false;
-        for (var entry : mainHandItem.getEnchantments().entrySet()) {
+        for (java.util.Map.Entry<net.minecraft.core.Holder<net.minecraft.world.item.enchantment.Enchantment>, Integer> entry : mainHandItem.getEnchantments().entrySet()) {
             String enchantmentId = entry.getKey().unwrapKey().map(key -> key.location().toString()).orElse("");
             if (enchantmentId.contains("minecraft:riptide")) {
                 hasRiptide = true;
@@ -59,15 +102,21 @@ public class RiptideTridentMixin {
         boolean isInWaterOrRain = player.isInWaterOrRain();
         if (!isInWaterOrRain)
             return;
-        
+
+        // 检查玩家是否正在使用激流技能
+        // 只有在使用激流技能时才进行碰撞检测
+        boolean isUsingRiptide = player.isAutoSpinAttack();
+        if (!isUsingRiptide)
+            return;
+
         // 在激流状态期间持续检测碰撞
         // 检测碰撞 - 使用扩大的碰撞箱，参考波纹勋章的实现方式
         AABB hitBox = player.getBoundingBox().inflate(1.5);
         List<ServerPlayer> nearbyPlayers = serverLevel.getEntitiesOfClass(
-                ServerPlayer.class, 
+                ServerPlayer.class,
                 hitBox
         );
-        
+
         // 遍历所有附近的玩家，可以连续击杀多个
         for (ServerPlayer target : nearbyPlayers) {
             if (target != player && !target.isSpectator() && !target.isCreative()) {

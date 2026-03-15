@@ -288,6 +288,27 @@ public class RicesRoleRhapsodyClient implements ClientModInitializer {
             return true;
         }
 
+        // ==================== 水鬼：激活海豚的恩惠技能 ====================
+        if (gameWorld.isRole(client.player, ModRoles.WATER_GHOST)) {
+            // 检查玩家是否存活
+            if (!GameUtils.isPlayerAliveAndSurvival(client.player))
+                return true;
+
+            WaterGhostPlayerComponent waterGhostComponent = WaterGhostPlayerComponent.KEY.get(client.player);
+            // 检查技能是否可用（客户端发送请求）
+            if (waterGhostComponent.getSkillCooldownRemaining() == 0) {
+                // 发送网络包到服务端激活技能
+                ClientPlayNetworking.send(new WaterGhostUseSkillC2SPacket());
+            } else {
+                // 显示冷却提示（服务端会处理，这里只是辅助提示）
+                client.player.displayClientMessage(
+                        net.minecraft.network.chat.Component.translatable("message.noellesroles.water_ghost.cooldown",
+                                waterGhostComponent.getSkillCooldownRemaining()),
+                        true);
+            }
+            return true;
+        }
+
         // ==================== 慕恋者：窥视积能量 ====================
         if (gameWorld.isRole(client.player, ModRoles.ADMIRER) ||
                 AdmirerPlayerComponent.KEY.get(client.player).isActiveAdmirer()) {
