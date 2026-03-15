@@ -41,5 +41,4 @@ public class HarpyModLoaderConfig implements ConfigData {
     // Companion roles that appear together - maps a role to another role that
     // should appear together")
     public HashMap<ResourceLocation, ResourceLocation> companionRoles = new HashMap<>();
-
 }
