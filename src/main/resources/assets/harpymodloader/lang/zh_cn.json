@@ -43,11 +43,5 @@
   "option.starrailexpress.role_id_tooltip": "ID: %s",
   "option.starrailexpress.role_enable_option": "职业：%s",
   "option.starrailexpress.modifier_enable_option": "修饰符：%s",
-  "category.starrailexpress.config.other": "其他",
-  "screen.starrailexpress.settings": "设置",
-  "screen.starrailexpress.settings.noellesroles": "Noellesroles 设置",
-  "screen.starrailexpress.settings.tmm": "本体设置",
-  "screen.starrailexpress.settings.harpymodloader": "Harpymodloader 设置",
-  "screen.starrailexpress.settings.role_modifier": "角色&修饰符启用设置",
-  "screen.starrailexpress.settings.introduction": "角色&修饰符&部分物品介绍"
+  "category.starrailexpress.config.other": "其他"
 }

@@ -102,6 +102,7 @@ public class RoleManageConfigUI {
                     HarpyModLoaderConfig.HANDLER.instance().disabledModifiers.add(entry.getKey().toString());
                 }
             }
+            HarpyModLoaderConfig.HANDLER.save();
         });
         return builder.build();
     }
