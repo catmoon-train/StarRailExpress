@@ -39,6 +39,9 @@ public class Harpymodloader implements ModInitializer {
     public static HashMap<SRERole, SRERole> Occupations_Roles = new HashMap<>();
 
     public static HashMap<ResourceLocation, Integer> ROLE_MAX = new HashMap<>();
+    /**
+     * 最大修饰符数量，-1为无限制
+     */
     public static HashMap<ResourceLocation, Integer> MODIFIER_MAX = new HashMap<>();
 
     public static HashMap<SRERole, List<UUID>> FORCED_MODDED_ROLE = new HashMap<>();

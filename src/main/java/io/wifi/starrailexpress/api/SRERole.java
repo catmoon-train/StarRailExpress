@@ -24,6 +24,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 
+import org.agmas.harpymodloader.Harpymodloader;
 import org.jetbrains.annotations.Nullable;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 
@@ -67,6 +68,11 @@ public abstract class SRERole {
 
     public int getOccupiedRoleCount() {
         return this.occupiedRoleCount;
+    }
+
+    public SRERole setMax(int count) {
+        Harpymodloader.setRoleMaximum(this, count);
+        return this;
     }
 
     public SRERole setOccupiedRoleCount(int occupiedRoleCount) {

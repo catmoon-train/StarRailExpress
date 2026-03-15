@@ -5,6 +5,8 @@ import io.wifi.starrailexpress.api.SRERole;
 import java.util.ArrayList;
 import java.util.function.Consumer;
 
+import org.agmas.harpymodloader.Harpymodloader;
+
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -50,6 +52,11 @@ public class SREModifier {
         if (serverTickEvent != null)
             serverTickEvent.accept(player);
     }
+
+    public SREModifier setMax(int count) {
+        Harpymodloader.MODIFIER_MAX.put(this.identifier, count);
+        return this;
+    };
 
     public SREModifier(ResourceLocation identifier, int color, ArrayList<SRERole> cannotBeAppliedTo,
             ArrayList<SRERole> canOnlyBeAppliedTo, boolean killerOnly, boolean civilianOnly) {

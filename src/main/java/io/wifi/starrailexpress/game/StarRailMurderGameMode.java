@@ -226,8 +226,9 @@ public class StarRailMurderGameMode extends GameMode {
                     break;
                 }
 
-                if (Harpymodloader.MODIFIER_MAX.containsKey(mod.identifier)) {
-                    if (playersAssigned >= Harpymodloader.MODIFIER_MAX.get(mod.identifier)) {
+                int m_max = Harpymodloader.MODIFIER_MAX.getOrDefault(mod.identifier, 1);
+                if (m_max != -1) {
+                    if (playersAssigned >= m_max) {
                         break;
                     }
                 }
@@ -472,7 +473,6 @@ public class StarRailMurderGameMode extends GameMode {
                 }
             }
         }
-
 
         RoleWeightedUtil roleSelector = new RoleWeightedUtil(hashMap);
         // 分配展开后的角色给未分配的玩家
