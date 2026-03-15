@@ -1,6 +1,6 @@
 package org.agmas.harpymodloader.config;
 
-import me.shedaniel.autoconfig.annotation.ConfigEntry;
+import me.shedaniel.autoconfig.annotation.ConfigEntry.Gui.Tooltip;
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
 import net.minecraft.resources.ResourceLocation;
@@ -22,12 +22,11 @@ public class HarpyModLoaderConfig implements ConfigData {
     public ArrayList<String> disabledModifiers = new ArrayList<>();
 
     // Maximum amount of modifiers a player can have.")
-    @ConfigEntry.Category(value = "General")
     public int modifierMaximum = 1;
 
     // How many modifiers should be given relative to the Player Count
     // (Multiplier)")
-    @ConfigEntry.Category(value = "General")
+    @Tooltip
     public double modifierMultiplier = 0.5;
 
     // Custom weights for roles - maps role identifiers to their custom weight
@@ -35,10 +34,5 @@ public class HarpyModLoaderConfig implements ConfigData {
     public HashMap<ResourceLocation, Float> roleWeights = new HashMap<>();
 
     // Whether to use custom role weights instead of default round-based weights")
-    @ConfigEntry.Category(value = "General")
     public boolean useCustomRoleWeights = true;
-
-    // Companion roles that appear together - maps a role to another role that
-    // should appear together")
-    public HashMap<ResourceLocation, ResourceLocation> companionRoles = new HashMap<>();
 }

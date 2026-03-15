@@ -691,7 +691,6 @@
   "screen.starrailexpress.player_stats.losses": "失败次数: ",
   "screen.starrailexpress.player_stats.kills": "击杀次数: ",
   "screen.starrailexpress.select_hint": "请选择一个项目",
-
   "screen.starrailexpress.player_stats.deaths": "死亡次数: ",
   "screen.starrailexpress.player_stats.total_team_kills": "总队友击杀次数: ",
   "screen.starrailexpress.player_stats.team_kills": "队友击杀次数: ",
@@ -749,6 +748,7 @@
   "sre.ui.button.enable_autostart": "启用自动开始",
   "sre.ui.button.disable_autostart": "禁用自动开始",
   "sre.ui.button.back": "返回",
+  "commands.sre.switchmap.load.success": "成功加载了地图 %s！",
   "commands.sre.switchmap.error.game_running": "无法切换地图：游戏正在进行中",
   "commands.sre.switchmap.error.invalid_map": "无效的地图: %s",
   "commands.sre.switchmap.save.success": "地图保存成功: %s",

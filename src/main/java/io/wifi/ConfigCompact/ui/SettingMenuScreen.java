@@ -43,10 +43,11 @@ public class SettingMenuScreen extends Screen {
         int maxHeight = this.height;
         int buttonX = maxWidth / 2 - BUTTON_WIDTH / 2;
         int buttonY = maxHeight / 2 - buttonCount * (BUTTON_HEIGHT + MARGIN) / 2;
+        
         {
             var btn1 = Button
-                    .builder(Component.translatable("screen.starrailexpress.settings.noellesroles"), (bbtn) -> {
-                        var screen = NoellesRolesConfig.HANDLER.generateGui().generateScreen(this);
+                    .builder(Component.translatable("screen.starrailexpress.settings.tmm"), (bbtn) -> {
+                        var screen = SREConfig.HANDLER.generateGui().generateScreen(this);
                         this.minecraft.setScreen(screen);
                     }).bounds(buttonX, buttonY, BUTTON_WIDTH, BUTTON_HEIGHT).build();
             this.addRenderableWidget(btn1);
@@ -54,8 +55,8 @@ public class SettingMenuScreen extends Screen {
         }
         {
             var btn1 = Button
-                    .builder(Component.translatable("screen.starrailexpress.settings.tmm"), (bbtn) -> {
-                        var screen = SREConfig.HANDLER.generateGui().generateScreen(this);
+                    .builder(Component.translatable("screen.starrailexpress.settings.noellesroles"), (bbtn) -> {
+                        var screen = NoellesRolesConfig.HANDLER.generateGui().generateScreen(this);
                         this.minecraft.setScreen(screen);
                     }).bounds(buttonX, buttonY, BUTTON_WIDTH, BUTTON_HEIGHT).build();
             this.addRenderableWidget(btn1);

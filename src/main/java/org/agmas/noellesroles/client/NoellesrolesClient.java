@@ -22,7 +22,6 @@ import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameTimeComponent;
 import io.wifi.starrailexpress.client.StatusInit;
 import io.wifi.starrailexpress.client.gui.RoleNameRenderer;
-import io.wifi.starrailexpress.client.util.TMMClientUtils;
 import net.minecraft.client.CameraType;
 
 import net.minecraft.client.multiplayer.ClientLevel;

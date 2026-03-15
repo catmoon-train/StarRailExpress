@@ -7,6 +7,7 @@ import io.wifi.ConfigCompact.ConfigClassHandler;
 import io.wifi.starrailexpress.game.GameConstants;
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
+import me.shedaniel.autoconfig.annotation.ConfigEntry.Category;
 
 @Config(name = "noellesroles")
 public class NoellesRolesConfig implements ConfigData {
@@ -18,12 +19,6 @@ public class NoellesRolesConfig implements ConfigData {
      */
 
     public boolean insanePlayersSeeMorphs = true;
-    /**
-     * Allows the shitpost roles to retain their disable/enable state after a server
-     * restart
-     */
-
-    public boolean shitpostRoles = false;
 
     /**
      * Areas that will spawn Swast. Use | to split maps
@@ -38,10 +33,9 @@ public class NoellesRolesConfig implements ConfigData {
     public ArrayList<String> swastMaps = new ArrayList<>(List.of("areas1", "areas3", "areas4", "areas7", "areas10"));
 
     /**
-     * Areas that will spawn Sea King. Use | to split maps
+     * Areas that will spawn underwater roles (Sea King, Diver, Water Ghost)
      */
-
-    public ArrayList<String> seaKingMaps = new ArrayList<>(List.of("areas14"));
+    public ArrayList<String> underwaterMaps = new ArrayList<>(List.of("areas14"));
 
     /**
      * Role - The chance of egg roles
@@ -91,14 +85,6 @@ public class NoellesRolesConfig implements ConfigData {
      */
 
     public boolean voodooShotLikeEvil = true;
-
-    /**
-     * How many players must be online for the Master Key to look like a master key
-     * and not a lockpick. (0 = key always looks like a lockpick, 1-6 = key always
-     * looks normal)
-     */
-
-    public int playerCountToMakeConducterKeyVisible = 10;
 
     /**
      * Maximum number of Conductors allowed
@@ -185,16 +171,6 @@ public class NoellesRolesConfig implements ConfigData {
      */
 
     public int ghostMax = 1;
-    /**
-     * Maximum number of Thieves allowed
-     */
-
-    public int thiefMax = 1;
-    /**
-     * Maximum number of Sheriffs allowed
-     */
-
-    public int sheriffMax = 1;
 
     /**
      * Whether Executioners can manually select their targets. If disabled, targets
@@ -262,38 +238,13 @@ public class NoellesRolesConfig implements ConfigData {
      * Vulture - Eat body cooldown in seconds
      */
 
-    public int vultureEatCooldown = 20;
-
-    /**
-     * Executioner - Knife cooldown in seconds
-     */
-
-    public int executionerKnifeCooldown = 10;
+    public int vultureEatCooldown = 5;
 
     /**
      * Swapper - Swap cooldown in seconds
      */
 
     public int swapperSwapCooldown = 60;
-
-    /**
-     * Thief - Steal cooldown in seconds
-     */
-
-    public int thiefStealCooldown = 60;
-
-    /**
-     * Thief - Blackout invisibility duration in seconds
-     */
-
-    public int thiefBlackoutDuration = 20;
-
-    /**
-     * Thief - Blackout cooldown in seconds (time before can steal again after using
-     * blackout)
-     */
-
-    public int thiefBlackoutCooldown = 30;
 
     /**
      * Manipulator - Control target cooldown in seconds
@@ -305,11 +256,9 @@ public class NoellesRolesConfig implements ConfigData {
      * (Client Side) Welcome Voice - Play welcome voice
      */
 
+    @Category("client")
     public boolean welcome_voice = false;
 
-    /**
-     * Credit info - If you wish to use this mod on your server you must change it
-     */
-
+    @Category("magic")
     public String credit = "";
 }

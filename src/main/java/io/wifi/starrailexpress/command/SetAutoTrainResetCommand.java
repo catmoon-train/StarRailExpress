@@ -3,8 +3,6 @@ package io.wifi.starrailexpress.command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 
-import eu.midnightdust.lib.config.MidnightConfig;
-import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -24,7 +22,7 @@ public class SetAutoTrainResetCommand {
 
     private static int execute(CommandSourceStack source, boolean enabled) {
         SREConfig.enableAutoTrainReset = enabled;
-        MidnightConfig.write(SRE.MOD_ID); // Save changes
+        SREConfig.HANDLER.save();
 
         source.sendSuccess(
                 () -> Component.translatable("commands.sre.setautotrainreset", enabled)

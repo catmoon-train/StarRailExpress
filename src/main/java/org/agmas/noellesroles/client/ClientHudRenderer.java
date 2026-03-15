@@ -900,5 +900,28 @@ public class ClientHudRenderer {
           .withStyle(ChatFormatting.GRAY);
       guiGraphics.drawString(font, toggleText, xOffset - font.width(toggleText), dy, Color.WHITE.getRGB());
     });
+
+    // 潜水员HUD
+    RoleHudRenderCallback.EVENT.register(ModRoles.DIVER_ID, (context, tickCounter) -> {
+      var client = Minecraft.getInstance();
+      if (!GameUtils.isPlayerAliveAndSurvival(client.player))
+        return;
+
+      // 渲染位置 - 右下角
+      int screenWidth = client.getWindow().getGuiScaledWidth();
+      int screenHeight = client.getWindow().getGuiScaledHeight();
+      int x = screenWidth - 10;
+      int y = screenHeight - 30;
+
+      Font font = client.font;
+
+      // 显示装备脱除提示
+      var abilityKey = NoellesrolesClient.abilityBind.getTranslatedKeyMessage();
+      var tipText = Component
+          .translatable("hud.diver.remove_equipment_tip", abilityKey)
+          .withStyle(ChatFormatting.AQUA);
+      context.drawString(font, tipText, x - font.width(tipText), y, 0xFFFFFF);
+    });
   }
 }
+

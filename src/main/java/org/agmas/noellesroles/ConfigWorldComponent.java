@@ -22,10 +22,10 @@ import java.util.Map;
 import java.util.UUID;
 
 public class ConfigWorldComponent implements AutoSyncedComponent, ServerTickingComponent {
-    public static final ComponentKey<ConfigWorldComponent> KEY = ComponentRegistry.getOrCreate(ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "config"), ConfigWorldComponent.class);
+    public static final ComponentKey<ConfigWorldComponent> KEY = ComponentRegistry.getOrCreate(
+            ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "config"), ConfigWorldComponent.class);
     public boolean insaneSeesMorphs = true;
     public boolean naturalVoodoosAllowed = false;
-    public int masterKeyVisibleCount = 0;
     public boolean masterKeyIsVisible = true;
     private final Level world;
     private final Map<UUID, Integer> redPacketTimers = new HashMap<>();
@@ -55,31 +55,22 @@ public class ConfigWorldComponent implements AutoSyncedComponent, ServerTickingC
     public void writeToNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         insaneSeesMorphs = NoellesRolesConfig.HANDLER.instance().insanePlayersSeeMorphs;
         naturalVoodoosAllowed = NoellesRolesConfig.HANDLER.instance().voodooNonKillerDeaths;
-        masterKeyVisibleCount = NoellesRolesConfig.HANDLER.instance().playerCountToMakeConducterKeyVisible;
         tag.putBoolean("insaneSeesMorphs", this.insaneSeesMorphs);
         tag.putBoolean("naturalVoodoosAllowed", this.naturalVoodoosAllowed);
         tag.putBoolean("masterKeyIsVisible", this.masterKeyIsVisible);
-        tag.putInt("masterKeyVisibleCount", this.masterKeyVisibleCount);
     }
 
-
-
     public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
-        if (tag.contains("insaneSeesMorphs"))   this.insaneSeesMorphs = tag.getBoolean("insaneSeesMorphs");
-        if (tag.contains("naturalVoodoosAllowed"))   this.naturalVoodoosAllowed = tag.getBoolean("naturalVoodoosAllowed");
-        if (tag.contains("masterKeyIsVisible"))   this.masterKeyIsVisible = tag.getBoolean("masterKeyIsVisible");
-        if (tag.contains("masterKeyVisibleCount"))   this.masterKeyVisibleCount = tag.getInt("masterKeyVisibleCount");
+        if (tag.contains("insaneSeesMorphs"))
+            this.insaneSeesMorphs = tag.getBoolean("insaneSeesMorphs");
+        if (tag.contains("naturalVoodoosAllowed"))
+            this.naturalVoodoosAllowed = tag.getBoolean("naturalVoodoosAllowed");
+        if (tag.contains("masterKeyIsVisible"))
+            this.masterKeyIsVisible = tag.getBoolean("masterKeyIsVisible");
     }
 
     @Override
     public void serverTick() {
-        if (NoellesRolesConfig.HANDLER.instance().playerCountToMakeConducterKeyVisible == 0) {
-            masterKeyIsVisible = false;
-        } else {
-            if (world.getServer() != null)
-                masterKeyIsVisible =  world.getServer().getPlayerList().getPlayerCount() >= NoellesRolesConfig.HANDLER.instance().playerCountToMakeConducterKeyVisible;
-        }
-
         // 处理红包延迟发放
         processRedPacketTimers();
     }
@@ -94,7 +85,8 @@ public class ConfigWorldComponent implements AutoSyncedComponent, ServerTickingC
                     // 倒计时结束，发放金币
                     ServerPlayer player = serverLevel.getServer().getPlayerList().getPlayer(playerUUID);
                     if (player != null && io.wifi.starrailexpress.game.GameUtils.isPlayerAliveAndSurvival(player)) {
-                        io.wifi.starrailexpress.cca.SREPlayerShopComponent shopComponent = io.wifi.starrailexpress.cca.SREPlayerShopComponent.KEY.get(player);
+                        io.wifi.starrailexpress.cca.SREPlayerShopComponent shopComponent = io.wifi.starrailexpress.cca.SREPlayerShopComponent.KEY
+                                .get(player);
                         shopComponent.addToBalance(100);
 
                         player.displayClientMessage(

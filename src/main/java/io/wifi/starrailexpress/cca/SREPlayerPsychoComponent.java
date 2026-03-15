@@ -78,15 +78,9 @@ public class SREPlayerPsychoComponent implements RoleComponent, ServerTickingCom
     public void serverTick() {
         if (this.psychoTicks <= 0)
             return;
-        // if (this.psychoTicks % 20 == 0)
-        // this.player.sendMessage(Text.translatable("game.psycho_mode.time",
-        // this.psychoTicks / 20).withColor(Colors.RED), true);
         if (--this.psychoTicks == 0) {
-            // this.player.sendMessage(Text.translatable("game.psycho_mode.over").withColor(Colors.RED),
-            // true);
             this.stopPsycho();
             this.sync();
-
         } else {
             if (this.psychoTicks % 40 == 0) { // 2s一次
                 this.sync();
