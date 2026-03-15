@@ -4,6 +4,7 @@ import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry.Gui.CollapsibleObject;
 import io.wifi.ConfigCompact.ConfigClassHandler;
+import io.wifi.ConfigCompact.annotation.ConfigSync;
 
 @Config(name = "stupid_express")
 public class StupidExpressConfig implements ConfigData {
@@ -15,6 +16,7 @@ public class StupidExpressConfig implements ConfigData {
     }
 
     @CollapsibleObject
+    @ConfigSync(shouldSync = true)
     public RolesSection rolesSection = new RolesSection();
 
     public static class RolesSection {
@@ -35,6 +37,7 @@ public class StupidExpressConfig implements ConfigData {
     }
 
     @CollapsibleObject
+    @ConfigSync(shouldSync = true)
     public ModifiersSection modifiersSection = new ModifiersSection();
 
     public static class ModifiersSection {

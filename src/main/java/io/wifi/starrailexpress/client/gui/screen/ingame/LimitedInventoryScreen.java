@@ -1,15 +1,16 @@
 package io.wifi.starrailexpress.client.gui.screen.ingame;
 
-import io.wifi.starrailexpress.api.SRERole;
-import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.StoreRenderer;
-import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.ShopContent;
 import io.wifi.starrailexpress.network.original.StoreBuyPayload;
 import io.wifi.starrailexpress.util.ShopEntry;
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.SRERole;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -27,9 +28,12 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
+@Environment(EnvType.CLIENT)
+
 public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> {
-    
-    public static final ResourceLocation BACKGROUND_TEXTURE = SRE.watheId("textures/gui/container/limited_inventory.png");
+
+    public static final ResourceLocation BACKGROUND_TEXTURE = SRE
+            .watheId("textures/gui/container/limited_inventory.png");
     public static final @NotNull ResourceLocation ID = SRE.watheId("textures/gui/game.png");
     public final LocalPlayer player;
 
@@ -67,9 +71,23 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
         return (T) this.addWidget(drawableElement);
     }
 
-    public List<ShopEntry> getShopEntries() {
+    public static List<ShopEntry> getRoleShopEntries(SRERole role) {
+        if (role == null)
+            return List.of();
+        final var shopEntries = ShopContent.getShopEntries(
+                role.getIdentifier());
+        if (!shopEntries.isEmpty()) {
+            return shopEntries;
+        }
+        if (role.canUseKiller()) {
+            return ShopContent.defaultEntries;
+        }
+        return List.of();
+    }
 
-        var gameWorldComponent = SREGameWorldComponent.KEY.get(this.player.level());
+    public List<ShopEntry> getShopEntries() {
+        final var player = Minecraft.getInstance().player;
+        var gameWorldComponent = SREClient.gameComponent;
         if (gameWorldComponent == null)
             return List.of();
         if (SREClient.gameComponent != null && SREClient.isPlayerAliveAndInSurvival()) {

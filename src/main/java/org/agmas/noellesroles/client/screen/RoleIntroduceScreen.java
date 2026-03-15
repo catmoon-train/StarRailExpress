@@ -2,6 +2,7 @@ package org.agmas.noellesroles.client.screen;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
 import io.wifi.starrailexpress.game.ShopContent;
 import io.wifi.starrailexpress.util.ShopEntry;
 import io.wifi.starrailexpress.index.TMMDescItems;
@@ -414,45 +415,9 @@ public class RoleIntroduceScreen extends Screen {
                         .copy().withStyle(ChatFormatting.WHITE),
                 textW));
         {
-            String story_key = "star.story." + getObjectType(selectedRole) + "."
-                    + getObjectPath((selectedRole));
-            if (Language.getInstance().has(story_key)) {
-                detailLines.add(FormattedCharSequence.EMPTY);
-                detailLines.addAll(font.split(
-                        Component.translatable("screen.roleintroduce.detail.story")
-                                .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD),
-                        textW));
-                detailLines.addAll(font.split(
-                        Component.literal(sb.toString()).withStyle(ChatFormatting.DARK_GRAY), textW));
-
-                detailLines.addAll(font.split(
-                        Component.translatable(story_key).withStyle(ChatFormatting.WHITE),
-                        textW));
-            }
-        }
-
-        {
-            String story_key = "star.settings." + getObjectType(selectedRole) + "."
-                    + getObjectPath(selectedRole);
-            if (Language.getInstance().has(story_key)) {
-                detailLines.add(FormattedCharSequence.EMPTY);
-                detailLines.addAll(font.split(
-                        Component.translatable("screen.roleintroduce.detail.settings")
-                                .withStyle(ChatFormatting.AQUA, ChatFormatting.BOLD),
-                        textW));
-                detailLines.addAll(font.split(
-                        Component.literal(sb.toString()).withStyle(ChatFormatting.DARK_GRAY), textW));
-
-                detailLines.addAll(font.split(
-                        Component.translatable(story_key).withStyle(ChatFormatting.WHITE),
-                        textW));
-            }
-        }
-        {
             // 商店显示
             if (selectedRole instanceof SRERole sreRole) {
-                var shop_content = ShopContent.getShopEntries(sreRole.identifier());
-
+                var shop_content = LimitedInventoryScreen.getRoleShopEntries(sreRole);
                 if (!shop_content.isEmpty()) {
                     detailLines.add(FormattedCharSequence.EMPTY);
                     detailLines.addAll(font.split(
@@ -516,6 +481,41 @@ public class RoleIntroduceScreen extends Screen {
                 }
             }
 
+        }
+        {
+            String story_key = "star.story." + getObjectType(selectedRole) + "."
+                    + getObjectPath((selectedRole));
+            if (Language.getInstance().has(story_key)) {
+                detailLines.add(FormattedCharSequence.EMPTY);
+                detailLines.addAll(font.split(
+                        Component.translatable("screen.roleintroduce.detail.story")
+                                .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD),
+                        textW));
+                detailLines.addAll(font.split(
+                        Component.literal(sb.toString()).withStyle(ChatFormatting.DARK_GRAY), textW));
+
+                detailLines.addAll(font.split(
+                        Component.translatable(story_key).withStyle(ChatFormatting.WHITE),
+                        textW));
+            }
+        }
+
+        {
+            String story_key = "star.settings." + getObjectType(selectedRole) + "."
+                    + getObjectPath(selectedRole);
+            if (Language.getInstance().has(story_key)) {
+                detailLines.add(FormattedCharSequence.EMPTY);
+                detailLines.addAll(font.split(
+                        Component.translatable("screen.roleintroduce.detail.settings")
+                                .withStyle(ChatFormatting.AQUA, ChatFormatting.BOLD),
+                        textW));
+                detailLines.addAll(font.split(
+                        Component.literal(sb.toString()).withStyle(ChatFormatting.DARK_GRAY), textW));
+
+                detailLines.addAll(font.split(
+                        Component.translatable(story_key).withStyle(ChatFormatting.WHITE),
+                        textW));
+            }
         }
 
         int totalTextH = detailLines.size() * (font.lineHeight + 2);

@@ -39,6 +39,9 @@ public class ConfigClassHandler<T extends ConfigData> {
         return new GuiGenerator<T>(type);
     }
 
+    public void syncToClient(){
+        
+    }
     public void load() {
         try {
             var config = ((ConfigManager<T>) AutoConfig

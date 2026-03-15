@@ -2,6 +2,7 @@ package io.wifi.starrailexpress.command;
 
 import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
+import org.agmas.noellesroles.init.RoleShopHandler;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
@@ -31,6 +32,7 @@ public class ConfigCommand {
             HarpyModLoaderConfig.HANDLER.load();
             NoellesRolesConfig.HANDLER.load();
             StupidExpressConfig.HANDLER.load();
+            RoleShopHandler.shopRegister();
             source.sendSuccess(
                     () -> Component.translatable("commands.sre.config.reload")
                             .withStyle(style -> style.withColor(0x00FF00)),

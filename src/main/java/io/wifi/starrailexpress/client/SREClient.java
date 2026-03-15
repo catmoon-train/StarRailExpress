@@ -9,6 +9,8 @@ import java.util.UUID;
 import java.util.function.Predicate;
 
 import net.exmo.sre.EXSREClient;
+
+import org.agmas.noellesroles.init.RoleShopHandler;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.include.com.google.gson.JsonSyntaxException;
@@ -52,6 +54,7 @@ import io.wifi.starrailexpress.event.AllowOtherCameraType;
 import io.wifi.starrailexpress.event.OnGetInstinctHighlight;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.game.ShopContent;
 import io.wifi.starrailexpress.index.TMMBlockEntities;
 import io.wifi.starrailexpress.index.TMMBlocks;
 import io.wifi.starrailexpress.index.TMMEntities;
@@ -70,6 +73,7 @@ import io.wifi.starrailexpress.network.RemoveStatusBarPayload;
 import io.wifi.starrailexpress.network.SecurityCameraModePayload;
 import io.wifi.starrailexpress.network.ShowSelectedMapUIPayload;
 import io.wifi.starrailexpress.network.ShowStatsPayload;
+import io.wifi.starrailexpress.network.SyncConfigPayload;
 import io.wifi.starrailexpress.network.SyncMapConfigPayload;
 import io.wifi.starrailexpress.network.TriggerScreenEdgeEffectPayload;
 import io.wifi.starrailexpress.network.TriggerStatusBarPayload;
@@ -285,6 +289,10 @@ public class SREClient implements ClientModInitializer {
         OptionLocker.overrideSoundCategoryVolume("player", 1.0);
         OptionLocker.overrideSoundCategoryVolume("ambient", 1.0);
         OptionLocker.overrideSoundCategoryVolume("voice", 1.0);
+
+        ClientPlayNetworking.registerGlobalReceiver(SyncConfigPayload.ID, (payload,context)->{
+            
+        });
         ClientPlayNetworking.registerGlobalReceiver(SecurityCameraModePayload.ID,
                 new SecurityCameraModePayload.ClientReceiver());
         ClientPlayNetworking.registerGlobalReceiver(IsLobbyConfigPayload.ID, (payload, context) -> {
@@ -296,7 +304,6 @@ public class SREClient implements ClientModInitializer {
         ClientPlayConnectionEvents.JOIN.register((clientPacketListener, packetSender, minecraft) -> {
             packetSender.sendPacket(new ModVersionPacket(SRE.modPacketVersion));
             SRE.LOGGER.info("Send client version {} to verify.", SRE.modPacketVersion);
-
         });
         // Item tooltips
         TMMItemTooltips.addTooltips();

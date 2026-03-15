@@ -1,6 +1,7 @@
 package io.wifi.starrailexpress;
 
 import io.wifi.ConfigCompact.ConfigClassHandler;
+import io.wifi.ConfigCompact.annotation.ConfigSync;
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
 
@@ -33,27 +34,39 @@ public class SREConfig implements ConfigData {
     public static boolean isLobby = false;
 
     @ConfigEntry.Category(value = "shop")
+    @ConfigSync(shouldSync = true)
     public static int knifePrice = 130;
+    @ConfigSync(shouldSync = true)
     @ConfigEntry.Category(value = "shop")
     public static int revolverPrice = 285;
+    @ConfigSync(shouldSync = true)
     @ConfigEntry.Category(value = "shop")
     public static int grenadePrice = 330;
+    @ConfigSync(shouldSync = true)
     @ConfigEntry.Category(value = "shop")
     public static int psychoModePrice = 400;
+    @ConfigSync(shouldSync = true)
     @ConfigEntry.Category(value = "shop")
     public static int poisonVialPrice = 80;
+    @ConfigSync(shouldSync = true)
     @ConfigEntry.Category(value = "shop")
     public static int scorpionPrice = 40;
+    @ConfigSync(shouldSync = true)
     @ConfigEntry.Category(value = "shop")
     public static int firecrackerPrice = 10;
+    @ConfigSync(shouldSync = true)
     @ConfigEntry.Category(value = "shop")
     public static int lockpickPrice = 80;
+    @ConfigSync(shouldSync = true)
     @ConfigEntry.Category(value = "shop")
     public static int crowbarPrice = 35;
+    @ConfigSync(shouldSync = true)
     @ConfigEntry.Category(value = "shop")
     public static int bodyBagPrice = 100;
+    @ConfigSync(shouldSync = true)
     @ConfigEntry.Category(value = "shop")
     public static int blackoutPrice = 100;
+    @ConfigSync(shouldSync = true)
     @ConfigEntry.Category(value = "shop")
     public static int notePrice = 10;
 

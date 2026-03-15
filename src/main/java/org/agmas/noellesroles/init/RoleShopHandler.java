@@ -202,6 +202,8 @@ public class RoleShopHandler {
   }
 
   public static void shopRegister() {
+    ShopContent.customEntries.clear();
+    ShopContent.defaultEntries.clear();
     // 初始化框架角色商店
     initializeFramingShop();
     // 初始化其他角色商店
@@ -560,7 +562,7 @@ public class RoleShopHandler {
       }
       // 拍立得相纸 - 75金币
       {
-        var item =  ExposurePolaroid.Items.INSTANT_COLOR_SLIDE.get();
+        var item = ExposurePolaroid.Items.INSTANT_COLOR_SLIDE.get();
         if (item != null) {
           final var defaultInstance = item.getDefaultInstance();
           entries.add(new ShopEntry(defaultInstance, 75, ShopEntry.Type.TOOL) {

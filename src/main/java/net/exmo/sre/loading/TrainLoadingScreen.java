@@ -206,7 +206,7 @@ public class TrainLoadingScreen extends Screen {
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         // 1. 绘制深邃的太空背景
         renderBackground(graphics, mouseX, mouseY, partialTick);
-        graphics.fillGradient(0, 0, width, height, 0x010A0A1A, 0x01101020);
+        graphics.fillGradient(0, 0, width, height, 0x420A0A1A, 0x48101020);
 
         // 2. 绘制星空粒子
         renderStars(graphics, partialTick);

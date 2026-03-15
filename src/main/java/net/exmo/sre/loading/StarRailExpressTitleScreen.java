@@ -331,8 +331,8 @@ public class StarRailExpressTitleScreen extends Screen {
     // ─────────────────────────────────────────────────────────────────
 
     private void renderModernOverlay(GuiGraphics g) {
-        g.fillGradient(0, 0, this.width, this.height, 0x33000020, 0x88000050);
-        g.fillGradient(0, this.height / 4 * 1, this.width, this.height, 0x00000000, 0x2200C2FF);
+        g.fillGradient(0, 0, this.width, this.height, 0x33000000, 0x88000010);
+        g.fillGradient(0, this.height / 4 * 1, this.width, this.height, 0x00000000, 0x220062FF);
     }
 
     private void renderContinuePrompt(GuiGraphics g, int mouseX, int mouseY, float delta) {
