@@ -20,6 +20,8 @@ import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.gui.screens.multiplayer.SafetyScreen;
 import net.minecraft.client.gui.screens.options.OptionsScreen;
 import net.minecraft.client.gui.screens.worldselection.SelectWorldScreen;
+import net.minecraft.client.renderer.CubeMap;
+import net.minecraft.client.renderer.PanoramaRenderer;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
@@ -44,7 +46,9 @@ import java.util.stream.Collectors;
 
 @Environment(EnvType.CLIENT)
 public class StarRailExpressTitleScreen extends Screen {
-
+    public static final CubeMap CUBE_MAP = new CubeMap(
+            SRE.id("textures/gui/title/background/panorama"));
+    protected static final PanoramaRenderer PANORAMA = new PanoramaRenderer(CUBE_MAP);
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final Component TITLE = Component.translatable("narrator.screen.title");
 
@@ -302,7 +306,7 @@ public class StarRailExpressTitleScreen extends Screen {
 
     @Override
     public void render(GuiGraphics g, int mouseX, int mouseY, float delta) {
-        // renderPanorama(g, delta);
+        renderPanorama(g, delta);
         renderModernOverlay(g);
 
         // 版本号（左下角）
@@ -327,8 +331,8 @@ public class StarRailExpressTitleScreen extends Screen {
     // ─────────────────────────────────────────────────────────────────
 
     private void renderModernOverlay(GuiGraphics g) {
-        g.fillGradient(0, 0, this.width, this.height, 0x66101014, 0xAA06070A);
-        g.fillGradient(0, 0, this.width, this.height / 3, 0x2200C2FF, 0x00000000);
+        g.fillGradient(0, 0, this.width, this.height, 0x00101014, 0x3306070A);
+        g.fillGradient(0, this.height / 4 * 1, this.width, this.height, 0x00000000, 0x2200C2FF);
     }
 
     private void renderContinuePrompt(GuiGraphics g, int mouseX, int mouseY, float delta) {

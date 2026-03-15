@@ -2,7 +2,7 @@
   "required": true,
   "package": "io.wifi.starrailexpress.mixin",
   "compatibilityLevel": "JAVA_17",
-  "plugin": "io.wifi.starrailexpress.mixin.TmmMixinPlugin",
+  "plugin": "io.wifi.starrailexpress.mixin.SREMixinPlugin",
   "mixins": [
     "block.AbstractBlockInvoker",
     "block.AbstractBlockSettingsMixin",
