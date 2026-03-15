@@ -141,6 +141,7 @@ public class ModRoles {
   public static final ResourceLocation FIREFIGHTER_ID = Noellesroles.id("firefighter");
   public static final ResourceLocation ACCOUNTANT_ID = Noellesroles.id("accountant");
   public static final ResourceLocation ALCHEMIST_ID = Noellesroles.id("alchemist");
+  public static final ResourceLocation DIVER_ID = Noellesroles.id("diver");
   public static final ResourceLocation SWAST_ID = Noellesroles.id("swast");
   public static final ResourceLocation MARTIAL_ARTS_INSTRUCTOR_ID = Noellesroles.id("martial_arts_instructor");
   public static final ResourceLocation SEA_KING_ID = Noellesroles.id("sea_king");
@@ -517,6 +518,36 @@ public class ModRoles {
   )).setCanSeeCoin(true).setComponentKey(org.agmas.noellesroles.component.AlchemistPlayerComponent.KEY);
 
   /**
+   * 潜水员角色
+   * - 属于平民阵营 (isInnocent = true)
+   * - 无限体力 (Integer.MAX_VALUE)
+   * - 自带水下呼吸效果
+   * - 可以购买潜水头盔(125金币)和潜水靴(225金币)
+   * - 潜水头盔：提供水下呼吸和海豚恩惠1，可以丢出给其他人，渲染为钻石头盔
+   * - 潜水靴：自带深海探索者3，渲染为金靴子
+   * - 技能：按技能键脱掉身上的装备
+   */
+  // 潜水员角色 - 乘客阵营
+  public static SRERole DIVER = TMMRoles.registerRole(new ExtraEffectRole(
+      DIVER_ID, // 角色 ID
+      new Color(0, 105, 148).getRGB(), // 深青色 - 代表海洋
+      true, // isInnocent = 乘客阵营
+      false, // canUseKiller = 无杀手能力
+      SRERole.MoodType.REAL, // 真实心情
+      Integer.MAX_VALUE, // 无限冲刺时间
+      false // 不隐藏计分板
+  ).addEffect(
+      new MobEffectInstance(
+          MobEffects.WATER_BREATHING,
+          30 * 20, // 持续时间 60s（tick）
+          0, // 等级（水下呼吸 I）
+          true, // ambient（环境效果，如信标）
+          false, // showParticles（显示粒子）
+          true // showIcon（显示图标）
+      )))
+  .setCanSeeCoin(true).setComponentKey(org.agmas.noellesroles.component.DiverPlayerComponent.KEY);
+
+  /**
    * 特警角色
    * - 属于警长阵营 (isInnocent = true, setVigilanteTeam = true)
    * - 仅在特定地图生成（areas1/areas3/areas4/areas7/areas10）
@@ -573,7 +604,7 @@ public class ModRoles {
    * - 专属商店：普通三叉戟(300金币)
    */
   // 海王角色 - 警长阵营
-  public static SRERole SEA_KING = TMMRoles.registerRole(new NormalRole(
+  public static SRERole SEA_KING = TMMRoles.registerRole(new ExtraEffectRole(
       SEA_KING_ID, // 角色 ID
       new Color(0, 180, 216).getRGB(), // 海洋蓝 - 代表海王的海洋力量
       true, // isInnocent = 乘客阵营
@@ -581,7 +612,16 @@ public class ModRoles {
       SRERole.MoodType.REAL, // 真实心情
       TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
       false // 不隐藏计分板
-  )).setCanSeeCoin(true).setVigilanteTeam(true).setCanPickUpRevolver(false);
+  ).addEffect(
+      new MobEffectInstance(
+          MobEffects.WATER_BREATHING,
+          30 * 20, // 持续时间 60s（tick）
+          0, // 等级（水下呼吸 I）
+          true, // ambient（环境效果，如信标）
+          false, // showParticles（显示粒子）
+          true // showIcon（显示图标）
+      )))
+  .setCanSeeCoin(true).setVigilanteTeam(true).setCanPickUpRevolver(false);
 
   /**
    * 水鬼角色
@@ -596,7 +636,7 @@ public class ModRoles {
    *
    * 被动：在非水中环境超过90秒时会死亡（死因：干涸而死）
    */
-  public static SRERole WATER_GHOST = TMMRoles.registerRole(new NormalRole(
+  public static SRERole WATER_GHOST = TMMRoles.registerRole(new ExtraEffectRole(
       WATER_GHOST_ID, // 角色 ID
       new Color(30, 100, 180).getRGB(), // 深蓝色 - 代表水鬼的水属性
       false, // isInnocent = 非乘客阵营（杀手）
@@ -604,7 +644,16 @@ public class ModRoles {
       SRERole.MoodType.FAKE, // 假心情
       Integer.MAX_VALUE, // 无限体力
       true // 隐藏计分板
-  )).setComponentKey(ModComponents.WATER_GHOST).setCanSeeCoin(true);
+  ).addEffect(
+      new MobEffectInstance(
+          MobEffects.WATER_BREATHING,
+          30 * 20, // 持续时间 60s（tick）
+          0, // 等级（水下呼吸 I）
+          true, // ambient（环境效果，如信标）
+          false, // showParticles（显示粒子）
+          true // showIcon（显示图标）
+      )))
+  .setComponentKey(ModComponents.WATER_GHOST).setCanSeeCoin(true);
 
   // 杀手阵营角色
   public static SRERole CLEANER = TMMRoles

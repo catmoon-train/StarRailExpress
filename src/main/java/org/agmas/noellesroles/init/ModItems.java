@@ -74,6 +74,16 @@ public class ModItems {
                     (new Item.Properties()).durability(60)),
             "night_vision_glasses");
 
+    public static final Item DIVING_HELMET = register(
+            new DivingHelmetItem(ArmorMaterials.DIAMOND, net.minecraft.world.item.ArmorItem.Type.HELMET,
+                    (new Item.Properties()).stacksTo(1)),
+            "diving_helmet");
+
+    public static final Item DIVING_BOOTS = register(
+            new DivingBootsItem(ArmorMaterials.GOLD, net.minecraft.world.item.ArmorItem.Type.BOOTS,
+                    (new Item.Properties()).stacksTo(1)),
+            "diving_boots");
+
     public static final Item FAKE_KNIFE = register(
             new FakeKnifeItem(new Item.Properties().stacksTo(1)),
             "fake_knife");
@@ -490,6 +500,9 @@ public class ModItems {
         TMMItems.INVISIBLE_ITEMS.add(ModItems.DECOY_GRENADE);
         TMMItems.INVISIBLE_ITEMS.add(ModItems.PURIFY_BOMB);
         // TMMItems.INVISIBLE_ITEMS.add(TMMItems.KNIFE);
+
+        // 为潜水靴添加深海探索者3附魔
+        // 在商店或创造模式中生成时自带附魔，使用DataComponent设置
 
         TMMItems.INIT_ITEMS.LETTER = LETTER_ITEM;
         TMMItems.INIT_ITEMS.LETTER_UpdateItemFunc = (letter, serverPlayerEntity) -> {
