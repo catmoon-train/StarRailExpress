@@ -1,11 +1,8 @@
 package org.agmas.noellesroles.init;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Random;
-import java.util.regex.Pattern;
-
 import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.harpymodloader.events.GameInitializeEvent;
 import org.agmas.harpymodloader.modded_murder.RoleAssignmentManager;
@@ -315,9 +312,9 @@ public class InitModRolesMax {
             // machenxu
             {
                 boolean isMachenxuMap = false;
-                String[] machenxuMap = NoellesRolesConfig.HANDLER.instance().maChenXuMaps.split(Pattern.quote("|"));
-                if (machenxuMap != null && machenxuMap.length > 0) {
-                    isMachenxuMap = Arrays.asList(machenxuMap).contains(currentMap);
+                var machenxuMap = new ArrayList<>(NoellesRolesConfig.HANDLER.instance().maChenXuMaps);
+                if (machenxuMap != null && machenxuMap.size() > 0) {
+                    isMachenxuMap = machenxuMap.contains(currentMap);
                 }
                 if (isMachenxuMap) {
                     Harpymodloader.setRoleMaximum(ModRoles.MA_CHEN_XU, 1);
@@ -390,9 +387,9 @@ public class InitModRolesMax {
 
                 // 判断是否为特警可用地图 (areas1, areas3, areas4, areas7, areas10)
                 boolean isSwastMap = false;
-                String[] swastMaps = NoellesRolesConfig.HANDLER.instance().swastMaps.split(Pattern.quote("|"));
-                if (swastMaps != null && swastMaps.length > 0) {
-                    isSwastMap = Arrays.asList(swastMaps).contains(currentMap);
+                var swastMaps = new ArrayList<>(NoellesRolesConfig.HANDLER.instance().swastMaps);
+                if (swastMaps != null && swastMaps.size() > 0) {
+                    isSwastMap = swastMaps.contains(currentMap);
                 }
 
                 // 如果是特警可用地图且有可用警卫位置，65%概率随机替换一个为特警
@@ -451,9 +448,9 @@ public class InitModRolesMax {
                 int SEA_KING_COUNT = 0;
                 // 判断是否为海王可用地图 (areas14)
                 boolean isSeaKingMap = false;
-                String[] seaKingMaps = NoellesRolesConfig.HANDLER.instance().seaKingMaps.split(Pattern.quote("|"));
-                if (seaKingMaps != null && seaKingMaps.length > 0) {
-                    isSeaKingMap = Arrays.asList(seaKingMaps).contains(currentMap);
+                var seaKingMaps = new ArrayList<>(NoellesRolesConfig.HANDLER.instance().seaKingMaps);
+                if (seaKingMaps != null && seaKingMaps.size() > 0) {
+                    isSeaKingMap = seaKingMaps.contains(currentMap);
                 }
                 // 如果是海王可用地图且有可用警卫位置，100%概率生成海王
                 if (isSeaKingMap && currentTotal > 0) {

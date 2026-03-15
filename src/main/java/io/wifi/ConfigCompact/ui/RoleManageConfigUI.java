@@ -1,4 +1,4 @@
-package org.agmas.harpymodloader.client.ui;
+package io.wifi.ConfigCompact.ui;
 
 import java.util.HashMap;
 import java.util.Map.Entry;
@@ -40,8 +40,6 @@ public class RoleManageConfigUI {
                 .getOrCreateCategory(Component.translatable("category.starrailexpress.config.role"));
         ConfigCategory modifierCategory = builder
                 .getOrCreateCategory(Component.translatable("category.starrailexpress.config.modifier"));
-        ConfigCategory otherCategory = builder
-                .getOrCreateCategory(Component.translatable("category.starrailexpress.config.other"));
         if (RoleEnableStatus.isEmpty()) {
             RoleEnableStatus.clear();
             for (var info : TMMRoles.ROLES.keySet()) {

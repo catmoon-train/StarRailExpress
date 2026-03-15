@@ -1,4 +1,4 @@
-package org.agmas.harpymodloader.client.ui;
+package io.wifi.ConfigCompact.ui;
 
 import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
 import org.agmas.noellesroles.client.screen.RoleIntroduceScreen;

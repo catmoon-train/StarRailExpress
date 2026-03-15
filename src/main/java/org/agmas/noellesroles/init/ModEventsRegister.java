@@ -1,11 +1,8 @@
 package org.agmas.noellesroles.init;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.regex.Pattern;
-
 import io.wifi.starrailexpress.network.RemoveStatusBarPayload;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import org.agmas.harpymodloader.Harpymodloader;
@@ -1292,9 +1289,9 @@ public class ModEventsRegister {
             }
             {
                 boolean isMachenxuMap = false;
-                String[] machenxuMap = NoellesRolesConfig.HANDLER.instance().maChenXuMaps.split(Pattern.quote("|"));
-                if (machenxuMap != null && machenxuMap.length > 0) {
-                    isMachenxuMap = Arrays.asList(machenxuMap).contains(currentMap);
+                var machenxuMap = new ArrayList<>(NoellesRolesConfig.HANDLER.instance().maChenXuMaps);
+                if (machenxuMap != null && machenxuMap.size() > 0) {
+                    isMachenxuMap = machenxuMap.contains(currentMap);
                 }
                 if (isMachenxuMap) {
                     boolean hasMachenXu = false;
