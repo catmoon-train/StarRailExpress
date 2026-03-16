@@ -17,7 +17,6 @@ import com.mojang.blaze3d.platform.Window;
 
 public class GeneralStatsPanel extends AbstractWidget {
     private final SREPlayerStatsComponent stats;
-    private final int screenWidth;
     private int scrollY = 0;
     private int maxScroll = 0;
     private boolean isDraggingScrollbar = false;
@@ -34,7 +33,6 @@ public class GeneralStatsPanel extends AbstractWidget {
             int screenHeight) {
         super(x, y, width, height, Component.empty());
         this.stats = stats;
-        this.screenWidth = screenWidth;
     }
 
     public void init() {
@@ -262,6 +260,8 @@ public class GeneralStatsPanel extends AbstractWidget {
 
     @Override
     public boolean mouseClicked(double mx, double my, int button) {
+        if (!this.visible)
+            return false;
         if (button == 0 && isMouseOver(mx, my)) {
             int scrollbarX = getX() + width - CONTENT_PAD - SCROLLBAR_WIDTH;
             int areaY = getY() + CONTENT_PAD;
@@ -279,12 +279,16 @@ public class GeneralStatsPanel extends AbstractWidget {
 
     @Override
     public boolean mouseReleased(double mx, double my, int button) {
+        if (!this.visible)
+            return false;
         isDraggingScrollbar = false;
         return false;
     }
 
     @Override
     public boolean mouseDragged(double mx, double my, int button, double dx, double dy) {
+        if (!this.visible)
+            return false;
         if (isDraggingScrollbar && maxScroll > 0) {
             int areaH = height - CONTENT_PAD * 2;
             int totalH = estimateContentHeight();
@@ -301,7 +305,10 @@ public class GeneralStatsPanel extends AbstractWidget {
 
     @Override
     public boolean mouseScrolled(double mx, double my, double horiz, double vert) {
-        if (visible && isMouseOver(mx, my)) {
+        if (!this.visible) {
+            return false;
+        }
+        if (isMouseOver(mx, my)) {
             scrollY = Mth.clamp(scrollY - (int) (vert * 20), 0, maxScroll);
             return true;
         }
@@ -310,6 +317,8 @@ public class GeneralStatsPanel extends AbstractWidget {
 
     @Override
     public boolean isMouseOver(double mx, double my) {
+        if (!this.visible)
+            return false;
         return mx >= getX() && mx <= getX() + width && my >= getY() && my <= getY() + height;
     }
 

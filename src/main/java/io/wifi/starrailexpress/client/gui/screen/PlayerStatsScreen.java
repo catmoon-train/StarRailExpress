@@ -1,6 +1,8 @@
 // PlayerStatsScreen.java (重写后)
 package io.wifi.starrailexpress.client.gui.screen;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
 import io.wifi.starrailexpress.cca.SREPlayerStatsComponent;
@@ -8,17 +10,19 @@ import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.SRE;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Renderable;
+import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.util.Mth;
 
 public class PlayerStatsScreen extends Screen {
     private SREPlayerStatsComponent stats;
     private final UUID targetPlayerUuid;
     private GeneralStatsPanel generalStatsPanel;
     private RoleStatsPanel roleStatsPanel;
+    private final List<GuiEventListener> children = new ArrayList<>();
 
     private static final int GENERAL_STATS_VIEW = 0;
     private static final int ROLE_STATS_VIEW = 1;
@@ -28,6 +32,7 @@ public class PlayerStatsScreen extends Screen {
 
     // 分类标签相关
     private int tabX, tabY, tabWidth, tabHeight;
+    private ArrayList<Renderable> renderables = new ArrayList<>();
     private static final int TAB_W = 100;
     private static final int TAB_H = 22;
 
@@ -40,6 +45,12 @@ public class PlayerStatsScreen extends Screen {
         }
     }
 
+    private void addRenderableWidget2(Renderable r) {
+        renderables.add(r);
+        if (r instanceof GuiEventListener g)
+            children.add(g);
+    }
+
     @Override
     protected void init() {
         super.init();
@@ -50,22 +61,22 @@ public class PlayerStatsScreen extends Screen {
         tabHeight = TAB_H;
 
         int panelWidth = (int) (width * 0.6);
+        if (width <= 500)
+            panelWidth = width - 60;
         int panelHeight = (int) (height * 0.7);
         int panelX = (width - panelWidth) / 2;
         int panelY = tabY + tabHeight + 10;
 
         generalStatsPanel = new GeneralStatsPanel(
                 panelX, panelY, panelWidth, panelHeight - (panelY - (tabY + tabHeight + 10)),
-                stats, width, height
-        );
+                stats, width, height);
         generalStatsPanel.init();
-        addRenderableWidget(generalStatsPanel);
+        this.addRenderableWidget2(generalStatsPanel);
 
         roleStatsPanel = new RoleStatsPanel(
                 panelX, panelY, panelWidth, panelHeight - (panelY - (tabY + tabHeight + 10)),
-                stats
-        );
-        addRenderableWidget(roleStatsPanel);
+                stats);
+        this.addRenderableWidget2(roleStatsPanel);
 
         switchView(currentView);
     }
@@ -84,10 +95,12 @@ public class PlayerStatsScreen extends Screen {
         renderTabBar(graphics, mouseX, mouseY);
         // 标题
         graphics.drawCenteredString(font, title, width / 2, 16, 0xEEEEFF);
+        for (Renderable r : renderables)
+            r.render(graphics, mouseX, mouseY, delta);
     }
 
     private void renderTabBar(GuiGraphics g, int mx, int my) {
-        int[] tabColors = {0xFF5577CC, 0xFFAA44CC}; // 通用 / 角色
+        int[] tabColors = { 0xFF5577CC, 0xFFAA44CC }; // 通用 / 角色
         String[] labels = {
                 Component.translatable("screen." + SRE.MOD_ID + ".player_stats.general_stats_button").getString(),
                 Component.translatable("screen." + SRE.MOD_ID + ".player_stats.role_stats_button").getString()
@@ -121,8 +134,19 @@ public class PlayerStatsScreen extends Screen {
 
             String truncated = font.plainSubstrByWidth(labels[i], tabWidth - 8);
             int textColor = active ? (baseColor | 0xFF000000) : hovered ? 0xFFCCDDFF : 0xFF7788AA;
-            g.drawCenteredString(font, truncated, x + tabWidth / 2, tabY + (tabHeight - font.lineHeight) / 2, textColor);
+            g.drawCenteredString(font, truncated, x + tabWidth / 2, tabY + (tabHeight - font.lineHeight) / 2,
+                    textColor);
         }
+    }
+
+    @Override
+    public boolean mouseReleased(double mx, double my, int button) {
+        for (var child : this.children) {
+            if (child.mouseReleased(mx, my, button)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -134,32 +158,79 @@ public class PlayerStatsScreen extends Screen {
                 return true;
             }
         }
+        for (var child : this.children) {
+            if (child.mouseClicked(mx, my, button)) {
+                return true;
+            }
+        }
         return super.mouseClicked(mx, my, button);
     }
 
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (super.keyPressed(keyCode, scanCode, modifiers)) return true;
-        if (keyCode == Minecraft.getInstance().options.keyInventory.hashCode()||
-                keyCode == SREClient.statsKeybind.hashCode()) {
-            onClose();
-            return true;
+    public boolean mouseScrolled(double mx, double my, double sx, double sy) {
+        for (var child : this.children) {
+            if (child.mouseScrolled(mx, my, sx, sy)) {
+                return true;
+            }
         }
         return false;
     }
 
     @Override
-    public void tick() {}
+    public boolean mouseDragged(double mx, double my, int b, double dx, double dy) {
+        for (GuiEventListener c : children)
+            if (c.mouseDragged(mx, my, b, dx, dy))
+                return true;
+        return false;
+    }
 
-    public int getCurrentView() { return currentView; }
-    public UUID getTargetPlayerUuid() { return targetPlayerUuid; }
+    @Override
+    public boolean charTyped(char c, int m) {
+        for (var child : this.children) {
+            if(child.charTyped(c, m)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (super.keyPressed(keyCode, scanCode, modifiers))
+            return true;
+        if (keyCode == Minecraft.getInstance().options.keyInventory.hashCode() ||
+                keyCode == SREClient.statsKeybind.hashCode()) {
+            onClose();
+            return true;
+        }
+        for (var child : this.children) {
+            if (child.keyPressed(keyCode, scanCode, modifiers)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public void tick() {
+    }
+
+    public int getCurrentView() {
+        return currentView;
+    }
+
+    public UUID getTargetPlayerUuid() {
+        return targetPlayerUuid;
+    }
 
     private static int blendColors(int c1, int c2, float t) {
-        if (t <= 0f) return c1;
-        if (t >= 1f) return c2;
-        int r = (int)(((c1 >> 16) & 0xFF) + (((c2 >> 16) & 0xFF) - ((c1 >> 16) & 0xFF)) * t);
-        int g = (int)(((c1 >> 8) & 0xFF) + (((c2 >> 8) & 0xFF) - ((c1 >> 8) & 0xFF)) * t);
-        int b = (int)((c1 & 0xFF) + ((c2 & 0xFF) - (c1 & 0xFF)) * t);
+        if (t <= 0f)
+            return c1;
+        if (t >= 1f)
+            return c2;
+        int r = (int) (((c1 >> 16) & 0xFF) + (((c2 >> 16) & 0xFF) - ((c1 >> 16) & 0xFF)) * t);
+        int g = (int) (((c1 >> 8) & 0xFF) + (((c2 >> 8) & 0xFF) - ((c1 >> 8) & 0xFF)) * t);
+        int b = (int) ((c1 & 0xFF) + ((c2 & 0xFF) - (c1 & 0xFF)) * t);
         return 0xFF000000 | (r << 16) | (g << 8) | b;
     }
 }

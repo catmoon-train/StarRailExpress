@@ -4,7 +4,6 @@ package io.wifi.starrailexpress.client.gui.screen;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import io.wifi.starrailexpress.api.SRERole;
-import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREPlayerStatsComponent;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.replay.ReplayDisplayUtils;
@@ -69,12 +68,11 @@ public class RoleStatsPanel implements Renderable, GuiEventListener, NarratableE
         addRenderableWidget(roleDetailsComponent);
 
         List<SRERole> roles = new ArrayList<>();
-        Map<ResourceLocation, SREPlayerStatsComponent.RoleStats> roleStatsMap = stats.getRoleStats();
+        Map<ResourceLocation, SREPlayerStatsComponent.RoleStats> roleStatsMap = (stats.getRoleStats());
         for (SRERole role : Noellesroles.getAllRolesSorted()) {
             if (roleStatsMap.containsKey(role.identifier()))
                 roles.add(role);
         }
-        roles.sort(Comparator.comparing(r -> r.identifier().getPath()));
         roleListComponent.setRoles(roles, roleStatsMap);
         if (!roles.isEmpty())
             onRoleSelected(roles.get(0), roleStatsMap.get(roles.get(0).identifier()));
@@ -119,6 +117,8 @@ public class RoleStatsPanel implements Renderable, GuiEventListener, NarratableE
 
     @Override
     public boolean keyPressed(int k, int s, int m) {
+        if (!this.visible)
+            return false;
         if (searchBox.isFocused() && searchBox.keyPressed(k, s, m))
             return true;
         for (GuiEventListener c : children)
@@ -129,13 +129,15 @@ public class RoleStatsPanel implements Renderable, GuiEventListener, NarratableE
 
     @Override
     public boolean charTyped(char c, int m) {
+        if (!this.visible)
+            return false;
         return searchBox.isFocused() && searchBox.charTyped(c, m);
     }
 
     @Override
     public boolean mouseClicked(double mx, double my, int b) {
-        if (searchBox.mouseClicked(mx, my, b))
-            return true;
+        if (!this.visible)
+            return false;
         for (GuiEventListener c : children)
             if (c.mouseClicked(mx, my, b))
                 return true;
@@ -143,8 +145,20 @@ public class RoleStatsPanel implements Renderable, GuiEventListener, NarratableE
     }
 
     @Override
+    public boolean mouseReleased(double mx, double my, int b) {
+        if (!this.visible)
+            return false;
+        if (searchBox.mouseReleased(mx, my, b))
+            return true;
+        for (GuiEventListener c : children)
+            if (c.mouseReleased(mx, my, b))
+                return true;
+        return false;
+    }
+
+    @Override
     public boolean mouseScrolled(double mx, double my, double sx, double sy) {
-        if (!visible)
+        if (!this.visible)
             return false;
         for (GuiEventListener c : children)
             if (c.mouseScrolled(mx, my, sx, sy))
@@ -154,6 +168,8 @@ public class RoleStatsPanel implements Renderable, GuiEventListener, NarratableE
 
     @Override
     public boolean mouseDragged(double mx, double my, int b, double dx, double dy) {
+        if (!this.visible)
+            return false;
         for (GuiEventListener c : children)
             if (c.mouseDragged(mx, my, b, dx, dy))
                 return true;
