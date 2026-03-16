@@ -151,6 +151,16 @@ public class SkinManager {
         registerSkin(SkinTypes.KNIFE, "zenith_knife", 0xFFFFD700);
         registerSkin(SkinTypes.KNIFE, "gamma_doppler_claw_knife", 0xFFFFD700);
 
+        // New knife skins 2025
+        registerSkin(SkinTypes.KNIFE, "crystalline", 0xFFB0E0E6);
+        registerSkin(SkinTypes.KNIFE, "folly_stick", 0xFFCD853F);
+        registerSkin(SkinTypes.KNIFE, "glass", 0xFFE0FFFF);
+        registerSkin(SkinTypes.KNIFE, "golden_shear", 0xFFFFD700);
+        registerSkin(SkinTypes.KNIFE, "jolly_stick", 0xFFFF6347);
+        registerSkin(SkinTypes.KNIFE, "makeshift", 0xFF696969);
+        registerSkin(SkinTypes.KNIFE, "roze", 0xFFE6E6FA);
+        registerSkin(SkinTypes.KNIFE, "sweet_tooth", 0xFFFFB6C1);
+
         // Initialize revolver skins
         registerSkin(SkinTypes.REVOLVER, "double_pistol", 0xFF808080);
         registerSkin(SkinTypes.REVOLVER, "heavy_pistol", 0xFF404040);

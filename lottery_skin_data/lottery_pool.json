@@ -27,19 +27,19 @@
                 {
                     "Probability":0.1,
                     "ItemList":[
-                        "knife/diamond_knife","knife/light_sword","knife/missing_source","knife/starlight"
+                        "knife/diamond_knife","knife/light_sword","knife/missing_source","knife/starlight","knife/jolly_stick"
                     ]
                 },
                 {
                     "Probability":0.04,
                     "ItemList":[
-                        "knife/herring_sword_fish","knife/ice_fish","knife/matchstick_sword","knife/small_real_knife"
+                        "knife/herring_sword_fish","knife/ice_fish","knife/matchstick_sword","knife/small_real_knife","knife/roze","knife/flesh_and_blood_resonance"
                     ]
                 },
                 {
                     "Probability":0.01,
                     "ItemList":[
-                        "knife/flesh_and_blood_resonance","knife/foxy_blade","knife/gamma_doppler_claw_knife","knife/ninja_claw","knife/swiss_army_knife","knife/thousands_source"
+                        "knife/foxy_blade","knife/gamma_doppler_claw_knife","knife/ninja_claw","knife/swiss_army_knife","knife/thousands_source","knife/sweet_tooth"
                     ]
                 }
             ]
@@ -65,25 +65,25 @@
                 {
                     "Probability":0.2,
                     "ItemList":[
-                        "coin","knife/blade_of_blood_red","knife/ceremonial","knife/cultist"
+                        "coin","knife/blade_of_blood_red","knife/ceremonial","knife/cultist","knife/makeshift"
                     ]
                 },
                 {
                     "Probability":0.1,
                     "ItemList":[
-                        "knife/dagger","knife/dragon_blade","knife/fly_cutter","knife/neptune_knife"
+                        "knife/dagger","knife/dragon_blade","knife/fly_cutter","knife/neptune_knife","knife/folly_stick"
                     ]
                 },
                 {
                     "Probability":0.04,
                     "ItemList":[
-                        "knife/cutter_knife","knife/ew_knife","knife/katar","knife/real_sword","knife/tianjie_bit"
+                        "knife/cutter_knife","knife/ew_knife","knife/golden_shear","knife/katar","knife/real_sword","knife/tianjie_bit"
                     ]
                 },
                 {
                     "Probability":0.01,
                     "ItemList":[
-                        "knife/chicken_sword","knife/colorful_folding_knife","knife/quenched_titanium","knife/sword_in_stone"
+                        "knife/chicken_sword","knife/colorful_folding_knife","knife/glass","knife/quenched_titanium","knife/sword_in_stone"
                     ]
                 }
             ]
@@ -121,7 +121,7 @@
                 {
                     "Probability":0.04,
                     "ItemList":[
-                        "knife/balisong","knife/carrot_knife","knife/icicle","knife/missing_sword","knife/rainbow_knife"
+                        "knife/balisong","knife/carrot_knife","knife/crystalline","knife/icicle","knife/missing_sword","knife/rainbow_knife"
                     ]
                 },
                 {
