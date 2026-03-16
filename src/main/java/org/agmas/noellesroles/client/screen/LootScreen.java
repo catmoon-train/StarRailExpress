@@ -59,8 +59,8 @@ public class LootScreen extends AbstractPixelScreen {
     private LootSpeedController speedController;
     /** 随机数源 */
     private RandomSource randomSource;
-    /* 定时器：用于抽卡结束之后缩放 */
-    private TimerWidget timerWidget;
+    /* 定时器：用于抽卡结束之后缩放等定时操作 */
+    private List<TimerWidget> timerWidgets;
     /** 是否正在抽卡 */
     private boolean isLooting = true;
     /** 最终卡片所在索引 */
@@ -188,7 +188,7 @@ public class LootScreen extends AbstractPixelScreen {
         speedController = new LootSpeedController();
         // 用于计算屏幕中心
         speedController.setWidth(width);
-        timerWidget = new TimerWidget(1, true, null);
+        timerWidgets = new ArrayList<>();
         randomSource = RandomSource.create();
         endCardIdx = randomSource.nextInt(minCardNum, maxCardNum);
 
@@ -365,17 +365,40 @@ public class LootScreen extends AbstractPixelScreen {
                             }
                     );
             // 设置1s的停顿
-            timerWidget.reSet();
-            timerWidget.setEndTime(1f);
-            timerWidget.setOnCompleteCallback(
-                timerWidget ->{
+            timerWidgets.add(new TimerWidget(1, true, timerWidget ->{
                     animations.add(scaleAnimation);
                     cards.forEach(card->{
                     if(card != endCard)
                         card.visible = false;
                     });
                 }
-            );
+            ));
+            // 2秒后自动检视
+            timerWidgets.add(new TimerWidget(3, true, timerWidget ->{
+                String itemName = LotteryManager.getInstance().getLotteryPool(poolId)
+                    .getQualityListGroupConfigs().get(trueQualityAndId.first).second.get(trueQualityAndId.second);
+                // 显示item，如果放着可能有一定性能消耗，但是这个界面持续时间一般很短，影响不大
+                ItemStack itemStack = null;
+                // 设置itemStack
+                if (itemName.startsWith("knife/")) {
+                    itemStack = TMMItems.KNIFE.getDefaultInstance();
+                }
+                else if (itemName.startsWith("gun/")) {
+                    itemStack = TMMItems.REVOLVER.getDefaultInstance();
+                }
+                else if (itemName.startsWith("bat/")) {
+                    itemStack = TMMItems.BAT.getDefaultInstance();
+                }
+                else if (itemName.startsWith("grenade/")) {
+                    itemStack = TMMItems.GRENADE.getDefaultInstance();
+                }
+                if (itemStack != null) {
+                    Minecraft minecraft = Minecraft.getInstance();
+                    String trueName = itemName.substring(itemName.indexOf('/') + 1);
+                    itemStack.set(SREDataComponentTypes.SKIN, trueName);
+                    minecraft.setScreen(new DisplayItemScreen(itemStack,null));
+                }
+            }));
         }
         // 锁定目标卡片的位置防止缩放误差影响
         else
@@ -390,30 +413,8 @@ public class LootScreen extends AbstractPixelScreen {
                     centerX - font.width(Component.literal(itemName)) / 2,
                     height / 2 + (int)(endCard.getHeight() * (deltaScale + 1f)) / 2 + cardInterval * pixelSize,
                     0xFFFFFFFF);
-
-            // 显示item，如果放着可能有一定性能消耗，但是这个界面持续时间一般很短，影响不大
-            ItemStack itemStack = null;
-            // 设置itemStack
-            if (itemName.startsWith("knife/")) {
-                itemStack = TMMItems.KNIFE.getDefaultInstance();
-            }
-            else if (itemName.startsWith("gun/")) {
-                itemStack = TMMItems.REVOLVER.getDefaultInstance();
-            }
-            else if (itemName.startsWith("bat/")) {
-                itemStack = TMMItems.BAT.getDefaultInstance();
-            }
-            else if (itemName.startsWith("grenade/")) {
-                itemStack = TMMItems.GRENADE.getDefaultInstance();
-            }
-            if (itemStack != null) {
-                Minecraft minecraft = Minecraft.getInstance();
-                String trueName = itemName.substring(itemName.indexOf('/') + 1);
-                itemStack.set(SREDataComponentTypes.SKIN, trueName);
-                minecraft.setScreen(new DisplayItemScreen(itemStack,this));
-            }
         }
-        timerWidget.onRenderUpdate(delta);
+        timerWidgets.forEach(timerWidget -> timerWidget.onRenderUpdate(delta));
 
         if(isLooting)
         {

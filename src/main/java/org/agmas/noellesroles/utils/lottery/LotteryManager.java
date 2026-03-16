@@ -75,15 +75,13 @@ public class LotteryManager {
                     else if (curQualityList.get(resultIdx).startsWith("grenade/")) {
                         itemStack = TMMItems.GRENADE.getDefaultInstance();
                     }
-                    if (itemStack != null) {
-                        // 去除前缀
-                        String trueName = curQualityList.get(resultIdx).substring(curQualityList.get(resultIdx).indexOf('/') + 1);
-                        if (SkinManager.isSkinUnlocked(player, itemStack, trueName))
-                            // 处理重复皮肤
-                            SkinManager.addCoinNum(player, (int) (baseLootConsumeCoin * getSkinToCoinPercentage(i)));
-                        else
-                            SkinManager.unlockSkin(player, itemStack, trueName);
-                    }
+                    // 去除前缀
+                    String trueName = curQualityList.get(resultIdx).substring(curQualityList.get(resultIdx).indexOf('/') + 1);
+                    if (itemStack != null && !SkinManager.isSkinUnlocked(player, itemStack, trueName))
+                        SkinManager.unlockSkin(player, itemStack, trueName);
+                    // 处理重复皮肤/coin
+                    else
+                        SkinManager.addCoinNum(player, (int) (baseLootConsumeCoin * getSkinToCoinPercentage(i)));
                     int resultQuality = i;
                     LotteryRecordStorage.getInstance().updatePlayerLotteryData(player.getUUID(),
                             lotteryRecordData -> lotteryRecordData.lotteryItems.add(
