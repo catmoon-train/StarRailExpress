@@ -14,9 +14,11 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 
+import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
 import org.agmas.harpymodloader.events.GameInitializeEvent;
+import org.agmas.noellesroles.role.ModRoles;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pro.fazeclan.river.stupid_express.constants.SEItems;
@@ -44,22 +46,27 @@ public class StupidExpress implements ModInitializer {
     public static final StupidExpressConfig CONFIG = StupidExpressConfig.getInstance();
 
     public static List<SRERole> getEnableRoles() {
+        return getEnableRoles(true);
+    }
+
+    public static List<SRERole> getEnableRoles(boolean removeNonThisRoundRoles) {
         ArrayList<SRERole> clone = new ArrayList<>(TMMRoles.ROLES.values());
-        clone.removeIf(
-                r -> HarpyModLoaderConfig.HANDLER.instance().disabled.contains(r.getIdentifier().toString()));
-        clone.removeIf(r -> r.identifier().equals(TMMRoles.DISCOVERY_CIVILIAN.identifier()));
-        clone.removeIf(r -> r.identifier().equals(TMMRoles.LOOSE_END.identifier()));
-        
+
+        clone.removeIf(r -> HarpyModLoaderConfig.HANDLER.instance().disabled.contains(r.getIdentifier().toString())
+                || r.identifier().equals(TMMRoles.DISCOVERY_CIVILIAN.identifier())
+                || r.identifier().equals(TMMRoles.LOOSE_END.identifier())
+                || r.identifier().equals(ModRoles.MA_CHEN_XU.identifier())
+                || r.identifier().equals(ModRoles.DIO_ID)
+                || (removeNonThisRoundRoles && Harpymodloader.ROLE_MAX.getOrDefault(r.identifier(), 1) <= 0)
+                || r.getOccupiedRoleCount() > 1);
+
         return clone;
     }
 
     public static List<SRERole> getEnableKillerRoles() {
-        ArrayList<SRERole> clone = new ArrayList<>(TMMRoles.ROLES.values());
+        List<SRERole> clone = (getEnableRoles());
         clone.removeIf(
-                r -> !r.canUseKiller()
-                        || HarpyModLoaderConfig.HANDLER.instance().disabled.contains(r.getIdentifier().toString()));
-        clone.removeIf(r -> r.identifier().equals(TMMRoles.DISCOVERY_CIVILIAN.identifier()));
-        clone.removeIf(r -> r.identifier().equals(TMMRoles.LOOSE_END.identifier()));
+                r -> !r.canUseKiller());
         return clone;
     }
 

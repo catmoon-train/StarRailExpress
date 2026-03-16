@@ -13,6 +13,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.gameevent.GameEvent;
+import pro.fazeclan.river.stupid_express.StupidExpress;
+
 import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.role.ModRoles;
@@ -93,7 +95,7 @@ public class GamblerPlayerComponent implements RoleComponent, ServerTickingCompo
     }
 
     private void drawNewRole() {
-        List<SRERole> allRoles = new ArrayList<>(Noellesroles.getEnableRoles_ServerSide());
+        List<SRERole> allRoles = new ArrayList<>(StupidExpress.getEnableRoles(false));
 
         // 过滤掉禁用的角色、赌徒自己、已经在列表中的角色
         List<SRERole> validRoles = allRoles.stream()

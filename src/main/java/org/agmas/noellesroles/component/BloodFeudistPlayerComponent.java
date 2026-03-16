@@ -1,6 +1,5 @@
 package org.agmas.noellesroles.component;
 
-import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import net.minecraft.core.HolderLookup;
@@ -239,7 +238,7 @@ public class BloodFeudistPlayerComponent implements RoleComponent, CommonTicking
      */
     public static void registerEvents() {
         ModdedRoleAssigned.EVENT.register((player, role) -> {
-            if (role.equals(TMMRoles.ROLES.get(org.agmas.noellesroles.role.ModRoles.BLOOD_FEUDIST_ID))) {
+            if (role.identifier().equals(ModRoles.BLOOD_FEUDIST_ID)) {
                 // 初始化时确保有负面效果免疫
                 BloodFeudistPlayerComponent comp = org.agmas.noellesroles.component.ModComponents.BLOOD_FEUDIST
                         .get(player);
