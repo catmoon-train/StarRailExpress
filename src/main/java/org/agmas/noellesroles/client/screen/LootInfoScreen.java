@@ -39,8 +39,7 @@ public class LootInfoScreen extends AbstractPixelScreen {
                 ResourceLocation.fromNamespaceAndPath("noellesroles", "textures/gui/loot/pool_btn_pressed.png"),
                 ResourceLocation.fromNamespaceAndPath("noellesroles", "textures/gui/loot/pool_btn_idle_selected.png"),
                 ResourceLocation.fromNamespaceAndPath("noellesroles", "textures/gui/loot/pool_btn_hover_selected.png"),
-                ResourceLocation.fromNamespaceAndPath("noellesroles",
-                        "textures/gui/loot/pool_btn_pressed_selected.png"),
+                ResourceLocation.fromNamespaceAndPath("noellesroles","textures/gui/loot/pool_btn_pressed_selected.png"),
         };
         private static final int poolBtnWidth = 32;
         private static final int poolBtnHeight = 18;

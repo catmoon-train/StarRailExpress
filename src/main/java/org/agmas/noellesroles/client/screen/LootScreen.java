@@ -199,42 +199,64 @@ public class LootScreen extends AbstractPixelScreen {
         {
             LotteryManager.LotteryPool lotteryPool = LotteryManager.getInstance().getLotteryPool(this.poolId);
             List<Pair<Double, List<String>>> qualityListGroupConfigs = lotteryPool.getQualityListGroupConfigs();
+
             // 根据卡池来抽取随机皮肤，并随距离结果的远近改变抽取概率
-            // 设最大额外概率和(即为额外+卡池概率)为0.8f（左右邻居概率大小），且在最近4张快速递增（左右各4张）
             Pair<Integer, Integer> result = new Pair<>(0,0);
             final int maxExtraProbDistance = 5;
             double level = 0.0d;
-            boolean isExtraResult = false;
-            if(endCardIdx != i && Math.abs(endCardIdx - i) <= maxExtraProbDistance)
-            {
-                // 为了方便计算，会先进行一次额外的是否出金的抽取（使用额外概率）因此最终出金概率为两次出金概率的“和”概率
-                // 设第一次出金概率为x，额外出金概率和为maxExtraProbSum，卡池出金概率为poolProb，则
-                // x + (1 - x) * poolProb = maxExtraProbSum -> x = (maxExtraProbSim - poolProb) / (1 - poolProb)
-                final double curMaxExtraProbSum = (double) Math.abs(endCardIdx - i) / (double) maxExtraProbDistance * 0.8d;
-                final double curMaxExtraProb =
-                        (curMaxExtraProbSum - qualityListGroupConfigs.getLast().first) / (1 - qualityListGroupConfigs.getLast().first);
-                if(randomSource.nextInt(LotteryManager.maxGranularity) < LotteryManager.maxGranularity * curMaxExtraProb)
-                    isExtraResult = true;
+            // 新概率修正：通过抽取结果偏移压缩抽取范围以修正概率，但是左边抹除的概率并不会平等地加给每一个品质，而是全部分配给最高品质
+            // 最大概率修正，即目标卡左右两边的卡片的概率修正
+            final double maxExtraProb = 0.5d;
+            int curNum = randomSource.nextInt(LotteryManager.maxGranularity) ;// 0 ~ maxGranularity -1
+            if(endCardIdx != i && Math.abs(endCardIdx - i) <= maxExtraProbDistance) {
+                curNum += (int) (LotteryManager.maxGranularity * (maxExtraProb *
+                        (1d - ((double)Math.abs(endCardIdx - i) - 1) / maxExtraProbDistance)));
+                if (curNum >= LotteryManager.maxGranularity)
+                    curNum = LotteryManager.maxGranularity - 1;
             }
-
-            // 如果额外抽取成功则采用额外结果，否则正常抽取
-            if(isExtraResult)
-            {
-                result.first = qualityListGroupConfigs.size() - 1;
-                result.second = randomSource.nextInt(qualityListGroupConfigs.getLast().second.size());
-            }
-            else
-            {
-                for (int j = 0; j < lotteryPool.getQualityListGroupConfigs().size(); ++j) {
-                    level += qualityListGroupConfigs.get(j).first;
-                    if (randomSource.nextInt(LotteryManager.maxGranularity) < level * LotteryManager.maxGranularity) {
-                        result.first = j;
-                        result.second = randomSource.nextInt(qualityListGroupConfigs.get(j).second.size());
-                        // 抽取成功，停止抽取
-                        break;
-                    }
+            for (int j = 0; j < qualityListGroupConfigs.size(); ++j) {
+                level += qualityListGroupConfigs.get(j).first;
+                if (curNum < level * LotteryManager.maxGranularity) {
+                    result.first = j;
+                    result.second = randomSource.nextInt(qualityListGroupConfigs.get(j).second.size());
+                    // 抽取成功，停止抽取
+                    break;
                 }
             }
+
+//            // 旧概率修正：只修正出金概率
+//            // 设最大额外概率和(即为额外+卡池概率)为0.8f（左右邻居概率大小），且在最近4张快速递增（左右各4张）
+//            boolean isExtraResult = false;
+//            if(endCardIdx != i && Math.abs(endCardIdx - i) <= maxExtraProbDistance)
+//            {
+//                // 为了方便计算，会先进行一次额外的是否出金的抽取（使用额外概率）因此最终出金概率为两次出金概率的“和”概率
+//                // 设第一次出金概率为x，额外出金概率和为maxExtraProbSum，卡池出金概率为poolProb，则
+//                // x + (1 - x) * poolProb = maxExtraProbSum -> x = (maxExtraProbSim - poolProb) / (1 - poolProb)
+//                final double curMaxExtraProbSum = (double) Math.abs(endCardIdx - i) / (double) maxExtraProbDistance * 0.8d;
+//                final double curMaxExtraProb =
+//                        (curMaxExtraProbSum - qualityListGroupConfigs.getLast().first) / (1 - qualityListGroupConfigs.getLast().first);
+//                if(randomSource.nextInt(LotteryManager.maxGranularity) < LotteryManager.maxGranularity * curMaxExtraProb)
+//                    isExtraResult = true;
+//            }
+//
+//            // 如果额外抽取成功则采用额外结果，否则正常抽取
+//            if(isExtraResult)
+//            {
+//                result.first = qualityListGroupConfigs.size() - 1;
+//                result.second = randomSource.nextInt(qualityListGroupConfigs.getLast().second.size());
+//            }
+//            else
+//            {
+//                for (int j = 0; j < lotteryPool.getQualityListGroupConfigs().size(); ++j) {
+//                    level += qualityListGroupConfigs.get(j).first;
+//                    if (randomSource.nextInt(LotteryManager.maxGranularity) < level * LotteryManager.maxGranularity) {
+//                        result.first = j;
+//                        result.second = randomSource.nextInt(qualityListGroupConfigs.get(j).second.size());
+//                        // 抽取成功，停止抽取
+//                        break;
+//                    }
+//                }
+//            }
 
             Card card = new Card(centerX + totalPixels / 2 * pixelSize, centerY - cardSize * pixelSize / 2,
                     cardSize * pixelSize, cardSize * pixelSize, poolId,
