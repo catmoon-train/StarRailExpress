@@ -101,6 +101,12 @@ public class DerringerItem extends RevolverItem {
     }
 
     public static HitResult getGunTarget(Player user) {
-        return ProjectileUtil.getHitResultOnViewVector(user, entity -> entity instanceof Player player && GameUtils.isPlayerAliveAndSurvival(player), 25F);
+        return ProjectileUtil.getHitResultOnViewVector(user,
+                entity -> entity instanceof Player player && GameUtils.isPlayerAliveAndSurvival(player), 25F);
+    }
+
+    @Override
+    public String getItemSkinType() {
+        return "derringer";
     }
 }
