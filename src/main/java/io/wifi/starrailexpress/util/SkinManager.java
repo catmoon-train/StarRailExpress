@@ -147,7 +147,7 @@ public class SkinManager {
         registerSkin(SkinTypes.GRENADE, "fire_charge", 0xFFFF4500);
         registerSkin(SkinTypes.GRENADE, "magnetic_bomb", 0xFF0000FF);
         registerSkin(SkinTypes.GRENADE, "mobile", 0xFF00CED1);
-        registerSkin(SkinTypes.GRENADE, "oppo", 0xFF00FF7F);
+        registerSkin(SkinTypes.GRENADE, "phone", 0xFF00FF7F);
         registerSkin(SkinTypes.GRENADE, "gas_cylinder", 0xFF808080);
 
         // Initialize bat skins
