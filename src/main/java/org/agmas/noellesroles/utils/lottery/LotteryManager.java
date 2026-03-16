@@ -286,6 +286,7 @@ public class LotteryManager {
             ResourceLocation.fromNamespaceAndPath("noellesroles", "textures/gui/loot/rare_skin.png"),
             ResourceLocation.fromNamespaceAndPath("noellesroles", "textures/gui/loot/epic_skin.png"),
             ResourceLocation.fromNamespaceAndPath("noellesroles", "textures/gui/loot/legendary_skin.png"),
+            ResourceLocation.fromNamespaceAndPath("noellesroles", "textures/gui/loot/unbelievable.png"),
     };
     /** 不同品质重复皮肤对应折算的为单抽硬币数量的比例 */
     private static final float[] skinToCoin = {

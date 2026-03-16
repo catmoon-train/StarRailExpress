@@ -1,5 +1,14 @@
 # 如何创建扩展
 
+## 抽奖系统
+
+### 创建新的稀有度
+
+- 在"StarRailExpress\src\main\resources\assets\noellesroles\textures\gui\loot"中添加新的稀有度背景
+- 在LootManager 的 qualityBgList 列表添加该文件路径
+- 在lootpool配置文件中添加对应级别稀有度即为稀有度
+- 注意：超过最大稀有度默认显示最大稀有度
+
 ## 注册新角色
 
 ### 注册方式：
