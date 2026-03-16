@@ -200,15 +200,14 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
         String normalizedItemName = normalizeItemName(itemTypeName);
         Map<String, Boolean> skinsForItem = unlockedSkins.get(normalizedItemName);
         if (skinsForItem != null) {
-            if(skinName.contains(skinName))
-            skinsForItem.remove(skinName);
+            if (skinName.contains(skinName))
+                skinsForItem.remove(skinName);
             // 如果物品没有其他解锁的皮肤，移除该物品的条目
             if (skinsForItem.isEmpty()) {
                 unlockedSkins.remove(normalizedItemName);
             }
         }
         // 触发网络同步
-        markSkinDataChanged();
     }
 
     /**
@@ -280,10 +279,10 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
      * 从数据同步令牌获取皮肤数据
      */
     public String getSkinFromDataSync(ItemStack itemStack) {
-         String itemName = "default";
-        if(itemStack.getItem() instanceof SkinableItem ski){
+        String itemName = "default";
+        if (itemStack.getItem() instanceof SkinableItem ski) {
             itemName = ski.getItemSkinType();
-        }else{
+        } else {
             itemName = BuiltInRegistries.ITEM.getKey(itemStack.getItem()).getPath();
         }
         // 使用物品的注册名而不是显示名称，以确保一致性

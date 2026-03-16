@@ -3,7 +3,7 @@ package org.agmas.noellesroles.repack.items;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.game.GameUtils;
-
+import io.wifi.starrailexpress.item.SkinableItem;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -21,8 +21,7 @@ import org.jetbrains.annotations.NotNull;
 
 import static io.wifi.starrailexpress.item.RevolverItem.spawnHandParticle;
 
-public class BanditRevolverItem extends Item {
-    public double dropChance = (double) 0.0F;
+public class BanditRevolverItem extends SkinableItem {
 
     public BanditRevolverItem(Item.Properties settings) {
         super(settings);
@@ -49,7 +48,6 @@ public class BanditRevolverItem extends Item {
             if (collision instanceof EntityHitResult) {
                 EntityHitResult entityHitResult = (EntityHitResult) collision;
                 Entity target = entityHitResult.getEntity();
-                this.dropChance += 0.3;
                 ClientPlayNetworking.send(new BanditRevolverShootPayload(target.getId()));
             } else {
                 ClientPlayNetworking.send(new BanditRevolverShootPayload(-1));
@@ -81,5 +79,11 @@ public class BanditRevolverItem extends Item {
             var10000 = false;
             return var10000;
         }, (double) 15.0F);
+    }
+
+    // TODO: 不显示皮肤
+    @Override
+    public String getItemSkinType() {
+        return "revolver";
     }
 }

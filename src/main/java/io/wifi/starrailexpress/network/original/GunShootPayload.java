@@ -49,7 +49,6 @@ public record GunShootPayload(int target) implements CustomPacketPayload {
                 return;
             if (player.getCooldowns().isOnCooldown(mainHandStack.getItem()))
                 return;
-            SRE.LOGGER.info("FUCK SHOT PLAY SOUND");
 
             player.level().playSound(null, player.getX(), player.getEyeY(), player.getZ(),
                     TMMSounds.ITEM_REVOLVER_CLICK, SoundSource.PLAYERS, 0.5f,
@@ -98,8 +97,6 @@ public record GunShootPayload(int target) implements CustomPacketPayload {
                 if (backfire) {
                     GameUtils.killPlayer(player, true, null, GameConstants.DeathReasons.BACKFIRE);
                 } else if (shouldDropRevolver) {
-                    // backfire: if you kill an innocent you have a chance of shooting yourself
-                    // instead
                     {
                         Scheduler.schedule(() -> {
                             if (TMMItemUtils.clearItem(player, TMMItemTags.GUNS, 1) <= 0)

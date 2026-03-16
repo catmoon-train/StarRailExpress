@@ -35,7 +35,6 @@ import org.agmas.noellesroles.utils.LocalDateData;
 
 import io.wifi.starrailexpress.index.TMMDescItems;
 import io.wifi.starrailexpress.index.TMMItems;
-import io.wifi.starrailexpress.item.KnifeItem;
 
 public class ModItems {
     public static ResourceKey<CreativeModeTab> MISC_CREATIVE_GROUP = ResourceKey.create(
@@ -88,7 +87,7 @@ public class ModItems {
             new FakeKnifeItem(new Item.Properties().stacksTo(1)),
             "fake_knife");
     public static final Item SP_KNIFE = register(
-            new KnifeItem(new Item.Properties().stacksTo(1)),
+            new SPKnifeItem(new Item.Properties().stacksTo(1)),
             "sp_knife");
     public static final Item FAKE_REVOLVER = register(
             new FakeRevolverItem(new Item.Properties().stacksTo(1).durability(4)),

@@ -8,6 +8,7 @@ import io.wifi.starrailexpress.client.particle.HandParticle;
 import io.wifi.starrailexpress.client.render.TMMRenderLayers;
 import io.wifi.starrailexpress.compat.CrosshairaddonsCompat;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.item.SkinableItem;
 import io.wifi.starrailexpress.network.original.GunShootPayload;
 import io.wifi.StarRailExpressID;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -24,7 +25,7 @@ import net.minecraft.world.phys.HitResult;
 
 import org.jetbrains.annotations.NotNull;
 
-public class PatrollerRevolverItem extends Item {
+public class PatrollerRevolverItem extends SkinableItem {
     public PatrollerRevolverItem(Item.Properties settings) {
         super(settings.durability(4));
     }
@@ -88,5 +89,10 @@ public class PatrollerRevolverItem extends Item {
             var10000 = false;
             return var10000;
         }, 15.0);
+    }
+
+    @Override
+    public String getItemSkinType() {
+        return "revolver";
     }
 }

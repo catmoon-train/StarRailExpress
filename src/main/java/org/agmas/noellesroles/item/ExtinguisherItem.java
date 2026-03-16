@@ -232,5 +232,6 @@ public class ExtinguisherItem extends Item implements AdventureUsable {
                 .withStyle(ChatFormatting.AQUA));
         tooltip.add(Component.translatable("item.noellesroles.extinguisher.tooltip.hold")
                 .withStyle(ChatFormatting.AQUA));
+        super.appendHoverText(stack, context, tooltip, type);
     }
 }

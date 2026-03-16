@@ -142,5 +142,6 @@ public class PassbookItem extends Item {
             tooltip.add(Component.translatable("item.noellesroles.passbook.tooltip.deposit")
                     .withStyle(ChatFormatting.AQUA));
         }
+        super.appendHoverText(stack, context, tooltip, type);
     }
 }

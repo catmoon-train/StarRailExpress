@@ -2,7 +2,6 @@ package org.agmas.noellesroles.item;
 
 import io.wifi.starrailexpress.util.AdventureUsable;
 import io.wifi.starrailexpress.SRE;
-import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -328,5 +327,6 @@ public class RopeItem extends Item implements AdventureUsable {
                 .withStyle(ChatFormatting.GRAY));
         tooltip.add(Component.translatable("item.noellesroles.rope.tooltip.use")
                 .withStyle(ChatFormatting.AQUA));
+        super.appendHoverText(stack, context, tooltip, type);
     }
 }

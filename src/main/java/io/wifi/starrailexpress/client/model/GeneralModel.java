@@ -13,6 +13,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.Material;
 import net.minecraft.client.resources.model.ModelBaker;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.client.resources.model.ModelState;
 import net.minecraft.client.resources.model.UnbakedModel;
 import net.minecraft.core.Direction;
@@ -28,16 +29,21 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class KnifeModel implements UnbakedModel, BakedModel {
+public class GeneralModel implements UnbakedModel, BakedModel {
 
     /**
      * indexed by skin, then variant!
      */
-    private final Map<String, Map<KnifeModelLoadingPlugin.Variant, BakedModel>> bakeModels = new HashMap<>();
+    private final Map<String, Map<GeneralModelLoadingPlugin.Variant, BakedModel>> bakeModels = new HashMap<>();
     private final UnbakedModel defaultUnbakedModel;
+    private final ModelResourceLocation defaultModelLocation;
+    private BakedModel defaultBakedModel = null;
+    private String itemType;
 
-    public KnifeModel(UnbakedModel defaultUnbakedModel) {
+    public GeneralModel(String itemType, ModelResourceLocation defaulLocation, UnbakedModel defaultUnbakedModel) {
         this.defaultUnbakedModel = defaultUnbakedModel;
+        this.defaultModelLocation = defaulLocation;
+        this.itemType = itemType;
     }
 
     @Override
@@ -53,10 +59,16 @@ public class KnifeModel implements UnbakedModel, BakedModel {
     @Override
     public @Nullable BakedModel bake(ModelBaker baker, Function<Material, TextureAtlasSprite> textureGetter,
             ModelState settings) {
-        for (SkinManager.Skin skin : SkinManager.getSkins("knife").values()) {
-            for (KnifeModelLoadingPlugin.Variant variant : KnifeModelLoadingPlugin.Variant.values()) {
-                var bakedModel = baker.bake(KnifeModelLoadingPlugin.getModelLocation(skin, variant),
+        var itml = defaultModelLocation.id();
+        defaultBakedModel = baker.bake(itml.withPath("item/" + itml.getPath()),
+                settings);
+        for (SkinManager.Skin skin : SkinManager.getSkins(itemType).values()) {
+            for (GeneralModelLoadingPlugin.Variant variant : GeneralModelLoadingPlugin.Variant.values()) {
+                var bakedModel = baker.bake(
+                        GeneralModelLoadingPlugin.getModelLocation(itemType, skin.getName(), variant),
                         settings);
+                if (skin.getName() == "default")
+                    continue;
                 if (bakeModels.containsKey(skin.getName()))
                     bakeModels.get(skin.getName()).put(variant, bakedModel);
                 else {
@@ -80,17 +92,18 @@ public class KnifeModel implements UnbakedModel, BakedModel {
     @Override
     public void emitItemQuads(ItemStack stack, Supplier<RandomSource> randomSupplier, RenderContext context) {
         var mode = context.itemTransformationMode();
-        var variant = mode.firstPerson() || IN_HAND.contains(mode) ? KnifeModelLoadingPlugin.Variant.IN_HAND
-                : KnifeModelLoadingPlugin.Variant.DEFAULT;
+        var variant = mode.firstPerson() || IN_HAND.contains(mode) ? GeneralModelLoadingPlugin.Variant.IN_HAND
+                : GeneralModelLoadingPlugin.Variant.DEFAULT;
 
         // 从玩家的CCA组件获取皮肤，而不是仅依赖TMMCosmetics
         String skinName = stack.get(SREDataComponentTypes.SKIN);
         if (skinName == null) {
             skinName = getSkinFromPlayerComponent(stack);
         }
-        var skin = SkinManager.Skin.fromString("knife", skinName);
+        var skin = SkinManager.Skin.fromString(itemType, skinName);
 
-        if (bakeModels.containsKey(skin.getName()) && bakeModels.get(skin.getName()).containsKey(variant))
+        if (skin != null && bakeModels.containsKey(skin.getName()) && bakeModels.containsKey(skin.getName())
+                && bakeModels.get(skin.getName()).containsKey(variant))
             bakeModels.get(skin.getName()).get(variant).emitItemQuads(stack, randomSupplier, context);
         else
             getDefaultModel().emitItemQuads(stack, randomSupplier, context);
@@ -149,7 +162,10 @@ public class KnifeModel implements UnbakedModel, BakedModel {
     }
 
     private BakedModel getDefaultModel() {
-        return bakeModels.get(SkinManager.KnifeSkin.DEFAULT_SKIN.getName())
-                .get(KnifeModelLoadingPlugin.Variant.DEFAULT);
+        if (!bakeModels.containsKey("default")) {
+            return defaultBakedModel;
+        }
+        return bakeModels.get("default")
+                .getOrDefault(GeneralModelLoadingPlugin.Variant.DEFAULT, defaultBakedModel);
     }
 }

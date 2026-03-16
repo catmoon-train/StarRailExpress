@@ -72,6 +72,7 @@ public class SkinManager {
         skinMap.putIfAbsent(skinType, new HashMap<>());
         skinMap.get(skinType).put(skinID, new Skin(color, skinID));
     }
+
     public static class SkinTypes {
         public static final String KNIFE = "knife";
         public static final String REVOLVER = "revolver";
@@ -85,12 +86,7 @@ public class SkinManager {
         skinMap.put(SkinTypes.REVOLVER, new HashMap<>());
         skinMap.put(SkinTypes.BAT, new HashMap<>());
         skinMap.put(SkinTypes.GRENADE, new HashMap<>());
-        // 默认材质
-        skinMap.get(SkinTypes.KNIFE).put("default", KnifeSkin.DEFAULT_SKIN);
-        
-        skinMap.get(SkinTypes.BAT).put("default", BatSkin.BAT_DEFAULT_SKIN);
-        skinMap.get(SkinTypes.GRENADE).put("default", GrenadeSkin.GRENADE_DEFAULT_SKIN);
-        skinMap.get(SkinTypes.REVOLVER).put("default", RevolverSkin.REVOLVER_DEFAULT_SKIN);
+        // 更新：可以不提供默认材质
 
         // API
         registerSkin(SkinTypes.KNIFE, "ceremonial", 0xFFD98C28);
@@ -186,20 +182,24 @@ public class SkinManager {
         SREPlayerSkinsComponent skinsComponent = SREPlayerSkinsComponent.KEY.get(player);
         return skinsComponent.getLootChance();
     }
+
     public static void addLootChance(Player player, Integer chance) {
         SREPlayerSkinsComponent skinsComponent = SREPlayerSkinsComponent.KEY.get(player);
         skinsComponent.addLootChance(chance);
         skinsComponent.syncSkinsToClient();
     }
+
     public static Integer getCoinNum(Player player) {
         SREPlayerSkinsComponent skinsComponent = SREPlayerSkinsComponent.KEY.get(player);
         return skinsComponent.getCoinNum();
     }
+
     public static void addCoinNum(Player player, Integer num) {
         SREPlayerSkinsComponent skinsComponent = SREPlayerSkinsComponent.KEY.get(player);
         skinsComponent.addCoinNum(num);
         skinsComponent.syncSkinsToClient();
     }
+
     /**
      * 获取玩家当前装备的皮肤名称
      *
@@ -278,6 +278,17 @@ public class SkinManager {
      * @param itemTypeName 物品类型名称
      * @param skinName     皮肤名称
      */
+    public static void sync(Player player) {
+        SREPlayerSkinsComponent skinsComponent = SREPlayerSkinsComponent.KEY.get(player);
+        skinsComponent.syncSkinsToNetwork();
+    }
+
+    public static void unlockSkinForItemTypeNoSync(Player player, String itemTypeName, String skinName) {
+        SREPlayerSkinsComponent skinsComponent = SREPlayerSkinsComponent.KEY.get(player);
+        skinsComponent.unlockSkinForItemType(itemTypeName, skinName);
+        // skinsComponent.syncSkinsToNetwork();
+    }
+
     public static void unlockSkinForItemType(Player player, String itemTypeName, String skinName) {
         SREPlayerSkinsComponent skinsComponent = SREPlayerSkinsComponent.KEY.get(player);
         skinsComponent.unlockSkinForItemType(itemTypeName, skinName);
@@ -296,7 +307,6 @@ public class SkinManager {
         SREPlayerSkinsComponent skinsComponent = SREPlayerSkinsComponent.KEY.get(player);
         skinsComponent.setEquippedSkinForItemType(itemTypeName, skinName);
         skinsComponent.syncSkinsToClient();
-
     }
 
     /**

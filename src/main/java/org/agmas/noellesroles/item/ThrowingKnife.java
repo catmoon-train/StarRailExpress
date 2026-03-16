@@ -58,4 +58,9 @@ public class ThrowingKnife extends KnifeItem {
 
         }
     }
+
+    @Override
+    public String getItemSkinType() {
+        return "thrown_knife";
+    }
 }

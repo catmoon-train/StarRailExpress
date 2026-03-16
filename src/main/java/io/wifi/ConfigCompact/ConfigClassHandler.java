@@ -5,7 +5,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.google.gson.Gson;
-
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 import io.wifi.ConfigCompact.annotation.ConfigSync;
 import io.wifi.ConfigCompact.config_gui_provider.GenericEnumGuiProvider;
 import io.wifi.ConfigCompact.config_gui_provider.GenericMapGuiProvider;
@@ -64,14 +68,6 @@ public class ConfigClassHandler<T extends ConfigData> {
         }
     }
 
-    public static class SyncInfoPack {
-        public ArrayList<SyncInfo> content;
-
-        public SyncInfoPack(ArrayList<SyncInfo> content) {
-            this.content = content;
-        }
-    }
-
     public void syncToClient(MinecraftServer server) {
         // 同步所有被 @ConfigSync 标记的字段
         ArrayList<SyncInfo> syncInfos = new ArrayList<>();
@@ -89,11 +85,33 @@ public class ConfigClassHandler<T extends ConfigData> {
                 }
             }
         }
-        var content = encodeToJson(new SyncInfoPack(syncInfos));
+        var content = encodeToJson(syncInfos);
         var payload = new SyncConfigPayload(type.getName(), content);
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             ServerPlayNetworking.send(player, payload);
         }
+    }
+
+    public void syncToClient(ServerPlayer sp) {
+        // 同步所有被 @ConfigSync 标记的字段
+        ArrayList<SyncInfo> syncInfos = new ArrayList<>();
+        var instance = instance();
+        for (Field field : type.getDeclaredFields()) {
+            if (field.isAnnotationPresent(ConfigSync.class)) {
+                ConfigSync annotation = field.getAnnotation(ConfigSync.class);
+                if (annotation.shouldSync()) {
+                    try {
+                        field.setAccessible(true);
+                        syncInfos.add(new SyncInfo(field.getName(), field.get(instance)));
+                    } catch (Exception e) {
+                        SRE.LOGGER.error("Unable to sync config {}", field.getName(), e);
+                    }
+                }
+            }
+        }
+        var content = encodeToJson(syncInfos);
+        var payload = new SyncConfigPayload(type.getName(), content);
+        ServerPlayNetworking.send(sp, payload);
     }
 
     @Environment(EnvType.CLIENT)
@@ -103,9 +121,9 @@ public class ConfigClassHandler<T extends ConfigData> {
             SRE.LOGGER.error("Sync config failed: Unable to get config of {}", id);
             return;
         }
-        SyncInfoPack pack = null;
+        JsonElement parser;
         try {
-            pack = decodeFromJson(content);
+            parser = JsonParser.parseString(content);
         } catch (Exception e) {
             SRE.LOGGER.error("Sync config failed: Unable to decode config pack of {}", id, e);
             return;
@@ -119,57 +137,45 @@ public class ConfigClassHandler<T extends ConfigData> {
             SRE.LOGGER.error("Sync config failed. Config Type from server: {}", id, e);
             return;
         }
-        for (SyncInfo info : pack.content) {
+        if (!parser.isJsonArray()) {
+            SRE.LOGGER.error("Sync config failed: Not a json array. Config Type from server: {}", type.getSimpleName());
+            return;
+        }
+        JsonArray pack = parser.getAsJsonArray();
+        for (JsonElement info : pack.asList()) {
             try {
+                if (!info.isJsonObject()) {
+                    SRE.LOGGER.error("Sync config failed: Not a json array with object. Config Type from server: {}",
+                            type.getSimpleName());
+                    return;
+                }
+                JsonObject _obj = info.getAsJsonObject();
+                if (!_obj.has("fieldName"))
+                    continue;
                 // 获取目标类中声明的字段（包括私有字段）
-                Field field = type.getDeclaredField(info.fieldName);
+                Field field = type.getDeclaredField(_obj.get("fieldName").getAsString());
                 // 如果是私有字段，允许访问
                 field.setAccessible(true);
                 Class<?> fieldType = field.getType();
                 // 将字段值设置到目标对象
-                var ctx = convertValue(info.fieldContent, fieldType);
+                var ctx = convertValue(_obj.get("fieldContent"), fieldType);
                 field.set(target, ctx);
             } catch (Exception e) {
-                SRE.LOGGER.error("Sync config failed: {}.{}", id, info.fieldName, e);
+                SRE.LOGGER.error("Sync config failed: {}.{}", id, info.toString(), e);
             }
         }
         SRE.LOGGER.info("Successed recieved config from server: {}", type.getSimpleName());
     }
 
-    private static Object convertValue(Object value, Class<?> targetType) {
+    private static Object convertValue(JsonElement value, Class<?> targetType) throws JsonSyntaxException {
         if (value == null)
             return null;
-        // 如果类型兼容，直接返回
-        if (targetType.isInstance(value)) {
-            return value;
-        }
 
-        // 处理基本类型的自动拆装箱
-        if (targetType.isPrimitive()) {
-            if (targetType == int.class && value instanceof Number) {
-                return ((Number) value).intValue();
-            }
-            if (targetType == boolean.class && value instanceof Boolean) {
-                return value; // Boolean 可以直接赋值给 boolean（自动拆箱）
-            }
-        }
-
-        try {
-            value = gson.fromJson(gson.toJson(value), targetType);
-        } catch (Exception e) {
-            throw new IllegalArgumentException(e);
-        }
-
-        // 无法转换，保留原值，后续 field.set 会抛出 IllegalArgumentException
-        return value;
+        return gson.fromJson(value, targetType);
     }
 
-    private static String encodeToJson(SyncInfoPack pack) {
+    private static String encodeToJson(ArrayList<SyncInfo> pack) {
         return gson.toJson(pack);
-    }
-
-    private static SyncInfoPack decodeFromJson(String content) {
-        return gson.fromJson(content, SyncInfoPack.class);
     }
 
     public void load() {

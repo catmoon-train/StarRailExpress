@@ -122,5 +122,6 @@ public class PocketWatchItem extends Item {
             tooltip.add(Component.translatable("item.noellesroles.pocket_watch.ready")
                     .withStyle(ChatFormatting.GREEN));
         }
+        super.appendHoverText(stack, context, tooltip, type);
     }
 }

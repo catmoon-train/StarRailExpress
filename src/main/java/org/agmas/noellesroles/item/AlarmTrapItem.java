@@ -175,5 +175,6 @@ public class AlarmTrapItem extends Item implements AdventureUsable {
                 .withStyle(ChatFormatting.GRAY));
         tooltip.add(Component.translatable("item.noellesroles.alarm_trap.tooltip2")
                 .withStyle(ChatFormatting.GRAY));
+        super.appendHoverText(stack, context, tooltip, type);
     }
 }

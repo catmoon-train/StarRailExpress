@@ -206,5 +206,6 @@ public class FireAxeItem extends Item implements AdventureUsable {
                 .withStyle(ChatFormatting.AQUA));
         tooltip.add(Component.translatable("item.noellesroles.fire_axe.tooltip.kill")
                 .withStyle(ChatFormatting.RED));
+        super.appendHoverText(stack, context, tooltip, type);
     }
 }

@@ -9,6 +9,7 @@ import io.wifi.starrailexpress.client.render.TMMRenderLayers;
 import io.wifi.starrailexpress.compat.CrosshairaddonsCompat;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
+import io.wifi.starrailexpress.item.SkinableItem;
 import io.wifi.starrailexpress.network.original.GunShootPayload;
 import io.wifi.StarRailExpressID;
 import io.wifi.starrailexpress.SREConfig;
@@ -27,7 +28,7 @@ import net.minecraft.world.phys.HitResult;
 import org.agmas.noellesroles.init.ModItems;
 import org.jetbrains.annotations.NotNull;
 
-public class OnceRevolverItem extends Item {
+public class OnceRevolverItem extends SkinableItem {
     // private final DataComponentMap components;
     public OnceRevolverItem(Item.Properties settings) {
         super(settings);
@@ -72,7 +73,8 @@ public class OnceRevolverItem extends Item {
     }
 
     public static void spawnHandParticle() {
-        HandParticle handParticle = (new HandParticle()).setTexture(StarRailExpressID.watheId("textures/particle/gunshot.png"))
+        HandParticle handParticle = (new HandParticle())
+                .setTexture(StarRailExpressID.watheId("textures/particle/gunshot.png"))
                 .setPos(0.1F, 0.275F, -0.2F).setMaxAge(3.0F).setSize(0.5F).setVelocity(0.0F, 0.0F, 0.0F)
                 .setLight(15, 15).setAlpha(new float[] { 1.0F, 0.1F }).setRenderLayer(TMMRenderLayers::additive);
         SREClient.handParticleManager.spawn(handParticle);
@@ -91,5 +93,10 @@ public class OnceRevolverItem extends Item {
             var10000 = false;
             return var10000;
         }, 15.0);
+    }
+
+    @Override
+    public String getItemSkinType() {
+        return "revolver";
     }
 }

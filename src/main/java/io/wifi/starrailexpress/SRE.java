@@ -62,7 +62,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.levelgen.Heightmap;
-
+import pro.fazeclan.river.stupid_express.StupidExpressConfig;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -155,6 +155,11 @@ public class SRE extends StarRailExpressID implements ModInitializer {
     }
 
     private void registerServerLifecycleEvents() {
+        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
+            LOGGER.info("[CONFIG] Sync configs to {}", handler.getPlayer());
+            SREConfig.HANDLER.syncToClient(handler.getPlayer());
+            StupidExpressConfig.HANDLER.syncToClient(handler.getPlayer());
+        });
         EntitySleepEvents.ALLOW_SLEEP_TIME.register((player, pos, isNight) -> {
             if (SREGameWorldComponent.KEY.get(player.level()).isRunning())
                 return InteractionResult.SUCCESS;
