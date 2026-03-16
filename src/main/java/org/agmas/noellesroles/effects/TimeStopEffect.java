@@ -122,7 +122,6 @@ public class TimeStopEffect extends MobEffect {
     @Override
     public void onEffectStarted(LivingEntity livingEntity, int i) {
         super.onEffectStarted(livingEntity, i);
-
     }
 
 }

@@ -189,7 +189,7 @@ public class ModRoles {
   public static final ResourceLocation JOJO_ID = Noellesroles.id("jojo");
   public static SRERole GUEST_GHOST = TMMRoles.registerRole(new NormalRole(
       GUEST_GHOST_ID, // 角色 ID
-      new Color(75, 245, 130).getRGB(), // 深紫色 - 代表恐惧与神秘
+      new Color(175, 245, 130).getRGB(), // 不知道啥颜色
       true, // isInnocent = 非乘客阵营（杀手）
       false, // canUseKiller = 有杀手能力
       SRERole.MoodType.REAL, // 假心情

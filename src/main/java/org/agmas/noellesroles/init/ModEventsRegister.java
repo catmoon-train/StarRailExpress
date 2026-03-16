@@ -1311,8 +1311,8 @@ public class ModEventsRegister {
                 }
 
                 p.addEffect(new MobEffectInstance(
-                        MobEffects.WATER_BREATHING,
-                        (int) (8 * 20), // 持续时间 5s（tick）
+                        ModEffects.NO_COLLIDE,
+                        (int) (15 * 20), // 持续时间 15s（tick）
                         0, // 等级（0 = 速度 I）
                         true, // ambient（环境效果，如信标）
                         false, // showParticles（显示粒子）
@@ -1499,7 +1499,7 @@ public class ModEventsRegister {
             return false;
         });
         SRE.canCollide.add(a -> {
-            if (a.hasEffect(MobEffects.INVISIBILITY) || a.hasEffect(MobEffects.WATER_BREATHING)) {
+            if (a.hasEffect(MobEffects.INVISIBILITY) || a.hasEffect(ModEffects.NO_COLLIDE)) {
                 return true;
             }
             return false;
@@ -1513,7 +1513,7 @@ public class ModEventsRegister {
         SRE.cantPushableBy.add(entity -> {
             if (entity instanceof Player serverPlayer) {
                 if (serverPlayer.hasEffect(MobEffects.INVISIBILITY)
-                        || serverPlayer.hasEffect(MobEffects.WATER_BREATHING)) {
+                        || serverPlayer.hasEffect(ModEffects.NO_COLLIDE)) {
                     return true;
                 } else {
                     var modifiers = WorldModifierComponent.KEY.get(serverPlayer.level());

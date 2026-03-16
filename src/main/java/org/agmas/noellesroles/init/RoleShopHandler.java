@@ -877,6 +877,9 @@ public class RoleShopHandler {
           ShopEntry.Type.TOOL));
       ShopContent.customEntries.put(ModRoles.DIVER_ID, diverShop);
     }
+    {
+
+    }
   }
 
   /**
