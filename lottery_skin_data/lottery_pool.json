@@ -1,19 +1,243 @@
 {
-    "Pools":[
+    "Pools1":[
         {
             "PoolID":1,
             "Enable":true,
-            "PoolName":"CommonPool",
+            "PoolName":"Knife Skin 1",
             "PoolType":"Common",
             "QualityListGroup":[
                 {
                     "Probability":0.35,
                     "ItemList":[
-                        "coin"
+                        "coin","knife/black_blade"
                     ]
                 },
                 {
                     "Probability":0.3,
+                    "ItemList":[
+                        "coin","knife/peach_stick","knife/blue_knife"
+                    ]
+                },
+                {
+                    "Probability":0.2,
+                    "ItemList":[
+                        "coin","knife/astral_defense","knife/bear_claw","knife/blue_curved_knife","knife/machete"
+                    ]
+                },
+                {
+                    "Probability":0.1,
+                    "ItemList":[
+                        "knife/diamond_knife","knife/light_sword","knife/missing_source","knife/starlight"
+                    ]
+                },
+                {
+                    "Probability":0.04,
+                    "ItemList":[
+                        "knife/herring_sword_fish","knife/ice_fish","knife/matchstick_sword","knife/small_real_knife"
+                    ]
+                },
+                {
+                    "Probability":0.01,
+                    "ItemList":[
+                        "knife/flesh_and_blood_resonance","knife/foxy_blade","knife/ninja_claw","knife/swiss_army_knife","knife/thousands_source"
+                    ]
+                }
+            ]
+        }
+    ],
+    "Pools2":[
+        {
+            "PoolID":2,
+            "Enable":true,
+            "PoolName":"Knife Skin 2",
+            "PoolType":"Common",
+            "QualityListGroup":[
+                {
+                    "Probability":0.35,
+                    "ItemList":[
+                        "coin","knife/kunai","knife/fork"
+                    ]
+                },
+                {
+                    "Probability":0.3,
+                    "ItemList":[
+                        "coin","knife/chopper","knife/flaying_knife"
+                    ]
+                },
+                {
+                    "Probability":0.2,
+                    "ItemList":[
+                        "coin","knife/blade_of_blood_red","knife/ceremonial","knife/cultist"
+                    ]
+                },
+                {
+                    "Probability":0.1,
+                    "ItemList":[
+                        "knife/dagger","knife/dragon_blade","knife/fly_cutter","knife/neptune_knife"
+                    ]
+                },
+                {
+                    "Probability":0.04,
+                    "ItemList":[
+                        "knife/cutter_knife","knife/ew_knife","knife/katar","knife/real_sword","knife/tianjie_bit"
+                    ]
+                },
+                {
+                    "Probability":0.01,
+                    "ItemList":[
+                        "knife/chicken_sword","knife/colorful_folding_knife","knife/quenched_titanium","knife/sword_in_stone"
+                    ]
+                }
+            ]
+        }
+    ],
+    "Pools3":[
+        {
+            "PoolID":3,
+            "Enable":true,
+            "PoolName":"Knife Skin 3",
+            "PoolType":"Common",
+            "QualityListGroup":[
+                {
+                    "Probability":0.35,
+                    "ItemList":[
+                        "coin","knife/nail"
+                    ]
+                },
+                {
+                    "Probability":0.3,
+                    "ItemList":[
+                        "coin","knife/pick","knife/edge_knife"
+                    ]
+                },
+                {
+                    "Probability":0.2,
+                    "ItemList":[
+                        "coin","knife/harpy_star","knife/red_light_sword"
+                    ]
+                },
+                {
+                    "Probability":0.1,
+                    "ItemList":[
+                        "knife/dart","knife/machete","knife/steel_claw"
+                    ]
+                },
+                {
+                    "Probability":0.04,
+                    "ItemList":[
+                        "knife/balisong","knife/carrot_knife","knife/icicle","knife/missing_sword","knife/rainbow_knife"
+                    ]
+                },
+                {
+                    "Probability":0.01,
+                    "ItemList":[
+                        "knife/broken_bottle","knife/cat_paw","knife/dusks_epitaph","knife/storm_blade","knife/zenith_knife"
+                    ]
+                }
+            ]
+        }
+    ],
+    "Pools4":[
+        {
+            "PoolID":4,
+            "Enable":true,
+            "PoolName":"Bat Skin 1",
+            "PoolType":"Common",
+            "QualityListGroup":[
+                {
+                    "Probability":0.35,
+                    "ItemList":[
+                        "coin","bat/baseball_bat","bat/bamboo"
+                    ]
+                },
+                {
+                    "Probability":0.3,
+                    "ItemList":[
+                        "coin","bat/hammer","bat/wrench","bat/anvil","bat/red_axe","bat/pipe"
+                    ]
+                },
+                {
+                    "Probability":0.2,
+                    "ItemList":[
+                        "coin","bat/ore_pickaxe","bat/battlesign","bat/bamboo_bat","bat/cylinder"
+                    ]
+                },
+                {
+                    "Probability":0.1,
+                    "ItemList":[
+                        "bat/advanced_crowbar","bat/blood_bat","bat/composite_club","bat/diamond_pickaxe","bat/fried_legs","bat/iron_hammer","bat/steel_tube","bat/wolfteeth_mace"
+                    ]
+                },
+                {
+                    "Probability":0.04,
+                    "ItemList":[
+                        "bat/between_limits","bat/bread","bat/huaqiangbei","bat/ice_bat","bat/sfa"
+                    ]
+                },
+                {
+                    "Probability":0.01,
+                    "ItemList":[
+                        "bat/plasma_axe","bat/road_roller","bat/slippers"
+                    ]
+                }
+            ]
+        }
+    ],
+    "Pools5":[
+        {
+            "PoolID":5,
+            "Enable":true,
+            "PoolName":"Grenade Skin 1",
+            "PoolType":"Common",
+            "QualityListGroup":[
+                {
+                    "Probability":0.35,
+                    "ItemList":[
+                        "coin","grenade/big_bomb","grenade/tnt"
+                    ]
+                },
+                {
+                    "Probability":0.3,
+                    "ItemList":[
+                        "coin","grenade/bottled_flame","grenade/fire_charge","grenade/oppo"
+                    ]
+                },
+                {
+                    "Probability":0.2,
+                    "ItemList":[
+                        "coin","grenade/brown_substance","grenade/detonator","grenade/fragmentation_grenade","grenade/gas_cylinder","grenade/flying_knife_grenade"
+                    ]
+                },
+                {
+                    "Probability":0.1,
+                    "ItemList":[
+                        "grenade/magnetic_bomb","grenade/mini_nuke","grenade/mobile","grenade/naval_mine","grenade/nugrenade","grenade/pisces","grenade/rainbow_fireworks","grenade/submunition_mine"
+                    ]
+                },
+                {
+                    "Probability":0.04,
+                    "ItemList":[
+                        "grenade/coordinate_system","grenade/exponential_explosion","grenade/markov_chain","grenade/o_god_grenade","grenade/shiguimian"
+                    ]
+                },
+                {
+                    "Probability":0.01,
+                    "ItemList":[
+                        "grenade/king_ball","grenade/rainbow_crepper_grenade","grenade/rocket","grenade/scorpio"
+                    ]
+                }
+            ]
+        }
+    ],
+    "Pools6":[
+        {
+            "PoolID":6,
+            "Enable":true,
+            "PoolName":"Gun Skin 1",
+            "PoolType":"Common",
+            "QualityListGroup":[
+                {
+                    "Probability":0.50,
                     "ItemList":[
                         "coin"
                     ]
@@ -21,19 +245,31 @@
                 {
                     "Probability":0.2,
                     "ItemList":[
-                        "knife/dagger","knife/pick","knife/diamond_knife","knife/chopper","knife/edge_knife","knife/fly_cutter"
+                        "coin","gun/coal_gun","gun/cannon","gun/nail_gun","gun/wood_gun"
                     ]
                 },
                 {
-                    "Probability":0.1,
+                    "Probability":0.15,
                     "ItemList":[
-                        "knife/dragon_blade","knife/neptune_knife"
+                        "gun/caplock_pistol","gun/double_pistol","gun/habilis","gun/heavy_pistol","gun/infinity","gun/knife_gun","gun/stick_gun"
                     ]
                 },
                 {
-                    "Probability":0.05,
+                    "Probability":0.07,
                     "ItemList":[
-                        "knife/ceremonial","knife/colorful_folding_knife","knife/rainbow_knife","knife/storm_blade"
+                        "gun/european_long_revolver","gun/Izumo_four_one_style","gun/lengcui","gun/margas_flintlock","gun/potato_launcher","gun/soul_cairn"
+                    ]
+                },
+                {
+                    "Probability":0.065,
+                    "ItemList":[
+                        "gun/anshidian","gun/colt_45","gun/desert_eagle","gun/dragon_fractal","gun/golden_gun","gun/m3","gun/uzi"
+                    ]
+                },
+                {
+                    "Probability":0.015,
+                    "ItemList":[
+                        "gun/signal_gun","gun/sine_wave","gun/water_gun","gun/west_revolver","gun/white_gun"
                     ]
                 }
             ]
