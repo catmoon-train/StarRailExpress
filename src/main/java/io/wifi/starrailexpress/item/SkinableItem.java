@@ -52,9 +52,8 @@ public abstract class SkinableItem extends Item {
                             .withStyle(style -> style.withColor(skin.getColor()))));
         } else if (skinName.equals("default") || skinName == null) {
             list.add(Component.translatable("tip.skin").withStyle(style -> style.withColor(Colors.GRAY))
-                    .append(Component.translatableWithFallback(
-                            "screen.sre.skins." + itemName + ".default.name", "Default")
-                            .withStyle(ChatFormatting.GRAY)));
+                    .append(Component.translatableWithFallback("screen.sre.skins.default", "Default"))
+                            .withStyle(ChatFormatting.GRAY));
         }
         super.appendHoverText(itemStack, tooltipContext, list, tooltipFlag);
     }
