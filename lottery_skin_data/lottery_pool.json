@@ -1,5 +1,5 @@
 {
-    "Pools1":[
+    "Pools":[
         {
             "PoolID":1,
             "Enable":true,
@@ -43,9 +43,7 @@
                     ]
                 }
             ]
-        }
-    ],
-    "Pools2":[
+        },
         {
             "PoolID":2,
             "Enable":true,
@@ -89,9 +87,7 @@
                     ]
                 }
             ]
-        }
-    ],
-    "Pools3":[
+        },
         {
             "PoolID":3,
             "Enable":true,
@@ -135,9 +131,7 @@
                     ]
                 }
             ]
-        }
-    ],
-    "Pools4":[
+        },
         {
             "PoolID":4,
             "Enable":true,
@@ -181,9 +175,7 @@
                     ]
                 }
             ]
-        }
-    ],
-    "Pools5":[
+        },
         {
             "PoolID":5,
             "Enable":true,
@@ -199,7 +191,7 @@
                 {
                     "Probability":0.3,
                     "ItemList":[
-                        "coin","grenade/bottled_flame","grenade/fire_charge","grenade/oppo"
+                        "coin","grenade/bottled_flame","grenade/fire_charge","grenade/phone"
                     ]
                 },
                 {
@@ -227,9 +219,7 @@
                     ]
                 }
             ]
-        }
-    ],
-    "Pools6":[
+        },
         {
             "PoolID":6,
             "Enable":true,
