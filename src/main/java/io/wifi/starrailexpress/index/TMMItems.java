@@ -33,7 +33,7 @@ public interface TMMItems {
     /**
      * 可换皮肤的物品
      */
-    public ArrayList<Item> SkinnableItem = new ArrayList<>();
+    public ArrayList<Item> SkinableItem = new ArrayList<>();
 
     ResourceKey<CreativeModeTab> BUILDING_GROUP = ResourceKey.create(Registries.CREATIVE_MODE_TAB,
             SRE.id("building"));
@@ -118,11 +118,11 @@ public interface TMMItems {
         if (INIT_ITEMS.LETTER == null)
             INIT_ITEMS.LETTER = LETTER;
 
-        SkinnableItem.add(TMMItems.KNIFE);
-        SkinnableItem.add(TMMItems.REVOLVER);
+        SkinableItem.add(TMMItems.KNIFE);
+        SkinableItem.add(TMMItems.REVOLVER);
         // SkinnableItem.add(TMMItems.LOCKPICK);
-        SkinnableItem.add(TMMItems.GRENADE);
-        SkinnableItem.add(TMMItems.BAT);
+        SkinableItem.add(TMMItems.GRENADE);
+        SkinableItem.add(TMMItems.BAT);
 
         // 注册蓄力物品
         ChargeableItemRegistry.register(TMMItems.KNIFE, new KnifeChargeableItem());

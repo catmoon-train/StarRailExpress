@@ -280,7 +280,7 @@ public class ManageSkinsCommand {
     Set<String> suggestions = new HashSet<>();
     // 添加自定义 ID 到 Set
 
-    TMMItems.SkinnableItem.stream()
+    TMMItems.SkinableItem.stream()
         .filter(it -> it instanceof SkinableItem)
         .map(SkinManager::getResourceLocationOfItem)
         .map(ResourceLocation::toString)

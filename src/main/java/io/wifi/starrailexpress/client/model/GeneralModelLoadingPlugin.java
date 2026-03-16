@@ -17,7 +17,7 @@ public class GeneralModelLoadingPlugin implements ModelLoadingPlugin {
 
     public static final HashMap<String, ModelResourceLocation> MODEL_IDS = new HashMap<>();
     static {
-        for (Item skinnableitem : TMMItems.SkinnableItem) {
+        for (Item skinnableitem : TMMItems.SkinableItem) {
             if (skinnableitem instanceof SkinableItem it) {
                 String skinId = it.getItemSkinType();
                 var model = ModelResourceLocation.inventory(BuiltInRegistries.ITEM.getKey(it));

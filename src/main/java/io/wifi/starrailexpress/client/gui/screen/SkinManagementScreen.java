@@ -102,7 +102,7 @@ public class SkinManagementScreen extends Screen {
             return;
         }
 
-        int categoryWidth = 100;
+        int categoryWidth = screenWidth / skinnableItems.size();
         int categorySpacing = 5;
         int totalWidth = skinnableItems.size() * categoryWidth + (skinnableItems.size() - 1) * categorySpacing;
         int startX = (screenWidth - totalWidth) / 2;
@@ -222,8 +222,8 @@ public class SkinManagementScreen extends Screen {
 
         // 添加支持皮肤的物品
         if (player != null) {
-            if (TMMItems.SkinnableItem != null) {
-                skinnableItems.addAll(TMMItems.SkinnableItem);
+            if (TMMItems.SkinableItem != null) {
+                skinnableItems.addAll(TMMItems.SkinableItem);
             }
             // 可以添加更多物品
         }
