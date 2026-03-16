@@ -19,6 +19,7 @@ import java.util.Collections;
 
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.init.ModItems;
+import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
@@ -103,8 +104,12 @@ public class MagicianPlayerComponent implements RoleComponent, ServerTickingComp
 
     public void startDisguiseRandomRole() {
         ArrayList<ResourceLocation> killerRoles = new ArrayList<>();
-        for (var r : io.wifi.starrailexpress.api.TMMRoles.ROLES.values()) {
+        for (var r : Noellesroles.getEnableKillerRoles()) {
             if (r.canUseKiller()
+                    && !r.identifier().getPath()
+                            .equals("ma_chen_xu")
+                    && !r.identifier().getPath()
+                            .equals(ModRoles.WATER_GHOST_ID.getPath())
                     && !r.identifier().getPath()
                             .equals("killer")
                     && !r.identifier().getPath().equals("poisoner")

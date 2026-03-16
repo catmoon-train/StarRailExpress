@@ -73,7 +73,7 @@ public class GamblerDeathMixin {
 				// 变成正义阵营（vigilante）
 				// 随机选择一个警长阵营角色
 				ArrayList<SRERole> vigilanteRoles = new ArrayList<>();
-				for (SRERole role : TMMRoles.ROLES.values()) {
+				for (SRERole role : Noellesroles.getEnableAndAvailableRoles(true)) {
 					if (role.isVigilanteTeam() && !HarpyModLoaderConfig.HANDLER.instance().disabled
 							.contains(role.identifier().getPath())) {
 						vigilanteRoles.add(role);

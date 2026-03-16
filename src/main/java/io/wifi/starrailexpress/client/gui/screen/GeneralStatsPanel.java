@@ -30,7 +30,8 @@ public class GeneralStatsPanel extends AbstractWidget {
     private static final int CARD_SPACING = 8;
     private static final int CARD_COLOR = 0xFF1A1F2E;
 
-    public GeneralStatsPanel(int x, int y, int width, int height, SREPlayerStatsComponent stats, int screenWidth, int screenHeight) {
+    public GeneralStatsPanel(int x, int y, int width, int height, SREPlayerStatsComponent stats, int screenWidth,
+            int screenHeight) {
         super(x, y, width, height, Component.empty());
         this.stats = stats;
         this.screenWidth = screenWidth;
@@ -77,49 +78,65 @@ public class GeneralStatsPanel extends AbstractWidget {
         currentY = drawPlayerCard(g, leftColX, currentY, areaW) + CARD_SPACING;
 
         // ---- 通用统计标题 ----
-        drawSectionHeader(g, leftColX, currentY, areaW, Component.translatable("screen." + SRE.MOD_ID + ".player_stats.general_stats"));
+        drawSectionHeader(g, leftColX, currentY, areaW,
+                Component.translatable("screen." + SRE.MOD_ID + ".player_stats.general_stats"));
         currentY += 25;
 
         // ---- 通用统计两列 ----
         int statY = currentY;
-        drawStatPair(g, leftColX, statY, "screen." + SRE.MOD_ID + ".player_stats.total_play_time", formatPlayTime(stats.getTotalPlayTime()));
-        drawStatPair(g, leftColX + areaW / 2 + 10, statY, "screen." + SRE.MOD_ID + ".player_stats.total_games_played", String.valueOf(stats.getTotalGamesPlayed()));
+        drawStatPair(g, leftColX, statY, "screen." + SRE.MOD_ID + ".player_stats.total_play_time",
+                formatPlayTime(stats.getTotalPlayTime()));
+        drawStatPair(g, leftColX + areaW / 2 + 10, statY, "screen." + SRE.MOD_ID + ".player_stats.total_games_played",
+                String.valueOf(stats.getTotalGamesPlayed()));
         statY += 20;
-        drawStatPair(g, leftColX, statY, "screen." + SRE.MOD_ID + ".player_stats.total_kills", String.valueOf(stats.getTotalKills()));
-        drawStatPair(g, leftColX + areaW / 2 + 10, statY, "screen." + SRE.MOD_ID + ".player_stats.total_team_kills", String.valueOf(stats.getTotalTeamKills()));
+        drawStatPair(g, leftColX, statY, "screen." + SRE.MOD_ID + ".player_stats.total_kills",
+                String.valueOf(stats.getTotalKills()));
+        drawStatPair(g, leftColX + areaW / 2 + 10, statY, "screen." + SRE.MOD_ID + ".player_stats.total_team_kills",
+                String.valueOf(stats.getTotalTeamKills()));
         statY += 20;
-        drawStatPair(g, leftColX, statY, "screen." + SRE.MOD_ID + ".player_stats.total_deaths", String.valueOf(stats.getTotalDeaths()));
-        drawStatPair(g, leftColX + areaW / 2 + 10, statY, "screen." + SRE.MOD_ID + ".player_stats.total_wins", String.valueOf(stats.getTotalWins()));
+        drawStatPair(g, leftColX, statY, "screen." + SRE.MOD_ID + ".player_stats.total_deaths",
+                String.valueOf(stats.getTotalDeaths()));
+        drawStatPair(g, leftColX + areaW / 2 + 10, statY, "screen." + SRE.MOD_ID + ".player_stats.total_wins",
+                String.valueOf(stats.getTotalWins()));
         statY += 20;
-        drawStatPair(g, leftColX, statY, "screen." + SRE.MOD_ID + ".player_stats.total_losses", String.valueOf(stats.getTotalLosses()));
-        drawStatPair(g, leftColX + areaW / 2 + 10, statY, "screen." + SRE.MOD_ID + ".player_stats.win_rate", String.format("%.2f%%", getWinRate(stats.getTotalWins(), stats.getTotalGamesPlayed())));
+        drawStatPair(g, leftColX, statY, "screen." + SRE.MOD_ID + ".player_stats.total_losses",
+                String.valueOf(stats.getTotalLosses()));
+        drawStatPair(g, leftColX + areaW / 2 + 10, statY, "screen." + SRE.MOD_ID + ".player_stats.win_rate",
+                String.format("%.2f%%", getWinRate(stats.getTotalWins(), stats.getTotalGamesPlayed())));
         statY += 20;
-//        drawStatPair(g, leftColX, statY, "screen." + SRE.MOD_ID + ".player_stats.kd_ratio", String.format("%.2f", getKdRatio(stats.getTotalKills(), stats.getTotalDeaths())));
-        drawStatPair(g, leftColX, statY, "screen." + SRE.MOD_ID + ".player_stats.total_lovers_wins", String.valueOf(stats.getTotalLoversWins()));
+        // drawStatPair(g, leftColX, statY, "screen." + SRE.MOD_ID +
+        // ".player_stats.kd_ratio", String.format("%.2f",
+        // getKdRatio(stats.getTotalKills(), stats.getTotalDeaths())));
+        drawStatPair(g, leftColX, statY, "screen." + SRE.MOD_ID + ".player_stats.total_lovers_wins",
+                String.valueOf(stats.getTotalLoversWins()));
 
         currentY = statY + 30;
 
         // ---- 阵营统计卡片 ----
         drawFactionCard(g, leftColX, currentY, areaW,
-                Component.translatable("screen." + SRE.MOD_ID + ".player_stats.civilian_stats").withStyle(s -> s.withColor(0xFF44BB66)),
+                Component.translatable("screen." + SRE.MOD_ID + ".player_stats.civilian_stats")
+                        .withStyle(s -> s.withColor(0xFF44BB66)),
                 stats.getTotalCivilianGames(), stats.getTotalCivilianWins(),
                 stats.getTotalCivilianKills(), stats.getTotalCivilianDeaths());
         currentY += 70 + CARD_SPACING;
 
         drawFactionCard(g, leftColX, currentY, areaW,
-                Component.translatable("screen." + SRE.MOD_ID + ".player_stats.killer_stats").withStyle(s -> s.withColor(0xFFCC2233)),
+                Component.translatable("screen." + SRE.MOD_ID + ".player_stats.killer_stats")
+                        .withStyle(s -> s.withColor(0xFFCC2233)),
                 stats.getTotalKillerGames(), stats.getTotalKillerWins(),
                 stats.getTotalKillerKills(), stats.getTotalKillerDeaths());
         currentY += 70 + CARD_SPACING;
 
         drawFactionCard(g, leftColX, currentY, areaW,
-                Component.translatable("screen." + SRE.MOD_ID + ".player_stats.neutral_stats").withStyle(s -> s.withColor(0xFFCCAA22)),
+                Component.translatable("screen." + SRE.MOD_ID + ".player_stats.neutral_stats")
+                        .withStyle(s -> s.withColor(0xFFCCAA22)),
                 stats.getTotalNeutralGames(), stats.getTotalNeutralWins(),
                 stats.getTotalNeutralKills(), stats.getTotalNeutralDeaths());
         currentY += 70 + CARD_SPACING;
 
         drawFactionCard(g, leftColX, currentY, areaW,
-                Component.translatable("screen." + SRE.MOD_ID + ".player_stats.sheriff_stats").withStyle(s -> s.withColor(0xFF22BBCC)),
+                Component.translatable("screen." + SRE.MOD_ID + ".player_stats.sheriff_stats")
+                        .withStyle(s -> s.withColor(0xFF22BBCC)),
                 stats.getTotalSheriffGames(), stats.getTotalSheriffWins(),
                 stats.getTotalSheriffKills(), stats.getTotalSheriffDeaths());
 
@@ -137,14 +154,15 @@ public class GeneralStatsPanel extends AbstractWidget {
         int cardHeight = 50;
         drawCardBg(g, x, y, width, cardHeight, 0xFF2A2F3F);
 
-        PlayerInfo info = Minecraft.getInstance().getConnection().getPlayerInfo(Minecraft.getInstance().player.getUUID());
+        PlayerInfo info = Minecraft.getInstance().getConnection()
+                .getPlayerInfo(Minecraft.getInstance().player.getUUID());
         if (info != null && info.getSkin().texture() != null) {
             ResourceLocation skin = info.getSkin().texture();
             RenderSystem.enableBlend();
             g.pose().pushPose();
-            g.pose().translate(x + 5,  y + 5, 0);
+            g.pose().translate(x + 5, y + 5, 0);
             g.pose().scale(4f, 4f, 0);
-            float offColour =  1f;
+            float offColour = 1f;
             g.innerBlit(skin, 0, 8, 0, 8, 0, 8 / 64f, 16 / 64f, 8 / 64f, 16 / 64f, 1f, offColour,
                     offColour, 1f);
             g.pose().translate(-0.5, -0.5, 0);
@@ -164,8 +182,9 @@ public class GeneralStatsPanel extends AbstractWidget {
             g.drawString(font, Component.translatable(currentNameTag).withStyle(s -> s.withColor(0xFF55FF55)),
                     x + 55, y + 22, 0xFF55FF55);
         }
-//        g.drawString(font, Component.translatable("screen." + SRE.MOD_ID + ".player_stats.player_id", targetPlayerUuid.toString().substring(0, 8)),
-//                x + 55, y + 25, 0xFFAAAAAA);
+        // g.drawString(font, Component.translatable("screen." + SRE.MOD_ID +
+        // ".player_stats.player_id", targetPlayerUuid.toString().substring(0, 8)),
+        // x + 55, y + 25, 0xFFAAAAAA);
 
         return y + cardHeight;
     }
@@ -182,17 +201,24 @@ public class GeneralStatsPanel extends AbstractWidget {
         g.drawString(font, val, x + 100, y, 0xFFFFDD88);
     }
 
-    private void drawFactionCard(GuiGraphics g, int x, int y, int width, Component title, int games, int wins, int kills, int deaths) {
+    private void drawFactionCard(GuiGraphics g, int x, int y, int width, Component title, int games, int wins,
+            int kills, int deaths) {
         drawCardBg(g, x, y, width, 65, 0xFF252B38);
-        g.drawString(font, title, x + 8, y + 6, title.getStyle().getColor() != null ? title.getStyle().getColor().getValue() : 0xFFFFFFFF);
+        g.drawString(font, title, x + 8, y + 6,
+                title.getStyle().getColor() != null ? title.getStyle().getColor().getValue() : 0xFFFFFFFF);
 
         int left = x + 8;
         int right = x + width / 2 + 5;
 
-        g.drawString(font, Component.translatable("screen." + SRE.MOD_ID + ".player_stats.games", games), left, y + 22, 0xFFCCCCCC);
-        g.drawString(font, Component.translatable("screen." + SRE.MOD_ID + ".player_stats.wins", wins), left, y + 36, 0xFFCCCCCC);
-        g.drawString(font, Component.translatable("screen." + SRE.MOD_ID + ".player_stats.win_rate", String.format("%.1f%%", getWinRate(wins, games))), right, y + 22, 0xFFCCCCCC);
-//        g.drawString(font, Component.translatable("screen." + SRE.MOD_ID + ".player_stats.kd", String.format("%.2f", getKdRatio(kills, deaths))), right, y + 36, 0xFFCCCCCC);
+        g.drawString(font, Component.translatable("screen." + SRE.MOD_ID + ".player_stats.games", games), left, y + 22,
+                0xFFCCCCCC);
+        g.drawString(font, Component.translatable("screen." + SRE.MOD_ID + ".player_stats.wins", wins), left, y + 36,
+                0xFFCCCCCC);
+        g.drawString(font, Component.translatable("screen." + SRE.MOD_ID + ".player_stats.win_rate",
+                String.format("%.1f%%", getWinRate(wins, games))), right, y + 22, 0xFFCCCCCC);
+        // g.drawString(font, Component.translatable("screen." + SRE.MOD_ID +
+        // ".player_stats.kd", String.format("%.2f", getKdRatio(kills, deaths))), right,
+        // y + 36, 0xFFCCCCCC);
     }
 
     private void drawCardBg(GuiGraphics g, int x, int y, int w, int h, int color) {
@@ -207,10 +233,12 @@ public class GeneralStatsPanel extends AbstractWidget {
         g.fill(x + 1, y + 1, x + w - 1, y + 2, 0x22FFFFFF);
     }
 
-    private void renderVScrollbar(GuiGraphics g, int x, int y, int h, int offset, int max, int totalH, int mx, int my, boolean dragging) {
+    private void renderVScrollbar(GuiGraphics g, int x, int y, int h, int offset, int max, int totalH, int mx, int my,
+            boolean dragging) {
         g.fill(x, y, x + SCROLLBAR_WIDTH, y + h, 0xFF111828);
         g.fill(x + 1, y + 1, x + SCROLLBAR_WIDTH - 1, y + h - 1, 0x55334466);
-        if (max <= 0) return;
+        if (max <= 0)
+            return;
 
         float ratio = Math.min(1f, (float) h / totalH);
         int thumbH = Math.max(20, (int) (h * ratio));
@@ -228,7 +256,9 @@ public class GeneralStatsPanel extends AbstractWidget {
         RenderSystem.enableScissor(x0 * scale, sy0, (x1 - x0) * scale, (y1 - y0) * scale);
     }
 
-    private void disableScissor() { RenderSystem.disableScissor(); }
+    private void disableScissor() {
+        RenderSystem.disableScissor();
+    }
 
     @Override
     public boolean mouseClicked(double mx, double my, int button) {
@@ -236,7 +266,8 @@ public class GeneralStatsPanel extends AbstractWidget {
             int scrollbarX = getX() + width - CONTENT_PAD - SCROLLBAR_WIDTH;
             int areaY = getY() + CONTENT_PAD;
             int areaH = height - CONTENT_PAD * 2;
-            if (mx >= scrollbarX && mx <= scrollbarX + SCROLLBAR_WIDTH && my >= areaY && my <= areaY + areaH && maxScroll > 0) {
+            if (mx >= scrollbarX && mx <= scrollbarX + SCROLLBAR_WIDTH && my >= areaY && my <= areaY + areaH
+                    && maxScroll > 0) {
                 isDraggingScrollbar = true;
                 dragStartY = my;
                 dragStartOffset = scrollY;
@@ -270,7 +301,7 @@ public class GeneralStatsPanel extends AbstractWidget {
 
     @Override
     public boolean mouseScrolled(double mx, double my, double horiz, double vert) {
-        if (isMouseOver(mx, my)) {
+        if (visible && isMouseOver(mx, my)) {
             scrollY = Mth.clamp(scrollY - (int) (vert * 20), 0, maxScroll);
             return true;
         }
@@ -283,21 +314,32 @@ public class GeneralStatsPanel extends AbstractWidget {
     }
 
     @Override
-    protected void updateWidgetNarration(net.minecraft.client.gui.narration.NarrationElementOutput out) {}
+    protected void updateWidgetNarration(net.minecraft.client.gui.narration.NarrationElementOutput out) {
+    }
 
-    public void setVisible(boolean visible) { this.visible = visible; }
+    public void setVisible(boolean visible) {
+        this.visible = visible;
+    }
 
     private String formatPlayTime(long ticks) {
         long sec = ticks / 20;
         long min = sec / 60;
         long hour = min / 60;
         long day = hour / 24;
-        if (day > 0) return day + "d " + (hour % 24) + "h " + (min % 60) + "m";
-        if (hour > 0) return hour + "h " + (min % 60) + "m";
-        if (min > 0) return min + "m " + (sec % 60) + "s";
+        if (day > 0)
+            return day + "d " + (hour % 24) + "h " + (min % 60) + "m";
+        if (hour > 0)
+            return hour + "h " + (min % 60) + "m";
+        if (min > 0)
+            return min + "m " + (sec % 60) + "s";
         return sec + "s";
     }
 
-    private double getKdRatio(int kills, int deaths) { return deaths == 0 ? kills : (double) kills / deaths; }
-    private double getWinRate(int wins, int games) { return games == 0 ? 0 : (double) wins / games * 100; }
+    private double getKdRatio(int kills, int deaths) {
+        return deaths == 0 ? kills : (double) kills / deaths;
+    }
+
+    private double getWinRate(int wins, int games) {
+        return games == 0 ? 0 : (double) wins / games * 100;
+    }
 }

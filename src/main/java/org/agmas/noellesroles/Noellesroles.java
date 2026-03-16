@@ -12,10 +12,11 @@ import net.minecraft.resources.ResourceLocation;
 import org.agmas.noellesroles.game.ChairWheelRaceGame;
 import org.agmas.noellesroles.init.*;
 import org.agmas.noellesroles.modifier.NRModifiers;
+
+import pro.fazeclan.river.stupid_express.StupidExpress;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 
 import org.agmas.harpymodloader.Harpymodloader;
-import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
 import org.agmas.noellesroles.commands.*;
 import org.agmas.noellesroles.presets.Preset;
 import org.agmas.noellesroles.role.ModRoles;
@@ -49,16 +50,8 @@ public class Noellesroles implements ModInitializer {
         return clone;
     }
 
-    public static List<SRERole> getEnableRoles_ServerSide() {
-        ArrayList<SRERole> clone = new ArrayList<>(TMMRoles.ROLES.values());
-        clone.removeIf(
-                r -> {
-                    if (HarpyModLoaderConfig.HANDLER.instance().disabled.contains(r.getIdentifier().toString()))
-                        return true;
-                    if (String.valueOf(r.identifier()).equals("starrailexpress:discovery_civilian"))
-                        return true;
-                    return false;
-                });
+    public static List<SRERole> getEnableAndAvailableRoles(boolean removeNonThisRoundRoles) {
+        List<SRERole> clone = (StupidExpress.getEnableRoles(removeNonThisRoundRoles));
         return clone;
     }
 
@@ -136,11 +129,7 @@ public class Noellesroles implements ModInitializer {
     }
 
     public static List<SRERole> getEnableKillerRoles() {
-        ArrayList<SRERole> clone = new ArrayList<>(TMMRoles.ROLES.values());
-        clone.removeIf(
-                r -> !r.canUseKiller()
-                        || r.getIdentifier() == ModRoles.DIO_ID
-                        || HarpyModLoaderConfig.HANDLER.instance().disabled.contains(r.getIdentifier().toString()));
+        List<SRERole> clone = StupidExpress.getEnableKillerRoles();
         return clone;
     }
 
@@ -229,9 +218,11 @@ public class Noellesroles implements ModInitializer {
     private void initializeVanillaRoles() {
         VANNILA_ROLES.add(TMMRoles.KILLER);
         VANNILA_ROLES.add(TMMRoles.VIGILANTE);
+        VANNILA_ROLES.add(TMMRoles.DISCOVERY_CIVILIAN);
         VANNILA_ROLES.add(TMMRoles.CIVILIAN);
         VANNILA_ROLES.add(TMMRoles.LOOSE_END);
         VANNILA_ROLE_IDS.add(TMMRoles.LOOSE_END.identifier());
+        VANNILA_ROLE_IDS.add(TMMRoles.DISCOVERY_CIVILIAN.identifier());
         VANNILA_ROLE_IDS.add(TMMRoles.VIGILANTE.identifier());
         VANNILA_ROLE_IDS.add(TMMRoles.CIVILIAN.identifier());
         VANNILA_ROLE_IDS.add(TMMRoles.KILLER.identifier());
