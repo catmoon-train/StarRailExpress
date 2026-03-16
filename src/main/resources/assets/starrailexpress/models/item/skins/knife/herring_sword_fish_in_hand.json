@@ -1,7 +1,7 @@
 {
 	"parent": "item/generated",
 	"textures": {
-		"layer0": "starrailexpress:item/knife/moqingyu"
+		"layer0": "starrailexpress:item/knife/herring_sword_fish"
 	},
 	"display": {
 		"thirdperson_righthand": {
