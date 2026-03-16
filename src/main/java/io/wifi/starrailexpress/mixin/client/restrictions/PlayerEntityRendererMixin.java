@@ -36,7 +36,7 @@ public class PlayerEntityRendererMixin {
         if (SREPlayerPsychoComponent.KEY.get(abstractClientPlayerEntity).getPsychoTicks() > 0) {
             PlayerSkin.Model model = abstractClientPlayerEntity.getSkin().model();
             String suffix = (model == PlayerSkin.Model.SLIM) ? "_thin" : "";
-            ResourceLocation texture = SRE.id("textures/entity/psycho" + suffix + ".png");
+            ResourceLocation texture = SRE.watheId("textures/entity/psycho" + suffix + ".png");
 
             cir.setReturnValue(texture);
         }
@@ -47,7 +47,7 @@ public class PlayerEntityRendererMixin {
         if (SREPlayerPsychoComponent.KEY.get(Minecraft.getInstance().player).getPsychoTicks() > 0) {
             PlayerSkin.Model model = Minecraft.getInstance().player.getSkin().model();
             String suffix = model == PlayerSkin.Model.SLIM ? "_thin" : "";
-            return SRE.id("textures/entity/psycho" + suffix + ".png");
+            return SRE.watheId("textures/entity/psycho" + suffix + ".png");
         }
         return skinTexture;
     }
