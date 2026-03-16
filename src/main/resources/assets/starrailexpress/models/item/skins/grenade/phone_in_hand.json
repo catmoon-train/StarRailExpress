@@ -1,7 +1,7 @@
 {
 	"parent": "item/generated",
 	"textures": {
-		"layer0": "starrailexpress:item/grenade/oppo"
+		"layer0": "starrailexpress:item/grenade/phone"
 	},
 	"display": {
 		"thirdperson_righthand": {
