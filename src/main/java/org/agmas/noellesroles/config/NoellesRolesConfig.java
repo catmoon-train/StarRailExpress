@@ -35,7 +35,7 @@ public class NoellesRolesConfig implements ConfigData {
     /**
      * Areas that will spawn underwater roles (Sea King, Diver, Water Ghost)
      */
-    public ArrayList<String> underwaterMaps = new ArrayList<>(List.of("areas14"));
+    public ArrayList<String> underwaterRolesMaps = new ArrayList<>(List.of("areas14"));
 
     /**
      * Role - The chance of egg roles
@@ -154,7 +154,6 @@ public class NoellesRolesConfig implements ConfigData {
     /**
      * Maximum number of Broadcasters allowed
      */
-
     public int broadcasterMax = 1;
     /**
      * Maximum number of Gamblers allowed
@@ -183,7 +182,7 @@ public class NoellesRolesConfig implements ConfigData {
     /**
      * Broadcaster - Broadcast message display duration in seconds
      */
-
+    @Category("client")
     public int broadcasterMessageDuration = 10;
 
     /**
