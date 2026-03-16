@@ -21,7 +21,7 @@
                 {
                     "Probability":0.2,
                     "ItemList":[
-                        "coin","knife/astral_defense","knife/bear_claw","knife/blue_curved_knife","knife/machete"
+                        "coin","knife/bear_claw","knife/blue_curved_knife","knife/machete"
                     ]
                 },
                 {
@@ -159,7 +159,7 @@
                 {
                     "Probability":0.1,
                     "ItemList":[
-                        "bat/advanced_crowbar","bat/blood_bat","bat/composite_club","bat/diamond_pickaxe","bat/fried_legs","bat/iron_hammer","bat/steel_tube","bat/wolfteeth_mace"
+                        "bat/astral_defense","bat/advanced_crowbar","bat/blood_bat","bat/composite_club","bat/diamond_pickaxe","bat/fried_legs","bat/iron_hammer","bat/steel_tube","bat/wolfteeth_mace"
                     ]
                 },
                 {
