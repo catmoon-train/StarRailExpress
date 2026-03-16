@@ -21,14 +21,13 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
+import org.agmas.noellesroles.Noellesroles;
 
 import java.util.*;
 import java.util.function.BiConsumer;
 
 public class RoleStatsPanel implements Renderable, GuiEventListener, NarratableEntry {
     private final SREPlayerStatsComponent stats;
-    private SRERole selectedRole;
-    private SREPlayerStatsComponent.RoleStats selectedRoleStats;
     private ScrollableRoleListComponent roleListComponent;
     private RoleDetailsComponent roleDetailsComponent;
     private EditBox searchBox;
@@ -39,7 +38,11 @@ public class RoleStatsPanel implements Renderable, GuiEventListener, NarratableE
     private final List<Renderable> renderables = new ArrayList<>();
 
     public RoleStatsPanel(int x, int y, int width, int height, SREPlayerStatsComponent stats) {
-        this.x = x; this.y = y; this.width = width; this.height = height; this.stats = stats;
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        this.stats = stats;
         setupComponents();
     }
 
@@ -49,7 +52,8 @@ public class RoleStatsPanel implements Renderable, GuiEventListener, NarratableE
         int searchW = width - 20;
         searchBox = new EditBox(Minecraft.getInstance().font, searchX, searchY, searchW, 20,
                 Component.translatable("screen." + SRE.MOD_ID + ".player_stats.search_role"));
-        searchBox.setHint(Component.translatable("screen." + SRE.MOD_ID + ".player_stats.search_role").withStyle(s -> s.withColor(0xFF888888)));
+        searchBox.setHint(Component.translatable("screen." + SRE.MOD_ID + ".player_stats.search_role")
+                .withStyle(s -> s.withColor(0xFF888888)));
         searchBox.setMaxLength(50);
         searchBox.setResponder(this::onSearchTextChanged);
         addRenderableWidget(searchBox);
@@ -66,35 +70,41 @@ public class RoleStatsPanel implements Renderable, GuiEventListener, NarratableE
 
         List<SRERole> roles = new ArrayList<>();
         Map<ResourceLocation, SREPlayerStatsComponent.RoleStats> roleStatsMap = stats.getRoleStats();
-        for (SRERole role : TMMRoles.ROLES.values()) {
-            if (roleStatsMap.containsKey(role.identifier())) roles.add(role);
+        for (SRERole role : Noellesroles.getAllRolesSorted()) {
+            if (roleStatsMap.containsKey(role.identifier()))
+                roles.add(role);
         }
         roles.sort(Comparator.comparing(r -> r.identifier().getPath()));
         roleListComponent.setRoles(roles, roleStatsMap);
-        if (!roles.isEmpty()) onRoleSelected(roles.get(0), roleStatsMap.get(roles.get(0).identifier()));
+        if (!roles.isEmpty())
+            onRoleSelected(roles.get(0), roleStatsMap.get(roles.get(0).identifier()));
     }
 
-    private void onSearchTextChanged(String s) { roleListComponent.filterRoles(s); }
+    private void onSearchTextChanged(String s) {
+        roleListComponent.filterRoles(s);
+    }
 
     private void onRoleSelected(SRERole r, SREPlayerStatsComponent.RoleStats rs) {
-        selectedRole = r;
-        selectedRoleStats = rs;
         roleDetailsComponent.setRole(r, rs);
     }
 
     private void addRenderableWidget(Renderable r) {
         renderables.add(r);
-        if (r instanceof GuiEventListener) children.add((GuiEventListener) r);
+        if (r instanceof GuiEventListener)
+            children.add((GuiEventListener) r);
     }
 
     @Override
     public void render(GuiGraphics g, int mx, int my, float delta) {
-        if (!visible) return;
+        if (!visible)
+            return;
         drawPanelBg(g, x, y, width, height);
         g.drawString(Minecraft.getInstance().font,
-                Component.translatable("screen." + SRE.MOD_ID + ".player_stats.role_stats").withStyle(s -> s.withBold(true)),
+                Component.translatable("screen." + SRE.MOD_ID + ".player_stats.role_stats")
+                        .withStyle(s -> s.withBold(true)),
                 x + 10, y + 10, 0xFFFFFFFF);
-        for (Renderable r : renderables) r.render(g, mx, my, delta);
+        for (Renderable r : renderables)
+            r.render(g, mx, my, delta);
     }
 
     private void drawPanelBg(GuiGraphics g, int x, int y, int w, int h) {
@@ -103,31 +113,71 @@ public class RoleStatsPanel implements Renderable, GuiEventListener, NarratableE
         g.fill(x + 1, y + 1, x + w - 1, y + 2, 0x22FFFFFF);
     }
 
-    public void setVisible(boolean v) { this.visible = v; }
+    public void setVisible(boolean v) {
+        this.visible = v;
+    }
 
-    @Override public boolean keyPressed(int k, int s, int m) {
-        if (searchBox.isFocused() && searchBox.keyPressed(k, s, m)) return true;
-        for (GuiEventListener c : children) if (c.keyPressed(k, s, m)) return true;
+    @Override
+    public boolean keyPressed(int k, int s, int m) {
+        if (searchBox.isFocused() && searchBox.keyPressed(k, s, m))
+            return true;
+        for (GuiEventListener c : children)
+            if (c.keyPressed(k, s, m))
+                return true;
         return false;
     }
-    @Override public boolean charTyped(char c, int m) { return searchBox.isFocused() && searchBox.charTyped(c, m); }
-    @Override public boolean mouseClicked(double mx, double my, int b) {
-        if (searchBox.mouseClicked(mx, my, b)) return true;
-        for (GuiEventListener c : children) if (c.mouseClicked(mx, my, b)) return true;
+
+    @Override
+    public boolean charTyped(char c, int m) {
+        return searchBox.isFocused() && searchBox.charTyped(c, m);
+    }
+
+    @Override
+    public boolean mouseClicked(double mx, double my, int b) {
+        if (searchBox.mouseClicked(mx, my, b))
+            return true;
+        for (GuiEventListener c : children)
+            if (c.mouseClicked(mx, my, b))
+                return true;
         return false;
     }
-    @Override public boolean mouseScrolled(double mx, double my, double sx, double sy) {
-        for (GuiEventListener c : children) if (c.mouseScrolled(mx, my, sx, sy)) return true;
+
+    @Override
+    public boolean mouseScrolled(double mx, double my, double sx, double sy) {
+        if (!visible)
+            return false;
+        for (GuiEventListener c : children)
+            if (c.mouseScrolled(mx, my, sx, sy))
+                return true;
         return false;
     }
-    @Override public boolean mouseDragged(double mx, double my, int b, double dx, double dy) {
-        for (GuiEventListener c : children) if (c.mouseDragged(mx, my, b, dx, dy)) return true;
+
+    @Override
+    public boolean mouseDragged(double mx, double my, int b, double dx, double dy) {
+        for (GuiEventListener c : children)
+            if (c.mouseDragged(mx, my, b, dx, dy))
+                return true;
         return false;
     }
-    @Override public boolean isFocused() { return searchBox.isFocused(); }
-    @Override public void setFocused(boolean f) { searchBox.setFocused(f); }
-    @Override public NarrationPriority narrationPriority() { return NarrationPriority.NONE; }
-    @Override public void updateNarration(NarrationElementOutput o) {}
+
+    @Override
+    public boolean isFocused() {
+        return searchBox.isFocused();
+    }
+
+    @Override
+    public void setFocused(boolean f) {
+        searchBox.setFocused(f);
+    }
+
+    @Override
+    public NarrationPriority narrationPriority() {
+        return NarrationPriority.NONE;
+    }
+
+    @Override
+    public void updateNarration(NarrationElementOutput o) {
+    }
 
     // ========== 内部类：可滚动角色列表 ==========
     private static class ScrollableRoleListComponent extends AbstractWidget {
@@ -143,7 +193,8 @@ public class RoleStatsPanel implements Renderable, GuiEventListener, NarratableE
         private double dragStartY = 0;
         private double dragStartScroll = 0;
 
-        public ScrollableRoleListComponent(int x, int y, int w, int h, BiConsumer<SRERole, SREPlayerStatsComponent.RoleStats> cb) {
+        public ScrollableRoleListComponent(int x, int y, int w, int h,
+                BiConsumer<SRERole, SREPlayerStatsComponent.RoleStats> cb) {
             super(x, y, w, h, Component.empty());
             this.onSelect = cb;
         }
@@ -152,14 +203,17 @@ public class RoleStatsPanel implements Renderable, GuiEventListener, NarratableE
             allRoles = roles;
             roleStatsMap = map;
             filteredRoles = new ArrayList<>(roles);
-            if (!filteredRoles.isEmpty()) selectedRole = filteredRoles.get(0);
+            if (!filteredRoles.isEmpty())
+                selectedRole = filteredRoles.get(0);
         }
 
         public void filterRoles(String search) {
-            if (search == null || search.isEmpty()) filteredRoles = new ArrayList<>(allRoles);
+            if (search == null || search.isEmpty())
+                filteredRoles = new ArrayList<>(allRoles);
             else {
                 filteredRoles = allRoles.stream()
-                        .filter(r -> ReplayDisplayUtils.getRoleDisplayName(r.identifier().toString()).getString().toLowerCase().contains(search.toLowerCase()))
+                        .filter(r -> ReplayDisplayUtils.getRoleDisplayName(r.identifier().toString()).getString()
+                                .toLowerCase().contains(search.toLowerCase()))
                         .toList();
             }
             scrollAmount = 0;
@@ -202,15 +256,19 @@ public class RoleStatsPanel implements Renderable, GuiEventListener, NarratableE
                 int thumbH = Math.max(20, (int) (scrollbarH * ratio));
                 int maxScroll = totalH - scrollbarH;
                 int thumbY = scrollbarY + (int) ((scrollAmount / maxScroll) * (scrollbarH - thumbH));
-                boolean hl = draggingScroll || (mx >= scrollbarX && mx <= scrollbarX + SCROLLBAR_W && my >= thumbY && my <= thumbY + thumbH);
+                boolean hl = draggingScroll || (mx >= scrollbarX && mx <= scrollbarX + SCROLLBAR_W && my >= thumbY
+                        && my <= thumbY + thumbH);
                 g.fill(scrollbarX, scrollbarY, scrollbarX + SCROLLBAR_W, scrollbarY + scrollbarH, 0xFF111828);
-                g.fill(scrollbarX + 1, scrollbarY + 1, scrollbarX + SCROLLBAR_W - 1, scrollbarY + scrollbarH - 1, 0x55334466);
+                g.fill(scrollbarX + 1, scrollbarY + 1, scrollbarX + SCROLLBAR_W - 1, scrollbarY + scrollbarH - 1,
+                        0x55334466);
                 g.fill(scrollbarX, thumbY, scrollbarX + SCROLLBAR_W, thumbY + thumbH, hl ? 0xFF8899CC : 0xFF556699);
-                g.fill(scrollbarX + 1, thumbY + 1, scrollbarX + SCROLLBAR_W - 1, thumbY + thumbH - 1, hl ? 0xFFAABBEE : 0xFF7788BB);
+                g.fill(scrollbarX + 1, thumbY + 1, scrollbarX + SCROLLBAR_W - 1, thumbY + thumbH - 1,
+                        hl ? 0xFFAABBEE : 0xFF7788BB);
             }
         }
 
-        private void drawRoleCard(GuiGraphics g, SRERole role, SREPlayerStatsComponent.RoleStats rs, int x, int y, int w, int h, boolean hover, boolean selected) {
+        private void drawRoleCard(GuiGraphics g, SRERole role, SREPlayerStatsComponent.RoleStats rs, int x, int y,
+                int w, int h, boolean hover, boolean selected) {
             int color = role.getColor() | 0xFF000000;
             int bg = selected ? 0xFF2A3A5A : hover ? blendColors(0xFF1A1F2E, color, 0.3f) : 0xFF1A1F2E;
             g.fill(x, y, x + w, y + h, bg);
@@ -241,9 +299,11 @@ public class RoleStatsPanel implements Renderable, GuiEventListener, NarratableE
 
         private Component getRoleTypeDisplay(SRERole r) {
             return switch (PlayerRoleWeightManager.getRoleType(r)) {
-                case 0,1 -> Component.translatable("display.type.role.innocent").withStyle(s -> s.withColor(0xFF44BB66));
+                case 0, 1 ->
+                    Component.translatable("display.type.role.innocent").withStyle(s -> s.withColor(0xFF44BB66));
                 case 2 -> Component.translatable("display.type.role.neutral").withStyle(s -> s.withColor(0xFFCCAA22));
-                case 3 -> Component.translatable("display.type.role.neutral_for_killer").withStyle(s -> s.withColor(0xFFAA44CC));
+                case 3 -> Component.translatable("display.type.role.neutral_for_killer")
+                        .withStyle(s -> s.withColor(0xFFAA44CC));
                 case 4 -> Component.translatable("display.type.role.killer").withStyle(s -> s.withColor(0xFFCC2233));
                 case 5 -> Component.translatable("display.type.role.vigilante").withStyle(s -> s.withColor(0xFF22BBCC));
                 default -> Component.literal("Unknown");
@@ -253,7 +313,7 @@ public class RoleStatsPanel implements Renderable, GuiEventListener, NarratableE
         private ResourceLocation getTypeIcon(SRERole role) {
             int type = PlayerRoleWeightManager.getRoleType(role);
             return switch (type) {
-                case 0,1 -> ResourceLocation.tryParse("wathe:textures/gui/sprites/hud/mood_happy.png");
+                case 0, 1 -> ResourceLocation.tryParse("wathe:textures/gui/sprites/hud/mood_happy.png");
                 case 2 -> ResourceLocation.tryParse("noellesroles:textures/gui/sprites/hud/mood_neu.png");
                 case 3 -> ResourceLocation.tryParse("noellesroles:textures/gui/sprites/hud/mood_jester.png");
                 case 4 -> ResourceLocation.tryParse("wathe:textures/gui/sprites/hud/mood_killer.png");
@@ -264,7 +324,8 @@ public class RoleStatsPanel implements Renderable, GuiEventListener, NarratableE
 
         @Override
         public boolean mouseClicked(double mx, double my, int btn) {
-            if (!isMouseOver(mx, my)) return false;
+            if (!isMouseOver(mx, my))
+                return false;
             // 滚动条
             int scrollbarX = getX() + getWidth() - SCROLLBAR_W;
             if (mx >= scrollbarX && mx <= scrollbarX + SCROLLBAR_W && my >= getY() && my <= getY() + getHeight()) {
@@ -283,7 +344,8 @@ public class RoleStatsPanel implements Renderable, GuiEventListener, NarratableE
             return false;
         }
 
-        @Override public boolean mouseDragged(double mx, double my, int btn, double dx, double dy) {
+        @Override
+        public boolean mouseDragged(double mx, double my, int btn, double dx, double dy) {
             if (draggingScroll) {
                 int totalH = filteredRoles.size() * ITEM_H;
                 int scrollbarH = getHeight();
@@ -302,9 +364,14 @@ public class RoleStatsPanel implements Renderable, GuiEventListener, NarratableE
             return false;
         }
 
-        @Override public boolean mouseReleased(double mx, double my, int btn) { draggingScroll = false; return false; }
+        @Override
+        public boolean mouseReleased(double mx, double my, int btn) {
+            draggingScroll = false;
+            return false;
+        }
 
-        @Override public boolean mouseScrolled(double mx, double my, double sx, double sy) {
+        @Override
+        public boolean mouseScrolled(double mx, double my, double sx, double sy) {
             if (isMouseOver(mx, my)) {
                 int totalH = filteredRoles.size() * ITEM_H;
                 int maxScroll = Math.max(0, totalH - getHeight());
@@ -314,7 +381,9 @@ public class RoleStatsPanel implements Renderable, GuiEventListener, NarratableE
             return false;
         }
 
-        @Override protected void updateWidgetNarration(NarrationElementOutput o) {}
+        @Override
+        protected void updateWidgetNarration(NarrationElementOutput o) {
+        }
     }
 
     // ========== 内部类：角色详情 ==========
@@ -326,16 +395,25 @@ public class RoleStatsPanel implements Renderable, GuiEventListener, NarratableE
         private double dragStartY, dragStartScroll;
         private static final int SCROLLBAR_W = 6;
 
-        public RoleDetailsComponent(int x, int y, int w, int h) { super(x, y, w, h, Component.empty()); }
+        public RoleDetailsComponent(int x, int y, int w, int h) {
+            super(x, y, w, h, Component.empty());
+        }
 
-        public void setRole(SRERole r, SREPlayerStatsComponent.RoleStats rs) { role = r; roleStats = rs; scrollY = 0; }
+        public void setRole(SRERole r, SREPlayerStatsComponent.RoleStats rs) {
+            role = r;
+            roleStats = rs;
+            scrollY = 0;
+        }
+
         private Font font;
+
         @Override
         protected void renderWidget(GuiGraphics g, int mx, int my, float delta) {
             font = Minecraft.getInstance().font;
             drawPanelBg(g, getX(), getY(), getWidth(), getHeight());
             if (role == null || roleStats == null) {
-                g.drawCenteredString(font, Component.translatable("screen.starrailexpress.select_hint"), getX() + getWidth()/2, getY() + getHeight()/2, 0x888888);
+                g.drawCenteredString(font, Component.translatable("screen.starrailexpress.select_hint"),
+                        getX() + getWidth() / 2, getY() + getHeight() / 2, 0x888888);
                 return;
             }
 
@@ -347,21 +425,39 @@ public class RoleStatsPanel implements Renderable, GuiEventListener, NarratableE
             enableScissor(getX() + 1, getY() + 1, getX() + getWidth() - SCROLLBAR_W - 2, getY() + getHeight() - 1);
 
             // 标题
-            Component name = ReplayDisplayUtils.getRoleDisplayName(role.identifier().toString()).copy().withStyle(s -> s.withBold(true));
+            Component name = ReplayDisplayUtils.getRoleDisplayName(role.identifier().toString()).copy()
+                    .withStyle(s -> s.withBold(true));
             g.drawString(font, name, contentX, contentY, role.getColor());
             contentY += lineH + 4;
 
             // 统计行
-            drawStatLine(g, contentX, contentY, "screen." + SRE.MOD_ID + ".player_stats.times_played", roleStats.getTimesPlayed()); contentY += lineH;
-            drawStatLine(g, contentX, contentY, "screen." + SRE.MOD_ID + ".player_stats.wins_short", roleStats.getWinsAsRole()); contentY += lineH;
-            drawStatLine(g, contentX, contentY, "screen." + SRE.MOD_ID + ".player_stats.kills", roleStats.getKillsAsRole()); contentY += lineH;
-            drawStatLine(g, contentX, contentY, "screen." + SRE.MOD_ID + ".player_stats.team_kills", roleStats.getTeamKillsAsRole()); contentY += lineH;
-            drawStatLine(g, contentX, contentY, "screen." + SRE.MOD_ID + ".player_stats.deaths", roleStats.getDeathsAsRole()); contentY += lineH;
+            drawStatLine(g, contentX, contentY, "screen." + SRE.MOD_ID + ".player_stats.times_played",
+                    roleStats.getTimesPlayed());
+            contentY += lineH;
+            drawStatLine(g, contentX, contentY, "screen." + SRE.MOD_ID + ".player_stats.wins_short",
+                    roleStats.getWinsAsRole());
+            contentY += lineH;
+            drawStatLine(g, contentX, contentY, "screen." + SRE.MOD_ID + ".player_stats.kills",
+                    roleStats.getKillsAsRole());
+            contentY += lineH;
+            drawStatLine(g, contentX, contentY, "screen." + SRE.MOD_ID + ".player_stats.team_kills",
+                    roleStats.getTeamKillsAsRole());
+            contentY += lineH;
+            drawStatLine(g, contentX, contentY, "screen." + SRE.MOD_ID + ".player_stats.deaths",
+                    roleStats.getDeathsAsRole());
+            contentY += lineH;
 
-            double winRate = roleStats.getTimesPlayed() > 0 ? (double) roleStats.getWinsAsRole() / roleStats.getTimesPlayed() * 100 : 0;
-            double kd = roleStats.getDeathsAsRole() > 0 ? (double) roleStats.getKillsAsRole() / roleStats.getDeathsAsRole() : roleStats.getKillsAsRole();
-            drawStatLine(g, contentX, contentY, "screen." + SRE.MOD_ID + ".player_stats.win_rate_short", String.format("%.2f%%", winRate)); contentY += lineH;
-//            drawStatLine(g, contentX, contentY, "screen." + SRE.MOD_ID + ".player_stats.kd_ratio", String.format("%.2f", kd));
+            double winRate = roleStats.getTimesPlayed() > 0
+                    ? (double) roleStats.getWinsAsRole() / roleStats.getTimesPlayed() * 100
+                    : 0;
+            double kd = roleStats.getDeathsAsRole() > 0
+                    ? (double) roleStats.getKillsAsRole() / roleStats.getDeathsAsRole()
+                    : roleStats.getKillsAsRole();
+            drawStatLine(g, contentX, contentY, "screen." + SRE.MOD_ID + ".player_stats.win_rate_short",
+                    String.format("%.2f%%", winRate));
+            contentY += lineH;
+            // drawStatLine(g, contentX, contentY, "screen." + SRE.MOD_ID +
+            // ".player_stats.kd_ratio", String.format("%.2f", kd));
 
             disableScissor();
 
@@ -377,7 +473,8 @@ public class RoleStatsPanel implements Renderable, GuiEventListener, NarratableE
                 float ratio = (float) sbH / totalH;
                 int thumbH = Math.max(20, (int) (sbH * ratio));
                 int thumbY = sbY + (int) ((float) scrollY / maxScroll * (sbH - thumbH));
-                boolean hl = draggingScroll || (mx >= sbX && mx <= sbX + SCROLLBAR_W && my >= thumbY && my <= thumbY + thumbH);
+                boolean hl = draggingScroll
+                        || (mx >= sbX && mx <= sbX + SCROLLBAR_W && my >= thumbY && my <= thumbY + thumbH);
                 g.fill(sbX, sbY, sbX + SCROLLBAR_W, sbY + sbH, 0xFF111828);
                 g.fill(sbX + 1, sbY + 1, sbX + SCROLLBAR_W - 1, sbY + sbH - 1, 0x55334466);
                 g.fill(sbX, thumbY, sbX + SCROLLBAR_W, thumbY + thumbH, hl ? 0xFF8899CC : 0xFF556699);
@@ -400,7 +497,8 @@ public class RoleStatsPanel implements Renderable, GuiEventListener, NarratableE
             g.fill(x + 1, y + 1, x + w - 1, y + 2, 0x22FFFFFF);
         }
 
-        @Override public boolean mouseClicked(double mx, double my, int btn) {
+        @Override
+        public boolean mouseClicked(double mx, double my, int btn) {
             if (btn == 0 && isMouseOver(mx, my) && maxScroll > 0) {
                 int sbX = getX() + getWidth() - SCROLLBAR_W - 4;
                 if (mx >= sbX && mx <= sbX + SCROLLBAR_W) {
@@ -413,7 +511,8 @@ public class RoleStatsPanel implements Renderable, GuiEventListener, NarratableE
             return false;
         }
 
-        @Override public boolean mouseDragged(double mx, double my, int btn, double dx, double dy) {
+        @Override
+        public boolean mouseDragged(double mx, double my, int btn, double dx, double dy) {
             if (draggingScroll && maxScroll > 0) {
                 int sbH = getHeight();
                 int totalH = (int) (getHeight() + maxScroll);
@@ -429,9 +528,14 @@ public class RoleStatsPanel implements Renderable, GuiEventListener, NarratableE
             return false;
         }
 
-        @Override public boolean mouseReleased(double mx, double my, int btn) { draggingScroll = false; return false; }
+        @Override
+        public boolean mouseReleased(double mx, double my, int btn) {
+            draggingScroll = false;
+            return false;
+        }
 
-        @Override public boolean mouseScrolled(double mx, double my, double sx, double sy) {
+        @Override
+        public boolean mouseScrolled(double mx, double my, double sx, double sy) {
             if (isMouseOver(mx, my) && maxScroll > 0) {
                 scrollY = Mth.clamp(scrollY - (int) (sy * 20), 0, maxScroll);
                 return true;
@@ -439,7 +543,9 @@ public class RoleStatsPanel implements Renderable, GuiEventListener, NarratableE
             return false;
         }
 
-        @Override protected void updateWidgetNarration(NarrationElementOutput o) {}
+        @Override
+        protected void updateWidgetNarration(NarrationElementOutput o) {
+        }
     }
 
     // 工具方法
@@ -449,13 +555,19 @@ public class RoleStatsPanel implements Renderable, GuiEventListener, NarratableE
         int sy0 = (int) (w.getScreenHeight() - y1 * scale);
         RenderSystem.enableScissor(x0 * scale, sy0, (x1 - x0) * scale, (y1 - y0) * scale);
     }
-    private static void disableScissor() { RenderSystem.disableScissor(); }
+
+    private static void disableScissor() {
+        RenderSystem.disableScissor();
+    }
+
     private static int blendColors(int c1, int c2, float t) {
-        if (t <= 0) return c1;
-        if (t >= 1) return c2;
-        int r = (int)(((c1 >> 16) & 0xFF) + (((c2 >> 16) & 0xFF) - ((c1 >> 16) & 0xFF)) * t);
-        int g = (int)(((c1 >> 8) & 0xFF) + (((c2 >> 8) & 0xFF) - ((c1 >> 8) & 0xFF)) * t);
-        int b = (int)((c1 & 0xFF) + ((c2 & 0xFF) - (c1 & 0xFF)) * t);
+        if (t <= 0)
+            return c1;
+        if (t >= 1)
+            return c2;
+        int r = (int) (((c1 >> 16) & 0xFF) + (((c2 >> 16) & 0xFF) - ((c1 >> 16) & 0xFF)) * t);
+        int g = (int) (((c1 >> 8) & 0xFF) + (((c2 >> 8) & 0xFF) - ((c1 >> 8) & 0xFF)) * t);
+        int b = (int) ((c1 & 0xFF) + ((c2 & 0xFF) - (c1 & 0xFF)) * t);
         return 0xFF000000 | (r << 16) | (g << 8) | b;
     }
 }

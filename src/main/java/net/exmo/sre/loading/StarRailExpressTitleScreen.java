@@ -72,12 +72,12 @@ public class StarRailExpressTitleScreen extends Screen {
     private SplashRenderer splash;
     @Nullable
     private RealmsNotificationsScreen realmsNotificationsScreen;
-    private final LogoRenderer logoRenderer;
+    public final LogoRenderer logoRenderer;
 
     // ── 动画 & 状态 ──────────────────────────────────────────────────
     private long screenOpenTime;
     private float panoramaFade = 1.0F;
-    private boolean waitingForContinue = true;
+    private static boolean waitingForContinue = true;
     private float continueAlpha = 0.0F;
     private float menuAnimProgress = 0.0F;
 
@@ -283,7 +283,7 @@ public class StarRailExpressTitleScreen extends Screen {
         long elapsed = Util.getMillis() - this.screenOpenTime;
         this.continueAlpha = Math.min(elapsed / 800.0F, 1.0F);
 
-        if (!this.waitingForContinue)
+        if (!waitingForContinue)
             this.menuAnimProgress = Math.min(this.menuAnimProgress + 0.06F, 1.0F);
 
         float targetExpand = this.changelogExpanded ? 1.0F : 0.0F;
@@ -315,12 +315,12 @@ public class StarRailExpressTitleScreen extends Screen {
             version += I18n.get("menu.modded");
         g.drawString(this.font, version, 8, this.height - 14, 0xB8C0CC, false);
 
-        if (this.waitingForContinue)
+        if (waitingForContinue)
             renderContinuePrompt(g, mouseX, mouseY, delta);
         else
             renderMainMenu(g, mouseX, mouseY, delta);
 
-        if (realmsNotificationsEnabled() && !this.waitingForContinue) {
+        if (realmsNotificationsEnabled() && !waitingForContinue) {
             RenderSystem.enableDepthTest();
             this.realmsNotificationsScreen.render(g, mouseX, mouseY, delta);
         }
@@ -563,8 +563,8 @@ public class StarRailExpressTitleScreen extends Screen {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (this.waitingForContinue) {
-            this.waitingForContinue = false;
+        if (waitingForContinue) {
+            waitingForContinue = false;
             this.menuAnimProgress = 0.0F;
             return true;
         }
@@ -575,8 +575,8 @@ public class StarRailExpressTitleScreen extends Screen {
 
     @Override
     public boolean charTyped(char codePoint, int modifiers) {
-        if (this.waitingForContinue) {
-            this.waitingForContinue = false;
+        if (waitingForContinue) {
+            waitingForContinue = false;
             this.menuAnimProgress = 0.0F;
             return true;
         }
@@ -586,7 +586,7 @@ public class StarRailExpressTitleScreen extends Screen {
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY,
             double horizontalAmount, double verticalAmount) {
-        if (this.waitingForContinue)
+        if (waitingForContinue)
             return false;
 
         // ── 左侧菜单滚动 ──────────────────────────────────────────────
@@ -655,8 +655,8 @@ public class StarRailExpressTitleScreen extends Screen {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (this.waitingForContinue) {
-            this.waitingForContinue = false;
+        if (waitingForContinue) {
+            waitingForContinue = false;
             this.menuAnimProgress = 0.0F;
             return true;
         }
