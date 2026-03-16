@@ -46,7 +46,6 @@ public class ModRolesInitialEventRegister {
                     if (psychoComponent != null) {
                         psychoComponent.init();
                     }
-
                     // 随机分配一个杀手身份给魔术师（原版杀手、毒师和清道夫除外）
                     magicianComponent.startDisguiseRandomRole();
                 }
@@ -136,8 +135,8 @@ public class ModRolesInitialEventRegister {
                     SRE.SendRoomInfoToPlayer(sp);
                 return;
             }
-            if (role.identifier().equals(ModRoles.OLDMAN.identifier())) {
-                // 现在在NoellesRolesAbilityPlayerComponent serverTick中处理。
+            if (role.identifier().equals(ModRoles.GUEST_GHOST.identifier())) {
+                SREPlayerShopComponent.KEY.get(player).setBalance(100);
                 return;
             }
             SREAbilityPlayerComponent abilityPlayerComponent = (SREAbilityPlayerComponent) SREAbilityPlayerComponent.KEY

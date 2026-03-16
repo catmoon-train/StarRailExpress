@@ -179,6 +179,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
     public int stage1Need = 50;
     public int stage2Need = 120;
     public int stage3Need = 300;
+    public int prayerRainCooldown = 0;
 
     /**
      * 构造函数
@@ -233,6 +234,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         this.otherworldDuration = 0;
         this.prayerRainActive = false;
         this.prayerRainDuration = 0;
+        this.prayerRainCooldown = 0;
         this.frenzyRainActive = false;
         this.frenzyRainDuration = 0;
         this.frenzyRainCooldown = 0;
@@ -461,6 +463,9 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
      * 激活里世界
      */
     public void activateOtherworld(int duration) {
+        if (prayerRainCooldown > 0) {
+            return;
+        }
         if (!(player instanceof ServerPlayer sp)) {
             return;
         }
@@ -527,6 +532,15 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
     public void usePrayerRain() {
         if (otherworldActive)
             return;
+        if (prayerRainCooldown > 0) {
+            player.displayClientMessage(
+                    Component
+                            .translatable("message.noellesroles.ma_chen_xu.prayer_rain_cooldown",
+                                    prayerRainCooldown / 20)
+                            .withStyle(ChatFormatting.RED),
+                    true);
+            return;
+        }
         if (stage < 3) {
             player.displayClientMessage(
                     Component.translatable("tip.noellesroles.not_enough_energy")
@@ -550,7 +564,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         // 扣除金币
         playerShopComponent.setBalance(playerShopComponent.balance - PRAYER_RAIN_COST);
         playerShopComponent.sync();
-
+        prayerRainCooldown = 20 * 60; // 60s 冷却
         // 激活里世界30秒
         activateOtherworld(PRAYER_RAIN_DURATION);
 
@@ -739,6 +753,10 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
                 ));
             }
         }
+
+        if (prayerRainCooldown > 0) {
+            prayerRainCooldown--;
+        }
         if (shieldDuration > 0)
             shieldDuration--;
         if (this.player.isSprinting()) {
@@ -891,12 +909,12 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
                         instantSilenceCooldown / 20)
                         .withStyle(ChatFormatting.YELLOW);
             case "prayer_rain":
-                if (otherworldDuration <= 0 && !otherworldActive)
+                if (prayerRainCooldown <= 0 && otherworldDuration <= 0 && !otherworldActive)
                     return Component.translatable("message.noellesroles.ma_chen_xu.available",
                             NoellesrolesClient.abilityBind.getTranslatedKeyMessage())
                             .withStyle(ChatFormatting.GREEN);
                 return Component.translatable("message.noellesroles.ma_chen_xu.cooldown",
-                        Component.translatable("hud.noellesroles.ma_chen_xu.skill." + skillId), otherworldDuration / 20)
+                        Component.translatable("hud.noellesroles.ma_chen_xu.skill." + skillId), prayerRainCooldown / 20)
                         .withStyle(ChatFormatting.YELLOW);
             default:
                 break;
@@ -916,6 +934,9 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         }
         if (prayerRainDuration > 1) {
             prayerRainDuration--;
+        }
+        if (prayerRainCooldown > 1) {
+            prayerRainCooldown--;
         }
         if (blinkCooldown > 1)
             blinkCooldown--;
@@ -967,6 +988,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         tag.putInt("stage3Need", this.stage3Need);
         tag.putInt("shieldDuration", this.shieldDuration);
         tag.putInt("nowSelectedSkill", this.nowSelectedSkill);
+        tag.putInt("prayerRainCooldown", this.prayerRainCooldown);
 
         // 保存鬼术列表
         CompoundTag skillsTag = new CompoundTag();
@@ -991,6 +1013,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
 
     @Override
     public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+        this.prayerRainCooldown = tag.contains("prayerRainCooldown") ? tag.getInt("prayerRainCooldown") : 0;
         this.stage = tag.contains("stage") ? tag.getInt("stage") : 1;
         this.totalSanLoss = tag.contains("totalSanLoss") ? tag.getInt("totalSanLoss") : 0;
         this.fearTimer = tag.contains("fearTimer") ? tag.getInt("fearTimer") : 0;

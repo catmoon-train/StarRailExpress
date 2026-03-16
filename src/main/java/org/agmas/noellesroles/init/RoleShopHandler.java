@@ -13,14 +13,18 @@ import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.roles.framing.FramingShopEntry;
 import org.jetbrains.annotations.NotNull;
 
+import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.cca.SREWorldBlackoutComponent;
 import io.wifi.starrailexpress.game.GameConstants;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.ShopContent;
 import io.wifi.starrailexpress.index.TMMItems;
+import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.util.ShopEntry;
 import io.wifi.starrailexpress.util.TMMItemUtils;
 import io.github.mortuusars.exposure_polaroid.ExposurePolaroid;
@@ -42,7 +46,9 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.Filterable;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Items;
 import org.agmas.noellesroles.utils.RoleUtils;
@@ -137,7 +143,7 @@ public class RoleShopHandler {
         ShopEntry.Type.TOOL));
 
     // 下雨 - 150金币（参考ma_chen_xu的狂热下雨实现，但只保留下雨能力）
-    ItemStack rainItem = Items.BARRIER.getDefaultInstance();
+    ItemStack rainItem = Items.WATER_BUCKET.getDefaultInstance();
     rainItem.set(DataComponents.ITEM_NAME,
         Component.translatable("item.noellesroles.water_ghost.rain")
             .withStyle(ChatFormatting.BLUE, ChatFormatting.BOLD));
@@ -880,9 +886,92 @@ public class RoleShopHandler {
     {
       // 诡客的商店
       List<ShopEntry> shop = new ArrayList<>();
-      // 潜水头盔 - 125金币
-      shop.add(new ShopEntry(ModItems.DIVING_HELMET.getDefaultInstance(), 125,
-          ShopEntry.Type.TOOL));
+      // 净雨符
+      {
+        ItemStack it = Items.BARRIER.getDefaultInstance();
+        it.set(DataComponents.ITEM_NAME, Component.translatable("item.noellesroles.guest_ghost.stop_raining"));
+        var rainLore = new ArrayList<Component>();
+        rainLore.add(Component.translatable("item.noellesroles.guest_ghost.stop_raining.tooltip1")
+            .setStyle(Style.EMPTY.withItalic(false))
+            .withStyle(ChatFormatting.GRAY));
+        it.set(DataComponents.LORE, new ItemLore(rainLore));
+        shop.add(new ShopEntry(it, 150,
+            ShopEntry.Type.TOOL) {
+          @Override
+          public boolean onBuy(Player player) {
+            if (player.getCooldowns().isOnCooldown(Items.BARRIER)) {
+              return false;
+            }
+            player.getCooldowns().addCooldown(Items.BARRIER, 60 * 20);
+            if (player instanceof ServerPlayer sp) {
+              final SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(sp.level());
+              List<ServerPlayer> players = sp.serverLevel().players();
+              for (var p : players) {
+                if (GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(p)) {
+                  if (gameWorldComponent.isRole(p, ModRoles.MA_CHEN_XU)) {
+                    var mapc = MaChenXuPlayerComponent.KEY.get(p);
+                    if (mapc.otherworldActive) {
+                      mapc.otherworldDuration = 1;
+                    }
+                  } else {
+                    SRERole role = gameWorldComponent.getRole(p);
+                    if (role != null) {
+                      if (role.getMoodType().equals(SRERole.MoodType.REAL)) {
+                        SREPlayerMoodComponent.KEY.get(p).addMood(0.2f);
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            return true;
+          }
+        });
+      }
+      // 桃木钉
+      {
+        ItemStack it = Items.WOODEN_SWORD.getDefaultInstance();
+        it.set(DataComponents.ITEM_NAME, Component.translatable("item.noellesroles.guest_ghost.taomuding"));
+        var rainLore = new ArrayList<Component>();
+        rainLore.add(Component.translatable("item.noellesroles.guest_ghost.taomuding.tooltip1")
+            .setStyle(Style.EMPTY.withItalic(false))
+            .withStyle(ChatFormatting.GRAY));
+        it.set(DataComponents.LORE, new ItemLore(rainLore));
+        shop.add(new ShopEntry(it, 150,
+            ShopEntry.Type.TOOL) {
+          @Override
+          public boolean onBuy(Player player) {
+            if (player.getCooldowns().isOnCooldown(Items.WOODEN_SWORD)) {
+              return false;
+            }
+            player.getCooldowns().addCooldown(Items.WOODEN_SWORD, 60 * 20);
+            if (player instanceof ServerPlayer sp) {
+              final SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(sp.level());
+              List<ServerPlayer> players = sp.serverLevel().players();
+              for (var p : players) {
+                if (GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(p)) {
+                  if (gameWorldComponent.isRole(p, ModRoles.MA_CHEN_XU)) {
+                    var mapc = MaChenXuPlayerComponent.KEY.get(p);
+                    mapc.blinkCooldown += 20*30;
+                    mapc.prayerRainDuration += 20*30;
+                    mapc.frenzyRainCooldown += 20*30;
+                    mapc.instantSilenceCooldown += 20*30;
+                    mapc.parasiteCooldown += 20*30;
+                    mapc.puppetShowCooldown += 20*30;
+                    mapc.spiritWalkCooldown += 20*30;
+                    mapc.shieldDuration = 0;
+                    mapc.swiftWindCooldown += 20*30;
+                    p.displayClientMessage(Component.translatable("message.noellesroles.ma_chen_xu.into_cooldown_by_guest").withStyle(ChatFormatting.RED), true);
+                    p.playNotifySound(TMMSounds.ITEM_PSYCHO_ARMOUR, SoundSource.MASTER, 1f, 1f);
+                  } 
+                }
+              }
+            }
+            return true;
+          }
+        });
+      }
+
       ShopContent.customEntries.put(ModRoles.GUEST_GHOST_ID, shop);
     }
   }

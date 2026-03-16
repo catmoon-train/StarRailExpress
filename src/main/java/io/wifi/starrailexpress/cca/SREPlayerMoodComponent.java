@@ -254,7 +254,10 @@ public class SREPlayerMoodComponent implements RoleComponent, ServerTickingCompo
 
     public void setMood(float mood) {
         SRERole role = SREGameWorldComponent.KEY.get(this.player.level()).getRole(player);
-
+        if (this.mood > 1f)
+            this.mood = 1f;
+        else if (this.mood < 0f)
+            this.mood = 0f;
         if (role != null && role.getMoodType() == SRERole.MoodType.REAL) {
             float clampedMood = Math.clamp(mood, 0, 1);
             // 只有当情绪变化超过0.05时才同步（减少网络占用）
