@@ -126,7 +126,6 @@ public class SkinManager {
         registerSkin(SkinTypes.KNIFE, "red_light_sword", 0xFFFF4500);
         registerSkin(SkinTypes.KNIFE, "starlight", 0xFF87CEEB);
         registerSkin(SkinTypes.KNIFE, "sword_in_stone", 0xFF778899);
-        registerSkin(SkinTypes.KNIFE, "astral_defense", 0xFF9370DB);
         registerSkin(SkinTypes.KNIFE, "harpy_star", 0xFFFFF8DC);
         registerSkin(SkinTypes.KNIFE, "quenched_titanium", 0xFFB87333);
         registerSkin(SkinTypes.KNIFE, "tianjie_bit", 0xFFFF6347);
@@ -223,6 +222,7 @@ public class SkinManager {
         registerSkin(SkinTypes.BAT, "wolfteeth_mace", 0xFF708090);
 
         // New bat skins
+        registerSkin(SkinTypes.BAT, "astral_defense", 0xFF9370DB);
         registerSkin(SkinTypes.BAT, "advanced_crowbar", 0xFF696969);
         registerSkin(SkinTypes.BAT, "anvil", 0xFF2F2F2F);
         registerSkin(SkinTypes.BAT, "bamboo_bat", 0xFF8FBC8F);
