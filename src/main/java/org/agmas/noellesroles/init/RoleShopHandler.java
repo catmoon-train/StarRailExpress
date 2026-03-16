@@ -878,7 +878,12 @@ public class RoleShopHandler {
       ShopContent.customEntries.put(ModRoles.DIVER_ID, diverShop);
     }
     {
-
+      // 诡客的商店
+      List<ShopEntry> shop = new ArrayList<>();
+      // 潜水头盔 - 125金币
+      shop.add(new ShopEntry(ModItems.DIVING_HELMET.getDefaultInstance(), 125,
+          ShopEntry.Type.TOOL));
+      ShopContent.customEntries.put(ModRoles.GUEST_GHOST_ID, shop);
     }
   }
 
