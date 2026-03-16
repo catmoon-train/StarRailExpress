@@ -150,6 +150,7 @@ public class SkinManager {
         registerSkin(SkinTypes.KNIFE, "tenet", 0xFF4169E1);
         registerSkin(SkinTypes.KNIFE, "thousands_source", 0xFF9370DB);
         registerSkin(SkinTypes.KNIFE, "zenith_knife", 0xFFFFD700);
+        registerSkin(SkinTypes.KNIFE, "gamma_doppler_claw_knife", 0xFFFFD700);
 
         // Initialize revolver skins
         registerSkin(SkinTypes.REVOLVER, "double_pistol", 0xFF808080);
