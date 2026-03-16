@@ -21,7 +21,6 @@ public class FakeBatItem extends BatItem {
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack itemStack = player.getItemInHand(hand);
-        player.startUsingItem(hand);
-        return InteractionResultHolder.consume(itemStack);
+        return InteractionResultHolder.pass(itemStack);
     }
 }

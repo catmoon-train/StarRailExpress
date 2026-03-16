@@ -5,7 +5,7 @@ import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.event.AllowItemShowInHand;
 import io.wifi.starrailexpress.index.TMMItems;
 
-import org.slf4j.LoggerFactory;
+import org.agmas.noellesroles.init.ModItems;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -24,7 +24,7 @@ public class PlayerEntityRendererMixin {
     @Inject(method = "getArmPose", at = @At("TAIL"), cancellable = true)
     private static void tmm$customArmPose(AbstractClientPlayer player,
             InteractionHand hand, CallbackInfoReturnable<HumanoidModel.ArmPose> cir) {
-        if (player.getItemInHand(hand).is(TMMItems.BAT))
+        if (player.getItemInHand(hand).is(TMMItems.BAT) || player.getItemInHand(hand).is(ModItems.FAKE_BAT))
             cir.setReturnValue(HumanoidModel.ArmPose.CROSSBOW_CHARGE);
     }
 
@@ -34,7 +34,6 @@ public class PlayerEntityRendererMixin {
         if (hand.equals(InteractionHand.MAIN_HAND)) {
             for (var i : TMMItems.INVISIBLE_ITEMS) {
                 if (original.is(i)) {
-                    // LoggerFactory.getLogger("train").info("Hide " + i.toString());
                     return ItemStack.EMPTY;
                 }
             }
@@ -42,9 +41,7 @@ public class PlayerEntityRendererMixin {
             if (eventRes != null) {
                 return eventRes;
             }
-            if (SREClient.moodComponent != null && SREClient.moodComponent.isLowerThanMid()) { // make sure it's only
-                                                                                               // the main hand item
-                                                                                               // that's being replaced
+            if (SREClient.moodComponent != null && SREClient.moodComponent.isLowerThanMid()) { 
                 HashMap<UUID, ItemStack> psychosisItems = SREClient.moodComponent.getPsychosisItems();
                 UUID uuid = player.getUUID();
                 if (psychosisItems.containsKey(uuid)) {

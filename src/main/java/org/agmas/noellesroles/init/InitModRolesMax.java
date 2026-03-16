@@ -459,7 +459,7 @@ public class InitModRolesMax {
             // 水下角色（海王、潜水员、水鬼）- 仅在水下地图必定生成
             {
                 boolean isUnderwaterMap = false;
-                var underwaterMaps = new ArrayList<>(NoellesRolesConfig.HANDLER.instance().underwaterMaps);
+                var underwaterMaps = new ArrayList<>(NoellesRolesConfig.HANDLER.instance().underwaterRolesMaps);
                 if (underwaterMaps != null && underwaterMaps.size() > 0) {
                     isUnderwaterMap = underwaterMaps.contains(currentMap);
                 }

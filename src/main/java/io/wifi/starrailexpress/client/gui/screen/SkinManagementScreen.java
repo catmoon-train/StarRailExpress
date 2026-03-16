@@ -101,9 +101,10 @@ public class SkinManagementScreen extends Screen {
         if (skinnableItems.isEmpty()) {
             return;
         }
-
-        int categoryWidth = screenWidth / skinnableItems.size();
+        int maxAreasWidth = Math.min(screenWidth - 100, 600);
         int categorySpacing = 5;
+
+        int categoryWidth = (maxAreasWidth - (skinnableItems.size()) * categorySpacing) / skinnableItems.size();
         int totalWidth = skinnableItems.size() * categoryWidth + (skinnableItems.size() - 1) * categorySpacing;
         int startX = (screenWidth - totalWidth) / 2;
         int categoryY = titleY + 12;
