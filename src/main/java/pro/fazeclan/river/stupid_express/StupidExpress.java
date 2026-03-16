@@ -64,7 +64,7 @@ public class StupidExpress implements ModInitializer {
     }
 
     public static List<SRERole> getEnableKillerRoles() {
-        List<SRERole> clone = (getEnableRoles());
+        List<SRERole> clone = (getEnableRoles(false));
         clone.removeIf(
                 r -> !r.canUseKiller());
         return clone;
