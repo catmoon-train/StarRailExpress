@@ -26,10 +26,10 @@ public interface TMMModelLayers {
     }
 
     public static ModelLayerLocation layer(String id, String name) {
-        return new ModelLayerLocation(SRE.id(id), name);
+        return new ModelLayerLocation(SRE.watheId(id), name);
     }
 
     public static ModelLayerLocation layer(String id) {
-        return new ModelLayerLocation(SRE.id(id), "main");
+        return new ModelLayerLocation(SRE.watheId(id), "main");
     }
 }

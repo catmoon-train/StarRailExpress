@@ -466,6 +466,8 @@ public class GameUtils {
         serverWorld.setDayTime(SRETrainWorldComponent.TimeOfDay.SUNDOWN.time);
         serverWorld.getGameRules().getRule(GameRules.RULE_KEEPINVENTORY).set(true, serverWorld.getServer());
         serverWorld.getGameRules().getRule(GameRules.RULE_WEATHER_CYCLE).set(false, serverWorld.getServer());
+        serverWorld.setWeatherParameters(6000, 0, false, false);
+
         // serverWorld.getGameRules().getRule(GameRules.RULE_DAYLIGHT).set(false,
         // serverWorld.getServer());
 
@@ -618,6 +620,7 @@ public class GameUtils {
 
     public static void finalizeGame(ServerLevel world) {
         SRE.LOGGER.info("Game Stopped!");
+        world.setWeatherParameters(6000, 0, false, false);
         serverTaskQueue.clear();
         serverAsynTaskLists.clear();
         isStartingGame = false;
@@ -807,7 +810,7 @@ public class GameUtils {
     public static void resetPlayerAfterGame(ServerPlayer player) {
         resetPlayer(player);
         ServerPlayNetworking.send(player, new AnnounceEndingPayload());
-        player.serverLevel().getGameRules().getRule(GameRules.RULE_WEATHER_CYCLE).set(false, player.getServer());
+
         player.removeVehicle();
 
         AreasWorldComponent.PosWithOrientation spawnPos = AreasWorldComponent.KEY.get(player.level()).getSpawnPos();

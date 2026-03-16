@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.mixin.roles.stalker;
 
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
@@ -10,8 +11,11 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+
+import org.agmas.noellesroles.component.MaChenXuPlayerComponent;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.component.StalkerPlayerComponent;
+import org.agmas.noellesroles.role.ModRoles;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -23,7 +27,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  */
 @Mixin(ServerPlayer.class)
 public abstract class StalkerLeftClickKillMixin {
-
     /**
      * 在玩家攻击实体时触发
      * 如果是跟踪者二阶段以上持刀攻击玩家，则直接击杀目标
@@ -35,7 +38,9 @@ public abstract class StalkerLeftClickKillMixin {
         // 检查目标是否是玩家
         if (!(target instanceof Player targetPlayer))
             return;
-
+        // 是否为 stalker
+        if (!SREGameWorldComponent.KEY.get(attacker.level()).isRole(attacker, ModRoles.STALKER))
+            return;
         // 检查目标是否存活
         if (!GameUtils.isPlayerAliveAndSurvival(attacker))
             return;
@@ -83,5 +88,36 @@ public abstract class StalkerLeftClickKillMixin {
 
         // 取消原始攻击逻辑
         ci.cancel();
+    }
+
+    /**
+     * 在MaChenXu攻击实体时触发
+     * 如果是MaChenXu在里世界时间持刀攻击玩家，则直接击杀目标
+     */
+    @Inject(method = "attack", at = @At("HEAD"), cancellable = true)
+    private void onMaChenXuKnifeAttack(Entity target, CallbackInfo ci) {
+        ServerPlayer attacker = (ServerPlayer) (Object) this;
+
+        // 检查目标是否是玩家
+        if (!(target instanceof Player targetPlayer))
+            return;
+        // 是否为 machenxu
+        if (!SREGameWorldComponent.KEY.get(attacker.level()).isRole(attacker, ModRoles.MA_CHEN_XU))
+            return;
+        // 检查目标是否存活
+        if (!GameUtils.isPlayerAliveAndSurvival(attacker))
+            return;
+        // 检查目标是否存活
+        if (!GameUtils.isPlayerAliveAndSurvival(targetPlayer))
+            return;
+        var mcxpc = MaChenXuPlayerComponent.KEY.get(attacker);
+
+        if (!mcxpc.otherworldActive)
+            return;
+
+        if (mcxpc.soulDevour(targetPlayer)) {
+            // 取消原始攻击逻辑
+            ci.cancel();
+        }
     }
 }

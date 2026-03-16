@@ -461,6 +461,11 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
      * 激活里世界
      */
     public void activateOtherworld(int duration) {
+        if (!(player instanceof ServerPlayer sp)) {
+            return;
+        }
+        sp.serverLevel().setWeatherParameters(6000, 0, false, false);
+
         this.otherworldActive = true;
         this.otherworldDuration = duration;
         this.otherworldTimer = 0;
@@ -488,19 +493,24 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
     /**
      * 魂噬击杀
      */
-    public void soulDevour(Player target) {
+    public boolean soulDevour(Player target) {
         if (!(player instanceof ServerPlayer))
-            return;
+            return false;
 
         // 检查目标SAN值是否 <= 10
         // 这里需要实现SAN值检查逻辑
-
+        // 获取Mood < 0.1(10%)
+        float mood = SREPlayerMoodComponent.KEY.get(target).getMood();
+        if (mood > 0.1f) {
+            Noellesroles.LOGGER.info("San {} over 0.1", mood);
+            return false;
+        }
         // 击杀目标
         GameUtils.killPlayer(target, true, player, Noellesroles.id("machenxu"));
 
         // 减少里世界时间
         if (otherworldActive) {
-            otherworldDuration = Math.max(0, otherworldDuration - SOUL_DEVOUR_REDUCTION);
+            otherworldDuration = Math.max(1, otherworldDuration - SOUL_DEVOUR_REDUCTION);
         }
 
         // 播放音效
@@ -508,6 +518,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
                 SoundEvents.WITHER_DEATH, SoundSource.PLAYERS, 1.0F, 1.2F);
 
         this.sync();
+        return true;
     }
 
     /**
@@ -560,7 +571,6 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
     public boolean useFrenzyRain() {
         if (!(player instanceof ServerPlayer serverPlayer))
             return false;
-
         // 检查冷却时间
         if (frenzyRainCooldown > 0) {
             serverPlayer.displayClientMessage(
@@ -599,6 +609,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         // 给玩家添加速度效果（狂热状态）
         player.addEffect(new MobEffectInstance(
                 MobEffects.MOVEMENT_SPEED, FRENZY_RAIN_DURATION, 1, false, false, true));
+        serverPlayer.serverLevel().setWeatherParameters(0, 60 * 20, true, true);
 
         this.sync();
         return true;
@@ -644,7 +655,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
                     double distance = playerPos.distanceTo(target.position());
                     if (distance <= range) {
                         // 这里需要实现SAN值减少逻辑
-                        SREPlayerMoodComponent.KEY.get(target).addMood(sanLoss / 100);
+                        SREPlayerMoodComponent.KEY.get(target).addMood(-((float) sanLoss / 100));
                         addSanLoss(sanLoss);
                     }
                 }
@@ -681,6 +692,9 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
                 otherworldActive = false;
                 otherworldTimer = 0;
                 otherworldDuration = 0;
+                if (player instanceof ServerPlayer sp) {
+                    sp.serverLevel().setWeatherParameters(6000, 0, false, false);
+                }
 
                 // 移除所有好人的失明效果
                 Level world = player.level();
@@ -710,6 +724,9 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
             return;
         if (!GameUtils.isPlayerAliveAndSurvival(player))
             return;
+        if (!(player instanceof ServerPlayer sp)) {
+            return;
+        }
         if (this.spiritWalkActive) {
             if (this.player.level().getGameTime() % 30 == 0) {
                 this.player.addEffect(new MobEffectInstance(
@@ -738,6 +755,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
             frenzyRainDuration--;
             if (frenzyRainDuration <= 0) {
                 frenzyRainActive = false;
+                sp.serverLevel().setWeatherParameters(6000, 0, false, false);
                 this.sync();
             }
             // 处理下雨[狂热]冷却

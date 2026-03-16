@@ -16,6 +16,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
+
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.role.ModRoles;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
@@ -173,6 +174,7 @@ public class WaterGhostPlayerComponent implements RoleComponent, ServerTickingCo
             if (rainDuration == 0) {
                 // 下雨结束
                 serverLevel.setWeatherParameters(6000, 0, false, false); // 晴天
+
                 if (serverPlayer != null) {
                     serverPlayer.displayClientMessage(
                             Component.translatable("message.noellesroles.water_ghost.rain_end")
@@ -219,7 +221,7 @@ public class WaterGhostPlayerComponent implements RoleComponent, ServerTickingCo
             // 检查是否干涸死亡
             if (outOfWaterTimer >= DRY_DEATH_TIME) {
                 // 死亡
-                GameUtils.killPlayer(serverPlayer, false, null, 
+                GameUtils.killPlayer(serverPlayer, false, null,
                         Noellesroles.id("dry_death"));
                 return;
             }
@@ -245,7 +247,7 @@ public class WaterGhostPlayerComponent implements RoleComponent, ServerTickingCo
         // 检查冷却
         if (skillCooldown > 0) {
             serverPlayer.displayClientMessage(
-                    Component.translatable("message.noellesroles.water_ghost.cooldown", 
+                    Component.translatable("message.noellesroles.water_ghost.cooldown",
                             (skillCooldown + 19) / 20)
                             .withStyle(ChatFormatting.RED),
                     true);
@@ -304,7 +306,8 @@ public class WaterGhostPlayerComponent implements RoleComponent, ServerTickingCo
         // 激活下雨（参考ma_chen_xu的狂热下雨，但只保留下雨效果）
         ServerLevel serverLevel = serverPlayer.serverLevel();
         // 使用setWeatherParameters设置下雨（第一个参数为晴天时长，第二个为雨天时长）
-        serverLevel.setWeatherParameters(0, RAIN_DURATION, true, false); // 只下雨，不打雷
+
+        serverLevel.setWeatherParameters(0, RAIN_DURATION, true, false); // 下雨 不打雷
         rainDuration = RAIN_DURATION;
 
         // 设置冷却时间
