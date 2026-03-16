@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
+import io.wifi.starrailexpress.item.SkinableItem;
 import io.wifi.syncrequests.SyncRequests;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -114,20 +115,31 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
     public Integer getLootChance() {
         return this.lootChance;
     }
+
     /** 获取当前玩家金币数量 */
     public Integer getCoinNum() {
         return this.coinNum;
     }
+
     public void addLootChance(Integer num) {
         this.lootChance += num;
         // 触发网络同步
         markSkinDataChanged();
     }
+
     public void addCoinNum(Integer num) {
         this.coinNum += num;
         // 触发网络同步
         markSkinDataChanged();
     }
+
+    /**
+     * 获取当前装备的皮肤名称
+     */
+    public String getEquippedSkin(String itemName) {
+        return equippedSkins.getOrDefault(normalizeItemName(itemName), "default");
+    }
+
     /**
      * 获取当前装备的皮肤名称
      */
@@ -188,6 +200,7 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
         String normalizedItemName = normalizeItemName(itemTypeName);
         Map<String, Boolean> skinsForItem = unlockedSkins.get(normalizedItemName);
         if (skinsForItem != null) {
+            if(skinName.contains(skinName))
             skinsForItem.remove(skinName);
             // 如果物品没有其他解锁的皮肤，移除该物品的条目
             if (skinsForItem.isEmpty()) {
@@ -243,14 +256,6 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
     }
 
     /**
-     * 获取指定物品类型的当前装备皮肤
-     */
-    public String getEquippedSkinForItemType(String itemTypeName) {
-        String normalizedItemName = normalizeItemName(itemTypeName);
-        return equippedSkins.getOrDefault(normalizedItemName, "default");
-    }
-
-    /**
      * 获取所有装备的皮肤映射
      */
     public Map<String, String> getEquippedSkins() {
@@ -275,9 +280,13 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
      * 从数据同步令牌获取皮肤数据
      */
     public String getSkinFromDataSync(ItemStack itemStack) {
-
+         String itemName = "default";
+        if(itemStack.getItem() instanceof SkinableItem ski){
+            itemName = ski.getItemSkinType();
+        }else{
+            itemName = BuiltInRegistries.ITEM.getKey(itemStack.getItem()).getPath();
+        }
         // 使用物品的注册名而不是显示名称，以确保一致性
-        String itemName = BuiltInRegistries.ITEM.getKey(itemStack.getItem()).getPath();
 
         if (KEY.get(player).equippedSkins.containsKey(itemName)) {
             return KEY.get(player).equippedSkins.get(itemName);

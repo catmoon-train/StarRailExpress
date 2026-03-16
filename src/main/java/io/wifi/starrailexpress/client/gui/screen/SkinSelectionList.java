@@ -171,7 +171,7 @@ public class SkinSelectionList extends ObjectSelectionList<SkinSelectionList.Ski
         }
 
         private void updateCurrentSkin() {
-            this.currentSkin = skinsComponent.getEquippedSkinForItemType(itemTypeName);
+            this.currentSkin = skinsComponent.getEquippedSkin(itemTypeName);
             this.isCurrent = skinName.equals(currentSkin);
         }
 

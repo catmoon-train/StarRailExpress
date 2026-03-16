@@ -21,7 +21,7 @@ public class SkinUtils {
      * @param skinName 皮肤名称
      */
     public static void setItemSkin(Player player, ItemStack itemStack, String skinName) {
-        if (itemStack.getItem() instanceof io.wifi.starrailexpress.item.ItemWithSkin) {
+        if (itemStack.getItem() instanceof io.wifi.starrailexpress.item.SkinableItem) {
             SRECosmetics.setSkin(player, itemStack, skinName);
             // 同时更新玩家皮肤组件
             SREPlayerSkinsComponent skinsComponent = SREPlayerSkinsComponent.KEY.get(player);
@@ -38,7 +38,7 @@ public class SkinUtils {
      * @return 是否支持皮肤
      */
     public static boolean isItemSkinnable(ItemStack itemStack) {
-        return itemStack.getItem() instanceof io.wifi.starrailexpress.item.ItemWithSkin;
+        return itemStack.getItem() instanceof io.wifi.starrailexpress.item.SkinableItem;
     }
     
     /**

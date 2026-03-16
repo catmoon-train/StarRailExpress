@@ -109,7 +109,6 @@ public abstract class LimitedHandledScreen<T extends AbstractContainerMenu> exte
 
         ItemStack itemStack = this.touchDragStack.isEmpty() ? this.handler.getCarried() : this.touchDragStack;
         if (!itemStack.isEmpty()) {
-            int n = 8;
             int l = this.touchDragStack.isEmpty() ? 8 : 16;
             String string = null;
             if (!this.touchDragStack.isEmpty() && this.touchIsRightClickDrag) {

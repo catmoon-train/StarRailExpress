@@ -1,5 +1,6 @@
 package io.wifi.starrailexpress.client.model;
 
+import io.wifi.starrailexpress.index.SRECosmetics;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.util.SkinManager;
 import net.fabricmc.fabric.api.renderer.v1.render.RenderContext;
@@ -95,7 +96,9 @@ public class GrenadeModel implements UnbakedModel, BakedModel {
         if (player != null) {
             return SkinManager.getEquippedSkin(player, stack);
         }
-        return "default";
+        
+        // 如果无法获取玩家或组件，则回退到原始方法
+        return SRECosmetics.getSkin(stack);
     }
 
     @Override

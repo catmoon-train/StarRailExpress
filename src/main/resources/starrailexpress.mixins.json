@@ -7,7 +7,6 @@
     "block.AbstractBlockInvoker",
     "block.AbstractBlockSettingsMixin",
     "cca.CCASyncSatMixin",
-    "client.ItemSkinMixin",
     "client.LivingEntityRendererMixin",
     "entity.EntityMixin",
     "entity.item.ItemEntityMixin",

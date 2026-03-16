@@ -5,12 +5,12 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-
-import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
 import io.wifi.starrailexpress.command.argument.SkinArgumentType;
 import io.wifi.starrailexpress.index.TMMItems;
+import io.wifi.starrailexpress.item.SkinableItem;
 import io.wifi.starrailexpress.util.SkinManager;
+import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -23,6 +23,7 @@ import net.minecraft.world.entity.player.Player;
 
 import static io.wifi.starrailexpress.SRE.LOGGER;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Locale;
@@ -68,21 +69,38 @@ public class ManageSkinsCommand {
         try {
 
             Collection<? extends Player> players = EntityArgument.getPlayers(context, "targets");
-            var item = ItemArgument.getItem(context, "item");
-            String skin = SkinArgumentType.getString(context, "skin");
-
-            int successes = 0;
-            for (Player player : players) {
-                // 解锁指定物品类型的皮肤
-                SkinManager.unlockSkinForItemType(player, BuiltInRegistries.ITEM.getKey(item.getItem()).toString(),
-                        skin);
-                context.getSource().sendSuccess(() -> Component.translatable(
-                        "Gave skin %s for item type %s to %s", skin, item.getItem().getDescription(), player.getName()),
-                        true);
-
-                successes++;
+            var item = ItemArgument.getItem(context, "item").getItem();
+            String skinArgu = SkinArgumentType.getString(context, "skin");
+            String itemId = null;
+            ArrayList<String> skinArray = new ArrayList<>();
+            if (item instanceof SkinableItem it) {
+                itemId = it.getItemSkinType();
             }
+            if (skinArgu == "*") {
+                skinArray.addAll(SkinManager.getSkins(itemId).keySet());
+            } else {
+                skinArray.add(skinArgu);
+            }
+            if (itemId == null) {
+                context.getSource().sendFailure(
+                        Component.translatable("Not a supported Skinable Item!").withStyle(ChatFormatting.RED));
+                return 0;
+            }
+            int successes = 0;
+            for (var skin : skinArray) {
+                for (Player player : players) {
+                    // 解锁指定物品类型的皮肤
+                    SkinManager.unlockSkinForItemType(player, itemId,
+                            skin);
+                    context.getSource().sendSystemMessage(Component.translatable(
+                            "Gave skin %s for item type %s to %s", skin, item.getDescription(), player.getName()));
 
+                    successes++;
+                }
+            }
+            context.getSource().sendSuccess(
+                    () -> Component.translatable("Give %s skins to %s players!", skinArray.size(), players.size()),
+                    true);
             return successes;
         } catch (Exception ig) {
             LOGGER.error("Error occurred while executing manageskins command", ig);
@@ -92,22 +110,39 @@ public class ManageSkinsCommand {
 
     private static int takeSkin(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         Collection<? extends Player> players = EntityArgument.getPlayers(context, "targets");
-        var item = ItemArgument.getItem(context, "item");
-        String skin = SkinArgumentType.getString(context, "skin");
-
-        int successes = 0;
-        for (Player player : players) {
-            // 锁定（移除）指定物品类型的皮肤
-            SREPlayerSkinsComponent skinsComponent = SREPlayerSkinsComponent.KEY.get(player);
-            skinsComponent.lockSkinForItemType(BuiltInRegistries.ITEM.getKey(item.getItem()).toString(), skin);
-            context.getSource().sendSuccess(() -> Component.translatable(
-                    "Removed skin %s for item type %s to %s", skin, item.getItem().getDescription(), player.getName()),
-                    true);
-            skinsComponent.syncSkinsToClient();
-            // skinsComponent.syncSkinsToNetwork();
-            successes++;
+        var item = ItemArgument.getItem(context, "item").getItem();
+        String skinArgu = SkinArgumentType.getString(context, "skin");
+        String itemId = null;
+        ArrayList<String> skinArray = new ArrayList<>();
+        if (item instanceof SkinableItem it) {
+            itemId = it.getItemSkinType();
         }
-
+        if (skinArgu == "*") {
+            skinArray.addAll(SkinManager.getSkins(itemId).keySet());
+        } else {
+            skinArray.add(skinArgu);
+        }
+        if (itemId == null) {
+            context.getSource().sendFailure(
+                    Component.translatable("Not a supported Skinable Item!").withStyle(ChatFormatting.RED));
+            return 0;
+        }
+        int successes = 0;
+        for (var skin : skinArray) {
+            for (Player player : players) {
+                // 锁定（移除）指定物品类型的皮肤
+                SREPlayerSkinsComponent skinsComponent = SREPlayerSkinsComponent.KEY.get(player);
+                skinsComponent.lockSkinForItemType(itemId, skin);
+                context.getSource().sendSystemMessage(Component.translatable(
+                        "Removed skin %s for item type %s to %s", skin, item.getDescription(),
+                        player.getName()));
+                skinsComponent.syncSkinsToClient();
+                // skinsComponent.syncSkinsToNetwork();
+                successes++;
+            }
+        }
+        context.getSource().sendSuccess(
+                () -> Component.translatable("Take %s skins from %s players!", skinArray.size(), players.size()), true);
         return successes;
     }
 
@@ -115,7 +150,10 @@ public class ManageSkinsCommand {
         Collection<? extends Player> players = EntityArgument.getPlayers(context, "targets");
         var item = ItemArgument.getItem(context, "item");
         var skin = SkinArgumentType.getString(context, "skin");
-
+        if (skin == "*") {
+            context.getSource().sendFailure(Component.translatable("Not support *."));
+            return 0;
+        }
         int successes = 0;
         for (Player player : players) {
             // 设置指定物品类型的装备皮肤
@@ -133,21 +171,29 @@ public class ManageSkinsCommand {
     private static CompletableFuture<Suggestions> suggestSkins(CommandContext<CommandSourceStack> context,
             SuggestionsBuilder builder) {
         var item = ItemArgument.getItem(context, "item").getItem();
-
+        String itemId;
+        if (item instanceof SkinableItem it) {
+            itemId = it.getItemSkinType();
+        } else {
+            itemId = SkinManager.getResourceLocationOfItem(item).getPath();
+        }
         String remaining = builder.getRemaining().toLowerCase(Locale.ROOT);
         Set<String> suggestions = new HashSet<>();
         // 添加自定义 ID 到 Set
-        var itemId = SkinManager.getResourceLocationOfItem(item);
         if (itemId == null) {
             return builder.buildFuture();
         }
-        var skins = SkinManager.getSkins(itemId.getPath());
+        if ("*".contains(remaining)) {
+            builder.suggest("*",
+                    Component.translatable("All Skins"));
+        }
+        var skins = SkinManager.getSkins(itemId);
         skins.keySet().stream().filter(id -> id.toLowerCase(Locale.ROOT).startsWith(remaining))
                 .forEach(suggestions::add);
         // 最后批量建议
         suggestions.forEach((s) -> {
             builder.suggest(s,
-                    Component.translatableWithFallback("screen.sre.skins." + itemId.getPath() + "." + s + ".name", s));
+                    Component.translatableWithFallback("screen.sre.skins." + itemId + "." + s + ".name", s));
         });
 
         return builder.buildFuture();
@@ -160,15 +206,15 @@ public class ManageSkinsCommand {
         // 添加自定义 ID 到 Set
 
         TMMItems.SkinnableItem.stream()
-                .map(SkinManager::getResourceLocationOfItem)
-                .map(ResourceLocation::toString)
+                .filter(it -> it instanceof SkinableItem)
+                .map(it -> ((SkinableItem) it).getItemSkinType())
                 .filter(id -> id.toLowerCase(Locale.ROOT).startsWith(remaining))
                 .forEach(suggestions::add);
         // 最后批量建议
         suggestions.forEach((s) -> {
             var t = ResourceLocation.tryParse(s);
             if (t != null) {
-                builder.suggest(s, GameReplayUtils.getItemDisplayName(t));
+                builder.suggest(s, Component.translatableWithFallback("screen.sre.skins." + s, s));
             }
         });
 
