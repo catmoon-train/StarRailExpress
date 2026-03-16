@@ -1,7 +1,7 @@
 {
 	"parent": "item/generated",
 	"textures": {
-		"layer0": "starrailexpress:item/gun/Izumo_four_one_style"
+		"layer0": "starrailexpress:item/gun/izumo_four_one_style"
 	},
 	"display": {
 		"thirdperson_righthand": {
