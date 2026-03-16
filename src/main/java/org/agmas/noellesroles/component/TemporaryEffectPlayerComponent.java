@@ -68,6 +68,13 @@ public class TemporaryEffectPlayerComponent implements RoleComponent, ServerTick
             dogskinPlasterProtectionEnd = 0;
             this.sync();
         }
+
+        // 如果受狗皮膏药保护，主动恢复san值以抵消下降，保持san值不会下降到下界
+        if (hasDogskinPlasterProtection()) {
+            io.wifi.starrailexpress.cca.SREPlayerMoodComponent mood =
+                io.wifi.starrailexpress.cca.SREPlayerMoodComponent.KEY.get(player);
+            mood.setMood(mood.getMood() + io.wifi.starrailexpress.game.GameConstants.MOOD_DRAIN);
+        }
     }
     
     /**

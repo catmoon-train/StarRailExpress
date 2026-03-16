@@ -1304,10 +1304,10 @@ public class RoleShopHandler {
     });
 
     // 特警商店
-    // 马格南子弹 - 150金币
+    // 马格南子弹 - 125金币
     SWAST_SHOP.add(new ShopEntry(
         TMMItems.MAGNUM_BULLET.getDefaultInstance(),
-        150,
+        125,
         ShopEntry.Type.WEAPON));
 
     // 瞄准镜 - 100金币

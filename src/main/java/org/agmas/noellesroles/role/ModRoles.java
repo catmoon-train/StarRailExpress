@@ -567,7 +567,10 @@ public class ModRoles {
       SRERole.MoodType.REAL, // 真实心情
       TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
       false // 不隐藏计分板
-  )).setCanSeeCoin(true).setVigilanteTeam(true).setCanPickUpRevolver(false);
+  )).setCanSeeCoin(true).setVigilanteTeam(true).setCanPickUpRevolver(false)
+   .setServerGameTickEvent((player, gameComponent) -> {
+       org.agmas.noellesroles.roles.swast.SwastTickHandler.serverTick(player, gameComponent);
+   });
 
   /**
    * 武术教官角色

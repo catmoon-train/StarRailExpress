@@ -124,7 +124,7 @@ public class SkinManager {
         registerSkin(SkinTypes.KNIFE, "matchstick_sword", 0xFFDEB887);
         registerSkin(SkinTypes.KNIFE, "missing_source", 0xFF808080);
         registerSkin(SkinTypes.KNIFE, "missing_sword", 0xFFA0A0A0);
-        registerSkin(SkinTypes.KNIFE, "moqingyu", 0xFF228B22);
+        registerSkin(SkinTypes.KNIFE, "herring_sword_fish", 0xFF228B22);
         registerSkin(SkinTypes.KNIFE, "nail", 0xFF696969);
         registerSkin(SkinTypes.KNIFE, "peach_stick", 0xFFFFE4B5);
         registerSkin(SkinTypes.KNIFE, "red_light_sword", 0xFFFF4500);

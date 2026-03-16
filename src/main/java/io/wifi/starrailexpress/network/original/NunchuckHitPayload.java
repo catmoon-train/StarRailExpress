@@ -102,7 +102,7 @@ public record NunchuckHitPayload(int targetId, int direction) implements CustomP
 
         // 执行击退
         Vec3 knockbackDir = NunchuckItem.getKnockbackDirection(attacker, direction_);
-        double knockbackStrength = 0.5;
+        double knockbackStrength = (direction_ == 2) ? 1.5 : 0.5; // 蹲下左键(direction=2)击退距离为1.5，其他情况为0.5
         target.setDeltaMovement(knockbackDir.scale(knockbackStrength));
         target.hurtMarked = true;
 
