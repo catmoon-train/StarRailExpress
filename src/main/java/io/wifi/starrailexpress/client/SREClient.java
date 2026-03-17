@@ -273,8 +273,8 @@ public class SREClient implements ClientModInitializer {
 
         // Lock options
         OptionLocker.overrideOption("gamma", 0d);
-        if (getLockedRenderDistance(SREConfig.isUltraPerfMode()) != null) {
-            OptionLocker.overrideOption("renderDistance", getLockedRenderDistance(SREConfig.isUltraPerfMode()));
+        if (getLockedRenderDistance(SREConfig.instance().isUltraPerfMode()) != null) {
+            OptionLocker.overrideOption("renderDistance", getLockedRenderDistance(SREConfig.instance().isUltraPerfMode()));
         }
         OptionLocker.overrideOption("showSubtitles", false);
         OptionLocker.overrideOption("autoJump", false);

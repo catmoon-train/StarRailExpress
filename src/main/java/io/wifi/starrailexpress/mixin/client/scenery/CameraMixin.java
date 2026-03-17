@@ -33,7 +33,7 @@ public class CameraMixin {
 
     @Inject(method = "setup", at = @At("RETURN"))
     private void tmm$doScreenshake(BlockGetter area, Entity focusedEntity, boolean thirdPerson, boolean inverseView, float tickDelta, CallbackInfo ci) {
-        if (SREClient.isTrainMoving() && !SREConfig.disableScreenShake) {
+        if (SREClient.isTrainMoving() && !SREConfig.instance().disableScreenShake) {
             Camera camera = (Camera) (Object) this;
 
             LocalPlayer player = Minecraft.getInstance().player;

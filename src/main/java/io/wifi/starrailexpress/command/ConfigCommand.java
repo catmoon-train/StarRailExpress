@@ -28,7 +28,7 @@ public class ConfigCommand {
     private static int reloadConfig(CommandContext<CommandSourceStack> context) {
         CommandSourceStack source = context.getSource();
         try {
-            SREConfig.reload();
+            SREConfig.instance().reload();
             SREConfig.HANDLER.syncToClient(source.getServer());
             HarpyModLoaderConfig.HANDLER.load();
             NoellesRolesConfig.HANDLER.load();
@@ -52,7 +52,7 @@ public class ConfigCommand {
         CommandSourceStack source = context.getSource();
 
         try {
-            SREConfig.reset();
+            SREConfig.instance().reset();
             source.sendSuccess(
                     () -> Component.translatable("commands.sre.config.reset")
                             .withStyle(style -> style.withColor(0x00FF00)),
@@ -74,86 +74,86 @@ public class ConfigCommand {
         // 商店价格
         source.sendSuccess(() -> Component.translatable("commands.sre.config.show.shop_prices.header"), false);
         source.sendSuccess(
-                () -> Component.translatable("commands.sre.config.show.shop_prices.knife", SREConfig.knifePrice),
+                () -> Component.translatable("commands.sre.config.show.shop_prices.knife", SREConfig.instance().knifePrice),
                 false);
         source.sendSuccess(
-                () -> Component.translatable("commands.sre.config.show.shop_prices.revolver", SREConfig.revolverPrice),
+                () -> Component.translatable("commands.sre.config.show.shop_prices.revolver", SREConfig.instance().revolverPrice),
                 false);
         source.sendSuccess(
-                () -> Component.translatable("commands.sre.config.show.shop_prices.grenade", SREConfig.grenadePrice),
+                () -> Component.translatable("commands.sre.config.show.shop_prices.grenade", SREConfig.instance().grenadePrice),
                 false);
         source.sendSuccess(() -> Component.translatable("commands.sre.config.show.shop_prices.psycho_mode",
-                SREConfig.psychoModePrice), false);
+                SREConfig.instance().psychoModePrice), false);
         source.sendSuccess(() -> Component.translatable("commands.sre.config.show.shop_prices.poison_vial",
-                SREConfig.poisonVialPrice), false);
+                SREConfig.instance().poisonVialPrice), false);
         source.sendSuccess(
-                () -> Component.translatable("commands.sre.config.show.shop_prices.scorpion", SREConfig.scorpionPrice),
+                () -> Component.translatable("commands.sre.config.show.shop_prices.scorpion", SREConfig.instance().scorpionPrice),
                 false);
         source.sendSuccess(() -> Component.translatable("commands.sre.config.show.shop_prices.firecracker",
-                SREConfig.firecrackerPrice), false);
+                SREConfig.instance().firecrackerPrice), false);
         source.sendSuccess(
-                () -> Component.translatable("commands.sre.config.show.shop_prices.lockpick", SREConfig.lockpickPrice),
+                () -> Component.translatable("commands.sre.config.show.shop_prices.lockpick", SREConfig.instance().lockpickPrice),
                 false);
         source.sendSuccess(
-                () -> Component.translatable("commands.sre.config.show.shop_prices.crowbar", SREConfig.crowbarPrice),
+                () -> Component.translatable("commands.sre.config.show.shop_prices.crowbar", SREConfig.instance().crowbarPrice),
                 false);
         source.sendSuccess(
-                () -> Component.translatable("commands.sre.config.show.shop_prices.body_bag", SREConfig.bodyBagPrice),
+                () -> Component.translatable("commands.sre.config.show.shop_prices.body_bag", SREConfig.instance().bodyBagPrice),
                 false);
         source.sendSuccess(
-                () -> Component.translatable("commands.sre.config.show.shop_prices.blackout", SREConfig.blackoutPrice),
+                () -> Component.translatable("commands.sre.config.show.shop_prices.blackout", SREConfig.instance().blackoutPrice),
                 false);
         source.sendSuccess(
-                () -> Component.translatable("commands.sre.config.show.shop_prices.note", SREConfig.notePrice), false);
+                () -> Component.translatable("commands.sre.config.show.shop_prices.note", SREConfig.instance().notePrice), false);
 
         // 物品冷却时间
         source.sendSuccess(() -> Component.translatable("commands.sre.config.show.cooldowns.header"), false);
         source.sendSuccess(
-                () -> Component.translatable("commands.sre.config.show.cooldowns.knife", SREConfig.knifeCooldown),
+                () -> Component.translatable("commands.sre.config.show.cooldowns.knife", SREConfig.instance().knifeCooldown),
                 false);
         source.sendSuccess(
-                () -> Component.translatable("commands.sre.config.show.cooldowns.revolver", SREConfig.revolverCooldown),
+                () -> Component.translatable("commands.sre.config.show.cooldowns.revolver", SREConfig.instance().revolverCooldown),
                 false);
         source.sendSuccess(() -> Component.translatable("commands.sre.config.show.cooldowns.derringer",
-                SREConfig.derringerCooldown), false);
+                SREConfig.instance().derringerCooldown), false);
         source.sendSuccess(
-                () -> Component.translatable("commands.sre.config.show.cooldowns.grenade", SREConfig.grenadeCooldown),
+                () -> Component.translatable("commands.sre.config.show.cooldowns.grenade", SREConfig.instance().grenadeCooldown),
                 false);
         source.sendSuccess(
-                () -> Component.translatable("commands.sre.config.show.cooldowns.lockpick", SREConfig.lockpickCooldown),
+                () -> Component.translatable("commands.sre.config.show.cooldowns.lockpick", SREConfig.instance().lockpickCooldown),
                 false);
         source.sendSuccess(
-                () -> Component.translatable("commands.sre.config.show.cooldowns.crowbar", SREConfig.crowbarCooldown),
+                () -> Component.translatable("commands.sre.config.show.cooldowns.crowbar", SREConfig.instance().crowbarCooldown),
                 false);
         source.sendSuccess(
-                () -> Component.translatable("commands.sre.config.show.cooldowns.body_bag", SREConfig.bodyBagCooldown),
+                () -> Component.translatable("commands.sre.config.show.cooldowns.body_bag", SREConfig.instance().bodyBagCooldown),
                 false);
         source.sendSuccess(() -> Component.translatable("commands.sre.config.show.cooldowns.psycho_mode",
-                SREConfig.psychoModeCooldown), false);
+                SREConfig.instance().psychoModeCooldown), false);
         source.sendSuccess(
-                () -> Component.translatable("commands.sre.config.show.cooldowns.blackout", SREConfig.blackoutCooldown),
+                () -> Component.translatable("commands.sre.config.show.cooldowns.blackout", SREConfig.instance().blackoutCooldown),
                 false);
 
         // 游戏设置
         source.sendSuccess(() -> Component.translatable("commands.sre.config.show.game_settings.header"), false);
         source.sendSuccess(() -> Component.translatable("commands.sre.config.show.game_settings.starting_money",
-                SREConfig.startingMoney), false);
+                SREConfig.instance().startingMoney), false);
         source.sendSuccess(() -> Component.translatable("commands.sre.config.show.game_settings.passive_money_amount",
-                SREConfig.passiveMoneyAmount), false);
+                SREConfig.instance().passiveMoneyAmount), false);
         source.sendSuccess(() -> Component.translatable("commands.sre.config.show.game_settings.passive_money_interval",
-                SREConfig.passiveMoneyInterval), false);
+                SREConfig.instance().passiveMoneyInterval), false);
         source.sendSuccess(() -> Component.translatable("commands.sre.config.show.game_settings.money_per_kill",
-                SREConfig.moneyPerKill), false);
+                SREConfig.instance().moneyPerKill), false);
         source.sendSuccess(() -> Component.translatable("commands.sre.config.show.game_settings.psycho_mode_armor",
-                SREConfig.psychoModeArmor), false);
+                SREConfig.instance().psychoModeArmor), false);
         source.sendSuccess(() -> Component.translatable("commands.sre.config.show.game_settings.psycho_mode_duration",
-                SREConfig.psychoModeDuration), false);
+                SREConfig.instance().psychoModeDuration), false);
         source.sendSuccess(() -> Component.translatable("commands.sre.config.show.game_settings.firecracker_duration",
-                SREConfig.firecrackerDuration), false);
+                SREConfig.instance().firecrackerDuration), false);
         source.sendSuccess(() -> Component.translatable("commands.sre.config.show.game_settings.blackout_min_duration",
-                SREConfig.blackoutMinDuration), false);
+                SREConfig.instance().blackoutMinDuration), false);
         source.sendSuccess(() -> Component.translatable("commands.sre.config.show.game_settings.blackout_max_duration",
-                SREConfig.blackoutMaxDuration), false);
+                SREConfig.instance().blackoutMaxDuration), false);
 
         source.sendSuccess(() -> Component.translatable("commands.sre.config.show.footer"), false);
         source.sendSuccess(() -> Component.translatable("commands.sre.config.show.hint"), false);

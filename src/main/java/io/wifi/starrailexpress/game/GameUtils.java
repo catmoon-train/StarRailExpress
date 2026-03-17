@@ -219,7 +219,7 @@ public class GameUtils {
             trueStartGame(world, gameMode, time);
             return;
         }
-        if (SREConfig.enableAutoTrainReset) {
+        if (SREConfig.instance().enableAutoTrainReset) {
             var task = new ServerTaskInfoClasses.AutoTrainResetTask(areas, world, gameMode, time);
             serverTaskQueue.add(task);
         } else {
@@ -1203,7 +1203,7 @@ public class GameUtils {
             return false;
         if (!SREGameWorldComponent.KEY.get(serverWorld).isRunning())
             return false;
-        if (SREConfig.enableAutoTrainReset) {
+        if (SREConfig.instance().enableAutoTrainReset) {
             return tryAutoTrainReset(serverWorld);
         } else {
             return tryResetTrainOnlySomeBlock(serverWorld);
@@ -1218,7 +1218,7 @@ public class GameUtils {
             AreasWorldComponent areas = AreasWorldComponent.KEY.get(serverWorld);
             if (areas.noReset)
                 return false;
-            if (SREConfig.verboseTrainResetLogs) {
+            if (SREConfig.instance().verboseTrainResetLogs) {
                 SRE.LOGGER.info("Resetting train" + areas.toString());
             }
             BlockPos backupMinPos = BlockPos.containing(areas.getResetTemplateArea().getMinPosition());
@@ -1242,7 +1242,7 @@ public class GameUtils {
                 int trainChunkMaxX = trainMaxPos.getX() >> 4;
                 int trainChunkMaxZ = trainMaxPos.getZ() >> 4;
 
-                if (SREConfig.verboseTrainResetLogs) {
+                if (SREConfig.instance().verboseTrainResetLogs) {
                     SRE.LOGGER.info(
                             "Train reset: Loading chunks - Template: ({}, {}) to ({}, {}), Paste: ({}, {}) to ({}, {})",
                             backupChunkMinX, backupChunkMinZ, backupChunkMaxX, backupChunkMaxZ,
@@ -1261,7 +1261,7 @@ public class GameUtils {
                     }
                 }
 
-                if (SREConfig.verboseTrainResetLogs) {
+                if (SREConfig.instance().verboseTrainResetLogs) {
                     SRE.LOGGER.info("Train reset: Chunks loaded, attempting reset.");
                 }
                 // Continue with the reset after loading chunks
@@ -1341,13 +1341,13 @@ public class GameUtils {
 
                 serverWorld.getBlockTicks().copyAreaFrom(serverWorld.getBlockTicks(), backupTrainBox, blockPos5);
                 if (mx == 0) {
-                    if (SREConfig.verboseTrainResetLogs) {
+                    if (SREConfig.instance().verboseTrainResetLogs) {
                         SRE.LOGGER.info("Train reset failed: No blocks copied. Queueing another attempt.");
                     }
                     // return true;
                 }
             } else {
-                if (SREConfig.verboseTrainResetLogs) {
+                if (SREConfig.instance().verboseTrainResetLogs) {
                     SRE.LOGGER.info("Train reset failed: Clone positions not loaded. Queueing another attempt.");
                 }
                 return true;
@@ -1386,7 +1386,7 @@ public class GameUtils {
             AreasWorldComponent areas = AreasWorldComponent.KEY.get(serverWorld);
             if (areas.noReset)
                 return false;
-            if (SREConfig.verboseTrainResetLogs) {
+            if (SREConfig.instance().verboseTrainResetLogs) {
                 SRE.LOGGER.info("Resetting train" + areas.toString());
             }
             BlockPos backupMinPos = BlockPos.containing(areas.getResetTemplateArea().getMinPosition());
@@ -1410,7 +1410,7 @@ public class GameUtils {
                 int trainChunkMaxX = trainMaxPos.getX() >> 4;
                 int trainChunkMaxZ = trainMaxPos.getZ() >> 4;
 
-                if (SREConfig.verboseTrainResetLogs) {
+                if (SREConfig.instance().verboseTrainResetLogs) {
                     SRE.LOGGER.info(
                             "Train reset: Loading chunks - Template: ({}, {}) to ({}, {}), Paste: ({}, {}) to ({}, {})",
                             backupChunkMinX, backupChunkMinZ, backupChunkMaxX, backupChunkMaxZ,
@@ -1429,7 +1429,7 @@ public class GameUtils {
                     }
                 }
 
-                if (SREConfig.verboseTrainResetLogs) {
+                if (SREConfig.instance().verboseTrainResetLogs) {
                     SRE.LOGGER.info("Train reset: Chunks loaded, attempting reset.");
                 }
                 // Continue with the reset after loading chunks
@@ -1595,7 +1595,7 @@ public class GameUtils {
                 // return true;
                 // }
             } else {
-                if (SREConfig.verboseTrainResetLogs) {
+                if (SREConfig.instance().verboseTrainResetLogs) {
                     SRE.LOGGER.info("Train door reset failed: Clone positions not loaded.");
                 }
                 return false;

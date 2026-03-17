@@ -18,7 +18,7 @@ public class AlwaysVisibleFrustum extends Frustum {
     @Override
     public boolean isVisible(AABB box) {
         if (SREClient.isTrainMoving()) {
-            if (SREConfig.isUltraPerfMode()) {
+            if (SREConfig.instance().isUltraPerfMode()) {
                 return super.isVisible(box) && box.getCenter().y() < 148 && box.getCenter().y() > 112;
             }
 

@@ -23,7 +23,7 @@ public class SecurityCameraHUD {
     private static boolean shouldBlink = false;
 
     public static void render(GuiGraphics guiGraphics, int screenWidth, int screenHeight) {
-        if (!SecurityMonitorBlock.isInSecurityMode() || !SREConfig.enableSecurityCameraHUD) {
+        if (!SecurityMonitorBlock.isInSecurityMode() || !SREConfig.instance().enableSecurityCameraHUD) {
             return;
         }
 
@@ -118,7 +118,7 @@ public class SecurityCameraHUD {
     }
 
     public static void renderCameraFeed(GuiGraphics guiGraphics, int screenWidth, int screenHeight) {
-        if (!SecurityMonitorBlock.isInSecurityMode() || !SREConfig.enableSecurityCameraHUD) {
+        if (!SecurityMonitorBlock.isInSecurityMode() || !SREConfig.instance().enableSecurityCameraHUD) {
             return;
         }
 

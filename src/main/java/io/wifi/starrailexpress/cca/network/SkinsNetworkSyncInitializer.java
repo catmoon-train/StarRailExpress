@@ -18,9 +18,9 @@ public class SkinsNetworkSyncInitializer {
 
     public static boolean isEnabled = false;
     // 网络服务器配置
-    public static String NETWORK_HOST = SREConfig.itemSkinSyncServerHost;
-    public static int NETWORK_PORT = SREConfig.itemSkinSyncServerPort;
-    public static String NETWORK_KEY = SREConfig.itemSkinSyncServerKey;
+    public static String NETWORK_HOST = SREConfig.instance().itemSkinSyncServerHost;
+    public static int NETWORK_PORT = SREConfig.instance().itemSkinSyncServerPort;
+    public static String NETWORK_KEY = SREConfig.instance().itemSkinSyncServerKey;
 
     /**
      * 注册服务器连接事件
@@ -34,9 +34,9 @@ public class SkinsNetworkSyncInitializer {
         });
 
         ServerLifecycleEvents.SERVER_STARTED.register((server) -> {
-            if (SREConfig.itemSkinSyncServerEnabled) {
-                setNetworkServer(SREConfig.itemSkinSyncServerHost, SREConfig.itemSkinSyncServerPort,
-                        SREConfig.itemSkinSyncServerKey);
+            if (SREConfig.instance().itemSkinSyncServerEnabled) {
+                setNetworkServer(SREConfig.instance().itemSkinSyncServerHost, SREConfig.instance().itemSkinSyncServerPort,
+                        SREConfig.instance().itemSkinSyncServerKey);
                 isEnabled = true;
             } else {
                 isEnabled = false;
@@ -55,9 +55,9 @@ public class SkinsNetworkSyncInitializer {
      */
     private static void onPlayerJoin(ServerPlayer player) {
         try {
-            String NETWORK_HOST = SREConfig.itemSkinSyncServerHost;
-             int NETWORK_PORT = SREConfig.itemSkinSyncServerPort;
-            String NETWORK_KEY = SREConfig.itemSkinSyncServerKey;
+            String NETWORK_HOST = SREConfig.instance().itemSkinSyncServerHost;
+             int NETWORK_PORT = SREConfig.instance().itemSkinSyncServerPort;
+            String NETWORK_KEY = SREConfig.instance().itemSkinSyncServerKey;
             SREPlayerSkinsComponent skinsComponent = SREPlayerSkinsComponent.KEY.get(player);
             NameTagInventoryComponent nameTagInventoryComponent = NameTagInventoryComponent.KEY.get(player);
             if (skinsComponent != null) {

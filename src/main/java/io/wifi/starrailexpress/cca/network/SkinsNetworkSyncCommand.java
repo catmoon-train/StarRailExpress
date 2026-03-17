@@ -27,7 +27,7 @@ public class SkinsNetworkSyncCommand {
                         .then(Commands.literal("stop").executes((ctx) -> {
                             SkinsNetworkSyncInitializer.isEnabled = false;
                             SREPlayerSkinsComponent.disableGlobalNetworkSync();
-                            SREConfig.itemSkinSyncServerEnabled = false;
+                            SREConfig.instance().itemSkinSyncServerEnabled = false;
                             return 1;
                         }))
                         .then(Commands.argument("host", StringArgumentType.string())
