@@ -3,6 +3,7 @@ package org.agmas.noellesroles.entity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
@@ -17,6 +18,8 @@ import net.minecraft.world.level.Level;
 
 import java.util.Random;
 import java.util.UUID;
+
+import com.mojang.authlib.GameProfile;
 
 /**
  * 傀戏傀儡实体
@@ -36,6 +39,9 @@ public class KuiXiPuppetEntity extends PathfinderMob {
                 .add(Attributes.MOVEMENT_SPEED, 0.3)
                 .add(Attributes.ATTACK_DAMAGE, 0.0);
     }
+
+    /** 皮肤 GameProfile（用于渲染玩家皮肤） */
+    private GameProfile skinProfile = null;
 
     /** 傀儡存活时间（20秒 = 400 tick） */
     private static final int PUPPET_LIFETIME = 20 * 20;
@@ -70,7 +76,10 @@ public class KuiXiPuppetEntity extends PathfinderMob {
     public void setOwner(Player owner) {
         this.ownerUuid = owner.getUUID();
         this.ownerName = owner.getName().getString();
-
+        // 设置皮肤（获取玩家的 GameProfile）
+        if (owner instanceof ServerPlayer serverPlayer) {
+            this.skinProfile = serverPlayer.getGameProfile();
+        }
         // 复制召唤者的外观（这里简化处理，实际可能需要更复杂的皮肤复制）
         // 在实际实现中，可能需要使用 GameProfile 和皮肤系统
     }
@@ -172,6 +181,13 @@ public class KuiXiPuppetEntity extends PathfinderMob {
 
         // 移除实体
         this.discard();
+    }
+
+    /**
+     * 获取皮肤 GameProfile（用于客户端渲染）
+     */
+    public GameProfile getSkinProfile() {
+        return skinProfile;
     }
 
     @Override
