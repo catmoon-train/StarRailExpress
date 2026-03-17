@@ -206,16 +206,16 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
             stage3Need = 300;
         } else if (player_size <= 24) {
             stage1Need = 100;
-            stage2Need = 250;
+            stage2Need = 300;
             stage3Need = 400;
         } else if (player_size <= 32) {
-            stage1Need = 150;
+            stage1Need = 100;
             stage2Need = 400;
-            stage3Need = 600;
-        } else {
-            stage1Need = 200;
-            stage2Need = 500;
             stage3Need = 800;
+        } else {
+            stage1Need = 100;
+            stage2Need = 500;
+            stage3Need = 1000;
         }
     }
 
@@ -1440,8 +1440,11 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
                     30, 0.3, 0.5, 0.3, 0.05);
         }
 
-        // 传送玩家
-        serverPlayer.setDeltaMovement(lookVec);
+        // ✅ 用 motion 冲刺，乘以倍率控制距离感
+        double power = 2d; // 调整这个值控制冲刺力度
+        serverPlayer.setDeltaMovement(lookVec.scale(power));
+        // ✅ 必须调用，否则服务端motion不同步到客户端
+        serverPlayer.hurtMarked = true;
 
         // 播放目标位置音效和粒子
         serverPlayer.level().playSound(null, serverPlayer.blockPosition(),

@@ -167,6 +167,6 @@ public class ModEntities {
         FabricDefaultAttributeRegistry.register(WHEELCHAIR, WheelchairEntity.createAttributes());
         // 注册傀儡本体实体属性（LivingEntity 必须注册属性才能生成）
         FabricDefaultAttributeRegistry.register(PUPPETEER_BODY, LivingEntity.createLivingAttributes());
-        FabricDefaultAttributeRegistry.register(KUIXI_PUPPET, LivingEntity.createLivingAttributes());
+        FabricDefaultAttributeRegistry.register(KUIXI_PUPPET, KuiXiPuppetEntity.createLivingAttributes());
     }
 }
