@@ -13,7 +13,6 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
-import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -24,7 +23,7 @@ import org.agmas.noellesroles.Noellesroles;
 import java.util.*;
 import java.util.function.BiConsumer;
 
-public class RoleStatsPanel implements Renderable, GuiEventListener, NarratableEntry {
+public class RoleStatsPanel extends AbstractWidget {
     private final SREPlayerStatsComponent stats;
     private ScrollableRoleListComponent roleListComponent;
     private RoleDetailsComponent roleDetailsComponent;
@@ -36,6 +35,7 @@ public class RoleStatsPanel implements Renderable, GuiEventListener, NarratableE
     private final List<Renderable> renderables = new ArrayList<>();
 
     public RoleStatsPanel(int x, int y, int width, int height, SREPlayerStatsComponent stats) {
+        super(x, y, width, height, Component.empty());
         this.x = x;
         this.y = y;
         this.width = width;
@@ -92,7 +92,7 @@ public class RoleStatsPanel implements Renderable, GuiEventListener, NarratableE
     }
 
     @Override
-    public void render(GuiGraphics g, int mx, int my, float delta) {
+    public void renderWidget(GuiGraphics g, int mx, int my, float delta) {
         if (!visible)
             return;
         drawPanelBg(g, x, y, width, height);
@@ -197,10 +197,6 @@ public class RoleStatsPanel implements Renderable, GuiEventListener, NarratableE
         return NarrationPriority.NONE;
     }
 
-    @Override
-    public void updateNarration(NarrationElementOutput o) {
-    }
-
     // ========== 内部类：可滚动角色列表 ==========
     private static class ScrollableRoleListComponent extends AbstractWidget {
         private final BiConsumer<SRERole, SREPlayerStatsComponent.RoleStats> onSelect;
@@ -283,9 +279,11 @@ public class RoleStatsPanel implements Renderable, GuiEventListener, NarratableE
                         || (mx >= scrollbarX && mx <= scrollbarX + SCROLLBAR_W
                                 && my >= thumbY && my <= thumbY + thumbH);
                 g.fill(scrollbarX, scrollbarY, scrollbarX + SCROLLBAR_W, scrollbarY + scrollbarH, 0xFF111828);
-                g.fill(scrollbarX + 1, scrollbarY + 1, scrollbarX + SCROLLBAR_W - 1, scrollbarY + scrollbarH - 1, 0x55334466);
+                g.fill(scrollbarX + 1, scrollbarY + 1, scrollbarX + SCROLLBAR_W - 1, scrollbarY + scrollbarH - 1,
+                        0x55334466);
                 g.fill(scrollbarX, thumbY, scrollbarX + SCROLLBAR_W, thumbY + thumbH, hl ? 0xFF8899CC : 0xFF556699);
-                g.fill(scrollbarX + 1, thumbY + 1, scrollbarX + SCROLLBAR_W - 1, thumbY + thumbH - 1, hl ? 0xFFAABBEE : 0xFF7788BB);
+                g.fill(scrollbarX + 1, thumbY + 1, scrollbarX + SCROLLBAR_W - 1, thumbY + thumbH - 1,
+                        hl ? 0xFFAABBEE : 0xFF7788BB);
             }
         }
 
@@ -319,23 +317,25 @@ public class RoleStatsPanel implements Renderable, GuiEventListener, NarratableE
 
         private Component getRoleTypeDisplay(SRERole r) {
             return switch (PlayerRoleWeightManager.getRoleType(r)) {
-                case 0, 1 -> Component.translatable("display.type.role.innocent").withStyle(s -> s.withColor(0xFF44BB66));
-                case 2    -> Component.translatable("display.type.role.neutral").withStyle(s -> s.withColor(0xFFCCAA22));
-                case 3    -> Component.translatable("display.type.role.neutral_for_killer").withStyle(s -> s.withColor(0xFFAA44CC));
-                case 4    -> Component.translatable("display.type.role.killer").withStyle(s -> s.withColor(0xFFCC2233));
-                case 5    -> Component.translatable("display.type.role.vigilante").withStyle(s -> s.withColor(0xFF22BBCC));
-                default   -> Component.literal("Unknown");
+                case 0, 1 ->
+                    Component.translatable("display.type.role.innocent").withStyle(s -> s.withColor(0xFF44BB66));
+                case 2 -> Component.translatable("display.type.role.neutral").withStyle(s -> s.withColor(0xFFCCAA22));
+                case 3 -> Component.translatable("display.type.role.neutral_for_killer")
+                        .withStyle(s -> s.withColor(0xFFAA44CC));
+                case 4 -> Component.translatable("display.type.role.killer").withStyle(s -> s.withColor(0xFFCC2233));
+                case 5 -> Component.translatable("display.type.role.vigilante").withStyle(s -> s.withColor(0xFF22BBCC));
+                default -> Component.literal("Unknown");
             };
         }
 
         private ResourceLocation getTypeIcon(SRERole role) {
             return switch (PlayerRoleWeightManager.getRoleType(role)) {
                 case 0, 1 -> ResourceLocation.tryParse("wathe:textures/gui/sprites/hud/mood_happy.png");
-                case 2    -> ResourceLocation.tryParse("noellesroles:textures/gui/sprites/hud/mood_neu.png");
-                case 3    -> ResourceLocation.tryParse("noellesroles:textures/gui/sprites/hud/mood_jester.png");
-                case 4    -> ResourceLocation.tryParse("wathe:textures/gui/sprites/hud/mood_killer.png");
-                case 5    -> ResourceLocation.tryParse("noellesroles:textures/gui/sprites/hud/mood_vig.png");
-                default   -> null;
+                case 2 -> ResourceLocation.tryParse("noellesroles:textures/gui/sprites/hud/mood_neu.png");
+                case 3 -> ResourceLocation.tryParse("noellesroles:textures/gui/sprites/hud/mood_jester.png");
+                case 4 -> ResourceLocation.tryParse("wathe:textures/gui/sprites/hud/mood_killer.png");
+                case 5 -> ResourceLocation.tryParse("noellesroles:textures/gui/sprites/hud/mood_vig.png");
+                default -> null;
             };
         }
 
@@ -470,7 +470,8 @@ public class RoleStatsPanel implements Renderable, GuiEventListener, NarratableE
             contentY += lineH;
 
             double winRate = roleStats.getTimesPlayed() > 0
-                    ? (double) roleStats.getWinsAsRole() / roleStats.getTimesPlayed() * 100 : 0;
+                    ? (double) roleStats.getWinsAsRole() / roleStats.getTimesPlayed() * 100
+                    : 0;
             drawStatLine(g, font, contentX, contentY - scrollY,
                     "screen." + SRE.MOD_ID + ".player_stats.win_rate_short",
                     String.format("%.2f%%", winRate));
@@ -571,11 +572,18 @@ public class RoleStatsPanel implements Renderable, GuiEventListener, NarratableE
 
     // ========== 工具方法 ==========
     private static int blendColors(int c1, int c2, float t) {
-        if (t <= 0) return c1;
-        if (t >= 1) return c2;
+        if (t <= 0)
+            return c1;
+        if (t >= 1)
+            return c2;
         int r = (int) (((c1 >> 16) & 0xFF) + (((c2 >> 16) & 0xFF) - ((c1 >> 16) & 0xFF)) * t);
         int gr = (int) (((c1 >> 8) & 0xFF) + (((c2 >> 8) & 0xFF) - ((c1 >> 8) & 0xFF)) * t);
         int b = (int) ((c1 & 0xFF) + ((c2 & 0xFF) - (c1 & 0xFF)) * t);
         return 0xFF000000 | (r << 16) | (gr << 8) | b;
+    }
+
+
+    @Override
+    protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
     }
 }
