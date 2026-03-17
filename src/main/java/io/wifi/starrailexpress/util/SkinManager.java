@@ -161,6 +161,13 @@ public class SkinManager {
         registerSkin(SkinTypes.KNIFE, "roze", 0xFFE6E6FA);
         registerSkin(SkinTypes.KNIFE, "sweet_tooth", 0xFFFFB6C1);
 
+        // New knife skins 2026
+        registerSkin(SkinTypes.KNIFE, "echoium_sword", 0xFF9370DB);
+        registerSkin(SkinTypes.KNIFE, "giant_roasted_chicken", 0xFFFFD700);
+        registerSkin(SkinTypes.KNIFE, "sacrificial_dagger", 0xFF8B0000);
+        registerSkin(SkinTypes.KNIFE, "tianyuan_fairy", 0xFF87CEEB);
+        registerSkin(SkinTypes.KNIFE, "unconscious_knife", 0xFF808080);
+
         // Initialize revolver skins
         registerSkin(SkinTypes.REVOLVER, "double_pistol", 0xFF808080);
         registerSkin(SkinTypes.REVOLVER, "heavy_pistol", 0xFF404040);
@@ -181,18 +188,43 @@ public class SkinManager {
         registerSkin(SkinTypes.REVOLVER, "dragon_fractal", 0xFF8B0000);
         registerSkin(SkinTypes.REVOLVER, "european_long_revolver", 0xFF4682B4);
         registerSkin(SkinTypes.REVOLVER, "golden_gun", 0xFFFFD700);
+        registerSkin(SkinTypes.REVOLVER, "g18", 0xFF808080);
         registerSkin(SkinTypes.REVOLVER, "habilis", 0xFF8B4513);
+        registerSkin(SkinTypes.REVOLVER, "hummingbird", 0xFF00CED1);
         registerSkin(SkinTypes.REVOLVER, "infinity", 0xFF87CEEB);
         registerSkin(SkinTypes.REVOLVER, "izumo_41_style", 0xFFDC143C);
         registerSkin(SkinTypes.REVOLVER, "lengcui", 0xFF00CED1);
         registerSkin(SkinTypes.REVOLVER, "m3", 0xFF696969);
         registerSkin(SkinTypes.REVOLVER, "margas_flintlock", 0xFF8B4513);
+        registerSkin(SkinTypes.REVOLVER, "minimalist_line", 0xFF808080);
         registerSkin(SkinTypes.REVOLVER, "nail_gun", 0xFF708090);
+        registerSkin(SkinTypes.REVOLVER, "pixel_gun", 0xFF00FF00);
+        registerSkin(SkinTypes.REVOLVER, "potato_launcher", 0xFFD2B48C);
+        registerSkin(SkinTypes.REVOLVER, "rust_lake", 0xFF8B4513);
+        registerSkin(SkinTypes.REVOLVER, "shengxuan_white", 0xFFFFFFFF);
         registerSkin(SkinTypes.REVOLVER, "signal_gun", 0xFFFF6347);
         registerSkin(SkinTypes.REVOLVER, "sine_wave", 0xFF808080);
         registerSkin(SkinTypes.REVOLVER, "soul_cairn", 0xFF4B0082);
+        registerSkin(SkinTypes.REVOLVER, "stick_gun", 0xFF8B4513);
+        registerSkin(SkinTypes.REVOLVER, "time", 0xFF4169E1);
         registerSkin(SkinTypes.REVOLVER, "uzi", 0xFF2F2F2F);
+        registerSkin(SkinTypes.REVOLVER, "water_gun", 0xFF4169E1);
+        registerSkin(SkinTypes.REVOLVER, "west_revolver", 0xFF8B7355);
+        registerSkin(SkinTypes.REVOLVER, "white_gun", 0xFFFAFAFA);
         registerSkin(SkinTypes.REVOLVER, "wood_gun", 0xFF8B4513);
+        registerSkin(SkinTypes.REVOLVER, "woodcarving_pistol", 0xFF8B4513);
+        registerSkin(SkinTypes.REVOLVER, "carved_emperor", 0xFF8B4513);
+        registerSkin(SkinTypes.REVOLVER, "kekedi", 0xFF228B22);
+
+        // New gun skins 2026
+        registerSkin(SkinTypes.REVOLVER, "art_tyrant", 0xFF8B0000);
+        registerSkin(SkinTypes.REVOLVER, "burn_out_sulfur", 0xFFFF4500);
+        registerSkin(SkinTypes.REVOLVER, "electrodynamics", 0xFF4169E1);
+        registerSkin(SkinTypes.REVOLVER, "qianxia", 0xFF9370DB);
+
+        // PVZ gun skins
+        registerSkin(SkinTypes.REVOLVER, "pvz_peashooter", 0xFF32CD32);
+        registerSkin(SkinTypes.REVOLVER, "pvz_icemelon_gun", 0xFF00CED1);
 
         // Initialize grenade skins
         registerSkin(SkinTypes.GRENADE, "big_bomb", 0xFF000000);
@@ -227,6 +259,23 @@ public class SkinManager {
         registerSkin(SkinTypes.GRENADE, "submunition_mine", 0xFF4682B4);
         registerSkin(SkinTypes.GRENADE, "tnt", 0xFF8B0000);
 
+        // New grenade skins 2026
+        registerSkin(SkinTypes.GRENADE, "lemon_grenade", 0xFFFFFF00);
+        registerSkin(SkinTypes.GRENADE, "molotov_cocktail", 0xFFFF8C00);
+        registerSkin(SkinTypes.GRENADE, "null_grenade", 0xFF000000);
+        registerSkin(SkinTypes.GRENADE, "poop", 0xFF8B4513);
+        registerSkin(SkinTypes.GRENADE, "rock", 0xFF696969);
+        registerSkin(SkinTypes.GRENADE, "voice_star", 0xFFFF69B4);
+
+        // PVZ grenade skins
+        registerSkin(SkinTypes.GRENADE, "pvz_cherrybomb", 0xFFFF0000);
+        registerSkin(SkinTypes.GRENADE, "pvz_destruction_mushrooms", 0xFF8B0000);
+        registerSkin(SkinTypes.GRENADE, "pvz_jalapeno", 0xFFFF4500);
+        registerSkin(SkinTypes.GRENADE, "pvz_joke_box", 0xFFDEB887);
+
+        // New grenade skins 2026
+        registerSkin(SkinTypes.GRENADE, "slime_redstone_torch", 0xFFFF6600);
+
         // Initialize bat skins
         registerSkin(SkinTypes.BAT, "bread", 0xFFF5DEB3);
         registerSkin(SkinTypes.BAT, "red_axe", 0xFFDC143C);
@@ -258,6 +307,16 @@ public class SkinManager {
         registerSkin(SkinTypes.BAT, "sfa", 0xFF696969);
         registerSkin(SkinTypes.BAT, "slippers", 0xFFFFE4C4);
         registerSkin(SkinTypes.BAT, "wrench", 0xFF708090);
+
+        // New bat skins 2026
+        registerSkin(SkinTypes.BAT, "guitar", 0xFFFFD700);
+
+        // PVZ bat skins
+        registerSkin(SkinTypes.BAT, "pvz_newspaper", 0xFFF5DEB3);
+        registerSkin(SkinTypes.BAT, "pvz_tall_peanut", 0xFF8B4513);
+        registerSkin(SkinTypes.BAT, "pvz_wire_pole", 0xFF696969);
+        registerSkin(SkinTypes.BAT, "pvz_zombie_bat", 0xFF8B4513);
+        registerSkin(SkinTypes.BAT, "pvz_zombie_skin_bat", 0xFF556B2F);
     }
 
     public static ResourceLocation getResourceLocationOfItem(Item item) {
