@@ -1,47 +1,47 @@
 package org.agmas.noellesroles.client.renderer;
 
 import org.agmas.noellesroles.entity.KuiXiPuppetEntity;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 
+import com.mojang.authlib.GameProfile;
+import com.mojang.blaze3d.vertex.PoseStack;
 import io.wifi.starrailexpress.client.SREClient;
 
 import java.util.UUID;
-import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.model.geom.ModelLayers;
+
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.PlayerInfo;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.player.RemotePlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.resources.ResourceLocation;
 
 /**
  * KuiXiPuppetEntity 渲染玩家
  */
-// todo: KuiXiPuppetEntity 渲染玩家
 public class KuiXiBodyEntityRenderer extends EntityRenderer<KuiXiPuppetEntity> {
-    private final HumanoidModel<KuiXiPuppetEntity> model;
 
     public KuiXiBodyEntityRenderer(EntityRendererProvider.Context ctx) {
         super(ctx);
-        this.model = new HumanoidModel<>(ctx.bakeLayer(ModelLayers.PLAYER));
     }
 
     @Override
     public void render(KuiXiPuppetEntity entity, float yaw, float tickDelta, PoseStack matrices,
             MultiBufferSource vertexConsumers, int light) {
-        ResourceLocation texture = getTextureLocation(entity);
-        RenderType renderLayer = RenderType.entityTranslucent(texture);
-        VertexConsumer vertexConsumer = vertexConsumers.getBuffer(renderLayer);
+        final var instance = Minecraft.getInstance();
+        UUID ownerUuid = entity.getOwnerUuid();
+        PlayerInfo entry = SREClient.PLAYER_ENTRIES_CACHE.get(ownerUuid);
+        if (entry != null) {
+            AbstractClientPlayer fakePlayer = new RemotePlayer(instance.level,
+                    new GameProfile(ownerUuid, entry.getProfile().getName()));
+            Minecraft.getInstance().getEntityRenderDispatcher().render(fakePlayer, 0.0D, 0.0D, 0, 0, 0, matrices,
+                    vertexConsumers, light);
 
-        model.setupAnim(entity, 0, 0, entity.tickCount + tickDelta, 0, 0);
-
-        model.renderToBuffer(matrices, vertexConsumer, light, OverlayTexture.NO_OVERLAY, 0xFFFFFFFF);
-
-        super.render(entity, yaw, tickDelta, matrices, vertexConsumers, light);
+        } else {
+            super.render(entity, tickDelta, light, matrices, vertexConsumers, light);
+        }
     }
 
     @Override

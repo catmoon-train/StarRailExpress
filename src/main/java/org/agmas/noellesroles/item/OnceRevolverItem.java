@@ -66,7 +66,7 @@ public class OnceRevolverItem extends SkinableItem {
             if (role != null && !role.onUseGun(user)) {
                 return InteractionResultHolder.fail(stack);
             }
-            user.getCooldowns().addCooldown(ModItems.ONCE_REVOLVER, SREConfig.revolverCooldown * 20);
+            user.getCooldowns().addCooldown(ModItems.ONCE_REVOLVER, SREConfig.instance().revolverCooldown * 20);
         }
         return InteractionResultHolder.consume(stack);
     }

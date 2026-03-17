@@ -177,7 +177,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
             SyncMapConfigPayload.sendToAllPlayers();
         });
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
-            SRE.isLobby = SREConfig.isLobby;
+            SRE.isLobby = SREConfig.instance().isLobby;
             sender.sendPacket(new IsLobbyConfigPayload(SRE.isLobby));
         });
     }

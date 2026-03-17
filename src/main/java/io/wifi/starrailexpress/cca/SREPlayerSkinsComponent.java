@@ -375,7 +375,7 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
      * 从网络服务器异步拉取皮肤数据
      */
     public void pullSkinsFromNetwork() {
-        if (!SREConfig.itemSkinSyncServerEnabled)
+        if (!SREConfig.instance().itemSkinSyncServerEnabled)
             return;
         if (!this.isNetworkSyncEnabled || syncRequests == null) {
             return;
