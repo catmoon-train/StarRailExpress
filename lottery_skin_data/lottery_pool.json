@@ -33,7 +33,7 @@
                 {
                     "Probability":0.04,
                     "ItemList":[
-                        "knife/herring_sword_fish","knife/ice_fish","knife/matchstick_sword","knife/small_real_knife","knife/roze","knife/flesh_and_blood_resonance"
+                        "knife/herring_sword_fish","knife/ice_fish","knife/matchstick_sword","knife/small_real_knife","knife/roze","knife/flesh_and_blood_resonance","knife/echoium_sword","knife/giant_roasted_chicken"
                     ]
                 },
                 {
@@ -77,7 +77,7 @@
                 {
                     "Probability":0.04,
                     "ItemList":[
-                        "knife/cutter_knife","knife/ew_knife","knife/golden_shear","knife/katar","knife/real_sword","knife/tianjie_bit"
+                        "knife/cutter_knife","knife/ew_knife","knife/golden_shear","knife/katar","knife/real_sword","knife/tianjie_bit","knife/sacrificial_dagger","knife/tianyuan_fairy"
                     ]
                 },
                 {
@@ -121,7 +121,7 @@
                 {
                     "Probability":0.04,
                     "ItemList":[
-                        "knife/balisong","knife/carrot_knife","knife/crystalline","knife/icicle","knife/missing_sword","knife/rainbow_knife"
+                        "knife/balisong","knife/carrot_knife","knife/crystalline","knife/icicle","knife/missing_sword","knife/rainbow_knife","knife/unconscious_knife"
                     ]
                 },
                 {
@@ -165,7 +165,7 @@
                 {
                     "Probability":0.04,
                     "ItemList":[
-                        "bat/between_limits","bat/bread","bat/huaqiangbei","bat/ice_bat","bat/sfa"
+                        "bat/between_limits","bat/bread","bat/huaqiangbei","bat/ice_bat","bat/sfa","bat/guitar"
                     ]
                 },
                 {
@@ -197,13 +197,13 @@
                 {
                     "Probability":0.2,
                     "ItemList":[
-                        "coin","grenade/brown_substance","grenade/detonator","grenade/fragmentation_grenade","grenade/gas_cylinder","grenade/flying_knife_grenade"
+                        "coin","grenade/brown_substance","grenade/detonator","grenade/fragmentation_grenade","grenade/gas_cylinder","grenade/flying_knife_grenade","grenade/lemon_grenade","grenade/molotov_cocktail","grenade/poop","grenade/slime_redstone_torch"
                     ]
                 },
                 {
                     "Probability":0.1,
                     "ItemList":[
-                        "grenade/magnetic_bomb","grenade/mini_nuke","grenade/mobile","grenade/naval_mine","grenade/nugrenade","grenade/pisces","grenade/rainbow_fireworks","grenade/submunition_mine"
+                        "grenade/magnetic_bomb","grenade/mini_nuke","grenade/mobile","grenade/naval_mine","grenade/null_grenade","grenade/nugrenade","grenade/pisces","grenade/rainbow_fireworks","grenade/rock","grenade/submunition_mine","grenade/voice_star"
                     ]
                 },
                 {
@@ -241,13 +241,13 @@
                 {
                     "Probability":0.15,
                     "ItemList":[
-                        "gun/caplock_pistol","gun/double_pistol","gun/habilis","gun/heavy_pistol","gun/infinity","gun/knife_gun","gun/stick_gun"
+                        "gun/art_tyrant","gun/burn_out_sulfur","gun/caplock_pistol","gun/double_pistol","gun/g18","gun/habilis","gun/heavy_pistol","gun/hummingbird","gun/infinity","gun/knife_gun","gun/minimalist_line","gun/pixel_gun","gun/rust_lake","gun/shengxuan_white","gun/stick_gun","gun/time"
                     ]
                 },
                 {
                     "Probability":0.07,
                     "ItemList":[
-                        "gun/european_long_revolver","gun/izumo_41_style","gun/lengcui","gun/margas_flintlock","gun/potato_launcher","gun/soul_cairn"
+                        "gun/carved_emperor","gun/electrodynamics","gun/european_long_revolver","gun/izumo_41_style","gun/lengcui","gun/margas_flintlock","gun/potato_launcher","gun/soul_cairn","gun/woodcarving_pistol","gun/qianxia","gun/kekedi"
                     ]
                 },
                 {
@@ -260,6 +260,50 @@
                     "Probability":0.015,
                     "ItemList":[
                         "gun/signal_gun","gun/sine_wave","gun/water_gun","gun/west_revolver","gun/white_gun"
+                    ]
+                }
+            ]
+        },
+        {
+            "PoolID":7,
+            "Enable":true,
+            "PoolName":"PVZ Theme",
+            "PoolType":"Common",
+            "QualityListGroup":[
+                {
+                    "Probability":0.50,
+                    "ItemList":[
+                        "coin"
+                    ]
+                },
+                {
+                    "Probability":0.2,
+                    "ItemList":[
+                        "coin"
+                    ]
+                },
+                {
+                    "Probability":0.15,
+                    "ItemList":[
+                        "coin"
+                    ]
+                },
+                {
+                    "Probability":0.07,
+                    "ItemList":[
+                        "coin","grenade/pvz_cherrybomb","grenade/pvz_destruction_mushrooms"
+                    ]
+                },
+                {
+                    "Probability":0.065,
+                    "ItemList":[
+                        "bat/pvz_tall_peanut","bat/pvz_zombie_bat","bat/pvz_wire_pole","grenade/pvz_jalapeno","grenade/pvz_joke_box"
+                    ]
+                },
+                {
+                    "Probability":0.015,
+                    "ItemList":[
+                        "bat/pvz_zombie_skin_bat","gun/pvz_peashooter","gun/pvz_icemelon_gun","bat/pvz_newspaper"
                     ]
                 }
             ]

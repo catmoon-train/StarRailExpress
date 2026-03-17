@@ -22,8 +22,8 @@ public class HSRConstants {
     public static List<ShopEntry> BANDIT_SHOP_ENTRIES = new ArrayList<>();
 
     static {
-        // 毒药/100
-        POISONER_SHOP_ENTRIES.add(new ShopEntry(HSRItems.TOXIN.getDefaultInstance(), 100, ShopEntry.Type.POISON));
+        // 毒药/80
+        POISONER_SHOP_ENTRIES.add(new ShopEntry(HSRItems.TOXIN.getDefaultInstance(), 80, ShopEntry.Type.POISON));
         // 毒药瓶/50
         POISONER_SHOP_ENTRIES.add(new ShopEntry(TMMItems.POISON_VIAL.getDefaultInstance(), 50, ShopEntry.Type.POISON));
         // 毒蝎子/30
