@@ -2,6 +2,9 @@ package org.agmas.noellesroles.entity;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -16,6 +19,7 @@ import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
+import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 
@@ -31,6 +35,18 @@ import com.mojang.authlib.GameProfile;
  * - 持续20秒后自动消散
  */
 public class KuiXiPuppetEntity extends PathfinderMob {
+    /** 所有者 UUID */
+    private static final EntityDataAccessor<Optional<UUID>> OWNER_UUID = SynchedEntityData.defineId(
+            KuiXiPuppetEntity.class, EntityDataSerializers.OPTIONAL_UUID);
+
+    /** 所有者玩家引用（缓存） */
+    private Player ownerCache = null;
+
+    @Override
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(OWNER_UUID, Optional.empty());
+    }
 
     public static AttributeSupplier.Builder createAttributes() {
         return PathfinderMob.createMobAttributes()
@@ -48,9 +64,6 @@ public class KuiXiPuppetEntity extends PathfinderMob {
 
     /** 剩余存活时间 */
     private int remainingLifetime = PUPPET_LIFETIME;
-
-    /** 召唤者UUID */
-    private UUID ownerUuid;
 
     /** 召唤者名称 */
     private String ownerName = "";
@@ -74,21 +87,37 @@ public class KuiXiPuppetEntity extends PathfinderMob {
      * 设置召唤者
      */
     public void setOwner(Player owner) {
-        this.ownerUuid = owner.getUUID();
         this.ownerName = owner.getName().getString();
         // 设置皮肤（获取玩家的 GameProfile）
         if (owner instanceof ServerPlayer serverPlayer) {
             this.skinProfile = serverPlayer.getGameProfile();
         }
+        this.entityData.set(OWNER_UUID, Optional.of(owner.getUUID()));
         // 复制召唤者的外观（这里简化处理，实际可能需要更复杂的皮肤复制）
         // 在实际实现中，可能需要使用 GameProfile 和皮肤系统
     }
 
     /**
-     * 获取召唤者
+     * 获取所有者 UUID
      */
     public UUID getOwnerUuid() {
-        return ownerUuid;
+        return this.entityData.get(OWNER_UUID).orElse(null);
+    }
+
+    /**
+     * 获取所有者玩家
+     */
+    public Player getOwner() {
+        if (ownerCache != null && ownerCache.isAlive()) {
+            return ownerCache;
+        }
+
+        UUID ownerUuid = getOwnerUuid();
+        if (ownerUuid != null) {
+            ownerCache = level().getPlayerByUUID(ownerUuid);
+            return ownerCache;
+        }
+        return null;
     }
 
     @Override
@@ -193,23 +222,25 @@ public class KuiXiPuppetEntity extends PathfinderMob {
     @Override
     public void addAdditionalSaveData(CompoundTag compound) {
         super.addAdditionalSaveData(compound);
+
+        UUID ownerUuid = getOwnerUuid();
+        if (ownerUuid != null)
+            compound.putUUID("OwnerUUID", ownerUuid);
         compound.putInt("RemainingLifetime", remainingLifetime);
         compound.putInt("MoveTimer", moveTimer);
         compound.putString("OwnerName", ownerName);
-        if (ownerUuid != null) {
-            compound.putUUID("OwnerUUID", ownerUuid);
-        }
     }
 
     @Override
     public void readAdditionalSaveData(CompoundTag compound) {
         super.readAdditionalSaveData(compound);
+
+        if (compound.contains("OwnerUUID")) {
+            this.entityData.set(OWNER_UUID, Optional.of(compound.getUUID("OwnerUUID")));
+        }
         remainingLifetime = compound.getInt("RemainingLifetime");
         moveTimer = compound.getInt("MoveTimer");
         ownerName = compound.getString("OwnerName");
-        if (compound.hasUUID("OwnerUUID")) {
-            ownerUuid = compound.getUUID("OwnerUUID");
-        }
     }
 
     @Override
