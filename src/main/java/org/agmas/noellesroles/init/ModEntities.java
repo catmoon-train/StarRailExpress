@@ -143,9 +143,12 @@ public class ModEntities {
             FabricEntityTypeBuilder.create(MobCategory.MISC, KuiXiPuppetEntity::new)
                     .dimensions(EntityDimensions.fixed(0.6f, 1.8f)) // 玩家大小
                     .trackRangeBlocks(64)
-                    .trackedUpdateRate(3)
+                    .trackedUpdateRate(2)
                     .build());
-    /**
+    /** .dimensions(EntityDimensions.fixed(0.6F, 1.8F)) // 玩家尺寸
+                    .trackRangeBlocks(64)
+                    .trackedUpdateRate(2)
+                    .build()
      * 诱饵弹实体 - 可投掷物品，落地时播放5声左轮手枪射击声
      */
     @SuppressWarnings("deprecation")

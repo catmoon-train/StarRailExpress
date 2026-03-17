@@ -127,7 +127,6 @@ public class PuppeteerBodyEntity extends LivingEntity {
         if (gameWorldComponent != null) {
             if (!gameWorldComponent.isRunning()) {
                 discard();
-
             }
         }
         // 增加存活时间

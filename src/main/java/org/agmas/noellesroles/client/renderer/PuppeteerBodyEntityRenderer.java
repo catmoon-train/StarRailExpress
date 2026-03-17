@@ -26,7 +26,6 @@ public class PuppeteerBodyEntityRenderer extends EntityRenderer<PuppeteerBodyEnt
 
     public PuppeteerBodyEntityRenderer(EntityRendererProvider.Context ctx) {
         super(ctx);
-
     }
 
     @Override
