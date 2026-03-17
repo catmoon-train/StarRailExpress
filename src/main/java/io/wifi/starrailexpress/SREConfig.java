@@ -4,7 +4,6 @@ import io.wifi.ConfigCompact.ConfigClassHandler;
 import io.wifi.ConfigCompact.annotation.ConfigSync;
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
-
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
 import me.shedaniel.autoconfig.annotation.ConfigEntry.Gui.Tooltip;
 
@@ -16,130 +15,143 @@ public class SREConfig implements ConfigData {
     // 客户端专用配置 - 仅在客户端环境生效
 
     @ConfigEntry.Gui.Tooltip
-    public static boolean ultraPerfMode = false;
+    public boolean ultraPerfMode = false;
 
-    public static boolean disableScreenShake = true;
+    public boolean disableScreenShake = true;
 
-    public static boolean disableStaminaBarSmoothing = false;
+    public boolean disableStaminaBarSmoothing = false;
 
-    public static boolean enableSecurityCameraHUD = true; // 启用安全摄像头HUD显示
+    public boolean enableSecurityCameraHUD = true; // 启用安全摄像头HUD显示
 
     // 随机地图设置
     @ConfigEntry.Category(value = "map")
     @Tooltip
-    public static int mapRandomCount = -1;
+    public int mapRandomCount = -1;
 
     @ConfigEntry.Category(value = "map")
     @Tooltip(count = 3)
-    public static boolean isLobby = false;
+    public boolean isLobby = false;
 
     @ConfigEntry.Category(value = "shop")
     @ConfigSync(shouldSync = true)
-    public static int knifePrice = 130;
+    public int knifePrice = 130;
     @ConfigSync(shouldSync = true)
     @ConfigEntry.Category(value = "shop")
-    public static int revolverPrice = 285;
+    public int revolverPrice = 285;
     @ConfigSync(shouldSync = true)
     @ConfigEntry.Category(value = "shop")
-    public static int grenadePrice = 330;
+    public int grenadePrice = 330;
     @ConfigSync(shouldSync = true)
     @ConfigEntry.Category(value = "shop")
-    public static int psychoModePrice = 400;
+    public int psychoModePrice = 400;
     @ConfigSync(shouldSync = true)
     @ConfigEntry.Category(value = "shop")
-    public static int poisonVialPrice = 80;
+    public int poisonVialPrice = 80;
     @ConfigSync(shouldSync = true)
     @ConfigEntry.Category(value = "shop")
-    public static int scorpionPrice = 40;
+    public int scorpionPrice = 40;
     @ConfigSync(shouldSync = true)
     @ConfigEntry.Category(value = "shop")
-    public static int firecrackerPrice = 10;
+    public int firecrackerPrice = 10;
     @ConfigSync(shouldSync = true)
     @ConfigEntry.Category(value = "shop")
-    public static int lockpickPrice = 80;
+    public int lockpickPrice = 80;
     @ConfigSync(shouldSync = true)
     @ConfigEntry.Category(value = "shop")
-    public static int crowbarPrice = 35;
+    public int crowbarPrice = 35;
     @ConfigSync(shouldSync = true)
     @ConfigEntry.Category(value = "shop")
-    public static int bodyBagPrice = 100;
+    public int bodyBagPrice = 100;
     @ConfigSync(shouldSync = true)
     @ConfigEntry.Category(value = "shop")
-    public static int blackoutPrice = 100;
+    public int blackoutPrice = 100;
     @ConfigSync(shouldSync = true)
     @ConfigEntry.Category(value = "shop")
-    public static int notePrice = 10;
+    public int notePrice = 10;
 
     // 物品冷却时间配置（秒）- 服务端只读
 
     @ConfigEntry.Category(value = "cooldowns")
-    public static int knifeCooldown = 30;
+    public int knifeCooldown = 30;
     @ConfigEntry.Category(value = "cooldowns")
-    public static int revolverCooldown = 10;
+    public int revolverCooldown = 10;
     @ConfigEntry.Category(value = "cooldowns")
-    public static int derringerCooldown = 1;
+    public int derringerCooldown = 1;
     @ConfigEntry.Category(value = "cooldowns")
-    public static int grenadeCooldown = 300;
+    public int grenadeCooldown = 300;
     @ConfigEntry.Category(value = "cooldowns")
-    public static int lockpickCooldown = 180;
+    public int lockpickCooldown = 180;
     @ConfigEntry.Category(value = "cooldowns")
-    public static int crowbarCooldown = 45;
+    public int crowbarCooldown = 45;
     @ConfigEntry.Category(value = "cooldowns")
-    public static int bodyBagCooldown = 300;
+    public int bodyBagCooldown = 300;
     @ConfigEntry.Category(value = "cooldowns")
-    public static int psychoModeCooldown = 275;
+    public int psychoModeCooldown = 275;
     @ConfigEntry.Category(value = "cooldowns")
-    public static int blackoutCooldown = 180;
+    public int blackoutCooldown = 180;
 
     // 游戏配置 - 服务端只读
 
     // Bartender - Glow duration in seconds
     @ConfigEntry.Category(value = "game")
-    public static int bartenderGlowDuration = 40;
+    public int bartenderGlowDuration = 40;
     @ConfigEntry.Category(value = "game")
-    public static int startingMoney = 100;
+    public int startingMoney = 100;
     @ConfigEntry.Category(value = "game")
-    public static int passiveMoneyAmount = 5;
+    public int passiveMoneyAmount = 5;
     @ConfigEntry.Category(value = "game")
-    public static int passiveMoneyInterval = 10;
+    public int passiveMoneyInterval = 10;
     @ConfigEntry.Category(value = "game")
-    public static int moneyPerKill = 100;
+    public int moneyPerKill = 100;
     @ConfigEntry.Category(value = "game")
-    public static int psychoModeArmor = 1;
+    public int psychoModeArmor = 1;
     @ConfigEntry.Category(value = "game")
-    public static int psychoModeDuration = 30;
+    public int psychoModeDuration = 30;
     @ConfigEntry.Category(value = "game")
-    public static int firecrackerDuration = 15;
+    public int firecrackerDuration = 15;
     @ConfigEntry.Category(value = "game")
-    public static int blackoutMinDuration = 15;
+    public int blackoutMinDuration = 15;
     @ConfigEntry.Category(value = "game")
-    public static int blackoutMaxDuration = 30;
+    public int blackoutMaxDuration = 30;
     @ConfigEntry.Category(value = "game")
-    public static boolean enableAutoTrainReset = false;
+    public boolean enableAutoTrainReset = false;
     @ConfigEntry.Category(value = "game")
-    public static boolean verboseTrainResetLogs = true;
+    public boolean verboseTrainResetLogs = true;
 
+    // 玩家数据设置
+    @ConfigEntry.Category(value = "stats")
+    public boolean isStatsEnabled = true;
+    @ConfigEntry.Category(value = "stats")
+    public boolean isStatsSyncEnabled = true;
+    @ConfigEntry.Category(value = "stats")
+    public boolean isTeammedStatsSyncEnabled = true;
+    @ConfigEntry.Category(value = "stats")
+    public boolean isDetailedStatsSyncEnabled = false;
+    // 皮肤设置
+    @ConfigEntry.Category(value = "skin")
+    public boolean isItemSkinEnabled = true;
+    @ConfigEntry.Category(value = "skin")
+    public boolean isItemSkinManagementEnabled = false;
+    @ConfigEntry.Category(value = "skin")
+    public String itemSkinSyncServerHost = "";
+    @ConfigEntry.Category(value = "skin")
+    public int itemSkinSyncServerPort = 8080;
+    @ConfigEntry.Category(value = "skin")
+    public String itemSkinSyncServerKey = "";
+    @ConfigEntry.Category(value = "skin")
+    public boolean itemSkinSyncServerEnabled = false;
     // AFK设置
 
-    @ConfigEntry.Category(value = "skin")
-    public static String itemSkinSyncServerHost = "";
-    @ConfigEntry.Category(value = "skin")
-    public static int itemSkinSyncServerPort = 8080;
-    @ConfigEntry.Category(value = "skin")
-    public static String itemSkinSyncServerKey = "";
-    @ConfigEntry.Category(value = "skin")
-    public static boolean itemSkinSyncServerEnabled = false;
-
     @ConfigEntry.Category(value = "afk") // 3秒到20分钟
-    public static int afkThresholdSeconds = (int) (4.5 * 60); // 5分钟
+    public int afkThresholdSeconds = (int) (4.5 * 60); // 5分钟
     @ConfigEntry.Category(value = "afk") // 3秒到10分钟
-    public static int afkDeathSeconds = (int) (5 * 60); // 5分钟
+    public int afkDeathSeconds = (int) (5 * 60); // 5分钟
     @ConfigEntry.Category(value = "afk") // 1.5秒到120秒
-    public static int afkWarningSeconds = 4 * 60; // 4分钟时开始警告
+    public int afkWarningSeconds = 4 * 60; // 4分钟时开始警告
     @ConfigEntry.Category(value = "afk") // 1秒到30秒
-    public static int afkSleepySeconds = 3 * 60; // 3分钟时开始困倦效果
+    public int afkSleepySeconds = 3 * 60; // 3分钟时开始困倦效果
 
-    public static boolean isUltraPerfMode() {
+    public boolean isUltraPerfMode() {
         return ultraPerfMode;
     }
 
@@ -148,7 +160,7 @@ public class SREConfig implements ConfigData {
      * 服务端：只从文件读取，不修改
      * 客户端：可以通过UI修改
      */
-    public static void reload() {
+    public void reload() {
         HANDLER.load();
     }
 
@@ -156,13 +168,17 @@ public class SREConfig implements ConfigData {
      * 重置配置为默认值
      * 通过精确修改配置文件内容来实现，不删除文件
      */
-    public static void reset() {
+    public void reset() {
         HANDLER.reset();
     }
 
     /**
      * 接口不需要了
      */
-    public static void init() {
+    public void init() {
+    }
+
+    public static SREConfig instance() {
+        return HANDLER.instance();
     }
 }

@@ -134,6 +134,7 @@
       "starrailexpress:areas",
       "starrailexpress:role",
       "starrailexpress:mood",
+      "starrailexpress:task",
       "starrailexpress:shop",
       "starrailexpress:network_stats",
       "starrailexpress:dynamic_shop",

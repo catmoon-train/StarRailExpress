@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
@@ -129,14 +128,14 @@ public abstract class ManipulatorScreenMixin extends LimitedHandledScreen<Invent
         }
         getRoleScreenHelper().onInit(this);
     }
-
+    
     @Override
-    public void addDrawableChild(Button button) {
+    public void addDrawableChild(net.minecraft.client.gui.components.Button button) {
         super.addRenderableWidget(button);
     }
 
     @Override
-    public void removeDrawableChild(Button button) {
+    public void removeDrawableChild(net.minecraft.client.gui.components.Button button) {
         super.removeWidget(button);
     }
 

@@ -1,4 +1,3 @@
-// Source code is decompiled from a .class file using FernFlower decompiler (from Intellij IDEA).
 package org.agmas.noellesroles.block_entity;
 
 import io.wifi.starrailexpress.util.ShopEntry;

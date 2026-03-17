@@ -10,6 +10,8 @@ import io.wifi.syncrequests.SyncRequests;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
 import org.ladysnake.cca.api.v3.component.sync.AutoSyncedComponent;
@@ -45,6 +47,7 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
     // private long lastNetworkSync = 0;
     // private static final long NETWORK_SYNC_INTERVAL = 20000; // 每 20 秒同步一次到网络
     private boolean isNetworkSyncEnabled = false;
+    private boolean syncMode = false;
 
     public SREPlayerSkinsComponent(Player player) {
         this.player = player;
@@ -55,11 +58,16 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
     }
 
     public void sync() {
+        this.syncMode = true;
         KEY.sync(this.player);
+        this.syncMode = false;
     }
 
     @Override
     public boolean shouldSyncWith(ServerPlayer serverPlayer) {
+        if (!SREConfig.instance().isItemSkinEnabled) {
+            return false;
+        }
         return this.player == serverPlayer;
     }
 
@@ -196,12 +204,20 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
     /**
      * 锁定指定物品类型的皮肤
      */
+    public void clearSkinForItemType(String itemTypeName) {
+        String normalizedItemName = normalizeItemName(itemTypeName);
+        unlockedSkins.remove(normalizedItemName);
+        // 触发网络同步
+    }
+
+    /**
+     * 锁定指定物品类型的皮肤
+     */
     public void lockSkinForItemType(String itemTypeName, String skinName) {
         String normalizedItemName = normalizeItemName(itemTypeName);
         Map<String, Boolean> skinsForItem = unlockedSkins.get(normalizedItemName);
         if (skinsForItem != null) {
-            if (skinName.contains(skinName))
-                skinsForItem.remove(skinName);
+            skinsForItem.remove(skinName);
             // 如果物品没有其他解锁的皮肤，移除该物品的条目
             if (skinsForItem.isEmpty()) {
                 unlockedSkins.remove(normalizedItemName);
@@ -375,7 +391,7 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
      * 从网络服务器异步拉取皮肤数据
      */
     public void pullSkinsFromNetwork() {
-        if (!SREConfig.itemSkinSyncServerEnabled)
+        if (!SREConfig.instance().itemSkinSyncServerEnabled)
             return;
         if (!this.isNetworkSyncEnabled || syncRequests == null) {
             return;
@@ -493,25 +509,45 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
     @Override
     public void readFromNbt(CompoundTag compoundTag, HolderLookup.Provider provider) {
         // 读取装备的皮肤数据
-        CompoundTag equippedSkinsTag = compoundTag.getCompound("equippedSkins");
-        for (String key : equippedSkinsTag.getAllKeys()) {
-            this.equippedSkins.put(key, equippedSkinsTag.getString(key));
+        if (compoundTag.contains("equippedSkins")) {
+            CompoundTag equippedSkinsTag = compoundTag.getCompound("equippedSkins");
+            this.equippedSkins.clear();
+            for (String key : equippedSkinsTag.getAllKeys()) {
+                this.equippedSkins.put(key, equippedSkinsTag.getString(key));
+            }
         }
 
-        // 读取解锁的皮肤数据
-        CompoundTag unlockedSkinsTag = compoundTag.getCompound("unlockedSkins");
-        for (String itemKey : unlockedSkinsTag.getAllKeys()) {
-            CompoundTag skinsForItemTag = unlockedSkinsTag.getCompound(itemKey);
-            Map<String, Boolean> skinsForItem = new HashMap<>();
-            for (String skinKey : skinsForItemTag.getAllKeys()) {
-                skinsForItem.put(skinKey, skinsForItemTag.getBoolean(skinKey));
+        if (compoundTag.contains("unlockedSkins")) {
+            // 读取解锁的皮肤数据
+            CompoundTag unlockedSkinsTag = compoundTag.getCompound("unlockedSkins");
+            this.unlockedSkins.clear();
+            for (String itemKey : unlockedSkinsTag.getAllKeys()) {
+                CompoundTag skinsForItemTag = unlockedSkinsTag.getCompound(itemKey);
+                Map<String, Boolean> skinsForItem = new HashMap<>();
+                for (String skinKey : skinsForItemTag.getAllKeys()) {
+                    skinsForItem.put(skinKey, skinsForItemTag.getBoolean(skinKey));
+                }
+                this.unlockedSkins.put(itemKey, skinsForItem);
             }
-            this.unlockedSkins.put(itemKey, skinsForItem);
         }
     }
 
     @Override
+    public void writeSyncPacket(RegistryFriendlyByteBuf buf, ServerPlayer recipient) {
+        syncMode = true;
+        CompoundTag tag = new CompoundTag();
+        this.writeToNbt(tag, buf.registryAccess());
+        buf.writeNbt(tag);
+        syncMode = false;
+    }
+
+    @Override
     public void writeToNbt(CompoundTag compoundTag, HolderLookup.Provider provider) {
+        if (syncMode) {
+            if (!SREConfig.instance().isItemSkinEnabled) {
+                return;
+            }
+        }
         // 写入装备的皮肤数据
         CompoundTag equippedSkinsTag = new CompoundTag();
         for (Map.Entry<String, String> entry : this.equippedSkins.entrySet()) {
@@ -519,6 +555,11 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
         }
         compoundTag.put("equippedSkins", equippedSkinsTag);
 
+        if (syncMode) {
+            if (!SREConfig.instance().isItemSkinManagementEnabled) {
+                return;
+            }
+        }
         // 写入解锁的皮肤数据
         CompoundTag unlockedSkinsTag = new CompoundTag();
         for (Map.Entry<String, Map<String, Boolean>> itemEntry : this.unlockedSkins.entrySet()) {

@@ -81,7 +81,7 @@ public class NameTagInventoryComponent implements RoleComponent {
     }
 
     public void syncFromLinkedServer(){
-        if (!SREConfig.itemSkinSyncServerEnabled)
+        if (!SREConfig.instance().itemSkinSyncServerEnabled)
             return;
         if (!this.isNetworkSyncEnabled || syncRequests == null) {
             return;

@@ -1,4 +1,3 @@
-// Source code is decompiled from a .class file using FernFlower decompiler (from Intellij IDEA).
 package org.agmas.noellesroles.mixin.client.general;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -97,7 +96,7 @@ public class InventoryIntroductionRenderer {
                   int var10000 = (int) (9.0F * scale);
                   int totalHeight = var10000 + infoLineCount * (int) (9.0F * scale) + infoLineCount * 2 + 2;
                   int scaledNameWidth = (int) ((float) font.width(roleNameComponent) * scale);
-                  int maxWidth = Math.max(scaledNameWidth, maxInfoWidth);
+                  int maxWidth = Math.max(scaledNameWidth, (int) (maxInfoWidth * scale));
                   this.drawScaledBackground(context, x, y, maxWidth, totalHeight);
                }
             }

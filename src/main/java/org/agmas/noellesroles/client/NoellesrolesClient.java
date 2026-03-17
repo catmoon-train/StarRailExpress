@@ -671,7 +671,7 @@ public class NoellesrolesClient implements ClientModInitializer {
                     if (SREClient.isPlayerAliveAndInSurvival()) {
                         var playerMood = SREPlayerMoodComponent.KEY.get(Minecraft.getInstance().player);
                         if (playerMood != null) {
-                            canDisplay = !playerMood.tasks.isEmpty();
+                            canDisplay = !playerMood.getTasks().isEmpty();
                         }
                     } else {
                         canDisplay = true;

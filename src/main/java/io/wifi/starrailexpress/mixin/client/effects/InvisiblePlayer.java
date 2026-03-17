@@ -21,7 +21,7 @@ public class InvisiblePlayer {
             CallbackInfoReturnable<Boolean> cir) {
         if (entity instanceof Player player) {
             if (player.hasEffect(MobEffects.INVISIBILITY))
-                // 傩面游魂状态下完全隐身，其他玩家看不到
+                // 完全隐身，其他玩家看不到
                 cir.setReturnValue(false);
         }
     }

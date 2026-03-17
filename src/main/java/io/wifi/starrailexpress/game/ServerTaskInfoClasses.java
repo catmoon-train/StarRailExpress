@@ -83,7 +83,7 @@ public class ServerTaskInfoClasses {
 
         // ── 构造器 ─────────────────────────────────────────────────────────────
         public AutoTrainResetTask(AreasWorldComponent areas, ServerLevel world, GameMode gameMode, int gameStartTime) {
-            if (SREConfig.verboseTrainResetLogs) {
+            if (SREConfig.instance().verboseTrainResetLogs) {
                 SRE.LOGGER.info("Resetting train " + areas.mapName);
             }
             GameUtils.resetPoints.clear();
@@ -192,7 +192,7 @@ public class ServerTaskInfoClasses {
             count++;
 
             if (area.noReset) {
-                if (SREConfig.verboseTrainResetLogs) {
+                if (SREConfig.instance().verboseTrainResetLogs) {
                     SRE.LOGGER.info("NO RESET MAP!");
                 }
                 return true;
@@ -202,7 +202,7 @@ public class ServerTaskInfoClasses {
             }
 
             if (count % 10 == 1) {
-                if (SREConfig.verboseTrainResetLogs) {
+                if (SREConfig.instance().verboseTrainResetLogs) {
                     SRE.LOGGER.info("RESETING MAP: {}/{}", this.progress, this.totalProgress);
                 }
                 this.serverWorld.players().forEach((p) -> {
@@ -233,7 +233,7 @@ public class ServerTaskInfoClasses {
                         true);
             });
             if (shouldStartGame) {
-                if (SREConfig.verboseTrainResetLogs) {
+                if (SREConfig.instance().verboseTrainResetLogs) {
                     SRE.LOGGER.info("RESETING MAP FINISHED. STARTING RESET TASK BLOCKS.");
                 }
                 // GameUtils.trueStartGame(this.serverWorld, this.gameMode, this.time);
@@ -268,7 +268,7 @@ public class ServerTaskInfoClasses {
         }
 
         public void resetBlock() {
-            if (SREConfig.verboseTrainResetLogs) {
+            if (SREConfig.instance().verboseTrainResetLogs) {
                 SRE.LOGGER.info("RESETING MAP: {}/{}", this.progress, this.totalProgress);
             }
             ServerLevel serverWorld = this.world;
@@ -445,11 +445,11 @@ public class ServerTaskInfoClasses {
         public void onFinished() {
 
             if (shouldStartGame) {
-                if (SREConfig.verboseTrainResetLogs) {
+                if (SREConfig.instance().verboseTrainResetLogs) {
                     SRE.LOGGER.info("RESETING MAP FINISHED. STARTING THE GAME.");
                 }
                 var blackoutComponent = SREWorldBlackoutComponent.KEY.get(this.world);
-                blackoutComponent.triggerBlackout();
+                blackoutComponent.triggerBlackout(false);
                 GameUtils.serverTaskQueue.add(new ServerTaskInfoClasses.SchedulerTask(5, () -> {
                     blackoutComponent.reset();
                 }));

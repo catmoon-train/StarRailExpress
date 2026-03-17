@@ -5,6 +5,7 @@ import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
+import io.wifi.starrailexpress.cca.SREPlayerTaskComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.SRE;
@@ -35,7 +36,7 @@ public class MoodRenderer {
     public static final ResourceLocation MOOD_PSYCHO = SRE.watheId("hud/mood_psycho");
     public static final ResourceLocation MOOD_PSYCHO_HIT = SRE.watheId("hud/mood_psycho_hit");
     public static final ResourceLocation MOOD_PSYCHO_EYES = SRE.watheId("hud/mood_psycho_eyes");
-    private static final Map<SREPlayerMoodComponent.Task, TaskRenderer> renderers = new HashMap<>();
+    private static final Map<SREPlayerTaskComponent.Task, TaskRenderer> renderers = new HashMap<>();
     public static Random random = new Random();
     public static float arrowProgress = 1f;
     public static float moodRender = 0f;
@@ -60,23 +61,23 @@ public class MoodRenderer {
             renderPsycho(player, textRenderer, context, psycho, tickCounter);
             return;
         }
-        for (SREPlayerMoodComponent.Task task : component.tasks.keySet()) {
+        for (var task : component.getTasks().keySet()) {
             if (!renderers.containsKey(task)) {
                 for (TaskRenderer renderer : renderers.values())
                     renderer.index++;
                 renderers.put(task, new TaskRenderer());
             }
         }
-        ArrayList<SREPlayerMoodComponent.Task> toRemove = new ArrayList<>();
-        for (SREPlayerMoodComponent.Task taskType : SREPlayerMoodComponent.Task.values()) {
+        ArrayList<SREPlayerTaskComponent.Task> toRemove = new ArrayList<>();
+        for (var taskType : SREPlayerTaskComponent.Task.values()) {
             TaskRenderer task = renderers.get(taskType);
             if (task != null) {
                 task.present = false;
-                if (task.tick(component.tasks.get(taskType), tickCounter.getGameTimeDeltaPartialTick(true)))
+                if (task.tick(component.getTasks().get(taskType), tickCounter.getGameTimeDeltaPartialTick(true)))
                     toRemove.add(taskType);
             }
         }
-        for (SREPlayerMoodComponent.Task task : toRemove)
+        for (var task : toRemove)
             renderers.remove(task);
         if (!toRemove.isEmpty()) {
             ArrayList<TaskRenderer> renderersList = new ArrayList<>(renderers.values());
@@ -85,7 +86,7 @@ public class MoodRenderer {
                 renderersList.get(i).index = i;
         }
         TaskRenderer maxRenderer = null;
-        for (Map.Entry<SREPlayerMoodComponent.Task, TaskRenderer> entry : renderers.entrySet()) {
+        for (Map.Entry<SREPlayerTaskComponent.Task, TaskRenderer> entry : renderers.entrySet()) {
             TaskRenderer renderer = entry.getValue();
             context.pose().pushPose();
             context.pose().translate(0, 10 * renderer.offset, 0);
@@ -224,14 +225,14 @@ public class MoodRenderer {
         context.pose().popPose();
     }
 
-    private static class TaskRenderer {
+    public static class TaskRenderer {
         public int index = 0;
         public float offset = -1f;
         public float alpha = 0.075f;
         public boolean present = false;
         public Component text = Component.empty();
 
-        public boolean tick(SREPlayerMoodComponent.TrainTask present, float delta) {
+        public boolean tick(SREPlayerTaskComponent.TrainTask present, float delta) {
             if (present != null)
                 this.text = Component.translatable("task." + (SREClient.isKiller() ? "fake" : "feel"))
                         .append(Component.translatable("task." + present.getName()));

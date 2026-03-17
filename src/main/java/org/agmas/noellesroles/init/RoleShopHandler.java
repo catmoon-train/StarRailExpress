@@ -984,14 +984,14 @@ public class RoleShopHandler {
         HSRItems.BANDIT_REVOLVER.getDefaultInstance(),
         130,
         ShopEntry.Type.TOOL));
-    柜子区的商店.add(new ShopEntry(TMMItems.FIRECRACKER.getDefaultInstance(), SREConfig.firecrackerPrice,
+    柜子区的商店.add(new ShopEntry(TMMItems.FIRECRACKER.getDefaultInstance(), SREConfig.instance().firecrackerPrice,
         ShopEntry.Type.TOOL));
     柜子区的商店.add(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), 80, ShopEntry.Type.TOOL));
-    柜子区的商店.add(new ShopEntry(TMMItems.BODY_BAG.getDefaultInstance(), SREConfig.bodyBagPrice,
+    柜子区的商店.add(new ShopEntry(TMMItems.BODY_BAG.getDefaultInstance(), SREConfig.instance().bodyBagPrice,
         ShopEntry.Type.TOOL));
     柜子区的商店.add(new ShopEntry(TMMItems.GRENADE.getDefaultInstance(), 250,
         ShopEntry.Type.TOOL));
-    柜子区的商店.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), SREConfig.blackoutPrice,
+    柜子区的商店.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), SREConfig.instance().blackoutPrice,
         ShopEntry.Type.TOOL) {
       public boolean onBuy(@NotNull Player player) {
         player.getCooldowns().addCooldown(TMMItems.BLACKOUT,
@@ -1051,7 +1051,7 @@ public class RoleShopHandler {
 
     // 关灯 - 300金币 (原版杀手商店物品)
     SLIPPERY_GHOST_SHOP.add(
-        new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), SREConfig.blackoutPrice,
+        new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), SREConfig.instance().blackoutPrice,
             ShopEntry.Type.TOOL) {
           public boolean onBuy(@NotNull Player player) {
             return SREPlayerShopComponent.useBlackout(player);

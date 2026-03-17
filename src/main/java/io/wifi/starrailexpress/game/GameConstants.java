@@ -48,20 +48,20 @@ public interface GameConstants {
      */
     static void reloadItemCooldowns() {
         ITEM_COOLDOWNS.clear();
-        ITEM_COOLDOWNS.put(TMMItems.KNIFE, SREConfig.knifeCooldown * 20);
-        ITEM_COOLDOWNS.put(TMMItems.REVOLVER, SREConfig.revolverCooldown * 20);
-        ITEM_COOLDOWNS.put(TMMItems.DERRINGER, SREConfig.derringerCooldown * 20);
-        ITEM_COOLDOWNS.put(TMMItems.GRENADE, SREConfig.grenadeCooldown * 20);
-        ITEM_COOLDOWNS.put(TMMItems.LOCKPICK, SREConfig.lockpickCooldown * 20);
-        ITEM_COOLDOWNS.put(TMMItems.CROWBAR, SREConfig.crowbarCooldown * 20);
-        ITEM_COOLDOWNS.put(TMMItems.BODY_BAG, SREConfig.bodyBagCooldown * 20);
-        ITEM_COOLDOWNS.put(TMMItems.PSYCHO_MODE, SREConfig.psychoModeCooldown * 20);
-        ITEM_COOLDOWNS.put(TMMItems.BLACKOUT, SREConfig.blackoutCooldown * 20);
+        ITEM_COOLDOWNS.put(TMMItems.KNIFE, SREConfig.instance().knifeCooldown * 20);
+        ITEM_COOLDOWNS.put(TMMItems.REVOLVER, SREConfig.instance().revolverCooldown * 20);
+        ITEM_COOLDOWNS.put(TMMItems.DERRINGER, SREConfig.instance().derringerCooldown * 20);
+        ITEM_COOLDOWNS.put(TMMItems.GRENADE, SREConfig.instance().grenadeCooldown * 20);
+        ITEM_COOLDOWNS.put(TMMItems.LOCKPICK, SREConfig.instance().lockpickCooldown * 20);
+        ITEM_COOLDOWNS.put(TMMItems.CROWBAR, SREConfig.instance().crowbarCooldown * 20);
+        ITEM_COOLDOWNS.put(TMMItems.BODY_BAG, SREConfig.instance().bodyBagCooldown * 20);
+        ITEM_COOLDOWNS.put(TMMItems.PSYCHO_MODE, SREConfig.instance().psychoModeCooldown * 20);
+        ITEM_COOLDOWNS.put(TMMItems.BLACKOUT, SREConfig.instance().blackoutCooldown * 20);
         ITEM_COOLDOWNS.put(TMMItems.NUNCHUCK, 160); // 8秒冷却
         ITEM_COOLDOWNS.put(TMMItems.SNIPER_RIFLE, 80); // 4秒冷却
 
         SRE.LOGGER.debug("物品冷却时间已重载: 小刀={}秒, 左轮={}秒",
-                SREConfig.knifeCooldown, SREConfig.revolverCooldown);
+                SREConfig.instance().knifeCooldown, SREConfig.instance().revolverCooldown);
     }
 
     int JAMMED_DOOR_TIME = getInTicks(1, 0);
@@ -94,41 +94,41 @@ public interface GameConstants {
     // Shop Variables
 
     static int getMoneyStart() {
-        return SREConfig.startingMoney;
+        return SREConfig.instance().startingMoney;
     }
 
     static Function<Long, Integer> getPassiveMoneyTicker() {
         return time -> {
-            if (time % (SREConfig.passiveMoneyInterval * 20) == 0) {
-                return SREConfig.passiveMoneyAmount;
+            if (time % (SREConfig.instance().passiveMoneyInterval * 20) == 0) {
+                return SREConfig.instance().passiveMoneyAmount;
             }
             return 0;
         };
     }
 
     static int getMoneyPerKill() {
-        return SREConfig.moneyPerKill;
+        return SREConfig.instance().moneyPerKill;
     }
 
     static int getPsychoModeArmour() {
-        return SREConfig.psychoModeArmor;
+        return SREConfig.instance().psychoModeArmor;
     }
 
     // Timers
     static int getPsychoTimer() {
-        return SREConfig.psychoModeDuration * 20;
+        return SREConfig.instance().psychoModeDuration * 20;
     }
 
     static int getFirecrackerTimer() {
-        return SREConfig.firecrackerDuration * 20;
+        return SREConfig.instance().firecrackerDuration * 20;
     }
 
     static int getBlackoutMinDuration() {
-        return SREConfig.blackoutMinDuration * 20;
+        return SREConfig.instance().blackoutMinDuration * 20;
     }
 
     static int getBlackoutMaxDuration() {
-        return SREConfig.blackoutMaxDuration * 20;
+        return SREConfig.instance().blackoutMaxDuration * 20;
     }
 
     int TIME_ON_CIVILIAN_KILL = getInTicks(0, 30);

@@ -18,7 +18,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
@@ -59,7 +58,6 @@ public abstract class VoodooScreenMixin extends LimitedHandledScreen<InventoryMe
     @Unique
     private RoleScreenHelper<UUID> getRoleScreenHelper() {
         if (roleScreenHelper == null) {
-            Minecraft client = Minecraft.getInstance();
             roleScreenHelper = new RoleScreenHelper<>(
                 player,
                 ModRoles.VOODOO,
@@ -129,14 +127,14 @@ public abstract class VoodooScreenMixin extends LimitedHandledScreen<InventoryMe
     private void noellesroles$onInit(CallbackInfo ci) {
         getRoleScreenHelper().onInit(this);
     }
-
+    
     @Override
-    public void addDrawableChild(Button button) {
+    public void addDrawableChild(net.minecraft.client.gui.components.Button button) {
         super.addRenderableWidget(button);
     }
 
     @Override
-    public void removeDrawableChild(Button button) {
+    public void removeDrawableChild(net.minecraft.client.gui.components.Button button) {
         super.removeWidget(button);
     }
 

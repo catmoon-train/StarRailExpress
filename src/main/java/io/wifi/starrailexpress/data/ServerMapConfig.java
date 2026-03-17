@@ -46,7 +46,7 @@ public class ServerMapConfig {
     }
 
     public List<MapEntry> getRandomMaps() {
-        return getRandomMaps(SREConfig.mapRandomCount);
+        return getRandomMaps(SREConfig.instance().mapRandomCount);
     }
     public static List<MapEntry> cache_maps = new ArrayList<>();
 

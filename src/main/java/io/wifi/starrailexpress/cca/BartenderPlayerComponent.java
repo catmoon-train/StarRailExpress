@@ -147,7 +147,7 @@ public class BartenderPlayerComponent implements RoleComponent, ServerTickingCom
     }
 
     public boolean startGlow(int type) {
-        setGlowTicks(GameConstants.getInTicks(0, SREConfig.bartenderGlowDuration), type);
+        setGlowTicks(GameConstants.getInTicks(0, SREConfig.instance().bartenderGlowDuration), type);
         return true;
     }
 

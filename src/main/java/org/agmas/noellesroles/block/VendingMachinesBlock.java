@@ -78,7 +78,7 @@ public class VendingMachinesBlock extends BaseEntityBlock {
     protected ItemInteractionResult useItemOn(ItemStack itemStack, BlockState blockState, Level level,
             BlockPos blockPos, Player player, InteractionHand interactionHand, BlockHitResult blockHitResult) {
         onUseVendingMachines(player, blockPos);
-        return ItemInteractionResult.SKIP_DEFAULT_BLOCK_INTERACTION;
+        return ItemInteractionResult.SUCCESS;
     }
 
     @Override

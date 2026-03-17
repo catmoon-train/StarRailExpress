@@ -150,7 +150,6 @@ public class ManageSkinsCommand {
     Collection<? extends Player> players = EntityArgument.getPlayers(context, "targets");
     var item = ItemArgument.getItem(context, "item").getItem();
     String itemId = null;
-    ArrayList<String> skinArray = new ArrayList<>();
     if (item instanceof SkinableItem it) {
       itemId = it.getItemSkinType();
     }
@@ -159,27 +158,19 @@ public class ManageSkinsCommand {
           Component.translatable("Not a supported Skinable Item!").withStyle(ChatFormatting.RED));
       return 0;
     }
-    skinArray.addAll(SkinManager.getSkins(itemId).keySet());
     int successes = 0;
 
     for (Player player : players) {
       SREPlayerSkinsComponent skinsComponent = SREPlayerSkinsComponent.KEY.get(player);
-      for (var skin : skinArray) {
-        // 锁定（移除）指定物品类型的皮肤
-
-        skinsComponent.lockSkinForItemType(itemId, skin);
-        // skinsComponent.syncSkinsToNetwork();
-        successes++;
-      }
+      skinsComponent.clearSkinForItemType(itemId);
 
       context.getSource().sendSystemMessage(Component.translatable(
-          "Removed %s skins for item type %s to %s", skinArray.size(), item.getDescription(),
+          "Removed all skins for item type %s to %s", item.getDescription(),
           player.getName()));
       skinsComponent.syncSkinsToClient();
-
     }
     context.getSource().sendSuccess(
-        () -> Component.translatable("Take %s skins from %s players!", skinArray.size(), players.size()), true);
+        () -> Component.translatable("Take all skins from %s players!", players.size()), true);
     return successes;
   }
 

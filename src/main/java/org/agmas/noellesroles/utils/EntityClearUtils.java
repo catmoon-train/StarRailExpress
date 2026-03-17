@@ -1,6 +1,7 @@
 package org.agmas.noellesroles.utils;
 
 import org.agmas.harpymodloader.events.GameInitializeEvent;
+import org.agmas.noellesroles.entity.KuiXiPuppetEntity;
 import org.agmas.noellesroles.entity.LockEntity;
 import org.agmas.noellesroles.entity.LockEntityManager;
 import org.agmas.noellesroles.entity.WheelchairEntity;
@@ -26,7 +27,7 @@ public class EntityClearUtils {
 
             // // 清除玩家属性
             // for (var pl : world.players()) {
-            //     RoleUtils.RemoveAllPlayerAttributes(pl);
+            // RoleUtils.RemoveAllPlayerAttributes(pl);
             // }
 
             // 收集需要删除的实体列表，避免在遍历过程中修改集合
@@ -43,6 +44,7 @@ public class EntityClearUtils {
                         entity instanceof ItemEntity ||
                         entity instanceof PlayerBodyEntity ||
                         entity instanceof WheelchairEntity ||
+                        entity instanceof KuiXiPuppetEntity ||
                         entity instanceof NoteEntity) {
                     entitiesToRemove.add(entity);
                 }

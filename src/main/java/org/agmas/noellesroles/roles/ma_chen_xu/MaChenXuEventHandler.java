@@ -25,10 +25,11 @@ public class MaChenXuEventHandler {
                     compc.shieldDuration = 0;
                     compc.sync();
                     SRE.REPLAY_MANAGER.breakArmor(victim.getUUID());
-                    victim.displayClientMessage(Component.translatable("message.noellesroles.ma_chen_xu.trigger_shield").withStyle(ChatFormatting.GOLD), true);
+                    victim.displayClientMessage(Component.translatable("message.noellesroles.ma_chen_xu.trigger_shield")
+                            .withStyle(ChatFormatting.GOLD), true);
                     return false;
                 }
-                if (compc.otherworldActive) {
+                if (compc.spiritWalkDuration > 0) {
                     return false;
                 }
             }

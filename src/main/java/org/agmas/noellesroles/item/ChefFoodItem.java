@@ -9,8 +9,9 @@ import org.agmas.noellesroles.Noellesroles;
 
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
-import io.wifi.starrailexpress.cca.SREPlayerMoodComponent.TrainTask;
+import io.wifi.starrailexpress.cca.SREPlayerTaskComponent.TrainTask;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
+import io.wifi.starrailexpress.cca.SREPlayerTaskComponent;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -110,7 +111,7 @@ public class ChefFoodItem extends Item {
                     ));
                     break;
                 case 5:
-                    var mm2 = SREPlayerMoodComponent.KEY.maybeGet(livingEntity).orElse(null);
+                    var mm2 = SREPlayerTaskComponent.KEY.maybeGet(livingEntity).orElse(null);
                     if (mm2 != null) {
                         mm2.tasks.clear();
                         TrainTask task = mm2.generateTask();

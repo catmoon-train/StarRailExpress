@@ -71,7 +71,7 @@ public class SREPlayerAFKComponent implements RoleComponent, ServerTickingCompon
         this.afkTime = ticks;
         this.lastActionTime = ticks;
         // 根据设置的时间更新AFK状态
-        int afkThreshold = SREConfig.afkThresholdSeconds * 20; // 转换为ticks
+        int afkThreshold = SREConfig.instance().afkThresholdSeconds * 20; // 转换为ticks
         this.isAFK = this.afkTime >= afkThreshold;
         this.sync();
     }
@@ -85,18 +85,18 @@ public class SREPlayerAFKComponent implements RoleComponent, ServerTickingCompon
     }
 
     public boolean isSleepy() {
-        int sleepyThreshold = SREConfig.afkSleepySeconds * 20; // 转换为ticks
+        int sleepyThreshold = SREConfig.instance().afkSleepySeconds * 20; // 转换为ticks
         return this.afkTime >= sleepyThreshold && !this.isAFK;
     }
 
     public boolean isWarning() {
-        int warningThreshold = SREConfig.afkWarningSeconds * 20; // 转换为ticks
-        int afkThreshold = SREConfig.afkThresholdSeconds * 20; // 转换为ticks
+        int warningThreshold = SREConfig.instance().afkWarningSeconds * 20; // 转换为ticks
+        int afkThreshold = SREConfig.instance().afkThresholdSeconds * 20; // 转换为ticks
         return this.afkTime >= warningThreshold && this.afkTime < afkThreshold && !this.isAFK;
     }
 
     public float getAFKProgress() {
-        int afkThreshold = SREConfig.afkThresholdSeconds * 20; // 转换为ticks
+        int afkThreshold = SREConfig.instance().afkThresholdSeconds * 20; // 转换为ticks
         return (float) this.afkTime / afkThreshold;
     }
 
@@ -117,10 +117,10 @@ public class SREPlayerAFKComponent implements RoleComponent, ServerTickingCompon
         this.afkTime = lastActionTime;
 
         // 检查是否达到挂机阈值
-        int afkThreshold = SREConfig.afkThresholdSeconds * 20; // 转换为ticks
-        int warningThreshold = SREConfig.afkWarningSeconds * 20; // 转换为ticks
-        int sleepyThreshold = SREConfig.afkSleepySeconds * 20; // 转换为ticks
-        int deathThreshold = SREConfig.afkDeathSeconds * 20; // 添加死亡阈值，转换为ticks
+        int afkThreshold = SREConfig.instance().afkThresholdSeconds * 20; // 转换为ticks
+        int warningThreshold = SREConfig.instance().afkWarningSeconds * 20; // 转换为ticks
+        int sleepyThreshold = SREConfig.instance().afkSleepySeconds * 20; // 转换为ticks
+        int deathThreshold = SREConfig.instance().afkDeathSeconds * 20; // 添加死亡阈值，转换为ticks
         if (tickR % 400 == 0) {// 20s 同步一次
             this.sync(); // 确保客户端同步进度
         }

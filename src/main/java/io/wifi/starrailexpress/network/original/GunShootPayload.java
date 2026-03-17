@@ -131,7 +131,8 @@ public record GunShootPayload(int target) implements CustomPacketPayload {
             PacketTracker.sendToClient(player, new ShootMuzzleS2CPayload(player.getId()));
             if (!player.isCreative())
                 player.getCooldowns().addCooldown(mainHandStack.getItem(),
-                        GameConstants.ITEM_COOLDOWNS.getOrDefault(mainHandStack.getItem(), 0));
+                        GameConstants.ITEM_COOLDOWNS.getOrDefault(mainHandStack.getItem(),
+                                GameConstants.ITEM_COOLDOWNS.getOrDefault(TMMItems.REVOLVER, 0)));
         }
     }
 }

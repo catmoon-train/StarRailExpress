@@ -5,7 +5,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
+import io.wifi.starrailexpress.cca.SREPlayerTaskComponent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
@@ -21,9 +21,9 @@ public class WrittenBookMixin {
             CallbackInfoReturnable<InteractionResultHolder<ItemStack>> ci) {
         if (level.isClientSide)
             return;
-        var pmc = SREPlayerMoodComponent.KEY.get(player);
-        var readTask = pmc.tasks.getOrDefault(SREPlayerMoodComponent.Task.RAED_BOOK, null);
-        if (readTask != null && readTask instanceof SREPlayerMoodComponent.ReadBookTask bookTask) {
+        var pmc = SREPlayerTaskComponent.KEY.get(player);
+        var readTask = pmc.tasks.getOrDefault(SREPlayerTaskComponent.Task.RAED_BOOK, null);
+        if (readTask != null && readTask instanceof SREPlayerTaskComponent.ReadBookTask bookTask) {
             bookTask.setTimer(0);
         }
     }
