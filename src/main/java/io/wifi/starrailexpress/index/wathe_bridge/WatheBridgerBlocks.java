@@ -2,7 +2,6 @@ package io.wifi.starrailexpress.index.wathe_bridge;
 
 import dev.doctor4t.ratatouille.util.registrar.BlockRegistrar;
 import io.wifi.starrailexpress.block.*;
-import io.wifi.starrailexpress.index.TMMBlockEntities;
 import io.wifi.starrailexpress.index.TMMProperties;
 import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.util.BlockSettingsAdditions;
@@ -94,10 +93,6 @@ public interface WatheBridgerBlocks {
     Block STAINLESS_STEEL_BAR = registrar.createWithItem("stainless_steel_bar", new BarBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL).noOcclusion().strength(0.5f)), WatheBridgerItems.DECORATION_GROUP);
     Block RAIL_BEAM = registrar.createWithItem("rail_beam", new RailBeamBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL).forceSolidOn()), WatheBridgerItems.DECORATION_GROUP);
 
-    // Doors
-    Block SMALL_GLASS_DOOR = registrar.createWithItem("small_glass_door", new SmallDoorBlock(() -> TMMBlockEntities.SMALL_GLASS_DOOR, BlockBehaviour.Properties.of().dynamicShape().strength(-1, 3600000).mapColor(MapColor.NONE).noLootTable().noOcclusion().isValidSpawn(Blocks::never).pushReaction(PushReaction.BLOCK).sound(SoundType.COPPER_BULB)), WatheBridgerItems.DECORATION_GROUP);
-    Block SMALL_WOOD_DOOR = registrar.createWithItem("small_wood_door", new SmallDoorBlock(() -> TMMBlockEntities.SMALL_WOOD_DOOR, BlockBehaviour.Properties.ofFullCopy(SMALL_GLASS_DOOR).sound(SoundType.COPPER)), WatheBridgerItems.DECORATION_GROUP);
-
     // Fancy steel
     Block ANTHRACITE_STEEL = registrar.createWithItem("anthracite_steel", new Block(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)), WatheBridgerItems.BUILDING_GROUP);
     Block ANTHRACITE_STEEL_PANEL = registrar.createWithItem("anthracite_steel_panel", new PanelBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)), WatheBridgerItems.BUILDING_GROUP);
@@ -108,7 +103,7 @@ public interface WatheBridgerBlocks {
     Block SMOOTH_ANTHRACITE_STEEL_SLAB = registrar.createWithItem("smooth_anthracite_steel_slab", new SlabBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)), WatheBridgerItems.BUILDING_GROUP);
     Block SMOOTH_ANTHRACITE_STEEL_PANEL = registrar.createWithItem("smooth_anthracite_steel_panel", new PanelBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)), WatheBridgerItems.BUILDING_GROUP);
     Block SMOOTH_ANTHRACITE_STEEL_WALL = registrar.createWithItem("smooth_anthracite_steel_wall", new WallBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL).forceSolidOn()), WatheBridgerItems.BUILDING_GROUP);
-    Block ANTHRACITE_STEEL_DOOR = registrar.createWithItem("anthracite_steel_door", new TrainDoorBlock(() -> TMMBlockEntities.ANTHRACITE_STEEL_DOOR, BlockBehaviour.Properties.ofFullCopy(SMALL_GLASS_DOOR).sound(SoundType.COPPER)), WatheBridgerItems.DECORATION_GROUP);
+    
     Block KHAKI_STEEL = registrar.createWithItem("khaki_steel", new Block(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)), WatheBridgerItems.BUILDING_GROUP);
     Block KHAKI_STEEL_PANEL = registrar.createWithItem("khaki_steel_panel", new PanelBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)), WatheBridgerItems.BUILDING_GROUP);
     Block KHAKI_STEEL_TILES = registrar.createWithItem("khaki_steel_tiles", new Block(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)), WatheBridgerItems.BUILDING_GROUP);
@@ -118,7 +113,7 @@ public interface WatheBridgerBlocks {
     Block SMOOTH_KHAKI_STEEL_SLAB = registrar.createWithItem("smooth_khaki_steel_slab", new SlabBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)), WatheBridgerItems.BUILDING_GROUP);
     Block SMOOTH_KHAKI_STEEL_PANEL = registrar.createWithItem("smooth_khaki_steel_panel", new PanelBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)), WatheBridgerItems.BUILDING_GROUP);
     Block SMOOTH_KHAKI_STEEL_WALL = registrar.createWithItem("smooth_khaki_steel_wall", new WallBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL).forceSolidOn()), WatheBridgerItems.BUILDING_GROUP);
-    Block KHAKI_STEEL_DOOR = registrar.createWithItem("khaki_steel_door", new TrainDoorBlock(() -> TMMBlockEntities.KHAKI_STEEL_DOOR, BlockBehaviour.Properties.ofFullCopy(SMALL_GLASS_DOOR).sound(SoundType.COPPER)), WatheBridgerItems.DECORATION_GROUP);
+   
     Block MAROON_STEEL = registrar.createWithItem("maroon_steel", new Block(BlockBehaviour.Properties.ofFullCopy(DARK_STEEL)), WatheBridgerItems.BUILDING_GROUP);
     Block MAROON_STEEL_PANEL = registrar.createWithItem("maroon_steel_panel", new PanelBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)), WatheBridgerItems.BUILDING_GROUP);
     Block MAROON_STEEL_TILES = registrar.createWithItem("maroon_steel_tiles", new Block(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)), WatheBridgerItems.BUILDING_GROUP);
@@ -128,7 +123,7 @@ public interface WatheBridgerBlocks {
     Block SMOOTH_MAROON_STEEL_SLAB = registrar.createWithItem("smooth_maroon_steel_slab", new SlabBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)), WatheBridgerItems.BUILDING_GROUP);
     Block SMOOTH_MAROON_STEEL_PANEL = registrar.createWithItem("smooth_maroon_steel_panel", new PanelBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)), WatheBridgerItems.BUILDING_GROUP);
     Block SMOOTH_MAROON_STEEL_WALL = registrar.createWithItem("smooth_maroon_steel_wall", new WallBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL).forceSolidOn()), WatheBridgerItems.BUILDING_GROUP);
-    Block MAROON_STEEL_DOOR = registrar.createWithItem("maroon_steel_door", new TrainDoorBlock(() -> TMMBlockEntities.MAROON_STEEL_DOOR, BlockBehaviour.Properties.ofFullCopy(SMALL_GLASS_DOOR).sound(SoundType.COPPER)), WatheBridgerItems.DECORATION_GROUP);
+    
     Block MUNTZ_STEEL = registrar.createWithItem("muntz_steel", new Block(BlockBehaviour.Properties.ofFullCopy(DARK_STEEL)), WatheBridgerItems.BUILDING_GROUP);
     Block MUNTZ_STEEL_PANEL = registrar.createWithItem("muntz_steel_panel", new PanelBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)), WatheBridgerItems.BUILDING_GROUP);
     Block MUNTZ_STEEL_TILES = registrar.createWithItem("muntz_steel_tiles", new Block(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)), WatheBridgerItems.BUILDING_GROUP);
@@ -138,7 +133,7 @@ public interface WatheBridgerBlocks {
     Block SMOOTH_MUNTZ_STEEL_SLAB = registrar.createWithItem("smooth_muntz_steel_slab", new SlabBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)), WatheBridgerItems.BUILDING_GROUP);
     Block SMOOTH_MUNTZ_STEEL_PANEL = registrar.createWithItem("smooth_muntz_steel_panel", new PanelBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)), WatheBridgerItems.BUILDING_GROUP);
     Block SMOOTH_MUNTZ_STEEL_WALL = registrar.createWithItem("smooth_muntz_steel_wall", new WallBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL).forceSolidOn()), WatheBridgerItems.BUILDING_GROUP);
-    Block MUNTZ_STEEL_DOOR = registrar.createWithItem("muntz_steel_door", new TrainDoorBlock(() -> TMMBlockEntities.MUNTZ_STEEL_DOOR, BlockBehaviour.Properties.ofFullCopy(SMALL_GLASS_DOOR).sound(SoundType.COPPER)), WatheBridgerItems.DECORATION_GROUP);
+    
     Block NAVY_STEEL = registrar.createWithItem("navy_steel", new Block(BlockBehaviour.Properties.ofFullCopy(DARK_STEEL)), WatheBridgerItems.BUILDING_GROUP);
     Block NAVY_STEEL_PANEL = registrar.createWithItem("navy_steel_panel", new PanelBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)), WatheBridgerItems.BUILDING_GROUP);
     Block NAVY_STEEL_TILES = registrar.createWithItem("navy_steel_tiles", new Block(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)), WatheBridgerItems.BUILDING_GROUP);
@@ -148,7 +143,6 @@ public interface WatheBridgerBlocks {
     Block SMOOTH_NAVY_STEEL_SLAB = registrar.createWithItem("smooth_navy_steel_slab", new SlabBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)), WatheBridgerItems.BUILDING_GROUP);
     Block SMOOTH_NAVY_STEEL_PANEL = registrar.createWithItem("smooth_navy_steel_panel", new PanelBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)), WatheBridgerItems.BUILDING_GROUP);
     Block SMOOTH_NAVY_STEEL_WALL = registrar.createWithItem("smooth_navy_steel_wall", new WallBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL).forceSolidOn()), WatheBridgerItems.BUILDING_GROUP);
-    Block NAVY_STEEL_DOOR = registrar.createWithItem("navy_steel_door", new TrainDoorBlock(() -> TMMBlockEntities.NAVY_STEEL_DOOR, BlockBehaviour.Properties.ofFullCopy(SMALL_GLASS_DOOR).sound(SoundType.COPPER)), WatheBridgerItems.DECORATION_GROUP);
 
     // Glass
     Block HULL_GLASS = registrar.createWithItem("hull_glass", new PrivacyGlassBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.BLACK_STAINED_GLASS).strength(-1.0f, 3600000.0f)), WatheBridgerItems.BUILDING_GROUP);

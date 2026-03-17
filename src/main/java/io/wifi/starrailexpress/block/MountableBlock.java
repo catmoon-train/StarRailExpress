@@ -82,7 +82,7 @@ public abstract class MountableBlock extends Block {
                 world.addFreshEntity(seatEntity);
                 player.startRiding(seatEntity);
 
-                return InteractionResult.sidedSuccess(false);
+                return InteractionResult.SUCCESS;
             }
         } else {
             return InteractionResult.PASS;
