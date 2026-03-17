@@ -98,16 +98,16 @@ public class ModEntities {
     /**
      * 操纵师本体实体 - 操纵师使用操控技能时生成的本体
      */
-    @SuppressWarnings("deprecation")
-    public static final EntityType<ManipulatorBodyEntity> MANIPULATOR_BODY = Registry.register(
-            BuiltInRegistries.ENTITY_TYPE,
-            ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "manipulator_body"),
-            FabricEntityTypeBuilder
-                    .<ManipulatorBodyEntity>create(MobCategory.MISC, ManipulatorBodyEntity::new)
-                    .dimensions(EntityDimensions.fixed(0.6F, 1.8F))
-                    .trackRangeBlocks(64)
-                    .trackedUpdateRate(2)
-                    .build());
+//     @SuppressWarnings("deprecation")
+//     public static final EntityType<ManipulatorBodyEntity> MANIPULATOR_BODY = Registry.register(
+//             BuiltInRegistries.ENTITY_TYPE,
+//             ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "manipulator_body"),
+//             FabricEntityTypeBuilder
+//                     .<ManipulatorBodyEntity>create(MobCategory.MISC, ManipulatorBodyEntity::new)
+//                     .dimensions(EntityDimensions.fixed(0.6F, 1.8F))
+//                     .trackRangeBlocks(64)
+//                     .trackedUpdateRate(2)
+//                     .build());
 
     /**
      * 锁实体 - 保护门不被撬锁器打开
@@ -168,7 +168,5 @@ public class ModEntities {
         // 注册傀儡本体实体属性（LivingEntity 必须注册属性才能生成）
         FabricDefaultAttributeRegistry.register(PUPPETEER_BODY, LivingEntity.createLivingAttributes());
         FabricDefaultAttributeRegistry.register(KUIXI_PUPPET, LivingEntity.createLivingAttributes());
-        // 注册操纵师本体实体属性
-        FabricDefaultAttributeRegistry.register(MANIPULATOR_BODY, LivingEntity.createLivingAttributes());
     }
 }

@@ -127,24 +127,23 @@ public class ClientHudRenderer {
             component.otherworldDuration / 20).withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD);
         context.drawString(textRenderer, liShiJieText, x, y, 0xFFFFFF);
         y += 12;
+      }
+      // 下雨[狂热]状态
+      if (component.frenzyRainActive) {
+        Component frenzyRainText = Component.translatable("hud.noellesroles.ma_chen_xu.frenzy_rain_active",
+            component.frenzyRainDuration / 20).withStyle(ChatFormatting.DARK_BLUE, ChatFormatting.BOLD);
+        context.drawString(textRenderer, frenzyRainText, x, y, 0xFFFFFF);
+        y += 12;
+      }
 
-        // 下雨[狂热]状态
-        if (component.frenzyRainActive) {
-          Component frenzyRainText = Component.translatable("hud.noellesroles.ma_chen_xu.frenzy_rain_active",
-              component.frenzyRainDuration / 20).withStyle(ChatFormatting.DARK_BLUE, ChatFormatting.BOLD);
-          context.drawString(textRenderer, frenzyRainText, x, y, 0xFFFFFF);
-          y += 12;
-        }
-
-        // 下雨[狂热]冷却状态
-        if (component.frenzyRainCooldown > 0) {
-          Component frenzyRainCooldownText = Component
-              .translatable("gui.noellesroles.ma_chen_xu.frenzy_rain_cooldown",
-                  component.frenzyRainCooldown / 20)
-              .withStyle(ChatFormatting.RED);
-          context.drawString(textRenderer, frenzyRainCooldownText, x, y, 0xFFFFFF);
-          y += 12;
-        }
+      // 下雨[狂热]冷却状态
+      if (component.frenzyRainCooldown > 0) {
+        Component frenzyRainCooldownText = Component
+            .translatable("gui.noellesroles.ma_chen_xu.frenzy_rain_cooldown",
+                component.frenzyRainCooldown / 20)
+            .withStyle(ChatFormatting.RED);
+        context.drawString(textRenderer, frenzyRainCooldownText, x, y, 0xFFFFFF);
+        y += 12;
       }
 
       // 鬼术状态
@@ -924,4 +923,3 @@ public class ClientHudRenderer {
     });
   }
 }
-

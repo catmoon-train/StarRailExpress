@@ -201,21 +201,21 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
     public void initMaxPlayers() {
         int player_size = this.player.level().players().size();
         if (player_size <= 12) {
-            stage1Need = 50;
-            stage2Need = 120;
-            stage3Need = 200;
-        } else if (player_size <= 24) {
-            stage1Need = 80;
+            stage1Need = 100;
             stage2Need = 200;
             stage3Need = 300;
-        } else if (player_size <= 32) {
+        } else if (player_size <= 24) {
             stage1Need = 100;
             stage2Need = 250;
-            stage3Need = 350;
-        } else {
-            stage1Need = 150;
-            stage2Need = 250;
             stage3Need = 400;
+        } else if (player_size <= 32) {
+            stage1Need = 150;
+            stage2Need = 400;
+            stage3Need = 600;
+        } else {
+            stage1Need = 200;
+            stage2Need = 500;
+            stage3Need = 800;
         }
     }
 
@@ -564,9 +564,9 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         // 扣除金币
         playerShopComponent.setBalance(playerShopComponent.balance - PRAYER_RAIN_COST);
         playerShopComponent.sync();
-        prayerRainCooldown = 20 * 60; // 60s 冷却
         // 激活里世界30秒
         activateOtherworld(PRAYER_RAIN_DURATION);
+        prayerRainCooldown = PRAYER_RAIN_DURATION * 2; // 60s 冷却
 
         serverPlayer.displayClientMessage(
                 Component.translatable("message.noellesroles.ma_chen_xu.prayer_rain_activated")
@@ -1431,9 +1431,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         Vec3 lookVec = serverPlayer.getViewVector(1.0F);
 
         // 向视线方向飞速前进（传送约10格距离）
-        double blinkDistance = 10.0;
         Vec3 currentPos = serverPlayer.position();
-        Vec3 targetPos = currentPos.add(lookVec.scale(blinkDistance));
 
         // 播放起始位置音效和粒子
         if (serverPlayer.level() instanceof ServerLevel serverLevel) {
@@ -1443,8 +1441,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         }
 
         // 传送玩家
-        serverPlayer.setDeltaMovement(targetPos.x - currentPos.x, targetPos.y - currentPos.y,
-                targetPos.z - currentPos.z);
+        serverPlayer.setDeltaMovement(lookVec);
 
         // 播放目标位置音效和粒子
         serverPlayer.level().playSound(null, serverPlayer.blockPosition(),
@@ -1453,7 +1450,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
 
         if (serverPlayer.level() instanceof ServerLevel serverLevel) {
             serverLevel.sendParticles(ParticleTypes.REVERSE_PORTAL,
-                    targetPos.x, targetPos.y + 1.0, targetPos.z,
+                    currentPos.x, currentPos.y + 1.0, currentPos.z,
                     30, 0.3, 0.5, 0.3, 0.05);
         }
 

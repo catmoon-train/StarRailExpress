@@ -49,8 +49,8 @@ public class SREWorldBlackoutComponent implements ServerTickingComponent {
 
     @Override
     public void serverTick() {
-        if (!world.isClientSide){
-            if (world.getServer().tickRateManager().isFrozen()){
+        if (!world.isClientSide) {
+            if (world.getServer().tickRateManager().isFrozen()) {
                 return;
             }
         }
@@ -72,6 +72,10 @@ public class SREWorldBlackoutComponent implements ServerTickingComponent {
     }
 
     public boolean triggerBlackout() {
+        return triggerBlackout(true);
+    }
+
+    public boolean triggerBlackout(boolean haveSound) {
         if (this.blackOutRemainingTicks > 0)
             return false;
         for (var pos : GameUtils.resetPoints) {
@@ -88,19 +92,24 @@ public class SREWorldBlackoutComponent implements ServerTickingComponent {
             detail.init(this.world);
             this.blackouts.add(detail);
         }
-        if (this.world instanceof ServerLevel serverWorld) {
-            for (ServerPlayer player : serverWorld.players()) {
-                if (GameUtils.isPlayerAliveAndSurvival(player)) {
-                    final var role = SREGameWorldComponent.KEY.get(world).getRole(player);
-                    if (role != null) {
-                        if ((!role.canUseKiller())) {
-                            player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 200, 0, false, false, false));
-                            player.addEffect(new MobEffectInstance(MobEffects.DARKNESS, 200, 0, false, false, false));
+        if (haveSound) {
+            if (this.world instanceof ServerLevel serverWorld) {
+                for (ServerPlayer player : serverWorld.players()) {
+                    if (GameUtils.isPlayerAliveAndSurvival(player)) {
+                        final var role = SREGameWorldComponent.KEY.get(world).getRole(player);
+                        if (role != null) {
+                            if ((!role.canUseKiller())) {
+                                player.addEffect(
+                                        new MobEffectInstance(MobEffects.BLINDNESS, 200, 0, false, false, false));
+                                player.addEffect(
+                                        new MobEffectInstance(MobEffects.DARKNESS, 200, 0, false, false, false));
+                            }
                         }
+                        player.connection.send(new ClientboundSoundPacket(
+                                BuiltInRegistries.SOUND_EVENT.wrapAsHolder(TMMSounds.AMBIENT_BLACKOUT),
+                                SoundSource.PLAYERS,
+                                player.getX(), player.getY(), player.getZ(), 100f, 1f, player.getRandom().nextLong()));
                     }
-                    player.connection.send(new ClientboundSoundPacket(
-                            BuiltInRegistries.SOUND_EVENT.wrapAsHolder(TMMSounds.AMBIENT_BLACKOUT), SoundSource.PLAYERS,
-                            player.getX(), player.getY(), player.getZ(), 100f, 1f, player.getRandom().nextLong()));
                 }
             }
         }

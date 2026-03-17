@@ -1,7 +1,6 @@
 package org.agmas.noellesroles.client.renderer;
 
-import org.agmas.noellesroles.entity.ManipulatorBodyEntity;
-import com.mojang.authlib.GameProfile;
+import org.agmas.noellesroles.entity.KuiXiPuppetEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import java.util.UUID;
@@ -21,17 +20,17 @@ import net.minecraft.resources.ResourceLocation;
  * 操纵师本体实体渲染器
  * 
  */
-public class ManipulatorBodyEntityRenderer extends EntityRenderer<ManipulatorBodyEntity> {
+public class KuiXiBodyEntityRenderer extends EntityRenderer<KuiXiPuppetEntity> {
 
-    private final HumanoidModel<ManipulatorBodyEntity> model;
+    private final HumanoidModel<KuiXiPuppetEntity> model;
 
-    public ManipulatorBodyEntityRenderer(EntityRendererProvider.Context ctx) {
+    public KuiXiBodyEntityRenderer(EntityRendererProvider.Context ctx) {
         super(ctx);
         this.model = new HumanoidModel<>(ctx.bakeLayer(ModelLayers.PLAYER));
     }
 
     @Override
-    public void render(ManipulatorBodyEntity entity, float yaw, float tickDelta, PoseStack matrices,
+    public void render(KuiXiPuppetEntity entity, float yaw, float tickDelta, PoseStack matrices,
             MultiBufferSource vertexConsumers, int light) {
 
         ResourceLocation texture = getTextureLocation(entity);
@@ -47,8 +46,8 @@ public class ManipulatorBodyEntityRenderer extends EntityRenderer<ManipulatorBod
     }
 
     @Override
-    public ResourceLocation getTextureLocation(ManipulatorBodyEntity entity) {
-        UUID ownerUuid = entity.getOwnerUuid().orElse(null);
+    public ResourceLocation getTextureLocation(KuiXiPuppetEntity entity) {
+        UUID ownerUuid = entity.getOwnerUuid();
 
         if (ownerUuid != null) {
             Minecraft client = Minecraft.getInstance();
@@ -60,19 +59,6 @@ public class ManipulatorBodyEntityRenderer extends EntityRenderer<ManipulatorBod
             }
             return DefaultPlayerSkin.get(ownerUuid).texture();
         }
-
-        GameProfile profile = entity.getSkinProfile();
-        if (profile != null && profile.getId() != null) {
-            Minecraft client = Minecraft.getInstance();
-            if (client.getConnection() != null) {
-                PlayerInfo entry = client.getConnection().getPlayerInfo(profile.getId());
-                if (entry != null) {
-                    return entry.getSkin().texture();
-                }
-            }
-            return DefaultPlayerSkin.get(profile.getId()).texture();
-        }
-
         return DefaultPlayerSkin.get(new UUID(0, 0)).texture();
     }
 }

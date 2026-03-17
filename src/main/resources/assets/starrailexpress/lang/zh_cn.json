@@ -388,6 +388,8 @@
   "commands.sre.resetweights": "所有的权重已重置",
   "commands.sre.setbound.disabled": "边界限制已禁用",
   "commands.sre.setbound.enabled": "边界限制已启用",
+  "commands.sre.setmood": "已将 %s 的心情设置为 %s",
+  "commands.sre.setmood.multiple": "已将 %s 个玩家的心情设置为 %s",
   "commands.sre.setmoney": "已将 %s 的金钱设置为 $%s",
   "commands.sre.addmoney": "已将 %s 的金钱添加 $%s，现在为 $%s",
   "commands.sre.getmoney": "金钱总额为 $%s",

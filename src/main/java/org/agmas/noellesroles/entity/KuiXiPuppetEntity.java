@@ -8,6 +8,8 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
 import net.minecraft.world.entity.player.Player;
@@ -26,6 +28,14 @@ import java.util.UUID;
  * - 持续20秒后自动消散
  */
 public class KuiXiPuppetEntity extends PathfinderMob {
+
+    public static AttributeSupplier.Builder createAttributes() {
+        return PathfinderMob.createMobAttributes()
+                .add(Attributes.MAX_HEALTH, 20.0)
+                .add(Attributes.FOLLOW_RANGE, 16.0) // ← 必须加这个！
+                .add(Attributes.MOVEMENT_SPEED, 0.3)
+                .add(Attributes.ATTACK_DAMAGE, 0.0);
+    }
 
     /** 傀儡存活时间（20秒 = 400 tick） */
     private static final int PUPPET_LIFETIME = 20 * 20;
@@ -68,13 +78,8 @@ public class KuiXiPuppetEntity extends PathfinderMob {
     /**
      * 获取召唤者
      */
-    public Player getOwner() {
-        if (ownerUuid == null)
-            return null;
-        if (level() instanceof ServerLevel serverLevel) {
-            return serverLevel.getPlayerByUUID(ownerUuid);
-        }
-        return null;
+    public UUID getOwnerUuid() {
+        return ownerUuid;
     }
 
     @Override
@@ -97,12 +102,15 @@ public class KuiXiPuppetEntity extends PathfinderMob {
             randomMove();
         }
 
-        // 每秒检查一次召唤者是否还存活
-        if (remainingLifetime % 20 == 0) {
-            Player owner = getOwner();
-            if (owner == null || !owner.isAlive()) {
-                disappear();
-                return;
+        if (this.level() instanceof ServerLevel sl) {
+            // 每秒检查一次召唤者是否还存活
+            if (remainingLifetime % 20 == 0) {
+                UUID ownerUuid = getOwnerUuid();
+                Player owner = sl.getPlayerByUUID(ownerUuid);
+                if (owner == null || !owner.isAlive()) {
+                    disappear();
+                    return;
+                }
             }
         }
     }
