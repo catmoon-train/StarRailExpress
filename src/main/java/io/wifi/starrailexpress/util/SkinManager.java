@@ -183,7 +183,7 @@ public class SkinManager {
         registerSkin(SkinTypes.REVOLVER, "golden_gun", 0xFFFFD700);
         registerSkin(SkinTypes.REVOLVER, "habilis", 0xFF8B4513);
         registerSkin(SkinTypes.REVOLVER, "infinity", 0xFF87CEEB);
-        registerSkin(SkinTypes.REVOLVER, "izumo_four_one_style", 0xFFDC143C);
+        registerSkin(SkinTypes.REVOLVER, "izumo_41_style", 0xFFDC143C);
         registerSkin(SkinTypes.REVOLVER, "lengcui", 0xFF00CED1);
         registerSkin(SkinTypes.REVOLVER, "m3", 0xFF696969);
         registerSkin(SkinTypes.REVOLVER, "margas_flintlock", 0xFF8B4513);
