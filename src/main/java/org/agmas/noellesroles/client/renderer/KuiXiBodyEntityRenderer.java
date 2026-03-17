@@ -19,9 +19,9 @@ import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.resources.ResourceLocation;
 
 /**
- * 操纵师本体实体渲染器
- * 
+ * KuiXiPuppetEntity 渲染玩家
  */
+// todo: KuiXiPuppetEntity 渲染玩家
 public class KuiXiBodyEntityRenderer extends EntityRenderer<KuiXiPuppetEntity> {
     private final HumanoidModel<KuiXiPuppetEntity> model;
 
