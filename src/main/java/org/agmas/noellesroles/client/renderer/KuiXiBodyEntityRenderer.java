@@ -21,7 +21,6 @@ import net.minecraft.resources.ResourceLocation;
 /**
  * KuiXiPuppetEntity 渲染玩家
  */
-// todo: KuiXiPuppetEntity 渲染玩家
 public class KuiXiBodyEntityRenderer extends EntityRenderer<KuiXiPuppetEntity> {
 
     public KuiXiBodyEntityRenderer(EntityRendererProvider.Context ctx) {
