@@ -31,7 +31,8 @@ import java.util.Map;
 import java.util.UUID;
 
 public class SREPlayerStatsComponent implements AutoSyncedComponent, ServerTickingComponent {
-    public static final ComponentKey<SREPlayerStatsComponent> KEY = ComponentRegistry.getOrCreate(SRE.id("player_stats"), SREPlayerStatsComponent.class);
+    public static final ComponentKey<SREPlayerStatsComponent> KEY = ComponentRegistry
+            .getOrCreate(SRE.id("player_stats"), SREPlayerStatsComponent.class);
     private final Player player;
     private long totalPlayTime = 0;
     private int totalGamesPlayed = 0;
@@ -89,7 +90,6 @@ public class SREPlayerStatsComponent implements AutoSyncedComponent, ServerTicki
     /**
      * 重置统计数据（用于游戏结束时）
      */
-
 
     public void sync() {
         KEY.sync(this.player);
@@ -180,17 +180,17 @@ public class SREPlayerStatsComponent implements AutoSyncedComponent, ServerTicki
         if (tag.contains("TotalSheriffDeaths")) {
             totalSheriffDeaths = tag.getInt("TotalSheriffDeaths");
         }
-
-        ListTag roleStatsList = tag.getList("RoleStats", Tag.TAG_COMPOUND);
-        roleStats.clear();
-        for (Tag element : roleStatsList) {
-            CompoundTag roleTag = (CompoundTag) element;
-            ResourceLocation roleId = ResourceLocation.parse(roleTag.getString("RoleId"));
-            RoleStats stats = new RoleStats();
-            stats.readFromNbt(roleTag, wrapperLookup);
-            roleStats.put(roleId, stats);
+        if (tag.contains("RoleStats", Tag.TAG_LIST)) {
+            ListTag roleStatsList = tag.getList("RoleStats", Tag.TAG_COMPOUND);
+            roleStats.clear();
+            for (Tag element : roleStatsList) {
+                CompoundTag roleTag = (CompoundTag) element;
+                ResourceLocation roleId = ResourceLocation.parse(roleTag.getString("RoleId"));
+                RoleStats stats = new RoleStats();
+                stats.readFromNbt(roleTag, wrapperLookup);
+                roleStats.put(roleId, stats);
+            }
         }
-
         // 从文件加载数据（覆盖NBT数据）
         if (!player.level().isClientSide()) {
             try {
@@ -204,7 +204,7 @@ public class SREPlayerStatsComponent implements AutoSyncedComponent, ServerTicki
 
     @Override
     public boolean shouldSyncWith(ServerPlayer player) {
-        return player == this.player;
+        return false;
     }
 
     @Override
@@ -269,6 +269,7 @@ public class SREPlayerStatsComponent implements AutoSyncedComponent, ServerTicki
         }
         tag.put("RoleStats", roleStatsList);
     }
+
     public void writeRolesNbt(@NotNull CompoundTag tag, HolderLookup.Provider wrapperLookup) {
 
         ListTag roleStatsList = new ListTag();
@@ -280,7 +281,6 @@ public class SREPlayerStatsComponent implements AutoSyncedComponent, ServerTicki
         }
         tag.put("RoleStats", roleStatsList);
     }
-
 
     // Getter 和 Setter 方法
     public long getTotalPlayTime() {

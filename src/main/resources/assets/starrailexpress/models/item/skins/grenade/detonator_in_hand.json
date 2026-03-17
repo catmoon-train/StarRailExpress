@@ -1,7 +1,7 @@
 {
 	"parent": "item/generated",
 	"textures": {
-		"layer0": "minecraft:item/fire_charge"
+		"layer0": "starrailexpress:item/grenade/detonator"
 	},
 	"display": {
 		"thirdperson_righthand": {
