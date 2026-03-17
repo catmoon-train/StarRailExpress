@@ -196,12 +196,20 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
     /**
      * 锁定指定物品类型的皮肤
      */
+    public void clearSkinForItemType(String itemTypeName) {
+        String normalizedItemName = normalizeItemName(itemTypeName);
+        unlockedSkins.remove(normalizedItemName);
+        // 触发网络同步
+    }
+
+    /**
+     * 锁定指定物品类型的皮肤
+     */
     public void lockSkinForItemType(String itemTypeName, String skinName) {
         String normalizedItemName = normalizeItemName(itemTypeName);
         Map<String, Boolean> skinsForItem = unlockedSkins.get(normalizedItemName);
         if (skinsForItem != null) {
-            if (skinName.contains(skinName))
-                skinsForItem.remove(skinName);
+            skinsForItem.remove(skinName);
             // 如果物品没有其他解锁的皮肤，移除该物品的条目
             if (skinsForItem.isEmpty()) {
                 unlockedSkins.remove(normalizedItemName);
@@ -494,12 +502,14 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
     public void readFromNbt(CompoundTag compoundTag, HolderLookup.Provider provider) {
         // 读取装备的皮肤数据
         CompoundTag equippedSkinsTag = compoundTag.getCompound("equippedSkins");
+        this.equippedSkins.clear();
         for (String key : equippedSkinsTag.getAllKeys()) {
             this.equippedSkins.put(key, equippedSkinsTag.getString(key));
         }
 
         // 读取解锁的皮肤数据
         CompoundTag unlockedSkinsTag = compoundTag.getCompound("unlockedSkins");
+        this.unlockedSkins.clear();
         for (String itemKey : unlockedSkinsTag.getAllKeys()) {
             CompoundTag skinsForItemTag = unlockedSkinsTag.getCompound(itemKey);
             Map<String, Boolean> skinsForItem = new HashMap<>();
