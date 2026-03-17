@@ -4,7 +4,6 @@ import io.wifi.ConfigCompact.ConfigClassHandler;
 import io.wifi.ConfigCompact.annotation.ConfigSync;
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
-
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
 import me.shedaniel.autoconfig.annotation.ConfigEntry.Gui.Tooltip;
 
@@ -119,8 +118,20 @@ public class SREConfig implements ConfigData {
     @ConfigEntry.Category(value = "game")
     public boolean verboseTrainResetLogs = true;
 
-    // AFK设置
-
+    // 玩家数据设置
+    @ConfigEntry.Category(value = "stats")
+    public boolean isStatsEnabled = true;
+    @ConfigEntry.Category(value = "stats")
+    public boolean isStatsSyncEnabled = true;
+    @ConfigEntry.Category(value = "stats")
+    public boolean isTeammedStatsSyncEnabled = true;
+    @ConfigEntry.Category(value = "stats")
+    public boolean isDetailedStatsSyncEnabled = false;
+    // 皮肤设置
+    @ConfigEntry.Category(value = "skin")
+    public boolean isItemSkinEnabled = true;
+    @ConfigEntry.Category(value = "skin")
+    public boolean isItemSkinManagementEnabled = false;
     @ConfigEntry.Category(value = "skin")
     public String itemSkinSyncServerHost = "";
     @ConfigEntry.Category(value = "skin")
@@ -129,6 +140,7 @@ public class SREConfig implements ConfigData {
     public String itemSkinSyncServerKey = "";
     @ConfigEntry.Category(value = "skin")
     public boolean itemSkinSyncServerEnabled = false;
+    // AFK设置
 
     @ConfigEntry.Category(value = "afk") // 3秒到20分钟
     public int afkThresholdSeconds = (int) (4.5 * 60); // 5分钟

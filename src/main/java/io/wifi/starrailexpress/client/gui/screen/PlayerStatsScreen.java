@@ -1,4 +1,4 @@
-// PlayerStatsScreen.java (重写后)
+// PlayerStatsScreen.java
 package io.wifi.starrailexpress.client.gui.screen;
 
 import java.util.ArrayList;
@@ -13,15 +13,20 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.player.Player;
 
 public class PlayerStatsScreen extends Screen {
+
     private SREPlayerStatsComponent stats;
     private final UUID targetPlayerUuid;
     private GeneralStatsPanel generalStatsPanel;
     private RoleStatsPanel roleStatsPanel;
+    // 自己的子组件列表（不走 Screen 的 vanilla 列表，全手动路由）
     private final List<GuiEventListener> children = new ArrayList<>();
 
     private static final int GENERAL_STATS_VIEW = 0;
@@ -30,11 +35,12 @@ public class PlayerStatsScreen extends Screen {
 
     public static final @NotNull ResourceLocation ID = SRE.watheId("textures/gui/game.png");
 
-    // 分类标签相关
-    private int tabX, tabY, tabWidth, tabHeight;
-    private ArrayList<Renderable> renderables = new ArrayList<>();
+    private final List<Renderable> renderables = new ArrayList<>();
+    private int tabX, tabY;
     private static final int TAB_W = 100;
     private static final int TAB_H = 22;
+    /** 面板顶部到屏幕顶部留出的外边距 */
+    private static final int PANEL_MARGIN_BOTTOM = 20;
 
     public PlayerStatsScreen(UUID targetPlayerUuid) {
         super(Component.translatable("screen." + SRE.MOD_ID + ".player_stats.title"));
@@ -54,31 +60,32 @@ public class PlayerStatsScreen extends Screen {
     @Override
     protected void init() {
         super.init();
-        // 计算标签位置
+        renderables.clear();
+        children.clear();
+
         tabX = (width - TAB_W * 2 - 10) / 2;
         tabY = 38;
-        tabWidth = TAB_W;
-        tabHeight = TAB_H;
 
-        int panelWidth = (int) (width * 0.6);
-        if (width <= 500)
-            panelWidth = width - 60;
-        int panelHeight = (int) (height * 0.7);
-        int panelX = (width - panelWidth) / 2;
-        int panelY = tabY + tabHeight + 10;
+        int panelX = width <= 500 ? 30 : (int) (width * 0.2);
+        int panelW = width - panelX * 2;
+        int panelY = tabY + TAB_H + 10;
+        // Fix: 面板高度 = 屏幕高度 - 面板起始Y - 底部边距，
+        // 原代码写成 panelHeight - (panelY - ...) 化简等于 panelHeight = height*0.7，
+        // 在小分辨率下面板底边会超出屏幕。
+        int panelH = height - panelY - PANEL_MARGIN_BOTTOM;
 
-        generalStatsPanel = new GeneralStatsPanel(
-                panelX, panelY, panelWidth, panelHeight - (panelY - (tabY + tabHeight + 10)),
-                stats, width, height);
+        generalStatsPanel = new GeneralStatsPanel(panelX, panelY, panelW, panelH, stats, width, height);
         generalStatsPanel.init();
-        this.addRenderableWidget2(generalStatsPanel);
+        addRenderableWidget2(generalStatsPanel);
 
-        roleStatsPanel = new RoleStatsPanel(
-                panelX, panelY, panelWidth, panelHeight - (panelY - (tabY + tabHeight + 10)),
-                stats);
-        this.addRenderableWidget2(roleStatsPanel);
+        roleStatsPanel = new RoleStatsPanel(panelX, panelY, panelW, panelH, stats);
+        addRenderableWidget2(roleStatsPanel);
 
         switchView(currentView);
+    }
+
+    public void playDownSound(SoundManager soundManager) {
+        soundManager.play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
     }
 
     private void switchView(int view) {
@@ -89,90 +96,83 @@ public class PlayerStatsScreen extends Screen {
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-        // 背景渐变
         graphics.fillGradient(0, 0, width, height, 0xC0102030, 0xD0081018);
         super.render(graphics, mouseX, mouseY, delta);
         renderTabBar(graphics, mouseX, mouseY);
-        // 标题
         graphics.drawCenteredString(font, title, width / 2, 16, 0xEEEEFF);
         for (Renderable r : renderables)
             r.render(graphics, mouseX, mouseY, delta);
     }
 
     private void renderTabBar(GuiGraphics g, int mx, int my) {
-        int[] tabColors = { 0xFF5577CC, 0xFFAA44CC }; // 通用 / 角色
+        int[] tabColors = { 0xFF5577CC, 0xFFAA44CC };
         String[] labels = {
                 Component.translatable("screen." + SRE.MOD_ID + ".player_stats.general_stats_button").getString(),
                 Component.translatable("screen." + SRE.MOD_ID + ".player_stats.role_stats_button").getString()
         };
 
         for (int i = 0; i < 2; i++) {
-            int x = tabX + i * (tabWidth + 10);
+            int x = tabX + i * (TAB_W + 10);
             boolean active = (i == currentView);
-            boolean hovered = !active && mx >= x && mx <= x + tabWidth && my >= tabY && my <= tabY + tabHeight;
-            int baseColor = tabColors[i];
+            boolean hovered = !active && mx >= x && mx <= x + TAB_W && my >= tabY && my <= tabY + TAB_H;
+            int base = tabColors[i];
 
-            // 背景
             if (active) {
-                g.fillGradient(x, tabY, x + tabWidth, tabY + tabHeight,
-                        blendColors(0xFF0D1020, baseColor, 0.50f),
-                        blendColors(0xFF0A0C18, baseColor, 0.28f));
-                g.fill(x, tabY + tabHeight - 2, x + tabWidth, tabY + tabHeight, baseColor);
-                g.fill(x, tabY, x + 1, tabY + tabHeight, (baseColor & 0x00FFFFFF) | 0xAA000000);
-                g.fill(x + tabWidth - 1, tabY, x + tabWidth, tabY + tabHeight, (baseColor & 0x00FFFFFF) | 0xAA000000);
-                g.fill(x + 1, tabY, x + tabWidth - 1, tabY + 1, (baseColor & 0x00FFFFFF) | 0x55000000);
+                g.fillGradient(x, tabY, x + TAB_W, tabY + TAB_H,
+                        blendColors(0xFF0D1020, base, 0.50f),
+                        blendColors(0xFF0A0C18, base, 0.28f));
+                g.fill(x, tabY + TAB_H - 2, x + TAB_W, tabY + TAB_H, base);
+                g.fill(x, tabY, x + 1, tabY + TAB_H, (base & 0x00FFFFFF) | 0xAA000000);
+                g.fill(x + TAB_W - 1, tabY, x + TAB_W, tabY + TAB_H, (base & 0x00FFFFFF) | 0xAA000000);
+                g.fill(x + 1, tabY, x + TAB_W - 1, tabY + 1, (base & 0x00FFFFFF) | 0x55000000);
             } else if (hovered) {
-                g.fillGradient(x, tabY, x + tabWidth, tabY + tabHeight,
-                        blendColors(0xFF0D1020, baseColor, 0.22f),
-                        blendColors(0xFF0A0C18, baseColor, 0.10f));
-                g.fill(x, tabY + tabHeight - 1, x + tabWidth, tabY + tabHeight, (baseColor & 0x00FFFFFF) | 0x66000000);
-                g.renderOutline(x, tabY, tabWidth, tabHeight, (baseColor & 0x00FFFFFF) | 0x44000000);
+                g.fillGradient(x, tabY, x + TAB_W, tabY + TAB_H,
+                        blendColors(0xFF0D1020, base, 0.22f),
+                        blendColors(0xFF0A0C18, base, 0.10f));
+                g.fill(x, tabY + TAB_H - 1, x + TAB_W, tabY + TAB_H, (base & 0x00FFFFFF) | 0x66000000);
+                g.renderOutline(x, tabY, TAB_W, TAB_H, (base & 0x00FFFFFF) | 0x44000000);
             } else {
-                g.fill(x, tabY, x + tabWidth, tabY + tabHeight, 0x33111828);
-                g.renderOutline(x, tabY, tabWidth, tabHeight, 0x33334466);
+                g.fill(x, tabY, x + TAB_W, tabY + TAB_H, 0x33111828);
+                g.renderOutline(x, tabY, TAB_W, TAB_H, 0x33334466);
             }
 
-            String truncated = font.plainSubstrByWidth(labels[i], tabWidth - 8);
-            int textColor = active ? (baseColor | 0xFF000000) : hovered ? 0xFFCCDDFF : 0xFF7788AA;
-            g.drawCenteredString(font, truncated, x + tabWidth / 2, tabY + (tabHeight - font.lineHeight) / 2,
-                    textColor);
+            String truncated = font.plainSubstrByWidth(labels[i], TAB_W - 8);
+            int textColor = active ? (base | 0xFF000000) : hovered ? 0xFFCCDDFF : 0xFF7788AA;
+            g.drawCenteredString(font, truncated,
+                    x + TAB_W / 2, tabY + (TAB_H - font.lineHeight) / 2, textColor);
         }
-    }
-
-    @Override
-    public boolean mouseReleased(double mx, double my, int button) {
-        for (var child : this.children) {
-            if (child.mouseReleased(mx, my, button)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     @Override
     public boolean mouseClicked(double mx, double my, int button) {
         for (int i = 0; i < 2; i++) {
-            int x = tabX + i * (tabWidth + 10);
-            if (mx >= x && mx <= x + tabWidth && my >= tabY && my <= tabY + tabHeight) {
+            int x = tabX + i * (TAB_W + 10);
+            if (mx >= x && mx <= x + TAB_W && my >= tabY && my <= tabY + TAB_H) {
                 switchView(i);
+                this.playDownSound(Minecraft.getInstance().getSoundManager());
                 return true;
             }
         }
-        for (var child : this.children) {
-            if (child.mouseClicked(mx, my, button)) {
+        for (GuiEventListener child : children) {
+            if (child.mouseClicked(mx, my, button))
                 return true;
-            }
         }
         return super.mouseClicked(mx, my, button);
     }
 
     @Override
-    public boolean mouseScrolled(double mx, double my, double sx, double sy) {
-        for (var child : this.children) {
-            if (child.mouseScrolled(mx, my, sx, sy)) {
+    public boolean mouseReleased(double mx, double my, int button) {
+        for (GuiEventListener child : children)
+            if (child.mouseReleased(mx, my, button))
                 return true;
-            }
-        }
+        return false;
+    }
+
+    @Override
+    public boolean mouseScrolled(double mx, double my, double sx, double sy) {
+        for (GuiEventListener child : children)
+            if (child.mouseScrolled(mx, my, sx, sy))
+                return true;
         return false;
     }
 
@@ -186,27 +186,26 @@ public class PlayerStatsScreen extends Screen {
 
     @Override
     public boolean charTyped(char c, int m) {
-        for (var child : this.children) {
-            if(child.charTyped(c, m)){
+        for (GuiEventListener child : children)
+            if (child.charTyped(c, m))
                 return true;
-            }
-        }
         return false;
     }
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        // Fix: 原代码用 keyInventory.hashCode() 与 keyCode（int）比较，永远匹配不上。
+        // 应使用 KeyMapping.matches(keyCode, scanCode) 做正确的按键匹配。
+
         if (super.keyPressed(keyCode, scanCode, modifiers))
             return true;
-        if (keyCode == Minecraft.getInstance().options.keyInventory.hashCode() ||
-                keyCode == SREClient.statsKeybind.hashCode()) {
+        for (GuiEventListener child : children)
+            if (child.keyPressed(keyCode, scanCode, modifiers))
+                return true;
+        if (Minecraft.getInstance().options.keyInventory.matches(keyCode, scanCode)
+                || SREClient.statsKeybind.matches(keyCode, scanCode)) {
             onClose();
             return true;
-        }
-        for (var child : this.children) {
-            if (child.keyPressed(keyCode, scanCode, modifiers)) {
-                return true;
-            }
         }
         return false;
     }
