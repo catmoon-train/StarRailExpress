@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
@@ -132,25 +131,5 @@ public abstract class SwapperScreenMixin extends LimitedHandledScreen<InventoryM
     private void noellesroles$onInit(CallbackInfo ci) {
         SwapperPlayerWidget.playerChoiceOne = null;
         getRoleScreenHelper().onInit(this);
-    }
-
-    @Override
-    public void addDrawableChild(Button button) {
-        super.addRenderableWidget(button);
-    }
-
-    @Override
-    public void removeDrawableChild(Button button) {
-        super.removeWidget(button);
-    }
-
-    @Override
-    public void clearWidgets() {
-        super.clearWidgets();
-    }
-
-    @Override
-    public void clearChildren() {
-        super.clearWidgets();
     }
 }
