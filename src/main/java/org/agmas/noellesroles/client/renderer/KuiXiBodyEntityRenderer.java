@@ -3,6 +3,9 @@ package org.agmas.noellesroles.client.renderer;
 import org.agmas.noellesroles.entity.KuiXiPuppetEntity;
 import com.mojang.authlib.GameProfile;
 import com.mojang.blaze3d.vertex.PoseStack;
+
+import io.wifi.starrailexpress.client.SREClient;
+
 import java.util.UUID;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.PlayerInfo;
@@ -38,7 +41,8 @@ public class KuiXiBodyEntityRenderer extends EntityRenderer<KuiXiPuppetEntity> {
         // ResourceLocation texture = getTextureLocation(entity);
         final var instance = Minecraft.getInstance();
         UUID ownerUuid = entity.getOwnerUuid();
-        PlayerInfo entry = instance.getConnection().getPlayerInfo(ownerUuid);
+
+        PlayerInfo entry = SREClient.PLAYER_ENTRIES_CACHE.get(ownerUuid);
         if (entry != null) {
             AbstractClientPlayer fakePlayer = new RemotePlayer(instance.level,
                     new GameProfile(ownerUuid, entry.getProfile().getName()));
@@ -64,32 +68,15 @@ public class KuiXiBodyEntityRenderer extends EntityRenderer<KuiXiPuppetEntity> {
         UUID ownerUuid = entity.getOwnerUuid();
 
         if (ownerUuid != null) {
-            Minecraft client = Minecraft.getInstance();
-            if (client.getConnection() != null) {
-                // 通过 UUID 从玩家列表获取皮肤
-                PlayerInfo entry = client.getConnection().getPlayerInfo(ownerUuid);
-                if (entry != null) {
-                    return entry.getSkin().texture();
-                }
+            // 通过 UUID 从玩家列表获取皮肤
+            PlayerInfo entry = SREClient.PLAYER_ENTRIES_CACHE.get(ownerUuid);
+            if (entry != null) {
+                return entry.getSkin().texture();
             }
             // 如果玩家不在列表中（可能离线），使用基于 UUID 的默认皮肤
             return DefaultPlayerSkin.get(ownerUuid).texture();
         }
-
-        // 尝试从 GameProfile 获取（服务端设置的备选方案）
-        GameProfile profile = entity.getSkinProfile();
-        if (profile != null && profile.getId() != null) {
-            Minecraft client = Minecraft.getInstance();
-            if (client.getConnection() != null) {
-                PlayerInfo entry = client.getConnection().getPlayerInfo(profile.getId());
-                if (entry != null) {
-                    return entry.getSkin().texture();
-                }
-            }
-            return DefaultPlayerSkin.get(profile.getId()).texture();
-        }
-
         // 最后的回退：使用固定的默认皮肤（Steve）
-        return DefaultPlayerSkin.get(new UUID(0, 0)).texture();
+        return DefaultPlayerSkin.get(UUID.fromString("7833c811-436e-40c4-868a-ffb1073f48a2")).texture();
     }
 }
