@@ -126,7 +126,7 @@ public class SREConfig implements ConfigData {
     @ConfigEntry.Category(value = "stats")
     public boolean isTeammedStatsSyncEnabled = true;
     @ConfigEntry.Category(value = "stats")
-    public boolean isDetailedStatsSyncEnabled = true;
+    public boolean isDetailedStatsSyncEnabled = false;
     // 皮肤设置
     @ConfigEntry.Category(value = "skin")
     public boolean isItemSkinEnabled = true;

@@ -10,6 +10,8 @@ import io.wifi.syncrequests.SyncRequests;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
 import org.ladysnake.cca.api.v3.component.sync.AutoSyncedComponent;
@@ -45,6 +47,7 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
     // private long lastNetworkSync = 0;
     // private static final long NETWORK_SYNC_INTERVAL = 20000; // 每 20 秒同步一次到网络
     private boolean isNetworkSyncEnabled = false;
+    private boolean syncMode = false;
 
     public SREPlayerSkinsComponent(Player player) {
         this.player = player;
@@ -55,11 +58,16 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
     }
 
     public void sync() {
+        this.syncMode = true;
         KEY.sync(this.player);
+        this.syncMode = false;
     }
 
     @Override
     public boolean shouldSyncWith(ServerPlayer serverPlayer) {
+        if (!SREConfig.instance().isItemSkinEnabled) {
+            return false;
+        }
         return this.player == serverPlayer;
     }
 
@@ -525,9 +533,20 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
     }
 
     @Override
+    public void writeSyncPacket(RegistryFriendlyByteBuf buf, ServerPlayer recipient) {
+        syncMode = true;
+        CompoundTag tag = new CompoundTag();
+        this.writeToNbt(tag, buf.registryAccess());
+        buf.writeNbt(tag);
+        syncMode = false;
+    }
+
+    @Override
     public void writeToNbt(CompoundTag compoundTag, HolderLookup.Provider provider) {
-        if (!SREConfig.instance().isItemSkinEnabled) {
-            return;
+        if (syncMode) {
+            if (!SREConfig.instance().isItemSkinEnabled) {
+                return;
+            }
         }
         // 写入装备的皮肤数据
         CompoundTag equippedSkinsTag = new CompoundTag();
@@ -536,8 +555,10 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
         }
         compoundTag.put("equippedSkins", equippedSkinsTag);
 
-        if (!SREConfig.instance().isItemSkinManagementEnabled) {
-            return;
+        if (syncMode) {
+            if (!SREConfig.instance().isItemSkinManagementEnabled) {
+                return;
+            }
         }
         // 写入解锁的皮肤数据
         CompoundTag unlockedSkinsTag = new CompoundTag();
