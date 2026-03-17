@@ -533,7 +533,7 @@ public class InstinctRenderer {
                         }
                         if (SREClient.gameComponent.isRole(self, ModRoles.MA_CHEN_XU)) {
                             if (SREPlayerMoodComponent.KEY.get(target_player).getMood() <= 0.1) {
-                                return 1;// 黑色
+                                return java.awt.Color.CYAN.getRGB();// 青色
                             }
                         }
                         if (SREClient.gameComponent.isRole(target_player, ModRoles.GAMBLER)) {
