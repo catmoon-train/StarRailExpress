@@ -196,6 +196,8 @@ public class SkinManager {
 
         // Initialize grenade skins
         registerSkin(SkinTypes.GRENADE, "big_bomb", 0xFF000000);
+        registerSkin(SkinTypes.GRENADE, "minecraft_tnt", 0xFF057200);
+
         registerSkin(SkinTypes.GRENADE, "fire_charge", 0xFFFF4500);
         registerSkin(SkinTypes.GRENADE, "magnetic_bomb", 0xFF0000FF);
         registerSkin(SkinTypes.GRENADE, "mobile", 0xFF00CED1);
