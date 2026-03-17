@@ -141,7 +141,7 @@ public class SmallDoorBlock extends DoorPartBlock {
         BlockPos lowerPos = state.getValue(HALF) == DoubleBlockHalf.LOWER ? pos : pos.below();
         if (world.getBlockEntity(lowerPos) instanceof SmallDoorBlockEntity entity) {
             if (entity.isBlasted()) {
-                return InteractionResult.PASS;
+                return InteractionResult.FAIL;
             }
 
             if (player.isCreative() || AllowPlayerOpenLockedDoor.EVENT.invoker().allowOpen(player)) {
@@ -192,7 +192,7 @@ public class SmallDoorBlock extends DoorPartBlock {
             }
         }
 
-        return InteractionResult.PASS;
+        return InteractionResult.SUCCESS;
     }
 
     static @NotNull InteractionResult open(BlockState state, Level world, SmallDoorBlockEntity entity, BlockPos lowerPos) {
