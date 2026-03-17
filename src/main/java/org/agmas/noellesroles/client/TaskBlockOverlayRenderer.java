@@ -264,7 +264,7 @@ public class TaskBlockOverlayRenderer {
 
         var playerMood = SREPlayerMoodComponent.KEY.get(Minecraft.getInstance().player);
         if (playerMood != null) {
-            for (var task : playerMood.tasks.values()) {
+            for (var task : playerMood.getTasks().values()) {
                 switch (task.getType()) {
                     case BATHE:
                         shouldDisplay[3] = true;

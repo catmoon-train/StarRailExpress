@@ -22,6 +22,7 @@ import org.agmas.noellesroles.utils.RoleUtils;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.BartenderPlayerComponent;
+import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPoisonComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.entity.PlayerBodyEntity;
@@ -528,6 +529,11 @@ public class InstinctRenderer {
                         if (SREClient.gameComponent.isRole(self, ModRoles.DIO)) {
                             if (RoleUtils.compareRole(target_role, ModRoles.JOJO)) {
                                 return Color.CYAN.getRGB();
+                            }
+                        }
+                        if (SREClient.gameComponent.isRole(self, ModRoles.MA_CHEN_XU)) {
+                            if (SREPlayerMoodComponent.KEY.get(target_player).getMood() <= 0.1) {
+                                return 1;// 黑色
                             }
                         }
                         if (SREClient.gameComponent.isRole(target_player, ModRoles.GAMBLER)) {

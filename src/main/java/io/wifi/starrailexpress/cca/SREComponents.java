@@ -30,6 +30,8 @@ public class SREComponents
     public void registerEntityComponentFactories(@NotNull EntityComponentFactoryRegistry registry) {
         registry.beginRegistration(Player.class, BartenderPlayerComponent.KEY)
                 .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(BartenderPlayerComponent::new);
+        registry.beginRegistration(Player.class, SREPlayerTaskComponent.KEY)
+                .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(SREPlayerTaskComponent::new);
         registry.beginRegistration(Player.class, SREPlayerMoodComponent.KEY)
                 .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(SREPlayerMoodComponent::new);
         registry.beginRegistration(Player.class, SREPlayerShopComponent.KEY)
