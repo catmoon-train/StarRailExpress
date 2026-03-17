@@ -24,20 +24,20 @@ public class HSRConstants {
     static {
         // 毒药/100
         POISONER_SHOP_ENTRIES.add(new ShopEntry(HSRItems.TOXIN.getDefaultInstance(), 100, ShopEntry.Type.POISON));
-        // 毒药瓶/60
-        POISONER_SHOP_ENTRIES.add(new ShopEntry(TMMItems.POISON_VIAL.getDefaultInstance(), 60, ShopEntry.Type.POISON));
+        // 毒药瓶/50
+        POISONER_SHOP_ENTRIES.add(new ShopEntry(TMMItems.POISON_VIAL.getDefaultInstance(), 50, ShopEntry.Type.POISON));
         // 毒蝎子/30
         POISONER_SHOP_ENTRIES.add(new ShopEntry(TMMItems.SCORPION.getDefaultInstance(), 30, ShopEntry.Type.POISON));
-        // 催化剂/160
-        POISONER_SHOP_ENTRIES.add(new ShopEntry(HSRItems.CATALYST.getDefaultInstance(), 160, ShopEntry.Type.TOOL));
+        // 催化剂/120
+        POISONER_SHOP_ENTRIES.add(new ShopEntry(HSRItems.CATALYST.getDefaultInstance(), 120, ShopEntry.Type.TOOL));
         // 爆竹/10
         POISONER_SHOP_ENTRIES.add(new ShopEntry(TMMItems.FIRECRACKER.getDefaultInstance(), 10, ShopEntry.Type.TOOL));
         // 开锁器/100
         POISONER_SHOP_ENTRIES.add(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), 100, ShopEntry.Type.TOOL));
-        // 氯气弹/350
-        POISONER_SHOP_ENTRIES.add(new ShopEntry(ModItems.CHLORINE_BOMB.getDefaultInstance(), 350, ShopEntry.Type.POISON));
-        // 黑暗降临/150
-        POISONER_SHOP_ENTRIES.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), 150, ShopEntry.Type.TOOL) {
+        // 氯气弹/300
+        POISONER_SHOP_ENTRIES.add(new ShopEntry(ModItems.CHLORINE_BOMB.getDefaultInstance(), 300, ShopEntry.Type.POISON));
+        // 黑暗降临/100
+        POISONER_SHOP_ENTRIES.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), 100, ShopEntry.Type.TOOL) {
             public boolean onBuy(@NotNull Player player) {
                 return SREPlayerShopComponent.useBlackout(player);
             }
