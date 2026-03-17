@@ -542,6 +542,8 @@
   "replay.event.role.change": "%s 更改了角色",
   "replay.event.custom.event": "自定义事件: %s",
   "replay.event.unknown": "未知事件",
+  "replay.event.drink.poison": "%s 使用了被下毒的 %s",
+  "replay.event.drink.armor": "%s 使用了含有护盾药剂的的 %s",
   "task.meditate": "冥想 - 必须蹲下且保持静止",
   "task.toilet": "自己上厕所 - 坐在马桶方块上",
   "task.chair": "坐下休息 - 坐在座椅上",

@@ -13,12 +13,15 @@ import io.wifi.starrailexpress.SRE;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -208,7 +211,7 @@ public class GameReplayManager {
       case ARMOR_BREAK -> {
         yield new ReplayEventTypes.ArmorBreakDetails(dataEvent.getSourcePlayer());
       }
-      
+
       case CHANGE_ROLE -> {
         String[] str_arr = dataEvent.getMessage().split("===");
 
@@ -734,5 +737,12 @@ public class GameReplayManager {
       }
     }
     return dead;
+  }
+
+  public void recordItemEatFlaggedItem(Player player, Item item, String flagName) {
+    recordCustomEvent(
+        Component.translatable("replay.event.drink." + flagName,
+            GameReplayUtils.getReplayPlayerDisplayText(player, true),
+            GameReplayUtils.getItemDisplayName(BuiltInRegistries.ITEM.getKey(item))));
   }
 }
