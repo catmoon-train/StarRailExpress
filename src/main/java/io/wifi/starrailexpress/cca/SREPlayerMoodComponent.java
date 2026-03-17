@@ -57,9 +57,10 @@ public class SREPlayerMoodComponent implements RoleComponent, ServerTickingCompo
         var gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
         if (gameWorldComponent.isRunning()) {
             var role = gameWorldComponent.getRole(player);
-            if (canSyncedRolePaths.contains(role.identifier().getPath())) {
-                return true;
-            }
+            if (role != null)
+                if (canSyncedRolePaths.contains(role.identifier().getPath())) {
+                    return true;
+                }
         }
         return player == this.player;
     }
@@ -101,6 +102,9 @@ public class SREPlayerMoodComponent implements RoleComponent, ServerTickingCompo
     public void clientTick() {
         if (!SREGameWorldComponent.KEY.get(this.player.level()).isRunning() || !SREClient.isPlayerAliveAndInSurvival())
             return;
+        if (this.playerTaskComponent == null) {
+            this.playerTaskComponent = SREPlayerTaskComponent.KEY.get(this.player);
+        }
         if (!this.playerTaskComponent.tasks.isEmpty()) {
             if (this.mood > 0)
                 this.mood = this.mood - this.playerTaskComponent.tasks.size() * GameConstants.MOOD_DRAIN;
@@ -139,7 +143,9 @@ public class SREPlayerMoodComponent implements RoleComponent, ServerTickingCompo
 
     @Override
     public void serverTick() {
-
+        if (this.playerTaskComponent == null) {
+            this.playerTaskComponent = SREPlayerTaskComponent.KEY.get(this.player);
+        }
         SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(this.player.level());
         if (!gameWorldComponent.isRunning() || !GameUtils.isPlayerAliveAndSurvival(this.player))
             return;
@@ -195,14 +201,23 @@ public class SREPlayerMoodComponent implements RoleComponent, ServerTickingCompo
     }
 
     public void eatFood() {
+        if (this.playerTaskComponent == null) {
+            this.playerTaskComponent = SREPlayerTaskComponent.KEY.get(this.player);
+        }
         this.playerTaskComponent.eatFood();
     }
 
     public void playNoteBlock() {
+        if (this.playerTaskComponent == null) {
+            this.playerTaskComponent = SREPlayerTaskComponent.KEY.get(this.player);
+        }
         this.playerTaskComponent.playNoteBlock();
     }
 
     public void drinkCocktail() {
+        if (this.playerTaskComponent == null) {
+            this.playerTaskComponent = SREPlayerTaskComponent.KEY.get(this.player);
+        }
         this.playerTaskComponent.drinkCocktail();
     }
 
@@ -274,6 +289,9 @@ public class SREPlayerMoodComponent implements RoleComponent, ServerTickingCompo
     }
 
     public Map<Task, SREPlayerTaskComponent.TrainTask> getTasks() {
+        if (this.playerTaskComponent == null) {
+            this.playerTaskComponent = SREPlayerTaskComponent.KEY.get(this.player);
+        }
         return this.playerTaskComponent.tasks;
     }
 

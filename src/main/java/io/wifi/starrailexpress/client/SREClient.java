@@ -630,11 +630,11 @@ public class SREClient implements ClientModInitializer {
     }
 
     public static boolean isPlayerAliveAndInSurvival() {
-        return GameUtils.isPlayerAliveAndSurvival(Minecraft.getInstance().player);
+        return GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(Minecraft.getInstance().player);
     }
 
     public static boolean isPlayerSpectatingOrCreative() {
-        return GameUtils.isPlayerSpectatingOrCreative(Minecraft.getInstance().player);
+        return GameUtils.isPlayerSpectatingOrCreativeIgnoreShitSplit(Minecraft.getInstance().player);
     }
 
     public static boolean isKiller() {

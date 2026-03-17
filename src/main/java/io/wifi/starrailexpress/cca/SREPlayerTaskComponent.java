@@ -61,7 +61,7 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
 
     @Override
     public void init() {
-         if (playerMoodComponent == null) {
+        if (playerMoodComponent == null) {
             playerMoodComponent = SREPlayerMoodComponent.KEY.get(player);
         }
         this.tasks.clear();
@@ -90,7 +90,7 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
             playerMoodComponent = SREPlayerMoodComponent.KEY.get(player);
         }
         SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(this.player.level());
-        if (!gameWorldComponent.isRunning() || !GameUtils.isPlayerAliveAndSurvival(this.player))
+        if (!gameWorldComponent.isRunning() || !GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(this.player))
             return;
         boolean shouldSync = false;
         this.nextTaskTimer--;
@@ -105,9 +105,7 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
                     * (GameConstants.MAX_TASK_COOLDOWN - GameConstants.MIN_TASK_COOLDOWN)
                     + GameConstants.MIN_TASK_COOLDOWN);
             this.nextTaskTimer = Math.max(this.nextTaskTimer, 2);
-            if (nextTaskTimer % 40 == 0) { // 2秒一次
-                shouldSync = true;
-            }
+            shouldSync = true;
         }
         ArrayList<TrainTask> removals = new ArrayList<>();
         for (TrainTask task : this.tasks.values()) {

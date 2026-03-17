@@ -110,6 +110,7 @@ public class KuiXiPuppetEntity extends PathfinderMob {
     /**
      * 随机移动
      */
+    @SuppressWarnings("deprecation")
     private void randomMove() {
         if (level().isClientSide)
             return;
@@ -160,11 +161,6 @@ public class KuiXiPuppetEntity extends PathfinderMob {
         level().playSound(null, this.blockPosition(),
                 SoundEvents.ENDERMAN_TELEPORT, SoundSource.HOSTILE,
                 0.5F, 1.5F);
-
-        // 生成粒子效果（如果需要的话）
-        if (level() instanceof ServerLevel serverLevel) {
-            // 可以在这里添加粒子效果
-        }
 
         // 移除实体
         this.discard();
