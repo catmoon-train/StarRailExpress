@@ -128,4 +128,24 @@ public abstract class ManipulatorScreenMixin extends LimitedHandledScreen<Invent
         }
         getRoleScreenHelper().onInit(this);
     }
+    
+    @Override
+    public void addDrawableChild(net.minecraft.client.gui.components.Button button) {
+        super.addRenderableWidget(button);
+    }
+
+    @Override
+    public void removeDrawableChild(net.minecraft.client.gui.components.Button button) {
+        super.removeWidget(button);
+    }
+
+    @Override
+    public void clearWidgets() {
+        super.clearWidgets();
+    }
+
+    @Override
+    public void clearChildren() {
+        super.clearWidgets();
+    }
 }
