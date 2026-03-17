@@ -5,6 +5,7 @@ import com.google.gson.JsonSyntaxException;
 import io.wifi.starrailexpress.data.PlayerStatsData;
 import io.wifi.starrailexpress.util.PlayerStatsSerializer;
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.SREConfig;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.Util;
 import net.minecraft.core.HolderLookup;
@@ -119,12 +120,18 @@ public class SREPlayerStatsComponent implements AutoSyncedComponent, ServerTicki
 
     @Override
     public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.Provider wrapperLookup) {
-        totalPlayTime = tag.getLong("TotalPlayTime");
-        totalGamesPlayed = tag.getInt("TotalGamesPlayed");
-        totalKills = tag.getInt("TotalKills");
-        totalDeaths = tag.getInt("TotalDeaths");
-        totalWins = tag.getInt("TotalWins");
-        totalLosses = tag.getInt("TotalLosses");
+        if (tag.contains("TotalPlayTime"))
+            totalPlayTime = tag.getLong("TotalPlayTime");
+        if (tag.contains("TotalGamesPlayed"))
+            totalGamesPlayed = tag.getInt("TotalGamesPlayed");
+        if (tag.contains("TotalKills"))
+            totalKills = tag.getInt("TotalKills");
+        if (tag.contains("TotalDeaths"))
+            totalDeaths = tag.getInt("TotalDeaths");
+        if (tag.contains("TotalWins"))
+            totalWins = tag.getInt("TotalWins");
+        if (tag.contains("TotalLosses"))
+            totalLosses = tag.getInt("TotalLosses");
         if (tag.contains("TotalTeamKills")) {
             totalTeamKills = tag.getInt("TotalTeamKills");
         }
@@ -204,11 +211,15 @@ public class SREPlayerStatsComponent implements AutoSyncedComponent, ServerTicki
 
     @Override
     public boolean shouldSyncWith(ServerPlayer player) {
-        return false;
+        if (!SREConfig.instance().isStatsEnabled)
+            return false;
+        return this.player == player;
     }
 
     @Override
     public void writeToNbt(@NotNull CompoundTag tag, HolderLookup.Provider wrapperLookup) {
+        if (!SREConfig.instance().isStatsEnabled)
+            return;
         tag.putLong("TotalPlayTime", totalPlayTime);
         tag.putInt("TotalGamesPlayed", totalGamesPlayed);
         tag.putInt("TotalKills", totalKills);
@@ -218,6 +229,8 @@ public class SREPlayerStatsComponent implements AutoSyncedComponent, ServerTicki
         tag.putInt("TotalTeamKills", totalTeamKills);
         tag.putInt("TotalLoversWins", totalLoversWins);
 
+        if (!SREConfig.instance().isTeammedStatsSyncEnabled)
+            return;
         // 写入阵营统计数据
         tag.putInt("TotalCivilianGames", totalCivilianGames);
         tag.putInt("TotalCivilianWins", totalCivilianWins);
@@ -235,6 +248,8 @@ public class SREPlayerStatsComponent implements AutoSyncedComponent, ServerTicki
         tag.putInt("TotalSheriffWins", totalSheriffWins);
         tag.putInt("TotalSheriffKills", totalSheriffKills);
         tag.putInt("TotalSheriffDeaths", totalSheriffDeaths);
+        if (!SREConfig.instance().isDetailedStatsSyncEnabled)
+            return;
         writeRolesNbt(tag, wrapperLookup);
     }
 

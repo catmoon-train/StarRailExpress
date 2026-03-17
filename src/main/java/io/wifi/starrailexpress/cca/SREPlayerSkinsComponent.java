@@ -501,27 +501,34 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
     @Override
     public void readFromNbt(CompoundTag compoundTag, HolderLookup.Provider provider) {
         // 读取装备的皮肤数据
-        CompoundTag equippedSkinsTag = compoundTag.getCompound("equippedSkins");
-        this.equippedSkins.clear();
-        for (String key : equippedSkinsTag.getAllKeys()) {
-            this.equippedSkins.put(key, equippedSkinsTag.getString(key));
+        if (compoundTag.contains("equippedSkins")) {
+            CompoundTag equippedSkinsTag = compoundTag.getCompound("equippedSkins");
+            this.equippedSkins.clear();
+            for (String key : equippedSkinsTag.getAllKeys()) {
+                this.equippedSkins.put(key, equippedSkinsTag.getString(key));
+            }
         }
 
-        // 读取解锁的皮肤数据
-        CompoundTag unlockedSkinsTag = compoundTag.getCompound("unlockedSkins");
-        this.unlockedSkins.clear();
-        for (String itemKey : unlockedSkinsTag.getAllKeys()) {
-            CompoundTag skinsForItemTag = unlockedSkinsTag.getCompound(itemKey);
-            Map<String, Boolean> skinsForItem = new HashMap<>();
-            for (String skinKey : skinsForItemTag.getAllKeys()) {
-                skinsForItem.put(skinKey, skinsForItemTag.getBoolean(skinKey));
+        if (compoundTag.contains("unlockedSkins")) {
+            // 读取解锁的皮肤数据
+            CompoundTag unlockedSkinsTag = compoundTag.getCompound("unlockedSkins");
+            this.unlockedSkins.clear();
+            for (String itemKey : unlockedSkinsTag.getAllKeys()) {
+                CompoundTag skinsForItemTag = unlockedSkinsTag.getCompound(itemKey);
+                Map<String, Boolean> skinsForItem = new HashMap<>();
+                for (String skinKey : skinsForItemTag.getAllKeys()) {
+                    skinsForItem.put(skinKey, skinsForItemTag.getBoolean(skinKey));
+                }
+                this.unlockedSkins.put(itemKey, skinsForItem);
             }
-            this.unlockedSkins.put(itemKey, skinsForItem);
         }
     }
 
     @Override
     public void writeToNbt(CompoundTag compoundTag, HolderLookup.Provider provider) {
+        if (!SREConfig.instance().isItemSkinEnabled) {
+            return;
+        }
         // 写入装备的皮肤数据
         CompoundTag equippedSkinsTag = new CompoundTag();
         for (Map.Entry<String, String> entry : this.equippedSkins.entrySet()) {
@@ -529,6 +536,9 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
         }
         compoundTag.put("equippedSkins", equippedSkinsTag);
 
+        if (!SREConfig.instance().isItemSkinManagementEnabled) {
+            return;
+        }
         // 写入解锁的皮肤数据
         CompoundTag unlockedSkinsTag = new CompoundTag();
         for (Map.Entry<String, Map<String, Boolean>> itemEntry : this.unlockedSkins.entrySet()) {
