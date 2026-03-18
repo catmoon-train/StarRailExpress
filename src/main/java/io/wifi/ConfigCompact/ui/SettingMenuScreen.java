@@ -45,9 +45,9 @@ public class SettingMenuScreen extends Screen {
 
     @Override
     public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
-        if (this.parent != null) {
-            this.parent.render(context, mouseX, mouseY, delta);
-        }
+        // if (this.parent != null) {
+        //     this.parent.render(context, mouseX, mouseY, delta);
+        // }
         super.render(context, mouseX, mouseY, delta);
         context.drawCenteredString(font, title, width / 2, 30, 0xFFFFFF);
     }

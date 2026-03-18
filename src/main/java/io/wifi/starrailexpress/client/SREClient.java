@@ -44,6 +44,7 @@ import io.wifi.starrailexpress.client.render.block_entity.WheelBlockEntityRender
 import io.wifi.starrailexpress.client.render.entity.FirecrackerEntityRenderer;
 import io.wifi.starrailexpress.client.render.entity.HornBlockEntityRenderer;
 import io.wifi.starrailexpress.client.render.entity.NoteEntityRenderer;
+import io.wifi.starrailexpress.client.util.ClientScheduler;
 import io.wifi.starrailexpress.client.util.TMMItemTooltips;
 import io.wifi.starrailexpress.compat.TrainVoicePlugin;
 import io.wifi.starrailexpress.data.MapConfig;
@@ -155,6 +156,8 @@ public class SREClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+        ClientScheduler.init();
+
         ClientConfigEvents.register();
         new EXSREClient().onInitializeClient();
         // Load config
