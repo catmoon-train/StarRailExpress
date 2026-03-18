@@ -441,7 +441,7 @@
   "game.tip.cohort": "杀手帮凶",
   "game.win.star.not_modify": "没有修改",
   "game.win.star.none": "默认状态",
-  "game.win.star.no_player": "没人获胜",
+  "game.win.star.no_player": "无人获胜",
   "game.win.star.killers": "杀手达到了他们的击杀数，他们获胜了！",
   "game.win.star.loose_end": "他们解决了所有剩下的麻烦！",
   "game.win.star.passengers": "所有杀手被淘汰：乘客获胜！",
