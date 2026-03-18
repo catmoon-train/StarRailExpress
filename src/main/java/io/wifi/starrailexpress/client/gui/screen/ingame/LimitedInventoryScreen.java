@@ -8,10 +8,11 @@ import io.wifi.starrailexpress.util.ShopEntry;
 import io.wifi.ConfigCompact.ui.SettingMenuScreen;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -26,11 +27,10 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.InventoryMenu;
 
+import org.agmas.noellesroles.client.screen.GameManagementScreen;
 import org.agmas.noellesroles.client.screen.GuessRoleScreen;
 import org.agmas.noellesroles.client.screen.RoleIntroduceScreen;
 import org.jetbrains.annotations.NotNull;
-
-import com.terraformersmc.modmenu.api.ModMenuApi;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +41,8 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
 
     public static final ResourceLocation BACKGROUND_TEXTURE = SRE
             .watheId("textures/gui/container/limited_inventory.png");
-    public static final @NotNull ResourceLocation ID = SRE.watheId("textures/gui/game.png");
+    // public static final @NotNull ResourceLocation ID =
+    // SRE.watheId("textures/gui/game.png");
     public final LocalPlayer player;
 
     public LimitedInventoryScreen(@NotNull LocalPlayer player) {
@@ -71,9 +72,7 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
     @Override
     protected void init() {
         super.init();
-        // if
-        // (!GameWorldComponent.KEY.get(this.player.getWorld()).canUseKillerFeatures(player))
-        // return;
+        initMenuSelections();
         List<ShopEntry> entries = getShopEntries();
         if (entries.isEmpty())
             return;
@@ -90,15 +89,13 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
         for (int i = 0; i < entries.size(); i++) {
             this.addRenderableWidget(new StoreItemWidget(this, x + apart * i, y, entries.get(i), i));
         }
-        initMenuSelections();
     }
 
     public void initMenuSelections() {
-
         menuButton = Button.builder(Component.translatable("screen.limited_inventory.button.menu"), (btn) -> {
             toggleViewMenu(!this.isMenuOpen);
         }).bounds(width - menuButtonWidth, height - menuButtonHeight, menuButtonWidth, menuButtonHeight).build();
-        addRenderableWidget(menuButton);
+        this.addRenderableWidget(menuButton);
 
         this.menuSelections.clear();
         {
@@ -108,7 +105,8 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
                 // 职业介绍
                 var btn1 = Button
                         .builder(Component.translatable("screen.limited_inventory.menu.introduction"), (btn) -> {
-                            var screen = new RoleIntroduceScreen(this);
+                            var role = SREGameWorldComponent.KEY.get(this.minecraft.level).getRole(this.minecraft.player);
+                            var screen = new RoleIntroduceScreen(this, role);
                             this.minecraft.setScreen(screen);
                             toggleViewMenu(false);
                         }).bounds(width - menuButtonWidth, startY - menuButtonHeight, menuButtonWidth, menuButtonHeight)
@@ -128,26 +126,16 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
                 this.menuSelections.add(btn1);
                 startY -= menuButtonHeight;
             }
-            {
-                // modmenu
-                var btn1 = Button
-                        .builder(Component.translatable("screen.limited_inventory.menu.modmenu_settings"), (btn) -> {
-                            if (FabricLoader.getInstance().isModLoaded("modmenu"))
-                                this.minecraft.setScreen(ModMenuApi.createModsScreen(this));
-                            toggleViewMenu(false);
-                        }).bounds(width - menuButtonWidth, startY - menuButtonHeight, menuButtonWidth, menuButtonHeight)
-                        .build();
-                this.menuSelections.add(btn1);
-                startY -= menuButtonHeight;
-            }
             if (this.minecraft.player.hasPermissions(2)) {
                 // mod_settings
                 var btn1 = Button
-                        .builder(Component.translatable("screen.limited_inventory.menu.mod_settings"), (btn) -> {
-                            var screen = new SettingMenuScreen(this);
-                            this.minecraft.setScreen(screen);
-                            toggleViewMenu(false);
-                        }).bounds(width - menuButtonWidth, startY - menuButtonHeight, menuButtonWidth, menuButtonHeight)
+                        .builder(Component.translatable("screen.limited_inventory.menu.mod_settings")
+                                .withStyle(ChatFormatting.RED), (btn) -> {
+                                    var screen = new SettingMenuScreen(this);
+                                    this.minecraft.setScreen(screen);
+                                    toggleViewMenu(false);
+                                })
+                        .bounds(width - menuButtonWidth, startY - menuButtonHeight, menuButtonWidth, menuButtonHeight)
                         .build();
                 this.menuSelections.add(btn1);
                 startY -= menuButtonHeight;
@@ -155,17 +143,23 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
             if (this.minecraft.player.hasPermissions(2)) {
                 // game_menu
                 var btn1 = Button
-                        .builder(Component.translatable("screen.limited_inventory.menu.game_menu"), (btn) -> {
-                            // var screen = new RoleIntroduceScreen(this);
-                            // this.minecraft.setScreen(screen);
-                            // 待做
-                            toggleViewMenu(false);
-                        }).bounds(width - menuButtonWidth, startY - menuButtonHeight, menuButtonWidth, menuButtonHeight)
+                        .builder(Component.translatable("screen.limited_inventory.menu.game_menu")
+                                .withStyle(ChatFormatting.RED), (btn) -> {
+                                    var screen = new GameManagementScreen(this);
+                                    this.minecraft.setScreen(screen);
+                                    toggleViewMenu(false);
+                                })
+                        .bounds(width - menuButtonWidth, startY - menuButtonHeight, menuButtonWidth, menuButtonHeight)
                         .build();
                 this.menuSelections.add(btn1);
                 startY -= menuButtonHeight;
             }
         }
+
+        for (var ms : menuSelections) {
+            this.addRenderableWidget(ms);
+        }
+        toggleViewMenu(false);
     }
 
     public <T extends GuiEventListener & Renderable & NarratableEntry> T addRenderableWidget(T drawableElement) {
@@ -214,15 +208,16 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
 
         context.pose().pushPose();
         context.pose().translate(context.guiWidth() / 2f, context.guiHeight(), 0);
-        float scale = 0.28f;
-        context.pose().scale(scale, scale, 1f);
-        int height = 254;
-        int width = 497;
-        context.pose().translate(0, -230, 0);
-        int xOffset = 0;
-        int yOffset = 0;
-        context.innerBlit(ID, (int) (xOffset - width / 2f), (int) (xOffset + width / 2f), (int) (yOffset - height / 2f),
-                (int) (yOffset + height / 2f), 0, 0, 1f, 0, 1f, 1f, 1f, 1f, 1f);
+        // float scale = 0.28f;
+        // context.pose().scale(scale, scale, 1f);
+        // int height = 254;
+        // int width = 497;
+        // context.pose().translate(0, -230, 0);
+        // int xOffset = 0;
+        // int yOffset = 0;
+        // // context.innerBlit(ID, (int) (xOffset - width / 2f), (int) (xOffset + width
+        // / 2f), (int) (yOffset - height / 2f),
+        // (int) (yOffset + height / 2f), 0, 0, 1f, 0, 1f, 1f, 1f, 1f, 1f);
         context.pose().popPose();
     }
 
