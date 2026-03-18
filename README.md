@@ -2,7 +2,7 @@
 ## 请注意！
 本 Wathe 扩展不支持任何其他 Wathe 扩展。
 
-由于 `Trainmurdermystery` 版权协议为 ARR，而我们重新写了许多的 Wathe 功能，即使想要发布，也十分困难。因此，有了这一个模组。
+由于 `Trainmurdermystery` 版权协议为 ARR，而我们重新写了许多的 Wathe 功能，即使想要发布，也十分困难。因此，有了这一个附属模组。
 
 我们对原版 `TrainMuderMystery` 进行了重写，并且切换到了 `Mojang Mappings`。部分代码无可避免地使用到了原版的内容。如有雷同，纯属巧合。
 
@@ -23,7 +23,7 @@
 
 ## 本 DLC 特性
 ### 角色
-我们融合了 `Harpymodloader`、`StupidExpress`、`Noellesroles`、`Harpy Simple Roles`、`KinsWathe`的部分角色与修饰符，并且加入了许多我们自己的原创角色、修饰符。
+我们融合了 `Harpymodloader`、`StupidExpress`、`Noellesroles`、`Harpy Simple Roles`、`KinsWathe`的部分角色与修饰符，并且加入了许多我们自己的原创角色、修饰符。你无法在安装此模组的同时安装以上模组。
 ### 物品、实体、方块
 我们为列车增加了更多的物品、实体、方块，您可以在游戏物品栏里查看
 ### 功能
