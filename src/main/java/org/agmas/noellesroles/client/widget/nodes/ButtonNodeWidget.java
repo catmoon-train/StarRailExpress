@@ -13,7 +13,7 @@ public class ButtonNodeWidget extends AbstractNodeWidget{
             super(x, y, w, h, component);
             this.onClicked = null;
         }
-        public B setCallBack(OnClicked onClicked) {
+        public B setCallBack(OnCallBack onClicked) {
             this.onClicked = onClicked;
             return self();
         }
@@ -31,9 +31,9 @@ public class ButtonNodeWidget extends AbstractNodeWidget{
             ButtonNodeWidget buttonNodeWidget = (ButtonNodeWidget) super.build();
             buttonNodeWidget.canBeClicked = canBeClicked;
             buttonNodeWidget.acceptableMouseBtn = acceptableMouseBtn;
-            buttonNodeWidget.onClicked = Objects.requireNonNullElseGet(onClicked, () -> new OnClicked() {
+            buttonNodeWidget.onClicked = Objects.requireNonNullElseGet(onClicked, () -> new OnCallBack() {
                 @Override
-                public void onClicked(ButtonNodeWidget btn) {
+                public void onCallBack(ButtonNodeWidget btn) {
                 }
             });
             return buttonNodeWidget;
@@ -43,10 +43,10 @@ public class ButtonNodeWidget extends AbstractNodeWidget{
         }
         protected boolean canBeClicked = true;
         protected int acceptableMouseBtn = 0;
-        protected OnClicked onClicked;
+        protected OnCallBack onClicked;
     }
-    public interface OnClicked {
-        void onClicked(ButtonNodeWidget btn);
+    public interface OnCallBack {
+        void onCallBack(ButtonNodeWidget btn);
     }
     protected ButtonNodeWidget(int x, int y, int w, int h, Component component) {
         super(x, y, w, h, component);
@@ -67,19 +67,46 @@ public class ButtonNodeWidget extends AbstractNodeWidget{
     public void onClick(double d, double e) {
         clickFeedBack();
         if (onClicked != null)
-            onClicked.onClicked(this);
+            onClicked.onCallBack(this);
     }
-    public void setCallBack(OnClicked onClicked) {
+    public void setCallBack(OnCallBack onClicked) {
         this.onClicked = onClicked;
+    }
+    protected void clickColorFeedBack() {
+        if(isHovered) {
+            BG_FILL_COLOR = DEFAULT_PRESSED_FILL_COLOR;
+            BG_LINE_COLOR = DEFAULT_PRESSED_LINE_COLOR;
+        }
     }
     /** 点击反馈 */
     protected void clickFeedBack() {
-        ButtonNodeWidget.playDefaultClickSound();
+        clickColorFeedBack();
+        ButtonNodeWidget.playClickSound();
     }
-    public static void playDefaultClickSound() {
+    public static void playClickSound() {
         Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
     }
-    protected OnClicked onClicked;
+    @Override
+    protected boolean canRelease() {
+        return canBeReleased;
+    }
+    @Override
+    public void onRelease(double d, double e) {
+        releaseFeedBack();
+        if (onReleased != null)
+            onReleased.onCallBack(this);
+    }
+    public void releaseFeedBack() {
+        releaseColorFeedBack();
+    }
+    protected void releaseColorFeedBack() {
+        BG_FILL_COLOR = LAST_BG_FILL_COLOR;
+        BG_LINE_COLOR = LAST_BG_LINE_COLOR;
+    }
+
+    protected OnCallBack onClicked;
+    protected OnCallBack onReleased;
     protected boolean canBeClicked = true;
+    protected boolean canBeReleased = true;
     protected int acceptableMouseBtn = 0;
 }
