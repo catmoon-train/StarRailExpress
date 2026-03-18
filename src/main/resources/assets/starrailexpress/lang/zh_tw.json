@@ -511,7 +511,7 @@
   "lobby.autostart.active": "當6名及以上玩家登車後，遊戲將開始",
   "lobby.autostart.starting": "遊戲正在開始",
   "lobby.autostart.time": "遊戲將在 %s秒 後開始",
-  "lobby.players.count": "登車玩家數量：%s / %s",
+  "lobby.sre.players.count": "登車玩家數量：%s / %s",
   "subtitles.block.cargo_box.close": "貨物箱關閉",
   "subtitles.block.cargo_box.open": "貨物箱打開",
   "subtitles.block.door.toggle": "門操作",

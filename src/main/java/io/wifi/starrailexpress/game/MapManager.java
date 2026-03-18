@@ -183,7 +183,7 @@ public class MapManager {
             }
             
             if (jsonObject.has("haveOutsideSound")) {
-                areas.haveOutsideSound = jsonObject.get("outsideSound").getAsBoolean();
+                areas.haveOutsideSound = jsonObject.get("haveOutsideSound").getAsBoolean();
             } else {
                 areas.haveOutsideSound = false;
             }
