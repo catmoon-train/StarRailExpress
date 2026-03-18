@@ -181,6 +181,12 @@ public class MapManager {
             } else {
                 areas.noReset = false;
             }
+            
+            if (jsonObject.has("haveOutsideSound")) {
+                areas.haveOutsideSound = jsonObject.get("outsideSound").getAsBoolean();
+            } else {
+                areas.haveOutsideSound = true;
+            }
             if (jsonObject.has("canJump")) {
                 areas.canJump = jsonObject.get("canJump").getAsBoolean();
             } else {

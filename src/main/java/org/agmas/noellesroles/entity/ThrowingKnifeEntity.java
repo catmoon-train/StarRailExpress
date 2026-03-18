@@ -8,15 +8,12 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.projectile.AbstractArrow;
-import net.minecraft.world.entity.projectile.ThrowableItemProjectile;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.init.ModItems;
-import org.jspecify.annotations.Nullable;
 
 public class ThrowingKnifeEntity extends AbstractArrow {
     public ThrowingKnifeEntity(EntityType<? extends AbstractArrow> entityType, Level level) {

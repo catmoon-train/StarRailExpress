@@ -56,7 +56,7 @@ import org.jetbrains.annotations.Nullable;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 
-public class GameFunctionsCommand {
+public class GameUtilsCommand {
   public static void register() {
     CommandRegistrationCallback.EVENT.register(
         (dispatcher, registryAccess, environment) -> {
@@ -192,19 +192,19 @@ public class GameFunctionsCommand {
               .then(Commands.literal("win")
                   .then(Commands.argument("id", StringArgumentType.string())
                       .suggests(WinStatusSuggestions::suggestWinStatus)
-                      .executes(GameFunctionsCommand::executeWinWithOnlyId))
+                      .executes(GameUtilsCommand::executeWinWithOnlyId))
                   .then(Commands.literal("CUSTOM")
                       .then(Commands.argument("color", ModColorArgument.color())
                           .then(
                               Commands.argument("id", StringArgumentType.string())
-                                  .executes(GameFunctionsCommand::executeCustomWinWithOnlyId))))
+                                  .executes(GameUtilsCommand::executeCustomWinWithOnlyId))))
                   .then(Commands.literal("CUSTOM_COMPONENT")
                       .then(Commands.argument("color", ModColorArgument.color())
                           .then(Commands.argument("title", ComponentArgument.textComponent(registryAccess))
                               .then(Commands
                                   .argument(
                                       "subtitle", ComponentArgument.textComponent(registryAccess))
-                                  .executes(GameFunctionsCommand::executeCustomWinWithIdAndTitle))))))
+                                  .executes(GameUtilsCommand::executeCustomWinWithIdAndTitle))))))
               .then(Commands.literal("reset")
                   .then(Commands.literal("sync")
                       .then(Commands.literal("copy").executes((context) -> {
@@ -380,11 +380,12 @@ public class GameFunctionsCommand {
       return 0;
     }
     var ppc = SREPlayerPsychoComponent.KEY.get(player);
-    if(ppc.psychoTicks>0){
-      source.sendFailure(Component.literal("The player is already in psycho mode!").withStyle(ChatFormatting.RED));
-      return 0;
-    }
+
     if (time != 0) {
+      if (ppc.psychoTicks > 0) {
+        source.sendFailure(Component.literal("The player is already in psycho mode!").withStyle(ChatFormatting.RED));
+        return 0;
+      }
       ppc.startPsycho();
       context.getSource()
           .sendSuccess(() -> Component.translatable("Triggered %s Psycho!", player.getScoreboardName()), true);
@@ -513,7 +514,7 @@ public class GameFunctionsCommand {
       // 最后批量建议
       suggestions.forEach((t) -> {
         if (t != null) {
-          builder.suggest(t, Component.translatable("announcement.star.win." + t));
+          builder.suggest(t, Component.translatableWithFallback("announcement.star.win." + t.toLowerCase(), t));
         }
       });
 

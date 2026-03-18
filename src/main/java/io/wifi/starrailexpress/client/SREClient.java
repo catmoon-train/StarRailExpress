@@ -45,6 +45,7 @@ import io.wifi.starrailexpress.client.render.entity.FirecrackerEntityRenderer;
 import io.wifi.starrailexpress.client.render.entity.HornBlockEntityRenderer;
 import io.wifi.starrailexpress.client.render.entity.NoteEntityRenderer;
 import io.wifi.starrailexpress.client.util.ClientScheduler;
+import io.wifi.starrailexpress.client.util.MyBackgroundAmbience;
 import io.wifi.starrailexpress.client.util.TMMItemTooltips;
 import io.wifi.starrailexpress.compat.TrainVoicePlugin;
 import io.wifi.starrailexpress.data.MapConfig;
@@ -267,6 +268,17 @@ public class SREClient implements ClientModInitializer {
         AmbienceUtil.registerBackgroundAmbience(
                 new BackgroundAmbience(TMMSounds.AMBIENT_PSYCHO_DRONE, player -> gameComponent.isPsychoActive(), 20));
 
+        AmbienceUtil.registerBackgroundAmbience(new MyBackgroundAmbience(TMMSounds.AMBIENT_TRAIN_INSIDE,
+                SoundSource.AMBIENT,
+                (player) -> SREGameWorldComponent.KEY.get(player.level()).isOutsideSoundsAvailable() && isTrainMoving()
+                        && !SRE.isSkyVisible(player),
+                0.5f, 20, 10));
+        AmbienceUtil.registerBackgroundAmbience(new MyBackgroundAmbience(TMMSounds.AMBIENT_TRAIN_OUTSIDE,
+                SoundSource.AMBIENT,
+                (player) -> SREGameWorldComponent.KEY.get(player.level()).isOutsideSoundsAvailable() && isTrainMoving()
+                        && SRE.isSkyVisible(player),
+                0.5f, 20, 10));
+
         // Caching components
         ClientTickEvents.START_WORLD_TICK.register(clientWorld -> {
             gameComponent = SREGameWorldComponent.KEY.get(clientWorld);
@@ -277,7 +289,8 @@ public class SREClient implements ClientModInitializer {
         // Lock options
         OptionLocker.overrideOption("gamma", 0d);
         if (getLockedRenderDistance(SREConfig.instance().isUltraPerfMode()) != null) {
-            OptionLocker.overrideOption("renderDistance", getLockedRenderDistance(SREConfig.instance().isUltraPerfMode()));
+            OptionLocker.overrideOption("renderDistance",
+                    getLockedRenderDistance(SREConfig.instance().isUltraPerfMode()));
         }
         OptionLocker.overrideOption("showSubtitles", false);
         OptionLocker.overrideOption("autoJump", false);

@@ -194,6 +194,10 @@ public class SwitchMapCommand {
             .withStyle(style -> style.withColor(0x00FFFF)),
         false);
     source.sendSuccess(
+        () -> Component.literal("Outside Noise: " + (areas.haveOutsideSound ? "Yes" : "No"))
+            .withStyle(style -> style.withColor(0x00FFFF)),
+        false);
+    source.sendSuccess(
         () -> Component.literal("Shouldn't Reset: " + (areas.noReset ? "Yes" : "No"))
             .withStyle(style -> style.withColor(0x00FFFF)),
         false);

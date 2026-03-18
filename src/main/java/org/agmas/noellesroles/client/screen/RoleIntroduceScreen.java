@@ -3,7 +3,6 @@ package org.agmas.noellesroles.client.screen;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
-import io.wifi.starrailexpress.game.ShopContent;
 import io.wifi.starrailexpress.util.ShopEntry;
 import io.wifi.starrailexpress.index.TMMDescItems;
 import net.minecraft.ChatFormatting;
@@ -161,13 +160,6 @@ public class RoleIntroduceScreen extends Screen {
     private int selectedCategoryIndex = 0;
     private final int[] tabX = new int[64];
     private final int[] tabW = new int[64];
-
-    // 分类标签栏滚动
-    private int categoryScrollOffset = 0;
-    private int maxCategoryScroll = 0;
-    private boolean isDraggingCategoryScroll = false;
-    private double dragCategoryStartY = 0;
-    private int dragCategoryStartOffset = 0;
 
     // 左侧列表滚动
     private int listScrollOffset = 0;
@@ -437,9 +429,9 @@ public class RoleIntroduceScreen extends Screen {
                         ItemStack stack = entry.stack();
                         if (!stack.isEmpty()) {
                             // 计算物品渲染位置（在文本区域内）- 不考虑滚动偏移
-                            int itemX = rightX + PANEL_PAD + 4; // 左边距
-                            int itemY = panelY + BANNER_H + PANEL_PAD +
-                                    (detailLines.size() * (font.lineHeight + 2)) + 2;
+                            // int itemX = rightX + PANEL_PAD + 4; // 左边距
+                            // int itemY = panelY + BANNER_H + PANEL_PAD +
+                            //         (detailLines.size() * (font.lineHeight + 2)) + 2;
 
                             // 记录物品渲染信息
                             // shopItemRenderInfos.add(new ShopItemRenderInfo(stack.copy(), itemX, itemY));

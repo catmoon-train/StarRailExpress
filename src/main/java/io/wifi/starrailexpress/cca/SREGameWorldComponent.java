@@ -41,9 +41,16 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
     private final Level world;
     private SRERoleWorldComponent roleWorldComponent = null;
     private boolean canJump = false;
+    private boolean haveOutsideSounds = false;
     private boolean lockedToSupporters = false;
     private boolean enableWeights = false;
 
+    public boolean isOutsideSoundsAvailable(){
+        return haveOutsideSounds;
+    }
+    public void setOutsideSoundsAvailable(boolean bl){
+        haveOutsideSounds = bl;
+    }
     /**
      * 这里的技能指的部分职业（难民词条）
      */

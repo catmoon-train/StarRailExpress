@@ -71,6 +71,8 @@ public class AreasWorldComponent implements AutoSyncedComponent {
     }
 
     public static AABB getBoxFromNbt(CompoundTag tag, String name) {
+        if (!tag.contains(name))
+            return null;
         return new AABB(tag.getDouble(name + "MinX"), tag.getFloat(name + "MinY"), tag.getDouble(name + "MinZ"),
                 tag.getDouble(name + "MaxX"), tag.getFloat(name + "MaxY"), tag.getDouble(name + "MaxZ"));
     }
@@ -116,6 +118,7 @@ public class AreasWorldComponent implements AutoSyncedComponent {
     public boolean canSwim = false;
     public boolean noReset = false;
     public String mapName = null;
+    public boolean haveOutsideSound = false;
 
     public PosWithOrientation getSpawnPos() {
         return spawnPos;
@@ -393,9 +396,11 @@ public class AreasWorldComponent implements AutoSyncedComponent {
         // this.spawnPos = getPosWithOrientationFromNbt(tag, "spawnPos");
         // this.spectatorSpawnPos = getPosWithOrientationFromNbt(tag,
         // "spectatorSpawnPos");
-
-        this.readyArea = getBoxFromNbt(tag, "readyArea");
-        this.canJump = tag.getBoolean("canJump");
+        if (tag.contains("readyArea"))
+            this.readyArea = getBoxFromNbt(tag, "readyArea");
+        this.canJump = tag.contains("canJump") ? tag.getBoolean("canJump") : false;
+        this.canSwim = tag.contains("canSwim") ? tag.getBoolean("canSwim") : false;
+        this.haveOutsideSound = tag.contains("haveOutsideSound") ? tag.getBoolean("haveOutsideSound") : false;
         // this.playAreaOffset = getVec3dFromNbt(tag, "playAreaOffset");
         // this.playArea = getBoxFromNbt(tag, "playArea");
         //
@@ -416,8 +421,8 @@ public class AreasWorldComponent implements AutoSyncedComponent {
         // writePosWithOrientationToNbt(tag, this.spawnPos, "spawnPos");
         // writePosWithOrientationToNbt(tag, this.spectatorSpawnPos,
         // "spectatorSpawnPos");
-
-        writeBoxToNbt(tag, this.readyArea, "readyArea");
+        if (this.readyArea != null)
+            writeBoxToNbt(tag, this.readyArea, "readyArea");
         // writeVec3dToNbt(tag, this.playAreaOffset, "playAreaOffset");
         // writeBoxToNbt(tag, this.playArea, "playArea");
         //
@@ -427,6 +432,8 @@ public class AreasWorldComponent implements AutoSyncedComponent {
         // 将房间数量写入NBT
         tag.putInt("roomCount", this.roomCount);
         tag.putBoolean("canJump", this.canJump);
+        tag.putBoolean("canSwim", this.canSwim);
+        tag.putBoolean("haveOutsideSound", this.haveOutsideSound);
 
         // 房间位置需要写入NBT（如果实现此功能）
         // 这里暂时不实现，因为NBT格式可能需要专门处理Map类型

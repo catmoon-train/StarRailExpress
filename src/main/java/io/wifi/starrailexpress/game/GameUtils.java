@@ -607,7 +607,7 @@ public class GameUtils {
         entitiesToDiscard.forEach(net.minecraft.world.entity.Entity::discard);
 
         gameComponent.setJumpAvailable(areas.canJump);
-        SRE.LOGGER.info("Map Can Jump: " + (areas.canJump ? "True" : "False"));
+        gameComponent.setOutsideSoundsAvailable(areas.haveOutsideSound);
     }
 
     private static List<ServerPlayer> getReadyPlayerList(ServerLevel serverWorld) {

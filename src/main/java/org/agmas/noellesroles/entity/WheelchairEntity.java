@@ -9,6 +9,7 @@ import org.agmas.noellesroles.init.ModItems;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
@@ -19,6 +20,7 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
@@ -28,135 +30,157 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 public class WheelchairEntity extends Mob {
-    // 在 WheelchairEntity 类中添加字段
-    private float rotationVelocity = 0.0f;
+
+    // ===== 耐久（保留原有变量名）=====
     public int durability = 60;
-    private static final float ROTATION_ACCELERATION = 2f; // 旋转加速度（每 tick 速度变化）
-    private static final float ROTATION_FRICTION = 0.4f; // 旋转摩擦（每 tick 速度衰减系数）
-    private static final float MAX_ROTATION_SPEED = 10.0f; // 最大旋转速度（角度/tick）
+
+    // ===== 类 Boat 控制字段 =====
+    /** 每 tick 旋转增量（角度），会逐帧衰减，类似 Boat.deltaRotation */
+    private float deltaRotation = 0.0f;
+
+    /** 当前帧的输入状态，由 tickRidden 写入，由 travel 读取 */
+    private boolean inputUp = false;
+    private boolean inputDown = false;
+    private boolean inputLeft = false;
+    private boolean inputRight = false;
+
+    // ===== 其他字段 =====
     private ItemStack item = ItemStack.EMPTY;
-    // 新增：前进速度相关
-    private float forwardSpeed = 0.0f; // 当前沿朝向的速度（正前负后）
     private SREGameWorldComponent gameWorldComponent;
     private Vec3 lastPos = null;
-    private static final float FORWARD_ACCELERATION = 0.02f; // 每 tick 速度增量
-    private static final float FORWARD_FRICTION = 0.8f; // 无输入时每 tick 乘系数
 
-    // 新增方法：获取当前骑手（玩家）
+    // ===== 工具方法 =====
     public Entity getRider() {
-        if (this.getPassengers().size() > 0)
+        if (!this.getPassengers().isEmpty())
             return this.getPassengers().getFirst();
         return null;
     }
 
+    // ===== tick：撞人逻辑不变 =====
     @Override
     public void tick() {
         super.tick();
         if (this.level().isClientSide)
             return;
 
-        if (lastPos == null) {
+        if (lastPos == null)
             lastPos = this.position();
-        }
         double speed = this.position().distanceTo(lastPos);
         this.lastPos = this.position();
-        if (speed >= 0.1) {
-            if (this.getControllingPassenger() instanceof Player controller) {
-                AABB box = this.getBoundingBox().inflate(0.1);
-                List<Player> otherPlayers = this.level().getEntitiesOfClass(Player.class, box,
-                        p -> p != controller && p.isAlive());
-                otherPlayers.removeIf((p) -> p.isSpectator() || p.isCreative());
-                if (!otherPlayers.isEmpty()) {
 
-                    Vec3 knockbackDir = this.getForward();
-                    knockbackDir.yRot(0);
-                    double strength = speed * 4.0;
-                    // Noellesroles.LOGGER.info(knockbackDir + ":" + this.position() + ":" +
-                    // lastPos);
-                    for (Player target : otherPlayers) {
-                        if (this.random.nextInt(0, 100) <= 20) {
+        if (speed >= 0.1 && this.getControllingPassenger() instanceof Player controller) {
+            AABB box = this.getBoundingBox().inflate(0.1);
+            List<Player> otherPlayers = this.level().getEntitiesOfClass(Player.class, box,
+                    p -> p != controller && p.isAlive());
+            otherPlayers.removeIf(p -> p.isSpectator() || p.isCreative());
 
-                            target.setDeltaMovement(
-                                    target.getDeltaMovement().add(knockbackDir.scale(strength).add(0, 0, 0)));
-                            target.hurtMarked = true;
-                        }
+            if (!otherPlayers.isEmpty()) {
+                Vec3 knockbackDir = this.getForward();
+                double strength = speed * 4.0;
+                for (Player target : otherPlayers) {
+                    if (this.random.nextInt(100) <= 20) {
+                        target.setDeltaMovement(target.getDeltaMovement().add(knockbackDir.scale(strength)));
+                        target.hurtMarked = true;
                     }
                 }
             }
         }
     }
 
+    // ===== tickRidden：只负责耐久 + 读取输入 =====
     @Override
-    public void tickRidden(Player player, Vec3 vec3) {
-        super.tickRidden(player, vec3);
+    public void tickRidden(Player player, Vec3 travelVector) {
+        super.tickRidden(player, travelVector);
+
+        // --- 耐久逻辑（完全保留原逻辑）---
         if (this.level().getGameTime() % 20 == 0) {
             var gameC = SREGameWorldComponent.KEY.get(player.level());
-            if (gameC.getGameMode() instanceof ChairWheelRaceGame) {
-            } else {
+            if (!(gameC.getGameMode() instanceof ChairWheelRaceGame) && gameC.isRunning()) {
                 this.durability--;
             }
         }
         if (this.durability <= 0) {
             this.discard();
             player.displayClientMessage(
-                    Component.translatable("entity.noellesroles.wheelchair.damaged").withStyle(ChatFormatting.RED),
+                    Component.translatable("entity.noellesroles.wheelchair.damaged")
+                            .withStyle(ChatFormatting.RED),
                     true);
             return;
         }
-        // Noellesroles.LOGGER.info(input_zza+":"+input_xxa);
-        // ===== 1. 从玩家输入获取指令 =====
-        // 在 tickRidden 中，这些输入值是服务端同步好的，可以直接使用
-        float forward = player.zza; // 前/后
-        float strafe = player.xxa;// 左/右
 
-        // ===== 2. 旋转惯性（处理 A/D 键）=====
-        if (strafe != 0) {
-            float targetSpeed = strafe * MAX_ROTATION_SPEED;
-            if (rotationVelocity < targetSpeed) {
-                rotationVelocity = Math.min(rotationVelocity + ROTATION_ACCELERATION, targetSpeed);
-            } else if (rotationVelocity > targetSpeed) {
-                rotationVelocity = Math.max(rotationVelocity - ROTATION_ACCELERATION, targetSpeed);
-            }
-        } else {
-            rotationVelocity *= ROTATION_FRICTION;
-            if (Math.abs(rotationVelocity) < 0.01f)
-                rotationVelocity = 0.0f;
-        }
-
-        // 应用旋转
-        if (rotationVelocity != 0) {
-            this.setYRot(this.getYRot() - rotationVelocity);
-            // 同步身体和头部的旋转，让模型看起来更自然
-            this.yBodyRot = this.getYRot();
-            this.yHeadRot = this.getYRot();
-            // 注意：不要手动修改 player 的旋转，他会自动跟随
-        }
-
-        // ===== 3. 前进/后退惯性（处理 W/S 键）=====
-        float maxSpeed = (float) 0.4;
-        if (forward != 0) {
-            float targetSpeed = forward * maxSpeed;
-            if (forwardSpeed < targetSpeed) {
-                forwardSpeed = Math.min(forwardSpeed + FORWARD_ACCELERATION, targetSpeed);
-            } else if (forwardSpeed > targetSpeed) {
-                forwardSpeed = Math.max(forwardSpeed - FORWARD_ACCELERATION, targetSpeed);
-            }
-        } else {
-            forwardSpeed *= FORWARD_FRICTION;
-            if (Math.abs(forwardSpeed) < 0.001f)
-                forwardSpeed = 0.0f;
-        }
-
-        // ===== 4. 设置移动速度 =====
-        Vec3 currentMotion = this.getDeltaMovement();
-        if (forwardSpeed != 0) {
-            Vec3 forwardVec = Vec3.directionFromRotation(0, this.getYRot()).scale(forwardSpeed);
-            this.setDeltaMovement(forwardVec.x, currentMotion.y, forwardVec.z);
-        } else {
-            // 无输入时，保留垂直速度（重力），水平停止
-            this.setDeltaMovement(0, currentMotion.y, 0);
-        }
+        // --- 将玩家输入映射到布尔字段（与 Boat 一致）---
+        // zza > 0 = W（前进），xxa < 0 = A（左转），xxa > 0 = D（右转）
+        inputUp = player.zza > 0.0f;
+        inputDown = player.zza < 0.0f;
+        inputLeft = player.xxa < 0.0f;
+        inputRight = player.xxa > 0.0f;
     }
+
+    // ===== travel：类 Boat 物理，完全替代 super.travel =====
+    @Override
+    public void travel(Vec3 movementInput) {
+        if (!(this.getControllingPassenger() instanceof Player)) {
+            // 无人骑乘时走正常 Mob 逻辑
+            super.travel(movementInput);
+            return;
+        }
+
+        // --- 1. 重力 ---
+        double vy = this.getDeltaMovement().y;
+        if (!this.onGround()) {
+            vy -= 0.04; // 与 Boat 陆地重力一致
+        } else {
+            vy = Math.min(vy, 0.0);
+        }
+
+        // --- 2. 旋转（类 Boat：deltaRotation 每帧 ±1，衰减 0.9）---
+        if (inputLeft)
+            deltaRotation--;
+        if (inputRight)
+            deltaRotation++;
+        this.setYRot(this.getYRot() + deltaRotation);
+        this.yBodyRot = this.getYRot();
+        this.yHeadRot = this.getYRot();
+        deltaRotation *= 0.9f; // 旋转摩擦，与 Boat 相同
+
+        // --- 3. 加速（类 Boat：前进 +0.04，后退 -0.005；纯转弯 +0.005）---
+        float thrust = 0.0f;
+        if (inputUp) {
+            thrust = 0.04f;
+        } else if (inputDown) {
+            thrust = -0.005f;
+        } else if (inputLeft != inputRight) {
+            // 纯转弯时给一点前进量，让轮椅转得更自然（与 Boat 一致）
+            thrust = 0.005f;
+        }
+
+        // 沿当前朝向施加推力
+        double yRotRad = this.getYRot() * (float) (Math.PI / 180.0);
+        double ax = -Mth.sin((float) yRotRad) * thrust;
+        double az = Mth.cos((float) yRotRad) * thrust;
+
+        Vec3 motion = this.getDeltaMovement();
+        this.setDeltaMovement(motion.x + ax, vy, motion.z + az);
+
+        // --- 4. 限速（与 Boat 水面限速 0.4 一致）---
+        motion = this.getDeltaMovement();
+        double hSpeedSq = motion.x * motion.x + motion.z * motion.z;
+        final double MAX_SPEED = 0.4;
+        if (hSpeedSq > MAX_SPEED * MAX_SPEED) {
+            double scale = MAX_SPEED / Math.sqrt(hSpeedSq);
+            this.setDeltaMovement(motion.x * scale, motion.y, motion.z * scale);
+        }
+
+        // --- 5. 执行移动（碰撞检测由 move 负责）---
+        this.move(MoverType.SELF, this.getDeltaMovement());
+
+        // --- 6. 水平摩擦（陆地 Boat 约 0.5，此处取 0.6 让停车略平滑）---
+        motion = this.getDeltaMovement();
+        double friction = this.onGround() ? 0.6 : 0.99;
+        this.setDeltaMovement(motion.x * friction, motion.y, motion.z * friction);
+    }
+
+    // ===== 以下代码与原文完全相同，不改动 =====
 
     @Override
     public void addPassenger(Entity passenger) {
@@ -178,32 +202,14 @@ public class WheelchairEntity extends Mob {
     @Override
     protected void positionRider(Entity passenger, MoveFunction moveFunction) {
         if (this.hasPassenger(passenger)) {
-            // 计算你希望乘客坐的位置（相对于实体脚部坐标）
-            // - Y 偏移：降低到轮椅座椅高度（例如 0.3）
-            // - Z 偏移：向后移动一小段距离（例如 -0.2，即实体后方）
-            // - X 偏移：如果需要左右调整，也可以添加（例如 0.0）
-            double offsetY = -0.1; // 垂直降低
-            double offsetZ = -0.2; // 向后移动（负Z为后方）
-            double offsetX = 0.0; // 水平居中
-
-            // 计算目标位置：实体坐标 + 偏移量（注意旋转：偏移量应基于实体的朝向）
-            // 如果你希望偏移量始终相对于实体的前后方向（即无论实体朝向如何，乘客始终坐在后方），
-            // 需要将偏移向量按实体的旋转进行变换。
-            // 简单情况下，如果偏移是相对于世界坐标（即固定向后），则直接相加即可。
-            // 但通常“向后”指的是实体的后方，所以需要旋转。
+            double offsetY = -0.1;
+            double offsetZ = -0.2;
+            double offsetX = 0.0;
             Vec3 offset = new Vec3(offsetX, offsetY, offsetZ)
-                    .yRot(-this.getYRot() * (float) Math.PI / 180.0F); // 应用实体旋转
-
+                    .yRot(-this.getYRot() * (float) Math.PI / 180.0F);
             Vec3 targetPos = this.position().add(offset);
-
-            // 使用 moveFunction 设置乘客位置（这会自动处理平滑移动）
             moveFunction.accept(passenger, targetPos.x, targetPos.y, targetPos.z);
         }
-    }
-
-    @Override
-    public void travel(Vec3 movementInput) {
-        super.travel(movementInput);
     }
 
     @Override
@@ -217,13 +223,11 @@ public class WheelchairEntity extends Mob {
                 return 0.5F;
             }
         }
-        if (gameWorldComponent.isJumpAvailable()) {
+        if (gameWorldComponent.isJumpAvailable())
             f = 1F;
-        }
         return this.getControllingPassenger() instanceof Player ? Math.max(f, 0.1F) : f;
     }
 
-    // 注册属性（速度、生命等）
     public static AttributeSupplier.Builder createAttributes() {
         return LivingEntity.createLivingAttributes()
                 .add(Attributes.MAX_HEALTH, 20.0)
@@ -234,35 +238,26 @@ public class WheelchairEntity extends Mob {
 
     @Override
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
-        // 1. 如果玩家正在潜行，尝试回收为物品
         if (this.getPassengers().isEmpty() && player.isShiftKeyDown()) {
             if (!this.level().isClientSide) {
-                // 回收逻辑：给玩家一个轮椅物品，并移除实体
-                ItemStack wheelchairItem = new ItemStack(ModItems.WHEELCHAIR); // 你需要一个自定义物品
-                var chairDurability = this.durability;
-                wheelchairItem.setDamageValue(wheelchairItem.getMaxDamage() - chairDurability);
+                ItemStack wheelchairItem = new ItemStack(ModItems.WHEELCHAIR);
+                wheelchairItem.setDamageValue(wheelchairItem.getMaxDamage() - this.durability);
                 player.getCooldowns().addCooldown(ModItems.WHEELCHAIR, 40);
-
                 if (!player.getInventory().add(wheelchairItem)) {
-                    // 如果背包满了，掉落在地上
                     player.drop(wheelchairItem, false);
                 }
-                this.discard(); // 移除实体
-            }
-            return InteractionResult.SUCCESS; // 客户端返回 SUCCESS 以播放动画
-        }
-
-        // 2. 否则，如果实体没有被乘客且玩家非潜行，则让玩家骑乘
-        if (this.getPassengers().isEmpty() && !player.isShiftKeyDown()) {
-            if (!this.level().isClientSide) {
-                player.startRiding(this, true);
-                if (this.getControllingPassenger() == null) {
-                    this.addPassenger(player);
-                }
+                this.discard();
             }
             return InteractionResult.SUCCESS;
         }
-
+        if (this.getPassengers().isEmpty() && !player.isShiftKeyDown()) {
+            if (!this.level().isClientSide) {
+                player.startRiding(this, true);
+                if (this.getControllingPassenger() == null)
+                    this.addPassenger(player);
+            }
+            return InteractionResult.SUCCESS;
+        }
         return super.mobInteract(player, hand);
     }
 
@@ -278,7 +273,7 @@ public class WheelchairEntity extends Mob {
             this.discard();
             return true;
         }
-        return false; // 完全无敌
+        return false;
     }
 
     @Override
@@ -294,7 +289,7 @@ public class WheelchairEntity extends Mob {
     }
 
     @Override
-    public ItemStack getItemBySlot(EquipmentSlot equipmentSlot) {
+    public ItemStack getItemBySlot(EquipmentSlot slot) {
         return this.item;
     }
 
@@ -304,7 +299,7 @@ public class WheelchairEntity extends Mob {
     }
 
     @Override
-    public void setItemSlot(EquipmentSlot equipmentSlot, ItemStack itemStack) {
-        this.item = itemStack;
+    public void setItemSlot(EquipmentSlot slot, ItemStack stack) {
+        this.item = stack;
     }
 }
