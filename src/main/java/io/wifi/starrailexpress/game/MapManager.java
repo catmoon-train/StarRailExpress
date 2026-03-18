@@ -185,7 +185,7 @@ public class MapManager {
             if (jsonObject.has("haveOutsideSound")) {
                 areas.haveOutsideSound = jsonObject.get("outsideSound").getAsBoolean();
             } else {
-                areas.haveOutsideSound = true;
+                areas.haveOutsideSound = false;
             }
             if (jsonObject.has("canJump")) {
                 areas.canJump = jsonObject.get("canJump").getAsBoolean();
