@@ -1,4 +1,7 @@
 {
+  "language": "繁體中文",
+  "language.code": "zh_tw",
+  "language.region": "Taiwan",
   "============ 重置 ===========": "",
   "message.sre.reseting": "重置地圖中 %s%%",
   "message.sre.starting": "遊戲開始！",
