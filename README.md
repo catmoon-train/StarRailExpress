@@ -1,6 +1,6 @@
 # StarRail Express
 ## 请注意！
-本 Wathe 扩展不支持任何其他 Wathe 扩展。
+本 Wathe 扩展**极有可能**不支持任何其他 Wathe 扩展。
 
 由于 `Trainmurdermystery` 版权协议为 ARR，而我们重新写了许多的 Wathe 功能，即使想要发布，也十分困难。因此，有了这一个模组。
 
