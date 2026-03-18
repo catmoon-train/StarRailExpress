@@ -17,7 +17,9 @@ import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 public class SkinSelectionList extends ObjectSelectionList<SkinSelectionList.SkinEntry> {
@@ -63,6 +65,17 @@ public class SkinSelectionList extends ObjectSelectionList<SkinSelectionList.Ski
         for (String skinName : availableSkins) {
             this.addEntry(new SkinEntry(skinName));
         }
+        children().sort((o1, o2) -> {
+            var qColors = SkinManager.QualityColor.values();
+            for (SkinManager.QualityColor qColor : qColors) {
+                if (o1.skinColor == qColor.getColor()) {
+                    return o2.skinColor == qColor.getColor() ? 0 : -1;
+                } else if (o2.skinColor == qColor.getColor()) {
+                    return 1;
+                }
+            }
+            return 0;
+        });
     }
 
     private String getItemTypeName(ItemStack itemStack) {
