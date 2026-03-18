@@ -8,6 +8,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+
+import java.awt.*;
 import java.util.HashMap;
 import java.util.Locale;
 
@@ -48,7 +50,23 @@ public class SkinManager {
         // return values[(skin.ordinal() + 1) % values.length];
         // }
     }
+    public enum QualityColor {
+        COMMON(new Color(0xFFEEEEEE).getRGB()),
+        UNCOMMON(new Color(0xFF33FF55).getRGB()),
+        RARE(new Color(0xFFAAAAFF).getRGB()),
+        EPIC(new Color(0xFFAA55FF).getRGB()),
+        LEGENDARY(new Color(0xFFFFAA55).getRGB()),
+        UNBELIEVABLE(new Color(0xFFFF3F3F).getRGB());
 
+        QualityColor(int i) {
+            color = i;
+        }
+        private final int color;
+
+        public int getColor() {
+            return color;
+        }
+    }
     public static Skin getSkinFromName(String itemType, String name) {
         if (!skinMap.containsKey(itemType)) {
             return null;
@@ -100,235 +118,234 @@ public class SkinManager {
         // 更新：可以不提供默认材质
 
         // API
-        registerSkin(SkinTypes.KNIFE, "ceremonial", 0xFFD98C28);
-        registerSkin(SkinTypes.KNIFE, "pick", 0xFF8D4A51);
-        registerSkin(SkinTypes.KNIFE, "diamond_knife", 0xFF4AEDFF);
-        registerSkin(SkinTypes.KNIFE, "dagger", 0xFF808080);
-        registerSkin(SkinTypes.KNIFE, "rainbow_knife", 0xFFFFFFFF);
-        registerSkin(SkinTypes.KNIFE, "fly_cutter", 0xFFE0E0E0);
-        registerSkin(SkinTypes.KNIFE, "storm_blade", 0xFF4A90E2);
-        registerSkin(SkinTypes.KNIFE, "dragon_blade", 0xFFFF4444);
-        registerSkin(SkinTypes.KNIFE, "chopper", 0xFF8B4513);
-        registerSkin(SkinTypes.KNIFE, "neptune_knife", 0xFF1E90FF);
-        registerSkin(SkinTypes.KNIFE, "colorful_folding_knife", 0xFFFF69B4);
-        registerSkin(SkinTypes.KNIFE, "edge_knife", 0xFFC0C0C0);
-        registerSkin(SkinTypes.KNIFE, "blue_curved_knife", 0xFF1E90FF);
-        registerSkin(SkinTypes.KNIFE, "balisong", 0xFFC0C0C0);
-        registerSkin(SkinTypes.KNIFE, "black_blade", 0xFF1A1A1A);
-        registerSkin(SkinTypes.KNIFE, "blade_of_blood_red", 0xFF8B0000);
-        registerSkin(SkinTypes.KNIFE, "blue_knife", 0xFF4169E1);
-        registerSkin(SkinTypes.KNIFE, "carrot_knife", 0xFFFF8C00);
-        registerSkin(SkinTypes.KNIFE, "cat_paw", 0xFFFFDAB9);
-        registerSkin(SkinTypes.KNIFE, "cultist", 0xFF2F4F4F);
-        registerSkin(SkinTypes.KNIFE, "cutter_knife", 0xFFA9A9A9);
-        registerSkin(SkinTypes.KNIFE, "dart", 0xFF4682B4);
-        registerSkin(SkinTypes.KNIFE, "diamond_knife", 0xFF4AEDFF);
-        registerSkin(SkinTypes.KNIFE, "dusks_epitaph", 0xFF483D8B);
-        registerSkin(SkinTypes.KNIFE, "fork", 0xFFC0C0C0);
-        registerSkin(SkinTypes.KNIFE, "icicle", 0xFFADD8E6);
-        registerSkin(SkinTypes.KNIFE, "light_sword", 0xFFFFFF00);
-        registerSkin(SkinTypes.KNIFE, "machete", 0xFF2E8B57);
-        registerSkin(SkinTypes.KNIFE, "matchstick_sword", 0xFFDEB887);
-        registerSkin(SkinTypes.KNIFE, "missing_source", 0xFF808080);
-        registerSkin(SkinTypes.KNIFE, "missing_sword", 0xFFA0A0A0);
-        registerSkin(SkinTypes.KNIFE, "herring_sword_fish", 0xFF228B22);
-        registerSkin(SkinTypes.KNIFE, "nail", 0xFF696969);
-        registerSkin(SkinTypes.KNIFE, "peach_stick", 0xFFFFE4B5);
-        registerSkin(SkinTypes.KNIFE, "red_light_sword", 0xFFFF4500);
-        registerSkin(SkinTypes.KNIFE, "starlight", 0xFF87CEEB);
-        registerSkin(SkinTypes.KNIFE, "sword_in_stone", 0xFF778899);
-        registerSkin(SkinTypes.KNIFE, "harpy_star", 0xFFFFF8DC);
-        registerSkin(SkinTypes.KNIFE, "quenched_titanium", 0xFFB87333);
-        registerSkin(SkinTypes.KNIFE, "tianjie_bit", 0xFFFF6347);
+        registerSkin(SkinTypes.KNIFE, "ceremonial", QualityColor.EPIC.getColor());
+        registerSkin(SkinTypes.KNIFE, "pick", QualityColor.UNCOMMON.getColor());
+        registerSkin(SkinTypes.KNIFE, "diamond_knife", QualityColor.EPIC.getColor());
+        registerSkin(SkinTypes.KNIFE, "dagger", QualityColor.EPIC.getColor());
+        registerSkin(SkinTypes.KNIFE, "rainbow_knife", QualityColor.LEGENDARY.getColor());
+        registerSkin(SkinTypes.KNIFE, "fly_cutter", QualityColor.EPIC.getColor());
+        registerSkin(SkinTypes.KNIFE, "storm_blade", QualityColor.UNBELIEVABLE.getColor());
+        registerSkin(SkinTypes.KNIFE, "dragon_blade", QualityColor.EPIC.getColor());
+        registerSkin(SkinTypes.KNIFE, "chopper", QualityColor.UNCOMMON.getColor());
+        registerSkin(SkinTypes.KNIFE, "neptune_knife", QualityColor.EPIC.getColor());
+        registerSkin(SkinTypes.KNIFE, "colorful_folding_knife", QualityColor.UNBELIEVABLE.getColor());
+        registerSkin(SkinTypes.KNIFE, "edge_knife", QualityColor.UNCOMMON.getColor());
+        registerSkin(SkinTypes.KNIFE, "blue_curved_knife", QualityColor.RARE.getColor());
+        registerSkin(SkinTypes.KNIFE, "balisong", QualityColor.LEGENDARY.getColor());
+        registerSkin(SkinTypes.KNIFE, "black_blade", QualityColor.COMMON.getColor());
+        registerSkin(SkinTypes.KNIFE, "blade_of_blood_red", QualityColor.RARE.getColor());
+        registerSkin(SkinTypes.KNIFE, "blue_knife", QualityColor.COMMON.getColor());
+        registerSkin(SkinTypes.KNIFE, "carrot_knife", QualityColor.LEGENDARY.getColor());
+        registerSkin(SkinTypes.KNIFE, "cat_paw", QualityColor.UNBELIEVABLE.getColor());
+        registerSkin(SkinTypes.KNIFE, "cultist", QualityColor.RARE.getColor());
+        registerSkin(SkinTypes.KNIFE, "cutter_knife", QualityColor.LEGENDARY.getColor());
+        registerSkin(SkinTypes.KNIFE, "dart", QualityColor.EPIC.getColor());
+        registerSkin(SkinTypes.KNIFE, "diamond_knife", QualityColor.EPIC.getColor());
+        registerSkin(SkinTypes.KNIFE, "dusks_epitaph", QualityColor.UNBELIEVABLE.getColor());
+        registerSkin(SkinTypes.KNIFE, "fork", QualityColor.UNCOMMON.getColor());
+        registerSkin(SkinTypes.KNIFE, "icicle", QualityColor.LEGENDARY.getColor());
+        registerSkin(SkinTypes.KNIFE, "light_sword", QualityColor.EPIC.getColor());
+        registerSkin(SkinTypes.KNIFE, "machete", QualityColor.RARE.getColor());
+        registerSkin(SkinTypes.KNIFE, "matchstick_sword", QualityColor.LEGENDARY.getColor());
+        registerSkin(SkinTypes.KNIFE, "missing_source", QualityColor.EPIC.getColor());
+        registerSkin(SkinTypes.KNIFE, "missing_sword", QualityColor.LEGENDARY.getColor());
+        registerSkin(SkinTypes.KNIFE, "herring_sword_fish", QualityColor.LEGENDARY.getColor());
+        registerSkin(SkinTypes.KNIFE, "nail", QualityColor.COMMON.getColor());
+        registerSkin(SkinTypes.KNIFE, "peach_stick", QualityColor.COMMON.getColor());
+        registerSkin(SkinTypes.KNIFE, "red_light_sword", QualityColor.RARE.getColor());
+        registerSkin(SkinTypes.KNIFE, "starlight", QualityColor.EPIC.getColor());
+        registerSkin(SkinTypes.KNIFE, "sword_in_stone", QualityColor.UNBELIEVABLE.getColor());
+        registerSkin(SkinTypes.KNIFE, "harpy_star", QualityColor.RARE.getColor());
+        registerSkin(SkinTypes.KNIFE, "quenched_titanium", QualityColor.UNBELIEVABLE.getColor());
+        registerSkin(SkinTypes.KNIFE, "tianjie_bit", QualityColor.LEGENDARY.getColor());
 
         // New knife skins
-        registerSkin(SkinTypes.KNIFE, "bear_claw", 0xFF8B4513);
-        registerSkin(SkinTypes.KNIFE, "broken_bottle", 0xFF4682B4);
-        registerSkin(SkinTypes.KNIFE, "chicken_sword", 0xFFFFD700);
-        registerSkin(SkinTypes.KNIFE, "ew_knife", 0xFF696969);
-        registerSkin(SkinTypes.KNIFE, "flaying_knife", 0xFF8B4513);
-        registerSkin(SkinTypes.KNIFE, "flesh_and_blood_resonance", 0xFF8B0000);
-        registerSkin(SkinTypes.KNIFE, "foxy_blade", 0xFFFF8C00);
-        registerSkin(SkinTypes.KNIFE, "ice_fish", 0xFFADD8E6);
-        registerSkin(SkinTypes.KNIFE, "katar", 0xFF696969);
-        registerSkin(SkinTypes.KNIFE, "kunai", 0xFF2F2F2F);
-        registerSkin(SkinTypes.KNIFE, "ninja_claw", 0xFF808080);
-        registerSkin(SkinTypes.KNIFE, "real_sword", 0xFFC0C0C0);
-        registerSkin(SkinTypes.KNIFE, "small_real_knife", 0xFFA9A9A9);
-        registerSkin(SkinTypes.KNIFE, "steel_claw", 0xFF708090);
-        registerSkin(SkinTypes.KNIFE, "swiss_army_knife", 0xFFDC143C);
-        registerSkin(SkinTypes.KNIFE, "tenet", 0xFF4169E1);
-        registerSkin(SkinTypes.KNIFE, "thousands_source", 0xFF9370DB);
-        registerSkin(SkinTypes.KNIFE, "zenith_knife", 0xFFFFD700);
-        registerSkin(SkinTypes.KNIFE, "gamma_doppler_claw_knife", 0xFFFFD700);
+        registerSkin(SkinTypes.KNIFE, "bear_claw", QualityColor.RARE.getColor());
+        registerSkin(SkinTypes.KNIFE, "broken_bottle", QualityColor.UNBELIEVABLE.getColor());
+        registerSkin(SkinTypes.KNIFE, "chicken_sword", QualityColor.UNBELIEVABLE.getColor());
+        registerSkin(SkinTypes.KNIFE, "ew_knife", QualityColor.LEGENDARY.getColor());
+        registerSkin(SkinTypes.KNIFE, "flaying_knife", QualityColor.UNCOMMON.getColor());
+        registerSkin(SkinTypes.KNIFE, "flesh_and_blood_resonance", QualityColor.LEGENDARY.getColor());
+        registerSkin(SkinTypes.KNIFE, "foxy_blade", QualityColor.UNBELIEVABLE.getColor());
+        registerSkin(SkinTypes.KNIFE, "ice_fish", QualityColor.LEGENDARY.getColor());
+        registerSkin(SkinTypes.KNIFE, "katar", QualityColor.LEGENDARY.getColor());
+        registerSkin(SkinTypes.KNIFE, "kunai", QualityColor.UNCOMMON.getColor());
+        registerSkin(SkinTypes.KNIFE, "ninja_claw", QualityColor.UNBELIEVABLE.getColor());
+        registerSkin(SkinTypes.KNIFE, "real_sword", QualityColor.LEGENDARY.getColor());
+        registerSkin(SkinTypes.KNIFE, "small_real_knife", QualityColor.LEGENDARY.getColor());
+        registerSkin(SkinTypes.KNIFE, "steel_claw", QualityColor.EPIC.getColor());
+        registerSkin(SkinTypes.KNIFE, "swiss_army_knife", QualityColor.UNBELIEVABLE.getColor());
+        registerSkin(SkinTypes.KNIFE, "tenet", QualityColor.LEGENDARY.getColor());
+        registerSkin(SkinTypes.KNIFE, "thousands_source", QualityColor.UNBELIEVABLE.getColor());
+        registerSkin(SkinTypes.KNIFE, "zenith_knife", QualityColor.UNBELIEVABLE.getColor());
+        registerSkin(SkinTypes.KNIFE, "gamma_doppler_claw_knife", QualityColor.UNBELIEVABLE.getColor());
 
         // New knife skins 2025
-        registerSkin(SkinTypes.KNIFE, "crystalline", 0xFFB0E0E6);
-        registerSkin(SkinTypes.KNIFE, "folly_stick", 0xFFCD853F);
-        registerSkin(SkinTypes.KNIFE, "glass", 0xFFE0FFFF);
-        registerSkin(SkinTypes.KNIFE, "golden_shear", 0xFFFFD700);
-        registerSkin(SkinTypes.KNIFE, "jolly_stick", 0xFFFF6347);
-        registerSkin(SkinTypes.KNIFE, "makeshift", 0xFF696969);
-        registerSkin(SkinTypes.KNIFE, "roze", 0xFFE6E6FA);
-        registerSkin(SkinTypes.KNIFE, "sweet_tooth", 0xFFFFB6C1);
+        registerSkin(SkinTypes.KNIFE, "crystalline", QualityColor.LEGENDARY.getColor());
+        registerSkin(SkinTypes.KNIFE, "folly_stick", QualityColor.EPIC.getColor());
+        registerSkin(SkinTypes.KNIFE, "glass", QualityColor.UNBELIEVABLE.getColor());
+        registerSkin(SkinTypes.KNIFE, "golden_shear", QualityColor.LEGENDARY.getColor());
+        registerSkin(SkinTypes.KNIFE, "jolly_stick", QualityColor.EPIC.getColor());
+        registerSkin(SkinTypes.KNIFE, "makeshift", QualityColor.RARE.getColor());
+        registerSkin(SkinTypes.KNIFE, "roze", QualityColor.LEGENDARY.getColor());
+        registerSkin(SkinTypes.KNIFE, "sweet_tooth", QualityColor.UNBELIEVABLE.getColor());
 
         // New knife skins 2026
-        registerSkin(SkinTypes.KNIFE, "echoium_sword", 0xFF9370DB);
-        registerSkin(SkinTypes.KNIFE, "giant_roasted_chicken", 0xFFFFD700);
-        registerSkin(SkinTypes.KNIFE, "sacrificial_dagger", 0xFF8B0000);
-        registerSkin(SkinTypes.KNIFE, "tianyuan_fairy", 0xFF87CEEB);
-        registerSkin(SkinTypes.KNIFE, "unconscious_knife", 0xFF808080);
-        registerSkin(SkinTypes.KNIFE, "tenet", 0xFF808080);
+        registerSkin(SkinTypes.KNIFE, "echoium_sword", QualityColor.LEGENDARY.getColor());
+        registerSkin(SkinTypes.KNIFE, "giant_roasted_chicken", QualityColor.LEGENDARY.getColor());
+        registerSkin(SkinTypes.KNIFE, "sacrificial_dagger", QualityColor.LEGENDARY.getColor());
+        registerSkin(SkinTypes.KNIFE, "tianyuan_fairy", QualityColor.LEGENDARY.getColor());
+        registerSkin(SkinTypes.KNIFE, "unconscious_knife", QualityColor.LEGENDARY.getColor());
+        registerSkin(SkinTypes.KNIFE, "tenet", QualityColor.LEGENDARY.getColor());
 
         // Initialize revolver skins
-        registerSkin(SkinTypes.REVOLVER, "double_pistol", 0xFF808080);
-        registerSkin(SkinTypes.REVOLVER, "heavy_pistol", 0xFF404040);
-        registerSkin(SkinTypes.REVOLVER, "knife_gun", 0xFF606060);
-        registerSkin(SkinTypes.REVOLVER, "potato_launcher", 0xFFD2B48C);
-        registerSkin(SkinTypes.REVOLVER, "stick_gun", 0xFF8B4513);
-        registerSkin(SkinTypes.REVOLVER, "water_gun", 0xFF4169E1);
-        registerSkin(SkinTypes.REVOLVER, "west_revolver", 0xFF8B7355);
-        registerSkin(SkinTypes.REVOLVER, "white_gun", 0xFFFAFAFA);
-        registerSkin(SkinTypes.REVOLVER, "desert_eagle", 0xFFC0C0C0);
+        registerSkin(SkinTypes.REVOLVER, "double_pistol", QualityColor.RARE.getColor());
+        registerSkin(SkinTypes.REVOLVER, "heavy_pistol", QualityColor.RARE.getColor());
+        registerSkin(SkinTypes.REVOLVER, "knife_gun", QualityColor.RARE.getColor());
+        registerSkin(SkinTypes.REVOLVER, "potato_launcher", QualityColor.RARE.getColor());
+        registerSkin(SkinTypes.REVOLVER, "stick_gun", QualityColor.RARE.getColor());
+        registerSkin(SkinTypes.REVOLVER, "water_gun", QualityColor.UNBELIEVABLE.getColor());
+        registerSkin(SkinTypes.REVOLVER, "west_revolver", QualityColor.UNBELIEVABLE.getColor());
+        registerSkin(SkinTypes.REVOLVER, "white_gun", QualityColor.UNBELIEVABLE.getColor());
+        registerSkin(SkinTypes.REVOLVER, "desert_eagle", QualityColor.EPIC.getColor());
 
         // New gun skins (registerSkin uses REVOLVER type)
-        registerSkin(SkinTypes.REVOLVER, "anshidian", 0xFF4169E1);
-        registerSkin(SkinTypes.REVOLVER, "cannon", 0xFF2F4F4F);
-        registerSkin(SkinTypes.REVOLVER, "caplock_pistol", 0xFF8B4513);
-        registerSkin(SkinTypes.REVOLVER, "coal_gun", 0xFF2F2F2F);
-        registerSkin(SkinTypes.REVOLVER, "colt_45", 0xFF696969);
-        registerSkin(SkinTypes.REVOLVER, "dragon_fractal", 0xFF8B0000);
-        registerSkin(SkinTypes.REVOLVER, "european_long_revolver", 0xFF4682B4);
-        registerSkin(SkinTypes.REVOLVER, "golden_gun", 0xFFFFD700);
-        registerSkin(SkinTypes.REVOLVER, "g18", 0xFF808080);
-        registerSkin(SkinTypes.REVOLVER, "habilis", 0xFF8B4513);
-        registerSkin(SkinTypes.REVOLVER, "hummingbird", 0xFF00CED1);
-        registerSkin(SkinTypes.REVOLVER, "infinity", 0xFF87CEEB);
-        registerSkin(SkinTypes.REVOLVER, "izumo_41_style", 0xFFDC143C);
-        registerSkin(SkinTypes.REVOLVER, "lengcui", 0xFF00CED1);
-        registerSkin(SkinTypes.REVOLVER, "m3", 0xFF696969);
-        registerSkin(SkinTypes.REVOLVER, "margas_flintlock", 0xFF8B4513);
-        registerSkin(SkinTypes.REVOLVER, "minimalist_line", 0xFF808080);
-        registerSkin(SkinTypes.REVOLVER, "nail_gun", 0xFF708090);
-        registerSkin(SkinTypes.REVOLVER, "pixel_gun", 0xFF00FF00);
-        registerSkin(SkinTypes.REVOLVER, "potato_launcher", 0xFFD2B48C);
-        registerSkin(SkinTypes.REVOLVER, "rust_lake", 0xFF8B4513);
-        registerSkin(SkinTypes.REVOLVER, "shengxuan_white", 0xFFFFFFFF);
-        registerSkin(SkinTypes.REVOLVER, "signal_gun", 0xFFFF6347);
-        registerSkin(SkinTypes.REVOLVER, "sine_wave", 0xFF808080);
-        registerSkin(SkinTypes.REVOLVER, "soul_cairn", 0xFF4B0082);
-        registerSkin(SkinTypes.REVOLVER, "stick_gun", 0xFF8B4513);
-        registerSkin(SkinTypes.REVOLVER, "time", 0xFF4169E1);
-        registerSkin(SkinTypes.REVOLVER, "uzi", 0xFF2F2F2F);
-        registerSkin(SkinTypes.REVOLVER, "water_gun", 0xFF4169E1);
-        registerSkin(SkinTypes.REVOLVER, "west_revolver", 0xFF8B7355);
-        registerSkin(SkinTypes.REVOLVER, "white_gun", 0xFFFAFAFA);
-        registerSkin(SkinTypes.REVOLVER, "wood_gun", 0xFF8B4513);
-        registerSkin(SkinTypes.REVOLVER, "woodcarving_pistol", 0xFF8B4513);
-        registerSkin(SkinTypes.REVOLVER, "carved_emperor", 0xFF8B4513);
-        registerSkin(SkinTypes.REVOLVER, "kekedi", 0xFF228B22);
+        registerSkin(SkinTypes.REVOLVER, "anshidian", QualityColor.EPIC.getColor());
+        registerSkin(SkinTypes.REVOLVER, "cannon", QualityColor.RARE.getColor());
+        registerSkin(SkinTypes.REVOLVER, "caplock_pistol", QualityColor.RARE.getColor());
+        registerSkin(SkinTypes.REVOLVER, "coal_gun", QualityColor.RARE.getColor());
+        registerSkin(SkinTypes.REVOLVER, "colt_45", QualityColor.EPIC.getColor());
+        registerSkin(SkinTypes.REVOLVER, "dragon_fractal", QualityColor.EPIC.getColor());
+        registerSkin(SkinTypes.REVOLVER, "european_long_revolver", QualityColor.EPIC.getColor());
+        registerSkin(SkinTypes.REVOLVER, "golden_gun", QualityColor.EPIC.getColor());
+        registerSkin(SkinTypes.REVOLVER, "g18", QualityColor.RARE.getColor());
+        registerSkin(SkinTypes.REVOLVER, "habilis", QualityColor.RARE.getColor());
+        registerSkin(SkinTypes.REVOLVER, "hummingbird", QualityColor.RARE.getColor());
+        registerSkin(SkinTypes.REVOLVER, "infinity", QualityColor.RARE.getColor());
+        registerSkin(SkinTypes.REVOLVER, "izumo_41_style", QualityColor.EPIC.getColor());
+        registerSkin(SkinTypes.REVOLVER, "lengcui", QualityColor.EPIC.getColor());
+        registerSkin(SkinTypes.REVOLVER, "m3", QualityColor.EPIC.getColor());
+        registerSkin(SkinTypes.REVOLVER, "margas_flintlock", QualityColor.EPIC.getColor());
+        registerSkin(SkinTypes.REVOLVER, "minimalist_line", QualityColor.RARE.getColor());
+        registerSkin(SkinTypes.REVOLVER, "nail_gun", QualityColor.RARE.getColor());
+        registerSkin(SkinTypes.REVOLVER, "pixel_gun", QualityColor.RARE.getColor());
+        registerSkin(SkinTypes.REVOLVER, "potato_launcher", QualityColor.RARE.getColor());
+        registerSkin(SkinTypes.REVOLVER, "rust_lake", QualityColor.RARE.getColor());
+        registerSkin(SkinTypes.REVOLVER, "shengxuan_white", QualityColor.RARE.getColor());
+        registerSkin(SkinTypes.REVOLVER, "signal_gun", QualityColor.UNBELIEVABLE.getColor());
+        registerSkin(SkinTypes.REVOLVER, "sine_wave", QualityColor.UNBELIEVABLE.getColor());
+        registerSkin(SkinTypes.REVOLVER, "soul_cairn", QualityColor.EPIC.getColor());
+        registerSkin(SkinTypes.REVOLVER, "stick_gun", QualityColor.RARE.getColor());
+        registerSkin(SkinTypes.REVOLVER, "time", QualityColor.RARE.getColor());
+        registerSkin(SkinTypes.REVOLVER, "uzi", QualityColor.EPIC.getColor());
+        registerSkin(SkinTypes.REVOLVER, "water_gun", QualityColor.UNBELIEVABLE.getColor());
+        registerSkin(SkinTypes.REVOLVER, "west_revolver", QualityColor.UNBELIEVABLE.getColor());
+        registerSkin(SkinTypes.REVOLVER, "white_gun", QualityColor.UNBELIEVABLE.getColor());
+        registerSkin(SkinTypes.REVOLVER, "wood_gun", QualityColor.RARE.getColor());
+        registerSkin(SkinTypes.REVOLVER, "woodcarving_pistol", QualityColor.EPIC.getColor());
+        registerSkin(SkinTypes.REVOLVER, "carved_emperor", QualityColor.EPIC.getColor());
+        registerSkin(SkinTypes.REVOLVER, "kekedi", QualityColor.EPIC.getColor());
 
         // New gun skins 2026
-        registerSkin(SkinTypes.REVOLVER, "art_tyrant", 0xFF8B0000);
-        registerSkin(SkinTypes.REVOLVER, "burn_out_sulfur", 0xFFFF4500);
-        registerSkin(SkinTypes.REVOLVER, "electrodynamics", 0xFF4169E1);
-        registerSkin(SkinTypes.REVOLVER, "qianxia", 0xFF9370DB);
+        registerSkin(SkinTypes.REVOLVER, "art_tyrant", QualityColor.RARE.getColor());
+        registerSkin(SkinTypes.REVOLVER, "burn_out_sulfur", QualityColor.RARE.getColor());
+        registerSkin(SkinTypes.REVOLVER, "electrodynamics", QualityColor.EPIC.getColor());
+        registerSkin(SkinTypes.REVOLVER, "qianxia", QualityColor.EPIC.getColor());
 
         // PVZ gun skins
-        registerSkin(SkinTypes.REVOLVER, "pvz_peashooter", 0xFF32CD32);
-        registerSkin(SkinTypes.REVOLVER, "pvz_icemelon_gun", 0xFF00CED1);
+        registerSkin(SkinTypes.REVOLVER, "pvz_peashooter", QualityColor.UNBELIEVABLE.getColor());
+        registerSkin(SkinTypes.REVOLVER, "pvz_icemelon_gun", QualityColor.UNBELIEVABLE.getColor());
 
         // Initialize grenade skins
-        registerSkin(SkinTypes.GRENADE, "big_bomb", 0xFF000000);
-        registerSkin(SkinTypes.GRENADE, "minecraft_tnt", 0xFF057200);
-
-        registerSkin(SkinTypes.GRENADE, "fire_charge", 0xFFFF4500);
-        registerSkin(SkinTypes.GRENADE, "magnetic_bomb", 0xFF0000FF);
-        registerSkin(SkinTypes.GRENADE, "mobile", 0xFF00CED1);
-        registerSkin(SkinTypes.GRENADE, "phone", 0xFF00FF7F);
-        registerSkin(SkinTypes.GRENADE, "gas_cylinder", 0xFF808080);
+        registerSkin(SkinTypes.GRENADE, "big_bomb", QualityColor.COMMON.getColor());
+        registerSkin(SkinTypes.GRENADE, "minecraft_tnt", QualityColor.COMMON.getColor());
+        registerSkin(SkinTypes.GRENADE, "fire_charge", QualityColor.UNCOMMON.getColor());
+        registerSkin(SkinTypes.GRENADE, "magnetic_bomb", QualityColor.EPIC.getColor());
+        registerSkin(SkinTypes.GRENADE, "mobile", QualityColor.EPIC.getColor());
+        registerSkin(SkinTypes.GRENADE, "phone", QualityColor.UNCOMMON.getColor());
+        registerSkin(SkinTypes.GRENADE, "gas_cylinder", QualityColor.RARE.getColor());
 
         // New grenade skins
-        registerSkin(SkinTypes.GRENADE, "bottled_flame", 0xFFFF6347);
-        registerSkin(SkinTypes.GRENADE, "brown_substance", 0xFF8B4513);
-        registerSkin(SkinTypes.GRENADE, "coordinate_system", 0xFF4169E1);
-        registerSkin(SkinTypes.GRENADE, "detonator", 0xFFFF0000);
-        registerSkin(SkinTypes.GRENADE, "exponential_explosion", 0xFFFFA500);
-        registerSkin(SkinTypes.GRENADE, "flying_knife_grenade", 0xFF808080);
-        registerSkin(SkinTypes.GRENADE, "fragmentation_grenade", 0xFF2F4F4F);
-        registerSkin(SkinTypes.GRENADE, "king_ball", 0xFFFFD700);
-        registerSkin(SkinTypes.GRENADE, "markov_chain", 0xFF4682B4);
-        registerSkin(SkinTypes.GRENADE, "mini_nuke", 0xFFFF4500);
-        registerSkin(SkinTypes.GRENADE, "naval_mine", 0xFF2F4F4F);
-        registerSkin(SkinTypes.GRENADE, "nugrenade", 0xFF00FF7F);
-        registerSkin(SkinTypes.GRENADE, "o_god_grenade", 0xFFFFD700);
-        registerSkin(SkinTypes.GRENADE, "pisces", 0xFF1E90FF);
-        registerSkin(SkinTypes.GRENADE, "rainbow_crepper_grenade", 0xFFFFFFFF);
-        registerSkin(SkinTypes.GRENADE, "rainbow_fireworks", 0xFFFFFFFF);
-        registerSkin(SkinTypes.GRENADE, "rocket", 0xFFDC143C);
-        registerSkin(SkinTypes.GRENADE, "scorpio", 0xFF8B0000);
-        registerSkin(SkinTypes.GRENADE, "shiguimian", 0xFF696969);
-        registerSkin(SkinTypes.GRENADE, "submunition_mine", 0xFF4682B4);
-        registerSkin(SkinTypes.GRENADE, "tnt", 0xFF8B0000);
+        registerSkin(SkinTypes.GRENADE, "bottled_flame", QualityColor.UNCOMMON.getColor());
+        registerSkin(SkinTypes.GRENADE, "brown_substance", QualityColor.RARE.getColor());
+        registerSkin(SkinTypes.GRENADE, "coordinate_system", QualityColor.LEGENDARY.getColor());
+        registerSkin(SkinTypes.GRENADE, "detonator", QualityColor.RARE.getColor());
+        registerSkin(SkinTypes.GRENADE, "exponential_explosion", QualityColor.LEGENDARY.getColor());
+        registerSkin(SkinTypes.GRENADE, "flying_knife_grenade", QualityColor.RARE.getColor());
+        registerSkin(SkinTypes.GRENADE, "fragmentation_grenade", QualityColor.RARE.getColor());
+        registerSkin(SkinTypes.GRENADE, "king_ball", QualityColor.UNBELIEVABLE.getColor());
+        registerSkin(SkinTypes.GRENADE, "markov_chain", QualityColor.LEGENDARY.getColor());
+        registerSkin(SkinTypes.GRENADE, "mini_nuke", QualityColor.EPIC.getColor());
+        registerSkin(SkinTypes.GRENADE, "naval_mine", QualityColor.EPIC.getColor());
+        registerSkin(SkinTypes.GRENADE, "nugrenade", QualityColor.EPIC.getColor());
+        registerSkin(SkinTypes.GRENADE, "o_god_grenade", QualityColor.LEGENDARY.getColor());
+        registerSkin(SkinTypes.GRENADE, "pisces", QualityColor.EPIC.getColor());
+        registerSkin(SkinTypes.GRENADE, "rainbow_crepper_grenade", QualityColor.UNBELIEVABLE.getColor());
+        registerSkin(SkinTypes.GRENADE, "rainbow_fireworks", QualityColor.EPIC.getColor());
+        registerSkin(SkinTypes.GRENADE, "rocket", QualityColor.UNBELIEVABLE.getColor());
+        registerSkin(SkinTypes.GRENADE, "scorpio", QualityColor.UNBELIEVABLE.getColor());
+        registerSkin(SkinTypes.GRENADE, "shiguimian", QualityColor.LEGENDARY.getColor());
+        registerSkin(SkinTypes.GRENADE, "submunition_mine", QualityColor.EPIC.getColor());
+        registerSkin(SkinTypes.GRENADE, "tnt", QualityColor.COMMON.getColor());
 
         // New grenade skins 2026
-        registerSkin(SkinTypes.GRENADE, "lemon_grenade", 0xFFFFFF00);
-        registerSkin(SkinTypes.GRENADE, "molotov_cocktail", 0xFFFF8C00);
-        registerSkin(SkinTypes.GRENADE, "null_grenade", 0xFF000000);
-        registerSkin(SkinTypes.GRENADE, "poop", 0xFF8B4513);
-        registerSkin(SkinTypes.GRENADE, "rock", 0xFF696969);
-        registerSkin(SkinTypes.GRENADE, "voice_star", 0xFFFF69B4);
+        registerSkin(SkinTypes.GRENADE, "lemon_grenade", QualityColor.RARE.getColor());
+        registerSkin(SkinTypes.GRENADE, "molotov_cocktail", QualityColor.RARE.getColor());
+        registerSkin(SkinTypes.GRENADE, "null_grenade", QualityColor.EPIC.getColor());
+        registerSkin(SkinTypes.GRENADE, "poop", QualityColor.RARE.getColor());
+        registerSkin(SkinTypes.GRENADE, "rock", QualityColor.EPIC.getColor());
+        registerSkin(SkinTypes.GRENADE, "voice_star", QualityColor.EPIC.getColor());
 
         // PVZ grenade skins
-        registerSkin(SkinTypes.GRENADE, "pvz_cherrybomb", 0xFFFF0000);
-        registerSkin(SkinTypes.GRENADE, "pvz_destruction_mushrooms", 0xFF8B0000);
-        registerSkin(SkinTypes.GRENADE, "pvz_jalapeno", 0xFFFF4500);
-        registerSkin(SkinTypes.GRENADE, "pvz_joke_box", 0xFFDEB887);
+        registerSkin(SkinTypes.GRENADE, "pvz_cherrybomb", QualityColor.EPIC.getColor());
+        registerSkin(SkinTypes.GRENADE, "pvz_destruction_mushrooms", QualityColor.EPIC.getColor());
+        registerSkin(SkinTypes.GRENADE, "pvz_jalapeno", QualityColor.LEGENDARY.getColor());
+        registerSkin(SkinTypes.GRENADE, "pvz_joke_box", QualityColor.LEGENDARY.getColor());
 
         // New grenade skins 2026
-        registerSkin(SkinTypes.GRENADE, "slime_redstone_torch", 0xFFFF6600);
+        registerSkin(SkinTypes.GRENADE, "slime_redstone_torch", QualityColor.RARE.getColor());
 
         // Initialize bat skins
-        registerSkin(SkinTypes.BAT, "bread", 0xFFF5DEB3);
-        registerSkin(SkinTypes.BAT, "red_axe", 0xFFDC143C);
-        registerSkin(SkinTypes.BAT, "steel_tube", 0xFF4682B4);
-        registerSkin(SkinTypes.BAT, "wolfteeth_mace", 0xFF708090);
+        registerSkin(SkinTypes.BAT, "bread", QualityColor.LEGENDARY.getColor());
+        registerSkin(SkinTypes.BAT, "red_axe", QualityColor.UNCOMMON.getColor());
+        registerSkin(SkinTypes.BAT, "steel_tube", QualityColor.EPIC.getColor());
+        registerSkin(SkinTypes.BAT, "wolfteeth_mace", QualityColor.EPIC.getColor());
 
         // New bat skins
-        registerSkin(SkinTypes.BAT, "astral_defense", 0xFF9370DB);
-        registerSkin(SkinTypes.BAT, "advanced_crowbar", 0xFF696969);
-        registerSkin(SkinTypes.BAT, "anvil", 0xFF2F2F2F);
-        registerSkin(SkinTypes.BAT, "bamboo_bat", 0xFF8FBC8F);
-        registerSkin(SkinTypes.BAT, "bamboo", 0xFF9ACD32);
-        registerSkin(SkinTypes.BAT, "baseball_bat", 0xFF8B4513);
-        registerSkin(SkinTypes.BAT, "battlesign", 0xFFB22222);
-        registerSkin(SkinTypes.BAT, "between_limits", 0xFF808080);
-        registerSkin(SkinTypes.BAT, "blood_bat", 0xFF8B0000);
-        registerSkin(SkinTypes.BAT, "composite_club", 0xFF8B4513);
-        registerSkin(SkinTypes.BAT, "cylinder", 0xFF708090);
-        registerSkin(SkinTypes.BAT, "diamond_pickaxe", 0xFF4AE4FF);
-        registerSkin(SkinTypes.BAT, "fried_legs", 0xFFD2691E);
-        registerSkin(SkinTypes.BAT, "hammer", 0xFF696969);
-        registerSkin(SkinTypes.BAT, "huaqiangbei", 0xFF00CED1);
-        registerSkin(SkinTypes.BAT, "ice_bat", 0xFFADD8E6);
-        registerSkin(SkinTypes.BAT, "iron_hammer", 0xFF808080);
-        registerSkin(SkinTypes.BAT, "ore_pickaxe", 0xFF4682B4);
-        registerSkin(SkinTypes.BAT, "pipe", 0xFF708090);
-        registerSkin(SkinTypes.BAT, "plasma_axe", 0xFF00CED1);
-        registerSkin(SkinTypes.BAT, "road_roller", 0xFF2F4F4F);
-        registerSkin(SkinTypes.BAT, "sfa", 0xFF696969);
-        registerSkin(SkinTypes.BAT, "slippers", 0xFFFFE4C4);
-        registerSkin(SkinTypes.BAT, "wrench", 0xFF708090);
+        registerSkin(SkinTypes.BAT, "astral_defense", QualityColor.EPIC.getColor());
+        registerSkin(SkinTypes.BAT, "advanced_crowbar", QualityColor.EPIC.getColor());
+        registerSkin(SkinTypes.BAT, "anvil", QualityColor.UNCOMMON.getColor());
+        registerSkin(SkinTypes.BAT, "bamboo_bat", QualityColor.RARE.getColor());
+        registerSkin(SkinTypes.BAT, "bamboo", QualityColor.COMMON.getColor());
+        registerSkin(SkinTypes.BAT, "baseball_bat", QualityColor.COMMON.getColor());
+        registerSkin(SkinTypes.BAT, "battlesign", QualityColor.RARE.getColor());
+        registerSkin(SkinTypes.BAT, "between_limits", QualityColor.LEGENDARY.getColor());
+        registerSkin(SkinTypes.BAT, "blood_bat", QualityColor.EPIC.getColor());
+        registerSkin(SkinTypes.BAT, "composite_club", QualityColor.EPIC.getColor());
+        registerSkin(SkinTypes.BAT, "cylinder", QualityColor.RARE.getColor());
+        registerSkin(SkinTypes.BAT, "diamond_pickaxe", QualityColor.EPIC.getColor());
+        registerSkin(SkinTypes.BAT, "fried_legs", QualityColor.EPIC.getColor());
+        registerSkin(SkinTypes.BAT, "hammer", QualityColor.UNCOMMON.getColor());
+        registerSkin(SkinTypes.BAT, "huaqiangbei", QualityColor.LEGENDARY.getColor());
+        registerSkin(SkinTypes.BAT, "ice_bat", QualityColor.LEGENDARY.getColor());
+        registerSkin(SkinTypes.BAT, "iron_hammer", QualityColor.EPIC.getColor());
+        registerSkin(SkinTypes.BAT, "ore_pickaxe", QualityColor.RARE.getColor());
+        registerSkin(SkinTypes.BAT, "pipe", QualityColor.UNCOMMON.getColor());
+        registerSkin(SkinTypes.BAT, "plasma_axe", QualityColor.UNBELIEVABLE.getColor());
+        registerSkin(SkinTypes.BAT, "road_roller", QualityColor.UNBELIEVABLE.getColor());
+        registerSkin(SkinTypes.BAT, "sfa", QualityColor.LEGENDARY.getColor());
+        registerSkin(SkinTypes.BAT, "slippers", QualityColor.UNBELIEVABLE.getColor());
+        registerSkin(SkinTypes.BAT, "wrench", QualityColor.UNCOMMON.getColor());
 
         // New bat skins 2026
-        registerSkin(SkinTypes.BAT, "guitar", 0xFFFFD700);
+        registerSkin(SkinTypes.BAT, "guitar", QualityColor.LEGENDARY.getColor());
 
         // PVZ bat skins
-        registerSkin(SkinTypes.BAT, "pvz_newspaper", 0xFFF5DEB3);
-        registerSkin(SkinTypes.BAT, "pvz_tall_peanut", 0xFF8B4513);
-        registerSkin(SkinTypes.BAT, "pvz_wire_pole", 0xFF696969);
-        registerSkin(SkinTypes.BAT, "pvz_zombie_bat", 0xFF8B4513);
-        registerSkin(SkinTypes.BAT, "pvz_zombie_skin_bat", 0xFF556B2F);
+        registerSkin(SkinTypes.BAT, "pvz_newspaper", QualityColor.UNBELIEVABLE.getColor());
+        registerSkin(SkinTypes.BAT, "pvz_tall_peanut", QualityColor.LEGENDARY.getColor());
+        registerSkin(SkinTypes.BAT, "pvz_wire_pole", QualityColor.LEGENDARY.getColor());
+        registerSkin(SkinTypes.BAT, "pvz_zombie_bat", QualityColor.LEGENDARY.getColor());
+        registerSkin(SkinTypes.BAT, "pvz_zombie_skin_bat", QualityColor.UNBELIEVABLE.getColor());
     }
 
     public static ResourceLocation getResourceLocationOfItem(Item item) {
