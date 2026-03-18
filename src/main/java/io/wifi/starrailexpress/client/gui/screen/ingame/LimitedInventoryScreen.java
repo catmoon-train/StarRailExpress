@@ -5,11 +5,13 @@ import io.wifi.starrailexpress.client.gui.StoreRenderer;
 import io.wifi.starrailexpress.game.ShopContent;
 import io.wifi.starrailexpress.network.original.StoreBuyPayload;
 import io.wifi.starrailexpress.util.ShopEntry;
+import io.wifi.ConfigCompact.ui.SettingMenuScreen;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.SRERole;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -24,8 +26,13 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.InventoryMenu;
 
+import org.agmas.noellesroles.client.screen.GuessRoleScreen;
+import org.agmas.noellesroles.client.screen.RoleIntroduceScreen;
 import org.jetbrains.annotations.NotNull;
 
+import com.terraformersmc.modmenu.api.ModMenuApi;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Environment(EnvType.CLIENT)
@@ -40,6 +47,25 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
     public LimitedInventoryScreen(@NotNull LocalPlayer player) {
         super(player.inventoryMenu, player.getInventory(), Component.empty());
         this.player = player;
+    }
+
+    public Button menuButton = null;
+    public static final int menuButtonHeight = 20;
+    public static final int menuButtonWidth = 100;
+    public ArrayList<Button> menuSelections = new ArrayList<>();
+    public boolean isMenuOpen = false;
+
+    public void toggleViewMenu(boolean flag) {
+        this.isMenuOpen = flag;
+        menuButton.setMessage(
+                Component.translatable("screen.limited_inventory.button.menu." + (!isMenuOpen ? "show" : "hide")));
+
+        {
+            for (var ms : menuSelections) {
+                ms.visible = this.isMenuOpen;
+                ms.active = this.isMenuOpen;
+            }
+        }
     }
 
     @Override
@@ -63,6 +89,82 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
         }
         for (int i = 0; i < entries.size(); i++) {
             this.addRenderableWidget(new StoreItemWidget(this, x + apart * i, y, entries.get(i), i));
+        }
+        initMenuSelections();
+    }
+
+    public void initMenuSelections() {
+
+        menuButton = Button.builder(Component.translatable("screen.limited_inventory.button.menu"), (btn) -> {
+            toggleViewMenu(!this.isMenuOpen);
+        }).bounds(width - menuButtonWidth, height - menuButtonHeight, menuButtonWidth, menuButtonHeight).build();
+        addRenderableWidget(menuButton);
+
+        this.menuSelections.clear();
+        {
+            int startY = height - menuButtonHeight;
+            // 添加菜单按钮
+            {
+                // 职业介绍
+                var btn1 = Button
+                        .builder(Component.translatable("screen.limited_inventory.menu.introduction"), (btn) -> {
+                            var screen = new RoleIntroduceScreen(this);
+                            this.minecraft.setScreen(screen);
+                            toggleViewMenu(false);
+                        }).bounds(width - menuButtonWidth, startY - menuButtonHeight, menuButtonWidth, menuButtonHeight)
+                        .build();
+                this.menuSelections.add(btn1);
+                startY -= menuButtonHeight;
+            }
+            {
+                // 职业猜测
+                var btn1 = Button
+                        .builder(Component.translatable("screen.limited_inventory.menu.role_guess"), (btn) -> {
+                            var screen = new GuessRoleScreen(this);
+                            this.minecraft.setScreen(screen);
+                            toggleViewMenu(false);
+                        }).bounds(width - menuButtonWidth, startY - menuButtonHeight, menuButtonWidth, menuButtonHeight)
+                        .build();
+                this.menuSelections.add(btn1);
+                startY -= menuButtonHeight;
+            }
+            {
+                // modmenu
+                var btn1 = Button
+                        .builder(Component.translatable("screen.limited_inventory.menu.modmenu_settings"), (btn) -> {
+                            if (FabricLoader.getInstance().isModLoaded("modmenu"))
+                                this.minecraft.setScreen(ModMenuApi.createModsScreen(this));
+                            toggleViewMenu(false);
+                        }).bounds(width - menuButtonWidth, startY - menuButtonHeight, menuButtonWidth, menuButtonHeight)
+                        .build();
+                this.menuSelections.add(btn1);
+                startY -= menuButtonHeight;
+            }
+            if (this.minecraft.player.hasPermissions(2)) {
+                // mod_settings
+                var btn1 = Button
+                        .builder(Component.translatable("screen.limited_inventory.menu.mod_settings"), (btn) -> {
+                            var screen = new SettingMenuScreen(this);
+                            this.minecraft.setScreen(screen);
+                            toggleViewMenu(false);
+                        }).bounds(width - menuButtonWidth, startY - menuButtonHeight, menuButtonWidth, menuButtonHeight)
+                        .build();
+                this.menuSelections.add(btn1);
+                startY -= menuButtonHeight;
+            }
+            if (this.minecraft.player.hasPermissions(2)) {
+                // game_menu
+                var btn1 = Button
+                        .builder(Component.translatable("screen.limited_inventory.menu.game_menu"), (btn) -> {
+                            // var screen = new RoleIntroduceScreen(this);
+                            // this.minecraft.setScreen(screen);
+                            // 待做
+                            toggleViewMenu(false);
+                        }).bounds(width - menuButtonWidth, startY - menuButtonHeight, menuButtonWidth, menuButtonHeight)
+                        .build();
+                this.menuSelections.add(btn1);
+                startY -= menuButtonHeight;
+            }
         }
     }
 

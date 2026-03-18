@@ -29,6 +29,7 @@ import java.util.UUID;
  */
 public class GuessRoleScreen extends Screen {
 
+    public Screen parent = null;
     // 静态存储猜测记录，游戏结束时清除
     public static Map<UUID, String> guessedRoles = new HashMap<>();
     public static ArrayList<PlayerInfo> allPlayers = new ArrayList<net.minecraft.client.multiplayer.PlayerInfo>();
@@ -81,6 +82,11 @@ public class GuessRoleScreen extends Screen {
 
     }
 
+    public GuessRoleScreen(Screen parent) {
+        this();
+        this.parent = parent;
+    }
+
     @Override
     protected void init() {
         super.init();
@@ -97,6 +103,10 @@ public class GuessRoleScreen extends Screen {
         }
     }
 
+    @Override
+    public void onClose(){
+        this.minecraft.setScreen(parent);
+    }
     /**
      * 选择阶段：搜索职业
      */

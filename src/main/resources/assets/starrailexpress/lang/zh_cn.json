@@ -804,5 +804,12 @@
   "menu.sre.mod_config": "模组设置",
   "menu.sre.role_introduction": "职业介绍",
   "menu.sre.feedback": "反馈BUG",
-  "menu.sre.quit": "退出游戏"
+  "menu.sre.quit": "退出游戏",
+  "screen.limited_inventory.button.menu.show": "便捷菜单",
+  "screen.limited_inventory.button.menu.hide": "隐藏菜单",
+  "screen.limited_inventory.menu.introduction": "职业介绍",
+  "screen.limited_inventory.menu.role_guess": "职业猜测记事本",
+  "screen.limited_inventory.menu.modmenu_settings": "所有模组设置",
+  "screen.limited_inventory.menu.mod_settings": "列车模组设置（管理员）",
+  "screen.limited_inventory.menu.game_menu": "游戏菜单（管理员）"
 }
