@@ -4,14 +4,17 @@ import dev.doctor4t.ratatouille.util.registrar.BlockRegistrar;
 import io.wifi.starrailexpress.block.*;
 import io.wifi.starrailexpress.index.TMMProperties;
 import io.wifi.starrailexpress.index.TMMSounds;
+import io.wifi.starrailexpress.util.BlockSettingsAdditions;
 import io.wifi.starrailexpress.SRE;
 import net.fabricmc.fabric.api.object.builder.v1.block.type.BlockSetTypeBuilder;
 import net.fabricmc.fabric.api.registry.FlammableBlockRegistry;
 
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.BlockFamily;
+import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.level.block.BedBlock;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Rarity;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DoorBlock;
@@ -33,47 +36,16 @@ import java.util.function.ToIntFunction;
 @SuppressWarnings("unchecked")
 public interface WatheBridgerBlocks {
     BlockRegistrar registrar = new BlockRegistrar(SRE.WATHE_MOD_ID);
-    // FAKE BLOCKS WITH BLOCK ENTITIES WHOSE DEFAULT CODE WILL CRASH
-    Block FAKE_STAINLESS_STEEL_SPRINKLER = registrar.createWithItem(
-            "stainless_steel_sprinkler",
-            new Block(BlockBehaviour.Properties.of().strength(0.5f).noOcclusion().sound(SoundType.LANTERN)),
-            WatheBridgerItems.BUILDING_GROUP);
 
-    Block FAKE_GOLD_SPRINKLER = registrar.createWithItem(
-            "gold_sprinkler", new Block(BlockBehaviour.Properties.ofFullCopy(FAKE_STAINLESS_STEEL_SPRINKLER)),
-            WatheBridgerItems.BUILDING_GROUP);
-    // Platters
-
-    Block CHIMNEY = registrar.createWithItem("chimney",
-            new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.BEDROCK).noCollission()),
-            WatheBridgerItems.DECORATION_GROUP);
-    Block FOOD_PLATTER = registrar.createWithItem("food_platter", new Block(
-            BlockBehaviour.Properties.ofFullCopy(Blocks.WHITE_GLAZED_TERRACOTTA)
-                    .noOcclusion()
-                    .sound(SoundType.COPPER)
-                    .instabreak()
-                    .noCollission()),
-            WatheBridgerItems.DECORATION_GROUP);
-    Block DRINK_TRAY = registrar.createWithItem("drink_tray", new Block(
-            BlockBehaviour.Properties.ofFullCopy(Blocks.WHITE_GLAZED_TERRACOTTA)
-                    .noOcclusion()
-                    .sound(SoundType.CHERRY_WOOD)
-                    .instabreak()),
-            WatheBridgerItems.DECORATION_GROUP);
     // Metallic blocks
-    Block TARNISHED_GOLD = registrar
-            .createWithItem("tarnished_gold",
-                    new Block(BlockBehaviour.Properties.of().strength(-1.0f, 3600000.0f)
-                            .sound(SoundType.NETHERITE_BLOCK)),
-                    WatheBridgerItems.BUILDING_GROUP);
-
+    Block TARNISHED_GOLD = registrar.createWithItem("tarnished_gold",
+            new Block(BlockBehaviour.Properties.of().strength(-1.0f, 3600000.0f).sound(SoundType.NETHERITE_BLOCK)),
+            WatheBridgerItems.BUILDING_GROUP);
     Block TARNISHED_GOLD_STAIRS = registrar.createWithItem("tarnished_gold_stairs",
-            new StairBlock(TARNISHED_GOLD.defaultBlockState(),
-                    BlockBehaviour.Properties.ofFullCopy(TARNISHED_GOLD)),
+            new StairBlock(TARNISHED_GOLD.defaultBlockState(), BlockBehaviour.Properties.ofFullCopy(TARNISHED_GOLD)),
             WatheBridgerItems.BUILDING_GROUP);
     Block TARNISHED_GOLD_SLAB = registrar.createWithItem("tarnished_gold_slab",
-            new SlabBlock(BlockBehaviour.Properties.ofFullCopy(TARNISHED_GOLD)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new SlabBlock(BlockBehaviour.Properties.ofFullCopy(TARNISHED_GOLD)), WatheBridgerItems.BUILDING_GROUP);
     Block TARNISHED_GOLD_WALL = registrar.createWithItem("tarnished_gold_wall",
             new WallBlock(BlockBehaviour.Properties.ofFullCopy(TARNISHED_GOLD).forceSolidOn()),
             WatheBridgerItems.BUILDING_GROUP);
@@ -85,24 +57,19 @@ public interface WatheBridgerBlocks {
     Block GOLD_STAIRS = registrar.createWithItem("gold_stairs",
             new StairBlock(GOLD.defaultBlockState(), BlockBehaviour.Properties.ofFullCopy(GOLD)),
             WatheBridgerItems.BUILDING_GROUP);
-    Block GOLD_SLAB = registrar.createWithItem("gold_slab",
-            new SlabBlock(BlockBehaviour.Properties.ofFullCopy(GOLD)), WatheBridgerItems.BUILDING_GROUP);
+    Block GOLD_SLAB = registrar.createWithItem("gold_slab", new SlabBlock(BlockBehaviour.Properties.ofFullCopy(GOLD)),
+            WatheBridgerItems.BUILDING_GROUP);
     Block GOLD_WALL = registrar.createWithItem("gold_wall",
-            new WallBlock(BlockBehaviour.Properties.ofFullCopy(GOLD).forceSolidOn()),
-            WatheBridgerItems.BUILDING_GROUP);
+            new WallBlock(BlockBehaviour.Properties.ofFullCopy(GOLD).forceSolidOn()), WatheBridgerItems.BUILDING_GROUP);
     Block GOLD_PILLAR = registrar.createWithItem("gold_pillar",
-            new RotatedPillarBlock(BlockBehaviour.Properties.ofFullCopy(GOLD)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new RotatedPillarBlock(BlockBehaviour.Properties.ofFullCopy(GOLD)), WatheBridgerItems.BUILDING_GROUP);
     Block PRISTINE_GOLD = registrar.createWithItem("pristine_gold",
-            new Block(BlockBehaviour.Properties.ofFullCopy(TARNISHED_GOLD)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new Block(BlockBehaviour.Properties.ofFullCopy(TARNISHED_GOLD)), WatheBridgerItems.BUILDING_GROUP);
     Block PRISTINE_GOLD_STAIRS = registrar.createWithItem("pristine_gold_stairs",
-            new StairBlock(PRISTINE_GOLD.defaultBlockState(),
-                    BlockBehaviour.Properties.ofFullCopy(PRISTINE_GOLD)),
+            new StairBlock(PRISTINE_GOLD.defaultBlockState(), BlockBehaviour.Properties.ofFullCopy(PRISTINE_GOLD)),
             WatheBridgerItems.BUILDING_GROUP);
     Block PRISTINE_GOLD_SLAB = registrar.createWithItem("pristine_gold_slab",
-            new SlabBlock(BlockBehaviour.Properties.ofFullCopy(PRISTINE_GOLD)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new SlabBlock(BlockBehaviour.Properties.ofFullCopy(PRISTINE_GOLD)), WatheBridgerItems.BUILDING_GROUP);
     Block PRISTINE_GOLD_WALL = registrar.createWithItem("pristine_gold_wall",
             new WallBlock(BlockBehaviour.Properties.ofFullCopy(PRISTINE_GOLD).forceSolidOn()),
             WatheBridgerItems.BUILDING_GROUP);
@@ -113,12 +80,10 @@ public interface WatheBridgerBlocks {
             new Block(BlockBehaviour.Properties.ofFullCopy(TARNISHED_GOLD).mapColor(MapColor.SNOW)),
             WatheBridgerItems.BUILDING_GROUP);
     Block WHITE_HULL_STAIRS = registrar.createWithItem("white_hull_stairs",
-            new StairBlock(WHITE_HULL.defaultBlockState(),
-                    BlockBehaviour.Properties.ofFullCopy(WHITE_HULL)),
+            new StairBlock(WHITE_HULL.defaultBlockState(), BlockBehaviour.Properties.ofFullCopy(WHITE_HULL)),
             WatheBridgerItems.BUILDING_GROUP);
     Block WHITE_HULL_SLAB = registrar.createWithItem("white_hull_slab",
-            new SlabBlock(BlockBehaviour.Properties.ofFullCopy(WHITE_HULL)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new SlabBlock(BlockBehaviour.Properties.ofFullCopy(WHITE_HULL)), WatheBridgerItems.BUILDING_GROUP);
     Block WHITE_HULL_WALL = registrar.createWithItem("white_hull_wall",
             new WallBlock(BlockBehaviour.Properties.ofFullCopy(WHITE_HULL).forceSolidOn()),
             WatheBridgerItems.BUILDING_GROUP);
@@ -129,12 +94,10 @@ public interface WatheBridgerBlocks {
             new Block(BlockBehaviour.Properties.ofFullCopy(WHITE_HULL).mapColor(MapColor.COLOR_BLACK)),
             WatheBridgerItems.BUILDING_GROUP);
     Block BLACK_HULL_STAIRS = registrar.createWithItem("black_hull_stairs",
-            new StairBlock(BLACK_HULL.defaultBlockState(),
-                    BlockBehaviour.Properties.ofFullCopy(BLACK_HULL)),
+            new StairBlock(BLACK_HULL.defaultBlockState(), BlockBehaviour.Properties.ofFullCopy(BLACK_HULL)),
             WatheBridgerItems.BUILDING_GROUP);
     Block BLACK_HULL_SLAB = registrar.createWithItem("black_hull_slab",
-            new SlabBlock(BlockBehaviour.Properties.ofFullCopy(BLACK_HULL)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new SlabBlock(BlockBehaviour.Properties.ofFullCopy(BLACK_HULL)), WatheBridgerItems.BUILDING_GROUP);
     Block BLACK_HULL_WALL = registrar.createWithItem("black_hull_wall",
             new WallBlock(BlockBehaviour.Properties.ofFullCopy(BLACK_HULL).forceSolidOn()),
             WatheBridgerItems.BUILDING_GROUP);
@@ -148,60 +111,54 @@ public interface WatheBridgerBlocks {
                     BlockBehaviour.Properties.ofFullCopy(BLACK_HULL_SHEETS)),
             WatheBridgerItems.BUILDING_GROUP);
     Block BLACK_HULL_SHEET_SLAB = registrar.createWithItem("black_hull_sheet_slab",
-            new SlabBlock(BlockBehaviour.Properties.ofFullCopy(BLACK_HULL_SHEETS)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new SlabBlock(BlockBehaviour.Properties.ofFullCopy(BLACK_HULL_SHEETS)), WatheBridgerItems.BUILDING_GROUP);
     Block BLACK_HULL_SHEET_WALL = registrar.createWithItem("black_hull_sheet_wall",
             new WallBlock(BlockBehaviour.Properties.ofFullCopy(BLACK_HULL_SHEETS).forceSolidOn()),
             WatheBridgerItems.BUILDING_GROUP);
     Block GOLD_BAR = registrar.createWithItem("gold_bar",
             new BarBlock(BlockBehaviour.Properties.ofFullCopy(TARNISHED_GOLD).noOcclusion().strength(0.5f)),
             WatheBridgerItems.DECORATION_GROUP);
-    Block GOLD_LEDGE = registrar
-            .createWithItem("gold_ledge",
-                    new LedgeBlock(BlockBehaviour.Properties.ofFullCopy(TARNISHED_GOLD)
-                            .noOcclusion().strength(0.5f).dynamicShape()),
-                    WatheBridgerItems.DECORATION_GROUP);
+    Block GOLD_LEDGE = registrar.createWithItem("gold_ledge",
+            new LedgeBlock(
+                    BlockBehaviour.Properties.ofFullCopy(TARNISHED_GOLD).noOcclusion().strength(0.5f).dynamicShape()),
+            WatheBridgerItems.DECORATION_GROUP);
     Block METAL_SHEET = registrar.createWithItem("metal_sheet",
             new Block(BlockBehaviour.Properties.of().strength(2f).sound(SoundType.COPPER)),
             WatheBridgerItems.BUILDING_GROUP);
     Block METAL_SHEET_STAIRS = registrar.createWithItem("metal_sheet_stairs",
-            new StairBlock(METAL_SHEET.defaultBlockState(),
-                    BlockBehaviour.Properties.ofFullCopy(METAL_SHEET)),
+            new StairBlock(METAL_SHEET.defaultBlockState(), BlockBehaviour.Properties.ofFullCopy(METAL_SHEET)),
             WatheBridgerItems.BUILDING_GROUP);
     Block METAL_SHEET_SLAB = registrar.createWithItem("metal_sheet_slab",
-            new SlabBlock(BlockBehaviour.Properties.ofFullCopy(METAL_SHEET)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new SlabBlock(BlockBehaviour.Properties.ofFullCopy(METAL_SHEET)), WatheBridgerItems.BUILDING_GROUP);
     Block METAL_SHEET_WALL = registrar.createWithItem("metal_sheet_wall",
             new WallBlock(BlockBehaviour.Properties.ofFullCopy(METAL_SHEET).forceSolidOn()),
             WatheBridgerItems.BUILDING_GROUP);
-    Block METAL_SHEET_WALKWAY = registrar.createWithItem(
-            "metal_sheet_walkway", new WalkwayBlock(BlockBehaviour.Properties.ofFullCopy(METAL_SHEET)
-                    .sound(SoundType.COPPER_GRATE).noOcclusion()),
+    Block METAL_SHEET_WALKWAY = registrar.createWithItem("metal_sheet_walkway",
+            new WalkwayBlock(
+                    BlockBehaviour.Properties.ofFullCopy(METAL_SHEET).sound(SoundType.COPPER_GRATE).noOcclusion()),
             WatheBridgerItems.BUILDING_GROUP);
-    Block METAL_SHEET_DOOR = registrar.createWithItem("metal_sheet_door", new DoorBlock(SetType.METAL_SHEET,
-            BlockBehaviour.Properties.of().requiresCorrectToolForDrops().strength(5.0F).noOcclusion()
-                    .sound(SoundType.COPPER).pushReaction(PushReaction.DESTROY)),
+    Block METAL_SHEET_DOOR = registrar.createWithItem("metal_sheet_door",
+            new DoorBlock(SetType.METAL_SHEET,
+                    BlockBehaviour.Properties.of().requiresCorrectToolForDrops().strength(5.0F).noOcclusion()
+                            .sound(SoundType.COPPER).pushReaction(PushReaction.DESTROY)),
             WatheBridgerItems.BUILDING_GROUP);
     Block COCKPIT_DOOR = registrar.createWithItem("cockpit_door",
             new DoorBlock(SetType.METAL_SHEET, BlockBehaviour.Properties.ofFullCopy(METAL_SHEET_DOOR)),
             WatheBridgerItems.BUILDING_GROUP);
-    Block STAINLESS_STEEL = registrar.createWithItem(
-            "stainless_steel", new Block(BlockBehaviour.Properties.of().strength(-1.0f, 3600000.0f)
-                    .sound(SoundType.COPPER).requiresCorrectToolForDrops()),
+    Block STAINLESS_STEEL = registrar.createWithItem("stainless_steel", new Block(BlockBehaviour.Properties.of()
+            .strength(-1.0f, 3600000.0f).sound(SoundType.COPPER).requiresCorrectToolForDrops()),
             WatheBridgerItems.BUILDING_GROUP);
     Block STAINLESS_STEEL_STAIRS = registrar.createWithItem("stainless_steel_stairs",
-            new StairBlock(STAINLESS_STEEL.defaultBlockState(),
-                    BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)),
+            new StairBlock(STAINLESS_STEEL.defaultBlockState(), BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)),
             WatheBridgerItems.BUILDING_GROUP);
     Block STAINLESS_STEEL_SLAB = registrar.createWithItem("stainless_steel_slab",
-            new SlabBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new SlabBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)), WatheBridgerItems.BUILDING_GROUP);
     Block STAINLESS_STEEL_WALL = registrar.createWithItem("stainless_steel_wall",
             new WallBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL).forceSolidOn()),
             WatheBridgerItems.BUILDING_GROUP);
     Block STAINLESS_STEEL_WALKWAY = registrar.createWithItem("stainless_steel_walkway",
-            new WalkwayBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)
-                    .sound(SoundType.COPPER_GRATE).noOcclusion()),
+            new WalkwayBlock(
+                    BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL).sound(SoundType.COPPER_GRATE).noOcclusion()),
             WatheBridgerItems.BUILDING_GROUP);
     Block STAINLESS_STEEL_BRANCH = createBranch("stainless_steel_branch", WatheBridgerBlocks.STAINLESS_STEEL,
             registrar);
@@ -209,28 +166,24 @@ public interface WatheBridgerBlocks {
             new RotatedPillarBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)),
             WatheBridgerItems.BUILDING_GROUP);
     Block DARK_STEEL = registrar.createWithItem("dark_steel",
-            new Block(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new Block(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)), WatheBridgerItems.BUILDING_GROUP);
     Block DARK_STEEL_STAIRS = registrar.createWithItem("dark_steel_stairs",
-            new StairBlock(DARK_STEEL.defaultBlockState(),
-                    BlockBehaviour.Properties.ofFullCopy(DARK_STEEL)),
+            new StairBlock(DARK_STEEL.defaultBlockState(), BlockBehaviour.Properties.ofFullCopy(DARK_STEEL)),
             WatheBridgerItems.BUILDING_GROUP);
     Block DARK_STEEL_SLAB = registrar.createWithItem("dark_steel_slab",
-            new SlabBlock(BlockBehaviour.Properties.ofFullCopy(DARK_STEEL)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new SlabBlock(BlockBehaviour.Properties.ofFullCopy(DARK_STEEL)), WatheBridgerItems.BUILDING_GROUP);
     Block DARK_STEEL_WALL = registrar.createWithItem("dark_steel_wall",
             new WallBlock(BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).forceSolidOn()),
             WatheBridgerItems.BUILDING_GROUP);
-    Block DARK_STEEL_WALKWAY = registrar.createWithItem(
-            "dark_steel_walkway", new WalkwayBlock(BlockBehaviour.Properties.ofFullCopy(DARK_STEEL)
-                    .sound(SoundType.COPPER_GRATE).noOcclusion()),
+    Block DARK_STEEL_WALKWAY = registrar.createWithItem("dark_steel_walkway",
+            new WalkwayBlock(
+                    BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).sound(SoundType.COPPER_GRATE).noOcclusion()),
             WatheBridgerItems.BUILDING_GROUP);
     Block DARK_STEEL_BRANCH = createBranch("dark_steel_branch", WatheBridgerBlocks.DARK_STEEL, registrar);
     Block DARK_STEEL_PILLAR = registrar.createWithItem("dark_steel_pillar",
-            new RotatedPillarBlock(BlockBehaviour.Properties.ofFullCopy(DARK_STEEL)),
-            WatheBridgerItems.BUILDING_GROUP);
-    Block STAINLESS_STEEL_BAR = registrar.createWithItem("stainless_steel_bar", new BarBlock(
-            BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL).noOcclusion().strength(0.5f)),
+            new RotatedPillarBlock(BlockBehaviour.Properties.ofFullCopy(DARK_STEEL)), WatheBridgerItems.BUILDING_GROUP);
+    Block STAINLESS_STEEL_BAR = registrar.createWithItem("stainless_steel_bar",
+            new BarBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL).noOcclusion().strength(0.5f)),
             WatheBridgerItems.DECORATION_GROUP);
     Block RAIL_BEAM = registrar.createWithItem("rail_beam",
             new RailBeamBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL).forceSolidOn()),
@@ -238,59 +191,43 @@ public interface WatheBridgerBlocks {
 
     // Fancy steel
     Block ANTHRACITE_STEEL = registrar.createWithItem("anthracite_steel",
-            new Block(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new Block(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)), WatheBridgerItems.BUILDING_GROUP);
     Block ANTHRACITE_STEEL_PANEL = registrar.createWithItem("anthracite_steel_panel",
-            new PanelBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new PanelBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)), WatheBridgerItems.BUILDING_GROUP);
     Block ANTHRACITE_STEEL_TILES = registrar.createWithItem("anthracite_steel_tiles",
-            new Block(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new Block(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)), WatheBridgerItems.BUILDING_GROUP);
     Block ANTHRACITE_STEEL_TILES_PANEL = registrar.createWithItem("anthracite_steel_tiles_panel",
-            new PanelBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new PanelBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)), WatheBridgerItems.BUILDING_GROUP);
     Block SMOOTH_ANTHRACITE_STEEL = registrar.createWithItem("smooth_anthracite_steel",
-            new Block(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new Block(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)), WatheBridgerItems.BUILDING_GROUP);
     Block SMOOTH_ANTHRACITE_STEEL_STAIRS = registrar.createWithItem("smooth_anthracite_steel_stairs",
-            new StairBlock(ANTHRACITE_STEEL.defaultBlockState(),
-                    BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)),
+            new StairBlock(ANTHRACITE_STEEL.defaultBlockState(), BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)),
             WatheBridgerItems.BUILDING_GROUP);
     Block SMOOTH_ANTHRACITE_STEEL_SLAB = registrar.createWithItem("smooth_anthracite_steel_slab",
-            new SlabBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new SlabBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)), WatheBridgerItems.BUILDING_GROUP);
     Block SMOOTH_ANTHRACITE_STEEL_PANEL = registrar.createWithItem("smooth_anthracite_steel_panel",
-            new PanelBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new PanelBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)), WatheBridgerItems.BUILDING_GROUP);
     Block SMOOTH_ANTHRACITE_STEEL_WALL = registrar.createWithItem("smooth_anthracite_steel_wall",
             new WallBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL).forceSolidOn()),
             WatheBridgerItems.BUILDING_GROUP);
 
     Block KHAKI_STEEL = registrar.createWithItem("khaki_steel",
-            new Block(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new Block(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)), WatheBridgerItems.BUILDING_GROUP);
     Block KHAKI_STEEL_PANEL = registrar.createWithItem("khaki_steel_panel",
-            new PanelBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new PanelBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)), WatheBridgerItems.BUILDING_GROUP);
     Block KHAKI_STEEL_TILES = registrar.createWithItem("khaki_steel_tiles",
-            new Block(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new Block(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)), WatheBridgerItems.BUILDING_GROUP);
     Block KHAKI_STEEL_TILES_PANEL = registrar.createWithItem("khaki_steel_tiles_panel",
-            new PanelBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new PanelBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)), WatheBridgerItems.BUILDING_GROUP);
     Block SMOOTH_KHAKI_STEEL = registrar.createWithItem("smooth_khaki_steel",
-            new Block(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new Block(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)), WatheBridgerItems.BUILDING_GROUP);
     Block SMOOTH_KHAKI_STEEL_STAIRS = registrar.createWithItem("smooth_khaki_steel_stairs",
-            new StairBlock(KHAKI_STEEL.defaultBlockState(),
-                    BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)),
+            new StairBlock(KHAKI_STEEL.defaultBlockState(), BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)),
             WatheBridgerItems.BUILDING_GROUP);
     Block SMOOTH_KHAKI_STEEL_SLAB = registrar.createWithItem("smooth_khaki_steel_slab",
-            new SlabBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new SlabBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)), WatheBridgerItems.BUILDING_GROUP);
     Block SMOOTH_KHAKI_STEEL_PANEL = registrar.createWithItem("smooth_khaki_steel_panel",
-            new PanelBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new PanelBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)), WatheBridgerItems.BUILDING_GROUP);
     Block SMOOTH_KHAKI_STEEL_WALL = registrar.createWithItem("smooth_khaki_steel_wall",
             new WallBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL).forceSolidOn()),
             WatheBridgerItems.BUILDING_GROUP);
@@ -298,27 +235,20 @@ public interface WatheBridgerBlocks {
     Block MAROON_STEEL = registrar.createWithItem("maroon_steel",
             new Block(BlockBehaviour.Properties.ofFullCopy(DARK_STEEL)), WatheBridgerItems.BUILDING_GROUP);
     Block MAROON_STEEL_PANEL = registrar.createWithItem("maroon_steel_panel",
-            new PanelBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new PanelBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)), WatheBridgerItems.BUILDING_GROUP);
     Block MAROON_STEEL_TILES = registrar.createWithItem("maroon_steel_tiles",
-            new Block(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new Block(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)), WatheBridgerItems.BUILDING_GROUP);
     Block MAROON_STEEL_TILES_PANEL = registrar.createWithItem("maroon_steel_tiles_panel",
-            new PanelBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new PanelBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)), WatheBridgerItems.BUILDING_GROUP);
     Block SMOOTH_MAROON_STEEL = registrar.createWithItem("smooth_maroon_steel",
-            new Block(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new Block(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)), WatheBridgerItems.BUILDING_GROUP);
     Block SMOOTH_MAROON_STEEL_STAIRS = registrar.createWithItem("smooth_maroon_steel_stairs",
-            new StairBlock(MAROON_STEEL.defaultBlockState(),
-                    BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)),
+            new StairBlock(MAROON_STEEL.defaultBlockState(), BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)),
             WatheBridgerItems.BUILDING_GROUP);
     Block SMOOTH_MAROON_STEEL_SLAB = registrar.createWithItem("smooth_maroon_steel_slab",
-            new SlabBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new SlabBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)), WatheBridgerItems.BUILDING_GROUP);
     Block SMOOTH_MAROON_STEEL_PANEL = registrar.createWithItem("smooth_maroon_steel_panel",
-            new PanelBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new PanelBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)), WatheBridgerItems.BUILDING_GROUP);
     Block SMOOTH_MAROON_STEEL_WALL = registrar.createWithItem("smooth_maroon_steel_wall",
             new WallBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL).forceSolidOn()),
             WatheBridgerItems.BUILDING_GROUP);
@@ -326,27 +256,20 @@ public interface WatheBridgerBlocks {
     Block MUNTZ_STEEL = registrar.createWithItem("muntz_steel",
             new Block(BlockBehaviour.Properties.ofFullCopy(DARK_STEEL)), WatheBridgerItems.BUILDING_GROUP);
     Block MUNTZ_STEEL_PANEL = registrar.createWithItem("muntz_steel_panel",
-            new PanelBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new PanelBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)), WatheBridgerItems.BUILDING_GROUP);
     Block MUNTZ_STEEL_TILES = registrar.createWithItem("muntz_steel_tiles",
-            new Block(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new Block(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)), WatheBridgerItems.BUILDING_GROUP);
     Block MUNTZ_STEEL_TILES_PANEL = registrar.createWithItem("muntz_steel_tiles_panel",
-            new PanelBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new PanelBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)), WatheBridgerItems.BUILDING_GROUP);
     Block SMOOTH_MUNTZ_STEEL = registrar.createWithItem("smooth_muntz_steel",
-            new Block(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new Block(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)), WatheBridgerItems.BUILDING_GROUP);
     Block SMOOTH_MUNTZ_STEEL_STAIRS = registrar.createWithItem("smooth_muntz_steel_stairs",
-            new StairBlock(MUNTZ_STEEL.defaultBlockState(),
-                    BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)),
+            new StairBlock(MUNTZ_STEEL.defaultBlockState(), BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)),
             WatheBridgerItems.BUILDING_GROUP);
     Block SMOOTH_MUNTZ_STEEL_SLAB = registrar.createWithItem("smooth_muntz_steel_slab",
-            new SlabBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new SlabBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)), WatheBridgerItems.BUILDING_GROUP);
     Block SMOOTH_MUNTZ_STEEL_PANEL = registrar.createWithItem("smooth_muntz_steel_panel",
-            new PanelBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new PanelBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)), WatheBridgerItems.BUILDING_GROUP);
     Block SMOOTH_MUNTZ_STEEL_WALL = registrar.createWithItem("smooth_muntz_steel_wall",
             new WallBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL).forceSolidOn()),
             WatheBridgerItems.BUILDING_GROUP);
@@ -354,55 +277,47 @@ public interface WatheBridgerBlocks {
     Block NAVY_STEEL = registrar.createWithItem("navy_steel",
             new Block(BlockBehaviour.Properties.ofFullCopy(DARK_STEEL)), WatheBridgerItems.BUILDING_GROUP);
     Block NAVY_STEEL_PANEL = registrar.createWithItem("navy_steel_panel",
-            new PanelBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new PanelBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)), WatheBridgerItems.BUILDING_GROUP);
     Block NAVY_STEEL_TILES = registrar.createWithItem("navy_steel_tiles",
-            new Block(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new Block(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)), WatheBridgerItems.BUILDING_GROUP);
     Block NAVY_STEEL_TILES_PANEL = registrar.createWithItem("navy_steel_tiles_panel",
-            new PanelBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new PanelBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)), WatheBridgerItems.BUILDING_GROUP);
     Block SMOOTH_NAVY_STEEL = registrar.createWithItem("smooth_navy_steel",
-            new Block(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new Block(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)), WatheBridgerItems.BUILDING_GROUP);
     Block SMOOTH_NAVY_STEEL_STAIRS = registrar.createWithItem("smooth_navy_steel_stairs",
-            new StairBlock(NAVY_STEEL.defaultBlockState(),
-                    BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)),
+            new StairBlock(NAVY_STEEL.defaultBlockState(), BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)),
             WatheBridgerItems.BUILDING_GROUP);
     Block SMOOTH_NAVY_STEEL_SLAB = registrar.createWithItem("smooth_navy_steel_slab",
-            new SlabBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new SlabBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)), WatheBridgerItems.BUILDING_GROUP);
     Block SMOOTH_NAVY_STEEL_PANEL = registrar.createWithItem("smooth_navy_steel_panel",
-            new PanelBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new PanelBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL)), WatheBridgerItems.BUILDING_GROUP);
     Block SMOOTH_NAVY_STEEL_WALL = registrar.createWithItem("smooth_navy_steel_wall",
             new WallBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL).forceSolidOn()),
             WatheBridgerItems.BUILDING_GROUP);
 
     // Glass
-    Block HULL_GLASS = registrar.createWithItem(
-            "hull_glass", new PrivacyGlassBlock(BlockBehaviour.Properties
-                    .ofFullCopy(Blocks.BLACK_STAINED_GLASS).strength(-1.0f, 3600000.0f)),
+    Block HULL_GLASS = registrar.createWithItem("hull_glass",
+            new PrivacyGlassBlock(
+                    BlockBehaviour.Properties.ofFullCopy(Blocks.BLACK_STAINED_GLASS).strength(-1.0f, 3600000.0f)),
             WatheBridgerItems.BUILDING_GROUP);
     Block RHOMBUS_HULL_GLASS = registrar.createWithItem("rhombus_hull_glass",
-            new StainedGlassBlock(DyeColor.BLACK, BlockBehaviour.Properties
-                    .ofFullCopy(Blocks.BLACK_STAINED_GLASS).strength(-1.0f, 3600000.0f)),
+            new StainedGlassBlock(DyeColor.BLACK,
+                    BlockBehaviour.Properties.ofFullCopy(Blocks.BLACK_STAINED_GLASS).strength(-1.0f, 3600000.0f)),
             WatheBridgerItems.BUILDING_GROUP);
     Block RHOMBUS_GLASS = registrar.createWithItem("rhombus_glass",
-            new StainedGlassBlock(DyeColor.BLACK,
-                    BlockBehaviour.Properties.ofFullCopy(Blocks.BLACK_STAINED_GLASS)),
+            new StainedGlassBlock(DyeColor.BLACK, BlockBehaviour.Properties.ofFullCopy(Blocks.BLACK_STAINED_GLASS)),
             WatheBridgerItems.BUILDING_GROUP);
-    Block GOLDEN_GLASS_PANEL = registrar.createWithItem(
-            "golden_glass_panel", new GlassPanelBlock(BlockBehaviour.Properties.of().strength(0.3f)
-                    .sound(SoundType.GLASS).isValidSpawn(Blocks::never)),
+    Block GOLDEN_GLASS_PANEL = registrar.createWithItem("golden_glass_panel",
+            new GlassPanelBlock(
+                    BlockBehaviour.Properties.of().strength(0.3f).sound(SoundType.GLASS).isValidSpawn(Blocks::never)),
             WatheBridgerItems.DECORATION_GROUP);
-    Block PRIVACY_GLASS_PANEL = registrar.createWithItem("privacy_glass_panel",
-            new PrivacyGlassPanelBlock(BlockBehaviour.Properties.of().strength(0.3f).sound(SoundType.GLASS)
-                    .noOcclusion().isValidSpawn(Blocks::never)),
+    Block PRIVACY_GLASS_PANEL = registrar.createWithItem(
+            "privacy_glass_panel", new PrivacyGlassPanelBlock(BlockBehaviour.Properties.of().strength(0.3f)
+                    .sound(SoundType.GLASS).noOcclusion().isValidSpawn(Blocks::never)),
             WatheBridgerItems.DECORATION_GROUP);
-    Block CULLING_GLASS = registrar.createWithItem("culling_glass",
-            new CullingGlassBlock(BlockBehaviour.Properties.of().forceSolidOn().strength(-1.0f, 3600000.0f)
-                    .isValidSpawn(Blocks::never).sound(SoundType.GLASS)),
+    Block CULLING_GLASS = registrar.createWithItem(
+            "culling_glass", new CullingGlassBlock(BlockBehaviour.Properties.of().forceSolidOn()
+                    .strength(-1.0f, 3600000.0f).isValidSpawn(Blocks::never).sound(SoundType.GLASS)),
             WatheBridgerItems.DECORATION_GROUP);
 
     // Stones
@@ -418,17 +333,14 @@ public interface WatheBridgerBlocks {
             new WallBlock(BlockBehaviour.Properties.ofFullCopy(MARBLE).forceSolidOn()),
             WatheBridgerItems.BUILDING_GROUP);
     Block MARBLE_MOSAIC = registrar.createWithItem("marble_mosaic",
-            new GlazedTerracottaBlock(BlockBehaviour.Properties.ofFullCopy(MARBLE)),
+            new GlazedTerracottaBlock(BlockBehaviour.Properties.ofFullCopy(MARBLE)), WatheBridgerItems.BUILDING_GROUP);
+    Block DARK_MARBLE = registrar.createWithItem("dark_marble", new Block(BlockBehaviour.Properties.ofFullCopy(MARBLE)),
             WatheBridgerItems.BUILDING_GROUP);
-    Block DARK_MARBLE = registrar.createWithItem("dark_marble",
-            new Block(BlockBehaviour.Properties.ofFullCopy(MARBLE)), WatheBridgerItems.BUILDING_GROUP);
     Block DARK_MARBLE_STAIRS = registrar.createWithItem("dark_marble_stairs",
-            new StairBlock(DARK_MARBLE.defaultBlockState(),
-                    BlockBehaviour.Properties.ofFullCopy(DARK_MARBLE)),
+            new StairBlock(DARK_MARBLE.defaultBlockState(), BlockBehaviour.Properties.ofFullCopy(DARK_MARBLE)),
             WatheBridgerItems.BUILDING_GROUP);
     Block DARK_MARBLE_SLAB = registrar.createWithItem("dark_marble_slab",
-            new SlabBlock(BlockBehaviour.Properties.ofFullCopy(DARK_MARBLE)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new SlabBlock(BlockBehaviour.Properties.ofFullCopy(DARK_MARBLE)), WatheBridgerItems.BUILDING_GROUP);
     Block DARK_MARBLE_WALL = registrar.createWithItem("dark_marble_wall",
             new WallBlock(BlockBehaviour.Properties.ofFullCopy(DARK_MARBLE).forceSolidOn()),
             WatheBridgerItems.BUILDING_GROUP);
@@ -436,12 +348,10 @@ public interface WatheBridgerBlocks {
             new Block(BlockBehaviour.Properties.of().strength(2f).sound(SoundType.CALCITE)),
             WatheBridgerItems.BUILDING_GROUP);
     Block MARBLE_TILE_STAIRS = registrar.createWithItem("marble_tile_stairs",
-            new StairBlock(MARBLE_TILES.defaultBlockState(),
-                    BlockBehaviour.Properties.ofFullCopy(MARBLE_TILES)),
+            new StairBlock(MARBLE_TILES.defaultBlockState(), BlockBehaviour.Properties.ofFullCopy(MARBLE_TILES)),
             WatheBridgerItems.BUILDING_GROUP);
     Block MARBLE_TILE_SLAB = registrar.createWithItem("marble_tile_slab",
-            new SlabBlock(BlockBehaviour.Properties.ofFullCopy(MARBLE_TILES)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new SlabBlock(BlockBehaviour.Properties.ofFullCopy(MARBLE_TILES)), WatheBridgerItems.BUILDING_GROUP);
     Block MARBLE_TILE_WALL = registrar.createWithItem("marble_tile_wall",
             new WallBlock(BlockBehaviour.Properties.ofFullCopy(MARBLE_TILES).forceSolidOn()),
             WatheBridgerItems.BUILDING_GROUP);
@@ -458,120 +368,101 @@ public interface WatheBridgerBlocks {
             WatheBridgerItems.BUILDING_GROUP);
 
     // Woods
-    Block MAHOGANY_PLANKS = registrar.createWithItem("mahogany_planks",
-            new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.MANGROVE_PLANKS)
-                    .strength(-1.0f, 3600000.0f).sound(SoundType.CHERRY_WOOD)),
-            WatheBridgerItems.BUILDING_GROUP);
+    Block MAHOGANY_PLANKS = registrar
+            .createWithItem(
+                    "mahogany_planks", new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.MANGROVE_PLANKS)
+                            .strength(-1.0f, 3600000.0f).sound(SoundType.CHERRY_WOOD)),
+                    WatheBridgerItems.BUILDING_GROUP);
     Block MAHOGANY_STAIRS = registrar.createWithItem("mahogany_stairs",
-            new StairBlock(MAHOGANY_PLANKS.defaultBlockState(),
-                    BlockBehaviour.Properties.ofFullCopy(MAHOGANY_PLANKS)),
+            new StairBlock(MAHOGANY_PLANKS.defaultBlockState(), BlockBehaviour.Properties.ofFullCopy(MAHOGANY_PLANKS)),
             WatheBridgerItems.BUILDING_GROUP);
     Block MAHOGANY_SLAB = registrar.createWithItem("mahogany_slab",
-            new SlabBlock(BlockBehaviour.Properties.ofFullCopy(MAHOGANY_PLANKS)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new SlabBlock(BlockBehaviour.Properties.ofFullCopy(MAHOGANY_PLANKS)), WatheBridgerItems.BUILDING_GROUP);
     Block MAHOGANY_HERRINGBONE = registrar.createWithItem("mahogany_herringbone",
-            new Block(BlockBehaviour.Properties.ofFullCopy(MAHOGANY_PLANKS)),
-            WatheBridgerItems.BUILDING_GROUP);
-    Block MAHOGANY_HERRINGBONE_STAIRS = registrar.createWithItem("mahogany_herringbone_stairs",
-            new StairBlock(MAHOGANY_HERRINGBONE.defaultBlockState(),
-                    BlockBehaviour.Properties.ofFullCopy(MAHOGANY_HERRINGBONE)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new Block(BlockBehaviour.Properties.ofFullCopy(MAHOGANY_PLANKS)), WatheBridgerItems.BUILDING_GROUP);
+    Block MAHOGANY_HERRINGBONE_STAIRS = registrar
+            .createWithItem("mahogany_herringbone_stairs",
+                    new StairBlock(MAHOGANY_HERRINGBONE.defaultBlockState(),
+                            BlockBehaviour.Properties.ofFullCopy(MAHOGANY_HERRINGBONE)),
+                    WatheBridgerItems.BUILDING_GROUP);
     Block MAHOGANY_HERRINGBONE_SLAB = registrar.createWithItem("mahogany_herringbone_slab",
             new SlabBlock(BlockBehaviour.Properties.ofFullCopy(MAHOGANY_HERRINGBONE)),
             WatheBridgerItems.BUILDING_GROUP);
     Block SMOOTH_MAHOGANY = registrar.createWithItem("smooth_mahogany",
-            new Block(BlockBehaviour.Properties.ofFullCopy(MAHOGANY_PLANKS)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new Block(BlockBehaviour.Properties.ofFullCopy(MAHOGANY_PLANKS)), WatheBridgerItems.BUILDING_GROUP);
     Block SMOOTH_MAHOGANY_STAIRS = registrar.createWithItem("smooth_mahogany_stairs",
-            new StairBlock(SMOOTH_MAHOGANY.defaultBlockState(),
-                    BlockBehaviour.Properties.ofFullCopy(SMOOTH_MAHOGANY)),
+            new StairBlock(SMOOTH_MAHOGANY.defaultBlockState(), BlockBehaviour.Properties.ofFullCopy(SMOOTH_MAHOGANY)),
             WatheBridgerItems.BUILDING_GROUP);
     Block SMOOTH_MAHOGANY_SLAB = registrar.createWithItem("smooth_mahogany_slab",
-            new SlabBlock(BlockBehaviour.Properties.ofFullCopy(SMOOTH_MAHOGANY)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new SlabBlock(BlockBehaviour.Properties.ofFullCopy(SMOOTH_MAHOGANY)), WatheBridgerItems.BUILDING_GROUP);
     Block MAHOGANY_PANEL = registrar.createWithItem("mahogany_panel",
-            new PanelBlock(BlockBehaviour.Properties.ofFullCopy(MAHOGANY_PLANKS)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new PanelBlock(BlockBehaviour.Properties.ofFullCopy(MAHOGANY_PLANKS)), WatheBridgerItems.BUILDING_GROUP);
     Block MAHOGANY_CABINET = registrar.createWithItem("mahogany_cabinet",
             new CabinetBlock(BlockBehaviour.Properties.ofFullCopy(MAHOGANY_PLANKS).noOcclusion()),
             WatheBridgerItems.BUILDING_GROUP);
     Block MAHOGANY_BOOKSHELF = registrar.createWithItem("mahogany_bookshelf",
-            new Block(BlockBehaviour.Properties.ofFullCopy(MAHOGANY_PLANKS)),
-            WatheBridgerItems.BUILDING_GROUP);
-    Block BUBINGA_PLANKS = registrar.createWithItem(
-            "bubinga_planks", new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.ACACIA_PLANKS)
-                    .strength(-1.0f, 3600000.0f).sound(SoundType.CHERRY_WOOD)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new Block(BlockBehaviour.Properties.ofFullCopy(MAHOGANY_PLANKS)), WatheBridgerItems.BUILDING_GROUP);
+    Block BUBINGA_PLANKS = registrar
+            .createWithItem(
+                    "bubinga_planks", new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.ACACIA_PLANKS)
+                            .strength(-1.0f, 3600000.0f).sound(SoundType.CHERRY_WOOD)),
+                    WatheBridgerItems.BUILDING_GROUP);
     Block BUBINGA_STAIRS = registrar.createWithItem("bubinga_stairs",
-            new StairBlock(BUBINGA_PLANKS.defaultBlockState(),
-                    BlockBehaviour.Properties.ofFullCopy(BUBINGA_PLANKS)),
+            new StairBlock(BUBINGA_PLANKS.defaultBlockState(), BlockBehaviour.Properties.ofFullCopy(BUBINGA_PLANKS)),
             WatheBridgerItems.BUILDING_GROUP);
     Block BUBINGA_SLAB = registrar.createWithItem("bubinga_slab",
-            new SlabBlock(BlockBehaviour.Properties.ofFullCopy(BUBINGA_PLANKS)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new SlabBlock(BlockBehaviour.Properties.ofFullCopy(BUBINGA_PLANKS)), WatheBridgerItems.BUILDING_GROUP);
     Block BUBINGA_HERRINGBONE = registrar.createWithItem("bubinga_herringbone",
-            new Block(BlockBehaviour.Properties.ofFullCopy(BUBINGA_PLANKS)),
-            WatheBridgerItems.BUILDING_GROUP);
-    Block BUBINGA_HERRINGBONE_STAIRS = registrar.createWithItem("bubinga_herringbone_stairs",
-            new StairBlock(BUBINGA_HERRINGBONE.defaultBlockState(),
-                    BlockBehaviour.Properties.ofFullCopy(MAHOGANY_HERRINGBONE)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new Block(BlockBehaviour.Properties.ofFullCopy(BUBINGA_PLANKS)), WatheBridgerItems.BUILDING_GROUP);
+    Block BUBINGA_HERRINGBONE_STAIRS = registrar
+            .createWithItem("bubinga_herringbone_stairs",
+                    new StairBlock(BUBINGA_HERRINGBONE.defaultBlockState(),
+                            BlockBehaviour.Properties.ofFullCopy(MAHOGANY_HERRINGBONE)),
+                    WatheBridgerItems.BUILDING_GROUP);
     Block BUBINGA_HERRINGBONE_SLAB = registrar.createWithItem("bubinga_herringbone_slab",
-            new SlabBlock(BlockBehaviour.Properties.ofFullCopy(BUBINGA_HERRINGBONE)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new SlabBlock(BlockBehaviour.Properties.ofFullCopy(BUBINGA_HERRINGBONE)), WatheBridgerItems.BUILDING_GROUP);
     Block SMOOTH_BUBINGA = registrar.createWithItem("smooth_bubinga",
-            new Block(BlockBehaviour.Properties.ofFullCopy(BUBINGA_PLANKS)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new Block(BlockBehaviour.Properties.ofFullCopy(BUBINGA_PLANKS)), WatheBridgerItems.BUILDING_GROUP);
     Block SMOOTH_BUBINGA_STAIRS = registrar.createWithItem("smooth_bubinga_stairs",
-            new StairBlock(SMOOTH_BUBINGA.defaultBlockState(),
-                    BlockBehaviour.Properties.ofFullCopy(SMOOTH_BUBINGA)),
+            new StairBlock(SMOOTH_BUBINGA.defaultBlockState(), BlockBehaviour.Properties.ofFullCopy(SMOOTH_BUBINGA)),
             WatheBridgerItems.BUILDING_GROUP);
     Block SMOOTH_BUBINGA_SLAB = registrar.createWithItem("smooth_bubinga_slab",
-            new SlabBlock(BlockBehaviour.Properties.ofFullCopy(SMOOTH_BUBINGA)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new SlabBlock(BlockBehaviour.Properties.ofFullCopy(SMOOTH_BUBINGA)), WatheBridgerItems.BUILDING_GROUP);
     Block BUBINGA_PANEL = registrar.createWithItem("bubinga_panel",
-            new PanelBlock(BlockBehaviour.Properties.ofFullCopy(BUBINGA_PLANKS)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new PanelBlock(BlockBehaviour.Properties.ofFullCopy(BUBINGA_PLANKS)), WatheBridgerItems.BUILDING_GROUP);
     Block BUBINGA_CABINET = registrar.createWithItem("bubinga_cabinet",
             new CabinetBlock(BlockBehaviour.Properties.ofFullCopy(BUBINGA_PLANKS).noOcclusion()),
             WatheBridgerItems.BUILDING_GROUP);
     Block BUBINGA_BOOKSHELF = registrar.createWithItem("bubinga_bookshelf",
-            new Block(BlockBehaviour.Properties.ofFullCopy(BUBINGA_PLANKS)),
-            WatheBridgerItems.BUILDING_GROUP);
-    Block EBONY_PLANKS = registrar.createWithItem("ebony_planks",
-            new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.DARK_OAK_PLANKS)
-                    .strength(-1.0f, 3600000.0f).sound(SoundType.CHERRY_WOOD)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new Block(BlockBehaviour.Properties.ofFullCopy(BUBINGA_PLANKS)), WatheBridgerItems.BUILDING_GROUP);
+    Block EBONY_PLANKS = registrar
+            .createWithItem(
+                    "ebony_planks", new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.DARK_OAK_PLANKS)
+                            .strength(-1.0f, 3600000.0f).sound(SoundType.CHERRY_WOOD)),
+                    WatheBridgerItems.BUILDING_GROUP);
     Block EBONY_STAIRS = registrar.createWithItem("ebony_stairs",
-            new StairBlock(EBONY_PLANKS.defaultBlockState(),
-                    BlockBehaviour.Properties.ofFullCopy(EBONY_PLANKS)),
+            new StairBlock(EBONY_PLANKS.defaultBlockState(), BlockBehaviour.Properties.ofFullCopy(EBONY_PLANKS)),
             WatheBridgerItems.BUILDING_GROUP);
     Block EBONY_SLAB = registrar.createWithItem("ebony_slab",
-            new SlabBlock(BlockBehaviour.Properties.ofFullCopy(EBONY_PLANKS)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new SlabBlock(BlockBehaviour.Properties.ofFullCopy(EBONY_PLANKS)), WatheBridgerItems.BUILDING_GROUP);
     Block EBONY_HERRINGBONE = registrar.createWithItem("ebony_herringbone",
-            new Block(BlockBehaviour.Properties.ofFullCopy(EBONY_PLANKS)),
-            WatheBridgerItems.BUILDING_GROUP);
-    Block EBONY_HERRINGBONE_STAIRS = registrar.createWithItem("ebony_herringbone_stairs",
-            new StairBlock(EBONY_HERRINGBONE.defaultBlockState(),
-                    BlockBehaviour.Properties.ofFullCopy(MAHOGANY_HERRINGBONE)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new Block(BlockBehaviour.Properties.ofFullCopy(EBONY_PLANKS)), WatheBridgerItems.BUILDING_GROUP);
+    Block EBONY_HERRINGBONE_STAIRS = registrar
+            .createWithItem("ebony_herringbone_stairs",
+                    new StairBlock(EBONY_HERRINGBONE.defaultBlockState(),
+                            BlockBehaviour.Properties.ofFullCopy(MAHOGANY_HERRINGBONE)),
+                    WatheBridgerItems.BUILDING_GROUP);
     Block EBONY_HERRINGBONE_SLAB = registrar.createWithItem("ebony_herringbone_slab",
-            new SlabBlock(BlockBehaviour.Properties.ofFullCopy(EBONY_HERRINGBONE)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new SlabBlock(BlockBehaviour.Properties.ofFullCopy(EBONY_HERRINGBONE)), WatheBridgerItems.BUILDING_GROUP);
     Block SMOOTH_EBONY = registrar.createWithItem("smooth_ebony",
-            new Block(BlockBehaviour.Properties.ofFullCopy(EBONY_PLANKS)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new Block(BlockBehaviour.Properties.ofFullCopy(EBONY_PLANKS)), WatheBridgerItems.BUILDING_GROUP);
     Block SMOOTH_EBONY_STAIRS = registrar.createWithItem("smooth_ebony_stairs",
-            new StairBlock(SMOOTH_EBONY.defaultBlockState(),
-                    BlockBehaviour.Properties.ofFullCopy(SMOOTH_EBONY)),
+            new StairBlock(SMOOTH_EBONY.defaultBlockState(), BlockBehaviour.Properties.ofFullCopy(SMOOTH_EBONY)),
             WatheBridgerItems.BUILDING_GROUP);
     Block SMOOTH_EBONY_SLAB = registrar.createWithItem("smooth_ebony_slab",
-            new SlabBlock(BlockBehaviour.Properties.ofFullCopy(SMOOTH_EBONY)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new SlabBlock(BlockBehaviour.Properties.ofFullCopy(SMOOTH_EBONY)), WatheBridgerItems.BUILDING_GROUP);
     Block EBONY_PANEL = registrar.createWithItem("ebony_panel",
-            new PanelBlock(BlockBehaviour.Properties.ofFullCopy(EBONY_PLANKS)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new PanelBlock(BlockBehaviour.Properties.ofFullCopy(EBONY_PLANKS)), WatheBridgerItems.BUILDING_GROUP);
     Block EBONY_CABINET = registrar.createWithItem("ebony_cabinet",
             new CabinetBlock(BlockBehaviour.Properties.ofFullCopy(EBONY_PLANKS).noOcclusion()),
             WatheBridgerItems.BUILDING_GROUP);
@@ -579,17 +470,17 @@ public interface WatheBridgerBlocks {
             new TrimmedStairsBlock(BlockBehaviour.Properties.ofFullCopy(EBONY_PLANKS)),
             WatheBridgerItems.BUILDING_GROUP);
     Block EBONY_BOOKSHELF = registrar.createWithItem("ebony_bookshelf",
-            new Block(BlockBehaviour.Properties.ofFullCopy(EBONY_PLANKS)),
-            WatheBridgerItems.BUILDING_GROUP);
+            new Block(BlockBehaviour.Properties.ofFullCopy(EBONY_PLANKS)), WatheBridgerItems.BUILDING_GROUP);
 
     // Vents
-    Block STAINLESS_STEEL_VENT_SHAFT = registrar.createWithItem("stainless_steel_vent_shaft",
-            new VentShaftBlock(BlockBehaviour.Properties.of().strength(-1.0f, 3600000.0f)
-                    .sound(TMMSounds.VENT_SHAFT).mapColor(MapColor.COLOR_GRAY)),
-            WatheBridgerItems.DECORATION_GROUP);
-    Block STAINLESS_STEEL_VENT_HATCH = registrar.createWithItem("stainless_steel_vent_hatch",
-            new VentHatchBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL_VENT_SHAFT)
-                    .strength(0.3f).sound(SoundType.COPPER).noOcclusion()),
+    Block STAINLESS_STEEL_VENT_SHAFT = registrar
+            .createWithItem("stainless_steel_vent_shaft",
+                    new VentShaftBlock(BlockBehaviour.Properties.of().strength(-1.0f, 3600000.0f)
+                            .sound(TMMSounds.VENT_SHAFT).mapColor(MapColor.COLOR_GRAY)),
+                    WatheBridgerItems.DECORATION_GROUP);
+    Block STAINLESS_STEEL_VENT_HATCH = registrar.createWithItem(
+            "stainless_steel_vent_hatch", new VentHatchBlock(BlockBehaviour.Properties
+                    .ofFullCopy(STAINLESS_STEEL_VENT_SHAFT).strength(0.3f).sound(SoundType.COPPER).noOcclusion()),
             WatheBridgerItems.DECORATION_GROUP);
     Block DARK_STEEL_VENT_HATCH = registrar.createWithItem("dark_steel_vent_hatch",
             new VentHatchBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL_VENT_HATCH)),
@@ -605,8 +496,8 @@ public interface WatheBridgerBlocks {
             WatheBridgerItems.DECORATION_GROUP);
 
     // Furniture / Decor
-    Block STAINLESS_STEEL_LADDER = registrar.createWithItem("stainless_steel_ladder", new TrainLadderBlock(
-            BlockBehaviour.Properties.of().noOcclusion().strength(0.5f).sound(SoundType.LANTERN)),
+    Block STAINLESS_STEEL_LADDER = registrar.createWithItem("stainless_steel_ladder",
+            new TrainLadderBlock(BlockBehaviour.Properties.of().noOcclusion().strength(0.5f).sound(SoundType.LANTERN)),
             WatheBridgerItems.DECORATION_GROUP);
     Block OAK_BRANCH = createBranch("oak_branch", Blocks.OAK_WOOD, registrar);
     Block SPRUCE_BRANCH = createBranch("spruce_branch", Blocks.SPRUCE_WOOD, registrar);
@@ -624,35 +515,30 @@ public interface WatheBridgerBlocks {
     Block STRIPPED_BIRCH_BRANCH = createBranch("stripped_birch_branch", Blocks.STRIPPED_BIRCH_WOOD, registrar);
     Block STRIPPED_JUNGLE_BRANCH = createBranch("stripped_jungle_branch", Blocks.STRIPPED_JUNGLE_WOOD, registrar);
     Block STRIPPED_ACACIA_BRANCH = createBranch("stripped_acacia_branch", Blocks.STRIPPED_ACACIA_WOOD, registrar);
-    Block STRIPPED_DARK_OAK_BRANCH = createBranch("stripped_dark_oak_branch", Blocks.STRIPPED_DARK_OAK_WOOD,
-            registrar);
-    Block STRIPPED_MANGROVE_BRANCH = createBranch("stripped_mangrove_branch", Blocks.STRIPPED_MANGROVE_WOOD,
-            registrar);
+    Block STRIPPED_DARK_OAK_BRANCH = createBranch("stripped_dark_oak_branch", Blocks.STRIPPED_DARK_OAK_WOOD, registrar);
+    Block STRIPPED_MANGROVE_BRANCH = createBranch("stripped_mangrove_branch", Blocks.STRIPPED_MANGROVE_WOOD, registrar);
     Block STRIPPED_CHERRY_BRANCH = createBranch("stripped_cherry_branch", Blocks.STRIPPED_CHERRY_WOOD, registrar);
     Block STRIPPED_BAMBOO_POLE = createBranch("stripped_bamboo_pole", Blocks.STRIPPED_BAMBOO_BLOCK, registrar);
-    Block STRIPPED_CRIMSON_STIPE = createBranch("stripped_crimson_stipe", Blocks.STRIPPED_CRIMSON_HYPHAE,
-            registrar);
+    Block STRIPPED_CRIMSON_STIPE = createBranch("stripped_crimson_stipe", Blocks.STRIPPED_CRIMSON_HYPHAE, registrar);
     Block STRIPPED_WARPED_STIPE = createBranch("stripped_warped_stipe", Blocks.STRIPPED_WARPED_HYPHAE, registrar);
-    Block TRIMMED_RAILING_POST = registrar.create("trimmed_railing_post",
-            new RailingPostBlock(BlockBehaviour.Properties.of().sound(SoundType.CHERRY_WOOD_HANGING_SIGN)
-                    .strength(1f).noOcclusion()));
+    Block TRIMMED_RAILING_POST = registrar.create("trimmed_railing_post", new RailingPostBlock(
+            BlockBehaviour.Properties.of().sound(SoundType.CHERRY_WOOD_HANGING_SIGN).strength(1f).noOcclusion()));
     Block DIAGONAL_TRIMMED_RAILING = registrar.create("diagonal_trimmed_railing",
             new DiagonalRailingBlock(BlockBehaviour.Properties.ofFullCopy(TRIMMED_RAILING_POST)));
-    Block TRIMMED_RAILING = registrar.createWithItem("trimmed_railing",
-            new RailingBlock(DIAGONAL_TRIMMED_RAILING, TRIMMED_RAILING_POST,
-                    BlockBehaviour.Properties.ofFullCopy(TRIMMED_RAILING_POST)),
+    Block TRIMMED_RAILING = registrar
+            .createWithItem("trimmed_railing",
+                    new RailingBlock(DIAGONAL_TRIMMED_RAILING, TRIMMED_RAILING_POST,
+                            BlockBehaviour.Properties.ofFullCopy(TRIMMED_RAILING_POST)),
+                    WatheBridgerItems.DECORATION_GROUP);
+    Block PANEL_STRIPES = registrar.createWithItem("panel_stripes",
+            new PanelStripesBlock(
+                    BlockBehaviour.Properties.of().sound(SoundType.CHISELED_BOOKSHELF).strength(0.5f).noOcclusion()),
             WatheBridgerItems.DECORATION_GROUP);
-    Block PANEL_STRIPES = registrar.createWithItem(
-            "panel_stripes", new PanelStripesBlock(BlockBehaviour.Properties.of()
-                    .sound(SoundType.CHISELED_BOOKSHELF).strength(0.5f).noOcclusion()),
-            WatheBridgerItems.DECORATION_GROUP);
-    Block CARGO_BOX = registrar.createWithItem("cargo_box",
-            new CargoBoxBlock(BlockBehaviour.Properties.of().strength(1).sound(SoundType.COPPER)
-                    .mapColor(MapColor.COLOR_GRAY).noOcclusion()),
-            WatheBridgerItems.DECORATION_GROUP);
-    Block WHITE_LOUNGE_COUCH = registrar.createWithItem(
-            "white_lounge_couch", new LoungeCouch(BlockBehaviour.Properties.of().noOcclusion()
-                    .strength(0.5f).sound(SoundType.CHISELED_BOOKSHELF)),
+    Block CARGO_BOX = registrar.createWithItem("cargo_box", new CargoBoxBlock(BlockBehaviour.Properties.of().strength(1)
+            .sound(SoundType.COPPER).mapColor(MapColor.COLOR_GRAY).noOcclusion()), WatheBridgerItems.DECORATION_GROUP);
+    Block WHITE_LOUNGE_COUCH = registrar.createWithItem("white_lounge_couch",
+            new LoungeCouch(
+                    BlockBehaviour.Properties.of().noOcclusion().strength(0.5f).sound(SoundType.CHISELED_BOOKSHELF)),
             WatheBridgerItems.DECORATION_GROUP);
 
     Block WHITE_OTTOMAN = registrar.createWithItem("white_ottoman",
@@ -683,67 +569,97 @@ public interface WatheBridgerBlocks {
             new BarStoolBlock(BlockBehaviour.Properties.ofFullCopy(WHITE_LOUNGE_COUCH)),
             WatheBridgerItems.DECORATION_GROUP);
     Block WHITE_TRIMMED_BED = registrar.createWithItem("white_trimmed_bed",
-            new BedBlock(DyeColor.WHITE, BlockBehaviour.Properties.of().strength(1).sound(SoundType.COPPER)
-                    .mapColor(MapColor.COLOR_GRAY).noOcclusion()),
+            new TrimmedBedBlock(BlockBehaviour.Properties.ofFullCopy(WHITE_LOUNGE_COUCH)),
             WatheBridgerItems.DECORATION_GROUP);
     Block RED_TRIMMED_BED = registrar.createWithItem("red_trimmed_bed",
-            new BedBlock(DyeColor.RED, BlockBehaviour.Properties.of().strength(1).sound(SoundType.COPPER)
-                    .mapColor(MapColor.COLOR_GRAY).noOcclusion()),
+            new TrimmedBedBlock(BlockBehaviour.Properties.ofFullCopy(WHITE_LOUNGE_COUCH)),
             WatheBridgerItems.DECORATION_GROUP);
     Block HORN = registrar.createWithItem("horn",
-            new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.CHAIN).noOcclusion().noCollission()),
+            new HornBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.CHAIN).noOcclusion().noCollission()),
             WatheBridgerItems.DECORATION_GROUP);
 
     // Lamps
     Block TRIMMED_LANTERN = registrar.createWithItem("trimmed_lantern",
             new TrimmedLanternBlock(BlockBehaviour.Properties.of().strength(0.5f).noOcclusion()
-                    .lightLevel(createLightLevelFromLitPoweredBlockState(15))
-                    .sound(SoundType.LANTERN)),
+                    .lightLevel(createLightLevelFromLitPoweredBlockState(15)).sound(SoundType.LANTERN)),
             WatheBridgerItems.DECORATION_GROUP);
-    Block WALL_LAMP = registrar.createWithItem("wall_lamp",
-            new WallLampBlock(BlockBehaviour.Properties.ofFullCopy(TRIMMED_LANTERN)
-                    .lightLevel(createLightLevelFromLitPoweredBlockState(15))),
+    Block WALL_LAMP = registrar
+            .createWithItem("wall_lamp",
+                    new WallLampBlock(BlockBehaviour.Properties.ofFullCopy(TRIMMED_LANTERN)
+                            .lightLevel(createLightLevelFromLitPoweredBlockState(15))),
+                    WatheBridgerItems.DECORATION_GROUP);
+    Block NEON_PILLAR = registrar.createWithItem(
+            "neon_pillar", new NeonPillarBlock(BlockBehaviour.Properties.of().strength(1.5f)
+                    .sound(SoundType.COPPER_BULB).lightLevel(createLightLevelFromLitPoweredBlockState(15))),
             WatheBridgerItems.DECORATION_GROUP);
-    Block NEON_PILLAR = registrar.createWithItem("neon_pillar",
-            new NeonPillarBlock(BlockBehaviour.Properties.of().strength(1.5f).sound(SoundType.COPPER_BULB)
-                    .lightLevel(createLightLevelFromLitPoweredBlockState(15))),
-            WatheBridgerItems.DECORATION_GROUP);
-    Block NEON_TUBE = registrar.createWithItem("neon_tube",
-            new NeonTubeBlock(BlockBehaviour.Properties.of().strength(1.5f).sound(SoundType.COPPER_BULB)
-                    .lightLevel(createLightLevelFromLitPoweredBlockState(15))),
-            WatheBridgerItems.DECORATION_GROUP);
+    Block NEON_TUBE = registrar
+            .createWithItem("neon_tube",
+                    new NeonTubeBlock(BlockBehaviour.Properties.of().strength(1.5f).sound(SoundType.COPPER_BULB)
+                            .lightLevel(createLightLevelFromLitPoweredBlockState(15))),
+                    WatheBridgerItems.DECORATION_GROUP);
 
-    Block SMALL_BUTTON = registrar.createWithItem("small_button",
-            new SmallButtonBlock(BlockBehaviour.Properties.of().sound(SoundType.CHERRY_WOOD).noOcclusion()
-                    .noCollission().strength(-1.0f, 3600000.0f)),
-            WatheBridgerItems.DECORATION_GROUP);
+    Block SMALL_BUTTON = registrar
+            .createWithItem(
+                    "small_button", new SmallButtonBlock(BlockBehaviour.Properties.of().sound(SoundType.CHERRY_WOOD)
+                            .noOcclusion().noCollission().strength(-1.0f, 3600000.0f)),
+                    WatheBridgerItems.DECORATION_GROUP);
     Block ELEVATOR_BUTTON = registrar.createWithItem("elevator_button",
             new ElevatorButtonBlock(BlockBehaviour.Properties.ofFullCopy(SMALL_BUTTON)),
             WatheBridgerItems.DECORATION_GROUP);
-    Block GOLD_ORNAMENT = registrar
-            .createWithItem("gold_ornament",
-                    new OrnamentBlock(BlockBehaviour.Properties.of().noOcclusion().noCollission()
-                            .strength(0.25f).sound(SoundType.COPPER)),
-                    WatheBridgerItems.DECORATION_GROUP);
+    Block STAINLESS_STEEL_SPRINKLER = registrar.createWithItem("stainless_steel_sprinkler",
+            new SprinklerBlock(BlockBehaviour.Properties.of().strength(0.5f).noOcclusion().sound(SoundType.LANTERN)),
+            WatheBridgerItems.DECORATION_GROUP);
+    Block GOLD_SPRINKLER = registrar.createWithItem("gold_sprinkler",
+            new SprinklerBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL_SPRINKLER)),
+            WatheBridgerItems.DECORATION_GROUP);
+    Block GOLD_ORNAMENT = registrar.createWithItem("gold_ornament", new OrnamentBlock(
+            BlockBehaviour.Properties.of().noOcclusion().noCollission().strength(0.25f).sound(SoundType.COPPER)),
+            WatheBridgerItems.DECORATION_GROUP);
 
     // Wheels
-    Block WHEEL = registrar.createWithItem("wheel", new Block(
-            BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).noOcclusion().sound(SoundType.COPPER)),
+    Block WHEEL = registrar.createWithItem("wheel",
+            new WheelBlock(BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).noOcclusion().sound(SoundType.COPPER)),
             WatheBridgerItems.DECORATION_GROUP);
-    Block RUSTED_WHEEL = registrar.createWithItem("rusted_wheel", new Block(
-            BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).noOcclusion().sound(SoundType.COPPER)),
+    Block RUSTED_WHEEL = registrar.createWithItem("rusted_wheel",
+            new WheelBlock(BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).noOcclusion().sound(SoundType.COPPER)),
             WatheBridgerItems.DECORATION_GROUP);
 
+    // Platters
+    Block FOOD_PLATTER = registrar.createWithItem("food_platter", new FoodPlatterBlock(
+            BlockBehaviour.Properties.ofFullCopy(Blocks.WHITE_GLAZED_TERRACOTTA)
+                    .noOcclusion()
+                    .sound(SoundType.COPPER)
+                    .instabreak()
+                    .noCollission()),
+            WatheBridgerItems.DECORATION_GROUP);
+    Block DRINK_TRAY = registrar.createWithItem("drink_tray", new DrinkTrayBlock(
+            BlockBehaviour.Properties.ofFullCopy(Blocks.WHITE_GLAZED_TERRACOTTA)
+                    .noOcclusion()
+                    .sound(SoundType.CHERRY_WOOD)
+                    .instabreak()),
+            WatheBridgerItems.DECORATION_GROUP);
+    Block CHIMNEY = registrar.createWithItem("chimney",
+            new ChimneyBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.BEDROCK).noCollission()),
+            WatheBridgerItems.DECORATION_GROUP);
+
+    // Op
+    Block BARRIER_PANEL = registrar.createWithItem("barrier_panel",
+            new BarrierPanelBlock(BlockBehaviour.Properties.ofFullCopy(ANTHRACITE_STEEL_PANEL)
+                    .strength(-1.0F, 3600000.8F).noOcclusion().sound(SoundType.STONE)),
+            new Item.Properties().rarity(Rarity.EPIC), CreativeModeTabs.OP_BLOCKS);
+    Block LIGHT_BARRIER = registrar.createWithItem("light_barrier",
+            new LightBarrierBlock(
+                    ((BlockSettingsAdditions) BlockBehaviour.Properties.ofFullCopy(Blocks.BARRIER)).SRE$setCol(false)),
+            new Item.Properties().rarity(Rarity.EPIC), CreativeModeTabs.OP_BLOCKS);
+
     private static Block createBranch(String name, Block wood, BlockRegistrar registrar) {
-        return registrar.createWithItem(name, new Block(
-                BlockBehaviour.Properties.ofFullCopy(wood).mapColor(wood.defaultMapColor())),
+        return registrar.createWithItem(name,
+                new BranchBlock(BlockBehaviour.Properties.ofFullCopy(wood).mapColor(wood.defaultMapColor())),
                 WatheBridgerItems.DECORATION_GROUP);
     }
 
     private static ToIntFunction<BlockState> createLightLevelFromLitPoweredBlockState(int litLevel) {
-        return state -> state.getValue(BlockStateProperties.LIT) && state.getValue(TMMProperties.ACTIVE)
-                ? litLevel
-                : 0;
+        return state -> state.getValue(BlockStateProperties.LIT) && state.getValue(TMMProperties.ACTIVE) ? litLevel : 0;
     }
 
     interface Family {
@@ -782,8 +698,7 @@ public interface WatheBridgerBlocks {
                 .wall(DARK_STEEL_WALL)
                 .getFamily();
 
-        BlockFamily SMOOTH_ANTHRACITE_STEEL = new BlockFamily.Builder(
-                WatheBridgerBlocks.SMOOTH_ANTHRACITE_STEEL)
+        BlockFamily SMOOTH_ANTHRACITE_STEEL = new BlockFamily.Builder(WatheBridgerBlocks.SMOOTH_ANTHRACITE_STEEL)
                 .stairs(SMOOTH_ANTHRACITE_STEEL_STAIRS)
                 .slab(SMOOTH_ANTHRACITE_STEEL_SLAB)
                 .wall(SMOOTH_ANTHRACITE_STEEL_WALL)
