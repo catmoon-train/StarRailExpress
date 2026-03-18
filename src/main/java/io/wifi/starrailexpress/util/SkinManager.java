@@ -49,6 +49,17 @@ public class SkinManager {
         // }
     }
 
+    public static Skin getSkinFromName(String itemType, String name) {
+        if (!skinMap.containsKey(itemType)) {
+            return null;
+        }
+        var childSkinMap = skinMap.get(itemType);
+        if (childSkinMap.containsKey(name.toLowerCase(Locale.ROOT))) {
+            return childSkinMap.get(name.toLowerCase(Locale.ROOT));
+        }
+        return childSkinMap.get("default");
+    }
+
     public static class KnifeSkin {
         public static final Skin DEFAULT_SKIN = new Skin(Colors.LIGHT_GRAY, "default");
     }

@@ -2,6 +2,8 @@ package io.wifi.starrailexpress.client.gui.screen;
 
 import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
+import io.wifi.starrailexpress.item.SkinableItem;
+import io.wifi.starrailexpress.util.SkinManager;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -38,18 +40,6 @@ public class SkinSelectionList extends ObjectSelectionList<SkinSelectionList.Ski
     private static final int SELECTED_COLOR = 0xFF3A553A;
     private static final int TEXT_COLOR = 0xFFFFFFFF;
     private static final int TEXT_SECONDARY_COLOR = 0xFFAAAAAA;
-
-    // 角色颜色映射
-    private static final int[] ROLE_COLORS = {
-            0xFFE74C3C, // 红色
-            0xFF3498DB, // 蓝色
-            0xFF2ECC71, // 绿色
-            0xFFF39C12, // 橙色
-            0xFF9B59B6, // 紫色
-            0xFF1ABC9C, // 青色
-            0xFFE67E22, // 深橙色
-            0xFF95A5A6, // 灰色
-    };
 
     public SkinSelectionList(SkinManagementScreen parentScreen, Minecraft mc,
             int x, int width, int height, int y, ItemStack itemType,
@@ -164,7 +154,15 @@ public class SkinSelectionList extends ObjectSelectionList<SkinSelectionList.Ski
         public SkinEntry(String skinName) {
             this.skinName = skinName;
             // 根据皮肤名称生成稳定的颜色
-            this.skinColor = ROLE_COLORS[Math.abs(skinName.hashCode()) % ROLE_COLORS.length];
+            int sskinColor = java.awt.Color.WHITE.getRGB();
+            if (itemType.getItem() instanceof SkinableItem it) {
+                var skin = SkinManager.Skin.fromString(it.getItemSkinType(), skinName);
+                if (skin != null) {
+                    sskinColor = skin.getColor();
+                }
+            }
+
+            this.skinColor = sskinColor;
 
             // 获取当前装备的皮肤
             updateCurrentSkin();
