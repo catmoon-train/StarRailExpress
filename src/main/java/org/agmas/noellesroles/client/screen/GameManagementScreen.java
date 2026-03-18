@@ -595,11 +595,12 @@ public class GameManagementScreen extends Screen {
                 if (hovered) {
                     var tooltipText = Component
                             .translatable("screen.game_manage.click_to_send",
-                                    Component.literal("/" + entry.command).withStyle(ChatFormatting.WHITE))
+                                    Component.literal("/" + entry.command)
+                                            .withStyle(ChatFormatting.WHITE))
                             .withStyle(ChatFormatting.YELLOW);
                     g.renderTooltip(font,
                             tooltipText,
-                            x + (w - font.width(tooltipText)) / 2, y);
+                            x - 12 + (w - font.width(tooltipText)) / 2, y);
                 }
                 // 悬停指示箭头（右侧淡入）
                 if (anim > 0.05f) {
@@ -763,9 +764,10 @@ public class GameManagementScreen extends Screen {
                 .translatable("tip.game_manage.send_command",
                         Component.literal("/" + command).withStyle(ChatFormatting.WHITE))
                 .withStyle(ChatFormatting.GREEN)
-                .withStyle(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, command))
-                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                                Component.translatable("tip.game_manage.click_to_suggest"))));
+                .withStyle(
+                        style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/" + command))
+                                .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                                        Component.translatable("tip.game_manage.click_to_suggest"))));
         if (minecraft.player != null) {
             minecraft.player
                     .displayClientMessage(text, false);

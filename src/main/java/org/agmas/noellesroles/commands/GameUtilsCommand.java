@@ -391,6 +391,7 @@ public class GameUtilsCommand {
           .sendSuccess(() -> Component.translatable("Triggered %s Psycho!", player.getScoreboardName()), true);
     } else {
       ppc.stopPsychoAndRefreshPsychoCount(true);
+      ppc.sync();
       context.getSource()
           .sendSuccess(() -> Component.translatable("Stopped %s Psycho!", player.getScoreboardName()), true);
     }
