@@ -100,7 +100,7 @@ public class AreasWorldComponent implements AutoSyncedComponent {
         tag.putDouble("MaxX", box.maxX);
         tag.putDouble("MaxY", box.maxY);
         tag.putDouble("MaxZ", box.maxZ);
-        ctag.put(name, ctag);
+        ctag.put(name, tag);
     }
 
     // Game areas
