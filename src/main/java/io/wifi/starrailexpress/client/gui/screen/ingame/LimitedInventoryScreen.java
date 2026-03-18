@@ -12,7 +12,6 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -32,8 +31,6 @@ import org.agmas.noellesroles.client.screen.GameManagementScreen;
 import org.agmas.noellesroles.client.screen.GuessRoleScreen;
 import org.agmas.noellesroles.client.screen.RoleIntroduceScreen;
 import org.jetbrains.annotations.NotNull;
-
-import com.terraformersmc.modmenu.api.ModMenuApi;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -123,18 +120,6 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
                         .builder(Component.translatable("screen.limited_inventory.menu.role_guess"), (btn) -> {
                             var screen = new GuessRoleScreen(this);
                             this.minecraft.setScreen(screen);
-                            toggleViewMenu(false);
-                        }).bounds(width - menuButtonWidth, startY - menuButtonHeight, menuButtonWidth, menuButtonHeight)
-                        .build();
-                this.menuSelections.add(btn1);
-                startY -= menuButtonHeight;
-            }
-            {
-                // modmenu
-                var btn1 = Button
-                        .builder(Component.translatable("screen.limited_inventory.menu.modmenu_settings"), (btn) -> {
-                            if (FabricLoader.getInstance().isModLoaded("modmenu"))
-                                this.minecraft.setScreen(ModMenuApi.createModsScreen(this));
                             toggleViewMenu(false);
                         }).bounds(width - menuButtonWidth, startY - menuButtonHeight, menuButtonWidth, menuButtonHeight)
                         .build();
