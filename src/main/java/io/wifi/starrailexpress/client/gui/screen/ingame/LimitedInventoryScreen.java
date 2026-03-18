@@ -8,6 +8,7 @@ import io.wifi.starrailexpress.util.ShopEntry;
 import io.wifi.ConfigCompact.ui.SettingMenuScreen;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -107,7 +108,8 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
                 // 职业介绍
                 var btn1 = Button
                         .builder(Component.translatable("screen.limited_inventory.menu.introduction"), (btn) -> {
-                            var screen = new RoleIntroduceScreen(this);
+                            var role = SREGameWorldComponent.KEY.get(this.minecraft.level).getRole(this.minecraft.player);
+                            var screen = new RoleIntroduceScreen(this, role);
                             this.minecraft.setScreen(screen);
                             toggleViewMenu(false);
                         }).bounds(width - menuButtonWidth, startY - menuButtonHeight, menuButtonWidth, menuButtonHeight)
