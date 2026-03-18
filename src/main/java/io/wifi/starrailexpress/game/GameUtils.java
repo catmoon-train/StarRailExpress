@@ -638,7 +638,7 @@ public class GameUtils {
 
         // --- 新增统计数据更新逻辑 (胜利/失败) ---
         GameUtils.WinStatus winStatus = roundEnd.getWinStatus();
-
+        SREWorldBlackoutComponent.KEY.get(world).reset();
         // 修复4: 检查是否为恋人胜利
         boolean isLoversWin = winStatus == WinStatus.LOVERS;
 
