@@ -1,47 +1,47 @@
 {
-  "argument.harpymodloader.role.notfound": "乘客身分 %s 不存在",
-  "argument.harpymodloader.role.found-multiple": "%s 存在多重身分",
+  "argument.harpymodloader.role.notfound": "乘客身份 %s 不存在",
+  "argument.harpymodloader.role.found-multiple": "%s 存在多重身份",
   "argument.harpymodloader.modifier.notfound": "詞條 %s 不存在",
   "argument.harpymodloader.modifier.found-multiple": "%s 存在多重附加詞條",
-
   "commands.setenabledrole.unchanged": "未作更改",
-  "commands.setenabledrole.enable.success": "乘客身分 %s 已被啟用",
-  "commands.setenabledrole.disable.success": "乘客身分 %s 已被停用",
-
+  "commands.setenabledrole.enable.success": "乘客身份 %s 已被啟用",
+  "commands.setenabledrole.disable.success": "乘客身份 %s 已被禁用",
   "commands.setenabledmodifier.unchanged": "未作更改",
   "commands.setenabledmodifier.enable.success": "附加詞條 %s 已被啟用",
-  "commands.setenabledmodifier.disable.success": "附加詞條 %s 已被停用",
-
-  "commands.forcerole.success": "已強制賦予乘客身分 %s 給玩家 %s",
-  "commands.forcerole.query": "玩家 %s 被強制賦予身分 %s",
-  "commands.forcerole.query.none": "玩家 %s 還沒有被強制賦予乘客身分",
-
-  "commands.listroles.role.title": "§b乘客身分",
+  "commands.setenabledmodifier.disable.success": "附加詞條 %s 已被禁用",
+  "commands.forcerole.success": "已強制賦予乘客身份 %s 給玩家 %s",
+  "commands.forcerole.query": "玩家 %s 被強制賦予身份 %s",
+  "commands.forcerole.query.none": "玩家 %s 還沒有被強制賦予乘客身份",
+  "commands.listroles.role.title": "§b乘客身份",
   "commands.listroles.modifier.title": "§e附加詞條",
   "commands.listroles.status.enabled.text": "§a[已啟用]",
-  "commands.listroles.status.enabled.hover": "§c點擊切換至停用狀態\n%s",
-  "commands.listroles.status.disabled.text": "§c[已停用]",
+  "commands.listroles.status.enabled.hover": "§c點擊切換至禁用狀態\n%s",
+  "commands.listroles.status.disabled.text": "§c[已禁用]",
   "commands.listroles.status.disabled.hover": "§a點擊切換至啟用狀態\n%s",
-
-
-  "commands.setrolecount.killer.set": "殺手數量已設定為 %s",
-  "commands.setrolecount.killer.auto": "殺手數量已設定為自動計算",
-  "commands.setrolecount.detective.set": "偵探數量已設定為 %s",
-  "commands.setrolecount.detective.auto": "偵探數量已設定為自動計算",
+  "commands.setrolecount.killer.set": "殺手數量已設置為 %s",
+  "commands.setrolecount.killer.auto": "殺手數量已設置為自動計算",
+  "commands.setrolecount.detective.set": "偵探數量已設置為 %s",
+  "commands.setrolecount.detective.auto": "偵探數量已設置為自動計算",
   "commands.setrolecount.reset": "殺手和偵探數量已重置為自動計算",
-
   "commands.changerole.success.changed": "已將玩家 %3$s 的角色從 %1$s 更改為 %2$s",
-  "commands.changerole.success.assigned": "已將玩家 %2$s 的角色設定為 %1$s",
+  "commands.changerole.success.assigned": "已將玩家 %2$s 的角色設置為 %1$s",
   "commands.changerole.player.notification": "您的角色已更改為 %1$s",
-
+  "commands.changemodifier.player.notification.add": "成功為玩家 %s 添加修飾符 %s",
+  "commands.changemodifier.player.notification.remove": "成功為玩家 %s 刪除修飾符 %s",
+  "commands.changemodifier.player.notification.failed.nostart": "修飾符修改失敗：未啟動遊戲！",
   "announcement.star.modifier": "附加詞條 ",
   "announcement.star.no_modifiers": "沒有附加詞條",
-
-  "commands.tmm.setroleweight.success": "角色 %s 的權重已設定為 %d",
-  "commands.tmm.setroleweight.failed": "設定角色權重失敗",
-  
+  "commands.tmm.setroleweight.success": "角色 %s 的權重已設置為 %d",
+  "commands.tmm.setroleweight.failed": "設置角色權重失敗",
   "commands.tmm.togglecustomroleweights.success": "自定義角色權重已%s",
-  
   "commands.tmm.checkweights.entry": "%s: 殺手=%s, 警衛=%s",
-  "commands.tmm.checkweights.header": "=== 玩家權重 ==="
+  "commands.tmm.checkweights.header": "=== 玩家權重 ===",
+  "============== CONFIG ==============": "",
+  "title.starrailexpress.role_config": "哈比角色管理",
+  "category.starrailexpress.config.role": "角色",
+  "category.starrailexpress.config.modifier": "修飾符",
+  "option.starrailexpress.role_id_tooltip": "ID: %s",
+  "option.starrailexpress.role_enable_option": "職業：%s",
+  "option.starrailexpress.modifier_enable_option": "修飾符：%s",
+  "category.starrailexpress.config.other": "其他"
 }
