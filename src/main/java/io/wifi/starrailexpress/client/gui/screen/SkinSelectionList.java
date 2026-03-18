@@ -17,9 +17,7 @@ import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
 
 public class SkinSelectionList extends ObjectSelectionList<SkinSelectionList.SkinEntry> {
@@ -76,6 +74,7 @@ public class SkinSelectionList extends ObjectSelectionList<SkinSelectionList.Ski
             }
             return 0;
         });
+        this.children().addFirst(new SkinEntry("default"));
     }
 
     private String getItemTypeName(ItemStack itemStack) {
@@ -85,9 +84,6 @@ public class SkinSelectionList extends ObjectSelectionList<SkinSelectionList.Ski
 
     private void collectAvailableSkins() {
         availableSkins.clear();
-
-        // 添加默认皮肤
-        availableSkins.add("default");
 
         // 添加已解锁的皮肤
         var unlockedSkins = skinsComponent.getUnlockedSkinsForItemType(itemTypeName);

@@ -36,7 +36,9 @@ public final class IntrovertedModifier {
 
         // 如果超过人群阈值，情绪值下降更快
         if (nearbyPlayers >= CROWD_COUNT_THRESHOLD) {
-            mood.addMood(GameConstants.MOOD_DRAIN * CROWD_DRAIN_MULTIPLIER);
+            mood.addMood(-GameConstants.MOOD_DRAIN * CROWD_DRAIN_MULTIPLIER);
+        }else{
+            mood.addMood(GameConstants.MOOD_DRAIN);
         }
     }
 

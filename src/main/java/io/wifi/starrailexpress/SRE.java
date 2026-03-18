@@ -226,7 +226,6 @@ public class SRE extends StarRailExpressID implements ModInitializer {
             SetRoleCountCommand.register(dispatcher);
             ConfigCommand.register(dispatcher);
             SwitchMapCommand.register(dispatcher);
-            UpdateDoorsCommand.register(dispatcher);
             ReloadReadyAreaCommand.register(dispatcher);
             EntityDataCommand.register(dispatcher);
             MoodChangeCommand.register(dispatcher);
@@ -384,6 +383,12 @@ public class SRE extends StarRailExpressID implements ModInitializer {
         } catch (Exception e) {
             LOGGER.error("初始化皮肤网络同步系统时出错", e);
         }
+    }
+
+    public static boolean isSkyVisible(@NotNull Entity player) {
+        BlockPos eyePos = BlockPos.containing(player.getEyePosition());
+        boolean canSeeSky = player.level().canSeeSky(eyePos);
+        return canSeeSky;
     }
 
     public static boolean isSkyVisibleAdjacent(@NotNull Entity player) {

@@ -1,6 +1,5 @@
 package org.agmas.noellesroles.mixin;
 
-import dev.doctor4t.wathe.cca.GameWorldComponent;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;

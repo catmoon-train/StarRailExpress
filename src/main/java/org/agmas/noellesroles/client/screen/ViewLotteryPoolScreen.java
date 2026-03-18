@@ -1,7 +1,6 @@
 package org.agmas.noellesroles.client.screen;
 
 import io.wifi.StarRailExpressID;
-import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.index.TMMItems;
 import net.minecraft.client.Minecraft;
@@ -10,7 +9,6 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -73,7 +71,7 @@ public class ViewLotteryPoolScreen extends AbstractPixelScreen{
                     i, j + ITEM_PIXELS_SIZE * pixelSize,
                     ITEM_PIXELS_SIZE * pixelSize, QUALITY_BAR_PIXELS_SIZE * pixelSize,
                     ITEM_PIXELS_SIZE, QUALITY_BAR_PIXELS_SIZE,
-                    LotteryManager.getInstance().getQualityBgResourceLocation(quality)
+                    LotteryManager.getQualityBgResourceLocation(quality)
             );
             button = Button.builder(
                     Component.empty(),
@@ -153,6 +151,7 @@ public class ViewLotteryPoolScreen extends AbstractPixelScreen{
                     curY += (ITEM_PIXELS_SIZE + QUALITY_BAR_PIXELS_SIZE + COL_INTERVAL_PIXELS) * pixelSize;
                 }
                 String itemName = itemNames.get(j);
+                
                 ItemCard itemCard = new ItemCard(
                         curX, curY,
                         pixelSize,

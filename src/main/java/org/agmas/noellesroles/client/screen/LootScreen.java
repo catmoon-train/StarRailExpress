@@ -87,7 +87,7 @@ public class LootScreen extends AbstractPixelScreen {
         }
         public Card(int x, int y, int w, int h, int poolID, Pair<Integer, Integer> qualityAndId, int pixelSize) {
             super(x, y, w, h, Component.empty());
-            skinBG = new TextureWidget(x, y, w, h, w, h,LotteryManager.getInstance().getQualityBgResourceLocation(qualityAndId.first));
+            skinBG = new TextureWidget(x, y, w, h, w, h,LotteryManager.getQualityBgResourceLocation(qualityAndId.first));
             skin = new TextureWidget(x + pixelSize, y + pixelSize,
                     w - 2 * pixelSize, h - 2 * pixelSize, w - 2 * pixelSize, h - 2 * pixelSize,
                     LotteryManager.getInstance().getLotteryPool(poolID)

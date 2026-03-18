@@ -41,7 +41,7 @@ public class NameTagCommand {
 
         // /nametag list [target] - 列出所有名片
         dispatcher.register(Commands.literal("nametag:list")
-                .executes(context -> listNametags(context, EntityArgument.getPlayer(context, "target")))
+                .executes(context -> listNametags(context, context.getSource().getPlayerOrException()))
                 .then(Commands.argument("target", EntityArgument.player())
                         .executes(context -> listNametags(context, EntityArgument.getPlayer(context, "target")))));
 

@@ -27,13 +27,16 @@ public class CameraMixin {
 
         float min = -intensity * 2;
         float max = intensity * 2;
-        float sampled = (float) sampler.noise((Minecraft.getInstance().level.getGameTime() % 24000L + Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false)) / intensity, offset, 0) * 1.5f;
+        float sampled = (float) sampler.noise((Minecraft.getInstance().level.getGameTime() % 24000L
+                + Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false)) / intensity, offset, 0) * 1.5f;
         return min >= max ? min : sampled * max;
     }
 
     @Inject(method = "setup", at = @At("RETURN"))
-    private void tmm$doScreenshake(BlockGetter area, Entity focusedEntity, boolean thirdPerson, boolean inverseView, float tickDelta, CallbackInfo ci) {
-        if (SREClient.isTrainMoving() && !SREConfig.instance().disableScreenShake) {
+    private void tmm$doScreenshake(BlockGetter area, Entity focusedEntity, boolean thirdPerson, boolean inverseView,
+            float tickDelta, CallbackInfo ci) {
+        if (SREClient.isTrainMoving() && !SREConfig.instance().disableScreenShake && SREClient.gameComponent.isRunning()
+                && SREClient.gameComponent.isOutsideSoundsAvailable()) {
             Camera camera = (Camera) (Object) this;
 
             LocalPlayer player = Minecraft.getInstance().player;
@@ -45,8 +48,8 @@ public class CameraMixin {
             float yawOffset = 0;
             float pitchOffset = 0;
 
-            if (SRE.isSkyVisibleAdjacent(player)) {
-                amplitude = .01f;
+            if (SRE.isSkyVisible(player)) {
+                amplitude = .004f;
                 strength = 1f;
 
                 if (SRE.isExposedToWind(player)) {
@@ -58,7 +61,8 @@ public class CameraMixin {
             amplitude *= v;
 
             camera.setRotation(camera.getYRot() + yawOffset, camera.getXRot() + pitchOffset);
-            camera.setPosition(camera.getPosition().add(0, Math.sin((age + tickDelta) * strength) / 2f * amplitude, Math.cos((age + tickDelta) * strength) * amplitude));
+            camera.setPosition(camera.getPosition().add(0, Math.sin((age + tickDelta) * strength) / 2f * amplitude,
+                    Math.cos((age + tickDelta) * strength) * amplitude));
         }
     }
 }

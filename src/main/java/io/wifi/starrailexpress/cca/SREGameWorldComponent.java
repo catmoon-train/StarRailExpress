@@ -41,8 +41,17 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
     private final Level world;
     private SRERoleWorldComponent roleWorldComponent = null;
     private boolean canJump = false;
+    private boolean haveOutsideSounds = false;
     private boolean lockedToSupporters = false;
     private boolean enableWeights = false;
+
+    public boolean isOutsideSoundsAvailable() {
+        return haveOutsideSounds;
+    }
+
+    public void setOutsideSoundsAvailable(boolean bl) {
+        haveOutsideSounds = bl;
+    }
 
     /**
      * 这里的技能指的部分职业（难民词条）
@@ -366,6 +375,7 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
         // this.lockedToSupporters = nbtCompound.getBoolean("LockedToSupporters");
         // this.enableWeights = nbtCompound.getBoolean("EnableWeights");
         this.canJump = nbtCompound.contains("canJump") ? nbtCompound.getBoolean("canJump") : false;
+        this.haveOutsideSounds = nbtCompound.contains("haveOutsideSounds") ? nbtCompound.getBoolean("haveOutsideSounds") : false;
         // this.syncRole = nbtCompound.getBoolean("SyncRole");
         // if (!syncRole) {
         if (nbtCompound.contains("GameMode"))
@@ -400,6 +410,8 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
         // nbtCompound.putBoolean("LockedToSupporters", lockedToSupporters);
         // nbtCompound.putBoolean("EnableWeights", enableWeights);
         // nbtCompound.putBoolean("SyncRole", syncRole);
+        if (haveOutsideSounds)
+            nbtCompound.putBoolean("haveOutsideSounds", haveOutsideSounds);
         if (canJump)
             nbtCompound.putBoolean("canJump", canJump);
         if (isSkillAvailable)

@@ -6,7 +6,6 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.MapVotingComponent;
 import io.wifi.starrailexpress.client.InputHandler;
 import io.wifi.starrailexpress.game.GameUtils;
-import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -61,7 +60,7 @@ public class LobbyPlayersRenderer {
         */
         
         // 绘制玩家计数文本
-        MutableComponent playerCountText = Component.translatable("lobby.players.count", readyPlayerCount, totalCount);
+        MutableComponent playerCountText = Component.translatable("lobby.sre.players.count", readyPlayerCount, totalCount);
         int textWidth = font.width(playerCountText);
         int textX = x + (bgWidth - textWidth) / 2;
         int textY = y + (bgHeight - font.lineHeight) / 2;
@@ -115,7 +114,6 @@ public class LobbyPlayersRenderer {
         if (mapVotingComponent.isVotingActive()) {
             // 投票信息框
             int bgWidth = 300;
-            int bgHeight = 40;
             int x = (guiGraphics.guiWidth() - bgWidth) / 2;
             int y = 50; // 在自动开始信息下方
             

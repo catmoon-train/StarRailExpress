@@ -17,7 +17,7 @@ public class SREConfig implements ConfigData {
     @ConfigEntry.Gui.Tooltip
     public boolean ultraPerfMode = false;
 
-    public boolean disableScreenShake = true;
+    public boolean disableScreenShake = false;
 
     public boolean disableStaminaBarSmoothing = false;
 
