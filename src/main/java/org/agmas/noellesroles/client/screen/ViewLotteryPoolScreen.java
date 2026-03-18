@@ -153,6 +153,7 @@ public class ViewLotteryPoolScreen extends AbstractPixelScreen{
                     curY += (ITEM_PIXELS_SIZE + QUALITY_BAR_PIXELS_SIZE + COL_INTERVAL_PIXELS) * pixelSize;
                 }
                 String itemName = itemNames.get(j);
+                
                 ItemCard itemCard = new ItemCard(
                         curX, curY,
                         pixelSize,
