@@ -1,3 +1,11 @@
+# 免责声明
+
+本模组是Wathe模组的附属模组，并改进了Wathe模组中的很多功能，本模组自带 `Harpymodloader`、`StupidExpress`、`Noellesroles`、`Harpy Simple Roles`模组的功能与内容，新增的职业中部分参考了`KinsWathe`模组中的职业。
+
+本模组完全开源免费，非盈利项目。
+
+我们使用和上游 `Noellesroles` 相同的 `GNU General Public License v3.0 only (GPL-3.0-only)` 协议。
+
 # 3.3 补丁更新日志
 注：此版本更新之后会在较长的一段时间之内不再更新任何新职业，转而完善现在已有的职业，此后模组将会进行一些底层的改动。
 
