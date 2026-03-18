@@ -86,6 +86,8 @@ public class AbstractNodeWidget extends AbstractWidget {
             AbstractNodeWidget node = create();
             node.BG_FILL_COLOR = BG_FILL_COLOR;
             node.BG_LINE_COLOR = BG_LINE_COLOR;
+            node.LAST_BG_FILL_COLOR = BG_FILL_COLOR;
+            node.LAST_BG_LINE_COLOR = BG_LINE_COLOR;
             node.m_i32Order = m_i32Order;
             node.m_bIsFillBg = m_bIsFillBg;
             node.m_bIsLineBg = m_bIsLineBg;
@@ -98,8 +100,8 @@ public class AbstractNodeWidget extends AbstractWidget {
         protected AbstractNodeWidget create() {
             return new AbstractNodeWidget(x, y, w, h, component);
         }
-        protected Color BG_FILL_COLOR = new Color(0x4F555555, true);
-        protected Color BG_LINE_COLOR = new Color(0xFF77CCFF, true);
+        protected Color BG_FILL_COLOR = DEFAULT_IDLE_FILL_COLOR;
+        protected Color BG_LINE_COLOR = DEFAULT_IDLE_LINE_COLOR;
         protected AbstractNodeWidget m_pParentNode = null;
         protected Component component;
         protected boolean m_bIsFillBg = false;
@@ -590,12 +592,23 @@ public class AbstractNodeWidget extends AbstractWidget {
             guiGraphics.disableScissor();
         }
     }
+    public static final Color DEFAULT_IDLE_FILL_COLOR = new Color(0x4F555555);
+    public static final Color DEFAULT_IDLE_LINE_COLOR = new Color(0xFF77CCFF);
+    public static final Color DEFAULT_HOVERD_FILL_COLOR = new Color(0x4F777777);
+    public static final Color DEFAULT_HOVERD_LINE_COLOR = new Color(0xFF99EEFF);
+    public static final Color DEFAULT_PRESSED_FILL_COLOR = new Color(0x4F222222);
+    public static final Color DEFAULT_PRESSED_LINE_COLOR = new Color(0xFF5599CC);
+    public static final Color DEFAULT_SELECTED_FILL_COLOR = new Color(0x4F555555);
+    public static final Color DEFAULT_SELECTED_LINE_COLOR = new Color(0xFFFFFF77);
+
     /** 根据层级从小到大排序，层级越小越先渲染；同层级会根据加入顺序决定；移除当前节点会将子节点都移除*/
     protected List<AbstractNodeWidget> m_vecNextNodes;
     /** 改变层级后会调整父层级中的列表*/
     protected AbstractNodeWidget m_pParentNode;
-    protected Color BG_FILL_COLOR = new Color(0x4F555555, true);
-    protected Color BG_LINE_COLOR = new Color(0xFF77CCFF, true);
+    protected Color BG_FILL_COLOR = new Color(DEFAULT_IDLE_FILL_COLOR.getRGB(), true);
+    protected Color BG_LINE_COLOR = new Color(DEFAULT_IDLE_LINE_COLOR.getRGB(), true);
+    protected Color LAST_BG_FILL_COLOR = null;
+    protected Color LAST_BG_LINE_COLOR = null;
     /** 是否填充背景色*/
     protected boolean m_bIsFillBg;
     /** 是否绘制线框*/

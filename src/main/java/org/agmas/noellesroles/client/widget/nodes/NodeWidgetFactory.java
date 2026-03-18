@@ -48,7 +48,7 @@ public class NodeWidgetFactory {
         return btn;
     }
 
-    public static ButtonNodeWidget createDefaultLabelBtn(int x, int y, int w, int h, Component component, AbstractNodeWidget parent, ButtonNodeWidget.OnClicked onClicked) {
+    public static ButtonNodeWidget createDefaultLabelBtn(int x, int y, int w, int h, Component component, AbstractNodeWidget parent, ButtonNodeWidget.OnCallBack onClicked) {
         ButtonNodeWidget btn = createDefaultLabelBtn(x, y, w, h, component, parent);
         if (onClicked != null)
             btn.setCallBack(onClicked);
