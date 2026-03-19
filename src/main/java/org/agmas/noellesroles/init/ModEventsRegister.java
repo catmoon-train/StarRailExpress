@@ -523,7 +523,10 @@ public class ModEventsRegister {
                 if (HandCuffsItem.hasHandCuff(target)) {
                     if (!player.getMainHandItem().isEmpty())
                         return InteractionResult.PASS;
-                    RoleUtils.insertStackInFreeSlot(player, HandCuffsItem.putOffHandCuff(player).copy());
+                    var fkit = HandCuffsItem.putOffHandCuff(target);
+                    if (fkit == null)
+                        return InteractionResult.FAIL;
+                    RoleUtils.insertStackInFreeSlot(player, fkit.copy());
                     player.displayClientMessage(
                             Component.translatable("item.noellesroles.handcuffs.put_off", target.getDisplayName())
                                     .withStyle(ChatFormatting.GREEN),

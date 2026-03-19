@@ -210,7 +210,6 @@ public class ExtraSlotComponent implements RoleComponent, ServerTickingComponent
     }
 
     public ItemStack removeSlot(@NotNull ResourceLocation slot) {
-        needSync.put(slot, true);
         var it = this.SLOTS.remove(slot);
         fullSync();
         return it;

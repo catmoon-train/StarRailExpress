@@ -30,6 +30,10 @@ public class HandCuffsItem extends Item {
         ExtraSlotComponent.setSlot(player, SLOT_HANDCUFFS, stack);
     }
 
+    public static ItemStack getHandCuffItemStack(Player player) {
+        return ExtraSlotComponent.getSlot(player, SLOT_HANDCUFFS);
+    }
+
     public static ItemStack putOffHandCuff(Player player) {
         return ExtraSlotComponent.removeSlot(player, SLOT_HANDCUFFS);
     }

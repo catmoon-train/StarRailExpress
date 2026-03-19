@@ -112,8 +112,15 @@ public class ExtraItemsManagerCommand {
     try {
       ServerPlayer player = EntityArgument.getPlayer(context, "player");
       var esc = ExtraSlotComponent.KEY.get(player);
+      if (esc.SLOTS.isEmpty()) {
+        context.getSource().sendSuccess(
+            () -> Component.translatable("%s doesn't have extra slots!",
+                player.getDisplayName()).withStyle(ChatFormatting.RED),
+            false);
+        return 0;
+      }
       context.getSource().sendSuccess(
-          () -> Component.translatable("The slots of player %s:",
+          () -> Component.translatable("The extra slots of player %s:",
               player.getDisplayName()).withStyle(ChatFormatting.GOLD),
           false);
       for (Entry<ResourceLocation, ItemStack> entry : esc.SLOTS.entrySet()) {
@@ -137,6 +144,8 @@ public class ExtraItemsManagerCommand {
       ServerPlayer player = EntityArgument.getPlayer(context, "player");
       var esc = ExtraSlotComponent.KEY.get(player);
       esc.clear();
+      context.getSource()
+          .sendSuccess(() -> Component.translatable("Cleared all extra slots of %s", player.getDisplayName()), true);
       return 1;
     } catch (Exception e) {
       e.printStackTrace();
