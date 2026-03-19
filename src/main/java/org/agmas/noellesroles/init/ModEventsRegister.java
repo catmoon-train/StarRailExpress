@@ -33,6 +33,7 @@ import org.agmas.noellesroles.entity.ServerSmokeAreaManager;
 import org.agmas.noellesroles.entity.WheelchairEntity;
 import org.agmas.noellesroles.events.OnVendingMachinesBuyItems;
 import org.agmas.noellesroles.game.ChairWheelRaceGame;
+import org.agmas.noellesroles.item.HandCuffsItem;
 import org.agmas.noellesroles.modifier.NRModifiers;
 import org.agmas.noellesroles.modifier.expedition.ExpeditionComponent;
 import org.agmas.noellesroles.packet.BloodConfigS2CPacket;
@@ -99,7 +100,6 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
@@ -518,12 +518,14 @@ public class ModEventsRegister {
                 return InteractionResult.PASS;
             if (!gameC.isRunning())
                 return InteractionResult.PASS;
+            if (HandCuffsItem.hasHandCuff(player)) {
+                return InteractionResult.PASS;
+            }
             if (entity instanceof Player target) {
-                if (target.getOffhandItem().is(ModItems.HANDCUFFS)) {
+                if (HandCuffsItem.hasHandCuff(target)) {
                     if (!player.getMainHandItem().isEmpty())
                         return InteractionResult.PASS;
-                    RoleUtils.insertStackInFreeSlot(player, target.getOffhandItem().copy());
-                    target.setItemSlot(EquipmentSlot.OFFHAND, ItemStack.EMPTY);
+                    RoleUtils.insertStackInFreeSlot(player, HandCuffsItem.putOffHandCuff(player).copy());
                     player.displayClientMessage(
                             Component.translatable("item.noellesroles.handcuffs.put_off", target.getDisplayName())
                                     .withStyle(ChatFormatting.GREEN),

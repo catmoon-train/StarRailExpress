@@ -3,7 +3,6 @@ package io.wifi.starrailexpress.mixin.entity;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 
-import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerAFKComponent;
 import io.wifi.starrailexpress.SRE;

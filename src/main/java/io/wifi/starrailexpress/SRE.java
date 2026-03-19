@@ -130,6 +130,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
         TMMRoles.addRoleComponents(SREPlayerNoteComponent.KEY);
         TMMRoles.addRoleComponents(SREPlayerPoisonComponent.KEY);
         TMMRoles.addRoleComponents(SREPlayerShopComponent.KEY);
+        TMMRoles.addRoleComponents(ExtraSlotComponent.KEY);
     }
 
     private void initConfig() {

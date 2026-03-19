@@ -76,12 +76,12 @@ public abstract class PlayerEntityMixin extends LivingEntity implements PlayerSt
             return original;
         }
         final var player = (Player) (Object) this;
-        if (GameUtils.isPlayerAliveAndSurvival(player)) {
+        if (GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)) {
             float speedModifier = 1.0f;
 
             if (player.hasEffect(MobEffects.MOVEMENT_SPEED)) {
                 final var speedEffect = player.getEffect(MobEffects.MOVEMENT_SPEED);
-                speedModifier *= (1 + speedEffect.getAmplifier() * 0.2f);
+                speedModifier *= (1f + speedEffect.getAmplifier() * 0.2f);
             }
 
             if (player.hasEffect(MobEffects.MOVEMENT_SLOWDOWN)) {
@@ -110,7 +110,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements PlayerSt
             if (role != null) {
                 maxSprintTime = role.getMaxSprintTime(player);
             }
-            if (role != null && (role.isCanUseKiller() || maxSprintTime == Integer.MAX_VALUE)) {
+            if (role != null && (maxSprintTime == Integer.MAX_VALUE)) {
                 return;
             }
             if (role != null && maxSprintTime >= 0) {

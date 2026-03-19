@@ -47,6 +47,7 @@ import io.wifi.starrailexpress.block_entity.SprinklerBlockEntity;
 import io.wifi.starrailexpress.block_entity.TrimmedBedBlockEntity;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.BartenderPlayerComponent;
+import io.wifi.starrailexpress.cca.ExtraSlotComponent;
 import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
 import io.wifi.starrailexpress.cca.SREGameScoreboardComponent;
 import io.wifi.starrailexpress.cca.SREGameTimeComponent;
@@ -805,6 +806,7 @@ public class GameUtils {
 
         player.setGameMode(net.minecraft.world.level.GameType.ADVENTURE);
         player.stopSleeping();
+        ExtraSlotComponent.KEY.get(player).clear();
     }
 
     public static void resetPlayerAfterGame(ServerPlayer player) {

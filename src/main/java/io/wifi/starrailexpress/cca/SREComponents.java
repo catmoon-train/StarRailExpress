@@ -32,6 +32,8 @@ public class SREComponents
                 .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(BartenderPlayerComponent::new);
         registry.beginRegistration(Player.class, SREPlayerTaskComponent.KEY)
                 .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(SREPlayerTaskComponent::new);
+        registry.beginRegistration(Player.class, ExtraSlotComponent.KEY)
+                .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(ExtraSlotComponent::new);
         registry.beginRegistration(Player.class, SREPlayerMoodComponent.KEY)
                 .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(SREPlayerMoodComponent::new);
         registry.beginRegistration(Player.class, SREPlayerShopComponent.KEY)
@@ -46,7 +48,8 @@ public class SREComponents
                 .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(SREPlayerNoteComponent::new);
         registry.beginRegistration(Player.class, SREPlayerStatsComponent.KEY)
                 .respawnStrategy(RespawnCopyStrategy.ALWAYS_COPY).end(SREPlayerStatsComponent::new);
-        registry.beginRegistration(Player.class, SREPlayerAFKComponent.KEY).respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
+        registry.beginRegistration(Player.class, SREPlayerAFKComponent.KEY)
+                .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
                 .end(SREPlayerAFKComponent::new);
         registry.beginRegistration(Player.class, SREPlayerSkinsComponent.KEY)
                 .respawnStrategy(RespawnCopyStrategy.ALWAYS_COPY).end(SREPlayerSkinsComponent::new);
