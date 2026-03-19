@@ -42,8 +42,8 @@ public class ExtraItemsManagerCommand {
                               .then(Commands.argument("item", ItemArgument.item(registryAccess))
                                   .then(Commands.argument("count", IntegerArgumentType.integer(0))
                                       .executes(ExtraItemsManagerCommand::executesSetItem)))))
-                      .then(Commands.literal("list")).executes(ExtraItemsManagerCommand::executeList)
-                      .then(Commands.literal("clear")).executes(ExtraItemsManagerCommand::executeClear))));
+                      .then(Commands.literal("list").executes(ExtraItemsManagerCommand::executeList))
+                      .then(Commands.literal("clear").executes(ExtraItemsManagerCommand::executeClear)))));
         });
 
   }
@@ -51,27 +51,27 @@ public class ExtraItemsManagerCommand {
   public static CompletableFuture<Suggestions> suggestsSlots(CommandContext<CommandSourceStack> context,
       SuggestionsBuilder builder) {
     String remaining = builder.getRemaining().toLowerCase(Locale.ROOT);
-      Set<String> suggestions = new HashSet<>();
-      // 添加自定义 ID 到 Set
-      ServerPlayer sp;
-      try {
-        sp = EntityArgument.getPlayer(context,"player");
-      } catch (CommandSyntaxException e) {
-        return builder.buildFuture();
-      }
-      var esc = ExtraSlotComponent.KEY.get(sp);
-      esc.SLOTS.keySet().stream()
-          .map(ResourceLocation::toString)
-          .filter(id -> id.toLowerCase(Locale.ROOT).startsWith(remaining))
-          .forEach(suggestions::add);
-      // 最后批量建议
-      suggestions.forEach((t) -> {
-        if (t != null) {
-          builder.suggest(t);
-        }
-      });
-
+    Set<String> suggestions = new HashSet<>();
+    // 添加自定义 ID 到 Set
+    ServerPlayer sp;
+    try {
+      sp = EntityArgument.getPlayer(context, "player");
+    } catch (CommandSyntaxException e) {
       return builder.buildFuture();
+    }
+    var esc = ExtraSlotComponent.KEY.get(sp);
+    esc.SLOTS.keySet().stream()
+        .map(ResourceLocation::toString)
+        .filter(id -> id.toLowerCase(Locale.ROOT).startsWith(remaining))
+        .forEach(suggestions::add);
+    // 最后批量建议
+    suggestions.forEach((t) -> {
+      if (t != null) {
+        builder.suggest(t);
+      }
+    });
+
+    return builder.buildFuture();
   }
 
   // suggestsSlots
@@ -117,9 +117,11 @@ public class ExtraItemsManagerCommand {
               player.getDisplayName()).withStyle(ChatFormatting.GOLD),
           false);
       for (Entry<ResourceLocation, ItemStack> entry : esc.SLOTS.entrySet()) {
-        var slot =entry.getKey();
+        var slot = entry.getKey();
         var it = entry.getValue();
-        context.getSource().sendSystemMessage(Component.translatable("%s: %s",slot.toString(),GameReplayUtils.getItemStackDisplayNameWithCounts(it)).withStyle(ChatFormatting.WHITE));
+        context.getSource().sendSystemMessage(
+            Component.translatable("%s: %s", slot.toString(), GameReplayUtils.getItemStackDisplayNameWithCounts(it))
+                .withStyle(ChatFormatting.WHITE));
       }
       ;
       return 1;
