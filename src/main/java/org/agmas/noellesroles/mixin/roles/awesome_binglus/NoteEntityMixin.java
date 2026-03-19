@@ -25,14 +25,15 @@ public abstract class NoteEntityMixin extends Entity {
         NoteEntity note = (NoteEntity) (Object) this;
         final var attached = note.getAttached(ModRoles.ENTITY_NOTE_MAKER);
         if (attached != null) {
-            if (note.tickCount >= 20 * 120){
+            if (note.tickCount >= 20 * 300) { // 5min
                 note.remove(Entity.RemovalReason.DISCARDED);
-            }else {
+            } else {
                 try {
-                    final Optional<? extends Player> first = level().players().stream().filter(player -> player.getUUID().toString().equals(attached)).findFirst();
-                    if (first.isPresent()){
+                    final Optional<? extends Player> first = level().players().stream()
+                            .filter(player -> player.getUUID().toString().equals(attached)).findFirst();
+                    if (first.isPresent()) {
                         Player player = first.get();
-                        if (!GameUtils.isPlayerAliveAndSurvival(player)){
+                        if (!GameUtils.isPlayerAliveAndSurvival(player)) {
                             note.remove(Entity.RemovalReason.DISCARDED);
                         }
                         double yawRadians = Math.toRadians(player.getYRot());
@@ -40,12 +41,12 @@ public abstract class NoteEntityMixin extends Entity {
                         double offsetZ = Math.cos(yawRadians) * -0.2;
                         note.setXRot(player.getXRot());
                         note.moveTo(player.getX() + offsetX, player.getY() + 1.25, player.getZ() + offsetZ,
-                            note.getYRot(), note.getXRot());
-                    }else {
+                                note.getYRot(), note.getXRot());
+                    } else {
                         note.remove(Entity.RemovalReason.DISCARDED);
                     }
 
-                }catch (Exception ignored){
+                } catch (Exception ignored) {
                     note.remove(Entity.RemovalReason.DISCARDED);
                 }
             }

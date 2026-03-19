@@ -127,6 +127,19 @@ public class ModItems {
             new Item(new Item.Properties().stacksTo(1)),
             "delusion_vial");
 
+    /**
+     * 马桶毒药
+     * - 毒师专属物品
+     * - 右键涂在马桶上，使下一个使用马桶的玩家中毒
+     * - 中毒时间：40-70秒
+     */
+    public static final Item TOILET_POISON = register(
+            new io.wifi.starrailexpress.item.ToiletPoisonItem(new Item.Properties().stacksTo(1)),
+            "toilet_poison");
+
+    /**
+     * 角色地雷
+     */
     public static final Item ROLE_MINE = register(
             new Item(new Item.Properties().stacksTo(1)),
             "role_mine");

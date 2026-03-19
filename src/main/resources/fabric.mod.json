@@ -129,6 +129,7 @@
       "stupid_express:split_personality",
       "harpymodloader:modifier",
       "starrailexpress:train",
+      "starrailexpress:extra_slots",
       "starrailexpress:game",
       "starrailexpress:roles",
       "starrailexpress:areas",
@@ -179,6 +180,7 @@
     "voicechat": "*",
     "architectury": "*",
     "exposure_polaroid": "*",
-    "exposure": "*"
+    "exposure": "*",
+    "sodium": "*"
   }
 }

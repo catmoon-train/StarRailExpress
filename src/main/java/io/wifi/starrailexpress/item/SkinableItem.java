@@ -36,6 +36,10 @@ public abstract class SkinableItem extends Item {
         } else {
             player = net.minecraft.client.Minecraft.getInstance().player;
         }
+        if (player == null) {
+            super.appendHoverText(itemStack, tooltipContext, list, tooltipFlag);
+            return;
+        }
 
         String skinName = "default";
         SREPlayerSkinsComponent skinsComponent = SREPlayerSkinsComponent.KEY.get(player);
@@ -53,7 +57,7 @@ public abstract class SkinableItem extends Item {
         } else if (skinName.equals("default") || skinName == null) {
             list.add(Component.translatable("tip.skin").withStyle(style -> style.withColor(Colors.GRAY))
                     .append(Component.translatableWithFallback("screen.sre.skins.default", "Default"))
-                            .withStyle(ChatFormatting.GRAY));
+                    .withStyle(ChatFormatting.GRAY));
         }
         super.appendHoverText(itemStack, tooltipContext, list, tooltipFlag);
     }

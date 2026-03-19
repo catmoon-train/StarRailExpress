@@ -3,8 +3,6 @@ package io.wifi.starrailexpress.mixin.compat.sodium;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.SkullBlockRenderer;
-import net.minecraft.client.resources.DefaultPlayerSkin;
-import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.client.resources.SkinManager;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.component.ResolvableProfile;
@@ -18,9 +16,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.util.Map;
+import io.wifi.starrailexpress.SRE;
 
-import static net.minecraft.client.renderer.RenderType.entityCutoutNoCullZOffset;
+import java.util.Map;
 
 @Mixin(SkullBlockRenderer.class)
 public class PlayerHeadFixerMixin {
@@ -43,7 +41,7 @@ public class PlayerHeadFixerMixin {
             }
             cir.cancel();
         } catch (Exception ignored) {
-            ignored.printStackTrace();
+            SRE.LOGGER.error("Error while rendering player head (Sodium Compact): ", ignored);
         }
         // return playerInfo.getSkin();
     }

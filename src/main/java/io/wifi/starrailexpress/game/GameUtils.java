@@ -47,6 +47,7 @@ import io.wifi.starrailexpress.block_entity.SprinklerBlockEntity;
 import io.wifi.starrailexpress.block_entity.TrimmedBedBlockEntity;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.BartenderPlayerComponent;
+import io.wifi.starrailexpress.cca.ExtraSlotComponent;
 import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
 import io.wifi.starrailexpress.cca.SREGameScoreboardComponent;
 import io.wifi.starrailexpress.cca.SREGameTimeComponent;
@@ -805,6 +806,7 @@ public class GameUtils {
 
         player.setGameMode(net.minecraft.world.level.GameType.ADVENTURE);
         player.stopSleeping();
+        ExtraSlotComponent.KEY.get(player).clear();
     }
 
     public static void resetPlayerAfterGame(ServerPlayer player) {
@@ -817,6 +819,22 @@ public class GameUtils {
         DimensionTransition teleportTarget = new DimensionTransition(player.serverLevel(), spawnPos.pos, Vec3.ZERO,
                 spawnPos.yaw, spawnPos.pitch, DimensionTransition.DO_NOTHING);
         player.changeDimension(teleportTarget);
+    }
+
+    public static void resetAllToilets(ServerLevel serverWorld) {
+        // Use the same method as train reset to iterate through loaded chunks
+        for (int x = serverWorld.getMinSection(); x <= serverWorld.getMaxSection(); x++) {
+            for (int z = serverWorld.getMinSection(); z <= serverWorld.getMaxSection(); z++) {
+                net.minecraft.world.level.chunk.LevelChunk chunk = serverWorld.getChunk(x, z);
+                if (chunk != null) {
+                    for (net.minecraft.world.level.block.entity.BlockEntity blockEntity : chunk.getBlockEntities().values()) {
+                        if (blockEntity instanceof io.wifi.starrailexpress.block_entity.ToiletBlockEntity toiletEntity) {
+                            toiletEntity.reset();
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public static boolean isPlayerEliminated(Player player) {
@@ -1613,6 +1631,9 @@ public class GameUtils {
                 entity.discard();
             for (NoteEntity entity : serverWorld.getEntities(TMMEntities.NOTE, entity -> true))
                 entity.discard();
+
+            // Reset all toilet block entities
+            resetAllToilets(serverWorld);
 
             SRE.LOGGER.info("Train door reset successful.");
             return false;

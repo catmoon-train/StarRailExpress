@@ -19,9 +19,6 @@ public abstract class TrueDarknessLightmapTextureManagerMixin {
     @WrapOperation(method = "updateLightTexture", at = @At(value = "INVOKE", target = "Lorg/joml/Vector3f;lerp(Lorg/joml/Vector3fc;F)Lorg/joml/Vector3f;", ordinal = 0))
     private Vector3f tmm$fuckYourBlueAssHueMojang(Vector3f instance, Vector3fc other, float t,
             Operation<Vector3f> original) {
-        Minecraft client = Minecraft.getInstance();
-        ClientLevel world = client.level;
-
         return original.call(instance, other, t);
     }
 

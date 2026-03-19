@@ -1,6 +1,7 @@
 package io.wifi.starrailexpress.util;
 
 import io.wifi.starrailexpress.block_entity.TrimmedBedBlockEntity;
+import io.wifi.starrailexpress.block_entity.ToiletBlockEntity;
 import io.wifi.starrailexpress.cca.SREPlayerPoisonComponent;
 import io.wifi.starrailexpress.network.PacketTracker;
 import io.wifi.starrailexpress.SRE;
@@ -86,6 +87,40 @@ public class PoisonComponentUtils {
             }
 
             PacketTracker.sendToClient(player, new PoisonOverlayPayload());
+        }
+    }
+
+    public static void toiletPoison(ServerPlayer player, ToiletBlockEntity toiletEntity) {
+        toiletPoison(player, toiletEntity, true);
+    }
+
+    public static void toiletPoison(ServerPlayer player, ToiletBlockEntity toiletEntity, boolean sendPacket) {
+        Level world = player.getCommandSenderWorld();
+
+        if (!world.isClientSide) {
+            int poisonTicks = SREPlayerPoisonComponent.KEY.get(player).poisonTicks;
+
+            // 先获取毒药使用者
+            UUID poisoner = toiletEntity.getPoisoner();
+
+            // 完全重置马桶方块实体状态
+            toiletEntity.reset();
+
+            if (poisonTicks == -1) {
+                SREPlayerPoisonComponent.KEY.get(player).setPoisonTicks(
+                        world.getRandom().nextIntBetweenInclusive(SREPlayerPoisonComponent.clampTime.getA(), SREPlayerPoisonComponent.clampTime.getB()),
+                        poisoner
+                );
+            } else {
+                SREPlayerPoisonComponent.KEY.get(player).setPoisonTicks(
+                        Mth.clamp(poisonTicks - world.getRandom().nextIntBetweenInclusive(100, 300), 0, SREPlayerPoisonComponent.clampTime.getB()),
+                        poisoner
+                );
+            }
+
+            if (sendPacket) {
+                PacketTracker.sendToClient(player, new PoisonOverlayPayload());
+            }
         }
     }
 

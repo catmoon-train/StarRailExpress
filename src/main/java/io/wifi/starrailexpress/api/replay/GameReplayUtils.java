@@ -13,6 +13,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 
 public class GameReplayUtils {
@@ -171,5 +172,12 @@ public class GameReplayUtils {
             }
         }
         return sourceName;
+    }
+
+    public static Component getItemStackDisplayNameWithCounts(ItemStack stack) {
+        if(stack == null || stack.isEmpty()){
+            return Items.AIR.getDefaultInstance().getDisplayName();
+        }
+        return stack.getDisplayName().copy().append("(").append(Integer.toString(stack.getCount())).append(")");
     }
 }

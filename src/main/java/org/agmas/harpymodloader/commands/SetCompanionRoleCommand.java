@@ -32,8 +32,6 @@ public class SetCompanionRoleCommand {
         SRERole primaryRole = RoleArgumentType.getRole(context, "primaryRole");
         SRERole companionRole = RoleArgumentType.getRole(context, "companionRole");
 
-        HarpyModLoaderConfig.HANDLER.save();
-
         Component primaryRoleText = Harpymodloader.getRoleName(primaryRole).withColor(primaryRole.color());
         Component companionRoleText = Harpymodloader.getRoleName(companionRole).withColor(companionRole.color());
 

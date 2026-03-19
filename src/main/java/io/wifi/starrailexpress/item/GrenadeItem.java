@@ -4,6 +4,7 @@ import io.wifi.starrailexpress.entity.GrenadeEntity;
 import io.wifi.starrailexpress.index.TMMEntities;
 import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.SREConfig;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
@@ -38,7 +39,7 @@ public class GrenadeItem extends SkinableItem {
 		if (!world.isClientSide) {
 			if (user instanceof Player player && player.getCooldowns().isOnCooldown(stack.getItem()))return;
 			if (user instanceof Player player)	 {
-				player.getCooldowns().addCooldown(stack.getItem(), 25 * 20);
+				player.getCooldowns().addCooldown(stack.getItem(), SREConfig.instance().grenadeCooldown);
 			}
 			// 计算蓄力时间
 			int chargeTime = this.getUseDuration(stack, user) - remainingUseTicks;

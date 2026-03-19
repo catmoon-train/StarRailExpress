@@ -13,7 +13,7 @@ public class SettingsCommand {
     public static void register() {
         ClientCommandRegistrationCallback.EVENT.register(
                 (dispatcher, registryAccess) -> {
-                    dispatcher.register(ClientCommandManager.literal("gameManage")
+                    dispatcher.register(ClientCommandManager.literal("tmm:gameManagePanel")
                             .executes(context -> {
                                 if (context.getSource().getPlayer().hasPermissions(2)) {
                                     ClientScheduler.schedule(() -> {

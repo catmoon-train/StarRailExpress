@@ -6,6 +6,7 @@ import com.mojang.logging.LogUtils;
 import com.mojang.realmsclient.gui.screens.RealmsNotificationsScreen;
 import com.terraformersmc.modmenu.api.ModMenuApi;
 
+import io.wifi.ConfigCompact.ui.SettingMenuScreen;
 import io.wifi.starrailexpress.SRE;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -246,6 +247,10 @@ public class StarRailExpressTitleScreen extends Screen {
         this.menuEntries.add(new MenuEntry(
                 Component.translatable("menu.sre.options"),
                 () -> this.minecraft.setScreen(new OptionsScreen(this, this.minecraft.options))));
+
+        this.menuEntries.add(new MenuEntry(
+                Component.translatable("menu.sre.train_options"),
+                () -> this.minecraft.setScreen(new SettingMenuScreen(this))));
         this.menuEntries.add(new MenuEntry(
                 Component.translatable("menu.sre.mod_config"),
                 () -> {

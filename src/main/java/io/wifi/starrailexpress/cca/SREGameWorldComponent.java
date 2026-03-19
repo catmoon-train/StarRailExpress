@@ -475,32 +475,14 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
         // }
         // }
 
-        // if not running and spectators or not in lobby reset them
-        if (serverWorld.getServer().getTickCount() % 20 == 0) {
-            for (ServerPlayer player : serverWorld.players()) {
-                if (!isRunning() && (player.isSpectator()
-                        && serverWorld.getServer().getProfilePermissions(player.getGameProfile()) < 2
-                        || (GameUtils.isPlayerAliveAndSurvival(player)
-                                && areas.playArea.contains(player.position())))) {
-                    GameUtils.resetPlayerAfterGame(player);
-                }
-            }
-        }
-
         if (serverWorld.getServer().overworld().equals(serverWorld)) {
-            SRETrainWorldComponent trainComponent = SRETrainWorldComponent.KEY.get(serverWorld);
-
-            // spectator limits
-            if (trainComponent.getSpeed() > 0) {
+            if (this.isRunning()) {
                 for (ServerPlayer player : serverWorld.players()) {
                     if (!GameUtils.isPlayerAliveAndSurvival(player) && isBound()
                             && !GameUtils.isPlayerCreative(player)) {
                         GameUtils.limitPlayerToBox(player, areas.playArea);
                     }
                 }
-            }
-
-            if (this.isRunning()) {
                 var gameWorldComponent = SREGameWorldComponent.KEY.get(world);
                 var worldModifierComponent = WorldModifierComponent.KEY.get(world);
                 for (ServerPlayer player : serverWorld.players()) {

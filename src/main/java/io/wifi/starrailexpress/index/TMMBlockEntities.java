@@ -25,6 +25,7 @@ public interface TMMBlockEntities {
     BlockEntityType<ChimneyBlockEntity> CHIMNEY = registrar.create("chimney", BlockEntityType.Builder.of(ChimneyBlockEntity::new, TMMBlocks.CHIMNEY));
     BlockEntityType<CameraBlockEntity> CAMERA = registrar.create("camera", BlockEntityType.Builder.of(CameraBlockEntity::new, TMMBlocks.CAMERA));
     BlockEntityType<SecurityMonitorBlockEntity> SECURITY_MONITOR = registrar.create("security_monitor", BlockEntityType.Builder.of(SecurityMonitorBlockEntity::new, TMMBlocks.SECURITY_MONITOR));
+    BlockEntityType<ToiletBlockEntity> TOILET = registrar.create("toilet", BlockEntityType.Builder.of(ToiletBlockEntity::create, TMMBlocks.LIGHT_TOILET, TMMBlocks.DARK_TOILET));
 
     static void initialize() {
         registrar.registerEntries();

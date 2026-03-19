@@ -15,6 +15,7 @@ import pro.fazeclan.river.stupid_express.StupidExpress;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 import pro.fazeclan.river.stupid_express.modifier.split_personality.cca.SkinSplitPersonalityComponent;
 import pro.fazeclan.river.stupid_express.modifier.split_personality.cca.SplitPersonalityComponent;
+import pro.fazeclan.river.stupid_express.modifier.split_personality.cca.SplitPersonalityComponent.ChoiceType;
 import pro.fazeclan.river.stupid_express.network.SplitBackCamera;
 
 import java.util.*;
@@ -33,8 +34,15 @@ public class SplitPersonalityHandler {
             if (!worldModifierComponent.isModifier(serverVictim, SEModifiers.SPLIT_PERSONALITY)) {
                 return true;
             }
-            var component = SplitPersonalityComponent.KEY.get(serverVictim);
 
+            var component = SplitPersonalityComponent.KEY.get(serverVictim);
+            if (deathReason.getPath().equals("disconnected")) {
+                if (component.getMainPersonality().equals(victim.getUUID())) {
+                    component.setMainPersonalityChoice(ChoiceType.SACRIFICE);
+                } else {
+                    component.setSecondPersonalityChoice(ChoiceType.SACRIFICE);
+                }
+            }
             // 检查是否是双重人格
             if (component.getMainPersonality() == null || component.getSecondPersonality() == null) {
                 resetSplitComponent(serverVictim);

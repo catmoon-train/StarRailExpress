@@ -22,6 +22,7 @@ import dev.doctor4t.ratatouille.client.util.ambience.BackgroundAmbience;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.block.SecurityMonitorBlock;
+import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.cca.SRETrainWorldComponent;
@@ -130,6 +131,7 @@ public class SREClient implements ClientModInitializer {
     public static Map<Player, Vec3> particleMap;
     private static boolean prevGameRunning;
     public static SREGameWorldComponent gameComponent;
+    public static AreasWorldComponent areaComponent;
     public static SRETrainWorldComponent trainComponent;
     public static SREPlayerMoodComponent moodComponent;
     public static int intervalTime = 0;
@@ -270,18 +272,21 @@ public class SREClient implements ClientModInitializer {
 
         AmbienceUtil.registerBackgroundAmbience(new MyBackgroundAmbience(TMMSounds.AMBIENT_TRAIN_INSIDE,
                 SoundSource.AMBIENT,
-                (player) -> GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player) && gameComponent.isOutsideSoundsAvailable() && isTrainMoving()
+                (player) -> GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)
+                        && gameComponent.isOutsideSoundsAvailable() && isTrainMoving()
                         && !SRE.isSkyVisible(player),
                 0.5f, 20, 10));
         AmbienceUtil.registerBackgroundAmbience(new MyBackgroundAmbience(TMMSounds.AMBIENT_TRAIN_OUTSIDE,
                 SoundSource.AMBIENT,
-                (player) -> GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player) && gameComponent.isOutsideSoundsAvailable() && isTrainMoving()
+                (player) -> GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)
+                        && gameComponent.isOutsideSoundsAvailable() && isTrainMoving()
                         && SRE.isSkyVisible(player),
                 0.6f, 20, 10));
 
         // Caching components
         ClientTickEvents.START_WORLD_TICK.register(clientWorld -> {
             gameComponent = SREGameWorldComponent.KEY.get(clientWorld);
+            areaComponent = AreasWorldComponent.KEY.get(clientWorld);
             trainComponent = SRETrainWorldComponent.KEY.get(clientWorld);
             moodComponent = SREPlayerMoodComponent.KEY.get(Minecraft.getInstance().player);
         });
@@ -602,7 +607,8 @@ public class SREClient implements ClientModInitializer {
     }
 
     public static boolean isTrainMoving() {
-        return trainComponent != null && trainComponent.getSpeed() > 0;
+        return gameComponent != null && gameComponent.isRunning() && trainComponent != null
+                && trainComponent.getSpeed() > 0;
     }
 
     public static class CustomModelProvider implements ModelLoadingPlugin {

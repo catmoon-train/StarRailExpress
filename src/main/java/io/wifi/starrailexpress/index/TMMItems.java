@@ -56,8 +56,6 @@ public interface TMMItems {
     Item DEFENSE_VIAL = registrar.create("defense_vial",
             new DefenseItem(new Item.Properties().stacksTo(1)));
     Item GRENADE = registrar.create("grenade", new GrenadeItem(new Item.Properties().stacksTo(1)), EQUIPMENT_GROUP);
-    // Item HandCuffsItem = registrar.create("hand_cuffs", new HandCuffsItem(new
-    // Item.Settings().maxCount(1)));
     Item FIRECRACKER = registrar.create("firecracker", new FirecrackerItem(new Item.Properties().stacksTo(1)),
             EQUIPMENT_GROUP);
     Item REVOLVER = registrar.create("revolver", new RevolverItem(new Item.Properties().stacksTo(1)),
