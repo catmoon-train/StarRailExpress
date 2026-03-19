@@ -169,6 +169,11 @@ public abstract class SodiumChunkRendererMixin {
             CallbackInfo ci,
             @Local(name = "sectionIndex") int sectionIndex) {
 
+        // ── 快速退出条件 ──
+        if (!SREClient.isTrainMoving())
+            return;
+        if (SREConfig.instance().isUltraPerfMode())
+            return;
         // ── 保证缓冲区存在（render 的 cleanup 注入先于下一帧 fillCommandBuffer，正常情况无需重建）──
         if (sre$cpuBuffer == null) {
             sre$cpuBuffer = MemoryUtil.memAlloc(RenderRegion.REGION_SIZE * 16);
@@ -180,12 +185,6 @@ public abstract class SodiumChunkRendererMixin {
         sre$cpuBuffer.putFloat(base + 4, 0f);
         sre$cpuBuffer.putFloat(base + 8, 0f);
         sre$cpuBuffer.putFloat(base + 12, 0f); // w 分量（填充，保持 std140 对齐）
-
-        // ── 快速退出条件 ──
-        if (!SREClient.isTrainMoving())
-            return;
-        if (SREConfig.instance().isUltraPerfMode())
-            return;
 
         // ── 计算本区块在世界中的起点坐标（区块对齐，16 的倍数） ──
         int secX = region.getOriginX() + LocalSectionIndex.unpackX(sectionIndex) * 16;
