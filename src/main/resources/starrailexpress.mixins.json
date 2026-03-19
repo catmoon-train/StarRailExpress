@@ -13,6 +13,7 @@
     "entity.living.LivingEntityMixin",
     "entity.player.CanRightClickMixin",
     "entity.player.HungerManagerMixin",
+    "entity.player.InventoryClearMixin",
     "entity.player.PlayerEntityMixin",
     "entity.player.PlayerInventoryMixin",
     "entity.player.SeatPosFixMixin",

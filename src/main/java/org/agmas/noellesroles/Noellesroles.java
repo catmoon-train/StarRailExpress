@@ -174,6 +174,7 @@ public class Noellesroles implements ModInitializer {
         ConfigCommand.register();
         LootCommand.register();
         VTCommand.register();
+        ExtraItemsManagerCommand.register();
         GameUtilsCommand.register();
         RoomCommand.register();
         StuckCommand.register();
