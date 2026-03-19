@@ -418,11 +418,11 @@ public class ModEventsRegister {
     private static boolean isEnabled = false;
 
     public static void registerEvents() {
-        /**
-         * 这只会发生在客户端
-         */
         MaChenXuEventHandler.register();
         SRE.cantUseChatHud.add((p) -> {
+            /**
+             * 这只会发生在客户端
+             */
             var deathPenalty = ModComponents.DEATH_PENALTY.get(p);
             if (deathPenalty.hasPenalty()) {
                 if (deathPenalty.chatEnabled == false)
@@ -515,8 +515,6 @@ public class ModEventsRegister {
         UseEntityCallback.EVENT.register((player, level, interactionHand, entity, entityHitResult) -> {
             var gameC = SREGameWorldComponent.KEY.get(level);
             if (!gameC.isRole(player, TMMRoles.VIGILANTE))
-                return InteractionResult.PASS;
-            if (!gameC.isRunning())
                 return InteractionResult.PASS;
             if (HandCuffsItem.hasHandCuff(player)) {
                 return InteractionResult.PASS;

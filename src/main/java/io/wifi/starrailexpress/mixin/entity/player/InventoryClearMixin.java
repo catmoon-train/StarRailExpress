@@ -71,7 +71,7 @@ public class InventoryClearMixin {
                     break; // 配额已满，提前结束
             }
         }
-        if (i != 0 && customCount > 0) {
+        if (i != 0 && customCount != 0) {
             esc.fullSync();
         }
         if (customCount != 0) {

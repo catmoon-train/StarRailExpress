@@ -115,6 +115,8 @@ public class ExtraSlotComponent implements RoleComponent, ServerTickingComponent
         if (!SAVE_FLAG && !syncMode) {
             return;
         }
+        if (fullSync)
+            tag.putBoolean("remove_all", true);
         if (this.SLOTS.isEmpty()) {
             return;
         }
@@ -136,8 +138,6 @@ public class ExtraSlotComponent implements RoleComponent, ServerTickingComponent
             listTag.add(slotTag);
         }
         tag.put("items", listTag);
-        if (fullSync)
-            tag.putBoolean("remove_all", true);
     }
 
     @Override
@@ -201,8 +201,8 @@ public class ExtraSlotComponent implements RoleComponent, ServerTickingComponent
 
     public void sync() {
         KEY.sync(this.player);
-        fullSync = false;
         needSync.clear();
+        fullSync = false;
     }
 
     public boolean hasItemStack(ItemStack itemStack) {
