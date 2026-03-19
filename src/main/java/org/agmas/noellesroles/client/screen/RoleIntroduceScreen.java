@@ -543,7 +543,7 @@ public class RoleIntroduceScreen extends Screen {
     @Override
     public void render(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
         // 渲染背景
-        renderBackground(g, mouseX, mouseY, partialTick);
+        // renderBackground(g, mouseX, mouseY, partialTick);
         // render要放在renderBackground后，其余前，否则会被遮挡。
         super.render(g, mouseX, mouseY, partialTick);
         // 其余代码

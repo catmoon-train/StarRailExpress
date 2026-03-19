@@ -21,6 +21,21 @@ public class RoleManageConfigUI {
     private static HashMap<ResourceLocation, Boolean> RoleEnableStatus = new HashMap<>();
     private static HashMap<ResourceLocation, Boolean> ModifierEnableStatus = new HashMap<>();
 
+    public static class RoleAndModifierSyncInfo {
+        public HashMap<ResourceLocation, Boolean> roleInfo;
+        public HashMap<ResourceLocation, Boolean> modifierInfo;
+
+        public RoleAndModifierSyncInfo() {
+            this(new HashMap<>(), new HashMap<>());
+        }
+
+        public RoleAndModifierSyncInfo(HashMap<ResourceLocation, Boolean> roleInfo,
+                HashMap<ResourceLocation, Boolean> modifierInfo) {
+            this.roleInfo = roleInfo;
+            this.modifierInfo = modifierInfo;
+        }
+    }
+
     public static void setRoleInfo(HashMap<ResourceLocation, Boolean> packetInfo) {
         RoleEnableStatus.clear();
         RoleEnableStatus.putAll(packetInfo);
@@ -40,6 +55,10 @@ public class RoleManageConfigUI {
                 .getOrCreateCategory(Component.translatable("category.starrailexpress.config.role"));
         ConfigCategory modifierCategory = builder
                 .getOrCreateCategory(Component.translatable("category.starrailexpress.config.modifier"));
+        if (Minecraft.getInstance().player == null) {
+            RoleEnableStatus.clear();
+            ModifierEnableStatus.clear();
+        }
         if (RoleEnableStatus.isEmpty()) {
             RoleEnableStatus.clear();
             for (var info : TMMRoles.ROLES.keySet()) {
@@ -103,6 +122,25 @@ public class RoleManageConfigUI {
                 }
             }
             HarpyModLoaderConfig.HANDLER.save();
+
+            if (Minecraft.getInstance().player != null && Minecraft.getInstance().player.connection != null) {
+                if (Minecraft.getInstance().player.hasPermissions(2)) {
+                    String roleCommandPrefix = "setEnabledRole";
+                    String modifierCommandPrefix = "setEnabledModifier";
+                    {
+                        Minecraft.getInstance().player.connection.sendCommand(roleCommandPrefix + " enableAll");
+                        Minecraft.getInstance().player.connection.sendCommand(modifierCommandPrefix + " enableAll");
+                    }
+                    for (var role : HarpyModLoaderConfig.HANDLER.instance().disabledModifiers) {
+                        Minecraft.getInstance().player.connection
+                                .sendCommand(modifierCommandPrefix + " " + role + " false");
+                    }
+                    for (var role : HarpyModLoaderConfig.HANDLER.instance().disabled) {
+                        Minecraft.getInstance().player.connection
+                                .sendCommand(roleCommandPrefix + " " + role + " false");
+                    }
+                }
+            }
         });
         return builder.build();
     }

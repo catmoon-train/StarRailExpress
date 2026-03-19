@@ -16,39 +16,54 @@ import org.agmas.harpymodloader.commands.argument.RoleArgumentType;
 import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
 
 public class SetEnabledRoleCommand {
-    public static final SimpleCommandExceptionType ROLE_UNCHANGED_EXCEPTION = new SimpleCommandExceptionType(Component.translatable("commands.setenabledrole.unchanged"));
-
+    public static final SimpleCommandExceptionType ROLE_UNCHANGED_EXCEPTION = new SimpleCommandExceptionType(
+            Component.translatable("commands.setenabledrole.unchanged"));
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("setEnabledRole")
                 .requires(serverCommandSource -> serverCommandSource.hasPermission(2))
-                .then(Commands.argument("role", RoleArgumentType.skipVanilla())
+                .then(Commands.literal("enableAll").executes(SetEnabledRoleCommand::enableAll))
+                .then(Commands.argument("role", RoleArgumentType.create())
                         .then(Commands.argument("enabled", BoolArgumentType.bool())
-                                .executes(SetEnabledRoleCommand::execute))
-                )
-        );
+                                .executes(SetEnabledRoleCommand::execute))));
+    }
+
+    private static int enableAll(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        if (!Harpymodloader.isMojangVerify) {
+            return 1;
+        }
+
+        HarpyModLoaderConfig.HANDLER.instance().disabled.clear();
+        HarpyModLoaderConfig.HANDLER.save();
+        context.getSource()
+                .sendSuccess(() -> Component.translatable("commands.setenabledrole.enable.success", "ALL"), true);
+
+        return 1;
     }
 
     private static int execute(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
-        if(!Harpymodloader.isMojangVerify) {
+        if (!Harpymodloader.isMojangVerify) {
             return 1;
         }
         SRERole role = RoleArgumentType.getRole(context, "role");
         boolean enabled = BoolArgumentType.getBool(context, "enabled");
-        HarpyModLoaderConfig.HANDLER.save();
         String roleId = role.identifier().toString();
         boolean disabled = HarpyModLoaderConfig.HANDLER.instance().disabled.contains(roleId);
-        Component roleText = Harpymodloader.getRoleName(role).withColor(role.color()).withStyle(style -> style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal(roleId))));
+        Component roleText = Harpymodloader.getRoleName(role).withColor(role.color()).withStyle(
+                style -> style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal(roleId))));
 
         if (disabled && enabled) {
             HarpyModLoaderConfig.HANDLER.instance().disabled.remove(roleId);
             HarpyModLoaderConfig.HANDLER.save();
-            context.getSource().sendSuccess(() -> Component.translatable("commands.setenabledrole.enable.success", roleText), true);
+            context.getSource().sendSuccess(
+                    () -> Component.translatable("commands.setenabledrole.enable.success", roleText), true);
         } else if (!disabled && !enabled) {
             HarpyModLoaderConfig.HANDLER.instance().disabled.add(roleId);
             HarpyModLoaderConfig.HANDLER.save();
-            context.getSource().sendSuccess(() -> Component.translatable("commands.setenabledrole.disable.success", roleText), true);
-        } else throw ROLE_UNCHANGED_EXCEPTION.create();
+            context.getSource().sendSuccess(
+                    () -> Component.translatable("commands.setenabledrole.disable.success", roleText), true);
+        } else
+            throw ROLE_UNCHANGED_EXCEPTION.create();
 
         HarpyModLoaderConfig.HANDLER.save();
         return 1;
