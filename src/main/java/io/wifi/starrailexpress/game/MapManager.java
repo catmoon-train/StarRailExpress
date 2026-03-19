@@ -181,7 +181,7 @@ public class MapManager {
             } else {
                 areas.noReset = false;
             }
-            
+
             if (jsonObject.has("haveOutsideSound")) {
                 areas.haveOutsideSound = jsonObject.get("haveOutsideSound").getAsBoolean();
             } else {
@@ -192,6 +192,25 @@ public class MapManager {
             } else {
                 areas.canJump = false;
             }
+            if (jsonObject.has("sceneScroll")) {
+                String scrollWay = jsonObject.get("sceneScroll").getAsString();
+                switch (scrollWay) {
+                    case "X":
+                        areas.SceneScrollAxis = AreasWorldComponent.ScrollAxis.X;
+                        break;
+                    case "Y":
+                        areas.SceneScrollAxis = AreasWorldComponent.ScrollAxis.Y;
+                        break;
+                    case "Z":
+                        areas.SceneScrollAxis = AreasWorldComponent.ScrollAxis.Z;
+                        break;
+                    default:
+                        areas.SceneScrollAxis = AreasWorldComponent.ScrollAxis.NONE;
+                }
+            } else {
+                areas.SceneScrollAxis = AreasWorldComponent.ScrollAxis.NONE;
+            }
+
             if (jsonObject.has("canSwim")) {
                 areas.canSwim = jsonObject.get("canSwim").getAsBoolean();
             } else {
@@ -263,7 +282,6 @@ public class MapManager {
             } else {
                 SRE.LOGGER.warn("Missing play area offset data in map config: " + mapName);
             }
-
             if (jsonObject.has("playArea")) {
 
                 JsonObject playAreaObj = jsonObject.getAsJsonObject("playArea");
@@ -282,6 +300,23 @@ public class MapManager {
                 SRE.LOGGER.warn("Missing play area data in map config: " + mapName);
             }
 
+            if (jsonObject.has("sceneArea")) {
+                JsonObject sceneAreaObj = jsonObject.getAsJsonObject("sceneArea");
+                areas.setSceneArea(new AABB(
+                        sceneAreaObj.get("minX").getAsDouble(),
+                        sceneAreaObj.get("minY").getAsDouble(),
+                        sceneAreaObj.get("minZ").getAsDouble(),
+                        sceneAreaObj.get("maxX").getAsDouble(),
+                        sceneAreaObj.get("maxY").getAsDouble(),
+                        sceneAreaObj.get("maxZ").getAsDouble()));
+                SRE.LOGGER.info("Loaded 'sceneArea': " + sceneAreaObj.get("minX").getAsDouble() + "," +
+                        sceneAreaObj.get("minY").getAsDouble() + "," + sceneAreaObj.get("minZ").getAsDouble() + " to " +
+                        sceneAreaObj.get("maxX").getAsDouble() + "," + sceneAreaObj.get("maxY").getAsDouble() + "," +
+                        sceneAreaObj.get("maxZ").getAsDouble());
+            } else {
+                areas.setSceneArea(areas.getPlayArea());
+                SRE.LOGGER.warn("Missing 'sceneArea' data in map config: " + mapName);
+            }
             if (jsonObject.has("resetTemplateArea")) {
                 JsonObject resetTemplateAreaObj = jsonObject.getAsJsonObject("resetTemplateArea");
                 areas.setResetTemplateArea(new AABB(

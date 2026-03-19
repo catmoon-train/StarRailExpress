@@ -135,6 +135,15 @@
     "maxY": 30,
     "maxZ": 100
   },
+  "sceneArea": { // 背景位置
+    "minX": 0,
+    "minY": 40,
+    "minZ": 0,
+    "maxX": 100,
+    "maxY": 50,
+    "maxZ": 100
+  },
+  "sceneScroll": "X", // 背景移动方向，支持 X, Y, Z, NONE（不移动）。
   "resetPasteArea": { // 粘贴区域，地图将会粘贴到这里
     "minX": 0,
     "minY": 20,

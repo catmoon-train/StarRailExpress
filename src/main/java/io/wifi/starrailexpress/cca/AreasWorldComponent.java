@@ -31,6 +31,13 @@ public class AreasWorldComponent implements AutoSyncedComponent {
             AreasWorldComponent.class);
     private final Level world;
 
+    /** 景色滚动方向轴 */
+    public static enum ScrollAxis {
+        X, Y, Z, NONE
+    }
+
+    public ScrollAxis SceneScrollAxis = ScrollAxis.X;
+
     public static class PosWithOrientation {
         public final Vec3 pos;
         public final float yaw;
@@ -119,15 +126,16 @@ public class AreasWorldComponent implements AutoSyncedComponent {
     PosWithOrientation spawnPos = new PosWithOrientation(-872.5f, 0f, -323f, 90f, 0f);
     PosWithOrientation spectatorSpawnPos = new PosWithOrientation(-68f, 133f, -535.5f, -90f, 15f);
 
-    AABB readyArea = new AABB(-1017, -1, -363.5f, -813, 3, -357.5f);
-    Vec3 playAreaOffset = new Vec3(963, 121, -175);
-    AABB playArea = new AABB(177, 60, -524, -82, 84, -546);
+    AABB readyArea = new AABB(0, 0, 0, 100, 10, 100);
+    Vec3 playAreaOffset = new Vec3(0, 0, 0);
+    AABB sceneArea = new AABB(0, 20, 0, 100, 30, 100);
+    AABB playArea = new AABB(0, 0, 0, 100, 10, 100);
 
-    AABB resetTemplateArea = new AABB(177, 60, -524, -82, 84, -546);
-    AABB resetPasteArea = new AABB(177, 115, -524, -82, 139, -546); // Default: resetTemplateArea.offset(0, 55, 0)
+    AABB resetTemplateArea = new AABB(0, 0, 0, 0, 0, 0);
+    AABB resetPasteArea = new AABB(0, 0, 0, 0, 0, 0); // Default: resetTemplateArea.offset(0, 55, 0)
 
     // Room count
-    int roomCount = 7;
+    int roomCount = 1;
 
     // Room positions map
     Map<Integer, Vec3> roomPositions = new HashMap<>();
@@ -157,6 +165,10 @@ public class AreasWorldComponent implements AutoSyncedComponent {
         return readyArea;
     }
 
+    public void setSceneArea(AABB area) {
+        this.sceneArea = area;
+    }
+
     public void setReadyArea(AABB readyArea) {
         this.readyArea = readyArea;
     }
@@ -167,6 +179,10 @@ public class AreasWorldComponent implements AutoSyncedComponent {
 
     public void setPlayAreaOffset(Vec3 playAreaOffset) {
         this.playAreaOffset = playAreaOffset;
+    }
+
+    public AABB getSceneArea() {
+        return sceneArea;
     }
 
     public AABB getPlayArea() {
@@ -315,6 +331,16 @@ public class AreasWorldComponent implements AutoSyncedComponent {
         if (tag.contains("readyArea")) {
             this.readyArea = getBoxFromNbt(tag, "readyArea");
         }
+        if (tag.contains("playArea")) {
+            this.readyArea = getBoxFromNbt(tag, "playArea");
+        }
+        if (tag.contains("sceneArea")) {
+            this.sceneArea = getBoxFromNbt(tag, "sceneArea");
+        }
+        if(tag.contains("SceneScrollAxis")){
+            String tmp = tag.getString("SceneScrollAxis");
+            this.SceneScrollAxis = ScrollAxis.valueOf(tmp);
+        }
         this.canJump = tag.contains("canJump") ? tag.getBoolean("canJump") : false;
         this.canSwim = tag.contains("canSwim") ? tag.getBoolean("canSwim") : false;
         this.haveOutsideSound = tag.contains("haveOutsideSound") ? tag.getBoolean("haveOutsideSound") : false;
@@ -340,6 +366,15 @@ public class AreasWorldComponent implements AutoSyncedComponent {
         // "spectatorSpawnPos");
         if (this.readyArea != null) {
             writeBoxToNbt(tag, this.readyArea, "readyArea");
+        }
+        if (this.playArea != null) {
+            writeBoxToNbt(tag, this.playArea, "playArea");
+        }
+        if (this.sceneArea != null) {
+            writeBoxToNbt(tag, this.sceneArea, "sceneArea");
+        }
+        if (this.SceneScrollAxis != null) {
+            tag.putString("SceneScrollAxis", SceneScrollAxis.toString());
         }
         // writeVec3dToNbt(tag, this.playAreaOffset, "playAreaOffset");
         // writeBoxToNbt(tag, this.playArea, "playArea");

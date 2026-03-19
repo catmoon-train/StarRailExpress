@@ -22,6 +22,7 @@ import dev.doctor4t.ratatouille.client.util.ambience.BackgroundAmbience;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.block.SecurityMonitorBlock;
+import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.cca.SRETrainWorldComponent;
@@ -130,6 +131,7 @@ public class SREClient implements ClientModInitializer {
     public static Map<Player, Vec3> particleMap;
     private static boolean prevGameRunning;
     public static SREGameWorldComponent gameComponent;
+    public static AreasWorldComponent areaComponent;
     public static SRETrainWorldComponent trainComponent;
     public static SREPlayerMoodComponent moodComponent;
     public static int intervalTime = 0;
@@ -282,6 +284,7 @@ public class SREClient implements ClientModInitializer {
         // Caching components
         ClientTickEvents.START_WORLD_TICK.register(clientWorld -> {
             gameComponent = SREGameWorldComponent.KEY.get(clientWorld);
+            areaComponent = AreasWorldComponent.KEY.get(clientWorld);
             trainComponent = SRETrainWorldComponent.KEY.get(clientWorld);
             moodComponent = SREPlayerMoodComponent.KEY.get(Minecraft.getInstance().player);
         });
