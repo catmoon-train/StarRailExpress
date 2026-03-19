@@ -5,7 +5,8 @@
   "mixins": [
     "BlockWathe",
     "cca.CCAWatheBlockMixin",
-    "cca.ModComponentBlocker"
+    "cca.ModComponentBlocker",
+    "cca.CCAHttpBlocker"
   ],
   "injectors": {
     "defaultRequire": 1
