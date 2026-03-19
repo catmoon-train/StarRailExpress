@@ -1,5 +1,12 @@
 package org.agmas.noellesroles.client.screen;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
+
+import org.agmas.noellesroles.commands.GameUtilsCommand;
+
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
@@ -9,13 +16,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
-
-import org.agmas.noellesroles.commands.GameUtilsCommand;
 
 public class GameManagementScreen extends Screen {
 
@@ -232,9 +232,9 @@ public class GameManagementScreen extends Screen {
         CATEGORIES.add(maps);
 
         // ── 分类：调试工具 ──────────────────────────────────────────
-        Category debug = new Category("screen.game_manage.category.debug", 0xFF778899);
+        Category misc = new Category("screen.game_manage.category.misc", 0xFF778899);
 
-        debug.section("screen.game_manage.section.infos", 0xFF778899)
+        misc.section("screen.game_manage.section.infos", 0xFF778899)
 
                 .add(Entry.button("screen.game_manage.btn.list_roles",
                         "listRoles", 0xFF667788))
@@ -249,11 +249,13 @@ public class GameManagementScreen extends Screen {
                 .add(Entry.button("screen.game_manage.btn.list_roles",
                         "listRoles", 0xFF667788));
 
-        debug.section("screen.game_manage.section.misc", 0xFF5577BB)
+        misc.section("screen.game_manage.section.misc", 0xFF5577BB)
                 .add(Entry.button("screen.game_manage.btn.reload_config",
-                        "tmm:config reload", 0xFF5577CC));
+                        "tmm:config reload", 0xFF5577CC))
+                .add(Entry.button("screen.game_manage.btn.role_management",
+                        "manageRolesUI", 0xFF26f5fC));
 
-        CATEGORIES.add(debug);
+        CATEGORIES.add(misc);
     }
 
     // ══════════════════════════════════════════════════════════════════
