@@ -823,6 +823,7 @@
   "tip.game_manage.send_command": "已发送命令：%s",
   "screen.game_manage.click_to_send": "点击执行命令：%s",
   "tip.game_manage.click_to_suggest": "点击将命令填充到聊天栏",
+  "screen.game_manage.hint": "按下 ESC 返回",
   "screen.game_manage.title": "游戏管理",
   "screen.game_manage.category.game": "游戏管理",
   "screen.game_manage.section.start": "开始游戏",
