@@ -27,7 +27,7 @@ public class SansRenderer {
     private static final float PASSIVE_THRESHOLD = .0002f;
     private static final float BT_DELAY = 5f * 20;
 
-    public static final ResourceLocation BLOOD_TENDRILS_OVERLAY = ResourceLocation.tryBuild(SRE.MOD_ID, "textures/overlay/blood_tendrils.png");
+    public static final ResourceLocation BLOOD_TENDRILS_OVERLAY = SRE.id("textures/overlay/blood_tendrils.png");
 
     public static final MutableComponent[] HINTS0;
     public static final MutableComponent[] HINTS1;
@@ -91,7 +91,8 @@ public class SansRenderer {
     private MutableComponent m_hint;
 
     private void renderHint(Gui gui, PoseStack poseStack, float partialTicks, int scw, int sch, GuiGraphics graphics) {
-        if (m_mc.player == null || m_mc.player.isCreative() || m_mc.player.isSpectator() || m_hint == null || m_cap == null || m_cap.getMood() > .36f)
+        if (m_mc.player == null || m_mc.player.isCreative() || m_mc.player.isSpectator() || m_hint == null
+                || m_cap == null || m_cap.getMood() > .36f)
             return;
 
         RenderSystem.enableBlend();
@@ -115,7 +116,9 @@ public class SansRenderer {
 
         float o = ((int) m_showingHintTimer % 10) / 10f;
         o = ((int) m_showingHintTimer / 10) % 2 == 0 ? o : 1 - o;
-        int opacity = Mth.clamp((int)(Mth.lerp(o, (m_showingHintTimer >= m_maxShowingHintTimer - 9f) || m_showingHintTimer < 10f ? 0f : .5f, 1f) * 0xFF), 0x10, 0xEF) << 24;
+        int opacity = Mth.clamp((int) (Mth.lerp(o,
+                (m_showingHintTimer >= m_maxShowingHintTimer - 9f) || m_showingHintTimer < 10f ? 0f : .5f, 1f) * 0xFF),
+                0x10, 0xEF) << 24;
 
         float pX = -gui.getFont().width(m_hint) / 2f;
         float pY = -gui.getFont().lineHeight / 2f;
@@ -123,10 +126,10 @@ public class SansRenderer {
         // 添加文字阴影效果（如果理智很低）
         if (m_cap.getMood() < 0.25f) {
             int shadowColor = 0xAA0000 | (opacity >> 24 << 24); // 红色阴影
-            graphics.drawString(gui.getFont(), m_hint, (int)(pX + 1), (int)(pY + 1), shadowColor, true);
+            graphics.drawString(gui.getFont(), m_hint, (int) (pX + 1), (int) (pY + 1), shadowColor, true);
         }
 
-        graphics.drawString(gui.getFont(), m_hint, (int)pX, (int)pY, 0xFFFFFF | opacity, true);
+        graphics.drawString(gui.getFont(), m_hint, (int) pX, (int) pY, 0xFFFFFF | opacity, true);
         poseStack.popPose();
         RenderSystem.disableBlend();
     }
@@ -152,118 +155,120 @@ public class SansRenderer {
             return processPlayer(mc.player, cap -> {
                 if (cap.getMood() > .35f && SREPlayerPsychoComponent.KEY.get(mc.player).psychoTicks <= 0)
                     return false;
-                
+
                 var effect = pass.getEffect();
-                if (effect == null) return false;
-                
+                if (effect == null)
+                    return false;
+
                 var desaturateUniform = effect.safeGetUniform("DesaturateFactor");
                 if (desaturateUniform != null) {
                     desaturateUniform.set(MathHelper.clampNorm(Mth.inverseLerp(1, .4f, .8f)) * .69f);
                 }
-                
+
                 var spreadUniform = effect.safeGetUniform("SpreadFactor");
                 if (spreadUniform != null) {
                     spreadUniform.set(MathHelper.clampNorm(Mth.inverseLerp(1, .4f, .8f)) * 1.43f);
                 }
-                
+
                 return true;
             });
         });
-//        m_post.addSinglePassEntry("crazy", pass -> {
-//            return processPlayer(mc.player, cap -> {
-//                PlayerPsychoComponent psycho = PlayerPsychoComponent.KEY.get(mc.player);
-//                if (psycho.psychoTicks <= 0)
-//                    return false;
-//
-//                // 获取着色器效果
-//                var effect = pass.getEffect();
-//                if (effect == null) return false;
-//
-//                // 设置uniform参数
-//                float gameTime = m_post.getTime() / 20.0f;
-//
-//                // 安全设置uniform值，添加null检查
-//                var timeUniform = effect.safeGetUniform("Time");
-//                if (timeUniform != null) timeUniform.set(gameTime);
-//
-//                var gameTimeUniform = effect.safeGetUniform("GameTime");
-//                if (gameTimeUniform != null) gameTimeUniform.set(gameTime);
-//
-////                RenderTarget mainTarget = mc.getMainRenderTarget();
-////                var screenSizeUniform = effect.safeGetUniform("ScreenSize");
-////                if (screenSizeUniform != null && mainTarget != null) {
-////                    screenSizeUniform.set((float)mainTarget.width, (float)mainTarget.height);
-////                }
-//
-//                // 计算强度
-//                float intensity;
-//                if (GameConstants.getPsychoTimer() > 0) {
-//                    intensity = Mth.clamp((GameConstants.getPsychoTimer() - psycho.psychoTicks) / (float) GameConstants.getPsychoTimer(), 0.0f, 1.0f);
-//                } else {
-//                    intensity = 0.5f;
-//                }
-//
-//                var intensityUniform = effect.safeGetUniform("Intensity");
-//                if (intensityUniform != null) intensityUniform.set(intensity);
-//
-//                var distortionUniform = effect.safeGetUniform("DistortionStrength");
-//                if (distortionUniform != null) distortionUniform.set(intensity * 0.1f);
-//
-//                var chromaticUniform = effect.safeGetUniform("ChromaticAberration");
-//                if (chromaticUniform != null) chromaticUniform.set(intensity * 0.02f);
-//
-//                var flickerUniform = effect.safeGetUniform("FlickerSpeed");
-//                if (flickerUniform != null) flickerUniform.set(5.0f + intensity * 5.0f);
-//
-//                var scanlineUniform = effect.safeGetUniform("ScanlineStrength");
-//                if (scanlineUniform != null) scanlineUniform.set(intensity * 0.3f);
-//
-//                return true;
-//            });
-//        });
+        // m_post.addSinglePassEntry("crazy", pass -> {
+        // return processPlayer(mc.player, cap -> {
+        // PlayerPsychoComponent psycho = PlayerPsychoComponent.KEY.get(mc.player);
+        // if (psycho.psychoTicks <= 0)
+        // return false;
+        //
+        // // 获取着色器效果
+        // var effect = pass.getEffect();
+        // if (effect == null) return false;
+        //
+        // // 设置uniform参数
+        // float gameTime = m_post.getTime() / 20.0f;
+        //
+        // // 安全设置uniform值，添加null检查
+        // var timeUniform = effect.safeGetUniform("Time");
+        // if (timeUniform != null) timeUniform.set(gameTime);
+        //
+        // var gameTimeUniform = effect.safeGetUniform("GameTime");
+        // if (gameTimeUniform != null) gameTimeUniform.set(gameTime);
+        //
+        //// RenderTarget mainTarget = mc.getMainRenderTarget(); / var screenSizeUniform
+        /// = effect.safeGetUniform("ScreenSize"); / if (screenSizeUniform != null &&
+        /// mainTarget != null) { / screenSizeUniform.set((float)mainTarget.width,
+        /// (float)mainTarget.height); / }
+        //
+        // // 计算强度
+        // float intensity;
+        // if (GameConstants.getPsychoTimer() > 0) {
+        // intensity = Mth.clamp((GameConstants.getPsychoTimer() - psycho.psychoTicks) /
+        // (float) GameConstants.getPsychoTimer(), 0.0f, 1.0f);
+        // } else {
+        // intensity = 0.5f;
+        // }
+        //
+        // var intensityUniform = effect.safeGetUniform("Intensity");
+        // if (intensityUniform != null) intensityUniform.set(intensity);
+        //
+        // var distortionUniform = effect.safeGetUniform("DistortionStrength");
+        // if (distortionUniform != null) distortionUniform.set(intensity * 0.1f);
+        //
+        // var chromaticUniform = effect.safeGetUniform("ChromaticAberration");
+        // if (chromaticUniform != null) chromaticUniform.set(intensity * 0.02f);
+        //
+        // var flickerUniform = effect.safeGetUniform("FlickerSpeed");
+        // if (flickerUniform != null) flickerUniform.set(5.0f + intensity * 5.0f);
+        //
+        // var scanlineUniform = effect.safeGetUniform("ScanlineStrength");
+        // if (scanlineUniform != null) scanlineUniform.set(intensity * 0.3f);
+        //
+        // return true;
+        // });
+        // });
         m_post.addSinglePassEntry("chromatical", pass -> {
             return processPlayer(mc.player, cap -> {
                 if (cap.getMood() > .35f)
                     return false;
-                
+
                 var effect = pass.getEffect();
-                if (effect == null) return false;
-                
+                if (effect == null)
+                    return false;
+
                 var factorUniform = effect.safeGetUniform("Factor");
                 if (factorUniform != null) {
                     factorUniform.set(MathHelper.clampNorm(Mth.inverseLerp(1, .4f, .8f)) * .1f);
                 }
-                
+
                 var timeTotalUniform = effect.safeGetUniform("TimeTotal");
                 if (timeTotalUniform != null) {
                     timeTotalUniform.set(m_post.getTime() / 20.0f);
                 }
-                
+
                 return true;
             });
         });
 
         // 添加模糊效果后处理
-//        m_post.addSinglePassEntry("blur", pass -> {
-//            return processPlayer(mc.player, cap -> {
-//                if (m_blurEffectIntensity <= 0.01f)
-//                    return false;
-//
-//                // 计算模糊强度
-//                float blurStrength = m_blurEffectIntensity;
-//
-//                // 应用模糊效果
-//                pass.getEffect().safeGetUniform("BlurStrength").set(blurStrength);
-//                pass.getEffect().safeGetUniform("Time").set(m_post.getTime() / 20.0f);
-//
-//                // 如果理智很低，增加模糊强度
-//                if (cap.getMood() < 0.3f) {
-//                    pass.getEffect().safeGetUniform("BlurStrength").set(blurStrength * 1.5f);
-//                }
-//
-//                return true;
-//            });
-//        });
+        // m_post.addSinglePassEntry("blur", pass -> {
+        // return processPlayer(mc.player, cap -> {
+        // if (m_blurEffectIntensity <= 0.01f)
+        // return false;
+        //
+        // // 计算模糊强度
+        // float blurStrength = m_blurEffectIntensity;
+        //
+        // // 应用模糊效果
+        // pass.getEffect().safeGetUniform("BlurStrength").set(blurStrength);
+        // pass.getEffect().safeGetUniform("Time").set(m_post.getTime() / 20.0f);
+        //
+        // // 如果理智很低，增加模糊强度
+        // if (cap.getMood() < 0.3f) {
+        // pass.getEffect().safeGetUniform("BlurStrength").set(blurStrength * 1.5f);
+        // }
+        //
+        // return true;
+        // });
+        // });
     }
 
     private boolean processPlayer(LocalPlayer player, Function<SREPlayerMoodComponent, Boolean> action) {
@@ -278,61 +283,67 @@ public class SansRenderer {
         if (m_mc.player == null || m_mc.player.isCreative() || m_mc.player.isSpectator())
             return;
 
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
 
-            RenderSystem.enableBlend();
-            RenderSystem.defaultBlendFunc();
+        // 应用血丝动画效果
+        poseStack.pushPose();
+        //
+        // // 移动到屏幕中心
+        // poseStack.translate(scw / 2f, sch / 2f, 0f);
 
-            // 应用血丝动画效果
-            poseStack.pushPose();
-//
-//            // 移动到屏幕中心
-//            poseStack.translate(scw / 2f, sch / 2f, 0f);
+        // 应用缩放
+        // float scale = m_bloodTendrilsScale;
+        // poseStack.scale(scale, scale, 1f);
 
-            // 应用缩放
-//            float scale = m_bloodTendrilsScale;
-//            poseStack.scale(scale, scale, 1f);
+        // 应用旋转
+        // poseStack.mulPose(com.mojang.math.Axis.ZP.rotationDegrees(m_bloodTendrilsRotation));
 
-            // 应用旋转
-            //poseStack.mulPose(com.mojang.math.Axis.ZP.rotationDegrees(m_bloodTendrilsRotation));
+        // 应用偏移
+        // poseStack.translate(m_bloodTendrilsOffsetX, m_bloodTendrilsOffsetY, 0f);
 
-            // 应用偏移
-            //poseStack.translate(m_bloodTendrilsOffsetX, m_bloodTendrilsOffsetY, 0f);
+        // 移回原位置
+        // poseStack.translate(-scw / 2f, -sch / 2f, 0f);
 
-            // 移回原位置
-            //poseStack.translate(-scw / 2f, -sch / 2f, 0f);
+        // 设置纹理
+        RenderSystem.setShaderTexture(0, BLOOD_TENDRILS_OVERLAY);
 
-            // 设置纹理
-            RenderSystem.setShaderTexture(0, BLOOD_TENDRILS_OVERLAY);
+        // 根据血丝强度调整透明度
+        float finalAlpha = m_btAlpha * m_bloodTendrilsIntensity;
 
-            // 根据血丝强度调整透明度
-            float finalAlpha = m_btAlpha * m_bloodTendrilsIntensity;
+        // 渲染血丝
+        renderFullscreen(poseStack, scw, sch, 100, 58, 0, 0, 100, 58, finalAlpha);
 
-            // 渲染血丝
-            renderFullscreen(poseStack, scw, sch, 100, 58, 0, 0, 100, 58, finalAlpha);
+        // 如果理智非常低，渲染第二层血丝增强效果
+        /*
+         * if (m_cap != null && m_cap.getMood() < 0.15f) {
+         * float secondaryAlpha = finalAlpha * 0.5f;
+         * float secondaryScale = 1.0f + (float)Math.sin(m_bloodTendrilsAnimationTimer *
+         * 0.03f) * 0.1f;
+         * 
+         * poseStack.pushPose();
+         * poseStack.translate(scw / 2f, sch / 2f, 0f);
+         * poseStack.scale(secondaryScale, secondaryScale, 1f);
+         * poseStack.mulPose(com.mojang.math.Axis.ZP.rotationDegrees(-
+         * m_bloodTendrilsRotation * 0.7f));
+         * poseStack.translate(-m_bloodTendrilsOffsetX * 1.3f, -m_bloodTendrilsOffsetY *
+         * 1.3f, 0f);
+         * poseStack.translate(-scw / 2f, -sch / 2f, 0f);
+         * 
+         * renderFullscreen(poseStack, scw, sch, 100, 58, 0, 0, 100, 58,
+         * secondaryAlpha);
+         * poseStack.popPose();
+         * }
+         */
 
-            // 如果理智非常低，渲染第二层血丝增强效果
-            /*if (m_cap != null && m_cap.getMood() < 0.15f) {
-                float secondaryAlpha = finalAlpha * 0.5f;
-                float secondaryScale = 1.0f + (float)Math.sin(m_bloodTendrilsAnimationTimer * 0.03f) * 0.1f;
-
-                poseStack.pushPose();
-                poseStack.translate(scw / 2f, sch / 2f, 0f);
-                poseStack.scale(secondaryScale, secondaryScale, 1f);
-                poseStack.mulPose(com.mojang.math.Axis.ZP.rotationDegrees(-m_bloodTendrilsRotation * 0.7f));
-                poseStack.translate(-m_bloodTendrilsOffsetX * 1.3f, -m_bloodTendrilsOffsetY * 1.3f, 0f);
-                poseStack.translate(-scw / 2f, -sch / 2f, 0f);
-
-                renderFullscreen(poseStack, scw, sch, 100, 58, 0, 0, 100, 58, secondaryAlpha);
-                poseStack.popPose();
-            }*/
-
-            poseStack.popPose();
-            RenderSystem.disableBlend();
+        poseStack.popPose();
+        RenderSystem.disableBlend();
 
     }
 
     public void tick(@NotNull LocalPlayer player, @NotNull GuiGraphics context, float dt) {
-        if (m_mc.player == null || m_mc.isPaused() || m_mc.player.isCreative() || m_mc.player.isSpectator() || !SREGameWorldComponent.KEY.get(player.level()).isRunning())
+        if (m_mc.player == null || m_mc.isPaused() || m_mc.player.isCreative() || m_mc.player.isSpectator()
+                || !SREGameWorldComponent.KEY.get(player.level()).isRunning())
             return;
 
         m_cap = SREPlayerMoodComponent.KEY.get(m_mc.player);
@@ -366,10 +377,12 @@ public class SansRenderer {
 
         // 修复renderHint调用，传入正确的参数
         if (m_mc.player != null && m_hint != null && m_cap != null) {
-            renderHint(new Gui(m_mc), context.pose(), dt, m_mc.getWindow().getGuiScaledWidth(), m_mc.getWindow().getGuiScaledHeight(), context);
+            renderHint(new Gui(m_mc), context.pose(), dt, m_mc.getWindow().getGuiScaledWidth(),
+                    m_mc.getWindow().getGuiScaledHeight(), context);
         }
         if (m_cap != null && m_cap.getMood() <= .36f) {
-            renderBloodTendrilsOverlay(new Gui(m_mc), context.pose(), dt, m_mc.getWindow().getGuiScaledWidth(), m_mc.getWindow().getGuiScaledHeight());
+            renderBloodTendrilsOverlay(new Gui(m_mc), context.pose(), dt, m_mc.getWindow().getGuiScaledWidth(),
+                    m_mc.getWindow().getGuiScaledHeight());
         }
     }
 
@@ -403,7 +416,8 @@ public class SansRenderer {
             if (m_random.nextFloat() < triggerChance && !m_isBlurActive) {
                 m_isBlurActive = true;
                 m_blurEffectTimer = BLUR_DURATION_MIN + m_random.nextFloat() * (BLUR_DURATION_MAX - BLUR_DURATION_MIN);
-                m_blurEffectIntensity = BLUR_MIN_INTENSITY + m_random.nextFloat() * (BLUR_MAX_INTENSITY - BLUR_MIN_INTENSITY);
+                m_blurEffectIntensity = BLUR_MIN_INTENSITY
+                        + m_random.nextFloat() * (BLUR_MAX_INTENSITY - BLUR_MIN_INTENSITY);
             }
         }
 
@@ -439,7 +453,8 @@ public class SansRenderer {
             float mood = m_cap.getMood();
             if (mood < BLOOD_TENDRILS_APPEAR_THRESHOLD) {
                 // 理智越低，血丝强度越高
-                float targetIntensity = Mth.clamp(1.0f - (mood / BLOOD_TENDRILS_APPEAR_THRESHOLD), 0f, 1.0f) * BLOOD_TENDRILS_MAX_INTENSITY;
+                float targetIntensity = Mth.clamp(1.0f - (mood / BLOOD_TENDRILS_APPEAR_THRESHOLD), 0f, 1.0f)
+                        * BLOOD_TENDRILS_MAX_INTENSITY;
                 m_bloodTendrilsIntensity = Mth.lerp(0.1f, m_bloodTendrilsIntensity, targetIntensity);
             } else {
                 // 理智高时淡出血丝
@@ -454,12 +469,15 @@ public class SansRenderer {
             m_bloodTendrilsScale = 1.0f + pulse * m_bloodTendrilsIntensity * 0.2f;
 
             // 漂移效果
-            m_bloodTendrilsOffsetX = (float) Math.sin(m_bloodTendrilsAnimationTimer * BLOOD_TENDRILS_DRIFT_SPEED) * 20f * m_bloodTendrilsIntensity;
-            m_bloodTendrilsOffsetY = (float) Math.cos(m_bloodTendrilsAnimationTimer * BLOOD_TENDRILS_DRIFT_SPEED * 0.8f) * 15f * m_bloodTendrilsIntensity;
+            m_bloodTendrilsOffsetX = (float) Math.sin(m_bloodTendrilsAnimationTimer * BLOOD_TENDRILS_DRIFT_SPEED) * 20f
+                    * m_bloodTendrilsIntensity;
+            m_bloodTendrilsOffsetY = (float) Math.cos(m_bloodTendrilsAnimationTimer * BLOOD_TENDRILS_DRIFT_SPEED * 0.8f)
+                    * 15f * m_bloodTendrilsIntensity;
 
             // 旋转效果（如果理智非常低）
             if (m_cap != null && m_cap.getMood() < 0.2f) {
-                m_bloodTendrilsRotation = (float) (m_bloodTendrilsAnimationTimer * BLOOD_TENDRILS_ROTATION_SPEED * 360f) % 360f;
+                m_bloodTendrilsRotation = (float) (m_bloodTendrilsAnimationTimer * BLOOD_TENDRILS_ROTATION_SPEED * 360f)
+                        % 360f;
             } else {
                 m_bloodTendrilsRotation = 0f;
             }
@@ -520,7 +538,7 @@ public class SansRenderer {
                 m_btTimer = Mth.PI / .2f;
                 m_btAlpha = Mth.clamp(m_btAlpha - .1f, .3f, m_btAlpha);
             } else {
-                m_btAlpha = Mth.lerp((-Mth.cos((float)m_btTimer * .2f) + 1f) * .5f, .15f, .3f);
+                m_btAlpha = Mth.lerp((-Mth.cos((float) m_btTimer * .2f) + 1f) * .5f, .15f, .3f);
                 m_btTimer += m_dt;
             }
         } else
@@ -528,7 +546,8 @@ public class SansRenderer {
     }
 
     public void initPostProcessor() {
-        if (m_post != null) return;
+        if (m_post != null)
+            return;
 
         m_post = new PostProcessor();
         initSanityPostProcess();
@@ -539,26 +558,34 @@ public class SansRenderer {
     }
 
     public void renderPostProcess(float partialTicks) {
-        if (m_post == null) return;
+        if (m_post == null)
+            return;
 
         m_post.render(partialTicks);
     }
 
     public void resize(int w, int h) {
-        if (m_post == null) return;
+        if (m_post == null)
+            return;
 
         m_post.resize(w, h);
     }
 
-    private static void renderFullscreen(PoseStack poseStack, int scw, int sch, int texw, int texh, int uoffset, int voffset, int spritew, int spriteh, float alpha) {
+    private static void renderFullscreen(PoseStack poseStack, int scw, int sch, int texw, int texh, int uoffset,
+            int voffset, int spritew, int spriteh, float alpha) {
         Matrix4f mat = poseStack.last().pose();
         RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
         RenderSystem.enableBlend();
-        final var begin = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
-        begin.addVertex(mat, 0f, 0f, 0f).setColor(1f, 1f, 1f, alpha).setUv((float)uoffset / texw, (float)voffset / texh);
-        begin.addVertex(mat, 0f, (float)sch, 0f).setColor(1f, 1f, 1f, alpha).setUv((float)uoffset / texw, (float)(voffset + spriteh) / texh);
-        begin.addVertex(mat, (float)scw, (float)sch, 0f).setColor(1f, 1f, 1f, alpha).setUv((float)(uoffset + spritew) / texw, (float)(voffset + spriteh) / texh);
-        begin.addVertex(mat, (float)scw, 0f, 0f).setColor(1f, 1f, 1f, alpha).setUv((float)(uoffset + spritew) / texw, (float)voffset / texh);
+        final var begin = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS,
+                DefaultVertexFormat.POSITION_TEX_COLOR);
+        begin.addVertex(mat, 0f, 0f, 0f).setColor(1f, 1f, 1f, alpha).setUv((float) uoffset / texw,
+                (float) voffset / texh);
+        begin.addVertex(mat, 0f, (float) sch, 0f).setColor(1f, 1f, 1f, alpha).setUv((float) uoffset / texw,
+                (float) (voffset + spriteh) / texh);
+        begin.addVertex(mat, (float) scw, (float) sch, 0f).setColor(1f, 1f, 1f, alpha)
+                .setUv((float) (uoffset + spritew) / texw, (float) (voffset + spriteh) / texh);
+        begin.addVertex(mat, (float) scw, 0f, 0f).setColor(1f, 1f, 1f, alpha).setUv((float) (uoffset + spritew) / texw,
+                (float) voffset / texh);
         BufferUploader.drawWithShader(begin.buildOrThrow());
         RenderSystem.disableBlend();
     }

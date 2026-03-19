@@ -18,15 +18,15 @@ public class AlwaysVisibleFrustum extends Frustum {
 
     @Override
     public boolean isVisible(AABB box) {
-        AABB playAres = SREClient.areaComponent.getPlayArea();
-        AABB sceneOffset = SREClient.areaComponent.getSceneArea();
         if (SREClient.isTrainMoving()) {
             if (SREConfig.instance().isUltraPerfMode()) {
                 return super.isVisible(box);
             }
+
+            AABB playAres = SREClient.areaComponent.getPlayArea();
+            AABB sceneOffset = SREClient.areaComponent.getSceneArea();
             return super.isVisible(box) || playAres.intersects(box) || sceneOffset.intersects(box);
         }
-
         return super.isVisible(box);
     }
 }

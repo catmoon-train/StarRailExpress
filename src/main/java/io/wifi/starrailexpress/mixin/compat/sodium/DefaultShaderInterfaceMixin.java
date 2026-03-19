@@ -20,7 +20,7 @@ public abstract class DefaultShaderInterfaceMixin implements SodiumShaderInterfa
 
     @Inject(method = "<init>", at = @At("RETURN"))
     private void tmm$addUniform(ShaderBindingContext context, ChunkShaderOptions options,
-                                CallbackInfo ci) {
+            CallbackInfo ci) {
         if (IrisHelper.isIrisShaderPackInUse()) {
             return;
         }

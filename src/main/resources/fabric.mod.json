@@ -180,6 +180,7 @@
     "voicechat": "*",
     "architectury": "*",
     "exposure_polaroid": "*",
-    "exposure": "*"
+    "exposure": "*",
+    "sodium": "*"
   }
 }
