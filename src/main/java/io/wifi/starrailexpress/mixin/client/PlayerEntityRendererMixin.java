@@ -37,16 +37,21 @@ public class PlayerEntityRendererMixin {
                     return ItemStack.EMPTY;
                 }
             }
-            var eventRes = AllowItemShowInHand.EVENT.invoker().allowShowInHand(player, original);
+            var eventRes = AllowItemShowInHand.EVENT.invoker().allowShowInHand(player, original, true);
             if (eventRes != null) {
                 return eventRes;
             }
-            if (SREClient.moodComponent != null && SREClient.moodComponent.isLowerThanMid()) { 
+            if (SREClient.moodComponent != null && SREClient.moodComponent.isLowerThanMid()) {
                 HashMap<UUID, ItemStack> psychosisItems = SREClient.moodComponent.getPsychosisItems();
                 UUID uuid = player.getUUID();
                 if (psychosisItems.containsKey(uuid)) {
                     return psychosisItems.get(uuid);
                 }
+            }
+        } else {
+            var eventRes = AllowItemShowInHand.EVENT.invoker().allowShowInHand(player, original, false);
+            if (eventRes != null) {
+                return eventRes;
             }
         }
 

@@ -16,9 +16,9 @@ public interface AllowItemShowInHand {
      * ClientOnly!
      */
     Event<AllowItemShowInHand> EVENT = createArrayBacked(AllowItemShowInHand.class,
-            listeners -> (player, itemStack) -> {
+            listeners -> (player, itemStack, mainHand) -> {
                 for (AllowItemShowInHand listener : listeners) {
-                    var a = listener.allowShowInHand(player, itemStack);
+                    var a = listener.allowShowInHand(player, itemStack, mainHand);
                     if (a != null) {
                         return a;
                     }
@@ -27,5 +27,5 @@ public interface AllowItemShowInHand {
             });
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    ItemStack allowShowInHand(Player player, ItemStack itemStack);
+    ItemStack allowShowInHand(Player player, ItemStack itemStack, boolean mainHand);
 }
