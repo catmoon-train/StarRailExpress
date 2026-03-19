@@ -10,12 +10,12 @@ import java.util.function.Function;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 
-public interface GameConstants {
+public class GameConstants {
     // Logistics
-    int FADE_TIME = 40;
-    int FADE_PAUSE = 20;
-    int MIN_PLAYER_COUNT = 6;
-    Function<Long, Integer> PASSIVE_MONEY_TICKER = time -> {
+    public static int FADE_TIME = 40;
+    public static int FADE_PAUSE = 20;
+    public static int MIN_PLAYER_COUNT = 6;
+    public static Function<Long, Integer> PASSIVE_MONEY_TICKER = time -> {
         if (time % getInTicks(0, 10) == 0) {
             return 5;
         }
@@ -23,22 +23,22 @@ public interface GameConstants {
     };
 
     // Role Configuration (Server-side, mutable via command)
-    class RoleConfig {
+    public class RoleConfig {
         public static int killerCount = 1;
         public static int vigilanteCount = 1;
     }
 
     // Blocks
-    int DOOR_AUTOCLOSE_TIME = getInTicks(0, 5);
+    public static int DOOR_AUTOCLOSE_TIME = getInTicks(0, 5);
 
     // Items
-    Map<Item, Integer> ITEM_COOLDOWNS = new HashMap<>();
+    public static Map<Item, Integer> ITEM_COOLDOWNS = new HashMap<>();
 
     /**
      * 初始化游戏常量
      * 在mod初始化时调用
      */
-    static void init() {
+    public static void init() {
         reloadItemCooldowns();
     }
 
@@ -64,40 +64,40 @@ public interface GameConstants {
                 SREConfig.instance().knifeCooldown, SREConfig.instance().revolverCooldown);
     }
 
-    int JAMMED_DOOR_TIME = getInTicks(1, 0);
+    public static int JAMMED_DOOR_TIME = getInTicks(1, 0);
 
     // Corpses
-    int TIME_TO_DECOMPOSITION = getInTicks(1, 0);
-    int DECOMPOSING_TIME = getInTicks(4, 0);
+    public static int TIME_TO_DECOMPOSITION = getInTicks(1, 0);
+    public static int DECOMPOSING_TIME = getInTicks(4, 0);
 
     // Task Variables
-    float MOOD_GAIN = 0.5f;
-    float MOOD_DRAIN = 1f / getInTicks(4, 0);
-    int TIME_TO_FIRST_TASK = getInTicks(0, 30);
-    int MIN_TASK_COOLDOWN = getInTicks(0, 30);
-    int MAX_TASK_COOLDOWN = getInTicks(1, 0);
-    int SLEEP_TASK_DURATION = getInTicks(0, 8);
-    int OUTSIDE_TASK_DURATION = getInTicks(0, 8);
-    int READ_BOOK_TASK_DURATION = getInTicks(0, 8);
-    int EXERCISE_TASK_DURATION = getInTicks(0, 6);
-    int MEDITATE_TASK_DURATION = getInTicks(0, 10); // 冥想
-    int NOTE_BLOCK_TASK_CLICK_COUNTS = 10; // 音符盒点击次数
-    int TOILET_TASK_DURATION = getInTicks(0, 6);
-    int CHAIR_TASK_DURATION = getInTicks(0, 8);
-    int BATHE_TASK_DURATION = getInTicks(0, 10); // 洗澡任务持续时间
-    float MID_MOOD_THRESHOLD = 0.55f;
-    float DEPRESSIVE_MOOD_THRESHOLD = 0.2f;
-    float ANGRY_MOOD_THRESHOLD = 0.75f;
-    float ITEM_PSYCHOSIS_CHANCE = .5f; // in percent
-    int ITEM_PSYCHOSIS_REROLL_TIME = 200;
+    public static float MOOD_GAIN = 0.5f;
+    public static float MOOD_DRAIN = 1f / getInTicks(4, 0);
+    public static int TIME_TO_FIRST_TASK = getInTicks(0, 30);
+    public static int MIN_TASK_COOLDOWN = getInTicks(0, 30);
+    public static int MAX_TASK_COOLDOWN = getInTicks(1, 0);
+    public static int SLEEP_TASK_DURATION = getInTicks(0, 8);
+    public static int OUTSIDE_TASK_DURATION = getInTicks(0, 8);
+    public static int READ_BOOK_TASK_DURATION = getInTicks(0, 8);
+    public static int EXERCISE_TASK_DURATION = getInTicks(0, 6);
+    public static int MEDITATE_TASK_DURATION = getInTicks(0, 10); // 冥想
+    public static int NOTE_BLOCK_TASK_CLICK_COUNTS = 10; // 音符盒点击次数
+    public static int TOILET_TASK_DURATION = getInTicks(0, 6);
+    public static int CHAIR_TASK_DURATION = getInTicks(0, 8);
+    public static int BATHE_TASK_DURATION = getInTicks(0, 10); // 洗澡任务持续时间
+    public static float MID_MOOD_THRESHOLD = 0.55f;
+    public static float DEPRESSIVE_MOOD_THRESHOLD = 0.2f;
+    public static float ANGRY_MOOD_THRESHOLD = 0.75f;
+    public static float ITEM_PSYCHOSIS_CHANCE = .5f; // in percent
+    public static int ITEM_PSYCHOSIS_REROLL_TIME = 200;
 
     // Shop Variables
 
-    static int getMoneyStart() {
+    public static int getMoneyStart() {
         return SREConfig.instance().startingMoney;
     }
 
-    static Function<Long, Integer> getPassiveMoneyTicker() {
+    public static Function<Long, Integer> getPassiveMoneyTicker() {
         return time -> {
             if (time % (SREConfig.instance().passiveMoneyInterval * 20) == 0) {
                 return SREConfig.instance().passiveMoneyAmount;
@@ -106,51 +106,51 @@ public interface GameConstants {
         };
     }
 
-    static int getMoneyPerKill() {
+    public static int getMoneyPerKill() {
         return SREConfig.instance().moneyPerKill;
     }
 
-    static int getPsychoModeArmour() {
+    public static int getPsychoModeArmour() {
         return SREConfig.instance().psychoModeArmor;
     }
 
     // Timers
-    static int getPsychoTimer() {
+    public static int getPsychoTimer() {
         return SREConfig.instance().psychoModeDuration * 20;
     }
 
-    static int getFirecrackerTimer() {
+    public static int getFirecrackerTimer() {
         return SREConfig.instance().firecrackerDuration * 20;
     }
 
-    static int getBlackoutMinDuration() {
+    public static int getBlackoutMinDuration() {
         return SREConfig.instance().blackoutMinDuration * 20;
     }
 
-    static int getBlackoutMaxDuration() {
+    public static int getBlackoutMaxDuration() {
         return SREConfig.instance().blackoutMaxDuration * 20;
     }
 
-    int TIME_ON_CIVILIAN_KILL = getInTicks(0, 30);
+    public static int TIME_ON_CIVILIAN_KILL = getInTicks(0, 30);
 
-    static int getInTicks(int minutes, int seconds) {
+    public static int getInTicks(int minutes, int seconds) {
         return (minutes * 60 + seconds) * 20;
     }
 
-    interface DeathReasons {
-        ResourceLocation BACKFIRE = SRE.id("backfire");
-        ResourceLocation GENERIC = SRE.id("generic");
-        ResourceLocation KNIFE = SRE.id("knife_stab");
-        ResourceLocation REVOLVER = SRE.id("revolver_shot");
-        ResourceLocation DERRINGER = SRE.id("derringer_shot");
-        ResourceLocation BAT = SRE.id("bat_hit");
-        ResourceLocation GRENADE = SRE.id("grenade");
-        ResourceLocation POISON = SRE.id("poison");
-        ResourceLocation FELL_OUT_OF_TRAIN = SRE.id("fell_out_of_train");
-        ResourceLocation ARROW = SRE.id("arrow");
-        ResourceLocation TRIDENT = SRE.id("trident");
-        ResourceLocation SNIPER_RIFLE = SRE.id("sniper_rifle");
-        ResourceLocation SNIPER_RIFLE_BACKFIRE = SRE.id("sniper_rifle_backfire");
-        ResourceLocation NUNCHUCK = SRE.id("nunchuck_hit");
+    public static class DeathReasons {
+        public static ResourceLocation BACKFIRE = SRE.id("backfire");
+        public static ResourceLocation GENERIC = SRE.id("generic");
+        public static ResourceLocation KNIFE = SRE.id("knife_stab");
+        public static ResourceLocation REVOLVER = SRE.id("revolver_shot");
+        public static ResourceLocation DERRINGER = SRE.id("derringer_shot");
+        public static ResourceLocation BAT = SRE.id("bat_hit");
+        public static ResourceLocation GRENADE = SRE.id("grenade");
+        public static ResourceLocation POISON = SRE.id("poison");
+        public static ResourceLocation FELL_OUT_OF_TRAIN = SRE.id("fell_out_of_train");
+        public static ResourceLocation ARROW = SRE.id("arrow");
+        public static ResourceLocation TRIDENT = SRE.id("trident");
+        public static ResourceLocation SNIPER_RIFLE = SRE.id("sniper_rifle");
+        public static ResourceLocation SNIPER_RIFLE_BACKFIRE = SRE.id("sniper_rifle_backfire");
+        public static ResourceLocation NUNCHUCK = SRE.id("nunchuck_hit");
     }
 }
