@@ -18,6 +18,7 @@
     "entity.player.PlayerInventoryMixin",
     "entity.player.SeatPosFixMixin",
     "entity.player.ServerPlayerEntityMixin",
+    "entity.player.ToiletPoisonMixin",
     "gui.CommonTalkChatMixin",
     "gui.TalkChatMixin",
     "item.FoodItemMixin",

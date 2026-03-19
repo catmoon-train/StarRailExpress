@@ -352,6 +352,8 @@
   "item.starrailexpress.defense_vial.tooltip": "右键点击饮料托盘使用\n清除托盘上所有的毒药\n使饮用受保护饮料的玩家额外获得一次免死机会。",
   "item.noellesroles.delusion_vial.tooltip": "右键点击食物/饮料托盘使用\n制造假毒药，使食用中毒物品的玩家\n认为自己中毒了，但没有实际的影响。",
   "item.noellesroles.delusion_vial": "幻觉药剂",
+  "item.noellesroles.toilet_poison": "毒液试剂",
+  "item.noellesroles.toilet_poison.tooltip": "右键涂在马桶上，毒害下一个使用马桶的人",
   "mob_effect.noellesroles.time_stop": "时间停止",
   "effect.noellesroles.time_stop": "时间停止",
   "effect.noellesroles.no_collide": "无碰撞",

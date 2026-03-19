@@ -26,6 +26,8 @@ public class HSRConstants {
         POISONER_SHOP_ENTRIES.add(new ShopEntry(HSRItems.TOXIN.getDefaultInstance(), 80, ShopEntry.Type.POISON));
         // 毒药瓶/50
         POISONER_SHOP_ENTRIES.add(new ShopEntry(TMMItems.POISON_VIAL.getDefaultInstance(), 50, ShopEntry.Type.POISON));
+        // 马桶毒药/40
+        POISONER_SHOP_ENTRIES.add(new ShopEntry(ModItems.TOILET_POISON.getDefaultInstance(), 40, ShopEntry.Type.POISON));
         // 毒蝎子/30
         POISONER_SHOP_ENTRIES.add(new ShopEntry(TMMItems.SCORPION.getDefaultInstance(), 30, ShopEntry.Type.POISON));
         // 催化剂/120
