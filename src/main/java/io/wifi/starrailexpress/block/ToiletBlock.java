@@ -4,6 +4,8 @@ import io.wifi.starrailexpress.block.entity.SeatEntity;
 import io.wifi.starrailexpress.block_entity.ToiletBlockEntity;
 import io.wifi.starrailexpress.index.TMMBlockEntities;
 import net.minecraft.core.BlockPos;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -60,6 +62,8 @@ public class ToiletBlock extends CouchBlock implements EntityBlock {
                 if (!blockEntity.hasPoison()) {
                     blockEntity.setHasPoison(true, player.getUUID());
                     poisonItem.shrink(1);
+                    // 播放酿造台酿药的声音（仅客户端播放，投毒者自己能听到）
+                    player.playNotifySound(SoundEvents.BREWING_STAND_BREW, SoundSource.BLOCKS, 0.5F, 1.0F);
                     return InteractionResult.SUCCESS;
                 }
                 // 已经有毒，返回成功但不消耗

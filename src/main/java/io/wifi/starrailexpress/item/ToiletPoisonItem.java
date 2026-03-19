@@ -5,6 +5,8 @@ import io.wifi.starrailexpress.block_entity.ToiletBlockEntity;
 import io.wifi.starrailexpress.SRE;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
@@ -42,6 +44,9 @@ public class ToiletPoisonItem extends Item {
                         if (!blockEntity.hasPoison()) {
                             blockEntity.setHasPoison(true, player.getUUID());
                             stack.shrink(1);
+
+                            // 播放酿造台酿药的声音（仅客户端播放，投毒者自己能听到）
+                            player.playNotifySound(SoundEvents.BREWING_STAND_BREW, SoundSource.BLOCKS, 0.5F, 1.0F);
 
                             // 记录回放
                             if (SRE.REPLAY_MANAGER != null) {
