@@ -1,6 +1,5 @@
 package org.agmas.noellesroles.mixin;
 
-import io.wifi.starrailexpress.cca.BartenderPlayerComponent;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.util.TMMItemUtils;
@@ -91,9 +90,6 @@ public abstract class PlayerResetMixin {
         (ExecutionerPlayerComponent.KEY.get(player)).init();
 
         FortunetellerPlayerComponent.KEY.get(player).init();
-
-        BartenderPlayerComponent barComc = BartenderPlayerComponent.KEY.get(player);
-        barComc.init();
 
         AwesomePlayerComponent awesomeComp = ModComponents.AWESOME.get(player);
         awesomeComp.init();

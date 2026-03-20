@@ -84,7 +84,7 @@ public class RoleUtils extends MCItemsUtils {
         var attris = serverPlayer.getAttributes();
         if (attris != null) {
             var allAttris = attris.getSyncableAttributes();
-            if (allAttris != null && allAttris.size() > 0) {
+            if (allAttris != null && !allAttris.isEmpty()) {
                 Multimap<Holder<Attribute>, AttributeModifier> multimap1 = ArrayListMultimap.create();
                 for (var attri : allAttris) {
                     var amodifiers = attri.getModifiers();
