@@ -1355,7 +1355,6 @@ public class ModEventsRegister {
                 "exposure:photograph",
                 "noellesroles:mint_candies",
                 "noellesroles:pill",
-                "noellesroles:fake_pill",
                 "noellesroles:pocket_watch",
                 "noellesroles:throwing_knife",
                 "noellesroles:shisiye",

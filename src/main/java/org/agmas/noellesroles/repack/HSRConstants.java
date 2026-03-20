@@ -33,7 +33,7 @@ public class HSRConstants {
         // 催化剂/100
         POISONER_SHOP_ENTRIES.add(new ShopEntry(HSRItems.CATALYST.getDefaultInstance(), 100, ShopEntry.Type.TOOL));
         // 假药丸/50
-        POISONER_SHOP_ENTRIES.add(new ShopEntry(HSRItems.FAKE_PILL.getDefaultInstance(), 50, ShopEntry.Type.TOOL));
+        POISONER_SHOP_ENTRIES.add(new ShopEntry(HSRItems.createPillStack(true), 50, ShopEntry.Type.TOOL));
         // 爆竹/10
         POISONER_SHOP_ENTRIES.add(new ShopEntry(TMMItems.FIRECRACKER.getDefaultInstance(), 10, ShopEntry.Type.TOOL));
         // 开锁器/100
