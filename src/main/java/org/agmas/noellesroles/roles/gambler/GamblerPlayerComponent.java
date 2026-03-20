@@ -143,7 +143,7 @@ public class GamblerPlayerComponent implements RoleComponent, ServerTickingCompo
         }
     }
 
-    public void writeToNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         tag.putBoolean("usedAbility", this.usedAbility);
 
         ListTag rolesTag = new ListTag();
@@ -159,7 +159,7 @@ public class GamblerPlayerComponent implements RoleComponent, ServerTickingCompo
         tag.putInt("roleDrawTimer", roleDrawTimer);
     }
 
-    public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.usedAbility = tag.getBoolean("usedAbility");
 
         availableRoles.clear();
@@ -180,5 +180,13 @@ public class GamblerPlayerComponent implements RoleComponent, ServerTickingCompo
         }
 
         roleDrawTimer = tag.getInt("roleDrawTimer");
+    }
+    
+    @Override
+    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }
 }

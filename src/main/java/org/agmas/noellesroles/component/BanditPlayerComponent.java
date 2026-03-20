@@ -10,6 +10,7 @@ import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -127,5 +128,13 @@ public class BanditPlayerComponent implements RoleComponent, ServerTickingCompon
     @Override
     public void readFromNbt(@NotNull CompoundTag tag, @NotNull HolderLookup.Provider registryLookup) {
         // 强盗组件目前不需要读取额外数据
+    }
+
+    @Override
+    public void writeToSyncNbt(CompoundTag tag, Provider registryLookup) {
+    }
+
+    @Override
+    public void readFromSyncNbt(CompoundTag tag, Provider registryLookup) {
     }
 }

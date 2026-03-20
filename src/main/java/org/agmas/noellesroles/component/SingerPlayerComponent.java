@@ -353,7 +353,7 @@ public class SingerPlayerComponent implements RoleComponent, ServerTickingCompon
     // ==================== NBT 序列化 ====================
 
     @Override
-    public void writeToNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         tag.putInt("abilityCooldown", this.abilityCooldown);
         tag.putBoolean("isActive", this.isActive);
         tag.putInt("currentMusicIndex", this.currentMusicIndex);
@@ -362,11 +362,19 @@ public class SingerPlayerComponent implements RoleComponent, ServerTickingCompon
     }
 
     @Override
-    public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.abilityCooldown = tag.contains("abilityCooldown") ? tag.getInt("abilityCooldown") : 0;
         this.musicType = tag.contains("musicType") ? tag.getInt("musicType") : -1;
         this.isActive = tag.contains("isActive") && tag.getBoolean("isActive");
         this.currentMusicIndex = tag.contains("currentMusicIndex") ? tag.getInt("currentMusicIndex") : -1;
         this.musicRemainingTicks = tag.contains("musicRemainingTicks") ? tag.getInt("musicRemainingTicks") : 0;
+    }
+    
+    @Override
+    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }
 }

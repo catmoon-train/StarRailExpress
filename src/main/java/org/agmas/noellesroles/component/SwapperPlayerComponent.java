@@ -128,7 +128,7 @@ public class SwapperPlayerComponent implements RoleComponent, ServerTickingCompo
     }
 
     @Override
-    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void readFromSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
         isSwapping = tag.getBoolean("isSwapping");
         swapTimer = tag.getInt("swapTimer");
         if (tag.hasUUID("target1"))
@@ -138,7 +138,7 @@ public class SwapperPlayerComponent implements RoleComponent, ServerTickingCompo
     }
 
     @Override
-    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void writeToSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
         tag.putBoolean("isSwapping", isSwapping);
         tag.putInt("swapTimer", swapTimer);
         if (target1 != null)
@@ -163,5 +163,14 @@ public class SwapperPlayerComponent implements RoleComponent, ServerTickingCompo
     @Override
     public void clear() {
         this.init();
+    }
+
+    
+    @Override
+    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }
 }

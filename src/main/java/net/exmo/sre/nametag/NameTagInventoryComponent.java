@@ -268,7 +268,6 @@ public class NameTagInventoryComponent implements RoleComponent {
     /**
      * 应用从网络获取的名片数据
      */
-    @SuppressWarnings("unchecked")
     private void applyNetworkNametagData(Map<String, Object> nametagData) {
         try {
             if (nametagData.containsKey("nameTags")) {
@@ -313,5 +312,16 @@ public class NameTagInventoryComponent implements RoleComponent {
      */
     public boolean isNetworkSyncEnabled() {
         return this.isNetworkSyncEnabled;
+    }
+
+    
+    @Override
+    public void writeToSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+        writeToNbt(tag, registryLookup);
+    }
+
+    @Override
+    public void readFromSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+        readFromSyncNbt(tag, registryLookup);
     }
 }

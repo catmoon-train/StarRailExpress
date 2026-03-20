@@ -173,7 +173,7 @@ public class PostmanPlayerComponent implements RoleComponent {
     // ==================== NBT 序列化 ====================
     
     @Override
-    public void writeToNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         if (deliveryTarget != null) {
             tag.putUUID("deliveryTarget", deliveryTarget);
         }
@@ -197,7 +197,7 @@ public class PostmanPlayerComponent implements RoleComponent {
     }
     
     @Override
-    public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.deliveryTarget = tag.contains("deliveryTarget") ? tag.getUUID("deliveryTarget") : null;
         
         if (tag.contains("postmanItem")) {
@@ -216,5 +216,13 @@ public class PostmanPlayerComponent implements RoleComponent {
         this.targetConfirmed = tag.getBoolean("targetConfirmed");
         this.targetName = tag.getString("targetName");
         this.isReceiver = tag.getBoolean("isReceiver");
+    }
+    
+    @Override
+    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }
 }

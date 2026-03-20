@@ -845,7 +845,7 @@ public class ThiefPlayerComponent implements RoleComponent, ServerTickingCompone
     }
 
     @Override
-    public void writeToNbt(@NotNull CompoundTag tag, @NotNull HolderLookup.Provider registryLookup) {
+    public void writeToSyncNbt(@NotNull CompoundTag tag, @NotNull HolderLookup.Provider registryLookup) {
         tag.putInt("Cooldown", this.cooldown);
         tag.putInt("CurrentMode", this.currentMode);
         tag.putBoolean("IsInSelectionMode", this.isInSelectionMode);
@@ -854,10 +854,19 @@ public class ThiefPlayerComponent implements RoleComponent, ServerTickingCompone
     }
 
     @Override
-    public void readFromNbt(@NotNull CompoundTag tag, @NotNull HolderLookup.Provider registryLookup) {
+    public void readFromSyncNbt(@NotNull CompoundTag tag, @NotNull HolderLookup.Provider registryLookup) {
         honorCost = tag.contains("honorCost") ? tag.getInt("honorCost") : -1;
         this.cooldown = tag.getInt("Cooldown");
         this.currentMode = tag.getInt("CurrentMode");
         this.isInSelectionMode = tag.getBoolean("IsInSelectionMode");
+    }
+
+    
+    @Override
+    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }
 }

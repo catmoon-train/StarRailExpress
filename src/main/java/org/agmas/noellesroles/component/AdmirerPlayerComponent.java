@@ -347,7 +347,8 @@ public class AdmirerPlayerComponent implements RoleComponent, ServerTickingCompo
         var gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
         if (!gameWorldComponent.isSkillAvailable) {
             // player.displayClientMessage(
-            //         Component.translatable("message.tip.skill_disabled").withStyle(ChatFormatting.RED), true);
+            // Component.translatable("message.tip.skill_disabled").withStyle(ChatFormatting.RED),
+            // true);
             return;
         }
         // 检查绑定对象状态
@@ -362,7 +363,15 @@ public class AdmirerPlayerComponent implements RoleComponent, ServerTickingCompo
     // ==================== NBT 序列化 ====================
 
     @Override
-    public void writeToNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         tag.putInt("energy", this.energy);
         tag.putBoolean("isGazing", this.isGazing);
         tag.putInt("gazingTargetCount", this.gazingTargetCount);
@@ -375,7 +384,7 @@ public class AdmirerPlayerComponent implements RoleComponent, ServerTickingCompo
     }
 
     @Override
-    public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.energy = tag.contains("energy") ? tag.getInt("energy") : 0;
         this.isGazing = tag.contains("isGazing") && tag.getBoolean("isGazing");
         this.gazingTargetCount = tag.contains("gazingTargetCount") ? tag.getInt("gazingTargetCount") : 0;

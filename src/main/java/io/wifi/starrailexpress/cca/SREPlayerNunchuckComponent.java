@@ -7,10 +7,10 @@ import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
-import org.ladysnake.cca.api.v3.component.sync.AutoSyncedComponent;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.RoleComponent;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,7 +20,7 @@ import java.util.UUID;
  * 玩家双节棍组件
  * 用于追踪玩家被双节棍击打的记录
  */
-public class SREPlayerNunchuckComponent implements AutoSyncedComponent, ServerTickingComponent {
+public class SREPlayerNunchuckComponent implements RoleComponent, ServerTickingComponent {
     public static final ComponentKey<SREPlayerNunchuckComponent> KEY = ComponentRegistry.getOrCreate(
             SRE.id("player_nunchuck"), SREPlayerNunchuckComponent.class);
 
@@ -183,7 +183,7 @@ public class SREPlayerNunchuckComponent implements AutoSyncedComponent, ServerTi
     }
 
     @Override
-    public void writeToNbt(@NotNull CompoundTag tag, @NotNull HolderLookup.Provider registryLookup) {
+    public void writeToSyncNbt(@NotNull CompoundTag tag, @NotNull HolderLookup.Provider registryLookup) {
         CompoundTag recordsTag = new CompoundTag();
         for (Map.Entry<UUID, HitRecord> entry : hitRecords.entrySet()) {
             CompoundTag recordTag = new CompoundTag();
@@ -213,7 +213,7 @@ public class SREPlayerNunchuckComponent implements AutoSyncedComponent, ServerTi
     }
 
     @Override
-    public void readFromNbt(@NotNull CompoundTag tag, @NotNull HolderLookup.Provider registryLookup) {
+    public void readFromSyncNbt(@NotNull CompoundTag tag, @NotNull HolderLookup.Provider registryLookup) {
         hitRecords.clear();
         if (tag.contains("hit_records", Tag.TAG_COMPOUND)) {
             CompoundTag recordsTag = tag.getCompound("hit_records");
@@ -257,5 +257,28 @@ public class SREPlayerNunchuckComponent implements AutoSyncedComponent, ServerTi
     public static class AttackRecord {
         public long lastAttackTime;
         public int attackCount;
+    }
+    
+    @Override
+    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public Player getPlayer() {
+        return this.player;
+    }
+
+    @Override
+    public void init() {
+        this.clearAllRecords();
+    }
+
+    @Override
+    public void clear() {
+        this.init();
     }
 }

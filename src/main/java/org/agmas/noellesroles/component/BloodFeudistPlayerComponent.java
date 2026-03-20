@@ -326,7 +326,7 @@ public class BloodFeudistPlayerComponent implements RoleComponent, CommonTicking
     // ==================== NBT 序列化 ====================
 
     @Override
-    public void writeToNbt(@NotNull CompoundTag tag, @NotNull HolderLookup.Provider registryLookup) {
+    public void writeToSyncNbt(@NotNull CompoundTag tag, @NotNull HolderLookup.Provider registryLookup) {
         tag.putInt("accidentalKillCount", this.accidentalKillCount);
         tag.putBoolean("gotSpeed1", this.gotSpeed1);
         tag.putBoolean("gotHaste2", this.gotHaste2);
@@ -338,7 +338,15 @@ public class BloodFeudistPlayerComponent implements RoleComponent, CommonTicking
     }
 
     @Override
-    public void readFromNbt(@NotNull CompoundTag tag, @NotNull HolderLookup.Provider registryLookup) {
+    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void readFromSyncNbt(@NotNull CompoundTag tag, @NotNull HolderLookup.Provider registryLookup) {
         this.accidentalKillCount = tag.contains("accidentalKillCount") ? tag.getInt("accidentalKillCount") : 0;
         this.gotSpeed1 = tag.contains("gotSpeed1") && tag.getBoolean("gotSpeed1");
         this.gotHaste2 = tag.contains("gotHaste2") && tag.getBoolean("gotHaste2");

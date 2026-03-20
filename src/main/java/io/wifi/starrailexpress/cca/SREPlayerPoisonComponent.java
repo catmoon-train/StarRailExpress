@@ -152,7 +152,7 @@ public class SREPlayerPoisonComponent implements RoleComponent, ServerTickingCom
     }
 
     @Override
-    public void writeToNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         if (this.poisoner != null)
             tag.putUUID("poisoner", this.poisoner);
         if (this.poisonTicks >= 0)
@@ -162,9 +162,17 @@ public class SREPlayerPoisonComponent implements RoleComponent, ServerTickingCom
     }
 
     @Override
-    public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.poisoner = tag.contains("poisoner") ? tag.getUUID("poisoner") : null;
         this.poisonTicks = tag.contains("poisonTicks") ? tag.getInt("poisonTicks") : -1;
         this.initialPoisonTicks = tag.contains("initialPoisonTicks") ? tag.getInt("initialPoisonTicks") : 0;
+    }
+    
+    @Override
+    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }
 }

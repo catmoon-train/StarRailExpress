@@ -109,14 +109,22 @@ public class TemporaryEffectPlayerComponent implements RoleComponent, ServerTick
     }
     
     @Override
-    public void writeToNbt(@NotNull CompoundTag tag, @NotNull HolderLookup.Provider registryLookup) {
+    public void writeToSyncNbt(@NotNull CompoundTag tag, @NotNull HolderLookup.Provider registryLookup) {
         tag.putFloat("stamina_boost", staminaBoost);
         tag.putInt("dogskin_plaster_protection", dogskinPlasterProtectionEnd);
     }
     
     @Override
-    public void readFromNbt(@NotNull CompoundTag tag, @NotNull HolderLookup.Provider registryLookup) {
+    public void readFromSyncNbt(@NotNull CompoundTag tag, @NotNull HolderLookup.Provider registryLookup) {
         this.staminaBoost = tag.contains("stamina_boost") ? tag.getFloat("stamina_boost") : 0f;
         this.dogskinPlasterProtectionEnd = tag.contains("dogskin_plaster_protection") ? tag.getInt("dogskin_plaster_protection") : 0;
+    }
+    
+    @Override
+    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }
 }

@@ -552,7 +552,7 @@ public class DIOPlayerComponent implements RoleComponent, ServerTickingComponent
     // ==================== NBT 序列化 ====================
 
     @Override
-    public void writeToNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         tag.putInt("totalFeedCount", this.totalFeedCount);
         tag.putInt("timeStopCharges", this.timeStopCharges);
 
@@ -567,7 +567,7 @@ public class DIOPlayerComponent implements RoleComponent, ServerTickingComponent
     }
 
     @Override
-    public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.totalFeedCount = tag.contains("totalFeedCount") ? tag.getInt("totalFeedCount") : 0;
         this.timeStopCharges = tag.contains("timeStopCharges") ? tag.getInt("timeStopCharges") : 0;
         this.timeStopCooldown = tag.contains("timeStopCooldown") ? tag.getInt("timeStopCooldown") : 0;
@@ -591,5 +591,13 @@ public class DIOPlayerComponent implements RoleComponent, ServerTickingComponent
         if (this.tempLifeRemaining > 1) {
             this.tempLifeRemaining--;
         }
+    }
+    
+    @Override
+    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }
 }

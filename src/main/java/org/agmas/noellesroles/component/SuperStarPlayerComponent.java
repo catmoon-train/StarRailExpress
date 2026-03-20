@@ -284,7 +284,7 @@ public class SuperStarPlayerComponent implements RoleComponent, ServerTickingCom
     // ==================== NBT 序列化 ====================
 
     @Override
-    public void writeToNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         tag.putBoolean("isGlowing", this.isGlowing);
         tag.putInt("glowTicksRemaining", this.glowTicksRemaining);
         tag.putInt("abilityCooldown", this.abilityCooldown);
@@ -292,10 +292,19 @@ public class SuperStarPlayerComponent implements RoleComponent, ServerTickingCom
     }
 
     @Override
-    public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.isGlowing = tag.contains("isGlowing") && tag.getBoolean("isGlowing");
         this.glowTicksRemaining = tag.contains("glowTicksRemaining") ? tag.getInt("glowTicksRemaining") : 0;
         this.abilityCooldown = tag.contains("abilityCooldown") ? tag.getInt("abilityCooldown") : 0;
         this.isActive = tag.contains("isActive") && tag.getBoolean("isActive");
+    }
+
+    
+    @Override
+    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }
 }

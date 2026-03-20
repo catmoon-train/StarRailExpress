@@ -47,12 +47,12 @@ public class CursedComponent implements RoleComponent {
     }
 
     @Override
-    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void readFromSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.cursed = tag.contains("cursed") ? tag.getUUID("cursed") : null;
     }
 
     @Override
-    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void writeToSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
         if (this.cursed != null) {
             tag.putUUID("cursed", this.cursed);
         }
@@ -66,5 +66,14 @@ public class CursedComponent implements RoleComponent {
     @Override
     public Player getPlayer() {
         return this.player;
+    }
+
+    
+    @Override
+    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }
 }

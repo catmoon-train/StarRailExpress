@@ -129,14 +129,22 @@ public class MorphlingPlayerComponent implements RoleComponent, ServerTickingCom
         this.sync();
     }
 
-    public void writeToNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         tag.putInt("morphTicks", this.morphTicks);
         if (disguise != null)
             tag.putUUID("disguise", this.disguise);
     }
 
-    public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.morphTicks = tag.contains("morphTicks") ? tag.getInt("morphTicks") : 0;
         this.disguise = tag.contains("disguise") ? tag.getUUID("disguise") : player.getUUID();
+    }
+    
+    @Override
+    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }
 }

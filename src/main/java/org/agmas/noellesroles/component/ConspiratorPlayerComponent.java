@@ -341,7 +341,15 @@ public class ConspiratorPlayerComponent implements RoleComponent, ServerTickingC
     // ==================== NBT 序列化 ====================
 
     @Override
-    public void writeToNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         // 序列化目标列表
         ListTag targetListTag = new ListTag();
         for (TargetInfo targetInfo : targetList) {
@@ -364,7 +372,7 @@ public class ConspiratorPlayerComponent implements RoleComponent, ServerTickingC
     }
 
     @Override
-    public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         // 反序列化目标列表
         targetList.clear();
         if (tag.contains("targetList")) {

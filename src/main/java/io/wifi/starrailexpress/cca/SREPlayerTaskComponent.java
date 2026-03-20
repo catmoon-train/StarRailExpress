@@ -188,7 +188,7 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
     }
 
     @Override
-    public void writeToNbt(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registryLookup) {
+    public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registryLookup) {
         ListTag tasks = new ListTag();
         for (TrainTask task : this.tasks.values())
             tasks.add(task.toNbt());
@@ -196,7 +196,15 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
     }
 
     @Override
-    public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registryLookup) {
+    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registryLookup) {
         this.tasks.clear();
         if (tag.contains("tasks", Tag.TAG_LIST)) {
             for (Tag element : tag.getList("tasks", Tag.TAG_COMPOUND)) {

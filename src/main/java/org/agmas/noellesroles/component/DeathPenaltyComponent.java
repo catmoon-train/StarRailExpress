@@ -141,7 +141,7 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
     }
 
     @Override
-    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void readFromSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.penaltyExpiry = tag.getLong("penaltyExpiry");
         if (tag.contains("chatEnabled")) {
             this.chatEnabled = tag.getBoolean("chatEnabled");
@@ -151,7 +151,7 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
     }
 
     @Override
-    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void writeToSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
         tag.putLong("penaltyExpiry", this.penaltyExpiry);
         if (this.limitCameraUUID != null) {
             tag.putBoolean("chatEnabled", false);
@@ -174,5 +174,13 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
                 }
             }
         }
+    }
+    
+    @Override
+    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }
 }

@@ -88,7 +88,7 @@ public class WaterGhostPlayerComponent implements RoleComponent, ServerTickingCo
     }
 
     @Override
-    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void readFromSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.skillCooldown = tag.getInt("SkillCooldown");
         this.skillDuration = tag.getInt("SkillDuration");
         this.rainDuration = tag.getInt("RainDuration");
@@ -97,7 +97,7 @@ public class WaterGhostPlayerComponent implements RoleComponent, ServerTickingCo
     }
 
     @Override
-    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void writeToSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
         tag.putInt("SkillCooldown", this.skillCooldown);
         tag.putInt("SkillDuration", this.skillDuration);
         tag.putInt("RainDuration", this.rainDuration);
@@ -364,5 +364,14 @@ public class WaterGhostPlayerComponent implements RoleComponent, ServerTickingCo
         if (outOfWaterTimer < DRY_DEATH_TIME) {
             outOfWaterTimer++;
         }
+    }
+
+    
+    @Override
+    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }
 }

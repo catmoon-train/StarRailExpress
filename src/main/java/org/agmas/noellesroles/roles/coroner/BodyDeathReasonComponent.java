@@ -61,8 +61,18 @@ public class BodyDeathReasonComponent implements RoleComponent, ServerTickingCom
         this.vultured = tag.getBoolean("vultured");
     }
 
+    
+    @Override
+    public void writeToSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+        writeToNbt(tag, registryLookup);
+    }
+
+    @Override
+    public void readFromSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+        readFromNbt(tag, registryLookup);
+    }
+
     @Override
     public void serverTick() {
-
     }
 }

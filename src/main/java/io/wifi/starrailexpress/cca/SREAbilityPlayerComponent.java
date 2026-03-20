@@ -183,7 +183,15 @@ public class SREAbilityPlayerComponent
     // ==================== NBT 序列化 ====================
 
     @Override
-    public void writeToNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         tag.putInt("cooldown", this.cooldown);
         tag.putInt("charges", this.charges);
         tag.putInt("maxCharges", this.maxCharges);
@@ -191,7 +199,7 @@ public class SREAbilityPlayerComponent
     }
 
     @Override
-    public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.cooldown = tag.contains("cooldown") ? tag.getInt("cooldown") : 0;
         this.charges = tag.contains("charges") ? tag.getInt("charges") : -1;
         this.maxCharges = tag.contains("maxCharges") ? tag.getInt("maxCharges") : -1;

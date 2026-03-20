@@ -3,6 +3,7 @@ package org.agmas.noellesroles.component;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.index.TMMSounds;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -78,5 +79,13 @@ public class BomberPlayerComponent implements RoleComponent {
     @Override
     public Player getPlayer() {
         return player;
+    }
+
+    @Override
+    public void writeToSyncNbt(CompoundTag tag, Provider registryLookup) {
+    }
+
+    @Override
+    public void readFromSyncNbt(CompoundTag tag, Provider registryLookup) {
     }
 }

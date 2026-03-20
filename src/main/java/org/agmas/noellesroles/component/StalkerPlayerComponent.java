@@ -779,7 +779,7 @@ public class StalkerPlayerComponent implements RoleComponent, ServerTickingCompo
     // ==================== NBT 序列化 ====================
 
     @Override
-    public void writeToNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         tag.putInt("phase", this.phase);
         tag.putInt("energy", this.energy);
         tag.putInt("phase2Kills", this.phase2Kills);
@@ -804,7 +804,7 @@ public class StalkerPlayerComponent implements RoleComponent, ServerTickingCompo
     }
 
     @Override
-    public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.phase = tag.contains("phase") ? tag.getInt("phase") : 0;
         this.energy = tag.contains("energy") ? tag.getInt("energy") : 0;
         this.phase2Kills = tag.contains("phase2Kills") ? tag.getInt("phase2Kills") : 0;
@@ -856,5 +856,14 @@ public class StalkerPlayerComponent implements RoleComponent, ServerTickingCompo
                 stalkerComp.addKill();
             }
         });
+    }
+
+    
+    @Override
+    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }
 }

@@ -193,14 +193,14 @@ public class HoanMeirinPlayerComponent
     // ==================== NBT 序列化 ====================
 
     @Override
-    public void writeToNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         tag.putInt("cooldown", this.cooldown);
         tag.putInt("loneyTime", this.loneyTime);
         tag.putInt("armor", this.armor);
     }
 
     @Override
-    public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.cooldown = tag.contains("cooldown") ? tag.getInt("cooldown") : 0;
         this.loneyTime = tag.contains("loneyTime") ? tag.getInt("loneyTime") : 0;
         this.armor = tag.contains("armor") ? tag.getInt("armor") : 0;
@@ -222,5 +222,13 @@ public class HoanMeirinPlayerComponent
             return true;
         }
         return false;
+    }
+    
+    @Override
+    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }
 }

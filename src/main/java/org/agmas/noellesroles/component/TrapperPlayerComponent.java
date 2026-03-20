@@ -522,4 +522,13 @@ public class TrapperPlayerComponent implements RoleComponent, ServerTickingCompo
             }
         }
     }
+
+    
+    @Override
+    public void writeToSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void readFromSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
 }

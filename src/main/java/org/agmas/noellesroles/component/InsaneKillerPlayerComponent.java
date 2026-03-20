@@ -249,7 +249,7 @@ public class InsaneKillerPlayerComponent
     }
 
     @Override
-    public void writeToNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         tag.putBoolean("isActive", isActive);
         tag.putInt("cooldown", cooldown);
         tag.putInt("death_state", deathState);
@@ -257,7 +257,7 @@ public class InsaneKillerPlayerComponent
     }
 
     @Override
-    public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         isActive = tag.contains("isActive") && tag.getBoolean("isActive");
         cooldown = tag.contains("cooldown") ? tag.getInt("cooldown") : 0;
         deathState = tag.contains("death_state") ? tag.getInt("death_state") : 0;
@@ -289,4 +289,12 @@ public class InsaneKillerPlayerComponent
     // }
     //
     // }
+    
+    @Override
+    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
 }
