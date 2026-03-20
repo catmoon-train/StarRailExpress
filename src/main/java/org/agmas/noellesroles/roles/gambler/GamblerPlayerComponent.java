@@ -103,6 +103,7 @@ public class GamblerPlayerComponent implements RoleComponent, ServerTickingCompo
                 .filter(role -> !role.identifier().equals(ModRoles.GAMBLER_ID))
                 .filter(role -> !role.identifier().equals(ModRoles.DIO_ID))
                 .filter(role -> !role.identifier().equals(ModRoles.JOJO_ID))
+                .filter(role -> !role.identifier().equals(ModRoles.WATER_GHOST_ID))
                 .filter(role -> !role.identifier().equals(ModRoles.BEST_VIGILANTE_ID)) // 排除更好的义警
                 .filter(role -> !role.identifier().equals(TMMRoles.LOOSE_END.identifier())) // 排除亡命徒
                 .filter(role -> !role.identifier().equals(TMMRoles.DISCOVERY_CIVILIAN.identifier())) // 排除游客
