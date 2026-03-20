@@ -231,7 +231,7 @@ public class InitModRolesMax {
             } else {
                 Harpymodloader.setRoleMaximum(ModRoles.WAYFARER_ID, 0);
             }
-            if (players_count >= 12 && random.nextInt(0, 100) < 40) {
+            if (players_count >= 12 && random.nextInt(0, 100) < 55) {
                 Harpymodloader.setRoleMaximum(ModRoles.POISONER_ID, 1);
             } else {
                 Harpymodloader.setRoleMaximum(ModRoles.POISONER_ID, 0);
@@ -395,9 +395,9 @@ public class InitModRolesMax {
                     isSwastMap = swastMaps.contains(currentMap);
                 }
 
-                // 如果是特警可用地图且有可用警卫位置，65%概率随机替换一个为特警
+                // 如果是特警可用地图且有可用警卫位置，70%概率随机替换一个为特警
                 if (isSwastMap && currentTotal > 0 && currentTotal >= allSpecialPoliceCount - 1
-                        && random.nextInt(0, 100) < 65) {
+                        && random.nextInt(0, 100) < 70) {
                     SWAST_COUNT = 1;
                     // 随机选择替换的角色
                     int replaceTarget = random.nextInt(3);
