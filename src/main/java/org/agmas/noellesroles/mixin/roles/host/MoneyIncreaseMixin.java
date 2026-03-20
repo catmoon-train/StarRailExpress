@@ -15,22 +15,29 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(GameUtils.class)
 public class MoneyIncreaseMixin {
-    @Inject(method = "killPlayer(Lnet/minecraft/world/entity/player/Player;ZLnet/minecraft/world/entity/player/Player;Lnet/minecraft/resources/ResourceLocation;)V", at = @At("HEAD"))
-    private static void increaseMoney(Player victim, boolean spawnBody, Player killer, ResourceLocation identifier, CallbackInfo ci) {
+    @Inject(method = "killPlayer(Lnet/minecraft/world/entity/player/Player;ZLnet/minecraft/world/entity/player/Player;Lnet/minecraft/resources/ResourceLocation;Z)V", at = @At("HEAD"))
+    private static void increaseMoney(Player victim, boolean spawnBody, Player killer, ResourceLocation identifier,
+            boolean force, CallbackInfo ci) {
         if (killer != null) {
-            SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY.get(victim.level());
+            SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY
+                    .get(victim.level());
             if (gameWorldComponent.isRole(victim, ModRoles.CONDUCTOR) && !gameWorldComponent.isInnocent(killer)) {
                 SREPlayerShopComponent component = SREPlayerShopComponent.KEY.get(killer);
                 component.addToBalance(100);
             }
         }
     }
+
     @Inject(method = "killPlayer(Lnet/minecraft/world/entity/player/Player;ZLnet/minecraft/world/entity/player/Player;Lnet/minecraft/resources/ResourceLocation;)V", at = @At("HEAD"), cancellable = true)
-    private static void jesterJest(Player victim, boolean spawnBody, Player killer, ResourceLocation identifier, CallbackInfo ci) {
+    private static void jesterJest(Player victim, boolean spawnBody, Player killer, ResourceLocation identifier,
+            CallbackInfo ci) {
         if (killer != null) {
-            SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY.get(victim.level());
-            if (gameWorldComponent.isRole(victim, ModRoles.JESTER) && !gameWorldComponent.isRole(killer, ModRoles.JESTER) && gameWorldComponent.isInnocent(killer)) {
-                SREPlayerPsychoComponent component = (SREPlayerPsychoComponent)SREPlayerPsychoComponent.KEY.get(victim);
+            SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY
+                    .get(victim.level());
+            if (gameWorldComponent.isRole(victim, ModRoles.JESTER)
+                    && !gameWorldComponent.isRole(killer, ModRoles.JESTER) && gameWorldComponent.isInnocent(killer)) {
+                SREPlayerPsychoComponent component = (SREPlayerPsychoComponent) SREPlayerPsychoComponent.KEY
+                        .get(victim);
                 if (component.getPsychoTicks() <= 0) {
                     component.startPsycho();
                     component.psychoTicks = GameConstants.getInTicks(0, 45);

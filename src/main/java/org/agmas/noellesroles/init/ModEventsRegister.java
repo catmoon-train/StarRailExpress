@@ -22,6 +22,7 @@ import org.agmas.noellesroles.component.DefibrillatorComponent;
 import org.agmas.noellesroles.component.GlitchRobotPlayerComponent;
 import org.agmas.noellesroles.component.InsaneKillerPlayerComponent;
 import org.agmas.noellesroles.component.ModComponents;
+import org.agmas.noellesroles.component.PatrollerPlayerComponent;
 import org.agmas.noellesroles.component.PuppeteerPlayerComponent;
 import org.agmas.noellesroles.component.StalkerPlayerComponent;
 import org.agmas.noellesroles.component.WayfarerPlayerComponent;
@@ -68,6 +69,7 @@ import io.wifi.starrailexpress.entity.NoteEntity;
 import io.wifi.starrailexpress.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.event.AfterShieldAllowPlayerDeathWithKiller;
 import io.wifi.starrailexpress.event.AllowPlayerDeath;
+import io.wifi.starrailexpress.event.AllowPlayerDeathWithKiller;
 import io.wifi.starrailexpress.event.CanSeePoison;
 import io.wifi.starrailexpress.event.OnGameEnd;
 import io.wifi.starrailexpress.event.OnGameTrueStarted;
@@ -420,9 +422,27 @@ public class ModEventsRegister {
     private static boolean isEnabled = false;
 
     public static void registerEvents() {
+        AllowPlayerDeathWithKiller.EVENT.register((victim, killer, deathReason) -> {
+            if (killer != null) {
+                SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(victim.level());
+                if (gameWorldComponent.isRole(victim, ModRoles.JESTER)
+                        && !gameWorldComponent.isRole(killer, ModRoles.JESTER)
+                        && gameWorldComponent.isInnocent(killer)) {
+                    SREPlayerPsychoComponent component = SREPlayerPsychoComponent.KEY.get(victim);
+                    if (component.getPsychoTicks() <= 0) {
+                        component.startPsycho();
+                        component.psychoTicks = GameConstants.getInTicks(0, 45);
+                        component.armour = 0;
+                        return false;
+                    }
+                }
+            }
+            return true;
+        });
         MaChenXuEventHandler.register();
         VeteranKnifeHandler.register();
         GamblerHandler.register();
+        StalkerPlayerComponent.registerEvents();
         SRE.cantUseChatHud.add((p) -> {
             /**
              * 这只会发生在客户端
@@ -654,6 +674,34 @@ public class ModEventsRegister {
                             }
                         }
                     }
+                }
+            }
+        });
+        OnPlayerDeathWithKiller.EVENT.register((victim, killer, deathReason) -> {
+            SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(victim.level());
+            if (gameWorld == null || !gameWorld.isRunning())
+                return;
+            for (Player player : victim.level().players()) {
+                // 排除受害者自己（虽然巡警死了也不能触发能力，但以防万一）
+                if (player.equals(victim))
+                    continue;
+                // 检查是否是巡警
+                if (!gameWorld.isRole(player, ModRoles.PATROLLER))
+                    continue;
+
+                // 检查是否存活
+
+                if (!GameUtils.isPlayerAliveAndSurvival(player))
+                    continue;
+
+                // 检查距离（50格内）
+                if (player.distanceToSqr(victim) > 50 * 50
+                        || !PatrollerPlayerComponent.isBoundTargetVisible(victim, player))
+                    continue;
+
+                if (player.hasLineOfSight(victim)) {
+                    PatrollerPlayerComponent patrollerComponent = ModComponents.PATROLLER.get(player);
+                    patrollerComponent.onNearbyDeath();
                 }
             }
         });

@@ -16,8 +16,9 @@ import net.minecraft.world.entity.player.Player;
 
 @Mixin(GameUtils.class)
 public class ExecutionerConfirmMixin {
-    @Inject(method = "killPlayer(Lnet/minecraft/world/entity/player/Player;ZLnet/minecraft/world/entity/player/Player;Lnet/minecraft/resources/ResourceLocation;)V", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "killPlayer(Lnet/minecraft/world/entity/player/Player;ZLnet/minecraft/world/entity/player/Player;Lnet/minecraft/resources/ResourceLocation;Z)V", at = @At("HEAD"), cancellable = true)
     private static void executionerConfirm(Player victim, boolean spawnBody, Player killer, ResourceLocation identifier,
+            boolean force,
             CallbackInfo ci) {
         final var world = victim.level();
         if (world == null)
@@ -35,7 +36,8 @@ public class ExecutionerConfirmMixin {
             // if (gameWorldComponent.getRole(killer).canUseKiller()) invalidKill = true;
             // }
             ExecutionerPlayerComponent executionerPlayerComponent = ExecutionerPlayerComponent.KEY.get(executioner);
-            SREPlayerShopComponent playerShopComponent = (SREPlayerShopComponent) SREPlayerShopComponent.KEY.get(executioner);
+            SREPlayerShopComponent playerShopComponent = (SREPlayerShopComponent) SREPlayerShopComponent.KEY
+                    .get(executioner);
             if (executionerPlayerComponent.target != null
                     && executionerPlayerComponent.target.equals(victim.getUUID())) {
                 executionerPlayerComponent.assignRandomTarget();
