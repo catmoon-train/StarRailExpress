@@ -14,11 +14,11 @@ import org.agmas.harpymodloader.modded_murder.RoleAssignmentManager;
 
 import pro.fazeclan.river.stupid_express.BuyableShopEntry;
 import pro.fazeclan.river.stupid_express.StupidExpress;
-import pro.fazeclan.river.stupid_express.mixin.role.initiate.InitiateRole;
 import pro.fazeclan.river.stupid_express.role.amnesiac.RoleSelectionHandler;
 import pro.fazeclan.river.stupid_express.role.arsonist.OilDousingHandler;
 import pro.fazeclan.river.stupid_express.role.arsonist.cca.DousedPlayerComponent;
 import pro.fazeclan.river.stupid_express.role.avaricious.AvariciousGoldHandler;
+import pro.fazeclan.river.stupid_express.role.initiate.InitiateRole;
 import pro.fazeclan.river.stupid_express.role.necromancer.RevivalSelectionHandler;
 
 import java.util.ArrayList;

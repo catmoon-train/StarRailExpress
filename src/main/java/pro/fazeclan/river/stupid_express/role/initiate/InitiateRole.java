@@ -1,4 +1,4 @@
-package pro.fazeclan.river.stupid_express.mixin.role.initiate;
+package pro.fazeclan.river.stupid_express.role.initiate;
 
 import io.wifi.starrailexpress.api.SRERole;
 import net.minecraft.resources.ResourceLocation;
