@@ -20,6 +20,7 @@ import io.wifi.starrailexpress.api.replay.GameReplayData;
 import net.exmo.sre.nametag.NameTagInventoryComponent;
 
 import org.agmas.harpymodloader.component.WorldModifierComponent;
+import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.packet.NameTagSyncPayload;
 import org.agmas.noellesroles.repack.HSRItems;
@@ -113,6 +114,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Clearable;
 import net.minecraft.world.Difficulty;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -384,25 +386,35 @@ public class GameUtils {
         OnGameTrueStarted.EVENT.invoker().onGameTrueStarted(serverWorld);
         // --- 结束新增统计数据更新逻辑 ---
         executeFunction(serverWorld.getServer().createCommandSourceStack(),
-                "harpymodloader:start_game_" + MapManager.last_start_map);
+                "harpymodloader:start_game_" + AreasWorldComponent.KEY.get(serverWorld).mapName);
         OnTrainAreaHaveReseted.EVENT.invoker().onWorldHaveReseted(serverWorld);
     }
 
     public static void addItemCooldowns(ServerLevel world) {
         for (ServerPlayer player : world.players()) {
+
             var cooldowns = player.getCooldowns();
             var items = new ArrayList<>(MCItemsUtils.getItemsByTag(player.serverLevel(), TMMItemTags.GUNS));
             // Noellesroles.LOGGER.info("itemSize:" + items.size());
             int SAFE_TIME_COOLDOWN = SREConfig.instance().safeTimeCooldown * 20;
             items.forEach((item) -> {
                 cooldowns.addCooldown(item,
-                        (Integer) GameConstants.ITEM_COOLDOWNS.getOrDefault(item, SAFE_TIME_COOLDOWN));
+                        (Integer) SAFE_TIME_COOLDOWN);
             });
             cooldowns.addCooldown(ModItems.SP_KNIFE, SAFE_TIME_COOLDOWN);
             cooldowns.addCooldown(TMMItems.KNIFE, SAFE_TIME_COOLDOWN);
             cooldowns.addCooldown(ModItems.FAKE_REVOLVER, SAFE_TIME_COOLDOWN);
             cooldowns.addCooldown(HSRItems.TOXIN, SAFE_TIME_COOLDOWN);
             cooldowns.addCooldown(HSRItems.ANTIDOTE, SAFE_TIME_COOLDOWN);
+            cooldowns.addCooldown(TMMItems.SNIPER_RIFLE, SAFE_TIME_COOLDOWN);
+            player.addEffect(new MobEffectInstance(
+                    ModEffects.NO_COLLIDE,
+                    (int) (SAFE_TIME_COOLDOWN), // 持续时间 30s（tick）
+                    0, // 等级（0 = 速度 I）
+                    true, // ambient（环境效果，如信标）
+                    false, // showParticles（显示粒子）
+                    false // showIcon（显示图标）
+            ));
         }
     }
 

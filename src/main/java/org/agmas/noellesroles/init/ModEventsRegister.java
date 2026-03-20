@@ -1116,16 +1116,6 @@ public class ModEventsRegister {
                         }
                     }
                 }
-
-                p.addEffect(new MobEffectInstance(
-                        ModEffects.NO_COLLIDE,
-                        (int) (30 * 20), // 持续时间 30s（tick）
-                        0, // 等级（0 = 速度 I）
-                        true, // ambient（环境效果，如信标）
-                        false, // showParticles（显示粒子）
-                        false // showIcon（显示图标）
-                ));
-
                 if (hasDio) {
                     GameUtils.serverAsynTaskLists.add(new ServerTaskInfoClasses.SchedulerTask(20 * 8, () -> {
                         if (p != null) {

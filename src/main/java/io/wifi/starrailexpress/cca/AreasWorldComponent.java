@@ -332,7 +332,7 @@ public class AreasWorldComponent implements AutoSyncedComponent {
             this.readyArea = getBoxFromNbt(tag, "readyArea");
         }
         if (tag.contains("playArea")) {
-            this.readyArea = getBoxFromNbt(tag, "playArea");
+            this.playArea = getBoxFromNbt(tag, "playArea");
         }
         if (tag.contains("sceneArea")) {
             this.sceneArea = getBoxFromNbt(tag, "sceneArea");
