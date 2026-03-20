@@ -330,14 +330,14 @@ public class GameUtilsCommand {
                             ServerPlayer victim = EntityArgument.getPlayer(context, "victim");
                             ResourceLocation deathReason = ResourceLocationArgument.getId(context,
                                 "death_reason");
-                            return executeKillPlayer(context, victim, null, deathReason, true);
+                            return executeKillPlayer(context, victim, null, deathReason, true, false);
                           })
                           .then(Commands.argument("killer", EntityArgument.player()).executes((context) -> {
                             ServerPlayer victim = EntityArgument.getPlayer(context, "victim");
                             ServerPlayer killer = EntityArgument.getPlayer(context, "killer");
                             ResourceLocation deathReason = ResourceLocationArgument.getId(context,
                                 "death_reason");
-                            return executeKillPlayer(context, victim, killer, deathReason, true);
+                            return executeKillPlayer(context, victim, killer, deathReason, true, false);
                           })
                               .then(Commands.argument("spawn_body", BoolArgumentType.bool()).executes((context) -> {
                                 ServerPlayer victim = EntityArgument.getPlayer(context, "victim");
@@ -345,8 +345,16 @@ public class GameUtilsCommand {
                                 ServerPlayer killer = EntityArgument.getPlayer(context, "killer");
                                 ResourceLocation deathReason = ResourceLocationArgument.getId(context,
                                     "death_reason");
-                                return executeKillPlayer(context, victim, killer, deathReason, spawnBody);
-                              }))))))
+                                return executeKillPlayer(context, victim, killer, deathReason, spawnBody, false);
+                              })
+                                  .then(Commands.literal("force").executes((context -> {
+                                    ServerPlayer victim = EntityArgument.getPlayer(context, "victim");
+                                    boolean spawnBody = BoolArgumentType.getBool(context, "spawn_body");
+                                    ServerPlayer killer = EntityArgument.getPlayer(context, "killer");
+                                    ResourceLocation deathReason = ResourceLocationArgument.getId(context,
+                                        "death_reason");
+                                    return executeKillPlayer(context, victim, killer, deathReason, spawnBody, true);
+                                  }))))))))
               .then(Commands.literal("timestop")
                   .then(Commands.argument("duration", IntegerArgumentType.integer(20, 1200))
                       .executes((context) -> {
@@ -361,10 +369,10 @@ public class GameUtilsCommand {
   }
 
   public static int executeKillPlayer(CommandContext<CommandSourceStack> context, ServerPlayer victim,
-      @Nullable ServerPlayer killer, ResourceLocation deathReason, boolean spawnBody) {
+      @Nullable ServerPlayer killer, ResourceLocation deathReason, boolean spawnBody, boolean force) {
     ResourceLocation deathReasonRL = deathReason;
     final String deathReasonT = deathReasonRL.toLanguageKey();
-    GameUtils.killPlayer(victim, spawnBody, killer, deathReasonRL);
+    GameUtils.killPlayer(victim, spawnBody, killer, deathReasonRL, force);
     context.getSource()
         .sendSuccess(() -> Component.translatable("Killed player %s by %s with reason %s (Spawn body: %s)",
             victim.getDisplayName(), (killer == null ? Component.literal("System") : killer.getDisplayName()),
