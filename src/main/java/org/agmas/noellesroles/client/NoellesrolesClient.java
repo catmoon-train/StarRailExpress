@@ -31,7 +31,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.agmas.noellesroles.block_entity.VendingMachinesBlockEntity;
-import org.agmas.noellesroles.client.commands.SettingsCommand;
+import org.agmas.noellesroles.client.commands.GameManagePanelCommand;
 import org.agmas.noellesroles.effects.TimeStopEffect;
 import org.agmas.noellesroles.init.*;
 import org.agmas.noellesroles.Noellesroles;
@@ -772,7 +772,7 @@ public class NoellesrolesClient implements ClientModInitializer {
     }
 
     private void registerCommands() {
-        SettingsCommand.register();
+        GameManagePanelCommand.register();
     }
 
     private void ShowBroadcastMessage(Component message) {
