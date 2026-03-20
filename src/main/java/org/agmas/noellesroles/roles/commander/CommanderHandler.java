@@ -30,7 +30,7 @@ public class CommanderHandler {
             MicrophonePacketEvent event) {
         var api = event.getVoicechat();
         if (gameWorldComponent.isRole(player, ModRoles.COMMANDER)) {
-            if (GameUtils.isPlayerAliveAndSurvival(player)) {
+            if (GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)) {
                 var napc = SREAbilityPlayerComponent.KEY.get(player);
                 if (napc.status == 1) { // 给杀手广播
                     event.cancel();
@@ -81,7 +81,7 @@ public class CommanderHandler {
         ServerMessageEvents.ALLOW_CHAT_MESSAGE.register((message, serverPlayer, bound) -> {
             SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(serverPlayer.level());
             if (gameWorldComponent.isRole(serverPlayer, ModRoles.COMMANDER)) {
-                if (!GameUtils.isPlayerAliveAndSurvival(serverPlayer)) {
+                if (!GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(serverPlayer)) {
                     return true;
                 }
                 var napc = SREAbilityPlayerComponent.KEY.get(serverPlayer);
