@@ -164,7 +164,7 @@ public class StarRailMurderGameMode extends GameMode {
         try {
             // 首先尝试创建队伍（如果不存在）
             source.getServer().getCommands().performPrefixedCommand(source,
-                    "team add " + teamName + " " + teamName + "_team");
+                    "team add " + teamName);
 
             // 将所有玩家添加到队伍中
             for (ServerPlayer player : players) {

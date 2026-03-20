@@ -68,12 +68,6 @@ public class Harpymodloader implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        ServerLifecycleEvents.SERVER_STARTED.register((server) -> {
-            var team = server.getScoreboard().getPlayerTeam("harpymodloader_game");
-            if (team == null) {
-                server.getScoreboard().addPlayerTeam("harpymodloader_game");
-            }
-        });
         VANNILA_ROLES.add(TMMRoles.LOOSE_END);
         VANNILA_ROLES.add(TMMRoles.CIVILIAN);
         VANNILA_ROLES.add(TMMRoles.KILLER);
