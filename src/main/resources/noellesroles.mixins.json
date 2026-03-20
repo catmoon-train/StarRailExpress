@@ -31,7 +31,6 @@
     "roles.executioner.ExecutionerConfirmMixin",
     "roles.framing.DelusionVialApplyMixin",
     "roles.framing.DoNotApplyFakePoisonMixin",
-    "roles.gambler.GamblerDeathMixin",
     "roles.ghost.GhostSoundMixin",
     "roles.glitch_robot.GlitchRobotNoPoisonMixin",
     "roles.host.MasterKeyDropMixin",

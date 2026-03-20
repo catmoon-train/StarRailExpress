@@ -42,6 +42,7 @@ import org.agmas.noellesroles.roles.commander.CommanderHandler;
 import org.agmas.noellesroles.roles.conspirator.ConspiratorKilledPlayer;
 import org.agmas.noellesroles.roles.executioner.ExecutionerPlayerComponent;
 import org.agmas.noellesroles.roles.fortuneteller.FortunetellerPlayerComponent;
+import org.agmas.noellesroles.roles.gambler.GamblerHandler;
 import org.agmas.noellesroles.roles.hoan_meirin.HoanMeirinFistPunchHandler;
 import org.agmas.noellesroles.roles.ma_chen_xu.MaChenXuEventHandler;
 import org.agmas.noellesroles.roles.thief.ThiefPlayerComponent;
@@ -421,6 +422,7 @@ public class ModEventsRegister {
     public static void registerEvents() {
         MaChenXuEventHandler.register();
         VeteranKnifeHandler.register();
+        GamblerHandler.register();
         SRE.cantUseChatHud.add((p) -> {
             /**
              * 这只会发生在客户端
