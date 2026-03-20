@@ -18,6 +18,13 @@ public class ModEffects {
     public static final Holder<MobEffect> TIME_STOP = register("time_stop", new TimeStopEffect());
 
     /**
+     * TRAPPER效果
+     * - 中性效果
+     * - 绿色粒子
+     */
+    public static final Holder<MobEffect> TRAPPER = register("trapper", new NoCollideEffect());
+
+    /**
      * 无碰撞效果
      * - 中性效果
      * - 绿色粒子

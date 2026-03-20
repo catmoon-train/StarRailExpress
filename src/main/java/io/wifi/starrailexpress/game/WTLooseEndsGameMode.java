@@ -11,7 +11,6 @@ import io.wifi.starrailexpress.game.GameUtils.WinStatus;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.network.original.AnnounceWelcomePayload;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -30,7 +29,7 @@ public class WTLooseEndsGameMode extends GameMode {
     static {
         // 防御试剂
         looseEndsItems.add(() -> {
-            final var defenseVial = BuiltInRegistries.ITEM.get(ResourceLocation.tryParse("noellesroles:defense_vial"));
+            final var defenseVial = TMMItems.DEFENSE_VIAL;
             if (defenseVial != Item.byBlock(net.minecraft.world.level.block.Blocks.AIR)) {
                 return defenseVial.getDefaultInstance();
             }

@@ -852,8 +852,18 @@ public class GameUtils {
         killPlayer(victim, spawnBody, killer, GameConstants.DeathReasons.GENERIC);
     }
 
-    public static void killPlayer(Player victim, boolean spawnBody, @Nullable Player _killer,
+    public static void killPlayer(Player victim, boolean spawnBody, @Nullable Player killer,
             ResourceLocation deathReason) {
+        killPlayer(victim, spawnBody, killer, deathReason, false);
+    }
+
+    public static void forceKillPlayer(Player victim, boolean spawnBody, @Nullable Player killer,
+            ResourceLocation deathReason) {
+        killPlayer(victim, spawnBody, killer, deathReason, true);
+    }
+
+    public static void killPlayer(Player victim, boolean spawnBody, @Nullable Player _killer,
+            ResourceLocation deathReason, boolean forceDeath) {
         Player trueKiller = EarlyKillPlayer.FIND_KILLER_EVENT.invoker().findTrueKiller(victim, _killer, deathReason);
         Player killer;
         if (trueKiller != null)
@@ -922,9 +932,11 @@ public class GameUtils {
         }
 
         if (!AllowPlayerDeath.EVENT.invoker().allowDeath(victim, deathReason))
-            return;
+            if (!forceDeath)
+                return;
         if (!AllowPlayerDeathWithKiller.EVENT.invoker().allowDeath(victim, killer, deathReason))
-            return;
+            if (!forceDeath)
+                return;
         if (killer != null) {
             if (killer instanceof ServerPlayer spkiller) {
                 BartenderPlayerComponent bartenderPlayerComponent = BartenderPlayerComponent.KEY.get(victim);
@@ -941,7 +953,8 @@ public class GameUtils {
                             ServerPlayNetworking.send(spkiller,
                                     new BreakArmorPayload(victim.getX(), victim.getY(), victim.getZ()));
                             OnShieldBroken.EVENT.invoker().onShieldBroken(victim, killer);
-                            return;
+                            if (!forceDeath)
+                                return;
                         }
                     }
                 }
@@ -967,9 +980,11 @@ public class GameUtils {
             }
         }
         if (!AfterShieldAllowPlayerDeath.EVENT.invoker().allowDeath(victim, deathReason))
-            return;
+            if (!forceDeath)
+                return;
         if (!AfterShieldAllowPlayerDeathWithKiller.EVENT.invoker().allowDeath(victim, killer, deathReason))
-            return;
+            if (!forceDeath)
+                return;
         // --- 新增统计数据更新逻辑 (击杀者) ---
         if (killer instanceof ServerPlayer serverKiller) {
             SREPlayerStatsComponent killerStats = SREPlayerStatsComponent.KEY.get(serverKiller);
@@ -1050,7 +1065,7 @@ public class GameUtils {
                     body.setYRot(victim.getYHeadRot());
                     body.setYHeadRot(victim.getYHeadRot());
                     victim.level().addFreshEntity(body);
-                    
+
                     {
                         if (gameWorldComponent.getRole(victim) != null) {
                             final var bodyDeathReasonComponent = BodyDeathReasonComponent.KEY.get(body);

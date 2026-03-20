@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.event.OnPlayerKilledPlayerIdentifier;
 
 import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
@@ -296,7 +297,8 @@ public class StalkerPlayerComponent implements RoleComponent, ServerTickingCompo
         var gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
         if (!gameWorldComponent.isSkillAvailable) {
             // player.displayClientMessage(
-            //         Component.translatable("message.tip.skill_disabled").withStyle(ChatFormatting.RED), true);
+            // Component.translatable("message.tip.skill_disabled").withStyle(ChatFormatting.RED),
+            // true);
             return;
         }
         this.phase = 2;
@@ -833,5 +835,26 @@ public class StalkerPlayerComponent implements RoleComponent, ServerTickingCompo
         if (phase >= 2 && player.isSprinting()) {
             player.setSprinting(false);
         }
+    }
+
+    public static void registerEvents() {
+        OnPlayerKilledPlayerIdentifier.EVENT.register((victim, killer, deathReason) -> {
+            if (killer == null)
+                return;
+            if (victim == null)
+                return;
+
+            // 检查是否是刀击杀
+            if (!deathReason.equals(GameConstants.DeathReasons.KNIFE))
+                return;
+
+            // 获取跟踪者组件
+            StalkerPlayerComponent stalkerComp = ModComponents.STALKER.get(killer);
+
+            // 检查是否是活跃的跟踪者且处于二阶段或以上
+            if (stalkerComp.isActiveStalker() && stalkerComp.phase >= 2) {
+                stalkerComp.addKill();
+            }
+        });
     }
 }

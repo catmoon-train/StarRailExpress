@@ -14,5 +14,4 @@ public class NoCollideEffect extends MobEffect{
     public boolean isEnabled(FeatureFlagSet featureFlagSet) {
         return true;
     }
-
 }

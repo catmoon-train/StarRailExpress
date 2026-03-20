@@ -9,7 +9,7 @@ import org.agmas.noellesroles.client.screen.GameManagementScreen;
 
 import io.wifi.starrailexpress.client.util.ClientScheduler;
 
-public class SettingsCommand {
+public class GameManagePanelCommand {
     public static void register() {
         ClientCommandRegistrationCallback.EVENT.register(
                 (dispatcher, registryAccess) -> {

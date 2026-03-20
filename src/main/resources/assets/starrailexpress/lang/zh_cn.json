@@ -483,6 +483,7 @@
   "item.trainmurdermystery.old_fashioned": "古典鸡尾酒",
   "item.trainmurdermystery.poison_vial": "毒药瓶",
   "item.trainmurdermystery.defense_vial": "防御药剂",
+  "item.trainmurdermystery.defense_vial.tooltip": "放入食物或饮料中，给下一个拿取的人增加护盾！",
   "item.trainmurdermystery.poison_vial.tooltip": "偷偷放入食物或饮料中，毒害下一个拿取的人",
   "item.trainmurdermystery.psycho_mode": "疯狂模式",
   "item.trainmurdermystery.psycho_mode.tooltip": "“你喜欢伤害别人吗？”\n隐藏你的身份，让你用球棒疯狂乱打30秒\n全力挥击球棒可造成击杀，且在能力持续期间无法取消选择\n购买后立即激活，有5分钟冷却时间",

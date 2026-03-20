@@ -12,6 +12,7 @@ import org.agmas.noellesroles.component.MonitorPlayerComponent;
 import org.agmas.noellesroles.component.PuppeteerPlayerComponent;
 import org.agmas.noellesroles.component.RecorderPlayerComponent;
 import org.agmas.noellesroles.component.WayfarerPlayerComponent;
+import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.roles.executioner.ExecutionerPlayerComponent;
@@ -328,7 +329,6 @@ public class InstinctRenderer {
                         }
                     }
                 }
-
                 var target_role = SREClient.gameComponent.getRole(target_player);
                 BartenderPlayerComponent bartenderPlayerComponent = BartenderPlayerComponent.KEY.get(target_player);
                 SREPlayerPoisonComponent playerPoisonComponent = SREPlayerPoisonComponent.KEY.get(target_player);
@@ -526,6 +526,9 @@ public class InstinctRenderer {
                     } else if (target_role.isNeutralForKiller()) {
                         return Color.ORANGE.getRGB();
                     } else {
+                        if (target_player.hasEffect(ModEffects.TRAPPER)) {
+                            return new Color(255, 197, 128).getRGB();
+                        }
                         if (SREClient.gameComponent.isRole(self, ModRoles.DIO)) {
                             if (RoleUtils.compareRole(target_role, ModRoles.JOJO)) {
                                 return Color.CYAN.getRGB();

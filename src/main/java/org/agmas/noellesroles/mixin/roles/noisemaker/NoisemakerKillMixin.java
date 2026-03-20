@@ -17,11 +17,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(GameUtils.class)
 public abstract class NoisemakerKillMixin {
 
-    @Inject(method = "killPlayer(Lnet/minecraft/world/entity/player/Player;ZLnet/minecraft/world/entity/player/Player;Lnet/minecraft/resources/ResourceLocation;)V", at = @At(value = "INVOKE", target = "Lio/wifi/starrailexpress/entity/PlayerBodyEntity;setYHeadRot(F)V"))
-    private static void noisemakerKill(Player victim, boolean spawnBody, Player killer, ResourceLocation identifier, CallbackInfo ci, @Local PlayerBodyEntity body) {
-        SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY.get(victim.level());
+    @Inject(method = "killPlayer(Lnet/minecraft/world/entity/player/Player;ZLnet/minecraft/world/entity/player/Player;Lnet/minecraft/resources/ResourceLocation;Z)V", at = @At(value = "INVOKE", target = "Lio/wifi/starrailexpress/entity/PlayerBodyEntity;setYHeadRot(F)V"))
+    private static void noisemakerKill(Player victim, boolean spawnBody, Player killer, ResourceLocation identifier,
+            boolean force, CallbackInfo ci, @Local PlayerBodyEntity body) {
+        SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY
+                .get(victim.level());
         if (gameWorldComponent.isRole(victim, ModRoles.NOISEMAKER)) {
-           body.addEffect(new MobEffectInstance(MobEffects.GLOWING, 20*60, 0));
+            body.addEffect(new MobEffectInstance(MobEffects.GLOWING, 20 * 60, 0));
         }
     }
 

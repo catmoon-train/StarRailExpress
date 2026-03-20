@@ -16,8 +16,9 @@ import net.minecraft.world.entity.player.Player;
 
 @Mixin(GameUtils.class)
 public class ExecutionerConfirmMixin {
-    @Inject(method = "killPlayer(Lnet/minecraft/world/entity/player/Player;ZLnet/minecraft/world/entity/player/Player;Lnet/minecraft/resources/ResourceLocation;)V", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "killPlayer(Lnet/minecraft/world/entity/player/Player;ZLnet/minecraft/world/entity/player/Player;Lnet/minecraft/resources/ResourceLocation;Z)V", at = @At("HEAD"), cancellable = true)
     private static void executionerConfirm(Player victim, boolean spawnBody, Player killer, ResourceLocation identifier,
+            boolean force,
             CallbackInfo ci) {
         final var world = victim.level();
         if (world == null)
@@ -35,22 +36,13 @@ public class ExecutionerConfirmMixin {
             // if (gameWorldComponent.getRole(killer).canUseKiller()) invalidKill = true;
             // }
             ExecutionerPlayerComponent executionerPlayerComponent = ExecutionerPlayerComponent.KEY.get(executioner);
-            SREPlayerShopComponent playerShopComponent = (SREPlayerShopComponent) SREPlayerShopComponent.KEY.get(executioner);
+            SREPlayerShopComponent playerShopComponent = (SREPlayerShopComponent) SREPlayerShopComponent.KEY
+                    .get(executioner);
             if (executionerPlayerComponent.target != null
                     && executionerPlayerComponent.target.equals(victim.getUUID())) {
                 executionerPlayerComponent.assignRandomTarget();
-                // ArrayList<Role> shuffledKillerRoles = new ArrayList<>(TMMRoles.ROLES);
-                // shuffledKillerRoles.removeIf(role ->
-                // Harpymodloader.VANNILA_ROLES.contains(role) || !role.canUseKiller() ||
-                // HarpyModLoaderConfig.HANDLER.instance().disabled.contains(role.identifier().getPath()));
-                // if (shuffledKillerRoles.isEmpty()) shuffledKillerRoles.add(TMMRoles.KILLER);
-                // Collections.shuffle(shuffledKillerRoles);
-
-                // gameWorldComponent.addRole(executioner,shuffledKillerRoles.getFirst());
-                // ModdedRoleAssigned.EVENT.invoker().assignModdedRole(executioner,shuffledKillerRoles.getFirst());
                 if (killer != null && killer.getUUID().equals(uuid)) {
                     playerShopComponent.setBalance(playerShopComponent.balance - 25);
-
                 } else {
                     playerShopComponent.setBalance(playerShopComponent.balance + 50);
                 }
@@ -73,6 +65,5 @@ public class ExecutionerConfirmMixin {
                 }
             }
         }
-
     }
 }

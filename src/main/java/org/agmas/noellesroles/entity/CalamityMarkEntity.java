@@ -151,7 +151,7 @@ public class CalamityMarkEntity extends Entity {
                 
                 // 排除其他杀手阵营玩家（同阵营不触发）
                 SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(world);
-                if (gameWorld.canUseKillerFeatures(player)) {
+                if (gameWorld.isKillerTeam(player)) {
                     return false;
                 }
                 
@@ -161,7 +161,7 @@ public class CalamityMarkEntity extends Entity {
         
         // 如果有玩家触发
         if (!players.isEmpty()) {
-            Player victim = players.get(0);
+            Player victim = players.getFirst();
             triggerTrap(victim);
         }
     }
