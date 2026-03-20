@@ -230,6 +230,7 @@ public class MapManager {
                 SRE.LOGGER.info("Loaded spawn position: " + spawnPosObj.get("x").getAsDouble() + ", " +
                         spawnPosObj.get("y").getAsDouble() + ", " + spawnPosObj.get("z").getAsDouble());
             } else {
+                areas.setSpawnPos(null);
                 SRE.LOGGER.warn("Missing spawn position data in map config: " + mapName);
             }
 
@@ -376,7 +377,7 @@ public class MapManager {
                                     posObj.get("y").getAsDouble(),
                                     posObj.get("z").getAsDouble());
                             areas.getRoomPositions().put(roomNumber, position);
-                            SRE.LOGGER.info("Loaded room " + roomNumber + " position: " + position.x() + ", "
+                            SRE.LOGGER.debug("Loaded room " + roomNumber + " position: " + position.x() + ", "
                                     + position.y() + ", " + position.z());
                         } else {
                             SRE.LOGGER.warn("Invalid position data for room " + key + " in map config: " + mapName);
