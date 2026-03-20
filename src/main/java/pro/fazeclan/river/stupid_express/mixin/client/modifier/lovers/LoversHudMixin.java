@@ -10,7 +10,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.PlayerFaceRenderer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import org.agmas.noellesroles.role.ModRoles;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -56,7 +56,7 @@ public abstract class LoversHudMixin {
 
             var role = SREGameWorldComponent.KEY.get(clientWorld).getRole(clientPlayer);
             if (role != null) {
-                if (SREGameWorldComponent.KEY.get(clientWorld).getRole(clientPlayer).identifier().equals(ResourceLocation.parse("noellesroles:executioner"))) {
+                if (SREGameWorldComponent.KEY.get(clientWorld).getRole(clientPlayer).identifier().equals(ModRoles.EXECUTIONER_ID)) {
                     textYPos -= 15;
                 }
             }

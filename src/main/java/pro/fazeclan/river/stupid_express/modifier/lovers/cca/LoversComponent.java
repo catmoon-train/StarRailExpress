@@ -66,7 +66,7 @@ public class LoversComponent implements AutoSyncedComponent {
     }
 
     public boolean isLover() {
-        return this.lover != null && !this.lover.equals(UUID.fromString("4bdab31c-279a-4123-acac-9830ac57f5ff"));
+        return this.lover != null;
     }
 
     @Override
@@ -85,7 +85,7 @@ public class LoversComponent implements AutoSyncedComponent {
 
     @Override
     public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
-        // W speed uuid button -->
-        tag.putUUID("lover", this.lover != null ? this.lover : UUID.fromString("4bdab31c-279a-4123-acac-9830ac57f5ff"));
+        if (this.lover != null)
+            tag.putUUID("lover", this.lover);
     }
 }
