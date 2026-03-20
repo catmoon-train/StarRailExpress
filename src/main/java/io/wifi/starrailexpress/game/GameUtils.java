@@ -22,6 +22,7 @@ import net.exmo.sre.nametag.NameTagInventoryComponent;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.packet.NameTagSyncPayload;
+import org.agmas.noellesroles.repack.HSRItems;
 import org.agmas.noellesroles.utils.EntityClearUtils;
 import org.agmas.noellesroles.utils.MCItemsUtils;
 import org.jetbrains.annotations.NotNull;
@@ -400,6 +401,8 @@ public class GameUtils {
             cooldowns.addCooldown(ModItems.SP_KNIFE, KNIFE_COOLDOWN);
             cooldowns.addCooldown(TMMItems.KNIFE, KNIFE_COOLDOWN);
             cooldowns.addCooldown(ModItems.FAKE_REVOLVER, REVOLVER_COOLDOWN);
+            cooldowns.addCooldown(HSRItems.TOXIN, REVOLVER_COOLDOWN);
+            cooldowns.addCooldown(HSRItems.ANTIDOTE, REVOLVER_COOLDOWN);
         }
     }
 
