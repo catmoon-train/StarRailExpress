@@ -899,8 +899,8 @@ public class RicesRoleRhapsody implements ModInitializer {
             ServerPlayer player = context.player();
             if (player == null)
                 return;
-            int count = Math.min(payload.count(), 5);
-            if (count <= 0)
+            int count = payload.count();
+            if (count < 1 || count > 5)
                 return;
             LotteryManager.LotteryPool pool = LotteryManager.getInstance().getLotteryPool(payload.poolID());
             if (pool == null) {

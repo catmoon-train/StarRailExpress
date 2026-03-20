@@ -66,8 +66,12 @@ public class LootMultiScreen extends AbstractPixelScreen {
             this.cardHeight = h;
             skinBG = new TextureWidget(x, y, w, h, w, h,
                     LotteryManager.getQualityBgResourceLocation(quality));
-            String itemName = LotteryManager.getInstance().getLotteryPool(poolID)
-                    .getQualityListGroupConfigs().get(quality).second.get(ansID);
+            LotteryManager.LotteryPool pool = LotteryManager.getInstance().getLotteryPool(poolID);
+            String itemName = "unknown";
+            if (pool != null && quality >= 0 && quality < pool.getQualityListGroupConfigs().size()
+                    && ansID >= 0 && ansID < pool.getQualityListGroupConfigs().get(quality).second.size()) {
+                itemName = pool.getQualityListGroupConfigs().get(quality).second.get(ansID);
+            }
             skin = new TextureWidget(x + pixelSize, y + pixelSize,
                     w - 2 * pixelSize, h - 2 * pixelSize, w - 2 * pixelSize, h - 2 * pixelSize,
                     LootScreenUtils.getItemResourceLocation(itemName));
@@ -254,8 +258,12 @@ public class LootMultiScreen extends AbstractPixelScreen {
             ResultCard card = resultCards.get(i);
             if (card.isRevealed()) {
                 int[] result = results.get(i);
-                String itemName = LotteryManager.getInstance().getLotteryPool(poolId)
-                        .getQualityListGroupConfigs().get(result[0]).second.get(result[1]);
+                LotteryManager.LotteryPool pool = LotteryManager.getInstance().getLotteryPool(poolId);
+                String itemName = "unknown";
+                if (pool != null && result[0] >= 0 && result[0] < pool.getQualityListGroupConfigs().size()
+                        && result[1] >= 0 && result[1] < pool.getQualityListGroupConfigs().get(result[0]).second.size()) {
+                    itemName = pool.getQualityListGroupConfigs().get(result[0]).second.get(result[1]);
+                }
                 Component nameText = Component.literal(itemName);
                 int textX = centerX + card.getWidth() / 2 + 6;
                 int textY = card.getY() + (card.getHeight() - font.lineHeight) / 2;

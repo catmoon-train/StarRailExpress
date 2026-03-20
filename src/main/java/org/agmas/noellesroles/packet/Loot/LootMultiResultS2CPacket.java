@@ -31,6 +31,9 @@ public record LootMultiResultS2CPacket(int poolID, List<int[]> results) implemen
     public static LootMultiResultS2CPacket read(FriendlyByteBuf buf) {
         int poolID = buf.readInt();
         int count = buf.readInt();
+        if (count < 0 || count > 10) {
+            count = 0;
+        }
         List<int[]> results = new ArrayList<>();
         for (int i = 0; i < count; i++) {
             results.add(new int[]{buf.readInt(), buf.readInt()});
