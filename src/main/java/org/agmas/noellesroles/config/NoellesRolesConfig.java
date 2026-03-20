@@ -24,7 +24,7 @@ public class NoellesRolesConfig implements ConfigData {
      * Areas that will spawn Swast. Use | to split maps
      */
 
-    public ArrayList<String> maChenXuMaps = new ArrayList<>(List.of("areas1"));
+    public ArrayList<String> maChenXuMaps = new ArrayList<>(List.of("areas_qiyucun"));
 
     /**
      * Areas that will spawn Swast. Use | to split maps
