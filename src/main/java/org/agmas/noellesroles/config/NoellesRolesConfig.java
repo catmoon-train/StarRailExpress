@@ -44,6 +44,11 @@ public class NoellesRolesConfig implements ConfigData {
     public int chanceOfEggRoles = 15;
 
     /**
+     * Modifier - The chance of Lovers
+     */
+
+    public int chanceOfModifierLovers = 10;
+    /**
      * Modifier - The chance of Refugee
      */
 
