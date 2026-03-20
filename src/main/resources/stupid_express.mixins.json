@@ -4,15 +4,11 @@
   "package": "pro.fazeclan.river.stupid_express.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "accessor.PlayerPoisonComponentAccessor",
     "modifier.allergist.AllergistEatMixin",
     "modifier.loose_end.LooseEndBarClearMixin",
     "modifier.secretive.SecretiveDeathMixin",
     "modifier.split_personality.SplitPersonalityServerInputBlockMixin",
-    "modifier.taskmaster.TaskmasterGiveCoinsMixin",
-    "role.initiate.InitiateBuyMixin",
-    "role.initiate.InitiateCoinsOnMoodMixin",
-    "role.necromancer.NecromancerStatsMixin"
+    "modifier.taskmaster.TaskmasterGiveCoinsMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -8,7 +8,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import org.agmas.noellesroles.mixin.accessor.PlayerPoisonComponentAccessor;
 import org.agmas.noellesroles.repack.HSRConstants;
 import org.agmas.noellesroles.repack.HSRItems;
 
@@ -32,7 +31,7 @@ public class CatalystItem extends Item {
                 if (GameUtils.isPlayerAliveAndSurvival(target)) {
                     SREPlayerPoisonComponent poisonComponent = SREPlayerPoisonComponent.KEY.get(target);
                     // 如果玩家中毒
-                    if (((PlayerPoisonComponentAccessor) poisonComponent).getPoisonTicks() > 0) {
+                    if ((poisonComponent).poisonTicks > 0) {
                         // 立即杀死玩家
                         poisonComponent.setPoisonTicks(1, player.getUUID());
                     }

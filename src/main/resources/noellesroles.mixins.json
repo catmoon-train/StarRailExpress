@@ -23,7 +23,6 @@
     "modifier.taxed.SREPlayerShopComponentTaxedMixin",
     "roles.awesome_binglus.NoteEntityMixin",
     "roles.awesome_binglus.NoteMixin",
-    "roles.coroner.CoronerAddDeathReasonMixin",
     "TridentMixin",
     "roles.elf.ArrowMixin",
     "roles.elf.BowMixin",

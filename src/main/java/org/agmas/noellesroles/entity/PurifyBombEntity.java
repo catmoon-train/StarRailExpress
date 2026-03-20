@@ -13,7 +13,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import org.agmas.noellesroles.init.ModItems;
-import org.agmas.noellesroles.mixin.accessor.PlayerPoisonComponentAccessor;
 
 import java.util.List;
 
@@ -75,7 +74,7 @@ public class PurifyBombEntity extends ThrowableItemProjectile {
             SREPlayerPoisonComponent poisonComponent = SREPlayerPoisonComponent.KEY.get(player);
 
             // 如果玩家处于中毒状态，则清除中毒
-            if (((PlayerPoisonComponentAccessor) poisonComponent).getPoisonTicks() > 0) {
+            if ((poisonComponent).poisonTicks > 0) {
                 poisonComponent.setPoisonTicks(0, null);
                 poisonComponent.sync();
             }

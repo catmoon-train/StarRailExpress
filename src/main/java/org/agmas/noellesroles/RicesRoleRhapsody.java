@@ -1065,9 +1065,7 @@ public class RicesRoleRhapsody implements ModInitializer {
         // ==================== 退伍军人角色处理 ====================
         if (role.equals(ModRoles.VETERAN)) {
             // 重置退伍军人组件
-            VeteranPlayerComponent veteranComponent = ModComponents.VETERAN.get(player);
-            veteranComponent.init();
-
+            // 不需要（谁写的啊！！！）
             // 给予一把刀
             player.addItem(new ItemStack(TMMItems.KNIFE));
         }

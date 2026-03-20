@@ -114,10 +114,6 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
       ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "star"),
       SuperStarPlayerComponent.class);
 
-  public static final ComponentKey<VeteranPlayerComponent> VETERAN = ComponentRegistry.getOrCreate(
-      ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "veteran"),
-      VeteranPlayerComponent.class);
-
   public static final ComponentKey<SingerPlayerComponent> SINGER = ComponentRegistry.getOrCreate(
       ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "singer"),
       SingerPlayerComponent.class);
@@ -316,11 +312,6 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
     registry.beginRegistration(Player.class, STAR)
         .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
         .end(SuperStarPlayerComponent::new);
-
-    // 注册退伍军人组件 - 存储刀使用状态
-    registry.beginRegistration(Player.class, VETERAN)
-        .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
-        .end(VeteranPlayerComponent::new);
 
     // 注册歌手组件 - 存储音乐播放冷却状态
     registry.beginRegistration(Player.class, SINGER)

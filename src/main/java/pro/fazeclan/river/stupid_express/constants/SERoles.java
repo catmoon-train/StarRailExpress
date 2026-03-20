@@ -14,6 +14,7 @@ import org.agmas.harpymodloader.modded_murder.RoleAssignmentManager;
 
 import pro.fazeclan.river.stupid_express.BuyableShopEntry;
 import pro.fazeclan.river.stupid_express.StupidExpress;
+import pro.fazeclan.river.stupid_express.mixin.role.initiate.InitiateRole;
 import pro.fazeclan.river.stupid_express.role.amnesiac.RoleSelectionHandler;
 import pro.fazeclan.river.stupid_express.role.arsonist.OilDousingHandler;
 import pro.fazeclan.river.stupid_express.role.arsonist.cca.DousedPlayerComponent;
@@ -65,7 +66,7 @@ public class SERoles {
             -1,
             true));
 
-    public static SRERole INITIATE = registerRole(new NormalRole(
+    public static SRERole INITIATE = registerRole(new InitiateRole(
             StupidExpress.id("initiate"),
             0xffd154,
             false,
