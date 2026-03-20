@@ -780,14 +780,18 @@ public class ModEventsRegister {
                 }
             }
         });
-        ShouldDropOnDeath.EVENT.register(((itemStack) -> {
-            final var key = BuiltInRegistries.ITEM.getKey(itemStack.getItem()).toString();
+        ShouldDropOnDeath.EVENT.register(((stack) -> {
+            final var key = BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
             if ("exposure:album".equals(key) || "exposure:photograph".equals(key)
-                    || "exposure:stacked_photographs".equals(key) || itemStack.is(ModItems.PATROLLER_REVOLVER)
-                    || itemStack.is(ModItems.PASSBOOK)) {
+                    || "exposure:stacked_photographs".equals(key) || stack.is(ModItems.PATROLLER_REVOLVER)
+                    || stack.is(ModItems.PASSBOOK)) {
                 return true;
             }
-
+            if (stack.is(ModItems.MASTER_KEY) ||
+                    stack.is(Items.WRITABLE_BOOK) ||
+                    stack.is(Items.WRITTEN_BOOK)) {
+                return true;
+            }
             return false;
         }));
 

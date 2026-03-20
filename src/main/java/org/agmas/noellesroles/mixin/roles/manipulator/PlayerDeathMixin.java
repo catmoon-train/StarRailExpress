@@ -4,7 +4,6 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.roles.manipulator.InControlCCA;
 import org.agmas.noellesroles.roles.manipulator.ManipulatorPlayerComponent;

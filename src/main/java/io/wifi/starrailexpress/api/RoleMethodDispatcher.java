@@ -56,7 +56,7 @@ public class RoleMethodDispatcher {
                 SREPlayerShopComponent shopComponent = SREPlayerShopComponent.KEY.get(player);
                 shopComponent.addToBalance(50);
             }
-            if (role.isNeutrals() || (!role.canUseKiller() && !role.isInnocent())) {
+            if (role.isNeutrals()) {
                 SREPlayerShopComponent shopComponent = SREPlayerShopComponent.KEY.get(player);
                 shopComponent.addToBalance(50);
             } else if (role.canUseKiller()) {
@@ -67,6 +67,8 @@ public class RoleMethodDispatcher {
                                 shopComponent.addToBalance(5);
                             }
                         });
+                SREPlayerShopComponent shopComponent = SREPlayerShopComponent.KEY.get(player);
+                shopComponent.addToBalance(10);
             }
             role.onFinishQuest(player, quest);
         }

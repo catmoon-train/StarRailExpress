@@ -33,7 +33,6 @@
     "roles.framing.DoNotApplyFakePoisonMixin",
     "roles.ghost.GhostSoundMixin",
     "roles.glitch_robot.GlitchRobotNoPoisonMixin",
-    "roles.host.MasterKeyDropMixin",
     "roles.host.MasterKeySmallDoorMixin",
     "roles.host.MasterKeyTrainDoorMixin",
     "roles.host.MoneyIncreaseMixin",
