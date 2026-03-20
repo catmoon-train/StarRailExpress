@@ -393,7 +393,7 @@ public class GameUtils {
             var cooldowns = player.getCooldowns();
             var items = new ArrayList<>(MCItemsUtils.getItemsByTag(player.serverLevel(), TMMItemTags.GUNS));
             // Noellesroles.LOGGER.info("itemSize:" + items.size());
-            int SAFE_TIME_COOLDOWN = 30 * 20;
+            int SAFE_TIME_COOLDOWN = SREConfig.instance().safeTimeCooldown * 20;
             items.forEach((item) -> {
                 cooldowns.addCooldown(item,
                         (Integer) GameConstants.ITEM_COOLDOWNS.getOrDefault(item, SAFE_TIME_COOLDOWN));

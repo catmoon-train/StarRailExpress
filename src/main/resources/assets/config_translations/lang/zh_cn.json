@@ -51,6 +51,7 @@
   "text.autoconfig.starrailexpress.option.bodyBagPrice": "尸体袋",
   "text.autoconfig.starrailexpress.option.clientConfigComment": "客户端",
   "text.autoconfig.starrailexpress.option.cooldownsComment": "物品冷却时间（秒）",
+  "text.autoconfig.starrailexpress.option.safeTimeCooldown": "游戏开始安全时间（刀/枪购买使用前置冷却时间）（秒）",
   "text.autoconfig.starrailexpress.option.crowbarCooldown": "撬棍",
   "text.autoconfig.starrailexpress.option.crowbarPrice": "撬棍",
   "text.autoconfig.starrailexpress.option.derringerCooldown": "德林加手枪",
