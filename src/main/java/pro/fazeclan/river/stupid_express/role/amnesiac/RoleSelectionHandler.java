@@ -9,6 +9,8 @@ import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
 import pro.fazeclan.river.stupid_express.constants.SERoles;
 import pro.fazeclan.river.stupid_express.utils.StupidRoleUtils;
@@ -62,6 +64,10 @@ public class RoleSelectionHandler {
 
             SREPlayerShopComponent playerShopComponent = SREPlayerShopComponent.KEY.get(interacting);
             StupidRoleUtils.changeRole(interacting, role);
+            
+            // 播放全场音效
+            interacting.level().playSound(null, interacting.blockPosition(),
+                    SoundEvents.BEACON_POWER_SELECT, SoundSource.MASTER, 2.0F, 1.0F);
 
             playerShopComponent.setBalance(200);
             StupidRoleUtils.sendWelcomeAnnouncement(interacting);

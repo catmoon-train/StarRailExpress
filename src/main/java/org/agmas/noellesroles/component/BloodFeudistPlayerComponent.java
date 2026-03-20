@@ -186,7 +186,7 @@ public class BloodFeudistPlayerComponent implements RoleComponent, CommonTicking
             player.addEffect(new MobEffectInstance(MobEffects.DIG_SPEED, Integer.MAX_VALUE, 1, false, false, true));
             // 播放重生锚充能声音 - 全场播放
             player.level().playSound(null, player.blockPosition(),
-                    SoundEvents.RESPAWN_ANCHOR_CHARGE, SoundSource.MASTER, 1.0F, 1.0F);
+                    SoundEvents.RESPAWN_ANCHOR_CHARGE, SoundSource.MASTER, 3.0F, 1.0F);
             if (player instanceof ServerPlayer sp) {
                 sp.sendSystemMessage(Component.translatable("message.noellesroles.blood_feudist.haste2")
                         .withStyle(net.minecraft.ChatFormatting.GREEN));
@@ -212,7 +212,7 @@ public class BloodFeudistPlayerComponent implements RoleComponent, CommonTicking
                     new MobEffectInstance(MobEffects.MOVEMENT_SPEED, Integer.MAX_VALUE, 1, false, false, true));
             // 播放重生锚能量被消耗声音 - 全场播放
             player.level().playSound(null, player.blockPosition(),
-                    SoundEvents.RESPAWN_ANCHOR_DEPLETE.value(), SoundSource.MASTER, 1.0F, 1.0F);
+                    SoundEvents.RESPAWN_ANCHOR_DEPLETE.value(), SoundSource.MASTER, 3.0F, 1.0F);
             if (player instanceof ServerPlayer sp) {
                 sp.sendSystemMessage(Component.translatable("message.noellesroles.blood_feudist.speed2")
                         .withStyle(net.minecraft.ChatFormatting.GREEN));
@@ -225,7 +225,7 @@ public class BloodFeudistPlayerComponent implements RoleComponent, CommonTicking
             clearNegativeEffects();
             // 播放重生锚设置重生点声音 - 全场播放
             player.level().playSound(null, player.blockPosition(),
-                    SoundEvents.RESPAWN_ANCHOR_SET_SPAWN, SoundSource.MASTER, 1.0F, 1.0F);
+                    SoundEvents.RESPAWN_ANCHOR_SET_SPAWN, SoundSource.MASTER, 3.0F, 1.0F);
             if (player instanceof ServerPlayer sp) {
                 sp.sendSystemMessage(Component.translatable("message.noellesroles.blood_feudist.immunity")
                         .withStyle(net.minecraft.ChatFormatting.GREEN));

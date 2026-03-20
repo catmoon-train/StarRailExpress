@@ -295,7 +295,7 @@ public class WayfarerPlayerComponent implements RoleComponent, ServerTickingComp
         this.deathReason = null;
         // 播放音效：2阶段进3阶段用末地传送门开启的音效
         player.level().playSound(null, player.blockPosition(),
-                SoundEvents.END_PORTAL_SPAWN, SoundSource.MASTER, 1.0F, 1.0F);
+                SoundEvents.END_PORTAL_SPAWN, SoundSource.MASTER, 3.0F, 1.0F);
         // 隐身并且不动
         this.player.addEffect(new MobEffectInstance(
                 MobEffects.INVISIBILITY,

@@ -395,6 +395,11 @@ public class ModPacketsReciever {
               // 继承变成杀手之前的40%金币
               playerShopComponent.setBalance((int)(originalBalance * 0.4));
 
+              // 播放全场音效
+              player.level().playSound(null, player.blockPosition(),
+                      SoundEvents.HOGLIN_CONVERTED_TO_ZOMBIFIED,
+                      SoundSource.MASTER, 2.0F, 1.0F);
+
               RoleUtils.sendWelcomeAnnouncement(player);
             }
 
