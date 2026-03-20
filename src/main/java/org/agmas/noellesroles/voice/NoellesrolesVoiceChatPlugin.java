@@ -10,6 +10,7 @@ import de.maxhenkel.voicechat.api.events.LocationalSoundPacketEvent;
 import de.maxhenkel.voicechat.api.events.MicrophonePacketEvent;
 import de.maxhenkel.voicechat.api.events.StaticSoundPacketEvent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent.GameStatus;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffects;
@@ -168,13 +169,18 @@ public class NoellesrolesVoiceChatPlugin implements VoicechatPlugin {
           var player = (ServerPlayer) vctplayer;
           SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
           if (gameWorldComponent != null) {
-            if (GameUtils.isPlayerAliveAndSurvival(player)) {
+            if (gameWorldComponent.getGameStatus().equals(GameStatus.STOPPING)
+                || gameWorldComponent.getGameStatus().equals(GameStatus.STARTING)) {
+              event.cancel();
+              return;
+            }
+            if (GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)) {
               if (gameWorldComponent.isRole(player, ModRoles.NOISEMAKER)) {
                 event.cancel();
                 player.level().players().forEach((p) -> {
                   if (p.getUUID() != player.getUUID()) {
                     double rangeMultiplier = 2;
-                    if (player.getActiveEffectsMap().containsKey(MobEffects.LUCK)) {
+                    if (player.hasEffect(MobEffects.LUCK)) {
                       rangeMultiplier = 8;
                     }
                     if (player.distanceTo(p) <= api.getVoiceChatDistance() * rangeMultiplier) {

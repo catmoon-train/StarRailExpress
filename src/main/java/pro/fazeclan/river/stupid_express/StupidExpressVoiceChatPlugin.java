@@ -62,23 +62,6 @@ public class StupidExpressVoiceChatPlugin implements VoicechatPlugin {
                 // sender 非旁观，该咋处理咋处理
             }
         }
-
-        // if (players.interactionManager.getGameMode().equals(GameMode.SPECTATOR)) {
-
-        // if (gameWorldComponent.isRole(p,
-        // Noellesroles.THE_INSANE_DAMNED_PARANOID_KILLER_OF_DOOM_DEATH_DESTRUCTION_AND_WAFFLES)
-        // && GameUtils.isPlayerAliveAndSurvival(p)) {
-        // if (players.distanceTo(p) <= api.getVoiceChatDistance()) {
-        // VoicechatConnection con = api.getConnectionOf(p.getUuid());
-        // api.sendLocationalSoundPacketTo(con,
-        // event.getPacket().locationalSoundPacketBuilder()
-        // .position(api.createPosition(p.getX(), p.getY(), p.getZ()))
-        // .distance((float)api.getVoiceChatDistance())
-        // .build());
-        // }
-        // }
-        // });
-        // }
     }
 
     public void preventSplitSound_Entity(EntitySoundPacketEvent event) {
