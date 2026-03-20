@@ -501,13 +501,6 @@ public class InitModRolesMax {
         if (EGGS_CHANCE < 0) {
             EGGS_CHANCE = 0;
         }
-        //
-        if (players >= 12 && random.nextInt(0, 100) <= 10) {
-            StupidExpress.LOGGER.info("Modifier [Lovers] enabled in this round!");
-            Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("lovers"), 1);
-        } else {
-            Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("lovers"), 0);
-        }
 
         /// REFUGEE
         if (players >= 12 && random.nextInt(0, 100) <= REFUGEE_CHANCE) {
@@ -587,6 +580,12 @@ public class InitModRolesMax {
             Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("split_personality"), 1);
         } else {
             Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("split_personality"), 0);
+            if (players >= 12 && random.nextInt(0, 100) <= NoellesRolesConfig.HANDLER.instance().chanceOfModifierLovers) {
+                StupidExpress.LOGGER.info("Modifier [Lovers] enabled in this round!");
+                Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("lovers"), 1);
+            } else {
+                Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("lovers"), 0);
+            }
         }
 
         /// EXPEDITION (远征队)

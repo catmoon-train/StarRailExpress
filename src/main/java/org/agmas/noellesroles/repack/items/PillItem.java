@@ -20,8 +20,11 @@ public class PillItem extends Item {
     @Override
     public @NotNull ItemStack finishUsingItem(ItemStack stack, Level world, LivingEntity user) {
         CustomData customData = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
-        boolean poisonous = customData.copyTag().getBoolean(HSRItems.PILL_POISONOUS_KEY);
-
+        var tag = customData.copyTag();
+        boolean poisonous = false;
+        if (tag.contains(HSRItems.PILL_POISONOUS_KEY)) {
+            poisonous = tag.getBoolean(HSRItems.PILL_POISONOUS_KEY);
+        }
         ItemStack result = super.finishUsingItem(stack, world, user);
         if (user instanceof Player player && !world.isClientSide) {
             if (poisonous) {

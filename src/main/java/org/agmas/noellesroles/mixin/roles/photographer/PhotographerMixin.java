@@ -1,16 +1,12 @@
 package org.agmas.noellesroles.mixin.roles.photographer;
 
 import io.wifi.starrailexpress.game.GameUtils;
-import io.github.mortuusars.exposure.world.camera.frame.Frame;
 import io.github.mortuusars.exposure.world.entity.CameraHolder;
 import io.github.mortuusars.exposure.world.item.camera.CameraItem;
-import io.github.mortuusars.exposure_polaroid.world.item.InstantCameraItem;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ClipContext;
@@ -22,9 +18,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import static org.agmas.noellesroles.component.AdmirerPlayerComponent.GAZE_ANGLE;
-import static org.agmas.noellesroles.component.AdmirerPlayerComponent.GAZE_DISTANCE;
 
 @Mixin(CameraItem.class)
 public class PhotographerMixin {

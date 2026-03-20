@@ -6,7 +6,7 @@ import org.agmas.noellesroles.role.ModRoles;
 
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.game.GameUtils;
-import io.github.mortuusars.exposure.util.color.Color;
+import java.awt.Color;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 

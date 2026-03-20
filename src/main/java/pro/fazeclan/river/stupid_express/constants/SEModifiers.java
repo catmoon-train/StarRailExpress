@@ -185,7 +185,7 @@ public class SEModifiers {
             var arrs = new ArrayList<>(level.players());
             Collections.shuffle(arrs);
             for (var can_i_love : arrs) {
-                if (GameUtils.isPlayerAliveAndSurvival(can_i_love)) {
+                if (GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(can_i_love)) {
                     if (!lover.equals(can_i_love)) {
                         loverTwo = can_i_love;
                         break;
@@ -249,7 +249,7 @@ public class SEModifiers {
             var arrs = new ArrayList<>(level.players());
             Collections.shuffle(arrs);
             for (var candidate : arrs) {
-                if (GameUtils.isPlayerAliveAndSurvival(candidate)) {
+                if (GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(candidate)) {
                     if (!person.equals(candidate)) {
                         if (gameComponent != null) {
                             var role = gameComponent.getRole(candidate);

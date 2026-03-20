@@ -31,15 +31,19 @@ public class DecServerJoinPlayer {
         if (SRE.isLobby)
             return;
         var modifierComponent = WorldModifierComponent.KEY.get(serverPlayer.level());
-        var pl = modifierComponent.modifiers.get(serverPlayer.getUUID());
-        if (pl != null) {
-            pl.clear();
-            modifierComponent.sync();
+        if (!modifierComponent.getModifiers(serverPlayer.getUUID()).isEmpty()) {
+            var pl = modifierComponent.modifiers.get(serverPlayer.getUUID());
+            if (pl != null) {
+                pl.clear();
+                modifierComponent.sync();
+            }
+            SplitPersonalityComponent.KEY.get(serverPlayer).init();
+            SkinSplitPersonalityComponent.KEY.get(serverPlayer).clear();
         }
-        SplitPersonalityComponent.KEY.get(serverPlayer).init();
-        SkinSplitPersonalityComponent.KEY.get(serverPlayer).clear();
         serverPlayer.getInventory().clearContent();
-        RoleUtils.RemoveAllEffects(serverPlayer);
+        if (!serverPlayer.getActiveEffects().isEmpty()) {
+            RoleUtils.RemoveAllEffects(serverPlayer);
+        }
         RoleUtils.RemoveAllPlayerAttributes(serverPlayer);
         (InsaneKillerPlayerComponent.KEY.get(serverPlayer)).init();
         ((SREPlayerMoodComponent) SREPlayerMoodComponent.KEY.get(serverPlayer)).init();

@@ -17,8 +17,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import io.github.mortuusars.exposure.util.color.Color;
-
 @Mixin(Gui.class)
 public abstract class MessageBelowMoney {
     @Shadow
@@ -37,7 +35,7 @@ public abstract class MessageBelowMoney {
         var font = getFont();
         int lineHeight = font.lineHeight + 4;
         for (var line : infoLines) {
-            context.drawString(font, line, width - 10 - font.width(line), y, Color.WHITE.getRGB());
+            context.drawString(font, line, width - 10 - font.width(line), y, java.awt.Color.WHITE.getRGB());
             y += lineHeight;
         }
     }
