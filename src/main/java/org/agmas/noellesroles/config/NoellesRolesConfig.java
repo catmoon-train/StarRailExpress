@@ -237,7 +237,7 @@ public class NoellesRolesConfig implements ConfigData {
      * Vulture - Eat body cooldown in seconds
      */
 
-    public int vultureEatCooldown = 5;
+    public int vultureEatCooldown = 3;
 
     /**
      * Swapper - Swap cooldown in seconds

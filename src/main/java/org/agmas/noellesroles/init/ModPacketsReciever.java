@@ -385,12 +385,15 @@ public class ModPacketsReciever {
 
               SREPlayerShopComponent playerShopComponent = (SREPlayerShopComponent) SREPlayerShopComponent.KEY
                   .get(player);
+              // 保存变成杀手之前的金币数量
+              int originalBalance = playerShopComponent.balance;
               final var first = shuffledKillerRoles.getFirst();
               // gameWorldComponent.addRole(player, first);
               // ModdedRoleAssigned.EVENT.invoker().assignModdedRole(player,
               // first);
               RoleUtils.changeRole(player, first);
-              playerShopComponent.setBalance(100);
+              // 继承变成杀手之前的40%金币
+              playerShopComponent.setBalance((int)(originalBalance * 0.4));
 
               RoleUtils.sendWelcomeAnnouncement(player);
             }
