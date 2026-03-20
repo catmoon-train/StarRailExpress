@@ -1165,7 +1165,7 @@ public class RoleShopHandler {
         ShopEntry.Type.TOOL));
     // 药丸 - 75金币
     DOCTOR_SHOP.add(new ShopEntry(
-        HSRItems.PILL.getDefaultInstance(),
+      HSRItems.createPillStack(false),
         75,
         ShopEntry.Type.TOOL));
     // 净化弹 - 300金币
