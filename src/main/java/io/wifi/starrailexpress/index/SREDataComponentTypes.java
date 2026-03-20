@@ -20,6 +20,7 @@ public interface SREDataComponentTypes {
     DataComponentType<String> SKIN = register("skin", stringBuilder -> stringBuilder.persistent(Codec.STRING).networkSynchronized(ByteBufCodecs.STRING_UTF8));
     DataComponentType<Boolean> SCOPE_ATTACHED = register("scope_attached", stringBuilder -> stringBuilder.persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL));
     DataComponentType<Integer> AMMO_COUNT = register("ammo_count", stringBuilder -> stringBuilder.persistent(Codec.INT).networkSynchronized(ByteBufCodecs.VAR_INT));
+    DataComponentType<Integer> WEAPON_USED_TIME = register("weapon_used_time", stringBuilder -> stringBuilder.persistent(Codec.INT).networkSynchronized(ByteBufCodecs.VAR_INT));
 
     private static <T> DataComponentType<T> register(String name, @NotNull UnaryOperator<DataComponentType.Builder<T>> builderOperator) {
         return Registry.register(BuiltInRegistries.DATA_COMPONENT_TYPE, SRE.id(name), builderOperator.apply(DataComponentType.builder()).build());

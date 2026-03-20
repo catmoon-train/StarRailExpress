@@ -19,9 +19,10 @@ public class ShowStatsCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(
                 Commands.literal("tmm:showStats")
-                        .requires(source -> source.hasPermission(2))
+
                         .executes(context -> execute(context.getSource(), null)) // 不指定玩家，默认自己
                         .then(Commands.argument("player", GameProfileArgument.gameProfile())
+                                .requires(source -> source.hasPermission(2))
                                 .executes(context -> execute(context.getSource(), GameProfileArgument.getGameProfiles(context, "player")))
                         )
         );

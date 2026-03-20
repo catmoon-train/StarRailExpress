@@ -26,10 +26,7 @@ import java.util.function.UnaryOperator;
 
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.item.*;
-import org.agmas.noellesroles.item.charge_item.AntidoteChargeItem;
-import org.agmas.noellesroles.item.charge_item.AntidoteReagentChargeItem;
-import org.agmas.noellesroles.item.charge_item.BowenBadgeChargeItem;
-import org.agmas.noellesroles.item.charge_item.ToxinChargeItem;
+import org.agmas.noellesroles.item.charge_item.*;
 import org.agmas.noellesroles.repack.HSRItems;
 import org.agmas.noellesroles.utils.LocalDateData;
 
@@ -89,6 +86,12 @@ public class ModItems {
     public static final Item SP_KNIFE = register(
             new SPKnifeItem(new Item.Properties().stacksTo(1)),
             "sp_knife");
+    public static final Item Stalker_Knife = register(
+            new StalkerKnifeItem(new Item.Properties().stacksTo(1)),
+            "stalker_knife");
+    public static final Item Stalker_Knife_2 = register(
+            new StalkerKnifeItem(new Item.Properties().stacksTo(1)),
+            "stalker_knife_w");
     public static final Item FAKE_REVOLVER = register(
             new FakeRevolverItem(new Item.Properties().stacksTo(1).durability(4)),
             "fake_revolver");
@@ -464,6 +467,8 @@ public class ModItems {
                 Component.translatable("itemstack.exampler.psychoitem.item_name"));
         ChargeableItemRegistry.register(ANTIDOTE_REAGENT, new AntidoteReagentChargeItem());
         ChargeableItemRegistry.register(FunnyItems.BOWEN_BADGE, new BowenBadgeChargeItem());
+        ChargeableItemRegistry.register(ModItems.Stalker_Knife, new StalkerKnifeChargeItem());
+        ChargeableItemRegistry.register(ModItems.Stalker_Knife_2, new StalkerKnifeChargeItem());
         ChargeableItemRegistry.register(HSRItems.TOXIN, new ToxinChargeItem());
         ChargeableItemRegistry.register(ModItems.THROWING_KNIFE, new KnifeChargeableItem());
         ChargeableItemRegistry.register(HSRItems.ANTIDOTE, new AntidoteChargeItem());

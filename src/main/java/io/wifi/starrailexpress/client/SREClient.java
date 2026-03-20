@@ -515,6 +515,20 @@ public class SREClient implements ClientModInitializer {
             });
         });
 
+        // Chat Dialogue
+        ClientPlayNetworking.registerGlobalReceiver(
+                net.exmo.sre.client.chat.OpenChatDialoguePayload.ID, (payload, context) -> {
+                    context.client().execute(() -> {
+                        net.exmo.sre.client.chat.ChatDialogueData data =
+                                net.exmo.sre.client.chat.ChatDialogueData.GSON.fromJson(
+                                        payload.dialogueJson(),
+                                        net.exmo.sre.client.chat.ChatDialogueData.class);
+                        context.client().setScreen(
+                                new net.exmo.sre.client.chat.ChatDialogueScreen(
+                                        data, payload.targetEntityId()));
+                    });
+                });
+
         // Instinct keybind
         instinctKeybind = KeyBindingHelper.registerKeyBinding(new KeyMapping(
                 "key." + SRE.MOD_ID + ".instinct",

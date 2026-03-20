@@ -531,6 +531,8 @@
   "item.noellesroles.alarm_trap.tooltip": "右键门放置陷阱，撬棍触发时发出警报",
   "item.noellesroles.alarm_trap.tooltip2": "会让门锁发生改变，无法用原钥匙打开",
   "item.noellesroles.lock": "锁",
+  "item.noellesroles.stalker_knife": "潜行者的刀",
+  "item.noellesroles.stalker_knife_w": "潜行者的副刀",
   "item.noellesroles.lock.tooltip": "右键锁门，可以阻挡撬锁器",
   "item.noellesroles.delivery_box": "邮件",
   "item.noellesroles.delivery_box.tooltip": "指针对准玩家并右键使用，打开隐秘传递界面",

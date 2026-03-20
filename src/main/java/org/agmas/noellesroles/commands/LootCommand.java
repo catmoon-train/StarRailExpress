@@ -11,6 +11,7 @@ import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.server.level.ServerPlayer;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.packet.Loot.LootPoolsInfoCheckS2CPacket;
+import org.agmas.noellesroles.packet.OpenIntroPayload;
 import org.agmas.noellesroles.utils.lottery.LotteryManager;
 
 import java.util.Collection;
@@ -31,6 +32,12 @@ public class LootCommand {
         });
         CommandRegistrationCallback.EVENT.register(
                 (dispatcher, registryAccess, environment) -> {
+                    dispatcher.register(Commands.literal("tmm:openIntro")
+                            .executes(LootCommand::openIntroUi)
+                    );
+                });
+        CommandRegistrationCallback.EVENT.register(
+                (dispatcher, registryAccess, environment) -> {
                     dispatcher.register(Commands.literal("Loot:SetData")
                             .requires(source -> source.hasPermission(2))
                                 .then(Commands.literal("AddOrDegreeChance")
@@ -40,7 +47,21 @@ public class LootCommand {
                     );
                 });
     }
+    protected static int openIntroUi(CommandContext<CommandSourceStack> context) {
+        try {
+            ServerPlayer player = context.getSource().getPlayer();
+            if (player == null)
+                return 0;
+            ServerPlayNetworking.send(player, new OpenIntroPayload(
 
+            ));
+            return 1;
+        }
+        catch (Exception e) {
+            Noellesroles.LOGGER.error("[LootSys] Failed to send checkPacket\n", e);
+            return 0;
+        }
+    }
     /** 打开抽奖界面*/
     protected static int openLootScreen(CommandContext<CommandSourceStack> context) {
         try {

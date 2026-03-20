@@ -5,6 +5,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import io.wifi.starrailexpress.item.KnifeItem;
+import net.minecraft.network.PacketListener;
+import net.minecraft.world.InteractionHand;
 import org.agmas.noellesroles.component.MaChenXuPlayerComponent;
 import org.agmas.noellesroles.component.SingerPlayerComponent;
 import org.agmas.noellesroles.repack.HSRConstants;
@@ -718,7 +721,17 @@ public class RoleShopHandler {
     ShopContent.customEntries.put(
         ModRoles.STALKER_ID,
         List.of(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), 75,
-            ShopEntry.Type.TOOL)));
+            ShopEntry.Type.TOOL),new ShopEntry(ModItems.Stalker_Knife_2.getDefaultInstance(), 325, ShopEntry.Type.WEAPON){
+          @Override
+          public boolean onBuy(@NotNull Player player) {
+
+            boolean b = player.getOffhandItem().getItem() instanceof KnifeItem;
+            if (! b){
+              player.setItemInHand(InteractionHand.OFF_HAND,ModItems.Stalker_Knife_2.getDefaultInstance());
+            }
+            return b;
+          }
+        }));
 
     // 心理学家商店
     {

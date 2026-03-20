@@ -171,6 +171,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
             SERVER = server;
             GAME = new StarRailMurderGameMode(SRE.id("murder"));
             ServerMapConfig.getInstance(server);
+            net.exmo.sre.client.chat.ChatDialogueManager.getInstance(server);
             ServerTickEvents.START_SERVER_TICK.register(serv -> {
                 io.wifi.starrailexpress.voting.MapVotingManager.getInstance().tick();
             });
@@ -242,6 +243,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
             ManageSkinsCommand.register(dispatcher, registryAccess);
             io.wifi.starrailexpress.cca.network.SkinsNetworkSyncCommand.register(dispatcher);
             net.exmo.sre.nametag.NameTagCommand.register(dispatcher);
+            net.exmo.sre.client.chat.ChatDialogueCommand.register(dispatcher);
         }));
     }
 
@@ -327,6 +329,12 @@ public class SRE extends StarRailExpressID implements ModInitializer {
         PayloadTypeRegistry.playC2S().register(SecurityCameraExitRequestPayload.ID,
                 SecurityCameraExitRequestPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(NunchuckHitPayload.ID, NunchuckHitPayload.CODEC);
+
+        // Chat Dialogue
+        PayloadTypeRegistry.playS2C().register(net.exmo.sre.client.chat.OpenChatDialoguePayload.ID,
+                net.exmo.sre.client.chat.OpenChatDialoguePayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(net.exmo.sre.client.chat.ChatDialogueAdvancePayload.ID,
+                net.exmo.sre.client.chat.ChatDialogueAdvancePayload.CODEC);
     }
 
     private void registerGlobalReceivers() {
@@ -348,7 +356,52 @@ public class SRE extends StarRailExpressID implements ModInitializer {
 
         });
         ServerPlayNetworking.registerGlobalReceiver(NunchuckHitPayload.ID, new NunchuckHitPayload.Receiver());
+
+        // Chat Dialogue advance handler
+        ServerPlayNetworking.registerGlobalReceiver(
+                net.exmo.sre.client.chat.ChatDialogueAdvancePayload.ID, (payload, context) -> {
+                    var mgr = net.exmo.sre.client.chat.ChatDialogueManager
+                            .getInstance(context.player().getServer());
+                    var data = mgr.get(payload.dialogueId());
+                    if (data == null) return;
+                    int idx = payload.lineIndex();
+                    if (idx < 0 || idx >= data.lines.size()) return;
+                var line = data.lines.get(idx);
+
+                if (payload.choiceIndex() >= 0) {
+                if (!line.hasChoices()) return;
+                int choiceIndex = payload.choiceIndex();
+                if (choiceIndex < 0 || choiceIndex >= line.choices.size()) return;
+
+                var choice = line.choices.get(choiceIndex);
+                executeDialogueCommand(context, choice.command);
+
+                if (choice.opensDialogue()) {
+                    var nextDialogue = mgr.get(choice.nextDialogue);
+                    if (nextDialogue != null) {
+                    net.exmo.sre.client.chat.OpenChatDialoguePayload.sendToPlayer(
+                        context.player(), nextDialogue, payload.focusEntityId());
+                    } else {
+                    LOGGER.warn("[SRE-Chat] Missing next dialogue '{}' from '{}' line {} choice {}",
+                        choice.nextDialogue, payload.dialogueId(), idx, choiceIndex);
+                    }
+                }
+                return;
+                    }
+
+                executeDialogueCommand(context, line.command);
+                });
     }
+
+        private static void executeDialogueCommand(ServerPlayNetworking.Context context, String command) {
+        if (command == null || command.isEmpty()) return;
+        context.player().getServer().getCommands()
+            .performPrefixedCommand(
+                context.player().createCommandSourceStack()
+                    .withPermission(2)
+                    .withSuppressedOutput(),
+                command);
+        }
 
     private void joinVoice(JoinSpecGroupPayload payload, ServerPlayNetworking.Context context) {
         ServerPlayer sp = context.player();

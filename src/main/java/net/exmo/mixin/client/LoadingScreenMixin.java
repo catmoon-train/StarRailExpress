@@ -1,4 +1,4 @@
-package net.exmo.mixin;
+package net.exmo.mixin.client;
 
 import net.exmo.sre.loading.SREReceivingLevelScreen;
 import net.exmo.sre.loading.StarRailExpressTitleScreen;

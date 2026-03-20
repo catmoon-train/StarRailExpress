@@ -4,6 +4,7 @@ import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
 
+import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
@@ -310,7 +311,7 @@ public class StalkerPlayerComponent implements RoleComponent, ServerTickingCompo
 
         // 跟踪者一开始就是杀手阵营，不需要 addRole
         // 只需要给予刀
-        player.addItem(TMMItems.KNIFE.getDefaultInstance());
+        player.addItem(ModItems.Stalker_Knife.getDefaultInstance());
 
         // 发送阶段转换消息
         serverPlayer.displayClientMessage(
