@@ -149,6 +149,7 @@ public class ViewLotteryPoolScreen extends AbstractPixelScreen{
                 if (curCount > 4) {
                     curX = (width - totalPixels) / 2;
                     curY += (ITEM_PIXELS_SIZE + QUALITY_BAR_PIXELS_SIZE + COL_INTERVAL_PIXELS) * pixelSize;
+                    curCount = 0;
                 }
                 String itemName = itemNames.get(j);
                 
@@ -156,14 +157,8 @@ public class ViewLotteryPoolScreen extends AbstractPixelScreen{
                         curX, curY,
                         pixelSize,
                         i,
-                        itemNames.get(j).equals("coin") ?
-                                StarRailExpressID.watheId("textures/font/coin.png") :
-                                ResourceLocation.fromNamespaceAndPath("starrailexpress",
-                                        "textures/item/" +
-                                                itemNames.get(j)
-                                                + ".png"),
+                        LootScreenUtils.getItemResourceLocation(itemName),
                         button -> {
-                            // TODO : itemNames.get(j)-使用该物品名获取具体物品然后进行展示
                             ItemStack itemStack = null;
                             // 设置itemStack
                             if (itemName.startsWith("knife/")) {
@@ -181,6 +176,9 @@ public class ViewLotteryPoolScreen extends AbstractPixelScreen{
                             Minecraft minecraft = Minecraft.getInstance();
                             if (itemStack != null) {
                                 String trueName = itemName.substring(itemName.indexOf('/') + 1);
+                                int idx = trueName.indexOf('/');
+                                if (idx != -1)
+                                    trueName = trueName.substring(0, idx);
                                 itemStack.set(SREDataComponentTypes.SKIN, trueName);
                                 minecraft.setScreen(new DisplayItemScreen(itemStack,this));
                             }

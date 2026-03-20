@@ -141,7 +141,7 @@
                 {
                     "Probability":0.35,
                     "ItemList":[
-                        "coin","bat/baseball_bat","bat/bamboo"
+                        "coin","bat/baseball_bat","bat/bamboo/minecraft/textures/item/bamboo.png"
                     ]
                 },
                 {
@@ -159,7 +159,7 @@
                 {
                     "Probability":0.1,
                     "ItemList":[
-                        "bat/astral_defense","bat/advanced_crowbar","bat/blood_bat","bat/composite_club","bat/diamond_pickaxe","bat/fried_legs","bat/iron_hammer","bat/steel_tube","bat/wolfteeth_mace"
+                        "bat/astral_defense","bat/advanced_crowbar","bat/blood_bat","bat/composite_club","bat/diamond_pickaxe/minecraft/textures/item/diamond_pickaxe.png","bat/fried_legs","bat/iron_hammer","bat/steel_tube","bat/wolfteeth_mace"
                     ]
                 },
                 {
@@ -191,7 +191,7 @@
                 {
                     "Probability":0.3,
                     "ItemList":[
-                        "coin","grenade/bottled_flame","grenade/fire_charge","grenade/phone","grenade/minecraft_tnt"
+                        "coin","grenade/bottled_flame","grenade/fire_charge/minecraft/textures/item/fire_charge.png","grenade/phone","grenade/minecraft_tnt/minecraft/textures/block/tnt_side.png"
                     ]
                 },
                 {
@@ -247,7 +247,7 @@
                 {
                     "Probability":0.07,
                     "ItemList":[
-                        "gun/carved_emperor","gun/electrodynamics","gun/european_long_revolver","gun/izumo_41_style","gun/lengcui","gun/margas_flintlock","gun/potato_launcher","gun/soul_cairn","gun/woodcarving_pistol","gun/qianxia","gun/kekedi"
+                        "gun/carved_emperor","gun/electrodynamics","gun/european_long_revolver","gun/izumo_four_one_style","gun/lengcui","gun/margas_flintlock","gun/potato_launcher","gun/soul_cairn","gun/woodcarving_pistol","gun/qianxia","gun/kekedi"
                     ]
                 },
                 {
