@@ -1163,6 +1163,11 @@ public class RoleShopHandler {
         HSRItems.ANTIDOTE.getDefaultInstance(),
         75,
         ShopEntry.Type.TOOL));
+    // 药丸 - 75金币
+    DOCTOR_SHOP.add(new ShopEntry(
+        HSRItems.PILL.getDefaultInstance(),
+        75,
+        ShopEntry.Type.TOOL));
     // 净化弹 - 300金币
     DOCTOR_SHOP.add(new ShopEntry(
         ModItems.PURIFY_BOMB.getDefaultInstance(),
