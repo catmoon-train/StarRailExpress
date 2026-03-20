@@ -322,6 +322,6 @@ public class NameTagInventoryComponent implements RoleComponent {
 
     @Override
     public void readFromSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
-        readFromSyncNbt(tag, registryLookup);
+        readFromNbt(tag, registryLookup);
     }
 }
