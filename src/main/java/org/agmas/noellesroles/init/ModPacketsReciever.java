@@ -393,12 +393,12 @@ public class ModPacketsReciever {
               // first);
               RoleUtils.changeRole(player, first);
               // 继承变成杀手之前的40%金币
-              playerShopComponent.setBalance((int)(originalBalance * 0.4));
+              playerShopComponent.setBalance((int) ((float) originalBalance * 0.4));
 
               // 播放全场音效
               player.level().playSound(null, player.blockPosition(),
-                      SoundEvents.HOGLIN_CONVERTED_TO_ZOMBIFIED,
-                      SoundSource.MASTER, 2.0F, 1.0F);
+                  SoundEvents.HOGLIN_CONVERTED_TO_ZOMBIFIED,
+                  SoundSource.MASTER, 2.0F, 1.0F);
 
               RoleUtils.sendWelcomeAnnouncement(player);
             }
@@ -650,7 +650,8 @@ public class ModPacketsReciever {
         }
       }
     });
-    ServerPlayNetworking.registerGlobalReceiver(ModPackets.WATER_GHOST_SKILL_PACKET, org.agmas.noellesroles.packet.WaterGhostUseSkillC2SPacket::handle);
+    ServerPlayNetworking.registerGlobalReceiver(ModPackets.WATER_GHOST_SKILL_PACKET,
+        org.agmas.noellesroles.packet.WaterGhostUseSkillC2SPacket::handle);
   }
 
 }

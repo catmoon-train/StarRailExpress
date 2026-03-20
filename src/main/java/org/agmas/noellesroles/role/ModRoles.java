@@ -28,7 +28,6 @@ import org.agmas.noellesroles.component.SingerPlayerComponent;
 import org.agmas.noellesroles.component.StalkerPlayerComponent;
 import org.agmas.noellesroles.component.SuperStarPlayerComponent;
 import org.agmas.noellesroles.component.TrapperPlayerComponent;
-import org.agmas.noellesroles.component.VeteranPlayerComponent;
 import org.agmas.noellesroles.roles.chef.ChefRole;
 import org.agmas.noellesroles.roles.executioner.ExecutionerPlayerComponent;
 import org.agmas.noellesroles.roles.gambler.GamblerPlayerComponent;
@@ -569,9 +568,9 @@ public class ModRoles {
       TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
       false // 不隐藏计分板
   )).setCanSeeCoin(true).setVigilanteTeam(true).setCanPickUpRevolver(false)
-   .setServerGameTickEvent((player, gameComponent) -> {
-       org.agmas.noellesroles.roles.swast.SwastTickHandler.serverTick(player, gameComponent);
-   });
+      .setServerGameTickEvent((player, gameComponent) -> {
+        org.agmas.noellesroles.roles.swast.SwastTickHandler.serverTick(player, gameComponent);
+      });
 
   /**
    * 武术教官角色
@@ -909,7 +908,7 @@ public class ModRoles {
       SRERole.MoodType.REAL, // 真实心情
       TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
       false // 不显示计分板
-  ).setComponentKey(VeteranPlayerComponent.KEY));;
+  ));
 
   /**
    * 歌手角色

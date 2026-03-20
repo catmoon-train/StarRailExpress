@@ -193,11 +193,7 @@ public class ConspiratorPlayerComponent implements RoleComponent, ServerTickingC
                                             this.player.getDisplayName())
                                     .withStyle(ChatFormatting.DARK_PURPLE),
                             true);
-                }
-                for (ServerPlayer p : targetServer.serverLevel().players()) {
-                    if (gameWorld.isRole(p, ModRoles.DETECTIVE)) {
-                        DetectivePlayerComponent.KEY.get(p).triggerConspiratorInstinct(5 * 20);
-                    }
+                    DetectivePlayerComponent.KEY.get(target).triggerConspiratorInstinct(20 * 20);
                 }
             }
 

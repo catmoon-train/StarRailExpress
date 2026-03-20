@@ -8,15 +8,21 @@ import org.agmas.noellesroles.entity.WheelchairEntity;
 
 import io.wifi.starrailexpress.entity.NoteEntity;
 import io.wifi.starrailexpress.entity.PlayerBodyEntity;
-
+import io.wifi.starrailexpress.event.OnGameEnd;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.AreaEffectCloud;
 import net.minecraft.world.entity.item.ItemEntity;
+import pro.fazeclan.river.stupid_express.role.necromancer.cca.NecromancerComponent;
 
 public class EntityClearUtils {
     public static void registerResetEvent() {
         GameInitializeEvent.EVENT.register((serverLevel, gameWorldComponent, players) -> {
             clearAllEntities(serverLevel);
+        });
+        OnGameEnd.EVENT.register((world, gameWorldComponent) -> {
+            var component = NecromancerComponent.KEY.get(world);
+            component.reset();
+            clearAllEntities(world);
         });
     }
 

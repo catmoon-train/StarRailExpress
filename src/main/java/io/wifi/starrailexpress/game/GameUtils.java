@@ -22,6 +22,8 @@ import net.exmo.sre.nametag.NameTagInventoryComponent;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.packet.NameTagSyncPayload;
+import org.agmas.noellesroles.repack.HSRItems;
+import org.agmas.noellesroles.roles.coroner.BodyDeathReasonComponent;
 import org.agmas.noellesroles.utils.EntityClearUtils;
 import org.agmas.noellesroles.utils.MCItemsUtils;
 import org.jetbrains.annotations.NotNull;
@@ -400,6 +402,8 @@ public class GameUtils {
             cooldowns.addCooldown(ModItems.SP_KNIFE, KNIFE_COOLDOWN);
             cooldowns.addCooldown(TMMItems.KNIFE, KNIFE_COOLDOWN);
             cooldowns.addCooldown(ModItems.FAKE_REVOLVER, REVOLVER_COOLDOWN);
+            cooldowns.addCooldown(HSRItems.TOXIN, REVOLVER_COOLDOWN);
+            cooldowns.addCooldown(HSRItems.ANTIDOTE, REVOLVER_COOLDOWN);
         }
     }
 
@@ -827,7 +831,8 @@ public class GameUtils {
             for (int z = serverWorld.getMinSection(); z <= serverWorld.getMaxSection(); z++) {
                 net.minecraft.world.level.chunk.LevelChunk chunk = serverWorld.getChunk(x, z);
                 if (chunk != null) {
-                    for (net.minecraft.world.level.block.entity.BlockEntity blockEntity : chunk.getBlockEntities().values()) {
+                    for (net.minecraft.world.level.block.entity.BlockEntity blockEntity : chunk.getBlockEntities()
+                            .values()) {
                         if (blockEntity instanceof io.wifi.starrailexpress.block_entity.ToiletBlockEntity toiletEntity) {
                             toiletEntity.reset();
                         }
@@ -1045,6 +1050,14 @@ public class GameUtils {
                     body.setYRot(victim.getYHeadRot());
                     body.setYHeadRot(victim.getYHeadRot());
                     victim.level().addFreshEntity(body);
+                    
+                    {
+                        if (gameWorldComponent.getRole(victim) != null) {
+                            final var bodyDeathReasonComponent = BodyDeathReasonComponent.KEY.get(body);
+                            bodyDeathReasonComponent.playerRole = gameWorldComponent.getRole(victim).identifier();
+                            bodyDeathReasonComponent.sync();
+                        }
+                    }
                 }
             }
             if (victim instanceof ServerPlayer serverPlayerEntity && isPlayerAliveAndSurvival(serverPlayerEntity)) {
