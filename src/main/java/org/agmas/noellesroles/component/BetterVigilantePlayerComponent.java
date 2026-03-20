@@ -4,12 +4,12 @@ import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
-import io.wifi.starrailexpress.index.TMMSounds;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -141,7 +141,7 @@ public class BetterVigilantePlayerComponent implements RoleComponent, ServerTick
 
         // 播放激活音效
         player.level().playSound(null, player.blockPosition(),
-                TMMSounds.ITEM_PSYCHO_ARMOUR,
+                SoundEvents.TRIDENT_THUNDER.value(),
                 SoundSource.MASTER, 2.0F, 0.8F);
 
         // 发送激活消息

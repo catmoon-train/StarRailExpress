@@ -66,7 +66,7 @@ public class ThiefPlayerComponent implements RoleComponent, ServerTickingCompone
     public static final int STEAL_MONEY_AMOUNT = 100;
 
     /** 购买小偷的荣誉所需的金币基数 */
-    public static final int HONOR_COST_PER_PLAYER = 60;
+    public static final int HONOR_COST_PER_PLAYER = 55;
 
     /** 偷钱模式 */
     public static final int MODE_STEAL_MONEY = 0;
@@ -243,6 +243,9 @@ public class ThiefPlayerComponent implements RoleComponent, ServerTickingCompone
         SREPlayerShopComponent targetShop = SREPlayerShopComponent.KEY.get(target);
         int targetBalance = targetShop.balance;
 
+        // 计算偷取金额：目标40%的金币，最低为100金币
+        int stealAmount = Math.max(STEAL_MONEY_AMOUNT, targetBalance * 40 / 100);
+
         // 检查目标金币是否足够
         if (targetBalance < STEAL_MONEY_AMOUNT) {
             serverPlayer.displayClientMessage(
@@ -254,18 +257,18 @@ public class ThiefPlayerComponent implements RoleComponent, ServerTickingCompone
         }
 
         // 偷取金币
-        targetShop.balance -= STEAL_MONEY_AMOUNT;
+        targetShop.balance -= stealAmount;
         targetShop.sync();
 
         SREPlayerShopComponent thiefShop = SREPlayerShopComponent.KEY.get(player);
-        thiefShop.balance += STEAL_MONEY_AMOUNT;
+        thiefShop.balance += stealAmount;
         thiefShop.sync();
 
         // 通知小偷
         serverPlayer.displayClientMessage(
                 Component.translatable("message.noellesroles.thief.stole_money",
                         target.getDisplayName(),
-                        STEAL_MONEY_AMOUNT)
+                        stealAmount)
                         .withStyle(ChatFormatting.GOLD),
                 true);
 
@@ -273,7 +276,7 @@ public class ThiefPlayerComponent implements RoleComponent, ServerTickingCompone
         pendingNotifications.add(new PendingNotification(
                 targetPlayer,
                 "message.noellesroles.thief.money_stolen",
-                new Object[] { STEAL_MONEY_AMOUNT },
+                new Object[] { stealAmount },
                 NOTIFICATION_DELAY));
 
         // 成功偷取，进入冷却

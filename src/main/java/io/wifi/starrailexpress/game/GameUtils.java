@@ -821,6 +821,22 @@ public class GameUtils {
         player.changeDimension(teleportTarget);
     }
 
+    public static void resetAllToilets(ServerLevel serverWorld) {
+        // Use the same method as train reset to iterate through loaded chunks
+        for (int x = serverWorld.getMinSection(); x <= serverWorld.getMaxSection(); x++) {
+            for (int z = serverWorld.getMinSection(); z <= serverWorld.getMaxSection(); z++) {
+                net.minecraft.world.level.chunk.LevelChunk chunk = serverWorld.getChunk(x, z);
+                if (chunk != null) {
+                    for (net.minecraft.world.level.block.entity.BlockEntity blockEntity : chunk.getBlockEntities().values()) {
+                        if (blockEntity instanceof io.wifi.starrailexpress.block_entity.ToiletBlockEntity toiletEntity) {
+                            toiletEntity.reset();
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     public static boolean isPlayerEliminated(Player player) {
         if (isPlayerSplitPersonalityAndSurvive(player) == SPAliveResult.ALIVE)
             return false;
@@ -1615,6 +1631,9 @@ public class GameUtils {
                 entity.discard();
             for (NoteEntity entity : serverWorld.getEntities(TMMEntities.NOTE, entity -> true))
                 entity.discard();
+
+            // Reset all toilet block entities
+            resetAllToilets(serverWorld);
 
             SRE.LOGGER.info("Train door reset successful.");
             return false;

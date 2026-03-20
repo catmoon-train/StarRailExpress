@@ -9,6 +9,8 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.server.MinecraftServer;
 
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import pro.fazeclan.river.stupid_express.constants.SEItems;
 import pro.fazeclan.river.stupid_express.constants.SERoles;
 import pro.fazeclan.river.stupid_express.utils.StupidRoleUtils;
@@ -82,6 +84,11 @@ public class InitiateUtils {
                     ServerPlayer initiate = initiates.get(0);
                     clearModItems(initiate);
                     StupidRoleUtils.changeRole(initiate, SERoles.AMNESIAC);
+
+                    // 播放全场音效
+                    initiate.level().playSound(null, initiate.blockPosition(),
+                            SoundEvents.CONDUIT_ATTACK_TARGET, SoundSource.MASTER, 5.0F, 1.0F);
+
                     StupidRoleUtils.sendWelcomeAnnouncement(initiate);
                 }
             }

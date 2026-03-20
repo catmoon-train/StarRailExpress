@@ -58,7 +58,8 @@ public class SwitchMapCommand {
       MapResetManager.scanArea(serverLevel, areas);
       MapResetManager.saveArea(serverLevel);
       context.getSource().sendSuccess(() -> Component.literal(
-          "Scanned Successfully! Found " + GameUtils.resetPoints.size() + " blocks should be reseted!"), true);
+          "Scanned Successfully! Found " + GameUtils.resetPoints.size() + " blocks should be reseted!"),
+          true);
     } catch (Exception e) {
       e.printStackTrace();
       context.getSource().sendSuccess(() -> Component.literal(
@@ -211,7 +212,26 @@ public class SwitchMapCommand {
             String.format("%.2f", areas.getReadyArea().maxZ) + "]")
             .withStyle(style -> style.withColor(0x00FFFF)),
         false);
-
+    source.sendSuccess(
+        () -> Component.literal("Scene Area: [" +
+            String.format("%.2f", areas.getSceneArea().minX) + ", " +
+            String.format("%.2f", areas.getSceneArea().minY) + ", " +
+            String.format("%.2f", areas.getSceneArea().minZ) + "] to [" +
+            String.format("%.2f", areas.getSceneArea().maxX) + ", " +
+            String.format("%.2f", areas.getSceneArea().maxY) + ", " +
+            String.format("%.2f", areas.getSceneArea().maxZ) + "]")
+            .withStyle(style -> style.withColor(0x00FFFF)),
+        false);
+    String WAY = switch (areas.SceneScrollAxis) {
+      case X -> "X";
+      case Y -> "Y";
+      case Z -> "Z";
+      default -> "NONE";
+    };
+    source.sendSuccess(
+        () -> Component.literal("Scene Scroll: [" + WAY + "]")
+            .withStyle(style -> style.withColor(0x00FFFF)),
+        false);
     return 1;
   }
 }

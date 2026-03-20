@@ -60,6 +60,10 @@ public class StarRailMurderGameMode extends GameMode {
         WorldModifierComponent worldModifierComponent = WorldModifierComponent.KEY.get(serverWorld);
         worldModifierComponent.modifiers.clear();
         worldModifierComponent.sync();
+
+        // 重置所有马桶方块实体
+        io.wifi.starrailexpress.game.GameUtils.resetAllToilets(serverWorld);
+
         super.finalizeGame(serverWorld, gameWorldComponent);
     }
 

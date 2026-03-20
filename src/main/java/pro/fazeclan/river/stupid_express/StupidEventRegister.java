@@ -102,6 +102,10 @@ public class StupidEventRegister {
                     clearAllKnives(player);
                     if (gameWorldComponent.isSkillAvailable) {
                         StupidRoleUtils.changeRole(player, newInitiateRole, true);
+                        // 播放全场音效
+                        player.level().playSound(null, player.blockPosition(),
+                                net.minecraft.sounds.SoundEvents.CONDUIT_ATTACK_TARGET,
+                                net.minecraft.sounds.SoundSource.MASTER, 5.0F, 1.0F);
                         StupidRoleUtils.sendWelcomeAnnouncement((ServerPlayer) killer);
                     }
                 }
@@ -208,6 +212,10 @@ public class StupidEventRegister {
                 clearAllKnives(player);
                 // StupidExpress.LOGGER.info(player.getDisplayName().getString());
                 StupidRoleUtils.changeRole(player, newInitiateRole);
+                // 播放全场音效
+                player.level().playSound(null, player.blockPosition(),
+                        net.minecraft.sounds.SoundEvents.CONDUIT_ATTACK_TARGET,
+                        net.minecraft.sounds.SoundSource.MASTER, 5.0F, 1.0F);
                 StupidRoleUtils.sendWelcomeAnnouncement(player);
             }
         });

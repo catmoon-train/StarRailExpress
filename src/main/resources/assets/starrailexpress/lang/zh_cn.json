@@ -433,6 +433,7 @@
   "entity.starrailexpress.player_body": "玩家尸体",
   "entity.starrailexpress.seat": "座位",
   "game.player.stung": "你在睡梦中感到被什么东西蛰了一下",
+  "game.player.toilet_poisoned": "你感觉到屁股被麻痹了",
   "game.psycho_mode.over": "疯狂模式结束！",
   "game.psycho_mode.text": "杀光他们！",
   "game.psycho_mode.time": "疯狂模式：%s",

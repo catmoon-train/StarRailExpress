@@ -44,6 +44,17 @@ public class WheelchairEntity extends Mob {
     private boolean inputLeft = false;
     private boolean inputRight = false;
 
+    /**
+     * 当前实际推力，用于平滑加速/减速。
+     * 正值 = 前进，负值 = 后退。
+     * 有输入时向目标推力靠近（THRUST_ACCEL），无输入时衰减回零（THRUST_DECEL）。
+     */
+    private float currentThrust = 0.0f;
+    private static final float THRUST_ACCEL = 0.004f; // 每 tick 加速量（越小起步越缓）
+    private static final float THRUST_DECEL = 0.006f; // 每 tick 减速量（越小滑行越远）
+    private static final float THRUST_MAX_FWD = 0.18f; // 前进最大推力上限
+    private static final float THRUST_MAX_BWD = 0.05f; // 后退最大推力上限
+
     // ===== 其他字段 =====
     private ItemStack item = ItemStack.EMPTY;
     private SREGameWorldComponent gameWorldComponent;
@@ -108,19 +119,17 @@ public class WheelchairEntity extends Mob {
             return;
         }
 
-        // --- 将玩家输入映射到布尔字段（与 Boat 一致）---
-        // zza > 0 = W（前进），xxa < 0 = A（左转），xxa > 0 = D（右转）
+        // --- 将玩家输入映射到布尔字段（方向判断不变）---
         inputUp = player.zza > 0.0f;
         inputDown = player.zza < 0.0f;
-        inputLeft = player.xxa < 0.0f;
-        inputRight = player.xxa > 0.0f;
+        inputLeft = player.xxa > 0.0f;
+        inputRight = player.xxa < 0.0f;
     }
 
-    // ===== travel：类 Boat 物理，完全替代 super.travel =====
+    // ===== travel：类 Boat 物理 + 平滑加速 =====
     @Override
     public void travel(Vec3 movementInput) {
         if (!(this.getControllingPassenger() instanceof Player)) {
-            // 无人骑乘时走正常 Mob 逻辑
             super.travel(movementInput);
             return;
         }
@@ -128,12 +137,12 @@ public class WheelchairEntity extends Mob {
         // --- 1. 重力 ---
         double vy = this.getDeltaMovement().y;
         if (!this.onGround()) {
-            vy -= 0.04; // 与 Boat 陆地重力一致
+            vy -= 0.04;
         } else {
             vy = Math.min(vy, 0.0);
         }
 
-        // --- 2. 旋转（类 Boat：deltaRotation 每帧 ±1，衰减 0.9）---
+        // --- 2. 旋转（方向判断逻辑不变）---
         if (inputLeft)
             deltaRotation--;
         if (inputRight)
@@ -141,28 +150,38 @@ public class WheelchairEntity extends Mob {
         this.setYRot(this.getYRot() + deltaRotation);
         this.yBodyRot = this.getYRot();
         this.yHeadRot = this.getYRot();
-        deltaRotation *= 0.9f; // 旋转摩擦，与 Boat 相同
+        deltaRotation *= 0.9f;
 
-        // --- 3. 加速（类 Boat：前进 +0.04，后退 -0.005；纯转弯 +0.005）---
-        float thrust = 0.0f;
+        // --- 3. 平滑推力计算（加速/减速逻辑）---
+        // 根据输入确定目标推力
+        float targetThrust;
         if (inputUp) {
-            thrust = 0.04f;
+            targetThrust = THRUST_MAX_FWD;
         } else if (inputDown) {
-            thrust = -0.005f;
+            targetThrust = -THRUST_MAX_BWD;
         } else if (inputLeft != inputRight) {
-            // 纯转弯时给一点前进量，让轮椅转得更自然（与 Boat 一致）
-            thrust = 0.005f;
+            // 纯转弯时维持一点微弱前进推力（与 Boat 一致）
+            targetThrust = 0.005f;
+        } else {
+            targetThrust = 0.0f;
         }
 
-        // 沿当前朝向施加推力
-        double yRotRad = this.getYRot() * (float) (Math.PI / 180.0);
-        double ax = -Mth.sin((float) yRotRad) * thrust;
-        double az = Mth.cos((float) yRotRad) * thrust;
+        // 向目标推力平滑靠近
+        if (currentThrust < targetThrust) {
+            currentThrust = Math.min(currentThrust + THRUST_ACCEL, targetThrust);
+        } else if (currentThrust > targetThrust) {
+            currentThrust = Math.max(currentThrust - THRUST_DECEL, targetThrust);
+        }
+
+        // --- 4. 沿当前朝向施加推力 ---
+        double yRotRad = this.getYRot() * (Math.PI / 180.0);
+        double ax = -Mth.sin((float) yRotRad) * currentThrust;
+        double az = Mth.cos((float) yRotRad) * currentThrust;
 
         Vec3 motion = this.getDeltaMovement();
         this.setDeltaMovement(motion.x + ax, vy, motion.z + az);
 
-        // --- 4. 限速（与 Boat 水面限速 0.4 一致）---
+        // --- 5. 限速 ---
         motion = this.getDeltaMovement();
         double hSpeedSq = motion.x * motion.x + motion.z * motion.z;
         final double MAX_SPEED = 0.4;
@@ -171,10 +190,10 @@ public class WheelchairEntity extends Mob {
             this.setDeltaMovement(motion.x * scale, motion.y, motion.z * scale);
         }
 
-        // --- 5. 执行移动（碰撞检测由 move 负责）---
+        // --- 6. 执行移动 ---
         this.move(MoverType.SELF, this.getDeltaMovement());
 
-        // --- 6. 水平摩擦（陆地 Boat 约 0.5，此处取 0.6 让停车略平滑）---
+        // --- 7. 水平摩擦 ---
         motion = this.getDeltaMovement();
         double friction = this.onGround() ? 0.6 : 0.99;
         this.setDeltaMovement(motion.x * friction, motion.y, motion.z * friction);
