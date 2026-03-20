@@ -11,6 +11,7 @@ import org.agmas.noellesroles.component.ClockmakerPlayerComponent;
 import org.agmas.noellesroles.component.HoanMeirinPlayerComponent;
 import org.agmas.noellesroles.component.MaChenXuPlayerComponent;
 import org.agmas.noellesroles.entity.WheelchairEntity;
+import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.roles.commander.CommanderHudRender;
@@ -37,6 +38,25 @@ import net.minecraft.world.effect.MobEffects;
 
 public class ClientHudRenderer {
   public static void registerFather() {
+    HudRenderCallback.EVENT.register((guiGraphics, deltaTracker) -> {
+      var client = Minecraft.getInstance();
+      if (client == null)
+        return;
+      if (client.player == null)
+        return;
+      if (SREClient.gameComponent == null) {
+        return;
+      }
+      if (!SREClient.gameComponent.isRunning())
+        return;
+      if (!client.player.hasEffect(ModEffects.NO_COLLIDE))
+        return;
+      var effect = client.player.getEffect(ModEffects.NO_COLLIDE);
+      Component message = Component.translatable("hud.noellesroles.safe_time", effect.getDuration() / 20)
+          .withStyle(ChatFormatting.GREEN);
+      guiGraphics.drawCenteredString(client.font, message, guiGraphics.guiWidth() / 2, 40,
+          java.awt.Color.WHITE.getRGB());
+    });
     HudRenderCallback.EVENT.register((guiGraphics, deltaTracker) -> {
       var client = Minecraft.getInstance();
       if (client == null)

@@ -93,6 +93,9 @@ public class SREConfig implements ConfigData {
     // 游戏配置 - 服务端只读
 
     // Bartender - Glow duration in seconds
+
+    @ConfigEntry.Category(value = "game")
+    public int safeTimeCooldown = 30;
     @ConfigEntry.Category(value = "game")
     public int bartenderGlowDuration = 40;
     @ConfigEntry.Category(value = "game")

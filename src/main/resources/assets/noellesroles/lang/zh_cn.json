@@ -1462,11 +1462,11 @@
   "message.noellesroles.commands.stuck.failed_no_stuck": "你并未卡在方块里！",
   "message.noellesroles.commands.stuck.failed_cannot_out": "你卡在两格方块里，无法脱困！",
   "message.noellesroles.commands.stuck.success": "已尝试将你脱困！",
-  "==================== 诡客角色 ====================":"",
-  "item.noellesroles.guest_ghost.stop_raining":"净雨符",
-  "item.noellesroles.guest_ghost.stop_raining.tooltip1":"立刻关闭里世界且全图好人恢复 20 SAN",
-  "item.noellesroles.guest_ghost.taomuding":"桃木钉",
-  "item.noellesroles.guest_ghost.taomuding.tooltip1":"让布袋鬼的鬼术进入冷却，持续 30 秒",
+  "==================== 诡客角色 ====================": "",
+  "item.noellesroles.guest_ghost.stop_raining": "净雨符",
+  "item.noellesroles.guest_ghost.stop_raining.tooltip1": "立刻关闭里世界且全图好人恢复 20 SAN",
+  "item.noellesroles.guest_ghost.taomuding": "桃木钉",
+  "item.noellesroles.guest_ghost.taomuding.tooltip1": "让布袋鬼的鬼术进入冷却，持续 30 秒",
   "==================== 布袋鬼角色 ====================": "",
   "announcement.role.ma_chen_xu": "布袋鬼",
   "announcement.role.noellesroles.ma_chen_xu": "布袋鬼",
@@ -1561,5 +1561,6 @@
   "message.noellesroles.ma_chen_xu.available": "技能就绪。按下 %s 触发技能。",
   "message.noellesroles.ma_chen_xu.cooldown": "技能 %s 冷却中：%ss",
   "message.noellesroles.ma_chen_xu.shield": "护盾剩余 %ss",
-  "message.noellesroles.ma_chen_xu.trigger_shield": "护盾触发"
+  "message.noellesroles.ma_chen_xu.trigger_shield": "护盾触发",
+  "hud.noellesroles.safe_time": "剩余安全时间：%ss"
 }

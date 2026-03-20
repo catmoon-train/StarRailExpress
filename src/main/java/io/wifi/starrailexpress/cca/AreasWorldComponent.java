@@ -43,7 +43,7 @@ public class AreasWorldComponent implements AutoSyncedComponent {
         public final float yaw;
         public final float pitch;
 
-        PosWithOrientation(Vec3 pos, float yaw, float pitch) {
+        public PosWithOrientation(Vec3 pos, float yaw, float pitch) {
             this.pos = pos;
             this.yaw = yaw;
             this.pitch = pitch;
@@ -58,7 +58,7 @@ public class AreasWorldComponent implements AutoSyncedComponent {
     public static Vec3 getVec3dFromNbt(CompoundTag ctag, String name) {
         if (ctag.contains(name)) {
             var tag = ctag.getCompound(name);
-            return new Vec3(tag.getDouble("X"), tag.getFloat("Y"), tag.getDouble("Z"));
+            return new Vec3(tag.getDouble("X"), tag.getDouble("Y"), tag.getDouble("Z"));
         }
         return new Vec3(0, 0, 0);
     }
@@ -85,16 +85,16 @@ public class AreasWorldComponent implements AutoSyncedComponent {
         ctag.putDouble("X", posWithOrientation.pos.x());
         ctag.putDouble("Y", posWithOrientation.pos.y());
         ctag.putDouble("Z", posWithOrientation.pos.z());
-        ctag.putDouble("Yaw", posWithOrientation.yaw);
-        ctag.putDouble("Pitch", posWithOrientation.pitch);
+        ctag.putFloat("Yaw", posWithOrientation.yaw);
+        ctag.putFloat("Pitch", posWithOrientation.pitch);
         tag.put(name, ctag);
     }
 
     public static AABB getBoxFromNbt(CompoundTag tag, String name) {
         if (tag.contains(name, CompoundTag.TAG_COMPOUND)) {
             var ctag = tag.getCompound(name);
-            return new AABB(ctag.getDouble("MinX"), ctag.getFloat("MinY"), ctag.getDouble("MinZ"),
-                    ctag.getDouble("MaxX"), ctag.getFloat("MaxY"), ctag.getDouble("MaxZ"));
+            return new AABB(ctag.getDouble("MinX"), ctag.getDouble("MinY"), ctag.getDouble("MinZ"),
+                    ctag.getDouble("MaxX"), ctag.getDouble("MaxY"), ctag.getDouble("MaxZ"));
         }
         return new AABB(0, 0, 0, 0, 0, 0);
     }
@@ -123,7 +123,7 @@ public class AreasWorldComponent implements AutoSyncedComponent {
     // Box resetTemplateArea = new Box(-57, 64, -531, 177, 74, -541);
     // Box resetPasteArea = resetTemplateArea.offset(0, 55, 0);
 
-    PosWithOrientation spawnPos = new PosWithOrientation(-872.5f, 0f, -323f, 90f, 0f);
+    PosWithOrientation spawnPos = null;
     PosWithOrientation spectatorSpawnPos = new PosWithOrientation(-68f, 133f, -535.5f, -90f, 15f);
 
     AABB readyArea = new AABB(0, 0, 0, 100, 10, 100);

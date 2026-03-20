@@ -393,17 +393,16 @@ public class GameUtils {
             var cooldowns = player.getCooldowns();
             var items = new ArrayList<>(MCItemsUtils.getItemsByTag(player.serverLevel(), TMMItemTags.GUNS));
             // Noellesroles.LOGGER.info("itemSize:" + items.size());
-            int REVOLVER_COOLDOWN = GameConstants.ITEM_COOLDOWNS.getOrDefault(TMMItems.REVOLVER, 0);
-            int KNIFE_COOLDOWN = GameConstants.ITEM_COOLDOWNS.getOrDefault(TMMItems.KNIFE, 0);
+            int SAFE_TIME_COOLDOWN = SREConfig.instance().safeTimeCooldown * 20;
             items.forEach((item) -> {
                 cooldowns.addCooldown(item,
-                        (Integer) GameConstants.ITEM_COOLDOWNS.getOrDefault(item, REVOLVER_COOLDOWN));
+                        (Integer) GameConstants.ITEM_COOLDOWNS.getOrDefault(item, SAFE_TIME_COOLDOWN));
             });
-            cooldowns.addCooldown(ModItems.SP_KNIFE, KNIFE_COOLDOWN);
-            cooldowns.addCooldown(TMMItems.KNIFE, KNIFE_COOLDOWN);
-            cooldowns.addCooldown(ModItems.FAKE_REVOLVER, REVOLVER_COOLDOWN);
-            cooldowns.addCooldown(HSRItems.TOXIN, REVOLVER_COOLDOWN);
-            cooldowns.addCooldown(HSRItems.ANTIDOTE, REVOLVER_COOLDOWN);
+            cooldowns.addCooldown(ModItems.SP_KNIFE, SAFE_TIME_COOLDOWN);
+            cooldowns.addCooldown(TMMItems.KNIFE, SAFE_TIME_COOLDOWN);
+            cooldowns.addCooldown(ModItems.FAKE_REVOLVER, SAFE_TIME_COOLDOWN);
+            cooldowns.addCooldown(HSRItems.TOXIN, SAFE_TIME_COOLDOWN);
+            cooldowns.addCooldown(HSRItems.ANTIDOTE, SAFE_TIME_COOLDOWN);
         }
     }
 
@@ -820,6 +819,12 @@ public class GameUtils {
         player.removeVehicle();
 
         AreasWorldComponent.PosWithOrientation spawnPos = AreasWorldComponent.KEY.get(player.level()).getSpawnPos();
+        if (spawnPos == null) {
+            BlockPos worldSpawnPos = player.serverLevel().getSharedSpawnPos();
+            float worldSpawnAngle = player.serverLevel().getSharedSpawnAngle();
+            var spawnPosVec3 = new Vec3(worldSpawnPos.getX(), worldSpawnPos.getY(), worldSpawnPos.getZ());
+            spawnPos = new AreasWorldComponent.PosWithOrientation(spawnPosVec3, worldSpawnAngle, 0);
+        }
         DimensionTransition teleportTarget = new DimensionTransition(player.serverLevel(), spawnPos.pos, Vec3.ZERO,
                 spawnPos.yaw, spawnPos.pitch, DimensionTransition.DO_NOTHING);
         player.changeDimension(teleportTarget);
