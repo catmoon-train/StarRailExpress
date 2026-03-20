@@ -39,6 +39,8 @@ import org.agmas.noellesroles.packet.Loot.LootPoolsInfoRequestC2SPacket;
 import org.agmas.noellesroles.packet.Loot.LootPoolsInfoS2CPacket;
 import org.agmas.noellesroles.packet.Loot.LootRequestC2SPacket;
 import org.agmas.noellesroles.packet.Loot.LootResultS2CPacket;
+import org.agmas.noellesroles.packet.Loot.LootMultiRequestC2SPacket;
+import org.agmas.noellesroles.packet.Loot.LootMultiResultS2CPacket;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.screen.DetectiveInspectScreenHandler;
 import org.agmas.noellesroles.screen.ModScreenHandlers;
@@ -87,6 +89,7 @@ public class RicesRoleRhapsody implements ModInitializer {
 
     public static final CustomPacketPayload.Type<LockGameC2Packet> LOCK_GAME_PACKET = LockGameC2Packet.ID;
     public static final CustomPacketPayload.Type<LootRequestC2SPacket> LOOT_REQUIRE_PACKET = LootRequestC2SPacket.ID;
+    public static final CustomPacketPayload.Type<LootMultiRequestC2SPacket> LOOT_MULTI_REQUIRE_PACKET = LootMultiRequestC2SPacket.ID;
     public static final CustomPacketPayload.Type<LootPoolsInfoRequestC2SPacket> LOOT_POOLS_INFO_REQUEST_PACKET = LootPoolsInfoRequestC2SPacket.ID;
 
     @Override
@@ -293,6 +296,8 @@ public class RicesRoleRhapsody implements ModInitializer {
         PayloadTypeRegistry.playC2S().register(LootPoolsInfoRequestC2SPacket.ID, LootPoolsInfoRequestC2SPacket.CODEC);
         // 注册抽奖请求包
         PayloadTypeRegistry.playC2S().register(LootRequestC2SPacket.ID, LootRequestC2SPacket.CODEC);
+        // 注册五连抽请求包
+        PayloadTypeRegistry.playC2S().register(LootMultiRequestC2SPacket.ID, LootMultiRequestC2SPacket.CODEC);
 
         // 撬锁
         ServerPlayNetworking.registerGlobalReceiver(LOCK_GAME_PACKET, (payload, context) -> {
@@ -885,6 +890,36 @@ public class RicesRoleRhapsody implements ModInitializer {
                 }
             } else {
                 // 抽奖次数 = 0 或 卡池是否存在 限制
+                player.sendSystemMessage(Component.translatable("message.noellesroles.loot.limit", payload.poolID()));
+            }
+        });
+
+        // 处理五连抽请求包
+        ServerPlayNetworking.registerGlobalReceiver(LOOT_MULTI_REQUIRE_PACKET, (payload, context) -> {
+            ServerPlayer player = context.player();
+            if (player == null)
+                return;
+            int count = Math.min(payload.count(), 5);
+            if (count <= 0)
+                return;
+            LotteryManager.LotteryPool pool = LotteryManager.getInstance().getLotteryPool(payload.poolID());
+            if (pool == null) {
+                player.sendSystemMessage(Component.translatable("message.noellesroles.loot.limit", payload.poolID()));
+                return;
+            }
+            java.util.List<int[]> results = new java.util.ArrayList<>();
+            for (int i = 0; i < count; ++i) {
+                if (!LotteryManager.getInstance().canRoll(player))
+                    break;
+                Pair<Integer, Integer> rollID = pool.rollOnce(player);
+                if (rollID.first != -1) {
+                    results.add(new int[]{rollID.first, rollID.second});
+                    LotteryManager.getInstance().addOrDegreeLotteryChance(player, -1);
+                }
+            }
+            if (!results.isEmpty()) {
+                ServerPlayNetworking.send(player, new LootMultiResultS2CPacket(payload.poolID(), results));
+            } else {
                 player.sendSystemMessage(Component.translatable("message.noellesroles.loot.limit", payload.poolID()));
             }
         });

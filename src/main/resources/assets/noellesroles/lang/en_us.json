@@ -213,6 +213,8 @@
   "screen.noellesroles.loot.lockGameTip": "Press 'W' to try lockpicking, press 'A'/'D' to move lockpick",
   "screen.noellesroles.cook.cookgameTip": "Use \"ESC\" to paused, Use \"SHIFT ESC\" to stop",
   "screen.noellesroles.loot.lootBtn": "Start Lottery",
+  "screen.noellesroles.loot.multiLootBtn": "5x Lottery",
+  "screen.noellesroles.loot.previewBtn": "Preview",
   "==================== Gambler Role ====================": "",
   "game.win.star.gambler": "Gambler wins with 1% probability, he's laughing at everyone!",
   "gui.noellesroles.gambler.title": "Gambler Role Selection",

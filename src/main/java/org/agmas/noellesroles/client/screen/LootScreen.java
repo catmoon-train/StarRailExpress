@@ -76,17 +76,51 @@ public class LootScreen extends AbstractPixelScreen {
     /** 减速时间 */
     private int slowDownTime = 0;
 
+    /** 品质对应的发光颜色 (ARGB) */
+    private static final int[] QUALITY_GLOW_COLORS = {
+            0x40AAAAAA, // 0: common - 灰色微光
+            0x5000CC00, // 1: uncommon - 绿色光
+            0x600066FF, // 2: rare - 蓝色光
+            0x70AA00FF, // 3: epic - 紫色光
+            0x80FFAA00, // 4: legendary - 金色光
+            0x90FF3333, // 5: unbelievable - 红色光
+    };
+
+    /** 品质对应的发光颜色 (更亮的内层) */
+    private static final int[] QUALITY_GLOW_INNER_COLORS = {
+            0x30CCCCCC, // 0: common
+            0x4000FF00, // 1: uncommon
+            0x500088FF, // 2: rare
+            0x60CC44FF, // 3: epic
+            0x70FFCC00, // 4: legendary
+            0x80FF6666, // 5: unbelievable
+    };
+
+    private static int getGlowColor(int quality) {
+        if (quality < 0) return QUALITY_GLOW_COLORS[0];
+        if (quality >= QUALITY_GLOW_COLORS.length) return QUALITY_GLOW_COLORS[QUALITY_GLOW_COLORS.length - 1];
+        return QUALITY_GLOW_COLORS[quality];
+    }
+
+    private static int getInnerGlowColor(int quality) {
+        if (quality < 0) return QUALITY_GLOW_INNER_COLORS[0];
+        if (quality >= QUALITY_GLOW_INNER_COLORS.length) return QUALITY_GLOW_INNER_COLORS[QUALITY_GLOW_INNER_COLORS.length - 1];
+        return QUALITY_GLOW_INNER_COLORS[quality];
+    }
+
     public static class Card extends AbstractWidget
     {
         // skin: 16*16 ; bg: 18*18
         protected TextureWidget skinBG;
         protected TextureWidget skin;
         protected boolean isSelected = false;// 是否被选中过：首次选中播放音效
+        protected int quality;// 卡片品质，用于发光效果
         public Card(int x, int y, int poolID, Pair<Integer, Integer> qualityAndId, int pixelSize) {
             this(x, y, 16, 16, poolID, qualityAndId, pixelSize);
         }
         public Card(int x, int y, int w, int h, int poolID, Pair<Integer, Integer> qualityAndId, int pixelSize) {
             super(x, y, w, h, Component.empty());
+            this.quality = qualityAndId.first;
             skinBG = new TextureWidget(x, y, w, h, w, h,LotteryManager.getQualityBgResourceLocation(qualityAndId.first));
             String itemName = LotteryManager.getInstance().getLotteryPool(poolID)
                     .getQualityListGroupConfigs().get(qualityAndId.first).second.get(qualityAndId.second);
@@ -97,6 +131,17 @@ public class LootScreen extends AbstractPixelScreen {
 
         @Override
         protected void renderWidget(GuiGraphics guiGraphics, int i, int j, float f) {
+            // 绘制品质发光效果
+            if (quality >= 2) {
+                int glowSize = Math.max(2, quality);
+                int glowColor = getGlowColor(quality);
+                guiGraphics.fill(getX() - glowSize, getY() - glowSize,
+                        getX() + getWidth() + glowSize, getY() + getHeight() + glowSize, glowColor);
+                int innerGlowSize = Math.max(1, quality - 1);
+                int innerGlowColor = getInnerGlowColor(quality);
+                guiGraphics.fill(getX() - innerGlowSize, getY() - innerGlowSize,
+                        getX() + getWidth() + innerGlowSize, getY() + getHeight() + innerGlowSize, innerGlowColor);
+            }
             if(skinBG != null)
                 skinBG.render(guiGraphics, i, j, f);
             if(skin != null)
@@ -307,6 +352,8 @@ public class LootScreen extends AbstractPixelScreen {
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta)
     {
+        // 绘制暗色神秘背景增加惊喜感
+        guiGraphics.fill(0, 0, width, height, 0xDD0A0A1A);
         super.render(guiGraphics, mouseX, mouseY, delta);
         animations.forEach(animation -> animation.renderUpdate(delta));
         animations.removeIf(AbstractAnimation::isFinished);

@@ -457,6 +457,8 @@
   "screen.noellesroles.loot.lockGameTip": "按 'W' 尝试撬锁, 按 'A'/'D' 移动撬锁器",
   "screen.noellesroles.cook.cookgameTip": "按\"ESC\"键暂停，按\"SHIFT ESC\"立即结算",
   "screen.noellesroles.loot.lootBtn": "开始抽奖",
+  "screen.noellesroles.loot.multiLootBtn": "五连抽",
+  "screen.noellesroles.loot.previewBtn": "预览",
   "==================== 赌徒角色 ====================": "",
   "game.win.star.gambler": "赌徒以1%%的概率取得胜利，他正讥笑着所有人！",
   "gui.noellesroles.gambler.title": "赌徒角色选择",
