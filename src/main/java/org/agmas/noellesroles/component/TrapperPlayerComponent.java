@@ -1,6 +1,8 @@
 package org.agmas.noellesroles.component;
 
 import io.wifi.starrailexpress.game.GameUtils;
+
+import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModEntities;
 import org.agmas.noellesroles.entity.CalamityMarkEntity;
 import org.jetbrains.annotations.NotNull;
@@ -306,6 +308,9 @@ public class TrapperPlayerComponent implements RoleComponent, ServerTickingCompo
                 MobEffects.MOVEMENT_SLOWDOWN, prisonTime, 255, false, false, false));
         victim.addEffect(new MobEffectInstance(
                 MobEffects.DIG_SLOWDOWN, prisonTime, 255, false, false, false));
+        // 标记效果
+        victim.addEffect(new MobEffectInstance(
+                ModEffects.TRAPPER, prisonTime, 255, false, false, false));
         victim.addEffect(new MobEffectInstance(
                 MobEffects.JUMP, prisonTime, 128, false, false, false)); // 负面跳跃（防止跳跃）
 

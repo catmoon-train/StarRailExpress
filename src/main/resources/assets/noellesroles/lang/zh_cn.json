@@ -357,6 +357,7 @@
   "mob_effect.noellesroles.time_stop": "时间停止",
   "effect.noellesroles.time_stop": "时间停止",
   "effect.noellesroles.no_collide": "无碰撞",
+  "effect.noellesroles.trapper": "陷阱受困",
   "item.noellesroles.fake_knife": "假刀",
   "item.noellesroles.boxing_glove": "拳套",
   "item.noellesroles.boxing_glove.tooltip": "蓄力0.4秒后攻击，命中使目标眩晕并封印物品1.5秒",
