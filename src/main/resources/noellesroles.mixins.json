@@ -18,7 +18,6 @@
     "ShitExposureMixin",
     "ShitExposurePatreonMixin",
     "SpawnMixin",
-    "accessor.PlayerPoisonComponentAccessor",
     "item.ThrowingKnifeCooldownMixin",
     "modifier.taxed.SREPlayerShopComponentTaxedMixin",
     "roles.awesome_binglus.NoteEntityMixin",

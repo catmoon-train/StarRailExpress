@@ -17,7 +17,6 @@ import io.wifi.starrailexpress.game.GameUtils;
 import pro.fazeclan.river.stupid_express.StupidExpress;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 import pro.fazeclan.river.stupid_express.modifier.allergist.cca.AllergistComponent;
-import pro.fazeclan.river.stupid_express.mixin.accessor.PlayerPoisonComponentAccessor;
 
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -53,7 +52,7 @@ public abstract class AllergistEatMixin extends LivingEntity {
         } else if (random < 66) {
             // Clear poison once
             SREPlayerPoisonComponent poisonComponent = SREPlayerPoisonComponent.KEY.get(player);
-            if (((PlayerPoisonComponentAccessor) poisonComponent).getPoisonTicks() > 0) {
+            if ((poisonComponent).getPoisonTicks() > 0) {
                 poisonComponent.setPoisonTicks(0, null);
                 player.displayClientMessage(
                         Component.translatable(

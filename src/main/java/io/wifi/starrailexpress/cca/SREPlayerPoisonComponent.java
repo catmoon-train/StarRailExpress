@@ -34,6 +34,10 @@ public class SREPlayerPoisonComponent implements RoleComponent, ServerTickingCom
     private static SREGameWorldComponent gameWorldComponent = null;
     public static ArrayList<String> canSyncedRolePaths = new ArrayList<>();
 
+    public int getPoisonTicks() {
+        return this.poisonTicks;
+    }
+
     public SREPlayerPoisonComponent(Player player) {
         this.player = player;
         gameWorldComponent = SREGameWorldComponent.KEY.get(this.player.level());
@@ -154,7 +158,7 @@ public class SREPlayerPoisonComponent implements RoleComponent, ServerTickingCom
         if (this.poisonTicks >= 0)
             tag.putInt("poisonTicks", this.poisonTicks);
         if (this.initialPoisonTicks >= 0)
-        tag.putInt("initialPoisonTicks", this.initialPoisonTicks);
+            tag.putInt("initialPoisonTicks", this.initialPoisonTicks);
     }
 
     @Override
