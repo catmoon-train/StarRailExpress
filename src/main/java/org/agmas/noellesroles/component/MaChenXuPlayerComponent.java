@@ -966,7 +966,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
     // ==================== NBT 序列化 ====================
 
     @Override
-    public void writeToNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         if (this.stage <= 0) // 神秘优化
             return;
         tag.putInt("stage", this.stage);
@@ -1012,7 +1012,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
     }
 
     @Override
-    public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.prayerRainCooldown = tag.contains("prayerRainCooldown") ? tag.getInt("prayerRainCooldown") : 0;
         this.stage = tag.contains("stage") ? tag.getInt("stage") : 1;
         this.totalSanLoss = tag.contains("totalSanLoss") ? tag.getInt("totalSanLoss") : 0;
@@ -1624,5 +1624,14 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
                     break;
             }
         }
+    }
+
+    
+    @Override
+    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }
 }

@@ -301,7 +301,7 @@ public class NianShouPlayerComponent implements RoleComponent, ServerTickingComp
     }
 
     @Override
-    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void readFromSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.redPacketCount = tag.getInt("redPacketCount");
         this.tasksCompleted = tag.getInt("tasksCompleted");
         this.darknessShieldTriggered = tag.getBoolean("darknessShieldTriggered");
@@ -312,7 +312,7 @@ public class NianShouPlayerComponent implements RoleComponent, ServerTickingComp
     }
 
     @Override
-    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void writeToSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
         tag.putInt("redPacketCount", redPacketCount);
         tag.putInt("tasksCompleted", tasksCompleted);
         tag.putBoolean("darknessShieldTriggered", darknessShieldTriggered);
@@ -325,5 +325,14 @@ public class NianShouPlayerComponent implements RoleComponent, ServerTickingComp
     @Override
     public Player getPlayer() {
         return player;
+    }
+
+    
+    @Override
+    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }
 }

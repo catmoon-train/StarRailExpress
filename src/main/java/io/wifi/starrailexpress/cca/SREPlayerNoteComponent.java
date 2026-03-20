@@ -3,6 +3,7 @@ package io.wifi.starrailexpress.cca;
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.SRE;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
@@ -45,7 +46,7 @@ public class SREPlayerNoteComponent implements RoleComponent {
     }
 
     @Override
-    public void writeToNbt(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registryLookup) {
+    public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registryLookup) {
         tag.putString("line1", this.text[0]);
         tag.putString("line2", this.text[1]);
         tag.putString("line3", this.text[2]);
@@ -54,11 +55,19 @@ public class SREPlayerNoteComponent implements RoleComponent {
     }
 
     @Override
-    public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.text[0] = tag.getString("line1");
         this.text[1] = tag.getString("line2");
         this.text[2] = tag.getString("line3");
         this.text[3] = tag.getString("line4");
         this.written = tag.getBoolean("written");
+    }
+
+    @Override
+    public void writeToNbt(CompoundTag tag, Provider registryLookup) {
+    }
+
+    @Override
+    public void readFromNbt(CompoundTag tag, Provider registryLookup) {
     }
 }

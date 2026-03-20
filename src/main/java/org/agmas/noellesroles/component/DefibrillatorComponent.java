@@ -58,7 +58,7 @@ public class DefibrillatorComponent implements RoleComponent {
     }
 
     @Override
-    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void readFromSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.protectionExpiry = tag.getLong("protectionExpiry");
         this.isDead = tag.getBoolean("isDead");
         this.resurrectionTime = tag.getLong("resurrectionTime");
@@ -71,7 +71,7 @@ public class DefibrillatorComponent implements RoleComponent {
     }
 
     @Override
-    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void writeToSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
         tag.putLong("protectionExpiry", this.protectionExpiry);
         tag.putBoolean("isDead", this.isDead);
         tag.putLong("resurrectionTime", this.resurrectionTime);
@@ -83,5 +83,13 @@ public class DefibrillatorComponent implements RoleComponent {
             tag.putDouble("deathY", this.deathPos.y);
             tag.putDouble("deathZ", this.deathPos.z);
         }
+    }
+    
+    @Override
+    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }
 }

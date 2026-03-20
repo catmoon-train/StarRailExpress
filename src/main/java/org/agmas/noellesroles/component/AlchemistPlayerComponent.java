@@ -93,7 +93,7 @@ public class AlchemistPlayerComponent implements RoleComponent, ServerTickingCom
     }
 
     @Override
-    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void readFromSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.materialGatherTimer = tag.getInt("MaterialGatherTimer");
         this.currentPotionIndex = tag.getInt("CurrentPotionIndex");
 
@@ -104,7 +104,7 @@ public class AlchemistPlayerComponent implements RoleComponent, ServerTickingCom
     }
 
     @Override
-    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void writeToSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
         tag.putInt("MaterialGatherTimer", this.materialGatherTimer);
         tag.putInt("CurrentPotionIndex", this.currentPotionIndex);
 
@@ -418,5 +418,13 @@ public class AlchemistPlayerComponent implements RoleComponent, ServerTickingCom
                 materialGatherTimer = MATERIAL_GATHER_INTERVAL;
             }
         }
+    }
+    
+    @Override
+    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }
 }

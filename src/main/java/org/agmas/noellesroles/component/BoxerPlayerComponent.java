@@ -286,16 +286,25 @@ public class BoxerPlayerComponent implements RoleComponent, ServerTickingCompone
     // ==================== NBT 序列化 ====================
     
     @Override
-    public void writeToNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         tag.putInt("cooldown", this.cooldown);
         tag.putInt("invulnerabilityTicks", this.invulnerabilityTicks);
         tag.putBoolean("isInvulnerable", this.isInvulnerable);
     }
     
     @Override
-    public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.cooldown = tag.contains("cooldown") ? tag.getInt("cooldown") : 0;
         this.invulnerabilityTicks = tag.contains("invulnerabilityTicks") ? tag.getInt("invulnerabilityTicks") : 0;
         this.isInvulnerable = tag.contains("isInvulnerable") && tag.getBoolean("isInvulnerable");
+    }
+
+    
+    @Override
+    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }
 }

@@ -127,9 +127,16 @@ public class MonitorPlayerComponent implements RoleComponent, ServerTickingCompo
     }
 
     @Override
-    public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.markedTarget = tag.contains("markedTarget") ? tag.getUUID("markedTarget") : null;
         this.cooldown = tag.contains("cooldown") ? tag.getInt("cooldown") : 0;
     }
 
+    @Override
+    public void writeToSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
 }

@@ -186,13 +186,13 @@ public class DetectivePlayerComponent implements RoleComponent, ServerTickingCom
     }
 
     @Override
-    public void writeToNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         tag.putInt("cooldown", this.cooldown);
         tag.putInt("conspiratorInstinctTime", this.conspiratorInstinctTime);
     }
 
     @Override
-    public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.cooldown = tag.contains("cooldown") ? tag.getInt("cooldown") : 0;
         this.conspiratorInstinctTime = tag.contains("conspiratorInstinctTime") ? tag.getInt("conspiratorInstinctTime")
                 : 0;
@@ -207,5 +207,13 @@ public class DetectivePlayerComponent implements RoleComponent, ServerTickingCom
         if (this.cooldown > 1) {
             this.cooldown--;
         }
+    }
+    
+    @Override
+    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }
 }

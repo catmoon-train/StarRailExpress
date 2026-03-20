@@ -3,7 +3,6 @@ package org.agmas.noellesroles.roles.recaller;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.Noellesroles;
 import org.jetbrains.annotations.NotNull;
@@ -69,17 +68,26 @@ public class RecallerPlayerComponent implements RoleComponent, ServerTickingComp
     }
 
 
-    public void writeToNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         tag.putDouble("x", this.x);
         tag.putDouble("y", this.y);
         tag.putDouble("z", this.z);
         tag.putBoolean("placed", this.placed);
     }
 
-    public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.x = tag.contains("x") ? tag.getDouble("x") : 0;
         this.y = tag.contains("y") ? tag.getDouble("y") : 0;
         this.z = tag.contains("z") ? tag.getDouble("z") : 0;
         this.placed = tag.contains("placed") && tag.getBoolean("placed");
+    }
+
+    
+    @Override
+    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }
 }

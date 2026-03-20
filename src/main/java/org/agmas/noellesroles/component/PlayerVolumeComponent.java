@@ -152,7 +152,7 @@ public class PlayerVolumeComponent
     }
 
     @Override
-    public void writeToNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         tag.putInt("left_time", this.left_time);
         tag.putFloat("volume", this.volume);
         tag.putInt("during_sound_interval", this.duringSoundPlayInterval);
@@ -163,7 +163,7 @@ public class PlayerVolumeComponent
     }
 
     @Override
-    public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.vtMode = tag.contains("vtMode") ? tag.getBoolean("vtMode") : false;
         this.left_time = tag.contains("left_time") ? tag.getInt("left_time") : -1;
         this.duringSoundPlayInterval = tag.contains("during_sound_interval") ? tag.getInt("during_sound_interval")
@@ -180,5 +180,13 @@ public class PlayerVolumeComponent
         if (this.player.level().isClientSide() && this.left_time > 0) {
             this.client_status = 1;
         }
+    }
+    
+    @Override
+    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }
 }

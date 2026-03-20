@@ -98,7 +98,7 @@ public class AccountantPlayerComponent implements RoleComponent, ServerTickingCo
     }
 
     @Override
-    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void readFromSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.passiveIncomeTimer = tag.getInt("PassiveIncomeTimer");
         this.currentMode = tag.getInt("CurrentMode");
         this.markTimer = tag.getInt("MarkTimer");
@@ -110,6 +110,14 @@ public class AccountantPlayerComponent implements RoleComponent, ServerTickingCo
 
     @Override
     public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void writeToSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
         tag.putInt("PassiveIncomeTimer", this.passiveIncomeTimer);
         tag.putInt("CurrentMode", this.currentMode);
         tag.putInt("MarkTimer", this.markTimer);

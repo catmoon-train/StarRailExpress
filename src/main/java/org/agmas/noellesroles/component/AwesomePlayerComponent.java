@@ -131,12 +131,20 @@ public class AwesomePlayerComponent implements RoleComponent, ServerTickingCompo
     // ==================== NBT 序列化 ====================
 
     @Override
-    public void writeToNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         tag.putInt("nearbydeathtime", this.nearByDeathTime);
     }
 
     @Override
-    public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.nearByDeathTime = tag.contains("nearbydeathtime") ? tag.getInt("nearbydeathtime") : 0;
     }
 }

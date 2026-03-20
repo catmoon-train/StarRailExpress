@@ -167,7 +167,7 @@ public class ExecutionerPlayerComponent implements RoleComponent, ServerTickingC
         this.sync();
     }
 
-    public void writeToNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         if (this.target != null) {
             tag.putUUID("target", this.target);
         }
@@ -176,7 +176,7 @@ public class ExecutionerPlayerComponent implements RoleComponent, ServerTickingC
         tag.putBoolean("shopUnlocked", this.shopUnlocked);
     }
 
-    public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.target = tag.contains("target") ? tag.getUUID("target") : null;
         this.won = tag.getBoolean("won");
         this.targetSelected = tag.getBoolean("targetSelected");
@@ -205,5 +205,13 @@ public class ExecutionerPlayerComponent implements RoleComponent, ServerTickingC
             return AllowShootRevolverDrop.ShouldDropResult.PASS;
         });
 
+    }
+    
+    @Override
+    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }
 }

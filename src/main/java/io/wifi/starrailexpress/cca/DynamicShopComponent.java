@@ -56,7 +56,7 @@ public class DynamicShopComponent implements RoleComponent, ServerTickingCompone
     }
 
     @Override
-    public void readFromNbt(CompoundTag compoundTag, HolderLookup.Provider provider) {
+    public void readFromSyncNbt(CompoundTag compoundTag, HolderLookup.Provider provider) {
         coins.clear();
         CompoundTag coinsTag = compoundTag.getCompound("coins");
         for (String key : coinsTag.getAllKeys()) {
@@ -69,11 +69,19 @@ public class DynamicShopComponent implements RoleComponent, ServerTickingCompone
     }
 
     @Override
-    public void writeToNbt(CompoundTag compoundTag, HolderLookup.Provider provider) {
+    public void writeToSyncNbt(CompoundTag compoundTag, HolderLookup.Provider provider) {
         CompoundTag coinsTag = new CompoundTag();
         for (Map.Entry<ResourceLocation, Integer> entry : coins.entrySet()) {
             coinsTag.putInt(entry.getKey().toString(), entry.getValue());
         }
         compoundTag.put("coins", coinsTag);
+    }
+    
+    @Override
+    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }
 }

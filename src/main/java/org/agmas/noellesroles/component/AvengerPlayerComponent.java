@@ -248,7 +248,15 @@ public class AvengerPlayerComponent implements RoleComponent, ServerTickingCompo
     // ==================== NBT 序列化 ====================
 
     @Override
-    public void writeToNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+    
+    @Override
+    public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         if (targetPlayer != null) {
             tag.putUUID("targetPlayer", targetPlayer);
         }
@@ -261,7 +269,7 @@ public class AvengerPlayerComponent implements RoleComponent, ServerTickingCompo
     }
 
     @Override
-    public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.targetPlayer = tag.contains("targetPlayer") ? tag.getUUID("targetPlayer") : null;
         this.activated = tag.getBoolean("activated");
         this.killerUuid = tag.contains("killerUuid") ? tag.getUUID("killerUuid") : null;

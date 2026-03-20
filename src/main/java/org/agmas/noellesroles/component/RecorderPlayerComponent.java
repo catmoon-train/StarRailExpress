@@ -260,7 +260,7 @@ public class RecorderPlayerComponent implements RoleComponent, ServerTickingComp
     }
 
     @Override
-    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void readFromSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
         // availableRoles.clear();
         // if (tag.contains("availableRoles")) {
         // ListTag list = tag.getList("availableRoles", Tag.TAG_STRING);
@@ -307,7 +307,7 @@ public class RecorderPlayerComponent implements RoleComponent, ServerTickingComp
     }
 
     @Override
-    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void writeToSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
         // ListTag list = new ListTag();
         // for (ResourceLocation id : availableRoles) {
         // if (id != null) {
@@ -340,5 +340,13 @@ public class RecorderPlayerComponent implements RoleComponent, ServerTickingComp
     @Override
     public Player getPlayer() {
         return player;
+    }
+    
+    @Override
+    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }
 }

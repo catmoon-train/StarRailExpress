@@ -168,7 +168,7 @@ public class GhostPlayerComponent implements RoleComponent, ServerTickingCompone
         sync();
     }
 
-    public void writeToNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         tag.putBoolean("isActive", this.isActive);
         tag.putInt("cooldown", this.cooldown);
         tag.putInt("invisibilityTicks", this.invisibilityTicks);
@@ -176,7 +176,7 @@ public class GhostPlayerComponent implements RoleComponent, ServerTickingCompone
         tag.putBoolean("unlockNotified", this.unlockNotified);
     }
 
-    public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.isActive = !tag.contains("isActive") || tag.getBoolean("isActive");
         this.cooldown = tag.getInt("cooldown");
         this.invisibilityTicks = tag.getInt("invisibilityTicks");
@@ -242,5 +242,13 @@ public class GhostPlayerComponent implements RoleComponent, ServerTickingCompone
             lastStandNotified = true;
             sync();
         }
+    }
+    
+    @Override
+    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }
 }

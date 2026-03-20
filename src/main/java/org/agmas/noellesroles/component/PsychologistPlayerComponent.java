@@ -363,7 +363,7 @@ public class PsychologistPlayerComponent implements RoleComponent, ServerTicking
     // ==================== NBT 序列化 ====================
 
     @Override
-    public void writeToNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         tag.putInt("cooldown", this.cooldown);
         tag.putInt("healingTicks", this.healingTicks);
         tag.putBoolean("isHealing", this.isHealing);
@@ -374,7 +374,7 @@ public class PsychologistPlayerComponent implements RoleComponent, ServerTicking
     }
 
     @Override
-    public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.cooldown = tag.contains("cooldown") ? tag.getInt("cooldown") : 0;
         this.healingTicks = tag.contains("healingTicks") ? tag.getInt("healingTicks") : 0;
         this.isHealing = tag.contains("isHealing") && tag.getBoolean("isHealing");
@@ -389,5 +389,13 @@ public class PsychologistPlayerComponent implements RoleComponent, ServerTicking
         if (this.cooldown > 1) {
             this.cooldown--;
         }
+    }
+    
+    @Override
+    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }
 }

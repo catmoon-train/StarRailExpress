@@ -5,6 +5,7 @@ import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
@@ -146,14 +147,14 @@ public class SREPlayerAFKComponent implements RoleComponent, ServerTickingCompon
     }
 
     @Override
-    public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registryLookup) {
+    public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registryLookup) {
         this.afkTime = tag.getInt("afkTime");
         this.lastActionTime = tag.getInt("afkTime");
         this.isAFK = tag.getBoolean("isAFK");
     }
 
     @Override
-    public void writeToNbt(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registryLookup) {
+    public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registryLookup) {
         tag.putInt("afkTime", this.afkTime);
         tag.putBoolean("isAFK", this.isAFK);
     }
@@ -171,5 +172,13 @@ public class SREPlayerAFKComponent implements RoleComponent, ServerTickingCompon
         this.lastActionTime++;
         this.afkTime = this.lastActionTime;
 
+    }
+
+    @Override
+    public void writeToNbt(CompoundTag tag, Provider registryLookup) {
+    }
+
+    @Override
+    public void readFromNbt(CompoundTag tag, Provider registryLookup) {
     }
 }

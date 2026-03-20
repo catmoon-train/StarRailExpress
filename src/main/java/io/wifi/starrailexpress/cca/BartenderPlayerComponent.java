@@ -160,7 +160,7 @@ public class BartenderPlayerComponent implements RoleComponent, ServerTickingCom
         this.setGlowTicks(ticks, 0);
     }
 
-    public void writeToNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         if (!this.glowTicks.isEmpty()) {
             ListTag targetListTag = new ListTag();
             for (var ent : this.glowTicks.entrySet()) {
@@ -175,7 +175,7 @@ public class BartenderPlayerComponent implements RoleComponent, ServerTickingCom
             tag.putInt("armor", this.armor);
     }
 
-    public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.glowTicks.clear();
         if (tag.contains("glowTicks", Tag.TAG_LIST)) {
             ListTag targetListTag = tag.getList("glowTicks", Tag.TAG_COMPOUND);
@@ -194,5 +194,13 @@ public class BartenderPlayerComponent implements RoleComponent, ServerTickingCom
         this.glowTicks.clear();
         this.armor = 0;
         this.sync_with_all();
+    }
+    
+    @Override
+    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }
 }

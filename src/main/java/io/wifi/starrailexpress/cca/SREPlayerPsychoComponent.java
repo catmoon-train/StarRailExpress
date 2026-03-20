@@ -10,6 +10,7 @@ import io.wifi.starrailexpress.util.ShopEntry;
 import io.wifi.starrailexpress.SRE;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -26,6 +27,7 @@ public class SREPlayerPsychoComponent implements RoleComponent, ServerTickingCom
     private final Player player;
     public int psychoTicks = -1;
     public int armour = 1;
+    public int type = -1;
 
     public SREPlayerPsychoComponent(Player player) {
         this.player = player;
@@ -163,13 +165,25 @@ public class SREPlayerPsychoComponent implements RoleComponent, ServerTickingCom
 
     @Override
     public void writeToNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
-        tag.putInt("psychoTicks", this.psychoTicks);
-        tag.putInt("armour", this.armour);
+
     }
 
     @Override
     public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+
+    }
+
+    @Override
+    public void writeToSyncNbt(CompoundTag tag, Provider registryLookup) {
+        tag.putInt("psychoTicks", this.psychoTicks);
+        tag.putInt("armour", this.armour);
+        tag.putInt("type", this.type);
+    }
+
+    @Override
+    public void readFromSyncNbt(CompoundTag tag, Provider registryLookup) {
         this.psychoTicks = tag.contains("psychoTicks") ? tag.getInt("psychoTicks") : 0;
         this.armour = tag.contains("armour") ? tag.getInt("armour") : 1;
+        this.type = tag.contains("type") ? tag.getInt("type") : -1;
     }
 }

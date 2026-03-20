@@ -94,12 +94,12 @@ public class GlitchRobotPlayerComponent implements RoleComponent, ServerTickingC
     }
 
     @Override
-    public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.glitchTimer = tag.getInt("glitchTimer");
     }
 
     @Override
-    public void writeToNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         tag.putInt("glitchTimer", this.glitchTimer);
     }
 
@@ -125,5 +125,14 @@ public class GlitchRobotPlayerComponent implements RoleComponent, ServerTickingC
         }
         if (!player.getSlot(103).get().is(ModItems.NIGHT_VISION_GLASSES))
             player.removeEffect(MobEffects.NIGHT_VISION);
+    }
+
+    
+    @Override
+    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }
 }

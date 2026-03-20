@@ -57,6 +57,13 @@ public class WayfarerPlayerComponent implements RoleComponent, ServerTickingComp
         return player;
     }
 
+    @Override
+    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
     /** 组件键 - 用于从玩家获取此组件 */
     public static final ComponentKey<WayfarerPlayerComponent> KEY = ModComponents.WAYFARER;
 
@@ -175,7 +182,7 @@ public class WayfarerPlayerComponent implements RoleComponent, ServerTickingComp
     }
 
     @Override
-    public void writeToNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         tag.putInt("phase", this.phase);
         ModNBTUtils.writePos(tag, "pos", pos);
         if (this.deathReason != null) {
@@ -187,7 +194,7 @@ public class WayfarerPlayerComponent implements RoleComponent, ServerTickingComp
     }
 
     @Override
-    public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.phase = tag.contains("phase") ? tag.getInt("phase") : 0;
         this.pos = ModNBTUtils.readPos(tag, "pos", null);
         this.deathReason = tag.contains("death_reason") ? ResourceLocation.tryParse(tag.getString("death_reason"))

@@ -147,16 +147,25 @@ public class SlipperyGhostPlayerComponent implements RoleComponent, ServerTickin
     }
     
     @Override
-    public void writeToNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         tag.putInt("TickCounter", tickCounter);
         tag.putInt("BlankCartridgeCooldown", blankCartridgeCooldown);
         tag.putInt("BlackoutCooldown", blackoutCooldown);
     }
     
     @Override
-    public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.tickCounter = tag.getInt("TickCounter");
         this.blankCartridgeCooldown = tag.getInt("BlankCartridgeCooldown");
         this.blackoutCooldown = tag.getInt("BlackoutCooldown");
+    }
+
+    
+    @Override
+    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }
 }

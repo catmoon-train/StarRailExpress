@@ -47,12 +47,12 @@ public class KnightComponent implements RoleComponent {
     }
 
     @Override
-    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void readFromSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.knight = tag.contains("knight") ? tag.getUUID("knight") : null;
     }
 
     @Override
-    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void writeToSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
         if (this.knight != null) {
             tag.putUUID("knight", this.knight);
         }
@@ -66,5 +66,14 @@ public class KnightComponent implements RoleComponent {
     @Override
     public Player getPlayer() {
         return this.player;
+    }
+
+    
+    @Override
+    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }
 }

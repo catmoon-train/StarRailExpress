@@ -7,7 +7,6 @@ import net.minecraft.world.effect.MobEffects;
 import org.agmas.noellesroles.Noellesroles;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
-import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
 import io.wifi.starrailexpress.api.RoleComponent;
@@ -61,7 +60,7 @@ public class InControlCCA implements RoleComponent, ServerTickingComponent {
     }
 
     @Override
-    public void readFromNbt(CompoundTag compoundTag, HolderLookup.Provider provider) {
+    public void readFromSyncNbt(CompoundTag compoundTag, HolderLookup.Provider provider) {
         isControlling = compoundTag.getBoolean("isControlling");
         controlTimer = compoundTag.getInt("controlTimer");
         if (compoundTag.hasUUID("controller"))
@@ -69,7 +68,7 @@ public class InControlCCA implements RoleComponent, ServerTickingComponent {
     }
 
     @Override
-    public void writeToNbt(CompoundTag compoundTag, HolderLookup.Provider provider) {
+    public void writeToSyncNbt(CompoundTag compoundTag, HolderLookup.Provider provider) {
         compoundTag.putBoolean("isControlling", isControlling);
         compoundTag.putInt("controlTimer", controlTimer);
         if (controller != null)
@@ -131,5 +130,13 @@ public class InControlCCA implements RoleComponent, ServerTickingComponent {
                 this.stopControlFromUpstream(true);
             }
         }
+    }
+    
+    @Override
+    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }
 }

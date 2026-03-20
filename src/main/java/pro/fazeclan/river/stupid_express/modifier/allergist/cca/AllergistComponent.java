@@ -12,8 +12,8 @@ import pro.fazeclan.river.stupid_express.StupidExpress;
 
 public class AllergistComponent implements RoleComponent {
 
-    public static final ComponentKey<AllergistComponent> KEY =
-            ComponentRegistry.getOrCreate(StupidExpress.id("allergist"), AllergistComponent.class);
+    public static final ComponentKey<AllergistComponent> KEY = ComponentRegistry
+            .getOrCreate(StupidExpress.id("allergist"), AllergistComponent.class);
 
     private final Player player;
 
@@ -33,7 +33,8 @@ public class AllergistComponent implements RoleComponent {
     }
 
     public boolean isAllergist() {
-        return this.allergist != null && !this.allergist.equals(UUID.fromString("e1e89fbb-3beb-492a-b1be-46a4ce19c9d1"));
+        return this.allergist != null
+                && !this.allergist.equals(UUID.fromString("e1e89fbb-3beb-492a-b1be-46a4ce19c9d1"));
     }
 
     public void init() {
@@ -46,13 +47,22 @@ public class AllergistComponent implements RoleComponent {
     }
 
     @Override
-    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void readFromSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.allergist = tag.contains("allergist") ? tag.getUUID("allergist") : null;
     }
 
     @Override
     public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
-        tag.putUUID("allergist", this.allergist != null ? this.allergist : UUID.fromString("e1e89fbb-3beb-492a-b1be-46a4ce19c9d1"));
+    }
+
+    @Override
+    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void writeToSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+        tag.putUUID("allergist",
+                this.allergist != null ? this.allergist : UUID.fromString("e1e89fbb-3beb-492a-b1be-46a4ce19c9d1"));
     }
 
     @Override

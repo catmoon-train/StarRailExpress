@@ -681,7 +681,7 @@ public class PuppeteerPlayerComponent implements RoleComponent, ServerTickingCom
     // ==================== NBT 序列化 ====================
 
     @Override
-    public void writeToNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         tag.putInt("phase", this.phase);
         tag.putInt("collectedBodies", this.collectedBodies);
 
@@ -720,7 +720,7 @@ public class PuppeteerPlayerComponent implements RoleComponent, ServerTickingCom
     }
 
     @Override
-    public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.phase = tag.contains("phase") ? tag.getInt("phase") : 0;
         this.collectedBodies = tag.contains("collectedBodies") ? tag.getInt("collectedBodies") : 0;
 
@@ -783,5 +783,14 @@ public class PuppeteerPlayerComponent implements RoleComponent, ServerTickingCom
         if (this.collectCooldown >= 1) {
             this.collectCooldown--;
         }
+    }
+
+    
+    @Override
+    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }
 }

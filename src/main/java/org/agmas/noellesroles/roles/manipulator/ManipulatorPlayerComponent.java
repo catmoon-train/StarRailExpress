@@ -221,7 +221,7 @@ public class ManipulatorPlayerComponent implements RoleComponent, ServerTickingC
     }
 
     @Override
-    public void writeToNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         if (this.target != null) {
             tag.putUUID("target", this.target);
         }
@@ -230,10 +230,18 @@ public class ManipulatorPlayerComponent implements RoleComponent, ServerTickingC
     }
 
     @Override
-    public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.target = tag.contains("target") ? tag.getUUID("target") : null;
         this.isControlling = tag.contains("isControlling") && tag.getBoolean("isControlling");
         // this.cooldown = tag.contains("cooldown") ? tag.getInt("cooldown") : 0;
 
+    }
+    
+    @Override
+    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }
 }

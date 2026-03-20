@@ -151,14 +151,14 @@ public class MagicianPlayerComponent implements RoleComponent, ServerTickingComp
     }
 
     @Override
-    public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         if (tag.contains("DisguiseRoleId")) {
             this.disguiseRoleId = ResourceLocation.tryParse(tag.getString("DisguiseRoleId"));
         }
     }
 
     @Override
-    public void writeToNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         if (this.disguiseRoleId != null) {
             tag.putString("DisguiseRoleId", this.disguiseRoleId.toString());
         }
@@ -177,5 +177,14 @@ public class MagicianPlayerComponent implements RoleComponent, ServerTickingComp
     @Override
     public void clear() {
         this.init();
+    }
+
+    
+    @Override
+    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }
 }

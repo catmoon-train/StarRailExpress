@@ -109,7 +109,7 @@ public class FortunetellerPlayerComponent implements RoleComponent, ServerTickin
             this.sync();
     }
 
-    public void writeToNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         ListTag targetListTag = new ListTag();
         for (ProtectedInfo targetInfo : protectedPlayers) {
             CompoundTag targetTag = new CompoundTag();
@@ -124,7 +124,7 @@ public class FortunetellerPlayerComponent implements RoleComponent, ServerTickin
         tag.put("targetList", targetListTag);
     }
 
-    public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         protectedPlayers.clear();
         if (tag.contains("targetList")) {
             ListTag targetListTag = tag.getList("targetList", Tag.TAG_COMPOUND);
@@ -171,5 +171,13 @@ public class FortunetellerPlayerComponent implements RoleComponent, ServerTickin
             return true;
         }
         return false;
+    }
+    
+    @Override
+    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }
 }

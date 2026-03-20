@@ -13,6 +13,7 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleComponent;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -67,7 +68,7 @@ public class ExtraSlotComponent implements RoleComponent, ServerTickingComponent
     }
 
     @Override
-    public void readFromNbt(CompoundTag tag, Provider registryLookup) {
+    public void readFromSyncNbt(CompoundTag tag, Provider registryLookup) {
         if (tag.contains("remove_all")) {
             this.SLOTS.clear();
         }
@@ -105,13 +106,13 @@ public class ExtraSlotComponent implements RoleComponent, ServerTickingComponent
     public void writeSyncPacket(RegistryFriendlyByteBuf buf, ServerPlayer recipient) {
         syncMode = true;
         CompoundTag tag = new CompoundTag();
-        this.writeToNbt(tag, buf.registryAccess());
+        this.writeToSyncNbt(tag, buf.registryAccess());
         buf.writeNbt(tag);
         syncMode = false;
     }
 
     @Override
-    public void writeToNbt(CompoundTag tag, Provider registryLookup) {
+    public void writeToSyncNbt(CompoundTag tag, Provider registryLookup) {
         if (!SAVE_FLAG && !syncMode) {
             return;
         }
@@ -263,5 +264,13 @@ public class ExtraSlotComponent implements RoleComponent, ServerTickingComponent
             var it = entry.getValue();
             it.getItem().inventoryTick(it, this.player.level(), player, -slot, false);
         }
+    }
+
+    @Override
+    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }
 }

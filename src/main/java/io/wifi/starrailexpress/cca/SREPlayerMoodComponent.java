@@ -11,6 +11,7 @@ import io.wifi.starrailexpress.SRE;
 import net.minecraft.Util;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
@@ -238,12 +239,12 @@ public class SREPlayerMoodComponent implements RoleComponent, ServerTickingCompo
     }
 
     @Override
-    public void writeToNbt(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registryLookup) {
+    public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registryLookup) {
         tag.putFloat("mood", this.mood);
     }
 
     @Override
-    public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registryLookup) {
+    public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registryLookup) {
         this.mood = tag.contains("mood", Tag.TAG_FLOAT) ? tag.getFloat("mood") : 1f;
     }
 
@@ -293,6 +294,14 @@ public class SREPlayerMoodComponent implements RoleComponent, ServerTickingCompo
             this.playerTaskComponent = SREPlayerTaskComponent.KEY.get(this.player);
         }
         return this.playerTaskComponent.tasks;
+    }
+
+    @Override
+    public void readFromNbt(CompoundTag tag, Provider registryLookup) {
+    }
+
+    @Override
+    public void writeToNbt(CompoundTag tag, Provider registryLookup) {
     }
 
 }

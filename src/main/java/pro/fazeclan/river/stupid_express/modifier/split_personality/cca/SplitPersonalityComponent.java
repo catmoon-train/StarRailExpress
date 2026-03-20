@@ -359,7 +359,7 @@ public class SplitPersonalityComponent implements RoleComponent, ServerTickingCo
     }
 
     @Override
-    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void readFromSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
         if (tag.contains("main_personality")) {
             this.mainPersonality = tag.getUUID("main_personality");
         } else
@@ -405,7 +405,7 @@ public class SplitPersonalityComponent implements RoleComponent, ServerTickingCo
     }
 
     @Override
-    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void writeToSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
         if (mainPersonality == null || secondPersonality == null)
             return;
         if (this.mainPersonality != null) {
@@ -544,5 +544,14 @@ public class SplitPersonalityComponent implements RoleComponent, ServerTickingCo
     @Override
     public void clear() {
         this.init();
+    }
+
+    
+    @Override
+    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }
 }
