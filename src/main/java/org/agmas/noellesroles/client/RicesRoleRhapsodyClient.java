@@ -355,12 +355,19 @@ public class RicesRoleRhapsodyClient implements ClientModInitializer {
             return true;
         }
 
-        // ==================== 设陷者：放置灾厄印记陷阱 ====================
+        // ==================== 设陷者：放置陷阱或切换类型 ====================
         if (gameWorld.isRole(client.player, ModRoles.TRAPPER)) {
             if (!GameUtils.isPlayerAliveAndSurvival(client.player))
                 return true;
 
             TrapperPlayerComponent trapperComponent = TrapperPlayerComponent.KEY.get(client.player);
+
+            // 蹲下+技能键 = 切换陷阱类型
+            if (client.player.isShiftKeyDown()) {
+                ClientPlayNetworking.send(new TrapperSwitchC2SPacket());
+                return true;
+            }
+
             if (trapperComponent.canPlaceTrap()) {
                 ClientPlayNetworking.send(new TrapperC2SPacket());
             } else {
@@ -651,6 +658,9 @@ public class RicesRoleRhapsodyClient implements ClientModInitializer {
 
         // 灾厄印记实体渲染器 - 使用自定义渲染器（对设陷者半透明可见）
         EntityRendererRegistry.register(ModEntities.CALAMITY_MARK, CalamityMarkEntityRenderer::new);
+
+        // 绊索陷阱实体渲染器 - 使用自定义渲染器（对所有玩家可见）
+        EntityRendererRegistry.register(ModEntities.TRIPWIRE_TRAP, TripwireTrapEntityRenderer::new);
 
         // 傀儡本体实体渲染器 - 使用玩家皮肤渲染
         EntityRendererRegistry.register(ModEntities.PUPPETEER_BODY, PuppeteerBodyEntityRenderer::new);
