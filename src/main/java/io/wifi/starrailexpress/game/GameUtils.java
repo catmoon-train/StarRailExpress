@@ -402,6 +402,8 @@ public class GameUtils {
                 cooldowns.addCooldown(item,
                         (Integer) SAFE_TIME_COOLDOWN);
             });
+            cooldowns.addCooldown(TMMItems.GRENADE, SAFE_TIME_COOLDOWN);
+            cooldowns.addCooldown(TMMItems.PSYCHO_MODE, SAFE_TIME_COOLDOWN);
             cooldowns.addCooldown(ModItems.SP_KNIFE, SAFE_TIME_COOLDOWN);
             cooldowns.addCooldown(ModItems.STALKER_KNIFE, SAFE_TIME_COOLDOWN);
             cooldowns.addCooldown(TMMItems.NUNCHUCK, SAFE_TIME_COOLDOWN);
