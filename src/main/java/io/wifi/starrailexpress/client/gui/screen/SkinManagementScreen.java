@@ -334,7 +334,7 @@ public class SkinManagementScreen extends Screen {
         int buttonSpacing = 20;
 
         // 刷新按钮
-        refreshButton = Button.builder(
+        refreshButton = org.agmas.noellesroles.client.widget.custom_button.ModernButton.builder(
                 Component.translatable("screen.sre.skins.refresh"),
                 button -> refreshSkinPanels()).pos((screenWidth - buttonWidth * 2 - buttonSpacing) / 2, buttonY)
                 .size(buttonWidth, buttonHeight)
@@ -346,7 +346,7 @@ public class SkinManagementScreen extends Screen {
         addRenderableWidget(refreshButton);
 
         // 返回按钮
-        backButton = Button.builder(
+        backButton = org.agmas.noellesroles.client.widget.custom_button.ModernButton.builder(
                 Component.translatable("screen.sre.skins.back"),
                 button -> this.onClose()).pos(refreshButton.getX() + buttonWidth + buttonSpacing, buttonY)
                 .size(buttonWidth, buttonHeight)
