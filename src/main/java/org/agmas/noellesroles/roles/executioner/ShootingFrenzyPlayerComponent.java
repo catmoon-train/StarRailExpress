@@ -270,7 +270,7 @@ public class ShootingFrenzyPlayerComponent implements RoleComponent, ServerTicki
 
     @Override
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
-        this.inFrenzy = tag.contains("inFrenzy") && tag.getBoolean("inFrenzy");
+        this.inFrenzy = tag.getBoolean("inFrenzy");
     }
 
     @Override
