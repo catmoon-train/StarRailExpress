@@ -91,7 +91,7 @@ public class ModItems {
             "stalker_knife");
     public static final Item Stalker_Knife_2 = register(
             new StalkerKnifeItem(new Item.Properties().stacksTo(1)),
-            "stalker_knife_w");
+            "stalker_knife_offhand");
     public static final Item FAKE_REVOLVER = register(
             new FakeRevolverItem(new Item.Properties().stacksTo(1).durability(4)),
             "fake_revolver");
