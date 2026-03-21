@@ -91,10 +91,10 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
         }
     }
 
-    public void initMenuSelections() {
-        menuButton = Button.builder(Component.translatable("screen.limited_inventory.button.menu"), (btn) -> {
+    public void initMenuSelections() {;
+        menuButton = org.agmas.noellesroles.client.widget.custom_button.ModernButton.builder(Component.translatable("screen.limited_inventory.button.menu"), (btn) -> {
             toggleViewMenu(!this.isMenuOpen);
-        }).bounds(width - menuButtonWidth, height - menuButtonHeight, menuButtonWidth, menuButtonHeight).build();
+        }).bounds(width - menuButtonWidth, height - menuButtonHeight, menuButtonWidth, menuButtonHeight).accentColor(new java.awt.Color(34,177,76).getRGB()).build();
         this.addRenderableWidget(menuButton);
 
         this.menuSelections.clear();
@@ -103,7 +103,7 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
             // 添加菜单按钮
             {
                 // 职业介绍
-                var btn1 = Button
+                var btn1 = org.agmas.noellesroles.client.widget.custom_button.ModernButton
                         .builder(Component.translatable("screen.limited_inventory.menu.introduction"), (btn) -> {
                             var role = SREGameWorldComponent.KEY.get(this.minecraft.level).getRole(this.minecraft.player);
                             var screen = new RoleIntroduceScreen(this, role);
@@ -116,7 +116,7 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
             }
             {
                 // 职业猜测
-                var btn1 = Button
+                var btn1 = org.agmas.noellesroles.client.widget.custom_button.ModernButton
                         .builder(Component.translatable("screen.limited_inventory.menu.role_guess"), (btn) -> {
                             var screen = new GuessRoleScreen(this);
                             this.minecraft.setScreen(screen);
@@ -128,7 +128,7 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
             }
             if (this.minecraft.player.hasPermissions(2)) {
                 // mod_settings
-                var btn1 = Button
+                var btn1 = org.agmas.noellesroles.client.widget.custom_button.ModernButton
                         .builder(Component.translatable("screen.limited_inventory.menu.mod_settings")
                                 .withStyle(ChatFormatting.RED), (btn) -> {
                                     var screen = new SettingMenuScreen(this);
@@ -142,7 +142,7 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
             }
             if (this.minecraft.player.hasPermissions(2)) {
                 // game_menu
-                var btn1 = Button
+                var btn1 = org.agmas.noellesroles.client.widget.custom_button.ModernButton
                         .builder(Component.translatable("screen.limited_inventory.menu.game_menu")
                                 .withStyle(ChatFormatting.RED), (btn) -> {
                                     var screen = new GameManagementScreen(this);

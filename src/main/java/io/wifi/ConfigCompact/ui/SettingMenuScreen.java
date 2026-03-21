@@ -2,13 +2,13 @@ package io.wifi.ConfigCompact.ui;
 
 import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
 import org.agmas.noellesroles.client.screen.RoleIntroduceScreen;
+import org.agmas.noellesroles.client.widget.custom_button.ModernButton;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 
 import io.wifi.starrailexpress.SREConfig;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -46,7 +46,7 @@ public class SettingMenuScreen extends Screen {
     @Override
     public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
         // if (this.parent != null) {
-        //     this.parent.render(context, mouseX, mouseY, delta);
+        // this.parent.render(context, mouseX, mouseY, delta);
         // }
         super.render(context, mouseX, mouseY, delta);
         context.drawCenteredString(font, title, width / 2, 30, 0xFFFFFF);
@@ -68,7 +68,7 @@ public class SettingMenuScreen extends Screen {
         int buttonY = maxHeight / 2 - buttonCount * (BUTTON_HEIGHT + MARGIN) / 2;
 
         {
-            var btn1 = Button
+            var btn1 = ModernButton
                     .builder(Component.translatable("screen.starrailexpress.settings.tmm"), (bbtn) -> {
                         if (!showSettings) {
                             return;
@@ -85,7 +85,7 @@ public class SettingMenuScreen extends Screen {
             buttonY += (BUTTON_HEIGHT + MARGIN);
         }
         {
-            var btn1 = Button
+            var btn1 = ModernButton
                     .builder(Component.translatable("screen.starrailexpress.settings.noellesroles"), (bbtn) -> {
                         if (!showSettings) {
                             return;
@@ -102,7 +102,7 @@ public class SettingMenuScreen extends Screen {
             buttonY += (BUTTON_HEIGHT + MARGIN);
         }
         {
-            var btn1 = Button
+            var btn1 = ModernButton
                     .builder(Component.translatable("screen.starrailexpress.settings.harpymodloader"), (bbtn) -> {
                         if (!showSettings) {
                             return;
@@ -119,7 +119,7 @@ public class SettingMenuScreen extends Screen {
             buttonY += (BUTTON_HEIGHT + MARGIN);
         }
         {
-            var btn1 = Button
+            var btn1 = ModernButton
                     .builder(Component.translatable("screen.starrailexpress.settings.stupid_express"), (bbtn) -> {
                         if (!showSettings) {
                             return;
@@ -136,7 +136,7 @@ public class SettingMenuScreen extends Screen {
             buttonY += (BUTTON_HEIGHT + MARGIN);
         }
         {
-            var btn1 = Button
+            var btn1 = ModernButton
                     .builder(Component.translatable("screen.starrailexpress.settings.role_modifier"), (bbtn) -> {
                         if (!showSettings) {
                             return;
@@ -153,7 +153,7 @@ public class SettingMenuScreen extends Screen {
             buttonY += (BUTTON_HEIGHT + MARGIN);
         }
         {
-            var btn1 = Button
+            var btn1 = ModernButton
                     .builder(Component.translatable("screen.starrailexpress.settings.introduction"), (bbtn) -> {
                         var screen = new RoleIntroduceScreen(this);
                         this.minecraft.setScreen(screen);
@@ -162,10 +162,11 @@ public class SettingMenuScreen extends Screen {
             buttonY += (BUTTON_HEIGHT + MARGIN);
         }
         {
-            var btn1 = Button
+            var btn1 = ModernButton
                     .builder(Component.translatable("gui.back"), (bbtn) -> {
                         this.minecraft.setScreen(parent);
-                    }).bounds(buttonX, buttonY, BUTTON_WIDTH, BUTTON_HEIGHT).build();
+                    }).accentColor(new java.awt.Color(34, 177, 76).getRGB())
+                    .bounds(buttonX, buttonY, BUTTON_WIDTH, BUTTON_HEIGHT).build();
             this.addRenderableWidget(btn1);
             buttonY += (BUTTON_HEIGHT + MARGIN);
         }
