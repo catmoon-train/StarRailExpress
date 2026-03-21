@@ -599,5 +599,23 @@ public class InitModRolesMax {
         } else {
             Harpymodloader.MODIFIER_MAX.put(Noellesroles.id("expedition"), 0);
         }
+
+        /// TAXED (纳税)
+        // 纳税修饰符只能生成1个，70%概率生成
+        if (random.nextInt(0, 100) < 70) {
+            StupidExpress.LOGGER.info("Modifier [Taxed] enabled in this round!");
+            Harpymodloader.MODIFIER_MAX.put(Noellesroles.id("taxed"), 1);
+        } else {
+            Harpymodloader.MODIFIER_MAX.put(Noellesroles.id("taxed"), 0);
+        }
+
+        /// INTROVERTED (内向)
+        // 内向修饰符只能生成1个，70%概率生成
+        if (random.nextInt(0, 100) < 70) {
+            StupidExpress.LOGGER.info("Modifier [Introverted] enabled in this round!");
+            Harpymodloader.MODIFIER_MAX.put(Noellesroles.id("introverted"), 1);
+        } else {
+            Harpymodloader.MODIFIER_MAX.put(Noellesroles.id("introverted"), 0);
+        }
     }
 }
