@@ -498,6 +498,8 @@
   "message.noellesroles.trapper.tripwire_walk_triggered": "You tripped on a tripwire trap! Slowed for 3 seconds!",
   "message.noellesroles.trapper.tripwire_sprint_triggered": "You triggered a tripwire trap while sprinting! You fell down!",
   "message.noellesroles.trapper.tripwire_triggered_notify": "%s triggered your tripwire trap! (%s)",
+  "message.noellesroles.trapper.tripwire_type.sprinting": "Sprinting",
+  "message.noellesroles.trapper.tripwire_type.walking": "Walking",
   "message.noellesroles.trapper.tripwire_dismantled": "You dismantled a tripwire trap!",
   "message.noellesroles.trapper.tripwire_dismantled_notify": "%s dismantled your tripwire trap!",
   "announcement.star.role.trapper": "Trapper",

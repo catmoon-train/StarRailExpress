@@ -44,6 +44,9 @@ public class TripwireTrapEntity extends Entity {
     /** 陷阱触发半径（格） */
     public static final double TRIGGER_RADIUS = 1.0;
 
+    /** 陷阱检测区域高度（格） */
+    public static final double DETECTION_HEIGHT = 2.0;
+
     /** 陷阱存在时间上限（5分钟 = 6000 tick），防止无限存在 */
     public static final int MAX_LIFETIME = 6000;
 
@@ -150,7 +153,7 @@ public class TripwireTrapEntity extends Entity {
         // 创建检测区域
         AABB detectionBox = new AABB(
                 pos.x - TRIGGER_RADIUS, pos.y - 0.5, pos.z - TRIGGER_RADIUS,
-                pos.x + TRIGGER_RADIUS, pos.y + 2.0, pos.z + TRIGGER_RADIUS);
+                pos.x + TRIGGER_RADIUS, pos.y + DETECTION_HEIGHT, pos.z + TRIGGER_RADIUS);
 
         // 获取区域内的所有玩家
         List<Player> players = world.getEntitiesOfClass(
@@ -243,10 +246,12 @@ public class TripwireTrapEntity extends Entity {
 
         // 通知设陷者
         if (owner instanceof ServerPlayer serverOwner) {
-            String typeStr = wasSprinting ? "§c疾跑" : "§e走路";
+            String typeKey = wasSprinting
+                    ? "message.noellesroles.trapper.tripwire_type.sprinting"
+                    : "message.noellesroles.trapper.tripwire_type.walking";
             serverOwner.displayClientMessage(
                     Component.translatable("message.noellesroles.trapper.tripwire_triggered_notify",
-                            victim.getName(), typeStr)
+                            victim.getName(), Component.translatable(typeKey))
                             .withStyle(ChatFormatting.GREEN),
                     true);
         }

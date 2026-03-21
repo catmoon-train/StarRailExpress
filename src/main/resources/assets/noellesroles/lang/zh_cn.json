@@ -775,6 +775,8 @@
   "message.noellesroles.trapper.tripwire_walk_triggered": "你被绊索陷阱绊住了！减速 3 秒！",
   "message.noellesroles.trapper.tripwire_sprint_triggered": "你在疾跑中触发了绊索陷阱！摔倒了！",
   "message.noellesroles.trapper.tripwire_triggered_notify": "%s 触发了你的绊索陷阱！（%s）",
+  "message.noellesroles.trapper.tripwire_type.sprinting": "疾跑",
+  "message.noellesroles.trapper.tripwire_type.walking": "走路",
   "message.noellesroles.trapper.tripwire_dismantled": "你拆除了一个绊索陷阱！",
   "message.noellesroles.trapper.tripwire_dismantled_notify": "%s 拆除了你的绊索陷阱！",
   "announcement.star.role.trapper": "设陷者",
