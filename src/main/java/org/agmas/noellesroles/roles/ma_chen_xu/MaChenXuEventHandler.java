@@ -10,7 +10,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 
 /**
- * 布袋鬼事件处理器
+ * 布袋鬼（诡舍·缚灵）事件处理器
  */
 public class MaChenXuEventHandler {
 
@@ -21,15 +21,17 @@ public class MaChenXuEventHandler {
         AllowPlayerDeath.EVENT.register((victim, deathReason) -> {
             if (SREGameWorldComponent.KEY.get(victim.level()).isRole(victim, ModRoles.MA_CHEN_XU)) {
                 var compc = MaChenXuPlayerComponent.KEY.get(victim);
-                if (compc.shieldDuration > 0) {
-                    compc.shieldDuration = 0;
+                // 永久护盾（阶段4获得，一次性抵挡致命伤害）
+                if (compc.permanentShield) {
+                    compc.permanentShield = false;
                     compc.sync();
                     SRE.REPLAY_MANAGER.breakArmor(victim.getUUID());
                     victim.displayClientMessage(Component.translatable("message.noellesroles.ma_chen_xu.trigger_shield")
                             .withStyle(ChatFormatting.GOLD), true);
                     return false;
                 }
-                if (compc.spiritWalkDuration > 0) {
+                // 里世界中布袋鬼无敌
+                if (compc.otherworldActive) {
                     return false;
                 }
             }

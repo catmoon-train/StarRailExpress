@@ -128,9 +128,9 @@ public class ClientHudRenderer {
 
       // 进化进度
       int nextThreshold = switch (component.stage) {
-        case 1 -> component.stage1Need;
-        case 2 -> component.stage2Need;
-        case 3 -> component.stage3Need;
+        case 1 -> MaChenXuPlayerComponent.STAGE_2_THRESHOLD;
+        case 2 -> MaChenXuPlayerComponent.STAGE_3_THRESHOLD;
+        case 3 -> MaChenXuPlayerComponent.STAGE_4_THRESHOLD;
         default -> -1;
       };
 
@@ -148,60 +148,21 @@ public class ClientHudRenderer {
         context.drawString(textRenderer, liShiJieText, x, y, 0xFFFFFF);
         y += 12;
       }
-      // 下雨[狂热]状态
-      if (component.frenzyRainActive) {
-        Component frenzyRainText = Component.translatable("hud.noellesroles.ma_chen_xu.frenzy_rain_active",
-            component.frenzyRainDuration / 20).withStyle(ChatFormatting.DARK_BLUE, ChatFormatting.BOLD);
-        context.drawString(textRenderer, frenzyRainText, x, y, 0xFFFFFF);
+
+      // 浊雨状态
+      if (component.turbidRainActive) {
+        Component turbidRainText = Component.translatable("message.noellesroles.ma_chen_xu.turbid_rain_activated")
+            .withStyle(ChatFormatting.DARK_AQUA);
+        context.drawString(textRenderer, turbidRainText, x, y, 0xFFFFFF);
         y += 12;
       }
 
-      // 下雨[狂热]冷却状态
-      if (component.frenzyRainCooldown > 0) {
-        Component frenzyRainCooldownText = Component
-            .translatable("gui.noellesroles.ma_chen_xu.frenzy_rain_cooldown",
-                component.frenzyRainCooldown / 20)
-            .withStyle(ChatFormatting.RED);
-        context.drawString(textRenderer, frenzyRainCooldownText, x, y, 0xFFFFFF);
-        y += 12;
-      }
-
-      // 鬼术状态
+      // 掠风状态（阶段4里世界专属）
       if (component.swiftWindActive) {
-        Component swiftWindText = Component.translatable("hud.noellesroles.ma_chen_xu.swift_wind_active",
-            component.swiftWindDuration / 20).withStyle(ChatFormatting.AQUA);
+        Component swiftWindText = Component.translatable("hud.noellesroles.ma_chen_xu.skill.swift_wind")
+            .append(Component.literal(": " + component.swiftWindDuration / 20 + "s"))
+            .withStyle(ChatFormatting.AQUA);
         context.drawString(textRenderer, swiftWindText, x, y, 0xFFFFFF);
-        y += 12;
-      }
-
-      if (component.spiritWalkActive) {
-        Component spiritWalkText = Component.translatable("hud.noellesroles.ma_chen_xu.spirit_walk_active",
-            component.spiritWalkDuration / 20).withStyle(ChatFormatting.LIGHT_PURPLE);
-        context.drawString(textRenderer, spiritWalkText, x, y, 0xFFFFFF);
-        y += 12;
-      }
-
-      if (component.puppetShowActive) {
-        Component puppetShowText = Component.translatable("hud.noellesroles.ma_chen_xu.puppet_show_active",
-            component.puppetShowDuration / 20).withStyle(ChatFormatting.DARK_PURPLE);
-        context.drawString(textRenderer, puppetShowText, x, y, 0xFFFFFF);
-        y += 12;
-      }
-
-      // 掠风充能进度
-      if (component.ghostSkills.contains("swift_wind") && component.swiftWindChargeTime < 300) {
-        int progress = (component.swiftWindChargeTime * 100) / 300;
-        Component chargeText = Component.translatable("hud.noellesroles.ma_chen_xu.swift_wind_charge", progress)
-            .withStyle(ChatFormatting.GREEN);
-        context.drawString(textRenderer, chargeText, x, y, 0xFFFFFF);
-        y += 12;
-      }
-
-      // 伪摹使用状态
-      if (component.falseMimicryUsed) {
-        Component mimicryText = Component.translatable("hud.noellesroles.ma_chen_xu.false_mimicry_used")
-            .withStyle(ChatFormatting.GOLD);
-        context.drawString(textRenderer, mimicryText, x, y, 0xFFFFFF);
         y += 12;
       }
 
@@ -230,10 +191,11 @@ public class ClientHudRenderer {
           context.drawString(textRenderer, mimicryText, x, y, 0xFFFFFF);
           y += 12;
         }
-        if (component.shieldDuration > 0) {
-          int shieldRemaing = component.shieldDuration / 20;
-          Component mimicryText = Component.translatable("message.noellesroles.ma_chen_xu.shield", shieldRemaing);
-          context.drawString(textRenderer, mimicryText, context.guiWidth() - textRenderer.width(mimicryText) - 10,
+        // 永久护盾状态
+        if (component.permanentShield) {
+          Component shieldText = Component.translatable("message.noellesroles.ma_chen_xu.shield")
+              .withStyle(ChatFormatting.GOLD);
+          context.drawString(textRenderer, shieldText, context.guiWidth() - textRenderer.width(shieldText) - 10,
               context.guiHeight() - 20, 0xFFFFFF);
         }
       }
