@@ -129,6 +129,14 @@ public class StalkerHudMixin {
             context.drawString(textRenderer, gazingText, x, y, 0xFFFFFF);
             y += 12;
         }
+        if (stalkerComp.isDashOnCooldown()){
+            Component dashText = Component.translatable("hud.noellesroles.stalker.dash_cooldown",
+                    String.format("%.1f", stalkerComp.getDashCooldownSeconds()))
+                    .withStyle(ChatFormatting.YELLOW);
+                    context.drawString(textRenderer, dashText, x, y, 0xFFFFFF);
+                    y += 12;
+
+        }
 
         // 蓄力进度（三阶段）
         if (stalkerComp.isCharging) {

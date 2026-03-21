@@ -12,8 +12,10 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
+import net.minecraft.server.TickTask;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -31,6 +33,8 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.blood.BloodMain;
+import org.agmas.noellesroles.component.StalkerPlayerComponent;
+import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Random;
@@ -83,7 +87,7 @@ public class StalkerKnifeItem extends KnifeItem {
     public InteractionResultHolder<ItemStack> use(Level world, @NotNull Player user, InteractionHand hand)
     {
         if (hand == InteractionHand.OFF_HAND)return InteractionResultHolder.pass(user.getItemInHand(hand));
-        if (user.isCrouching()){
+        if (user.isCrouching()||(SREGameWorldComponent.KEY.get( world).isRole(user, ModRoles.STALKER) && StalkerPlayerComponent.KEY.get( user).phase==3)){
             user.getMainHandItem().set(SREDataComponentTypes.WEAPON_USED_TIME,3);
         }else user.getMainHandItem().set(SREDataComponentTypes.WEAPON_USED_TIME,10);
         return super.use(world, user, hand);
@@ -256,7 +260,7 @@ public class StalkerKnifeItem extends KnifeItem {
                 Vec3 horizontalDash = new Vec3(toTarget.x, 0, toTarget.z).normalize();
                 
                 // 突进距离（格）
-                double dashDistance = 1;
+                double dashDistance = 1.3;
                 
                 // 设置水平位移
                 Vec3 dashVector = horizontalDash.scale(dashDistance);
@@ -307,6 +311,7 @@ public class StalkerKnifeItem extends KnifeItem {
         if (!player.onGround()) {
             return false;
         }
+        player.swing(InteractionHand.MAIN_HAND);
         
 //        // 检查是否在蓄力中
 //        if (!player.isUsingItem() || player.getUseItem() != stack) {
@@ -365,37 +370,163 @@ public class StalkerKnifeItem extends KnifeItem {
         player.setDeltaMovement(dashVector);
         serverPlayer.connection.send(new ClientboundSetEntityMotionPacket(serverPlayer.getId(), dashVector.scale(0.75f)));
         
-        // 播放冲刺音效和粒子效果
-
-            // 冲刺音效
-            player.playSound(io.wifi.starrailexpress.index.TMMSounds.ITEM_KNIFE_PREPARE, 0.8f, 1.5f);
+        // 播放炫酷的冲刺音效和粒子效果
+        Random rand = new Random();
+        
+        // 1. 播放多层音效
+        // 主要音效
+        world.playSound(null, player.getX(), player.getY(), player.getZ(), 
+            io.wifi.starrailexpress.index.TMMSounds.ITEM_KNIFE_PREPARE, SoundSource.PLAYERS, 1.0f, 1.5f + rand.nextFloat() * 0.2f);
+        // 回声音效
+        world.playSound(null, player.getX(), player.getY(), player.getZ(), 
+            io.wifi.starrailexpress.index.TMMSounds.ITEM_KNIFE_PREPARE, SoundSource.PLAYERS, 0.6f, 1.7f + rand.nextFloat() * 0.3f);
+        // 环境音效
+        world.playSound(null, player.getX(), player.getY(), player.getZ(),
+                SoundEvents.WITHER_BREAK_BLOCK, SoundSource.AMBIENT, 0.8f, 0.9f + rand.nextFloat() * 0.2f);
+        
+        // 2. 生成炫酷的冲刺轨迹粒子（服务端）
+        int trailCount = 30;
+        double speedFactor = dashVector.length();
+        
+        for (int i = 0; i < trailCount; i++) {
+            double progress = (double) i / trailCount;
+            double offsetX = (rand.nextDouble() - 0.5) * 0.3 * (1.0 - progress);
+            double offsetY = (rand.nextDouble() - 0.5) * 0.3 * (1.0 - progress);
+            double offsetZ = (rand.nextDouble() - 0.5) * 0.3 * (1.0 - progress);
             
-            // 生成冲刺轨迹粒子
-            for (int i = 0; i < 20; i++) {
-                double progress = (double) i / 20.0;
+            // 使用多种粒子类型创建层次感
+            if (i % 3 == 0) {
+                // 主要轨迹 - 末地烛粒子
                 ((ServerLevel) world).sendParticles(
                     ParticleTypes.END_ROD,
-                    player.getX() - dashVector.x * progress,
-                    player.getY() - dashVector.y * progress + player.getBbHeight() * 0.5,
-                    player.getZ() - dashVector.z * progress,
+                    player.getX() - dashVector.x * progress + offsetX,
+                    player.getY() - dashVector.y * progress + player.getBbHeight() * 0.5 + offsetY,
+                    player.getZ() - dashVector.z * progress + offsetZ,
                     1,
-                    0, 0, 0, 0
+                    0, 0, 0, 0.1
                 );
-            }
-            
-            // 生成冲击波粒子
-            for (int i = 0; i < 12; i++) {
-                double angle = (2 * Math.PI * i) / 12;
-                double radius = 0.5;
+            } else if (i % 3 == 1) {
+                // 辅助轨迹 - 灵魂火焰
                 ((ServerLevel) world).sendParticles(
-                    ParticleTypes.CLOUD,
-                    player.getX() + Math.cos(angle) * radius,
-                    player.getY(),
-                    player.getZ() + Math.sin(angle) * radius,
+                    ParticleTypes.SOUL_FIRE_FLAME,
+                    player.getX() - dashVector.x * progress + offsetX * 0.7,
+                    player.getY() - dashVector.y * progress + player.getBbHeight() * 0.5 + offsetY * 0.7,
+                    player.getZ() - dashVector.z * progress + offsetZ * 0.7,
                     1,
-                    0, 0.1, 0, 0
+                    0, 0, 0, 0.05
+                );
+            } else {
+                // 散落轨迹 - 光尘
+                ((ServerLevel) world).sendParticles(
+                    ParticleTypes.GLOW,
+                    player.getX() - dashVector.x * progress + offsetX * 1.2,
+                    player.getY() - dashVector.y * progress + player.getBbHeight() * 0.5 + offsetY * 1.2,
+                    player.getZ() - dashVector.z * progress + offsetZ * 1.2,
+                    1,
+                    0, 0, 0, 0.08
                 );
             }
+        }
+        
+        // 3. 生成动态冲击波环（服务端）
+        int waveCount = 3;
+        for (int wave = 0; wave < waveCount; wave++) {
+            double waveDelay = wave * 0.1; // 波浪延迟
+            double radius = 0.3 + wave * 0.4; // 随时间扩大的半径
+            
+            // 创建延时任务来模拟波浪效果
+            world.getServer().tell(new TickTask(world.getServer().getTickCount() + (int)(waveDelay * 20), () -> {
+                int particleCount = 16;
+                for (int i = 0; i < particleCount; i++) {
+                    double angle = (2 * Math.PI * i) / particleCount;
+                    double x = player.getX() + Math.cos(angle) * radius;
+                    double z = player.getZ() + Math.sin(angle) * radius;
+                    
+                    // 外层冲击波 - 白色云
+                    ((ServerLevel) world).sendParticles(
+                        ParticleTypes.CLOUD,
+                        x,
+                        player.getY() + 0.1,
+                        z,
+                        1,
+                        0.02, 0.05, 0.02, 0.0
+                    );
+                    
+                    // 内层能量环 - 红色光束
+                    ((ServerLevel) world).sendParticles(
+                        ParticleTypes.CRIMSON_SPORE,
+                        x,
+                        player.getY() + 0.1,
+                        z,
+                        1,
+                        0.01, 0.02, 0.01, 0.0
+                    );
+                }
+                
+                // 在波浪中心生成上扬粒子
+                for (int i = 0; i < 8; i++) {
+                    double offsetX = (rand.nextDouble() - 0.5) * 0.6;
+                    double offsetZ = (rand.nextDouble() - 0.5) * 0.6;
+                    ((ServerLevel) world).sendParticles(
+                        ParticleTypes.SMOKE,
+                        player.getX() + offsetX,
+                        player.getY() + 0.2,
+                        player.getZ() + offsetZ,
+                        1,
+                        0, 0.08, 0, 0.1
+                    );
+                }
+            }));
+        }
+        
+        // 4. 生成螺旋能量场（服务端）
+        int spiralCount = 20;
+        for (int i = 0; i < spiralCount; i++) {
+            double angle = (2 * Math.PI * i) / spiralCount;
+            double height = (double) i / spiralCount * 1.5; // 从地面到头部高度
+            double radius = 0.4 * (1.0 - (double) i / spiralCount); // 随高度缩小的半径
+            
+            double x = player.getX() + Math.cos(angle) * radius;
+            double y = player.getY() + height;
+            double z = player.getZ() + Math.sin(angle) * radius;
+            
+            // 螺旋路径上的能量点
+            ((ServerLevel) world).sendParticles(
+                ParticleTypes.FLAME,
+                x, y, z,
+                1,
+                0, 0.02, 0, 0.0
+            );
+            
+            // 添加彩色光尘
+            ((ServerLevel) world).sendParticles(
+                ParticleTypes.GLOW_SQUID_INK,
+                x, y, z,
+                1,
+                0, 0.01, 0, 0.0
+            );
+        }
+        
+        // 5. 地面拖尾效果
+        int groundTrailCount = 15;
+        for (int i = 0; i < groundTrailCount; i++) {
+            double progress = (double) i / groundTrailCount;
+            double radius = 0.2 * (1.0 - progress);
+            
+            for (int j = 0; j < 8; j++) {
+                double angle = (2 * Math.PI * j) / 8;
+                double x = player.getX() - dashVector.x * progress + Math.cos(angle) * radius;
+                double y = player.getY() + 0.1;
+                double z = player.getZ() - dashVector.z * progress + Math.sin(angle) * radius;
+                
+                ((ServerLevel) world).sendParticles(
+                    ParticleTypes.CRIMSON_SPORE,
+                    x, y, z,
+                    1,
+                    0, 0.01, 0, 0.0
+                );
+            }
+        }
 
         
         return true;

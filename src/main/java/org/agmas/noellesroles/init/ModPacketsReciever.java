@@ -335,16 +335,14 @@ public class ModPacketsReciever {
 
       }
       if (player.getMainHandItem().getItem() instanceof StalkerKnifeItem stalkerKnifeItem){
-        stalkerKnifeItem.tryDashAttack(player, player.getMainHandItem(), player.serverLevel());
-        //todo 记得启用 测试的时候注释了
-//        if (SREGameWorldComponent.KEY.get(player.level()).isRole(player.getUUID(), ModRoles.STALKER)) {
-//          StalkerPlayerComponent stalkerPlayerComponent = StalkerPlayerComponent.KEY.get(player);
-//          if (stalkerPlayerComponent.phase ==3 && !stalkerPlayerComponent.isDashOnCooldown()){
-//            if (stalkerKnifeItem.tryDashAttack(player, player.getMainHandItem(), player.serverLevel())){
-//              stalkerPlayerComponent.dashCooldown = 50;
-//            }
-//          }
-//        }
+        if (SREGameWorldComponent.KEY.get(player.level()).isRole(player.getUUID(), ModRoles.STALKER)) {
+          StalkerPlayerComponent stalkerPlayerComponent = StalkerPlayerComponent.KEY.get(player);
+          if (stalkerPlayerComponent.phase ==3 && !stalkerPlayerComponent.isDashOnCooldown()){
+            if (stalkerKnifeItem.tryDashAttack(player, player.getMainHandItem(), player.serverLevel())){
+              stalkerPlayerComponent.dashCooldown = 50;
+            }
+          }
+        }
 
       }
     });

@@ -589,10 +589,18 @@ public class TrapperPlayerComponent implements RoleComponent, ServerTickingCompo
     @Override
     public void writeToSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
         tag.putInt("selectedTrapType", this.selectedTrapType);
+        tag.putInt("trapCharges", this.trapCharges);
+        tag.putInt("rechargeTimer", this.rechargeTimer);
+        tag.putBoolean("isRecharging", this.isRecharging);
+
     }
 
     @Override
     public void readFromSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.selectedTrapType = tag.contains("selectedTrapType") ? tag.getInt("selectedTrapType") : TRAP_TYPE_CALAMITY;
+        this.trapCharges = tag.contains("trapCharges") ? tag.getInt("trapCharges") : MAX_TRAP_CHARGES;
+        this.rechargeTimer = tag.contains("rechargeTimer") ? tag.getInt("rechargeTimer") : 0;
+        this.isRecharging = tag.contains("isRecharging") && tag.getBoolean("isRecharging");
+
     }
 }
