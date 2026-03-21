@@ -88,8 +88,18 @@ public class SkinSelectionList extends ObjectSelectionList<SkinSelectionList.Ski
         // 添加已解锁的皮肤
         var unlockedSkins = skinsComponent.getUnlockedSkinsForItemType(itemTypeName);
         for (var entry : unlockedSkins.entrySet()) {
-            if (entry.getValue()) {
-                availableSkins.add(entry.getKey());
+            availableSkins.add(entry.getKey());
+        }
+
+        // 添加SkinManager中注册但未出现在解锁列表中的皮肤（未解锁的也要渲染）
+        if (itemType.getItem() instanceof SkinableItem it) {
+            var allSkins = SkinManager.getSkins(it.getItemSkinType());
+            if (allSkins != null) {
+                for (String skinName : allSkins.keySet()) {
+                    if (!availableSkins.contains(skinName)) {
+                        availableSkins.add(skinName);
+                    }
+                }
             }
         }
     }
@@ -156,6 +166,7 @@ public class SkinSelectionList extends ObjectSelectionList<SkinSelectionList.Ski
         private boolean hovered = false;
         private float hoverAnimation = 0f;
         private final int skinColor;
+        private final boolean isUnlocked;
 
         private String currentSkin;
         private boolean isCurrent = false;
@@ -172,6 +183,9 @@ public class SkinSelectionList extends ObjectSelectionList<SkinSelectionList.Ski
             }
 
             this.skinColor = sskinColor;
+
+            // 检查皮肤是否解锁
+            this.isUnlocked = skinName.equals("default") || skinsComponent.isSkinUnlockedForItemType(itemTypeName, skinName);
 
             // 获取当前装备的皮肤
             updateCurrentSkin();
@@ -210,7 +224,12 @@ public class SkinSelectionList extends ObjectSelectionList<SkinSelectionList.Ski
 
         private void renderEntryBackground(GuiGraphics guiGraphics, int x, int y, int width, int height) {
             // 背景颜色
-            int backgroundColor = isCurrent ? SELECTED_COLOR : BACKGROUND_COLOR;
+            int backgroundColor;
+            if (!isUnlocked) {
+                backgroundColor = 0xFF151520; // 更暗的颜色表示未解锁
+            } else {
+                backgroundColor = isCurrent ? SELECTED_COLOR : BACKGROUND_COLOR;
+            }
 
             // 悬停时混合颜色
             if (hoverAnimation > 0) {
@@ -221,7 +240,12 @@ public class SkinSelectionList extends ObjectSelectionList<SkinSelectionList.Ski
             guiGraphics.fill(x + 2, y + 2, x + width - 6, y + height - 2, backgroundColor);
 
             // 渲染边框
-            int borderColor = isCurrent ? 0xFF55AA55 : BORDER_COLOR;
+            int borderColor;
+            if (!isUnlocked) {
+                borderColor = 0xFF333344;
+            } else {
+                borderColor = isCurrent ? 0xFF55AA55 : BORDER_COLOR;
+            }
             if (hoverAnimation > 0) {
                 borderColor = blendColors(borderColor, 0xFF8888FF, hoverAnimation);
             }
@@ -232,7 +256,7 @@ public class SkinSelectionList extends ObjectSelectionList<SkinSelectionList.Ski
             guiGraphics.fill(x + width - 5, y, x + width - 4, y + height, borderColor); // 右边框
 
             // 悬停时的发光效果
-            if (hoverAnimation > 0) {
+            if (hoverAnimation > 0 && isUnlocked) {
                 int glowAlpha = (int) (hoverAnimation * 30) << 24;
                 for (int i = 1; i <= 2; i++) {
                     guiGraphics.fill(x - i, y - i, x + width + i, y + height + i, glowAlpha | 0xFFFFFF);
@@ -280,15 +304,20 @@ public class SkinSelectionList extends ObjectSelectionList<SkinSelectionList.Ski
                     "screen.sre.skins." + itemTypeKey + "." + skinLowerName + ".name",
                     formatSkinName(skinLowerName));
 
-            int nameColor = isCurrent ? 0xFF55FF55 : TEXT_COLOR;
+            int nameColor = !isUnlocked ? 0xFF888888 : (isCurrent ? 0xFF55FF55 : TEXT_COLOR);
             guiGraphics.drawString(Minecraft.getInstance().font, displayName, infoX, infoY, nameColor, false);
 
             // 皮肤描述
-            Component description = Component.translatableWithFallback(
-                    "screen.sre.skins." + itemTypeKey + "." + skinLowerName + ".desc",
-                    formatSkinName(skinLowerName));
+            Component description;
+            if (!isUnlocked) {
+                description = Component.translatable("screen.sre.skins.locked");
+            } else {
+                description = Component.translatableWithFallback(
+                        "screen.sre.skins." + itemTypeKey + "." + skinLowerName + ".desc",
+                        formatSkinName(skinLowerName));
+            }
 
-            int descColor = TEXT_SECONDARY_COLOR;
+            int descColor = !isUnlocked ? 0xFF666666 : TEXT_SECONDARY_COLOR;
             int descY = infoY + 12;
             guiGraphics.drawString(Minecraft.getInstance().font, description, infoX, descY, descColor, false);
 
@@ -304,6 +333,32 @@ public class SkinSelectionList extends ObjectSelectionList<SkinSelectionList.Ski
             int buttonHeight = 20;
             int buttonX = x + width - buttonWidth - 10;
             int buttonY = y + (height - buttonHeight) / 2;
+
+            if (!isUnlocked) {
+                // 未解锁状态 - 显示锁定按钮
+                int buttonColor = 0x80333333;
+                drawRoundedRect(guiGraphics, buttonX, buttonY, buttonWidth, buttonHeight, 0, buttonColor);
+                int borderColor = 0xFF555555;
+                drawRoundedRectBorder(guiGraphics, buttonX, buttonY, buttonWidth, buttonHeight, 0, borderColor);
+
+                Component buttonText = Component.translatable("screen.sre.skins.locked_short");
+                int textColor = 0xFF888888;
+                int textX = buttonX + buttonWidth / 2 - Minecraft.getInstance().font.width(buttonText) / 2;
+                int textY = buttonY + (buttonHeight - 8) / 2;
+                guiGraphics.drawString(Minecraft.getInstance().font, buttonText, textX, textY, textColor, false);
+
+                // 锁定标记
+                int lockSize = 10;
+                int lockX = buttonX - lockSize - 5;
+                int lockY = buttonY + (buttonHeight - lockSize) / 2;
+                guiGraphics.fill(lockX, lockY, lockX + lockSize, lockY + lockSize, 0xFF555555);
+                var lockIcon = Component.literal("🔒").withStyle(ChatFormatting.GRAY);
+                var font = Minecraft.getInstance().font;
+                guiGraphics.drawCenteredString(font, lockIcon,
+                        lockX + lockSize / 2, lockY + lockSize / 2 - font.lineHeight / 2,
+                        0xAAAAAA);
+                return;
+            }
 
             // 按钮背景
             int buttonColor = isCurrent ? 0x8055AA55 : 0x80404040;
@@ -358,6 +413,14 @@ public class SkinSelectionList extends ObjectSelectionList<SkinSelectionList.Ski
         @Override
         public boolean mouseClicked(double mouseX, double mouseY, int button) {
             if (button == 0) { // 左键点击
+                // 未解锁的皮肤不能装备
+                if (!isUnlocked) {
+                    Minecraft.getInstance().getSoundManager().play(
+                            net.minecraft.client.resources.sounds.SimpleSoundInstance.forUI(
+                                    net.minecraft.sounds.SoundEvents.VILLAGER_NO, 1.0f));
+                    return true;
+                }
+
                 // 播放点击音效
                 Minecraft.getInstance().getSoundManager().play(
                         net.minecraft.client.resources.sounds.SimpleSoundInstance.forUI(

@@ -97,6 +97,11 @@ public class SkinManager {
         public static final Skin BAT_DEFAULT_SKIN = new Skin(Colors.GRAY, "default");
     }
 
+    // Hat skins
+    public static class HatSkin {
+        public static final Skin HAT_DEFAULT_SKIN = new Skin(Colors.GRAY, "default");
+    }
+
     public static void registerSkin(String skinType, String skinID, int color) {
         skinMap.putIfAbsent(skinType, new HashMap<>());
         skinMap.get(skinType).put(skinID, new Skin(color, skinID));
@@ -107,6 +112,7 @@ public class SkinManager {
         public static final String REVOLVER = "revolver";
         public static final String BAT = "bat";
         public static final String GRENADE = "grenade";
+        public static final String HAT = "hat";
     }
 
     protected static final HashMap<String, HashMap<String, Skin>> skinMap = new HashMap<>();
@@ -115,6 +121,7 @@ public class SkinManager {
         skinMap.put(SkinTypes.REVOLVER, new HashMap<>());
         skinMap.put(SkinTypes.BAT, new HashMap<>());
         skinMap.put(SkinTypes.GRENADE, new HashMap<>());
+        skinMap.put(SkinTypes.HAT, new HashMap<>());
         // 更新：可以不提供默认材质
 
         // API
@@ -346,6 +353,20 @@ public class SkinManager {
         registerSkin(SkinTypes.BAT, "pvz_wire_pole", QualityColor.LEGENDARY.getColor());
         registerSkin(SkinTypes.BAT, "pvz_zombie_bat", QualityColor.LEGENDARY.getColor());
         registerSkin(SkinTypes.BAT, "pvz_zombie_skin_bat", QualityColor.UNBELIEVABLE.getColor());
+
+        // Hat skins
+        registerSkin(SkinTypes.HAT, "baseball_cap", QualityColor.COMMON.getColor());
+        registerSkin(SkinTypes.HAT, "top_hat", QualityColor.RARE.getColor());
+        registerSkin(SkinTypes.HAT, "cowboy_hat", QualityColor.UNCOMMON.getColor());
+        registerSkin(SkinTypes.HAT, "crown", QualityColor.LEGENDARY.getColor());
+        registerSkin(SkinTypes.HAT, "wizard_hat", QualityColor.EPIC.getColor());
+        registerSkin(SkinTypes.HAT, "santa_hat", QualityColor.RARE.getColor());
+        registerSkin(SkinTypes.HAT, "pirate_hat", QualityColor.EPIC.getColor());
+        registerSkin(SkinTypes.HAT, "straw_hat", QualityColor.COMMON.getColor());
+        registerSkin(SkinTypes.HAT, "cat_ears", QualityColor.UNBELIEVABLE.getColor());
+        registerSkin(SkinTypes.HAT, "bunny_ears", QualityColor.LEGENDARY.getColor());
+        registerSkin(SkinTypes.HAT, "halo", QualityColor.UNBELIEVABLE.getColor());
+        registerSkin(SkinTypes.HAT, "devil_horns", QualityColor.EPIC.getColor());
     }
 
     public static ResourceLocation getResourceLocationOfItem(Item item) {

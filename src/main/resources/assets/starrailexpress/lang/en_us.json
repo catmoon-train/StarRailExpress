@@ -12,5 +12,20 @@
   "menu.sre.join_discord": "Join Discord",
   "menu.sre.wiki": "WIKI",
   "menu.sre.mod_config": "Mod Config",
-  "menu.sre.quit": "Quit Game"
+  "menu.sre.quit": "Quit Game",
+  "screen.sre.skins.title": "Skin Management",
+  "screen.sre.skins.equipped": "Equipped",
+  "screen.sre.skins.equip": "Equip",
+  "screen.sre.skins.default_skin": "Default",
+  "screen.sre.skins.refresh": "Refresh",
+  "screen.sre.skins.refresh_tooltip": "Refresh skin list",
+  "screen.sre.skins.back": "Back",
+  "screen.sre.skins.instructions": "Click a skin to equip it",
+  "screen.sre.skins.stats": "Skins: %s/%s",
+  "screen.sre.skins.no_items": "No skinnable items available",
+  "screen.sre.skins.preview": "Character Preview",
+  "screen.sre.skins.hat_title": "Hats / Accessories",
+  "screen.sre.skins.hat_locked": "Locked",
+  "screen.sre.skins.locked": "Locked",
+  "screen.sre.skins.locked_short": "Locked"
 }

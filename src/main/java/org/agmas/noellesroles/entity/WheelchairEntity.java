@@ -132,11 +132,11 @@ public class WheelchairEntity extends Mob {
         super.tickRidden(player, travelVector);
 
         // --- 左右输入控制旋转（保留玩家左右操控轮椅的位置）---
-        if (player.xxa > 0) deltaRotation -= 2.0f;
-        if (player.xxa < 0) deltaRotation += 2.0f;
+        if (player.xxa > 0) deltaRotation -= 2.2f;
+        if (player.xxa < 0) deltaRotation += 2.2f;
         this.setYRot(this.getYRot() + deltaRotation);
         this.yRotO = this.yBodyRot = this.yHeadRot = this.getYRot();
-        deltaRotation *= 0.7f;
+        deltaRotation *= 0.8f;
 
         // --- 耐久逻辑（完全保留原逻辑）---
         if (this.level().getGameTime() % 20 == 0) {
@@ -178,9 +178,7 @@ public class WheelchairEntity extends Mob {
 
     // ===== 加速系统（类似 ItemBasedSteering）=====
     public boolean boost() {
-        if (this.boostTime > 0) {
-            return false;
-        }
+
         this.boostTime = this.getRandom().nextInt(841) + 140;
         this.entityData.set(DATA_BOOST_TIME, this.boostTime);
         return true;
@@ -205,7 +203,7 @@ public class WheelchairEntity extends Mob {
     }
 
     public float boostFactor() {
-        return this.boosting ? 1.0f + 1.8f * Mth.clamp((float) this.boostTime / 140.0f, 0.0f, 1.0f) : 1.0f;
+        return this.boosting ? 1.0f + 2f * Mth.clamp((float) this.boostTime / 140.0f, 0.0f, 1.0f) : 1.0f;
     }
 
     // ===== 以下代码与原文完全相同，不改动 =====
@@ -255,7 +253,7 @@ public class WheelchairEntity extends Mob {
     public static AttributeSupplier.Builder createAttributes() {
         return LivingEntity.createLivingAttributes()
                 .add(Attributes.MAX_HEALTH, 20.0)
-                .add(Attributes.MOVEMENT_SPEED, 0.5)
+                .add(Attributes.MOVEMENT_SPEED, 1)
                 .add(Attributes.FOLLOW_RANGE, 16.0)
                 .add(Attributes.STEP_HEIGHT, 0.5);
     }
