@@ -69,7 +69,7 @@
   "item.noellesroles.alarm_trap.desc": "警报陷阱，被撬棍触发后会发出警报。",
   "item.noellesroles.delivery_box.desc": "右键玩家使用，可以让传递者和被传递者交换物品",
   "item.noellesroles.hallucination_bottle.desc": "2点耐久，右键使用，使一定范围内的玩家强制扭动视角，扭动3次。",
-  "item.noellesroles.mint_candies.desc": "使用后恢复30%的san值。",
+  "item.noellesroles.mint_candies.desc": "使用后恢复30%%的san值。",
   "item.noellesroles.written_note.desc": "记录员职业专属道具，右键记录玩家的身份",
   "item.noellesroles.bomb.desc": "炸弹客职业专属道具，右键玩家将手中的炸弹传递出去，炸弹会在一定时间后爆炸，并炸死持有者",
   "item.noellesroles.wheelchair.desc": "老人职业专属道具，右键可以在地面上防止轮椅",

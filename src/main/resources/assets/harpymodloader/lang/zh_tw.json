@@ -31,7 +31,7 @@
   "commands.changemodifier.player.notification.failed.nostart": "修飾符修改失敗：未啟動遊戲！",
   "announcement.star.modifier": "附加詞條 ",
   "announcement.star.no_modifiers": "沒有附加詞條",
-  "commands.tmm.setroleweight.success": "角色 %s 的權重已設置為 %d",
+  "commands.tmm.setroleweight.success": "角色 %s 的權重已設置為 %s",
   "commands.tmm.setroleweight.failed": "設置角色權重失敗",
   "commands.tmm.togglecustomroleweights.success": "自定義角色權重已%s",
   "commands.tmm.checkweights.entry": "%s: 殺手=%s, 警衛=%s",

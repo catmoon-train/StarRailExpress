@@ -69,7 +69,7 @@
   "item.noellesroles.alarm_trap.desc": "Alarm trap that triggers an alarm when activated by a crowbar.",
   "item.noellesroles.delivery_box.desc": "Right-click a player to swap items between the passer and the receiver.",
   "item.noellesroles.hallucination_bottle.desc": "Durability 2; right-click to force players within a certain range to twitch their view three times.",
-  "item.noellesroles.mint_candies.desc": "Restores 30% of sanity when used.",
+  "item.noellesroles.mint_candies.desc": "Restores 30%% of sanity when used.",
   "item.noellesroles.written_note.desc": "Recorder profession exclusive item; right-click to log a player's identity.",
   "item.noellesroles.bomb.desc": "Bomber profession exclusive item; right-click a player to pass the bomb they hold, which will explode after a set time and kill the holder.",
   "item.noellesroles.wheelchair.desc": "Elder profession exclusive item; right-click to prevent a wheelchair from being placed on the ground.",
