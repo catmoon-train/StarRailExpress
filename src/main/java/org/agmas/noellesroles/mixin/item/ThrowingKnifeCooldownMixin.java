@@ -28,7 +28,7 @@ public class ThrowingKnifeCooldownMixin {
         player.getCooldowns().addCooldown(ModItems.THROWING_KNIFE, (Integer) GameConstants.ITEM_COOLDOWNS.get(TMMItems.KNIFE));
         if (player.getMainHandItem().getItem() == ModItems.STALKER_KNIFE_OFFHAND) {
             boolean isThirdPhase = SREGameWorldComponent.KEY.get(player.serverLevel()).isRole(player, ModRoles.STALKER) && StalkerPlayerComponent.KEY.get(player).phase == 3;
-            player.getCooldowns().addCooldown(ModItems.STALKER_KNIFE_OFFHAND, isThirdPhase ? GameConstants.ITEM_COOLDOWNS.get(TMMItems.KNIFE)-350: GameConstants.ITEM_COOLDOWNS.get(TMMItems.KNIFE)-200 );
+            player.getCooldowns().addCooldown(ModItems.STALKER_KNIFE_OFFHAND, isThirdPhase ? GameConstants.ITEM_COOLDOWNS.get(TMMItems.KNIFE): GameConstants.ITEM_COOLDOWNS.get(TMMItems.KNIFE)-200 );
 
             player.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY,15,0));
             // ── 击中后向前突进 ────────────────────────────────────────────
@@ -36,7 +36,7 @@ public class ThrowingKnifeCooldownMixin {
             performDashOnHit(serverLevel, player, serverLevel.getEntity(payload.target()));
         }else if (player.getMainHandItem().getItem() == ModItems.STALKER_KNIFE) {
             boolean isThirdPhase = SREGameWorldComponent.KEY.get(player.serverLevel()).isRole(player, ModRoles.STALKER) && StalkerPlayerComponent.KEY.get(player).phase == 3;
-            player.getCooldowns().addCooldown(ModItems.STALKER_KNIFE, isThirdPhase ? GameConstants.ITEM_COOLDOWNS.get(TMMItems.KNIFE)-350: GameConstants.ITEM_COOLDOWNS.get(TMMItems.KNIFE)-200 );
+            player.getCooldowns().addCooldown(ModItems.STALKER_KNIFE, isThirdPhase ? GameConstants.ITEM_COOLDOWNS.get(TMMItems.KNIFE): GameConstants.ITEM_COOLDOWNS.get(TMMItems.KNIFE)-200 );
 
             player.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY,15,0));
             // ── 击中后向前突进 ────────────────────────────────────────────
