@@ -62,6 +62,8 @@ public class SkinManagementScreen extends Screen {
     private List<CategoryTabData> categories = new ArrayList<>();
     private int selectedCategory = 0;
     private int categoryPage = 0;
+    // FIX: categoryPageSize is now dynamic (computed per-init based on available width)
+    private int categoryPageSize = 6;
     private final List<String> availableNameTags = new ArrayList<>();
     private int selectedNameTagIndex = 0;
 
@@ -73,7 +75,7 @@ public class SkinManagementScreen extends Screen {
     private static final int BACKGROUND_COLOR_BOTTOM = 0xFF16213E;
     private static final int PANEL_COLOR = 0x90303030;
     private static final int MODEL_SCALE_DIVISOR = 3;
-    private static final int CATEGORY_PAGE_SIZE = 6;
+    private static final int MIN_CATEGORY_WIDTH = 52;
     private static final int NAME_TAG_COLOR = 0xFFF5DFA8;
     private static final int NAME_TAG_HINT_COLOR = 0xFF9FAABC;
 
@@ -102,15 +104,20 @@ public class SkinManagementScreen extends Screen {
         int screenWidth = this.width;
         int screenHeight = this.height;
 
-        // 新布局：左侧皮肤列表 + 右侧玩家预览
-        int titleHeight = 40;
-        int categoryHeight = 22;
-        int listTop = 104;
-        int listHeight = screenHeight - 160;
-        int buttonAreaHeight = 60;
+        // FIX: Adaptive layout — compress title/padding on small screens
+        boolean isCompact = screenHeight < 420 || screenWidth < 560;
+        int titleHeight   = isCompact ? 22 : 36;
+        int titleMarginT  = isCompact ? 4  : 8;
+        int categoryHeight = isCompact ? 18 : 22;
+        int categoryMarginT = isCompact ? 4 : 6;
+        // listTop = titleMarginT + titleHeight + categoryMarginT + categoryHeight + gap-below-category
+        int gapBelowCategory = isCompact ? 4 : 6;
+        int listTop = titleMarginT + titleHeight + categoryMarginT + categoryHeight + gapBelowCategory;
+        int bottomPadding = isCompact ? 28 : 46;
+        int listHeight = screenHeight - listTop - bottomPadding;
 
-        // 左右分栏比例: 左侧60%皮肤列表, 右侧40%玩家预览
-        int totalContentWidth = Math.min(screenWidth - 40, 800);
+        // 左右分栏比例: 左侧~58% 皮肤列表, 右侧~42% 玩家预览
+        int totalContentWidth = Math.min(screenWidth - 20, 800);
         int contentStartX = (screenWidth - totalContentWidth) / 2;
         int leftPanelWidth = (int) (totalContentWidth * 0.58);
         rightPanelWidth = totalContentWidth - leftPanelWidth - 10;
@@ -120,19 +127,22 @@ public class SkinManagementScreen extends Screen {
 
         categories = buildCategories();
         refreshNameTagState();
+
         if (categories.isEmpty()) {
             selectedCategory = 0;
             categoryPage = 0;
         } else {
             selectedCategory = Mth.clamp(selectedCategory, 0, categories.size() - 1);
-            categoryPage = selectedCategory / CATEGORY_PAGE_SIZE;
+            // FIX: categoryPage is NOT recalculated from selectedCategory here;
+            //      it is preserved across refreshSkinPanels() calls.
+            //      We only clamp it after computing categoryPageSize in initCategoryArea.
         }
 
         // 1. 标题区域
-        initTitleArea(screenWidth, titleHeight);
+        initTitleArea(screenWidth, titleMarginT, titleHeight);
 
-        // 2. 分类标签区域
-        initCategoryArea(contentStartX, leftPanelWidth, listTop, categoryHeight);
+        // 2. 分类标签区域 — also computes categoryPageSize and clamps categoryPage
+        initCategoryArea(contentStartX, leftPanelWidth, listTop, categoryHeight, categoryMarginT);
 
         // 3. 左侧皮肤列表区域
         initSkinListArea(contentStartX, leftPanelWidth, listTop, listHeight);
@@ -141,50 +151,58 @@ public class SkinManagementScreen extends Screen {
         initPlayerPreviewArea();
 
         // 5. 底部按钮区域
-        initButtonArea(screenWidth, screenHeight, buttonAreaHeight);
+        initButtonArea(screenWidth, screenHeight, isCompact);
     }
 
-    private void initTitleArea(int screenWidth, int titleHeight) {
-        int titleWidth = 300;
+    private void initTitleArea(int screenWidth, int marginTop, int titleHeight) {
+        int titleWidth = Math.min(300, screenWidth - 20);
         int titleX = (screenWidth - titleWidth) / 2;
-        int startY = 10;
 
-        // 标题面板
         addRenderableWidget(new SimplePanel(
-                titleX, startY, titleWidth, titleHeight,
+                titleX, marginTop, titleWidth, titleHeight,
                 PANEL_COLOR, 0xFF555555));
 
-        // 标题文字
         addRenderableWidget(new CenteredText(
-                titleX + titleWidth / 2, startY + titleHeight / 2,
+                titleX + titleWidth / 2, marginTop + titleHeight / 2,
                 this.title, 0xFFFFFFFF));
     }
 
-    private void initCategoryArea(int listX, int listWidth, int listTop, int categoryHeight) {
+    private void initCategoryArea(int listX, int listWidth, int listTop, int categoryHeight, int categoryMarginT) {
         if (categories.isEmpty()) {
             return;
         }
 
-        int categoryY = listTop - categoryHeight - 4;
-        int arrowWidth = 20;
-        int arrowSpacing = 6;
-        int categorySpacing = 5;
-        int maxPage = Math.max(0, (categories.size() - 1) / CATEGORY_PAGE_SIZE);
+        int categoryY = listTop - categoryHeight - categoryMarginT;
+        int arrowWidth = 18;
+        int arrowSpacing = 4;
+        int categorySpacing = 4;
+
+        // FIX: Compute how many tabs actually fit in the available width
+        int tabsAreaWidth = listWidth - arrowWidth * 2 - arrowSpacing * 2;
+        // Each tab needs at least MIN_CATEGORY_WIDTH px plus a spacing gap
+        categoryPageSize = Math.max(1,
+                (tabsAreaWidth + categorySpacing) / (MIN_CATEGORY_WIDTH + categorySpacing));
+
+        int maxPage = Math.max(0, (categories.size() - 1) / categoryPageSize);
+        // FIX: clamp categoryPage using the freshly-computed categoryPageSize
         categoryPage = Mth.clamp(categoryPage, 0, maxPage);
 
-        int pageStart = categoryPage * CATEGORY_PAGE_SIZE;
-        int pageEndExclusive = Math.min(categories.size(), pageStart + CATEGORY_PAGE_SIZE);
-        int tabsPerPage = Math.max(1, pageEndExclusive - pageStart);
+        int pageStart       = categoryPage * categoryPageSize;
+        int pageEndExcl     = Math.min(categories.size(), pageStart + categoryPageSize);
+        int tabsThisPage    = Math.max(1, pageEndExcl - pageStart);
 
-        int tabsAreaWidth = listWidth - arrowWidth * 2 - arrowSpacing * 2;
-        int categoryWidth = Math.max(64, (tabsAreaWidth - (tabsPerPage - 1) * categorySpacing) / tabsPerPage);
+        // Distribute remaining space evenly among tabs (floor), with a sane floor
+        int categoryWidth = Math.max(MIN_CATEGORY_WIDTH,
+                (tabsAreaWidth - (tabsThisPage - 1) * categorySpacing) / tabsThisPage);
+
         int tabsStartX = listX + arrowWidth + arrowSpacing;
 
         prevCategoryPageButton = Button.builder(Component.literal("<"), button -> {
             if (categoryPage > 0) {
                 categoryPage--;
-                int newPageStart = categoryPage * CATEGORY_PAGE_SIZE;
-                int newPageEnd = Math.min(categories.size(), newPageStart + CATEGORY_PAGE_SIZE) - 1;
+                // Move selectedCategory into the new page range
+                int newPageStart = categoryPage * categoryPageSize;
+                int newPageEnd   = Math.min(categories.size(), newPageStart + categoryPageSize) - 1;
                 selectedCategory = Mth.clamp(selectedCategory, newPageStart, newPageEnd);
                 refreshSkinPanels();
             }
@@ -197,7 +215,7 @@ public class SkinManagementScreen extends Screen {
         nextCategoryPageButton = Button.builder(Component.literal(">"), button -> {
             if (categoryPage < maxPage) {
                 categoryPage++;
-                selectedCategory = categoryPage * CATEGORY_PAGE_SIZE;
+                selectedCategory = categoryPage * categoryPageSize;
                 refreshSkinPanels();
             }
         }).pos(listX + listWidth - arrowWidth, categoryY)
@@ -206,7 +224,7 @@ public class SkinManagementScreen extends Screen {
         nextCategoryPageButton.active = categoryPage < maxPage;
         addRenderableWidget(nextCategoryPageButton);
 
-        for (int i = pageStart; i < pageEndExclusive; i++) {
+        for (int i = pageStart; i < pageEndExcl; i++) {
             CategoryTabData tab = categories.get(i);
             int finalI = i;
             int localIndex = i - pageStart;
@@ -231,7 +249,6 @@ public class SkinManagementScreen extends Screen {
 
     private void initSkinListArea(int listX, int listWidth, int listTop, int listHeight) {
         if (categories.isEmpty() || selectedCategory >= categories.size()) {
-            // 显示空状态
             addRenderableWidget(new CenteredText(
                     listX + listWidth / 2, listTop + listHeight / 2,
                     Component.translatable("screen.sre.skins.no_items"),
@@ -252,7 +269,6 @@ public class SkinManagementScreen extends Screen {
         Item selectedItem = selectedTab.iconItem;
         ItemStack itemStack = new ItemStack(selectedItem);
 
-        // 创建皮肤列表（放在左侧面板）
         skinList = new SkinSelectionList(
                 this,
                 Minecraft.getInstance(),
@@ -263,7 +279,6 @@ public class SkinManagementScreen extends Screen {
                 itemStack,
                 skinsComponent,
                 skinName -> {
-                    // 当选择皮肤时更新玩家的皮肤设置
                     String itemTypeName = getItemTypeName(itemStack);
                     skinsComponent.setEquippedSkinForItemType(itemTypeName, skinName);
                     ClientPlayNetworking.send(new UpdateSkinSelectedPayload(itemTypeName, skinName));
@@ -271,7 +286,6 @@ public class SkinManagementScreen extends Screen {
 
         addRenderableWidget(skinList);
 
-        // 显示物品信息
         addRenderableWidget(new ItemInfoPanel(
                 rightPanelX,
                 rightPanelY - 25,
@@ -292,12 +306,10 @@ public class SkinManagementScreen extends Screen {
     }
 
     private void initPlayerPreviewArea() {
-        // 右侧预览面板背景
         addRenderableWidget(new SimplePanel(
                 rightPanelX, rightPanelY, rightPanelWidth, rightPanelHeight,
                 0x80000000, 0xFF444455));
 
-        // 预览标题
         addRenderableWidget(new CenteredText(
                 rightPanelX + rightPanelWidth / 2, rightPanelY + 10,
                 Component.translatable("screen.sre.skins.preview"),
@@ -325,33 +337,30 @@ public class SkinManagementScreen extends Screen {
         addRenderableWidget(nextNameTagButton);
     }
 
-    private void initButtonArea(int screenWidth, int screenHeight, int buttonAreaHeight) {
-        int buttonWidth = 100;
-        int buttonHeight = 20;
-        int buttonY = screenHeight - 40;
-        int buttonSpacing = 20;
+    private void initButtonArea(int screenWidth, int screenHeight, boolean isCompact) {
+        int buttonWidth  = isCompact ? 80  : 100;
+        int buttonHeight = isCompact ? 16  : 20;
+        int buttonY      = screenHeight - (isCompact ? 22 : 36);
+        int buttonSpacing = 16;
 
-        // 刷新按钮
         refreshButton = ModernButton.builder(
                 Component.translatable("screen.sre.skins.refresh"),
-                button -> refreshSkinPanels()).pos((screenWidth - buttonWidth * 2 - buttonSpacing) / 2, buttonY)
+                button -> refreshSkinPanels())
+                .pos((screenWidth - buttonWidth * 2 - buttonSpacing) / 2, buttonY)
                 .size(buttonWidth, buttonHeight)
                 .accentBar()
                 .build();
-
         refreshButton.setTooltip(Tooltip.create(
                 Component.translatable("screen.sre.skins.refresh_tooltip")));
-
         addRenderableWidget(refreshButton);
 
-        // 返回按钮
         backButton = ModernButton.builder(
                 Component.translatable("screen.sre.skins.back"),
-                button -> this.onClose()).pos(refreshButton.getX() + buttonWidth + buttonSpacing, buttonY)
+                button -> this.onClose())
+                .pos(refreshButton.getX() + buttonWidth + buttonSpacing, buttonY)
                 .size(buttonWidth, buttonHeight)
                 .accentBar()
                 .build();
-
         addRenderableWidget(backButton);
     }
 
@@ -365,44 +374,31 @@ public class SkinManagementScreen extends Screen {
     private String getItemTypeName(ItemStack itemStack) {
         Item item = itemStack.getItem();
         return BuiltInRegistries.ITEM.getKey(item).toString();
-
     }
 
     private List<Item> getSkinnableItemTypes() {
         List<Item> skinnableItems = new ArrayList<>();
-
-        // 添加支持皮肤的物品
         if (player != null) {
             if (TMMItems.SkinableItem != null) {
                 skinnableItems.addAll(TMMItems.SkinableItem);
             }
-            // 可以添加更多物品
         }
         return skinnableItems;
     }
 
     @Override
     public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        // 渲染渐变背景
         renderBackground(graphics, mouseX, mouseY, partialTick);
-
-        // 渲染子组件
         super.render(graphics, mouseX, mouseY, partialTick);
-
-        // 渲染右侧玩家模型预览
         renderPlayerPreview(graphics, mouseX, mouseY);
-
-        // 渲染底部说明
         renderInstructions(graphics);
     }
 
     @Override
     public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        // 渐变背景
         graphics.fillGradient(0, 0, width, height,
                 BACKGROUND_COLOR_TOP, BACKGROUND_COLOR_BOTTOM);
 
-        // 添加一些装饰粒子
         long time = System.currentTimeMillis();
         for (int i = 0; i < 20; i++) {
             float x = (float) ((time * 0.2 + i * 50) % width);
@@ -418,20 +414,20 @@ public class SkinManagementScreen extends Screen {
         if (player == null)
             return;
 
-        // 在右侧面板中渲染玩家模型预览
         int previewX1 = rightPanelX + 5;
         int previewY1 = rightPanelY + 25;
         int previewX2 = rightPanelX + rightPanelWidth - 5;
         int previewY2 = rightPanelY + rightPanelHeight - 10;
 
         int previewSize = Math.min(previewX2 - previewX1, previewY2 - previewY1);
-        int modelScale = previewSize / MODEL_SCALE_DIVISOR;
-        ItemStack previewStack = getPreviewStackForCurrentTab();
+        int modelScale  = previewSize / MODEL_SCALE_DIVISOR;
+        ItemStack previewStack   = getPreviewStackForCurrentTab();
+        // Save the real mainhand item before temporarily overriding it for rendering
+        ItemStack originalMainhand = player.getMainHandItem().copy();
         if (!previewStack.isEmpty()) {
             player.setItemSlot(EquipmentSlot.MAINHAND, previewStack);
-
         }
-        // 使用InventoryScreen的renderEntityInInventoryFollowsMouse方法渲染玩家模型
+
         InventoryScreen.renderEntityInInventoryFollowsMouse(
                 guiGraphics,
                 previewX1, previewY1, previewX2, previewY2,
@@ -440,11 +436,13 @@ public class SkinManagementScreen extends Screen {
                 mouseX, mouseY,
                 player);
 
+        // Always restore the original item — even if previewStack was empty
+        player.setItemSlot(EquipmentSlot.MAINHAND, originalMainhand);
+
         Component selectedNameTagText = getSelectedNameTagDisplayText();
         int titleX = rightPanelX + rightPanelWidth / 2;
         int titleY = previewY1 + 4;
         guiGraphics.drawCenteredString(font, selectedNameTagText, titleX, titleY, NAME_TAG_COLOR);
-
     }
 
     private NameTagInventoryComponent getNameTagComponent() {
@@ -473,10 +471,8 @@ public class SkinManagementScreen extends Screen {
     private void shiftNameTagSelection(int delta) {
         if (availableNameTags.isEmpty())
             return;
-        int size = availableNameTags.size();
-        int nextIndex = (selectedNameTagIndex + delta) % size;
-        if (nextIndex < 0)
-            nextIndex += size;
+        int size      = availableNameTags.size();
+        int nextIndex = ((selectedNameTagIndex + delta) % size + size) % size;
         selectedNameTagIndex = nextIndex;
         String selectedTag = availableNameTags.get(selectedNameTagIndex);
         NameTagInventoryComponent component = getNameTagComponent();
@@ -508,64 +504,59 @@ public class SkinManagementScreen extends Screen {
             return hatPreview;
         }
 
-        ItemStack preview = new ItemStack(selectedTab.iconItem);
-        String equippedSkin = skinsComponent.getEquippedSkin(selectedTab.id);
+        ItemStack preview    = new ItemStack(selectedTab.iconItem);
+        String equippedSkin  = skinsComponent.getEquippedSkin(selectedTab.id);
         preview.set(io.wifi.starrailexpress.index.SREDataComponentTypes.SKIN, equippedSkin);
         return preview;
     }
 
     private void renderInstructions(GuiGraphics graphics) {
-        // 底部说明文本
         Component instructions = Component.translatable("screen.sre.skins.instructions");
-        graphics.drawCenteredString(font, instructions, width / 2, height - 12, 0xFF888888);
+        graphics.drawCenteredString(font, instructions, width / 2, height - 10, 0xFF888888);
 
-        // 皮肤统计
         int totalSkins = 0;
         int unlockedSkins = 0;
         List<Item> skinnableItems = getSkinnableItemTypes();
-
         for (Item item : skinnableItems) {
             ItemStack stack = new ItemStack(item);
             var skins = skinsComponent.getUnlockedSkins(stack);
-            totalSkins += skins.size() + 1; // 包括默认皮肤
+            totalSkins    += skins.size() + 1;
             unlockedSkins += (int) skins.values().stream().filter(b -> b).count() + 1;
         }
 
         if (totalSkins > 0) {
-            Component stats = Component.translatable("screen.sre.skins.stats",
-                    unlockedSkins, totalSkins);
-            graphics.drawString(font, stats, 10, 10, 0xFFAAAAAA, false);
+            Component stats = Component.translatable("screen.sre.skins.stats", unlockedSkins, totalSkins);
+            graphics.drawString(font, stats, 10, 4, 0xFFAAAAAA, false);
         }
     }
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (super.keyPressed(keyCode, scanCode, modifiers)) {
+        if (super.keyPressed(keyCode, scanCode, modifiers))
             return true;
-        }
 
-        if (keyCode == 256) { // ESC键
+        if (keyCode == 256) { // ESC
             this.onClose();
             return true;
         }
-
-        if (keyCode == 82) { // R键刷新
+        if (keyCode == 82) { // R — refresh
             refreshSkinPanels();
             return true;
         }
 
-        // 方向键切换分类
-        if (keyCode == 263) { // 左箭头
+        // Arrow keys: navigate categories
+        if (keyCode == 263) { // left
             if (selectedCategory > 0) {
                 selectedCategory--;
-                categoryPage = selectedCategory / CATEGORY_PAGE_SIZE;
+                // FIX: use the live categoryPageSize
+                categoryPage = selectedCategory / categoryPageSize;
                 refreshSkinPanels();
                 return true;
             }
-        } else if (keyCode == 262) { // 右箭头
+        } else if (keyCode == 262) { // right
             if (selectedCategory < categories.size() - 1) {
                 selectedCategory++;
-                categoryPage = selectedCategory / CATEGORY_PAGE_SIZE;
+                categoryPage = selectedCategory / categoryPageSize;
                 refreshSkinPanels();
                 return true;
             }
@@ -578,7 +569,8 @@ public class SkinManagementScreen extends Screen {
         this.init();
     }
 
-    // 分类按钮
+    // ─── CategoryButton ──────────────────────────────────────────────────────────
+
     private static class CategoryButton extends Button {
         private final boolean selected;
         private final ItemStack item;
@@ -588,50 +580,60 @@ public class SkinManagementScreen extends Screen {
                 OnPress onPress, boolean selected) {
             super(x, y, width, height, label, onPress, DEFAULT_NARRATION);
             this.selected = selected;
-            this.item = new ItemStack(item);
-            this.label = label;
+            this.item     = new ItemStack(item);
+            this.label    = label;
         }
 
         @Override
         public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-            int backgroundColor;
-            int borderColor;
-
+            int backgroundColor, borderColor;
             if (selected) {
-                backgroundColor = 0x8040AA40; // 绿色
-                borderColor = 0xFF00FF00;
+                backgroundColor = 0x8040AA40;
+                borderColor     = 0xFF00FF00;
             } else if (isHoveredOrFocused()) {
-                backgroundColor = 0x804488CC; // 蓝色
-                borderColor = 0xFF6688CC;
+                backgroundColor = 0x804488CC;
+                borderColor     = 0xFF6688CC;
             } else {
-                backgroundColor = 0x80404040; // 灰色
-                borderColor = 0xFF555555;
+                backgroundColor = 0x80404040;
+                borderColor     = 0xFF555555;
             }
 
-            // 背景
+            // Background
             graphics.fill(getX(), getY(), getX() + width, getY() + height, backgroundColor);
+            // Border
+            graphics.fill(getX(),             getY(),              getX() + width,     getY() + 2,              borderColor);
+            graphics.fill(getX(),             getY() + height - 2, getX() + width,     getY() + height,         borderColor);
+            graphics.fill(getX(),             getY(),              getX() + 2,          getY() + height,         borderColor);
+            graphics.fill(getX() + width - 2, getY(),              getX() + width,     getY() + height,         borderColor);
 
-            // 边框
-            graphics.fill(getX(), getY(), getX() + width, getY() + 2, borderColor);
-            graphics.fill(getX(), getY() + height - 2, getX() + width, getY() + height, borderColor);
-            graphics.fill(getX(), getY(), getX() + 2, getY() + height, borderColor);
-            graphics.fill(getX() + width - 2, getY(), getX() + width, getY() + height, borderColor);
-            var font = Minecraft.getInstance().font;
-            int textX = getX() + width / 2 - font.width(label) / 2;
-            int textY = getY() + (height - 8) / 2;
-            // 文字
-            graphics.renderFakeItem(item, textX - 17, textY - 4);
+            var font    = Minecraft.getInstance().font;
             int textColor = selected ? 0xFF00FF00 : (isHoveredOrFocused() ? 0xFFFFFFFF : 0xFFCCCCCC);
-            graphics.drawString(
-                    font,
-                    label,
-                    textX + 9,
-                    textY,
-                    textColor);
+
+            // FIX: Centre the icon+label block as a unit, instead of anchoring from text centre.
+            // Layout: [icon 16px] [gap 3px] [text]  — all centred horizontally in the button.
+            int iconSize    = 16;
+            int iconTextGap = 3;
+            int textWidth   = font.width(label);
+            int totalW      = iconSize + iconTextGap + textWidth;
+            // If content is wider than button, fall back to icon-only
+            boolean showText = totalW + 4 <= width;
+
+            int contentW    = showText ? totalW : iconSize;
+            // FIX: vertical centre — icon is 16px tall, text baseline is ~8px from top of 8px text
+            int iconY  = getY() + (height - iconSize) / 2;
+            int textY  = getY() + (height - 8) / 2;
+            int startX = getX() + (width - contentW) / 2;
+
+            graphics.renderFakeItem(item, startX, iconY);
+
+            if (showText) {
+                graphics.drawString(font, label, startX + iconSize + iconTextGap, textY, textColor);
+            }
         }
     }
 
-    // 简单面板组件
+    // ─── SimplePanel ─────────────────────────────────────────────────────────────
+
     private static class SimplePanel extends AbstractWidget {
         private final int backgroundColor;
         private final int borderColor;
@@ -639,52 +641,45 @@ public class SkinManagementScreen extends Screen {
         public SimplePanel(int x, int y, int width, int height, int backgroundColor, int borderColor) {
             super(x, y, width, height, Component.empty());
             this.backgroundColor = backgroundColor;
-            this.borderColor = borderColor;
+            this.borderColor     = borderColor;
         }
 
         @Override
         public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-            // 背景
             graphics.fill(getX(), getY(), getX() + width, getY() + height, backgroundColor);
-
-            // 边框
-            graphics.fill(getX(), getY(), getX() + width, getY() + 1, borderColor);
-            graphics.fill(getX(), getY() + height - 1, getX() + width, getY() + height, borderColor);
-            graphics.fill(getX(), getY(), getX() + 1, getY() + height, borderColor);
-            graphics.fill(getX() + width - 1, getY(), getX() + width, getY() + height, borderColor);
+            graphics.fill(getX(), getY(),              getX() + width, getY() + 1,          borderColor);
+            graphics.fill(getX(), getY() + height - 1, getX() + width, getY() + height,     borderColor);
+            graphics.fill(getX(), getY(),              getX() + 1,      getY() + height,     borderColor);
+            graphics.fill(getX() + width - 1, getY(), getX() + width,  getY() + height,     borderColor);
         }
 
         @Override
         public boolean mouseClicked(double mouseX, double mouseY, int button) {
-            return false; // 装饰性组件，不拦截鼠标事件
+            return false;
         }
 
         @Override
-        protected void updateWidgetNarration(NarrationElementOutput output) {
-            // 装饰性组件，无需旁白
-        }
+        protected void updateWidgetNarration(NarrationElementOutput output) { }
     }
 
-    // 居中文本组件
+    // ─── CenteredText ────────────────────────────────────────────────────────────
+
     private static class CenteredText extends AbstractWidget {
         private final Component text;
         private final int color;
 
         public CenteredText(int x, int y, Component text, int color) {
             super(x, y, 0, 0, text);
-            this.text = text;
+            this.text  = text;
             this.color = color;
         }
 
         @Override
         public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-            int textWidth = Minecraft.getInstance().font.width(text);
+            int textWidth  = Minecraft.getInstance().font.width(text);
             int textHeight = Minecraft.getInstance().font.lineHeight;
-
-            int renderX = getX() - textWidth / 2;
-            int renderY = getY() - textHeight / 2;
-
-            graphics.drawString(Minecraft.getInstance().font, text, renderX, renderY, color, false);
+            graphics.drawString(Minecraft.getInstance().font, text,
+                    getX() - textWidth / 2, getY() - textHeight / 2, color, false);
         }
 
         @Override
@@ -693,7 +688,8 @@ public class SkinManagementScreen extends Screen {
         }
     }
 
-    // 物品信息面板
+    // ─── ItemInfoPanel ───────────────────────────────────────────────────────────
+
     private static class ItemInfoPanel extends AbstractWidget {
         private final ItemStack item;
 
@@ -704,21 +700,11 @@ public class SkinManagementScreen extends Screen {
 
         @Override
         public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-            // 背景
             graphics.fill(getX(), getY(), getX() + width, getY() + height, 0x80404040);
-
-            // 物品图标
             graphics.renderFakeItem(item, getX() + 5, getY() + (height - 16) / 2);
-
-            // 物品名称
             var font = Minecraft.getInstance().font;
-            graphics.drawString(
-                    font,
-                    getMessage(),
-                    getX() + 25,
-                    getY() + (height - 8) / 2,
-                    0xFFFFFF,
-                    false);
+            graphics.drawString(font, getMessage(),
+                    getX() + 25, getY() + (height - 8) / 2, 0xFFFFFF, false);
         }
 
         @Override
@@ -726,5 +712,4 @@ public class SkinManagementScreen extends Screen {
             output.add(NarratedElementType.TITLE, getMessage());
         }
     }
-
 }
