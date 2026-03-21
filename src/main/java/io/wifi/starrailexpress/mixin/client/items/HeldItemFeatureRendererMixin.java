@@ -2,6 +2,7 @@ package io.wifi.starrailexpress.mixin.client.items;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.event.AllowItemShowInHand;
 import io.wifi.starrailexpress.index.TMMItems;
@@ -42,6 +43,11 @@ public class HeldItemFeatureRendererMixin {
             if (SREClient.gameComponent != null&&SREClient.gameComponent.getRole( player)!=null&&SREClient.gameComponent.getRole( player).equals(ModRoles.STALKER)){
                 if (player.isCrouching()){
                     return ItemStack.EMPTY;
+                }
+            }else
+            if (SREClient.gameComponent != null&&SREClient.gameComponent.getRole( player)!=null&&SREClient.gameComponent.getRole( player).equals(ModRoles.EXECUTIONER)){
+                if (SREPlayerPsychoComponent.KEY.get( player).type==1){
+                    return TMMItems.REVOLVER.getDefaultInstance();
                 }
             }
             var eventRes = AllowItemShowInHand.EVENT.invoker().allowShowInHand(player, ret, false);

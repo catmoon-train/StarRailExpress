@@ -28,9 +28,13 @@ public class PlayerInventoryMixin {
         int oldSlot = this.player.getInventory().selected;
         original.call(scrollAmount);
         SREPlayerPsychoComponent component = SREPlayerPsychoComponent.KEY.get(this.player);
-        if (component.getPsychoTicks() > 0 &&
+        if (component.getPsychoTicks() > 0 &&(
                 (this.player.getInventory().getItem(oldSlot).is(TMMItems.BAT)) &&
-                (!this.player.getInventory().getItem(this.player.getInventory().selected).is(TMMItems.BAT)))
+                (!this.player.getInventory().getItem(this.player.getInventory().selected).is(TMMItems.BAT))) ||
+                (this.player.getInventory().getItem(oldSlot).is(TMMItems.REVOLVER)) &&
+                        (!this.player.getInventory().getItem(this.player.getInventory().selected).is(TMMItems.REVOLVER))
+        )
             this.player.getInventory().selected = oldSlot;
+
     }
 }
