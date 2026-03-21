@@ -475,7 +475,7 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
         // }
         // }
 
-        if (serverWorld.getServer().overworld().equals(serverWorld)) {
+        {
             if (this.isRunning()) {
                 for (ServerPlayer player : serverWorld.players()) {
                     if (!GameUtils.isPlayerAliveAndSurvival(player) && isBound()
@@ -491,7 +491,7 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
                         if (gameWorldComponent.getRole(player) == null) {
                             player.setGameMode(net.minecraft.world.level.GameType.SPECTATOR);
                         }
-                        if (GameUtils.isPlayerAliveAndSurvival(player)) {
+                        {
                             isPlayerOutGameAreas(player, areas);
                         }
 
