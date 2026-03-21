@@ -51,6 +51,7 @@ public class ShootingFrenzyPlayerComponent implements RoleComponent, ServerTicki
     public boolean inFrenzy = false;
     // 记录狂暴前副手是否有物品，用于结束时恢复
     private ItemStack savedOffhandItem = ItemStack.EMPTY;
+    private ItemStack savedMainhandItem = ItemStack.EMPTY;
 
     public ShootingFrenzyPlayerComponent(Player player) {
         this.player = player;
@@ -70,6 +71,7 @@ public class ShootingFrenzyPlayerComponent implements RoleComponent, ServerTicki
     public void init() {
         this.inFrenzy = false;
         this.savedOffhandItem = ItemStack.EMPTY;
+        this.savedMainhandItem = ItemStack.EMPTY;
         this.sync();
     }
 
@@ -96,13 +98,14 @@ public class ShootingFrenzyPlayerComponent implements RoleComponent, ServerTicki
 
         // 保存当前副手物品
         this.savedOffhandItem = player.getOffhandItem().copy();
+        this.savedMainhandItem = player.getMainHandItem().copy();
 
         // 给副手一把枪（双枪）
         player.setItemInHand(InteractionHand.OFF_HAND, new ItemStack(TMMItems.REVOLVER));
 
         // 确保主手也有枪
         if (!player.getMainHandItem().is(TMMItemTags.GUNS)) {
-            ShopEntry.insertStackInFreeSlot(player, new ItemStack(TMMItems.REVOLVER));
+            player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(TMMItems.REVOLVER));
         }
 
         // 设置psycho模式（不使用startPsycho避免给球棒）
@@ -154,7 +157,11 @@ public class ShootingFrenzyPlayerComponent implements RoleComponent, ServerTicki
         if (currentOffhand.is(TMMItemTags.GUNS)) {
             player.setItemInHand(InteractionHand.OFF_HAND, savedOffhandItem.copy());
         }
+        if (player.getMainHandItem().is(TMMItemTags.GUNS)) {
+            player.setItemInHand(InteractionHand.MAIN_HAND, savedMainhandItem.copy());
+        }
         this.savedOffhandItem = ItemStack.EMPTY;
+        this.savedMainhandItem = ItemStack.EMPTY;
 
         // 重置psycho type
         SREPlayerPsychoComponent psychoComponent = SREPlayerPsychoComponent.KEY.get(player);
