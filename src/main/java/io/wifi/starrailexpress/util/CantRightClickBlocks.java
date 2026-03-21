@@ -89,6 +89,9 @@ public class CantRightClickBlocks {
         if (CANNOT_INTERACT_IDS.contains(BuiltInRegistries.BLOCK.getKey(block).toString())) {
             return false;
         }
+        if (BuiltInRegistries.BLOCK.getKey(block).getPath().contains("shulker_box")) {
+            return false;
+        }
         // 检查是否为TMM模组的方块
         // ResourceLocation blockId = level().registryAccess()
         // .registryOrThrow(Registries.BLOCK)
