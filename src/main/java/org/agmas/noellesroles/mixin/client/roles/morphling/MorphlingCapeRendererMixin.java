@@ -2,8 +2,6 @@ package org.agmas.noellesroles.mixin.client.roles.morphling;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.wifi.starrailexpress.client.SREClient;
-import net.fabricmc.loader.impl.util.log.Log;
-import net.fabricmc.loader.impl.util.log.LogCategory;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
