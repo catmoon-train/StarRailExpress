@@ -315,7 +315,7 @@ public class StarRailExpressTitleScreen extends Screen {
         if (this.isTransitioning) {
             this.fadeOutProgress = Math.min(this.fadeOutProgress + 0.025F, 1.0F);
         }
-        if (!SREConfig.instance().disableTitleScreenSound || SREConfig.instance().disableTitleScreenVideoBackground) {
+        if (!SREConfig.instance().disableTitleScreenSound && !SREConfig.instance().disableTitleScreenVideoBackground) {
             SoundManager soundManager = Minecraft.getInstance().getSoundManager();
             if (!waitingForContinue.get() && !soundManager.isActive(ambient_sound)) {
                 soundManager.play(ambient_sound);
