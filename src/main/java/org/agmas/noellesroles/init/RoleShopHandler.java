@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Optional;
 
 import io.wifi.starrailexpress.item.KnifeItem;
-import net.minecraft.network.PacketListener;
 import net.minecraft.world.InteractionHand;
 import org.agmas.noellesroles.component.MaChenXuPlayerComponent;
 import org.agmas.noellesroles.component.SingerPlayerComponent;
@@ -1033,9 +1032,9 @@ public class RoleShopHandler {
       柜子区疯魔.set(DataComponents.ITEM_NAME, Component.translatable("itemstack.executioner.psychoitem.item_name"));
       var lore = new ItemLore(List.of(
           Component.translatable("itemstack.executioner.psychoitem.item_lore.1")
-              .withStyle(style -> style.withItalic(false)),
+              .withStyle(style -> style.withItalic(false).withColor(ChatFormatting.GRAY)),
           Component.translatable("itemstack.executioner.psychoitem.item_lore.2")
-              .withStyle(style -> style.withItalic(false))));
+              .withStyle(style -> style.withItalic(false).withColor(ChatFormatting.GRAY))));
       柜子区疯魔.set(DataComponents.LORE, lore);
       柜子区的商店.add(new ShopEntry(
           柜子区疯魔,

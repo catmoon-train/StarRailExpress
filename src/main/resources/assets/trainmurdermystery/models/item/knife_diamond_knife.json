@@ -1,7 +1,7 @@
 {
 	"parent": "item/generated",
 	"textures": {
-		"layer0": "starrailexpress:item/knife_diamond_knife"
+		"layer0": "starrailexpress:item/diamond_knife"
 	},
 	"display": {
 		"thirdperson_righthand": {

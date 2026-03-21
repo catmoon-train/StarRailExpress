@@ -43,11 +43,11 @@ public record GunShootPayload(int target) implements CustomPacketPayload {
         public void receive(@NotNull GunShootPayload payload, ServerPlayNetworking.@NotNull Context context) {
             ServerPlayer player = context.player();
             ItemStack mainHandStack = player.getMainHandItem();
+
             if (!mainHandStack.is(TMMItemTags.GUNS))
                 return;
             if (player.getCooldowns().isOnCooldown(mainHandStack.getItem()))
                 return;
-
             player.level().playSound(null, player.getX(), player.getEyeY(), player.getZ(),
                     TMMSounds.ITEM_REVOLVER_CLICK, SoundSource.PLAYERS, 0.5f,
                     1f + player.getRandom().nextFloat() * .1f - .05f);

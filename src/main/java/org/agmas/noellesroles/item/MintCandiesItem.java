@@ -21,12 +21,12 @@ import org.jetbrains.annotations.NotNull;
  * - 心理学家专属物品
  * - 游戏开始时给予一个
  * - 在商店可以花费100金币购买
- * - 吃掉时恢复0.35的san值（35%）
+ * - 吃掉时恢复0.5的san值（50%）
  */
 public class MintCandiesItem extends Item {
     
-    /** san值恢复量（35%） */
-    public static final float SANITY_RESTORE_AMOUNT = 0.35f;
+    /** san值恢复量（50%） */
+    public static final float SANITY_RESTORE_AMOUNT = 0.5f;
     
     public MintCandiesItem(Properties properties) {
         super(properties);
