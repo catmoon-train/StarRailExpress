@@ -1020,8 +1020,6 @@ public class RoleShopHandler {
         return triggered;
       }
     });
-    柜子区的商店.add(new ShopEntry(ModItems.FLASH_GRENADE.getDefaultInstance(), 150, ShopEntry.Type.TOOL));
-    柜子区的商店.add(new ShopEntry(ModItems.DECOY_GRENADE.getDefaultInstance(), 50, ShopEntry.Type.TOOL));
     // 射击狂热 - 275金币（魔改psycho，狂暴模式）
     柜子区的商店.add(new ShopEntry(
         TMMItems.PSYCHO_MODE.getDefaultInstance(),
@@ -1316,6 +1314,12 @@ public class RoleShopHandler {
         return SREPlayerShopComponent.useBlackout(player);
       }
     });
+
+    // 闪光弹 - 100金币
+    BANDIT_SHOP.add(new ShopEntry(ModItems.FLASH_GRENADE.getDefaultInstance(), 100, ShopEntry.Type.TOOL));
+
+    // 诱饵弹 - 50金币
+    BANDIT_SHOP.add(new ShopEntry(ModItems.DECOY_GRENADE.getDefaultInstance(), 50, ShopEntry.Type.TOOL));
 
     // 小偷商店
     // 小偷的荣誉（金锭） - 根据人数动态计算价格
