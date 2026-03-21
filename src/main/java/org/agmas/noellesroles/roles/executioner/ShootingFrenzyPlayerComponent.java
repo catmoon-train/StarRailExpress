@@ -50,7 +50,7 @@ public class ShootingFrenzyPlayerComponent implements RoleComponent, ServerTicki
     private final Player player;
     public boolean inFrenzy = false;
     // 记录狂暴前副手是否有物品，用于结束时恢复
-    private ItemStack savedOffhandItem = ItemStack.EMPTY;
+    //private ItemStack savedOffhandItem = ItemStack.EMPTY;
     private ItemStack savedMainhandItem = ItemStack.EMPTY;
 
     public ShootingFrenzyPlayerComponent(Player player) {
@@ -70,7 +70,7 @@ public class ShootingFrenzyPlayerComponent implements RoleComponent, ServerTicki
     @Override
     public void init() {
         this.inFrenzy = false;
-        this.savedOffhandItem = ItemStack.EMPTY;
+//        this.savedOffhandItem = ItemStack.EMPTY;
         this.savedMainhandItem = ItemStack.EMPTY;
         this.sync();
     }
@@ -97,11 +97,11 @@ public class ShootingFrenzyPlayerComponent implements RoleComponent, ServerTicki
         }
 
         // 保存当前副手物品
-        this.savedOffhandItem = player.getOffhandItem().copy();
+//        this.savedOffhandItem = player.getOffhandItem().copy();
         this.savedMainhandItem = player.getMainHandItem().copy();
 
         // 给副手一把枪（双枪）
-        player.setItemInHand(InteractionHand.OFF_HAND, new ItemStack(TMMItems.REVOLVER));
+//        player.setItemInHand(InteractionHand.OFF_HAND, new ItemStack(TMMItems.REVOLVER));
 
         // 确保主手也有枪
         if (!player.getMainHandItem().is(TMMItemTags.GUNS)) {
@@ -155,12 +155,12 @@ public class ShootingFrenzyPlayerComponent implements RoleComponent, ServerTicki
         // 清除副手枪支，恢复原来的物品
         ItemStack currentOffhand = player.getOffhandItem();
         if (currentOffhand.is(TMMItemTags.GUNS)) {
-            player.setItemInHand(InteractionHand.OFF_HAND, savedOffhandItem.copy());
+//            player.setItemInHand(InteractionHand.OFF_HAND, savedOffhandItem.copy());
         }
         if (player.getMainHandItem().is(TMMItemTags.GUNS)) {
             player.setItemInHand(InteractionHand.MAIN_HAND, savedMainhandItem.copy());
         }
-        this.savedOffhandItem = ItemStack.EMPTY;
+//        this.savedOffhandItem = ItemStack.EMPTY;
         this.savedMainhandItem = ItemStack.EMPTY;
 
         // 重置psycho type
