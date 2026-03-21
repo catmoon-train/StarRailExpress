@@ -352,7 +352,13 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
     public void addSanLoss(int amount) {
         this.totalSanLoss += amount;
         checkStageAdvance();
-        // 阶段4自动触发大招：累计SAN达到800且未使用过免费大招
+        this.sync();
+    }
+
+    /**
+     * 检查阶段4自动触发大招（在serverTick末尾调用，避免mid-tick状态变更）
+     */
+    private void checkAutoUltimate() {
         if (stage == 4 && !stage4FreeUltUsed && totalSanLoss >= STAGE_4_AUTO_ULT_THRESHOLD && !otherworldActive) {
             stage4FreeUltUsed = true;
             activateOtherworld(ULTIMATE_DURATION_STAGE_4);
@@ -363,7 +369,6 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
                         false);
             }
         }
-        this.sync();
     }
 
     /**
@@ -1050,7 +1055,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
                 if (!GameUtils.isPlayerAliveAndSurvival(target)) continue;
                 if (isKiller(target)) continue;
 
-                if (target.position().distanceTo(trapPos) <= TRAP_TRIGGER_RANGE) {
+                if (target.position().distanceToSqr(trapPos) <= TRAP_TRIGGER_RANGE * TRAP_TRIGGER_RANGE) {
                     // 触发陷阱
                     int rootDuration = otherworldActive ? TRAP_ROOT_DURATION_OTHERWORLD : TRAP_ROOT_DURATION;
                     int sanLoss = otherworldActive ? TRAP_SAN_LOSS_OTHERWORLD : TRAP_SAN_LOSS;
@@ -1129,9 +1134,9 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
             return;
         }
 
-        // 检查目标是否静止（速度接近0，表示站立不动）
+        // 检查目标是否静止（速度接近0，容忍网络延迟和重力波动）
         Vec3 velocity = target.getDeltaMovement();
-        if (velocity.horizontalDistance() > 0.01) {
+        if (velocity.horizontalDistance() > 0.05) {
             sp.displayClientMessage(
                     Component.translatable("message.noellesroles.ma_chen_xu.parasite.target_moving")
                             .withStyle(ChatFormatting.RED),
@@ -1350,13 +1355,14 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         }
 
         // 永久移速加成（大招3+标记奖励）
-        if (permanentSpeedBonus > 0 && player.level().getGameTime() % 20 == 0) {
+        if (permanentSpeedBonus >= 10 && player.level().getGameTime() % 20 == 0) {
             int amplifier = (permanentSpeedBonus / 10) - 1; // 10%=0, 20%=1, 30%=2
-            if (amplifier >= 0) {
-                player.addEffect(new MobEffectInstance(
-                        MobEffects.MOVEMENT_SPEED, 25, amplifier, false, false, false));
-            }
+            player.addEffect(new MobEffectInstance(
+                    MobEffects.MOVEMENT_SPEED, 25, amplifier, false, false, false));
         }
+
+        // 阶段4自动大招检查（延迟到tick末尾，避免mid-tick状态变更）
+        checkAutoUltimate();
     }
 
     /**
@@ -1378,7 +1384,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
                 if (target.equals(player)) continue;
                 if (!GameUtils.isPlayerAliveAndSurvival(target)) continue;
                 if (isKiller(target)) continue;
-                // 只对恐惧范围外的好人生效
+                // 只对恐惧范围外的好人生效（浊雨覆盖恐惧盲区，与恐惧互补）
                 if (playerPos.distanceTo(target.position()) > fearRange) {
                     SREPlayerMoodComponent.KEY.get(target).addMood(-((float) TURBID_RAIN_SAN_LOSS / 100));
                     addSanLoss(TURBID_RAIN_SAN_LOSS);
