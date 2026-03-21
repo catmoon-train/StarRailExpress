@@ -15,7 +15,9 @@ import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.flag.FeatureFlagSet;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 
@@ -38,6 +40,13 @@ public class TimeStopEffect extends MobEffect {
     public static int freezeTime = 0;
     public static int freezeStatedTime = 0;
     public static int freezeMaxTime = 0;
+//
+//    public static boolean hasCooldown(Player player){
+//        return player.getCooldowns().isOnCooldown(Items.BIRCH_LOG);
+//    }
+//    public static void setCooldown (Player player, int time){
+//        player.getCooldowns().addCooldown(Items.BIRCH_LOG, time);
+//    }
 
     public TimeStopEffect() {
         super(MobEffectCategory.NEUTRAL, Color.white.getRGB());

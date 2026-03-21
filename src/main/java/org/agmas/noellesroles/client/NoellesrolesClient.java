@@ -28,6 +28,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.player.RemotePlayer;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.agmas.noellesroles.block_entity.VendingMachinesBlockEntity;
@@ -732,6 +733,21 @@ public class NoellesrolesClient implements ClientModInitializer {
                                     .translatable("message.tip.voice_setting",
                                             Component.keybind("key.voice_chat"))
                                     .withStyle(ChatFormatting.WHITE));
+                }
+            }
+
+            return null;
+        });
+        OnMessageBelowMoneyRenderer.EVENT.register((minecraft, guiGraphics, deltaTracker) -> {
+            if (SREClient.gameComponent != null) {
+                if (SREClient.gameComponent.isRunning()) {
+                    if (minecraft.player != null && minecraft.player.hasEffect(ModEffects.SKILL_BANED)) {
+
+                        return new MutableComponentResult(
+                                Component
+                                        .translatable("message.tip.cant_use_skill")
+                                        .withStyle(ChatFormatting.RED));
+                    }
                 }
             }
 

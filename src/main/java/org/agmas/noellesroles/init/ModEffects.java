@@ -5,11 +5,19 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.effect.MobEffect;
 
+import net.minecraft.world.effect.MobEffectCategory;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.effects.NoCollideEffect;
+import org.agmas.noellesroles.effects.SimpleMobEffect;
 import org.agmas.noellesroles.effects.TimeStopEffect;
 
 public class ModEffects {
+    public static final Holder<MobEffect> SKILL_BANED = register("skill_baned", new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0xFFFFFF));
+    public static final Holder<MobEffect> BLACK_MONITOR = register("black_monitor", new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0xFFFFFF));
+    public static final Holder<MobEffect> MOVE_BANED = register("move_baned", new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0xFFFFFF));
+    public static final Holder<MobEffect> TURN_BANED = register("turn_baned", new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0xFFFFFF));
+    public static final Holder<MobEffect> USED_BANED = register("used_baned", new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0xFFFFFF));
+
     /**
      * 时间停止效果
      * - 中性效果

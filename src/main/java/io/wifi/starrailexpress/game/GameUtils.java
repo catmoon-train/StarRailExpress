@@ -419,6 +419,14 @@ public class GameUtils {
                     false, // showParticles（显示粒子）
                     false // showIcon（显示图标）
             ));
+            player.addEffect(new MobEffectInstance(
+                    ModEffects.SKILL_BANED,
+                    (int) (SAFE_TIME_COOLDOWN), // 持续时间 30s（tick）
+                    0, // 等级（0 = 速度 I）
+                    true, // ambient（环境效果，如信标）
+                    false, // showParticles（显示粒子）
+                    false // showIcon（显示图标）
+            ));
         }
     }
 

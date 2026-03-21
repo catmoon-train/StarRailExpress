@@ -2,6 +2,7 @@ package org.agmas.noellesroles.mixin.roles.manipulator;
 
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
+import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 
@@ -55,6 +56,7 @@ public class PlayerControlMixin {
 
                     // 应用移动
                     applyRandomMovement(serverPlayer, data);
+                    serverPlayer.connection.send(new ClientboundSetEntityMotionPacket(serverPlayer.getId(), data.moveDirection));
 
                     // 随机转头
                     applyRandomLooking(serverPlayer);

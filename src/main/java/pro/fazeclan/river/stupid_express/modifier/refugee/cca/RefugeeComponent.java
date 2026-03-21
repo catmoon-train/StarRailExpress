@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import io.wifi.starrailexpress.cca.*;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
+import org.agmas.noellesroles.init.ModEffects;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
 import org.ladysnake.cca.api.v3.component.sync.AutoSyncedComponent;
@@ -308,7 +309,7 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         sp.getServer().getPlayerList().getPlayers().forEach((p) -> {
             ServerPlayNetworking.send(p, new RemoveStatusBarPayload("loose_end"));
             p.playNotifySound(SoundEvents.ENDER_DRAGON_DEATH, SoundSource.PLAYERS, 1.0f, 1.0f);
-            p.addEffect(new MobEffectInstance(MobEffects.UNLUCK, 40, 0, false, false));
+            p.addEffect(new MobEffectInstance(ModEffects.BLACK_MONITOR, 40, 0, false, false));
             if (p.hasEffect(MobEffects.WEAVING)) {
                 p.removeEffect(MobEffects.WEAVING);
             }
