@@ -44,13 +44,17 @@ public class ExtraEffectRole extends NormalRole {
         return this;
     }
 
+    public MobEffectInstance getNewEffectInstance(MobEffectInstance instance) {
+        return new MobEffectInstance(instance);
+    }
+
     @Override
     public void serverTick(ServerPlayer player) {
         if (player.level().getGameTime() % 20 == 0) {
             if (GameUtils.isPlayerAliveAndSurvival(player)) {
                 for (var eff : playerEffects) {
                     if (!player.hasEffect(eff.getEffect()) || player.getEffect(eff.getEffect()).getDuration() <= 21) {
-                        player.addEffect(eff);
+                        player.addEffect(getNewEffectInstance(eff));
                     }
                 }
             }
