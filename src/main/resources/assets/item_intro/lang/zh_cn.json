@@ -98,7 +98,7 @@
   "item.noellesroles.catalyst.desc": "毒师职业专属道具，右键使所有进入中毒状态的玩家死亡。",
   "item.noellesroles.bandit_revolver.desc": "强盗和刽子手使用的手枪，射程更近。",
   "item.noellesroles.stalker_knife.desc": "潜行者职业二阶段专属武器。右键蓄力刺击击杀目标，击杀后增加二阶段进度。蹲下右键可快速蓄力。具有10秒攻击冷却。",
-  "item.noellesroles.stalker_knife_w.desc": "潜行者职业二阶段专属武器。右键蓄力刺击击杀目标，击杀后增加二阶段进度。蹲下右键可快速蓄力。具有10秒攻击冷却。",
+  "item.noellesroles.stalker_knife_offhand.desc": "潜行者职业二阶段专属武器。右键蓄力刺击击杀目标，击杀后增加二阶段进度。蹲下右键可快速蓄力。具有10秒攻击冷却。",
   "item.stupid_express.jerry_can.desc": "纵火犯职业专属道具，右键使玩家浇上汽油。",
   "item.stupid_express.lighter.desc": "纵火犯职业专属道具，右键将被浇上汽油的玩家点燃，详细情况见纵火犯职业介绍。",
   "item.wathe.thrown_grenade.desc": "投掷出的手雷。",
