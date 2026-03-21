@@ -46,6 +46,7 @@ import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.entity.LockEntity;
 import org.agmas.noellesroles.entity.WheelchairEntityModel;
 import org.agmas.noellesroles.entity.WheelchairEntityRenderer;
+import org.agmas.noellesroles.entity.WheelchairFieldItemRenderer;
 import org.agmas.noellesroles.item.PanItem;
 import org.agmas.noellesroles.item.ProblemSetItem;
 import org.agmas.noellesroles.packet.*;
@@ -192,6 +193,7 @@ public class NoellesrolesClient implements ClientModInitializer {
                         1));
 
         EntityRendererRegistry.register(ModEntities.WHEELCHAIR, WheelchairEntityRenderer::new);
+        EntityRendererRegistry.register(ModEntities.WHEELCHAIR_FIELD_ITEM, WheelchairFieldItemRenderer::new);
 
         EntityModelLayerRegistry.registerModelLayer(WheelchairEntityModel.LAYER_LOCATION,
                 WheelchairEntityModel::createBodyLayer);
