@@ -36,6 +36,9 @@ import pro.fazeclan.river.stupid_express.constants.SERoles;
 public class ModRolesInitialEventRegister {
 
     public static void register() {
+
+        // 初始化仇杀客事件
+        BloodFeudistPlayerComponent.registerEvents();
         ModdedRoleAssigned.EVENT.register((player, role) -> {
             // 魔术师角色初始化
             if (role.identifier().equals(ModRoles.MAGICIAN.identifier())) {
@@ -66,8 +69,6 @@ public class ModRolesInitialEventRegister {
                 }
             }
 
-            // 初始化仇杀客事件
-            BloodFeudistPlayerComponent.registerEvents();
             if (role.identifier().equals(ModRoles.DIO.identifier())) {
                 var tpc = DIOPlayerComponent.KEY.get(player);
                 tpc.init();

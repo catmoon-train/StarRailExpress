@@ -254,15 +254,13 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         this.puppetShowActive = false;
         this.puppetShowDuration = 0;
         this.falseMimicryUsed = false;
-
+        this.sync();
         // 给予初始金币80
         if (player instanceof ServerPlayer serverPlayer) {
             SREPlayerShopComponent playerShopComponent = SREPlayerShopComponent.KEY.get(serverPlayer);
-            playerShopComponent.setBalance(playerShopComponent.balance + 80);
+            playerShopComponent.setBalance(80);
             playerShopComponent.sync();
         }
-
-        this.sync();
     }
 
     @Override

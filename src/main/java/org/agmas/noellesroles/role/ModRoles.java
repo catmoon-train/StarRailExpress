@@ -199,7 +199,7 @@ public class ModRoles {
       SRERole.MoodType.REAL, // 假心情
       TMMRoles.CIVILIAN.getMaxSprintTime(), // 无限冲刺时间
       true // 隐藏计分板
-  )).setComponentKey(ModComponents.MA_CHEN_XU).setCanSeeCoin(true).setOccupiedRoleCount(2);
+  )).setCanSeeCoin(true).setOccupiedRoleCount(2);
   public static SRERole MA_CHEN_XU = TMMRoles.registerRole(new NormalRole(
       MA_CHEN_XU_ID, // 角色 ID
       new Color(75, 0, 130).getRGB(), // 深紫色 - 代表恐惧与神秘
@@ -265,7 +265,7 @@ public class ModRoles {
       new NormalRole(HOAN_MEIRIN_ID, new Color(243, 140, 132).getRGB(),
           true, false, SRERole.MoodType.REAL,
           TMMRoles.CIVILIAN.getMaxSprintTime(), false))
-      .setCanSeeCoin(true);
+      .setVigilanteTeam(true).setCanSeeCoin(true);
   // 好人：帕秋莉 Patchouli Knowledge
   public static SRERole PACHURI = TMMRoles.registerRole(
       new NormalRole(PACHURI_ID, new Color(184, 144, 182).getRGB(),
