@@ -46,9 +46,13 @@ public class MinecraftClientMixin {
     private void tmm$invalid(@NotNull Inventory instance, int value, Operation<Void> original) {
         int oldSlot = instance.selected;
         SREPlayerPsychoComponent component = SREPlayerPsychoComponent.KEY.get(instance.player);
+
         if (component.getPsychoTicks() > 0 &&
                 (instance.getItem(oldSlot).is(TMMItems.BAT)) &&
                 (!instance.getItem(value).is(TMMItems.BAT))
+        ) return;
+        if (component.getPsychoTicks() > 0 &&
+                (instance.getItem(oldSlot).is(TMMItems.REVOLVER))
         ) return;
         original.call(instance, value);
     }
