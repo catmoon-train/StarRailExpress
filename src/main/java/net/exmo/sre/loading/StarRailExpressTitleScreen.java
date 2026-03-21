@@ -8,6 +8,7 @@ import com.terraformersmc.modmenu.api.ModMenuApi;
 
 import io.wifi.ConfigCompact.ui.SettingMenuScreen;
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.SREConfig;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.loader.api.FabricLoader;
@@ -25,7 +26,7 @@ import net.minecraft.client.renderer.CubeMap;
 import net.minecraft.client.renderer.PanoramaRenderer;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
-// import net.minecraft.client.sounds.SoundManager;
+import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
@@ -36,7 +37,7 @@ import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 
-// import io.wifi.starrailexpress.index.TMMSounds;
+import io.wifi.starrailexpress.index.TMMSounds;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -90,7 +91,7 @@ public class StarRailExpressTitleScreen extends Screen {
     private static final AtomicBoolean waitingForContinue = new AtomicBoolean(true);
     private float continueAlpha = 0.0F;
     private float menuAnimProgress = 0.0F;
-    
+
     // ── 黑屏渐出动画 ─────────────────────────────────────────────────
     private float fadeOutProgress = 0.0F; // 0=完全黑屏，1=完全可见
     private boolean isTransitioning = false; // 是否正在过渡
@@ -309,15 +310,17 @@ public class StarRailExpressTitleScreen extends Screen {
 
         if (!waitingForContinue.get())
             this.menuAnimProgress = Math.min(this.menuAnimProgress + 0.06F, 1.0F);
-        
+
         // 黑屏渐出动画
         if (this.isTransitioning) {
             this.fadeOutProgress = Math.min(this.fadeOutProgress + 0.025F, 1.0F);
         }
-        // SoundManager soundManager = Minecraft.getInstance().getSoundManager();
-        // if (!waitingForContinue.get() && !soundManager.isActive(ambient_sound)) {
-        //     soundManager.play(ambient_sound);
-        // }
+        if (!SREConfig.instance().disableTitleScreenSound) {
+            SoundManager soundManager = Minecraft.getInstance().getSoundManager();
+            if (!waitingForContinue.get() && !soundManager.isActive(ambient_sound)) {
+                soundManager.play(ambient_sound);
+            }
+        }
 
         float targetExpand = this.changelogExpanded ? 1.0F : 0.0F;
         this.changelogExpandAnim += (targetExpand - this.changelogExpandAnim) * 0.18F;
@@ -351,7 +354,7 @@ public class StarRailExpressTitleScreen extends Screen {
         if (waitingForContinue.get())
             renderContinuePrompt(g, mouseX, mouseY, delta);
         else
-            //if (!this.isTransitioning || this.fadeOutProgress >= 1.0F)
+            // if (!this.isTransitioning || this.fadeOutProgress >= 1.0F)
             renderMainMenu(g, mouseX, mouseY, delta);
 
         // 渲染黑屏渐出效果
@@ -803,8 +806,8 @@ public class StarRailExpressTitleScreen extends Screen {
 
     @Override
     public void removed() {
-        // SoundManager soundManager = Minecraft.getInstance().getSoundManager();
-        // soundManager.stop(ambient_sound);
+        SoundManager soundManager = Minecraft.getInstance().getSoundManager();
+        soundManager.stop(ambient_sound);
         if (this.realmsNotificationsScreen != null)
             this.realmsNotificationsScreen.removed();
     }
@@ -823,7 +826,7 @@ public class StarRailExpressTitleScreen extends Screen {
     // ─────────────────────────────────────────────────────────────────
     // 工具方法
     // ─────────────────────────────────────────────────────────────────
-    
+
     /**
      * 开始过渡动画：黑屏渐出 + 播放音效
      */
@@ -832,38 +835,43 @@ public class StarRailExpressTitleScreen extends Screen {
         this.isTransitioning = true;
         this.fadeOutProgress = 0.0F;
         this.menuAnimProgress = 0.0F;
-        
+
         // 播放环境音效，带淡入效果
         playAmbientSoundWithFadeIn();
     }
+
     public static int voiceFadeInDuration = 0;
-    // public static SimpleSoundInstance ambient_sound = SimpleSoundInstance.forUI(
-    //         TMMSounds.AMBIENT_TRAIN_OUTSIDE, 0.4f, 0.5F);
+    public static SimpleSoundInstance ambient_sound = SimpleSoundInstance.forUI(
+            TMMSounds.AMBIENT_TRAIN_OUTSIDE, 0.2f, 0.2F);
+
     /**
      * 播放环境音效并带淡入效果
      */
     private void playAmbientSoundWithFadeIn() {
         if (this.minecraft != null && this.minecraft.getSoundManager() != null) {
-            // SoundManager soundManager = this.minecraft.getSoundManager();
+            if (SREConfig.instance().disableTitleScreenSound) {
+                return;
+            }
+            SoundManager soundManager = this.minecraft.getSoundManager();
             // 创建音效实例
 
-            // soundManager.play(ambient_sound);
+            soundManager.play(ambient_sound);
 
             voiceFadeInDuration = 40;
-//            // 使用 Minecraft 的调度器来实现音量淡入
-//            final int fadeSteps = 40; // 淡入步数（约 2 秒）
-//            final float targetVolume = 1.0F;
-//
-//            for (int i = 0; i < fadeSteps; i++) {
-//                final int step = i;
-//                this.minecraft.execute(() -> {
-//                    float progress = (float) step / fadeSteps;
-//                    // 使用缓动函数使淡入更平滑
-//                    float easedProgress = 1.0F - (1.0F - progress) * (1.0F - progress);
-//                    float volume = easedProgress * targetVolume;
-//                    minecraft.options.getSoundSourceOptionInstance()
-//                });
-//            }
+            // // 使用 Minecraft 的调度器来实现音量淡入
+            // final int fadeSteps = 40; // 淡入步数（约 2 秒）
+            // final float targetVolume = 1.0F;
+            //
+            // for (int i = 0; i < fadeSteps; i++) {
+            // final int step = i;
+            // this.minecraft.execute(() -> {
+            // float progress = (float) step / fadeSteps;
+            // // 使用缓动函数使淡入更平滑
+            // float easedProgress = 1.0F - (1.0F - progress) * (1.0F - progress);
+            // float volume = easedProgress * targetVolume;
+            // minecraft.options.getSoundSourceOptionInstance()
+            // });
+            // }
         }
     }
 
@@ -895,8 +903,8 @@ public class StarRailExpressTitleScreen extends Screen {
     }
 
     protected void renderPanorama(GuiGraphics g, float delta) {
-        if (waitingForContinue.get()){
-            //黑屏
+        if (waitingForContinue.get()) {
+            // 黑屏
             g.fill(0, 0, this.width, this.height, 0xFF000000);
             return;
         }

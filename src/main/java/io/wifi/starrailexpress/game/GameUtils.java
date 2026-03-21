@@ -138,6 +138,7 @@ import net.minecraft.world.level.portal.DimensionTransition;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
+import pro.fazeclan.river.stupid_express.modifier.refugee.cca.RefugeeComponent;
 import pro.fazeclan.river.stupid_express.modifier.split_personality.cca.SplitPersonalityComponent;
 
 public class GameUtils {
@@ -283,7 +284,7 @@ public class GameUtils {
                 .filter(serverPlayerEntity -> (areas.getReadyArea().contains(serverPlayerEntity.position()))).count());
         game.setGameMode(gameMode);
         SREGameTimeComponent.KEY.get(world).setResetTime(time);
-
+        RefugeeComponent.KEY.get(world).reset();
         if (playerCount >= gameMode.minPlayerCount) {
             game.setGameStatus(SREGameWorldComponent.GameStatus.STARTING);
 
@@ -637,6 +638,8 @@ public class GameUtils {
 
     public static void finalizeGame(ServerLevel world) {
         SRE.LOGGER.info("Game Stopped!");
+        RefugeeComponent.KEY.get(world).reset();
+
         world.setWeatherParameters(6000, 0, false, false);
         serverTaskQueue.clear();
         serverAsynTaskLists.clear();

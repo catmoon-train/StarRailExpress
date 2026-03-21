@@ -11,6 +11,7 @@ import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
 import org.ladysnake.cca.api.v3.component.sync.AutoSyncedComponent;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
+import org.ladysnake.cca.api.v3.util.CheckEnvironment;
 
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.compat.TrainVoicePlugin;
@@ -19,11 +20,13 @@ import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.network.RemoveStatusBarPayload;
 import io.wifi.starrailexpress.network.TriggerStatusBarPayload;
 import io.wifi.starrailexpress.SRE;
+import net.fabricmc.api.EnvType;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundStopSoundPacket;
 import net.minecraft.resources.ResourceLocation;
@@ -344,7 +347,29 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
     }
 
     @Override
+    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
     public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void writeSyncPacket(RegistryFriendlyByteBuf buf, ServerPlayer recipient) {
+        CompoundTag tag = new CompoundTag();
+        this.writeToSyncNbt(tag, buf.registryAccess());
+        buf.writeNbt(tag);
+    }
+
+    @CheckEnvironment(EnvType.CLIENT)
+    public void applySyncPacket(RegistryFriendlyByteBuf buf) {
+        CompoundTag tag = buf.readNbt();
+        if (tag != null) {
+            this.readFromSyncNbt(tag, buf.registryAccess());
+        }
+    }
+
+    public void readFromSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
         pendingRevivals.clear();
         if (tag.contains("pending_revivals")) {
             ListTag list = tag.getList("pending_revivals", Tag.TAG_COMPOUND);
@@ -359,8 +384,7 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         isAnyRevivals = tag.getBoolean("isAnyRevivals");
     }
 
-    @Override
-    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void writeToSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
         ListTag list = new ListTag();
         for (RefugeeData data : pendingRevivals) {
             CompoundTag item = new CompoundTag();
