@@ -124,6 +124,9 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
     public static final int PARASITE_DEATH_TICKS = 1200;            // 60秒
     public static final int PARASITE_DEATH_TICKS_OTHERWORLD = 600;  // 30秒
 
+    /** 寄生静止判断阈值（水平速度，容忍网络延迟和重力波动） */
+    public static final double PARASITE_STATIONARY_THRESHOLD = 0.05;
+
     /** 浊雨参数 */
     public static final int TURBID_RAIN_DURATION = 600;             // 30秒
     public static final int TURBID_RAIN_SAN_INTERVAL = 100;         // 5秒
@@ -356,7 +359,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
     }
 
     /**
-     * 检查阶段4自动触发大招（在serverTick末尾调用，避免mid-tick状态变更）
+     * 检查阶段4自动触发大招（放在serverTick末尾，确保其他tick逻辑优先处理）
      */
     private void checkAutoUltimate() {
         if (stage == 4 && !stage4FreeUltUsed && totalSanLoss >= STAGE_4_AUTO_ULT_THRESHOLD && !otherworldActive) {
@@ -1136,7 +1139,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
 
         // 检查目标是否静止（速度接近0，容忍网络延迟和重力波动）
         Vec3 velocity = target.getDeltaMovement();
-        if (velocity.horizontalDistance() > 0.05) {
+        if (velocity.horizontalDistance() > PARASITE_STATIONARY_THRESHOLD) {
             sp.displayClientMessage(
                     Component.translatable("message.noellesroles.ma_chen_xu.parasite.target_moving")
                             .withStyle(ChatFormatting.RED),
@@ -1356,7 +1359,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
 
         // 永久移速加成（大招3+标记奖励）
         if (permanentSpeedBonus >= 10 && player.level().getGameTime() % 20 == 0) {
-            int amplifier = (permanentSpeedBonus / 10) - 1; // 10%=0, 20%=1, 30%=2
+            int amplifier = Math.max(0, (permanentSpeedBonus / 10) - 1); // 10%=0, 20%=1, 30%=2
             player.addEffect(new MobEffectInstance(
                     MobEffects.MOVEMENT_SPEED, 25, amplifier, false, false, false));
         }
