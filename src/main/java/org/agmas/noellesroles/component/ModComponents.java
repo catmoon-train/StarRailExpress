@@ -15,6 +15,7 @@ import org.agmas.noellesroles.roles.manipulator.InControlCCA;
 import org.agmas.noellesroles.roles.morphling.MorphlingPlayerComponent;
 import org.agmas.noellesroles.roles.noise_maker.NoiseMakerPlayerComponent;
 import org.agmas.noellesroles.roles.recaller.RecallerPlayerComponent;
+import org.agmas.noellesroles.roles.shooting_frenzy.ShootingFrenzyPlayerComponent;
 import org.agmas.noellesroles.roles.thief.ThiefPlayerComponent;
 import org.agmas.noellesroles.roles.voodoo.VoodooPlayerComponent;
 import org.agmas.noellesroles.roles.vulture.VulturePlayerComponent;
@@ -190,6 +191,10 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
   public static final ComponentKey<BloodFeudistPlayerComponent> BLOOD_FEUDIST = ComponentRegistry.getOrCreate(
       ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "blood_feudist"),
       BloodFeudistPlayerComponent.class);
+
+  public static final ComponentKey<ShootingFrenzyPlayerComponent> SHOOTING_FRENZY = ComponentRegistry.getOrCreate(
+      ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "shooting_frenzy"),
+      ShootingFrenzyPlayerComponent.class);
 
   public static final ComponentKey<ClockmakerPlayerComponent> CLOCKMAKER = ComponentRegistry.getOrCreate(
       ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "clockmaker"),
@@ -427,6 +432,11 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
     registry.beginRegistration(Player.class, BLOOD_FEUDIST)
         .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
         .end(BloodFeudistPlayerComponent::new);
+
+    // 注册射击狂热组件
+    registry.beginRegistration(Player.class, SHOOTING_FRENZY)
+        .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
+        .end(ShootingFrenzyPlayerComponent::new);
 
     // 注册钟表匠组件
     registry.beginRegistration(Player.class, CLOCKMAKER)

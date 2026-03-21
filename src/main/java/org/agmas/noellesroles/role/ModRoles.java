@@ -43,6 +43,7 @@ import org.agmas.noellesroles.roles.manipulator.ManipulatorRole;
 import org.agmas.noellesroles.roles.morphling.MorphlingPlayerComponent;
 import org.agmas.noellesroles.roles.recaller.RecallerPlayerComponent;
 import org.agmas.noellesroles.roles.thief.ThiefPlayerComponent;
+import org.agmas.noellesroles.roles.shooting_frenzy.ShootingFrenzyPlayerComponent;
 import org.agmas.noellesroles.roles.voodoo.VoodooPlayerComponent;
 import org.agmas.noellesroles.roles.vulture.VulturePlayerComponent;
 
@@ -176,6 +177,7 @@ public class ModRoles {
   public static final ResourceLocation BANDIT_ID = Noellesroles.id("bandit");
   public static final ResourceLocation BLOOD_FEUDIST_ID = Noellesroles.id("blood_feudist");
   public static final ResourceLocation GUEST_GHOST_ID = Noellesroles.id("guest_ghost");
+  public static final ResourceLocation SHOOTING_FRENZY_ID = Noellesroles.id("shooting_frenzy");
 
   // 中立阵营
   public static final ResourceLocation STALKER_ID = Noellesroles.id("stalker");
@@ -1315,6 +1317,31 @@ public class ModRoles {
       Integer.MAX_VALUE, // 无限冲刺时间
       true // 隐藏计分板
   )).setComponentKey(ModComponents.BLOOD_FEUDIST).setCanSeeCoin(true);;
+
+  /**
+   * 刽子手射击狂热角色（魔改Psycho）
+   * - 属于杀手阵营 (isInnocent = false)
+   * - 有杀手能力 (canUseKiller = true)
+   * - 假心情系统
+   * - 无限冲刺时间
+   * - 隐藏计分板
+   * - 特殊能力：
+   *   - 狂暴时间内射击冷却-50%
+   *   - 枪不会掉落
+   *   - 手持双枪
+   *   - 无盾（狂暴时护甲为0）
+   *   - 不会受锁定目标影响
+   *   - 狂暴皮肤
+   */
+  public static SRERole SHOOTING_FRENZY = TMMRoles.registerRole(new NormalRole(
+      SHOOTING_FRENZY_ID, // 角色 ID
+      new Color(220, 20, 60).getRGB(), // 猩红色 - 代表射击狂热
+      false, // isInnocent = 非乘客阵营
+      true, // canUseKiller = 有杀手能力
+      SRERole.MoodType.FAKE, // 假心情
+      Integer.MAX_VALUE, // 无限冲刺时间
+      true // 隐藏计分板
+  )).setComponentKey(ShootingFrenzyPlayerComponent.KEY).setCanSeeCoin(true);
 
   // ==================== 其他变量定义 ====================
   public static ArrayList<SRERole> SHOW_MONEY_ROLES = new ArrayList<>();

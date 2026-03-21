@@ -46,6 +46,7 @@ import org.agmas.noellesroles.roles.fortuneteller.FortunetellerPlayerComponent;
 import org.agmas.noellesroles.roles.gambler.GamblerHandler;
 import org.agmas.noellesroles.roles.hoan_meirin.HoanMeirinFistPunchHandler;
 import org.agmas.noellesroles.roles.ma_chen_xu.MaChenXuEventHandler;
+import org.agmas.noellesroles.roles.shooting_frenzy.ShootingFrenzyPlayerComponent;
 import org.agmas.noellesroles.roles.thief.ThiefPlayerComponent;
 import org.agmas.noellesroles.roles.veteran.VeteranKnifeHandler;
 import org.agmas.noellesroles.roles.voodoo.VoodooDeathHandler;
@@ -491,6 +492,9 @@ public class ModEventsRegister {
             }
         });
         ExecutionerPlayerComponent.registerBackfireEvent();
+        ShootingFrenzyPlayerComponent.registerGunNoDropEvent();
+        ShootingFrenzyPlayerComponent.registerFrenzyCooldownEvent();
+        ShootingFrenzyPlayerComponent.registerRoleAssignedEvent();
         HoanMeirinFistPunchHandler.register();
         VoodooDeathHandler.registerEvents();
         PlayerStatsBeforeRefugee.beforeLoadFunc = (player) -> {
