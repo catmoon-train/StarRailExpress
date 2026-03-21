@@ -3,6 +3,7 @@ package io.wifi.starrailexpress.client.gui.screen;
 import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.network.UpdateSkinSelectedPayload;
+import io.wifi.starrailexpress.util.SkinManager;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -12,6 +13,7 @@ import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
@@ -33,15 +35,26 @@ public class SkinManagementScreen extends Screen {
     private final List<CategoryButton> categoryButtons = new ArrayList<>();
     private int selectedCategory = 0;
 
+    // 当前选中的帽子皮肤
+    private String selectedHat = "default";
+
     // 颜色定义
     private static final int BACKGROUND_COLOR_TOP = 0xFF1A1A2E;
     private static final int BACKGROUND_COLOR_BOTTOM = 0xFF16213E;
     private static final int PANEL_COLOR = 0x90303030;
 
+    // 右侧面板布局
+    private int rightPanelX;
+    private int rightPanelWidth;
+    private int rightPanelY;
+    private int rightPanelHeight;
+
     public SkinManagementScreen() {
         super(Component.translatable("screen.sre.skins.title"));
         this.player = Minecraft.getInstance().player;
         this.skinsComponent = SREPlayerSkinsComponent.KEY.get(this.player);
+        // 加载当前装备的帽子
+        this.selectedHat = skinsComponent.getEquippedSkins().getOrDefault("hat", "default");
     }
 
     @Override
@@ -55,12 +68,21 @@ public class SkinManagementScreen extends Screen {
         int screenWidth = this.width;
         int screenHeight = this.height;
 
-        // 计算布局区域
+        // 新布局：左侧皮肤列表 + 右侧玩家预览
         int titleHeight = 40;
         int categoryHeight = 25;
         int listTop = 104;
-        int listHeight = screenHeight - 160; // 为底部按钮留出空间
+        int listHeight = screenHeight - 160;
         int buttonAreaHeight = 60;
+
+        // 左右分栏比例: 左侧60%皮肤列表, 右侧40%玩家预览
+        int totalContentWidth = Math.min(screenWidth - 40, 800);
+        int contentStartX = (screenWidth - totalContentWidth) / 2;
+        int leftPanelWidth = (int) (totalContentWidth * 0.58);
+        rightPanelWidth = totalContentWidth - leftPanelWidth - 10;
+        rightPanelX = contentStartX + leftPanelWidth + 10;
+        rightPanelY = listTop;
+        rightPanelHeight = listHeight;
 
         // 1. 标题区域
         initTitleArea(screenWidth, titleHeight);
@@ -68,10 +90,13 @@ public class SkinManagementScreen extends Screen {
         // 2. 分类标签区域
         initCategoryArea(screenWidth, titleHeight, categoryHeight);
 
-        // 3. 皮肤列表区域
-        initSkinListArea(screenWidth, listTop, listHeight);
+        // 3. 左侧皮肤列表区域
+        initSkinListArea(contentStartX, leftPanelWidth, listTop, listHeight);
 
-        // 4. 底部按钮区域
+        // 4. 右侧玩家预览区域和帽子按钮
+        initPlayerPreviewArea();
+
+        // 5. 底部按钮区域
         initButtonArea(screenWidth, screenHeight, buttonAreaHeight);
     }
 
@@ -130,13 +155,13 @@ public class SkinManagementScreen extends Screen {
         }
     }
 
-    private void initSkinListArea(int screenWidth, int listTop, int listHeight) {
+    private void initSkinListArea(int listX, int listWidth, int listTop, int listHeight) {
         List<Item> skinnableItems = getSkinnableItemTypes();
 
         if (skinnableItems.isEmpty() || selectedCategory >= skinnableItems.size()) {
             // 显示空状态
             addRenderableWidget(new CenteredText(
-                    screenWidth / 2, listTop + listHeight / 2,
+                    listX + listWidth / 2, listTop + listHeight / 2,
                     Component.translatable("screen.sre.skins.no_items"),
                     0xFFAAAAAA));
             return;
@@ -145,11 +170,7 @@ public class SkinManagementScreen extends Screen {
         Item selectedItem = skinnableItems.get(selectedCategory);
         ItemStack itemStack = new ItemStack(selectedItem);
 
-        // 计算列表区域
-        int listWidth = Math.min(screenWidth - 100, 600);
-        int listX = (screenWidth - listWidth) / 2;
-
-        // 创建皮肤列表
+        // 创建皮肤列表（放在左侧面板）
         skinList = new SkinSelectionList(
                 this,
                 Minecraft.getInstance(),
@@ -175,6 +196,63 @@ public class SkinManagementScreen extends Screen {
                 listWidth,
                 20,
                 itemStack));
+    }
+
+    private void initPlayerPreviewArea() {
+        // 右侧预览面板背景
+        addRenderableWidget(new SimplePanel(
+                rightPanelX, rightPanelY, rightPanelWidth, rightPanelHeight,
+                0x80000000, 0xFF444455));
+
+        // 预览标题
+        addRenderableWidget(new CenteredText(
+                rightPanelX + rightPanelWidth / 2, rightPanelY + 10,
+                Component.translatable("screen.sre.skins.preview"),
+                0xFFFFFFFF));
+
+        // 帽子装备按钮区域 - 正方形图标按钮
+        int buttonSize = 28;
+        int buttonSpacing = 6;
+        int buttonsPerRow = 3;
+        int buttonsStartX = rightPanelX + 8;
+        int buttonsStartY = rightPanelY + rightPanelHeight - 110;
+
+        // 帽子区域标题
+        addRenderableWidget(new CenteredText(
+                rightPanelX + rightPanelWidth / 2, buttonsStartY - 15,
+                Component.translatable("screen.sre.skins.hat_title"),
+                0xFFCCCCCC));
+
+        // 获取可用的帽子皮肤
+        var hatSkins = SkinManager.getSkins("hat");
+        List<String> hatList = new ArrayList<>();
+        hatList.add("default");
+        if (hatSkins != null) {
+            hatList.addAll(hatSkins.keySet());
+        }
+
+        // 创建帽子选择按钮
+        for (int i = 0; i < hatList.size() && i < buttonsPerRow * 3; i++) {
+            String hatName = hatList.get(i);
+            int row = i / buttonsPerRow;
+            int col = i % buttonsPerRow;
+            int btnX = buttonsStartX + col * (buttonSize + buttonSpacing);
+            int btnY = buttonsStartY + row * (buttonSize + buttonSpacing);
+
+            boolean isSelected = hatName.equals(selectedHat);
+            boolean isHatUnlocked = hatName.equals("default") || skinsComponent.isSkinUnlockedForItemType("hat", hatName);
+
+            addRenderableWidget(new HatIconButton(
+                    btnX, btnY, buttonSize, buttonSize,
+                    hatName, isSelected, isHatUnlocked,
+                    button -> {
+                        if (!isHatUnlocked) return;
+                        selectedHat = hatName;
+                        skinsComponent.setEquippedSkinForItemType("hat", hatName);
+                        ClientPlayNetworking.send(new UpdateSkinSelectedPayload("hat", hatName));
+                        refreshSkinPanels();
+                    }));
+        }
     }
 
     private void initButtonArea(int screenWidth, int screenHeight, int buttonAreaHeight) {
@@ -239,6 +317,9 @@ public class SkinManagementScreen extends Screen {
         // 渲染子组件
         super.render(graphics, mouseX, mouseY, partialTick);
 
+        // 渲染右侧玩家模型预览
+        renderPlayerPreview(graphics, mouseX, mouseY);
+
         // 渲染底部说明
         renderInstructions(graphics);
     }
@@ -259,6 +340,28 @@ public class SkinManagementScreen extends Screen {
             int starColor = (alpha << 24) | 0xFFFFFF;
             graphics.fill((int) x, (int) y, (int) (x + size), (int) (y + size), starColor);
         }
+    }
+
+    private void renderPlayerPreview(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        if (player == null) return;
+
+        // 在右侧面板中渲染玩家模型预览
+        int previewX1 = rightPanelX + 5;
+        int previewY1 = rightPanelY + 25;
+        int previewX2 = rightPanelX + rightPanelWidth - 5;
+        int previewY2 = rightPanelY + rightPanelHeight - 120;
+
+        int previewSize = Math.min(previewX2 - previewX1, previewY2 - previewY1);
+        int modelScale = previewSize / 3;
+
+        // 使用InventoryScreen的renderEntityInInventoryFollowsMouse方法渲染玩家模型
+        InventoryScreen.renderEntityInInventoryFollowsMouse(
+                guiGraphics,
+                previewX1, previewY1, previewX2, previewY2,
+                modelScale,
+                0.0625F,
+                mouseX, mouseY,
+                player);
     }
 
     private void renderInstructions(GuiGraphics graphics) {
@@ -462,6 +565,114 @@ public class SkinManagementScreen extends Screen {
         @Override
         protected void updateWidgetNarration(NarrationElementOutput output) {
             output.add(NarratedElementType.TITLE, getMessage());
+        }
+    }
+
+    // 帽子/饰品正方形图标按钮
+    private static class HatIconButton extends AbstractWidget {
+        private final String hatName;
+        private final boolean isSelected;
+        private final boolean isUnlocked;
+        private final Button.OnPress onPress;
+
+        public HatIconButton(int x, int y, int width, int height, String hatName,
+                boolean isSelected, boolean isUnlocked, Button.OnPress onPress) {
+            super(x, y, width, height, Component.literal(formatHatName(hatName)));
+            this.hatName = hatName;
+            this.isSelected = isSelected;
+            this.isUnlocked = isUnlocked;
+            this.onPress = onPress;
+            if (!isUnlocked) {
+                this.setTooltip(Tooltip.create(Component.translatable("screen.sre.skins.hat_locked")));
+            } else {
+                this.setTooltip(Tooltip.create(Component.literal(formatHatName(hatName))));
+            }
+        }
+
+        @Override
+        public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+            int backgroundColor;
+            int borderColor;
+
+            if (!isUnlocked) {
+                backgroundColor = 0x80222222;
+                borderColor = 0xFF444444;
+            } else if (isSelected) {
+                backgroundColor = 0x8040AA40;
+                borderColor = 0xFF00FF00;
+            } else if (isHoveredOrFocused()) {
+                backgroundColor = 0x804488CC;
+                borderColor = 0xFF6688CC;
+            } else {
+                backgroundColor = 0x80404040;
+                borderColor = 0xFF555555;
+            }
+
+            // 正方形背景
+            graphics.fill(getX(), getY(), getX() + width, getY() + height, backgroundColor);
+
+            // 边框
+            graphics.fill(getX(), getY(), getX() + width, getY() + 1, borderColor);
+            graphics.fill(getX(), getY() + height - 1, getX() + width, getY() + height, borderColor);
+            graphics.fill(getX(), getY(), getX() + 1, getY() + height, borderColor);
+            graphics.fill(getX() + width - 1, getY(), getX() + width, getY() + height, borderColor);
+
+            // 帽子名称首字母或图标
+            var font = Minecraft.getInstance().font;
+            String initial = hatName.equals("default") ? "D" : hatName.substring(0, 1).toUpperCase();
+            int textColor = !isUnlocked ? 0xFF666666 : (isSelected ? 0xFF00FF00 : 0xFFFFFFFF);
+            graphics.drawCenteredString(font, initial,
+                    getX() + width / 2, getY() + height / 2 - font.lineHeight / 2,
+                    textColor);
+
+            // 未解锁标记
+            if (!isUnlocked) {
+                graphics.drawCenteredString(font, "🔒",
+                        getX() + width / 2, getY() + height - font.lineHeight,
+                        0xFF888888);
+            }
+
+            // 选中标记
+            if (isSelected && isUnlocked) {
+                graphics.fill(getX() + width - 6, getY() + 1, getX() + width - 1, getY() + 6, 0xFF00FF00);
+            }
+        }
+
+        @Override
+        public boolean mouseClicked(double mouseX, double mouseY, int button) {
+            if (this.isMouseOver(mouseX, mouseY) && button == 0) {
+                if (!isUnlocked) {
+                    Minecraft.getInstance().getSoundManager().play(
+                            net.minecraft.client.resources.sounds.SimpleSoundInstance.forUI(
+                                    net.minecraft.sounds.SoundEvents.VILLAGER_NO, 1.0f));
+                    return true;
+                }
+                Minecraft.getInstance().getSoundManager().play(
+                        net.minecraft.client.resources.sounds.SimpleSoundInstance.forUI(
+                                net.minecraft.sounds.SoundEvents.UI_BUTTON_CLICK, 1.0f));
+                this.onPress.onPress(null);
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        protected void updateWidgetNarration(NarrationElementOutput output) {
+            output.add(NarratedElementType.TITLE, getMessage());
+        }
+
+        private static String formatHatName(String name) {
+            if (name.equals("default")) return "Default";
+            String[] parts = name.split("[_\\-]");
+            StringBuilder result = new StringBuilder();
+            for (String part : parts) {
+                if (!part.isEmpty()) {
+                    result.append(Character.toUpperCase(part.charAt(0)))
+                            .append(part.substring(1).toLowerCase())
+                            .append(" ");
+                }
+            }
+            return result.toString().trim();
         }
     }
 }
