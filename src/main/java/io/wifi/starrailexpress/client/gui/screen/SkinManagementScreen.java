@@ -42,6 +42,9 @@ public class SkinManagementScreen extends Screen {
     private static final int BACKGROUND_COLOR_TOP = 0xFF1A1A2E;
     private static final int BACKGROUND_COLOR_BOTTOM = 0xFF16213E;
     private static final int PANEL_COLOR = 0x90303030;
+    private static final int HAT_BUTTONS_PER_ROW = 3;
+    private static final int HAT_MAX_ROWS = 3;
+    private static final int MODEL_SCALE_DIVISOR = 3;
 
     // 右侧面板布局
     private int rightPanelX;
@@ -213,7 +216,7 @@ public class SkinManagementScreen extends Screen {
         // 帽子装备按钮区域 - 正方形图标按钮
         int buttonSize = 28;
         int buttonSpacing = 6;
-        int buttonsPerRow = 3;
+        int buttonsPerRow = HAT_BUTTONS_PER_ROW;
         int buttonsStartX = rightPanelX + 8;
         int buttonsStartY = rightPanelY + rightPanelHeight - 110;
 
@@ -232,7 +235,7 @@ public class SkinManagementScreen extends Screen {
         }
 
         // 创建帽子选择按钮
-        for (int i = 0; i < hatList.size() && i < buttonsPerRow * 3; i++) {
+        for (int i = 0; i < hatList.size() && i < buttonsPerRow * HAT_MAX_ROWS; i++) {
             String hatName = hatList.get(i);
             int row = i / buttonsPerRow;
             int col = i % buttonsPerRow;
@@ -352,7 +355,7 @@ public class SkinManagementScreen extends Screen {
         int previewY2 = rightPanelY + rightPanelHeight - 120;
 
         int previewSize = Math.min(previewX2 - previewX1, previewY2 - previewY1);
-        int modelScale = previewSize / 3;
+        int modelScale = previewSize / MODEL_SCALE_DIVISOR;
 
         // 使用InventoryScreen的renderEntityInInventoryFollowsMouse方法渲染玩家模型
         InventoryScreen.renderEntityInInventoryFollowsMouse(
