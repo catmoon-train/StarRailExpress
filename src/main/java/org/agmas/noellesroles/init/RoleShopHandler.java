@@ -724,6 +724,11 @@ public class RoleShopHandler {
         List.of(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), 75,
             ShopEntry.Type.TOOL),new ShopEntry(ModItems.STALKER_KNIFE_OFFHAND.getDefaultInstance(), 325, ShopEntry.Type.WEAPON){
           @Override
+          public boolean canBuy(@NotNull Player player) {
+            return !(player.getOffhandItem().getItem() instanceof KnifeItem);
+          }
+
+          @Override
           public boolean onBuy(@NotNull Player player) {
 
             boolean b = player.getOffhandItem().getItem() instanceof KnifeItem;
