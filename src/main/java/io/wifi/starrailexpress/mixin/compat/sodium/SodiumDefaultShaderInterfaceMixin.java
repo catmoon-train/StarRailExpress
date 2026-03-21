@@ -27,13 +27,13 @@ public class SodiumDefaultShaderInterfaceMixin implements SRESceneryShaderInterf
             ChunkShaderOptions options,
             CallbackInfo ci) {
         // bindUniformBlock 会安静地返回 null 如果着色器中没有该 UBO，不会报错
-        sre$sceneryUniform = context.bindUniformBlock("ubo_SectionOffsets", 2);
+//        sre$sceneryUniform = context.bindUniformBlock("ubo_SectionOffsets", 2);
     }
 
     @Override
     public void sre$setSceneryOffsets(GlMutableBuffer buffer) {
-        if (sre$sceneryUniform != null) {
-            sre$sceneryUniform.bindBuffer(buffer);
-        }
+//        if (sre$sceneryUniform != null) {
+//            sre$sceneryUniform.bindBuffer(buffer);
+//        }
     }
 }
