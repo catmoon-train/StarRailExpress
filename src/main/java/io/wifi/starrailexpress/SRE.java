@@ -137,7 +137,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
         ConfigEvents.register();
     }
 
-    private void initConstants() {
+    public static void initConstants() {
         GameConstants.init();
     }
 
@@ -169,6 +169,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
         GameUtils.registerEventForServerTickForDoingResetTasks();
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
             SERVER = server;
+            initConstants();
             GAME = new StarRailMurderGameMode(SRE.id("murder"));
             ServerMapConfig.getInstance(server);
             net.exmo.sre.client.chat.ChatDialogueManager.getInstance(server);

@@ -570,7 +570,8 @@ public class ModEventsRegister {
         SRE.canDrop.add((player) -> {
             var mainHandItem = player.getMainHandItem();
             var gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
-
+            if (mainHandItem.is(ModItems.STALKER_KNIFE) || mainHandItem.is(ModItems.STALKER_KNIFE_OFFHAND))
+                return true;
             if (gameWorldComponent.isRole(player, ModRoles.BAKA)) {
                 if (mainHandItem.is(FunnyItems.PROBLEM_SET)) {
                     return true;

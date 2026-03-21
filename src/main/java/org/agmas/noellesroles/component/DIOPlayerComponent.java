@@ -18,6 +18,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.effects.TimeStopEffect;
@@ -227,7 +228,8 @@ public class DIOPlayerComponent implements RoleComponent, ServerTickingComponent
     public boolean tryActivateTimeStop() {
         if (!(player instanceof ServerPlayer serverPlayer))
             return false;
-        if (timeStopCooldown > 0) {
+
+        if (timeStopCooldown > 0 || player.getCooldowns().isOnCooldown(Items.CLOCK)) {
             player.displayClientMessage(Component.translatable(
                     "tip.noellesroles.cooldown", timeStopCooldown / 20)
                     .withStyle(ChatFormatting.RED), true);
@@ -250,7 +252,7 @@ public class DIOPlayerComponent implements RoleComponent, ServerTickingComponent
 
         this.timeStopCooldown = TIME_STOP_COOLDOWN;
 
-        TimeStopEffect.triggerStart(serverPlayer, TIME_STOP_DURATION,
+        TimeStopEffect.tryTriggerStart(serverPlayer, TIME_STOP_DURATION,
                 Component.translatable("message.noellesroles.time_stop.the_world").withStyle(ChatFormatting.GOLD,
                         ChatFormatting.BOLD));
 

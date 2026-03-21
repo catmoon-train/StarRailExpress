@@ -8,6 +8,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.EntityHitResult;
@@ -127,7 +128,9 @@ public class HoanMeirinFistPunchHandler {
             return InteractionResult.PASS;
         if (!gameWorldComponent.isRole(attacker, ModRoles.HOAN_MEIRIN))
             return InteractionResult.PASS;
-
+        if(victim.getCooldowns().isOnCooldown(Items.CLOCK)){
+            return InteractionResult.PASS; //安全时间
+        }
         // 必须空手（主手持空气）
         ItemStack mainHand = attacker.getMainHandItem();
         if (!mainHand.isEmpty()) {

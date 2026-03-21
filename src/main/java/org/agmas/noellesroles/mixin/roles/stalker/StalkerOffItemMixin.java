@@ -20,7 +20,7 @@ public abstract class StalkerOffItemMixin {
     @Inject(method = "getMainArm", at = @At("RETURN"), cancellable = true)
     private void mainHand(CallbackInfoReturnable<HumanoidArm> cir) {
         if (Minecraft.getInstance().player != null){
-            if (Minecraft.getInstance().player.getMainHandItem().getItem() == ModItems.Stalker_Knife_2){
+            if (Minecraft.getInstance().player.getMainHandItem().getItem() == ModItems.STALKER_KNIFE_OFFHAND){
                 if (cir.getReturnValue()==HumanoidArm.RIGHT){
                     cir.setReturnValue(HumanoidArm.LEFT);
                 }

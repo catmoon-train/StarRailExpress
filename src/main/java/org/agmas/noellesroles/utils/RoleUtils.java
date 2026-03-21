@@ -100,7 +100,9 @@ public class RoleUtils extends MCItemsUtils {
     }
 
     public static boolean RemoveAllEffects(Player entity) {
-        return entity.removeAllEffects();
+        if (entity.getActiveEffects() != null && !entity.getActiveEffects().isEmpty())
+            return entity.removeAllEffects();
+        return false;
     }
 
     public static boolean isPlayerHasFreeSlot(@NotNull Player player) {

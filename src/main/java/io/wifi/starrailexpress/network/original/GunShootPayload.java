@@ -11,8 +11,6 @@ import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.network.PacketTracker;
-import io.wifi.starrailexpress.util.Scheduler;
-import io.wifi.starrailexpress.util.TMMItemUtils;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
@@ -24,6 +22,7 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -97,17 +96,18 @@ public record GunShootPayload(int target) implements CustomPacketPayload {
                     GameUtils.killPlayer(player, true, null, GameConstants.DeathReasons.BACKFIRE);
                 } else if (shouldDropRevolver) {
                     {
-                        Scheduler.schedule(() -> {
-                            if (TMMItemUtils.clearItem(player, TMMItemTags.GUNS, 1) <= 0)
-                                return;
-                            ItemEntity item = player.drop(revolver.getDefaultInstance(), false, false);
-                            if (item != null) {
-                                item.setPickUpDelay(10);
-                                item.setThrower(player);
+                        {
+                            if (player.getMainHandItem().is(TMMItemTags.GUNS)) {
+                                player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+                                ItemEntity item = player.drop(revolver.getDefaultInstance(), false, false);
+                                if (item != null) {
+                                    item.setPickUpDelay(10);
+                                    item.setThrower(player);
+                                }
+                                PacketTracker.sendToClient(player, new GunDropPayload());
+                                SREPlayerMoodComponent.KEY.get(player).setMood(0);
                             }
-                            PacketTracker.sendToClient(player, new GunDropPayload());
-                            SREPlayerMoodComponent.KEY.get(player).setMood(0);
-                        }, 4);
+                        }
                     }
                 }
 

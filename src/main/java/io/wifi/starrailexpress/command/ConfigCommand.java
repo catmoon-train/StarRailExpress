@@ -40,6 +40,7 @@ public class ConfigCommand {
                             .withStyle(style -> style.withColor(0x00FF00)),
                     true);
             SRE.LOGGER.info("Reloaded config by {}", source.getTextName());
+            SRE.initConstants();
             return 1;
         } catch (Exception e) {
             source.sendFailure(Component.translatable("commands.sre.config.reload.fail", e.getMessage()));
