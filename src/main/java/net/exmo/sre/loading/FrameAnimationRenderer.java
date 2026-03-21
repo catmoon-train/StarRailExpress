@@ -3,32 +3,36 @@ package net.exmo.sre.loading;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.logging.LogUtils;
 import io.wifi.starrailexpress.SRE;
+import net.exmo.sre.EXSREClient;
+import net.exmo.sre.loading.texture.ConfigTexture;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.Resource;
 import org.slf4j.Logger;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.stream.Stream;
 
 /**
  * 帧序列动画渲染器 —— 从资源包加载 PNG 帧序列，以指定帧率播放，
  * 并在相邻帧之间做 Alpha 交叉淡入淡出（动态补帧），用作背景。
  * <p>
- * 帧文件放在 {@code assets/starrailexpress/textures/gui/title/video/} 目录下，
- * 文件名按字典序排列即可（如 frame_0000.png, frame_0001.png …）。
+ * 帧文件在首次启动时解压到游戏根目录 {@code video/} 下，
+ * 并由 ConfigTexture 从磁盘加载（如 frame_0000.png, frame_0001.png ...）。
  */
 @Environment(EnvType.CLIENT)
 public class FrameAnimationRenderer {
 
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static final String FRAMES_DIR = "textures/gui/title/video";
+     private static volatile boolean inWorld = false;
 
     private final List<ResourceLocation> frames = new ArrayList<>();
     private final float fps;
@@ -42,31 +46,49 @@ public class FrameAnimationRenderer {
         this.fps = fps;
     }
 
+    public static void setInWorld(boolean value) {
+        inWorld = value;
+    }
+
     // ─── 加载 ────────────────────────────────────────────────────────
 
     /**
      * 从资源包扫描帧序列。应在 {@code Screen.init()} 或首次渲染时调用。
      */
     public void loadFrames() {
-        frames.clear();
-        Map<ResourceLocation, Resource> resources =
-                Minecraft.getInstance().getResourceManager()
-                        .listResources(FRAMES_DIR, loc ->
-                                loc.getNamespace().equals(SRE.MOD_ID)
-                                        && loc.getPath().endsWith(".png"));
-
-        for (ResourceLocation loc : resources.keySet()) {
-            frames.add(loc);
+        if (inWorld) {
+            this.frames.clear();
+            this.loaded = false;
+            this.startTimeMs = -1;
+            return;
         }
 
-        // 按路径排序确保帧顺序
-        frames.sort(Comparator.comparing(ResourceLocation::getPath));
+        frames.clear();
+        Minecraft mc = Minecraft.getInstance();
+        Path videoDir = EXSREClient.GAME_VIDEO_DIR;
+
+        try (Stream<Path> stream = Files.list(videoDir)) {
+            List<Path> pngFiles = stream
+                    .filter(Files::isRegularFile)
+                    .filter(path -> path.getFileName().toString().toLowerCase().endsWith(".png"))
+                    .sorted(Comparator.comparing(path -> path.getFileName().toString()))
+                    .toList();
+
+            for (Path png : pngFiles) {
+                String fileName = png.getFileName().toString();
+                ResourceLocation loc = ResourceLocation.fromNamespaceAndPath(SRE.MOD_ID, "video/" + fileName);
+                mc.getTextureManager().register(loc, new ConfigTexture(loc));
+                frames.add(loc);
+            }
+        } catch (IOException e) {
+            LOGGER.error("[SRE] Failed to load video frames from {}", videoDir, e);
+        }
+
         loaded = true;
         startTimeMs = -1;
 
         if (frames.isEmpty()) {
-            LOGGER.warn("[SRE] No video frames found in assets/{}/{}/",
-                    SRE.MOD_ID, FRAMES_DIR);
+            LOGGER.warn("[SRE] No video frames found in {}", videoDir);
         } else {
             LOGGER.info("[SRE] Loaded {} video frames for title background", frames.size());
         }

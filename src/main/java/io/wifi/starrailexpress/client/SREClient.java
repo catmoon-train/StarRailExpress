@@ -9,6 +9,7 @@ import java.util.UUID;
 import java.util.function.Predicate;
 
 import net.exmo.sre.EXSREClient;
+import net.exmo.sre.loading.FrameAnimationRenderer;
 
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.LoggerFactory;
@@ -382,6 +383,8 @@ public class SREClient implements ClientModInitializer {
         });
         intervalTime = new Random().nextInt(0, 200);
         ClientTickEvents.END_CLIENT_TICK.register((client) -> {
+            FrameAnimationRenderer.setInWorld(client != null && client.level != null);
+
             if (gameComponent != null) {
                 if (gameComponent.isRunning()) {
                     if (client != null && client.player != null) {

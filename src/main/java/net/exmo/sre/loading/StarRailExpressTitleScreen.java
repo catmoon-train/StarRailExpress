@@ -217,6 +217,7 @@ public class StarRailExpressTitleScreen extends Screen {
     protected void init() {
         this.screenOpenTime = Util.getMillis();
         this.menuEntries.clear();
+        FrameAnimationRenderer.setInWorld(false);
 
         // 1. 先算布局（依赖 this.width / this.height）
         computeLayout();
