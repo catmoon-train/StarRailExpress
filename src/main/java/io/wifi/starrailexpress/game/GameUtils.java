@@ -406,6 +406,7 @@ public class GameUtils {
             cooldowns.addCooldown(ModItems.Stalker_Knife, SAFE_TIME_COOLDOWN);
             cooldowns.addCooldown(TMMItems.KNIFE, SAFE_TIME_COOLDOWN);
             cooldowns.addCooldown(ModItems.FAKE_REVOLVER, SAFE_TIME_COOLDOWN);
+            cooldowns.addCooldown(Items.CLOCK, SAFE_TIME_COOLDOWN);
             cooldowns.addCooldown(HSRItems.TOXIN, SAFE_TIME_COOLDOWN);
             cooldowns.addCooldown(HSRItems.ANTIDOTE, SAFE_TIME_COOLDOWN);
             cooldowns.addCooldown(TMMItems.SNIPER_RIFLE, SAFE_TIME_COOLDOWN);

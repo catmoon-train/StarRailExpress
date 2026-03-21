@@ -8,8 +8,6 @@ import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import io.wifi.starrailexpress.network.original.GunDropPayload;
 import io.wifi.starrailexpress.network.original.ShootMuzzleS2CPayload;
-import io.wifi.starrailexpress.util.Scheduler;
-
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.FriendlyByteBuf;
@@ -18,13 +16,13 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.role.ModRoles;
-import org.agmas.noellesroles.utils.MCItemsUtils;
 import org.jetbrains.annotations.NotNull;
 
 public record BanditRevolverShootPayload(int target) implements CustomPacketPayload {
@@ -74,8 +72,9 @@ public record BanditRevolverShootPayload(int target) implements CustomPacketPayl
                                 shouldDrop = player.getRandom().nextFloat() <= 0.2F;
                             }
                             if (shouldDrop) {
-                                Scheduler.schedule(() -> {
-                                    if (MCItemsUtils.clearItem(player, TMMItemTags.GUNS, 1) > 0) {
+                                {
+                                    if (player.getMainHandItem().is(TMMItemTags.GUNS)) {
+                                        player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
                                         ItemEntity item = player.drop(TMMItems.REVOLVER.getDefaultInstance(), false,
                                                 false);
                                         if (item != null) {
@@ -85,7 +84,7 @@ public record BanditRevolverShootPayload(int target) implements CustomPacketPayl
 
                                         ServerPlayNetworking.send(player, new GunDropPayload());
                                     }
-                                }, 4);
+                                }
                             }
                         }
                         if (!backfire) {

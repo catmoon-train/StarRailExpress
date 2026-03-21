@@ -24,6 +24,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+
+import org.agmas.noellesroles.client.widget.custom_button.ModernButton.AccentSide;
 import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
@@ -284,7 +286,8 @@ public class SkinManagementScreen extends Screen {
             String itemTypeName = BuiltInRegistries.ITEM.getKey(item).toString();
             result.add(new CategoryTabData(itemTypeName, Component.literal(getItemShortName(item)), item));
         }
-        result.add(new CategoryTabData("hat", Component.translatable("screen.sre.skins.hat_title"), Items.LEATHER_HELMET));
+        result.add(
+                new CategoryTabData("hat", Component.translatable("screen.sre.skins.hat_title"), Items.LEATHER_HELMET));
         return result;
     }
 
@@ -302,22 +305,22 @@ public class SkinManagementScreen extends Screen {
 
         int nameTagY = rightPanelY + 30;
         addRenderableWidget(new CenteredText(
-            rightPanelX + rightPanelWidth / 2,
-            nameTagY - 10,
-            Component.translatable("screen.sre.skins.title_selector"),
-            NAME_TAG_HINT_COLOR));
+                rightPanelX + rightPanelWidth / 2,
+                nameTagY - 10,
+                Component.translatable("screen.sre.skins.title_selector"),
+                NAME_TAG_HINT_COLOR));
 
         prevNameTagButton = Button.builder(Component.literal("<"), button -> shiftNameTagSelection(-1))
-            .pos(rightPanelX + 8, nameTagY - 7)
-            .size(18, 14)
-            .build();
+                .pos(rightPanelX + 8, nameTagY - 7)
+                .size(18, 14)
+                .build();
         prevNameTagButton.active = availableNameTags.size() > 1;
         addRenderableWidget(prevNameTagButton);
 
         nextNameTagButton = Button.builder(Component.literal(">"), button -> shiftNameTagSelection(1))
-            .pos(rightPanelX + rightPanelWidth - 26, nameTagY - 7)
-            .size(18, 14)
-            .build();
+                .pos(rightPanelX + rightPanelWidth - 26, nameTagY - 7)
+                .size(18, 14)
+                .build();
         nextNameTagButton.active = availableNameTags.size() > 1;
         addRenderableWidget(nextNameTagButton);
     }
@@ -333,6 +336,7 @@ public class SkinManagementScreen extends Screen {
                 Component.translatable("screen.sre.skins.refresh"),
                 button -> refreshSkinPanels()).pos((screenWidth - buttonWidth * 2 - buttonSpacing) / 2, buttonY)
                 .size(buttonWidth, buttonHeight)
+                .accentBar(AccentSide.TOP, AccentSide.BOTTOM, AccentSide.LEFT, AccentSide.RIGHT)
                 .build();
 
         refreshButton.setTooltip(Tooltip.create(
@@ -345,6 +349,7 @@ public class SkinManagementScreen extends Screen {
                 Component.translatable("screen.sre.skins.back"),
                 button -> this.onClose()).pos(refreshButton.getX() + buttonWidth + buttonSpacing, buttonY)
                 .size(buttonWidth, buttonHeight)
+                .accentBar(AccentSide.TOP, AccentSide.BOTTOM, AccentSide.LEFT, AccentSide.RIGHT)
                 .build();
 
         addRenderableWidget(backButton);
@@ -410,7 +415,8 @@ public class SkinManagementScreen extends Screen {
     }
 
     private void renderPlayerPreview(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        if (player == null) return;
+        if (player == null)
+            return;
 
         // 在右侧面板中渲染玩家模型预览
         int previewX1 = rightPanelX + 5;
@@ -438,7 +444,6 @@ public class SkinManagementScreen extends Screen {
         int titleX = rightPanelX + rightPanelWidth / 2;
         int titleY = previewY1 + 4;
         guiGraphics.drawCenteredString(font, selectedNameTagText, titleX, titleY, NAME_TAG_COLOR);
-
 
     }
 
@@ -612,7 +617,7 @@ public class SkinManagementScreen extends Screen {
             graphics.fill(getX(), getY(), getX() + 2, getY() + height, borderColor);
             graphics.fill(getX() + width - 2, getY(), getX() + width, getY() + height, borderColor);
             var font = Minecraft.getInstance().font;
-                int textX = getX() + width / 2 - font.width(label) / 2;
+            int textX = getX() + width / 2 - font.width(label) / 2;
             int textY = getY() + (height - 8) / 2;
             // 文字
             graphics.renderFakeItem(item, textX - 17, textY - 4);
@@ -702,18 +707,18 @@ public class SkinManagementScreen extends Screen {
             // 背景
             graphics.fill(getX(), getY(), getX() + width, getY() + height, 0x80404040);
 
-           // 物品图标
-           graphics.renderFakeItem(item, getX() + 5, getY() + (height - 16) / 2);
+            // 物品图标
+            graphics.renderFakeItem(item, getX() + 5, getY() + (height - 16) / 2);
 
-           // 物品名称
-           var font = Minecraft.getInstance().font;
-           graphics.drawString(
-                   font,
-                   getMessage(),
-                   getX() + 25,
-                   getY() + (height - 8) / 2,
-                   0xFFFFFF,
-                   false);
+            // 物品名称
+            var font = Minecraft.getInstance().font;
+            graphics.drawString(
+                    font,
+                    getMessage(),
+                    getX() + 25,
+                    getY() + (height - 8) / 2,
+                    0xFFFFFF,
+                    false);
         }
 
         @Override

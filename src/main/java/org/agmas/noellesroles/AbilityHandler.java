@@ -42,6 +42,7 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 public class AbilityHandler {
 
@@ -79,7 +80,7 @@ public class AbilityHandler {
             }
         }
         if (gameWorldComponent.isRole(context.player(), ModRoles.MAID_SAKUYA)) {
-            if (abilityPlayerComponent.cooldown > 0) {
+            if (abilityPlayerComponent.cooldown > 0 || player.getCooldowns().isOnCooldown(Items.CLOCK)) {
                 context.player().displayClientMessage(Component.translatable(
                         "tip.noellesroles.cooldown", abilityPlayerComponent.cooldown / 20)
                         .withStyle(ChatFormatting.RED), true);
@@ -91,7 +92,7 @@ public class AbilityHandler {
             return;
         }
         if (gameWorldComponent.isRole(context.player(), ModRoles.JOJO)) {
-            if (abilityPlayerComponent.cooldown > 0) {
+            if (abilityPlayerComponent.cooldown > 0 || player.getCooldowns().isOnCooldown(Items.CLOCK)) {
                 context.player().displayClientMessage(Component.translatable(
                         "tip.noellesroles.cooldown", abilityPlayerComponent.cooldown / 20)
                         .withStyle(ChatFormatting.RED), true);
