@@ -152,11 +152,6 @@ public class ShootingFrenzyPlayerComponent implements RoleComponent, ServerTicki
 
         this.inFrenzy = false;
 
-        // 清除副手枪支，恢复原来的物品
-        ItemStack currentOffhand = player.getOffhandItem();
-        if (currentOffhand.is(TMMItemTags.GUNS)) {
-//            player.setItemInHand(InteractionHand.OFF_HAND, savedOffhandItem.copy());
-        }
         if (player.getMainHandItem().is(TMMItemTags.GUNS)) {
             player.setItemInHand(InteractionHand.MAIN_HAND, savedMainhandItem.copy());
         }

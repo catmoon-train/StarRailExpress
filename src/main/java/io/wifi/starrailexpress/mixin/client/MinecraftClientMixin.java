@@ -51,8 +51,7 @@ public class MinecraftClientMixin {
 
         if (component.getPsychoTicks() > 0) {
             if (gameWorldComponent.isRole(instance.player, ModRoles.EXECUTIONER)) {
-                if (component.getPsychoTicks() > 0 &&
-                        (instance.getItem(oldSlot).is(TMMItems.REVOLVER)) &&
+                if ((instance.getItem(oldSlot).is(TMMItems.REVOLVER)) &&
                         (!instance.getItem(value).is(TMMItems.REVOLVER)))
                     return;
             } else if ((instance.getItem(oldSlot).is(TMMItems.BAT)) &&
