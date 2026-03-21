@@ -153,6 +153,7 @@ public class InitModRolesMax {
         RoleAssignmentManager.addOccupationRole(ModRoles.POISONER, ModRoles.DOCTOR);
         RoleAssignmentManager.addOccupationRole(ModRoles.BAKA, ModRoles.EXAMPLER);
         RoleAssignmentManager.addOccupationRole(ModRoles.DIO, ModRoles.JOJO);
+        RoleAssignmentManager.addOccupationRole(ModRoles.WATER_GHOST, ModRoles.DIVER);
 
         Harpymodloader.setRoleMaximum(ModRoles.CONDUCTOR_ID, NoellesRolesConfig.HANDLER.instance().conductorMax);
         Harpymodloader.setRoleMaximum(ModRoles.MAID_SAKUYA, 0);
