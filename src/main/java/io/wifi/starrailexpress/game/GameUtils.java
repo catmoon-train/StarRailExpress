@@ -1190,6 +1190,8 @@ public class GameUtils {
     }
 
     public static boolean isPlayerSpectator(Player p) {
+        if (p == null)
+            return false;
         if (isPlayerSplitPersonalityAndSurvive(p) == SPAliveResult.ALIVE)
             return false;
         return p.isSpectator();
@@ -1200,12 +1202,16 @@ public class GameUtils {
     }
 
     public static boolean isPlayerAliveAndSurvival(Player player, WorldModifierComponent worldModifierComponent) {
+        if (player == null)
+            return false;
         if (isPlayerSplitPersonalityAndSurvive(player, worldModifierComponent) == SPAliveResult.ALIVE)
             return true;
         return isPlayerAliveAndSurvivalIgnoreShitSplit(player);
     }
 
     public static boolean isPlayerAliveAndSurvival(Player player) {
+        if (player == null)
+            return false;
         var worldModifierComponent = WorldModifierComponent.KEY.get(player.level());
         return isPlayerAliveAndSurvival(player, worldModifierComponent);
     }
@@ -1215,6 +1221,8 @@ public class GameUtils {
     }
 
     public static boolean isPlayerSpectatingOrCreative(Player player) {
+        if (player == null)
+            return false;
         if (isPlayerSplitPersonalityAndSurvive(player) == SPAliveResult.ALIVE)
             return false;
         return isPlayerSpectatingOrCreativeIgnoreShitSplit(player);
@@ -1225,12 +1233,16 @@ public class GameUtils {
     }
 
     public static SPAliveResult isPlayerSplitPersonalityAndSurvive(Player player) {
+        if (player == null)
+            return SPAliveResult.DEAD;
         var worldModifierComponent = WorldModifierComponent.KEY.get(player.level());
         return isPlayerSplitPersonalityAndSurvive(player, worldModifierComponent);
     }
 
     public static SPAliveResult isPlayerSplitPersonalityAndSurvive(Player player,
             WorldModifierComponent worldModifierComponent) {
+        if (player == null)
+            return SPAliveResult.DEAD;
         if (worldModifierComponent.isModifier(player, SEModifiers.SPLIT_PERSONALITY)) {
             if (player.isSpectator()) {
                 if (!SplitPersonalityComponent.KEY.get(player).isDeath()) {
