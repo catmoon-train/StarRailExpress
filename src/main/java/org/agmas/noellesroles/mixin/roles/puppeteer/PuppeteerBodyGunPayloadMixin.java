@@ -10,6 +10,8 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.item.ItemStack;
+
+import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.entity.PuppeteerBodyEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -45,7 +47,7 @@ public class PuppeteerBodyGunPayloadMixin {
                     1f + player.getRandom().nextFloat() * .1f - .05f);
 
             // 对傀儡本体造成致命伤害
-            bodyEntity.playerHurt(player, GameConstants.DeathReasons.REVOLVER);
+            bodyEntity.playerHurt(player, Noellesroles.id("gun_puppeteer"));
 
             // 播放射击音效和粒子效果
             player.level().playSound(null, player.getX(), player.getEyeY(), player.getZ(),
