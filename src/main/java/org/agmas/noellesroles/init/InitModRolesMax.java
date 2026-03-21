@@ -124,8 +124,7 @@ public class InitModRolesMax {
         // 仇杀客 - 仅在12人及以上对局生成
         Harpymodloader.setRoleMaximum(ModRoles.BLOOD_FEUDIST_ID, 1);
 
-        // 射击狂热每局只能有 1 个
-        Harpymodloader.setRoleMaximum(ModRoles.SHOOTING_FRENZY_ID, 1);
+
 
         // 钟表匠 - 仅在12人及以上对局生成
         // 注意：具体限制在 InitModRolesMax 中设置
