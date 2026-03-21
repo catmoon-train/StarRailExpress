@@ -6,12 +6,14 @@ import io.wifi.starrailexpress.data.PlayerStatsData;
 import io.wifi.starrailexpress.util.PlayerStatsSerializer;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
+import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.Util;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -20,6 +22,7 @@ import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
 import org.ladysnake.cca.api.v3.component.sync.AutoSyncedComponent;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
+import org.ladysnake.cca.api.v3.util.CheckEnvironment;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -119,7 +122,21 @@ public class SREPlayerStatsComponent implements AutoSyncedComponent, ServerTicki
     }
 
     @Override
-    public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.Provider wrapperLookup) {
+    public void writeSyncPacket(RegistryFriendlyByteBuf buf, ServerPlayer recipient) {
+        CompoundTag tag = new CompoundTag();
+        this.writeToSyncNbt(tag, buf.registryAccess());
+        buf.writeNbt(tag);
+    }
+
+    @CheckEnvironment(EnvType.CLIENT)
+    public void applySyncPacket(RegistryFriendlyByteBuf buf) {
+        CompoundTag tag = buf.readNbt();
+        if (tag != null) {
+            this.readFromSyncNbt(tag, buf.registryAccess());
+        }
+    }
+
+    public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider wrapperLookup) {
         if (tag.contains("TotalPlayTime"))
             totalPlayTime = tag.getLong("TotalPlayTime");
         if (tag.contains("TotalGamesPlayed"))
@@ -198,6 +215,11 @@ public class SREPlayerStatsComponent implements AutoSyncedComponent, ServerTicki
                 roleStats.put(roleId, stats);
             }
         }
+    }
+
+    @Override
+    public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.Provider wrapperLookup) {
+
         // 从文件加载数据（覆盖NBT数据）
         if (!player.level().isClientSide()) {
             try {
@@ -218,6 +240,10 @@ public class SREPlayerStatsComponent implements AutoSyncedComponent, ServerTicki
 
     @Override
     public void writeToNbt(@NotNull CompoundTag tag, HolderLookup.Provider wrapperLookup) {
+
+    }
+
+    public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider wrapperLookup) {
         if (!SREConfig.instance().isStatsEnabled)
             return;
         tag.putLong("TotalPlayTime", totalPlayTime);

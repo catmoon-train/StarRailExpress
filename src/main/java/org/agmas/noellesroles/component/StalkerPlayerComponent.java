@@ -2,8 +2,6 @@ package org.agmas.noellesroles.component;
 
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
-import io.wifi.starrailexpress.index.TMMItems;
-
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
@@ -781,6 +779,11 @@ public class StalkerPlayerComponent implements RoleComponent, ServerTickingCompo
 
     @Override
     public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+        if (this.phase <= 0)
+            return;
+        if (!SREGameWorldComponent.KEY.get(this.player.level()).isRunning()) {
+            return;
+        }
         tag.putInt("phase", this.phase);
         tag.putInt("energy", this.energy);
         tag.putInt("phase2Kills", this.phase2Kills);
@@ -859,7 +862,6 @@ public class StalkerPlayerComponent implements RoleComponent, ServerTickingCompo
         });
     }
 
-    
     @Override
     public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }

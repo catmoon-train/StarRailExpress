@@ -28,10 +28,18 @@ public interface RoleComponent extends AutoSyncedComponent {
 
     void readFromSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup);
 
+    default void writeToSyncNbtWithPlayer(CompoundTag tag, HolderLookup.Provider registryLookup,
+            ServerPlayer recipient) {
+        // if (!SREGameWorldComponent.KEY.get(recipient.level()).isRunning()) {
+        //     return;
+        // }
+        writeToSyncNbt(tag, registryLookup);
+    }
+
     @Override
     default void writeSyncPacket(RegistryFriendlyByteBuf buf, ServerPlayer recipient) {
         CompoundTag tag = new CompoundTag();
-        this.writeToSyncNbt(tag, buf.registryAccess());
+        this.writeToSyncNbtWithPlayer(tag, buf.registryAccess(), recipient);
         buf.writeNbt(tag);
     }
 

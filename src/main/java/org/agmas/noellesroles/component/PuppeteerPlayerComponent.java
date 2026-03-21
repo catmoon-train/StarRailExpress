@@ -684,6 +684,9 @@ public class PuppeteerPlayerComponent implements RoleComponent, ServerTickingCom
 
     @Override
     public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+        if (this.phase <= 0) {
+            return;
+        }
         tag.putInt("phase", this.phase);
         tag.putInt("collectedBodies", this.collectedBodies);
 
@@ -723,6 +726,10 @@ public class PuppeteerPlayerComponent implements RoleComponent, ServerTickingCom
 
     @Override
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+        if(!tag.contains("phase")){
+            this.clear();
+            return;
+        }
         this.phase = tag.contains("phase") ? tag.getInt("phase") : 0;
         this.collectedBodies = tag.contains("collectedBodies") ? tag.getInt("collectedBodies") : 0;
 
@@ -787,7 +794,6 @@ public class PuppeteerPlayerComponent implements RoleComponent, ServerTickingCom
         }
     }
 
-    
     @Override
     public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }

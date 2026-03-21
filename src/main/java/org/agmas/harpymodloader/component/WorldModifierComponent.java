@@ -21,7 +21,8 @@ import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
 public class WorldModifierComponent implements AutoSyncedComponent, ServerTickingComponent, ClientTickingComponent {
     public static final ComponentKey<WorldModifierComponent> KEY = ComponentRegistry
-            .getOrCreate(ResourceLocation.fromNamespaceAndPath(Harpymodloader.MOD_ID, "modifier"), WorldModifierComponent.class);
+            .getOrCreate(ResourceLocation.fromNamespaceAndPath(Harpymodloader.MOD_ID, "modifier"),
+                    WorldModifierComponent.class);
     private final Level world;
     public HashMap<UUID, ArrayList<SREModifier>> modifiers = new HashMap<>();
 
@@ -134,6 +135,8 @@ public class WorldModifierComponent implements AutoSyncedComponent, ServerTickin
                         uuidsWithModifier.add(entry.getKey());
                     }
                 }
+                if (uuidsWithModifier.isEmpty())
+                    continue;
                 nbtCompound.put(modifier.identifier().toString(), this.nbtFromUuidList(uuidsWithModifier));
             }
         }
@@ -150,11 +153,11 @@ public class WorldModifierComponent implements AutoSyncedComponent, ServerTickin
 
     private ArrayList<UUID> uuidListFromNbt(CompoundTag nbtCompound, String listName) {
         ArrayList<UUID> ret = new ArrayList<>();
-
-        for (Tag e : nbtCompound.getList(listName, 11)) {
-            ret.add(NbtUtils.loadUUID(e));
+        if (nbtCompound.contains(listName, Tag.TAG_LIST)) {
+            for (Tag e : nbtCompound.getList(listName, 11)) {
+                ret.add(NbtUtils.loadUUID(e));
+            }
         }
-
         return ret;
     }
 

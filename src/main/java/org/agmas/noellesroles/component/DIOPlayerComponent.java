@@ -555,6 +555,13 @@ public class DIOPlayerComponent implements RoleComponent, ServerTickingComponent
 
     @Override
     public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+        var gameWorldComponent = SREGameWorldComponent.KEY.get(this.player.level());
+        if (!gameWorldComponent.isRunning()) {
+            return;
+        }
+        if (!gameWorldComponent.isRole(this.player, ModRoles.DIO)) {
+            return;
+        }
         tag.putInt("totalFeedCount", this.totalFeedCount);
         tag.putInt("timeStopCharges", this.timeStopCharges);
 
@@ -594,7 +601,7 @@ public class DIOPlayerComponent implements RoleComponent, ServerTickingComponent
             this.tempLifeRemaining--;
         }
     }
-    
+
     @Override
     public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }

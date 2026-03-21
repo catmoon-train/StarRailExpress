@@ -1,10 +1,14 @@
 package io.wifi.starrailexpress.cca;
 
+import net.fabricmc.api.EnvType;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.HolderLookup.Provider;
+
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
 import org.ladysnake.cca.api.v3.component.sync.AutoSyncedComponent;
+import org.ladysnake.cca.api.v3.util.CheckEnvironment;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -21,6 +25,8 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.LevelResource;
 import net.minecraft.world.phys.AABB;
@@ -323,8 +329,7 @@ public class AreasWorldComponent implements AutoSyncedComponent {
         sync();
     }
 
-    @Override
-    public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registryLookup) {
+    public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registryLookup) {
         // this.spawnPos = getPosWithOrientationFromNbt(tag, "spawnPos");
         // this.spectatorSpawnPos = getPosWithOrientationFromNbt(tag,
         // "spectatorSpawnPos");
@@ -337,7 +342,7 @@ public class AreasWorldComponent implements AutoSyncedComponent {
         if (tag.contains("sceneArea")) {
             this.sceneArea = getBoxFromNbt(tag, "sceneArea");
         }
-        if(tag.contains("SceneScrollAxis")){
+        if (tag.contains("SceneScrollAxis")) {
             String tmp = tag.getString("SceneScrollAxis");
             this.SceneScrollAxis = ScrollAxis.valueOf(tmp);
         }
@@ -360,7 +365,21 @@ public class AreasWorldComponent implements AutoSyncedComponent {
     }
 
     @Override
-    public void writeToNbt(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registryLookup) {
+    public void writeSyncPacket(RegistryFriendlyByteBuf buf, ServerPlayer recipient) {
+        CompoundTag tag = new CompoundTag();
+        this.writeToSyncNbt(tag, buf.registryAccess());
+        buf.writeNbt(tag);
+    }
+
+    @CheckEnvironment(EnvType.CLIENT)
+    public void applySyncPacket(RegistryFriendlyByteBuf buf) {
+        CompoundTag tag = buf.readNbt();
+        if (tag != null) {
+            this.readFromSyncNbt(tag, buf.registryAccess());
+        }
+    }
+
+    public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registryLookup) {
         // writePosWithOrientationToNbt(tag, this.spawnPos, "spawnPos");
         // writePosWithOrientationToNbt(tag, this.spectatorSpawnPos,
         // "spectatorSpawnPos");
@@ -390,5 +409,13 @@ public class AreasWorldComponent implements AutoSyncedComponent {
 
         // 房间位置需要写入NBT（如果实现此功能）
         // 这里暂时不实现，因为NBT格式可能需要专门处理Map类型
+    }
+
+    @Override
+    public void readFromNbt(CompoundTag tag, Provider registryLookup) {
+    }
+
+    @Override
+    public void writeToNbt(CompoundTag tag, Provider registryLookup) {
     }
 }

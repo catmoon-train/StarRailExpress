@@ -1626,7 +1626,6 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         }
     }
 
-    
     @Override
     public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }

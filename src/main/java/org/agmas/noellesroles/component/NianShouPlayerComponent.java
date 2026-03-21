@@ -302,6 +302,10 @@ public class NianShouPlayerComponent implements RoleComponent, ServerTickingComp
 
     @Override
     public void readFromSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+        if(!tag.contains("redPacketCount")){
+            this.clear();
+            return;
+        }
         this.redPacketCount = tag.getInt("redPacketCount");
         this.tasksCompleted = tag.getInt("tasksCompleted");
         this.darknessShieldTriggered = tag.getBoolean("darknessShieldTriggered");
@@ -313,6 +317,13 @@ public class NianShouPlayerComponent implements RoleComponent, ServerTickingComp
 
     @Override
     public void writeToSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+        var gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
+        if (!gameWorldComponent.isRunning()) {
+            return;
+        }
+        if (!gameWorldComponent.isRole(this.player, ModRoles.NIAN_SHOU)) {
+            return;
+        }
         tag.putInt("redPacketCount", redPacketCount);
         tag.putInt("tasksCompleted", tasksCompleted);
         tag.putBoolean("darknessShieldTriggered", darknessShieldTriggered);
@@ -327,7 +338,6 @@ public class NianShouPlayerComponent implements RoleComponent, ServerTickingComp
         return player;
     }
 
-    
     @Override
     public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }

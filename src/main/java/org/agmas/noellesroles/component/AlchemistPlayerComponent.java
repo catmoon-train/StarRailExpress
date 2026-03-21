@@ -94,6 +94,10 @@ public class AlchemistPlayerComponent implements RoleComponent, ServerTickingCom
 
     @Override
     public void readFromSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+        if (!tag.contains("materialGatherTimer")) {
+            this.clear();
+            return;
+        }
         this.materialGatherTimer = tag.getInt("MaterialGatherTimer");
         this.currentPotionIndex = tag.getInt("CurrentPotionIndex");
 
@@ -105,6 +109,13 @@ public class AlchemistPlayerComponent implements RoleComponent, ServerTickingCom
 
     @Override
     public void writeToSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+        var gameWorldComponent = SREGameWorldComponent.KEY.get(this.player.level());
+        if (!gameWorldComponent.isRunning()) {
+            return;
+        }
+        if (!gameWorldComponent.isRole(this.player, ModRoles.ALCHEMIST)) {
+            return;
+        }
         tag.putInt("MaterialGatherTimer", this.materialGatherTimer);
         tag.putInt("CurrentPotionIndex", this.currentPotionIndex);
 
@@ -419,7 +430,7 @@ public class AlchemistPlayerComponent implements RoleComponent, ServerTickingCom
             }
         }
     }
-    
+
     @Override
     public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }
