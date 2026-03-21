@@ -107,7 +107,7 @@ public abstract class MorphlingCapeRendererMixin {
                         }
                     }
                     
-                    Log.info(LogCategory.GENERAL, "Morphling disguise player info not found in cache: " + disguiseUuid.toString());
+                    // Log.info(LogCategory.GENERAL, "Morphling disguise player info not found in cache: " + disguiseUuid.toString());
                 }
                 return instance.capeTexture();
             }
