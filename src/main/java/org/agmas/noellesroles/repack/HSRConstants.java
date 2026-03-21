@@ -28,25 +28,29 @@ public class HSRConstants {
         POISONER_SHOP_ENTRIES.add(new ShopEntry(TMMItems.POISON_VIAL.getDefaultInstance(), 50, ShopEntry.Type.POISON));
         // 马桶毒药/40
         POISONER_SHOP_ENTRIES.add(new ShopEntry(ModItems.TOILET_POISON.getDefaultInstance(), 40, ShopEntry.Type.POISON));
-        // 毒蝎子/30
-        POISONER_SHOP_ENTRIES.add(new ShopEntry(TMMItems.SCORPION.getDefaultInstance(), 30, ShopEntry.Type.POISON));
+        // 毒蝎子/15
+        POISONER_SHOP_ENTRIES.add(new ShopEntry(TMMItems.SCORPION.getDefaultInstance(), 15, ShopEntry.Type.POISON));
         // 催化剂/100
         POISONER_SHOP_ENTRIES.add(new ShopEntry(HSRItems.CATALYST.getDefaultInstance(), 100, ShopEntry.Type.TOOL));
-        // 假药丸/50
-        POISONER_SHOP_ENTRIES.add(new ShopEntry(HSRItems.createPillStack(true), 50, ShopEntry.Type.TOOL));
+        // 假药丸/30
+        POISONER_SHOP_ENTRIES.add(new ShopEntry(HSRItems.createPillStack(true), 30, ShopEntry.Type.TOOL));
+        // 氯气弹/275
+        POISONER_SHOP_ENTRIES.add(new ShopEntry(ModItems.CHLORINE_BOMB.getDefaultInstance(), 275, ShopEntry.Type.POISON));
         // 爆竹/10
         POISONER_SHOP_ENTRIES.add(new ShopEntry(TMMItems.FIRECRACKER.getDefaultInstance(), 10, ShopEntry.Type.TOOL));
+        // 便签/10
+        POISONER_SHOP_ENTRIES.add(new ShopEntry(new ItemStack(TMMItems.NOTE, 4), 10, ShopEntry.Type.TOOL));
+        // 撬棍/35
+        POISONER_SHOP_ENTRIES.add(new ShopEntry(TMMItems.CROWBAR.getDefaultInstance(), 35, ShopEntry.Type.TOOL));
         // 开锁器/100
         POISONER_SHOP_ENTRIES.add(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), 100, ShopEntry.Type.TOOL));
-        // 氯气弹/300
-        POISONER_SHOP_ENTRIES.add(new ShopEntry(ModItems.CHLORINE_BOMB.getDefaultInstance(), 300, ShopEntry.Type.POISON));
         // 黑暗降临/100
         POISONER_SHOP_ENTRIES.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), 100, ShopEntry.Type.TOOL) {
             public boolean onBuy(@NotNull Player player) {
                 return SREPlayerShopComponent.useBlackout(player);
             }
         });
-        POISONER_SHOP_ENTRIES.add(new ShopEntry(new ItemStack(TMMItems.NOTE, 4), 10, ShopEntry.Type.TOOL));
+
 
         BANDIT_SHOP_ENTRIES
                 .add(new ShopEntry(HSRItems.BANDIT_REVOLVER.getDefaultInstance(), 175, ShopEntry.Type.WEAPON));
