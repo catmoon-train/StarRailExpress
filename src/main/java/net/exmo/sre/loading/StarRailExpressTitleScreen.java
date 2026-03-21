@@ -25,7 +25,7 @@ import net.minecraft.client.renderer.CubeMap;
 import net.minecraft.client.renderer.PanoramaRenderer;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
-import net.minecraft.client.sounds.SoundManager;
+// import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
@@ -36,7 +36,7 @@ import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 
-import io.wifi.starrailexpress.index.TMMSounds;
+// import io.wifi.starrailexpress.index.TMMSounds;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -314,10 +314,10 @@ public class StarRailExpressTitleScreen extends Screen {
         if (this.isTransitioning) {
             this.fadeOutProgress = Math.min(this.fadeOutProgress + 0.025F, 1.0F);
         }
-        SoundManager soundManager = Minecraft.getInstance().getSoundManager();
-        if (!waitingForContinue.get() && !soundManager.isActive(ambient_sound)) {
-            soundManager.play(ambient_sound);
-        }
+        // SoundManager soundManager = Minecraft.getInstance().getSoundManager();
+        // if (!waitingForContinue.get() && !soundManager.isActive(ambient_sound)) {
+        //     soundManager.play(ambient_sound);
+        // }
 
         float targetExpand = this.changelogExpanded ? 1.0F : 0.0F;
         this.changelogExpandAnim += (targetExpand - this.changelogExpandAnim) * 0.18F;
@@ -803,8 +803,8 @@ public class StarRailExpressTitleScreen extends Screen {
 
     @Override
     public void removed() {
-        SoundManager soundManager = Minecraft.getInstance().getSoundManager();
-        soundManager.stop(ambient_sound);
+        // SoundManager soundManager = Minecraft.getInstance().getSoundManager();
+        // soundManager.stop(ambient_sound);
         if (this.realmsNotificationsScreen != null)
             this.realmsNotificationsScreen.removed();
     }
@@ -837,17 +837,17 @@ public class StarRailExpressTitleScreen extends Screen {
         playAmbientSoundWithFadeIn();
     }
     public static int voiceFadeInDuration = 0;
-    public static SimpleSoundInstance ambient_sound = SimpleSoundInstance.forUI(
-            TMMSounds.AMBIENT_TRAIN_OUTSIDE, 0.4f, 0.5F);
+    // public static SimpleSoundInstance ambient_sound = SimpleSoundInstance.forUI(
+    //         TMMSounds.AMBIENT_TRAIN_OUTSIDE, 0.4f, 0.5F);
     /**
      * 播放环境音效并带淡入效果
      */
     private void playAmbientSoundWithFadeIn() {
         if (this.minecraft != null && this.minecraft.getSoundManager() != null) {
-            SoundManager soundManager = this.minecraft.getSoundManager();
+            // SoundManager soundManager = this.minecraft.getSoundManager();
             // 创建音效实例
 
-            soundManager.play(ambient_sound);
+            // soundManager.play(ambient_sound);
 
             voiceFadeInDuration = 40;
 //            // 使用 Minecraft 的调度器来实现音量淡入
