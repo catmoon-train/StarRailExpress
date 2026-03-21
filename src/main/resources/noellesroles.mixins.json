@@ -44,6 +44,7 @@
     "roles.manipulator.PlayerDeathMixin",
     "roles.noisemaker.NoisemakerKillMixin",
     "roles.photographer.PhotographerMixin",
+    "roles.poisoner.PoisonerNoPoisonMixin",
     "roles.puppeteer.PuppeteerBodyGunPayloadMixin",
     "roles.puppeteer.PuppeteerBodyKnifePayloadMixin",
     "roles.stalker.StalkerLeftClickKillMixin",
