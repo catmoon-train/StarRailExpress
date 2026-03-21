@@ -2,7 +2,7 @@ package io.wifi.starrailexpress.mixin.client.scenery;
 
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.SRE;
-import io.wifi.starrailexpress.SREConfig;
+import io.wifi.starrailexpress.SREClientConfig;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -35,7 +35,7 @@ public class CameraMixin {
     @Inject(method = "setup", at = @At("RETURN"))
     private void tmm$doScreenshake(BlockGetter area, Entity focusedEntity, boolean thirdPerson, boolean inverseView,
             float tickDelta, CallbackInfo ci) {
-        if (SREClient.isTrainMoving() && !SREConfig.instance().disableScreenShake && SREClient.gameComponent.isRunning()
+        if (SREClient.isTrainMoving() && !SREClientConfig.instance().disableScreenShake && SREClient.gameComponent.isRunning()
                 && SREClient.gameComponent.isOutsideSoundsAvailable()) {
             Camera camera = (Camera) (Object) this;
 

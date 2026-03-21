@@ -3,7 +3,7 @@ package io.wifi.starrailexpress.client.gui;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.wifi.starrailexpress.block.SecurityMonitorBlock;
-import io.wifi.starrailexpress.SREConfig;
+import io.wifi.starrailexpress.SREClientConfig;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -23,7 +23,7 @@ public class SecurityCameraHUD {
     private static boolean shouldBlink = false;
 
     public static void render(GuiGraphics guiGraphics, int screenWidth, int screenHeight) {
-        if (!SecurityMonitorBlock.isInSecurityMode() || !SREConfig.instance().enableSecurityCameraHUD) {
+        if (!SecurityMonitorBlock.isInSecurityMode() || !SREClientConfig.instance().enableSecurityCameraHUD) {
             return;
         }
 
@@ -118,7 +118,7 @@ public class SecurityCameraHUD {
     }
 
     public static void renderCameraFeed(GuiGraphics guiGraphics, int screenWidth, int screenHeight) {
-        if (!SecurityMonitorBlock.isInSecurityMode() || !SREConfig.instance().enableSecurityCameraHUD) {
+        if (!SecurityMonitorBlock.isInSecurityMode() || !SREClientConfig.instance().enableSecurityCameraHUD) {
             return;
         }
 
