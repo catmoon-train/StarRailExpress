@@ -52,7 +52,7 @@ public class WheelchairFieldItemCommand {
                 effectType
         );
         // 设置物品显示，确保与效果类型匹配
-        entity.setAttached(WheelchairFieldItemEntity.)
+        entity.setPickedUp(true);
         entity.setItem(effectType.getDisplayItem());
         world.addFreshEntity(entity);
         context.getSource().sendSuccess(() -> Component.literal("成功在 " + pos.toShortString() + " 生成道具: " + effectType.name()), true);
