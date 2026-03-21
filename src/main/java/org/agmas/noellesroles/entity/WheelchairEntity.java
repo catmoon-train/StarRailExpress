@@ -3,6 +3,7 @@ package org.agmas.noellesroles.entity;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.minecraft.core.particles.ParticleTypes;
 import org.agmas.noellesroles.game.ChairWheelRaceGame;
 import org.agmas.noellesroles.init.ModItems;
 
@@ -114,7 +115,7 @@ public class WheelchairEntity extends Mob {
 
             if (!otherPlayers.isEmpty()) {
                 Vec3 knockbackDir = this.getForward();
-                double strength = speed * 4.0;
+                double strength = speed * 6.0;
                 for (Player target : otherPlayers) {
                     if (this.random.nextInt(100) <= 20) {
                         target.setDeltaMovement(target.getDeltaMovement().add(knockbackDir.scale(strength)));
@@ -135,7 +136,7 @@ public class WheelchairEntity extends Mob {
         if (player.xxa < 0) deltaRotation += 2.0f;
         this.setYRot(this.getYRot() + deltaRotation);
         this.yRotO = this.yBodyRot = this.yHeadRot = this.getYRot();
-        deltaRotation *= 0.9f;
+        deltaRotation *= 0.7f;
 
         // --- 耐久逻辑（完全保留原逻辑）---
         if (this.level().getGameTime() % 20 == 0) {
@@ -189,10 +190,22 @@ public class WheelchairEntity extends Mob {
         if (this.boosting && this.boostTime-- <= 0) {
             this.boosting = false;
         }
+        if (!level().isClientSide)return;
+        //粒子拖尾
+        if (this.boosting) {
+            for (int i = 0; i < 4; i++) {
+
+                this.level().addParticle(ParticleTypes.FLAME,
+                        this.getX() + Mth.triangleWave(this.random.nextFloat(), 0.0F) * (float) this.getBbWidth() * 0.5F,
+                        this.getY() + 0.5 + Mth.triangleWave(this.random.nextFloat(), -0.7F),
+                        this.getZ() + Mth.triangleWave(this.random.nextFloat(), 0.0F) * (float) this.getBbWidth() * 0.5F,
+                        0.0, 0.0, 0.0);
+            }
+        }
     }
 
     public float boostFactor() {
-        return this.boosting ? 1.0f + 1.15f * Mth.clamp((float) this.boostTime / 140.0f, 0.0f, 1.0f) : 1.0f;
+        return this.boosting ? 1.0f + 1.8f * Mth.clamp((float) this.boostTime / 140.0f, 0.0f, 1.0f) : 1.0f;
     }
 
     // ===== 以下代码与原文完全相同，不改动 =====
@@ -242,7 +255,7 @@ public class WheelchairEntity extends Mob {
     public static AttributeSupplier.Builder createAttributes() {
         return LivingEntity.createLivingAttributes()
                 .add(Attributes.MAX_HEALTH, 20.0)
-                .add(Attributes.MOVEMENT_SPEED, 0.25)
+                .add(Attributes.MOVEMENT_SPEED, 0.5)
                 .add(Attributes.FOLLOW_RANGE, 16.0)
                 .add(Attributes.STEP_HEIGHT, 0.5);
     }

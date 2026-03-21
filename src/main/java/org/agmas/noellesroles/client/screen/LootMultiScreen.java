@@ -5,6 +5,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -272,11 +273,13 @@ public class LootMultiScreen extends AbstractPixelScreen {
     private int cardGap = 0;
     private int cardsStartX = 0;
     private int cardsY = 0;
+    private Screen parent;
 
-    public LootMultiScreen(int poolId, List<int[]> results) {
+    public LootMultiScreen(int poolId, List<int[]> results, Screen parent) {
         super(Component.empty());
         this.poolId = poolId;
         this.results = results;
+        this.parent = parent;
     }
 
     @Override
@@ -462,12 +465,14 @@ public class LootMultiScreen extends AbstractPixelScreen {
         int skipY = height - ACTION_MARGIN - font.lineHeight;
 
         if (isInTextRect(mouseX, mouseY, closeX, closeY, font.width(closeLabel), font.lineHeight)) {
-            onClose();
+            this.onClose();
+            Minecraft.getInstance().execute(()->Minecraft.getInstance().setScreen( parent));
             return true;
         }
         if (isInTextRect(mouseX, mouseY, skipX, skipY, font.width(skipLabel), font.lineHeight)) {
             if (allRevealed) {
                 onClose();
+                Minecraft.getInstance().execute(()->Minecraft.getInstance().setScreen( parent));
             } else {
                 revealAllImmediately();
             }

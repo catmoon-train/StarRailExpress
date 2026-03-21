@@ -392,7 +392,7 @@ public class NoellesrolesClient implements ClientModInitializer {
             final var client = context.client();
             client.execute(() -> {
                 if (client.player != null) {
-                    client.setScreen(new LootMultiScreen(payload.poolID(), payload.results()));
+                    client.setScreen(new LootMultiScreen(payload.poolID(), payload.results(),Minecraft.getInstance().screen));
                 }
             });
         });

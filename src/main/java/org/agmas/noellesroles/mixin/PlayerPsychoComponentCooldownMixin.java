@@ -43,12 +43,6 @@ public class PlayerPsychoComponentCooldownMixin {
             psychoComponent.setPsychoTicks(20 * 22);
         }
 
-        // 射击狂热角色：无盾（护甲为0）、狂暴皮肤（type=1）
-        if (gameWorld != null && gameWorld.isRole(player, ModRoles.SHOOTING_FRENZY)) {
-            SREPlayerPsychoComponent psychoComponent = SREPlayerPsychoComponent.KEY.get(player);
-            psychoComponent.setArmour(0); // 无盾
-            psychoComponent.type = 1; // 狂暴皮肤
-            psychoComponent.sync();
-        }
+
     }
 }

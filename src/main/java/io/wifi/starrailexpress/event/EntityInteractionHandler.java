@@ -25,7 +25,7 @@ public class EntityInteractionHandler {
         customData = customData.replaceAll("%player", player.getUUID().toString());
         
         // %player_name - 玩家名称
-        customData = customData.replaceAll("%player_name", player.getName().getString());
+        customData = customData.replaceAll("%name_player", player.getName().getString());
         
         // %x, %y, %z - 目标实体坐标
         customData = customData.replaceAll("%x", String.valueOf((int) entity.getX()));

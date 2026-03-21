@@ -2,9 +2,11 @@ package org.agmas.noellesroles.entity;
 
 import java.util.List;
 
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.EntityType;
@@ -79,10 +81,22 @@ public class WheelchairFieldItemEntity extends ItemEntity {
         this.setItem(effectType.getDisplayItem());
     }
 
+    public boolean is_always() {
+        return !this.entityData.get(DATA_PICKED_UP);
+    }
+    public void setPickedUp(boolean pickedUp) {
+        this.entityData.set(DATA_PICKED_UP, pickedUp);
+    }
+
+    // ===== 同步数据：拾取后不重置的NBT标记 =====
+    public static final EntityDataAccessor<Boolean> DATA_PICKED_UP =
+            SynchedEntityData.defineId(WheelchairFieldItemEntity.class, EntityDataSerializers.BOOLEAN);
+
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
         builder.define(DATA_EFFECT_TYPE, 0);
+        builder.define(DATA_PICKED_UP, false);
     }
 
     public EffectType getEffectType() {
@@ -115,13 +129,22 @@ public class WheelchairFieldItemEntity extends ItemEntity {
 
         // 检测轮椅碰撞
         List<WheelchairEntity> wheelchairs = this.level().getEntitiesOfClass(
-                WheelchairEntity.class, this.getBoundingBox().inflate(0.5));
+                WheelchairEntity.class, this.getBoundingBox().inflate(0.6));
         for (WheelchairEntity wheelchair : wheelchairs) {
-            if (wheelchair.getControllingPassenger() instanceof Player) {
+            if (wheelchair.getControllingPassenger() instanceof Player player) {
+                if (player.getCooldowns().isOnCooldown(Items.SUGAR)){
+                    continue;
+                }
+                player.getCooldowns().addCooldown(Items.SUGAR, 10);
                 applyEffect(wheelchair);
-                consumed = true;
-                respawnTimer = RESPAWN_DELAY;
-                this.setInvisible(true);
+                if (!is_always()) {
+                    consumed = true;
+                    respawnTimer = RESPAWN_DELAY;
+                    this.setInvisible(true);
+                }
+                if (level() instanceof ServerLevel serverLevel){
+                    serverLevel.sendParticles(ParticleTypes.CLOUD, this.getX(), this.getY()+1, this.getZ(),15,0.6,0.6,0.6,0.6);
+                }
                 this.level().playSound(null, this.blockPosition(),
                         SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, 1.0f, 1.2f);
                 break;

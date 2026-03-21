@@ -49,6 +49,7 @@ public class LootInfoScreen extends AbstractPixelScreen {
         private final int actionStartX;
         private final int actionButtonWidth;
         private final int actionButtonHeight;
+        private final int sidebarViewportHeight;
         private final int poolButtonX;
         private final int poolButtonY;
         private final int poolButtonWidth;
@@ -106,6 +107,7 @@ public class LootInfoScreen extends AbstractPixelScreen {
             totalHeight = sketchEdge + sketchHeight + actionBarHeight;
             leftX = centerX - totalWidth / 2;
             topY = centerY - totalHeight / 2;
+            sidebarViewportHeight = totalHeight - actionBarHeight;
 
             sidebarContentX = leftX;
             sketchX = leftX + sidebarWidth + sketchEdge / 2;
@@ -113,10 +115,12 @@ public class LootInfoScreen extends AbstractPixelScreen {
 
             int visibleButtonCount = Math.max(1, Math.min(poolCount, MAX_VISIBLE_POOL_BUTTONS));
             poolButtonWidth = sidebarWidth;
-            poolButtonHeight = Math.max(22, totalHeight / visibleButtonCount);
-            poolButtonStep = poolButtonHeight;
+            poolButtonHeight = Mth.clamp(Math.round(BASE_POOL_BUTTON_HEIGHT * scale * 0.9f), MIN_POOL_BUTTON_HEIGHT, MAX_POOL_BUTTON_HEIGHT);
+            int remainingSpace = Math.max(0, sidebarViewportHeight - visibleButtonCount * poolButtonHeight);
+            int buttonGap = Math.min(MAX_POOL_BUTTON_GAP, remainingSpace / Math.max(visibleButtonCount + 1, 1));
+            poolButtonStep = poolButtonHeight + buttonGap;
             poolButtonX = sidebarContentX;
-            poolButtonY = topY;
+            poolButtonY = topY + buttonGap;
 
             actionButtonHeight = Math.max(20, Math.round(BASE_ACTION_BUTTON_HEIGHT * scale));
             int maxActionButtonWidth = sketchWidth / 3 - actionBtnSpacing;
@@ -461,48 +465,52 @@ public class LootInfoScreen extends AbstractPixelScreen {
 
         int leftX = layoutMetrics.leftX;
         int topY = layoutMetrics.topY;
+        int sidebarBottomY = topY + layoutMetrics.sidebarViewportHeight;
+        int contentRightX = (int) (leftX + layoutMetrics.totalWidth - (1.0f - animationController.curBgProcess) * layoutMetrics.sketchWidth);
 
         // 绘制左侧选项卡背景（常驻矩形）
         guiGraphics.fill(
             (int) (leftX + (1.0f - animationController.curBgProcess) * layoutMetrics.sidebarWidth),
                 topY,
             leftX + layoutMetrics.sidebarWidth,
-            topY + layoutMetrics.totalHeight,
+            sidebarBottomY,
                 poolBtnBgColor.getRGB());
         guiGraphics.fill(
             leftX + layoutMetrics.sidebarWidth - 1,
             topY,
             leftX + layoutMetrics.sidebarWidth,
-            topY + layoutMetrics.totalHeight,
+            sidebarBottomY,
             panelDividerColor.getRGB());
         // 绘制右侧展示区背景
         guiGraphics.fill(
             leftX + layoutMetrics.sidebarWidth,
                 topY,
-            (int) (leftX + layoutMetrics.totalWidth - (1.0f - animationController.curBgProcess) * layoutMetrics.sketchWidth),
-            topY + layoutMetrics.totalHeight - layoutMetrics.actionBarHeight,
+            contentRightX,
+            sidebarBottomY,
                 sketchBgColor.getRGB());
-        // 绘制底部操作栏背景
-        guiGraphics.fill(
-                leftX + layoutMetrics.sidebarWidth,
-            topY + layoutMetrics.totalHeight - layoutMetrics.actionBarHeight,
-            (int) (leftX + layoutMetrics.totalWidth - (1.0f - animationController.curBgProcess) * layoutMetrics.sketchWidth),
-            topY + layoutMetrics.totalHeight,
-                actionBarBgColor.getRGB());
-        // 绘制操作栏顶部分隔线
-        guiGraphics.fill(
-                leftX + layoutMetrics.sidebarWidth,
-            topY + layoutMetrics.totalHeight - layoutMetrics.actionBarHeight,
-            (int) (leftX + layoutMetrics.totalWidth - (1.0f - animationController.curBgProcess) * layoutMetrics.sketchWidth),
-            topY + layoutMetrics.totalHeight - layoutMetrics.actionBarHeight + 1,
-                actionBarLineColor.getRGB());
 
         if (poolSketch != null)
             poolSketch.render(guiGraphics, mouseX, mouseY, delta);
-        guiGraphics.enableScissor(leftX, topY, leftX + layoutMetrics.sidebarWidth, topY + layoutMetrics.totalHeight);
+        renderSidebarScrollbarBackground(guiGraphics);
+        guiGraphics.enableScissor(leftX, topY, leftX + layoutMetrics.sidebarWidth, sidebarBottomY);
         for (PoolButton poolBtn : poolButtons)
             poolBtn.render(guiGraphics, mouseX, mouseY, delta);
         guiGraphics.disableScissor();
+
+        // 绘制底部操作栏背景，使其覆盖左下角侧栏区域
+        guiGraphics.fill(
+                leftX,
+                sidebarBottomY,
+                contentRightX,
+                topY + layoutMetrics.totalHeight,
+                actionBarBgColor.getRGB());
+        guiGraphics.fill(
+                leftX,
+                sidebarBottomY,
+                contentRightX,
+                sidebarBottomY + 1,
+                actionBarLineColor.getRGB());
+
         renderSidebarScrollbar(guiGraphics);
         if (startPoolBtn != null)
             startPoolBtn.render(guiGraphics, mouseX, mouseY, delta);
@@ -647,13 +655,13 @@ public class LootInfoScreen extends AbstractPixelScreen {
     private int getSidebarContentHeight() {
         if (layoutMetrics == null)
             return 0;
-        return poolButtons.size() * layoutMetrics.poolButtonStep;
+        return Math.max(0, poolButtons.size() * layoutMetrics.poolButtonStep + layoutMetrics.poolButtonHeight - layoutMetrics.poolButtonStep + layoutMetrics.poolButtonY - layoutMetrics.topY);
     }
 
     private int getSidebarMaxScroll() {
         if (layoutMetrics == null)
             return 0;
-        return Math.max(0, getSidebarContentHeight() - layoutMetrics.totalHeight);
+        return Math.max(0, getSidebarContentHeight() - layoutMetrics.sidebarViewportHeight);
     }
 
     private boolean isPointInSidebar(double mouseX, double mouseY) {
@@ -662,7 +670,7 @@ public class LootInfoScreen extends AbstractPixelScreen {
         return mouseX >= layoutMetrics.leftX
                 && mouseX < layoutMetrics.leftX + layoutMetrics.sidebarWidth
                 && mouseY >= layoutMetrics.topY
-                && mouseY < layoutMetrics.topY + layoutMetrics.totalHeight;
+            && mouseY < layoutMetrics.topY + layoutMetrics.sidebarViewportHeight;
     }
 
     private int getScrollbarX() {
@@ -671,7 +679,7 @@ public class LootInfoScreen extends AbstractPixelScreen {
 
     private int getScrollbarThumbHeight() {
         int contentHeight = Math.max(1, getSidebarContentHeight());
-        int viewportHeight = Math.max(1, layoutMetrics.totalHeight);
+        int viewportHeight = Math.max(1, layoutMetrics.sidebarViewportHeight);
         return Math.max(18, viewportHeight * viewportHeight / contentHeight);
     }
 
@@ -679,7 +687,7 @@ public class LootInfoScreen extends AbstractPixelScreen {
         int maxScroll = getSidebarMaxScroll();
         if (maxScroll <= 0)
             return layoutMetrics.topY;
-        int travel = Math.max(0, layoutMetrics.totalHeight - getScrollbarThumbHeight());
+        int travel = Math.max(0, layoutMetrics.sidebarViewportHeight - getScrollbarThumbHeight());
         return layoutMetrics.topY + Math.round((sidebarScrollOffset / maxScroll) * travel);
     }
 
@@ -690,7 +698,7 @@ public class LootInfoScreen extends AbstractPixelScreen {
         return mouseX >= scrollbarX
                 && mouseX < scrollbarX + SIDEBAR_SCROLLBAR_WIDTH
                 && mouseY >= layoutMetrics.topY
-                && mouseY < layoutMetrics.topY + layoutMetrics.totalHeight;
+            && mouseY < layoutMetrics.topY + layoutMetrics.sidebarViewportHeight;
     }
 
     private void updateSidebarScrollFromMouse(double mouseY) {
@@ -698,9 +706,19 @@ public class LootInfoScreen extends AbstractPixelScreen {
         if (maxScroll <= 0)
             return;
         int thumbHeight = getScrollbarThumbHeight();
-        int travel = Math.max(1, layoutMetrics.totalHeight - thumbHeight);
+        int travel = Math.max(1, layoutMetrics.sidebarViewportHeight - thumbHeight);
         float normalized = (float) ((mouseY - layoutMetrics.topY - thumbHeight / 2.0f) / travel);
         setSidebarScroll(Mth.clamp(normalized, 0.0f, 1.0f) * maxScroll);
+    }
+
+    private void renderSidebarScrollbarBackground(GuiGraphics guiGraphics) {
+        if (layoutMetrics == null)
+            return;
+        int scrollbarBgX = layoutMetrics.leftX + layoutMetrics.sidebarWidth - SIDEBAR_SCROLLBAR_BG_WIDTH;
+        guiGraphics.fill(scrollbarBgX, layoutMetrics.topY,
+                layoutMetrics.leftX + layoutMetrics.sidebarWidth,
+                layoutMetrics.topY + layoutMetrics.sidebarViewportHeight,
+                sidebarScrollAreaColor.getRGB());
     }
 
     private void renderSidebarScrollbar(GuiGraphics guiGraphics) {
@@ -710,7 +728,7 @@ public class LootInfoScreen extends AbstractPixelScreen {
         int thumbY = getScrollbarThumbY();
         int thumbHeight = getScrollbarThumbHeight();
         guiGraphics.fill(scrollbarX, layoutMetrics.topY, scrollbarX + SIDEBAR_SCROLLBAR_WIDTH,
-                layoutMetrics.topY + layoutMetrics.totalHeight, sidebarScrollTrackColor.getRGB());
+                layoutMetrics.topY + layoutMetrics.sidebarViewportHeight, sidebarScrollTrackColor.getRGB());
         guiGraphics.fill(scrollbarX, thumbY, scrollbarX + SIDEBAR_SCROLLBAR_WIDTH,
                 thumbY + thumbHeight, sidebarScrollThumbColor.getRGB());
     }
@@ -735,6 +753,7 @@ public class LootInfoScreen extends AbstractPixelScreen {
     private static final Color selectedBorderColor = new Color(0xFFF7E7BE, true);
     private static final Color buttonTextColor = new Color(0xFFF0E8D7, true);
     private static final Color selectedTextColor = new Color(0xFF1D2734, true);
+    private static final Color sidebarScrollAreaColor = new Color(0x88304052, true);
     private static final Color sidebarScrollTrackColor = new Color(0x55263645, true);
     private static final Color sidebarScrollThumbColor = new Color(0xCCDEC08A, true);
     private static final int BASE_SKETCH_WIDTH = 320;
@@ -749,6 +768,10 @@ public class LootInfoScreen extends AbstractPixelScreen {
     private static final int BASE_TOTAL_WIDTH = BASE_SKETCH_EDGE + BASE_SKETCH_WIDTH + BASE_SIDEBAR_WIDTH;
     private static final int BASE_TOTAL_HEIGHT = BASE_SKETCH_EDGE + BASE_SKETCH_HEIGHT + BASE_ACTION_BAR_HEIGHT;
     private static final int MAX_VISIBLE_POOL_BUTTONS = 6;
+    private static final int MIN_POOL_BUTTON_HEIGHT = 18;
+    private static final int MAX_POOL_BUTTON_HEIGHT = 28;
+    private static final int MAX_POOL_BUTTON_GAP = 6;
+    private static final int SIDEBAR_SCROLLBAR_BG_WIDTH = 10;
     private static final int SIDEBAR_SCROLLBAR_WIDTH = 5;
     private static final float MIN_LAYOUT_SCALE = 0.72f;
     private static final float MAX_LAYOUT_SCALE = 1.28f;
