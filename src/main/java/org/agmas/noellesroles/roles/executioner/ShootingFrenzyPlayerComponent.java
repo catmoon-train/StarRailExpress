@@ -261,8 +261,8 @@ public class ShootingFrenzyPlayerComponent implements RoleComponent, ServerTicki
                             25, 0.4, 0.6, 0.4, 0.5);
 
                     // 击杀音效
-                    serverLevel.playSound(null, target.blockPosition(),
-                            SoundEvents.WITHER_SHOOT, SoundSource.PLAYERS, 0.8F, 1.2F);
+                    serverLevel.playSound(null, target.blockPosition().above(1),
+                            SoundEvents.ENDER_DRAGON_SHOOT, SoundSource.PLAYERS, 0.8F, 1.2F);
                 }
             }
         });
