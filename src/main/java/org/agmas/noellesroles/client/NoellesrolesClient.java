@@ -28,7 +28,6 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.player.RemotePlayer;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.agmas.noellesroles.block_entity.VendingMachinesBlockEntity;
@@ -43,7 +42,6 @@ import org.agmas.noellesroles.client.renderer.VendingMachinesBlockEntityRenderer
 import org.agmas.noellesroles.client.screen.*;
 import org.agmas.noellesroles.component.InsaneKillerPlayerComponent;
 import org.agmas.noellesroles.component.MagicianPlayerComponent;
-import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.entity.LockEntity;
 import org.agmas.noellesroles.entity.WheelchairEntityModel;
 import org.agmas.noellesroles.entity.WheelchairEntityRenderer;
@@ -85,6 +83,7 @@ import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.network.BreakArmorPayload;
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.SREClientConfig;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -417,7 +416,7 @@ public class NoellesrolesClient implements ClientModInitializer {
 
         OnRoundStartWelcomeTimmer.EVENT.register((player, timer) -> {
             if (timer == 1) {
-                if (NoellesRolesConfig.HANDLER.instance().welcome_voice) {
+                if (SREClientConfig.HANDLER.instance().welcome_voice) {
                     player.level().playLocalSound(player, NRSounds.HARPY_WELCOME, SoundSource.AMBIENT, 1f, 1f);
                 }
             }
@@ -810,7 +809,7 @@ public class NoellesrolesClient implements ClientModInitializer {
         long timer = client.level.getGameTime();
         currentBroadcastMessage
                 .add(new BroadcastMessageInfo(message, timer + GameConstants.getInTicks(0,
-                        NoellesRolesConfig.HANDLER.instance().broadcasterMessageDuration)));
+                        SREClientConfig.HANDLER.instance().broadcasterMessageDuration)));
     }
 
     public void tooltipHelper(Item item, ItemStack itemStack, List<Component> list) {

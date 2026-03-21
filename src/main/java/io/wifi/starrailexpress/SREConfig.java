@@ -12,19 +12,6 @@ public class SREConfig implements ConfigData {
     // 存储默认配置值 - 在静态初始化块中设置
     public static ConfigClassHandler<SREConfig> HANDLER = new ConfigClassHandler<>(
             SREConfig.class);
-    // 客户端专用配置 - 仅在客户端环境生效
-
-    @ConfigEntry.Gui.Tooltip
-    public boolean ultraPerfMode = false;
-
-    public boolean disableTitleScreenSound = false;
-
-    public boolean disableScreenShake = false;
-
-    public boolean disableStaminaBarSmoothing = false;
-
-    public boolean enableSecurityCameraHUD = true; // 启用安全摄像头HUD显示
-
     // 随机地图设置
     @ConfigEntry.Category(value = "map")
     @Tooltip
@@ -96,31 +83,18 @@ public class SREConfig implements ConfigData {
 
     // Bartender - Glow duration in seconds
 
-    @ConfigEntry.Category(value = "game")
     public int safeTimeCooldown = 30;
-    @ConfigEntry.Category(value = "game")
     public int bartenderGlowDuration = 40;
-    @ConfigEntry.Category(value = "game")
     public int startingMoney = 100;
-    @ConfigEntry.Category(value = "game")
     public int passiveMoneyAmount = 5;
-    @ConfigEntry.Category(value = "game")
     public int passiveMoneyInterval = 10;
-    @ConfigEntry.Category(value = "game")
     public int moneyPerKill = 100;
-    @ConfigEntry.Category(value = "game")
     public int psychoModeArmor = 1;
-    @ConfigEntry.Category(value = "game")
     public int psychoModeDuration = 30;
-    @ConfigEntry.Category(value = "game")
     public int firecrackerDuration = 15;
-    @ConfigEntry.Category(value = "game")
     public int blackoutMinDuration = 15;
-    @ConfigEntry.Category(value = "game")
     public int blackoutMaxDuration = 30;
-    @ConfigEntry.Category(value = "game")
     public boolean enableAutoTrainReset = false;
-    @ConfigEntry.Category(value = "game")
     public boolean verboseTrainResetLogs = true;
 
     // 玩家数据设置
@@ -157,7 +131,7 @@ public class SREConfig implements ConfigData {
     public int afkSleepySeconds = 3 * 60; // 3分钟时开始困倦效果
 
     public boolean isUltraPerfMode() {
-        return ultraPerfMode;
+        return SREClientConfig.instance().ultraPerfMode;
     }
 
     /**
