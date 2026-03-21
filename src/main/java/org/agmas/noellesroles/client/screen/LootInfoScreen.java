@@ -278,7 +278,7 @@ public class LootInfoScreen extends AbstractPixelScreen {
             // 设置卡池立绘
             poolSketch = new TextureWidget(
                     sketchX,
-                    sketchY,
+                    sketchY + layoutMetrics.sketchEdge / 2,
                     layoutMetrics.sketchWidth, layoutMetrics.sketchHeight,
                     BASE_SKETCH_WIDTH, BASE_SKETCH_HEIGHT,
                     ResourceLocation.fromNamespaceAndPath(
@@ -466,7 +466,8 @@ public class LootInfoScreen extends AbstractPixelScreen {
         int leftX = layoutMetrics.leftX;
         int topY = layoutMetrics.topY;
         int sidebarBottomY = topY + layoutMetrics.sidebarViewportHeight;
-        int contentRightX = (int) (leftX + layoutMetrics.totalWidth - (1.0f - animationController.curBgProcess) * layoutMetrics.sketchWidth);
+        int contentRightX = leftX + layoutMetrics.sidebarWidth
+            + Math.round(animationController.curBgProcess * (layoutMetrics.sketchEdge + layoutMetrics.sketchWidth));
 
         // 绘制左侧选项卡背景（常驻矩形）
         guiGraphics.fill(
@@ -565,7 +566,7 @@ public class LootInfoScreen extends AbstractPixelScreen {
             return;
         poolSketch.setTEXTURE(getPoolSketchTexture(nextPool.getPoolID()));
         // 添加位移和透明度动画
-        poolSketch.setY(layoutMetrics.sketchY);
+        poolSketch.setY(layoutMetrics.sketchY + layoutMetrics.sketchEdge / 2);
         animationStack.add(
                 BezierAnimation.builder(
                         poolSketch,
@@ -758,7 +759,7 @@ public class LootInfoScreen extends AbstractPixelScreen {
     private static final Color sidebarScrollThumbColor = new Color(0xCCDEC08A, true);
     private static final int BASE_SKETCH_WIDTH = 320;
     private static final int BASE_SKETCH_HEIGHT = 180;
-    private static final int BASE_POOL_BUTTON_HEIGHT = (int) (18 * 1.5f);
+    private static final int BASE_POOL_BUTTON_HEIGHT = (int) (32);
     private static final int BASE_SIDEBAR_WIDTH = 108;
     private static final int BASE_SIDEBAR_PADDING = 12;
     private static final int BASE_SKETCH_EDGE = 36;

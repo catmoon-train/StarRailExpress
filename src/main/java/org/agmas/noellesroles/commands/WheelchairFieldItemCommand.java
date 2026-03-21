@@ -24,7 +24,7 @@ public class WheelchairFieldItemCommand {
                     .then(Commands.literal("fielditem")
                             .requires(source -> source.hasPermission(2))
                             .then(Commands.argument("pos", BlockPosArgument.blockPos())
-                                    .then(Commands.argument("always", BoolArgumentType.bool()))
+                                    .then(Commands.argument("always", BoolArgumentType.bool())
                                     .then(Commands.argument("effect_type", IntegerArgumentType.integer(0, 2))
                                             .executes(context -> createFieldItem(
                                                     context,
@@ -34,7 +34,7 @@ public class WheelchairFieldItemCommand {
                                             ))
                                     )
                             )
-                    );
+                    ));
             dispatcher.register(fieldItemCommand);
         });
     }
