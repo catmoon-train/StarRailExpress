@@ -146,11 +146,16 @@ public class InsaneKillerPlayerComponent
 
     @Override
     public void init() {
+        boolean needSync = true;
+        if (this.isActive == false && cooldown == 200 && deathState == 0) {
+            needSync = false;
+        }
         isActive = false;
         cooldown = 200;
         // Noellesroles.LOGGER.info("Trigger insane reset");
         deathState = 0;
-        this.sync();
+        if (needSync)
+            this.sync();
     }
 
     public boolean isUsedDeathAbility() {
@@ -233,7 +238,7 @@ public class InsaneKillerPlayerComponent
             // if (cooldown == 0){
             //
             // }
-            if (cooldown % 100 == 0)
+            if (cooldown % 200 == 0)
                 sync();
         }
         if (deathState > 0) {
@@ -242,7 +247,7 @@ public class InsaneKillerPlayerComponent
             if (deathState == 1) {
                 GameUtils.killPlayer(player, true, null, Noellesroles.id("insane_killer_death"));
             }
-            if (deathState % 100 == 0 || deathState == 1 || deathState == 0) {
+            if (deathState % 200 == 0 || deathState == 1 || deathState == 0) {
                 sync();
             }
         }
@@ -289,7 +294,7 @@ public class InsaneKillerPlayerComponent
     // }
     //
     // }
-    
+
     @Override
     public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }
