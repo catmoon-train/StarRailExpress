@@ -28,7 +28,7 @@ public class PuppeteerBodyKnifePayloadMixin {
             if (bodyEntity.distanceTo(player) > 4.0) return;
             
             // 对傀儡本体造成致命伤害（20点以上确保击杀）
-            bodyEntity.hurt(player.damageSources().playerAttack(player), 100.0f);
+            bodyEntity.playerHurt(player, GameConstants.DeathReasons.KNIFE);
             
             bodyEntity.playSound(TMMSounds.ITEM_KNIFE_STAB, 1.0f, 1.0f);
             player.swing(InteractionHand.MAIN_HAND);

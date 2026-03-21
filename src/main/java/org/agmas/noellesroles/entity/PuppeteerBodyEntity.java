@@ -12,6 +12,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
@@ -142,6 +143,18 @@ public class PuppeteerBodyEntity extends LivingEntity {
             this.discard();
             return;
         }
+    }
+
+    public boolean playerHurt(Player player, ResourceLocation deathReason) {
+        if (level().isClientSide())
+            return false;
+        Player owner = getOwner();
+        if (owner != null) {
+            // 通知傀儡师组件本体死亡
+            PuppeteerPlayerComponent puppeteerComp = ModComponents.PUPPETEER.get(owner);
+            puppeteerComp.onBodyDeath(player, deathReason);
+        }
+        return true;
     }
 
     @Override

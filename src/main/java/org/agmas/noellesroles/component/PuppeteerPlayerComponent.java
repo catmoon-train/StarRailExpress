@@ -14,6 +14,7 @@ import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
+import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.TMMItemUtils;
@@ -35,6 +36,7 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -465,6 +467,10 @@ public class PuppeteerPlayerComponent implements RoleComponent, ServerTickingCom
      * 当本体标记被破坏或本体实体死亡时调用
      */
     public void onBodyDeath() {
+        this.onBodyDeath(null, GameConstants.DeathReasons.GENERIC);
+    }
+
+    public void onBodyDeath(Player killer, ResourceLocation deathReason) {
         if (!isControllingPuppet)
             return;
         if (!(player instanceof ServerPlayer serverPlayer))
@@ -479,7 +485,7 @@ public class PuppeteerPlayerComponent implements RoleComponent, ServerTickingCom
         puppetEntityUuid = null;
         puppetSkinUuid = null;
         puppetRole = null;
-        GameUtils.killPlayer(serverPlayer, true, null);
+        GameUtils.killPlayer(serverPlayer, true, killer, deathReason);
         // 发送消息
         serverPlayer.displayClientMessage(
                 Component.translatable("message.noellesroles.puppeteer.body_died")
@@ -726,7 +732,7 @@ public class PuppeteerPlayerComponent implements RoleComponent, ServerTickingCom
 
     @Override
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
-        if(!tag.contains("phase")){
+        if (!tag.contains("phase")) {
             this.clear();
             return;
         }
