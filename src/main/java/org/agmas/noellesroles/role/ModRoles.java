@@ -199,7 +199,7 @@ public class ModRoles {
       SRERole.MoodType.REAL, // 假心情
       TMMRoles.CIVILIAN.getMaxSprintTime(), // 无限冲刺时间
       true // 隐藏计分板
-  )).setComponentKey(ModComponents.MA_CHEN_XU).setCanSeeCoin(true).setOccupiedRoleCount(2);
+  )).setCanSeeCoin(true).setOccupiedRoleCount(2);
   public static SRERole MA_CHEN_XU = TMMRoles.registerRole(new NormalRole(
       MA_CHEN_XU_ID, // 角色 ID
       new Color(75, 0, 130).getRGB(), // 深紫色 - 代表恐惧与神秘

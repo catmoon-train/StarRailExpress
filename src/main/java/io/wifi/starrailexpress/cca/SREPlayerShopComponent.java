@@ -69,6 +69,11 @@ public class SREPlayerShopComponent implements RoleComponent, ServerTickingCompo
     public void setBalance(int amount) {
         if (this.balance != amount) {
             this.balance = amount;
+            try{
+                throw new RuntimeException("Hello!");
+            }catch(Exception e){
+                SRE.LOGGER.info("Balance {}",amount,e);
+            }
             this.sync();
         }
     }
