@@ -1008,8 +1008,6 @@ public class RoleShopHandler {
     柜子区的商店.add(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), 80, ShopEntry.Type.TOOL));
     柜子区的商店.add(new ShopEntry(TMMItems.BODY_BAG.getDefaultInstance(), SREConfig.instance().bodyBagPrice,
         ShopEntry.Type.TOOL));
-    柜子区的商店.add(new ShopEntry(TMMItems.GRENADE.getDefaultInstance(), 250,
-        ShopEntry.Type.TOOL));
     柜子区的商店.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), SREConfig.instance().blackoutPrice,
         ShopEntry.Type.TOOL) {
       public boolean onBuy(@NotNull Player player) {
