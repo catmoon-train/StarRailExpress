@@ -8,7 +8,11 @@ import org.agmas.noellesroles.init.ModItems;
 
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import net.minecraft.ChatFormatting;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -20,7 +24,6 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
@@ -31,34 +34,58 @@ import net.minecraft.world.phys.Vec3;
 
 public class WheelchairEntity extends Mob {
 
+    // ===== 同步数据：加速时间（类似 Pig 的 DATA_BOOST_TIME）=====
+    private static final EntityDataAccessor<Integer> DATA_BOOST_TIME =
+            SynchedEntityData.defineId(WheelchairEntity.class, EntityDataSerializers.INT);
+
     // ===== 耐久（保留原有变量名）=====
     public int durability = 60;
 
-    // ===== 类 Boat 控制字段 =====
-    /** 每 tick 旋转增量（角度），会逐帧衰减，类似 Boat.deltaRotation */
+    // ===== 转向控制 =====
     private float deltaRotation = 0.0f;
 
-    /** 当前帧的输入状态，由 tickRidden 写入，由 travel 读取 */
-    private boolean inputUp = false;
-    private boolean inputDown = false;
-    private boolean inputLeft = false;
-    private boolean inputRight = false;
-
-    /**
-     * 当前实际推力，用于平滑加速/减速。
-     * 正值 = 前进，负值 = 后退。
-     * 有输入时向目标推力靠近（THRUST_ACCEL），无输入时衰减回零（THRUST_DECEL）。
-     */
-    private float currentThrust = 0.0f;
-    private static final float THRUST_ACCEL = 0.004f; // 每 tick 加速量（越小起步越缓）
-    private static final float THRUST_DECEL = 0.006f; // 每 tick 减速量（越小滑行越远）
-    private static final float THRUST_MAX_FWD = 0.18f; // 前进最大推力上限
-    private static final float THRUST_MAX_BWD = 0.05f; // 后退最大推力上限
+    // ===== 加速相关 =====
+    private int boostTime;
+    private boolean boosting;
 
     // ===== 其他字段 =====
     private ItemStack item = ItemStack.EMPTY;
     private SREGameWorldComponent gameWorldComponent;
     private Vec3 lastPos = null;
+
+    public WheelchairEntity(EntityType<? extends Mob> entityType, Level world) {
+        super(entityType, world);
+    }
+
+    // ===== 同步数据定义 =====
+    @Override
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(DATA_BOOST_TIME, 0);
+    }
+
+    @Override
+    public void onSyncedDataUpdated(EntityDataAccessor<?> entityDataAccessor) {
+        if (DATA_BOOST_TIME.equals(entityDataAccessor) && this.level().isClientSide) {
+            this.boostTime = this.entityData.get(DATA_BOOST_TIME);
+            this.boosting = true;
+        }
+        super.onSyncedDataUpdated(entityDataAccessor);
+    }
+
+    @Override
+    public void addAdditionalSaveData(CompoundTag compoundTag) {
+        super.addAdditionalSaveData(compoundTag);
+        compoundTag.putInt("Durability", this.durability);
+    }
+
+    @Override
+    public void readAdditionalSaveData(CompoundTag compoundTag) {
+        super.readAdditionalSaveData(compoundTag);
+        if (compoundTag.contains("Durability")) {
+            this.durability = compoundTag.getInt("Durability");
+        }
+    }
 
     // ===== 工具方法 =====
     public Entity getRider() {
@@ -98,10 +125,17 @@ public class WheelchairEntity extends Mob {
         }
     }
 
-    // ===== tickRidden：只负责耐久 + 读取输入 =====
+    // ===== tickRidden：设置朝向 + 耐久 + 加速 tick（类似 Pig.tickRidden）=====
     @Override
-    public void tickRidden(Player player, Vec3 travelVector) {
+    protected void tickRidden(Player player, Vec3 travelVector) {
         super.tickRidden(player, travelVector);
+
+        // --- 左右输入控制旋转（保留玩家左右操控轮椅的位置）---
+        if (player.xxa > 0) deltaRotation -= 2.0f;
+        if (player.xxa < 0) deltaRotation += 2.0f;
+        this.setYRot(this.getYRot() + deltaRotation);
+        this.yRotO = this.yBodyRot = this.yHeadRot = this.getYRot();
+        deltaRotation *= 0.9f;
 
         // --- 耐久逻辑（完全保留原逻辑）---
         if (this.level().getGameTime() % 20 == 0) {
@@ -119,84 +153,46 @@ public class WheelchairEntity extends Mob {
             return;
         }
 
-        // --- 将玩家输入映射到布尔字段（方向判断不变）---
-        inputUp = player.zza > 0.0f;
-        inputDown = player.zza < 0.0f;
-        inputLeft = player.xxa > 0.0f;
-        inputRight = player.xxa < 0.0f;
+        // --- 加速 tick（类似 ItemBasedSteering.tickBoost）---
+        this.tickBoost();
     }
 
-    // ===== travel：类 Boat 物理 + 平滑加速 =====
+    // ===== getRiddenInput：前进后退根据当前朝向移动（类似 Pig.getRiddenInput）=====
     @Override
-    public void travel(Vec3 movementInput) {
-        if (!(this.getControllingPassenger() instanceof Player)) {
-            super.travel(movementInput);
-            return;
+    protected Vec3 getRiddenInput(Player player, Vec3 travelVector) {
+        float forward = player.zza;
+        if (forward > 0) {
+            return new Vec3(0.0, 0.0, 1.0);
+        } else if (forward < 0) {
+            return new Vec3(0.0, 0.0, -0.25);
         }
+        return Vec3.ZERO;
+    }
 
-        // --- 1. 重力 ---
-        double vy = this.getDeltaMovement().y;
-        if (!this.onGround()) {
-            vy -= 0.04;
-        } else {
-            vy = Math.min(vy, 0.0);
+    // ===== getRiddenSpeed：速度 = 属性 × 系数 × 加速倍率（类似 Pig.getRiddenSpeed）=====
+    @Override
+    protected float getRiddenSpeed(Player player) {
+        return (float) (this.getAttributeValue(Attributes.MOVEMENT_SPEED) * 0.225 * (double) this.boostFactor());
+    }
+
+    // ===== 加速系统（类似 ItemBasedSteering）=====
+    public boolean boost() {
+        if (this.boostTime > 0) {
+            return false;
         }
+        this.boostTime = this.getRandom().nextInt(841) + 140;
+        this.entityData.set(DATA_BOOST_TIME, this.boostTime);
+        return true;
+    }
 
-        // --- 2. 旋转（方向判断逻辑不变）---
-        if (inputLeft)
-            deltaRotation--;
-        if (inputRight)
-            deltaRotation++;
-        this.setYRot(this.getYRot() + deltaRotation);
-        this.yBodyRot = this.getYRot();
-        this.yHeadRot = this.getYRot();
-        deltaRotation *= 0.9f;
-
-        // --- 3. 平滑推力计算（加速/减速逻辑）---
-        // 根据输入确定目标推力
-        float targetThrust;
-        if (inputUp) {
-            targetThrust = THRUST_MAX_FWD;
-        } else if (inputDown) {
-            targetThrust = -THRUST_MAX_BWD;
-        } else if (inputLeft != inputRight) {
-            // 纯转弯时维持一点微弱前进推力（与 Boat 一致）
-            targetThrust = 0.005f;
-        } else {
-            targetThrust = 0.0f;
+    private void tickBoost() {
+        if (this.boosting && this.boostTime-- <= 0) {
+            this.boosting = false;
         }
+    }
 
-        // 向目标推力平滑靠近
-        if (currentThrust < targetThrust) {
-            currentThrust = Math.min(currentThrust + THRUST_ACCEL, targetThrust);
-        } else if (currentThrust > targetThrust) {
-            currentThrust = Math.max(currentThrust - THRUST_DECEL, targetThrust);
-        }
-
-        // --- 4. 沿当前朝向施加推力 ---
-        double yRotRad = this.getYRot() * (Math.PI / 180.0);
-        double ax = -Mth.sin((float) yRotRad) * currentThrust;
-        double az = Mth.cos((float) yRotRad) * currentThrust;
-
-        Vec3 motion = this.getDeltaMovement();
-        this.setDeltaMovement(motion.x + ax, vy, motion.z + az);
-
-        // --- 5. 限速 ---
-        motion = this.getDeltaMovement();
-        double hSpeedSq = motion.x * motion.x + motion.z * motion.z;
-        final double MAX_SPEED = 0.4;
-        if (hSpeedSq > MAX_SPEED * MAX_SPEED) {
-            double scale = MAX_SPEED / Math.sqrt(hSpeedSq);
-            this.setDeltaMovement(motion.x * scale, motion.y, motion.z * scale);
-        }
-
-        // --- 6. 执行移动 ---
-        this.move(MoverType.SELF, this.getDeltaMovement());
-
-        // --- 7. 水平摩擦 ---
-        motion = this.getDeltaMovement();
-        double friction = this.onGround() ? 0.6 : 0.99;
-        this.setDeltaMovement(motion.x * friction, motion.y, motion.z * friction);
+    public float boostFactor() {
+        return this.boosting ? 1.0f + 1.15f * Mth.clamp((float) this.boostTime / 140.0f, 0.0f, 1.0f) : 1.0f;
     }
 
     // ===== 以下代码与原文完全相同，不改动 =====
@@ -205,10 +201,6 @@ public class WheelchairEntity extends Mob {
     public void addPassenger(Entity passenger) {
         super.addPassenger(passenger);
         passenger.setYRot(this.getYRot());
-    }
-
-    public WheelchairEntity(EntityType<? extends Mob> entityType, Level world) {
-        super(entityType, world);
     }
 
     @Override
@@ -250,7 +242,7 @@ public class WheelchairEntity extends Mob {
     public static AttributeSupplier.Builder createAttributes() {
         return LivingEntity.createLivingAttributes()
                 .add(Attributes.MAX_HEALTH, 20.0)
-                .add(Attributes.MOVEMENT_SPEED, 1)
+                .add(Attributes.MOVEMENT_SPEED, 0.25)
                 .add(Attributes.FOLLOW_RANGE, 16.0)
                 .add(Attributes.STEP_HEIGHT, 0.5);
     }

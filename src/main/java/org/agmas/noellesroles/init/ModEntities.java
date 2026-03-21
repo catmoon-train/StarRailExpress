@@ -23,6 +23,13 @@ public class ModEntities {
             EntityType.Builder.of(WheelchairEntity::new, MobCategory.MISC).sized(0.6f, 1.2f)
                     .build("wheelchair"));
 
+    public static final EntityType<WheelchairFieldItemEntity> WHEELCHAIR_FIELD_ITEM = Registry.register(
+            BuiltInRegistries.ENTITY_TYPE,
+            Noellesroles.id("wheelchair_field_item"),
+            EntityType.Builder.<WheelchairFieldItemEntity>of(WheelchairFieldItemEntity::new, MobCategory.MISC)
+                    .sized(0.25f, 0.25f)
+                    .build("wheelchair_field_item"));
+
     @SuppressWarnings("deprecation")
     public static final EntityType<SmokeGrenadeEntity> SMOKE_GRENADE = Registry.register(
             BuiltInRegistries.ENTITY_TYPE,
