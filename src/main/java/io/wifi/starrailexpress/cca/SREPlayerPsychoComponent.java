@@ -1,6 +1,7 @@
 package io.wifi.starrailexpress.cca;
 
 import io.wifi.starrailexpress.api.RoleComponent;
+import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
@@ -8,6 +9,8 @@ import io.wifi.starrailexpress.network.RemoveStatusBarPayload;
 import io.wifi.starrailexpress.network.TriggerStatusBarPayload;
 import io.wifi.starrailexpress.util.ShopEntry;
 import io.wifi.starrailexpress.SRE;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.HolderLookup.Provider;
@@ -15,6 +18,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+
+import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
@@ -60,18 +65,32 @@ public class SREPlayerPsychoComponent implements RoleComponent, ServerTickingCom
     }
 
     @Override
+    @Environment(EnvType.CLIENT)
     public void clientTick() {
         if (this.psychoTicks <= 0)
             return;
         this.psychoTicks--;
-        if (this.player.getMainHandItem().is(TMMItems.BAT))
-            return;
-        if (GameUtils.isPlayerAliveAndSurvival(player)) {
-            for (int i = 0; i < 9; i++) {
-                if (!this.player.getInventory().getItem(i).is(TMMItems.BAT))
-                    continue;
-                this.player.getInventory().selected = i;
-                break;
+        if (SREClient.gameComponent.isRole(this.player, ModRoles.EXECUTIONER)) {
+            if (this.player.getMainHandItem().is(TMMItems.REVOLVER))
+                return;
+            if (GameUtils.isPlayerAliveAndSurvival(player)) {
+                for (int i = 0; i < 9; i++) {
+                    if (!this.player.getInventory().getItem(i).is(TMMItems.REVOLVER))
+                        continue;
+                    this.player.getInventory().selected = i;
+                    break;
+                }
+            }
+        } else {
+            if (this.player.getMainHandItem().is(TMMItems.BAT))
+                return;
+            if (GameUtils.isPlayerAliveAndSurvival(player)) {
+                for (int i = 0; i < 9; i++) {
+                    if (!this.player.getInventory().getItem(i).is(TMMItems.BAT))
+                        continue;
+                    this.player.getInventory().selected = i;
+                    break;
+                }
             }
         }
     }
