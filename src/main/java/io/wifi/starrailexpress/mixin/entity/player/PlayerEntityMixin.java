@@ -61,6 +61,11 @@ public abstract class PlayerEntityMixin extends LivingEntity implements PlayerSt
         return sprintingTicks;
     }
 
+    @Override
+    public void starrailexpress$setStamina(float value) {
+        this.sprintingTicks = value;
+    }
+
     @Unique
     public float sprintingTicks;
     @Unique

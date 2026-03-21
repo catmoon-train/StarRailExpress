@@ -90,6 +90,19 @@ public class ModEntities {
                     .build());
 
     /**
+     * 绊索陷阱实体 - 设陷者可见陷阱，可被拆除
+     */
+    @SuppressWarnings("deprecation")
+    public static final EntityType<TripwireTrapEntity> TRIPWIRE_TRAP = Registry.register(
+            BuiltInRegistries.ENTITY_TYPE,
+            ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "tripwire_trap"),
+            FabricEntityTypeBuilder.<TripwireTrapEntity>create(MobCategory.MISC, TripwireTrapEntity::new)
+                    .dimensions(EntityDimensions.fixed(0.5F, 0.1F))
+                    .trackRangeBlocks(32)
+                    .trackedUpdateRate(20)
+                    .build());
+
+    /**
      * 傀儡本体实体 - 傀儡师使用假人技能时生成的本体
      */
     @SuppressWarnings("deprecation")

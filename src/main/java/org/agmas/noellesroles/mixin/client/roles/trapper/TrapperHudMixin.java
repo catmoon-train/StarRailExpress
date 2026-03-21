@@ -20,6 +20,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  * 设陷者 HUD Mixin
  * 
  * 显示设陷者的陷阱储存状态：
+ * - 当前选择的陷阱类型
  * - 当前陷阱数量 / 最大数量
  * - 恢复进度（如果未满）
  */
@@ -47,9 +48,16 @@ public class TrapperHudMixin {
         int screenWidth = client.getWindow().getGuiScaledWidth();
         int screenHeight = client.getWindow().getGuiScaledHeight();
         int x = screenWidth - 150;  // 距离右边缘
-        int y = screenHeight - 50;  // 距离底部
+        int y = screenHeight - 62;  // 距离底部（留出更多空间显示陷阱类型）
         
         Font textRenderer = client.font;
+
+        // 显示当前陷阱类型
+        Component trapTypeText = Component.translatable(trapperComponent.getTrapTypeName());
+        int trapTypeColor = trapperComponent.getSelectedTrapType() == TrapperPlayerComponent.TRAP_TYPE_CALAMITY
+                ? 0xBB44CC  // 紫色 - 灾厄陷阱
+                : 0xFF8C00; // 橙色 - 绊索陷阱
+        context.drawString(textRenderer, trapTypeText, x, y, trapTypeColor);
         
         // 显示陷阱储存数量
         int charges = trapperComponent.getTrapCharges();
@@ -67,18 +75,18 @@ public class TrapperHudMixin {
         
         // 显示陷阱数量文本
         Component chargeText = Component.translatable("hud.noellesroles.trapper.charges", charges, maxCharges);
-        context.drawString(textRenderer, chargeText, x, y, chargeColor);
+        context.drawString(textRenderer, chargeText, x, y + 12, chargeColor);
         
         // 如果陷阱未满，显示恢复时间
         if (charges < maxCharges) {
             float rechargeSeconds = trapperComponent.getRechargeSeconds();
             Component rechargeText = Component.translatable("hud.noellesroles.trapper.recharge",
                 String.format("%.1f", rechargeSeconds));
-            context.drawString(textRenderer, rechargeText, x, y + 12, 0xAAAAAA);
+            context.drawString(textRenderer, rechargeText, x, y + 24, 0xAAAAAA);
         } else {
             // 满了就显示就绪
             Component readyText = Component.translatable("hud.noellesroles.trapper.ready");
-            context.drawString(textRenderer, readyText, x, y + 12, CommonColors.GREEN);
+            context.drawString(textRenderer, readyText, x, y + 24, CommonColors.GREEN);
         }
     }
 }

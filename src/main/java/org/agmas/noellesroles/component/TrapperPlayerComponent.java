@@ -3,6 +3,7 @@ package org.agmas.noellesroles.component;
 import io.wifi.starrailexpress.game.GameUtils;
 import org.agmas.noellesroles.init.ModEntities;
 import org.agmas.noellesroles.entity.CalamityMarkEntity;
+import org.agmas.noellesroles.entity.TripwireTrapEntity;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import io.wifi.starrailexpress.api.RoleComponent;
@@ -39,6 +40,7 @@ import net.minecraft.world.phys.Vec3;
  * - 其他玩家踩中触发，发出巨响暴露位置并发光
  * - 施加"标记"，被标记者被囚禁
  * - 囚禁时间递增：3秒 -> 10秒 -> 25秒
+ * - 可切换为绊索陷阱（可见、可拆除、根据疾跑状态不同效果）
  */
 public class TrapperPlayerComponent implements RoleComponent, ServerTickingComponent {
     @Override
@@ -72,6 +74,17 @@ public class TrapperPlayerComponent implements RoleComponent, ServerTickingCompo
     /** 发光效果持续时间（5秒 = 100 tick） */
     public static final int GLOWING_DURATION = 100;
 
+    // ==================== 陷阱类型 ====================
+
+    /** 灾厄陷阱类型 */
+    public static final int TRAP_TYPE_CALAMITY = 0;
+
+    /** 绊索陷阱类型 */
+    public static final int TRAP_TYPE_TRIPWIRE = 1;
+
+    /** 陷阱类型总数 */
+    public static final int TRAP_TYPE_COUNT = 2;
+
     // ==================== 状态变量 ====================
 
     private final Player player;
@@ -96,6 +109,9 @@ public class TrapperPlayerComponent implements RoleComponent, ServerTickingCompo
 
     /** 被囚禁玩家的位置（用于锁定） */
     private Map<UUID, Vec3> prisonPositions = new HashMap<>();
+
+    /** 当前选择的陷阱类型 */
+    public int selectedTrapType = TRAP_TYPE_CALAMITY;
 
     /**
      * 构造函数
@@ -122,6 +138,7 @@ public class TrapperPlayerComponent implements RoleComponent, ServerTickingCompo
         this.triggerCounts.clear();
         this.prisonTimers.clear();
         this.prisonPositions.clear();
+        this.selectedTrapType = TRAP_TYPE_CALAMITY;
         this.sync();
     }
 
@@ -134,6 +151,7 @@ public class TrapperPlayerComponent implements RoleComponent, ServerTickingCompo
         this.triggerCounts.clear();
         this.prisonTimers.clear();
         this.prisonPositions.clear();
+        this.selectedTrapType = TRAP_TYPE_CALAMITY;
         this.sync();
     }
 
@@ -148,6 +166,7 @@ public class TrapperPlayerComponent implements RoleComponent, ServerTickingCompo
         this.triggerCounts.clear();
         this.prisonTimers.clear();
         this.prisonPositions.clear();
+        this.selectedTrapType = TRAP_TYPE_CALAMITY;
         this.sync();
     }
 
@@ -179,6 +198,31 @@ public class TrapperPlayerComponent implements RoleComponent, ServerTickingCompo
         if (trapCharges >= MAX_TRAP_CHARGES)
             return 1.0f;
         return 1.0f - ((float) rechargeTimer / TRAP_RECHARGE_TIME);
+    }
+
+    /**
+     * 获取当前选择的陷阱类型
+     */
+    public int getSelectedTrapType() {
+        return selectedTrapType;
+    }
+
+    /**
+     * 切换陷阱类型
+     */
+    public void switchTrapType() {
+        this.selectedTrapType = (this.selectedTrapType + 1) % TRAP_TYPE_COUNT;
+        this.sync();
+    }
+
+    /**
+     * 获取当前陷阱类型名称的翻译键
+     */
+    public String getTrapTypeName() {
+        return switch (selectedTrapType) {
+            case TRAP_TYPE_TRIPWIRE -> "hud.noellesroles.trapper.type.tripwire";
+            default -> "hud.noellesroles.trapper.type.calamity";
+        };
     }
 
     /**
@@ -218,11 +262,20 @@ public class TrapperPlayerComponent implements RoleComponent, ServerTickingCompo
         BlockPos hitPos = hit.getBlockPos();
         Vec3 spawnPos = new Vec3(hitPos.getX() + 0.5, hitPos.getY() + 1.0, hitPos.getZ() + 0.5);
 
-        // 创建灾厄印记实体
-        CalamityMarkEntity mark = new CalamityMarkEntity(ModEntities.CALAMITY_MARK, world);
-        mark.setPos(spawnPos);
-        mark.setOwner(player);
-        world.addFreshEntity(mark);
+        // 根据当前选择的陷阱类型创建实体
+        if (selectedTrapType == TRAP_TYPE_TRIPWIRE) {
+            // 创建绊索陷阱实体
+            TripwireTrapEntity trap = new TripwireTrapEntity(ModEntities.TRIPWIRE_TRAP, world);
+            trap.setPos(spawnPos);
+            trap.setOwner(player);
+            world.addFreshEntity(trap);
+        } else {
+            // 创建灾厄印记实体
+            CalamityMarkEntity mark = new CalamityMarkEntity(ModEntities.CALAMITY_MARK, world);
+            mark.setPos(spawnPos);
+            mark.setOwner(player);
+            world.addFreshEntity(mark);
+        }
 
         // 消耗一个陷阱储存
         this.trapCharges--;
@@ -444,6 +497,7 @@ public class TrapperPlayerComponent implements RoleComponent, ServerTickingCompo
         tag.putInt("rechargeTimer", this.rechargeTimer);
         tag.putBoolean("isTrapperMarked", this.isTrapperMarked);
         tag.putBoolean("isRecharging", this.isRecharging);
+        tag.putInt("selectedTrapType", this.selectedTrapType);
 
         // 保存触发次数
         CompoundTag countsTag = new CompoundTag();
@@ -477,6 +531,7 @@ public class TrapperPlayerComponent implements RoleComponent, ServerTickingCompo
         this.rechargeTimer = tag.contains("rechargeTimer") ? tag.getInt("rechargeTimer") : 0;
         this.isTrapperMarked = tag.contains("isTrapperMarked") && tag.getBoolean("isTrapperMarked");
         this.isRecharging = tag.contains("isRecharging") && tag.getBoolean("isRecharging");
+        this.selectedTrapType = tag.contains("selectedTrapType") ? tag.getInt("selectedTrapType") : TRAP_TYPE_CALAMITY;
 
         // 读取触发次数
         this.triggerCounts.clear();
@@ -526,9 +581,11 @@ public class TrapperPlayerComponent implements RoleComponent, ServerTickingCompo
     
     @Override
     public void writeToSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+        tag.putInt("selectedTrapType", this.selectedTrapType);
     }
 
     @Override
     public void readFromSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+        this.selectedTrapType = tag.contains("selectedTrapType") ? tag.getInt("selectedTrapType") : TRAP_TYPE_CALAMITY;
     }
 }
