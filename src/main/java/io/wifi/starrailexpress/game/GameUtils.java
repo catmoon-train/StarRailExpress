@@ -403,7 +403,7 @@ public class GameUtils {
                         (Integer) SAFE_TIME_COOLDOWN);
             });
             cooldowns.addCooldown(ModItems.SP_KNIFE, SAFE_TIME_COOLDOWN);
-            cooldowns.addCooldown(ModItems.Stalker_Knife, SAFE_TIME_COOLDOWN);
+            cooldowns.addCooldown(ModItems.STALKER_KNIFE, SAFE_TIME_COOLDOWN);
             cooldowns.addCooldown(TMMItems.NUNCHUCK, SAFE_TIME_COOLDOWN);
             cooldowns.addCooldown(TMMItems.KNIFE, SAFE_TIME_COOLDOWN);
             cooldowns.addCooldown(ModItems.FAKE_REVOLVER, SAFE_TIME_COOLDOWN);

@@ -86,10 +86,10 @@ public class ModItems {
     public static final Item SP_KNIFE = register(
             new SPKnifeItem(new Item.Properties().stacksTo(1)),
             "sp_knife");
-    public static final Item Stalker_Knife = register(
+    public static final Item STALKER_KNIFE = register(
             new StalkerKnifeItem(new Item.Properties().stacksTo(1)),
             "stalker_knife");
-    public static final Item Stalker_Knife_2 = register(
+    public static final Item STALKER_KNIFE_OFFHAND = register(
             new StalkerKnifeItem(new Item.Properties().stacksTo(1)),
             "stalker_knife_offhand");
     public static final Item FAKE_REVOLVER = register(
@@ -467,8 +467,8 @@ public class ModItems {
                 Component.translatable("itemstack.exampler.psychoitem.item_name"));
         ChargeableItemRegistry.register(ANTIDOTE_REAGENT, new AntidoteReagentChargeItem());
         ChargeableItemRegistry.register(FunnyItems.BOWEN_BADGE, new BowenBadgeChargeItem());
-        ChargeableItemRegistry.register(ModItems.Stalker_Knife, new StalkerKnifeChargeItem());
-        ChargeableItemRegistry.register(ModItems.Stalker_Knife_2, new StalkerKnifeChargeItem());
+        ChargeableItemRegistry.register(ModItems.STALKER_KNIFE, new StalkerKnifeChargeItem());
+        ChargeableItemRegistry.register(ModItems.STALKER_KNIFE_OFFHAND, new StalkerKnifeChargeItem());
         ChargeableItemRegistry.register(HSRItems.TOXIN, new ToxinChargeItem());
         ChargeableItemRegistry.register(ModItems.THROWING_KNIFE, new KnifeChargeableItem());
         ChargeableItemRegistry.register(HSRItems.ANTIDOTE, new AntidoteChargeItem());

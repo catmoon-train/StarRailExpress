@@ -311,7 +311,7 @@ public class StalkerPlayerComponent implements RoleComponent, ServerTickingCompo
 
         // 跟踪者一开始就是杀手阵营，不需要 addRole
         // 只需要给予刀
-        player.addItem(ModItems.Stalker_Knife.getDefaultInstance());
+        player.addItem(ModItems.STALKER_KNIFE.getDefaultInstance());
 
         // 发送阶段转换消息
         serverPlayer.displayClientMessage(

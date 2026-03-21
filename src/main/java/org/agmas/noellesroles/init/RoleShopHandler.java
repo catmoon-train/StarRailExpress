@@ -722,13 +722,13 @@ public class RoleShopHandler {
     ShopContent.customEntries.put(
         ModRoles.STALKER_ID,
         List.of(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), 75,
-            ShopEntry.Type.TOOL),new ShopEntry(ModItems.Stalker_Knife_2.getDefaultInstance(), 325, ShopEntry.Type.WEAPON){
+            ShopEntry.Type.TOOL),new ShopEntry(ModItems.STALKER_KNIFE_OFFHAND.getDefaultInstance(), 325, ShopEntry.Type.WEAPON){
           @Override
           public boolean onBuy(@NotNull Player player) {
 
             boolean b = player.getOffhandItem().getItem() instanceof KnifeItem;
             if (! b){
-              player.setItemInHand(InteractionHand.OFF_HAND,ModItems.Stalker_Knife_2.getDefaultInstance());
+              player.setItemInHand(InteractionHand.OFF_HAND,ModItems.STALKER_KNIFE_OFFHAND.getDefaultInstance());
             }
             return b;
           }

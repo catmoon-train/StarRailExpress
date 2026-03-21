@@ -23,15 +23,15 @@ public class ThrowingKnifeCooldownMixin {
     private void receive(KnifeStabPayload payload, ServerPlayNetworking.Context context, CallbackInfo ci) {
         ServerPlayer player = context.player();
         player.getCooldowns().addCooldown(ModItems.THROWING_KNIFE, (Integer) GameConstants.ITEM_COOLDOWNS.get(TMMItems.KNIFE));
-        if (player.getMainHandItem().getItem() == ModItems.Stalker_Knife_2) {
-            player.getCooldowns().addCooldown(ModItems.Stalker_Knife_2, (Integer) GameConstants.ITEM_COOLDOWNS.get(TMMItems.KNIFE)-200);
+        if (player.getMainHandItem().getItem() == ModItems.STALKER_KNIFE_OFFHAND) {
+            player.getCooldowns().addCooldown(ModItems.STALKER_KNIFE_OFFHAND, (Integer) GameConstants.ITEM_COOLDOWNS.get(TMMItems.KNIFE)-200);
 
             player.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY,15,0));
             // ── 击中后向前突进 ────────────────────────────────────────────
             ServerLevel serverLevel = context.player().serverLevel();
             performDashOnHit(serverLevel, player, serverLevel.getEntity(payload.target()));
-        }else if (player.getMainHandItem().getItem() == ModItems.Stalker_Knife) {
-            player.getCooldowns().addCooldown(ModItems.Stalker_Knife, (Integer) GameConstants.ITEM_COOLDOWNS.get(TMMItems.KNIFE)-200);
+        }else if (player.getMainHandItem().getItem() == ModItems.STALKER_KNIFE) {
+            player.getCooldowns().addCooldown(ModItems.STALKER_KNIFE, (Integer) GameConstants.ITEM_COOLDOWNS.get(TMMItems.KNIFE)-200);
 
             player.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY,15,0));
             // ── 击中后向前突进 ────────────────────────────────────────────
