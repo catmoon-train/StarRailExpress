@@ -94,7 +94,7 @@ public class AlchemistPlayerComponent implements RoleComponent, ServerTickingCom
 
     @Override
     public void readFromSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
-        if (!tag.contains("materialGatherTimer")) {
+        if (!tag.contains("MaterialGatherTimer")) {
             this.clear();
             return;
         }
