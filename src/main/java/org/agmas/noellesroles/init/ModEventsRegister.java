@@ -420,6 +420,60 @@ public class ModEventsRegister {
         }
     }
 
+    /**
+     * 处理会计死亡 - 将存折传递给另一名存活的平民
+     */
+    private static void handleAccountantDeath(Player victim) {
+        if (victim == null || victim.level().isClientSide())
+            return;
+
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(victim.level());
+        if (!gameWorld.isRole(victim, ModRoles.ACCOUNTANT))
+            return;
+
+        // 查找会计背包中的存折
+        ArrayList<ItemStack> itemsToTransfer = new ArrayList<>();
+        for (int i = 0; i < victim.getInventory().getContainerSize(); i++) {
+            ItemStack stack = victim.getInventory().getItem(i);
+            if (stack.getItem() == org.agmas.noellesroles.init.ModItems.PASSBOOK) {
+                itemsToTransfer.add(stack.copy());
+                victim.getInventory().setItem(i, ItemStack.EMPTY);
+            }
+        }
+
+        if (itemsToTransfer.isEmpty())
+            return;
+
+        // 查找另一名存活的平民
+        Player targetPlayer = null;
+        for (Player player : victim.level().players()) {
+            if (player == victim)
+                continue;
+            if (!GameUtils.isPlayerAliveAndSurvival(player))
+                continue;
+
+            SRERole role = gameWorld.getRole(player);
+            if (role != null && role.isInnocent()) {
+                targetPlayer = player;
+                break;
+            }
+        }
+
+        // 如果找到存活的平民，传递物品
+        if (targetPlayer != null) {
+            for (ItemStack item : itemsToTransfer) {
+                targetPlayer.addItem(item);
+            }
+            if (targetPlayer instanceof ServerPlayer serverTarget) {
+                serverTarget.displayClientMessage(
+                        Component.translatable("message.noellesroles.accountant.passbook_inherited",
+                                victim.getName().getString())
+                                .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD),
+                        true);
+            }
+        }
+    }
+
     private static boolean isEnabled = false;
 
     public static void registerEvents() {
@@ -836,8 +890,7 @@ public class ModEventsRegister {
         ShouldDropOnDeath.EVENT.register(((stack) -> {
             final var key = BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
             if ("exposure:album".equals(key) || "exposure:photograph".equals(key)
-                    || "exposure:stacked_photographs".equals(key) || stack.is(ModItems.PATROLLER_REVOLVER)
-                    || stack.is(ModItems.PASSBOOK)) {
+                    || "exposure:stacked_photographs".equals(key) || stack.is(ModItems.PATROLLER_REVOLVER)) {
                 return true;
             }
             if (stack.is(ModItems.MASTER_KEY) ||
@@ -1201,6 +1254,9 @@ public class ModEventsRegister {
         OnPlayerDeath.EVENT.register((victim, deathReason) -> {
             // 检查医生死亡 - 传递针管
             handleDoctorDeath(victim);
+
+            // 检查会计死亡 - 传递存折
+            handleAccountantDeath(victim);
 
             // 检查死亡惩罚
             handleDeathPenalty(victim);

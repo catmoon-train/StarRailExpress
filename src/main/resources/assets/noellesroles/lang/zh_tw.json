@@ -1420,6 +1420,7 @@
   "message.noellesroles.accountant.expense.increased_over_100": "⚠ %s 的金幣大幅上升了且超過了100金幣！",
   "message.noellesroles.accountant.expense.decreased_over_100": "⚠ %s 的金幣大幅下降了且超過了100金幣！",
   "message.noellesroles.accountant.expense.unchanged": "%s 的金幣數量未發生變化",
+  "message.noellesroles.accountant.passbook_inherited": "你從 %s 那裏繼承了存摺！",
   "message.noellesroles.water_ghost.skill_used": "已獲得海豚的恩惠1，持續10秒！",
   "message.noellesroles.water_ghost.skill_end": "海豚的恩惠效果已結束！",
   "message.noellesroles.water_ghost.cooldown": "技能冷卻中，還需 %s 秒！",

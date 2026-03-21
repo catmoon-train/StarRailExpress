@@ -1415,6 +1415,7 @@
   "message.noellesroles.accountant.expense.increased_over_100": "⚠ %s's gold increased significantly, exceeding 100 gold!",
   "message.noellesroles.accountant.expense.decreased_over_100": "⚠ %s's gold decreased significantly, exceeding 100 gold!",
   "message.noellesroles.accountant.expense.unchanged": "%s's gold amount unchanged",
+  "message.noellesroles.accountant.passbook_inherited": "You inherited a passbook from %s!",
   "message.noellesroles.water_ghost.skill_used": "Received Dolphin's Blessing I, lasts 10 seconds!",
   "message.noellesroles.water_ghost.skill_end": "Dolphin's Blessing effect ended!",
   "message.noellesroles.water_ghost.cooldown": "Skill cooldown, %s seconds remaining!",
