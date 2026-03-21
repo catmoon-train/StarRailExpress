@@ -103,8 +103,8 @@ public class InsaneKillerPlayerComponent
                         ServerPlayNetworking.send(sp, new ToggleInsaneSkillC2SPacket(true));
                     }
                     insaneKillerPlayerComponent.sync();
-                    playerEntity.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 99999, 4));
-                    playerEntity.addEffect(new MobEffectInstance(MobEffects.DARKNESS, 99999, 4));
+                    playerEntity.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 99999, 4,false,false,false));
+                    playerEntity.addEffect(new MobEffectInstance(MobEffects.DARKNESS, 99999, 4,false,false));
                     // insaneKillerPlayerComponent.sync();
                     playerEntity.stopRiding();
                     return false;
@@ -141,6 +141,7 @@ public class InsaneKillerPlayerComponent
 
         SREPlayerShopComponent.KEY.get(player).addToBalance(100);
         player.removeEffect(MobEffects.MOVEMENT_SLOWDOWN);
+        player.removeEffect(MobEffects.DARKNESS);
         sync();
     }
 

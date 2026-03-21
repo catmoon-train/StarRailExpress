@@ -48,20 +48,18 @@
     "roles.puppeteer.PuppeteerBodyGunPayloadMixin",
     "roles.puppeteer.PuppeteerBodyKnifePayloadMixin",
     "roles.stalker.StalkerLeftClickKillMixin",
+    "roles.stalker.StalkerOffItemMixin",
     "roles.thief.DelayedCoinDisplayMixin",
     "roles.thief.ThiefsHonorMixin",
     "roles.veteran.VeteranKnifeLeftClickMixin",
     "roles.writter.WrittenBookMixin",
     "time_stop.PlayerMixin",
-    "time_stop.ServerPacketBlocker",
-    "roles.stalker.StalkerOffItemMixin"
-
+    "time_stop.ServerPacketBlocker"
   ],
   "injectors": {
     "defaultRequire": 1
   },
   "client": [
-    "client.roles.stalker.AutoUseKnifeMixin",
     "LivingEntityAccessor",
     "client.HandCuffsKeyBindingMixin",
     "client.InstinctMixin",
@@ -70,6 +68,8 @@
     "client.game.ChairWheelKeyMappingMixin",
     "client.general.InventoryIntroductionRenderer",
     "client.general.MessageBelowMoney",
+    "client.general.MobEffectKeyMixin",
+    "client.general.MobEffectMouseHandleSuppressMixin",
     "client.general.ThrowItemMixin",
     "client.roles.AvengerHudMixin",
     "client.roles.BomberHudMixin",
@@ -116,6 +116,7 @@
     "client.roles.puppeteer.PuppeteerBodyGunTargetMixin",
     "client.roles.puppeteer.PuppeteerBodyKnifeTargetMixin",
     "client.roles.recaller.RecallerHudMixin",
+    "client.roles.stalker.AutoUseKnifeMixin",
     "client.roles.stalker.StalkerHudMixin",
     "client.roles.swapper.KeyBindingMixin",
     "client.roles.swapper.SwapperScreenMixin",

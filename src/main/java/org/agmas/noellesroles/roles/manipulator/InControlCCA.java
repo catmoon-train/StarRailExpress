@@ -5,6 +5,7 @@ import java.util.UUID;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import org.agmas.noellesroles.Noellesroles;
+import org.agmas.noellesroles.init.ModEffects;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
@@ -114,9 +115,11 @@ public class InControlCCA implements RoleComponent, ServerTickingComponent {
         }
         if (isControlling) {
             if (controlTimer > 0) {
-                if (!player.hasEffect(MobEffects.UNLUCK)) {
-                    player.addEffect(new MobEffectInstance(MobEffects.UNLUCK, 1, 0, true, false, true));
-                }
+                //if (!player.hasEffect(ModEffects.BLACK_MONITOR)) {
+                    player.addEffect(new MobEffectInstance(ModEffects.BLACK_MONITOR, 10, 0, true, false, true));
+                    player.addEffect(new MobEffectInstance(ModEffects.TURN_BANED, 10, 0, true, false, true));
+                    player.addEffect(new MobEffectInstance(ModEffects.SKILL_BANED, 10, 0, true, false, true));
+                //}
                 --controlTimer;
                 if (player.isShiftKeyDown()) {
                     --controlTimer;

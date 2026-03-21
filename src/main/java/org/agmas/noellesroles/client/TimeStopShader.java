@@ -14,14 +14,20 @@ public class TimeStopShader {
     private PostProcessor m_post;
 
     // 时间停止状态
-    private float timeStopProgress = 0.0f;      // 动画强度 (0~1)，仅前 1.5 秒有效
-    private float stopAmount = 0.0f;            // 灰白程度 (0~1)
+    private float timeStopProgress = 0.0f;      // 时间停止动画强度 (0~1)，仅前 1.5 秒有效
+    private float stopAmount = 0.0f;            // 时间停止灰白程度 (0~1)
     private float totalTime = 0.0f;             // 累计时间，用于着色器脉动
     private float effectStartTime = 0;           // 本次效果开始时的 totalTime
+    
+    // 黑屏状态
+    private float blackScreenStrength = 0.0f;   // 黑屏强度 (0~1)
+    private boolean hasBlackMonitorEffect = false;// 是否有黑屏监控效果
     
     // 上一次的状态（用于检测效果开始或刷新）
     private boolean lastHasTimeStop = false;
     private int lastDuration = 0;
+    
+    private boolean lastHasBlackMonitor = false; // 上一次是否有黑屏监控效果
 
     // 常量
     private static final float ANIMATION_DURATION = 1.95f;  // 动画总时长（秒），延长 30%
@@ -46,6 +52,7 @@ public class TimeStopShader {
     private void initSanityPostProcess() {
         Minecraft mc = Minecraft.getInstance();
 
+        // 时间停止着色器
         m_post.addSinglePassEntry("timestop", pass -> processPlayer(mc.player, () -> {
             if (!mc.player.hasEffect(ModEffects.TIME_STOP)) return false;
             var effect = pass.getEffect();
@@ -135,6 +142,56 @@ public class TimeStopShader {
 
             // 只要动画或灰白还可见，就继续渲染
             return timeStopProgress > 0.01f || stopAmount > 0.01f;
+        }));
+        
+        // 黑屏监控着色器
+        m_post.addSinglePassEntry("black", pass -> processPlayer(mc.player, () -> {
+            if (!mc.player.hasEffect(ModEffects.BLACK_MONITOR)) {
+                // 如果没有效果，逐渐减少黑屏强度
+                if (blackScreenStrength > 0) {
+                    blackScreenStrength = Math.max(0, blackScreenStrength - 0.05f);
+                }
+                return blackScreenStrength > 0.01f;
+            }
+            
+            var effect = pass.getEffect();
+            if (effect == null) return false;
+            
+            // 检测效果是否开始或刷新
+            boolean hasBlackMonitor = mc.player.hasEffect(ModEffects.BLACK_MONITOR);
+            boolean effectStarted = false;
+            if (hasBlackMonitor) {
+                if (!lastHasBlackMonitor) {
+                    effectStarted = true;
+                }
+            }
+            
+            lastHasBlackMonitor = hasBlackMonitor;
+            
+            // 如果效果刚开始，重置黑屏强度
+            if (effectStarted) {
+                blackScreenStrength = 0.0f;
+            }
+            
+            // 逐渐增加黑屏强度到1.0
+            if (hasBlackMonitor && blackScreenStrength < 1.0f) {
+                blackScreenStrength += 0.02f;
+                blackScreenStrength = Math.min(1.0f, blackScreenStrength);
+            }
+            
+            // 设置uniform参数
+            var blackStrengthUniform = effect.safeGetUniform("BlackStrength");
+            if (blackStrengthUniform != null) {
+                blackStrengthUniform.set(blackScreenStrength);
+            }
+            
+            var timeUniform = effect.safeGetUniform("Time");
+            if (timeUniform != null) {
+                timeUniform.set(totalTime);
+            }
+            
+            // 只要黑屏还可见，就继续渲染
+            return blackScreenStrength > 0.01f;
         }));
     }
 
