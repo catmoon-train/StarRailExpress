@@ -436,6 +436,10 @@ public class ChatDialogueScreen extends Screen {
             return;
         }
 
+        if (!line.runsOnServer()) {
+            runClientCommand(line.command);
+        }
+
         // 通知服务端当前行推进（用于执行绑定的 command）
         ClientPlayNetworking.send(ChatDialogueAdvancePayload.advance(dialogue.id, currentLine));
 
@@ -455,6 +459,9 @@ public class ChatDialogueScreen extends Screen {
         }
 
         ChatDialogueData.DialogueChoice choice = line.choices.get(selectedChoiceIndex);
+        if (!choice.runsOnServer()) {
+            runClientCommand(choice.command);
+        }
         ClientPlayNetworking.send(ChatDialogueAdvancePayload.select(
                 dialogue.id, currentLine, selectedChoiceIndex, focusEntityId));
 
@@ -480,6 +487,23 @@ public class ChatDialogueScreen extends Screen {
             closingAnim = true;
             closeStartTime = Util.getMillis();
         }
+    }
+
+    private void runClientCommand(String command) {
+        if (command == null || command.isBlank() || this.minecraft == null || this.minecraft.player == null
+                || this.minecraft.player.connection == null) {
+            return;
+        }
+
+        String normalized = command.trim();
+        if (normalized.startsWith("/")) {
+            normalized = normalized.substring(1).trim();
+        }
+        if (normalized.isEmpty()) {
+            return;
+        }
+
+        this.minecraft.player.connection.sendCommand(normalized);
     }
 
     // ─────────────────────────────────────────────────────────────────

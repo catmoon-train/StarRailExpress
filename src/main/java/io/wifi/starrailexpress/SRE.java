@@ -368,42 +368,42 @@ public class SRE extends StarRailExpressID implements ModInitializer {
                     if (data == null) return;
                     int idx = payload.lineIndex();
                     if (idx < 0 || idx >= data.lines.size()) return;
-                var line = data.lines.get(idx);
+                    var line = data.lines.get(idx);
 
-                if (payload.choiceIndex() >= 0) {
-                if (!line.hasChoices()) return;
-                int choiceIndex = payload.choiceIndex();
-                if (choiceIndex < 0 || choiceIndex >= line.choices.size()) return;
+                    if (payload.choiceIndex() >= 0) {
+                        if (!line.hasChoices()) return;
+                        int choiceIndex = payload.choiceIndex();
+                        if (choiceIndex < 0 || choiceIndex >= line.choices.size()) return;
 
-                var choice = line.choices.get(choiceIndex);
-                executeDialogueCommand(context, choice.command);
+                        var choice = line.choices.get(choiceIndex);
+                        executeDialogueCommand(context, choice.command, choice.runsOnServer());
 
-                if (choice.opensDialogue()) {
-                    var nextDialogue = mgr.get(choice.nextDialogue);
-                    if (nextDialogue != null) {
-                    net.exmo.sre.client.chat.OpenChatDialoguePayload.sendToPlayer(
-                        context.player(), nextDialogue, payload.focusEntityId());
-                    } else {
-                    LOGGER.warn("[SRE-Chat] Missing next dialogue '{}' from '{}' line {} choice {}",
-                        choice.nextDialogue, payload.dialogueId(), idx, choiceIndex);
+                        if (choice.opensDialogue()) {
+                            var nextDialogue = mgr.get(choice.nextDialogue);
+                            if (nextDialogue != null) {
+                                net.exmo.sre.client.chat.OpenChatDialoguePayload.sendToPlayer(
+                                        context.player(), nextDialogue, payload.focusEntityId());
+                            } else {
+                                LOGGER.warn("[SRE-Chat] Missing next dialogue '{}' from '{}' line {} choice {}",
+                                        choice.nextDialogue, payload.dialogueId(), idx, choiceIndex);
+                            }
+                        }
+                        return;
                     }
-                }
-                return;
-                    }
 
-                executeDialogueCommand(context, line.command);
+                    executeDialogueCommand(context, line.command, line.runsOnServer());
                 });
     }
 
-        private static void executeDialogueCommand(ServerPlayNetworking.Context context, String command) {
-        if (command == null || command.isEmpty()) return;
+    private static void executeDialogueCommand(ServerPlayNetworking.Context context, String command, boolean runOnServer) {
+        if (!runOnServer || command == null || command.isBlank()) return;
         context.player().getServer().getCommands()
-            .performPrefixedCommand(
-                context.player().createCommandSourceStack()
-                    .withPermission(2)
-                    .withSuppressedOutput(),
-                command);
-        }
+                .performPrefixedCommand(
+                        context.player().createCommandSourceStack()
+                                .withPermission(2)
+                                .withSuppressedOutput(),
+                        command);
+    }
 
     private void joinVoice(JoinSpecGroupPayload payload, ServerPlayNetworking.Context context) {
         ServerPlayer sp = context.player();

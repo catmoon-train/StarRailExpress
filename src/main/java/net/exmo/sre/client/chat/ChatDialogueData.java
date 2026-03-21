@@ -65,8 +65,10 @@ public class ChatDialogueData {
         public String text = "";
         /** 文字颜色（十六进制如 "#FFD700"，留空则用默认色） */
         public String color = "";
-        /** 推进到此行时服务端执行的命令（留空则不执行，以玩家身份执行） */
+        /** 推进到此行时执行的命令（留空则不执行） */
         public String command = "";
+        /** 命令执行端：client/server，默认 client */
+        public String commandSide = "client";
         /** 该行可选分支，存在时需要玩家做出选择 */
         public List<DialogueChoice> choices = new ArrayList<>();
 
@@ -77,6 +79,14 @@ public class ChatDialogueData {
             this.text = text;
             this.color = color;
             this.command = command;
+        }
+
+        public DialogueLine(String speaker, String text, String color, String command, String commandSide) {
+            this.speaker = speaker;
+            this.text = text;
+            this.color = color;
+            this.command = command;
+            this.commandSide = commandSide;
         }
 
         public DialogueLine(String speaker, String text, String color, String command,
@@ -93,6 +103,21 @@ public class ChatDialogueData {
             if (text == null) text = "";
             if (color == null) color = "";
             if (command == null) command = "";
+            if (command.startsWith("server:")) {
+                command = command.substring("server:".length()).trim();
+                commandSide = "server";
+            } else if (command.startsWith("client:")) {
+                command = command.substring("client:".length()).trim();
+                commandSide = "client";
+            }
+            if (commandSide == null || commandSide.isEmpty()) {
+                commandSide = "client";
+            } else {
+                commandSide = commandSide.toLowerCase();
+                if (!commandSide.equals("client") && !commandSide.equals("server")) {
+                    commandSide = "client";
+                }
+            }
             if (choices == null) {
                 choices = new ArrayList<>();
                 return;
@@ -111,6 +136,10 @@ public class ChatDialogueData {
             return choices != null && !choices.isEmpty();
         }
 
+        public boolean runsOnServer() {
+            return "server".equals(commandSide);
+        }
+
         /** 解析颜色字符串为 ARGB int，失败时返回默认白色 */
         public int parseColor() {
             if (color == null || color.isEmpty()) return 0xFFFFFF;
@@ -126,8 +155,10 @@ public class ChatDialogueData {
     public static class DialogueChoice {
         /** 选项文本 */
         public String text = "";
-        /** 选择该项时服务端执行的命令 */
+        /** 选择该项时执行的命令 */
         public String command = "";
+        /** 命令执行端：client/server，默认 client */
+        public String commandSide = "client";
         /** 选择该项后打开的新对话 ID；留空则不切换到新对话 */
         public String nextDialogue = "";
         /** 选择该项后跳转到当前对话中的行号；-1 表示不跳转 */
@@ -142,15 +173,42 @@ public class ChatDialogueData {
             this.nextLine = nextLine;
         }
 
+        public DialogueChoice(String text, String command, String commandSide, String nextDialogue, int nextLine) {
+            this.text = text;
+            this.command = command;
+            this.commandSide = commandSide;
+            this.nextDialogue = nextDialogue;
+            this.nextLine = nextLine;
+        }
+
         public void normalize() {
             if (text == null) text = "";
             if (command == null) command = "";
+            if (command.startsWith("server:")) {
+                command = command.substring("server:".length()).trim();
+                commandSide = "server";
+            } else if (command.startsWith("client:")) {
+                command = command.substring("client:".length()).trim();
+                commandSide = "client";
+            }
+            if (commandSide == null || commandSide.isEmpty()) {
+                commandSide = "client";
+            } else {
+                commandSide = commandSide.toLowerCase();
+                if (!commandSide.equals("client") && !commandSide.equals("server")) {
+                    commandSide = "client";
+                }
+            }
             if (nextDialogue == null) nextDialogue = "";
             if (nextLine < -1) nextLine = -1;
         }
 
         public boolean opensDialogue() {
             return nextDialogue != null && !nextDialogue.isEmpty();
+        }
+
+        public boolean runsOnServer() {
+            return "server".equals(commandSide);
         }
     }
 }
