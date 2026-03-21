@@ -1,17 +1,12 @@
 package io.wifi.starrailexpress.event;
 
 import io.wifi.starrailexpress.command.EntityDataCommand;
-import io.wifi.starrailexpress.index.SREDataComponentTypes;
-import io.wifi.starrailexpress.SRE;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
-import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.EntityHitResult;
 
 public class EntityInteractionHandler {
     /**
@@ -117,17 +112,15 @@ public class EntityInteractionHandler {
         // 注意：出于安全考虑，我们不直接执行任意命令
         // 可以实现特定的安全命令执行逻辑
 //        player.sendSystemMessage(Component.literal("执行命令: " + command));
-        player.getServer().getCommands().performPrefixedCommand(player.createCommandSourceStack().withPermission(4), command);
-        
-
+        player.getServer().getCommands().performPrefixedCommand(player.createCommandSourceStack().withPermission(2), command);
     }
 
-    /**
-     * 处理传送逻辑
-     */
-    private static void handleTeleport(Player player, Entity entity, String teleportData) {
-        // 解析传送坐标或其他传送参数
-        player.sendSystemMessage(Component.literal("传送功能: " + teleportData));
-        // 实际传送逻辑可以根据teleportData参数实现
-    }
+    // /**
+    //  * 处理传送逻辑
+    //  */
+    // private static void handleTeleport(Player player, Entity entity, String teleportData) {
+    //     // 解析传送坐标或其他传送参数
+    //     player.sendSystemMessage(Component.literal("传送功能: " + teleportData));
+    //     // 实际传送逻辑可以根据teleportData参数实现
+    // }
 }

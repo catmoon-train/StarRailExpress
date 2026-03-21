@@ -64,6 +64,11 @@ public class SkinSelectionList extends ObjectSelectionList<SkinSelectionList.Ski
             this.addEntry(new SkinEntry(skinName));
         }
         children().sort((o1, o2) -> {
+            if (o1.isUnlocked != o2.isUnlocked) {
+                if (o1.isUnlocked)
+                    return -1;
+                return 1;
+            }
             var qColors = SkinManager.QualityColor.values();
             for (SkinManager.QualityColor qColor : qColors) {
                 if (o1.skinColor == qColor.getColor()) {
@@ -162,14 +167,14 @@ public class SkinSelectionList extends ObjectSelectionList<SkinSelectionList.Ski
     }
 
     public class SkinEntry extends ObjectSelectionList.Entry<SkinEntry> {
-        private final String skinName;
-        private boolean hovered = false;
-        private float hoverAnimation = 0f;
-        private final int skinColor;
-        private final boolean isUnlocked;
+        public final String skinName;
+        public boolean hovered = false;
+        public float hoverAnimation = 0f;
+        public final int skinColor;
+        public final boolean isUnlocked;
 
         private String currentSkin;
-        private boolean isCurrent = false;
+        public boolean isCurrent = false;
 
         public SkinEntry(String skinName) {
             this.skinName = skinName;
@@ -185,7 +190,8 @@ public class SkinSelectionList extends ObjectSelectionList<SkinSelectionList.Ski
             this.skinColor = sskinColor;
 
             // 检查皮肤是否解锁
-            this.isUnlocked = skinName.equals("default") || skinsComponent.isSkinUnlockedForItemType(itemTypeName, skinName);
+            this.isUnlocked = skinName.equals("default")
+                    || skinsComponent.isSkinUnlockedForItemType(itemTypeName, skinName);
 
             // 获取当前装备的皮肤
             updateCurrentSkin();

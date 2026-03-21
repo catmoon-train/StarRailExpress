@@ -806,8 +806,8 @@ public class StarRailExpressTitleScreen extends Screen {
 
     @Override
     public void removed() {
-        // SoundManager soundManager = Minecraft.getInstance().getSoundManager();
-        // soundManager.stop(ambient_sound);
+        SoundManager soundManager = Minecraft.getInstance().getSoundManager();
+        soundManager.stop(ambient_sound);
         if (this.realmsNotificationsScreen != null)
             this.realmsNotificationsScreen.removed();
     }
@@ -842,7 +842,7 @@ public class StarRailExpressTitleScreen extends Screen {
 
     public static int voiceFadeInDuration = 0;
     public static SimpleSoundInstance ambient_sound = SimpleSoundInstance.forUI(
-            TMMSounds.AMBIENT_TRAIN_OUTSIDE, 0.2f, 1F);
+            TMMSounds.AMBIENT_TRAIN_OUTSIDE, 0.2f, 0.2F);
 
     /**
      * 播放环境音效并带淡入效果
