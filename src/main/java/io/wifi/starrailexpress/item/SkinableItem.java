@@ -34,7 +34,7 @@ public abstract class SkinableItem extends Item {
         if (tooltipContext instanceof net.minecraft.world.entity.player.Player p) {
             player = p;
         } else {
-            player = net.minecraft.client.Minecraft.getInstance().player;
+            player = null;
         }
         if (player == null) {
             super.appendHoverText(itemStack, tooltipContext, list, tooltipFlag);
