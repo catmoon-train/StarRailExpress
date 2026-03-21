@@ -6,7 +6,7 @@ import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.SRE;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import org.agmas.noellesroles.init.ModItems;
+import org.agmas.noellesroles.item.HandCuffsItem;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -28,12 +28,11 @@ public abstract class HandCuffsKeyBindingMixin {
         if (SREClient.gameComponent != null && SREClient.gameComponent.isRunning()) {
             if (this.same(Minecraft.getInstance().options.keySpectatorOutlines))
                 return true;
-            if(!SREClient.isPlayerAliveAndInSurvival()){
+            if (!SREClient.isPlayerAliveAndInSurvival()) {
                 return false;
             }
             final var player = (Minecraft.getInstance().player);
-            if (player.getOffhandItem().is(ModItems.HANDCUFFS)) {
-
+            if (HandCuffsItem.hasHandCuff(player)) {
                 if (this.same(Minecraft.getInstance().options.keySwapOffhand) ||
                         this.same(Minecraft.getInstance().options.keyJump) ||
                         this.same(Minecraft.getInstance().options.keyTogglePerspective) ||
