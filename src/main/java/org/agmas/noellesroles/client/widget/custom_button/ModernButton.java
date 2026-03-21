@@ -15,30 +15,32 @@ import java.util.Set;
  * 仿 RoleIntroduceScreen 风格的现代按钮，支持同时在多个方向显示色条。
  * 文字会自动居中于扣除色条（实色 + 光晕）后的剩余内容区域。
  *
- * <p>用法示例：
+ * <p>
+ * 用法示例：
+ * 
  * <pre>{@code
  * // 默认：上下左右四边都有色条，文字居中于四边内缩后区域
  * ModernButton btn = ModernButton.builder(label, onPress)
- *     .bounds(x, y, 120, 20)
- *     .build();
+ *         .bounds(x, y, 120, 20)
+ *         .build();
  *
  * // 仅左侧色条，文字向右偏移
  * ModernButton.builder(label, onPress)
- *     .bounds(x, y, 120, 20)
- *     .accentBar(ModernButton.AccentSide.LEFT)
- *     .build();
+ *         .bounds(x, y, 120, 20)
+ *         .accentBar(ModernButton.AccentSide.LEFT)
+ *         .build();
  *
  * // 左 + 顶，文字向右下偏移
  * ModernButton.builder(label, onPress)
- *     .bounds(x, y, 120, 20)
- *     .accentBar(ModernButton.AccentSide.LEFT, ModernButton.AccentSide.TOP)
- *     .build();
+ *         .bounds(x, y, 120, 20)
+ *         .accentBar(ModernButton.AccentSide.LEFT, ModernButton.AccentSide.TOP)
+ *         .build();
  *
  * // 不显示色条，文字完全居中
  * ModernButton.builder(label, onPress)
- *     .bounds(x, y, 120, 20)
- *     .accentBar()
- *     .build();
+ *         .bounds(x, y, 120, 20)
+ *         .accentBar()
+ *         .build();
  * }</pre>
  */
 public class ModernButton extends net.minecraft.client.gui.components.Button {
@@ -52,20 +54,19 @@ public class ModernButton extends net.minecraft.client.gui.components.Button {
     }
 
     /** 默认四边全显示 */
-    private static final Set<AccentSide> DEFAULT_SIDES =
-            Collections.unmodifiableSet(EnumSet.allOf(AccentSide.class));
+    private static final Set<AccentSide> DEFAULT_SIDES = Collections.unmodifiableSet(EnumSet.of(AccentSide.LEFT));
 
     // ══════════════════════════════════════════════════════════════════
     // 字段
     // ══════════════════════════════════════════════════════════════════
 
     private static final int DEFAULT_ACCENT = 0xFF5577CC;
-    private static final int BAR_THICKNESS  = 3;
-    private static final int BAR_GLOW       = 4;
+    private static final int BAR_THICKNESS = 3;
+    private static final int BAR_GLOW = 4;
     /** 单侧色条（实色 + 光晕）占用的总像素宽/高 */
-    private static final int BAR_INSET      = BAR_THICKNESS + BAR_GLOW;
+    private static final int BAR_INSET = BAR_THICKNESS + BAR_GLOW;
 
-    private final int            accentColor;
+    private final int accentColor;
     private final Set<AccentSide> accentSides;
     private float hoverAnim = 0f;
 
@@ -97,30 +98,35 @@ public class ModernButton extends net.minecraft.client.gui.components.Button {
     public static final class ModernButtonBuilder extends Builder {
 
         private final Component label;
-        private final OnPress   onPress;
+        private final OnPress onPress;
         private int x = 0, y = 0, w = 150, h = 20;
-        private int             accent    = DEFAULT_ACCENT;
-        private Set<AccentSide> sides     = DEFAULT_SIDES;
+        private int accent = DEFAULT_ACCENT;
+        private Set<AccentSide> sides = DEFAULT_SIDES;
         private CreateNarration narration = ModernButton.DEFAULT_NARRATION;
 
         private ModernButtonBuilder(Component label, OnPress onPress) {
             super(label, onPress);
-            this.label   = label;
+            this.label = label;
             this.onPress = onPress;
         }
 
         public ModernButtonBuilder bounds(int x, int y, int w, int h) {
-            this.x = x; this.y = y; this.w = w; this.h = h;
+            this.x = x;
+            this.y = y;
+            this.w = w;
+            this.h = h;
             return this;
         }
 
         public ModernButtonBuilder pos(int x, int y) {
-            this.x = x; this.y = y;
+            this.x = x;
+            this.y = y;
             return this;
         }
 
         public ModernButtonBuilder size(int w, int h) {
-            this.w = w; this.h = h;
+            this.w = w;
+            this.h = h;
             return this;
         }
 
@@ -133,8 +139,8 @@ public class ModernButton extends net.minecraft.client.gui.components.Button {
         /**
          * 指定显示色条的方向，可传入多个。
          * <ul>
-         *   <li>不传参数 → 隐藏所有色条</li>
-         *   <li>不调用此方法 → 默认四边全显示</li>
+         * <li>不传参数 → 隐藏所有色条</li>
+         * <li>不调用此方法 → 默认四边全显示</li>
          * </ul>
          */
         public ModernButtonBuilder accentBar(AccentSide... sides) {
@@ -222,7 +228,8 @@ public class ModernButton extends net.minecraft.client.gui.components.Button {
     /**
      * 计算文字位置，使其居中于扣除所有激活色条后的剩余内容区域。
      *
-     * <p>内容区 = 按钮背景内侧（各边 -1px 边框）再减去各激活色条的 BAR_INSET。
+     * <p>
+     * 内容区 = 按钮背景内侧（各边 -1px 边框）再减去各激活色条的 BAR_INSET。
      * 对称方向（如同时 LEFT+RIGHT）会互相抵消，文字回到水平中心。
      *
      * @return int[]{centerX, topY}，对应 drawCenteredString 的参数。
@@ -243,16 +250,16 @@ public class ModernButton extends net.minecraft.client.gui.components.Button {
 
         int centerX = (contentX1 + contentX2) / 2;
         // drawCenteredString 第四参数为文字顶边 Y，9 为默认字体高度
-        int topY    = contentY1 + (contentY2 - contentY1 - 9) / 2;
+        int topY = contentY1 + (contentY2 - contentY1 - 9) / 2;
 
-        return new int[]{ centerX, topY };
+        return new int[] { centerX, topY };
     }
 
     /** 绘制单条色条，覆盖在背景内侧，向按钮中心方向渐隐。 */
     private void renderAccentBar(GuiGraphics g, int x, int y, int w, int h, AccentSide side) {
         final int x1 = x + 1, y1 = y + 1, x2 = x + w - 1, y2 = y + h - 1;
         final int solid = accentColor | 0xFF000000;
-        final int raw   = accentColor & 0x00FFFFFF;
+        final int raw = accentColor & 0x00FFFFFF;
 
         switch (side) {
             case LEFT -> {
@@ -292,11 +299,13 @@ public class ModernButton extends net.minecraft.client.gui.components.Button {
     }
 
     private static int blendColors(int c1, int c2, float t) {
-        if (t <= 0f) return c1;
-        if (t >= 1f) return c2;
+        if (t <= 0f)
+            return c1;
+        if (t >= 1f)
+            return c2;
         int r = (int) (((c1 >> 16) & 0xFF) + (((c2 >> 16) & 0xFF) - ((c1 >> 16) & 0xFF)) * t);
-        int g = (int) (((c1 >>  8) & 0xFF) + (((c2 >>  8) & 0xFF) - ((c1 >>  8) & 0xFF)) * t);
-        int b = (int) (( c1        & 0xFF) + (( c2        & 0xFF) - ( c1        & 0xFF)) * t);
+        int g = (int) (((c1 >> 8) & 0xFF) + (((c2 >> 8) & 0xFF) - ((c1 >> 8) & 0xFF)) * t);
+        int b = (int) ((c1 & 0xFF) + ((c2 & 0xFF) - (c1 & 0xFF)) * t);
         return 0xFF000000 | (r << 16) | (g << 8) | b;
     }
 }

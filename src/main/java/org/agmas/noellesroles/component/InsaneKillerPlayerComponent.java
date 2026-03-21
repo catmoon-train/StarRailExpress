@@ -225,8 +225,11 @@ public class InsaneKillerPlayerComponent
     }
 
     @Override
-    public boolean shouldSyncWith(ServerPlayer player) {
-        return true;
+    public boolean shouldSyncWith(ServerPlayer p) {
+        if (SREGameWorldComponent.KEY.get(player.level()).isRole(this.player,
+                ModRoles.THE_INSANE_DAMNED_PARANOID_KILLER_OF_DOOM_DEATH_DESTRUCTION_AND_WAFFLES))
+            return true;
+        return p == this.player;
     }
 
     @Override
