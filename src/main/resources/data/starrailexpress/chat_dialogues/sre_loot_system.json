@@ -1,0 +1,38 @@
+{
+  "id": "sre_loot_system",
+  "title": "抽奖系统介绍",
+  "lines": [
+    {
+      "speaker": "帕姆",
+      "text": "在列车上，你可以通过各种方式获得战利品哦！",
+      "color": "#FFD700",
+      "emotion": ""
+    },
+    {
+      "speaker": "系统",
+      "text": "教程：使用 LootUI 可以查看和管理你的战利品",
+      "color": "#88AACC",
+      "emotion": ""
+    },
+    {
+      "speaker": "帕姆",
+      "text": "要现在打开战利品界面看看吗？",
+      "color": "#FFD700",
+      "emotion": "",
+      "choices": [
+        {
+          "text": "打开战利品界面",
+          "command": "Loot:LootUI",
+          "nextDialogue": "",
+          "requiredRole": -1
+        },
+        {
+          "text": "返回主菜单",
+          "command": "",
+          "nextDialogue": "sre_welcome_guide",
+          "requiredRole": -1
+        }
+      ]
+    }
+  ]
+}

@@ -10,6 +10,7 @@ import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.Scheduler;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -50,6 +51,12 @@ public class ShootingFrenzyPlayerComponent implements RoleComponent, ServerTicki
     @Override
     public void init() {
         this.sync();
+    }
+
+
+    @Override
+    public boolean shouldSyncWith(ServerPlayer player) {
+        return player == this.player;
     }
 
     @Override
