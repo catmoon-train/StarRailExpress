@@ -1,6 +1,7 @@
 package org.agmas.noellesroles.component;
 
 import io.wifi.starrailexpress.game.GameUtils;
+import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModEntities;
 import org.agmas.noellesroles.entity.CalamityMarkEntity;
 import org.agmas.noellesroles.entity.TripwireTrapEntity;
@@ -266,13 +267,13 @@ public class TrapperPlayerComponent implements RoleComponent, ServerTickingCompo
         if (selectedTrapType == TRAP_TYPE_TRIPWIRE) {
             // 创建绊索陷阱实体
             TripwireTrapEntity trap = new TripwireTrapEntity(ModEntities.TRIPWIRE_TRAP, world);
-            trap.setPos(spawnPos);
+            trap.setPos(spawnPos.add(0,0.3,0));
             trap.setOwner(player);
             world.addFreshEntity(trap);
         } else {
             // 创建灾厄印记实体
             CalamityMarkEntity mark = new CalamityMarkEntity(ModEntities.CALAMITY_MARK, world);
-            mark.setPos(spawnPos);
+            mark.setPos(spawnPos.add(0,0.3,0));
             mark.setOwner(player);
             world.addFreshEntity(mark);
         }
@@ -357,6 +358,12 @@ public class TrapperPlayerComponent implements RoleComponent, ServerTickingCompo
         // 给受害者缓慢和挖掘疲劳（防止移动和破坏方块）
         victim.addEffect(new MobEffectInstance(
                 MobEffects.MOVEMENT_SLOWDOWN, prisonTime, 255, false, false, false));
+        victim.addEffect(new MobEffectInstance(
+                ModEffects.TURN_BANED, prisonTime, 255, false, false, false));
+        victim.addEffect(new MobEffectInstance(
+                ModEffects.MOVE_BANED, prisonTime, 255, false, false, false));
+        victim.addEffect(new MobEffectInstance(
+                ModEffects.USED_BANED, prisonTime, 255, false, false, false));
         victim.addEffect(new MobEffectInstance(
                 MobEffects.DIG_SLOWDOWN, prisonTime, 255, false, false, false));
         victim.addEffect(new MobEffectInstance(
