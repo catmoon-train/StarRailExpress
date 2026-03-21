@@ -18,6 +18,7 @@ public class SREConfig implements ConfigData {
     public boolean ultraPerfMode = false;
 
     public boolean disableTitleScreenSound = false;
+    public boolean disableTitleScreenVideoBackground = false;
 
     public boolean disableScreenShake = false;
 

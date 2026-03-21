@@ -315,7 +315,7 @@ public class StarRailExpressTitleScreen extends Screen {
         if (this.isTransitioning) {
             this.fadeOutProgress = Math.min(this.fadeOutProgress + 0.025F, 1.0F);
         }
-        if (!SREConfig.instance().disableTitleScreenSound) {
+        if (!SREConfig.instance().disableTitleScreenSound || SREConfig.instance().disableTitleScreenVideoBackground) {
             SoundManager soundManager = Minecraft.getInstance().getSoundManager();
             if (!waitingForContinue.get() && !soundManager.isActive(ambient_sound)) {
                 soundManager.play(ambient_sound);
@@ -849,7 +849,8 @@ public class StarRailExpressTitleScreen extends Screen {
      */
     private void playAmbientSoundWithFadeIn() {
         if (this.minecraft != null && this.minecraft.getSoundManager() != null) {
-            if (SREConfig.instance().disableTitleScreenSound) {
+            if (SREConfig.instance().disableTitleScreenSound
+                    || SREConfig.instance().disableTitleScreenVideoBackground) {
                 return;
             }
             SoundManager soundManager = this.minecraft.getSoundManager();
@@ -908,7 +909,7 @@ public class StarRailExpressTitleScreen extends Screen {
             g.fill(0, 0, this.width, this.height, 0xFF000000);
             return;
         }
-        if (this.frameAnimRenderer.hasFrames()) {
+        if (!SREConfig.instance().disableTitleScreenVideoBackground && this.frameAnimRenderer.hasFrames()) {
             // 使用帧序列动画作为背景，带 panoramaFade 渐入
             this.frameAnimRenderer.render(g, this.width, this.height,
                     delta, this.panoramaFade);
