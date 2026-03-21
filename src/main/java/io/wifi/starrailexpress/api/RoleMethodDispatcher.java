@@ -51,23 +51,32 @@ public class RoleMethodDispatcher {
      * 调用玩家角色的 onFinishQuest 方法（带连击奖励）
      */
     public static void callOnFinishQuest(Player player, String quest, int taskStreak) {
+        callOnFinishQuest(player, quest, taskStreak, false);
+    }
+
+    /**
+     * 调用玩家角色的 onFinishQuest 方法（带连击奖励和并列任务支持）
+     */
+    public static void callOnFinishQuest(Player player, String quest, int taskStreak, boolean isParallelTask) {
         SRERole role = getCurrentRole(player);
         if (role != null) {
             // 计算连击奖励
             int streakBonus = Math.min(taskStreak * GameConstants.STREAK_BONUS_PER_LEVEL,
                     GameConstants.MAX_STREAK_BONUS);
+            // 并列任务奖励倍率
+            float rewardMultiplier = isParallelTask ? GameConstants.PARALLEL_TASK_REWARD_MULTIPLIER : 1f;
             if (role.isInnocent()) {
                 SREPlayerShopComponent shopComponent = SREPlayerShopComponent.KEY.get(player);
-                shopComponent.addToBalance(50 + streakBonus);
+                shopComponent.addToBalance((int) ((50 + streakBonus) * rewardMultiplier));
             } else if (role.isNeutrals()) {
                 SREPlayerShopComponent shopComponent = SREPlayerShopComponent.KEY.get(player);
-                shopComponent.addToBalance(50 + streakBonus);
+                shopComponent.addToBalance((int) ((50 + streakBonus) * rewardMultiplier));
             } else if (role.canUseKiller()) {
                 player.level().players().forEach(
                         a -> {
                             if (role.canUseKiller()) {
                                 SREPlayerShopComponent shopComponent = SREPlayerShopComponent.KEY.get(a);
-                                shopComponent.addToBalance(5);
+                                shopComponent.addToBalance((int) (5 * rewardMultiplier));
                             }
                         });
             }

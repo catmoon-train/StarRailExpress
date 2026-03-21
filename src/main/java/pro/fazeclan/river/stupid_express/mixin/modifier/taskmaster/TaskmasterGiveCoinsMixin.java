@@ -13,8 +13,8 @@ import org.agmas.harpymodloader.component.WorldModifierComponent;
 @Mixin(io.wifi.starrailexpress.api.RoleMethodDispatcher.class)
 public abstract class TaskmasterGiveCoinsMixin {
 
-    @Inject(method = "callOnFinishQuest(Lnet/minecraft/world/entity/player/Player;Ljava/lang/String;I)V", at = @At("TAIL"))
-    private static void taskmasterGiveCoins(Player player, String quest, int taskStreak, CallbackInfo ci) {
+    @Inject(method = "callOnFinishQuest(Lnet/minecraft/world/entity/player/Player;Ljava/lang/String;IZ)V", at = @At("TAIL"))
+    private static void taskmasterGiveCoins(Player player, String quest, int taskStreak, boolean isParallelTask, CallbackInfo ci) {
         // Give additional coins to taskmaster when completing a task
         WorldModifierComponent modifier = WorldModifierComponent.KEY.get(player.level());
         if (modifier.isModifier(player, SEModifiers.TASKMASTER)) {
