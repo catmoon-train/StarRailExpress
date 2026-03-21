@@ -25,7 +25,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
-import org.agmas.noellesroles.client.widget.custom_button.ModernButton.AccentSide;
+import org.agmas.noellesroles.client.widget.custom_button.ModernButton;
 import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
@@ -332,11 +332,11 @@ public class SkinManagementScreen extends Screen {
         int buttonSpacing = 20;
 
         // 刷新按钮
-        refreshButton = org.agmas.noellesroles.client.widget.custom_button.ModernButton.builder(
+        refreshButton = ModernButton.builder(
                 Component.translatable("screen.sre.skins.refresh"),
                 button -> refreshSkinPanels()).pos((screenWidth - buttonWidth * 2 - buttonSpacing) / 2, buttonY)
                 .size(buttonWidth, buttonHeight)
-                .accentBar(AccentSide.TOP, AccentSide.BOTTOM, AccentSide.LEFT, AccentSide.RIGHT)
+                .accentBar()
                 .build();
 
         refreshButton.setTooltip(Tooltip.create(
@@ -345,11 +345,11 @@ public class SkinManagementScreen extends Screen {
         addRenderableWidget(refreshButton);
 
         // 返回按钮
-        backButton = org.agmas.noellesroles.client.widget.custom_button.ModernButton.builder(
+        backButton = ModernButton.builder(
                 Component.translatable("screen.sre.skins.back"),
                 button -> this.onClose()).pos(refreshButton.getX() + buttonWidth + buttonSpacing, buttonY)
                 .size(buttonWidth, buttonHeight)
-                .accentBar(AccentSide.TOP, AccentSide.BOTTOM, AccentSide.LEFT, AccentSide.RIGHT)
+                .accentBar()
                 .build();
 
         addRenderableWidget(backButton);
