@@ -5,6 +5,7 @@ import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.roles.executioner.ExecutionerPlayerComponent;
+import org.agmas.noellesroles.roles.executioner.ShootingFrenzyPlayerComponent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -31,10 +32,6 @@ public class ExecutionerConfirmMixin {
             Player executioner = world.getPlayerByUUID(uuid);
             if (executioner == null)
                 continue;
-            // boolean invalidKill = false;
-            // if (killer != null) {
-            // if (gameWorldComponent.getRole(killer).canUseKiller()) invalidKill = true;
-            // }
             ExecutionerPlayerComponent executionerPlayerComponent = ExecutionerPlayerComponent.KEY.get(executioner);
             SREPlayerShopComponent playerShopComponent = (SREPlayerShopComponent) SREPlayerShopComponent.KEY
                     .get(executioner);
@@ -58,7 +55,10 @@ public class ExecutionerConfirmMixin {
         if (killer != null) {
             if (victim != null) {
                 if (role.getIdentifier().equals(ModRoles.EXECUTIONER_ID)) {
-
+                    // 射击狂热期间不受锁定目标影响，可以击杀任何玩家
+                    if (ShootingFrenzyPlayerComponent.isInFrenzy(killer)) {
+                        return; // 不取消击杀
+                    }
                     if (!ExecutionerPlayerComponent.KEY.get(killer).target.equals(victim.getUUID())) {
                         ci.cancel();
                     }

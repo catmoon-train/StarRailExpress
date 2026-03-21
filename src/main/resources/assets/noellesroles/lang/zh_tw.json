@@ -1561,5 +1561,7 @@
   "announcement.star.role.shooting_frenzy": "射擊狂熱",
   "announcement.star.role.noellesroles.shooting_frenzy": "射擊狂熱",
   "announcement.star.goals.shooting_frenzy": "進入狂暴模式，用雙槍射殺所有人！",
-  "announcement.star.win.shooting_frenzy": "殺手勝利！"
+  "announcement.star.win.shooting_frenzy": "殺手勝利！",
+  "message.noellesroles.shooting_frenzy.start": "射擊狂熱已激活！雙槍已就緒！",
+  "message.noellesroles.shooting_frenzy.end": "射擊狂熱已結束。"
 }

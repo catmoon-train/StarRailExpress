@@ -157,6 +157,7 @@ public class ModRoles {
   public static ResourceLocation PHANTOM_ID = Noellesroles.id("phantom");
   public static ResourceLocation SWAPPER_ID = Noellesroles.id("swapper");
   public static ResourceLocation EXECUTIONER_ID = Noellesroles.id("executioner");
+  public static ResourceLocation SHOOTING_FRENZY_ID = Noellesroles.id("shooting_frenzy");
   public static ResourceLocation GAMBLER_ID = Noellesroles.id("gambler");
   public static ResourceLocation POISONER_ID = Noellesroles.id("poisoner");
   public static ResourceLocation BAKA_ID = Noellesroles.id("baka");

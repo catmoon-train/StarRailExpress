@@ -13,6 +13,7 @@ import org.agmas.noellesroles.component.SingerPlayerComponent;
 import org.agmas.noellesroles.repack.HSRConstants;
 import org.agmas.noellesroles.repack.HSRItems;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.roles.executioner.ShootingFrenzyPlayerComponent;
 import org.agmas.noellesroles.roles.framing.FramingShopEntry;
 import org.jetbrains.annotations.NotNull;
 
@@ -1021,6 +1022,21 @@ public class RoleShopHandler {
     });
     柜子区的商店.add(new ShopEntry(ModItems.FLASH_GRENADE.getDefaultInstance(), 150, ShopEntry.Type.TOOL));
     柜子区的商店.add(new ShopEntry(ModItems.DECOY_GRENADE.getDefaultInstance(), 50, ShopEntry.Type.TOOL));
+    // 射击狂热 - 275金币（魔改psycho，狂暴模式）
+    柜子区的商店.add(new ShopEntry(
+        TMMItems.PSYCHO_MODE.getDefaultInstance(),
+        275,
+        ShopEntry.Type.WEAPON) {
+      @Override
+      public boolean onBuy(@NotNull Player player) {
+        ShootingFrenzyPlayerComponent frenzyComponent = ShootingFrenzyPlayerComponent.KEY.get(player);
+        boolean success = frenzyComponent.startFrenzy();
+        if (success) {
+          player.getCooldowns().addCooldown(TMMItems.PSYCHO_MODE, 20 * 60);
+        }
+        return success;
+      }
+    });
 
     // 阴谋家商店
     CONSPIRATOR_SHOP.add(new ShopEntry(
