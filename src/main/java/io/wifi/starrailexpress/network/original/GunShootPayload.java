@@ -11,6 +11,8 @@ import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.network.PacketTracker;
+import io.wifi.starrailexpress.util.Scheduler;
+import io.wifi.starrailexpress.util.TMMItemUtils;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
@@ -26,6 +28,9 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+
+import org.agmas.noellesroles.init.ModItems;
+import org.agmas.noellesroles.repack.HSRItems;
 import org.jetbrains.annotations.NotNull;
 
 public record GunShootPayload(int target) implements CustomPacketPayload {
@@ -96,18 +101,29 @@ public record GunShootPayload(int target) implements CustomPacketPayload {
                     GameUtils.killPlayer(player, true, null, GameConstants.DeathReasons.BACKFIRE);
                 } else if (shouldDropRevolver) {
                     {
-                        {
-                            if (player.getMainHandItem().is(TMMItemTags.GUNS)) {
-                                player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
-                                ItemEntity item = player.drop(revolver.getDefaultInstance(), false, false);
-                                if (item != null) {
-                                    item.setPickUpDelay(10);
-                                    item.setThrower(player);
+                        Scheduler.schedule(() -> {
+                            {
+                                boolean flag = false;
+                                if (player.getMainHandItem().is(TMMItemTags.GUNS)) {
+                                    player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+                                    flag = true;
+                                } else if (TMMItemUtils.clearItem(player, TMMItems.REVOLVER, 1) >= 1) {
+                                    flag = true;
+                                } else if (TMMItemUtils.clearItem(player, HSRItems.BANDIT_REVOLVER, 1) >= 1) {
+                                    flag = true;
                                 }
-                                PacketTracker.sendToClient(player, new GunDropPayload());
-                                SREPlayerMoodComponent.KEY.get(player).setMood(0);
+
+                                if (flag) {
+                                    ItemEntity item = player.drop(revolver.getDefaultInstance(), false, false);
+                                    if (item != null) {
+                                        item.setPickUpDelay(10);
+                                        item.setThrower(player);
+                                    }
+                                    PacketTracker.sendToClient(player, new GunDropPayload());
+                                    SREPlayerMoodComponent.KEY.get(player).setMood(0);
+                                }
                             }
-                        }
+                        }, 1);
                     }
                 }
 
@@ -128,10 +144,15 @@ public record GunShootPayload(int target) implements CustomPacketPayload {
             for (ServerPlayer tracking : PlayerLookup.tracking(player))
                 PacketTracker.sendToClient(tracking, new ShootMuzzleS2CPayload(player.getId()));
             PacketTracker.sendToClient(player, new ShootMuzzleS2CPayload(player.getId()));
-            if (!player.isCreative())
-                player.getCooldowns().addCooldown(mainHandStack.getItem(),
-                        GameConstants.ITEM_COOLDOWNS.getOrDefault(mainHandStack.getItem(),
-                                GameConstants.ITEM_COOLDOWNS.getOrDefault(TMMItems.REVOLVER, 0)));
+            if (!player.isCreative()) {
+                var cooldowns = player.getCooldowns();
+                if (!mainHandStack.is(ModItems.ONCE_REVOLVER))
+                    if (!cooldowns.isOnCooldown(mainHandStack.getItem())) {
+                        cooldowns.addCooldown(mainHandStack.getItem(),
+                                GameConstants.ITEM_COOLDOWNS.getOrDefault(mainHandStack.getItem(),
+                                        GameConstants.ITEM_COOLDOWNS.getOrDefault(TMMItems.REVOLVER, 0)));
+                    }
+            }
         }
     }
 }

@@ -5,6 +5,8 @@ import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
+
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.index.TMMItems;
@@ -15,6 +17,8 @@ import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Inventory;
+
+import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
@@ -29,15 +33,12 @@ public class MinecraftClientMixin {
 
     @ModifyReturnValue(method = "shouldEntityAppearGlowing", at = @At("RETURN"))
     public boolean tmm$hasInstinctOutline(boolean original, @Local(argsOnly = true) Entity entity) {
-        if (SREClient.getInstinctHighlight(entity) != -1) return true;
+        if (SREClient.getInstinctHighlight(entity) != -1)
+            return true;
         return original;
     }
 
-    @WrapWithCondition(method = "startUseItem",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/client/renderer/ItemInHandRenderer;itemUsed(Lnet/minecraft/world/InteractionHand;)V"
-            ))
+    @WrapWithCondition(method = "startUseItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/ItemInHandRenderer;itemUsed(Lnet/minecraft/world/InteractionHand;)V"))
     private boolean tmm$cancelRevolverUpdateAnimation(ItemInHandRenderer instance, InteractionHand hand) {
         return !Minecraft.getInstance().player.getItemInHand(hand).is(TMMItemTags.GUNS);
     }
@@ -46,14 +47,19 @@ public class MinecraftClientMixin {
     private void tmm$invalid(@NotNull Inventory instance, int value, Operation<Void> original) {
         int oldSlot = instance.selected;
         SREPlayerPsychoComponent component = SREPlayerPsychoComponent.KEY.get(instance.player);
+        SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(instance.player.level());
 
-        if (component.getPsychoTicks() > 0 &&
-                (instance.getItem(oldSlot).is(TMMItems.BAT)) &&
-                (!instance.getItem(value).is(TMMItems.BAT))
-        ) return;
-        if (component.getPsychoTicks() > 0 &&
-                (instance.getItem(oldSlot).is(TMMItems.REVOLVER))
-        ) return;
+        if (component.getPsychoTicks() > 0) {
+            if (gameWorldComponent.isRole(instance.player, ModRoles.EXECUTIONER)) {
+                if (component.getPsychoTicks() > 0 &&
+                        (instance.getItem(oldSlot).is(TMMItems.REVOLVER)) &&
+                        (!instance.getItem(value).is(TMMItems.REVOLVER)))
+                    return;
+            } else if ((instance.getItem(oldSlot).is(TMMItems.BAT)) &&
+                    (!instance.getItem(value).is(TMMItems.BAT)))
+                return;
+        }
         original.call(instance, value);
+
     }
 }
