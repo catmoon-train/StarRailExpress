@@ -8,6 +8,7 @@ import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.roles.coroner.BodyDeathReasonComponent;
 import org.agmas.noellesroles.roles.executioner.ExecutionerPlayerComponent;
+import org.agmas.noellesroles.roles.executioner.ShootingFrenzyPlayerComponent;
 import org.agmas.noellesroles.roles.fortuneteller.FortunetellerPlayerComponent;
 import org.agmas.noellesroles.roles.gambler.GamblerPlayerComponent;
 import org.agmas.noellesroles.roles.ghost.GhostPlayerComponent;
@@ -216,6 +217,10 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
   public static final ComponentKey<DIOPlayerComponent> DIO = ComponentRegistry.getOrCreate(
       ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "dio"),
       DIOPlayerComponent.class);
+
+  public static final ComponentKey<ShootingFrenzyPlayerComponent> SHOOTING_FRENZY = ComponentRegistry.getOrCreate(
+      ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "shooting_frenzy"),
+      ShootingFrenzyPlayerComponent.class);
 
   public static final ComponentKey<org.agmas.noellesroles.modifier.expedition.ExpeditionComponent> EXPEDITION = org.agmas.noellesroles.modifier.expedition.ExpeditionComponent.KEY;
 
@@ -476,6 +481,11 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
     registry.beginRegistration(Player.class, DIO)
         .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
         .end(DIOPlayerComponent::new);
+
+    // 注册射击狂热组件 - 刽子手的狂暴射击模式
+    registry.beginRegistration(Player.class, SHOOTING_FRENZY)
+        .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
+        .end(ShootingFrenzyPlayerComponent::new);
 
     // ==================== 示例：注册更多组件 ====================
     //

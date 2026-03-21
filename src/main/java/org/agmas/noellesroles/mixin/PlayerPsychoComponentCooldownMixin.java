@@ -6,6 +6,7 @@ import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.SREConfig;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.roles.executioner.ShootingFrenzyPlayerComponent;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -41,6 +42,17 @@ public class PlayerPsychoComponentCooldownMixin {
             player.getCooldowns().addCooldown(TMMItems.PSYCHO_MODE, 15 * 20 + SREConfig.instance().psychoModeCooldown);
             SREPlayerPsychoComponent psychoComponent = SREPlayerPsychoComponent.KEY.get(player);
             psychoComponent.setPsychoTicks(20 * 22);
+        }
+
+        // 修改刽子手射击狂热的疯狂模式：无盾（护甲为0）、狂暴皮肤（type=1）
+        if (gameWorld != null && gameWorld.isRole(player, ModRoles.EXECUTIONER)) {
+            SREPlayerPsychoComponent psychoComponent = SREPlayerPsychoComponent.KEY.get(player);
+            ShootingFrenzyPlayerComponent frenzyComponent = ShootingFrenzyPlayerComponent.KEY.get(player);
+            if (frenzyComponent.inFrenzy) {
+                psychoComponent.setArmour(0); // 无盾
+                psychoComponent.type = 1; // 狂暴皮肤
+                psychoComponent.sync();
+            }
         }
 
 

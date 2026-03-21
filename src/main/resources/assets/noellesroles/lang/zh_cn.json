@@ -1565,5 +1565,12 @@
   "message.noellesroles.ma_chen_xu.cooldown": "技能 %s 冷却中：%ss",
   "message.noellesroles.ma_chen_xu.shield": "护盾剩余 %ss",
   "message.noellesroles.ma_chen_xu.trigger_shield": "护盾触发",
-  "hud.noellesroles.safe_time": "剩余安全时间：%ss"
+  "hud.noellesroles.safe_time": "剩余安全时间：%ss",
+  "info.screen.roleid.shooting_frenzy": "杀手阵营\n魔改Psycho\n狂暴时间内射击冷却-50%\n枪不会掉落\n手持双枪\n无盾\n不会受锁定目标影响\n狂暴皮肤",
+  "announcement.star.role.shooting_frenzy": "射击狂热",
+  "announcement.star.role.noellesroles.shooting_frenzy": "射击狂热",
+  "announcement.star.goals.shooting_frenzy": "进入狂暴模式，用双枪射杀所有人！",
+  "announcement.star.win.shooting_frenzy": "杀手胜利！",
+  "message.noellesroles.shooting_frenzy.start": "射击狂热已激活！双枪已就绪！",
+  "message.noellesroles.shooting_frenzy.end": "射击狂热已结束。"
 }

@@ -42,6 +42,7 @@ import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.roles.commander.CommanderHandler;
 import org.agmas.noellesroles.roles.conspirator.ConspiratorKilledPlayer;
 import org.agmas.noellesroles.roles.executioner.ExecutionerPlayerComponent;
+import org.agmas.noellesroles.roles.executioner.ShootingFrenzyPlayerComponent;
 import org.agmas.noellesroles.roles.fortuneteller.FortunetellerPlayerComponent;
 import org.agmas.noellesroles.roles.gambler.GamblerHandler;
 import org.agmas.noellesroles.roles.hoan_meirin.HoanMeirinFistPunchHandler;
@@ -490,7 +491,9 @@ public class ModEventsRegister {
                 }
             }
         });
+        ShootingFrenzyPlayerComponent.registerGunNoDropEvent();
         ExecutionerPlayerComponent.registerBackfireEvent();
+        ShootingFrenzyPlayerComponent.registerFrenzyCooldownEvent();
 
         HoanMeirinFistPunchHandler.register();
         VoodooDeathHandler.registerEvents();

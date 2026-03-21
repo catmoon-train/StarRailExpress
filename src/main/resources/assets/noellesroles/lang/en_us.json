@@ -836,5 +836,7 @@
   "announcement.star.role.shooting_frenzy": "Shooting Frenzy",
   "announcement.star.role.noellesroles.shooting_frenzy": "Shooting Frenzy",
   "announcement.star.goals.shooting_frenzy": "Enter frenzy mode and shoot everyone with dual guns!",
-  "announcement.star.win.shooting_frenzy": "Killer Wins!"
+  "announcement.star.win.shooting_frenzy": "Killer Wins!",
+  "message.noellesroles.shooting_frenzy.start": "Shooting Frenzy activated! Dual guns ready!",
+  "message.noellesroles.shooting_frenzy.end": "Shooting Frenzy has ended."
 }
