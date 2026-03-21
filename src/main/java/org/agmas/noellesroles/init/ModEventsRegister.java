@@ -491,9 +491,7 @@ public class ModEventsRegister {
             }
         });
         ExecutionerPlayerComponent.registerBackfireEvent();
-        ShootingFrenzyPlayerComponent.registerGunNoDropEvent();
-        ShootingFrenzyPlayerComponent.registerFrenzyCooldownEvent();
-        ShootingFrenzyPlayerComponent.registerRoleAssignedEvent();
+
         HoanMeirinFistPunchHandler.register();
         VoodooDeathHandler.registerEvents();
         PlayerStatsBeforeRefugee.beforeLoadFunc = (player) -> {
