@@ -16,6 +16,7 @@ import org.agmas.noellesroles.client.animation.AnimationTimeLineManager;
 import org.agmas.noellesroles.client.animation.BezierAnimation;
 import org.agmas.noellesroles.client.widget.TextureWidget;
 import org.agmas.noellesroles.packet.Loot.LootRequestC2SPacket;
+import org.agmas.noellesroles.packet.Loot.LootMultiRequestC2SPacket;
 import org.agmas.noellesroles.utils.Pair;
 import org.agmas.noellesroles.utils.lottery.LotteryManager;
 
@@ -26,6 +27,7 @@ import java.util.List;
 /**
  * 抽奖信息页
  * - 用于显示卡池信息，以及启动抽奖
+ * - 左侧选项卡常驻 + 右侧展示图 + 底部操作栏（抽奖、五连抽、预览）
  */
 public class LootInfoScreen extends AbstractPixelScreen {
     public static class PoolButton extends AbstractButton {
@@ -185,8 +187,11 @@ public class LootInfoScreen extends AbstractPixelScreen {
         animationController = new AnimationController();
 
         List<Pair<Float, AbstractAnimation>> animations = new ArrayList<>();
-        int sketchX = centerX - totalWidth / 2 + poolBtnWidth + poolBtnEdgeWidth + sketchEdge / 2;
-        int sketchY = centerY - totalHeight / 2 + sketchEdge;
+        // 新布局计算：左侧选项卡 + 右侧展示区 + 底部操作栏
+        int leftX = centerX - totalWidth / 2;
+        int topY = centerY - totalHeight / 2;
+        int sketchX = leftX + poolBtnWidth + poolBtnEdgeWidth + sketchEdge / 2;
+        int sketchY = topY + sketchEdge / 2;
         // 无卡池信息时的处理
         try {
             curPool = LotteryManager.getInstance().getLotteryPools().getFirst();
@@ -194,11 +199,10 @@ public class LootInfoScreen extends AbstractPixelScreen {
             viewPoolBtn = Button.builder(
                     Component.empty(),
                     buttonWidget -> {
-                        // 为何Screen中自带的 minecraft为空？
                         Minecraft minecraft = Minecraft.getInstance();
                         minecraft.setScreen(new ViewLotteryPoolScreen(curPool.getPoolID(), this));
                     })
-                    .pos(sketchX, sketchY - sketchEdge / 2)
+                    .pos(sketchX, sketchY)
                     .size(sketchWidth, sketchHeight)
                     .build();
             viewPoolBtn.setAlpha(0f);
@@ -217,7 +221,7 @@ public class LootInfoScreen extends AbstractPixelScreen {
                                     + ".png"));
             addRenderableWidget(poolSketch);
             poolSketch.setAlpha(0f);
-            // 立绘动画：仅alpha和Y有移动，但int值需要误差计算不能用x值的位置来控制alpha移动
+            // 立绘动画
             animations.add(new Pair<>(initBgTime, BezierAnimation.builder(
                     poolSketch,
                     new Vec2(0f, (float) -sketchEdge / 2),
@@ -232,28 +236,83 @@ public class LootInfoScreen extends AbstractPixelScreen {
                     })
                     .setIntErrorFix(false)
                     .build()));
-            // 添加开始抽奖按钮
+
+            // 底部操作栏按钮
+            int actionBarY = topY + totalHeight - actionBarHeight + (actionBarHeight - poolBtnHeight) / 2;
+            int actionBtnTotalWidth = poolBtnWidth * 3 + actionBtnSpacing * 2;
+            int actionStartX = leftX + (poolBtnWidth + poolBtnEdgeWidth) + (totalWidth - (poolBtnWidth + poolBtnEdgeWidth) - actionBtnTotalWidth) / 2;
+
+            // 添加开始抽奖按钮（单抽）
             startPoolBtn = new PoolButton(
                     curPool.getPoolID(),
-                    centerX - poolBtnWidth / 2,
-                    centerY + totalHeight / 2 + poolBtnHeight / 2,
+                    actionStartX,
+                    actionBarY,
                     poolBtnWidth,
                     poolBtnHeight,
                     Component.translatable("screen.noellesroles.loot.lootBtn"),
                     poolButton -> {
-                        // 发送抽奖请求
                         ClientPlayNetworking.send(new LootRequestC2SPacket(curPool.getPoolID()));
                     });
             addRenderableWidget(startPoolBtn);
             startPoolBtn.active = false;
-            // 添加开始按钮的显示动画
             startPoolBtn.setAlpha(0f);
+
+            // 添加五连抽按钮
+            multiPoolBtn = new PoolButton(
+                    curPool.getPoolID(),
+                    actionStartX + poolBtnWidth + actionBtnSpacing,
+                    actionBarY,
+                    poolBtnWidth,
+                    poolBtnHeight,
+                    Component.translatable("screen.noellesroles.loot.multiLootBtn"),
+                    poolButton -> {
+                        ClientPlayNetworking.send(new LootMultiRequestC2SPacket(curPool.getPoolID(), 5));
+                    });
+            addRenderableWidget(multiPoolBtn);
+            multiPoolBtn.active = false;
+            multiPoolBtn.setAlpha(0f);
+
+            // 添加预览按钮
+            previewBtn = new PoolButton(
+                    curPool.getPoolID(),
+                    actionStartX + (poolBtnWidth + actionBtnSpacing) * 2,
+                    actionBarY,
+                    poolBtnWidth,
+                    poolBtnHeight,
+                    Component.translatable("screen.noellesroles.loot.previewBtn"),
+                    poolButton -> {
+                        Minecraft minecraft = Minecraft.getInstance();
+                        minecraft.setScreen(new ViewLotteryPoolScreen(curPool.getPoolID(), this));
+                    });
+            addRenderableWidget(previewBtn);
+            previewBtn.active = false;
+            previewBtn.setAlpha(0f);
+
+            // 按钮动画
             animations.add(new Pair<>(initBgTime, BezierAnimation.builder(
                     startPoolBtn,
                     new Vec2(1f, 0f),
                     (int) (initWidgetTime / AbstractAnimation.secondPerTick))
                     .setCallback((vec2) -> {
                         startPoolBtn.setAlpha(startPoolBtn.getAlpha() + vec2.x);
+                    })
+                    .setIntErrorFix(false)
+                    .build()));
+            animations.add(new Pair<>(initBgTime, BezierAnimation.builder(
+                    multiPoolBtn,
+                    new Vec2(1f, 0f),
+                    (int) (initWidgetTime / AbstractAnimation.secondPerTick))
+                    .setCallback((vec2) -> {
+                        multiPoolBtn.setAlpha(multiPoolBtn.getAlpha() + vec2.x);
+                    })
+                    .setIntErrorFix(false)
+                    .build()));
+            animations.add(new Pair<>(initBgTime, BezierAnimation.builder(
+                    previewBtn,
+                    new Vec2(1f, 0f),
+                    (int) (initWidgetTime / AbstractAnimation.secondPerTick))
+                    .setCallback((vec2) -> {
+                        previewBtn.setAlpha(previewBtn.getAlpha() + vec2.x);
                     })
                     .setIntErrorFix(false)
                     .build()));
@@ -328,6 +387,10 @@ public class LootInfoScreen extends AbstractPixelScreen {
                    viewPoolBtn.active = true;
                 if (startPoolBtn != null)
                     startPoolBtn.active = true;
+                if (multiPoolBtn != null)
+                    multiPoolBtn.active = true;
+                if (previewBtn != null)
+                    previewBtn.active = true;
                 for (PoolButton poolButton : poolButtons)
                     poolButton.active = true;
             } else
@@ -335,22 +398,39 @@ public class LootInfoScreen extends AbstractPixelScreen {
         }
         animationStack.forEach(animation -> animation.renderUpdate(delta));
         animationStack.removeIf(AbstractAnimation::isFinished);
-        // 绘制左侧按钮背景
+
+        int leftX = centerX - totalWidth / 2;
+        int topY = centerY - totalHeight / 2;
+
+        // 绘制左侧选项卡背景（常驻矩形）
         guiGraphics.fill(
-                // 适配动画缩放
-                (int) (centerX - (float) totalWidth / 2 + (1.0f - animationController.curBgProcess) * poolBtnWidth),
-                centerY - totalHeight / 2,
-                centerX - totalWidth / 2 + (poolBtnWidth + poolBtnEdgeWidth),
-                centerY + totalHeight / 2,
+                (int) (leftX + (1.0f - animationController.curBgProcess) * poolBtnWidth),
+                topY,
+                leftX + (poolBtnWidth + poolBtnEdgeWidth),
+                topY + totalHeight,
                 poolBtnBgColor.getRGB());
-        // 绘制立绘部分背景
+        // 绘制右侧展示区背景
         guiGraphics.fill(
-                centerX - totalWidth / 2 + (poolBtnWidth + poolBtnEdgeWidth),
-                centerY - totalHeight / 2,
-                // 适配动画缩放
-                (int) (centerX + (float) totalWidth / 2 - (1.0f - animationController.curBgProcess) * sketchWidth),
-                centerY + totalHeight / 2,
+                leftX + (poolBtnWidth + poolBtnEdgeWidth),
+                topY,
+                (int) (leftX + totalWidth - (1.0f - animationController.curBgProcess) * sketchWidth),
+                topY + totalHeight - actionBarHeight,
                 sketchBgColor.getRGB());
+        // 绘制底部操作栏背景
+        guiGraphics.fill(
+                leftX,
+                topY + totalHeight - actionBarHeight,
+                (int) (leftX + totalWidth - (1.0f - animationController.curBgProcess) * sketchWidth),
+                topY + totalHeight,
+                actionBarBgColor.getRGB());
+        // 绘制操作栏顶部分隔线
+        guiGraphics.fill(
+                leftX,
+                topY + totalHeight - actionBarHeight,
+                (int) (leftX + totalWidth - (1.0f - animationController.curBgProcess) * sketchWidth),
+                topY + totalHeight - actionBarHeight + 1,
+                actionBarLineColor.getRGB());
+
         if (poolSketch != null)
             poolSketch.render(guiGraphics, mouseX, mouseY, delta);
         for (PoolButton poolBtn : poolButtons) {
@@ -358,6 +438,10 @@ public class LootInfoScreen extends AbstractPixelScreen {
         }
         if (startPoolBtn != null)
             startPoolBtn.render(guiGraphics, mouseX, mouseY, delta);
+        if (multiPoolBtn != null)
+            multiPoolBtn.render(guiGraphics, mouseX, mouseY, delta);
+        if (previewBtn != null)
+            previewBtn.render(guiGraphics, mouseX, mouseY, delta);
     }
 
     public void switchToPool(int poolD) {
@@ -368,7 +452,7 @@ public class LootInfoScreen extends AbstractPixelScreen {
             return;
         poolSketch.setTEXTURE(getPoolSketchTexture(nextPool.getPoolID()));
         // 添加位移和透明度动画
-        poolSketch.setY(centerY - totalHeight / 2 + sketchEdge);
+        poolSketch.setY(centerY - totalHeight / 2 + sketchEdge / 2);
         animationStack.add(
                 BezierAnimation.builder(
                         poolSketch,
@@ -395,6 +479,30 @@ public class LootInfoScreen extends AbstractPixelScreen {
                         (int) (initWidgetTime / AbstractAnimation.secondPerTick))
                         .setCallback((vec2) -> {
                             startPoolBtn.setAlpha(startPoolBtn.getAlpha() + vec2.x);
+                        })
+                        .setIntErrorFix(false)
+                        .build());
+        multiPoolBtn.setPoolID(poolD);
+        multiPoolBtn.setAlpha(0f);
+        animationStack.add(
+                BezierAnimation.builder(
+                        multiPoolBtn,
+                        new Vec2(1f, 0f),
+                        (int) (initWidgetTime / AbstractAnimation.secondPerTick))
+                        .setCallback((vec2) -> {
+                            multiPoolBtn.setAlpha(multiPoolBtn.getAlpha() + vec2.x);
+                        })
+                        .setIntErrorFix(false)
+                        .build());
+        previewBtn.setPoolID(poolD);
+        previewBtn.setAlpha(0f);
+        animationStack.add(
+                BezierAnimation.builder(
+                        previewBtn,
+                        new Vec2(1f, 0f),
+                        (int) (initWidgetTime / AbstractAnimation.secondPerTick))
+                        .setCallback((vec2) -> {
+                            previewBtn.setAlpha(previewBtn.getAlpha() + vec2.x);
                         })
                         .setIntErrorFix(false)
                         .build());
@@ -428,6 +536,8 @@ public class LootInfoScreen extends AbstractPixelScreen {
 
     private static final Color poolBtnBgColor = new Color(0xFF555555, true);
     private static final Color sketchBgColor = new Color(0xFFEEEEEE, true);
+    private static final Color actionBarBgColor = new Color(0xFF3A3A4A, true);
+    private static final Color actionBarLineColor = new Color(0xFF666688, true);
     private static final int sketchWidth = 320;
     private static final int sketchHeight = 180;
     private static final int poolBtnWidth = (int) (32 * 1.5f);
@@ -436,8 +546,12 @@ public class LootInfoScreen extends AbstractPixelScreen {
     private static final int sketchEdge = 36;
     private static final int poolBtnEdgeWidth = 8;
     private static final int poolBtnInterval = 6;
+    /** 底部操作栏高度 */
+    private static final int actionBarHeight = 40;
+    /** 操作栏按钮间距 */
+    private static final int actionBtnSpacing = 12;
     private static final int totalWidth = sketchEdge + sketchWidth + poolBtnWidth + poolBtnEdgeWidth;
-    private static final int totalHeight = sketchEdge + sketchHeight;
+    private static final int totalHeight = sketchEdge + sketchHeight + actionBarHeight;
     /** 背景初始化时间 */
     private static final float initBgTime = 0.5f;
     private static final float initWidgetTime = 1.0f;
@@ -446,6 +560,8 @@ public class LootInfoScreen extends AbstractPixelScreen {
     private AnimationController animationController = null;
     private Button viewPoolBtn = null;
     private PoolButton startPoolBtn = null;
+    private PoolButton multiPoolBtn = null;
+    private PoolButton previewBtn = null;
     private AnimationTimeLineManager animationTimeLineManager = null;
     private LotteryManager.LotteryPool curPool = null;
     private TextureWidget poolSketch = null;

@@ -7,6 +7,7 @@ import org.agmas.noellesroles.packet.*;
 import org.agmas.noellesroles.packet.Loot.LootPoolsInfoCheckS2CPacket;
 import org.agmas.noellesroles.packet.Loot.LootPoolsInfoS2CPacket;
 import org.agmas.noellesroles.packet.Loot.LootResultS2CPacket;
+import org.agmas.noellesroles.packet.Loot.LootMultiResultS2CPacket;
 import org.agmas.noellesroles.repack.BanditRevolverShootPayload;
 
 public class ModPackets {
@@ -91,6 +92,7 @@ public class ModPackets {
 
         // 注册抽奖网络包
         PayloadTypeRegistry.playS2C().register(LootResultS2CPacket.ID, LootResultS2CPacket.CODEC);
+        PayloadTypeRegistry.playS2C().register(LootMultiResultS2CPacket.ID, LootMultiResultS2CPacket.CODEC);
         PayloadTypeRegistry.playS2C().register(LootPoolsInfoCheckS2CPacket.ID,
                 LootPoolsInfoCheckS2CPacket.CODEC);
         PayloadTypeRegistry.playS2C().register(LootPoolsInfoS2CPacket.ID, LootPoolsInfoS2CPacket.CODEC);

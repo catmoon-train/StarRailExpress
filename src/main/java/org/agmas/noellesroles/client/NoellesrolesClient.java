@@ -53,6 +53,7 @@ import org.agmas.noellesroles.packet.Loot.LootPoolsInfoCheckS2CPacket;
 import org.agmas.noellesroles.packet.Loot.LootPoolsInfoRequestC2SPacket;
 import org.agmas.noellesroles.packet.Loot.LootPoolsInfoS2CPacket;
 import org.agmas.noellesroles.packet.Loot.LootResultS2CPacket;
+import org.agmas.noellesroles.packet.Loot.LootMultiResultS2CPacket;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.agmas.noellesroles.utils.lottery.LotteryManager;
@@ -381,6 +382,15 @@ public class NoellesrolesClient implements ClientModInitializer {
             client.execute(() -> {
                 if (client.player != null) {
                     client.setScreen(new LootScreen(payload.poolID(), payload.quality(), payload.ansID()));
+                }
+            });
+        });
+        // 注册五连抽网络包处理：接收服务器五连抽结果后播放五连抽动画
+        ClientPlayNetworking.registerGlobalReceiver(LootMultiResultS2CPacket.ID, (payload, context) -> {
+            final var client = context.client();
+            client.execute(() -> {
+                if (client.player != null) {
+                    client.setScreen(new LootMultiScreen(payload.poolID(), payload.results()));
                 }
             });
         });
