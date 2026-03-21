@@ -52,8 +52,8 @@ public class StalkerPlayerComponent implements RoleComponent, ServerTickingCompo
 
     // ==================== 常量定义 ====================
 
-    /** 三阶段初始时间（180秒 = 3600 tick） */
-    public static final int PHASE_3_TIME = 180 * 20;
+    /** 三阶段初始时间（120秒 = 2400 tick） */
+    public static final int PHASE_3_TIME = 120 * 20;
 
     /** 处决减少时间（60秒 = 1200 tick） */
     public static final int EXECUTION_REDUCTION = 60 * 20;

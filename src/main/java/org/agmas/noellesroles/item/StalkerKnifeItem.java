@@ -137,7 +137,7 @@ public class StalkerKnifeItem extends KnifeItem {
         Integer i = stack.get(SREDataComponentTypes.WEAPON_USED_TIME);
         if (i ==null ){
             return UseAnim.SPEAR;
-        }else if (i.intValue()==2){
+        }else if (i.intValue()==3){
             return UseAnim.BOW;
         }else return UseAnim.SPEAR;
     }

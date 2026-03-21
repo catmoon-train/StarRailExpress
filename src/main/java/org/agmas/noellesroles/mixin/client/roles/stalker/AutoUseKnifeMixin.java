@@ -20,8 +20,12 @@ public class AutoUseKnifeMixin {
     public void inventoryTick(ItemStack itemStack, Level level, Entity entity, int i, boolean b, CallbackInfo ci) {
         if (Minecraft.getInstance().player==entity){
             Integer i1 = itemStack.get(SREDataComponentTypes.WEAPON_USED_TIME);
-            if (!((LocalPlayer) entity).isCrouching() || (i1!=null&&i1.intValue()==3))return;
+            if (!((LocalPlayer) entity).isCrouching() || (i1==null|| i1 !=3))return;
             Entity crosshairPickEntity = Minecraft.getInstance().crosshairPickEntity;
+            //distance <=4
+            if (crosshairPickEntity != null && entity.distanceToSqr(crosshairPickEntity) > 16) {
+                return;
+            }
             if ( crosshairPickEntity instanceof Player && ((LocalPlayer) entity).getTicksUsingItem() > 3 ){
                 ((LocalPlayer) entity).releaseUsingItem();
             }
