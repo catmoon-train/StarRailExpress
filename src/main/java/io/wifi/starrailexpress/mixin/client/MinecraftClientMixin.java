@@ -52,7 +52,7 @@ public class MinecraftClientMixin {
                 (!instance.getItem(value).is(TMMItems.BAT))
         ) return;
         if (component.getPsychoTicks() > 0 &&
-                (instance.getItem(oldSlot).is(TMMItems.REVOLVER))
+                (instance.getItem(oldSlot).is(TMMItems.REVOLVER))&&(!instance.getItem(value).is(TMMItems.REVOLVER))
         ) return;
         original.call(instance, value);
     }
