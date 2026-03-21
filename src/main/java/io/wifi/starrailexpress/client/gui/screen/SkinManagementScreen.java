@@ -271,9 +271,9 @@ public class SkinManagementScreen extends Screen {
 
         // 显示物品信息
         addRenderableWidget(new ItemInfoPanel(
-                listX,
-                listTop - 25,
-                listWidth,
+                rightPanelX,
+                rightPanelY - 25,
+                rightPanelWidth,
                 20,
                 itemStack));
     }
@@ -702,17 +702,18 @@ public class SkinManagementScreen extends Screen {
             // 背景
             graphics.fill(getX(), getY(), getX() + width, getY() + height, 0x80404040);
 
-//            // 物品图标
-//            graphics.renderFakeItem(item, getX() + 5, getY() + (height - 16) / 2);
+           // 物品图标
+           graphics.renderFakeItem(item, getX() + 5, getY() + (height - 16) / 2);
 
-//            // 物品名称
-//            graphics.drawString(
-//                    Minecraft.getInstance().font,
-//                    getMessage(),
-//                    getX() + 25,
-//                    getY() + (height - 8) / 2,
-//                    0xFFFFFF,
-//                    false);
+           // 物品名称
+           var font = Minecraft.getInstance().font;
+           graphics.drawString(
+                   font,
+                   getMessage(),
+                   getX() + 25,
+                   getY() + (height - 8) / 2,
+                   0xFFFFFF,
+                   false);
         }
 
         @Override
