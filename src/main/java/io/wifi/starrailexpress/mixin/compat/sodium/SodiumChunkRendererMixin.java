@@ -101,13 +101,16 @@ public abstract class SodiumChunkRendererMixin {
             @Local(ordinal = 0) RenderRegion region) {
 
         if (sre$cpuBuffer == null) {
-            // 理论上不应为 null（cleanup 注入出问题时的保底）
             sre$cpuBuffer = MemoryUtil.memAlloc(RenderRegion.REGION_SIZE * 16);
         }
 
         sre$gpuBuffer = commandList.createMutableBuffer();
         commandList.uploadData(sre$gpuBuffer, sre$cpuBuffer, GlBufferUsage.STREAM_DRAW);
-        ((SRESceneryShaderInterface) shader).sre$setSceneryOffsets(sre$gpuBuffer);
+
+        // 方案一：instanceof 检查，Iris 替换了 shader 时静默跳过，避免 ClassCastException
+        if (shader instanceof SRESceneryShaderInterface srei) {
+            srei.sre$setSceneryOffsets(sre$gpuBuffer);
+        }
     }
 
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
