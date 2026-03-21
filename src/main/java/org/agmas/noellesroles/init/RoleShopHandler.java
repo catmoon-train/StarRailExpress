@@ -722,22 +722,23 @@ public class RoleShopHandler {
     ShopContent.customEntries.put(
         ModRoles.STALKER_ID,
         List.of(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), 75,
-            ShopEntry.Type.TOOL),new ShopEntry(ModItems.STALKER_KNIFE_OFFHAND.getDefaultInstance(), 325, ShopEntry.Type.WEAPON){
-          @Override
-          public boolean canBuy(@NotNull Player player) {
-            return !(player.getOffhandItem().getItem() instanceof KnifeItem);
-          }
+            ShopEntry.Type.TOOL),
+            new ShopEntry(ModItems.STALKER_KNIFE_OFFHAND.getDefaultInstance(), 325, ShopEntry.Type.WEAPON) {
+              @Override
+              public boolean canBuy(@NotNull Player player) {
+                return !(player.getOffhandItem().getItem() instanceof KnifeItem);
+              }
 
-          @Override
-          public boolean onBuy(@NotNull Player player) {
+              @Override
+              public boolean onBuy(@NotNull Player player) {
 
-            boolean b = player.getOffhandItem().getItem() instanceof KnifeItem;
-            if (! b){
-              player.setItemInHand(InteractionHand.OFF_HAND,ModItems.STALKER_KNIFE_OFFHAND.getDefaultInstance());
-            }
-            return b;
-          }
-        }));
+                boolean b = player.getOffhandItem().getItem() instanceof KnifeItem;
+                if (!b) {
+                  player.setItemInHand(InteractionHand.OFF_HAND, ModItems.STALKER_KNIFE_OFFHAND.getDefaultInstance());
+                }
+                return b;
+              }
+            }));
 
     // 心理学家商店
     {
@@ -971,18 +972,21 @@ public class RoleShopHandler {
                 if (GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(p)) {
                   if (gameWorldComponent.isRole(p, ModRoles.MA_CHEN_XU)) {
                     var mapc = MaChenXuPlayerComponent.KEY.get(p);
-                    mapc.blinkCooldown += 20*30;
-                    mapc.prayerRainDuration += 20*30;
-                    mapc.frenzyRainCooldown += 20*30;
-                    mapc.instantSilenceCooldown += 20*30;
-                    mapc.parasiteCooldown += 20*30;
-                    mapc.puppetShowCooldown += 20*30;
-                    mapc.spiritWalkCooldown += 20*30;
+                    mapc.blinkCooldown += 20 * 30;
+                    mapc.prayerRainDuration += 20 * 30;
+                    mapc.frenzyRainCooldown += 20 * 30;
+                    mapc.instantSilenceCooldown += 20 * 30;
+                    mapc.parasiteCooldown += 20 * 30;
+                    mapc.puppetShowCooldown += 20 * 30;
+                    mapc.spiritWalkCooldown += 20 * 30;
                     mapc.shieldDuration = 0;
-                    mapc.swiftWindCooldown += 20*30;
-                    p.displayClientMessage(Component.translatable("message.noellesroles.ma_chen_xu.into_cooldown_by_guest").withStyle(ChatFormatting.RED), true);
+                    mapc.swiftWindCooldown += 20 * 30;
+                    p.displayClientMessage(
+                        Component.translatable("message.noellesroles.ma_chen_xu.into_cooldown_by_guest")
+                            .withStyle(ChatFormatting.RED),
+                        true);
                     p.playNotifySound(TMMSounds.ITEM_PSYCHO_ARMOUR, SoundSource.MASTER, 1f, 1f);
-                  } 
+                  }
                 }
               }
             }
@@ -1023,21 +1027,31 @@ public class RoleShopHandler {
         return triggered;
       }
     });
-    // 射击狂热 - 275金币（魔改psycho，狂暴模式）
-    柜子区的商店.add(new ShopEntry(
-        TMMItems.PSYCHO_MODE.getDefaultInstance(),
-        325,
-        ShopEntry.Type.WEAPON) {
-      @Override
-      public boolean onBuy(@NotNull Player player) {
-        ShootingFrenzyPlayerComponent frenzyComponent = ShootingFrenzyPlayerComponent.KEY.get(player);
-        boolean success = frenzyComponent.startFrenzy();
-        if (success) {
-          player.getCooldowns().addCooldown(TMMItems.PSYCHO_MODE, 20 * 60);
+    {
+      // 射击狂热 - 275金币（魔改psycho，狂暴模式）
+      var 柜子区疯魔 = TMMItems.PSYCHO_MODE.getDefaultInstance();
+      柜子区疯魔.set(DataComponents.ITEM_NAME, Component.translatable("itemstack.executioner.psychoitem.item_name"));
+      var lore = new ItemLore(List.of(
+          Component.translatable("itemstack.executioner.psychoitem.item_lore.1")
+              .withStyle(style -> style.withItalic(false)),
+          Component.translatable("itemstack.executioner.psychoitem.item_lore.2")
+              .withStyle(style -> style.withItalic(false))));
+      柜子区疯魔.set(DataComponents.LORE, lore);
+      柜子区的商店.add(new ShopEntry(
+          柜子区疯魔,
+          325,
+          ShopEntry.Type.WEAPON) {
+        @Override
+        public boolean onBuy(@NotNull Player player) {
+          ShootingFrenzyPlayerComponent frenzyComponent = ShootingFrenzyPlayerComponent.KEY.get(player);
+          boolean success = frenzyComponent.startFrenzy();
+          if (success) {
+            player.getCooldowns().addCooldown(TMMItems.PSYCHO_MODE, 20 * 60);
+          }
+          return success;
         }
-        return success;
-      }
-    });
+      });
+    }
 
     // 阴谋家商店
     CONSPIRATOR_SHOP.add(new ShopEntry(
@@ -1195,7 +1209,7 @@ public class RoleShopHandler {
         ShopEntry.Type.TOOL));
     // 药丸 - 75金币
     DOCTOR_SHOP.add(new ShopEntry(
-      HSRItems.createPillStack(false),
+        HSRItems.createPillStack(false),
         75,
         ShopEntry.Type.TOOL));
     // 净化弹 - 300金币
