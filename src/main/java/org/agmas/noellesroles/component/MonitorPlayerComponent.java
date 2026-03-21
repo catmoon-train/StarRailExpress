@@ -119,7 +119,7 @@ public class MonitorPlayerComponent implements RoleComponent, ServerTickingCompo
     }
 
     @Override
-    public void writeToNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         if (this.markedTarget != null) {
             tag.putUUID("markedTarget", this.markedTarget);
         }
@@ -133,7 +133,7 @@ public class MonitorPlayerComponent implements RoleComponent, ServerTickingCompo
     }
 
     @Override
-    public void writeToSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }
 
     @Override
