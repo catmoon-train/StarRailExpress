@@ -39,6 +39,7 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
     public final Map<Task, TrainTask> tasks = new HashMap<>();
     public final Map<Task, Integer> timesGotten = new HashMap<>();
     public int nextTaskTimer = 0;
+    public int taskStreak = 0; // 连续完成任务计数
     public SREPlayerMoodComponent playerMoodComponent;
 
     public SREPlayerTaskComponent(Player player) {
@@ -66,6 +67,7 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
         }
         this.tasks.clear();
         this.timesGotten.clear();
+        this.taskStreak = 0;
         this.nextTaskTimer = GameConstants.TIME_TO_FIRST_TASK;
         this.sync();
     }
@@ -101,9 +103,14 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
                 this.timesGotten.putIfAbsent(task.getType(), 1);
                 this.timesGotten.put(task.getType(), this.timesGotten.get(task.getType()) + 1);
             }
+            // 使用动态任务冷却：根据游戏已过时间调整
+            SREGameTimeComponent gameTimeComponent = SREGameTimeComponent.KEY.get(this.player.level());
+            long gameElapsedTicks = Math.max(0, gameTimeComponent.getResetTime() - gameTimeComponent.getTime());
+            int minCooldown = GameConstants.getDynamicMinTaskCooldown(gameElapsedTicks);
+            int maxCooldown = GameConstants.getDynamicMaxTaskCooldown(gameElapsedTicks);
             this.nextTaskTimer = (int) (this.player.getRandom().nextFloat()
-                    * (GameConstants.MAX_TASK_COOLDOWN - GameConstants.MIN_TASK_COOLDOWN)
-                    + GameConstants.MIN_TASK_COOLDOWN);
+                    * (maxCooldown - minCooldown)
+                    + minCooldown);
             this.nextTaskTimer = Math.max(this.nextTaskTimer, 2);
             shouldSync = true;
         }
@@ -126,9 +133,15 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
                         .get(serverPlayer.getServer().getScoreboard());
                 scoreboardComponent.incrementPlayerTaskCount(this.player);
 
-                // 调用角色的任务完成方法
-                io.wifi.starrailexpress.api.RoleMethodDispatcher.callOnFinishQuest(this.player, task.getName());
+                // 调用角色的任务完成方法（包含连击奖励）
+                io.wifi.starrailexpress.api.RoleMethodDispatcher.callOnFinishQuest(this.player, task.getName(),
+                        this.taskStreak);
             }
+            this.taskStreak++; // 完成奖励发放后再增加连击计数
+        }
+        // 当情绪过低时重置连击计数
+        if (playerMoodComponent != null && playerMoodComponent.isLowerThanDepressed()) {
+            this.taskStreak = 0;
         }
         if (shouldSync)
             this.sync();
@@ -139,10 +152,32 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
             return null;
         HashMap<Task, Float> map = new HashMap<>();
         float total = 0f;
+        // 获取当前情绪状态用于动态权重调整
+        float currentMood = (playerMoodComponent != null) ? playerMoodComponent.getMood() : 1f;
         for (Task task : Task.getAvailableTasksList()) {
             if (this.tasks.containsKey(task))
                 continue;
             float weight = 1f / this.timesGotten.getOrDefault(task, 1);
+            // 情绪驱动的任务权重调整
+            if (currentMood < GameConstants.MID_MOOD_THRESHOLD) {
+                // 情绪低落时：安抚性任务权重翻倍
+                if (task == Task.MEDITATE || task == Task.SLEEP || task == Task.CHAIR) {
+                    weight *= 2f;
+                }
+                // 活跃性任务权重降低
+                if (task == Task.EXERCISE || task == Task.OUTSIDE) {
+                    weight *= 0.5f;
+                }
+            } else if (currentMood > GameConstants.ANGRY_MOOD_THRESHOLD) {
+                // 情绪亢奋时：活跃性任务权重提升
+                if (task == Task.EXERCISE || task == Task.OUTSIDE || task == Task.NOTE_BLOCK) {
+                    weight *= 1.5f;
+                }
+                // 静态任务权重降低
+                if (task == Task.SLEEP || task == Task.MEDITATE) {
+                    weight *= 0.5f;
+                }
+            }
             map.put(task, weight);
             total += weight;
         }
@@ -193,6 +228,7 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
         for (TrainTask task : this.tasks.values())
             tasks.add(task.toNbt());
         tag.put("tasks", tasks);
+        tag.putInt("taskStreak", this.taskStreak);
     }
 
     @Override
@@ -217,6 +253,7 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
                 }
             }
         }
+        this.taskStreak = tag.contains("taskStreak", Tag.TAG_INT) ? tag.getInt("taskStreak") : 0;
     }
 
     public enum Task {

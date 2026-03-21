@@ -2,6 +2,7 @@ package io.wifi.starrailexpress.api;
 
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
+import io.wifi.starrailexpress.game.GameConstants;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -47,17 +48,20 @@ public class RoleMethodDispatcher {
     }
 
     /**
-     * 调用玩家角色的 onFinishQuest 方法
+     * 调用玩家角色的 onFinishQuest 方法（带连击奖励）
      */
-    public static void callOnFinishQuest(Player player, String quest) {
+    public static void callOnFinishQuest(Player player, String quest, int taskStreak) {
         SRERole role = getCurrentRole(player);
         if (role != null) {
+            // 计算连击奖励
+            int streakBonus = Math.min(taskStreak * GameConstants.STREAK_BONUS_PER_LEVEL,
+                    GameConstants.MAX_STREAK_BONUS);
             if (role.isInnocent()) {
                 SREPlayerShopComponent shopComponent = SREPlayerShopComponent.KEY.get(player);
-                shopComponent.addToBalance(50);
+                shopComponent.addToBalance(50 + streakBonus);
             } else if (role.isNeutrals()) {
                 SREPlayerShopComponent shopComponent = SREPlayerShopComponent.KEY.get(player);
-                shopComponent.addToBalance(50);
+                shopComponent.addToBalance(50 + streakBonus);
             } else if (role.canUseKiller()) {
                 player.level().players().forEach(
                         a -> {
@@ -69,6 +73,13 @@ public class RoleMethodDispatcher {
             }
             role.onFinishQuest(player, quest);
         }
+    }
+
+    /**
+     * 调用玩家角色的 onFinishQuest 方法（无连击，兼容旧调用）
+     */
+    public static void callOnFinishQuest(Player player, String quest) {
+        callOnFinishQuest(player, quest, 0);
     }
 
     public static void onStartGame(ServerLevel serverLevel) {

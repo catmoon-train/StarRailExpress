@@ -76,6 +76,34 @@ public class GameConstants {
     public static int TIME_TO_FIRST_TASK = getInTicks(0, 30);
     public static int MIN_TASK_COOLDOWN = getInTicks(0, 30);
     public static int MAX_TASK_COOLDOWN = getInTicks(1, 0);
+
+    // 连击奖励系统
+    public static int STREAK_BONUS_PER_LEVEL = 5; // 每级连击额外金币
+    public static int MAX_STREAK_BONUS = 25; // 最大连击额外金币（5级封顶）
+
+    /**
+     * 根据游戏已过时间动态调整任务冷却
+     * 游戏前期（<2分钟）：正常冷却 30-60秒
+     * 游戏中期（2-5分钟）：冷却缩短至 25-50秒（约83%）
+     * 游戏后期（>5分钟）：冷却缩短至 20-40秒（约67%）
+     */
+    public static int getDynamicMinTaskCooldown(long gameElapsedTicks) {
+        if (gameElapsedTicks > getInTicks(5, 0)) {
+            return getInTicks(0, 20); // 后期：20秒
+        } else if (gameElapsedTicks > getInTicks(2, 0)) {
+            return getInTicks(0, 25); // 中期：25秒
+        }
+        return MIN_TASK_COOLDOWN; // 前期：30秒
+    }
+
+    public static int getDynamicMaxTaskCooldown(long gameElapsedTicks) {
+        if (gameElapsedTicks > getInTicks(5, 0)) {
+            return getInTicks(0, 40); // 后期：40秒
+        } else if (gameElapsedTicks > getInTicks(2, 0)) {
+            return getInTicks(0, 50); // 中期：50秒
+        }
+        return MAX_TASK_COOLDOWN; // 前期：60秒
+    }
     public static int SLEEP_TASK_DURATION = getInTicks(0, 8);
     public static int OUTSIDE_TASK_DURATION = getInTicks(0, 8);
     public static int READ_BOOK_TASK_DURATION = getInTicks(0, 8);
