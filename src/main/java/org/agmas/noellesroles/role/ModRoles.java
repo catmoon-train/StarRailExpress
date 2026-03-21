@@ -4,8 +4,6 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import io.wifi.starrailexpress.index.TMMItems;
-import io.wifi.starrailexpress.item.KnifeItem;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import org.agmas.noellesroles.Noellesroles;
@@ -32,7 +30,6 @@ import org.agmas.noellesroles.component.SingerPlayerComponent;
 import org.agmas.noellesroles.component.StalkerPlayerComponent;
 import org.agmas.noellesroles.component.SuperStarPlayerComponent;
 import org.agmas.noellesroles.component.TrapperPlayerComponent;
-import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.item.StalkerKnifeItem;
 import org.agmas.noellesroles.roles.chef.ChefRole;
 import org.agmas.noellesroles.roles.executioner.ExecutionerPlayerComponent;
