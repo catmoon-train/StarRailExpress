@@ -15,7 +15,6 @@ import org.agmas.noellesroles.roles.manipulator.InControlCCA;
 import org.agmas.noellesroles.roles.morphling.MorphlingPlayerComponent;
 import org.agmas.noellesroles.roles.noise_maker.NoiseMakerPlayerComponent;
 import org.agmas.noellesroles.roles.recaller.RecallerPlayerComponent;
-import org.agmas.noellesroles.roles.shooting_frenzy.ShootingFrenzyPlayerComponent;
 import org.agmas.noellesroles.roles.thief.ThiefPlayerComponent;
 import org.agmas.noellesroles.roles.voodoo.VoodooPlayerComponent;
 import org.agmas.noellesroles.roles.vulture.VulturePlayerComponent;
