@@ -10,18 +10,15 @@ import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.Scheduler;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.agmas.harpymodloader.events.ModdedRoleAssigned;
+import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
-import org.ladysnake.cca.api.v3.component.ComponentRegistry;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
-import org.agmas.noellesroles.Noellesroles;
-import net.minecraft.resources.ResourceLocation;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
 
 /**
@@ -37,9 +34,7 @@ import io.wifi.starrailexpress.index.tag.TMMItemTags;
  */
 public class ShootingFrenzyPlayerComponent implements RoleComponent, ServerTickingComponent {
 
-    public static final ComponentKey<ShootingFrenzyPlayerComponent> KEY = ComponentRegistry.getOrCreate(
-            ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "shooting_frenzy"),
-            ShootingFrenzyPlayerComponent.class);
+    public static final ComponentKey<ShootingFrenzyPlayerComponent> KEY = ModComponents.SHOOTING_FRENZY;
 
     private final Player player;
 
@@ -84,7 +79,7 @@ public class ShootingFrenzyPlayerComponent implements RoleComponent, ServerTicki
             // 检查主手是否有枪
             ItemStack mainHandStack = player.getItemInHand(InteractionHand.MAIN_HAND);
             if (mainHandStack.is(TMMItemTags.GUNS)) {
-                // 如果副手为空且主手有枪，给副手也放一把
+                // 仅当副手为空时才放一把枪，避免替换掉副手中的非枪物品
                 if (offhandStack.isEmpty()) {
                     player.setItemInHand(InteractionHand.OFF_HAND, new ItemStack(TMMItems.REVOLVER));
                 }
@@ -101,7 +96,7 @@ public class ShootingFrenzyPlayerComponent implements RoleComponent, ServerTicki
     public static void registerGunNoDropEvent() {
         AllowShootRevolverDrop.EVENT.register((player, target) -> {
             SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
-            if (gameWorldComponent.isRole(player, ModRoles.SHOOTING_FRENZY)) {
+            if (gameWorldComponent != null && gameWorldComponent.isRole(player, ModRoles.SHOOTING_FRENZY)) {
                 return AllowShootRevolverDrop.ShouldDropResult.FALSE;
             }
             return AllowShootRevolverDrop.ShouldDropResult.PASS;
@@ -116,7 +111,7 @@ public class ShootingFrenzyPlayerComponent implements RoleComponent, ServerTicki
     public static void registerFrenzyCooldownEvent() {
         OnRevolverUsed.EVENT.register((player, target) -> {
             SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
-            if (gameWorldComponent.isRole(player, ModRoles.SHOOTING_FRENZY)) {
+            if (gameWorldComponent != null && gameWorldComponent.isRole(player, ModRoles.SHOOTING_FRENZY)) {
                 SREPlayerPsychoComponent psychoComponent = SREPlayerPsychoComponent.KEY.get(player);
                 if (psychoComponent.psychoTicks > 0) {
                     // 延迟1 tick，确保在基础冷却设置之后覆盖为半值

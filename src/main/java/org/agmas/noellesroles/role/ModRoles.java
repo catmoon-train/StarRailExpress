@@ -43,7 +43,6 @@ import org.agmas.noellesroles.roles.manipulator.ManipulatorRole;
 import org.agmas.noellesroles.roles.morphling.MorphlingPlayerComponent;
 import org.agmas.noellesroles.roles.recaller.RecallerPlayerComponent;
 import org.agmas.noellesroles.roles.thief.ThiefPlayerComponent;
-import org.agmas.noellesroles.roles.shooting_frenzy.ShootingFrenzyPlayerComponent;
 import org.agmas.noellesroles.roles.voodoo.VoodooPlayerComponent;
 import org.agmas.noellesroles.roles.vulture.VulturePlayerComponent;
 
@@ -1341,7 +1340,7 @@ public class ModRoles {
       SRERole.MoodType.FAKE, // 假心情
       Integer.MAX_VALUE, // 无限冲刺时间
       true // 隐藏计分板
-  )).setComponentKey(ShootingFrenzyPlayerComponent.KEY).setCanSeeCoin(true);
+  )).setComponentKey(ModComponents.SHOOTING_FRENZY).setCanSeeCoin(true);
 
   // ==================== 其他变量定义 ====================
   public static ArrayList<SRERole> SHOW_MONEY_ROLES = new ArrayList<>();
