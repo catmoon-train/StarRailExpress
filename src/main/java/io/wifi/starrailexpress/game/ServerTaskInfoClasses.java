@@ -12,11 +12,13 @@ import io.wifi.starrailexpress.block.NeonTubeBlock;
 import io.wifi.starrailexpress.block.SmallDoorBlock;
 import io.wifi.starrailexpress.block.SprinklerBlock;
 import io.wifi.starrailexpress.block.ToggleableFacingLightBlock;
+import io.wifi.starrailexpress.block.ToiletBlock;
 import io.wifi.starrailexpress.block.TrimmedBedBlock;
 import io.wifi.starrailexpress.block.VentHatchBlock;
 import io.wifi.starrailexpress.block_entity.BeveragePlateBlockEntity;
 import io.wifi.starrailexpress.block_entity.SmallDoorBlockEntity;
 import io.wifi.starrailexpress.block_entity.SprinklerBlockEntity;
+import io.wifi.starrailexpress.block_entity.ToiletBlockEntity;
 import io.wifi.starrailexpress.block_entity.TrimmedBedBlockEntity;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.SREWorldBlackoutComponent;
@@ -156,6 +158,9 @@ public class ServerTaskInfoClasses {
                             BlockInWorld cachedBlockPosition = new BlockInWorld(serverWorld, blockPos6, true);
                             BlockState blockState = cachedBlockPosition.getState();
                             if (blockState.getBlock() instanceof SmallDoorBlock) {
+                                GameUtils.resetPoints.add(blockPos7);
+                            }
+                            if (blockState.getBlock() instanceof ToiletBlock) {
                                 GameUtils.resetPoints.add(blockPos7);
                             } else if (blockState.getBlock() instanceof TrimmedBedBlock) {
                                 if (blockState.getValue(TrimmedBedBlock.PART).equals(BedPart.HEAD)) {
@@ -310,6 +315,15 @@ public class ServerTaskInfoClasses {
                         blockState = blockState.setValue(SmallDoorBlock.OPEN, false);
                         list2.add(new GameUtils.BlockInfo(blockPos7, blockState, null));
                     }
+                } else if (blockState.getBlock() instanceof ToiletBlock) {
+                    if (serverWorld.getBlockEntity(blockPos6) instanceof ToiletBlockEntity entity) {
+                        entity.setHasPoison(false, null);
+                        blockState = blockState.setValue(TrimmedBedBlock.OCCUPIED, false);
+                        BlockEntityInfo blockEntityInfo = new BlockEntityInfo(
+                                entity.saveCustomOnly(serverWorld.registryAccess()),
+                                entity.components());
+                        list3.add(new GameUtils.BlockInfo(blockPos7, blockState, blockEntityInfo));
+                    }
                 } else if (blockState.getBlock() instanceof TrimmedBedBlock) {
                     if (blockState.getValue(TrimmedBedBlock.PART).equals(BedPart.HEAD)) {
                         if (serverWorld.getBlockEntity(blockPos6) instanceof TrimmedBedBlockEntity entity) {
@@ -453,7 +467,7 @@ public class ServerTaskInfoClasses {
                 GameUtils.serverTaskQueue.add(new ServerTaskInfoClasses.SchedulerTask(5, () -> {
                     blackoutComponent.reset();
                 }));
-                
+
                 GameUtils.serverTaskQueue.add(new ServerTaskInfoClasses.SchedulerTask(5, () -> {
                     GameUtils.trueStartGame(this.world, this.gameMode, this.time);
                 }));

@@ -742,7 +742,7 @@ public class ModEventsRegister {
                 return;
             for (Player player : victim.level().players()) {
                 // 排除受害者自己（虽然巡警死了也不能触发能力，但以防万一）
-                if (player.equals(victim))
+                if (player.getUUID().equals(victim.getUUID()))
                     continue;
                 // 检查是否是巡警
                 if (!gameWorld.isRole(player, ModRoles.PATROLLER))
@@ -752,16 +752,13 @@ public class ModEventsRegister {
 
                 if (!GameUtils.isPlayerAliveAndSurvival(player))
                     continue;
-
                 // 检查距离（50格内）
                 if (player.distanceToSqr(victim) > 50 * 50
                         || !PatrollerPlayerComponent.isBoundTargetVisible(victim, player))
                     continue;
 
-                if (player.hasLineOfSight(victim)) {
-                    PatrollerPlayerComponent patrollerComponent = ModComponents.PATROLLER.get(player);
-                    patrollerComponent.onNearbyDeath();
-                }
+                PatrollerPlayerComponent patrollerComponent = ModComponents.PATROLLER.get(player);
+                patrollerComponent.onNearbyDeath();
             }
         });
         OnPlayerDeathWithKiller.EVENT.register((victim, killer, deathReason) -> {

@@ -10,6 +10,7 @@ public class InitiateRole extends SRERole {
     public InitiateRole(ResourceLocation identifier, int color, boolean isInnocent, boolean canUseKiller,
             MoodType moodType, int maxSprintTime, boolean canSeeTime) {
         super(identifier, color, isInnocent, canUseKiller, moodType, maxSprintTime, canSeeTime);
+        this.setNeutrals(false);
     }
 
     @Override

@@ -413,9 +413,15 @@ public class AreasWorldComponent implements AutoSyncedComponent {
 
     @Override
     public void readFromNbt(CompoundTag tag, Provider registryLookup) {
+        if (tag.contains("readyArea")) {
+            this.readyArea = getBoxFromNbt(tag, "readyArea");
+        }
     }
 
     @Override
     public void writeToNbt(CompoundTag tag, Provider registryLookup) {
+        if (this.readyArea != null) {
+            writeBoxToNbt(tag, this.readyArea, "readyArea");
+        }
     }
 }

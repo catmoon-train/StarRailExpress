@@ -16,6 +16,7 @@ import io.wifi.starrailexpress.block.NeonTubeBlock;
 import io.wifi.starrailexpress.block.SmallDoorBlock;
 import io.wifi.starrailexpress.block.SprinklerBlock;
 import io.wifi.starrailexpress.block.ToggleableFacingLightBlock;
+import io.wifi.starrailexpress.block.ToiletBlock;
 import io.wifi.starrailexpress.block.TrimmedBedBlock;
 import io.wifi.starrailexpress.block.VentHatchBlock;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
@@ -60,7 +61,9 @@ public class MapResetManager {
                 for (int m = trainBox.minX(); m <= trainBox.maxX(); m++) {
                     BlockPos blockPos6 = new BlockPos(m, l, k);
                     BlockState blockState = serverWorld.getBlockState(blockPos6);
-                    if (blockState.getBlock() instanceof SmallDoorBlock) {
+                    if (blockState.getBlock() instanceof ToiletBlock) {
+                        GameUtils.resetPoints.add(blockPos6);
+                    } else if (blockState.getBlock() instanceof SmallDoorBlock) {
                         GameUtils.resetPoints.add(blockPos6);
                     } else if (blockState.getBlock() instanceof TrimmedBedBlock) {
                         if (blockState.getValue(TrimmedBedBlock.PART).equals(BedPart.HEAD)) {

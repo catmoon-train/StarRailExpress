@@ -66,8 +66,6 @@ public class RoleMethodDispatcher {
                                 shopComponent.addToBalance(5);
                             }
                         });
-                SREPlayerShopComponent shopComponent = SREPlayerShopComponent.KEY.get(player);
-                shopComponent.addToBalance(5);
             }
             role.onFinishQuest(player, quest);
         }

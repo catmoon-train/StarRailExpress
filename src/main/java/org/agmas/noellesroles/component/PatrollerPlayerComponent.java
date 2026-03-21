@@ -35,8 +35,6 @@ public class PatrollerPlayerComponent implements RoleComponent, ServerTickingCom
 
         if (boundTarget == null)
             return false;
-        if (!GameUtils.isPlayerAliveAndSurvival(boundTarget))
-            return false;
 
         Vec3 eyePos = player.getEyePosition();
         Vec3 lookDir = player.getViewVector(1.0f);
