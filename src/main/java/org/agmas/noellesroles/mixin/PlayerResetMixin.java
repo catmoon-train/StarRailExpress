@@ -6,6 +6,7 @@ import io.wifi.starrailexpress.util.TMMItemUtils;
 
 import org.agmas.noellesroles.component.*;
 import org.agmas.noellesroles.entity.CalamityMarkEntity;
+import org.agmas.noellesroles.entity.TripwireTrapEntity;
 import org.agmas.noellesroles.packet.PlayerResetS2CPacket;
 import org.agmas.noellesroles.roles.executioner.ExecutionerPlayerComponent;
 import org.agmas.noellesroles.roles.fortuneteller.FortunetellerPlayerComponent;
@@ -159,6 +160,8 @@ public abstract class PlayerResetMixin {
         // worldModifierComponent.sync();
         // 清除该玩家放置的所有灾厄印记实体
         clearCalamityMarks(player);
+        // 清除该玩家放置的所有绊索陷阱实体
+        clearTripwireTraps(player);
     }
 
     /**
@@ -178,6 +181,33 @@ public abstract class PlayerResetMixin {
                 if (mark.getOwnerUuid().isPresent() &&
                         mark.getOwnerUuid().get().equals(player.getUUID())) {
                     toRemove.add(mark);
+                }
+            }
+        }
+
+        // 移除所有标记的实体
+        for (Entity entity : toRemove) {
+            entity.discard();
+        }
+    }
+
+    /**
+     * 清除指定玩家放置的所有绊索陷阱实体
+     */
+    private static void clearTripwireTraps(ServerPlayer player) {
+        ServerLevel world = player.serverLevel();
+        if (world == null)
+            return;
+
+        // 收集需要移除的实体（避免在遍历时修改集合）
+        List<Entity> toRemove = new ArrayList<>();
+
+        for (Entity entity : world.getAllEntities()) {
+            if (entity instanceof TripwireTrapEntity trap) {
+                // 检查是否是该玩家放置的
+                if (trap.getOwnerUuid().isPresent() &&
+                        trap.getOwnerUuid().get().equals(player.getUUID())) {
+                    toRemove.add(trap);
                 }
             }
         }

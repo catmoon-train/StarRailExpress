@@ -82,6 +82,7 @@ public class RicesRoleRhapsody implements ModInitializer {
     public static final CustomPacketPayload.Type<AthleteAbilityC2SPacket> ATHLETE_ABILITY_PACKET = AthleteAbilityC2SPacket.ID;
     public static final CustomPacketPayload.Type<AdmirerGazeC2SPacket> ADMIRER_GAZE_PACKET = AdmirerGazeC2SPacket.ID;
     public static final CustomPacketPayload.Type<TrapperC2SPacket> TRAPPER_PACKET = TrapperC2SPacket.ID;
+    public static final CustomPacketPayload.Type<TrapperSwitchC2SPacket> TRAPPER_SWITCH_PACKET = TrapperSwitchC2SPacket.ID;
     public static final CustomPacketPayload.Type<StarAbilityC2SPacket> STAR_ABILITY_PACKET = StarAbilityC2SPacket.ID;
     public static final CustomPacketPayload.Type<SingerAbilityC2SPacket> SINGER_ABILITY_PACKET = SingerAbilityC2SPacket.ID;
     public static final CustomPacketPayload.Type<PsychologistC2SPacket> PSYCHOLOGIST_PACKET = PsychologistC2SPacket.ID;
@@ -276,6 +277,9 @@ public class RicesRoleRhapsody implements ModInitializer {
 
         // 注册设陷者技能包
         PayloadTypeRegistry.playC2S().register(TrapperC2SPacket.ID, TrapperC2SPacket.CODEC);
+
+        // 注册设陷者切换陷阱类型包
+        PayloadTypeRegistry.playC2S().register(TrapperSwitchC2SPacket.ID, TrapperSwitchC2SPacket.CODEC);
 
         // 注册明星技能包
         PayloadTypeRegistry.playC2S().register(StarAbilityC2SPacket.ID, StarAbilityC2SPacket.CODEC);
@@ -766,6 +770,23 @@ public class RicesRoleRhapsody implements ModInitializer {
             // 获取设陷者组件并尝试放置陷阱
             TrapperPlayerComponent trapperComp = ModComponents.TRAPPER.get(context.player());
             trapperComp.tryPlaceTrap();
+        });
+
+        // 处理设陷者切换陷阱类型包
+        ServerPlayNetworking.registerGlobalReceiver(TRAPPER_SWITCH_PACKET, (payload, context) -> {
+            SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(context.player().level());
+
+            // 验证玩家是设陷者
+            if (!gameWorld.isRole(context.player(), ModRoles.TRAPPER))
+                return;
+
+            // 验证玩家存活
+            if (!GameUtils.isPlayerAliveAndSurvival(context.player()))
+                return;
+
+            // 获取设陷者组件并切换陷阱类型
+            TrapperPlayerComponent trapperComp = ModComponents.TRAPPER.get(context.player());
+            trapperComp.switchTrapType();
         });
 
         // 处理明星技能包
