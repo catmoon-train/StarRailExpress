@@ -5,8 +5,6 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
-
-import io.wifi.starrailexpress.mixin.server.MaxPlayerAccessor;
 import io.wifi.starrailexpress.mod_whitelist.common.utils.MWLogger;
 import io.wifi.starrailexpress.mod_whitelist.server.config.MWServerConfig;
 import io.wifi.starrailexpress.mod_whitelist.server.storage.ViolationRecordStorage;

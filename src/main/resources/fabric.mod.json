@@ -32,6 +32,9 @@
       "org.agmas.harpymodloader.Harpymodloader",
       "io.wifi.starrailexpress.SRE"
     ],
+    "server":[
+      "io.wifi.starrailexpress.mod_whitelist.server.ModWhitelistServer"
+    ],
     "cardinal-components": [
       "org.agmas.noellesroles.component.ModComponents",
       "pro.fazeclan.river.stupid_express.constants.SEComponents",

@@ -14,6 +14,6 @@ public interface TMMBlockTags {
     TagKey<Block> SPRINKLERS = create("sprinklers");
 
     private static TagKey<Block> create(String id) {
-        return TagKey.create(Registries.BLOCK, SRE.id(id));
+        return TagKey.create(Registries.BLOCK, SRE.TMMId(id));
     }
 }
