@@ -1,120 +1,127 @@
 # StarRail Express
-## 请注意！
-本 Wathe 扩展**极有可能**不支持任何其他 Wathe 扩展。
+**[English]** [[简体中文]](README.zh.md)
 
-由于 `Trainmurdermystery` 版权协议为 ARR，而我们重新写了许多的 Wathe 功能，即使想要发布，也十分困难。因此，有了这一个附属模组。
+## Please Note!
+This Wathe addon is **highly likely** incompatible with any other Wathe addons.
 
-我们对原版 `TrainMuderMystery` 进行了重写，并且切换到了 `Mojang Mappings`。部分代码无可避免地使用到了原版的内容。如有雷同，纯属巧合。
+Due to the `Trainmurdermystery` copyright license being ARR, and we have rewritten many Wathe functionalities, publishing it is very difficult. Hence, this companion mod.
 
-但由于我们仍需要 Wathe 的基础装饰方块，所以本模组需要 Wathe 作为前置，即使他无法执行任何功能。
+We have rewritten the original `TrainMuderMystery` and switched to `Mojang Mappings`. Some code inevitably uses content from the original. Any similarities are purely coincidental.
 
-本模组完全阻断了 Wathe 原版的运行，并且使用本模组的逻辑进行运行。
+However, since we still need Wathe's base decorative blocks, this mod requires Wathe as a prerequisite, even though it cannot execute any of its functions.
 
-且为了方便，我们使用了 `trainmurdermystery` 以及自己的命名空间，而不是 `wathe`。（因为改ID了话地图迁移有点麻烦）
+This mod completely blocks the original Wathe runtime and operates using its own logic.
 
-部分位置仍为 `TMM`，因为重命名文件名后需要改的东西比较多，有点麻烦。
-## 免责声明
+For convenience, we used the `trainmurdermystery` namespace and our own, instead of `wathe` (changing IDs would complicate map migration).
 
-本模组是Wathe模组的附属模组，并改进了Wathe模组中的很多功能，本模组自带 `Harpymodloader`、`StupidExpress`、`Noellesroles`、`Harpy Simple Roles`模组的功能与内容，新增的职业中部分参考了`KinsWathe`模组中的职业。
-本模组完全开源免费，非盈利项目。我们使用和上游 `Noellesroles` 相同的 `GNU General Public License v3.0 only (GPL-3.0-only)` 协议。
+Some parts still use `TMM`, as renaming files would require many changes, which is cumbersome.
 
-### 你可以做什么（授予的权限）
-#### 自由使用
+## Disclaimer
 
-你可以为了任何目的运行这个程序，无论是个人、学术还是商业目的。
+This mod is an addon for the Wathe mod and improves many of its features. It incorporates functionalities and content from `Harpymodloader`, `StupidExpress`, `Noellesroles`, and `Harpy Simple Roles`. Some new roles reference those from the `KinsWathe` mod.
 
-#### 自由复制
+This mod is completely open-source, free, and non-commercial. We use the same `GNU General Public License v3.0 only (GPL-3.0-only)` as the upstream `Noellesroles`.
 
-你可以精确复制（逐字分发）程序的源代码或二进制版本，并可以收取费用（或不收费）。
+### What You Can Do (Granted Permissions)
+#### Freedom to Use
 
-#### 自由修改
+You may run the program for any purpose, whether personal, academic, or commercial.
 
-你可以修改程序，打造自己的版本。修改后，你将成为修改部分的版权持有人。
+#### Freedom to Copy
 
-#### 自由分发
+You may make exact copies (verbatim distribution) of the program's source code or binary versions, with or without a fee.
 
-你可以通过任何媒介向公众分发该软件（原始版或修改版）。
+#### Freedom to Modify
 
-#### 商业利用
+You may modify the program to create your own version. Upon modification, you become the copyright holder of the changes.
 
-你可以将 `GPL-3.0-only` 软件用于商业服务（例如提供软件即服务、销售包含该软件的设备），但必须遵守下文的义务。
+#### Freedom to Distribute
 
-### 你必须遵守的义务（核心条件）
-#### 必须开源（强著佐权）
+You may distribute the software (original or modified) to the public through any medium.
 
-如果你对外发布（包括分发二进制或源代码形式）任何包含 `GPL-3.0-only` 代码的作品（包括修改版本或通过静态/动态链接整合的程序），必须提供完整、对应的源代码，且源代码必须同样采用 `GPL-3.0-only` 许可证。
+#### Commercial Use
 
-**注意**：仅内部使用而不对外发布，则无需开源。
+You may use `GPL-3.0-only` software for commercial services (e.g., providing software as a service, selling devices containing the software), provided you comply with the obligations below.
 
-#### 许可证必须延续
+### Your Obligations (Core Conditions)
+#### Must Open Source (Strong Copyleft)
 
-你的修改版或衍生作品必须整体使用 `GPL-3.0-only` 许可，不能改用其他许可证（包括不能改为 `GPL-2.0` 或任何非 GPL 许可证）。这是“`only`”的含义——版本被锁定在 `GPL-3.0`。
+If you distribute (including binary or source code forms) any work containing `GPL-3.0-only` code (including modified versions or programs integrated via static/dynamic linking), you must provide complete, corresponding source code under the same `GPL-3.0-only` license.
 
-#### 不得附加额外限制
+**Note**: Internal use without distribution does not require open-sourcing.
 
-你不能在 `GPL-3.0-only` 的基础上增加任何“进一步限制”，例如禁止商业使用、要求支付许可费或限制用户行使 GPL 赋予的权利。任何此类附加条款都是无效的。
+#### License Must Persist
 
-#### 保留版权声明和免责声明
+Your modified or derivative work must be licensed entirely under `GPL-3.0-only`; no other license may be used (including not changing to `GPL-2.0` or any non-GPL license). This is the meaning of "`only`"—the version is locked to `GPL-3.0`.
 
-无论以何种形式分发，你不能删除或修改源代码文件头部的版权声明、许可证声明和免责声明。
+#### No Additional Restrictions
 
-你必须随软件附带一份 `GPL-3.0-only` 许可证的完整副本。
+You cannot impose any "further restrictions" on top of `GPL-3.0-only`, such as prohibiting commercial use, requiring licensing fees, or restricting users' rights granted by the GPL. Any such additional terms are void.
 
-#### 提供安装信息（针对用户产品）
+#### Retain Copyright and Disclaimer Notices
 
-如果你将 `GPL-3.0-only` 软件以二进制形式安装到用户产品（例如路由器、机顶盒等硬件设备）中对外分发，你必须提供安装信息，以确保用户可以自行安装修改后的版本（禁止硬件锁定）。
+You must not delete or modify copyright notices, license statements, or disclaimers in the source code file headers, regardless of the distribution form.
 
-#### 不得与闭源代码链接
+You must include a complete copy of the `GPL-3.0-only` license with the software.
 
-你不能将 `GPL-3.0-only` 的代码与闭源代码进行静态或动态链接后发布，除非该闭源代码部分也符合 `GPL-3.0-only` 或获得了许可证的“系统库”例外。任何形式的链接发布都构成衍生作品，必须全部开源。
+#### Provide Installation Information (for User Products)
 
-## 兼容性
-本地图理论上不兼容任何 Wathe 扩展。本模组禁用了 Wathe 的注册以及初始化事件，所以除了 Wathe 的资源与数据外所有内容都无法使用。
+If you install `GPL-3.0-only` software in binary form on a user product (e.g., routers, set-top boxes, or other hardware) for distribution, you must provide installation information to ensure users can install modified versions (no hardware locking allowed).
 
-由于暂时不知道应该如何禁用 Wathe 的data文件夹中的 tags，而这个文件夹里的文件由于缺少 Wathe 的物品、方块注册会报错，同时为了兼容基于 Wathe 的地图，在本模组里额外注册了 Wathe 的物品与方块。
+#### No Linking with Closed Source
 
-但请注意，这些物品与方块很可能缺少原先的功能，请尽量不要使用！
+You cannot statically or dynamically link `GPL-3.0-only` code with closed-source code for distribution, unless the closed-source portion also complies with `GPL-3.0-only` or qualifies for the license's "system library" exception. Any form of linking that results in distribution constitutes a derivative work and must be fully open-sourced.
 
-## 本 DLC 特性
-### 角色
-我们融合了 `Harpymodloader`、`StupidExpress`、`Noellesroles`、`Harpy Simple Roles`、`KinsWathe`的部分角色与修饰符，并且加入了许多我们自己的原创角色、修饰符。你无法在安装此模组的同时安装以上模组。
-### 物品、实体、方块
-我们为列车增加了更多的物品、实体、方块，您可以在游戏物品栏里查看
-### 功能
-我们为列车增加了许多新的命令，例如：
-- `/tmm:money` 金钱管理
-- `/tmm:switchmap` 切换地图
-- `/tmm:game` 游戏实用命令
+## Compatibility
+This mod is theoretically incompatible with any Wathe addons. It disables Wathe's registration and initialization events, so nothing besides Wathe's resources and data will work.
+
+Since it's unclear how to disable the tags in Wathe's `data` folder—which cause errors due to missing Wathe item and block registrations—we have additionally registered Wathe's items and blocks in this mod for compatibility with Wathe-based maps.
+
+Please note, these items and blocks likely lack their original functionality, so try to avoid using them!
+
+## DLC Features
+### Roles
+We have integrated roles and modifiers from `Harpymodloader`, `StupidExpress`, `Noellesroles`, `Harpy Simple Roles`, and `KinsWathe`, while adding many original roles and modifiers. You cannot install the aforementioned mods alongside this one.
+
+### Items, Entities, Blocks
+We have added more items, entities, and blocks to the train. You can view them in the in-game inventory.
+
+### Features
+We have added many new commands to the train, such as:
+- `/tmm:money` Money management
+- `/tmm:switchmap` Switch maps
+- `/tmm:game` Game utility commands
 - ...
 
-我们还为列车增加了投票、异步复制，优化了原版列车的网络发包、数据组件发包等等毛病。
+We have also added voting and asynchronous copying to the train, optimizing issues in the original train like network packets and data component packets.
 
-目前经过不严谨测试，发包数量明显减少，网络压力大幅下降。
+Preliminary, albeit non-rigorous, tests show a significant reduction in packet count and network load.
 
 ## API
-暂时没有写文档，但是目前提供了大量 API 给开发者，方便调用。
+Documentation is not yet available, but the mod provides a wide range of APIs for developers.
 
-## 地图
-保存在 `存档/train_maps`
-用json文件保存
-内容示范：
+## Maps
+Stored in `world/train_maps`
+Saved as JSON files.
+
+Example Content:
 ```json
 {
-  "spawnPos": { // 出生点（游戏结束后返回的地方），但新玩家进入将传送到原版的世界出生点而不是这里。
+  "spawnPos": { // Spawn point (where players return after game ends). New players will teleport to the world's default spawn, not here.
     "x": 0,
     "y": 0,
     "z": 0,
     "yaw": 90.0,
     "pitch": 0.0
   },
-  "spectatorSpawnPos": { // 玩家旁观生成点（游戏开始后新加入的玩家旁观位置）
+  "spectatorSpawnPos": { // Spectator spawn point (where new players who join after the game starts are placed as spectators)
     "x": 0,
     "y": 20,
     "z": 0,
     "yaw": -90.0,
     "pitch": 15.0
   },
-  "readyArea": { // 准备区域，需要玩家在这里面才会被记为参与游戏
+  "readyArea": { // Ready area. Players must be inside to be considered participating in the game.
     "minX": -100,
     "minY": -10,
     "minZ": -100,
@@ -122,12 +129,12 @@
     "maxY": 10,
     "maxZ": 100
   },
-  "playAreaOffset": { // 这个没用
+  "playAreaOffset": { // Unused.
     "x": 0,
     "y": 0,
     "z": 200
   },
-  "playArea": { // 游玩区域，应当大于等于被粘贴区域
+  "playArea": { // Play area. Should be at least as large as the paste area.
     "minX": 0,
     "minY": 20,
     "minZ": 0,
@@ -135,7 +142,7 @@
     "maxY": 30,
     "maxZ": 100
   },
-  "sceneArea": { // 背景位置
+  "sceneArea": { // Scene background area.
     "minX": 0,
     "minY": 40,
     "minZ": 0,
@@ -143,8 +150,8 @@
     "maxY": 50,
     "maxZ": 100
   },
-  "sceneScroll": "X", // 背景移动方向，支持 X, Y, Z, NONE（不移动）。
-  "resetPasteArea": { // 粘贴区域，地图将会粘贴到这里
+  "sceneScroll": "X", // Background scroll direction. Supports X, Y, Z, NONE (no scroll).
+  "resetPasteArea": { // Paste area. The map will be pasted here.
     "minX": 0,
     "minY": 20,
     "minZ": 0,
@@ -152,7 +159,7 @@
     "maxY": 30,
     "maxZ": 100
   },
-  "resetTemplateArea": { // 模板区域，地图将从这里复制
+  "resetTemplateArea": { // Template area. The map will be copied from here.
     "minX": 0,
     "minY": 0,
     "minZ": 0,
@@ -160,22 +167,22 @@
     "maxY": 10,
     "maxZ": 100
   },
-  "roomCount": 2, // 房间数量
-  "roomPositions": { // 房间位置
-    "1": { // 房间1位置
+  "roomCount": 2, // Number of rooms.
+  "roomPositions": { // Room positions.
+    "1": { // Room 1 position.
       "x": 0.0,
       "y": 20.0,
       "z": 50.0
     },
-    "2": { // 房间2位置
+    "2": { // Room 2 position.
       "x": 50.0,
       "y": 25.0,
       "z": 0.0
     }
   },
-  "canSwim": true, // 是否允许玩家进入超过2格的水，设置为false将导致玩家进入2格水时死亡。
-  "canJump": true, // 是否允许玩家跳跃
-  "haveOutsideSound": true // 是否有室外室内音效
+  "canSwim": true, // Whether players are allowed to enter water deeper than 2 blocks. Setting to false will kill players who enter water 2 blocks deep.
+  "canJump": true, // Whether players are allowed to jump.
+  "haveOutsideSound": true // Whether outdoor/indoor sound effects are enabled.
 }
 ```
-使用时请去掉里面的注释（`//`开头）
+When using, remove the comments (lines starting with `//`).
