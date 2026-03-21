@@ -239,14 +239,21 @@
 
 | 文件 | 改动说明 |
 |------|---------|
-| `GameConstants.java` | 新增 `getTaskCooldown()` 方法，支持基于游戏时间的动态冷却 |
-| `SREPlayerTaskComponent.java` | 添加 `taskStreak` 字段和连击逻辑；改动 `generateTask()` 添加情绪权重 |
-| `RoleMethodDispatcher.java` | 修改 `callOnFinishQuest()` 使用连击奖励公式 |
-| `zh_cn.json` | 新增连击相关的翻译文本 |
+| `GameConstants.java` | 新增 `getTaskCooldown()` 方法，连击常量，BREATHE_TASK_DURATION，并列任务常量 |
+| `SREPlayerTaskComponent.java` | 新增 BREATHE 任务类型，`taskStreak` 连击，情绪权重，地图禁用任务过滤，并列任务机制 |
+| `RoleMethodDispatcher.java` | `callOnFinishQuest()` 支持连击奖励和并列任务奖励倍率 |
+| `MapConfig.java` | MapEntry 新增 `disabledTasks` 字段 |
+| `maps.json` | 配置示例新增 `disabledTasks` 字段 |
+| `zh_cn.json` | 新增呼吸任务翻译 |
+| `TaskBlockOverlayRenderer.java` | 新增 BREATHE 任务类型处理 |
+| `TaskmasterGiveCoinsMixin.java` | 适配新方法签名 |
 
 ### 向后兼容性
 
 - 所有改动都是增量式的，不会破坏现有存档
 - `taskStreak` 默认为0，不影响现有NBT数据
+- `disabledTasks` 默认为空列表，不影响现有地图配置
+- BREATHE 作为新枚举值添加在末尾，不影响现有任务序列化
 - 动态冷却保持在原有范围附近，不会让游戏失衡
+- 并列任务使用独立追踪，不影响原有任务流程
 - 配置项保持不变，所有新功能使用合理默认值
