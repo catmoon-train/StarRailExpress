@@ -42,6 +42,7 @@ public class PlayerPsychoComponentCooldownMixin {
             player.getCooldowns().addCooldown(TMMItems.PSYCHO_MODE, 15 * 20 + SREConfig.instance().psychoModeCooldown);
             SREPlayerPsychoComponent psychoComponent = SREPlayerPsychoComponent.KEY.get(player);
             psychoComponent.setPsychoTicks(20 * 22);
+
         }
 
         // 修改刽子手射击狂热的疯狂模式：无盾（护甲为0）、狂暴皮肤（type=1）

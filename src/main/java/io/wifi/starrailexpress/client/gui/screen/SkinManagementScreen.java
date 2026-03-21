@@ -427,6 +427,8 @@ public class SkinManagementScreen extends Screen {
         if (!previewStack.isEmpty()) {
             player.setItemSlot(EquipmentSlot.MAINHAND, previewStack);
         }
+        guiGraphics.pose().pushPose();
+        guiGraphics.pose().translate(0, 0, 400F);
 
         InventoryScreen.renderEntityInInventoryFollowsMouse(
                 guiGraphics,
@@ -436,6 +438,7 @@ public class SkinManagementScreen extends Screen {
                 mouseX, mouseY,
                 player);
 
+        guiGraphics.pose().popPose();
         // Always restore the original item — even if previewStack was empty
         player.setItemSlot(EquipmentSlot.MAINHAND, originalMainhand);
 

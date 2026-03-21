@@ -73,7 +73,7 @@ public abstract class PlayerResetMixin {
 
     private static void clearAllComponents(ServerPlayer player) {
         RoleUtils.RemoveAllPlayerAttributes(player);
-        RoleUtils.RemoveAllEffects(player);
+        RoleUtils. RemoveAllEffects(player);
         player.setLastHurtMob(null);
         TemporaryEffectPlayerComponent.KEY.get(player).init();
         BloodFeudistPlayerComponent.KEY.get(player).clear();
