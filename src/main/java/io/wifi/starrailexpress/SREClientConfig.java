@@ -27,7 +27,8 @@ public class SREClientConfig implements ConfigData {
     public boolean disableStaminaBarSmoothing = false;
 
     public boolean enableSecurityCameraHUD = true; // 启用安全摄像头HUD显示
-public boolean welcome_voice = false;
+    public boolean welcome_voice = false;
+
     public boolean isUltraPerfMode() {
         return ultraPerfMode;
     }
