@@ -9,6 +9,7 @@ import java.util.UUID;
 import java.util.function.Predicate;
 
 import net.exmo.sre.EXSREClient;
+import net.exmo.sre.loading.FrameAnimationRenderer;
 
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.LoggerFactory;
@@ -382,6 +383,8 @@ public class SREClient implements ClientModInitializer {
         });
         intervalTime = new Random().nextInt(0, 200);
         ClientTickEvents.END_CLIENT_TICK.register((client) -> {
+            FrameAnimationRenderer.setInWorld(client != null && client.level != null);
+
             if (gameComponent != null) {
                 if (gameComponent.isRunning()) {
                     if (client != null && client.player != null) {
@@ -514,6 +517,20 @@ public class SREClient implements ClientModInitializer {
                 context.client().setScreen(null);
             });
         });
+
+        // Chat Dialogue
+        ClientPlayNetworking.registerGlobalReceiver(
+                net.exmo.sre.client.chat.OpenChatDialoguePayload.ID, (payload, context) -> {
+                    context.client().execute(() -> {
+                        net.exmo.sre.client.chat.ChatDialogueData data =
+                                net.exmo.sre.client.chat.ChatDialogueData.GSON.fromJson(
+                                        payload.dialogueJson(),
+                                        net.exmo.sre.client.chat.ChatDialogueData.class);
+                        context.client().setScreen(
+                                new net.exmo.sre.client.chat.ChatDialogueScreen(
+                                        data, payload.targetEntityId()));
+                    });
+                });
 
         // Instinct keybind
         instinctKeybind = KeyBindingHelper.registerKeyBinding(new KeyMapping(

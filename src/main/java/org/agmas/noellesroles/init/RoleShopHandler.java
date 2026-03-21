@@ -5,11 +5,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import io.wifi.starrailexpress.item.KnifeItem;
+import net.minecraft.network.PacketListener;
+import net.minecraft.world.InteractionHand;
 import org.agmas.noellesroles.component.MaChenXuPlayerComponent;
 import org.agmas.noellesroles.component.SingerPlayerComponent;
 import org.agmas.noellesroles.repack.HSRConstants;
 import org.agmas.noellesroles.repack.HSRItems;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.roles.executioner.ShootingFrenzyPlayerComponent;
 import org.agmas.noellesroles.roles.framing.FramingShopEntry;
 import org.jetbrains.annotations.NotNull;
 
@@ -718,7 +722,17 @@ public class RoleShopHandler {
     ShopContent.customEntries.put(
         ModRoles.STALKER_ID,
         List.of(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), 75,
-            ShopEntry.Type.TOOL)));
+            ShopEntry.Type.TOOL),new ShopEntry(ModItems.Stalker_Knife_2.getDefaultInstance(), 325, ShopEntry.Type.WEAPON){
+          @Override
+          public boolean onBuy(@NotNull Player player) {
+
+            boolean b = player.getOffhandItem().getItem() instanceof KnifeItem;
+            if (! b){
+              player.setItemInHand(InteractionHand.OFF_HAND,ModItems.Stalker_Knife_2.getDefaultInstance());
+            }
+            return b;
+          }
+        }));
 
     // 心理学家商店
     {
@@ -1006,8 +1020,21 @@ public class RoleShopHandler {
         return triggered;
       }
     });
-    柜子区的商店.add(new ShopEntry(ModItems.FLASH_GRENADE.getDefaultInstance(), 150, ShopEntry.Type.TOOL));
-    柜子区的商店.add(new ShopEntry(ModItems.DECOY_GRENADE.getDefaultInstance(), 50, ShopEntry.Type.TOOL));
+    // 射击狂热 - 275金币（魔改psycho，狂暴模式）
+    柜子区的商店.add(new ShopEntry(
+        TMMItems.PSYCHO_MODE.getDefaultInstance(),
+        325,
+        ShopEntry.Type.WEAPON) {
+      @Override
+      public boolean onBuy(@NotNull Player player) {
+        ShootingFrenzyPlayerComponent frenzyComponent = ShootingFrenzyPlayerComponent.KEY.get(player);
+        boolean success = frenzyComponent.startFrenzy();
+        if (success) {
+          player.getCooldowns().addCooldown(TMMItems.PSYCHO_MODE, 20 * 60);
+        }
+        return success;
+      }
+    });
 
     // 阴谋家商店
     CONSPIRATOR_SHOP.add(new ShopEntry(
@@ -1287,6 +1314,12 @@ public class RoleShopHandler {
         return SREPlayerShopComponent.useBlackout(player);
       }
     });
+
+    // 闪光弹 - 100金币
+    BANDIT_SHOP.add(new ShopEntry(ModItems.FLASH_GRENADE.getDefaultInstance(), 100, ShopEntry.Type.TOOL));
+
+    // 诱饵弹 - 50金币
+    BANDIT_SHOP.add(new ShopEntry(ModItems.DECOY_GRENADE.getDefaultInstance(), 50, ShopEntry.Type.TOOL));
 
     // 小偷商店
     // 小偷的荣誉（金锭） - 根据人数动态计算价格

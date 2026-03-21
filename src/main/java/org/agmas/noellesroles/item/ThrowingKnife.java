@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.item;
 
 import org.agmas.noellesroles.init.ModItems;
-import org.agmas.noellesroles.packet.TryThrowKnifePacket;
+import org.agmas.noellesroles.packet.TryThrowItemPacket;
 
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -49,7 +49,7 @@ public class ThrowingKnife extends KnifeItem {
                     } else {
                         // 发射飞刀
                         if (attacker.getMainHandItem().is(ModItems.THROWING_KNIFE)) {
-                            ClientPlayNetworking.send(new TryThrowKnifePacket());
+                            ClientPlayNetworking.send(new TryThrowItemPacket());
                         }
                     }
                     return;

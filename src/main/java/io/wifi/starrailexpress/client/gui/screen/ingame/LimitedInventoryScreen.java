@@ -39,6 +39,7 @@ import java.util.List;
 
 public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> {
 
+
     public static final ResourceLocation BACKGROUND_TEXTURE = SRE
             .watheId("textures/gui/container/limited_inventory.png");
     // public static final @NotNull ResourceLocation ID =

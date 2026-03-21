@@ -4,6 +4,10 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import io.wifi.starrailexpress.index.TMMItems;
+import io.wifi.starrailexpress.item.KnifeItem;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.component.AdmirerPlayerComponent;
 import org.agmas.noellesroles.component.AvengerPlayerComponent;
@@ -28,6 +32,8 @@ import org.agmas.noellesroles.component.SingerPlayerComponent;
 import org.agmas.noellesroles.component.StalkerPlayerComponent;
 import org.agmas.noellesroles.component.SuperStarPlayerComponent;
 import org.agmas.noellesroles.component.TrapperPlayerComponent;
+import org.agmas.noellesroles.init.ModItems;
+import org.agmas.noellesroles.item.StalkerKnifeItem;
 import org.agmas.noellesroles.roles.chef.ChefRole;
 import org.agmas.noellesroles.roles.executioner.ExecutionerPlayerComponent;
 import org.agmas.noellesroles.roles.gambler.GamblerPlayerComponent;
@@ -151,6 +157,7 @@ public class ModRoles {
   public static ResourceLocation PHANTOM_ID = Noellesroles.id("phantom");
   public static ResourceLocation SWAPPER_ID = Noellesroles.id("swapper");
   public static ResourceLocation EXECUTIONER_ID = Noellesroles.id("executioner");
+  public static ResourceLocation SHOOTING_FRENZY_ID = Noellesroles.id("shooting_frenzy");
   public static ResourceLocation GAMBLER_ID = Noellesroles.id("gambler");
   public static ResourceLocation POISONER_ID = Noellesroles.id("poisoner");
   public static ResourceLocation BAKA_ID = Noellesroles.id("baka");
@@ -1056,7 +1063,32 @@ public class ModRoles {
       SRERole.MoodType.FAKE, // 假心情
       Integer.MAX_VALUE, // 无限冲刺
       true // 隐藏计分板
-  ).setComponentKey(StalkerPlayerComponent.KEY))
+  ){
+            @Override
+            public void serverTick(ServerPlayer player) {
+              if (player.getOffhandItem().getItem() instanceof StalkerKnifeItem){
+                if (player.getMainHandItem().getItem()instanceof StalkerKnifeItem){
+                  if (player.getCooldowns().isOnCooldown(player.getMainHandItem().getItem()) && !player.getCooldowns().isOnCooldown(player.getOffhandItem().getItem())){
+                    //交换位置
+                    var temp = player.getMainHandItem();
+                    var temp2 = player.getOffhandItem();
+                    player.setItemInHand(InteractionHand.MAIN_HAND, temp2);
+                    player.setItemInHand(InteractionHand.OFF_HAND, temp);
+
+                  }
+                  if (player.getCooldowns().isOnCooldown(player.getMainHandItem().getItem()) && !player.getCooldowns().isOnCooldown(player.getOffhandItem().getItem())){
+                    //交换位置
+                    var temp = player.getMainHandItem();
+                    var temp2 = player.getOffhandItem();
+                    player.setItemInHand(InteractionHand.MAIN_HAND, temp2);
+                    player.setItemInHand(InteractionHand.OFF_HAND, temp);
+
+                  }
+                }
+              }
+              super.serverTick(player);
+            }
+          }.setComponentKey(StalkerPlayerComponent.KEY))
       .setMaxSprintTime(StalkerPlayerComponent.MAX_SPRINT_TIME_IntSupplier);
 
   /**
@@ -1284,6 +1316,7 @@ public class ModRoles {
       Integer.MAX_VALUE, // 无限冲刺时间
       true // 隐藏计分板
   )).setComponentKey(ModComponents.BLOOD_FEUDIST).setCanSeeCoin(true);;
+
 
   // ==================== 其他变量定义 ====================
   public static ArrayList<SRERole> SHOW_MONEY_ROLES = new ArrayList<>();

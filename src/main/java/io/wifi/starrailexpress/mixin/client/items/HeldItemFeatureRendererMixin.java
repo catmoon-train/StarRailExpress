@@ -5,6 +5,11 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.event.AllowItemShowInHand;
 import io.wifi.starrailexpress.index.TMMItems;
+import io.wifi.starrailexpress.item.KnifeItem;
+import net.minecraft.world.item.Item;
+import org.agmas.noellesroles.init.ModItems;
+import org.agmas.noellesroles.item.StalkerKnifeItem;
+import org.agmas.noellesroles.role.ModRoles;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import java.util.HashMap;
@@ -19,6 +24,12 @@ public class HeldItemFeatureRendererMixin {
     @WrapOperation(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/world/entity/LivingEntity;FFFFFF)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;getOffhandItem()Lnet/minecraft/world/item/ItemStack;"))
     public ItemStack nrs$changeOffHandItemStack(LivingEntity instance, Operation<ItemStack> original) {
         ItemStack ret = original.call(instance);
+
+        if (ret.getItem() instanceof StalkerKnifeItem){
+            if (!(instance.getMainHandItem().getItem() instanceof StalkerKnifeItem)){
+                return ItemStack.EMPTY;
+            }
+        }
         if (instance.isInvisible())
             return ItemStack.EMPTY;
         for (var i : TMMItems.INVISIBLE_ITEMS) {
@@ -28,6 +39,11 @@ public class HeldItemFeatureRendererMixin {
         }
         
         if (instance instanceof Player player) {
+            if (SREClient.gameComponent != null&&SREClient.gameComponent.getRole( player)!=null&&SREClient.gameComponent.getRole( player).equals(ModRoles.STALKER)){
+                if (player.isCrouching()){
+                    return ItemStack.EMPTY;
+                }
+            }
             var eventRes = AllowItemShowInHand.EVENT.invoker().allowShowInHand(player, ret, false);
             if (eventRes != null) {
                 return eventRes;
@@ -38,6 +54,7 @@ public class HeldItemFeatureRendererMixin {
     @WrapOperation(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/world/entity/LivingEntity;FFFFFF)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;getMainHandItem()Lnet/minecraft/world/item/ItemStack;"))
     public ItemStack nrs$changeMainHandItemStack(LivingEntity instance, Operation<ItemStack> original) {
         ItemStack ret = original.call(instance);
+
         if (instance.isInvisible())
             return ItemStack.EMPTY;
         for (var i : TMMItems.INVISIBLE_ITEMS) {
@@ -47,7 +64,13 @@ public class HeldItemFeatureRendererMixin {
         }
         
         if (instance instanceof Player player) {
-            var eventRes = AllowItemShowInHand.EVENT.invoker().allowShowInHand(player, ret, true);
+            if (SREClient.gameComponent != null&&SREClient.gameComponent.getRole( player)!=null&&SREClient.gameComponent.getRole( player).equals(ModRoles.STALKER)){
+                if (player.isCrouching()){
+                    return ItemStack.EMPTY;
+                }
+            }
+
+                var eventRes = AllowItemShowInHand.EVENT.invoker().allowShowInHand(player, ret, true);
             if (eventRes != null) {
                 return eventRes;
             }

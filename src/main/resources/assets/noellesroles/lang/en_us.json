@@ -213,6 +213,8 @@
   "screen.noellesroles.loot.lockGameTip": "Press 'W' to try lockpicking, press 'A'/'D' to move lockpick",
   "screen.noellesroles.cook.cookgameTip": "Use \"ESC\" to paused, Use \"SHIFT ESC\" to stop",
   "screen.noellesroles.loot.lootBtn": "Start Lottery",
+  "screen.noellesroles.loot.multiLootBtn": "5x Lottery",
+  "screen.noellesroles.loot.previewBtn": "Preview",
   "==================== Gambler Role ====================": "",
   "game.win.star.gambler": "Gambler wins with 1% probability, he's laughing at everyone!",
   "gui.noellesroles.gambler.title": "Gambler Role Selection",
@@ -829,5 +831,12 @@
   "item.noellesroles.extinguisher.empty": "Fire extinguisher is empty!",
   "item.noellesroles.extinguisher.cleaned_fuel": "Cleared the fuel from the target!",
   "item.noellesroles.zhanweifu1": "Zhanweifu1",
-  "item.noellesroles.zhanweifu2": "Zhanweifu2"
+  "item.noellesroles.zhanweifu2": "Zhanweifu2",
+  "info.screen.roleid.shooting_frenzy": "Killer Faction\nModified Psycho\nDuring frenzy: shooting cooldown -50%\nGuns never drop\nDual-wielding guns\nNo shield\nNot affected by target locking\nFrenzy skin",
+  "announcement.star.role.shooting_frenzy": "Shooting Frenzy",
+  "announcement.star.role.noellesroles.shooting_frenzy": "Shooting Frenzy",
+  "announcement.star.goals.shooting_frenzy": "Enter frenzy mode and shoot everyone with dual guns!",
+  "announcement.star.win.shooting_frenzy": "Killer Wins!",
+  "message.noellesroles.shooting_frenzy.start": "Shooting Frenzy activated! Dual guns ready!",
+  "message.noellesroles.shooting_frenzy.end": "Shooting Frenzy has ended."
 }

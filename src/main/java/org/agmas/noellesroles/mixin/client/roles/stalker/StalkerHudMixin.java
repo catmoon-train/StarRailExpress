@@ -1,4 +1,4 @@
-package org.agmas.noellesroles.mixin.client.roles;
+package org.agmas.noellesroles.mixin.client.roles.stalker;
 
 import org.agmas.noellesroles.component.StalkerPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;

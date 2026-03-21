@@ -2,6 +2,7 @@ package org.agmas.noellesroles.init;
 
 import java.util.*;
 
+import dev.doctor4t.wathe.cca.GameWorldComponent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemCooldowns;
 import org.agmas.harpymodloader.Harpymodloader;
@@ -10,15 +11,12 @@ import org.agmas.noellesroles.AbilityHandler;
 import org.agmas.noellesroles.ModDataComponentTypes;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.block_entity.VendingMachinesBlockEntity;
-import org.agmas.noellesroles.component.BroadcasterPlayerComponent;
-import org.agmas.noellesroles.component.InsaneKillerPlayerComponent;
-import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.component.MonitorPlayerComponent;
-import org.agmas.noellesroles.component.SwapperPlayerComponent;
+import org.agmas.noellesroles.component.*;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.entity.ThrowingKnifeEntity;
 import org.agmas.noellesroles.events.OnVendingMachinesBuyItems;
 import org.agmas.noellesroles.item.ChefFoodItem;
+import org.agmas.noellesroles.item.StalkerKnifeItem;
 import org.agmas.noellesroles.packet.*;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.roles.coroner.BodyDeathReasonComponent;
@@ -310,13 +308,13 @@ public class ModPacketsReciever {
       }
     });
 
-    ServerPlayNetworking.registerGlobalReceiver(TryThrowKnifePacket.ID, (payload, context) -> {
+    ServerPlayNetworking.registerGlobalReceiver(TryThrowItemPacket.ID, (payload, context) -> {
 
       final var player = context.player();
       if (player.getMainHandItem().is(ModItems.THROWING_KNIFE)) {
         ItemCooldowns cooldowns1 = player.getCooldowns();
         Map<Item, ItemCooldowns.CooldownInstance> cooldowns = cooldowns1.cooldowns;
-        if (cooldowns1.isOnCooldown(ModItems.THROWING_KNIFE)
+        if (GameUtils.isPlayerAliveAndSurvival( player)&&cooldowns1.isOnCooldown(ModItems.THROWING_KNIFE)
             && cooldowns.get(ModItems.THROWING_KNIFE).endTime - cooldowns1.tickCount <= 20)
           return;
         player.getMainHandItem().shrink(1);
@@ -334,6 +332,19 @@ public class ModPacketsReciever {
           serverLevel.playSound(p, entity.getX(), entity.getY(), entity.getZ(), SoundEvents.TRIDENT_THROW,
               SoundSource.PLAYERS, 1.0f, 1.0f);
         });
+
+      }
+      if (player.getMainHandItem().getItem() instanceof StalkerKnifeItem stalkerKnifeItem){
+        stalkerKnifeItem.tryDashAttack(player, player.getMainHandItem(), player.serverLevel());
+        //todo 记得启用 测试的时候注释了
+//        if (SREGameWorldComponent.KEY.get(player.level()).isRole(player.getUUID(), ModRoles.STALKER)) {
+//          StalkerPlayerComponent stalkerPlayerComponent = StalkerPlayerComponent.KEY.get(player);
+//          if (stalkerPlayerComponent.phase ==3 && !stalkerPlayerComponent.isDashOnCooldown()){
+//            if (stalkerKnifeItem.tryDashAttack(player, player.getMainHandItem(), player.serverLevel())){
+//              stalkerPlayerComponent.dashCooldown = 50;
+//            }
+//          }
+//        }
 
       }
     });

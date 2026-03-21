@@ -355,7 +355,8 @@ public class TrainLoadingScreen extends Screen {
 
     @Override
     public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        PANORAMA.render(graphics, mouseY, mouseX, mouseY, partialTick);
+        graphics.fillGradient(0, 0, width, height, 0xFF000000, 0xFF000000);
+//        PANORAMA.render(graphics, mouseY, mouseX, mouseY, partialTick);
         // 不绘制默认背景，我们已自己绘制渐变
     }
 }

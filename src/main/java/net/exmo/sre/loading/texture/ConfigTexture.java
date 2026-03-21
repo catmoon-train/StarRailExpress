@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -28,7 +29,14 @@ public class ConfigTexture extends SimpleTexture {
 
     protected TextureImage getTextureImage(ResourceManager resourceManager) {
         try {
-            InputStream input = new FileInputStream(EXSREClient.CONFIG_PATH+"/"+this.location.getPath());
+            InputStream input;
+            if (this.location.getPath().startsWith("video/")) {
+                String relative = this.location.getPath().substring("video/".length());
+                Path framePath = EXSREClient.GAME_VIDEO_DIR.resolve(relative);
+                input = new FileInputStream(framePath.toFile());
+            } else {
+                input = new FileInputStream(EXSREClient.CONFIG_PATH + "/" + this.location.getPath());
+            }
             if (this.location.getPath().equals("background.png") && EXSREClient.CONFIG_PATH.toPath().resolve("backgrounds").toFile().isDirectory()) {
                 if (EXSREClient.CONFIG_PATH.toPath().resolve("backgrounds").toFile().listFiles() != null) {
                     File[] backgrounds = Arrays.stream(Objects.requireNonNull(EXSREClient.CONFIG_PATH.toPath().resolve("backgrounds").toFile().listFiles())).filter(file -> file.toString().endsWith(".png") || file.toString().endsWith(".jpg") || file.toString().endsWith(".jpeg")).toList().toArray(new File[0]);

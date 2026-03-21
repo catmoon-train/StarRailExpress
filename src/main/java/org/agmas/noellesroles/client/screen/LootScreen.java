@@ -18,6 +18,7 @@ import org.agmas.noellesroles.client.animation.BezierAnimation;
 import org.agmas.noellesroles.client.animation.ConstantSpeedAnimation;
 import org.agmas.noellesroles.client.widget.TextureWidget;
 import org.agmas.noellesroles.client.widget.TimerWidget;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,6 +51,9 @@ public class LootScreen extends AbstractPixelScreen {
     private final int cardInterval = 2;
     /** 卡片从右到左的时间 */
     private final int baseDuration = 30;
+    private static final int ACTION_MARGIN = 16;
+    private static final int ACTION_IDLE_COLOR = 0xFFE3EBF5;
+    private static final int ACTION_HOVER_COLOR = 0xFFFFE0A6;
     /** 物品池 id */
     private final int poolId;
     private final Pair<Integer, Integer> trueQualityAndId;
@@ -75,6 +79,40 @@ public class LootScreen extends AbstractPixelScreen {
     private int accelerationTime = 0;
     /** 减速时间 */
     private int slowDownTime = 0;
+    /** 抽卡结束后的继续操作是否已触发 */
+    private boolean continueTriggered = false;
+
+    /** 品质对应的发光颜色 (ARGB) */
+    private static final int[] QUALITY_GLOW_COLORS = {
+            0x40AAAAAA, // 0: common - 灰色微光
+            0x5000CC00, // 1: uncommon - 绿色光
+            0x600066FF, // 2: rare - 蓝色光
+            0x70AA00FF, // 3: epic - 紫色光
+            0x80FFAA00, // 4: legendary - 金色光
+            0x90FF3333, // 5: unbelievable - 红色光
+    };
+
+    /** 品质对应的发光颜色 (更亮的内层) */
+    private static final int[] QUALITY_GLOW_INNER_COLORS = {
+            0x30CCCCCC, // 0: common
+            0x4000FF00, // 1: uncommon
+            0x500088FF, // 2: rare
+            0x60CC44FF, // 3: epic
+            0x70FFCC00, // 4: legendary
+            0x80FF6666, // 5: unbelievable
+    };
+
+    private static int getGlowColor(int quality) {
+        if (quality < 0) return QUALITY_GLOW_COLORS[0];
+        if (quality >= QUALITY_GLOW_COLORS.length) return QUALITY_GLOW_COLORS[QUALITY_GLOW_COLORS.length - 1];
+        return QUALITY_GLOW_COLORS[quality];
+    }
+
+    private static int getInnerGlowColor(int quality) {
+        if (quality < 0) return QUALITY_GLOW_INNER_COLORS[0];
+        if (quality >= QUALITY_GLOW_INNER_COLORS.length) return QUALITY_GLOW_INNER_COLORS[QUALITY_GLOW_INNER_COLORS.length - 1];
+        return QUALITY_GLOW_INNER_COLORS[quality];
+    }
 
     public static class Card extends AbstractWidget
     {
@@ -82,11 +120,13 @@ public class LootScreen extends AbstractPixelScreen {
         protected TextureWidget skinBG;
         protected TextureWidget skin;
         protected boolean isSelected = false;// 是否被选中过：首次选中播放音效
+        protected int quality;// 卡片品质，用于发光效果
         public Card(int x, int y, int poolID, Pair<Integer, Integer> qualityAndId, int pixelSize) {
             this(x, y, 16, 16, poolID, qualityAndId, pixelSize);
         }
         public Card(int x, int y, int w, int h, int poolID, Pair<Integer, Integer> qualityAndId, int pixelSize) {
             super(x, y, w, h, Component.empty());
+            this.quality = qualityAndId.first;
             skinBG = new TextureWidget(x, y, w, h, w, h,LotteryManager.getQualityBgResourceLocation(qualityAndId.first));
             String itemName = LotteryManager.getInstance().getLotteryPool(poolID)
                     .getQualityListGroupConfigs().get(qualityAndId.first).second.get(qualityAndId.second);
@@ -97,6 +137,17 @@ public class LootScreen extends AbstractPixelScreen {
 
         @Override
         protected void renderWidget(GuiGraphics guiGraphics, int i, int j, float f) {
+            // 绘制品质发光效果
+            if (quality >= 2) {
+                int glowSize = Math.max(2, quality);
+                int glowColor = getGlowColor(quality);
+                guiGraphics.fill(getX() - glowSize, getY() - glowSize,
+                        getX() + getWidth() + glowSize, getY() + getHeight() + glowSize, glowColor);
+                int innerGlowSize = Math.max(1, quality - 1);
+                int innerGlowColor = getInnerGlowColor(quality);
+                guiGraphics.fill(getX() - innerGlowSize, getY() - innerGlowSize,
+                        getX() + getWidth() + innerGlowSize, getY() + getHeight() + innerGlowSize, innerGlowColor);
+            }
             if(skinBG != null)
                 skinBG.render(guiGraphics, i, j, f);
             if(skin != null)
@@ -173,6 +224,7 @@ public class LootScreen extends AbstractPixelScreen {
     protected void init()
     {
         super.init();
+        continueTriggered = false;
 
         // 根据屏幕大小重新规划像素缩放 : 使显示的卡片范围略大于屏幕
         while (width > cardSize * (lastCardNum * 2 + 1) * pixelSize)
@@ -307,6 +359,8 @@ public class LootScreen extends AbstractPixelScreen {
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta)
     {
+        // 绘制暗色神秘背景增加惊喜感
+        guiGraphics.fill(0, 0, width, height, 0xDD0A0A1A);
         super.render(guiGraphics, mouseX, mouseY, delta);
         animations.forEach(animation -> animation.renderUpdate(delta));
         animations.removeIf(AbstractAnimation::isFinished);
@@ -389,32 +443,6 @@ public class LootScreen extends AbstractPixelScreen {
                     });
                 }
             ));
-            // 2秒后自动检视
-            timerWidgets.add(new TimerWidget(3, true, timerWidget ->{
-                String itemName = LotteryManager.getInstance().getLotteryPool(poolId)
-                    .getQualityListGroupConfigs().get(trueQualityAndId.first).second.get(trueQualityAndId.second);
-                // 显示item，如果放着可能有一定性能消耗，但是这个界面持续时间一般很短，影响不大
-                ItemStack itemStack = null;
-                // 设置itemStack
-                if (itemName.startsWith("knife/")) {
-                    itemStack = TMMItems.KNIFE.getDefaultInstance();
-                }
-                else if (itemName.startsWith("gun/")) {
-                    itemStack = TMMItems.REVOLVER.getDefaultInstance();
-                }
-                else if (itemName.startsWith("bat/")) {
-                    itemStack = TMMItems.BAT.getDefaultInstance();
-                }
-                else if (itemName.startsWith("grenade/")) {
-                    itemStack = TMMItems.GRENADE.getDefaultInstance();
-                }
-                if (itemStack != null) {
-                    Minecraft minecraft = Minecraft.getInstance();
-                    String trueName = itemName.substring(itemName.indexOf('/') + 1);
-                    itemStack.set(SREDataComponentTypes.SKIN, trueName);
-                    minecraft.setScreen(new DisplayItemScreen(itemStack,null));
-                }
-            }));
         }
         // 锁定目标卡片的位置防止缩放误差影响
         else
@@ -429,6 +457,7 @@ public class LootScreen extends AbstractPixelScreen {
                     centerX - font.width(Component.literal(itemName)) / 2,
                     height / 2 + (int)(endCard.getHeight() * (deltaScale + 1f)) / 2 + cardInterval * pixelSize,
                     0xFFFFFFFF);
+                renderContinueAction(guiGraphics, mouseX, mouseY);
         }
         timerWidgets.forEach(timerWidget -> timerWidget.onRenderUpdate(delta));
 
@@ -444,6 +473,75 @@ public class LootScreen extends AbstractPixelScreen {
                     0x80FF0000  // 半透明红色 (ARGB: 80=50%透明度)
             );
         }
+    }
+
+    private void renderContinueAction(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        Component continueLabel = Component.literal("继续");
+        int x = width - ACTION_MARGIN - font.width(continueLabel);
+        int y = height - ACTION_MARGIN - font.lineHeight;
+        boolean hovered = isInTextRect(mouseX, mouseY, x, y, font.width(continueLabel), font.lineHeight);
+        int color = hovered ? ACTION_HOVER_COLOR : ACTION_IDLE_COLOR;
+        guiGraphics.drawString(font, continueLabel, x, y, color, false);
+        if (hovered)
+            guiGraphics.fill(x, y + font.lineHeight + 1, x + font.width(continueLabel), y + font.lineHeight + 2, ACTION_HOVER_COLOR);
+    }
+
+    private boolean isInTextRect(double mouseX, double mouseY, int x, int y, int width, int height) {
+        return mouseX >= x && mouseX < x + width && mouseY >= y && mouseY < y + height;
+    }
+
+    private void continueAfterSingleLoot() {
+        if (continueTriggered)
+            return;
+        continueTriggered = true;
+
+        String itemName = LotteryManager.getInstance().getLotteryPool(poolId)
+                .getQualityListGroupConfigs().get(trueQualityAndId.first).second.get(trueQualityAndId.second);
+        ItemStack itemStack = null;
+        if (itemName.startsWith("knife/")) {
+            itemStack = TMMItems.KNIFE.getDefaultInstance();
+        }
+        else if (itemName.startsWith("gun/")) {
+            itemStack = TMMItems.REVOLVER.getDefaultInstance();
+        }
+        else if (itemName.startsWith("bat/")) {
+            itemStack = TMMItems.BAT.getDefaultInstance();
+        }
+        else if (itemName.startsWith("grenade/")) {
+            itemStack = TMMItems.GRENADE.getDefaultInstance();
+        }
+
+        if (itemStack != null) {
+            Minecraft minecraft = Minecraft.getInstance();
+            String trueName = itemName.substring(itemName.indexOf('/') + 1);
+            itemStack.set(SREDataComponentTypes.SKIN, trueName);
+            minecraft.setScreen(new DisplayItemScreen(itemStack, null));
+            return;
+        }
+        onClose();
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (button == 0 && !isLooting) {
+            Component continueLabel = Component.literal("继续");
+            int x = width - ACTION_MARGIN - font.width(continueLabel);
+            int y = height - ACTION_MARGIN - font.lineHeight;
+            if (isInTextRect(mouseX, mouseY, x, y, font.width(continueLabel), font.lineHeight)) {
+                continueAfterSingleLoot();
+                return true;
+            }
+        }
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (keyCode == GLFW.GLFW_KEY_SPACE && !isLooting) {
+            continueAfterSingleLoot();
+            return true;
+        }
+        return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
 //    /**

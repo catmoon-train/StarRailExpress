@@ -50,7 +50,7 @@ public class SREReceivingLevelScreen extends ReceivingLevelScreen {
     }
     @Override
     public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        PANORAMA.render(graphics, mouseY, mouseX, mouseY, partialTick);
+//        PANORAMA.render(graphics, mouseY, mouseX, mouseY, partialTick);
         // 不绘制默认背景，我们已自己绘制渐变
     }
     private final List<TrainLoadingScreen.StarParticle> stars = new ArrayList<>();

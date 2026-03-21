@@ -24,6 +24,7 @@ import org.agmas.noellesroles.utils.RightClickBlockManager;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.agmas.noellesroles.blood.BloodMain;
 import org.agmas.noellesroles.repack.HSRConstants;
+import org.agmas.noellesroles.commands.WheelchairFieldItemCommand;
 import org.agmas.noellesroles.repack.HSRItems;
 import org.agmas.noellesroles.repack.HSRSounds;
 import org.jetbrains.annotations.NotNull;
@@ -180,6 +181,7 @@ public class Noellesroles implements ModInitializer {
         StuckCommand.register();
         DisplayItemCommand.register();
         GoodsManagerCommand.register();
+        WheelchairFieldItemCommand.register();
 
         // 加载预设配置
         Preset.PresetManager.loadPresets();

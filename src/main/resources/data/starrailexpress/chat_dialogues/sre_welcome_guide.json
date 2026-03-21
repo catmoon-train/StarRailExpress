@@ -1,0 +1,50 @@
+{
+  "id": "sre_welcome_guide",
+  "title": "星穹列车欢迎指南",
+  "lines": [
+    {
+      "speaker": "帕姆",
+      "text": "欢迎乘坐「星穹列车」！我是列车上的导航员帕姆~",
+      "color": "#FFD700",
+      "emotion": ""
+    },
+    {
+      "speaker": "帕姆",
+      "text": "在开始旅程之前，让我为你介绍一下列车的各项功能吧！",
+      "color": "#FFD700",
+      "emotion": "",
+      "choices": [
+        {
+          "text": "查看物品皮肤",
+          "command": "tmm:skins",
+          "nextDialogue": "sre_skins_intro",
+          "requiredRole": -1
+        },
+        {
+          "text": "查看个人统计",
+          "command": "tmm:showStats",
+          "nextDialogue": "",
+          "requiredRole": -1
+        },
+        {
+          "text": "了解战利品系统",
+          "command": "",
+          "nextDialogue": "sre_loot_system",
+          "requiredRole": -1
+        },
+        {
+          "text": "了解职业介绍",
+          "command": "tmm:openIntro",
+          "nextDialogue": "",
+          "requiredRole": -1
+        },
+        {
+          "text": "随便看看",
+          "command": "say 开拓者决定先四处看看",
+          "nextDialogue": "",
+          "requiredRole": -1
+        }
+      ]
+    }
+  ]
+}
