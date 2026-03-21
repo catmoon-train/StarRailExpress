@@ -13,6 +13,8 @@
   "gui.sre.map_selector.subtitle": "按下 %s 开始投票地图",
   "gui.sre.map_selector.random": "随机",
   "gui.sre.map_selector.random.desc": "随机选择地图",
+  "screen.sre.skins.no_title": "无称号",
+  "screen.sre.skins.title_selector": "称号选择",
   "gui.sre.map_selector.zeppelin": "飞艇",
   "gui.sre.map_selector.zeppelin.desc": "空中战斗平台",
   "gui.sre.map_selector.sky_village": "天空村庄",

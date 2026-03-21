@@ -18,6 +18,7 @@ import org.agmas.noellesroles.client.animation.BezierAnimation;
 import org.agmas.noellesroles.client.animation.ConstantSpeedAnimation;
 import org.agmas.noellesroles.client.widget.TextureWidget;
 import org.agmas.noellesroles.client.widget.TimerWidget;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,6 +51,9 @@ public class LootScreen extends AbstractPixelScreen {
     private final int cardInterval = 2;
     /** 卡片从右到左的时间 */
     private final int baseDuration = 30;
+    private static final int ACTION_MARGIN = 16;
+    private static final int ACTION_IDLE_COLOR = 0xFFE3EBF5;
+    private static final int ACTION_HOVER_COLOR = 0xFFFFE0A6;
     /** 物品池 id */
     private final int poolId;
     private final Pair<Integer, Integer> trueQualityAndId;
@@ -75,6 +79,8 @@ public class LootScreen extends AbstractPixelScreen {
     private int accelerationTime = 0;
     /** 减速时间 */
     private int slowDownTime = 0;
+    /** 抽卡结束后的继续操作是否已触发 */
+    private boolean continueTriggered = false;
 
     /** 品质对应的发光颜色 (ARGB) */
     private static final int[] QUALITY_GLOW_COLORS = {
@@ -218,6 +224,7 @@ public class LootScreen extends AbstractPixelScreen {
     protected void init()
     {
         super.init();
+        continueTriggered = false;
 
         // 根据屏幕大小重新规划像素缩放 : 使显示的卡片范围略大于屏幕
         while (width > cardSize * (lastCardNum * 2 + 1) * pixelSize)
@@ -436,32 +443,6 @@ public class LootScreen extends AbstractPixelScreen {
                     });
                 }
             ));
-            // 2秒后自动检视
-            timerWidgets.add(new TimerWidget(3, true, timerWidget ->{
-                String itemName = LotteryManager.getInstance().getLotteryPool(poolId)
-                    .getQualityListGroupConfigs().get(trueQualityAndId.first).second.get(trueQualityAndId.second);
-                // 显示item，如果放着可能有一定性能消耗，但是这个界面持续时间一般很短，影响不大
-                ItemStack itemStack = null;
-                // 设置itemStack
-                if (itemName.startsWith("knife/")) {
-                    itemStack = TMMItems.KNIFE.getDefaultInstance();
-                }
-                else if (itemName.startsWith("gun/")) {
-                    itemStack = TMMItems.REVOLVER.getDefaultInstance();
-                }
-                else if (itemName.startsWith("bat/")) {
-                    itemStack = TMMItems.BAT.getDefaultInstance();
-                }
-                else if (itemName.startsWith("grenade/")) {
-                    itemStack = TMMItems.GRENADE.getDefaultInstance();
-                }
-                if (itemStack != null) {
-                    Minecraft minecraft = Minecraft.getInstance();
-                    String trueName = itemName.substring(itemName.indexOf('/') + 1);
-                    itemStack.set(SREDataComponentTypes.SKIN, trueName);
-                    minecraft.setScreen(new DisplayItemScreen(itemStack,null));
-                }
-            }));
         }
         // 锁定目标卡片的位置防止缩放误差影响
         else
@@ -476,6 +457,7 @@ public class LootScreen extends AbstractPixelScreen {
                     centerX - font.width(Component.literal(itemName)) / 2,
                     height / 2 + (int)(endCard.getHeight() * (deltaScale + 1f)) / 2 + cardInterval * pixelSize,
                     0xFFFFFFFF);
+                renderContinueAction(guiGraphics, mouseX, mouseY);
         }
         timerWidgets.forEach(timerWidget -> timerWidget.onRenderUpdate(delta));
 
@@ -491,6 +473,75 @@ public class LootScreen extends AbstractPixelScreen {
                     0x80FF0000  // 半透明红色 (ARGB: 80=50%透明度)
             );
         }
+    }
+
+    private void renderContinueAction(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        Component continueLabel = Component.literal("继续");
+        int x = width - ACTION_MARGIN - font.width(continueLabel);
+        int y = height - ACTION_MARGIN - font.lineHeight;
+        boolean hovered = isInTextRect(mouseX, mouseY, x, y, font.width(continueLabel), font.lineHeight);
+        int color = hovered ? ACTION_HOVER_COLOR : ACTION_IDLE_COLOR;
+        guiGraphics.drawString(font, continueLabel, x, y, color, false);
+        if (hovered)
+            guiGraphics.fill(x, y + font.lineHeight + 1, x + font.width(continueLabel), y + font.lineHeight + 2, ACTION_HOVER_COLOR);
+    }
+
+    private boolean isInTextRect(double mouseX, double mouseY, int x, int y, int width, int height) {
+        return mouseX >= x && mouseX < x + width && mouseY >= y && mouseY < y + height;
+    }
+
+    private void continueAfterSingleLoot() {
+        if (continueTriggered)
+            return;
+        continueTriggered = true;
+
+        String itemName = LotteryManager.getInstance().getLotteryPool(poolId)
+                .getQualityListGroupConfigs().get(trueQualityAndId.first).second.get(trueQualityAndId.second);
+        ItemStack itemStack = null;
+        if (itemName.startsWith("knife/")) {
+            itemStack = TMMItems.KNIFE.getDefaultInstance();
+        }
+        else if (itemName.startsWith("gun/")) {
+            itemStack = TMMItems.REVOLVER.getDefaultInstance();
+        }
+        else if (itemName.startsWith("bat/")) {
+            itemStack = TMMItems.BAT.getDefaultInstance();
+        }
+        else if (itemName.startsWith("grenade/")) {
+            itemStack = TMMItems.GRENADE.getDefaultInstance();
+        }
+
+        if (itemStack != null) {
+            Minecraft minecraft = Minecraft.getInstance();
+            String trueName = itemName.substring(itemName.indexOf('/') + 1);
+            itemStack.set(SREDataComponentTypes.SKIN, trueName);
+            minecraft.setScreen(new DisplayItemScreen(itemStack, null));
+            return;
+        }
+        onClose();
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (button == 0 && !isLooting) {
+            Component continueLabel = Component.literal("继续");
+            int x = width - ACTION_MARGIN - font.width(continueLabel);
+            int y = height - ACTION_MARGIN - font.lineHeight;
+            if (isInTextRect(mouseX, mouseY, x, y, font.width(continueLabel), font.lineHeight)) {
+                continueAfterSingleLoot();
+                return true;
+            }
+        }
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (keyCode == GLFW.GLFW_KEY_SPACE && !isLooting) {
+            continueAfterSingleLoot();
+            return true;
+        }
+        return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
 //    /**

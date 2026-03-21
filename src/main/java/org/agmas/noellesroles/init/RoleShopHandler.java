@@ -1025,7 +1025,7 @@ public class RoleShopHandler {
     // 射击狂热 - 275金币（魔改psycho，狂暴模式）
     柜子区的商店.add(new ShopEntry(
         TMMItems.PSYCHO_MODE.getDefaultInstance(),
-        275,
+        325,
         ShopEntry.Type.WEAPON) {
       @Override
       public boolean onBuy(@NotNull Player player) {

@@ -62,6 +62,11 @@ public class ShootingFrenzyPlayerComponent implements RoleComponent, ServerTicki
     }
 
     @Override
+    public boolean shouldSyncWith(ServerPlayer player) {
+        return this.player == player;
+    }
+
+    @Override
     public void init() {
         this.inFrenzy = false;
         this.savedOffhandItem = ItemStack.EMPTY;

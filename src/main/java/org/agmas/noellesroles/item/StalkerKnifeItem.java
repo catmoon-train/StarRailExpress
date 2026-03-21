@@ -78,11 +78,14 @@ public class StalkerKnifeItem extends KnifeItem {
 
         }
     }
+
     @Override
-    public InteractionResultHolder<ItemStack> use(Level world, @NotNull Player user, InteractionHand hand) {
+    public InteractionResultHolder<ItemStack> use(Level world, @NotNull Player user, InteractionHand hand)
+    {
+        if (hand == InteractionHand.OFF_HAND)return InteractionResultHolder.pass(user.getItemInHand(hand));
         if (user.isCrouching()){
-            user.getMainHandItem().set(SREDataComponentTypes.WEAPON_USED_TIME,2);
-        }else user.getMainHandItem().set(SREDataComponentTypes.WEAPON_USED_TIME,8);
+            user.getMainHandItem().set(SREDataComponentTypes.WEAPON_USED_TIME,3);
+        }else user.getMainHandItem().set(SREDataComponentTypes.WEAPON_USED_TIME,10);
         return super.use(world, user, hand);
     }
 
@@ -253,7 +256,7 @@ public class StalkerKnifeItem extends KnifeItem {
                 Vec3 horizontalDash = new Vec3(toTarget.x, 0, toTarget.z).normalize();
                 
                 // 突进距离（格）
-                double dashDistance = 0.8;
+                double dashDistance = 1;
                 
                 // 设置水平位移
                 Vec3 dashVector = horizontalDash.scale(dashDistance);

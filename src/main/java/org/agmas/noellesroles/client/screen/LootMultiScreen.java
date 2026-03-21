@@ -13,6 +13,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import org.agmas.noellesroles.client.widget.TextureWidget;
 import org.agmas.noellesroles.utils.lottery.LotteryManager;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -452,6 +453,11 @@ public class LootMultiScreen extends AbstractPixelScreen {
         return mouseX >= x && mouseX < x + width && mouseY >= y && mouseY < y + height;
     }
 
+    private void continueFromMultiScreen() {
+        this.onClose();
+        Minecraft.getInstance().execute(() -> Minecraft.getInstance().setScreen(parent));
+    }
+
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (button != 0)
@@ -465,20 +471,31 @@ public class LootMultiScreen extends AbstractPixelScreen {
         int skipY = height - ACTION_MARGIN - font.lineHeight;
 
         if (isInTextRect(mouseX, mouseY, closeX, closeY, font.width(closeLabel), font.lineHeight)) {
-            this.onClose();
-            Minecraft.getInstance().execute(()->Minecraft.getInstance().setScreen( parent));
+            continueFromMultiScreen();
             return true;
         }
         if (isInTextRect(mouseX, mouseY, skipX, skipY, font.width(skipLabel), font.lineHeight)) {
             if (allRevealed) {
-                onClose();
-                Minecraft.getInstance().execute(()->Minecraft.getInstance().setScreen( parent));
+                continueFromMultiScreen();
             } else {
                 revealAllImmediately();
             }
             return true;
         }
         return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (keyCode == GLFW.GLFW_KEY_SPACE) {
+            if (allRevealed) {
+                continueFromMultiScreen();
+            } else {
+                revealAllImmediately();
+            }
+            return true;
+        }
+        return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
     private static float easeOutCubic(float progress) {

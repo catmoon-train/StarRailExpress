@@ -759,7 +759,7 @@ public class LootInfoScreen extends AbstractPixelScreen {
     private static final Color sidebarScrollThumbColor = new Color(0xCCDEC08A, true);
     private static final int BASE_SKETCH_WIDTH = 320;
     private static final int BASE_SKETCH_HEIGHT = 180;
-    private static final int BASE_POOL_BUTTON_HEIGHT = (int) (32);
+    private static final int BASE_POOL_BUTTON_HEIGHT = (int) (40);
     private static final int BASE_SIDEBAR_WIDTH = 108;
     private static final int BASE_SIDEBAR_PADDING = 12;
     private static final int BASE_SKETCH_EDGE = 36;

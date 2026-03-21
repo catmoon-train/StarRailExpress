@@ -19,7 +19,7 @@ public class AutoUseKnifeMixin {
         if (Minecraft.getInstance().player==entity){
             if (!((LocalPlayer) entity).isCrouching())return;
             Entity crosshairPickEntity = Minecraft.getInstance().crosshairPickEntity;
-            if ( crosshairPickEntity instanceof Player && ((LocalPlayer) entity).getTicksUsingItem() > 2 ){
+            if ( crosshairPickEntity instanceof Player && ((LocalPlayer) entity).getTicksUsingItem() > 3 ){
                 ((LocalPlayer) entity).releaseUsingItem();
             }
         }

@@ -10,7 +10,7 @@ public class StalkerKnifeChargeItem implements ChargeableItem {
     @Override
     public int getMaxChargeTime(ItemStack itemStack, Player player) {
         Integer i = itemStack.get(SREDataComponentTypes.WEAPON_USED_TIME);
-        return i==null ? 8 : i;
+        return i==null ? 12 : i;
     }
 
     @Override
@@ -21,7 +21,7 @@ public class StalkerKnifeChargeItem implements ChargeableItem {
     @Override
     public float getMaxStamina(ItemStack stack, Player player) {
         Integer i = stack.get(SREDataComponentTypes.WEAPON_USED_TIME);
-        return i==null ? 8 : i;
+        return i==null ? 12 : i;
     }
 
     @Override

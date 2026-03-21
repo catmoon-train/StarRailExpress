@@ -3,7 +3,9 @@ package org.agmas.noellesroles.entity;
 import java.util.ArrayList;
 import java.util.List;
 
+
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
 import org.agmas.noellesroles.game.ChairWheelRaceGame;
 import org.agmas.noellesroles.init.ModItems;
 
@@ -179,7 +181,7 @@ public class WheelchairEntity extends Mob {
     // ===== 加速系统（类似 ItemBasedSteering）=====
     public boolean boost() {
 
-        this.boostTime = this.getRandom().nextInt(841) + 140;
+        this.boostTime =   140;
         this.entityData.set(DATA_BOOST_TIME, this.boostTime);
         return true;
     }
@@ -188,16 +190,19 @@ public class WheelchairEntity extends Mob {
         if (this.boosting && this.boostTime-- <= 0) {
             this.boosting = false;
         }
-        if (!level().isClientSide)return;
-        //粒子拖尾
-        if (this.boosting) {
+        
+        // 粒子拖尾 - 服务端发送
+        if (this.boosting && this.level() instanceof ServerLevel serverLevel) {
             for (int i = 0; i < 4; i++) {
-
-                this.level().addParticle(ParticleTypes.FLAME,
-                        this.getX() + Mth.triangleWave(this.random.nextFloat(), 0.0F) * (float) this.getBbWidth() * 0.5F,
-                        this.getY() + 0.5 + Mth.triangleWave(this.random.nextFloat(), -0.7F),
-                        this.getZ() + Mth.triangleWave(this.random.nextFloat(), 0.0F) * (float) this.getBbWidth() * 0.5F,
-                        0.0, 0.0, 0.0);
+                serverLevel.sendParticles(
+                    ParticleTypes.FLAME,
+                    this.getX() + Mth.triangleWave(this.random.nextFloat(), 0.0F) * (float) this.getBbWidth() * 0.5F,
+                    this.getY() + 0.5 + Mth.triangleWave(this.random.nextFloat(), -0.7F),
+                    this.getZ() + Mth.triangleWave(this.random.nextFloat(), 0.0F) * (float) this.getBbWidth() * 0.5F,
+                    1, // 发送1个粒子
+                    0.0, 0.0, 0.0, // 速度分量
+                    0.0 // 最大随机偏移
+                );
             }
         }
     }
