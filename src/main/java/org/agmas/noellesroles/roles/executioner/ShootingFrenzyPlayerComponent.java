@@ -8,7 +8,6 @@ import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import io.wifi.starrailexpress.network.TriggerStatusBarPayload;
-import io.wifi.starrailexpress.util.ShopEntry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.ParticleTypes;
@@ -18,6 +17,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.Noellesroles;
@@ -47,12 +47,9 @@ public class ShootingFrenzyPlayerComponent implements RoleComponent, ServerTicki
 
     private final Player player;
     public boolean inFrenzy = false;
-<<<<<<< HEAD
-=======
     // 记录狂暴前副手是否有物品，用于结束时恢复
     //private ItemStack savedOffhandItem = ItemStack.EMPTY;
     private ItemStack savedMainhandItem = ItemStack.EMPTY;
->>>>>>> 5f9025f0f6fa7536fb50a293590ad963d9cbf3a0
 
     public ShootingFrenzyPlayerComponent(Player player) {
         this.player = player;
@@ -71,11 +68,8 @@ public class ShootingFrenzyPlayerComponent implements RoleComponent, ServerTicki
     @Override
     public void init() {
         this.inFrenzy = false;
-<<<<<<< HEAD
-=======
 //        this.savedOffhandItem = ItemStack.EMPTY;
         this.savedMainhandItem = ItemStack.EMPTY;
->>>>>>> 5f9025f0f6fa7536fb50a293590ad963d9cbf3a0
         this.sync();
     }
 
@@ -101,18 +95,11 @@ public class ShootingFrenzyPlayerComponent implements RoleComponent, ServerTicki
         }
 
         // 保存当前副手物品
-<<<<<<< HEAD
-        // this.savedOffhandItem = player.getOffhandItem().copy();
-
-        // player.setItemInHand(InteractionHand.OFF_HAND, new
-        // ItemStack(TMMItems.REVOLVER));
-=======
 //        this.savedOffhandItem = player.getOffhandItem().copy();
         this.savedMainhandItem = player.getMainHandItem().copy();
 
         // 给副手一把枪（双枪）
 //        player.setItemInHand(InteractionHand.OFF_HAND, new ItemStack(TMMItems.REVOLVER));
->>>>>>> 5f9025f0f6fa7536fb50a293590ad963d9cbf3a0
 
         // 确保主手也有枪
         if (!player.getMainHandItem().is(TMMItemTags.GUNS)) {
@@ -165,8 +152,6 @@ public class ShootingFrenzyPlayerComponent implements RoleComponent, ServerTicki
 
         this.inFrenzy = false;
 
-<<<<<<< HEAD
-=======
         // 清除副手枪支，恢复原来的物品
         ItemStack currentOffhand = player.getOffhandItem();
         if (currentOffhand.is(TMMItemTags.GUNS)) {
@@ -178,7 +163,6 @@ public class ShootingFrenzyPlayerComponent implements RoleComponent, ServerTicki
 //        this.savedOffhandItem = ItemStack.EMPTY;
         this.savedMainhandItem = ItemStack.EMPTY;
 
->>>>>>> 5f9025f0f6fa7536fb50a293590ad963d9cbf3a0
         // 重置psycho type
         SREPlayerPsychoComponent psychoComponent = SREPlayerPsychoComponent.KEY.get(player);
         psychoComponent.type = -1;
