@@ -64,6 +64,7 @@ public class WayfarerPlayerComponent implements RoleComponent, ServerTickingComp
     @Override
     public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }
+
     /** 组件键 - 用于从玩家获取此组件 */
     public static final ComponentKey<WayfarerPlayerComponent> KEY = ModComponents.WAYFARER;
 
@@ -272,7 +273,11 @@ public class WayfarerPlayerComponent implements RoleComponent, ServerTickingComp
                 BodyDeathReasonComponent bodyDeathReasonComponent = (BodyDeathReasonComponent) BodyDeathReasonComponent.KEY
                         .get(be);
                 UUID killerUid = be.getKillerUuid();
-                Player targetKiller = level.getPlayerByUUID(killerUid);
+                Player targetKiller = null;
+                if (killerUid != null) {
+                    targetKiller = level.getPlayerByUUID(killerUid);
+                }
+
                 // bodyDeathReasonComponent
                 if (targetKiller == null || !GameUtils.isPlayerAliveAndSurvival(targetKiller)) {
                     player.displayClientMessage(
