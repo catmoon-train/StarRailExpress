@@ -183,13 +183,6 @@ public class NoellesRolesConfig implements ConfigData {
 
     public boolean executionerCanSelectTarget = false;
 
-    // Skills configuration
-    /**
-     * Broadcaster - Broadcast message display duration in seconds
-     */
-    @Category("client")
-    public int broadcasterMessageDuration = 10;
-
     /**
      * Morphling - Morph duration in seconds
      */
@@ -259,9 +252,6 @@ public class NoellesRolesConfig implements ConfigData {
     /**
      * (Client Side) Welcome Voice - Play welcome voice
      */
-
-    @Category("client")
-    public boolean welcome_voice = false;
 
     @Category("magic")
     public String credit = "";

@@ -7,6 +7,7 @@ import io.wifi.starrailexpress.network.original.StoreBuyPayload;
 import io.wifi.starrailexpress.util.ShopEntry;
 import io.wifi.ConfigCompact.ui.SettingMenuScreen;
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.SREClientConfig;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import net.fabricmc.api.EnvType;
@@ -38,7 +39,6 @@ import java.util.List;
 @Environment(EnvType.CLIENT)
 
 public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> {
-
 
     public static final ResourceLocation BACKGROUND_TEXTURE = SRE
             .watheId("textures/gui/container/limited_inventory.png");
@@ -92,10 +92,13 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
         }
     }
 
-    public void initMenuSelections() {;
-        menuButton = org.agmas.noellesroles.client.widget.custom_button.ModernButton.builder(Component.translatable("screen.limited_inventory.button.menu"), (btn) -> {
-            toggleViewMenu(!this.isMenuOpen);
-        }).bounds(width - menuButtonWidth, height - menuButtonHeight, menuButtonWidth, menuButtonHeight).accentColor(new java.awt.Color(34,177,76).getRGB()).build();
+    public void initMenuSelections() {
+        ;
+        menuButton = org.agmas.noellesroles.client.widget.custom_button.ModernButton
+                .builder(Component.translatable("screen.limited_inventory.button.menu"), (btn) -> {
+                    toggleViewMenu(!this.isMenuOpen);
+                }).bounds(width - menuButtonWidth, height - menuButtonHeight, menuButtonWidth, menuButtonHeight)
+                .accentColor(new java.awt.Color(34, 177, 76).getRGB()).build();
         this.addRenderableWidget(menuButton);
 
         this.menuSelections.clear();
@@ -106,7 +109,8 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
                 // 职业介绍
                 var btn1 = org.agmas.noellesroles.client.widget.custom_button.ModernButton
                         .builder(Component.translatable("screen.limited_inventory.menu.introduction"), (btn) -> {
-                            var role = SREGameWorldComponent.KEY.get(this.minecraft.level).getRole(this.minecraft.player);
+                            var role = SREGameWorldComponent.KEY.get(this.minecraft.level)
+                                    .getRole(this.minecraft.player);
                             var screen = new RoleIntroduceScreen(this, role);
                             this.minecraft.setScreen(screen);
                             toggleViewMenu(false);
@@ -133,6 +137,19 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
                         .builder(Component.translatable("screen.limited_inventory.menu.mod_settings")
                                 .withStyle(ChatFormatting.RED), (btn) -> {
                                     var screen = new SettingMenuScreen(this);
+                                    this.minecraft.setScreen(screen);
+                                    toggleViewMenu(false);
+                                })
+                        .bounds(width - menuButtonWidth, startY - menuButtonHeight, menuButtonWidth, menuButtonHeight)
+                        .build();
+                this.menuSelections.add(btn1);
+                startY -= menuButtonHeight;
+            } else {
+                // mod client settings
+                var btn1 = org.agmas.noellesroles.client.widget.custom_button.ModernButton
+                        .builder(Component.translatable("screen.limited_inventory.menu.mod_settings_client")
+                                .withStyle(ChatFormatting.RED), (btn) -> {
+                                    var screen = SREClientConfig.HANDLER.generateGui().generateScreen(this);
                                     this.minecraft.setScreen(screen);
                                     toggleViewMenu(false);
                                 })

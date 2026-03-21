@@ -5,6 +5,7 @@ import org.agmas.noellesroles.client.screen.RoleIntroduceScreen;
 import org.agmas.noellesroles.client.widget.custom_button.ModernButton;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 
+import io.wifi.starrailexpress.SREClientConfig;
 import io.wifi.starrailexpress.SREConfig;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -63,10 +64,19 @@ public class SettingMenuScreen extends Screen {
         int maxWidth = this.width;
         int maxHeight = this.height;
         int buttonX = maxWidth / 2 - BUTTON_WIDTH / 2;
-        int buttonCount = 7;
+        int buttonCount = 8;
 
         int buttonY = maxHeight / 2 - buttonCount * (BUTTON_HEIGHT + MARGIN) / 2;
-
+        //
+        {
+            var btn1 = ModernButton
+                    .builder(Component.translatable("screen.starrailexpress.settings.client"), (bbtn) -> {
+                        var screen = SREClientConfig.HANDLER.generateGui().generateScreen(this);
+                        this.minecraft.setScreen(screen);
+                    }).bounds(buttonX, buttonY, BUTTON_WIDTH, BUTTON_HEIGHT).build();
+            this.addRenderableWidget(btn1);
+            buttonY += (BUTTON_HEIGHT + MARGIN);
+        }
         {
             var btn1 = ModernButton
                     .builder(Component.translatable("screen.starrailexpress.settings.tmm"), (bbtn) -> {

@@ -6,7 +6,7 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.PlayerStaminaGetter;
-import io.wifi.starrailexpress.SREConfig;
+import io.wifi.starrailexpress.SREClientConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
@@ -162,7 +162,7 @@ public class StaminaRenderer {
 		context.pose().translate(context.guiWidth() / 2f, context.guiHeight() - 35, 0); // 在物品栏上方显示
 
 		// 检查是否应该禁用平滑动画（特别是对于武器蓄力）
-		if ((SREConfig.instance().disableStaminaBarSmoothing && isChargingWeapon) || isChargingWeapon) {
+		if ((SREClientConfig.instance().disableStaminaBarSmoothing && isChargingWeapon) || isChargingWeapon) {
 			// 如果是刀且完全蓄力，则添加特殊效果
 			if (mainHandStack.getItem() == TMMItems.KNIFE && knifeFullyCharged && isFlashActive()) {
 				// 创建闪烁效果
