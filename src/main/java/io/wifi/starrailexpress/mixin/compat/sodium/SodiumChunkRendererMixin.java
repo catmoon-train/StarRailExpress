@@ -174,6 +174,9 @@ public abstract class SodiumChunkRendererMixin {
             return;
         if (SREConfig.instance().isUltraPerfMode())
             return;
+        if (SREClient.areaComponent.SceneScrollAxis.equals(AreasWorldComponent.ScrollAxis.NONE)) {
+            return;
+        }
         // ── 保证缓冲区存在（render 的 cleanup 注入先于下一帧 fillCommandBuffer，正常情况无需重建）──
         if (sre$cpuBuffer == null) {
             sre$cpuBuffer = MemoryUtil.memAlloc(RenderRegion.REGION_SIZE * 16);
