@@ -16,6 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
  * PlayerShopComponentCooldownMixin
  * - 修改仇杀客的疯狂模式冷却时间为30秒
  * - 原版CD为300秒（5分钟），仇杀客改为30秒
+ * - 修改射击狂热的疯狂模式：无盾（护甲为0）、狂暴皮肤（type=1）
  */
 @Mixin(targets = "io.wifi.starrailexpress.cca.PlayerShopComponent")
 public class PlayerPsychoComponentCooldownMixin {
@@ -40,6 +41,14 @@ public class PlayerPsychoComponentCooldownMixin {
             player.getCooldowns().addCooldown(TMMItems.PSYCHO_MODE, 15 * 20 + SREConfig.instance().psychoModeCooldown);
             SREPlayerPsychoComponent psychoComponent = SREPlayerPsychoComponent.KEY.get(player);
             psychoComponent.setPsychoTicks(20 * 22);
+        }
+
+        // 射击狂热角色：无盾（护甲为0）、狂暴皮肤（type=1）
+        if (gameWorld != null && gameWorld.isRole(player, ModRoles.SHOOTING_FRENZY)) {
+            SREPlayerPsychoComponent psychoComponent = SREPlayerPsychoComponent.KEY.get(player);
+            psychoComponent.setArmour(0); // 无盾
+            psychoComponent.type = 1; // 狂暴皮肤
+            psychoComponent.sync();
         }
     }
 }

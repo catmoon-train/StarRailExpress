@@ -831,5 +831,10 @@
   "item.noellesroles.extinguisher.empty": "Fire extinguisher is empty!",
   "item.noellesroles.extinguisher.cleaned_fuel": "Cleared the fuel from the target!",
   "item.noellesroles.zhanweifu1": "Zhanweifu1",
-  "item.noellesroles.zhanweifu2": "Zhanweifu2"
+  "item.noellesroles.zhanweifu2": "Zhanweifu2",
+  "info.screen.roleid.shooting_frenzy": "Killer Faction\nModified Psycho\nDuring frenzy: shooting cooldown -50%\nGuns never drop\nDual-wielding guns\nNo shield\nNot affected by target locking\nFrenzy skin",
+  "announcement.star.role.shooting_frenzy": "Shooting Frenzy",
+  "announcement.star.role.noellesroles.shooting_frenzy": "Shooting Frenzy",
+  "announcement.star.goals.shooting_frenzy": "Enter frenzy mode and shoot everyone with dual guns!",
+  "announcement.star.win.shooting_frenzy": "Killer Wins!"
 }
