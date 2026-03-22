@@ -28,10 +28,16 @@ public class OtherworldSceneManager {
     private int currentRadius = 0;
 
     /** 最大替换半径 */
-    private static final int MAX_RADIUS = 40;
+    private static final int MAX_RADIUS = 80;
 
     /** 每次tick扩展的层数 */
     private static final int EXPAND_PER_TICK = 4;
+
+    /** 开场快速扩散持续（tick）- 1秒 */
+    private static final int RAPID_EXPAND_DURATION = 20;
+
+    /** 开场快速扩散倍率 */
+    private static final int RAPID_EXPAND_MULTIPLIER = 4;
 
     /** 扩展间隔（tick） */
     private static final int EXPAND_INTERVAL = 2;
@@ -50,6 +56,9 @@ public class OtherworldSceneManager {
 
     /** 脉动计时器 */
     private int pulseTimer = 0;
+
+    /** 阶段化扩散环偏移（开场后继续一圈圈展开） */
+    private int ringOffset = 0;
 
     /** 上一次的玩家位置 */
     private BlockPos lastPlayerPos = null;
@@ -103,6 +112,7 @@ public class OtherworldSceneManager {
         active = true;
         restoring = false;
         currentRadius = 0;
+        ringOffset = 0;
         tickCounter = 0;
         pulseTimer = 0;
         restoreQueue.clear();
@@ -139,10 +149,22 @@ public class OtherworldSceneManager {
         BlockPos playerPos = mc.player.blockPosition();
         lastPlayerPos = playerPos;
 
-        // 逐圈扩展
+        // 前1秒：快速扩散（半径*4）
+        int expandStep = EXPAND_PER_TICK;
+        if (tickCounter <= RAPID_EXPAND_DURATION) {
+            expandStep *= RAPID_EXPAND_MULTIPLIER;
+        }
+
+        // 开场后：围绕玩家逐圈展开（ringOffset 让圈层有明显层级感）
         if (tickCounter % EXPAND_INTERVAL == 0 && currentRadius < MAX_RADIUS) {
-                expandToRadius(mc.level, playerPos, currentRadius, currentRadius + EXPAND_PER_TICK);
-            currentRadius += EXPAND_PER_TICK;
+            int fromRadius = Math.max(0, currentRadius - ringOffset);
+            int toRadius = Math.min(MAX_RADIUS, currentRadius + expandStep - ringOffset);
+            expandToRadius(mc.level, playerPos, fromRadius, toRadius);
+            currentRadius += expandStep;
+
+            if (tickCounter > RAPID_EXPAND_DURATION) {
+                ringOffset = Math.min(24, ringOffset + 1);
+            }
         }
 
         // 脉动效果：已替换的方块周期性变化
