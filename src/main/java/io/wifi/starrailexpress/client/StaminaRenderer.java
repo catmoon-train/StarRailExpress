@@ -287,64 +287,45 @@ public class StaminaRenderer {
 	 * 通用的屏幕边缘效果渲染方法
 	 */
 	private static void renderScreenEdgeEffect(@NotNull GuiGraphics context, long effectStartTime, long effectDurationMs, int color, float maxIntensity) {
+		long elapsed = System.currentTimeMillis() - effectStartTime;
+		float progress = Math.max(0.0f, 1.0f - (float) elapsed / effectDurationMs);
+		float intensity = maxIntensity * progress;
+		if (intensity <= 0f) return;
+
 		int screenWidth = context.guiWidth();
 		int screenHeight = context.guiHeight();
 
-		// 计算效果的强度（随时间递减）
-		long currentTime = System.currentTimeMillis();
-		long elapsed = currentTime - effectStartTime;
-		float progress = 1.0f - (float) elapsed / effectDurationMs; // 随时间递减
-		progress = Math.max(0.0f, progress);
-		float intensity = maxIntensity * progress;
+		int r = (color >> 16) & 0xFF;
+		int g = (color >> 8) & 0xFF;
+		int b = color & 0xFF;
+		int edgeAlpha = (int)(intensity * 255);
+		int opaqueColor = (edgeAlpha << 24) | (r << 16) | (g << 8) | b;
+		int transparent = 0x00000000;
 
-		// 分离RGB颜色组件
-		int red = (color >> 16) & 0xFF;
-		int green = (color >> 8) & 0xFF;
-		int blue = color & 0xFF;
+		int edgeW = Math.max(1, (int)(screenWidth * 0.12f));
+		int edgeH = Math.max(1, (int)(screenHeight * 0.15f));
 
-		// 设置颜色（带透明度）
-		// int effectColor = (int)(intensity * 255) << 24 | (red << 16) | (green << 8) | blue;
-
-		// 保存当前的混合状态
-		PoseStack poseStack = context.pose();
-		poseStack.pushPose();
 		RenderSystem.enableBlend();
 		RenderSystem.defaultBlendFunc();
 
-		// 渲染四个边缘的渐变效果
-		int edgeWidth = (int)(screenWidth * 0.1f); // 边缘宽度为屏幕宽度的10%
-		int edgeHeight = (int)(screenHeight * 0.1f); // 边缘高度为屏幕高度的10%
-
-		// 顶部边缘（从上到下的渐变）
-		for (int i = 0; i < edgeHeight; i++) {
-			float alpha = (1f - (float)i / edgeHeight) * intensity;
-			int currentColor = (int)(alpha * 255) << 24 | (red << 16) | (green << 8) | blue;
-			context.fill(0, i, screenWidth, i + 1, currentColor);
+		// 顶部（fillGradient 竖向渐变，1次 draw call）
+		context.fillGradient(0, 0, screenWidth, edgeH, opaqueColor, transparent);
+		// 底部（fillGradient 竖向渐变，1次 draw call）
+		context.fillGradient(0, screenHeight - edgeH, screenWidth, screenHeight, transparent, opaqueColor);
+		// 左侧（逐列，延伸全高，角落与上下边缘自然叠加不产生接缝）
+		for (int i = 0; i < edgeW; i++) {
+			float alpha = (1f - (float) i / edgeW) * intensity;
+			int col = (int)(alpha * 255) << 24 | (r << 16) | (g << 8) | b;
+			context.fill(i, 0, i + 1, screenHeight, col);
 		}
-
-		// 底部边缘（从下到上的渐变）
-		for (int i = 0; i < edgeHeight; i++) {
-			float alpha = (1f - (float)i / edgeHeight) * intensity;
-			int currentColor = (int)(alpha * 255) << 24 | (red << 16) | (green << 8) | blue;
-			context.fill(0, screenHeight - i - 1, screenWidth, screenHeight - i, currentColor);
-		}
-
-		// 左侧边缘（从左到右的渐变）
-		for (int i = 0; i < edgeWidth; i++) {
-			float alpha = (1f - (float)i / edgeWidth) * intensity;
-			int currentColor = (int)(alpha * 255) << 24 | (red << 16) | (green << 8) | blue;
-			context.fill(i, edgeHeight, i + 1, screenHeight - edgeHeight, currentColor);
-		}
-
-		// 右侧边缘（从右到左的渐变）
-		for (int i = 0; i < edgeWidth; i++) {
-			float alpha = (1f - (float)i / edgeWidth) * intensity;
-			int currentColor = (int)(alpha * 255) << 24 | (red << 16) | (green << 8) | blue;
-			context.fill(screenWidth - i - 1, edgeHeight, screenWidth - i, screenHeight - edgeHeight, currentColor);
+		// 右侧（逐列，延伸全高）
+		for (int i = 0; i < edgeW; i++) {
+			float alpha = (1f - (float) i / edgeW) * intensity;
+			int col = (int)(alpha * 255) << 24 | (r << 16) | (g << 8) | b;
+			context.fill(screenWidth - i - 1, 0, screenWidth - i, screenHeight, col);
 		}
 
 		RenderSystem.disableBlend();
-		poseStack.popPose();
 	}
 
 	/**

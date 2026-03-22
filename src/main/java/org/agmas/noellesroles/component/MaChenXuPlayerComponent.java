@@ -54,6 +54,25 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
     /** 组件键 */
     public static final ComponentKey<MaChenXuPlayerComponent> KEY = ModComponents.MA_CHEN_XU;
 
+    // ==================== 同步分组掩码 ====================
+
+    /** 核心状态：阶段、SAN累计、永久属性、进化阈值 */
+    public static final int SYNC_CORE       = 0x01;
+    /** 技能列表与当前选中索引 */
+    public static final int SYNC_SKILLS     = 0x02;
+    /** 所有技能冷却（大招 + 五种鬼术） */
+    public static final int SYNC_COOLDOWNS  = 0x04;
+    /** 里世界状态、计时器、标记玩家列表 */
+    public static final int SYNC_OTHERWORLD = 0x08;
+    /** 回响技能状态（录制/可传送/录制进度） */
+    public static final int SYNC_ECHO       = 0x10;
+    /** 浊雨技能状态（激活/剩余时间/使用次数） */
+    public static final int SYNC_TURBID     = 0x20;
+    /** 掠风技能状态（激活/剩余时间） */
+    public static final int SYNC_SWIFT      = 0x40;
+    /** 全量同步 */
+    public static final int SYNC_ALL        = 0x7F;
+
     // ==================== 常量定义 ====================
 
     /** 恐惧范围（格） */
@@ -255,6 +274,9 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
 
     private final Random random = new Random();
 
+    /** 当前待发送的同步分组掩码（transient，不序列化；默认 SYNC_ALL 保证上线全量同步） */
+    private transient int pendingSyncMask = SYNC_ALL;
+
     /**
      * 构造函数
      */
@@ -423,7 +445,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
     public void addSanLoss(int amount) {
         this.totalSanLoss += amount;
         checkStageAdvance();
-        this.sync();
+        this.sync(SYNC_CORE | SYNC_SKILLS);
     }
 
     /**
@@ -433,6 +455,8 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         if (stage == 4 && !stage4FreeUltUsed && totalSanLoss >= STAGE_4_AUTO_ULT_THRESHOLD && !otherworldActive) {
             stage4FreeUltUsed = true;
             activateOtherworld(ULTIMATE_DURATION_STAGE_4);
+            // 同步 stage4FreeUltUsed（CORE），activateOtherworld 已同步 OTHERWORLD
+            sync(SYNC_CORE);
             if (player instanceof ServerPlayer sp) {
                 sp.displayClientMessage(
                         Component.translatable("message.noellesroles.ma_chen_xu.auto_ultimate")
@@ -454,9 +478,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         } else if (stage == 3 && totalSanLoss >= STAGE_4_THRESHOLD) {
             advanceToStage4();
         }
-        if (stage != oldStage) {
-            this.sync();
-        }
+        // addSanLoss 作为唯一入口已在 checkStageAdvance 返回后同步，此处无需重复同步
     }
 
     /**
@@ -908,7 +930,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         world.playSound(null, sp.blockPosition(),
                 SoundEvents.WARDEN_EMERGE, SoundSource.HOSTILE, 1.5F, 0.6F);
 
-        this.sync();
+        this.sync(SYNC_OTHERWORLD);
     }
 
     /**
@@ -1014,7 +1036,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         swiftWindActive = false;
         swiftWindDuration = 0;
 
-        this.sync();
+        this.sync(SYNC_OTHERWORLD | SYNC_CORE | SYNC_SKILLS | SYNC_COOLDOWNS | SYNC_SWIFT);
     }
 
     // ==================== 核心技能 ====================
@@ -1072,7 +1094,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
 //        player.level().playSound(null, player.blockPosition(),
 //                SoundEvents.WITHER_DEATH, SoundSource.PLAYERS, 1.0F, 1.2F);
 
-        this.sync();
+        // addSanLoss 已完成 SYNC_CORE | SYNC_SKILLS，此处无需重复同步
         return true;
     }
 
@@ -1196,7 +1218,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         player.level().playSound(null, target.blockPosition(),
                 SoundEvents.WITHER_AMBIENT, SoundSource.PLAYERS, 1.0F, 1.5F);
 
-        this.sync();
+        this.sync(SYNC_OTHERWORLD);
         return true;
     }
 
@@ -1245,6 +1267,8 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         int duration = (stage >= 4) ? ULTIMATE_DURATION_STAGE_4 : ULTIMATE_DURATION_STAGE_3;
         activateOtherworld(duration);
         ultimateCooldown = duration * 2;
+        // 同步 ultimateCooldown（COOLDOWNS）和 stage4FreeUltUsed（CORE），activateOtherworld 已同步 OTHERWORLD
+        sync(SYNC_COOLDOWNS | SYNC_CORE);
 
         serverPlayer.displayClientMessage(
                 Component.translatable("message.noellesroles.ma_chen_xu.prayer_rain_activated")
@@ -1297,7 +1321,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         player.level().playSound(null, player.blockPosition(),
                 SoundEvents.LIGHTNING_BOLT_THUNDER, SoundSource.PLAYERS, 0.8F, 1.0F);
 
-        this.sync();
+        this.sync(SYNC_TURBID);
         return true;
     }
 
@@ -1340,7 +1364,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
                     SoundEvents.ENCHANTMENT_TABLE_USE, SoundSource.PLAYERS, 1.5F, 0.5F);
         }
 
-        this.sync();
+        // 镇魂铃不修改任何同步字段，无需同步
         return hitAny;
     }
 
@@ -1378,7 +1402,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
                 true);
         player.level().playSound(null, player.blockPosition(),
                 SoundEvents.ENCHANTMENT_TABLE_USE, SoundSource.PLAYERS, 1.0F, 0.6F);
-        sync();
+        sync(SYNC_COOLDOWNS);
     }
 
     /**
@@ -1477,7 +1501,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
             player.level().playSound(null, sp.blockPosition(),
                     SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 0.8F, 0.6F);
         }
-        sync();
+        sync(SYNC_ECHO | SYNC_COOLDOWNS);
     }
 
     /**
@@ -1495,7 +1519,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
                                     .withStyle(ChatFormatting.GREEN),
                             true);
                 }
-                sync();
+                sync(SYNC_ECHO);
             }
         }
     }
@@ -1530,7 +1554,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
                 true);
         player.level().playSound(null, sp.blockPosition(),
                 SoundEvents.ENCHANTMENT_TABLE_USE, SoundSource.PLAYERS, 0.8F, 0.8F);
-        sync();
+        sync(SYNC_COOLDOWNS);
     }
 
     /**
@@ -1584,9 +1608,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         }
 
         trapPositions.removeAll(triggeredTraps);
-        if (!triggeredTraps.isEmpty()) {
-            sync();
-        }
+        // trapPositions 不同步；addSanLoss 内部已负责 SYNC_CORE | SYNC_SKILLS 同步
     }
 
     /**
@@ -1678,7 +1700,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
                     true);
         }
 
-        sync();
+        sync(SYNC_COOLDOWNS);
     }
 
     /**
@@ -1723,7 +1745,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
                 true);
         player.level().playSound(null, sp.blockPosition(),
                 SoundEvents.ILLUSIONER_CAST_SPELL, SoundSource.PLAYERS, 1.0F, 0.8F);
-        sync();
+        sync(SYNC_COOLDOWNS);
     }
 
     /**
@@ -1756,7 +1778,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
                 true);
         player.level().playSound(null, sp.blockPosition(),
                 SoundEvents.PLAYER_ATTACK_SWEEP, SoundSource.PLAYERS, 1.0F, 1.2F);
-        sync();
+        sync(SYNC_SWIFT);
     }
 
     // ==================== 技能管理 ====================
@@ -1773,7 +1795,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
                         .withStyle(ChatFormatting.AQUA))
                 .withStyle(ChatFormatting.GOLD);
         this.player.displayClientMessage(text, true);
-        this.sync();
+        this.sync(SYNC_SKILLS);
     }
 
     public void tryActiveAbility() {
@@ -1893,8 +1915,21 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
 
     // ==================== 同步 ====================
 
-    public void sync() {
+    /**
+     * 按分组掩码同步到客户端，减少不必要的数据传输。
+     * 同步结束后将 pendingSyncMask 重置为 SYNC_ALL，以确保外部触发的全量同步正常工作。
+     *
+     * @param mask 由 SYNC_* 常量组合而成的分组掩码
+     */
+    public void sync(int mask) {
+        this.pendingSyncMask = mask;
         ModComponents.MA_CHEN_XU.sync(this.player);
+        this.pendingSyncMask = SYNC_ALL;
+    }
+
+    /** 全量同步（初始化、清除等场景使用） */
+    public void sync() {
+        sync(SYNC_ALL);
     }
 
     // ==================== Tick 处理 ====================
@@ -2003,7 +2038,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
             if (player instanceof ServerPlayer sp) {
                 sp.serverLevel().setWeatherParameters(6000, 0, false, false);
             }
-            this.sync();
+            this.sync(SYNC_TURBID);
         }
     }
 
@@ -2046,121 +2081,156 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         if (this.stage <= 0)
             return;
 
-        tag.putInt("STAGE_2_THRESHOLD", this.STAGE_2_THRESHOLD);
-        tag.putInt("STAGE_3_THRESHOLD", this.STAGE_3_THRESHOLD);
-        tag.putInt("STAGE_4_THRESHOLD", this.STAGE_4_THRESHOLD);
+        int mask = this.pendingSyncMask;
+        tag.putInt("_mask", mask);
 
-        tag.putInt("stage", this.stage);
-        tag.putInt("totalSanLoss", this.totalSanLoss);
-        tag.putInt("fearTimer", this.fearTimer);
-        tag.putBoolean("otherworldActive", this.otherworldActive);
-        tag.putInt("otherworldTimer", this.otherworldTimer);
-        tag.putInt("otherworldDuration", this.otherworldDuration);
-        tag.putInt("ultimateCooldown", this.ultimateCooldown);
-        tag.putBoolean("stage4FreeUltUsed", this.stage4FreeUltUsed);
-        tag.putBoolean("permanentShield", this.permanentShield);
-        tag.putInt("permanentSpeedBonus", this.permanentSpeedBonus);
-        tag.putInt("nowSelectedSkill", this.nowSelectedSkill);
-
-        // 鬼术冷却
-        tag.putInt("ghostWallCooldown", this.ghostWallCooldown);
-        tag.putInt("echoCooldown", this.echoCooldown);
-        tag.putInt("trapCooldown", this.trapCooldown);
-        tag.putInt("parasiteCooldown", this.parasiteCooldown);
-        tag.putInt("vanishCooldown", this.vanishCooldown);
-
-        // 回响状态
-        tag.putBoolean("echoRecording", this.echoRecording);
-        tag.putInt("echoRecordTicks", this.echoRecordTicks);
-        tag.putBoolean("echoCanTeleport", this.echoCanTeleport);
-
-        // 浊雨状态
-        tag.putBoolean("turbidRainActive", this.turbidRainActive);
-        tag.putInt("turbidRainDuration", this.turbidRainDuration);
-        tag.putInt("turbidRainUseCount", this.turbidRainUseCount);
-
-        // 掠风状态
-        tag.putBoolean("swiftWindActive", this.swiftWindActive);
-        tag.putInt("swiftWindDuration", this.swiftWindDuration);
-
-        // 鬼术列表
-        CompoundTag skillsTag = new CompoundTag();
-        for (int i = 0; i < ghostSkills.size(); i++) {
-            skillsTag.putString("skill_" + i, ghostSkills.get(i));
+        // --- SYNC_CORE：阶段、SAN、永久属性、进化阈值 ---
+        if ((mask & SYNC_CORE) != 0) {
+            tag.putInt("STAGE_2_THRESHOLD", this.STAGE_2_THRESHOLD);
+            tag.putInt("STAGE_3_THRESHOLD", this.STAGE_3_THRESHOLD);
+            tag.putInt("STAGE_4_THRESHOLD", this.STAGE_4_THRESHOLD);
+            tag.putInt("stage", this.stage);
+            tag.putInt("totalSanLoss", this.totalSanLoss);
+            tag.putInt("fearTimer", this.fearTimer);
+            tag.putBoolean("stage4FreeUltUsed", this.stage4FreeUltUsed);
+            tag.putBoolean("permanentShield", this.permanentShield);
+            tag.putInt("permanentSpeedBonus", this.permanentSpeedBonus);
         }
-        skillsTag.putInt("size", ghostSkills.size());
-        tag.put("ghostSkills", skillsTag);
 
-        // 标记玩家列表
-        CompoundTag markedTag = new CompoundTag();
-        for (int i = 0; i < markedPlayers.size(); i++) {
-            markedTag.putUUID("player_" + i, markedPlayers.get(i));
+        // --- SYNC_SKILLS：鬼术列表与选中索引 ---
+        if ((mask & SYNC_SKILLS) != 0) {
+            tag.putInt("nowSelectedSkill", this.nowSelectedSkill);
+            CompoundTag skillsTag = new CompoundTag();
+            for (int i = 0; i < ghostSkills.size(); i++) {
+                skillsTag.putString("skill_" + i, ghostSkills.get(i));
+            }
+            skillsTag.putInt("size", ghostSkills.size());
+            tag.put("ghostSkills", skillsTag);
         }
-        markedTag.putInt("size", markedPlayers.size());
-        tag.put("markedPlayers", markedTag);
+
+        // --- SYNC_COOLDOWNS：所有技能冷却 ---
+        if ((mask & SYNC_COOLDOWNS) != 0) {
+            tag.putInt("ultimateCooldown", this.ultimateCooldown);
+            tag.putInt("ghostWallCooldown", this.ghostWallCooldown);
+            tag.putInt("echoCooldown", this.echoCooldown);
+            tag.putInt("trapCooldown", this.trapCooldown);
+            tag.putInt("parasiteCooldown", this.parasiteCooldown);
+            tag.putInt("vanishCooldown", this.vanishCooldown);
+        }
+
+        // --- SYNC_OTHERWORLD：里世界状态与标记玩家 ---
+        if ((mask & SYNC_OTHERWORLD) != 0) {
+            tag.putBoolean("otherworldActive", this.otherworldActive);
+            tag.putInt("otherworldTimer", this.otherworldTimer);
+            tag.putInt("otherworldDuration", this.otherworldDuration);
+            CompoundTag markedTag = new CompoundTag();
+            for (int i = 0; i < markedPlayers.size(); i++) {
+                markedTag.putUUID("player_" + i, markedPlayers.get(i));
+            }
+            markedTag.putInt("size", markedPlayers.size());
+            tag.put("markedPlayers", markedTag);
+        }
+
+        // --- SYNC_ECHO：回响技能状态 ---
+        if ((mask & SYNC_ECHO) != 0) {
+            tag.putBoolean("echoRecording", this.echoRecording);
+            tag.putInt("echoRecordTicks", this.echoRecordTicks);
+            tag.putBoolean("echoCanTeleport", this.echoCanTeleport);
+        }
+
+        // --- SYNC_TURBID：浊雨状态 ---
+        if ((mask & SYNC_TURBID) != 0) {
+            tag.putBoolean("turbidRainActive", this.turbidRainActive);
+            tag.putInt("turbidRainDuration", this.turbidRainDuration);
+            tag.putInt("turbidRainUseCount", this.turbidRainUseCount);
+        }
+
+        // --- SYNC_SWIFT：掠风状态 ---
+        if ((mask & SYNC_SWIFT) != 0) {
+            tag.putBoolean("swiftWindActive", this.swiftWindActive);
+            tag.putInt("swiftWindDuration", this.swiftWindDuration);
+        }
     }
 
     @Override
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
-        this.STAGE_2_THRESHOLD = tag.contains("STAGE_2_THRESHOLD") ? tag.getInt("STAGE_2_THRESHOLD") : 100000;
-        this.STAGE_3_THRESHOLD = tag.contains("STAGE_3_THRESHOLD") ? tag.getInt("STAGE_3_THRESHOLD") : 100000;
-        this.STAGE_4_THRESHOLD = tag.contains("STAGE_4_THRESHOLD") ? tag.getInt("STAGE_4_THRESHOLD") : 100000;
-        this.stage = tag.contains("stage") ? tag.getInt("stage") : 1;
-        this.totalSanLoss = tag.contains("totalSanLoss") ? tag.getInt("totalSanLoss") : 0;
-        this.fearTimer = tag.contains("fearTimer") ? tag.getInt("fearTimer") : 0;
-        this.otherworldActive = tag.contains("otherworldActive") && tag.getBoolean("otherworldActive");
-        this.otherworldTimer = tag.contains("otherworldTimer") ? tag.getInt("otherworldTimer") : 0;
-        this.otherworldDuration = tag.contains("otherworldDuration") ? tag.getInt("otherworldDuration") : 0;
-        this.ultimateCooldown = tag.contains("ultimateCooldown") ? tag.getInt("ultimateCooldown") : 0;
-        this.stage4FreeUltUsed = tag.contains("stage4FreeUltUsed") && tag.getBoolean("stage4FreeUltUsed");
-        this.permanentShield = tag.contains("permanentShield") && tag.getBoolean("permanentShield");
-        this.permanentSpeedBonus = tag.contains("permanentSpeedBonus") ? tag.getInt("permanentSpeedBonus") : 0;
-        this.nowSelectedSkill = tag.contains("nowSelectedSkill") ? tag.getInt("nowSelectedSkill") : 0;
+        // 若无掩码字段（旧存档/首次同步），视为全量同步
+        int mask = tag.contains("_mask") ? tag.getInt("_mask") : SYNC_ALL;
 
-        // 鬼术冷却
-        this.ghostWallCooldown = tag.contains("ghostWallCooldown") ? tag.getInt("ghostWallCooldown") : 0;
-        this.echoCooldown = tag.contains("echoCooldown") ? tag.getInt("echoCooldown") : 0;
-        this.trapCooldown = tag.contains("trapCooldown") ? tag.getInt("trapCooldown") : 0;
-        this.parasiteCooldown = tag.contains("parasiteCooldown") ? tag.getInt("parasiteCooldown") : 0;
-        this.vanishCooldown = tag.contains("vanishCooldown") ? tag.getInt("vanishCooldown") : 0;
+        // --- SYNC_CORE ---
+        if ((mask & SYNC_CORE) != 0) {
+            this.STAGE_2_THRESHOLD = tag.contains("STAGE_2_THRESHOLD") ? tag.getInt("STAGE_2_THRESHOLD") : 100000;
+            this.STAGE_3_THRESHOLD = tag.contains("STAGE_3_THRESHOLD") ? tag.getInt("STAGE_3_THRESHOLD") : 100000;
+            this.STAGE_4_THRESHOLD = tag.contains("STAGE_4_THRESHOLD") ? tag.getInt("STAGE_4_THRESHOLD") : 100000;
+            this.stage = tag.contains("stage") ? tag.getInt("stage") : 1;
+            this.totalSanLoss = tag.contains("totalSanLoss") ? tag.getInt("totalSanLoss") : 0;
+            this.fearTimer = tag.contains("fearTimer") ? tag.getInt("fearTimer") : 0;
+            this.stage4FreeUltUsed = tag.contains("stage4FreeUltUsed") && tag.getBoolean("stage4FreeUltUsed");
+            this.permanentShield = tag.contains("permanentShield") && tag.getBoolean("permanentShield");
+            this.permanentSpeedBonus = tag.contains("permanentSpeedBonus") ? tag.getInt("permanentSpeedBonus") : 0;
+        }
 
-        // 回响状态
-        this.echoRecording = tag.contains("echoRecording") && tag.getBoolean("echoRecording");
-        this.echoRecordTicks = tag.contains("echoRecordTicks") ? tag.getInt("echoRecordTicks") : 0;
-        this.echoCanTeleport = tag.contains("echoCanTeleport") && tag.getBoolean("echoCanTeleport");
-
-        // 浊雨状态
-        this.turbidRainActive = tag.contains("turbidRainActive") && tag.getBoolean("turbidRainActive");
-        this.turbidRainDuration = tag.contains("turbidRainDuration") ? tag.getInt("turbidRainDuration") : 0;
-        this.turbidRainUseCount = tag.contains("turbidRainUseCount") ? tag.getInt("turbidRainUseCount") : 0;
-
-        // 掠风状态
-        this.swiftWindActive = tag.contains("swiftWindActive") && tag.getBoolean("swiftWindActive");
-        this.swiftWindDuration = tag.contains("swiftWindDuration") ? tag.getInt("swiftWindDuration") : 0;
-
-        // 鬼术列表
-        this.ghostSkills.clear();
-        if (tag.contains("ghostSkills")) {
-            CompoundTag skillsTag = tag.getCompound("ghostSkills");
-            int size = skillsTag.getInt("size");
-            for (int i = 0; i < size; i++) {
-                String skill = skillsTag.getString("skill_" + i);
-                if (!skill.isEmpty()) {
-                    this.ghostSkills.add(skill);
+        // --- SYNC_SKILLS ---
+        if ((mask & SYNC_SKILLS) != 0) {
+            this.nowSelectedSkill = tag.contains("nowSelectedSkill") ? tag.getInt("nowSelectedSkill") : 0;
+            this.ghostSkills.clear();
+            if (tag.contains("ghostSkills")) {
+                CompoundTag skillsTag = tag.getCompound("ghostSkills");
+                int size = skillsTag.getInt("size");
+                for (int i = 0; i < size; i++) {
+                    String skill = skillsTag.getString("skill_" + i);
+                    if (!skill.isEmpty()) {
+                        this.ghostSkills.add(skill);
+                    }
                 }
             }
         }
 
-        // 标记玩家列表
-        this.markedPlayers.clear();
-        if (tag.contains("markedPlayers")) {
-            CompoundTag markedTag = tag.getCompound("markedPlayers");
-            int size = markedTag.getInt("size");
-            for (int i = 0; i < size; i++) {
-                if (markedTag.contains("player_" + i)) {
-                    this.markedPlayers.add(markedTag.getUUID("player_" + i));
+        // --- SYNC_COOLDOWNS ---
+        if ((mask & SYNC_COOLDOWNS) != 0) {
+            this.ultimateCooldown = tag.contains("ultimateCooldown") ? tag.getInt("ultimateCooldown") : 0;
+            this.ghostWallCooldown = tag.contains("ghostWallCooldown") ? tag.getInt("ghostWallCooldown") : 0;
+            this.echoCooldown = tag.contains("echoCooldown") ? tag.getInt("echoCooldown") : 0;
+            this.trapCooldown = tag.contains("trapCooldown") ? tag.getInt("trapCooldown") : 0;
+            this.parasiteCooldown = tag.contains("parasiteCooldown") ? tag.getInt("parasiteCooldown") : 0;
+            this.vanishCooldown = tag.contains("vanishCooldown") ? tag.getInt("vanishCooldown") : 0;
+        }
+
+        // --- SYNC_OTHERWORLD ---
+        if ((mask & SYNC_OTHERWORLD) != 0) {
+            this.otherworldActive = tag.contains("otherworldActive") && tag.getBoolean("otherworldActive");
+            this.otherworldTimer = tag.contains("otherworldTimer") ? tag.getInt("otherworldTimer") : 0;
+            this.otherworldDuration = tag.contains("otherworldDuration") ? tag.getInt("otherworldDuration") : 0;
+            this.markedPlayers.clear();
+            if (tag.contains("markedPlayers")) {
+                CompoundTag markedTag = tag.getCompound("markedPlayers");
+                int size = markedTag.getInt("size");
+                for (int i = 0; i < size; i++) {
+                    if (markedTag.contains("player_" + i)) {
+                        this.markedPlayers.add(markedTag.getUUID("player_" + i));
+                    }
                 }
             }
+        }
+
+        // --- SYNC_ECHO ---
+        if ((mask & SYNC_ECHO) != 0) {
+            this.echoRecording = tag.contains("echoRecording") && tag.getBoolean("echoRecording");
+            this.echoRecordTicks = tag.contains("echoRecordTicks") ? tag.getInt("echoRecordTicks") : 0;
+            this.echoCanTeleport = tag.contains("echoCanTeleport") && tag.getBoolean("echoCanTeleport");
+        }
+
+        // --- SYNC_TURBID ---
+        if ((mask & SYNC_TURBID) != 0) {
+            this.turbidRainActive = tag.contains("turbidRainActive") && tag.getBoolean("turbidRainActive");
+            this.turbidRainDuration = tag.contains("turbidRainDuration") ? tag.getInt("turbidRainDuration") : 0;
+            this.turbidRainUseCount = tag.contains("turbidRainUseCount") ? tag.getInt("turbidRainUseCount") : 0;
+        }
+
+        // --- SYNC_SWIFT ---
+        if ((mask & SYNC_SWIFT) != 0) {
+            this.swiftWindActive = tag.contains("swiftWindActive") && tag.getBoolean("swiftWindActive");
+            this.swiftWindDuration = tag.contains("swiftWindDuration") ? tag.getInt("swiftWindDuration") : 0;
         }
     }
 
