@@ -17,7 +17,7 @@ public class RenderSectionManagerMixin {
             remap = false,
             cancellable = true)
     private void sre$forceNotUseOcclusionCulling(Camera camera, boolean spectator, CallbackInfoReturnable<Boolean> cir) {
-        if (SREClient.isTrainMoving()) {
+        if (SREClient.needsChunkOffset()) {
             cir.setReturnValue(false);
         }
     }
@@ -27,7 +27,7 @@ public class RenderSectionManagerMixin {
                     target = "Lnet/caffeinemc/mods/sodium/client/gui/SodiumGameOptions$PerformanceSettings;useFogOcclusion:Z"),
             remap = false)
     private boolean sre$forceNotUseFogOcclusion(boolean original) {
-        if (SREClient.isTrainMoving()) {
+        if (SREClient.needsChunkOffset()) {
             return false;
         }
         return original;

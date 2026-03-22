@@ -134,6 +134,14 @@ public class MapManager {
             }
             jsonObject.add("roomPositions", roomPositionsObj);
 
+            // 保存场景偏移配置
+            JsonObject sceneOffsetObj = new JsonObject();
+            sceneOffsetObj.addProperty("enabled", areas.sceneOffsetEnabled);
+            sceneOffsetObj.addProperty("x", areas.sceneOffsetX);
+            sceneOffsetObj.addProperty("y", areas.sceneOffsetY);
+            sceneOffsetObj.addProperty("z", areas.sceneOffsetZ);
+            jsonObject.add("sceneOffset", sceneOffsetObj);
+
             // 写入文件
             FileWriter writer = new FileWriter(mapConfigFile);
             gson.toJson(jsonObject, writer);
@@ -217,6 +225,23 @@ public class MapManager {
             } else {
                 areas.canSwim = false;
             }
+
+            // 加载场景偏移配置（默认关闭）
+            if (jsonObject.has("sceneOffset")) {
+                JsonObject sceneOffsetObj = jsonObject.getAsJsonObject("sceneOffset");
+                areas.sceneOffsetEnabled = sceneOffsetObj.has("enabled") && sceneOffsetObj.get("enabled").getAsBoolean();
+                areas.sceneOffsetX = sceneOffsetObj.has("x") ? sceneOffsetObj.get("x").getAsDouble() : 0;
+                areas.sceneOffsetY = sceneOffsetObj.has("y") ? sceneOffsetObj.get("y").getAsDouble() : 125;
+                areas.sceneOffsetZ = sceneOffsetObj.has("z") ? sceneOffsetObj.get("z").getAsDouble() : 0;
+                SRE.LOGGER.info("Loaded scene offset: enabled=" + areas.sceneOffsetEnabled +
+                        ", x=" + areas.sceneOffsetX + ", y=" + areas.sceneOffsetY + ", z=" + areas.sceneOffsetZ);
+            } else {
+                areas.sceneOffsetEnabled = false;
+                areas.sceneOffsetX = 0;
+                areas.sceneOffsetY = 125;
+                areas.sceneOffsetZ = 0;
+            }
+
             // 应用配置到AreasWorldComponent，使用新的嵌套结构
             if (jsonObject.has("spawnPos")) {
                 JsonObject spawnPosObj = jsonObject.getAsJsonObject("spawnPos");

@@ -25,6 +25,6 @@ public class OcclusionCullerMixin {
             float sx, float sy, float sz,
             Operation<Boolean> original
     ) {
-        return original.call(viewport, cx, cy, cz, sx, sy, sz) || SREClient.isTrainMoving();
+        return original.call(viewport, cx, cy, cz, sx, sy, sz) || SREClient.needsChunkOffset();
     }
 }

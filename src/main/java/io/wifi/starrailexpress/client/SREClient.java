@@ -628,6 +628,14 @@ public class SREClient implements ClientModInitializer {
                 && trainComponent.getSpeed() > 0;
     }
 
+    public static boolean isSceneOffsetActive() {
+        return areaComponent != null && areaComponent.sceneOffsetEnabled;
+    }
+
+    public static boolean needsChunkOffset() {
+        return isTrainMoving() || isSceneOffsetActive();
+    }
+
     public static class CustomModelProvider implements ModelLoadingPlugin {
 
         private final Map<ResourceLocation, UnbakedModel> modelIdToBlock = new Object2ObjectOpenHashMap<>();
