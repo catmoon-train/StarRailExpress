@@ -41,7 +41,7 @@ public class TridentMixin {
                     }
                     killer.getCooldowns().addCooldown(Items.TRIDENT,
                             GameConstants.ITEM_COOLDOWNS.getOrDefault(Items.TRIDENT,
-                                    GameConstants.ITEM_COOLDOWNS.getOrDefault(TMMItems.KNIFE, 0)));
+                                    GameConstants.ITEM_COOLDOWNS.getOrDefault(TMMItems.REVOLVER, 0)));
                 }
                 trident.discard();
             }
@@ -57,7 +57,7 @@ public class TridentMixin {
             if (trident.getOwner() instanceof ServerPlayer killer) {
                 killer.getCooldowns().addCooldown(Items.TRIDENT,
                         GameConstants.ITEM_COOLDOWNS.getOrDefault(Items.TRIDENT,
-                                GameConstants.ITEM_COOLDOWNS.getOrDefault(TMMItems.KNIFE, 0)));
+                                GameConstants.ITEM_COOLDOWNS.getOrDefault(TMMItems.REVOLVER, 0)));
             }
             trident.discard();
         }

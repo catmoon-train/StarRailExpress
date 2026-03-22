@@ -264,7 +264,7 @@ public class RoleShopHandler {
           .withStyle(ChatFormatting.GRAY));
       soulBellItem.set(DataComponents.LORE, new ItemLore(soulBellLore));
 
-      MA_CHEN_XU_SHOP.add(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), 75, ShopEntry.Type.TOOL) );
+      MA_CHEN_XU_SHOP.add(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), 75, ShopEntry.Type.TOOL));
       MA_CHEN_XU_SHOP.add(new ShopEntry(soulBellItem, 150, ShopEntry.Type.TOOL) {
         @Override
         public boolean onBuy(@NotNull Player player) {
@@ -1464,8 +1464,10 @@ public class RoleShopHandler {
 
     // 海王商店
     // 普通三叉戟 - 300金币
+    var trident = Items.TRIDENT.getDefaultInstance();
+    trident.set(DataComponents.UNBREAKABLE, new Unbreakable(true));
     SEA_KING_SHOP.add(new ShopEntry(
-        Items.TRIDENT.getDefaultInstance(),
+        trident,
         300,
         ShopEntry.Type.WEAPON));
 

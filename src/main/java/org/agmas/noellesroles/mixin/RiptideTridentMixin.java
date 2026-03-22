@@ -2,7 +2,9 @@ package org.agmas.noellesroles.mixin;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.index.TMMItems;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
@@ -48,7 +50,8 @@ public class RiptideTridentMixin {
         boolean isUsingRiptide = player.isAutoSpinAttack();
         if (isWaterGhost) {
             if (!isUsingRiptide && noellesroles$wasUsingRiptide) {
-                player.getCooldowns().addCooldown(Items.TRIDENT, 40);
+                player.getCooldowns().addCooldown(Items.TRIDENT, GameConstants.ITEM_COOLDOWNS.getOrDefault(Items.TRIDENT,
+                                    GameConstants.ITEM_COOLDOWNS.getOrDefault(TMMItems.KNIFE, 0)));
             }
             noellesroles$wasUsingRiptide = isUsingRiptide;
         }

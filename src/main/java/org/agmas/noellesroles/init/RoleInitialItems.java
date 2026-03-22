@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Supplier;
 
 import org.agmas.noellesroles.role.ModRoles;
@@ -12,18 +11,11 @@ import org.agmas.noellesroles.role.ModRoles;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.index.TMMItems;
-import net.minecraft.core.Holder;
-import net.minecraft.core.Holder.Reference;
-import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.Unbreakable;
-import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.Enchantments;
 
 public class RoleInitialItems {
     public static final Map<SRERole, List<Supplier<ItemStack>>> INITIAL_ITEMS_MAP = new HashMap<>();
@@ -170,7 +162,7 @@ public class RoleInitialItems {
         // 附魔在在三叉戟mixin 因为需要level
         List<Supplier<ItemStack>> seaKingItems = new ArrayList<>();
         Supplier<ItemStack> getDefaultInstance = Items.TRIDENT::getDefaultInstance;
-//        getDefaultInstance.get().enchant(BuiltInRegistries.Enchant, 3);
+        // getDefaultInstance.get().enchant(BuiltInRegistries.Enchant, 3);
         seaKingItems.add(getDefaultInstance);
         INITIAL_ITEMS_MAP.put(ModRoles.SEA_KING, seaKingItems);
 
@@ -179,6 +171,7 @@ public class RoleInitialItems {
         List<Supplier<ItemStack>> waterGhostItems = new ArrayList<>();
         waterGhostItems.add(() -> {
             ItemStack trident = Items.TRIDENT.getDefaultInstance();
+            trident.set(DataComponents.UNBREAKABLE, new Unbreakable(true));
             return trident;
         });
         INITIAL_ITEMS_MAP.put(ModRoles.WATER_GHOST, waterGhostItems);
