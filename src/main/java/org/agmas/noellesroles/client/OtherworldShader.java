@@ -4,6 +4,7 @@ import io.wifi.starrailexpress.client.PostProcessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import org.agmas.noellesroles.component.MaChenXuPlayerComponent;
+import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
 import io.wifi.starrailexpress.client.SREClient;
 
@@ -42,18 +43,16 @@ public class OtherworldShader {
     }
 
     /**
-     * 检查当前世界是否有任何布袋鬼正在使用里世界
+     * 检查本地玩家是否受到里世界影响（通过药水效果检测，更可靠）
      */
     public static boolean isAnyOtherworldActive() {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.level == null) return false;
-        for (var player : mc.level.players()) {
-            if (SREClient.gameComponent != null && SREClient.gameComponent.isRole(player, ModRoles.MA_CHEN_XU)) {
-                MaChenXuPlayerComponent comp = MaChenXuPlayerComponent.KEY.get(player);
-                if (comp.otherworldActive) return true;
-            }
-        }
-        return false;
+        if (mc.player == null) return false;
+        // 好人通过 OTHERWORLD_AURA 药水效果检测
+        if (mc.player.hasEffect(ModEffects.OTHERWORLD_AURA)) return true;
+        // 布袋鬼自己通过组件状态检测
+        MaChenXuPlayerComponent localComp = getLocalMaChenXuComponent();
+        return localComp != null && localComp.otherworldActive;
     }
 
     /**

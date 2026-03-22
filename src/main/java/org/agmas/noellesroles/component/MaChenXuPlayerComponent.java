@@ -751,7 +751,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
             if (target instanceof ServerPlayer targetSp) {
                 // 短暂失明作为过渡动画（1.5秒）
                 targetSp.addEffect(new MobEffectInstance(
-                        MobEffects.DARKNESS, 40, 0, false, false, false));
+                        MobEffects.DARKNESS, 60, 0, false, false, false));
             }
         }
 
@@ -769,11 +769,13 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
                     pos.x, pos.y + 0.5, pos.z, 15, 2.0, 3.0, 2.0, 0.005);
         }
 
-        // 好人获得速度II（逃跑用）+ 使用Title发送里世界降临提醒
+        // 好人获得速度II + 里世界侵蚀效果（用于客户端检测）+ 使用Title发送里世界降临提醒
         for (Player target : world.players()) {
             if (GameUtils.isPlayerAliveAndSurvival(target) && !isKiller(target)) {
                 target.addEffect(new MobEffectInstance(
                         MobEffects.MOVEMENT_SPEED, duration, 1, false, false, true));
+                target.addEffect(new MobEffectInstance(
+                        ModEffects.OTHERWORLD_AURA, duration, 0, false, false, false));
 
                 if (target instanceof ServerPlayer targetSp) {
                     // 使用原生Title指令显示
@@ -882,6 +884,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
             if (GameUtils.isPlayerAliveAndSurvival(target) && !isKiller(target)) {
                 target.removeEffect(MobEffects.MOVEMENT_SPEED);
                 target.removeEffect(MobEffects.GLOWING);
+                target.removeEffect(ModEffects.OTHERWORLD_AURA);
                 if (target instanceof ServerPlayer targetSp) {
                     targetSp.connection.send(new ClientboundSetTitlesAnimationPacket(10, 40, 20));
                     targetSp.connection.send(new ClientboundSetTitleTextPacket(

@@ -141,7 +141,7 @@ public class OtherworldSceneManager {
 
         // 逐圈扩展
         if (tickCounter % EXPAND_INTERVAL == 0 && currentRadius < MAX_RADIUS) {
-            expandToRadius(mc.level, playerPos, currentRadius, currentRadius + EXPAND_PER_TICK);
+                expandToRadius(mc.level, playerPos, currentRadius, currentRadius + EXPAND_PER_TICK);
             currentRadius += EXPAND_PER_TICK;
         }
 

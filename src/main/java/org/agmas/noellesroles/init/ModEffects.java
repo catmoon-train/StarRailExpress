@@ -53,6 +53,13 @@ public class ModEffects {
     });
 
     /**
+     * 里世界侵蚀效果
+     * - 有害效果，暗紫色
+     * - 用于标记处于里世界影响下的好人玩家，驱动客户端shader和场景变化
+     */
+    public static final Holder<MobEffect> OTHERWORLD_AURA = register("otherworld_aura", new SimpleMobEffect(MobEffectCategory.HARMFUL, 0x4B0082));
+
+    /**
      * 注册药水效果到注册表
      */
 
