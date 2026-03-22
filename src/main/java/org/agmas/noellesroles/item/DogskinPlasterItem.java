@@ -11,6 +11,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
@@ -21,6 +22,7 @@ import org.agmas.noellesroles.repack.HSRConstants;
 import org.agmas.noellesroles.repack.HSRItems;
 import org.agmas.noellesroles.repack.HSRSounds;
 import org.agmas.noellesroles.component.TemporaryEffectPlayerComponent;
+import org.agmas.noellesroles.init.ModEffects;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -59,6 +61,7 @@ public class DogskinPlasterItem extends Item {
                                 // 使用TemporaryEffectPlayerComponent来设置保护
                                 TemporaryEffectPlayerComponent tempEffect = TemporaryEffectPlayerComponent.KEY.get(targetPlayer);
                                 tempEffect.setDogskinPlasterProtection(SANITY_PROTECTION_DURATION);
+                                targetPlayer.addEffect(new MobEffectInstance(ModEffects.MOOD_DRAIN_IMMUNITY, SANITY_PROTECTION_DURATION * 20, 0, true, true, true));
                                 
                                 target.playSound(HSRSounds.ITEM_SYRINGE_STAB, 0.4F, 1.0F);
                                 final var blockPos = target.blockPosition();

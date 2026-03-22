@@ -18,6 +18,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
+import org.agmas.noellesroles.init.ModEffects;
 import org.joml.Matrix4f;
 import java.util.Random;
 import java.util.function.Function;
@@ -90,6 +91,16 @@ public class SansRenderer {
 
     private MutableComponent m_hint;
 
+    private static float getLowSanBaseIntensity(float mood) {
+        return Mth.clamp((0.35f - mood) / 0.35f, 0f, 1f);
+    }
+
+    private static float getLowSanFinalIntensity(LocalPlayer player, float mood) {
+        float base = getLowSanBaseIntensity(mood);
+        float resistance = ModEffects.getLowSanShaderResistance(player);
+        return Mth.clamp(base * (1f - resistance), 0f, 1f);
+    }
+
     private void renderHint(Gui gui, PoseStack poseStack, float partialTicks, int scw, int sch, GuiGraphics graphics) {
         if (m_mc.player == null || m_mc.player.isCreative() || m_mc.player.isSpectator() || m_hint == null
                 || m_cap == null || m_cap.getMood() > .36f)
@@ -156,18 +167,23 @@ public class SansRenderer {
                 if (cap.getMood() > .35f && SREPlayerPsychoComponent.KEY.get(mc.player).psychoTicks <= 0)
                     return false;
 
+                float finalIntensity = getLowSanFinalIntensity(mc.player, cap.getMood());
+                if (finalIntensity <= 0.001f && SREPlayerPsychoComponent.KEY.get(mc.player).psychoTicks <= 0) {
+                    return false;
+                }
+
                 var effect = pass.getEffect();
                 if (effect == null)
                     return false;
 
                 var desaturateUniform = effect.safeGetUniform("DesaturateFactor");
                 if (desaturateUniform != null) {
-                    desaturateUniform.set(MathHelper.clampNorm(Mth.inverseLerp(1, .4f, .8f)) * .69f);
+                    desaturateUniform.set(finalIntensity * 0.69f);
                 }
 
                 var spreadUniform = effect.safeGetUniform("SpreadFactor");
                 if (spreadUniform != null) {
-                    spreadUniform.set(MathHelper.clampNorm(Mth.inverseLerp(1, .4f, .8f)) * 1.43f);
+                    spreadUniform.set(finalIntensity * 1.43f);
                 }
 
                 return true;
@@ -230,13 +246,18 @@ public class SansRenderer {
                 if (cap.getMood() > .35f)
                     return false;
 
+                float finalIntensity = getLowSanFinalIntensity(mc.player, cap.getMood());
+                if (finalIntensity <= 0.001f) {
+                    return false;
+                }
+
                 var effect = pass.getEffect();
                 if (effect == null)
                     return false;
 
                 var factorUniform = effect.safeGetUniform("Factor");
                 if (factorUniform != null) {
-                    factorUniform.set(MathHelper.clampNorm(Mth.inverseLerp(1, .4f, .8f)) * .1f);
+                    factorUniform.set(finalIntensity * 0.1f);
                 }
 
                 var timeTotalUniform = effect.safeGetUniform("TimeTotal");
