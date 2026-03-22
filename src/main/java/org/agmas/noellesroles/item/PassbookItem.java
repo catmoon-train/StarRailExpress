@@ -20,13 +20,15 @@ import java.util.List;
 /**
  * 存折
  * - 用于存储和取出金币
- * - 右键存钱：清空身上的金币，存入存折
+ * - 右键存钱：最多存入300金币，并扣除实际存入金额
  * - 右键取钱：将存折中的金币全部取出到玩家身上，存折消失
  */
 public class PassbookItem extends Item {
 
     /** NBT标签：存储的金币数量 */
     private static final String TAG_BALANCE = "balance";
+    /** 存折可存储的金币上限 */
+    private static final int MAX_STORED_BALANCE = 300;
 
     public PassbookItem(Properties properties) {
         super(properties);
@@ -48,7 +50,7 @@ public class PassbookItem extends Item {
                 // 取钱逻辑：取出存折中的金币到玩家身上，存折消失
                 withdrawMoney(serverPlayer, itemStack, storedBalance, hand);
             } else {
-                // 存钱逻辑：清空玩家身上的金币，存入存折
+                // 存钱逻辑：最多存入300金币，并扣除对应金额
                 depositMoney(serverPlayer, itemStack);
             }
 
@@ -62,7 +64,7 @@ public class PassbookItem extends Item {
     }
 
     /**
-     * 存钱：清空玩家身上的金币，存入存折
+     * 存钱：存入不超过上限的金币，并仅扣除实际存入的金额
      */
     private void depositMoney(ServerPlayer player, ItemStack itemStack) {
         SREPlayerShopComponent shopComponent = SREPlayerShopComponent.KEY.get(player);
@@ -76,16 +78,18 @@ public class PassbookItem extends Item {
             return;
         }
 
-        // 清空玩家金币
-        shopComponent.balance = 0;
+        int depositAmount = Math.min(balance, MAX_STORED_BALANCE);
+
+        // 仅扣除实际存入的金币
+        shopComponent.balance -= depositAmount;
         shopComponent.sync();
 
         // 存入存折
-        setStoredBalance(itemStack, balance);
+        setStoredBalance(itemStack, depositAmount);
 
         // 通知玩家
         player.displayClientMessage(
-                Component.translatable("message.noellesroles.passbook.deposited", balance)
+            Component.translatable("message.noellesroles.passbook.deposited", depositAmount)
                         .withStyle(ChatFormatting.GOLD),
                 true);
     }

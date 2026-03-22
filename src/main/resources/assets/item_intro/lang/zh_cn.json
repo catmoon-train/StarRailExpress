@@ -84,7 +84,7 @@
   "item.noellesroles.throwing_knife.desc": "按Q键投掷，右键可以将飞刀举起来，并造成击杀。",
   "item.noellesroles.rope.desc": "搜救员职业专属道具，右键将直线范围内的一个人拉到你面前。",
   "item.noellesroles.extinguisher.desc": "消防员职业专属道具，拥有5点耐久，可以右键或长按右键对玩家喷射，被喷射的玩家获得缓慢和失明效果，能够清除纵火犯浇在身上的汽油。",
-  "item.noellesroles.passbook.desc": "会计职业专属道具，右键将身上的所有钱存到存折里，存折会在你死亡的时候掉落。",
+  "item.noellesroles.passbook.desc": "会计职业专属道具，右键将身上的钱存到存折里（最多300金币），存折会在会计死亡的时候传递给附近的好人，存折可以被丢出。",
   "item.noellesroles.alchemy_material.desc": "药剂师职业专属道具，用于制作药剂。",
   "item.noellesroles.signature_paper.desc": "明星职业专属道具，右键可以签名，蹲下右键签生死状，具体详见明星职业介绍。",
   "item.noellesroles.life_and_death_shape.desc": "生死状，可以让明星为你抵挡一次伤害。",
