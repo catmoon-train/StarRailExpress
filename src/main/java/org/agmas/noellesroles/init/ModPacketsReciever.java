@@ -2,7 +2,6 @@ package org.agmas.noellesroles.init;
 
 import java.util.*;
 
-import dev.doctor4t.wathe.cca.GameWorldComponent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemCooldowns;
 import org.agmas.harpymodloader.Harpymodloader;
