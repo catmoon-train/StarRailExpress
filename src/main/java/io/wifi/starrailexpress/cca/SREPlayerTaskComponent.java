@@ -28,6 +28,7 @@ import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
 import static io.wifi.starrailexpress.SRE.isSkyVisibleAdjacent;
+import static io.wifi.starrailexpress.SRE.isSkyVisible;
 
 import java.util.*;
 import java.util.function.Function;
@@ -39,6 +40,11 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
     public final Map<Task, TrainTask> tasks = new HashMap<>();
     public final Map<Task, Integer> timesGotten = new HashMap<>();
     public int nextTaskTimer = 0;
+    public int taskStreak = 0; // 连续完成任务计数
+    public int currentTaskAge = 0; // 当前任务已存在的时间（ticks）
+    public float moodWhenTaskAssigned = 1f; // 任务分配时的情绪值
+    public boolean parallelTaskGenerated = false; // 是否已生成并列任务
+    public final Set<Task> parallelTaskTypes = new HashSet<>(); // 记录哪些任务是并列任务
     public SREPlayerMoodComponent playerMoodComponent;
 
     public SREPlayerTaskComponent(Player player) {
@@ -66,6 +72,11 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
         }
         this.tasks.clear();
         this.timesGotten.clear();
+        this.taskStreak = 0;
+        this.currentTaskAge = 0;
+        this.moodWhenTaskAssigned = 1f;
+        this.parallelTaskGenerated = false;
+        this.parallelTaskTypes.clear();
         this.nextTaskTimer = GameConstants.TIME_TO_FIRST_TASK;
         this.sync();
     }
@@ -100,52 +111,161 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
                 this.tasks.put(task.getType(), task);
                 this.timesGotten.putIfAbsent(task.getType(), 1);
                 this.timesGotten.put(task.getType(), this.timesGotten.get(task.getType()) + 1);
+                // 记录任务分配时的情绪值
+                this.moodWhenTaskAssigned = (playerMoodComponent != null) ? playerMoodComponent.getMood() : 1f;
+                this.currentTaskAge = 0;
+                this.parallelTaskGenerated = false;
             }
+            // 使用动态任务冷却：根据游戏已过时间调整
+            SREGameTimeComponent gameTimeComponent = SREGameTimeComponent.KEY.get(this.player.level());
+            long gameElapsedTicks = Math.max(0, gameTimeComponent.getResetTime() - gameTimeComponent.getTime());
+            int minCooldown = GameConstants.getDynamicMinTaskCooldown(gameElapsedTicks);
+            int maxCooldown = GameConstants.getDynamicMaxTaskCooldown(gameElapsedTicks);
             this.nextTaskTimer = (int) (this.player.getRandom().nextFloat()
-                    * (GameConstants.MAX_TASK_COOLDOWN - GameConstants.MIN_TASK_COOLDOWN)
-                    + GameConstants.MIN_TASK_COOLDOWN);
+                    * (maxCooldown - minCooldown)
+                    + minCooldown);
             this.nextTaskTimer = Math.max(this.nextTaskTimer, 2);
             shouldSync = true;
         }
+
+        // 并列任务机制：任务超时且情绪下降30%以上时，生成一个并列任务
+        if (!this.tasks.isEmpty() && !this.parallelTaskGenerated) {
+            this.currentTaskAge++;
+            if (this.currentTaskAge >= GameConstants.PARALLEL_TASK_THRESHOLD) {
+                float currentMood = (playerMoodComponent != null) ? playerMoodComponent.getMood() : 1f;
+                float moodDrop = this.moodWhenTaskAssigned - currentMood;
+                if (moodDrop >= GameConstants.PARALLEL_TASK_MOOD_DROP) {
+                    TrainTask parallelTask = this.generateParallelTask();
+                    if (parallelTask != null) {
+                        this.tasks.put(parallelTask.getType(), parallelTask);
+                        this.parallelTaskTypes.add(parallelTask.getType());
+                        this.timesGotten.putIfAbsent(parallelTask.getType(), 1);
+                        this.timesGotten.put(parallelTask.getType(),
+                                this.timesGotten.get(parallelTask.getType()) + 1);
+                        this.parallelTaskGenerated = true;
+                        shouldSync = true;
+                    }
+                }
+            }
+        }
+
         ArrayList<TrainTask> removals = new ArrayList<>();
         for (TrainTask task : this.tasks.values()) {
             task.tick(this.player);
             if (task.isFulfilled(this.player)) {
                 removals.add(task);
-                this.playerMoodComponent.addMood(GameConstants.MOOD_GAIN);
+                boolean isParallel = this.parallelTaskTypes.contains(task.getType());
+                // 并列任务奖励减少
+                float moodGain = isParallel
+                        ? GameConstants.MOOD_GAIN * GameConstants.PARALLEL_TASK_REWARD_MULTIPLIER
+                        : GameConstants.MOOD_GAIN;
+                this.playerMoodComponent.addMood(moodGain);
                 if (this.player instanceof ServerPlayer tempPlayer)
                     ServerPlayNetworking.send(tempPlayer, new TaskCompletePayload());
                 shouldSync = true;
             }
         }
         for (TrainTask task : removals) {
+            boolean isParallel = this.parallelTaskTypes.contains(task.getType());
             this.tasks.remove(task.getType());
+            this.parallelTaskTypes.remove(task.getType());
             // 更新计分板上的任务计数
             if (this.player instanceof ServerPlayer serverPlayer) {
                 SREGameScoreboardComponent scoreboardComponent = SREGameScoreboardComponent.KEY
                         .get(serverPlayer.getServer().getScoreboard());
                 scoreboardComponent.incrementPlayerTaskCount(this.player);
 
-                // 调用角色的任务完成方法
-                io.wifi.starrailexpress.api.RoleMethodDispatcher.callOnFinishQuest(this.player, task.getName());
+                // 调用角色的任务完成方法（包含连击奖励，并列任务奖励减少）
+                int streak = isParallel ? 0 : this.taskStreak;
+                io.wifi.starrailexpress.api.RoleMethodDispatcher.callOnFinishQuest(this.player, task.getName(),
+                        streak, isParallel);
             }
+            if (!isParallel) {
+                this.taskStreak++; // 完成奖励发放后再增加连击计数（并列任务不增加连击）
+            }
+        }
+        // 所有任务完成后重置并列任务追踪
+        if (this.tasks.isEmpty()) {
+            this.currentTaskAge = 0;
+            this.parallelTaskGenerated = false;
+            this.parallelTaskTypes.clear();
+        }
+        // 当情绪过低时重置连击计数
+        if (playerMoodComponent != null && playerMoodComponent.isLowerThanDepressed()) {
+            this.taskStreak = 0;
         }
         if (shouldSync)
             this.sync();
     }
 
+    /**
+     * 获取当前地图禁用的任务列表
+     */
+    private Set<String> getDisabledTasks() {
+        AreasWorldComponent areas = AreasWorldComponent.KEY.get(this.player.level());
+        if (areas != null && areas.mapName != null) {
+            io.wifi.starrailexpress.data.MapConfig.MapEntry mapEntry = io.wifi.starrailexpress.data.MapConfig
+                    .getInstance().getMapById(areas.mapName);
+            if (mapEntry != null && mapEntry.disabledTasks != null) {
+                return new HashSet<>(mapEntry.disabledTasks);
+            }
+        }
+        return Set.of();
+    }
+
     public @Nullable TrainTask generateTask() {
         if (!this.tasks.isEmpty())
             return null;
+        return generateTaskInternal();
+    }
+
+    /**
+     * 生成并列任务：当原始任务超时且情绪下降时生成
+     * 不会生成与已有任务相同类型的任务
+     */
+    public @Nullable TrainTask generateParallelTask() {
+        return generateTaskInternal();
+    }
+
+    private @Nullable TrainTask generateTaskInternal() {
         HashMap<Task, Float> map = new HashMap<>();
         float total = 0f;
+        // 获取当前情绪状态用于动态权重调整
+        float currentMood = (playerMoodComponent != null) ? playerMoodComponent.getMood() : 1f;
+        // 获取当前地图禁用的任务
+        Set<String> disabledTasks = getDisabledTasks();
         for (Task task : Task.getAvailableTasksList()) {
             if (this.tasks.containsKey(task))
                 continue;
+            // 检查任务是否被当前地图禁用
+            if (disabledTasks.contains(task.name()))
+                continue;
             float weight = 1f / this.timesGotten.getOrDefault(task, 1);
+            // 情绪驱动的任务权重调整
+            if (currentMood < GameConstants.MID_MOOD_THRESHOLD) {
+                // 情绪低落时：安抚性任务权重翻倍
+                if (task == Task.MEDITATE || task == Task.SLEEP || task == Task.CHAIR) {
+                    weight *= 2f;
+                }
+                // 活跃性任务权重降低（呼吸任务需要到室外，归类为活跃性）
+                if (task == Task.EXERCISE || task == Task.OUTSIDE || task == Task.BREATHE) {
+                    weight *= 0.5f;
+                }
+            } else if (currentMood > GameConstants.ANGRY_MOOD_THRESHOLD) {
+                // 情绪亢奋时：活跃性任务权重提升
+                if (task == Task.EXERCISE || task == Task.OUTSIDE || task == Task.NOTE_BLOCK) {
+                    weight *= 1.5f;
+                }
+                // 静态任务权重降低
+                if (task == Task.SLEEP || task == Task.MEDITATE) {
+                    weight *= 0.5f;
+                }
+            }
             map.put(task, weight);
             total += weight;
         }
+
+        if (total <= 0) return null;
 
         float random = this.player.getRandom().nextFloat() * total;
         var entries = new ArrayList<>(map.entrySet());
@@ -153,23 +273,28 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
         for (Map.Entry<Task, Float> entry : entries) {
             random -= entry.getValue();
             if (random <= 0) {
-                return switch (entry.getKey()) {
-                    case SLEEP -> new SleepTask(GameConstants.SLEEP_TASK_DURATION);
-                    case OUTSIDE -> new OutsideTask(GameConstants.OUTSIDE_TASK_DURATION);
-                    case RAED_BOOK -> new ReadBookTask(GameConstants.READ_BOOK_TASK_DURATION);
-                    case EAT -> new EatTask();
-                    case DRINK -> new DrinkTask();
-                    case EXERCISE -> new ExerciseTask(GameConstants.EXERCISE_TASK_DURATION);
-                    case MEDITATE -> new MeditateTask(GameConstants.MEDITATE_TASK_DURATION); // 添加冥想任务生成
-                    case BATHE -> new BatheTask(GameConstants.BATHE_TASK_DURATION); // 添加洗澡任务生成
-                    case NOTE_BLOCK -> new NoteBlockTask(GameConstants.NOTE_BLOCK_TASK_CLICK_COUNTS);
-                    case TOILET -> new ToiletTask(GameConstants.TOILET_TASK_DURATION);
-                    case CHAIR -> new ChairTask(GameConstants.CHAIR_TASK_DURATION);
-                    default -> null;
-                };
+                return createTaskInstance(entry.getKey());
             }
         }
         return null;
+    }
+
+    private @Nullable TrainTask createTaskInstance(Task taskType) {
+        return switch (taskType) {
+            case SLEEP -> new SleepTask(GameConstants.SLEEP_TASK_DURATION);
+            case OUTSIDE -> new OutsideTask(GameConstants.OUTSIDE_TASK_DURATION);
+            case RAED_BOOK -> new ReadBookTask(GameConstants.READ_BOOK_TASK_DURATION);
+            case EAT -> new EatTask();
+            case DRINK -> new DrinkTask();
+            case EXERCISE -> new ExerciseTask(GameConstants.EXERCISE_TASK_DURATION);
+            case MEDITATE -> new MeditateTask(GameConstants.MEDITATE_TASK_DURATION);
+            case BATHE -> new BatheTask(GameConstants.BATHE_TASK_DURATION);
+            case NOTE_BLOCK -> new NoteBlockTask(GameConstants.NOTE_BLOCK_TASK_CLICK_COUNTS);
+            case TOILET -> new ToiletTask(GameConstants.TOILET_TASK_DURATION);
+            case CHAIR -> new ChairTask(GameConstants.CHAIR_TASK_DURATION);
+            case BREATHE -> new BreatheTask(GameConstants.BREATHE_TASK_DURATION);
+            default -> null;
+        };
     }
 
     public void eatFood() {
@@ -193,6 +318,7 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
         for (TrainTask task : this.tasks.values())
             tasks.add(task.toNbt());
         tag.put("tasks", tasks);
+        tag.putInt("taskStreak", this.taskStreak);
     }
 
     @Override
@@ -217,6 +343,7 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
                 }
             }
         }
+        this.taskStreak = tag.contains("taskStreak", Tag.TAG_INT) ? tag.getInt("taskStreak") : 0;
     }
 
     public enum Task {
@@ -230,11 +357,12 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
         BATHE(nbt -> new BatheTask(nbt.getInt("timer"))), // 添加洗澡任务
         TOILET(nbt -> new ToiletTask(nbt.getInt("timer"))), // 添加厕所任务
         CHAIR(nbt -> new ChairTask(nbt.getInt("timer"))), // 添加座椅休息任务
-        NOTE_BLOCK(nbt -> new NoteBlockTask(nbt.getInt("timer"))); // 添加音符盒任务
+        NOTE_BLOCK(nbt -> new NoteBlockTask(nbt.getInt("timer"))), // 添加音符盒任务
+        BREATHE(nbt -> new BreatheTask(nbt.getInt("timer"))); // 呼吸新鲜空气任务
 
         private static List<Task> availableTasksList = List.of(SLEEP, RAED_BOOK, EAT, DRINK, EXERCISE, MEDITATE, BATHE,
                 CHAIR,
-                NOTE_BLOCK, TOILET);
+                NOTE_BLOCK, TOILET, BREATHE);
         public final @NotNull Function<CompoundTag, TrainTask> setFunction;
 
         Task(@NotNull Function<CompoundTag, TrainTask> function) {
@@ -688,6 +816,49 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
         public CompoundTag toNbt() {
             CompoundTag nbt = new CompoundTag();
             nbt.putInt("type", Task.BATHE.ordinal());
+            nbt.putInt("timer", this.timer);
+            return nbt;
+        }
+    }
+
+    /**
+     * 呼吸任务类
+     * 玩家需要站在天空下呼吸新鲜空气
+     */
+    public static class BreatheTask implements TrainTask {
+        private int timer;
+
+        public BreatheTask(int time) {
+            this.timer = time;
+        }
+
+        @Override
+        public void tick(@NotNull Player player) {
+            // 检查玩家头顶是否能看到天空
+            if (isSkyVisible(player) && this.timer > 0) {
+                this.timer--;
+            }
+        }
+
+        @Override
+        public boolean isFulfilled(@NotNull Player player) {
+            return this.timer <= 0;
+        }
+
+        @Override
+        public String getName() {
+            return "breathe";
+        }
+
+        @Override
+        public Task getType() {
+            return Task.BREATHE;
+        }
+
+        @Override
+        public CompoundTag toNbt() {
+            CompoundTag nbt = new CompoundTag();
+            nbt.putInt("type", Task.BREATHE.ordinal());
             nbt.putInt("timer", this.timer);
             return nbt;
         }
