@@ -1,11 +1,11 @@
 package io.wifi.starrailexpress.mixin.compat.sodium;
 
+
 import io.wifi.starrailexpress.compat.SodiumShaderInterface;
 import net.caffeinemc.mods.sodium.client.gl.buffer.GlMutableBuffer;
 import net.caffeinemc.mods.sodium.client.gl.shader.uniform.GlUniformBlock;
 import net.caffeinemc.mods.sodium.client.render.chunk.shader.ShaderBindingContext;
 import net.irisshaders.iris.gl.blending.BlendModeOverride;
-import net.irisshaders.iris.gl.blending.BufferBlendOverride;
 import net.irisshaders.iris.pipeline.IrisRenderingPipeline;
 import net.irisshaders.iris.pipeline.programs.SodiumPrograms;
 import net.irisshaders.iris.pipeline.programs.SodiumShader;
@@ -16,8 +16,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.google.common.collect.ImmutableSet;
-
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -27,10 +25,7 @@ public abstract class SodiumShaderMixin implements SodiumShaderInterface {
     private GlUniformBlock uniformOffsets;
 
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void tmm$addUniform(IrisRenderingPipeline pipeline, SodiumPrograms.Pass pass, ShaderBindingContext context,
-            int handle, BlendModeOverride blendModeOverride, List<BufferBlendOverride> bufferBlendOverrides,
-            CustomUniforms customUniforms, Supplier<ImmutableSet<Integer>> flipState, float alphaTest,
-            boolean containsTessellation, CallbackInfo ci) {
+    private void tmm$addUniform(IrisRenderingPipeline pipeline, SodiumPrograms.Pass pass, ShaderBindingContext context, int handle, BlendModeOverride blendModeOverride, List bufferBlendOverrides, CustomUniforms customUniforms, Supplier flipState, float alphaTest, boolean containsTessellation, CallbackInfo ci) {
         uniformOffsets = context.bindUniformBlock("ubo_SectionOffsets", 1);
     }
 
