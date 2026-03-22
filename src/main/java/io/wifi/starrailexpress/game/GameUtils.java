@@ -305,6 +305,7 @@ public class GameUtils {
     public static void stopGame(ServerLevel world) {
         SREGameWorldComponent component = SREGameWorldComponent.KEY.get(world);
         component.ticksUntilNextResetAttempt = 0;
+        SREWorldBlackoutComponent.KEY.get(world).reset();
         component.setGameStatus(SREGameWorldComponent.GameStatus.STOPPING);
     }
 
@@ -402,6 +403,7 @@ public class GameUtils {
                 cooldowns.addCooldown(item,
                         (Integer) SAFE_TIME_COOLDOWN);
             });
+            cooldowns.addCooldown(Items.TRIDENT, SAFE_TIME_COOLDOWN);
             cooldowns.addCooldown(TMMItems.GRENADE, SAFE_TIME_COOLDOWN);
             cooldowns.addCooldown(TMMItems.PSYCHO_MODE, SAFE_TIME_COOLDOWN);
             cooldowns.addCooldown(ModItems.SP_KNIFE, SAFE_TIME_COOLDOWN);

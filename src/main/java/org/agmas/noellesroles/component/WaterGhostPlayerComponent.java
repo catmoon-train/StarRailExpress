@@ -36,7 +36,7 @@ import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
  *
  * 技能：按下技能键获得10秒海豚的恩惠1，冷却40秒
  *
- * 被动：在非水中环境超过90秒时会死亡（死因：干涸而死）
+ * 被动：在非水中环境超过35秒时会死亡（死因：干涸而死）
  */
 public class WaterGhostPlayerComponent implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
 
@@ -57,8 +57,8 @@ public class WaterGhostPlayerComponent implements RoleComponent, ServerTickingCo
     /** 技能持续时间（10秒 = 200 tick） */
     public static final int SKILL_DURATION = 10 * 20;
 
-    /** 干涸死亡时间（60秒 = 1200 tick） */
-    public static final int DRY_DEATH_TIME = 60 * 20;
+    /** 干涸死亡时间（35秒 = 700 tick） */
+    public static final int DRY_DEATH_TIME = 35 * 20;
 
     private final Player player;
 

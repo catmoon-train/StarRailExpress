@@ -199,7 +199,7 @@ public class ModRoles {
       SRERole.MoodType.REAL, // 假心情
       TMMRoles.CIVILIAN.getMaxSprintTime(), // 无限冲刺时间
       true // 隐藏计分板
-  )).setCanSeeCoin(true).setOccupiedRoleCount(2);
+  )).setCanSeeCoin(true).setOccupiedRoleCount(2).setVigilanteTeam(true);
   public static SRERole MA_CHEN_XU = TMMRoles.registerRole(new NormalRole(
       MA_CHEN_XU_ID, // 角色 ID
       new Color(75, 0, 130).getRGB(), // 深紫色 - 代表恐惧与神秘
@@ -603,11 +603,11 @@ public class ModRoles {
    * - 仅在areas14地图生成
    * - 不能使用杀手能力 (canUseKiller = false)
    * - 真实心情系统
-   * - 标准冲刺时间
+    * - 无限体力
    * - 在计分板上显示
    * - 无法捡起左轮手枪
    * - 开局物品：忠诚3的三叉戟
-   * - 专属商店：普通三叉戟(300金币)
+    * - 专属商店：普通三叉戟(150金币)
    */
   // 海王角色 - 警长阵营
   public static SRERole SEA_KING = TMMRoles.registerRole(new ExtraEffectRole(
@@ -616,7 +616,7 @@ public class ModRoles {
       true, // isInnocent = 乘客阵营
       false, // canUseKiller = 无杀手能力
       SRERole.MoodType.REAL, // 真实心情
-      TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
+      Integer.MAX_VALUE, // 无限体力
       false // 不隐藏计分板
   ).addEffect(
       new MobEffectInstance(
@@ -1060,32 +1060,34 @@ public class ModRoles {
       SRERole.MoodType.FAKE, // 假心情
       Integer.MAX_VALUE, // 无限冲刺
       true // 隐藏计分板
-  ){
-            @Override
-            public void serverTick(ServerPlayer player) {
-              if (player.getOffhandItem().getItem() instanceof StalkerKnifeItem){
-                if (player.getMainHandItem().getItem()instanceof StalkerKnifeItem){
-                  if (player.getCooldowns().isOnCooldown(player.getMainHandItem().getItem()) && !player.getCooldowns().isOnCooldown(player.getOffhandItem().getItem())){
-                    //交换位置
-                    var temp = player.getMainHandItem();
-                    var temp2 = player.getOffhandItem();
-                    player.setItemInHand(InteractionHand.MAIN_HAND, temp2);
-                    player.setItemInHand(InteractionHand.OFF_HAND, temp);
+  ) {
+    @Override
+    public void serverTick(ServerPlayer player) {
+      if (player.getOffhandItem().getItem() instanceof StalkerKnifeItem) {
+        if (player.getMainHandItem().getItem() instanceof StalkerKnifeItem) {
+          if (player.getCooldowns().isOnCooldown(player.getMainHandItem().getItem())
+              && !player.getCooldowns().isOnCooldown(player.getOffhandItem().getItem())) {
+            // 交换位置
+            var temp = player.getMainHandItem();
+            var temp2 = player.getOffhandItem();
+            player.setItemInHand(InteractionHand.MAIN_HAND, temp2);
+            player.setItemInHand(InteractionHand.OFF_HAND, temp);
 
-                  }
-                  if (player.getCooldowns().isOnCooldown(player.getMainHandItem().getItem()) && !player.getCooldowns().isOnCooldown(player.getOffhandItem().getItem())){
-                    //交换位置
-                    var temp = player.getMainHandItem();
-                    var temp2 = player.getOffhandItem();
-                    player.setItemInHand(InteractionHand.MAIN_HAND, temp2);
-                    player.setItemInHand(InteractionHand.OFF_HAND, temp);
+          }
+          if (player.getCooldowns().isOnCooldown(player.getMainHandItem().getItem())
+              && !player.getCooldowns().isOnCooldown(player.getOffhandItem().getItem())) {
+            // 交换位置
+            var temp = player.getMainHandItem();
+            var temp2 = player.getOffhandItem();
+            player.setItemInHand(InteractionHand.MAIN_HAND, temp2);
+            player.setItemInHand(InteractionHand.OFF_HAND, temp);
 
-                  }
-                }
-              }
-              super.serverTick(player);
-            }
-          }.setComponentKey(StalkerPlayerComponent.KEY))
+          }
+        }
+      }
+      super.serverTick(player);
+    }
+  }.setComponentKey(StalkerPlayerComponent.KEY))
       .setMaxSprintTime(StalkerPlayerComponent.MAX_SPRINT_TIME_IntSupplier);
 
   /**
@@ -1313,7 +1315,6 @@ public class ModRoles {
       Integer.MAX_VALUE, // 无限冲刺时间
       true // 隐藏计分板
   )).setComponentKey(ModComponents.BLOOD_FEUDIST).setCanSeeCoin(true);;
-
 
   // ==================== 其他变量定义 ====================
   public static ArrayList<SRERole> SHOW_MONEY_ROLES = new ArrayList<>();

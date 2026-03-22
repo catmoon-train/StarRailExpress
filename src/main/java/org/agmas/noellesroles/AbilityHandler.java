@@ -43,6 +43,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.phys.AABB;
 
 public class AbilityHandler {
 
@@ -436,6 +437,54 @@ public class AbilityHandler {
             } else {
                 // 普通按技能键：调制药剂
                 alchemistComponent.craftPotion();
+            }
+            return;
+        }
+
+        if (gameWorldComponent.isRole(context.player(), ModRoles.SEA_KING)) {
+            if (abilityPlayerComponent.cooldown > 0) {
+                player.displayClientMessage(
+                        Component.translatable("message.noellesroles.sea_king.cooldown",
+                                (abilityPlayerComponent.cooldown + 19) / 20)
+                                .withStyle(ChatFormatting.RED),
+                        true);
+                return;
+            }
+
+            final double radius = 20.0D;
+            final int duration = 5 * 20;
+            int affected = 0;
+
+            AABB range = player.getBoundingBox().inflate(radius);
+            for (ServerPlayer target : player.serverLevel().getEntitiesOfClass(
+                    ServerPlayer.class,
+                    range,
+                    p -> !p.getUUID().equals(player.getUUID()) && GameUtils.isPlayerAliveAndSurvival(p))) {
+                if (player.distanceToSqr(target) > radius * radius) {
+                    continue;
+                }
+                if (!(target.isInWater() || target.isUnderWater())) {
+                    continue;
+                }
+
+                target.addEffect(new MobEffectInstance(ModEffects.GHOST_CURSE, duration, 0, false, true, true));
+                affected++;
+            }
+
+            abilityPlayerComponent.setCooldown(60 * 20);
+                player.level().playSound(null, player.blockPosition(),
+                    SoundEvents.TRIDENT_RETURN, SoundSource.MASTER, 5.0F, 1.0F);
+
+            if (affected > 0) {
+                player.displayClientMessage(
+                        Component.translatable("message.noellesroles.sea_king.skill_used", affected)
+                                .withStyle(ChatFormatting.AQUA),
+                        true);
+            } else {
+                player.displayClientMessage(
+                        Component.translatable("message.noellesroles.sea_king.skill_no_target")
+                                .withStyle(ChatFormatting.RED),
+                        true);
             }
             return;
         }

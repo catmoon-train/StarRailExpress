@@ -408,7 +408,7 @@ public class ServerTaskInfoClasses {
             // Place the doors back
             for (GameUtils.BlockInfo blockInfo2 : list4) {
                 if (serverWorld.setBlock(blockInfo2.pos(), blockInfo2.state(),
-                        Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE)) {
+                        Block.UPDATE_CLIENTS)) {
                     mx++;
                     serverWorld.getLightEngine().checkBlock(blockInfo2.pos());
                 }
