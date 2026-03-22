@@ -781,7 +781,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         for (Player target : world.players()) {
             if (GameUtils.isPlayerAliveAndSurvival(target) && !isKiller(target)) {
                 target.addEffect(new MobEffectInstance(
-                        MobEffects.MOVEMENT_SPEED, duration, 1, false, false, true));
+                        MobEffects.MOVEMENT_SPEED, duration, 2, false, false, true));
                 target.addEffect(new MobEffectInstance(
                         ModEffects.OTHERWORLD_AURA, duration, 0, false, false, false));
 
@@ -927,7 +927,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
     public boolean soulDevour(Player target) {
         if (!(player instanceof ServerPlayer))
             return false;
-
+        if (SREGameWorldComponent.KEY.get(player.level()).canUseKillerFeatures(target))return false;
         // 检查目标SAN <= 10（mood <= 0.1）
         float mood = SREPlayerMoodComponent.KEY.get(target).getMood();
         if (mood > 0.1f) {
