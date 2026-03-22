@@ -55,6 +55,7 @@ public abstract class WorldRendererMixin {
             if (player.hasEffect(ModEffects.OTHERWORLD_AURA)){
                 if (SREClient.gameComponent== null|| !SREClient.gameComponent.canUseKillerFeatures(player)){
                     tmm$doFog(0, 9);
+                    return;
                 }
             }
             if (SREClient.isTrainMoving()) {
