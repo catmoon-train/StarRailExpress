@@ -26,7 +26,7 @@ public abstract class NoisemakerKillMixin {
                 .get(victim.level());
         if (gameWorldComponent.isRole(victim, ModRoles.NOISEMAKER)) {
             body.addEffect(new MobEffectInstance(MobEffects.GLOWING, 20 * 60, 0));
-            var serverLevel = victim.serverLevel();
+            var serverLevel = victim.level();
             for (Player p : serverLevel.players()) {
                 if (p.isSpectator()) {
                     continue;

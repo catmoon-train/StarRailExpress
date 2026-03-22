@@ -160,6 +160,12 @@ public class AreasWorldComponent implements AutoSyncedComponent {
     public String mapName = null;
     public boolean haveOutsideSound = false;
 
+    // 场景偏移配置 - 将sceneArea内的区块渲染到偏移位置（默认关闭）
+    public boolean sceneOffsetEnabled = false;
+    public double sceneOffsetX = 0;
+    public double sceneOffsetY = 125; // 默认向上偏移125格（场景放置在游玩区域下方100-150格）
+    public double sceneOffsetZ = 0;
+
     public PosWithOrientation getSpawnPos() {
         return spawnPos;
     }
@@ -358,6 +364,10 @@ public class AreasWorldComponent implements AutoSyncedComponent {
         this.canJump = tag.contains("canJump") ? tag.getBoolean("canJump") : false;
         this.canSwim = tag.contains("canSwim") ? tag.getBoolean("canSwim") : false;
         this.haveOutsideSound = tag.contains("haveOutsideSound") ? tag.getBoolean("haveOutsideSound") : false;
+        this.sceneOffsetEnabled = tag.contains("sceneOffsetEnabled") ? tag.getBoolean("sceneOffsetEnabled") : false;
+        this.sceneOffsetX = tag.contains("sceneOffsetX") ? tag.getDouble("sceneOffsetX") : 0;
+        this.sceneOffsetY = tag.contains("sceneOffsetY") ? tag.getDouble("sceneOffsetY") : 125;
+        this.sceneOffsetZ = tag.contains("sceneOffsetZ") ? tag.getDouble("sceneOffsetZ") : 0;
         // this.playAreaOffset = getVec3dFromNbt(tag, "playAreaOffset");
         // this.playArea = getBoxFromNbt(tag, "playArea");
         //
@@ -415,6 +425,10 @@ public class AreasWorldComponent implements AutoSyncedComponent {
         tag.putBoolean("canJump", this.canJump);
         tag.putBoolean("canSwim", this.canSwim);
         tag.putBoolean("haveOutsideSound", this.haveOutsideSound);
+        tag.putBoolean("sceneOffsetEnabled", this.sceneOffsetEnabled);
+        tag.putDouble("sceneOffsetX", this.sceneOffsetX);
+        tag.putDouble("sceneOffsetY", this.sceneOffsetY);
+        tag.putDouble("sceneOffsetZ", this.sceneOffsetZ);
 
         // 房间位置需要写入NBT（如果实现此功能）
         // 这里暂时不实现，因为NBT格式可能需要专门处理Map类型
