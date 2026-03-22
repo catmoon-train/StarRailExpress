@@ -1543,6 +1543,8 @@
   "message.noellesroles.ma_chen_xu.cooldown": "诡术 %s 冷却中：%ss",
   "message.noellesroles.ma_chen_xu.shield": "永久护盾：就绪",
   "message.noellesroles.ma_chen_xu.trigger_shield": "护盾触发！抵挡一次致命伤害！",
+  "message.noellesroles.ma_chen_xu.ghost_curse": "§4鬼 缚",
+  "effect.noellesroles.ghost_curse": "鬼缚",
   "==================== 布袋鬼商店 ====================": "",
   "item.noellesroles.ma_chen_xu.turbid_rain": "诡舍·浊雨",
   "item.noellesroles.ma_chen_xu.turbid_rain.lore1": "使用后地图进入小雨状态，持续30秒",

@@ -33,10 +33,10 @@ public abstract class MobEffectKeyMixin {
        if (player.hasEffect(ModEffects.SKILL_BANED)){
            return this.same(NoellesrolesClient.abilityBind);
        }
-       if (player.hasEffect(ModEffects.MOVE_BANED)){
+       if (player.hasEffect(ModEffects.MOVE_BANED) || player.hasEffect(ModEffects.GHOST_CURSE)){
            return this.same(Minecraft.getInstance().options.keyJump)||this.same(Minecraft.getInstance().options.keyLeft)||this.same(Minecraft.getInstance().options.keyRight)||this.same(Minecraft.getInstance().options.keyUp)||this.same(Minecraft.getInstance().options.keyDown);
        }
-        if (player.hasEffect(ModEffects.USED_BANED)){
+        if (player.hasEffect(ModEffects.USED_BANED) || player.hasEffect(ModEffects.GHOST_CURSE)){
             return this.same(Minecraft.getInstance().options.keyAttack)||this.same(Minecraft.getInstance().options.keyDrop)||this.same(Minecraft.getInstance().options.keyUse);
         }
         return false;

@@ -33,6 +33,13 @@ public class ModEffects {
     public static final Holder<MobEffect> NO_COLLIDE = register("no_collide", new NoCollideEffect());
 
     /**
+     * 鬼缚效果（布袋鬼攻击诅咒）
+     * - 有害效果，深红色
+     * - 被攻击者：隐身 + 无法移动 + 无法使用物品 + 红色粒子
+     */
+    public static final Holder<MobEffect> GHOST_CURSE = register("ghost_curse", new SimpleMobEffect(MobEffectCategory.HARMFUL, 0x8B0000));
+
+    /**
      * 注册药水效果到注册表
      */
 
