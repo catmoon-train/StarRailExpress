@@ -212,10 +212,10 @@ public class StarRailLoadingOverlay extends Overlay {
      */
     private void drawProgressBar(GuiGraphics graphics, int width, int height,
                                  float progress, float alpha, float time) {
-        int barWidth = 450;          // 总宽度
-        int barHeight = 6;           // 细条高度
+        int barWidth = (int) (width * 0.7); // 占屏幕宽度的70%
+        int barHeight = 6;               // 细条高度
         int barX = (width - barWidth) / 2;
-        int barY = height - 80;      // 距离底部80像素
+        int barY = height - 80;          // 距离底部80像素
 
         // 背景条（半透明深色）
         int bgColor = FastColor.ARGB32.color((int) (alpha * 150), 30, 30, 40);
