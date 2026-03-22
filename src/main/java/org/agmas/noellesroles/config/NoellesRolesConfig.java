@@ -30,7 +30,7 @@ public class NoellesRolesConfig implements ConfigData {
      * Areas that will spawn Swast. Use | to split maps
      */
 
-    public ArrayList<String> swastMaps = new ArrayList<>(List.of("areas1", "areas3", "areas4", "areas7", "areas10"));
+    public ArrayList<String> swastMaps = new ArrayList<>(List.of("areas1", "areas3", "areas4", "areas7", "areas10","areas_qiyucun"));
 
     /**
      * Areas that will spawn underwater roles (Sea King, Diver, Water Ghost)
