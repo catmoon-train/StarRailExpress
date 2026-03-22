@@ -32,8 +32,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.agmas.noellesroles.block_entity.VendingMachinesBlockEntity;
 import org.agmas.noellesroles.client.commands.GameManagePanelCommand;
-import org.agmas.noellesroles.client.OtherworldSceneManager;
-import org.agmas.noellesroles.client.OtherworldShader;
 import org.agmas.noellesroles.effects.TimeStopEffect;
 import org.agmas.noellesroles.init.*;
 import org.agmas.noellesroles.Noellesroles;
@@ -65,12 +63,9 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Maps;
 import com.mojang.blaze3d.platform.InputConstants;
 
-import dev.doctor4t.ratatouille.client.util.ambience.AmbienceUtil;
-import dev.doctor4t.ratatouille.client.util.ambience.BackgroundAmbience;
 import dev.doctor4t.ratatouille.util.TextUtils;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
-import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.client.StaminaRenderer;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
@@ -172,28 +167,6 @@ public class NoellesrolesClient implements ClientModInitializer {
                 return;
             client.setScreen(new ChefStartGameScreen());
         };
-        AmbienceUtil.registerBackgroundAmbience(
-                new BackgroundAmbience(NRSounds.JESTER_AMBIENT,
-                        player -> {
-                            if (SREClient.gameComponent == null)
-                                return false;
-                            if (SREClient.gameComponent.isPsychoActive()) {
-                                var level = Minecraft.getInstance().level;
-                                if (level == null)
-                                    return false;
-                                return (level.players().stream().anyMatch((p) -> {
-                                    if (SREClient.gameComponent.isRole(p, ModRoles.JESTER)) {
-                                        if (SREPlayerPsychoComponent.KEY.get(p).getPsychoTicks() > 0) {
-                                            return true;
-                                        }
-                                    }
-                                    return false;
-                                }));
-                            }
-                            return false;
-                        },
-                        1));
-
         EntityRendererRegistry.register(ModEntities.WHEELCHAIR, WheelchairEntityRenderer::new);
         EntityRendererRegistry.register(ModEntities.WHEELCHAIR_FIELD_ITEM, WheelchairFieldItemRenderer::new);
 
@@ -394,7 +367,8 @@ public class NoellesrolesClient implements ClientModInitializer {
             final var client = context.client();
             client.execute(() -> {
                 if (client.player != null) {
-                    client.setScreen(new LootMultiScreen(payload.poolID(), payload.results(),Minecraft.getInstance().screen));
+                    client.setScreen(
+                            new LootMultiScreen(payload.poolID(), payload.results(), Minecraft.getInstance().screen));
                 }
             });
         });
@@ -619,8 +593,10 @@ public class NoellesrolesClient implements ClientModInitializer {
 
         // 注册里世界场景管理器tick
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            if (client.player == null || client.level == null) return;
-            if (SREClient.gameComponent == null) return;
+            if (client.player == null || client.level == null)
+                return;
+            if (SREClient.gameComponent == null)
+                return;
 
             boolean otherworldActive = OtherworldShader.isAnyOtherworldActive();
 
