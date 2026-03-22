@@ -1523,6 +1523,7 @@
   "hud.noellesroles.ma_chen_xu.skill.trap": "誘捕",
   "hud.noellesroles.ma_chen_xu.skill.parasite": "寄生",
   "hud.noellesroles.ma_chen_xu.skill.swift_wind": "掠風",
+  "hud.noellesroles.ma_chen_xu.skill.vanish": "隱匿",
   "message.noellesroles.ma_chen_xu.parasite.infected": "你被種下了鬼種......",
   "message.noellesroles.ma_chen_xu.parasite.target_moving": "目標正在移動，無法寄生！",
   "message.noellesroles.ma_chen_xu.echo.recording": "迴響錄製中...",

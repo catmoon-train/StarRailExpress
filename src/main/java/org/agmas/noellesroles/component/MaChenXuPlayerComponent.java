@@ -105,6 +105,11 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
     public static final int GHOST_SKILL_COOLDOWN_ECHO = 900; // 45秒
     public static final int GHOST_SKILL_COOLDOWN_TRAP = 400; // 20秒
     public static final int GHOST_SKILL_COOLDOWN_PARASITE = 1800; // 90秒
+    public static final int GHOST_SKILL_COOLDOWN_VANISH = 900; // 45秒
+
+    /** 隐匿参数 */
+    public static final int VANISH_DURATION = 160; // 8秒
+    public static final int VANISH_DURATION_OTHERWORLD = 240; // 12秒
 
     /** 鬼打墙参数 */
     public static final int GHOST_WALL_DURATION = 100; // 5秒
@@ -203,6 +208,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
     public int echoCooldown = 0;
     public int trapCooldown = 0;
     public int parasiteCooldown = 0;
+    public int vanishCooldown = 0;
 
     /** 鬼打墙状态 */
     public boolean ghostWallActive = false;
@@ -281,6 +287,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         this.echoCooldown = 0;
         this.trapCooldown = 0;
         this.parasiteCooldown = 0;
+        this.vanishCooldown = 0;
         this.ghostWallActive = false;
         this.ghostWallRemainingTicks = 0;
         this.ghostWallPos = null;
@@ -353,6 +360,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         this.echoCooldown = 0;
         this.trapCooldown = 0;
         this.parasiteCooldown = 0;
+        this.vanishCooldown = 0;
         this.ghostWallActive = false;
         this.ghostWallRemainingTicks = 0;
         this.ghostWallPos = null;
@@ -499,7 +507,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
      */
     private void addRandomGhostSkill() {
         List<String> availableSkills = new ArrayList<>();
-        String[] allSkills = { "ghost_wall", "echo", "trap", "parasite" };
+        String[] allSkills = { "ghost_wall", "echo", "trap", "parasite", "vanish" };
         for (String skill : allSkills) {
             if (!ghostSkills.contains(skill)) {
                 availableSkills.add(skill);
@@ -923,12 +931,12 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         // 检查目标SAN <= 10（mood <= 0.1）
         float mood = SREPlayerMoodComponent.KEY.get(target).getMood();
         if (mood > 0.1f) {
-            Noellesroles.LOGGER.info("San {} over 0.1", mood);
+            //Noellesroles.LOGGER.info("San {} over 0.1", mood);
             return false;
         }
 
         // 击杀目标（无法复活）
-        GameUtils.killPlayer(target, true, player, Noellesroles.id("machenxu"));
+        GameUtils.forceKillPlayer(target, true, player, Noellesroles.id("machenxu"));
 
         // 移除受害者所有物品
         if (target instanceof ServerPlayer targetSp) {
@@ -986,7 +994,9 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
 
         // 被标记者永久发光
         target.addEffect(new MobEffectInstance(
-                MobEffects.GLOWING, otherworldDuration + 100, 0, false, false, true));
+                MobEffects.GLOWING, otherworldDuration + 200, 0, false, false, true));
+        target.addEffect(new MobEffectInstance(
+                ModEffects.GHOST_CURSE, otherworldDuration + 200, 0, false, false, true));
 
         if (target instanceof ServerPlayer targetSp) {
             // 使用Title显示被标记警告
@@ -997,7 +1007,23 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
 
             // 标记粒子效果
             if (target.level() instanceof ServerLevel sl) {
+
                 Vec3 pos = target.position();
+                    // 灵魂火焰爆发
+                    sl.sendParticles(ParticleTypes.SOUL_FIRE_FLAME,
+                            pos.x, pos.y + 1.0, pos.z, 15, 0.3, 0.5, 0.3, 0.05);
+                    // 暗色烟雾
+                    sl.sendParticles(ParticleTypes.LARGE_SMOKE,
+                            pos.x, pos.y + 0.5, pos.z, 10, 0.4, 0.3, 0.4, 0.02);
+                    // 幽匿粒子
+                    sl.sendParticles(ParticleTypes.SCULK_SOUL,
+                            pos.x, pos.y + 0.8, pos.z, 5, 0.3, 0.3, 0.3, 0.01);
+
+
+                // 音效
+                sl.playSound(null, target.blockPosition(),
+                        SoundEvents.WARDEN_ATTACK_IMPACT, SoundSource.HOSTILE, 0.8F, 0.7F);
+
                 sl.sendParticles(ParticleTypes.SOUL_FIRE_FLAME,
                         pos.x, pos.y + 1.0, pos.z, 20, 0.5, 1.0, 0.5, 0.03);
                 sl.sendParticles(ParticleTypes.SCULK_SOUL,
@@ -1476,6 +1502,51 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
     }
 
     /**
+     * 使用隐匿
+     * 45秒CD，获得8秒隐身（里世界12秒），释放烟雾粒子迷惑
+     */
+    public void useVanish() {
+        if (!(player instanceof ServerPlayer sp))
+            return;
+        if (vanishCooldown > 0) {
+            sp.displayClientMessage(
+                    Component.translatable("message.noellesroles.ma_chen_xu.cooldown",
+                            Component.translatable("hud.noellesroles.ma_chen_xu.skill.vanish"),
+                            vanishCooldown / 20)
+                            .withStyle(ChatFormatting.RED),
+                    true);
+            return;
+        }
+
+        int duration = otherworldActive ? VANISH_DURATION_OTHERWORLD : VANISH_DURATION;
+        this.vanishCooldown = GHOST_SKILL_COOLDOWN_VANISH;
+
+        // 隐身效果
+        sp.addEffect(new MobEffectInstance(
+                MobEffects.INVISIBILITY, duration, 0, false, false, false));
+
+        // 释放烟雾粒子（迷惑对手）
+        if (player.level() instanceof ServerLevel sl) {
+            Vec3 pos = sp.position();
+            sl.sendParticles(ParticleTypes.LARGE_SMOKE,
+                    pos.x, pos.y + 1.0, pos.z, 30, 2.0, 1.0, 2.0, 0.05);
+            sl.sendParticles(ParticleTypes.CAMPFIRE_SIGNAL_SMOKE,
+                    pos.x, pos.y + 0.5, pos.z, 10, 1.5, 2.0, 1.5, 0.01);
+            sl.sendParticles(ParticleTypes.SOUL,
+                    pos.x, pos.y + 1.0, pos.z, 15, 1.0, 0.5, 1.0, 0.03);
+        }
+
+        sp.displayClientMessage(
+                Component.translatable("tip.noellesroles.activated.with_name",
+                        Component.translatable("hud.noellesroles.ma_chen_xu.skill.vanish"))
+                        .withStyle(ChatFormatting.DARK_PURPLE),
+                true);
+        player.level().playSound(null, sp.blockPosition(),
+                SoundEvents.ILLUSIONER_CAST_SPELL, SoundSource.PLAYERS, 1.0F, 0.8F);
+        sync();
+    }
+
+    /**
      * 使用掠风（阶段4里世界专属）
      * 50%移速加成，持续10秒
      */
@@ -1539,6 +1610,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
                 case "echo" -> useEcho();
                 case "trap" -> useTrap();
                 case "parasite" -> useParasite();
+                case "vanish" -> useVanish();
                 default -> {
                 }
             }
@@ -1599,6 +1671,16 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
                         parasiteCooldown / 20)
                         .withStyle(ChatFormatting.YELLOW);
             }
+            case "vanish" -> {
+                if (vanishCooldown <= 0)
+                    yield Component.translatable("message.noellesroles.ma_chen_xu.available",
+                            NoellesrolesClient.abilityBind.getTranslatedKeyMessage())
+                            .withStyle(ChatFormatting.GREEN);
+                yield Component.translatable("message.noellesroles.ma_chen_xu.cooldown",
+                        Component.translatable("hud.noellesroles.ma_chen_xu.skill." + skillId),
+                        vanishCooldown / 20)
+                        .withStyle(ChatFormatting.YELLOW);
+            }
             default -> null;
         };
     }
@@ -1657,6 +1739,8 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
             trapCooldown--;
         if (parasiteCooldown > 0)
             parasiteCooldown--;
+        if (vanishCooldown > 0)
+            vanishCooldown--;
 
         // 阶段2+的移速加成（10%）
         if (stage >= 2) {
@@ -1732,6 +1816,8 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
             trapCooldown--;
         if (parasiteCooldown > 1)
             parasiteCooldown--;
+        if (vanishCooldown > 1)
+            vanishCooldown--;
         if (turbidRainActive && turbidRainDuration > 1)
             turbidRainDuration--;
         if (echoRecording) {
@@ -1773,6 +1859,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         tag.putInt("echoCooldown", this.echoCooldown);
         tag.putInt("trapCooldown", this.trapCooldown);
         tag.putInt("parasiteCooldown", this.parasiteCooldown);
+        tag.putInt("vanishCooldown", this.vanishCooldown);
 
         // 回响状态
         tag.putBoolean("echoRecording", this.echoRecording);
@@ -1826,6 +1913,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         this.echoCooldown = tag.contains("echoCooldown") ? tag.getInt("echoCooldown") : 0;
         this.trapCooldown = tag.contains("trapCooldown") ? tag.getInt("trapCooldown") : 0;
         this.parasiteCooldown = tag.contains("parasiteCooldown") ? tag.getInt("parasiteCooldown") : 0;
+        this.vanishCooldown = tag.contains("vanishCooldown") ? tag.getInt("vanishCooldown") : 0;
 
         // 回响状态
         this.echoRecording = tag.contains("echoRecording") && tag.getBoolean("echoRecording");

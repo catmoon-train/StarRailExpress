@@ -58,53 +58,37 @@ public class MaChenXuEventHandler {
         });
 
         // 布袋鬼攻击事件：命中特效 + 鬼缚诅咒
-        AttackEntityCallback.EVENT.register((attacker, world, hand, entity, hitResult) -> {
-            if (world.isClientSide()) return InteractionResult.PASS;
-            if (!(attacker instanceof ServerPlayer sp)) return InteractionResult.PASS;
-            if (!(entity instanceof Player victim)) return InteractionResult.PASS;
-
-            SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(world);
-            if (!gameWorld.isRole(attacker, ModRoles.MA_CHEN_XU)) return InteractionResult.PASS;
-            if (!GameUtils.isPlayerAliveAndSurvival(victim)) return InteractionResult.PASS;
-
-            MaChenXuPlayerComponent comp = MaChenXuPlayerComponent.KEY.get(attacker);
-            if (comp.stage <= 0) return InteractionResult.PASS;
-
-            // 攻击命中粒子特效
-            if (world instanceof ServerLevel sl) {
-                Vec3 pos = victim.position();
-                // 灵魂火焰爆发
-                sl.sendParticles(ParticleTypes.SOUL_FIRE_FLAME,
-                        pos.x, pos.y + 1.0, pos.z, 15, 0.3, 0.5, 0.3, 0.05);
-                // 暗色烟雾
-                sl.sendParticles(ParticleTypes.LARGE_SMOKE,
-                        pos.x, pos.y + 0.5, pos.z, 10, 0.4, 0.3, 0.4, 0.02);
-                // 幽匿粒子
-                sl.sendParticles(ParticleTypes.SCULK_SOUL,
-                        pos.x, pos.y + 0.8, pos.z, 5, 0.3, 0.3, 0.3, 0.01);
-            }
-
-            // 音效
-            world.playSound(null, victim.blockPosition(),
-                    SoundEvents.WARDEN_ATTACK_IMPACT, SoundSource.HOSTILE, 0.8F, 0.7F);
-
-            // 里世界期间：施加鬼缚诅咒（隐身+定身+禁用物品+红粒子）
-            if (comp.otherworldActive) {
-                victim.addEffect(new MobEffectInstance(
-                        ModEffects.GHOST_CURSE, GHOST_CURSE_DURATION, 0, false, false, true));
-                victim.addEffect(new MobEffectInstance(
-                        MobEffects.INVISIBILITY, GHOST_CURSE_DURATION, 0, false, false, false));
-
-                // 鬼缚Title
-                if (victim instanceof ServerPlayer victimSp) {
-                    victimSp.connection.send(new ClientboundSetTitlesAnimationPacket(5, 40, 10));
-                    victimSp.connection.send(new ClientboundSetTitleTextPacket(
-                            Component.translatable("message.noellesroles.ma_chen_xu.ghost_curse")
-                                    .withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD)));
-                }
-            }
-
-            return InteractionResult.PASS;
-        });
+//        AttackEntityCallback.EVENT.register((attacker, world, hand, entity, hitResult) -> {
+//            if (world.isClientSide()) return InteractionResult.PASS;
+//            if (!(attacker instanceof ServerPlayer sp)) return InteractionResult.PASS;
+//            if (!(entity instanceof Player victim)) return InteractionResult.PASS;
+//
+//            SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(world);
+//            if (!gameWorld.isRole(attacker, ModRoles.MA_CHEN_XU)) return InteractionResult.PASS;
+//            if (!GameUtils.isPlayerAliveAndSurvival(victim)) return InteractionResult.PASS;
+//
+//            MaChenXuPlayerComponent comp = MaChenXuPlayerComponent.KEY.get(attacker);
+//            if (comp.stage <= 0) return InteractionResult.PASS;
+//
+//
+//
+//            // 里世界期间：施加鬼缚诅咒（隐身+定身+禁用物品+红粒子）
+//            if (comp.otherworldActive) {
+////                victim.addEffect(new MobEffectInstance(
+////                        ModEffects.GHOST_CURSE, GHOST_CURSE_DURATION, 0, false, false, true));
+////                victim.addEffect(new MobEffectInstance(
+////                        MobEffects.INVISIBILITY, GHOST_CURSE_DURATION, 0, false, false, false));
+//
+//                // 鬼缚Title
+//                if (victim instanceof ServerPlayer victimSp) {
+//                    victimSp.connection.send(new ClientboundSetTitlesAnimationPacket(5, 40, 10));
+//                    victimSp.connection.send(new ClientboundSetTitleTextPacket(
+//                            Component.translatable("message.noellesroles.ma_chen_xu.ghost_curse")
+//                                    .withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD)));
+//                }
+//            }
+//
+//            return InteractionResult.PASS;
+//        });
     }
 }
