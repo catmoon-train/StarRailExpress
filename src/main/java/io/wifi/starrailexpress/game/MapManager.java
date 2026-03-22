@@ -1,6 +1,7 @@
 package io.wifi.starrailexpress.game;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -355,7 +356,15 @@ public class MapManager {
             } else {
                 SRE.LOGGER.warn("Missing reset paste area data in map config: " + mapName);
             }
-
+            areas.disabledTasks.clear();
+            if (jsonObject.has("disabledTasks")) {
+                var jsonArr = jsonObject.get("disabledTasks").getAsJsonArray();
+                for (JsonElement data : jsonArr.asList()) {
+                    areas.disabledTasks.add(data.getAsString());
+                }
+            } else {
+                areas.disabledTasks.add("BREATHE");
+            }
             if (jsonObject.has("roomCount")) {
                 int roomCount = jsonObject.get("roomCount").getAsInt();
                 areas.setRoomCount(roomCount);

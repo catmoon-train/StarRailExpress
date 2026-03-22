@@ -180,6 +180,7 @@ Example Content:
       "z": 0.0
     }
   },
+  "disabledTasks": ["BREATHE"],
   "canSwim": true, // Whether players are allowed to enter water deeper than 2 blocks. Setting to false will kill players who enter water 2 blocks deep.
   "canJump": true, // Whether players are allowed to jump.
   "haveOutsideSound": true // Whether outdoor/indoor sound effects are enabled.
