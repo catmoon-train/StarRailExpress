@@ -139,6 +139,18 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
     /** 掠风参数（阶段4里世界专属） */
     public static final int SWIFT_WIND_DURATION = 200;              // 10秒
 
+    /** 里世界全体发光间隔（tick） - 15秒 */
+    public static final int OTHERWORLD_GLOW_INTERVAL = 300;
+
+    /** 里世界全体发光持续时间（tick） - 5秒 */
+    public static final int OTHERWORLD_GLOW_DURATION = 100;
+
+    /** 里世界玩家接近警告距离（格） */
+    public static final double OTHERWORLD_WARN_RANGE = 20.0;
+
+    /** 里世界黑雾粒子间隔（tick） */
+    public static final int BLACK_FOG_PARTICLE_INTERVAL = 5;
+
     // ==================== 状态变量 ====================
 
     private final Player player;
@@ -215,6 +227,12 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
     public boolean swiftWindActive = false;
     public int swiftWindDuration = 0;
 
+    /** 里世界发光计时器 */
+    public int otherworldGlowTimer = 0;
+
+    /** 里世界黑雾粒子计时器 */
+    public int blackFogTimer = 0;
+
     private final Random random = new Random();
 
     /**
@@ -271,6 +289,8 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         this.turbidRainTimer = 0;
         this.swiftWindActive = false;
         this.swiftWindDuration = 0;
+        this.otherworldGlowTimer = 0;
+        this.blackFogTimer = 0;
         this.sync();
         // 给予初始金币
         if (player instanceof ServerPlayer serverPlayer) {
@@ -320,6 +340,8 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         this.turbidRainTimer = 0;
         this.swiftWindActive = false;
         this.swiftWindDuration = 0;
+        this.otherworldGlowTimer = 0;
+        this.blackFogTimer = 0;
         // 取消无敌状态
         if (player instanceof ServerPlayer sp) {
             sp.setInvulnerable(false);
@@ -369,7 +391,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
                 sp.displayClientMessage(
                         Component.translatable("message.noellesroles.ma_chen_xu.auto_ultimate")
                                 .withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD),
-                        false);
+                        true);
             }
         }
     }
@@ -402,7 +424,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
                     Component.translatable("message.noellesroles.ma_chen_xu.stage_advance",
                             Component.translatable("hud.noellesroles.ma_chen_xu.phase2"))
                             .withStyle(ChatFormatting.DARK_PURPLE, ChatFormatting.BOLD),
-                    false);
+                    true);
             player.level().playSound(null, player.blockPosition(),
                     SoundEvents.WITHER_AMBIENT, SoundSource.PLAYERS, 1.0F, 0.8F);
         }
@@ -419,7 +441,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
                     Component.translatable("message.noellesroles.ma_chen_xu.stage_advance",
                             Component.translatable("hud.noellesroles.ma_chen_xu.phase3"))
                             .withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD),
-                    false);
+                    true);
             player.level().playSound(null, player.blockPosition(),
                     SoundEvents.WITHER_SPAWN, SoundSource.PLAYERS, 1.0F, 0.6F);
         }
@@ -438,7 +460,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
                     Component.translatable("message.noellesroles.ma_chen_xu.stage_advance",
                             Component.translatable("hud.noellesroles.ma_chen_xu.phase4"))
                             .withStyle(ChatFormatting.BLACK, ChatFormatting.BOLD),
-                    false);
+                    true);
             player.level().playSound(null, player.blockPosition(),
                     SoundEvents.ENDER_DRAGON_GROWL, SoundSource.PLAYERS, 1.0F, 0.4F);
         }
@@ -539,12 +561,17 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
     /**
      * 处理里世界机制
      * 每2秒全图好人失去5SAN
+     * 每15秒全体好人获得短暂发光
+     * 好人接近时发出警告
+     * 布袋鬼释放黑雾粒子
      */
     private void processOtherworldMechanism() {
         if (!otherworldActive) return;
 
         otherworldTimer++;
         otherworldDuration--;
+        otherworldGlowTimer++;
+        blackFogTimer++;
 
         if (otherworldTimer >= OTHERWORLD_INTERVAL) {
             otherworldTimer = 0;
@@ -554,6 +581,72 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
                 if (isKiller(target)) continue;
                 SREPlayerMoodComponent.KEY.get(target).addMood(-((float) OTHERWORLD_SAN_LOSS / 100));
                 addSanLoss(OTHERWORLD_SAN_LOSS);
+            }
+        }
+
+        // 每15秒给所有人短暂发光（暴露所有人位置，包括杀手队友）
+        if (otherworldGlowTimer >= OTHERWORLD_GLOW_INTERVAL) {
+            otherworldGlowTimer = 0;
+            Level world = player.level();
+            for (Player target : world.players()) {
+                if (target.equals(player)) continue; // 布袋鬼自己不发光
+                if (!GameUtils.isPlayerAliveAndSurvival(target)) continue;
+                target.addEffect(new MobEffectInstance(
+                        MobEffects.GLOWING, OTHERWORLD_GLOW_DURATION, 0, false, false, true));
+                if (target instanceof ServerPlayer targetSp) {
+                    targetSp.displayClientMessage(
+                            Component.translatable("message.noellesroles.ma_chen_xu.glow_pulse")
+                                    .withStyle(ChatFormatting.DARK_RED),
+                            true);
+                    world.playSound(null, target.blockPosition(),
+                            SoundEvents.WARDEN_HEARTBEAT, SoundSource.HOSTILE, 0.6F, 0.8F);
+                }
+            }
+        }
+
+        // 布袋鬼附近有好人时发出警告
+        if (player instanceof ServerPlayer sp && player.level().getGameTime() % 40 == 0) {
+            Level world = player.level();
+            Vec3 playerPos = player.position();
+            for (Player target : world.players()) {
+                if (target.equals(player)) continue;
+                if (!GameUtils.isPlayerAliveAndSurvival(target)) continue;
+                if (isKiller(target)) continue;
+                double distance = playerPos.distanceTo(target.position());
+                if (distance <= OTHERWORLD_WARN_RANGE) {
+                    if (target instanceof ServerPlayer targetSp) {
+                        // 根据距离决定警告等级
+                        if (distance <= 8.0) {
+                            targetSp.displayClientMessage(
+                                    Component.translatable("message.noellesroles.ma_chen_xu.proximity_danger")
+                                            .withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD),
+                                    true);
+                            world.playSound(null, target.blockPosition(),
+                                    SoundEvents.WARDEN_NEARBY_CLOSEST, SoundSource.HOSTILE, 0.8F, 1.0F);
+                        } else {
+                            targetSp.displayClientMessage(
+                                    Component.translatable("message.noellesroles.ma_chen_xu.proximity_warning")
+                                            .withStyle(ChatFormatting.RED),
+                                    true);
+                            world.playSound(null, target.blockPosition(),
+                                    SoundEvents.WARDEN_NEARBY_CLOSE, SoundSource.HOSTILE, 0.4F, 1.0F);
+                        }
+                    }
+                }
+            }
+        }
+
+        // 黑雾粒子效果（布袋鬼周围持续释放）
+        if (blackFogTimer >= BLACK_FOG_PARTICLE_INTERVAL) {
+            blackFogTimer = 0;
+            if (player.level() instanceof ServerLevel sl) {
+                Vec3 pos = player.position();
+                sl.sendParticles(ParticleTypes.LARGE_SMOKE,
+                        pos.x, pos.y + 0.5, pos.z, 8, 0.8, 0.5, 0.8, 0.01);
+                sl.sendParticles(ParticleTypes.SOUL,
+                        pos.x, pos.y + 1.0, pos.z, 3, 0.5, 0.3, 0.5, 0.01);
+                sl.sendParticles(ParticleTypes.SCULK_SOUL,
+                        pos.x, pos.y + 0.2, pos.z, 2, 1.0, 0.1, 1.0, 0.005);
             }
         }
 
@@ -572,21 +665,43 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         this.otherworldActive = true;
         this.otherworldDuration = duration;
         this.otherworldTimer = 0;
+        this.otherworldGlowTimer = 0;
+        this.blackFogTimer = 0;
         this.markedPlayers.clear();
 
-        // 布袋鬼无敌 + 30%移速
+        // 布袋鬼无敌 + 速度III + 隐身
         sp.setInvulnerable(true);
         sp.addEffect(new MobEffectInstance(
-                MobEffects.MOVEMENT_SPEED, duration, 1, false, false, false));
+                MobEffects.MOVEMENT_SPEED, duration, 2, false, false, false));
+        sp.addEffect(new MobEffectInstance(
+                MobEffects.INVISIBILITY, duration, 0, false, false, false));
 
-        // 好人获得速度II（逃跑用）
+        // 好人获得速度II（逃跑用）+ 向所有好人发送里世界降临提醒
         Level world = player.level();
         for (Player target : world.players()) {
             if (GameUtils.isPlayerAliveAndSurvival(target) && !isKiller(target)) {
                 target.addEffect(new MobEffectInstance(
                         MobEffects.MOVEMENT_SPEED, duration, 1, false, false, true));
+
+                // 高级提醒：标题 + 副标题 + 音效
+                if (target instanceof ServerPlayer targetSp) {
+                    targetSp.displayClientMessage(
+                            Component.translatable("message.noellesroles.ma_chen_xu.otherworld_warning_title")
+                                    .withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD, ChatFormatting.OBFUSCATED),
+                            false);
+                    targetSp.displayClientMessage(
+                            Component.translatable("message.noellesroles.ma_chen_xu.otherworld_warning_subtitle")
+                                    .withStyle(ChatFormatting.RED),
+                            false);
+                    world.playSound(null, target.blockPosition(),
+                            SoundEvents.WARDEN_ROAR, SoundSource.HOSTILE, 1.0F, 0.5F);
+                }
             }
         }
+
+        // 布袋鬼自己的里世界进场音效
+        world.playSound(null, sp.blockPosition(),
+                SoundEvents.WARDEN_EMERGE, SoundSource.HOSTILE, 1.5F, 0.6F);
 
         this.sync();
     }
@@ -598,11 +713,14 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         otherworldActive = false;
         otherworldTimer = 0;
         otherworldDuration = 0;
+        otherworldGlowTimer = 0;
+        blackFogTimer = 0;
 
         if (!(player instanceof ServerPlayer sp)) return;
 
-        // 取消无敌
+        // 取消无敌并移除里世界专属效果
         sp.setInvulnerable(false);
+        sp.removeEffect(MobEffects.INVISIBILITY);
 
         Level world = player.level();
 
@@ -634,7 +752,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
             sp.displayClientMessage(
                     Component.translatable("message.noellesroles.ma_chen_xu.ult_reward_3")
                             .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD),
-                    false);
+                    true);
         } else if (markCount >= 2) {
             // 2标记：+200金，进入下一阶段
             shopComponent.setBalance(shopComponent.balance + 200);
@@ -644,7 +762,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
             sp.displayClientMessage(
                     Component.translatable("message.noellesroles.ma_chen_xu.ult_reward_2")
                             .withStyle(ChatFormatting.GOLD),
-                    false);
+                    true);
         } else if (markCount >= 1) {
             // 1标记：+100金，大招CD减30s
             shopComponent.setBalance(shopComponent.balance + 100);
@@ -652,15 +770,22 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
             sp.displayClientMessage(
                     Component.translatable("message.noellesroles.ma_chen_xu.ult_reward_1")
                             .withStyle(ChatFormatting.YELLOW),
-                    false);
+                    true);
         }
         shopComponent.sync();
         markedPlayers.clear();
 
-        // 移除好人的速度效果
+        // 移除好人的速度效果 + 发送里世界结束提醒
         for (Player target : world.players()) {
             if (GameUtils.isPlayerAliveAndSurvival(target) && !isKiller(target)) {
                 target.removeEffect(MobEffects.MOVEMENT_SPEED);
+                target.removeEffect(MobEffects.GLOWING);
+                if (target instanceof ServerPlayer targetSp) {
+                    targetSp.displayClientMessage(
+                            Component.translatable("message.noellesroles.ma_chen_xu.otherworld_end_notice")
+                                    .withStyle(ChatFormatting.GREEN),
+                            true);
+                }
             }
         }
 
@@ -742,7 +867,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
             targetSp.displayClientMessage(
                     Component.translatable("message.noellesroles.ma_chen_xu.marked")
                             .withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD),
-                    false);
+                    true);
         }
 
         player.level().playSound(null, target.blockPosition(),
@@ -852,7 +977,11 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
             target.addEffect(new MobEffectInstance(
                     MobEffects.DIG_SLOWDOWN, SOUL_BELL_DURATION, 2, false, false, true));
             target.addEffect(new MobEffectInstance(
+                    MobEffects.MOVEMENT_SLOWDOWN, SOUL_BELL_DURATION, 0, false, false, true));
+            target.addEffect(new MobEffectInstance(
                     MobEffects.CONFUSION, SOUL_BELL_DURATION, 0, false, false, true));
+            target.addEffect(new MobEffectInstance(
+                    MobEffects.LUCK, SOUL_BELL_DURATION, 0, false, false, true));
             hitAny = true;
         }
 
@@ -1178,7 +1307,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
             targetSp.displayClientMessage(
                     Component.translatable("message.noellesroles.ma_chen_xu.parasite.infected")
                             .withStyle(ChatFormatting.DARK_GREEN, ChatFormatting.ITALIC),
-                    false);
+                    true);
         }
 
         sync();

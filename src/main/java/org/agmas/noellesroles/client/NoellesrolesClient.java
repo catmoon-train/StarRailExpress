@@ -32,6 +32,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.agmas.noellesroles.block_entity.VendingMachinesBlockEntity;
 import org.agmas.noellesroles.client.commands.GameManagePanelCommand;
+import org.agmas.noellesroles.client.OtherworldSceneManager;
+import org.agmas.noellesroles.client.OtherworldShader;
 import org.agmas.noellesroles.effects.TimeStopEffect;
 import org.agmas.noellesroles.init.*;
 import org.agmas.noellesroles.Noellesroles;
@@ -613,6 +615,22 @@ public class NoellesrolesClient implements ClientModInitializer {
             if (abilityBind.consumeClick()) {
                 ClientAbilityHandler.handler(client);
             }
+        });
+
+        // 注册里世界场景管理器tick
+        ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            if (client.player == null || client.level == null) return;
+            if (SREClient.gameComponent == null) return;
+
+            boolean otherworldActive = OtherworldShader.isAnyOtherworldActive();
+
+            if (otherworldActive && !OtherworldSceneManager.INSTANCE.isActive()) {
+                OtherworldSceneManager.INSTANCE.activate();
+            } else if (!otherworldActive && OtherworldSceneManager.INSTANCE.isActive()) {
+                OtherworldSceneManager.INSTANCE.deactivate();
+            }
+
+            OtherworldSceneManager.INSTANCE.tick();
         });
 
         ItemTooltipCallback.EVENT.register(((itemStack, tooltipContext, tooltipType, list) -> {

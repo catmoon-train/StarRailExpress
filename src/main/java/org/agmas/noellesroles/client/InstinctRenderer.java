@@ -6,6 +6,7 @@ import org.agmas.noellesroles.component.AwesomePlayerComponent;
 import org.agmas.noellesroles.component.BetterVigilantePlayerComponent;
 import org.agmas.noellesroles.component.DetectivePlayerComponent;
 import org.agmas.noellesroles.component.InsaneKillerPlayerComponent;
+import org.agmas.noellesroles.component.MaChenXuPlayerComponent;
 import org.agmas.noellesroles.component.MagicianPlayerComponent;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.component.MonitorPlayerComponent;
@@ -462,6 +463,13 @@ public class InstinctRenderer {
 
                 // 杀手直觉
                 if (isKillerTeam(self_role) && SREClient.isPlayerAliveAndInSurvival()) {
+                    // 布袋鬼：里世界期间无杀手直觉
+                    if (SREClient.gameComponent.isRole(self, ModRoles.MA_CHEN_XU)) {
+                        MaChenXuPlayerComponent macComp = MaChenXuPlayerComponent.KEY.get(self);
+                        if (macComp != null && macComp.otherworldActive) {
+                            return -2;
+                        }
+                    }
                     // 强盗直觉：只能透视半径10格内的玩家，透视杀手队友无距离限制
                     if (SREClient.gameComponent.isRole(self, ModRoles.BANDIT)) {
                         // 检查目标是否是杀手队友
@@ -528,11 +536,6 @@ public class InstinctRenderer {
                         if (SREClient.gameComponent.isRole(self, ModRoles.DIO)) {
                             if (RoleUtils.compareRole(target_role, ModRoles.JOJO)) {
                                 return Color.CYAN.getRGB();
-                            }
-                        }
-                        if (SREClient.gameComponent.isRole(self, ModRoles.MA_CHEN_XU)) {
-                            if (SREPlayerMoodComponent.KEY.get(target_player).getMood() <= 0.1) {
-                                return java.awt.Color.CYAN.getRGB();// 青色
                             }
                         }
                         if (SREClient.gameComponent.isRole(target_player, ModRoles.GAMBLER)) {

@@ -82,9 +82,9 @@ public class GameConstants {
     public static int MAX_STREAK_BONUS = 25; // 最大连击额外金币（5级封顶）
 
     // 并列任务系统
-    public static int PARALLEL_TASK_THRESHOLD = getInTicks(1, 0); // 任务超时阈值：60秒
-    public static float PARALLEL_TASK_MOOD_DROP = 0.3f; // 情绪下降30%时触发并列任务
-    public static float PARALLEL_TASK_REWARD_MULTIPLIER = 0.7f; // 并列任务奖励倍率（70%）
+    public static int PARALLEL_TASK_THRESHOLD = getInTicks(1, 10); // 任务超时阈值：70秒
+    public static float PARALLEL_TASK_MOOD_DROP = 0.4f; // 情绪下降40%时触发并列任务
+    public static float PARALLEL_TASK_REWARD_MULTIPLIER = 0.6f; // 并列任务奖励倍率（70%）
 
     /**
      * 根据游戏已过时间动态调整任务冷却
