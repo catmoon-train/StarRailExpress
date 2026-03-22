@@ -191,6 +191,12 @@ public class ClientHudRenderer {
           context.drawString(textRenderer, mimicryText, x, y, 0xFFFFFF);
           y += 12;
         }
+        if (client.player.hasEffect(ModEffects.SKILL_BANED)) {
+          Component text = Component.translatable("message.tip.cant_use_skill")
+              .withStyle(ChatFormatting.RED);
+          context.drawString(textRenderer, text, x, y, 0xFFFFFF);
+          y += 12;
+        }
         // 永久护盾状态
         if (component.permanentShield) {
           Component shieldText = Component.translatable("message.noellesroles.ma_chen_xu.shield")
