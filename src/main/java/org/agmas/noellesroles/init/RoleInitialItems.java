@@ -152,6 +152,12 @@ public class RoleInitialItems {
         swastItems.add(() -> TMMItems.SNIPER_RIFLE.getDefaultInstance());
         swastItems.add(() -> TMMItems.MAGNUM_BULLET.getDefaultInstance());
         INITIAL_ITEMS_MAP.put(ModRoles.SWAST, swastItems);
+        {
+            // 诡异客人
+            List<Supplier<ItemStack>> items = new ArrayList<>();
+            items.add(() -> TMMItems.REVOLVER.getDefaultInstance());
+            INITIAL_ITEMS_MAP.put(ModRoles.GUEST_GHOST, items);
+        }
 
         // 武术教官初始物品
         List<Supplier<ItemStack>> martialArtsInstructorItems = new ArrayList<>();
