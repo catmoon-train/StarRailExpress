@@ -88,14 +88,14 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
     public static final int OTHERWORLD_INTERVAL = 40;
 
     /** 里世界SAN掉落量 */
-    public static final int OTHERWORLD_SAN_LOSS = 5;
+    public static final int OTHERWORLD_SAN_LOSS = 2;
 
     /** 大招费用 */
     public static final int ULTIMATE_COST = 200;
 
     /** 大招持续时间（tick） */
-    public static final int ULTIMATE_DURATION_STAGE_3 = 900; // 45秒
-    public static final int ULTIMATE_DURATION_STAGE_4 = 1200; // 60秒
+    public static final int ULTIMATE_DURATION_STAGE_3 = 600; // 30秒
+    public static final int ULTIMATE_DURATION_STAGE_4 = 900; // 45秒
 
     /** 初始金币 */
     public static final int INITIAL_GOLD = 50;
@@ -784,6 +784,12 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
                         MobEffects.MOVEMENT_SPEED, duration, 2, false, false, true));
                 target.addEffect(new MobEffectInstance(
                         ModEffects.OTHERWORLD_AURA, duration, 0, false, false, false));
+                target.addEffect(new MobEffectInstance(
+                        ModEffects.INFINITE_STAMINA, duration, 5, false, false, false));
+                target.addEffect(new MobEffectInstance(
+                        ModEffects.LOW_SAN_SHADER_RESISTANCE, duration, 10, false, false, false));
+                target.addEffect(new MobEffectInstance(
+                        ModEffects.MOOD_DRAIN_REDUCTION, duration, 1, false, false, false));
 
                 if (target instanceof ServerPlayer targetSp) {
                     // 使用原生Title指令显示
