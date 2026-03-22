@@ -46,6 +46,13 @@ public class AreasWorldComponent implements AutoSyncedComponent {
     public ScrollAxis SceneScrollAxis = ScrollAxis.X;
 
     public HashSet<String> disabledTasks = new HashSet<>();
+
+    public HashSet<String> getDisabledTasks() {
+        if (this.disabledTasks == null)
+            return new HashSet<>();
+        return new HashSet<>(this.disabledTasks);
+    }
+
     public static class PosWithOrientation {
         public final Vec3 pos;
         public final float yaw;

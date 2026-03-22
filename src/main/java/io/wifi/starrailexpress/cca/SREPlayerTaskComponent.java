@@ -216,7 +216,7 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
     private Set<String> getDisabledTasks() {
         AreasWorldComponent areas = AreasWorldComponent.KEY.get(this.player.level());
         if (areas != null) {
-            return new HashSet<>(areas.disabledTasks);
+            return areas.getDisabledTasks();
         }
         return Set.of();
     }
