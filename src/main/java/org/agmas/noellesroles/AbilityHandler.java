@@ -57,6 +57,9 @@ public class AbilityHandler {
         if (player.hasEffect(ModEffects.TIME_STOP) && !TimeStopEffect.canMovePlayers.contains(player.getUUID())) {
             return;
         }
+        if (player.hasEffect(ModEffects.SKILL_BANED)) {
+            return;
+        }
         if (gameWorldComponent.isRole(player, ModRoles.HOAN_MEIRIN)) {
             var hmpc = HoanMeirinPlayerComponent.KEY.get(player);
             if (player.hasEffect(MobEffects.LEVITATION)) {
@@ -448,6 +451,9 @@ public class AbilityHandler {
                 .get(context.player().level());
         final ServerPlayer player = context.player();
         if (player.hasEffect(ModEffects.TIME_STOP) && !TimeStopEffect.canMovePlayers.contains(player.getUUID())) {
+            return;
+        }
+        if (player.hasEffect(ModEffects.SKILL_BANED)) {
             return;
         }
         var targetPlayer = player.level().getPlayerByUUID(payload.target());
