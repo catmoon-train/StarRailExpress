@@ -199,7 +199,7 @@ public class WaterGhostPlayerComponent implements RoleComponent, ServerTickingCo
             // 在水中，重置计时器
             if (outOfWaterTimer > 0) {
                 outOfWaterTimer = 0;
-                shouldSync = true;
+                // shouldSync = true;
             }
         } else {
             // 不在水中，增加计时器
@@ -227,7 +227,7 @@ public class WaterGhostPlayerComponent implements RoleComponent, ServerTickingCo
             }
 
             // 每秒同步一次
-            if (outOfWaterTimer % 20 == 0) {
+            if (outOfWaterTimer % 200 == 0) {
                 shouldSync = true;
             }
         }
@@ -361,12 +361,20 @@ public class WaterGhostPlayerComponent implements RoleComponent, ServerTickingCo
         if (skillDuration > 1) {
             skillDuration--;
         }
-        if (outOfWaterTimer < DRY_DEATH_TIME) {
-            outOfWaterTimer++;
+
+        boolean isInWater = player.isInWater() || player.isUnderWater();
+        if (isInWater) {
+            // 在水中，重置计时器
+            if (outOfWaterTimer > 0) {
+                outOfWaterTimer = 0;
+            }
+        } else {
+            if (outOfWaterTimer < DRY_DEATH_TIME) {
+                outOfWaterTimer++;
+            }
         }
     }
 
-    
     @Override
     public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }
