@@ -312,15 +312,15 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
             STAGE_4_THRESHOLD = 400;
             STAGE_4_AUTO_ULT_THRESHOLD = 600;
         } else if (playerCount <= 24) {
-            STAGE_2_THRESHOLD = 100;
-            STAGE_3_THRESHOLD = 300;
-            STAGE_4_THRESHOLD = 600;
-            STAGE_4_AUTO_ULT_THRESHOLD = 1000;
-        } else {
             STAGE_2_THRESHOLD = 150;
             STAGE_3_THRESHOLD = 400;
             STAGE_4_THRESHOLD = 800;
             STAGE_4_AUTO_ULT_THRESHOLD = 1200;
+        } else {
+            STAGE_2_THRESHOLD = 200;
+            STAGE_3_THRESHOLD = 800;
+            STAGE_4_THRESHOLD = 1500;
+            STAGE_4_AUTO_ULT_THRESHOLD = 2500;
         }
     }
 
@@ -1109,7 +1109,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
                 continue;
             if (playerPos.distanceTo(target.position()) > SOUL_BELL_RANGE)
                 continue;
-
+            PlayerVolumeComponent.KEY.get(target).setVolume(10 * 20, 5);
             // 耳鸣效果：挖掘疲劳 + 反胃
             target.addEffect(new MobEffectInstance(
                     MobEffects.DIG_SLOWDOWN, SOUL_BELL_DURATION, 2, false, false, true));
