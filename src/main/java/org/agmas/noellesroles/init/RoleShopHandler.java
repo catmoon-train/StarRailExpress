@@ -1500,12 +1500,12 @@ public class RoleShopHandler {
         ShopEntry.Type.TOOL));
 
     // 海王商店
-    // 普通三叉戟 - 300金币
+    // 普通三叉戟 - 125金币
     var trident = Items.TRIDENT.getDefaultInstance();
     trident.set(DataComponents.UNBREAKABLE, new Unbreakable(true));
     SEA_KING_SHOP.add(new ShopEntry(
         trident,
-        300,
+        125,
         ShopEntry.Type.WEAPON));
 
     // 水鬼商店
