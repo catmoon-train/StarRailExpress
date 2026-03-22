@@ -5,8 +5,11 @@ import dev.doctor4t.ratatouille.client.util.ambience.BackgroundAmbience;
 import dev.doctor4t.ratatouille.util.registrar.SoundEventRegistrar;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.client.SREClient;
+import io.wifi.starrailexpress.client.util.MyBackgroundAmbience;
 import net.minecraft.client.Minecraft;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
+
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.role.ModRoles;
 
@@ -52,7 +55,7 @@ public class NRSounds {
                         },
                         1));
         AmbienceUtil.registerBackgroundAmbience(
-                new BackgroundAmbience(NRSounds.MUSIC_CLOCK,
+                new MyBackgroundAmbience(NRSounds.MUSIC_CLOCK, SoundSource.MASTER,
                         player -> {
                             var client = Minecraft.getInstance();
                             if (client == null || client.player == null)
@@ -61,6 +64,6 @@ public class NRSounds {
                                 return true;
                             return false;
                         },
-                        10));
+                        0.5f, 10, 10));
     }
 }
