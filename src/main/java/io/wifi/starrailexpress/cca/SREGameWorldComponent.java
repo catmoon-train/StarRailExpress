@@ -98,18 +98,18 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
         INACTIVE, STARTING, ACTIVE, STOPPING
     }
 
-    private GameMode gameMode = SREGameModes.MURDER;
+    public GameMode gameMode = SREGameModes.MURDER;
 
-    private boolean bound = true;
+    public boolean bound = true;
 
-    private GameStatus gameStatus = GameStatus.INACTIVE;
+    public GameStatus gameStatus = GameStatus.INACTIVE;
     public int fade = 0;
 
     public int ticksUntilNextResetAttempt = -1;
 
-    private int psychosActive = 0;
+    public int psychosActive = 0;
 
-    private UUID looseEndWinner;
+    public UUID looseEndWinner;
 
     private GameUtils.WinStatus lastWinStatus = GameUtils.WinStatus.NONE;
 

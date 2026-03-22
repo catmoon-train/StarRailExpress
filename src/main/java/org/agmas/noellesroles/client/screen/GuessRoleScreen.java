@@ -73,9 +73,7 @@ public class GuessRoleScreen extends Screen {
     private Button nextPageButton;
 
     public GuessRoleScreen() {
-
         super(Component.translatable("screen.noellesroles.guess_role.title"));
-
     }
 
     public GuessRoleScreen(Screen parent) {

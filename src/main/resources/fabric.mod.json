@@ -115,6 +115,7 @@
       "noellesroles:accountant",
       "noellesroles:water_ghost",
       "noellesroles:alchemist",
+      "noellesroles:food_drink",
       "noellesroles:diver",
       "noellesroles:shooting_frenzy",
       "stupid_express:doused",
@@ -157,7 +158,7 @@
       "starrailexpress:nametag_inventory",
       "starrailexpress:player_stats",
       "starrailexpress:ability",
-      "starrailexpress:bartender",
+      "starrailexpress:armor",
       "starrailexpress:player_nunchuck",
       "noellesroles:ma_chen_xu"
     ],

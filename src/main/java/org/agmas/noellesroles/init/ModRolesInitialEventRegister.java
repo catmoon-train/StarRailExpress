@@ -128,7 +128,6 @@ public class ModRolesInitialEventRegister {
             }
             if (role.identifier().equals(ModRoles.GUEST_GHOST.identifier())) {
                 SREPlayerShopComponent.KEY.get(player).setBalance(100);
-                return;
             }
             SREAbilityPlayerComponent abilityPlayerComponent = (SREAbilityPlayerComponent) SREAbilityPlayerComponent.KEY
                     .get(player);

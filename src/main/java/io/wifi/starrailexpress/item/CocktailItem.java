@@ -1,6 +1,7 @@
 package io.wifi.starrailexpress.item;
 
-import io.wifi.starrailexpress.cca.SREArmorPlayerComponent;
+import org.agmas.noellesroles.component.FoodDrinkGlowComponent;
+
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.server.level.ServerPlayer;
@@ -26,10 +27,7 @@ public class CocktailItem extends Item {
     public ItemStack finishUsingItem(ItemStack stack, Level world, LivingEntity user) {
         super.finishUsingItem(stack, world, user);
         if (user instanceof ServerPlayer serverPlayerEntity) {
-            SREArmorPlayerComponent barComponent = SREArmorPlayerComponent.KEY.get(serverPlayerEntity);
-            if (barComponent != null) {
-                barComponent.startGlow();
-            }
+            FoodDrinkGlowComponent.playerDrink(serverPlayerEntity);
             CriteriaTriggers.CONSUME_ITEM.trigger(serverPlayerEntity, stack);
             serverPlayerEntity.awardStat(Stats.ITEM_USED.get(this));
             SREPlayerMoodComponent.KEY.get(serverPlayerEntity).drinkCocktail();
