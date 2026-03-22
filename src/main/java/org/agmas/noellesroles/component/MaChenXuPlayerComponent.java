@@ -927,7 +927,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
     public boolean soulDevour(Player target) {
         if (!(player instanceof ServerPlayer))
             return false;
-
+        if (SREGameWorldComponent.KEY.get(player.level()).canUseKillerFeatures(target))return false;
         // 检查目标SAN <= 10（mood <= 0.1）
         float mood = SREPlayerMoodComponent.KEY.get(target).getMood();
         if (mood > 0.1f) {
