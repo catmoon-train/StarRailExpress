@@ -290,7 +290,8 @@ public class ModRoles {
       new ChefRole(CHEF_ID, new Color(229, 255, 0).getRGB(),
           true, false, SRERole.MoodType.REAL,
           TMMRoles.CIVILIAN.getMaxSprintTime(), false))
-      .setCanSeeCoin(true).setCanPickUpRevolver(true);
+      .setCanSeeCoin(true).setCanPickUpRevolver(true)
+      .setComponentKey(FoodDrinkGlowComponent.KEY);
   // 红尘客
   public static SRERole WAYFARER = TMMRoles.registerRole(
       new NormalRole(WAYFARER_ID, new Color(255, 54, 105).getRGB(),
@@ -307,7 +308,8 @@ public class ModRoles {
           false, SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false));
   public static SRERole BARTENDER = TMMRoles
       .registerRole(new NormalRole(BARTENDER_ID, new Color(217, 241, 240).getRGB(), true,
-          false, SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false));
+          false, SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false))
+      .setComponentKey(FoodDrinkGlowComponent.KEY);
   public static SRERole NOISEMAKER = TMMRoles
       .registerRole(new NormalRole(NOISEMAKER_ID, new Color(200, 255, 0).getRGB(), true,
           false, SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false));
@@ -579,11 +581,11 @@ public class ModRoles {
    * - 仅在areas14地图生成
    * - 不能使用杀手能力 (canUseKiller = false)
    * - 真实心情系统
-    * - 无限体力
+   * - 无限体力
    * - 在计分板上显示
    * - 无法捡起左轮手枪
    * - 开局物品：忠诚3的三叉戟
-    * - 专属商店：普通三叉戟(150金币)
+   * - 专属商店：普通三叉戟(150金币)
    */
   // 海王角色 - 警长阵营
   public static SRERole SEA_KING = TMMRoles.registerRole(new ExtraEffectRole(
@@ -1304,7 +1306,6 @@ public class ModRoles {
     SREPlayerPoisonComponent.canSyncedRolePaths.add(ModRoles.POISONER_ID.getPath());
     SREPlayerPoisonComponent.canSyncedRolePaths.add(ModRoles.BARTENDER_ID.getPath());
     SREArmorPlayerComponent.canSyncedRolePaths.add(ModRoles.BARTENDER_ID.getPath());
-    SREArmorPlayerComponent.canSyncedRolePaths.add(ModRoles.CHEF_ID.getPath());
     SREPlayerMoodComponent.canSyncedRolePaths.add(ModRoles.MA_CHEN_XU_ID.getPath());
   }
 }

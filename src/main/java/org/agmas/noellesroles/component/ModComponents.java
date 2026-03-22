@@ -192,8 +192,6 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
       ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "blood_feudist"),
       BloodFeudistPlayerComponent.class);
 
-
-
   public static final ComponentKey<ClockmakerPlayerComponent> CLOCKMAKER = ComponentRegistry.getOrCreate(
       ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "clockmaker"),
       ClockmakerPlayerComponent.class);
@@ -481,6 +479,11 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
     registry.beginRegistration(Player.class, DIO)
         .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
         .end(DIOPlayerComponent::new);
+
+    // 注册FOOD & DRINK组件 - 存储到并非所有人身上
+    registry.beginRegistration(Player.class, FoodDrinkGlowComponent.KEY)
+        .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
+        .end(FoodDrinkGlowComponent::new);
 
     // 注册射击狂热组件 - 刽子手的狂暴射击模式
     registry.beginRegistration(Player.class, SHOOTING_FRENZY)

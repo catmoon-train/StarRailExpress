@@ -29,6 +29,7 @@ import pro.fazeclan.river.stupid_express.modifier.split_personality.cca.SplitPer
 import pro.fazeclan.river.stupid_express.role.arsonist.cca.DousedPlayerComponent;
 
 import java.awt.*;
+import java.util.HashMap;
 
 public class InstinctRenderer {
     public static void registerInstinctEvents() {
@@ -317,7 +318,7 @@ public class InstinctRenderer {
                     }
                 }
                 var target_role = SREClient.gameComponent.getRole(target_player);
-                SREArmorPlayerComponent bartenderPlayerComponent = SREArmorPlayerComponent.KEY.get(target_player);
+                SREArmorPlayerComponent armorPlayerComponent = SREArmorPlayerComponent.KEY.get(target_player);
                 SREPlayerPoisonComponent playerPoisonComponent = SREPlayerPoisonComponent.KEY.get(target_player);
                 if (SREClient.gameComponent.isRole(self, ModRoles.BETTER_VIGILANTE)) {
                     var betterC = BetterVigilantePlayerComponent.KEY.get(self);
@@ -328,7 +329,8 @@ public class InstinctRenderer {
                 if (SREClient.gameComponent.isRole(self, ModRoles.CHEF)) {
                     // LoggerFactory.getLogger("renderer").info("glowTick {}",
                     // bartenderPlayerComponent.glowTicks);
-                    int t = bartenderPlayerComponent.glowTicks.getOrDefault(1, 0);
+                    int t = FoodDrinkGlowComponent.KEY.get(self).glowTicks.getOrDefault(target.getScoreboardName(), new HashMap<>())
+                            .getOrDefault(1, 0);
                     if (t > 0) {
                         return (Color.GREEN.getRGB());
                     }
@@ -336,16 +338,17 @@ public class InstinctRenderer {
                 if (SREClient.gameComponent.isRole(self, ModRoles.BARTENDER)) {
                     // LoggerFactory.getLogger("renderer").info("glowTick {}",
                     // bartenderPlayerComponent.glowTicks);
-                    if (bartenderPlayerComponent.getArmor() > 0 && playerPoisonComponent.poisonTicks > 0) {
+                    if (armorPlayerComponent.getArmor() > 0 && playerPoisonComponent.poisonTicks > 0) {
                         return (new Color(186, 255, 65).getRGB());
                     }
-                    if (bartenderPlayerComponent.getArmor() > 0) {
+                    if (armorPlayerComponent.getArmor() > 0) {
                         return (Color.BLUE.getRGB());
                     }
-                    if (bartenderPlayerComponent.glowTicks.getOrDefault(0, 0) > 0) {
+                    int t = FoodDrinkGlowComponent.KEY.get(self).glowTicks.getOrDefault(target.getScoreboardName(), new HashMap<>())
+                            .getOrDefault(0, 0);
+                    if (t > 0) {
                         return (Color.GREEN.getRGB());
                     }
-
                 }
                 if ((SREClient.gameComponent.isRole(self, ModRoles.BARTENDER)
                         || SREClient.gameComponent.isRole(self, ModRoles.POISONER))

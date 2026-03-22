@@ -228,7 +228,7 @@ public class GameUtils {
         AreasWorldComponent areas = AreasWorldComponent.KEY.get(world);
         int playerCount = Math.toIntExact(world.players().stream()
                 .filter(serverPlayerEntity -> (areas.getReadyArea().contains(serverPlayerEntity.position()))).count());
-        game.setGameMode(gameMode);
+        game.gameMode = (gameMode);
         SREGameTimeComponent.KEY.get(world).setResetTime(time);
         RefugeeComponent.KEY.get(world).reset();
         if (playerCount >= gameMode.minPlayerCount) {

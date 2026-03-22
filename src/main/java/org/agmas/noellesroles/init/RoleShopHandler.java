@@ -374,6 +374,7 @@ public class RoleShopHandler {
       NECROMANCER_SHOP.add(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), 100,
           ShopEntry.Type.TOOL));
       ShopContent.customEntries.put(SERoles.NECROMANCER.getIdentifier(), NECROMANCER_SHOP);
+      ShopContent.customEntries.put(SERoles.ARSONIST.getIdentifier(), NECROMANCER_SHOP);
     }
     {
       // 厨师的商店
