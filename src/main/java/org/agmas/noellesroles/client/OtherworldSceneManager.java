@@ -33,11 +33,11 @@ public class OtherworldSceneManager {
     /** 每次tick扩展的层数 */
     private static final int EXPAND_PER_TICK = 4;
 
-    /** 开场快速扩散持续（tick）- 1秒 */
-    private static final int RAPID_EXPAND_DURATION = 20;
+    /** 开场阶段单tick替换预算（前2秒，更平滑） */
+    private static final int START_REPLACE_BUDGET = 96;
 
-    /** 开场快速扩散倍率 */
-    private static final int RAPID_EXPAND_MULTIPLIER = 4;
+    /** 正常阶段单tick替换预算 */
+    private static final int NORMAL_REPLACE_BUDGET = 220;
 
     /** 扩展间隔（tick） */
     private static final int EXPAND_INTERVAL = 2;
@@ -149,20 +149,18 @@ public class OtherworldSceneManager {
         BlockPos playerPos = mc.player.blockPosition();
         lastPlayerPos = playerPos;
 
-        // 前1秒：快速扩散（半径*4）
+        // 改为渐进扩散：开场不再做高倍率爆发，避免瞬时大量替换卡顿
         int expandStep = EXPAND_PER_TICK;
-        if (tickCounter <= RAPID_EXPAND_DURATION) {
-            expandStep *= RAPID_EXPAND_MULTIPLIER;
-        }
+        int replaceBudget = tickCounter <= 40 ? START_REPLACE_BUDGET : NORMAL_REPLACE_BUDGET;
 
         // 开场后：围绕玩家逐圈展开（ringOffset 让圈层有明显层级感）
         if (tickCounter % EXPAND_INTERVAL == 0 && currentRadius < MAX_RADIUS) {
             int fromRadius = Math.max(0, currentRadius - ringOffset);
             int toRadius = Math.min(MAX_RADIUS, currentRadius + expandStep - ringOffset);
-            expandToRadius(mc.level, playerPos, fromRadius, toRadius);
+            expandToRadius(mc.level, playerPos, fromRadius, toRadius, replaceBudget);
             currentRadius += expandStep;
 
-            if (tickCounter > RAPID_EXPAND_DURATION) {
+            if (tickCounter > 20) {
                 ringOffset = Math.min(24, ringOffset + 1);
             }
         }
@@ -177,11 +175,16 @@ public class OtherworldSceneManager {
     /**
      * 扩展替换范围
      */
-    private void expandToRadius(ClientLevel level, BlockPos center, int fromRadius, int toRadius) {
+    private void expandToRadius(ClientLevel level, BlockPos center, int fromRadius, int toRadius, int replaceBudget) {
+        if (replaceBudget <= 0) return;
+        int replaced = 0;
+
         for (int r = fromRadius; r < toRadius; r++) {
             for (int x = -r; x <= r; x++) {
                 for (int y = -3; y <= 10; y++) {
                     for (int z = -r; z <= r; z++) {
+                        if (replaced >= replaceBudget) return;
+
                         // 只处理当前圈层边界上的方块
                         if (Math.abs(x) != r && Math.abs(z) != r) continue;
 
@@ -214,6 +217,7 @@ public class OtherworldSceneManager {
                         }
 
                         level.setBlock(pos, replacement, 3);
+                        replaced++;
 
                         // 替换时释放粒子效果
                         if (random.nextFloat() < 0.3f) {

@@ -15,12 +15,12 @@ import static org.agmas.noellesroles.client.OtherworldShader.instance;
 
 @Mixin(GameRenderer.class)
 public class OtherworldShaderMixin {
-    @Inject(method = "getFov", at = @At("RETURN"), cancellable = true)
-    private void onGetFov(CallbackInfoReturnable<Double> cir) {
-        if (Minecraft.getInstance().player!=null&&Minecraft.getInstance().player.hasEffect(ModEffects.OTHERWORLD_AURA)){
-            cir.setReturnValue(100d);
-        }
-    }
+//    @Inject(method = "getFov", at = @At("RETURN"), cancellable = true)
+//    private void onGetFov(CallbackInfoReturnable<Double> cir) {
+//        if (Minecraft.getInstance().player!=null&&Minecraft.getInstance().player.hasEffect(ModEffects.OTHERWORLD_AURA)){
+//            cir.setReturnValue(100d);
+//        }
+//    }
     @Inject(method = "render", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/pipeline/RenderTarget;bindWrite(Z)V"))
     private void renderOtherworld(DeltaTracker deltaTracker, boolean bl, CallbackInfo ci) {
         GameRenderer renderer = (GameRenderer) (Object) this;
