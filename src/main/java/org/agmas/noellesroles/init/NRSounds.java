@@ -64,6 +64,6 @@ public class NRSounds {
                                 return true;
                             return false;
                         },
-                        0.5f, 10, 10));
+                        0.8f, 10, 10));
     }
 }
