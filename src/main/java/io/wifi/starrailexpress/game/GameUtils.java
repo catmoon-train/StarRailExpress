@@ -652,8 +652,6 @@ public class GameUtils {
         SRE.LOGGER.info("Game Stopped!");
         RefugeeComponent.KEY.get(world).reset();
         world.setWeatherParameters(6000, 0, false, false);
-
-        world.setWeatherParameters(6000, 0, false, false);
         serverTaskQueue.clear();
         serverAsynTaskLists.clear();
         isStartingGame = false;
