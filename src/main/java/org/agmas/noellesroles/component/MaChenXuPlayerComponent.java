@@ -58,10 +58,10 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
     // ==================== 常量定义 ====================
 
     /** 恐惧范围（格） */
-    public static final double FEAR_RANGE_STAGE_1 = 10.0;
-    public static final double FEAR_RANGE_STAGE_2 = 15.0;
-    public static final double FEAR_RANGE_STAGE_3 = 20.0;
-    public static final double FEAR_RANGE_STAGE_4 = 25.0;
+    public static final double FEAR_RANGE_STAGE_1 = 15.0;
+    public static final double FEAR_RANGE_STAGE_2 = 20.0;
+    public static final double FEAR_RANGE_STAGE_3 = 25.0;
+    public static final double FEAR_RANGE_STAGE_4 = 30.0;
 
     /** 恐惧SAN掉落间隔（tick） - 5秒 */
     public static final int FEAR_INTERVAL = 100;
@@ -310,20 +310,20 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
 
     public void updateStageNeeds(int playerCount) {
         if (playerCount <= 12) {
-            STAGE_2_THRESHOLD = 80;
-            STAGE_3_THRESHOLD = 200;
-            STAGE_4_THRESHOLD = 400;
-            STAGE_4_AUTO_ULT_THRESHOLD = 600;
-        } else if (playerCount <= 24) {
             STAGE_2_THRESHOLD = 150;
             STAGE_3_THRESHOLD = 400;
             STAGE_4_THRESHOLD = 800;
-            STAGE_4_AUTO_ULT_THRESHOLD = 1200;
+            STAGE_4_AUTO_ULT_THRESHOLD = 1500;
+        } else if (playerCount <= 24) {
+            STAGE_2_THRESHOLD = 200;
+            STAGE_3_THRESHOLD = 600;
+            STAGE_4_THRESHOLD = 1600;
+            STAGE_4_AUTO_ULT_THRESHOLD = 3000;
         } else {
             STAGE_2_THRESHOLD = 200;
             STAGE_3_THRESHOLD = 800;
-            STAGE_4_THRESHOLD = 1500;
-            STAGE_4_AUTO_ULT_THRESHOLD = 2500;
+            STAGE_4_THRESHOLD = 2000;
+            STAGE_4_AUTO_ULT_THRESHOLD = 4000;
         }
     }
 
