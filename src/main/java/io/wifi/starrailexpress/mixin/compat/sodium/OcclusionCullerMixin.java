@@ -11,12 +11,20 @@ import org.spongepowered.asm.mixin.injection.At;
 @Mixin(OcclusionCuller.class)
 public class OcclusionCullerMixin {
 
-    @WrapOperation(method = "isWithinFrustum", at = @At(value = "INVOKE", target = "Lnet/caffeinemc/mods/sodium/client/render/viewport/Viewport;isBoxVisible(IIIFFF)Z"), remap = false)
-    private static boolean wrapIsBoxVisible(
+    @WrapOperation(
+            method = "isWithinFrustum",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/caffeinemc/mods/sodium/client/render/viewport/Viewport;isBoxVisible(IIIFFF)Z"
+            ),
+            remap = false
+    )
+    private static boolean sre$wrapIsBoxVisible(
             Viewport viewport,
             int cx, int cy, int cz,
             float sx, float sy, float sz,
-            Operation<Boolean> original) {
+            Operation<Boolean> original
+    ) {
         return original.call(viewport, cx, cy, cz, sx, sy, sz) || SREClient.isTrainMoving();
     }
 }

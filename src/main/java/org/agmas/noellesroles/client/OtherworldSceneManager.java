@@ -31,16 +31,16 @@ public class OtherworldSceneManager {
     private static final int MAX_RADIUS = 40;
 
     /** 每次tick扩展的层数 */
-    private static final int EXPAND_PER_TICK = 2;
+    private static final int EXPAND_PER_TICK = 4;
 
     /** 扩展间隔（tick） */
-    private static final int EXPAND_INTERVAL = 4;
+    private static final int EXPAND_INTERVAL = 2;
 
     /** 替换概率 */
-    private static final float REPLACE_CHANCE = 0.6f;
+    private static final float REPLACE_CHANCE = 0.75f;
 
     /** 脉动间隔（tick） */
-    private static final int PULSE_INTERVAL = 60;
+    private static final int PULSE_INTERVAL = 30;
 
     /** 是否正在活动 */
     private boolean active = false;

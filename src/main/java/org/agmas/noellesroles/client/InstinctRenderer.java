@@ -533,6 +533,11 @@ public class InstinctRenderer {
                     } else if (target_role.isNeutralForKiller()) {
                         return Color.ORANGE.getRGB();
                     } else {
+                        if (SREClient.gameComponent.isRole(self, ModRoles.MA_CHEN_XU)) {
+                            if (SREPlayerMoodComponent.KEY.get(target_player).getMood() <= 0.1) {
+                                return java.awt.Color.CYAN.getRGB();// 青色
+                            }
+                        }
                         if (SREClient.gameComponent.isRole(self, ModRoles.DIO)) {
                             if (RoleUtils.compareRole(target_role, ModRoles.JOJO)) {
                                 return Color.CYAN.getRGB();

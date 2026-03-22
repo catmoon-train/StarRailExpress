@@ -16,7 +16,7 @@
   "hud.noellesroles.stalker.dash_cooldown": "冲刺冷却 %s",
   "screen.sre.skins.no_title": "无称号",
   "screen.sre.skins.title_selector": "称号选择",
-  "message.tip.cant_use_skill": "你无法使用技能",
+  "message.tip.cant_use_skill": "你当前无法使用技能",
   "gui.sre.map_selector.zeppelin": "飞艇",
   "gui.sre.map_selector.zeppelin.desc": "空中战斗平台",
   "gui.sre.map_selector.sky_village": "天空村庄",

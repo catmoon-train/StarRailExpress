@@ -1,5 +1,6 @@
 package io.wifi.starrailexpress.mixin.compat.sodium;
 
+
 import io.wifi.starrailexpress.compat.IrisHelper;
 import io.wifi.starrailexpress.compat.SodiumShaderInterface;
 import net.caffeinemc.mods.sodium.client.gl.buffer.GlMutableBuffer;
@@ -20,20 +21,20 @@ public abstract class DefaultShaderInterfaceMixin implements SodiumShaderInterfa
 
     @Inject(method = "<init>", at = @At("RETURN"))
     private void tmm$addUniform(ShaderBindingContext context, ChunkShaderOptions options,
-            CallbackInfo ci) {
-//        if (IrisHelper.isIrisShaderPackInUse()) {
-//            return;
-//        }
+                                CallbackInfo ci) {
+        if (IrisHelper.isIrisShaderPackInUse()) {
+            return;
+        }
 
-//        uniformOffsets = context.bindUniformBlock("ubo_SectionOffsets", 1);
+        uniformOffsets = context.bindUniformBlock("ubo_SectionOffsets", 1);
     }
 
     @Override
     public void tmm$set(GlMutableBuffer buffer) {
-//        if (uniformOffsets == null) {
-//            return;
-//        }
-//
-//        uniformOffsets.bindBuffer(buffer);
+        if (uniformOffsets == null) {
+            return;
+        }
+
+        uniformOffsets.bindBuffer(buffer);
     }
 }

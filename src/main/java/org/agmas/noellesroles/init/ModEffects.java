@@ -3,12 +3,15 @@ package org.agmas.noellesroles.init;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
+import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffect;
 
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.RedStoneOreBlock;
 import org.agmas.noellesroles.Noellesroles;
@@ -45,9 +48,22 @@ public class ModEffects {
 
     public static final Holder<MobEffect> GHOST_CURSE = register("ghost_curse", new SimpleMobEffect(MobEffectCategory.HARMFUL, 0x8B0000){
         @Override
-        public boolean applyEffectTick(LivingEntity livingEntity, int amplifier) {
+        public boolean shouldApplyEffectTickThisTick(int i, int j) {
+            return true;
+        }
 
-            RedStoneOreBlock.spawnParticles( livingEntity.level(), livingEntity.blockPosition().above(1));
+        @Override
+        public boolean isEnabled(FeatureFlagSet featureFlagSet) {
+            return true;
+        }
+
+        @Override
+        public boolean applyEffectTick(LivingEntity livingEntity, int amplifier) {
+            if (livingEntity.level() instanceof ServerLevel serverLevel){
+                BlockPos blockPos = livingEntity.blockPosition().above(1);
+                serverLevel.sendParticles(DustParticleOptions.REDSTONE, (double)blockPos.getX() , (double)blockPos.getY() , (double)blockPos.getZ() ,14, (double)0.6F, (double)0.6F, (double)0.6F,0.4d);
+
+            }
             return super.applyEffectTick(livingEntity, amplifier);
         }
     });

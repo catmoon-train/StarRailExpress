@@ -8,15 +8,12 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.level.block.SkullBlock;
 import net.minecraft.world.level.block.SkullBlock.Types;
-
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
-import io.wifi.starrailexpress.SRE;
 
 import java.util.Map;
 
@@ -28,7 +25,7 @@ public class PlayerHeadFixerMixin {
     private static Map<SkullBlock.Type, ResourceLocation> SKIN_BY_TYPE;
 
     @Inject(method = "getRenderType", at = @At(value = "HEAD"), cancellable = true)
-    private static void getRenderType(SkullBlock.Type type, ResolvableProfile resolvableProfile,
+    private static void sre$getRenderType(SkullBlock.Type type, ResolvableProfile resolvableProfile,
             CallbackInfoReturnable<RenderType> cir) {
         try {
             ResourceLocation resourceLocation = (ResourceLocation) SKIN_BY_TYPE.get(type);
@@ -41,7 +38,7 @@ public class PlayerHeadFixerMixin {
             }
             cir.cancel();
         } catch (Exception ignored) {
-            SRE.LOGGER.error("Error while rendering player head (Sodium Compact): ", ignored);
+            ignored.printStackTrace();
         }
         // return playerInfo.getSkin();
     }
