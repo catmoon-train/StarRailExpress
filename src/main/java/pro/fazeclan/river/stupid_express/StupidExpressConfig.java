@@ -24,7 +24,7 @@ public class StupidExpressConfig implements ConfigData {
         public ArsonistSection arsonistSection = new ArsonistSection();
 
         public static class ArsonistSection {
-            public boolean arsonistKeepsGameGoing = false;
+            public boolean arsonistKeepsGameGoing = true;
         }
 
         @CollapsibleObject
