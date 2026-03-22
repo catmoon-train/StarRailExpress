@@ -673,6 +673,10 @@ public class ModEventsRegister {
                 // 纵火犯
                 return true;
             }
+            if (deathReasonPath.equals("hoan_meirin_lonely")) {
+                // 红美铃孤独
+                return true;
+            }
             if (deathReasonPath.equals("voodoo")) {
                 // 巫毒
                 return true;
