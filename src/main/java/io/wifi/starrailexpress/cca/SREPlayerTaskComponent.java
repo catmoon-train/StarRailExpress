@@ -154,19 +154,28 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
             task.tick(this.player);
             if (task.isFulfilled(this.player)) {
                 removals.add(task);
-                boolean isParallel = this.parallelTaskTypes.contains(task.getType());
-                // 并列任务奖励减少
-                float moodGain = isParallel
-                        ? GameConstants.MOOD_GAIN * GameConstants.PARALLEL_TASK_REWARD_MULTIPLIER
-                        : GameConstants.MOOD_GAIN;
+                // 并列任务完成时给予完整奖励（不再减少）
+                float moodGain = GameConstants.MOOD_GAIN;
+                // 并列任务完成时额外奖励情绪加成（玩家做出了选择）
+                if (this.parallelTaskGenerated) {
+                    moodGain += GameConstants.PARALLEL_TASK_COMPLETION_BONUS;
+                }
                 this.playerMoodComponent.addMood(moodGain);
                 if (this.player instanceof ServerPlayer tempPlayer)
                     ServerPlayNetworking.send(tempPlayer, new TaskCompletePayload());
                 shouldSync = true;
             }
         }
+        // 并列任务机制：完成其中一个任务时，另一个任务自动消失
+        ArrayList<TrainTask> dismissed = new ArrayList<>();
+        if (!removals.isEmpty() && this.parallelTaskGenerated) {
+            for (TrainTask task : this.tasks.values()) {
+                if (!removals.contains(task)) {
+                    dismissed.add(task);
+                }
+            }
+        }
         for (TrainTask task : removals) {
-            boolean isParallel = this.parallelTaskTypes.contains(task.getType());
             this.tasks.remove(task.getType());
             this.parallelTaskTypes.remove(task.getType());
             // 更新计分板上的任务计数
@@ -175,14 +184,17 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
                         .get(serverPlayer.getServer().getScoreboard());
                 scoreboardComponent.incrementPlayerTaskCount(this.player);
 
-                // 调用角色的任务完成方法（包含连击奖励，并列任务奖励减少）
-                int streak = isParallel ? 0 : this.taskStreak;
+                // 调用角色的任务完成方法（完整奖励，并列任务不再减少奖励）
                 io.wifi.starrailexpress.api.RoleMethodDispatcher.callOnFinishQuest(this.player, task.getName(),
-                        streak, isParallel);
+                        this.taskStreak, false);
             }
-            if (!isParallel) {
-                this.taskStreak++; // 完成奖励发放后再增加连击计数（并列任务不增加连击）
-            }
+            this.taskStreak++; // 完成奖励发放后增加连击计数（并列任务也增加连击）
+        }
+        // 移除被消失的并列任务（不给予奖励）
+        for (TrainTask task : dismissed) {
+            this.tasks.remove(task.getType());
+            this.parallelTaskTypes.remove(task.getType());
+            shouldSync = true;
         }
         // 所有任务完成后重置并列任务追踪
         if (this.tasks.isEmpty()) {
