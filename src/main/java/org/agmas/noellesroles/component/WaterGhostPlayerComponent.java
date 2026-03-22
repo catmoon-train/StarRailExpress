@@ -211,11 +211,13 @@ public class WaterGhostPlayerComponent implements RoleComponent, ServerTickingCo
                         Component.translatable("message.noellesroles.water_ghost.warning_30s")
                                 .withStyle(ChatFormatting.YELLOW),
                         true);
+                shouldSync = true;
             } else if (outOfWaterTimer == 60 * 20) {
                 serverPlayer.displayClientMessage(
                         Component.translatable("message.noellesroles.water_ghost.warning_60s")
                                 .withStyle(ChatFormatting.RED),
                         true);
+                shouldSync = true;
             }
 
             // 检查是否干涸死亡
@@ -226,7 +228,7 @@ public class WaterGhostPlayerComponent implements RoleComponent, ServerTickingCo
                 return;
             }
 
-            // 每秒同步一次
+            // 每10秒同步一次
             if (outOfWaterTimer % 200 == 0) {
                 shouldSync = true;
             }

@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.function.Function;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 
 public class GameConstants {
     // Logistics
@@ -49,6 +50,7 @@ public class GameConstants {
     static void reloadItemCooldowns() {
         ITEM_COOLDOWNS.clear();
         ITEM_COOLDOWNS.put(TMMItems.KNIFE, SREConfig.instance().knifeCooldown * 20);
+        ITEM_COOLDOWNS.put(Items.TRIDENT, 10 * 20);
         ITEM_COOLDOWNS.put(TMMItems.REVOLVER, SREConfig.instance().revolverCooldown * 20);
         ITEM_COOLDOWNS.put(TMMItems.DERRINGER, SREConfig.instance().derringerCooldown * 20);
         ITEM_COOLDOWNS.put(TMMItems.GRENADE, SREConfig.instance().grenadeCooldown * 20);
@@ -110,6 +112,7 @@ public class GameConstants {
         }
         return MAX_TASK_COOLDOWN; // 前期：60秒
     }
+
     public static int SLEEP_TASK_DURATION = getInTicks(0, 8);
     public static int OUTSIDE_TASK_DURATION = getInTicks(0, 8);
     public static int READ_BOOK_TASK_DURATION = getInTicks(0, 8);
