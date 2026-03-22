@@ -117,13 +117,13 @@ public class ClientHudRenderer {
           .translatable("hud.noellesroles.ma_chen_xu.phase",
               Component.translatable("hud.noellesroles.ma_chen_xu.phase" + component.stage))
           .withStyle(ChatFormatting.DARK_PURPLE, ChatFormatting.BOLD);
-      context.drawString(textRenderer, phaseText, x, y, 0xFFFFFF);
+      context.drawString(textRenderer, phaseText, x, y, 0xFFFFFFFF);
       y += 12;
 
       // 累计SAN掉落
       Component sanText = Component.translatable("hud.noellesroles.ma_chen_xu.total_san_loss",
           component.totalSanLoss).withStyle(ChatFormatting.RED);
-      context.drawString(textRenderer, sanText, x, y, 0xFFFFFF);
+      context.drawString(textRenderer, sanText, x, y, 0xFFFFFFFF);
       y += 12;
 
       // 进化进度
@@ -137,7 +137,13 @@ public class ClientHudRenderer {
       if (nextThreshold > 0) {
         Component progressText = Component.translatable("hud.noellesroles.ma_chen_xu.evolution_progress",
             component.totalSanLoss, nextThreshold).withStyle(ChatFormatting.YELLOW);
-        context.drawString(textRenderer, progressText, x, y, 0xFFFFFF);
+        context.drawString(textRenderer, progressText, x, y, 0xFFFFFFFF);
+        y += 12;
+      }
+      if (client.player.hasEffect(ModEffects.SKILL_BANED)) {
+        Component text = Component.translatable("message.tip.cant_use_skill")
+            .withStyle(ChatFormatting.RED);
+        context.drawString(textRenderer, text, x, y, 0xFFFFFFFF);
         y += 12;
       }
 
@@ -145,7 +151,7 @@ public class ClientHudRenderer {
       if (component.otherworldActive) {
         Component liShiJieText = Component.translatable("hud.noellesroles.ma_chen_xu.li_shi_jie_active",
             component.otherworldDuration / 20).withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD);
-        context.drawString(textRenderer, liShiJieText, x, y, 0xFFFFFF);
+        context.drawString(textRenderer, liShiJieText, x, y, 0xFFFFFFFF);
         y += 12;
       }
 
@@ -153,7 +159,7 @@ public class ClientHudRenderer {
       if (component.turbidRainActive) {
         Component turbidRainText = Component.translatable("message.noellesroles.ma_chen_xu.turbid_rain_activated")
             .withStyle(ChatFormatting.DARK_AQUA);
-        context.drawString(textRenderer, turbidRainText, x, y, 0xFFFFFF);
+        context.drawString(textRenderer, turbidRainText, x, y, 0xFFFFFFFF);
         y += 12;
       }
 
@@ -162,7 +168,7 @@ public class ClientHudRenderer {
         Component swiftWindText = Component.translatable("hud.noellesroles.ma_chen_xu.skill.swift_wind")
             .append(Component.literal(": " + component.swiftWindDuration / 20 + "s"))
             .withStyle(ChatFormatting.AQUA);
-        context.drawString(textRenderer, swiftWindText, x, y, 0xFFFFFF);
+        context.drawString(textRenderer, swiftWindText, x, y, 0xFFFFFFFF);
         y += 12;
       }
 
@@ -174,7 +180,7 @@ public class ClientHudRenderer {
                       "hud.noellesroles.ma_chen_xu.skill." + component.ghostSkills.get(component.nowSelectedSkill))
                       .withStyle(ChatFormatting.AQUA))
               .withStyle(ChatFormatting.GOLD);
-          context.drawString(textRenderer, mimicryText, x, y, 0xFFFFFF);
+          context.drawString(textRenderer, mimicryText, x, y, 0xFFFFFFFF);
           y += 12;
         }
         {
@@ -182,19 +188,13 @@ public class ClientHudRenderer {
               .translatable("message.noellesroles.ma_chen_xu.tip_for_skill",
                   NoellesrolesClient.abilityBind.getTranslatedKeyMessage())
               .withStyle(ChatFormatting.GRAY);
-          context.drawString(textRenderer, mimicryText, x, y, 0xFFFFFF);
+          context.drawString(textRenderer, mimicryText, x, y, 0xFFFFFFFF);
           y += 12;
         }
 
         {
           Component mimicryText = component.getNowCooldownText();
-          context.drawString(textRenderer, mimicryText, x, y, 0xFFFFFF);
-          y += 12;
-        }
-        if (client.player.hasEffect(ModEffects.SKILL_BANED)) {
-          Component text = Component.translatable("message.tip.cant_use_skill")
-              .withStyle(ChatFormatting.RED);
-          context.drawString(textRenderer, text, x, y, 0xFFFFFF);
+          context.drawString(textRenderer, mimicryText, x, y, 0xFFFFFFFF);
           y += 12;
         }
         // 永久护盾状态
@@ -202,14 +202,14 @@ public class ClientHudRenderer {
           Component shieldText = Component.translatable("message.noellesroles.ma_chen_xu.shield")
               .withStyle(ChatFormatting.GOLD);
           context.drawString(textRenderer, shieldText, context.guiWidth() - textRenderer.width(shieldText) - 10,
-              context.guiHeight() - 20, 0xFFFFFF);
+              context.guiHeight() - 20, 0xFFFFFFFF);
         }
       }
     });
     RoleHudRenderCallback.EVENT.register(ModRoles.GLITCH_ROBOT_ID, (context, tickCounter) -> {
       Minecraft client = Minecraft.getInstance();
       Component text = null;
-      int color = 0xffffff;
+      int color = 0xFFFFFFFF;
       if (!client.player.getSlot(103).get().is(ModItems.NIGHT_VISION_GLASSES))
         return;
       text = Component.translatable("info.glitch_robot.take_off_glasses.tip",
@@ -228,7 +228,7 @@ public class ClientHudRenderer {
     RoleHudRenderCallback.EVENT.register(ModRoles.NOISEMAKER_ID, (context, tickCounter) -> {
       Minecraft client = Minecraft.getInstance();
       Component text = null;
-      int color = 0xffffff;
+      int color = 0xFFFFFFFF;
       NoiseMakerPlayerComponent noisemakerComponent = NoiseMakerPlayerComponent.KEY.get(client.player);
       if (client.player.getActiveEffectsMap().containsKey(MobEffects.LUCK)) {
         MobEffectInstance eff = client.player.getEffect(MobEffects.LUCK);
@@ -257,7 +257,7 @@ public class ClientHudRenderer {
     RoleHudRenderCallback.EVENT.register(ModRoles.GHOST_ID, (context, tickCounter) -> {
       Minecraft client = Minecraft.getInstance();
       Component text = null;
-      int color = 0xffffff;
+      int color = 0xFFFFFFFF;
       GhostPlayerComponent ghostComponent = GhostPlayerComponent.KEY.get(client.player);
       if (!ghostComponent.abilityUnlocked) {
         // 计算解锁剩余时间
@@ -907,7 +907,7 @@ public class ClientHudRenderer {
       var tipText = Component
           .translatable("hud.diver.remove_equipment_tip", abilityKey)
           .withStyle(ChatFormatting.AQUA);
-      context.drawString(font, tipText, x - font.width(tipText), y, 0xFFFFFF);
+      context.drawString(font, tipText, x - font.width(tipText), y, 0xFFFFFFFF);
     });
   }
 }
