@@ -305,6 +305,7 @@ public class GameUtils {
     public static void stopGame(ServerLevel world) {
         SREGameWorldComponent component = SREGameWorldComponent.KEY.get(world);
         component.ticksUntilNextResetAttempt = 0;
+        SREWorldBlackoutComponent.KEY.get(world).reset();
         component.setGameStatus(SREGameWorldComponent.GameStatus.STOPPING);
     }
 
