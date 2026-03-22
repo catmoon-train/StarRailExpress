@@ -116,6 +116,7 @@
     "client.roles.puppeteer.PuppeteerBodyGunTargetMixin",
     "client.roles.puppeteer.PuppeteerBodyKnifeTargetMixin",
     "client.roles.recaller.RecallerHudMixin",
+    "client.roles.seaking.SeaKingHudMixin",
     "client.roles.stalker.AutoUseKnifeMixin",
     "client.roles.stalker.StalkerHudMixin",
     "client.roles.swapper.KeyBindingMixin",

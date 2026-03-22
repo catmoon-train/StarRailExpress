@@ -603,11 +603,11 @@ public class ModRoles {
    * - 仅在areas14地图生成
    * - 不能使用杀手能力 (canUseKiller = false)
    * - 真实心情系统
-   * - 标准冲刺时间
+    * - 无限体力
    * - 在计分板上显示
    * - 无法捡起左轮手枪
    * - 开局物品：忠诚3的三叉戟
-   * - 专属商店：普通三叉戟(300金币)
+    * - 专属商店：普通三叉戟(150金币)
    */
   // 海王角色 - 警长阵营
   public static SRERole SEA_KING = TMMRoles.registerRole(new ExtraEffectRole(
@@ -616,7 +616,7 @@ public class ModRoles {
       true, // isInnocent = 乘客阵营
       false, // canUseKiller = 无杀手能力
       SRERole.MoodType.REAL, // 真实心情
-      TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
+      Integer.MAX_VALUE, // 无限体力
       false // 不隐藏计分板
   ).addEffect(
       new MobEffectInstance(

@@ -7,6 +7,8 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -16,7 +18,6 @@ import net.minecraft.world.phys.AABB;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -25,9 +26,6 @@ import java.util.List;
 
 @Mixin(Player.class)
 public class RiptideTridentMixin {
-
-    @Unique
-    private boolean noellesroles$wasUsingRiptide = false;
 
     @Inject(method = "tick", at = @At("HEAD"))
     private void noellesroles$checkRiptideCollision(CallbackInfo ci) {
@@ -45,13 +43,11 @@ public class RiptideTridentMixin {
         boolean isWaterGhost = SREGameWorldComponent.KEY.get(serverLevel).isRole(player.getUUID(),
                 ModRoles.WATER_GHOST);
 
-        // 水鬼：每次激流使用结束后，给三叉戟添加5秒冷却
         boolean isUsingRiptide = player.isAutoSpinAttack();
-        if (isWaterGhost) {
-            if (!isUsingRiptide && noellesroles$wasUsingRiptide) {
-                player.getCooldowns().addCooldown(Items.TRIDENT, 20 * 5);
-            }
-            noellesroles$wasUsingRiptide = isUsingRiptide;
+
+        // 海王：进入水中自动获得海豚的恩惠
+        if (isSeaKing && (player.isInWater() || player.isUnderWater())) {
+            player.addEffect(new MobEffectInstance(MobEffects.DOLPHINS_GRACE, 40, 0, true, false, true));
         }
 
         // 潜水靴深海探索者3附魔 - 所有玩家检查脚部装备
@@ -167,8 +163,12 @@ public class RiptideTridentMixin {
             if (target != player && !target.isSpectator() && !target.isCreative()) {
                 // 检查目标是否在激流撞击范围内
                 double distance = player.position().distanceTo(target.position());
-                if (distance < 2.5) { // 激流撞击范围
+                if (distance < 2.5 && GameUtils.isPlayerAliveAndSurvival(target)) { // 激流撞击范围
                     GameUtils.killPlayer(target, true, serverPlayer, SRE.id("trident"));
+                    if (isWaterGhost) {
+                        // 水鬼：激流三叉戟击杀后进入30秒冷却
+                        player.getCooldowns().addCooldown(Items.TRIDENT, 20 * 30);
+                    }
                 }
             }
         }
