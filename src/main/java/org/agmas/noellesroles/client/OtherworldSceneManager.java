@@ -65,7 +65,7 @@ public class OtherworldSceneManager {
 
     /** 里世界替换方块集合（暗色系） */
     private static final BlockState[] OTHERWORLD_BLOCKS = {
-        Blocks.SOUL_SAND.defaultBlockState(),
+        // Blocks.SOUL_SAND.defaultBlockState(),//不完整方块会卡人
         Blocks.SOUL_SOIL.defaultBlockState(),
         Blocks.BLACKSTONE.defaultBlockState(),
         Blocks.GILDED_BLACKSTONE.defaultBlockState(),
@@ -88,7 +88,7 @@ public class OtherworldSceneManager {
         Blocks.SCULK_CATALYST.defaultBlockState(),
         // Blocks.SCULK_SENSOR.defaultBlockState(), //这个会把人卡住
         // Blocks.SCULK_SHRIEKER.defaultBlockState(),不完整方块会卡人
-        Blocks.SOUL_LANTERN.defaultBlockState(),
+        // Blocks.SOUL_LANTERN.defaultBlockState(),不完整方块会卡人
         Blocks.SHROOMLIGHT.defaultBlockState(),
         Blocks.JACK_O_LANTERN.defaultBlockState(),
         Blocks.REDSTONE_BLOCK.defaultBlockState(),
