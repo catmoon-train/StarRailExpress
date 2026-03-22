@@ -124,8 +124,6 @@ public class InitModRolesMax {
         // 仇杀客 - 仅在12人及以上对局生成
         Harpymodloader.setRoleMaximum(ModRoles.BLOOD_FEUDIST_ID, 1);
 
-
-
         // 钟表匠 - 仅在12人及以上对局生成
         // 注意：具体限制在 InitModRolesMax 中设置
 
@@ -257,6 +255,8 @@ public class InitModRolesMax {
                 } else {
                     Harpymodloader.setRoleMaximum(ModRoles.HOAN_MEIRIN, 0);
                 }
+            } else {
+                Harpymodloader.setRoleMaximum(ModRoles.HOAN_MEIRIN, 0);
             }
             if (players_count >= 12 && random.nextInt(0, 100) <= EGGS_CHANCE) {
                 Harpymodloader.setRoleMaximum(ModRoles.PACHURI, 1);
@@ -583,7 +583,8 @@ public class InitModRolesMax {
             Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("split_personality"), 1);
         } else {
             Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("split_personality"), 0);
-            if (players >= 12 && random.nextInt(0, 100) <= NoellesRolesConfig.HANDLER.instance().chanceOfModifierLovers) {
+            if (players >= 12
+                    && random.nextInt(0, 100) <= NoellesRolesConfig.HANDLER.instance().chanceOfModifierLovers) {
                 StupidExpress.LOGGER.info("Modifier [Lovers] enabled in this round!");
                 Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("lovers"), 1);
             } else {
