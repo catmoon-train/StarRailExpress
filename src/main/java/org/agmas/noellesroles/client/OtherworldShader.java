@@ -3,7 +3,6 @@ package org.agmas.noellesroles.client;
 import io.wifi.starrailexpress.client.PostProcessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.util.Mth;
 import org.agmas.noellesroles.component.MaChenXuPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 import io.wifi.starrailexpress.client.SREClient;
@@ -20,8 +19,6 @@ public class OtherworldShader {
 
     private float otherworldStrength = 0.0f;
     private float totalTime = 0.0f;
-    private boolean lastOtherworldActive = false;
-
     /** 过渡动画：进入时先闪白再变暗 */
     private float transitionFlash = 0.0f;
     private boolean wasActive = false;
@@ -132,7 +129,6 @@ public class OtherworldShader {
                 pulseUniform.set((totalTime % 30.0f) / 30.0f);
             }
 
-            lastOtherworldActive = isActive;
             return true;
         }));
     }
@@ -145,7 +141,6 @@ public class OtherworldShader {
     public void reset() {
         otherworldStrength = 0.0f;
         totalTime = 0.0f;
-        lastOtherworldActive = false;
         transitionFlash = 0.0f;
         wasActive = false;
     }

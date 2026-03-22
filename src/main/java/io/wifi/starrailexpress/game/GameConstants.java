@@ -79,13 +79,13 @@ public class GameConstants {
 
     // 连击奖励系统
     public static int STREAK_BONUS_PER_LEVEL = 5; // 每级连击额外金币
-    public static int MAX_STREAK_BONUS = 25; // 最大连击额外金币（5级封顶）
+    public static int MAX_STREAK_BONUS = 10; // 最大连击额外金币（5级封顶）
 
     // 并列任务系统
     public static int PARALLEL_TASK_THRESHOLD = getInTicks(1, 10); // 任务超时阈值：70秒
     public static float PARALLEL_TASK_MOOD_DROP = 0.4f; // 情绪下降40%时触发并列任务
     public static float PARALLEL_TASK_REWARD_MULTIPLIER = 1.0f; // 并列任务奖励倍率（完成一个另一个消失，给予完整奖励）
-    public static float PARALLEL_TASK_COMPLETION_BONUS = 0.1f; // 并列任务完成额外情绪加成（选择奖励）
+    public static float PARALLEL_TASK_COMPLETION_BONUS = 0.3f; // 并列任务完成额外情绪加成（选择奖励）
 
     /**
      * 根据游戏已过时间动态调整任务冷却

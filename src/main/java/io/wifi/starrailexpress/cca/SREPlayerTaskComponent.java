@@ -235,7 +235,7 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
         return generateTaskInternal();
     }
 
-    private @Nullable TrainTask generateTaskInternal() {
+    public @Nullable TrainTask generateTaskInternal() {
         HashMap<Task, Float> map = new HashMap<>();
         float total = 0f;
         // 获取当前情绪状态用于动态权重调整
