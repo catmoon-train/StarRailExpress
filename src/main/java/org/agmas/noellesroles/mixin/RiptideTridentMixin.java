@@ -45,11 +45,11 @@ public class RiptideTridentMixin {
         boolean isWaterGhost = SREGameWorldComponent.KEY.get(serverLevel).isRole(player.getUUID(),
                 ModRoles.WATER_GHOST);
 
-        // 水鬼：每次激流使用结束后，给三叉戟添加2秒冷却
+        // 水鬼：每次激流使用结束后，给三叉戟添加5秒冷却
         boolean isUsingRiptide = player.isAutoSpinAttack();
         if (isWaterGhost) {
             if (!isUsingRiptide && noellesroles$wasUsingRiptide) {
-                player.getCooldowns().addCooldown(Items.TRIDENT, 20 * 2);
+                player.getCooldowns().addCooldown(Items.TRIDENT, 20 * 5);
             }
             noellesroles$wasUsingRiptide = isUsingRiptide;
         }
