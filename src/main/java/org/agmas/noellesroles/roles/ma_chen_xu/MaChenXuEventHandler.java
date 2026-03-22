@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.roles.ma_chen_xu;
 
+import io.wifi.starrailexpress.event.AfterShieldAllowPlayerDeath;
 import org.agmas.noellesroles.component.MaChenXuPlayerComponent;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
@@ -23,6 +24,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
+import pro.fazeclan.river.stupid_express.constants.SERoles;
 
 /**
  * 布袋鬼（诡舍·缚灵）事件处理器
@@ -37,8 +39,9 @@ public class MaChenXuEventHandler {
      */
     public static void register() {
         // 护盾/无敌事件
-        AllowPlayerDeath.EVENT.register((victim, deathReason) -> {
-            if (SREGameWorldComponent.KEY.get(victim.level()).isRole(victim, ModRoles.MA_CHEN_XU)) {
+        AfterShieldAllowPlayerDeath.EVENT.register((victim, deathReason) -> {
+            SREGameWorldComponent sreGameWorldComponent = SREGameWorldComponent.KEY.get(victim.level());
+            if (sreGameWorldComponent.isRole(victim, ModRoles.MA_CHEN_XU)) {
                 var compc = MaChenXuPlayerComponent.KEY.get(victim);
                 // 永久护盾（阶段4获得，一次性抵挡致命伤害）
                 if (compc.permanentShield) {
@@ -53,6 +56,9 @@ public class MaChenXuEventHandler {
                 if (compc.otherworldActive) {
                     return false;
                 }
+                sreGameWorldComponent.addRole(victim, SERoles.AMNESIAC);
+
+
             }
             return true;
         });
