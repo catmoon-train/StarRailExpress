@@ -318,7 +318,6 @@ public class ServerTaskInfoClasses {
                 } else if (blockState.getBlock() instanceof ToiletBlock) {
                     if (serverWorld.getBlockEntity(blockPos6) instanceof ToiletBlockEntity entity) {
                         entity.setHasPoison(false, null);
-                        blockState = blockState.setValue(TrimmedBedBlock.OCCUPIED, false);
                         BlockEntityInfo blockEntityInfo = new BlockEntityInfo(
                                 entity.saveCustomOnly(serverWorld.registryAccess()),
                                 entity.components());
