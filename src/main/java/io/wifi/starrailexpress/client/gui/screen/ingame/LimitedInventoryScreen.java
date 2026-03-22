@@ -60,7 +60,6 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
         this.isMenuOpen = flag;
         menuButton.setMessage(
                 Component.translatable("screen.limited_inventory.button.menu." + (!isMenuOpen ? "show" : "hide")));
-
         {
             for (var ms : menuSelections) {
                 ms.visible = this.isMenuOpen;
@@ -92,7 +91,6 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
     }
 
     public void initMenuSelections() {
-        ;
         menuButton = org.agmas.noellesroles.client.widget.custom_button.ModernButton
                 .builder(Component.translatable("screen.limited_inventory.button.menu"), (btn) -> {
                     toggleViewMenu(!this.isMenuOpen);

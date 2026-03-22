@@ -31,6 +31,12 @@ public class ModRolesInitialEventRegister {
         BloodFeudistPlayerComponent.registerEvents();
         ModdedRoleAssigned.EVENT.register((player, role) -> {
             // 魔术师角色初始化
+            if (role.identifier().equals(ModRoles.BARTENDER.identifier())) {
+                FoodDrinkGlowComponent.KEY.get(player).init();
+            }
+            if (role.identifier().equals(ModRoles.CHEF.identifier())) {
+                FoodDrinkGlowComponent.KEY.get(player).init();
+            }
             if (role.identifier().equals(ModRoles.MAGICIAN.identifier())) {
                 var magicianComponent = ModComponents.MAGICIAN.maybeGet(player).orElse(null);
                 if (magicianComponent != null) {

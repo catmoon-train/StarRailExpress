@@ -2,6 +2,7 @@ package org.agmas.noellesroles.client.screen;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
 import io.wifi.starrailexpress.index.TMMDescItems;
 import io.wifi.starrailexpress.util.ShopEntry;
@@ -217,8 +218,16 @@ public class RoleIntroduceScreen extends Screen {
         this.selectedRole = sreRole;
     }
 
+    private static SRERole getRole(Player player) {
+        SRERole role = null;
+        if (SREClient.gameComponent != null) {
+            role = SREClient.gameComponent.getRole(player);
+        }
+        return role;
+    }
+
     public RoleIntroduceScreen(Player player) {
-        this();
+        this(player, getRole(player));
     }
 
     public RoleIntroduceScreen(Player player, SRERole sreRole) {
@@ -430,7 +439,7 @@ public class RoleIntroduceScreen extends Screen {
                             // 计算物品渲染位置（在文本区域内）- 不考虑滚动偏移
                             // int itemX = rightX + PANEL_PAD + 4; // 左边距
                             // int itemY = panelY + BANNER_H + PANEL_PAD +
-                            //         (detailLines.size() * (font.lineHeight + 2)) + 2;
+                            // (detailLines.size() * (font.lineHeight + 2)) + 2;
 
                             // 记录物品渲染信息
                             // shopItemRenderInfos.add(new ShopItemRenderInfo(stack.copy(), itemX, itemY));
