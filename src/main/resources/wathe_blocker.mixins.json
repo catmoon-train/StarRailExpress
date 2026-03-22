@@ -4,18 +4,18 @@
   "compatibilityLevel": "JAVA_17",
   "mixins": [
     "BlockWathe",
+    "cca.CCAHttpBlocker",
     "cca.CCAWatheBlockMixin",
-    "cca.ModComponentBlocker",
-    "cca.CCAHttpBlocker"
+    "cca.ModComponentBlocker"
   ],
   "injectors": {
     "defaultRequire": 1
   },
   "client": [
-    "client.PanoramaMixin",
     "client.BlockWatheClient",
     "client.IHateWatheModelLayers",
-    "client.WatheWheelBlockEntityRendererMixin",
-    "client.RatatouilleArmorFixMixin"
+    "client.PanoramaMixin",
+    "client.RatatouilleArmorFixMixin",
+    "client.WatheWheelBlockEntityRendererMixin"
   ]
 }

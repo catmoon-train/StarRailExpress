@@ -1,12 +1,11 @@
 package io.wifi.starrailexpress.network;
 
+import io.wifi.starrailexpress.SRE;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
 import java.util.UUID;
-
-import io.wifi.starrailexpress.SRE;
  
 public record ShowStatsPayload(UUID targetPlayerUuid) implements CustomPacketPayload {
     public static final Type<ShowStatsPayload> ID = new Type<>(SRE.id("show_stats"));

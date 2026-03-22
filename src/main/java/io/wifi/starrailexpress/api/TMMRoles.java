@@ -1,11 +1,10 @@
 package io.wifi.starrailexpress.api;
 
-import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.game.GameConstants;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 
 import java.util.ArrayList;

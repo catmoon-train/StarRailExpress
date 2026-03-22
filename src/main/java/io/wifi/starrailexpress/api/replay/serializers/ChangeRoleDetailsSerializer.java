@@ -1,8 +1,8 @@
 package io.wifi.starrailexpress.api.replay.serializers;
 
 import com.google.gson.*;
-
 import io.wifi.starrailexpress.api.replay.ReplayEventTypes.ChangeRoleDetails;
+
 import java.lang.reflect.Type;
 import java.util.UUID;
 

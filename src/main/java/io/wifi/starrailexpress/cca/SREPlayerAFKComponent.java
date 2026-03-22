@@ -1,9 +1,9 @@
 package io.wifi.starrailexpress.cca;
 
-import io.wifi.starrailexpress.api.RoleComponent;
-import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
+import io.wifi.starrailexpress.api.RoleComponent;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.nbt.CompoundTag;

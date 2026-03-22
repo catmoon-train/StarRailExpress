@@ -1,12 +1,11 @@
 package org.agmas.noellesroles.mixin;
 
+import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.cca.*;
 import net.minecraft.network.Connection;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.server.players.PlayerList;
-import pro.fazeclan.river.stupid_express.modifier.split_personality.cca.SkinSplitPersonalityComponent;
-import pro.fazeclan.river.stupid_express.modifier.split_personality.cca.SplitPersonalityComponent;
-
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.component.InsaneKillerPlayerComponent;
@@ -15,13 +14,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
-import io.wifi.starrailexpress.cca.SREPlayerNoteComponent;
-import io.wifi.starrailexpress.cca.SREPlayerPoisonComponent;
-import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
-import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
-import io.wifi.starrailexpress.SRE;
+import pro.fazeclan.river.stupid_express.modifier.split_personality.cca.SkinSplitPersonalityComponent;
+import pro.fazeclan.river.stupid_express.modifier.split_personality.cca.SplitPersonalityComponent;
 
 @Mixin(PlayerList.class)
 public class DecServerJoinPlayer {

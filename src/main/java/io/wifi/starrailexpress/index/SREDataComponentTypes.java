@@ -1,16 +1,14 @@
 package io.wifi.starrailexpress.index;
 
 import com.mojang.serialization.Codec;
-
 import io.wifi.starrailexpress.SRE;
-
-import org.jetbrains.annotations.NotNull;
-
-import java.util.function.UnaryOperator;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.codec.ByteBufCodecs;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.function.UnaryOperator;
 
 public interface SREDataComponentTypes {
     DataComponentType<String> POISONER = register("poisoner", stringBuilder -> stringBuilder.persistent(Codec.STRING).networkSynchronized(ByteBufCodecs.STRING_UTF8));

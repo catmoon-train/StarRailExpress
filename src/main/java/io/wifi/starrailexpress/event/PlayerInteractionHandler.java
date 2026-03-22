@@ -3,20 +3,8 @@ package io.wifi.starrailexpress.event;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
-
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.level.block.AnvilBlock;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.BrewingStandBlock;
-import net.minecraft.world.level.block.CartographyTableBlock;
-import net.minecraft.world.level.block.CraftingTableBlock;
-import net.minecraft.world.level.block.EnchantingTableBlock;
-import net.minecraft.world.level.block.FurnaceBlock;
-import net.minecraft.world.level.block.GrindstoneBlock;
-import net.minecraft.world.level.block.LoomBlock;
-import net.minecraft.world.level.block.SmithingTableBlock;
-import net.minecraft.world.level.block.StonecutterBlock;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class PlayerInteractionHandler {

@@ -7,7 +7,6 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-
 import org.agmas.noellesroles.packet.ProblemSetEventC2SPacket;
 import org.agmas.noellesroles.utils.MathProblemsManager;
 import org.agmas.noellesroles.utils.MathProblemsManager.MathProblem;

@@ -1,15 +1,12 @@
 package org.agmas.noellesroles.mixin.client.roles.ma_chen_xu;
 
 import net.minecraft.client.DeltaTracker;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import org.agmas.noellesroles.client.OtherworldShader;
-import org.agmas.noellesroles.init.ModEffects;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import static org.agmas.noellesroles.client.OtherworldShader.instance;
 

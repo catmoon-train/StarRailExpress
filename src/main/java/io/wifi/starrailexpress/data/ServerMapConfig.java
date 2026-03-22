@@ -1,21 +1,20 @@
 package io.wifi.starrailexpress.data;
 
 import com.google.gson.Gson;
-
-import io.wifi.starrailexpress.data.MapConfig.MapEntry;
 import io.wifi.starrailexpress.SREConfig;
+import io.wifi.starrailexpress.data.MapConfig.MapEntry;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.storage.LevelResource;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 

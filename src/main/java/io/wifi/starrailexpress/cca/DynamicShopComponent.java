@@ -1,7 +1,7 @@
 package io.wifi.starrailexpress.cca;
 
-import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.RoleComponent;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;

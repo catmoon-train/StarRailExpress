@@ -13,7 +13,6 @@ import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.Level;
-
 import org.agmas.noellesroles.packet.MorphC2SPacket;
 import org.agmas.noellesroles.roles.voodoo.VoodooPlayerComponent;
 

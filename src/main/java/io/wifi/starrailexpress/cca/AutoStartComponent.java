@@ -1,10 +1,10 @@
 package io.wifi.starrailexpress.cca;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.GameMode;
 import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
-import io.wifi.starrailexpress.SRE;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;

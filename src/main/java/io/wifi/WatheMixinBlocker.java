@@ -1,9 +1,8 @@
 package io.wifi;
 
-import java.util.List;
-
 import com.bawnorton.mixinsquared.api.MixinCanceller;
-import net.minecraft.client.Options;
+
+import java.util.List;
 
 public class WatheMixinBlocker implements MixinCanceller {
     @Override

@@ -1,15 +1,15 @@
 package io.wifi.starrailexpress.game;
 
-import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
+import io.wifi.starrailexpress.index.TMMItems;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Items;
 
 public class GameConstants {
     // Logistics

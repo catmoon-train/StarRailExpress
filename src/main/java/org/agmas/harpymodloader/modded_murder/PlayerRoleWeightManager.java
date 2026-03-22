@@ -1,9 +1,10 @@
 package org.agmas.harpymodloader.modded_murder;
 
+import io.wifi.starrailexpress.api.SRERole;
+import net.minecraft.world.entity.player.Player;
+
 import java.util.HashMap;
 import java.util.UUID;
-import net.minecraft.world.entity.player.Player;
-import io.wifi.starrailexpress.api.SRERole;
 
 public class PlayerRoleWeightManager {
     public static HashMap<UUID, Integer> ForcePlayerTeam = new HashMap<>();

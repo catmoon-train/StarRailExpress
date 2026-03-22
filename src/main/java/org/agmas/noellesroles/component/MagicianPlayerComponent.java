@@ -1,5 +1,7 @@
 package org.agmas.noellesroles.component;
 
+import io.wifi.starrailexpress.api.RoleComponent;
+import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.game.GameConstants;
@@ -13,10 +15,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-
-import java.util.ArrayList;
-import java.util.Collections;
-
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
@@ -25,8 +23,8 @@ import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
-import io.wifi.starrailexpress.api.RoleComponent;
-import io.wifi.starrailexpress.api.TMMRoles;
+import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * 魔术师玩家组件

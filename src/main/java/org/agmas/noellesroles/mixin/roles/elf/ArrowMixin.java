@@ -1,10 +1,9 @@
 package org.agmas.noellesroles.mixin.roles.elf;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.game.GameUtils;
-import io.wifi.starrailexpress.SRE;
-import io.wifi.starrailexpress.SREConfig;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;

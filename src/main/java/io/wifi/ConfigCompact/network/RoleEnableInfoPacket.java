@@ -1,7 +1,6 @@
 package io.wifi.ConfigCompact.network;
 
 import com.google.gson.Gson;
-
 import io.wifi.ConfigCompact.ui.RoleManageConfigUI.RoleAndModifierSyncInfo;
 import io.wifi.starrailexpress.SRE;
 import net.minecraft.network.FriendlyByteBuf;

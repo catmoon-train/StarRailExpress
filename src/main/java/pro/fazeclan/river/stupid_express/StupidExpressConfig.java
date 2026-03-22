@@ -1,10 +1,10 @@
 package pro.fazeclan.river.stupid_express;
 
+import io.wifi.ConfigCompact.ConfigClassHandler;
+import io.wifi.ConfigCompact.annotation.ConfigSync;
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry.Gui.CollapsibleObject;
-import io.wifi.ConfigCompact.ConfigClassHandler;
-import io.wifi.ConfigCompact.annotation.ConfigSync;
 
 @Config(name = "stupid_express")
 public class StupidExpressConfig implements ConfigData {

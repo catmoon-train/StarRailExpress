@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.entity;
 
+import com.mojang.authlib.GameProfile;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -22,8 +23,6 @@ import net.minecraft.world.level.Level;
 import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
-
-import com.mojang.authlib.GameProfile;
 
 /**
  * 傀戏傀儡实体

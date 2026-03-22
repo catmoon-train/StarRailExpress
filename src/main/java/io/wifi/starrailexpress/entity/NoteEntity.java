@@ -1,8 +1,5 @@
 package io.wifi.starrailexpress.entity;
 
-import org.jetbrains.annotations.NotNull;
-
-import java.util.function.Supplier;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -12,6 +9,9 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.function.Supplier;
 
 public class NoteEntity extends Entity {
     private static final EntityDataAccessor<Integer> DIRECTION = SynchedEntityData.defineId(NoteEntity.class,

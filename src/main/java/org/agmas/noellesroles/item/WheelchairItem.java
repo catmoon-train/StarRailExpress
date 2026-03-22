@@ -16,11 +16,11 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
-import java.util.Objects;
-
 import org.agmas.noellesroles.entity.WheelchairEntity;
 import org.agmas.noellesroles.init.ModEntities;
 import org.agmas.noellesroles.init.ModItems;
+
+import java.util.Objects;
 
 public class WheelchairItem extends Item {
    public WheelchairItem() {

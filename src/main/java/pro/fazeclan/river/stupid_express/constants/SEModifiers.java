@@ -1,28 +1,27 @@
 package pro.fazeclan.river.stupid_express.constants;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
-import io.wifi.starrailexpress.SRE;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-
-import java.awt.Color;
-import java.util.ArrayList;
-import java.util.Collections;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.harpymodloader.events.ModifierAssigned;
 import org.agmas.harpymodloader.events.ModifierRemoved;
 import org.agmas.harpymodloader.events.ResetPlayerEvent;
 import org.agmas.harpymodloader.modifiers.HMLModifiers;
 import org.agmas.harpymodloader.modifiers.SREModifier;
-
 import pro.fazeclan.river.stupid_express.StupidExpress;
+import pro.fazeclan.river.stupid_express.modifier.allergist.cca.AllergistComponent;
 import pro.fazeclan.river.stupid_express.modifier.lovers.cca.LoversComponent;
 import pro.fazeclan.river.stupid_express.modifier.refugee.cca.RefugeeComponent;
-import pro.fazeclan.river.stupid_express.modifier.allergist.cca.AllergistComponent;
 import pro.fazeclan.river.stupid_express.modifier.split_personality.cca.SkinSplitPersonalityComponent;
 import pro.fazeclan.river.stupid_express.modifier.split_personality.cca.SplitPersonalityComponent;
+
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.Collections;
 
 public class SEModifiers {
 

@@ -1,26 +1,11 @@
 package io.wifi.starrailexpress.game;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-
-import io.wifi.starrailexpress.block.FoodPlatterBlock;
-import io.wifi.starrailexpress.block.NeonPillarBlock;
-import io.wifi.starrailexpress.block.NeonTubeBlock;
-import io.wifi.starrailexpress.block.SmallDoorBlock;
-import io.wifi.starrailexpress.block.SprinklerBlock;
-import io.wifi.starrailexpress.block.ToggleableFacingLightBlock;
-import io.wifi.starrailexpress.block.ToiletBlock;
-import io.wifi.starrailexpress.block.TrimmedBedBlock;
-import io.wifi.starrailexpress.block.VentHatchBlock;
-import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.block.*;
+import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.LecternBlock;
@@ -29,6 +14,13 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BedPart;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.storage.LevelResource;
+
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 
 public class MapResetManager {
     public static class MapResetInfos {

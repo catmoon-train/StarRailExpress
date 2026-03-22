@@ -1,14 +1,5 @@
 package org.agmas.noellesroles.roles.gambler;
 
-import java.util.ArrayList;
-import java.util.Collections;
-
-import org.agmas.harpymodloader.Harpymodloader;
-import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
-import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.init.NRSounds;
-import org.agmas.noellesroles.role.ModRoles;
-import org.agmas.noellesroles.utils.RoleUtils;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
@@ -24,6 +15,15 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
+import org.agmas.harpymodloader.Harpymodloader;
+import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
+import org.agmas.noellesroles.Noellesroles;
+import org.agmas.noellesroles.init.NRSounds;
+import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.utils.RoleUtils;
+
+import java.util.ArrayList;
+import java.util.Collections;
 
 public class GamblerHandler {
     public static void register() {

@@ -1,20 +1,20 @@
 package org.agmas.noellesroles.init;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Random;
+import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.harpymodloader.events.GameInitializeEvent;
 import org.agmas.harpymodloader.modded_murder.RoleAssignmentManager;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.role.ModRoles;
-
-import io.wifi.starrailexpress.api.SRERole;
-import io.wifi.starrailexpress.api.TMMRoles;
-import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import pro.fazeclan.river.stupid_express.StupidExpress;
 import pro.fazeclan.river.stupid_express.constants.SERoles;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Random;
 
 public class InitModRolesMax {
     public static int SPLIT_PERSONALITY_CHANCE = 10; // 10 in 100

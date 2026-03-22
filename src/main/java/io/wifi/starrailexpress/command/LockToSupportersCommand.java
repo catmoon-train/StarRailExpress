@@ -3,10 +3,11 @@ package io.wifi.starrailexpress.command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
-import java.util.UUID;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
+
+import java.util.UUID;
 
 public class LockToSupportersCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {

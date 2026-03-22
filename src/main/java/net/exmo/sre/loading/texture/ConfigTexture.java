@@ -1,6 +1,12 @@
 package net.exmo.sre.loading.texture;
 
 import com.mojang.blaze3d.platform.NativeImage;
+import net.exmo.sre.EXSREClient;
+import net.minecraft.client.renderer.texture.SimpleTexture;
+import net.minecraft.client.resources.metadata.texture.TextureMetadataSection;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.util.RandomSource;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -9,13 +15,6 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Objects;
-
-import net.exmo.sre.EXSREClient;
-import net.minecraft.client.renderer.texture.SimpleTexture;
-import net.minecraft.client.resources.metadata.texture.TextureMetadataSection;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.util.RandomSource;
 
 public class ConfigTexture extends SimpleTexture {
     public static int randomBackgroundId;

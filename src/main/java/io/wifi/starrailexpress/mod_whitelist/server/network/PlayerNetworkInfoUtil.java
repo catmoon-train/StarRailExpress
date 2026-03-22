@@ -3,8 +3,12 @@ package io.wifi.starrailexpress.mod_whitelist.server.network;
 import io.wifi.starrailexpress.mod_whitelist.common.utils.MWLogger;
 import net.minecraft.server.level.ServerPlayer;
 
-import java.net.*;
-import java.util.*;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.NetworkInterface;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Utility class for retrieving player network information

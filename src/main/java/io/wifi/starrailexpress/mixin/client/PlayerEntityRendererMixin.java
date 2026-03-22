@@ -4,7 +4,11 @@ import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.event.AllowItemShowInHand;
 import io.wifi.starrailexpress.index.TMMItems;
-
+import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.renderer.entity.player.PlayerRenderer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.init.ModItems;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -13,11 +17,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.HashMap;
 import java.util.UUID;
-import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.client.renderer.entity.player.PlayerRenderer;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.item.ItemStack;
 
 @Mixin(PlayerRenderer.class)
 public class PlayerEntityRendererMixin {

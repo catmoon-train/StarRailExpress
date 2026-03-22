@@ -3,7 +3,6 @@ package io.wifi.starrailexpress.block;
 import com.mojang.serialization.MapCodec;
 import io.wifi.starrailexpress.block.property.RailingShape;
 import io.wifi.starrailexpress.index.TMMProperties;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;

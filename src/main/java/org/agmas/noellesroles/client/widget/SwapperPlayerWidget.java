@@ -15,7 +15,6 @@ import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.GameType;
-
 import org.agmas.noellesroles.packet.SwapperC2SPacket;
 import org.jetbrains.annotations.NotNull;
 

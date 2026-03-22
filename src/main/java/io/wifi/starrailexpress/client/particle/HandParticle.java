@@ -1,9 +1,10 @@
 package io.wifi.starrailexpress.client.particle;
 
-import java.awt.*;
-import java.util.function.Function;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
+
+import java.awt.*;
+import java.util.function.Function;
 
 public class HandParticle {
     public float x, y, z;

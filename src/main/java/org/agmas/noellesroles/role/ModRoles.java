@@ -1,35 +1,23 @@
 package org.agmas.noellesroles.role;
 
-import java.awt.Color;
-import java.util.ArrayList;
-import java.util.HashMap;
-
+import com.mojang.serialization.Codec;
+import io.wifi.starrailexpress.api.ExtraEffectRole;
+import io.wifi.starrailexpress.api.NormalRole;
+import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.cca.BartenderPlayerComponent;
+import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
+import io.wifi.starrailexpress.cca.SREPlayerPoisonComponent;
+import io.wifi.starrailexpress.client.gui.RoleAnnouncementTexts;
+import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
+import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.component.AdmirerPlayerComponent;
-import org.agmas.noellesroles.component.AvengerPlayerComponent;
-import org.agmas.noellesroles.component.BetterVigilantePlayerComponent;
-import org.agmas.noellesroles.component.BomberPlayerComponent;
-import org.agmas.noellesroles.component.BoxerPlayerComponent;
-import org.agmas.noellesroles.component.BroadcasterPlayerComponent;
-import org.agmas.noellesroles.component.ClockmakerPlayerComponent;
-import org.agmas.noellesroles.component.ConspiratorPlayerComponent;
-import org.agmas.noellesroles.component.DetectivePlayerComponent;
-import org.agmas.noellesroles.component.GlitchRobotPlayerComponent;
-import org.agmas.noellesroles.component.InsaneKillerPlayerComponent;
-import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.component.MonitorPlayerComponent;
-import org.agmas.noellesroles.component.NianShouPlayerComponent;
-import org.agmas.noellesroles.component.PatrollerPlayerComponent;
-import org.agmas.noellesroles.component.PostmanPlayerComponent;
-import org.agmas.noellesroles.component.PsychologistPlayerComponent;
-import org.agmas.noellesroles.component.PuppeteerPlayerComponent;
-import org.agmas.noellesroles.component.RecorderPlayerComponent;
-import org.agmas.noellesroles.component.SingerPlayerComponent;
-import org.agmas.noellesroles.component.StalkerPlayerComponent;
-import org.agmas.noellesroles.component.SuperStarPlayerComponent;
-import org.agmas.noellesroles.component.TrapperPlayerComponent;
+import org.agmas.noellesroles.component.*;
 import org.agmas.noellesroles.item.StalkerKnifeItem;
 import org.agmas.noellesroles.roles.chef.ChefRole;
 import org.agmas.noellesroles.roles.executioner.ExecutionerPlayerComponent;
@@ -43,21 +31,9 @@ import org.agmas.noellesroles.roles.thief.ThiefPlayerComponent;
 import org.agmas.noellesroles.roles.voodoo.VoodooPlayerComponent;
 import org.agmas.noellesroles.roles.vulture.VulturePlayerComponent;
 
-import com.mojang.serialization.Codec;
-
-import io.wifi.starrailexpress.api.ExtraEffectRole;
-import io.wifi.starrailexpress.api.NormalRole;
-import io.wifi.starrailexpress.api.SRERole;
-import io.wifi.starrailexpress.api.TMMRoles;
-import io.wifi.starrailexpress.cca.BartenderPlayerComponent;
-import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
-import io.wifi.starrailexpress.cca.SREPlayerPoisonComponent;
-import io.wifi.starrailexpress.client.gui.RoleAnnouncementTexts;
-import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
-import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * 角色定义类

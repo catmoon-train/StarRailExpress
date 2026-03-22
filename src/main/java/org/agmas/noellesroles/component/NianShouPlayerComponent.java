@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.component;
 
+import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREWorldBlackoutComponent;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -19,7 +20,6 @@ import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.init.NRSounds;
 import org.agmas.noellesroles.role.ModRoles;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
-import io.wifi.starrailexpress.api.RoleComponent;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
 public class NianShouPlayerComponent implements RoleComponent, ServerTickingComponent {

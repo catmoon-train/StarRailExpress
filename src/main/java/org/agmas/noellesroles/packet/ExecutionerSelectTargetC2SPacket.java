@@ -1,13 +1,13 @@
 package org.agmas.noellesroles.packet;
 
-import org.agmas.noellesroles.Noellesroles;
-
-import java.util.UUID;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
+import org.agmas.noellesroles.Noellesroles;
+
+import java.util.UUID;
 
 /**
  * Executioner选择目标的网络包

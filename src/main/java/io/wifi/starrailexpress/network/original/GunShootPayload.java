@@ -1,5 +1,6 @@
 package io.wifi.starrailexpress.network.original;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.event.AllowShootRevolverDrop;
@@ -10,11 +11,10 @@ import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.TMMSounds;
+import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import io.wifi.starrailexpress.network.PacketTracker;
 import io.wifi.starrailexpress.util.Scheduler;
 import io.wifi.starrailexpress.util.TMMItemUtils;
-import io.wifi.starrailexpress.SRE;
-import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.FriendlyByteBuf;
@@ -28,7 +28,6 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.repack.HSRItems;
 import org.jetbrains.annotations.NotNull;

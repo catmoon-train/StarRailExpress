@@ -1,11 +1,11 @@
 package org.agmas.noellesroles.component;
 
+import io.wifi.starrailexpress.api.RoleComponent;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
-import io.wifi.starrailexpress.api.RoleComponent;
 
 /**
  * 电报员组件

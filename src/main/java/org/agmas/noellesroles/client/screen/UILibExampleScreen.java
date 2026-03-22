@@ -2,7 +2,10 @@ package org.agmas.noellesroles.client.screen;
 
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import org.agmas.noellesroles.client.widget.nodes.*;
+import org.agmas.noellesroles.client.widget.nodes.AbstractNodeWidget;
+import org.agmas.noellesroles.client.widget.nodes.NodeListWidget;
+import org.agmas.noellesroles.client.widget.nodes.NodeWidgetFactory;
+import org.agmas.noellesroles.client.widget.nodes.ScrollListNodeWidget;
 
 import java.util.Map;
 

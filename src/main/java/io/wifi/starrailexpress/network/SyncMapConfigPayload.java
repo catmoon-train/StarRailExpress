@@ -1,8 +1,8 @@
 package io.wifi.starrailexpress.network;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.data.MapConfig;
 import io.wifi.starrailexpress.data.ServerMapConfig;
-import io.wifi.starrailexpress.SRE;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;

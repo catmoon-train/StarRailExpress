@@ -3,6 +3,7 @@ package io.wifi.starrailexpress.index;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+
 import static io.wifi.starrailexpress.cca.SREPlayerSkinsComponent.KEY;
 
 public interface SRECosmetics {

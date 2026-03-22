@@ -1,30 +1,11 @@
 package org.agmas.noellesroles.init;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
-import org.agmas.noellesroles.component.MaChenXuPlayerComponent;
-import org.agmas.noellesroles.component.SingerPlayerComponent;
-import org.agmas.noellesroles.repack.HSRConstants;
-import org.agmas.noellesroles.repack.HSRItems;
-import org.agmas.noellesroles.role.ModRoles;
-import org.agmas.noellesroles.roles.executioner.ShootingFrenzyPlayerComponent;
-import org.agmas.noellesroles.roles.framing.FramingShopEntry;
-import org.agmas.noellesroles.utils.RoleUtils;
-import org.jetbrains.annotations.NotNull;
-
 import io.github.mortuusars.exposure_polaroid.ExposurePolaroid;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
-import io.wifi.starrailexpress.cca.SREGameWorldComponent;
-import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
-import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
-import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
-import io.wifi.starrailexpress.cca.SREWorldBlackoutComponent;
+import io.wifi.starrailexpress.cca.*;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.ShopContent;
@@ -54,7 +35,21 @@ import net.minecraft.world.item.component.CustomModelData;
 import net.minecraft.world.item.component.ItemLore;
 import net.minecraft.world.item.component.Unbreakable;
 import net.minecraft.world.item.component.WrittenBookContent;
+import org.agmas.noellesroles.component.MaChenXuPlayerComponent;
+import org.agmas.noellesroles.component.SingerPlayerComponent;
+import org.agmas.noellesroles.repack.HSRConstants;
+import org.agmas.noellesroles.repack.HSRItems;
+import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.roles.executioner.ShootingFrenzyPlayerComponent;
+import org.agmas.noellesroles.roles.framing.FramingShopEntry;
+import org.agmas.noellesroles.utils.RoleUtils;
+import org.jetbrains.annotations.NotNull;
 import pro.fazeclan.river.stupid_express.constants.SERoles;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 public class RoleShopHandler {
   // ==================== 商店项目列表 ====================

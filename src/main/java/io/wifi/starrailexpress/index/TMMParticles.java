@@ -1,11 +1,11 @@
 package io.wifi.starrailexpress.index;
 
 import dev.doctor4t.ratatouille.util.registrar.ParticleTypeRegistrar;
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.client.particle.BlackSmokeParticle;
 import io.wifi.starrailexpress.client.particle.FlashParticle;
 import io.wifi.starrailexpress.client.particle.PoisonParticle;
 import io.wifi.starrailexpress.client.particle.SnowflakeParticle;
-import io.wifi.starrailexpress.SRE;
 import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
 import net.fabricmc.fabric.api.particle.v1.FabricParticleTypes;
 import net.minecraft.core.particles.SimpleParticleType;

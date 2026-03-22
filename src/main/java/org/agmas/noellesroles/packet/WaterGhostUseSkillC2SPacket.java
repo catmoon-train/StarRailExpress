@@ -2,16 +2,14 @@ package org.agmas.noellesroles.packet;
 
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.component.WaterGhostPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
-
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
 public record WaterGhostUseSkillC2SPacket() implements CustomPacketPayload {
 

@@ -1,13 +1,6 @@
 package org.agmas.noellesroles.screen;
 
-import org.agmas.noellesroles.init.ModItems;
-import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.component.PostmanPlayerComponent;
-
 import io.wifi.starrailexpress.index.TMMItems;
-
-import java.util.UUID;
-
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -17,7 +10,12 @@ import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import org.agmas.noellesroles.component.ModComponents;
+import org.agmas.noellesroles.component.PostmanPlayerComponent;
+import org.agmas.noellesroles.init.ModItems;
 import pro.fazeclan.river.stupid_express.constants.SEItems;
+
+import java.util.UUID;
 
 /**
  * 邮差传递界面的 ScreenHandler

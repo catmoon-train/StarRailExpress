@@ -1,9 +1,9 @@
 package org.agmas.noellesroles.mixin;
 
+import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.index.TMMItems;
-import io.wifi.starrailexpress.SREConfig;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.roles.executioner.ShootingFrenzyPlayerComponent;

@@ -4,15 +4,12 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import dev.doctor4t.ratatouille.client.lib.render.helpers.Easing;
-import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.model.TMMModelLayers;
 import io.wifi.starrailexpress.client.model.entity.PlayerSkeletonEntityModel;
 import io.wifi.starrailexpress.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.game.GameConstants;
-import io.wifi.starrailexpress.SRE;
-
-import java.awt.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HumanoidModel;
@@ -26,6 +23,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
+
+import java.awt.*;
 
 public class PlayerBodyEntityRenderer<T extends LivingEntity, M extends EntityModel<T>> extends LivingEntityRenderer<PlayerBodyEntity, PlayerModel<PlayerBodyEntity>> {
     public static final ResourceLocation DEFAULT_TEXTURE = SRE.watheId("textures/entity/player_body_default.png");

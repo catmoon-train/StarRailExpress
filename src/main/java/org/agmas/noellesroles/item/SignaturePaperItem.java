@@ -1,7 +1,5 @@
 package org.agmas.noellesroles.item;
 
-import org.agmas.noellesroles.init.ModItems;
-
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import net.minecraft.ChatFormatting;
@@ -13,6 +11,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import org.agmas.noellesroles.init.ModItems;
 
 public class SignaturePaperItem extends Item {
 

@@ -1,8 +1,5 @@
 package org.agmas.noellesroles.client.screen;
 
-import org.agmas.noellesroles.component.PostmanPlayerComponent;
-import org.agmas.noellesroles.packet.PostmanC2SPacket;
-import org.agmas.noellesroles.screen.PostmanScreenHandler;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
@@ -11,6 +8,9 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import org.agmas.noellesroles.component.PostmanPlayerComponent;
+import org.agmas.noellesroles.packet.PostmanC2SPacket;
+import org.agmas.noellesroles.screen.PostmanScreenHandler;
 
 /**
  * 邮差传递界面 - 基于 HandledScreen

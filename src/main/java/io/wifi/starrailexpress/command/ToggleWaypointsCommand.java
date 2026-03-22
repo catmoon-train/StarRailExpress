@@ -5,7 +5,6 @@ import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-
 import io.wifi.starrailexpress.data.WaypointManager;
 import io.wifi.starrailexpress.data.WaypointVisibilityManager;
 import io.wifi.starrailexpress.network.PacketTracker;
@@ -15,7 +14,6 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.EntityArgument;
-
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 

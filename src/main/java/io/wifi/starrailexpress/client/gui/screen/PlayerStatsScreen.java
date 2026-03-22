@@ -1,13 +1,9 @@
 // PlayerStatsScreen.java
 package io.wifi.starrailexpress.client.gui.screen;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-import org.jetbrains.annotations.NotNull;
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.SREPlayerStatsComponent;
 import io.wifi.starrailexpress.client.SREClient;
-import io.wifi.starrailexpress.SRE;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Renderable;
@@ -19,6 +15,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.player.Player;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 public class PlayerStatsScreen extends Screen {
 

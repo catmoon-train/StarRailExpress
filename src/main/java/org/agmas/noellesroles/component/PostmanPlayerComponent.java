@@ -1,14 +1,14 @@
 package org.agmas.noellesroles.component;
 
-import org.jetbrains.annotations.NotNull;
-import org.ladysnake.cca.api.v3.component.ComponentKey;
 import io.wifi.starrailexpress.api.RoleComponent;
-
-import java.util.UUID;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
+import org.ladysnake.cca.api.v3.component.ComponentKey;
+
+import java.util.UUID;
 
 /**
  * 邮差组件

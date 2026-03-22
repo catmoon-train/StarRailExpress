@@ -1,10 +1,9 @@
 package org.agmas.noellesroles.role;
 
-import org.agmas.noellesroles.component.NianShouPlayerComponent;
-
 import io.wifi.starrailexpress.api.NormalRole;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
+import org.agmas.noellesroles.component.NianShouPlayerComponent;
 
 public class NianShouRole extends NormalRole {
 

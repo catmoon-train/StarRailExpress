@@ -6,13 +6,12 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffect;
-import net.minecraft.world.effect.MobEffectInstance;
-
 import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.flag.FeatureFlagSet;
-import net.minecraft.util.Mth;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.effects.NoCollideEffect;
 import org.agmas.noellesroles.effects.SimpleMobEffect;

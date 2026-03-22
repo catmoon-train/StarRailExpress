@@ -4,7 +4,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import walksy.crosshairaddons.CrosshairAddons;
 import walksy.crosshairaddons.manager.AddonStateManager;
 import walksy.crosshairaddons.manager.State;
 

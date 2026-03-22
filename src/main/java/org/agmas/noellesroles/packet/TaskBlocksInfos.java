@@ -1,11 +1,10 @@
 package org.agmas.noellesroles.packet;
 
+import com.google.gson.Gson;
+import net.minecraft.core.BlockPos;
+
 import java.util.ArrayList;
 import java.util.HashMap;
-
-import com.google.gson.Gson;
-
-import net.minecraft.core.BlockPos;
 
 public class TaskBlocksInfos {
     public ArrayList<TaskBlocksInfo> infos;

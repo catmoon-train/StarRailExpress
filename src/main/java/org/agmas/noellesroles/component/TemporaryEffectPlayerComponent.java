@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.component;
 
+import io.wifi.starrailexpress.api.RoleComponent;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -9,7 +10,6 @@ import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
-import io.wifi.starrailexpress.api.RoleComponent;
 
 /**
  * 临时效果玩家组件

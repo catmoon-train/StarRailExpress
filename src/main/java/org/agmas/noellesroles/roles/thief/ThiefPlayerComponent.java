@@ -1,16 +1,12 @@
 package org.agmas.noellesroles.roles.thief;
 
-import io.wifi.starrailexpress.index.TMMItems;
-import io.wifi.starrailexpress.index.tag.TMMItemTags;
+import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.index.TMMItems;
+import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import net.minecraft.ChatFormatting;
-import org.agmas.noellesroles.utils.RoleUtils;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.OptionalInt;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -24,13 +20,16 @@ import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.repack.HSRItems;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
-import io.wifi.starrailexpress.api.RoleComponent;
-
 import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.OptionalInt;
 
 /**
  * 小偷玩家组件

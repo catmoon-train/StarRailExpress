@@ -6,19 +6,17 @@ import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.event.AllowItemShowInHand;
 import io.wifi.starrailexpress.index.TMMItems;
-import io.wifi.starrailexpress.item.KnifeItem;
-import net.minecraft.world.item.Item;
-import org.agmas.noellesroles.init.ModItems;
-import org.agmas.noellesroles.item.StalkerKnifeItem;
-import org.agmas.noellesroles.role.ModRoles;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import java.util.HashMap;
-import java.util.UUID;
 import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import org.agmas.noellesroles.item.StalkerKnifeItem;
+import org.agmas.noellesroles.role.ModRoles;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+
+import java.util.HashMap;
+import java.util.UUID;
 
 @Mixin(ItemInHandLayer.class)
 public class HeldItemFeatureRendererMixin {

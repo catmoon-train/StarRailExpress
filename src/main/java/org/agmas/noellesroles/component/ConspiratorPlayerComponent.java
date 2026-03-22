@@ -1,19 +1,10 @@
 package org.agmas.noellesroles.component;
 
-import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
-import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.role.ModRoles;
+import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.game.GameUtils;
-import org.jetbrains.annotations.NotNull;
-import org.ladysnake.cca.api.v3.component.ComponentKey;
-import io.wifi.starrailexpress.api.RoleComponent;
-import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -23,6 +14,15 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import org.agmas.noellesroles.Noellesroles;
+import org.agmas.noellesroles.role.ModRoles;
+import org.jetbrains.annotations.NotNull;
+import org.ladysnake.cca.api.v3.component.ComponentKey;
+import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * 阴谋家组件

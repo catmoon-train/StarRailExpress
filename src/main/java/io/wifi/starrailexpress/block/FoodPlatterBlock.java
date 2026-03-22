@@ -1,19 +1,14 @@
 package io.wifi.starrailexpress.block;
 
 import com.mojang.serialization.MapCodec;
-
-import io.wifi.starrailexpress.block_entity.BeveragePlateBlockEntity;
-import io.wifi.starrailexpress.index.TMMBlockEntities;
-import io.wifi.starrailexpress.index.SREDataComponentTypes;
-import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.SRE;
-import net.minecraft.core.registries.BuiltInRegistries;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.List;
+import io.wifi.starrailexpress.block_entity.BeveragePlateBlockEntity;
+import io.wifi.starrailexpress.index.SREDataComponentTypes;
+import io.wifi.starrailexpress.index.TMMBlockEntities;
+import io.wifi.starrailexpress.index.TMMItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -31,6 +26,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 public class FoodPlatterBlock extends BaseEntityBlock {
     public static final MapCodec<FoodPlatterBlock> CODEC = simpleCodec(FoodPlatterBlock::new);

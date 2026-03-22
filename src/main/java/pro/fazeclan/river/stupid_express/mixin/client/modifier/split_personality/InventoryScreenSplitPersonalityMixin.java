@@ -4,19 +4,19 @@ import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedHandledScreen;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.world.inventory.InventoryMenu;
-import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.client.gui.components.Button;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.InventoryMenu;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.Unique;
-import pro.fazeclan.river.stupid_express.modifier.split_personality.cca.SplitPersonalityComponent;
 import pro.fazeclan.river.stupid_express.client.gui.widget.SplitPersonalityChoiceWidget;
+import pro.fazeclan.river.stupid_express.modifier.split_personality.cca.SplitPersonalityComponent;
 
 /**
  * Mixin for InventoryScreen to add SplitPersonality choice functionality

@@ -1,14 +1,14 @@
 package pro.fazeclan.river.stupid_express.modifier.knight;
 
+import io.wifi.starrailexpress.game.GameUtils;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.LightLayer;
 import pro.fazeclan.river.stupid_express.modifier.knight.cca.KnightComponent;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-
-import io.wifi.starrailexpress.game.GameUtils;
 
 public class KnightHandler {
     public static void init() {

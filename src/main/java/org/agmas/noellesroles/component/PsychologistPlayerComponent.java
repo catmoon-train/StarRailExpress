@@ -1,18 +1,10 @@
 package org.agmas.noellesroles.component;
 
-import org.agmas.noellesroles.role.ModRoles;
+import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.game.GameUtils;
-import org.jetbrains.annotations.NotNull;
-import org.ladysnake.cca.api.v3.component.ComponentKey;
-import io.wifi.starrailexpress.api.RoleComponent;
-
-import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
-import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
-
-import java.util.UUID;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -22,6 +14,13 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
+import org.agmas.noellesroles.role.ModRoles;
+import org.jetbrains.annotations.NotNull;
+import org.ladysnake.cca.api.v3.component.ComponentKey;
+import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
+import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
+
+import java.util.UUID;
 
 /**
  * 心理学家组件

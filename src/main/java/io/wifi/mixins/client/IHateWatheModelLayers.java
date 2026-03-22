@@ -1,10 +1,10 @@
 package io.wifi.mixins.client;
 
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 import dev.doctor4t.wathe.client.model.WatheModelLayers;
 import io.wifi.starrailexpress.SRE;
 import net.minecraft.client.model.geom.ModelLayerLocation;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 
 @Mixin(WatheModelLayers.class)
 public interface IHateWatheModelLayers {

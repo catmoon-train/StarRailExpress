@@ -1,5 +1,6 @@
 package io.wifi.starrailexpress.network.original;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerNunchuckComponent;
 import io.wifi.starrailexpress.game.GameConstants;
@@ -7,7 +8,6 @@ import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.item.NunchuckItem;
-import io.wifi.starrailexpress.SRE;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -17,7 +17,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
-
 import org.jetbrains.annotations.NotNull;
 
 public record NunchuckHitPayload(int targetId, int direction) implements CustomPacketPayload {

@@ -1,18 +1,18 @@
 package org.agmas.noellesroles.client.widget;
 
 
-import org.agmas.noellesroles.client.screen.GuessRoleScreen;
-import org.jetbrains.annotations.NotNull;
-import net.minecraft.client.multiplayer.PlayerInfo;
-import java.awt.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.PlayerFaceRenderer;
-import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
+import org.agmas.noellesroles.client.screen.GuessRoleScreen;
+import org.jetbrains.annotations.NotNull;
+
+import java.awt.*;
 
 /**
  * 猜测身份玩家选择 Widget

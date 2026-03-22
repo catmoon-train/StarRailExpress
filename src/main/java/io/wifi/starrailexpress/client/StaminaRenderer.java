@@ -1,26 +1,25 @@
 package io.wifi.starrailexpress.client;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
+import io.wifi.starrailexpress.SREClientConfig;
 import io.wifi.starrailexpress.api.ChargeableItemRegistry;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.PlayerStaminaGetter;
-import io.wifi.starrailexpress.SREClientConfig;
-import org.agmas.noellesroles.init.ModEffects;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.util.Mth;
-import net.minecraft.world.entity.player.Player;
-import org.jetbrains.annotations.NotNull;
-
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemCooldowns;
+import net.minecraft.world.item.ItemStack;
+import org.agmas.noellesroles.init.ModEffects;
+import org.jetbrains.annotations.NotNull;
 
 public class StaminaRenderer {
 	public static StaminaBarRenderer view = new StaminaBarRenderer();

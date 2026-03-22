@@ -1,7 +1,7 @@
 package io.wifi.starrailexpress.cca.network;
 
-import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
 import io.wifi.starrailexpress.SREConfig;
+import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
 import net.exmo.sre.nametag.NameTagInventoryComponent;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;

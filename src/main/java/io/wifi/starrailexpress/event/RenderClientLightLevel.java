@@ -1,10 +1,10 @@
 package io.wifi.starrailexpress.event;
 
 import net.fabricmc.fabric.api.event.Event;
-import static net.fabricmc.fabric.api.event.EventFactory.createArrayBacked;
-
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
+
+import static net.fabricmc.fabric.api.event.EventFactory.createArrayBacked;
 
 public interface RenderClientLightLevel {
 

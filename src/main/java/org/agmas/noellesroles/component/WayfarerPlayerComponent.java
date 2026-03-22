@@ -1,30 +1,15 @@
 package org.agmas.noellesroles.component;
 
-import io.wifi.starrailexpress.game.GameUtils;
-import io.wifi.starrailexpress.game.GameUtils.WinStatus;
-import io.wifi.starrailexpress.index.TMMEntities;
-import io.wifi.starrailexpress.index.TMMItems;
-import io.wifi.starrailexpress.util.TMMItemUtils;
-import org.agmas.noellesroles.init.ModItems;
-import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.role.ModRoles;
-import org.agmas.noellesroles.roles.coroner.BodyDeathReasonComponent;
-import org.agmas.noellesroles.utils.ModNBTUtils;
-import org.agmas.noellesroles.utils.RoleUtils;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.ladysnake.cca.api.v3.component.ComponentKey;
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.event.AfterShieldAllowPlayerDeath;
 import io.wifi.starrailexpress.event.OnPlayerKilledPlayer;
-import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
-import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
-
-import java.util.OptionalInt;
-import java.util.UUID;
-
+import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.game.GameUtils.WinStatus;
+import io.wifi.starrailexpress.index.TMMEntities;
+import io.wifi.starrailexpress.index.TMMItems;
+import io.wifi.starrailexpress.util.TMMItemUtils;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
@@ -42,6 +27,20 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemLore;
 import net.minecraft.world.phys.Vec3;
+import org.agmas.noellesroles.Noellesroles;
+import org.agmas.noellesroles.init.ModItems;
+import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.roles.coroner.BodyDeathReasonComponent;
+import org.agmas.noellesroles.utils.ModNBTUtils;
+import org.agmas.noellesroles.utils.RoleUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.ladysnake.cca.api.v3.component.ComponentKey;
+import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
+import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
+
+import java.util.OptionalInt;
+import java.util.UUID;
 
 /**
  * 红尘客组件

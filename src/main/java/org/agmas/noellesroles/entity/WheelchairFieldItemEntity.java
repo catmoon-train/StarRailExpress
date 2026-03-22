@@ -1,7 +1,5 @@
 package org.agmas.noellesroles.entity;
 
-import java.util.List;
-
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -15,6 +13,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+
+import java.util.List;
 
 /**
  * 场地道具实体 - 继承 ItemEntity，使用原版物品作为展示。

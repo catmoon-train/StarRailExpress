@@ -1,21 +1,20 @@
 package org.agmas.noellesroles.client.renderer;
 
-import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.client.player.RemotePlayer;
-import org.agmas.noellesroles.entity.PuppeteerBodyEntity;
 import com.mojang.authlib.GameProfile;
 import com.mojang.blaze3d.vertex.PoseStack;
-
 import io.wifi.starrailexpress.client.SREClient;
-
-import java.util.UUID;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.PlayerInfo;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.player.RemotePlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.resources.ResourceLocation;
+import org.agmas.noellesroles.entity.PuppeteerBodyEntity;
+
+import java.util.UUID;
 
 /**
  * 傀儡本体实体渲染器

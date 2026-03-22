@@ -1,12 +1,6 @@
 package org.agmas.noellesroles.entity;
 
 import io.wifi.starrailexpress.game.GameUtils;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-import org.agmas.noellesroles.packet.CreateClientSmokeAreaPacket;
-
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -14,6 +8,11 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.agmas.noellesroles.packet.CreateClientSmokeAreaPacket;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * 烟雾区域管理器

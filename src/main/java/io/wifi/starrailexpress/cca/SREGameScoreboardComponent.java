@@ -1,19 +1,20 @@
 package io.wifi.starrailexpress.cca;
 
+import io.wifi.starrailexpress.SRE;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.numbers.StyledFormat;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.scores.*;
+import net.minecraft.world.scores.Objective;
+import net.minecraft.world.scores.ScoreHolder;
+import net.minecraft.world.scores.Scoreboard;
 import net.minecraft.world.scores.criteria.ObjectiveCriteria;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
 import org.ladysnake.cca.api.v3.component.tick.CommonTickingComponent;
-
-import io.wifi.starrailexpress.SRE;
 
 import java.util.HashMap;
 import java.util.Map;

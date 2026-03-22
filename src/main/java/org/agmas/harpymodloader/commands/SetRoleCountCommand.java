@@ -1,7 +1,5 @@
 package org.agmas.harpymodloader.commands;
 
-import org.agmas.harpymodloader.Harpymodloader;
-
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
@@ -9,6 +7,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
+import org.agmas.harpymodloader.Harpymodloader;
 
 public class SetRoleCountCommand {
 

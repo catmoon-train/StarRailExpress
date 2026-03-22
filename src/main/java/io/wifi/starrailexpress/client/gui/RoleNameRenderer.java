@@ -8,7 +8,6 @@ import io.wifi.starrailexpress.entity.NoteEntity;
 import io.wifi.starrailexpress.event.AllowNameRender;
 import io.wifi.starrailexpress.event.OnKillerCohortDisplay;
 import io.wifi.starrailexpress.game.GameUtils;
-
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.Font;
@@ -26,7 +25,6 @@ import net.minecraft.world.phys.EntityHitResult;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 

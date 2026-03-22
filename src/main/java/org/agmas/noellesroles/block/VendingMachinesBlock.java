@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.block;
 
+import com.mojang.serialization.MapCodec;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -23,20 +24,13 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
-import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
-import net.minecraft.world.level.block.state.properties.EnumProperty;
-import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.level.block.state.properties.*;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-
 import org.agmas.noellesroles.block_entity.VendingMachinesBlockEntity;
 import org.agmas.noellesroles.packet.OpenVendingMachinesScreenS2CPacket;
 import org.jetbrains.annotations.Nullable;
-
-import com.mojang.serialization.MapCodec;
 
 public class VendingMachinesBlock extends BaseEntityBlock {
     public static final DirectionProperty FACING;

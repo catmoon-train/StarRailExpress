@@ -1,17 +1,16 @@
 package io.wifi.starrailexpress.network.packet;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
 import com.google.common.reflect.TypeToken;
-
-import io.wifi.starrailexpress.data.MapConfig;
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.data.MapConfig;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 public record SyncRoomToPlayerPayload(Map<UUID, Integer> data) implements CustomPacketPayload {
     public static final Type<SyncRoomToPlayerPayload> ID = new Type<>(

@@ -1,22 +1,10 @@
 package org.agmas.noellesroles.component;
 
-import io.wifi.starrailexpress.game.GameConstants;
-import io.wifi.starrailexpress.game.GameUtils;
-import org.agmas.noellesroles.init.ModItems;
-import org.agmas.noellesroles.role.ModRoles;
-import org.jetbrains.annotations.NotNull;
-import org.ladysnake.cca.api.v3.component.ComponentKey;
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.event.OnPlayerKilledPlayerIdentifier;
-
-import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
-import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.ToIntFunction;
-
+import io.wifi.starrailexpress.game.GameConstants;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -32,6 +20,16 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import org.agmas.noellesroles.init.ModItems;
+import org.agmas.noellesroles.role.ModRoles;
+import org.jetbrains.annotations.NotNull;
+import org.ladysnake.cca.api.v3.component.ComponentKey;
+import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
+import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.ToIntFunction;
 
 /**
  * 跟踪者组件

@@ -1,8 +1,7 @@
 package io.wifi;
 
-import org.jetbrains.annotations.NotNull;
-
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.NotNull;
 
 public class StarRailExpressID {
     public final static String MOD_ID = "starrailexpress";

@@ -1,35 +1,15 @@
 package org.agmas.noellesroles.component;
 
-import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
-
-import org.agmas.noellesroles.init.ModEntities;
-import org.agmas.noellesroles.init.ModItems;
-import org.agmas.noellesroles.repack.HSRItems;
-import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.entity.PuppeteerBodyEntity;
-import org.agmas.noellesroles.role.ModRoles;
-import org.agmas.noellesroles.utils.RoleUtils;
-
+import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
+import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.TMMItemUtils;
-
-import org.jetbrains.annotations.NotNull;
-import org.ladysnake.cca.api.v3.component.ComponentKey;
-import io.wifi.starrailexpress.api.RoleComponent;
-
-import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
-import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.UUID;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
@@ -45,6 +25,22 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
+import org.agmas.noellesroles.Noellesroles;
+import org.agmas.noellesroles.entity.PuppeteerBodyEntity;
+import org.agmas.noellesroles.init.ModEntities;
+import org.agmas.noellesroles.init.ModItems;
+import org.agmas.noellesroles.repack.HSRItems;
+import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.utils.RoleUtils;
+import org.jetbrains.annotations.NotNull;
+import org.ladysnake.cca.api.v3.component.ComponentKey;
+import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
+import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+import java.util.UUID;
 
 /**
  * 傀儡师组件

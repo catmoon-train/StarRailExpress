@@ -1,12 +1,11 @@
 package io.wifi.starrailexpress.event;
 
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import net.fabricmc.fabric.api.event.Event;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 
 import static net.fabricmc.fabric.api.event.EventFactory.createArrayBacked;
-
-import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 
 public interface OnGameEnd {
 

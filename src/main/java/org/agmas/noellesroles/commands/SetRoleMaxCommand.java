@@ -1,13 +1,13 @@
 package org.agmas.noellesroles.commands;
 
 import com.mojang.brigadier.arguments.IntegerArgumentType;
+import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.api.TMMRoles;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import io.wifi.starrailexpress.api.TMMRoles;
-import io.wifi.starrailexpress.api.SRERole;
 import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.jetbrains.annotations.NotNull;

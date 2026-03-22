@@ -1,18 +1,16 @@
 package io.wifi.starrailexpress.command;
 
 import com.mojang.brigadier.CommandDispatcher;
-
-import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
-import org.jetbrains.annotations.NotNull;
-
-import java.util.Collection;
-
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Collection;
 
 public class ForceTeamCommand {
   public static void register(@NotNull CommandDispatcher<CommandSourceStack> dispatcher) {

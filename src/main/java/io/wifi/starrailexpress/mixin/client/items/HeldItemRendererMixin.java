@@ -3,13 +3,12 @@ package io.wifi.starrailexpress.mixin.client.items;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.vertex.PoseStack;
-
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import io.wifi.starrailexpress.item.RevolverItem;
 import io.wifi.starrailexpress.util.MatrixParticleManager;
 import io.wifi.starrailexpress.util.MatrixUtils;
-import io.wifi.starrailexpress.SRE;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;

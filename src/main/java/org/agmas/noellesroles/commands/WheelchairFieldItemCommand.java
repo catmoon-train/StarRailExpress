@@ -2,7 +2,6 @@ package org.agmas.noellesroles.commands;
 
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
-import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.commands.CommandSourceStack;
@@ -10,9 +9,7 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
-import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.entity.WheelchairFieldItemEntity;
 import org.agmas.noellesroles.init.ModEntities;
 

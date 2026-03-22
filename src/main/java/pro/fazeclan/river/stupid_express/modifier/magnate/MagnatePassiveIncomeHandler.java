@@ -7,7 +7,6 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
-
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 
 public class MagnatePassiveIncomeHandler {

@@ -1,19 +1,7 @@
 package org.agmas.noellesroles.utils;
 
-import java.util.HashMap;
-
-import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.block.VendingMachinesBlock;
-import org.agmas.noellesroles.game.ChairWheelRaceGame;
-import org.agmas.noellesroles.init.ModBlocks;
-import org.agmas.noellesroles.packet.ScanAllTaskPointsPayload;
-
-import io.wifi.starrailexpress.block.FoodPlatterBlock;
-import io.wifi.starrailexpress.block.MountableBlock;
-import io.wifi.starrailexpress.block.SmallDoorBlock;
-import io.wifi.starrailexpress.block.SprinklerBlock;
-import io.wifi.starrailexpress.block.ToiletBlock;
-import io.wifi.starrailexpress.block.TrimmedBedBlock;
+import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.block.*;
 import io.wifi.starrailexpress.block_entity.BeveragePlateBlockEntity;
 import io.wifi.starrailexpress.block_entity.SmallDoorBlockEntity;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
@@ -21,7 +9,6 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.event.OnTrainAreaHaveReseted;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.item.CocktailItem;
-import io.wifi.starrailexpress.SRE;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
@@ -36,6 +23,13 @@ import net.minecraft.world.level.block.state.properties.BedPart;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import org.agmas.noellesroles.Noellesroles;
+import org.agmas.noellesroles.block.VendingMachinesBlock;
+import org.agmas.noellesroles.game.ChairWheelRaceGame;
+import org.agmas.noellesroles.init.ModBlocks;
+import org.agmas.noellesroles.packet.ScanAllTaskPointsPayload;
+
+import java.util.HashMap;
 
 public class MapScanner {
     public static void registerMapScanEvent() {

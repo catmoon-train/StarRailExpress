@@ -1,8 +1,8 @@
 package org.agmas.noellesroles.utils;
 
-import java.util.List;
-
 import org.agmas.noellesroles.utils.MathProblemsManager.MathProblem;
+
+import java.util.List;
 
 public class MathTester {
     public static void main(String[] args) {

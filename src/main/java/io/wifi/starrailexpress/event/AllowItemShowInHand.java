@@ -1,13 +1,12 @@
 package io.wifi.starrailexpress.event;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.event.Event;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
 import static net.fabricmc.fabric.api.event.EventFactory.createArrayBacked;
-
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 
 @Environment(EnvType.CLIENT)
 public interface AllowItemShowInHand {

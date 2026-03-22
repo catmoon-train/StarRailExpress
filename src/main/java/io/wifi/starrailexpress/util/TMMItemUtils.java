@@ -1,11 +1,11 @@
 package io.wifi.starrailexpress.util;
 
-import java.util.function.Predicate;
-
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+
+import java.util.function.Predicate;
 
 // Author: wifi_left
 public class TMMItemUtils {

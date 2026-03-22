@@ -1,10 +1,5 @@
 package org.agmas.noellesroles.mixin;
 
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.game.GameConstants;
@@ -14,6 +9,10 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.projectile.ThrownTrident;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.EntityHitResult;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ThrownTrident.class)
 public class TridentMixin {

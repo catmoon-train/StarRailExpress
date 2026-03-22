@@ -1,9 +1,5 @@
 package org.agmas.noellesroles.client.widget;
 
-import org.agmas.noellesroles.client.screen.ConspiratorScreen;
-import org.jetbrains.annotations.NotNull;
-
-import java.awt.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -11,6 +7,10 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.PlayerFaceRenderer;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.RenderType;
+import org.agmas.noellesroles.client.screen.ConspiratorScreen;
+import org.jetbrains.annotations.NotNull;
+
+import java.awt.*;
 
 /**
  * 阴谋家玩家选择 Widget

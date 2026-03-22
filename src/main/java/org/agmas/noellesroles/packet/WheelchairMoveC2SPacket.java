@@ -1,12 +1,11 @@
 package org.agmas.noellesroles.packet;
 
-import org.agmas.noellesroles.Noellesroles;
-
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
+import org.agmas.noellesroles.Noellesroles;
 
 public record WheelchairMoveC2SPacket(float forwardImpulse, float leftImpulse) implements CustomPacketPayload {
     public static final ResourceLocation ABILITY_PAYLOAD_ID = ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID,

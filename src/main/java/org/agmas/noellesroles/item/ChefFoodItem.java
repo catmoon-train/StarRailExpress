@@ -1,17 +1,10 @@
 package org.agmas.noellesroles.item;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
-
-import org.agmas.noellesroles.ModDataComponentTypes;
-import org.agmas.noellesroles.Noellesroles;
-
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
-import io.wifi.starrailexpress.cca.SREPlayerTaskComponent.TrainTask;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.cca.SREPlayerTaskComponent;
+import io.wifi.starrailexpress.cca.SREPlayerTaskComponent.TrainTask;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -24,6 +17,12 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomModelData;
 import net.minecraft.world.level.Level;
+import org.agmas.noellesroles.ModDataComponentTypes;
+import org.agmas.noellesroles.Noellesroles;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.Random;
 
 public class ChefFoodItem extends Item {
     private static Properties __warp_init(Properties properties) {

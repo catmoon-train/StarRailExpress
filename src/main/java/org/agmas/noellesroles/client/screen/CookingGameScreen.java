@@ -16,7 +16,10 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.Vec2;
-import org.agmas.noellesroles.client.animation.*;
+import org.agmas.noellesroles.client.animation.AbstractAnimation;
+import org.agmas.noellesroles.client.animation.AnimationTimeLineManager;
+import org.agmas.noellesroles.client.animation.BezierAnimation;
+import org.agmas.noellesroles.client.animation.ConstantSpeedAnimation;
 import org.agmas.noellesroles.client.widget.TextureWidget;
 import org.agmas.noellesroles.client.widget.TickTimerWidget;
 import org.agmas.noellesroles.client.widget.TimerWidget;
@@ -24,8 +27,9 @@ import org.agmas.noellesroles.packet.ChefCookC2SPacket;
 import org.agmas.noellesroles.utils.Pair;
 import org.lwjgl.glfw.GLFW;
 
-import java.awt.Color;
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 import static java.lang.Math.abs;
 

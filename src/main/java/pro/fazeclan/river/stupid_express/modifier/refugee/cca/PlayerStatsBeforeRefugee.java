@@ -1,9 +1,6 @@
 package pro.fazeclan.river.stupid_express.modifier.refugee.cca;
 
-import java.util.function.Consumer;
-
-import org.agmas.harpymodloader.component.WorldModifierComponent;
-
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.BartenderPlayerComponent;
@@ -13,14 +10,16 @@ import io.wifi.starrailexpress.compat.TrainVoicePlugin;
 import io.wifi.starrailexpress.event.OnPlayerDeath;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
-import io.wifi.starrailexpress.SRE;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
+import org.agmas.harpymodloader.component.WorldModifierComponent;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 import pro.fazeclan.river.stupid_express.utils.StupidRoleUtils;
+
+import java.util.function.Consumer;
 
 public record PlayerStatsBeforeRefugee(Vec3 pos, int money, ListTag inventory, Vec2 rotation, boolean isAlive,
         float mood, int shieldAmount) {

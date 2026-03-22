@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.mixin;
 
-import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ClickType;

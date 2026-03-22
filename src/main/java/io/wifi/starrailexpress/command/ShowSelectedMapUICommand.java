@@ -3,7 +3,6 @@ package io.wifi.starrailexpress.command;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-
 import io.wifi.starrailexpress.data.ServerMapConfig;
 import io.wifi.starrailexpress.network.ShowSelectedMapUIPayload;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;

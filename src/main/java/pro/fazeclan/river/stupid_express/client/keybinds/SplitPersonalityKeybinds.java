@@ -1,20 +1,18 @@
 package pro.fazeclan.river.stupid_express.client.keybinds;
 
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.event.OnOpenInventory;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
-
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.lwjgl.glfw.GLFW;
-
-import io.wifi.starrailexpress.cca.SREGameWorldComponent;
-import io.wifi.starrailexpress.event.OnOpenInventory;
-import pro.fazeclan.river.stupid_express.modifier.split_personality.cca.SplitPersonalityComponent;
 import pro.fazeclan.river.stupid_express.client.network.SplitPersonalityClientPackets;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
+import pro.fazeclan.river.stupid_express.modifier.split_personality.cca.SplitPersonalityComponent;
 
 public class SplitPersonalityKeybinds {
 

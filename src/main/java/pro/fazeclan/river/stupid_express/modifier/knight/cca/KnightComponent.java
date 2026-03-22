@@ -1,12 +1,11 @@
 package pro.fazeclan.river.stupid_express.modifier.knight.cca;
 
+import io.wifi.starrailexpress.api.RoleComponent;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
-
-import io.wifi.starrailexpress.api.RoleComponent;
 import pro.fazeclan.river.stupid_express.StupidExpress;
 
 import java.util.UUID;

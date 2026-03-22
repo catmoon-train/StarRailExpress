@@ -2,10 +2,9 @@ package io.wifi.starrailexpress.command;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
-
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.data.ServerMapConfig;
 import io.wifi.starrailexpress.network.SyncMapConfigPayload;
-import io.wifi.starrailexpress.SRE;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;

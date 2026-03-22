@@ -2,13 +2,10 @@ package io.wifi.starrailexpress.client.gui;
 
 import dev.doctor4t.ratatouille.util.TextUtils;
 import io.wifi.starrailexpress.cca.AutoStartComponent;
-import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.MapVotingComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.InputHandler;
 import io.wifi.starrailexpress.game.GameUtils;
-import org.jetbrains.annotations.NotNull;
-
-import java.util.List;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
@@ -16,6 +13,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
 
 public class LobbyPlayersRenderer {
     public static void renderHud(Font font, @NotNull LocalPlayer player, @NotNull GuiGraphics guiGraphics) {

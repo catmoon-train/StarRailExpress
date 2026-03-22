@@ -1,12 +1,12 @@
 package org.agmas.noellesroles.client;
 
 import io.wifi.starrailexpress.client.PostProcessor;
+import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import org.agmas.noellesroles.component.MaChenXuPlayerComponent;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
-import io.wifi.starrailexpress.client.SREClient;
 
 import java.util.function.BooleanSupplier;
 

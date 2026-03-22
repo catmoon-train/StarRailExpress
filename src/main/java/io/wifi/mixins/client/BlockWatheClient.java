@@ -1,13 +1,12 @@
 package io.wifi.mixins.client;
 
+import dev.doctor4t.wathe.client.WatheClient;
+import io.wifi.starrailexpress.SRE;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import dev.doctor4t.wathe.client.WatheClient;
-import io.wifi.starrailexpress.SRE;
 
 @Mixin(WatheClient.class)
 public class BlockWatheClient {

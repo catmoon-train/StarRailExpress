@@ -1,19 +1,5 @@
 package org.agmas.noellesroles.client;
 
-import net.minecraft.ChatFormatting;
-import net.minecraft.client.CameraType;
-
-import org.agmas.noellesroles.client.renderer.*;
-import org.agmas.noellesroles.init.ModItems;
-import org.agmas.noellesroles.init.ModEntities;
-import org.agmas.noellesroles.client.screen.*;
-
-import org.agmas.noellesroles.component.*;
-import org.agmas.noellesroles.item.ConspiracyPageItem;
-import org.agmas.noellesroles.item.WrittenNoteItem;
-import org.agmas.noellesroles.packet.*;
-import org.agmas.noellesroles.role.ModRoles;
-
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -21,6 +7,8 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
@@ -29,6 +17,15 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import org.agmas.noellesroles.client.renderer.*;
+import org.agmas.noellesroles.client.screen.*;
+import org.agmas.noellesroles.component.*;
+import org.agmas.noellesroles.init.ModEntities;
+import org.agmas.noellesroles.init.ModItems;
+import org.agmas.noellesroles.item.ConspiracyPageItem;
+import org.agmas.noellesroles.item.WrittenNoteItem;
+import org.agmas.noellesroles.packet.*;
+import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.screen.ModScreenHandlers;
 import org.agmas.noellesroles.utils.RoleUtils;
 

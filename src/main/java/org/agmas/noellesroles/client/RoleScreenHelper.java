@@ -2,13 +2,14 @@ package org.agmas.noellesroles.client;
 
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.player.LocalPlayer;
+
 import java.awt.*;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.player.LocalPlayer;
 
 /**
  * 辅助类用于处理角色屏幕的通用逻辑，如分页和角色检查。

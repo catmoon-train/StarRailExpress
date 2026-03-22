@@ -1,5 +1,6 @@
 package io.wifi.starrailexpress.cca;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.game.GameConstants;
@@ -8,7 +9,6 @@ import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.network.RemoveStatusBarPayload;
 import io.wifi.starrailexpress.network.TriggerStatusBarPayload;
 import io.wifi.starrailexpress.util.ShopEntry;
-import io.wifi.starrailexpress.SRE;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -18,7 +18,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-
 import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;

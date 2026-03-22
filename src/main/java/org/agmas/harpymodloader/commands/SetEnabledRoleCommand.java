@@ -5,7 +5,6 @@ import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
-
 import io.wifi.starrailexpress.api.SRERole;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;

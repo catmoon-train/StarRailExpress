@@ -1,36 +1,27 @@
 package io.wifi.starrailexpress.index.wathe_bridge;
 
 import dev.doctor4t.ratatouille.util.registrar.BlockRegistrar;
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.block.*;
 import io.wifi.starrailexpress.index.TMMProperties;
 import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.util.BlockSettingsAdditions;
-import io.wifi.starrailexpress.SRE;
 import net.fabricmc.fabric.api.object.builder.v1.block.type.BlockSetTypeBuilder;
 import net.fabricmc.fabric.api.registry.FlammableBlockRegistry;
-
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.BlockFamily;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.DoorBlock;
-import net.minecraft.world.level.block.GlazedTerracottaBlock;
-import net.minecraft.world.level.block.RotatedPillarBlock;
-import net.minecraft.world.level.block.SlabBlock;
-import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.level.block.StainedGlassBlock;
-import net.minecraft.world.level.block.StairBlock;
-import net.minecraft.world.level.block.WallBlock;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
+
 import java.util.function.ToIntFunction;
 
 @SuppressWarnings("unchecked")

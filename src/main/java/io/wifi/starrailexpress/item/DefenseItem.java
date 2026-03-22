@@ -1,7 +1,5 @@
 package io.wifi.starrailexpress.item;
 
-import java.util.ArrayList;
-
 import io.wifi.starrailexpress.cca.BartenderPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import net.minecraft.world.InteractionHand;
@@ -12,6 +10,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
+
+import java.util.ArrayList;
 
 public class DefenseItem extends Item {
     public static SREGameWorldComponent gameWorldComponent = null;

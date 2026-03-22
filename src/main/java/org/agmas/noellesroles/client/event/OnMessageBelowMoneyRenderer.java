@@ -4,6 +4,7 @@ import net.fabricmc.fabric.api.event.Event;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+
 import static net.fabricmc.fabric.api.event.EventFactory.createArrayBacked;
 
 public interface OnMessageBelowMoneyRenderer {

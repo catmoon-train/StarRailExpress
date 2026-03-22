@@ -1,13 +1,11 @@
 package org.agmas.noellesroles.client.commands;
 
+import io.wifi.starrailexpress.client.util.ClientScheduler;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
-
 import org.agmas.noellesroles.client.screen.GameManagementScreen;
-
-import io.wifi.starrailexpress.client.util.ClientScheduler;
 
 public class GameManagePanelCommand {
     public static void register() {

@@ -1,9 +1,8 @@
 package io.wifi.starrailexpress.mixin.client.restrictions;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
-
-import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;

@@ -1,9 +1,8 @@
 package io.wifi.starrailexpress.api.replay.serializers;
 
 import com.google.gson.*;
-
-import io.wifi.starrailexpress.api.replay.ReplayEventTypes.CustomEventDetails;
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.replay.ReplayEventTypes.CustomEventDetails;
 import net.minecraft.network.chat.Component;
 
 import java.lang.reflect.Type;

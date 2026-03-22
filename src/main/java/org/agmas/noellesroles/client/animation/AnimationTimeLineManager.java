@@ -1,7 +1,5 @@
 package org.agmas.noellesroles.client.animation;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.network.chat.Component;
 import org.agmas.noellesroles.utils.Pair;
 
 import java.util.ArrayList;

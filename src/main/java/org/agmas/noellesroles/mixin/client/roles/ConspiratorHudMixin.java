@@ -1,7 +1,5 @@
 package org.agmas.noellesroles.mixin.client.roles;
 
-import org.agmas.noellesroles.component.ConspiratorPlayerComponent;
-import org.agmas.noellesroles.role.ModRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.RoleNameRenderer;
@@ -12,6 +10,8 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
+import org.agmas.noellesroles.component.ConspiratorPlayerComponent;
+import org.agmas.noellesroles.role.ModRoles;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

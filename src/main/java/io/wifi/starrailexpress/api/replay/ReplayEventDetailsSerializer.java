@@ -1,9 +1,9 @@
 package io.wifi.starrailexpress.api.replay;
 
 import com.google.gson.*;
+import io.wifi.starrailexpress.api.replay.ReplayEventTypes.CustomEventDetails;
 import io.wifi.starrailexpress.api.replay.ReplayEventTypes.EventDetails;
 import io.wifi.starrailexpress.api.replay.ReplayEventTypes.EventType;
-import io.wifi.starrailexpress.api.replay.ReplayEventTypes.CustomEventDetails;
 import net.minecraft.resources.ResourceLocation;
 
 import java.lang.reflect.Type;

@@ -8,10 +8,9 @@ import io.wifi.starrailexpress.mod_whitelist.common.ModInfo;
 import io.wifi.starrailexpress.mod_whitelist.common.utils.MWLogger;
 import net.fabricmc.loader.api.FabricLoader;
 
-import java.io.*;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;

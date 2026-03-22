@@ -8,7 +8,6 @@ import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.roles.morphling.MorphlingPlayerComponent;
 import org.spongepowered.asm.mixin.Mixin;

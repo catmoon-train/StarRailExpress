@@ -1,18 +1,9 @@
 package io.wifi.starrailexpress.mixin.network;
 
-import com.mojang.authlib.GameProfile;
-import com.mojang.serialization.Codec;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.status.ClientStatusPacketListener;
 import net.minecraft.network.protocol.status.ClientboundStatusResponsePacket;
+import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(ClientboundStatusResponsePacket.class)
 public abstract class ServerListFixMixin implements Packet<ClientStatusPacketListener> {

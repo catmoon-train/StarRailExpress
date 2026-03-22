@@ -1,19 +1,18 @@
 package pro.fazeclan.river.stupid_express;
 
 import dev.doctor4t.ratatouille.util.registrar.SoundEventRegistrar;
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.event.OnPlayerDeath;
 import io.wifi.starrailexpress.game.WTLooseEndsGameMode;
 import io.wifi.starrailexpress.network.RemoveStatusBarPayload;
-import io.wifi.starrailexpress.SRE;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
-
 import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.harpymodloader.config.HarpyModLoaderConfig;

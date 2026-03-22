@@ -1,20 +1,9 @@
 package org.agmas.noellesroles.item.charge_item;
 
 import io.wifi.starrailexpress.api.ChargeableItem;
-import io.wifi.starrailexpress.cca.SREPlayerPoisonComponent;
 import io.wifi.starrailexpress.client.StaminaRenderer;
-import io.wifi.starrailexpress.game.GameUtils;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.ProjectileUtil;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.UseAnim;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.HitResult;
 
 public class AntidoteChargeItem implements ChargeableItem {
     @Override

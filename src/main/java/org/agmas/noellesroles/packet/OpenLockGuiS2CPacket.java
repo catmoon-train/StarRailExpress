@@ -5,10 +5,9 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
+import org.agmas.noellesroles.Noellesroles;
 
 import java.util.UUID;
-
-import org.agmas.noellesroles.Noellesroles;
 
 public record OpenLockGuiS2CPacket(BlockPos pos, UUID lockId, int lockLength) implements CustomPacketPayload {
     public static final ResourceLocation OPEN_LOCK_GUI_C2S = ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID,

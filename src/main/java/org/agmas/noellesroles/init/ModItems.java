@@ -3,6 +3,8 @@ package org.agmas.noellesroles.init;
 import dev.doctor4t.ratatouille.util.registrar.ItemRegistrar;
 import io.wifi.starrailexpress.api.ChargeableItemRegistry;
 import io.wifi.starrailexpress.api.impl.KnifeChargeableItem;
+import io.wifi.starrailexpress.index.TMMDescItems;
+import io.wifi.starrailexpress.index.TMMItems;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Registry;
@@ -13,25 +15,17 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.food.Foods;
-import net.minecraft.world.item.ArmorMaterials;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.*;
 import net.minecraft.world.item.component.ItemLore;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.UnaryOperator;
-
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.item.*;
 import org.agmas.noellesroles.item.charge_item.*;
 import org.agmas.noellesroles.repack.HSRItems;
 import org.agmas.noellesroles.utils.LocalDateData;
 
-import io.wifi.starrailexpress.index.TMMDescItems;
-import io.wifi.starrailexpress.index.TMMItems;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.UnaryOperator;
 
 public class ModItems {
     public static ResourceKey<CreativeModeTab> MISC_CREATIVE_GROUP = ResourceKey.create(

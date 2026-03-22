@@ -1,8 +1,8 @@
 package io.wifi.starrailexpress.index;
 
-import java.util.ArrayList;
-
 import net.minecraft.world.item.Item;
+
+import java.util.ArrayList;
 public interface TMMDescItems {
    public static ArrayList<Item> introItems = new ArrayList<>();
    public static void register(){

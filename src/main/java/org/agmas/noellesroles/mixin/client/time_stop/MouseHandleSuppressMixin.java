@@ -1,11 +1,9 @@
 package org.agmas.noellesroles.mixin.client.time_stop;
 
 import io.wifi.starrailexpress.client.SREClient;
-import io.wifi.starrailexpress.SRE;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.MouseHandler;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.core.Holder;
 import org.agmas.noellesroles.effects.TimeStopEffect;
 import org.agmas.noellesroles.init.ModEffects;
 import org.spongepowered.asm.mixin.Mixin;

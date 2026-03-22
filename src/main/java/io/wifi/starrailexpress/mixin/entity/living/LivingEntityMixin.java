@@ -1,8 +1,8 @@
 package io.wifi.starrailexpress.mixin.entity.living;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.mixin.entity.EntityMixin;
-import io.wifi.starrailexpress.SRE;
 import net.minecraft.core.Holder;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.LivingEntity;

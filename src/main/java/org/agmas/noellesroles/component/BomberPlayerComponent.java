@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.component;
 
+import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.index.TMMSounds;
 import net.minecraft.core.HolderLookup;
@@ -14,11 +15,8 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
-
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.utils.RoleUtils;
-
-import io.wifi.starrailexpress.api.RoleComponent;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 
 public class BomberPlayerComponent implements RoleComponent {

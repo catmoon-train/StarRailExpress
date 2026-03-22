@@ -7,7 +7,6 @@ import io.wifi.starrailexpress.network.original.KnifeStabPayload;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
-
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.entity.PuppeteerBodyEntity;
 import org.spongepowered.asm.mixin.Mixin;

@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.context.CommandContext;
-
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;

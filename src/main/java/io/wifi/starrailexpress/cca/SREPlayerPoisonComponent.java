@@ -1,10 +1,16 @@
 package io.wifi.starrailexpress.cca;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
-import io.wifi.starrailexpress.SRE;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Tuple;
+import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
@@ -13,12 +19,6 @@ import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
 import java.util.ArrayList;
 import java.util.UUID;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.entity.player.Player;
 
 public class SREPlayerPoisonComponent implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
     public static final ComponentKey<SREPlayerPoisonComponent> KEY = ComponentRegistry.getOrCreate(SRE.id("poison"),

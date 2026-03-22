@@ -13,7 +13,9 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.item.*;
+import org.agmas.noellesroles.item.BowenBadgeItem;
+import org.agmas.noellesroles.item.ProblemSetItem;
+import org.agmas.noellesroles.item.ShisiyeItem;
 
 public class FunnyItems {
   public static ResourceKey<CreativeModeTab> MISC_CREATIVE_GROUP = ResourceKey.create(Registries.CREATIVE_MODE_TAB,

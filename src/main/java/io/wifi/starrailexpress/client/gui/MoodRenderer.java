@@ -1,14 +1,14 @@
 package io.wifi.starrailexpress.client.gui;
 
-import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.SREGameModes;
+import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.cca.SREPlayerTaskComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.game.GameConstants;
-import io.wifi.starrailexpress.SRE;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.DeltaTracker;

@@ -1,27 +1,24 @@
 package org.agmas.noellesroles.block_entity;
 
 import io.wifi.starrailexpress.util.ShopEntry;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.world.level.block.Block;
-
-import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.init.ModBlocks;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import org.agmas.noellesroles.Noellesroles;
+import org.agmas.noellesroles.init.ModBlocks;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class VendingMachinesBlockEntity extends BlockEntity {
 

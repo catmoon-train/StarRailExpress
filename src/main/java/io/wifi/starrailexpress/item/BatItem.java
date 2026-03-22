@@ -1,8 +1,7 @@
 package io.wifi.starrailexpress.item;
 
-import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.SRE;
-
+import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;

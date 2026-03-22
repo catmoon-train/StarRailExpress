@@ -1,7 +1,7 @@
 package io.wifi.starrailexpress.mod_whitelist.common.network;
 
-import io.wifi.starrailexpress.mod_whitelist.common.ModInfo;
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.mod_whitelist.common.ModInfo;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;

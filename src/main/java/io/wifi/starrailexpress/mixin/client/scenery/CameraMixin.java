@@ -1,8 +1,8 @@
 package io.wifi.starrailexpress.mixin.client.scenery;
 
-import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREClientConfig;
+import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;

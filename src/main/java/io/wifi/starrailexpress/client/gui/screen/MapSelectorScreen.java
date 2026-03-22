@@ -1,17 +1,12 @@
 package io.wifi.starrailexpress.client.gui.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferUploader;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexFormat;
-
+import com.mojang.blaze3d.vertex.*;
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.MapVotingComponent;
 import io.wifi.starrailexpress.client.InputHandler;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.data.MapConfig;
-import io.wifi.starrailexpress.SRE;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;

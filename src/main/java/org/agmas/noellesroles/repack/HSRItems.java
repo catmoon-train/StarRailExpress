@@ -15,13 +15,8 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
-
 import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.repack.items.AntidoteItem;
-import org.agmas.noellesroles.repack.items.BanditRevolverItem;
-import org.agmas.noellesroles.repack.items.CatalystItem;
-import org.agmas.noellesroles.repack.items.PillItem;
-import org.agmas.noellesroles.repack.items.ToxinItem;
+import org.agmas.noellesroles.repack.items.*;
 
 public class HSRItems {
     public static final String PILL_POISONOUS_KEY = "poisonous";

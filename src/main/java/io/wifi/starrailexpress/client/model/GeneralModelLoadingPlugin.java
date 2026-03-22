@@ -1,7 +1,5 @@
 package io.wifi.starrailexpress.client.model;
 
-import java.util.HashMap;
-
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.item.SkinableItem;
@@ -12,6 +10,8 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.Item;
+
+import java.util.HashMap;
 
 public class GeneralModelLoadingPlugin implements ModelLoadingPlugin {
 

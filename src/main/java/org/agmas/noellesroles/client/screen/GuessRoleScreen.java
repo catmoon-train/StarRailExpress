@@ -1,26 +1,22 @@
 package org.agmas.noellesroles.client.screen;
 
-import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.multiplayer.PlayerInfo;
-import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.client.widget.ConspiratorRoleWidget;
-import org.agmas.noellesroles.client.widget.GuessPlayerWidget;
-import org.agmas.noellesroles.utils.RoleUtils;
-
 import io.wifi.starrailexpress.api.SRERole;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.network.chat.Component;
+import org.agmas.noellesroles.Noellesroles;
+import org.agmas.noellesroles.client.widget.ConspiratorRoleWidget;
+import org.agmas.noellesroles.client.widget.GuessPlayerWidget;
+import org.agmas.noellesroles.utils.RoleUtils;
 
-import java.awt.Color;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.awt.*;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 /**
  * 身份猜测记录屏幕

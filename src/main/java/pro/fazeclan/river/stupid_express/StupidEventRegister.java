@@ -1,11 +1,5 @@
 package pro.fazeclan.river.stupid_express;
 
-import java.util.ArrayList;
-import java.util.Collections;
-
-import org.agmas.harpymodloader.Harpymodloader;
-import org.agmas.harpymodloader.component.WorldModifierComponent;
-import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -18,6 +12,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import org.agmas.harpymodloader.Harpymodloader;
+import org.agmas.harpymodloader.component.WorldModifierComponent;
+import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 import pro.fazeclan.river.stupid_express.constants.SERoles;
 import pro.fazeclan.river.stupid_express.modifier.cursed.cca.CursedComponent;
@@ -26,6 +23,9 @@ import pro.fazeclan.river.stupid_express.modifier.split_personality.cca.SplitPer
 import pro.fazeclan.river.stupid_express.role.arsonist.ArsonistWinChecker;
 import pro.fazeclan.river.stupid_express.role.necromancer.cca.NecromancerComponent;
 import pro.fazeclan.river.stupid_express.utils.StupidRoleUtils;
+
+import java.util.ArrayList;
+import java.util.Collections;
 
 public class StupidEventRegister {
     private static void clearAllKnives(Player player) {

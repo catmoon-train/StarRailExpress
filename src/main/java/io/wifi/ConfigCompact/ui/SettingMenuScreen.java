@@ -1,10 +1,5 @@
 package io.wifi.ConfigCompact.ui;
 
-import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
-import org.agmas.noellesroles.client.screen.RoleIntroduceScreen;
-import org.agmas.noellesroles.client.widget.custom_button.ModernButton;
-import org.agmas.noellesroles.config.NoellesRolesConfig;
-
 import io.wifi.starrailexpress.SREClientConfig;
 import io.wifi.starrailexpress.SREConfig;
 import net.minecraft.ChatFormatting;
@@ -13,6 +8,10 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
+import org.agmas.noellesroles.client.screen.RoleIntroduceScreen;
+import org.agmas.noellesroles.client.widget.custom_button.ModernButton;
+import org.agmas.noellesroles.config.NoellesRolesConfig;
 import pro.fazeclan.river.stupid_express.StupidExpressConfig;
 
 public class SettingMenuScreen extends Screen {

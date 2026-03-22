@@ -1,11 +1,11 @@
 package io.wifi.starrailexpress.api;
 
-import io.wifi.starrailexpress.game.WTLooseEndsGameMode;
-import io.wifi.starrailexpress.game.StarRailMurderGameMode;
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.game.StarRailMurderGameMode;
+import io.wifi.starrailexpress.game.WTLooseEndsGameMode;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.HashMap;
-import net.minecraft.resources.ResourceLocation;
 
 public class SREGameModes {
     public static final HashMap<ResourceLocation, GameMode> GAME_MODES = new HashMap<>();

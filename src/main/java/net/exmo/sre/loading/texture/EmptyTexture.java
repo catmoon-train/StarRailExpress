@@ -1,12 +1,13 @@
 package net.exmo.sre.loading.texture;
 
 import com.mojang.blaze3d.platform.NativeImage;
-import java.io.IOException;
-import java.io.InputStream;
 import net.minecraft.client.renderer.texture.SimpleTexture;
 import net.minecraft.client.resources.metadata.texture.TextureMetadataSection;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 public class EmptyTexture extends SimpleTexture {
     // Empty texture used for hiding the default mojang logo when using other logo styles //

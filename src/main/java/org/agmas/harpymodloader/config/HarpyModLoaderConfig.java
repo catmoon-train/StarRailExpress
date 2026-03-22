@@ -1,12 +1,12 @@
 package org.agmas.harpymodloader.config;
 
-import me.shedaniel.autoconfig.annotation.ConfigEntry.Gui.Tooltip;
+import io.wifi.ConfigCompact.ConfigClassHandler;
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
+import me.shedaniel.autoconfig.annotation.ConfigEntry.Gui.Tooltip;
+
 import java.util.ArrayList;
 import java.util.HashMap;
-
-import io.wifi.ConfigCompact.ConfigClassHandler;
 
 @Config(name = "harpymodloader")
 public class HarpyModLoaderConfig implements ConfigData {

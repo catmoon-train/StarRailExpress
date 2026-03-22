@@ -1,15 +1,10 @@
 package io.wifi.starrailexpress.compat;
 
-import de.maxhenkel.voicechat.api.Group;
-import de.maxhenkel.voicechat.api.VoicechatClientApi;
-import de.maxhenkel.voicechat.api.VoicechatConnection;
-import de.maxhenkel.voicechat.api.VoicechatPlugin;
-import de.maxhenkel.voicechat.api.VoicechatServerApi;
+import de.maxhenkel.voicechat.api.*;
 import de.maxhenkel.voicechat.api.events.ClientVoicechatConnectionEvent;
 import de.maxhenkel.voicechat.api.events.EventRegistration;
 import de.maxhenkel.voicechat.api.events.VoicechatServerStartedEvent;
 import io.wifi.starrailexpress.SRE;
-
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;

@@ -1,14 +1,13 @@
 package org.agmas.harpymodloader.events;
 
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import net.fabricmc.fabric.api.event.Event;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 
-import static net.fabricmc.fabric.api.event.EventFactory.createArrayBacked;
-
 import java.util.List;
 
-import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import static net.fabricmc.fabric.api.event.EventFactory.createArrayBacked;
 
 public interface GameInitializeEvent {
 
