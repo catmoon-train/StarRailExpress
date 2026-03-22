@@ -219,73 +219,63 @@ public class RoleShopHandler {
     initShops();
     ShopContent.register();
     {
-      // 布袋鬼商店
+      // 布袋鬼商店（诡舍·缚灵）
+      // 设计要求：无法购买刀、枪、狂暴模式，只能购买强化领域的道具
       var MA_CHEN_XU_SHOP = new ArrayList<ShopEntry>();
-      // 刀 - 130金币
-      MA_CHEN_XU_SHOP.add(new ShopEntry(
-          TMMItems.KNIFE.getDefaultInstance(),
-          200,
-          ShopEntry.Type.WEAPON));
 
-      // 开锁器 - 100金币
-      MA_CHEN_XU_SHOP.add(new ShopEntry(
-          TMMItems.LOCKPICK.getDefaultInstance(),
-          100,
-          ShopEntry.Type.TOOL));
-
-      // 下雨[狂热] - 250金币
-      ItemStack frenzyRainItem = Items.BARRIER.getDefaultInstance();
-      frenzyRainItem.set(DataComponents.ITEM_NAME,
-          Component.translatable("item.noellesroles.ma_chen_xu.frenzy_rain")
-              .withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD));
-      var frenzyRainLore = new ArrayList<Component>();
-      frenzyRainLore.add(Component.translatable("item.noellesroles.ma_chen_xu.frenzy_rain.lore1")
+      // 诡舍·浊雨 - 100金币
+      // 效果：30秒小雨，恐惧范围外好人每5秒掉3SAN，可与大招叠加
+      ItemStack turbidRainItem = Items.BARRIER.getDefaultInstance();
+      turbidRainItem.set(DataComponents.ITEM_NAME,
+          Component.translatable("item.noellesroles.ma_chen_xu.turbid_rain")
+              .withStyle(ChatFormatting.DARK_AQUA, ChatFormatting.BOLD));
+      var turbidRainLore = new ArrayList<Component>();
+      turbidRainLore.add(Component.translatable("item.noellesroles.ma_chen_xu.turbid_rain.lore1")
           .setStyle(Style.EMPTY.withItalic(false))
           .withStyle(ChatFormatting.GRAY));
-      frenzyRainLore.add(Component.translatable("item.noellesroles.ma_chen_xu.frenzy_rain.lore2")
+      turbidRainLore.add(Component.translatable("item.noellesroles.ma_chen_xu.turbid_rain.lore2")
           .setStyle(Style.EMPTY.withItalic(false))
           .withStyle(ChatFormatting.GRAY));
-      frenzyRainLore.add(Component.translatable("item.noellesroles.ma_chen_xu.frenzy_rain.lore3")
-          .setStyle(Style.EMPTY.withItalic(false))
-          .withStyle(ChatFormatting.GRAY));
-      frenzyRainItem.set(DataComponents.LORE, new ItemLore(frenzyRainLore));
+      turbidRainItem.set(DataComponents.LORE, new ItemLore(turbidRainLore));
 
-      MA_CHEN_XU_SHOP.add(new ShopEntry(frenzyRainItem, 250, ShopEntry.Type.TOOL) {
+      MA_CHEN_XU_SHOP.add(new ShopEntry(turbidRainItem, 100, ShopEntry.Type.TOOL) {
         @Override
         public boolean onBuy(@NotNull Player player) {
           var component = org.agmas.noellesroles.component.ModComponents.MA_CHEN_XU.get(player);
           if (component != null) {
-            player.getCooldowns().addCooldown(frenzyRainItem.getItem(), MaChenXuPlayerComponent.FRENZY_RAIN_COOLDOWN);
-            return component.useFrenzyRain();
+            return component.useTurbidRain();
           }
           return false;
         }
       });
 
-      // 关灯 - 120金币
-      MA_CHEN_XU_SHOP.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), 120, ShopEntry.Type.TOOL) {
+      // 诡舍·镇魂铃 - 150金币
+      // 效果：20格AoE，好人获得10秒耳鸣效果
+      ItemStack soulBellItem = Items.BELL.getDefaultInstance();
+      soulBellItem.set(DataComponents.ITEM_NAME,
+          Component.translatable("item.noellesroles.ma_chen_xu.soul_bell")
+              .withStyle(ChatFormatting.DARK_PURPLE, ChatFormatting.BOLD));
+      var soulBellLore = new ArrayList<Component>();
+      soulBellLore.add(Component.translatable("item.noellesroles.ma_chen_xu.soul_bell.lore1")
+          .setStyle(Style.EMPTY.withItalic(false))
+          .withStyle(ChatFormatting.GRAY));
+      soulBellLore.add(Component.translatable("item.noellesroles.ma_chen_xu.soul_bell.lore2")
+          .setStyle(Style.EMPTY.withItalic(false))
+          .withStyle(ChatFormatting.GRAY));
+      soulBellItem.set(DataComponents.LORE, new ItemLore(soulBellLore));
+
+      MA_CHEN_XU_SHOP.add(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), 75, ShopEntry.Type.TOOL) );
+      MA_CHEN_XU_SHOP.add(new ShopEntry(soulBellItem, 150, ShopEntry.Type.TOOL) {
+        @Override
         public boolean onBuy(@NotNull Player player) {
-          return SREPlayerShopComponent.useBlackout(player);
+          var component = org.agmas.noellesroles.component.ModComponents.MA_CHEN_XU.get(player);
+          if (component != null) {
+            return component.useSoulBell();
+          }
+          return false;
         }
       });
 
-      // 手枪 - 320金币
-      MA_CHEN_XU_SHOP.add(new ShopEntry(
-          TMMItems.REVOLVER.getDefaultInstance(),
-          400,
-          ShopEntry.Type.WEAPON));
-
-      // 手雷 - 330金币
-      MA_CHEN_XU_SHOP.add(new ShopEntry(
-          TMMItems.GRENADE.getDefaultInstance(),
-          400,
-          ShopEntry.Type.WEAPON));
-
-      // 撬棍 - 80金币
-      MA_CHEN_XU_SHOP.add(new ShopEntry(
-          TMMItems.CROWBAR.getDefaultInstance(),
-          80,
-          ShopEntry.Type.TOOL));
       ShopContent.customEntries.put(ModRoles.MA_CHEN_XU.getIdentifier(), MA_CHEN_XU_SHOP);
     }
     {
@@ -971,15 +961,14 @@ public class RoleShopHandler {
                 if (GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(p)) {
                   if (gameWorldComponent.isRole(p, ModRoles.MA_CHEN_XU)) {
                     var mapc = MaChenXuPlayerComponent.KEY.get(p);
-                    mapc.blinkCooldown += 20 * 30;
-                    mapc.prayerRainDuration += 20 * 30;
-                    mapc.frenzyRainCooldown += 20 * 30;
-                    mapc.instantSilenceCooldown += 20 * 30;
+                    // 增加所有鬼术冷却30秒
+                    mapc.ghostWallCooldown += 20 * 30;
+                    mapc.echoCooldown += 20 * 30;
+                    mapc.trapCooldown += 20 * 30;
                     mapc.parasiteCooldown += 20 * 30;
-                    mapc.puppetShowCooldown += 20 * 30;
-                    mapc.spiritWalkCooldown += 20 * 30;
-                    mapc.shieldDuration = 0;
-                    mapc.swiftWindCooldown += 20 * 30;
+                    mapc.ultimateCooldown += 20 * 30;
+                    // 移除护盾
+                    mapc.permanentShield = false;
                     p.displayClientMessage(
                         Component.translatable("message.noellesroles.ma_chen_xu.into_cooldown_by_guest")
                             .withStyle(ChatFormatting.RED),

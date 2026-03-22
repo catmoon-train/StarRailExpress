@@ -299,6 +299,9 @@ public class TaskBlockOverlayRenderer {
                     case NOTE_BLOCK:
                         shouldDisplay[10] = true;
                         break;
+                    case BREATHE:
+                        // 呼吸任务无需特殊方块高亮
+                        break;
                     default:
                         break;
 

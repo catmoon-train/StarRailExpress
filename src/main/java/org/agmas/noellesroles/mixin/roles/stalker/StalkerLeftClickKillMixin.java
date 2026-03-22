@@ -92,7 +92,8 @@ public abstract class StalkerLeftClickKillMixin {
 
     /**
      * 在MaChenXu攻击实体时触发
-     * 如果是MaChenXu在里世界时间持刀攻击玩家，则直接击杀目标
+     * 里世界中：左键标记玩家（无SAN要求），里世界结束后标记者死亡
+     * 里世界外：对SAN≤10的玩家执行魂噬
      */
     @Inject(method = "attack", at = @At("HEAD"), cancellable = true)
     private void onMaChenXuKnifeAttack(Entity target, CallbackInfo ci) {
@@ -104,7 +105,7 @@ public abstract class StalkerLeftClickKillMixin {
         // 是否为 machenxu
         if (!SREGameWorldComponent.KEY.get(attacker.level()).isRole(attacker, ModRoles.MA_CHEN_XU))
             return;
-        // 检查目标是否存活
+        // 检查攻击者是否存活
         if (!GameUtils.isPlayerAliveAndSurvival(attacker))
             return;
         // 检查目标是否存活
@@ -112,12 +113,16 @@ public abstract class StalkerLeftClickKillMixin {
             return;
         var mcxpc = MaChenXuPlayerComponent.KEY.get(attacker);
 
-        if (!mcxpc.otherworldActive)
-            return;
-
-        if (mcxpc.soulDevour(targetPlayer)) {
-            // 取消原始攻击逻辑
-            ci.cancel();
+        if (mcxpc.otherworldActive) {
+            // 里世界中：标记玩家
+            if (mcxpc.markPlayer(targetPlayer)) {
+                ci.cancel();
+            }
+        } else {
+            // 里世界外：魂噬（SAN≤10）
+            if (mcxpc.soulDevour(targetPlayer)) {
+                ci.cancel();
+            }
         }
     }
 }

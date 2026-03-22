@@ -287,7 +287,7 @@ public class SREPlayerMoodComponent implements RoleComponent, ServerTickingCompo
     }
 
     public void addMood(float value) {
-        var gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
+        var gameWorldComponent = SREGameWorldComponent.KEY.get(this.player.level());
         SRERole role = gameWorldComponent.getRole(player);
         if (role != null && role.getMoodType() == SRERole.MoodType.REAL)
             this.setMood(this.mood + value);

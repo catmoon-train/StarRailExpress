@@ -265,7 +265,7 @@ public class ModRoles {
       new NormalRole(HOAN_MEIRIN_ID, new Color(243, 140, 132).getRGB(),
           true, false, SRERole.MoodType.REAL,
           TMMRoles.CIVILIAN.getMaxSprintTime(), false))
-      .setCanSeeCoin(true);
+      .setVigilanteTeam(true).setCanSeeCoin(true);
   // 好人：帕秋莉 Patchouli Knowledge
   public static SRERole PACHURI = TMMRoles.registerRole(
       new NormalRole(PACHURI_ID, new Color(184, 144, 182).getRGB(),

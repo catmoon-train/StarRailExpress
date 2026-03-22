@@ -5,6 +5,7 @@ import com.google.gson.annotations.SerializedName;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MapConfig {
@@ -32,6 +33,10 @@ public class MapConfig {
         
         @SerializedName("color")
         public String color;
+
+        // 禁用的任务列表（任务名称，如 "SLEEP", "EXERCISE" 等）
+        @SerializedName("disabledTasks")
+        public List<String> disabledTasks = new ArrayList<>();
         
         // 用于运行时转换颜色值
         public transient int parsedColor;
