@@ -1,15 +1,15 @@
 package io.wifi.starrailexpress.client.gui.screen.ingame;
 
-import io.wifi.starrailexpress.client.SREClient;
-import io.wifi.starrailexpress.client.gui.StoreRenderer;
-import io.wifi.starrailexpress.game.ShopContent;
-import io.wifi.starrailexpress.network.original.StoreBuyPayload;
-import io.wifi.starrailexpress.util.ShopEntry;
 import io.wifi.ConfigCompact.ui.SettingMenuScreen;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREClientConfig;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.client.SREClient;
+import io.wifi.starrailexpress.client.gui.StoreRenderer;
+import io.wifi.starrailexpress.game.ShopContent;
+import io.wifi.starrailexpress.network.original.StoreBuyPayload;
+import io.wifi.starrailexpress.util.ShopEntry;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -27,7 +27,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.InventoryMenu;
-
 import org.agmas.noellesroles.client.screen.GameManagementScreen;
 import org.agmas.noellesroles.client.screen.GuessRoleScreen;
 import org.agmas.noellesroles.client.screen.RoleIntroduceScreen;

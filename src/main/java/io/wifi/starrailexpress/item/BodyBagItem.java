@@ -1,8 +1,8 @@
 package io.wifi.starrailexpress.item;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.game.GameConstants;
-import io.wifi.starrailexpress.SRE;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;

@@ -1,13 +1,13 @@
 package pro.fazeclan.river.stupid_express.role.necromancer;
 
 import de.maxhenkel.voicechat.api.VoicechatConnection;
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.entity.PlayerBodyEntity;
-import io.wifi.starrailexpress.SRE;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.UUID;
 
-import static io.wifi.starrailexpress.compat.TrainVoicePlugin.*;
+import static io.wifi.starrailexpress.compat.TrainVoicePlugin.SERVER_API;
 
 public class RevivalSelectionHandler {
     public static void removeVoice(@NotNull UUID player) {

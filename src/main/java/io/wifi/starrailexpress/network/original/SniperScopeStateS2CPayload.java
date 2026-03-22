@@ -1,11 +1,10 @@
 package io.wifi.starrailexpress.network.original;
 
+import io.wifi.starrailexpress.SRE;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import org.jetbrains.annotations.NotNull;
-
-import io.wifi.starrailexpress.SRE;
 
 public record SniperScopeStateS2CPayload(boolean scopeAttached) implements CustomPacketPayload {
     public static final Type<SniperScopeStateS2CPayload> TYPE = new Type<>(SRE.id("sniper_scope_state_s2c"));

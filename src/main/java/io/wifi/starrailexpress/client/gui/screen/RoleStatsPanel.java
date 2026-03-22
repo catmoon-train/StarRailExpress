@@ -2,10 +2,10 @@
 package io.wifi.starrailexpress.client.gui.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import io.wifi.starrailexpress.api.SRERole;
-import io.wifi.starrailexpress.cca.SREPlayerStatsComponent;
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.replay.ReplayDisplayUtils;
+import io.wifi.starrailexpress.cca.SREPlayerStatsComponent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;

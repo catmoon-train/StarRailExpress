@@ -1,9 +1,8 @@
 package io.wifi.starrailexpress.client.util;
 
-import java.util.UUID;
-
 import net.minecraft.client.Minecraft;
-import net.minecraft.world.entity.player.Player;
+
+import java.util.UUID;
 
 public class TMMClientUtils {
 

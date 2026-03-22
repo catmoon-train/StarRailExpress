@@ -1,8 +1,9 @@
 package org.agmas.harpymodloader;
 
-import java.util.*;
-
 import io.wifi.starrailexpress.game.StarRailMurderGameMode.RoleInstant;
+
+import java.util.Map;
+import java.util.Random;
 
 public class RoleWeightedUtil extends WeightedUtil<RoleInstant> {
     public RoleWeightedUtil(Map<RoleInstant, Float> weights, Random random) {

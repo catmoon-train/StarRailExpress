@@ -1,5 +1,6 @@
 package io.wifi.starrailexpress.cca;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.block.ToiletBlock;
 import io.wifi.starrailexpress.block.entity.SeatEntity;
@@ -8,7 +9,6 @@ import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.tag.TMMBlockTags;
 import io.wifi.starrailexpress.network.original.TaskCompletePayload;
-import io.wifi.starrailexpress.SRE;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -19,7 +19,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.LecternMenu;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
@@ -27,11 +26,11 @@ import org.ladysnake.cca.api.v3.component.ComponentRegistry;
 import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
-import static io.wifi.starrailexpress.SRE.isSkyVisibleAdjacent;
-import static io.wifi.starrailexpress.SRE.isSkyVisible;
-
 import java.util.*;
 import java.util.function.Function;
+
+import static io.wifi.starrailexpress.SRE.isSkyVisible;
+import static io.wifi.starrailexpress.SRE.isSkyVisibleAdjacent;
 
 public class SREPlayerTaskComponent implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
     public static final ComponentKey<SREPlayerTaskComponent> KEY = ComponentRegistry.getOrCreate(SRE.id("task"),

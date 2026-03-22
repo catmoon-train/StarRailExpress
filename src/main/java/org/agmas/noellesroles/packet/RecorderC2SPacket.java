@@ -1,9 +1,5 @@
 package org.agmas.noellesroles.packet;
 
-import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.component.RecorderPlayerComponent;
-import org.agmas.noellesroles.role.ModRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.FriendlyByteBuf;
@@ -11,6 +7,11 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import org.agmas.noellesroles.Noellesroles;
+import org.agmas.noellesroles.component.ModComponents;
+import org.agmas.noellesroles.component.RecorderPlayerComponent;
+import org.agmas.noellesroles.role.ModRoles;
+
 import java.util.UUID;
 
 public record RecorderC2SPacket(UUID targetUuid, String roleId) implements CustomPacketPayload {

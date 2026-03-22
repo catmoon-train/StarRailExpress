@@ -1,16 +1,9 @@
 package org.agmas.noellesroles.client;
 
-import java.awt.Color;
-import java.util.ArrayList;
-import java.util.OptionalDouble;
-
-import org.agmas.noellesroles.init.ModItems;
-
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
-
 import io.wifi.starrailexpress.block_entity.SmallDoorBlockEntity;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.client.SREClient;
@@ -35,6 +28,11 @@ import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.agmas.noellesroles.init.ModItems;
+
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.OptionalDouble;
 
 public class TaskBlockOverlayRenderer {
     // 创建带厚度的永远不被遮挡线框

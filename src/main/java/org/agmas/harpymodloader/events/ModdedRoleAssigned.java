@@ -1,7 +1,7 @@
 package org.agmas.harpymodloader.events;
 
-import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.RoleMethodDispatcher;
+import io.wifi.starrailexpress.api.SRERole;
 import net.fabricmc.fabric.api.event.Event;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;

@@ -1,13 +1,12 @@
 package org.agmas.noellesroles;
 
-import org.agmas.noellesroles.role.ModRoles;
-import org.agmas.noellesroles.roles.thief.ThiefPlayerComponent;
-
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.event.AllowGameEnd;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.GameUtils.WinStatus;
+import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.roles.thief.ThiefPlayerComponent;
 
 public class CustomWinnerClass {
 

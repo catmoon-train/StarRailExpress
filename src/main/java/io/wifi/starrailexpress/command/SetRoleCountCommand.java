@@ -3,7 +3,6 @@ package io.wifi.starrailexpress.command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
-
 import io.wifi.starrailexpress.game.GameConstants;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;

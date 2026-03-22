@@ -1,6 +1,5 @@
 package org.agmas.noellesroles.client.screen;
 
-import io.wifi.StarRailExpressID;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.index.TMMItems;
 import net.minecraft.client.Minecraft;

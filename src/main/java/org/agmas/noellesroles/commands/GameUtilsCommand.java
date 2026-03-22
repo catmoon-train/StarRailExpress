@@ -1,22 +1,20 @@
 package org.agmas.noellesroles.commands;
 
+import com.mojang.brigadier.arguments.BoolArgumentType;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.replay.GameReplayUtils;
-import io.wifi.starrailexpress.cca.AreasWorldComponent;
-import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
-import io.wifi.starrailexpress.cca.SREGameTimeComponent;
-import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
-import io.wifi.starrailexpress.cca.SREWorldBlackoutComponent;
+import io.wifi.starrailexpress.cca.*;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.GameUtils.WinStatus;
-import io.wifi.starrailexpress.game.ServerTaskInfoClasses.ServerTaskInfo;
-import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.game.MapResetManager;
 import io.wifi.starrailexpress.game.ServerTaskInfoClasses;
+import io.wifi.starrailexpress.game.ServerTaskInfoClasses.ServerTaskInfo;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
@@ -31,30 +29,18 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.effects.TimeStopEffect;
 import org.agmas.noellesroles.init.ModEffects;
-import pro.fazeclan.river.stupid_express.StupidExpress;
-
-import com.mojang.brigadier.arguments.StringArgumentType;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
-import java.util.Map.Entry;
-import java.util.concurrent.CompletableFuture;
-
-import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.packet.ProblemScreenOpenC2SPacket;
 import org.agmas.noellesroles.packet.ScanAllTaskPointsPayload;
 import org.agmas.noellesroles.utils.MapScannerManager;
 import org.jetbrains.annotations.Nullable;
+import pro.fazeclan.river.stupid_express.StupidExpress;
 
-import com.mojang.brigadier.arguments.BoolArgumentType;
-import com.mojang.brigadier.arguments.IntegerArgumentType;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.CompletableFuture;
 
 public class GameUtilsCommand {
   public static void register() {

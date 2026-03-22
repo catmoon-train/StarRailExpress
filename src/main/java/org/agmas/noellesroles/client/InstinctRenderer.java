@@ -1,25 +1,5 @@
 package org.agmas.noellesroles.client;
 
-import org.agmas.harpymodloader.component.WorldModifierComponent;
-import org.agmas.noellesroles.component.AdmirerPlayerComponent;
-import org.agmas.noellesroles.component.AwesomePlayerComponent;
-import org.agmas.noellesroles.component.BetterVigilantePlayerComponent;
-import org.agmas.noellesroles.component.DetectivePlayerComponent;
-import org.agmas.noellesroles.component.InsaneKillerPlayerComponent;
-import org.agmas.noellesroles.component.MaChenXuPlayerComponent;
-import org.agmas.noellesroles.component.MagicianPlayerComponent;
-import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.component.MonitorPlayerComponent;
-import org.agmas.noellesroles.component.PuppeteerPlayerComponent;
-import org.agmas.noellesroles.component.RecorderPlayerComponent;
-import org.agmas.noellesroles.component.WayfarerPlayerComponent;
-import org.agmas.noellesroles.init.ModItems;
-import org.agmas.noellesroles.role.ModRoles;
-import org.agmas.noellesroles.roles.executioner.ExecutionerPlayerComponent;
-import org.agmas.noellesroles.roles.manipulator.ManipulatorPlayerComponent;
-import org.agmas.noellesroles.utils.MCItemsUtils;
-import org.agmas.noellesroles.utils.RoleUtils;
-
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREArmorPlayerComponent;
@@ -32,16 +12,23 @@ import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.TMMItemUtils;
-
-import java.awt.Color;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.player.Player;
+import org.agmas.harpymodloader.component.WorldModifierComponent;
+import org.agmas.noellesroles.component.*;
+import org.agmas.noellesroles.init.ModItems;
+import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.roles.executioner.ExecutionerPlayerComponent;
+import org.agmas.noellesroles.roles.manipulator.ManipulatorPlayerComponent;
+import org.agmas.noellesroles.utils.MCItemsUtils;
+import org.agmas.noellesroles.utils.RoleUtils;
 import pro.fazeclan.river.stupid_express.StupidExpress;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 import pro.fazeclan.river.stupid_express.constants.SERoles;
 import pro.fazeclan.river.stupid_express.modifier.split_personality.cca.SplitPersonalityComponent;
 import pro.fazeclan.river.stupid_express.role.arsonist.cca.DousedPlayerComponent;
+
+import java.awt.*;
 
 public class InstinctRenderer {
     public static void registerInstinctEvents() {

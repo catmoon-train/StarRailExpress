@@ -1,7 +1,6 @@
 package io.wifi.starrailexpress.mixin.input;
 
 import io.wifi.starrailexpress.block.SecurityMonitorBlock;
-
 import net.minecraft.client.KeyboardHandler;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

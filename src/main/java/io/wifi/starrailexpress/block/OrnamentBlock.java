@@ -3,7 +3,6 @@ package io.wifi.starrailexpress.block;
 import com.mojang.serialization.MapCodec;
 import io.wifi.starrailexpress.block.property.OrnamentShape;
 import io.wifi.starrailexpress.index.TMMProperties;
-
 import io.wifi.starrailexpress.mixin.block.AbstractBlockInvoker;
 import io.wifi.starrailexpress.util.BlockUtils;
 import net.minecraft.core.BlockPos;

@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.item;
 
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -9,12 +10,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-
-import java.util.List;
-
 import org.agmas.noellesroles.role.ModRoles;
 
-import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import java.util.List;
 
 public class SignedPaperItem extends Item {
 

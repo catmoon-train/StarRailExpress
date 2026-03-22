@@ -1,12 +1,7 @@
 package io.wifi.starrailexpress.network;
 
-import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
-import io.wifi.starrailexpress.client.StatusBarHUD;
-import io.wifi.starrailexpress.client.StatusInit;
 import io.wifi.starrailexpress.SRE;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;

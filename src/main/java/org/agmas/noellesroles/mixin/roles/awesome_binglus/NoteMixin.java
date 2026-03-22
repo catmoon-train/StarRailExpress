@@ -1,12 +1,12 @@
 package org.agmas.noellesroles.mixin.roles.awesome_binglus;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerNoteComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.entity.NoteEntity;
 import io.wifi.starrailexpress.index.TMMEntities;
 import io.wifi.starrailexpress.item.NoteItem;
-import io.wifi.starrailexpress.SRE;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;

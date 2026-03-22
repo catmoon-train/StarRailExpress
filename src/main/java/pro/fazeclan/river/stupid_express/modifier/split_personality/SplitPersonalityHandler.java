@@ -2,15 +2,14 @@ package pro.fazeclan.river.stupid_express.modifier.split_personality;
 
 import io.wifi.starrailexpress.event.AllowPlayerDeath;
 import io.wifi.starrailexpress.game.GameUtils;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.GameType;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
-
 import pro.fazeclan.river.stupid_express.StupidExpress;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 import pro.fazeclan.river.stupid_express.modifier.split_personality.cca.SkinSplitPersonalityComponent;
@@ -18,7 +17,7 @@ import pro.fazeclan.river.stupid_express.modifier.split_personality.cca.SplitPer
 import pro.fazeclan.river.stupid_express.modifier.split_personality.cca.SplitPersonalityComponent.ChoiceType;
 import pro.fazeclan.river.stupid_express.network.SplitBackCamera;
 
-import java.util.*;
+import java.util.UUID;
 
 public class SplitPersonalityHandler {
 

@@ -1,8 +1,8 @@
 package io.wifi.mixins;
 
+import dev.doctor4t.wathe.Wathe;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
-import dev.doctor4t.wathe.Wathe;
 
 @Mixin(Wathe.class)
 public class BlockWathe {

@@ -1,8 +1,5 @@
 package org.agmas.noellesroles.client.widget;
 
-import java.util.Objects;
-import java.util.OptionalInt;
-
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.Font;
@@ -10,6 +7,9 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.MultiLineLabel;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.SingleKeyCache;
+
+import java.util.Objects;
+import java.util.OptionalInt;
 
 public class SelectedRoleIntroTextWidget extends net.minecraft.client.gui.components.AbstractStringWidget {
     private OptionalInt maxWidth;

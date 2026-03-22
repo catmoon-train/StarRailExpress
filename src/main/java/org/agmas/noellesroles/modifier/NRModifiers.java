@@ -14,7 +14,7 @@ import org.agmas.noellesroles.modifier.introverted.IntrovertedModifier;
 import org.agmas.noellesroles.modifier.taxed.TaxedModifier;
 import org.agmas.noellesroles.role.ModRoles;
 
-import java.awt.Color;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 

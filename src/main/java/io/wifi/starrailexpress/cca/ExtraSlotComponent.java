@@ -1,14 +1,5 @@
 package io.wifi.starrailexpress.cca;
 
-import java.util.HashMap;
-import java.util.function.Predicate;
-
-import org.jetbrains.annotations.NotNull;
-import org.ladysnake.cca.api.v3.component.ComponentKey;
-import org.ladysnake.cca.api.v3.component.ComponentRegistry;
-import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
-import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
-
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleComponent;
 import net.minecraft.advancements.CriteriaTriggers;
@@ -28,6 +19,14 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import org.jetbrains.annotations.NotNull;
+import org.ladysnake.cca.api.v3.component.ComponentKey;
+import org.ladysnake.cca.api.v3.component.ComponentRegistry;
+import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
+import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
+
+import java.util.HashMap;
+import java.util.function.Predicate;
 
 public class ExtraSlotComponent implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
     public static final ComponentKey<ExtraSlotComponent> KEY = ComponentRegistry.getOrCreate(SRE.id("extra_slots"),

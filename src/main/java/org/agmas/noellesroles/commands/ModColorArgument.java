@@ -7,18 +7,16 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import org.agmas.noellesroles.utils.RoleUtils;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
-
-import org.agmas.noellesroles.utils.RoleUtils;
 
 public class ModColorArgument implements ArgumentType<Integer> {
     private static final Collection<String> EXAMPLES = Arrays.asList("0", "123", "red", "dark_green");

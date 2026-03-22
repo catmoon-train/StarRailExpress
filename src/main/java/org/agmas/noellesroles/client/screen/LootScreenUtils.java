@@ -3,7 +3,6 @@ package org.agmas.noellesroles.client.screen;
 import io.wifi.StarRailExpressID;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.vehicle.Minecart;
 
 public class LootScreenUtils {
     public static ResourceLocation getItemResourceLocation(String itemName) {

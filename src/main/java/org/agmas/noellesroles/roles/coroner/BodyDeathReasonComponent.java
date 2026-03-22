@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.roles.coroner;
 
+import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.entity.PlayerBodyEntity;
 import net.minecraft.core.HolderLookup;
@@ -7,12 +8,10 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-
 import org.agmas.noellesroles.Noellesroles;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
-import io.wifi.starrailexpress.api.RoleComponent;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
 public class BodyDeathReasonComponent implements RoleComponent, ServerTickingComponent {

@@ -1,8 +1,5 @@
 package org.agmas.noellesroles.mixin.client.roles;
 
-import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.component.PsychologistPlayerComponent;
-import org.agmas.noellesroles.role.ModRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -13,6 +10,9 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
+import org.agmas.noellesroles.component.ModComponents;
+import org.agmas.noellesroles.component.PsychologistPlayerComponent;
+import org.agmas.noellesroles.role.ModRoles;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

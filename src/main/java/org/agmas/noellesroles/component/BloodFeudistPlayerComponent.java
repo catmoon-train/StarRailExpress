@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.component;
 
+import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import net.minecraft.core.HolderLookup;
@@ -16,7 +17,6 @@ import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.tick.CommonTickingComponent;
-import io.wifi.starrailexpress.api.RoleComponent;
 
 /**
  * 仇杀客职业组件

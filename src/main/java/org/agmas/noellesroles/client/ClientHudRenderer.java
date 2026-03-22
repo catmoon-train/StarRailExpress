@@ -1,25 +1,5 @@
 package org.agmas.noellesroles.client;
 
-import java.awt.Color;
-
-import org.agmas.noellesroles.AttendantHandler;
-import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
-import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.component.RecorderPlayerComponent;
-import org.agmas.noellesroles.component.BloodFeudistPlayerComponent;
-import org.agmas.noellesroles.component.ClockmakerPlayerComponent;
-import org.agmas.noellesroles.component.HoanMeirinPlayerComponent;
-import org.agmas.noellesroles.component.MaChenXuPlayerComponent;
-import org.agmas.noellesroles.entity.WheelchairEntity;
-import org.agmas.noellesroles.init.ModEffects;
-import org.agmas.noellesroles.init.ModItems;
-import org.agmas.noellesroles.role.ModRoles;
-import org.agmas.noellesroles.roles.commander.CommanderHudRender;
-import org.agmas.noellesroles.roles.fortuneteller.FortunetellerPlayerComponent;
-import org.agmas.noellesroles.roles.ghost.GhostPlayerComponent;
-import org.agmas.noellesroles.roles.noise_maker.NoiseMakerPlayerComponent;
-import org.agmas.noellesroles.roles.thief.ThiefPlayerComponent;
-
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREArmorPlayerComponent;
@@ -35,6 +15,20 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import org.agmas.noellesroles.AttendantHandler;
+import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
+import org.agmas.noellesroles.component.*;
+import org.agmas.noellesroles.entity.WheelchairEntity;
+import org.agmas.noellesroles.init.ModEffects;
+import org.agmas.noellesroles.init.ModItems;
+import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.roles.commander.CommanderHudRender;
+import org.agmas.noellesroles.roles.fortuneteller.FortunetellerPlayerComponent;
+import org.agmas.noellesroles.roles.ghost.GhostPlayerComponent;
+import org.agmas.noellesroles.roles.noise_maker.NoiseMakerPlayerComponent;
+import org.agmas.noellesroles.roles.thief.ThiefPlayerComponent;
+
+import java.awt.*;
 
 public class ClientHudRenderer {
   public static void registerFather() {

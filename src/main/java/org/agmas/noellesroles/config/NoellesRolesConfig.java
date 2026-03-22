@@ -1,13 +1,13 @@
 package org.agmas.noellesroles.config;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import io.wifi.ConfigCompact.ConfigClassHandler;
 import io.wifi.starrailexpress.game.GameConstants;
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry.Category;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Config(name = "noellesroles")
 public class NoellesRolesConfig implements ConfigData {

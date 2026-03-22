@@ -3,9 +3,8 @@ package io.wifi.starrailexpress.command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
-
-import io.wifi.starrailexpress.data.WaypointManager;
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.data.WaypointManager;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;

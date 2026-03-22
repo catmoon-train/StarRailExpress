@@ -1,5 +1,7 @@
 package io.wifi.starrailexpress.item;
 
+import io.wifi.StarRailExpressID;
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.particle.HandParticle;
@@ -8,8 +10,6 @@ import io.wifi.starrailexpress.client.util.TMMItemTooltips;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.network.original.GunShootPayload;
-import io.wifi.StarRailExpressID;
-import io.wifi.starrailexpress.SRE;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;

@@ -1,18 +1,17 @@
 package pro.fazeclan.river.stupid_express.modifier.lovers;
 
-import java.util.OptionalInt;
-import java.util.UUID;
-
-import org.agmas.harpymodloader.component.WorldModifierComponent;
-
 import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
 import io.wifi.starrailexpress.event.AllowGameEnd;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.GameUtils.WinStatus;
 import net.minecraft.server.level.ServerPlayer;
+import org.agmas.harpymodloader.component.WorldModifierComponent;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 import pro.fazeclan.river.stupid_express.modifier.lovers.cca.LoversComponent;
 import pro.fazeclan.river.stupid_express.utils.StupidRoleUtils;
+
+import java.util.OptionalInt;
+import java.util.UUID;
 
 public class LoversWinCheckEvent {
     public static void register() {

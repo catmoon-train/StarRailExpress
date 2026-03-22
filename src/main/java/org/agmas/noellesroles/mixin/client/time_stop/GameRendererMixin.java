@@ -1,6 +1,5 @@
 package org.agmas.noellesroles.mixin.client.time_stop;
 
-import io.wifi.starrailexpress.client.SansRenderer;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.renderer.GameRenderer;
 import org.agmas.noellesroles.client.TimeStopShader;

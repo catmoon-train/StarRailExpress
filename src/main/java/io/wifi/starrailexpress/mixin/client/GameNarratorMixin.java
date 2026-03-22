@@ -1,5 +1,11 @@
 package io.wifi.starrailexpress.mixin.client;
 
+import com.mojang.text2speech.Narrator;
+import io.wifi.starrailexpress.client.SREClient;
+import net.minecraft.client.GameNarrator;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.NarratorStatus;
+import net.minecraft.network.chat.Component;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -7,15 +13,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
-import com.mojang.text2speech.Narrator;
-
-import io.wifi.starrailexpress.client.SREClient;
-import io.wifi.starrailexpress.SRE;
-import net.minecraft.client.GameNarrator;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.NarratorStatus;
-import net.minecraft.network.chat.Component;
 
 @Mixin(GameNarrator.class)
 public class GameNarratorMixin {

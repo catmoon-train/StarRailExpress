@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.component;
 
+import dev.doctor4t.wathe.game.GameFunctions;
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
@@ -30,8 +31,6 @@ import org.joml.Vector3f;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
-
-import dev.doctor4t.wathe.game.GameFunctions;
 
 /**
  * 迪奥组件

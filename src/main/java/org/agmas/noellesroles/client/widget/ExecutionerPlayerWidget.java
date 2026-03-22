@@ -10,8 +10,8 @@ import net.minecraft.client.gui.components.PlayerFaceRenderer;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.RenderType;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
-import org.agmas.noellesroles.roles.executioner.ExecutionerPlayerComponent;
 import org.agmas.noellesroles.packet.ExecutionerSelectTargetC2SPacket;
+import org.agmas.noellesroles.roles.executioner.ExecutionerPlayerComponent;
 import org.jetbrains.annotations.NotNull;
 
 /**

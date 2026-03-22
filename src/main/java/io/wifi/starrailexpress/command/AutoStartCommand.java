@@ -2,7 +2,6 @@ package io.wifi.starrailexpress.command;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
-
 import io.wifi.starrailexpress.cca.AutoStartComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import net.minecraft.commands.CommandSourceStack;

@@ -1,14 +1,14 @@
 package io.wifi.starrailexpress.api;
 
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
-import org.jetbrains.annotations.NotNull;
-
-import java.util.List;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
 
 public abstract class GameMode {
     public final ResourceLocation identifier;

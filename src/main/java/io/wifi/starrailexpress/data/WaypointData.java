@@ -6,9 +6,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class WaypointData {
 
     @SerializedName("path")

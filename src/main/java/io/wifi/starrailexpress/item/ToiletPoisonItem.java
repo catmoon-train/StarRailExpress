@@ -1,8 +1,8 @@
 package io.wifi.starrailexpress.item;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.block.ToiletBlock;
 import io.wifi.starrailexpress.block_entity.ToiletBlockEntity;
-import io.wifi.starrailexpress.SRE;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.sounds.SoundEvents;

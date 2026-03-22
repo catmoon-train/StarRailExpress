@@ -1,9 +1,9 @@
 package io.wifi.starrailexpress.client.model;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.client.model.entity.PlayerSkeletonEntityModel;
 import io.wifi.starrailexpress.client.render.block_entity.SmallDoorBlockEntityRenderer;
 import io.wifi.starrailexpress.client.render.block_entity.WheelBlockEntityRenderer;
-import io.wifi.starrailexpress.SRE;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;

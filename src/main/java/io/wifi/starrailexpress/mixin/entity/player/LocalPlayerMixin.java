@@ -3,10 +3,8 @@ package io.wifi.starrailexpress.mixin.entity.player;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.authlib.GameProfile;
-
 import io.wifi.starrailexpress.block.SecurityMonitorBlock;
 import io.wifi.starrailexpress.client.SREClient;
-import io.wifi.starrailexpress.SREConfig;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.Input;

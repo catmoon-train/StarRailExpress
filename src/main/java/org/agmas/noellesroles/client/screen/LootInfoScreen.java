@@ -15,8 +15,8 @@ import org.agmas.noellesroles.client.animation.AbstractAnimation;
 import org.agmas.noellesroles.client.animation.AnimationTimeLineManager;
 import org.agmas.noellesroles.client.animation.BezierAnimation;
 import org.agmas.noellesroles.client.widget.TextureWidget;
-import org.agmas.noellesroles.packet.Loot.LootRequestC2SPacket;
 import org.agmas.noellesroles.packet.Loot.LootMultiRequestC2SPacket;
+import org.agmas.noellesroles.packet.Loot.LootRequestC2SPacket;
 import org.agmas.noellesroles.utils.Pair;
 import org.agmas.noellesroles.utils.lottery.LotteryManager;
 

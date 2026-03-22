@@ -1,7 +1,8 @@
 package io.wifi.starrailexpress.util;
 
-import java.util.List;
 import net.minecraft.world.phys.AABB;
+
+import java.util.List;
 
 public record Carriage(List<AABB> areas, String name) {
 }

@@ -8,7 +8,6 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
@@ -18,15 +17,12 @@ import org.agmas.noellesroles.client.animation.BezierAnimation;
 import org.agmas.noellesroles.client.animation.ConstantSpeedAnimation;
 import org.agmas.noellesroles.client.widget.TextureWidget;
 import org.agmas.noellesroles.client.widget.TimerWidget;
+import org.agmas.noellesroles.utils.Pair;
+import org.agmas.noellesroles.utils.lottery.LotteryManager;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import org.agmas.noellesroles.utils.Pair;
-import org.agmas.noellesroles.utils.lottery.LotteryManager;
-
-import io.wifi.StarRailExpressID;
 
 // TODO : 渲染3D方块动画
 // TODO : 像二游一样的开始界面

@@ -1,10 +1,9 @@
 package io.wifi.starrailexpress.client.gui.screen.ingame;
 
 import com.mojang.blaze3d.platform.Lighting;
-
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.SREPlayerNoteComponent;
 import io.wifi.starrailexpress.network.original.NoteEditPayload;
-import io.wifi.starrailexpress.SRE;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;

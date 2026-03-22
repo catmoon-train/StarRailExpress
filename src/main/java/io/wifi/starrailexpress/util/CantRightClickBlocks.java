@@ -1,15 +1,11 @@
 package io.wifi.starrailexpress.util;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import io.wifi.starrailexpress.SRE;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+
+import java.util.*;
 
 public class CantRightClickBlocks {
     public static final Set<String> CANNOT_INTERACT_IDS = new HashSet<>(Set.of(

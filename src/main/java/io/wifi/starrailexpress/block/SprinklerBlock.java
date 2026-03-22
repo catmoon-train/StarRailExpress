@@ -3,7 +3,6 @@ package io.wifi.starrailexpress.block;
 import com.mojang.serialization.MapCodec;
 import io.wifi.starrailexpress.block_entity.SprinklerBlockEntity;
 import io.wifi.starrailexpress.index.TMMBlockEntities;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;

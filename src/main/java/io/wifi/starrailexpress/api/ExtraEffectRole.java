@@ -1,11 +1,11 @@
 package io.wifi.starrailexpress.api;
 
-import java.util.ArrayList;
-
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
+
+import java.util.ArrayList;
 
 /**
  * 这个 Role 会自带药水效果，每1s更新一次。

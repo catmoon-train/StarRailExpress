@@ -1,11 +1,12 @@
 package io.wifi.starrailexpress.mod_whitelist.server.config;
 
-import com.google.gson.*;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
 import org.jetbrains.annotations.Nullable;
 
-
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.Writer;
+import java.util.Map;
 
 public interface IConfigHelper {
 	static void writeJsonToFile(Writer writer, @Nullable String key, JsonElement json, int tab) throws IOException {

@@ -1,10 +1,7 @@
 package io.wifi.starrailexpress.mixin.server;
 
-import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.server.dedicated.DedicatedPlayerList;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(DedicatedPlayerList.class)
 public class DedicatedPlayerManagerMixin {

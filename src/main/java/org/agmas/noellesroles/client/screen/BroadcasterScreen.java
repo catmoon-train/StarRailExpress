@@ -1,7 +1,5 @@
 package org.agmas.noellesroles.client.screen;
 
-import org.agmas.noellesroles.component.BroadcasterPlayerComponent;
-import org.agmas.noellesroles.packet.BroadcasterC2SPacket;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -10,6 +8,8 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import org.agmas.noellesroles.component.BroadcasterPlayerComponent;
+import org.agmas.noellesroles.packet.BroadcasterC2SPacket;
 
 /**
  * 电报员消息编辑屏幕

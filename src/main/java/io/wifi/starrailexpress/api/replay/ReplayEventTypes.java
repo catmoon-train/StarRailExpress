@@ -3,6 +3,7 @@ package io.wifi.starrailexpress.api.replay;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+
 import java.util.UUID;
 
 public class ReplayEventTypes {

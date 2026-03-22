@@ -1,5 +1,6 @@
 package pro.fazeclan.river.stupid_express.mixin.client.modifier.split_personality;
 
+import io.wifi.starrailexpress.SRE;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.spectator.SpectatorGui;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
@@ -7,8 +8,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import io.wifi.starrailexpress.SRE;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 
 @Mixin(SpectatorGui.class)

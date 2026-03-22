@@ -1,26 +1,6 @@
 package io.wifi.starrailexpress.api.replay;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
-import io.wifi.starrailexpress.api.replay.ReplayEventTypes.ArmorBreakDetails;
-import io.wifi.starrailexpress.api.replay.ReplayEventTypes.BlackoutEventDetails;
-import io.wifi.starrailexpress.api.replay.ReplayEventTypes.ChangeRoleDetails;
-import io.wifi.starrailexpress.api.replay.ReplayEventTypes.DoorActionDetails;
-import io.wifi.starrailexpress.api.replay.ReplayEventTypes.GrenadeThrownDetails;
-import io.wifi.starrailexpress.api.replay.ReplayEventTypes.ItemUsedDetails;
-import io.wifi.starrailexpress.api.replay.ReplayEventTypes.LockpickAttemptDetails;
-import io.wifi.starrailexpress.api.replay.ReplayEventTypes.MoodChangeDetails;
-import io.wifi.starrailexpress.api.replay.ReplayEventTypes.PlayerJoinLeaveDetails;
-import io.wifi.starrailexpress.api.replay.ReplayEventTypes.PlayerKillDetails;
-import io.wifi.starrailexpress.api.replay.ReplayEventTypes.PlayerPoisonedDetails;
-import io.wifi.starrailexpress.api.replay.ReplayEventTypes.PlayerRevivalDetails;
-import io.wifi.starrailexpress.api.replay.ReplayEventTypes.PsychoStateChangeDetails;
-import io.wifi.starrailexpress.api.replay.ReplayEventTypes.StoreBuyDetails;
-import io.wifi.starrailexpress.api.replay.ReplayEventTypes.TaskCompleteDetails;
+import io.wifi.starrailexpress.api.replay.ReplayEventTypes.*;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.index.TMMItems;
 import net.minecraft.ChatFormatting;
@@ -29,6 +9,8 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+
+import java.util.*;
 
 public class GameReplayData {
     private int playerCount;

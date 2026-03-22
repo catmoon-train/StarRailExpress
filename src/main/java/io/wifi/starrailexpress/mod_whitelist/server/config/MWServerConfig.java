@@ -9,14 +9,14 @@ import io.wifi.starrailexpress.mod_whitelist.ModWhitelist;
 import io.wifi.starrailexpress.mod_whitelist.common.utils.MWLogger;
 import org.apache.commons.lang3.tuple.Pair;
 
-import static io.wifi.starrailexpress.SRE.MOD_ID;
-
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import static io.wifi.starrailexpress.SRE.MOD_ID;
 
 
 public class MWServerConfig {

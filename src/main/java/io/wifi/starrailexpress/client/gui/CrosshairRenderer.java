@@ -2,9 +2,8 @@ package io.wifi.starrailexpress.client.gui;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-
-import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.index.TMMItems;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;

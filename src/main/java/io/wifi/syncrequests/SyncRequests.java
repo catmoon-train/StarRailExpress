@@ -1,12 +1,12 @@
 package io.wifi.syncrequests;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.UUID;
-
-import org.jetbrains.annotations.Nullable;
 
 public class SyncRequests {
     public String url_root;

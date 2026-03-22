@@ -3,11 +3,12 @@ package io.wifi.starrailexpress.command.argument;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.serialization.Codec;
 import io.wifi.starrailexpress.cca.SRETrainWorldComponent;
-import java.util.Arrays;
-import java.util.Locale;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.StringRepresentableArgument;
 import net.minecraft.util.StringRepresentable;
+
+import java.util.Arrays;
+import java.util.Locale;
 
 public class TimeOfDayArgumentType extends StringRepresentableArgument<SRETrainWorldComponent.TimeOfDay> {
     private static final Codec<SRETrainWorldComponent.TimeOfDay> CODEC = StringRepresentable.fromEnumWithMapping(

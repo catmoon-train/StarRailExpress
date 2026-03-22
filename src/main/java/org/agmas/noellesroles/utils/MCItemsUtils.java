@@ -1,12 +1,5 @@
 package org.agmas.noellesroles.utils;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Predicate;
-
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 import io.wifi.starrailexpress.util.TMMItemUtils;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
@@ -16,6 +9,12 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Predicate;
 
 public class MCItemsUtils extends TMMItemUtils {
     public static boolean insertStackInFreeSlot(@NotNull Player player, ItemStack stackToInsert) {

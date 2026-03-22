@@ -2,6 +2,7 @@ package org.agmas.noellesroles.item;
 
 // import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 // import net.minecraft.server.level.ServerPlayer;
+
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -10,7 +11,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-// import org.agmas.noellesroles.packet.OpenIntroPayload;
 import org.agmas.noellesroles.packet.OpenIntroPayload;
 import org.jetbrains.annotations.NotNull;
 

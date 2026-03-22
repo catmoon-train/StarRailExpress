@@ -3,7 +3,6 @@ package io.wifi.starrailexpress.block;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import io.wifi.starrailexpress.util.BarrierViewer;
-import java.util.Map;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -13,6 +12,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+
+import java.util.Map;
 
 public class BarrierPanelBlock extends PanelBlock {
     private static final VoxelShape UP_SHAPE = box(0.0, 15.9, 0.0, 16.0, 16.0, 16.0);

@@ -1,7 +1,6 @@
 package io.wifi.starrailexpress.block;
 
 import com.mojang.serialization.MapCodec;
-import java.util.Arrays;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -11,6 +10,8 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.MultifaceBlock;
 import net.minecraft.world.level.block.MultifaceSpreader;
 import net.minecraft.world.level.block.state.BlockState;
+
+import java.util.Arrays;
 
 public class PanelBlock extends MultifaceBlock {
 

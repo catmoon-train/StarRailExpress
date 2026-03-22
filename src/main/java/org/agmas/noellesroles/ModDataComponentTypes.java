@@ -1,16 +1,16 @@
 package org.agmas.noellesroles;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.UnaryOperator;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-
 import org.jetbrains.annotations.NotNull;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.UnaryOperator;
 
 public interface ModDataComponentTypes {
    DataComponentType<CompoundTag> COOKED = register("cooked", (tagBuilder) -> {

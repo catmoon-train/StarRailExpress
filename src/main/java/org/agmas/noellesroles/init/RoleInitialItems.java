@@ -1,13 +1,5 @@
 package org.agmas.noellesroles.init;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Supplier;
-
-import org.agmas.noellesroles.role.ModRoles;
-
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.index.TMMItems;
@@ -16,6 +8,13 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.Unbreakable;
+import org.agmas.noellesroles.role.ModRoles;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Supplier;
 
 public class RoleInitialItems {
     public static final Map<SRERole, List<Supplier<ItemStack>>> INITIAL_ITEMS_MAP = new HashMap<>();

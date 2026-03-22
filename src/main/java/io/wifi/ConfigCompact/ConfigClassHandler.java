@@ -1,15 +1,6 @@
 package io.wifi.ConfigCompact;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonSyntaxException;
+import com.google.gson.*;
 import io.wifi.ConfigCompact.annotation.ConfigSync;
 import io.wifi.ConfigCompact.config_gui_provider.GenericEnumGuiProvider;
 import io.wifi.ConfigCompact.config_gui_provider.GenericMapGuiProvider;
@@ -25,6 +16,10 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class ConfigClassHandler<T extends ConfigData> {
     private final Class<T> type; // 保存 T 的 Class

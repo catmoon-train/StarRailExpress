@@ -1,8 +1,8 @@
 package io.wifi.starrailexpress.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import io.wifi.starrailexpress.cca.SREPlayerAFKComponent;
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.cca.SREPlayerAFKComponent;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -10,6 +10,7 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;

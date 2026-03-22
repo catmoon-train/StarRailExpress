@@ -1,7 +1,7 @@
 package io.wifi.starrailexpress.network.original;
 
-import io.wifi.starrailexpress.client.gui.MoodRenderer;
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.client.gui.MoodRenderer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;

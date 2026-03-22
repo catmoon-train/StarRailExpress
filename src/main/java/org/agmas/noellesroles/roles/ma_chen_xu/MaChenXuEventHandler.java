@@ -1,30 +1,13 @@
 package org.agmas.noellesroles.roles.ma_chen_xu;
 
-import io.wifi.starrailexpress.event.AfterShieldAllowPlayerDeath;
-import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
-import org.agmas.noellesroles.component.MaChenXuPlayerComponent;
-import org.agmas.noellesroles.init.ModEffects;
-import org.agmas.noellesroles.role.ModRoles;
-import org.agmas.noellesroles.utils.RoleUtils;
-
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
-import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.event.AfterShieldAllowPlayerDeath;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.EntityHitResult;
-import net.minecraft.world.phys.Vec3;
-import net.minecraft.core.particles.ParticleTypes;
+import org.agmas.noellesroles.component.MaChenXuPlayerComponent;
+import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.utils.RoleUtils;
 import pro.fazeclan.river.stupid_express.constants.SERoles;
 
 /**

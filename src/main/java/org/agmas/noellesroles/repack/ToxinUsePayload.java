@@ -1,7 +1,6 @@
 package org.agmas.noellesroles.repack;
 
 import io.wifi.starrailexpress.cca.SREPlayerPoisonComponent;
-
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;

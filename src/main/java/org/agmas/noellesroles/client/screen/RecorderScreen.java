@@ -1,15 +1,6 @@
 package org.agmas.noellesroles.client.screen;
 
-import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.client.widget.RecorderPlayerWidget;
-import org.agmas.noellesroles.client.widget.RecorderRoleWidget;
-import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.component.RecorderPlayerComponent;
-import org.agmas.noellesroles.packet.RecorderC2SPacket;
-import org.agmas.noellesroles.utils.RoleUtils;
-
 import io.wifi.starrailexpress.api.SRERole;
-import io.wifi.starrailexpress.api.TMMRoles;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
@@ -22,13 +13,17 @@ import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
+import org.agmas.noellesroles.Noellesroles;
+import org.agmas.noellesroles.client.widget.RecorderPlayerWidget;
+import org.agmas.noellesroles.client.widget.RecorderRoleWidget;
+import org.agmas.noellesroles.component.ModComponents;
+import org.agmas.noellesroles.component.RecorderPlayerComponent;
+import org.agmas.noellesroles.packet.RecorderC2SPacket;
+import org.agmas.noellesroles.utils.RoleUtils;
 
-import java.awt.Color;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.awt.*;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 /**
  * 记录员选择屏幕

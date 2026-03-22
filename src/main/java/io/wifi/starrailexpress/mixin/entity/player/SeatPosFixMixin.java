@@ -1,7 +1,6 @@
 package io.wifi.starrailexpress.mixin.entity.player;
 
 import io.wifi.starrailexpress.block.MountableBlock;
-import io.wifi.starrailexpress.block.entity.SeatEntity;
 import io.wifi.starrailexpress.index.TMMBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;

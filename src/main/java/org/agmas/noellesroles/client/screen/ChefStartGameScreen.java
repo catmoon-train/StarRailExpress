@@ -1,8 +1,5 @@
 package org.agmas.noellesroles.client.screen;
 
-import org.agmas.noellesroles.ModDataComponentTypes;
-import org.agmas.noellesroles.init.ModItems;
-
 import io.wifi.starrailexpress.item.CocktailItem;
 import io.wifi.starrailexpress.util.TMMItemUtils;
 import net.minecraft.ChatFormatting;
@@ -12,6 +9,8 @@ import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
+import org.agmas.noellesroles.ModDataComponentTypes;
+import org.agmas.noellesroles.init.ModItems;
 
 public class ChefStartGameScreen extends Screen {
 

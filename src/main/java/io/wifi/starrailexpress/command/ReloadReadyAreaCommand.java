@@ -1,7 +1,6 @@
 package io.wifi.starrailexpress.command;
 
 import com.mojang.brigadier.CommandDispatcher;
-
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;

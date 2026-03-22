@@ -1,5 +1,6 @@
 package io.wifi.starrailexpress.item;
 
+import io.wifi.StarRailExpressID;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.ScopeOverlayRenderer;
@@ -10,7 +11,6 @@ import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.network.original.SniperShootPayload;
 import io.wifi.starrailexpress.util.SniperProjectileUtil;
-import io.wifi.StarRailExpressID;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;

@@ -1,11 +1,10 @@
 package io.wifi.starrailexpress.cca;
 
 import com.google.gson.JsonSyntaxException;
-
-import io.wifi.starrailexpress.data.PlayerStatsData;
-import io.wifi.starrailexpress.util.PlayerStatsSerializer;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
+import io.wifi.starrailexpress.data.PlayerStatsData;
+import io.wifi.starrailexpress.util.PlayerStatsSerializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.Util;

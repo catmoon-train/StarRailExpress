@@ -1,15 +1,10 @@
 package org.agmas.noellesroles.item;
 
-import io.wifi.starrailexpress.index.TMMSounds;
-import org.agmas.noellesroles.init.ModItems;
-import org.agmas.noellesroles.entity.LockEntity;
-import org.agmas.noellesroles.entity.LockEntityManager;
-import org.agmas.noellesroles.role.ModRoles;
-
 import io.wifi.starrailexpress.block.SmallDoorBlock;
 import io.wifi.starrailexpress.block_entity.DoorBlockEntity;
 import io.wifi.starrailexpress.block_entity.SmallDoorBlockEntity;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.util.AdventureUsable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -24,6 +19,10 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import org.agmas.noellesroles.entity.LockEntity;
+import org.agmas.noellesroles.entity.LockEntityManager;
+import org.agmas.noellesroles.init.ModItems;
+import org.agmas.noellesroles.role.ModRoles;
 
 /**
  * 加固门道具

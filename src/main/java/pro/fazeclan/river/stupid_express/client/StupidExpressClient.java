@@ -1,15 +1,11 @@
 package pro.fazeclan.river.stupid_express.client;
 
-import java.util.ArrayList;
-import java.util.Random;
-import java.util.UUID;
-
 import dev.doctor4t.ratatouille.client.util.ambience.AmbienceUtil;
 import dev.doctor4t.ratatouille.client.util.ambience.BackgroundAmbience;
 import dev.doctor4t.ratatouille.util.TextUtils;
+import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.StatusInit;
 import io.wifi.starrailexpress.client.StatusInit.StatusBar;
-import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.event.AllowOtherCameraType;
 import net.fabricmc.api.ClientModInitializer;
@@ -31,6 +27,10 @@ import pro.fazeclan.river.stupid_express.constants.SEItems;
 import pro.fazeclan.river.stupid_express.modifier.refugee.cca.RefugeeComponent;
 import pro.fazeclan.river.stupid_express.modifier.split_personality.cca.SplitPersonalityComponent;
 import pro.fazeclan.river.stupid_express.network.SplitBackCamera;
+
+import java.util.ArrayList;
+import java.util.Random;
+import java.util.UUID;
 
 public class StupidExpressClient implements ClientModInitializer {
 

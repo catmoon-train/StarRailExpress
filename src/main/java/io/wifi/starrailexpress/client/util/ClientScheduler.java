@@ -1,8 +1,8 @@
 package io.wifi.starrailexpress.client.util;
 
-import java.util.concurrent.CopyOnWriteArrayList;
-
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ClientScheduler {
    private static final CopyOnWriteArrayList<ScheduledTask> TASKS = new CopyOnWriteArrayList<ScheduledTask>();

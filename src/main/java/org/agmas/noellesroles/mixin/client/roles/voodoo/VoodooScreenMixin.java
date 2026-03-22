@@ -2,20 +2,6 @@ package org.agmas.noellesroles.mixin.client.roles.voodoo;
 
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedHandledScreen;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
-import org.agmas.noellesroles.ConfigWorldComponent;
-import org.agmas.noellesroles.client.PlayerPaginationHelper;
-import org.agmas.noellesroles.client.RoleScreenHelper;
-import org.agmas.noellesroles.client.widget.VoodooPlayerWidget;
-import org.agmas.noellesroles.role.ModRoles;
-import org.spongepowered.asm.mixin.*;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import java.awt.Color;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.multiplayer.PlayerInfo;
@@ -23,6 +9,23 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.InventoryMenu;
+import org.agmas.noellesroles.ConfigWorldComponent;
+import org.agmas.noellesroles.client.PlayerPaginationHelper;
+import org.agmas.noellesroles.client.RoleScreenHelper;
+import org.agmas.noellesroles.client.widget.VoodooPlayerWidget;
+import org.agmas.noellesroles.role.ModRoles;
+import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.awt.*;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Mixin(LimitedInventoryScreen.class)
 public abstract class VoodooScreenMixin extends LimitedHandledScreen<InventoryMenu> implements PlayerPaginationHelper.ScreenWithChildren {

@@ -1,13 +1,13 @@
 package org.agmas.noellesroles.packet;
 
-import org.agmas.noellesroles.Noellesroles;
-
-import java.util.UUID;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
+import org.agmas.noellesroles.Noellesroles;
+
+import java.util.UUID;
 
 public record SwapperC2SPacket(UUID player, UUID player2) implements CustomPacketPayload {
     public static final ResourceLocation MORPH_PAYLOAD_ID = ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "swapper");

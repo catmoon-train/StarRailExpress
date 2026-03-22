@@ -1,13 +1,11 @@
 package org.agmas.noellesroles.item;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.block.SmallDoorBlock;
 import io.wifi.starrailexpress.block.TrainDoorBlock;
 import io.wifi.starrailexpress.block_entity.DoorBlockEntity;
 import io.wifi.starrailexpress.block_entity.SmallDoorBlockEntity;
 import io.wifi.starrailexpress.util.AdventureUsable;
-import io.wifi.starrailexpress.SRE;
-
-import java.util.List;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -23,6 +21,8 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+
+import java.util.List;
 
 /**
  * 警报陷阱物品

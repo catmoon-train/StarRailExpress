@@ -21,11 +21,10 @@ import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.*;
-
-import java.util.UUID;
-
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.role.ModRoles;
+
+import java.util.UUID;
 
 public class BombItem extends Item {
     public static final String TIMER_KEY = "bomb_timer";

@@ -1,13 +1,14 @@
 package org.agmas.noellesroles.packet;
 
-import java.util.HashMap;
-import org.agmas.noellesroles.Noellesroles;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
+import org.agmas.noellesroles.Noellesroles;
+
+import java.util.HashMap;
 
 public record ScanAllTaskPointsPayload(HashMap<BlockPos, Integer> taskBlocks) implements CustomPacketPayload {
     public static final ResourceLocation ABILITY_PAYLOAD_ID = ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID,

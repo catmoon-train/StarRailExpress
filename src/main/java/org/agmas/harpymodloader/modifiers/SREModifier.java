@@ -1,18 +1,16 @@
 package org.agmas.harpymodloader.modifiers;
 
 import io.wifi.starrailexpress.api.SRERole;
-
-import java.util.ArrayList;
-import java.util.function.Consumer;
-
-import org.agmas.harpymodloader.Harpymodloader;
-
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import org.agmas.harpymodloader.Harpymodloader;
+
+import java.util.ArrayList;
+import java.util.function.Consumer;
 
 public class SREModifier {
 

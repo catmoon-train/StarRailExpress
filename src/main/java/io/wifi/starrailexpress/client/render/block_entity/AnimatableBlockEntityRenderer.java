@@ -1,7 +1,6 @@
 package io.wifi.starrailexpress.client.render.block_entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import java.util.function.Function;
 import net.minecraft.client.model.HierarchicalModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -9,6 +8,8 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.entity.BlockEntity;
+
+import java.util.function.Function;
 
 public abstract class AnimatableBlockEntityRenderer<T extends BlockEntity> extends HierarchicalModel<Entity> implements BlockEntityRenderer<T> {
 

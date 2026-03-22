@@ -1,14 +1,9 @@
 package io.wifi.starrailexpress.network;
 
-import com.mojang.serialization.Codec;
-
 import io.wifi.starrailexpress.SRE;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class MapVotingResultsPayload implements CustomPacketPayload {
     public static final Type<MapVotingResultsPayload> TYPE = new Type<>(

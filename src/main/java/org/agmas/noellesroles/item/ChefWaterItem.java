@@ -1,10 +1,9 @@
 package org.agmas.noellesroles.item;
 
-import org.agmas.noellesroles.ModDataComponentTypes;
-
 import io.wifi.starrailexpress.item.CocktailItem;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import org.agmas.noellesroles.ModDataComponentTypes;
 
 public class ChefWaterItem extends CocktailItem {
     private static Properties __warp_init(Properties properties) {

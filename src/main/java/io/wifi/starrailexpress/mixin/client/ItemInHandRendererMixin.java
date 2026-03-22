@@ -1,6 +1,7 @@
 package io.wifi.starrailexpress.mixin.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import io.wifi.starrailexpress.event.AllowItemShowInHand;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -12,8 +13,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import io.wifi.starrailexpress.event.AllowItemShowInHand;
 
 @Mixin(ItemInHandRenderer.class)
 public class ItemInHandRendererMixin {

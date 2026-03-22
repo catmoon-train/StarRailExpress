@@ -1,7 +1,6 @@
 package io.wifi.starrailexpress.api.replay.serializers;
 
 import com.google.gson.*;
-
 import io.wifi.starrailexpress.api.replay.ReplayEventTypes.ArmorBreakDetails;
 
 import java.lang.reflect.Type;

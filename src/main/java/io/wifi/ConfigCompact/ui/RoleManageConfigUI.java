@@ -1,12 +1,5 @@
 package io.wifi.ConfigCompact.ui;
 
-import java.util.HashMap;
-import java.util.Map.Entry;
-
-import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
-import org.agmas.harpymodloader.modifiers.HMLModifiers;
-import org.agmas.noellesroles.utils.RoleUtils;
-
 import io.wifi.starrailexpress.api.TMMRoles;
 import me.shedaniel.clothconfig2.api.ConfigBuilder;
 import me.shedaniel.clothconfig2.api.ConfigCategory;
@@ -15,6 +8,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
+import org.agmas.harpymodloader.modifiers.HMLModifiers;
+import org.agmas.noellesroles.utils.RoleUtils;
+
+import java.util.HashMap;
+import java.util.Map.Entry;
 
 public class RoleManageConfigUI {
 

@@ -3,9 +3,6 @@ package io.wifi.starrailexpress.block_entity;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.index.TMMBlockEntities;
 import io.wifi.starrailexpress.index.TMMParticles;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -16,6 +13,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.UUID;
 
 public class TrimmedBedBlockEntity extends BlockEntity {
     private boolean hasScorpion = false;

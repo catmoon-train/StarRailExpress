@@ -4,12 +4,13 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
-import java.util.Collection;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
+
+import java.util.Collection;
 
 public class MoneyCommand {
   public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {

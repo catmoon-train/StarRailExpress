@@ -1,18 +1,16 @@
 package org.agmas.noellesroles.packet;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.agmas.noellesroles.Noellesroles;
-
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
+import org.agmas.noellesroles.Noellesroles;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public record ChefCookC2SPacket(Map<Integer, Float> cookInfo) implements CustomPacketPayload {
     public static final Gson gson = new Gson();

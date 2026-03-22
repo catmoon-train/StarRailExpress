@@ -1,23 +1,6 @@
 package org.agmas.noellesroles.mixin.client.roles.coroner;
 
-import java.awt.Color;
-
-import org.agmas.harpymodloader.Harpymodloader;
-import org.agmas.harpymodloader.client.HarpymodloaderClient;
-import org.agmas.harpymodloader.component.WorldModifierComponent;
-import org.agmas.harpymodloader.modifiers.SREModifier;
-import org.agmas.noellesroles.client.NoellesrolesClient;
-import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.role.ModRoles;
-import org.jetbrains.annotations.NotNull;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
 import com.llamalad7.mixinextras.sugar.Local;
-
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
@@ -32,8 +15,23 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Player;
+import org.agmas.harpymodloader.Harpymodloader;
+import org.agmas.harpymodloader.client.HarpymodloaderClient;
+import org.agmas.harpymodloader.component.WorldModifierComponent;
+import org.agmas.harpymodloader.modifiers.SREModifier;
+import org.agmas.noellesroles.client.NoellesrolesClient;
+import org.agmas.noellesroles.component.ModComponents;
+import org.agmas.noellesroles.role.ModRoles;
+import org.jetbrains.annotations.NotNull;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 import pro.fazeclan.river.stupid_express.modifier.split_personality.cca.SplitPersonalityComponent;
+
+import java.awt.*;
 @Mixin(RoleNameRenderer.class)
 public abstract class CustomRolesRoleNameRendererMixin {
 

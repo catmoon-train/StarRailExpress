@@ -1,7 +1,7 @@
 package io.wifi.starrailexpress.network.original;
 
-import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;

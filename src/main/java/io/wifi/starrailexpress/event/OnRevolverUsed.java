@@ -2,10 +2,9 @@ package io.wifi.starrailexpress.event;
 
 import net.fabricmc.fabric.api.event.Event;
 import net.minecraft.server.level.ServerPlayer;
+import org.jetbrains.annotations.Nullable;
 
 import static net.fabricmc.fabric.api.event.EventFactory.createArrayBacked;
-
-import org.jetbrains.annotations.Nullable;
 
 public interface OnRevolverUsed {
 

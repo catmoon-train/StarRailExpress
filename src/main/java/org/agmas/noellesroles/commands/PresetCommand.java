@@ -9,7 +9,8 @@ import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import org.agmas.noellesroles.presets.Preset;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 预设命令

@@ -1,14 +1,13 @@
 package org.agmas.noellesroles;
 
-import org.agmas.noellesroles.component.ConspiratorPlayerComponent;
-import org.agmas.noellesroles.role.ModRoles;
-
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPoisonComponent;
 import io.wifi.starrailexpress.event.EarlyKillPlayer;
 import io.wifi.starrailexpress.game.GameUtils;
-import io.wifi.starrailexpress.SRE;
 import net.minecraft.server.level.ServerPlayer;
+import org.agmas.noellesroles.component.ConspiratorPlayerComponent;
+import org.agmas.noellesroles.role.ModRoles;
 
 public class TrueKillerFinder {
 

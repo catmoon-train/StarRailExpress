@@ -1,8 +1,8 @@
 package io.wifi.starrailexpress.network.packet;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.client.gui.screen.WaypointHUD;
 import io.wifi.starrailexpress.data.WaypointData;
-import io.wifi.starrailexpress.SRE;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
@@ -11,8 +11,11 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 
-import java.awt.Color;
-import java.util.*;
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class SyncWaypointsPacket implements CustomPacketPayload {
     public static final CustomPacketPayload.Type<SyncWaypointsPacket> ID = new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath(SRE.MOD_ID, "sync_waypoints"));

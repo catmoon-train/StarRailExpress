@@ -1,8 +1,11 @@
 package io.wifi.starrailexpress.client.gui;
 
+import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
 import io.wifi.starrailexpress.game.GameUtils;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;
@@ -11,9 +14,6 @@ import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import io.wifi.starrailexpress.api.SRERole;
 
 public class RoleAnnouncementTexts {
     public static final Map<ResourceLocation, RoleAnnouncementText> ROLE_ANNOUNCEMENT_TEXTS = new HashMap<>();

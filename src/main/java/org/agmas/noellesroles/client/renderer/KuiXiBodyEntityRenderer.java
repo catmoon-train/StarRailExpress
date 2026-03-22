@@ -1,13 +1,8 @@
 package org.agmas.noellesroles.client.renderer;
 
-import org.agmas.noellesroles.entity.KuiXiPuppetEntity;
-
 import com.mojang.authlib.GameProfile;
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.wifi.starrailexpress.client.SREClient;
-
-import java.util.UUID;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -17,6 +12,9 @@ import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.resources.ResourceLocation;
+import org.agmas.noellesroles.entity.KuiXiPuppetEntity;
+
+import java.util.UUID;
 
 /**
  * KuiXiPuppetEntity 渲染玩家

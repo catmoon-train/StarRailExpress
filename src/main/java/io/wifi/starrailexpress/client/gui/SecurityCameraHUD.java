@@ -1,9 +1,8 @@
 package io.wifi.starrailexpress.client.gui;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-
-import io.wifi.starrailexpress.block.SecurityMonitorBlock;
 import io.wifi.starrailexpress.SREClientConfig;
+import io.wifi.starrailexpress.block.SecurityMonitorBlock;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;

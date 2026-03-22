@@ -1,8 +1,8 @@
 package io.wifi.starrailexpress.item;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.block_entity.CameraBlockEntity;
 import io.wifi.starrailexpress.block_entity.SecurityMonitorBlockEntity;
-import io.wifi.starrailexpress.SRE;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;

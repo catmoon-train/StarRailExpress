@@ -1,10 +1,10 @@
 package io.wifi.starrailexpress.item;
 
+import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.entity.GrenadeEntity;
 import io.wifi.starrailexpress.index.TMMEntities;
 import io.wifi.starrailexpress.index.TMMSounds;
-import io.wifi.starrailexpress.SRE;
-import io.wifi.starrailexpress.SREConfig;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;

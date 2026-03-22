@@ -1,6 +1,5 @@
 package io.wifi.starrailexpress.mixin.client;
 
-import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.LayeredDraw;
 import org.spongepowered.asm.mixin.Mixin;
 

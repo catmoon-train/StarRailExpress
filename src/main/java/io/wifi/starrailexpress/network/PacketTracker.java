@@ -1,16 +1,11 @@
 package io.wifi.starrailexpress.network;
 
-import io.wifi.starrailexpress.cca.NetworkStatsComponent;
-import io.wifi.starrailexpress.cca.SREPlayerStatsComponent;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.NotNull;
-
-import java.nio.ByteBuffer;
 
 /**
  * 网络包跟踪器，用于统计发送和接收的数据包数量及大小

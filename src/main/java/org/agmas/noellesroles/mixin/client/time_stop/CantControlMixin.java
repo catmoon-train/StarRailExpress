@@ -1,18 +1,14 @@
 package org.agmas.noellesroles.mixin.client.time_stop;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
-
-import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.core.Holder;
 import org.agmas.noellesroles.client.NoellesrolesClient;
-import org.agmas.noellesroles.component.InsaneKillerPlayerComponent;
 import org.agmas.noellesroles.effects.TimeStopEffect;
 import org.agmas.noellesroles.init.ModEffects;
-import org.agmas.noellesroles.role.ModRoles;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;

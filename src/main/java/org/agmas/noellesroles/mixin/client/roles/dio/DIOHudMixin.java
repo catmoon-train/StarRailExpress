@@ -1,8 +1,5 @@
 package org.agmas.noellesroles.mixin.client.roles.dio;
 
-import org.agmas.noellesroles.client.NoellesrolesClient;
-import org.agmas.noellesroles.component.DIOPlayerComponent;
-import org.agmas.noellesroles.role.ModRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
@@ -13,6 +10,9 @@ import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.CommonColors;
+import org.agmas.noellesroles.client.NoellesrolesClient;
+import org.agmas.noellesroles.component.DIOPlayerComponent;
+import org.agmas.noellesroles.role.ModRoles;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

@@ -1,8 +1,7 @@
 package io.wifi.starrailexpress.network;
 
 import io.wifi.starrailexpress.cca.NetworkStatsComponent;
-import io.wifi.starrailexpress.SRE;
-import net.fabricmc.fabric.api.networking.v1.*;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.resources.ResourceLocation;
 import org.slf4j.Logger;

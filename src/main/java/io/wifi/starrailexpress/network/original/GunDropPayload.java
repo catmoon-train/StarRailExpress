@@ -1,7 +1,7 @@
 package io.wifi.starrailexpress.network.original;
 
-import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -10,7 +10,6 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
-
 import org.jetbrains.annotations.NotNull;
 
 public record GunDropPayload() implements CustomPacketPayload {

@@ -2,13 +2,12 @@ package io.wifi.starrailexpress.api.replay;
 
 // import java.util.*;
 // import net.minecraft.core.BlockPos;
+
+import io.wifi.starrailexpress.SRE;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-// import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
-
-import io.wifi.starrailexpress.SRE;
 
 /**
  * 没任何用处的发包

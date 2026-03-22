@@ -1,8 +1,5 @@
 package org.agmas.noellesroles.client.widget;
 
-import org.agmas.noellesroles.client.screen.RecorderScreen;
-import java.awt.*;
-
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -12,6 +9,9 @@ import net.minecraft.client.gui.components.PlayerFaceRenderer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import org.agmas.noellesroles.client.screen.RecorderScreen;
+
+import java.awt.*;
 import java.util.UUID;
 
 public class RecorderPlayerWidget extends Button {

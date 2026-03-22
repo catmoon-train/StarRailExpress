@@ -1,8 +1,10 @@
 package org.agmas.harpymodloader.modded_murder;
 
-import java.util.*;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * 根据玩家对各职业类型的历史权重，加权随机分配职业。

@@ -1,15 +1,13 @@
 package org.agmas.noellesroles.item;
 
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
-import org.agmas.noellesroles.client.screen.RecorderScreen;
-import org.agmas.noellesroles.role.ModRoles;
-import net.minecraft.client.Minecraft;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import org.agmas.noellesroles.role.ModRoles;
 
 public class WrittenNoteItem extends Item {
 

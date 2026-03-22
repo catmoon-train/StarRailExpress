@@ -3,10 +3,9 @@ package io.wifi.starrailexpress.event;
 import net.fabricmc.fabric.api.event.Event;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
+import org.jetbrains.annotations.Nullable;
 
 import static net.fabricmc.fabric.api.event.EventFactory.createArrayBacked;
-
-import org.jetbrains.annotations.Nullable;
 
 public interface OnPlayerDeathWithKiller {
 

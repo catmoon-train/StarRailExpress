@@ -1,6 +1,7 @@
 package pro.fazeclan.river.stupid_express.mixin.client.modifier.split_personality;
 
 import io.wifi.starrailexpress.client.SREClient;
+import io.wifi.starrailexpress.client.gui.RoleNameRenderer;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -16,7 +17,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import pro.fazeclan.river.stupid_express.modifier.split_personality.cca.SplitPersonalityComponent;
-import io.wifi.starrailexpress.client.gui.RoleNameRenderer;
 
 @Mixin(RoleNameRenderer.class)
 public abstract class SplitPersonalityHudMixin {

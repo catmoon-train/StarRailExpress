@@ -1,14 +1,12 @@
 package org.agmas.noellesroles.roles.voodoo;
 
-import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.config.NoellesRolesConfig;
-import org.agmas.noellesroles.role.ModRoles;
-
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
-
 import io.wifi.starrailexpress.event.OnPlayerDeathWithKiller;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.world.entity.player.Player;
+import org.agmas.noellesroles.Noellesroles;
+import org.agmas.noellesroles.config.NoellesRolesConfig;
+import org.agmas.noellesroles.role.ModRoles;
 
 public class VoodooDeathHandler {
     public static void registerEvents() {

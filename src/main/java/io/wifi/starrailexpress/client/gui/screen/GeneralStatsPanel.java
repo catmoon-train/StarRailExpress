@@ -1,8 +1,9 @@
 // GeneralStatsPanel.java
 package io.wifi.starrailexpress.client.gui.screen;
 
-import io.wifi.starrailexpress.cca.SREPlayerStatsComponent;
+import com.mojang.blaze3d.systems.RenderSystem;
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.cca.SREPlayerStatsComponent;
 import net.exmo.sre.nametag.NameTagInventoryComponent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -12,7 +13,6 @@ import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import com.mojang.blaze3d.systems.RenderSystem;
 
 public class GeneralStatsPanel extends AbstractWidget {
 

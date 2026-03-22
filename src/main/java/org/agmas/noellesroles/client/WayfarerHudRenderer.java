@@ -1,17 +1,16 @@
 package org.agmas.noellesroles.client;
 
+import io.wifi.starrailexpress.client.SREClient;
+import io.wifi.starrailexpress.game.GameUtils;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
 import org.agmas.noellesroles.component.WayfarerPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 
-import io.wifi.starrailexpress.client.SREClient;
-import io.wifi.starrailexpress.game.GameUtils;
-import java.awt.Color;
-import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
-
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Player;
+import java.awt.*;
 
 public class WayfarerHudRenderer {
     public static void registerRendererEvent() {

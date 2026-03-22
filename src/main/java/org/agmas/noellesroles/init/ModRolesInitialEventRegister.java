@@ -1,25 +1,5 @@
 package org.agmas.noellesroles.init;
 
-import org.agmas.harpymodloader.events.ModdedRoleAssigned;
-import org.agmas.noellesroles.RicesRoleRhapsody;
-import org.agmas.noellesroles.component.BloodFeudistPlayerComponent;
-import org.agmas.noellesroles.component.DIOPlayerComponent;
-import org.agmas.noellesroles.component.HoanMeirinPlayerComponent;
-import org.agmas.noellesroles.component.InsaneKillerPlayerComponent;
-import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.component.MonitorPlayerComponent;
-import org.agmas.noellesroles.component.NianShouPlayerComponent;
-import org.agmas.noellesroles.component.PuppeteerPlayerComponent;
-import org.agmas.noellesroles.component.RecorderPlayerComponent;
-import org.agmas.noellesroles.component.StalkerPlayerComponent;
-import org.agmas.noellesroles.config.NoellesRolesConfig;
-import org.agmas.noellesroles.role.ModRoles;
-import org.agmas.noellesroles.roles.executioner.ExecutionerPlayerComponent;
-import org.agmas.noellesroles.roles.manipulator.ManipulatorPlayerComponent;
-import org.agmas.noellesroles.roles.thief.ThiefPlayerComponent;
-import org.agmas.noellesroles.roles.vulture.VulturePlayerComponent;
-import org.agmas.noellesroles.utils.RoleUtils;
-
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
@@ -30,6 +10,16 @@ import io.wifi.starrailexpress.index.TMMItems;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import org.agmas.harpymodloader.events.ModdedRoleAssigned;
+import org.agmas.noellesroles.RicesRoleRhapsody;
+import org.agmas.noellesroles.component.*;
+import org.agmas.noellesroles.config.NoellesRolesConfig;
+import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.roles.executioner.ExecutionerPlayerComponent;
+import org.agmas.noellesroles.roles.manipulator.ManipulatorPlayerComponent;
+import org.agmas.noellesroles.roles.thief.ThiefPlayerComponent;
+import org.agmas.noellesroles.roles.vulture.VulturePlayerComponent;
+import org.agmas.noellesroles.utils.RoleUtils;
 import pro.fazeclan.river.stupid_express.constants.SEItems;
 import pro.fazeclan.river.stupid_express.constants.SERoles;
 

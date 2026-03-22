@@ -3,11 +3,7 @@ package io.wifi.starrailexpress.game;
 import io.wifi.starrailexpress.api.GameMode;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
-import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
-import io.wifi.starrailexpress.cca.SREGameTimeComponent;
-import io.wifi.starrailexpress.cca.SREGameWorldComponent;
-import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
-import io.wifi.starrailexpress.cca.SRETrainWorldComponent;
+import io.wifi.starrailexpress.cca.*;
 import io.wifi.starrailexpress.event.AllowGameEnd;
 import io.wifi.starrailexpress.network.original.AnnounceWelcomePayload;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -22,25 +18,21 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import java.util.*;
-import java.util.stream.Collectors;
-
 import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.harpymodloader.RoleWeightedUtil;
+import org.agmas.harpymodloader.commands.SetRoleCountCommand;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
-import org.agmas.harpymodloader.events.GameInitializeEvent;
-import org.agmas.harpymodloader.events.ModdedRoleAssigned;
-import org.agmas.harpymodloader.events.ModifierAssigned;
-import org.agmas.harpymodloader.events.OnGamePlayerRolesConfirm;
-import org.agmas.harpymodloader.events.ResetPlayerEvent;
+import org.agmas.harpymodloader.events.*;
 import org.agmas.harpymodloader.modded_murder.PlayerRoleAssigner;
 import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
 import org.agmas.harpymodloader.modded_murder.RoleAssignmentManager;
 import org.agmas.harpymodloader.modded_murder.RoleAssignmentPool;
-import org.agmas.harpymodloader.commands.SetRoleCountCommand;
 import org.agmas.harpymodloader.modifiers.HMLModifiers;
 import org.agmas.harpymodloader.modifiers.SREModifier;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class StarRailMurderGameMode extends GameMode {
     public StarRailMurderGameMode(ResourceLocation identifier) {

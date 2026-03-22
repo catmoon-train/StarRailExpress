@@ -1,6 +1,7 @@
 
 package org.agmas.noellesroles.roles.manipulator;
 
+import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
@@ -16,7 +17,6 @@ import org.jetbrains.annotations.NotNull;
 import org.joml.Math;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
-import io.wifi.starrailexpress.api.RoleComponent;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
 import java.util.UUID;

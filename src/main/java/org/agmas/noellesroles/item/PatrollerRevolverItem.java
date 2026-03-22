@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.item;
 
+import io.wifi.StarRailExpressID;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
@@ -9,7 +10,6 @@ import io.wifi.starrailexpress.compat.CrosshairaddonsCompat;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.item.SkinableItem;
 import io.wifi.starrailexpress.network.original.GunShootPayload;
-import io.wifi.StarRailExpressID;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -21,7 +21,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
-
 import org.jetbrains.annotations.NotNull;
 
 public class PatrollerRevolverItem extends SkinableItem {

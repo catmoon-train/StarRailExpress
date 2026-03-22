@@ -1,11 +1,10 @@
 package org.agmas.noellesroles.roles.awesome_binglus;
 
-import org.agmas.noellesroles.component.AwesomePlayerComponent;
-import org.joml.Vector3f;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.world.entity.player.Player;
+import org.agmas.noellesroles.component.AwesomePlayerComponent;
+import org.joml.Vector3f;
 
 public class AwesomeClientHandler {
 

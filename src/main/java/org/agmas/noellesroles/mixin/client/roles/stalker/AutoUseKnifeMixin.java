@@ -3,7 +3,6 @@ package org.agmas.noellesroles.mixin.client.roles.stalker;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.core.component.DataComponentType;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;

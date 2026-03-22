@@ -1,20 +1,18 @@
 package org.agmas.noellesroles.component;
 
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.ChatFormatting;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.world.entity.player.Player;
-
-import java.util.UUID;
-
-import org.agmas.noellesroles.role.ModRoles;
-import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
-
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
+import org.agmas.noellesroles.role.ModRoles;
+import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
+
+import java.util.UUID;
 
 public class DeathPenaltyComponent implements RoleComponent, ServerTickingComponent {
     private final Player player;

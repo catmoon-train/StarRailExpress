@@ -1,6 +1,5 @@
 package org.agmas.harpymodloader.events;
 
-import io.wifi.starrailexpress.api.SRERole;
 import net.fabricmc.fabric.api.event.Event;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.harpymodloader.modifiers.SREModifier;

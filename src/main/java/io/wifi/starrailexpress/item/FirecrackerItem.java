@@ -1,9 +1,9 @@
 package io.wifi.starrailexpress.item;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.entity.FirecrackerEntity;
 import io.wifi.starrailexpress.index.TMMEntities;
 import io.wifi.starrailexpress.util.AdventureUsable;
-import io.wifi.starrailexpress.SRE;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.InteractionResult;

@@ -4,10 +4,10 @@ import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import org.agmas.noellesroles.packet.*;
+import org.agmas.noellesroles.packet.Loot.LootMultiResultS2CPacket;
 import org.agmas.noellesroles.packet.Loot.LootPoolsInfoCheckS2CPacket;
 import org.agmas.noellesroles.packet.Loot.LootPoolsInfoS2CPacket;
 import org.agmas.noellesroles.packet.Loot.LootResultS2CPacket;
-import org.agmas.noellesroles.packet.Loot.LootMultiResultS2CPacket;
 import org.agmas.noellesroles.repack.BanditRevolverShootPayload;
 
 public class ModPackets {

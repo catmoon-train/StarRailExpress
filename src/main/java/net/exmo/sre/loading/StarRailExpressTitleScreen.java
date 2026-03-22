@@ -5,10 +5,10 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.logging.LogUtils;
 import com.mojang.realmsclient.gui.screens.RealmsNotificationsScreen;
 import com.terraformersmc.modmenu.api.ModMenuApi;
-
 import io.wifi.ConfigCompact.ui.SettingMenuScreen;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREClientConfig;
+import io.wifi.starrailexpress.index.TMMSounds;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.loader.api.FabricLoader;
@@ -36,8 +36,6 @@ import org.agmas.noellesroles.client.screen.RoleIntroduceScreen;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
-
-import io.wifi.starrailexpress.index.TMMSounds;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
