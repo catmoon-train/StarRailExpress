@@ -58,10 +58,10 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
     // ==================== 常量定义 ====================
 
     /** 恐惧范围（格） */
-    public static final double FEAR_RANGE_STAGE_1 = 15.0;
-    public static final double FEAR_RANGE_STAGE_2 = 20.0;
-    public static final double FEAR_RANGE_STAGE_3 = 25.0;
-    public static final double FEAR_RANGE_STAGE_4 = 30.0;
+    public static final double FEAR_RANGE_STAGE_1 = 30.0;
+    public static final double FEAR_RANGE_STAGE_2 = 40.0;
+    public static final double FEAR_RANGE_STAGE_3 = 50.0;
+    public static final double FEAR_RANGE_STAGE_4 = 50.0;
 
     /** 恐惧SAN掉落间隔（tick） - 5秒 */
     public static final int FEAR_INTERVAL = 100;
