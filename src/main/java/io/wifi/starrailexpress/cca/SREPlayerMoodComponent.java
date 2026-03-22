@@ -115,7 +115,8 @@ public class SREPlayerMoodComponent implements RoleComponent, ServerTickingCompo
         if (!this.playerTaskComponent.tasks.isEmpty()) {
             float drainMultiplier = ModEffects.getMoodDrainMultiplier(this.player);
             if (this.mood > 0) {
-                this.mood = this.mood - this.playerTaskComponent.tasks.size() * GameConstants.MOOD_DRAIN * drainMultiplier;
+                this.mood = this.mood
+                        - this.playerTaskComponent.tasks.size() * GameConstants.MOOD_DRAIN * drainMultiplier;
             }
             if (this.mood < 0)
                 this.mood = 0;
@@ -171,7 +172,8 @@ public class SREPlayerMoodComponent implements RoleComponent, ServerTickingCompo
         if (!this.playerTaskComponent.tasks.isEmpty()) {
             float drainMultiplier = ModEffects.getMoodDrainMultiplier(this.player);
             if (this.mood > 0) {
-                this.mood = this.mood - this.playerTaskComponent.tasks.size() * GameConstants.MOOD_DRAIN * drainMultiplier;
+                this.mood = this.mood
+                        - this.playerTaskComponent.tasks.size() * GameConstants.MOOD_DRAIN * drainMultiplier;
             }
             if (this.mood < 0)
                 this.mood = 0;
