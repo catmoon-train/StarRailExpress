@@ -5,8 +5,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import io.wifi.starrailexpress.item.KnifeItem;
-import net.minecraft.world.InteractionHand;
 import org.agmas.noellesroles.component.MaChenXuPlayerComponent;
 import org.agmas.noellesroles.component.SingerPlayerComponent;
 import org.agmas.noellesroles.repack.HSRConstants;
@@ -14,8 +12,12 @@ import org.agmas.noellesroles.repack.HSRItems;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.roles.executioner.ShootingFrenzyPlayerComponent;
 import org.agmas.noellesroles.roles.framing.FramingShopEntry;
+import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
 
+import io.github.mortuusars.exposure_polaroid.ExposurePolaroid;
+import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -28,16 +30,24 @@ import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.ShopContent;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.TMMSounds;
+import io.wifi.starrailexpress.item.KnifeItem;
 import io.wifi.starrailexpress.util.ShopEntry;
 import io.wifi.starrailexpress.util.TMMItemUtils;
-import io.github.mortuusars.exposure_polaroid.ExposurePolaroid;
-import io.wifi.starrailexpress.SRE;
-import io.wifi.starrailexpress.SREConfig;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.Filterable;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.item.component.CustomModelData;
@@ -45,16 +55,6 @@ import net.minecraft.world.item.component.ItemLore;
 import net.minecraft.world.item.component.Unbreakable;
 import net.minecraft.world.item.component.WrittenBookContent;
 import pro.fazeclan.river.stupid_express.constants.SERoles;
-import net.minecraft.core.component.DataComponents;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.network.Filterable;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Items;
-import org.agmas.noellesroles.utils.RoleUtils;
 
 public class RoleShopHandler {
   // ==================== 商店项目列表 ====================
@@ -128,9 +128,6 @@ public class RoleShopHandler {
         ShopEntry.Type.TOOL));
     FRAMING_ROLES_SHOP
         .add(new FramingShopEntry(TMMItems.NOTE.getDefaultInstance(), 5, ShopEntry.Type.TOOL));
-
-    // 初始化仇杀客商店
-    initializeBloodFeudistShop();
   }
 
   /**
@@ -217,6 +214,9 @@ public class RoleShopHandler {
     initShops();
     // 初始化框架角色商店
     initializeFramingShop();
+
+    // 初始化仇杀客商店
+    initializeBloodFeudistShop();
     
     ShopContent.register();
     {
