@@ -30,7 +30,7 @@ import net.minecraft.world.phys.Vec3;
 public class MaChenXuEventHandler {
 
     /** 鬼缚效果持续时间（tick） - 3秒 */
-    private static final int GHOST_CURSE_DURATION = 60;
+    private static final int GHOST_CURSE_DURATION = 45*20;
 
     /**
      * 注册事件监听器

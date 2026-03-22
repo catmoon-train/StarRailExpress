@@ -209,6 +209,8 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
     public int ghostWallRemainingTicks = 0;
     public Vec3 ghostWallPos = null;
     public Vec3 ghostWallDirection = null;
+    /** 已被鬼打墙命中的玩家（每次施放只触发一次） */
+    private final java.util.Set<UUID> ghostWallHitPlayers = new java.util.HashSet<>();
 
     /** 回响状态 */
     public boolean echoRecording = false;
@@ -265,6 +267,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         this.stage = 1;
         this.totalSanLoss = 0;
         this.fearTimer = 0;
+        this.ghostWallHitPlayers.clear();
         this.otherworldActive = false;
         this.otherworldTimer = 0;
         this.otherworldDuration = 0;
@@ -336,6 +339,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         this.stage = 0;
         this.totalSanLoss = 0;
         this.fearTimer = 0;
+        this.ghostWallHitPlayers.clear();
         this.otherworldActive = false;
         this.otherworldTimer = 0;
         this.otherworldDuration = 0;
@@ -1180,6 +1184,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
             ghostWallActive = false;
             ghostWallPos = null;
             ghostWallDirection = null;
+            ghostWallHitPlayers.clear();
             return;
         }
         if (ghostWallPos == null || ghostWallDirection == null)
@@ -1187,17 +1192,18 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
 
         Level world = player.level();
         for (Player target : world.players()) {
-            if (target.equals(player))
-                continue;
-            if (!GameUtils.isPlayerAliveAndSurvival(target))
-                continue;
-            if (isKiller(target))
-                continue;
+            if (target.equals(player)) continue;
+            if (!GameUtils.isPlayerAliveAndSurvival(target)) continue;
+            if (isKiller(target)) continue;
+            // 每个玩家只触发一次
+            if (ghostWallHitPlayers.contains(target.getUUID())) continue;
 
             Vec3 toTarget = target.position().subtract(ghostWallPos);
-            // 检查是否在墙平面附近（1.5格内）且在墙的水平范围内（3格）
             double dot = toTarget.dot(ghostWallDirection);
             if (Math.abs(dot) < 1.5 && toTarget.horizontalDistance() < 3.0) {
+                // 记录已命中
+                ghostWallHitPlayers.add(target.getUUID());
+
                 // 击退5格
                 Vec3 knockback = ghostWallDirection.scale(GHOST_WALL_KNOCKBACK);
                 if (dot < 0)
@@ -1537,10 +1543,8 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
     }
 
     public Component getNowCooldownText() {
-        if (ghostSkills.isEmpty())
-            return null;
-        if (this.nowSelectedSkill >= ghostSkills.size())
-            return null;
+        if (ghostSkills.isEmpty()) return null;
+        if (this.nowSelectedSkill >= ghostSkills.size()) return null;
 
         var skillId = ghostSkills.get(this.nowSelectedSkill);
         return switch (skillId) {
