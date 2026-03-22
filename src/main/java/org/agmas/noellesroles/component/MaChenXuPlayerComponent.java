@@ -1739,6 +1739,10 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         if (this.stage <= 0)
             return;
 
+        tag.putInt("STAGE_2_THRESHOLD", this.STAGE_2_THRESHOLD);
+        tag.putInt("STAGE_3_THRESHOLD", this.STAGE_3_THRESHOLD);
+        tag.putInt("STAGE_4_THRESHOLD", this.STAGE_4_THRESHOLD);
+
         tag.putInt("stage", this.stage);
         tag.putInt("totalSanLoss", this.totalSanLoss);
         tag.putInt("fearTimer", this.fearTimer);
@@ -1789,6 +1793,9 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
 
     @Override
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+        this.STAGE_2_THRESHOLD = tag.contains("STAGE_2_THRESHOLD") ? tag.getInt("STAGE_2_THRESHOLD") : 100000;
+        this.STAGE_3_THRESHOLD = tag.contains("STAGE_3_THRESHOLD") ? tag.getInt("STAGE_3_THRESHOLD") : 100000;
+        this.STAGE_4_THRESHOLD = tag.contains("STAGE_4_THRESHOLD") ? tag.getInt("STAGE_4_THRESHOLD") : 100000;
         this.stage = tag.contains("stage") ? tag.getInt("stage") : 1;
         this.totalSanLoss = tag.contains("totalSanLoss") ? tag.getInt("totalSanLoss") : 0;
         this.fearTimer = tag.contains("fearTimer") ? tag.getInt("fearTimer") : 0;
