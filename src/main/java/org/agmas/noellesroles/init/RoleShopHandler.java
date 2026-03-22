@@ -897,7 +897,7 @@ public class RoleShopHandler {
       List<ShopEntry> shop = new ArrayList<>();
       // 净雨符
       {
-        ItemStack it = Items.BARRIER.getDefaultInstance();
+        ItemStack it = Items.POTION.getDefaultInstance();
         it.set(DataComponents.ITEM_NAME, Component.translatable("item.noellesroles.guest_ghost.stop_raining"));
         var rainLore = new ArrayList<Component>();
         rainLore.add(Component.translatable("item.noellesroles.guest_ghost.stop_raining.tooltip1")
