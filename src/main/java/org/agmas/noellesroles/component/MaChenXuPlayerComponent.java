@@ -41,6 +41,8 @@ import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.agmas.noellesroles.init.ModEffects;
 
+import static org.agmas.noellesroles.roles.ma_chen_xu.MaChenXuEventHandler.HIT_SELF_LOCK_TICKS;
+
 /**
  * 布袋鬼·诡舍·缚灵 组件
  *
@@ -140,6 +142,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
     public static final int TURBID_RAIN_DURATION = 600; // 30秒
     public static final int TURBID_RAIN_SAN_INTERVAL = 100; // 5秒
     public static final int TURBID_RAIN_SAN_LOSS = 3;
+    public static final int TURBID_RAIN_COST_STEP = 100;
 
     /** 镇魂铃参数 */
     public static final double SOUL_BELL_RANGE = 20.0;
@@ -240,6 +243,8 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
     public boolean turbidRainActive = false;
     public int turbidRainDuration = 0;
     public int turbidRainTimer = 0;
+    /** 浊雨已使用次数（用于递增费用） */
+    public int turbidRainUseCount = 0;
 
     /** 掠风技能状态（阶段4里世界专属） */
     public boolean swiftWindActive = false;
@@ -307,6 +312,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         this.turbidRainActive = false;
         this.turbidRainDuration = 0;
         this.turbidRainTimer = 0;
+        this.turbidRainUseCount = 0;
         this.swiftWindActive = false;
         this.swiftWindDuration = 0;
         this.otherworldGlowTimer = 0;
@@ -380,6 +386,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         this.turbidRainActive = false;
         this.turbidRainDuration = 0;
         this.turbidRainTimer = 0;
+        this.turbidRainUseCount = 0;
         this.swiftWindActive = false;
         this.swiftWindDuration = 0;
         this.otherworldGlowTimer = 0;
@@ -478,6 +485,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
     public void advanceToStage3() {
         this.stage = 3;
         addRandomGhostSkill();
+        unlockPrayerRain();
         if (player instanceof ServerPlayer serverPlayer) {
             serverPlayer.displayClientMessage(
                     Component.translatable("message.noellesroles.ma_chen_xu.stage_advance",
@@ -495,6 +503,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
     public void advanceToStage4() {
         this.stage = 4;
         addRandomGhostSkill();
+        unlockPrayerRain();
         // 获得永久护盾（布尔值，吸收一次致命伤害）
         this.permanentShield = true;
         if (player instanceof ServerPlayer serverPlayer) {
@@ -529,6 +538,25 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
                                 .withStyle(ChatFormatting.GOLD),
                         true);
             }
+        }
+    }
+
+    /**
+     * 阶段3起解锁大招到技能列表，允许主动切换释放
+     */
+    private void unlockPrayerRain() {
+        if (stage < 3)
+            return;
+        if (ghostSkills.contains("prayer_rain"))
+            return;
+
+        ghostSkills.add("prayer_rain");
+        if (player instanceof ServerPlayer serverPlayer) {
+            serverPlayer.displayClientMessage(
+                    Component.translatable("message.noellesroles.ma_chen_xu.ghost_skill_acquired",
+                            Component.translatable("hud.noellesroles.ma_chen_xu.skill.prayer_rain"))
+                            .withStyle(ChatFormatting.GOLD),
+                    true);
         }
     }
 
@@ -798,6 +826,8 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         sp.addEffect(new MobEffectInstance(
                 MobEffects.MOVEMENT_SPEED, duration, 2, false, false, false));
         sp.addEffect(new MobEffectInstance(
+                MobEffects.MOVEMENT_SLOWDOWN, 60, 10, false, false, false));
+        sp.addEffect(new MobEffectInstance(
                 MobEffects.INVISIBILITY, duration, 0, false, false, false));
 
         Level world = player.level();
@@ -1007,18 +1037,11 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
             return false;
         }
 
-        // 斩杀前摇特效
-        if (player.level() instanceof ServerLevel sl) {
-            playSoulDevourExecutionEffects(sl, player, target, false);
-        }
 
         // 击杀目标（无法复活）
         GameUtils.forceKillPlayer(target, true, player, Noellesroles.id("machenxu"));
 
-        // 斩杀收束特效
-        if (player.level() instanceof ServerLevel sl) {
-            playSoulDevourExecutionEffects(sl, player, target, true);
-        }
+
 
         // 移除受害者所有物品
         if (target instanceof ServerPlayer targetSp) {
@@ -1049,8 +1072,8 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         }
 
         // 播放音效
-        player.level().playSound(null, player.blockPosition(),
-                SoundEvents.WITHER_DEATH, SoundSource.PLAYERS, 1.0F, 1.2F);
+//        player.level().playSound(null, player.blockPosition(),
+//                SoundEvents.WITHER_DEATH, SoundSource.PLAYERS, 1.0F, 1.2F);
 
         this.sync();
         return true;
@@ -1110,8 +1133,19 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         UUID targetUUID = target.getUUID();
         if (markedPlayers.contains(targetUUID))
             return false;
-
+        // 斩杀前摇特效
+        if (player.level() instanceof ServerLevel sl) {
+            playSoulDevourExecutionEffects(sl, player, target, false);
+        }
+        // 斩杀收束特效
+        if (player.level() instanceof ServerLevel sl) {
+            playSoulDevourExecutionEffects(sl, player, target, true);
+        }
         markedPlayers.add(targetUUID);
+        // 命中后前摇硬直：7tick无法移动、无法普通攻击、无法技能
+        player.addEffect(new MobEffectInstance(ModEffects.MOVE_BANED, HIT_SELF_LOCK_TICKS, 1, false, false, false));
+        player.addEffect(new MobEffectInstance(ModEffects.USED_BANED, HIT_SELF_LOCK_TICKS, 1, false, false, false));
+        player.addEffect(new MobEffectInstance(ModEffects.SKILL_BANED, HIT_SELF_LOCK_TICKS, 1, false, false, false));
 
         // 被标记者永久发光
         target.addEffect(new MobEffectInstance(
@@ -1130,8 +1164,16 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
 
             // 标记粒子效果
             if (target.level() instanceof ServerLevel sl) {
-
                 Vec3 pos = target.position();
+                sl.sendParticles(ParticleTypes.SWEEP_ATTACK,
+                        pos.x, pos.y + 0.9, pos.z, 3, 0.8, 0.4, 0.8, 0.0);
+                sl.sendParticles(ParticleTypes.SOUL_FIRE_FLAME,
+                        pos.x, pos.y + 1.0, pos.z, 8, 0.4, 0.6, 0.4, 0.01);
+                sl.sendParticles(ParticleTypes.CRIT,
+                        pos.x, pos.y + 1.0, pos.z, 10, 0.5, 0.5, 0.5, 0.1);
+                sl.playSound(null, target.blockPosition(), SoundEvents.PLAYER_ATTACK_SWEEP,
+                        SoundSource.HOSTILE, 1.0F, 0.85F);
+
                     // 灵魂火焰爆发
                     sl.sendParticles(ParticleTypes.SOUL_FIRE_FLAME,
                             pos.x, pos.y + 1.0, pos.z, 15, 0.3, 0.5, 0.3, 0.05);
@@ -1227,9 +1269,27 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         if (turbidRainActive)
             return false;
 
+        SREPlayerShopComponent shopComponent = SREPlayerShopComponent.KEY.get(sp);
+        int extraCost = turbidRainUseCount * TURBID_RAIN_COST_STEP;
+        if (extraCost > 0) {
+            if (shopComponent.balance < extraCost) {
+                sp.displayClientMessage(
+                        Component.translatable("message.noellesroles.insufficient_funds")
+                                .append(Component.literal(" (").withStyle(ChatFormatting.RED))
+                                .append(Component.literal(String.valueOf(extraCost)).withStyle(ChatFormatting.GOLD))
+                                .append(Component.literal(")").withStyle(ChatFormatting.RED))
+                                .withStyle(ChatFormatting.RED),
+                        true);
+                return false;
+            }
+            shopComponent.setBalance(shopComponent.balance - extraCost);
+            shopComponent.sync();
+        }
+
         this.turbidRainActive = true;
         this.turbidRainDuration = TURBID_RAIN_DURATION;
         this.turbidRainTimer = 0;
+        this.turbidRainUseCount++;
 
         sp.serverLevel().setWeatherParameters(0, TURBID_RAIN_DURATION + 20, true, false);
 
@@ -1734,6 +1794,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
                 case "trap" -> useTrap();
                 case "parasite" -> useParasite();
                 case "vanish" -> useVanish();
+                case "prayer_rain" -> usePrayerRain();
                 default -> {
                 }
             }
@@ -1804,6 +1865,31 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
                         vanishCooldown / 20)
                         .withStyle(ChatFormatting.YELLOW);
             }
+            case "prayer_rain" -> {
+                if (stage < 3)
+                    yield Component.translatable("tip.noellesroles.not_enough_energy")
+                            .withStyle(ChatFormatting.RED);
+                if (otherworldActive)
+                    yield Component.translatable("hud.noellesroles.ma_chen_xu.li_shi_jie_active", otherworldDuration / 20)
+                            .withStyle(ChatFormatting.DARK_RED);
+                if (ultimateCooldown > 0)
+                    yield Component.translatable("message.noellesroles.ma_chen_xu.prayer_rain_cooldown",
+                            ultimateCooldown / 20)
+                            .withStyle(ChatFormatting.YELLOW);
+                if (player instanceof ServerPlayer serverPlayer) {
+                    boolean isFree = stage == 4 && !stage4FreeUltUsed;
+                    int remain = Math.max(0, ULTIMATE_COST - SREPlayerShopComponent.KEY.get(serverPlayer).balance);
+                    if (!isFree && remain > 0)
+                        yield Component.translatable("message.noellesroles.insufficient_funds")
+                                .append(Component.literal(" (").withStyle(ChatFormatting.RED))
+                                .append(Component.literal(String.valueOf(remain)).withStyle(ChatFormatting.GOLD))
+                                .append(Component.literal(")").withStyle(ChatFormatting.RED))
+                                .withStyle(ChatFormatting.RED);
+                }
+                yield Component.translatable("message.noellesroles.ma_chen_xu.available",
+                        NoellesrolesClient.abilityBind.getTranslatedKeyMessage())
+                        .withStyle(ChatFormatting.GREEN);
+            }
             default -> null;
         };
     }
@@ -1824,6 +1910,8 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
             return;
         if (!(player instanceof ServerPlayer))
             return;
+        if (stage >= 3 && !ghostSkills.contains("prayer_rain"))
+            unlockPrayerRain();
         // 技能禁止
         if (this.player.hasEffect(ModEffects.SKILL_BANED))
             return;
@@ -1992,6 +2080,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         // 浊雨状态
         tag.putBoolean("turbidRainActive", this.turbidRainActive);
         tag.putInt("turbidRainDuration", this.turbidRainDuration);
+        tag.putInt("turbidRainUseCount", this.turbidRainUseCount);
 
         // 掠风状态
         tag.putBoolean("swiftWindActive", this.swiftWindActive);
@@ -2046,6 +2135,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         // 浊雨状态
         this.turbidRainActive = tag.contains("turbidRainActive") && tag.getBoolean("turbidRainActive");
         this.turbidRainDuration = tag.contains("turbidRainDuration") ? tag.getInt("turbidRainDuration") : 0;
+        this.turbidRainUseCount = tag.contains("turbidRainUseCount") ? tag.getInt("turbidRainUseCount") : 0;
 
         // 掠风状态
         this.swiftWindActive = tag.contains("swiftWindActive") && tag.getBoolean("swiftWindActive");

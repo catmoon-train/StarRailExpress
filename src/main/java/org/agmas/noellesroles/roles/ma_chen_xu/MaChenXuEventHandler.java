@@ -33,10 +33,10 @@ import pro.fazeclan.river.stupid_express.constants.SERoles;
 public class MaChenXuEventHandler {
 
     /** 命中后前摇硬直（tick） */
-    private static final int HIT_SELF_LOCK_TICKS = 3;
+    public static final int HIT_SELF_LOCK_TICKS = 30;
 
     /** 鬼缚效果持续时间（tick） */
-    private static final int GHOST_CURSE_DURATION = 45 * 20;
+    public static final int GHOST_CURSE_DURATION = 45 * 20;
 
     /**
      * 注册事件监听器
@@ -67,59 +67,44 @@ public class MaChenXuEventHandler {
             return true;
         });
 
-        // 布袋鬼攻击事件：命中特效 + 命中后自身3tick硬直（禁移动/禁攻击）
-        AttackEntityCallback.EVENT.register(MaChenXuEventHandler::onEntityAttacked);
+//        // 布袋鬼攻击事件：命中特效 + 命中后自身3tick硬直（禁移动/禁攻击）
+//        AttackEntityCallback.EVENT.register(MaChenXuEventHandler::onEntityAttacked);
     }
 
-    private static InteractionResult onEntityAttacked(Player attacker, Level world, InteractionHand hand,
-            Entity entity, EntityHitResult hitResult) {
-        if (world.isClientSide()) {
-            return InteractionResult.PASS;
-        }
-        if (!(attacker instanceof ServerPlayer sp)) {
-            return InteractionResult.PASS;
-        }
-        if (!(entity instanceof Player victim)) {
-            return InteractionResult.PASS;
-        }
-        if (!GameUtils.isPlayerAliveAndSurvival(attacker) || !GameUtils.isPlayerAliveAndSurvival(victim)) {
-            return InteractionResult.PASS;
-        }
-
-        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(world);
-        if (!gameWorld.isRole(attacker, ModRoles.MA_CHEN_XU)) {
-            return InteractionResult.PASS;
-        }
-
-        MaChenXuPlayerComponent comp = MaChenXuPlayerComponent.KEY.get(attacker);
-        if (comp.stage <= 0) {
-            return InteractionResult.PASS;
-        }
-
-        // 命中后前摇硬直：3tick无法移动、无法普通攻击、无法技能
-        sp.addEffect(new MobEffectInstance(ModEffects.MOVE_BANED, HIT_SELF_LOCK_TICKS, 0, false, false, false));
-        sp.addEffect(new MobEffectInstance(ModEffects.USED_BANED, HIT_SELF_LOCK_TICKS, 0, false, false, false));
-        sp.addEffect(new MobEffectInstance(ModEffects.SKILL_BANED, HIT_SELF_LOCK_TICKS, 0, false, false, false));
-
-        // 命中特效
-        if (world instanceof ServerLevel sl) {
-            Vec3 pos = victim.position();
-            sl.sendParticles(ParticleTypes.SWEEP_ATTACK,
-                    pos.x, pos.y + 0.9, pos.z, 3, 0.8, 0.4, 0.8, 0.0);
-            sl.sendParticles(ParticleTypes.SOUL_FIRE_FLAME,
-                    pos.x, pos.y + 1.0, pos.z, 8, 0.4, 0.6, 0.4, 0.01);
-            sl.sendParticles(ParticleTypes.CRIT,
-                    pos.x, pos.y + 1.0, pos.z, 10, 0.5, 0.5, 0.5, 0.1);
-            sl.playSound(null, victim.blockPosition(), SoundEvents.PLAYER_ATTACK_SWEEP,
-                    SoundSource.HOSTILE, 1.0F, 0.85F);
-        }
-
-        // 里世界中附带鬼缚（用于加强打击感）
-        if (comp.otherworldActive) {
-            victim.addEffect(new MobEffectInstance(
-                    ModEffects.GHOST_CURSE, GHOST_CURSE_DURATION, 0, false, false, true));
-        }
-
-        return InteractionResult.PASS;
-    }
+//    private static InteractionResult onEntityAttacked(Player attacker, Level world, InteractionHand hand,
+//            Entity entity, EntityHitResult hitResult) {
+//        if (world.isClientSide()) {
+//            return InteractionResult.PASS;
+//        }
+//        if (!(attacker instanceof ServerPlayer sp)) {
+//            return InteractionResult.PASS;
+//        }
+//        if (!(entity instanceof Player victim)) {
+//            return InteractionResult.PASS;
+//        }
+//        if (!GameUtils.isPlayerAliveAndSurvival(attacker) || !GameUtils.isPlayerAliveAndSurvival(victim)) {
+//            return InteractionResult.PASS;
+//        }
+//
+//        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(world);
+//        if (!gameWorld.isRole(attacker, ModRoles.MA_CHEN_XU)) {
+//            return InteractionResult.PASS;
+//        }
+//
+//        MaChenXuPlayerComponent comp = MaChenXuPlayerComponent.KEY.get(attacker);
+//        if (comp.stage <= 0) {
+//            return InteractionResult.PASS;
+//        }
+//
+//
+//
+//
+////        // 里世界中附带鬼缚（用于加强打击感）
+////        if (comp.otherworldActive) {
+////            victim.addEffect(new MobEffectInstance(
+////                    ModEffects.GHOST_CURSE, GHOST_CURSE_DURATION, 0, false, false, true));
+////        }
+//
+//        return InteractionResult.PASS;
+//    }
 }
