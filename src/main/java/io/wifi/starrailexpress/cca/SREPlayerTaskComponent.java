@@ -215,12 +215,8 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
      */
     private Set<String> getDisabledTasks() {
         AreasWorldComponent areas = AreasWorldComponent.KEY.get(this.player.level());
-        if (areas != null && areas.mapName != null) {
-            io.wifi.starrailexpress.data.MapConfig.MapEntry mapEntry = io.wifi.starrailexpress.data.MapConfig
-                    .getInstance().getMapById(areas.mapName);
-            if (mapEntry != null && mapEntry.disabledTasks != null) {
-                return new HashSet<>(mapEntry.disabledTasks);
-            }
+        if (areas != null) {
+            return areas.getDisabledTasks();
         }
         return Set.of();
     }
@@ -277,7 +273,8 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
             total += weight;
         }
 
-        if (total <= 0) return null;
+        if (total <= 0)
+            return null;
 
         float random = this.player.getRandom().nextFloat() * total;
         var entries = new ArrayList<>(map.entrySet());

@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -43,6 +44,14 @@ public class AreasWorldComponent implements AutoSyncedComponent {
     }
 
     public ScrollAxis SceneScrollAxis = ScrollAxis.X;
+
+    public HashSet<String> disabledTasks = new HashSet<>();
+
+    public HashSet<String> getDisabledTasks() {
+        if (this.disabledTasks == null)
+            return new HashSet<>();
+        return new HashSet<>(this.disabledTasks);
+    }
 
     public static class PosWithOrientation {
         public final Vec3 pos;
