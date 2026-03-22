@@ -264,6 +264,7 @@ public class RoleShopHandler {
           .withStyle(ChatFormatting.GRAY));
       soulBellItem.set(DataComponents.LORE, new ItemLore(soulBellLore));
 
+      MA_CHEN_XU_SHOP.add(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), 75, ShopEntry.Type.TOOL) );
       MA_CHEN_XU_SHOP.add(new ShopEntry(soulBellItem, 150, ShopEntry.Type.TOOL) {
         @Override
         public boolean onBuy(@NotNull Player player) {
