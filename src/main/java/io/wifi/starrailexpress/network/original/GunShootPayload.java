@@ -63,7 +63,6 @@ public record GunShootPayload(int target) implements CustomPacketPayload {
                 if (isUsed == null) {
                     isUsed = false;
                 }
-
                 if (isUsed) {
                     return;
                 }
