@@ -101,8 +101,13 @@ public class SREPlayerMoodComponent implements RoleComponent, ServerTickingCompo
 
     @Override
     public void clientTick() {
-        if (!SREGameWorldComponent.KEY.get(this.player.level()).isRunning() || !SREClient.isPlayerAliveAndInSurvival())
+        if (!SREGameWorldComponent.KEY.get(this.player.level()).isRunning()
+                || !SREClient.isPlayerAliveAndInSurvival()) {
+            if (this.mood < 1f) {
+                this.mood = 1f;
+            }
             return;
+        }
         if (this.playerTaskComponent == null) {
             this.playerTaskComponent = SREPlayerTaskComponent.KEY.get(this.player);
         }
@@ -148,8 +153,12 @@ public class SREPlayerMoodComponent implements RoleComponent, ServerTickingCompo
             this.playerTaskComponent = SREPlayerTaskComponent.KEY.get(this.player);
         }
         SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(this.player.level());
-        if (!gameWorldComponent.isRunning() || !GameUtils.isPlayerAliveAndSurvival(this.player))
+        if (!gameWorldComponent.isRunning() || !GameUtils.isPlayerAliveAndSurvival(this.player)) {
+            if (this.mood < 1f) {
+                this.mood = 1f;
+            }
             return;
+        }
         boolean shouldSync = false;
         if (!this.playerTaskComponent.tasks.isEmpty()) {
             if (this.mood > 0)

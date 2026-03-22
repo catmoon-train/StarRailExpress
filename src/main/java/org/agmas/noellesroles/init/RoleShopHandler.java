@@ -213,10 +213,11 @@ public class RoleShopHandler {
   public static void shopRegister() {
     ShopContent.customEntries.clear();
     ShopContent.defaultEntries.clear();
-    // 初始化框架角色商店
-    initializeFramingShop();
     // 初始化其他角色商店
     initShops();
+    // 初始化框架角色商店
+    initializeFramingShop();
+    
     ShopContent.register();
     {
       // 布袋鬼商店（诡舍·缚灵）
