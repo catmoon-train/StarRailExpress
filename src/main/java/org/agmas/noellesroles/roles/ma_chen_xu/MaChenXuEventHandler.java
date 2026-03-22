@@ -1,14 +1,30 @@
 package org.agmas.noellesroles.roles.ma_chen_xu;
 
 import io.wifi.starrailexpress.event.AfterShieldAllowPlayerDeath;
+import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import org.agmas.noellesroles.component.MaChenXuPlayerComponent;
+import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.core.particles.ParticleTypes;
 import pro.fazeclan.river.stupid_express.constants.SERoles;
 
 /**
@@ -16,8 +32,11 @@ import pro.fazeclan.river.stupid_express.constants.SERoles;
  */
 public class MaChenXuEventHandler {
 
-    /** 鬼缚效果持续时间（tick） - 3秒 */
-    private static final int GHOST_CURSE_DURATION = 45*20;
+    /** 命中后前摇硬直（tick） */
+    private static final int HIT_SELF_LOCK_TICKS = 3;
+
+    /** 鬼缚效果持续时间（tick） */
+    private static final int GHOST_CURSE_DURATION = 45 * 20;
 
     /**
      * 注册事件监听器
@@ -48,38 +67,59 @@ public class MaChenXuEventHandler {
             return true;
         });
 
-        // 布袋鬼攻击事件：命中特效 + 鬼缚诅咒
-//        AttackEntityCallback.EVENT.register((attacker, world, hand, entity, hitResult) -> {
-//            if (world.isClientSide()) return InteractionResult.PASS;
-//            if (!(attacker instanceof ServerPlayer sp)) return InteractionResult.PASS;
-//            if (!(entity instanceof Player victim)) return InteractionResult.PASS;
-//
-//            SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(world);
-//            if (!gameWorld.isRole(attacker, ModRoles.MA_CHEN_XU)) return InteractionResult.PASS;
-//            if (!GameUtils.isPlayerAliveAndSurvival(victim)) return InteractionResult.PASS;
-//
-//            MaChenXuPlayerComponent comp = MaChenXuPlayerComponent.KEY.get(attacker);
-//            if (comp.stage <= 0) return InteractionResult.PASS;
-//
-//
-//
-//            // 里世界期间：施加鬼缚诅咒（隐身+定身+禁用物品+红粒子）
-//            if (comp.otherworldActive) {
-////                victim.addEffect(new MobEffectInstance(
-////                        ModEffects.GHOST_CURSE, GHOST_CURSE_DURATION, 0, false, false, true));
-////                victim.addEffect(new MobEffectInstance(
-////                        MobEffects.INVISIBILITY, GHOST_CURSE_DURATION, 0, false, false, false));
-//
-//                // 鬼缚Title
-//                if (victim instanceof ServerPlayer victimSp) {
-//                    victimSp.connection.send(new ClientboundSetTitlesAnimationPacket(5, 40, 10));
-//                    victimSp.connection.send(new ClientboundSetTitleTextPacket(
-//                            Component.translatable("message.noellesroles.ma_chen_xu.ghost_curse")
-//                                    .withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD)));
-//                }
-//            }
-//
-//            return InteractionResult.PASS;
-//        });
+        // 布袋鬼攻击事件：命中特效 + 命中后自身3tick硬直（禁移动/禁攻击）
+        AttackEntityCallback.EVENT.register(MaChenXuEventHandler::onEntityAttacked);
+    }
+
+    private static InteractionResult onEntityAttacked(Player attacker, Level world, InteractionHand hand,
+            Entity entity, EntityHitResult hitResult) {
+        if (world.isClientSide()) {
+            return InteractionResult.PASS;
+        }
+        if (!(attacker instanceof ServerPlayer sp)) {
+            return InteractionResult.PASS;
+        }
+        if (!(entity instanceof Player victim)) {
+            return InteractionResult.PASS;
+        }
+        if (!GameUtils.isPlayerAliveAndSurvival(attacker) || !GameUtils.isPlayerAliveAndSurvival(victim)) {
+            return InteractionResult.PASS;
+        }
+
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(world);
+        if (!gameWorld.isRole(attacker, ModRoles.MA_CHEN_XU)) {
+            return InteractionResult.PASS;
+        }
+
+        MaChenXuPlayerComponent comp = MaChenXuPlayerComponent.KEY.get(attacker);
+        if (comp.stage <= 0) {
+            return InteractionResult.PASS;
+        }
+
+        // 命中后前摇硬直：3tick无法移动、无法普通攻击、无法技能
+        sp.addEffect(new MobEffectInstance(ModEffects.MOVE_BANED, HIT_SELF_LOCK_TICKS, 0, false, false, false));
+        sp.addEffect(new MobEffectInstance(ModEffects.USED_BANED, HIT_SELF_LOCK_TICKS, 0, false, false, false));
+        sp.addEffect(new MobEffectInstance(ModEffects.SKILL_BANED, HIT_SELF_LOCK_TICKS, 0, false, false, false));
+
+        // 命中特效
+        if (world instanceof ServerLevel sl) {
+            Vec3 pos = victim.position();
+            sl.sendParticles(ParticleTypes.SWEEP_ATTACK,
+                    pos.x, pos.y + 0.9, pos.z, 3, 0.8, 0.4, 0.8, 0.0);
+            sl.sendParticles(ParticleTypes.SOUL_FIRE_FLAME,
+                    pos.x, pos.y + 1.0, pos.z, 8, 0.4, 0.6, 0.4, 0.01);
+            sl.sendParticles(ParticleTypes.CRIT,
+                    pos.x, pos.y + 1.0, pos.z, 10, 0.5, 0.5, 0.5, 0.1);
+            sl.playSound(null, victim.blockPosition(), SoundEvents.PLAYER_ATTACK_SWEEP,
+                    SoundSource.HOSTILE, 1.0F, 0.85F);
+        }
+
+        // 里世界中附带鬼缚（用于加强打击感）
+        if (comp.otherworldActive) {
+            victim.addEffect(new MobEffectInstance(
+                    ModEffects.GHOST_CURSE, GHOST_CURSE_DURATION, 0, false, false, true));
+        }
+
+        return InteractionResult.PASS;
     }
 }

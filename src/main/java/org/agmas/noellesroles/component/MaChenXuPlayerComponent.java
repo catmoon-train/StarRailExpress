@@ -160,6 +160,12 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
     /** 里世界黑雾粒子间隔（tick） */
     public static final int BLACK_FOG_PARTICLE_INTERVAL = 5;
 
+    /** 里世界降临演出持续（tick）- 5秒 */
+    public static final int OTHERWORLD_DESCENT_DURATION = 100;
+
+    /** 里世界开场定身时间（tick）- 2秒 */
+    public static final int OTHERWORLD_INTRO_FREEZE_DURATION = 40;
+
     // ==================== 状态变量 ====================
 
     private final Player player;
@@ -698,6 +704,12 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
             }
         }
 
+        // 里世界降临阶段演出：5秒球状大范围粒子 + 多段音效
+        if (otherworldTimer <= OTHERWORLD_DESCENT_DURATION && player instanceof ServerPlayer sp
+                && player.level() instanceof ServerLevel sl) {
+            playOtherworldDescentEffects(sl, sp, otherworldTimer);
+        }
+
         // 黑雾粒子效果（布袋鬼周围持续释放 - 增强版，更加明显）
         if (blackFogTimer >= BLACK_FOG_PARTICLE_INTERVAL) {
             blackFogTimer = 0;
@@ -726,6 +738,44 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         // 里世界结束
         if (otherworldDuration <= 0) {
             endOtherworld();
+        }
+    }
+
+    /**
+     * 里世界降临演出：球状扩散粒子 + 多段音效
+     */
+    private void playOtherworldDescentEffects(ServerLevel sl, ServerPlayer sp, int timer) {
+        Vec3 pos = sp.position();
+
+        // 球状粒子（范围随时间增大，5秒内从 4 扩展到 16）
+        if (timer % 2 == 0) {
+            double radius = 4.0 + (12.0 * Math.min(timer, OTHERWORLD_DESCENT_DURATION) / OTHERWORLD_DESCENT_DURATION);
+            for (int i = 0; i < 48; i++) {
+                double yaw = random.nextDouble() * Math.PI * 2.0;
+                double pitch = (random.nextDouble() - 0.5) * Math.PI;
+                double x = pos.x + Math.cos(yaw) * Math.cos(pitch) * radius;
+                double y = pos.y + 1.2 + Math.sin(pitch) * radius * 0.6;
+                double z = pos.z + Math.sin(yaw) * Math.cos(pitch) * radius;
+                sl.sendParticles(ParticleTypes.SOUL_FIRE_FLAME, x, y, z, 1, 0, 0, 0, 0.01);
+                if (i % 3 == 0) {
+                    sl.sendParticles(ParticleTypes.SCULK_SOUL, x, y, z, 1, 0, 0, 0, 0.01);
+                }
+            }
+            sl.sendParticles(ParticleTypes.CAMPFIRE_SIGNAL_SMOKE,
+                    pos.x, pos.y + 0.6, pos.z, 5, radius * 0.25, 0.3, radius * 0.25, 0.003);
+        }
+
+        // 多段音效
+        if (timer == 1) {
+            sl.playSound(null, sp.blockPosition(), SoundEvents.WARDEN_NEARBY_CLOSE, SoundSource.HOSTILE, 1.3F, 0.55F);
+        } else if (timer == 25) {
+            sl.playSound(null, sp.blockPosition(), SoundEvents.WARDEN_ROAR, SoundSource.HOSTILE, 1.2F, 0.75F);
+        } else if (timer == 50) {
+            sl.playSound(null, sp.blockPosition(), SoundEvents.WITHER_SPAWN, SoundSource.HOSTILE, 1.0F, 0.9F);
+        } else if (timer == 75) {
+            sl.playSound(null, sp.blockPosition(), SoundEvents.BEACON_ACTIVATE, SoundSource.HOSTILE, 1.2F, 0.6F);
+        } else if (timer == OTHERWORLD_DESCENT_DURATION) {
+            sl.playSound(null, sp.blockPosition(), SoundEvents.LIGHTNING_BOLT_THUNDER, SoundSource.HOSTILE, 1.4F, 0.65F);
         }
     }
 
@@ -763,6 +813,20 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
             }
         }
 
+        // 开场阶段：其他玩家定身+禁攻2秒，保证降临演出完整
+        for (Player target : world.players()) {
+            if (target.equals(sp))
+                continue;
+            if (!GameUtils.isPlayerAliveAndSurvival(target))
+                continue;
+            target.addEffect(new MobEffectInstance(
+                    ModEffects.MOVE_BANED, OTHERWORLD_INTRO_FREEZE_DURATION, 0, false, false, true));
+            target.addEffect(new MobEffectInstance(
+                    ModEffects.USED_BANED, OTHERWORLD_INTRO_FREEZE_DURATION, 0, false, false, true));
+            target.addEffect(new MobEffectInstance(
+                    ModEffects.SKILL_BANED, OTHERWORLD_INTRO_FREEZE_DURATION, 0, false, false, true));
+        }
+
         // 布袋鬼位置释放大量入场粒子
         if (world instanceof ServerLevel sl) {
             Vec3 pos = sp.position();
@@ -775,6 +839,8 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
                     pos.x, pos.y + 0.3, pos.z, 40, 5.0, 1.0, 5.0, 0.02);
             sl.sendParticles(ParticleTypes.CAMPFIRE_SIGNAL_SMOKE,
                     pos.x, pos.y + 0.5, pos.z, 15, 2.0, 3.0, 2.0, 0.005);
+                // 起手球壳
+                playOtherworldDescentEffects(sl, sp, 1);
         }
 
         // 好人获得速度II + 里世界侵蚀效果（用于客户端检测）+ 使用Title发送里世界降临提醒
@@ -941,8 +1007,18 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
             return false;
         }
 
+        // 斩杀前摇特效
+        if (player.level() instanceof ServerLevel sl) {
+            playSoulDevourExecutionEffects(sl, player, target, false);
+        }
+
         // 击杀目标（无法复活）
         GameUtils.forceKillPlayer(target, true, player, Noellesroles.id("machenxu"));
+
+        // 斩杀收束特效
+        if (player.level() instanceof ServerLevel sl) {
+            playSoulDevourExecutionEffects(sl, player, target, true);
+        }
 
         // 移除受害者所有物品
         if (target instanceof ServerPlayer targetSp) {
@@ -978,6 +1054,45 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
 
         this.sync();
         return true;
+    }
+
+    /**
+     * 魂噬斩杀演出：前摇蓄势 + 终结爆发
+     */
+    private void playSoulDevourExecutionEffects(ServerLevel sl, Player killer, Player target, boolean finisher) {
+        Vec3 tp = target.position();
+        Vec3 kp = killer.position();
+
+        int ringCount = finisher ? 3 : 2;
+        double radius = finisher ? 2.4 : 1.6;
+        for (int ring = 0; ring < ringCount; ring++) {
+            double y = tp.y + 0.35 + ring * 0.65;
+            for (int i = 0; i < 24; i++) {
+                double angle = (Math.PI * 2.0 * i) / 24.0;
+                double x = tp.x + Math.cos(angle) * (radius + ring * 0.35);
+                double z = tp.z + Math.sin(angle) * (radius + ring * 0.35);
+                sl.sendParticles(ParticleTypes.SOUL_FIRE_FLAME, x, y, z, 1, 0, 0, 0, 0.01);
+                if ((i + ring) % 4 == 0) {
+                    sl.sendParticles(ParticleTypes.SCULK_SOUL, x, y, z, 1, 0, 0, 0, 0.01);
+                }
+            }
+        }
+
+        sl.sendParticles(finisher ? ParticleTypes.FLASH : ParticleTypes.SMOKE,
+                tp.x, tp.y + 1.0, tp.z, finisher ? 1 : 10, 0.2, 0.4, 0.2, 0.01);
+        sl.sendParticles(ParticleTypes.SWEEP_ATTACK,
+                tp.x, tp.y + 0.9, tp.z, finisher ? 5 : 2, 0.8, 0.5, 0.8, 0.0);
+
+        // 杀手到目标的斩线感
+        Vec3 dir = tp.subtract(kp).normalize();
+        for (int i = 1; i <= 8; i++) {
+            Vec3 p = kp.add(dir.scale(i * 0.6)).add(0, 1.0, 0);
+            sl.sendParticles(ParticleTypes.CRIT, p.x, p.y, p.z, 2, 0.1, 0.1, 0.1, 0.02);
+        }
+
+        sl.playSound(null, target.blockPosition(),
+                finisher ? SoundEvents.WARDEN_ATTACK_IMPACT : SoundEvents.PLAYER_ATTACK_SWEEP,
+                SoundSource.HOSTILE, finisher ? 1.25F : 0.95F, finisher ? 0.7F : 1.1F);
     }
 
     /**
