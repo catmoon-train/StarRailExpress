@@ -6,7 +6,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.mojang.datafixers.util.Either;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.SRERole;
-import io.wifi.starrailexpress.cca.BartenderPlayerComponent;
+import io.wifi.starrailexpress.cca.SREArmorPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPoisonComponent;
@@ -211,7 +211,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements PlayerSt
             if (SRE.REPLAY_MANAGER != null) {
                 SRE.REPLAY_MANAGER.recordItemEatFlaggedItem(player, stack.getItem(), "armor");
             }
-            BartenderPlayerComponent bartenderPlayerComponent = BartenderPlayerComponent.KEY.get(this);
+            SREArmorPlayerComponent bartenderPlayerComponent = SREArmorPlayerComponent.KEY.get(this);
             // this.playSound(SoundEvents.SHIELD_BLOCK, 1f, 1f);
             bartenderPlayerComponent.giveArmor();
         }

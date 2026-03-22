@@ -777,7 +777,7 @@ public class GameUtils {
         SREPlayerPoisonComponent.KEY.get(player).init();
         SREPlayerPsychoComponent.KEY.get(player).init();
         SREPlayerNoteComponent.KEY.get(player).init();
-        BartenderPlayerComponent.KEY.get(player).init();
+        SREArmorPlayerComponent.KEY.get(player).init();
         if (!TrainVoicePlugin.isVoiceChatMissing()) {
             TrainVoicePlugin.resetPlayer(player.getUUID());
         }
@@ -919,7 +919,7 @@ public class GameUtils {
                 return;
         if (killer != null) {
             if (killer instanceof ServerPlayer spkiller) {
-                BartenderPlayerComponent bartenderPlayerComponent = BartenderPlayerComponent.KEY.get(victim);
+                SREArmorPlayerComponent bartenderPlayerComponent = SREArmorPlayerComponent.KEY.get(victim);
                 if (bartenderPlayerComponent != null) {
                     if (bartenderPlayerComponent.getArmor() > 0) {
                         boolean cantDefend = SRE.canStickArmor.stream().anyMatch((pre) -> {
@@ -1061,7 +1061,7 @@ public class GameUtils {
                 OnPlayerDeathWithKiller.EVENT.invoker().onPlayerDeath(victim, killer, deathReason);
                 SREPlayerPoisonComponent poisonComponent = SREPlayerPoisonComponent.KEY.maybeGet(serverPlayerEntity)
                         .orElse(null);
-                BartenderPlayerComponent bartenderPlayerComponent = BartenderPlayerComponent.KEY
+                SREArmorPlayerComponent bartenderPlayerComponent = SREArmorPlayerComponent.KEY
                         .maybeGet(serverPlayerEntity)
                         .orElse(null);
                 // 删除玩家死后中毒

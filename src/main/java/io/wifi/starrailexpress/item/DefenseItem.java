@@ -1,6 +1,8 @@
 package io.wifi.starrailexpress.item;
 
-import io.wifi.starrailexpress.cca.BartenderPlayerComponent;
+import java.util.ArrayList;
+
+import io.wifi.starrailexpress.cca.SREArmorPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -10,8 +12,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
-
-import java.util.ArrayList;
 
 public class DefenseItem extends Item {
     public static SREGameWorldComponent gameWorldComponent = null;
@@ -59,7 +59,7 @@ public class DefenseItem extends Item {
             if (role != null) {
                 if (canUseByRightClickRolePaths.contains(role.identifier().getPath())) {
                     if (livingEntity instanceof Player player) {
-                        var bartenderComponent = BartenderPlayerComponent.KEY.get(player);
+                        var bartenderComponent = SREArmorPlayerComponent.KEY.get(player);
                         if (bartenderComponent != null) {
                             bartenderComponent.giveArmor();
                             itemStack.consume(1, livingEntity);
