@@ -200,7 +200,7 @@ public class ExecutionerPlayerComponent implements RoleComponent, ServerTickingC
             }
             if (gameWorldComponent.isRole(target, ModRoles.VOODOO)
                     && NoellesRolesConfig.HANDLER.instance().voodooShotLikeEvil) {
-                return AllowShootRevolverDrop.ShouldDropResult.TRUE;
+                return AllowShootRevolverDrop.ShouldDropResult.FALSE;
             }
             return AllowShootRevolverDrop.ShouldDropResult.PASS;
         });

@@ -4,7 +4,6 @@ import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
 import org.agmas.noellesroles.role.ModRoles;
 
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
-import io.wifi.starrailexpress.client.SREClient;
 import java.awt.Color;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -12,13 +11,9 @@ import net.minecraft.network.chat.Component;
 
 public class CommanderHudRender {
     public static void register() {
-        RoleHudRenderCallback.EVENT.register(ModRoles.WAYFARER_ID,(guiGraphics, deltaTracker) -> {
+        RoleHudRenderCallback.EVENT.register(ModRoles.COMMANDER_ID,(guiGraphics, deltaTracker) -> {
             var client = Minecraft.getInstance();
-            if (client == null)
-                return;
-            if (client.player == null)
-                return;
-            if (SREClient.gameComponent != null && SREClient.gameComponent.isRole(client.player, ModRoles.COMMANDER)) {
+            {
                 var comc = SREAbilityPlayerComponent.KEY.maybeGet(client.player).orElse(null);
                 if (comc == null)
                     return;
