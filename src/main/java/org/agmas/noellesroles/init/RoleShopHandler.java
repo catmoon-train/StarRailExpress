@@ -284,6 +284,13 @@ public class RoleShopHandler {
       SHOP.add(new ShopEntry(ModItems.SIGNATURE_PAPER.getDefaultInstance(), 100, ShopEntry.Type.TOOL));
       ShopContent.customEntries.put(ModRoles.SUPERSTAR.getIdentifier(), SHOP);
     }
+    
+    {
+      // BAKA的商店
+      var SHOP = new ArrayList<ShopEntry>();
+      SHOP.add(new ShopEntry(TMMItems.KNIFE.getDefaultInstance(), 200, ShopEntry.Type.WEAPON));
+      ShopContent.customEntries.put(SERoles.INITIATE.getIdentifier(), SHOP);
+    }
     {
       // BAKA的商店
       var SHOP = new ArrayList<ShopEntry>();

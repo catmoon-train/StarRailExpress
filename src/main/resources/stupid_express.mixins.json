@@ -31,7 +31,6 @@
     "client.role.arsonist.ArsonistHudMixin",
     "client.role.arsonist.ArsonistInstinctMixin",
     "client.role.initiate.InitiateCoinMixin",
-    "client.role.initiate.InitiateShopMixin",
     "client.role.necromancer.NecromancerHudMixin"
   ]
 }
