@@ -42,8 +42,10 @@ public class TridentMixin {
                     killer.getCooldowns().addCooldown(Items.TRIDENT,
                             GameConstants.ITEM_COOLDOWNS.getOrDefault(Items.TRIDENT,
                                     GameConstants.ITEM_COOLDOWNS.getOrDefault(TMMItems.REVOLVER, 0)));
+                } else {
+                    trident.discard();
                 }
-                trident.discard();
+                //
             }
         }
     }
