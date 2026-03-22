@@ -1,4 +1,10 @@
 {
+	"noellesroles.clock": {
+		"sounds": [
+			"noellesroles:clock"
+		],
+		"subtitle": "subtitles.clock"
+	},
 	"noellesroles.gamber_died": {
 		"sounds": [
 			"noellesroles:gamber_died"

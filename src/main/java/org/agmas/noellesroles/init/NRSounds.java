@@ -7,6 +7,7 @@ import org.agmas.noellesroles.Noellesroles;
 public class NRSounds {
     public static final SoundEventRegistrar registrar = new SoundEventRegistrar(Noellesroles.MOD_ID);
     public static final SoundEvent GAMBER_DEATH = registrar.create("noellesroles.gamber_died");
+    public static final SoundEvent MUSIC_CLOCK = registrar.create("noellesroles.clock");
     public static final SoundEvent GONGXI_FACAI = registrar.create("noellesroles.gongxifacai");
     public static final SoundEvent TO_BE_CONTINUED = registrar.create("noellesroles.to_be_continued");
     public static final SoundEvent HARPY_WELCOME = registrar.create("noellesroles.harpy_welcome");

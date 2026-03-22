@@ -402,6 +402,7 @@
   "message.noellesroles.insufficient_funds": "你的金币不足！",
   "message.noellesroles.insufficient_funds_money": "你的金币不足！需要 %s",
   "subtitles.gamber_died": "赌徒死亡笑声",
+  "subtitles.clock": "钟",
   "subtitles.to_be_continued": "To be continued",
   "tip.broadcaster.with_cost": "按 %s 广播（消耗：%s）",
   "tip.broadcaster": "按 %s 广播消息！",
