@@ -8,7 +8,7 @@ accessible field net/minecraft/world/item/ItemCooldowns cooldowns Ljava/util/Map
 
 accessible class net/minecraft/client/renderer/FogRenderer$FogData
 accessible class net/minecraft/client/resources/SkinManager$CacheKey
-
+accessible method net/minecraft/world/level/block/RedStoneOreBlock spawnParticles (Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;)V
 accessible class net/minecraft/client/renderer/texture/SimpleTexture$TextureImage
 accessible field net/minecraft/world/entity/player/Inventory compartments Ljava/util/List;
 accessible field net/minecraft/client/gui/GuiGraphics sprites Lnet/minecraft/client/gui/GuiSpriteManager;

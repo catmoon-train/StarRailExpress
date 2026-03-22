@@ -1,11 +1,16 @@
 package org.agmas.noellesroles.init;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.effect.MobEffect;
 
 import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.RedStoneOreBlock;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.effects.NoCollideEffect;
 import org.agmas.noellesroles.effects.SimpleMobEffect;
@@ -37,7 +42,15 @@ public class ModEffects {
      * - 有害效果，深红色
      * - 被攻击者：隐身 + 无法移动 + 无法使用物品 + 红色粒子
      */
-    public static final Holder<MobEffect> GHOST_CURSE = register("ghost_curse", new SimpleMobEffect(MobEffectCategory.HARMFUL, 0x8B0000));
+
+    public static final Holder<MobEffect> GHOST_CURSE = register("ghost_curse", new SimpleMobEffect(MobEffectCategory.HARMFUL, 0x8B0000){
+        @Override
+        public boolean applyEffectTick(LivingEntity livingEntity, int amplifier) {
+
+            RedStoneOreBlock.spawnParticles( livingEntity.level(), livingEntity.blockPosition().above(1));
+            return super.applyEffectTick(livingEntity, amplifier);
+        }
+    });
 
     /**
      * 注册药水效果到注册表
