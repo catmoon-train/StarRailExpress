@@ -9,9 +9,13 @@ import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.util.AlwaysVisibleFrustum;
 import net.minecraft.client.Camera;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.culling.Frustum;
+import net.minecraft.world.entity.vehicle.Minecart;
+import org.agmas.noellesroles.init.ModEffects;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Mixin;
@@ -47,7 +51,15 @@ public abstract class WorldRendererMixin {
             return;
         }
         if (SREClient.trainComponent != null && SREClient.trainComponent.isFoggy()) {
+            LocalPlayer player = Minecraft.getInstance().player;
+            if (player.hasEffect(ModEffects.OTHERWORLD_AURA)){
+                if (SREClient.gameComponent== null|| !SREClient.gameComponent.canUseKillerFeatures(player)){
+                    tmm$doFog(0, 9);
+                    return;
+                }
+            }
             if (SREClient.isTrainMoving()) {
+
                 tmm$doFog(0, 100);
             } else {
                 tmm$doFog(0, 200);
