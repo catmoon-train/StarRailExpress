@@ -93,7 +93,6 @@ public class WaterGhostPlayerComponent implements RoleComponent, ServerTickingCo
         this.skillCooldown = tag.getInt("SkillCooldown");
         this.skillDuration = tag.getInt("SkillDuration");
         this.rainDuration = tag.getInt("RainDuration");
-        this.rainCooldown = tag.getInt("RainCooldown");
         this.outOfWaterTimer = tag.getInt("OutOfWaterTimer");
     }
 
@@ -102,7 +101,6 @@ public class WaterGhostPlayerComponent implements RoleComponent, ServerTickingCo
         tag.putInt("SkillCooldown", this.skillCooldown);
         tag.putInt("SkillDuration", this.skillDuration);
         tag.putInt("RainDuration", this.rainDuration);
-        tag.putInt("RainCooldown", this.rainCooldown);
         tag.putInt("OutOfWaterTimer", this.outOfWaterTimer);
     }
 
