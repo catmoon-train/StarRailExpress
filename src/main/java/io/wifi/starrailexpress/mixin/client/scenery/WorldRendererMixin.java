@@ -54,7 +54,7 @@ public abstract class WorldRendererMixin {
             LocalPlayer player = Minecraft.getInstance().player;
             if (player.hasEffect(ModEffects.OTHERWORLD_AURA)){
                 if (SREClient.gameComponent== null|| !SREClient.gameComponent.canUseKillerFeatures(player)){
-                    tmm$doFog(0, 9);
+                    tmm$doFog(0, 17);
                     return;
                 }
             }
