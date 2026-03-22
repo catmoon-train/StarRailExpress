@@ -39,6 +39,7 @@ import net.minecraft.network.protocol.game.ClientboundSetTitlesAnimationPacket;
 
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.client.NoellesrolesClient;
+import org.agmas.noellesroles.init.ModEffects;
 
 /**
  * 布袋鬼·诡舍·缚灵 组件
@@ -57,13 +58,13 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
     // ==================== 常量定义 ====================
 
     /** 恐惧范围（格） */
-    public static final double FEAR_RANGE_STAGE_1 = 12.0;
-    public static final double FEAR_RANGE_STAGE_2 = 15.0;
-    public static final double FEAR_RANGE_STAGE_3 = 18.0;
-    public static final double FEAR_RANGE_STAGE_4 = 25.0;
+    public static final double FEAR_RANGE_STAGE_1 = 6.0;
+    public static final double FEAR_RANGE_STAGE_2 = 10.0;
+    public static final double FEAR_RANGE_STAGE_3 = 15.0;
+    public static final double FEAR_RANGE_STAGE_4 = 20.0;
 
-    /** 恐惧SAN掉落间隔（tick） - 3秒 */
-    public static final int FEAR_INTERVAL = 60;
+    /** 恐惧SAN掉落间隔（tick） - 5秒 */
+    public static final int FEAR_INTERVAL = 100;
 
     /** 恐惧SAN掉落量 */
     public static final int FEAR_SAN_LOSS_STAGE_1 = 2;
@@ -1611,7 +1612,9 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
             return;
         if (!(player instanceof ServerPlayer))
             return;
-
+        // 技能禁止
+        if (this.player.hasEffect(ModEffects.SKILL_BANED))
+            return;
         // 大招冷却
         if (ultimateCooldown > 0)
             ultimateCooldown--;
@@ -1707,6 +1710,9 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
 
     @Override
     public void clientTick() {
+        // 技能禁止
+        if (this.player.hasEffect(ModEffects.SKILL_BANED))
+            return;
         if (otherworldActive && otherworldDuration > 1)
             otherworldDuration--;
         if (ultimateCooldown > 1)
