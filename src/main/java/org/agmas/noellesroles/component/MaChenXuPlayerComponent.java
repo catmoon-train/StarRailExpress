@@ -294,7 +294,6 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         this.swiftWindDuration = 0;
         this.otherworldGlowTimer = 0;
         this.blackFogTimer = 0;
-        this.sync();
         // 给予初始金币
         if (player instanceof ServerPlayer serverPlayer) {
             SREPlayerShopComponent shopComponent = SREPlayerShopComponent.KEY.get(serverPlayer);
@@ -302,6 +301,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
             shopComponent.sync();
             updateStageNeeds(serverPlayer.level().players().size());
         }
+        this.sync();
     }
 
     public void updateStageNeeds(int playerCount) {
