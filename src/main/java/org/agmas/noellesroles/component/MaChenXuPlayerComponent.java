@@ -313,9 +313,9 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
             STAGE_4_AUTO_ULT_THRESHOLD = 1500;
         } else if (playerCount <= 24) {
             STAGE_2_THRESHOLD = 200;
-            STAGE_3_THRESHOLD = 500;
-            STAGE_4_THRESHOLD = 1200;
-            STAGE_4_AUTO_ULT_THRESHOLD = 2000;
+            STAGE_3_THRESHOLD = 600;
+            STAGE_4_THRESHOLD = 1600;
+            STAGE_4_AUTO_ULT_THRESHOLD = 3000;
         } else {
             STAGE_2_THRESHOLD = 200;
             STAGE_3_THRESHOLD = 800;
