@@ -23,6 +23,7 @@ import io.wifi.starrailexpress.util.PlayerStaminaGetter;
 import io.wifi.starrailexpress.util.PoisonComponentUtils;
 import io.wifi.starrailexpress.util.Scheduler;
 import io.wifi.starrailexpress.SRE;
+import org.agmas.noellesroles.init.ModEffects;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
@@ -115,15 +116,22 @@ public abstract class PlayerEntityMixin extends LivingEntity implements PlayerSt
             if (role != null) {
                 maxSprintTime = role.getMaxSprintTime(player);
             }
-            if (role != null && (maxSprintTime == Integer.MAX_VALUE)) {
+            boolean hasInfiniteStaminaEffect = ModEffects.hasInfiniteStamina(player);
+            if (role != null && (maxSprintTime == Integer.MAX_VALUE || hasInfiniteStaminaEffect)) {
                 return;
             }
             if (role != null && maxSprintTime >= 0) {
+                float maxStaminaMultiplier = ModEffects.getStaminaCapacityMultiplier(player);
+                float maxSprintTimeWithEffects = maxSprintTime * maxStaminaMultiplier;
+                float staminaRecoveryRate = 0.4f * ModEffects.getStaminaRecoveryMultiplier(player);
+
                 if (this.isSprinting()) {
                     sprintingTicks = Math.max(sprintingTicks - 1, 0);
                 } else {
-                    sprintingTicks = Math.min(sprintingTicks + 0.4f, maxSprintTime);
+                    sprintingTicks = Math.min(sprintingTicks + staminaRecoveryRate, maxSprintTimeWithEffects);
                 }
+
+                sprintingTicks = Math.min(sprintingTicks, maxSprintTimeWithEffects);
 
                 if (sprintingTicks <= 0) {
                     this.setSprinting(false);

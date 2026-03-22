@@ -7,6 +7,7 @@ import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.PlayerStaminaGetter;
 import io.wifi.starrailexpress.SREClientConfig;
+import org.agmas.noellesroles.init.ModEffects;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
@@ -70,14 +71,22 @@ public class StaminaRenderer {
 				if (role == null) {
 					return 0;
 				}
-				return role.getMaxSprintTime(clientPlayerEntity);
+				float baseMaxStamina = role.getMaxSprintTime(clientPlayerEntity);
+				if (baseMaxStamina == Integer.MAX_VALUE || ModEffects.hasInfiniteStamina(clientPlayerEntity)) {
+					return Integer.MAX_VALUE;
+				}
+				return baseMaxStamina * ModEffects.getStaminaCapacityMultiplier(clientPlayerEntity);
 			}
 			return 0;
 		}
 
 		@Override
 		public float getStaminaPercentage(Player clientPlayerEntity) {
-			return Mth.clamp(getCurrentStamina(clientPlayerEntity) / getMaxStamina(clientPlayerEntity), 0f, 1f);
+			float max = getMaxStamina(clientPlayerEntity);
+			if (max <= 0 || max == Integer.MAX_VALUE) {
+				return 1f;
+			}
+			return Mth.clamp(getCurrentStamina(clientPlayerEntity) / max, 0f, 1f);
 		}
 	};
 

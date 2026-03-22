@@ -13,16 +13,17 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
+import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.repack.HSRConstants;
 import org.agmas.noellesroles.repack.HSRItems;
 import org.agmas.noellesroles.repack.HSRSounds;
-import org.agmas.noellesroles.component.TemporaryEffectPlayerComponent;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -65,9 +66,7 @@ public class AdrenalineItem extends Item {
                                 
                                 // 如果不是无限体力，则增加体力上限
                                 if (!isInfiniteStamina) {
-                                    // 使用TemporaryEffectPlayerComponent来存储体力提升
-                                    TemporaryEffectPlayerComponent tempEffect = TemporaryEffectPlayerComponent.KEY.get(targetPlayer);
-                                    tempEffect.addStaminaBoost(STAMINA_BOOST * 80); // 转换为ticks
+                                    targetPlayer.addEffect(new MobEffectInstance(ModEffects.STAMINA_BOOST, 40 * 20, 0, true, true, true));
                                 }
                                 
                                 target.playSound(HSRSounds.ITEM_SYRINGE_STAB, 0.4F, 1.0F);

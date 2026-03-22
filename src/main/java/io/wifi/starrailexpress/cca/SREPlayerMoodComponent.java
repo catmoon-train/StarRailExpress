@@ -8,6 +8,7 @@ import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import io.wifi.starrailexpress.SRE;
+import org.agmas.noellesroles.init.ModEffects;
 import net.minecraft.Util;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
@@ -112,10 +113,17 @@ public class SREPlayerMoodComponent implements RoleComponent, ServerTickingCompo
             this.playerTaskComponent = SREPlayerTaskComponent.KEY.get(this.player);
         }
         if (!this.playerTaskComponent.tasks.isEmpty()) {
-            if (this.mood > 0)
-                this.mood = this.mood - this.playerTaskComponent.tasks.size() * GameConstants.MOOD_DRAIN;
+            float drainMultiplier = ModEffects.getMoodDrainMultiplier(this.player);
+            if (this.mood > 0) {
+                this.mood = this.mood - this.playerTaskComponent.tasks.size() * GameConstants.MOOD_DRAIN * drainMultiplier;
+            }
             if (this.mood < 0)
                 this.mood = 0;
+        }
+
+        float moodRegen = ModEffects.getMoodRegenPerTick(this.player);
+        if (moodRegen > 0f && this.mood < 1f) {
+            this.mood = Math.min(1f, this.mood + moodRegen);
         }
 
         if (this.isLowerThanMid()) {
@@ -161,11 +169,21 @@ public class SREPlayerMoodComponent implements RoleComponent, ServerTickingCompo
         }
         boolean shouldSync = false;
         if (!this.playerTaskComponent.tasks.isEmpty()) {
-            if (this.mood > 0)
-                this.mood = this.mood - this.playerTaskComponent.tasks.size() * GameConstants.MOOD_DRAIN;// 替换setMood避免高频率同步
+            float drainMultiplier = ModEffects.getMoodDrainMultiplier(this.player);
+            if (this.mood > 0) {
+                this.mood = this.mood - this.playerTaskComponent.tasks.size() * GameConstants.MOOD_DRAIN * drainMultiplier;
+            }
             if (this.mood < 0)
                 this.mood = 0;
             if (this.playerTaskComponent.nextTaskTimer % 100 == 0) { // 5s一次同步
+                shouldSync = true;
+            }
+        }
+
+        float moodRegen = ModEffects.getMoodRegenPerTick(this.player);
+        if (moodRegen > 0f && this.mood < 1f) {
+            this.mood = Math.min(1f, this.mood + moodRegen);
+            if (this.player.tickCount % 100 == 0) {
                 shouldSync = true;
             }
         }

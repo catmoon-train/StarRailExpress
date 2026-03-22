@@ -8,12 +8,14 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
 
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.RedStoneOreBlock;
+import net.minecraft.util.Mth;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.effects.NoCollideEffect;
 import org.agmas.noellesroles.effects.SimpleMobEffect;
@@ -76,11 +78,112 @@ public class ModEffects {
     public static final Holder<MobEffect> OTHERWORLD_AURA = register("otherworld_aura", new SimpleMobEffect(MobEffectCategory.HARMFUL, 0x4B0082));
 
     /**
+     * 心情消耗减缓
+     * - 有益效果
+     * - 降低 mood 的自然消耗速度
+     */
+    public static final Holder<MobEffect> MOOD_DRAIN_REDUCTION = register("mood_drain_reduction", new SimpleMobEffect(MobEffectCategory.BENEFICIAL, 0x63D5A5));
+
+    /**
+     * 无视心情消耗
+     * - 有益效果
+     * - mood 不再因任务自然下降
+     */
+    public static final Holder<MobEffect> MOOD_DRAIN_IMMUNITY = register("mood_drain_immunity", new SimpleMobEffect(MobEffectCategory.BENEFICIAL, 0x2CC36B));
+
+    /**
+     * 心情持续恢复
+     * - 有益效果
+     * - 持续缓慢恢复 mood
+     */
+    public static final Holder<MobEffect> MOOD_REGENERATION = register("mood_regeneration", new SimpleMobEffect(MobEffectCategory.BENEFICIAL, 0x7AF2D2));
+
+    /**
+     * 无限体力
+     * - 有益效果
+     * - 冲刺不消耗体力
+     */
+    public static final Holder<MobEffect> INFINITE_STAMINA = register("infinite_stamina", new SimpleMobEffect(MobEffectCategory.BENEFICIAL, 0xF6C95A));
+
+    /**
+     * 体力提升
+     * - 有益效果
+     * - 提升体力上限
+     */
+    public static final Holder<MobEffect> STAMINA_BOOST = register("stamina_boost", new SimpleMobEffect(MobEffectCategory.BENEFICIAL, 0xE7A945));
+
+    /**
+     * 体力恢复加速
+     * - 有益效果
+     * - 增加非冲刺状态下体力回复速度
+     */
+    public static final Holder<MobEffect> STAMINA_RECOVERY = register("stamina_recovery", new SimpleMobEffect(MobEffectCategory.BENEFICIAL, 0xFFD97D));
+
+    /**
+     * 低san视觉抗性
+     * - 有益效果
+     * - 降低低san下后处理视觉干扰（等级越高越强）
+     */
+    public static final Holder<MobEffect> LOW_SAN_SHADER_RESISTANCE = register("low_san_shader_resistance", new SimpleMobEffect(MobEffectCategory.BENEFICIAL, 0xA9D6FF));
+
+    /**
      * 注册药水效果到注册表
      */
 
     private static Holder<MobEffect> register(String id, MobEffect statusEffect) {
         return Registry.registerForHolder(BuiltInRegistries.MOB_EFFECT, Noellesroles.id(id), statusEffect);
+    }
+
+    private static int getAmplifier(LivingEntity entity, Holder<MobEffect> effect) {
+        MobEffectInstance instance = entity.getEffect(effect);
+        return instance != null ? instance.getAmplifier() : -1;
+    }
+
+    public static float getMoodDrainMultiplier(LivingEntity entity) {
+        if (entity.hasEffect(MOOD_DRAIN_IMMUNITY)) {
+            return 0f;
+        }
+        int amp = getAmplifier(entity, MOOD_DRAIN_REDUCTION);
+        if (amp < 0) {
+            return 1f;
+        }
+        return Mth.clamp(1f - 0.3f * (amp + 1), 0f, 1f);
+    }
+
+    public static float getMoodRegenPerTick(LivingEntity entity) {
+        int amp = getAmplifier(entity, MOOD_REGENERATION);
+        if (amp < 0) {
+            return 0f;
+        }
+        return 0.0008f * (amp + 1);
+    }
+
+    public static boolean hasInfiniteStamina(LivingEntity entity) {
+        return entity.hasEffect(INFINITE_STAMINA);
+    }
+
+    public static float getStaminaCapacityMultiplier(LivingEntity entity) {
+        int amp = getAmplifier(entity, STAMINA_BOOST);
+        if (amp < 0) {
+            return 1f;
+        }
+        return 1f + 0.35f * (amp + 1);
+    }
+
+    public static float getStaminaRecoveryMultiplier(LivingEntity entity) {
+        int amp = getAmplifier(entity, STAMINA_RECOVERY);
+        if (amp < 0) {
+            return 1f;
+        }
+        return 1f + 0.75f * (amp + 1);
+    }
+
+    public static float getLowSanShaderResistance(LivingEntity entity) {
+        int amp = getAmplifier(entity, LOW_SAN_SHADER_RESISTANCE);
+        if (amp < 0) {
+            return 0f;
+        }
+        return Mth.clamp(0.35f * (amp + 1), 0f, 1f);
     }
 
     /**
