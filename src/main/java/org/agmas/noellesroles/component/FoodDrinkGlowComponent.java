@@ -3,13 +3,13 @@ package org.agmas.noellesroles.component;
 import java.util.HashMap;
 import java.util.Set;
 
+import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.role.ModRoles;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
 import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
-import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -17,13 +17,12 @@ import io.wifi.starrailexpress.game.GameConstants;
 import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 
 public class FoodDrinkGlowComponent implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
     //
     public static final ComponentKey<FoodDrinkGlowComponent> KEY = ComponentRegistry.getOrCreate(
-            ResourceLocation.fromNamespaceAndPath(SRE.MOD_ID, "food_drink"), FoodDrinkGlowComponent.class);
+            Noellesroles.id("food_drink"), FoodDrinkGlowComponent.class);
     private final Player player;
     // 玩家 | 类型
     public HashMap<String, Integer> pendingSenders = new HashMap<>();
@@ -50,7 +49,7 @@ public class FoodDrinkGlowComponent implements RoleComponent, ServerTickingCompo
         if (!gameWorldComponent.isRunning())
             return;
         for (var p2 : p.level().players()) {
-            if (gameWorldComponent.isRole(p2, ModRoles.BARTENDER)) {
+            if (gameWorldComponent.isRole(p2, ModRoles.CHEF)) {
                 FoodDrinkGlowComponent.KEY.get(p2).startGlow(p, 1);
                 break;
             }
@@ -76,6 +75,11 @@ public class FoodDrinkGlowComponent implements RoleComponent, ServerTickingCompo
 
     @Override
     public void serverTick() {
+        // if (this.player.level().getGameTime() % 20 == 0 &&
+        // !this.pendingSenders.isEmpty()) { // 每秒处理一次避免丢包
+        // sync();
+        // this.pendingSenders.clear();
+        // }
     }
 
     @Override
@@ -137,8 +141,8 @@ public class FoodDrinkGlowComponent implements RoleComponent, ServerTickingCompo
             var tag2 = tag.getCompound("a");
             Set<String> keys = tag2.getAllKeys();
             for (var key : keys) {
-                if (tag.contains(key, Tag.TAG_INT)) {
-                    int type = tag.getInt(key);
+                if (tag2.contains(key, Tag.TAG_INT)) {
+                    int type = tag2.getInt(key);
                     this.glowTicks.putIfAbsent(key, new HashMap<>());
                     var map = this.glowTicks.get(key);
                     map.put(type, time);

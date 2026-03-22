@@ -386,7 +386,8 @@ public class ServerTaskInfoClasses {
             }
 
             for (GameUtils.BlockInfo blockInfo : list4) {
-                serverWorld.setBlock(blockInfo.pos(), Blocks.BARRIER.defaultBlockState(), Block.UPDATE_CLIENTS);
+                serverWorld.setBlock(blockInfo.pos(), Blocks.BARRIER.defaultBlockState(), Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
+                serverWorld.getLightEngine().checkBlock(blockInfo.pos());
             }
 
             @SuppressWarnings("unused")
@@ -395,7 +396,7 @@ public class ServerTaskInfoClasses {
             // Place the doors back
             for (GameUtils.BlockInfo blockInfo2 : list4) {
                 if (serverWorld.setBlock(blockInfo2.pos(), blockInfo2.state(),
-                        Block.UPDATE_CLIENTS)) {
+                        Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE)) {
                     mx++;
                     serverWorld.getLightEngine().checkBlock(blockInfo2.pos());
                 }
