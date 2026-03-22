@@ -103,7 +103,7 @@ public record SniperShootPayload(Action action, int targetOrShooterId) implement
 
                         // 如果是远距离射击（50米以上），移除目标的护盾
                         if (longRangeKill) {
-                            var bartenderComponent = io.wifi.starrailexpress.cca.BartenderPlayerComponent.KEY.get(target);
+                            var bartenderComponent = io.wifi.starrailexpress.cca.SREArmorPlayerComponent.KEY.get(target);
                             if (bartenderComponent != null && bartenderComponent.getArmor() > 0) {
                                 bartenderComponent.armor = 0;
                                 bartenderComponent.sync();

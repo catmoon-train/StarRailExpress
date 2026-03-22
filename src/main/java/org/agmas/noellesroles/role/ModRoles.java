@@ -5,7 +5,7 @@ import io.wifi.starrailexpress.api.ExtraEffectRole;
 import io.wifi.starrailexpress.api.NormalRole;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
-import io.wifi.starrailexpress.cca.BartenderPlayerComponent;
+import io.wifi.starrailexpress.cca.SREArmorPlayerComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPoisonComponent;
 import io.wifi.starrailexpress.client.gui.RoleAnnouncementTexts;
@@ -1303,8 +1303,8 @@ public class ModRoles {
   public static void init() {
     SREPlayerPoisonComponent.canSyncedRolePaths.add(ModRoles.POISONER_ID.getPath());
     SREPlayerPoisonComponent.canSyncedRolePaths.add(ModRoles.BARTENDER_ID.getPath());
-    BartenderPlayerComponent.canSyncedRolePaths.add(ModRoles.BARTENDER_ID.getPath());
-    BartenderPlayerComponent.canSyncedRolePaths.add(ModRoles.CHEF_ID.getPath());
+    SREArmorPlayerComponent.canSyncedRolePaths.add(ModRoles.BARTENDER_ID.getPath());
+    SREArmorPlayerComponent.canSyncedRolePaths.add(ModRoles.CHEF_ID.getPath());
     SREPlayerMoodComponent.canSyncedRolePaths.add(ModRoles.MA_CHEN_XU_ID.getPath());
   }
 }

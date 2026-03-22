@@ -3,7 +3,7 @@ package pro.fazeclan.river.stupid_express.modifier.refugee.cca;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
-import io.wifi.starrailexpress.cca.BartenderPlayerComponent;
+import io.wifi.starrailexpress.cca.SREArmorPlayerComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.compat.TrainVoicePlugin;
@@ -57,7 +57,7 @@ public record PlayerStatsBeforeRefugee(Vec3 pos, int money, ListTag inventory, V
         StupidRoleUtils.clearAllSatisfiedItems(player, TMMItems.BAT);
         player.setCamera(null);
 
-        BartenderPlayerComponent bartenderPlayerComponent = BartenderPlayerComponent.KEY.get(player);
+        SREArmorPlayerComponent bartenderPlayerComponent = SREArmorPlayerComponent.KEY.get(player);
         
         bartenderPlayerComponent.armor = playerStats.shieldAmount;
         if (!GameUtils.isPlayerAliveAndSurvival(player)) {
@@ -83,7 +83,7 @@ public record PlayerStatsBeforeRefugee(Vec3 pos, int money, ListTag inventory, V
         inventory.save(listTag);
         var shopComponent = SREPlayerShopComponent.KEY.get(player);
         var moodComponent = SREPlayerMoodComponent.KEY.get(player);
-        int armorAmount = BartenderPlayerComponent.KEY.get(player).getArmor();
+        int armorAmount = SREArmorPlayerComponent.KEY.get(player).getArmor();
         var playerStats = new PlayerStatsBeforeRefugee(player.position(),
                 shopComponent.balance, listTag.copy(), player.getRotationVector(),
                 isAlive, moodComponent.getMood(), armorAmount);

@@ -1126,7 +1126,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
             return false;
         if (!GameUtils.isPlayerAliveAndSurvival(target))
             return false;
-
+        if (isKiller(target))return false;
         UUID targetUUID = target.getUUID();
         if (markedPlayers.contains(targetUUID))
             return false;

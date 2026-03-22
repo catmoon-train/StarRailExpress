@@ -1,9 +1,8 @@
 package io.wifi.starrailexpress.cca;
 
+import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
-import io.wifi.starrailexpress.api.RoleComponent;
-import io.wifi.starrailexpress.game.GameConstants;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -11,18 +10,21 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import org.jetbrains.annotations.NotNull;
-import org.ladysnake.cca.api.v3.component.ComponentKey;
-import org.ladysnake.cca.api.v3.component.ComponentRegistry;
-import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
-import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class BartenderPlayerComponent implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
-    public static final ComponentKey<BartenderPlayerComponent> KEY = ComponentRegistry.getOrCreate(
-            ResourceLocation.fromNamespaceAndPath(SRE.MOD_ID, "bartender"), BartenderPlayerComponent.class);
+import org.jetbrains.annotations.NotNull;
+import org.ladysnake.cca.api.v3.component.ComponentKey;
+import org.ladysnake.cca.api.v3.component.ComponentRegistry;
+
+import io.wifi.starrailexpress.api.RoleComponent;
+import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
+import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
+
+public class SREArmorPlayerComponent implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
+    public static final ComponentKey<SREArmorPlayerComponent> KEY = ComponentRegistry.getOrCreate(
+            ResourceLocation.fromNamespaceAndPath(SRE.MOD_ID, "bartender"), SREArmorPlayerComponent.class);
     private final Player player;
     /**
      * 0: Drink
@@ -78,7 +80,7 @@ public class BartenderPlayerComponent implements RoleComponent, ServerTickingCom
                 }
             }
         }
-        return true;
+        return false;
     }
 
     @Override
@@ -86,7 +88,7 @@ public class BartenderPlayerComponent implements RoleComponent, ServerTickingCom
         return player;
     }
 
-    public BartenderPlayerComponent(Player player) {
+    public SREArmorPlayerComponent(Player player) {
         this.player = player;
         if (gameWorldComponent == null) {
             gameWorldComponent = SREGameWorldComponent.KEY.get(this.player.level());
