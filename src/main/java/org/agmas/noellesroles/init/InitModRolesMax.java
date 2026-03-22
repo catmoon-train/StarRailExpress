@@ -249,12 +249,8 @@ public class InitModRolesMax {
             } else {
                 Harpymodloader.setRoleMaximum(ModRoles.BAKA_ID, 0);
             }
-            if (areasWorldComponent.canJump) {
-                if (random.nextInt(0, 100) <= EGGS_CHANCE) {
-                    Harpymodloader.setRoleMaximum(ModRoles.HOAN_MEIRIN, 1);
-                } else {
-                    Harpymodloader.setRoleMaximum(ModRoles.HOAN_MEIRIN, 0);
-                }
+            if (areasWorldComponent.canJump && random.nextInt(0, 100) <= EGGS_CHANCE) {
+                Harpymodloader.setRoleMaximum(ModRoles.HOAN_MEIRIN, 1);
             } else {
                 Harpymodloader.setRoleMaximum(ModRoles.HOAN_MEIRIN, 0);
             }
