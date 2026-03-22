@@ -238,7 +238,7 @@ public class RoleShopHandler {
           .withStyle(ChatFormatting.GRAY));
       turbidRainItem.set(DataComponents.LORE, new ItemLore(turbidRainLore));
 
-      MA_CHEN_XU_SHOP.add(new ShopEntry(turbidRainItem, 100, ShopEntry.Type.TOOL) {
+      MA_CHEN_XU_SHOP.add(new ShopEntry(turbidRainItem, 180, ShopEntry.Type.TOOL) {
         @Override
         public boolean onBuy(@NotNull Player player) {
           var component = org.agmas.noellesroles.component.ModComponents.MA_CHEN_XU.get(player);
@@ -265,7 +265,7 @@ public class RoleShopHandler {
       soulBellItem.set(DataComponents.LORE, new ItemLore(soulBellLore));
 
       MA_CHEN_XU_SHOP.add(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), 75, ShopEntry.Type.TOOL));
-      MA_CHEN_XU_SHOP.add(new ShopEntry(soulBellItem, 150, ShopEntry.Type.TOOL) {
+      MA_CHEN_XU_SHOP.add(new ShopEntry(soulBellItem, 105, ShopEntry.Type.TOOL) {
         @Override
         public boolean onBuy(@NotNull Player player) {
           var component = org.agmas.noellesroles.component.ModComponents.MA_CHEN_XU.get(player);

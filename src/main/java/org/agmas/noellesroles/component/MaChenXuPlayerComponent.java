@@ -996,6 +996,8 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         target.addEffect(new MobEffectInstance(
                 MobEffects.GLOWING, otherworldDuration + 200, 0, false, false, true));
         target.addEffect(new MobEffectInstance(
+                MobEffects.INVISIBILITY, otherworldDuration + 200, 0, false, false, true));
+        target.addEffect(new MobEffectInstance(
                 ModEffects.GHOST_CURSE, otherworldDuration + 200, 0, false, false, true));
 
         if (target instanceof ServerPlayer targetSp) {
