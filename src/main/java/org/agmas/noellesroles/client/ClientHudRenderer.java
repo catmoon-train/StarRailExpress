@@ -128,9 +128,9 @@ public class ClientHudRenderer {
 
       // 进化进度
       int nextThreshold = switch (component.stage) {
-        case 1 -> MaChenXuPlayerComponent.STAGE_2_THRESHOLD;
-        case 2 -> MaChenXuPlayerComponent.STAGE_3_THRESHOLD;
-        case 3 -> MaChenXuPlayerComponent.STAGE_4_THRESHOLD;
+        case 1 -> component.STAGE_2_THRESHOLD;
+        case 2 -> component.STAGE_3_THRESHOLD;
+        case 3 -> component.STAGE_4_THRESHOLD;
         default -> -1;
       };
 

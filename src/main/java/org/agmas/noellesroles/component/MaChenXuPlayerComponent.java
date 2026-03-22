@@ -39,7 +39,6 @@ import net.minecraft.network.protocol.game.ClientboundSetTitlesAnimationPacket;
 
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.client.NoellesrolesClient;
-import org.agmas.noellesroles.init.ModEffects;
 
 /**
  * 布袋鬼·诡舍·缚灵 组件
@@ -78,11 +77,11 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
     /** 低SAN增强范围加成 */
     public static final double LOW_SAN_RANGE_BONUS = 4.0;
 
-    /** 进化阈值（固定） */
-    public static final int STAGE_2_THRESHOLD = 100;
-    public static final int STAGE_3_THRESHOLD = 250;
-    public static final int STAGE_4_THRESHOLD = 500;
-    public static final int STAGE_4_AUTO_ULT_THRESHOLD = 800;
+    /** 进化阈值（根据人数而改变） */
+    public int STAGE_2_THRESHOLD = 100;
+    public int STAGE_3_THRESHOLD = 250;
+    public int STAGE_4_THRESHOLD = 500;
+    public int STAGE_4_AUTO_ULT_THRESHOLD = 800;
 
     /** 里世界SAN掉落间隔（tick） - 2秒 */
     public static final int OTHERWORLD_INTERVAL = 40;
@@ -94,54 +93,54 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
     public static final int ULTIMATE_COST = 200;
 
     /** 大招持续时间（tick） */
-    public static final int ULTIMATE_DURATION_STAGE_3 = 900;  // 45秒
+    public static final int ULTIMATE_DURATION_STAGE_3 = 900; // 45秒
     public static final int ULTIMATE_DURATION_STAGE_4 = 1200; // 60秒
 
     /** 初始金币 */
     public static final int INITIAL_GOLD = 50;
 
     /** 鬼术冷却时间（tick） */
-    public static final int GHOST_SKILL_COOLDOWN_GHOST_WALL = 600;  // 30秒
-    public static final int GHOST_SKILL_COOLDOWN_ECHO = 900;        // 45秒
-    public static final int GHOST_SKILL_COOLDOWN_TRAP = 400;        // 20秒
-    public static final int GHOST_SKILL_COOLDOWN_PARASITE = 1800;   // 90秒
+    public static final int GHOST_SKILL_COOLDOWN_GHOST_WALL = 600; // 30秒
+    public static final int GHOST_SKILL_COOLDOWN_ECHO = 900; // 45秒
+    public static final int GHOST_SKILL_COOLDOWN_TRAP = 400; // 20秒
+    public static final int GHOST_SKILL_COOLDOWN_PARASITE = 1800; // 90秒
 
     /** 鬼打墙参数 */
-    public static final int GHOST_WALL_DURATION = 100;              // 5秒
-    public static final int GHOST_WALL_DURATION_OTHERWORLD = 160;   // 8秒
+    public static final int GHOST_WALL_DURATION = 100; // 5秒
+    public static final int GHOST_WALL_DURATION_OTHERWORLD = 160; // 8秒
     public static final int GHOST_WALL_SAN_LOSS = 15;
-    public static final int GHOST_WALL_SAN_LOSS_OTHERWORLD = 25;    // 15 + 10
+    public static final int GHOST_WALL_SAN_LOSS_OTHERWORLD = 25; // 15 + 10
     public static final double GHOST_WALL_KNOCKBACK = 5.0;
 
     /** 回响录制时间（tick） */
-    public static final int ECHO_RECORD_DURATION = 100;             // 5秒
+    public static final int ECHO_RECORD_DURATION = 100; // 5秒
 
     /** 诱捕参数 */
-    public static final int TRAP_ROOT_DURATION = 60;                // 3秒
-    public static final int TRAP_ROOT_DURATION_OTHERWORLD = 100;    // 5秒
+    public static final int TRAP_ROOT_DURATION = 60; // 3秒
+    public static final int TRAP_ROOT_DURATION_OTHERWORLD = 100; // 5秒
     public static final int TRAP_SAN_LOSS = 25;
     public static final int TRAP_SAN_LOSS_OTHERWORLD = 40;
     public static final double TRAP_TRIGGER_RANGE = 1.5;
     public static final int MAX_TRAPS = 2;
 
     /** 寄生参数 */
-    public static final int PARASITE_DEATH_TICKS = 1200;            // 60秒
-    public static final int PARASITE_DEATH_TICKS_OTHERWORLD = 600;  // 30秒
+    public static final int PARASITE_DEATH_TICKS = 1200; // 60秒
+    public static final int PARASITE_DEATH_TICKS_OTHERWORLD = 600; // 30秒
 
     /** 寄生静止判断阈值（水平速度，容忍网络延迟和重力波动） */
     public static final double PARASITE_STATIONARY_THRESHOLD = 0.05;
 
     /** 浊雨参数 */
-    public static final int TURBID_RAIN_DURATION = 600;             // 30秒
-    public static final int TURBID_RAIN_SAN_INTERVAL = 100;         // 5秒
+    public static final int TURBID_RAIN_DURATION = 600; // 30秒
+    public static final int TURBID_RAIN_SAN_INTERVAL = 100; // 5秒
     public static final int TURBID_RAIN_SAN_LOSS = 3;
 
     /** 镇魂铃参数 */
     public static final double SOUL_BELL_RANGE = 20.0;
-    public static final int SOUL_BELL_DURATION = 200;               // 10秒
+    public static final int SOUL_BELL_DURATION = 200; // 10秒
 
     /** 掠风参数（阶段4里世界专属） */
-    public static final int SWIFT_WIND_DURATION = 200;              // 10秒
+    public static final int SWIFT_WIND_DURATION = 200; // 10秒
 
     /** 里世界全体发光间隔（tick） - 15秒 */
     public static final int OTHERWORLD_GLOW_INTERVAL = 300;
@@ -301,6 +300,26 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
             SREPlayerShopComponent shopComponent = SREPlayerShopComponent.KEY.get(serverPlayer);
             shopComponent.setBalance(INITIAL_GOLD);
             shopComponent.sync();
+            updateStageNeeds(serverPlayer.level().players().size());
+        }
+    }
+
+    public void updateStageNeeds(int playerCount) {
+        if (playerCount <= 12) {
+            STAGE_2_THRESHOLD = 80;
+            STAGE_3_THRESHOLD = 200;
+            STAGE_4_THRESHOLD = 400;
+            STAGE_4_AUTO_ULT_THRESHOLD = 600;
+        } else if (playerCount <= 24) {
+            STAGE_2_THRESHOLD = 100;
+            STAGE_3_THRESHOLD = 300;
+            STAGE_4_THRESHOLD = 600;
+            STAGE_4_AUTO_ULT_THRESHOLD = 1000;
+        } else {
+            STAGE_2_THRESHOLD = 150;
+            STAGE_3_THRESHOLD = 400;
+            STAGE_4_THRESHOLD = 800;
+            STAGE_4_AUTO_ULT_THRESHOLD = 1200;
         }
     }
 
@@ -475,7 +494,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
      */
     private void addRandomGhostSkill() {
         List<String> availableSkills = new ArrayList<>();
-        String[] allSkills = {"ghost_wall", "echo", "trap", "parasite"};
+        String[] allSkills = { "ghost_wall", "echo", "trap", "parasite" };
         for (String skill : allSkills) {
             if (!ghostSkills.contains(skill)) {
                 availableSkills.add(skill);
@@ -538,9 +557,12 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
                 Level world = player.level();
                 Vec3 playerPos = player.position();
                 for (Player target : world.players()) {
-                    if (target.equals(player)) continue;
-                    if (!GameUtils.isPlayerAliveAndSurvival(target)) continue;
-                    if (isKiller(target)) continue;
+                    if (target.equals(player))
+                        continue;
+                    if (!GameUtils.isPlayerAliveAndSurvival(target))
+                        continue;
+                    if (isKiller(target))
+                        continue;
 
                     double distance = playerPos.distanceTo(target.position());
                     float targetMood = SREPlayerMoodComponent.KEY.get(target).getMood();
@@ -571,7 +593,8 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
      * 布袋鬼释放黑雾粒子（增强版）
      */
     private void processOtherworldMechanism() {
-        if (!otherworldActive) return;
+        if (!otherworldActive)
+            return;
 
         otherworldTimer++;
         otherworldDuration--;
@@ -582,8 +605,10 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
             otherworldTimer = 0;
             Level world = player.level();
             for (Player target : world.players()) {
-                if (!GameUtils.isPlayerAliveAndSurvival(target)) continue;
-                if (isKiller(target)) continue;
+                if (!GameUtils.isPlayerAliveAndSurvival(target))
+                    continue;
+                if (isKiller(target))
+                    continue;
                 SREPlayerMoodComponent.KEY.get(target).addMood(-((float) OTHERWORLD_SAN_LOSS / 100));
                 addSanLoss(OTHERWORLD_SAN_LOSS);
             }
@@ -606,8 +631,10 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
             otherworldGlowTimer = 0;
             Level world = player.level();
             for (Player target : world.players()) {
-                if (target.equals(player)) continue; // 布袋鬼自己不发光
-                if (!GameUtils.isPlayerAliveAndSurvival(target)) continue;
+                if (target.equals(player))
+                    continue; // 布袋鬼自己不发光
+                if (!GameUtils.isPlayerAliveAndSurvival(target))
+                    continue;
                 target.addEffect(new MobEffectInstance(
                         MobEffects.GLOWING, OTHERWORLD_GLOW_DURATION, 0, false, false, true));
                 if (target instanceof ServerPlayer targetSp) {
@@ -623,13 +650,16 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         }
 
         // 布袋鬼附近有好人时发出警告（使用Title）
-        if (player instanceof ServerPlayer sp && player.level().getGameTime() % 40 == 0) {
+        if (player instanceof ServerPlayer && player.level().getGameTime() % 40 == 0) {
             Level world = player.level();
             Vec3 playerPos = player.position();
             for (Player target : world.players()) {
-                if (target.equals(player)) continue;
-                if (!GameUtils.isPlayerAliveAndSurvival(target)) continue;
-                if (isKiller(target)) continue;
+                if (target.equals(player))
+                    continue;
+                if (!GameUtils.isPlayerAliveAndSurvival(target))
+                    continue;
+                if (isKiller(target))
+                    continue;
                 double distance = playerPos.distanceTo(target.position());
                 if (distance <= OTHERWORLD_WARN_RANGE) {
                     if (target instanceof ServerPlayer targetSp) {
@@ -690,7 +720,8 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
      * 激活里世界·百鬼夜行
      */
     public void activateOtherworld(int duration) {
-        if (!(player instanceof ServerPlayer sp)) return;
+        if (!(player instanceof ServerPlayer sp))
+            return;
 
         this.otherworldActive = true;
         this.otherworldDuration = duration;
@@ -710,7 +741,8 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
 
         // 过渡动画：先给所有人短暂黑屏 + 失明效果作为过渡
         for (Player target : world.players()) {
-            if (!GameUtils.isPlayerAliveAndSurvival(target)) continue;
+            if (!GameUtils.isPlayerAliveAndSurvival(target))
+                continue;
             if (target instanceof ServerPlayer targetSp) {
                 // 短暂失明作为过渡动画（1.5秒）
                 targetSp.addEffect(new MobEffectInstance(
@@ -743,7 +775,8 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
                     targetSp.connection.send(new ClientboundSetTitlesAnimationPacket(10, 60, 20));
                     targetSp.connection.send(new ClientboundSetTitleTextPacket(
                             Component.translatable("message.noellesroles.ma_chen_xu.otherworld_warning_title")
-                                    .withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD, ChatFormatting.OBFUSCATED)));
+                                    .withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD,
+                                            ChatFormatting.OBFUSCATED)));
                     targetSp.connection.send(new ClientboundSetSubtitleTextPacket(
                             Component.translatable("message.noellesroles.ma_chen_xu.otherworld_warning_subtitle")
                                     .withStyle(ChatFormatting.RED)));
@@ -774,7 +807,8 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         otherworldGlowTimer = 0;
         blackFogTimer = 0;
 
-        if (!(player instanceof ServerPlayer sp)) return;
+        if (!(player instanceof ServerPlayer sp))
+            return;
 
         // 取消无敌并移除里世界专属效果
         sp.setInvulnerable(false);
@@ -794,8 +828,10 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
 
         // 未被标记的存活好人恢复20SAN
         for (Player target : world.players()) {
-            if (!GameUtils.isPlayerAliveAndSurvival(target)) continue;
-            if (isKiller(target)) continue;
+            if (!GameUtils.isPlayerAliveAndSurvival(target))
+                continue;
+            if (isKiller(target))
+                continue;
             if (!markedPlayers.contains(target.getUUID())) {
                 SREPlayerMoodComponent.KEY.get(target).addMood(0.2f);
             }
@@ -814,9 +850,12 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         } else if (markCount >= 2) {
             // 2标记：+200金，进入下一阶段
             shopComponent.setBalance(shopComponent.balance + 200);
-            if (stage == 1) advanceToStage2();
-            else if (stage == 2) advanceToStage3();
-            else if (stage == 3) advanceToStage4();
+            if (stage == 1)
+                advanceToStage2();
+            else if (stage == 2)
+                advanceToStage3();
+            else if (stage == 3)
+                advanceToStage4();
             sp.displayClientMessage(
                     Component.translatable("message.noellesroles.ma_chen_xu.ult_reward_2")
                             .withStyle(ChatFormatting.GOLD),
@@ -900,9 +939,12 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         Level world = player.level();
         Vec3 playerPos = player.position();
         for (Player nearby : world.players()) {
-            if (nearby.equals(player) || nearby.equals(target)) continue;
-            if (!GameUtils.isPlayerAliveAndSurvival(nearby)) continue;
-            if (isKiller(nearby)) continue;
+            if (nearby.equals(player) || nearby.equals(target))
+                continue;
+            if (!GameUtils.isPlayerAliveAndSurvival(nearby))
+                continue;
+            if (isKiller(nearby))
+                continue;
             if (playerPos.distanceTo(nearby.position()) <= range) {
                 SREPlayerMoodComponent.KEY.get(nearby).addMood(-0.1f);
             }
@@ -921,12 +963,16 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
      * 标记的玩家在里世界结束时死亡（无法复活）
      */
     public boolean markPlayer(Player target) {
-        if (!(player instanceof ServerPlayer)) return false;
-        if (!otherworldActive) return false;
-        if (!GameUtils.isPlayerAliveAndSurvival(target)) return false;
+        if (!(player instanceof ServerPlayer))
+            return false;
+        if (!otherworldActive)
+            return false;
+        if (!GameUtils.isPlayerAliveAndSurvival(target))
+            return false;
 
         UUID targetUUID = target.getUUID();
-        if (markedPlayers.contains(targetUUID)) return false;
+        if (markedPlayers.contains(targetUUID))
+            return false;
 
         markedPlayers.add(targetUUID);
 
@@ -963,7 +1009,8 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
      * 阶段3+可用，消耗200金币（阶段4首次免费）
      */
     public void usePrayerRain() {
-        if (otherworldActive) return;
+        if (otherworldActive)
+            return;
         if (stage < 3) {
             player.displayClientMessage(
                     Component.translatable("tip.noellesroles.not_enough_energy")
@@ -979,7 +1026,8 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
                     true);
             return;
         }
-        if (!(player instanceof ServerPlayer serverPlayer)) return;
+        if (!(player instanceof ServerPlayer serverPlayer))
+            return;
 
         // 检查金币（阶段4免费一次）
         boolean isFree = (stage == 4 && !stage4FreeUltUsed);
@@ -1017,8 +1065,10 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
      * 30秒下雨，恐惧范围外的好人每5秒失去3SAN，可与大招叠加
      */
     public boolean useTurbidRain() {
-        if (!(player instanceof ServerPlayer sp)) return false;
-        if (turbidRainActive) return false;
+        if (!(player instanceof ServerPlayer sp))
+            return false;
+        if (turbidRainActive)
+            return false;
 
         this.turbidRainActive = true;
         this.turbidRainDuration = TURBID_RAIN_DURATION;
@@ -1042,17 +1092,22 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
      * 20格范围AoE，好人获得10秒耳鸣效果（挖掘疲劳+反胃）
      */
     public boolean useSoulBell() {
-        if (!(player instanceof ServerPlayer sp)) return false;
+        if (!(player instanceof ServerPlayer))
+            return false;
 
         Level world = player.level();
         Vec3 playerPos = player.position();
         boolean hitAny = false;
 
         for (Player target : world.players()) {
-            if (target.equals(player)) continue;
-            if (!GameUtils.isPlayerAliveAndSurvival(target)) continue;
-            if (isKiller(target)) continue;
-            if (playerPos.distanceTo(target.position()) > SOUL_BELL_RANGE) continue;
+            if (target.equals(player))
+                continue;
+            if (!GameUtils.isPlayerAliveAndSurvival(target))
+                continue;
+            if (isKiller(target))
+                continue;
+            if (playerPos.distanceTo(target.position()) > SOUL_BELL_RANGE)
+                continue;
 
             // 耳鸣效果：挖掘疲劳 + 反胃
             target.addEffect(new MobEffectInstance(
@@ -1083,7 +1138,8 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
      * 穿过的玩家被击退5格并失去15SAN（里世界额外-10SAN）
      */
     public void useGhostWall() {
-        if (!(player instanceof ServerPlayer sp)) return;
+        if (!(player instanceof ServerPlayer sp))
+            return;
         if (ghostWallCooldown > 0) {
             sp.displayClientMessage(
                     Component.translatable("tip.noellesroles.ability_cooldown", ghostWallCooldown / 20)
@@ -1115,7 +1171,8 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
      * 处理鬼打墙tick逻辑：检查是否有玩家穿过墙平面
      */
     private void processGhostWall() {
-        if (!ghostWallActive) return;
+        if (!ghostWallActive)
+            return;
 
         ghostWallRemainingTicks--;
         if (ghostWallRemainingTicks <= 0) {
@@ -1124,13 +1181,17 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
             ghostWallDirection = null;
             return;
         }
-        if (ghostWallPos == null || ghostWallDirection == null) return;
+        if (ghostWallPos == null || ghostWallDirection == null)
+            return;
 
         Level world = player.level();
         for (Player target : world.players()) {
-            if (target.equals(player)) continue;
-            if (!GameUtils.isPlayerAliveAndSurvival(target)) continue;
-            if (isKiller(target)) continue;
+            if (target.equals(player))
+                continue;
+            if (!GameUtils.isPlayerAliveAndSurvival(target))
+                continue;
+            if (isKiller(target))
+                continue;
 
             Vec3 toTarget = target.position().subtract(ghostWallPos);
             // 检查是否在墙平面附近（1.5格内）且在墙的水平范围内（3格）
@@ -1138,7 +1199,8 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
             if (Math.abs(dot) < 1.5 && toTarget.horizontalDistance() < 3.0) {
                 // 击退5格
                 Vec3 knockback = ghostWallDirection.scale(GHOST_WALL_KNOCKBACK);
-                if (dot < 0) knockback = knockback.scale(-1);
+                if (dot < 0)
+                    knockback = knockback.scale(-1);
                 target.setDeltaMovement(knockback);
                 if (target instanceof ServerPlayer targetSp) {
                     targetSp.hurtMarked = true;
@@ -1163,7 +1225,8 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
      * 45秒CD（里世界减半）。第一次使用录制位置5秒，之后可传送回录制位置。
      */
     public void useEcho() {
-        if (!(player instanceof ServerPlayer sp)) return;
+        if (!(player instanceof ServerPlayer sp))
+            return;
         if (echoCooldown > 0) {
             sp.displayClientMessage(
                     Component.translatable("tip.noellesroles.ability_cooldown", echoCooldown / 20)
@@ -1226,7 +1289,8 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
      * 20秒CD，放置隐形陷阱。触发：3秒定身 + 25SAN（里世界5秒 + 40SAN）。最多2个。
      */
     public void useTrap() {
-        if (!(player instanceof ServerPlayer sp)) return;
+        if (!(player instanceof ServerPlayer sp))
+            return;
         if (trapCooldown > 0) {
             sp.displayClientMessage(
                     Component.translatable("tip.noellesroles.ability_cooldown", trapCooldown / 20)
@@ -1257,16 +1321,20 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
      * 处理陷阱tick逻辑：检查非杀手玩家是否踩到陷阱（1.5格内）
      */
     private void processTraps() {
-        if (trapPositions.isEmpty()) return;
+        if (trapPositions.isEmpty())
+            return;
 
         Level world = player.level();
         List<Vec3> triggeredTraps = new ArrayList<>();
 
         for (Vec3 trapPos : trapPositions) {
             for (Player target : world.players()) {
-                if (target.equals(player)) continue;
-                if (!GameUtils.isPlayerAliveAndSurvival(target)) continue;
-                if (isKiller(target)) continue;
+                if (target.equals(player))
+                    continue;
+                if (!GameUtils.isPlayerAliveAndSurvival(target))
+                    continue;
+                if (isKiller(target))
+                    continue;
 
                 if (target.position().distanceToSqr(trapPos) <= TRAP_TRIGGER_RANGE * TRAP_TRIGGER_RANGE) {
                     // 触发陷阱
@@ -1311,7 +1379,8 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
      * 布袋鬼可透视目标。
      */
     public void useParasite() {
-        if (!(player instanceof ServerPlayer sp)) return;
+        if (!(player instanceof ServerPlayer sp))
+            return;
         if (parasiteCooldown > 0) {
             sp.displayClientMessage(
                     Component.translatable("tip.noellesroles.ability_cooldown", parasiteCooldown / 20)
@@ -1330,8 +1399,10 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         Player target = null;
         double closestDistance = Double.MAX_VALUE;
         for (Player nearbyPlayer : nearbyPlayers) {
-            if (nearbyPlayer.equals(sp) || !GameUtils.isPlayerAliveAndSurvival(nearbyPlayer)) continue;
-            if (isKiller(nearbyPlayer)) continue;
+            if (nearbyPlayer.equals(sp) || !GameUtils.isPlayerAliveAndSurvival(nearbyPlayer))
+                continue;
+            if (isKiller(nearbyPlayer))
+                continue;
             double distance = eyePos.distanceTo(nearbyPlayer.getEyePosition());
             if (distance < closestDistance) {
                 closestDistance = distance;
@@ -1399,7 +1470,8 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
      * 50%移速加成，持续10秒
      */
     public void useSwiftWind() {
-        if (!(player instanceof ServerPlayer sp)) return;
+        if (!(player instanceof ServerPlayer sp))
+            return;
         if (stage < 4 || !otherworldActive) {
             sp.displayClientMessage(
                     Component.translatable("tip.noellesroles.not_enough_energy")
@@ -1407,7 +1479,8 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
                     true);
             return;
         }
-        if (swiftWindActive) return;
+        if (swiftWindActive)
+            return;
 
         swiftWindActive = true;
         swiftWindDuration = SWIFT_WIND_DURATION;
@@ -1428,7 +1501,8 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
     // ==================== 技能管理 ====================
 
     public void changeSkill() {
-        if (ghostSkills.isEmpty()) return;
+        if (ghostSkills.isEmpty())
+            return;
         this.nowSelectedSkill++;
         if (this.nowSelectedSkill >= this.ghostSkills.size()) {
             this.nowSelectedSkill = 0;
@@ -1445,22 +1519,27 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         if (player.isShiftKeyDown()) {
             this.changeSkill();
         } else {
-            if (ghostSkills.isEmpty()) return;
-            if (this.nowSelectedSkill >= ghostSkills.size()) return;
+            if (ghostSkills.isEmpty())
+                return;
+            if (this.nowSelectedSkill >= ghostSkills.size())
+                return;
             var skillId = ghostSkills.get(this.nowSelectedSkill);
             switch (skillId) {
                 case "ghost_wall" -> useGhostWall();
                 case "echo" -> useEcho();
                 case "trap" -> useTrap();
                 case "parasite" -> useParasite();
-                default -> {}
+                default -> {
+                }
             }
         }
     }
 
     public Component getNowCooldownText() {
-        if (ghostSkills.isEmpty()) return null;
-        if (this.nowSelectedSkill >= ghostSkills.size()) return null;
+        if (ghostSkills.isEmpty())
+            return null;
+        if (this.nowSelectedSkill >= ghostSkills.size())
+            return null;
 
         var skillId = ghostSkills.get(this.nowSelectedSkill);
         return switch (skillId) {
@@ -1526,12 +1605,16 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
 
     @Override
     public void serverTick() {
-        if (!isActiveMaChenXu()) return;
-        if (!GameUtils.isPlayerAliveAndSurvival(player)) return;
-        if (!(player instanceof ServerPlayer sp)) return;
+        if (!isActiveMaChenXu())
+            return;
+        if (!GameUtils.isPlayerAliveAndSurvival(player))
+            return;
+        if (!(player instanceof ServerPlayer))
+            return;
 
         // 大招冷却
-        if (ultimateCooldown > 0) ultimateCooldown--;
+        if (ultimateCooldown > 0)
+            ultimateCooldown--;
 
         // 处理恐惧机制
         processFearMechanism();
@@ -1556,10 +1639,14 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         }
 
         // 鬼术冷却递减
-        if (ghostWallCooldown > 0) ghostWallCooldown--;
-        if (echoCooldown > 0) echoCooldown--;
-        if (trapCooldown > 0) trapCooldown--;
-        if (parasiteCooldown > 0) parasiteCooldown--;
+        if (ghostWallCooldown > 0)
+            ghostWallCooldown--;
+        if (echoCooldown > 0)
+            echoCooldown--;
+        if (trapCooldown > 0)
+            trapCooldown--;
+        if (parasiteCooldown > 0)
+            parasiteCooldown--;
 
         // 阶段2+的移速加成（10%）
         if (stage >= 2) {
@@ -1582,7 +1669,8 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
      * 处理浊雨机制：恐惧范围外好人每5秒-3SAN
      */
     private void processTurbidRain() {
-        if (!turbidRainActive) return;
+        if (!turbidRainActive)
+            return;
 
         turbidRainDuration--;
         turbidRainTimer++;
@@ -1594,9 +1682,12 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
             Vec3 playerPos = player.position();
 
             for (Player target : world.players()) {
-                if (target.equals(player)) continue;
-                if (!GameUtils.isPlayerAliveAndSurvival(target)) continue;
-                if (isKiller(target)) continue;
+                if (target.equals(player))
+                    continue;
+                if (!GameUtils.isPlayerAliveAndSurvival(target))
+                    continue;
+                if (isKiller(target))
+                    continue;
                 // 只对恐惧范围外的好人生效（浊雨覆盖恐惧盲区，与恐惧互补）
                 if (playerPos.distanceTo(target.position()) > fearRange) {
                     SREPlayerMoodComponent.KEY.get(target).addMood(-((float) TURBID_RAIN_SAN_LOSS / 100));
@@ -1616,13 +1707,20 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
 
     @Override
     public void clientTick() {
-        if (otherworldActive && otherworldDuration > 1) otherworldDuration--;
-        if (ultimateCooldown > 1) ultimateCooldown--;
-        if (ghostWallCooldown > 1) ghostWallCooldown--;
-        if (echoCooldown > 1) echoCooldown--;
-        if (trapCooldown > 1) trapCooldown--;
-        if (parasiteCooldown > 1) parasiteCooldown--;
-        if (turbidRainActive && turbidRainDuration > 1) turbidRainDuration--;
+        if (otherworldActive && otherworldDuration > 1)
+            otherworldDuration--;
+        if (ultimateCooldown > 1)
+            ultimateCooldown--;
+        if (ghostWallCooldown > 1)
+            ghostWallCooldown--;
+        if (echoCooldown > 1)
+            echoCooldown--;
+        if (trapCooldown > 1)
+            trapCooldown--;
+        if (parasiteCooldown > 1)
+            parasiteCooldown--;
+        if (turbidRainActive && turbidRainDuration > 1)
+            turbidRainDuration--;
         if (echoRecording) {
             echoRecordTicks++;
             if (echoRecordTicks >= ECHO_RECORD_DURATION) {
@@ -1630,14 +1728,16 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
                 echoCanTeleport = true;
             }
         }
-        if (swiftWindActive && swiftWindDuration > 1) swiftWindDuration--;
+        if (swiftWindActive && swiftWindDuration > 1)
+            swiftWindDuration--;
     }
 
     // ==================== NBT 序列化 ====================
 
     @Override
     public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
-        if (this.stage <= 0) return;
+        if (this.stage <= 0)
+            return;
 
         tag.putInt("stage", this.stage);
         tag.putInt("totalSanLoss", this.totalSanLoss);

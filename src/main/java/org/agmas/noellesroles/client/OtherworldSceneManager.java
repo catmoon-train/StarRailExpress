@@ -86,7 +86,7 @@ public class OtherworldSceneManager {
     /** 稀有替换方块（低概率出现，发光/氛围方块） */
     private static final BlockState[] RARE_OTHERWORLD_BLOCKS = {
         Blocks.SCULK_CATALYST.defaultBlockState(),
-        Blocks.SCULK_SENSOR.defaultBlockState(),
+        // Blocks.SCULK_SENSOR.defaultBlockState(), //这个会把人卡住
         Blocks.SCULK_SHRIEKER.defaultBlockState(),
         Blocks.SOUL_LANTERN.defaultBlockState(),
         Blocks.SHROOMLIGHT.defaultBlockState(),
