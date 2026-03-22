@@ -16,6 +16,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Items;
 
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.role.ModRoles;
@@ -92,7 +93,6 @@ public class WaterGhostPlayerComponent implements RoleComponent, ServerTickingCo
         this.skillCooldown = tag.getInt("SkillCooldown");
         this.skillDuration = tag.getInt("SkillDuration");
         this.rainDuration = tag.getInt("RainDuration");
-        this.rainCooldown = tag.getInt("RainCooldown");
         this.outOfWaterTimer = tag.getInt("OutOfWaterTimer");
     }
 
@@ -101,7 +101,6 @@ public class WaterGhostPlayerComponent implements RoleComponent, ServerTickingCo
         tag.putInt("SkillCooldown", this.skillCooldown);
         tag.putInt("SkillDuration", this.skillDuration);
         tag.putInt("RainDuration", this.rainDuration);
-        tag.putInt("RainCooldown", this.rainCooldown);
         tag.putInt("OutOfWaterTimer", this.outOfWaterTimer);
     }
 
@@ -194,7 +193,7 @@ public class WaterGhostPlayerComponent implements RoleComponent, ServerTickingCo
         }
 
         // 处理干涸死亡
-        boolean isInWater = player.isInWater() || player.isUnderWater();
+        boolean isInWater = isInWater();
         if (isInWater) {
             // 在水中，重置计时器
             if (outOfWaterTimer > 0) {
@@ -211,11 +210,13 @@ public class WaterGhostPlayerComponent implements RoleComponent, ServerTickingCo
                         Component.translatable("message.noellesroles.water_ghost.warning_30s")
                                 .withStyle(ChatFormatting.YELLOW),
                         true);
+                shouldSync = true;
             } else if (outOfWaterTimer == 60 * 20) {
                 serverPlayer.displayClientMessage(
                         Component.translatable("message.noellesroles.water_ghost.warning_60s")
                                 .withStyle(ChatFormatting.RED),
                         true);
+                shouldSync = true;
             }
 
             // 检查是否干涸死亡
@@ -226,7 +227,7 @@ public class WaterGhostPlayerComponent implements RoleComponent, ServerTickingCo
                 return;
             }
 
-            // 每秒同步一次
+            // 每10秒同步一次
             if (outOfWaterTimer % 200 == 0) {
                 shouldSync = true;
             }
@@ -281,7 +282,7 @@ public class WaterGhostPlayerComponent implements RoleComponent, ServerTickingCo
             return false;
 
         // 检查冷却时间
-        if (rainCooldown > 0) {
+        if (this.player.getCooldowns().isOnCooldown(Items.WATER_BUCKET)) {
             serverPlayer.displayClientMessage(
                     Component.translatable("message.noellesroles.water_ghost.rain_cooldown", rainCooldown / 20)
                             .withStyle(ChatFormatting.RED),
@@ -299,9 +300,7 @@ public class WaterGhostPlayerComponent implements RoleComponent, ServerTickingCo
             return false;
         }
 
-        // 扣除金币
-        shopComponent.balance -= 150;
-        shopComponent.sync();
+        // 不需要扣除金币，不然会扣除双份
 
         // 激活下雨（参考ma_chen_xu的狂热下雨，但只保留下雨效果）
         ServerLevel serverLevel = serverPlayer.serverLevel();
@@ -311,7 +310,7 @@ public class WaterGhostPlayerComponent implements RoleComponent, ServerTickingCo
         rainDuration = RAIN_DURATION;
 
         // 设置冷却时间
-        rainCooldown = RAIN_COOLDOWN;
+        player.getCooldowns().addCooldown(Items.WATER_BUCKET, RAIN_COOLDOWN);
 
         serverPlayer.displayClientMessage(
                 Component.translatable("message.noellesroles.water_ghost.rain_purchased")
@@ -362,7 +361,7 @@ public class WaterGhostPlayerComponent implements RoleComponent, ServerTickingCo
             skillDuration--;
         }
 
-        boolean isInWater = player.isInWater() || player.isUnderWater();
+        boolean isInWater = isInWater();
         if (isInWater) {
             // 在水中，重置计时器
             if (outOfWaterTimer > 0) {
@@ -373,6 +372,12 @@ public class WaterGhostPlayerComponent implements RoleComponent, ServerTickingCo
                 outOfWaterTimer++;
             }
         }
+    }
+
+    private boolean isInWater() {
+        return player.isInWater()
+                || player.isUnderWater()
+                || (player.level().isRaining() && player.level().canSeeSky(player.blockPosition()));
     }
 
     @Override
