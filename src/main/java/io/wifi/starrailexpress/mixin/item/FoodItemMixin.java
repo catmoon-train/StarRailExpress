@@ -1,7 +1,7 @@
 
 package io.wifi.starrailexpress.mixin.item;
 
-import io.wifi.starrailexpress.cca.BartenderPlayerComponent;
+import io.wifi.starrailexpress.cca.SREArmorPlayerComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.item.CocktailItem;
 import net.minecraft.core.component.DataComponents;
@@ -32,7 +32,7 @@ public class FoodItemMixin {
                 return;
             }
             if (stack.get(DataComponents.FOOD) != null) {
-                ((BartenderPlayerComponent) BartenderPlayerComponent.KEY.get(user)).startGlow(1);
+                ((SREArmorPlayerComponent) SREArmorPlayerComponent.KEY.get(user)).startGlow(1);
                 return;
             }
         }

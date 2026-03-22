@@ -28,8 +28,8 @@ public class SREComponents
 
     @Override
     public void registerEntityComponentFactories(@NotNull EntityComponentFactoryRegistry registry) {
-        registry.beginRegistration(Player.class, BartenderPlayerComponent.KEY)
-                .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(BartenderPlayerComponent::new);
+        registry.beginRegistration(Player.class, SREArmorPlayerComponent.KEY)
+                .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(SREArmorPlayerComponent::new);
         registry.beginRegistration(Player.class, SREPlayerTaskComponent.KEY)
                 .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(SREPlayerTaskComponent::new);
         registry.beginRegistration(Player.class, ExtraSlotComponent.KEY)

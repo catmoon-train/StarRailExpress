@@ -22,7 +22,7 @@ import org.agmas.noellesroles.roles.thief.ThiefPlayerComponent;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.SRERole;
-import io.wifi.starrailexpress.cca.BartenderPlayerComponent;
+import io.wifi.starrailexpress.cca.SREArmorPlayerComponent;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameTimeComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
@@ -619,7 +619,7 @@ public class ClientHudRenderer {
       // 渲染酒保的提示
       var client = Minecraft.getInstance();
 
-      var comc = BartenderPlayerComponent.KEY.maybeGet(client.player).orElse(null);
+      var comc = SREArmorPlayerComponent.KEY.maybeGet(client.player).orElse(null);
       if (comc == null)
         return;
       if (comc.getArmor() <= 0)

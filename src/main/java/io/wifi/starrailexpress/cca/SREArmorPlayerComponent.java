@@ -22,9 +22,9 @@ import io.wifi.starrailexpress.api.RoleComponent;
 import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
-public class BartenderPlayerComponent implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
-    public static final ComponentKey<BartenderPlayerComponent> KEY = ComponentRegistry.getOrCreate(
-            ResourceLocation.fromNamespaceAndPath(SRE.MOD_ID, "bartender"), BartenderPlayerComponent.class);
+public class SREArmorPlayerComponent implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
+    public static final ComponentKey<SREArmorPlayerComponent> KEY = ComponentRegistry.getOrCreate(
+            ResourceLocation.fromNamespaceAndPath(SRE.MOD_ID, "bartender"), SREArmorPlayerComponent.class);
     private final Player player;
     /**
      * 0: Drink
@@ -80,7 +80,7 @@ public class BartenderPlayerComponent implements RoleComponent, ServerTickingCom
                 }
             }
         }
-        return true;
+        return false;
     }
 
     @Override
@@ -88,7 +88,7 @@ public class BartenderPlayerComponent implements RoleComponent, ServerTickingCom
         return player;
     }
 
-    public BartenderPlayerComponent(Player player) {
+    public SREArmorPlayerComponent(Player player) {
         this.player = player;
         if (gameWorldComponent == null) {
             gameWorldComponent = SREGameWorldComponent.KEY.get(this.player.level());

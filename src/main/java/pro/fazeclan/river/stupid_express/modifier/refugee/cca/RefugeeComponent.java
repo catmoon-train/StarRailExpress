@@ -160,7 +160,7 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         // Teleport to death location
         player.teleportTo(serverLevel, roomPosition.x, roomPosition.y, roomPosition.z, player.getYRot(),
                 player.getXRot());
-        BartenderPlayerComponent bartenderPlayerComponent = BartenderPlayerComponent.KEY.get(player);
+        SREArmorPlayerComponent bartenderPlayerComponent = SREArmorPlayerComponent.KEY.get(player);
         int size = serverLevel.getPlayers(GameUtils::isPlayerAliveAndSurvival).size();
         bartenderPlayerComponent.removeArmor(-1 * (Math.clamp(size / 6, 1, 3)));
         player.setGameMode(GameType.ADVENTURE);
