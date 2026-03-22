@@ -5,6 +5,8 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
@@ -24,6 +26,24 @@ public abstract class NoisemakerKillMixin {
                 .get(victim.level());
         if (gameWorldComponent.isRole(victim, ModRoles.NOISEMAKER)) {
             body.addEffect(new MobEffectInstance(MobEffects.GLOWING, 20 * 60, 0));
+            var serverLevel = victim.serverLevel();
+            for (Player p : serverLevel.players()) {
+                if (p.isSpectator()) {
+                    continue;
+                }
+                if (!GameUtils.isPlayerAliveAndSurvival(p)) {
+                    continue;
+                }
+                serverLevel.playSound(
+                        p,
+                        victim.getX(),
+                        victim.getY(),
+                        victim.getZ(),
+                        SoundEvents.WITHER_DEATH,
+                        SoundSource.MASTER,
+                        3.0F,
+                        1.0F);
+            }
         }
     }
 
