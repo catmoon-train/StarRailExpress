@@ -991,6 +991,35 @@ public class RoleShopHandler {
    * 初始化商店
    */
   public static void initShops() {
+    FRAMING_ROLES_SHOP.clear();
+    CONSPIRATOR_SHOP.clear();
+    柜子区的商店.clear();
+    SLIPPERY_GHOST_SHOP.clear();
+    ENGINEER_SHOP.clear();
+    BOXER_SHOP.clear();
+    POSTMAN_SHOP.clear();
+    PSYCHOLOGIST_SHOP.clear();
+    BOMBER_SHOP.clear();
+    DOCTOR_SHOP.clear();
+    SINGER_SHOP.clear();
+    ATTENDANT_SHOP.clear();
+    VETERAN_SHOP.clear();
+    PATROLLER_SHOP.clear();
+    NIAN_SHOU_SHOP.clear();
+    MAGICIAN_SHOP.clear();
+    BANDIT_SHOP.clear();
+    BLOOD_FEUDIST_SHOP.clear();
+    THIEF_SHOP.clear();
+    CLOCKMAKER_SHOP.clear();
+    WRITER_SHOP.clear();
+    RESCUER_SHOP.clear();
+    FIREFIGHTER_SHOP.clear();
+    ACCOUNTANT_SHOP.clear();
+    SWAST_SHOP.clear();
+    MARTIAL_ARTS_INSTRUCTOR_SHOP.clear();
+    SEA_KING_SHOP.clear();
+    WATER_GHOST_SHOP.clear();
+    
     柜子区的商店.add(new ShopEntry(
         HSRItems.BANDIT_REVOLVER.getDefaultInstance(),
         130,
