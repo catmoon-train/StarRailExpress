@@ -16,6 +16,7 @@ import net.minecraft.world.phys.AABB;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -24,6 +25,9 @@ import java.util.List;
 
 @Mixin(Player.class)
 public class RiptideTridentMixin {
+
+    @Unique
+    private boolean noellesroles$wasUsingRiptide = false;
     
     @Inject(method = "tick", at = @At("HEAD"))
     private void noellesroles$checkRiptideCollision(CallbackInfo ci) {
@@ -39,6 +43,15 @@ public class RiptideTridentMixin {
         // 检查是否是海王或水鬼角色
         boolean isSeaKing = SREGameWorldComponent.KEY.get(serverLevel).isRole(player.getUUID(), ModRoles.SEA_KING);
         boolean isWaterGhost = SREGameWorldComponent.KEY.get(serverLevel).isRole(player.getUUID(), ModRoles.WATER_GHOST);
+
+        // 水鬼：每次激流使用结束后，给三叉戟添加2秒冷却
+        boolean isUsingRiptide = player.isAutoSpinAttack();
+        if (isWaterGhost) {
+            if (!isUsingRiptide && noellesroles$wasUsingRiptide) {
+                player.getCooldowns().addCooldown(Items.TRIDENT, 40);
+            }
+            noellesroles$wasUsingRiptide = isUsingRiptide;
+        }
 
         // 潜水靴深海探索者3附魔 - 所有玩家检查脚部装备
         ItemStack feetItem = player.getItemBySlot(EquipmentSlot.FEET);
@@ -130,7 +143,7 @@ public class RiptideTridentMixin {
 
         // 检查玩家是否正在使用激流技能
         // 只有在使用激流技能时才进行碰撞检测
-        boolean isUsingRiptide = player.isAutoSpinAttack();
+
         if (!isUsingRiptide)
             return;
 
