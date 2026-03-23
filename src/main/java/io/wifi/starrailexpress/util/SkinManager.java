@@ -105,6 +105,46 @@ public class SkinManager {
     public static void registerSkin(String skinType, String skinID, int color) {
         skinMap.putIfAbsent(skinType, new HashMap<>());
         skinMap.get(skinType).put(skinID, new Skin(color, skinID));
+        // 分配皮肤整数ID（如未分配），用于网络包的高效同步
+        skinIdByTypeMap.computeIfAbsent(skinType, k -> new HashMap<>());
+        skinByIdTypeMap.computeIfAbsent(skinType, k -> new HashMap<>());
+        if (!skinIdByTypeMap.get(skinType).containsKey(skinID)) {
+            int id = skinIdByTypeMap.get(skinType).size();
+            skinIdByTypeMap.get(skinType).put(skinID, id);
+            skinByIdTypeMap.get(skinType).put(id, skinID);
+        }
+    }
+
+    /**
+     * 获取皮肤类型的整数ID
+     */
+    public static int getSkinTypeId(String typeName) {
+        return skinTypeIdMap.getOrDefault(typeName, -1);
+    }
+
+    /**
+     * 根据整数ID获取皮肤类型名称
+     */
+    public static String getSkinTypeById(int id) {
+        return skinTypeByIdMap.get(id);
+    }
+
+    /**
+     * 获取指定类型中皮肤的整数ID
+     */
+    public static int getSkinId(String typeName, String skinName) {
+        HashMap<String, Integer> typeMap = skinIdByTypeMap.get(typeName);
+        if (typeMap == null) return -1;
+        return typeMap.getOrDefault(skinName, -1);
+    }
+
+    /**
+     * 根据整数ID获取指定类型中皮肤的名称
+     */
+    public static String getSkinById(String typeName, int id) {
+        HashMap<Integer, String> typeMap = skinByIdTypeMap.get(typeName);
+        if (typeMap == null) return null;
+        return typeMap.get(id);
     }
 
     public static class SkinTypes {
@@ -116,7 +156,24 @@ public class SkinManager {
     }
 
     protected static final HashMap<String, HashMap<String, Skin>> skinMap = new HashMap<>();
+    // 皮肤类型ID映射（type name → int ID），用于网络包的高效同步
+    private static final HashMap<String, Integer> skinTypeIdMap = new HashMap<>();
+    // 皮肤类型反向映射（int ID → type name）
+    private static final HashMap<Integer, String> skinTypeByIdMap = new HashMap<>();
+    // 皮肤名称ID映射（type name → (skin name → int ID)）
+    private static final HashMap<String, HashMap<String, Integer>> skinIdByTypeMap = new HashMap<>();
+    // 皮肤名称反向映射（type name → (int ID → skin name)）
+    private static final HashMap<String, HashMap<Integer, String>> skinByIdTypeMap = new HashMap<>();
+
     static {
+        // 初始化皮肤类型ID映射（顺序固定，确保服务端和客户端一致）
+        String[] typeOrder = {SkinTypes.KNIFE, SkinTypes.REVOLVER, SkinTypes.BAT, SkinTypes.GRENADE, SkinTypes.HAT};
+        for (int i = 0; i < typeOrder.length; i++) {
+            skinTypeIdMap.put(typeOrder[i], i);
+            skinTypeByIdMap.put(i, typeOrder[i]);
+            skinIdByTypeMap.put(typeOrder[i], new HashMap<>());
+            skinByIdTypeMap.put(typeOrder[i], new HashMap<>());
+        }
         skinMap.put(SkinTypes.KNIFE, new HashMap<>());
         skinMap.put(SkinTypes.REVOLVER, new HashMap<>());
         skinMap.put(SkinTypes.BAT, new HashMap<>());

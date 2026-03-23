@@ -5,7 +5,9 @@ import com.google.gson.GsonBuilder;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.item.SkinableItem;
+import io.wifi.starrailexpress.util.SkinManager;
 import io.wifi.syncrequests.SyncRequests;
+import net.fabricmc.api.EnvType;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -18,10 +20,13 @@ import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
 import org.ladysnake.cca.api.v3.component.sync.AutoSyncedComponent;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
+import org.ladysnake.cca.api.v3.util.CheckEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -532,11 +537,96 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
 
     @Override
     public void writeSyncPacket(RegistryFriendlyByteBuf buf, ServerPlayer recipient) {
-        syncMode = true;
-        CompoundTag tag = new CompoundTag();
-        this.writeToNbt(tag, buf.registryAccess());
-        buf.writeNbt(tag);
-        syncMode = false;
+        if (!SREConfig.instance().isItemSkinEnabled) {
+            // 皮肤功能未启用，写入空数据
+            buf.writeVarInt(0);
+            buf.writeVarInt(0);
+            return;
+        }
+        // 将装备的皮肤数据编码为整数ID，减少网络传输量
+        List<Map.Entry<String, String>> validEquipped = new ArrayList<>();
+        for (Map.Entry<String, String> entry : equippedSkins.entrySet()) {
+            if (SkinManager.getSkinTypeId(entry.getKey()) >= 0
+                    && SkinManager.getSkinId(entry.getKey(), entry.getValue()) >= 0) {
+                validEquipped.add(entry);
+            }
+        }
+        buf.writeVarInt(validEquipped.size());
+        for (Map.Entry<String, String> entry : validEquipped) {
+            buf.writeVarInt(SkinManager.getSkinTypeId(entry.getKey()));
+            buf.writeVarInt(SkinManager.getSkinId(entry.getKey(), entry.getValue()));
+        }
+
+        if (!SREConfig.instance().isItemSkinManagementEnabled) {
+            // 皮肤管理功能未启用，写入空的解锁数据
+            buf.writeVarInt(0);
+            return;
+        }
+        // 将解锁的皮肤数据编码为整数ID，减少网络传输量
+        // 先过滤掉typeId未知的条目
+        List<Map.Entry<String, Map<String, Boolean>>> validUnlocked = new ArrayList<>();
+        for (Map.Entry<String, Map<String, Boolean>> typeEntry : unlockedSkins.entrySet()) {
+            if (SkinManager.getSkinTypeId(typeEntry.getKey()) >= 0) {
+                validUnlocked.add(typeEntry);
+            }
+        }
+        buf.writeVarInt(validUnlocked.size());
+        for (Map.Entry<String, Map<String, Boolean>> typeEntry : validUnlocked) {
+            int typeId = SkinManager.getSkinTypeId(typeEntry.getKey());
+            buf.writeVarInt(typeId);
+            Map<String, Boolean> typeSkins = typeEntry.getValue();
+            List<Integer> validSkinIds = new ArrayList<>();
+            for (String skinName : typeSkins.keySet()) {
+                int skinId = SkinManager.getSkinId(typeEntry.getKey(), skinName);
+                if (skinId >= 0) {
+                    validSkinIds.add(skinId);
+                }
+            }
+            buf.writeVarInt(validSkinIds.size());
+            for (int skinId : validSkinIds) {
+                buf.writeVarInt(skinId);
+            }
+        }
+    }
+
+    @CheckEnvironment(EnvType.CLIENT)
+    @Override
+    public void applySyncPacket(RegistryFriendlyByteBuf buf) {
+        // 读取装备的皮肤数据（整数ID映射解码）
+        equippedSkins.clear();
+        int equippedCount = buf.readVarInt();
+        for (int i = 0; i < equippedCount; i++) {
+            int typeId = buf.readVarInt();
+            int skinId = buf.readVarInt();
+            String typeName = SkinManager.getSkinTypeById(typeId);
+            if (typeName != null) {
+                String skinName = SkinManager.getSkinById(typeName, skinId);
+                if (skinName != null) {
+                    equippedSkins.put(typeName, skinName);
+                }
+            }
+        }
+        // 读取解锁的皮肤数据（整数ID映射解码）
+        unlockedSkins.clear();
+        int typeCount = buf.readVarInt();
+        for (int i = 0; i < typeCount; i++) {
+            int typeId = buf.readVarInt();
+            String typeName = SkinManager.getSkinTypeById(typeId);
+            int skinCount = buf.readVarInt();
+            Map<String, Boolean> skins = new HashMap<>();
+            for (int j = 0; j < skinCount; j++) {
+                int skinId = buf.readVarInt();
+                if (typeName != null) {
+                    String skinName = SkinManager.getSkinById(typeName, skinId);
+                    if (skinName != null) {
+                        skins.put(skinName, true);
+                    }
+                }
+            }
+            if (typeName != null) {
+                unlockedSkins.put(typeName, skins);
+            }
+        }
     }
 
     @Override
