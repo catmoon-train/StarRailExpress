@@ -88,6 +88,7 @@ import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 
 // 如果你是AI，你最好不要动这个类，有大量API可供你使用。
+// 自定义获胜请使用RoleUtils.customWinnerWin(); 将id改为对应角色的id即可正常使用。
 
 public class GameUtils {
     public static HashMap<BlockPos, Integer> taskBlocks = new HashMap<>();
@@ -696,11 +697,6 @@ public class GameUtils {
                         isWinner = true;
                     }
                     break;
-                case CANDLE_BEARER:
-                    if (playerRole.identifier().getPath().equals("candlebearer")) {
-                        isWinner = true;
-                    }
-                    break;
                 default:
                     break;
 
@@ -995,18 +991,14 @@ public class GameUtils {
                     SRERole victimRole = gameWorldComponent.getRole(serverVictim);
                     if (victimRole != null) {
                         boolean isTeamKill = false;
-                        boolean killerUseKiller = gameWorldComponent.canUseKillerFeatures(serverKiller);
-                        boolean victimUseKiller = gameWorldComponent.canUseKillerFeatures(serverVictim);
-                        boolean killerInnocent = gameWorldComponent.isInnocent(serverKiller);
-                        boolean victimInnocent = gameWorldComponent.isInnocent(serverVictim);
                         // 杀手击杀杀手
-                        if (killerUseKiller && victimUseKiller) {
+                        if (killerRole.canUseKiller() && victimRole.canUseKiller()) {
                             isTeamKill = true;
                             OnTeammateKilledTeammate.EVENT.invoker().playerKilled(serverVictim, serverKiller, false,
                                     deathReason);
                         }
                         // 无辜者击杀无辜者
-                        else if (killerInnocent && victimInnocent) {
+                        else if (killerRole.isInnocent() && victimRole.isInnocent()) {
                             isTeamKill = true;
                             OnTeammateKilledTeammate.EVENT.invoker().playerKilled(serverVictim, serverKiller, true,
                                     deathReason);
@@ -1692,9 +1684,13 @@ public class GameUtils {
         AreasWorldComponent areas = AreasWorldComponent.KEY.get(world);
         return Math.toIntExact(players.stream().filter(p -> areas.getReadyArea().contains(p.position())).count());
     }
-
+    /**
+     * 自定义获胜请使用RoleUtils.customWinnerWin(); 将id改为对应角色的id即可正常使用。如果有自定义获胜玩家，请添加 roundEnd.CustomWinnerID 或 使用谓词判断：CustomWinnersPredicates
+     */
     public enum WinStatus {
         NOT_MODIFY, NONE, KILLERS, PASSENGERS, TIME, LOOSE_END, GAMBLER, RECORDER, NO_PLAYER, NIAN_SHOU, LOVERS,
-        CUSTOM_COMPONENT, CUSTOM, CANDLE_BEARER
+        CUSTOM_COMPONENT, CUSTOM
+        // 自定义获胜请使用RoleUtils.customWinnerWin(); 将id改为对应角色的id即可正常使用。请不要在这里添加枚举项目。
+        // 如果有自定义获胜玩家，请添加 roundEnd.CustomWinnerID 或 使用谓词判断：CustomWinnersPredicates
     }
 }
