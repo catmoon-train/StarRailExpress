@@ -122,6 +122,22 @@ public class PresetCommand {
         return 1;
     }
 
+    /**
+     * 通过名称直接应用预设（不依赖命令上下文，供服务端内部调用）。
+     *
+     * @param presetName 预设名称
+     * @return 是否成功应用
+     */
+    public static boolean applyPresetByName(String presetName) {
+        Preset preset = Preset.PresetManager.getPreset(presetName);
+        if (preset == null) {
+            return false;
+        }
+        applyRoles(preset.getRoles());
+        applyModifiers(preset.getModifiers());
+        return true;
+    }
+
     private static int applyRoles(Preset.RoleSettings roleSettings) {
         int applied = 0;
         List<String> enabled = roleSettings.getEnabled();
