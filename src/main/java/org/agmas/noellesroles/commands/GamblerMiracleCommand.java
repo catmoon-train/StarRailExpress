@@ -14,12 +14,13 @@ import org.agmas.noellesroles.roles.gambler.GamblerHandler;
 public class GamblerMiracleCommand {
     public static void register() {
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
-            dispatcher.register(Commands.literal("noellesroles")
+            dispatcher.register(Commands.literal("tmm:game")
                     .requires(source -> source.hasPermission(2))
-                    .then(Commands.literal("gambler_miracle")
-                            .executes(GamblerMiracleCommand::executeSelf)
-                            .then(Commands.argument("player", EntityArgument.player())
-                                    .executes(GamblerMiracleCommand::executeTarget))));
+                    .then(Commands.literal("test")
+                            .then(Commands.literal("gambler_miracle")
+                                    .executes(GamblerMiracleCommand::executeSelf)
+                                    .then(Commands.argument("player", EntityArgument.player())
+                                            .executes(GamblerMiracleCommand::executeTarget)))));
         });
     }
 
