@@ -1685,12 +1685,12 @@ public class GameUtils {
         return Math.toIntExact(players.stream().filter(p -> areas.getReadyArea().contains(p.position())).count());
     }
     /**
-     * 自定义获胜请使用RoleUtils.customWinnerWin(); 将id改为对应角色的id即可正常使用。如果有自定义获胜玩家，请添加 roundEnd.CustomWinnerID 或 使用谓词判断：CustomWinnersPredicates
+     * 自定义获胜请使用RoleUtils.customWinnerWin(); 将id改为对应角色的id的path即可正常使用。如果有自定义获胜玩家，请添加 roundEnd.CustomWinnerID 或 使用谓词判断：CustomWinnersPredicates
      */
     public enum WinStatus {
         NOT_MODIFY, NONE, KILLERS, PASSENGERS, TIME, LOOSE_END, GAMBLER, RECORDER, NO_PLAYER, NIAN_SHOU, LOVERS,
         CUSTOM_COMPONENT, CUSTOM
-        // 自定义获胜请使用RoleUtils.customWinnerWin(); 将id改为对应角色的id即可正常使用。请不要在这里添加枚举项目。
+        // 自定义获胜请使用RoleUtils.customWinnerWin(); 将id改为对应角色的id的path即可正常使用。请不要在这里添加枚举项目。
         // 如果有自定义获胜玩家，请添加 roundEnd.CustomWinnerID 或 使用谓词判断：CustomWinnersPredicates
     }
 }
