@@ -18,11 +18,17 @@ import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
 public class WatcherPlayerComponent implements RoleComponent, ServerTickingComponent {
     public static final ComponentKey<WatcherPlayerComponent> KEY = ModComponents.WATCHER;
+    /** 姿态切换冷却（60秒） */
+    public static final int STANCE_SWITCH_COOLDOWN_TICKS = 60 * 20;
+    /** 速度效果持续时间（tick） */
+    private static final int SPEED_EFFECT_DURATION = 60;
+    /** 速度效果刷新阈值（tick） */
+    private static final int SPEED_REFRESH_THRESHOLD = 30;
 
     private final Player player;
-    public boolean isCalm = true;
-    public int cooldown = 0;
-    public boolean shieldConsumed = false;
+    private boolean isCalm = true;
+    private int cooldown = 0;
+    private boolean shieldConsumed = false;
 
     public WatcherPlayerComponent(Player player) {
         this.player = player;
@@ -62,6 +68,14 @@ public class WatcherPlayerComponent implements RoleComponent, ServerTickingCompo
         this.sync();
     }
 
+    public int getCooldown() {
+        return this.cooldown;
+    }
+
+    public boolean isInCalmStance() {
+        return this.isCalm;
+    }
+
     public void markShieldConsumed() {
         if (!this.shieldConsumed) {
             this.shieldConsumed = true;
@@ -71,7 +85,7 @@ public class WatcherPlayerComponent implements RoleComponent, ServerTickingCompo
 
     public void toggleStance() {
         this.isCalm = !this.isCalm;
-        setCooldown(60 * 20);
+        setCooldown(STANCE_SWITCH_COOLDOWN_TICKS);
         if (this.isCalm) {
             applyCalmState();
             player.displayClientMessage(
@@ -110,11 +124,13 @@ public class WatcherPlayerComponent implements RoleComponent, ServerTickingCompo
     private void ensureAngrySpeed() {
         var speed = player.getEffect(MobEffects.MOVEMENT_SPEED);
         if (speed == null) {
-            player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 60, 0, true, false, true));
+            player.addEffect(
+                    new MobEffectInstance(MobEffects.MOVEMENT_SPEED, SPEED_EFFECT_DURATION, 0, true, false, true));
             return;
         }
-        if (speed.getAmplifier() == 0 && speed.getDuration() < 30 && speed.isAmbient()) {
-            player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 60, 0, true, false, true));
+        if (speed.getAmplifier() == 0 && speed.getDuration() < SPEED_REFRESH_THRESHOLD && speed.isAmbient()) {
+            player.addEffect(
+                    new MobEffectInstance(MobEffects.MOVEMENT_SPEED, SPEED_EFFECT_DURATION, 0, true, false, true));
         }
     }
 

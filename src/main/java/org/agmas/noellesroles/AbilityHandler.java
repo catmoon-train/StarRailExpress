@@ -209,9 +209,9 @@ public class AbilityHandler {
         }
         if (gameWorldComponent.isRole(context.player(), ModRoles.WATCHER)) {
             var watcher = WatcherPlayerComponent.KEY.get(player);
-            if (watcher.cooldown > 0) {
+            if (watcher.getCooldown() > 0) {
                 player.displayClientMessage(Component.translatable(
-                        "tip.noellesroles.cooldown", watcher.cooldown / 20).withStyle(ChatFormatting.RED), true);
+                        "tip.noellesroles.cooldown", watcher.getCooldown() / 20).withStyle(ChatFormatting.RED), true);
                 return;
             }
             watcher.toggleStance();

@@ -820,7 +820,7 @@ public class ModEventsRegister {
             var gameWorldComponent = SREGameWorldComponent.KEY.get(victim.level());
             if (gameWorldComponent.isRole(killer, ModRoles.WATCHER)) {
                 var watcher = WatcherPlayerComponent.KEY.get(killer);
-                if (watcher.isCalm) {
+                if (watcher.isInCalmStance()) {
                     GameUtils.killPlayer(killer, true, null, Noellesroles.id("watcher_calm_kill"));
                 }
             }

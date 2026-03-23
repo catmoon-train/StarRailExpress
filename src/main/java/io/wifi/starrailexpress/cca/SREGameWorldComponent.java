@@ -274,14 +274,14 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
 
     public boolean canUseKillerFeatures(@NotNull Player player) {
         if (isRole(player, ModRoles.WATCHER)) {
-            return !WatcherPlayerComponent.KEY.get(player).isCalm;
+            return !WatcherPlayerComponent.KEY.get(player).isInCalmStance();
         }
         return getRole(player) != null && getRole(player).canUseKiller();
     }
 
     public boolean isInnocent(@NotNull Player player) {
         if (isRole(player, ModRoles.WATCHER)) {
-            return WatcherPlayerComponent.KEY.get(player).isCalm;
+            return WatcherPlayerComponent.KEY.get(player).isInCalmStance();
         }
         return getRole(player) != null && getRole(player).isInnocent();
     }
