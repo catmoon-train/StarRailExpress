@@ -384,7 +384,7 @@ public class CandleBearerPlayerComponent implements RoleComponent, ServerTicking
                             player.getX(),
                             player.getY(),
                             player.getZ(),
-                            SoundEvents.CAMPFIRE_CRACKLE,
+                            SoundEvents.BELL_RESONATE,
                             SoundSource.MASTER,
                             5.0F,
                             1.0F);
