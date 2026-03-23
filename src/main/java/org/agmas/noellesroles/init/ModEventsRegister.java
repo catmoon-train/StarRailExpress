@@ -537,13 +537,54 @@ public class ModEventsRegister {
             HoanMeirinFistPunchHandler.PUNCH_RECORDS.clear();
             RoleShopHandler.resetOldmanEasterEggState();
             // 自动切换预设：游戏结束时应用配置的预设，使其在下一局游戏中生效
-            String autoPresetName = io.wifi.starrailexpress.SREConfig.instance().autoPresetName;
-            if (!autoPresetName.isBlank()) {
-                boolean applied = org.agmas.noellesroles.commands.PresetCommand.applyPresetByName(autoPresetName);
-                if (applied) {
-                    SRE.LOGGER.info("[AutoPreset] 已自动应用预设: {}", autoPresetName);
+            io.wifi.starrailexpress.SREConfig sreConfig = io.wifi.starrailexpress.SREConfig.instance();
+            if (sreConfig.enableRoundBasedAutoPreset) {
+                // 按游戏轮数自动切换预设
+                sreConfig.roundBasedCurrentRound++;
+                int round = sreConfig.roundBasedCurrentRound;
+                int lowEnd = sreConfig.roundBasedPresetLowLevelRounds;
+                int medEnd = lowEnd + sreConfig.roundBasedPresetMediumLevelRounds;
+                int highEnd = medEnd + sreConfig.roundBasedPresetHighLevelRounds;
+
+                String nextPreset;
+                if (round <= lowEnd) {
+                    nextPreset = sreConfig.roundBasedPresetLowLevel;
+                } else if (round <= medEnd) {
+                    nextPreset = sreConfig.roundBasedPresetMediumLevel;
+                } else if (round <= highEnd) {
+                    nextPreset = sreConfig.roundBasedPresetHighLevel;
                 } else {
-                    SRE.LOGGER.warn("[AutoPreset] 未找到预设 '{}'，跳过自动切换", autoPresetName);
+                    nextPreset = sreConfig.roundBasedPresetAllRoles;
+                }
+
+                if (nextPreset == null || nextPreset.isBlank()) {
+                    // 全部职业启用：清空禁用列表
+                    org.agmas.harpymodloader.config.HarpyModLoaderConfig hml =
+                        org.agmas.harpymodloader.config.HarpyModLoaderConfig.HANDLER.instance();
+                    hml.disabled.clear();
+                    hml.disabledModifiers.clear();
+                    org.agmas.harpymodloader.config.HarpyModLoaderConfig.HANDLER.save();
+                    SRE.LOGGER.info("[AutoPreset] 第{}局结束，已启用全部职业", round);
+                } else {
+                    boolean applied = org.agmas.noellesroles.commands.PresetCommand.applyPresetByName(nextPreset);
+                    if (applied) {
+                        SRE.LOGGER.info("[AutoPreset] 第{}局结束，已自动应用预设: {}", round, nextPreset);
+                    } else {
+                        SRE.LOGGER.warn("[AutoPreset] 第{}局结束，未找到预设 '{}'，跳过自动切换", round, nextPreset);
+                    }
+                }
+                // 保存当前使用预设和已进行轮数到配置
+                sreConfig.roundBasedCurrentPreset = (nextPreset != null) ? nextPreset : "";
+                io.wifi.starrailexpress.SREConfig.HANDLER.save();
+            } else {
+                String autoPresetName = sreConfig.autoPresetName;
+                if (!autoPresetName.isBlank()) {
+                    boolean applied = org.agmas.noellesroles.commands.PresetCommand.applyPresetByName(autoPresetName);
+                    if (applied) {
+                        SRE.LOGGER.info("[AutoPreset] 已自动应用预设: {}", autoPresetName);
+                    } else {
+                        SRE.LOGGER.warn("[AutoPreset] 未找到预设 '{}'，跳过自动切换", autoPresetName);
+                    }
                 }
             }
             SREGameRoundEndComponent roundEnd = SREGameRoundEndComponent.KEY.get(world);
