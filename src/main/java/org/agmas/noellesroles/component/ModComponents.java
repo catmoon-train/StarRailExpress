@@ -220,6 +220,10 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
       ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "shooting_frenzy"),
       ShootingFrenzyPlayerComponent.class);
 
+  public static final ComponentKey<WatcherPlayerComponent> WATCHER = ComponentRegistry.getOrCreate(
+      ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "watcher"),
+      WatcherPlayerComponent.class);
+
   public static final ComponentKey<org.agmas.noellesroles.modifier.expedition.ExpeditionComponent> EXPEDITION = org.agmas.noellesroles.modifier.expedition.ExpeditionComponent.KEY;
 
   public static final ComponentKey<TemporaryEffectPlayerComponent> TEMPORARY_EFFECT = ComponentRegistry.getOrCreate(
@@ -489,6 +493,10 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
     registry.beginRegistration(Player.class, SHOOTING_FRENZY)
         .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
         .end(ShootingFrenzyPlayerComponent::new);
+
+    registry.beginRegistration(Player.class, WATCHER)
+        .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
+        .end(WatcherPlayerComponent::new);
 
     // ==================== 示例：注册更多组件 ====================
     //

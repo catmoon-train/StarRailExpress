@@ -150,6 +150,7 @@ public class ModRoles {
   public static final ResourceLocation BANDIT_ID = Noellesroles.id("bandit");
   public static final ResourceLocation BLOOD_FEUDIST_ID = Noellesroles.id("blood_feudist");
   public static final ResourceLocation GUEST_GHOST_ID = Noellesroles.id("guest_ghost");
+  public static final ResourceLocation WATCHER_ID = Noellesroles.id("watcher");
 
   // 中立阵营
   public static final ResourceLocation STALKER_ID = Noellesroles.id("stalker");
@@ -1293,6 +1294,15 @@ public class ModRoles {
       Integer.MAX_VALUE, // 无限冲刺时间
       true // 隐藏计分板
   )).setComponentKey(ModComponents.BLOOD_FEUDIST).setCanSeeCoin(true);;
+  public static SRERole WATCHER = TMMRoles.registerRole(new NormalRole(
+      WATCHER_ID,
+      new Color(52, 73, 94).getRGB(),
+      false,
+      true,
+      SRERole.MoodType.FAKE,
+      Integer.MAX_VALUE,
+      true
+  )).setComponentKey(ModComponents.WATCHER).setCanSeeCoin(true);
 
   // ==================== 其他变量定义 ====================
   public static ArrayList<SRERole> SHOW_MONEY_ROLES = new ArrayList<>();

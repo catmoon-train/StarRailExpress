@@ -988,14 +988,18 @@ public class GameUtils {
                     SRERole victimRole = gameWorldComponent.getRole(serverVictim);
                     if (victimRole != null) {
                         boolean isTeamKill = false;
+                        boolean killerUseKiller = gameWorldComponent.canUseKillerFeatures(serverKiller);
+                        boolean victimUseKiller = gameWorldComponent.canUseKillerFeatures(serverVictim);
+                        boolean killerInnocent = gameWorldComponent.isInnocent(serverKiller);
+                        boolean victimInnocent = gameWorldComponent.isInnocent(serverVictim);
                         // 杀手击杀杀手
-                        if (killerRole.canUseKiller() && victimRole.canUseKiller()) {
+                        if (killerUseKiller && victimUseKiller) {
                             isTeamKill = true;
                             OnTeammateKilledTeammate.EVENT.invoker().playerKilled(serverVictim, serverKiller, false,
                                     deathReason);
                         }
                         // 无辜者击杀无辜者
-                        else if (killerRole.isInnocent() && victimRole.isInnocent()) {
+                        else if (killerInnocent && victimInnocent) {
                             isTeamKill = true;
                             OnTeammateKilledTeammate.EVENT.invoker().playerKilled(serverVictim, serverKiller, true,
                                     deathReason);
