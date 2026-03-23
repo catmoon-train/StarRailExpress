@@ -179,7 +179,7 @@ public class ModEffects {
         if (amp < 0) {
             return 0f;
         }
-        return Mth.clamp(0.35f * (amp + 1), 0f, 1f);
+        return Mth.clamp(0.25f * (amp + 1), 0f, 1f);
     }
 
     /**

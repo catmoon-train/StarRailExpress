@@ -96,9 +96,9 @@ public class SansRenderer {
     }
 
     private static float getLowSanFinalIntensity(LocalPlayer player, float mood) {
-        float base = getLowSanBaseIntensity(mood);
+
         float resistance = ModEffects.getLowSanShaderResistance(player);
-        return Mth.clamp(base * (1f - resistance), 0f, 1f);
+        return Mth.clamp( (1f - resistance), 0f, 1f);
     }
 
     private void renderHint(Gui gui, PoseStack poseStack, float partialTicks, int scw, int sch, GuiGraphics graphics) {
