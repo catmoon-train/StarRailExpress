@@ -164,7 +164,7 @@ public class ModRoles {
   public static final ResourceLocation NIAN_SHOU_ID = Noellesroles.id("nianshou");
   public static final ResourceLocation OLDMAN_ID = Noellesroles.id("oldman");
   public static final ResourceLocation THIEF_ID = Noellesroles.id("thief");
-    public static final ResourceLocation CANDLE_BEARER_ID = Noellesroles.id("candlebearer");
+  public static final ResourceLocation CANDLE_BEARER_ID = Noellesroles.id("candlebearer");
   public static final ResourceLocation FORTUNETELLER_ID = Noellesroles.id("fortuneteller");
 
   public static final ResourceLocation WAYFARER_ID = Noellesroles.id("wayfarer");

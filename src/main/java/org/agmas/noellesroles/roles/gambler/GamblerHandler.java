@@ -8,8 +8,6 @@ import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.event.AllowPlayerDeathWithKiller;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
-import net.minecraft.core.particles.BlockParticleOption;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -20,7 +18,6 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
@@ -152,21 +149,9 @@ public class GamblerHandler {
     }
 
     public static void triggerOnePercentMiracle(ServerLevel serverWorld, Player victim) {
-        final var players = serverWorld.players();
-
-        // ===== 1% 概率触发疯狂特效 =====
-
-        // 1. 多段爆炸音效组合 + 额外音效
-        players.forEach(player -> {
-            player.playNotifySound(SoundEvents.GENERIC_EXPLODE.value(), SoundSource.PLAYERS, 2.0F, 1.4F);
-            player.playNotifySound(SoundEvents.ENDER_DRAGON_DEATH, SoundSource.PLAYERS, 1.5F, 0.8F);
-            player.playNotifySound(SoundEvents.WITHER_DEATH, SoundSource.PLAYERS, 1.5F, 0.9F);
-            player.playNotifySound(SoundEvents.WITHER_SPAWN, SoundSource.PLAYERS, 1.5F, 0.7F);
-            player.playNotifySound(NRSounds.GAMBER_DEATH, SoundSource.PLAYERS, 1.0F, 0.5F);
-        });
-
-        // 2. 在玩家位置召唤多道闪电 + 连续劈击
         Vec3 victimPos = victim.position();
+
+        // 1. 在玩家位置召唤多道闪电 + 连续劈击（保留服务端，影响游戏机制）
         for (int i = 0; i < 15; i++) {
             double offsetX = (serverWorld.random.nextDouble() - 0.5) * 15;
             double offsetZ = (serverWorld.random.nextDouble() - 0.5) * 15;
@@ -181,115 +166,8 @@ public class GamblerHandler {
             });
         }
 
-        // 3. 大规模粒子爆发 - 多种粒子混合 + 新增粒子
-        for (int i = 0; i < 100; i++) {
-            double offsetX = (serverWorld.random.nextDouble() - 0.5) * 20;
-            double offsetY = serverWorld.random.nextDouble() * 15;
-            double offsetZ = (serverWorld.random.nextDouble() - 0.5) * 20;
-
-            // 火焰粒子
-            serverWorld.sendParticles(ParticleTypes.FLAME,
-                    victimPos.x() + offsetX, victimPos.y() + offsetY, victimPos.z() + offsetZ,
-                    3, 0.1, 0.1, 0.1, 0.05);
-
-            // 灵魂火焰粒子
-            serverWorld.sendParticles(ParticleTypes.SOUL_FIRE_FLAME,
-                    victimPos.x() + offsetX, victimPos.y() + offsetY, victimPos.z() + offsetZ,
-                    3, 0.1, 0.1, 0.1, 0.05);
-
-            // 末地烛粒子（白色闪光）
-            serverWorld.sendParticles(ParticleTypes.END_ROD,
-                    victimPos.x() + offsetX, victimPos.y() + offsetY, victimPos.z() + offsetZ,
-                    2, 0.2, 0.2, 0.2, 0.03);
-
-            // 龙息粒子（紫色迷幻）
-            if (i % 3 == 0) {
-                serverWorld.sendParticles(ParticleTypes.DRAGON_BREATH,
-                        victimPos.x() + offsetX, victimPos.y() + offsetY, victimPos.z() + offsetZ,
-                        2, 0.15, 0.15, 0.15, 0.02);
-            }
-
-            // 大型烟雾
-            if (i % 2 == 0) {
-                serverWorld.sendParticles(ParticleTypes.LARGE_SMOKE,
-                        victimPos.x() + offsetX, victimPos.y() + offsetY, victimPos.z() + offsetZ,
-                        2, 0.3, 0.3, 0.3, 0.08);
-            }
-
-            // 新增：岩浆飞溅
-            if (i % 4 == 0) {
-                serverWorld.sendParticles(ParticleTypes.LAVA,
-                        victimPos.x() + offsetX, victimPos.y() + offsetY, victimPos.z() + offsetZ,
-                        1, 0.2, 0.2, 0.2, 0.03);
-            }
-
-            // 新增：灵魂粒子（蓝色幽灵）
-            if (i % 5 == 0) {
-                serverWorld.sendParticles(ParticleTypes.SOUL,
-                        victimPos.x() + offsetX, victimPos.y() + offsetY, victimPos.z() + offsetZ,
-                        1, 0.15, 0.15, 0.15, 0.02);
-            }
-
-            // 新增：维度的门径粒子（传送门效果）
-            if (i % 6 == 0) {
-                serverWorld.sendParticles(ParticleTypes.PORTAL,
-                        victimPos.x() + offsetX, victimPos.y() + offsetY, victimPos.z() + offsetZ,
-                        1, 0.1, 0.1, 0.1, 0.01);
-            }
-        }
-
-        // 4. 冲击波环状扩散效果（多层增强）
-        for (int ring = 0; ring < 5; ring++) {
-            final int finalRing = ring;
-            serverWorld.getServer().execute(() -> {
-                double radius = 3.0 + finalRing * 3;
-                int particleCount = 40 + finalRing * 15;
-                for (int i = 0; i < particleCount; i++) {
-                    double angle = (2 * Math.PI * i) / particleCount;
-                    double px = victimPos.x() + Math.cos(angle) * radius;
-                    double pz = victimPos.z() + Math.sin(angle) * radius;
-
-                    serverWorld.sendParticles(ParticleTypes.CLOUD,
-                            px, victimPos.y() + 0.5, pz,
-                            2, 0, 0.05, 0, 0.02);
-
-                    serverWorld.sendParticles(ParticleTypes.SWEEP_ATTACK,
-                            px, victimPos.y() + 0.3, pz,
-                            2, 0, 0, 0, 0.01);
-
-                    // 新增：爆炸边缘粒子
-                    serverWorld.sendParticles(ParticleTypes.EXPLOSION_EMITTER,
-                            px, victimPos.y() + 0.1, pz,
-                            1, 0, 0, 0, 0.005);
-                }
-            });
-        }
-
-        // 5. 彩色光尘螺旋上升效果（增强版）
-        for (int i = 0; i < 100; i++) {
-            double angle = (i / 100.0) * Math.PI * 8; // 四螺旋
-            double height = (i / 100.0) * 15;
-            double radius = 0.5 + (i / 100.0) * 5;
-
-            double px = victimPos.x() + Math.cos(angle) * radius;
-            double pz = victimPos.z() + Math.sin(angle) * radius;
-
-            serverWorld.sendParticles(ParticleTypes.GLOW_SQUID_INK,
-                    px, victimPos.y() + height, pz,
-                    2, 0.05, 0.05, 0.05, 0.01);
-
-            serverWorld.sendParticles(ParticleTypes.ENCHANT,
-                    px, victimPos.y() + height, pz,
-                    2, 0.05, 0.05, 0.05, 0.01);
-
-            // 新增：附魔光效
-            serverWorld.sendParticles(ParticleTypes.ENCHANTED_HIT,
-                    px, victimPos.y() + height, pz,
-                    1, 0.03, 0.03, 0.03, 0.005);
-        }
-
-        // 6. 给予附近玩家短暂失明和发光效果 + 更多效果
-        players.forEach(player -> {
+        // 2. 给予附近玩家短暂失明和发光效果（服务端，影响游戏机制）
+        serverWorld.players().forEach(player -> {
             if (player.distanceToSqr(victim) < 100) { // 10 格范围内
                 player.addEffect(new MobEffectInstance(
                         MobEffects.DARKNESS, 120, 1, false, false));
@@ -302,44 +180,23 @@ public class GamblerHandler {
             }
         });
 
-        // 7. 设置天气为雷暴 + 延长持续时间
+        // 3. 设置天气为雷暴 + 延长持续时间
         serverWorld.setWeatherParameters(0, 400, true, true);
 
-        // 8. 新增：地面震动效果（方块破坏粒子）
-        for (int dx = -3; dx <= 3; dx++) {
-            for (int dz = -3; dz <= 3; dz++) {
-                if (Math.abs(dx) + Math.abs(dz) <= 4) {
-                    double x = victimPos.x() + dx + 0.5;
-                    double z = victimPos.z() + dz + 0.5;
-                    BlockState blockState = serverWorld.getBlockState(victim.blockPosition().offset(dx, -1, dz));
-                    serverWorld.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, blockState),
-                            x, victimPos.y() - 0.5, z,
-                            5, 0.1, 0.05, 0.1, 0.02);
-                }
-            }
-        }
-
-        // 9. 新增：向上喷射流
-        for (int i = 0; i < 50; i++) {
-            double angle = (i / 50.0) * Math.PI * 2;
-            double radius = 1.0 + (i / 50.0) * 2;
-            double px = victimPos.x() + Math.cos(angle) * radius;
-            double pz = victimPos.z() + Math.sin(angle) * radius;
-
-            for (int h = 0; h < 10; h++) {
-                serverWorld.sendParticles(ParticleTypes.CAMPFIRE_COSY_SMOKE,
-                        px, victimPos.y() + h * 0.8, pz,
-                        1, 0.05, 0.05, 0.05, 0.01);
-            }
-        }
-
-        // 10. 全服广播消息
+        // 4. 全服广播消息
         String message = "§l§c⚠ §6赌徒触发了 1% 的奇迹！ §c⚠§r";
         serverWorld.players().forEach(player -> {
             player.sendSystemMessage(net.minecraft.network.chat.Component.literal(message));
         });
 
-        // 补充 CustomWinnerID: gambler
+        // 5. 发送客户端渲染包 —— 粒子和音效交由各客户端本地渲染，减少服务端网络压力
+        for (net.minecraft.server.level.ServerPlayer serverPlayer : serverWorld.players()) {
+            net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.send(
+                    serverPlayer,
+                    new org.agmas.noellesroles.packet.GamblerMiracleS2CPacket(victimPos));
+        }
+
+        // 6. 补充 CustomWinnerID: gambler
         RoleUtils.customWinnerWin(serverWorld, GameUtils.WinStatus.GAMBLER, "gambler", null);
     }
 

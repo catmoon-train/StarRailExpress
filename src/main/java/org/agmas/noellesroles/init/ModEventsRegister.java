@@ -536,6 +536,16 @@ public class ModEventsRegister {
         OnGameEnd.EVENT.register((world, gameWorldComponent) -> {
             HoanMeirinFistPunchHandler.PUNCH_RECORDS.clear();
             RoleShopHandler.resetOldmanEasterEggState();
+            // 自动切换预设：游戏结束时应用配置的预设，使其在下一局游戏中生效
+            String autoPresetName = io.wifi.starrailexpress.SREConfig.instance().autoPresetName;
+            if (!autoPresetName.isBlank()) {
+                boolean applied = org.agmas.noellesroles.commands.PresetCommand.applyPresetByName(autoPresetName);
+                if (applied) {
+                    SRE.LOGGER.info("[AutoPreset] 已自动应用预设: {}", autoPresetName);
+                } else {
+                    SRE.LOGGER.warn("[AutoPreset] 未找到预设 '{}'，跳过自动切换", autoPresetName);
+                }
+            }
             SREGameRoundEndComponent roundEnd = SREGameRoundEndComponent.KEY.get(world);
             if (roundEnd.getWinStatus().equals(GameUtils.WinStatus.TIME)) {
                 int alivePlayers = 0, aliveKillers = 0, aliveGhost = 0;
