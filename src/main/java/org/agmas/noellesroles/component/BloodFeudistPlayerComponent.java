@@ -327,6 +327,9 @@ public class BloodFeudistPlayerComponent implements RoleComponent, CommonTicking
 
     @Override
     public void writeToSyncNbt(@NotNull CompoundTag tag, @NotNull HolderLookup.Provider registryLookup) {
+        if (SREGameWorldComponent.KEY.get(this.player.level())
+                .getGameStatus() != SREGameWorldComponent.GameStatus.ACTIVE)
+            return;
         tag.putInt("accidentalKillCount", this.accidentalKillCount);
         tag.putBoolean("gotSpeed1", this.gotSpeed1);
         tag.putBoolean("gotHaste2", this.gotHaste2);
