@@ -29,8 +29,6 @@ public class HeldItemFeatureRendererMixin {
                 return ItemStack.EMPTY;
             }
         }
-        if (instance.isInvisible())
-            return ItemStack.EMPTY;
         for (var i : TMMItems.INVISIBLE_ITEMS) {
             if (ret.is(i)) {
                 return ItemStack.EMPTY;
@@ -59,8 +57,6 @@ public class HeldItemFeatureRendererMixin {
     public ItemStack nrs$changeMainHandItemStack(LivingEntity instance, Operation<ItemStack> original) {
         ItemStack ret = original.call(instance);
 
-        if (instance.isInvisible())
-            return ItemStack.EMPTY;
         for (var i : TMMItems.INVISIBLE_ITEMS) {
             if (ret.is(i)) {
                 return ItemStack.EMPTY;
