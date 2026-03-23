@@ -8,9 +8,28 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 
+/**
+ * 实体交互事件处理器。
+ * 负责监听玩家右键点击实体的事件，分发角色方法调用，
+ * 并根据实体上附加的自定义数据执行相应命令。
+ *
+ * <p>Entity interaction event handler.
+ * Listens for player right-click interactions with entities, dispatches role method calls,
+ * and executes commands based on custom data attached to the entity.
+ */
 public class EntityInteractionHandler {
     /**
-     * 替换占位符
+     * 替换命令字符串中的占位符为实际值。
+     * 支持的占位符：%target、%player、%name_player、%x/%y/%z、%player_x/%player_y/%player_z、%world、%distance。
+     *
+     * <p>Replaces placeholder tokens in the command string with actual values.
+     * Supported tokens: %target, %player, %name_player, %x/%y/%z,
+     * %player_x/%player_y/%player_z, %world, %distance.
+     *
+     * @param customData 包含占位符的原始命令字符串 / the raw command string containing placeholders
+     * @param player     交互的玩家 / the interacting player
+     * @param entity     目标实体 / the target entity
+     * @return 替换完成的命令字符串 / the command string with all placeholders replaced
      */
     private static String replacePlaceholders(String customData, Player player, Entity entity) {
         // %target - 目标实体UUID
@@ -42,6 +61,11 @@ public class EntityInteractionHandler {
         return customData;
     }
     
+    /**
+     * 注册实体交互事件处理器，监听玩家右键点击实体。
+     *
+     * <p>Registers the entity interaction event handler to listen for player right-click on entities.
+     */
     public static void register() {
         // 注册右键点击实体的事件
         UseEntityCallback.EVENT.register((player, world, hand, entity, hitResult) -> {
@@ -76,7 +100,14 @@ public class EntityInteractionHandler {
     }
 
     /**
-     * 根据自定义数据执行相应的函数
+     * 根据实体附加的自定义数据执行相应的处理逻辑（替换占位符后执行命令）。
+     *
+     * <p>Executes custom logic based on the entity's attached data
+     * (placeholders are replaced before command execution).
+     *
+     * @param player     触发交互的玩家 / the player who triggered the interaction
+     * @param entity     交互的目标实体 / the target entity being interacted with
+     * @param customData 附加在实体上的自定义数据字符串 / the custom data string attached to the entity
      */
     private static void executeCustomFunction(Player player, Entity entity, String customData) {
         if (customData.isEmpty())return;
@@ -105,7 +136,13 @@ public class EntityInteractionHandler {
     }
 
     /**
-     * 执行命令
+     * 以玩家的权限执行给定命令。
+     *
+     * <p>Executes the given command with the player's permission level.
+     *
+     * @param player  执行命令的玩家 / the player executing the command
+     * @param entity  相关的目标实体 / the related target entity
+     * @param command 要执行的命令字符串 / the command string to execute
      */
     private static void executeCommand(Player player, Entity entity, String command) {
         // 在这里执行命令
