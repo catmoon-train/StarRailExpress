@@ -207,6 +207,16 @@ public class AbilityHandler {
             MaChenXuPlayerComponent.KEY.get(context.player()).tryActiveAbility();
             return;
         }
+        if (gameWorldComponent.isRole(context.player(), ModRoles.WATCHER)) {
+            var watcher = WatcherPlayerComponent.KEY.get(player);
+            if (watcher.cooldown > 0) {
+                player.displayClientMessage(Component.translatable(
+                        "tip.noellesroles.cooldown", watcher.cooldown / 20).withStyle(ChatFormatting.RED), true);
+                return;
+            }
+            watcher.toggleStance();
+            return;
+        }
         if (gameWorldComponent.isRole(context.player(), ModRoles.COMMANDER)) {
             CommanderHandler.tryActiveAbility(context.player());
             return;

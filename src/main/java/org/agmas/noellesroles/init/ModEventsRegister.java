@@ -818,6 +818,12 @@ public class ModEventsRegister {
         });
         OnPlayerKilledPlayer.EVENT.register((victim, killer, deathReason) -> {
             var gameWorldComponent = SREGameWorldComponent.KEY.get(victim.level());
+            if (gameWorldComponent.isRole(killer, ModRoles.WATCHER)) {
+                var watcher = WatcherPlayerComponent.KEY.get(killer);
+                if (watcher.isCalm) {
+                    GameUtils.killPlayer(killer, true, null, Noellesroles.id("watcher_calm_kill"));
+                }
+            }
 
             // 强盗的金钱盗取逻辑
             if (gameWorldComponent.isRole(killer, ModRoles.BANDIT)) {
@@ -872,6 +878,13 @@ public class ModEventsRegister {
             }
             return false;
         }));
+
+        OnShieldBroken.EVENT.register((victim, killer) -> {
+            var gameWorldComponent = SREGameWorldComponent.KEY.get(victim.level());
+            if (gameWorldComponent.isRole(victim, ModRoles.WATCHER)) {
+                WatcherPlayerComponent.KEY.get(victim).markShieldConsumed();
+            }
+        });
 
         WayfarerPlayerComponent.registerEvents();
         OnPlayerDeath.EVENT.register((playerEntity, reason) -> {
