@@ -97,8 +97,10 @@ We have also added voting and asynchronous copying to the train, optimizing issu
 
 Preliminary, albeit non-rigorous, tests show a significant reduction in packet count and network load.
 
-## API
-Documentation is not yet available, but the mod provides a wide range of APIs for developers.
+## For development
+Documentation is not yet available in English, but the mod provides a wide range of APIs for developers.
+
+You can see [README in Chinese](README.zh.md).
 
 ## Maps
 Stored in `world/train_maps`

@@ -238,8 +238,9 @@ public class ClientHudRenderer {
         text = Component.translatable("gui.noellesroles.noisemaker.ready");
         color = 0x55FF55; // 绿色
       }
-      int screenWidth = client.getWindow().getGuiScaledWidth();
-      int screenHeight = client.getWindow().getGuiScaledHeight();
+      
+      int screenWidth = context.guiWidth();
+      int screenHeight = context.guiHeight();
       int textWidth = client.font.width(text);
 
       // 右下角显示，留出一些边距

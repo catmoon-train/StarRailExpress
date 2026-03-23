@@ -187,7 +187,7 @@ public class ModRoles {
       SRERole.MoodType.FAKE, // 假心情
       Integer.MAX_VALUE, // 无限冲刺时间
       true // 隐藏计分板
-  )).setComponentKey(ModComponents.MA_CHEN_XU).setCanSeeCoin(true).setOccupiedRoleCount(2);
+  )).setComponentKey(ModComponents.MA_CHEN_XU).setCanSeeCoin(true).setOccupiedRoleCount(3);
   // MAID_SAKUYA 十六夜咲夜
   public static SRERole MAID_SAKUYA = TMMRoles.registerRole(new NormalRole(
       MAID_SAKUYA_ID, // 角色 ID

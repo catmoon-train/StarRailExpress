@@ -14,9 +14,10 @@ import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
+import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
-public class WatcherPlayerComponent implements RoleComponent, ServerTickingComponent {
+public class WatcherPlayerComponent implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
     public static final ComponentKey<WatcherPlayerComponent> KEY = ModComponents.WATCHER;
     /** 姿态切换冷却（60秒） */
     public static final int STANCE_SWITCH_COOLDOWN_TICKS = 60 * 20;
@@ -135,6 +136,13 @@ public class WatcherPlayerComponent implements RoleComponent, ServerTickingCompo
     }
 
     @Override
+    public void clientTick() {
+        if (cooldown > 1) {
+            cooldown--;
+        }
+    }
+
+    @Override
     public void serverTick() {
         var gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
         if (!gameWorldComponent.isRunning() || !gameWorldComponent.isRole(player, ModRoles.WATCHER)) {
@@ -143,7 +151,7 @@ public class WatcherPlayerComponent implements RoleComponent, ServerTickingCompo
         boolean shouldSync = false;
         if (cooldown > 0) {
             cooldown--;
-            if (cooldown % 20 == 0 || cooldown == 0) {
+            if (cooldown % 200 == 0 || cooldown == 0) {
                 shouldSync = true;
             }
         }

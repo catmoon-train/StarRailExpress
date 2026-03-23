@@ -1154,32 +1154,6 @@ public class ModEventsRegister {
                     currentMap = areas.mapName;
                 }
             }
-            {
-                boolean isMachenxuMap = false;
-                var machenxuMap = new ArrayList<>(NoellesRolesConfig.HANDLER.instance().maChenXuMaps);
-                if (machenxuMap != null && machenxuMap.size() > 0) {
-                    isMachenxuMap = machenxuMap.contains(currentMap);
-                }
-                if (isMachenxuMap) {
-                    boolean hasMachenXu = false;
-                    var canChangeRolePlayers = new ArrayList<Player>();
-                    for (var entry : roleAssignments.entrySet()) {
-                        if (RoleUtils.compareRole(entry.getValue(), ModRoles.MA_CHEN_XU)) {
-                            hasMachenXu = true;
-                            break;
-                        } else {
-                            if (entry.getValue().canUseKiller()) {
-                                canChangeRolePlayers.add(entry.getKey());
-                            }
-                        }
-                    }
-                    if (!hasMachenXu && !canChangeRolePlayers.isEmpty()) {
-                        Collections.shuffle(canChangeRolePlayers);
-                        roleAssignments.put(canChangeRolePlayers.getFirst(), ModRoles.MA_CHEN_XU);
-                    }
-
-                }
-            }
         });
 
         OnGameTrueStarted.EVENT.register((serverLevel) -> {
