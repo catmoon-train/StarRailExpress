@@ -10,14 +10,11 @@ import io.wifi.starrailexpress.cca.SREArmorPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPoisonComponent;
-import io.wifi.starrailexpress.compat.CrosshairaddonsCompat;
 import io.wifi.starrailexpress.event.AllowPlayerPunching;
 import io.wifi.starrailexpress.event.IsPlayerPunchable;
-import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.index.TMMItems;
-import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.item.CocktailItem;
 import io.wifi.starrailexpress.util.PlayerStaminaGetter;
 import io.wifi.starrailexpress.util.PoisonComponentUtils;
@@ -26,7 +23,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.util.Unit;
 import net.minecraft.world.effect.MobEffects;
@@ -148,29 +144,6 @@ public abstract class PlayerEntityMixin extends LivingEntity implements PlayerSt
             return;
         }
         Player self = (Player) (Object) this;
-
-        if (getMainHandItem().is(TMMItems.BAT) && target instanceof Player playerTarget
-                && this.getAttackStrengthScale(0.5F) >= 1f) {
-            GameUtils.killPlayer(playerTarget, true, self, GameConstants.DeathReasons.BAT);
-            CrosshairaddonsCompat.onAttack(target);
-            self.getCommandSenderWorld().playSound(self,
-                    playerTarget.getX(), playerTarget.getEyeY(), playerTarget.getZ(),
-                    TMMSounds.ITEM_BAT_HIT, SoundSource.PLAYERS,
-                    3f, 1f);
-            return;
-        }
-
-        // 双节棍左键和Shift+左键攻击处理
-        if (getMainHandItem().is(TMMItems.NUNCHUCK) && target instanceof Player playerTarget
-                && GameUtils.isPlayerAliveAndSurvival(playerTarget) && self instanceof ServerPlayer spself) {
-            boolean isShiftLeftClick = self.isShiftKeyDown();
-            int direction = isShiftLeftClick ? 2 : 1; // Shift+左键=2(向后), 左键=1(向右)
-            io.wifi.starrailexpress.network.original.NunchuckHitPayload
-                    .onHurt(spself, playerTarget, direction);
-            CrosshairaddonsCompat.onAttack(target);
-            return;
-        }
-
         if (!GameUtils.isPlayerAliveAndSurvival(self) || this.getMainHandItem().is(TMMItems.KNIFE)
                 || IsPlayerPunchable.EVENT.invoker().gotPunchable(target)
                 || AllowPlayerPunching.EVENT.invoker().allowPunching(self)) {

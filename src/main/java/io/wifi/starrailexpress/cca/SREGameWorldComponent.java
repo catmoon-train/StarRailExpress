@@ -20,8 +20,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
-import org.agmas.noellesroles.component.WatcherPlayerComponent;
-import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
@@ -279,9 +277,6 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
     }
 
     public boolean isInnocent(@NotNull Player player) {
-        if (isRole(player, ModRoles.WATCHER)) {
-            return WatcherPlayerComponent.KEY.get(player).isInCalmStance();
-        }
         return getRole(player) != null && getRole(player).isInnocent();
     }
 

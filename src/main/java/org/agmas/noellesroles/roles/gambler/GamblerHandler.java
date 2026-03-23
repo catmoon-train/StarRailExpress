@@ -182,7 +182,7 @@ public class GamblerHandler {
         }
 
         // 3. 大规模粒子爆发 - 多种粒子混合 + 新增粒子
-        for (int i = 0; i < 300; i++) {
+        for (int i = 0; i < 100; i++) {
             double offsetX = (serverWorld.random.nextDouble() - 0.5) * 20;
             double offsetY = serverWorld.random.nextDouble() * 15;
             double offsetZ = (serverWorld.random.nextDouble() - 0.5) * 20;

@@ -121,20 +121,6 @@ public class NoellesrolesClient implements ClientModInitializer {
     public static long lastClientTickTime = 0;
     public static final long CLIENT_TICK_INTERVAL_MS = 50; // 1000ms / 20 ticks per second = 50ms per tick
 
-    private static void rebuildShuffledCache(Map<UUID, UUID> cache) {
-        List<UUID> keys = new ArrayList<>(SREClient.PLAYER_ENTRIES_CACHE.keySet());
-        if (keys.isEmpty()) {
-            cache.clear();
-            return;
-        }
-        List<UUID> shuffled = new ArrayList<>(keys);
-        Collections.shuffle(shuffled);
-        cache.clear();
-        for (int i = 0; i < keys.size(); i++) {
-            cache.put(keys.get(i), shuffled.get(i));
-        }
-    }
-
     private static void refreshJebShuffledCache(LocalPlayer localPlayer) {
         if (localPlayer == null || localPlayer.level() == null) {
             JEB_SHUFFLED_PLAYER_ENTRIES_CACHE.clear();
