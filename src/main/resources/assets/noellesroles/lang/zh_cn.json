@@ -425,6 +425,7 @@
   "announcement.star.goals.thief": "你对金钱的渴望大过所有人！",
   "announcement.star.role.thief": "小偷",
   "announcement.star.role.candlebearer": "秉烛人",
+  "announcement.star.goals.candlebearer": "为生者与死者秉烛，完成仪式并达成你的独立胜利。",
   "announcement.star.role.poisoner": "毒师",
   "message.noellesroles.thief.honor_purchased": "购买了小偷的荣誉！花费 %s 金币",
   "message.noellesroles.thief.not_enough_money_to_buy_honor": "金币不足！需要 %s 金币",
