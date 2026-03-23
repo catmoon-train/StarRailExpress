@@ -5,6 +5,8 @@
       "enabled": [
         "starrailexpress:vigilante",
         "starrailexpress:civilian",
+        "starrailexpress:discovery_civilian",
+        "starrailexpress:killer",
         "noellesroles:athlete",
         "noellesroles:awesome_binglus",
         "noellesroles:bartender",
@@ -16,7 +18,6 @@
         "noellesroles:conductor",
         "noellesroles:broadcaster",
         "noellesroles:monitor",
-        "noellesroles:magician",
         "noellesroles:detective",
         "noellesroles:singer",
         "noellesroles:star",
@@ -78,10 +79,19 @@
         "noellesroles:firefighter",
         "noellesroles:swast",
         "noellesroles:martial_arts_instructor",
+        "noellesroles:magician",
         "noellesroles:baka",
         "noellesroles:maid_sakuya",
         "noellesroles:exampler",
-        "noellesroles:dio"
+        "noellesroles:dio",
+        "noellesroles:candlebearer",
+        "noellesroles:diver",
+        "noellesroles:guest_ghost",
+        "noellesroles:ma_chen_xu",
+        "noellesroles:sea_king",
+        "noellesroles:shooting_frenzy",
+        "noellesroles:watcher",
+        "noellesroles:water_ghost"
       ]
     },
     "modifiers": {
@@ -110,6 +120,8 @@
       "enabled": [
         "starrailexpress:vigilante",
         "starrailexpress:civilian",
+        "starrailexpress:discovery_civilian",
+        "starrailexpress:killer",
         "noellesroles:athlete",
         "noellesroles:awesome_binglus",
         "noellesroles:bartender",
@@ -192,7 +204,15 @@
         "noellesroles:jojo",
         "noellesroles:hoan_meirin",
         "noellesroles:accountant",
-        "noellesroles:alchemist"
+        "noellesroles:alchemist",
+        "noellesroles:candlebearer",
+        "noellesroles:diver",
+        "noellesroles:guest_ghost",
+        "noellesroles:ma_chen_xu",
+        "noellesroles:sea_king",
+        "noellesroles:shooting_frenzy",
+        "noellesroles:watcher",
+        "noellesroles:water_ghost"
       ]
     },
     "modifiers": {
@@ -301,7 +321,17 @@
         "noellesroles:jojo",
         "noellesroles:hoan_meirin",
         "noellesroles:accountant",
-        "noellesroles:alchemist"
+        "noellesroles:alchemist",
+        "noellesroles:candlebearer",
+        "starrailexpress:discovery_civilian",
+        "noellesroles:diver",
+        "noellesroles:guest_ghost",
+        "starrailexpress:killer",
+        "noellesroles:ma_chen_xu",
+        "noellesroles:sea_king",
+        "noellesroles:shooting_frenzy",
+        "noellesroles:watcher",
+        "noellesroles:water_ghost"
       ],
       "disabled": []
     },
