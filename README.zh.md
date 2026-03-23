@@ -237,3 +237,24 @@ public static SRERole MA_CHEN_XU = TMMRoles.registerRole(new NormalRole(
 .setCanSeeCoin(true) // 可以看见金币（默认）
 .setOccupiedRoleCount(2); // 占用角色池数量
 ```
+更多API可查看 `SRERoles` 这个类。
+
+### 注册商店
+```java
+{
+  ArrayList<ShopEntry> shop = new ArrayList<>(); // 新建一个数组存商店列表
+  shop.add(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), 75, ShopEntry.Type.TOOL)); // 添加一个普通的物品，定价75，类别为tool
+  shop.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), 105, ShopEntry.Type.TOOL) { // 添加一个物品，定价105，类别为tool
+    @Override
+    public boolean onBuy(@NotNull Player player) { 
+      // 重写购买方法（return true后会自动扣钱，false则购买失败）
+      var component = org.agmas.noellesroles.component.ModComponents.MA_CHEN_XU.get(player);
+      if (component != null) {
+        return component.useSoulBell();
+      }
+      return false;
+    }
+  });
+  ShopContent.customEntries.put(ModRoles.MA_CHEN_XU.getIdentifier(), shop);
+}
+```

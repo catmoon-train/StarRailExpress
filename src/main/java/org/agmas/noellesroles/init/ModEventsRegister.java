@@ -53,7 +53,6 @@ import net.minecraft.world.phys.Vec3;
 import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.harpymodloader.events.ModdedRoleRemoved;
-import org.agmas.harpymodloader.events.OnGamePlayerRolesConfirm;
 import org.agmas.noellesroles.*;
 import org.agmas.noellesroles.commands.BroadcastCommand;
 import org.agmas.noellesroles.component.*;
@@ -89,7 +88,6 @@ import pro.fazeclan.river.stupid_express.modifier.refugee.cca.RefugeeComponent;
 import pro.fazeclan.river.stupid_express.modifier.split_personality.cca.SplitPersonalityComponent;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -1146,15 +1144,16 @@ public class ModEventsRegister {
             }
             return true;
         });
-        OnGamePlayerRolesConfirm.EVENT.register((serverLevel, roleAssignments) -> {
-            String currentMap = "unknown";
-            if (serverLevel.getServer() != null) {
-                var areas = io.wifi.starrailexpress.cca.AreasWorldComponent.KEY.get(serverLevel);
-                if (areas != null && areas.mapName != null) {
-                    currentMap = areas.mapName;
-                }
-            }
-        });
+        // 可以改玩家职业
+        // OnGamePlayerRolesConfirm.EVENT.register((serverLevel, roleAssignments) -> {
+        //     String currentMap = "unknown";
+        //     if (serverLevel.getServer() != null) {
+        //         var areas = io.wifi.starrailexpress.cca.AreasWorldComponent.KEY.get(serverLevel);
+        //         if (areas != null && areas.mapName != null) {
+        //             currentMap = areas.mapName;
+        //         }
+        //     }
+        // });
 
         OnGameTrueStarted.EVENT.register((serverLevel) -> {
             HoanMeirinFistPunchHandler.PUNCH_RECORDS.clear();
