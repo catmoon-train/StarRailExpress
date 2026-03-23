@@ -99,7 +99,7 @@
   "info.screen.modifier.feather": "修饰符\n你没有碰撞体积。",
   "info.screen.modifier.magnate": "修饰符\n每60s获得25金币。",
   "info.screen.modifier.taskmaster": "修饰符\n杀手/中立/平民玩家完成任务后获得额外的金币",
-  "info.screen.modifier.jeb_": "修饰符\n别人无法查看你的名字，你会随机改变成其他玩家的皮肤。",
+  "info.screen.modifier.jeb_": "修饰符\n别人无法查看你的名字。\n每过5秒，你会随机改变成其他玩家的皮肤。",
   "info.screen.modifier.allergist": "修饰符\n玩家吃东西/喝饮料时有概率触发以下效果之一。\n33%%无事发生，33%%免疫1次中毒，33%%获得速度2，1%%死亡",
   "info.screen.modifier.cursed": "修饰符\n每30s获得随机药水效果\n你死亡后，此修饰符会被传递给击杀你的人。",
   "info.screen.modifier.secretive": "修饰符\n别人无法从你的尸体上获取信息。",
