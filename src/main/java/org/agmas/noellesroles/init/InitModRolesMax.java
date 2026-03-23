@@ -72,10 +72,10 @@ public class InitModRolesMax {
         Harpymodloader.setRoleMaximum(ModRoles.PHOTOGRAPHER_ID, 1);
 
         // 阴谋家每局只能有 1 个
-        // Harpymodloader.setRoleMaximum(CONSPIRATOR_ID, 1);
+        Harpymodloader.setRoleMaximum(ModRoles.CONSPIRATOR_ID, 1);
 
         // 设陷者每局只能有 1 个
-        // Harpymodloader.setRoleMaximum(TRAPPER_ID, 1);
+        Harpymodloader.setRoleMaximum(ModRoles.TRAPPER_ID, 1);
 
         // 炸弹客每局只能有 1 个
         Harpymodloader.setRoleMaximum(ModRoles.BOMBER_ID, 1);

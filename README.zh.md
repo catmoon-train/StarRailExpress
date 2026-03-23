@@ -180,7 +180,7 @@
 使用时请去掉里面的注释（`//`开头）
 
 ## 开发
-暂时没有写文档，但是目前提供了大量 API 给开发者，方便调用。
+暂时没有写完整的文档，但是目前提供了大量 API 给开发者，方便调用。
 
 ### CCA 相关
 CCA组件请尽量使用`SREAbilityPlayerComponent`，它有完整的冷却`cooldown`逻辑，也支持`status`、`charge`等。
@@ -258,3 +258,7 @@ public static SRERole MA_CHEN_XU = TMMRoles.registerRole(new NormalRole(
   ShopContent.customEntries.put(ModRoles.MA_CHEN_XU.getIdentifier(), shop);
 }
 ```
+
+### 技能相关
+按下技能键会自动发包`AbilityC2SPacket`，只需要服务端处理接受它的事件就好
+如果需要有target的技能，推荐使用`AbilityWithTargetC2SPacket`然后处理事件。您也可以自己写发包。
