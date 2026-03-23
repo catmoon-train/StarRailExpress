@@ -5,12 +5,16 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerAFKComponent;
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+
+import org.agmas.noellesroles.role.ModRoles;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -22,34 +26,35 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class EntityMixin {
     @Shadow
     private Level level;
-    @Inject(
-            method = "move", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;vibrationAndSoundEffectsFromBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;ZZLnet/minecraft/world/phys/Vec3;)Z",ordinal = 0)
-    )
-    public void moving(MoverType p_19973_, Vec3 p_19974_, CallbackInfo ci){
-        Entity self = (Entity) (Object)this;
-        if (self instanceof ServerPlayer serverPlayer){
+
+    @Inject(method = "move", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;vibrationAndSoundEffectsFromBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;ZZLnet/minecraft/world/phys/Vec3;)Z", ordinal = 0))
+    public void moving(MoverType p_19973_, Vec3 p_19974_, CallbackInfo ci) {
+        Entity self = (Entity) (Object) this;
+        if (self instanceof ServerPlayer serverPlayer) {
             // 更新该玩家的最后移动时间
             SREPlayerAFKComponent.KEY.maybeGet(serverPlayer).ifPresent(SREPlayerAFKComponent::updateActivity);
 
         }
     }
+
     @WrapMethod(method = "canCollideWith")
     protected boolean tmm$solid(Entity other, Operation<Boolean> original) {
         final var gameWorldComponent = SREGameWorldComponent.KEY.get(this.level);
         if (gameWorldComponent.isRunning()) {
             Entity self = (Entity) (Object) this;
-            if (SRE.canCollideEntity.stream().anyMatch(p -> p.test(self) || p.test( other))){
+            if (SRE.canCollideEntity.stream().anyMatch(p -> p.test(self) || p.test(other))) {
                 return true;
             }
 
             if (self instanceof Player && other instanceof Player) {
-//                final var role = gameWorldComponent.getRole((Player) self);
-//                final var role1 = gameWorldComponent.getRole((Player) other);
+                // final var role = gameWorldComponent.getRole((Player) self);
+                // final var role1 = gameWorldComponent.getRole((Player) other);
                 return SRE.canCollide.stream().noneMatch(p -> p.test((Player) self) || p.test((Player) other));
             }
         }
         return original.call(other);
     }
+
     @Inject(method = "canSpawnSprintParticle", at = @At("HEAD"), cancellable = true)
     private void onSpawnSprintParticle(CallbackInfoReturnable<Boolean> ci) {
         Entity self = (Entity) (Object) this;
@@ -57,6 +62,17 @@ public class EntityMixin {
         if (self instanceof Player player && player.isInvisible()) {
             ci.setReturnValue(false);
             ci.cancel();
+        }
+
+    }
+
+    @Inject(method = "playStepSound", at = @At("HEAD"), cancellable = true)
+    private void onPlayStepSound(BlockPos pos, BlockState state, CallbackInfo ci) {
+
+        if ((Entity) (Object) this instanceof Player player && player.isInvisible()) {
+            if (SREGameWorldComponent.KEY.get(player.level()).isRole(player, ModRoles.WIND_YAOSE)) {
+                ci.cancel();
+            }
         }
     }
 }
