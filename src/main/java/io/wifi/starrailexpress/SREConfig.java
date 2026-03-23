@@ -101,6 +101,28 @@ public class SREConfig implements ConfigData {
     @Tooltip(count = 3)
     public String autoPresetName = "";
 
+    // 按游戏轮数自动切换预设配置
+    @Tooltip(count = 2)
+    public boolean enableRoundBasedAutoPreset = false;
+    @Tooltip(count = 2)
+    public int roundBasedPresetLowLevelRounds = 3;
+    @Tooltip(count = 2)
+    public int roundBasedPresetMediumLevelRounds = 3;
+    @Tooltip(count = 2)
+    public int roundBasedPresetHighLevelRounds = 3;
+    @Tooltip(count = 2)
+    public String roundBasedPresetLowLevel = "low_level";
+    @Tooltip(count = 2)
+    public String roundBasedPresetMediumLevel = "medium_level";
+    @Tooltip(count = 2)
+    public String roundBasedPresetHighLevel = "high_level";
+    @Tooltip(count = 3)
+    public String roundBasedPresetAllRoles = "";
+    // 当前已进行的游戏轮数（自动维护，勿手动修改）
+    public int roundBasedCurrentRound = 0;
+    // 当前正在使用的预设名称（自动维护，反映当前阶段）
+    public String roundBasedCurrentPreset = "";
+
     // 玩家数据设置
     @ConfigEntry.Category(value = "stats")
     public boolean isStatsEnabled = true;
