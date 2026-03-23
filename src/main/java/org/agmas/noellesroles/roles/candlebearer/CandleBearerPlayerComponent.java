@@ -229,7 +229,7 @@ public class CandleBearerPlayerComponent implements RoleComponent, ServerTicking
 
         if (successfulCandles >= requiredCandles && player.level() instanceof ServerLevel serverLevel) {
             RoleUtils.customWinnerWin(serverLevel,
-                    GameUtils.WinStatus.CANDLE_BEARER,
+                    GameUtils.WinStatus.CUSTOM,
                     ModRoles.CANDLE_BEARER_ID.getPath(),
                     OptionalInt.of(ModRoles.CANDLE_BEARER.color()));
         } else {
@@ -283,7 +283,7 @@ public class CandleBearerPlayerComponent implements RoleComponent, ServerTicking
             CandleBearerPlayerComponent component = KEY.get(sp);
             if (component.successfulCandles >= component.requiredCandles && component.requiredCandles > 0) {
                 RoleUtils.customWinnerWin(serverLevel,
-                        GameUtils.WinStatus.CANDLE_BEARER,
+                        GameUtils.WinStatus.CUSTOM,
                         ModRoles.CANDLE_BEARER_ID.getPath(),
                         OptionalInt.of(ModRoles.CANDLE_BEARER.color()));
                 return true;

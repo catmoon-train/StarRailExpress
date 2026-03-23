@@ -117,7 +117,7 @@ public class SREPlayerShopComponent implements RoleComponent, ServerTickingCompo
                 return shopEntries;
             }
             if (gameWorldComponent.canUseKillerFeatures(player)) {
-                return ShopContent.defaultEntries;
+                return ShopContent.defaultKnifeEntries;
             }
         }
         return List.of();

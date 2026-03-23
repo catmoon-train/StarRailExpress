@@ -194,7 +194,7 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
             return shopEntries;
         }
         if (role.canUseKiller()) {
-            return ShopContent.defaultEntries;
+            return ShopContent.defaultKnifeEntries;
         }
         return List.of();
     }
@@ -215,7 +215,7 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
             }
         }
         if (gameWorldComponent.canUseKillerFeatures(player)) {
-            return ShopContent.defaultEntries;
+            return ShopContent.defaultKnifeEntries;
         }
         return List.of();
     }

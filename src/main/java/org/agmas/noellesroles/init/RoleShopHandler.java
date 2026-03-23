@@ -39,6 +39,7 @@ import net.minecraft.world.item.component.Unbreakable;
 import net.minecraft.world.item.component.WrittenBookContent;
 import org.agmas.noellesroles.component.MaChenXuPlayerComponent;
 import org.agmas.noellesroles.component.SingerPlayerComponent;
+import org.agmas.noellesroles.component.WatcherPlayerComponent;
 import org.agmas.noellesroles.repack.HSRConstants;
 import org.agmas.noellesroles.repack.HSRItems;
 import org.agmas.noellesroles.role.ModRoles;
@@ -249,7 +250,7 @@ public class RoleShopHandler {
 
   public static void shopRegister() {
     ShopContent.customEntries.clear();
-    ShopContent.defaultEntries.clear();
+    ShopContent.defaultKnifeEntries.clear();
     // 初始化其他角色商店
     initShops();
     // 初始化框架角色商店
@@ -257,7 +258,7 @@ public class RoleShopHandler {
 
     // 初始化仇杀客商店
     initializeBloodFeudistShop();
-    
+
     ShopContent.register();
     {
       // 布袋鬼商店（诡舍·缚灵）
@@ -325,7 +326,7 @@ public class RoleShopHandler {
       SHOP.add(new ShopEntry(ModItems.SIGNATURE_PAPER.getDefaultInstance(), 100, ShopEntry.Type.TOOL));
       ShopContent.customEntries.put(ModRoles.SUPERSTAR.getIdentifier(), SHOP);
     }
-    
+
     {
       // BAKA的商店
       var SHOP = new ArrayList<ShopEntry>();
@@ -496,7 +497,7 @@ public class RoleShopHandler {
     }
     {
       ShopContent.customEntries.put(
-          ModRoles.MANIPULATOR_ID, ShopContent.defaultEntries);
+          ModRoles.MANIPULATOR_ID, ShopContent.defaultKnifeEntries);
     }
     {
       var SPEED_SPLASH_POITION = Items.SPLASH_POTION.getDefaultInstance();
@@ -521,7 +522,7 @@ public class RoleShopHandler {
           ModRoles.EXECUTIONER_ID, 柜子区的商店);
     }
     {
-      List<ShopEntry> entries = new ArrayList<>(ShopContent.defaultEntries);
+      List<ShopEntry> entries = new ArrayList<>(ShopContent.defaultKnifeEntries);
       entries.add(new ShopEntry(
           ModItems.HALLUCINATION_BOTTLE.getDefaultInstance(),
           120,
@@ -534,7 +535,7 @@ public class RoleShopHandler {
         ModRoles.POISONER_ID, HSRConstants.POISONER_SHOP_ENTRIES);
 
     ShopContent.customEntries.put(
-        ModRoles.SWAPPER_ID, ShopContent.defaultEntries);
+        ModRoles.SWAPPER_ID, ShopContent.defaultKnifeEntries);
 
     // 仇杀客商店
     ShopContent.customEntries.put(
@@ -1048,6 +1049,85 @@ public class RoleShopHandler {
 
       ShopContent.customEntries.put(ModRoles.GUEST_GHOST_ID, shop);
     }
+    {
+      // watcher
+      var shop = new ArrayList<ShopEntry>();
+      shop.add(
+          new ShopEntry(TMMItems.KNIFE.getDefaultInstance(), SREConfig.instance().knifePrice, ShopEntry.Type.WEAPON) {
+            @Override
+            public boolean canDisplay(Player player) {
+              return !WatcherPlayerComponent.KEY.get(player).isInCalmStance();
+            }
+          });
+      // 没有枪
+      shop.add(new ShopEntry(TMMItems.GRENADE.getDefaultInstance(), SREConfig.instance().grenadePrice,
+          ShopEntry.Type.WEAPON) {
+        @Override
+        public boolean canDisplay(Player player) {
+          return !WatcherPlayerComponent.KEY.get(player).isInCalmStance();
+        }
+      });
+      shop.add(new ShopEntry(TMMItems.PSYCHO_MODE.getDefaultInstance(),
+          SREConfig.instance().psychoModePrice, ShopEntry.Type.WEAPON) {
+        @Override
+        public boolean canDisplay(Player player) {
+          return !WatcherPlayerComponent.KEY.get(player).isInCalmStance();
+        }
+
+        @Override
+        public boolean onBuy(@NotNull Player player) {
+          return SREPlayerShopComponent.usePsychoMode(player);
+        }
+      });
+      shop.add(new ShopEntry(TMMItems.FIRECRACKER.getDefaultInstance(),
+          SREConfig.instance().firecrackerPrice, ShopEntry.Type.TOOL) {
+        @Override
+        public boolean canDisplay(Player player) {
+          return !WatcherPlayerComponent.KEY.get(player).isInCalmStance();
+        }
+      });
+      shop.add(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), SREConfig.instance().lockpickPrice,
+          ShopEntry.Type.TOOL) {
+        @Override
+        public boolean canDisplay(Player player) {
+          return true;
+        }
+      });
+      shop.add(
+          new ShopEntry(TMMItems.CROWBAR.getDefaultInstance(), SREConfig.instance().crowbarPrice, ShopEntry.Type.TOOL) {
+            @Override
+            public boolean canDisplay(Player player) {
+              return !WatcherPlayerComponent.KEY.get(player).isInCalmStance();
+            }
+          });
+      shop.add(new ShopEntry(TMMItems.BODY_BAG.getDefaultInstance(), SREConfig.instance().bodyBagPrice,
+          ShopEntry.Type.TOOL) {
+        @Override
+        public boolean canDisplay(Player player) {
+          return !WatcherPlayerComponent.KEY.get(player).isInCalmStance();
+        }
+      });
+      shop.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), SREConfig.instance().blackoutPrice,
+          ShopEntry.Type.TOOL) {
+        @Override
+        public boolean canDisplay(Player player) {
+          return !WatcherPlayerComponent.KEY.get(player).isInCalmStance();
+        }
+
+        @Override
+        public boolean onBuy(@NotNull Player player) {
+          return SREPlayerShopComponent.useBlackout(player);
+        }
+      });
+      shop
+          .add(new ShopEntry(new ItemStack(TMMItems.NOTE, 4), SREConfig.instance().notePrice, ShopEntry.Type.TOOL) {
+            @Override
+            public boolean canDisplay(Player player) {
+              return true;
+            }
+          });
+      ShopContent.customEntries.put(ModRoles.WATCHER_ID, shop);
+    }
   }
 
   /**
@@ -1082,7 +1162,7 @@ public class RoleShopHandler {
     MARTIAL_ARTS_INSTRUCTOR_SHOP.clear();
     SEA_KING_SHOP.clear();
     WATER_GHOST_SHOP.clear();
-    
+
     柜子区的商店.add(new ShopEntry(
         HSRItems.BANDIT_REVOLVER.getDefaultInstance(),
         130,
@@ -1560,7 +1640,7 @@ public class RoleShopHandler {
     trident.set(DataComponents.UNBREAKABLE, new Unbreakable(true));
     SEA_KING_SHOP.add(new ShopEntry(
         trident,
-      150,
+        150,
         ShopEntry.Type.WEAPON));
 
     // 水鬼商店

@@ -8,6 +8,7 @@ import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.game.GameUtils.WinStatus;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import io.wifi.starrailexpress.network.original.AnnounceWelcomePayload;
@@ -43,6 +44,11 @@ import java.util.OptionalInt;
  * 角色相关工具
  */
 public class RoleUtils extends MCItemsUtils {
+    public static void customWinnerWin(ServerLevel serverWorld,
+            @NotNull String winnerId, @NotNull int winnerColor) {
+        customWinnerWin(serverWorld, WinStatus.CUSTOM, winnerId, OptionalInt.of(winnerColor));
+    }
+
     public static void customWinnerWin(ServerLevel serverWorld, GameUtils.WinStatus WinStatus,
             @Nullable String winnerId, @Nullable OptionalInt winnerColor) {
         var roundComponent = SREGameRoundEndComponent.KEY.get(serverWorld);

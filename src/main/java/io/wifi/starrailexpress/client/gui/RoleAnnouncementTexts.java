@@ -117,9 +117,6 @@ public class RoleAnnouncementTexts {
                 case LOVERS ->
                     Component.translatable("announcement.star.win.lovers", winner)
                             .withColor(new Color(243, 138, 255).getRGB());
-                case CANDLE_BEARER ->
-                    Component.translatable("announcement.star.win.candle_bearer", winner)
-                            .withColor(new Color(255, 210, 120).getRGB());
                 case LOOSE_END -> {
                     ResourceLocation looseEndRoleId = ResourceLocation.fromNamespaceAndPath("starrailexpress",
                             "loose_end");
