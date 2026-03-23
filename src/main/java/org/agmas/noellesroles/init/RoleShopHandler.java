@@ -981,6 +981,7 @@ public class RoleShopHandler {
               List<ServerPlayer> players = sp.serverLevel().players();
               for (var p : players) {
                 if (GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(p)) {
+                  p.removeEffect(ModEffects.INFINITE_STAMINA);
                   if (gameWorldComponent.isRole(p, ModRoles.MA_CHEN_XU)) {
                     var mapc = MaChenXuPlayerComponent.KEY.get(p);
                     if (mapc.otherworldActive) {
