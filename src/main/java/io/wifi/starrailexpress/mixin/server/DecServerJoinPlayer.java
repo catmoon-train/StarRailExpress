@@ -4,7 +4,9 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.replay.GameReplayManager;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent.GameStatus;
 import io.wifi.starrailexpress.network.SyncMapConfigPayload;
+import io.wifi.starrailexpress.util.TMMItemUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.Connection;
 import net.minecraft.server.level.ServerLevel;
@@ -28,13 +30,14 @@ public class DecServerJoinPlayer {
         GameReplayManager.playerNames.put(serverPlayer.getUUID(), serverPlayer.getScoreboardName());
         final var gameWorldComponent = SREGameWorldComponent.KEY.get(serverPlayer.level());
 
-        // MapVotingComponent mapVotingComponent = MapVotingComponent.KEY.get(serverPlayer.level());
-//        if (mapVotingComponent.isVotingActive()){
-//            if (TMMConfig.mapRandomCount!=-1){
-//            ServerPlayNetworking.send(serverPlayer, new ShowSelectedMapUIPayload(true));
-//        }
-//            }
-        if (gameWorldComponent.isRunning()) {
+        // MapVotingComponent mapVotingComponent =
+        // MapVotingComponent.KEY.get(serverPlayer.level());
+        // if (mapVotingComponent.isVotingActive()){
+        // if (TMMConfig.mapRandomCount!=-1){
+        // ServerPlayNetworking.send(serverPlayer, new ShowSelectedMapUIPayload(true));
+        // }
+        // }
+        if (gameWorldComponent.getGameStatus() == GameStatus.ACTIVE) {
             if (serverPlayer.level() instanceof ServerLevel serverWorld) {
                 AreasWorldComponent areas = AreasWorldComponent.KEY.get(serverWorld);
                 AreasWorldComponent.PosWithOrientation spectatorSpawnPos = areas.getSpectatorSpawnPos();
@@ -48,18 +51,12 @@ public class DecServerJoinPlayer {
                 float angle = serverWorld.getSharedSpawnAngle();
                 serverPlayer.teleportTo(serverWorld, spawn.getX(), spawn.getY(),
                         spawn.getZ(), angle, 0);
-                for (int i = 0; i < serverPlayer.getInventory().getContainerSize(); i++) {
-                    serverPlayer.getInventory().setItem(i, net.minecraft.world.item.ItemStack.EMPTY);
-                    serverPlayer.containerMenu.broadcastChanges();
-                    serverPlayer.inventoryMenu.slotsChanged(serverPlayer.getInventory());
-                }
+                TMMItemUtils.clearItem(serverPlayer, (a) -> true);
                 if (!serverPlayer.isCreative())
                     serverPlayer.setGameMode(net.minecraft.world.level.GameType.ADVENTURE);
             }
         }
         SyncMapConfigPayload.sendToPlayer(serverPlayer);
-        gameWorldComponent.setSyncRole(true);
         SREGameWorldComponent.KEY.syncWith(serverPlayer, (ComponentProvider) serverPlayer.level());
-        gameWorldComponent.setSyncRole(false);
     }
 }
