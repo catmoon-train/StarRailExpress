@@ -76,6 +76,7 @@ public class InitModRolesMax {
 
         // 炸弹客每局只能有 1 个
         Harpymodloader.setRoleMaximum(ModRoles.BOMBER_ID, 1);
+        Harpymodloader.setRoleMaximum(ModRoles.WATCHER_ID, 1);
 
         // 跟踪者每局只能有 1 个
         Harpymodloader.setRoleMaximum(ModRoles.STALKER_ID, 1);
