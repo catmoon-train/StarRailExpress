@@ -104,7 +104,7 @@ public class SREConfig implements ConfigData {
     // 按游戏轮数自动切换预设配置
     @ConfigEntry.Category(value = "presents")
     @Tooltip(count = 2)
-    public boolean enableRoundBasedAutoPreset = false;
+    public boolean enableRoundBasedAutoPreset = true;
     @ConfigEntry.Category(value = "presents")
     @Tooltip(count = 2)
     public int roundBasedPresetLowLevelRounds = 3;
@@ -127,8 +127,8 @@ public class SREConfig implements ConfigData {
     @ConfigEntry.Category(value = "presents")
     public String roundBasedPresetAllRoles = "";
     // 当前已进行的游戏轮数（自动维护，勿手动修改）
-    @ConfigEntry.Gui.Excluded
     @ConfigEntry.Category(value = "presents")
+    @ConfigEntry.Gui.Excluded
     public int roundBasedCurrentRound = 0;
     // 当前正在使用的预设名称（自动维护，反映当前阶段）
     @ConfigEntry.Category(value = "presents")
