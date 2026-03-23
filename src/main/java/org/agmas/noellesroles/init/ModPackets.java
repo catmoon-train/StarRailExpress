@@ -99,5 +99,8 @@ public class ModPackets {
 
         // 注册物品展示 ui网络包
         PayloadTypeRegistry.playS2C().register(DisplayItemS2CPacket.ID, DisplayItemS2CPacket.CODEC);
+
+        // 注册赌徒 1% 奇迹特效包（客户端渲染）
+        PayloadTypeRegistry.playS2C().register(GamblerMiracleS2CPacket.ID, GamblerMiracleS2CPacket.CODEC);
     }
 }
