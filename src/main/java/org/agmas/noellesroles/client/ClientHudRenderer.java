@@ -23,6 +23,7 @@ import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.roles.commander.CommanderHudRender;
+import org.agmas.noellesroles.roles.candlebearer.CandleBearerPlayerComponent;
 import org.agmas.noellesroles.roles.fortuneteller.FortunetellerPlayerComponent;
 import org.agmas.noellesroles.roles.ghost.GhostPlayerComponent;
 import org.agmas.noellesroles.roles.noise_maker.NoiseMakerPlayerComponent;
@@ -295,6 +296,45 @@ public class ClientHudRenderer {
       int y = screenHeight - 20;
 
       context.drawString(client.font, text, x, y, color);
+    });
+
+    RoleHudRenderCallback.EVENT.register(ModRoles.CANDLE_BEARER_ID, (context, tickCounter) -> {
+      Minecraft client = Minecraft.getInstance();
+      if (client.player == null) {
+        return;
+      }
+      CandleBearerPlayerComponent component = CandleBearerPlayerComponent.KEY.get(client.player);
+
+      int screenWidth = client.getWindow().getGuiScaledWidth();
+      int screenHeight = client.getWindow().getGuiScaledHeight();
+      int x = screenWidth - 10;
+      int y = screenHeight - 20;
+      Font font = client.font;
+
+      Component progressText = Component.translatable("gui.noellesroles.candlebearer.progress",
+          component.successfulCandles,
+          component.requiredCandles).withStyle(ChatFormatting.GOLD);
+      context.drawString(font, progressText, x - font.width(progressText), y - font.lineHeight * 3 - 8,
+          Color.WHITE.getRGB());
+
+      Component chargeText = Component.translatable("gui.noellesroles.candlebearer.charges",
+          component.invisibilityCharges,
+          CandleBearerPlayerComponent.MAX_INVISIBILITY_CHARGES).withStyle(ChatFormatting.YELLOW);
+      context.drawString(font, chargeText, x - font.width(chargeText), y - font.lineHeight * 2 - 6,
+          Color.WHITE.getRGB());
+
+      Component stateText;
+      int stateColor;
+      if (component.invisibilityTicks > 0) {
+        stateText = Component.translatable("gui.noellesroles.candlebearer.invisible",
+            component.invisibilityTicks / 20);
+        stateColor = 0x00fff7;
+      } else {
+        stateText = Component.translatable("gui.noellesroles.candlebearer.ready",
+            NoellesrolesClient.abilityBind.getTranslatedKeyMessage());
+        stateColor = 0x55FF55;
+      }
+      context.drawString(font, stateText, x - font.width(stateText), y - font.lineHeight - 4, stateColor);
     });
 
     CommanderHudRender.register();

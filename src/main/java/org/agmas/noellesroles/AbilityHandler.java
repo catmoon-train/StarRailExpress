@@ -30,6 +30,7 @@ import org.agmas.noellesroles.packet.AbilityWithTargetC2SPacket;
 import org.agmas.noellesroles.packet.ProblemScreenOpenC2SPacket;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.roles.commander.CommanderHandler;
+import org.agmas.noellesroles.roles.candlebearer.CandleBearerPlayerComponent;
 import org.agmas.noellesroles.roles.fortuneteller.FortunetellerPlayerComponent;
 import org.agmas.noellesroles.roles.noise_maker.NoiseMakerPlayerComponent;
 import org.agmas.noellesroles.roles.recaller.RecallerPlayerComponent;
@@ -271,6 +272,12 @@ public class AbilityHandler {
             org.agmas.noellesroles.roles.ghost.GhostPlayerComponent ghostPlayerComponent = org.agmas.noellesroles.roles.ghost.GhostPlayerComponent.KEY
                     .get(context.player());
             ghostPlayerComponent.useAbility();
+            return;
+        }
+        if (gameWorldComponent.isRole(context.player(), ModRoles.CANDLE_BEARER)) {
+            CandleBearerPlayerComponent candleBearerPlayerComponent = CandleBearerPlayerComponent.KEY
+                    .get(context.player());
+            candleBearerPlayerComponent.useAbility();
             return;
         }
         if (gameWorldComponent.isRole(context.player(), ModRoles.BLOOD_FEUDIST)) {

@@ -6,6 +6,7 @@ import io.wifi.starrailexpress.event.AllowGameEnd;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.GameUtils.WinStatus;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.roles.candlebearer.CandleBearerPlayerComponent;
 import org.agmas.noellesroles.roles.thief.ThiefPlayerComponent;
 
 public class CustomWinnerClass {
@@ -52,6 +53,10 @@ public class CustomWinnerClass {
                 //         return WinStatus.NONE; // 游戏继续
                 //     }
                 // }
+            }
+
+            if (CandleBearerPlayerComponent.checkCandleBearerVictory(serverLevel)) {
+                return WinStatus.CANDLE_BEARER;
             }
 
             if (winStatus.equals(WinStatus.TIME) || winStatus.equals(WinStatus.PASSENGERS) || winStatus.equals(WinStatus.LOOSE_END)) {

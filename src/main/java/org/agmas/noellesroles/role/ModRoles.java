@@ -27,6 +27,7 @@ import org.agmas.noellesroles.roles.manipulator.ManipulatorPlayerComponent;
 import org.agmas.noellesroles.roles.manipulator.ManipulatorRole;
 import org.agmas.noellesroles.roles.morphling.MorphlingPlayerComponent;
 import org.agmas.noellesroles.roles.recaller.RecallerPlayerComponent;
+import org.agmas.noellesroles.roles.candlebearer.CandleBearerPlayerComponent;
 import org.agmas.noellesroles.roles.thief.ThiefPlayerComponent;
 import org.agmas.noellesroles.roles.voodoo.VoodooPlayerComponent;
 import org.agmas.noellesroles.roles.vulture.VulturePlayerComponent;
@@ -163,6 +164,7 @@ public class ModRoles {
   public static final ResourceLocation NIAN_SHOU_ID = Noellesroles.id("nianshou");
   public static final ResourceLocation OLDMAN_ID = Noellesroles.id("oldman");
   public static final ResourceLocation THIEF_ID = Noellesroles.id("thief");
+    public static final ResourceLocation CANDLE_BEARER_ID = Noellesroles.id("candlebearer");
   public static final ResourceLocation FORTUNETELLER_ID = Noellesroles.id("fortuneteller");
 
   public static final ResourceLocation WAYFARER_ID = Noellesroles.id("wayfarer");
@@ -1214,6 +1216,23 @@ public class ModRoles {
       Integer.MAX_VALUE, // 无限冲刺时间
       true // 隐藏计分板
   )).setComponentKey(ThiefPlayerComponent.KEY).setCanSeeCoin(true).setNeutrals(true)
+      .setCanSeeTeammateKiller(false);;
+
+  /**
+   * 秉烛人角色 - 中立阵营
+   * - 仅在12人及以上对局刷新
+   * - 独立胜利条件：完成指定次数的尸体秉烛
+   * - 技能：消耗次数隐身30秒（次数来自被秉烛者死亡）
+   */
+  public static SRERole CANDLE_BEARER = TMMRoles.registerRole(new NormalRole(
+      CANDLE_BEARER_ID,
+      new Color(255, 210, 120).getRGB(),
+      false,
+      false,
+      SRERole.MoodType.FAKE,
+      TMMRoles.CIVILIAN.getMaxSprintTime(),
+      true
+  )).setComponentKey(CandleBearerPlayerComponent.KEY).setCanSeeCoin(true).setNeutrals(true)
       .setCanSeeTeammateKiller(false);;
 
   /**

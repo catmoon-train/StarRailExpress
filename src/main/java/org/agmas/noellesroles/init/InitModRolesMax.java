@@ -44,6 +44,9 @@ public class InitModRolesMax {
         // 小偷每局只能有 1 个
         Harpymodloader.setRoleMaximum(ModRoles.THIEF_ID, 1);
 
+        // 秉烛人每局最多 1 个（具体是否出现由动态规则控制）
+        Harpymodloader.setRoleMaximum(ModRoles.CANDLE_BEARER_ID, 1);
+
         // 邮差每局只能有 1 个
         Harpymodloader.setRoleMaximum(ModRoles.POSTMAN_ID, 1);
 
@@ -297,6 +300,13 @@ public class InitModRolesMax {
                 Harpymodloader.setRoleMaximum(SERoles.ARSONIST, 1);
             } else {
                 Harpymodloader.setRoleMaximum(SERoles.ARSONIST, 0);
+            }
+
+            // 秉烛人数量 - 仅在12人以上对局出现
+            if (players_count >= 12) {
+                Harpymodloader.setRoleMaximum(ModRoles.CANDLE_BEARER_ID, 1);
+            } else {
+                Harpymodloader.setRoleMaximum(ModRoles.CANDLE_BEARER_ID, 0);
             }
 
             // 钟表匠数量 - 仅在12人以上对局出现

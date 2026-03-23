@@ -18,6 +18,7 @@ import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.component.*;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.roles.candlebearer.CandleBearerPlayerComponent;
 import org.agmas.noellesroles.roles.executioner.ExecutionerPlayerComponent;
 import org.agmas.noellesroles.roles.manipulator.ManipulatorPlayerComponent;
 import org.agmas.noellesroles.utils.MCItemsUtils;
@@ -77,6 +78,36 @@ public class InstinctRenderer {
             return -1;
 
         });
+
+        // 秉烛人：可透视被秉烛的活人与对应尸体
+        OnGetInstinctHighlight.EVENT.register((target, hasInstinct) -> {
+            if (Minecraft.getInstance() == null)
+                return -1;
+            var self = Minecraft.getInstance().player;
+            if (self == null)
+                return -1;
+            if (SREClient.gameComponent == null)
+                return -1;
+            if (!SREClient.gameComponent.isRole(self, ModRoles.CANDLE_BEARER))
+                return -1;
+            if (GameUtils.isPlayerSpectatingOrCreative(self))
+                return -1;
+
+            CandleBearerPlayerComponent component = CandleBearerPlayerComponent.KEY.get(self);
+            if (target instanceof Player targetPlayer) {
+                if (component.isCandleLit(targetPlayer.getUUID())) {
+                    return ModRoles.CANDLE_BEARER.color();
+                }
+                return -1;
+            }
+            if (target instanceof PlayerBodyEntity body) {
+                if (body.getPlayerUuid() != null && component.isCandleLit(body.getPlayerUuid())) {
+                    return ModRoles.CANDLE_BEARER.color();
+                }
+            }
+            return -1;
+        });
+
         // 验尸官
         OnGetInstinctHighlight.EVENT.register((target, hasInstinct) -> {
             if (Minecraft.getInstance() == null)
@@ -413,6 +444,11 @@ public class InstinctRenderer {
                 }
                 // 小透明：杀手无法看到高亮（所有，包括爱慕）
                 if (SREClient.gameComponent.isRole(target_player, ModRoles.GHOST) && isKillerTeam(self_role)
+                        && SREClient.isPlayerAliveAndInSurvival()) {
+                    return -2;
+                }
+                // 秉烛人：杀手无法透视察觉
+                if (SREClient.gameComponent.isRole(target_player, ModRoles.CANDLE_BEARER) && isKillerTeam(self_role)
                         && SREClient.isPlayerAliveAndInSurvival()) {
                     return -2;
                 }

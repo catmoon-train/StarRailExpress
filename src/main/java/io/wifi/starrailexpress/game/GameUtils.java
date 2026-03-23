@@ -694,6 +694,11 @@ public class GameUtils {
                         isWinner = true;
                     }
                     break;
+                case CANDLE_BEARER:
+                    if (playerRole.identifier().getPath().equals("candlebearer")) {
+                        isWinner = true;
+                    }
+                    break;
                 default:
                     break;
 
@@ -1688,6 +1693,6 @@ public class GameUtils {
 
     public enum WinStatus {
         NOT_MODIFY, NONE, KILLERS, PASSENGERS, TIME, LOOSE_END, GAMBLER, RECORDER, NO_PLAYER, NIAN_SHOU, LOVERS,
-        CUSTOM_COMPONENT, CUSTOM
+        CUSTOM_COMPONENT, CUSTOM, CANDLE_BEARER
     }
 }

@@ -25,6 +25,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.agmas.noellesroles.component.*;
@@ -167,16 +168,35 @@ public class RicesRoleRhapsody implements ModInitializer {
             if (world.isClientSide())
                 return net.minecraft.world.InteractionResult.PASS;
 
-            // 检查实体是否是玩家尸体
-            if (!(entity instanceof PlayerBodyEntity body))
-                return net.minecraft.world.InteractionResult.PASS;
-
             // 检查玩家是否存活
             if (!GameUtils.isPlayerAliveAndSurvival(player))
                 return net.minecraft.world.InteractionResult.PASS;
 
             // 检查玩家是否是傀儡师
             SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(world);
+            if (gameWorld.isRole(player, ModRoles.CANDLE_BEARER)) {
+                ItemStack held = player.getItemInHand(hand);
+                if (held.is(Items.CANDLE)) {
+                    var candleBearer = org.agmas.noellesroles.roles.candlebearer.CandleBearerPlayerComponent.KEY.get(player);
+                    if (entity instanceof Player targetPlayer) {
+                        if (candleBearer.candleLivingPlayer(targetPlayer)) {
+                            return net.minecraft.world.InteractionResult.SUCCESS;
+                        }
+                        return net.minecraft.world.InteractionResult.PASS;
+                    }
+                    if (entity instanceof PlayerBodyEntity targetBody) {
+                        if (candleBearer.candleCorpse(targetBody)) {
+                            return net.minecraft.world.InteractionResult.SUCCESS;
+                        }
+                        return net.minecraft.world.InteractionResult.PASS;
+                    }
+                }
+            }
+
+            // DIO/傀儡师逻辑只处理尸体实体
+            if (!(entity instanceof PlayerBodyEntity body))
+                return net.minecraft.world.InteractionResult.PASS;
+
             if (gameWorld.isRole(player, ModRoles.DIO)) {
                 DIOPlayerComponent dioPlayerComponent = DIOPlayerComponent.KEY.get(player);
                 boolean success = dioPlayerComponent.feedOnCorpse(body);

@@ -10,11 +10,13 @@ import io.wifi.starrailexpress.index.TMMItems;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.Items;
 import org.agmas.harpymodloader.events.ModdedRoleAssigned;
 import org.agmas.noellesroles.RicesRoleRhapsody;
 import org.agmas.noellesroles.component.*;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.roles.candlebearer.CandleBearerPlayerComponent;
 import org.agmas.noellesroles.roles.executioner.ExecutionerPlayerComponent;
 import org.agmas.noellesroles.roles.manipulator.ManipulatorPlayerComponent;
 import org.agmas.noellesroles.roles.thief.ThiefPlayerComponent;
@@ -212,6 +214,12 @@ public class ModRolesInitialEventRegister {
                         .get(player);
                 ghostPlayerComponent.init();
                 ghostPlayerComponent.sync();
+            }
+            if (role.equals(ModRoles.CANDLE_BEARER)) {
+                CandleBearerPlayerComponent candleBearer = CandleBearerPlayerComponent.KEY.get(player);
+                candleBearer.init();
+                RoleUtils.insertStackInFreeSlot(player, Items.CANDLE.getDefaultInstance());
+                candleBearer.sync();
             }
             // 操纵师角色初始化
             if (role.equals(ModRoles.MANIPULATOR)) {
