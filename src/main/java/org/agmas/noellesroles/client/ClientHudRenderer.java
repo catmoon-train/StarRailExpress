@@ -460,6 +460,24 @@ public class ClientHudRenderer {
       }
       return;
     });
+    RoleHudRenderCallback.EVENT.register(ModRoles.WATCHER_ID, (guiGraphics, deltaTracker) -> {
+      // 渲染watcher的提示
+      var client = Minecraft.getInstance();
+      int screenHeight = guiGraphics.guiHeight();
+      var font = client.font;
+      int yOffset = screenHeight - 10 - font.lineHeight; // 右下角
+      var abpc = SREArmorPlayerComponent.KEY.get(client.player);
+      {
+        var text = Component
+            .translatable("hud.hoan_meirin.armor",
+                abpc.armor)
+            .withStyle(ChatFormatting.GOLD);
+        guiGraphics.drawString(font, text, 10, yOffset - font.lineHeight - 4,
+            Color.WHITE.getRGB());
+      }
+      return;
+    });
+    
     RoleHudRenderCallback.EVENT.register(ModRoles.HOAN_MEIRIN_ID, (guiGraphics, deltaTracker) -> {
       // 渲染红美铃的提示
       var client = Minecraft.getInstance();
@@ -471,7 +489,7 @@ public class ClientHudRenderer {
       var abpc = HoanMeirinPlayerComponent.KEY.get(client.player);
       {
         var text = Component
-            .translatable("hud.hoan_meirin.armor",
+            .translatable("hud.bartender.has_armor",
                 abpc.armor)
             .withStyle(ChatFormatting.GOLD);
         guiGraphics.drawString(font, text, 10, yOffset - font.lineHeight - 4,

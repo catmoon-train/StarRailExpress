@@ -81,9 +81,11 @@ public class AbilityHandler {
                         "tip.noellesroles.cooldown", abilityPlayerComponent.cooldown / 20)
                         .withStyle(ChatFormatting.RED), true);
             } else {
-                TimeStopEffect.tryTriggerStart(player, 20 * 5, Component.translatable("title.maid_sakuya.timestopper")
-                        .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
-                abilityPlayerComponent.setCooldown(20 * 240);
+                if (TimeStopEffect.tryTriggerStart(player, 20 * 5,
+                        Component.translatable("title.maid_sakuya.timestopper")
+                                .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD))) {
+                    abilityPlayerComponent.setCooldown(20 * 240);
+                }
             }
             return;
         }
@@ -93,9 +95,11 @@ public class AbilityHandler {
                         "tip.noellesroles.cooldown", abilityPlayerComponent.cooldown / 20)
                         .withStyle(ChatFormatting.RED), true);
             } else {
-                TimeStopEffect.tryTriggerStart(player, 20 * 3, Component.translatable("hud.noellesroles.jojo.the_world")
-                        .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
-                abilityPlayerComponent.setCooldown(20 * 240);
+                if (TimeStopEffect.tryTriggerStart(player, 20 * 3,
+                        Component.translatable("hud.noellesroles.jojo.the_world")
+                                .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD))) {
+                    abilityPlayerComponent.setCooldown(20 * 240);
+                }
             }
             return;
         }
@@ -480,7 +484,7 @@ public class AbilityHandler {
             }
 
             abilityPlayerComponent.setCooldown(60 * 20);
-                player.level().playSound(null, player.blockPosition(),
+            player.level().playSound(null, player.blockPosition(),
                     SoundEvents.TRIDENT_RETURN, SoundSource.MASTER, 5.0F, 1.0F);
 
             if (affected > 0) {

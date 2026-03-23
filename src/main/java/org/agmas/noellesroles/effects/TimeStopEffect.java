@@ -54,10 +54,11 @@ public class TimeStopEffect extends MobEffect {
         return true;
     }
 
-    public static void tryTriggerStart(ServerPlayer serverPlayer, int time, Component displaySkillTitle) {
+    public static boolean tryTriggerStart(ServerPlayer serverPlayer, int time, Component displaySkillTitle) {
         if (serverPlayer.hasEffect(ModEffects.TIME_STOP))
-            return;
+            return false;
         triggerStart(serverPlayer, time, displaySkillTitle);
+        return true;
     }
 
     public static void triggerStart(ServerPlayer serverPlayer, int time, Component displaySkillTitle) {

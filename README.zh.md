@@ -182,6 +182,9 @@
 ## 开发
 暂时没有写完整的文档，但是目前提供了大量 API 给开发者，方便调用。
 
+### 重要提醒
+不要引用Wathe的库，它会导致崩溃（未初始化）
+
 ### CCA 相关
 CCA组件请尽量使用`SREAbilityPlayerComponent`，它有完整的冷却`cooldown`逻辑，也支持`status`、`charge`等。
 
@@ -262,3 +265,7 @@ public static SRERole MA_CHEN_XU = TMMRoles.registerRole(new NormalRole(
 ### 技能相关
 按下技能键会自动发包`AbilityC2SPacket`，只需要服务端处理接受它的事件就好
 如果需要有target的技能，推荐使用`AbilityWithTargetC2SPacket`然后处理事件。您也可以自己写发包。
+
+### API列表
+`src/main/java/io/wifi/starrailexpress/event`
+请以名称为准而不是注释（有些是直接复制的没改注释）
