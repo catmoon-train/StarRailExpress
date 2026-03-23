@@ -866,7 +866,9 @@ public class ModEventsRegister {
             if (gameWorldComponent.isRole(killer, ModRoles.WATCHER)) {
                 var watcher = WatcherPlayerComponent.KEY.get(killer);
                 if (watcher.isInCalmStance()) {
-                    GameUtils.killPlayer(killer, true, null, Noellesroles.id("watcher_calm_kill"));
+                    if (gameWorldComponent.isInnocent(killer)) {
+                        GameUtils.killPlayer(killer, true, null, Noellesroles.id("watcher_calm_kill"));
+                    }
                 }
             }
 
@@ -1146,13 +1148,14 @@ public class ModEventsRegister {
         });
         // 可以改玩家职业
         // OnGamePlayerRolesConfirm.EVENT.register((serverLevel, roleAssignments) -> {
-        //     String currentMap = "unknown";
-        //     if (serverLevel.getServer() != null) {
-        //         var areas = io.wifi.starrailexpress.cca.AreasWorldComponent.KEY.get(serverLevel);
-        //         if (areas != null && areas.mapName != null) {
-        //             currentMap = areas.mapName;
-        //         }
-        //     }
+        // String currentMap = "unknown";
+        // if (serverLevel.getServer() != null) {
+        // var areas =
+        // io.wifi.starrailexpress.cca.AreasWorldComponent.KEY.get(serverLevel);
+        // if (areas != null && areas.mapName != null) {
+        // currentMap = areas.mapName;
+        // }
+        // }
         // });
 
         OnGameTrueStarted.EVENT.register((serverLevel) -> {
