@@ -9,6 +9,7 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.resources.ResourceLocation;
+import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.client.NoellesrolesClient;
@@ -19,6 +20,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 import pro.fazeclan.river.stupid_express.modifier.split_personality.cca.SkinSplitPersonalityComponent;
 import pro.fazeclan.river.stupid_express.modifier.split_personality.cca.SplitPersonalityComponent;
 
@@ -35,6 +37,28 @@ public abstract class MorphlingRendererMixin {
     @Unique
     private static final ThreadLocal<Boolean> isInMorphingCall = ThreadLocal.withInitial(() -> false);
 
+    @Unique
+    private static UUID getShuffledTarget(AbstractClientPlayer player) {
+        final var level = player.level();
+        if (level == null) {
+            return null;
+        }
+        var worldModifiers = WorldModifierComponent.KEY.get(level);
+        if (worldModifiers != null && worldModifiers.isModifier(player, SEModifiers.JEB_)) {
+            return NoellesrolesClient.JEB_SHUFFLED_PLAYER_ENTRIES_CACHE.get(player.getUUID());
+        }
+        if (SREClient.moodComponent == null) {
+            return null;
+        }
+        if (!NoellesrolesClient.SHUFFLED_PLAYER_ENTRIES_CACHE.containsKey(player.getUUID())) {
+            return null;
+        }
+        if ((ConfigWorldComponent.KEY.get(level)).insaneSeesMorphs && SREClient.moodComponent.isLowerThanDepressed()) {
+            return NoellesrolesClient.SHUFFLED_PLAYER_ENTRIES_CACHE.get(player.getUUID());
+        }
+        return null;
+    }
+
     @Inject(method = "getTextureLocation(Lnet/minecraft/client/player/AbstractClientPlayer;)Lnet/minecraft/resources/ResourceLocation;", at = @At("HEAD"), cancellable = true)
     void renderMorphlingSkin(AbstractClientPlayer abstractClientPlayerEntity, CallbackInfoReturnable<ResourceLocation> cir) {
         // 防止递归调用
@@ -47,18 +71,18 @@ public abstract class MorphlingRendererMixin {
 
             final var level = abstractClientPlayerEntity.level();
             if (level == null)return;
-            if (SREClient.moodComponent != null) {
-                if ((ConfigWorldComponent.KEY.get(level)).insaneSeesMorphs && SREClient.moodComponent.isLowerThanDepressed() && NoellesrolesClient.SHUFFLED_PLAYER_ENTRIES_CACHE.containsKey(abstractClientPlayerEntity.getUUID())) {
-                    final var playerInfo = SREClient.PLAYER_ENTRIES_CACHE.get(NoellesrolesClient.SHUFFLED_PLAYER_ENTRIES_CACHE.get(abstractClientPlayerEntity.getUUID()));
-                    if (playerInfo==null)return;
-                    final var skin = playerInfo.getSkin();
-                    if (skin==null)return;
-                    final var texture = skin.texture();
-                    cir.setReturnValue(texture);
-                    cir.cancel();
+            final var shuffledTarget = getShuffledTarget(abstractClientPlayerEntity);
+            if (shuffledTarget != null) {
+                final var playerInfo = SREClient.PLAYER_ENTRIES_CACHE.get(shuffledTarget);
+                if (playerInfo == null)
                     return;
-                }
-
+                final var skin = playerInfo.getSkin();
+                if (skin == null)
+                    return;
+                final var texture = skin.texture();
+                cir.setReturnValue(texture);
+                cir.cancel();
+                return;
             }
             // 检查双重人格组件 - 如果玩家不是活跃人格，则显示主人格的皮肤
 
@@ -141,14 +165,13 @@ public abstract class MorphlingRendererMixin {
                 }
             }
 
-            if (SREClient.moodComponent != null) {
-                if ((ConfigWorldComponent.KEY.get(level)).insaneSeesMorphs && SREClient.moodComponent.isLowerThanDepressed() && NoellesrolesClient.SHUFFLED_PLAYER_ENTRIES_CACHE.containsKey(instance.getUUID())) {
-                    var playerInfo = SREClient.PLAYER_ENTRIES_CACHE.get(NoellesrolesClient.SHUFFLED_PLAYER_ENTRIES_CACHE.get(instance.getUUID()));
-                    if (playerInfo != null) {
-                        final var skin = playerInfo.getSkin();
-                        if (skin != null) {
-                            return skin;
-                        }
+            final var shuffledTarget = getShuffledTarget(instance);
+            if (shuffledTarget != null) {
+                var playerInfo = SREClient.PLAYER_ENTRIES_CACHE.get(shuffledTarget);
+                if (playerInfo != null) {
+                    final var skin = playerInfo.getSkin();
+                    if (skin != null) {
+                        return skin;
                     }
                 }
             }

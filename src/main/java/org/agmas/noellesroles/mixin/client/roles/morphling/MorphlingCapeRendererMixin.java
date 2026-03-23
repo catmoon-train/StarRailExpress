@@ -8,6 +8,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.layers.CapeLayer;
 import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.resources.ResourceLocation;
+import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.agmas.noellesroles.roles.morphling.MorphlingPlayerComponent;
@@ -18,6 +19,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 import pro.fazeclan.river.stupid_express.modifier.split_personality.cca.SkinSplitPersonalityComponent;
 
 import java.util.UUID;
@@ -40,6 +42,28 @@ public abstract class MorphlingCapeRendererMixin {
     @Unique
     private static final ThreadLocal<Boolean> isInMorphingCall = ThreadLocal.withInitial(() -> false);
 
+    @Unique
+    private static UUID getShuffledTarget(AbstractClientPlayer player) {
+        final var level = player.level();
+        if (level == null) {
+            return null;
+        }
+        var worldModifiers = WorldModifierComponent.KEY.get(level);
+        if (worldModifiers != null && worldModifiers.isModifier(player, SEModifiers.JEB_)) {
+            return NoellesrolesClient.JEB_SHUFFLED_PLAYER_ENTRIES_CACHE.get(player.getUUID());
+        }
+        if (SREClient.moodComponent == null) {
+            return null;
+        }
+        if (!NoellesrolesClient.SHUFFLED_PLAYER_ENTRIES_CACHE.containsKey(player.getUUID())) {
+            return null;
+        }
+        if ((ConfigWorldComponent.KEY.get(level)).insaneSeesMorphs && SREClient.moodComponent.isLowerThanDepressed()) {
+            return NoellesrolesClient.SHUFFLED_PLAYER_ENTRIES_CACHE.get(player.getUUID());
+        }
+        return null;
+    }
+
     @Redirect(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/player/AbstractClientPlayer;FFFFFF)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/resources/PlayerSkin;capeTexture()Lnet/minecraft/resources/ResourceLocation;"))
     ResourceLocation renderMorphlingSkin(PlayerSkin instance) {
         // 防止递归调用
@@ -50,16 +74,16 @@ public abstract class MorphlingCapeRendererMixin {
         try {
             isInMorphingCall.set(true);
             
-            if (SREClient.moodComponent != null) {
-                if ((ConfigWorldComponent.KEY.get(abstractClientPlayerEntity.level())).insaneSeesMorphs && SREClient.moodComponent.isLowerThanDepressed() && NoellesrolesClient.SHUFFLED_PLAYER_ENTRIES_CACHE.containsKey(abstractClientPlayerEntity.getUUID())) {
-                    final var playerInfo = SREClient.PLAYER_ENTRIES_CACHE.get(NoellesrolesClient.SHUFFLED_PLAYER_ENTRIES_CACHE.get(abstractClientPlayerEntity.getUUID()));
-                    if (playerInfo==null) return instance.capeTexture();
-                    final var skin = playerInfo.getSkin();
-                    if (skin==null) return instance.capeTexture();
-                    final var texture = skin.capeTexture();
-                    return texture;
-                }
-
+            final var shuffledTarget = getShuffledTarget(abstractClientPlayerEntity);
+            if (shuffledTarget != null) {
+                final var playerInfo = SREClient.PLAYER_ENTRIES_CACHE.get(shuffledTarget);
+                if (playerInfo == null)
+                    return instance.capeTexture();
+                final var skin = playerInfo.getSkin();
+                if (skin == null)
+                    return instance.capeTexture();
+                final var texture = skin.capeTexture();
+                return texture;
             }
             // 检查双重人格组件 - 如果玩家不是活跃人格，则显示主人格的斗篷
             var skinSplitPersonalityComponent = SkinSplitPersonalityComponent.KEY.get(abstractClientPlayerEntity);

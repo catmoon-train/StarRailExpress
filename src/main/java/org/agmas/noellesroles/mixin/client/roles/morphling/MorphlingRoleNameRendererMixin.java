@@ -10,25 +10,43 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
+import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.roles.morphling.MorphlingPlayerComponent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import pro.fazeclan.river.stupid_express.constants.SEModifiers;
+
+import java.util.UUID;
 
 @Mixin(RoleNameRenderer.class)
 public abstract class MorphlingRoleNameRendererMixin {
 
+    private static UUID getShuffledTarget(Player player) {
+        var worldModifiers = WorldModifierComponent.KEY.get(player.level());
+        if (worldModifiers != null && worldModifiers.isModifier(player, SEModifiers.JEB_)) {
+            return NoellesrolesClient.JEB_SHUFFLED_PLAYER_ENTRIES_CACHE.get(player.getUUID());
+        }
+        if (SREClient.moodComponent == null) {
+            return null;
+        }
+        if (!NoellesrolesClient.SHUFFLED_PLAYER_ENTRIES_CACHE.containsKey(player.getUUID())) {
+            return null;
+        }
+        if ((ConfigWorldComponent.KEY.get(player.level())).insaneSeesMorphs
+                && SREClient.moodComponent.isLowerThanDepressed()) {
+            return NoellesrolesClient.SHUFFLED_PLAYER_ENTRIES_CACHE.get(player.getUUID());
+        }
+        return null;
+    }
+
     @WrapOperation(method = "renderHud", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;getDisplayName()Lnet/minecraft/network/chat/Component;"))
     private static Component renderRoleHud(Player instance, Operation<Component> original) {
 
-        if (SREClient.moodComponent != null) {
-            if ((ConfigWorldComponent.KEY.get(instance.level())).insaneSeesMorphs
-                    && SREClient.moodComponent.isLowerThanDepressed()
-                    && NoellesrolesClient.SHUFFLED_PLAYER_ENTRIES_CACHE.get(instance.getUUID()) != null) {
-                return Component.literal("??!?!").withStyle(ChatFormatting.OBFUSCATED);
-            }
+        if (getShuffledTarget(instance) != null) {
+            return Component.literal("??!?!").withStyle(ChatFormatting.OBFUSCATED);
         }
         if (instance.isInvisible()) {
             return Component.literal("");

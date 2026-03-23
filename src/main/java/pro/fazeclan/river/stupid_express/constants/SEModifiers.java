@@ -89,6 +89,14 @@ public class SEModifiers {
             false,
             false));
 
+                public static SREModifier JEB_ = HMLModifiers.registerModifier(new SREModifier(
+                StupidExpress.id("jeb_"),
+            new Color(64, 224, 208).getRGB(),
+            null,
+            null,
+            false,
+                    false)).setMax(1);
+
     public static SREModifier ALLERGIST = HMLModifiers.registerModifier(new SREModifier(
             StupidExpress.id("allergist"),
             new Color(112, 255, 162).getRGB(),

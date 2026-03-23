@@ -61,6 +61,7 @@ import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.AABB;
+import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.block_entity.VendingMachinesBlockEntity;
 import org.agmas.noellesroles.blood.BloodMain;
@@ -84,6 +85,7 @@ import org.agmas.noellesroles.packet.Loot.*;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.agmas.noellesroles.utils.lottery.LotteryManager;
+import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.LoggerFactory;
 import walksy.crosshairaddons.CrosshairAddons;
@@ -110,11 +112,60 @@ public class NoellesrolesClient implements ClientModInitializer {
     public static Player hudTarget;
     public static boolean isTaskInstinctEnabled = false;
     public static Map<UUID, UUID> SHUFFLED_PLAYER_ENTRIES_CACHE = Maps.newHashMap();
+    public static Map<UUID, UUID> JEB_SHUFFLED_PLAYER_ENTRIES_CACHE = Maps.newHashMap();
+    public static int jebShuffleTime = 0;
+    public static final int JEB_SHUFFLE_INTERVAL_TICKS = 20 * 5;
     public static ArrayList<BroadcastMessageInfo> currentBroadcastMessage = new ArrayList<>();
     public static BloodMain bloodMain = new BloodMain();
     public static Map<UUID, AbstractClientPlayer> lastTimeStopRenderPlayer = new HashMap<>();
     public static long lastClientTickTime = 0;
     public static final long CLIENT_TICK_INTERVAL_MS = 50; // 1000ms / 20 ticks per second = 50ms per tick
+
+    private static void rebuildShuffledCache(Map<UUID, UUID> cache) {
+        List<UUID> keys = new ArrayList<>(SREClient.PLAYER_ENTRIES_CACHE.keySet());
+        if (keys.isEmpty()) {
+            cache.clear();
+            return;
+        }
+        List<UUID> shuffled = new ArrayList<>(keys);
+        Collections.shuffle(shuffled);
+        cache.clear();
+        for (int i = 0; i < keys.size(); i++) {
+            cache.put(keys.get(i), shuffled.get(i));
+        }
+    }
+
+    private static void refreshJebShuffledCache(LocalPlayer localPlayer) {
+        if (localPlayer == null || localPlayer.level() == null) {
+            JEB_SHUFFLED_PLAYER_ENTRIES_CACHE.clear();
+            return;
+        }
+
+        var worldModifiers = WorldModifierComponent.KEY.get(localPlayer.level());
+        if (worldModifiers == null) {
+            JEB_SHUFFLED_PLAYER_ENTRIES_CACHE.clear();
+            return;
+        }
+
+        List<UUID> candidates = new ArrayList<>(SREClient.PLAYER_ENTRIES_CACHE.keySet());
+        if (candidates.isEmpty()) {
+            JEB_SHUFFLED_PLAYER_ENTRIES_CACHE.clear();
+            return;
+        }
+
+        Set<UUID> activeJebPlayers = new HashSet<>();
+        for (var player : localPlayer.level().players()) {
+            if (!worldModifiers.isModifier(player, SEModifiers.JEB_)) {
+                continue;
+            }
+            UUID playerId = player.getUUID();
+            activeJebPlayers.add(playerId);
+            UUID target = candidates.get(localPlayer.getRandom().nextInt(candidates.size()));
+            JEB_SHUFFLED_PLAYER_ENTRIES_CACHE.put(playerId, target);
+        }
+
+        JEB_SHUFFLED_PLAYER_ENTRIES_CACHE.keySet().removeIf(id -> !activeJebPlayers.contains(id));
+    }
     /**
      * 1: 食物
      * 2: 水
@@ -574,6 +625,14 @@ public class NoellesrolesClient implements ClientModInitializer {
             }
             if (client == null || client.player == null)
                 return;
+
+            // jeb_ modifier: refresh only jeb_ players' skin targets every 5 seconds.
+            jebShuffleTime++;
+            if (jebShuffleTime >= JEB_SHUFFLE_INTERVAL_TICKS || JEB_SHUFFLED_PLAYER_ENTRIES_CACHE.isEmpty()) {
+                jebShuffleTime = 0;
+                refreshJebShuffledCache(client.player);
+            }
+
             if (roleGuessNoteClientBind.consumeClick()) {
                 client.execute(() -> {
                     client.setScreen(new GuessRoleScreen());

@@ -30,6 +30,7 @@ import org.agmas.harpymodloader.modded_murder.RoleAssignmentManager;
 import org.agmas.harpymodloader.modded_murder.RoleAssignmentPool;
 import org.agmas.harpymodloader.modifiers.HMLModifiers;
 import org.agmas.harpymodloader.modifiers.SREModifier;
+import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -194,6 +195,11 @@ public class StarRailMurderGameMode extends GameMode {
         Collections.shuffle(allModifiers);
 
         for (var mod : allModifiers) {
+            // jeb_ modifier has an independent 50% spawn chance each round.
+            if (mod.equals(SEModifiers.JEB_) && !serverWorld.getRandom().nextBoolean()) {
+                continue;
+            }
+
             int playersAssigned = 0;
             int specificDesiredRoleCount = desiredModifierCount;
 
