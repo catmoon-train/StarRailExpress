@@ -24,6 +24,7 @@ import io.wifi.starrailexpress.util.TMMItemUtils;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
+import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.fabricmc.fabric.api.message.v1.ServerMessageEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -37,13 +38,18 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Saddleable;
+import net.minecraft.world.entity.animal.Pig;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.phys.Vec3;
 import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.harpymodloader.events.ModdedRoleRemoved;
@@ -84,11 +90,15 @@ import pro.fazeclan.river.stupid_express.modifier.split_personality.cca.SplitPer
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public class ModEventsRegister {
     private static AttributeModifier noJumpingAttribute = new AttributeModifier(
             Noellesroles.id("no_jumping"), -1.0f, AttributeModifier.Operation.ADD_VALUE);
+    private static final Map<UUID, Vec3> oldmanPigRidePositions = new HashMap<>();
     // private static AttributeModifier oldmanAttribute = new AttributeModifier(
     // Noellesroles.id("oldman"), -0.4f, AttributeModifier.Operation.ADD_VALUE);
     // private static AttributeModifier windYaoseScaleAttribute = new
@@ -527,6 +537,7 @@ public class ModEventsRegister {
         };
         OnGameEnd.EVENT.register((world, gameWorldComponent) -> {
             HoanMeirinFistPunchHandler.PUNCH_RECORDS.clear();
+            RoleShopHandler.resetOldmanEasterEggState();
             SREGameRoundEndComponent roundEnd = SREGameRoundEndComponent.KEY.get(world);
             if (roundEnd.getWinStatus().equals(GameUtils.WinStatus.TIME)) {
                 int alivePlayers = 0, aliveKillers = 0, aliveGhost = 0;
@@ -592,6 +603,39 @@ public class ModEventsRegister {
             }
             return InteractionResult.PASS;
         });
+        UseItemCallback.EVENT.register((player, world, hand) -> {
+            ItemStack stack = player.getItemInHand(hand);
+            if (!RoleShopHandler.isOldmanEasterEggRod(stack)) {
+                return InteractionResultHolder.pass(stack);
+            }
+            if (RoleShopHandler.hasUsedOldmanEasterEggRod(stack)) {
+                return InteractionResultHolder.pass(stack);
+            }
+            if (world.isClientSide()) {
+                return InteractionResultHolder.success(stack);
+            }
+
+            var pig = EntityType.PIG.create(world);
+            if (pig == null) {
+                return InteractionResultHolder.fail(stack);
+            }
+            pig.moveTo(player.getX(), player.getY(), player.getZ(), player.getYRot(), 0f);
+            if (pig instanceof Saddleable saddleable) {
+                saddleable.equipSaddle(ItemStack.EMPTY, null);
+            }
+            var pigStepHeight = pig.getAttribute(Attributes.STEP_HEIGHT);
+            if (pigStepHeight != null) {
+                pigStepHeight.setBaseValue(0.5D);
+            }
+            var pigJumpStrength = pig.getAttribute(Attributes.JUMP_STRENGTH);
+            if (pigJumpStrength != null) {
+                pigJumpStrength.setBaseValue(0.0D);
+            }
+            pig.addTag(RoleShopHandler.OLDMAN_EASTER_EGG_PIG_NO_STEP_TAG);
+            world.addFreshEntity(pig);
+            RoleShopHandler.markOldmanEasterEggRodUsed(stack);
+            return InteractionResultHolder.success(stack);
+        });
         SRE.canDrop.add((player) -> {
             var mainHandItem = player.getMainHandItem();
             var gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
@@ -606,6 +650,9 @@ public class ModEventsRegister {
                 if (mainHandItem.get(ModDataComponentTypes.COOKED) != null) {
                     return true;
                 }
+            }
+            if (RoleShopHandler.isOldmanEasterEggRod(mainHandItem)) {
+                return true;
             }
             return false;
         });
@@ -871,6 +918,9 @@ public class ModEventsRegister {
                     || "exposure:stacked_photographs".equals(key) || stack.is(ModItems.PATROLLER_REVOLVER)) {
                 return true;
             }
+            if (RoleShopHandler.isOldmanEasterEggRod(stack)) {
+                return true;
+            }
             if (stack.is(ModItems.MASTER_KEY) ||
                     stack.is(Items.WRITABLE_BOOK) ||
                     stack.is(Items.WRITTEN_BOOK)) {
@@ -1134,6 +1184,7 @@ public class ModEventsRegister {
 
         OnGameTrueStarted.EVENT.register((serverLevel) -> {
             HoanMeirinFistPunchHandler.PUNCH_RECORDS.clear();
+            RoleShopHandler.resetOldmanEasterEggState();
             SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(serverLevel);
             WorldModifierComponent worldModifierComponent = WorldModifierComponent.KEY.get(serverLevel);
             boolean hasDio = serverLevel.players().stream().anyMatch(p -> gameWorldComponent.isRole(p, ModRoles.DIO));
@@ -1256,6 +1307,34 @@ public class ModEventsRegister {
             if (gameWorldComponent == null || !gameWorldComponent.isRunning()) {
                 return;
             }
+
+            for (ServerLevel level : server.getAllLevels()) {
+                for (var entity : level.getAllEntities()) {
+                    if (!(entity instanceof Pig pig)) {
+                        continue;
+                    }
+                    if (!pig.getTags().contains(RoleShopHandler.OLDMAN_EASTER_EGG_PIG_NO_STEP_TAG)) {
+                        continue;
+                    }
+                    if (pig.getControllingPassenger() == null) {
+                        oldmanPigRidePositions.remove(pig.getUUID());
+                        continue;
+                    }
+
+                    pig.setJumping(false);
+                    Vec3 currentPos = pig.position();
+                    Vec3 lastPos = oldmanPigRidePositions.put(pig.getUUID(), currentPos);
+                    if (lastPos == null) {
+                        continue;
+                    }
+
+                    if (currentPos.y - lastPos.y > 0.55D) {
+                        pig.moveTo(lastPos.x, lastPos.y, lastPos.z, pig.getYRot(), pig.getXRot());
+                        pig.setDeltaMovement(Vec3.ZERO);
+                    }
+                }
+            }
+
             for (ServerPlayer player : server.getPlayerList().getPlayers()) {
                 DefibrillatorComponent component = ModComponents.DEFIBRILLATOR.get(player);
                 if (component.isDead && player.isSpectator()

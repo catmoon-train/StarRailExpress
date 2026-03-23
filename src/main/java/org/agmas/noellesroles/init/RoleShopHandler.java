@@ -23,6 +23,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.Filterable;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -31,6 +32,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.alchemy.Potions;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.component.CustomModelData;
 import net.minecraft.world.item.component.ItemLore;
 import net.minecraft.world.item.component.Unbreakable;
@@ -52,6 +54,49 @@ import java.util.List;
 import java.util.Optional;
 
 public class RoleShopHandler {
+  private static final String OLDMAN_EASTER_EGG_TAG = "sre_oldman_easter_egg";
+  private static final String OLDMAN_EASTER_EGG_USED_TAG = "sre_oldman_easter_egg_used";
+  public static final String OLDMAN_EASTER_EGG_PIG_NO_STEP_TAG = "sre_oldman_easter_egg_pig_no_step";
+  private static boolean oldmanEasterEggTriggeredInRound = false;
+
+  public static void resetOldmanEasterEggState() {
+    oldmanEasterEggTriggeredInRound = false;
+  }
+
+  public static @NotNull ItemStack createOldmanEasterEggRod() {
+    ItemStack rod = Items.CARROT_ON_A_STICK.getDefaultInstance();
+    rod.set(DataComponents.UNBREAKABLE, new Unbreakable(true));
+
+    CompoundTag tag = new CompoundTag();
+    tag.putBoolean(OLDMAN_EASTER_EGG_TAG, true);
+    tag.putBoolean(OLDMAN_EASTER_EGG_USED_TAG, false);
+    rod.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
+    return rod;
+  }
+
+  public static boolean isOldmanEasterEggRod(@NotNull ItemStack stack) {
+    if (!stack.is(Items.CARROT_ON_A_STICK))
+      return false;
+    var customData = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
+    return customData.copyTag().getBoolean(OLDMAN_EASTER_EGG_TAG);
+  }
+
+  public static boolean hasUsedOldmanEasterEggRod(@NotNull ItemStack stack) {
+    if (!isOldmanEasterEggRod(stack))
+      return false;
+    var customData = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
+    return customData.copyTag().getBoolean(OLDMAN_EASTER_EGG_USED_TAG);
+  }
+
+  public static void markOldmanEasterEggRodUsed(@NotNull ItemStack stack) {
+    if (!isOldmanEasterEggRod(stack))
+      return;
+    var customData = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
+    CompoundTag tag = customData.copyTag();
+    tag.putBoolean(OLDMAN_EASTER_EGG_USED_TAG, true);
+    stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
+  }
+
   // ==================== 商店项目列表 ====================
   public static ArrayList<ShopEntry> FRAMING_ROLES_SHOP = new ArrayList<>();
   // ==================== 阴谋家商店 ====================
@@ -349,7 +394,21 @@ public class RoleShopHandler {
       // 老人的商店
       var SHOP = new ArrayList<ShopEntry>();
 
-      SHOP.add(new ShopEntry(ModItems.WHEELCHAIR.getDefaultInstance(), 150, ShopEntry.Type.TOOL));
+      SHOP.add(new ShopEntry(ModItems.WHEELCHAIR.getDefaultInstance(), 150, ShopEntry.Type.TOOL) {
+        @Override
+        public boolean onBuy(@NotNull Player player) {
+          if (!oldmanEasterEggTriggeredInRound && player.getRandom().nextFloat() < 0.2f) {
+            var easterEggRod = createOldmanEasterEggRod();
+            boolean inserted = RoleUtils.insertStackInFreeSlot(player, easterEggRod);
+            if (inserted) {
+              oldmanEasterEggTriggeredInRound = true;
+              return true;
+            }
+            return false;
+          }
+          return super.onBuy(player);
+        }
+      });
       ShopContent.customEntries.put(ModRoles.OLDMAN.getIdentifier(), SHOP);
     }
     {
