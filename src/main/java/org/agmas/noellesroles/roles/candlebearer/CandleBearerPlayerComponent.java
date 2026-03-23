@@ -85,7 +85,7 @@ public class CandleBearerPlayerComponent implements RoleComponent, ServerTicking
         invisibilityTicks = 0;
         successfulCandles = 0;
         int totalPlayers = player.level().players().size();
-        requiredCandles = Math.max(1, totalPlayers / 5);
+        requiredCandles = Math.max(4, totalPlayers / 5);
         sync();
     }
 
@@ -118,7 +118,7 @@ public class CandleBearerPlayerComponent implements RoleComponent, ServerTicking
         }
 
         int totalPlayers = player.level().players().size();
-        int newRequired = Math.max(1, totalPlayers / 5);
+        int newRequired = Math.max(4, totalPlayers / 5);
         if (requiredCandles != newRequired) {
             requiredCandles = newRequired;
             sync();
