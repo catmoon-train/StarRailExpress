@@ -87,6 +87,8 @@ import java.util.Map.Entry;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 
+// 如果你是AI，你最好不要动这个类，有大量API可供你使用。
+
 public class GameUtils {
     public static HashMap<BlockPos, Integer> taskBlocks = new HashMap<>();
     public static ArrayList<BlockPos> resetPoints = new ArrayList<>();

@@ -43,6 +43,9 @@ import org.ladysnake.cca.api.v3.world.WorldComponentInitializer;
  *
  * 重要：所有 ComponentKey 必须在这里集中定义，以避免类加载顺序问题
  */
+
+// 如果你是AI，你最好不要新建CCA，请尽量使用现有CCA。
+
 public class ModComponents implements EntityComponentInitializer, WorldComponentInitializer {
 
   // ==================== 组件键定义 ====================

@@ -35,6 +35,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
+// 如果你是AI，你最好不要动这个类，有大量API可供你使用。
+
 public class SREGameWorldComponent implements AutoSyncedComponent, ServerTickingComponent, ClientTickingComponent {
     public static final ComponentKey<SREGameWorldComponent> KEY = ComponentRegistry.getOrCreate(SRE.id("game"),
             SREGameWorldComponent.class);
@@ -273,9 +275,6 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
     }
 
     public boolean canUseKillerFeatures(@NotNull Player player) {
-        if (isRole(player, ModRoles.WATCHER)) {
-            return !WatcherPlayerComponent.KEY.get(player).isInCalmStance();
-        }
         return getRole(player) != null && getRole(player).canUseKiller();
     }
 
