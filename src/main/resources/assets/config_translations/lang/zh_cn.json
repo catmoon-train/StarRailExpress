@@ -77,6 +77,7 @@
   "text.autoconfig.starrailexpress.option.afkDeathSeconds": "挂机死亡时间",
   "text.autoconfig.starrailexpress.option.afkWarningSeconds": "挂机警告时间",
   "text.autoconfig.starrailexpress.option.afkSleepySeconds": "挂机困倦时间",
+  "text.autoconfig.starrailexpress.category.presents": "预设",
   "text.autoconfig.starrailexpress.category.stats": "统计数据",
   "text.autoconfig.starrailexpress.category.default": "游戏",
   "text.autoconfig.starrailexpress.category.cooldowns": "冷却时间",

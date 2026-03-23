@@ -576,16 +576,6 @@ public class ModEventsRegister {
                 // 保存当前使用预设和已进行轮数到配置
                 sreConfig.roundBasedCurrentPreset = (nextPreset != null) ? nextPreset : "";
                 io.wifi.starrailexpress.SREConfig.HANDLER.save();
-            } else {
-                String autoPresetName = sreConfig.autoPresetName;
-                if (!autoPresetName.isBlank()) {
-                    boolean applied = org.agmas.noellesroles.commands.PresetCommand.applyPresetByName(autoPresetName);
-                    if (applied) {
-                        SRE.LOGGER.info("[AutoPreset] 已自动应用预设: {}", autoPresetName);
-                    } else {
-                        SRE.LOGGER.warn("[AutoPreset] 未找到预设 '{}'，跳过自动切换", autoPresetName);
-                    }
-                }
             }
             SREGameRoundEndComponent roundEnd = SREGameRoundEndComponent.KEY.get(world);
             if (roundEnd.getWinStatus().equals(GameUtils.WinStatus.TIME)) {

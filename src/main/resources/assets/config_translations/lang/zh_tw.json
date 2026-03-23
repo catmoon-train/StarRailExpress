@@ -24,6 +24,7 @@
   "=== SRE ===": "",
   "text.autoconfig.starrailexpress.title": "Star Rail Express 通用設定",
   "text.autoconfig.starrailexpress.option.mapRandomCount": "地圖選擇顯示的隨機數量",
+  "text.autoconfig.starrailexpress.category.presents": "Presents",
   "text.autoconfig.starrailexpress.option.mapRandomCount.@Tooltip": "設定為 -1 停用",
   "text.autoconfig.starrailexpress.option.isLobby": "是否啟用大廳模式",
   "text.autoconfig.starrailexpress.option.isLobby.@Tooltip[0]": "這將會停用列車的功能。",

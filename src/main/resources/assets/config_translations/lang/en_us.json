@@ -23,6 +23,7 @@
   "text.autoconfig.starrailexpress-client.option.disableTitleScreenVideoBackground": "Disable Train Background on Title Screen",
   "=== SRE ===": "",
   "text.autoconfig.starrailexpress.title": "Star Rail Express General Settings",
+  "text.autoconfig.starrailexpress.category.presents": "Presents",
   "text.autoconfig.starrailexpress.option.mapRandomCount": "Number of Random Maps Displayed",
   "text.autoconfig.starrailexpress.option.mapRandomCount.@Tooltip": "Set to -1 to disable",
   "text.autoconfig.starrailexpress.option.isLobby": "Enable Lobby Mode",

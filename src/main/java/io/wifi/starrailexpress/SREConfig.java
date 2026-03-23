@@ -97,30 +97,41 @@ public class SREConfig implements ConfigData {
     public boolean enableAutoTrainReset = false;
     public boolean verboseTrainResetLogs = true;
 
-    // 自动切换预设配置 - 游戏开始前自动应用指定预设，留空则不自动切换
-    @Tooltip(count = 3)
-    public String autoPresetName = "";
+    // // 自动切换预设配置 - 游戏开始前自动应用指定预设，留空则不自动切换
+    // @Tooltip(count = 3)
+    // public String autoPresetName = "";
 
     // 按游戏轮数自动切换预设配置
+    @ConfigEntry.Category(value = "presents")
     @Tooltip(count = 2)
     public boolean enableRoundBasedAutoPreset = false;
+    @ConfigEntry.Category(value = "presents")
     @Tooltip(count = 2)
     public int roundBasedPresetLowLevelRounds = 3;
     @Tooltip(count = 2)
+    @ConfigEntry.Category(value = "presents")
     public int roundBasedPresetMediumLevelRounds = 3;
     @Tooltip(count = 2)
+    @ConfigEntry.Category(value = "presents")
     public int roundBasedPresetHighLevelRounds = 3;
     @Tooltip(count = 2)
+    @ConfigEntry.Category(value = "presents")
     public String roundBasedPresetLowLevel = "low_level";
     @Tooltip(count = 2)
+    @ConfigEntry.Category(value = "presents")
     public String roundBasedPresetMediumLevel = "medium_level";
     @Tooltip(count = 2)
+    @ConfigEntry.Category(value = "presents")
     public String roundBasedPresetHighLevel = "high_level";
     @Tooltip(count = 3)
+    @ConfigEntry.Category(value = "presents")
     public String roundBasedPresetAllRoles = "";
     // 当前已进行的游戏轮数（自动维护，勿手动修改）
+    @ConfigEntry.Gui.Excluded
+    @ConfigEntry.Category(value = "presents")
     public int roundBasedCurrentRound = 0;
     // 当前正在使用的预设名称（自动维护，反映当前阶段）
+    @ConfigEntry.Category(value = "presents")
     public String roundBasedCurrentPreset = "";
 
     // 玩家数据设置
