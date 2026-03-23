@@ -570,6 +570,16 @@ public class InitModRolesMax {
         } else {
             Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("knight"), 0);
         }
+
+        /// JEB_
+        // 50%概率生成，且最多1个
+        if (random.nextInt(0, 100) < 50) {
+            StupidExpress.LOGGER.info("Modifier [Jeb_] enabled in this round!");
+            Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("jeb_"), 1);
+        } else {
+            Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("jeb_"), 0);
+        }
+
         SPLIT_PERSONALITY_CHANCE = NoellesRolesConfig.HANDLER.instance().chanceOfModifierSplitPersonality;
         if (SPLIT_PERSONALITY_CHANCE < 0) {
             SPLIT_PERSONALITY_CHANCE = 0;
