@@ -84,7 +84,7 @@ public class SREPlayerShopComponent implements RoleComponent, ServerTickingCompo
         if (FabricLoader.getInstance().isDevelopmentEnvironment() && this.balance < entry.price())
             this.balance = entry.price() * 10;
         if (this.balance >= entry.price() && !this.player.getCooldowns().isOnCooldown(entry.stack().getItem())
-                && entry.canBuy(this.player) && entry.onBuy(this.player)) {
+                && entry.canBuy(this.player) && entry.canDisplay(this.player) && entry.onBuy(this.player)) {
             this.balance -= entry.price();
             if (this.player instanceof ServerPlayer player) {
                 player.connection.send(

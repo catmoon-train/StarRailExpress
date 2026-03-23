@@ -10,6 +10,10 @@ public class ShopEntry extends dev.doctor4t.wathe.util.ShopEntry {
         super(stack, price, type);
     }
 
+    public boolean canDisplay(@NotNull Player player) {
+        return true;
+    }
+
     @Override
     public boolean onBuy(@NotNull Player player) {
         return RoleUtils.insertStackInFreeSlot(player, this.stack().copy());
