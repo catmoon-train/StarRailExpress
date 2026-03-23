@@ -176,6 +176,7 @@ public class ServerTaskInfoClasses {
                     }
                 }
             }
+            GameUtils.resetEntities(this.serverWorld);
         }
 
         // ── onTick 不变 ────────────────────────────────────────────────────
@@ -415,6 +416,7 @@ public class ServerTaskInfoClasses {
                 serverWorld.blockUpdated(blockInfo2x.pos(), blockInfo2x.state().getBlock());
                 serverWorld.getLightEngine().checkBlock(blockInfo2x.pos());
             }
+            GameUtils.resetEntities(this.world);
         }
 
         @Override

@@ -6,6 +6,8 @@ import io.wifi.starrailexpress.event.OnGameEnd;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.AreaEffectCloud;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.projectile.ThrownTrident;
+
 import org.agmas.harpymodloader.events.GameInitializeEvent;
 import org.agmas.noellesroles.entity.KuiXiPuppetEntity;
 import org.agmas.noellesroles.entity.LockEntity;
@@ -16,18 +18,17 @@ import pro.fazeclan.river.stupid_express.role.necromancer.cca.NecromancerCompone
 public class EntityClearUtils {
     public static void registerResetEvent() {
         GameInitializeEvent.EVENT.register((serverLevel, gameWorldComponent, players) -> {
-            clearAllEntities(serverLevel);
+            LockEntityManager.getInstance().resetLockEntities();
         });
         OnGameEnd.EVENT.register((world, gameWorldComponent) -> {
             var component = NecromancerComponent.KEY.get(world);
             component.reset();
-            clearAllEntities(world);
+            LockEntityManager.getInstance().resetLockEntities();
         });
     }
 
     public static void clearAllEntities(ServerLevel world) {
         // 先清除所有锁实体及其映射
-        LockEntityManager.getInstance().resetLockEntities();
         try {
 
             // // 清除玩家属性
@@ -39,12 +40,8 @@ public class EntityClearUtils {
             java.util.List<net.minecraft.world.entity.Entity> entitiesToRemove = new java.util.ArrayList<>();
 
             world.getAllEntities().forEach((entity) -> {
-                // 三叉戟实体不应该被清理
-                if (entity instanceof net.minecraft.world.entity.projectile.ThrownTrident) {
-                    return;
-                }
-
                 if (entity instanceof LockEntity ||
+                        entity instanceof ThrownTrident ||
                         entity instanceof AreaEffectCloud ||
                         entity instanceof ItemEntity ||
                         entity instanceof PlayerBodyEntity ||
@@ -61,7 +58,6 @@ public class EntityClearUtils {
                 }
             }
         } catch (Exception ignored) {
-            ignored.printStackTrace();
         }
     }
 }

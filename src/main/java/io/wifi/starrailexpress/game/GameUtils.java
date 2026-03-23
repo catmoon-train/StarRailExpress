@@ -170,6 +170,7 @@ public class GameUtils {
         MapResetManager.loadArea(world);
         AreasWorldComponent areas = AreasWorldComponent.KEY.get(world);
         if (areas.noReset) {
+            resetEntities(world);
             SRE.LOGGER.info("NO RESET MAP!");
             trueStartGame(world, gameMode, time);
             return;
@@ -218,9 +219,6 @@ public class GameUtils {
             return;
         // 延迟5s
         SRE.LOGGER.info("Game Started!");
-        serverAsynTaskLists.add(new ServerTaskInfoClasses.SchedulerTask(100, () -> {
-            resetEntities(world);
-        }));
         executeFunction(world.getServer().createCommandSourceStack(), "harpymodloader:early_start_game");
         executeFunction(world.getServer().createCommandSourceStack(),
                 "harpymodloader:early_start_game_" + MapManager.last_start_map);
@@ -1403,7 +1401,7 @@ public class GameUtils {
         return false;
     }
 
-    private static void resetEntities(ServerLevel serverWorld) {
+    static void resetEntities(ServerLevel serverWorld) {
         for (PlayerBodyEntity body : serverWorld.getEntities(TMMEntities.PLAYER_BODY,
                 playerBodyEntity -> true)) {
             body.discard();
@@ -1416,7 +1414,7 @@ public class GameUtils {
         for (NoteEntity entity : serverWorld.getEntities(TMMEntities.NOTE, entity -> true))
             entity.discard();
         EntityClearUtils.clearAllEntities(serverWorld);
-        SRE.LOGGER.info("Kill all related entities in game world!");
+        // SRE.LOGGER.info("Kill all related entities in game world!");
     }
 
     @SuppressWarnings("deprecation")
@@ -1684,8 +1682,10 @@ public class GameUtils {
         AreasWorldComponent areas = AreasWorldComponent.KEY.get(world);
         return Math.toIntExact(players.stream().filter(p -> areas.getReadyArea().contains(p.position())).count());
     }
+
     /**
-     * 自定义获胜请使用RoleUtils.customWinnerWin(); 将id改为对应角色的id的path即可正常使用。如果有自定义获胜玩家，请添加 roundEnd.CustomWinnerID 或 使用谓词判断：CustomWinnersPredicates
+     * 自定义获胜请使用RoleUtils.customWinnerWin(); 将id改为对应角色的id的path即可正常使用。如果有自定义获胜玩家，请添加
+     * roundEnd.CustomWinnerID 或 使用谓词判断：CustomWinnersPredicates
      */
     public enum WinStatus {
         NOT_MODIFY, NONE, KILLERS, PASSENGERS, TIME, LOOSE_END, GAMBLER, RECORDER, NO_PLAYER, NIAN_SHOU, LOVERS,
