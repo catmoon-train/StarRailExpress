@@ -98,7 +98,7 @@ public class SREConfig implements ConfigData {
     public boolean verboseTrainResetLogs = true;
 
     // 自动切换预设配置 - 游戏开始前自动应用指定预设，留空则不自动切换
-    @Tooltip
+    @Tooltip(count = 3)
     public String autoPresetName = "";
 
     // 玩家数据设置
