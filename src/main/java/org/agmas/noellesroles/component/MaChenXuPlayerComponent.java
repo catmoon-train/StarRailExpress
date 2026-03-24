@@ -1304,7 +1304,8 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
                         true);
                 return false;
             }
-            shopComponent.setBalance(shopComponent.balance - extraCost);
+            // 已经扣过钱了不要再扣了
+            // shopComponent.setBalance(shopComponent.balance - extraCost);
             shopComponent.sync();
         }
 
