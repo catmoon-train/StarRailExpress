@@ -6,6 +6,8 @@ import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.event.AllowItemShowInHand;
 import io.wifi.starrailexpress.index.TMMItems;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -46,6 +48,10 @@ public class HeldItemFeatureRendererMixin {
                     return TMMItems.REVOLVER.getDefaultInstance();
                 }
             }
+            LocalPlayer localPlayer = Minecraft.getInstance().player;
+            if (localPlayer != null && player.getUUID().equals(localPlayer.getUUID()) && SREClient.hideLocalOffHandItemInLayer) {
+                return ItemStack.EMPTY;
+            }
             var eventRes = AllowItemShowInHand.EVENT.invoker().allowShowInHand(player, ret, false);
             if (eventRes != null) {
                 return eventRes;
@@ -68,6 +74,10 @@ public class HeldItemFeatureRendererMixin {
                 if (player.isCrouching()){
                     return ItemStack.EMPTY;
                 }
+            }
+            LocalPlayer localPlayer = Minecraft.getInstance().player;
+            if (localPlayer != null && player.getUUID().equals(localPlayer.getUUID()) && SREClient.hideLocalMainHandItemInLayer) {
+                return ItemStack.EMPTY;
             }
 
                 var eventRes = AllowItemShowInHand.EVENT.invoker().allowShowInHand(player, ret, true);
