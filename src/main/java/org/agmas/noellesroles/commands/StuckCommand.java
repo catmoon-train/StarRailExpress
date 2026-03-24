@@ -3,6 +3,7 @@ package org.agmas.noellesroles.commands;
 import com.mojang.brigadier.context.CommandContext;
 
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent.GameStatus;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
@@ -34,8 +35,7 @@ public class StuckCommand {
         try {
             ServerPlayer player = context.getSource().getPlayer();
             ServerLevel level = context.getSource().getLevel();
-            if (!SREGameWorldComponent.KEY.get(level).isRunning()) {
-
+            if (SREGameWorldComponent.KEY.get(level).getGameStatus() == GameStatus.INACTIVE) {
                 BlockPos spawn = level.getSharedSpawnPos();
                 float angle = level.getSharedSpawnAngle();
                 player.teleportTo(level, spawn.getX(), spawn.getY(),
