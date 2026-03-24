@@ -1077,6 +1077,7 @@
   "message.noellesroles.candlebearer.target_not_alive": "目标未存活，无法秉烛",
   "message.noellesroles.candlebearer.cannot_target_self": "不能为自己秉烛",
   "message.noellesroles.candlebearer.already_lit": "%s 已被秉烛",
+  "message.noellesroles.candlebearer.living_cooldown": "秉烛活人冷却中，还需 %s 秒",
   "message.noellesroles.candlebearer.lit_player": "你为 %s 秉烛了",
   "message.noellesroles.candlebearer.corpse_not_linked": "该尸体不属于已秉烛目标",
   "message.noellesroles.candlebearer.corpse_already_lit": "该尸体已完成秉烛",

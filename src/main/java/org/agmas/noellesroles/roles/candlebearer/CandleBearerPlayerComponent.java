@@ -46,6 +46,7 @@ public class CandleBearerPlayerComponent implements RoleComponent, ServerTicking
 
     public static final int MAX_INVISIBILITY_CHARGES = 3;
     public static final int INVISIBILITY_DURATION_TICKS = 30 * 20;
+    public static final int LIVING_CANDLE_COOLDOWN_TICKS = 10 * 20;
     public static final int GLOW_DELAY_TICKS = 4 * 20;
     public static final int GLOW_DURATION_TICKS = 5 * 20;
 
@@ -61,6 +62,7 @@ public class CandleBearerPlayerComponent implements RoleComponent, ServerTicking
 
     public int invisibilityCharges = 0;
     public int invisibilityTicks = 0;
+    public int livingCandleCooldownTicks = 0;
     public int successfulCandles = 0;
     public int requiredCandles = 0;
 
@@ -83,6 +85,7 @@ public class CandleBearerPlayerComponent implements RoleComponent, ServerTicking
         pendingCampfireSounds.clear();
         invisibilityCharges = 0;
         invisibilityTicks = 0;
+        livingCandleCooldownTicks = 0;
         successfulCandles = 0;
         int totalPlayers = player.level().players().size();
         requiredCandles = Math.max(4, totalPlayers / 5 + 2);
@@ -133,6 +136,10 @@ public class CandleBearerPlayerComponent implements RoleComponent, ServerTicking
             }
         }
 
+        if (livingCandleCooldownTicks > 0) {
+            livingCandleCooldownTicks--;
+        }
+
         if (processGlowTasks()) {
             changed = true;
         }
@@ -152,6 +159,14 @@ public class CandleBearerPlayerComponent implements RoleComponent, ServerTicking
 
     public boolean candleLivingPlayer(Player target) {
         if (!(player instanceof ServerPlayer serverPlayer)) {
+            return false;
+        }
+        if (livingCandleCooldownTicks > 0) {
+            serverPlayer.displayClientMessage(
+                    Component.translatable("message.noellesroles.candlebearer.living_cooldown",
+                                    (livingCandleCooldownTicks + 19) / 20)
+                            .withStyle(ChatFormatting.YELLOW),
+                    true);
             return false;
         }
         if (!GameUtils.isPlayerAliveAndSurvival(target)) {
@@ -179,6 +194,7 @@ public class CandleBearerPlayerComponent implements RoleComponent, ServerTicking
 
         candleLitPlayers.add(target.getUUID());
         pendingPlayerGlow.put(target.getUUID(), GLOW_DELAY_TICKS);
+    livingCandleCooldownTicks = LIVING_CANDLE_COOLDOWN_TICKS;
 
         serverPlayer.displayClientMessage(
                 Component.translatable("message.noellesroles.candlebearer.lit_player",
@@ -414,6 +430,7 @@ public class CandleBearerPlayerComponent implements RoleComponent, ServerTicking
     public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         tag.putInt("InvisibilityCharges", invisibilityCharges);
         tag.putInt("InvisibilityTicks", invisibilityTicks);
+        tag.putInt("LivingCandleCooldownTicks", livingCandleCooldownTicks);
         tag.putInt("SuccessfulCandles", successfulCandles);
         tag.putInt("RequiredCandles", requiredCandles);
 
@@ -428,6 +445,7 @@ public class CandleBearerPlayerComponent implements RoleComponent, ServerTicking
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         invisibilityCharges = tag.getInt("InvisibilityCharges");
         invisibilityTicks = tag.getInt("InvisibilityTicks");
+        livingCandleCooldownTicks = tag.getInt("LivingCandleCooldownTicks");
         successfulCandles = tag.getInt("SuccessfulCandles");
         requiredCandles = tag.getInt("RequiredCandles");
 

@@ -1071,6 +1071,7 @@
   "message.noellesroles.candlebearer.target_not_alive": "Target is not alive",
   "message.noellesroles.candlebearer.cannot_target_self": "You cannot dedicate a candle to yourself",
   "message.noellesroles.candlebearer.already_lit": "%s is already candle-lit",
+  "message.noellesroles.candlebearer.living_cooldown": "Living-player dedication is on cooldown, %s seconds remaining",
   "message.noellesroles.candlebearer.lit_player": "You dedicated a candle to %s",
   "message.noellesroles.candlebearer.corpse_not_linked": "This corpse is not linked to your candle-lit targets",
   "message.noellesroles.candlebearer.corpse_already_lit": "This corpse has already been candle-lit",
