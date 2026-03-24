@@ -91,10 +91,9 @@ public class ProgressionCommand {
             return 0;
         }
         if (profiles == null || profiles.isEmpty()) {
-
             ServerPlayer player = source.getPlayerOrException();
             openScreen(player);
-            source.sendSuccess(() -> Component.translatable("cmd.stupid_express.progression.open.self"), true);
+            source.sendSuccess(() -> Component.translatable("cmd.stupid_express.progression.open.self"), false);
             return 1;
         }
         for (GameProfile profile : profiles) {
@@ -103,7 +102,7 @@ public class ProgressionCommand {
                 openScreen(target);
                 source.sendSuccess(
                         () -> Component.translatable("cmd.stupid_express.progression.open.other", profile.getName()),
-                        false);
+                        true);
             } else {
                 source.sendFailure(
                         Component.translatable("cmd.stupid_express.progression.open.offline", profile.getName()));
