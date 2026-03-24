@@ -680,6 +680,7 @@ public class RicesRoleRhapsody implements ModInitializer {
 
             // 在服务端使用技能
             boxerComponent.useAbility();
+            ConfigWorldComponent.KEY.get(context.player().level()).onPlayerUsedSkill(context.player());
         });
 
         // 处理跟踪者窥视包
@@ -701,6 +702,7 @@ public class RicesRoleRhapsody implements ModInitializer {
 
             if (payload.gazing()) {
                 stalkerComp.startGazing();
+                ConfigWorldComponent.KEY.get(context.player().level()).onPlayerUsedSkill(context.player());
             } else {
                 stalkerComp.stopGazing();
             }
@@ -725,6 +727,7 @@ public class RicesRoleRhapsody implements ModInitializer {
 
             if (payload.charging()) {
                 stalkerComp.startCharging();
+                ConfigWorldComponent.KEY.get(context.player().level()).onPlayerUsedSkill(context.player());
             } else {
                 stalkerComp.releaseCharge();
             }
@@ -747,6 +750,7 @@ public class RicesRoleRhapsody implements ModInitializer {
 
             // 在服务端使用技能
             athleteComponent.useAbility();
+            ConfigWorldComponent.KEY.get(context.player().level()).onPlayerUsedSkill(context.player());
         });
 
         // 处理慕恋者窥视包
@@ -763,6 +767,7 @@ public class RicesRoleRhapsody implements ModInitializer {
 
             if (payload.gazing()) {
                 admirerComp.startGazing();
+                ConfigWorldComponent.KEY.get(context.player().level()).onPlayerUsedSkill(context.player());
             } else {
                 admirerComp.stopGazing();
             }
@@ -783,6 +788,7 @@ public class RicesRoleRhapsody implements ModInitializer {
             // 获取设陷者组件并尝试放置陷阱
             TrapperPlayerComponent trapperComp = ModComponents.TRAPPER.get(context.player());
             trapperComp.tryPlaceTrap();
+            ConfigWorldComponent.KEY.get(context.player().level()).onPlayerUsedSkill(context.player());
         });
 
         // 处理设陷者切换陷阱类型包
@@ -800,6 +806,7 @@ public class RicesRoleRhapsody implements ModInitializer {
             // 获取设陷者组件并切换陷阱类型
             TrapperPlayerComponent trapperComp = ModComponents.TRAPPER.get(context.player());
             trapperComp.switchTrapType();
+            ConfigWorldComponent.KEY.get(context.player().level()).onPlayerUsedSkill(context.player());
         });
 
         // 处理明星技能包
@@ -817,6 +824,7 @@ public class RicesRoleRhapsody implements ModInitializer {
             // 获取明星组件并使用技能
             SuperStarPlayerComponent starComp = ModComponents.STAR.get(context.player());
             starComp.useAbility();
+            ConfigWorldComponent.KEY.get(context.player().level()).onPlayerUsedSkill(context.player());
         });
 
         // 处理歌手技能包
@@ -834,6 +842,7 @@ public class RicesRoleRhapsody implements ModInitializer {
             // 获取歌手组件并使用技能
             SingerPlayerComponent singerComp = ModComponents.SINGER.get(context.player());
             singerComp.useAbility();
+            ConfigWorldComponent.KEY.get(context.player().level()).onPlayerUsedSkill(context.player());
         });
 
         // 处理心理学家治疗包
@@ -859,6 +868,7 @@ public class RicesRoleRhapsody implements ModInitializer {
             // 获取心理学家组件并开始治疗
             PsychologistPlayerComponent psychComp = ModComponents.PSYCHOLOGIST.get(context.player());
             psychComp.startHealing(target);
+            ConfigWorldComponent.KEY.get(context.player().level()).onPlayerUsedSkill(context.player());
         });
 
         // 处理傀儡师技能包
@@ -885,6 +895,7 @@ public class RicesRoleRhapsody implements ModInitializer {
                     // 使用假人技能 - 详细验证在 usePuppetAbility() 中处理
                     if (puppeteerComp.phase == 2) {
                         puppeteerComp.usePuppetAbility();
+                        ConfigWorldComponent.KEY.get(context.player().level()).onPlayerUsedSkill(context.player());
                     }
                 }
                 case RETURN_TO_BODY -> {
