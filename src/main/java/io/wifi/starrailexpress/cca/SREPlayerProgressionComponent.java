@@ -469,7 +469,7 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
         if (questKey == null || triggerKey == null) {
             return false;
         }
-        if (Objects.equals(questKey, triggerKey)) {
+        if (questKey.equalsIgnoreCase(triggerKey)) {
             return true;
         }
         String[] candidates = questKey.split("[,|;]");
@@ -682,7 +682,26 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
         if (!(definitions instanceof List<?> rawDefinitions) || rawDefinitions.isEmpty()) {
             return;
         }
-        this.activeQuests.clear();
+        boolean hasCategoryField = false;
+        boolean hasPermanentInPayload = false;
+        for (Object rawDefinition : rawDefinitions) {
+            if (!(rawDefinition instanceof Map<?, ?> rawMap)) {
+                continue;
+            }
+            Object categoryRaw = getMapValue(rawMap, QUEST_DEF_KEYS, "category");
+            if (categoryRaw != null) {
+                hasCategoryField = true;
+                QuestCategory payloadCategory = QuestCategory.fromString(String.valueOf(categoryRaw));
+                if (payloadCategory == QuestCategory.PERMANENT) {
+                    hasPermanentInPayload = true;
+                }
+            }
+        }
+        if (hasCategoryField) {
+            this.activeQuests.clear();
+        } else {
+            this.activeQuests.removeIf(q -> q.category == QuestCategory.DAILY);
+        }
         for (Object rawDefinition : rawDefinitions) {
             if (!(rawDefinition instanceof Map<?, ?> rawMap)) {
                 continue;
@@ -704,7 +723,9 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
             this.activeQuests.add(new PassQuest(id, title, description, type, objectiveKey, 0, target,
                     rewardExperience, rewardCoins, rewardLoot, rewardCard, false, category));
         }
-        ensurePermanentTasksPresent();
+        if (!hasPermanentInPayload) {
+            ensurePermanentTasksPresent();
+        }
         this.lastQuestRefreshTime = getLong(getMappedValue(networkTaskMap, TASK_SYNC_KEYS, "refreshAt"),
                 System.currentTimeMillis());
     }
