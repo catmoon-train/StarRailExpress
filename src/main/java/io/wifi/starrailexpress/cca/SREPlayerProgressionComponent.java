@@ -1409,11 +1409,11 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
         if (Objects.equals(objectiveKey, actualKey)) {
             return true;
         }
+        if (objectiveKey != null && objectiveKey.equalsIgnoreCase(actualKey)) {
+            return true;
+        }
         if (objectiveKey == null || actualKey == null) {
             return false;
-        }
-        if (objectiveKey.equalsIgnoreCase(actualKey)) {
-            return true;
         }
         String objectivePath = objectiveKey.contains(":") ? objectiveKey.substring(objectiveKey.indexOf(':') + 1) : objectiveKey;
         String actualPath = actualKey.contains(":") ? actualKey.substring(actualKey.indexOf(':') + 1) : actualKey;
