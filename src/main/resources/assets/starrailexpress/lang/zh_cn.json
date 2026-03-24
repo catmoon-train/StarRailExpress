@@ -829,6 +829,8 @@
   "menu.sre.options": "Minecraft 选项",
   "sre.pass.weekly": "每周列车任务",
   "sre.pass.day": "每日列车任务",
+  "sre.pass.permanent": "永久任务",
+  "sre.pass.permanent_stable": "永久任务不会刷新",
   "menu.sre.join_qq": "加入 QQ 群",
   "menu.sre.join_discord": "加入 Discord",
   "menu.sre.wiki": "WIKI",

@@ -22,6 +22,7 @@
     "gui.TalkChatMixin",
     "item.FoodItemMixin",
     "item.ItemStackMixin",
+    "item.UseItemProgressionMixin",
     "network.NetworkReceiveStatisticsMixin",
     "network.NetworkStatisticsMixin",
     "network.ServerListFixMixin",

@@ -40,9 +40,10 @@ public class ProgressionPassScreen extends Screen {
     private final SREPlayerProgressionComponent progression;
     private final List<Button> cardButtons = new ArrayList<>();
 
-    private int activeTab  = 0;   // 0 = 每日, 1 = 周常
+    private int activeTab  = 0;   // 0 = 每日, 1 = 周常, 2 = 常驻
     private int dailyPage  = 0;
     private int weeklyPage = 0;
+    private int permanentPage = 0;
 
     // ------- 布局缓存 (computeLayout → init，render 直接读取) -------
     private int panelX, panelY, panelW, panelH;
@@ -88,12 +89,14 @@ public class ProgressionPassScreen extends Screen {
         // 限制页码在合法范围内
         int dSz = progression.getActiveDailyQuests().size();
         int wSz = progression.getActiveWeeklyQuests().size();
+        int pSz = progression.getActivePermanentQuests().size();
         dailyPage  = Math.min(dailyPage,  Math.max(0, (dSz  - 1) / rowsPerPage));
         weeklyPage = Math.min(weeklyPage, Math.max(0, (wSz  - 1) / rowsPerPage));
+        permanentPage = Math.min(permanentPage, Math.max(0, (pSz - 1) / rowsPerPage));
 
         // ---- Tab 按钮 ----
         int tabY = panelY + HDR_H + SUM_H;
-        int tabW = Math.min(148, (panelW - 56) / 2);
+        int tabW = Math.min(132, (panelW - 64) / 3);
         addRenderableWidget(
                 ModernButton.builder(Component.translatable("sre.pass.day"), btn -> { activeTab = 0; init(); })
                         .bounds(panelX + 24, tabY, tabW, 20)
@@ -104,22 +107,31 @@ public class ProgressionPassScreen extends Screen {
                         .bounds(panelX + 24 + tabW + 8, tabY, tabW, 20)
                         .accentColor(activeTab == 1 ? 0xFFFFD060 : 0xFF2B3A55)
                         .build());
+        addRenderableWidget(
+                ModernButton.builder(Component.translatable("sre.pass.permanent"), btn -> { activeTab = 2; init(); })
+                        .bounds(panelX + 24 + (tabW + 8) * 2, tabY, tabW, 20)
+                        .accentColor(activeTab == 2 ? 0xFF66E0A3 : 0xFF2B3A55)
+                        .build());
 
         // ---- 分页按钮 ----
         int pgY = questAreaY + questAreaH + 4;
         addRenderableWidget(
                 ModernButton.builder(Component.literal("◀"), btn -> {
                     if (activeTab == 0) dailyPage  = Math.max(0, dailyPage  - 1);
-                    else                weeklyPage = Math.max(0, weeklyPage - 1);
+                    else if (activeTab == 1) weeklyPage = Math.max(0, weeklyPage - 1);
+                    else permanentPage = Math.max(0, permanentPage - 1);
                 }).bounds(panelX + panelW / 2 - 60, pgY, 48, 20).accentColor(0xFF2B3A55).build());
         addRenderableWidget(
                 ModernButton.builder(Component.literal("▶"), btn -> {
-                    int total = activeTab == 0
-                            ? progression.getActiveDailyQuests().size()
-                            : progression.getActiveWeeklyQuests().size();
+                    int total = switch (activeTab) {
+                        case 0 -> progression.getActiveDailyQuests().size();
+                        case 1 -> progression.getActiveWeeklyQuests().size();
+                        default -> progression.getActivePermanentQuests().size();
+                    };
                     int pages = Math.max(1, (total + rowsPerPage - 1) / rowsPerPage);
                     if (activeTab == 0) dailyPage  = Math.min(pages - 1, dailyPage  + 1);
-                    else                weeklyPage = Math.min(pages - 1, weeklyPage + 1);
+                    else if (activeTab == 1) weeklyPage = Math.min(pages - 1, weeklyPage + 1);
+                    else permanentPage = Math.min(pages - 1, permanentPage + 1);
                 }).bounds(panelX + panelW / 2 + 12, pgY, 48, 20).accentColor(0xFF2B3A55).build());
 
         // ---- 阵营卡按钮 ----
@@ -202,8 +214,10 @@ public class ProgressionPassScreen extends Screen {
 
         // ---- 任务行 ----
         List<SREPlayerProgressionComponent.PassQuest> quests =
-                activeTab == 0 ? progression.getActiveDailyQuests() : progression.getActiveWeeklyQuests();
-        int curPage = activeTab == 0 ? dailyPage : weeklyPage;
+                activeTab == 0 ? progression.getActiveDailyQuests()
+                        : activeTab == 1 ? progression.getActiveWeeklyQuests()
+                        : progression.getActivePermanentQuests();
+        int curPage = activeTab == 0 ? dailyPage : activeTab == 1 ? weeklyPage : permanentPage;
         int start   = curPage * rowsPerPage;
         int end     = Math.min(start + rowsPerPage, quests.size());
         int rowY    = questAreaY + 4;
@@ -233,6 +247,7 @@ public class ProgressionPassScreen extends Screen {
                 + 7L * 24L * 60L * 60L * 1000L - System.currentTimeMillis());
                 g.drawString(font, Component.translatable("sre.pass.daily_refresh", formatDuration(dailyRem)).getString(),  panelX + 24,            infoY + 14, applyAlpha(0xFF86A3C5, animAlpha), false);
                 g.drawString(font, Component.translatable("sre.pass.weekly_refresh", formatDuration(weeklyRem)).getString(), panelX + panelW / 2 + 8, infoY + 14, applyAlpha(0xFFB09FFF, animAlpha), false);
+                g.drawString(font, Component.translatable("sre.pass.permanent_stable").getString(), panelX + 24, infoY + 28, applyAlpha(0xFF7BE1B1, animAlpha), false);
 
                 // 对组件层加一个淡入/淡出遮罩，打开时从黑渐显，关闭时渐隐到黑。
                 int overlayAlpha = 255 - animAlpha;
@@ -302,14 +317,17 @@ public class ProgressionPassScreen extends Screen {
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
         if (scrollY > 0) {
             if (activeTab == 0) dailyPage  = Math.max(0, dailyPage  - 1);
-            else                weeklyPage = Math.max(0, weeklyPage - 1);
+            else if (activeTab == 1) weeklyPage = Math.max(0, weeklyPage - 1);
+            else permanentPage = Math.max(0, permanentPage - 1);
         } else if (scrollY < 0) {
             int total = activeTab == 0
                     ? progression.getActiveDailyQuests().size()
-                    : progression.getActiveWeeklyQuests().size();
+                    : activeTab == 1 ? progression.getActiveWeeklyQuests().size()
+                    : progression.getActivePermanentQuests().size();
             int pages = Math.max(1, (total + rowsPerPage - 1) / rowsPerPage);
             if (activeTab == 0) dailyPage  = Math.min(pages - 1, dailyPage  + 1);
-            else                weeklyPage = Math.min(pages - 1, weeklyPage + 1);
+            else if (activeTab == 1) weeklyPage = Math.min(pages - 1, weeklyPage + 1);
+            else permanentPage = Math.min(pages - 1, permanentPage + 1);
         }
         return true;
     }

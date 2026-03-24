@@ -107,5 +107,11 @@
     {"id":"weekly_be_killer_5","title":"危险专业户","description":"成为杀手阵营 5 次","objectiveType":"BECOME_FACTION","objectiveKey":"killer","target":5,"rewardExperience":1280,"rewardCoins":540,"rewardLoot":2,"rewardCard":"KILLER","priority":1},
     {"id":"weekly_be_civilian_5","title":"秩序代言人","description":"成为平民阵营 5 次","objectiveType":"BECOME_FACTION","objectiveKey":"civilian","target":5,"rewardExperience":1280,"rewardCoins":540,"rewardLoot":2,"rewardCard":"CIVILIAN","priority":1},
     {"id":"weekly_be_neutral_5","title":"灰域行者","description":"成为中立阵营 5 次","objectiveType":"BECOME_FACTION","objectiveKey":"neutral","target":5,"rewardExperience":1350,"rewardCoins":570,"rewardLoot":2,"rewardCard":"NEUTRAL","priority":1}
+  ],
+  "permanent": [
+    {"id":"permanent_be_civilian_10","title":"常驻·秩序入场","description":"成为平民（civilian）10 次","objectiveType":"BECOME_ROLE","objectiveKey":"starrailexpress:civilian","target":10,"rewardExperience":1200,"rewardCoins":500,"rewardLoot":2,"rewardCard":"CIVILIAN","priority":1,"category":"PERMANENT"},
+    {"id":"permanent_be_killer_10","title":"常驻·暗影入场","description":"成为杀手（killer）10 次","objectiveType":"BECOME_ROLE","objectiveKey":"starrailexpress:killer","target":10,"rewardExperience":1300,"rewardCoins":550,"rewardLoot":2,"rewardCard":"KILLER","priority":2,"category":"PERMANENT"},
+    {"id":"permanent_use_knife_30","title":"常驻·冷兵熟练","description":"使用刀 30 次","objectiveType":"USE_ITEM","objectiveKey":"starrailexpress:knife","target":30,"rewardExperience":1000,"rewardCoins":420,"rewardLoot":1,"rewardCard":"NONE","priority":3,"category":"PERMANENT"},
+    {"id":"permanent_use_revolver_20","title":"常驻·枪械操练","description":"使用左轮 20 次","objectiveType":"USE_ITEM","objectiveKey":"starrailexpress:revolver","target":20,"rewardExperience":1100,"rewardCoins":460,"rewardLoot":1,"rewardCard":"NONE","priority":4,"category":"PERMANENT"}
   ]
 }

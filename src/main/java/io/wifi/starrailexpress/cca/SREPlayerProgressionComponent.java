@@ -94,7 +94,8 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
                 Map.entry("rewardExperience", "rx"),
                 Map.entry("rewardCoins", "rc"),
                 Map.entry("rewardLoot", "rl"),
-                Map.entry("rewardCard", "rd"));
+                Map.entry("rewardCard", "rd"),
+                Map.entry("category", "cg"));
         private static final Path LOCAL_TASK_CONFIG_PATH = FabricLoader.getInstance().getConfigDir()
             .resolve("sre")
             .resolve("progression_tasks.json");
@@ -102,7 +103,8 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
         private static long cachedTaskFileModified = Long.MIN_VALUE;
         private static QuestTemplatePools cachedTaskPools = new QuestTemplatePools(
             QuestTemplate.DEFAULT_DAILY_POOL,
-            QuestTemplate.DEFAULT_WEEKLY_POOL);
+            QuestTemplate.DEFAULT_WEEKLY_POOL,
+            QuestTemplate.DEFAULT_PERMANENT_POOL);
 
     public static SyncRequests syncRequests = null;
 
@@ -185,6 +187,10 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
         return this.activeQuests.stream().filter(q -> q.category == QuestCategory.WEEKLY).toList();
     }
 
+    public List<PassQuest> getActivePermanentQuests() {
+        return this.activeQuests.stream().filter(q -> q.category == QuestCategory.PERMANENT).toList();
+    }
+
     public Map<FactionCardType, Integer> getFactionCards() {
         return Collections.unmodifiableMap(this.factionCards);
     }
@@ -261,6 +267,10 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
         if (role == null || !(this.player instanceof ServerPlayer serverPlayer)) {
             return;
         }
+        if (role.getIdentifier() != null) {
+            incrementQuest(ObjectiveType.BECOME_ROLE, role.getIdentifier().toString(), 1);
+            incrementQuest(ObjectiveType.BECOME_ROLE, role.getIdentifier().getPath(), 1);
+        }
         FactionCardType matchedCard = FactionCardType.fromRole(role);
         if (matchedCard != FactionCardType.NONE) {
             incrementQuest(ObjectiveType.BECOME_FACTION, matchedCard.questKey, 1);
@@ -318,6 +328,14 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
         maybeGrantQuestRewards();
     }
 
+    public void onItemUsed(String itemKey) {
+        if (itemKey == null || itemKey.isBlank()) {
+            return;
+        }
+        incrementQuest(ObjectiveType.USE_ITEM, itemKey, 1);
+        maybeGrantQuestRewards();
+    }
+
     /** 管理员或自动刷新每日任务 */
     public void forceRefreshTasks() {
         if (!tryPullTasksFromNetwork()) {
@@ -347,6 +365,9 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
         if (SREConfig.instance().enableWeeklyTasks
                 && (getActiveWeeklyQuests().isEmpty() || now - this.lastWeeklyRefreshTime >= WEEKLY_REFRESH_INTERVAL_MS)) {
             forceRefreshWeeklyTasks();
+        }
+        if (getActivePermanentQuests().isEmpty()) {
+            ensurePermanentTasksPresent();
         }
         if (SREConfig.instance().progressionSyncServerEnabled && this.networkSyncEnabled
                 && serverPlayer.serverLevel().getGameTime() - this.lastRefreshCheckGameTime >= 600L) {
@@ -430,7 +451,7 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
     private void incrementQuest(ObjectiveType type, String key, int amount) {
         boolean changed = false;
         for (PassQuest quest : this.activeQuests) {
-            if (quest.objectiveType != type || !Objects.equals(quest.objectiveKey, key) || quest.progress >= quest.target) {
+            if (quest.objectiveType != type || !matchesObjectiveKey(quest.objectiveKey, key) || quest.progress >= quest.target) {
                 continue;
             }
             quest.progress = Math.min(quest.target, quest.progress + amount);
@@ -575,6 +596,25 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
         markChanged(SYNC_DIRTY_TASKS | SYNC_DIRTY_PROGRESS);
     }
 
+    private void ensurePermanentTasksPresent() {
+        List<QuestTemplate> pool = new ArrayList<>(loadTaskTemplatePools().permanent());
+        if (pool.isEmpty()) {
+            pool = new ArrayList<>(QuestTemplate.DEFAULT_PERMANENT_POOL);
+        }
+        List<QuestTemplate> unlockedPool = filterUnlockedTemplates(pool, this.level);
+        if (!unlockedPool.isEmpty()) {
+            pool = unlockedPool;
+        }
+        if (pool.isEmpty()) {
+            return;
+        }
+        this.activeQuests.removeIf(q -> q.category == QuestCategory.PERMANENT);
+        pool.stream()
+                .sorted(Comparator.comparingInt(template -> template.priority))
+                .forEach(template -> this.activeQuests.add(template.instantiate()));
+        markChanged(SYNC_DIRTY_TASKS | SYNC_DIRTY_PROGRESS);
+    }
+
     private void applyNetworkProgress(Map<String, Object> progressMap) {
         this.level = getInt(getMappedValue(progressMap, PROGRESS_SYNC_KEYS, "level"), this.level);
         this.experience = getInt(getMappedValue(progressMap, PROGRESS_SYNC_KEYS, "experience"), this.experience);
@@ -607,7 +647,9 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
         if (!(definitions instanceof List<?> rawDefinitions) || rawDefinitions.isEmpty()) {
             return;
         }
-        this.activeQuests.removeIf(q -> q.category == QuestCategory.DAILY);
+        this.activeQuests.removeIf(q -> q.category == QuestCategory.DAILY
+                || q.category == QuestCategory.WEEKLY
+                || q.category == QuestCategory.PERMANENT);
         for (Object rawDefinition : rawDefinitions) {
             if (!(rawDefinition instanceof Map<?, ?> rawMap)) {
                 continue;
@@ -622,8 +664,9 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
             int rewardCoins = getInt(getMapValue(rawMap, QUEST_DEF_KEYS, "rewardCoins"), 0);
             int rewardLoot = getInt(getMapValue(rawMap, QUEST_DEF_KEYS, "rewardLoot"), 0);
             FactionCardType rewardCard = FactionCardType.fromString(getMapString(rawMap, QUEST_DEF_KEYS, "rewardCard", "NONE"));
+            QuestCategory category = QuestCategory.fromString(getMapString(rawMap, QUEST_DEF_KEYS, "category", QuestCategory.DAILY.name()));
             this.activeQuests.add(new PassQuest(id, title, description, type, objectiveKey, 0, target,
-                    rewardExperience, rewardCoins, rewardLoot, rewardCard, false));
+                    rewardExperience, rewardCoins, rewardLoot, rewardCard, false, category));
         }
         this.lastQuestRefreshTime = getLong(getMappedValue(networkTaskMap, TASK_SYNC_KEYS, "refreshAt"), System.currentTimeMillis());
     }
@@ -681,6 +724,7 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
             putMappedValue(map, QUEST_DEF_KEYS, "rewardCoins", quest.rewardCoins);
             putMappedValue(map, QUEST_DEF_KEYS, "rewardLoot", quest.rewardLoot);
             putMappedValue(map, QUEST_DEF_KEYS, "rewardCard", quest.rewardCard.name());
+            putMappedValue(map, QUEST_DEF_KEYS, "category", quest.category.name());
             definitions.add(map);
         }
         return definitions;
@@ -816,6 +860,9 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
                 && this.player instanceof ServerPlayer) {
             generateLocalWeeklyTasks(false);
         }
+        if (getActivePermanentQuests().isEmpty() && this.player instanceof ServerPlayer) {
+            ensurePermanentTasksPresent();
+        }
     }
 
     @Override
@@ -930,18 +977,25 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
             JsonArray weekly = json.has("weekly") && json.get("weekly").isJsonArray()
                     ? json.getAsJsonArray("weekly")
                     : new JsonArray();
+            JsonArray permanent = json.has("permanent") && json.get("permanent").isJsonArray()
+                    ? json.getAsJsonArray("permanent")
+                    : new JsonArray();
 
             List<QuestTemplate> dailyTemplates = parseTemplateArray(daily, QuestCategory.DAILY);
             List<QuestTemplate> weeklyTemplates = parseTemplateArray(weekly, QuestCategory.WEEKLY);
+            List<QuestTemplate> permanentTemplates = parseTemplateArray(permanent, QuestCategory.PERMANENT);
             if (dailyTemplates.isEmpty()) {
                 dailyTemplates = QuestTemplate.DEFAULT_DAILY_POOL;
             }
             if (weeklyTemplates.isEmpty()) {
                 weeklyTemplates = QuestTemplate.DEFAULT_WEEKLY_POOL;
             }
+            if (permanentTemplates.isEmpty()) {
+                permanentTemplates = QuestTemplate.DEFAULT_PERMANENT_POOL;
+            }
 
             cachedTaskFileModified = modified;
-            cachedTaskPools = new QuestTemplatePools(dailyTemplates, weeklyTemplates);
+            cachedTaskPools = new QuestTemplatePools(dailyTemplates, weeklyTemplates, permanentTemplates);
             return cachedTaskPools;
         } catch (Exception exception) {
             logger.error("读取本地任务模板失败，回退到内置默认模板: {}",
@@ -949,7 +1003,8 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
             cachedTaskFileModified = Long.MIN_VALUE;
             cachedTaskPools = new QuestTemplatePools(
                     QuestTemplate.DEFAULT_DAILY_POOL,
-                    QuestTemplate.DEFAULT_WEEKLY_POOL);
+                    QuestTemplate.DEFAULT_WEEKLY_POOL,
+                    QuestTemplate.DEFAULT_PERMANENT_POOL);
             return cachedTaskPools;
         }
     }
@@ -1052,7 +1107,7 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
         }
     }
 
-    private record QuestTemplatePools(List<QuestTemplate> daily, List<QuestTemplate> weekly) {
+    private record QuestTemplatePools(List<QuestTemplate> daily, List<QuestTemplate> weekly, List<QuestTemplate> permanent) {
     }
 
     public enum FactionCardType {
@@ -1105,7 +1160,7 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
     }
 
     public enum QuestCategory {
-        DAILY, WEEKLY;
+        DAILY, WEEKLY, PERMANENT;
 
         public static QuestCategory fromString(String raw) {
             try {
@@ -1125,6 +1180,8 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
         COMPLETE_SPECIFIC_QUEST,
         PLAY_AS_FACTION,
         BECOME_FACTION,
+        BECOME_ROLE,
+        USE_ITEM,
         /** 以特定阵营赢得一局（objectiveKey=阵营questKey） */
         WIN_AS_FACTION,
         /** 在游戏结束时存活（不被杀死） */
@@ -1326,10 +1383,40 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
                         ObjectiveType.WIN_AS_FACTION, FactionCardType.NEUTRAL.questKey,
                         2, 660, 260, 1, FactionCardType.NEUTRAL, 10, QuestCategory.WEEKLY));
 
+        // ========== 内置永久任务（不会自动刷新）==========
+        private static final List<QuestTemplate> DEFAULT_PERMANENT_POOL = List.of(
+                new QuestTemplate("permanent_be_civilian_10", "常驻·秩序入场", "成为平民（civilian）10 次",
+                        ObjectiveType.BECOME_ROLE, "starrailexpress:civilian",
+                        10, 1200, 500, 2, FactionCardType.CIVILIAN, 1, QuestCategory.PERMANENT),
+                new QuestTemplate("permanent_be_killer_10", "常驻·暗影入场", "成为杀手（killer）10 次",
+                        ObjectiveType.BECOME_ROLE, "starrailexpress:killer",
+                        10, 1300, 550, 2, FactionCardType.KILLER, 2, QuestCategory.PERMANENT),
+                new QuestTemplate("permanent_use_knife_30", "常驻·冷兵熟练", "使用刀 30 次",
+                        ObjectiveType.USE_ITEM, "starrailexpress:knife",
+                        30, 1000, 420, 1, FactionCardType.NONE, 3, QuestCategory.PERMANENT),
+                new QuestTemplate("permanent_use_revolver_20", "常驻·枪械操练", "使用左轮 20 次",
+                        ObjectiveType.USE_ITEM, "starrailexpress:revolver",
+                        20, 1100, 460, 1, FactionCardType.NONE, 4, QuestCategory.PERMANENT));
+
         private PassQuest instantiate() {
             return new PassQuest(this.id, this.title, this.description, this.objectiveType, this.objectiveKey, 0,
                     this.target, this.rewardExperience, this.rewardCoins, this.rewardLoot, this.rewardCard, false,
                     this.category);
         }
+    }
+
+    private static boolean matchesObjectiveKey(String objectiveKey, String actualKey) {
+        if (Objects.equals(objectiveKey, actualKey)) {
+            return true;
+        }
+        if (objectiveKey == null || actualKey == null) {
+            return false;
+        }
+        if (objectiveKey.equalsIgnoreCase(actualKey)) {
+            return true;
+        }
+        String objectivePath = objectiveKey.contains(":") ? objectiveKey.substring(objectiveKey.indexOf(':') + 1) : objectiveKey;
+        String actualPath = actualKey.contains(":") ? actualKey.substring(actualKey.indexOf(':') + 1) : actualKey;
+        return objectivePath.equalsIgnoreCase(actualPath);
     }
 }
