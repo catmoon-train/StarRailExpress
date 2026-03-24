@@ -39,7 +39,7 @@ public class ServerPlayerEntityMixin {
         }
     }
 
-    @Inject(method = "attack", at = @At("HEAD"))
+    @Inject(method = "attack", at = @At("HEAD"), cancellable = true)
     public void attack(Entity target, CallbackInfo ci) {
         if (SRE.isLobby) {
             return;
