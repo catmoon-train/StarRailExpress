@@ -571,7 +571,6 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
 
         if (this.isRunning()) {
             if (gameMode == null) {
-
                 return;
             }
             gameMode.tickCommonGameLoop();

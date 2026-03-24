@@ -30,7 +30,7 @@ public class SREPlayerPsychoComponent implements RoleComponent, ServerTickingCom
     public int psychoTicks = -1;
     public int armour = 1;
     public int type = -1;
-    private static SREGameWorldComponent gameWorldComponent = null;
+    private SREGameWorldComponent gameWorldComponent = null;
 
     public SREPlayerPsychoComponent(Player player) {
         this.player = player;
@@ -105,7 +105,6 @@ public class SREPlayerPsychoComponent implements RoleComponent, ServerTickingCom
         if (!checkIsGameRunning()) {
             if (this.psychoTicks > 0) {
                 this.stopPsycho();
-                this.psychoTicks = 0;
             }
             return;
         }
@@ -205,9 +204,7 @@ public class SREPlayerPsychoComponent implements RoleComponent, ServerTickingCom
     }
 
     public boolean checkIsGameRunning() {
-        if (gameWorldComponent == null) {
-            gameWorldComponent = SREGameWorldComponent.KEY.get(this.player.level());
-        }
+        gameWorldComponent = SREGameWorldComponent.KEY.get(this.player.level());
         return gameWorldComponent.isRunning();
     }
 

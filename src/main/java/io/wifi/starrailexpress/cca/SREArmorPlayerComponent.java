@@ -20,7 +20,7 @@ public class SREArmorPlayerComponent implements RoleComponent, ServerTickingComp
     public static final ComponentKey<SREArmorPlayerComponent> KEY = ComponentRegistry.getOrCreate(
             ResourceLocation.fromNamespaceAndPath(SRE.MOD_ID, "armor"), SREArmorPlayerComponent.class);
     private final Player player;
-    private static SREGameWorldComponent gameWorldComponent = null;
+    private SREGameWorldComponent gameWorldComponent = null;
 
     public static ArrayList<String> canSyncedRolePaths = new ArrayList<>();
     public int armor = 0;

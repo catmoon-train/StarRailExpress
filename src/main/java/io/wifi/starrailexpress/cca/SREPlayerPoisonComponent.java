@@ -31,7 +31,7 @@ public class SREPlayerPoisonComponent implements RoleComponent, ServerTickingCom
     public float pulseProgress = 0f;
     public boolean pulsing = false;
     public UUID poisoner;
-    private static SREGameWorldComponent gameWorldComponent = null;
+    private SREGameWorldComponent gameWorldComponent = null;
     public static ArrayList<String> canSyncedRolePaths = new ArrayList<>();
 
     public int getPoisonTicks() {
