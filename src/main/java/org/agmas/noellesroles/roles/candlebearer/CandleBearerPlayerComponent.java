@@ -46,8 +46,8 @@ public class CandleBearerPlayerComponent implements RoleComponent, ServerTicking
 
     public static final int MAX_INVISIBILITY_CHARGES = 3;
     public static final int INVISIBILITY_DURATION_TICKS = 30 * 20;
-    public static final int GLOW_DELAY_TICKS = 10 * 20;
-    public static final int GLOW_DURATION_TICKS = 10 * 20;
+    public static final int GLOW_DELAY_TICKS = 4 * 20;
+    public static final int GLOW_DURATION_TICKS = 5 * 20;
 
     private final Player player;
 
@@ -85,7 +85,7 @@ public class CandleBearerPlayerComponent implements RoleComponent, ServerTicking
         invisibilityTicks = 0;
         successfulCandles = 0;
         int totalPlayers = player.level().players().size();
-        requiredCandles = Math.max(4, totalPlayers / 5);
+        requiredCandles = Math.max(4, totalPlayers / 5 + 2);
         sync();
     }
 
@@ -118,7 +118,7 @@ public class CandleBearerPlayerComponent implements RoleComponent, ServerTicking
         }
 
         int totalPlayers = player.level().players().size();
-        int newRequired = Math.max(4, totalPlayers / 5);
+        int newRequired = Math.max(4, totalPlayers / 5 + 2);
         if (requiredCandles != newRequired) {
             requiredCandles = newRequired;
             sync();
