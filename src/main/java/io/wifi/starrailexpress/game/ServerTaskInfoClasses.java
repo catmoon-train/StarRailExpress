@@ -431,7 +431,7 @@ public class ServerTaskInfoClasses {
                 }
             }
             for (GameUtils.BlockInfo blockInfo2x : list5) {
-                serverWorld.blockUpdated(blockInfo2x.pos(), blockInfo2x.state().getBlock());
+                // serverWorld.blockUpdated(blockInfo2x.pos(), blockInfo2x.state().getBlock());
                 serverWorld.getLightEngine().checkBlock(blockInfo2x.pos());
             }
         }
