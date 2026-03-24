@@ -387,10 +387,6 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
             this.gameStatus = GameStatus.values()[(nbtCompound.getInt("GameStatus"))];
         else
             this.gameStatus = null;
-        if (nbtCompound.contains("Fade"))
-            this.fade = nbtCompound.getInt("Fade");
-        else
-            this.fade = 0;
         if (nbtCompound.contains("PsychosActive"))
             this.psychosActive = nbtCompound.getInt("PsychosActive");
         else
