@@ -270,7 +270,7 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
                     this.factionCards.put(matchedCard, current - 1);
                 }
                 this.activeFactionCard = FactionCardType.NONE;
-                serverPlayer.sendSystemMessage(Component.literal("你的" + matchedCard.displayName + "已生效并消耗。"));
+                serverPlayer.sendSystemMessage(Component.translatable("message.sre.progression.faction_card_activated", matchedCard.displayName));
                 markChanged(SYNC_DIRTY_CARDS);
             }
         }
@@ -459,7 +459,7 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
                     addFactionCard(quest.rewardCard, 1);
                 }
                 if (this.player instanceof ServerPlayer serverPlayer) {
-                    serverPlayer.sendSystemMessage(Component.literal("通行任务完成: " + quest.title));
+                    serverPlayer.sendSystemMessage(Component.translatable("message.sre.progression.quest_completed", quest.title));
                 }
                 changed = true;
             }
@@ -480,7 +480,7 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
             this.level++;
             grantLevelRewards(this.level);
             if (this.player instanceof ServerPlayer serverPlayer) {
-                serverPlayer.sendSystemMessage(Component.literal("列车等级提升至 Lv." + this.level + "，来源: " + reason));
+                serverPlayer.sendSystemMessage(Component.translatable("message.sre.progression.level_up", this.level, reason));
             }
         }
         markChanged(SYNC_DIRTY_PROGRESS);

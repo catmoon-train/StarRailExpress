@@ -909,5 +909,8 @@
   "screen.game_manage.section.map_scanner": "扫描地图",
   "screen.game_manage.section.scan_reset": "地图点（用于关灯、简单重置等）",
   "screen.game_manage.section.scan_task": "任务点（用于任务点高亮）",
+  "message.sre.progression.faction_card_activated": "你的%s已生效并消耗。",
+  "message.sre.progression.quest_completed": "通行任务完成: %s",
+  "message.sre.progression.level_up": "列车等级提升至 Lv.%s，来源: %s",
   "=== END ===": ""
 }
