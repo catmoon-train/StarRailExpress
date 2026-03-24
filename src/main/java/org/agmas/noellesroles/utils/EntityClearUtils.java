@@ -5,6 +5,7 @@ import io.wifi.starrailexpress.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.event.OnGameEnd;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.AreaEffectCloud;
+import net.minecraft.world.entity.animal.Pig;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.projectile.ThrownTrident;
 
@@ -41,6 +42,7 @@ public class EntityClearUtils {
 
             world.getAllEntities().forEach((entity) -> {
                 if (entity instanceof LockEntity ||
+                        entity instanceof Pig ||
                         entity instanceof ThrownTrident ||
                         entity instanceof AreaEffectCloud ||
                         entity instanceof ItemEntity ||
