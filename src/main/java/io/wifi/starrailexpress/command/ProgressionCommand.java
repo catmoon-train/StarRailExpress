@@ -21,7 +21,7 @@ import java.util.Collection;
 public class ProgressionCommand {
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
-        dispatcher.register(Commands.literal("tmm:pass")
+        dispatcher.register(Commands.literal("sre:pass")
                 .executes(context -> open(context.getSource(), null))
                 .then(Commands.argument("player", GameProfileArgument.gameProfile())
                         .requires(source -> source.hasPermission(2))
