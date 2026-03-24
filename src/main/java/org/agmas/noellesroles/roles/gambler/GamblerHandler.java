@@ -47,7 +47,10 @@ public class GamblerHandler {
             return true;
         if (identifier.getPath().equals("disconnected"))
             return true;
-        if (!(victim instanceof ServerPlayer serverPlayer))return false;
+        if (killer == null)
+            return true;
+        if (!(victim instanceof ServerPlayer serverPlayer))
+            return false;
         GamblerPlayerComponent gamblerPlayerComponent = GamblerPlayerComponent.KEY.get(victim);
         // 掉枪
         RoleUtils.dropAndClearAllSatisfiedItems((ServerPlayer) victim, TMMItemTags.GUNS);
@@ -120,8 +123,8 @@ public class GamblerHandler {
             final var first = shuffledKillerRoles.getFirst();
             RoleUtils.changeRole(victim, first);
 
-                // final var size = serverPlayer.serverLevel().players().size();
-                RoleUtils.sendWelcomeAnnouncement(serverPlayer);
+            // final var size = serverPlayer.serverLevel().players().size();
+            RoleUtils.sendWelcomeAnnouncement(serverPlayer);
 
             SREPlayerShopComponent playerShopComponent = (SREPlayerShopComponent) SREPlayerShopComponent.KEY
                     .get(victim);
