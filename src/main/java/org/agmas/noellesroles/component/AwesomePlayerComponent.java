@@ -84,7 +84,7 @@ public class AwesomePlayerComponent implements RoleComponent, ServerTickingCompo
         this.sync();
     }
 
-    public static SREGameWorldComponent gameWorldComponent = null;
+    public SREGameWorldComponent gameWorldComponent = null;
 
     @Override
     public boolean shouldSyncWith(ServerPlayer sp) {

@@ -14,7 +14,7 @@ import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
 
 public class DefenseItem extends Item {
-    public static SREGameWorldComponent gameWorldComponent = null;
+    public SREGameWorldComponent gameWorldComponent = null;
     public static ArrayList<String> canUseByRightClickRolePaths = new ArrayList<>();
 
     public DefenseItem(Properties properties) {

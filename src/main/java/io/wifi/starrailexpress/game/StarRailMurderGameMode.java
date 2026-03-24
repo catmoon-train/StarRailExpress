@@ -4,6 +4,7 @@ import io.wifi.starrailexpress.api.GameMode;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.*;
+import io.wifi.starrailexpress.cca.SREPlayerProgressionComponent.FactionCardType;
 import io.wifi.starrailexpress.event.AllowGameEnd;
 import io.wifi.starrailexpress.network.original.AnnounceWelcomePayload;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -511,7 +512,11 @@ public class StarRailMurderGameMode extends GameMode {
                 .toList();
         if (!preferredPlayers.isEmpty()
                 && serverWorld.getRandom().nextFloat() < SREPlayerProgressionComponent.getCardPreferredPickChance()) {
-            return PlayerRoleAssigner.pickByInverseWeight(new ArrayList<>(preferredPlayers), selectedRoleType);
+            var players = PlayerRoleAssigner.pickByInverseWeight(new ArrayList<>(preferredPlayers), selectedRoleType);
+            for (var p : preferredPlayers) {
+                SREPlayerProgressionComponent.KEY.get(p).activeFactionCard = FactionCardType.NONE;
+            }
+            return players;
         }
         return PlayerRoleAssigner.pickByInverseWeight(unassignedPlayers, selectedRoleType);
     }

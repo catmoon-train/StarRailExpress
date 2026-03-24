@@ -122,7 +122,7 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
     private int totalExperience;
     private int claimedCoinRewards;
     private int claimedLootRewards;
-    private FactionCardType activeFactionCard;
+    public FactionCardType activeFactionCard;
     private int syncDirtyMask = SYNC_DIRTY_ALL;
 
     public SREPlayerProgressionComponent(Player player) {
@@ -236,6 +236,8 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
     }
 
     public boolean prefersRoleType(int roleType) {
+        if (this.activeFactionCard == null)
+            return false;
         return this.activeFactionCard.matchesRoleType(roleType);
     }
 
