@@ -610,18 +610,18 @@ public class GameReplayManager {
 
       // 显示平民
       if (!aliveCivilians.isEmpty() || !deadCivilians.isEmpty()) {
-        text.append(
+        text.append(Component.literal(" - ").withStyle(ChatFormatting.GRAY)).append(
             Component.translatable("sre.replay.civilians").withStyle(ChatFormatting.BLUE)).append("\n");
         if (!aliveCivilians.isEmpty()) {
           MutableComponent aliveCivText = ReplayDisplayUtils.buildTeamPlayerRolesWithDeathStatus(this,
-              aliveCivilians, playerRoles, "", true);
+              aliveCivilians, playerRoles, "", replayData, true);
           if (aliveCivText != null) {
             text.append(aliveCivText).append("\n");
           }
         }
         if (!deadCivilians.isEmpty()) {
           MutableComponent deadCivText = ReplayDisplayUtils.buildTeamPlayerRolesWithDeathStatus(this,
-              deadCivilians, playerRoles, "", false);
+              deadCivilians, playerRoles, "", replayData, false);
           if (deadCivText != null) {
             text.append(deadCivText).append("\n");
           }
@@ -630,18 +630,18 @@ public class GameReplayManager {
 
       // 显示中立
       if (!aliveNeutrals.isEmpty() || !deadNeutrals.isEmpty()) {
-        text.append(
+        text.append(Component.literal(" - ").withStyle(ChatFormatting.GRAY)).append(
             Component.translatable("sre.replay.neutrals").withStyle(ChatFormatting.YELLOW)).append("\n");
         if (!aliveNeutrals.isEmpty()) {
           MutableComponent aliveNeutText = ReplayDisplayUtils.buildTeamPlayerRolesWithDeathStatus(this,
-              aliveNeutrals, playerRoles, "", true);
+              aliveNeutrals, playerRoles, "", replayData, true);
           if (aliveNeutText != null) {
             text.append(aliveNeutText).append("\n");
           }
         }
         if (!deadNeutrals.isEmpty()) {
           MutableComponent deadNeutText = ReplayDisplayUtils.buildTeamPlayerRolesWithDeathStatus(this,
-              deadNeutrals, playerRoles, "", false);
+              deadNeutrals, playerRoles, "", replayData, false);
           if (deadNeutText != null) {
             text.append(deadNeutText).append("\n");
           }
@@ -649,18 +649,18 @@ public class GameReplayManager {
       }
       // 显示杀手
       if (!aliveKillers.isEmpty() || !deadKillers.isEmpty()) {
-        text.append(
+        text.append(Component.literal(" - ").withStyle(ChatFormatting.GRAY)).append(
             Component.translatable("sre.replay.killers").withStyle(ChatFormatting.DARK_RED)).append("\n");
         if (!aliveKillers.isEmpty()) {
           MutableComponent aliveKillText = ReplayDisplayUtils.buildTeamPlayerRolesWithDeathStatus(this,
-              aliveKillers, playerRoles, "", true);
+              aliveKillers, playerRoles, "", replayData, true);
           if (aliveKillText != null) {
             text.append(aliveKillText).append("\n");
           }
         }
         if (!deadKillers.isEmpty()) {
           MutableComponent deadKillText = ReplayDisplayUtils.buildTeamPlayerRolesWithDeathStatus(this,
-              deadKillers, playerRoles, "", false);
+              deadKillers, playerRoles, "", replayData, false);
           if (deadKillText != null) {
             text.append(deadKillText).append("\n");
           }

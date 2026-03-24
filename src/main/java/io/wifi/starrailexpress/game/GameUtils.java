@@ -960,6 +960,8 @@ public class GameUtils {
                             return pre.test(new DeathInfo(victim, killer, deathReason));
                         });
                         if (!cantDefend) {
+                            victim.displayClientMessage(Component.translatable("message.bartender.armor_broke_self")
+                                    .withStyle(ChatFormatting.YELLOW), true);
                             victim.playNotifySound(TMMSounds.ITEM_PSYCHO_ARMOUR,
                                     SoundSource.MASTER, 5.0F, 1.0F);
                             bartenderPlayerComponent.removeArmor();
@@ -981,13 +983,14 @@ public class GameUtils {
                 if (SRE.REPLAY_MANAGER != null) {
                     SRE.REPLAY_MANAGER.breakArmor(victim.getUUID());
                 }
-
                 if (killer instanceof ServerPlayer serverPlayer) {
                     ServerPlayNetworking.send(serverPlayer,
                             new BreakArmorPayload(victim.getX(), victim.getY(), victim.getZ()));
                 }
                 component.sync();
                 victim.playNotifySound(TMMSounds.ITEM_PSYCHO_ARMOUR, SoundSource.MASTER, 5F, 1F);
+                victim.displayClientMessage(Component.translatable("message.bartender.armor_broke_self")
+                        .withStyle(ChatFormatting.YELLOW), true);
                 return;
             } else {
                 component.stopPsycho();

@@ -391,7 +391,7 @@ public class PsychologistPlayerComponent implements RoleComponent, ServerTicking
                     1,
                     true,
                     false,
-                    true));
+                    false));
 
             // MOOD_DRAIN_REDUCTION 一级（放大器 0）
             nearby.addEffect(new MobEffectInstance(
@@ -400,7 +400,7 @@ public class PsychologistPlayerComponent implements RoleComponent, ServerTicking
                     0,
                     true,
                     false,
-                    true));
+                    false));
         }
     }
 

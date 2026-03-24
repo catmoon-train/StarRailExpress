@@ -56,7 +56,7 @@ public class SREPlayerPoisonComponent implements RoleComponent, ServerTickingCom
                 return canSyncedRolePaths.contains(role.identifier().getPath());
             }
         }
-        return true;
+        return false;
     }
 
     @Override
@@ -90,8 +90,21 @@ public class SREPlayerPoisonComponent implements RoleComponent, ServerTickingCom
         KEY.sync(this.player);
     }
 
+    public boolean checkIsGameRunning() {
+        if (gameWorldComponent == null) {
+            gameWorldComponent = SREGameWorldComponent.KEY.get(this.player.level());
+        }
+        return gameWorldComponent.gameStatus.equals(SREGameWorldComponent.GameStatus.ACTIVE);
+    }
+
     @Override
     public void clientTick() {
+        if (!checkIsGameRunning()) {
+            this.poisonTicks = 0;
+            this.poisonPulseCooldown = 0;
+            this.poisoner = null;
+            return;
+        }
         if (this.poisonTicks > 0)
             this.poisonTicks--;
         if (this.poisonTicks > 0) {
@@ -153,12 +166,13 @@ public class SREPlayerPoisonComponent implements RoleComponent, ServerTickingCom
 
     @Override
     public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
-        if (this.poisoner != null)
+        if (this.poisoner != null) {
             tag.putUUID("poisoner", this.poisoner);
-        if (this.poisonTicks >= 0)
-            tag.putInt("poisonTicks", this.poisonTicks);
-        if (this.initialPoisonTicks >= 0)
-            tag.putInt("initialPoisonTicks", this.initialPoisonTicks);
+            if (this.poisonTicks >= 0)
+                tag.putInt("poisonTicks", this.poisonTicks);
+            if (this.initialPoisonTicks >= 0)
+                tag.putInt("initialPoisonTicks", this.initialPoisonTicks);
+        }
     }
 
     @Override
@@ -167,7 +181,7 @@ public class SREPlayerPoisonComponent implements RoleComponent, ServerTickingCom
         this.poisonTicks = tag.contains("poisonTicks") ? tag.getInt("poisonTicks") : -1;
         this.initialPoisonTicks = tag.contains("initialPoisonTicks") ? tag.getInt("initialPoisonTicks") : 0;
     }
-    
+
     @Override
     public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }

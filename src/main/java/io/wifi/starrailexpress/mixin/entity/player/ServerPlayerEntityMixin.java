@@ -52,10 +52,7 @@ public class ServerPlayerEntityMixin {
                 GameUtils.killPlayer(playerTarget, true, self, GameConstants.DeathReasons.BAT);
             }
             CrosshairaddonsCompat.onAttack(target);
-            self.getCommandSenderWorld().playSound(self,
-                    playerTarget.getX(), playerTarget.getEyeY(), playerTarget.getZ(),
-                    TMMSounds.ITEM_BAT_HIT, SoundSource.PLAYERS,
-                    3f, 1f);
+            self.playNotifySound(TMMSounds.ITEM_BAT_HIT, SoundSource.PLAYERS, 3f, 1f);
             ci.cancel();
             return;
         }

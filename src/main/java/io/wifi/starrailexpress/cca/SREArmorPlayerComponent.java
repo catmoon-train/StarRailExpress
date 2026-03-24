@@ -86,8 +86,18 @@ public class SREArmorPlayerComponent implements RoleComponent, ServerTickingComp
         KEY.sync(this.player);
     }
 
+    public boolean checkIsGameRunning() {
+        if (gameWorldComponent == null) {
+            gameWorldComponent = SREGameWorldComponent.KEY.get(this.player.level());
+        }
+        return gameWorldComponent.gameStatus.equals(SREGameWorldComponent.GameStatus.ACTIVE);
+    }
+
     public void clientTick() {
-        
+        if (!checkIsGameRunning()) {
+            this.armor = 0;
+            return;
+        }
     }
 
     public static int tick_ = 0;
@@ -100,7 +110,6 @@ public class SREArmorPlayerComponent implements RoleComponent, ServerTickingComp
         this.sync();
         return true;
     }
-
 
     public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         if (this.armor > 0)

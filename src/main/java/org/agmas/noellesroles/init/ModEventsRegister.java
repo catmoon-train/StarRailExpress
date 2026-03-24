@@ -861,17 +861,29 @@ public class ModEventsRegister {
                 }
             }
         });
-        OnPlayerKilledPlayer.EVENT.register((victim, killer, deathReason) -> {
+        OnPlayerDeathWithKiller.EVENT.register((victim, killer, deathReason) -> {
+            var gameWorldComponent = SREGameWorldComponent.KEY.get(victim.level());
+            if (gameWorldComponent.isRole(victim, ModRoles.WATCHER)) {
+                var watcher = WatcherPlayerComponent.KEY.get(victim);
+                if (watcher.isInCalmStance()) {
+                    if (gameWorldComponent.isInnocent(killer)) {
+                        GameUtils.killPlayer(killer, true, victim, Noellesroles.id("shot_innocent"));
+                    }
+                }
+            }
+        });
+        OnPlayerKilledPlayerIdentifier.EVENT.register((victim, killer, deathReason) -> {
             var gameWorldComponent = SREGameWorldComponent.KEY.get(victim.level());
             if (gameWorldComponent.isRole(killer, ModRoles.WATCHER)) {
                 var watcher = WatcherPlayerComponent.KEY.get(killer);
                 if (watcher.isInCalmStance()) {
-                    if (gameWorldComponent.isInnocent(killer)) {
-                        GameUtils.killPlayer(killer, true, null, Noellesroles.id("watcher_calm_kill"));
+                    if (!deathReason.getPath().equals("shot_innocent")) {
+                        if (gameWorldComponent.isInnocent(victim)) {
+                            GameUtils.killPlayer(killer, true, null, Noellesroles.id("watcher_calm_kill"));
+                        }
                     }
                 }
             }
-
             // 强盗的金钱盗取逻辑
             if (gameWorldComponent.isRole(killer, ModRoles.BANDIT)) {
                 var banditComponent = ModComponents.BANDIT.get(killer);
@@ -888,7 +900,7 @@ public class ModEventsRegister {
                 }
             }
 
-            if (deathReason.equals(OnPlayerKilledPlayer.DeathReason.KNIFE)) {
+            if (deathReason.getPath().equals(GameConstants.DeathReasons.KNIFE.getPath())) {
                 killer.addEffect(new MobEffectInstance(
                         MobEffects.MOVEMENT_SPEED, // ID
                         1, // 持续时间（tick）

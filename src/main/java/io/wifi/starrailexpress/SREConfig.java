@@ -143,7 +143,7 @@ public class SREConfig implements ConfigData {
     @ConfigEntry.Category(value = "stats")
     public boolean isDetailedStatsSyncEnabled = false;
     @ConfigEntry.Category(value = "progression")
-    public boolean enableProgressionSystem = true;
+    public boolean enableProgressionSystem = false;
     @ConfigEntry.Category(value = "progression")
     public boolean progressionSyncServerEnabled = false;
     @ConfigEntry.Category(value = "progression")

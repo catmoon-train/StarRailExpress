@@ -495,10 +495,10 @@ public class ServerTaskInfoClasses {
                     SRE.LOGGER.info("RESETING MAP FINISHED. STARTING THE GAME.");
                 }
                 var blackoutComponent = SREWorldBlackoutComponent.KEY.get(this.world);
-                blackoutComponent.triggerBlackout(false);
-                GameUtils.serverTaskQueue.add(new ServerTaskInfoClasses.SchedulerTask(5, () -> {
-                    blackoutComponent.reset();
-                }));
+                blackoutComponent.reset();
+                // GameUtils.serverTaskQueue.add(new ServerTaskInfoClasses.SchedulerTask(5, () -> {
+                //     blackoutComponent.reset();
+                // }));
 
                 GameUtils.serverTaskQueue.add(new ServerTaskInfoClasses.SchedulerTask(5, () -> {
                     GameUtils.trueStartGame(this.world, this.gameMode, this.time);

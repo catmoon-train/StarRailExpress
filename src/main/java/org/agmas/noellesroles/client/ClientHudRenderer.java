@@ -469,7 +469,7 @@ public class ClientHudRenderer {
       var abpc = SREArmorPlayerComponent.KEY.get(client.player);
       {
         var text = Component
-            .translatable("hud.hoan_meirin.armor",
+            .translatable("hud.bartender.has_armor",
                 abpc.armor)
             .withStyle(ChatFormatting.GOLD);
         guiGraphics.drawString(font, text, 10, yOffset - font.lineHeight - 4,
@@ -489,7 +489,7 @@ public class ClientHudRenderer {
       var abpc = HoanMeirinPlayerComponent.KEY.get(client.player);
       {
         var text = Component
-            .translatable("hud.bartender.has_armor",
+            .translatable("hud.hoan_meirin.armor",
                 abpc.armor)
             .withStyle(ChatFormatting.GOLD);
         guiGraphics.drawString(font, text, 10, yOffset - font.lineHeight - 4,

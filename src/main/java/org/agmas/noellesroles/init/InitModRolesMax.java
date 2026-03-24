@@ -1,6 +1,7 @@
 package org.agmas.noellesroles.init;
 
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
@@ -38,14 +39,18 @@ public class InitModRolesMax {
                 nextPreset = sreConfig.roundBasedPresetHighLevel;
             } else {
                 nextPreset = sreConfig.roundBasedPresetAllRoles;
+                sreConfig.enableRoundBasedAutoPreset = false;
+                SREConfig.HANDLER.save();
+                org.agmas.harpymodloader.config.HarpyModLoaderConfig.HANDLER.save();
             }
-
+            org.agmas.harpymodloader.config.HarpyModLoaderConfig hml = org.agmas.harpymodloader.config.HarpyModLoaderConfig.HANDLER
+                    .instance();
             if (nextPreset == null || nextPreset.isBlank()) {
                 // 全部职业启用：清空禁用列表
-                org.agmas.harpymodloader.config.HarpyModLoaderConfig hml = org.agmas.harpymodloader.config.HarpyModLoaderConfig.HANDLER
-                        .instance();
                 hml.disabled.clear();
                 hml.disabledModifiers.clear();
+                sreConfig.enableRoundBasedAutoPreset = false;
+                SREConfig.HANDLER.save();
                 org.agmas.harpymodloader.config.HarpyModLoaderConfig.HANDLER.save();
                 SRE.LOGGER.info("[AutoPreset] 第{}局结束，已启用全部职业", round);
             } else {

@@ -32,6 +32,7 @@ public class SREPlayerPsychoComponent implements RoleComponent, ServerTickingCom
     public int psychoTicks = -1;
     public int armour = 1;
     public int type = -1;
+    private static SREGameWorldComponent gameWorldComponent = null;
 
     public SREPlayerPsychoComponent(Player player) {
         this.player = player;
@@ -39,7 +40,9 @@ public class SREPlayerPsychoComponent implements RoleComponent, ServerTickingCom
 
     @Override
     public boolean shouldSyncWith(ServerPlayer sp) {
-        return true;
+        if (checkIsGameRunning())
+            return true;
+        return false;
     }
 
     @Override
@@ -66,6 +69,12 @@ public class SREPlayerPsychoComponent implements RoleComponent, ServerTickingCom
     @Override
     @Environment(EnvType.CLIENT)
     public void clientTick() {
+        if (!checkIsGameRunning()) {
+            if (this.psychoTicks > 0)
+                this.psychoTicks = 0;
+            return;
+        }
+
         if (this.psychoTicks <= 0)
             return;
         this.psychoTicks--;
@@ -96,6 +105,13 @@ public class SREPlayerPsychoComponent implements RoleComponent, ServerTickingCom
 
     @Override
     public void serverTick() {
+        if (!checkIsGameRunning()) {
+            if (this.psychoTicks > 0) {
+                this.stopPsycho();
+                this.psychoTicks = 0;
+            }
+            return;
+        }
         if (this.psychoTicks <= 0)
             return;
         if (--this.psychoTicks == 0) {
@@ -189,6 +205,13 @@ public class SREPlayerPsychoComponent implements RoleComponent, ServerTickingCom
     @Override
     public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
 
+    }
+
+    public boolean checkIsGameRunning() {
+        if (gameWorldComponent == null) {
+            gameWorldComponent = SREGameWorldComponent.KEY.get(this.player.level());
+        }
+        return gameWorldComponent.gameStatus.equals(SREGameWorldComponent.GameStatus.ACTIVE);
     }
 
     @Override

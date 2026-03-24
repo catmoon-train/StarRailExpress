@@ -1,6 +1,9 @@
 package org.agmas.noellesroles.commands;
 
 import com.mojang.brigadier.context.CommandContext;
+
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent.GameStatus;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
@@ -12,11 +15,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.state.BlockState;
 import org.agmas.noellesroles.Noellesroles;
 
-/**
- * 抽奖命令
- * 玩家调用抽奖命令，服务器进行抽奖并向玩家返回结果
- * 玩家根据结果包播放相关动画
- */
 public class StuckCommand {
     public static void register() {
         // 注册管理员命令
@@ -37,6 +35,20 @@ public class StuckCommand {
         try {
             ServerPlayer player = context.getSource().getPlayer();
             ServerLevel level = context.getSource().getLevel();
+            if (SREGameWorldComponent.KEY.get(level).getGameStatus() == GameStatus.INACTIVE) {
+                BlockPos spawn = level.getSharedSpawnPos();
+                float angle = level.getSharedSpawnAngle();
+                player.teleportTo(level, spawn.getX(), spawn.getY(),
+                        spawn.getZ(), angle, 0);
+                if (!player.isCreative())
+                    player.setGameMode(net.minecraft.world.level.GameType.ADVENTURE);
+                player.displayClientMessage(
+                        Component.translatable("message.noellesroles.commands.stuck.success")
+                                .withStyle(ChatFormatting.GREEN),
+                        true);
+
+                return 1;
+            }
             if (player == null)
                 return 0;
             var playerInBlockPos = player.blockPosition();
@@ -45,7 +57,7 @@ public class StuckCommand {
 
                 // var playerInBlockPos2 = player.blockPosition();
                 // var blockState2 = level.getBlockState(playerInBlockPos2);
-               {
+                {
                     player.teleportTo(player.getX(), player.getY() + 1, player.getZ());
 
                     player.displayClientMessage(
