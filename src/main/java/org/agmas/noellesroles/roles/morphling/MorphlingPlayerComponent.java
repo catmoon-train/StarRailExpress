@@ -27,6 +27,7 @@ public class MorphlingPlayerComponent implements RoleComponent, ServerTickingCom
     public UUID disguise;
     public int morphTicks = 0;
     public int tickR = 0;
+    private SREGameWorldComponent gameWorldComponent = null;
 
     @Override
     public void init() {
@@ -34,8 +35,17 @@ public class MorphlingPlayerComponent implements RoleComponent, ServerTickingCom
         this.sync();
     }
 
+    public boolean checkIsGameRunning() {
+        if (gameWorldComponent == null) {
+            gameWorldComponent = SREGameWorldComponent.KEY.get(this.player.level());
+        }
+        return gameWorldComponent.isRunning();
+    }
+
     @Override
     public boolean shouldSyncWith(ServerPlayer player) {
+        if (!checkIsGameRunning())
+            return false;
         return true;
     }
 
@@ -58,6 +68,10 @@ public class MorphlingPlayerComponent implements RoleComponent, ServerTickingCom
     }
 
     public void clientTick() {
+        if (!checkIsGameRunning()) {
+            this.morphTicks = 0;
+            return;
+        }
         if (this.morphTicks != 0) {
             if (this.morphTicks > 0) {
                 this.morphTicks--;
@@ -70,6 +84,10 @@ public class MorphlingPlayerComponent implements RoleComponent, ServerTickingCom
     public void serverTick() {
         if (!SREGameWorldComponent.KEY.get(this.player.level()).isRole(this.player, ModRoles.MORPHLING))
             return;
+        if (!checkIsGameRunning()) {
+            this.morphTicks = 0;
+            return;
+        }
         if (this.morphTicks != 0) {
             ++tickR;
             if (this.morphTicks > 0) {
@@ -129,16 +147,18 @@ public class MorphlingPlayerComponent implements RoleComponent, ServerTickingCom
     }
 
     public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
-        tag.putInt("morphTicks", this.morphTicks);
-        if (disguise != null)
-            tag.putUUID("disguise", this.disguise);
+        if (this.morphTicks > 0) {
+            tag.putInt("morphTicks", this.morphTicks);
+            if (disguise != null)
+                tag.putUUID("disguise", this.disguise);
+        }
     }
 
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.morphTicks = tag.contains("morphTicks") ? tag.getInt("morphTicks") : 0;
         this.disguise = tag.contains("disguise") ? tag.getUUID("disguise") : player.getUUID();
     }
-    
+
     @Override
     public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }
