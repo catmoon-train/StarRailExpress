@@ -268,8 +268,8 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
             return;
         }
         if (role.getIdentifier() != null) {
-            incrementQuest(ObjectiveType.BECOME_ROLE, role.getIdentifier().toString(), 1);
-            incrementQuest(ObjectiveType.BECOME_ROLE, role.getIdentifier().getPath(), 1);
+            // 兼容任务配置中 objectiveKey 写完整命名空间或仅写路径两种形式
+            incrementQuest(ObjectiveType.BECOME_ROLE, List.of(role.getIdentifier().toString(), role.getIdentifier().getPath()), 1);
         }
         FactionCardType matchedCard = FactionCardType.fromRole(role);
         if (matchedCard != FactionCardType.NONE) {
@@ -449,9 +449,14 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
     }
 
     private void incrementQuest(ObjectiveType type, String key, int amount) {
+        incrementQuest(type, key == null ? List.of() : List.of(key), amount);
+    }
+
+    private void incrementQuest(ObjectiveType type, List<String> keys, int amount) {
+        List<String> actualKeys = keys == null ? List.of() : keys;
         boolean changed = false;
         for (PassQuest quest : this.activeQuests) {
-            if (quest.objectiveType != type || !matchesObjectiveKey(quest.objectiveKey, key) || quest.progress >= quest.target) {
+            if (quest.objectiveType != type || !matchesAnyObjectiveKey(quest.objectiveKey, actualKeys) || quest.progress >= quest.target) {
                 continue;
             }
             quest.progress = Math.min(quest.target, quest.progress + amount);
@@ -647,9 +652,14 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
         if (!(definitions instanceof List<?> rawDefinitions) || rawDefinitions.isEmpty()) {
             return;
         }
-        this.activeQuests.removeIf(q -> q.category == QuestCategory.DAILY
-                || q.category == QuestCategory.WEEKLY
-                || q.category == QuestCategory.PERMANENT);
+        Set<QuestCategory> categoriesInPayload = new HashSet<>();
+        for (Object rawDefinition : rawDefinitions) {
+            if (rawDefinition instanceof Map<?, ?> rawMap) {
+                categoriesInPayload.add(
+                        QuestCategory.fromString(getMapString(rawMap, QUEST_DEF_KEYS, "category", QuestCategory.DAILY.name())));
+            }
+        }
+        this.activeQuests.removeIf(q -> categoriesInPayload.contains(q.category));
         for (Object rawDefinition : rawDefinitions) {
             if (!(rawDefinition instanceof Map<?, ?> rawMap)) {
                 continue;
@@ -1406,9 +1416,6 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
     }
 
     private static boolean matchesObjectiveKey(String objectiveKey, String actualKey) {
-        if (Objects.equals(objectiveKey, actualKey)) {
-            return true;
-        }
         if (objectiveKey != null && objectiveKey.equalsIgnoreCase(actualKey)) {
             return true;
         }
@@ -1418,5 +1425,17 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
         String objectivePath = objectiveKey.contains(":") ? objectiveKey.substring(objectiveKey.indexOf(':') + 1) : objectiveKey;
         String actualPath = actualKey.contains(":") ? actualKey.substring(actualKey.indexOf(':') + 1) : actualKey;
         return objectivePath.equalsIgnoreCase(actualPath);
+    }
+
+    private static boolean matchesAnyObjectiveKey(String objectiveKey, List<String> actualKeys) {
+        if (actualKeys == null || actualKeys.isEmpty()) {
+            return false;
+        }
+        for (String actualKey : actualKeys) {
+            if (matchesObjectiveKey(objectiveKey, actualKey)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
