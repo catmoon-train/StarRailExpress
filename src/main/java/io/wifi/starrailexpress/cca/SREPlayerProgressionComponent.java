@@ -124,6 +124,7 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
     private int claimedLootRewards;
     public FactionCardType activeFactionCard;
     private int syncDirtyMask = SYNC_DIRTY_ALL;
+    private boolean syncPending = false;
 
     public SREPlayerProgressionComponent(Player player) {
         this.player = player;
@@ -354,8 +355,13 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
         if (!SREConfig.instance().enableProgressionSystem) {
             return;
         }
-        if (!(this.player instanceof ServerPlayer serverPlayer)
-                || serverPlayer.serverLevel().getGameTime() % 20L != 0L) {
+        if (!(this.player instanceof ServerPlayer serverPlayer)) {
+            return;
+        }
+        if (this.syncPending) {
+            flushPendingSync();
+        }
+        if (serverPlayer.serverLevel().getGameTime() % 20L != 0L) {
             return;
         }
         long now = System.currentTimeMillis();
@@ -805,9 +811,22 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
 
     private void markChanged(int dirtyMask) {
         this.syncDirtyMask |= dirtyMask;
+        if (this.player instanceof ServerPlayer) {
+            this.syncPending = true;
+            return;
+        }
+        flushPendingSync();
+    }
+
+    private void flushPendingSync() {
+        if (this.syncDirtyMask == 0) {
+            this.syncPending = false;
+            return;
+        }
         sync();
         syncToNetwork(this.syncDirtyMask);
         this.syncDirtyMask = 0;
+        this.syncPending = false;
     }
 
     public void writeToSyncNbt(CompoundTag tag, HolderLookup.Provider provider) {
