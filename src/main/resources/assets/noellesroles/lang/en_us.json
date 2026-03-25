@@ -1428,6 +1428,7 @@
   "message.noellesroles.clockmaker.insufficient_funds": "Not enough gold! Requires %s gold.",
   "message.noellesroles.clockmaker.min_time_reached": "Game time has reached its minimum; cannot reduce further!",
   "message.noellesroles.clockmaker.time_reduced": "Time reduced by %s seconds! Current game time: %s min %s sec",
+  "message.noellesroles.skill_echo.heard": "I heard the echo of %s.",
   "Collect": "Collect Slot",
   "screen.vending_machine.click_to_pick": "Click the collection slot to take the item",
   "message.noellesroles.vt_mode.enabled": "Broadcaster mode enabled for %s. They will not hear spectators.",

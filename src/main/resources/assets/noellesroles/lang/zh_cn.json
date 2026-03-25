@@ -1435,6 +1435,7 @@
   "message.noellesroles.clockmaker.insufficient_funds": "金币不足！需要 %s 金币。",
   "message.noellesroles.clockmaker.min_time_reached": "游戏时间已达到最小值，无法继续削减！",
   "message.noellesroles.clockmaker.time_reduced": "时间已缩短 %s 秒！当前游戏时间：%s分%s秒",
+  "message.noellesroles.skill_echo.heard": "我听见了 %s 的回响。",
   "Collect": "收集口",
   "screen.vending_machine.click_to_pick": "点击收集口取走商品",
   "message.noellesroles.vt_mode.enabled": "已为 %s 启用主播模式。Ta将无法听到旁观者的讨论。",

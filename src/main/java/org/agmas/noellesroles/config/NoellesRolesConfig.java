@@ -250,6 +250,21 @@ public class NoellesRolesConfig implements ConfigData {
     public int manipulatorCooldown = 60;
 
     /**
+     * Skill Echo Event - global switch (default off)
+     */
+    public boolean skillEchoEventEnabled = false;
+
+    /**
+     * Skill Echo Event - random unannounced role broadcast switch
+     */
+    public boolean skillEchoRandomBroadcastEnabled = true;
+
+    /**
+     * Skill Echo Event - random broadcast interval in seconds
+     */
+    public int skillEchoRandomIntervalSeconds = 90;
+
+    /**
      * (Client Side) Welcome Voice - Play welcome voice
      */
 

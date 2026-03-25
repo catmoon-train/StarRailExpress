@@ -36,6 +36,8 @@ import io.wifi.starrailexpress.data.MapConfig;
 import io.wifi.starrailexpress.entity.FirecrackerEntity;
 import io.wifi.starrailexpress.entity.NoteEntity;
 import io.wifi.starrailexpress.event.AllowOtherCameraType;
+import io.wifi.starrailexpress.event.AllowItemShowInHand;
+import io.wifi.starrailexpress.event.ClientHeldItemSwitchEvent;
 import io.wifi.starrailexpress.event.OnGetInstinctHighlight;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -79,6 +81,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.Vec3;
 import org.lwjgl.glfw.GLFW;
@@ -99,7 +102,12 @@ public class SREClient implements ClientModInitializer {
     public static SREPlayerMoodComponent moodComponent;
     public static int intervalTime = 0;
     public static boolean isInLobby = false;
+    public static boolean hideLocalMainHandItemInLayer = false;
+    public static boolean hideLocalOffHandItemInLayer = false;
     public static final Map<UUID, PlayerInfo> PLAYER_ENTRIES_CACHE = new HashMap<>();
+    private static ItemStack prevMainHandSnapshot = ItemStack.EMPTY;
+    private static ItemStack prevOffHandSnapshot = ItemStack.EMPTY;
+    private static int prevSelectedHotbarSlot = -1;
 
     public static KeyMapping instinctKeybind;
     public static KeyMapping statsKeybind; // 新增统计面板热键
@@ -292,6 +300,10 @@ public class SREClient implements ClientModInitializer {
             }
             return AllowOtherCameraType.ReturnCameraType.NO_CHANGE;
         });
+        ClientHeldItemSwitchEvent.EVENT.register((player, mainHand, offHand) -> {
+            hideLocalMainHandItemInLayer = isHandHiddenByEvent(player, mainHand, true);
+            hideLocalOffHandItemInLayer = isHandHiddenByEvent(player, offHand, false);
+        });
         ClientTickEvents.START_WORLD_TICK.register(clientWorld -> {
             if (Minecraft.getInstance() != null && Minecraft.getInstance().player != null) {
                 boolean keycode = Minecraft.getInstance().options.keyShift.consumeClick();
@@ -346,6 +358,27 @@ public class SREClient implements ClientModInitializer {
         intervalTime = new Random().nextInt(0, 200);
         ClientTickEvents.END_CLIENT_TICK.register((client) -> {
             FrameAnimationRenderer.setInWorld(client != null && client.level != null);
+            LocalPlayer player = client.player;
+            if (player == null) {
+                prevMainHandSnapshot = ItemStack.EMPTY;
+                prevOffHandSnapshot = ItemStack.EMPTY;
+                prevSelectedHotbarSlot = -1;
+                hideLocalMainHandItemInLayer = false;
+                hideLocalOffHandItemInLayer = false;
+            } else {
+                ItemStack mainHand = player.getMainHandItem();
+                ItemStack offHand = player.getOffhandItem();
+                int selectedHotbarSlot = player.getInventory().selected;
+                boolean mainHandChanged = selectedHotbarSlot != prevSelectedHotbarSlot
+                        || !ItemStack.isSameItemSameComponents(mainHand, prevMainHandSnapshot);
+                boolean offHandChanged = !ItemStack.isSameItemSameComponents(offHand, prevOffHandSnapshot);
+                if (mainHandChanged || offHandChanged) {
+                    prevMainHandSnapshot = mainHand.copy();
+                    prevOffHandSnapshot = offHand.copy();
+                    prevSelectedHotbarSlot = selectedHotbarSlot;
+                    ClientHeldItemSwitchEvent.EVENT.invoker().onSwitch(player, mainHand, offHand);
+                }
+            }
 
             if (gameComponent != null) {
                 if (gameComponent.isRunning()) {
@@ -710,5 +743,10 @@ public class SREClient implements ClientModInitializer {
 
     public static Object getLockedRenderDistance(boolean ultraPerfMode) {
         return null;
+    }
+
+    private static boolean isHandHiddenByEvent(LocalPlayer player, ItemStack stack, boolean isMainHand) {
+        ItemStack eventRes = AllowItemShowInHand.EVENT.invoker().allowShowInHand(player, stack, isMainHand);
+        return eventRes != null && eventRes.isEmpty();
     }
 }

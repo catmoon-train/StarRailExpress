@@ -6,6 +6,7 @@ import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.event.AllowItemShowInHand;
 import io.wifi.starrailexpress.index.TMMItems;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -13,6 +14,7 @@ import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.item.StalkerKnifeItem;
 import org.agmas.noellesroles.role.ModRoles;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 import java.util.HashMap;
@@ -20,6 +22,13 @@ import java.util.UUID;
 
 @Mixin(ItemInHandLayer.class)
 public class HeldItemFeatureRendererMixin {
+    @Unique
+    private static boolean sre$shouldHideLocalLayerItem(Player player, boolean mainHand) {
+        // 本地玩家通过切换物品时预计算结果，减少渲染路径频繁事件判断
+        return player instanceof LocalPlayer
+                && (mainHand ? SREClient.hideLocalMainHandItemInLayer : SREClient.hideLocalOffHandItemInLayer);
+    }
+
     @WrapOperation(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/world/entity/LivingEntity;FFFFFF)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;getOffhandItem()Lnet/minecraft/world/item/ItemStack;"))
     public ItemStack nrs$changeOffHandItemStack(LivingEntity instance, Operation<ItemStack> original) {
         ItemStack ret = original.call(instance);
@@ -46,6 +55,9 @@ public class HeldItemFeatureRendererMixin {
                     return TMMItems.REVOLVER.getDefaultInstance();
                 }
             }
+            if (sre$shouldHideLocalLayerItem(player, false)) {
+                return ItemStack.EMPTY;
+            }
             var eventRes = AllowItemShowInHand.EVENT.invoker().allowShowInHand(player, ret, false);
             if (eventRes != null) {
                 return eventRes;
@@ -68,6 +80,9 @@ public class HeldItemFeatureRendererMixin {
                 if (player.isCrouching()){
                     return ItemStack.EMPTY;
                 }
+            }
+            if (sre$shouldHideLocalLayerItem(player, true)) {
+                return ItemStack.EMPTY;
             }
 
                 var eventRes = AllowItemShowInHand.EVENT.invoker().allowShowInHand(player, ret, true);

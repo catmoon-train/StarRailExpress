@@ -36,8 +36,34 @@ public class ConfigCommand {
                                                 String statusText = value ? "Enabled" : "Disabled";
                                                 context.getSource().sendSystemMessage(
                                                         Component
-                                                                .literal("Innocent Punishment" + statusText
-                                                                        + " (accidentalKillPunishment = " + value + ")")
+                                                         .literal("Innocent Punishment " + statusText
+                                                                         + " (accidentalKillPunishment = " + value + ")")
+                                                                 .withStyle(net.minecraft.ChatFormatting.GREEN));
+                                                return 1;
+                                            })))
+                            .then(Commands.literal("skillEchoEvent")
+                                    .then(Commands.argument("value", BoolArgumentType.bool())
+                                            .executes(context -> {
+                                                boolean value = BoolArgumentType.getBool(context, "value");
+                                                NoellesRolesConfig config = NoellesRolesConfig.HANDLER.instance();
+                                                config.skillEchoEventEnabled = value;
+                                                NoellesRolesConfig.HANDLER.save();
+                                                context.getSource().sendSystemMessage(
+                                                        Component.literal("Skill Echo Event "
+                                                                + (value ? "Enabled" : "Disabled"))
+                                                                .withStyle(net.minecraft.ChatFormatting.GREEN));
+                                                return 1;
+                                            })))
+                            .then(Commands.literal("skillEchoRandom")
+                                    .then(Commands.argument("value", BoolArgumentType.bool())
+                                            .executes(context -> {
+                                                boolean value = BoolArgumentType.getBool(context, "value");
+                                                NoellesRolesConfig config = NoellesRolesConfig.HANDLER.instance();
+                                                config.skillEchoRandomBroadcastEnabled = value;
+                                                NoellesRolesConfig.HANDLER.save();
+                                                context.getSource().sendSystemMessage(
+                                                        Component.literal("Skill Echo Random Broadcast "
+                                                                + (value ? "Enabled" : "Disabled"))
                                                                 .withStyle(net.minecraft.ChatFormatting.GREEN));
                                                 return 1;
                                             }))));
