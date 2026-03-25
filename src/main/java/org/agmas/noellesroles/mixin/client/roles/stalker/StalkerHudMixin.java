@@ -1,7 +1,6 @@
 package org.agmas.noellesroles.mixin.client.roles.stalker;
 
 import io.wifi.starrailexpress.client.SREClient;
-import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -36,11 +35,9 @@ public class StalkerHudMixin {
         Minecraft client = Minecraft.getInstance();
         if (client.player == null || client.level == null)
             return;
-        if (client.player.isSpectator())
+        if (SREClient.isPlayerSpectator())
             return;
-        if (SREClient.gameComponent == null)
-            return;
-        var role = SREClient.gameComponent.getRole(client.player);
+        var role = SREClient.getCachedPlayerRole();
         if (role == null)
             return;
         if (!role.identifier().getPath().equals(ModRoles.STALKER.identifier().getPath())) {
@@ -54,7 +51,7 @@ public class StalkerHudMixin {
             return;
 
         // 检查玩家是否存活
-        if (!GameUtils.isPlayerAliveAndSurvival(client.player))
+        if (!SREClient.isPlayerAliveAndInSurvival())
             return;
 
         // 渲染位置 - 左下角

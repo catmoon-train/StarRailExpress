@@ -1,6 +1,5 @@
 package org.agmas.noellesroles.mixin.client.roles;
 
-import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.RoleNameRenderer;
 import net.minecraft.ChatFormatting;
@@ -33,13 +32,12 @@ public abstract class AvengerHudMixin {
         Minecraft client = Minecraft.getInstance();
         if (client.player == null)
             return;
-        if (client.player.isSpectator())
+        if (SREClient.isPlayerSpectator())
             return;
 
-        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(client.player.level());
 
         // 只有复仇者角色才显示 HUD
-        if (!gameWorld.isRole(client.player, ModRoles.AVENGER))
+        if (!SREClient.isRole(ModRoles.AVENGER))
             return;
         if (!SREClient.isPlayerAliveAndInSurvival())
             return;

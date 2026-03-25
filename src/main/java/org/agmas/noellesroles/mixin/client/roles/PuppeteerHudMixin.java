@@ -1,6 +1,6 @@
 package org.agmas.noellesroles.mixin.client.roles;
 
-import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -36,15 +36,14 @@ public abstract class PuppeteerHudMixin {
     public void renderPuppeteerHud(GuiGraphics context, DeltaTracker tickCounter, CallbackInfo ci) {
         Minecraft client = Minecraft.getInstance();
         if (client.player == null || client.level == null) return;
-        if(client.player.isSpectator()) return;
+        if (SREClient.isPlayerSpectator()) return;
 
         // 获取傀儡师组件
         PuppeteerPlayerComponent puppeteerComp = ModComponents.PUPPETEER.get(client.player);
 
         // 检查玩家是否是傀儡师（包括操控假人时角色临时变更的情况）
         // 操控假人时角色会变成其他杀手，但 isActivePuppeteer() 仍然返回 true
-        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(client.level);
-        final var role = gameWorld.getRole(client.player);
+        final var role = SREClient.getCachedPlayerRole();
         if (role==null)return;
         if (!role.getIdentifier().equals(ModRoles.PUPPETEER_ID) && !puppeteerComp.isActivePuppeteer()) return;
 

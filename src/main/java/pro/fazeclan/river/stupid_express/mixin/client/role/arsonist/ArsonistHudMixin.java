@@ -1,6 +1,5 @@
 package pro.fazeclan.river.stupid_express.mixin.client.role.arsonist;
 
-import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.RoleNameRenderer;
 import net.minecraft.client.DeltaTracker;
@@ -28,11 +27,10 @@ public class ArsonistHudMixin {
 
     @Inject(method = "renderHud", at = @At("TAIL"))
     private static void replaceRoleHud(Font renderer, LocalPlayer player, GuiGraphics context, DeltaTracker tickCounter, CallbackInfo ci) {
-        SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
         if (StupidExpressClient.target == null) {
             return;
         }
-        if (gameWorldComponent.isRole(Minecraft.getInstance().player, SERoles.ARSONIST) && !SREClient.isPlayerSpectatingOrCreative()) {
+        if (SREClient.isRole(SERoles.ARSONIST) && !SREClient.isPlayerSpectatingOrCreative()) {
             context.pose().pushPose();
             context.pose().translate(context.guiWidth() / 2.0f, context.guiHeight() / 2.0f + 6.0f, 0.0f);
             context.pose().scale(0.6f, 0.6f, 1.0f);

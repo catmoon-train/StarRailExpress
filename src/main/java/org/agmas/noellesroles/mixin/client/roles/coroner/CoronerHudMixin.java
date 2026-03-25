@@ -53,8 +53,8 @@ public abstract class CoronerHudMixin {
         SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY.get(player.level());
 
         if (NoellesrolesClient.targetFakeBody != null) {
-            if (gameWorldComponent.isRole(Minecraft.getInstance().player, ModRoles.CORONER)
-                    || gameWorldComponent.isRole(Minecraft.getInstance().player, ModRoles.VULTURE)
+            if (SREClient.isRole(ModRoles.CORONER)
+                    || SREClient.isRole(ModRoles.VULTURE)
                     || SREClient.isPlayerSpectatingOrCreative()) {
                 context.pose().pushPose();
                 context.pose().translate((float) context.guiWidth() / 2.0F, (float) context.guiHeight() / 2.0F + 6.0F,
@@ -100,10 +100,10 @@ public abstract class CoronerHudMixin {
         }
 
         if (NoellesrolesClient.targetBody != null) {
-            if (gameWorldComponent.isRole(Minecraft.getInstance().player, ModRoles.CORONER)
-                    || gameWorldComponent.isRole(Minecraft.getInstance().player, ModRoles.VULTURE)
-                    || gameWorldComponent.isRole(Minecraft.getInstance().player, ModRoles.WAYFARER)
-                    || gameWorldComponent.isRole(Minecraft.getInstance().player, ModRoles.DIO)
+            if (SREClient.isRole(ModRoles.CORONER)
+                    || SREClient.isRole(ModRoles.VULTURE)
+                    || SREClient.isRole(ModRoles.WAYFARER)
+                    || SREClient.isRole(ModRoles.DIO)
                     || SREClient.isPlayerSpectatingOrCreative()) {
                 var deathPenalty = ModComponents.DEATH_PENALTY.get(Minecraft.getInstance().player);
                 boolean hasPenalty = false;
@@ -177,7 +177,7 @@ public abstract class CoronerHudMixin {
                         foundRole = role;
                 }
                 if ((SREClient.isPlayerSpectatingOrCreative()
-                        || gameWorldComponent.isRole(Minecraft.getInstance().player, ModRoles.CORONER))
+                        || SREClient.isRole(ModRoles.CORONER))
                         && !bodyDeathReasonComponent.vultured) {
                     Component roleInfo = Component.translatable("hud.coroner.role_info").withColor(CommonColors.RED)
                             .append(Component
@@ -188,7 +188,7 @@ public abstract class CoronerHudMixin {
                     }
                     context.drawString(renderer, roleInfo, -renderer.width(roleInfo) / 2, 48, CommonColors.WHITE);
                 }
-                if (gameWorldComponent.isRole(Minecraft.getInstance().player, ModRoles.VULTURE)) {
+                if (SREClient.isRole(ModRoles.VULTURE)) {
                     if (bodyDeathReasonComponent.vultured) {
                         Component roleInfo = Component.translatable("hud.vulture.already_consumed")
                                 .withColor(ModRoles.VULTURE.color());
@@ -206,7 +206,7 @@ public abstract class CoronerHudMixin {
                         }
                     }
                 }
-                if (gameWorldComponent.isRole(Minecraft.getInstance().player, ModRoles.DIO)) {
+                if (SREClient.isRole(ModRoles.DIO)) {
                     if (bodyDeathReasonComponent.vultured) {
                         Component roleInfo = Component.translatable("hud.vulture.already_consumed")
                                 .withColor(ModRoles.VULTURE.color());

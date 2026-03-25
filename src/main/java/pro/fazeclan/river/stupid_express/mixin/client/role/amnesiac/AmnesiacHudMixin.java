@@ -1,6 +1,5 @@
 package pro.fazeclan.river.stupid_express.mixin.client.role.amnesiac;
 
-import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.RoleNameRenderer;
 import io.wifi.starrailexpress.entity.PlayerBodyEntity;
@@ -26,11 +25,10 @@ public class AmnesiacHudMixin {
     @Inject(method = "renderHud", at = @At("TAIL"))
     private static void replaceRoleHud(Font renderer, LocalPlayer player, GuiGraphics context, DeltaTracker tickCounter,
             CallbackInfo ci) {
-        SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
         if (StupidExpressClient.targetBody == null) {
             return;
         }
-        if (gameWorldComponent.isRole(Minecraft.getInstance().player, SERoles.AMNESIAC)
+        if (SREClient.isRole(SERoles.AMNESIAC)
                 && !SREClient.isPlayerSpectatingOrCreative()) {
             context.pose().pushPose();
             context.pose().translate(context.guiWidth() / 2.0f, context.guiHeight() / 2.0f + 6.0f, 0.0f);

@@ -1,7 +1,6 @@
 package org.agmas.noellesroles.mixin.client.roles.executioner;
 
 import com.llamalad7.mixinextras.sugar.Local;
-import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.RoleNameRenderer;
 import net.minecraft.client.DeltaTracker;
@@ -36,16 +35,15 @@ public abstract class ExecutionerHudMixin {
         if (Minecraft.getInstance() == null || Minecraft.getInstance().player == null) {
             return;
         }
-        if (Minecraft.getInstance().player.isSpectator())
+        if (SREClient.isPlayerSpectator())
             return;
-        SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY.get(player.level());
-
         // 检查是否是Executioner角色且存活
         if (Minecraft.getInstance().player != null
-                && gameWorldComponent.isRole(Minecraft.getInstance().player, ModRoles.EXECUTIONER)
+                && SREClient.isRole(ModRoles.EXECUTIONER)
                 && SREClient.isPlayerAliveAndInSurvival()) {
             // 检查是否已经转变为杀手
-            if (!gameWorldComponent.getRole(Minecraft.getInstance().player).canUseKiller()) {
+            final var role = SREClient.getCachedPlayerRole();
+            if (role != null && !role.canUseKiller()) {
                 ExecutionerPlayerComponent executionerPlayerComponent = ExecutionerPlayerComponent.KEY.get(player);
 
                 // 检查是否有选定的目标

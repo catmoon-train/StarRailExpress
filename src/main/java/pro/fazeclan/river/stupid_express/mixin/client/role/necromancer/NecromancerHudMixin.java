@@ -1,7 +1,6 @@
 package pro.fazeclan.river.stupid_express.mixin.client.role.necromancer;
 
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
-import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.RoleNameRenderer;
 import net.minecraft.client.DeltaTracker;
@@ -23,12 +22,11 @@ public class NecromancerHudMixin {
 
     @Inject(method = "renderHud", at = @At("TAIL"))
     private static void replaceRoleHud(Font renderer, LocalPlayer player, GuiGraphics context, DeltaTracker tickCounter, CallbackInfo ci) {
-        SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
         if (StupidExpressClient.targetBody == null) {
             return;
         }
         var p = Minecraft.getInstance().player;
-        if (gameWorldComponent.isRole(p, SERoles.NECROMANCER) && !SREClient.isPlayerSpectatingOrCreative()) {
+        if (SREClient.isRole(SERoles.NECROMANCER) && !SREClient.isPlayerSpectatingOrCreative()) {
             context.pose().pushPose();
             context.pose().translate(context.guiWidth() / 2.0f, context.guiHeight() / 2.0f + 6.0f, 0.0f);
             context.pose().scale(0.6f, 0.6f, 1.0f);

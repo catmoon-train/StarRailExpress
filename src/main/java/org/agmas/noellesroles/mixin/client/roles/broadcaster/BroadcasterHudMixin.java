@@ -1,6 +1,6 @@
 package org.agmas.noellesroles.mixin.client.roles.broadcaster;
 
-import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -72,10 +72,7 @@ public abstract class BroadcasterHudMixin {
             }
 
         }
-
-        SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY
-                .get(Minecraft.getInstance().player.level());
-        if (gameWorldComponent.isRole(Minecraft.getInstance().player, ModRoles.BROADCASTER)) {
+        if (SREClient.isRole(ModRoles.BROADCASTER)) {
             int drawY = context.guiHeight();
 
             Component line;

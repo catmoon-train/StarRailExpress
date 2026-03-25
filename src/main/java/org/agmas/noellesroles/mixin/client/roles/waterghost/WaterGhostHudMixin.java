@@ -1,7 +1,6 @@
 package org.agmas.noellesroles.mixin.client.roles.waterghost;
 
 import io.wifi.starrailexpress.client.SREClient;
-import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -31,12 +30,12 @@ public class WaterGhostHudMixin {
         if (SREClient.gameComponent == null) {
             return;
         }
-        if (!SREClient.gameComponent.isRole(player, ModRoles.WATER_GHOST)) {
+        if (!SREClient.isRole(ModRoles.WATER_GHOST)) {
             return;
         }
 
         // 检查玩家是否存活
-        if (!GameUtils.isPlayerAliveAndSurvival(player)) {
+        if (!SREClient.isPlayerAliveAndInSurvival()) {
             return;
         }
 

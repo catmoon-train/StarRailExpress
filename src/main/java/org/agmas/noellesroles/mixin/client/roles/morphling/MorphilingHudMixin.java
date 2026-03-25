@@ -1,6 +1,6 @@
 package org.agmas.noellesroles.mixin.client.roles.morphling;
 
-import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -26,12 +26,10 @@ public abstract class MorphilingHudMixin {
         if (Minecraft.getInstance() == null || Minecraft.getInstance().player == null) {
             return;
         }
-        if (Minecraft.getInstance().player.isSpectator())
+        if (SREClient.isPlayerSpectator())
             return;
-        SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY
-                .get(Minecraft.getInstance().player.level());
 
-        if (gameWorldComponent.isRole(Minecraft.getInstance().player, ModRoles.MORPHLING)) {
+        if (SREClient.isRole(ModRoles.MORPHLING)) {
             final var morphComp = MorphlingPlayerComponent.KEY.get(Minecraft.getInstance().player);
 
             final var morphTicks = morphComp.getMorphTicks();

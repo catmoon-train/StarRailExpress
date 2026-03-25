@@ -1,6 +1,6 @@
 package org.agmas.noellesroles.mixin.client.roles.nianshou;
 
-import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.Gui;
@@ -30,9 +30,7 @@ public abstract class NianShouHudMixin {
             return;
 
         var player = net.minecraft.client.Minecraft.getInstance().player;
-        var gameWorld = SREGameWorldComponent.KEY.get(player.level());
-
-        if (gameWorld == null || !gameWorld.isRole(player, ModRoles.NIAN_SHOU))
+        if (!SREClient.isRole(ModRoles.NIAN_SHOU))
             return;
 
         // 获取红包组件

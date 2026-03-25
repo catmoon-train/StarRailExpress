@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.mixin.client.roles.phantom;
 
+import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
-import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -28,13 +28,11 @@ public abstract class PhantomHudMixin {
         if (Minecraft.getInstance() == null || Minecraft.getInstance().player == null) {
             return;
         }
-        if (Minecraft.getInstance().player.isSpectator())
+        if (SREClient.isPlayerSpectator())
             return;
-        SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY
-                .get(Minecraft.getInstance().player.level());
         SREAbilityPlayerComponent abilityPlayerComponent = (SREAbilityPlayerComponent) SREAbilityPlayerComponent.KEY
                 .get(Minecraft.getInstance().player);
-        if (gameWorldComponent.isRole(Minecraft.getInstance().player, ModRoles.PHANTOM)) {
+        if (SREClient.isRole(ModRoles.PHANTOM)) {
             int drawY = context.guiHeight();
 
             Component line = Component.translatable("tip.phantom",

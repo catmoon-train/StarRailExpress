@@ -1,5 +1,6 @@
 package pro.fazeclan.river.stupid_express.mixin.client.modifier.refugee;
 
+import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -34,7 +35,7 @@ public abstract class RefugeeHudMixin {
         }
 
         // 检查玩家是否为旁观者模式
-        if (!client.player.isSpectator()) {
+        if (!SREClient.isPlayerSpectator()) {
             return;
         }
 

@@ -1,6 +1,5 @@
 package pro.fazeclan.river.stupid_express.mixin.client.modifier.lovers;
 
-import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.RoleNameRenderer;
 import net.minecraft.client.DeltaTracker;
@@ -32,7 +31,6 @@ public abstract class LoversHudMixin {
     private static void loversHud(Font renderer, LocalPlayer player, GuiGraphics context, DeltaTracker tickCounter, CallbackInfo ci) {
 
         var clientPlayer = Minecraft.getInstance().player;
-        var clientWorld = clientPlayer.level();
 
         var component = LoversComponent.KEY.get(clientPlayer);
         var config = StupidExpress.CONFIG;
@@ -54,9 +52,9 @@ public abstract class LoversHudMixin {
                 name = Component.translatable("tip.stupid_express.lovers.partner", loverInfo.getProfile().getName());
             }
 
-            var role = SREGameWorldComponent.KEY.get(clientWorld).getRole(clientPlayer);
+            var role = SREClient.getCachedPlayerRole();
             if (role != null) {
-                if (SREGameWorldComponent.KEY.get(clientWorld).getRole(clientPlayer).identifier().equals(ModRoles.EXECUTIONER_ID)) {
+                if (role.identifier().equals(ModRoles.EXECUTIONER_ID)) {
                     textYPos -= 15;
                 }
             }

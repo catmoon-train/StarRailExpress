@@ -43,30 +43,28 @@ public class InGameHudMixin {
 
     @Inject(method = "renderHotbarAndDecorations", at = @At("TAIL"))
     private void tmm$renderHud(GuiGraphics context, DeltaTracker tickCounter, CallbackInfo ci) {
-        if (SREClient.isInLobby) {
+        if (!SREClient.shouldUseTrainHud()) {
             return;
         }
-        if (SREClient.trainComponent != null && SREClient.trainComponent.hasHud()) {
-            LocalPlayer player = this.minecraft.player;
-            if (player == null)
-                return;
-            Font renderer = Minecraft.getInstance().font;
-            MoodRenderer.renderHud(player, renderer, context, tickCounter);
-            RoleNameRenderer.renderHud(renderer, player, context, tickCounter);
-            RoundTextRenderer.renderHud(renderer, player, context, tickCounter.getRealtimeDeltaTicks());
-            StatusBarHUD.getInstance().render(context, tickCounter.getRealtimeDeltaTicks());
-            if (Minecraft.getInstance().screen == null)
-                StoreRenderer.renderHud(renderer, player, context, tickCounter.getGameTimeDeltaPartialTick(true));
-            TimeRenderer.renderHud(renderer, player, context, tickCounter.getGameTimeDeltaPartialTick(true));
-            StaminaRenderer.renderHud(player, context, tickCounter.getGameTimeDeltaPartialTick(true));
-            SansRenderer.instance.tick(player, context, tickCounter.getGameTimeDeltaPartialTick(true));
-            LobbyPlayersRenderer.renderHud(renderer, player, context);
-        }
+        LocalPlayer player = this.minecraft.player;
+        if (player == null)
+            return;
+        Font renderer = Minecraft.getInstance().font;
+        MoodRenderer.renderHud(player, renderer, context, tickCounter);
+        RoleNameRenderer.renderHud(renderer, player, context, tickCounter);
+        RoundTextRenderer.renderHud(renderer, player, context, tickCounter.getRealtimeDeltaTicks());
+        StatusBarHUD.getInstance().render(context, tickCounter.getRealtimeDeltaTicks());
+        if (Minecraft.getInstance().screen == null)
+            StoreRenderer.renderHud(renderer, player, context, tickCounter.getGameTimeDeltaPartialTick(true));
+        TimeRenderer.renderHud(renderer, player, context, tickCounter.getGameTimeDeltaPartialTick(true));
+        StaminaRenderer.renderHud(player, context, tickCounter.getGameTimeDeltaPartialTick(true));
+        SansRenderer.instance.tick(player, context, tickCounter.getGameTimeDeltaPartialTick(true));
+        LobbyPlayersRenderer.renderHud(renderer, player, context);
     }
 
     @WrapMethod(method = "renderCrosshair")
     private void tmm$renderHud(GuiGraphics context, DeltaTracker tickCounter, Operation<Void> original) {
-        if (SREClient.isInLobby || !SREClient.isPlayerAliveAndInSurvival()) {
+        if (SREClient.shouldRenderVanillaHud()) {
             original.call(context, tickCounter);
             return;
         }
@@ -79,27 +77,27 @@ public class InGameHudMixin {
     @WrapMethod(method = "renderPlayerHealth")
     private void tmm$removeStatusBars(GuiGraphics context, Operation<Void> original) {
 
-        if (SREClient.isInLobby || !SREClient.isPlayerAliveAndInSurvival()) {
+        if (SREClient.shouldRenderVanillaHud()) {
             original.call(context);
         }
     }
 
     @WrapMethod(method = "renderExperienceBar")
     private void tmm$removeExperienceBar(GuiGraphics context, int x, Operation<Void> original) {
-        if (SREClient.isInLobby || !SREClient.isPlayerAliveAndInSurvival()) {
+        if (SREClient.shouldRenderVanillaHud()) {
             original.call(context, x);
         }
     }
 
     @WrapMethod(method = "renderTabList")
     private void tmm$removePlayerList(GuiGraphics context, DeltaTracker tickCounter, Operation<Void> original) {
-        if (SREClient.isInLobby || !SREClient.isPlayerAliveAndInSurvival())
+        if (SREClient.shouldRenderVanillaHud())
             original.call(context, tickCounter);
     }
 
     @WrapMethod(method = "renderExperienceLevel")
     private void tmm$removeExperienceLevel(GuiGraphics context, DeltaTracker tickCounter, Operation<Void> original) {
-        if (SREClient.isInLobby || !SREClient.isPlayerAliveAndInSurvival()) {
+        if (SREClient.shouldRenderVanillaHud()) {
             original.call(context, tickCounter);
         }
     }
@@ -107,24 +105,24 @@ public class InGameHudMixin {
     @WrapOperation(method = "renderItemHotbar", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;blitSprite(Lnet/minecraft/resources/ResourceLocation;IIII)V", ordinal = 0))
     private void tmm$overrideHotbarTexture(GuiGraphics instance, ResourceLocation texture, int x, int y, int width,
             int height, @NotNull Operation<Void> original) {
-        if (SREClient.isInLobby) {
+        if (SREClient.shouldRenderVanillaHud()) {
             original.call(instance, texture, x, y, width,
                     height);
             return;
         }
-        original.call(instance, SREClient.isPlayerAliveAndInSurvival() ? TMM_HOTBAR_TEXTURE : texture, x, y, width,
+        original.call(instance, TMM_HOTBAR_TEXTURE, x, y, width,
                 height);
     }
 
     @WrapOperation(method = "renderItemHotbar", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;blitSprite(Lnet/minecraft/resources/ResourceLocation;IIII)V", ordinal = 1))
     private void tmm$overrideHotbarSelectionTexture(GuiGraphics instance, ResourceLocation texture, int x, int y,
             int width, int height, @NotNull Operation<Void> original) {
-        if (SREClient.isInLobby) {
+        if (SREClient.shouldRenderVanillaHud()) {
             original.call(instance, texture, x, y, width,
                     height);
             return;
         }
-        original.call(instance, SREClient.isPlayerAliveAndInSurvival() ? TMM_HOTBAR_SELECTION_TEXTURE : texture, x, y,
+        original.call(instance, TMM_HOTBAR_SELECTION_TEXTURE, x, y,
                 width, height);
     }
 
@@ -132,7 +130,7 @@ public class InGameHudMixin {
     private void tmm$moveSleepOverlayToUnderUI(GuiGraphics context, DeltaTracker tickCounter,
             Operation<Void> original) {
         // sleep overlay
-        if (SREClient.isInLobby) {
+        if (SREClient.shouldRenderVanillaHud()) {
             original.call(context, tickCounter);
             return;
         }
@@ -158,7 +156,7 @@ public class InGameHudMixin {
     @WrapMethod(method = "renderSleepOverlay")
     private void tmm$removeSleepOverlayAndDoGameFade(GuiGraphics context, DeltaTracker tickCounter,
             Operation<Void> original) {
-        if (SREClient.isInLobby) {
+        if (SREClient.shouldRenderVanillaHud()) {
             original.call(context, tickCounter);
             return;
         }

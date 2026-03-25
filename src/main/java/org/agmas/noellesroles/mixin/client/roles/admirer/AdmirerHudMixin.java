@@ -1,6 +1,6 @@
 package org.agmas.noellesroles.mixin.client.roles.admirer;
 
-import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -25,7 +25,7 @@ public class AdmirerHudMixin {
         if (Minecraft.getInstance() == null || Minecraft.getInstance().player == null) {
             return;
         }
-        if (Minecraft.getInstance().player.isSpectator())
+        if (SREClient.isPlayerSpectator())
             return;
         // 获取慕恋者组件
         AdmirerPlayerComponent admirerComp = AdmirerPlayerComponent.KEY.get(client.player);
@@ -35,7 +35,7 @@ public class AdmirerHudMixin {
             return;
 
         // 检查玩家是否存活
-        if (!GameUtils.isPlayerAliveAndSurvival(client.player))
+        if (!SREClient.isPlayerAliveAndInSurvival())
             return;
 
         // 渲染位置 - 左下角
