@@ -1222,7 +1222,7 @@ public class ModRoles {
    * 秉烛人角色 - 中立阵营
    * - 仅在12人及以上对局刷新
    * - 独立胜利条件：完成指定次数的尸体秉烛
-   * - 技能：消耗次数隐身30秒（次数来自被秉烛者死亡）
+   * - 技能：消耗次数隐身12秒（次数来自成功为对应尸体秉烛）
    */
   public static SRERole CANDLE_BEARER = TMMRoles.registerRole(new NormalRole(
       CANDLE_BEARER_ID,

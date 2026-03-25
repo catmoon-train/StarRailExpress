@@ -45,7 +45,7 @@ public class CandleBearerPlayerComponent implements RoleComponent, ServerTicking
             CandleBearerPlayerComponent.class);
 
     public static final int MAX_INVISIBILITY_CHARGES = 3;
-    public static final int INVISIBILITY_DURATION_TICKS = 30 * 20;
+    public static final int INVISIBILITY_DURATION_TICKS = 12 * 20;
     public static final int LIVING_CANDLE_COOLDOWN_TICKS = 10 * 20;
     public static final int GLOW_DELAY_TICKS = 4 * 20;
     public static final int GLOW_DURATION_TICKS = 5 * 20;
@@ -54,7 +54,6 @@ public class CandleBearerPlayerComponent implements RoleComponent, ServerTicking
 
     private final Set<UUID> candleLitPlayers = new HashSet<>();
     private final Set<UUID> corpseCandleCompleted = new HashSet<>();
-    private final Set<UUID> deathRewardGranted = new HashSet<>();
 
     private final Map<UUID, Integer> pendingPlayerGlow = new HashMap<>();
     private final Map<UUID, Integer> pendingCorpseGlow = new HashMap<>();
@@ -79,7 +78,6 @@ public class CandleBearerPlayerComponent implements RoleComponent, ServerTicking
     public void init() {
         candleLitPlayers.clear();
         corpseCandleCompleted.clear();
-        deathRewardGranted.clear();
         pendingPlayerGlow.clear();
         pendingCorpseGlow.clear();
         pendingCampfireSounds.clear();
@@ -141,10 +139,6 @@ public class CandleBearerPlayerComponent implements RoleComponent, ServerTicking
         }
 
         if (processGlowTasks()) {
-            changed = true;
-        }
-
-        if (processDeathRewards()) {
             changed = true;
         }
 
@@ -233,6 +227,9 @@ public class CandleBearerPlayerComponent implements RoleComponent, ServerTicking
 
         corpseCandleCompleted.add(owner);
         successfulCandles++;
+        if (invisibilityCharges < MAX_INVISIBILITY_CHARGES) {
+            invisibilityCharges++;
+        }
         pendingCorpseGlow.put(owner, GLOW_DELAY_TICKS);
         pendingCampfireSounds.add(GLOW_DELAY_TICKS);
 
@@ -242,6 +239,12 @@ public class CandleBearerPlayerComponent implements RoleComponent, ServerTicking
                                 requiredCandles)
                         .withStyle(ChatFormatting.GREEN),
                 true);
+        serverPlayer.displayClientMessage(
+            Component.translatable("message.noellesroles.candlebearer.charge_gained",
+                    invisibilityCharges,
+                    MAX_INVISIBILITY_CHARGES)
+                .withStyle(ChatFormatting.GOLD),
+            true);
 
         if (successfulCandles >= requiredCandles && player.level() instanceof ServerLevel serverLevel) {
             RoleUtils.customWinnerWin(serverLevel,
@@ -347,37 +350,6 @@ public class CandleBearerPlayerComponent implements RoleComponent, ServerTicking
             changed = true;
         }
 
-        return changed;
-    }
-
-    private boolean processDeathRewards() {
-        boolean changed = false;
-        for (UUID uuid : candleLitPlayers) {
-            if (deathRewardGranted.contains(uuid)) {
-                continue;
-            }
-            Player litPlayer = player.level().getPlayerByUUID(uuid);
-            boolean dead = litPlayer == null || !GameUtils.isPlayerAliveAndSurvival(litPlayer);
-            if (!dead) {
-                continue;
-            }
-
-            deathRewardGranted.add(uuid);
-            if (invisibilityCharges < MAX_INVISIBILITY_CHARGES) {
-                invisibilityCharges++;
-            }
-            pendingCorpseGlow.putIfAbsent(uuid, GLOW_DELAY_TICKS);
-            changed = true;
-
-            if (player instanceof ServerPlayer serverPlayer) {
-                serverPlayer.displayClientMessage(
-                        Component.translatable("message.noellesroles.candlebearer.charge_gained",
-                                        invisibilityCharges,
-                                        MAX_INVISIBILITY_CHARGES)
-                                .withStyle(ChatFormatting.GOLD),
-                        true);
-            }
-        }
         return changed;
     }
 
