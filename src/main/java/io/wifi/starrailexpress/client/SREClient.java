@@ -13,6 +13,7 @@ import io.wifi.starrailexpress.block.SecurityMonitorBlock;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
+import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.cca.SRETrainWorldComponent;
 import io.wifi.starrailexpress.client.gui.*;
 import io.wifi.starrailexpress.client.gui.screen.MapSelectorScreen;
@@ -89,6 +90,7 @@ import org.slf4j.LoggerFactory;
 import org.spongepowered.include.com.google.gson.JsonSyntaxException;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 
 public class SREClient implements ClientModInitializer {
@@ -105,6 +107,8 @@ public class SREClient implements ClientModInitializer {
     public static boolean hideLocalMainHandItemInLayer = false;
     public static boolean hideLocalOffHandItemInLayer = false;
     public static final Map<UUID, PlayerInfo> PLAYER_ENTRIES_CACHE = new HashMap<>();
+    public static final Map<UUID, Boolean> PLAYER_PSYCHO_CACHE = new ConcurrentHashMap<>();
+    public static boolean localPlayerPsychoActive = false;
     private static ItemStack prevMainHandSnapshot = ItemStack.EMPTY;
     private static ItemStack prevOffHandSnapshot = ItemStack.EMPTY;
     private static int prevSelectedHotbarSlot = -1;
@@ -360,12 +364,22 @@ public class SREClient implements ClientModInitializer {
             FrameAnimationRenderer.setInWorld(client != null && client.level != null);
             LocalPlayer player = client.player;
             if (player == null) {
+                localPlayerPsychoActive = false;
+                PLAYER_PSYCHO_CACHE.clear();
                 prevMainHandSnapshot = ItemStack.EMPTY;
                 prevOffHandSnapshot = ItemStack.EMPTY;
                 prevSelectedHotbarSlot = -1;
                 hideLocalMainHandItemInLayer = false;
                 hideLocalOffHandItemInLayer = false;
             } else {
+                localPlayerPsychoActive = SREPlayerPsychoComponent.KEY.get(player).getPsychoTicks() > 0;
+                PLAYER_PSYCHO_CACHE.put(player.getUUID(), localPlayerPsychoActive);
+                if (client.level != null) {
+                    for (Player levelPlayer : client.level.players()) {
+                        PLAYER_PSYCHO_CACHE.put(levelPlayer.getUUID(),
+                                SREPlayerPsychoComponent.KEY.get(levelPlayer).getPsychoTicks() > 0);
+                    }
+                }
                 ItemStack mainHand = player.getMainHandItem();
                 ItemStack offHand = player.getOffhandItem();
                 int selectedHotbarSlot = player.getInventory().selected;
