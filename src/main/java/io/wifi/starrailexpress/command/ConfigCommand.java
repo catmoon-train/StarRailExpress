@@ -21,6 +21,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.locale.Language;
+import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
@@ -165,10 +166,14 @@ public class ConfigCommand {
         throw createSimpleSyntaxException(new Exception("Cannot access field " + entryName + "!"));
       }
       var content = field.get(target);
+      String str_content = gson.toJson(content);
       context.getSource().sendSuccess(
           () -> Component
               .translatable("Value of '%s': %s\n(Desc: %s)", entryName,
-                  Component.literal(gson.toJson(content)).withStyle(ChatFormatting.WHITE),
+                  Component.literal(str_content).withStyle(ChatFormatting.WHITE).withStyle(style -> style
+                      .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, str_content))
+                      .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                          Component.literal("Click here to fill into the chat box.").withStyle(ChatFormatting.AQUA)))),
                   getConfigDescription(configName, entryName).withStyle(ChatFormatting.GRAY))
               .withStyle(ChatFormatting.GREEN),
           false);
