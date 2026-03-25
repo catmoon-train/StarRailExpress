@@ -10,6 +10,19 @@ public class PlayerRoleWeightManager {
     public static HashMap<UUID, Integer> ForcePlayerTeam = new HashMap<>();
     public static HashMap<UUID, WeightInfo> playerWeights = new HashMap<>();
 
+    /**
+     * 将角色类型归并为阵营组：
+     * - 无辜阵营 (0/1) → 1
+     * - 中立阵营 (2)   → 2
+     * - 亲杀中立 (3)   → 3
+     * - 杀手阵营 (4)   → 4
+     * - 警卫阵营 (5)   → 5
+     */
+    private static int getFactionGroup(int type) {
+        if (type <= 1) return 1;
+        return type;
+    }
+
     public static double getRoleWeightPercent(UUID player, int type) {
         var weightManager = PlayerRoleWeightManager.playerWeights.get(player);
         if (weightManager == null) {
@@ -20,7 +33,16 @@ public class PlayerRoleWeightManager {
         int total = weightManager.getWeightSum();
         if (total <= 0)
             total = 1;
-        return 1. - (double) typeWeight / (double) total;
+        double basePercent = 1.0 - (double) typeWeight / (double) total;
+
+        // 连续相同阵营惩罚：streak>=2时每多一局概率减半，防止一直游玩同一阵营
+        int streak = weightManager.getStreakCount();
+        if (streak >= 2 && getFactionGroup(type) == weightManager.getLastAssignedFactionGroup()) {
+            double streakPenalty = Math.pow(0.5, streak - 1);
+            basePercent *= streakPenalty;
+        }
+
+        return Math.max(0.0, basePercent);
     }
 
     public static double getRoleWeightPercent(Player playerEntity, int roleType) {
@@ -64,10 +86,11 @@ public class PlayerRoleWeightManager {
             weightManager = new PlayerRoleWeightManager.WeightInfo();
             PlayerRoleWeightManager.playerWeights.putIfAbsent(player, weightManager);
         }
-        if (weightManager.getWeight(type) >= 50) {
-            // 重置
-            weightManager = new PlayerRoleWeightManager.WeightInfo();
-            PlayerRoleWeightManager.playerWeights.put(player, weightManager);
+        // 记录本局阵营，更新连续计数
+        weightManager.updateStreak(type);
+        // 比例缩放：当总权重过大时等比缩小，保留历史比例且避免极端权重堆积
+        if (weightManager.getWeightSum() >= 25) {
+            weightManager.scaleDown();
         }
         weightManager.addWeight(type, weightPlus);
     }
@@ -142,7 +165,44 @@ public class PlayerRoleWeightManager {
         public int neutralsForKillerWeight = 1;
         public int vigilanteWeight = 1;
 
+        // 连续阵营追踪：记录上一局所属阵营组及连续次数
+        private int lastAssignedFactionGroup = -1;
+        private int streakCount = 0;
+
         public WeightInfo() {
+        }
+
+        /**
+         * 在记录本局权重前调用，更新连续阵营计数。
+         * 阵营组与 getFactionGroup 保持一致：无辜=1, 中立=2, 亲杀中立=3, 杀手=4, 警卫=5。
+         */
+        public void updateStreak(int type) {
+            int fg = (type <= 1) ? 1 : type;
+            if (fg == lastAssignedFactionGroup) {
+                streakCount++;
+            } else {
+                streakCount = 1;
+                lastAssignedFactionGroup = fg;
+            }
+        }
+
+        public int getStreakCount() {
+            return streakCount;
+        }
+
+        public int getLastAssignedFactionGroup() {
+            return lastAssignedFactionGroup;
+        }
+
+        /**
+         * 等比缩小所有权重（各取最大值与1的较大值），保持相对比例、防止权重无限堆积。
+         */
+        public void scaleDown() {
+            innocentWeight = Math.max(1, innocentWeight / 2);
+            killerWeight = Math.max(1, killerWeight / 2);
+            neutralsWeight = Math.max(1, neutralsWeight / 2);
+            neutralsForKillerWeight = Math.max(1, neutralsForKillerWeight / 2);
+            vigilanteWeight = Math.max(1, vigilanteWeight / 2);
         }
 
         public int getWeightSum() {
