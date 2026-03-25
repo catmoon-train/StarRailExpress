@@ -112,7 +112,7 @@ public class ConfigCommand {
       if (field.canAccess(target)) {
         try {
           String fieldName = field.getName();
-          if (fieldName.toLowerCase().startsWith(remaining))
+          if (fieldName.toLowerCase().contains(remaining))
             entries.add(fieldName);
         } catch (Exception e) {
         }
