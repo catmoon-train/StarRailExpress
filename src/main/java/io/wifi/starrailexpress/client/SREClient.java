@@ -372,7 +372,6 @@ public class SREClient implements ClientModInitializer {
         intervalTime = new Random().nextInt(0, 200);
         ClientTickEvents.END_CLIENT_TICK.register((client) -> {
             FrameAnimationRenderer.setInWorld(client != null && client.level != null);
-            updateHudApiCache(client);
             LocalPlayer player = client.player;
             if (player == null) {
                 localPlayerPsychoActive = false;
@@ -383,6 +382,7 @@ public class SREClient implements ClientModInitializer {
                 hideLocalMainHandItemInLayer = false;
                 hideLocalOffHandItemInLayer = false;
             } else {
+                updateHudApiCache(client);
                 localPlayerPsychoActive = SREPlayerPsychoComponent.KEY.get(player).getPsychoTicks() > 0;
                 PLAYER_PSYCHO_CACHE.put(player.getUUID(), localPlayerPsychoActive);
                 if (client.level != null) {
@@ -545,8 +545,8 @@ public class SREClient implements ClientModInitializer {
         ClientPlayNetworking.registerGlobalReceiver(
                 net.exmo.sre.client.chat.OpenChatDialoguePayload.ID, (payload, context) -> {
                     context.client().execute(() -> {
-                        net.exmo.sre.client.chat.ChatDialogueData data =
-                                net.exmo.sre.client.chat.ChatDialogueData.GSON.fromJson(
+                        net.exmo.sre.client.chat.ChatDialogueData data = net.exmo.sre.client.chat.ChatDialogueData.GSON
+                                .fromJson(
                                         payload.dialogueJson(),
                                         net.exmo.sre.client.chat.ChatDialogueData.class);
                         context.client().setScreen(
@@ -826,7 +826,8 @@ public class SREClient implements ClientModInitializer {
                 canRender = true;
             } else {
                 canRender = SRE.canUseChatHudPlayer.stream().anyMatch(predicate -> predicate.test(player))
-                        || (cachedPlayerRole != null && SRE.canUseChatHud.stream().anyMatch(predicate -> predicate.test(cachedPlayerRole)))
+                        || (cachedPlayerRole != null
+                                && SRE.canUseChatHud.stream().anyMatch(predicate -> predicate.test(cachedPlayerRole)))
                         || !gameComponent.isRunning();
             }
         }

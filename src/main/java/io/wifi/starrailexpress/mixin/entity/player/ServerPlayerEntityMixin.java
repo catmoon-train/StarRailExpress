@@ -60,7 +60,7 @@ public class ServerPlayerEntityMixin {
 
         // 双节棍左键和Shift+左键攻击处理
         if (self.getMainHandItem().is(TMMItems.NUNCHUCK) && target instanceof ServerPlayer playerTarget
-                && GameUtils.isPlayerAliveAndSurvival(playerTarget) && self instanceof ServerPlayer spself) {
+                && GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(playerTarget) && self instanceof ServerPlayer spself) {
             boolean isShiftLeftClick = self.isShiftKeyDown();
             int direction = isShiftLeftClick ? 2 : 1; // Shift+左键=2(向后), 左键=1(向右)
             io.wifi.starrailexpress.network.original.NunchuckHitPayload

@@ -144,7 +144,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements PlayerSt
             return;
         }
         Player self = (Player) (Object) this;
-        if (!GameUtils.isPlayerAliveAndSurvival(self) || this.getMainHandItem().is(TMMItems.KNIFE)
+        if (!GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(self) || this.getMainHandItem().is(TMMItems.KNIFE)
                 || IsPlayerPunchable.EVENT.invoker().gotPunchable(target)
                 || AllowPlayerPunching.EVENT.invoker().allowPunching(self)) {
             // 在攻击实体之前调用角色的左键点击实体方法

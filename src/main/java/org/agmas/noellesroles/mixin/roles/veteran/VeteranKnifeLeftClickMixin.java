@@ -25,7 +25,7 @@ public abstract class VeteranKnifeLeftClickMixin {
         if (!(target instanceof Player targetPlayer))
             return;
 
-        if (!GameUtils.isPlayerAliveAndSurvival(targetPlayer))
+        if (!GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(targetPlayer))
             return;
 
         SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(attacker.level());

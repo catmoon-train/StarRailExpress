@@ -44,10 +44,10 @@ public abstract class StalkerLeftClickKillMixin {
         if (!SREGameWorldComponent.KEY.get(attacker.level()).isRole(attacker, ModRoles.STALKER))
             return;
         // 检查目标是否存活
-        if (!GameUtils.isPlayerAliveAndSurvival(attacker))
+        if (!GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(attacker))
             return;
         // 检查目标是否存活
-        if (!GameUtils.isPlayerAliveAndSurvival(targetPlayer))
+        if (!GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(targetPlayer))
             return;
 
         // 获取跟踪者组件
@@ -108,10 +108,10 @@ public abstract class StalkerLeftClickKillMixin {
         if (!SREGameWorldComponent.KEY.get(attacker.level()).isRole(attacker, ModRoles.MA_CHEN_XU))
             return;
         // 检查攻击者是否存活
-        if (!GameUtils.isPlayerAliveAndSurvival(attacker))
+        if (!GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(attacker))
             return;
         // 检查目标是否存活
-        if (!GameUtils.isPlayerAliveAndSurvival(targetPlayer))
+        if (!GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(targetPlayer))
             return;
         var mcxpc = MaChenXuPlayerComponent.KEY.get(attacker);
 
