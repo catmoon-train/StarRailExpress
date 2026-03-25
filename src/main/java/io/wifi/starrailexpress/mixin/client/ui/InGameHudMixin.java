@@ -156,7 +156,7 @@ public class InGameHudMixin {
     @WrapMethod(method = "renderSleepOverlay")
     private void tmm$removeSleepOverlayAndDoGameFade(GuiGraphics context, DeltaTracker tickCounter,
             Operation<Void> original) {
-        if (SREClient.shouldRenderVanillaHud()) {
+        if (SRE.isLobby) {
             original.call(context, tickCounter);
             return;
         }

@@ -107,8 +107,6 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
     public GameStatus gameStatus = GameStatus.INACTIVE;
     public int fade = 0;
 
-    public int ticksUntilNextResetAttempt = -1;
-
     public int psychosActive = 0;
 
     public UUID looseEndWinner;
@@ -290,14 +288,6 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
 
     public void clearRoleMap() {
         this.clearRoleMap(true);
-    }
-
-    public void queueTrainReset() {
-        if (SRE.isLobby) {
-            ticksUntilNextResetAttempt = -1;
-            return;
-        }
-        ticksUntilNextResetAttempt = 10;
     }
 
     public int getPsychosActive() {
