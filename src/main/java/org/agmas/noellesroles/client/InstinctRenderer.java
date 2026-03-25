@@ -16,6 +16,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.component.*;
+import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.roles.candlebearer.CandleBearerPlayerComponent;
@@ -343,6 +344,9 @@ public class InstinctRenderer {
                     if (GameUtils.isPlayerAliveAndSurvival(target_player)) {
                         if (target_player.distanceTo(self) <= 3) {
                             if (SREClient.gameComponent.isRole(target_player, ModRoles.DIO)) {
+                                if (self.hasEffect(ModEffects.SKILL_BANED)) {
+                                    return -1;
+                                }
                                 return ModRoles.DIO.color();
                             }
                         }
