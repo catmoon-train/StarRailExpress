@@ -1,6 +1,7 @@
 package org.agmas.noellesroles;
 
 import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import org.agmas.noellesroles.events.OnRoleSkillUse;
@@ -42,6 +43,25 @@ public final class RoleSkill {
             return;
         }
         OnRoleSkillUse.AFTER.invoker().onUse(player, role);
+    }
+
+    public static SRERole beginUse(ServerPlayer player) {
+        if (player == null) {
+            return null;
+        }
+        SRERole role = SREGameWorldComponent.KEY.get(player.level()).getRole(player);
+        if (!beforeUse(player, role)) {
+            return null;
+        }
+        return role;
+    }
+
+    public static void endUse(ServerPlayer player, SRERole role) {
+        if (player == null) {
+            return;
+        }
+        afterUse(player, role);
+        ConfigWorldComponent.onPlayerUsedSkill(player);
     }
 
     private static void registerDefaults() {
