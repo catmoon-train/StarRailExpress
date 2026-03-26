@@ -14,7 +14,6 @@ import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.client.renderer.*;
@@ -27,7 +26,6 @@ import org.agmas.noellesroles.item.WrittenNoteItem;
 import org.agmas.noellesroles.packet.*;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.screen.ModScreenHandlers;
-import org.agmas.noellesroles.utils.RoleUtils;
 
 import static org.agmas.noellesroles.client.NoellesrolesClient.abilityBind;
 
@@ -155,8 +153,7 @@ public class RicesRoleRhapsodyClient implements ClientModInitializer {
             return true;
         // 获取游戏世界组件
         SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(client.player.level());
-        if (gameWorld.isRole(client.player, ModRoles.NIAN_SHOU)) {
-            ClientPlayNetworking.send(new AbilityC2SPacket());
+        if (GKeyRoleSkill.trigger(client, gameWorld, true)) {
             return true;
         }
         // 获取玩家的技能组件
@@ -234,32 +231,6 @@ public class RicesRoleRhapsodyClient implements ClientModInitializer {
                         net.minecraft.network.chat.Component.translatable("message.noellesroles.boxer.on_cooldown",
                                 String.format("%.1f", boxerComponent.getCooldownSeconds())),
                         true);
-            }
-            return true;
-        }
-
-        // ==================== 失控机器人：眼镜 ====================
-        if (gameWorld.isRole(client.player, ModRoles.GLITCH_ROBOT)) {
-            // 检查玩家是否存活
-            if (!GameUtils.isPlayerAliveAndSurvival(client.player))
-                return true;
-            if (!client.player.getSlot(103).get().is(ModItems.NIGHT_VISION_GLASSES)) {
-                client.player.displayClientMessage(
-                        Component.translatable("info.glitch_robot.noglasses_on_head").withStyle(ChatFormatting.RED),
-                        true);
-                return true;
-
-            }
-            if (!RoleUtils.isPlayerHasFreeSlot(client.player)) {
-                client.player.displayClientMessage(
-                        Component.translatable("message.hotbar.full").withStyle(ChatFormatting.RED), true);
-                return true;
-
-            }
-            // 发送网络包到服务端激活技能
-            ClientPlayNetworking.send(new AbilityC2SPacket());
-            if (!client.player.getSlot(103).get().is(ModItems.NIGHT_VISION_GLASSES)) {
-                client.player.removeEffect(MobEffects.NIGHT_VISION);
             }
             return true;
         }
@@ -531,12 +502,6 @@ public class RicesRoleRhapsodyClient implements ClientModInitializer {
             client.execute(() -> {
                 client.setScreen(new GamblerScreen(client.player));
             });
-            return true;
-        }
-
-        // 大嗓门：更大的说话
-        if (gameWorld.isRole(client.player, ModRoles.NOISEMAKER)) {
-            ClientPlayNetworking.send(new AbilityC2SPacket());
             return true;
         }
 
