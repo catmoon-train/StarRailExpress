@@ -4,7 +4,6 @@ import io.wifi.starrailexpress.api.GameMode;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.*;
-import io.wifi.starrailexpress.cca.SREPlayerProgressionComponent.FactionCardType;
 import io.wifi.starrailexpress.event.AllowGameEnd;
 import io.wifi.starrailexpress.network.original.AnnounceWelcomePayload;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -31,8 +30,6 @@ import org.agmas.harpymodloader.modded_murder.RoleAssignmentManager;
 import org.agmas.harpymodloader.modded_murder.RoleAssignmentPool;
 import org.agmas.harpymodloader.modifiers.HMLModifiers;
 import org.agmas.harpymodloader.modifiers.SREModifier;
-import pro.fazeclan.river.stupid_express.constants.SEModifiers;
-
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -407,7 +404,7 @@ public class StarRailMurderGameMode extends GameMode {
         }
         List<RoleInstant> expandedRoles = RoleAssignmentManager.expandWithCompanionRoles(roleInstantList);
         Random random = new Random(serverWorld.getGameTime());
-        
+
         // 保底
         for (var p : players) {
             var manager = PlayerRoleWeightManager.playerWeights.get(p.getUUID());
@@ -516,17 +513,7 @@ public class StarRailMurderGameMode extends GameMode {
 
     private Player pickPlayerWithProgressBias(ServerLevel serverWorld, List<ServerPlayer> unassignedPlayers,
             int selectedRoleType) {
-        /** List<ServerPlayer> preferredPlayers = unassignedPlayers.stream()
-                .filter(player -> SREPlayerProgressionComponent.KEY.get(player).prefersRoleType(selectedRoleType))
-                .toList();
-        if (!preferredPlayers.isEmpty()
-                && serverWorld.getRandom().nextFloat() < SREPlayerProgressionComponent.getCardPreferredPickChance()) {
-            var players = PlayerRoleAssigner.pickByInverseWeight(new ArrayList<>(preferredPlayers), selectedRoleType);
-            for (var p : preferredPlayers) {
-                SREPlayerProgressionComponent.KEY.get(p).activeFactionCard = FactionCardType.NONE;
-            }
-            return players;
-        } **/
+        // 目前采用forceTeam逻辑所以无需判断
         return PlayerRoleAssigner.pickByInverseWeight(unassignedPlayers, selectedRoleType);
     }
 

@@ -21,6 +21,8 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+
+import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
 import org.ladysnake.cca.api.v3.component.sync.AutoSyncedComponent;
@@ -52,6 +54,16 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
     private static final Gson GSON = new GsonBuilder().create();
     private static final Type STRING_MAP_TYPE = new TypeToken<Map<String, Object>>() {
     }.getType();
+
+    public void onRoleAssigned(SRERole role) {
+        if (role == null || !(this.player instanceof ServerPlayer)) {
+            return;
+        }
+        FactionCardType matchedCard = FactionCardType.fromRole(role);
+        if (matchedCard != FactionCardType.NONE) {
+            incrementQuest(ObjectiveType.BECOME_FACTION, matchedCard.questKey, 1);
+        }
+    }
 
     public static final ComponentKey<SREPlayerProgressionComponent> KEY = ComponentRegistry.getOrCreate(
             SRE.id("player_progression"),
@@ -122,13 +134,11 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
     private int totalExperience;
     private int claimedCoinRewards;
     private int claimedLootRewards;
-    public FactionCardType activeFactionCard;
     private int syncDirtyMask = SYNC_DIRTY_ALL;
     private boolean syncPending = false;
 
     public SREPlayerProgressionComponent(Player player) {
         this.player = player;
-        this.activeFactionCard = FactionCardType.NONE;
         this.level = 1;
         this.lastQuestRefreshTime = 0L;
         this.lastWeeklyRefreshTime = 0L;
@@ -196,10 +206,6 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
         return Collections.unmodifiableMap(this.factionCards);
     }
 
-    public FactionCardType getActiveFactionCard() {
-        return this.activeFactionCard;
-    }
-
     @Override
     public boolean shouldSyncWith(ServerPlayer player) {
         if (!SREConfig.instance().enableProgressionSystem) {
@@ -236,12 +242,6 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
         return this.networkSyncEnabled;
     }
 
-    public boolean prefersRoleType(int roleType) {
-        if (this.activeFactionCard == null)
-            return false;
-        return this.activeFactionCard.matchesRoleType(roleType);
-    }
-
     public static float getCardPreferredPickChance() {
         return CARD_PREFERRED_PICK_CHANCE;
     }
@@ -255,37 +255,16 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
     }
 
     public boolean activateFactionCard(FactionCardType type) {
-        if (type == FactionCardType.NONE) {
-            this.activeFactionCard = FactionCardType.NONE;
-            markChanged(SYNC_DIRTY_CARDS);
-            return true;
+        int current = factionCards.getOrDefault(type, 0);
+        if (current >= 1) {
+            PlayerRoleWeightManager.ForcePlayerTeam.put(this.player.getUUID(), type.getTypeId());
+            this.factionCards.put(type, current - 1);
+            Component message = Component.translatable("message.sre.progression.faction_card_activated",
+                    Component.translatable(type.displayName));
+            this.player.sendSystemMessage(message);
+            this.player.displayClientMessage(message, true);
         }
-        if (this.factionCards.getOrDefault(type, 0) <= 0) {
-            return false;
-        }
-        this.activeFactionCard = type;
-        markChanged(SYNC_DIRTY_CARDS);
         return true;
-    }
-
-    public void onRoleAssigned(SRERole role) {
-        if (role == null || !(this.player instanceof ServerPlayer serverPlayer)) {
-            return;
-        }
-        FactionCardType matchedCard = FactionCardType.fromRole(role);
-        if (matchedCard != FactionCardType.NONE) {
-            incrementQuest(ObjectiveType.BECOME_FACTION, matchedCard.questKey, 1);
-            if (this.activeFactionCard == matchedCard) {
-                int current = this.factionCards.getOrDefault(matchedCard, 0);
-                if (current > 0) {
-                    this.factionCards.put(matchedCard, current - 1);
-                }
-                this.activeFactionCard = FactionCardType.NONE;
-                serverPlayer.sendSystemMessage(Component.translatable("message.sre.progression.faction_card_activated",
-                        Component.translatable(matchedCard.displayName)));
-                markChanged(SYNC_DIRTY_CARDS);
-            }
-        }
     }
 
     public void onRoundQuestFinished(String questName) {
@@ -431,7 +410,6 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
                 putMappedValue(progressData, PROGRESS_SYNC_KEYS, "totalExperience", this.totalExperience);
                 putMappedValue(progressData, PROGRESS_SYNC_KEYS, "claimedCoinRewards", this.claimedCoinRewards);
                 putMappedValue(progressData, PROGRESS_SYNC_KEYS, "claimedLootRewards", this.claimedLootRewards);
-                putMappedValue(progressData, PROGRESS_SYNC_KEYS, "activeFactionCard", this.activeFactionCard.name());
                 putMappedValue(progressData, PROGRESS_SYNC_KEYS, "factionCards", encodeFactionCards());
                 putMappedValue(progressData, PROGRESS_SYNC_KEYS, "lastQuestRefreshTime", this.lastQuestRefreshTime);
                 putMappedValue(progressData, PROGRESS_SYNC_KEYS, "lastWeeklyRefreshTime", this.lastWeeklyRefreshTime);
@@ -522,6 +500,8 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
         if (amount <= 0) {
             return;
         }
+        if (!SREConfig.instance().enableProgressionSystem)
+            return;
         this.experience += amount;
         this.totalExperience += amount;
         while (this.experience >= getExperienceForNextLevel()) {
@@ -666,10 +646,6 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
                 this.lastQuestRefreshTime);
         this.lastWeeklyRefreshTime = getLong(getMappedValue(progressMap, PROGRESS_SYNC_KEYS, "lastWeeklyRefreshTime"),
                 this.lastWeeklyRefreshTime);
-        Object cardName = getMappedValue(progressMap, PROGRESS_SYNC_KEYS, "activeFactionCard");
-        if (cardName instanceof String stringCard) {
-            this.activeFactionCard = FactionCardType.fromString(stringCard);
-        }
         Object cards = getMappedValue(progressMap, PROGRESS_SYNC_KEYS, "factionCards");
         if (cards instanceof Map<?, ?> rawMap) {
             for (var entry : rawMap.entrySet()) {
@@ -843,15 +819,6 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
             tag.putLong("LastWeeklyRefreshTime", this.lastWeeklyRefreshTime);
         }
 
-        if ((mask & SYNC_DIRTY_CARDS) != 0) {
-            tag.putString("ActiveFactionCard", this.activeFactionCard.name());
-            CompoundTag cardTag = new CompoundTag();
-            for (var entry : this.factionCards.entrySet()) {
-                cardTag.putInt(entry.getKey().name(), entry.getValue());
-            }
-            tag.put("FactionCards", cardTag);
-        }
-
         if ((mask & SYNC_DIRTY_TASKS) != 0) {
             ListTag questTag = new ListTag();
             for (PassQuest quest : this.activeQuests) {
@@ -874,19 +841,6 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
             this.claimedLootRewards = tag.getInt("ClaimedLootRewards");
             this.lastQuestRefreshTime = tag.getLong("LastQuestRefreshTime");
             this.lastWeeklyRefreshTime = tag.getLong("LastWeeklyRefreshTime");
-        }
-
-        if ((mask & SYNC_DIRTY_CARDS) != 0) {
-            this.activeFactionCard = FactionCardType.fromString(tag.getString("ActiveFactionCard"));
-            if (tag.contains("FactionCards", Tag.TAG_COMPOUND)) {
-                CompoundTag cardTag = tag.getCompound("FactionCards");
-                this.factionCards.clear();
-                for (FactionCardType type : FactionCardType.values()) {
-                    if (type != FactionCardType.NONE) {
-                        this.factionCards.put(type, cardTag.getInt(type.name()));
-                    }
-                }
-            }
         }
 
         if ((mask & SYNC_DIRTY_TASKS) != 0) {
@@ -913,7 +867,6 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
         this.claimedLootRewards = tag.getInt("ClaimedLootRewards");
         this.lastQuestRefreshTime = tag.getLong("LastQuestRefreshTime");
         this.lastWeeklyRefreshTime = tag.getLong("LastWeeklyRefreshTime");
-        this.activeFactionCard = FactionCardType.fromString(tag.getString("ActiveFactionCard"));
 
         this.factionCards.clear();
         CompoundTag cardTag = tag.getCompound("FactionCards");
@@ -960,7 +913,6 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
         tag.putInt("ClaimedLootRewards", this.claimedLootRewards);
         tag.putLong("LastQuestRefreshTime", this.lastQuestRefreshTime);
         tag.putLong("LastWeeklyRefreshTime", this.lastWeeklyRefreshTime);
-        tag.putString("ActiveFactionCard", this.activeFactionCard.name());
 
         CompoundTag cardTag = new CompoundTag();
         for (var entry : this.factionCards.entrySet()) {
@@ -1198,27 +1150,26 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
             List<QuestTemplate> permanent) {
     }
 
-    public enum FactionCardType {
-        NONE("sre.pass.not_active", "none"),
-        KILLER("sre.pass.faction.killer", "killer"),
-        CIVILIAN("sre.pass.faction.civilian", "civilian"),
-        NEUTRAL("sre.pass.faction.neutral", "neutral");
+    public static enum FactionCardType {
+        NONE("sre.pass.not_active", "none", 0),
+        KILLER("sre.pass.faction.killer", "killer", 4),
+        CIVILIAN("sre.pass.faction.civilian", "civilian", 1),
+        VIGILANTE("sre.pass.faction.civilian", "vigilante", 5),
+        NEUTRAL("sre.pass.faction.neutral", "neutral", 2),
+        NEUTRAL_FOR_KILLER("sre.pass.faction.neutral_for_killer", "neutral_for_killer", 3);
 
         public final String displayName;
         public final String questKey;
+        public final int type;
 
-        FactionCardType(String displayName, String questKey) {
+        FactionCardType(String displayName, String questKey, int type) {
             this.displayName = displayName;
             this.questKey = questKey;
+            this.type = type;
         }
 
-        public boolean matchesRoleType(int roleType) {
-            return switch (this) {
-                case KILLER -> roleType == 4;
-                case CIVILIAN -> roleType <= 1;
-                case NEUTRAL -> roleType == 2 || roleType == 3;
-                case NONE -> false;
-            };
+        public Integer getTypeId() {
+            return type;
         }
 
         public static FactionCardType fromRole(SRERole role) {

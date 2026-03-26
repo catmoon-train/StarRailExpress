@@ -1,9 +1,9 @@
 package org.agmas.noellesroles;
 
 import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.event.OnRoleSkillUse;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import org.agmas.noellesroles.events.OnRoleSkillUse;
 import org.agmas.noellesroles.role.ModRoles;
 
 import java.util.HashSet;

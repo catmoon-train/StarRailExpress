@@ -173,7 +173,7 @@ public class ProgressionPassScreen extends Screen {
                 Component.translatable("sre.pass.faction." + type.questKey).getString() + " x" + count);
         var btn = ModernButton.builder(label, b -> sendCommand("sre:pass activate " + type.questKey))
                 .bounds(x, y, width, 22).accentColor(accentColor).build();
-        btn.active = count > 0 || progression.getActiveFactionCard() == type;
+        btn.active = count > 0;
         return btn;
     }
 
@@ -244,12 +244,13 @@ public class ProgressionPassScreen extends Screen {
 
         // ---- 底部信息 ----
         int infoY = panelY + panelH - 62;
-        String activeCard = progression.getActiveFactionCard() == FactionCardType.NONE
-                ? Component.translatable("sre.pass.not_active").getString()
-                : Component.translatable("sre.pass.faction." + progression.getActiveFactionCard().questKey,
-                        Component.translatable(progression.getActiveFactionCard().displayName)).getString();
-        g.drawString(font, Component.translatable("sre.pass.active_card", activeCard).getString(), panelX + 24, infoY,
-                applyAlpha(0xFFF7D791, animAlpha), false);
+        // 不保存这一项所以删了
+        // String activeCard = true
+        //         ? Component.translatable("sre.pass.not_active").getString()
+        //         : Component.translatable("sre.pass.faction." + progression.getActiveFactionCard().questKey,
+        //                 Component.translatable(progression.getActiveFactionCard().displayName)).getString();
+        // g.drawString(font, Component.translatable("sre.pass.active_card", activeCard).getString(), panelX + 24, infoY,
+        //         applyAlpha(0xFFF7D791, animAlpha), false);
 
         long dailyRem = Math.max(0L, progression.getLastQuestRefreshTime()
                 + 24L * 60L * 60L * 1000L - System.currentTimeMillis());
