@@ -18,9 +18,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.AABB;
-
 import java.util.UUID;
-
 import org.agmas.noellesroles.component.*;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.effects.TimeStopEffect;

@@ -55,7 +55,6 @@ import org.agmas.noellesroles.roles.morphling.MorphlingPlayerComponent;
 import org.agmas.noellesroles.roles.voodoo.VoodooPlayerComponent;
 import org.agmas.noellesroles.roles.vulture.VulturePlayerComponent;
 import org.agmas.noellesroles.utils.RoleUtils;
-
 import java.util.*;
 
 public class ModPacketsReciever {

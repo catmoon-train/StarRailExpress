@@ -8,7 +8,6 @@ import net.minecraft.server.level.ServerPlayer;
 import java.util.HashMap;
 import java.util.UUID;
 import java.util.function.Consumer;
-
 import org.jetbrains.annotations.Nullable;
 
 public final class RoleSkill {
