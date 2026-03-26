@@ -1058,6 +1058,8 @@
   "gui.noellesroles.ghost.during": "Invisible, %s seconds remaining",
   "gui.noellesroles.ghost.cooldown": "Invisibility cooldown, %s seconds remaining",
   "gui.noellesroles.ghost.ready": "Invisibility: G (150 gold)",
+  "gui.noellesroles.ghost.locked": "Skill not unlocked",
+  "gui.noellesroles.ghost.unlocked": "Skill unlocked",
   "gui.noellesroles.ghost.not_unlocked": "Skill unlocks in: %s seconds",
   "message.noellesroles.ghost.not_unlocked": "Skill not unlocked",
   "gui.noellesroles.ghost.unlocking": "Skill unlocking soon...",

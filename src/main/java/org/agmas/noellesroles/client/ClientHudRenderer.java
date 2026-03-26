@@ -4,7 +4,6 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREArmorPlayerComponent;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
-import io.wifi.starrailexpress.cca.SREGameTimeComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -256,26 +255,8 @@ public class ClientHudRenderer {
       int color = 0xFFFFFFFF;
       GhostPlayerComponent ghostComponent = GhostPlayerComponent.KEY.get(client.player);
       if (!ghostComponent.abilityUnlocked) {
-        // 计算解锁剩余时间
-        SREGameTimeComponent gameTime = SREGameTimeComponent.KEY.get(client.level);
-        if (gameTime != null) {
-          long remainingTicks = gameTime.getTime();
-          if (remainingTicks > GhostPlayerComponent.UNLOCK_REMAINING_TICKS) {
-            // 剩余时间 > 3分钟，显示还需要多少时间到解锁
-            long ticksUntilUnlock = remainingTicks - GhostPlayerComponent.UNLOCK_REMAINING_TICKS;
-            int secondsUntilUnlock = ((int) ticksUntilUnlock + 19) / 20;
-            text = Component.translatable("gui.noellesroles.ghost.not_unlocked", secondsUntilUnlock);
-            color = 0xFFFF00; // 黄色
-          } else {
-            // 已到解锁时间但还没解锁，显示准备解锁
-            text = Component.translatable("gui.noellesroles.ghost.unlocking");
-            color = 0xFFAA00; // 橙色
-          }
-        } else {
-          // 如果无法获取游戏时间，显示等待状态
-          text = Component.translatable("gui.noellesroles.ghost.waiting");
-          color = 0xFFAA00; // 橙色
-        }
+        text = Component.translatable("gui.noellesroles.ghost.locked");
+        color = 0xFFFF00; // 黄色
       } else if (ghostComponent.invisibilityTicks > 0) {
         int seconds = (ghostComponent.invisibilityTicks) / 20;
         text = Component.translatable("gui.noellesroles.ghost.during", seconds);
@@ -285,7 +266,7 @@ public class ClientHudRenderer {
         text = Component.translatable("gui.noellesroles.ghost.cooldown", seconds);
         color = 0xFF5555; // 红色
       } else {
-        text = Component.translatable("gui.noellesroles.ghost.ready");
+        text = Component.translatable("gui.noellesroles.ghost.unlocked");
         color = 0x55FF55; // 绿色
       }
       int screenWidth = client.getWindow().getGuiScaledWidth();

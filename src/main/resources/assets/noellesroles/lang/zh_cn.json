@@ -1066,6 +1066,8 @@
   "gui.noellesroles.ghost.during": "隐身中，剩余 %ss",
   "gui.noellesroles.ghost.cooldown": "隐身冷却中，剩余 %ss",
   "gui.noellesroles.ghost.ready": "隐身：G 键（150金币）",
+  "gui.noellesroles.ghost.locked": "技能未解锁",
+  "gui.noellesroles.ghost.unlocked": "技能已解锁",
   "gui.noellesroles.ghost.not_unlocked": "技能解锁还需：%s 秒",
   "message.noellesroles.ghost.not_unlocked": "技能未解锁",
   "gui.noellesroles.ghost.unlocking": "技能即将解锁...",

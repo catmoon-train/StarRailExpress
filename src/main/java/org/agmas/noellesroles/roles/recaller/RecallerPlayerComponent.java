@@ -2,8 +2,12 @@ package org.agmas.noellesroles.roles.recaller;
 
 import io.wifi.starrailexpress.api.RoleComponent;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.Noellesroles;
 import org.jetbrains.annotations.NotNull;
@@ -62,9 +66,42 @@ public class RecallerPlayerComponent implements RoleComponent, ServerTickingComp
 
 
     public void teleport() {
+        double fromX = player.getX();
+        double fromY = player.getY();
+        double fromZ = player.getZ();
+
+        if (player.level() instanceof ServerLevel serverLevel) {
+            playTeleportEffects(serverLevel, fromX, fromY, fromZ);
+        }
+
         player.teleportTo(x,y,z);
+
+        if (player.level() instanceof ServerLevel serverLevel) {
+            playTeleportEffects(serverLevel, x, y, z);
+        }
+
         placed = false;
         this.sync();
+    }
+
+    private void playTeleportEffects(ServerLevel serverLevel, double centerX, double centerY, double centerZ) {
+        double particleY = centerY + 0.9D;
+
+        for (int i = 0; i < 16; i++) {
+            double angle = Math.PI * 2D * i / 16D;
+            double offsetX = Math.cos(angle) * 0.8D;
+            double offsetZ = Math.sin(angle) * 0.8D;
+            serverLevel.sendParticles(ParticleTypes.PORTAL,
+                    centerX + offsetX, particleY, centerZ + offsetZ,
+                    1, 0.0D, 0.0D, 0.0D, 0.0D);
+        }
+
+        serverLevel.sendParticles(ParticleTypes.PORTAL,
+                centerX, particleY, centerZ,
+                10, 0.25D, 0.35D, 0.25D, 0.05D);
+
+        serverLevel.playSound(null, centerX, centerY, centerZ,
+                SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 1.0F, 1.0F);
     }
 
 
