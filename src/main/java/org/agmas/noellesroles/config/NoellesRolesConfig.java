@@ -14,6 +14,7 @@ public class NoellesRolesConfig implements ConfigData {
     public static ConfigClassHandler<NoellesRolesConfig> HANDLER = new ConfigClassHandler<>(
             NoellesRolesConfig.class);
 
+
     /**
      * Whether insane players will randomly see people as morphed
      */
@@ -41,6 +42,7 @@ public class NoellesRolesConfig implements ConfigData {
      * Role - The chance of egg roles
      */
 
+    public int chanceOfTouhouRoles = 50;
     public int chanceOfEggRoles = 15;
 
     /**

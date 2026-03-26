@@ -172,7 +172,11 @@ public class NoellesrolesVoiceChatPlugin implements VoicechatPlugin {
             if (GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)) {
               if (gameWorldComponent.isRole(player, ModRoles.NOISEMAKER)) {
                 event.cancel();
-                player.level().players().forEach((p) -> {
+                var players = player.level().players();
+                if (players == null) {
+                  return;
+                }
+                players.forEach((p) -> {
                   if (p.getUUID() != player.getUUID()) {
                     double rangeMultiplier = 2;
                     if (player.hasEffect(MobEffects.LUCK)) {

@@ -4,7 +4,6 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
-import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.harpymodloader.events.GameInitializeEvent;
 import org.agmas.harpymodloader.modded_murder.RoleAssignmentManager;
@@ -70,6 +69,7 @@ public class InitModRolesMax {
     public static int SPLIT_PERSONALITY_CHANCE = 10; // 10 in 100
     public static int REFUGEE_CHANCE = 10; // 10 in 100
     public static int EGGS_CHANCE = 10;
+    public static int TOUHOU_CHANCE = 10;
 
     public static void registerStatics() {
         // ==================== 设置角色数量限制 ====================
@@ -259,8 +259,8 @@ public class InitModRolesMax {
                     currentMap = areas.mapName;
                 }
             }
-            var areasWorldComponent = AreasWorldComponent.KEY.get(serverLevel);
             final int players_count = serverLevel.getServer().getPlayerCount();
+            initModifiersCount(players_count);
             {
                 // 杀手中立
                 var neutralRoles = new ArrayList<SRERole>(TMMRoles.ROLES.values());
@@ -282,6 +282,15 @@ public class InitModRolesMax {
             // 动态大小
             // 年兽角色：5%概率生成
             Random random = new Random();
+            if(players_count >= 12 && random.nextInt(0, 100) < TOUHOU_CHANCE){
+                Harpymodloader.setRoleMaximum(ModRoles.BAKA_ID, 1);
+                Harpymodloader.setRoleMaximum(ModRoles.HOAN_MEIRIN, 1);
+                Harpymodloader.setRoleMaximum(ModRoles.PACHURI, 1);
+            }else{
+                Harpymodloader.setRoleMaximum(ModRoles.BAKA_ID, 0);
+                Harpymodloader.setRoleMaximum(ModRoles.HOAN_MEIRIN, 0);
+                Harpymodloader.setRoleMaximum(ModRoles.PACHURI, 0);
+            }
             if (players_count >= 10 && random.nextInt(0, 100) >= 25) {
                 Harpymodloader.setRoleMaximum(ModRoles.WAYFARER_ID, 1);
             } else {
@@ -298,21 +307,6 @@ public class InitModRolesMax {
             } else {
                 Harpymodloader.setRoleMaximum(ModRoles.DIO, 0);
                 Harpymodloader.setRoleMaximum(ModRoles.MAID_SAKUYA, 0);
-            }
-            if (players_count >= 12 && random.nextInt(0, 100) <= EGGS_CHANCE) {
-                Harpymodloader.setRoleMaximum(ModRoles.BAKA_ID, 1);
-            } else {
-                Harpymodloader.setRoleMaximum(ModRoles.BAKA_ID, 0);
-            }
-            if (areasWorldComponent.canJump && random.nextInt(0, 100) <= EGGS_CHANCE) {
-                Harpymodloader.setRoleMaximum(ModRoles.HOAN_MEIRIN, 1);
-            } else {
-                Harpymodloader.setRoleMaximum(ModRoles.HOAN_MEIRIN, 0);
-            }
-            if (players_count >= 12 && random.nextInt(0, 100) <= EGGS_CHANCE) {
-                Harpymodloader.setRoleMaximum(ModRoles.PACHURI, 1);
-            } else {
-                Harpymodloader.setRoleMaximum(ModRoles.PACHURI, 0);
             }
             if (random.nextInt(0, 100) <= 25) {
                 Harpymodloader.setRoleMaximum(ModRoles.MAGICIAN_ID, 1);
@@ -545,7 +539,6 @@ public class InitModRolesMax {
             } else {
                 Harpymodloader.setRoleMaximum(ModRoles.TELEGRAPHER_ID, 0);
             }
-            initModifiersCount(players_count);
         });
     }
 
@@ -560,7 +553,7 @@ public class InitModRolesMax {
         if (EGGS_CHANCE < 0) {
             EGGS_CHANCE = 0;
         }
-
+        TOUHOU_CHANCE = NoellesRolesConfig.HANDLER.instance().chanceOfTouhouRoles;
         /// REFUGEE
         if (players >= 12 && random.nextInt(0, 100) <= REFUGEE_CHANCE) {
             StupidExpress.LOGGER.info("Modifier [Refugee] enabled in this round!");
