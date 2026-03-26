@@ -1,7 +1,6 @@
 package org.agmas.noellesroles.init;
 
 import io.wifi.starrailexpress.SRE;
-import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -60,20 +59,6 @@ import org.agmas.noellesroles.utils.RoleUtils;
 import java.util.*;
 
 public class ModPacketsReciever {
-  private static SRERole beginRoleSkillUse(ServerPlayer player) {
-    var gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
-    SRERole role = gameWorldComponent.getRole(player);
-    if (!RoleSkill.beforeUse(player, role)) {
-      return null;
-    }
-    return role;
-  }
-
-  private static void endRoleSkillUse(ServerPlayer player, SRERole role) {
-    RoleSkill.afterUse(player, role);
-    ConfigWorldComponent.onPlayerUsedSkill(player);
-  }
-
   public static void registerPackets() {
     ServerPlayNetworking.registerGlobalReceiver(VendingMachinesBuyC2SPacket.TYPE, (payload, context) -> {
       context.server().execute(() -> {
@@ -550,30 +535,30 @@ public class ModPacketsReciever {
         });
 
     ServerPlayNetworking.registerGlobalReceiver(ModPackets.ABILITY_PACKET, (payload, context) -> {
-      SRERole role = beginRoleSkillUse(context.player());
+      var role = RoleSkill.beginUse(context.player());
       if (role == null) {
         return;
       }
       try {
         AbilityHandler.handler(payload, context);
       } finally {
-        endRoleSkillUse(context.player(), role);
+        RoleSkill.endUse(context.player(), role);
       }
     });
     ServerPlayNetworking.registerGlobalReceiver(AbilityWithTargetC2SPacket.ID, (payload, context) -> {
-      SRERole role = beginRoleSkillUse(context.player());
+      var role = RoleSkill.beginUse(context.player());
       if (role == null) {
         return;
       }
       try {
         AbilityHandler.handlerWithTarget(payload, context);
       } finally {
-        endRoleSkillUse(context.player(), role);
+        RoleSkill.endUse(context.player(), role);
       }
     });
     ServerPlayNetworking.registerGlobalReceiver(ModPackets.INSANE_KILLER_ABILITY_PACKET, (payload, context) -> {
       ServerPlayer player = (ServerPlayer) context.player();
-      SRERole role = beginRoleSkillUse(player);
+      var role = RoleSkill.beginUse(player);
       if (role == null) {
         return;
       }
@@ -593,7 +578,7 @@ public class ModPacketsReciever {
         component.toggleAbility();
         component.sync();
       } finally {
-        endRoleSkillUse(player, role);
+        RoleSkill.endUse(player, role);
       }
     });
     ServerPlayNetworking.registerGlobalReceiver(RecorderC2SPacket.TYPE, RecorderC2SPacket::handle);
