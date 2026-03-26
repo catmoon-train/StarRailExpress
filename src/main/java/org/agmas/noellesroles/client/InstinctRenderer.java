@@ -394,10 +394,14 @@ public class InstinctRenderer {
                 if (SREClient.gameComponent.isRole(self, ModRoles.BARTENDER)) {
                     // LoggerFactory.getLogger("renderer").info("glowTick {}",
                     // bartenderPlayerComponent.glowTicks);
+
                     if (armorPlayerComponent.getArmor() > 0 && playerPoisonComponent.poisonTicks > 0) {
                         return (new Color(186, 255, 65).getRGB());
                     }
                     if (armorPlayerComponent.getArmor() > 0) {
+                        if (target_role.identifier().equals(ModRoles.WATCHER_ID)) {
+                            return -1;
+                        }
                         return (Color.BLUE.getRGB());
                     }
                     int t = FoodDrinkGlowComponent.KEY.get(self).glowTicks
