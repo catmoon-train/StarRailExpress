@@ -151,11 +151,13 @@ public class ClientHudRenderer {
           && client.player.getCooldowns().isOnCooldown(client.player.getMainHandItem().getItem())) {
         var cooldowns = client.player.getCooldowns();
         CooldownInstance cooldown = cooldowns.cooldowns.get(client.player.getMainHandItem().getItem());
-        String cooldownTime = String.format("%.1f", (cooldown.endTime - cooldowns.tickCount) / 20);
-        Component cooldownText = Component.translatable("hud.noellesroles.stalker.attack_cooldown", cooldownTime)
-            .withStyle(ChatFormatting.RED);
-        context.drawString(textRenderer, cooldownText, x, y, 0xFF0000);
-        y += 12;
+        if (cooldown != null) {
+          String cooldownTime = String.format("%.1f", (cooldown.endTime - cooldowns.tickCount) / 20.);
+          Component cooldownText = Component.translatable("hud.noellesroles.stalker.attack_cooldown", cooldownTime)
+              .withStyle(ChatFormatting.RED);
+          context.drawString(textRenderer, cooldownText, x, y, 0xFF0000);
+          y += 12;
+        }
       }
 
       // 三阶段：倒计时
