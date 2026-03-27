@@ -10,7 +10,7 @@ import java.util.UUID;
 import java.util.function.Consumer;
 import org.jetbrains.annotations.Nullable;
 
-public final class RoleSkill {
+public class RoleSkill {
     public static record RoleSkillContext(ServerPlayer player, @Nullable UUID target){}
     private static final HashMap<ResourceLocation, Consumer<RoleSkillContext>> REGISTERED_ROLE_SKILLS = new HashMap<>();
 
