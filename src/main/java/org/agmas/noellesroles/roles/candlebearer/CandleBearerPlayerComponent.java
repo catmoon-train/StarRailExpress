@@ -19,6 +19,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
+import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
@@ -155,6 +156,8 @@ public class CandleBearerPlayerComponent implements RoleComponent, ServerTicking
         if (!(player instanceof ServerPlayer serverPlayer)) {
             return false;
         }
+        ConfigWorldComponent.onPlayerUsedSkill( (ServerPlayer) player);
+
         if (livingCandleCooldownTicks > 0) {
             serverPlayer.displayClientMessage(
                     Component.translatable("message.noellesroles.candlebearer.living_cooldown",

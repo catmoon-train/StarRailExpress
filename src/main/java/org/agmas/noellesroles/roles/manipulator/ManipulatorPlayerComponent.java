@@ -12,6 +12,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
+import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.Noellesroles;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Math;
@@ -100,6 +101,8 @@ public class ManipulatorPlayerComponent implements RoleComponent, ServerTickingC
             return;
         if (!(player instanceof ServerPlayer sp))
             return;
+        if (player instanceof ServerPlayer) ConfigWorldComponent.onPlayerUsedSkill( (ServerPlayer) player);
+
         // player.displayClientMessage(Component.literal("test # start"), true);
         stopControl(false);
         Player targetPlayer = player.level().getPlayerByUUID(targetUuid);

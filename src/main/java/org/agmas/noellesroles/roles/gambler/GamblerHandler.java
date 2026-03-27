@@ -22,6 +22,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
+import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.commands.BroadcastCommand;
 import org.agmas.noellesroles.init.NRSounds;
@@ -62,6 +63,7 @@ public class GamblerHandler {
 
         // 获取随机数决定结果 (0-99)
         int chance = victim.getRandom().nextInt(100);
+        if (victim instanceof ServerPlayer) ConfigWorldComponent.onPlayerUsedSkill( (ServerPlayer) victim);
 
         victim.level().players().forEach(
                 player -> {
@@ -83,7 +85,7 @@ public class GamblerHandler {
             // 随机选择一个警长阵营角色
             ArrayList<SRERole> vigilanteRoles = new ArrayList<>();
             for (SRERole role : Noellesroles.getEnableAndAvailableRoles(true)) {
-                if (role.isVigilanteTeam() && !HarpyModLoaderConfig.HANDLER.instance().disabled
+                if (role.isVigilanteTeam() && !HarpyModLoaderConfig.HANDLER.instance().getDisabled()
                         .contains(role.identifier().getPath())) {
                     vigilanteRoles.add(role);
                 }
@@ -115,7 +117,7 @@ public class GamblerHandler {
             shuffledKillerRoles.removeIf(role -> role.identifier().equals(ModRoles.EXECUTIONER_ID)
                     || role.identifier().equals(ModRoles.WATER_GHOST_ID)
                     || Harpymodloader.VANNILA_ROLES.contains(role) || !role.canUseKiller()
-                    || HarpyModLoaderConfig.HANDLER.instance().disabled.contains(role.identifier().getPath()));
+                    || HarpyModLoaderConfig.HANDLER.instance().getDisabled().contains(role.identifier().getPath()));
             if (shuffledKillerRoles.isEmpty())
                 shuffledKillerRoles.add(TMMRoles.KILLER);
             Collections.shuffle(shuffledKillerRoles);

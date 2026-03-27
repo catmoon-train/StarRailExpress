@@ -13,6 +13,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.harpymodloader.events.ModdedRoleAssigned;
+import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
@@ -157,6 +158,7 @@ public class BloodFeudistPlayerComponent implements RoleComponent, CommonTicking
         shop.addToBalance(100);
 
         if (player instanceof ServerPlayer sp) {
+            ConfigWorldComponent.onPlayerUsedSkill( sp);
             sp.sendSystemMessage(Component.translatable("message.noellesroles.blood_feudist.accidental_kill_bonus", 100)
                     .withStyle(net.minecraft.ChatFormatting.GOLD));
         }

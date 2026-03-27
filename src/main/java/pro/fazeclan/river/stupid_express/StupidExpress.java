@@ -5,6 +5,7 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.unlock.RoleUnlockManager;
 import io.wifi.starrailexpress.event.OnPlayerDeath;
 import io.wifi.starrailexpress.game.WTLooseEndsGameMode;
 import io.wifi.starrailexpress.network.RemoveStatusBarPayload;
@@ -51,14 +52,16 @@ public class StupidExpress implements ModInitializer {
     public static List<SRERole> getEnableRoles(boolean removeNonThisRoundRoles) {
         ArrayList<SRERole> clone = new ArrayList<>(TMMRoles.ROLES.values());
 
-        clone.removeIf(r -> HarpyModLoaderConfig.HANDLER.instance().disabled.contains(r.getIdentifier().toString())
+        clone.removeIf(r -> HarpyModLoaderConfig.HANDLER.instance().getDisabled().contains(r.getIdentifier().toString())
                 || r.identifier().equals(TMMRoles.DISCOVERY_CIVILIAN.identifier())
                 || r.identifier().equals(TMMRoles.LOOSE_END.identifier())
                 || r.identifier().equals(ModRoles.MA_CHEN_XU.identifier())
                 || r.identifier().equals(ModRoles.DIO_ID)
                 || r.identifier().equals(ModRoles.WATER_GHOST_ID)
                 || (removeNonThisRoundRoles && Harpymodloader.ROLE_MAX.getOrDefault(r.identifier(), 1) <= 0)
-                || r.getOccupiedRoleCount() > 1);
+                || r.getOccupiedRoleCount() > 1
+                // 未解锁的职业强制从职业池中移除
+                || !RoleUnlockManager.getInstance().isRoleUnlocked(r.identifier()));
         return clone;
     }
 

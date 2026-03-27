@@ -8,6 +8,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.role.ModRoles;
@@ -126,6 +127,7 @@ public class MorphlingPlayerComponent implements RoleComponent, ServerTickingCom
     }
 
     public boolean startMorph(UUID id) {
+        if (player instanceof ServerPlayer) ConfigWorldComponent.onPlayerUsedSkill( (ServerPlayer) player);
         setMorphTicks(GameConstants.getInTicks(0, NoellesRolesConfig.HANDLER.instance().morphlingMorphDuration));
         disguise = id;
         this.sync();

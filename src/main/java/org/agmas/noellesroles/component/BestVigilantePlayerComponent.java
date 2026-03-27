@@ -9,6 +9,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
@@ -105,7 +106,7 @@ public class BestVigilantePlayerComponent implements RoleComponent, ServerTickin
             return;
         if (!GameUtils.isPlayerAliveAndSurvival(player))
             return;
-
+        if (player instanceof ServerPlayer serverPlayer) ConfigWorldComponent.onPlayerUsedSkill( serverPlayer);
         // 如果已经给予过手榴弹，不需要再处理
         if (givenGrenade)
             return;

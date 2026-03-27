@@ -237,6 +237,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
             CoinToLotteryCommand.register(dispatcher, registryAccess);
             net.exmo.sre.nametag.NameTagCommand.register(dispatcher);
             net.exmo.sre.client.chat.ChatDialogueCommand.register(dispatcher);
+            io.wifi.starrailexpress.command.UnlockAllRolesCommand.register(dispatcher);
         }));
     }
 
@@ -307,6 +308,8 @@ public class SRE extends StarRailExpressID implements ModInitializer {
         PayloadTypeRegistry.playS2C().register(PlayerDeathPayload.ID, PlayerDeathPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(OpenSkinScreenPaylod.ID, OpenSkinScreenPaylod.CODEC);
         PayloadTypeRegistry.playS2C().register(OpenProgressionScreenPayload.ID, OpenProgressionScreenPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(io.wifi.starrailexpress.network.OpenRoleUnlockScreenPayload.ID,
+                io.wifi.starrailexpress.network.OpenRoleUnlockScreenPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(io.wifi.starrailexpress.network.packet.SyncWaypointsPacket.ID,
                 io.wifi.starrailexpress.network.packet.SyncWaypointsPacket.CODEC);
         PayloadTypeRegistry.playS2C().register(

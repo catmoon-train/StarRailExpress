@@ -6,7 +6,9 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import org.agmas.noellesroles.ConfigWorldComponent;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
@@ -45,6 +47,8 @@ public class MonitorPlayerComponent implements RoleComponent, ServerTickingCompo
      * @param target 目标玩家 UUID
      */
     public void markTarget(UUID target) {
+        if (!(player instanceof ServerPlayer))return;
+        ConfigWorldComponent.onPlayerUsedSkill( (ServerPlayer) player);
         this.markedTarget = target;
         this.cooldown = COOLDOWN_TICKS;
         this.sync();

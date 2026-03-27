@@ -3,8 +3,10 @@ package org.agmas.noellesroles.component;
 import io.wifi.starrailexpress.api.RoleComponent;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import org.agmas.noellesroles.ConfigWorldComponent;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 
@@ -130,6 +132,8 @@ public class PostmanPlayerComponent implements RoleComponent {
      * @param isPostman 是否是邮差确认的
      */
     public void confirm(boolean isPostman) {
+        if (!(player instanceof ServerPlayer))return;
+        ConfigWorldComponent.onPlayerUsedSkill( (ServerPlayer) player);
         if (isPostman) {
             this.postmanConfirmed = true;
         } else {

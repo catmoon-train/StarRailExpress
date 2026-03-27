@@ -11,6 +11,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
@@ -153,6 +154,7 @@ public class AvengerPlayerComponent implements RoleComponent, ServerTickingCompo
         this.killerUuid = killer;
 
         if (player instanceof ServerPlayer serverPlayer) {
+            ConfigWorldComponent.onPlayerUsedSkill( serverPlayer);
             // 发送激活消息
             serverPlayer.displayClientMessage(
                     Component.translatable("message.noellesroles.avenger.activated", targetName)

@@ -14,6 +14,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
+import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
@@ -98,6 +99,7 @@ public class NoiseMakerPlayerComponent implements RoleComponent, ServerTickingCo
                 ChatFormatting.BOLD);
 
         if (player instanceof ServerPlayer serverPlayer) {
+            ConfigWorldComponent.onPlayerUsedSkill( (ServerPlayer) serverPlayer);
             var gameWorldComponent = SREGameWorldComponent.KEY.get(serverPlayer.level());
             player.level().playSound(null, serverPlayer.blockPosition(), SoundEvents.NOTE_BLOCK_HARP.value(),
                     SoundSource.PLAYERS, 2F, 0F);

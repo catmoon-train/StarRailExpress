@@ -384,7 +384,7 @@ public class ModPacketsReciever {
                   || role.identifier().equals(ModRoles.WATER_GHOST_ID)
                   || role.identifier().equals(ModRoles.DIO_ID)
                   || Harpymodloader.VANNILA_ROLES.contains(role) || !role.canUseKiller()
-                  || HarpyModLoaderConfig.HANDLER.instance().disabled
+                  || HarpyModLoaderConfig.HANDLER.instance().getDisabled()
                       .contains(role.identifier().getPath()));
               if (shuffledKillerRoles.isEmpty())
                 shuffledKillerRoles.add(TMMRoles.KILLER);

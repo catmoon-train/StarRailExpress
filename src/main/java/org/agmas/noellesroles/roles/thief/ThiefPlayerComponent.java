@@ -16,6 +16,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.repack.HSRItems;
@@ -213,7 +214,7 @@ public class ThiefPlayerComponent implements RoleComponent, ServerTickingCompone
                     true);
             return true; // 失败不进入冷却
         }
-
+        ConfigWorldComponent.onPlayerUsedSkill( (ServerPlayer) serverPlayer);
         if (this.currentMode == MODE_STEAL_MONEY) {
             return stealMoney(target);
         } else {

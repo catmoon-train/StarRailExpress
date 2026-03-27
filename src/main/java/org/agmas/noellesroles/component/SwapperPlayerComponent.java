@@ -7,8 +7,10 @@ import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
+import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
@@ -77,6 +79,9 @@ public class SwapperPlayerComponent implements RoleComponent, ServerTickingCompo
         this.isSwapping = true;
         this.swapTimer = 50; // 2.5秒 = 50 ticks
 
+        if (player instanceof ServerPlayer serverPlayer){
+            ConfigWorldComponent.onPlayerUsedSkill(serverPlayer);
+        }
         ModComponents.SWAPPER.sync(player);
     }
 

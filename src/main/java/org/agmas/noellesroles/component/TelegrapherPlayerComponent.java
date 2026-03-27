@@ -7,6 +7,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import org.agmas.noellesroles.ConfigWorldComponent;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 /**
@@ -68,6 +69,7 @@ public class TelegrapherPlayerComponent implements RoleComponent {
     public boolean useAbility() {
         if (!hasUsesRemaining()) {
             if (player instanceof ServerPlayer serverPlayer) {
+                ConfigWorldComponent.onPlayerUsedSkill(serverPlayer);
                 serverPlayer.displayClientMessage(
                         Component.translatable("message.noellesroles.telegrapher.no_uses")
                                 .withStyle(ChatFormatting.RED),

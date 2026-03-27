@@ -17,6 +17,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Items;
+import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.role.ModRoles;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
@@ -243,7 +244,7 @@ public class WaterGhostPlayerComponent implements RoleComponent, ServerTickingCo
     public void useSkill() {
         if (!(player instanceof ServerPlayer serverPlayer))
             return;
-
+        ConfigWorldComponent.onPlayerUsedSkill(serverPlayer);
         // 检查冷却
         if (skillCooldown > 0) {
             serverPlayer.displayClientMessage(

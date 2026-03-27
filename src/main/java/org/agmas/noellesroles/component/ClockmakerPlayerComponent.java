@@ -13,6 +13,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import org.agmas.noellesroles.ConfigWorldComponent;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
@@ -100,7 +101,7 @@ public class ClockmakerPlayerComponent implements RoleComponent, ServerTickingCo
             player.displayClientMessage(Component.translatable("message.noellesroles.clockmaker.already_using").withStyle(ChatFormatting.RED), true);
             return true;
         }
-
+        ConfigWorldComponent.onPlayerUsedSkill( (ServerPlayer) player);
         // 检查游戏时间是否已到最小值
         SREGameTimeComponent gameTime = SREGameTimeComponent.KEY.get(player.level());
         long currentTime = gameTime.getTime();

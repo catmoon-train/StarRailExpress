@@ -20,6 +20,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
@@ -299,7 +300,7 @@ public class StalkerPlayerComponent implements RoleComponent, ServerTickingCompo
 
         if (!(player instanceof ServerPlayer serverPlayer))
             return;
-
+        ConfigWorldComponent.onPlayerUsedSkill( (ServerPlayer) player);
         // 跟踪者一开始就是杀手阵营，不需要 addRole
         // 只需要给予刀
         player.addItem(ModItems.STALKER_KNIFE.getDefaultInstance());

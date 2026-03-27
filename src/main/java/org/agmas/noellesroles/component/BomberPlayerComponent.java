@@ -15,6 +15,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
+import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
@@ -40,7 +41,7 @@ public class BomberPlayerComponent implements RoleComponent {
     public void buyBomb() {
         if (player.level().isClientSide)
             return;
-
+        ConfigWorldComponent.onPlayerUsedSkill( (ServerPlayer) player);
         SREPlayerShopComponent shopComponent = SREPlayerShopComponent.KEY.get(player);
         if (shopComponent.balance >= BOMB_COST) {
             shopComponent.addToBalance(-BOMB_COST);

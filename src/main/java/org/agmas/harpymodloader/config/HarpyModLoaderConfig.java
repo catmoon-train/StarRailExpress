@@ -1,6 +1,7 @@
 package org.agmas.harpymodloader.config;
 
 import io.wifi.ConfigCompact.ConfigClassHandler;
+import io.wifi.starrailexpress.unlock.RoleUnlockManager;
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry.Gui.Tooltip;
@@ -14,7 +15,7 @@ public class HarpyModLoaderConfig implements ConfigData {
 
     // Disables roles from being in the role pool. use /listRoles to get role names,
     // use /setEnabledRole to ban/unban them in-game (saves here).
-    public ArrayList<String> disabled = new ArrayList<>();
+    private ArrayList<String> disabled = new ArrayList<>();
 
     // Which Modifiers should be disabled. Modifiers also show up in /listRoles and
     // /setEnabledModifier.
@@ -34,4 +35,13 @@ public class HarpyModLoaderConfig implements ConfigData {
 
     // Whether to use custom role weights instead of default round-based weights")
     public boolean useCustomRoleWeights = true;
+
+    public ArrayList<String> getDisabled() {
+
+        return disabled;
+    }
+
+    public void setDisabled(ArrayList<String> disabled) {
+        this.disabled = disabled;
+    }
 }

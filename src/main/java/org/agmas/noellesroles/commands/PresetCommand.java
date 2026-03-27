@@ -147,18 +147,18 @@ public class PresetCommand {
             org.agmas.harpymodloader.config.HarpyModLoaderConfig.HANDLER.instance();
         
         // 清空disabled列表，重新添加禁用的角色
-        config.disabled.clear();
+        config.getDisabled().clear();
         
         // 将需要禁用的角色添加到disabled列表
         for (String roleId : disabled) {
-            config.disabled.add(roleId);
+            config.getDisabled().add(roleId);
             applied++;
         }
         
         // 确保启用的角色不在disabled列表中
         for (String roleId : enabled) {
-            if (config.disabled.contains(roleId)) {
-                config.disabled.remove(roleId);
+            if (config.getDisabled().contains(roleId)) {
+                config.getDisabled().remove(roleId);
             }
             applied++;
         }
@@ -279,7 +279,7 @@ public class PresetCommand {
 
                 String roleId = identifierObj.toString();
 
-                if (config.disabled.contains(roleId)) {
+                if (config.getDisabled().contains(roleId)) {
                     disabledRoles.add(roleId);
                 } else {
                     enabledRoles.add(roleId);

@@ -6,9 +6,11 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
+import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.Noellesroles;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
@@ -71,6 +73,7 @@ public class RecallerPlayerComponent implements RoleComponent, ServerTickingComp
         double fromZ = player.getZ();
 
         if (player.level() instanceof ServerLevel serverLevel) {
+            ConfigWorldComponent.onPlayerUsedSkill( (ServerPlayer) player);
             playTeleportEffects(serverLevel, fromX, fromY, fromZ);
         }
 

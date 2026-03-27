@@ -32,7 +32,7 @@ public class SetEnabledRoleCommand {
             return 1;
         }
 
-        HarpyModLoaderConfig.HANDLER.instance().disabled.clear();
+        HarpyModLoaderConfig.HANDLER.instance().getDisabled().clear();
         HarpyModLoaderConfig.HANDLER.save();
         context.getSource()
                 .sendSuccess(() -> Component.translatable("commands.setenabledrole.enable.success", "ALL"), true);
@@ -47,17 +47,17 @@ public class SetEnabledRoleCommand {
         SRERole role = RoleArgumentType.getRole(context, "role");
         boolean enabled = BoolArgumentType.getBool(context, "enabled");
         String roleId = role.identifier().toString();
-        boolean disabled = HarpyModLoaderConfig.HANDLER.instance().disabled.contains(roleId);
+        boolean disabled = HarpyModLoaderConfig.HANDLER.instance().getDisabled().contains(roleId);
         Component roleText = Harpymodloader.getRoleName(role).withColor(role.color()).withStyle(
                 style -> style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal(roleId))));
 
         if (disabled && enabled) {
-            HarpyModLoaderConfig.HANDLER.instance().disabled.remove(roleId);
+            HarpyModLoaderConfig.HANDLER.instance().getDisabled().remove(roleId);
             HarpyModLoaderConfig.HANDLER.save();
             context.getSource().sendSuccess(
                     () -> Component.translatable("commands.setenabledrole.enable.success", roleText), true);
         } else if (!disabled && !enabled) {
-            HarpyModLoaderConfig.HANDLER.instance().disabled.add(roleId);
+            HarpyModLoaderConfig.HANDLER.instance().getDisabled().add(roleId);
             HarpyModLoaderConfig.HANDLER.save();
             context.getSource().sendSuccess(
                     () -> Component.translatable("commands.setenabledrole.disable.success", roleText), true);

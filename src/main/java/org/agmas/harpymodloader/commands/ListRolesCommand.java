@@ -30,7 +30,7 @@ public class ListRolesCommand {
         HashMap<ResourceLocation, Boolean> roleInfos = new HashMap<>();
         HashMap<ResourceLocation, Boolean> modifierInfos = new HashMap<>();
         for (var info : TMMRoles.ROLES.keySet()) {
-            if (HarpyModLoaderConfig.HANDLER.instance().disabled.contains(info.toString())) {
+            if (HarpyModLoaderConfig.HANDLER.instance().getDisabled().contains(info.toString())) {
                 roleInfos.put(info, false);
             } else {
                 roleInfos.put(info, true);
@@ -57,7 +57,7 @@ public class ListRolesCommand {
         final MutableComponent message = Component.empty();
         message.append(Component.translatable("commands.listroles.role.title")).append("\n");
         message.append(ComponentUtils.formatList(TMMRoles.ROLES.values(), Component.literal("\n"), role -> {
-            final boolean disabled = HarpyModLoaderConfig.HANDLER.instance().disabled
+            final boolean disabled = HarpyModLoaderConfig.HANDLER.instance().getDisabled()
                     .contains(role.identifier().toString());
             final MutableComponent status = createStatus(context.getSource(), disabled,
                     "/setEnabledRole " + role.identifier() + " " + disabled);

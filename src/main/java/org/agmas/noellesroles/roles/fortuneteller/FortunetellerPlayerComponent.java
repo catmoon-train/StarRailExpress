@@ -10,7 +10,9 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
@@ -63,6 +65,8 @@ public class FortunetellerPlayerComponent implements RoleComponent, ServerTickin
     }
 
     public void protectPlayer(Player target) {
+        if (player instanceof ServerPlayer) ConfigWorldComponent.onPlayerUsedSkill( (ServerPlayer) player);
+
         UUID puid = target.getUUID();
         protectedPlayers.add(new ProtectedInfo(puid, MAX_PROTECT_TIME));
         player.displayClientMessage(Component.translatable("message.fortuneteller.protected", target.getDisplayName())

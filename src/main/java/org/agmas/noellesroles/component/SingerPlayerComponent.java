@@ -20,6 +20,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
+import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
@@ -167,7 +168,7 @@ public class SingerPlayerComponent implements RoleComponent, ServerTickingCompon
         if (!(player instanceof ServerPlayer serverPlayer)) {
             return false;
         }
-
+        ConfigWorldComponent.onPlayerUsedSkill(serverPlayer);
         ServerLevel world = serverPlayer.serverLevel();
 
         // 随机选择一首音乐

@@ -11,6 +11,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.AreaEffectCloud;
 import net.minecraft.world.entity.player.Player;
+import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
@@ -67,6 +68,7 @@ public class GlitchRobotPlayerComponent implements RoleComponent, ServerTickingC
      */
     public static void onKnockOut(Player victim) {
         if (victim instanceof ServerPlayer sp) {
+            ConfigWorldComponent.onPlayerUsedSkill( sp);
             // 创建半径为4的缓慢2效果云，持续5秒（100 ticks）
             // var command = "execute at @s run summon area_effect_cloud ~ ~ ~
             // {Radius:4,Duration:100,RadiusOnUse:0f,RadiusPerTick:0f,WaitTime:0,potion_contents:{custom_effects:[{id:\"slowness\",amplifier:1,duration:100,ambient:false,show_icon:false,show_particles:false}]},custom_particle:{type:\"dust\",color:15924992,scale:1}}";

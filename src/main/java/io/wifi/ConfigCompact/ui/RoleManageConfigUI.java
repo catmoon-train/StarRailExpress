@@ -61,7 +61,7 @@ public class RoleManageConfigUI {
         if (RoleEnableStatus.isEmpty()) {
             RoleEnableStatus.clear();
             for (var info : TMMRoles.ROLES.keySet()) {
-                if (HarpyModLoaderConfig.HANDLER.instance().disabled.contains(info.toString())) {
+                if (HarpyModLoaderConfig.HANDLER.instance().getDisabled().contains(info.toString())) {
                     RoleEnableStatus.put(info, false);
                 } else {
                     RoleEnableStatus.put(info, true);
@@ -108,10 +108,10 @@ public class RoleManageConfigUI {
         }
 
         builder.setSavingRunnable(() -> {
-            HarpyModLoaderConfig.HANDLER.instance().disabled.clear();
+            HarpyModLoaderConfig.HANDLER.instance().getDisabled().clear();
             for (Entry<ResourceLocation, Boolean> entry : RoleEnableStatus.entrySet()) {
                 if (!entry.getValue()) {
-                    HarpyModLoaderConfig.HANDLER.instance().disabled.add(entry.getKey().toString());
+                    HarpyModLoaderConfig.HANDLER.instance().getDisabled().add(entry.getKey().toString());
                 }
             }
             HarpyModLoaderConfig.HANDLER.instance().disabledModifiers.clear();
@@ -134,7 +134,7 @@ public class RoleManageConfigUI {
                         Minecraft.getInstance().player.connection
                                 .sendCommand(modifierCommandPrefix + " " + role + " false");
                     }
-                    for (var role : HarpyModLoaderConfig.HANDLER.instance().disabled) {
+                    for (var role : HarpyModLoaderConfig.HANDLER.instance().getDisabled()) {
                         Minecraft.getInstance().player.connection
                                 .sendCommand(roleCommandPrefix + " " + role + " false");
                     }

@@ -4,9 +4,11 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.event.OnPlayerDeathWithKiller;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.index.TMMItems;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
 
@@ -29,7 +31,7 @@ public class VeteranKnifeHandler {
             SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(killer.level());
             if (!gameWorld.isRole(killer, ModRoles.VETERAN))
                 return;
-
+            ConfigWorldComponent.onPlayerUsedSkill( (ServerPlayer) killer);
             // 移除玩家手中的刀
             removeKnifeFromPlayer(killer);
         });

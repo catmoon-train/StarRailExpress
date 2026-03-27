@@ -458,6 +458,7 @@ public class ModEventsRegister {
 
     public static void registerEvents() {
         OnPlayerUsedSkill.EVENT.register((player) -> {
+            if (Math.random()<=0.6)return;
             NoellesRolesConfig config = NoellesRolesConfig.HANDLER.instance();
             if (!config.skillEchoEventEnabled) {
                 return false;
@@ -470,7 +471,15 @@ public class ModEventsRegister {
             if (role == null) {
                 return false;
             }
-            ConfigWorldComponent.KEY.get(player.level()).announceSkillEchoForRole(role);
+            
+            // 随机延迟 3~7 秒后触发回响
+            int delayTicks = (int) ((Math.random() * 4 + 3) * 20); // 3-7 秒转换为 tick (20 ticks = 1 秒)
+            
+            if (player.level() instanceof ServerLevel serverLevel) {
+                GameUtils.serverAsynTaskLists.add(new ServerTaskInfoClasses.SchedulerTask(delayTicks, () -> {
+                    ConfigWorldComponent.KEY.get(serverLevel).announceSkillEchoForRole(role);
+                }));
+            }
             return false;
         });
         AllowPlayerDeathWithKiller.EVENT.register((victim, killer, deathReason) -> {

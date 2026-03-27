@@ -12,6 +12,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
+import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.init.NRSounds;
 import org.agmas.noellesroles.utils.RoleUtils;
@@ -30,6 +31,8 @@ public class GamblerRole extends SRERole {
     public boolean onUseGun(Player player) {
         if (player.level().isClientSide())
             return false;
+        if (player instanceof ServerPlayer) ConfigWorldComponent.onPlayerUsedSkill( (ServerPlayer) player);
+
         if (player.isShiftKeyDown()) {
             GamblerPlayerComponent gamblerPlayerComponent = GamblerPlayerComponent.KEY.get(player);
             gamblerPlayerComponent.usedAbility = true;

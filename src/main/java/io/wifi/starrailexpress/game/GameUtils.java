@@ -321,6 +321,9 @@ public class GameUtils {
         scoreboardComponent.updateAllPlayerScores();
 
         // --- 新增统计数据更新逻辑 ---
+        // 全局场次 +1（仅计一次，不随玩家数翻倍）
+        io.wifi.starrailexpress.unlock.RoleUnlockStorage.getInstance().incrementGlobalGames();
+
         for (ServerPlayer player : readyPlayerList) {
 
             SREPlayerStatsComponent stats = SREPlayerStatsComponent.KEY.get(player);

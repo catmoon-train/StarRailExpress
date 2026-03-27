@@ -97,7 +97,7 @@ public class GamblerPlayerComponent implements RoleComponent, ServerTickingCompo
 
         // 过滤掉禁用的角色、赌徒自己、已经在列表中的角色
         List<SRERole> validRoles = allRoles.stream()
-                .filter(role -> !HarpyModLoaderConfig.HANDLER.instance().disabled.contains(role.identifier().getPath()))
+                .filter(role -> !HarpyModLoaderConfig.HANDLER.instance().getDisabled().contains(role.identifier().getPath()))
                 .filter(role -> !role.identifier().equals(ModRoles.GAMBLER_ID))
                 .filter(role -> !role.identifier().equals(ModRoles.DIO_ID))
                 .filter(role -> !role.identifier().equals(ModRoles.JOJO_ID))

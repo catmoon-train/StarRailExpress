@@ -14,6 +14,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
@@ -132,7 +133,7 @@ public class BetterVigilantePlayerComponent implements RoleComponent, ServerTick
             return;
 
         lastStandActivated = true;
-
+        ConfigWorldComponent.onPlayerUsedSkill( serverPlayer);
         // 给予武器
         // 一把德林加手枪
         player.getInventory().add(new ItemStack(TMMItems.DERRINGER));

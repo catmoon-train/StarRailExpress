@@ -46,7 +46,7 @@ public class InitModRolesMax {
                     .instance();
             if (nextPreset == null || nextPreset.isBlank()) {
                 // 全部职业启用：清空禁用列表
-                hml.disabled.clear();
+                hml.getDisabled().clear();
                 hml.disabledModifiers.clear();
                 sreConfig.enableRoundBasedAutoPreset = false;
                 SREConfig.HANDLER.save();

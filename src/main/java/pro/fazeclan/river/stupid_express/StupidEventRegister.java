@@ -62,7 +62,7 @@ public class StupidEventRegister {
             if (gameWorldComponent.isRole(killer, SERoles.INITIATE)) {
                 var shuffledKillerRoles = new ArrayList<>(StupidExpress.getEnableRoles());
                 shuffledKillerRoles.removeIf(role -> Harpymodloader.VANNILA_ROLES.contains(role) || !role.canUseKiller()
-                        || HarpyModLoaderConfig.HANDLER.instance().disabled.contains(role.identifier().getPath())
+                        || HarpyModLoaderConfig.HANDLER.instance().getDisabled().contains(role.identifier().getPath())
                     || role.identifier().equals(ResourceLocation.fromNamespaceAndPath("noellesroles", "water_ghost"))
                         || role.identifier().equals(ResourceLocation.fromNamespaceAndPath("noellesroles", "poisoner"))
                         || role.identifier().getPath().equals("dio")
