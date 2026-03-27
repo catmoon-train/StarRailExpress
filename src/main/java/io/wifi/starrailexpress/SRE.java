@@ -310,6 +310,8 @@ public class SRE extends StarRailExpressID implements ModInitializer {
         PayloadTypeRegistry.playS2C().register(OpenProgressionScreenPayload.ID, OpenProgressionScreenPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(io.wifi.starrailexpress.network.OpenRoleUnlockScreenPayload.ID,
                 io.wifi.starrailexpress.network.OpenRoleUnlockScreenPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(io.wifi.starrailexpress.network.RoleUnlockedHudPayload.ID,
+            io.wifi.starrailexpress.network.RoleUnlockedHudPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(io.wifi.starrailexpress.network.packet.SyncWaypointsPacket.ID,
                 io.wifi.starrailexpress.network.packet.SyncWaypointsPacket.CODEC);
         PayloadTypeRegistry.playS2C().register(

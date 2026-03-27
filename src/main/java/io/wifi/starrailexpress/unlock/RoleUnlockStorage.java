@@ -107,7 +107,16 @@ public class RoleUnlockStorage {
     private boolean applyConfiguredDefaultUnlocks() {
         boolean changed = false;
         try {
-            
+            var cfg = StupidExpressConfig.getInstance().rolesSection.roleUnlockSection;
+            if (!cfg.enableRoleUnlockSystem || !cfg.unlockBasicRolesAtStart) {
+                return false;
+            }
+            for (String id : cfg.basicDefaultUnlockedRoles) {
+                ResourceLocation rl = ResourceLocation.tryParse(id);
+                if (rl != null && forceUnlockedRoles.add(rl.toString())) {
+                    changed = true;
+                }
+            }
         } catch (Exception e) {
             LOGGER.warn("[RoleUnlock] 读取默认基础职业解锁配置失败，使用当前存档数据", e);
         }

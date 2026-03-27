@@ -256,9 +256,7 @@ public class RoleUnlockProgressScreen extends Screen {
         g.drawString(font, icon, x + 22, y + (ROW_H - 8) / 2, 0xFFFFFFFF);
 
         // 职业名
-        String nameKey = "role." + entry.roleId().getNamespace() + "." + entry.roleId().getPath();
-        String roleName = net.minecraft.locale.Language.getInstance().getOrDefault(nameKey,
-                entry.roleId().getPath());
+        String roleName = I18n.get("announcement.star.role."+entry.roleId().getPath());
         int nameColor = entry.isUnlocked() ? 0xFFFFFFFF : 0xFFAAAAAA;
         g.drawString(font, roleName, x + 36, y + (ROW_H - font.lineHeight) / 2, nameColor);
 

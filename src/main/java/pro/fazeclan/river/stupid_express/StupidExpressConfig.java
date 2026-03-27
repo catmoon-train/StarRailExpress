@@ -26,6 +26,25 @@ public class StupidExpressConfig implements ConfigData {
         @CollapsibleObject
         public ArsonistSection arsonistSection = new ArsonistSection();
 
+        @CollapsibleObject
+        public RoleUnlockSection roleUnlockSection = new RoleUnlockSection();
+
+        public static class RoleUnlockSection {
+            /** Enable game-count-based role unlock system. */
+            public boolean enableRoleUnlockSystem = false;
+            /** Auto-apply a starter role list into force-unlocked roles on load. */
+            public boolean unlockBasicRolesAtStart = true;
+            /** Starter role ids (namespace:path). */
+            public List<String> basicDefaultUnlockedRoles = new ArrayList<>(List.of(
+                    "noellesroles:baka",
+                    "noellesroles:jester",
+                    "noellesroles:conductor",
+                    "noellesroles:doctor",
+                    "noellesroles:locksmith",
+                    "noellesroles:pachuri"
+            ));
+        }
+
         public static class ArsonistSection {
             public boolean arsonistKeepsGameGoing = true;
         }

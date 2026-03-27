@@ -551,6 +551,11 @@ public class SREClient implements ClientModInitializer {
                                 new io.wifi.starrailexpress.client.gui.screen.RoleUnlockProgressScreen());
                     });
                 });
+        ClientPlayNetworking.registerGlobalReceiver(
+            io.wifi.starrailexpress.network.RoleUnlockedHudPayload.ID, (payload, context) -> {
+                context.client().execute(() -> io.wifi.starrailexpress.client.gui.RoleUnlockHudRenderer
+                    .enqueue(payload.globalGamesPlayed(), payload.unlockedRoleIds()));
+            });
         ClientPlayNetworking.registerGlobalReceiver(CloseUiPayload.ID, (payload, context) -> {
             context.client().execute(() -> {
                 context.client().setScreen(null);
@@ -608,6 +613,7 @@ public class SREClient implements ClientModInitializer {
             ScopeOverlayRenderer.renderScopeOverlay(guiGraphics, deltaTick);
             WaypointHUD.renderHUD(guiGraphics, deltaTick.getRealtimeDeltaTicks());
             AFKRenderer.renderAFKEffects(guiGraphics, deltaTick.getRealtimeDeltaTicks());
+            RoleUnlockHudRenderer.render(guiGraphics);
 
             // // 添加地图详情渲染
             // Font font = Minecraft.getInstance().font;

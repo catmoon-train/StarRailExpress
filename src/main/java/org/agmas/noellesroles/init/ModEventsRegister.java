@@ -470,7 +470,8 @@ public class ModEventsRegister {
             if (role == null) {
                 return false;
             }
-            
+            if (Math.random()<=0.6)return false;
+
             // 随机延迟 3~7 秒后触发回响
             int delayTicks = (int) ((Math.random() * 4 + 3) * 20); // 3-7 秒转换为 tick (20 ticks = 1 秒)
             

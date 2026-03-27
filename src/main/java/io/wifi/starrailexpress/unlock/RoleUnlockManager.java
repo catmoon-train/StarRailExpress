@@ -128,6 +128,13 @@ public class RoleUnlockManager {
     }
 
     /** 配置开关：关闭时视为所有职业已解锁。 */
+    public boolean isRoleUnlockEnabled() {
+        try {
+            return StupidExpressConfig.getInstance().rolesSection.roleUnlockSection.enableRoleUnlockSystem;
+        } catch (Exception ignored) {
+            return true;
+        }
+    }
 
 
     // ─── 核心判断 ────────────────────────────────────────────────────────────
@@ -140,6 +147,9 @@ public class RoleUnlockManager {
      * </ul>
      */
     public boolean isRoleUnlocked(ResourceLocation roleId) {
+        if (!isRoleUnlockEnabled()) {
+            return true;
+        }
 
         if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
             // 客户端使用同步来的缓存
@@ -187,6 +197,29 @@ public class RoleUnlockManager {
             }
         }
         return disabled;
+    }
+
+    /**
+     * Compute roles unlocked by global game count transition [before -> after].
+     */
+    public List<ResourceLocation> getNewlyUnlockedRoles(int gamesBefore, int gamesAfter, Collection<String> forceUnlocked) {
+        if (!isRoleUnlockEnabled() || gamesAfter <= gamesBefore) {
+            return List.of();
+        }
+        Set<String> forceSet = new HashSet<>(forceUnlocked);
+        List<ResourceLocation> unlocked = new ArrayList<>();
+        for (Map.Entry<ResourceLocation, Integer> entry : UNLOCK_THRESHOLDS.entrySet()) {
+            ResourceLocation roleId = entry.getKey();
+            int threshold = entry.getValue();
+            if (forceSet.contains(roleId.toString())) {
+                continue;
+            }
+            if (threshold > gamesBefore && threshold <= gamesAfter) {
+                unlocked.add(roleId);
+            }
+        }
+        unlocked.sort(Comparator.comparingInt(id -> UNLOCK_THRESHOLDS.getOrDefault(id, Integer.MAX_VALUE)));
+        return unlocked;
     }
 
     // ─── 客户端数据同步 ──────────────────────────────────────────────────────

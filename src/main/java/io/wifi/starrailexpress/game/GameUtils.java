@@ -23,8 +23,11 @@ import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import io.wifi.starrailexpress.network.BreakArmorPayload;
 import io.wifi.starrailexpress.network.CloseUiPayload;
 import io.wifi.starrailexpress.network.PlayerDeathPayload;
+import io.wifi.starrailexpress.network.RoleUnlockedHudPayload;
 import io.wifi.starrailexpress.network.TriggerScreenEdgeEffectPayload;
 import io.wifi.starrailexpress.network.original.AnnounceEndingPayload;
+import io.wifi.starrailexpress.unlock.RoleUnlockManager;
+import io.wifi.starrailexpress.unlock.RoleUnlockStorage;
 import io.wifi.starrailexpress.util.TMMItemUtils;
 import net.exmo.sre.nametag.NameTagInventoryComponent;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerChunkEvents;
@@ -322,7 +325,21 @@ public class GameUtils {
 
         // --- 新增统计数据更新逻辑 ---
         // 全局场次 +1（仅计一次，不随玩家数翻倍）
-        io.wifi.starrailexpress.unlock.RoleUnlockStorage.getInstance().incrementGlobalGames();
+        RoleUnlockStorage unlockStorage = RoleUnlockStorage.getInstance();
+        int gamesBefore = unlockStorage.getGlobalGamesPlayed();
+        unlockStorage.incrementGlobalGames();
+        int gamesAfter = unlockStorage.getGlobalGamesPlayed();
+
+        List<ResourceLocation> newlyUnlockedRoles = RoleUnlockManager.getInstance()
+            .getNewlyUnlockedRoles(gamesBefore, gamesAfter, unlockStorage.getForceUnlockedRoles());
+        if (!newlyUnlockedRoles.isEmpty()) {
+            RoleUnlockedHudPayload unlockPayload = new RoleUnlockedHudPayload(
+                gamesAfter,
+                newlyUnlockedRoles.stream().map(ResourceLocation::toString).toList());
+            for (ServerPlayer player : readyPlayerList) {
+            ServerPlayNetworking.send(player, unlockPayload);
+            }
+        }
 
         for (ServerPlayer player : readyPlayerList) {
 
