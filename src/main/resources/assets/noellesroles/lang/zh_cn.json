@@ -1092,7 +1092,7 @@
   "announcement.star.win.candlebearer": "秉烛人胜利！",
   "game.win.star.candlebearer": "秉烛人完成了所有仪式，烛火照亮了终局！",
   "message.noellesroles.candlebearer.no_charge": "没有可用的隐身次数",
-  "message.noellesroles.gambler.miracle":"§l§c⚠ §6赌徒触发了 1% 的奇迹！ §c⚠§r",
+  "message.noellesroles.gambler.miracle":"§l§c⚠ §6赌徒触发了 1%% 的奇迹！ §c⚠§r",
   "message.noellesroles.candlebearer.use_invisibility": "你进入隐身 %s 秒（剩余次数：%s）",
   "gui.noellesroles.noisemaker.cooldown": "大嗓门冷却中，剩余%ss",
   "gui.noellesroles.noisemaker.ready": "大嗓门：G键",
