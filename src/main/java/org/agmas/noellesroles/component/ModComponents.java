@@ -234,6 +234,11 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
       ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "temporary_effect"),
       TemporaryEffectPlayerComponent.class);
 
+  public static final ComponentKey<LocksmithInspirationComponent> LOCKSMITH_INSPIRATION = ComponentRegistry
+      .getOrCreate(
+          ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "locksmith_inspiration"),
+          LocksmithInspirationComponent.class);
+
   public ModComponents() {
     // CCA 需要无参构造函数
   }
@@ -464,6 +469,11 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
     registry.beginRegistration(Player.class, TEMPORARY_EFFECT)
         .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
         .end(TemporaryEffectPlayerComponent::new);
+
+    // 注册锁匠灵感组件 - 存储灵感点数和看门进度
+    registry.beginRegistration(Player.class, LOCKSMITH_INSPIRATION)
+        .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
+        .end(LocksmithInspirationComponent::new);
 
     // 注册会计组件 - 存储模式、被动收入计时器
     registry.beginRegistration(Player.class, ACCOUNTANT)

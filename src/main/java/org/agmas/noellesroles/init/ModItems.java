@@ -120,6 +120,15 @@ public class ModItems {
     public static final Item MASTER_KEY_P = register(
             new MasterKeyItem(new Item.Properties().stacksTo(1).durability(5)),
             "master_key_p");
+    public static final Item NOELL_ARTISAN_KEY = register(
+            new ArtisanKeyItem(new Item.Properties().stacksTo(1)),
+            "noell_artisan_key");
+    public static final Item NOELL_KEY_BLANK = register(
+            new KeyBlankItem(new Item.Properties().stacksTo(16)),
+            "noell_key_blank");
+    public static final Item NOELL_PAPERCLIP = register(
+            new PaperclipItem(new Item.Properties().stacksTo(16)),
+            "noell_paperclip");
     public static final Item DELUSION_VIAL = register(
             new Item(new Item.Properties().stacksTo(1)),
             "delusion_vial");

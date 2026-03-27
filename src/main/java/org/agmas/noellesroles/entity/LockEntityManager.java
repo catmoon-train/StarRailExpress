@@ -28,10 +28,12 @@ public class LockEntityManager {
         canBeAffectedItems.add(TMMItems.LOCKPICK);
         canBeAffectedItems.add(ModItems.MASTER_KEY);
         canBeAffectedItems.add(ModItems.MASTER_KEY_P);
+        canBeAffectedItems.add(ModItems.NOELL_PAPERCLIP);
         canBeAffectedItems.add(FunnyItems.BOWEN_BADGE);
         // 在此处添加可以撬锁的物品
         canBeUsedToUnLock.add(TMMItems.LOCKPICK);
         canBeUsedToUnLock.add(ModItems.MASTER_KEY_P);
+        canBeUsedToUnLock.add(ModItems.NOELL_PAPERCLIP);
 
     };
 

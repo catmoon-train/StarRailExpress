@@ -716,13 +716,13 @@ public class RoleShopHandler {
           ModItems.SCREWDRIVER.getDefaultInstance(),
           100,
           ShopEntry.Type.TOOL));
-      SHOP.add(new ShopEntry(
-          ModItems.MASTER_KEY_P.getDefaultInstance(),
-          100,
+        SHOP.add(new ShopEntry(
+          ModItems.NOELL_KEY_BLANK.getDefaultInstance(),
+          150,
           ShopEntry.Type.TOOL));
-      SHOP.add(new ShopEntry(
-          TMMItems.IRON_DOOR_KEY.getDefaultInstance(),
-          100,
+        SHOP.add(new ShopEntry(
+          ModItems.NOELL_PAPERCLIP.getDefaultInstance(),
+          75,
           ShopEntry.Type.TOOL));
       ShopContent.customEntries.put(
           ModRoles.LOCKSMITH_ID, SHOP);

@@ -465,7 +465,6 @@ public class ClientHudRenderer {
       int xOffset = screenWidth - 10; // 距离右边缘
       var abpc = AthletePlayerComponent.KEY.get(client.player);
       if (client.player.hasEffect(MobEffects.MOVEMENT_SPEED)) {
-        //
         var text = Component
             .translatable("hud.noellesroles.athlete.active",
                 client.player.getEffect(MobEffects.MOVEMENT_SPEED).getDuration() / 20)
@@ -487,6 +486,26 @@ public class ClientHudRenderer {
       }
       return;
     });
+
+    RoleHudRenderCallback.EVENT.register(ModRoles.LOCKSMITH_ID, (guiGraphics, deltaTracker) -> {
+      Minecraft client = Minecraft.getInstance();
+      if (client == null || client.player == null)
+        return;
+      if (!GameUtils.isPlayerAliveAndSurvival(client.player))
+        return;
+
+      LocksmithInspirationComponent component = ModComponents.LOCKSMITH_INSPIRATION.get(client.player);
+      Component text = Component.translatable("hud.noellesroles.locksmith.inspiration",
+          component.getInspirationPoints(), LocksmithInspirationComponent.MAX_POINTS)
+          .withStyle(ChatFormatting.GOLD);
+
+      int screenWidth = guiGraphics.guiWidth();
+      int screenHeight = guiGraphics.guiHeight();
+      int x = screenWidth - client.font.width(text) - 10;
+      int y = screenHeight - client.font.lineHeight - 10;
+      guiGraphics.drawString(client.font, text, x, y, Color.WHITE.getRGB());
+    });
+
     RoleHudRenderCallback.EVENT.register(ModRoles.WATCHER_ID, (guiGraphics, deltaTracker) -> {
       // 渲染watcher的提示
       var client = Minecraft.getInstance();

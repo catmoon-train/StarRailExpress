@@ -84,6 +84,7 @@ public class RicesRoleRhapsody implements ModInitializer {
     public static final CustomPacketPayload.Type<PuppeteerC2SPacket> PUPPETEER_PACKET = PuppeteerC2SPacket.ID;
 
     public static final CustomPacketPayload.Type<LockGameC2Packet> LOCK_GAME_PACKET = LockGameC2Packet.ID;
+    public static final CustomPacketPayload.Type<KeyForgeGameC2Packet> KEY_FORGE_GAME_PACKET = KeyForgeGameC2Packet.ID;
     public static final CustomPacketPayload.Type<LootRequestC2SPacket> LOOT_REQUIRE_PACKET = LootRequestC2SPacket.ID;
     public static final CustomPacketPayload.Type<LootMultiRequestC2SPacket> LOOT_MULTI_REQUIRE_PACKET = LootMultiRequestC2SPacket.ID;
     public static final CustomPacketPayload.Type<LootPoolsInfoRequestC2SPacket> LOOT_POOLS_INFO_REQUEST_PACKET = LootPoolsInfoRequestC2SPacket.ID;
@@ -308,6 +309,8 @@ public class RicesRoleRhapsody implements ModInitializer {
 
         // 注册撬锁小游戏完成包
         PayloadTypeRegistry.playC2S().register(LockGameC2Packet.ID, LockGameC2Packet.CODEC);
+        // 注册配钥小游戏完成包
+        PayloadTypeRegistry.playC2S().register(KeyForgeGameC2Packet.ID, KeyForgeGameC2Packet.CODEC);
 
         // 注册卡池信息请求包
         PayloadTypeRegistry.playC2S().register(LootPoolsInfoRequestC2SPacket.ID, LootPoolsInfoRequestC2SPacket.CODEC);
@@ -350,6 +353,94 @@ public class RicesRoleRhapsody implements ModInitializer {
                         Component.translatable("message.lock.failed").withStyle(ChatFormatting.RED), true);
                 lockPick.shrink(1);
             }
+        });
+
+        // 配钥
+        ServerPlayNetworking.registerGlobalReceiver(KEY_FORGE_GAME_PACKET, (payload, context) -> {
+            ServerPlayer player = context.player();
+            int difficulty = payload.difficulty();
+            if (difficulty < 1 || difficulty > 6) {
+                return;
+            }
+
+            int inspirationCost;
+            switch (difficulty) {
+                case 1:
+                    inspirationCost = 2;
+                    break;
+                case 2:
+                    inspirationCost = 3;
+                    break;
+                case 3:
+                    inspirationCost = 4;
+                    break;
+                case 4:
+                    inspirationCost = 7;
+                    break;
+                case 5:
+                    inspirationCost = 8;
+                    break;
+                case 6:
+                    inspirationCost = 9;
+                    break;
+                default:
+                    inspirationCost = 0;
+                    break;
+            }
+
+            ItemStack mainHand = player.getItemInHand(InteractionHand.MAIN_HAND);
+            ItemStack offHand = player.getItemInHand(InteractionHand.OFF_HAND);
+            InteractionHand consumeHand = null;
+            if (mainHand.is(ModItems.NOELL_KEY_BLANK)) {
+                consumeHand = InteractionHand.MAIN_HAND;
+            } else if (offHand.is(ModItems.NOELL_KEY_BLANK)) {
+                consumeHand = InteractionHand.OFF_HAND;
+            }
+            if (consumeHand == null) {
+                return;
+            }
+
+            LocksmithInspirationComponent inspirationComponent = ModComponents.LOCKSMITH_INSPIRATION.get(player);
+            if (!player.isCreative() && !inspirationComponent.consumeInspiration(inspirationCost)) {
+                player.displayClientMessage(
+                        Component.translatable("message.noellesroles.locksmith.inspiration_insufficient",
+                                inspirationCost, inspirationComponent.getInspirationPoints())
+                                .withStyle(ChatFormatting.RED),
+                        true);
+                return;
+            }
+
+            ItemStack keyBlank = player.getItemInHand(consumeHand);
+            if (!player.isCreative()) {
+                keyBlank.shrink(1);
+            }
+
+            if (!payload.success()) {
+                player.displayClientMessage(
+                        Component.translatable("message.noellesroles.key_forge.failed").withStyle(ChatFormatting.RED),
+                        true);
+                return;
+            }
+
+            ItemStack reward = switch (difficulty) {
+                case 1 -> ModItems.MASTER_KEY_P.getDefaultInstance();
+                case 2 -> TMMItems.IRON_DOOR_KEY.getDefaultInstance();
+                case 3 -> TMMItems.CROWBAR.getDefaultInstance();
+                case 4 -> ModItems.MASTER_KEY.getDefaultInstance();
+                case 5 -> TMMItems.LOCKPICK.getDefaultInstance();
+                case 6 -> ModItems.NOELL_ARTISAN_KEY.getDefaultInstance();
+                default -> ItemStack.EMPTY;
+            };
+            if (reward.isEmpty()) {
+                return;
+            }
+
+            if (!player.addItem(reward)) {
+                player.drop(reward, false);
+            }
+            player.displayClientMessage(
+                    Component.translatable("message.noellesroles.key_forge.success").withStyle(ChatFormatting.GREEN),
+                    true);
         });
 
         // 处理阴谋家猜测包

@@ -50,6 +50,11 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ThrownTrident;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.DoorBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
@@ -98,6 +103,7 @@ public class ModEventsRegister {
     private static AttributeModifier noJumpingAttribute = new AttributeModifier(
             Noellesroles.id("no_jumping"), -1.0f, AttributeModifier.Operation.ADD_VALUE);
     private static final Map<UUID, Vec3> oldmanPigRidePositions = new HashMap<>();
+    private static final double LOCKSMITH_OBSERVE_DISTANCE = 4.0D;
     // private static AttributeModifier oldmanAttribute = new AttributeModifier(
     // Noellesroles.id("oldman"), -0.4f, AttributeModifier.Operation.ADD_VALUE);
     // private static AttributeModifier windYaoseScaleAttribute = new
@@ -449,6 +455,64 @@ public class ModEventsRegister {
                         Component.translatable("message.noellesroles.accountant.passbook_inherited",
                                 victim.getName().getString())
                                 .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD),
+                        true);
+            }
+        }
+    }
+
+    /**
+     * 处理锁匠死亡 - 将巧匠钥匙和撬锁器传递给附近一名存活的平民
+     */
+    private static void handleLocksmithDeath(Player victim) {
+        if (victim == null || victim.level().isClientSide())
+            return;
+
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(victim.level());
+        if (!gameWorld.isRole(victim, ModRoles.LOCKSMITH))
+            return;
+
+        ArrayList<ItemStack> itemsToTransfer = new ArrayList<>();
+        for (int i = 0; i < victim.getInventory().getContainerSize(); i++) {
+            ItemStack stack = victim.getInventory().getItem(i);
+            if (stack.is(ModItems.NOELL_ARTISAN_KEY) || stack.is(TMMItems.LOCKPICK)) {
+                itemsToTransfer.add(stack.copy());
+                victim.getInventory().setItem(i, ItemStack.EMPTY);
+            }
+        }
+
+        if (itemsToTransfer.isEmpty())
+            return;
+
+        Player targetPlayer = null;
+        double bestDistanceSqr = 10.0 * 10.0;
+        for (Player player : victim.level().players()) {
+            if (player == victim)
+                continue;
+            if (!GameUtils.isPlayerAliveAndSurvival(player))
+                continue;
+
+            SRERole role = gameWorld.getRole(player);
+            if (role == null || !role.isInnocent())
+                continue;
+
+            double distanceSqr = player.distanceToSqr(victim);
+            if (distanceSqr <= bestDistanceSqr) {
+                bestDistanceSqr = distanceSqr;
+                targetPlayer = player;
+            }
+        }
+
+        if (targetPlayer != null) {
+            for (ItemStack item : itemsToTransfer) {
+                if (!targetPlayer.addItem(item)) {
+                    targetPlayer.drop(item, false);
+                }
+            }
+            if (targetPlayer instanceof ServerPlayer serverTarget) {
+                serverTarget.displayClientMessage(
+                        Component.translatable("message.noellesroles.locksmith.items_inherited",
+                                victim.getName().getString())
+                                .withStyle(ChatFormatting.AQUA, ChatFormatting.BOLD),
                         true);
             }
         }
@@ -1303,6 +1367,9 @@ public class ModEventsRegister {
             // 检查医生死亡 - 传递针管
             handleDoctorDeath(victim);
 
+            // 检查锁匠死亡 - 传递巧匠钥匙和撬锁器
+            handleLocksmithDeath(victim);
+
             // 检查会计死亡 - 传递存折
             handleAccountantDeath(victim);
 
@@ -1381,6 +1448,9 @@ public class ModEventsRegister {
                 // 检查死亡惩罚过期
                 DeathPenaltyComponent penaltyComponent = ModComponents.DEATH_PENALTY.get(player);
                 penaltyComponent.check();
+
+                // 锁匠灵感：持续观察门15秒可获得1点（上限18）
+                tickLocksmithInspiration(player, gameWorldComponent);
             }
         });
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
@@ -1491,10 +1561,66 @@ public class ModEventsRegister {
                 "noellesroles:signed_paper",
                 "noellesroles:diving_helmet",
                 "noellesroles:life_and_death_shape",
+                "noellesroles:noell_paperclip",
                 "minecraft:clock",
                 "noellesroles:passbook",
                 "minecraft:written_book"));
 
+    }
+
+    private static void tickLocksmithInspiration(ServerPlayer player, SREGameWorldComponent gameWorldComponent) {
+        LocksmithInspirationComponent component = ModComponents.LOCKSMITH_INSPIRATION.get(player);
+
+        if (!gameWorldComponent.isRole(player, ModRoles.LOCKSMITH) || !GameUtils.isPlayerAliveAndSurvival(player)) {
+            if (component.getObservingDoorTicks() > 0) {
+                component.setObservingDoorTicks(0);
+            }
+            return;
+        }
+
+        if (component.getInspirationPoints() >= LocksmithInspirationComponent.MAX_POINTS) {
+            if (component.getObservingDoorTicks() > 0) {
+                component.setObservingDoorTicks(0);
+            }
+            return;
+        }
+
+        if (!isLookingAtDoor(player)) {
+            if (component.getObservingDoorTicks() > 0) {
+                component.setObservingDoorTicks(0);
+            }
+            return;
+        }
+
+        int ticks = component.incrementObservingDoorTicks();
+        if (ticks >= LocksmithInspirationComponent.OBSERVE_TICKS_REQUIRED) {
+            component.setObservingDoorTicks(0);
+            component.addInspiration(1);
+        }
+    }
+
+    private static boolean isLookingAtDoor(ServerPlayer player) {
+        HitResult hitResult = player.pick(LOCKSMITH_OBSERVE_DISTANCE, 0.0F, false);
+        if (hitResult.getType() != HitResult.Type.BLOCK || !(hitResult instanceof BlockHitResult blockHitResult)) {
+            return false;
+        }
+        return isDoorBlock(player.level(), blockHitResult.getBlockPos());
+    }
+
+    private static boolean isDoorBlock(net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos) {
+        BlockState state = level.getBlockState(pos);
+        Block block = state.getBlock();
+
+        if (block instanceof DoorBlock) {
+            return true;
+        }
+        if (level.getBlockEntity(pos) instanceof io.wifi.starrailexpress.block_entity.DoorBlockEntity) {
+            return true;
+        }
+        if (level.getBlockEntity(pos.below()) instanceof io.wifi.starrailexpress.block_entity.DoorBlockEntity) {
+            return true;
+        }
+        return level.getBlockEntity(pos.above()) instanceof io.wifi.starrailexpress.block_entity.DoorBlockEntity;
     }
 
 }

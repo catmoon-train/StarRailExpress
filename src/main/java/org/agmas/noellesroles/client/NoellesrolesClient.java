@@ -413,6 +413,16 @@ public class NoellesrolesClient implements ClientModInitializer {
                 }
             });
         });
+        ClientPlayNetworking.registerGlobalReceiver(OpenKeyForgeGuiS2CPacket.ID, (payload, context) -> {
+            final var client = context.client();
+            client.execute(() -> {
+                if (client.player != null) {
+                    if (!isPlayerInAdventureMode(client.player))
+                        return;
+                    client.setScreen(new KeyForgeGameScreen(payload.inspirationPoints()));
+                }
+            });
+        });
         // 注册抽奖网络包处理：接收服务器抽奖结果后播放抽奖动画
         ClientPlayNetworking.registerGlobalReceiver(LootResultS2CPacket.ID, (payload, context) -> {
             final var client = context.client();
