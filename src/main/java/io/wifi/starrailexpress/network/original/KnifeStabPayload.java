@@ -44,9 +44,10 @@ public record KnifeStabPayload(int target) implements CustomPacketPayload {
             GameUtils.killPlayer(target, true, player, GameConstants.DeathReasons.KNIFE);
             target.playSound(TMMSounds.ITEM_KNIFE_STAB, 1.0f, 1.0f);
             player.swing(InteractionHand.MAIN_HAND);
+            var cooldowns = player.getCooldowns();
             if (!player.isCreative()
                     && !SREGameWorldComponent.KEY.get(player.level()).isRole(player, TMMRoles.LOOSE_END)) {
-                player.getCooldowns().addCooldown(TMMItems.KNIFE, GameConstants.ITEM_COOLDOWNS.get(TMMItems.KNIFE));
+                cooldowns.addCooldown(TMMItems.KNIFE, GameConstants.ITEM_COOLDOWNS.get(TMMItems.KNIFE));
             }
         }
     }

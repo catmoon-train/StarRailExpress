@@ -85,6 +85,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.Vec3;
+
+import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.include.com.google.gson.JsonSyntaxException;
@@ -535,12 +537,14 @@ public class SREClient implements ClientModInitializer {
             context.client().execute(() -> context.client().setScreen(new ProgressionPassScreen()));
         });
         ClientPlayNetworking.registerGlobalReceiver(CloseUiPayload.ID, (payload, context) -> {
-
             context.client().execute(() -> {
                 context.client().setScreen(null);
             });
         });
-
+        ClientPlayNetworking.registerGlobalReceiver(PlayerDeathPayload.ID, (payload, context) -> {
+            NoellesrolesClient.isTaskInstinctEnabled = false;
+            // isInstinctToggleEnabled = false;
+        });
         // Chat Dialogue
         ClientPlayNetworking.registerGlobalReceiver(
                 net.exmo.sre.client.chat.OpenChatDialoguePayload.ID, (payload, context) -> {

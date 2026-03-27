@@ -39,6 +39,7 @@ import net.minecraft.world.item.component.Unbreakable;
 import net.minecraft.world.item.component.WrittenBookContent;
 import org.agmas.noellesroles.component.MaChenXuPlayerComponent;
 import org.agmas.noellesroles.component.SingerPlayerComponent;
+import org.agmas.noellesroles.component.StalkerPlayerComponent;
 import org.agmas.noellesroles.component.WatcherPlayerComponent;
 import org.agmas.noellesroles.repack.HSRConstants;
 import org.agmas.noellesroles.repack.HSRItems;
@@ -783,6 +784,11 @@ public class RoleShopHandler {
               }
 
               @Override
+              public boolean canDisplay(@NotNull Player player) {
+                return StalkerPlayerComponent.KEY.get(player).phase >= 2;
+              }
+
+              @Override
               public boolean onBuy(@NotNull Player player) {
 
                 boolean b = player.getOffhandItem().getItem() instanceof KnifeItem;
@@ -1312,12 +1318,12 @@ public class RoleShopHandler {
     // 薄荷糖 - 75金币
     PSYCHOLOGIST_SHOP.add(new ShopEntry(
         ModItems.MINT_CANDIES.getDefaultInstance(),
-      75,
-      ShopEntry.Type.TOOL));
+        75,
+        ShopEntry.Type.TOOL));
     // 维生素 - 125金币
     PSYCHOLOGIST_SHOP.add(new ShopEntry(
-      ModItems.ALCHEMIST_BUFF_POTION.getDefaultInstance(),
-      125,
+        ModItems.ALCHEMIST_BUFF_POTION.getDefaultInstance(),
+        125,
         ShopEntry.Type.TOOL));
     // 炸弹客商店
     BOMBER_SHOP.add(new ShopEntry(

@@ -22,6 +22,7 @@ import io.wifi.starrailexpress.index.*;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import io.wifi.starrailexpress.network.BreakArmorPayload;
 import io.wifi.starrailexpress.network.CloseUiPayload;
+import io.wifi.starrailexpress.network.PlayerDeathPayload;
 import io.wifi.starrailexpress.network.TriggerScreenEdgeEffectPayload;
 import io.wifi.starrailexpress.network.original.AnnounceEndingPayload;
 import io.wifi.starrailexpress.util.TMMItemUtils;
@@ -350,7 +351,6 @@ public class GameUtils {
 
     public static void addItemCooldowns(ServerLevel world) {
         for (ServerPlayer player : world.players()) {
-
             var cooldowns = player.getCooldowns();
             var items = new ArrayList<>(MCItemsUtils.getItemsByTag(player.serverLevel(), TMMItemTags.GUNS));
             // Noellesroles.LOGGER.info("itemSize:" + items.size());
@@ -364,6 +364,7 @@ public class GameUtils {
             cooldowns.addCooldown(TMMItems.PSYCHO_MODE, SAFE_TIME_COOLDOWN);
             cooldowns.addCooldown(ModItems.SP_KNIFE, SAFE_TIME_COOLDOWN);
             cooldowns.addCooldown(ModItems.STALKER_KNIFE, SAFE_TIME_COOLDOWN);
+            cooldowns.addCooldown(ModItems.STALKER_KNIFE_OFFHAND, SAFE_TIME_COOLDOWN);
             cooldowns.addCooldown(TMMItems.NUNCHUCK, SAFE_TIME_COOLDOWN);
             cooldowns.addCooldown(TMMItems.KNIFE, SAFE_TIME_COOLDOWN);
             cooldowns.addCooldown(ModItems.FAKE_REVOLVER, SAFE_TIME_COOLDOWN);
@@ -1097,6 +1098,8 @@ public class GameUtils {
             if (victim instanceof ServerPlayer serverPlayerEntity && isPlayerAliveAndSurvival(serverPlayerEntity)) {
                 serverPlayerEntity.setGameMode(net.minecraft.world.level.GameType.SPECTATOR);
                 OnPlayerDeath.EVENT.invoker().onPlayerDeath(victim, deathReason);
+                // 关闭任务透视发包
+                ServerPlayNetworking.send(serverPlayerEntity, new PlayerDeathPayload());
                 OnPlayerDeathWithKiller.EVENT.invoker().onPlayerDeath(victim, killer, deathReason);
                 SREPlayerPoisonComponent poisonComponent = SREPlayerPoisonComponent.KEY.maybeGet(serverPlayerEntity)
                         .orElse(null);

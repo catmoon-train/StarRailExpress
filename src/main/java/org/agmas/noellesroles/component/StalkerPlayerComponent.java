@@ -194,7 +194,7 @@ public class StalkerPlayerComponent implements RoleComponent, ServerTickingCompo
         this.dashCooldown = 0;
         final var playerCount = getPlayerCount();
         int kills = (int) Math.ceil(playerCount / 6.0);
-        this.ph2_kill_need = Math.max(1, kills);
+        this.ph2_kill_need = Math.max(1, (int)((float)kills / 1.5));
         this.ph1_energy_need = playerCount * 15;
         this.ph2_energy_need = playerCount * 2;
 
