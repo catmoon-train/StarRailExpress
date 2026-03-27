@@ -31,7 +31,7 @@ public class StupidExpressConfig implements ConfigData {
 
         public static class RoleUnlockSection {
             /** 是否启用职业解锁系统（关闭后所有职业直接可用） */
-            public boolean enableRoleUnlockSystem = true;
+            public boolean enableRoleUnlockSystem = false;
             /** 是否在读取存档时自动解锁下方基础职业列表 */
             public boolean unlockBasicRolesAtStart = true;
             /** 默认解锁的基础职业 ID 列表（namespace:path） */
