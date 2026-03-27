@@ -300,7 +300,7 @@ public class SansRenderer {
 
             var distortionUniform = effect.safeGetUniform("DistortionStrength");
             if (distortionUniform != null) {
-                distortionUniform.set(0.03f + weavingStrength * 0.14f);
+                distortionUniform.set(0.0f);
             }
 
             var chromaticUniform = effect.safeGetUniform("ChromaticAberration");
@@ -316,6 +316,11 @@ public class SansRenderer {
             var scanlineUniform = effect.safeGetUniform("ScanlineStrength");
             if (scanlineUniform != null) {
                 scanlineUniform.set(0.05f + weavingStrength * 0.25f);
+            }
+
+            var redStrengthUniform = effect.safeGetUniform("RedStrength");
+            if (redStrengthUniform != null) {
+                redStrengthUniform.set(0.2f + weavingStrength * 0.45f);
             }
 
             return true;

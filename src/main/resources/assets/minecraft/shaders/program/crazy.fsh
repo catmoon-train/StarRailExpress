@@ -8,6 +8,7 @@ uniform float DistortionStrength;
 uniform float ChromaticAberration;
 uniform float FlickerSpeed;
 uniform float ScanlineStrength;
+uniform float RedStrength;
 
 in vec2 texCoord;
 out vec4 fragColor;
@@ -36,42 +37,29 @@ void main() {
     vec2 uv = texCoord;
     float t = GameTime * 3.0;
 
-    // 基础扭曲
-    float distortion = DistortionStrength;
-    uv.x += sin(uv.y * 10.0 + t * 2.0) * distortion * 0.5;
-    uv.y += sin(uv.x * 8.0 + t * 1.5) * distortion * 0.5;
-
-    // 添加随机噪声扭曲
-    vec2 noiseDistort = vec2(
-        noise(uv * 50.0 + t) - 0.5,
-        noise(uv * 50.0 + t + 10.0) - 0.5
-    ) * distortion * 0.1;
-    uv += noiseDistort;
-
-    // RGB分离（色差效果）
-    float chroma = ChromaticAberration * Intensity;
+    // RGB分离（色差效果进一步减弱）
+    float chroma = ChromaticAberration * Intensity * 0.18; // 再次降低色差强度
     float r = texture(DiffuseSampler, uv + vec2(chroma, 0.0)).r;
-    float g = texture(DiffuseSampler, uv + vec2(0.0, chroma * 0.5)).g;
-    float b = texture(DiffuseSampler, uv + vec2(-chroma * 0.5, 0.0)).b;
+    float g = texture(DiffuseSampler, uv + vec2(0.0, chroma * 0.18)).g;
+    float b = texture(DiffuseSampler, uv + vec2(-chroma * 0.18, 0.0)).b;
     float a = texture(DiffuseSampler, uv).a;
 
-    // 闪烁效果
-    float flicker = 0.8 + 0.2 * sin(t * FlickerSpeed);
-    vec3 color = vec3(r, g, b) * flicker;
+    // 去除闪烁效果，直接使用原色
+    vec3 color = vec3(r, g, b);
 
-    // 饱和度增强
+    // 饱和度增强减弱
     float luminance = dot(color, vec3(0.299, 0.587, 0.114));
-    color = mix(vec3(luminance), color, 1.0 + Intensity * 0.5);
+    color = mix(vec3(luminance), color, 1.0 + Intensity * 0.18);
 
 
 
-    // 添加随机噪点（高强度时）
+    // 添加随机噪点（高强度时，强度减弱）
     if (Intensity > 0.5) {
-        float noiseAmount = 0.05 * (Intensity - 0.5) * 2.0;
+        float noiseAmount = 0.02 * (Intensity - 0.5) * 1.2;
         color += (random(uv + t) - 0.5) * noiseAmount;
     }
 
-    // 边缘光晕（高强度时）
+    // 边缘光晕（高强度时，减弱）
     if (Intensity > 0.7) {
         vec2 center = vec2(0.5, 0.5);
         float dist = distance(uv, center);
@@ -79,29 +67,34 @@ void main() {
 
         // 彩色光晕
         vec3 glowColor = vec3(
-            0.8 + 0.2 * sin(t),
-            0.3 + 0.2 * sin(t * 1.5 + 2.0),
-            0.8 + 0.2 * sin(t * 2.0 + 4.0)
+            0.9 + 0.1 * sin(t),
+            0.4 + 0.1 * sin(t * 1.5 + 2.0),
+            0.9 + 0.1 * sin(t * 2.0 + 4.0)
         );
 
-        color = mix(color, glowColor, glow * 0.3 * (Intensity - 0.7) * 3.33);
+        color = mix(color, glowColor, glow * 0.13 * (Intensity - 0.7) * 2.0);
     }
 
-    // 对比度调整
-    float contrast = 1.0 + Intensity * 0.3;
+    // 对比度调整减弱
+    float contrast = 1.0 + Intensity * 0.12;
     color = (color - 0.5) * contrast + 0.5;
 
-    // 色调偏移（高强度时）
+    // 色调偏移（高强度时，减弱）
     if (Intensity > 0.6) {
-        float hueShift = sin(t * 3.0) * 0.3 * (Intensity - 0.6) * 2.5;
+        float hueShift = sin(t * 3.0) * 0.13 * (Intensity - 0.6) * 1.2;
         // 简单的色调偏移
         color = vec3(
-            color.r * (0.8 + 0.2 * sin(hueShift)),
-            color.g * (0.8 + 0.2 * sin(hueShift + 2.094)),
-            color.b * (0.8 + 0.2 * sin(hueShift + 4.188))
+            color.r * (0.9 + 0.1 * sin(hueShift)),
+            color.g * (0.9 + 0.1 * sin(hueShift + 2.094)),
+            color.b * (0.9 + 0.1 * sin(hueShift + 4.188))
         );
     }
 
+    // 叠加红色滤镜，提升透明度（最大混合度降低）
+    vec3 redLayer = vec3(1.0, 0.08, 0.08);
+    float redMix = smoothstep(0.0, 1.0, RedStrength) * 0.45; // 最大混合度45%
+    vec3 finalColor = mix(color, redLayer, redMix);
+
     // 最终颜色
-    fragColor = vec4(color, a);
+    fragColor = vec4(finalColor, a);
 }

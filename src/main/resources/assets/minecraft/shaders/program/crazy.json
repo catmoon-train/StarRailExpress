@@ -1,14 +1,14 @@
 {
-  "vertex": "crazy",
-    "blend": {
-      "func": "add",
-      "srcrgb": "srcalpha",
-      "dstrgb": "1-srcalpha"
-    },
-    "vertex": "blit",
+  "blend": {
+    "func": "add",
+    "srcrgb": "srcalpha",
+    "dstrgb": "1-srcalpha"
+  },
+  "vertex": "blit",
+  "fragment": "crazy",
   "attributes": [
-    "Position",
-      "Position"
+    "Position"
+  ],
   "samplers": [
     {
       "name": "DiffuseSampler"
@@ -16,81 +16,100 @@
   ],
   "uniforms": [
     {
-      {
-        "name": "ProjMat",
-        "type": "matrix4x4",
-        "count": 16,
-        "values": [
-          1,
-          0,
-          0,
-          0,
-          0,
-          1,
-          0,
-          0,
-          0,
-          0,
-          1,
-          0,
-          0,
-          0,
-          0,
-          1
-        ]
-      },
-      {
-        "name": "OutSize",
-        "type": "float",
-        "count": 2,
-        "values": [
-          1,
-          1
-        ]
-      },
+      "name": "ProjMat",
+      "type": "matrix4x4",
+      "count": 16,
+      "values": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "name": "OutSize",
+      "type": "float",
+      "count": 2,
+      "values": [
+        1,
+        1
+      ]
+    },
+    {
       "name": "Time",
       "type": "float",
       "count": 1,
-        "count": 1,
-      "values": [0.0]
+      "values": [
+        0.0
+      ]
     },
     {
       "name": "GameTime",
       "type": "float",
-        "count": 1,
       "count": 1,
-      "values": [0.0]
+      "values": [
+        0.0
+      ]
     },
-      "values": [0.0]
+    {
+      "name": "Intensity",
+      "type": "float",
+      "count": 1,
+      "values": [
+        0.0
+      ]
     },
-        "count": 1,
     {
       "name": "DistortionStrength",
       "type": "float",
       "count": 1,
-      "values": [0.0]
-        "count": 1,
+      "values": [
+        0.0
+      ]
     },
     {
       "name": "ChromaticAberration",
       "type": "float",
       "count": 1,
-        "count": 1,
-      "values": [0.0]
+      "values": [
+        0.0
+      ]
     },
     {
       "name": "FlickerSpeed",
       "type": "float",
-        "count": 1,
       "count": 1,
-      "values": [0.0]
+      "values": [
+        0.0
+      ]
     },
     {
       "name": "ScanlineStrength",
-        "count": 1,
       "type": "float",
       "count": 1,
-      "values": [0.0]
+      "values": [
+        0.0
+      ]
+    },
+    {
+      "name": "RedStrength",
+      "type": "float",
+      "count": 1,
+      "values": [
+        0.0
+      ]
     }
   ]
 }

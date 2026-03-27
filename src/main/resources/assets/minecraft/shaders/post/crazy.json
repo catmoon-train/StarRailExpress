@@ -1,9 +1,13 @@
 {
-  "vertex": "starrailexpress:crazy",
-  "fragment": "starrailexpress:crazy",
+  "blend": {
+    "func": "add",
+    "srcrgb": "srcalpha",
+    "dstrgb": "1-srcalpha"
+  },
+  "vertex": "blit",
+  "fragment": "crazy",
   "attributes": [
-    "Position",
-    "UV0"
+    "Position"
   ],
   "samplers": [
     {
@@ -12,44 +16,100 @@
   ],
   "uniforms": [
     {
+      "name": "ProjMat",
+      "type": "matrix4x4",
+      "count": 16,
+      "values": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "name": "OutSize",
+      "type": "float",
+      "count": 2,
+      "values": [
+        1,
+        1
+      ]
+    },
+    {
       "name": "Time",
       "type": "float",
-      "values": [0.0]
+      "count": 1,
+      "values": [
+        0.0
+      ]
     },
     {
       "name": "GameTime",
       "type": "float",
-      "values": [0.0]
-    },
-    {
-      "name": "ScreenSize",
-      "type": "vec2",
-      "values": [1.0, 1.0]
+      "count": 1,
+      "values": [
+        0.0
+      ]
     },
     {
       "name": "Intensity",
       "type": "float",
-      "values": [0.0]
+      "count": 1,
+      "values": [
+        0.0
+      ]
     },
     {
       "name": "DistortionStrength",
       "type": "float",
-      "values": [0.0]
+      "count": 1,
+      "values": [
+        0.0
+      ]
     },
     {
       "name": "ChromaticAberration",
       "type": "float",
-      "values": [0.0]
+      "count": 1,
+      "values": [
+        0.0
+      ]
     },
     {
       "name": "FlickerSpeed",
       "type": "float",
-      "values": [0.0]
+      "count": 1,
+      "values": [
+        0.0
+      ]
     },
     {
       "name": "ScanlineStrength",
       "type": "float",
-      "values": [0.0]
+      "count": 1,
+      "values": [
+        0.0
+      ]
+    },
+    {
+      "name": "RedStrength",
+      "type": "float",
+      "count": 1,
+      "values": [
+        0.0
+      ]
     }
   ]
 }
