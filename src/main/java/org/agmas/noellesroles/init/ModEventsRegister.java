@@ -1483,7 +1483,7 @@ public class ModEventsRegister {
                 "noellesroles:mint_candies",
                 "noellesroles:alchemist_buff_potion",
                 "noellesroles:stalker_knife",
-                "noellesroles:stalker_knife_w",
+                "noellesroles:stalker_knife_offhand",
                 "noellesroles:pill",
                 "noellesroles:pocket_watch",
                 "noellesroles:throwing_knife",
