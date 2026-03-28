@@ -143,7 +143,7 @@ public record GunShootPayload(int target) implements CustomPacketPayload {
             PacketTracker.sendToClient(player, new ShootMuzzleS2CPayload(player.getId()));
             if (!player.isCreative() && mainHandStack.is(TMMItemTags.GUNS)) {
                 var cooldowns = player.getCooldowns();
-                if (!mainHandStack.is(ModItems.ONCE_REVOLVER))
+                if (!mainHandStack.is(ModItems.ONCE_REVOLVER) && !mainHandStack.is(ModItems.FAKE_REVOLVER))
                     if (!cooldowns.isOnCooldown(mainHandStack.getItem())) {
                         cooldowns.addCooldown(mainHandStack.getItem(),
                                 GameConstants.ITEM_COOLDOWNS.getOrDefault(mainHandStack.getItem(),
