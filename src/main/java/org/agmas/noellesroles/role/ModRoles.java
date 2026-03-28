@@ -269,7 +269,7 @@ public class ModRoles {
       new NormalRole(FORTUNETELLER_ID, new Color(239, 228, 176).getRGB(),
           true, false, SRERole.MoodType.REAL,
           TMMRoles.CIVILIAN.getMaxSprintTime(), false))
-      .setCanSeeCoin(true).setCanSeeTime(true);
+      .setCanSeeCoin(true).setCanSeeTime(false);
   public static SRERole ELF = TMMRoles.registerRole(
       new NormalRole(ELF_ID, new Color(106, 255, 179).getRGB(),
           true, false, SRERole.MoodType.REAL,
