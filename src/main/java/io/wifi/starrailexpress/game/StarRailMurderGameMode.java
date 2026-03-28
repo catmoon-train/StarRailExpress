@@ -424,7 +424,7 @@ public class StarRailMurderGameMode extends GameMode {
             roleWeights.add(new AbstractMap.SimpleEntry<>(role,
                     HarpyModLoaderConfig.HANDLER.instance().roleWeights.getOrDefault(role.role().identifier(), 1f)));
         }
-
+        Collections.shuffle(roleWeights);
         final var collect = roleWeights
                 .stream()
                 .collect(Collectors.toMap(
@@ -432,7 +432,7 @@ public class StarRailMurderGameMode extends GameMode {
                         a -> a.getValue(),
                         (existing, replacement) -> existing, // 如果键重复，保留第一个值
                         LinkedHashMap::new));
-        var hashMap = new HashMap<>(collect);
+        var hashMap = new LinkedHashMap<>(collect);
         {
             var roleSelectors = new HashMap<Integer, RoleWeightedUtil>();
             {
@@ -482,7 +482,6 @@ public class StarRailMurderGameMode extends GameMode {
                 }
             }
         }
-
         RoleWeightedUtil roleSelector = new RoleWeightedUtil(hashMap);
         // 分配展开后的角色给未分配的玩家
 
