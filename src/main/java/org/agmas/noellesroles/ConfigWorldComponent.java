@@ -167,7 +167,7 @@ public class ConfigWorldComponent implements AutoSyncedComponent, ServerTickingC
                 .withStyle(ChatFormatting.GOLD);
 
         for (ServerPlayer target : serverLevel.getServer().getPlayerList().getPlayers()) {
-            target.playNotifySound(SoundEvents.BELL_BLOCK, SoundSource.PLAYERS, 0.9F, 1.0F);
+            target.playNotifySound(SoundEvents.BELL_BLOCK, SoundSource.PLAYERS, 1.5F, 1.0F);
             BroadcastCommand.BroadcastMessage(target, message);
         }
     }

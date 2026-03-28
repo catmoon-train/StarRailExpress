@@ -2,6 +2,7 @@ package io.wifi.starrailexpress.client.gui;
 
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.entity.NoteEntity;
@@ -76,6 +77,9 @@ public class RoleNameRenderer {
             }
             nametagAlpha = Mth.lerp(tickCounter.getGameTimeDeltaPartialTick(true) / 4, nametagAlpha, 1f);
             nametag = Component.translatable(displayTags.getOrDefault(target.getUUID(),"")).append(target.getDisplayName());
+            if (SREPlayerMoodComponent.KEY.get( player).getMood()<=0.4){
+                nametag = Component.empty();
+            }
             if (component.canUseKillerFeatures(target)) {
                 targetRole = TrainRole.KILLER;
             } else if (component.isNeutralForKiller(target)) {
