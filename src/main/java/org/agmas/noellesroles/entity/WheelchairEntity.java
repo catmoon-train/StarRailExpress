@@ -43,6 +43,10 @@ public class WheelchairEntity extends Mob {
     // ===== 加速相关 =====
     private int boostTime;
     private boolean boosting;
+    
+    // ===== 瘫痪相关 =====
+    private int stunTime;
+    private boolean stunned;
 
     // ===== 其他字段 =====
     private ItemStack item = ItemStack.EMPTY;
@@ -58,6 +62,8 @@ public class WheelchairEntity extends Mob {
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
         builder.define(DATA_BOOST_TIME, 0);
+        // 瘫痪时间同步
+        builder.define(DATA_STUN_TIME, 0);
     }
 
     @Override
@@ -65,8 +71,36 @@ public class WheelchairEntity extends Mob {
         if (DATA_BOOST_TIME.equals(entityDataAccessor) && this.level().isClientSide) {
             this.boostTime = this.entityData.get(DATA_BOOST_TIME);
             this.boosting = true;
+        } else if (DATA_STUN_TIME.equals(entityDataAccessor) && this.level().isClientSide) {
+            this.stunTime = this.entityData.get(DATA_STUN_TIME);
+            this.stunned = this.stunTime > 0;
         }
         super.onSyncedDataUpdated(entityDataAccessor);
+    }
+
+    // 同步数据：瘫痪时间（用于外部访问）
+    private static final EntityDataAccessor<Integer> DATA_STUN_TIME =
+            SynchedEntityData.defineId(WheelchairEntity.class, EntityDataSerializers.INT);
+
+    // ===== 对外公开的操作/访问器 =====
+    public boolean isBoosting() {
+        return this.boosting;
+    }
+
+    public void stopBoost() {
+        this.boostTime = 0;
+        this.entityData.set(DATA_BOOST_TIME, 0);
+        this.boosting = false;
+    }
+
+    public void setStunTime(int ticks) {
+        this.stunTime = ticks;
+        this.entityData.set(DATA_STUN_TIME, ticks);
+        this.stunned = ticks > 0;
+    }
+
+    public boolean isStunned() {
+        return this.stunned;
     }
 
     @Override
@@ -126,6 +160,15 @@ public class WheelchairEntity extends Mob {
     protected void tickRidden(Player player, Vec3 travelVector) {
         super.tickRidden(player, travelVector);
 
+        // 瘫痪处理：若处于瘫痪状态则倒计时并阻止后续控制逻辑
+        if (this.stunned) {
+            if (this.stunTime-- <= 0) {
+                this.stunned = false;
+                this.entityData.set(DATA_STUN_TIME, 0);
+            }
+            return;
+        }
+
         // --- 左右输入控制旋转（保留玩家左右操控轮椅的位置）---
         if (player.xxa > 0) deltaRotation -= 2.2f;
         if (player.xxa < 0) deltaRotation += 2.2f;
@@ -156,6 +199,7 @@ public class WheelchairEntity extends Mob {
     // ===== getRiddenInput：前进后退根据当前朝向移动（类似 Pig.getRiddenInput）=====
     @Override
     protected Vec3 getRiddenInput(Player player, Vec3 travelVector) {
+        if (this.stunned) return Vec3.ZERO;
         float forward = player.zza;
         if (forward > 0) {
             return new Vec3(0.0, 0.0, 1.0);
@@ -174,7 +218,8 @@ public class WheelchairEntity extends Mob {
     // ===== 加速系统（类似 ItemBasedSteering）=====
     public boolean boost() {
 
-        this.boostTime =   140;
+        this.boostTime = 140;
+        this.boosting = true;
         this.entityData.set(DATA_BOOST_TIME, this.boostTime);
         return true;
     }
