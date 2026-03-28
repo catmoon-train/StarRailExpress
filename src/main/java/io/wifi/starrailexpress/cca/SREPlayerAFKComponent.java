@@ -106,14 +106,13 @@ public class SREPlayerAFKComponent implements RoleComponent, ServerTickingCompon
     @Override
     public void serverTick() {
         ++tickR;
-        if (!SRE.isPlayerInGame(this.player))
-            return;
-
-        if (!SREGameWorldComponent.KEY.get(this.player.level()).isRunning())
-            return;
         if (player.isSpectator()) {
             this.lastActionTime = 0;
         }
+        if (!SRE.isPlayerInGame(this.player))
+            return;
+        if (!SREGameWorldComponent.KEY.get(this.player.level()).isRunning())
+            return;
         this.lastActionTime++;
         this.afkTime = lastActionTime;
 
@@ -161,17 +160,15 @@ public class SREPlayerAFKComponent implements RoleComponent, ServerTickingCompon
 
     @Override
     public void clientTick() {
-        if (!SRE.isPlayerInGame(this.player))
-            return;
-
-        if (!SREGameWorldComponent.KEY.get(this.player.level()).isRunning())
-            return;
         if (player.isSpectator()) {
             this.lastActionTime = 0;
         }
+        if (!SRE.isPlayerInGame(this.player))
+            return;
+        if (!SREGameWorldComponent.KEY.get(this.player.level()).isRunning())
+            return;
         this.lastActionTime++;
         this.afkTime = this.lastActionTime;
-
     }
 
     @Override

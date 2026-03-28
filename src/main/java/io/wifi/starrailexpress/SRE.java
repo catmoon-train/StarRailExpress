@@ -487,7 +487,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
     }
 
     public static boolean isPlayerInGame(Player player) {
-        return GameUtils.isPlayerAliveAndSurvival(player);
+        return GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player);
     }
 
     public static class Networking {
