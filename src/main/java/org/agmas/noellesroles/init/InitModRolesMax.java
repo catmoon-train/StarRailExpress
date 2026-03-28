@@ -290,12 +290,15 @@ public class InitModRolesMax {
                 }
             }
             // 动态大小
-            // 年兽角色：5%概率生成（只在可跳跃地图中）
             Random random = new Random();
-            if(players_count >= 12 && random.nextInt(0, 100) < TOUHOU_CHANCE && canJumpMap){
+            if(players_count >= 12 && random.nextInt(0, 100) < TOUHOU_CHANCE){
                 Harpymodloader.setRoleMaximum(ModRoles.BAKA_ID, 1);
-                Harpymodloader.setRoleMaximum(ModRoles.HOAN_MEIRIN, 1);
                 Harpymodloader.setRoleMaximum(ModRoles.PACHURI, 1);
+                if(canJumpMap){
+                    Harpymodloader.setRoleMaximum(ModRoles.HOAN_MEIRIN, 1);
+                }else{
+                    Harpymodloader.setRoleMaximum(ModRoles.HOAN_MEIRIN, 0);
+                }
             }else{
                 Harpymodloader.setRoleMaximum(ModRoles.BAKA_ID, 0);
                 Harpymodloader.setRoleMaximum(ModRoles.HOAN_MEIRIN, 0);
