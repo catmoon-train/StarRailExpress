@@ -47,7 +47,7 @@ public class SREComponents
         registry.beginRegistration(Player.class, SREPlayerNoteComponent.KEY)
                 .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(SREPlayerNoteComponent::new);
         registry.beginRegistration(Player.class, SREPlayerStatsComponent.KEY)
-                .respawnStrategy(RespawnCopyStrategy.ALWAYS_COPY).end(SREPlayerStatsComponent::new);
+                .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(SREPlayerStatsComponent::new);
         registry.beginRegistration(Player.class, SREPlayerAFKComponent.KEY)
                 .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
                 .end(SREPlayerAFKComponent::new);

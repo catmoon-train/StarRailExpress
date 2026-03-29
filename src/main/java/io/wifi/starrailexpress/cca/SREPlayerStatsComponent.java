@@ -239,7 +239,7 @@ public class SREPlayerStatsComponent implements AutoSyncedComponent, ServerTicki
 
     @Override
     public void writeToNbt(@NotNull CompoundTag tag, HolderLookup.Provider wrapperLookup) {
-
+        tag.putBoolean("_", true);
     }
 
     public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider wrapperLookup) {

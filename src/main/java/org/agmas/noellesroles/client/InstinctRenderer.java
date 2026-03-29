@@ -425,7 +425,7 @@ public class InstinctRenderer {
                             .get(self);
                     if (executionerPlayerComponent != null && executionerPlayerComponent.target != null) {
                         if (executionerPlayerComponent.target.equals(target.getUUID())) {
-                            return ModRoles.EXECUTIONER.color();
+                            return java.awt.Color.PINK.getRGB();
                         }
                     }
                 }

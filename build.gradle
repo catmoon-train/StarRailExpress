@@ -12,6 +12,14 @@ base {
 
 loom {
     accessWidenerPath = file("src/main/resources/StarRailExpress.accesswidener")
+    runs {
+        // 针对 'runClient' 任务进行配置
+        client {
+            // 添加程序参数来设置玩家名
+            programArg "--username"
+            programArg "debug_player" // 把这里改成你想要的游戏内名字
+        }
+    }
 }
 
 fabricApi {
