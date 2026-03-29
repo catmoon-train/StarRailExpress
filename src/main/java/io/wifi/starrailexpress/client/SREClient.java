@@ -282,9 +282,9 @@ public class SREClient implements ClientModInitializer {
 
         // Lock options
         OptionLocker.overrideOption("gamma", 0d);
-        if (getLockedRenderDistance(SREConfig.instance().isUltraPerfMode()) != null) {
+        if (getLockedRenderDistance(SREConfig.isUltraPerfMode()) != null) {
             OptionLocker.overrideOption("renderDistance",
-                    getLockedRenderDistance(SREConfig.instance().isUltraPerfMode()));
+                    getLockedRenderDistance(SREConfig.isUltraPerfMode()));
         }
         OptionLocker.overrideOption("showSubtitles", false);
         OptionLocker.overrideOption("autoJump", false);
@@ -394,7 +394,10 @@ public class SREClient implements ClientModInitializer {
                 hideLocalMainHandItemInLayer = false;
                 hideLocalOffHandItemInLayer = false;
             } else {
-                if (client.level.getGameTime() % 20 == 0) {
+                int INTERVAL = 5;
+                if (SREConfig.isUltraPerfMode())
+                    INTERVAL = 20;
+                if (client.level.getGameTime() % INTERVAL == 0) {
                     updateInstinctCache(client);
                 }
                 updateHudApiCache(client);

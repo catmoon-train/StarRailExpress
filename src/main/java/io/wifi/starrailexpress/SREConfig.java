@@ -178,7 +178,7 @@ public class SREConfig implements ConfigData {
     @ConfigEntry.Category(value = "afk") // 1秒到30秒
     public int afkSleepySeconds = 3 * 60; // 3分钟时开始困倦效果
 
-    public boolean isUltraPerfMode() {
+    public static boolean isUltraPerfMode() {
         return SREClientConfig.instance().ultraPerfMode;
     }
 
