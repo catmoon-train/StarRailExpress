@@ -49,7 +49,7 @@ public abstract class SplitPersonalityHudMixin {
         int y = screenHeight - 120;
 
         // 绘制背景面板
-        context.fill(x - 5, y - 5, x + 205, y + 110, 0x80000000);
+        // context.fill(x - 5, y - 5, x + 205, y + 110, 0x80000000);
 
         // 显示双重人格状态标题
         context.drawString(renderer,

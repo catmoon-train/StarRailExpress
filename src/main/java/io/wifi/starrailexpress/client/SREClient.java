@@ -840,7 +840,7 @@ public class SREClient implements ClientModInitializer {
         cachedUseTrainHud = !isInLobby && trainComponent != null && trainComponent.hasHud();
         cachedKiller = gameComponent != null && player != null && gameComponent.canUseKillerFeatures(player);
         cachedShowDebugHud = isInLobby || (cachedPlayerCreative);
-        cachedRenderVanillaHud = isInLobby;
+        cachedRenderVanillaHud = isInLobby || player.isCreative();
 
         boolean canRender = true;
         if (isInLobby)

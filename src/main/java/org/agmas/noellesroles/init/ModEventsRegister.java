@@ -1234,6 +1234,7 @@ public class ModEventsRegister {
         // });
         ServerMessageEvents.ALLOW_CHAT_MESSAGE.register((message, serverPlayer, bound) -> {
             var spc = SplitPersonalityComponent.KEY.get(serverPlayer);
+            SRE.LOGGER.info("msg: "+message);
             if (!spc.isDeath()) {
                 ServerPlayer mainP = serverPlayer.server.getPlayerList().getPlayer(spc.getMainPersonality());
                 ServerPlayer secondP = serverPlayer.server.getPlayerList().getPlayer(spc.getSecondPersonality());
