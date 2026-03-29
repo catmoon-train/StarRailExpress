@@ -829,8 +829,6 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
     }
 
     public void readFromSyncNbt(CompoundTag tag, HolderLookup.Provider provider) {
-        if (!SREConfig.instance().enableProgressionSystem)
-            return;
         int mask = tag.contains("SyncDirtyMask", Tag.TAG_INT) ? tag.getInt("SyncDirtyMask") : SYNC_DIRTY_ALL;
 
         if ((mask & SYNC_DIRTY_PROGRESS) != 0) {

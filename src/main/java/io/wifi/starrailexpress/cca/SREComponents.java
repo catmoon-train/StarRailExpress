@@ -47,14 +47,14 @@ public class SREComponents
         registry.beginRegistration(Player.class, SREPlayerNoteComponent.KEY)
                 .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(SREPlayerNoteComponent::new);
         registry.beginRegistration(Player.class, SREPlayerStatsComponent.KEY)
-                .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(SREPlayerStatsComponent::new);
+                .respawnStrategy(RespawnCopyStrategy.ALWAYS_COPY).end(SREPlayerStatsComponent::new);
         registry.beginRegistration(Player.class, SREPlayerAFKComponent.KEY)
                 .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
                 .end(SREPlayerAFKComponent::new);
         registry.beginRegistration(Player.class, SREPlayerSkinsComponent.KEY)
                 .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(SREPlayerSkinsComponent::new);
         registry.beginRegistration(Player.class, SREPlayerProgressionComponent.KEY)
-                .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(SREPlayerProgressionComponent::new);
+                .respawnStrategy(RespawnCopyStrategy.ALWAYS_COPY).end(SREPlayerProgressionComponent::new);
         registry.beginRegistration(Player.class, SREPlayerNunchuckComponent.KEY)
                 .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(SREPlayerNunchuckComponent::new);
         registry.beginRegistration(Player.class, NameTagInventoryComponent.KEY)

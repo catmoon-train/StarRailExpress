@@ -218,11 +218,15 @@ public class SREPlayerStatsComponent implements AutoSyncedComponent, ServerTicki
 
     @Override
     public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.Provider wrapperLookup) {
-
         // 从文件加载数据（覆盖NBT数据）
+        String uid = player.getUUID().toString();
+        if (tag.contains("u")) {
+            uid = tag.getString("u");
+        }
         if (!player.level().isClientSide()) {
             try {
-                loadFromFile();
+                loadFromFile(uid);
+                sync();
             } catch (Exception e) {
                 SRE.LOGGER.warn("Failed to load player stats from file for {}, using NBT data",
                         player.getUUID(), e);
@@ -239,7 +243,7 @@ public class SREPlayerStatsComponent implements AutoSyncedComponent, ServerTicki
 
     @Override
     public void writeToNbt(@NotNull CompoundTag tag, HolderLookup.Provider wrapperLookup) {
-        tag.putBoolean("_", true);
+        tag.putString("u", player.getUUID().toString());
     }
 
     public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider wrapperLookup) {
@@ -677,6 +681,12 @@ public class SREPlayerStatsComponent implements AutoSyncedComponent, ServerTicki
         return statsDir.resolve(uuid.toString() + ".json");
     }
 
+    private static Path getSaveFilePath(String uuid) {
+        Path configDir = FabricLoader.getInstance().getConfigDir();
+        Path statsDir = configDir.resolve(STATS_DIR);
+        return statsDir.resolve(uuid + ".json");
+    }
+
     /**
      * 异步保存到文件
      */
@@ -712,14 +722,24 @@ public class SREPlayerStatsComponent implements AutoSyncedComponent, ServerTicki
     /**
      * 从文件加载数据
      */
-    public void loadFromFile() {
+    public void loadFromFile(String str_uuid) {
         if (player.level().isClientSide()) {
             return; // 只在服务器端加载
         }
+        UUID uid = null;
+        if (str_uuid == null) {
+            uid = player.getUUID();
+        } else {
+            try {
+                uid = UUID.fromString(str_uuid);
+            } catch (Exception e) {
+                uid = player.getUUID();
+            }
+        }
 
-        Path filePath = getSaveFilePath();
+        Path filePath = getSaveFilePath(str_uuid);
         if (!Files.exists(filePath)) {
-            SRE.LOGGER.debug("No stats file found for {}, using NBT data", player.getUUID());
+            SRE.LOGGER.info("No stats file found for {}, using NBT data", uid);
             return;
         }
 
@@ -727,11 +747,11 @@ public class SREPlayerStatsComponent implements AutoSyncedComponent, ServerTicki
             String json = Files.readString(filePath, StandardCharsets.UTF_8);
             PlayerStatsData data = PlayerStatsSerializer.fromJson(json);
             applyData(data);
-            SRE.LOGGER.info("Loaded player stats for {} from file", player.getUUID());
+            SRE.LOGGER.info("Loaded player stats for {} from file", uid);
         } catch (IOException e) {
-            SRE.LOGGER.error("Failed to read stats file for {}", player.getUUID(), e);
+            SRE.LOGGER.error("Failed to read stats file for {}", uid, e);
         } catch (JsonSyntaxException e) {
-            SRE.LOGGER.error("Failed to parse stats file for {}", player.getUUID(), e);
+            SRE.LOGGER.error("Failed to parse stats file for {}", uid, e);
         }
     }
 

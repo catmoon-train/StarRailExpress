@@ -1,7 +1,6 @@
 package io.wifi.starrailexpress.util;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.SREPlayerStatsComponent;
@@ -15,9 +14,7 @@ import java.util.Map;
  * 用于 PlayerStatsComponent 和 JSON 之间的转换
  */
 public class PlayerStatsSerializer {
-    private static final Gson GSON = new GsonBuilder()
-        .setPrettyPrinting()
-        .create();
+    private static final Gson GSON = new Gson();
 
     /**
      * 将 PlayerStatsComponent 转换为 JSON 字符串
