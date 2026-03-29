@@ -23,6 +23,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.game.ChairWheelRaceGame;
+import org.agmas.noellesroles.utils.WheelchairEffectBlockHandler;
 import org.agmas.noellesroles.init.ModItems;
 
 import java.util.ArrayList;
@@ -193,6 +194,11 @@ public class WheelchairEntity extends Mob {
         }
 
         // --- 加速 tick（类似 ItemBasedSteering.tickBoost）---
+        // 检查方块效果（服务器端）
+        if (!this.level().isClientSide) {
+            WheelchairEffectBlockHandler.checkAndApplyEffects(this, player);
+        }
+
         this.tickBoost();
     }
 
