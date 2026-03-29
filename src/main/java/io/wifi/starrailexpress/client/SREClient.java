@@ -36,6 +36,7 @@ import io.wifi.starrailexpress.compat.TrainVoicePlugin;
 import io.wifi.starrailexpress.data.MapConfig;
 import io.wifi.starrailexpress.entity.FirecrackerEntity;
 import io.wifi.starrailexpress.entity.NoteEntity;
+import io.wifi.starrailexpress.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.event.AllowOtherCameraType;
 import io.wifi.starrailexpress.event.AllowItemShowInHand;
 import io.wifi.starrailexpress.event.ClientHeldItemSwitchEvent;
@@ -789,7 +790,7 @@ public class SREClient implements ClientModInitializer {
 
     public static int getCachedInstinctHighlight(Entity target) {
         if (!(target instanceof ItemEntity || target instanceof Player || target instanceof NoteEntity
-                || target instanceof FirecrackerEntity)) {
+                || target instanceof FirecrackerEntity || target instanceof PlayerBodyEntity)) {
             return -1;
         }
         if (!cachedHighLightMap.containsKey(target.getUUID())) {
