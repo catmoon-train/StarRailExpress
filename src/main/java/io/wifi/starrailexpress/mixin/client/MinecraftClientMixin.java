@@ -31,7 +31,7 @@ public class MinecraftClientMixin {
 
     @ModifyReturnValue(method = "shouldEntityAppearGlowing", at = @At("RETURN"))
     public boolean tmm$hasInstinctOutline(boolean original, @Local(argsOnly = true) Entity entity) {
-        if (SREClient.getInstinctHighlight(entity) != -1)
+        if (SREClient.getCachedInstinctHighlight(entity) != -1)
             return true;
         return original;
     }

@@ -25,3 +25,5 @@ accessible field net/minecraft/client/gui/screens/LoadingOverlay minecraft Lnet/
 accessible field net/minecraft/client/gui/screens/LoadingOverlay reload Lnet/minecraft/server/packs/resources/ReloadInstance;
 accessible field net/minecraft/client/gui/screens/LoadingOverlay onFinish Ljava/util/function/Consumer;
 accessible field net/minecraft/client/gui/screens/LoadingOverlay fadeIn Z
+
+accessible method net/minecraft/client/multiplayer/ClientLevel getEntities ()Lnet/minecraft/world/level/entity/LevelEntityGetter;

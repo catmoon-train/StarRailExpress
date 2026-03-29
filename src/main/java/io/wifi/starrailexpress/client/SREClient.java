@@ -99,6 +99,8 @@ public class SREClient implements ClientModInitializer {
     private static float soundLevel = 0f;
     public static HPManager handParticleManager;
     public static Map<Player, Vec3> particleMap;
+    public static Map<UUID, Integer> cachedHighLightMap = new HashMap<>();
+    public static ArrayList<Entity> pendingHighLight = new ArrayList<>();
     private static boolean prevGameRunning;
     public static SREGameWorldComponent gameComponent;
     public static AreasWorldComponent areaComponent;
@@ -307,6 +309,7 @@ public class SREClient implements ClientModInitializer {
         ClientPlayConnectionEvents.JOIN.register((clientPacketListener, packetSender, minecraft) -> {
             packetSender.sendPacket(new ModVersionPacket(SRE.modPacketVersion));
             SRE.LOGGER.info("Send client version {} to verify.", SRE.modPacketVersion);
+            cachedHighLightMap.clear();
         });
         // Item tooltips
         TMMItemTooltips.addTooltips();
@@ -390,6 +393,7 @@ public class SREClient implements ClientModInitializer {
                 hideLocalMainHandItemInLayer = false;
                 hideLocalOffHandItemInLayer = false;
             } else {
+                updateInstinctCache(client);
                 updateHudApiCache(client);
                 localPlayerPsychoActive = SREPlayerPsychoComponent.KEY.get(player).getPsychoTicks() > 0;
                 PLAYER_PSYCHO_CACHE.put(player.getUUID(), localPlayerPsychoActive);
@@ -663,6 +667,22 @@ public class SREClient implements ClientModInitializer {
         });
     }
 
+    private static void updateInstinctCache(Minecraft client) {
+        for (Entity entity : pendingHighLight) {
+            cachedHighLightMap.put(entity.getUUID(), getInstinctHighlight(entity));
+        }
+        pendingHighLight.clear();
+
+        for(var entry: cachedHighLightMap.entrySet()){
+            Entity entity = client.level.getEntities().get(entry.getKey());
+            if(entity == null) {
+                cachedHighLightMap.remove(entry.getKey());
+                continue;
+            }
+            cachedHighLightMap.put(entity.getUUID(), getInstinctHighlight(entity));
+        }
+    }
+
     public static SRETrainWorldComponent getTrainComponent() {
         return trainComponent;
     }
@@ -766,6 +786,14 @@ public class SREClient implements ClientModInitializer {
         return cachedRenderVanillaHud;
     }
 
+    public static int getCachedInstinctHighlight(Entity target) {
+        if (!cachedHighLightMap.containsKey(target.getUUID())) {
+            pendingHighLight.add(target);
+            return -1;
+        }
+        return cachedHighLightMap.getOrDefault(target.getUUID(), -1);
+    }
+
     public static int getInstinctHighlight(Entity target) {
         int invokerColor = OnGetInstinctHighlight.EVENT.invoker().GetInstinctHighlight(target, isInstinctEnabled());
         if (invokerColor != -1) {
@@ -841,7 +869,7 @@ public class SREClient implements ClientModInitializer {
         cachedKiller = gameComponent != null && player != null && gameComponent.canUseKillerFeatures(player);
         cachedShowDebugHud = isInLobby || (cachedPlayerCreative);
         cachedRenderVanillaHud = false;
-        
+
         boolean canRender = true;
         if (isInLobby)
             canRender = true;
