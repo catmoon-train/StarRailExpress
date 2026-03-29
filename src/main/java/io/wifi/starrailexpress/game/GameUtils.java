@@ -271,9 +271,9 @@ public class GameUtils {
         // AreasWorldComponent.KEY.get(serverWorld);
 
         RoleMethodDispatcher.onStartGame(serverWorld);
-        List<ServerPlayer> readyPlayerList = getReadyPlayerList(serverWorld);
-        // serverWorld.setWeatherParameters(0,-1, true, true);
-        List<ServerPlayer> players = serverWorld.getServer().getPlayerList().getPlayers();
+        ArrayList<ServerPlayer> readyPlayerList = new ArrayList<>(getReadyPlayerList(serverWorld));
+        // serverWorld.setWeatherParameters(0, -1, true, true);
+        List<ServerPlayer> players = new ArrayList<>(serverWorld.getServer().getPlayerList().getPlayers());
         // 在分配角色前将所有玩家设置为冒险模式，并且resetPlayer
         for (ServerPlayer player : players) {
             player.setGameMode(net.minecraft.world.level.GameType.SPECTATOR);
