@@ -137,7 +137,7 @@ public class GameManagementScreen extends Screen {
         Category game = new Category("screen.game_manage.category.game", 0xFF5577CC);
 
         game.section("screen.game_manage.section.start", 0xFF5577CC)
-                .add(Entry.button("screen.game_manage.btn.start_murder", "tmm:start starrailexpress:murder",
+                .add(Entry.button("screen.game_manage.btn.start_murder", "tmm:start sre:murder",
                         0xFF44BB66))
                 .add(Entry.button("screen.game_manage.btn.start_wheel", "tmm:start noellesroles:chair_wheel_race",
                         0xFFCC2233))
