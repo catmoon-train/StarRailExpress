@@ -89,13 +89,12 @@ public class ExecutionerPlayerComponent implements RoleComponent, ServerTickingC
                 return;
 
             Player targetPlayer = player.level().getPlayerByUUID(target);
-            if (targetPlayer == null || GameUtils.isPlayerEliminated(targetPlayer)) {
+            if (targetPlayer == null || GameUtils.isPlayerEliminatedIgnoreShitSplit(targetPlayer)) {
                 // 目标死亡，解锁商店并分配新目标
                 this.shopUnlocked = true;
                 this.target = null;
                 this.targetSelected = false;
                 assignRandomTarget(); // 分配新目标
-                sync();
             }
         }
     }

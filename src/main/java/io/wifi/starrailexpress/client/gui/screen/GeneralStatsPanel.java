@@ -4,6 +4,7 @@ package io.wifi.starrailexpress.client.gui.screen;
 import com.mojang.blaze3d.systems.RenderSystem;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.SREPlayerStatsComponent;
+import io.wifi.starrailexpress.client.SREClient;
 import net.exmo.sre.nametag.NameTagInventoryComponent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -163,8 +164,7 @@ public class GeneralStatsPanel extends AbstractWidget {
         int cardHeight = 50;
         drawCardBg(g, x, y, width, cardHeight, 0xFF2A2F3F);
 
-        PlayerInfo info = Minecraft.getInstance().getConnection()
-                .getPlayerInfo(Minecraft.getInstance().player.getUUID());
+        PlayerInfo info = SREClient.PLAYER_ENTRIES_CACHE.get(Minecraft.getInstance().player.getUUID());
         if (info != null && info.getSkin().texture() != null) {
             ResourceLocation skin = info.getSkin().texture();
             RenderSystem.enableBlend();

@@ -3,7 +3,6 @@ package org.agmas.noellesroles.client.hud.roles;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.wifi.starrailexpress.client.SREClient;
-import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.client.Minecraft;
 import org.agmas.noellesroles.client.Listen;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;

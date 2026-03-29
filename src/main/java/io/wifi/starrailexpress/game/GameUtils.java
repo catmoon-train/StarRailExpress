@@ -794,7 +794,7 @@ public class GameUtils {
         gameComponent.setGameStatus(SREGameWorldComponent.GameStatus.INACTIVE);
         trainComponent.setTime(0);
         gameComponent.roleWorldComponent.sync();
-        
+
         // 重置计分板组件
         SREGameScoreboardComponent scoreboardComponent = SREGameScoreboardComponent.KEY
                 .get(world.getServer().getScoreboard());
@@ -822,7 +822,7 @@ public class GameUtils {
 
     public static void resetPlayerAfterGame(ServerPlayer player) {
         resetPlayer(player);
-        
+
         ServerPlayNetworking.send(player, new AnnounceEndingPayload());
         player.removeVehicle();
         AreasWorldComponent.PosWithOrientation spawnPos = AreasWorldComponent.KEY.get(player.level()).getSpawnPos();
@@ -853,6 +853,10 @@ public class GameUtils {
         if (role1.isInnocent() && role2.isInnocent())
             return false;
         return true;
+    }
+
+    public static boolean isPlayerEliminatedIgnoreShitSplit(Player player) {
+        return player == null || !player.isAlive() || player.isCreative() || player.isSpectator();
     }
 
     public static boolean isPlayerEliminated(Player player) {

@@ -1049,7 +1049,7 @@
   "screen.noellesroles.postman.other_not_confirm": "%s: ✗ 未确认",
   "hud.executioner.target": "目标: %s",
   "hud.executioner.target_died": "目标已死亡",
-  "hud.executioner.select_target": "打开背包选择目标",
+  "hud.executioner.no_target": "无目标",
   "itemstack.executioner.psychoitem.item_name": "射击狂热",
   "itemstack.executioner.psychoitem.item_lore.1": "“你喜欢伤害人吗？”",
   "itemstack.executioner.psychoitem.item_lore.2": "狂暴时间内射击冷却-50%%、枪不会掉落、不会受锁定目标影响",

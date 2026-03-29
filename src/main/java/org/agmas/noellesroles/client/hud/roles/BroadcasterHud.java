@@ -1,6 +1,5 @@
 package org.agmas.noellesroles.client.hud.roles;
 
-import io.wifi.starrailexpress.client.SREClient;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
