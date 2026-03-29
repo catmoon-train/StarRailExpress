@@ -155,10 +155,8 @@ public class StarRailMurderGameMode extends GameMode {
                     "team add " + teamName);
 
             // 将所有玩家添加到队伍中
-            for (ServerPlayer player : players) {
-                source.getServer().getCommands().performPrefixedCommand(source,
-                        "team join " + teamName + " " + player.getName().getString());
-            }
+            source.getServer().getCommands().performPrefixedCommand(source,
+                    "team join " + teamName + " @a");
         } catch (Exception e) {
             Log.warn(LogCategory.GENERAL, "Failed to manage team: " + teamName + ", error: " + e.getMessage());
         }
