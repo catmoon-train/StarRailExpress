@@ -38,6 +38,7 @@ public class SREPlayerStatsComponent implements AutoSyncedComponent, ServerTicki
             .getOrCreate(SRE.id("player_stats"), SREPlayerStatsComponent.class);
     private final Player player;
     private long totalPlayTime = 0;
+    public boolean loaded = false;
     private int totalGamesPlayed = 0;
     private int totalKills = 0;
     private int totalDeaths = 0;
@@ -737,6 +738,7 @@ public class SREPlayerStatsComponent implements AutoSyncedComponent, ServerTicki
             }
         }
 
+        loaded = true;
         Path filePath = getSaveFilePath(str_uuid);
         if (!Files.exists(filePath)) {
             SRE.LOGGER.info("No stats file found for {}, using NBT data", uid);
@@ -919,6 +921,12 @@ public class SREPlayerStatsComponent implements AutoSyncedComponent, ServerTicki
             this.teamKillsAsRole++;
             SREPlayerStatsComponent.this.markDirty();
             SREPlayerStatsComponent.this.markNeedsSync();
+        }
+    }
+
+    public void joinLoadFromFile() {
+        if (!loaded) {
+            this.loadFromFile(player.getUUID().toString());
         }
     }
 }
