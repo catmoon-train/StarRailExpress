@@ -2,7 +2,6 @@ package org.agmas.noellesroles.roles.gambler;
 
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.api.SRERole;
-import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.index.TMMItems;
 import net.minecraft.advancements.CriteriaTriggers;
@@ -14,8 +13,6 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.gameevent.GameEvent;
-import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
@@ -97,14 +94,7 @@ public class GamblerPlayerComponent implements RoleComponent, ServerTickingCompo
 
         // 过滤掉禁用的角色、赌徒自己、已经在列表中的角色
         List<SRERole> validRoles = allRoles.stream()
-                .filter(role -> !HarpyModLoaderConfig.HANDLER.instance().getDisabled().contains(role.identifier().getPath()))
                 .filter(role -> !role.identifier().equals(ModRoles.GAMBLER_ID))
-                .filter(role -> !role.identifier().equals(ModRoles.DIO_ID))
-                .filter(role -> !role.identifier().equals(ModRoles.JOJO_ID))
-                .filter(role -> !role.identifier().equals(ModRoles.WATER_GHOST_ID))
-                .filter(role -> !role.identifier().equals(ModRoles.BEST_VIGILANTE_ID)) // 排除更好的义警
-                .filter(role -> !role.identifier().equals(TMMRoles.LOOSE_END.identifier())) // 排除亡命徒
-                .filter(role -> !role.identifier().equals(TMMRoles.DISCOVERY_CIVILIAN.identifier())) // 排除游客
                 .filter(role -> !availableRoles.contains(role.identifier()))
                 .collect(Collectors.toList());
 
@@ -122,8 +112,6 @@ public class GamblerPlayerComponent implements RoleComponent, ServerTickingCompo
                 } else if (!drawnRole.isInnocent()) {
                     CriteriaTriggers.USED_TOTEM.trigger(serverPlayer, TMMItems.POISON_VIAL.getDefaultInstance());
                 }
-                serverPlayer.gameEvent(GameEvent.ITEM_INTERACT_FINISH);
-
             }
             availableRoles.add(drawnRole.identifier());
             // 如果还没有选择角色，默认选择第一个抽到的
