@@ -32,7 +32,7 @@ public abstract class KeyBindingMixin {
         }
         final var options = instance.options;
         if (SREClient.gameComponent != null && SREClient.gameComponent.isRunning()
-                && !SREClient.isPlayerAliveAndInSurvival()
+                && player.isSpectator()
                 && WorldModifierComponent.KEY.get(player.level()).isModifier(player, SEModifiers.SPLIT_PERSONALITY)) {
 
             final var splitPersonalityComponent = SplitPersonalityComponent.KEY.get(player);

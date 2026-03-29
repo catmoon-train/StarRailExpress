@@ -87,7 +87,6 @@ import org.agmas.noellesroles.roles.thief.ThiefPlayerComponent;
 import org.agmas.noellesroles.roles.veteran.VeteranKnifeHandler;
 import org.agmas.noellesroles.roles.voodoo.VoodooDeathHandler;
 import org.agmas.noellesroles.utils.*;
-import org.slf4j.LoggerFactory;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 import pro.fazeclan.river.stupid_express.modifier.refugee.cca.PlayerStatsBeforeRefugee;
 import pro.fazeclan.river.stupid_express.modifier.refugee.cca.RefugeeComponent;
@@ -884,7 +883,6 @@ public class ModEventsRegister {
 
                 BroadcasterPlayerComponent comp = BroadcasterPlayerComponent.KEY.get(victim);
                 if (comp != null) {
-                    LoggerFactory.getLogger("debug").error(comp.getStoredStr());
                     last_message = comp.getStoredStr();
                 }
                 Component msg;

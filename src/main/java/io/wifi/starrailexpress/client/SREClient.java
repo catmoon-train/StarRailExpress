@@ -552,10 +552,10 @@ public class SREClient implements ClientModInitializer {
                     });
                 });
         ClientPlayNetworking.registerGlobalReceiver(
-            io.wifi.starrailexpress.network.RoleUnlockedHudPayload.ID, (payload, context) -> {
-                context.client().execute(() -> io.wifi.starrailexpress.client.gui.RoleUnlockHudRenderer
-                    .enqueue(payload.globalGamesPlayed(), payload.unlockedRoleIds()));
-            });
+                io.wifi.starrailexpress.network.RoleUnlockedHudPayload.ID, (payload, context) -> {
+                    context.client().execute(() -> io.wifi.starrailexpress.client.gui.RoleUnlockHudRenderer
+                            .enqueue(payload.globalGamesPlayed(), payload.unlockedRoleIds()));
+                });
         ClientPlayNetworking.registerGlobalReceiver(CloseUiPayload.ID, (payload, context) -> {
             context.client().execute(() -> {
                 context.client().setScreen(null);
@@ -840,20 +840,23 @@ public class SREClient implements ClientModInitializer {
         cachedUseTrainHud = !isInLobby && trainComponent != null && trainComponent.hasHud();
         cachedKiller = gameComponent != null && player != null && gameComponent.canUseKillerFeatures(player);
         cachedShowDebugHud = isInLobby || (cachedPlayerCreative);
-        cachedRenderVanillaHud = isInLobby || !cachedPlayerAliveAndInSurvival;
+        cachedRenderVanillaHud = isInLobby;
 
         boolean canRender = true;
-        if (player != null && !isInLobby) {
-            if (gameComponent != null && gameComponent.isRunning()
-                    && SRE.cantUseChatHud.stream().anyMatch(pre -> pre.test(player))) {
+        if (isInLobby)
+            canRender = true;
+        if (gameComponent.isRunning()) {
+            canRender = false;
+        }
+        if (player != null && !isInLobby && gameComponent.isRunning()) {
+            if (SRE.cantUseChatHud.stream().anyMatch(pre -> pre.test(player))) {
                 canRender = false;
-            } else if (gameComponent == null || !cachedPlayerAliveAndInSurvival) {
+            } else if (!cachedPlayerAliveAndInSurvival) {
                 canRender = true;
             } else {
                 canRender = SRE.canUseChatHudPlayer.stream().anyMatch(predicate -> predicate.test(player))
                         || (cachedPlayerRole != null
-                                && SRE.canUseChatHud.stream().anyMatch(predicate -> predicate.test(cachedPlayerRole)))
-                        || !gameComponent.isRunning();
+                                && SRE.canUseChatHud.stream().anyMatch(predicate -> predicate.test(cachedPlayerRole)));
             }
         }
         cachedCanRenderChatHud = canRender;
