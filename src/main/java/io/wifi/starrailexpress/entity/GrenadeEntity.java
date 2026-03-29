@@ -26,7 +26,7 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 public class GrenadeEntity extends ThrowableItemProjectile {
-    private static final float EXPLOSION_RADIUS = 3f;
+    private static final float EXPLOSION_RADIUS = 4f;
 
     public GrenadeEntity(EntityType<?> ignored, Level world) {
         super(TMMEntities.GRENADE, world);
