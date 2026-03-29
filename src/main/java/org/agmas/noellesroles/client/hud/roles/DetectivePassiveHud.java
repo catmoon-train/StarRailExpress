@@ -3,6 +3,7 @@ package org.agmas.noellesroles.client.hud.roles;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.wifi.starrailexpress.client.SREClient;
+import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.client.Minecraft;
 import org.agmas.noellesroles.client.Listen;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
@@ -18,7 +19,7 @@ public class DetectivePassiveHud {
             Minecraft mc = Minecraft.getInstance();
             if (mc.level == null)
                 return;
-            if (mc.player.isSpectator())
+            if (SREClient.isPlayerSpectator())
                 return;
 
             var playerPos = mc.player.getPosition(deltaTracker.getGameTimeDeltaPartialTick(true));
