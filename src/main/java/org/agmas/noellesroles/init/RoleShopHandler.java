@@ -674,7 +674,7 @@ public class RoleShopHandler {
         @Override
         public boolean onBuy(Player player) {
           var itemStack = Items.WRITTEN_BOOK.getDefaultInstance();
-          var players = player.level().players();
+          var players = new ArrayList<>(player.level().players());
           var gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
           players.removeIf((p) -> {
             return gameWorldComponent.getRole(p) == null || !gameWorldComponent.getRole(p).isInnocent();
