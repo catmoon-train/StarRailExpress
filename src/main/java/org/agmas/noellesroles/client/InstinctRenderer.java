@@ -425,7 +425,7 @@ public class InstinctRenderer {
                             .get(self);
                     if (executionerPlayerComponent != null && executionerPlayerComponent.target != null) {
                         if (executionerPlayerComponent.target.equals(target.getUUID())) {
-                            return java.awt.Color.PINK.getRGB();
+                            return new java.awt.Color(0, 254, 254).getRGB();
                         }
                     }
                 }
@@ -516,8 +516,8 @@ public class InstinctRenderer {
                 }
                 // // 柜子区
                 // if (SREClient.gameComponent.isRole(self, ModRoles.EXECUTIONER)
-                //         && SREClient.isPlayerAliveAndInSurvival()) {
-                //     return (ModRoles.EXECUTIONER.color());
+                // && SREClient.isPlayerAliveAndInSurvival()) {
+                // return (ModRoles.EXECUTIONER.color());
                 // }
 
                 // 杀手直觉
