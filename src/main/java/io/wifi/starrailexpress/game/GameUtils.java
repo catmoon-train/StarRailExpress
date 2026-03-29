@@ -63,6 +63,7 @@ import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.packet.NameTagSyncPayload;
 import org.agmas.noellesroles.repack.HSRItems;
 import org.agmas.noellesroles.roles.coroner.BodyDeathReasonComponent;
+import org.agmas.noellesroles.roles.hoan_meirin.HoanMeirinFistPunchHandler;
 import org.agmas.noellesroles.utils.EntityClearUtils;
 import org.agmas.noellesroles.utils.MCItemsUtils;
 import org.jetbrains.annotations.NotNull;
@@ -264,6 +265,7 @@ public class GameUtils {
 
     public static void initializeGame(ServerLevel serverWorld) {
         isStartingGame = false;
+        HoanMeirinFistPunchHandler.PUNCH_RECORDS.clear();
 
         SREGameWorldComponent gameComponent = SREGameWorldComponent.KEY.get(serverWorld);
         gameComponent.isSkillAvailable = true;
@@ -782,6 +784,7 @@ public class GameUtils {
         for (ServerPlayer player : world.getServer().getPlayerList().getPlayers()) {
             resetPlayerAfterGame(player);
         }
+        HoanMeirinFistPunchHandler.PUNCH_RECORDS.clear();
 
         // reset game component
         roundEnd.CustomWinnerPlayers.clear();
@@ -819,6 +822,7 @@ public class GameUtils {
 
     public static void resetPlayerAfterGame(ServerPlayer player) {
         resetPlayer(player);
+        
         ServerPlayNetworking.send(player, new AnnounceEndingPayload());
         player.removeVehicle();
         AreasWorldComponent.PosWithOrientation spawnPos = AreasWorldComponent.KEY.get(player.level()).getSpawnPos();

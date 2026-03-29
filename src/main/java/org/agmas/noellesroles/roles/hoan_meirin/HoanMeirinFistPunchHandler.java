@@ -84,7 +84,7 @@ public class HoanMeirinFistPunchHandler {
     /**
      * 触发致死所需的连击次数
      */
-    public static final int KILL_THRESHOLD = 5;
+    public static final int KILL_THRESHOLD = 10;
 
     public static void register() {
         OnShieldBroken.EVENT.register((player, killer) -> {
