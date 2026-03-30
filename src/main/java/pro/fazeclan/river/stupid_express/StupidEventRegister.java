@@ -3,6 +3,7 @@ package pro.fazeclan.river.stupid_express;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.event.AfterShieldAllowPlayerDeathWithKiller;
 import io.wifi.starrailexpress.event.OnPlayerDeathWithKiller;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -76,6 +77,7 @@ public class StupidEventRegister {
                 clearAllKnives(killer);
 
                 StupidRoleUtils.changeRole(killer, role, true);
+                SREPlayerShopComponent.KEY.get(killer).addToBalance(100);
                 StupidRoleUtils.sendWelcomeAnnouncement((ServerPlayer) killer);
                 return true;
             }
