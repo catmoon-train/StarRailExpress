@@ -561,7 +561,7 @@ OnGameTrueStarted.EVENT.register((serverLevel) -> {
 OnTrainAreaHaveReseted.EVENT.register((serverLevel) -> { /* ... */ });
 ```
 
-#### `OnRoundStartWelcomeTimmer` — 开场欢迎计时器
+#### `OnRoundStartWelcomeTimer` — 开场欢迎计时器
 
 **类型:** 通知型。每轮开始欢迎计时阶段触发。
 
