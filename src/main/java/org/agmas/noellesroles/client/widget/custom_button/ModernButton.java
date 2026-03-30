@@ -219,10 +219,10 @@ public class ModernButton extends net.minecraft.client.gui.components.Button {
                 getMessage(), tc[0], tc[1], textColor);
 
         // ── 6. 焦点时右侧指示竖条 ────────────────────────────────────
-        if (isFocused() && isActive()) {
-            int indColor = blendColors(accentColor, 0xFFFFFFFF, 0.7f);
-            g.fill(x + w - 4, y + 3, x + w - 1, y + h - 3, indColor);
-        }
+        // if (isFocused() && isActive()) {
+        // int indColor = blendColors(accentColor, 0xFFFFFFFF, 0.7f);
+        // g.fill(x + w - 4, y + 3, x + w - 1, y + h - 3, indColor);
+        // }
     }
 
     /**
@@ -260,31 +260,50 @@ public class ModernButton extends net.minecraft.client.gui.components.Button {
         final int x1 = x + 1, y1 = y + 1, x2 = x + w - 1, y2 = y + h - 1;
         final int solid = accentColor | 0xFF000000;
         final int raw = accentColor & 0x00FFFFFF;
-
         switch (side) {
             case LEFT -> {
                 g.fill(x1, y1, x1 + BAR_THICKNESS, y2, solid);
                 g.fillGradient(x1 + BAR_THICKNESS, y1,
                         x1 + BAR_THICKNESS + BAR_GLOW, y2,
                         raw | 0x40000000, 0x00000000);
+                if (isFocused() && isActive()) {
+                    int indColor = blendColors(accentColor, 0xFFFFFFFF, 0.7f);
+                    g.fill(x1, y1, x1 + BAR_THICKNESS, y2,
+                            indColor);
+                }
             }
             case RIGHT -> {
                 g.fill(x2 - BAR_THICKNESS, y1, x2, y2, solid);
                 g.fillGradient(x2 - BAR_THICKNESS - BAR_GLOW, y1,
                         x2 - BAR_THICKNESS, y2,
                         0x00000000, raw | 0x40000000);
+                if (isFocused() && isActive()) {
+                    int indColor = blendColors(accentColor, 0xFFFFFFFF, 0.7f);
+                    g.fill(x2 - BAR_THICKNESS, y1, x2, y2,
+                            indColor);
+                }
             }
             case TOP -> {
                 g.fill(x1, y1, x2, y1 + BAR_THICKNESS, solid);
                 g.fillGradient(x1, y1 + BAR_THICKNESS,
                         x2, y1 + BAR_THICKNESS + BAR_GLOW,
                         raw | 0x40000000, 0x00000000);
+                if (isFocused() && isActive()) {
+                    int indColor = blendColors(accentColor, 0xFFFFFFFF, 0.7f);
+                    g.fill(x1, y1, x2, y1 + BAR_THICKNESS,
+                            indColor);
+                }
             }
             case BOTTOM -> {
                 g.fill(x1, y2 - BAR_THICKNESS, x2, y2, solid);
                 g.fillGradient(x1, y2 - BAR_THICKNESS - BAR_GLOW,
                         x2, y2 - BAR_THICKNESS,
                         0x00000000, raw | 0x40000000);
+                if (isFocused() && isActive()) {
+                    int indColor = blendColors(accentColor, 0xFFFFFFFF, 0.7f);
+                    g.fill(x1, y2 - BAR_THICKNESS, x2, y2,
+                            indColor);
+                }
             }
         }
     }
