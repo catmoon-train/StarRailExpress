@@ -58,6 +58,7 @@ public class WheelchairEntity extends Mob {
     private int slowTime; // ticks remaining for slow effect
     private float slowMultiplier = 1.0f; // applied multiplier when slowed
     private int redstoneCooldown; // ticks until redstone can trigger again
+        private int emeraldCooldown; // ticks until emerald boost can be applied again
 
     public WheelchairEntity(EntityType<? extends Mob> entityType, Level world) {
         super(entityType, world);
@@ -267,6 +268,11 @@ public class WheelchairEntity extends Mob {
         if (this.redstoneCooldown > 0) {
             this.redstoneCooldown--;
         }
+        
+        // 绿宝石触发冷却计时
+        if (this.emeraldCooldown > 0) {
+            this.emeraldCooldown--;
+        }
     }
 
     public float boostFactor() {
@@ -291,6 +297,20 @@ public class WheelchairEntity extends Mob {
 
     /**
      * 尝试应用红石瘫痪效果，若处于冷却中则返回 false
+
+        /**
+         * 尝试应用一次性加速（带冷却），如果当前可用则触发 boost 并设置冷却
+         * @param cooldownTicks 冷却时长（tick）
+         * @return 是否成功触发
+         */
+        public boolean tryBoostWithCooldown(int cooldownTicks) {
+            if (this.emeraldCooldown <= 0) {
+                this.boost();
+                this.emeraldCooldown = cooldownTicks;
+                return true;
+            }
+            return false;
+        }
      * @param stunTicks 眩晕时长（tick）
      * @param cooldownTicks 触发后冷却时长（tick）
      */
