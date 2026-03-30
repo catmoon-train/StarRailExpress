@@ -43,49 +43,51 @@ public class MaChenXuEventHandler {
                 if (compc.otherworldActive) {
                     return false;
                 }
-                RoleUtils.changeRole(victim, TMMRoles.DISCOVERY_CIVILIAN);
+                if (SREGameWorldComponent.KEY.get(victim.level()).isSkillAvailable) {
+                    RoleUtils.changeRole(victim, TMMRoles.DISCOVERY_CIVILIAN);
+                }
             }
             return true;
         });
 
-//        // 布袋鬼攻击事件：命中特效 + 命中后自身3tick硬直（禁移动/禁攻击）
-//        AttackEntityCallback.EVENT.register(MaChenXuEventHandler::onEntityAttacked);
+        // // 布袋鬼攻击事件：命中特效 + 命中后自身3tick硬直（禁移动/禁攻击）
+        // AttackEntityCallback.EVENT.register(MaChenXuEventHandler::onEntityAttacked);
     }
 
-//    private static InteractionResult onEntityAttacked(Player attacker, Level world, InteractionHand hand,
-//            Entity entity, EntityHitResult hitResult) {
-//        if (world.isClientSide()) {
-//            return InteractionResult.PASS;
-//        }
-//        if (!(attacker instanceof ServerPlayer sp)) {
-//            return InteractionResult.PASS;
-//        }
-//        if (!(entity instanceof Player victim)) {
-//            return InteractionResult.PASS;
-//        }
-//        if (!GameUtils.isPlayerAliveAndSurvival(attacker) || !GameUtils.isPlayerAliveAndSurvival(victim)) {
-//            return InteractionResult.PASS;
-//        }
-//
-//        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(world);
-//        if (!gameWorld.isRole(attacker, ModRoles.MA_CHEN_XU)) {
-//            return InteractionResult.PASS;
-//        }
-//
-//        MaChenXuPlayerComponent comp = MaChenXuPlayerComponent.KEY.get(attacker);
-//        if (comp.stage <= 0) {
-//            return InteractionResult.PASS;
-//        }
-//
-//
-//
-//
-////        // 里世界中附带鬼缚（用于加强打击感）
-////        if (comp.otherworldActive) {
-////            victim.addEffect(new MobEffectInstance(
-////                    ModEffects.GHOST_CURSE, GHOST_CURSE_DURATION, 0, false, false, true));
-////        }
-//
-//        return InteractionResult.PASS;
-//    }
+    // private static InteractionResult onEntityAttacked(Player attacker, Level
+    // world, InteractionHand hand,
+    // Entity entity, EntityHitResult hitResult) {
+    // if (world.isClientSide()) {
+    // return InteractionResult.PASS;
+    // }
+    // if (!(attacker instanceof ServerPlayer sp)) {
+    // return InteractionResult.PASS;
+    // }
+    // if (!(entity instanceof Player victim)) {
+    // return InteractionResult.PASS;
+    // }
+    // if (!GameUtils.isPlayerAliveAndSurvival(attacker) ||
+    // !GameUtils.isPlayerAliveAndSurvival(victim)) {
+    // return InteractionResult.PASS;
+    // }
+    //
+    // SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(world);
+    // if (!gameWorld.isRole(attacker, ModRoles.MA_CHEN_XU)) {
+    // return InteractionResult.PASS;
+    // }
+    //
+    // MaChenXuPlayerComponent comp = MaChenXuPlayerComponent.KEY.get(attacker);
+    // if (comp.stage <= 0) {
+    // return InteractionResult.PASS;
+    // }
+    //
+    //
+    //
+    //
+    //// // 里世界中附带鬼缚（用于加强打击感） / if (comp.otherworldActive) { / victim.addEffect(new
+    /// MobEffectInstance( / ModEffects.GHOST_CURSE, GHOST_CURSE_DURATION, 0, false,
+    /// false, true)); / }
+    //
+    // return InteractionResult.PASS;
+    // }
 }
