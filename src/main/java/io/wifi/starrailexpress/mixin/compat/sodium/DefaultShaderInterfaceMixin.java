@@ -16,8 +16,8 @@ import org.spongepowered.asm.mixin.Unique;
 
 @Mixin(DefaultShaderInterface.class)
 public abstract class DefaultShaderInterfaceMixin implements SodiumShaderInterface {
-    @Unique
-    private GlUniformBlock uniformOffsets;
+    // @Unique
+    // private GlUniformBlock uniformOffsets;
 
     // @Inject(method = "<init>", at = @At("RETURN"))
     // private void tmm$addUniform(ShaderBindingContext context, ChunkShaderOptions options,
