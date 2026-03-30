@@ -4,6 +4,7 @@ import io.wifi.starrailexpress.api.GameMode;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.*;
+import io.wifi.starrailexpress.cca.SREPlayerProgressionComponent.FactionCardType;
 import io.wifi.starrailexpress.event.AllowGameEnd;
 import io.wifi.starrailexpress.network.original.AnnounceWelcomePayload;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -473,6 +474,14 @@ public class StarRailMurderGameMode extends GameMode {
                                 "Couldn't force player [{}]'s role to {} because there are no roles available for him.",
                                 playerUid,
                                 roleType);
+                        FactionCardType cardType = FactionCardType.fromInt(roleType);
+                        if (cardType != FactionCardType.NONE) {
+                            SREPlayerProgressionComponent.KEY.get(selectedPlayer).addFactionCard(cardType, 1);
+                            selectedPlayer.displayClientMessage(
+                                    Component.translatable("message.sre.pass.faction.assign_failed")
+                                            .withStyle(ChatFormatting.RED),
+                                    true);
+                        }
                     }
                 }
             }

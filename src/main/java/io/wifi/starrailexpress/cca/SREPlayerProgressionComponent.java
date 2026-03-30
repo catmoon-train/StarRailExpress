@@ -202,6 +202,10 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
         return this.activeQuests.stream().filter(q -> q.category == QuestCategory.PERMANENT).toList();
     }
 
+    public Map<FactionCardType, Integer> getFactionCardsSelf() {
+        return this.factionCards;
+    }
+
     public Map<FactionCardType, Integer> getFactionCards() {
         return Collections.unmodifiableMap(this.factionCards);
     }
@@ -1194,6 +1198,15 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
         public static FactionCardType fromString(String raw) {
             for (FactionCardType type : values()) {
                 if (type.name().equalsIgnoreCase(raw) || type.questKey.equalsIgnoreCase(raw)) {
+                    return type;
+                }
+            }
+            return NONE;
+        }
+
+        public static FactionCardType fromInt(int typeValue) {
+            for (FactionCardType type : values()) {
+                if (type.type == (typeValue)) {
                     return type;
                 }
             }
