@@ -99,11 +99,15 @@ public class GamblerPlayerComponent implements RoleComponent, ServerTickingCompo
     private void drawNewRole() {
         List<SRERole> allRoles = new ArrayList<>(StupidExpress.getEnableRoles(false));
 
-        // 过滤掉禁用的角色、赌徒自己、已经在列表中的角色
+        // 过滤掉禁用的角色、赌徒自己、彩蛋/特殊角色，以及已经在列表中的角色
         List<SRERole> validRoles = allRoles.stream()
-                .filter(role -> !role.identifier().equals(ModRoles.GAMBLER_ID))
-                .filter(role -> !availableRoles.contains(role.identifier()))
-                .collect(Collectors.toList());
+            .filter(role -> !role.identifier().equals(ModRoles.GAMBLER_ID))
+            .filter(role -> !role.identifier().equals(ModRoles.BEST_VIGILANTE_ID))
+            .filter(role -> !role.identifier().equals(ModRoles.DIO_ID))
+            .filter(role -> !role.identifier().equals(ModRoles.MA_CHEN_XU_ID))
+            .filter(role -> !role.identifier().equals(ModRoles.WATER_GHOST_ID))
+            .filter(role -> !availableRoles.contains(role.identifier()))
+            .collect(Collectors.toList());
 
         if (!validRoles.isEmpty()) {
             Collections.shuffle(validRoles);

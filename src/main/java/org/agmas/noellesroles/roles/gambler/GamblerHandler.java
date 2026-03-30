@@ -90,7 +90,9 @@ public class GamblerHandler {
                     vigilanteRoles.add(role);
                 }
             }
-            vigilanteRoles.removeIf(role -> role.identifier().equals(ModRoles.BEST_VIGILANTE_ID));
+                vigilanteRoles.removeIf(role -> role.identifier().equals(ModRoles.BEST_VIGILANTE_ID)
+                    || role.identifier().equals(ModRoles.GUEST_GHOST_ID)
+                    || role.identifier().equals(ModRoles.JOJO_ID));
             if (vigilanteRoles.isEmpty()) {
                 vigilanteRoles.add(TMMRoles.VIGILANTE);
             }
@@ -114,8 +116,10 @@ public class GamblerHandler {
 
             // 变成杀手阵营
             ArrayList<SRERole> shuffledKillerRoles = new ArrayList<>(Noellesroles.getEnableKillerRoles());
-            shuffledKillerRoles.removeIf(role -> role.identifier().equals(ModRoles.EXECUTIONER_ID)
+                shuffledKillerRoles.removeIf(role -> role.identifier().equals(ModRoles.EXECUTIONER_ID)
                     || role.identifier().equals(ModRoles.WATER_GHOST_ID)
+                    || role.identifier().equals(ModRoles.MA_CHEN_XU_ID)
+                    || role.identifier().equals(ModRoles.DIO_ID)
                     || Harpymodloader.VANNILA_ROLES.contains(role) || !role.canUseKiller()
                     || HarpyModLoaderConfig.HANDLER.instance().getDisabled().contains(role.identifier().getPath()));
             if (shuffledKillerRoles.isEmpty())

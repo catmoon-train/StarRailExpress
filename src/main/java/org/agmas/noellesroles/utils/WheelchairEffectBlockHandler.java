@@ -28,23 +28,33 @@ public class WheelchairEffectBlockHandler {
      */
     public static void checkAndApplyEffects(WheelchairEntity wheelchair, Player player) {
         if (wheelchair.level() instanceof ServerLevel serverLevel) {
-            BlockPos blockPos = wheelchair.blockPosition();
-            
-            // 绿宝石块：加速
-            if (serverLevel.getBlockState(blockPos).is(Blocks.EMERALD_BLOCK)) {
-                applyEmeraldBlockEffect(wheelchair, player, serverLevel);
-            }
-            // 煤炭块：减速
-            else if (serverLevel.getBlockState(blockPos).is(Blocks.COAL_BLOCK)) {
-                applyCoalBlockEffect(wheelchair, player, serverLevel);
-            }
-            // 铁块：修复耐久
-            else if (serverLevel.getBlockState(blockPos).is(Blocks.IRON_BLOCK)) {
-                applyIronBlockEffect(wheelchair, player, serverLevel);
-            }
-            // 红石块：瘫痪
-            else if (serverLevel.getBlockState(blockPos).is(Blocks.REDSTONE_BLOCK)) {
-                applyRedstoneBlockEffect(wheelchair, player, serverLevel);
+            // 尝试多种位置检测：优先使用玩家脚下的方块（与 ChairWheelRaceGame 保持一致），
+            // 其次检查轮椅所在方块与下方方块，覆盖边界情况。
+            BlockPos playerPos = player != null ? player.getOnPos().above(-1) : null;
+            BlockPos entityPos = wheelchair.blockPosition();
+            BlockPos belowEntity = entityPos.below();
+
+            BlockPos[] checkPositions = playerPos != null
+                    ? new BlockPos[]{playerPos, entityPos, belowEntity}
+                    : new BlockPos[]{entityPos, belowEntity};
+
+            for (BlockPos pos : checkPositions) {
+                if (serverLevel.getBlockState(pos).is(Blocks.EMERALD_BLOCK)) {
+                    applyEmeraldBlockEffect(wheelchair, player, serverLevel);
+                    return;
+                }
+                if (serverLevel.getBlockState(pos).is(Blocks.COAL_BLOCK)) {
+                    applyCoalBlockEffect(wheelchair, player, serverLevel);
+                    return;
+                }
+                if (serverLevel.getBlockState(pos).is(Blocks.IRON_BLOCK)) {
+                    applyIronBlockEffect(wheelchair, player, serverLevel);
+                    return;
+                }
+                if (serverLevel.getBlockState(pos).is(Blocks.REDSTONE_BLOCK)) {
+                    applyRedstoneBlockEffect(wheelchair, player, serverLevel);
+                    return;
+                }
             }
         }
     }
