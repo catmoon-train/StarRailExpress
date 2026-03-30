@@ -101,7 +101,8 @@ public class ProgressionPassScreen extends Screen {
                 ModernButton.builder(Component.translatable("sre.pass.day"), btn -> {
                     activeTab = 0;
                     init();
-                })
+                }).accentBar(ModernButton.AccentSide.LEFT, ModernButton.AccentSide.BOTTOM,
+                        ModernButton.AccentSide.RIGHT, ModernButton.AccentSide.TOP)
                         .bounds(panelX + 24, tabY, tabW, 20)
                         .accentColor(activeTab == 0 ? 0xFF3AA6FF : 0xFF2B3A55)
                         .build());
@@ -109,7 +110,8 @@ public class ProgressionPassScreen extends Screen {
                 ModernButton.builder(Component.translatable("sre.pass.weekly"), btn -> {
                     activeTab = 1;
                     init();
-                })
+                }).accentBar(ModernButton.AccentSide.LEFT, ModernButton.AccentSide.BOTTOM,
+                        ModernButton.AccentSide.RIGHT, ModernButton.AccentSide.TOP)
                         .bounds(panelX + 24 + tabW + 8, tabY, tabW, 20)
                         .accentColor(activeTab == 1 ? 0xFFFFD060 : 0xFF2B3A55)
                         .build());
@@ -117,7 +119,8 @@ public class ProgressionPassScreen extends Screen {
                 ModernButton.builder(Component.translatable("sre.pass.permanent"), btn -> {
                     activeTab = 2;
                     init();
-                })
+                }).accentBar(ModernButton.AccentSide.LEFT, ModernButton.AccentSide.BOTTOM,
+                        ModernButton.AccentSide.RIGHT, ModernButton.AccentSide.TOP)
                         .bounds(panelX + 24 + (tabW + 8) * 2, tabY, tabW, 20)
                         .accentColor(activeTab == 2 ? 0xFFA98BFF : 0xFF2B3A55)
                         .build());
@@ -132,7 +135,7 @@ public class ProgressionPassScreen extends Screen {
                         weeklyPage = Math.max(0, weeklyPage - 1);
                     else
                         permanentPage = Math.max(0, permanentPage - 1);
-                }).bounds(panelX + panelW / 2 - 60, pgY, 48, 20).accentColor(0xFF2B3A55).build());
+                }).accentBar().bounds(panelX + panelW / 2 - 60, pgY, 48, 20).accentColor(0xFF2B3A55).build());
         addRenderableWidget(
                 ModernButton.builder(Component.literal("▶"), btn -> {
                     int total = activeTab == 0 ? progression.getActiveDailyQuests().size()
@@ -145,7 +148,7 @@ public class ProgressionPassScreen extends Screen {
                         weeklyPage = Math.min(pages - 1, weeklyPage + 1);
                     else
                         permanentPage = Math.min(pages - 1, permanentPage + 1);
-                }).bounds(panelX + panelW / 2 + 12, pgY, 48, 20).accentColor(0xFF2B3A55).build());
+                }).accentBar().bounds(panelX + panelW / 2 + 12, pgY, 48, 20).accentColor(0xFF2B3A55).build());
 
         // ---- 阵营卡按钮 ----
         int bottomY = panelY + panelH - 38;
