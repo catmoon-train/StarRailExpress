@@ -38,7 +38,6 @@ public class BeveragePlateBlockEntity extends BlockEntity {
         }
     }
 
-    @SuppressWarnings("unused")
     public static <T extends BlockEntity> void clientTick(Level world, BlockPos pos, BlockState state, T blockEntity) {
     }
 
