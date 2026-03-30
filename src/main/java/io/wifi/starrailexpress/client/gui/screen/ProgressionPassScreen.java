@@ -132,7 +132,7 @@ public class ProgressionPassScreen extends Screen {
                         weeklyPage = Math.max(0, weeklyPage - 1);
                     else
                         permanentPage = Math.max(0, permanentPage - 1);
-                }).accentBar().bounds(panelX + panelW / 2 - 60, pgY, 48, 20).accentColor(0xFF2B3A55).build());
+                }).accentBar(ModernButton.AccentSide.LEFT).bounds(panelX + panelW / 2 - 60, pgY, 48, 20).accentColor(0xFF2B3A55).build());
         addRenderableWidget(
                 ModernButton.builder(Component.literal("▶"), btn -> {
                     int total = activeTab == 0 ? progression.getActiveDailyQuests().size()
@@ -145,7 +145,7 @@ public class ProgressionPassScreen extends Screen {
                         weeklyPage = Math.min(pages - 1, weeklyPage + 1);
                     else
                         permanentPage = Math.min(pages - 1, permanentPage + 1);
-                }).accentBar().bounds(panelX + panelW / 2 + 12, pgY, 48, 20).accentColor(0xFF2B3A55).build());
+                }).accentBar(ModernButton.AccentSide.RIGHT).bounds(panelX + panelW / 2 + 12, pgY, 48, 20).accentColor(0xFF2B3A55).build());
 
         // ---- 阵营卡按钮 ----
         int bottomY = panelY + panelH - 38;
