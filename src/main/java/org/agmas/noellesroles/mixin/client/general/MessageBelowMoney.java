@@ -23,19 +23,19 @@ public abstract class MessageBelowMoney {
 
     @Inject(method = "render", at = @At("TAIL"))
     public void renderSimpleHud(GuiGraphics context, DeltaTracker tickCounter, CallbackInfo ci) {
-        // Minecraft client = Minecraft.getInstance();
-        // if (client.player == null || client.level == null)
-        //     return;
-        // MutableComponentResult texts = OnMessageBelowMoneyRenderer.EVENT.invoker().onRenderer(client, context,
-        //         tickCounter);
-        // List<MutableComponent> infoLines = texts.mutipleContent;
-        // int y = 20;
-        // int width = context.guiWidth();
-        // var font = getFont();
-        // int lineHeight = font.lineHeight + 4;
-        // for (var line : infoLines) {
-        //     context.drawString(font, line, width - 10 - font.width(line), y, java.awt.Color.WHITE.getRGB());
-        //     y += lineHeight;
-        // }
+        Minecraft client = Minecraft.getInstance();
+        if (client.player == null || client.level == null)
+            return;
+        MutableComponentResult texts = OnMessageBelowMoneyRenderer.EVENT.invoker().onRenderer(client, context,
+                tickCounter);
+        List<MutableComponent> infoLines = texts.mutipleContent;
+        int y = 20;
+        int width = context.guiWidth();
+        var font = getFont();
+        int lineHeight = font.lineHeight + 4;
+        for (var line : infoLines) {
+            context.drawString(font, line, width - 10 - font.width(line), y, java.awt.Color.WHITE.getRGB());
+            y += lineHeight;
+        }
     }
 }
