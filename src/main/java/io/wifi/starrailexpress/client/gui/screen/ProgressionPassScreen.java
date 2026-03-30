@@ -174,8 +174,10 @@ public class ProgressionPassScreen extends Screen {
         var btn = ModernButton.builder(label, b -> {
             if (count > 0) {
                 sendCommand("sre:pass activate " + type.questKey);
-                progression.getFactionCardsSelf().put(type, count - 1);
+                // progression.getFactionCardsSelf().put(type, count - 1);
                 b.active = false;
+                b.setMessage(Component.literal(
+                        Component.translatable("sre.pass.faction." + type.questKey).getString() + " x" + (count - 1)));
             }
         })
                 .bounds(x, y, width, 22).accentColor(accentColor).build();
