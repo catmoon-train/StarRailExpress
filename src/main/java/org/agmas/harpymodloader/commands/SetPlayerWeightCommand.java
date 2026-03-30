@@ -62,9 +62,17 @@ public class SetPlayerWeightCommand {
         // 获取玩家角色权重
         final int roleType_1 = i;
         double percent = PlayerRoleWeightManager.getRoleWeightPercent(player, i) * 100;
-        source.sendSystemMessage(Component.translatable("%s(%s): Role Selected Weight: %s / 100",
+        source.sendSystemMessage(Component.translatable("%s(%s): Role Selected Weight: %s",
             TypeMappings[roleType_1],
             roleType_1, String.format("%.2f", percent)));
+      }
+      if (PlayerRoleWeightManager.ForcePlayerTeam.containsKey(player.getUUID())) {
+        int roleType_1 = PlayerRoleWeightManager.ForcePlayerTeam.get(player.getUUID());
+        if (roleType_1 >= 0 && roleType_1 < TypeMappings.length) {
+          source.sendSystemMessage(
+              Component.translatable("Forced Team: %s", TypeMappings[roleType_1]).withStyle(ChatFormatting.AQUA));
+        }
+
       }
       return 1;
     }
