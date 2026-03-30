@@ -89,7 +89,6 @@ import org.agmas.noellesroles.utils.lottery.LotteryManager;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.LoggerFactory;
-import walksy.crosshairaddons.CrosshairAddons;
 
 import java.awt.*;
 import java.util.*;
@@ -354,8 +353,8 @@ public class NoellesrolesClient implements ClientModInitializer {
                             1.0F,
                             1.0F,
                             false);
-                    // 处理准星效果
-                    CrosshairAddons.getStateManager().handleBreakPacket(payload.x(), payload.y(), payload.z());
+                    // // 处理准星效果
+                    // CrosshairAddons.getStateManager().handleBreakPacket(payload.x(), payload.y(), payload.z());
                 }
             });
         });

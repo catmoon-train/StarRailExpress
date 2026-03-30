@@ -51,6 +51,9 @@ public class GamblerHandler {
             return true;
         if (!(victim instanceof ServerPlayer serverPlayer))
             return false;
+        if (!SREGameWorldComponent.KEY.get(victim.level()).isSkillAvailable){
+            return true;
+        }
         GamblerPlayerComponent gamblerPlayerComponent = GamblerPlayerComponent.KEY.get(victim);
         // 掉枪
         RoleUtils.dropAndClearAllSatisfiedItems((ServerPlayer) victim, TMMItemTags.GUNS);
