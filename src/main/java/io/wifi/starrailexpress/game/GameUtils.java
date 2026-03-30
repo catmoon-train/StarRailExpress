@@ -167,7 +167,7 @@ public class GameUtils {
             trueStartGame(world, gameMode, time);
             return;
         }
-        if (SREConfig.instance().enableAutoTrainReset) {
+        if (resetPoints.isEmpty() || SREConfig.instance().enableAutoTrainReset) {
             var task = new ServerTaskInfoClasses.FullTrainResetTask(areas, world, gameMode, time);
             serverTaskQueue.add(task);
         } else {

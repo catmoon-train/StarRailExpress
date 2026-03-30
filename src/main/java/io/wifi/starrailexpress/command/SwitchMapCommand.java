@@ -177,7 +177,12 @@ public class SwitchMapCommand {
         () -> Component.translatable("commands.sre.switchmap.current_map_info")
             .withStyle(style -> style.withColor(0x00FFFF)),
         false);
-
+    // 显示当前配置信息
+    source.sendSuccess(
+        () -> Component
+            .literal("Map ID: " + areas.mapName)
+            .withStyle(style -> style.withColor(0x00FFFF)),
+        false);
     // 显示当前配置信息
     source.sendSuccess(
         () -> Component
@@ -217,24 +222,25 @@ public class SwitchMapCommand {
             String.format("%.2f", areas.getReadyArea().maxZ) + "]")
             .withStyle(style -> style.withColor(0x00FFFF)),
         false);
+
     source.sendSuccess(
-        () -> Component.literal("Scene Area: [" +
-            String.format("%.2f", areas.getSceneArea().minX) + ", " +
-            String.format("%.2f", areas.getSceneArea().minY) + ", " +
-            String.format("%.2f", areas.getSceneArea().minZ) + "] to [" +
-            String.format("%.2f", areas.getSceneArea().maxX) + ", " +
-            String.format("%.2f", areas.getSceneArea().maxY) + ", " +
-            String.format("%.2f", areas.getSceneArea().maxZ) + "]")
+        () -> Component.literal("Template Area: [" +
+            String.format("%.2f", areas.getResetTemplateArea().minX) + ", " +
+            String.format("%.2f", areas.getResetTemplateArea().minY) + ", " +
+            String.format("%.2f", areas.getResetTemplateArea().minZ) + "] to [" +
+            String.format("%.2f", areas.getResetTemplateArea().maxX) + ", " +
+            String.format("%.2f", areas.getResetTemplateArea().maxY) + ", " +
+            String.format("%.2f", areas.getResetTemplateArea().maxZ) + "]")
             .withStyle(style -> style.withColor(0x00FFFF)),
         false);
-    String WAY = switch (areas.SceneScrollAxis) {
-      case X -> "X";
-      case Y -> "Y";
-      case Z -> "Z";
-      default -> "NONE";
-    };
     source.sendSuccess(
-        () -> Component.literal("Scene Scroll: [" + WAY + "]")
+        () -> Component.literal("Play Area: [" +
+            String.format("%.2f", areas.getPlayArea().minX) + ", " +
+            String.format("%.2f", areas.getPlayArea().minY) + ", " +
+            String.format("%.2f", areas.getPlayArea().minZ) + "] to [" +
+            String.format("%.2f", areas.getPlayArea().maxX) + ", " +
+            String.format("%.2f", areas.getPlayArea().maxY) + ", " +
+            String.format("%.2f", areas.getPlayArea().maxZ) + "]")
             .withStyle(style -> style.withColor(0x00FFFF)),
         false);
     return 1;
