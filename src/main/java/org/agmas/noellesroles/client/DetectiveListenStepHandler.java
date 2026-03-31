@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
-public class Listen {
+public class DetectiveListenStepHandler {
     public static final List<SoundInfo> soundInfos = new ArrayList<>();
 
     // 缓存

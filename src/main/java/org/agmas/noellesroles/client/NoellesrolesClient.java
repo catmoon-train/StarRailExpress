@@ -683,7 +683,7 @@ public class NoellesrolesClient implements ClientModInitializer {
             });
         });
 
-        Listen.registerEvents();
+        DetectiveListenStepHandler.registerEvents();
         InvisbleHandItem.register();
         OnKillerCohortDisplay.EVENT.register((player) -> {
             if (player == null)

@@ -4,12 +4,12 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.client.Minecraft;
-import org.agmas.noellesroles.client.Listen;
+import org.agmas.noellesroles.client.DetectiveListenStepHandler;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
 import org.agmas.noellesroles.role.ModRoles;
 import org.joml.Vector3f;
 
-import static org.agmas.noellesroles.client.Listen.*;
+import static org.agmas.noellesroles.client.DetectiveListenStepHandler.*;
 
 public class DetectivePassiveHud {
 
@@ -37,7 +37,7 @@ public class DetectivePassiveHud {
 
             // 遍历所有实体
             for (int i = soundInfos.size() - 1; i >= 0; i--) {
-                Listen.SoundInfo info = soundInfos.get(i);
+                DetectiveListenStepHandler.SoundInfo info = soundInfos.get(i);
 
                 // 世界坐标 → 屏幕坐标
                 Vector3f screen = worldToScreen(info.pos.x, info.pos.y, info.pos.z);

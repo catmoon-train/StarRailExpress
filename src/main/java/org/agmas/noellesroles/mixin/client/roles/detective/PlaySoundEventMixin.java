@@ -5,13 +5,13 @@ import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.client.sounds.SoundEngine;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.phys.Vec3;
-import org.agmas.noellesroles.client.Listen;
+import org.agmas.noellesroles.client.DetectiveListenStepHandler;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import static org.agmas.noellesroles.client.Listen.*;
+import static org.agmas.noellesroles.client.DetectiveListenStepHandler.*;
 
 @Mixin(SoundEngine.class)
 public class PlaySoundEventMixin {
@@ -66,13 +66,13 @@ public class PlaySoundEventMixin {
         }
 
         long currentTime = mc.level.getGameTime();
-        for (Listen.SoundInfo existing : soundInfos) {
+        for (DetectiveListenStepHandler.SoundInfo existing : soundInfos) {
             if (existing.pos.distanceToSqr(x, y ,z) < 1.0d && currentTime - existing.time < 10) {
                 return;
             }
         }
 
-        Listen.SoundInfo soundInfo;
+        DetectiveListenStepHandler.SoundInfo soundInfo;
         if (!soundInfoPool.empty()) {
             soundInfo = soundInfoPool.pop();
         }
