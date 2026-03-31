@@ -584,7 +584,8 @@ public class ModEventsRegister {
         AllowShootRevolverDrop.EVENT.register((player, target) -> {
             var gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
             if (gameWorldComponent.isRole(target, ModRoles.WATCHER)) {
-                return ShouldDropResult.TRUE;
+                if (WatcherPlayerComponent.KEY.get(target).isInCalmStance())
+                    return ShouldDropResult.TRUE;
             }
             return ShouldDropResult.PASS;
         });
