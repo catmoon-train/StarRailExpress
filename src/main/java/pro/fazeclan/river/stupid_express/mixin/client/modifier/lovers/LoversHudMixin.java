@@ -11,7 +11,6 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import org.agmas.noellesroles.role.ModRoles;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -23,9 +22,6 @@ import pro.fazeclan.river.stupid_express.modifier.lovers.cca.LoversComponent;
 
 @Mixin(RoleNameRenderer.class)
 public abstract class LoversHudMixin {
-
-    @Shadow
-    private static float nametagAlpha;
 
     @Inject(method = "renderHud", at = @At("TAIL"))
     private static void loversHud(Font renderer, LocalPlayer player, FakeGuiGraphics context, DeltaTracker tickCounter, CallbackInfo ci) {
@@ -111,7 +107,7 @@ public abstract class LoversHudMixin {
                 component,
                 -renderer.width(component) / 2,
                 32,
-                SEModifiers.LOVERS.color() | (int) (nametagAlpha * 255.0F) << 24
+                SEModifiers.LOVERS.color() | (int) (1 * 255.0F) << 24
         );
 
         context.pose().popPose();

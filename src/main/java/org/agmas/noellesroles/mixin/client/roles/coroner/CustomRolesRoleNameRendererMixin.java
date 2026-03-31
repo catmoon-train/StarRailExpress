@@ -24,7 +24,6 @@ import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -34,9 +33,6 @@ import pro.fazeclan.river.stupid_express.modifier.split_personality.cca.SplitPer
 import java.awt.*;
 @Mixin(RoleNameRenderer.class)
 public abstract class CustomRolesRoleNameRendererMixin {
-
-    @Shadow
-    private static float nametagAlpha;
 
     @Inject(method = "renderHud", at = @At(value = "INVOKE", target = "Lio/wifi/utils/client/betterrender/FakeGuiGraphics;drawString(Lnet/minecraft/client/gui/Font;Lnet/minecraft/network/chat/Component;III)I", ordinal = 0))
     private static void b(Font renderer, @NotNull LocalPlayer lp, FakeGuiGraphics context, DeltaTracker tickCounter,
@@ -78,7 +74,7 @@ public abstract class CustomRolesRoleNameRendererMixin {
                 }
 
                 context.drawString(renderer, name, -renderer.width(name) / 2, 0,
-                        di_color | (int) (nametagAlpha * 255.0F) << 24);
+                        di_color | (int) (1 * 255.0F) << 24);
             }
         }
         if (NoellesrolesClient.hudTarget != null) {
@@ -95,7 +91,7 @@ public abstract class CustomRolesRoleNameRendererMixin {
                 var _color = Color.MAGENTA.getRGB();
 
                 context.drawString(renderer, room_name, -renderer.width(room_name) / 2, -20,
-                        _color | (int) (nametagAlpha * 255.0F) << 24);
+                        _color | (int) (1 * 255.0F) << 24);
             }
         }
     }

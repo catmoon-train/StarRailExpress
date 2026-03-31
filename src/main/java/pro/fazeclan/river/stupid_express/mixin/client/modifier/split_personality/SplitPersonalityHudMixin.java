@@ -12,7 +12,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Player;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -20,9 +19,6 @@ import pro.fazeclan.river.stupid_express.modifier.split_personality.cca.SplitPer
 
 @Mixin(RoleNameRenderer.class)
 public abstract class SplitPersonalityHudMixin {
-
-    @Shadow
-    private static float nametagAlpha;
 
     @Inject(method = "renderHud", at = @At("TAIL"))
     private static void splitPersonalityHud(Font renderer, LocalPlayer player, FakeGuiGraphics context,

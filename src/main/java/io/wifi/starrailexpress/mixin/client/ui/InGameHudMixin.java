@@ -53,9 +53,9 @@ public class InGameHudMixin {
             return;
         FakeGuiGraphics context = new FakeGuiGraphics(trueContext);
         Font renderer = Minecraft.getInstance().font;
-        // MoodRenderer.renderHud(player, renderer, trueContext, tickCounter);
-        RoleNameRenderer.renderHud(renderer, player, context, tickCounter);
+        MoodRenderer.renderHud(player, renderer, trueContext, tickCounter);
         if (OptimizedTextRenderer.INSTANCE.isTickDirty()) {
+            RoleNameRenderer.renderHud(renderer, player, context, tickCounter);
             RoundTextRenderer.renderHud(renderer, player, context, tickCounter.getRealtimeDeltaTicks());
             if (Minecraft.getInstance().screen == null)
                 StoreRenderer.renderHud(renderer, player, context, tickCounter.getGameTimeDeltaPartialTick(true));
