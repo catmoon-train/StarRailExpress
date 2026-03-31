@@ -31,6 +31,7 @@ import org.agmas.noellesroles.roles.candlebearer.CandleBearerPlayerComponent;
 import org.agmas.noellesroles.roles.thief.ThiefPlayerComponent;
 import org.agmas.noellesroles.roles.voodoo.VoodooPlayerComponent;
 import org.agmas.noellesroles.roles.vulture.VulturePlayerComponent;
+import org.agmas.noellesroles.roles.watcher.WatcherRole;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -1313,7 +1314,7 @@ public class ModRoles {
       Integer.MAX_VALUE, // 无限冲刺时间
       true // 隐藏计分板
   )).setComponentKey(ModComponents.BLOOD_FEUDIST).setCanSeeCoin(true);;
-  public static SRERole WATCHER = TMMRoles.registerRole(new NormalRole(
+  public static SRERole WATCHER = TMMRoles.registerRole(new WatcherRole(
       WATCHER_ID,
       new Color(52, 73, 94).getRGB(),
       false,

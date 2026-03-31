@@ -14,6 +14,7 @@ import io.wifi.starrailexpress.compat.TrainVoicePlugin;
 import io.wifi.starrailexpress.entity.NoteEntity;
 import io.wifi.starrailexpress.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.event.*;
+import io.wifi.starrailexpress.event.AllowShootRevolverDrop.ShouldDropResult;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.ServerTaskInfoClasses;
@@ -580,6 +581,13 @@ public class ModEventsRegister {
             return false;
         });
         // 所有枪械公用冷却
+        AllowShootRevolverDrop.EVENT.register((player, target) -> {
+            var gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
+            if (gameWorldComponent.isRole(target, ModRoles.WATCHER)) {
+                return ShouldDropResult.TRUE;
+            }
+            return ShouldDropResult.PASS;
+        });
         OnRevolverUsed.EVENT.register((player, target) -> {
             if (!player.isCreative()) {
                 var cooldowns = player.getCooldowns();
