@@ -26,6 +26,7 @@ import net.minecraft.world.item.ItemCooldowns.CooldownInstance;
 import org.agmas.noellesroles.AttendantHandler;
 import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.agmas.noellesroles.client.WayfarerHudRenderer;
+import org.agmas.noellesroles.client.event.CommonHudRenderCallback;
 import org.agmas.noellesroles.client.event.MutableComponentResult;
 import org.agmas.noellesroles.client.event.OnMessageBelowMoneyRenderer;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
@@ -95,6 +96,7 @@ public class CommonClientHudRenderer {
       }
       // if (SREClient.isPlayerSpectator())
       // return;
+      CommonHudRenderCallback.EVENT.invoker().onRenderer(client, guiGraphics, deltaTracker);
       SRERole role = SREClient.getCachedPlayerRole();
       if (role == null)
         return;
