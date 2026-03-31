@@ -175,11 +175,11 @@ public class FakeGuiGraphics {
     }
 
     public void fill(int x1, int y1, int x2, int y2, int color) {
-        real.fill(x1, y1, x2, y2, color);
+        textRenderer.enqueueFill(real, x1, y1, x2, y2, 0, color);
     }
 
     public void fill(int x1, int y1, int x2, int y2, int z, int color) {
-        real.fill(x1, y1, x2, y2, z, color);
+        textRenderer.enqueueFill(real, x1, y1, x2, y2, z, color);
     }
 
     public void fill(RenderType rt, int x1, int y1, int x2, int y2, int color) {

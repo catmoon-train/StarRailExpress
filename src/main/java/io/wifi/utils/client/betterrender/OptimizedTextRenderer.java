@@ -61,6 +61,12 @@ public class OptimizedTextRenderer {
     /** Blit entries accumulated during the current frame's enqueue pass. */
     private final List<BlitEntry> blitPending = new ArrayList<>(32);
 
+    /** The pending fill entries computed on the LAST dirty tick — replayed every frame. */
+    private final List<FillEntry> fillTickCache = new ArrayList<>(32);
+
+    /** Fill entries accumulated during the current frame's enqueue pass. */
+    private final List<FillEntry> fillPending = new ArrayList<>(32);
+
     private GuiGraphics frameGraphics = null;
     private boolean inFrame = false;
 
@@ -83,6 +89,7 @@ public class OptimizedTextRenderer {
         inFrame = true;
         pending.clear();
         blitPending.clear();
+        fillPending.clear();
     }
 
     public void endFrame() {
@@ -91,11 +98,13 @@ public class OptimizedTextRenderer {
 
         // If the tick was dirty, the HUD ran and filled pending lists with fresh entries.
         // Promote them to tickCache and clear the dirty flag.
-        if (tickDirty && (!pending.isEmpty() || !blitPending.isEmpty())) {
+        if (tickDirty && (!pending.isEmpty() || !blitPending.isEmpty() || !fillPending.isEmpty())) {
             tickCache.clear();
             tickCache.addAll(pending);
             blitTickCache.clear();
             blitTickCache.addAll(blitPending);
+            fillTickCache.clear();
+            fillTickCache.addAll(fillPending);
             tickDirty = false;
         }
 
@@ -104,6 +113,7 @@ public class OptimizedTextRenderer {
 
         pending.clear();
         blitPending.clear();
+        fillPending.clear();
         inFrame = false;
         frameGraphics = null;
     }
@@ -111,6 +121,19 @@ public class OptimizedTextRenderer {
     private void flushCache() {
         if (frameGraphics == null)
             return;
+
+        // Flush fill entries (solid color rectangles)
+        for (FillEntry f : fillTickCache) {
+            RenderSystem.enableBlend();
+            RenderSystem.setShader(GameRenderer::getPositionColorShader);
+            Matrix4f matrix = f.matrix();
+            BufferBuilder bufferBuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+            bufferBuilder.addVertex(matrix, f.x1(), f.y2(), f.z()).setColor(f.color());
+            bufferBuilder.addVertex(matrix, f.x2(), f.y2(), f.z()).setColor(f.color());
+            bufferBuilder.addVertex(matrix, f.x2(), f.y1(), f.z()).setColor(f.color());
+            bufferBuilder.addVertex(matrix, f.x1(), f.y1(), f.z()).setColor(f.color());
+            BufferUploader.drawWithShader(bufferBuilder.buildOrThrow());
+        }
 
         // Flush blit entries (textures like player heads)
         for (BlitEntry b : blitTickCache) {
@@ -186,6 +209,15 @@ public class OptimizedTextRenderer {
                 new Matrix4f(graphics.pose().last().pose())));
     }
 
+    public void enqueueFill(GuiGraphics graphics, int x1, int y1, int x2, int y2, int z, int color) {
+        if (!inFrame) {
+            graphics.fill(x1, y1, x2, y2, z, color);
+            return;
+        }
+        fillPending.add(new FillEntry(x1, y1, x2, y2, z, color,
+                new Matrix4f(graphics.pose().last().pose())));
+    }
+
     // ── Internal records ───────────────────────────────────────────────────────
 
     private record PendingEntry(
@@ -201,6 +233,11 @@ public class OptimizedTextRenderer {
             int x1, int x2, int y1, int y2,
             float u0, float u1, float v0, float v1,
             float r, float g, float b, float a,
+            Matrix4f matrix) {
+    }
+
+    private record FillEntry(
+            int x1, int y1, int x2, int y2, int z, int color,
             Matrix4f matrix) {
     }
 }
