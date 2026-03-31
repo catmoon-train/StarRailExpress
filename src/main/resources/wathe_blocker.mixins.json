@@ -13,6 +13,7 @@
   },
   "client": [
     "client.GuiGraphicsAccessor",
+    "client.SignRendererMixin",
     "client.GuiRenderMixin",
     "client.ClientTickMixin",
     "client.BlockWatheClient",

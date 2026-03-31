@@ -21,6 +21,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -66,18 +67,17 @@ public class MoodRenderer {
                 renderers.put(task, new TaskRenderer());
             }
         }
-        // hyw啊怎么在fps里删除任务啊！
-        // ArrayList<SREPlayerTaskComponent.Task> toRemove = new ArrayList<>();
-        // for (var taskType : SREPlayerTaskComponent.Task.values()) {
-        //     TaskRenderer task = renderers.get(taskType);
-        //     if (task != null) {
-        //         task.present = false;
-        //         if (task.tick(component.getTasks().get(taskType), tickCounter.getGameTimeDeltaPartialTick(true)))
-        //             toRemove.add(taskType);
-        //     }
-        // }
-        // for (var task : toRemove)
-        //     renderers.remove(task);
+        ArrayList<SREPlayerTaskComponent.Task> toRemove = new ArrayList<>();
+        for (var taskType : SREPlayerTaskComponent.Task.values()) {
+            TaskRenderer task = renderers.get(taskType);
+            if (task != null) {
+                task.present = false;
+                if (task.tick(component.getTasks().get(taskType), tickCounter.getGameTimeDeltaPartialTick(true)))
+                    toRemove.add(taskType);
+            }
+        }
+        for (var task : toRemove)
+            renderers.remove(task);
         TaskRenderer maxRenderer = null;
         for (Map.Entry<SREPlayerTaskComponent.Task, TaskRenderer> entry : renderers.entrySet()) {
             TaskRenderer renderer = entry.getValue();

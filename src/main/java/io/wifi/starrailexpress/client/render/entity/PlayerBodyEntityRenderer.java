@@ -30,6 +30,7 @@ public class PlayerBodyEntityRenderer<T extends LivingEntity, M extends EntityMo
         extends LivingEntityRenderer<PlayerBodyEntity, PlayerModel<PlayerBodyEntity>> {
     public static final ResourceLocation DEFAULT_TEXTURE = SRE.watheId("textures/entity/player_body_default.png");
     private static final ResourceLocation SKELETON_TEXTURE = SRE.watheId("textures/entity/player_skeleton.png");
+    static final int MAX_DISTANCE = 16;
 
     protected PlayerSkeletonEntityModel<PlayerBodyEntity> skeletonModel;
 
@@ -41,6 +42,12 @@ public class PlayerBodyEntityRenderer<T extends LivingEntity, M extends EntityMo
 
     public void render(PlayerBodyEntity playerBodyEntity, float f, float g, PoseStack matrixStack,
             MultiBufferSource vertexConsumerProvider, int light) {
+        final var client = Minecraft.getInstance();
+        if (client.player == null)
+            return;
+        if (playerBodyEntity.distanceToSqr(client.player) >= MAX_DISTANCE) {
+            return;
+        }
         this.setModelPose();
         matrixStack.pushPose();
         float clamp = Mth.clamp(
