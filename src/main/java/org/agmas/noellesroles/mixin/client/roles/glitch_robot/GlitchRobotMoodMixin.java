@@ -3,9 +3,9 @@ package org.agmas.noellesroles.mixin.client.roles.glitch_robot;
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.gui.MoodRenderer;
-import io.wifi.utils.client.betterrender.FakeGuiGraphics;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.role.ModRoles;
@@ -33,7 +33,7 @@ public class GlitchRobotMoodMixin {
     @Unique private static final ResourceLocation JESTER_MOOD = ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "hud/mood_jester");
 
     @Inject(method = "renderKiller", at = @At("HEAD"), cancellable = true)
-    private static void glitchRobotMood(Font textRenderer, FakeGuiGraphics context, CallbackInfo ci) {
+    private static void glitchRobotMood(Font textRenderer, GuiGraphics context, CallbackInfo ci) {
         SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY.get(Minecraft.getInstance().player.level());
         if (gameWorldComponent.isRole(Minecraft.getInstance().player, ModRoles.GLITCH_ROBOT)) {
             context.pose().pushPose();

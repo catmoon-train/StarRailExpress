@@ -26,36 +26,46 @@ import net.minecraft.world.entity.LivingEntity;
 
 import java.awt.*;
 
-public class PlayerBodyEntityRenderer<T extends LivingEntity, M extends EntityModel<T>> extends LivingEntityRenderer<PlayerBodyEntity, PlayerModel<PlayerBodyEntity>> {
+public class PlayerBodyEntityRenderer<T extends LivingEntity, M extends EntityModel<T>>
+        extends LivingEntityRenderer<PlayerBodyEntity, PlayerModel<PlayerBodyEntity>> {
     public static final ResourceLocation DEFAULT_TEXTURE = SRE.watheId("textures/entity/player_body_default.png");
     private static final ResourceLocation SKELETON_TEXTURE = SRE.watheId("textures/entity/player_skeleton.png");
 
     protected PlayerSkeletonEntityModel<PlayerBodyEntity> skeletonModel;
 
     public PlayerBodyEntityRenderer(EntityRendererProvider.Context ctx, boolean slim) {
-        super(ctx, new PlayerModel<>(ctx.bakeLayer(slim ? TMMModelLayers.PLAYER_BODY_SLIM : TMMModelLayers.PLAYER_BODY), slim), 0F);
+        super(ctx, new PlayerModel<>(ctx.bakeLayer(slim ? TMMModelLayers.PLAYER_BODY_SLIM : TMMModelLayers.PLAYER_BODY),
+                slim), 0F);
         skeletonModel = new PlayerSkeletonEntityModel<>(ctx.bakeLayer(TMMModelLayers.PLAYER_SKELETON));
     }
 
-    public void render(PlayerBodyEntity playerBodyEntity, float f, float g, PoseStack matrixStack, MultiBufferSource vertexConsumerProvider, int light) {
+    public void render(PlayerBodyEntity playerBodyEntity, float f, float g, PoseStack matrixStack,
+            MultiBufferSource vertexConsumerProvider, int light) {
         this.setModelPose();
-
         matrixStack.pushPose();
-        float clamp = Mth.clamp((float) (playerBodyEntity.tickCount - GameConstants.TIME_TO_DECOMPOSITION) / GameConstants.DECOMPOSING_TIME, 0, GameConstants.TIME_TO_DECOMPOSITION + GameConstants.DECOMPOSING_TIME);
+        float clamp = Mth.clamp(
+                (float) (playerBodyEntity.tickCount - GameConstants.TIME_TO_DECOMPOSITION)
+                        / GameConstants.DECOMPOSING_TIME,
+                0, GameConstants.TIME_TO_DECOMPOSITION + GameConstants.DECOMPOSING_TIME);
         float ease = Easing.CUBIC_IN.ease(clamp, 0, -1, 1);
         final var moodComponent = SREClient.moodComponent;
-        if (moodComponent==null)return;
+        if (moodComponent == null)
+            return;
         if (ease > -1) {
             matrixStack.translate(0, ease, 0);
-            float alpha = moodComponent.isLowerThanDepressed() ? Mth.lerp(Mth.clamp(Easing.SINE_IN.ease(Math.min(1f, (float) playerBodyEntity.tickCount / 100f), 0, 1, 1), 0, 1), 1f, 0f) : 1f;
+            float alpha = moodComponent.isLowerThanDepressed() ? Mth.lerp(Mth
+                    .clamp(Easing.SINE_IN.ease(Math.min(1f, (float) playerBodyEntity.tickCount / 100f), 0, 1, 1), 0, 1),
+                    1f, 0f) : 1f;
             this.renderBody(playerBodyEntity, f, g, matrixStack, vertexConsumerProvider, light, alpha);
         }
         matrixStack.popPose();
 
-        renderSkeleton(playerBodyEntity, f, g, matrixStack, vertexConsumerProvider, light, moodComponent.isLowerThanDepressed() ? 0f : 1f);
+        renderSkeleton(playerBodyEntity, f, g, matrixStack, vertexConsumerProvider, light,
+                moodComponent.isLowerThanDepressed() ? 0f : 1f);
     }
 
-    public void renderBody(PlayerBodyEntity livingEntity, float f, float g, PoseStack matrixStack, MultiBufferSource vertexConsumerProvider, int light, float alpha) {
+    public void renderBody(PlayerBodyEntity livingEntity, float f, float g, PoseStack matrixStack,
+            MultiBufferSource vertexConsumerProvider, int light, float alpha) {
         boolean bl = this.isBodyVisible(livingEntity);
         Minecraft client = Minecraft.getInstance();
         boolean bl2 = !bl && !livingEntity.isInvisibleTo(client.player);
@@ -65,11 +75,15 @@ public class PlayerBodyEntityRenderer<T extends LivingEntity, M extends EntityMo
         render(livingEntity, f, g, matrixStack, vertexConsumerProvider, light, this.model, bodyRenderLayer, 1f, alpha);
     }
 
-    public void renderSkeleton(PlayerBodyEntity livingEntity, float f, float g, PoseStack matrixStack, MultiBufferSource vertexConsumerProvider, int light, float alpha) {
-        render(livingEntity, f, g, matrixStack, vertexConsumerProvider, light, this.skeletonModel, this.getSkeletonRenderLayer(), .95f, alpha);
+    public void renderSkeleton(PlayerBodyEntity livingEntity, float f, float g, PoseStack matrixStack,
+            MultiBufferSource vertexConsumerProvider, int light, float alpha) {
+        render(livingEntity, f, g, matrixStack, vertexConsumerProvider, light, this.skeletonModel,
+                this.getSkeletonRenderLayer(), .95f, alpha);
     }
 
-    public void render(PlayerBodyEntity livingEntity, float f, float g, PoseStack matrixStack, MultiBufferSource vertexConsumerProvider, int light, HumanoidModel<PlayerBodyEntity> model, RenderType renderLayer, float scale, float alpha) {
+    public void render(PlayerBodyEntity livingEntity, float f, float g, PoseStack matrixStack,
+            MultiBufferSource vertexConsumerProvider, int light, HumanoidModel<PlayerBodyEntity> model,
+            RenderType renderLayer, float scale, float alpha) {
         if (alpha > 0) {
             matrixStack.pushPose();
             this.model.attackTime = this.getAttackAnim(livingEntity, g);
@@ -157,14 +171,15 @@ public class PlayerBodyEntityRenderer<T extends LivingEntity, M extends EntityMo
         }
     }
 
-
     @Override
-    protected void renderNameTag(PlayerBodyEntity entity, Component component, PoseStack poseStack, MultiBufferSource multiBufferSource, int i, float f) {
+    protected void renderNameTag(PlayerBodyEntity entity, Component component, PoseStack poseStack,
+            MultiBufferSource multiBufferSource, int i, float f) {
 
     }
 
     @Override
-    protected void setupRotations(PlayerBodyEntity livingEntity, PoseStack poseStack,float animationProgress, float bodyYaw, float tickDelta, float scale) {
+    protected void setupRotations(PlayerBodyEntity livingEntity, PoseStack poseStack, float animationProgress,
+            float bodyYaw, float tickDelta, float scale) {
         int animTickEnd = 20;
         float t = Math.min(livingEntity.tickCount + tickDelta, animTickEnd) / animTickEnd;
         float animProgress = Easing.BOUNCE_OUT.ease(t, 0, 1, 1);
@@ -175,8 +190,6 @@ public class PlayerBodyEntityRenderer<T extends LivingEntity, M extends EntityMo
         poseStack.mulPose(Axis.ZP.rotationDegrees(animProgress * this.getFlipDegrees(livingEntity)));
         poseStack.mulPose(Axis.YP.rotationDegrees(90.0F));
     }
-
-
 
     @Override
     protected void scale(PlayerBodyEntity entity, PoseStack matrices, float amount) {
@@ -189,12 +202,9 @@ public class PlayerBodyEntityRenderer<T extends LivingEntity, M extends EntityMo
         return 0f;
     }
 
-
-
     @Override
     protected float getWhiteOverlayProgress(PlayerBodyEntity livingEntity, float f) {
         return 0.1f;
     }
-
 
 }

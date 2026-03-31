@@ -9,11 +9,11 @@ import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.cca.SREPlayerTaskComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.game.GameConstants;
-import io.wifi.utils.client.betterrender.FakeGuiGraphics;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -44,7 +44,7 @@ public class MoodRenderer {
     public static float moodAlpha = 0f;
 
     @Environment(EnvType.CLIENT)
-    public static void renderHud(@NotNull Player player, Font textRenderer, FakeGuiGraphics context,
+    public static void renderHud(@NotNull Player player, Font textRenderer, GuiGraphics context,
             DeltaTracker tickCounter) {
         SREGameWorldComponent gameWorldComponent = SREClient.gameComponent;
         if (gameWorldComponent==null || !gameWorldComponent.isRunning() || !SREClient.isPlayerAliveAndInSurvival()
@@ -53,8 +53,7 @@ public class MoodRenderer {
         SREPlayerMoodComponent component = SREPlayerMoodComponent.KEY.get(player);
         float oldMood = moodRender;
         moodRender = Mth.lerp(tickCounter.getGameTimeDeltaPartialTick(true) / 8, moodRender, component.getMood());
-        moodAlpha = Mth.lerp(tickCounter.getGameTimeDeltaPartialTick(true) / 16, moodAlpha,
-                renderers.isEmpty() ? 0f : 1f);
+        moodAlpha = 1;
         SREPlayerPsychoComponent psycho = SREPlayerPsychoComponent.KEY.get(player);
         if (psycho.getPsychoTicks() > 0) {
             renderPsycho(player, textRenderer, context, psycho, tickCounter);
@@ -106,7 +105,7 @@ public class MoodRenderer {
         arrowProgress = Mth.lerp(tickCounter.getGameTimeDeltaPartialTick(true) / 24, arrowProgress, 0f);
     }
 
-    private static void renderCivilian(@NotNull Font textRenderer, @NotNull FakeGuiGraphics context, float prevMood) {
+    private static void renderCivilian(@NotNull Font textRenderer, @NotNull GuiGraphics context, float prevMood) {
         context.pose().pushPose();
         context.pose().translate(0, 3 * moodOffset, 0);
         ResourceLocation mood = MOOD_HAPPY;
@@ -133,7 +132,7 @@ public class MoodRenderer {
             if (!up)
                 context.pose().translate(0, 4, 0);
             context.pose().translate(0, arrowProgress * 4, 0);
-            context.blit(7, 6, 0, 10, 13, context.getDefaultGuiGraphics().sprites.getSprite(arrow), 1f, 1f, 1f,
+            context.blit(7, 6, 0, 10, 13, context.sprites.getSprite(arrow), 1f, 1f, 1f,
                     (float) Math.sin(Math.abs(arrowProgress) * Math.PI));
             context.pose().popPose();
         }
@@ -146,7 +145,7 @@ public class MoodRenderer {
         context.pose().popPose();
     }
 
-    private static void renderKiller(@NotNull Font textRenderer, @NotNull FakeGuiGraphics context) {
+    private static void renderKiller(@NotNull Font textRenderer, @NotNull GuiGraphics context) {
         if (moodRender < 0)
             moodRender = 0;
         context.pose().pushPose();
@@ -161,7 +160,7 @@ public class MoodRenderer {
         context.pose().popPose();
     }
 
-    private static void renderPsycho(@NotNull Player player, @NotNull Font renderer, @NotNull FakeGuiGraphics context,
+    private static void renderPsycho(@NotNull Player player, @NotNull Font renderer, @NotNull GuiGraphics context,
             SREPlayerPsychoComponent component, @NotNull DeltaTracker tickCounter) {
         int colour = Mth.hsvToRgb(0F, 1.0F, 0.5F);
         MutableComponent text = Component.translatable("game.psycho_mode.text").withColor(colour);
@@ -208,13 +207,13 @@ public class MoodRenderer {
                     (random.nextFloat() - random.nextFloat()) * moodScale * i,
                     (random.nextFloat() - random.nextFloat()) * moodScale * i, -i * 3);
             context.blit(5, 6, 0, 14, 17,
-                    context.getDefaultGuiGraphics().sprites.getSprite(
+                    context.sprites.getSprite(
                             component.armour == GameConstants.getPsychoModeArmour() ? MOOD_PSYCHO : MOOD_PSYCHO_HIT),
                     1f, 1f, 1f, alpha);
             context.pose().translate(
                     (random.nextFloat() - random.nextFloat()) * eyeScale * i,
                     (random.nextFloat() - random.nextFloat()) * eyeScale * i, 1);
-            context.blit(5, 6, 0, 14, 17, context.getDefaultGuiGraphics().sprites.getSprite(MOOD_PSYCHO_EYES), 1f, 1f, 1f, alpha);
+            context.blit(5, 6, 0, 14, 17, context.sprites.getSprite(MOOD_PSYCHO_EYES), 1f, 1f, 1f, alpha);
             context.pose().popPose();
         }
         context.pose().popPose();

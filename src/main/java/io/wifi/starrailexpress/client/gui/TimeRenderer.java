@@ -5,8 +5,8 @@ import io.wifi.starrailexpress.cca.SREGameTimeComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
-import io.wifi.utils.client.betterrender.FakeGuiGraphics;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.util.Tuple;
@@ -16,7 +16,7 @@ public class TimeRenderer {
     public static TimeNumberRenderer view = new TimeNumberRenderer();
     public static float offsetDelta = 0f;
 
-    public static void renderHud(Font renderer, @NotNull LocalPlayer player, @NotNull FakeGuiGraphics context, float delta) {
+    public static void renderHud(Font renderer, @NotNull LocalPlayer player, @NotNull GuiGraphics context, float delta) {
         SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
         SRERole role = gameWorldComponent.getRole(player);
         if (gameWorldComponent.isRunning() && (role != null && role.canSeeTime() || GameUtils.isPlayerSpectatingOrCreative(player))) {
@@ -65,7 +65,7 @@ public class TimeRenderer {
             this.seconds.getB().update();
         }
 
-        public void render(Font renderer, @NotNull FakeGuiGraphics context, int x, int y, int colour, float delta) {
+        public void render(Font renderer, @NotNull GuiGraphics context, int x, int y, int colour, float delta) {
             context.pose().pushPose();
             context.pose().translate(x, y, 0);
             context.pose().translate(16, 0, 0);
@@ -104,7 +104,7 @@ public class TimeRenderer {
             if (Math.abs(this.value - this.target) < 0.01f) this.value = this.target;
         }
 
-        public void render(@NotNull Font renderer, @NotNull FakeGuiGraphics context, int colour, float delta) {
+        public void render(@NotNull Font renderer, @NotNull GuiGraphics context, int colour, float delta) {
             float value = Mth.lerp(delta, this.lastValue, this.value);
             int digit = Mth.floor(value) % (this.cap6 ? 6 : 10);
             int digitNext = Mth.floor(value + 1) % (this.cap6 ? 6 : 10);

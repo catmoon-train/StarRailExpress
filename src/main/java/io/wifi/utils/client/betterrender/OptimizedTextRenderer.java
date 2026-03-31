@@ -16,7 +16,9 @@ import java.util.List;
 /**
  * Frame-level text batch renderer with tick-rate computation.
  *
- * <p>Lifecycle (managed by GuiRenderMixin):
+ * <p>
+ * Lifecycle (managed by GuiRenderMixin):
+ * 
  * <pre>
  *   ClientTickEvent  →  markTickDirty()    ← called every game tick
  *   Gui.render HEAD  →  beginFrame()       ← opens batch window
@@ -24,21 +26,26 @@ import java.util.List;
  *   Gui.render RETURN →  endFrame()        ← submits single GPU draw call
  * </pre>
  *
- * <p>When the tick has NOT changed since last frame, {@link #isTickDirty()}
+ * <p>
+ * When the tick has NOT changed since last frame, {@link #isTickDirty()}
  * returns false. GuiRenderMixin skips re-invoking HUD render logic entirely
  * and endFrame() replays the cached entries from the last tick directly.
  */
 public class OptimizedTextRenderer {
 
     public static final OptimizedTextRenderer INSTANCE = new OptimizedTextRenderer();
-    private OptimizedTextRenderer() {}
+
+    private OptimizedTextRenderer() {
+    }
 
     // ── Tick-rate gate ─────────────────────────────────────────────────────────
 
     /** Set to true every game tick by ClientTickMixin. */
     private boolean tickDirty = true;
 
-    /** The pending entries computed on the LAST dirty tick — replayed every frame. */
+    /**
+     * The pending entries computed on the LAST dirty tick — replayed every frame.
+     */
     private final List<PendingEntry> tickCache = new ArrayList<>(64);
 
     /** Entries accumulated during the current frame's enqueue pass. */
@@ -62,13 +69,15 @@ public class OptimizedTextRenderer {
     // ── Frame lifecycle (called by GuiRenderMixin) ─────────────────────────────
 
     public void beginFrame(GuiGraphics graphics) {
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F); // ← 这行
         frameGraphics = graphics;
         inFrame = true;
         pending.clear();
     }
 
     public void endFrame() {
-        if (!inFrame) return;
+        if (!inFrame)
+            return;
 
         // If the tick was dirty, the HUD ran and filled `pending` with fresh entries.
         // Promote them to tickCache and clear the dirty flag.
@@ -87,7 +96,8 @@ public class OptimizedTextRenderer {
     }
 
     private void flushCache() {
-        if (tickCache.isEmpty() || frameGraphics == null) return;
+        if (tickCache.isEmpty() || frameGraphics == null)
+            return;
 
         Font font = Minecraft.getInstance().font;
         MultiBufferSource.BufferSource bufferSource = frameGraphics.bufferSource();
@@ -104,6 +114,7 @@ public class OptimizedTextRenderer {
             }
         }
 
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F); // ← 这行
         RenderSystem.disableDepthTest();
         bufferSource.endBatch();
         RenderSystem.enableDepthTest();
@@ -112,7 +123,7 @@ public class OptimizedTextRenderer {
     // ── Enqueue API (called by FakeGuiGraphics) ────────────────────────────────
 
     public void enqueue(GuiGraphics graphics, Component text,
-                        float x, float y, int color, boolean shadow) {
+            float x, float y, int color, boolean shadow) {
         if (!inFrame) {
             graphics.drawString(Minecraft.getInstance().font, text, (int) x, (int) y, color, shadow);
             return;
@@ -122,7 +133,7 @@ public class OptimizedTextRenderer {
     }
 
     public void enqueueSeq(GuiGraphics graphics, FormattedCharSequence seq,
-                           float x, float y, int color, boolean shadow) {
+            float x, float y, int color, boolean shadow) {
         if (!inFrame) {
             graphics.drawString(Minecraft.getInstance().font, seq, (int) x, (int) y, color, shadow);
             return;
@@ -138,6 +149,6 @@ public class OptimizedTextRenderer {
             Component text,
             float x, float y,
             int color, boolean shadow,
-            Matrix4f matrix
-    ) {}
+            Matrix4f matrix) {
+    }
 }

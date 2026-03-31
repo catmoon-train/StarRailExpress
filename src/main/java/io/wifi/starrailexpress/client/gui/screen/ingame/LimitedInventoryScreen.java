@@ -10,7 +10,6 @@ import io.wifi.starrailexpress.client.gui.StoreRenderer;
 import io.wifi.starrailexpress.game.ShopContent;
 import io.wifi.starrailexpress.network.original.StoreBuyPayload;
 import io.wifi.starrailexpress.util.ShopEntry;
-import io.wifi.utils.client.betterrender.FakeGuiGraphics;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -272,7 +271,7 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
     public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
         this.drawMouseoverTooltip(context, mouseX, mouseY);
-        StoreRenderer.renderHud(this.font, this.player, new FakeGuiGraphics(context), delta);
+        StoreRenderer.renderHud(this.font, this.player, (context), delta);
     }
 
     public static class StoreItemWidget extends Button {

@@ -15,6 +15,7 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.ItemCooldowns.CooldownInstance;
@@ -22,6 +23,8 @@ import net.minecraft.world.item.ItemCooldowns.CooldownInstance;
 import org.agmas.noellesroles.AttendantHandler;
 import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.agmas.noellesroles.client.WayfarerHudRenderer;
+import org.agmas.noellesroles.client.event.MutableComponentResult;
+import org.agmas.noellesroles.client.event.OnMessageBelowMoneyRenderer;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
 import org.agmas.noellesroles.component.*;
 import org.agmas.noellesroles.entity.WheelchairEntity;
@@ -55,6 +58,22 @@ public class CommonClientHudRenderer {
         return;
       if (SREClient.gameComponent == null) {
         return;
+      }
+      {
+        if (client.screen == null) {
+          MutableComponentResult texts = OnMessageBelowMoneyRenderer.EVENT.invoker().onRenderer(
+              client, guiGraphics,
+              deltaTracker);
+          java.util.List<MutableComponent> infoLines = texts.mutipleContent;
+          int y = 20;
+          int width = guiGraphics.guiWidth();
+          int lineHeight = client.font.lineHeight + 4;
+          for (var line : infoLines) {
+            guiGraphics.drawString(client.font, line, width - 10 - client.font.width(line), y,
+                java.awt.Color.WHITE.getRGB());
+            y += lineHeight;
+          }
+        }
       }
       {
         if (SREClient.gameComponent.isRunning()) {
