@@ -8,7 +8,9 @@ import io.wifi.starrailexpress.index.TMMSounds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
@@ -33,6 +35,8 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+
+import org.agmas.noellesroles.Noellesroles;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
@@ -57,8 +61,8 @@ public class SmallDoorBlock extends DoorPartBlock {
         VoxelShape[] shapes = new VoxelShape[16];
         VoxelShape lowerXShape = Block.box(7, 0, 0, 9, 32, 16);
         VoxelShape lowerZShape = Block.box(0, 0, 7, 16, 32, 9);
-        VoxelShape upperXShape = Block.box(7, -16, 0, 9, 16, 16);
-        VoxelShape upperZShape = Block.box(0, -16, 7, 16, 16, 9);
+        VoxelShape upperXShape = Block.box(7, 0, 0, 9, 16, 16);
+        VoxelShape upperZShape = Block.box(0, 0, 7, 16, 16, 9);
         for (Direction direction : Direction.Plane.HORIZONTAL) {
             int id = direction.get2DDataValue();
             boolean xAxis = direction.getAxis() == Direction.Axis.X;
@@ -73,12 +77,14 @@ public class SmallDoorBlock extends DoorPartBlock {
     }
 
     @Override
-    public void setPlacedBy(Level world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
+    public void setPlacedBy(Level world, BlockPos pos, BlockState state, @Nullable LivingEntity placer,
+            ItemStack itemStack) {
         world.setBlockAndUpdate(pos.above(), state.setValue(HALF, DoubleBlockHalf.UPPER));
     }
 
     @Override
-    protected BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor world, BlockPos pos, BlockPos neighborPos) {
+    protected BlockState updateShape(BlockState state, Direction direction, BlockState neighborState,
+            LevelAccessor world, BlockPos pos, BlockPos neighborPos) {
         DoubleBlockHalf half = state.getValue(HALF);
         if (direction == half.getDirectionToOther() &&
                 (!neighborState.is(this)
@@ -97,7 +103,9 @@ public class SmallDoorBlock extends DoorPartBlock {
         }
         BlockPos pos = ctx.getClickedPos();
         Level world = ctx.getLevel();
-        return pos.getY() < world.getMaxBuildHeight() - 1 && world.getBlockState(pos.above()).canBeReplaced(ctx) ? placementState : null;
+        return pos.getY() < world.getMaxBuildHeight() - 1 && world.getBlockState(pos.above()).canBeReplaced(ctx)
+                ? placementState
+                : null;
     }
 
     @Override
@@ -127,7 +135,8 @@ public class SmallDoorBlock extends DoorPartBlock {
     }
 
     @Override
-    public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level world, BlockState state, BlockEntityType<T> type) {
+    public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level world, BlockState state,
+            BlockEntityType<T> type) {
         return state.getValue(HALF) == DoubleBlockHalf.LOWER ? super.getTicker(world, state, type) : null;
     }
 
@@ -137,8 +146,13 @@ public class SmallDoorBlock extends DoorPartBlock {
     }
 
     @Override
-    protected InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult hit) {
+    protected InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player,
+            BlockHitResult hit) {
         BlockPos lowerPos = state.getValue(HALF) == DoubleBlockHalf.LOWER ? pos : pos.below();
+        ResourceLocation itid = BuiltInRegistries.ITEM.getKey(player.getMainHandItem().getItem());
+        if (itid.equals(Noellesroles.id("noell_artisan_key"))) {
+            return InteractionResult.PASS;
+        }
         if (world.getBlockEntity(lowerPos) instanceof SmallDoorBlockEntity entity) {
             if (entity.isBlasted()) {
                 return InteractionResult.FAIL;
@@ -154,34 +168,42 @@ public class SmallDoorBlock extends DoorPartBlock {
                 if (entity.isOpen()) {
                     return open(state, world, entity, lowerPos);
                 } else if (requiresKey && !jammed) {
-                    if (player.getMainHandItem().is(TMMItems.CROWBAR)) return InteractionResult.FAIL;
+                    if (player.getMainHandItem().is(TMMItems.CROWBAR))
+                        return InteractionResult.FAIL;
                     if (player.getMainHandItem().is(TMMItems.KEY) || hasLockpick) {
                         ItemLore lore = player.getMainHandItem().get(DataComponents.LORE);
-                        boolean isRightKey = lore != null && !lore.lines().isEmpty() && lore.lines().getFirst().getString().equals(entity.getKeyName());
+                        boolean isRightKey = lore != null && !lore.lines().isEmpty()
+                                && lore.lines().getFirst().getString().equals(entity.getKeyName());
                         if (isRightKey || hasLockpick) {
                             if (isRightKey)
-                                world.playSound(null, lowerPos.getX() + .5f, lowerPos.getY() + 1, lowerPos.getZ() + .5f, TMMSounds.ITEM_KEY_DOOR, SoundSource.BLOCKS, 1f, 1f);
+                                world.playSound(null, lowerPos.getX() + .5f, lowerPos.getY() + 1, lowerPos.getZ() + .5f,
+                                        TMMSounds.ITEM_KEY_DOOR, SoundSource.BLOCKS, 1f, 1f);
                             if (hasLockpick)
-                                world.playSound(null, lowerPos.getX() + .5f, lowerPos.getY() + 1, lowerPos.getZ() + .5f, TMMSounds.ITEM_LOCKPICK_DOOR, SoundSource.BLOCKS, 1f, 1f);
+                                world.playSound(null, lowerPos.getX() + .5f, lowerPos.getY() + 1, lowerPos.getZ() + .5f,
+                                        TMMSounds.ITEM_LOCKPICK_DOOR, SoundSource.BLOCKS, 1f, 1f);
                             return open(state, world, entity, lowerPos);
                         } else {
                             if (!world.isClientSide) {
-                                world.playSound(null, lowerPos.getX() + .5f, lowerPos.getY() + 1, lowerPos.getZ() + .5f, TMMSounds.BLOCK_DOOR_LOCKED, SoundSource.BLOCKS, 1f, 1f);
-                                player.displayClientMessage(Component.translatable("tip.door.requires_different_key"), true);
+                                world.playSound(null, lowerPos.getX() + .5f, lowerPos.getY() + 1, lowerPos.getZ() + .5f,
+                                        TMMSounds.BLOCK_DOOR_LOCKED, SoundSource.BLOCKS, 1f, 1f);
+                                player.displayClientMessage(Component.translatable("tip.door.requires_different_key"),
+                                        true);
                             }
                             return InteractionResult.FAIL;
                         }
                     }
 
                     if (!world.isClientSide) {
-                        world.playSound(null, lowerPos.getX() + .5f, lowerPos.getY() + 1, lowerPos.getZ() + .5f, TMMSounds.BLOCK_DOOR_LOCKED, SoundSource.BLOCKS, 1f, 1f);
+                        world.playSound(null, lowerPos.getX() + .5f, lowerPos.getY() + 1, lowerPos.getZ() + .5f,
+                                TMMSounds.BLOCK_DOOR_LOCKED, SoundSource.BLOCKS, 1f, 1f);
                         player.displayClientMessage(Component.translatable("tip.door.requires_key"), true);
                     }
                     return InteractionResult.FAIL;
                 } else {
                     if (jammed) {
                         if (!world.isClientSide) {
-                            world.playSound(null, lowerPos.getX() + .5f, lowerPos.getY() + 1, lowerPos.getZ() + .5f, TMMSounds.BLOCK_DOOR_LOCKED, SoundSource.BLOCKS, 1f, 1f);
+                            world.playSound(null, lowerPos.getX() + .5f, lowerPos.getY() + 1, lowerPos.getZ() + .5f,
+                                    TMMSounds.BLOCK_DOOR_LOCKED, SoundSource.BLOCKS, 1f, 1f);
                             player.displayClientMessage(Component.translatable("tip.door.jammed"), true);
                         }
                     } else {
@@ -195,8 +217,10 @@ public class SmallDoorBlock extends DoorPartBlock {
         return InteractionResult.SUCCESS;
     }
 
-    static @NotNull InteractionResult open(BlockState state, Level world, SmallDoorBlockEntity entity, BlockPos lowerPos) {
-        if (world.isClientSide) return InteractionResult.SUCCESS;
+    static @NotNull InteractionResult open(BlockState state, Level world, SmallDoorBlockEntity entity,
+            BlockPos lowerPos) {
+        if (world.isClientSide)
+            return InteractionResult.SUCCESS;
         toggleDoor(state, world, entity, lowerPos);
         return InteractionResult.CONSUME;
     }
@@ -212,6 +236,5 @@ public class SmallDoorBlock extends DoorPartBlock {
             neighborEntity.toggle(true);
         }
     }
-
 
 }
