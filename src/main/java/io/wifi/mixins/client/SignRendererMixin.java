@@ -19,7 +19,7 @@ import net.minecraft.world.level.block.entity.SignText;
 public class SignRendererMixin {
     @Unique
     private static final int SRE$MAX_BLOCK_DISTANCE = 32 * 32;
-    private static final int SRE$MAX_TEXT_DISTANCE = 10 * 10;
+    private static final int SRE$MAX_TEXT_DISTANCE = 24 * 24;
 
     @Inject(method = "renderSignText", at = @At("HEAD"), cancellable = true)
     private void sre$blockRenderSignText(BlockPos blockPos, SignText signText, PoseStack poseStack,
