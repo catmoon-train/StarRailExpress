@@ -57,6 +57,9 @@ public class OptimizedTextRenderer {
 
     private GuiGraphics frameGraphics = null;
     private boolean inFrame = false;
+    
+    /** Tracks if any draw calls were made this frame */
+    private boolean hasDrawCallsThisFrame = false;
 
     // ── Tick lifecycle (called by ClientTickMixin) ─────────────────────────────
 
@@ -74,6 +77,7 @@ public class OptimizedTextRenderer {
         frameGraphics = graphics;
         inFrame = true;
         pending.clear();
+        hasDrawCallsThisFrame = false;
     }
 
     public void endFrame() {
@@ -81,12 +85,19 @@ public class OptimizedTextRenderer {
             return;
 
         if (tickDirty) {
+            // Update cache: if there were draw calls, store them; otherwise clear the cache
+            // This ensures that when nothing should be drawn, the cache is empty
             tickCache.clear();
-            tickCache.addAll(pending);
+            if (hasDrawCallsThisFrame) {
+                tickCache.addAll(pending);
+            }
             tickDirty = false;
         }
 
-        flushCache();
+        // Only render if there's content in the cache
+        if (!tickCache.isEmpty()) {
+            flushCache();
+        }
 
         pending.clear();
         inFrame = false;
@@ -237,6 +248,7 @@ public class OptimizedTextRenderer {
             graphics.drawString(Minecraft.getInstance().font, text, (int) x, (int) y, color, shadow);
             return;
         }
+        hasDrawCallsThisFrame = true;
         pending.add(new TextAction(null, text, x, y, color, shadow,
                 new Matrix4f(graphics.pose().last().pose())));
     }
@@ -247,6 +259,7 @@ public class OptimizedTextRenderer {
             graphics.drawString(Minecraft.getInstance().font, seq, (int) x, (int) y, color, shadow);
             return;
         }
+        hasDrawCallsThisFrame = true;
         pending.add(new TextAction(seq, null, x, y, color, shadow,
                 new Matrix4f(graphics.pose().last().pose())));
     }
@@ -259,6 +272,7 @@ public class OptimizedTextRenderer {
             graphics.innerBlit(texture, x1, x2, y1, y2, z, u0, u1, v0, v1, r, g, b, a);
             return;
         }
+        hasDrawCallsThisFrame = true;
         pending.add(new BlitAction(texture,
                 x1, x2, y1, y2, z,
                 u0, u1, v0, v1,
@@ -271,6 +285,7 @@ public class OptimizedTextRenderer {
             graphics.fill(x1, y1, x2, y2, z, color);
             return;
         }
+        hasDrawCallsThisFrame = true;
         pending.add(new FillAction(x1, y1, x2, y2, z, color,
                 new Matrix4f(graphics.pose().last().pose())));
     }
@@ -280,6 +295,7 @@ public class OptimizedTextRenderer {
             graphics.fill(rt, x1, y1, x2, y2, z, color);
             return;
         }
+        hasDrawCallsThisFrame = true;
         pending.add(new FillRenderTypeAction(rt, x1, y1, x2, y2, z, color));
     }
 
@@ -288,6 +304,7 @@ public class OptimizedTextRenderer {
             graphics.fillGradient(x1, y1, x2, y2, z, colorFrom, colorTo);
             return;
         }
+        hasDrawCallsThisFrame = true;
         pending.add(new FillGradientAction(x1, y1, x2, y2, z, colorFrom, colorTo,
                 new Matrix4f(graphics.pose().last().pose())));
     }
@@ -297,6 +314,7 @@ public class OptimizedTextRenderer {
             graphics.fillGradient(rt, x1, y1, x2, y2, colorFrom, colorTo, z);
             return;
         }
+        hasDrawCallsThisFrame = true;
         pending.add(new FillGradientRenderTypeAction(rt, x1, y1, x2, y2, colorFrom, colorTo, z));
     }
 
@@ -305,6 +323,7 @@ public class OptimizedTextRenderer {
             graphics.hLine(x1, x2, y, color);
             return;
         }
+        hasDrawCallsThisFrame = true;
         pending.add(new HLineAction(null, x1, x2, y, color));
     }
 
@@ -313,6 +332,7 @@ public class OptimizedTextRenderer {
             graphics.hLine(rt, x1, x2, y, color);
             return;
         }
+        hasDrawCallsThisFrame = true;
         pending.add(new HLineAction(rt, x1, x2, y, color));
     }
 
@@ -321,6 +341,7 @@ public class OptimizedTextRenderer {
             graphics.vLine(x, y1, y2, color);
             return;
         }
+        hasDrawCallsThisFrame = true;
         pending.add(new VLineAction(null, x, y1, y2, color));
     }
 
@@ -329,6 +350,7 @@ public class OptimizedTextRenderer {
             graphics.vLine(rt, x, y1, y2, color);
             return;
         }
+        hasDrawCallsThisFrame = true;
         pending.add(new VLineAction(rt, x, y1, y2, color));
     }
 
@@ -337,6 +359,7 @@ public class OptimizedTextRenderer {
             graphics.renderOutline(x, y, w, h, color);
             return;
         }
+        hasDrawCallsThisFrame = true;
         pending.add(new RenderOutlineAction(x, y, w, h, color));
     }
 
@@ -345,6 +368,7 @@ public class OptimizedTextRenderer {
             graphics.fillRenderType(rt, x1, y1, x2, y2, z);
             return;
         }
+        hasDrawCallsThisFrame = true;
         pending.add(new FillRenderTypeOnlyAction(rt, x1, y1, x2, y2, z));
     }
 
@@ -355,6 +379,7 @@ public class OptimizedTextRenderer {
             graphics.enableScissor(x1, y1, x2, y2);
             return;
         }
+        hasDrawCallsThisFrame = true;
         pending.add(new EnableScissorAction(x1, y1, x2, y2));
     }
 
@@ -363,6 +388,7 @@ public class OptimizedTextRenderer {
             graphics.disableScissor();
             return;
         }
+        hasDrawCallsThisFrame = true;
         pending.add(new DisableScissorAction());
     }
 
@@ -373,6 +399,7 @@ public class OptimizedTextRenderer {
             graphics.blitSprite(loc, x, y, w, h);
             return;
         }
+        hasDrawCallsThisFrame = true;
         pending.add(new BlitSpriteAction(loc, x, y, 0, w, h, -1, -1, -1, -1));
     }
 
@@ -381,6 +408,7 @@ public class OptimizedTextRenderer {
             graphics.blitSprite(loc, x, y, z, w, h);
             return;
         }
+        hasDrawCallsThisFrame = true;
         pending.add(new BlitSpriteAction(loc, x, y, z, w, h, -1, -1, -1, -1));
     }
 
@@ -389,6 +417,7 @@ public class OptimizedTextRenderer {
             graphics.blitSprite(loc, tw, th, u, v, x, y, w, h);
             return;
         }
+        hasDrawCallsThisFrame = true;
         pending.add(new BlitSpriteAction(loc, x, y, 0, w, h, tw, th, u, v));
     }
 
@@ -397,6 +426,7 @@ public class OptimizedTextRenderer {
             graphics.blitSprite(loc, tw, th, u, v, x, y, z, w, h);
             return;
         }
+        hasDrawCallsThisFrame = true;
         pending.add(new BlitSpriteAction(loc, x, y, z, w, h, tw, th, u, v));
     }
 
@@ -405,6 +435,7 @@ public class OptimizedTextRenderer {
             graphics.blit(x, y, z, w, h, sprite);
             return;
         }
+        hasDrawCallsThisFrame = true;
         pending.add(new BlitTexAtlasAction(x, y, z, w, h, sprite, 1f, 1f, 1f, 1f));
     }
 
@@ -413,6 +444,7 @@ public class OptimizedTextRenderer {
             graphics.blit(x, y, z, w, h, sprite, r, g, b, a);
             return;
         }
+        hasDrawCallsThisFrame = true;
         pending.add(new BlitTexAtlasAction(x, y, z, w, h, sprite, r, g, b, a));
     }
 
@@ -421,6 +453,7 @@ public class OptimizedTextRenderer {
             graphics.blit(loc, x, y, z, u, v, w, h, tw, th);
             return;
         }
+        hasDrawCallsThisFrame = true;
         pending.add(new BlitResourceAction(loc, x, y, z, u, v, w, h, w, h, tw, th));
     }
 
@@ -429,6 +462,7 @@ public class OptimizedTextRenderer {
             graphics.blit(loc, x, y, w, h, u, v, rw, rh, tw, th);
             return;
         }
+        hasDrawCallsThisFrame = true;
         pending.add(new BlitResourceAction(loc, x, y, 0, u, v, w, h, rw, rh, tw, th));
     }
 
@@ -437,6 +471,7 @@ public class OptimizedTextRenderer {
             graphics.blit(loc, x, y, u, v, w, h, tw, th);
             return;
         }
+        hasDrawCallsThisFrame = true;
         pending.add(new BlitResourceAction(loc, x, y, 0, u, v, w, h, w, h, tw, th));
     }
 
@@ -447,6 +482,7 @@ public class OptimizedTextRenderer {
             graphics.renderItem(stack, x, y);
             return;
         }
+        hasDrawCallsThisFrame = true;
         pending.add(new RenderItemAction(stack.copy(), x, y, 0, 0, null));
     }
 
@@ -455,6 +491,7 @@ public class OptimizedTextRenderer {
             graphics.renderItem(stack, x, y, seed);
             return;
         }
+        hasDrawCallsThisFrame = true;
         pending.add(new RenderItemAction(stack.copy(), x, y, seed, 0, null));
     }
 
@@ -463,12 +500,14 @@ public class OptimizedTextRenderer {
             graphics.renderItem(stack, x, y, seed, z);
             return;
         }
+        hasDrawCallsThisFrame = true;
         pending.add(new RenderItemAction(stack.copy(), x, y, seed, z, null));
     }
 
     public void enqueueRenderItemEntity(GuiGraphics graphics, LivingEntity entity, ItemStack stack, int x, int y, int seed) {
         // Item rendering with entity context cannot be easily cached due to entity state
         // Fall back to direct rendering
+        hasDrawCallsThisFrame = true;
         graphics.renderItem(entity, stack, x, y, seed);
     }
 
@@ -477,6 +516,7 @@ public class OptimizedTextRenderer {
             graphics.renderFakeItem(stack, x, y);
             return;
         }
+        hasDrawCallsThisFrame = true;
         pending.add(new RenderFakeItemAction(stack.copy(), x, y, 0));
     }
 
@@ -485,6 +525,7 @@ public class OptimizedTextRenderer {
             graphics.renderFakeItem(stack, x, y, seed);
             return;
         }
+        hasDrawCallsThisFrame = true;
         pending.add(new RenderFakeItemAction(stack.copy(), x, y, seed));
     }
 
@@ -493,6 +534,7 @@ public class OptimizedTextRenderer {
             graphics.renderItemDecorations(font, stack, x, y, label);
             return;
         }
+        hasDrawCallsThisFrame = true;
         pending.add(new RenderItemDecorationsAction(stack.copy(), x, y, label));
     }
 
@@ -503,6 +545,7 @@ public class OptimizedTextRenderer {
             graphics.renderTooltip(font, stack, x, y);
             return;
         }
+        hasDrawCallsThisFrame = true;
         pending.add(new RenderTooltipItemAction(stack.copy(), x, y));
     }
 
@@ -511,6 +554,7 @@ public class OptimizedTextRenderer {
             graphics.renderTooltip(font, lines, image, x, y);
             return;
         }
+        hasDrawCallsThisFrame = true;
         pending.add(new RenderTooltipLinesAction(new ArrayList<>(lines), image, x, y));
     }
 
@@ -519,6 +563,7 @@ public class OptimizedTextRenderer {
             graphics.renderTooltip(font, component, x, y);
             return;
         }
+        hasDrawCallsThisFrame = true;
         pending.add(new RenderTooltipComponentAction(component, x, y));
     }
 
@@ -527,6 +572,7 @@ public class OptimizedTextRenderer {
             graphics.renderComponentTooltip(font, lines, x, y);
             return;
         }
+        hasDrawCallsThisFrame = true;
         pending.add(new RenderComponentTooltipAction(new ArrayList<>(lines), x, y));
     }
 
@@ -535,6 +581,7 @@ public class OptimizedTextRenderer {
             graphics.renderTooltip(font, lines, x, y);
             return;
         }
+        hasDrawCallsThisFrame = true;
         pending.add(new RenderTooltipSeqAction(new ArrayList<>(lines), x, y));
     }
 
@@ -543,6 +590,7 @@ public class OptimizedTextRenderer {
             graphics.renderComponentHoverEffect(font, style, x, y);
             return;
         }
+        hasDrawCallsThisFrame = true;
         pending.add(new RenderComponentHoverEffectAction(style, x, y));
     }
 
@@ -551,6 +599,7 @@ public class OptimizedTextRenderer {
             graphics.setColor(r, g, b, a);
             return;
         }
+        hasDrawCallsThisFrame = true;
         pending.add(new SetColorAction(r, g, b, a));
     }
 
@@ -558,6 +607,7 @@ public class OptimizedTextRenderer {
     public void enqueueDrawManaged(GuiGraphics graphics, Runnable runnable) {
         // Managed drawing cannot be cached as it may contain arbitrary state changes
         // Execute directly
+        hasDrawCallsThisFrame = true;
         graphics.drawManaged(runnable);
     }
 
