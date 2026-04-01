@@ -3,6 +3,7 @@ package io.wifi.starrailexpress.cca;
 import com.google.gson.JsonSyntaxException;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
+import io.wifi.starrailexpress.sync.MysqlPlayerDataStore;
 import io.wifi.starrailexpress.data.PlayerStatsData;
 import io.wifi.starrailexpress.util.PlayerStatsSerializer;
 import net.fabricmc.api.EnvType;
@@ -30,10 +31,13 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 public class SREPlayerStatsComponent implements AutoSyncedComponent, ServerTickingComponent {
+    private static final String DATABASE_SYNC_KEY = "stats";
+    private static final long DATABASE_SYNC_FLUSH_TIMEOUT_MS = 4000L;
     public static final ComponentKey<SREPlayerStatsComponent> KEY = ComponentRegistry
             .getOrCreate(SRE.id("player_stats"), SREPlayerStatsComponent.class);
     private final Player player;
@@ -72,6 +76,9 @@ public class SREPlayerStatsComponent implements AutoSyncedComponent, ServerTicki
     private long lastSaveTime = 0;
     private static final long SAVE_INTERVAL = 5000;
     private static final String STATS_DIR = "play_stats";
+    private boolean databaseDirty = false;
+    private boolean databaseSyncInFlight = false;
+    private long lastDatabaseSaveTime = 0;
 
     // 网络同步优化字段
     private boolean needsSync = false;
@@ -644,6 +651,10 @@ public class SREPlayerStatsComponent implements AutoSyncedComponent, ServerTicki
             lastSaveTime = currentTime;
         }
 
+        if (databaseDirty && !databaseSyncInFlight && currentTime - lastDatabaseSaveTime > SAVE_INTERVAL) {
+            saveToDatabaseAsync();
+        }
+
         // 智能批量同步检查
         if (needsSync) {
             boolean shouldSync = false;
@@ -670,6 +681,9 @@ public class SREPlayerStatsComponent implements AutoSyncedComponent, ServerTicki
     // 文件操作方法
     private void markDirty() {
         this.dirty = true;
+        if (isDatabaseSyncEnabled()) {
+            this.databaseDirty = true;
+        }
     }
 
     /**
@@ -761,45 +775,136 @@ public class SREPlayerStatsComponent implements AutoSyncedComponent, ServerTicki
      * 将 PlayerStatsData 应用到当前组件
      */
     private void applyData(PlayerStatsData data) {
-        // 应用基础统计数据
-        setTotalPlayTime(data.getTotalPlayTime());
-        setTotalGamesPlayed(data.getTotalGamesPlayed());
-        setTotalKills(data.getTotalKills());
-        setTotalDeaths(data.getTotalDeaths());
-        setTotalWins(data.getTotalWins());
-        setTotalLosses(data.getTotalLosses());
-        setTotalTeamKills(data.getTotalTeamKills());
-        setTotalLoversWins(data.getTotalLoversWins());
+        if (data == null) {
+            return;
+        }
 
-        // 应用阵营统计数据
-        totalCivilianGames = data.getTotalCivilianGames();
-        totalCivilianWins = data.getTotalCivilianWins();
-        totalCivilianKills = data.getTotalCivilianKills();
-        totalCivilianDeaths = data.getTotalCivilianDeaths();
-        totalKillerGames = data.getTotalKillerGames();
-        totalKillerWins = data.getTotalKillerWins();
-        totalKillerKills = data.getTotalKillerKills();
-        totalKillerDeaths = data.getTotalKillerDeaths();
-        totalNeutralGames = data.getTotalNeutralGames();
-        totalNeutralWins = data.getTotalNeutralWins();
-        totalNeutralKills = data.getTotalNeutralKills();
-        totalNeutralDeaths = data.getTotalNeutralDeaths();
-        totalSheriffGames = data.getTotalSheriffGames();
-        totalSheriffWins = data.getTotalSheriffWins();
-        totalSheriffKills = data.getTotalSheriffKills();
-        totalSheriffDeaths = data.getTotalSheriffDeaths();
+        this.totalPlayTime = data.getTotalPlayTime();
+        this.totalGamesPlayed = data.getTotalGamesPlayed();
+        this.totalKills = data.getTotalKills();
+        this.totalDeaths = data.getTotalDeaths();
+        this.totalWins = data.getTotalWins();
+        this.totalLosses = data.getTotalLosses();
+        this.totalTeamKills = data.getTotalTeamKills();
+        this.totalLoversWins = data.getTotalLoversWins();
 
-        // 应用角色统计数据
+        this.totalCivilianGames = data.getTotalCivilianGames();
+        this.totalCivilianWins = data.getTotalCivilianWins();
+        this.totalCivilianKills = data.getTotalCivilianKills();
+        this.totalCivilianDeaths = data.getTotalCivilianDeaths();
+        this.totalKillerGames = data.getTotalKillerGames();
+        this.totalKillerWins = data.getTotalKillerWins();
+        this.totalKillerKills = data.getTotalKillerKills();
+        this.totalKillerDeaths = data.getTotalKillerDeaths();
+        this.totalNeutralGames = data.getTotalNeutralGames();
+        this.totalNeutralWins = data.getTotalNeutralWins();
+        this.totalNeutralKills = data.getTotalNeutralKills();
+        this.totalNeutralDeaths = data.getTotalNeutralDeaths();
+        this.totalSheriffGames = data.getTotalSheriffGames();
+        this.totalSheriffWins = data.getTotalSheriffWins();
+        this.totalSheriffKills = data.getTotalSheriffKills();
+        this.totalSheriffDeaths = data.getTotalSheriffDeaths();
+
+        this.roleStats.clear();
         data.getRoleStats().forEach((roleIdStr, roleData) -> {
             ResourceLocation roleId = ResourceLocation.parse(roleIdStr);
-            RoleStats roleStats = getOrCreateRoleStats(roleId);
-            roleStats.setTimesPlayed(roleData.getTimesPlayed());
-            roleStats.setKillsAsRole(roleData.getKillsAsRole());
-            roleStats.setDeathsAsRole(roleData.getDeathsAsRole());
-            roleStats.setWinsAsRole(roleData.getWinsAsRole());
-            roleStats.setLossesAsRole(roleData.getLossesAsRole());
-            roleStats.setTeamKillsAsRole(roleData.getTeamKillsAsRole());
+            RoleStats roleStats = new RoleStats();
+            roleStats.timesPlayed = roleData.getTimesPlayed();
+            roleStats.killsAsRole = roleData.getKillsAsRole();
+            roleStats.deathsAsRole = roleData.getDeathsAsRole();
+            roleStats.winsAsRole = roleData.getWinsAsRole();
+            roleStats.lossesAsRole = roleData.getLossesAsRole();
+            roleStats.teamKillsAsRole = roleData.getTeamKillsAsRole();
+            this.roleStats.put(roleId, roleStats);
         });
+
+        this.dirty = false;
+        this.databaseDirty = false;
+        this.databaseSyncInFlight = false;
+        this.needsSync = false;
+        this.playTimeSinceLastSync = 0;
+        this.statChangesSinceLastSync = 0;
+        this.loaded = true;
+    }
+
+    public void pullStatsFromNetwork() {
+        if (!(player instanceof ServerPlayer serverPlayer) || serverPlayer.getServer() == null || !isDatabaseSyncEnabled()) {
+            return;
+        }
+
+        MysqlPlayerDataStore.loadBatchAsync(player.getUUID(), List.of(DATABASE_SYNC_KEY))
+                .thenAccept(records -> {
+                    MysqlPlayerDataStore.SyncRecord record = records.get(DATABASE_SYNC_KEY);
+                    if (record == null || record.payload() == null || record.payload().isBlank()) {
+                        return;
+                    }
+                    PlayerStatsData data;
+                    try {
+                        data = PlayerStatsSerializer.fromJson(record.payload());
+                    } catch (JsonSyntaxException exception) {
+                        SRE.LOGGER.error("Failed to parse MySQL stats payload for {}", player.getUUID(), exception);
+                        return;
+                    }
+                    serverPlayer.getServer().execute(() -> {
+                        applyData(data);
+                        sync();
+                        saveToFileAsync();
+                    });
+                })
+                .exceptionally(throwable -> {
+                    SRE.LOGGER.warn("Failed to load player stats from MySQL for {}", player.getUUID(), throwable);
+                    return null;
+                });
+    }
+
+    public boolean flushDatabaseSyncBlocking() {
+        if (!isDatabaseSyncEnabled()) {
+            return false;
+        }
+        boolean success = MysqlPlayerDataStore.saveBatchBlocking(
+                player.getUUID(),
+                Map.of(DATABASE_SYNC_KEY, PlayerStatsSerializer.toJson(this)),
+                System.currentTimeMillis(),
+                DATABASE_SYNC_FLUSH_TIMEOUT_MS);
+        if (success) {
+            this.databaseDirty = false;
+            this.lastDatabaseSaveTime = System.currentTimeMillis();
+        }
+        return success;
+    }
+
+    private boolean isDatabaseSyncEnabled() {
+        return !player.level().isClientSide()
+                && SREConfig.instance().isStatsEnabled
+                && SREConfig.instance().isStatsSyncEnabled
+                && SREConfig.instance().mysqlPlayerSyncEnabled
+                && MysqlPlayerDataStore.isAvailable();
+    }
+
+    private void saveToDatabaseAsync() {
+        if (!isDatabaseSyncEnabled() || databaseSyncInFlight) {
+            return;
+        }
+
+        this.databaseSyncInFlight = true;
+        this.databaseDirty = false;
+        this.lastDatabaseSaveTime = System.currentTimeMillis();
+        String jsonData = PlayerStatsSerializer.toJson(this);
+        MysqlPlayerDataStore.saveBatchAsync(
+                player.getUUID(),
+                Map.of(DATABASE_SYNC_KEY, jsonData),
+                System.currentTimeMillis())
+                .whenComplete((success, throwable) -> {
+                    this.databaseSyncInFlight = false;
+                    if (throwable != null) {
+                        this.databaseDirty = true;
+                        SRE.LOGGER.warn("Failed to save player stats to MySQL for {}", player.getUUID(), throwable);
+                        return;
+                    }
+                    if (!Boolean.TRUE.equals(success)) {
+                        this.databaseDirty = true;
+                    }
+                });
     }
 
     public class RoleStats {
@@ -927,6 +1032,8 @@ public class SREPlayerStatsComponent implements AutoSyncedComponent, ServerTicki
     public void joinLoadFromFile() {
         if (!loaded) {
             this.loadFromFile(player.getUUID().toString());
+            this.sync();
+            this.pullStatsFromNetwork();
         }
     }
 }

@@ -84,11 +84,12 @@ public final class MysqlPlayerDataStore {
                     SREConfig.instance().mysqlSyncPort,
                     SREConfig.instance().mysqlSyncDatabase,
                     tableName);
-        } catch (SQLException exception) {
+        } catch (Exception exception) {
             if (candidate != null) {
                 candidate.close();
             }
-            logger.error("初始化 MySQL 玩家数据同步失败。", exception);
+            dataSource = null;
+            logger.error("初始化 MySQL 玩家数据同步失败，已禁用数据库同步，服务器会继续启动。", exception);
         }
     }
 

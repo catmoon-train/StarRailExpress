@@ -55,12 +55,20 @@ public class PlayerStatsSerializer {
         // 设置阵营统计数据
         data.setTotalCivilianGames(component.getTotalCivilianGames());
         data.setTotalCivilianWins(component.getTotalCivilianWins());
+        data.setTotalCivilianKills(component.getTotalCivilianKills());
+        data.setTotalCivilianDeaths(component.getTotalCivilianDeaths());
         data.setTotalKillerGames(component.getTotalKillerGames());
         data.setTotalKillerWins(component.getTotalKillerWins());
+        data.setTotalKillerKills(component.getTotalKillerKills());
+        data.setTotalKillerDeaths(component.getTotalKillerDeaths());
         data.setTotalNeutralGames(component.getTotalNeutralGames());
         data.setTotalNeutralWins(component.getTotalNeutralWins());
+        data.setTotalNeutralKills(component.getTotalNeutralKills());
+        data.setTotalNeutralDeaths(component.getTotalNeutralDeaths());
         data.setTotalSheriffGames(component.getTotalSheriffGames());
         data.setTotalSheriffWins(component.getTotalSheriffWins());
+        data.setTotalSheriffKills(component.getTotalSheriffKills());
+        data.setTotalSheriffDeaths(component.getTotalSheriffDeaths());
 
         // 转换角色统计数据
         Map<String, PlayerStatsData.RoleStatsData> roleStatsMap = new java.util.HashMap<>();
@@ -118,6 +126,14 @@ public class PlayerStatsSerializer {
             civilianWinsField.setAccessible(true);
             civilianWinsField.setInt(component, data.getTotalCivilianWins());
 
+            java.lang.reflect.Field civilianKillsField = SREPlayerStatsComponent.class.getDeclaredField("totalCivilianKills");
+            civilianKillsField.setAccessible(true);
+            civilianKillsField.setInt(component, data.getTotalCivilianKills());
+
+            java.lang.reflect.Field civilianDeathsField = SREPlayerStatsComponent.class.getDeclaredField("totalCivilianDeaths");
+            civilianDeathsField.setAccessible(true);
+            civilianDeathsField.setInt(component, data.getTotalCivilianDeaths());
+
             java.lang.reflect.Field killerGamesField = SREPlayerStatsComponent.class.getDeclaredField("totalKillerGames");
             killerGamesField.setAccessible(true);
             killerGamesField.setInt(component, data.getTotalKillerGames());
@@ -125,6 +141,14 @@ public class PlayerStatsSerializer {
             java.lang.reflect.Field killerWinsField = SREPlayerStatsComponent.class.getDeclaredField("totalKillerWins");
             killerWinsField.setAccessible(true);
             killerWinsField.setInt(component, data.getTotalKillerWins());
+
+            java.lang.reflect.Field killerKillsField = SREPlayerStatsComponent.class.getDeclaredField("totalKillerKills");
+            killerKillsField.setAccessible(true);
+            killerKillsField.setInt(component, data.getTotalKillerKills());
+
+            java.lang.reflect.Field killerDeathsField = SREPlayerStatsComponent.class.getDeclaredField("totalKillerDeaths");
+            killerDeathsField.setAccessible(true);
+            killerDeathsField.setInt(component, data.getTotalKillerDeaths());
 
             java.lang.reflect.Field neutralGamesField = SREPlayerStatsComponent.class.getDeclaredField("totalNeutralGames");
             neutralGamesField.setAccessible(true);
@@ -134,6 +158,14 @@ public class PlayerStatsSerializer {
             neutralWinsField.setAccessible(true);
             neutralWinsField.setInt(component, data.getTotalNeutralWins());
 
+            java.lang.reflect.Field neutralKillsField = SREPlayerStatsComponent.class.getDeclaredField("totalNeutralKills");
+            neutralKillsField.setAccessible(true);
+            neutralKillsField.setInt(component, data.getTotalNeutralKills());
+
+            java.lang.reflect.Field neutralDeathsField = SREPlayerStatsComponent.class.getDeclaredField("totalNeutralDeaths");
+            neutralDeathsField.setAccessible(true);
+            neutralDeathsField.setInt(component, data.getTotalNeutralDeaths());
+
             java.lang.reflect.Field sheriffGamesField = SREPlayerStatsComponent.class.getDeclaredField("totalSheriffGames");
             sheriffGamesField.setAccessible(true);
             sheriffGamesField.setInt(component, data.getTotalSheriffGames());
@@ -141,6 +173,14 @@ public class PlayerStatsSerializer {
             java.lang.reflect.Field sheriffWinsField = SREPlayerStatsComponent.class.getDeclaredField("totalSheriffWins");
             sheriffWinsField.setAccessible(true);
             sheriffWinsField.setInt(component, data.getTotalSheriffWins());
+
+            java.lang.reflect.Field sheriffKillsField = SREPlayerStatsComponent.class.getDeclaredField("totalSheriffKills");
+            sheriffKillsField.setAccessible(true);
+            sheriffKillsField.setInt(component, data.getTotalSheriffKills());
+
+            java.lang.reflect.Field sheriffDeathsField = SREPlayerStatsComponent.class.getDeclaredField("totalSheriffDeaths");
+            sheriffDeathsField.setAccessible(true);
+            sheriffDeathsField.setInt(component, data.getTotalSheriffDeaths());
         } catch (Exception e) {
             SRE.LOGGER.error("Failed to set faction stats", e);
         }

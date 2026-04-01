@@ -253,6 +253,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
             }
         });
         ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
+            SREPlayerStatsComponent.KEY.get(handler.player).flushDatabaseSyncBlocking();
             SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(handler.player.level());
             if (REPLAY_MANAGER != null) {
                 var role = gameWorldComponent.getRole(handler.player);

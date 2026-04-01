@@ -219,6 +219,7 @@ public class SkinManager {
         SREPlayerSkinsComponent skinsComponent = SREPlayerSkinsComponent.KEY.get(player);
         skinsComponent.addLootChance(chance);
         skinsComponent.syncSkinsToClient();
+        skinsComponent.syncSkinsToNetwork();
     }
 
     public static Integer getCoinNum(Player player) {
@@ -230,6 +231,7 @@ public class SkinManager {
         SREPlayerSkinsComponent skinsComponent = SREPlayerSkinsComponent.KEY.get(player);
         skinsComponent.addCoinNum(num);
         skinsComponent.syncSkinsToClient();
+        skinsComponent.syncSkinsToNetwork();
     }
 
     /**
@@ -318,14 +320,14 @@ public class SkinManager {
     public static void unlockSkinForItemTypeNoSync(Player player, String itemTypeName, String skinName) {
         SREPlayerSkinsComponent skinsComponent = SREPlayerSkinsComponent.KEY.get(player);
         skinsComponent.unlockSkinForItemType(itemTypeName, skinName);
-        // skinsComponent.syncSkinsToNetwork();
+         skinsComponent.syncSkinsToNetwork();
     }
 
     public static void unlockSkinForItemType(Player player, String itemTypeName, String skinName) {
         SREPlayerSkinsComponent skinsComponent = SREPlayerSkinsComponent.KEY.get(player);
         skinsComponent.unlockSkinForItemType(itemTypeName, skinName);
         skinsComponent.syncSkinsToClient();
-        // skinsComponent.syncSkinsToNetwork();
+         skinsComponent.syncSkinsToNetwork();
     }
 
     /**
