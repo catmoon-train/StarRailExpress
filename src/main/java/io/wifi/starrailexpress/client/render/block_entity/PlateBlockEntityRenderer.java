@@ -13,13 +13,19 @@ import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
+
+import java.util.List;
+
 import org.jetbrains.annotations.NotNull;
 
 public class PlateBlockEntityRenderer implements BlockEntityRenderer<BeveragePlateBlockEntity> {
     private final ItemRenderer itemRenderer;
-
-    // 渲染距离限制（方块数的平方）
-    private static final double MAX_RENDER_DISTANCE_SQ = 16.0 * 16.0; // 16个方块的距离
+    private static final double MAX_RENDER_DISTANCE_SQ = 16.0 * 16.0;
+    private static final double RADIUS = 0.25;
+    private static final double CENTER_X = 0.5;
+    private static final double CENTER_Z = 0.5;
+    private static final float ITEM_SCALE = 0.4f;
 
     public PlateBlockEntityRenderer(BlockEntityRendererProvider.@NotNull Context ctx) {
         this.itemRenderer = ctx.getItemRenderer();
@@ -28,120 +34,47 @@ public class PlateBlockEntityRenderer implements BlockEntityRenderer<BeveragePla
     @Override
     public void render(@NotNull BeveragePlateBlockEntity entity, float tickDelta, PoseStack matrices,
             MultiBufferSource vertexConsumers, int light, int overlay) {
-        // 检查渲染距离
-        if (!shouldRender(entity)) {
-            return;
-        }
-
-        if (entity.isDrink()) {
-            this.renderDrinks(entity, matrices, vertexConsumers, light, overlay);
-        } else {
-            this.renderFood(entity, matrices, vertexConsumers, light, overlay);
-        }
-    }
-
-    /**
-     * 检查是否应该渲染该方块实体
-     * 
-     * @param entity 方块实体
-     * @return 是否应该渲染
-     */
-    private boolean shouldRender(@NotNull BeveragePlateBlockEntity entity) {
         Minecraft minecraft = Minecraft.getInstance();
         Player player = minecraft.player;
-        // 如果没有玩家或世界为空，则不渲染
-        if (player == null || entity.getLevel() == null || entity.getStoredItems() == null) {
-            return false;
-        }
-        if (entity.getStoredItems().isEmpty())
-            return false;
+        if (player == null || entity.getLevel() == null) return;
 
-        // 计算玩家与方块实体之间的距离平方
-        double distanceSq = player.distanceToSqr(
-                entity.getBlockPos().getX() + 0.5,
-                entity.getBlockPos().getY() + 0.5,
-                entity.getBlockPos().getZ() + 0.5);
+        List<ItemStack> items = entity.getStoredItems();
+        if (items == null || items.isEmpty()) return;
 
-        // 如果距离超过最大渲染距离，则不渲染
-        return distanceSq <= MAX_RENDER_DISTANCE_SQ;
+        // 距离剔除
+        Vec3 center = Vec3.atCenterOf(entity.getBlockPos());
+        if (player.distanceToSqr(center) > MAX_RENDER_DISTANCE_SQ) return;
+
+        renderItems(entity, items, matrices, vertexConsumers, light, overlay);
     }
 
-    public void renderFood(@NotNull BeveragePlateBlockEntity entity, PoseStack matrices,
-            MultiBufferSource vertexConsumers, int light, int overlay) {
-        int itemCount = entity.getStoredItems().size();
-        if (itemCount == 0)
-            return;
+    private void renderItems(@NotNull BeveragePlateBlockEntity entity, List<ItemStack> items,
+            PoseStack matrices, MultiBufferSource vertexConsumers, int light, int overlay) {
+        boolean isDrink = entity.isDrink();
+        double centerY = isDrink ? 0.225 : 0.0375;
 
-        int maxRender = 0;
-        maxRender = SREConfig.isUltraPerfMode() ? 6 : 12;
-        itemCount = Math.min(itemCount, maxRender);
-
-        double radius = 0.25;
-        double centerX = 0.5;
-        double centerY = 0.0375;
-        double centerZ = 0.5;
+        int maxRender = SREConfig.isUltraPerfMode() ? 6 : 12;
+        int itemCount = Math.min(items.size(), maxRender);
+        double angleStep = 2 * Math.PI / itemCount;
 
         for (int i = 0; i < itemCount; i++) {
-            ItemStack stack = entity.getStoredItems().get(i);
-            if (stack == null)
-                continue;
+            ItemStack stack = items.get(i);
+            if (stack == null || stack.isEmpty()) continue;
 
-            double angle = (2 * Math.PI / itemCount) * i;
-
-            double x = centerX + radius * Math.cos(angle);
-            double z = centerZ + radius * Math.sin(angle);
-
-            matrices.pushPose();
-
-            matrices.translate(x, centerY, z);
-
-            float rotationDegrees = (float) Math.toDegrees(angle) + 90f;
-
-            matrices.mulPose(Axis.YP.rotationDegrees(rotationDegrees));
-            matrices.mulPose(Axis.XP.rotationDegrees(75f));
-            matrices.scale(0.4f, 0.4f, 0.4f);
-
-            this.itemRenderer.renderStatic(stack, ItemDisplayContext.FIXED, light, overlay, matrices, vertexConsumers,
-                    entity.getLevel(), 0);
-            matrices.popPose();
-        }
-    }
-
-    public void renderDrinks(@NotNull BeveragePlateBlockEntity entity, PoseStack matrices,
-            MultiBufferSource vertexConsumers, int light, int overlay) {
-        int itemCount = entity.getStoredItems().size();
-        if (itemCount == 0)
-            return;
-        int maxRender = 0;
-        maxRender = SREConfig.isUltraPerfMode() ? 6 : 12;
-        itemCount = Math.min(itemCount, maxRender);
-        double radius = 0.25;
-        double centerX = 0.5;
-        double centerY = 0.225;
-        double centerZ = 0.5;
-
-        for (int i = 0; i < itemCount; i++) {
-            ItemStack stack = entity.getStoredItems().get(i);
-            if (stack == null)
-                continue;
-
-            double angle = (2 * Math.PI / itemCount) * i;
-
-            double x = centerX + radius * Math.cos(angle);
-            double z = centerZ + radius * Math.sin(angle);
+            double angle = angleStep * i;
+            double x = CENTER_X + RADIUS * Math.cos(angle);
+            double z = CENTER_Z + RADIUS * Math.sin(angle);
+            float rotDeg = (float) Math.toDegrees(angle) + 90f;
 
             matrices.pushPose();
-
             matrices.translate(x, centerY, z);
-
-            float rotationDegrees = (float) Math.toDegrees(angle) + 90f;
-
-            matrices.mulPose(Axis.YP.rotationDegrees(rotationDegrees));
-            matrices.scale(0.4f, 0.4f, 0.4f);
-
-            this.itemRenderer.renderStatic(stack, ItemDisplayContext.FIXED, light, overlay, matrices, vertexConsumers,
-                    entity.getLevel(), 0);
-
+            matrices.mulPose(Axis.YP.rotationDegrees(rotDeg));
+            if (!isDrink) {
+                matrices.mulPose(Axis.XP.rotationDegrees(75f));
+            }
+            matrices.scale(ITEM_SCALE, ITEM_SCALE, ITEM_SCALE);
+            this.itemRenderer.renderStatic(stack, ItemDisplayContext.FIXED, light, overlay,
+                    matrices, vertexConsumers, entity.getLevel(), 0);
             matrices.popPose();
         }
     }

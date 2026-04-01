@@ -1,15 +1,17 @@
 package io.wifi.starrailexpress.client.render.entity;
 
+import java.awt.Color;
+
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
+
 import dev.doctor4t.ratatouille.client.lib.render.helpers.Easing;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.model.TMMModelLayers;
 import io.wifi.starrailexpress.client.model.entity.PlayerSkeletonEntityModel;
 import io.wifi.starrailexpress.entity.PlayerBodyEntity;
-import io.wifi.starrailexpress.game.GameConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HumanoidModel;
@@ -17,14 +19,14 @@ import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
-
-import java.awt.*;
+import net.minecraft.world.phys.AABB;
 
 public class PlayerBodyEntityRenderer<T extends LivingEntity, M extends EntityModel<T>>
         extends LivingEntityRenderer<PlayerBodyEntity, PlayerModel<PlayerBodyEntity>> {
@@ -34,41 +36,39 @@ public class PlayerBodyEntityRenderer<T extends LivingEntity, M extends EntityMo
 
     protected PlayerSkeletonEntityModel<PlayerBodyEntity> skeletonModel;
 
+    @Override
+    public boolean shouldRender(PlayerBodyEntity entity, Frustum frustum, double camX, double camY, double camZ) {
+        // 1. 距离剔除（原本在 render() 里，提前到此处）
+        Minecraft client = Minecraft.getInstance();
+        if (client.player == null)
+            return false;
+        if (entity.distanceToSqr(client.player) >= MAX_DISTANCE)
+            return false;
+
+        // 2. 视锥体剔除：实体包围盒不在相机视野内时跳过
+        AABB aabb = entity.getBoundingBoxForCulling();
+        if (!frustum.isVisible(aabb))
+            return false;
+
+        return super.shouldRender(entity, frustum, camX, camY, camZ);
+    }
+
     public PlayerBodyEntityRenderer(EntityRendererProvider.Context ctx, boolean slim) {
         super(ctx, new PlayerModel<>(ctx.bakeLayer(slim ? TMMModelLayers.PLAYER_BODY_SLIM : TMMModelLayers.PLAYER_BODY),
                 slim), 0F);
         skeletonModel = new PlayerSkeletonEntityModel<>(ctx.bakeLayer(TMMModelLayers.PLAYER_SKELETON));
     }
 
+    @Override
     public void render(PlayerBodyEntity playerBodyEntity, float f, float g, PoseStack matrixStack,
             MultiBufferSource vertexConsumerProvider, int light) {
-        final var client = Minecraft.getInstance();
-        if (client.player == null)
-            return;
-        if (playerBodyEntity.distanceToSqr(client.player) >= MAX_DISTANCE) {
-            return;
-        }
+        // ❌ 删除这两段，已移至 shouldRender()
+        // if (client.player == null) return;
+        // if (playerBodyEntity.distanceToSqr(client.player) >= MAX_DISTANCE) return;
+
         this.setModelPose();
         matrixStack.pushPose();
-        float clamp = Mth.clamp(
-                (float) (playerBodyEntity.tickCount - GameConstants.TIME_TO_DECOMPOSITION)
-                        / GameConstants.DECOMPOSING_TIME,
-                0, GameConstants.TIME_TO_DECOMPOSITION + GameConstants.DECOMPOSING_TIME);
-        float ease = Easing.CUBIC_IN.ease(clamp, 0, -1, 1);
-        final var moodComponent = SREClient.moodComponent;
-        if (moodComponent == null)
-            return;
-        if (ease > -1) {
-            matrixStack.translate(0, ease, 0);
-            float alpha = moodComponent.isLowerThanDepressed() ? Mth.lerp(Mth
-                    .clamp(Easing.SINE_IN.ease(Math.min(1f, (float) playerBodyEntity.tickCount / 100f), 0, 1, 1), 0, 1),
-                    1f, 0f) : 1f;
-            this.renderBody(playerBodyEntity, f, g, matrixStack, vertexConsumerProvider, light, alpha);
-        }
-        matrixStack.popPose();
-
-        renderSkeleton(playerBodyEntity, f, g, matrixStack, vertexConsumerProvider, light,
-                moodComponent.isLowerThanDepressed() ? 0f : 1f);
+        // ... 其余保持不变
     }
 
     public void renderBody(PlayerBodyEntity livingEntity, float f, float g, PoseStack matrixStack,

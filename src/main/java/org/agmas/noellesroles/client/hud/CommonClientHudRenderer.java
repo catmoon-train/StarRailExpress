@@ -6,6 +6,8 @@ import io.wifi.starrailexpress.cca.SREArmorPlayerComponent;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.client.SREClient;
+import io.wifi.starrailexpress.client.gui.HudMoodRenderer;
+import io.wifi.starrailexpress.client.gui.HudStoreRenderer;
 import io.wifi.starrailexpress.client.gui.LobbyPlayersRenderer;
 import io.wifi.starrailexpress.client.gui.RoleNameRenderer;
 import io.wifi.starrailexpress.client.gui.RoundTextRenderer;
@@ -78,6 +80,13 @@ public class CommonClientHudRenderer {
       }
       {
         TimeRenderer.renderHud(font, player, guiGraphics, deltaTracker.getGameTimeDeltaPartialTick(true));
+      }
+      {
+        if (Minecraft.getInstance().screen == null)
+            HudStoreRenderer.renderHud(font, player, guiGraphics, deltaTracker.getGameTimeDeltaPartialTick(true));
+      }
+      {
+        HudMoodRenderer.renderHud(player, font, guiGraphics, deltaTracker);
       }
       {
         if (client.screen == null) {
