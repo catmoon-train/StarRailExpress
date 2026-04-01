@@ -5,8 +5,8 @@ import com.google.gson.GsonBuilder;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.item.SkinableItem;
+import io.wifi.starrailexpress.sync.MysqlPlayerDataStore;
 import io.wifi.starrailexpress.util.SkinManager;
-import io.wifi.syncrequests.SyncRequests;
 import net.fabricmc.api.EnvType;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -32,6 +32,9 @@ import java.util.Objects;
 
 public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTickingComponent {
     private static final Logger logger = LoggerFactory.getLogger(SREPlayerSkinsComponent.class);
+    private static final String DATABASE_SYNC_KEY = "skins";
+    private static final long DATABASE_SYNC_DEBOUNCE_MS = 2500L;
+    private static final long DATABASE_SYNC_FLUSH_TIMEOUT_MS = 4000L;
     public static final ComponentKey<SREPlayerSkinsComponent> KEY = ComponentRegistry.getOrCreate(
             SRE.id("player_skins"),
             SREPlayerSkinsComponent.class);
@@ -44,13 +47,11 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
     private Map<String, Map<String, Boolean>> unlockedSkins; // 存储解锁的皮肤 {itemName -> {skinName -> isUnlocked}}
     private Integer lootChance;
     private Integer coinNum;
-
-    // HTTP 网络同步管理器
-    public static SyncRequests syncRequests = null;
-    // private long lastNetworkSync = 0;
-    // private static final long NETWORK_SYNC_INTERVAL = 20000; // 每 20 秒同步一次到网络
     private boolean isNetworkSyncEnabled = false;
     private boolean syncMode = false;
+    private volatile boolean databaseSyncQueued = false;
+    private volatile boolean databaseSyncInFlight = false;
+    private volatile long nextDatabaseSyncAt = 0L;
 
     public SREPlayerSkinsComponent(Player player) {
         this.player = player;
@@ -81,18 +82,13 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
      * @param port 服务器端口
      */
     public void initializeNetworkSync(String host, int port, String key) {
-        if (syncRequests == null) {
-            try {
-                String baseUrl = "http://" + host + ":" + port;
-                syncRequests = new SyncRequests(baseUrl, key);
-                this.isNetworkSyncEnabled = true;
-                logger.info("玩家 {} 的皮肤网络同步已启用 (SyncRequests): {}", this.player.getName().getString(), baseUrl);
-            } catch (Exception e) {
-                logger.error("玩家 {} 的皮肤网络同步初始化失败", this.player.getName().getString(), e);
-                this.isNetworkSyncEnabled = false;
-            }
-        } else {
-            this.isNetworkSyncEnabled = true;
+        this.isNetworkSyncEnabled = SREConfig.instance().itemSkinSyncServerEnabled
+                && SREConfig.instance().mysqlPlayerSyncEnabled
+                && MysqlPlayerDataStore.isAvailable();
+        if (this.isNetworkSyncEnabled) {
+            logger.info("玩家 {} 的皮肤 MySQL 同步已启用", this.player.getName().getString());
+        } else if (SREConfig.instance().itemSkinSyncServerEnabled) {
+            logger.warn("玩家 {} 的皮肤 MySQL 同步未启用，数据库不可用或配置未完成。", this.player.getName().getString());
         }
     }
 
@@ -100,7 +96,7 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
      * 禁用全局网络同步
      */
     public static void disableGlobalNetworkSync() {
-        syncRequests = null;
+        MysqlPlayerDataStore.shutdown();
     }
 
     /**
@@ -112,14 +108,15 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
 
     @Override
     public void serverTick() {
-        // 定期同步皮肤数据到服务器
-        // if (this.isNetworkSyncEnabled && this.player.getServer() != null) {
-        // long currentTime = System.currentTimeMillis();
-        // if (currentTime - this.lastNetworkSync >= NETWORK_SYNC_INTERVAL) {
-        // this.lastNetworkSync = currentTime;
-        // this.pullSkinsFromNetwork();
-        // }
-        // }
+        if (!this.isNetworkSyncEnabled || !(this.player instanceof ServerPlayer serverPlayer)) {
+            return;
+        }
+        if (serverPlayer.serverLevel().getGameTime() % 20L != 0L) {
+            return;
+        }
+        if (this.databaseSyncQueued && System.currentTimeMillis() >= this.nextDatabaseSyncAt) {
+            flushSkinDataToDatabase(false);
+        }
     }
 
     /** 获取当前玩家抽奖次数 */
@@ -165,6 +162,7 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
     public void setEquippedSkin(ItemStack itemStack, String skinName) {
         String itemName = BuiltInRegistries.ITEM.getKey(itemStack.getItem()).getPath().toLowerCase();
         equippedSkins.put(itemName, skinName);
+        markSkinDataChanged();
     }
 
     /**
@@ -210,7 +208,7 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
     public void clearSkinForItemType(String itemTypeName) {
         String normalizedItemName = normalizeItemName(itemTypeName);
         unlockedSkins.remove(normalizedItemName);
-        // 触发网络同步
+        markSkinDataChanged();
     }
 
     /**
@@ -226,7 +224,7 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
                 unlockedSkins.remove(normalizedItemName);
             }
         }
-        // 触发网络同步
+        markSkinDataChanged();
     }
 
     /**
@@ -271,6 +269,7 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
     public void setEquippedSkinForItemType(String itemTypeName, String skinName) {
         String normalizedItemName = normalizeItemName(itemTypeName);
         equippedSkins.put(normalizedItemName, skinName);
+        markSkinDataChanged();
     }
 
     /**
@@ -319,8 +318,7 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
     public void setSkinInDataSync(ItemStack itemStack, String skinName) {
         // 只在客户端上传数据
         KEY.get(player).equippedSkins.put(BuiltInRegistries.ITEM.getKey(itemStack.getItem()).getPath(), skinName);
-        sync();
-
+        markSkinDataChanged();
     }
 
     /**
@@ -338,95 +336,57 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
      * 标记皮肤数据已改变，需要网络同步
      */
     private void markSkinDataChanged() {
-        // 同步到本地客户端
         this.sync();
-        // 设置网络同步标志，下一个服务器刻度时会同步
-        // this.lastNetworkSync = 0;
+        if (this.isNetworkSyncEnabled) {
+            this.databaseSyncQueued = true;
+            this.nextDatabaseSyncAt = System.currentTimeMillis() + DATABASE_SYNC_DEBOUNCE_MS;
+        }
     }
 
     /**
-     * 将皮肤数据异步同步到 HTTP 网络服务器
+     * 将皮肤数据异步同步到 MySQL
      */
     public void syncSkinsToNetwork() {
-        if (!this.isNetworkSyncEnabled || syncRequests == null) {
-            return;
-        }
-
-        try {
-            // 异步执行网络同步，不阻塞游戏线程
-            Thread syncThread = new Thread(() -> {
-                try {
-                    // 创建皮肤数据对象
-                    Map<String, Object> skinData = new HashMap<>();
-                    skinData.put("equipped", this.equippedSkins);
-                    skinData.put("unlocked", this.deepCopyUnlockedSkins());
-                    skinData.put("lootChance", this.lootChance);
-                    skinData.put("coinNum", this.coinNum);
-                    skinData.put("version", System.currentTimeMillis());
-                    skinData.put("timestamp", System.currentTimeMillis());
-
-                    String skinDataJson = GSON.toJson(skinData);
-
-                    // 使用 SyncRequests 发送 POST 请求
-                    boolean success = syncRequests.setValue(
-                            this.player.getUUID(),
-                            "skins",
-                            skinDataJson);
-
-                    if (success) {
-                        logger.debug("成功同步皮肤数据到服务器，玩家：{}", this.player.getName().getString());
-                    } else {
-                        logger.warn("同步皮肤数据到服务器失败，玩家：{}", this.player.getName().getString());
-                    }
-                } catch (Exception e) {
-                    logger.error("提交皮肤数据同步任务时出错，玩家：{}", this.player.getName().getString(), e);
-                }
-            });
-            syncThread.setName("SkinSync-" + this.player.getStringUUID());
-            syncThread.setDaemon(true);
-            syncThread.start();
-        } catch (Exception e) {
-            logger.error("提交皮肤数据同步任务时出错，玩家：{}", this.player.getName().getString(), e);
-        }
+        this.databaseSyncQueued = true;
+        this.nextDatabaseSyncAt = 0L;
+        flushSkinDataToDatabase(false);
     }
 
     /**
-     * 从网络服务器异步拉取皮肤数据
+     * 从 MySQL 异步拉取皮肤数据
      */
     public void pullSkinsFromNetwork() {
         if (!SREConfig.instance().itemSkinSyncServerEnabled)
             return;
-        if (!this.isNetworkSyncEnabled || syncRequests == null) {
+        if (!this.isNetworkSyncEnabled || !(this.player instanceof ServerPlayer serverPlayer)) {
             return;
         }
 
-        try {
-            // 异步拉取，并在完成时应用数据
-            Thread fetchThread = new Thread(() -> {
-                try {
-                    String responseJson = syncRequests.getValue(
-                            this.player.getUUID(),
-                            "skins");
-
-                    if (responseJson != null && !responseJson.isEmpty()) {
-                        @SuppressWarnings("unchecked")
-                        Map<String, Object> skinData = GSON.fromJson(responseJson, Map.class);
-                        if (skinData != null) {
-                            this.applyNetworkSkinData(skinData);
-                            this.sync();
-                            logger.debug("玩家 {} 的皮肤数据已从网络拉取", this.player.getName().getString());
-                        }
-                    }
-                } catch (Exception e) {
-                    logger.error("从网络拉取玩家 {} 的皮肤数据时出错", this.player.getName().getString(), e);
-                }
-            });
-            fetchThread.setName("SkinFetch-" + this.player.getStringUUID());
-            fetchThread.setDaemon(true);
-            fetchThread.start();
-        } catch (Exception e) {
-            logger.error("从网络拉取玩家 {} 的皮肤数据时出错", this.player.getName().getString(), e);
+        if (serverPlayer.getServer() == null) {
+            return;
         }
+
+        MysqlPlayerDataStore.loadBatchAsync(this.player.getUUID(), List.of(DATABASE_SYNC_KEY))
+                .thenAccept(records -> {
+                    MysqlPlayerDataStore.SyncRecord record = records.get(DATABASE_SYNC_KEY);
+                    if (record == null || record.payload() == null || record.payload().isBlank()) {
+                        return;
+                    }
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> skinData = GSON.fromJson(record.payload(), Map.class);
+                    if (skinData == null) {
+                        return;
+                    }
+                    serverPlayer.getServer().execute(() -> {
+                        this.applyNetworkSkinData(skinData);
+                        this.sync();
+                        logger.debug("玩家 {} 的皮肤数据已从 MySQL 拉取", this.player.getName().getString());
+                    });
+                })
+                .exceptionally(throwable -> {
+                    logger.error("从 MySQL 拉取玩家 {} 的皮肤数据时出错", this.player.getName().getString(), throwable);
+                    return null;
+                });
     }
 
     /**
@@ -464,13 +424,13 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
                 }
             }
 
-            if (skinData.containsKey("version") && skinData.get("version") instanceof Number) {
-                // long version = ((Number) skinData.get("version")).longValue();
-                // SyncRequests 不需要版本号，忽略
-            }
         } catch (Exception e) {
             logger.error("应用网络皮肤数据时出错", e);
         }
+    }
+
+    public boolean flushNetworkSyncBlocking() {
+        return flushSkinDataToDatabase(true);
     }
 
     /**
@@ -496,17 +456,63 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
     }
 
     /**
-     * 获取网络同步管理器
-     */
-    public SyncRequests getNetworkSyncManager() {
-        return syncRequests;
-    }
-
-    /**
      * 检查网络同步是否已启用
      */
     public boolean isNetworkSyncEnabled() {
         return this.isNetworkSyncEnabled;
+    }
+
+    private boolean flushSkinDataToDatabase(boolean blocking) {
+        if (!this.isNetworkSyncEnabled) {
+            return false;
+        }
+
+        String payloadJson = GSON.toJson(buildSkinDataPayload());
+        Map<String, String> payloads = Map.of(DATABASE_SYNC_KEY, payloadJson);
+        long updatedAt = System.currentTimeMillis();
+
+        if (blocking) {
+            this.databaseSyncQueued = false;
+            boolean success = MysqlPlayerDataStore.saveBatchBlocking(
+                    this.player.getUUID(),
+                    payloads,
+                    updatedAt,
+                    DATABASE_SYNC_FLUSH_TIMEOUT_MS);
+            if (!success) {
+                logger.warn("阻塞刷新玩家 {} 的皮肤 MySQL 数据失败。", this.player.getName().getString());
+            }
+            return success;
+        }
+
+        if (this.databaseSyncInFlight) {
+            return false;
+        }
+
+        this.databaseSyncQueued = false;
+        this.databaseSyncInFlight = true;
+        MysqlPlayerDataStore.saveBatchAsync(this.player.getUUID(), payloads, updatedAt)
+                .whenComplete((success, throwable) -> {
+                    this.databaseSyncInFlight = false;
+                    if (throwable != null) {
+                        logger.warn("异步刷新玩家 {} 的皮肤 MySQL 数据失败。", this.player.getName().getString(), throwable);
+                        return;
+                    }
+                    if (!Boolean.TRUE.equals(success)) {
+                        logger.warn("异步刷新玩家 {} 的皮肤 MySQL 数据未成功写入。", this.player.getName().getString());
+                    }
+                });
+        return true;
+    }
+
+    private Map<String, Object> buildSkinDataPayload() {
+        Map<String, Object> skinData = new HashMap<>();
+        skinData.put("equipped", new HashMap<>(this.equippedSkins));
+        skinData.put("unlocked", this.deepCopyUnlockedSkins());
+        skinData.put("lootChance", this.lootChance);
+        skinData.put("coinNum", this.coinNum);
+        skinData.put("version", System.currentTimeMillis());
+        skinData.put("timestamp", System.currentTimeMillis());
+        return skinData;
     }
 
     @Override

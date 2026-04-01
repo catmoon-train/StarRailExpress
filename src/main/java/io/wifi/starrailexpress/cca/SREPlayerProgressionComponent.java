@@ -10,8 +10,8 @@ import com.google.gson.reflect.TypeToken;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.sync.MysqlPlayerDataStore;
 import io.wifi.starrailexpress.util.SkinManager;
-import io.wifi.syncrequests.SyncRequests;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -74,6 +74,8 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
     private static final String LOCAL_TASK_PRESET_RESOURCE = "data/starrailexpress/progression_tasks_preset.json";
     private static final long DAILY_REFRESH_INTERVAL_MS = 24L * 60L * 60L * 1000L;
     private static final long WEEKLY_REFRESH_INTERVAL_MS = 7L * 24L * 60L * 60L * 1000L;
+    private static final long DATABASE_SYNC_DEBOUNCE_MS = 2500L;
+    private static final long DATABASE_SYNC_FLUSH_TIMEOUT_MS = 4000L;
     private static final float CARD_PREFERRED_PICK_CHANCE = 0.72F;
     private static final int DEFAULT_LEVEL_REWARD_COINS = 20;
     private static final int SYNC_DIRTY_PROGRESS = 1;
@@ -118,8 +120,6 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
             QuestTemplate.DEFAULT_WEEKLY_POOL,
             QuestTemplate.DEFAULT_PERMANENT_POOL);
 
-    public static SyncRequests syncRequests = null;
-
     private final Player player;
     private final EnumMap<FactionCardType, Integer> factionCards = new EnumMap<>(FactionCardType.class);
     private final List<PassQuest> activeQuests = new ArrayList<>();
@@ -135,7 +135,11 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
     private int claimedCoinRewards;
     private int claimedLootRewards;
     private int syncDirtyMask = SYNC_DIRTY_ALL;
+    private int databaseDirtyMask = SYNC_DIRTY_ALL;
     private boolean syncPending = false;
+    private volatile boolean databaseSyncPending = false;
+    private volatile boolean databaseSyncInFlight = false;
+    private volatile long nextDatabaseSyncAt = 0L;
 
     public SREPlayerProgressionComponent(Player player) {
         this.player = player;
@@ -225,16 +229,13 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
     }
 
     public void initializeNetworkSync(String host, int port, String key) {
-        if (syncRequests == null) {
-            try {
-                syncRequests = new SyncRequests("http://" + host + ":" + port, key);
-                this.networkSyncEnabled = true;
-            } catch (Exception exception) {
-                logger.error("初始化玩家 {} 的进度同步失败", this.player.getName().getString(), exception);
-                this.networkSyncEnabled = false;
-            }
-        } else {
-            this.networkSyncEnabled = true;
+        this.networkSyncEnabled = SREConfig.instance().progressionSyncServerEnabled
+                && SREConfig.instance().mysqlPlayerSyncEnabled
+                && MysqlPlayerDataStore.isAvailable();
+        if (this.networkSyncEnabled) {
+            logger.info("玩家 {} 的进度 MySQL 同步已启用", this.player.getName().getString());
+        } else if (SREConfig.instance().progressionSyncServerEnabled) {
+            logger.warn("玩家 {} 的进度 MySQL 同步未启用，数据库不可用或配置未完成。", this.player.getName().getString());
         }
     }
 
@@ -336,9 +337,7 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
 
     /** 管理员或自动刷新每日任务 */
     public void forceRefreshTasks() {
-        if (!tryPullTasksFromNetwork()) {
-            generateLocalDailyTasks(true);
-        }
+        generateLocalDailyTasks(true);
     }
 
     /** 管理员或自动刷新周常任务 */
@@ -371,41 +370,42 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
                         || now - this.lastWeeklyRefreshTime >= WEEKLY_REFRESH_INTERVAL_MS)) {
             forceRefreshWeeklyTasks();
         }
-        if (SREConfig.instance().progressionSyncServerEnabled && this.networkSyncEnabled
-                && serverPlayer.serverLevel().getGameTime() - this.lastRefreshCheckGameTime >= 600L) {
-            this.lastRefreshCheckGameTime = serverPlayer.serverLevel().getGameTime();
-            syncToNetwork();
+        if (this.networkSyncEnabled && this.databaseSyncPending && now >= this.nextDatabaseSyncAt) {
+            flushDatabaseSync(this.databaseDirtyMask, false);
         }
     }
 
     public boolean tryPullTasksFromNetwork() {
-        if (!SREConfig.instance().progressionSyncServerEnabled || !this.networkSyncEnabled || syncRequests == null) {
+        if (!SREConfig.instance().progressionSyncServerEnabled || !this.networkSyncEnabled) {
             return false;
         }
         try {
-            String taskJson = syncRequests.getValue(this.player.getUUID(), NETWORK_TASKS_KEY);
-            if (taskJson == null || taskJson.isBlank()) {
-                return false;
-            }
-            Map<String, Object> networkTaskMap = GSON.fromJson(taskJson, STRING_MAP_TYPE);
-            if (networkTaskMap == null || networkTaskMap.isEmpty()) {
-                return false;
-            }
-            applyTaskPayload(networkTaskMap);
-
-            String progressJson = syncRequests.getValue(this.player.getUUID(), NETWORK_DATA_KEY);
-            if (progressJson != null && !progressJson.isBlank()) {
-                Map<String, Object> progressMap = GSON.fromJson(progressJson, STRING_MAP_TYPE);
-                if (progressMap != null) {
-                    applyNetworkProgress(progressMap);
-                }
-            }
-            markChanged();
-            return true;
+            Map<String, MysqlPlayerDataStore.SyncRecord> records = MysqlPlayerDataStore
+                    .loadBatchAsync(this.player.getUUID(), List.of(NETWORK_TASKS_KEY, NETWORK_DATA_KEY))
+                    .join();
+            return applyDatabaseRecords(records);
         } catch (Exception exception) {
-            logger.warn("拉取玩家 {} 的远端进度/任务失败，回退到本地任务。", this.player.getName().getString(), exception);
+            logger.warn("拉取玩家 {} 的 MySQL 进度/任务失败，回退到本地任务。", this.player.getName().getString(), exception);
             return false;
         }
+    }
+
+    public void pullProgressionFromNetwork() {
+        if (!SREConfig.instance().progressionSyncServerEnabled || !this.networkSyncEnabled
+                || !(this.player instanceof ServerPlayer serverPlayer) || serverPlayer.getServer() == null) {
+            return;
+        }
+
+        MysqlPlayerDataStore.loadBatchAsync(this.player.getUUID(), List.of(NETWORK_TASKS_KEY, NETWORK_DATA_KEY))
+                .thenAccept(records -> serverPlayer.getServer().execute(() -> {
+                    if (!applyDatabaseRecords(records)) {
+                        scheduleDatabaseSync(SYNC_DIRTY_ALL);
+                    }
+                }))
+                .exceptionally(throwable -> {
+                    logger.warn("异步拉取玩家 {} 的 MySQL 进度失败。", this.player.getName().getString(), throwable);
+                    return null;
+                });
     }
 
     public void syncToNetwork() {
@@ -413,41 +413,7 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
     }
 
     public void syncToNetwork(int dirtyMask) {
-        if (!SREConfig.instance().progressionSyncServerEnabled || !this.networkSyncEnabled || syncRequests == null) {
-            return;
-        }
-        try {
-            boolean needProgress = (dirtyMask & (SYNC_DIRTY_PROGRESS | SYNC_DIRTY_CARDS | SYNC_DIRTY_TASKS)) != 0;
-            boolean needTasks = (dirtyMask & SYNC_DIRTY_TASKS) != 0;
-
-            if (needProgress) {
-                Map<String, Object> progressData = new HashMap<>();
-                putMappedValue(progressData, PROGRESS_SYNC_KEYS, "level", this.level);
-                putMappedValue(progressData, PROGRESS_SYNC_KEYS, "experience", this.experience);
-                putMappedValue(progressData, PROGRESS_SYNC_KEYS, "totalExperience", this.totalExperience);
-                putMappedValue(progressData, PROGRESS_SYNC_KEYS, "claimedCoinRewards", this.claimedCoinRewards);
-                putMappedValue(progressData, PROGRESS_SYNC_KEYS, "claimedLootRewards", this.claimedLootRewards);
-                putMappedValue(progressData, PROGRESS_SYNC_KEYS, "factionCards", encodeFactionCards());
-                putMappedValue(progressData, PROGRESS_SYNC_KEYS, "lastQuestRefreshTime", this.lastQuestRefreshTime);
-                putMappedValue(progressData, PROGRESS_SYNC_KEYS, "lastWeeklyRefreshTime", this.lastWeeklyRefreshTime);
-                if (needTasks) {
-                    putMappedValue(progressData, PROGRESS_SYNC_KEYS, "compactTasks",
-                            encodeCompactTaskPayload(this.activeQuests));
-                }
-                putMappedValue(progressData, PROGRESS_SYNC_KEYS, "version", System.currentTimeMillis());
-                syncRequests.setValue(this.player.getUUID(), NETWORK_DATA_KEY, GSON.toJson(progressData));
-            }
-
-            if (needTasks) {
-                Map<String, Object> taskData = new HashMap<>();
-                putMappedValue(taskData, TASK_SYNC_KEYS, "mapping", buildTaskMapping(this.activeQuests));
-                putMappedValue(taskData, TASK_SYNC_KEYS, "definitions", encodeQuestDefinitions(this.activeQuests));
-                putMappedValue(taskData, TASK_SYNC_KEYS, "refreshAt", this.lastQuestRefreshTime);
-                syncRequests.setValue(this.player.getUUID(), NETWORK_TASKS_KEY, GSON.toJson(taskData));
-            }
-        } catch (Exception exception) {
-            logger.warn("同步玩家 {} 的进度数据失败。", this.player.getName().getString(), exception);
-        }
+        flushDatabaseSync(dirtyMask, false);
     }
 
     private void incrementQuest(ObjectiveType type, String key, int amount) {
@@ -807,6 +773,7 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
         if (this.player instanceof ServerPlayer) {
             this.syncPending = true;
         }
+        scheduleDatabaseSync(dirtyMask);
     }
 
     private void flushPendingSync() {
@@ -815,9 +782,151 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
             return;
         }
         sync();
-        syncToNetwork(this.syncDirtyMask);
         this.syncDirtyMask = 0;
         this.syncPending = false;
+    }
+
+    public boolean flushNetworkSyncBlocking() {
+        int dirtyMask = this.databaseDirtyMask == 0 ? SYNC_DIRTY_ALL : this.databaseDirtyMask;
+        return flushDatabaseSync(dirtyMask, true);
+    }
+
+    private boolean applyDatabaseRecords(Map<String, MysqlPlayerDataStore.SyncRecord> records) {
+        if (records == null || records.isEmpty()) {
+            return false;
+        }
+
+        boolean applied = false;
+        MysqlPlayerDataStore.SyncRecord taskRecord = records.get(NETWORK_TASKS_KEY);
+        if (taskRecord != null && taskRecord.payload() != null && !taskRecord.payload().isBlank()) {
+            Map<String, Object> networkTaskMap = GSON.fromJson(taskRecord.payload(), STRING_MAP_TYPE);
+            if (networkTaskMap != null && !networkTaskMap.isEmpty()) {
+                applyTaskPayload(networkTaskMap);
+                applied = true;
+            }
+        }
+
+        MysqlPlayerDataStore.SyncRecord progressRecord = records.get(NETWORK_DATA_KEY);
+        if (progressRecord != null && progressRecord.payload() != null && !progressRecord.payload().isBlank()) {
+            Map<String, Object> progressMap = GSON.fromJson(progressRecord.payload(), STRING_MAP_TYPE);
+            if (progressMap != null && !progressMap.isEmpty()) {
+                applyNetworkProgress(progressMap);
+                applied = true;
+            }
+        }
+
+        if (!applied) {
+            return false;
+        }
+
+        this.syncDirtyMask |= SYNC_DIRTY_ALL;
+        this.syncPending = true;
+        this.databaseDirtyMask = 0;
+        this.databaseSyncPending = false;
+        this.databaseSyncInFlight = false;
+        this.nextDatabaseSyncAt = 0L;
+        return true;
+    }
+
+    private void scheduleDatabaseSync(int dirtyMask) {
+        if (!this.networkSyncEnabled || dirtyMask == 0) {
+            return;
+        }
+        this.databaseDirtyMask |= dirtyMask;
+        this.databaseSyncPending = true;
+        this.nextDatabaseSyncAt = System.currentTimeMillis() + DATABASE_SYNC_DEBOUNCE_MS;
+    }
+
+    private boolean flushDatabaseSync(int dirtyMask, boolean blocking) {
+        if (!SREConfig.instance().progressionSyncServerEnabled || !this.networkSyncEnabled || dirtyMask == 0) {
+            return false;
+        }
+
+        Map<String, String> payloads = buildDatabasePayloads(dirtyMask);
+        if (payloads.isEmpty()) {
+            return false;
+        }
+
+        long updatedAt = System.currentTimeMillis();
+        if (blocking) {
+            boolean success = MysqlPlayerDataStore.saveBatchBlocking(
+                    this.player.getUUID(),
+                    payloads,
+                    updatedAt,
+                    DATABASE_SYNC_FLUSH_TIMEOUT_MS);
+            if (success) {
+                this.databaseDirtyMask &= ~dirtyMask;
+                this.databaseSyncPending = this.databaseDirtyMask != 0;
+                if (!this.databaseSyncPending) {
+                    this.nextDatabaseSyncAt = 0L;
+                }
+            }
+            return success;
+        }
+
+        if (this.databaseSyncInFlight) {
+            this.databaseSyncPending = true;
+            return false;
+        }
+
+        this.databaseSyncInFlight = true;
+        this.databaseSyncPending = false;
+        MysqlPlayerDataStore.saveBatchAsync(this.player.getUUID(), payloads, updatedAt)
+                .whenComplete((success, throwable) -> {
+                    this.databaseSyncInFlight = false;
+                    if (throwable != null) {
+                        this.databaseSyncPending = true;
+                        logger.warn("异步同步玩家 {} 的进度数据到 MySQL 失败。", this.player.getName().getString(), throwable);
+                        return;
+                    }
+                    if (Boolean.TRUE.equals(success)) {
+                        this.databaseDirtyMask &= ~dirtyMask;
+                    } else {
+                        this.databaseSyncPending = true;
+                        logger.warn("异步同步玩家 {} 的进度数据到 MySQL 未成功写入。", this.player.getName().getString());
+                    }
+                    if (this.databaseDirtyMask != 0) {
+                        this.databaseSyncPending = true;
+                        this.nextDatabaseSyncAt = System.currentTimeMillis() + DATABASE_SYNC_DEBOUNCE_MS;
+                    } else {
+                        this.nextDatabaseSyncAt = 0L;
+                    }
+                });
+        return true;
+    }
+
+    private Map<String, String> buildDatabasePayloads(int dirtyMask) {
+        boolean needProgress = (dirtyMask & (SYNC_DIRTY_PROGRESS | SYNC_DIRTY_CARDS | SYNC_DIRTY_TASKS)) != 0;
+        boolean needTasks = (dirtyMask & SYNC_DIRTY_TASKS) != 0;
+        Map<String, String> payloads = new HashMap<>();
+
+        if (needProgress) {
+            Map<String, Object> progressData = new HashMap<>();
+            putMappedValue(progressData, PROGRESS_SYNC_KEYS, "level", this.level);
+            putMappedValue(progressData, PROGRESS_SYNC_KEYS, "experience", this.experience);
+            putMappedValue(progressData, PROGRESS_SYNC_KEYS, "totalExperience", this.totalExperience);
+            putMappedValue(progressData, PROGRESS_SYNC_KEYS, "claimedCoinRewards", this.claimedCoinRewards);
+            putMappedValue(progressData, PROGRESS_SYNC_KEYS, "claimedLootRewards", this.claimedLootRewards);
+            putMappedValue(progressData, PROGRESS_SYNC_KEYS, "factionCards", encodeFactionCards());
+            putMappedValue(progressData, PROGRESS_SYNC_KEYS, "lastQuestRefreshTime", this.lastQuestRefreshTime);
+            putMappedValue(progressData, PROGRESS_SYNC_KEYS, "lastWeeklyRefreshTime", this.lastWeeklyRefreshTime);
+            if (needTasks) {
+                putMappedValue(progressData, PROGRESS_SYNC_KEYS, "compactTasks",
+                        encodeCompactTaskPayload(this.activeQuests));
+            }
+            putMappedValue(progressData, PROGRESS_SYNC_KEYS, "version", System.currentTimeMillis());
+            payloads.put(NETWORK_DATA_KEY, GSON.toJson(progressData));
+        }
+
+        if (needTasks) {
+            Map<String, Object> taskData = new HashMap<>();
+            putMappedValue(taskData, TASK_SYNC_KEYS, "mapping", buildTaskMapping(this.activeQuests));
+            putMappedValue(taskData, TASK_SYNC_KEYS, "definitions", encodeQuestDefinitions(this.activeQuests));
+            putMappedValue(taskData, TASK_SYNC_KEYS, "refreshAt", this.lastQuestRefreshTime);
+            payloads.put(NETWORK_TASKS_KEY, GSON.toJson(taskData));
+        }
+
+        return payloads;
     }
 
     public void writeToSyncNbt(CompoundTag tag, HolderLookup.Provider provider) {

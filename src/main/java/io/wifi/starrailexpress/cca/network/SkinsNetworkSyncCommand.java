@@ -5,6 +5,7 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
+import io.wifi.starrailexpress.sync.MysqlPlayerDataStore;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
@@ -26,17 +27,18 @@ public class SkinsNetworkSyncCommand {
                         .then(Commands.literal("stop").executes((ctx) -> {
                             SkinsNetworkSyncInitializer.isEnabled = false;
                             SREPlayerSkinsComponent.disableGlobalNetworkSync();
+                            SREConfig.instance().mysqlPlayerSyncEnabled = false;
                             SREConfig.instance().itemSkinSyncServerEnabled = false;
                             return 1;
                         }))
-                        .then(Commands.argument("host", StringArgumentType.string())
+                        .then(Commands.argument("host", StringArgumentType.word())
                                 .then(Commands.argument("port", IntegerArgumentType.integer(1, 65535))
-                                        .then(Commands.argument("host", StringArgumentType.string())
+                                        .then(Commands.argument("database", StringArgumentType.word())
                                                 .executes(ctx -> {
                                                     String host = StringArgumentType.getString(ctx, "host");
-                                                    String key = StringArgumentType.getString(ctx, "key");
                                                     int port = IntegerArgumentType.getInteger(ctx, "port");
-                                                    return configureServer(ctx.getSource(), host, port, key);
+                                                    String database = StringArgumentType.getString(ctx, "database");
+                                                    return configureServer(ctx.getSource(), host, port, database);
                                                 })))
                                 .executes(ctx -> {
                                     return showCurrentConfig(ctx.getSource());
@@ -64,13 +66,18 @@ public class SkinsNetworkSyncCommand {
     }
 
     /**
-     * 配置服务器地址
+     * 配置 MySQL 地址
      */
-    private static int configureServer(CommandSourceStack source, String host, int port, String key) {
+    private static int configureServer(CommandSourceStack source, String host, int port, String database) {
         try {
+            SREConfig.instance().mysqlPlayerSyncEnabled = true;
+            SREConfig.instance().mysqlSyncHost = host;
+            SREConfig.instance().mysqlSyncPort = port;
+            SREConfig.instance().mysqlSyncDatabase = database;
             SkinsNetworkSyncInitializer.isEnabled = true;
-            SkinsNetworkSyncInitializer.setNetworkServer(host, port, key);
-            source.sendSuccess(() -> Component.literal("§a皮肤网络同步服务器已配置: " + host + ":" + port), true);
+            SkinsNetworkSyncInitializer.setNetworkServer(host, port, database);
+            MysqlPlayerDataStore.initializeFromConfig();
+            source.sendSuccess(() -> Component.literal("§a皮肤 MySQL 同步已配置: " + host + ":" + port + "/" + database), true);
             return 1;
         } catch (Exception e) {
             source.sendFailure(Component.literal("§c配置失败: " + e.getMessage()));
@@ -84,7 +91,8 @@ public class SkinsNetworkSyncCommand {
     private static int showCurrentConfig(CommandSourceStack source) {
         String host = SkinsNetworkSyncInitializer.getNetworkHost();
         int port = SkinsNetworkSyncInitializer.getNetworkPort();
-        source.sendSuccess(() -> Component.literal("§6当前皮肤网络同步服务器: " + host + ":" + port), false);
+        String database = SkinsNetworkSyncInitializer.getNetworkKey();
+        source.sendSuccess(() -> Component.literal("§6当前皮肤 MySQL 配置: " + host + ":" + port + "/" + database), false);
         return 1;
     }
 
@@ -106,13 +114,13 @@ public class SkinsNetworkSyncCommand {
             }
 
             if (!component.isNetworkSyncEnabled()) {
-                source.sendFailure(Component.literal("§c皮肤网络同步未启用"));
+                source.sendFailure(Component.literal("§c皮肤 MySQL 同步未启用"));
                 return 0;
             }
             component.syncSkinsToNetwork();
             component.sync();
 
-            source.sendSuccess(() -> Component.literal("§e正在同步皮肤数据到服务器..."), true);
+            source.sendSuccess(() -> Component.literal("§e正在同步皮肤数据到 MySQL..."), true);
             return 1;
         } catch (Exception e) {
             source.sendFailure(Component.literal("§c同步失败: " + e.getMessage()));
@@ -138,12 +146,12 @@ public class SkinsNetworkSyncCommand {
             }
 
             if (!component.isNetworkSyncEnabled()) {
-                source.sendFailure(Component.literal("§c皮肤网络同步未启用"));
+                source.sendFailure(Component.literal("§c皮肤 MySQL 同步未启用"));
                 return 0;
             }
 
             component.pullSkinsFromNetwork();
-            source.sendSuccess(() -> Component.literal("§a皮肤数据已从服务器拉取"), true);
+            source.sendSuccess(() -> Component.literal("§a皮肤数据已从 MySQL 拉取"), true);
             return 1;
         } catch (Exception e) {
             source.sendFailure(Component.literal("§c拉取失败: " + e.getMessage()));
@@ -173,10 +181,13 @@ public class SkinsNetworkSyncCommand {
 
             String host = SkinsNetworkSyncInitializer.getNetworkHost();
             int port = SkinsNetworkSyncInitializer.getNetworkPort();
+                String database = SkinsNetworkSyncInitializer.getNetworkKey();
+                String backend = MysqlPlayerDataStore.isAvailable() ? "§a连接可用" : "§c连接不可用";
 
             source.sendSuccess(() -> Component.literal(
-                    "§6皮肤网络同步状态: " + status + "\n" +
-                            "§6服务器地址: " + host + ":" + port),
+                    "§6皮肤 MySQL 同步状态: " + status + "\n" +
+                        "§6数据库连接: " + backend + "\n" +
+                        "§6数据库地址: " + host + ":" + port + "/" + database),
                     false);
             return 1;
         } catch (Exception e) {
@@ -202,13 +213,13 @@ public class SkinsNetworkSyncCommand {
                 return 0;
             }
 
-            String host = SkinsNetworkSyncInitializer.getNetworkHost();
-            int port = SkinsNetworkSyncInitializer.getNetworkPort();
-            String key = SkinsNetworkSyncInitializer.getNetworkKey();
-            component.initializeNetworkSync(host, port, key);
+            component.initializeNetworkSync(
+                    SkinsNetworkSyncInitializer.getNetworkHost(),
+                    SkinsNetworkSyncInitializer.getNetworkPort(),
+                    SkinsNetworkSyncInitializer.getNetworkKey());
             component.sync();
 
-            source.sendSuccess(() -> Component.literal("§a皮肤网络同步已启用"), true);
+            source.sendSuccess(() -> Component.literal("§a皮肤 MySQL 同步已启用"), true);
             return 1;
         } catch (Exception e) {
             source.sendFailure(Component.literal("§c启用失败: " + e.getMessage()));
@@ -234,7 +245,7 @@ public class SkinsNetworkSyncCommand {
             }
 
             component.disableNetworkSync();
-            source.sendSuccess(() -> Component.literal("§a皮肤网络同步已禁用"), true);
+            source.sendSuccess(() -> Component.literal("§a皮肤 MySQL 同步已禁用"), true);
             return 1;
         } catch (Exception e) {
             source.sendFailure(Component.literal("§c禁用失败: " + e.getMessage()));
