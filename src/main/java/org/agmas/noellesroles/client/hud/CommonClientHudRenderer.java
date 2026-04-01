@@ -34,6 +34,7 @@ import org.agmas.noellesroles.client.event.CommonHudRenderCallback;
 import org.agmas.noellesroles.client.event.MutableComponentResult;
 import org.agmas.noellesroles.client.event.OnMessageBelowMoneyRenderer;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
+import org.agmas.noellesroles.client.hud.roles.BroadcasterHud;
 import org.agmas.noellesroles.component.*;
 import org.agmas.noellesroles.entity.WheelchairEntity;
 import org.agmas.noellesroles.init.ModEffects;
@@ -84,7 +85,7 @@ public class CommonClientHudRenderer {
       }
       {
         if (Minecraft.getInstance().screen == null)
-            HudStoreRenderer.renderHud(font, player, guiGraphics, deltaTracker.getGameTimeDeltaPartialTick(true));
+          HudStoreRenderer.renderHud(font, player, guiGraphics, deltaTracker.getGameTimeDeltaPartialTick(true));
       }
       {
         HudMoodRenderer.renderHud(player, font, guiGraphics, deltaTracker);
@@ -147,6 +148,10 @@ public class CommonClientHudRenderer {
                   role.identifier().toString(), e.getMessage()).withStyle(ChatFormatting.RED),
               true);
         }
+      }
+      {
+        // 最后渲染在最上层
+        BroadcasterHud.renderBroadcast(guiGraphics, deltaTracker);
       }
     });
   }

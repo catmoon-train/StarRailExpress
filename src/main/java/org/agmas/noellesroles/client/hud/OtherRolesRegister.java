@@ -10,7 +10,6 @@ public class OtherRolesRegister {
         AvengerHud.register();
         BomberHud.register();
         BoxerHud.register();
-        BroadcasterHud.register();
         DetectiveHud.register();
         DetectivePassiveHud.register();
         DIOHud.register();
@@ -33,5 +32,6 @@ public class OtherRolesRegister {
         WaterGhostHud.register();
         RefugeeHud.register();
         LoversHud.register();
+        BroadcasterHud.register();
     }
 }
