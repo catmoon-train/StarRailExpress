@@ -3,7 +3,7 @@
         {
             "PoolID":1,
             "Enable":true,
-            "PoolName":"Knife Skin 1",
+            "PoolName":"我这刀可是涂满了剧毒的(舔)",
             "PoolType":"Common",
             "QualityListGroup":[
                 {
@@ -47,7 +47,7 @@
         {
             "PoolID":2,
             "Enable":true,
-            "PoolName":"Knife Skin 2",
+            "PoolName":"剑起有光",
             "PoolType":"Common",
             "QualityListGroup":[
                 {
@@ -91,7 +91,7 @@
         {
             "PoolID":3,
             "Enable":true,
-            "PoolName":"Knife Skin 3",
+            "PoolName":"!?刀刀?!",
             "PoolType":"Common",
             "QualityListGroup":[
                 {
@@ -135,7 +135,7 @@
         {
             "PoolID":4,
             "Enable":true,
-            "PoolName":"Bat Skin 1",
+            "PoolName":"社会你竹哥",
             "PoolType":"Common",
             "QualityListGroup":[
                 {
@@ -179,7 +179,7 @@
         {
             "PoolID":5,
             "Enable":true,
-            "PoolName":"Grenade Skin 1",
+            "PoolName":"蹦蹦炸弹！",
             "PoolType":"Common",
             "QualityListGroup":[
                 {
@@ -223,7 +223,7 @@
         {
             "PoolID":6,
             "Enable":true,
-            "PoolName":"Gun Skin 1",
+            "PoolName":"颗秒！",
             "PoolType":"Common",
             "QualityListGroup":[
                 {
@@ -267,7 +267,7 @@
         {
             "PoolID":7,
             "Enable":true,
-            "PoolName":"PVZ Theme",
+            "PoolName":"Zombies?",
             "PoolType":"Common",
             "QualityListGroup":[
                 {
