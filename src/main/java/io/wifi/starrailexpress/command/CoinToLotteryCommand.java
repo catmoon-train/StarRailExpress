@@ -8,6 +8,7 @@ import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
+import org.agmas.noellesroles.utils.lottery.LotteryManager;
 
 /**
  * 金币兑换抽奖次数指令
@@ -35,7 +36,7 @@ public class CoinToLotteryCommand {
             int currentCoins = skinsComponent.getCoinNum();
             int currentLootChance = skinsComponent.getLootChance();
             // 价格
-            final int cost = 648;
+            final int cost = LotteryManager.baseLootConsumeCoin;
             // 检查是否有足够的金币
             if (currentCoins < cost) {
                 context.getSource().sendFailure(
