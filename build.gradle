@@ -77,8 +77,8 @@ repositories {
 }
 
 dependencies {
-    implementation "com.mysql:mysql-connector-j:8.4.0"
-    implementation "com.zaxxer:HikariCP:5.1.0"
+    include(implementation("com.mysql:mysql-connector-j:8.4.0"))
+    include(implementation("com.zaxxer:HikariCP:5.1.0"))
     include(implementation(annotationProcessor("com.github.bawnorton.mixinsquared:mixinsquared-fabric:0.3.7-beta.1")))
 
     // To change the versions see the gradle.properties file
