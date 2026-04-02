@@ -3,6 +3,7 @@ package org.agmas.noellesroles.component;
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
+import io.wifi.starrailexpress.cca.SREWorldBlackoutComponent;
 import io.wifi.starrailexpress.event.AllowPlayerDeathWithKiller;
 import io.wifi.starrailexpress.event.OnPlayerKilledPlayer;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -24,6 +25,7 @@ public class NinjaPlayerComponent implements RoleComponent, ServerTickingCompone
 
     public static final ComponentKey<NinjaPlayerComponent> KEY = ModComponents.NINJA;
 
+    // 格挡常量
     private static final int ABILITY_COOLDOWN = 300 * 20;   // 300秒
     private static final int ABILITY_DURATION = 2 * 20 + 10; // 2.5秒
     private static final int BOUNTY_AMOUNT = 100;
@@ -40,11 +42,15 @@ public class NinjaPlayerComponent implements RoleComponent, ServerTickingCompone
     public float getCooldownSeconds() { return cooldown / 20.0f; }
     public float getDurationSeconds() { return duration / 20.0f; }
 
-    public NinjaPlayerComponent(Player player) { this.player = player; }
+    public NinjaPlayerComponent(Player player) {
+        this.player = player;
+    }
 
-    @Override public Player getPlayer() { return player; }
+    @Override
+    public Player getPlayer() { return player; }
 
-    @Override public void init() {
+    @Override
+    public void init() {
         this.cooldown = 0;
         this.duration = 0;
         this.hasShield = false;
@@ -52,9 +58,11 @@ public class NinjaPlayerComponent implements RoleComponent, ServerTickingCompone
         sync();
     }
 
-    @Override public void clear() { init(); }
+    @Override
+    public void clear() { init(); }
 
-    @Override public boolean shouldSyncWith(ServerPlayer target) { return this.player == target; }
+    @Override
+    public boolean shouldSyncWith(ServerPlayer target) { return this.player == target; }
 
     public void sync() { KEY.sync(this.player); }
 
@@ -78,7 +86,7 @@ public class NinjaPlayerComponent implements RoleComponent, ServerTickingCompone
         this.hasShield = true;
         this.shieldUsed = false;
         this.duration = ABILITY_DURATION;
-        // 注意：不设置 cooldown，冷却将在护盾结束后开始
+        // 不设置 cooldown，冷却将在护盾结束后开始
         sync();
 
         if (player instanceof ServerPlayer sp) {
@@ -94,7 +102,6 @@ public class NinjaPlayerComponent implements RoleComponent, ServerTickingCompone
             this.shieldUsed = true;
             this.hasShield = false;
             this.duration = 0;
-            // 护盾被触发，立即开始冷却
             this.cooldown = ABILITY_COOLDOWN;
             sync();
             player.level().playSound(null, player.blockPosition(),
@@ -116,10 +123,10 @@ public class NinjaPlayerComponent implements RoleComponent, ServerTickingCompone
         if (gameWorld.getRole(player.getUUID()) != ModRoles.NINJA) return;
         if (!GameUtils.isPlayerAliveAndSurvival(serverPlayer)) return;
 
+        // 格挡持续时间
         if (duration > 0) {
             duration--;
             if (duration <= 0) {
-                // 护盾自然结束，开始冷却
                 hasShield = false;
                 shieldUsed = false;
                 cooldown = ABILITY_COOLDOWN;
@@ -128,6 +135,7 @@ public class NinjaPlayerComponent implements RoleComponent, ServerTickingCompone
                 sync();
             }
         }
+        // 格挡冷却递减
         if (cooldown > 0) {
             cooldown--;
             if (cooldown % 20 == 0 || cooldown == 0) sync();
@@ -135,13 +143,17 @@ public class NinjaPlayerComponent implements RoleComponent, ServerTickingCompone
     }
 
     public static void registerEvents() {
+        // 赏金被动：黑暗击杀得100金币（黑暗 = 亮度 ≤5 或 停电）
         OnPlayerKilledPlayer.EVENT.register((victim, killer, reason) -> {
             if (killer == null || victim == null) return;
             SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(killer.level());
             if (gameWorld.getRole(killer.getUUID()) != ModRoles.NINJA) return;
 
-            int lightLevel = killer.level().getBrightness(LightLayer.BLOCK, killer.blockPosition());
-            boolean isDark = lightLevel <= 5;
+            // 检测黑暗环境（综合亮度）
+            int lightLevel = killer.level().getRawBrightness(killer.blockPosition(), 0);
+            var blackOut = SREWorldBlackoutComponent.KEY.maybeGet(killer.level()).orElse(null);
+            boolean isDark = lightLevel <= 5 || (blackOut != null && blackOut.isBlackoutActive());
+
             if (!isDark) return;
 
             if (killer instanceof ServerPlayer sp) {
@@ -154,6 +166,7 @@ public class NinjaPlayerComponent implements RoleComponent, ServerTickingCompone
             }
         });
 
+        // 格挡伤害
         AllowPlayerDeathWithKiller.EVENT.register((victim, killer, deathReason) -> {
             NinjaPlayerComponent comp = KEY.get(victim);
             if (comp != null && comp.tryBlockDamage()) return false;
@@ -177,6 +190,8 @@ public class NinjaPlayerComponent implements RoleComponent, ServerTickingCompone
         shieldUsed = tag.getBoolean("shieldUsed");
     }
 
-    @Override public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {}
-    @Override public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {}
+    @Override
+    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {}
+    @Override
+    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {}
 }
