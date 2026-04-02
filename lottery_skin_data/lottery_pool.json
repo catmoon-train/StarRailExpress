@@ -153,25 +153,25 @@
                 {
                     "Probability":0.2,
                     "ItemList":[
-                        "coin","bat/ore_pickaxe","bat/battlesign","bat/bamboo_bat","bat/cylinder"
+                        "coin","bat/ore_pickaxe","bat/battlesign","bat/bamboo_bat","bat/cylinder","bat/tnt_triple_sword","bat/wolf_teeth_club_2"
                     ]
                 },
                 {
                     "Probability":0.1,
                     "ItemList":[
-                        "bat/astral_defense","bat/advanced_crowbar","bat/blood_bat","bat/composite_club","bat/diamond_pickaxe/minecraft/textures/item/diamond_pickaxe.png","bat/fried_legs","bat/iron_hammer","bat/steel_tube","bat/wolfteeth_mace"
+                        "bat/astral_defense","bat/advanced_crowbar","bat/bat_wrench","bat/black_king","bat/blood_bat","bat/boming","bat/combat_instrument","bat/composite_club","bat/diamond_pickaxe/minecraft/textures/item/diamond_pickaxe.png","bat/fried_legs","bat/ground_chain_sickle","bat/iron_hammer","bat/purgatory_forging","bat/rune_sword","bat/steel_tube","bat/ultimate_gold_weapon","bat/wolfteeth_mace","bat/yellow_sword"
                     ]
                 },
                 {
                     "Probability":0.04,
                     "ItemList":[
-                        "bat/between_limits","bat/bread","bat/huaqiangbei","bat/ice_bat","bat/sfa","bat/guitar"
+                        "bat/between_limits","bat/bread","bat/huaqiangbei","bat/ice_bat","bat/sfa","bat/guitar","bat/snow_kings_staff","bat/eel","bat/excalibur"
                     ]
                 },
                 {
                     "Probability":0.01,
                     "ItemList":[
-                        "bat/plasma_axe","bat/road_roller","bat/slippers"
+                        "bat/plasma_axe","bat/road_roller","bat/slippers","bat/platinum_arm","bat/chigang","bat/jin_gu_bang"
                     ]
                 }
             ]
@@ -203,19 +203,19 @@
                 {
                     "Probability":0.1,
                     "ItemList":[
-                        "grenade/magnetic_bomb","grenade/mini_nuke","grenade/mobile","grenade/naval_mine","grenade/null_grenade","grenade/nugrenade","grenade/pisces","grenade/rainbow_fireworks","grenade/rock","grenade/submunition_mine","grenade/voice_star"
+                        "grenade/magnetic_bomb","grenade/mini_nuke","grenade/mobile","grenade/naval_mine","grenade/null_grenade","grenade/nugrenade","grenade/pisces","grenade/rainbow_fireworks","grenade/rock","grenade/submunition_mine","grenade/voice_star","grenade/diablo","grenade/dio","grenade/engine_grenade","grenade/final_times","grenade/halo","grenade/ice_dart","grenade/indonesian_bytes","grenade/jiliang_op","grenade/kettle","grenade/my_sword_shield","grenade/rotary_iron_ball","grenade/rune_blasting","grenade/standdisc","grenade/taiji","grenade/the_world"
                     ]
                 },
                 {
                     "Probability":0.04,
                     "ItemList":[
-                        "grenade/coordinate_system","grenade/exponential_explosion","grenade/markov_chain","grenade/o_god_grenade","grenade/shiguimian"
+                        "grenade/coordinate_system","grenade/exponential_explosion","grenade/markov_chain","grenade/o_god_grenade","grenade/shiguimian","grenade/big_banana","grenade/destroy_explosive","grenade/foxy_grenade","grenade/gugugaga"
                     ]
                 },
                 {
                     "Probability":0.01,
                     "ItemList":[
-                        "grenade/king_ball","grenade/rainbow_crepper_grenade","grenade/rocket","grenade/scorpio"
+                        "grenade/king_ball","grenade/rainbow_crepper_grenade","grenade/rocket","grenade/scorpio","grenade/lao_gan_ma","grenade/withered_heart_bomb","grenade/beast_ancestors","grenade/haha"
                     ]
                 }
             ]
@@ -297,13 +297,145 @@
                 {
                     "Probability":0.065,
                     "ItemList":[
-                        "bat/pvz_tall_peanut","bat/pvz_zombie_bat","bat/pvz_wire_pole","grenade/pvz_jalapeno","grenade/pvz_joke_box"
+                        "bat/pvz_ladder","bat/pvz_tall_peanut","bat/pvz_zombie_bat","bat/pvz_wire_pole","grenade/pvz_jalapeno","grenade/pvz_joke_box"
                     ]
                 },
                 {
                     "Probability":0.015,
                     "ItemList":[
                         "bat/pvz_zombie_skin_bat","gun/pvz_peashooter","gun/pvz_icemelon_gun","bat/pvz_newspaper"
+                    ]
+                }
+            ]
+        },
+        {
+            "PoolID":8,
+            "Enable":true,
+            "PoolName":"手起刀落",
+            "PoolType":"Common",
+            "QualityListGroup":[
+                {
+                    "Probability":0.35,
+                    "ItemList":[
+                        "coin"
+                    ]
+                },
+                {
+                    "Probability":0.3,
+                    "ItemList":[
+                        "coin","knife/carp_knife","knife/not_cooked"
+                    ]
+                },
+                {
+                    "Probability":0.2,
+                    "ItemList":[
+                        "coin","knife/brush","knife/glass_knife","knife/jett"
+                    ]
+                },
+                {
+                    "Probability":0.1,
+                    "ItemList":[
+                        "knife/anubis","knife/blade_of_soul","knife/cheems_knife","knife/coral","knife/dark_sparks","knife/death_edge","knife/evolutionary_truster","knife/exknife","knife/flame_sword","knife/greed","knife/inflammatory_burial","knife/lightning_nunchakus"
+                    ]
+                },
+                {
+                    "Probability":0.04,
+                    "ItemList":[
+                        "knife/loyalty","knife/magnetite_sword","knife/mountain_opening","knife/ou_bu_rapier","knife/qingjian","knife/qu","knife/sapphire","knife/sapphire_feast","knife/scorching_heat","knife/scribbled_hammer","knife/sword_executioner","knife/time_limit_sword"
+                    ]
+                },
+                {
+                    "Probability":0.01,
+                    "ItemList":[
+                        "knife/quill","knife/lightning_whip","knife/galaxy_spark","knife/head_dart","knife/scarlet_scar"
+                    ]
+                }
+            ]
+        },
+        {
+            "PoolID":9,
+            "Enable":true,
+            "PoolName":"神枪手",
+            "PoolType":"Common",
+            "QualityListGroup":[
+                {
+                    "Probability":0.50,
+                    "ItemList":[
+                        "coin"
+                    ]
+                },
+                {
+                    "Probability":0.2,
+                    "ItemList":[
+                        "coin"
+                    ]
+                },
+                {
+                    "Probability":0.15,
+                    "ItemList":[
+                        "gun/glass_gun","gun/gold_defibrillator","gun/hattansang","gun/hunt_of_glory","gun/jungle_edge","gun/king_gun"
+                    ]
+                },
+                {
+                    "Probability":0.07,
+                    "ItemList":[
+                        "gun/lava_rock","gun/navy_then_issued_pistols","gun/rune_magic_bow","gun/sex_pistol","gun/spit_cattle","gun/beak_peak","gun/blue_rose","gun/close_relations","gun/devils_claws","gun/flower_sleep"
+                    ]
+                },
+                {
+                    "Probability":0.065,
+                    "ItemList":[
+                        "gun/strange_box","gun/the_moon","gun/thorn_slingshot","gun/tooth_3","gun/yellow_paper","gun/zero_purchase"
+                    ]
+                },
+                {
+                    "Probability":0.015,
+                    "ItemList":[
+                        "gun/cat_gun","gun/blackgold","gun/divine","gun/eyeball","gun/golden_gyration"
+                    ]
+                }
+            ]
+        },
+        {
+            "PoolID":10,
+            "Enable":true,
+            "PoolName":"终末地",
+            "PoolType":"Common",
+            "QualityListGroup":[
+                {
+                    "Probability":0.50,
+                    "ItemList":[
+                        "coin"
+                    ]
+                },
+                {
+                    "Probability":0.2,
+                    "ItemList":[
+                        "coin"
+                    ]
+                },
+                {
+                    "Probability":0.15,
+                    "ItemList":[
+                        "coin","bat/zmd_amethyst_fiber"
+                    ]
+                },
+                {
+                    "Probability":0.07,
+                    "ItemList":[
+                        "grenade/zmd_keshi","grenade/zmd_daowangshipian","bat/zmd_bambooshoots","knife/zmd_fuyao","knife/zmd_guangrongjiyi"
+                    ]
+                },
+                {
+                    "Probability":0.065,
+                    "ItemList":[
+                        "grenade/zmd_cangminmeng","gun/zmd_qizi","gun/zmd_wangxiang","gun/zmd_xiangshi","knife/zmd_ansehuoju"
+                    ]
+                },
+                {
+                    "Probability":0.015,
+                    "ItemList":[
+                        "gun/zmd_gaobie","gun/zmd_linghangzhe","gun/zmd_luocao","gun/zmd_obj","knife/zmd_helafenge","knife/zmd_xiangxinzhiyin"
                     ]
                 }
             ]
