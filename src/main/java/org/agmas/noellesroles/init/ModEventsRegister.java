@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.init;
 
 import io.wifi.starrailexpress.SRE;
-import org.agmas.noellesroles.roles.ninja.NinjaPlayerComponent;
+import org.agmas.noellesroles.component.NinjaPlayerComponent;
 import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;

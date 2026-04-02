@@ -278,6 +278,10 @@ public class ModPacketsReciever {
       }
     });
 
+    ServerPlayNetworking.registerGlobalReceiver(NinjaAbilityC2SPacket.ID, (payload, context) -> {
+      NinjaPlayerComponent comp = NinjaPlayerComponent.KEY.get(context.player());
+      if (comp != null) comp.useAbility();
+    });
     // 操纵师数据包处理
     ServerPlayNetworking.registerGlobalReceiver(ModPackets.MANIPULATOR_PACKET, (payload, context) -> {
       SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY

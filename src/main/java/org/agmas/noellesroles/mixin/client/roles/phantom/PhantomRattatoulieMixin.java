@@ -1,4 +1,4 @@
-package org.agmas.noellesroles.mixin.client.roles.phantom;
+package org.agmas.noellesroles.mixin.client.roles. phantom;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.doctor4t.ratatouille.client.render.feature.PlushOnHeadFeatureRenderer;

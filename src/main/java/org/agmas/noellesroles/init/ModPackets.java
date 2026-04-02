@@ -34,6 +34,7 @@ public class ModPackets {
         PayloadTypeRegistry.playC2S().register(ProblemSetEventC2SPacket.ID,
                 ProblemSetEventC2SPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(BroadcasterC2SPacket.ID, BroadcasterC2SPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(NinjaAbilityC2SPacket.ID, NinjaAbilityC2SPacket.CODEC);
 
         PayloadTypeRegistry.playC2S().register(AbilityWithTargetC2SPacket.ID, AbilityWithTargetC2SPacket.CODEC);
 

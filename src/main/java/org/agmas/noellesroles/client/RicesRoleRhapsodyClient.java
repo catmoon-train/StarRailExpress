@@ -346,7 +346,20 @@ public class RicesRoleRhapsodyClient implements ClientModInitializer {
             }
             return true;
         }
-
+        if (gameWorld.isRole(client.player, ModRoles.NINJA)) {
+            if (!GameUtils.isPlayerAliveAndSurvival(client.player)) return true;
+            NinjaPlayerComponent ninjaComp = NinjaPlayerComponent.KEY.get(client.player);
+            if (ninjaComp == null) return true;
+            if (ninjaComp.canUseAbility()) {
+                ClientPlayNetworking.send(new NinjaAbilityC2SPacket());  // 直接 new
+            } else if (ninjaComp.cooldown > 0) {
+                client.player.displayClientMessage(
+                        Component.translatable("message.noellesroles.ninja.block_cooldown",
+                                        String.format("%.1f", ninjaComp.getCooldownSeconds()))
+                                .withStyle(ChatFormatting.RED), true);
+            }
+            return true;
+        }
         // ==================== 明星：聚光灯技能 ====================
         if (gameWorld.isRole(client.player, ModRoles.SUPERSTAR)) {
             // 检查玩家是否存活
@@ -633,6 +646,7 @@ public class RicesRoleRhapsodyClient implements ClientModInitializer {
         // 锁实体渲染器 - 使用自定义渲染器
         EntityRendererRegistry.register(ModEntities.LOCK_ENTITY, LockEntityRender::new);
     }
+
 
     /**
      * 注册Screen

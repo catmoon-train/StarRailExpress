@@ -37,10 +37,8 @@ import net.minecraft.world.item.component.CustomModelData;
 import net.minecraft.world.item.component.ItemLore;
 import net.minecraft.world.item.component.Unbreakable;
 import net.minecraft.world.item.component.WrittenBookContent;
-import org.agmas.noellesroles.component.MaChenXuPlayerComponent;
-import org.agmas.noellesroles.component.SingerPlayerComponent;
-import org.agmas.noellesroles.component.StalkerPlayerComponent;
-import org.agmas.noellesroles.component.WatcherPlayerComponent;
+import org.agmas.noellesroles.Noellesroles;
+import org.agmas.noellesroles.component.*;
 import org.agmas.noellesroles.repack.HSRConstants;
 import org.agmas.noellesroles.repack.HSRItems;
 import org.agmas.noellesroles.role.ModRoles;
@@ -448,29 +446,27 @@ public class RoleShopHandler {
       var NINJA_SHOP = new ArrayList<ShopEntry>();
 
       // 普通刀 - 130金币
-      NINJA_SHOP.add(new ShopEntry(
-              TMMItems.KNIFE.getDefaultInstance(),
-              130,
-              ShopEntry.Type.WEAPON
-      ));
+      NINJA_SHOP.add(new ShopEntry(TMMItems.KNIFE.getDefaultInstance(), 130, ShopEntry.Type.WEAPON));
 
-      // 苦无 - 200金币
-      NINJA_SHOP.add(new ShopEntry(
-              ModItems.NINJA_KNIFE.getDefaultInstance(),
-              200,
-              ShopEntry.Type.WEAPON
-      ));
+      // 苦无 - 130金币
+      NINJA_SHOP.add(new ShopEntry(ModItems.NINJA_KNIFE.getDefaultInstance(), 130, ShopEntry.Type.WEAPON));
 
-      // 手里剑 - 325金币
-      NINJA_SHOP.add(new ShopEntry(
-              ModItems.NINJA_SHURIKEN.getDefaultInstance(),
-              325,
-              ShopEntry.Type.WEAPON
-      ));
+
+      // 手里剑 - 275金币
+      NINJA_SHOP.add(new ShopEntry(ModItems.NINJA_SHURIKEN.getDefaultInstance(), 275, ShopEntry.Type.WEAPON));
+
+      // 关灯 - 50金币
+      NINJA_SHOP.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), 50, ShopEntry.Type.TOOL) {
+        public boolean onBuy(@NotNull Player player) {
+          return SREPlayerShopComponent.useBlackout(player);
+        }
+      });
+
+      // 撬锁器 - 75金币
+      NINJA_SHOP.add(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), 75, ShopEntry.Type.TOOL));
 
       ShopContent.customEntries.put(ModRoles.NINJA_ID, NINJA_SHOP);
     }
-
     {
       // 厨师的商店
       var shop = new ArrayList<ShopEntry>();
