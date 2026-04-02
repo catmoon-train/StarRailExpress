@@ -151,7 +151,7 @@ public class MailCommand {
                                     Collection<ServerPlayer> targets) {
         for (ServerPlayer player : targets) {
             MailboxComponent mailbox = MailboxComponent.KEY.get(player);
-            mailbox.getMails().clear();
+            mailbox.clearAllMails();
             mailbox.sync();
         }
         source.sendSuccess(() -> Component.literal(

@@ -40,7 +40,9 @@ public class MailboxScreen extends Screen {
     private static final int TEXT_GRAY = 0xFFAAAAAA;
     private static final int TEXT_DIM = 0xFF666666;
 
-    // ------- 状态 -------
+    // ------- 标题截断边距 -------
+    private static final int TITLE_RIGHT_MARGIN = 80;
+    private static final int TITLE_TRUNCATE_MARGIN = 88;
     private final MailboxComponent mailbox;
     private int page = 0;
 
@@ -255,8 +257,8 @@ public class MailboxScreen extends Screen {
         // 标题
         int textX = x + 8;
         String displayTitle = mail.title;
-        if (font.width(displayTitle) > w - 80) {
-            displayTitle = font.plainSubstrByWidth(displayTitle, w - 88) + "...";
+        if (font.width(displayTitle) > w - TITLE_RIGHT_MARGIN) {
+            displayTitle = font.plainSubstrByWidth(displayTitle, w - TITLE_TRUNCATE_MARGIN) + "...";
         }
         graphics.drawString(font, displayTitle, textX, y + 4, mail.read ? TEXT_GRAY : TEXT_WHITE);
 
@@ -437,13 +439,16 @@ public class MailboxScreen extends Screen {
                 continue;
             }
             StringBuilder current = new StringBuilder();
+            int currentWidth = 0;
             for (char c : paragraph.toCharArray()) {
-                current.append(c);
-                if (font.width(current.toString()) > maxWidth) {
-                    String s = current.toString();
-                    lines.add(s.substring(0, s.length() - 1));
-                    current = new StringBuilder().append(c);
+                int charWidth = font.width(String.valueOf(c));
+                if (currentWidth + charWidth > maxWidth && !current.isEmpty()) {
+                    lines.add(current.toString());
+                    current = new StringBuilder();
+                    currentWidth = 0;
                 }
+                current.append(c);
+                currentWidth += charWidth;
             }
             if (!current.isEmpty()) {
                 lines.add(current.toString());

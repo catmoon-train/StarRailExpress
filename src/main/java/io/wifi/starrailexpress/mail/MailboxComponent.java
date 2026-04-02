@@ -80,9 +80,9 @@ public class MailboxComponent implements AutoSyncedComponent, ServerTickingCompo
     // 公开 API
     // =========================================================================
 
-    /** 获取邮件列表（只读副本） */
+    /** 获取邮件列表（只读视图） */
     public List<Mail> getMails() {
-        return mails;
+        return java.util.Collections.unmodifiableList(mails);
     }
 
     /** 未读邮件数量 */
@@ -193,6 +193,14 @@ public class MailboxComponent implements AutoSyncedComponent, ServerTickingCompo
         }
         if (count > 0) markDirty();
         return count;
+    }
+
+    /** 清空所有邮件（管理员操作） */
+    public void clearAllMails() {
+        if (!mails.isEmpty()) {
+            mails.clear();
+            markDirty();
+        }
     }
 
     // =========================================================================
@@ -354,6 +362,7 @@ public class MailboxComponent implements AutoSyncedComponent, ServerTickingCompo
     }
 
     private void mergeFromDatabase(List<Mail> loaded) {
+        boolean changed = false;
         for (Mail dbMail : loaded) {
             if (dbMail.isExpired()) continue;
             boolean exists = false;
@@ -361,15 +370,23 @@ public class MailboxComponent implements AutoSyncedComponent, ServerTickingCompo
                 if (local.id.equals(dbMail.id)) {
                     exists = true;
                     // DB 中更新的状态覆盖本地
-                    if (dbMail.claimed && !local.claimed) local.claimed = true;
-                    if (dbMail.read && !local.read) local.read = true;
+                    if (dbMail.claimed && !local.claimed) {
+                        local.claimed = true;
+                        changed = true;
+                    }
+                    if (dbMail.read && !local.read) {
+                        local.read = true;
+                        changed = true;
+                    }
                     break;
                 }
             }
             if (!exists && mails.size() < MAX_MAILS) {
                 mails.add(dbMail);
+                changed = true;
             }
         }
+        if (changed) markDirty();
     }
 
     private void saveToDatabase() {
