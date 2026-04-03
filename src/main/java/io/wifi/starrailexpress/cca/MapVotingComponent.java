@@ -1,7 +1,6 @@
 package io.wifi.starrailexpress.cca;
 
 import io.wifi.starrailexpress.SRE;
-import io.wifi.starrailexpress.api.GameMode;
 import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -24,6 +23,7 @@ import org.spongepowered.asm.mixin.Overwrite;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MapVotingComponent implements AutoSyncedComponent, CommonTickingComponent {
     public static final ComponentKey<MapVotingComponent> KEY = ComponentRegistry.getOrCreate(SRE.id("map_voting"),
@@ -32,6 +32,7 @@ public class MapVotingComponent implements AutoSyncedComponent, CommonTickingCom
     private final Level world;
     private boolean votingActive = false;
     private boolean votingPaused = false;
+    private boolean votingSystemPaused = false;
     private int votingTimeLeft = 0;
     private int totalVotingTime = 0;
     private String presetGameMode = "murder"; // 预设游戏模式，默认murder
@@ -47,6 +48,7 @@ public class MapVotingComponent implements AutoSyncedComponent, CommonTickingCom
     public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.Provider provider) {
         this.votingActive = tag.getBoolean("VotingActive");
         this.votingPaused = tag.getBoolean("VotingPaused");
+        this.votingSystemPaused = tag.getBoolean("VotingSystemPaused");
         this.votingTimeLeft = tag.getInt("VotingTimeLeft");
         this.totalVotingTime = tag.getInt("TotalVotingTime");
         this.presetGameMode = tag.getString("PresetGameMode");
@@ -69,6 +71,7 @@ public class MapVotingComponent implements AutoSyncedComponent, CommonTickingCom
     public void writeToNbt(@NotNull CompoundTag tag, HolderLookup.Provider provider) {
         tag.putBoolean("VotingActive", this.votingActive);
         tag.putBoolean("VotingPaused", this.votingPaused);
+        tag.putBoolean("VotingSystemPaused", this.votingSystemPaused);
         tag.putInt("VotingTimeLeft", this.votingTimeLeft);
         tag.putInt("TotalVotingTime", this.totalVotingTime);
         tag.putString("PresetGameMode", this.presetGameMode);
@@ -93,9 +96,9 @@ public class MapVotingComponent implements AutoSyncedComponent, CommonTickingCom
         }
 
         // 处理投票倒计时
-        if (world != null && world.isClientSide && votingActive) {
+        if (world != null && world.isClientSide && votingActive && !votingSystemPaused && !votingPaused) {
             votingTimeLeft--;
-        } else if (world != null && votingActive && !votingPaused) {
+        } else if (world != null && votingActive && !votingSystemPaused && !votingPaused) {
             votingTimeLeft--;
             if (votingTimeLeft <= 0) {
                 finishVoting();
@@ -168,6 +171,15 @@ public class MapVotingComponent implements AutoSyncedComponent, CommonTickingCom
 
     public void setTotalVotingTime(int totalTime) {
         this.totalVotingTime = totalTime;
+        this.shouldSync = true;
+    }
+
+    public boolean isVotingSystemPaused() {
+        return votingSystemPaused;
+    }
+
+    public void setVotingSystemPaused(boolean paused) {
+        this.votingSystemPaused = paused;
         this.shouldSync = true;
     }
 
@@ -275,11 +287,17 @@ public class MapVotingComponent implements AutoSyncedComponent, CommonTickingCom
 
             // 开始游戏
             try {
+                AtomicBoolean isStarted= new AtomicBoolean(false);
                 // 根据预设游戏模式启动游戏
-                GameMode gameMode = SREGameModes.GAME_MODES.get(SRE.shortId(presetGameMode));
-                if (gameMode != null) {
-                    GameUtils.startGame(server.overworld(), gameMode, GameConstants.getInTicks(30, 0)); // 30秒后开始
-                } else {
+             SREGameModes.GAME_MODES.forEach(
+                        (identifier, gameMode) -> {
+                            if (gameMode.identifier.getPath().equals(presetGameMode)) {
+                                GameUtils.startGame(server.overworld(), gameMode, GameConstants.getInTicks(30, 0)); // 30秒后开始
+                                isStarted.set(true);
+                            }
+                        }
+                );
+                if (!isStarted.get()) {
                     // 如果预设模式不存在，使用默认的murder模式
                     GameUtils.startGame(server.overworld(), SREGameModes.MURDER, GameConstants.getInTicks(30, 0));
                 }

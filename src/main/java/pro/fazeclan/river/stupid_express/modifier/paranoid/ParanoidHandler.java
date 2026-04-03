@@ -7,6 +7,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
@@ -36,7 +37,7 @@ public class ParanoidHandler {
     }
 
     private static void tickPhantasmagoria(ServerPlayer player) {
-        Level world = player.getLevel();
+        Level world = player.level();
         WorldModifierComponent modifierComp = WorldModifierComponent.KEY.get(world);
         if (modifierComp == null) return;
 
@@ -63,6 +64,8 @@ public class ParanoidHandler {
         float volume = 1.0f;
         float pitch = 0.8f + (float) (random.nextDouble() * 0.4D);
 
-        player.getLevel().playSound(null, pos.x, pos.y, pos.z, sound, SoundSource.PLAYERS, volume, pitch);
+        if (player instanceof ServerPlayer serverPlayer) {
+            serverPlayer.playNotifySound(sound, SoundSource.PLAYERS, volume, pitch);
+        }
     }
 }

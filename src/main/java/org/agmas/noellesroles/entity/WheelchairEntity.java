@@ -138,6 +138,14 @@ public class WheelchairEntity extends Mob {
         if (this.level().isClientSide)
             return;
 
+        // 冷却计时，无论是否骑乘
+        if (this.redstoneCooldown > 0) {
+            this.redstoneCooldown--;
+        }
+        if (this.emeraldCooldown > 0) {
+            this.emeraldCooldown--;
+        }
+
         if (lastPos == null)
             lastPos = this.position();
         double speed = this.position().distanceTo(lastPos);
@@ -267,16 +275,6 @@ public class WheelchairEntity extends Mob {
             if (this.slowTime <= 0) {
                 this.slowMultiplier = 1.0f;
             }
-        }
-
-        // 红石触发冷却计时
-        if (this.redstoneCooldown > 0) {
-            this.redstoneCooldown--;
-        }
-
-        // 绿宝石触发冷却计时
-        if (this.emeraldCooldown > 0) {
-            this.emeraldCooldown--;
         }
     }
 
