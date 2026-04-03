@@ -1,5 +1,7 @@
 # 免责声明
 
+本模组仅供娱乐，并无违背社会主义核心价值观的内容，坚决反对一切分裂国家行为，自觉尊法守法，请勿代入并联想所有出现的意识形态。
+
 本模组是Wathe模组的附属模组，并改进了Wathe模组中的很多功能，本模组自带 `Harpymodloader`、`StupidExpress`、`Noellesroles`、`Harpy Simple Roles`模组的功能与内容，新增的职业中部分参考了`KinsWathe`模组中的职业。
 
 本模组完全开源免费，非盈利项目。
