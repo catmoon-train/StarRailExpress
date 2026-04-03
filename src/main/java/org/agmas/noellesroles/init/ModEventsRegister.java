@@ -1,7 +1,6 @@
 package org.agmas.noellesroles.init;
 
 import io.wifi.starrailexpress.SRE;
-import org.agmas.noellesroles.component.NinjaPlayerComponent;
 import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
@@ -584,7 +583,7 @@ public class ModEventsRegister {
             }
             return false;
         });
-        // 所有枪械公用冷却
+        // 观者掉枪
         AllowShootRevolverDrop.EVENT.register((player, target) -> {
             var gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
             if (gameWorldComponent.isRole(target, ModRoles.WATCHER)) {
@@ -593,6 +592,7 @@ public class ModEventsRegister {
             }
             return ShouldDropResult.PASS;
         });
+        // 所有枪械公用冷却
         OnRevolverUsed.EVENT.register((player, target) -> {
             if (!player.isCreative()) {
                 var cooldowns = player.getCooldowns();
@@ -1388,6 +1388,11 @@ public class ModEventsRegister {
                 return false; // 阻止死亡
             }
 
+            // onPlayerDeath(victim, deathReason);
+            return true; // 允许死亡
+        });
+        AfterShieldAllowPlayerDeath.EVENT.register((victim,deathReason)->{
+            
             // 检查傀儡师假人状态
             if (handlePuppeteerDeath(victim, deathReason)) {
                 return false; // 阻止死亡（假人死亡）
@@ -1397,8 +1402,6 @@ public class ModEventsRegister {
             if (handleDefibrillator(victim)) {
                 // 允许死亡，但已标记复活
             }
-
-            // onPlayerDeath(victim, deathReason);
             return true; // 允许死亡
         });
         OnPlayerDeath.EVENT.register((victim, deathReason) -> {
