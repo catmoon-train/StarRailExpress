@@ -46,7 +46,9 @@ public class ServerPlayerEntityMixin {
             return;
         }
         ServerPlayer self = (ServerPlayer) (Object) this;
-
+        if(self.isSpectator()){
+            return;
+        }
         if (self.getMainHandItem().is(TMMItems.BAT) && target instanceof ServerPlayer playerTarget
                 && self.getAttackStrengthScale(0.5F) >= 1f) {
             if (playerTarget instanceof ServerPlayer) {
