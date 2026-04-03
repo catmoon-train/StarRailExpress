@@ -3,7 +3,6 @@ package io.wifi.starrailexpress.mail;
 import io.wifi.starrailexpress.network.NetworkHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
@@ -182,20 +181,24 @@ public class MailboxScreen extends Screen {
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-        // 暗化背景
-        graphics.fill(0, 0, this.width, this.height, 0x88000000);
-        // 面板
-        graphics.fill(panelX, panelY, panelX + panelW, panelY + panelH, BG_COLOR);
-        // 标题栏
-        graphics.fill(panelX, panelY, panelX + panelW, panelY + HDR_H, HEADER_COLOR);
-
+        super.render(graphics, mouseX, mouseY, delta);
         if (selectedMail != null) {
             renderDetailView(graphics, mouseX, mouseY);
         } else {
             renderListView(graphics, mouseX, mouseY);
         }
 
-        super.render(graphics, mouseX, mouseY, delta);
+    }
+
+    @Override
+    public void renderBackground(GuiGraphics graphics, int i, int j, float f) {
+        super.renderBackground(graphics, i, j, f);
+        // 暗化背景
+        graphics.fill(0, 0, this.width, this.height, 0x88000000);
+        // 面板
+        graphics.fill(panelX, panelY, panelX + panelW, panelY + panelH, BG_COLOR);
+        // 标题栏
+        graphics.fill(panelX, panelY, panelX + panelW, panelY + HDR_H, HEADER_COLOR);
     }
 
     private void renderListView(GuiGraphics graphics, int mouseX, int mouseY) {
@@ -239,7 +242,7 @@ public class MailboxScreen extends Screen {
     }
 
     private void renderMailRow(GuiGraphics graphics, Mail mail, int x, int y, int w, int h,
-                               int mouseX, int mouseY) {
+            int mouseX, int mouseY) {
         // 背景颜色
         int bgColor = mail.claimed ? ROW_CLAIMED : (mail.read ? ROW_READ : ROW_UNREAD);
         graphics.fill(x, y, x + w, y + h, bgColor);
@@ -314,7 +317,8 @@ public class MailboxScreen extends Screen {
         List<String> lines = wrapText(selectedMail.content, maxTextWidth);
         int lineY = contentY + 4;
         for (String line : lines) {
-            if (lineY + 10 > panelY + panelH - FOOTER_H - 60) break;
+            if (lineY + 10 > panelY + panelH - FOOTER_H - 60)
+                break;
             graphics.drawString(font, line, panelX + 12, lineY, TEXT_WHITE);
             lineY += 11;
         }
@@ -372,7 +376,8 @@ public class MailboxScreen extends Screen {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (super.mouseClicked(mouseX, mouseY, button)) return true;
+        if (super.mouseClicked(mouseX, mouseY, button))
+            return true;
 
         if (selectedMail == null && button == 0) {
             // 点击邮件行打开详情
@@ -424,7 +429,8 @@ public class MailboxScreen extends Screen {
         }
         // 未读在前，按时间倒序
         visible.sort((a, b) -> {
-            if (a.read != b.read) return a.read ? 1 : -1;
+            if (a.read != b.read)
+                return a.read ? 1 : -1;
             return Long.compare(b.sentAt, a.sentAt);
         });
         return visible;
@@ -432,7 +438,8 @@ public class MailboxScreen extends Screen {
 
     private List<String> wrapText(String text, int maxWidth) {
         List<String> lines = new ArrayList<>();
-        if (text == null || text.isEmpty()) return lines;
+        if (text == null || text.isEmpty())
+            return lines;
         for (String paragraph : text.split("\n")) {
             if (paragraph.isEmpty()) {
                 lines.add("");
