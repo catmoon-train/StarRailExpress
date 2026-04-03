@@ -510,8 +510,12 @@ public class RoleShopHandler {
           SREConfig.instance().knifePrice, ShopEntry.Type.WEAPON));
       IMITATOR_SHOP.add(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(),
           SREConfig.instance().lockpickPrice, ShopEntry.Type.TOOL));
-      IMITATOR_SHOP.add(new ShopEntry(HSRItems.createGrenade(), 275, ShopEntry.Type.WEAPON));
-      IMITATOR_SHOP.add(new ShopEntry(HSRItems.createBlackout(), 250, ShopEntry.Type.TOOL));
+      IMITATOR_SHOP.add(new ShopEntry(TMMItems.GRENADE.getDefaultInstance(), 275, ShopEntry.Type.WEAPON));
+      IMITATOR_SHOP.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), 250, ShopEntry.Type.TOOL) {
+        public boolean onBuy(@NotNull Player player) {
+          return SREPlayerShopComponent.useBlackout(player);
+        }
+      });
       ShopContent.customEntries.put(ModRoles.IMITATOR_ID, IMITATOR_SHOP);
     }
     {

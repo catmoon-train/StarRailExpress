@@ -152,6 +152,9 @@ public class RicesRoleRhapsody implements ModInitializer {
         // 8. 注册事件监听
         registerEvents();
 
+        // 9. 注册模仿者技能映射
+        org.agmas.noellesroles.roles.imitator.ImitatorSkillRegistry.registerAll();
+
         // 9. 加载配置（如果使用 YACL）
         // ModConfig.HANDLER.load();
 
