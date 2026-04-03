@@ -12,7 +12,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.entity.EntityTypeTest;
-import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
@@ -98,11 +97,13 @@ public class ImitatorPlayerComponent implements RoleComponent, ServerTickingComp
             return;
         }
         Player target = self.level().getPlayerByUUID(targetUUID);
-        if (target == null || !GameUtils.isPlayerAliveAndSurvival(target)) return;
+        if (target == null || !GameUtils.isPlayerAliveAndSurvival(target))
+            return;
 
         SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(self.level());
         var role = gameWorld.getRole(target);
-        if (role == null) return;
+        if (role == null)
+            return;
 
         ResourceLocation roleId = role.identifier();
         if (!ImitatorSkillRegistry.isImitatable(roleId)) {
@@ -121,10 +122,12 @@ public class ImitatorPlayerComponent implements RoleComponent, ServerTickingComp
         this.sync();
     }
 
-    // ==================== Eat corpse (right-click starts charging) ====================
+    // ==================== Eat corpse (right-click starts charging)
+    // ====================
 
     public void startCharging(UUID corpseEntityUuid) {
-        if (isCharging) return;
+        if (isCharging)
+            return;
         isCharging = true;
         chargeTicks = 0;
         chargingCorpseUuid = corpseEntityUuid;
@@ -136,7 +139,8 @@ public class ImitatorPlayerComponent implements RoleComponent, ServerTickingComp
     }
 
     public void cancelCharging() {
-        if (!isCharging) return;
+        if (!isCharging)
+            return;
         isCharging = false;
         chargeTicks = 0;
         chargingCorpseUuid = null;
@@ -146,8 +150,10 @@ public class ImitatorPlayerComponent implements RoleComponent, ServerTickingComp
     private void completeEat() {
         isCharging = false;
         chargeTicks = 0;
-        if (!(player instanceof ServerPlayer sp)) return;
-        if (chargingCorpseUuid == null) return;
+        if (!(player instanceof ServerPlayer sp))
+            return;
+        if (chargingCorpseUuid == null)
+            return;
 
         // Find the corpse entity
         var bodies = sp.level().getEntities(
@@ -198,7 +204,8 @@ public class ImitatorPlayerComponent implements RoleComponent, ServerTickingComp
                     break;
                 }
             }
-            if (slotIndex == -1) slotIndex = 0; // fallback
+            if (slotIndex == -1)
+                slotIndex = 0; // fallback
             filledSlots++;
         } else {
             // Override oldest slot
@@ -306,7 +313,8 @@ public class ImitatorPlayerComponent implements RoleComponent, ServerTickingComp
         slotFillOrder[index] = 0;
         filledSlots = 0;
         for (int i = 0; i < MAX_SLOTS; i++) {
-            if (slotRoleId[i] != null) filledSlots++;
+            if (slotRoleId[i] != null)
+                filledSlots++;
         }
     }
 
@@ -323,31 +331,38 @@ public class ImitatorPlayerComponent implements RoleComponent, ServerTickingComp
     }
 
     public boolean hasAnyAbility() {
-        if (tempCopiedRoleId != null) return true;
+        if (tempCopiedRoleId != null)
+            return true;
         for (int i = 0; i < MAX_SLOTS; i++) {
-            if (slotRoleId[i] != null) return true;
+            if (slotRoleId[i] != null)
+                return true;
         }
         return false;
     }
 
     public ResourceLocation getCurrentAbilityRoleId() {
-        if (tempCopiedRoleId != null) return tempCopiedRoleId;
-        if (slotRoleId[activeSlotIndex] != null) return slotRoleId[activeSlotIndex];
+        if (tempCopiedRoleId != null)
+            return tempCopiedRoleId;
+        if (slotRoleId[activeSlotIndex] != null)
+            return slotRoleId[activeSlotIndex];
         return null;
     }
 
     public ResourceLocation getSlotRoleId(int index) {
-        if (index < 0 || index >= MAX_SLOTS) return null;
+        if (index < 0 || index >= MAX_SLOTS)
+            return null;
         return slotRoleId[index];
     }
 
     public boolean isSlotUnlimited(int index) {
-        if (index < 0 || index >= MAX_SLOTS) return false;
+        if (index < 0 || index >= MAX_SLOTS)
+            return false;
         return slotUnlimited[index];
     }
 
     public int getSlotUsesRemaining(int index) {
-        if (index < 0 || index >= MAX_SLOTS) return 0;
+        if (index < 0 || index >= MAX_SLOTS)
+            return 0;
         return slotUsesRemaining[index];
     }
 
@@ -356,9 +371,11 @@ public class ImitatorPlayerComponent implements RoleComponent, ServerTickingComp
     @Override
     public void serverTick() {
         SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
-        if (!gameWorld.isRole(player, ModRoles.IMITATOR)) return;
+        if (!gameWorld.isRole(player, ModRoles.IMITATOR))
+            return;
 
-        if (cooldown > 0) cooldown--;
+        if (cooldown > 0)
+            cooldown--;
 
         if (isCharging) {
             chargeTicks++;
