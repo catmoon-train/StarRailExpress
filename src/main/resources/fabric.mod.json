@@ -168,7 +168,8 @@
       "starrailexpress:armor",
       "starrailexpress:player_nunchuck",
       "starrailexpress:mailbox",
-      "noellesroles:ma_chen_xu"
+      "noellesroles:ma_chen_xu",
+      "noellesroles:imitator"
     ],
     "loom:injected_interfaces": {
       "net/minecraft/class_5483/class_5496": [
