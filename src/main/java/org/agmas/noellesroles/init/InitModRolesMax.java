@@ -654,6 +654,30 @@ public class InitModRolesMax {
             Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("jeb_"), 0);
         }
 
+            /// VIGOROUS (矫健) - 80% 概率生成
+            if (random.nextInt(0, 100) < 80) {
+                StupidExpress.LOGGER.info("Modifier [Vigorous] enabled in this round!");
+                Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("vigorous"), Math.max(1, players / random.nextInt(6, 12)));
+            } else {
+                Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("vigorous"), 0);
+            }
+
+            /// UNYIELDING (不屈) - 80% 概率生成
+            if (random.nextInt(0, 100) < 80) {
+                StupidExpress.LOGGER.info("Modifier [Unyielding] enabled in this round!");
+                Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("unyielding"), Math.max(1, players / random.nextInt(6, 12)));
+            } else {
+                Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("unyielding"), 0);
+            }
+
+            /// PARANOID (偏执) - 10% 概率生成
+            if (random.nextInt(0, 100) < 10) {
+                StupidExpress.LOGGER.info("Modifier [Paranoid] enabled in this round!");
+                Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("paranoid"), Math.max(1, players / random.nextInt(8, 24)));
+            } else {
+                Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("paranoid"), 0);
+            }
+
         SPLIT_PERSONALITY_CHANCE = NoellesRolesConfig.HANDLER.instance().chanceOfModifierSplitPersonality;
         if (SPLIT_PERSONALITY_CHANCE < 0) {
             SPLIT_PERSONALITY_CHANCE = 0;
