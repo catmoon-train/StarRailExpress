@@ -156,6 +156,28 @@ public class LobbyPlayersRenderer {
             int timerY = y + 20;
 
             guiGraphics.drawString(font, timerText, timerX, timerY, 0xFFFFFF00, false); // 黄色倒计时
+
+            // 绘制预设游戏模式信息
+            String presetMode = mapVotingComponent.getPresetGameMode();
+            String localizedModeName = getLocalizedGameModeName(presetMode);
+            Component presetText = Component.translatable("gui.sre.map_selector.preset_mode", localizedModeName);
+            int presetWidth = font.width(presetText);
+            int presetX = x + (bgWidth - presetWidth) / 2;
+            int presetY = y + 35;
+
+            guiGraphics.drawString(font, presetText, presetX, presetY, 0xFFFFA500, false); // 橙色预设模式
+        }
+    }
+
+    private static String getLocalizedGameModeName(String gameModeId) {
+        // 根据游戏模式ID返回本地化的名称
+        switch (gameModeId) {
+            case "murder":
+                return Component.translatable("gamemode.sre.murder").getString();
+            case "loose_ends":
+                return Component.translatable("gamemode.wathe.loose_ends").getString();
+            default:
+                return gameModeId; // 如果没有找到翻译，返回原始ID
         }
     }
 

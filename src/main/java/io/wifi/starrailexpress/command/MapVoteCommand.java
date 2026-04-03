@@ -1,7 +1,7 @@
 package io.wifi.starrailexpress.command;
 
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.data.ServerMapConfig;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -28,7 +28,11 @@ public class MapVoteCommand {
                         .then(Commands.literal("resume")
                                 .executes(context -> resumeVoting(context.getSource())))
                         .then(Commands.literal("stop")
-                                .executes(context -> stopVoting(context.getSource()))));
+                                .executes(context -> stopVoting(context.getSource())))
+                        .then(Commands.literal("setmode")
+                                .then(Commands.argument("mode", StringArgumentType.string())
+                                        .executes(context -> setPresetGameMode(context.getSource(),
+                                                StringArgumentType.getString(context, "mode"))))));
     }
 
     private static int startVoting(CommandSourceStack source, int time) {
@@ -114,5 +118,33 @@ public class MapVoteCommand {
         votingManager.stopVoting();
         source.sendSuccess(() -> Component.literal("投票已终止"), true);
         return 1;
+    }
+
+    private static int setPresetGameMode(CommandSourceStack source, String gameMode) {
+        MapVotingManager votingManager = MapVotingManager.getInstance();
+
+        // 验证游戏模式是否存在
+        if (!votingManager.isValidGameMode(gameMode)) {
+            String availableModes = "murder, loose_ends"; // 这里可以动态获取所有可用模式
+            source.sendFailure(Component.translatable("command.sre.votemap.setmode.invalid", gameMode, availableModes));
+            return 0;
+        }
+
+        votingManager.setPresetGameMode(gameMode);
+        String localizedModeName = getLocalizedGameModeName(gameMode);
+        source.sendSuccess(() -> Component.translatable("command.sre.votemap.setmode.success", localizedModeName), true);
+        return 1;
+    }
+
+    private static String getLocalizedGameModeName(String gameModeId) {
+        // 根据游戏模式ID返回本地化的名称
+        switch (gameModeId) {
+            case "murder":
+                return Component.translatable("gamemode.sre.murder").getString();
+            case "loose_ends":
+                return Component.translatable("gamemode.wathe.loose_ends").getString();
+            default:
+                return gameModeId; // 如果没有找到翻译，返回原始ID
+        }
     }
 }

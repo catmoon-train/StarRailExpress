@@ -1,9 +1,7 @@
 package io.wifi.starrailexpress.voting;
 
 import io.wifi.starrailexpress.SRE;
-import io.wifi.starrailexpress.cca.MapVotingComponent;
-import io.wifi.starrailexpress.cca.SREGameWorldComponent;
-import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.api.SREGameModes;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.Level;
 
@@ -162,5 +160,28 @@ public class MapVotingManager {
             return votingComponent.getTotalVotingTime();
         }
         return 0;
+    }
+
+    public boolean isValidGameMode(String gameMode) {
+        return SREGameModes.GAME_MODES.containsKey(SRE.shortId(gameMode));
+    }
+
+    public void setPresetGameMode(String gameMode) {
+        MinecraftServer server = SRE.SERVER;
+        if (server != null) {
+            Level level = server.overworld();
+            MapVotingComponent votingComponent = MapVotingComponent.KEY.get(level);
+            votingComponent.setPresetGameMode(gameMode);
+        }
+    }
+
+    public String getPresetGameMode() {
+        MinecraftServer server = SRE.SERVER;
+        if (server != null) {
+            Level level = server.overworld();
+            MapVotingComponent votingComponent = MapVotingComponent.KEY.get(level);
+            return votingComponent.getPresetGameMode();
+        }
+        return "murder";
     }
 }

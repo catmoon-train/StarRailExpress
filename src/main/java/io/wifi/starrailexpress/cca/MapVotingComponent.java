@@ -1,6 +1,10 @@
 package io.wifi.starrailexpress.cca;
 
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.GameMode;
+import io.wifi.starrailexpress.api.SREGameModes;
+import io.wifi.starrailexpress.game.GameConstants;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.network.MapVotingResultsPayload;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.HolderLookup;
@@ -30,6 +34,7 @@ public class MapVotingComponent implements AutoSyncedComponent, CommonTickingCom
     private boolean votingPaused = false;
     private int votingTimeLeft = 0;
     private int totalVotingTime = 0;
+    private String presetGameMode = "murder"; // 预设游戏模式，默认murder
     private final Map<String, Integer> votes = new HashMap<>();
     private final Map<UUID, String> playerVotes = new HashMap<>(); // 记录每个玩家的投票
     private boolean shouldSync = false;
@@ -44,6 +49,10 @@ public class MapVotingComponent implements AutoSyncedComponent, CommonTickingCom
         this.votingPaused = tag.getBoolean("VotingPaused");
         this.votingTimeLeft = tag.getInt("VotingTimeLeft");
         this.totalVotingTime = tag.getInt("TotalVotingTime");
+        this.presetGameMode = tag.getString("PresetGameMode");
+        if (this.presetGameMode.isEmpty()) {
+            this.presetGameMode = "murder"; // 默认值
+        }
 
         // 读取投票数据
         this.votes.clear();
@@ -62,6 +71,7 @@ public class MapVotingComponent implements AutoSyncedComponent, CommonTickingCom
         tag.putBoolean("VotingPaused", this.votingPaused);
         tag.putInt("VotingTimeLeft", this.votingTimeLeft);
         tag.putInt("TotalVotingTime", this.totalVotingTime);
+        tag.putString("PresetGameMode", this.presetGameMode);
 
         // 写入投票数据
         ListTag votesList = new ListTag();
@@ -128,6 +138,10 @@ public class MapVotingComponent implements AutoSyncedComponent, CommonTickingCom
         return totalVotingTime;
     }
 
+    public String getPresetGameMode() {
+        return presetGameMode;
+    }
+
     public int getVoteCount(String mapId) {
         return votes.getOrDefault(mapId, 0);
     }
@@ -154,6 +168,11 @@ public class MapVotingComponent implements AutoSyncedComponent, CommonTickingCom
 
     public void setTotalVotingTime(int totalTime) {
         this.totalVotingTime = totalTime;
+        this.shouldSync = true;
+    }
+
+    public void setPresetGameMode(String presetGameMode) {
+        this.presetGameMode = presetGameMode;
         this.shouldSync = true;
     }
 
@@ -255,7 +274,18 @@ public class MapVotingComponent implements AutoSyncedComponent, CommonTickingCom
                     "function harpymodloader:vote_over");
 
             // 开始游戏
-            // GameUtils.startGame(server.overworld(), gameComponent.getGameMode());
+            try {
+                // 根据预设游戏模式启动游戏
+                GameMode gameMode = SREGameModes.GAME_MODES.get(SRE.shortId(presetGameMode));
+                if (gameMode != null) {
+                    GameUtils.startGame(server.overworld(), gameMode, GameConstants.getInTicks(30, 0)); // 30秒后开始
+                } else {
+                    // 如果预设模式不存在，使用默认的murder模式
+                    GameUtils.startGame(server.overworld(), SREGameModes.MURDER, GameConstants.getInTicks(30, 0));
+                }
+            } catch (Exception e) {
+                SRE.LOGGER.error("投票结束后自动开始游戏失败", e);
+            }
         }
 
         // 发送投票结果给所有玩家
@@ -273,6 +303,16 @@ public class MapVotingComponent implements AutoSyncedComponent, CommonTickingCom
         this.totalVotingTime = 0;
         this.votes.clear();
         this.playerVotes.clear();
+        this.shouldSync = true;
+    }
+
+    // Getter and setter for presetGameMode
+    public String getPresetGameMode() {
+        return presetGameMode;
+    }
+
+    public void setPresetGameMode(String presetGameMode) {
+        this.presetGameMode = presetGameMode;
         this.shouldSync = true;
     }
 }
