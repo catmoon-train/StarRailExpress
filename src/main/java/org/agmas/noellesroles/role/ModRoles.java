@@ -14,6 +14,9 @@ import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import org.agmas.noellesroles.Noellesroles;
@@ -154,6 +157,7 @@ public class ModRoles {
   public static final ResourceLocation BLOOD_FEUDIST_ID = Noellesroles.id("blood_feudist");
   public static final ResourceLocation GUEST_GHOST_ID = Noellesroles.id("guest_ghost");
   public static final ResourceLocation WATCHER_ID = Noellesroles.id("watcher");
+  public static final ResourceLocation IMITATOR_ID = Noellesroles.id("imitator");
 
   // 中立阵营
   public static final ResourceLocation STALKER_ID = Noellesroles.id("stalker");
@@ -1311,6 +1315,32 @@ public class ModRoles {
       SRERole.MoodType.FAKE,
       Integer.MAX_VALUE,
       true)).setComponentKey(ModComponents.WATCHER).setCanSeeCoin(true);
+
+  // 模仿者 - 杀手角色，右键尸体吃掉获得永久能力
+  public static SRERole IMITATOR = TMMRoles.registerRole(new NormalRole(
+      IMITATOR_ID,
+      new Color(100, 0, 0).getRGB(),
+      false,
+      true,
+      SRERole.MoodType.FAKE,
+      Integer.MAX_VALUE,
+      true) {
+    @Override
+    public InteractionResult rightClickEntity(Player player, Entity target) {
+      if (!io.wifi.starrailexpress.game.GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player))
+        return InteractionResult.PASS;
+      if (!(player instanceof net.minecraft.server.level.ServerPlayer sp))
+        return InteractionResult.PASS;
+      if (target instanceof io.wifi.starrailexpress.entity.PlayerBodyEntity body) {
+        org.agmas.noellesroles.roles.imitator.ImitatorPlayerComponent comp = ModComponents.IMITATOR.get(sp);
+        if (!comp.isCharging) {
+          comp.startCharging(body.getUUID());
+          return InteractionResult.SUCCESS;
+        }
+      }
+      return InteractionResult.PASS;
+    }
+  }).setComponentKey(ModComponents.IMITATOR).setCanSeeCoin(true);
 
   // ==================== 其他变量定义 ====================
   public static ArrayList<SRERole> SHOW_MONEY_ROLES = new ArrayList<>();

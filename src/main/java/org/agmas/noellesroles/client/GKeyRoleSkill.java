@@ -124,6 +124,31 @@ public final class GKeyRoleSkill {
             client.execute(() -> client.setScreen(new TelegrapherScreen()));
             return true;
         });
+
+        // Imitator: Shift+G = switch slot, G at player = copy/use, G without target = use
+        register(ModRoles.IMITATOR, true, (client, gameWorld) -> {
+            if (!GameUtils.isPlayerAliveAndSurvival(client.player)) return true;
+
+            // Shift+G = switch slot
+            if (client.player.isShiftKeyDown()) {
+                ClientPlayNetworking.send(new AbilityC2SPacket());
+                return true;
+            }
+
+            // Looking at a player → send with target (server decides copy vs use)
+            var hitResult = client.hitResult;
+            if (hitResult != null && hitResult.getType() == net.minecraft.world.phys.HitResult.Type.ENTITY) {
+                net.minecraft.world.phys.EntityHitResult entityHit = (net.minecraft.world.phys.EntityHitResult) hitResult;
+                if (entityHit.getEntity() instanceof Player targetPlayer) {
+                    ClientPlayNetworking.send(new AbilityWithTargetC2SPacket(targetPlayer));
+                    return true;
+                }
+            }
+
+            // No target → use ability (server handles)
+            ClientPlayNetworking.send(new AbilityC2SPacket());
+            return true;
+        });
     }
 
     @FunctionalInterface

@@ -15,6 +15,7 @@ import org.agmas.noellesroles.roles.candlebearer.CandleBearerPlayerComponent;
 import org.agmas.noellesroles.roles.ghost.GhostPlayerComponent;
 import org.agmas.noellesroles.roles.manipulator.InControlCCA;
 import org.agmas.noellesroles.roles.manipulator.ManipulatorPlayerComponent;
+import org.agmas.noellesroles.roles.imitator.ImitatorPlayerComponent;
 import org.agmas.noellesroles.roles.morphling.MorphlingPlayerComponent;
 import org.agmas.noellesroles.roles.noise_maker.NoiseMakerPlayerComponent;
 import org.agmas.noellesroles.roles.recaller.RecallerPlayerComponent;
@@ -242,6 +243,10 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
       .getOrCreate(
           ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "locksmith_inspiration"),
           LocksmithInspirationComponent.class);
+
+  public static final ComponentKey<ImitatorPlayerComponent> IMITATOR = ComponentRegistry.getOrCreate(
+      ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "imitator"),
+      ImitatorPlayerComponent.class);
 
   public ModComponents() {
     // CCA 需要无参构造函数
@@ -482,6 +487,11 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
     registry.beginRegistration(Player.class, LOCKSMITH_INSPIRATION)
         .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
         .end(LocksmithInspirationComponent::new);
+
+    // 注册模仿者组件 - 存储复制能力、槽位、充能状态
+    registry.beginRegistration(Player.class, IMITATOR)
+        .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
+        .end(ImitatorPlayerComponent::new);
 
     // 注册会计组件 - 存储模式、被动收入计时器
     registry.beginRegistration(Player.class, ACCOUNTANT)

@@ -34,6 +34,7 @@ import org.agmas.noellesroles.roles.fortuneteller.FortunetellerPlayerComponent;
 import org.agmas.noellesroles.roles.noise_maker.NoiseMakerPlayerComponent;
 import org.agmas.noellesroles.roles.recaller.RecallerPlayerComponent;
 import org.agmas.noellesroles.roles.thief.ThiefPlayerComponent;
+import org.agmas.noellesroles.roles.imitator.ImitatorPlayerComponent;
 import org.agmas.noellesroles.utils.RoleUtils;
 
 public class AbilityHandler {
@@ -451,6 +452,15 @@ public class AbilityHandler {
             return;
         }
 
+        if (gameWorldComponent.isRole(player, ModRoles.IMITATOR)) {
+            ImitatorPlayerComponent comp = ModComponents.IMITATOR.get(player);
+            if (player.isShiftKeyDown()) {
+                comp.switchSlot();
+            } else {
+                comp.useActiveAbility(player, null);
+            }
+            return;
+        }
         if (gameWorldComponent.isRole(player, ModRoles.SEA_KING)) {
             if (abilityPlayerComponent.cooldown > 0) {
                 player.displayClientMessage(
@@ -513,6 +523,15 @@ public class AbilityHandler {
             return;
         }
         if (player.hasEffect(ModEffects.SKILL_BANED)) {
+            return;
+        }
+        if (gameWorldComponent.isRole(player, ModRoles.IMITATOR)) {
+            ImitatorPlayerComponent comp = ModComponents.IMITATOR.get(player);
+            if (!comp.hasAnyAbility()) {
+                comp.tryCopyAbility(player, targetUUID);
+            } else {
+                comp.useActiveAbility(player, targetUUID);
+            }
             return;
         }
         var targetPlayer = player.level().getPlayerByUUID(targetUUID);
