@@ -22,6 +22,12 @@ import pro.fazeclan.river.stupid_express.modifier.split_personality.cca.SplitPer
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.server.level.ServerPlayer;
+import org.agmas.noellesroles.init.ModEffects;
 
 public class SEModifiers {
 
@@ -137,14 +143,47 @@ public class SEModifiers {
             false,
             true));
 
+        // 新增修饰符：矫健（体力上限更多、恢复更快）
+        public static SREModifier VIGOROUS = HMLModifiers.registerModifier(new SREModifier(
+            StupidExpress.id("vigorous"),
+            new Color(80, 200, 120).getRGB(),
+            null,
+            null,
+            false,
+            false));
+
+        // 新增修饰符：不屈（一次性免疫被平民误杀；对杀手阵营攻击免疫）
+        public static SREModifier UNYIELDING = HMLModifiers.registerModifier(new SREModifier(
+            StupidExpress.id("unyielding"),
+            new Color(200, 80, 80).getRGB(),
+            null,
+            null,
+            false,
+            false));
+
+        // 标记不屈的一次性免疫是否已被消耗（基于 UUID 的运行时集合）
+        public static Set<UUID> UNYIELDING_IMMUNITY_USED = ConcurrentHashMap.newKeySet();
+
+        // 新增修饰符：偏执（占位，移植外部代码以实现声音/客户端效果）
+        public static SREModifier PARANOID = HMLModifiers.registerModifier(new SREModifier(
+            StupidExpress.id("paranoid"),
+            new Color(180, 160, 220).getRGB(),
+            null,
+            null,
+            false,
+            false));
+
     public static void init() {
         REFUGEE.civilianOnly = true;
         SPLIT_PERSONALITY.civilianOnly = true;
+        VIGOROUS.civilianOnly = true;
         assignModifierComponents();
         pro.fazeclan.river.stupid_express.modifier.magnate.MagnatePassiveIncomeHandler.init();
         pro.fazeclan.river.stupid_express.modifier.cursed.CursedHandler.init();
         pro.fazeclan.river.stupid_express.modifier.knight.KnightHandler.init();
         pro.fazeclan.river.stupid_express.modifier.split_personality.SplitPersonalityHandler.init();
+        // 初始化偏执处理器（播放周围虚假声音）
+        pro.fazeclan.river.stupid_express.modifier.paranoid.ParanoidHandler.init();
 
         ResetPlayerEvent.EVENT.register(player -> {
             var splitPersonalityComponent2 = pro.fazeclan.river.stupid_express.modifier.split_personality.cca.SplitPersonalityComponent.KEY
@@ -378,6 +417,18 @@ public class SEModifiers {
                 knightComponent.sync();
             }
 
+            if (modifier.equals(VIGOROUS)) {
+                if (player instanceof ServerPlayer sp) {
+                    // 给玩家长期的体力提升/恢复效果（通过已有 ModEffects）
+                    sp.addEffect(new MobEffectInstance(ModEffects.STAMINA_BOOST, 10000000, 0, true, false, false));
+                    sp.addEffect(new MobEffectInstance(ModEffects.STAMINA_RECOVERY, 10000000, 0, true, false, false));
+                }
+            }
+            if (modifier.equals(UNYIELDING)) {
+                // 分配时重置一次性免疫标记（允许新一轮免疫）
+                UNYIELDING_IMMUNITY_USED.remove(player.getUUID());
+            }
+
         }));
 
         ResetPlayerEvent.EVENT.register(player -> {
@@ -419,6 +470,14 @@ public class SEModifiers {
             if (refugeeC != null) {
                 refugeeC.reset();
             }
+            // 清理矫健带来的效果
+            try {
+                player.removeEffect(ModEffects.STAMINA_BOOST);
+                player.removeEffect(ModEffects.STAMINA_RECOVERY);
+            } catch (Exception ignored) {
+            }
+            // 清理不屈的一次性免疫标记
+            UNYIELDING_IMMUNITY_USED.remove(player.getUUID());
         });
 
     }
