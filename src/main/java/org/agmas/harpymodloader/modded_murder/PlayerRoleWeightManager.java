@@ -32,13 +32,7 @@ public class PlayerRoleWeightManager {
         return type == 3 || type == 4;
     }
 
-    private static double getKillerSideFailureBoost(WeightInfo weightManager, int type) {
-        if (!isKillerSideType(type)) {
-            return 1.0;
-        }
-        return Math.pow(1.35, weightManager.getKillerSideFailureBoost());
-    }
-public static double getRoleWeightPercent(UUID player, int type) {
+    public static double getRoleWeightPercent(UUID player, int type) {
         var weightManager = PlayerRoleWeightManager.playerWeights.get(player);
         if (weightManager == null) {
             weightManager = new PlayerRoleWeightManager.WeightInfo();
@@ -124,7 +118,7 @@ public static double getRoleWeightPercent(UUID player, int type) {
             PlayerRoleWeightManager.playerWeights.putIfAbsent(player, weightManager);
         }
         // 记录本局阵营，更新连续计数
-        weightManager.updateStreak((type));
+        weightManager.updateStreak(type);
         // 比例缩放：当总权重过大时等比缩小，保留历史比例且避免极端权重堆积
         if (weightManager.getWeightSum() >= 25) {
             weightManager.scaleDown();
