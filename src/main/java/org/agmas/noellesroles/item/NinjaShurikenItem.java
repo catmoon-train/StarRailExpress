@@ -1,6 +1,5 @@
 package org.agmas.noellesroles.item;
 
-import io.wifi.starrailexpress.index.TMMSounds;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -19,7 +18,7 @@ import java.util.List;
 
 public class NinjaShurikenItem extends ThrowingKnife {
 
-    private static final float SHURIKEN_RANGE = 20.0F;
+    // private static final float SHURIKEN_RANGE = 20.0F;
 
     public NinjaShurikenItem(Properties properties) {
         super(properties);
@@ -32,31 +31,26 @@ public class NinjaShurikenItem extends ThrowingKnife {
             return InteractionResultHolder.pass(itemStack);
         }
         user.startUsingItem(hand);
-        user.playSound(TMMSounds.ITEM_KNIFE_PREPARE, 1.0f, 1.0f);
+        // user.playSound(TMMSounds.ITEM_KNIFE_PREPARE, 1.0f, 1.0f);
         return InteractionResultHolder.consume(itemStack);
     }
 
     @Override
-    public void releaseUsing(ItemStack stack, Level world, LivingEntity user, int remainingUseTicks) {
-        if (user instanceof Player attacker) {
+    public ItemStack finishUsingItem(ItemStack itemStack, Level level, LivingEntity livingEntity) {
+        if (livingEntity instanceof Player attacker) {
             if (attacker.getCooldowns().isOnCooldown(ModItems.NINJA_SHURIKEN)) {
-                return;
+                return itemStack;
             }
-            if (!user.isSpectator()) {
+            if (!livingEntity.isSpectator()) {
                 // 发射飞刀
-                if (world.isClientSide) {
-
-                    if (attacker.getMainHandItem().is(ModItems.THROWING_KNIFE)) {
-                        ClientPlayNetworking.send(new TryThrowItemPacket());
-                    }
+                if (level.isClientSide) {
+                    ClientPlayNetworking.send(new TryThrowItemPacket());
                 }
+                itemStack.shrink(1);
+                return itemStack;
             }
         }
-    }
-
-    @Override
-    public int getUseDuration(ItemStack stack, LivingEntity user) {
-        return 0;
+        return itemStack;
     }
 
     @Override

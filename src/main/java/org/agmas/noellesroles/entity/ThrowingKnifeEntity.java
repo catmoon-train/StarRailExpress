@@ -16,9 +16,18 @@ import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.init.ModItems;
 
 public class ThrowingKnifeEntity extends AbstractArrow {
+    final ItemStack pickupItemStack;
+
     public ThrowingKnifeEntity(EntityType<? extends AbstractArrow> entityType, Level level) {
         super(entityType, level);
         this.setNoGravity(true);
+        this.pickupItemStack = ModItems.THROWING_KNIFE.getDefaultInstance();
+    }
+
+    public ThrowingKnifeEntity(EntityType<? extends AbstractArrow> entityType, Level level, ItemStack pickupItemStack) {
+        super(entityType, level);
+        this.setNoGravity(true);
+        this.pickupItemStack = pickupItemStack;
     }
 
     @Override
@@ -26,14 +35,13 @@ public class ThrowingKnifeEntity extends AbstractArrow {
         return false;
     }
 
-
     @Override
     public void tick() {
         super.tick();
-        if (level().isClientSide&&Math.random()<0.2){
+        if (level().isClientSide && Math.random() < 0.2) {
             level().addParticle(ParticleTypes.CRIT, this.getX(), this.getY(), this.getZ(), 0, 0, 0);
         }
-        if (this.tickCount > 20*8) {
+        if (this.tickCount > 20 * 8) {
             this.remove(RemovalReason.DISCARDED);
 
         }
@@ -44,15 +52,18 @@ public class ThrowingKnifeEntity extends AbstractArrow {
         super.onHitEntity(entityHitResult);
         if (getOwner() == null)
             return;
-        if (entityHitResult.getEntity() instanceof ServerPlayer serverPlayer){
-            if (!serverPlayer.getUUID().equals(getOwner().getUUID())){
+        if (entityHitResult.getEntity() instanceof ServerPlayer serverPlayer) {
+            if (!serverPlayer.getUUID().equals(getOwner().getUUID())) {
                 Vec3 location = entityHitResult.getLocation();
                 ServerLevel serverLevel = serverPlayer.serverLevel();
-                serverLevel.sendParticles(ParticleTypes.CRIT, location.x, location.y+1.25f, location.z, 10, 0.3, 0.3, 0.3, 0.15);
+                serverLevel.sendParticles(ParticleTypes.CRIT, location.x, location.y + 1.25f, location.z, 10, 0.3, 0.3,
+                        0.3, 0.15);
                 serverLevel.players().forEach(player -> {
-                    serverLevel.playSound(player, location.x, location.y, location.z, SoundEvents.CHAIN_HIT, SoundSource.PLAYERS, 1.0f, 1.0f);
+                    serverLevel.playSound(player, location.x, location.y, location.z, SoundEvents.CHAIN_HIT,
+                            SoundSource.PLAYERS, 1.0f, 1.0f);
                 });
-                        GameUtils.killPlayer(serverPlayer, true, (ServerPlayer) getOwner(), Noellesroles.id("throwing_knife_hit"));
+                GameUtils.killPlayer(serverPlayer, true, (ServerPlayer) getOwner(),
+                        Noellesroles.id("throwing_knife_hit"));
                 this.remove(RemovalReason.KILLED);
             }
         }
@@ -60,11 +71,11 @@ public class ThrowingKnifeEntity extends AbstractArrow {
 
     @Override
     protected ItemStack getDefaultPickupItem() {
-        return ModItems.THROWING_KNIFE.getDefaultInstance();
+        return pickupItemStack;
     }
 
-//    @Override
-//    protected Item getDefaultItem() {
-//        return ModItems.THROWING_KNIFE;
-//    }
+    // @Override
+    // protected Item getDefaultItem() {
+    // return ModItems.THROWING_KNIFE;
+    // }
 }
