@@ -4,6 +4,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.command.argument.GameModeArgumentType;
 import io.wifi.starrailexpress.data.ServerMapConfig;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.network.ShowSelectedMapUIPayload;
@@ -31,9 +32,11 @@ public class MapVoteCommand {
                         .then(Commands.literal("stop")
                                 .executes(context -> stopVoting(context.getSource())))
                         .then(Commands.literal("setmode")
-                                .then(Commands.argument("mode", StringArgumentType.string())
-                                        .executes(context -> setPresetGameMode(context.getSource(),
-                                                StringArgumentType.getString(context, "mode"))))));
+                                .then(Commands.argument("mode", GameModeArgumentType.gameMode())
+                                        .executes(context -> {
+                                            var modeId = context.getArgument("mode", net.minecraft.resources.ResourceLocation.class);
+                                            return setPresetGameMode(context.getSource(), modeId.getPath());
+                                        }))));
     }
 
     private static int startVoting(CommandSourceStack source, int time) {
@@ -53,12 +56,10 @@ public class MapVoteCommand {
             return 0;
         }
 
-        if (votingManager.isVotingPaused()) {
+        if (votingManager.isVotingSystemPaused()) {
             source.sendFailure(Component.literal("投票系统已暂停，无法发起新的投票！"));
             return 0;
         }
-
-        votingManager.startVoting(time);
         String mapconfigs = ShowSelectedMapUIPayload
                 .convertServerMapConfigToString(ServerMapConfig.getInstance(source.getServer()));
 
@@ -75,36 +76,26 @@ public class MapVoteCommand {
     private static int pauseVoting(CommandSourceStack source) {
         MapVotingManager votingManager = MapVotingManager.getInstance();
 
-        if (!votingManager.isVotingActive()) {
-            source.sendFailure(Component.literal("当前没有正在进行的投票！"));
+        if (votingManager.isVotingSystemPaused()) {
+            source.sendFailure(Component.literal("投票系统已经处于暂停状态！"));
             return 0;
         }
 
-        if (votingManager.isVotingPaused()) {
-            source.sendFailure(Component.literal("投票已经处于暂停状态！"));
-            return 0;
-        }
-
-        votingManager.pauseVoting();
-        source.sendSuccess(() -> Component.literal("投票已暂停"), true);
+        votingManager.setVotingSystemPaused(true);
+        source.sendSuccess(() -> Component.literal("投票系统已暂停"), true);
         return 1;
     }
 
     private static int resumeVoting(CommandSourceStack source) {
         MapVotingManager votingManager = MapVotingManager.getInstance();
 
-        if (!votingManager.isVotingActive()) {
-            source.sendFailure(Component.literal("当前没有正在进行的投票！"));
+        if (!votingManager.isVotingSystemPaused()) {
+            source.sendFailure(Component.literal("投票系统未处于暂停状态！"));
             return 0;
         }
 
-        if (!votingManager.isVotingPaused()) {
-            source.sendFailure(Component.literal("投票未处于暂停状态！"));
-            return 0;
-        }
-
-        votingManager.resumeVoting();
-        source.sendSuccess(() -> Component.literal("投票已恢复"), true);
+        votingManager.setVotingSystemPaused(false);
+        source.sendSuccess(() -> Component.literal("投票系统已恢复"), true);
         return 1;
     }
 

@@ -166,7 +166,7 @@ public class MapVotingManager {
     }
 
     public boolean isValidGameMode(String gameMode) {
-        return SREGameModes.GAME_MODES.containsKey(SRE.shortId(gameMode));
+        return SREGameModes.GAME_MODES.keySet().stream().anyMatch(a->a.getPath().equals(gameMode));
     }
 
     public void setPresetGameMode(String gameMode) {
@@ -178,13 +178,22 @@ public class MapVotingManager {
         }
     }
 
-    public String getPresetGameMode() {
+    public boolean isVotingSystemPaused() {
         MinecraftServer server = SRE.SERVER;
         if (server != null) {
             Level level = server.overworld();
             MapVotingComponent votingComponent = MapVotingComponent.KEY.get(level);
-            return votingComponent.getPresetGameMode();
+            return votingComponent.isVotingSystemPaused();
         }
-        return "murder";
+        return false;
+    }
+
+    public void setVotingSystemPaused(boolean paused) {
+        MinecraftServer server = SRE.SERVER;
+        if (server != null) {
+            Level level = server.overworld();
+            MapVotingComponent votingComponent = MapVotingComponent.KEY.get(level);
+            votingComponent.setVotingSystemPaused(paused);
+        }
     }
 }
