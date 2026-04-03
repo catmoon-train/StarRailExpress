@@ -81,7 +81,6 @@
     "compat.sodium.DefaultChunkRendererMixin",
     "compat.sodium.DefaultShaderInterfaceMixin",
     "compat.sodium.OcclusionCullerMixin",
-    "compat.sodium.PlayerHeadFixerMixin",
     "compat.sodium.RenderSectionManagerMixin",
     "compat.sodium.ShaderLoaderMixin",
     "compat.sodium.SodiumShaderMixin",

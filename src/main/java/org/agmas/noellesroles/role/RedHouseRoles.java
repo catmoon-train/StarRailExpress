@@ -50,7 +50,7 @@ public class RedHouseRoles {
         }
       })
       .setCanSeeCoin(true).setCanSeeBodyDeathReason(true).setCanSeeBodyRoleInfo(true);
-  // 独立中立：芙兰朵路
+  // 独立中立：芙兰朵露
   public static SRERole FURANDORU = TMMRoles.registerRole(
       new NormalRole(FURANDORU_ID, new Color(177, 153, 130).getRGB(),
           false, false, SRERole.MoodType.FAKE,

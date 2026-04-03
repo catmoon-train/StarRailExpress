@@ -194,5 +194,11 @@
     "exposure_polaroid": "*",
     "exposure": "*",
     "sre_resource": "*"
+  },
+  "recommends": {
+    "sodium": "*"
+  },
+  "conflicts": {
+    "customskinloader": "*"
   }
 }
