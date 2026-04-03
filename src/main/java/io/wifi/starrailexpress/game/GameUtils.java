@@ -158,7 +158,7 @@ public class GameUtils {
         }
         isStartingGame = true;
         AreasWorldComponent areas = AreasWorldComponent.KEY.get(world);
-        if(areas.mapName == null){
+        if (areas.mapName == null) {
             MapManager.loadRandomMap(world);
         }
         MapResetManager.loadArea(world);
@@ -254,10 +254,11 @@ public class GameUtils {
         SREGameWorldComponent component = SREGameWorldComponent.KEY.get(world);
         SREWorldBlackoutComponent.KEY.get(world).reset();
         component.setGameStatus(SREGameWorldComponent.GameStatus.STOPPING);
-        if (AutoShutdownWhenNotRunningCommand.autoShutdownWhenGameNotRunning){
-            world.getServer().getPlayerList().broadcastSystemMessage(Component.translatable("sre.shutdown.waring"), false);
+        if (AutoShutdownWhenNotRunningCommand.autoShutdownWhenGameNotRunning) {
+            world.getServer().getPlayerList().broadcastSystemMessage(Component.translatable("sre.shutdown.waring"),
+                    false);
 
-            serverAsynTaskLists.add( new ServerTaskInfoClasses.SchedulerTask(20*20,() -> {
+            serverAsynTaskLists.add(new ServerTaskInfoClasses.SchedulerTask(5 * 20, () -> {
                 world.getServer().halt(true);
             }));
         }
@@ -329,14 +330,15 @@ public class GameUtils {
         // int gamesAfter = unlockStorage.getGlobalGamesPlayed();
 
         // List<ResourceLocation> newlyUnlockedRoles = RoleUnlockManager.getInstance()
-        //         .getNewlyUnlockedRoles(gamesBefore, gamesAfter, unlockStorage.getForceUnlockedRoles());
+        // .getNewlyUnlockedRoles(gamesBefore, gamesAfter,
+        // unlockStorage.getForceUnlockedRoles());
         // if (!newlyUnlockedRoles.isEmpty()) {
-        //     RoleUnlockedHudPayload unlockPayload = new RoleUnlockedHudPayload(
-        //             gamesAfter,
-        //             newlyUnlockedRoles.stream().map(ResourceLocation::toString).toList());
-        //     for (ServerPlayer player : readyPlayerList) {
-        //         ServerPlayNetworking.send(player, unlockPayload);
-        //     }
+        // RoleUnlockedHudPayload unlockPayload = new RoleUnlockedHudPayload(
+        // gamesAfter,
+        // newlyUnlockedRoles.stream().map(ResourceLocation::toString).toList());
+        // for (ServerPlayer player : readyPlayerList) {
+        // ServerPlayNetworking.send(player, unlockPayload);
+        // }
         // }
 
         for (ServerPlayer player : readyPlayerList) {
