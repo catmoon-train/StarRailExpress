@@ -336,6 +336,21 @@ public class ImitatorPlayerComponent implements RoleComponent, ServerTickingComp
         return null;
     }
 
+    public ResourceLocation getSlotRoleId(int index) {
+        if (index < 0 || index >= MAX_SLOTS) return null;
+        return slotRoleId[index];
+    }
+
+    public boolean isSlotUnlimited(int index) {
+        if (index < 0 || index >= MAX_SLOTS) return false;
+        return slotUnlimited[index];
+    }
+
+    public int getSlotUsesRemaining(int index) {
+        if (index < 0 || index >= MAX_SLOTS) return 0;
+        return slotUsesRemaining[index];
+    }
+
     // ==================== Tick ====================
 
     @Override
