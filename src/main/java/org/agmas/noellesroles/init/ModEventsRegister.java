@@ -127,6 +127,25 @@ public class ModEventsRegister {
 
         // 检查受害者是否是拳击手
         SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(victim.level());
+
+        // 模仿者拳击手无敌检测
+        if (gameWorld.isRole(victim, ModRoles.IMITATOR)) {
+            org.agmas.noellesroles.roles.imitator.ImitatorPlayerComponent imitComp =
+                    ModComponents.IMITATOR.get(victim);
+            if (imitComp.isImitatorInvulnerable()) {
+                // 播放反弹音效
+                victim.level().playSound(null, victim.blockPosition(),
+                        io.wifi.starrailexpress.index.TMMSounds.ITEM_PSYCHO_ARMOUR,
+                        net.minecraft.sounds.SoundSource.MASTER, 5.0F, 1.0F);
+                if (victim instanceof net.minecraft.server.level.ServerPlayer sp) {
+                    sp.displayClientMessage(net.minecraft.network.chat.Component.translatable(
+                            "message.noellesroles.imitator.boxer_blocked")
+                            .withStyle(net.minecraft.ChatFormatting.GOLD, net.minecraft.ChatFormatting.BOLD), true);
+                }
+                return true;
+            }
+        }
+
         if (!gameWorld.isRole(victim, ModRoles.BOXER))
             return false;
 

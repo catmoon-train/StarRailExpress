@@ -135,6 +135,28 @@ public final class GKeyRoleSkill {
                 return true;
             }
 
+            // 检查当前能力是否是消息技能(电报员/广播员)
+            org.agmas.noellesroles.roles.imitator.ImitatorPlayerComponent comp =
+                    org.agmas.noellesroles.roles.imitator.ImitatorPlayerComponent.KEY.get(client.player);
+            ResourceLocation currentAbility = comp.getCurrentAbilityRoleId();
+            if (currentAbility != null && org.agmas.noellesroles.roles.imitator.ImitatorSkillRegistry.isMessageSkill(currentAbility)) {
+                // 客户端冷却检查
+                int cd = comp.getCurrentSkillCooldown();
+                if (cd > 0) {
+                    client.player.displayClientMessage(Component.translatable(
+                            "message.noellesroles.imitator.cooldown", (cd + 19) / 20)
+                            .withStyle(ChatFormatting.RED), true);
+                    return true;
+                }
+                // 打开对应的消息输入屏幕
+                if (currentAbility.equals(ModRoles.TELEGRAPHER_ID)) {
+                    client.execute(() -> client.setScreen(new TelegrapherScreen()));
+                } else if (currentAbility.equals(ModRoles.BROADCASTER_ID)) {
+                    client.execute(() -> client.setScreen(new BroadcasterScreen()));
+                }
+                return true;
+            }
+
             // Looking at a player → send with target (server decides copy vs use)
             var hitResult = client.hitResult;
             if (hitResult != null && hitResult.getType() == net.minecraft.world.phys.HitResult.Type.ENTITY) {

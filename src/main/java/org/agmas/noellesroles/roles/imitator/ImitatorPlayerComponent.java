@@ -1,6 +1,7 @@
 package org.agmas.noellesroles.roles.imitator;
 
 import io.wifi.starrailexpress.api.RoleComponent;
+import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -10,6 +11,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import org.agmas.noellesroles.component.ModComponents;
@@ -27,28 +29,36 @@ public class ImitatorPlayerComponent implements RoleComponent, ServerTickingComp
     private final Player player;
 
     public static final int MAX_SLOTS = 3;
-    public static final int MAX_CHARGE_TICKS = 60; // 3 seconds
+    public static final int MAX_CHARGE_TICKS = 60; // 3秒吃尸体
+    public static final int COPY_ACTION_COOLDOWN = 60 * 20; // 复制动作冷却60秒
 
-    // 3 ability slots
+    // ==================== 3个永久槽位 ====================
     private final ResourceLocation[] slotRoleId = new ResourceLocation[MAX_SLOTS];
-    private final int[] slotUsesRemaining = new int[MAX_SLOTS];
-    private final boolean[] slotUnlimited = new boolean[MAX_SLOTS];
     private final int[] slotFillOrder = new int[MAX_SLOTS];
+    private final int[] slotCooldown = new int[MAX_SLOTS]; // 每槽位独立冷却
     public int activeSlotIndex = 0;
     public int filledSlots = 0;
     private int nextFillOrder = 0;
 
-    // Temporary copy state (from pressing G on living player)
+    // ==================== 临时复制 ====================
     public ResourceLocation tempCopiedRoleId = null;
     public int tempCopiedUsesRemaining = 0;
+    public int tempSkillCooldown = 0; // 临时技能冷却
 
-    // Charging state (eating corpse via right-click)
+    // ==================== 复制动作冷却 ====================
+    public int copyActionCooldown = 0; // 复制活人的冷却
+
+    // ==================== 吃尸体充能 ====================
     public boolean isCharging = false;
     public int chargeTicks = 0;
     private UUID chargingCorpseUuid = null;
 
-    // Cooldown
-    public int cooldown = 0;
+    // ==================== 召回者状态 ====================
+    public boolean imitRecallerPlaced = false;
+    public double imitRecallerX = 0, imitRecallerY = 0, imitRecallerZ = 0;
+
+    // ==================== 拳击手无敌状态 ====================
+    public int imitBoxerInvulnTicks = 0;
 
     public ImitatorPlayerComponent(Player player) {
         this.player = player;
@@ -63,19 +73,22 @@ public class ImitatorPlayerComponent implements RoleComponent, ServerTickingComp
     public void init() {
         for (int i = 0; i < MAX_SLOTS; i++) {
             slotRoleId[i] = null;
-            slotUsesRemaining[i] = 0;
-            slotUnlimited[i] = false;
             slotFillOrder[i] = 0;
+            slotCooldown[i] = 0;
         }
         activeSlotIndex = 0;
         filledSlots = 0;
         nextFillOrder = 0;
         tempCopiedRoleId = null;
         tempCopiedUsesRemaining = 0;
+        tempSkillCooldown = 0;
+        copyActionCooldown = 0;
         isCharging = false;
         chargeTicks = 0;
         chargingCorpseUuid = null;
-        cooldown = 0;
+        imitRecallerPlaced = false;
+        imitRecallerX = imitRecallerY = imitRecallerZ = 0;
+        imitBoxerInvulnTicks = 0;
         this.sync();
     }
 
@@ -88,12 +101,12 @@ public class ImitatorPlayerComponent implements RoleComponent, ServerTickingComp
         KEY.sync(this.player);
     }
 
-    // ==================== Copy ability from living player ====================
+    // ==================== 复制活人能力 ====================
 
     public void tryCopyAbility(ServerPlayer self, UUID targetUUID) {
-        if (cooldown > 0) {
+        if (copyActionCooldown > 0) {
             self.displayClientMessage(Component.translatable("message.noellesroles.imitator.cooldown",
-                    (cooldown + 19) / 20).withStyle(ChatFormatting.RED), true);
+                    (copyActionCooldown + 19) / 20).withStyle(ChatFormatting.RED), true);
             return;
         }
         Player target = self.level().getPlayerByUUID(targetUUID);
@@ -101,11 +114,19 @@ public class ImitatorPlayerComponent implements RoleComponent, ServerTickingComp
             return;
 
         SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(self.level());
-        var role = gameWorld.getRole(target);
+        SRERole role = gameWorld.getRole(target);
         if (role == null)
             return;
 
+        // 不能复制杀手和中立
+        if (!role.isInnocent()) {
+            self.displayClientMessage(Component.translatable("message.noellesroles.imitator.copy_fail_not_innocent")
+                    .withStyle(ChatFormatting.RED), true);
+            return;
+        }
+
         ResourceLocation roleId = role.identifier();
+        // 只能复制指定的8个好人角色
         if (!ImitatorSkillRegistry.isImitatable(roleId)) {
             self.displayClientMessage(Component.translatable("message.noellesroles.imitator.copy_fail")
                     .withStyle(ChatFormatting.RED), true);
@@ -114,7 +135,10 @@ public class ImitatorPlayerComponent implements RoleComponent, ServerTickingComp
 
         tempCopiedRoleId = roleId;
         tempCopiedUsesRemaining = 3;
-        cooldown = 20; // 1s cooldown after copy
+        tempSkillCooldown = 0;
+        copyActionCooldown = COPY_ACTION_COOLDOWN; // 60秒
+        // 复制新能力时重置召回者状态
+        imitRecallerPlaced = false;
 
         String roleName = role.identifier().getPath();
         self.displayClientMessage(Component.translatable("message.noellesroles.imitator.copy_success",
@@ -122,12 +146,10 @@ public class ImitatorPlayerComponent implements RoleComponent, ServerTickingComp
         this.sync();
     }
 
-    // ==================== Eat corpse (right-click starts charging)
-    // ====================
+    // ==================== 吃尸体 ====================
 
     public void startCharging(UUID corpseEntityUuid) {
-        if (isCharging)
-            return;
+        if (isCharging) return;
         isCharging = true;
         chargeTicks = 0;
         chargingCorpseUuid = corpseEntityUuid;
@@ -139,8 +161,7 @@ public class ImitatorPlayerComponent implements RoleComponent, ServerTickingComp
     }
 
     public void cancelCharging() {
-        if (!isCharging)
-            return;
+        if (!isCharging) return;
         isCharging = false;
         chargeTicks = 0;
         chargingCorpseUuid = null;
@@ -150,12 +171,9 @@ public class ImitatorPlayerComponent implements RoleComponent, ServerTickingComp
     private void completeEat() {
         isCharging = false;
         chargeTicks = 0;
-        if (!(player instanceof ServerPlayer sp))
-            return;
-        if (chargingCorpseUuid == null)
-            return;
+        if (!(player instanceof ServerPlayer sp)) return;
+        if (chargingCorpseUuid == null) return;
 
-        // Find the corpse entity
         var bodies = sp.level().getEntities(
                 EntityTypeTest.forExactClass(PlayerBodyEntity.class),
                 sp.getBoundingBox().inflate(10),
@@ -175,10 +193,18 @@ public class ImitatorPlayerComponent implements RoleComponent, ServerTickingComp
             return;
         }
 
-        // Get the dead player's role from game world
         SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(sp.level());
         var role = gameWorld.getRole(deadPlayerUuid);
         if (role == null) {
+            chargingCorpseUuid = null;
+            this.sync();
+            return;
+        }
+
+        // 不能吃杀手和中立的能力
+        if (!role.isInnocent()) {
+            sp.displayClientMessage(Component.translatable("message.noellesroles.imitator.copy_fail_not_innocent")
+                    .withStyle(ChatFormatting.RED), true);
             chargingCorpseUuid = null;
             this.sync();
             return;
@@ -193,10 +219,9 @@ public class ImitatorPlayerComponent implements RoleComponent, ServerTickingComp
             return;
         }
 
-        // Find slot to put the ability in
+        // 找槽位
         int slotIndex;
         if (filledSlots < MAX_SLOTS) {
-            // Find empty slot
             slotIndex = -1;
             for (int i = 0; i < MAX_SLOTS; i++) {
                 if (slotRoleId[i] == null) {
@@ -204,26 +229,22 @@ public class ImitatorPlayerComponent implements RoleComponent, ServerTickingComp
                     break;
                 }
             }
-            if (slotIndex == -1)
-                slotIndex = 0; // fallback
+            if (slotIndex == -1) slotIndex = 0;
             filledSlots++;
         } else {
-            // Override oldest slot
             slotIndex = getOldestSlotIndex();
             sp.displayClientMessage(Component.translatable("message.noellesroles.imitator.slot_replaced")
                     .withStyle(ChatFormatting.YELLOW), true);
         }
 
         slotRoleId[slotIndex] = roleId;
-        slotUsesRemaining[slotIndex] = 0;
-        slotUnlimited[slotIndex] = true;
+        slotCooldown[slotIndex] = 0;
         slotFillOrder[slotIndex] = nextFillOrder++;
         activeSlotIndex = slotIndex;
 
-        // Remove corpse
         corpse.discard();
         chargingCorpseUuid = null;
-        cooldown = 40; // 2s cooldown after eat
+        copyActionCooldown = 40; // 2秒吃完后小冷却
 
         String roleName = role.identifier().getPath();
         sp.displayClientMessage(Component.translatable("message.noellesroles.imitator.eat_complete",
@@ -231,7 +252,7 @@ public class ImitatorPlayerComponent implements RoleComponent, ServerTickingComp
         this.sync();
     }
 
-    // ==================== Slot management ====================
+    // ==================== 槽位管理 ====================
 
     public void switchSlot() {
         if (filledSlots == 0) {
@@ -241,8 +262,6 @@ public class ImitatorPlayerComponent implements RoleComponent, ServerTickingComp
             }
             return;
         }
-
-        // Cycle to next filled slot
         int startIndex = activeSlotIndex;
         for (int i = 1; i <= MAX_SLOTS; i++) {
             int nextIndex = (startIndex + i) % MAX_SLOTS;
@@ -251,71 +270,173 @@ public class ImitatorPlayerComponent implements RoleComponent, ServerTickingComp
                 break;
             }
         }
-
         if (player instanceof ServerPlayer sp) {
             String name = slotRoleId[activeSlotIndex] != null ? slotRoleId[activeSlotIndex].getPath() : "empty";
+            int cd = slotCooldown[activeSlotIndex];
+            String cdStr = cd > 0 ? " (" + ((cd + 19) / 20) + "s)" : "";
             sp.displayClientMessage(Component.translatable("message.noellesroles.imitator.slot_switch",
-                    activeSlotIndex + 1, name).withStyle(ChatFormatting.AQUA), true);
+                    activeSlotIndex + 1, name + cdStr).withStyle(ChatFormatting.AQUA), true);
         }
         this.sync();
     }
 
-    // ==================== Use ability ====================
+    // ==================== 使用能力(非消息类) ====================
 
     public void useActiveAbility(ServerPlayer self, @Nullable UUID target) {
-        if (cooldown > 0) {
-            self.displayClientMessage(Component.translatable("message.noellesroles.imitator.cooldown",
-                    (cooldown + 19) / 20).withStyle(ChatFormatting.RED), true);
-            return;
-        }
+        // 优先级: 临时 > 当前槽位
+        ResourceLocation roleId;
+        boolean isTemp;
 
-        // Priority: temp copy > active slot
         if (tempCopiedRoleId != null) {
-            if (ImitatorSkillRegistry.execute(tempCopiedRoleId, self, target)) {
-                tempCopiedUsesRemaining--;
-                cooldown = 20 * 60; // 60s cooldown
-                if (tempCopiedUsesRemaining <= 0) {
-                    tempCopiedRoleId = null;
-                    tempCopiedUsesRemaining = 0;
-                } else {
-                    self.displayClientMessage(Component.translatable("message.noellesroles.imitator.uses_left",
-                            tempCopiedUsesRemaining).withStyle(ChatFormatting.GRAY), true);
-                }
-                this.sync();
-            }
-            return;
-        }
-
-        // Use active slot ability
-        if (slotRoleId[activeSlotIndex] == null) {
+            roleId = tempCopiedRoleId;
+            isTemp = true;
+        } else if (slotRoleId[activeSlotIndex] != null) {
+            roleId = slotRoleId[activeSlotIndex];
+            isTemp = false;
+        } else {
             self.displayClientMessage(Component.translatable("message.noellesroles.imitator.no_ability")
                     .withStyle(ChatFormatting.RED), true);
             return;
         }
 
-        ResourceLocation roleId = slotRoleId[activeSlotIndex];
-        if (ImitatorSkillRegistry.execute(roleId, self, target)) {
-            if (!slotUnlimited[activeSlotIndex]) {
-                slotUsesRemaining[activeSlotIndex]--;
-                if (slotUsesRemaining[activeSlotIndex] <= 0) {
-                    clearSlot(activeSlotIndex);
+        // 消息技能提示用屏幕
+        if (ImitatorSkillRegistry.isMessageSkill(roleId)) {
+            self.displayClientMessage(Component.translatable("message.noellesroles.imitator.use_screen")
+                    .withStyle(ChatFormatting.YELLOW), true);
+            return;
+        }
+
+        // 检查对应冷却
+        int currentCd = isTemp ? tempSkillCooldown : slotCooldown[activeSlotIndex];
+        if (currentCd > 0) {
+            self.displayClientMessage(Component.translatable("message.noellesroles.imitator.cooldown",
+                    (currentCd + 19) / 20).withStyle(ChatFormatting.RED), true);
+            return;
+        }
+
+        boolean isPermanent = !isTemp;
+        ImitatorSkillRegistry.SkillResult result = ImitatorSkillRegistry.execute(roleId, self, target, this, isPermanent);
+
+        switch (result) {
+            case SUCCESS -> {
+                applySkillCooldownAndConsume(roleId, isPermanent);
+            }
+            case HANDLED -> {
+                // 技能内部已处理
+            }
+            case FAIL -> {
+                // 执行失败，不做任何事
+            }
+        }
+
+        this.sync();
+    }
+
+    // ==================== 使用消息技能(由服务端包处理器调用) ====================
+
+    public boolean useMessageAbility(ServerPlayer self, String message) {
+        ResourceLocation roleId;
+        boolean isTemp;
+
+        if (tempCopiedRoleId != null) {
+            roleId = tempCopiedRoleId;
+            isTemp = true;
+        } else if (slotRoleId[activeSlotIndex] != null) {
+            roleId = slotRoleId[activeSlotIndex];
+            isTemp = false;
+        } else {
+            return false;
+        }
+
+        if (!ImitatorSkillRegistry.isMessageSkill(roleId)) return false;
+
+        int currentCd = isTemp ? tempSkillCooldown : slotCooldown[activeSlotIndex];
+        if (currentCd > 0) {
+            self.displayClientMessage(Component.translatable("message.noellesroles.imitator.cooldown",
+                    (currentCd + 19) / 20).withStyle(ChatFormatting.RED), true);
+            return false;
+        }
+
+        boolean isPermanent = !isTemp;
+        ImitatorSkillRegistry.SkillResult result = ImitatorSkillRegistry.executeMessage(roleId, self, message, this, isPermanent);
+
+        if (result == ImitatorSkillRegistry.SkillResult.SUCCESS) {
+            applySkillCooldownAndConsume(roleId, isPermanent);
+            this.sync();
+            return true;
+        }
+        return false;
+    }
+
+    // ==================== 冷却/次数管理 ====================
+
+    /**
+     * 设置当前技能冷却 + 扣临时次数(如果非永久)
+     */
+    public void applySkillCooldownAndConsume(ResourceLocation roleId, boolean isPermanent) {
+        int cd = ImitatorSkillRegistry.getCooldown(roleId);
+        if (tempCopiedRoleId != null && tempCopiedRoleId.equals(roleId)) {
+            tempSkillCooldown = cd;
+            if (!isPermanent) {
+                tempCopiedUsesRemaining--;
+                if (tempCopiedUsesRemaining <= 0) {
+                    tempCopiedRoleId = null;
+                    tempCopiedUsesRemaining = 0;
+                    tempSkillCooldown = 0;
+                    imitRecallerPlaced = false;
                 }
             }
-            cooldown = 20; // 1s cooldown
-            this.sync();
+        } else {
+            slotCooldown[activeSlotIndex] = cd;
         }
     }
 
-    private void clearSlot(int index) {
-        slotRoleId[index] = null;
-        slotUsesRemaining[index] = 0;
-        slotUnlimited[index] = false;
-        slotFillOrder[index] = 0;
-        filledSlots = 0;
+    /**
+     * 获取当前活跃技能的冷却
+     */
+    public int getCurrentSkillCooldown() {
+        if (tempCopiedRoleId != null) return tempSkillCooldown;
+        if (slotRoleId[activeSlotIndex] != null) return slotCooldown[activeSlotIndex];
+        return 0;
+    }
+
+    // ==================== 查询方法 ====================
+
+    public boolean hasAnyAbility() {
+        if (tempCopiedRoleId != null) return true;
         for (int i = 0; i < MAX_SLOTS; i++) {
-            if (slotRoleId[i] != null)
-                filledSlots++;
+            if (slotRoleId[i] != null) return true;
         }
+        return false;
+    }
+
+    public ResourceLocation getCurrentAbilityRoleId() {
+        if (tempCopiedRoleId != null) return tempCopiedRoleId;
+        if (slotRoleId[activeSlotIndex] != null) return slotRoleId[activeSlotIndex];
+        return null;
+    }
+
+    public ResourceLocation getSlotRoleId(int index) {
+        if (index < 0 || index >= MAX_SLOTS) return null;
+        return slotRoleId[index];
+    }
+
+    public int getSlotCooldown(int index) {
+        if (index < 0 || index >= MAX_SLOTS) return 0;
+        return slotCooldown[index];
+    }
+
+    public boolean isSlotUnlimited(int index) {
+        if (index < 0 || index >= MAX_SLOTS) return false;
+        return slotRoleId[index] != null; // 槽位都是永久的
+    }
+
+    public int getSlotUsesRemaining(int index) {
+        return 0; // 永久槽位不计次数
+    }
+
+    public boolean isImitatorInvulnerable() {
+        return imitBoxerInvulnTicks > 0;
     }
 
     private int getOldestSlotIndex() {
@@ -330,62 +451,67 @@ public class ImitatorPlayerComponent implements RoleComponent, ServerTickingComp
         return oldest;
     }
 
-    public boolean hasAnyAbility() {
-        if (tempCopiedRoleId != null)
-            return true;
-        for (int i = 0; i < MAX_SLOTS; i++) {
-            if (slotRoleId[i] != null)
-                return true;
-        }
-        return false;
-    }
-
-    public ResourceLocation getCurrentAbilityRoleId() {
-        if (tempCopiedRoleId != null)
-            return tempCopiedRoleId;
-        if (slotRoleId[activeSlotIndex] != null)
-            return slotRoleId[activeSlotIndex];
-        return null;
-    }
-
-    public ResourceLocation getSlotRoleId(int index) {
-        if (index < 0 || index >= MAX_SLOTS)
-            return null;
-        return slotRoleId[index];
-    }
-
-    public boolean isSlotUnlimited(int index) {
-        if (index < 0 || index >= MAX_SLOTS)
-            return false;
-        return slotUnlimited[index];
-    }
-
-    public int getSlotUsesRemaining(int index) {
-        if (index < 0 || index >= MAX_SLOTS)
-            return 0;
-        return slotUsesRemaining[index];
-    }
-
     // ==================== Tick ====================
 
     @Override
     public void serverTick() {
         SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
-        if (!gameWorld.isRole(player, ModRoles.IMITATOR))
-            return;
+        if (!gameWorld.isRole(player, ModRoles.IMITATOR)) return;
 
-        if (cooldown > 0) {
-            cooldown--;
-            if (cooldown == 0)
-                sync();
+        boolean needSync = false;
+
+        // 复制动作冷却
+        if (copyActionCooldown > 0) {
+            copyActionCooldown--;
+            if (copyActionCooldown == 0) needSync = true;
         }
 
+        // 临时技能冷却
+        if (tempSkillCooldown > 0) {
+            tempSkillCooldown--;
+            if (tempSkillCooldown == 0) needSync = true;
+        }
+
+        // 槽位冷却
+        for (int i = 0; i < MAX_SLOTS; i++) {
+            if (slotCooldown[i] > 0) {
+                slotCooldown[i]--;
+                if (slotCooldown[i] == 0) needSync = true;
+            }
+        }
+
+        // 拳击手无敌
+        if (imitBoxerInvulnTicks > 0) {
+            imitBoxerInvulnTicks--;
+            if (imitBoxerInvulnTicks == 0) {
+                if (player instanceof ServerPlayer sp) {
+                    sp.displayClientMessage(Component.translatable("message.noellesroles.imitator.boxer_ended")
+                            .withStyle(ChatFormatting.GRAY), true);
+                }
+                needSync = true;
+            }
+        }
+
+        // 吃尸体充能
         if (isCharging) {
             chargeTicks++;
             if (chargeTicks >= MAX_CHARGE_TICKS) {
                 completeEat();
             }
         }
+
+        if (needSync) sync();
+    }
+
+    @Override
+    public void clientTick() {
+        if (copyActionCooldown > 1) copyActionCooldown--;
+        if (tempSkillCooldown > 1) tempSkillCooldown--;
+        for (int i = 0; i < MAX_SLOTS; i++) {
+            if (slotCooldown[i] > 1) slotCooldown[i]--;
+        }
+        if (imitBoxerInvulnTicks > 0) imitBoxerInvulnTicks--;
+        if (isCharging && chargeTicks < MAX_CHARGE_TICKS) chargeTicks++;
     }
 
     // ==================== NBT Sync ====================
@@ -395,9 +521,8 @@ public class ImitatorPlayerComponent implements RoleComponent, ServerTickingComp
         for (int i = 0; i < MAX_SLOTS; i++) {
             if (slotRoleId[i] != null) {
                 tag.putString("slot" + i + "Role", slotRoleId[i].toString());
-                tag.putInt("slot" + i + "Uses", slotUsesRemaining[i]);
-                tag.putBoolean("slot" + i + "Unlimited", slotUnlimited[i]);
                 tag.putInt("slot" + i + "Order", slotFillOrder[i]);
+                tag.putInt("slot" + i + "Cd", slotCooldown[i]);
             }
         }
         tag.putInt("activeSlot", activeSlotIndex);
@@ -407,11 +532,21 @@ public class ImitatorPlayerComponent implements RoleComponent, ServerTickingComp
         if (tempCopiedRoleId != null) {
             tag.putString("tempRole", tempCopiedRoleId.toString());
             tag.putInt("tempUses", tempCopiedUsesRemaining);
+            tag.putInt("tempCd", tempSkillCooldown);
         }
 
+        tag.putInt("copyActionCd", copyActionCooldown);
         tag.putBoolean("isCharging", isCharging);
         tag.putInt("chargeTicks", chargeTicks);
-        tag.putInt("cooldown", cooldown);
+
+        // 召回者状态
+        tag.putBoolean("imitRecPlaced", imitRecallerPlaced);
+        tag.putDouble("imitRecX", imitRecallerX);
+        tag.putDouble("imitRecY", imitRecallerY);
+        tag.putDouble("imitRecZ", imitRecallerZ);
+
+        // 拳击手状态
+        tag.putInt("imitBoxerInvuln", imitBoxerInvulnTicks);
     }
 
     @Override
@@ -420,14 +555,12 @@ public class ImitatorPlayerComponent implements RoleComponent, ServerTickingComp
             String key = "slot" + i + "Role";
             if (tag.contains(key)) {
                 slotRoleId[i] = ResourceLocation.parse(tag.getString(key));
-                slotUsesRemaining[i] = tag.getInt("slot" + i + "Uses");
-                slotUnlimited[i] = tag.getBoolean("slot" + i + "Unlimited");
                 slotFillOrder[i] = tag.getInt("slot" + i + "Order");
+                slotCooldown[i] = tag.getInt("slot" + i + "Cd");
             } else {
                 slotRoleId[i] = null;
-                slotUsesRemaining[i] = 0;
-                slotUnlimited[i] = false;
                 slotFillOrder[i] = 0;
+                slotCooldown[i] = 0;
             }
         }
         activeSlotIndex = tag.contains("activeSlot") ? tag.getInt("activeSlot") : 0;
@@ -437,14 +570,23 @@ public class ImitatorPlayerComponent implements RoleComponent, ServerTickingComp
         if (tag.contains("tempRole")) {
             tempCopiedRoleId = ResourceLocation.parse(tag.getString("tempRole"));
             tempCopiedUsesRemaining = tag.getInt("tempUses");
+            tempSkillCooldown = tag.getInt("tempCd");
         } else {
             tempCopiedRoleId = null;
             tempCopiedUsesRemaining = 0;
+            tempSkillCooldown = 0;
         }
 
+        copyActionCooldown = tag.contains("copyActionCd") ? tag.getInt("copyActionCd") : 0;
         isCharging = tag.contains("isCharging") && tag.getBoolean("isCharging");
         chargeTicks = tag.contains("chargeTicks") ? tag.getInt("chargeTicks") : 0;
-        cooldown = tag.contains("cooldown") ? tag.getInt("cooldown") : 0;
+
+        imitRecallerPlaced = tag.contains("imitRecPlaced") && tag.getBoolean("imitRecPlaced");
+        imitRecallerX = tag.contains("imitRecX") ? tag.getDouble("imitRecX") : 0;
+        imitRecallerY = tag.contains("imitRecY") ? tag.getDouble("imitRecY") : 0;
+        imitRecallerZ = tag.contains("imitRecZ") ? tag.getDouble("imitRecZ") : 0;
+
+        imitBoxerInvulnTicks = tag.contains("imitBoxerInvuln") ? tag.getInt("imitBoxerInvuln") : 0;
     }
 
     @Override
@@ -453,15 +595,5 @@ public class ImitatorPlayerComponent implements RoleComponent, ServerTickingComp
 
     @Override
     public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
-    }
-
-    @Override
-    public void clientTick() {
-        if (this.cooldown > 1) {
-            this.cooldown--;
-        }
-        if (isCharging && chargeTicks < MAX_CHARGE_TICKS) {
-            chargeTicks++;
-        }
     }
 }

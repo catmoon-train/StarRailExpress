@@ -500,6 +500,17 @@ public class ModPacketsReciever {
                 true);
             return;
           }
+
+          // 模仿者使用广播员能力
+          if (gameWorldComponent.isRole(context.player(), ModRoles.IMITATOR)) {
+            org.agmas.noellesroles.roles.imitator.ImitatorPlayerComponent imitComp =
+                    org.agmas.noellesroles.component.ModComponents.IMITATOR.get(context.player());
+            if (!payload.onlySave()) {
+              imitComp.useMessageAbility(context.player(), payload.message());
+            }
+            return;
+          }
+
           if (gameWorldComponent.isRole(context.player(), ModRoles.BROADCASTER)) {
             BroadcasterPlayerComponent comp = BroadcasterPlayerComponent.KEY.get(context.player());
             String message = payload.message();

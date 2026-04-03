@@ -500,16 +500,24 @@ public class RicesRoleRhapsody implements ModInitializer {
         ServerPlayNetworking.registerGlobalReceiver(TELEGRAPHER_PACKET, (payload, context) -> {
             SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(context.player().level());
 
-            // 验证玩家是电报员
-            if (!gameWorld.isRole(context.player(), ModRoles.TELEGRAPHER))
-                return;
-
             // 验证玩家存活
             if (!GameUtils.isPlayerAliveAndSurvival(context.player()))
                 return;
 
             // 验证消息不为空
             if (payload.message() == null || payload.message().trim().isEmpty())
+                return;
+
+            // 模仿者使用电报员能力
+            if (gameWorld.isRole(context.player(), ModRoles.IMITATOR)) {
+                org.agmas.noellesroles.roles.imitator.ImitatorPlayerComponent imitComp =
+                        org.agmas.noellesroles.component.ModComponents.IMITATOR.get(context.player());
+                imitComp.useMessageAbility(context.player(), payload.message());
+                return;
+            }
+
+            // 验证玩家是电报员
+            if (!gameWorld.isRole(context.player(), ModRoles.TELEGRAPHER))
                 return;
 
             // 获取电报员组件并发送消息

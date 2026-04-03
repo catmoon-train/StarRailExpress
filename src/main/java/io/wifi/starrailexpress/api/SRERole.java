@@ -163,7 +163,8 @@ public abstract class SRERole {
     }
 
     private int color;
-    private boolean isInnocent;
+    private
+    boolean isInnocent;
     private boolean canUseKiller;
     private MoodType moodType;
 

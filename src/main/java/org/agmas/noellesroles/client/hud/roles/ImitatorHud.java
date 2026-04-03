@@ -24,8 +24,8 @@ public class ImitatorHud {
 
             int screenWidth = client.getWindow().getGuiScaledWidth();
             int screenHeight = client.getWindow().getGuiScaledHeight();
-            int x = screenWidth - 160;
-            int y = screenHeight - 110;
+            int x = screenWidth - 170;
+            int y = screenHeight - 120;
             Font font = client.font;
 
             // ==================== Title ====================
@@ -33,11 +33,11 @@ public class ImitatorHud {
                     .withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD);
             context.drawString(font, title, x, y, 0xAA0000);
 
-            // ==================== Cooldown ====================
+            // ==================== 复制冷却 ====================
             y += 14;
-            if (comp.cooldown > 0) {
-                Component cdText = Component.translatable("hud.noellesroles.imitator.cooldown",
-                        String.format("%.0f", comp.cooldown / 20.0f));
+            if (comp.copyActionCooldown > 0) {
+                Component cdText = Component.translatable("hud.noellesroles.imitator.copy_cooldown",
+                        String.format("%.0f", comp.copyActionCooldown / 20.0f));
                 context.drawString(font, cdText, x, y, CommonColors.RED);
             } else {
                 Component readyText = Component.translatable("hud.noellesroles.imitator.ready",
@@ -45,7 +45,7 @@ public class ImitatorHud {
                 context.drawString(font, readyText, x, y, CommonColors.GREEN);
             }
 
-            // ==================== Charging progress ====================
+            // ==================== 充能进度 ====================
             if (comp.isCharging) {
                 y += 14;
                 int pct = (int) ((float) comp.chargeTicks / ImitatorPlayerComponent.MAX_CHARGE_TICKS * 100);
@@ -53,16 +53,33 @@ public class ImitatorHud {
                 context.drawString(font, chargeText, x, y, 0xFFAA00);
             }
 
-            // ==================== Temp copied ability ====================
+            // ==================== 拳击手无敌 ====================
+            if (comp.imitBoxerInvulnTicks > 0) {
+                y += 14;
+                Component boxerText = Component.translatable("hud.noellesroles.imitator.boxer_shield",
+                        String.format("%.1f", comp.imitBoxerInvulnTicks / 20.0f));
+                context.drawString(font, boxerText, x, y, 0xFFD700);
+            }
+
+            // ==================== 临时能力 ====================
             if (comp.tempCopiedRoleId != null) {
                 y += 14;
                 String roleName = comp.tempCopiedRoleId.getPath();
+                int tempCd = comp.tempSkillCooldown;
+                String cdStr = tempCd > 0 ? " [" + ((tempCd + 19) / 20) + "s]" : "";
                 Component tempText = Component.translatable("hud.noellesroles.imitator.temp_ability",
-                        roleName, comp.tempCopiedUsesRemaining);
+                        roleName, comp.tempCopiedUsesRemaining + cdStr);
                 context.drawString(font, tempText, x, y, 0x55FF55);
             }
 
-            // ==================== Slot display ====================
+            // ==================== 召回者标记 ====================
+            if (comp.imitRecallerPlaced) {
+                y += 14;
+                Component recText = Component.translatable("hud.noellesroles.imitator.recaller_marked");
+                context.drawString(font, recText, x, y, 0x87CEEB);
+            }
+
+            // ==================== 槽位显示 ====================
             y += 14;
             Component slotTitle = Component.translatable("hud.noellesroles.imitator.slots")
                     .withStyle(ChatFormatting.GRAY);
@@ -78,14 +95,10 @@ public class ImitatorHud {
 
                 if (slotRole != null) {
                     String name = slotRole.getPath();
-                    boolean unlimited = comp.isSlotUnlimited(i);
-                    if (unlimited) {
-                        slotText = Component.literal(prefix + (i + 1) + ": " + name + " [∞]");
-                    } else {
-                        int uses = comp.getSlotUsesRemaining(i);
-                        slotText = Component.literal(prefix + (i + 1) + ": " + name + " [" + uses + "]");
-                    }
-                    color = isActive ? 0x55FF55 : 0xCCCCCC;
+                    int cd = comp.getSlotCooldown(i);
+                    String cdStr = cd > 0 ? " [" + ((cd + 19) / 20) + "s]" : "";
+                    slotText = Component.literal(prefix + (i + 1) + ": " + name + " [∞]" + cdStr);
+                    color = isActive ? (cd > 0 ? 0xFFAA00 : 0x55FF55) : 0xCCCCCC;
                 } else {
                     slotText = Component.translatable("hud.noellesroles.imitator.slot_empty_short",
                             prefix + (i + 1));
