@@ -37,11 +37,6 @@ import net.minecraft.world.item.component.CustomModelData;
 import net.minecraft.world.item.component.ItemLore;
 import net.minecraft.world.item.component.Unbreakable;
 import net.minecraft.world.item.component.WrittenBookContent;
-
-import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.component.*;
-
-
 import org.agmas.noellesroles.commands.BroadcastCommand;
 import org.agmas.noellesroles.component.MaChenXuPlayerComponent;
 import org.agmas.noellesroles.component.SingerPlayerComponent;
