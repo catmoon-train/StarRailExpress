@@ -287,6 +287,10 @@ public class SRE extends StarRailExpressID implements ModInitializer {
                 io.wifi.starrailexpress.mod_whitelist.common.network.ModWhitelistPayload.ID,
                 io.wifi.starrailexpress.mod_whitelist.common.network.ModWhitelistPayload.CODEC);
 
+        PayloadTypeRegistry.playS2C().register(
+                io.wifi.starrailexpress.mod_whitelist.common.network.ModWhitelistConfigPayload.ID,
+                io.wifi.starrailexpress.mod_whitelist.common.network.ModWhitelistConfigPayload.CODEC);
+
         PayloadTypeRegistry.playS2C().register(ModVersionPacket.ID, ModVersionPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(ModVersionPacket.ID, ModVersionPacket.CODEC);
 
@@ -369,6 +373,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
     }
 
     private void registerGlobalReceivers() {
+
         UpdateSkinSelectedPayload.registerReceiver();
         UpdateNameTagSelectedPayload.registerReceiver();
         ServerPlayNetworking.registerGlobalReceiver(KnifeStabPayload.ID, new KnifeStabPayload.Receiver());

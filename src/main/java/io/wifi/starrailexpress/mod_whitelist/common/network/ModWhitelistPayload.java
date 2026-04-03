@@ -15,7 +15,7 @@ import java.util.List;
  * Payload to send mod information including SHA256 hashes from client to server
  * Sent when player joins the game after handshake is complete
  */
-public record ModWhitelistPayload(List<ModInfo> mods) implements CustomPacketPayload {
+public record ModWhitelistPayload(List<ModInfo> mods, boolean includeHashes) implements CustomPacketPayload {
 	public static final Type<ModWhitelistPayload> ID = new Type<>(SRE.id("mod_whitelist"));
 	
 	@SuppressWarnings("UnstableApiUsage")
@@ -30,6 +30,8 @@ public record ModWhitelistPayload(List<ModInfo> mods) implements CustomPacketPay
 					)
 			),
 			ModWhitelistPayload::mods,
+			ByteBufCodecs.BOOL,
+			ModWhitelistPayload::includeHashes,
 			ModWhitelistPayload::new
 	);
 

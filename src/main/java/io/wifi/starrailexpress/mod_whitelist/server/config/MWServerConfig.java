@@ -140,6 +140,7 @@ public class MWServerConfig {
 	
 	//WhiteLists
 	public static final BoolConfigValue ENABLE_MOD_FILTER = new BoolConfigValue("ENABLE_MOD_FILTER", true);
+	public static final BoolConfigValue SYNC_HASH_VALUES = new BoolConfigValue("SYNC_HASH_VALUES", false);
 	public static final BoolConfigValue USE_WHITELIST_ONLY = new BoolConfigValue("USE_WHITELIST_ONLY", false);
 	public static final MOD_IDListConfigValue CLIENT_MOD_NECESSARY = new MOD_IDListConfigValue("CLIENT_MOD_NECESSARY", MOD_ID);
 	public static final MOD_IDListConfigValue CLIENT_MOD_WHITELIST = new MOD_IDListConfigValue("CLIENT_MOD_WHITELIST",
@@ -248,6 +249,11 @@ public class MWServerConfig {
 			writer.write("- Type: Boolean (true/false)\n");
 			writer.write("- Default: true\n");
 			writer.write("- Description: Enable/Disable the mod whitelist filter. When enabled, the server will check client mods and display detailed logs when illegal mods are detected. When disabled, all clients will be allowed regardless of their mod list.\n\n");
+
+			writer.write("## SYNC_HASH_VALUES\n");
+			writer.write("- Type: Boolean (true/false)\n");
+			writer.write("- Default: false\n");
+			writer.write("- Description: Enable/Disable synchronization of SHA256 hash values for mod verification. When enabled, clients will send full hash values for all mods. When disabled (default), only StarRailExpress-related mods will have hash values sent, while other mods will use dummy values to reduce network traffic.\n\n");
 
 			writer.write("# Adding a mod to whitelist and blacklist\n\n");
 			writer.write("The config file is in \"&lt;server directory&gt;/config/mod_whitelist-config.json\". If you want to add mods to the whitelist or blacklist, please read the following guides.\n\n");

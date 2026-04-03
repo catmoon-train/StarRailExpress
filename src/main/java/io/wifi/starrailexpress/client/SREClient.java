@@ -47,6 +47,8 @@ import io.wifi.starrailexpress.index.*;
 import io.wifi.starrailexpress.item.GrenadeItem;
 import io.wifi.starrailexpress.item.KnifeItem;
 import io.wifi.starrailexpress.mod_whitelist.client.ModWhitelistClient;
+import io.wifi.starrailexpress.mod_whitelist.client.network.ModWhitelistClientNetworkHandler;
+import io.wifi.starrailexpress.mod_whitelist.common.network.ModWhitelistConfigPayload;
 import io.wifi.starrailexpress.network.*;
 import io.wifi.starrailexpress.network.original.*;
 import io.wifi.starrailexpress.network.packet.*;
@@ -306,11 +308,7 @@ public class SREClient implements ClientModInitializer {
             LoggerFactory.getLogger(this.getClass())
                     .info("Is Lobby status: " + (SREClient.isInLobby ? "Yes" : "No"));
         });
-        ClientPlayConnectionEvents.JOIN.register((clientPacketListener, packetSender, minecraft) -> {
-            packetSender.sendPacket(new ModVersionPacket(SRE.modPacketVersion));
-            SRE.LOGGER.info("Send client version {} to verify.", SRE.modPacketVersion);
-            cachedHighLightMap.clear();
-        });
+
         // Item tooltips
         TMMItemTooltips.addTooltips();
         AllowOtherCameraType.EVENT.register((original, localPlayer) -> {
@@ -523,6 +521,11 @@ public class SREClient implements ClientModInitializer {
             GameUtils.roomToPlayer.clear();
             GameUtils.roomToPlayer.putAll(data);
         });
+        ClientPlayNetworking.registerGlobalReceiver(ModWhitelistConfigPayload.ID
+        , (payload, context) -> {
+                    ModWhitelistClientNetworkHandler.sendModWhitelistPayload();
+        });
+
         ClientPlayNetworking.registerGlobalReceiver(ShowSelectedMapUIPayload.ID, (payload, context) -> {
             var str = payload.serverConfig();
 

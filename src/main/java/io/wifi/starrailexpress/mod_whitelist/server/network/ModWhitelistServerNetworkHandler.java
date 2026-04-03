@@ -1,6 +1,7 @@
 package io.wifi.starrailexpress.mod_whitelist.server.network;
 
 import io.wifi.starrailexpress.mod_whitelist.common.ModInfo;
+import io.wifi.starrailexpress.mod_whitelist.common.network.ModWhitelistConfigPayload;
 import io.wifi.starrailexpress.mod_whitelist.common.network.ModWhitelistPayload;
 import io.wifi.starrailexpress.mod_whitelist.common.utils.MWLogger;
 import io.wifi.starrailexpress.mod_whitelist.server.config.MWServerConfig;
@@ -34,10 +35,16 @@ public class ModWhitelistServerNetworkHandler {
 		// Register handler for ModWhitelistPayload
 		ServerPlayNetworking.registerGlobalReceiver(ModWhitelistPayload.ID, ModWhitelistServerNetworkHandler::handleModWhitelistPayload);
 		
-		// Register player join event to start timeout tracking
+		// Register player join event to start timeout tracking and send config
 		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
 			ModWhitelistTimeoutTracker.registerPlayer(handler.player.getUUID());
 			MWLogger.LOGGER.debug("Started mod whitelist verification timeout for player {}", handler.player.getName().getString());
+			
+			// Send configuration to client
+			boolean syncHashValues = MWServerConfig.SYNC_HASH_VALUES.value();
+			ModWhitelistConfigPayload configPayload = new ModWhitelistConfigPayload(syncHashValues);
+			ServerPlayNetworking.send(handler.player, configPayload);
+			MWLogger.LOGGER.debug("Sent mod whitelist config to player {} (sync hashes: {})", handler.player.getName().getString(), syncHashValues);
 		});
 		
 		// Register player disconnect event to clean up
