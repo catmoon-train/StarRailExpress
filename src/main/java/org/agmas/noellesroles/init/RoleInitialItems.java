@@ -9,6 +9,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.Unbreakable;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role.RedHouseRoles;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -64,6 +65,13 @@ public class RoleInitialItems {
         INITIAL_ITEMS_MAP.clear();
 
         {
+            // FURANDORU
+            List<Supplier<ItemStack>> items = new ArrayList<>();
+            items.add(() -> TMMItems.CROWBAR.getDefaultInstance());
+            INITIAL_ITEMS_MAP.put(RedHouseRoles.FURANDORU, items);
+        }
+
+        {
             // JOJO
             List<Supplier<ItemStack>> items = new ArrayList<>();
             items.add(() -> FunnyItems.BOWEN_BADGE.getDefaultInstance());
@@ -85,17 +93,13 @@ public class RoleInitialItems {
             return item;
         });
         INITIAL_ITEMS_MAP.put(ModRoles.ELF, elfItems);
+
         List<Supplier<ItemStack>> ninjaItems = new ArrayList<>();
         ninjaItems.add(() -> {
-            ItemStack lockpick = new ItemStack(
-                    net.minecraft.core.registries.BuiltInRegistries.ITEM.get(
-                            net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("starrailexpress", "lockpick")
-                    )
-            );
+            ItemStack lockpick = TMMItems.LOCKPICK.getDefaultInstance();
             return lockpick;
         });
         INITIAL_ITEMS_MAP.put(ModRoles.NINJA, ninjaItems);
-
 
         // 亡命徒初始物品
         List<Supplier<ItemStack>> looseItems = new ArrayList<>();
@@ -145,9 +149,11 @@ public class RoleInitialItems {
 
         // Awesome Binglus 初始物品
         List<Supplier<ItemStack>> awesomeBinglusItems = new ArrayList<>();
-        // 添加16个便签
-        for (int i = 0; i < 4; i++) {
-            awesomeBinglusItems.add(() -> TMMItems.NOTE.getDefaultInstance());
+        // 添加4个便签
+        {
+            var t = TMMItems.NOTE.getDefaultInstance();
+            t.setCount(4);
+            awesomeBinglusItems.add(() -> t);
         }
         INITIAL_ITEMS_MAP.put(ModRoles.AWESOME_BINGLUS, awesomeBinglusItems);
 
@@ -162,7 +168,7 @@ public class RoleInitialItems {
         swastItems.add(() -> TMMItems.SNIPER_RIFLE.getDefaultInstance());
         swastItems.add(() -> TMMItems.MAGNUM_BULLET.getDefaultInstance());
         INITIAL_ITEMS_MAP.put(ModRoles.SWAST, swastItems);
-        
+
         {
             // 诡异客人
             List<Supplier<ItemStack>> items = new ArrayList<>();

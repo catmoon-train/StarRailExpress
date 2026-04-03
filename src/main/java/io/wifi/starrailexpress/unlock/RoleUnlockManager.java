@@ -6,6 +6,8 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.resources.ResourceLocation;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role.RedHouseRoles;
+
 import pro.fazeclan.river.stupid_express.StupidExpressConfig;
 
 import java.util.*;
@@ -31,7 +33,7 @@ public class RoleUnlockManager {
 
     static {
         // ── 乘客阵营 ──────────────────────────────────────────────────────
-        UNLOCK_THRESHOLDS.put(ModRoles.BAKA_ID,                     3);
+        UNLOCK_THRESHOLDS.put(RedHouseRoles.BAKA_ID,                     3);
         UNLOCK_THRESHOLDS.put(ModRoles.JESTER_ID,                   3);
         UNLOCK_THRESHOLDS.put(ModRoles.CONDUCTOR_ID,                5);
         UNLOCK_THRESHOLDS.put(ModRoles.DOCTOR_ID,                   5);
@@ -79,7 +81,7 @@ public class RoleUnlockManager {
 
         // ── 杀手阵营 ──────────────────────────────────────────────────────
         UNLOCK_THRESHOLDS.put(ModRoles.LOCKSMITH_ID,                5);
-        UNLOCK_THRESHOLDS.put(ModRoles.PACHURI_ID,                  5);
+        UNLOCK_THRESHOLDS.put(RedHouseRoles.PACHURI_ID,                  5);
         UNLOCK_THRESHOLDS.put(ModRoles.SWAPPER_ID,                  8);
         UNLOCK_THRESHOLDS.put(ModRoles.MORPHLING_ID,                10);
         UNLOCK_THRESHOLDS.put(ModRoles.PHANTOM_ID,                  10);
@@ -87,8 +89,8 @@ public class RoleUnlockManager {
         UNLOCK_THRESHOLDS.put(ModRoles.SHOOTING_FRENZY_ID,          10);
         UNLOCK_THRESHOLDS.put(ModRoles.GAMBLER_ID,                  12);
         UNLOCK_THRESHOLDS.put(ModRoles.EXECUTIONER_ID,              12);
-        UNLOCK_THRESHOLDS.put(ModRoles.MAID_SAKUYA_ID,              12);
-        UNLOCK_THRESHOLDS.put(ModRoles.HOAN_MEIRIN_ID,              12);
+        UNLOCK_THRESHOLDS.put(RedHouseRoles.MAID_SAKUYA_ID,              12);
+        UNLOCK_THRESHOLDS.put(RedHouseRoles.HOAN_MEIRIN_ID,              12);
         UNLOCK_THRESHOLDS.put(ModRoles.EXAMPLER_ID,                 15);
         UNLOCK_THRESHOLDS.put(ModRoles.CLEANER_ID,                  15);
         UNLOCK_THRESHOLDS.put(ModRoles.TRAPPER_ID,                  15);

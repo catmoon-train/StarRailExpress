@@ -1,7 +1,10 @@
 package io.wifi.starrailexpress.item;
 
+import org.agmas.noellesroles.role.RedHouseRoles;
+
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.block_entity.DoorBlockEntity;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.util.AdventureUsable;
@@ -24,10 +27,13 @@ public class CrowbarItem extends Item implements AdventureUsable {
     public InteractionResult useOn(UseOnContext context) {
         Level world = context.getLevel();
         BlockEntity entity = world.getBlockEntity(context.getClickedPos());
-        if (!(entity instanceof DoorBlockEntity)) entity = world.getBlockEntity(context.getClickedPos().below());
+        if (!(entity instanceof DoorBlockEntity))
+            entity = world.getBlockEntity(context.getClickedPos().below());
         Player player = context.getPlayer();
+        var gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
         if (entity instanceof DoorBlockEntity door && !door.isBlasted() && player != null) {
-            if (!player.isCreative()) player.getCooldowns().addCooldown(this, 6000);
+            if (!player.isCreative())
+                player.getCooldowns().addCooldown(this, 6000);
             world.playSound(null, context.getClickedPos(), TMMSounds.ITEM_CROWBAR_PRY, SoundSource.BLOCKS, 2.5f, 1f);
             player.swing(InteractionHand.MAIN_HAND, true);
 
@@ -35,7 +41,11 @@ public class CrowbarItem extends Item implements AdventureUsable {
                 if (SRE.REPLAY_MANAGER != null) {
                     SRE.REPLAY_MANAGER.recordItemUse(player.getUUID(), BuiltInRegistries.ITEM.getKey(this));
                 }
-                player.getCooldowns().addCooldown(this, GameConstants.ITEM_COOLDOWNS.get(this));
+                if (gameWorldComponent.isRole(player, RedHouseRoles.FURANDORU)) {
+                    player.getCooldowns().addCooldown(this, 10 * 20);
+                } else {
+                    player.getCooldowns().addCooldown(this, GameConstants.ITEM_COOLDOWNS.get(this));
+                }
             }
 
             door.blast();

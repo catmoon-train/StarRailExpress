@@ -171,11 +171,12 @@ public class RoleMethodDispatcher {
     /**
      * 调用玩家角色的 rightClickEntity 方法
      */
-    public static void callRightClickEntity(Player player, Entity victim) {
+    public static InteractionResult callRightClickEntity(Player player, Entity victim) {
         SRERole role = getCurrentRole(player);
         if (role != null) {
-            role.rightClickEntity(player, victim);
+            return role.rightClickEntity(player, victim);
         }
+        return InteractionResult.PASS;
     }
 
     /**

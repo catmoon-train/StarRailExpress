@@ -46,6 +46,7 @@ import org.agmas.noellesroles.component.WatcherPlayerComponent;
 import org.agmas.noellesroles.repack.HSRConstants;
 import org.agmas.noellesroles.repack.HSRItems;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role.RedHouseRoles;
 import org.agmas.noellesroles.roles.executioner.ShootingFrenzyPlayerComponent;
 import org.agmas.noellesroles.roles.framing.FramingShopEntry;
 import org.agmas.noellesroles.utils.MCItemsUtils;
@@ -160,7 +161,7 @@ public class RoleShopHandler {
   public static ArrayList<ShopEntry> WATER_GHOST_SHOP = new ArrayList<>();
   // ==================== 秉烛人商店 ====================
   public static ArrayList<ShopEntry> CANDLE_BEARER_SHOP = new ArrayList<>();
-  //=============忍者商店================
+  // =============忍者商店================
   public static ArrayList<ShopEntry> NINJA_SHOP = new ArrayList<>();
 
   /**
@@ -328,6 +329,38 @@ public class RoleShopHandler {
 
       ShopContent.customEntries.put(ModRoles.MA_CHEN_XU.getIdentifier(), MA_CHEN_XU_SHOP);
     }
+
+    {
+      // FURANDORU的商店
+      var SHOP = new ArrayList<ShopEntry>();
+      SHOP.add(new ShopEntry(
+          TMMItems.KNIFE.getDefaultInstance(),
+          130,
+          ShopEntry.Type.TOOL));
+      SHOP.add(new ShopEntry(TMMItems.DERRINGER.getDefaultInstance(), 600,
+          ShopEntry.Type.TOOL));
+      SHOP.add(new ShopEntry(TMMItems.BODY_BAG.getDefaultInstance(), SREConfig.instance().bodyBagPrice,
+          ShopEntry.Type.TOOL));
+      SHOP.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), SREConfig.instance().blackoutPrice,
+          ShopEntry.Type.TOOL) {
+        public boolean onBuy(@NotNull Player player) {
+          player.getCooldowns().addCooldown(TMMItems.BLACKOUT,
+              60 * 20);
+          boolean triggered = ((SREWorldBlackoutComponent) SREWorldBlackoutComponent.KEY
+              .get(player.level()))
+              .triggerBlackout();
+          if (triggered) {
+            SRE.REPLAY_MANAGER.recordSkillUsed(player.getUUID(),
+                BuiltInRegistries.ITEM.getKey(TMMItems.BLACKOUT));
+          }
+          return triggered;
+        }
+      });
+
+      SHOP.add(new ShopEntry(Items.WIND_CHARGE.getDefaultInstance(), 50,
+          ShopEntry.Type.TOOL));
+      ShopContent.customEntries.put(RedHouseRoles.FURANDORU.getIdentifier(), SHOP);
+    }
     {
       // BAKA的商店
       var SHOP = new ArrayList<ShopEntry>();
@@ -345,7 +378,7 @@ public class RoleShopHandler {
       // BAKA的商店
       var SHOP = new ArrayList<ShopEntry>();
       SHOP.add(new ShopEntry(FunnyItems.PROBLEM_SET.getDefaultInstance(), 100, ShopEntry.Type.TOOL));
-      ShopContent.customEntries.put(ModRoles.BAKA.getIdentifier(), SHOP);
+      ShopContent.customEntries.put(RedHouseRoles.BAKA.getIdentifier(), SHOP);
     }
     {
       // EXAMPLER的商店
@@ -454,7 +487,6 @@ public class RoleShopHandler {
 
       // 苦无 - 130金币
       NINJA_SHOP.add(new ShopEntry(ModItems.NINJA_KNIFE.getDefaultInstance(), 130, ShopEntry.Type.WEAPON));
-
 
       // 手里剑 - 275金币
       NINJA_SHOP.add(new ShopEntry(ModItems.NINJA_SHURIKEN.getDefaultInstance(), 275, ShopEntry.Type.WEAPON));
@@ -619,7 +651,7 @@ public class RoleShopHandler {
       entries.add(new ShopEntry(FunnyItems.SHISIYE.getDefaultInstance(), 440,
           ShopEntry.Type.TOOL));
       ShopContent.customEntries.put(
-          ModRoles.MAID_SAKUYA_ID, entries);
+          RedHouseRoles.MAID_SAKUYA_ID, entries);
     }
     {
       List<ShopEntry> entries = new ArrayList<>();
@@ -695,7 +727,8 @@ public class RoleShopHandler {
       var displayStack = Items.WRITTEN_BOOK.getDefaultInstance();
       String title = "\u00a7d\u00a7lPachuri Knowledge Book";
       displayStack.set(DataComponents.WRITTEN_BOOK_CONTENT,
-          new WrittenBookContent(new Filterable<String>(title, Optional.of(title)), "Pachuri Knowledge", 1, List.of(), true));
+          new WrittenBookContent(new Filterable<String>(title, Optional.of(title)), "Pachuri Knowledge", 1, List.of(),
+              true));
       var SHOP = new ArrayList<ShopEntry>();
       SHOP.add(new ShopEntry(
           displayStack,
@@ -731,8 +764,9 @@ public class RoleShopHandler {
                     .withStyle(ChatFormatting.DARK_AQUA));
             var content = new Filterable<Component>(ct, Optional.of(ct));
             contents.add(content);
-            if(p instanceof ServerPlayer sp)
-            BroadcastCommand.BroadcastMessage(sp, Component.translatable("message.pachuri.be_known_role").withStyle(ChatFormatting.RED));
+            if (p instanceof ServerPlayer sp)
+              BroadcastCommand.BroadcastMessage(sp,
+                  Component.translatable("message.pachuri.be_known_role").withStyle(ChatFormatting.RED));
           }
           String title = "\u00a7d\u00a7lPachuri Knowledge Book";
 
@@ -742,7 +776,7 @@ public class RoleShopHandler {
         }
       });
       ShopContent.customEntries.put(
-          ModRoles.PACHURI_ID, SHOP);
+          RedHouseRoles.PACHURI_ID, SHOP);
     }
     {
       // 锁匠商店

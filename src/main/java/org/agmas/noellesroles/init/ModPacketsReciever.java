@@ -49,6 +49,7 @@ import org.agmas.noellesroles.item.StalkerKnifeItem;
 import org.agmas.noellesroles.item.ThrowingKnife;
 import org.agmas.noellesroles.packet.*;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role.RedHouseRoles;
 import org.agmas.noellesroles.roles.coroner.BodyDeathReasonComponent;
 import org.agmas.noellesroles.roles.executioner.ExecutionerPlayerComponent;
 import org.agmas.noellesroles.roles.gambler.GamblerPlayerComponent;
@@ -164,7 +165,7 @@ public class ModPacketsReciever {
               Component.translatable("death_reason.noellesroles.success").withStyle(ChatFormatting.GREEN), true);
           // 没奖励，太抠门了。
         } else {
-          if (gameWorldComponent.isRole(player, ModRoles.BAKA)) {
+          if (gameWorldComponent.isRole(player, RedHouseRoles.BAKA)) {
             player.displayClientMessage(
                 Component.translatable("message.baka.problem_set.success").withStyle(ChatFormatting.GREEN), true);
             psc.addToBalance(200);
@@ -176,7 +177,7 @@ public class ModPacketsReciever {
           }
         }
       } else {
-        if (gameWorldComponent.isRole(player, ModRoles.BAKA)) {
+        if (gameWorldComponent.isRole(player, RedHouseRoles.BAKA)) {
           player.displayClientMessage(
               Component.translatable("message.baka.problem_set.failed").withStyle(ChatFormatting.YELLOW), true);
           var pmc = SREPlayerMoodComponent.KEY.get(player);
@@ -330,7 +331,7 @@ public class ModPacketsReciever {
         }
         ThrowingKnifeEntity entity = new ThrowingKnifeEntity(ModEntities.THROWING_KNIFE, player.level(),
             tk.getDefaultInstance());
-        entity.setPos(player.getEyePosition().add(0, -0.2, 0));
+        entity.setPos(player.getEyePosition().add(0, 0, 0));
         entity.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0f, 1.3f, 1.0f);
         entity.setOwner(player);
         player.level().addFreshEntity(entity);

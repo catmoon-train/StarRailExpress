@@ -33,9 +33,7 @@ import org.agmas.noellesroles.roles.voodoo.VoodooPlayerComponent;
 import org.agmas.noellesroles.roles.vulture.VulturePlayerComponent;
 
 import org.agmas.noellesroles.roles.ninja.NinjaRole;
-import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.roles.watcher.WatcherRole;
-
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -85,6 +83,7 @@ public class ModRoles {
   // 建议格式：MOD_ID:role_name
 
   // 乘客阵营角色 ID
+
   public static final ResourceLocation MA_CHEN_XU_ID = Noellesroles.id("ma_chen_xu");
   public static ResourceLocation JESTER_ID = Noellesroles.id("jester");
   public static ResourceLocation CONDUCTOR_ID = Noellesroles.id("conductor");
@@ -139,10 +138,7 @@ public class ModRoles {
   public static ResourceLocation SHOOTING_FRENZY_ID = Noellesroles.id("shooting_frenzy");
   public static ResourceLocation GAMBLER_ID = Noellesroles.id("gambler");
   public static ResourceLocation POISONER_ID = Noellesroles.id("poisoner");
-  public static ResourceLocation BAKA_ID = Noellesroles.id("baka");
-  public static ResourceLocation PACHURI_ID = Noellesroles.id("pachuri");
-  public static ResourceLocation MAID_SAKUYA_ID = Noellesroles.id("maid_sakuya");
-  public static ResourceLocation HOAN_MEIRIN_ID = Noellesroles.id("hoan_meirin");
+
   public static ResourceLocation LOCKSMITH_ID = Noellesroles.id("locksmith");
   public static ResourceLocation EXAMPLER_ID = Noellesroles.id("exampler");
   public static final ResourceLocation NINJA_ID = Noellesroles.id("ninja");
@@ -176,6 +172,7 @@ public class ModRoles {
   public static final ResourceLocation WAYFARER_ID = Noellesroles.id("wayfarer");
   public static final ResourceLocation DIO_ID = Noellesroles.id("dio");
   public static final ResourceLocation JOJO_ID = Noellesroles.id("jojo");
+
   public static SRERole GUEST_GHOST = TMMRoles.registerRole(new NormalRole(
       GUEST_GHOST_ID, // 角色 ID
       new Color(175, 245, 130).getRGB(), // 不知道啥颜色
@@ -194,16 +191,7 @@ public class ModRoles {
       Integer.MAX_VALUE, // 无限冲刺时间
       true // 隐藏计分板
   )).setComponentKey(ModComponents.MA_CHEN_XU).setCanSeeCoin(true).setOccupiedRoleCount(2);
-  // MAID_SAKUYA 十六夜咲夜
-  public static SRERole MAID_SAKUYA = TMMRoles.registerRole(new NormalRole(
-      MAID_SAKUYA_ID, // 角色 ID
-      new Color(164, 173, 193).getRGB(), // 蓝灰色
-      true, // isInnocent = 非乘客阵营（杀手）
-      false, // canUseKiller = 杀手能力
-      SRERole.MoodType.REAL, // 真实心情
-      TMMRoles.CIVILIAN.getMaxSprintTime() * 2, // 2 倍冲刺时间
-      false // 不隐藏计分板
-  )).setCanSeeCoin(true).setCanSeeTime(true);
+
   // DIO 迪奥
   public static SRERole DIO = TMMRoles.registerRole(new NormalRole(
       DIO_ID, // 角色 ID
@@ -213,7 +201,7 @@ public class ModRoles {
       SRERole.MoodType.FAKE, // 真实心情
       Integer.MAX_VALUE, // 无限冲刺时间
       true // 不隐藏计分板
-  )).setCanSeeCoin(true).setComponentKey(ModComponents.DIO).setOccupiedRoleCount(2);
+  )).setCanSeeCoin(true).setComponentKey(ModComponents.DIO).setOccupiedRoleCount(2).setCanSeeBodyDeathReason(true);
   // JOJO 承太郎
   public static SRERole JOJO = TMMRoles.registerRole(new NormalRole(
       JOJO_ID, // 角色 ID
@@ -233,30 +221,14 @@ public class ModRoles {
           Integer.MAX_VALUE, true))
       .setCanSeeCoin(true).setCanSeeTeammateKiller(true)
       .setCanUseInstinct(true);
-  // 好人：大妖精baka
-  public static SRERole BAKA = TMMRoles.registerRole(
-      new NormalRole(BAKA_ID, new Color(185, 240, 243).getRGB(),
-          true, false, SRERole.MoodType.REAL,
-          TMMRoles.CIVILIAN.getMaxSprintTime(), false))
-      .setCanSeeCoin(true);
+
   // 好人：锁匠
   public static SRERole LOCKSMITH = TMMRoles.registerRole(
       new NormalRole(LOCKSMITH_ID, new Color(100, 200, 200).getRGB(),
           true, false, SRERole.MoodType.REAL,
           TMMRoles.CIVILIAN.getMaxSprintTime(), false))
       .setCanSeeCoin(true);
-  // 红美铃
-  public static SRERole HOAN_MEIRIN = TMMRoles.registerRole(
-      new NormalRole(HOAN_MEIRIN_ID, new Color(243, 140, 132).getRGB(),
-          true, false, SRERole.MoodType.REAL,
-          TMMRoles.CIVILIAN.getMaxSprintTime(), false))
-      .setVigilanteTeam(true).setCanSeeCoin(true);
-  // 好人：帕秋莉 Patchouli Knowledge
-  public static SRERole PACHURI = TMMRoles.registerRole(
-      new NormalRole(PACHURI_ID, new Color(184, 144, 182).getRGB(),
-          true, false, SRERole.MoodType.REAL,
-          TMMRoles.CIVILIAN.getMaxSprintTime(), false))
-      .setCanSeeCoin(true);
+
   public static SRERole OLDMAN = TMMRoles.registerRole(
       new ExtraEffectRole(OLDMAN_ID, new Color(112, 146, 190).getRGB(),
           true, false, SRERole.MoodType.REAL,
@@ -276,20 +248,19 @@ public class ModRoles {
           true, false, SRERole.MoodType.REAL,
           TMMRoles.CIVILIAN.getMaxSprintTime(), false))
       .setCanSeeCoin(true).setCanSeeTime(false);
-  //忍者
+  // 忍者
   public static final SRERole NINJA = TMMRoles.registerRole(
-          new NinjaRole(
-                  NINJA_ID,
-                  new Color(44, 44, 44).getRGB(),
-                  false,   // 杀手阵营
-                  true,    // 有杀手能力
-                  SRERole.MoodType.FAKE,
-                  Integer.MAX_VALUE,
-                  true
-          )
-                  .setComponentKey(ModComponents.NINJA)
-                  .setCanSeeCoin(true)
-                  .setOccupiedRoleCount(1));
+      new NinjaRole(
+          NINJA_ID,
+          new Color(44, 44, 44).getRGB(),
+          false, // 杀手阵营
+          true, // 有杀手能力
+          SRERole.MoodType.FAKE,
+          Integer.MAX_VALUE,
+          true)
+          .setComponentKey(ModComponents.NINJA)
+          .setCanSeeCoin(true)
+          .setOccupiedRoleCount(1));
   public static SRERole ELF = TMMRoles.registerRole(
       new NormalRole(ELF_ID, new Color(106, 255, 179).getRGB(),
           true, false, SRERole.MoodType.REAL,
@@ -321,7 +292,7 @@ public class ModRoles {
           false, false, SRERole.MoodType.FAKE,
           Integer.MAX_VALUE, false))
       .setCanSeeCoin(true).setNeutrals(true).setCanPickUpRevolver(false)
-      .setComponentKey(ModComponents.WAYFARER).setCanUseInstinct(false);
+      .setComponentKey(ModComponents.WAYFARER).setCanUseInstinct(false).setCanSeeBodyDeathReason(true);
   public static SRERole JESTER = TMMRoles
       .registerRole(new NormalRole(JESTER_ID, new Color(186, 85, 211).getRGB(), false,
           false, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true))
@@ -712,10 +683,10 @@ public class ModRoles {
       .registerRole(new NormalRole(VULTURE_ID, new Color(210, 105, 30).getRGB(), false,
           false, SRERole.MoodType.FAKE, TMMRoles.CIVILIAN.getMaxSprintTime(), true)
           .setComponentKey(VulturePlayerComponent.KEY))
-      .setNeutralForKiller(true).setCanSeeTeammateKiller(false);
+      .setNeutralForKiller(true).setCanSeeTeammateKiller(false).setCanSeeBodyDeathReason(true);
   public static SRERole CORONER = TMMRoles
       .registerRole(new NormalRole(CORONER_ID, new Color(122, 122, 122).getRGB(), true,
-          false, SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false));
+          false, SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false)).setCanSeeBodyDeathReason(true).setCanSeeBodyRoleInfo(true);
 
   // ==================== 自定义角色对象定义 ====================
   // 乘客阵营角色
@@ -1251,8 +1222,7 @@ public class ModRoles {
       false,
       SRERole.MoodType.FAKE,
       TMMRoles.CIVILIAN.getMaxSprintTime(),
-      true
-  )).setComponentKey(CandleBearerPlayerComponent.KEY).setCanSeeCoin(true).setNeutrals(true)
+      true)).setComponentKey(CandleBearerPlayerComponent.KEY).setCanSeeCoin(true).setNeutrals(true)
       .setCanSeeTeammateKiller(false).setCanUseInstinct(true);;
 
   /**
@@ -1340,8 +1310,7 @@ public class ModRoles {
       true,
       SRERole.MoodType.FAKE,
       Integer.MAX_VALUE,
-      true
-  )).setComponentKey(ModComponents.WATCHER).setCanSeeCoin(true);
+      true)).setComponentKey(ModComponents.WATCHER).setCanSeeCoin(true);
 
   // ==================== 其他变量定义 ====================
   public static ArrayList<SRERole> SHOW_MONEY_ROLES = new ArrayList<>();
@@ -1352,6 +1321,7 @@ public class ModRoles {
    * 在模组初始化时调用
    */
   public static void init() {
+    RedHouseRoles.init();
     SREPlayerPoisonComponent.canSyncedRolePaths.add(ModRoles.POISONER_ID.getPath());
     SREPlayerPoisonComponent.canSyncedRolePaths.add(ModRoles.BARTENDER_ID.getPath());
     SREArmorPlayerComponent.canSyncedRolePaths.add(ModRoles.BARTENDER_ID.getPath());

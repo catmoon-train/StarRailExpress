@@ -77,6 +77,7 @@ import org.agmas.noellesroles.modifier.NRModifiers;
 import org.agmas.noellesroles.modifier.expedition.ExpeditionComponent;
 import org.agmas.noellesroles.packet.BloodConfigS2CPacket;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role.RedHouseRoles;
 import org.agmas.noellesroles.roles.commander.CommanderHandler;
 import org.agmas.noellesroles.roles.conspirator.ConspiratorKilledPlayer;
 import org.agmas.noellesroles.roles.executioner.ExecutionerPlayerComponent;
@@ -524,6 +525,7 @@ public class ModEventsRegister {
     private static boolean isMJVerifyEnabled = false;
 
     public static void registerEvents() {
+        THEventHandler.registerEvents();
         NinjaPlayerComponent.registerEvents();
         OnPlayerUsedSkill.EVENT.register((player) -> {
             NoellesRolesConfig config = NoellesRolesConfig.HANDLER.instance();
@@ -746,7 +748,7 @@ public class ModEventsRegister {
         SRE.canDrop.add((player) -> {
             var mainHandItem = player.getMainHandItem();
             var gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
-            if (gameWorldComponent.isRole(player, ModRoles.BAKA)) {
+            if (gameWorldComponent.isRole(player, RedHouseRoles.BAKA)) {
                 if (mainHandItem.is(FunnyItems.PROBLEM_SET)) {
                     return true;
                 }

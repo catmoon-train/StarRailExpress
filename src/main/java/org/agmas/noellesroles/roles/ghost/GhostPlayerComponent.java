@@ -132,7 +132,8 @@ public class GhostPlayerComponent implements RoleComponent, ServerTickingCompone
         if (!abilityUnlocked) {
             player.displayClientMessage(
                     Component.translatable("message.noellesroles.ghost.not_unlocked")
-                            .withStyle(ChatFormatting.RED), true);
+                            .withStyle(ChatFormatting.RED),
+                    true);
             return;
         }
 
@@ -151,7 +152,6 @@ public class GhostPlayerComponent implements RoleComponent, ServerTickingCompone
             }
             return;
         }
-
 
         shopComponent.balance -= 150;
         shopComponent.sync();
@@ -189,18 +189,21 @@ public class GhostPlayerComponent implements RoleComponent, ServerTickingCompone
      * 当场上平民阵营只剩小透明时，将游戏时间设为2分钟（如果当前时间更长）
      * 并广播提示
      */
-    private void checkLastStand(SREGameWorldComponent gameWorld) {
+    public void checkLastStand(SREGameWorldComponent gameWorld) {
         if (!(player instanceof ServerPlayer serverPlayer)) {
             return;
         }
-
+        if (player.isSpectator())
+            return;
+        if (player.isCreative())
+            return;
         if (lastStandNotified) {
             return; // 已经通知过了，不再重复
         }
 
         // 统计存活的平民阵营玩家
         int aliveCivilianCount = 0;
-        boolean hasGhost = false;
+        boolean hasGhost = true;
 
         for (var p : player.level().players()) {
             if (!GameUtils.isPlayerAliveAndSurvival(p)) {
@@ -213,9 +216,6 @@ public class GhostPlayerComponent implements RoleComponent, ServerTickingCompone
             // 检查是否是平民阵营（isInnocent = true 且 canUseKiller = false）
             if (role.isInnocent() && !role.canUseKiller() && !role.isNeutrals()) {
                 aliveCivilianCount++;
-                if (gameWorld.isRole(p, ModRoles.GHOST)) {
-                    hasGhost = true;
-                }
             }
         }
 
@@ -243,7 +243,7 @@ public class GhostPlayerComponent implements RoleComponent, ServerTickingCompone
             sync();
         }
     }
-    
+
     @Override
     public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }

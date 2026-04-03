@@ -30,7 +30,10 @@ import java.util.function.ToIntFunction;
 public abstract class SRERole {
     private ResourceLocation identifier;
     private boolean canSeeCoin = true;
+    private boolean canSeeBodyDeathReason = false;
+    private boolean canSeeBodyRoleInfo = false;
     private boolean canUseInstinct = false;
+    private boolean canIgnoreBlackout = false;
     private int occupiedRoleCount = 1;
     public BiConsumer<ServerPlayer, SREGameWorldComponent> serverTickEvent = null;
     public BiConsumer<Player, SREGameWorldComponent> clientTickEvent = null;
@@ -39,6 +42,33 @@ public abstract class SRERole {
         this.clientTickEvent = event;
         return this;
     };
+
+    public boolean canIgnoreBlackout() {
+        return canIgnoreBlackout;
+    }
+
+    public SRERole setCanIgnoreBlackout(Boolean bl) {
+        this.canIgnoreBlackout = bl;
+        return this;
+    }
+
+    public boolean canSeeBodyRoleInfo() {
+        return canSeeBodyRoleInfo;
+    }
+
+    public SRERole setCanSeeBodyRoleInfo(boolean bl) {
+        this.canSeeBodyRoleInfo = bl;
+        return this;
+    }
+
+    public boolean canSeeBodyDeathReason() {
+        return canSeeBodyDeathReason;
+    }
+
+    public SRERole setCanSeeBodyDeathReason(boolean bl) {
+        this.canSeeBodyDeathReason = bl;
+        return this;
+    }
 
     public SRERole setServerGameTickEvent(BiConsumer<ServerPlayer, SREGameWorldComponent> event) {
         this.serverTickEvent = event;
@@ -270,7 +300,8 @@ public abstract class SRERole {
     public void clientTick(Player player) {
     }
 
-    public void rightClickEntity(Player player, Entity victim) {
+    public InteractionResult rightClickEntity(Player player, Entity victim) {
+        return InteractionResult.PASS;
     }
 
     public void leftClickEntity(Player player, Entity victim) {

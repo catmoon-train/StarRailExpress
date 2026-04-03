@@ -16,8 +16,10 @@ import org.agmas.noellesroles.RicesRoleRhapsody;
 import org.agmas.noellesroles.component.*;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role.RedHouseRoles;
 import org.agmas.noellesroles.roles.candlebearer.CandleBearerPlayerComponent;
 import org.agmas.noellesroles.roles.executioner.ExecutionerPlayerComponent;
+import org.agmas.noellesroles.roles.ghost.GhostPlayerComponent;
 import org.agmas.noellesroles.roles.manipulator.ManipulatorPlayerComponent;
 import org.agmas.noellesroles.roles.thief.ThiefPlayerComponent;
 import org.agmas.noellesroles.roles.vulture.VulturePlayerComponent;
@@ -71,11 +73,15 @@ public class ModRolesInitialEventRegister {
                 var tpc = DIOPlayerComponent.KEY.get(player);
                 tpc.init();
             }
-            if (role.identifier().equals(ModRoles.HOAN_MEIRIN.identifier())) {
+            if (role.identifier().equals(RedHouseRoles.HOAN_MEIRIN.identifier())) {
                 var tpc = HoanMeirinPlayerComponent.KEY.get(player);
                 tpc.init();
             }
-            if (role.identifier().equals(ModRoles.MAID_SAKUYA.identifier())) {
+            if (role.identifier().equals(RedHouseRoles.FURANDORU.identifier())) {
+                var tpc = GhostPlayerComponent.KEY.get(player);
+                tpc.init();
+            }
+            if (role.identifier().equals(RedHouseRoles.MAID_SAKUYA.identifier())) {
                 SREPlayerShopComponent.KEY.get(player).setBalance(100);
             }
             if (role.identifier().equals(ModRoles.JOJO.identifier())) {

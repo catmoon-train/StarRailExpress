@@ -43,11 +43,15 @@ public abstract class CoronerHudMixin {
     @Inject(method = "renderHud", at = @At("TAIL"))
     private static void coronerRoleNameRenderer(Font renderer, LocalPlayer player, FakeGuiGraphics context,
             DeltaTracker tickCounter, CallbackInfo ci) {
-        SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY.get(player.level());
+        SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY
+                .get(player.level());
 
         if (NoellesrolesClient.targetFakeBody != null) {
-            if (SREClient.isRole(ModRoles.CORONER)
-                    || SREClient.isRole(ModRoles.VULTURE)
+            SRERole selfrole = SREClient.getCachedPlayerRole();
+            boolean canSeeBody = false;
+            if (selfrole != null && selfrole.canSeeBodyDeathReason())
+                canSeeBody = true;
+            if (canSeeBody
                     || SREClient.isPlayerSpectatingOrCreative()) {
                 context.pose().pushPose();
                 context.pose().translate((float) context.guiWidth() / 2.0F, (float) context.guiHeight() / 2.0F + 6.0F,
@@ -93,10 +97,11 @@ public abstract class CoronerHudMixin {
         }
 
         if (NoellesrolesClient.targetBody != null) {
-            if (SREClient.isRole(ModRoles.CORONER)
-                    || SREClient.isRole(ModRoles.VULTURE)
-                    || SREClient.isRole(ModRoles.WAYFARER)
-                    || SREClient.isRole(ModRoles.DIO)
+            SRERole selfrole = SREClient.getCachedPlayerRole();
+            boolean canSeeBody = false;
+            if (selfrole != null && selfrole.canSeeBodyDeathReason())
+                canSeeBody = true;
+            if (canSeeBody
                     || SREClient.isPlayerSpectatingOrCreative()) {
                 var deathPenalty = ModComponents.DEATH_PENALTY.get(Minecraft.getInstance().player);
                 boolean hasPenalty = false;
@@ -170,11 +175,12 @@ public abstract class CoronerHudMixin {
                         foundRole = role;
                 }
                 if ((SREClient.isPlayerSpectatingOrCreative()
-                        || SREClient.isRole(ModRoles.CORONER))
+                        || selfrole.canSeeBodyRoleInfo())
                         && !bodyDeathReasonComponent.vultured) {
                     Component roleInfo = Component.translatable("hud.coroner.role_info").withColor(CommonColors.RED)
                             .append(Component
-                                    .translatable("announcement.star.role." + bodyDeathReasonComponent.playerRole.getPath())
+                                    .translatable(
+                                            "announcement.star.role." + bodyDeathReasonComponent.playerRole.getPath())
                                     .withColor(foundRole.color()));
                     if (hasPenalty) {
                         roleInfo = Component.translatable("message.noellesroles.penalty.limit.role");
@@ -206,11 +212,11 @@ public abstract class CoronerHudMixin {
                         context.drawString(renderer, roleInfo, -renderer.width(roleInfo) / 2, 48, CommonColors.WHITE);
                     } else {
 
-                            Component roleInfo = Component
-                                    .translatable("hud.dio.eat")
-                                    .withColor(CommonColors.RED);
-                            context.drawString(renderer, roleInfo, -renderer.width(roleInfo) / 2, 48,
-                                    CommonColors.WHITE);
+                        Component roleInfo = Component
+                                .translatable("hud.dio.eat")
+                                .withColor(CommonColors.RED);
+                        context.drawString(renderer, roleInfo, -renderer.width(roleInfo) / 2, 48,
+                                CommonColors.WHITE);
 
                     }
                 }
@@ -221,7 +227,8 @@ public abstract class CoronerHudMixin {
     }
 
     @Inject(method = "renderHud", at = @At(value = "INVOKE", target = "Lio/wifi/starrailexpress/game/GameUtils;isPlayerSpectatingOrCreative(Lnet/minecraft/world/entity/player/Player;)Z"))
-    private static void customRaycast(Font renderer, LocalPlayer player, FakeGuiGraphics context, DeltaTracker tickCounter,
+    private static void customRaycast(Font renderer, LocalPlayer player, FakeGuiGraphics context,
+            DeltaTracker tickCounter,
             CallbackInfo ci) {
         float range = RoleNameRenderer.getPlayerRange(player);
         HitResult line = ProjectileUtil.getHitResultOnViewVector(player,

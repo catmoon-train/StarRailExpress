@@ -7,8 +7,10 @@ import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.GameUtils.WinStatus;
 
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role.RedHouseRoles;
 import org.agmas.noellesroles.roles.candlebearer.CandleBearerPlayerComponent;
 import org.agmas.noellesroles.roles.thief.ThiefPlayerComponent;
+import org.agmas.noellesroles.utils.RoleUtils;
 
 public class CustomWinnerClass {
 
@@ -21,19 +23,31 @@ public class CustomWinnerClass {
             var gameComponent = SREGameWorldComponent.KEY.get(serverLevel);
 
             // 检查是否有小偷存活
+            boolean hasFurandoru = false;
             boolean hasThiefAlive = false;
             // int thiefCount = 0;
-            // int alivePlayerCount = 0;
+            int alivePlayerCount = 0;
             for (var player : serverLevel.players()) {
                 if (GameUtils.isPlayerAliveAndSurvival(player)) {
-                    // alivePlayerCount++;
+                    alivePlayerCount++;
                     if (gameComponent.isRole(player, ModRoles.THIEF)) {
                         hasThiefAlive = true;
                         // thiefCount++;
                     }
+                    if (gameComponent.isRole(player, RedHouseRoles.FURANDORU)) {
+                        hasFurandoru = true;
+                        // thiefCount++;
+                    }
                 }
             }
-
+            if (hasFurandoru) {
+                if (alivePlayerCount <= 1 || winStatus.equals(WinStatus.TIME)) {
+                    RoleUtils.customWinnerWin(serverLevel, "furandoru", RedHouseRoles.FURANDORU.color());
+                    return WinStatus.CUSTOM;
+                }
+                if (!winStatus.equals(WinStatus.NONE))
+                    return WinStatus.NONE;
+            }
             // 如果有小偷存活，检查小偷独立胜利条件
             if (hasThiefAlive) {
                 // 检查小偷是否满足独立胜利条件

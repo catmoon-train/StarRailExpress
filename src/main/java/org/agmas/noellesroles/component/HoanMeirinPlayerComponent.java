@@ -9,7 +9,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role.RedHouseRoles;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
@@ -99,7 +99,7 @@ public class HoanMeirinPlayerComponent
         var gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
         if (!gameWorldComponent.isRunning())
             return;
-        if (!gameWorldComponent.isRole(player, ModRoles.HOAN_MEIRIN))
+        if (!gameWorldComponent.isRole(player, RedHouseRoles.HOAN_MEIRIN))
             return;
         boolean shouldSync = false;
         if (this.cooldown > 0) {
@@ -153,7 +153,7 @@ public class HoanMeirinPlayerComponent
         var gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
         if (!gameWorldComponent.isRunning())
             return;
-        if (!gameWorldComponent.isRole(player, ModRoles.HOAN_MEIRIN))
+        if (!gameWorldComponent.isRole(player, RedHouseRoles.HOAN_MEIRIN))
             return;
         if (!GameUtils.isPlayerAliveAndSurvival(player))
             return;

@@ -27,6 +27,7 @@ import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.packet.ProblemScreenOpenC2SPacket;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role.RedHouseRoles;
 import org.agmas.noellesroles.roles.commander.CommanderHandler;
 import org.agmas.noellesroles.roles.candlebearer.CandleBearerPlayerComponent;
 import org.agmas.noellesroles.roles.fortuneteller.FortunetellerPlayerComponent;
@@ -50,7 +51,7 @@ public class AbilityHandler {
         if (player.hasEffect(ModEffects.SKILL_BANED)) {
             return;
         }
-        if (gameWorldComponent.isRole(player, ModRoles.HOAN_MEIRIN)) {
+        if (gameWorldComponent.isRole(player, RedHouseRoles.HOAN_MEIRIN)) {
             var hmpc = HoanMeirinPlayerComponent.KEY.get(player);
             if (player.hasEffect(MobEffects.LEVITATION)) {
                 player.removeEffect(MobEffects.LEVITATION);
@@ -72,7 +73,7 @@ public class AbilityHandler {
                         true));
             }
         }
-        if (gameWorldComponent.isRole(player, ModRoles.MAID_SAKUYA)) {
+        if (gameWorldComponent.isRole(player, RedHouseRoles.MAID_SAKUYA)) {
             if (abilityPlayerComponent.cooldown > 0 || player.getCooldowns().isOnCooldown(Items.CLOCK)) {
                 player.displayClientMessage(Component.translatable(
                         "tip.noellesroles.cooldown", abilityPlayerComponent.cooldown / 20)

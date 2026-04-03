@@ -11,6 +11,8 @@ import org.agmas.harpymodloader.modded_murder.RoleAssignmentManager;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role.RedHouseRoles;
+
 import pro.fazeclan.river.stupid_express.StupidExpress;
 import pro.fazeclan.river.stupid_express.constants.SERoles;
 
@@ -88,6 +90,7 @@ public class InitModRolesMax {
         Harpymodloader.setRoleMaximum(ModRoles.MA_CHEN_XU, 0);
         Harpymodloader.setRoleMaximum(ModRoles.GUEST_GHOST, 0);
         Harpymodloader.setOccupationRole(ModRoles.ENGINEER, ModRoles.LOCKSMITH);
+        Harpymodloader.setOccupationRole(RedHouseRoles.FURANDORU, RedHouseRoles.PACHURI);
         Harpymodloader.setOccupationRole(ModRoles.MA_CHEN_XU, ModRoles.GUEST_GHOST);
 
         // 拳击手每局只能有 1 个
@@ -204,17 +207,19 @@ public class InitModRolesMax {
 
         // 同时出现
         RoleAssignmentManager.addOccupationRole(ModRoles.POISONER, ModRoles.DOCTOR);
-        RoleAssignmentManager.addOccupationRole(ModRoles.BAKA, ModRoles.EXAMPLER);
+        RoleAssignmentManager.addOccupationRole(RedHouseRoles.BAKA, ModRoles.EXAMPLER);
         RoleAssignmentManager.addOccupationRole(ModRoles.DIO, ModRoles.JOJO);
         RoleAssignmentManager.addOccupationRole(ModRoles.WATER_GHOST, ModRoles.DIVER);
 
         Harpymodloader.setRoleMaximum(ModRoles.CONDUCTOR_ID, NoellesRolesConfig.HANDLER.instance().conductorMax);
-        Harpymodloader.setRoleMaximum(ModRoles.MAID_SAKUYA, 0);
+        Harpymodloader.setRoleMaximum(RedHouseRoles.MAID_SAKUYA, 0);
         Harpymodloader.setRoleMaximum(ModRoles.DIO, 0);
         Harpymodloader.setRoleMaximum(ModRoles.BETTER_VIGILANTE, 0);
-        Harpymodloader.setRoleMaximum(ModRoles.BAKA, 0);
-        Harpymodloader.setRoleMaximum(ModRoles.HOAN_MEIRIN, 0);
-        Harpymodloader.setRoleMaximum(ModRoles.PACHURI, 0);
+        Harpymodloader.setRoleMaximum(RedHouseRoles.BAKA, 0);
+        Harpymodloader.setRoleMaximum(RedHouseRoles.HOAN_MEIRIN, 0);
+        Harpymodloader.setRoleMaximum(RedHouseRoles.PACHURI, 0);
+        Harpymodloader.setRoleMaximum(RedHouseRoles.FURANDORU, 0);
+        Harpymodloader.setRoleMaximum(RedHouseRoles.REMILIA, 0);
         Harpymodloader.setRoleMaximum(ModRoles.EXAMPLER, 0);
         Harpymodloader.setRoleMaximum(ModRoles.MANIPULATOR, 0);
         Harpymodloader.setRoleMaximum(ModRoles.EXECUTIONER_ID, NoellesRolesConfig.HANDLER.instance().executionerMax);
@@ -292,17 +297,21 @@ public class InitModRolesMax {
             // 动态大小
             Random random = new Random();
             if(players_count >= 12 && random.nextInt(0, 100) < TOUHOU_CHANCE){
-                Harpymodloader.setRoleMaximum(ModRoles.BAKA_ID, 1);
-                Harpymodloader.setRoleMaximum(ModRoles.PACHURI, 1);
+                Harpymodloader.setRoleMaximum(RedHouseRoles.BAKA_ID, 1);
+                Harpymodloader.setRoleMaximum(RedHouseRoles.PACHURI, 1);
+                Harpymodloader.setRoleMaximum(RedHouseRoles.REMILIA, 1);
+                Harpymodloader.setRoleMaximum(RedHouseRoles.FURANDORU, 1);
                 if(canJumpMap){
-                    Harpymodloader.setRoleMaximum(ModRoles.HOAN_MEIRIN, 1);
+                    Harpymodloader.setRoleMaximum(RedHouseRoles.HOAN_MEIRIN, 1);
                 }else{
-                    Harpymodloader.setRoleMaximum(ModRoles.HOAN_MEIRIN, 0);
+                    Harpymodloader.setRoleMaximum(RedHouseRoles.HOAN_MEIRIN, 0);
                 }
             }else{
-                Harpymodloader.setRoleMaximum(ModRoles.BAKA_ID, 0);
-                Harpymodloader.setRoleMaximum(ModRoles.HOAN_MEIRIN, 0);
-                Harpymodloader.setRoleMaximum(ModRoles.PACHURI, 0);
+                Harpymodloader.setRoleMaximum(RedHouseRoles.BAKA_ID, 0);
+                Harpymodloader.setRoleMaximum(RedHouseRoles.HOAN_MEIRIN, 0);
+                Harpymodloader.setRoleMaximum(RedHouseRoles.PACHURI, 0);
+                Harpymodloader.setRoleMaximum(RedHouseRoles.REMILIA, 0);
+                Harpymodloader.setRoleMaximum(RedHouseRoles.FURANDORU, 0);
             }
             if (players_count >= 10 && random.nextInt(0, 100) >= 25) {
                 Harpymodloader.setRoleMaximum(ModRoles.WAYFARER_ID, 1);
@@ -316,10 +325,10 @@ public class InitModRolesMax {
             }
             if (players_count >= 12 && random.nextInt(0, 100) <= EGGS_CHANCE) {
                 Harpymodloader.setRoleMaximum(ModRoles.DIO, 1);
-                Harpymodloader.setRoleMaximum(ModRoles.MAID_SAKUYA, 1);
+                Harpymodloader.setRoleMaximum(RedHouseRoles.MAID_SAKUYA, 1);
             } else {
                 Harpymodloader.setRoleMaximum(ModRoles.DIO, 0);
-                Harpymodloader.setRoleMaximum(ModRoles.MAID_SAKUYA, 0);
+                Harpymodloader.setRoleMaximum(RedHouseRoles.MAID_SAKUYA, 0);
             }
             if (players_count >= 16 && random.nextInt(0, 100) <= 25) {
                 Harpymodloader.setRoleMaximum(ModRoles.MAGICIAN_ID, 1);

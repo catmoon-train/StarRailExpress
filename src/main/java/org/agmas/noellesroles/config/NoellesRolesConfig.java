@@ -42,7 +42,7 @@ public class NoellesRolesConfig implements ConfigData {
      * Role - The chance of egg roles
      */
 
-    public int chanceOfTouhouRoles = 50;
+    public int chanceOfTouhouRoles = 40;
     public int chanceOfEggRoles = 15;
 
     /**

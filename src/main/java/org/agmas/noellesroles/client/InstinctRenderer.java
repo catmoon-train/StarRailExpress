@@ -19,6 +19,7 @@ import org.agmas.noellesroles.component.*;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role.RedHouseRoles;
 import org.agmas.noellesroles.roles.candlebearer.CandleBearerPlayerComponent;
 import org.agmas.noellesroles.roles.executioner.ExecutionerPlayerComponent;
 import org.agmas.noellesroles.roles.manipulator.ManipulatorPlayerComponent;
@@ -131,7 +132,6 @@ public class InstinctRenderer {
             }
             return -1;
         });
-
         // 验尸官
         OnGetInstinctHighlight.EVENT.register((target, hasInstinct) -> {
             if (Minecraft.getInstance() == null)
@@ -384,6 +384,13 @@ public class InstinctRenderer {
                         return (Color.BLUE.getRGB());
                     }
                 }
+                if (SREClient.gameComponent.isRole(self, RedHouseRoles.PACHURI)) {
+                    if (target.distanceToSqr(self) <= 25) {
+                        if (SREClient.gameComponent.isRole(target_player, RedHouseRoles.FURANDORU)) {
+                            return RedHouseRoles.FURANDORU.color();
+                        }
+                    }
+                }
                 if (SREClient.gameComponent.isRole(self, ModRoles.CHEF)) {
                     // LoggerFactory.getLogger("renderer").info("glowTick {}",
                     // bartenderPlayerComponent.glowTicks);
@@ -468,6 +475,23 @@ public class InstinctRenderer {
                 // 风精灵
                 if (SREClient.gameComponent.isRole(self, ModRoles.WIND_YAOSE)) {
                     return ModRoles.WIND_YAOSE.getColor();
+                }
+
+                if (SREClient.gameComponent.isRole(self, RedHouseRoles.FURANDORU)) {
+                    if (target_role != null) {
+                        if (RoleUtils.compareRole(target_role, RedHouseRoles.PACHURI)) {
+                            return RedHouseRoles.PACHURI.color();
+                        } else if (target_role.canUseKiller()) {
+                            return TMMRoles.KILLER.color();
+                        } else if (target_role.isNeutralForKiller()) {
+                            return TMMRoles.KILLER.color();
+                        } else if (target_role.isNeutrals()) {
+                            return Color.YELLOW.getRGB();
+                        } else {
+                            return TMMRoles.CIVILIAN.color();
+                        }
+                    }
+                    return -1;
                 }
                 // 傀儡师
                 PuppeteerPlayerComponent selfPuppeteerComp = ModComponents.PUPPETEER.get(self);
@@ -584,6 +608,15 @@ public class InstinctRenderer {
                         }
                     }
 
+                    if (SREClient.gameComponent.isRole(self, RedHouseRoles.REMILIA)) {
+                        if (target.distanceToSqr(self) <= 25) {
+                            if (RoleUtils.compareRole(target_role, RedHouseRoles.PACHURI)) {
+                                return RedHouseRoles.PACHURI.color();
+                            } else if (RoleUtils.compareRole(target_role, RedHouseRoles.FURANDORU)) {
+                                return RedHouseRoles.FURANDORU.color();
+                            }
+                        }
+                    }
                     // 默认fallback
                     if (target_role == null)
                         return Color.WHITE.getRGB();

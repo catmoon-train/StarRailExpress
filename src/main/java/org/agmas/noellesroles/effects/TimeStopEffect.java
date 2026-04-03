@@ -23,6 +23,8 @@ import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.NRSounds;
 import org.agmas.noellesroles.packet.CanMoveInTimeStopS2CPacket;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role.RedHouseRoles;
+
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 
 import java.awt.*;
@@ -88,7 +90,7 @@ public class TimeStopEffect extends MobEffect {
                             canMovePlayers.add(player.getUUID());
                         }
                     } else {
-                        if (gameWorldComponent.isRole(player, ModRoles.MAID_SAKUYA)) {
+                        if (gameWorldComponent.isRole(player, RedHouseRoles.MAID_SAKUYA)) {
                             canMovePlayers.add(player.getUUID());
                         }
                         // if (gameWorldComponent.isRole(player, ModRoles.JOJO)) {
