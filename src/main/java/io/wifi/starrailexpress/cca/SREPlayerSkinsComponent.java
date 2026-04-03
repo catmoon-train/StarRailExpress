@@ -2,6 +2,7 @@ package io.wifi.starrailexpress.cca;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.item.SkinableItem;
@@ -412,15 +413,15 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
 
             if (skinData.containsKey("lootChance")) {
                 Object lootChance = skinData.get("lootChance");
-                if (lootChance instanceof Number) {
-                    this.lootChance = (int) ((Double) skinData.get("lootChance")).doubleValue();
+                if (lootChance instanceof Number nb) {
+                    this.lootChance = nb.intValue();
                 }
             }
 
             if (skinData.containsKey("coinNum")) {
                 Object coinNum = skinData.get("coinNum");
-                if (coinNum instanceof Number) {
-                    this.coinNum = (int) ((Double) skinData.get("coinNum")).doubleValue();
+                if (coinNum instanceof Number nb) {
+                    this.coinNum = nb.intValue();
                 }
             }
 
