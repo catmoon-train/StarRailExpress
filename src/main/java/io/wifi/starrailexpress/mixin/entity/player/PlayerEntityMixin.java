@@ -81,6 +81,12 @@ public abstract class PlayerEntityMixin extends LivingEntity implements PlayerSt
         if (GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)) {
             float speedModifier = 1.0f;
 
+            SREPlayerMoodComponent srePlayerMoodComponent = SREPlayerMoodComponent.KEY.get(player);
+            if (srePlayerMoodComponent.isLowerThanDepressed()){
+                speedModifier *= 0.8f;
+            }else if (srePlayerMoodComponent.isHigherThanAngry()){
+                speedModifier *= 1.2f;
+            }
             if (player.hasEffect(MobEffects.MOVEMENT_SPEED)) {
                 final var speedEffect = player.getEffect(MobEffects.MOVEMENT_SPEED);
                 speedModifier *= (1f + (speedEffect.getAmplifier() + 1) * 0.25f);

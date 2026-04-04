@@ -278,42 +278,7 @@ public class SREPlayerMoodComponent implements RoleComponent, ServerTickingCompo
         this.mood = tag.contains("mood", Tag.TAG_FLOAT) ? tag.getFloat("mood") : 1f;
     }
 
-    /**
-     * 根据玩家的情绪值更新其移动速度
-     */
-    private void updatePlayerMovementSpeed() {
-        if (this.player instanceof ServerPlayer) {
 
-            // 获取当前玩家的移动速度属性
-            var speedAttribute = this.player.getAttribute(Attributes.MOVEMENT_SPEED);
-
-            if (speedAttribute != null) {
-                // 移除之前可能添加的修饰符
-                speedAttribute.removeModifier(SRE.id("mood_speed_modifier"));
-                if (SRE.isLobby) {
-                    // 删除速度
-                    return;
-                }
-                // 根据情绪值添加新的修饰符
-                if (this.isLowerThanDepressed()) {
-                    // 抑郁状态 - 降低20%速度
-                    AttributeModifier modifier = new AttributeModifier(
-                            SRE.id("mood_speed_modifier"),
-                            -0.2,
-                            AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
-                    speedAttribute.addTransientModifier(modifier);
-                } else if (this.isHigherThanAngry()) {
-                    // 愤怒状态 - 提高15%速度
-                    AttributeModifier modifier = new AttributeModifier(
-                            SRE.id("mood_speed_modifier"),
-                            0.15,
-                            AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
-                    speedAttribute.addTransientModifier(modifier);
-                }
-                // 正常情绪范围内保持默认速度
-            }
-        }
-    }
 
     public void addMood(float value) {
         var gameWorldComponent = SREGameWorldComponent.KEY.get(this.player.level());
