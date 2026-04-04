@@ -59,7 +59,7 @@ public class RoleInitialItems {
     }
 
     /**
-     * 初始化初始物品映射
+     * 初始化初始物品映射，职业的初始物品加在这里。
      */
     public static void initializeInitialItems() {
         INITIAL_ITEMS_MAP.clear();
