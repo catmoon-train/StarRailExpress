@@ -42,7 +42,7 @@ public class MoodChangeCommand {
       return 0;
     }
     var pmc = SREPlayerMoodComponent.KEY.get(player);
-    source.sendSuccess(() -> Component.translatable("Mood of %s: %s", player.getDisplayName(), pmc.getMood()), false);
+    source.sendSuccess(() -> Component.translatable("Mood of %s: %s", player.getName(), pmc.getMood()), false);
     return 1;
   }
 

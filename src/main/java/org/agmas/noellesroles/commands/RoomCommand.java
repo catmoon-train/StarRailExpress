@@ -32,7 +32,7 @@ public class RoomCommand {
                 context.getSource()
                         .sendSystemMessage(
                                 Component
-                                        .translatable("%s: %s", p.getDisplayName(),
+                                        .translatable("%s: %s", p.getName(),
                                                 RoomNumberToStr(
                                                         GameUtils.roomToPlayer.getOrDefault(p.getUUID(), -1)))
                                         .withStyle(ChatFormatting.AQUA));
@@ -54,7 +54,7 @@ public class RoomCommand {
             var areas = AreasWorldComponent.KEY.get(server.overworld());
             context.getSource().sendSuccess(() -> {
                 return Component
-                        .translatable("%s: %s", p.getDisplayName(),
+                        .translatable("%s: %s", p.getName(),
                                 RoomNumberToStr(GameUtils.roomToPlayer.getOrDefault(p.getUUID(), -1)))
                         .append(Component.literal("\nRoom Count: " + areas.getRoomCount())
                                 .withStyle(ChatFormatting.GOLD))

@@ -74,8 +74,7 @@ public class RoleNameRenderer {
                     nametag = Component.literal("");
                     return;
                 }
-                nametag = Component.translatable(displayTags.getOrDefault(target.getUUID(), ""))
-                        .append(target.getDisplayName());
+                nametag = target.getDisplayName();
                 if (SREPlayerMoodComponent.KEY.get(player).getMood() <= 0.4) {
                     nametag = Component.empty();
                 }

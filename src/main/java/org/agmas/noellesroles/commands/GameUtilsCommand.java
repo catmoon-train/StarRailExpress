@@ -356,7 +356,7 @@ public class GameUtilsCommand {
     GameUtils.killPlayer(victim, spawnBody, killer, deathReasonRL, force);
     context.getSource()
         .sendSuccess(() -> Component.translatable("Killed player %s by %s with reason %s (Spawn body: %s)",
-            victim.getDisplayName(), (killer == null ? Component.literal("System") : killer.getDisplayName()),
+            victim.getName(), (killer == null ? Component.literal("System") : killer.getName()),
             Component.translatable("death_reason." + deathReasonT), (spawnBody ? "Yes" : "No")), true);
     return 1;
   }

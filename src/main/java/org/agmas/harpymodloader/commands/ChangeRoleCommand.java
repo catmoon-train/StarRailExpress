@@ -68,10 +68,10 @@ public class ChangeRoleCommand {
                                 Component.literal(oldRole.identifier().toString()))));
                 context.getSource()
                         .sendSuccess(() -> Component.translatable("commands.changerole.success.changed", oldRoleText,
-                                newRoleText, targetPlayer.getDisplayName()), true);
+                                newRoleText, targetPlayer.getName()), true);
             } else {
                 context.getSource().sendSuccess(() -> Component.translatable("commands.changerole.success.assigned",
-                        newRoleText, targetPlayer.getDisplayName()), true);
+                        newRoleText, targetPlayer.getName()), true);
             }
 
             // 通知玩家角色已改变

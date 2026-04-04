@@ -87,7 +87,7 @@ public class ExtraItemsManagerCommand {
         esc.removeSlot(slot);
         context.getSource().sendSuccess(
             () -> Component.translatable("Successfully remove the slot %s of player %s", slot.toString(),
-                player.getDisplayName()),
+                player.getName()),
             true);
         return 1;
       } else {
@@ -96,7 +96,7 @@ public class ExtraItemsManagerCommand {
 
       context.getSource().sendSuccess(
           () -> Component.translatable("Successfully set the slot %s of player %s to %s", slot.toString(),
-              player.getDisplayName(), GameReplayUtils.getItemStackDisplayNameWithCounts(itemStack)),
+              player.getName(), GameReplayUtils.getItemStackDisplayNameWithCounts(itemStack)),
           true);
       return 1;
     } catch (Exception e) {
@@ -113,13 +113,13 @@ public class ExtraItemsManagerCommand {
       if (esc.SLOTS.isEmpty()) {
         context.getSource().sendSuccess(
             () -> Component.translatable("%s doesn't have extra slots!",
-                player.getDisplayName()).withStyle(ChatFormatting.RED),
+                player.getName()).withStyle(ChatFormatting.RED),
             false);
         return 0;
       }
       context.getSource().sendSuccess(
           () -> Component.translatable("The extra slots of player %s:",
-              player.getDisplayName()).withStyle(ChatFormatting.GOLD),
+              player.getName()).withStyle(ChatFormatting.GOLD),
           false);
       for (Entry<ResourceLocation, ItemStack> entry : esc.SLOTS.entrySet()) {
         var slot = entry.getKey();
@@ -143,7 +143,7 @@ public class ExtraItemsManagerCommand {
       var esc = ExtraSlotComponent.KEY.get(player);
       esc.clear();
       context.getSource()
-          .sendSuccess(() -> Component.translatable("Cleared all extra slots of %s", player.getDisplayName()), true);
+          .sendSuccess(() -> Component.translatable("Cleared all extra slots of %s", player.getName()), true);
       return 1;
     } catch (Exception e) {
       e.printStackTrace();

@@ -50,7 +50,7 @@ public class WayfarerHudRenderer {
                 if (wayC.killer != null) {
                     Player killer = client.level.getPlayerByUUID(wayC.killer);
                     if (killer != null) {
-                        killerText = Component.literal(killer.getDisplayName().getString())
+                        killerText = Component.literal(killer.getName().getString())
                                 .withStyle(ChatFormatting.GOLD);
                     }
                 }

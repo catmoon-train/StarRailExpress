@@ -250,7 +250,7 @@ public class ThiefPlayerComponent implements RoleComponent, ServerTickingCompone
         if (targetBalance < STEAL_MONEY_AMOUNT) {
             serverPlayer.displayClientMessage(
                     Component.translatable("message.noellesroles.thief.not_enough_money",
-                            target.getDisplayName())
+                            target.getName())
                             .withStyle(ChatFormatting.RED),
                     true);
             return true; // 失败不进入冷却
@@ -267,7 +267,7 @@ public class ThiefPlayerComponent implements RoleComponent, ServerTickingCompone
         // 通知小偷
         serverPlayer.displayClientMessage(
                 Component.translatable("message.noellesroles.thief.stole_money",
-                        target.getDisplayName(),
+                        target.getName(),
                         stealAmount)
                         .withStyle(ChatFormatting.GOLD),
                 true);
@@ -328,7 +328,7 @@ public class ThiefPlayerComponent implements RoleComponent, ServerTickingCompone
         if (arr.size() <= 0) {
             serverPlayer.displayClientMessage(
                     Component.translatable("message.noellesroles.thief.no_stealable_items",
-                            target.getDisplayName())
+                            target.getName())
                             .withStyle(ChatFormatting.YELLOW),
                     true);
             return true; // 没有物品可偷，不进入冷却
@@ -369,7 +369,7 @@ public class ThiefPlayerComponent implements RoleComponent, ServerTickingCompone
                 // 偷到了球棒，显示球棒氧化消息
                 serverPlayer.displayClientMessage(
                         Component.translatable("message.noellesroles.thief.stole_item_failed",
-                                target.getDisplayName(),
+                                target.getName(),
                                 itemName)
                                 .withStyle(ChatFormatting.AQUA),
                         true);
@@ -377,7 +377,7 @@ public class ThiefPlayerComponent implements RoleComponent, ServerTickingCompone
                 // 其他情况显示偷取失败
                 serverPlayer.displayClientMessage(
                         Component.translatable("message.noellesroles.thief.steal_failed",
-                                target.getDisplayName())
+                                target.getName())
                                 .withStyle(ChatFormatting.RED),
                         true);
             }
@@ -389,7 +389,7 @@ public class ThiefPlayerComponent implements RoleComponent, ServerTickingCompone
         // 通知小偷
         serverPlayer.displayClientMessage(
                 Component.translatable("message.noellesroles.thief.stole_item",
-                        target.getDisplayName(),
+                        target.getName(),
                         itemName)
                         .withStyle(ChatFormatting.AQUA),
                 true);

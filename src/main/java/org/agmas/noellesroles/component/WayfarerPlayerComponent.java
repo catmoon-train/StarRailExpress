@@ -430,7 +430,7 @@ public class WayfarerPlayerComponent implements RoleComponent, ServerTickingComp
         // 播放音效：0阶段进1阶段用潮涌核心激活的声音
         // player.level().playSound(null, player.blockPosition(),
         // SoundEvents.CONDUIT_ACTIVATE, SoundSource.MASTER, 1.0F, 1.0F);
-        this.player.displayClientMessage(Component.translatable("", targetKiller.getDisplayName()), true);
+        this.player.displayClientMessage(Component.translatable("", targetKiller.getName()), true);
         this.deathReason = ResourceLocation.tryParse(be.getDeathReason());
         this.sync();
     }

@@ -191,7 +191,7 @@ public class ConspiratorPlayerComponent implements RoleComponent, ServerTickingC
                     target.displayClientMessage(
                             Component
                                     .translatable("message.noellesroles.conspirator.cursed.known",
-                                            this.player.getDisplayName())
+                                            this.player.getName())
                                     .withStyle(ChatFormatting.DARK_PURPLE),
                             true);
                     DetectivePlayerComponent.KEY.get(target).triggerConspiratorInstinct(20 * 20);

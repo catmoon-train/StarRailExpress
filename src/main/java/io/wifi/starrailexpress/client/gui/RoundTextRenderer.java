@@ -139,7 +139,7 @@ public class RoundTextRenderer {
             if (game.getLooseEndWinner() != null)
                 winner = player.level().getPlayerByUUID(game.getLooseEndWinner());
             Component endText = role.getEndText(roundEnd.getWinStatus(),
-                    winner == null ? roundEnd.getCustomWinners() : winner.getDisplayName(), roundEnd);
+                    winner == null ? roundEnd.getCustomWinners() : winner.getName(), roundEnd);
             if (endText == null)
                 return;
                 

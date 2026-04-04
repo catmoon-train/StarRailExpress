@@ -547,7 +547,7 @@ public class ModItems {
 
         TMMItems.INIT_ITEMS.LETTER = LETTER_ITEM;
         TMMItems.INIT_ITEMS.LETTER_UpdateItemFunc = (letter, serverPlayerEntity) -> {
-            Component displayName = serverPlayerEntity.getDisplayName();
+            Component displayName = serverPlayerEntity.getName();
             letter.set(DataComponents.ITEM_NAME,
                     Component.translatable("tip.n.letter.item_name", displayName)
                             .withStyle(ChatFormatting.AQUA));

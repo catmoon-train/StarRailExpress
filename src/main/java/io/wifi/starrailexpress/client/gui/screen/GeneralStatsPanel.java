@@ -184,7 +184,7 @@ public class GeneralStatsPanel extends AbstractWidget {
             g.fill(x + 5, y + 5, x + 45, y + 45, 0xFF333333);
         }
 
-        String name = Minecraft.getInstance().player.getDisplayName().getString();
+        String name = Minecraft.getInstance().player.getName().getString();
         g.drawString(font,
                 Component.literal(name).withStyle(s -> s.withBold(true).withColor(0xFFFFAA00)),
                 x + 55, y + 10, 0xFFFFAA00);

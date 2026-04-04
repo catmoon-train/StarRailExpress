@@ -565,7 +565,7 @@ public class GameUtils {
                     List<Component> text = new ArrayList<>();
                     UnaryOperator<Style> stylizer = style -> style.withItalic(false).withColor(letterColor);
 
-                    Component displayName = serverPlayerEntity.getDisplayName();
+                    Component displayName = serverPlayerEntity.getName();
                     String string = displayName != null ? displayName.getString()
                             : serverPlayerEntity.getName().getString();
                     if (string.charAt(string.length() - 1) == '\uE780') { // remove ratty supporter icon

@@ -46,7 +46,7 @@ public class NonOPKickCommand {
         if (!commandSourceStack.getServer().isSingleplayerOwner(serverPlayer.getGameProfile())) {
           serverPlayer.connection.disconnect(component);
           commandSourceStack.sendSuccess(() -> Component.translatable("commands.kick.success",
-              new Object[] { serverPlayer.getDisplayName(), component }), true);
+              new Object[] { serverPlayer.getName(), component }), true);
           ++i;
         }
       }

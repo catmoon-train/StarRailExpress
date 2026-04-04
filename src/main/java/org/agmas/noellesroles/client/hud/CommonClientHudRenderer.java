@@ -39,7 +39,6 @@ import org.agmas.noellesroles.component.*;
 import org.agmas.noellesroles.entity.WheelchairEntity;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
-import org.agmas.noellesroles.component.NinjaPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.RedHouseRoles;
 import org.agmas.noellesroles.roles.commander.CommanderHudRender;
@@ -924,7 +923,7 @@ public class CommonClientHudRenderer {
             continue;
           var text = Component
               .translatable("hud.fortuneteller.protecting_line",
-                  Component.literal(pl.getDisplayName().getString()).withStyle(ChatFormatting.GREEN),
+                  Component.literal(pl.getName().getString()).withStyle(ChatFormatting.GREEN),
                   Component.literal((po.time / 20) + "s").withStyle(ChatFormatting.YELLOW))
               .withStyle(ChatFormatting.GOLD);
           guiGraphics.drawString(font, text, xOffset - font.width(text), dy,

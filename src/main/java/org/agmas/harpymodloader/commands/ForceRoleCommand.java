@@ -30,14 +30,14 @@ public class ForceRoleCommand {
         }
         ServerPlayer targetPlayer = EntityArgument.getPlayer(context, "player");
         if (!Harpymodloader.FORCED_MODDED_ROLE_FLIP.containsKey(targetPlayer.getUUID())) {
-            context.getSource().sendSuccess(() -> Component.translatable("commands.forcerole.query.none", targetPlayer.getDisplayName()), false);
+            context.getSource().sendSuccess(() -> Component.translatable("commands.forcerole.query.none", targetPlayer.getName()), false);
             return 0;
         }
         SRERole role = Harpymodloader.FORCED_MODDED_ROLE_FLIP.get(targetPlayer.getUUID());
         Component roleText = Harpymodloader.getRoleName(role).withColor(role.color()).withStyle(style ->
                 style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal(role.identifier().toString())))
         );
-        context.getSource().sendSuccess(() -> Component.translatable("commands.forcerole.query", targetPlayer.getDisplayName(), roleText), false);
+        context.getSource().sendSuccess(() -> Component.translatable("commands.forcerole.query", targetPlayer.getName(), roleText), false);
         return 1;
     }
 
@@ -47,7 +47,7 @@ public class ForceRoleCommand {
         Harpymodloader.addToForcedRoles(role, targetPlayer);
         final MutableComponent roleText = Harpymodloader.getRoleName(role).withColor(role.color()).withStyle(style ->
                 style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal(role.identifier().toString()))));
-        context.getSource().sendSuccess(() -> Component.translatable("commands.forcerole.success", roleText, targetPlayer.getDisplayName()), true);
+        context.getSource().sendSuccess(() -> Component.translatable("commands.forcerole.success", roleText, targetPlayer.getName()), true);
         return 1;
     }
 }

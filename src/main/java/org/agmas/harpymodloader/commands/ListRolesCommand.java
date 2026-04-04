@@ -44,7 +44,7 @@ public class ListRolesCommand {
             }
         }
         context.getSource().sendSuccess(
-                () -> Component.translatable("Try to open Role Manage UI for %s", player.getDisplayName()), true);
+                () -> Component.translatable("Try to open Role Manage UI for %s", player.getName()), true);
         ServerPlayNetworking.send(player,
                 new RoleEnableInfoPacket(new RoleManageConfigUI.RoleAndModifierSyncInfo(roleInfos, modifierInfos)));
         return 1;

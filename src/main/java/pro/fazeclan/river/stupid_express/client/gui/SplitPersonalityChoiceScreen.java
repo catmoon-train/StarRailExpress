@@ -82,7 +82,7 @@ public class SplitPersonalityChoiceScreen extends Screen {
         // 显示配对玩家信息
         if (otherPlayer != null) {
             MutableComponent partnerInfo = Component.translatable("screen.stupid_express.split_personality.partner",
-                    otherPlayer.getDisplayName());
+                    otherPlayer.getName());
             guiGraphics.drawCenteredString(this.font, (partnerInfo),
                     this.width / 2, this.height / 2 - 35, 0xAAAAAA);
         }

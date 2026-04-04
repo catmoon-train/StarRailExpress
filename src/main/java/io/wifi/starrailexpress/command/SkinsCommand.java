@@ -35,7 +35,7 @@ public class SkinsCommand {
 
             if (player != null) {
                 openSkinScreen(player);
-                source.sendSuccess(() -> Component.translatable("commands.sre.showskin.other", player.getDisplayName()),
+                source.sendSuccess(() -> Component.translatable("commands.sre.showskin.other", player.getName()),
                         false);
             }
 

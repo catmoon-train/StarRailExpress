@@ -40,7 +40,7 @@ public class ListRoleInRoundCommand {
             }
             texts = texts.append(
                     Component.translatable("\n%s: %s%s",
-                            player.getDisplayName().copy().withStyle(ChatFormatting.WHITE), name, modifierTexts)
+                            player.getName().copy().withStyle(ChatFormatting.WHITE), name, modifierTexts)
                             .withStyle(ChatFormatting.GRAY));
         }
         final var resultTexts = texts;

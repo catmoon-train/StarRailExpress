@@ -137,7 +137,7 @@ public abstract class SplitPersonalityHudMixin {
                             .withStyle(ChatFormatting.YELLOW);
             MutableComponent otherText = Component.translatable(
                     "hud.stupid_express.split_personality.partner_with_argu",
-                    otherPersonality.getDisplayName(),
+                    otherPersonality.getName(),
                     otherStatus.withStyle(ChatFormatting.GRAY));
             context.drawString(renderer, otherText, x, y, 0xAAAAAA);
         }

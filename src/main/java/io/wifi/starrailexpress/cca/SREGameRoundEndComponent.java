@@ -70,7 +70,7 @@ public class SREGameRoundEndComponent implements AutoSyncedComponent {
                         (uid) -> {
                             var p = world.getPlayerByUUID(uid);
                             if (p != null)
-                                return p.getDisplayName();
+                                return p.getName();
                             else
                                 return Component.literal("Unknown");
                         });

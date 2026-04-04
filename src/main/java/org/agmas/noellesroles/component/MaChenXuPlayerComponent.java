@@ -1694,7 +1694,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
 
         sp.displayClientMessage(
                 Component.translatable("tip.noellesroles.activated.with_name_and_target",
-                        target.getDisplayName(),
+                        target.getName(),
                         Component.translatable("hud.noellesroles.ma_chen_xu.skill.parasite"))
                         .withStyle(ChatFormatting.DARK_GREEN),
                 true);

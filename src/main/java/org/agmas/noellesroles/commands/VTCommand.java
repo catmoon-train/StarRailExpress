@@ -47,16 +47,16 @@ public class VTCommand {
         component.vtMode = enabled;
         if (component.vtMode) {
           Component MSG = Component
-              .translatable("message.noellesroles.vt_mode.enabled", player.getDisplayName())
+              .translatable("message.noellesroles.vt_mode.enabled", player.getName())
               .withStyle(ChatFormatting.YELLOW);
           player.sendSystemMessage(MSG);
-          context.getSource().sendSuccess(() -> MSG, true);
+          context.getSource().sendSuccess(() -> MSG, false);
         } else {
           Component MSG = Component
-              .translatable("message.noellesroles.vt_mode.disabled", player.getDisplayName())
+              .translatable("message.noellesroles.vt_mode.disabled", player.getName())
               .withStyle(ChatFormatting.GREEN);
           player.sendSystemMessage(MSG);
-          context.getSource().sendSuccess(() -> MSG, true);
+          context.getSource().sendSuccess(() -> MSG, false);
         }
 
         return Command.SINGLE_SUCCESS;
@@ -82,12 +82,12 @@ public class VTCommand {
       PlayerVolumeComponent component = PlayerVolumeComponent.KEY.get(player);
       component.vtMode = !component.vtMode;
       if (component.vtMode) {
-        Component MSG = Component.translatable("message.noellesroles.vt_mode.enabled", player.getDisplayName())
+        Component MSG = Component.translatable("message.noellesroles.vt_mode.enabled", player.getName())
             .withStyle(ChatFormatting.YELLOW);
         player.sendSystemMessage(MSG);
         context.getSource().sendSuccess(() -> MSG, false);
       } else {
-        Component MSG = Component.translatable("message.noellesroles.vt_mode.disabled", player.getDisplayName())
+        Component MSG = Component.translatable("message.noellesroles.vt_mode.disabled", player.getName())
             .withStyle(ChatFormatting.GREEN);
         player.sendSystemMessage(MSG);
         context.getSource().sendSuccess(() -> MSG, false);

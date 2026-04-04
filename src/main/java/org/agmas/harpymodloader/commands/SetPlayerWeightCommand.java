@@ -56,7 +56,7 @@ public class SetPlayerWeightCommand {
     final String[] TypeMappings = { "All", "Innocent", "Neutral", "Neutral for killers", "Killer", "Vigilante" };
     if (roleType == 0) {
       source.sendSuccess(
-          () -> Component.translatable("Player [%s]", player.getDisplayName()).withStyle(ChatFormatting.GOLD),
+          () -> Component.translatable("Player [%s]", player.getName()).withStyle(ChatFormatting.GOLD),
           false);
       for (int i = 1; i <= 5; i++) {
         // 获取玩家角色权重
@@ -86,7 +86,7 @@ public class SetPlayerWeightCommand {
     }
     int weight = weightManager.getWeight(roleType);
     source.sendSuccess(
-        () -> Component.translatable("Player [%s]\nRole Type [%s(%s)] Weight [%s]", player.getDisplayName(),
+        () -> Component.translatable("Player [%s]\nRole Type [%s(%s)] Weight [%s]", player.getName(),
             TypeMappings[roleType],
             roleType, weight),
         true);
@@ -106,7 +106,7 @@ public class SetPlayerWeightCommand {
     }
     weightManager.putWeight(roleType, weight);
     source.sendSuccess(() -> Component.translatable("Modified successfully!\nPlayer [%s]\nRole Type [%s] Weight [%s]",
-        player.getDisplayName(), roleType, weight), true);
+        player.getName(), roleType, weight), true);
     return 1;
   }
 

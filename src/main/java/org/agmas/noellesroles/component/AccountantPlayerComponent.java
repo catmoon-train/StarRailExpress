@@ -279,7 +279,7 @@ public class AccountantPlayerComponent implements RoleComponent, ServerTickingCo
             // 金币超过300，给予提示
             serverPlayer.displayClientMessage(
                     Component
-                            .translatable("message.noellesroles.accountant.income.rich", target.getDisplayName(),
+                            .translatable("message.noellesroles.accountant.income.rich", target.getName(),
                                     targetBalance)
                             .withStyle(ChatFormatting.GREEN),
                     true);
@@ -287,7 +287,7 @@ public class AccountantPlayerComponent implements RoleComponent, ServerTickingCo
             // 金币未超过300，给予提示
             serverPlayer.displayClientMessage(
                     Component
-                            .translatable("message.noellesroles.accountant.income.poor", target.getDisplayName(),
+                            .translatable("message.noellesroles.accountant.income.poor", target.getName(),
                                     targetBalance)
                             .withStyle(ChatFormatting.YELLOW),
                     true);
@@ -335,7 +335,7 @@ public class AccountantPlayerComponent implements RoleComponent, ServerTickingCo
 
         // 给会计提示
         serverPlayer.displayClientMessage(
-                Component.translatable("message.noellesroles.accountant.expense.marked", target.getDisplayName())
+                Component.translatable("message.noellesroles.accountant.expense.marked", target.getName())
                         .withStyle(ChatFormatting.AQUA),
                 true);
 
@@ -378,35 +378,35 @@ public class AccountantPlayerComponent implements RoleComponent, ServerTickingCo
             // 金币上升超过100
             serverPlayer.displayClientMessage(
                     Component.translatable("message.noellesroles.accountant.expense.increased_over_100",
-                            target.getDisplayName(), difference)
+                            target.getName(), difference)
                             .withStyle(ChatFormatting.GOLD),
                     true);
         } else if (difference < -100) {
             // 金币下降超过100
             serverPlayer.displayClientMessage(
                     Component.translatable("message.noellesroles.accountant.expense.decreased_over_100",
-                            target.getDisplayName(), -difference)
+                            target.getName(), -difference)
                             .withStyle(ChatFormatting.DARK_RED),
                     true);
         } else if (difference > 0) {
             // 金币上升但未超过100
             serverPlayer.displayClientMessage(
                     Component.translatable("message.noellesroles.accountant.expense.increased",
-                            target.getDisplayName(), difference)
+                            target.getName(), difference)
                             .withStyle(ChatFormatting.GREEN),
                     true);
         } else if (difference < 0) {
             // 金币下降但未超过100
             serverPlayer.displayClientMessage(
                     Component.translatable("message.noellesroles.accountant.expense.decreased",
-                            target.getDisplayName(), -difference)
+                            target.getName(), -difference)
                             .withStyle(ChatFormatting.RED),
                     true);
         } else {
             // 金币不变
             serverPlayer.displayClientMessage(
                     Component.translatable("message.noellesroles.accountant.expense.unchanged",
-                            target.getDisplayName())
+                            target.getName())
                             .withStyle(ChatFormatting.GRAY),
                     true);
         }

@@ -794,7 +794,7 @@ public class RoleShopHandler {
                 .withStyle(ChatFormatting.LIGHT_PURPLE, ChatFormatting.GOLD),
                 Component
                     .translatable("item.written_book.per_role_content",
-                        p.getDisplayName().copy().withStyle(ChatFormatting.DARK_GRAY),
+                        p.getName().copy().withStyle(ChatFormatting.DARK_GRAY),
                         RoleUtils.getRoleOrModifierNameWithColor(gameWorldComponent.getRole(p)))
                     .withStyle(ChatFormatting.DARK_AQUA));
             var content = new Filterable<Component>(ct, Optional.of(ct));

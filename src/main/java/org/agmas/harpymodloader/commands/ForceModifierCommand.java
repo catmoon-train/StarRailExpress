@@ -32,7 +32,7 @@ public class ForceModifierCommand {
         Harpymodloader.addToForcedModifiers(modifier, targetPlayer);
         final MutableComponent modifierName = modifier.getName(true).withStyle(style ->
                 style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal(modifier.identifier().toString()))));
-        context.getSource().sendSuccess(() -> Component.translatable("commands.forcerole.success", modifierName, targetPlayer.getDisplayName()), true);
+        context.getSource().sendSuccess(() -> Component.translatable("commands.forcerole.success", modifierName, targetPlayer.getName()), true);
         return 1;
     }
 }

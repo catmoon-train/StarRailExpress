@@ -49,22 +49,22 @@ public class SwapperPlayerComponent implements RoleComponent, ServerTickingCompo
         Player player2 = player.level().getPlayerByUUID(t2);
         if (!GameUtils.isPlayerAliveAndSurvival(player1)) {
             this.player.displayClientMessage(
-                    Component.translatable("message.swapper.failed.died", player1.getDisplayName()), true);
+                    Component.translatable("message.swapper.failed.died", player1.getName()), true);
             return;
         }
         if (!GameUtils.isPlayerAliveAndSurvival(player2)) {
             this.player.displayClientMessage(
-                    Component.translatable("message.swapper.failed.died", player2.getDisplayName()), true);
+                    Component.translatable("message.swapper.failed.died", player2.getName()), true);
             return;
         }
         if (!player1.onGround()) {
             this.player.displayClientMessage(
-                    Component.translatable("message.swapper.failed.not_on_ground", player1.getDisplayName()), true);
+                    Component.translatable("message.swapper.failed.not_on_ground", player1.getName()), true);
             return;
         }
         if (!player2.onGround()) {
             this.player.displayClientMessage(
-                    Component.translatable("message.swapper.failed.not_on_ground", player2.getDisplayName()), true);
+                    Component.translatable("message.swapper.failed.not_on_ground", player2.getName()), true);
             return;
         }
 

@@ -48,12 +48,12 @@ public class AssignModifierCommand {
             ModifierRemoved.EVENT.invoker().removeModifier(targetPlayer, modifier);
             worldModifierComponent.removeModifier(targetPlayer.getUUID(), modifier);
             feedbackText = Component.translatable("commands.changemodifier.player.notification.remove",
-                    targetPlayer.getDisplayName(), modifier.getName());
+                    targetPlayer.getName(), modifier.getName());
         } else {
             worldModifierComponent.addModifier(targetPlayer.getUUID(), modifier);
             ModifierAssigned.EVENT.invoker().assignModifier(targetPlayer, modifier);
             feedbackText = Component.translatable("commands.changemodifier.player.notification.add",
-                    targetPlayer.getDisplayName(), modifier.getName());
+                    targetPlayer.getName(), modifier.getName());
         }
         // 发送反馈消息
         context.getSource().sendSuccess(() -> feedbackText, true);

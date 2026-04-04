@@ -90,17 +90,17 @@ public class HandCuffsItem extends Item {
         if (entity instanceof Player target) {
             if (hasHandCuff(target)) {
                 user.displayClientMessage(
-                        Component.translatable("item.noellesroles.handcuffs.failed", user.getDisplayName())
+                        Component.translatable("item.noellesroles.handcuffs.failed", user.getName())
                                 .withStyle(ChatFormatting.RED),
                         true);
                 return InteractionResult.FAIL;
             }
             putOnHandCuff(target, stack.copy());
             stack.shrink(1);
-            user.displayClientMessage(Component.translatable("item.noellesroles.handcuffs.put", target.getDisplayName())
+            user.displayClientMessage(Component.translatable("item.noellesroles.handcuffs.put", target.getName())
                     .withStyle(ChatFormatting.GOLD), true);
             target.displayClientMessage(
-                    Component.translatable("item.noellesroles.handcuffs.recieved", user.getDisplayName())
+                    Component.translatable("item.noellesroles.handcuffs.recieved", user.getName())
                             .withStyle(ChatFormatting.RED),
                     true);
         } else {

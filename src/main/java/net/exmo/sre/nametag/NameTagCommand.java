@@ -72,7 +72,7 @@ public class NameTagCommand {
             component.addNameTag(nameTag);
 
             context.getSource().sendSuccess(() -> Component.literal("已为玩家 ")
-                    .append(target.getDisplayName())
+                    .append(target.getName())
                     .append(Component.literal(" 添加名片: "))
                     .append(Component.literal(nameTag)), true);
 
@@ -93,13 +93,13 @@ public class NameTagCommand {
         if (component.nameTags.contains(nameTag)) {
             component.removeNameTag(nameTag);
             context.getSource().sendSuccess(() -> Component.literal("已从玩家 ")
-                    .append(target.getDisplayName())
+                    .append(target.getName())
                     .append(Component.literal(" 移除名片: "))
                     .append(Component.literal(nameTag)), true);
             return 1;
         } else {
             context.getSource().sendFailure(Component.literal("玩家 ")
-                    .append(target.getDisplayName())
+                    .append(target.getName())
                     .append(Component.literal(" 没有该名片: "))
                     .append(Component.literal(nameTag)));
             return 0;
@@ -116,13 +116,13 @@ public class NameTagCommand {
         if (component.nameTags.contains(nameTag)) {
             component.setCurrentNameTag(nameTag);
             context.getSource().sendSuccess(() -> Component.literal("已将玩家 ")
-                    .append(target.getDisplayName())
+                    .append(target.getName())
                     .append(Component.literal(" 的当前名片设置为: "))
                     .append(Component.literal(nameTag)), true);
             return 1;
         } else {
             context.getSource().sendFailure(Component.literal("玩家 ")
-                    .append(target.getDisplayName())
+                    .append(target.getName())
                     .append(Component.literal(" 没有该名片，无法设置: "))
                     .append(Component.literal(nameTag)));
             return 0;
@@ -138,11 +138,11 @@ public class NameTagCommand {
 
         if (currentNametag.isEmpty()) {
             context.getSource().sendSuccess(() -> Component.literal("玩家 ")
-                    .append(target.getDisplayName())
+                    .append(target.getName())
                     .append(Component.literal(" 当前未装备名片")), false);
         } else {
             context.getSource().sendSuccess(() -> Component.literal("玩家 ")
-                    .append(target.getDisplayName())
+                    .append(target.getName())
                     .append(Component.literal(" 的当前名片为: "))
                     .append(Component.literal(currentNametag)), false);
         }
@@ -158,13 +158,13 @@ public class NameTagCommand {
 
         if (component.nameTags.isEmpty()) {
             context.getSource().sendSuccess(() -> Component.literal("玩家 ")
-                    .append(target.getDisplayName())
+                    .append(target.getName())
                     .append(Component.literal(" 没有任何名片")), false);
             return 1;
         }
 
         var message = Component.literal("玩家 ")
-                .append(target.getDisplayName())
+                .append(target.getName())
                 .append(Component.literal(" 的名片列表 ("))
                 .append(Component.literal(String.valueOf(component.nameTags.size())))
                 .append(Component.literal("):"));
@@ -189,13 +189,13 @@ public class NameTagCommand {
         if (count > 0) {
             component.clear();
             context.getSource().sendSuccess(() -> Component.literal("已清空玩家 ")
-                    .append(target.getDisplayName())
+                    .append(target.getName())
                     .append(Component.literal(" 的所有名片 ("))
                     .append(Component.literal(String.valueOf(count)))
                     .append(Component.literal(" 个)")), true);
         } else {
             context.getSource().sendSuccess(() -> Component.literal("玩家 ")
-                    .append(target.getDisplayName())
+                    .append(target.getName())
                     .append(Component.literal(" 本来就没有名片")), false);
         }
 
@@ -211,7 +211,7 @@ public class NameTagCommand {
         if (component.isNetworkSyncEnabled()) {
             component.syncFromLinkedServer();
             context.getSource().sendSuccess(() -> Component.literal("正在从服务器同步玩家 ")
-                    .append(target.getDisplayName())
+                    .append(target.getName())
                     .append(Component.literal(" 的名片数据...")), true);
         } else {
             context.getSource().sendFailure(Component.literal("网络同步未启用，无法同步数据"));

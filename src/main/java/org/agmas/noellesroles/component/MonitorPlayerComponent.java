@@ -101,7 +101,7 @@ public class MonitorPlayerComponent implements RoleComponent, ServerTickingCompo
                     this.markedTarget = null;
                     Component targetPlayerName = Component.translatable("gui.noellesroles.monitor.unknown");
                     if (targetPlayer != null) {
-                        targetPlayerName = targetPlayer.getDisplayName();
+                        targetPlayerName = targetPlayer.getName();
                     }
                     this.player.displayClientMessage(
                             Component
