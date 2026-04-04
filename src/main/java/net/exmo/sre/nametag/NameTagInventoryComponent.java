@@ -120,7 +120,7 @@ public class NameTagInventoryComponent implements RoleComponent {
         if (nameTags.size() > 0) {
             return ComponentUtils.formatList(toAddNameTags, (t) -> {
                 return Component.literal(" ").append(t);
-            }).copy();
+            }).copy().append(" ");
         }
         return null;
     }
