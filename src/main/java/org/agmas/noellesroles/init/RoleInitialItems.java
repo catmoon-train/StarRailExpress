@@ -65,6 +65,18 @@ public class RoleInitialItems {
         INITIAL_ITEMS_MAP.clear();
 
         {
+            // baseball
+            List<Supplier<ItemStack>> items = new ArrayList<>();
+            items.add(() -> TMMItems.BAT.getDefaultInstance());
+            INITIAL_ITEMS_MAP.put(ModRoles.BASEBALL_PLAYER, items);
+        }
+        {
+            // 最好的小脑
+            List<Supplier<ItemStack>> items = new ArrayList<>();
+            items.add(() -> TMMItems.GRENADE.getDefaultInstance());
+            INITIAL_ITEMS_MAP.put(ModRoles.BEST_VIGILANTE, items);
+        }
+        {
             // FURANDORU
             List<Supplier<ItemStack>> items = new ArrayList<>();
             items.add(() -> TMMItems.CROWBAR.getDefaultInstance());

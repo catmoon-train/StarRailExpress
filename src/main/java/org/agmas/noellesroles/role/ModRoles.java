@@ -365,7 +365,7 @@ public class ModRoles {
       SRERole.MoodType.REAL, // 真实心情
       TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
       false // 显示计分板
-  )).setVigilanteTeam(true).setCanPickUpRevolver(true).setComponentKey(ModComponents.BEST_VIGILANTE);;
+  )).setVigilanteTeam(true).setCanPickUpRevolver(true);
 
   /**
    * 棒球员角色
@@ -385,7 +385,7 @@ public class ModRoles {
       SRERole.MoodType.REAL, // 真实心情
       TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
       false // 显示计分板
-  )).setVigilanteTeam(true).setCanPickUpRevolver(true).setComponentKey(ModComponents.BASEBALL_PLAYER);
+  )).setVigilanteTeam(true).setCanPickUpRevolver(true);
 
   /**
    * 苦力怕角色

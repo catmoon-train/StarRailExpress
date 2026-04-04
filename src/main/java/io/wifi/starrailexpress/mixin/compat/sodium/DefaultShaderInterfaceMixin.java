@@ -2,17 +2,10 @@ package io.wifi.starrailexpress.mixin.compat.sodium;
 
 
 import io.wifi.starrailexpress.compat.SodiumShaderInterface;
-// import io.wifi.starrailexpress.compat.IrisHelper;
-// import net.caffeinemc.mods.sodium.client.gl.buffer.GlMutableBuffer;
-import net.caffeinemc.mods.sodium.client.gl.shader.uniform.GlUniformBlock;
 // import net.caffeinemc.mods.sodium.client.render.chunk.shader.ChunkShaderOptions;
 import net.caffeinemc.mods.sodium.client.render.chunk.shader.DefaultShaderInterface;
 // import net.caffeinemc.mods.sodium.client.render.chunk.shader.ShaderBindingContext;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
-// import org.spongepowered.asm.mixin.injection.At;
-// import org.spongepowered.asm.mixin.injection.Inject;
-// import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(DefaultShaderInterface.class)
 public abstract class DefaultShaderInterfaceMixin implements SodiumShaderInterface {

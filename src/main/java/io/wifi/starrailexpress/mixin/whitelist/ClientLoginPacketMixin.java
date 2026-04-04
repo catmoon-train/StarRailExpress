@@ -2,7 +2,6 @@ package io.wifi.starrailexpress.mixin.whitelist;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.mod_whitelist.client.ModWhitelistClient;
-import io.wifi.starrailexpress.mod_whitelist.client.network.ModWhitelistClientNetworkHandler;
 import io.wifi.starrailexpress.network.packet.ModVersionPacket;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.multiplayer.ClientPacketListener;
