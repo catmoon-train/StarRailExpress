@@ -329,8 +329,7 @@ public class ModPacketsReciever {
         if (!cooldowns1.isOnCooldown(tk)) {
           cooldowns1.addCooldown(tk, 20);
         }
-        ThrowingKnifeEntity entity = new ThrowingKnifeEntity(ModEntities.THROWING_KNIFE, player.level(),
-            tk.getDefaultInstance());
+        ThrowingKnifeEntity entity = new ThrowingKnifeEntity(ModEntities.THROWING_KNIFE, player.level());
         entity.setPos(player.getEyePosition().add(0, 0, 0));
         entity.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0f, 1.3f, 1.0f);
         entity.setOwner(player);
