@@ -76,6 +76,9 @@
 
 但请注意，这些物品与方块很可能缺少原先的功能，请尽量不要使用！
 
+## Development
+在你开始之前, **请务必阅读** [CreateExtention.md](./CreateExtention.md)
+
 ## 本 DLC 特性
 ### 角色
 我们融合了 `Harpymodloader`、`StupidExpress`、`Noellesroles`、`Harpy Simple Roles`、`KinsWathe`的部分角色与修饰符，并且加入了许多我们自己的原创角色、修饰符。你无法在安装此模组的同时安装以上模组。

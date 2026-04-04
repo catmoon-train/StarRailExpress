@@ -2,40 +2,35 @@ package org.agmas.noellesroles.component;
 
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
-import io.wifi.starrailexpress.game.GameUtils;
-import io.wifi.starrailexpress.util.ShopEntry;
-import io.wifi.starrailexpress.SREConfig;
-import io.wifi.starrailexpress.index.TMMItems;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.level.Explosion;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.role.ModRoles;
-import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
+import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
-
-import java.util.List;
-import java.util.ArrayList;
 
 /**
  * 苦力怕组件
  *
  * 技能：按下技能键花费300金币引燃自身，10s后爆炸
  */
-public class CreeperPlayerComponent implements RoleComponent, ServerTickingComponent {
+public class CreeperPlayerComponent implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
 
     /** 组件键 - 用于从玩家获取此组件 */
     public static final ComponentKey<CreeperPlayerComponent> KEY = ModComponents.CREEPER;
 
     // ==================== 状态变量 ====================
+
+    // @Override
+    // public boolean shouldSyncWith(ServerPlayer nosync) {
+    // return false;
+    // }
 
     private final Player player;
 
@@ -96,7 +91,7 @@ public class CreeperPlayerComponent implements RoleComponent, ServerTickingCompo
      * 引燃自身
      */
     public boolean ignite() {
-        if (ignited || !(player instanceof ServerPlayer serverPlayer))
+        if (ignited || !(player instanceof ServerPlayer))
             return false;
 
         // 检查金币
@@ -113,9 +108,9 @@ public class CreeperPlayerComponent implements RoleComponent, ServerTickingCompo
 
         // 播放TNT点燃声音
         player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
-            SoundEvents.TNT_PRIMED, SoundSource.MASTER, 1.0F, 1.0F);
+                SoundEvents.TNT_PRIMED, SoundSource.MASTER, 1.0F, 1.0F);
 
-        this.sync();
+        // this.sync();
         return true;
     }
 
@@ -123,7 +118,7 @@ public class CreeperPlayerComponent implements RoleComponent, ServerTickingCompo
      * 执行爆炸
      */
     private void explode() {
-        if (!(player instanceof ServerPlayer serverPlayer))
+        if (!(player instanceof ServerPlayer))
             return;
 
         Vec3 pos = player.position();
@@ -134,20 +129,21 @@ public class CreeperPlayerComponent implements RoleComponent, ServerTickingCompo
             double distance = target.distanceToSqr(pos);
             if (distance <= radius * radius) {
                 // 杀死玩家
-                io.wifi.starrailexpress.game.GameUtils.killPlayer(target, true, player, io.wifi.starrailexpress.game.GameConstants.DeathReasons.GRENADE);
+                io.wifi.starrailexpress.game.GameUtils.killPlayer(target, true, player,
+                        io.wifi.starrailexpress.game.GameConstants.DeathReasons.GRENADE);
             }
         }
 
         // 播放爆炸声音
         player.level().playSound(null, pos.x, pos.y, pos.z,
-            SoundEvents.GENERIC_EXPLODE, SoundSource.BLOCKS, 4.0F, 1.0F);
+                SoundEvents.GENERIC_EXPLODE, SoundSource.BLOCKS, 4.0F, 1.0F);
     }
 
     /**
      * 同步到客户端
      */
     public void sync() {
-        ModComponents.CREEPER.sync(this.player);
+        // ModComponents.CREEPER.sync(this.player);
     }
 
     // ==================== Tick 处理 ====================
@@ -164,23 +160,9 @@ public class CreeperPlayerComponent implements RoleComponent, ServerTickingCompo
                 ignited = false;
                 this.sync();
             } else {
-                this.sync(); // 同步倒计时
+                // this.sync(); // 同步倒计时
             }
         }
-    }
-
-    // ==================== 序列化 ====================
-
-    @Override
-    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
-        this.ignited = tag.getBoolean("ignited");
-        this.igniteTimeLeft = tag.getInt("igniteTimeLeft");
-    }
-
-    @Override
-    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
-        tag.putBoolean("ignited", this.ignited);
-        tag.putInt("igniteTimeLeft", this.igniteTimeLeft);
     }
 
     @Override
@@ -193,5 +175,20 @@ public class CreeperPlayerComponent implements RoleComponent, ServerTickingCompo
     public void readFromSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.ignited = tag.contains("ignited") && tag.getBoolean("ignited");
         this.igniteTimeLeft = tag.getInt("igniteTimeLeft");
+    }
+
+    @Override
+    public void readFromNbt(CompoundTag tag, Provider registryLookup) {
+    }
+
+    @Override
+    public void writeToNbt(CompoundTag tag, Provider registryLookup) {
+    }
+
+    @Override
+    public void clientTick() {
+        if (this.igniteTimeLeft > 0) {
+            this.igniteTimeLeft--;
+        }
     }
 }

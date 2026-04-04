@@ -1,13 +1,8 @@
 package io.wifi.starrailexpress.mixin.compat.sodium;
 
-import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import io.wifi.starrailexpress.client.SREClient;
 import net.caffeinemc.mods.sodium.client.render.chunk.RenderSectionManager;
 // import net.minecraft.client.Camera;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-// import org.spongepowered.asm.mixin.injection.Inject;
-// import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(RenderSectionManager.class)
 public class RenderSectionManagerMixin {

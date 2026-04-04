@@ -30,7 +30,6 @@ import org.ladysnake.cca.api.v3.entity.EntityComponentInitializer;
 import org.ladysnake.cca.api.v3.entity.RespawnCopyStrategy;
 import org.ladysnake.cca.api.v3.world.WorldComponentFactoryRegistry;
 import org.ladysnake.cca.api.v3.world.WorldComponentInitializer;
-import org.agmas.noellesroles.component.NinjaPlayerComponent;
 /**
  * Cardinal Components API 组件注册
  *
@@ -207,14 +206,6 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
   public static final ComponentKey<ClockmakerPlayerComponent> CLOCKMAKER = ComponentRegistry.getOrCreate(
       ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "clockmaker"),
       ClockmakerPlayerComponent.class);
-
-  public static final ComponentKey<BestVigilantePlayerComponent> BEST_VIGILANTE = ComponentRegistry.getOrCreate(
-      ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "best_vigilante"),
-      BestVigilantePlayerComponent.class);
-
-  public static final ComponentKey<BaseballPlayerComponent> BASEBALL_PLAYER = ComponentRegistry.getOrCreate(
-      ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "baseball_player"),
-      BaseballPlayerComponent.class);
 
   public static final ComponentKey<CreeperPlayerComponent> CREEPER = ComponentRegistry.getOrCreate(
       ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "creeper"),
@@ -481,16 +472,6 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
     registry.beginRegistration(Player.class, CLOCKMAKER)
         .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
         .end(ClockmakerPlayerComponent::new);
-
-    // 注册更好的义警组件
-    registry.beginRegistration(Player.class, BEST_VIGILANTE)
-        .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
-        .end(BestVigilantePlayerComponent::new);
-
-    // 注册棒球员组件
-    registry.beginRegistration(Player.class, BASEBALL_PLAYER)
-        .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
-        .end(BaseballPlayerComponent::new);
 
     // 注册苦力怕组件
     registry.beginRegistration(Player.class, CREEPER)

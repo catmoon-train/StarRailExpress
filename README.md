@@ -79,6 +79,9 @@ Since it's unclear how to disable the tags in Wathe's `data` folder—which caus
 
 Please note, these items and blocks likely lack their original functionality, so try to avoid using them!
 
+## Development
+Before you start, **PLEASE** read [CreateExtention.md](./CreateExtention.md)
+
 ## DLC Features
 ### Roles
 We have integrated roles and modifiers from `Harpymodloader`, `StupidExpress`, `Noellesroles`, `Harpy Simple Roles`, and `KinsWathe`, while adding many original roles and modifiers. You cannot install the aforementioned mods alongside this one.
