@@ -122,7 +122,7 @@ public class CreeperPlayerComponent implements RoleComponent, ServerTickingCompo
             return;
 
         Vec3 pos = player.position();
-        float radius = 4.0F;
+        float radius = 6.0F;
 
         // 伤害玩家
         for (Player target : player.level().players()) {
