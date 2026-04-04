@@ -281,10 +281,7 @@ public class LootInfoScreen extends AbstractPixelScreen {
                     sketchY + layoutMetrics.sketchEdge / 2,
                     layoutMetrics.sketchWidth, layoutMetrics.sketchHeight,
                     BASE_SKETCH_WIDTH, BASE_SKETCH_HEIGHT,
-                    ResourceLocation.fromNamespaceAndPath(
-                            "noellesroles", "textures/gui/loot/pool_bg" +
-                                    curPool.getPoolID()
-                                    + ".png"));
+                    getPoolSketchTexture(curPool.getPoolID()));
             addRenderableWidget(poolSketch);
             poolSketch.setAlpha(0f);
             // 立绘动画

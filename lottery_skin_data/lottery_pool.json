@@ -277,7 +277,7 @@
                     ]
                 },
                 {
-                    "Probability":0.19,
+                    "Probability":0.2,
                     "ItemList":[
                         "coin"
                     ]
@@ -359,7 +359,7 @@
             "PoolType":"Common",
             "QualityListGroup":[
                 {
-                    "Probability":0.50,
+                    "Probability":0.49,
                     "ItemList":[
                         "coin"
                     ]
