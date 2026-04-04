@@ -79,6 +79,7 @@ import org.agmas.noellesroles.entity.WheelchairEntityModel;
 import org.agmas.noellesroles.entity.WheelchairEntityRenderer;
 import org.agmas.noellesroles.entity.WheelchairFieldItemRenderer;
 import org.agmas.noellesroles.init.*;
+import org.agmas.noellesroles.item.MercenaryContractItem;
 import org.agmas.noellesroles.item.PanItem;
 import org.agmas.noellesroles.item.ProblemSetItem;
 import org.agmas.noellesroles.packet.*;
@@ -213,6 +214,14 @@ public class NoellesrolesClient implements ClientModInitializer {
                 VendingMachinesBlockEntityRenderer::new);
 
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.VENDING_MACHINES_BLOCK, RenderType.translucent());
+        MercenaryContractItem.openGuiRunner = ()->{
+             Minecraft client = Minecraft.getInstance();
+            if (client.player == null)
+                return;
+            client.execute(() -> {
+                client.setScreen(new MercenaryContractScreen());
+            });
+        };
         ProblemSetItem.openScreenCallback = () -> {
             Minecraft client = Minecraft.getInstance();
             if (client.player == null)

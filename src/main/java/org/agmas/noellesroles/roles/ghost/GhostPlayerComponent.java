@@ -39,7 +39,7 @@ public class GhostPlayerComponent implements RoleComponent, ServerTickingCompone
     public static final int UNLOCK_REMAINING_TICKS = 180 * 20;
     /** 最后的幸存者模式时间（2分钟 = 120秒 = 2400 tick） */
     public static final int LAST_STAND_TIME = 120 * 20;
-    public static final int FURAN_LAST_STAND_TIME = 60 * 20;
+    public static final int FURAN_LAST_STAND_TIME = 90 * 20;
 
     @Override
     public Player getPlayer() {
@@ -304,6 +304,14 @@ public class GhostPlayerComponent implements RoleComponent, ServerTickingCompone
             });
 
             lastStandNotified = true;
+            this.player.addEffect(new MobEffectInstance(
+                    MobEffects.GLOWING,
+                    (int) 90 * 20, // 持续时间 60s（tick）
+                    0, // 等级（0 = 速度 I）
+                    true, // ambient（环境效果，如信标）
+                    true, // showParticles（显示粒子）
+                    false // showIcon（显示图标）
+            ));
             sync();
         }
     }
