@@ -1433,6 +1433,7 @@
   "announcement.star.role.noellesroles.mercenary": "雇佣兵",
   "announcement.star.goals.mercenary": "完成雇佣任务，必要时清除威胁，并在关键时刻选择站队。",
   "message.magician.commander_present_joined_channel": "指挥官在场。你可能会进入指挥官频道！",
+  "items.noellesroles.mercenary_contract.tooltip": "契约可以按Q键丢出。其他人可以右键签订雇佣契约，选择目标并支付175金币，雇佣兵右键已签订的契约能够获得雇佣金并为雇佣兵提供通缉目标。",
   "announcement.star.role.bandit": "强盗",
   "announcement.star.goals.bandit": "杀人越货，并摸走他们的钱！",
   "announcement.star.role.blood_feudist": "仇杀客",

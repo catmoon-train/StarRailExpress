@@ -1433,6 +1433,7 @@
   "announcement.star.role.noellesroles.mercenary": "雇傭兵",
   "announcement.star.goals.mercenary": "完成雇傭任務，必要時清除威脅，並在關鍵時刻選擇站隊。",
   "message.magician.commander_present_joined_channel": "指揮官在場。你可能會進入指揮官頻道！",
+  "items.noellesroles.mercenary_contract.tooltip": "契約可以按Q鍵丟出。其他人可以右鍵簽訂雇傭契約，選擇目標並支付175金幣，雇傭兵右鍵已簽訂的契約能夠獲得雇傭金並為雇傭兵提供通緝目標。",
   "announcement.star.role.bandit": "強盜",
   "announcement.star.goals.bandit": "殺人越貨，並摸走他們的錢！",
   "announcement.star.role.blood_feudist": "仇殺客",
