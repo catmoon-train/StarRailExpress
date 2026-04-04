@@ -17,7 +17,8 @@ public class PlayerPrefixMixin {
     @Unique
     private static MutableComponent somePrefix(Player mainPlayer) {
         if (mainPlayer instanceof ServerPlayer ){
-                return NameTagInventoryComponent.KEY.get(mainPlayer).generate();
+            var component = NameTagInventoryComponent.KEY.get(mainPlayer).generate();
+            return component != null ? component : Component.literal("");
         }
         return Component.literal("");
     }
@@ -27,7 +28,11 @@ public class PlayerPrefixMixin {
     public void getDisplayName(CallbackInfoReturnable<Component> cir) {
         Player mainPlayer = (Player) (Object) this;
         if (mainPlayer instanceof ServerPlayer ){
-            cir.setReturnValue(somePrefix(mainPlayer).append(cir.getReturnValue()));
+            Component originalName = cir.getReturnValue();
+            if (originalName == null) {
+                originalName = Component.literal(mainPlayer.getName().getString());
+            }
+            cir.setReturnValue(somePrefix(mainPlayer).append(originalName));
         }
     }
 }

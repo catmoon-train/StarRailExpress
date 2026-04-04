@@ -827,7 +827,7 @@ public class GameUtils {
                     false);
 
             serverTaskQueue.add(new ServerTaskInfoClasses.SchedulerTask(10 * 20, () -> {
-                world.getServer().halt(true);
+                world.getServer().stopServer();
             }));
         }
     }
