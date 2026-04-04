@@ -8,12 +8,12 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -31,9 +31,9 @@ import java.util.List;
 
 public class WheelchairEntity extends Mob {
 
-    // ===== 同步数据：加速时间（类似 Pig 的 DATA_BOOST_TIME）=====
-    private static final EntityDataAccessor<Integer> DATA_BOOST_TIME = SynchedEntityData
-            .defineId(WheelchairEntity.class, EntityDataSerializers.INT);
+    // ===== 同步数据：瘫痪时间 =====
+    private static final EntityDataAccessor<Integer> DATA_STUN_TIME = SynchedEntityData.defineId(WheelchairEntity.class,
+            EntityDataSerializers.INT);
 
     // ===== 耐久（保留原有变量名）=====
     public int durability = 60;
@@ -41,9 +41,8 @@ public class WheelchairEntity extends Mob {
     // ===== 转向控制 =====
     private float deltaRotation = 0.0f;
 
-    // ===== 加速相关 =====
-    private int boostTime;
-    private boolean boosting;
+    // ===== 加速相关（改用药水效果，不再需要 boostTime/boosting）=====
+    private boolean hasSpeedEffect = false; // 标记是否已施加速度效果
 
     // ===== 瘫痪相关 =====
     private int stunTime;
@@ -68,36 +67,30 @@ public class WheelchairEntity extends Mob {
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
-        builder.define(DATA_BOOST_TIME, 0);
         // 瘫痪时间同步
         builder.define(DATA_STUN_TIME, 0);
     }
 
     @Override
     public void onSyncedDataUpdated(EntityDataAccessor<?> entityDataAccessor) {
-        if (DATA_BOOST_TIME.equals(entityDataAccessor) && this.level().isClientSide) {
-            this.boostTime = this.entityData.get(DATA_BOOST_TIME);
-            this.boosting = true;
-        } else if (DATA_STUN_TIME.equals(entityDataAccessor) && this.level().isClientSide) {
+        if (DATA_STUN_TIME.equals(entityDataAccessor) && this.level().isClientSide) {
             this.stunTime = this.entityData.get(DATA_STUN_TIME);
             this.stunned = this.stunTime > 0;
         }
         super.onSyncedDataUpdated(entityDataAccessor);
     }
 
-    // 同步数据：瘫痪时间（用于外部访问）
-    private static final EntityDataAccessor<Integer> DATA_STUN_TIME = SynchedEntityData.defineId(WheelchairEntity.class,
-            EntityDataSerializers.INT);
-
     // ===== 对外公开的操作/访问器 =====
     public boolean isBoosting() {
-        return this.boosting;
+        return this.hasSpeedEffect;
     }
 
     public void stopBoost() {
-        this.boostTime = 0;
-        this.entityData.set(DATA_BOOST_TIME, 0);
-        this.boosting = false;
+        // 移除速度药水效果
+        if (this.getRider() instanceof Player rider) {
+            rider.removeEffect(MobEffects.MOVEMENT_SPEED);
+        }
+        this.hasSpeedEffect = false;
     }
 
     public void setStunTime(int ticks) {
@@ -209,13 +202,15 @@ public class WheelchairEntity extends Mob {
             return;
         }
 
-        // --- 加速 tick（类似 ItemBasedSteering.tickBoost）---
+        // --- 加速 tick（使用药水效果，无需额外处理）---
         // 检查方块效果（服务器端）
         if (!this.level().isClientSide) {
             WheelchairEffectBlockHandler.checkAndApplyEffects(this, player);
         }
 
-        this.tickBoost();
+        // 更新速度效果标记
+        this.hasSpeedEffect = player.hasEffect(MobEffects.MOVEMENT_SPEED)
+                && player.getEffect(MobEffects.MOVEMENT_SPEED).getAmplifier() >= 2;
     }
 
     // ===== getRiddenInput：前进后退根据当前朝向移动（类似 Pig.getRiddenInput）=====
@@ -235,57 +230,32 @@ public class WheelchairEntity extends Mob {
     // ===== getRiddenSpeed：速度 = 属性 × 系数 × 加速倍率（类似 Pig.getRiddenSpeed）=====
     @Override
     protected float getRiddenSpeed(Player player) {
-        return (float) (this.getAttributeValue(Attributes.MOVEMENT_SPEED) * 0.225 * (double) this.speedMultiplier());
+        float baseSpeed = (float) (this.getAttributeValue(Attributes.MOVEMENT_SPEED) * 0.225);
+        // 根据玩家的速度药水等级计算倍率
+        var speedEffect = player.getEffect(MobEffects.MOVEMENT_SPEED);
+        if (speedEffect != null && speedEffect.getAmplifier() >= 2) {
+            // Speed III (amplifier 2) = 20% * 3 = 60% 速度提升
+            return baseSpeed * (1.0f + 0.2f * (speedEffect.getAmplifier() + 1));
+        }
+        return baseSpeed;
     }
 
-    // ===== 加速系统（类似 ItemBasedSteering）=====
+    // ===== 加速系统（改为使用 Speed 药水效果）=====
     public boolean boost() {
-
-        this.boostTime = 140;
-        this.boosting = true;
-        this.entityData.set(DATA_BOOST_TIME, this.boostTime);
-        return true;
-    }
-
-    private void tickBoost() {
-        if (this.boosting && this.boostTime-- <= 0) {
-            this.boosting = false;
+        if (this.getRider() instanceof Player rider) {
+            // 给予 Speed III 效果（持续 7 秒 = 140 ticks，对应原来的 boostTime）
+            rider.addEffect(new MobEffectInstance(
+                    MobEffects.MOVEMENT_SPEED,
+                    140, // 持续时间（tick）
+                    2,   // 等级（2 = Speed III，对应原来的 2x 加速）
+                    false, // ambient
+                    true,  // showParticles
+                    true   // showIcon
+            ));
+            this.hasSpeedEffect = true;
+            return true;
         }
-
-        // 粒子拖尾 - 服务端发送
-        if (this.boosting && this.level() instanceof ServerLevel serverLevel) {
-            for (int i = 0; i < 4; i++) {
-                serverLevel.sendParticles(
-                        ParticleTypes.FLAME,
-                        this.getX()
-                                + Mth.triangleWave(this.random.nextFloat(), 0.0F) * (float) this.getBbWidth() * 0.5F,
-                        this.getY() + 0.5 + Mth.triangleWave(this.random.nextFloat(), -0.7F),
-                        this.getZ()
-                                + Mth.triangleWave(this.random.nextFloat(), 0.0F) * (float) this.getBbWidth() * 0.5F,
-                        1, // 发送1个粒子
-                        0.0, 0.0, 0.0, // 速度分量
-                        0.0 // 最大随机偏移
-                );
-            }
-        }
-
-        // 减速计时
-        if (this.slowTime > 0) {
-            this.slowTime--;
-            if (this.slowTime <= 0) {
-                this.slowMultiplier = 1.0f;
-            }
-        }
-    }
-
-    public float boostFactor() {
-        return this.boosting ? 1.0f + 2f * Mth.clamp((float) this.boostTime / 140.0f, 0.0f, 1.0f) : 1.0f;
-    }
-
-    // 综合速度因子（包含加速与减速）
-    public float speedMultiplier() {
-        float base = boostFactor();
-        return base * (this.slowTime > 0 ? this.slowMultiplier : 1.0f);
+        return false;
     }
 
     /**

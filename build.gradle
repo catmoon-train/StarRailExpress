@@ -86,6 +86,7 @@ dependencies {
     mappings loom.officialMojangMappings()
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
     modImplementation files("libs/CrosshairAddons-2.1.0-1.21.jar")
+//    modImplementation files("libs/CustomSkinLoader_Fabric-14.28.jar")
     modImplementation files("libs/WalksyLib-0.9.96+1.21.jar")
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
     modImplementation files("libs/architectury-13.0.8-fabric.jar")

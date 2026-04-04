@@ -23,6 +23,7 @@ import net.minecraft.world.level.block.Blocks;
 import org.agmas.harpymodloader.events.GameInitializeEvent;
 import org.agmas.noellesroles.commands.BroadcastCommand;
 import org.agmas.noellesroles.entity.WheelchairEntity;
+import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModEntities;
 
 import java.util.ArrayList;
@@ -130,7 +131,7 @@ public class ChairWheelRaceGame extends GameMode {
         gamePrepareTime = 20 * 10;
         executeFunction(serverLevel.getServer().createCommandSourceStack(), "harpymodloader:chair_wheel_race/init");
         for (ServerPlayer player : list) {
-            player.addEffect(new MobEffectInstance(MobEffects.BAD_OMEN, 20 * 5));
+            player.addEffect(new MobEffectInstance(ModEffects.MOVE_BANED, 20 * 10));
             gameWorldComponent.addRole(player, TMMRoles.DISCOVERY_CIVILIAN, false);
         }
         GameUtils.serverAsynTaskLists.add(new ServerTaskInfoClasses.SchedulerTask(120, () -> {

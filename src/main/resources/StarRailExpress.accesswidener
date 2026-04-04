@@ -27,3 +27,4 @@ accessible field net/minecraft/client/gui/screens/LoadingOverlay onFinish Ljava/
 accessible field net/minecraft/client/gui/screens/LoadingOverlay fadeIn Z
 
 accessible method net/minecraft/client/multiplayer/ClientLevel getEntities ()Lnet/minecraft/world/level/entity/LevelEntityGetter;
+accessible class net/minecraft/client/resources/SkinManager$TextureCache
