@@ -24,9 +24,26 @@ import java.util.List;
 
 public class NetworkStatsCommand {
 
+    public static boolean started_record = false;
+
+    private static int startRecord(CommandContext<CommandSourceStack> context) {
+        started_record = !started_record;
+        if (started_record) {
+            context.getSource().sendSuccess(
+                    ()-> Component.literal("已开始记录网络统计信息"), true
+            );
+        } else {
+            context.getSource().sendSuccess(
+                    ()-> Component.literal("已停止记录网络统计信息"), true
+            );
+        }
+        return 1;
+    }
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("tmm:netstats")
             .requires(source -> source.hasPermission(2))
+                .then(Commands.literal("start")
+                    .executes(context -> startRecord(context)))
             .executes(context -> showGlobalStats(context))
             .then(Commands.literal("global")
                 .executes(context -> showGlobalStats(context)))

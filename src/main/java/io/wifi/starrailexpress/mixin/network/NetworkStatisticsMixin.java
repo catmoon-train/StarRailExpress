@@ -1,5 +1,6 @@
 package io.wifi.starrailexpress.mixin.network;
 
+import io.wifi.starrailexpress.command.NetworkStatsCommand;
 import io.wifi.starrailexpress.network.NetworkStatistics;
 import io.wifi.starrailexpress.network.NetworkUtils;
 import net.minecraft.network.Connection;
@@ -32,6 +33,7 @@ public abstract class NetworkStatisticsMixin {
     @Inject(method = "send(Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/network/PacketSendListener;)V", 
             at = @At("HEAD"))
     private void onSendPacket(Packet<?> packet, PacketSendListener sendCallback, CallbackInfo ci) {
+        if (!NetworkStatsCommand.started_record)return;
         try {
             // 获取数据包大小
             long packetSize = NetworkUtils.estimatePacketSize(packet);

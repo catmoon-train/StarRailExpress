@@ -1,6 +1,7 @@
 package io.wifi.starrailexpress.mixin.network;
 
 import io.netty.channel.ChannelHandlerContext;
+import io.wifi.starrailexpress.command.NetworkStatsCommand;
 import io.wifi.starrailexpress.network.NetworkStatistics;
 import io.wifi.starrailexpress.network.NetworkUtils;
 import net.minecraft.network.Connection;
@@ -28,6 +29,8 @@ public abstract class NetworkReceiveStatisticsMixin {
     @Inject(method = "channelRead0(Lio/netty/channel/ChannelHandlerContext;Lnet/minecraft/network/protocol/Packet;)V", 
             at = @At("HEAD"))
     private void onReceivePacket(ChannelHandlerContext context, Packet<?> packet, CallbackInfo ci) {
+        if (!NetworkStatsCommand.started_record)return;
+
         try {
             // 获取数据包大小
             long packetSize = NetworkUtils.estimatePacketSize(packet);
