@@ -822,7 +822,8 @@ public class GameUtils {
 
         if (AutoShutdownWhenNotRunningCommand.autoShutdownWhenGameNotRunning) {
             world.getServer().getPlayerList().broadcastSystemMessage(
-                    Component.translatable("sre.shutdown.waring", 10).withStyle(ChatFormatting.YELLOW),
+                    Component.translatable("\n\n\n\n%s\n",
+                            Component.translatable("sre.shutdown.waring", 10).withStyle(ChatFormatting.YELLOW)),
                     false);
 
             serverTaskQueue.add(new ServerTaskInfoClasses.SchedulerTask(10 * 20, () -> {
