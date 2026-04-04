@@ -385,8 +385,6 @@ public class ConfigCommand {
         SREConfig.instance().psychoModeDuration), false);
     source.sendSuccess(() -> Component.translatable("commands.sre.config.show.game_settings.firecracker_duration",
         SREConfig.instance().firecrackerDuration), false);
-    source.sendSuccess(() -> Component.translatable("commands.sre.config.show.game_settings.blackout_min_duration",
-        SREConfig.instance().blackoutMinDuration), false);
     source.sendSuccess(() -> Component.translatable("commands.sre.config.show.game_settings.blackout_max_duration",
         SREConfig.instance().blackoutMaxDuration), false);
 

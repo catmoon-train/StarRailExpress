@@ -389,7 +389,7 @@ public class GameUtilsCommand {
 
   public static int executeBlackout(CommandContext<CommandSourceStack> context, int time) {
     var wbc = SREWorldBlackoutComponent.KEY.get(context.getSource().getLevel());
-    if (time != 0) {
+    if (time != -1) {
       if (time == 0) {
         wbc.triggerBlackout(true);
       } else {

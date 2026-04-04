@@ -136,7 +136,7 @@ public class SREPlayerShopComponent implements RoleComponent, ServerTickingCompo
 
     public static boolean useBlackoutWithMultiplier(@NotNull Player player, double multtiplier) {
         return useBlackout(player,
-                (int) ((double) SREWorldBlackoutComponent.getRandomDuration(player.level()) * multtiplier));
+                (int) ((double) SREWorldBlackoutComponent.getMaxDuration(player.level()) * multtiplier));
     }
 
     public static boolean useBlackout(@NotNull Player player, int duration) {
@@ -150,7 +150,7 @@ public class SREPlayerShopComponent implements RoleComponent, ServerTickingCompo
     }
 
     public static boolean useBlackout(@NotNull Player player) {
-        return useBlackout(player, SREWorldBlackoutComponent.getRandomDuration(player.level()));
+        return useBlackout(player, SREWorldBlackoutComponent.getMaxDuration(player.level()));
     }
 
     public static boolean usePsychoMode(@NotNull Player player) {
