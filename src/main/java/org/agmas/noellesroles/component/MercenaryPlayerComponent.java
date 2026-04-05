@@ -23,7 +23,7 @@ import java.util.UUID;
 public class MercenaryPlayerComponent implements RoleComponent, ServerTickingComponent {
     public static final ComponentKey<MercenaryPlayerComponent> KEY = ModComponents.MERCENARY;
 
-    private static final int BASE_IDLE_SHIELDS = 2;
+    private static final int BASE_IDLE_SHIELDS = 1;
     private static final int GLOW_REFRESH_TICKS = 40;
     private static final int CONTRACT_COOLDOWN_TICKS = 90 * 20; // 90秒冷却
 
