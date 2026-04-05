@@ -523,8 +523,8 @@ public class RoleShopHandler {
       // 雇佣兵商店
       var shop = new ArrayList<ShopEntry>();
 
-      // 未签订契约 - 50金币
-      shop.add(new ShopEntry(ModItems.MERCENARY_CONTRACT.getDefaultInstance(), 50, ShopEntry.Type.TOOL));
+      // 未签订契约 - 75金币
+      shop.add(new ShopEntry(ModItems.MERCENARY_CONTRACT.getDefaultInstance(), 75, ShopEntry.Type.TOOL));
 
       // 护盾层 - 150金币
       ItemStack shieldItem = Items.SHIELD.getDefaultInstance();
@@ -545,11 +545,11 @@ public class RoleShopHandler {
       // 撬锁器 - 100金币
       shop.add(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), 100, ShopEntry.Type.TOOL));
 
-      // 德林加 - 250金币
-      shop.add(new ShopEntry(TMMItems.DERRINGER.getDefaultInstance(), 250, ShopEntry.Type.WEAPON));
+      // 德林加 - 300金币
+      shop.add(new ShopEntry(TMMItems.DERRINGER.getDefaultInstance(), 300, ShopEntry.Type.WEAPON));
 
-      // 刀 - 125金币
-      shop.add(new ShopEntry(TMMItems.KNIFE.getDefaultInstance(), 125, ShopEntry.Type.WEAPON));
+      // 刀 - 130金币
+      shop.add(new ShopEntry(TMMItems.KNIFE.getDefaultInstance(), 130, ShopEntry.Type.WEAPON));
 
       ShopContent.customEntries.put(ModRoles.MERCENARY_ID, shop);
     }

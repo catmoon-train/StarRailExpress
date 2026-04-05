@@ -10,6 +10,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import io.wifi.starrailexpress.game.GameUtils;
 import org.agmas.noellesroles.role.ModRoles;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
@@ -41,7 +42,7 @@ public class CreeperPlayerComponent implements RoleComponent, ServerTickingCompo
     public int igniteTimeLeft = 0;
 
     /** 爆炸倒计时（秒） */
-    private static final int EXPLODE_TIME = 10 * 20; // 10秒
+    private static final int EXPLODE_TIME = 6 * 20; // 6秒
 
     @Override
     public Player getPlayer() {
@@ -106,9 +107,9 @@ public class CreeperPlayerComponent implements RoleComponent, ServerTickingCompo
         ignited = true;
         igniteTimeLeft = EXPLODE_TIME;
 
-        // 播放TNT点燃声音
+        // 播放苦力怕引燃声音
         player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
-                SoundEvents.TNT_PRIMED, SoundSource.MASTER, 1.0F, 1.0F);
+            SoundEvents.CREEPER_PRIMED, SoundSource.MASTER, 2.0F, 1.0F);
 
         // this.sync();
         return true;
@@ -120,12 +121,18 @@ public class CreeperPlayerComponent implements RoleComponent, ServerTickingCompo
     private void explode() {
         if (!(player instanceof ServerPlayer))
             return;
+        // 如果引燃者已死亡或不处于生存状态，则取消爆炸
+        if (!GameUtils.isPlayerAliveAndSurvival(player)) {
+            return;
+        }
 
         Vec3 pos = player.position();
-        float radius = 4.0F;
+        float radius = 5.0F;
 
-        // 伤害玩家
+        // 伤害玩家（跳过旁观者）
         for (Player target : player.level().players()) {
+            if (target.isSpectator())
+                continue;
             double distance = target.distanceToSqr(pos);
             if (distance <= radius * radius) {
                 // 杀死玩家
@@ -134,9 +141,13 @@ public class CreeperPlayerComponent implements RoleComponent, ServerTickingCompo
             }
         }
 
-        // 播放爆炸声音
+        // 播放苦力怕爆炸声音
         player.level().playSound(null, pos.x, pos.y, pos.z,
-                SoundEvents.GENERIC_EXPLODE, SoundSource.BLOCKS, 4.0F, 1.0F);
+            SoundEvents.GENERIC_EXPLODE, SoundSource.MASTER, 4.0F, 1.0F);
+
+        // 让引燃者自爆死亡，死因为自爆
+        io.wifi.starrailexpress.game.GameUtils.killPlayer(player, true, player,
+            io.wifi.starrailexpress.game.GameConstants.DeathReasons.SELF_EXPLOSION);
     }
 
     /**
@@ -154,13 +165,18 @@ public class CreeperPlayerComponent implements RoleComponent, ServerTickingCompo
             return;
 
         if (ignited) {
+            // 如果玩家在引燃期间死亡，则取消即将发生的爆炸
+            if (!GameUtils.isPlayerAliveAndSurvival(player)) {
+                ignited = false;
+                this.sync();
+                return;
+            }
+
             igniteTimeLeft--;
             if (igniteTimeLeft <= 0) {
                 explode();
                 ignited = false;
                 this.sync();
-            } else {
-                // this.sync(); // 同步倒计时
             }
         }
     }

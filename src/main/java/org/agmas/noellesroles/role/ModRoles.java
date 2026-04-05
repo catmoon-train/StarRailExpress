@@ -1266,11 +1266,11 @@ public class ModRoles {
       MERCENARY_ID,
       new Color(176, 128, 96).getRGB(),
       false,
-      true,
+      false,
       SRERole.MoodType.FAKE,
-      TMMRoles.CIVILIAN.getMaxSprintTime(),
+      Integer.MAX_VALUE,
       true)).setComponentKey(MercenaryPlayerComponent.KEY).setCanSeeCoin(true).setNeutrals(true)
-      .setCanSeeTeammateKiller(false).setCanUseInstinct(false).setCanPickUpRevolver(true);
+      .setCanSeeTeammateKiller(false).setCanUseInstinct(false);
 
   /**
    * 秉烛人角色 - 中立阵营

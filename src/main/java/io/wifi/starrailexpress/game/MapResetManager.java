@@ -23,11 +23,44 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 
 public class MapResetManager {
-    public static class MapResetInfos {
-        public ArrayList<BlockPos> blocks;
+    public static class CachedBlockPos {
+        int x, y, z;
 
-        public MapResetInfos(ArrayList<BlockPos> blocks) {
-            this.blocks = blocks;
+        public CachedBlockPos(int x, int y, int z) {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+        }
+
+        public CachedBlockPos(BlockPos blockPos) {
+            this.x = blockPos.getX();
+            this.y = blockPos.getY();
+            this.z = blockPos.getZ();
+        }
+
+        public BlockPos getBlockPos() {
+            return new BlockPos(this.x, this.y, this.z);
+        }
+    }
+
+    public static class MapResetInfos {
+        public ArrayList<CachedBlockPos> blocks;
+
+        public ArrayList<BlockPos> getAllBlockPos() {
+            if (this.blocks == null)
+                return new ArrayList<>();
+            ArrayList<BlockPos> arr = new ArrayList<>();
+            for (CachedBlockPos block : this.blocks) {
+                arr.add(block.getBlockPos());
+            }
+            return arr;
+        }
+
+        public MapResetInfos(ArrayList<BlockPos> inputBlocks) {
+            blocks = new ArrayList<>();
+            for (BlockPos block : inputBlocks) {
+                blocks.add(new CachedBlockPos(block));
+            }
         }
     }
 
@@ -133,7 +166,7 @@ public class MapResetManager {
             FileReader reader = new FileReader(mapConfigFile);
             JsonObject jsonObject = JsonParser.parseReader(reader).getAsJsonObject();
             MapResetInfos mapinfos = gson.fromJson(jsonObject, MapResetInfos.class);
-            GameUtils.resetPoints = mapinfos.blocks;
+            GameUtils.resetPoints = mapinfos.getAllBlockPos();
             reader.close();
         } catch (Exception e) {
             e.printStackTrace();

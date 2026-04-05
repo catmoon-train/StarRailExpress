@@ -136,21 +136,24 @@ public class SREPlayerShopComponent implements RoleComponent, ServerTickingCompo
 
     public static boolean useBlackoutWithMultiplier(@NotNull Player player, double multtiplier) {
         return useBlackout(player,
-                (int) ((double) SREWorldBlackoutComponent.getRandomDuration(player.level()) * multtiplier));
+                (int) ((double) SREWorldBlackoutComponent.getMaxDuration(player.level()) * multtiplier));
     }
 
     public static boolean useBlackout(@NotNull Player player, int duration) {
-        player.getCooldowns().addCooldown(TMMItems.BLACKOUT,
-                GameConstants.ITEM_COOLDOWNS.getOrDefault(TMMItems.BLACKOUT, 0));
-        boolean triggered = SREWorldBlackoutComponent.KEY.get(player.level()).triggerBlackout(true, duration);
+        SREWorldBlackoutComponent blackCCA = SREWorldBlackoutComponent.KEY.get(player.level());
+        if (blackCCA.blackOutRemainingTicks > 0)
+            return false;
+        boolean triggered = blackCCA.triggerBlackout(true, duration);
         if (triggered) {
             SRE.REPLAY_MANAGER.recordSkillUsed(player.getUUID(), BuiltInRegistries.ITEM.getKey(TMMItems.BLACKOUT));
+            player.getCooldowns().addCooldown(TMMItems.BLACKOUT,
+                    GameConstants.ITEM_COOLDOWNS.getOrDefault(TMMItems.BLACKOUT, 0));
         }
         return triggered;
     }
 
     public static boolean useBlackout(@NotNull Player player) {
-        return useBlackout(player, SREWorldBlackoutComponent.getRandomDuration(player.level()));
+        return useBlackout(player, SREWorldBlackoutComponent.getMaxDuration(player.level()));
     }
 
     public static boolean usePsychoMode(@NotNull Player player) {

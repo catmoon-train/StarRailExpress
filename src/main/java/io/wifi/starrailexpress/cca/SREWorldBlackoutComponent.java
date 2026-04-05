@@ -81,7 +81,9 @@ public class SREWorldBlackoutComponent implements ServerTickingComponent {
                 continue;
             if (duration > this.blackOutRemainingTicks)
                 this.blackOutRemainingTicks = duration;
-            BlackoutDetails detail = new BlackoutDetails(pos, duration,
+            int randomInt = this.world.random.nextInt(0, GameConstants.getBlackoutRandomRange());
+            randomInt = Math.min(duration, randomInt);
+            BlackoutDetails detail = new BlackoutDetails(pos, duration - randomInt,
                     state.getValue(BlockStateProperties.LIT));
             detail.init(this.world);
             this.blackouts.add(detail);
@@ -110,16 +112,15 @@ public class SREWorldBlackoutComponent implements ServerTickingComponent {
         return true;
     }
 
-    public static int getRandomDuration(Level world) {
-        int duration = (int) (GameConstants.getBlackoutMinDuration() + world.random
-                .nextInt(GameConstants.getBlackoutMaxDuration() - GameConstants.getBlackoutMinDuration()));
+    public static int getMaxDuration(Level world) {
+        int duration = (int) (GameConstants.getBlackoutMaxDuration());
         return duration;
     }
 
     public boolean triggerBlackout(boolean haveSound) {
         if (this.blackOutRemainingTicks > 0)
             return false;
-        int duration = getRandomDuration(world);
+        int duration = getMaxDuration(world);
         return triggerBlackout(haveSound, duration);
     }
 

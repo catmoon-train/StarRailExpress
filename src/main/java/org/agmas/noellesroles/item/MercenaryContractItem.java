@@ -1,9 +1,7 @@
 package org.agmas.noellesroles.item;
 
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -14,10 +12,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
-import org.agmas.noellesroles.client.screen.MercenaryContractScreen;
 import org.agmas.noellesroles.component.MercenaryPlayerComponent;
-import org.agmas.noellesroles.init.ModItems;
-import org.agmas.noellesroles.packet.MercenaryContractSignC2SPacket;
 import org.agmas.noellesroles.role.ModRoles;
 
 import java.util.UUID;
@@ -28,6 +23,8 @@ public class MercenaryContractItem extends Item {
     public static final String TAG_EMPLOYER_NAME = "employer_name";
     public static final String TAG_TARGET_UUID = "target_uuid";
     public static final String TAG_TARGET_NAME = "target_name";
+
+    public static Runnable openGuiRunner = null;
 
     public MercenaryContractItem(Properties properties) {
         super(properties);
@@ -52,10 +49,8 @@ public class MercenaryContractItem extends Item {
             }
 
             if (level.isClientSide) {
-                Minecraft client = Minecraft.getInstance();
-                if (client.player != null) {
-                    client.setScreen(new MercenaryContractScreen());
-                }
+                if (openGuiRunner != null)
+                    openGuiRunner.run();
             }
             return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
         }
@@ -98,10 +93,14 @@ public class MercenaryContractItem extends Item {
 
         boolean ok = comp.startContract(employerUuid, employerName, targetUuid, targetName);
         if (!ok) {
+            // 如果是冷却导致的失败，startContract 已经发送了冷却提示，此处不再发送通用失败提示
+            if (comp.contractCooldown > 0) {
+            return InteractionResultHolder.fail(stack);
+            }
             player.displayClientMessage(
-                    Component.translatable("message.noellesroles.mercenary.contract_start_failed")
-                            .withStyle(ChatFormatting.RED),
-                    true);
+                Component.translatable("message.noellesroles.mercenary.contract_start_failed")
+                    .withStyle(ChatFormatting.RED),
+                true);
             return InteractionResultHolder.fail(stack);
         }
 
@@ -125,7 +124,8 @@ public class MercenaryContractItem extends Item {
         return tag.getBoolean(TAG_SIGNED);
     }
 
-    public static void applySignedData(ItemStack stack, UUID employerUuid, String employerName, UUID targetUuid, String targetName) {
+    public static void applySignedData(ItemStack stack, UUID employerUuid, String employerName, UUID targetUuid,
+            String targetName) {
         CompoundTag tag = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
         tag.putBoolean(TAG_SIGNED, true);
         tag.putString(TAG_EMPLOYER_NAME, employerName == null ? "" : employerName);
@@ -137,7 +137,8 @@ public class MercenaryContractItem extends Item {
             tag.putUUID(TAG_TARGET_UUID, targetUuid);
         }
         stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
-        stack.set(DataComponents.ITEM_NAME, Component.translatable("item.noellesroles.mercenary_contract.signed_name", targetName));
+        stack.set(DataComponents.ITEM_NAME,
+                Component.translatable("item.noellesroles.mercenary_contract.signed_name", targetName));
     }
 
     public static UUID getUuid(ItemStack stack, String key) {

@@ -2,7 +2,6 @@ package io.wifi.starrailexpress.command;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
-import com.mojang.brigadier.arguments.StringArgumentType;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.command.argument.GameModeArgumentType;
 import io.wifi.starrailexpress.data.ServerMapConfig;
@@ -34,7 +33,8 @@ public class MapVoteCommand {
                         .then(Commands.literal("setmode")
                                 .then(Commands.argument("mode", GameModeArgumentType.gameMode())
                                         .executes(context -> {
-                                            var modeId = context.getArgument("mode", net.minecraft.resources.ResourceLocation.class);
+                                            var modeId = context.getArgument("mode",
+                                                    net.minecraft.resources.ResourceLocation.class);
                                             return setPresetGameMode(context.getSource(), modeId.getPath());
                                         }))));
     }
@@ -60,6 +60,7 @@ public class MapVoteCommand {
             source.sendFailure(Component.literal("投票系统已暂停，无法发起新的投票！"));
             return 0;
         }
+        votingManager.startVoting(time);
         String mapconfigs = ShowSelectedMapUIPayload
                 .convertServerMapConfigToString(ServerMapConfig.getInstance(source.getServer()));
 
@@ -124,7 +125,8 @@ public class MapVoteCommand {
 
         votingManager.setPresetGameMode(gameMode);
         String localizedModeName = getLocalizedGameModeName(gameMode);
-        source.sendSuccess(() -> Component.translatable("command.sre.votemap.setmode.success", localizedModeName), true);
+        source.sendSuccess(() -> Component.translatable("command.sre.votemap.setmode.success", localizedModeName),
+                true);
         return 1;
     }
 

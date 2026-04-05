@@ -40,7 +40,6 @@ public class ProgressionPassScreen extends Screen {
 
     // ------- 组件状态 -------
     private final SREPlayerProgressionComponent progression;
-    private final SREPlayerSkinsComponent skinsComponent;
     private final List<Button> cardButtons = new ArrayList<>();
 
     private int activeTab = 0; // 0 = 每日, 1 = 周常, 2 = 永久
@@ -62,7 +61,7 @@ public class ProgressionPassScreen extends Screen {
         super(Component.translatable("sre.pass.name"));
         this.player = Minecraft.getInstance().player;
         this.progression = SREPlayerProgressionComponent.KEY.get(player);
-        this.skinsComponent = SREPlayerSkinsComponent.KEY.get(player);
+        SREPlayerSkinsComponent.KEY.get(player);
     }
 
     // =========================================================================
@@ -319,10 +318,10 @@ public class ProgressionPassScreen extends Screen {
         renderSummaryCard(g, startX, y, cardW, Component.translatable("sre.pass.total_exp").getString(),
                 String.valueOf(progression.getTotalExperience()), 0xFF61D0FF);
         renderSummaryCard(g, startX + cardW + 12, y, cardW, Component.translatable("sre.pass.coin_reward").getString(),
-                String.valueOf(skinsComponent.getCoinNum()), 0xFFFFD166);
+                String.valueOf(progression.getClaimedCoinRewards()), 0xFFFFD166);
         renderSummaryCard(g, startX + cardW * 2 + 24, y, cardW,
                 Component.translatable("sre.pass.loot_count").getString(),
-                String.valueOf(skinsComponent.getLootChance()), 0xFFCDB4FF);
+                String.valueOf(progression.getClaimedLootRewards()), 0xFFCDB4FF);
     }
 
     private void renderSummaryCard(GuiGraphics g, int x, int y, int w, String label, String value, int accent) {

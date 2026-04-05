@@ -6,6 +6,7 @@ import com.google.gson.JsonParser;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.game.MapResetManager.CachedBlockPos;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.storage.LevelResource;
@@ -20,11 +21,11 @@ import java.util.HashMap;
 
 public class MapScannerManager {
     public static class MapScannerInfo {
-        public BlockPos pos;
+        public CachedBlockPos pos;
         public int type;
 
         public MapScannerInfo(BlockPos pos, int type) {
-            this.pos = pos;
+            this.pos = new CachedBlockPos(pos);
             this.type = type;
         }
     }
@@ -42,7 +43,7 @@ public class MapScannerManager {
         public HashMap<BlockPos, Integer> getInfos() {
             var blocks = new HashMap<BlockPos, Integer>();
             for (var info : this.infos) {
-                blocks.put(info.pos, info.type);
+                blocks.put(info.pos.getBlockPos(), info.type);
             }
             return blocks;
         }

@@ -23,8 +23,9 @@ import java.util.UUID;
 public class MercenaryPlayerComponent implements RoleComponent, ServerTickingComponent {
     public static final ComponentKey<MercenaryPlayerComponent> KEY = ModComponents.MERCENARY;
 
-    private static final int BASE_IDLE_SHIELDS = 2;
+    private static final int BASE_IDLE_SHIELDS = 1;
     private static final int GLOW_REFRESH_TICKS = 40;
+    private static final int CONTRACT_COOLDOWN_TICKS = 90 * 20; // 90秒冷却
 
     private final Player player;
 
@@ -39,6 +40,9 @@ public class MercenaryPlayerComponent implements RoleComponent, ServerTickingCom
 
     public int contractKillCount = 0;
     public int requiredContractKills = 1;
+
+    // 合约冷却（tick），>0 时不能接新的合约
+    public int contractCooldown = 0;
 
     public int bonusShields = 0;
     public boolean boughtShieldThisContract = false;
@@ -67,6 +71,7 @@ public class MercenaryPlayerComponent implements RoleComponent, ServerTickingCom
         boughtShieldThisContract = false;
         idleShieldsGranted = false;
         requiredContractKills = Math.max(1, player.level().players().size() / 10 + 1);
+        contractCooldown = 0;
         enterIdleState(true);
         sync();
     }
@@ -118,6 +123,15 @@ public class MercenaryPlayerComponent implements RoleComponent, ServerTickingCom
     }
 
     public boolean startContract(UUID employer, String employerDisplay, UUID target, String targetDisplay) {
+        if (contractCooldown > 0) {
+            if (player instanceof ServerPlayer sp) {
+                int secs = (contractCooldown + 19) / 20;
+                sp.displayClientMessage(Component.translatable("message.noellesroles.mercenary.cooldown", secs)
+                        .withStyle(ChatFormatting.RED), true);
+            }
+            return false;
+        }
+
         if (contractActive || target == null || target.equals(player.getUUID())) {
             return false;
         }
@@ -156,6 +170,8 @@ public class MercenaryPlayerComponent implements RoleComponent, ServerTickingCom
         boughtShieldThisContract = false;
 
         clearBonusShieldsAfterContractKill();
+        // 任务完成后进入冷却
+        contractCooldown = CONTRACT_COOLDOWN_TICKS;
         enterIdleState(false);
 
         if (player instanceof ServerPlayer sp) {
@@ -198,7 +214,7 @@ public class MercenaryPlayerComponent implements RoleComponent, ServerTickingCom
             return false;
         }
         SREArmorPlayerComponent armor = SREArmorPlayerComponent.KEY.get(player);
-        armor.addArmor();
+        armor.giveArmor();
         bonusShields++;
         boughtShieldThisContract = true;
         sync();
@@ -262,6 +278,14 @@ public class MercenaryPlayerComponent implements RoleComponent, ServerTickingCom
 
         requiredContractKills = Math.max(1, player.level().players().size() / 10 + 1);
 
+        // 处理合约冷却
+        if (contractCooldown > 0) {
+            contractCooldown--;
+            if (contractCooldown % 20 == 0 || contractCooldown == 0) {
+                sync();
+            }
+        }
+
         if (!contractActive) {
             enterIdleState(false);
             if (forcedTargetUuid != null) {
@@ -293,6 +317,7 @@ public class MercenaryPlayerComponent implements RoleComponent, ServerTickingCom
         tag.putInt("requiredContractKills", requiredContractKills);
         tag.putInt("bonusShields", bonusShields);
         tag.putBoolean("boughtShieldThisContract", boughtShieldThisContract);
+        tag.putInt("contractCooldown", contractCooldown);
 
         if (contractTargetUuid != null) {
             tag.putUUID("contractTargetUuid", contractTargetUuid);
@@ -315,6 +340,8 @@ public class MercenaryPlayerComponent implements RoleComponent, ServerTickingCom
         requiredContractKills = Math.max(1, tag.getInt("requiredContractKills"));
         bonusShields = Math.max(0, tag.getInt("bonusShields"));
         boughtShieldThisContract = tag.getBoolean("boughtShieldThisContract");
+
+        contractCooldown = tag.contains("contractCooldown") ? tag.getInt("contractCooldown") : 0;
 
         contractTargetUuid = tag.contains("contractTargetUuid") ? tag.getUUID("contractTargetUuid") : null;
         contractTargetName = tag.contains("contractTargetName") ? tag.getString("contractTargetName") : "";

@@ -41,7 +41,7 @@ public record MercenaryContractSignC2SPacket(UUID targetUuid) implements CustomP
         ServerPlayer signer = context.player();
         context.server().execute(() -> {
             SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(signer.level());
-            if (!gameWorld.isRunning() || !io.wifi.starrailexpress.game.GameUtils.isPlayerAliveAndSurvival(signer)) {
+            if (!gameWorld.isRunning() || !io.wifi.starrailexpress.game.GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(signer)) {
                 return;
             }
             if (gameWorld.isRole(signer, ModRoles.MERCENARY)) {

@@ -1,11 +1,27 @@
 package io.wifi.starrailexpress.game;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.common.collect.Lists;
+
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.GameMode;
-import io.wifi.starrailexpress.block.*;
-import io.wifi.starrailexpress.block_entity.*;
+import io.wifi.starrailexpress.block.FoodPlatterBlock;
+import io.wifi.starrailexpress.block.NeonPillarBlock;
+import io.wifi.starrailexpress.block.NeonTubeBlock;
+import io.wifi.starrailexpress.block.SmallDoorBlock;
+import io.wifi.starrailexpress.block.SprinklerBlock;
+import io.wifi.starrailexpress.block.ToggleableFacingLightBlock;
+import io.wifi.starrailexpress.block.ToiletBlock;
+import io.wifi.starrailexpress.block.TrimmedBedBlock;
+import io.wifi.starrailexpress.block.VentHatchBlock;
+import io.wifi.starrailexpress.block_entity.BeveragePlateBlockEntity;
+import io.wifi.starrailexpress.block_entity.SmallDoorBlockEntity;
+import io.wifi.starrailexpress.block_entity.SprinklerBlockEntity;
+import io.wifi.starrailexpress.block_entity.ToiletBlockEntity;
+import io.wifi.starrailexpress.block_entity.TrimmedBedBlockEntity;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.SREWorldBlackoutComponent;
 import io.wifi.starrailexpress.game.GameUtils.BlockEntityInfo;
@@ -26,9 +42,6 @@ import net.minecraft.world.level.block.state.pattern.BlockInWorld;
 import net.minecraft.world.level.block.state.properties.BedPart;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class ServerTaskInfoClasses {
     public static abstract class ServerTaskInfo {
@@ -72,6 +85,12 @@ public class ServerTaskInfoClasses {
         List<BoundingBox> resetChunks; // ← 新增：预计算的分块列表
 
         // ── 构造器 ─────────────────────────────────────────────────────────────
+        public FullTrainResetTask(AreasWorldComponent areas, ServerLevel world, GameMode gameMode, int gameStartTime,
+                boolean shouldStartGame) {
+            this(areas, world, gameMode, gameStartTime);
+            this.shouldStartGame = shouldStartGame;
+        }
+
         public FullTrainResetTask(AreasWorldComponent areas, ServerLevel world, GameMode gameMode, int gameStartTime) {
             if (SREConfig.instance().verboseTrainResetLogs) {
                 SRE.LOGGER.info("Resetting train " + areas.mapName);
@@ -496,8 +515,9 @@ public class ServerTaskInfoClasses {
                 }
                 var blackoutComponent = SREWorldBlackoutComponent.KEY.get(this.world);
                 blackoutComponent.reset();
-                // GameUtils.serverTaskQueue.add(new ServerTaskInfoClasses.SchedulerTask(5, () -> {
-                //     blackoutComponent.reset();
+                // GameUtils.serverTaskQueue.add(new ServerTaskInfoClasses.SchedulerTask(5, ()
+                // -> {
+                // blackoutComponent.reset();
                 // }));
 
                 GameUtils.serverTaskQueue.add(new ServerTaskInfoClasses.SchedulerTask(5, () -> {

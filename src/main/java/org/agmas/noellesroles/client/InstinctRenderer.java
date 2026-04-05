@@ -385,9 +385,11 @@ public class InstinctRenderer {
                     }
                 }
                 if (SREClient.gameComponent.isRole(self, RedHouseRoles.PACHURI)) {
-                    if (target.distanceToSqr(self) <= 25) {
-                        if (SREClient.gameComponent.isRole(target_player, RedHouseRoles.FURANDORU)) {
-                            return RedHouseRoles.FURANDORU.color();
+                    if (!self.hasEffect(ModEffects.NO_COLLIDE)) {
+                        if (target.distanceToSqr(self) <= 25) {
+                            if (SREClient.gameComponent.isRole(target_player, RedHouseRoles.FURANDORU)) {
+                                return RedHouseRoles.FURANDORU.color();
+                            }
                         }
                     }
                 }
@@ -614,13 +616,16 @@ public class InstinctRenderer {
                     }
 
                     if (SREClient.gameComponent.isRole(self, RedHouseRoles.REMILIA)) {
-                        if (target.distanceToSqr(self) <= 25) {
-                            if (RoleUtils.compareRole(target_role, RedHouseRoles.PACHURI)) {
-                                return RedHouseRoles.PACHURI.color();
-                            } else if (RoleUtils.compareRole(target_role, RedHouseRoles.FURANDORU)) {
-                                return RedHouseRoles.FURANDORU.color();
+                        if (!self.hasEffect(ModEffects.NO_COLLIDE)) {
+                            if (target.distanceToSqr(self) <= 25) {
+                                if (RoleUtils.compareRole(target_role, RedHouseRoles.PACHURI)) {
+                                    return RedHouseRoles.PACHURI.color();
+                                } else if (RoleUtils.compareRole(target_role, RedHouseRoles.FURANDORU)) {
+                                    return RedHouseRoles.FURANDORU.color();
+                                }
                             }
                         }
+
                     }
                     // 默认fallback
                     if (target_role == null)

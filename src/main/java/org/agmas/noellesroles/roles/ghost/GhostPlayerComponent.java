@@ -39,6 +39,7 @@ public class GhostPlayerComponent implements RoleComponent, ServerTickingCompone
     public static final int UNLOCK_REMAINING_TICKS = 180 * 20;
     /** 最后的幸存者模式时间（2分钟 = 120秒 = 2400 tick） */
     public static final int LAST_STAND_TIME = 120 * 20;
+    public static final int FURAN_LAST_STAND_TIME = 90 * 20;
 
     @Override
     public Player getPlayer() {
@@ -240,6 +241,77 @@ public class GhostPlayerComponent implements RoleComponent, ServerTickingCompone
             });
 
             lastStandNotified = true;
+            sync();
+        }
+    }
+
+    /**
+     * 检查最后幸存者状态
+     * 当场上只剩furan+单阵营时，将游戏时间设为1分钟（如果当前时间更长）
+     * 并广播提示
+     */
+    public void checkFuranLastStand(SREGameWorldComponent gameWorld) {
+        if (!(player instanceof ServerPlayer serverPlayer)) {
+            return;
+        }
+        if (player.isSpectator())
+            return;
+        if (player.isCreative())
+            return;
+        if (lastStandNotified) {
+            return; // 已经通知过了，不再重复
+        }
+
+        // 统计存活的平民阵营玩家
+        int aliveCivilianCount = 0;
+        int aliveKillerCount = 0;
+
+        for (var p : player.level().players()) {
+            if (!GameUtils.isPlayerAliveAndSurvival(p)) {
+                continue;
+            }
+            var role = gameWorld.getRole(p.getUUID());
+            if (role == null) {
+                continue;
+            }
+            // 检查是否是平民阵营（isInnocent = true 且 canUseKiller = false）
+            if (role.isInnocent() && !role.canUseKiller() && !role.isNeutrals()) {
+                aliveCivilianCount++;
+            }
+            if (role.canUseKiller()) {
+                aliveKillerCount++;
+            }
+        }
+
+        // 场上只剩下单一阵营+fulan
+        if ((aliveCivilianCount <= 0 || aliveKillerCount <= 0) && aliveCivilianCount + aliveKillerCount > 0) {
+            // 获取游戏时间
+            SREGameTimeComponent gameTime = SREGameTimeComponent.KEY.get(player.level());
+            if (gameTime != null) {
+                long currentTicks = gameTime.getTime();
+                // 如果当前时间超过2分钟，则设置为2分钟
+                if (currentTicks > FURAN_LAST_STAND_TIME) {
+                    gameTime.setTime(FURAN_LAST_STAND_TIME);
+                }
+            }
+
+            // 发送全局广播
+            var broadcastMessage = Component
+                    .translatable("message.noellesroles.ghost.last_stand")
+                    .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD);
+            serverPlayer.server.getPlayerList().getPlayers().forEach((p) -> {
+                BroadcastCommand.BroadcastMessage(p, broadcastMessage);
+            });
+
+            lastStandNotified = true;
+            this.player.addEffect(new MobEffectInstance(
+                    MobEffects.GLOWING,
+                    (int) 90 * 20, // 持续时间 60s（tick）
+                    0, // 等级（0 = 速度 I）
+                    true, // ambient（环境效果，如信标）
+                    true, // showParticles（显示粒子）
+                    false // showIcon（显示图标）
+            ));
             sync();
         }
     }

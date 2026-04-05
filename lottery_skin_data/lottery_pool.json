@@ -139,7 +139,7 @@
             "PoolType":"Common",
             "QualityListGroup":[
                 {
-                    "Probability":0.345,
+                    "Probability":0.344,
                     "ItemList":[
                         "coin","bat/baseball_bat","bat/bamboo/minecraft/textures/item/bamboo.png"
                     ]
@@ -169,13 +169,13 @@
                     ]
                 },
                 {
-                    "Probability":0.01,
+                    "Probability":0.015,
                     "ItemList":[
                         "bat/plasma_axe","bat/road_roller","bat/slippers","bat/platinum_arm","bat/chigang","bat/jin_gu_bang"
                     ]
                 },
                 {
-                    "Probability":0.005,
+                    "Probability":0.001,
                     "ItemList":[
                         "bat/musical"
                     ]
@@ -283,7 +283,7 @@
                     ]
                 },
                 {
-                    "Probability":0.19,
+                    "Probability":0.2,
                     "ItemList":[
                         "coin"
                     ]
@@ -321,7 +321,7 @@
             "PoolType":"Common",
             "QualityListGroup":[
                 {
-                    "Probability":0.345,
+                    "Probability":0.344,
                     "ItemList":[
                         "coin"
                     ]
@@ -351,13 +351,13 @@
                     ]
                 },
                 {
-                    "Probability":0.01,
+                    "Probability":0.015,
                     "ItemList":[
                         "knife/quill","knife/lightning_whip","knife/galaxy_spark","knife/head_dart","knife/scarlet_scar","knife/gold_claw_knife","knife/ruby_claw_knife"
                     ]
                 },
                 {
-                    "Probability":0.005,
+                    "Probability":0.001,
                     "ItemList":[
                         "knife/canyue_knife"
                     ]
@@ -371,7 +371,7 @@
             "PoolType":"Common",
             "QualityListGroup":[
                 {
-                    "Probability":0.50,
+                    "Probability":0.499,
                     "ItemList":[
                         "coin"
                     ]
@@ -407,7 +407,7 @@
                     ]
                 },
                 {
-                    "Probability":0.01,
+                    "Probability":0.001,
                     "ItemList":[
                         "gun/canyue_gun","gun/dark_blue","gun/iron_ball_gun"
                     ]

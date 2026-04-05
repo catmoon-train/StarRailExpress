@@ -161,8 +161,8 @@ public class GameConstants {
         return SREConfig.instance().firecrackerDuration * 20;
     }
 
-    public static int getBlackoutMinDuration() {
-        return SREConfig.instance().blackoutMinDuration * 20;
+    public static int getBlackoutRandomRange() {
+        return SREConfig.instance().blackoutRandomRange * 20;
     }
 
     public static int getBlackoutMaxDuration() {
@@ -184,6 +184,7 @@ public class GameConstants {
         public static ResourceLocation BAT = SRE.id("bat_hit");
         public static ResourceLocation GRENADE = SRE.id("grenade");
         public static ResourceLocation POISON = SRE.id("poison");
+        public static ResourceLocation SELF_EXPLOSION = SRE.id("self_explosion");
         public static ResourceLocation FELL_OUT_OF_TRAIN = SRE.id("fell_out_of_train");
         public static ResourceLocation ARROW = SRE.id("arrow");
         public static ResourceLocation TRIDENT = SRE.id("trident");

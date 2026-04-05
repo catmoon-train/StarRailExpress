@@ -31,14 +31,15 @@ public class InitModRolesMax {
             int need = 0;
             AutoPresetInfo selectedInfo = null;
             for (AutoPresetInfo info : SREConfig.instance().roundBasedPreset) {
-                need+=info.advanceCount;
-                if(round>=need){
+                need += info.advanceCount;
+                if (round >= need) {
                     selectedInfo = info;
                     break;
                 }
-            };
+            }
+            ;
             String nextPreset;
-            if (selectedInfo!=null) {
+            if (selectedInfo != null) {
                 nextPreset = selectedInfo.presetName;
             } else {
                 nextPreset = sreConfig.roundBasedPresetAllRoles;
@@ -86,6 +87,7 @@ public class InitModRolesMax {
 
         // 工程师每局只能有 1 个
         Harpymodloader.setRoleMaximum(ModRoles.ENGINEER_ID, 1);
+        Harpymodloader.setRoleMaximum(ModRoles.BASEBALL_PLAYER_ID, 0);
         Harpymodloader.setRoleMaximum(ModRoles.LOCKSMITH_ID, 0);
         Harpymodloader.setRoleMaximum(ModRoles.MA_CHEN_XU, 0);
         Harpymodloader.setRoleMaximum(ModRoles.GUEST_GHOST, 0);
@@ -240,7 +242,7 @@ public class InitModRolesMax {
         Harpymodloader.setRoleMaximum(ModRoles.GLITCH_ROBOT_ID, NoellesRolesConfig.HANDLER.instance().glitchRobotMax);
         Harpymodloader.setRoleMaximum(ModRoles.GHOST_ID, NoellesRolesConfig.HANDLER.instance().ghostMax);
         Harpymodloader.setRoleMaximum(ModRoles.THIEF_ID, 1);
-        Harpymodloader.setRoleMaximum(ModRoles.MERCENARY_ID, 1);
+        Harpymodloader.setRoleMaximum(ModRoles.MERCENARY_ID, 0);
         Harpymodloader.setRoleMaximum(ModRoles.BANDIT_ID, 1);
         Harpymodloader.setRoleMaximum(ModRoles.BOMBER_ID, 1);
         Harpymodloader.setRoleMaximum(ModRoles.OLDMAN_ID, 1);
@@ -269,14 +271,14 @@ public class InitModRolesMax {
             }
             final int players_count = serverLevel.getServer().getPlayerCount();
             initModifiersCount(players_count);
-            
+
             // 获取地图是否可跳跃
             boolean canJumpMap = false;
             var areas = io.wifi.starrailexpress.cca.AreasWorldComponent.KEY.get(serverLevel);
             if (areas != null) {
                 canJumpMap = areas.canJump;
             }
-            
+
             {
                 // 杀手中立
                 var neutralRoles = new ArrayList<SRERole>(TMMRoles.ROLES.values());
@@ -297,17 +299,17 @@ public class InitModRolesMax {
             }
             // 动态大小
             Random random = new Random();
-            if(players_count >= 12 && random.nextInt(0, 100) < TOUHOU_CHANCE){
+            if (players_count >= 12 && random.nextInt(0, 100) < TOUHOU_CHANCE) {
                 Harpymodloader.setRoleMaximum(RedHouseRoles.BAKA_ID, 1);
                 Harpymodloader.setRoleMaximum(RedHouseRoles.PACHURI, 1);
                 Harpymodloader.setRoleMaximum(RedHouseRoles.REMILIA, 1);
                 Harpymodloader.setRoleMaximum(RedHouseRoles.FURANDORU, 1);
-                if(canJumpMap){
+                if (canJumpMap) {
                     Harpymodloader.setRoleMaximum(RedHouseRoles.HOAN_MEIRIN, 1);
-                }else{
+                } else {
                     Harpymodloader.setRoleMaximum(RedHouseRoles.HOAN_MEIRIN, 0);
                 }
-            }else{
+            } else {
                 Harpymodloader.setRoleMaximum(RedHouseRoles.BAKA_ID, 0);
                 Harpymodloader.setRoleMaximum(RedHouseRoles.HOAN_MEIRIN, 0);
                 Harpymodloader.setRoleMaximum(RedHouseRoles.PACHURI, 0);
@@ -557,8 +559,10 @@ public class InitModRolesMax {
             // WRITER (作家) - 0.2%概率生成
             if (random.nextInt(0, 100) <= 2) {
                 Harpymodloader.setRoleMaximum(ModRoles.WRITER_ID, 1);
+                Harpymodloader.setRoleMaximum(ModRoles.BASEBALL_PLAYER_ID, 1);
             } else {
                 Harpymodloader.setRoleMaximum(ModRoles.WRITER_ID, 0);
+                Harpymodloader.setRoleMaximum(ModRoles.BASEBALL_PLAYER_ID, 0);
             }
 
             // TELEGRAPHER (电报员) - 0.5%概率生成（与作家相同）
@@ -660,29 +664,29 @@ public class InitModRolesMax {
             Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("jeb_"), 0);
         }
 
-            /// VIGOROUS (矫健) - 80% 概率生成
-            if (random.nextInt(0, 100) < 80) {
-                StupidExpress.LOGGER.info("Modifier [Vigorous] enabled in this round!");
-                Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("vigorous"), Math.max(1, players / random.nextInt(6, 12)));
-            } else {
-                Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("vigorous"), 0);
-            }
+        /// VIGOROUS (矫健) - 80% 概率生成
+        if (random.nextInt(0, 100) < 80) {
+            StupidExpress.LOGGER.info("Modifier [Vigorous] enabled in this round!");
+            Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("vigorous"), 2);
+        } else {
+            Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("vigorous"), 0);
+        }
 
-            /// UNYIELDING (不屈) - 80% 概率生成
-            if (random.nextInt(0, 100) < 80) {
-                StupidExpress.LOGGER.info("Modifier [Unyielding] enabled in this round!");
-                Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("unyielding"), Math.max(1, players / random.nextInt(6, 12)));
-            } else {
-                Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("unyielding"), 0);
-            }
+        /// UNYIELDING (不屈) - 80% 概率生成
+        if (random.nextInt(0, 100) < 80) {
+            StupidExpress.LOGGER.info("Modifier [Unyielding] enabled in this round!");
+            Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("unyielding"), 2);
+        } else {
+            Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("unyielding"), 0);
+        }
 
-            /// PARANOID (偏执) - 10% 概率生成
-            if (random.nextInt(0, 100) < 10) {
-                StupidExpress.LOGGER.info("Modifier [Paranoid] enabled in this round!");
-                Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("paranoid"), Math.max(1, players / random.nextInt(8, 24)));
-            } else {
-                Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("paranoid"), 0);
-            }
+        /// PARANOID (偏执) - 10% 概率生成
+        if (random.nextInt(0, 100) < 10) {
+            StupidExpress.LOGGER.info("Modifier [Paranoid] enabled in this round!");
+            Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("paranoid"), 1);
+        } else {
+            Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("paranoid"), 0);
+        }
 
         SPLIT_PERSONALITY_CHANCE = NoellesRolesConfig.HANDLER.instance().chanceOfModifierSplitPersonality;
         if (SPLIT_PERSONALITY_CHANCE < 0) {

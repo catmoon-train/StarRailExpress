@@ -87,7 +87,7 @@ public class CandleBearerPlayerComponent implements RoleComponent, ServerTicking
         livingCandleCooldownTicks = 0;
         successfulCandles = 0;
         int totalPlayers = player.level().players().size();
-        requiredCandles = Math.max(4, totalPlayers / 5 + 2);
+        requiredCandles = Math.max(4, totalPlayers / 5 + 1);
         sync();
     }
 

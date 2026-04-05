@@ -60,7 +60,7 @@ public class RedHouseRoles {
           if (player.isSpectator())
             return;
           // 复用cca
-          GhostPlayerComponent.KEY.get(player).checkLastStand(SREGameWorldComponent.KEY.get(player.level()));
+          GhostPlayerComponent.KEY.get(player).checkFuranLastStand(SREGameWorldComponent.KEY.get(player.level()));
         }
       })
       .setCanSeeCoin(true).setNeutrals(true).setCanUseInstinct(true).setCanIgnoreBlackout(true);

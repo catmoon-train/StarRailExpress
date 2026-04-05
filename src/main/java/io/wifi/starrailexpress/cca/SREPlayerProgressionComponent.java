@@ -764,7 +764,7 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
         return encoded;
     }
 
-    private void markChanged() {
+    public void markChanged() {
         markChanged(SYNC_DIRTY_ALL);
     }
 
@@ -939,8 +939,8 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
             tag.putInt("Level", this.level);
             tag.putInt("Experience", this.experience);
             tag.putInt("TotalExperience", this.totalExperience);
-            tag.putInt("ClaimedCoinRewards", this.claimedCoinRewards);
-            tag.putInt("ClaimedLootRewards", this.claimedLootRewards);
+            tag.putInt("ClaimedCoinRewards", SREPlayerSkinsComponent.KEY.get(this.player).getCoinNum());
+            tag.putInt("ClaimedLootRewards", SREPlayerSkinsComponent.KEY.get(this.player).getLootChance());
             tag.putLong("LastQuestRefreshTime", this.lastQuestRefreshTime);
             tag.putLong("LastWeeklyRefreshTime", this.lastWeeklyRefreshTime);
         }

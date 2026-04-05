@@ -152,8 +152,10 @@ public class RiptideTridentMixin {
             return;
 
         // 在激流状态期间持续检测碰撞
-        // 检测碰撞 - 使用扩大的碰撞箱，参考波纹勋章的实现方式
-        AABB hitBox = player.getBoundingBox().inflate(1.5);
+        // 检测碰撞 - 使用扩大的碰撞箱
+        // 对水鬼使用更小的碰撞箱以避免穿墙击杀；另外在判定击杀时检查视线
+        double inflateAmount = isWaterGhost ? 1.0 : 1.5;
+        AABB hitBox = player.getBoundingBox().inflate(inflateAmount);
         List<ServerPlayer> nearbyPlayers = serverLevel.getEntitiesOfClass(
                 ServerPlayer.class,
                 hitBox);
@@ -163,7 +165,8 @@ public class RiptideTridentMixin {
             if (target != player && !target.isSpectator() && !target.isCreative()) {
                 // 检查目标是否在激流撞击范围内
                 double distance = player.position().distanceTo(target.position());
-                if (distance < 2.5 && GameUtils.isPlayerAliveAndSurvival(target)) { // 激流撞击范围
+                double riptideRange = isWaterGhost ? 2.0 : 2.5;
+                if (distance < riptideRange && GameUtils.isPlayerAliveAndSurvival(target) && player.hasLineOfSight(target)) { // 激流撞击范围
                     GameUtils.killPlayer(target, true, serverPlayer, SRE.id("trident"));
                     if (isWaterGhost) {
                         // 水鬼：激流三叉戟击杀后进入30秒冷却

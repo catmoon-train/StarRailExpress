@@ -520,11 +520,11 @@ public interface WatheBridgerBlocks {
     Block BARRIER_PANEL = registrar.createWithItem("barrier_panel",
             new BarrierPanelBlock(BlockBehaviour.Properties.ofFullCopy(ANTHRACITE_STEEL_PANEL)
                     .strength(-1.0F, 3600000.8F).noOcclusion().sound(SoundType.STONE)),
-            new Item.Properties().rarity(Rarity.EPIC), CreativeModeTabs.OP_BLOCKS);
+            new Item.Properties().rarity(Rarity.EPIC));
     Block LIGHT_BARRIER = registrar.createWithItem("light_barrier",
             new LightBarrierBlock(
                     ((BlockSettingsAdditions) BlockBehaviour.Properties.ofFullCopy(Blocks.BARRIER)).SRE$setCol(false)),
-            new Item.Properties().rarity(Rarity.EPIC), CreativeModeTabs.OP_BLOCKS);
+            new Item.Properties().rarity(Rarity.EPIC));
 
     private static Block createBranch(String name, Block wood, BlockRegistrar registrar) {
         return registrar.createWithItem(name,
