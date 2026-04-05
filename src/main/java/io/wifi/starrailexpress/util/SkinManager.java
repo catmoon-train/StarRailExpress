@@ -105,7 +105,7 @@ public class SkinManager {
         public static final Skin HAT_DEFAULT_SKIN = new Skin(Colors.GRAY, "default");
     }
 
-    public static void registerSkin(String skinType, String skinID, int color) {
+    public static void registerCustomSkin(String skinType, String skinID, int color) {
         skinMap.putIfAbsent(skinType, new HashMap<>());
         skinMap.get(skinType).put(skinID, new Skin(color, skinID));
         // 分配皮肤整数ID（如未分配），用于网络包的高效同步
