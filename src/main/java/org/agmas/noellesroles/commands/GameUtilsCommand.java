@@ -7,7 +7,6 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.cca.*;
 import io.wifi.starrailexpress.game.GameConstants;
@@ -534,17 +533,6 @@ public class GameUtilsCommand {
         Noellesroles.id("gamble_self_kill"),
         Noellesroles.id("wayfarer_error"),
         Noellesroles.id("nianshou_firecrackers"),
-        SRE.id("death_afk"),
-        SRE.id("disconnected"),
-        SRE.id("bat_hit"),
-        SRE.id("fell_out_of_train"),
-        SRE.id("generic"),
-        SRE.id("grenade"),
-        SRE.id("gun_shot"),
-        SRE.id("knife_stab"),
-        SRE.id("poison"),
-        SRE.id("revolver_shot"),
-        SRE.id("derringer_shot"),
         StupidExpress.id("broken_heart"),
         StupidExpress.id("failed_initiation"),
         StupidExpress.id("allergist"),
@@ -574,7 +562,7 @@ public class GameUtilsCommand {
       String remaining = builder.getRemaining().toLowerCase(Locale.ROOT);
       Set<String> suggestions = new HashSet<>();
       // 添加自定义 ID 到 Sety
-      
+
       getAllDeathReasons()
           .stream().map(ResourceLocation::toString)
           .filter(id -> id.toLowerCase(Locale.ROOT).startsWith(remaining))
