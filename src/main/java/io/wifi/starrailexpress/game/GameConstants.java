@@ -15,6 +15,7 @@ public class GameConstants {
     // Logistics
     public static int FADE_TIME = 40;
     public static int FADE_PAUSE = 20;
+    public static int BLACKOUT_COOLDOWN_GLOBAL = SREConfig.instance().blackoutCooldownGlobal;
     public static int MIN_PLAYER_COUNT = 6;
     public static Function<Long, Integer> PASSIVE_MONEY_TICKER = time -> {
         if (time % getInTicks(0, 10) == 0) {
@@ -22,6 +23,10 @@ public class GameConstants {
         }
         return 0;
     };
+
+    public static int getBlackoutCooldownGlobal() {
+        return BLACKOUT_COOLDOWN_GLOBAL;
+    }
 
     // Role Configuration (Server-side, mutable via command)
     public class RoleConfig {

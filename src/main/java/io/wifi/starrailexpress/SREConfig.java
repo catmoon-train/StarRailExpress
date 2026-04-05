@@ -80,7 +80,8 @@ public class SREConfig implements ConfigData {
     public int psychoModeCooldown = 275;
     @ConfigEntry.Category(value = "cooldowns")
     public int blackoutCooldown = 180;
-
+    @ConfigEntry.Category(value = "cooldowns")
+    public int blackoutCooldownGlobal = 20 * 40;
     // 游戏配置 - 服务端只读
 
     // Bartender - Glow duration in seconds
