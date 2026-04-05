@@ -873,6 +873,27 @@ public class SREPlayerStatsComponent implements AutoSyncedComponent, ServerTicki
         return success;
     }
 
+    public void flushDatabaseAsync() {
+        if (!isDatabaseSyncEnabled()) {
+            return;
+        }
+        String jsonData = PlayerStatsSerializer.toJson(this);
+        MysqlPlayerDataStore.saveBatchAsync(
+                player.getUUID(),
+                Map.of(DATABASE_SYNC_KEY, jsonData),
+                System.currentTimeMillis())
+                .whenComplete((success, throwable) -> {
+                    if (throwable != null) {
+                        SRE.LOGGER.warn("Failed to flush player stats to MySQL for {}", player.getUUID(), throwable);
+                        return;
+                    }
+                    if (Boolean.TRUE.equals(success)) {
+                        this.databaseDirty = false;
+                        this.lastDatabaseSaveTime = System.currentTimeMillis();
+                    }
+                });
+    }
+
     private boolean isDatabaseSyncEnabled() {
         return !player.level().isClientSide()
                 && SREConfig.instance().isStatsEnabled
