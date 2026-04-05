@@ -127,7 +127,7 @@ public class CreeperPlayerComponent implements RoleComponent, ServerTickingCompo
         }
 
         Vec3 pos = player.position();
-        float radius = 6.0F;
+        float radius = 5.0F;
 
         // 伤害玩家（跳过旁观者）
         for (Player target : player.level().players()) {
@@ -144,6 +144,10 @@ public class CreeperPlayerComponent implements RoleComponent, ServerTickingCompo
         // 播放爆炸声音
         player.level().playSound(null, pos.x, pos.y, pos.z,
                 SoundEvents.GENERIC_EXPLODE, SoundSource.MASTER, 4.0F, 1.0F);
+
+        // 让引燃者自爆死亡，死因为自爆
+        io.wifi.starrailexpress.game.GameUtils.killPlayer(player, true, player,
+            io.wifi.starrailexpress.game.GameConstants.DeathReasons.SELF_EXPLOSION);
     }
 
     /**

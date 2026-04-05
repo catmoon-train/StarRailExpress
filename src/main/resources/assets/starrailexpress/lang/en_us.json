@@ -540,6 +540,7 @@
   "task.bathe": "Take a shower - Under the shower or in water",
   "death_reason.starrailexpress.shot_innocent": "Killed innocent by mistake",
   "death_reason.starrailexpress.backfire": "Gun backfire",
+  "death_reason.starrailexpress.self_explosion": "Self-explosion",
   "replay.event.game.start": "Game start",
   "replay.event.game.end": "Game end",
   "replay.event.player.join": "%s joined the game",

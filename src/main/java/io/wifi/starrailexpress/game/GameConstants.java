@@ -184,6 +184,7 @@ public class GameConstants {
         public static ResourceLocation BAT = SRE.id("bat_hit");
         public static ResourceLocation GRENADE = SRE.id("grenade");
         public static ResourceLocation POISON = SRE.id("poison");
+        public static ResourceLocation SELF_EXPLOSION = SRE.id("self_explosion");
         public static ResourceLocation FELL_OUT_OF_TRAIN = SRE.id("fell_out_of_train");
         public static ResourceLocation ARROW = SRE.id("arrow");
         public static ResourceLocation TRIDENT = SRE.id("trident");

@@ -544,6 +544,7 @@
   "task.bathe": "去洗个澡 - 在花洒下或者在水中",
   "death_reason.starrailexpress.shot_innocent": "误杀平民而亡",
   "death_reason.starrailexpress.backfire": "枪走火",
+  "death_reason.starrailexpress.self_explosion": "自爆而亡",
   "replay.event.game.start": "游戏开始",
   "replay.event.game.end": "游戏结束",
   "replay.event.player.join": "%s 加入了游戏",
