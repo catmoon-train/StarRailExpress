@@ -304,10 +304,7 @@ public class MercenaryPlayerComponent implements RoleComponent, ServerTickingCom
             onContractTargetLost();
             return;
         }
-        if (player.level().getGameTime() % 30 == 0) {
-            contractTarget
-                    .addEffect(new MobEffectInstance(MobEffects.GLOWING, GLOW_REFRESH_TICKS, 0, false, false, false));
-        }
+        // 不再在服务器端给通缉目标添加发光效果（改为客户端仅对雇佣兵渲染高亮）
     }
 
     @Override

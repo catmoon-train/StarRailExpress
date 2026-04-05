@@ -132,6 +132,40 @@ public class InstinctRenderer {
             }
             return -1;
         });
+
+        // 雇佣兵：仅在雇佣兵客户端将其合约目标高亮显示
+        OnGetInstinctHighlight.EVENT.register((target, hasInstinct) -> {
+            if (Minecraft.getInstance() == null)
+                return -1;
+            var self = Minecraft.getInstance().player;
+            if (self == null)
+                return -1;
+            if (SREClient.gameComponent == null)
+                return -1;
+            if (!SREClient.gameComponent.isRole(self, ModRoles.MERCENARY))
+                return -1;
+            if (!GameUtils.isPlayerAliveAndSurvival(self))
+                return -1;
+
+            var mercComp = ModComponents.MERCENARY.get(self);
+            if (mercComp == null || !mercComp.contractActive)
+                return -1;
+
+            // 检查目标是否为合约目标（支持活人或尸体实体）
+            if (target instanceof Player targetPlayer) {
+                if (targetPlayer.getUUID().equals(mercComp.contractTargetUuid)) {
+                    return ModRoles.MERCENARY.color();
+                }
+                return -1;
+            }
+            if (target instanceof PlayerBodyEntity body) {
+                if (body.getPlayerUuid() != null && body.getPlayerUuid().equals(mercComp.contractTargetUuid)) {
+                    return ModRoles.MERCENARY.color();
+                }
+                return -1;
+            }
+            return -1;
+        });
         // 验尸官
         OnGetInstinctHighlight.EVENT.register((target, hasInstinct) -> {
             if (Minecraft.getInstance() == null)
