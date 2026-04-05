@@ -93,10 +93,14 @@ public class MercenaryContractItem extends Item {
 
         boolean ok = comp.startContract(employerUuid, employerName, targetUuid, targetName);
         if (!ok) {
+            // 如果是冷却导致的失败，startContract 已经发送了冷却提示，此处不再发送通用失败提示
+            if (comp.contractCooldown > 0) {
+            return InteractionResultHolder.fail(stack);
+            }
             player.displayClientMessage(
-                    Component.translatable("message.noellesroles.mercenary.contract_start_failed")
-                            .withStyle(ChatFormatting.RED),
-                    true);
+                Component.translatable("message.noellesroles.mercenary.contract_start_failed")
+                    .withStyle(ChatFormatting.RED),
+                true);
             return InteractionResultHolder.fail(stack);
         }
 

@@ -590,7 +590,7 @@ public class ModEventsRegister {
 
             // 若受害者为杀手阵营，且攻击者也为杀手阵营，则免疫此杀戮
             if (victimRole != null && !victimRole.isInnocent() && io.wifi.starrailexpress.cca.SREGameWorldComponent.isKillerTeamRoleStatic(victimRole)) {
-                if (killer != null && killerRole != null && io.wifi.starrailexpress.cca.SREGameWorldComponent.isKillerTeamRoleStatic(killerRole)) {
+                if (killer != null && killer != victim && killerRole != null && io.wifi.starrailexpress.cca.SREGameWorldComponent.isKillerTeamRoleStatic(killerRole)) {
                     if (victim instanceof ServerPlayer sp) {
                         sp.displayClientMessage(Component.translatable("message.sre.unyielding.immune_killer")
                                 .withStyle(ChatFormatting.RED), true);
@@ -600,7 +600,7 @@ public class ModEventsRegister {
             }
 
             // 若受害者与击杀者均为平民（无杀手能力），则消耗一次免疫并阻止死亡
-            if (victimRole != null && victimRole.isInnocent() && killer != null && killerRole != null && killerRole.isInnocent()) {
+            if (victimRole != null && victimRole.isInnocent() && killer != null && killer != victim && killerRole != null && killerRole.isInnocent()) {
                 if (!pro.fazeclan.river.stupid_express.constants.SEModifiers.UNYIELDING_IMMUNITY_USED.contains(victim.getUUID())) {
                     pro.fazeclan.river.stupid_express.constants.SEModifiers.UNYIELDING_IMMUNITY_USED.add(victim.getUUID());
                     // 播放提示音并向玩家发送提示（只对受害玩家播放）
@@ -652,7 +652,7 @@ public class ModEventsRegister {
 
             // 若受害者为杀手阵营，且攻击者也为杀手阵营，则免疫此杀戮
             if (victimRole != null && io.wifi.starrailexpress.cca.SREGameWorldComponent.isKillerTeamRoleStatic(victimRole)) {
-                if (killer != null && killerRole != null && io.wifi.starrailexpress.cca.SREGameWorldComponent.isKillerTeamRoleStatic(killerRole)) {
+                if (killer != null && killer != victim && killerRole != null && io.wifi.starrailexpress.cca.SREGameWorldComponent.isKillerTeamRoleStatic(killerRole)) {
                     if (victim instanceof ServerPlayer sp) {
                         sp.displayClientMessage(Component.translatable("message.sre.unyielding.immune_killer")
                                 .withStyle(ChatFormatting.RED), true);
@@ -662,7 +662,7 @@ public class ModEventsRegister {
             }
 
             // 若受害者与击杀者均为平民（无杀手能力），则消耗一次免疫并阻止死亡
-            if (victimRole != null && victimRole.isInnocent() && killer != null && killerRole != null && killerRole.isInnocent()) {
+            if (victimRole != null && victimRole.isInnocent() && killer != null && killer != victim && killerRole != null && killerRole.isInnocent()) {
                 if (!pro.fazeclan.river.stupid_express.constants.SEModifiers.UNYIELDING_IMMUNITY_USED.contains(victim.getUUID())) {
                     pro.fazeclan.river.stupid_express.constants.SEModifiers.UNYIELDING_IMMUNITY_USED.add(victim.getUUID());
                     // 播放提示音并向玩家发送提示
