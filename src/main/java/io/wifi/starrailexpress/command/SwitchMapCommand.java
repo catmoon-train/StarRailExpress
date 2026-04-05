@@ -86,7 +86,7 @@ public class SwitchMapCommand {
         GameUtils.serverTaskQueue.add(new ServerTaskInfoClasses.SchedulerTask(20, () -> {
           if (MapManager.loadMap(serverWorld, mapName)) {
             playerList.broadcastSystemMessage(
-                Component.translatable("Scaning all maps...\nNow: %s [%s / %s", mapName,
+                Component.translatable("Loading maps...\nNow: %s [%s / %s]", mapName,
                     now, total).withStyle(ChatFormatting.AQUA),
                 false);
             GameUtils.serverTaskQueue.addFirst(new ServerTaskInfoClasses.SchedulerTask(20, () -> {
@@ -158,7 +158,7 @@ public class SwitchMapCommand {
         GameUtils.serverTaskQueue.add(new ServerTaskInfoClasses.SchedulerTask(20, () -> {
           if (MapManager.loadMap(serverWorld, mapName)) {
             playerList.broadcastSystemMessage(
-                Component.translatable("Reseting and scaning all maps...\nNow: %s [%s / %s]\nReseting maps...", mapName,
+                Component.translatable("Loading maps...\nNow: %s [%s / %s]\nReseting maps...", mapName,
                     now, total).withStyle(ChatFormatting.AQUA),
                 false);
             GameUtils.serverTaskQueue.addFirst(new ServerTaskInfoClasses.SchedulerTask(20, () -> {
