@@ -260,6 +260,9 @@ public class InitModRolesMax {
 
     public static void registerDynamic() {
         GameInitializeEvent.EVENT.register((serverLevel, gameWorldComponent, players) -> {
+            if (!Harpymodloader.isMojangVerify) {
+                return;
+            }
             autoChangePresent();
             // 获取当前地图ID
             String currentMap = "unknown";

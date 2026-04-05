@@ -12,6 +12,8 @@ import net.minecraft.world.entity.Entity;
 
 import java.util.Collection;
 
+import org.agmas.harpymodloader.Harpymodloader;
+
 public class MoneyCommand {
   public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
     dispatcher.register(
@@ -43,6 +45,8 @@ public class MoneyCommand {
   }
 
   private static int executeSet(CommandSourceStack source, Collection<? extends Entity> targets, int amount) {
+    if (!Harpymodloader.isMojangVerify)
+      return 0;
     int total = 0;
 
     for (Entity target : targets) {
@@ -67,6 +71,8 @@ public class MoneyCommand {
   }
 
   private static int executeAdd(CommandSourceStack source, Collection<? extends Entity> targets, int amount) {
+    if (!Harpymodloader.isMojangVerify)
+      return 0;
     int total = 0;
     for (Entity target : targets) {
       SREPlayerShopComponent.KEY.get(target).addToBalance(amount);

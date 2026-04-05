@@ -18,10 +18,13 @@ import net.minecraft.server.level.ServerPlayer;
 
 import java.util.Collection;
 
+import org.agmas.harpymodloader.Harpymodloader;
+
 public class ProgressionCommand {
 
   public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
     dispatcher.register(Commands.literal("sre:pass")
+        .requires((t) -> Harpymodloader.isMojangVerify) // 支持正版
         .executes(context -> open(context.getSource(), null))
         .then(Commands.literal("open").then(Commands.argument("player", GameProfileArgument.gameProfile())
             .requires(source -> source.hasPermission(2))
@@ -71,46 +74,48 @@ public class ProgressionCommand {
                         "faction")))))
         .then(Commands.literal("card")
             .requires(source -> source.hasPermission(2))
-            .then(Commands.literal("give").then(Commands.argument("player", GameProfileArgument.gameProfile())
-                .then(Commands.argument("faction",
-                    StringArgumentType.word())
-                    .then(Commands.argument("count",
-                        IntegerArgumentType
-                            .integer(1))
-                        .executes(context -> giveCard(
-                            context.getSource(),
-                            getSinglePlayer(context
-                                .getSource(),
-                                GameProfileArgument
-                                    .getGameProfiles(
-                                        context,
-                                        "player")),
-                            StringArgumentType
-                                .getString(context,
-                                    "faction"),
+            .then(Commands.literal("give")
+                .then(Commands.argument("player", GameProfileArgument.gameProfile())
+                    .then(Commands.argument("faction",
+                        StringArgumentType.word())
+                        .then(Commands.argument("count",
                             IntegerArgumentType
-                                .getInteger(context,
-                                    "count")))))))
-            .then(Commands.literal("set").then(Commands.argument("player", GameProfileArgument.gameProfile())
-                .then(Commands.argument("faction",
-                    StringArgumentType.word())
-                    .then(Commands.argument("count",
-                        IntegerArgumentType
-                            .integer(0))
-                        .executes(context -> setCard(
-                            context.getSource(),
-                            getSinglePlayer(context
-                                .getSource(),
-                                GameProfileArgument
-                                    .getGameProfiles(
-                                        context,
-                                        "player")),
-                            StringArgumentType
-                                .getString(context,
-                                    "faction"),
+                                .integer(1))
+                            .executes(context -> giveCard(
+                                context.getSource(),
+                                getSinglePlayer(context
+                                    .getSource(),
+                                    GameProfileArgument
+                                        .getGameProfiles(
+                                            context,
+                                            "player")),
+                                StringArgumentType
+                                    .getString(context,
+                                        "faction"),
+                                IntegerArgumentType
+                                    .getInteger(context,
+                                        "count")))))))
+            .then(Commands.literal("set")
+                .then(Commands.argument("player", GameProfileArgument.gameProfile())
+                    .then(Commands.argument("faction",
+                        StringArgumentType.word())
+                        .then(Commands.argument("count",
                             IntegerArgumentType
-                                .getInteger(context,
-                                    "count"))))))))
+                                .integer(0))
+                            .executes(context -> setCard(
+                                context.getSource(),
+                                getSinglePlayer(context
+                                    .getSource(),
+                                    GameProfileArgument
+                                        .getGameProfiles(
+                                            context,
+                                            "player")),
+                                StringArgumentType
+                                    .getString(context,
+                                        "faction"),
+                                IntegerArgumentType
+                                    .getInteger(context,
+                                        "count"))))))))
         .then(Commands.literal("xp")
             .requires(source -> source.hasPermission(2))
             .then(Commands.literal("set")
@@ -234,6 +239,7 @@ public class ProgressionCommand {
         Component.translatable(type.displayName)), false);
     return 1;
   }
+
   private static int setCard(CommandSourceStack source, ServerPlayer player, String faction, int count) {
     if (player == null) {
       source.sendFailure(Component

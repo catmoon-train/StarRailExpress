@@ -1,5 +1,7 @@
 package io.wifi.starrailexpress.command;
 
+import org.agmas.harpymodloader.Harpymodloader;
+
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import io.wifi.starrailexpress.api.GameMode;
@@ -34,6 +36,10 @@ public class StartCommand {
             return -1;
         }
         if (gameMode == SREGameModes.LOOSE_ENDS) {
+            if (!Harpymodloader.isMojangVerify) {
+                source.sendFailure(Component.translatable("game.start_error.game_running"));
+                return 0;
+            }
             GameUtils.startGame(source.getLevel(), gameMode,
                     GameConstants.getInTicks(minutes >= 0 ? minutes : gameMode.defaultStartTime, 0));
             source.sendSuccess(

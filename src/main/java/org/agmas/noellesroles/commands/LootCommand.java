@@ -11,6 +11,8 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+
+import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.packet.Loot.LootPoolsInfoCheckS2CPacket;
 import org.agmas.noellesroles.packet.OpenIntroPayload;
@@ -29,8 +31,10 @@ public class LootCommand {
     CommandRegistrationCallback.EVENT.register(
         (dispatcher, registryAccess, environment) -> {
           dispatcher.register(Commands.literal("tmm:screen")
+              .requires((t) -> Harpymodloader.isMojangVerify) // 支持正版
               .then(Commands.literal("intro").executes(LootCommand::openIntroUi)));
           dispatcher.register(Commands.literal("sre:loot")
+              .requires((t) -> Harpymodloader.isMojangVerify) // 支持正版
               .executes(LootCommand::openLootScreen)
               .then(Commands.literal("screen")
                   .executes(LootCommand::openLootScreen))

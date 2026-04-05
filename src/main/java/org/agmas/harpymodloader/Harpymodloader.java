@@ -31,6 +31,9 @@ import java.util.UUID;
 
 public class Harpymodloader implements ModInitializer {
 
+    /**
+     * 支持正版，从你我做起
+     */
     public static boolean isMojangVerify = true;
     /**
      * 职业对应关系映射

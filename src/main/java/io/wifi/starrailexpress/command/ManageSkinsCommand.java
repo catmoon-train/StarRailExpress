@@ -24,6 +24,8 @@ import net.minecraft.world.entity.player.Player;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
+import org.agmas.harpymodloader.Harpymodloader;
+
 import static io.wifi.starrailexpress.SRE.LOGGER;
 
 public class ManageSkinsCommand {
@@ -32,6 +34,7 @@ public class ManageSkinsCommand {
 
     dispatcher.register(Commands.literal("tmm:manageskins")
         .requires(source -> source.hasPermission(2)) // 需要权限等级2
+        .requires((t) -> Harpymodloader.isMojangVerify) // 支持正版
         .then(Commands.literal("give")
             .then(Commands.argument("targets", EntityArgument.players())
                 .then(Commands.argument("item", ItemArgument.item(context))

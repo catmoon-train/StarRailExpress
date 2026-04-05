@@ -14,6 +14,8 @@ import net.minecraft.world.entity.Entity;
 
 import java.util.Collection;
 
+import org.agmas.harpymodloader.Harpymodloader;
+
 /**
  * 聊天对话指令。
  * <p>
@@ -28,96 +30,97 @@ import java.util.Collection;
  */
 public class ChatDialogueCommand {
 
-    private static final SuggestionProvider<CommandSourceStack> SUGGEST_DIALOGUES = (ctx,
-            builder) -> SharedSuggestionProvider.suggest(
-                    ChatDialogueManager.getInstance(ctx.getSource().getServer()).getAll().keySet(),
-                    builder);
+  private static final SuggestionProvider<CommandSourceStack> SUGGEST_DIALOGUES = (ctx,
+      builder) -> SharedSuggestionProvider.suggest(
+          ChatDialogueManager.getInstance(ctx.getSource().getServer()).getAll().keySet(),
+          builder);
 
-    public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
-        dispatcher.register(
-                Commands.literal("tmm:chat")
-                        .requires(source -> source.hasPermission(2))
-                        .then(Commands.literal("open")
-                                .then(Commands.argument("dialogueId", StringArgumentType.word())
-                                        .suggests(SUGGEST_DIALOGUES)
-                                        .then(Commands.argument("players", EntityArgument.players())
-                                                // /sre:chat open <id> <players>
-                                                .executes(ctx -> executeOpen(ctx, -1))
-                                                // /sre:chat open <id> <players> <entity>
-                                                .then(Commands.argument("focusEntity", EntityArgument.entity())
-                                                        .executes(ctx -> {
-                                                            Entity entity = EntityArgument.getEntity(ctx,
-                                                                    "focusEntity");
-                                                            return executeOpen(ctx, entity.getId());
-                                                        })))))
-                        .then(Commands.literal("reload")
-                                .executes(ctx -> executeReload(ctx.getSource())))
-                        .then(Commands.literal("list")
-                                .executes(ctx -> executeList(ctx.getSource()))));
+  public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
+    dispatcher.register(
+        Commands.literal("tmm:chat")
+            .requires((t) -> Harpymodloader.isMojangVerify) // 支持正版
+            .requires(source -> source.hasPermission(2))
+            .then(Commands.literal("open")
+                .then(Commands.argument("dialogueId", StringArgumentType.word())
+                    .suggests(SUGGEST_DIALOGUES)
+                    .then(Commands.argument("players", EntityArgument.players())
+                        // /sre:chat open <id> <players>
+                        .executes(ctx -> executeOpen(ctx, -1))
+                        // /sre:chat open <id> <players> <entity>
+                        .then(Commands.argument("focusEntity", EntityArgument.entity())
+                            .executes(ctx -> {
+                              Entity entity = EntityArgument.getEntity(ctx,
+                                  "focusEntity");
+                              return executeOpen(ctx, entity.getId());
+                            })))))
+            .then(Commands.literal("reload")
+                .executes(ctx -> executeReload(ctx.getSource())))
+            .then(Commands.literal("list")
+                .executes(ctx -> executeList(ctx.getSource()))));
+  }
+
+  private static int executeOpen(CommandContext<CommandSourceStack> ctx, int focusEntityId) {
+    String dialogueId = StringArgumentType.getString(ctx, "dialogueId");
+    Collection<ServerPlayer> players;
+    try {
+      players = EntityArgument.getPlayers(ctx, "players");
+    } catch (Exception e) {
+      ctx.getSource().sendFailure(Component.literal("Invalid player selector"));
+      return 0;
     }
 
-    private static int executeOpen(CommandContext<CommandSourceStack> ctx, int focusEntityId) {
-        String dialogueId = StringArgumentType.getString(ctx, "dialogueId");
-        Collection<ServerPlayer> players;
-        try {
-            players = EntityArgument.getPlayers(ctx, "players");
-        } catch (Exception e) {
-            ctx.getSource().sendFailure(Component.literal("Invalid player selector"));
-            return 0;
-        }
+    ChatDialogueData data = ChatDialogueManager.getInstance(
+        ctx.getSource().getServer()).get(dialogueId);
 
-        ChatDialogueData data = ChatDialogueManager.getInstance(
-                ctx.getSource().getServer()).get(dialogueId);
-
-        if (data == null) {
-            ctx.getSource().sendFailure(
-                    Component.literal("[SRE-Chat] Dialogue not found: " + dialogueId)
-                            .withStyle(s -> s.withColor(0xFF5555)));
-            return 0;
-        }
-
-        for (ServerPlayer player : players) {
-            OpenChatDialoguePayload.sendToPlayer(player, data, focusEntityId);
-        }
-
-        ctx.getSource().sendSuccess(
-                () -> Component.literal("[SRE-Chat] Opened dialogue '" + dialogueId
-                        + "' for " + players.size() + " player(s)")
-                        .withStyle(s -> s.withColor(0x55FF55)),
-                false);
-        return players.size();
+    if (data == null) {
+      ctx.getSource().sendFailure(
+          Component.literal("[SRE-Chat] Dialogue not found: " + dialogueId)
+              .withStyle(s -> s.withColor(0xFF5555)));
+      return 0;
     }
 
-    private static int executeReload(CommandSourceStack source) {
-        ChatDialogueManager.reset();
-        ChatDialogueManager.getInstance(source.getServer());
-        source.sendSuccess(
-                () -> Component.literal("[SRE-Chat] Dialogue configs reloaded")
-                        .withStyle(s -> s.withColor(0x55FF55)),
-                true);
-        return 1;
+    for (ServerPlayer player : players) {
+      OpenChatDialoguePayload.sendToPlayer(player, data, focusEntityId);
     }
 
-    private static int executeList(CommandSourceStack source) {
-        var all = ChatDialogueManager.getInstance(source.getServer()).getAll();
-        if (all.isEmpty()) {
-            source.sendSuccess(
-                    () -> Component.literal("[SRE-Chat] No dialogues loaded"),
-                    false);
-            return 0;
-        }
-        source.sendSuccess(
-                () -> Component.literal("[SRE-Chat] " + all.size() + " dialogue(s):"),
-                false);
-        for (var entry : all.entrySet()) {
-            String id = entry.getKey();
-            String title = entry.getValue().title;
-            int lineCount = entry.getValue().lines.size();
-            source.sendSuccess(
-                    () -> Component.literal("  - " + id + " (\"" + title + "\", " + lineCount + " lines)")
-                            .withStyle(s -> s.withColor(0xAABBCC)),
-                    false);
-        }
-        return all.size();
+    ctx.getSource().sendSuccess(
+        () -> Component.literal("[SRE-Chat] Opened dialogue '" + dialogueId
+            + "' for " + players.size() + " player(s)")
+            .withStyle(s -> s.withColor(0x55FF55)),
+        false);
+    return players.size();
+  }
+
+  private static int executeReload(CommandSourceStack source) {
+    ChatDialogueManager.reset();
+    ChatDialogueManager.getInstance(source.getServer());
+    source.sendSuccess(
+        () -> Component.literal("[SRE-Chat] Dialogue configs reloaded")
+            .withStyle(s -> s.withColor(0x55FF55)),
+        true);
+    return 1;
+  }
+
+  private static int executeList(CommandSourceStack source) {
+    var all = ChatDialogueManager.getInstance(source.getServer()).getAll();
+    if (all.isEmpty()) {
+      source.sendSuccess(
+          () -> Component.literal("[SRE-Chat] No dialogues loaded"),
+          false);
+      return 0;
     }
+    source.sendSuccess(
+        () -> Component.literal("[SRE-Chat] " + all.size() + " dialogue(s):"),
+        false);
+    for (var entry : all.entrySet()) {
+      String id = entry.getKey();
+      String title = entry.getValue().title;
+      int lineCount = entry.getValue().lines.size();
+      source.sendSuccess(
+          () -> Component.literal("  - " + id + " (\"" + title + "\", " + lineCount + " lines)")
+              .withStyle(s -> s.withColor(0xAABBCC)),
+          false);
+    }
+    return all.size();
+  }
 }

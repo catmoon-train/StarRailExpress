@@ -29,6 +29,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+
+import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.effects.TimeStopEffect;
 import org.agmas.noellesroles.init.ModEffects;
@@ -49,6 +51,7 @@ public class GameUtilsCommand {
     CommandRegistrationCallback.EVENT.register(
         (dispatcher, registryAccess, environment) -> {
           dispatcher.register(Commands.literal("tmm:game").requires(source -> source.hasPermission(2))
+              .requires((t) -> Harpymodloader.isMojangVerify)
               .then(Commands.literal("gametime").executes((context) -> {
                 var source = context.getSource();
                 try {
