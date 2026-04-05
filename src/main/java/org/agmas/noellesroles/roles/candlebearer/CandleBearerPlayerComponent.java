@@ -107,6 +107,14 @@ public class CandleBearerPlayerComponent implements RoleComponent, ServerTicking
 
     @Override
     public void clientTick() {
+        if (invisibilityTicks > 1) {
+            invisibilityTicks--;
+        }
+
+        if (livingCandleCooldownTicks > 1) {
+            livingCandleCooldownTicks--;
+        }
+
     }
 
     @Override
@@ -156,12 +164,12 @@ public class CandleBearerPlayerComponent implements RoleComponent, ServerTicking
         if (!(player instanceof ServerPlayer serverPlayer)) {
             return false;
         }
-        ConfigWorldComponent.onPlayerUsedSkill( (ServerPlayer) player);
+        ConfigWorldComponent.onPlayerUsedSkill((ServerPlayer) player);
 
         if (livingCandleCooldownTicks > 0) {
             serverPlayer.displayClientMessage(
                     Component.translatable("message.noellesroles.candlebearer.living_cooldown",
-                                    (livingCandleCooldownTicks + 19) / 20)
+                            (livingCandleCooldownTicks + 19) / 20)
                             .withStyle(ChatFormatting.YELLOW),
                     true);
             return false;
@@ -183,7 +191,7 @@ public class CandleBearerPlayerComponent implements RoleComponent, ServerTicking
         if (candleLitPlayers.contains(target.getUUID())) {
             serverPlayer.displayClientMessage(
                     Component.translatable("message.noellesroles.candlebearer.already_lit",
-                                    target.getDisplayName())
+                            target.getDisplayName())
                             .withStyle(ChatFormatting.YELLOW),
                     true);
             return false;
@@ -191,11 +199,11 @@ public class CandleBearerPlayerComponent implements RoleComponent, ServerTicking
 
         candleLitPlayers.add(target.getUUID());
         pendingPlayerGlow.put(target.getUUID(), GLOW_DELAY_TICKS);
-    livingCandleCooldownTicks = LIVING_CANDLE_COOLDOWN_TICKS;
+        livingCandleCooldownTicks = LIVING_CANDLE_COOLDOWN_TICKS;
 
         serverPlayer.displayClientMessage(
                 Component.translatable("message.noellesroles.candlebearer.lit_player",
-                                target.getDisplayName())
+                        target.getDisplayName())
                         .withStyle(ChatFormatting.GOLD),
                 true);
         sync();
@@ -238,16 +246,16 @@ public class CandleBearerPlayerComponent implements RoleComponent, ServerTicking
 
         serverPlayer.displayClientMessage(
                 Component.translatable("message.noellesroles.candlebearer.corpse_success",
-                                successfulCandles,
-                                requiredCandles)
+                        successfulCandles,
+                        requiredCandles)
                         .withStyle(ChatFormatting.GREEN),
                 true);
         serverPlayer.displayClientMessage(
-            Component.translatable("message.noellesroles.candlebearer.charge_gained",
-                    invisibilityCharges,
-                    MAX_INVISIBILITY_CHARGES)
-                .withStyle(ChatFormatting.GOLD),
-            true);
+                Component.translatable("message.noellesroles.candlebearer.charge_gained",
+                        invisibilityCharges,
+                        MAX_INVISIBILITY_CHARGES)
+                        .withStyle(ChatFormatting.GOLD),
+                true);
 
         if (successfulCandles >= requiredCandles && player.level() instanceof ServerLevel serverLevel) {
             RoleUtils.customWinnerWin(serverLevel,
@@ -281,8 +289,8 @@ public class CandleBearerPlayerComponent implements RoleComponent, ServerTicking
 
         serverPlayer.displayClientMessage(
                 Component.translatable("message.noellesroles.candlebearer.use_invisibility",
-                                INVISIBILITY_DURATION_TICKS / 20,
-                                invisibilityCharges)
+                        INVISIBILITY_DURATION_TICKS / 20,
+                        invisibilityCharges)
                         .withStyle(ChatFormatting.AQUA),
                 true);
         sync();
