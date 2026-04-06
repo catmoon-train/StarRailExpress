@@ -645,8 +645,8 @@ public class RicesRoleRhapsodyClient implements ClientModInitializer {
 
         // 锁实体渲染器 - 使用自定义渲染器
         EntityRendererRegistry.register(ModEntities.LOCK_ENTITY, LockEntityRender::new);
-        // 巨大便签实体渲染器 - 使用便签渲染器并放大10倍
-        EntityRendererRegistry.register(ModEntities.GIANT_NOTE, ctx -> new io.wifi.starrailexpress.client.render.entity.NoteEntityRenderer(ctx, 10.0F));
+        // 巨大便签实体渲染器 - 使用便签渲染器并放大5倍
+        EntityRendererRegistry.register(ModEntities.GIANT_NOTE, ctx -> new io.wifi.starrailexpress.client.render.entity.NoteEntityRenderer(ctx, 5.0F));
     }
 
 
