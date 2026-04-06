@@ -13,6 +13,7 @@ import io.wifi.starrailexpress.fourthroom.network.FourthRoomStatePayload;
 import io.wifi.starrailexpress.fourthroom.room.RoomManager;
 import io.wifi.starrailexpress.fourthroom.shop.FourthRoomShopItem;
 import io.wifi.starrailexpress.fourthroom.shop.FourthRoomShopService;
+import io.wifi.starrailexpress.fourthroom.task.FourthRoomTaskType;
 import io.wifi.starrailexpress.fourthroom.task.FourthRoomTaskScheduler;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -86,8 +87,17 @@ public final class FourthRoomGameManager {
     }
 
     public void shutdownMatch() {
+        List<ServerPlayer> recipients = new ArrayList<>();
+        for (FourthRoomPlayerState playerState : data.players.values()) {
+            ServerPlayer player = level.getServer().getPlayerList().getPlayer(playerState.playerId);
+            if (player != null) {
+                recipients.add(player);
+            }
+        }
         data.resetMatchState();
-        syncMatchState();
+        for (ServerPlayer player : recipients) {
+            FourthRoomStatePayload.send(player, buildSnapshot(player).toString());
+        }
     }
 
     public void tickServer() {
@@ -454,49 +464,116 @@ public final class FourthRoomGameManager {
 
     public JsonObject buildSnapshot(ServerPlayer viewer) {
         JsonObject root = new JsonObject();
+        root.addProperty("active", data.active);
         root.addProperty("phase", data.phase.name());
+        root.addProperty("phaseDisplayName", phaseDisplayName(data.phase));
+        root.addProperty("serverTick", currentTick());
         root.addProperty("rotationCount", data.rotationCount);
         root.addProperty("nextRotationTick", data.nextRotationTick);
-        root.addProperty("activeTaskId", data.activeTaskId);
+        root.addProperty("activeTaskId", data.activeTaskId == null ? "" : data.activeTaskId);
+        FourthRoomTaskType activeTask = FourthRoomTaskType.byId(data.activeTaskId);
+        root.addProperty("activeTaskDescription", activeTask != null ? activeTask.description() : "");
+        root.addProperty("hasActiveTask", taskScheduler.hasActiveTask());
         root.addProperty("taskDeadlineTick", data.taskDeadlineTick);
         if (data.winner != null) {
             root.addProperty("winner", data.winner.name());
+            root.addProperty("winnerDisplayName", teamDisplayName(data.winner));
         }
-        JsonArray playersJson = new JsonArray();
-        for (FourthRoomPlayerState state : data.players.values()) {
-            JsonObject playerJson = new JsonObject();
-            playerJson.addProperty("uuid", state.playerId.toString());
-            playerJson.addProperty("alive", state.alive);
-            playerJson.addProperty("team", state.team.name());
-            playerJson.addProperty("roomId", state.roomId);
-            playerJson.addProperty("coins", state.coins);
-            playerJson.addProperty("hiddenIdentityCount", state.hiddenIdentityCount());
-            if (viewer.getUUID().equals(state.playerId)) {
-                JsonArray identities = new JsonArray();
-                for (int index = 0; index < state.identityBlocks.size(); index++) {
-                    JsonObject identity = new JsonObject();
-                    identity.addProperty("blockId", state.identityBlocks.get(index));
-                    identity.addProperty("revealed", state.revealed.get(index));
-                    identities.add(identity);
-                }
-                JsonArray hand = new JsonArray();
-                for (CardInstance cardInstance : state.hand) {
-                    JsonObject cardJson = new JsonObject();
-                    cardJson.addProperty("id", cardInstance.cardId());
-                    cardJson.addProperty("gold", cardInstance.gold());
-                    hand.add(cardJson);
-                }
-                playerJson.add("identities", identities);
-                playerJson.add("hand", hand);
-                JsonArray peek = new JsonArray();
-                for (String cardId : state.peekCache) {
-                    peek.add(cardId);
-                }
-                playerJson.add("peekCache", peek);
+        JsonArray roomPlayers = new JsonArray();
+        root.add("roomPlayers", roomPlayers);
+
+        FourthRoomPlayerState state = data.players.get(viewer.getUUID());
+        if (state == null) {
+            return root;
+        }
+
+        JsonObject viewerJson = new JsonObject();
+        viewerJson.addProperty("uuid", state.playerId.toString());
+        viewerJson.addProperty("name", playerName(state.playerId));
+        viewerJson.addProperty("alive", state.alive);
+        viewerJson.addProperty("team", state.team.name());
+        viewerJson.addProperty("teamDisplayName", teamDisplayName(state.team));
+        viewerJson.addProperty("roomId", state.roomId);
+        viewerJson.addProperty("coins", state.coins);
+        viewerJson.addProperty("hiddenIdentityCount", state.hiddenIdentityCount());
+        viewerJson.addProperty("taskCompleted", state.taskCompleted);
+        viewerJson.addProperty("yourTurn", isPlayersTurn(state.playerId));
+        viewerJson.addProperty("lifeShield", state.lifeShield);
+        viewerJson.addProperty("skipTurns", state.skipTurns);
+        viewerJson.addProperty("markedForKill", state.markedForKill);
+        viewerJson.addProperty("canReveal", state.firstHiddenIdentityIndex() >= 0);
+        viewerJson.addProperty("canEndTurn", isPlayersTurn(state.playerId));
+
+        JsonArray identities = new JsonArray();
+        for (int index = 0; index < state.identityBlocks.size(); index++) {
+            JsonObject identity = new JsonObject();
+            identity.addProperty("blockId", state.identityBlocks.get(index));
+            identity.addProperty("revealed", state.revealed.get(index));
+            identities.add(identity);
+        }
+        viewerJson.add("identities", identities);
+
+        JsonArray hand = new JsonArray();
+        for (CardInstance cardInstance : state.hand) {
+            Card definition = CardRegistry.byId(cardInstance.cardId());
+            JsonObject cardJson = new JsonObject();
+            cardJson.addProperty("id", cardInstance.cardId());
+            cardJson.addProperty("gold", cardInstance.gold());
+            cardJson.addProperty("displayName", cardDisplayName(cardInstance.cardId()));
+            cardJson.addProperty("description", definition != null ? cardDescription(definition) : cardInstance.cardId());
+            cardJson.addProperty("requiresTarget", definition != null && cardRequiresTarget(definition));
+            cardJson.addProperty("skill", definition != null && definition.isSkill());
+            hand.add(cardJson);
+        }
+        viewerJson.add("hand", hand);
+
+        JsonArray peek = new JsonArray();
+        for (String cardId : state.peekCache) {
+            JsonObject peekJson = new JsonObject();
+            peekJson.addProperty("id", cardId);
+            peekJson.addProperty("displayName", cardDisplayName(cardId));
+            peek.add(peekJson);
+        }
+        viewerJson.add("peekCache", peek);
+
+        JsonArray shopItems = new JsonArray();
+        for (FourthRoomShopItem item : FourthRoomShopItem.values()) {
+            JsonObject itemJson = new JsonObject();
+            itemJson.addProperty("id", item.id());
+            itemJson.addProperty("displayName", shopItemDisplayName(item));
+            itemJson.addProperty("description", shopItemDescription(item));
+            itemJson.addProperty("price", config.getPrice(item.id()));
+            itemJson.addProperty("ownedCount", ownedItemCount(state, item));
+            itemJson.addProperty("canUse", shopItemCanUse(item));
+            itemJson.addProperty("requiresTarget", shopItemRequiresTarget(item));
+            shopItems.add(itemJson);
+        }
+        viewerJson.add("shopItems", shopItems);
+        root.add("viewer", viewerJson);
+
+        FourthRoomRoomState roomState = data.rooms.get(state.roomId);
+        if (roomState != null) {
+            root.addProperty("roomTurnNumber", roomState.turnNumber);
+            if (roomState.activePlayerId != null) {
+                root.addProperty("activePlayerId", roomState.activePlayerId.toString());
+                root.addProperty("activePlayerName", playerName(roomState.activePlayerId));
             }
-            playersJson.add(playerJson);
+            for (UUID occupantId : roomState.occupants) {
+                FourthRoomPlayerState occupant = data.players.get(occupantId);
+                if (occupant == null) {
+                    continue;
+                }
+                JsonObject playerJson = new JsonObject();
+                playerJson.addProperty("uuid", occupantId.toString());
+                playerJson.addProperty("name", playerName(occupantId));
+                playerJson.addProperty("alive", occupant.alive);
+                playerJson.addProperty("self", occupantId.equals(state.playerId));
+                playerJson.addProperty("currentTurn", occupantId.equals(roomState.activePlayerId));
+                playerJson.addProperty("hiddenIdentityCount", occupant.hiddenIdentityCount());
+                roomPlayers.add(playerJson);
+            }
         }
-        root.add("players", playersJson);
+
         return root;
     }
 
@@ -585,6 +662,127 @@ public final class FourthRoomGameManager {
         }
         FourthRoomRoomState roomState = data.rooms.get(state.roomId);
         return roomState != null && Objects.equals(roomState.activePlayerId, playerId);
+    }
+
+    private String phaseDisplayName(FourthRoomPhase phase) {
+        return switch (phase) {
+            case INACTIVE -> "未开始";
+            case CARD_BATTLE -> "卡牌对战";
+            case ROTATING -> "房间轮换";
+            case DUEL -> "最终决斗";
+            case FINISHED -> "已结束";
+        };
+    }
+
+    private String teamDisplayName(FourthRoomTeam team) {
+        return switch (team) {
+            case RED -> "红队";
+            case BLUE -> "蓝队";
+        };
+    }
+
+    private String cardDisplayName(String cardId) {
+        Card definition = CardRegistry.byId(cardId);
+        return definition != null ? cardDisplayName(definition) : cardId;
+    }
+
+    private String cardDisplayName(Card card) {
+        return switch (card.id()) {
+            case "death" -> "死亡";
+            case "cleanse" -> "净化";
+            case "bottom_draw" -> "抽底";
+            case "seize" -> "夺取";
+            case "skip" -> "跳过";
+            case "point_kill" -> "点杀";
+            case "dismantle" -> "拆解";
+            case "peek" -> "窥视";
+            case "life" -> "命格";
+            case "rebuild" -> "重构";
+            case "interrogate" -> "审讯";
+            case "decoy" -> "诱饵";
+            case "first_aid" -> "急救";
+            case "fate_shift" -> "命运转移";
+            default -> card.id();
+        };
+    }
+
+    private String cardDescription(Card card) {
+        return switch (card.id()) {
+            case "death" -> "抽到后立即对自己造成一次伤害。";
+            case "cleanse" -> "将弃牌堆洗回牌库。";
+            case "bottom_draw" -> "从牌库底部摸一张牌。";
+            case "seize" -> "随机夺取目标一张可夺取卡牌。";
+            case "skip" -> "下次轮到你时跳过该回合。";
+            case "point_kill" -> "给目标叠加一次延迟点杀。";
+            case "dismantle" -> "随机将目标一张卡塞回其牌库。";
+            case "peek" -> "查看自己牌库顶的三张牌。";
+            case "life" -> "获得一层伤害护盾。";
+            case "rebuild" -> "洗回弃牌堆并再摸两张牌。";
+            case "interrogate" -> "强制目标展示并埋回一张可夺取牌。";
+            case "decoy" -> "下次受到伤害时转嫁给同房对手。";
+            case "first_aid" -> "恢复一块已翻开的身份块。";
+            case "fate_shift" -> "减少一点点杀并窥视两张牌。";
+            default -> card.id();
+        };
+    }
+
+    private boolean cardRequiresTarget(Card card) {
+        return switch (card.id()) {
+            case "seize", "point_kill", "dismantle", "interrogate" -> true;
+            default -> false;
+        };
+    }
+
+    private String shopItemDisplayName(FourthRoomShopItem item) {
+        return switch (item) {
+            case SCORPION -> "蝎子";
+            case HANDGUN -> "手枪";
+            case POISON_MUSHROOM -> "毒蘑菇";
+            case BULLETPROOF_VEST -> "防弹衣";
+            case TEST_STRIP -> "试纸";
+            case STICKY_NOTE -> "便利贴";
+        };
+    }
+
+    private String shopItemDescription(FourthRoomShopItem item) {
+        return switch (item) {
+            case SCORPION -> "任务期间可直接处决一个目标。";
+            case HANDGUN -> "任务期间射击目标，防弹衣可挡。";
+            case POISON_MUSHROOM -> "任务期间给目标挂上延时死亡。";
+            case BULLETPROOF_VEST -> "被手枪命中时自动抵挡一次。";
+            case TEST_STRIP -> "保留作后续任务与检定扩展。";
+            case STICKY_NOTE -> "保留作便利贴放置与搜索扩展。";
+        };
+    }
+
+    private boolean shopItemCanUse(FourthRoomShopItem item) {
+        return switch (item) {
+            case SCORPION, HANDGUN, POISON_MUSHROOM -> true;
+            default -> false;
+        };
+    }
+
+    private boolean shopItemRequiresTarget(FourthRoomShopItem item) {
+        return switch (item) {
+            case SCORPION, HANDGUN, POISON_MUSHROOM -> true;
+            default -> false;
+        };
+    }
+
+    private int ownedItemCount(FourthRoomPlayerState state, FourthRoomShopItem item) {
+        return switch (item) {
+            case SCORPION -> state.scorpionCharges;
+            case HANDGUN -> state.handgunCharges;
+            case POISON_MUSHROOM -> state.poisonMushroomCharges;
+            case BULLETPROOF_VEST -> state.bulletproofVestCharges;
+            case TEST_STRIP -> state.testStripCharges;
+            case STICKY_NOTE -> state.stickyNoteCharges;
+        };
+    }
+
+    private String playerName(UUID playerId) {
+        ServerPlayer player = level.getServer().getPlayerList().getPlayer(playerId);
+        return player != null ? player.getScoreboardName() : playerId.toString().substring(0, 8);
     }
 
     private void broadcastReveal(UUID playerId, String blockId) {

@@ -14,6 +14,16 @@ public final class FourthRoomGameMode extends GameMode {
     }
 
     @Override
+    public boolean requiresAssignedRole() {
+        return false;
+    }
+
+    @Override
+    public boolean enforcesPlayAreaElimination() {
+        return false;
+    }
+
+    @Override
     public void tickServerGameLoop(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent) {
         FourthRoomGameManager.of(serverWorld).tickServer();
     }

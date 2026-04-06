@@ -38,6 +38,14 @@ public abstract class GameMode {
 
     public void tickClientGameLoop() {}
 
+    public boolean requiresAssignedRole() {
+        return true;
+    }
+
+    public boolean enforcesPlayAreaElimination() {
+        return true;
+    }
+
     public abstract void tickServerGameLoop(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent);
 
     public abstract void initializeGame(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent, List<ServerPlayer> players);

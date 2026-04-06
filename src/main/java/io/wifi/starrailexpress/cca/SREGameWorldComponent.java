@@ -476,11 +476,12 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
                 var worldModifierComponent = WorldModifierComponent.KEY.get(world);
                 for (ServerPlayer player : serverWorld.players()) {
                     if (GameUtils.isPlayerAliveAndSurvival(player, worldModifierComponent)) {
-                        // kill players who fell off the train
-                        if (gameWorldComponent.getRole(player) == null) {
+                        if (gameMode.requiresAssignedRole() && gameWorldComponent.getRole(player) == null) {
                             player.setGameMode(net.minecraft.world.level.GameType.SPECTATOR);
+                            continue;
                         }
-                        {
+
+                        if (gameMode.enforcesPlayAreaElimination()) {
                             isPlayerOutGameAreas(player, areas);
                         }
 

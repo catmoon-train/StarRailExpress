@@ -26,12 +26,16 @@ public record FourthRoomStatePayload(String json) implements CustomPacketPayload
 
     public static void send(ServerPlayer player) {
         FourthRoomGameManager manager = FourthRoomGameManager.of(player.serverLevel());
-        ServerPlayNetworking.send(player, new FourthRoomStatePayload(manager.buildSnapshot(player).toString()));
+        send(player, manager.buildSnapshot(player).toString());
+    }
+
+    public static void send(ServerPlayer player, String json) {
+        ServerPlayNetworking.send(player, new FourthRoomStatePayload(json));
     }
 
     @Environment(EnvType.CLIENT)
     public static void registerReceiver() {
         ClientPlayNetworking.registerGlobalReceiver(ID, (payload, context) ->
-                context.client().execute(() -> io.wifi.starrailexpress.client.fourthroom.FourthRoomClientState.lastSnapshotJson = payload.json()));
+                context.client().execute(() -> io.wifi.starrailexpress.client.fourthroom.FourthRoomClientState.updateSnapshot(payload.json())));
     }
 }

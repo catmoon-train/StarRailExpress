@@ -1,8 +1,10 @@
 package io.wifi.starrailexpress.client;
 
 import io.wifi.starrailexpress.cca.MapVotingComponent;
+import io.wifi.starrailexpress.client.fourthroom.FourthRoomClientState;
 import io.wifi.starrailexpress.client.gui.ScopeOverlayRenderer;
 import io.wifi.starrailexpress.client.gui.screen.MapSelectorScreen;
+import io.wifi.starrailexpress.client.gui.screen.ingame.FourthRoomBattleScreen;
 import io.wifi.starrailexpress.index.TMMItems;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
@@ -13,11 +15,17 @@ import org.lwjgl.glfw.GLFW;
 
 public class InputHandler {
     private static KeyMapping openVotingScreenKeybind;
+    private static KeyMapping openFourthRoomScreenKeybind;
 
     public static void initialize() {
         openVotingScreenKeybind = KeyBindingHelper.registerKeyBinding(new KeyMapping(
                 "key.starrailexpress.open_voting_screen",
                 GLFW.GLFW_KEY_M,
+                "category.starrailexpress.general"));
+
+        openFourthRoomScreenKeybind = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+                "key.starrailexpress.open_fourth_room_screen",
+                GLFW.GLFW_KEY_H,
                 "category.starrailexpress.general"));
 
         ClientTickEvents.END_CLIENT_TICK.register(InputHandler::onClientTick);
@@ -47,6 +55,16 @@ public class InputHandler {
             if (mapVotingComponent.isVotingActive()) {
                 // 打开投票界面
                 client.setScreen(new MapSelectorScreen());
+            }
+        }
+
+        if (openFourthRoomScreenKeybind.consumeClick()) {
+            if (FourthRoomClientState.snapshot().active()) {
+                if (client.screen instanceof FourthRoomBattleScreen) {
+                    client.setScreen(null);
+                } else {
+                    client.setScreen(new FourthRoomBattleScreen());
+                }
             }
         }
     }
