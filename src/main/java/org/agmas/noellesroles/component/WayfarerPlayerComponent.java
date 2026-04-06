@@ -9,7 +9,7 @@ import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.GameUtils.WinStatus;
 import io.wifi.starrailexpress.index.TMMEntities;
 import io.wifi.starrailexpress.index.TMMItems;
-import io.wifi.starrailexpress.util.TMMItemUtils;
+import io.wifi.starrailexpress.util.SREItemUtils;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
@@ -169,9 +169,9 @@ public class WayfarerPlayerComponent implements RoleComponent, ServerTickingComp
         this.killer = null;
         this.deathReason = null;
 
-        TMMItemUtils.clearItem(player, TMMItems.KNIFE);
-        TMMItemUtils.clearItem(player, ModItems.FAKE_KNIFE);
-        TMMItemUtils.clearItem(player, ModItems.FAKE_REVOLVER);
+        SREItemUtils.clearItem(player, TMMItems.KNIFE);
+        SREItemUtils.clearItem(player, ModItems.FAKE_KNIFE);
+        SREItemUtils.clearItem(player, ModItems.FAKE_REVOLVER);
 
         RoleUtils.insertStackInFreeSlot(player, ModItems.FAKE_KNIFE.getDefaultInstance());
         RoleUtils.insertStackInFreeSlot(player, ModItems.FAKE_REVOLVER.getDefaultInstance());
@@ -214,7 +214,7 @@ public class WayfarerPlayerComponent implements RoleComponent, ServerTickingComp
         AfterShieldAllowPlayerDeath.EVENT.register((victim, deathReason) -> {
             SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(victim.level());
             if (gameWorldComponent.isRole(victim, ModRoles.WAYFARER)) {
-                TMMItemUtils.clearItem(victim, TMMItems.KNIFE);
+                SREItemUtils.clearItem(victim, TMMItems.KNIFE);
                 var wayC = WayfarerPlayerComponent.KEY.get(victim);
                 if (wayC.phase == 2) {
                     if (deathReason.getPath().equals(wayC.deathReason.getPath())) {
@@ -236,7 +236,7 @@ public class WayfarerPlayerComponent implements RoleComponent, ServerTickingComp
                 return;
             SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(victim.level());
             if (gameWorldComponent.isRole(killer, ModRoles.WAYFARER)) {
-                TMMItemUtils.clearItem(killer, TMMItems.KNIFE);
+                SREItemUtils.clearItem(killer, TMMItems.KNIFE);
                 var wayC = WayfarerPlayerComponent.KEY.get(killer);
                 if (wayC.phase == 1) {
                     if (victim.getUUID().equals(wayC.killer)) {
@@ -324,9 +324,9 @@ public class WayfarerPlayerComponent implements RoleComponent, ServerTickingComp
                 false, // showParticles（显示粒子）
                 true // showIcon（显示图标）
         ));
-        TMMItemUtils.clearItem(player, TMMItems.KNIFE);
-        TMMItemUtils.clearItem(player, ModItems.FAKE_KNIFE);
-        TMMItemUtils.clearItem(player, ModItems.FAKE_REVOLVER);
+        SREItemUtils.clearItem(player, TMMItems.KNIFE);
+        SREItemUtils.clearItem(player, ModItems.FAKE_KNIFE);
+        SREItemUtils.clearItem(player, ModItems.FAKE_REVOLVER);
 
         RoleUtils.insertStackInFreeSlot(player, ModItems.FAKE_KNIFE.getDefaultInstance());
         RoleUtils.insertStackInFreeSlot(player, ModItems.FAKE_REVOLVER.getDefaultInstance());
@@ -365,9 +365,9 @@ public class WayfarerPlayerComponent implements RoleComponent, ServerTickingComp
         // player.level().playSound(null, player.blockPosition(),
         // SoundEvents.BEACON_ACTIVATE, SoundSource.MASTER, 1.0F, 1.0F);
 
-        TMMItemUtils.clearItem(player, TMMItems.KNIFE);
-        TMMItemUtils.clearItem(player, ModItems.FAKE_KNIFE);
-        TMMItemUtils.clearItem(player, ModItems.FAKE_REVOLVER);
+        SREItemUtils.clearItem(player, TMMItems.KNIFE);
+        SREItemUtils.clearItem(player, ModItems.FAKE_KNIFE);
+        SREItemUtils.clearItem(player, ModItems.FAKE_REVOLVER);
 
         RoleUtils.insertStackInFreeSlot(player, ModItems.FAKE_KNIFE.getDefaultInstance());
         RoleUtils.insertStackInFreeSlot(player, ModItems.FAKE_REVOLVER.getDefaultInstance());
@@ -386,7 +386,7 @@ public class WayfarerPlayerComponent implements RoleComponent, ServerTickingComp
             return;
         }
         boolean hasKey = false;
-        boolean hasInited = TMMItemUtils.hasItem(this.player, TMMItems.KEY) > 0;
+        boolean hasInited = SREItemUtils.hasItem(this.player, TMMItems.KEY) > 0;
         if (!hasInited) {
             if (targetVictim != null) {
                 for (var item : targetVictim.getInventory().items) {
@@ -420,9 +420,9 @@ public class WayfarerPlayerComponent implements RoleComponent, ServerTickingComp
             RoleUtils.insertStackInFreeSlot(player, item);
         }
         this.pos = be.position();
-        TMMItemUtils.clearItem(player, ModItems.FAKE_KNIFE);
-        TMMItemUtils.clearItem(player, ModItems.FAKE_REVOLVER);
-        TMMItemUtils.clearItem(player, TMMItems.KNIFE);
+        SREItemUtils.clearItem(player, ModItems.FAKE_KNIFE);
+        SREItemUtils.clearItem(player, ModItems.FAKE_REVOLVER);
+        SREItemUtils.clearItem(player, TMMItems.KNIFE);
 
         RoleUtils.insertStackInFreeSlot(player, TMMItems.KNIFE.getDefaultInstance());
         this.phase = 1;

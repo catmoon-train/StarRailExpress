@@ -9,7 +9,7 @@ import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
-import io.wifi.starrailexpress.util.TMMItemUtils;
+import io.wifi.starrailexpress.util.SREItemUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
@@ -516,7 +516,7 @@ public class PuppeteerPlayerComponent implements RoleComponent, ServerTickingCom
         if (!(player instanceof ServerPlayer serverPlayer))
             return;
 
-        TMMItemUtils.clearItem(serverPlayer, TMMItems.BAT);
+        SREItemUtils.clearItem(serverPlayer, TMMItems.BAT);
         // 保存假人物品栏
         saveInventory(puppetInventory);
 
@@ -531,7 +531,7 @@ public class PuppeteerPlayerComponent implements RoleComponent, ServerTickingCom
 
         // 恢复本体物品栏
         loadInventory(originalInventory);
-        TMMItemUtils.clearItem(serverPlayer, TMMItems.BAT);
+        SREItemUtils.clearItem(serverPlayer, TMMItems.BAT);
         // 停止疯魔
         var ppc = SREPlayerPsychoComponent.KEY.get(player);
         if (ppc.psychoTicks > 0)
@@ -664,14 +664,14 @@ public class PuppeteerPlayerComponent implements RoleComponent, ServerTickingCom
         } else {
             if (player.level().getGameTime() % 60 == 0) {
                 int clearCount = 0;
-                clearCount += TMMItemUtils.clearItem(player, TMMItems.KNIFE);
-                clearCount += TMMItemUtils.clearItem(player, TMMItems.GRENADE);
-                clearCount += TMMItemUtils.clearItem(player, ModItems.THROWING_KNIFE);
-                clearCount += TMMItemUtils.clearItem(player, ModItems.ONCE_REVOLVER);
-                clearCount += TMMItemUtils.clearItem(player, ModItems.PATROLLER_REVOLVER);
-                clearCount += TMMItemUtils.clearItem(player, TMMItems.REVOLVER);
-                clearCount += TMMItemUtils.clearItem(player, HSRItems.TOXIN);
-                clearCount += TMMItemUtils.clearItem(player, HSRItems.BANDIT_REVOLVER);
+                clearCount += SREItemUtils.clearItem(player, TMMItems.KNIFE);
+                clearCount += SREItemUtils.clearItem(player, TMMItems.GRENADE);
+                clearCount += SREItemUtils.clearItem(player, ModItems.THROWING_KNIFE);
+                clearCount += SREItemUtils.clearItem(player, ModItems.ONCE_REVOLVER);
+                clearCount += SREItemUtils.clearItem(player, ModItems.PATROLLER_REVOLVER);
+                clearCount += SREItemUtils.clearItem(player, TMMItems.REVOLVER);
+                clearCount += SREItemUtils.clearItem(player, HSRItems.TOXIN);
+                clearCount += SREItemUtils.clearItem(player, HSRItems.BANDIT_REVOLVER);
                 if (clearCount > 0) {
                     player.displayClientMessage(
                             Component.translatable("message.puppeteer.clear_item", clearCount)

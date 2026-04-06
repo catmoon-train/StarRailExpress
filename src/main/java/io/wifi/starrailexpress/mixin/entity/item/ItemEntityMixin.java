@@ -5,7 +5,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
-import io.wifi.starrailexpress.util.TMMItemUtils;
+import io.wifi.starrailexpress.util.SREItemUtils;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -43,7 +43,7 @@ public abstract class ItemEntityMixin {
         if ((SREGameWorldComponent.KEY.get(player.level()).canPickUpRevolver(player)
                 && !player.equals(this.getOwner()))) {
             // 在拾取物品之前调用角色的onPickupItem方法
-            if (TMMItemUtils.hasItem(player, TMMItemTags.GUNS) > 0) {
+            if (SREItemUtils.hasItem(player, TMMItemTags.GUNS) > 0) {
                 return;
             }
             if (io.wifi.starrailexpress.api.RoleMethodDispatcher.callOnPickupItem(player,

@@ -8,7 +8,7 @@ import net.minecraft.world.item.ItemStack;
 import java.util.function.Predicate;
 
 // Author: wifi_left
-public class TMMItemUtils {
+public class SREItemUtils {
     public static int clearItem(Player player, Item item) {
         Predicate<ItemStack> predicate = (itemStack) -> {
             return itemStack.is(item);

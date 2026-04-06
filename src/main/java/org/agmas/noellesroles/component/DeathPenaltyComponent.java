@@ -3,27 +3,33 @@ package org.agmas.noellesroles.component;
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.util.SRENBTUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
+import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
+import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
 import java.util.UUID;
 
-public class DeathPenaltyComponent implements RoleComponent, ServerTickingComponent {
+public class DeathPenaltyComponent implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
     private final Player player;
     public long penaltyExpiry = 0;
     public UUID limitCameraUUID = null;
     public boolean chatEnabled = false;
+    public Vec3 posLimit = null;
 
     public static ComponentKey<DeathPenaltyComponent> KEY = ModComponents.DEATH_PENALTY;
 
@@ -112,6 +118,27 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
     }
 
     /**
+     * 开始死亡惩罚限制，并且有玩家视角限制。设置durationticks为负数可以让玩家一直受限（需要手动取消）。
+     * </p>
+     * 仅服务端有效。
+     */
+    public void setPenaltyWithPosition(long durationTicks, Vec3 pos) {
+        if (!(player instanceof ServerPlayer sp)) {
+            return;
+        }
+        if (durationTicks < 0) {
+            this.penaltyExpiry = -1;
+        } else {
+            this.penaltyExpiry = player.level().getGameTime() + durationTicks;
+        }
+        if (pos != null) {
+            this.posLimit = pos;
+            sp.teleportTo(pos.x, pos.y, pos.z);
+        }
+        ModComponents.DEATH_PENALTY.sync(player);
+    }
+
+    /**
      * 开始死亡惩罚限制，并且有玩家视角限制。设置durationticks为负数可以让玩家被限制到被观察对象死亡。
      * </p>
      * 仅服务端有效。
@@ -164,9 +191,15 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
                 }
             }
         }
+        this.posLimit = null;
         this.limitCameraUUID = null;
+        if (this.player.hasEffect(ModEffects.MOVE_BANED)) {
+            this.player.removeEffect(ModEffects.MOVE_BANED);
+        }
+        if (this.player.hasEffect(ModEffects.USED_BANED)) {
+            this.player.removeEffect(ModEffects.USED_BANED);
+        }
         ModComponents.DEATH_PENALTY.sync(player);
-
     }
 
     @Override
@@ -182,6 +215,9 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
         } else {
             this.chatEnabled = true;
         }
+        if (tag.contains("pos", CompoundTag.TAG_COMPOUND)) {
+            this.posLimit = SRENBTUtils.tagToVec3(tag.getCompound("pos"));
+        }
     }
 
     @Override
@@ -189,6 +225,9 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
         tag.putLong("penaltyExpiry", this.penaltyExpiry);
         if (this.limitCameraUUID != null) {
             tag.putBoolean("chatEnabled", false);
+        }
+        if (posLimit != null) {
+            tag.put("pos", SRENBTUtils.vec3ToTag(posLimit));
         }
     }
 
@@ -217,6 +256,29 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
                             sp.setCamera(null);
                         }
                     }
+                } else if (posLimit != null) {
+                    if (!player.hasEffect(ModEffects.MOVE_BANED) || player.level().getGameTime() % 30 == 0) {
+                        if (player.distanceToSqr(posLimit) >= 2) {
+                            player.teleportTo(posLimit.x, posLimit.y, posLimit.z);
+                        }
+                        player.addEffect(new MobEffectInstance(
+                                ModEffects.MOVE_BANED,
+                                (int) (40), // 持续时间（tick）
+                                0, // 等级（0 = 速度 I）
+                                false, // ambient（环境效果，如信标）
+                                true, // showParticles（显示粒子）
+                                true // showIcon（显示图标）
+                        ));
+                        player.addEffect(new MobEffectInstance(
+                                ModEffects.USED_BANED,
+                                (int) (40), // 持续时间（tick）
+                                0, // 等级（0 = 速度 I）
+                                false, // ambient（环境效果，如信标）
+                                true, // showParticles（显示粒子）
+                                true // showIcon（显示图标）
+                        ));
+                    }
+
                 }
             }
         }
@@ -228,5 +290,9 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
 
     @Override
     public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void clientTick() {
     }
 }

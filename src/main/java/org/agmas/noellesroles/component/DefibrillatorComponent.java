@@ -10,7 +10,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 
@@ -52,8 +51,7 @@ public class DefibrillatorComponent implements RoleComponent, ServerTickingCompo
         this.corpseEntityId = corpseId;
         this.deathPos = pos;
         if (player instanceof ServerPlayer sp) {
-            sp.teleportTo(pos.x, pos.y, pos.z);
-            DeathPenaltyComponent.KEY.get(sp).setPenaltyWithCameraLimit(-1, sp);
+            DeathPenaltyComponent.KEY.get(sp).setPenaltyWithPosition(-1, pos);
         }
         ModComponents.DEFIBRILLATOR.sync(player);
     }
@@ -165,32 +163,6 @@ public class DefibrillatorComponent implements RoleComponent, ServerTickingCompo
             if (player.level().getGameTime() % 20 == 0) {
                 player.displayClientMessage(Component.translatable("message.noellesroles.doctor.about_to_revive",
                         (this.resurrectionTime - this.player.level().getGameTime()) / 20), true);
-            }
-            if (!player.hasEffect(ModEffects.MOVE_BANED) || player.level().getGameTime() % 10 == 0) {
-                player.addEffect(new MobEffectInstance(
-                        ModEffects.MOVE_BANED,
-                        (int) (20), // 持续时间（tick）
-                        0, // 等级（0 = 速度 I）
-                        false, // ambient（环境效果，如信标）
-                        true, // showParticles（显示粒子）
-                        true // showIcon（显示图标）
-                ));
-                player.addEffect(new MobEffectInstance(
-                        ModEffects.USED_BANED,
-                        (int) (20), // 持续时间（tick）
-                        0, // 等级（0 = 速度 I）
-                        false, // ambient（环境效果，如信标）
-                        true, // showParticles（显示粒子）
-                        true // showIcon（显示图标）
-                ));
-                // addEffect(new MobEffectInstance(
-                // MobEffects.GLOWING,
-                // (int) (duration * 20), // 持续时间（tick）
-                // 0, // 等级（0 = 速度 I）
-                // false, // ambient（环境效果，如信标）
-                // true, // showParticles（显示粒子）
-                // true // showIcon（显示图标）
-                // ));
             }
         }
     }

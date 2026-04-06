@@ -1,6 +1,6 @@
 package org.agmas.noellesroles.utils;
 
-import io.wifi.starrailexpress.util.TMMItemUtils;
+import io.wifi.starrailexpress.util.SREItemUtils;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.Registries;
@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-public class MCItemsUtils extends TMMItemUtils {
+public class MCItemsUtils extends SREItemUtils {
     public static boolean insertStackInFreeSlot(@NotNull Player player, ItemStack stackToInsert) {
         for (int i = 0; i < 9; ++i) {
             ItemStack stack = player.getInventory().getItem(i);

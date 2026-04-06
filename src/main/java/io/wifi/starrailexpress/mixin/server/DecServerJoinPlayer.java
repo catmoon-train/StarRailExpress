@@ -6,7 +6,7 @@ import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent.GameStatus;
 import io.wifi.starrailexpress.network.SyncMapConfigPayload;
-import io.wifi.starrailexpress.util.TMMItemUtils;
+import io.wifi.starrailexpress.util.SREItemUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.Connection;
 import net.minecraft.server.level.ServerLevel;
@@ -51,7 +51,7 @@ public class DecServerJoinPlayer {
                 float angle = serverWorld.getSharedSpawnAngle();
                 serverPlayer.teleportTo(serverWorld, spawn.getX(), spawn.getY(),
                         spawn.getZ(), angle, 0);
-                TMMItemUtils.clearItem(serverPlayer, (a) -> true);
+                SREItemUtils.clearItem(serverPlayer, (a) -> true);
                 if (!serverPlayer.isCreative())
                     serverPlayer.setGameMode(net.minecraft.world.level.GameType.ADVENTURE);
             }

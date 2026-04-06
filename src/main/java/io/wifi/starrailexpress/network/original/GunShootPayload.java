@@ -14,7 +14,7 @@ import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import io.wifi.starrailexpress.network.PacketTracker;
 import io.wifi.starrailexpress.util.Scheduler;
-import io.wifi.starrailexpress.util.TMMItemUtils;
+import io.wifi.starrailexpress.util.SREItemUtils;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.FriendlyByteBuf;
@@ -103,9 +103,9 @@ public record GunShootPayload(int target) implements CustomPacketPayload {
                                 if (player.getMainHandItem().is(TMMItemTags.GUNS)) {
                                     player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
                                     flag = true;
-                                } else if (TMMItemUtils.clearItem(player, TMMItems.REVOLVER, 1) >= 1) {
+                                } else if (SREItemUtils.clearItem(player, TMMItems.REVOLVER, 1) >= 1) {
                                     flag = true;
-                                } else if (TMMItemUtils.clearItem(player, HSRItems.BANDIT_REVOLVER, 1) >= 1) {
+                                } else if (SREItemUtils.clearItem(player, HSRItems.BANDIT_REVOLVER, 1) >= 1) {
                                     flag = true;
                                 }
 

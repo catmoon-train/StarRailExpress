@@ -13,7 +13,7 @@ import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.item.CocktailItem;
 import io.wifi.starrailexpress.util.ShopEntry;
-import io.wifi.starrailexpress.util.TMMItemUtils;
+import io.wifi.starrailexpress.util.SREItemUtils;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
@@ -234,14 +234,14 @@ public class ModPacketsReciever {
     });
     ServerPlayNetworking.registerGlobalReceiver(ChefCookC2SPacket.ID, (payload, context) -> {
       final var player = context.player();
-      int foodT = TMMItemUtils.clearItem(player, (food) -> {
+      int foodT = SREItemUtils.clearItem(player, (food) -> {
         if (food.getItem() instanceof CocktailItem)
           return false;
         if (food.has(ModDataComponentTypes.COOKED))
           return false;
         return food.has(DataComponents.FOOD);
       }, 1);
-      int stuffT = TMMItemUtils.clearItem(player, ModItems.FOOD_STUFF, 2);
+      int stuffT = SREItemUtils.clearItem(player, ModItems.FOOD_STUFF, 2);
       if (!(foodT >= 1 && stuffT >= 2)) {
         player.displayClientMessage(Component.translatable("screen.noellesroles.chef.not_enough_food_stuff")
             .withStyle(ChatFormatting.RED), true);

@@ -11,7 +11,7 @@ import io.wifi.starrailexpress.event.OnGetInstinctHighlight;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.index.TMMItems;
-import io.wifi.starrailexpress.util.TMMItemUtils;
+import io.wifi.starrailexpress.util.SREItemUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
@@ -108,7 +108,7 @@ public class InstinctRenderer {
             if (hasInstinct) {
                 var deathPenalty = org.agmas.noellesroles.component.ModComponents.DEATH_PENALTY.get(self);
                 if (deathPenalty.hasPenalty()) {
-                    if (deathPenalty.limitCameraUUID != null)
+                    if (deathPenalty.posLimit != null || deathPenalty.limitCameraUUID != null)
                         return -2;
                     if (target instanceof Player target_player) {
                         if (target_player.isSpectator())
@@ -255,7 +255,7 @@ public class InstinctRenderer {
             if (!SREClient.gameComponent.isRole(Minecraft.getInstance().player, SERoles.INITIATE)) {
                 return -1;
             }
-            if (TMMItemUtils.hasItem(player, TMMItems.KNIFE) <= 0) {
+            if (SREItemUtils.hasItem(player, TMMItems.KNIFE) <= 0) {
                 return -1;
             }
             if (target instanceof Player targettedPlayer) {

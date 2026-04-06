@@ -13,7 +13,7 @@ import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.event.OnPlayerDeathWithKiller;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
-import io.wifi.starrailexpress.util.TMMItemUtils;
+import io.wifi.starrailexpress.util.SREItemUtils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -156,7 +156,7 @@ public class SEInitiateEventHandler {
     }
 
     private static void clearAllKnives(Player player) {
-        TMMItemUtils.clearItem(player, TMMItems.KNIFE);
+        SREItemUtils.clearItem(player, TMMItems.KNIFE);
     }
 
     public static boolean handleInitiateKillInitiate(Player victim, Player killer, ResourceLocation deathReason) {

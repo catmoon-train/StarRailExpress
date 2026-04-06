@@ -2,7 +2,7 @@ package org.agmas.noellesroles.mixin;
 
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.game.GameUtils;
-import io.wifi.starrailexpress.util.TMMItemUtils;
+import io.wifi.starrailexpress.util.SREItemUtils;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -53,7 +53,7 @@ public abstract class PlayerResetMixin {
         }
         player.getInventory().offhand.set(0, ItemStack.EMPTY);
         ServerPlayNetworking.send(player, new PlayerResetS2CPacket());
-        TMMItemUtils.clearItem(player, (s) -> true);
+        SREItemUtils.clearItem(player, (s) -> true);
     }
 
     /**

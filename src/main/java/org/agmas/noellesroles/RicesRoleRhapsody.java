@@ -9,7 +9,7 @@ import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
-import io.wifi.starrailexpress.util.TMMItemUtils;
+import io.wifi.starrailexpress.util.SREItemUtils;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
@@ -1317,7 +1317,7 @@ public class RicesRoleRhapsody implements ModInitializer {
      */
     private static void consumeDeliveryBox(Player postmanPlayer) {
         // 先检查主手
-        TMMItemUtils.clearItem(postmanPlayer, ModItems.DELIVERY_BOX, 1);
+        SREItemUtils.clearItem(postmanPlayer, ModItems.DELIVERY_BOX, 1);
     }
 
     /**

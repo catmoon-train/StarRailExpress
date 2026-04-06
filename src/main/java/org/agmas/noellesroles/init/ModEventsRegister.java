@@ -20,7 +20,7 @@ import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import io.wifi.starrailexpress.network.RemoveStatusBarPayload;
-import io.wifi.starrailexpress.util.TMMItemUtils;
+import io.wifi.starrailexpress.util.SREItemUtils;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
@@ -272,7 +272,8 @@ public class ModEventsRegister {
     private static void handleDeathPenalty(Player victim) {
         SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(victim.level());
         DeathPenaltyComponent deathPenaltyComponent = ModComponents.DEATH_PENALTY.get(victim);
-        if (deathPenaltyComponent.hasPenalty() && deathPenaltyComponent.limitCameraUUID != null) {
+        if (deathPenaltyComponent.hasPenalty()
+                && (deathPenaltyComponent.limitCameraUUID != null || deathPenaltyComponent.posLimit != null)) {
             // 已经在别的地方处理过了不给死亡限制。
             return;
         }
@@ -306,6 +307,7 @@ public class ModEventsRegister {
         if (looseEndAlive) {
             ServerPlayer refugeePlayer = null;
             deathPenaltyComponent.limitCameraUUID = null;
+            deathPenaltyComponent.posLimit = null;
             if (victim instanceof ServerPlayer sp) {
                 for (var p : sp.getServer().getPlayerList().getPlayers()) {
                     if (GameUtils.isPlayerAliveAndSurvival(p)) {
@@ -1208,8 +1210,8 @@ public class ModEventsRegister {
                 }
             }
             if (gameWorldComponent.isRole(playerEntity, ModRoles.ELF)) {
-                int bowcount = TMMItemUtils.clearItem(playerEntity, Items.BOW);
-                int crossbowcount = TMMItemUtils.clearItem(playerEntity, Items.CROSSBOW);
+                int bowcount = SREItemUtils.clearItem(playerEntity, Items.BOW);
+                int crossbowcount = SREItemUtils.clearItem(playerEntity, Items.CROSSBOW);
                 int dropCount = bowcount + crossbowcount;
                 while (dropCount > 0) {
                     playerEntity.drop(TMMItems.REVOLVER.getDefaultInstance(), false);
@@ -1218,7 +1220,7 @@ public class ModEventsRegister {
             }
 
             if (gameWorldComponent.isRole(playerEntity, ModRoles.MARTIAL_ARTS_INSTRUCTOR)) {
-                int nunchuckCount = TMMItemUtils.clearItem(playerEntity, TMMItems.NUNCHUCK);
+                int nunchuckCount = SREItemUtils.clearItem(playerEntity, TMMItems.NUNCHUCK);
                 while (nunchuckCount > 0) {
                     playerEntity.drop(TMMItems.REVOLVER.getDefaultInstance(), false);
                     nunchuckCount--;
@@ -1236,7 +1238,7 @@ public class ModEventsRegister {
                 }
             }
             {
-                int tridentCount = TMMItemUtils.clearItem(playerEntity, net.minecraft.world.item.Items.TRIDENT);
+                int tridentCount = SREItemUtils.clearItem(playerEntity, net.minecraft.world.item.Items.TRIDENT);
                 while (tridentCount > 0) {
                     playerEntity.drop(TMMItems.REVOLVER.getDefaultInstance(), false);
                     tridentCount--;
@@ -1244,7 +1246,7 @@ public class ModEventsRegister {
             }
 
             if (gameWorldComponent.isRole(playerEntity, ModRoles.WATER_GHOST)) {
-                int tridentCount = TMMItemUtils.clearItem(playerEntity, net.minecraft.world.item.Items.TRIDENT);
+                int tridentCount = SREItemUtils.clearItem(playerEntity, net.minecraft.world.item.Items.TRIDENT);
                 while (tridentCount > 0) {
                     playerEntity.drop(TMMItems.REVOLVER.getDefaultInstance(), false);
                     tridentCount--;
@@ -1252,7 +1254,7 @@ public class ModEventsRegister {
             }
 
             if (gameWorldComponent.isRole(playerEntity, ModRoles.SWAST)) {
-                int sniperRifleCount = TMMItemUtils.clearItem(playerEntity, TMMItems.SNIPER_RIFLE);
+                int sniperRifleCount = SREItemUtils.clearItem(playerEntity, TMMItems.SNIPER_RIFLE);
                 while (sniperRifleCount > 0) {
                     playerEntity.drop(TMMItems.REVOLVER.getDefaultInstance(), false);
                     sniperRifleCount--;
@@ -1593,7 +1595,7 @@ public class ModEventsRegister {
 
     public static void registerPredicate() {
         OnPlayerDeath.EVENT.register((victim, deathReason) -> {
-            TMMItemUtils.clearItem(victim, ModItems.BOMB);
+            SREItemUtils.clearItem(victim, ModItems.BOMB);
             var gameWorldComponent = SREGameWorldComponent.KEY.get(victim.level());
             if (victim.getVehicle() instanceof WheelchairEntity we) {
                 if (gameWorldComponent.isRole(victim, ModRoles.OLDMAN)) {

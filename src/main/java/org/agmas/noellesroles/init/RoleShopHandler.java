@@ -13,7 +13,7 @@ import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.item.KnifeItem;
 import io.wifi.starrailexpress.util.ShopEntry;
-import io.wifi.starrailexpress.util.TMMItemUtils;
+import io.wifi.starrailexpress.util.SREItemUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -424,9 +424,9 @@ public class RoleShopHandler {
         @Override
         public boolean onBuy(@NotNull Player player) {
           // 启动疯狂模式
-          if (TMMItemUtils.hasItem(player, TMMItems.PSYCHO_MODE) > 0) {
+          if (SREItemUtils.hasItem(player, TMMItems.PSYCHO_MODE) > 0) {
             if (SREPlayerPsychoComponent.KEY.get(player).startPsycho()) {
-              TMMItemUtils.clearItem(player, TMMItems.PSYCHO_MODE, 1);
+              SREItemUtils.clearItem(player, TMMItems.PSYCHO_MODE, 1);
               return true;
             }
           }
@@ -559,7 +559,7 @@ public class RoleShopHandler {
       shopEntries.add(new ShopEntry(Items.CROSSBOW.getDefaultInstance(), 300, ShopEntry.Type.WEAPON) {
         @Override
         public boolean onBuy(@NotNull Player player) {
-          int itemCount = TMMItemUtils.hasItem(player, Items.CROSSBOW);
+          int itemCount = SREItemUtils.hasItem(player, Items.CROSSBOW);
           if (itemCount > 0)
             return false;
           ItemStack item = Items.CROSSBOW.getDefaultInstance();
@@ -575,7 +575,7 @@ public class RoleShopHandler {
       shopEntries.add(new ShopEntry(PoisonArrow, 75, ShopEntry.Type.WEAPON) {
         @Override
         public boolean onBuy(@NotNull Player player) {
-          int itemCount = TMMItemUtils.hasItem(player, Items.TIPPED_ARROW);
+          int itemCount = SREItemUtils.hasItem(player, Items.TIPPED_ARROW);
           if (itemCount >= 2)
             return false;
           return RoleUtils.insertStackInFreeSlot(player, PoisonArrow.copy());
@@ -588,7 +588,7 @@ public class RoleShopHandler {
       shopEntries.add(new ShopEntry(SpectralArrow, 50, ShopEntry.Type.WEAPON) {
         @Override
         public boolean onBuy(@NotNull Player player) {
-          int itemCount = TMMItemUtils.hasItem(player, Items.SPECTRAL_ARROW);
+          int itemCount = SREItemUtils.hasItem(player, Items.SPECTRAL_ARROW);
           if (itemCount >= 2)
             return false;
           return RoleUtils.insertStackInFreeSlot(player, SpectralArrow.copy());
@@ -1697,7 +1697,7 @@ public class RoleShopHandler {
         ShopEntry.Type.TOOL) {
       @Override
       public boolean onBuy(Player player) {
-        if (TMMItemUtils.hasItem(player, Items.CHAIN_COMMAND_BLOCK) > 0) {
+        if (SREItemUtils.hasItem(player, Items.CHAIN_COMMAND_BLOCK) > 0) {
           return false;
         }
         if (RoleUtils.insertStackInFreeSlot(player, this.stack().copy())) {
@@ -1715,7 +1715,7 @@ public class RoleShopHandler {
         ShopEntry.Type.TOOL) {
       @Override
       public boolean onBuy(Player player) {
-        if (TMMItemUtils.hasItem(player, Items.REPEATING_COMMAND_BLOCK) > 0) {
+        if (SREItemUtils.hasItem(player, Items.REPEATING_COMMAND_BLOCK) > 0) {
           return false;
         }
         if (RoleUtils.insertStackInFreeSlot(player, this.stack().copy())) {
@@ -1734,7 +1734,7 @@ public class RoleShopHandler {
         ShopEntry.Type.TOOL) {
       @Override
       public boolean onBuy(Player player) {
-        if (TMMItemUtils.hasItem(player, Items.COMMAND_BLOCK) > 0) {
+        if (SREItemUtils.hasItem(player, Items.COMMAND_BLOCK) > 0) {
           return false;
         }
         if (RoleUtils.insertStackInFreeSlot(player, this.stack().copy())) {

@@ -20,7 +20,7 @@ import io.wifi.starrailexpress.network.CloseUiPayload;
 import io.wifi.starrailexpress.network.PlayerDeathPayload;
 import io.wifi.starrailexpress.network.TriggerScreenEdgeEffectPayload;
 import io.wifi.starrailexpress.network.original.AnnounceEndingPayload;
-import io.wifi.starrailexpress.util.TMMItemUtils;
+import io.wifi.starrailexpress.util.SREItemUtils;
 import net.exmo.sre.nametag.NameTagInventoryComponent;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerChunkEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -833,7 +833,7 @@ public class GameUtils {
     }
 
     public static void resetPlayer(ServerPlayer player) {
-        TMMItemUtils.clearItem(player, (item) -> true, -1);
+        SREItemUtils.clearItem(player, (item) -> true, -1);
         SREPlayerMoodComponent.KEY.get(player).clear();
         SREPlayerShopComponent.KEY.get(player).clear();
         SREPlayerPoisonComponent.KEY.get(player).clear();
