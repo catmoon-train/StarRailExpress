@@ -455,6 +455,11 @@ public final class FourthRoomBattleScreen extends Screen {
                             mouseX, mouseY,
                             () -> {
                                 if (item.requiresTarget()) {
+                                    List<FourthRoomClientSnapshot.RoomPlayer> targets = validShopTargets(snapshot);
+                                    if (targets.size() == 1) {
+                                        ClientPlayNetworking.send(new UseAssassinationItemPayload(item.id(), targets.getFirst().uuid()));
+                                        return;
+                                    }
                                     pendingShopItemId = item.id();
                                     showingShopTargetPicker = true;
                                 } else {
@@ -774,6 +779,12 @@ public final class FourthRoomBattleScreen extends Screen {
             return false;
         }
         if (selected.requiresTarget()) {
+            List<FourthRoomClientSnapshot.RoomPlayer> targets = validCardTargets(snapshot, selected);
+            if (targets.size() == 1) {
+                ClientPlayNetworking.send(new CardPlayPayload(selected.id(), targets.getFirst().uuid()));
+                selectedCardKey = "";
+                return true;
+            }
             pendingCardKey = selectedCardKey;
             showingTargetPicker = true;
             return true;
@@ -800,12 +811,12 @@ public final class FourthRoomBattleScreen extends Screen {
             showingTargetPicker = false;
             return;
         }
+        graphics.pose().pushPose();
+        graphics.pose().translate(0.0F, 0.0F, 300.0F);
         // Dim background
         graphics.fill(0, 0, width, height, 0x88000000);
 
-        List<FourthRoomClientSnapshot.RoomPlayer> targets = snapshot.roomPlayers().stream()
-            .filter(p -> p.alive() && (card.id().equals("veto") || !p.self()))
-                .toList();
+        List<FourthRoomClientSnapshot.RoomPlayer> targets = validCardTargets(snapshot, card);
 
         int popupWidth = 260;
         int rowHeight = 36;
@@ -842,14 +853,15 @@ public final class FourthRoomBattleScreen extends Screen {
         registerHitRegion(popupX + 50, cancelY, popupWidth - 100, 22, true,
                 List.of(Component.literal("取消选择")),
                 () -> { showingTargetPicker = false; pendingCardKey = ""; });
+        graphics.pose().popPose();
     }
 
     private void renderShopTargetPicker(GuiGraphics graphics, FourthRoomClientSnapshot snapshot, int mouseX, int mouseY) {
+        graphics.pose().pushPose();
+        graphics.pose().translate(0.0F, 0.0F, 300.0F);
         graphics.fill(0, 0, width, height, 0x88000000);
 
-        List<FourthRoomClientSnapshot.RoomPlayer> targets = snapshot.roomPlayers().stream()
-                .filter(p -> p.alive() && !p.self())
-                .toList();
+        List<FourthRoomClientSnapshot.RoomPlayer> targets = validShopTargets(snapshot);
 
         int popupWidth = 260;
         int rowHeight = 36;
@@ -889,6 +901,20 @@ public final class FourthRoomBattleScreen extends Screen {
         registerHitRegion(popupX + 50, cancelY, popupWidth - 100, 22, true,
                 List.of(Component.literal("取消")),
                 () -> { showingShopTargetPicker = false; pendingShopItemId = ""; });
+        graphics.pose().popPose();
+    }
+
+    private List<FourthRoomClientSnapshot.RoomPlayer> validCardTargets(FourthRoomClientSnapshot snapshot,
+            FourthRoomClientSnapshot.CardView card) {
+        return snapshot.roomPlayers().stream()
+                .filter(player -> player.alive() && (card.id().equals("veto") || !player.self()))
+                .toList();
+    }
+
+    private List<FourthRoomClientSnapshot.RoomPlayer> validShopTargets(FourthRoomClientSnapshot snapshot) {
+        return snapshot.roomPlayers().stream()
+                .filter(player -> player.alive() && !player.self())
+                .toList();
     }
 
     private FourthRoomClientSnapshot.CardView selectedCard(FourthRoomClientSnapshot snapshot) {

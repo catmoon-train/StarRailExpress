@@ -177,6 +177,7 @@ public final class FourthRoomGameManager {
             syncMatchState();
             return true;
         }
+        playerState.peekCache.clear();
         drawCards(playerId, 1, false);
         logPlayerRoomAction(playerId, "system", "结束了回合", "", "", "摸 1 张牌");
         roomManager.advanceTurn(playerState.roomId);
