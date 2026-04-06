@@ -133,7 +133,7 @@ public class RoundTextRenderer {
 
             if (welcomeTime <= 120) {
                 context.drawString(renderer, cachedCanJumpTip, -cachedCanJumpWidth / 2, 28, color);
-                context.drawString(renderer, copyright, -copyrightWidth / 2, 36, color);
+                context.drawString(renderer, copyright, -copyrightWidth / 2, 40, color);
             }
 
             context.pose().popPose();

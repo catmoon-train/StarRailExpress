@@ -37,7 +37,7 @@ import java.util.HashMap;
 
 public class InstinctRenderer {
     public static void registerInstinctEvents() {
-        // 恋人
+        // 记者便签
         OnGetInstinctHighlight.EVENT.register((target, hasInstinct) -> {
             if (Minecraft.getInstance() == null)
                 return -1;
@@ -57,6 +57,7 @@ public class InstinctRenderer {
 
             return -1;
         });
+        // 恋人
         OnGetInstinctHighlight.EVENT.register((target, hasInstinct) -> {
             if (Minecraft.getInstance() == null)
                 return -1;
