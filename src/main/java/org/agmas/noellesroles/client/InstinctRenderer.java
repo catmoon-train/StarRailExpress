@@ -42,6 +42,25 @@ public class InstinctRenderer {
             if (Minecraft.getInstance() == null)
                 return -1;
             var self = Minecraft.getInstance().player;
+            if (self == null)
+                return -1;
+            if (SREClient.gameComponent == null)
+                return -1;
+            if (GameUtils.isPlayerSpectatingOrCreative(self))
+                return -1;
+
+            if (!(target instanceof io.wifi.starrailexpress.entity.NoteEntity note))
+                return -1;
+            if (SREClient.gameComponent.isRole(self, ModRoles.AWESOME_BINGLUS)) {
+                return getGradientColor(note.getId());
+            }
+
+            return -1;
+        });
+        OnGetInstinctHighlight.EVENT.register((target, hasInstinct) -> {
+            if (Minecraft.getInstance() == null)
+                return -1;
+            var self = Minecraft.getInstance().player;
             if (!GameUtils.isPlayerAliveAndSurvival(self))
                 return -1;
             if (self == null)
@@ -697,31 +716,6 @@ public class InstinctRenderer {
         if (target_role == null)
             return TMMRoles.CIVILIAN.color();
         return target_role.color();
-    }
-
-    // 便签实体直觉：记者可以透视便签实体的位置（不依赖直觉开关）
-    static {
-        OnGetInstinctHighlight.EVENT.register((target, hasInstinct) -> {
-            if (Minecraft.getInstance() == null)
-                return -1;
-            var self = Minecraft.getInstance().player;
-            if (self == null)
-                return -1;
-            if (SREClient.gameComponent == null)
-                return -1;
-            if (GameUtils.isPlayerSpectatingOrCreative(self))
-                return -1;
-
-            if (!(target instanceof io.wifi.starrailexpress.entity.NoteEntity note))
-                return -1;
-
-            var self_role = SREClient.gameComponent.getRole(self);
-            if (SREClient.gameComponent.isRole(self, ModRoles.AWESOME_BINGLUS)) {
-                return getGradientColor(note.getId());
-            }
-
-            return -1;
-        });
     }
 
     private static boolean isKillerTeam(SRERole role) {

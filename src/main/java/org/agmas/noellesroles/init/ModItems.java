@@ -317,7 +317,7 @@ public class ModItems {
      * - 生成一个10倍大小的便签实体，可贴在人身上
      */
     public static final Item GIANT_NOTE = register(
-            new org.agmas.noellesroles.item.GiantNoteItem(new Item.Properties().stacksTo(1)),
+            new GiantNoteItem(new Item.Properties().stacksTo(1)),
             "giant_note");
     /**
      * 炸弹
