@@ -223,13 +223,14 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         for (var player : players) {
             var ppc = SREPlayerPsychoComponent.KEY.get(player);
             if (ppc.psychoTicks > 0) {
-                ppc.stopPsycho();
+                ppc.stopPsychoAndRefreshPsychoCount(false);
             }
             boolean isAlive = GameUtils.isPlayerAliveAndSurvival(player);
             if (isAlive) {
                 players_stats.put(player.getUUID(), PlayerStatsBeforeRefugee.SaveFromPlayer(player, true));
             }
         }
+        SREGameWorldComponent.KEY.get(level).sync();
     }
 
     public void LoadPlayersStats() {
@@ -249,7 +250,7 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         for (var player : players) {
             var ppc = SREPlayerPsychoComponent.KEY.get(player);
             if (ppc.psychoTicks > 0) {
-                ppc.stopPsycho();
+                ppc.stopPsychoAndRefreshPsychoCount(false);
             }
             var r = gameWorldComponent.getRole(player);
             if (r != null) {
@@ -268,6 +269,7 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
                     body.remove(Entity.RemovalReason.DISCARDED);
             }
         }
+        SREGameWorldComponent.KEY.get(level).sync();
         bodies.clear();
     }
 

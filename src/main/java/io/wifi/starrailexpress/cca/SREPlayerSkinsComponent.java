@@ -386,6 +386,7 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
                 })
                 .exceptionally(throwable -> {
                     logger.error("从 MySQL 拉取玩家 {} 的皮肤数据时出错", this.player.getName().getString(), throwable);
+                    this.isNetworkSyncEnabled = false;
                     return null;
                 });
     }
@@ -426,6 +427,7 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
             }
 
         } catch (Exception e) {
+            this.isNetworkSyncEnabled = false;
             logger.error("应用网络皮肤数据时出错", e);
         }
     }

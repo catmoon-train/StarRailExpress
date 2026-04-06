@@ -104,6 +104,8 @@ public class NameTagInventoryComponent implements RoleComponent {
                 })
                 .exceptionally(throwable -> {
                     logger.error("从 MySQL 拉取玩家 {} 的名片数据时出错", this.player.getName().getString(), throwable);
+                    this.isNetworkSyncEnabled = false;
+                    // 出错不同步
                     return null;
                 });
     }

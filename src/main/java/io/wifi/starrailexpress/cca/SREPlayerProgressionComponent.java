@@ -128,7 +128,6 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
     private boolean networkSyncEnabled = false;
     private long lastQuestRefreshTime;
     private long lastWeeklyRefreshTime;
-    private long lastRefreshCheckGameTime;
     private int level;
     private int experience;
     private int totalExperience;
@@ -146,7 +145,6 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
         this.level = 1;
         this.lastQuestRefreshTime = 0L;
         this.lastWeeklyRefreshTime = 0L;
-        this.lastRefreshCheckGameTime = 0L;
         for (FactionCardType type : FactionCardType.values()) {
             if (type != FactionCardType.NONE) {
                 this.factionCards.put(type, 0);
@@ -386,6 +384,7 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
             return applyDatabaseRecords(records);
         } catch (Exception exception) {
             logger.warn("拉取玩家 {} 的 MySQL 进度/任务失败，回退到本地任务。", this.player.getName().getString(), exception);
+            this.networkSyncEnabled = false;
             return false;
         }
     }
@@ -404,6 +403,8 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
                 }))
                 .exceptionally(throwable -> {
                     logger.warn("异步拉取玩家 {} 的 MySQL 进度失败。", this.player.getName().getString(), throwable);
+                    this.networkSyncEnabled = false;
+
                     return null;
                 });
     }
