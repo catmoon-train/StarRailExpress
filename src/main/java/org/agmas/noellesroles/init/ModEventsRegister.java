@@ -271,6 +271,11 @@ public class ModEventsRegister {
 
     private static void handleDeathPenalty(Player victim) {
         SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(victim.level());
+        DeathPenaltyComponent deathPenaltyComponent = ModComponents.DEATH_PENALTY.get(victim);
+        if (deathPenaltyComponent.hasPenalty() && deathPenaltyComponent.limitCameraUUID != null) {
+            // 已经在别的地方处理过了不给死亡限制。
+            return;
+        }
         boolean doctorAlive = false;
         boolean looseEndAlive = false;
         // boolean INSANE_alive = false;
@@ -299,9 +304,8 @@ public class ModEventsRegister {
             limitView = true;
         }
         if (looseEndAlive) {
-            DeathPenaltyComponent component = ModComponents.DEATH_PENALTY.get(victim);
             ServerPlayer refugeePlayer = null;
-            component.limitCameraUUID = null;
+            deathPenaltyComponent.limitCameraUUID = null;
             if (victim instanceof ServerPlayer sp) {
                 for (var p : sp.getServer().getPlayerList().getPlayers()) {
                     if (GameUtils.isPlayerAliveAndSurvival(p)) {
@@ -313,12 +317,12 @@ public class ModEventsRegister {
                 }
             }
             if (refugeePlayer != null)
-                component.limitCameraUUID = refugeePlayer.getUUID();
-            if (component.limitCameraUUID != null) {
+                deathPenaltyComponent.limitCameraUUID = refugeePlayer.getUUID();
+            if (deathPenaltyComponent.limitCameraUUID != null) {
                 if (victim instanceof ServerPlayer sp) {
                     sp.setCamera(refugeePlayer);
                 }
-                component.setPenalty(-1);
+                deathPenaltyComponent.setPenalty(-1);
                 victim.sendSystemMessage(
                         Component.translatable("message.noellesroles.penalty.limit.loose_end")
                                 .withStyle(ChatFormatting.RED));
@@ -334,8 +338,7 @@ public class ModEventsRegister {
             }
 
         } else if (limitView) {
-            DeathPenaltyComponent component = ModComponents.DEATH_PENALTY.get(victim);
-            component.setPenalty(-1);
+            deathPenaltyComponent.setPenalty(-1);
             victim.sendSystemMessage(
                     Component.translatable("message.noellesroles.penalty.limit.god_job_couple")
                             .withStyle(ChatFormatting.RED));
@@ -349,8 +352,7 @@ public class ModEventsRegister {
                         .withStyle(ChatFormatting.YELLOW));
             }
         } else if (doctorAlive) {
-            DeathPenaltyComponent component = ModComponents.DEATH_PENALTY.get(victim);
-            component.setPenalty(45 * 20);
+            deathPenaltyComponent.setPenalty(45 * 20);
             victim.displayClientMessage(
                     Component.translatable("message.noellesroles.doctor.penalty").withStyle(ChatFormatting.RED), true);
 

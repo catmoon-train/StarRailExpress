@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.component;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.compat.TrainVoicePlugin;
@@ -51,13 +52,8 @@ public class DefibrillatorComponent implements RoleComponent, ServerTickingCompo
         this.corpseEntityId = corpseId;
         this.deathPos = pos;
         if (player instanceof ServerPlayer sp) {
-            PlayerBodyEntity body = findPlayerBodyEntity(sp);
-            if (body != null) {
-                DeathPenaltyComponent.KEY.get(sp).setPenaltyWithCameraLimit(-1, body);
-            } else {
-                sp.teleportTo(pos.x, pos.y, pos.z);
-                DeathPenaltyComponent.KEY.get(sp).setPenaltyWithCameraLimit(-1, sp);
-            }
+            sp.teleportTo(pos.x, pos.y, pos.z);
+            DeathPenaltyComponent.KEY.get(sp).setPenaltyWithCameraLimit(-1, sp);
         }
         ModComponents.DEFIBRILLATOR.sync(player);
     }
@@ -84,6 +80,8 @@ public class DefibrillatorComponent implements RoleComponent, ServerTickingCompo
         this.resurrectionTime = 0;
         this.corpseEntityId = null;
         this.deathPos = null;
+        this.player.removeEffect(ModEffects.MOVE_BANED);
+        this.player.removeEffect(ModEffects.USED_BANED);
         ModComponents.DEFIBRILLATOR.sync(player);
     }
 
@@ -152,7 +150,7 @@ public class DefibrillatorComponent implements RoleComponent, ServerTickingCompo
 
             TrainVoicePlugin.resetPlayer(player.getUUID());
             this.init();
-
+            SRE.REPLAY_MANAGER.recordPlayerRevival(player.getUUID(), null);
             player.displayClientMessage(Component.translatable("message.noellesroles.defibrillator.revived"),
                     true);
         }
@@ -166,12 +164,12 @@ public class DefibrillatorComponent implements RoleComponent, ServerTickingCompo
         if (this.isDead && player.isSpectator()) {
             if (player.level().getGameTime() % 20 == 0) {
                 player.displayClientMessage(Component.translatable("message.noellesroles.doctor.about_to_revive",
-                        (this.resurrectionTime - this.player.level().getGameTime()) % 20), true);
+                        (this.resurrectionTime - this.player.level().getGameTime()) / 20), true);
             }
-            if (player.level().getGameTime() % 20 == 0) {
+            if (!player.hasEffect(ModEffects.MOVE_BANED) || player.level().getGameTime() % 10 == 0) {
                 player.addEffect(new MobEffectInstance(
                         ModEffects.MOVE_BANED,
-                        (int) (30), // 持续时间（tick）
+                        (int) (20), // 持续时间（tick）
                         0, // 等级（0 = 速度 I）
                         false, // ambient（环境效果，如信标）
                         true, // showParticles（显示粒子）
@@ -179,7 +177,7 @@ public class DefibrillatorComponent implements RoleComponent, ServerTickingCompo
                 ));
                 player.addEffect(new MobEffectInstance(
                         ModEffects.USED_BANED,
-                        (int) (30), // 持续时间（tick）
+                        (int) (20), // 持续时间（tick）
                         0, // 等级（0 = 速度 I）
                         false, // ambient（环境效果，如信标）
                         true, // showParticles（显示粒子）

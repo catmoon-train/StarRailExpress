@@ -1,6 +1,10 @@
 package io.wifi.starrailexpress.api.replay;
 
+import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.api.replay.ReplayEventTypes.*;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.index.TMMItems;
 import net.minecraft.ChatFormatting;
@@ -183,7 +187,17 @@ public class GameReplayData {
             // message = ;
         } else if (event.details() instanceof PlayerRevivalDetails revivalDetails) {
             sourcePlayer = revivalDetails.player();
-            Role_1 = GameReplayUtils.getRoleNameWithSourceTMMColor(revivalDetails.Role());
+            String r = revivalDetails.role();
+            if (!r.isBlank()) {
+                Role_1 = GameReplayUtils.getRoleNameWithSourceTMMColor(r);
+            } else {
+                SRERole trole = SREGameWorldComponent.KEY.get(SRE.SERVER.overworld()).getRole(sourcePlayer);
+                if (trole == null) {
+                    trole = TMMRoles.CIVILIAN;
+                }
+                Role_1 = GameReplayUtils.getRoleNameWithSourceTMMColor(trole.identifier().getPath());
+            }
+
             // message = ;
         } else if (event.details() instanceof ArmorBreakDetails ambd) {
             sourcePlayer = ambd.playerUuid();

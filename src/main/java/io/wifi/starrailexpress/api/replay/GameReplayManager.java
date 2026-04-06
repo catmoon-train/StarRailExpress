@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.jetbrains.annotations.Nullable;
+
 import static net.fabricmc.loader.api.FabricLoader.getInstance;
 
 public class GameReplayManager {
@@ -428,8 +430,21 @@ public class GameReplayManager {
     return addEvent(GameReplayData.EventType.PLAYER_KILL, killerUuid, victimUuid, deathReasonStr, null);
   }
 
-  public void recordPlayerRevival(UUID player, SRERole role) {
-    String rolen = role.identifier().getPath();
+  /**
+   * @param player
+   * @param role   可为空，为空默认为当前玩家职业。
+   */
+  public void recordPlayerRevival(UUID player, @Nullable SRERole role) {
+    String rolen = "";
+    SRERole trole = role;
+    if (trole == null) {
+      trole = SREGameWorldComponent.KEY.get(SRE.SERVER.overworld()).getRole(player);
+      if (trole == null) {
+        trole = TMMRoles.CIVILIAN;
+      }
+    }
+    if (trole != null)
+      rolen = trole.identifier().getPath();
     addEvent(GameReplayData.EventType.PLAYER_REVIVAL, player, null, "", rolen);
   }
 

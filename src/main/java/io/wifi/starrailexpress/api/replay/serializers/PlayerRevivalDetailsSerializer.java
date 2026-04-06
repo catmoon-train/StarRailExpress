@@ -12,7 +12,7 @@ public class PlayerRevivalDetailsSerializer
     public JsonElement serialize(PlayerRevivalDetails src, Type typeOfSrc, JsonSerializationContext context) {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("player", src.player().toString());
-        jsonObject.addProperty("role", src.Role().toString());
+        jsonObject.addProperty("role", src.role().toString());
 
         return jsonObject;
     }

@@ -46,7 +46,7 @@ public class ReplayEventTypes {
             implements EventDetails {
     }
 
-    public record PlayerRevivalDetails(UUID player, String Role) implements EventDetails {
+    public record PlayerRevivalDetails(UUID player, String role) implements EventDetails {
     }
 
     public record ChangeRoleDetails(UUID player, String oldRole, String newRole) implements EventDetails {
