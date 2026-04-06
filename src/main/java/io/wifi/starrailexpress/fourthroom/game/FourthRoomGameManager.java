@@ -60,7 +60,8 @@ public final class FourthRoomGameManager {
     public void initializeMatch(List<ServerPlayer> readyPlayers) {
         List<ServerPlayer> participants = new ArrayList<>(readyPlayers);
         Collections.shuffle(participants);
-        int requested = Math.max(2, data.requestedPlayerCount > 0 ? data.requestedPlayerCount : config.defaultPlayerCount);
+        int requested = Math.max(2,
+                data.requestedPlayerCount > 0 ? data.requestedPlayerCount : config.defaultPlayerCount);
         if (participants.size() > requested) {
             participants = new ArrayList<>(participants.subList(0, requested));
         }
@@ -405,7 +406,8 @@ public final class FourthRoomGameManager {
             targetState.decoyArmed = false;
             UUID opponent = roomManager.getOpponent(targetId);
             if (opponent != null) {
-                logRoomAction(targetState.roomId, "defense", playerName(targetId), "发动了", "诱饵", playerName(opponent), "转移伤害");
+                logRoomAction(targetState.roomId, "defense", playerName(targetId), "发动了", "诱饵", playerName(opponent),
+                        "转移伤害");
                 inflictCardDamage(sourceId, opponent, "decoy:" + reason);
                 data.setDirty(true);
                 return;
@@ -414,7 +416,8 @@ public final class FourthRoomGameManager {
         int hiddenIdentityIndex = targetState.firstHiddenIdentityIndex();
         if (hiddenIdentityIndex >= 0) {
             targetState.revealed.set(hiddenIdentityIndex, true);
-            logRoomAction(targetState.roomId, "damage", playerName(targetId), "被打翻了一块身份", shortBlockId(targetState.identityBlocks.get(hiddenIdentityIndex)), "", "");
+            logRoomAction(targetState.roomId, "damage", playerName(targetId), "被打翻了一块身份",
+                    shortBlockId(targetState.identityBlocks.get(hiddenIdentityIndex)), "", "");
             broadcastReveal(targetId, targetState.identityBlocks.get(hiddenIdentityIndex));
         } else {
             eliminatePlayer(targetId, reason);
@@ -434,7 +437,8 @@ public final class FourthRoomGameManager {
         if (player != null) {
             player.stopRiding();
             player.setGameMode(GameType.SPECTATOR);
-            player.displayClientMessage(Component.literal("You were eliminated by " + reason).withStyle(ChatFormatting.RED), false);
+            player.displayClientMessage(
+                    Component.literal("You were eliminated by " + reason).withStyle(ChatFormatting.RED), false);
         }
         data.setDirty(true);
         duelManager.maybeResolveWinCondition();
@@ -456,7 +460,8 @@ public final class FourthRoomGameManager {
         return success;
     }
 
-    public boolean placeStickyNote(UUID playerId, net.minecraft.core.BlockPos pos, net.minecraft.core.Direction face, String text) {
+    public boolean placeStickyNote(UUID playerId, net.minecraft.core.BlockPos pos, net.minecraft.core.Direction face,
+            String text) {
         return shopService.placeStickyNote(playerId, pos, face, text);
     }
 
@@ -481,8 +486,13 @@ public final class FourthRoomGameManager {
         }
     }
 
+    public void broadcast(String message) {
+        broadcast(Component.literal(message));
+    }
+
     public void broadcast(Component message) {
-        Component component = Component.translatable("fourth_room.prefix").append(message).withStyle(ChatFormatting.GOLD);
+        Component component = Component.translatable("fourth_room.prefix").append(message)
+                .withStyle(ChatFormatting.GOLD);
         for (ServerPlayer player : level.players()) {
             player.displayClientMessage(component, false);
         }
@@ -491,7 +501,9 @@ public final class FourthRoomGameManager {
     public void sendPrivate(UUID playerId, Component message) {
         ServerPlayer player = level.getServer().getPlayerList().getPlayer(playerId);
         if (player != null) {
-            player.displayClientMessage(Component.translatable("fourth_room.prefix").append(message).withStyle(ChatFormatting.YELLOW), true);
+            player.displayClientMessage(
+                    Component.translatable("fourth_room.prefix").append(message).withStyle(ChatFormatting.YELLOW),
+                    true);
         }
     }
 
@@ -516,7 +528,7 @@ public final class FourthRoomGameManager {
         root.addProperty("rotationIntervalTicks", config.rotationIntervalSeconds * 20L);
         root.addProperty("activeTaskId", data.activeTaskId == null ? "" : data.activeTaskId);
         FourthRoomTaskType activeTask = FourthRoomTaskType.byId(data.activeTaskId);
-        root.addProperty("activeTaskDescription", activeTask != null ? activeTask.description() : "");
+        root.addProperty("activeTaskDescription", activeTask != null ? activeTask.descriptionKey() : "");
         root.addProperty("hasActiveTask", taskScheduler.hasActiveTask());
         root.addProperty("taskDeadlineTick", data.taskDeadlineTick);
         root.addProperty("taskDurationTicks", config.taskDurationSeconds * 20L);
@@ -571,8 +583,10 @@ public final class FourthRoomGameManager {
             cardJson.addProperty("id", cardInstance.cardId());
             cardJson.addProperty("gold", cardInstance.gold());
             cardJson.addProperty("displayName", cardDisplayName(cardInstance.cardId()));
-            cardJson.addProperty("description", definition != null ? cardDescription(definition) : cardInstance.cardId());
-            cardJson.addProperty("requiresTarget", definition != null && cardRequiresTarget(definition, cardInstance.gold()));
+            cardJson.addProperty("description",
+                    definition != null ? cardDescription(definition) : cardInstance.cardId());
+            cardJson.addProperty("requiresTarget",
+                    definition != null && cardRequiresTarget(definition, cardInstance.gold()));
             cardJson.addProperty("skill", definition != null && definition.isSkill());
             hand.add(cardJson);
         }
@@ -752,7 +766,8 @@ public final class FourthRoomGameManager {
             return false;
         }
         endTurn(resolvedTarget);
-        logPlayerRoomAction(playerId, "card", "施放了", cardDisplayName(BasicCard.SKIP), playerName(resolvedTarget), "立即跳过当前玩家回合");
+        logPlayerRoomAction(playerId, "card", "施放了", cardDisplayName(BasicCard.SKIP), playerName(resolvedTarget),
+                "立即跳过当前玩家回合");
         return true;
     }
 
@@ -894,7 +909,8 @@ public final class FourthRoomGameManager {
         return player != null ? player.getScoreboardName() : playerId.toString().substring(0, 8);
     }
 
-    public void logPlayerRoomAction(UUID playerId, String category, String verb, String subject, String targetName, String detail) {
+    public void logPlayerRoomAction(UUID playerId, String category, String verb, String subject, String targetName,
+            String detail) {
         FourthRoomPlayerState state = data.players.get(playerId);
         if (state == null) {
             return;
@@ -902,7 +918,8 @@ public final class FourthRoomGameManager {
         logRoomAction(state.roomId, category, playerName(playerId), verb, subject, targetName, detail);
     }
 
-    public void logRoomAction(int roomId, String category, String actorName, String verb, String subject, String targetName, String detail) {
+    public void logRoomAction(int roomId, String category, String actorName, String verb, String subject,
+            String targetName, String detail) {
         FourthRoomRoomState roomState = data.rooms.get(roomId);
         if (roomState == null) {
             return;
@@ -1037,7 +1054,8 @@ public final class FourthRoomGameManager {
 
     private void processPoisonDeaths() {
         for (FourthRoomPlayerState playerState : new ArrayList<>(data.players.values())) {
-            if (playerState.alive && playerState.pendingPoisonDeathTick > 0L && currentTick() >= playerState.pendingPoisonDeathTick) {
+            if (playerState.alive && playerState.pendingPoisonDeathTick > 0L
+                    && currentTick() >= playerState.pendingPoisonDeathTick) {
                 playerState.pendingPoisonDeathTick = -1L;
                 eliminatePlayer(playerState.playerId, "poison_mushroom");
             }

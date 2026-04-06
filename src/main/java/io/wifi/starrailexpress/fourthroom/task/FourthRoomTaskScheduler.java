@@ -79,7 +79,7 @@ public final class FourthRoomTaskScheduler {
             playerState.taskCompleted = false;
         }
         data.setDirty(true);
-        manager.broadcast("Task started: " + selected.description() + " (" + config.taskDurationSeconds + "s)");
+        manager.broadcast("Task started: " + selected.descriptionKey() + " (" + config.taskDurationSeconds + "s)");
         manager.syncMatchState();
     }
 
@@ -87,7 +87,7 @@ public final class FourthRoomTaskScheduler {
         List<String> descriptions = new ArrayList<>();
         FourthRoomTaskType current = FourthRoomTaskType.byId(data.activeTaskId);
         if (current != null) {
-            descriptions.add(current.description());
+            descriptions.add(current.descriptionKey());
         }
         return descriptions;
     }
