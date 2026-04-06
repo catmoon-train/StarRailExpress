@@ -111,6 +111,27 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
         return player;
     }
 
+    /**
+     * 开始死亡惩罚限制，并且有玩家视角限制。设置durationticks为负数可以让玩家被限制到被观察对象死亡。
+     * </p>
+     * 仅服务端有效。
+     */
+    public void setPenaltyWithCameraLimit(long durationTicks, Entity cameraEntity) {
+        if (!(player instanceof ServerPlayer sp)) {
+            return;
+        }
+        if (durationTicks < 0) {
+            this.penaltyExpiry = -1;
+        } else {
+            this.penaltyExpiry = player.level().getGameTime() + durationTicks;
+        }
+        if (cameraEntity != null) {
+            this.limitCameraUUID = cameraEntity.getUUID();
+            sp.setCamera(cameraEntity);
+        }
+        ModComponents.DEATH_PENALTY.sync(player);
+    }
+
     public void setPenalty(long durationTicks) {
         if (durationTicks < 0) {
             this.penaltyExpiry = -1;

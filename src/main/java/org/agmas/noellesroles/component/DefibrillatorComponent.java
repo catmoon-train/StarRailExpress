@@ -50,12 +50,20 @@ public class DefibrillatorComponent implements RoleComponent, ServerTickingCompo
         this.resurrectionTime = player.level().getGameTime() + resurrectionDelayTicks;
         this.corpseEntityId = corpseId;
         this.deathPos = pos;
-
+        if (player instanceof ServerPlayer sp) {
+            PlayerBodyEntity body = findPlayerBodyEntity(sp);
+            if (body != null) {
+                DeathPenaltyComponent.KEY.get(sp).setPenaltyWithCameraLimit(-1, body);
+            } else {
+                sp.teleportTo(pos.x, pos.y, pos.z);
+                DeathPenaltyComponent.KEY.get(sp).setPenaltyWithCameraLimit(-1, sp);
+            }
+        }
         ModComponents.DEFIBRILLATOR.sync(player);
     }
 
     public static PlayerBodyEntity findPlayerBodyEntity(ServerPlayer serverPlayer) {
-        // 移除尸体
+        // 寻找尸体
         if (serverPlayer.serverLevel() instanceof ServerLevel slevel) {
             var entities = slevel.getAllEntities();
             for (var bentity : entities) {
@@ -141,7 +149,7 @@ public class DefibrillatorComponent implements RoleComponent, ServerTickingCompo
             var bd = findPlayerBodyEntity(serverPlayer);
             if (bd != null)
                 bd.discard();
-            
+
             TrainVoicePlugin.resetPlayer(player.getUUID());
             this.init();
 
@@ -160,10 +168,10 @@ public class DefibrillatorComponent implements RoleComponent, ServerTickingCompo
                 player.displayClientMessage(Component.translatable("message.noellesroles.doctor.about_to_revive",
                         (this.resurrectionTime - this.player.level().getGameTime()) % 20), true);
             }
-            if (player.level().getGameTime() % 30 == 0) {
+            if (player.level().getGameTime() % 20 == 0) {
                 player.addEffect(new MobEffectInstance(
                         ModEffects.MOVE_BANED,
-                        (int) (40), // 持续时间（tick）
+                        (int) (30), // 持续时间（tick）
                         0, // 等级（0 = 速度 I）
                         false, // ambient（环境效果，如信标）
                         true, // showParticles（显示粒子）
@@ -171,7 +179,7 @@ public class DefibrillatorComponent implements RoleComponent, ServerTickingCompo
                 ));
                 player.addEffect(new MobEffectInstance(
                         ModEffects.USED_BANED,
-                        (int) (40), // 持续时间（tick）
+                        (int) (30), // 持续时间（tick）
                         0, // 等级（0 = 速度 I）
                         false, // ambient（环境效果，如信标）
                         true, // showParticles（显示粒子）
