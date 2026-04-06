@@ -592,7 +592,7 @@ public class ModEventsRegister {
             if (victimRole != null && !victimRole.isInnocent()
                     && victimRole.isCanUseKiller()) {
                 if (killer != null && killer != victim && killerRole != null
-                    && victimRole.isCanUseKiller()) {
+                    && !victimRkillerRoleole.isInnocent()&&killerRole.isCanUseKiller()) {
                     {
                         if (victim instanceof ServerPlayer sp) {
                             sp.displayClientMessage(Component.translatable("message.sre.unyielding.immune_killer")
