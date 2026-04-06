@@ -20,7 +20,7 @@ public class ModEntities {
     public static final EntityType<WheelchairEntity> WHEELCHAIR = Registry.register(
             BuiltInRegistries.ENTITY_TYPE,
             Noellesroles.id("wheelchair"),
-            EntityType.Builder.of(WheelchairEntity::new, MobCategory.MISC).sized(1f, 1.1f)
+            EntityType.Builder.of(WheelchairEntity::new, MobCategory.MISC).sized(0.9f, 1.2f)
                     .build("wheelchair"));
 
     public static final EntityType<WheelchairFieldItemEntity> WHEELCHAIR_FIELD_ITEM = Registry.register(
