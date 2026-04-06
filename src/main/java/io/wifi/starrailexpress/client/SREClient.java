@@ -21,6 +21,7 @@ import io.wifi.starrailexpress.client.gui.screen.PlayerStatsScreen;
 import io.wifi.starrailexpress.client.gui.screen.ProgressionPassScreen;
 import io.wifi.starrailexpress.client.gui.screen.SkinManagementScreen;
 import io.wifi.starrailexpress.client.gui.screen.WaypointHUD;
+import io.wifi.starrailexpress.fourthroom.network.FourthRoomStatePayload;
 import io.wifi.starrailexpress.client.model.GeneralModelLoadingPlugin;
 import io.wifi.starrailexpress.client.model.TMMModelLayers;
 import io.wifi.starrailexpress.client.render.block_entity.PlateBlockEntityRenderer;
@@ -446,6 +447,7 @@ public class SREClient implements ClientModInitializer {
         });
 
         SyncMapConfigPayload.registerReceiver();
+        FourthRoomStatePayload.registerReceiver();
         TriggerScreenEdgeEffectPayload.registerReceiver();
         RemoveStatusBarPayload.registerReceiver();
         TriggerStatusBarPayload.registerReceiver();

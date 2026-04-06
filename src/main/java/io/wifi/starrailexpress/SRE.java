@@ -26,6 +26,7 @@ import io.wifi.starrailexpress.event.PlayerInteractionHandler;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.StarRailMurderGameMode;
+import io.wifi.starrailexpress.fourthroom.network.*;
 import io.wifi.starrailexpress.index.*;
 import io.wifi.starrailexpress.network.*;
 import io.wifi.starrailexpress.network.original.*;
@@ -248,6 +249,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
             ProgressionCommand.register(dispatcher);
             ShowSelectedMapUICommand.register(dispatcher);
             NetworkStatsCommand.register(dispatcher);
+            FourthRoomCommand.register(dispatcher);
             ReloadMapConfigCommand.register(dispatcher);
             SkinsCommand.register(dispatcher);
             ManageSkinsCommand.register(dispatcher, registryAccess);
@@ -330,6 +332,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
         PayloadTypeRegistry.playS2C().register(MapVotingResultsPayload.TYPE, MapVotingResultsPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(CloseUiPayload.ID, CloseUiPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(PlayerDeathPayload.ID, PlayerDeathPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(FourthRoomStatePayload.ID, FourthRoomStatePayload.CODEC);
         PayloadTypeRegistry.playS2C().register(OpenSkinScreenPaylod.ID, OpenSkinScreenPaylod.CODEC);
         PayloadTypeRegistry.playS2C().register(OpenProgressionScreenPayload.ID, OpenProgressionScreenPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(io.wifi.starrailexpress.network.OpenRoleUnlockScreenPayload.ID,
@@ -354,6 +357,12 @@ public class SRE extends StarRailExpressID implements ModInitializer {
         PayloadTypeRegistry.playC2S().register(SecurityCameraExitRequestPayload.ID,
                 SecurityCameraExitRequestPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(NunchuckHitPayload.ID, NunchuckHitPayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(CardPlayPayload.ID, CardPlayPayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(BuyFourthRoomItemPayload.ID, BuyFourthRoomItemPayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(RevealIdentityPayload.ID, RevealIdentityPayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(CompleteFourthRoomTaskPayload.ID, CompleteFourthRoomTaskPayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(EndTurnPayload.ID, EndTurnPayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(UseAssassinationItemPayload.ID, UseAssassinationItemPayload.CODEC);
 
         // Chat Dialogue
         PayloadTypeRegistry.playS2C().register(net.exmo.sre.client.chat.OpenChatDialoguePayload.ID,
@@ -397,6 +406,12 @@ public class SRE extends StarRailExpressID implements ModInitializer {
 
         });
         ServerPlayNetworking.registerGlobalReceiver(NunchuckHitPayload.ID, new NunchuckHitPayload.Receiver());
+        ServerPlayNetworking.registerGlobalReceiver(CardPlayPayload.ID, new CardPlayPayload.Receiver());
+        ServerPlayNetworking.registerGlobalReceiver(BuyFourthRoomItemPayload.ID, new BuyFourthRoomItemPayload.Receiver());
+        ServerPlayNetworking.registerGlobalReceiver(RevealIdentityPayload.ID, new RevealIdentityPayload.Receiver());
+        ServerPlayNetworking.registerGlobalReceiver(CompleteFourthRoomTaskPayload.ID, new CompleteFourthRoomTaskPayload.Receiver());
+        ServerPlayNetworking.registerGlobalReceiver(EndTurnPayload.ID, new EndTurnPayload.Receiver());
+        ServerPlayNetworking.registerGlobalReceiver(UseAssassinationItemPayload.ID, new UseAssassinationItemPayload.Receiver());
 
         // Mailbox receivers
         ServerPlayNetworking.registerGlobalReceiver(io.wifi.starrailexpress.mail.MailClaimC2SPayload.ID,

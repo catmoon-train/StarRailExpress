@@ -8,6 +8,7 @@ import io.wifi.starrailexpress.api.GameMode;
 import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.command.argument.GameModeArgumentType;
+import io.wifi.starrailexpress.fourthroom.game.FourthRoomGameManager;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.commands.CommandSourceStack;
@@ -35,23 +36,30 @@ public class StartCommand {
             source.sendFailure(Component.translatable("game.start_error.game_running"));
             return -1;
         }
+                int startMinutes = minutes;
+                if (gameMode == SREGameModes.FOURTH_ROOM) {
+                        int requestedPlayers = minutes >= 0 ? minutes : 8;
+                        FourthRoomGameManager.setRequestedPlayerCount(source.getLevel(), requestedPlayers);
+                        startMinutes = gameMode.defaultStartTime;
+                }
+                final int resolvedStartMinutes = startMinutes;
         if (gameMode == SREGameModes.LOOSE_ENDS) {
             if (!Harpymodloader.isMojangVerify) {
                 source.sendFailure(Component.translatable("game.start_error.game_running"));
                 return 0;
             }
             GameUtils.startGame(source.getLevel(), gameMode,
-                    GameConstants.getInTicks(minutes >= 0 ? minutes : gameMode.defaultStartTime, 0));
+                        GameConstants.getInTicks(resolvedStartMinutes >= 0 ? resolvedStartMinutes : gameMode.defaultStartTime, 0));
             source.sendSuccess(
-                    () -> Component.translatable("commands.sre.start", gameMode.toString(), minutes)
+                        () -> Component.translatable("commands.sre.start", gameMode.toString(), resolvedStartMinutes)
                             .withStyle(style -> style.withColor(0x00FF00)),
                     true);
             return 1;
         } else {
             GameUtils.startGame(source.getLevel(), gameMode,
-                    GameConstants.getInTicks(minutes >= 0 ? minutes : gameMode.defaultStartTime, 0));
+                        GameConstants.getInTicks(resolvedStartMinutes >= 0 ? resolvedStartMinutes : gameMode.defaultStartTime, 0));
             source.sendSuccess(
-                    () -> Component.translatable("commands.sre.start", gameMode.toString(), minutes)
+                        () -> Component.translatable("commands.sre.start", gameMode.toString(), resolvedStartMinutes)
                             .withStyle(style -> style.withColor(0x00FF00)),
                     true);
             return 1;
