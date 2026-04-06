@@ -35,6 +35,8 @@ public class InventoryClearMixin {
         if (i > 0) {
             remaining -= originalCount;
         }
+        if (esc.SLOTS == null)
+            return;
         for (Entry<ResourceLocation, ItemStack> entry : esc.SLOTS.entrySet()) {
             var slot = entry.getKey();
             var stack = entry.getValue();
