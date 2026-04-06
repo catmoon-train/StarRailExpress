@@ -3,6 +3,7 @@ package pro.fazeclan.river.stupid_express.role.amnesiac;
 import org.agmas.noellesroles.role.ModRoles;
 
 import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.entity.PlayerBodyEntity;
@@ -50,6 +51,13 @@ public class RoleSelectionHandler {
             }
             SRERole role = gameWorldComponent.getRole(victim.getPlayerUuid());
             if (role.identifier().equals(ModRoles.MA_CHEN_XU.identifier())) {
+                player.displayClientMessage(
+                        Component.translatable("msg.amnesiac.change_role.failed_not_support")
+                                .withStyle(ChatFormatting.RED),
+                        true);
+                return InteractionResult.PASS;
+            }
+            if (role.identifier().equals(TMMRoles.LOOSE_END.identifier())) {
                 player.displayClientMessage(
                         Component.translatable("msg.amnesiac.change_role.failed_not_support")
                                 .withStyle(ChatFormatting.RED),
