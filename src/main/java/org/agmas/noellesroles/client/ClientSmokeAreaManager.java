@@ -2,6 +2,7 @@ package org.agmas.noellesroles.client;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.world.phys.Vec3;
@@ -87,11 +88,19 @@ public class ClientSmokeAreaManager {
             return false;
         }
 
+        final int DISPLAY_LIMIT = 24;
+
         /**
          * 生成烟雾粒子
          */
         private void spawnSmokeParticles() {
             // 大幅增加粒子数量以获得超浓密的烟雾效果（从25增加到250，10倍）
+            var client = Minecraft.getInstance();
+            if (client.player == null)
+                return;
+            if (center.distanceToSqr(client.player.position()) >= DISPLAY_LIMIT * DISPLAY_LIMIT) {
+                return;
+            }
             for (int i = 0; i < 250; i++) {
                 double offsetX = (world.random.nextDouble() - 0.5) * radius * 2;
                 double offsetY = -1d + world.random.nextDouble() * 4.5; // 增加高度范围
