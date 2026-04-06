@@ -228,6 +228,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
             SetVisualCommand.register(dispatcher);
             ForceTeamCommand.register(dispatcher);
             SetTimerCommand.register(dispatcher);
+            SetDeathPenaltyCommand.register(dispatcher);
             MoneyCommand.register(dispatcher);
             CustomReplayEventCommand.register(dispatcher, registryAccess);
             SetAutoTrainResetCommand.register(dispatcher);

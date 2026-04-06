@@ -71,6 +71,7 @@ import org.agmas.noellesroles.client.event.OnMessageBelowMoneyRenderer;
 import org.agmas.noellesroles.client.hud.CommonClientHudRenderer;
 import org.agmas.noellesroles.client.renderer.VendingMachinesBlockEntityRenderer;
 import org.agmas.noellesroles.client.screen.*;
+import org.agmas.noellesroles.component.DeathPenaltyComponent;
 import org.agmas.noellesroles.component.InsaneKillerPlayerComponent;
 import org.agmas.noellesroles.component.MagicianPlayerComponent;
 import org.agmas.noellesroles.effects.TimeStopEffect;
@@ -153,6 +154,7 @@ public class NoellesrolesClient implements ClientModInitializer {
 
         JEB_SHUFFLED_PLAYER_ENTRIES_CACHE.keySet().removeIf(id -> !activeJebPlayers.contains(id));
     }
+
     /**
      * 1: 食物
      * 2: 水
@@ -214,8 +216,8 @@ public class NoellesrolesClient implements ClientModInitializer {
                 VendingMachinesBlockEntityRenderer::new);
 
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.VENDING_MACHINES_BLOCK, RenderType.translucent());
-        MercenaryContractItem.openGuiRunner = ()->{
-             Minecraft client = Minecraft.getInstance();
+        MercenaryContractItem.openGuiRunner = () -> {
+            Minecraft client = Minecraft.getInstance();
             if (client.player == null)
                 return;
             client.execute(() -> {
@@ -363,7 +365,8 @@ public class NoellesrolesClient implements ClientModInitializer {
                             1.0F,
                             false);
                     // // 处理准星效果
-                    // CrosshairAddons.getStateManager().handleBreakPacket(payload.x(), payload.y(), payload.z());
+                    // CrosshairAddons.getStateManager().handleBreakPacket(payload.x(), payload.y(),
+                    // payload.z());
                 }
             });
         });
@@ -571,126 +574,127 @@ public class NoellesrolesClient implements ClientModInitializer {
         // 注册赌徒 1% 奇迹特效包：服务端发包，客户端本地渲染音效和粒子
         ClientPlayNetworking.registerGlobalReceiver(
                 org.agmas.noellesroles.packet.GamblerMiracleS2CPacket.ID, (payload, context) -> {
-            final var client = context.client();
-            client.execute(() -> {
-                net.minecraft.client.multiplayer.ClientLevel level = client.level;
-                net.minecraft.client.player.LocalPlayer player = client.player;
-                if (level == null || player == null) return;
+                    final var client = context.client();
+                    client.execute(() -> {
+                        net.minecraft.client.multiplayer.ClientLevel level = client.level;
+                        net.minecraft.client.player.LocalPlayer player = client.player;
+                        if (level == null || player == null)
+                            return;
 
-                net.minecraft.world.phys.Vec3 pos = payload.victimPos();
-                net.minecraft.util.RandomSource rng = level.getRandom();
+                        net.minecraft.world.phys.Vec3 pos = payload.victimPos();
+                        net.minecraft.util.RandomSource rng = level.getRandom();
 
-                // 1. 音效（客户端本地播放，不再由服务端逐个发包）
-                level.playLocalSound(pos.x(), pos.y(), pos.z(),
-                        net.minecraft.sounds.SoundEvents.GENERIC_EXPLODE.value(),
-                        SoundSource.PLAYERS, 2.0F, 1.4F, false);
-                level.playLocalSound(pos.x(), pos.y(), pos.z(),
-                        net.minecraft.sounds.SoundEvents.ENDER_DRAGON_DEATH,
-                        SoundSource.PLAYERS, 1.5F, 0.8F, false);
-                level.playLocalSound(pos.x(), pos.y(), pos.z(),
-                        net.minecraft.sounds.SoundEvents.WITHER_DEATH,
-                        SoundSource.PLAYERS, 1.5F, 0.9F, false);
-                level.playLocalSound(pos.x(), pos.y(), pos.z(),
-                        net.minecraft.sounds.SoundEvents.WITHER_SPAWN,
-                        SoundSource.PLAYERS, 1.5F, 0.7F, false);
-                level.playLocalSound(pos.x(), pos.y(), pos.z(),
-                        org.agmas.noellesroles.init.NRSounds.GAMBER_DEATH,
-                        SoundSource.PLAYERS, 1.0F, 0.5F, false);
+                        // 1. 音效（客户端本地播放，不再由服务端逐个发包）
+                        level.playLocalSound(pos.x(), pos.y(), pos.z(),
+                                net.minecraft.sounds.SoundEvents.GENERIC_EXPLODE.value(),
+                                SoundSource.PLAYERS, 2.0F, 1.4F, false);
+                        level.playLocalSound(pos.x(), pos.y(), pos.z(),
+                                net.minecraft.sounds.SoundEvents.ENDER_DRAGON_DEATH,
+                                SoundSource.PLAYERS, 1.5F, 0.8F, false);
+                        level.playLocalSound(pos.x(), pos.y(), pos.z(),
+                                net.minecraft.sounds.SoundEvents.WITHER_DEATH,
+                                SoundSource.PLAYERS, 1.5F, 0.9F, false);
+                        level.playLocalSound(pos.x(), pos.y(), pos.z(),
+                                net.minecraft.sounds.SoundEvents.WITHER_SPAWN,
+                                SoundSource.PLAYERS, 1.5F, 0.7F, false);
+                        level.playLocalSound(pos.x(), pos.y(), pos.z(),
+                                org.agmas.noellesroles.init.NRSounds.GAMBER_DEATH,
+                                SoundSource.PLAYERS, 1.0F, 0.5F, false);
 
-                // 2. 大规模粒子爆发 - 多种粒子混合
-                for (int i = 0; i < 100; i++) {
-                    double ox = (rng.nextDouble() - 0.5) * 20;
-                    double oy = rng.nextDouble() * 15;
-                    double oz = (rng.nextDouble() - 0.5) * 20;
-                    level.addParticle(net.minecraft.core.particles.ParticleTypes.FLAME,
-                            pos.x() + ox, pos.y() + oy, pos.z() + oz, 0.1, 0.1, 0.05);
-                    level.addParticle(net.minecraft.core.particles.ParticleTypes.SOUL_FIRE_FLAME,
-                            pos.x() + ox, pos.y() + oy, pos.z() + oz, 0.1, 0.1, 0.05);
-                    level.addParticle(net.minecraft.core.particles.ParticleTypes.END_ROD,
-                            pos.x() + ox, pos.y() + oy, pos.z() + oz, 0.05, 0.05, 0.03);
-                    if (i % 3 == 0) {
-                        level.addParticle(net.minecraft.core.particles.ParticleTypes.DRAGON_BREATH,
-                                pos.x() + ox, pos.y() + oy, pos.z() + oz, 0.05, 0.05, 0.02);
-                    }
-                    if (i % 2 == 0) {
-                        level.addParticle(net.minecraft.core.particles.ParticleTypes.LARGE_SMOKE,
-                                pos.x() + ox, pos.y() + oy, pos.z() + oz, 0.1, 0.1, 0.08);
-                    }
-                    if (i % 4 == 0) {
-                        level.addParticle(net.minecraft.core.particles.ParticleTypes.LAVA,
-                                pos.x() + ox, pos.y() + oy, pos.z() + oz, 0.05, 0.05, 0.03);
-                    }
-                    if (i % 5 == 0) {
-                        level.addParticle(net.minecraft.core.particles.ParticleTypes.SOUL,
-                                pos.x() + ox, pos.y() + oy, pos.z() + oz, 0.05, 0.05, 0.02);
-                    }
-                    if (i % 6 == 0) {
-                        level.addParticle(net.minecraft.core.particles.ParticleTypes.PORTAL,
-                                pos.x() + ox, pos.y() + oy, pos.z() + oz, 0.05, 0.05, 0.01);
-                    }
-                }
-
-                // 3. 冲击波环状扩散效果（多层）
-                for (int ring = 0; ring < 5; ring++) {
-                    double radius = 3.0 + ring * 3;
-                    int count = 40 + ring * 15;
-                    for (int i = 0; i < count; i++) {
-                        double angle = (2 * Math.PI * i) / count;
-                        double px = pos.x() + Math.cos(angle) * radius;
-                        double pz = pos.z() + Math.sin(angle) * radius;
-                        level.addParticle(net.minecraft.core.particles.ParticleTypes.CLOUD,
-                                px, pos.y() + 0.5, pz, 0, 0.05, 0);
-                        level.addParticle(net.minecraft.core.particles.ParticleTypes.SWEEP_ATTACK,
-                                px, pos.y() + 0.3, pz, 0, 0, 0);
-                        level.addParticle(net.minecraft.core.particles.ParticleTypes.EXPLOSION_EMITTER,
-                                px, pos.y() + 0.1, pz, 0, 0, 0);
-                    }
-                }
-
-                // 4. 彩色光尘螺旋上升效果
-                for (int i = 0; i < 100; i++) {
-                    double angle = (i / 100.0) * Math.PI * 8;
-                    double height = (i / 100.0) * 15;
-                    double r = 0.5 + (i / 100.0) * 5;
-                    double px = pos.x() + Math.cos(angle) * r;
-                    double pz = pos.z() + Math.sin(angle) * r;
-                    level.addParticle(net.minecraft.core.particles.ParticleTypes.GLOW_SQUID_INK,
-                            px, pos.y() + height, pz, 0.05, 0.05, 0.01);
-                    level.addParticle(net.minecraft.core.particles.ParticleTypes.ENCHANT,
-                            px, pos.y() + height, pz, 0.05, 0.05, 0.01);
-                    level.addParticle(net.minecraft.core.particles.ParticleTypes.ENCHANTED_HIT,
-                            px, pos.y() + height, pz, 0.03, 0.03, 0.005);
-                }
-
-                // 5. 地面震动效果（方块粒子）
-                for (int dx = -3; dx <= 3; dx++) {
-                    for (int dz = -3; dz <= 3; dz++) {
-                        if (Math.abs(dx) + Math.abs(dz) <= 4) {
-                            net.minecraft.core.BlockPos bp = net.minecraft.core.BlockPos.containing(
-                                    pos.x() + dx, pos.y() - 1, pos.z() + dz);
-                            net.minecraft.world.level.block.state.BlockState bs = level.getBlockState(bp);
-                            level.addParticle(
-                                    new net.minecraft.core.particles.BlockParticleOption(
-                                            net.minecraft.core.particles.ParticleTypes.BLOCK, bs),
-                                    pos.x() + dx + 0.5, pos.y() - 0.5, pos.z() + dz + 0.5,
-                                    0.1, 0.05, 0.1);
+                        // 2. 大规模粒子爆发 - 多种粒子混合
+                        for (int i = 0; i < 100; i++) {
+                            double ox = (rng.nextDouble() - 0.5) * 20;
+                            double oy = rng.nextDouble() * 15;
+                            double oz = (rng.nextDouble() - 0.5) * 20;
+                            level.addParticle(net.minecraft.core.particles.ParticleTypes.FLAME,
+                                    pos.x() + ox, pos.y() + oy, pos.z() + oz, 0.1, 0.1, 0.05);
+                            level.addParticle(net.minecraft.core.particles.ParticleTypes.SOUL_FIRE_FLAME,
+                                    pos.x() + ox, pos.y() + oy, pos.z() + oz, 0.1, 0.1, 0.05);
+                            level.addParticle(net.minecraft.core.particles.ParticleTypes.END_ROD,
+                                    pos.x() + ox, pos.y() + oy, pos.z() + oz, 0.05, 0.05, 0.03);
+                            if (i % 3 == 0) {
+                                level.addParticle(net.minecraft.core.particles.ParticleTypes.DRAGON_BREATH,
+                                        pos.x() + ox, pos.y() + oy, pos.z() + oz, 0.05, 0.05, 0.02);
+                            }
+                            if (i % 2 == 0) {
+                                level.addParticle(net.minecraft.core.particles.ParticleTypes.LARGE_SMOKE,
+                                        pos.x() + ox, pos.y() + oy, pos.z() + oz, 0.1, 0.1, 0.08);
+                            }
+                            if (i % 4 == 0) {
+                                level.addParticle(net.minecraft.core.particles.ParticleTypes.LAVA,
+                                        pos.x() + ox, pos.y() + oy, pos.z() + oz, 0.05, 0.05, 0.03);
+                            }
+                            if (i % 5 == 0) {
+                                level.addParticle(net.minecraft.core.particles.ParticleTypes.SOUL,
+                                        pos.x() + ox, pos.y() + oy, pos.z() + oz, 0.05, 0.05, 0.02);
+                            }
+                            if (i % 6 == 0) {
+                                level.addParticle(net.minecraft.core.particles.ParticleTypes.PORTAL,
+                                        pos.x() + ox, pos.y() + oy, pos.z() + oz, 0.05, 0.05, 0.01);
+                            }
                         }
-                    }
-                }
 
-                // 6. 向上喷射流
-                for (int i = 0; i < 50; i++) {
-                    double angle = (i / 50.0) * Math.PI * 2;
-                    double r = 1.0 + (i / 50.0) * 2;
-                    double px = pos.x() + Math.cos(angle) * r;
-                    double pz = pos.z() + Math.sin(angle) * r;
-                    for (int h = 0; h < 10; h++) {
-                        level.addParticle(net.minecraft.core.particles.ParticleTypes.CAMPFIRE_COSY_SMOKE,
-                                px, pos.y() + h * 0.8, pz, 0.05, 0.05, 0.01);
-                    }
-                }
-            });
-        });
+                        // 3. 冲击波环状扩散效果（多层）
+                        for (int ring = 0; ring < 5; ring++) {
+                            double radius = 3.0 + ring * 3;
+                            int count = 40 + ring * 15;
+                            for (int i = 0; i < count; i++) {
+                                double angle = (2 * Math.PI * i) / count;
+                                double px = pos.x() + Math.cos(angle) * radius;
+                                double pz = pos.z() + Math.sin(angle) * radius;
+                                level.addParticle(net.minecraft.core.particles.ParticleTypes.CLOUD,
+                                        px, pos.y() + 0.5, pz, 0, 0.05, 0);
+                                level.addParticle(net.minecraft.core.particles.ParticleTypes.SWEEP_ATTACK,
+                                        px, pos.y() + 0.3, pz, 0, 0, 0);
+                                level.addParticle(net.minecraft.core.particles.ParticleTypes.EXPLOSION_EMITTER,
+                                        px, pos.y() + 0.1, pz, 0, 0, 0);
+                            }
+                        }
+
+                        // 4. 彩色光尘螺旋上升效果
+                        for (int i = 0; i < 100; i++) {
+                            double angle = (i / 100.0) * Math.PI * 8;
+                            double height = (i / 100.0) * 15;
+                            double r = 0.5 + (i / 100.0) * 5;
+                            double px = pos.x() + Math.cos(angle) * r;
+                            double pz = pos.z() + Math.sin(angle) * r;
+                            level.addParticle(net.minecraft.core.particles.ParticleTypes.GLOW_SQUID_INK,
+                                    px, pos.y() + height, pz, 0.05, 0.05, 0.01);
+                            level.addParticle(net.minecraft.core.particles.ParticleTypes.ENCHANT,
+                                    px, pos.y() + height, pz, 0.05, 0.05, 0.01);
+                            level.addParticle(net.minecraft.core.particles.ParticleTypes.ENCHANTED_HIT,
+                                    px, pos.y() + height, pz, 0.03, 0.03, 0.005);
+                        }
+
+                        // 5. 地面震动效果（方块粒子）
+                        for (int dx = -3; dx <= 3; dx++) {
+                            for (int dz = -3; dz <= 3; dz++) {
+                                if (Math.abs(dx) + Math.abs(dz) <= 4) {
+                                    net.minecraft.core.BlockPos bp = net.minecraft.core.BlockPos.containing(
+                                            pos.x() + dx, pos.y() - 1, pos.z() + dz);
+                                    net.minecraft.world.level.block.state.BlockState bs = level.getBlockState(bp);
+                                    level.addParticle(
+                                            new net.minecraft.core.particles.BlockParticleOption(
+                                                    net.minecraft.core.particles.ParticleTypes.BLOCK, bs),
+                                            pos.x() + dx + 0.5, pos.y() - 0.5, pos.z() + dz + 0.5,
+                                            0.1, 0.05, 0.1);
+                                }
+                            }
+                        }
+
+                        // 6. 向上喷射流
+                        for (int i = 0; i < 50; i++) {
+                            double angle = (i / 50.0) * Math.PI * 2;
+                            double r = 1.0 + (i / 50.0) * 2;
+                            double px = pos.x() + Math.cos(angle) * r;
+                            double pz = pos.z() + Math.sin(angle) * r;
+                            for (int h = 0; h < 10; h++) {
+                                level.addParticle(net.minecraft.core.particles.ParticleTypes.CAMPFIRE_COSY_SMOKE,
+                                        px, pos.y() + h * 0.8, pz, 0.05, 0.05, 0.01);
+                            }
+                        }
+                    });
+                });
 
         DetectiveListenStepHandler.registerEvents();
         InvisbleHandItem.register();
@@ -884,7 +888,33 @@ public class NoellesrolesClient implements ClientModInitializer {
                     // 非炸弹客始终不可见
                     return 0.0F;
                 });
-        // message.tip.skill_disabled
+        // 当前死亡惩罚
+        OnMessageBelowMoneyRenderer.EVENT.register((minecraft, guiGraphics, deltaTracker) -> {
+            if (SREClient.gameComponent != null && minecraft != null && minecraft.player != null) {
+                if (SREClient.gameComponent.isRunning()) {
+                    if (minecraft.player.isSpectator()) {
+                        DeathPenaltyComponent dpcca = DeathPenaltyComponent.KEY.get(minecraft.player);
+                        if (dpcca.hasPenalty()) {
+                            if (dpcca.penaltyExpiry > 0) {
+                                return new MutableComponentResult(
+                                        Component
+                                                .translatable("message.tip.death_penalty_with_timeout",
+                                                        (dpcca.penaltyExpiry - minecraft.level.getGameTime()) / 20)
+                                                .withStyle(ChatFormatting.YELLOW));
+                            } else {
+                                return new MutableComponentResult(
+                                        Component
+                                                .translatable("message.tip.death_penalty_inf")
+                                                .withStyle(ChatFormatting.YELLOW));
+                            }
+
+                        }
+                    }
+
+                }
+            }
+            return null;
+        });
         OnMessageBelowMoneyRenderer.EVENT.register((minecraft, guiGraphics, deltaTracker) -> {
             if (SREClient.gameComponent != null && minecraft != null && minecraft.player != null) {
                 if (SREClient.gameComponent.isRunning()) {

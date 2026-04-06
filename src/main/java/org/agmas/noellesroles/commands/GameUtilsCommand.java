@@ -52,24 +52,6 @@ public class GameUtilsCommand {
         (dispatcher, registryAccess, environment) -> {
           dispatcher.register(Commands.literal("tmm:game").requires(source -> source.hasPermission(2))
               .requires((t) -> Harpymodloader.isMojangVerify)
-              .then(Commands.literal("gametime").executes((context) -> {
-                var source = context.getSource();
-                try {
-                  var gameTimeComponent = SREGameTimeComponent.KEY.get(source.getLevel());
-                  int leftTime = gameTimeComponent.getTime();
-                  float leftTimeSeconds = leftTime / 20;
-                  float leftTimeMinutes = leftTimeSeconds / 60;
-                  float leftTimeSeconds2 = leftTimeSeconds % 60;
-                  source.sendSuccess(() -> Component.translatable("Left Time: %s",
-                      String.format("%02.0f:%02.0f", leftTimeMinutes, leftTimeSeconds2))
-                      .withStyle(ChatFormatting.GREEN),
-                      false);
-                } catch (Exception e) {
-                  e.printStackTrace();
-                  source.sendFailure(Component.literal("Error: ").append(e.getMessage()).withStyle(ChatFormatting.RED));
-                }
-                return 1;
-              }))
               .then(Commands.literal("tests")
                   .then(Commands.literal("math").executes((context) -> {
                     ServerPlayNetworking.send(context.getSource().getPlayerOrException(),

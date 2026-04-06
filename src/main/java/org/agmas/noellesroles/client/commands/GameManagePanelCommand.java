@@ -11,19 +11,24 @@ public class GameManagePanelCommand {
     public static void register() {
         ClientCommandRegistrationCallback.EVENT.register(
                 (dispatcher, registryAccess) -> {
-                    dispatcher.register(ClientCommandManager.literal("tmm:gameManagePanel")
-                            .executes(context -> {
-                                if (context.getSource().getPlayer().hasPermissions(2)) {
-                                    ClientScheduler.schedule(() -> {
-                                        context.getSource().getClient().setScreen(new GameManagementScreen());
-                                    }, 1);
-                                } else {
-                                    context.getSource()
-                                            .sendError(Component.literal("You do not have permission to do that!")
-                                                    .withStyle(ChatFormatting.RED));
-                                }
-                                return 1;
-                            }));
+                    dispatcher.register(ClientCommandManager.literal("sre:client")
+                            .then(ClientCommandManager.literal("screen")
+                                    .then(ClientCommandManager.literal("GameManagePanel")
+                                            .executes(context -> {
+                                                if (context.getSource().getPlayer().hasPermissions(2)) {
+                                                    ClientScheduler.schedule(() -> {
+                                                        context.getSource().getClient()
+                                                                .setScreen(new GameManagementScreen());
+                                                    }, 1);
+                                                } else {
+                                                    context.getSource()
+                                                            .sendError(
+                                                                    Component.literal(
+                                                                            "You do not have permission to do that!")
+                                                                            .withStyle(ChatFormatting.RED));
+                                                }
+                                                return 1;
+                                            }))));
                 });
     }
 }

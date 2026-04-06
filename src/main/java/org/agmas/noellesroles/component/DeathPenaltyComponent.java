@@ -26,10 +26,18 @@ import java.util.UUID;
 
 public class DeathPenaltyComponent implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
     private final Player player;
+    
+    // 客户端+服务端
     public long penaltyExpiry = 0;
+
+    // 仅服务端
     public UUID limitCameraUUID = null;
-    public boolean chatEnabled = false;
+
+    // 客户端+服务端
     public Vec3 limitPos = null;
+
+    // 客户端
+    public boolean chatEnabled = false;
 
     public static ComponentKey<DeathPenaltyComponent> KEY = ModComponents.DEATH_PENALTY;
 
@@ -125,7 +133,7 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
      * </p>
      * 仅服务端有效。
      */
-    public void setPenaltyWithPosition(long durationTicks, Vec3 pos) {
+    public void setPenaltyWithPositionLimit(long durationTicks, Vec3 pos) {
         if (!(player instanceof ServerPlayer sp)) {
             return;
         }

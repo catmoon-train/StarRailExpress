@@ -16,7 +16,7 @@ public class GamblerMiracleCommand {
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
             dispatcher.register(Commands.literal("tmm:game")
                     .requires(source -> source.hasPermission(2))
-                    .then(Commands.literal("test")
+                    .then(Commands.literal("tests")
                             .then(Commands.literal("gambler_miracle")
                                     .executes(GamblerMiracleCommand::executeSelf)
                                     .then(Commands.argument("player", EntityArgument.player())

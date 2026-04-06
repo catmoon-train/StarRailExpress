@@ -119,6 +119,9 @@ public class NoellesrolesVoiceChatPlugin implements VoicechatPlugin {
       if (deathPenalty.limitCameraUUID != null) {
         return true;
       }
+      if (deathPenalty.limitPos != null) {
+        return true;
+      }
     }
     return false;
   }
