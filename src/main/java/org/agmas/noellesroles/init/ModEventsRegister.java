@@ -273,7 +273,7 @@ public class ModEventsRegister {
         SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(victim.level());
         DeathPenaltyComponent deathPenaltyComponent = ModComponents.DEATH_PENALTY.get(victim);
         if (deathPenaltyComponent.hasPenalty()
-                && (deathPenaltyComponent.limitCameraUUID != null || deathPenaltyComponent.posLimit != null)) {
+                && (deathPenaltyComponent.limitCameraUUID != null || deathPenaltyComponent.limitPos != null)) {
             // 已经在别的地方处理过了不给死亡限制。
             return;
         }
@@ -307,7 +307,7 @@ public class ModEventsRegister {
         if (looseEndAlive) {
             ServerPlayer refugeePlayer = null;
             deathPenaltyComponent.limitCameraUUID = null;
-            deathPenaltyComponent.posLimit = null;
+            deathPenaltyComponent.limitPos = null;
             if (victim instanceof ServerPlayer sp) {
                 for (var p : sp.getServer().getPlayerList().getPlayers()) {
                     if (GameUtils.isPlayerAliveAndSurvival(p)) {

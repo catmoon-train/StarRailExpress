@@ -29,7 +29,7 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
     public long penaltyExpiry = 0;
     public UUID limitCameraUUID = null;
     public boolean chatEnabled = false;
-    public Vec3 posLimit = null;
+    public Vec3 limitPos = null;
 
     public static ComponentKey<DeathPenaltyComponent> KEY = ModComponents.DEATH_PENALTY;
 
@@ -47,6 +47,9 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
             }
             if (this.penaltyExpiry < 0) {
                 SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
+                if (limitPos != null) {
+                    return;
+                }
                 if (limitCameraUUID != null) {
                     Level level = this.player.level();
                     if (level instanceof ServerLevel serverLevel) {
@@ -132,7 +135,7 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
             this.penaltyExpiry = player.level().getGameTime() + durationTicks;
         }
         if (pos != null) {
-            this.posLimit = pos;
+            this.limitPos = pos;
             sp.teleportTo(pos.x, pos.y, pos.z);
         }
         ModComponents.DEATH_PENALTY.sync(player);
@@ -191,7 +194,7 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
                 }
             }
         }
-        this.posLimit = null;
+        this.limitPos = null;
         this.limitCameraUUID = null;
         if (this.player.hasEffect(ModEffects.MOVE_BANED)) {
             this.player.removeEffect(ModEffects.MOVE_BANED);
@@ -216,7 +219,7 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
             this.chatEnabled = true;
         }
         if (tag.contains("pos", CompoundTag.TAG_COMPOUND)) {
-            this.posLimit = SRENBTUtils.tagToVec3(tag.getCompound("pos"));
+            this.limitPos = SRENBTUtils.tagToVec3(tag.getCompound("pos"));
         }
     }
 
@@ -226,8 +229,8 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
         if (this.limitCameraUUID != null) {
             tag.putBoolean("chatEnabled", false);
         }
-        if (posLimit != null) {
-            tag.put("pos", SRENBTUtils.vec3ToTag(posLimit));
+        if (limitPos != null) {
+            tag.put("pos", SRENBTUtils.vec3ToTag(limitPos));
         }
     }
 
@@ -256,10 +259,10 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
                             sp.setCamera(null);
                         }
                     }
-                } else if (posLimit != null) {
+                } else if (limitPos != null) {
                     if (!player.hasEffect(ModEffects.MOVE_BANED) || player.level().getGameTime() % 30 == 0) {
-                        if (player.distanceToSqr(posLimit) >= 2) {
-                            player.teleportTo(posLimit.x, posLimit.y, posLimit.z);
+                        if (player.distanceToSqr(limitPos) >= 2) {
+                            player.teleportTo(limitPos.x, limitPos.y, limitPos.z);
                         }
                         player.addEffect(new MobEffectInstance(
                                 ModEffects.MOVE_BANED,
