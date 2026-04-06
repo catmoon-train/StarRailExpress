@@ -17,8 +17,7 @@ import net.minecraft.world.entity.player.Player;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.component.*;
 import org.agmas.noellesroles.init.ModEffects;
-import org.agmas.noellesroles.init.ModItems;
-import org.agmas.noellesroles.item.SignaturePaperItem;
+import org.agmas.noellesroles.item.SignedPaperItem;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.RedHouseRoles;
 import org.agmas.noellesroles.roles.candlebearer.CandleBearerPlayerComponent;
@@ -88,7 +87,7 @@ public class InstinctRenderer {
                 return -1;
             if (!(target instanceof Player targetPlayer))
                 return -1;
-            var itemStack = MCItemsUtils.getFirstMatchedItem(self, (it) -> it.getItem() instanceof SignaturePaperItem);
+            var itemStack = MCItemsUtils.getFirstMatchedItem(self, (it) -> it.getItem() instanceof SignedPaperItem);
             if (itemStack != null) {
                 String owner = itemStack.getOrDefault(SREDataComponentTypes.OWNER, "NULL");
                 if (targetPlayer.getScoreboardName().equals(owner)) {
