@@ -61,6 +61,7 @@ public class StupidEventRegister {
                         || role.identifier()
                                 .equals(ResourceLocation.fromNamespaceAndPath("noellesroles", "water_ghost"))
                         || role.identifier().equals(ResourceLocation.fromNamespaceAndPath("noellesroles", "poisoner"))
+                    || role.identifier().equals(ResourceLocation.fromNamespaceAndPath("noellesroles", "magician"))
                         || role.identifier().getPath().equals("dio")
                         || role.identifier().equals(ResourceLocation.fromNamespaceAndPath("noellesroles", "doctor"))
                         || role.identifier()
@@ -147,6 +148,8 @@ public class StupidEventRegister {
                             return true;
                         if (role.isNeutrals())
                             return true;
+                        if (role.identifier().equals(ResourceLocation.fromNamespaceAndPath("noellesroles", "magician")))
+                            return true;
                         if (role.identifier().equals(ResourceLocation.fromNamespaceAndPath("noellesroles", "doctor")))
                             return true;
                         if (role.identifier()
@@ -188,6 +191,8 @@ public class StupidEventRegister {
                         if (!gameWorldComponent.isKillerTeamRole(role))
                             return true;
                         if (role.isNeutrals())
+                            return true;
+                        if (role.identifier().equals(ResourceLocation.fromNamespaceAndPath("noellesroles", "magician")))
                             return true;
                         if (role.identifier().equals(ResourceLocation.fromNamespaceAndPath("noellesroles", "poisoner")))
                             return true;
