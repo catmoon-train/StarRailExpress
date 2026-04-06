@@ -51,7 +51,7 @@ public class DefibrillatorComponent implements RoleComponent, ServerTickingCompo
         this.corpseEntityId = corpseId;
         this.deathPos = pos;
         if (player instanceof ServerPlayer sp) {
-            DeathPenaltyComponent.KEY.get(sp).setPenaltyWithPositionLimit(-1, pos);
+            DeathPenaltyComponent.KEY.get(sp).setPenaltyWithPositionLimit(-1, pos, true);
         }
         ModComponents.DEFIBRILLATOR.sync(player);
     }

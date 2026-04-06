@@ -321,10 +321,7 @@ public class ModEventsRegister {
             if (refugeePlayer != null)
                 deathPenaltyComponent.limitCameraUUID = refugeePlayer.getUUID();
             if (deathPenaltyComponent.limitCameraUUID != null) {
-                if (victim instanceof ServerPlayer sp) {
-                    sp.setCamera(refugeePlayer);
-                }
-                deathPenaltyComponent.setPenalty(-1);
+                deathPenaltyComponent.setPenalty(-1, true);
                 victim.sendSystemMessage(
                         Component.translatable("message.noellesroles.penalty.limit.loose_end")
                                 .withStyle(ChatFormatting.RED));
@@ -340,7 +337,7 @@ public class ModEventsRegister {
             }
 
         } else if (limitView) {
-            deathPenaltyComponent.setPenalty(-1);
+            deathPenaltyComponent.setPenalty(-1, true);
             victim.sendSystemMessage(
                     Component.translatable("message.noellesroles.penalty.limit.god_job_couple")
                             .withStyle(ChatFormatting.RED));
@@ -354,7 +351,7 @@ public class ModEventsRegister {
                         .withStyle(ChatFormatting.YELLOW));
             }
         } else if (doctorAlive) {
-            deathPenaltyComponent.setPenalty(45 * 20);
+            deathPenaltyComponent.setPenalty(45 * 20, true);
             victim.displayClientMessage(
                     Component.translatable("message.noellesroles.doctor.penalty").withStyle(ChatFormatting.RED), true);
 

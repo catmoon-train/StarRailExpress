@@ -26,12 +26,13 @@ import java.util.UUID;
 
 public class DeathPenaltyComponent implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
     private final Player player;
-    
+
     // 客户端+服务端
     public long penaltyExpiry = 0;
 
     // 仅服务端
     public UUID limitCameraUUID = null;
+    public boolean morePenalty = true;
 
     // 客户端+服务端
     public Vec3 limitPos = null;
@@ -55,23 +56,26 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
             }
             if (this.penaltyExpiry < 0) {
                 SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
-                if (limitPos != null) {
-                    return;
-                }
-                if (limitCameraUUID != null) {
-                    Level level = this.player.level();
-                    if (level instanceof ServerLevel serverLevel) {
-                        Entity cameraEntity = serverLevel.getEntity(limitCameraUUID);
-                        if (cameraEntity != null && cameraEntity.isAlive() && !(cameraEntity instanceof ServerPlayer)) {
-                            return;
-                        }
-                        if (cameraEntity instanceof ServerPlayer cameraPlayer
-                                && GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(cameraPlayer)) {
-                            return;
+                if (this.penaltyExpiry != -2) {
+                    if (limitPos != null) {
+                        return;
+                    }
+                    if (limitCameraUUID != null) {
+                        Level level = this.player.level();
+                        if (level instanceof ServerLevel serverLevel) {
+                            Entity cameraEntity = serverLevel.getEntity(limitCameraUUID);
+                            if (cameraEntity != null && cameraEntity.isAlive()
+                                    && !(cameraEntity instanceof ServerPlayer)) {
+                                return;
+                            }
+                            if (cameraEntity instanceof ServerPlayer cameraPlayer
+                                    && GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(cameraPlayer)) {
+                                return;
+                            }
                         }
                     }
-
                 }
+
                 // boolean INSANE_alive = false;
                 boolean CONSPIRATOR_alive = false;
                 for (Player p : player.level().players()) {
@@ -133,7 +137,7 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
      * </p>
      * 仅服务端有效。
      */
-    public void setPenaltyWithPositionLimit(long durationTicks, Vec3 pos) {
+    public void setPenaltyWithPositionLimit(long durationTicks, Vec3 pos, boolean morePenalty) {
         if (!(player instanceof ServerPlayer sp)) {
             return;
         }
@@ -146,6 +150,7 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
             this.limitPos = pos;
             sp.teleportTo(pos.x, pos.y, pos.z);
         }
+        this.morePenalty = morePenalty;
         ModComponents.DEATH_PENALTY.sync(player);
     }
 
@@ -154,7 +159,7 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
      * </p>
      * 仅服务端有效。
      */
-    public void setPenaltyWithCameraLimit(long durationTicks, Entity cameraEntity) {
+    public void setPenaltyWithCameraLimit(long durationTicks, Entity cameraEntity, boolean morePenalty) {
         if (!(player instanceof ServerPlayer sp)) {
             return;
         }
@@ -167,16 +172,18 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
             this.limitCameraUUID = cameraEntity.getUUID();
             sp.setCamera(cameraEntity);
         }
+        this.morePenalty = morePenalty;
         ModComponents.DEATH_PENALTY.sync(player);
     }
 
-    public void setPenalty(long durationTicks) {
+    public void setPenalty(long durationTicks, boolean morePenalty) {
         if (durationTicks < 0) {
             this.penaltyExpiry = -1;
             ModComponents.DEATH_PENALTY.sync(player);
             return;
         }
         this.penaltyExpiry = player.level().getGameTime() + durationTicks;
+        this.morePenalty = morePenalty;
         ModComponents.DEATH_PENALTY.sync(player);
     }
 
@@ -186,7 +193,7 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
         if (this.penaltyExpiry < 0) {
             return true;
         }
-        if (player.level().getGameTime() >= this.penaltyExpiry) {
+        if (player.level().getGameTime() >= this.penaltyExpiry && morePenalty) {
             this.penaltyExpiry = -2;
         }
         return true;
@@ -280,7 +287,7 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
                                 0, // 等级（0 = 速度 I）
                                 false, // ambient（环境效果，如信标）
                                 true, // showParticles（显示粒子）
-                                true // showIcon（显示图标）
+                                false // showIcon（显示图标）
                         ));
                         player.addEffect(new MobEffectInstance(
                                 ModEffects.USED_BANED,
@@ -288,7 +295,7 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
                                 0, // 等级（0 = 速度 I）
                                 false, // ambient（环境效果，如信标）
                                 true, // showParticles（显示粒子）
-                                true // showIcon（显示图标）
+                                false // showIcon（显示图标）
                         ));
                     }
 
