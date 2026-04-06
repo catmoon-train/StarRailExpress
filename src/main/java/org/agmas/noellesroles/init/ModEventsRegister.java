@@ -130,8 +130,7 @@ public class ModEventsRegister {
 
         // 模仿者拳击手无敌检测
         if (gameWorld.isRole(victim, ModRoles.IMITATOR)) {
-            org.agmas.noellesroles.roles.imitator.ImitatorPlayerComponent imitComp =
-                    ModComponents.IMITATOR.get(victim);
+            org.agmas.noellesroles.roles.imitator.ImitatorPlayerComponent imitComp = ModComponents.IMITATOR.get(victim);
             if (imitComp.isImitatorInvulnerable()) {
                 // 播放反弹音效
                 victim.level().playSound(null, victim.blockPosition(),
@@ -181,7 +180,6 @@ public class ModEventsRegister {
         // 无敌状态下阻止任何死亡
         return true;
     }
-
 
     /**
      * 处理跟踪者免疫
@@ -578,24 +576,26 @@ public class ModEventsRegister {
                 return true;
 
             var worldModifiers = WorldModifierComponent.KEY.get(victim.level());
-            if (worldModifiers == null) return true;
+            if (worldModifiers == null)
+                return true;
 
-            if (!worldModifiers.isModifier(victim.getUUID(), pro.fazeclan.river.stupid_express.constants.SEModifiers.UNYIELDING)) {
+            if (!worldModifiers.isModifier(victim.getUUID(),
+                    pro.fazeclan.river.stupid_express.constants.SEModifiers.UNYIELDING)) {
                 return true;
             }
 
             SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(victim.level());
             var victimRole = gameWorld.getRole(victim);
             var killerRole = killer != null ? gameWorld.getRole(killer) : null;
-            
+
             // 若受害者为杀手阵营，且攻击者也为杀手阵营，则免疫此杀戮（要求双方均为非中立）
-            if (victimRole != null && !victimRole.isInnocent() && io.wifi.starrailexpress.cca.SREGameWorldComponent.isKillerTeamRoleStatic(victimRole)) {
-                if (killer != null && killer != victim && killerRole != null && io.wifi.starrailexpress.cca.SREGameWorldComponent.isKillerTeamRoleStatic(killerRole)
-                        && !victimRole.isNeutrals() && !killerRole.isNeutrals()) {
-                    // 若该职业通过 setNeutralForKiller 标记为对杀手中立，则不触发不屈的“杀手间免疫”效果
-                    if (victimRole.isNeutralForKiller()) {
-                        // skip unyielding killer-team immunity for neutral-for-killer roles
-                    } else {
+            if (victimRole != null && !victimRole.isInnocent()
+                    && io.wifi.starrailexpress.cca.SREGameWorldComponent.isKillerTeamRoleStatic(victimRole)
+                    && !victimRole.isNeutrals()) {
+                if (killer != null && killer != victim && killerRole != null
+                        && io.wifi.starrailexpress.cca.SREGameWorldComponent.isKillerTeamRoleStatic(killerRole)
+                        && !killerRole.isNeutrals()) {
+                    {
                         if (victim instanceof ServerPlayer sp) {
                             sp.displayClientMessage(Component.translatable("message.sre.unyielding.immune_killer")
                                     .withStyle(ChatFormatting.RED), true);
@@ -606,12 +606,16 @@ public class ModEventsRegister {
             }
 
             // 若受害者与击杀者均为平民（无杀手能力），则消耗一次免疫并阻止死亡
-            if (victimRole != null && victimRole.isInnocent() && killer != null && killer != victim && killerRole != null && killerRole.isInnocent()) {
-                if (!pro.fazeclan.river.stupid_express.constants.SEModifiers.UNYIELDING_IMMUNITY_USED.contains(victim.getUUID())) {
-                    pro.fazeclan.river.stupid_express.constants.SEModifiers.UNYIELDING_IMMUNITY_USED.add(victim.getUUID());
+            if (victimRole != null && victimRole.isInnocent() && killer != null && killer != victim
+                    && killerRole != null && killerRole.isInnocent()) {
+                if (!pro.fazeclan.river.stupid_express.constants.SEModifiers.UNYIELDING_IMMUNITY_USED
+                        .contains(victim.getUUID())) {
+                    pro.fazeclan.river.stupid_express.constants.SEModifiers.UNYIELDING_IMMUNITY_USED
+                            .add(victim.getUUID());
                     // 播放提示音并向玩家发送提示（只对受害玩家播放）
                     if (victim instanceof ServerPlayer sp) {
-                        sp.serverLevel().playSound(sp, sp.blockPosition(), SoundEvents.SHIELD_BLOCK, SoundSource.MASTER, 1.0F, 1.0F);
+                        sp.serverLevel().playSound(sp, sp.blockPosition(), SoundEvents.SHIELD_BLOCK, SoundSource.MASTER,
+                                1.0F, 1.0F);
                         sp.displayClientMessage(Component.translatable("message.sre.unyielding.immune_civilian")
                                 .withStyle(ChatFormatting.GREEN), true);
                     }
@@ -646,19 +650,23 @@ public class ModEventsRegister {
                 return true;
 
             var worldModifiers = WorldModifierComponent.KEY.get(victim.level());
-            if (worldModifiers == null) return true;
+            if (worldModifiers == null)
+                return true;
 
-            if (!worldModifiers.isModifier(victim.getUUID(), pro.fazeclan.river.stupid_express.constants.SEModifiers.UNYIELDING)) {
+            if (!worldModifiers.isModifier(victim.getUUID(),
+                    pro.fazeclan.river.stupid_express.constants.SEModifiers.UNYIELDING)) {
                 return true;
             }
 
             SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(victim.level());
             var victimRole = gameWorld.getRole(victim);
             var killerRole = killer != null ? gameWorld.getRole(killer) : null;
-            
+
             // 若受害者为杀手阵营，且攻击者也为杀手阵营，则免疫此杀戮（要求双方均为非中立）
-            if (victimRole != null && io.wifi.starrailexpress.cca.SREGameWorldComponent.isKillerTeamRoleStatic(victimRole)) {
-                if (killer != null && killer != victim && killerRole != null && io.wifi.starrailexpress.cca.SREGameWorldComponent.isKillerTeamRoleStatic(killerRole)
+            if (victimRole != null
+                    && io.wifi.starrailexpress.cca.SREGameWorldComponent.isKillerTeamRoleStatic(victimRole)) {
+                if (killer != null && killer != victim && killerRole != null
+                        && io.wifi.starrailexpress.cca.SREGameWorldComponent.isKillerTeamRoleStatic(killerRole)
                         && !victimRole.isNeutrals() && !killerRole.isNeutrals()) {
                     // 若该职业通过 setNeutralForKiller 标记为对杀手中立，则不触发不屈的“杀手间免疫”效果
                     if (victimRole.isNeutralForKiller()) {
@@ -674,11 +682,15 @@ public class ModEventsRegister {
             }
 
             // 若受害者与击杀者均为平民（无杀手能力），则消耗一次免疫并阻止死亡
-            if (victimRole != null && victimRole.isInnocent() && killer != null && killer != victim && killerRole != null && killerRole.isInnocent()) {
-                if (!pro.fazeclan.river.stupid_express.constants.SEModifiers.UNYIELDING_IMMUNITY_USED.contains(victim.getUUID())) {
-                    pro.fazeclan.river.stupid_express.constants.SEModifiers.UNYIELDING_IMMUNITY_USED.add(victim.getUUID());
+            if (victimRole != null && victimRole.isInnocent() && killer != null && killer != victim
+                    && killerRole != null && killerRole.isInnocent()) {
+                if (!pro.fazeclan.river.stupid_express.constants.SEModifiers.UNYIELDING_IMMUNITY_USED
+                        .contains(victim.getUUID())) {
+                    pro.fazeclan.river.stupid_express.constants.SEModifiers.UNYIELDING_IMMUNITY_USED
+                            .add(victim.getUUID());
                     // 播放提示音并向玩家发送提示
-                    victim.level().playSound(null, victim.blockPosition(), SoundEvents.SHIELD_BLOCK, SoundSource.MASTER, 1.0F, 1.0F);
+                    victim.level().playSound(null, victim.blockPosition(), SoundEvents.SHIELD_BLOCK, SoundSource.MASTER,
+                            1.0F, 1.0F);
                     if (victim instanceof ServerPlayer sp) {
                         sp.displayClientMessage(Component.translatable("message.sre.unyielding.immune_civilian")
                                 .withStyle(ChatFormatting.GREEN), true);
@@ -1177,7 +1189,7 @@ public class ModEventsRegister {
                     mercenary.setForcedTarget(killer);
                     victim.displayClientMessage(
                             Component.translatable("message.noellesroles.mercenary.new_forced_target",
-                                            killer.getName())
+                                    killer.getName())
                                     .withStyle(ChatFormatting.RED),
                             true);
                 }
@@ -1528,8 +1540,8 @@ public class ModEventsRegister {
             // onPlayerDeath(victim, deathReason);
             return true; // 允许死亡
         });
-        AfterShieldAllowPlayerDeath.EVENT.register((victim,deathReason)->{
-            
+        AfterShieldAllowPlayerDeath.EVENT.register((victim, deathReason) -> {
+
             // 检查傀儡师假人状态
             if (handlePuppeteerDeath(victim, deathReason)) {
                 return false; // 阻止死亡（假人死亡）
