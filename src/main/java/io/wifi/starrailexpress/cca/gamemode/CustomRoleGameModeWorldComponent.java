@@ -37,7 +37,7 @@ public class CustomRoleGameModeWorldComponent implements AutoSyncedComponent {
     HashMap<String, SRERole> pathToRole = new HashMap<>();
 
     // 职业阵营 / 职业
-    private final HashMap<SRERole, Integer> available_roles = new HashMap<>();
+    private final ArrayList<SRERole> available_roles = new ArrayList<>();
 
     public CustomRoleGameModeWorldComponent(Level world) {
         this.world = world;
@@ -56,7 +56,7 @@ public class CustomRoleGameModeWorldComponent implements AutoSyncedComponent {
         KEY.sync(this.world);
     }
 
-    public HashMap<SRERole, Integer> getRoles() {
+    public ArrayList<SRERole> getRoles() {
         return this.available_roles;
     }
 
@@ -64,10 +64,9 @@ public class CustomRoleGameModeWorldComponent implements AutoSyncedComponent {
         if (available_roles == null) {
             return Collections.emptyList();
         }
-        return available_roles.entrySet().stream()
-                .filter(entry -> entry.getValue() != null && entry.getValue() == type)
-                .map(Map.Entry::getKey)
+        return available_roles.stream()
                 .filter(Objects::nonNull) // 过滤掉 key 为 null 的项
+                .filter(r -> PlayerRoleWeightManager.getRoleType(r) == type)
                 .collect(Collectors.toList());
     }
 
@@ -113,7 +112,7 @@ public class CustomRoleGameModeWorldComponent implements AutoSyncedComponent {
                 String rolePath = str.getAsString();
                 SRERole role = getRoleFromPath(rolePath);
                 if (role != null) {
-                    this.available_roles.putIfAbsent(role, PlayerRoleWeightManager.getRoleType(role));
+                    this.available_roles.add(role);
                 }
             }
         }
@@ -127,7 +126,7 @@ public class CustomRoleGameModeWorldComponent implements AutoSyncedComponent {
         if (this.available_roles.isEmpty())
             return;
         var roleInfoCompund = new ListTag();
-        for (SRERole info : available_roles.keySet()) {
+        for (SRERole info : available_roles) {
             String roleId = info.identifier().getPath();
             roleInfoCompund.add(StringTag.valueOf(roleId));
         }
@@ -162,7 +161,7 @@ public class CustomRoleGameModeWorldComponent implements AutoSyncedComponent {
         var crgmtpcca = CustomRoleGameModeTeamsPlayerComponent.KEY.get(player);
         SRERole role = RoleUtils.getRole(roleId);
         if (crgmtpcca.getTeam() == PlayerRoleWeightManager.getRoleType(role)
-                && this.available_roles.containsKey(role)) {
+                && this.available_roles.contains(role)) {
             player.displayClientMessage(Component
                     .translatable("gui.noellesroles.gambler.selected", RoleUtils.getRoleOrModifierNameWithColor(role))
                     .withStyle(ChatFormatting.GOLD), true);
@@ -192,7 +191,7 @@ public class CustomRoleGameModeWorldComponent implements AutoSyncedComponent {
         for (var roleInstance : expandedRoles) {
             SRERole role = roleInstance.role();
             if (role != null)
-                this.available_roles.put(role, PlayerRoleWeightManager.getRoleType(role));
+                this.available_roles.add(role);
         }
     }
 }
