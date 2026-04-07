@@ -114,7 +114,7 @@ public final class FourthRoomPeekDeckScreen extends Screen {
         graphics.fill(left + 8, top + 8, left + CARD_WIDTH - 8, top + 24, 0xFFEAD8B4);
         graphics.drawCenteredString(font, Component.literal(fit(card.displayName(), CARD_WIDTH - 18)), 0, top + 12,
                 0xFF221B14);
-        graphics.drawString(font, card.skill() ? "技能牌" : "牌堆顶", left + 10, top + 34, 0xFF705F4A, false);
+        graphics.drawString(font, Component.translatable(card.skill() ? "screen.fourth_room.peek_deck_skill" : "screen.fourth_room.peek_deck_top"), left + 10, top + 34, 0xFF705F4A, false);
         List<FormattedCharSequence> lines = font.split(Component.literal(card.description()), CARD_WIDTH - 18);
         int textY = top + 52;
         for (int index = 0; index < Math.min(6, lines.size()); index++) {

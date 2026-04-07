@@ -986,6 +986,8 @@
   "screen.fourth_room.peek_deck_stack": "牌堆",
   "screen.fourth_room.peek_deck_count": "剩餘 %s 張",
   "screen.fourth_room.peek_deck_empty": "當前沒有可查看的窺視結果",
+  "screen.fourth_room.peek_deck_skill": "技能牌",
+  "screen.fourth_room.peek_deck_top": "牌堆頂",
   "screen.fourth_room.peek_deck_open": "點擊或按 V 展開查看窺視牌堆",
   "screen.fourth_room.peek_results": "窺視結果",
   "screen.fourth_room.select_target_player": "選擇目標玩家",
