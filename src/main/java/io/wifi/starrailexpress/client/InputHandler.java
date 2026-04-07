@@ -6,6 +6,7 @@ import io.wifi.starrailexpress.client.fourthroom.FourthRoomClientState;
 import io.wifi.starrailexpress.client.gui.ScopeOverlayRenderer;
 import io.wifi.starrailexpress.client.gui.screen.MapSelectorScreen;
 import io.wifi.starrailexpress.client.gui.screen.ingame.FourthRoomBattleScreen;
+import io.wifi.starrailexpress.client.gui.screen.ingame.FourthRoomPeekDeckScreen;
 import io.wifi.starrailexpress.index.TMMItems;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
@@ -18,6 +19,7 @@ import org.lwjgl.glfw.GLFW;
 public class InputHandler {
     private static KeyMapping openVotingScreenKeybind;
     private static KeyMapping openFourthRoomScreenKeybind;
+    private static KeyMapping openFourthRoomPeekScreenKeybind;
 
     public static void initialize() {
         openVotingScreenKeybind = KeyBindingHelper.registerKeyBinding(new KeyMapping(
@@ -29,12 +31,21 @@ public class InputHandler {
                 "key.starrailexpress.open_fourth_room_screen",
                 GLFW.GLFW_KEY_H,
                 "category.starrailexpress.general"));
+        openFourthRoomPeekScreenKeybind = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+                "key.starrailexpress.open_fourth_room_peek_screen",
+                GLFW.GLFW_KEY_V,
+                "category.starrailexpress.general"));
 
         ClientTickEvents.END_CLIENT_TICK.register(InputHandler::onClientTick);
     }
 
     public static KeyMapping getOpenVotingScreenKeybind() {
         return openVotingScreenKeybind;
+    }
+
+    private static boolean canOpenFourthRoomTableUi(Minecraft client) {
+        var lookedTable = FourthRoomCameraDirector.getLookedTable(client);
+        return lookedTable != null && lookedTable.linkedRoomId() == FourthRoomClientState.snapshot().viewer().roomId();
     }
 
     private static void onClientTick(Minecraft client) {
@@ -61,17 +72,41 @@ public class InputHandler {
         }
 
         if (openFourthRoomScreenKeybind.consumeClick()) {
+            if (client.screen instanceof FourthRoomPeekDeckScreen peekScreen) {
+                peekScreen.onClose();
+                return;
+            }
             if (client.screen instanceof FourthRoomBattleScreen) {
                 client.setScreen(null);
                 return;
             }
             if (FourthRoomClientState.snapshot().active()) {
-                var lookedTable = FourthRoomCameraDirector.getLookedTable(client);
-                if (lookedTable != null && lookedTable.linkedRoomId() == FourthRoomClientState.snapshot().viewer().roomId()) {
+                if (canOpenFourthRoomTableUi(client)) {
                     client.setScreen(new FourthRoomBattleScreen());
                 } else if (client.player != null) {
                     client.player.displayClientMessage(Component.literal("请先看向自己房间的牌桌"), true);
                 }
+            }
+        }
+
+        if (openFourthRoomPeekScreenKeybind.consumeClick()) {
+            if (client.screen instanceof FourthRoomPeekDeckScreen peekScreen) {
+                peekScreen.onClose();
+                return;
+            }
+            if (!FourthRoomClientState.snapshot().active()) {
+                return;
+            }
+            if (FourthRoomClientState.snapshot().viewer().peekCards().isEmpty()) {
+                if (client.player != null) {
+                    client.player.displayClientMessage(Component.literal("当前没有可查看的窥视牌堆"), true);
+                }
+                return;
+            }
+            if (canOpenFourthRoomTableUi(client) || client.screen instanceof FourthRoomBattleScreen) {
+                client.setScreen(new FourthRoomPeekDeckScreen(client.screen));
+            } else if (client.player != null) {
+                client.player.displayClientMessage(Component.literal("请先看向自己房间的牌桌"), true);
             }
         }
     }

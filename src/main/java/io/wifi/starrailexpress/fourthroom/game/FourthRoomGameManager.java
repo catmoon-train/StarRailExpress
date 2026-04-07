@@ -722,8 +722,11 @@ public final class FourthRoomGameManager {
         JsonArray peek = new JsonArray();
         for (String cardId : state.peekCache) {
             JsonObject peekJson = new JsonObject();
+            Card definition = CardRegistry.byId(cardId);
             peekJson.addProperty("id", cardId);
             peekJson.addProperty("displayName", cardDisplayName(cardId));
+            peekJson.addProperty("description", definition != null ? cardDescription(definition) : cardId);
+            peekJson.addProperty("skill", definition != null && definition.isSkill());
             peek.add(peekJson);
         }
         viewerJson.add("peekCache", peek);

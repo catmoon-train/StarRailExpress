@@ -560,27 +560,28 @@ public final class FourthRoomBattleScreen extends Screen {
             return;
         }
 
-        int cardScale = 70;
-        int scaledWidth = Math.round(CARD_WIDTH * (cardScale / 100.0F));
-        int scaledHeight = Math.round(CARD_HEIGHT * (cardScale / 100.0F));
-        int spacing = 18;
-        int count = peekCards.size();
-        int totalWidth = count * scaledWidth + Math.max(0, count - 1) * spacing;
-        int panelWidth = totalWidth + 40;
-        int panelHeight = scaledHeight + 64;
-        int panelX = (width - panelWidth) / 2;
-        int panelY = Math.max(86, (height - panelHeight) / 2 - 12);
-
+        int panelWidth = 232;
+        int panelHeight = 68;
+        int panelX = width / 2 - panelWidth / 2;
+        int panelY = height - 250;
         drawRoundedPanel(graphics, panelX, panelY, panelWidth, panelHeight, 0xD81A1D26, 0x88CDBA83);
-        graphics.drawCenteredString(font, Component.translatable("screen.fourth_room.peek_results").getString(), width / 2, panelY + 12, 0xFFF3DCA0);
-
-        int startX = (width - totalWidth) / 2 + scaledWidth / 2;
-        int bottomY = panelY + panelHeight - 18;
-        for (int i = 0; i < peekCards.size(); i++) {
-            FourthRoomClientSnapshot.PeekCard card = peekCards.get(i);
-            int centerX = startX + i * (scaledWidth + spacing);
-            drawPeekCard(graphics, card, centerX, bottomY, mouseX, mouseY);
+        graphics.drawString(font, Component.translatable("screen.fourth_room.peek_results"), panelX + 14, panelY + 10,
+                0xFFF3DCA0, false);
+        graphics.drawString(font,
+                fit(Component.translatable("screen.fourth_room.peek_deck_subtitle", peekCards.size(),
+                        snapshot.viewer().drawPileSize()).getString(), panelWidth - 28),
+                panelX + 14, panelY + 24, 0xFFD2D9E2, false);
+        graphics.drawString(font, fit(Component.translatable("screen.fourth_room.peek_deck_open").getString(), panelWidth - 28),
+                panelX + 14, panelY + 38, 0xFFBFC7D1, false);
+        int previewX = panelX + panelWidth - 64;
+        for (int index = 0; index < Math.min(3, peekCards.size()); index++) {
+            graphics.fill(previewX + index * 6, panelY + 16 - index * 2, previewX + 28 + index * 6,
+                    panelY + 52 - index * 2, 0xFFF1E6D1);
+            graphics.renderOutline(previewX + index * 6, panelY + 16 - index * 2, 28, 36, 0xFF9A7947);
         }
+        registerHitRegion(panelX, panelY, panelWidth, panelHeight, true,
+                List.of(Component.translatable("screen.fourth_room.peek_deck_open")),
+                () -> minecraft.setScreen(new FourthRoomPeekDeckScreen(this)));
     }
 
     private void renderBanners(GuiGraphics graphics) {

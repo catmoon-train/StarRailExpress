@@ -182,7 +182,11 @@ public record FourthRoomClientSnapshot(
                 continue;
             }
             JsonObject object = element.getAsJsonObject();
-            result.add(new PeekCard(getString(object, "id"), getString(object, "displayName", getString(object, "id"))));
+            result.add(new PeekCard(
+                    getString(object, "id"),
+                    getString(object, "displayName", getString(object, "id")),
+                    getString(object, "description"),
+                    getBoolean(object, "skill", false)));
         }
         return List.copyOf(result);
     }
@@ -347,7 +351,11 @@ public record FourthRoomClientSnapshot(
             boolean skill) {
     }
 
-    public record PeekCard(String id, String displayName) {
+    public record PeekCard(
+            String id,
+            String displayName,
+            String description,
+            boolean skill) {
     }
 
     public record ShopItemView(
