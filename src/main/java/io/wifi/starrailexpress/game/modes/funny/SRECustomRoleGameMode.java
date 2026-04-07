@@ -64,7 +64,7 @@ public class SRECustomRoleGameMode extends SREMurderGameMode {
             
             player.addEffect(new MobEffectInstance(
                     ModEffects.SKILL_BANED,
-                    20,
+                    40,
                     10,
                     true, // ambient - 环境效果（粒子更少更透明）
                     false, // showParticles - 不显示粒子

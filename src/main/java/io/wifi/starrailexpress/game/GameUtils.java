@@ -391,22 +391,24 @@ public class GameUtils {
             cooldowns.addCooldown(HSRItems.TOXIN, time);
             cooldowns.addCooldown(HSRItems.ANTIDOTE, time);
             cooldowns.addCooldown(TMMItems.SNIPER_RIFLE, time);
-            player.addEffect(new MobEffectInstance(
-                    ModEffects.NO_COLLIDE,
-                    (int) (time), // 持续时间 30s（tick）
-                    0, // 等级（0 = 速度 I）
-                    true, // ambient（环境效果，如信标）
-                    false, // showParticles（显示粒子）
-                    false // showIcon（显示图标）
-            ));
-            player.addEffect(new MobEffectInstance(
-                    ModEffects.SKILL_BANED,
-                    (int) (time), // 持续时间 30s（tick）
-                    0, // 等级（0 = 速度 I）
-                    true, // ambient（环境效果，如信标）
-                    false, // showParticles（显示粒子）
-                    false // showIcon（显示图标）
-            ));
+            if (!player.hasEffect(ModEffects.NO_COLLIDE))
+                player.addEffect(new MobEffectInstance(
+                        ModEffects.NO_COLLIDE,
+                        (int) (time), // 持续时间 30s（tick）
+                        0, // 等级（0 = 速度 I）
+                        true, // ambient（环境效果，如信标）
+                        false, // showParticles（显示粒子）
+                        false // showIcon（显示图标）
+                ));
+            if (!player.hasEffect(ModEffects.SKILL_BANED))
+                player.addEffect(new MobEffectInstance(
+                        ModEffects.SKILL_BANED,
+                        (int) (time), // 持续时间 30s（tick）
+                        0, // 等级（0 = 速度 I）
+                        true, // ambient（环境效果，如信标）
+                        false, // showParticles（显示粒子）
+                        false // showIcon（显示图标）
+                ));
         }
     }
 
