@@ -78,7 +78,6 @@ public class CustomRoleSelectScreen extends Screen {
             SRERole role = TMMRoles.ROLES.get(roleId);
             if (role != null) {
                 availableRoles.add(role);
-                break;
             }
         }
     }
@@ -653,7 +652,6 @@ public class CustomRoleSelectScreen extends Screen {
             SRERole role = TMMRoles.ROLES.get(roleId);
             if (role != null) {
                 availableRoles.add(role);
-                break;
             }
         }
         refreshRoleSelection();

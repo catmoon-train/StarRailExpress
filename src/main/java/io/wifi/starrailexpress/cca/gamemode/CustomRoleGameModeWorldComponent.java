@@ -1,10 +1,8 @@
 package io.wifi.starrailexpress.cca.gamemode;
 
 import io.wifi.starrailexpress.SRE;
-import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
-import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.gui.screen.gamemode.custom_role.CustomRoleUpdateHandler;
 import io.wifi.starrailexpress.game.utils.RoleInstance;
 import net.fabricmc.api.EnvType;
@@ -75,10 +73,7 @@ public class CustomRoleGameModeWorldComponent implements AutoSyncedComponent {
 
     @Override
     public boolean shouldSyncWith(ServerPlayer sp) {
-        SREGameWorldComponent gpcca = SREGameWorldComponent.KEY.get(sp.level());
-        if (gpcca.isRunning() && gpcca.getGameMode() == SREGameModes.CUSTOM_SELECTED_MODE)
-            return true;
-        return false;
+        return true;
     }
 
     public void reloadPathToRole() {
@@ -110,6 +105,7 @@ public class CustomRoleGameModeWorldComponent implements AutoSyncedComponent {
         // this.lockedToSupporters = nbtCompound.getBoolean("LockedToSupporters");
         // this.enableWeights = nbtCompound.getBoolean("EnableWeights");
         this.available_roles.clear();
+
         if (nbtCompound.contains("roles", CompoundTag.TAG_LIST)) {
             ListTag roleInfoCompund = nbtCompound.getList("roles", CompoundTag.TAG_STRING);
             for (var info : roleInfoCompund) {
@@ -171,6 +167,7 @@ public class CustomRoleGameModeWorldComponent implements AutoSyncedComponent {
                     .translatable("gui.noellesroles.gambler.selected", RoleUtils.getRoleOrModifierNameWithColor(role))
                     .withStyle(ChatFormatting.RED), true);
             RoleUtils.changeRole(player, role);
+            RoleUtils.sendWelcomeAnnouncement(player);
             this.available_roles.remove(role);
         } else {
             player.displayClientMessage(Component
@@ -184,6 +181,7 @@ public class CustomRoleGameModeWorldComponent implements AutoSyncedComponent {
         ArrayList<ResourceLocation> roles = crgmtpcca.getAvailableRoles();
         if (roles.isEmpty()) {
             RoleUtils.changeRole(player, TMMRoles.CIVILIAN);
+            RoleUtils.sendWelcomeAnnouncement(player);
             return;
         } else {
             playerSelectedRole(player, roles.getFirst());

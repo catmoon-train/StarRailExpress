@@ -1,6 +1,5 @@
 package org.agmas.noellesroles.client;
 
-import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.api.SpecialGameModeRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -20,7 +19,6 @@ public class ClientAbilityHandler {
         if (gameWorldComponent.isRunning() && gameWorldComponent.getGameMode().equals(SREGameModes.CUSTOM_SELECTED_MODE)
                 && gameWorldComponent.isRole(client.player, SpecialGameModeRoles.CUSTOM_PENDING)) {
             client.execute(() -> {
-                SRE.LOGGER.info("OPPEN SEL");
                 client.setScreen(new CustomRoleSelectScreen(client.player));
             });
             return;
