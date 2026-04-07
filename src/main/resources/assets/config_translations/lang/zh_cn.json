@@ -101,7 +101,16 @@
   "text.autoconfig.starrailexpress.option.mysqlSyncUseSsl": "mysql 使用SSL",
   "text.autoconfig.starrailexpress.option.mysqlSyncPoolSize": "mysql 连接池大小",
   "text.autoconfig.starrailexpress.option.mysqlSyncConnectTimeoutMs": "mysql 连接超时时长",
+  "====== 游戏模式 ======":"",
+  "text.autoconfig.starrailexpress.option.enableNoLimitLoversInLoverMode":"在恋人模式中不限制单个人的恋人数量（允许多重链子存在）",
+  "text.autoconfig.starrailexpress.option.loverModeLoversPercent":"在恋人模式中，恋人词条占总玩家数数量百分比。（最大为1）",
+  "text.autoconfig.starrailexpress.option.refugeeModeRefugeePercent":"在难民模式中，难民词条占总玩家数数量。（最大为1）",
+  "text.autoconfig.starrailexpress.option.gamblerModeGamblerPercent":"在赌徒模式中，赌徒词条占总玩家数数量。（最大为1）",
+  "text.autoconfig.starrailexpress.option.gamblerModeGamblerKillTime":"在赌徒模式中，未变身的赌徒的死亡时间。（单位：秒）",
+  "text.autoconfig.starrailexpress.option.customRoleModeForceSelectTime":"在自选职业模式中，玩家最多选择职业的时长。（单位：秒）",
+  "====== 分类 ======":"",
   "text.autoconfig.starrailexpress.category.sync": "同步",
+  "text.autoconfig.starrailexpress.category.gamemodes": "游戏模式",
   "text.autoconfig.starrailexpress.category.presents": "预设",
   "text.autoconfig.starrailexpress.category.stats": "统计数据",
   "text.autoconfig.starrailexpress.category.progression": "通行证任务",
@@ -111,6 +120,7 @@
   "text.autoconfig.starrailexpress.category.afk": "挂机判定",
   "text.autoconfig.starrailexpress.category.skin": "物品皮肤",
   "text.autoconfig.starrailexpress.category.map": "地图设置",
+  "====== 其余 ======":"",
   "text.autoconfig.starrailexpress.option.blackoutCooldown": "停电冷却",
   "text.autoconfig.starrailexpress.option.blackoutMaxDuration": "停电最大时长",
   "text.autoconfig.starrailexpress.option.blackoutRandomRange": "停电浮动范围",
@@ -219,5 +229,6 @@
   "text.autoconfig.stupid_express.option.rolesSection.amnesiacSection.amnesiacGlowsDifferently": "杀手眼中失忆患者不同的颜色高亮",
   "text.autoconfig.stupid_express.option.modifiersSection": "修饰符选项（服务端）",
   "text.autoconfig.stupid_express.option.modifiersSection.loversSection": "恋人选项",
-  "text.autoconfig.stupid_express.option.modifiersSection.loversSection.loversKnowImmediately": "恋人能够知道彼此"
+  "text.autoconfig.stupid_express.option.modifiersSection.loversSection.loversKnowImmediately": "恋人能够知道彼此",
+  "text.autoconfig.stupid_express.option.modifiersSection.loversSection.canLoverHaveMultipleLovers": "允许恋人词条重复绑定"
 }

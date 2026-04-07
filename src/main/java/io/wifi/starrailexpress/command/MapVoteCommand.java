@@ -1,7 +1,11 @@
 package io.wifi.starrailexpress.command;
 
+import java.util.stream.Collectors;
+
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
+
+import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.command.argument.GameModeArgumentType;
 import io.wifi.starrailexpress.data.ServerMapConfig;
@@ -12,6 +16,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 
 public class MapVoteCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
@@ -118,27 +123,21 @@ public class MapVoteCommand {
 
         // 验证游戏模式是否存在
         if (!votingManager.isValidGameMode(gameMode)) {
-            String availableModes = "murder, loose_ends"; // 这里可以动态获取所有可用模式
+            String availableModes = SREGameModes.GAME_MODES.keySet().stream().map(ResourceLocation::getPath)
+                    .collect(Collectors.joining(", "));
             source.sendFailure(Component.translatable("command.sre.votemap.setmode.invalid", gameMode, availableModes));
             return 0;
         }
 
         votingManager.setPresetGameMode(gameMode);
-        String localizedModeName = getLocalizedGameModeName(gameMode);
+        Component localizedModeName = getLocalizedGameModeName(gameMode);
         source.sendSuccess(() -> Component.translatable("command.sre.votemap.setmode.success", localizedModeName),
                 true);
         return 1;
     }
 
-    private static String getLocalizedGameModeName(String gameModeId) {
+    public static Component getLocalizedGameModeName(String gameModeId) {
         // 根据游戏模式ID返回本地化的名称
-        switch (gameModeId) {
-            case "murder":
-                return Component.translatable("gamemode.sre.murder").getString();
-            case "loose_ends":
-                return Component.translatable("gamemode.wathe.loose_ends").getString();
-            default:
-                return gameModeId; // 如果没有找到翻译，返回原始ID
-        }
+        return Component.translatableWithFallback("hud.sre.tip.gamemode." + gameModeId, gameModeId);
     }
 }

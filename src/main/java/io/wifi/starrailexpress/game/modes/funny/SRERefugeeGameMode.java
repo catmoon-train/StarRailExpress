@@ -1,0 +1,45 @@
+package io.wifi.starrailexpress.game.modes.funny;
+
+import io.wifi.starrailexpress.SREConfig;
+import io.wifi.starrailexpress.cca.*;
+import io.wifi.starrailexpress.game.modes.SREMurderGameMode;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import pro.fazeclan.river.stupid_express.constants.SEModifiers;
+
+import java.util.*;
+
+import org.agmas.harpymodloader.component.WorldModifierComponent;
+import org.agmas.harpymodloader.events.ModifierAssigned;
+
+public class SRERefugeeGameMode extends SREMurderGameMode {
+    public SRERefugeeGameMode(ResourceLocation identifier) {
+        super(identifier);
+    }
+
+    @Override
+    public void initializeGame(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent,
+            List<ServerPlayer> players) {
+        super.initializeGame(serverWorld, gameWorldComponent, players);
+        int refugeeCount = Math.round((float) players.size() * SREConfig.instance().refugeeModeRefugeePercent);
+        int t = 0;
+        List<ServerPlayer> unassignedPlayers = new ArrayList<>(players);
+        WorldModifierComponent wmcca = WorldModifierComponent.KEY.get(serverWorld);
+        for (ServerPlayer p : unassignedPlayers) {
+            if (wmcca.isModifier(p, SEModifiers.REFUGEE)) {
+                refugeeCount--;
+            }
+        }
+        unassignedPlayers.removeIf((p) -> wmcca.isModifier(p, SEModifiers.REFUGEE));
+        Collections.shuffle(unassignedPlayers);
+        for (ServerPlayer p : unassignedPlayers) {
+            if (t >= refugeeCount)
+                break;
+            wmcca.addModifier(p.getUUID(), SEModifiers.REFUGEE, false);
+            ModifierAssigned.EVENT.invoker().assignModifier(p, SEModifiers.REFUGEE);
+            t++;
+        }
+        wmcca.sync();
+    }
+}

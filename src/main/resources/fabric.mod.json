@@ -146,6 +146,7 @@
       "starrailexpress:extra_slots",
       "starrailexpress:game",
       "starrailexpress:roles",
+      "starrailexpress:custom_roles",
       "starrailexpress:areas",
       "starrailexpress:role",
       "starrailexpress:mood",

@@ -1,5 +1,6 @@
 package io.wifi.starrailexpress.cca;
 
+import io.wifi.starrailexpress.cca.gamemode.SRECustomRoleWorldComponent;
 import io.wifi.starrailexpress.mail.MailboxComponent;
 import net.exmo.sre.nametag.NameTagInventoryComponent;
 import net.minecraft.world.entity.player.Player;
@@ -17,6 +18,7 @@ public class SREComponents
     @Override
     public void registerWorldComponentFactories(@NotNull WorldComponentFactoryRegistry registry) {
         registry.register(SRETrainWorldComponent.KEY, SRETrainWorldComponent::new);
+        registry.register(SRECustomRoleWorldComponent.KEY, SRECustomRoleWorldComponent::new);
         registry.register(SREGameWorldComponent.KEY, SREGameWorldComponent::new);
         registry.register(SRERoleWorldComponent.KEY, SRERoleWorldComponent::new);
         registry.register(AreasWorldComponent.KEY, AreasWorldComponent::new);

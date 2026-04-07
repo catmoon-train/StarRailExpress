@@ -1,6 +1,5 @@
 package org.agmas.noellesroles;
 
-import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import net.fabricmc.api.ModInitializer;
@@ -13,7 +12,6 @@ import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.noellesroles.blood.BloodMain;
 import org.agmas.noellesroles.commands.*;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
-import org.agmas.noellesroles.game.ChairWheelRaceGame;
 import org.agmas.noellesroles.init.*;
 import org.agmas.noellesroles.modifier.NRModifiers;
 import org.agmas.noellesroles.presets.Preset;
@@ -218,7 +216,6 @@ public class Noellesroles implements ModInitializer {
         // 注册方块
         ModBlocks.initialize();
 
-        SREGameModes.registerGameMode(ChairWheelRaceGame.identifier, new ChairWheelRaceGame());
 
         // 注册血液粒子工厂
         Registry.register(BuiltInRegistries.PARTICLE_TYPE, Noellesroles.id("deathblood"),

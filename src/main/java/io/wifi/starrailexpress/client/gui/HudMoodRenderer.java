@@ -56,7 +56,7 @@ public class HudMoodRenderer {
             DeltaTracker tickCounter) {
         SREGameWorldComponent gameWorldComponent = SREClient.gameComponent;
         if (gameWorldComponent == null || !gameWorldComponent.isRunning() || !SREClient.isPlayerAliveAndInSurvival()
-                || gameWorldComponent.getGameMode() != SREGameModes.MURDER)
+                || !gameWorldComponent.getGameMode().hasMood())
             return;
         
         // 因为renderHud只在每tick执行一次，使用固定delta值（1.0f）代替partialTick

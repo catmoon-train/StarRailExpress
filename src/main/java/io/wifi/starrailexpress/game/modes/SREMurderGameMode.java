@@ -89,7 +89,7 @@ public class SREMurderGameMode extends GameMode {
         assignRole(serverWorld, gameWorldComponent, players);
     }
 
-    private void assignRole(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent,
+    private static void assignRole(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent,
             List<ServerPlayer> players) {
         // 新的模块化角色分配流程
         Map<Player, SRERole> roleAssignments = assignRolesToPlayers(serverWorld, players);
@@ -181,7 +181,7 @@ public class SREMurderGameMode extends GameMode {
         }
     }
 
-    public void assignModifiers(int desiredModifierCount, ServerLevel serverWorld,
+    public static void assignModifiers(int desiredModifierCount, ServerLevel serverWorld,
             SREGameWorldComponent gameWorldComponent,
             List<ServerPlayer> players) {
         WorldModifierComponent worldModifierComponent = WorldModifierComponent.KEY.get(serverWorld);
@@ -307,7 +307,64 @@ public class SREMurderGameMode extends GameMode {
      * 新的模块化角色分配方法
      * 处理强制角色、计算各类型角色数量、创建角色池、分配角色以及处理关联角色
      */
-    private Map<Player, SRERole> assignRolesToPlayers(ServerLevel serverWorld, List<ServerPlayer> players) {
+    public static List<RoleInstant> getAllRoles(int killerCount, int vigilanteCount, int neutralsCount, int playerSize,
+            int forcedRoleSize) {
+        // 第二步：创建角色池并分配角色
+        // 杀手池
+        RoleAssignmentPool killerPool = RoleAssignmentPool.create("Killer",
+                role -> !Harpymodloader.VANNILA_ROLES.contains(role) &&
+                        role.canUseKiller() &&
+                        !role.isInnocent() &&
+                        role != TMMRoles.CIVILIAN);
+
+        List<SRERole> assignedKillers = killerPool.selectRoles(killerCount);
+
+        // 警卫池 - 使用无限重复模式，因为警卫职业数量有限
+        RoleAssignmentPool vigilantePool = RoleAssignmentPool.create("Vigilante", SRERole::isVigilanteTeam);
+        List<SRERole> assignedVigilantes = vigilantePool.selectRoles(vigilanteCount);
+
+        // 中立池
+        RoleAssignmentPool neutralsPool = RoleAssignmentPool.create("Neutrals",
+                role -> (!Harpymodloader.VANNILA_ROLES.contains(role) &&
+                        ((!role.canUseKiller() &&
+                                !role.isInnocent()) || role.isNeutrals())
+                        &&
+                        role != TMMRoles.CIVILIAN));
+        List<SRERole> assignedNatures = neutralsPool.selectRoles(neutralsCount);
+
+        // 第三步：计算平民数量（只分配基础非平民角色，不包含补充的平民角色）
+        int assignedSpecialCount = assignedKillers.size() + assignedVigilantes.size() + assignedNatures.size();
+        int civilianCount = playerSize - assignedSpecialCount - forcedRoleSize;
+
+        // 平民池（只包含真正的"平民"角色，例如医生等）
+        RoleAssignmentPool civilianPool = RoleAssignmentPool.create("Civilian",
+                role -> !Harpymodloader.VANNILA_ROLES.contains(role) &&
+                        !role.isVigilanteTeam() &&
+                        !role.canUseKiller() &&
+                        !role.isNeutrals() &&
+                        role.isInnocent() &&
+                        role != TMMRoles.CIVILIAN);
+        civilianPool.setIgnoreRoleOccupiedCount(true);
+        List<SRERole> assignedCivilians = civilianPool.selectRoles(civilianCount);
+
+        // 第四步：合并所有分配的角色（包括处理关联角色）
+        List<SRERole> allRoles = new ArrayList<>();
+        allRoles.addAll(assignedKillers);
+        allRoles.addAll(assignedVigilantes);
+        allRoles.addAll(assignedNatures);
+        allRoles.addAll(assignedCivilians);
+
+        // 展开关联角色
+        List<RoleInstant> roleInstantList = new ArrayList<>();
+
+        for (SRERole role : allRoles) {
+            roleInstantList.add(new RoleInstant(UUID.randomUUID(), role));
+        }
+        List<RoleInstant> expandedRoles = RoleAssignmentManager.expandWithCompanionRoles(roleInstantList);
+        return expandedRoles;
+    }
+
+    private static Map<Player, SRERole> assignRolesToPlayers(ServerLevel serverWorld, List<ServerPlayer> players) {
         Map<Player, SRERole> roleAssignments = new HashMap<>();
         for (Player player : players) {
             roleAssignments.put(player, null);
@@ -344,54 +401,65 @@ public class SREMurderGameMode extends GameMode {
         vigilanteCount = Math.max(0, vigilanteCount);
         neutralsCount = Math.max(0, neutralsCount);
 
-        // 第二步：创建角色池并分配角色
-        // 杀手池
-        RoleAssignmentPool killerPool = RoleAssignmentPool.create("Killer",
-                role -> !Harpymodloader.VANNILA_ROLES.contains(role) &&
-                        role.canUseKiller() &&
-                        !role.isInnocent() &&
-                        role != TMMRoles.CIVILIAN);
+        // // 第二步：创建角色池并分配角色
+        // // 杀手池
+        // RoleAssignmentPool killerPool = RoleAssignmentPool.create("Killer",
+        // role -> !Harpymodloader.VANNILA_ROLES.contains(role) &&
+        // role.canUseKiller() &&
+        // !role.isInnocent() &&
+        // role != TMMRoles.CIVILIAN);
 
-        List<SRERole> assignedKillers = killerPool.selectRoles(killerCount);
+        // List<SRERole> assignedKillers = killerPool.selectRoles(killerCount);
 
-        // 警卫池 - 使用无限重复模式，因为警卫职业数量有限
-        RoleAssignmentPool vigilantePool = RoleAssignmentPool.create("Vigilante", SRERole::isVigilanteTeam);
-        List<SRERole> assignedVigilantes = vigilantePool.selectRoles(vigilanteCount);
+        // // 警卫池 - 使用无限重复模式，因为警卫职业数量有限
+        // RoleAssignmentPool vigilantePool = RoleAssignmentPool.create("Vigilante",
+        // SRERole::isVigilanteTeam);
+        // List<SRERole> assignedVigilantes = vigilantePool.selectRoles(vigilanteCount);
 
-        // 中立池
-        RoleAssignmentPool neutralsPool = RoleAssignmentPool.create("Neutrals",
-                role -> (!Harpymodloader.VANNILA_ROLES.contains(role) &&
-                        ((!role.canUseKiller() &&
-                                !role.isInnocent()) || role.isNeutrals())
-                        &&
-                        role != TMMRoles.CIVILIAN));
-        List<SRERole> assignedNatures = neutralsPool.selectRoles(neutralsCount);
+        // // 中立池
+        // RoleAssignmentPool neutralsPool = RoleAssignmentPool.create("Neutrals",
+        // role -> (!Harpymodloader.VANNILA_ROLES.contains(role) &&
+        // ((!role.canUseKiller() &&
+        // !role.isInnocent()) || role.isNeutrals())
+        // &&
+        // role != TMMRoles.CIVILIAN));
+        // List<SRERole> assignedNatures = neutralsPool.selectRoles(neutralsCount);
 
-        // 第三步：计算平民数量（只分配基础非平民角色，不包含补充的平民角色）
-        int assignedSpecialCount = assignedKillers.size() + assignedVigilantes.size() + assignedNatures.size();
-        int civilianCount = players.size() - assignedSpecialCount - forcedRoles.size();
+        // // 第三步：计算平民数量（只分配基础非平民角色，不包含补充的平民角色）
+        // int assignedSpecialCount = assignedKillers.size() + assignedVigilantes.size()
+        // + assignedNatures.size();
+        // int civilianCount = players.size() - assignedSpecialCount -
+        // forcedRoles.size();
 
-        // 平民池（只包含真正的"平民"角色，例如医生等）
-        RoleAssignmentPool civilianPool = RoleAssignmentPool.create("Civilian",
-                role -> !Harpymodloader.VANNILA_ROLES.contains(role) &&
-                        !role.isVigilanteTeam() &&
-                        !role.canUseKiller() &&
-                        !role.isNeutrals() &&
-                        role.isInnocent() &&
-                        role != TMMRoles.CIVILIAN);
-        civilianPool.setIgnoreRoleOccupiedCount(true);
-        List<SRERole> assignedCivilians = civilianPool.selectRoles(civilianCount);
+        // // 平民池（只包含真正的"平民"角色，例如医生等）
+        // RoleAssignmentPool civilianPool = RoleAssignmentPool.create("Civilian",
+        // role -> !Harpymodloader.VANNILA_ROLES.contains(role) &&
+        // !role.isVigilanteTeam() &&
+        // !role.canUseKiller() &&
+        // !role.isNeutrals() &&
+        // role.isInnocent() &&
+        // role != TMMRoles.CIVILIAN);
+        // civilianPool.setIgnoreRoleOccupiedCount(true);
+        // List<SRERole> assignedCivilians = civilianPool.selectRoles(civilianCount);
 
-        // 第四步：合并所有分配的角色（包括处理关联角色）
-        List<SRERole> allRoles = new ArrayList<>();
-        allRoles.addAll(assignedKillers);
-        allRoles.addAll(assignedVigilantes);
-        allRoles.addAll(assignedNatures);
-        allRoles.addAll(assignedCivilians);
+        // // 第四步：合并所有分配的角色（包括处理关联角色）
+        // List<SRERole> allRoles = new ArrayList<>();
+        // allRoles.addAll(assignedKillers);
+        // allRoles.addAll(assignedVigilantes);
+        // allRoles.addAll(assignedNatures);
+        // allRoles.addAll(assignedCivilians);
 
-        // 展开关联角色
-        List<RoleInstant> roleInstantList = new ArrayList<>();
+        // // 展开关联角色
+        // List<RoleInstant> roleInstantList = new ArrayList<>();
 
+        // for (SRERole role : allRoles) {
+        // roleInstantList.add(new RoleInstant(UUID.randomUUID(), role));
+        // }
+        // List<RoleInstant> expandedRoles =
+        // RoleAssignmentManager.expandWithCompanionRoles(roleInstantList);
+        List<RoleInstant> expandedRoles = getAllRoles(killerCount, vigilanteCount, neutralsCount, players.size(),
+                forcedRoles.size());
+        Random random = new Random(serverWorld.getGameTime());
         // 第五步：为未分配的玩家分配角色
         List<ServerPlayer> unassignedPlayers = new ArrayList<>();
         for (ServerPlayer player : players) {
@@ -399,13 +467,6 @@ public class SREMurderGameMode extends GameMode {
                 unassignedPlayers.add(player);
             }
         }
-
-        for (SRERole role : allRoles) {
-            roleInstantList.add(new RoleInstant(UUID.randomUUID(), role));
-        }
-        List<RoleInstant> expandedRoles = RoleAssignmentManager.expandWithCompanionRoles(roleInstantList);
-        Random random = new Random(serverWorld.getGameTime());
-
         // 保底
         for (var p : players) {
             if (PlayerRoleWeightManager.ForcePlayerTeam.containsKey(p.getUUID()))
@@ -521,7 +582,7 @@ public class SREMurderGameMode extends GameMode {
         return roleAssignments;
     }
 
-    private Player pickPlayerWithProgressBias(ServerLevel serverWorld, List<ServerPlayer> unassignedPlayers,
+    private static Player pickPlayerWithProgressBias(ServerLevel serverWorld, List<ServerPlayer> unassignedPlayers,
             int selectedRoleType) {
         // 目前采用forceTeam逻辑所以无需判断
         return PlayerRoleAssigner.pickByInverseWeight(unassignedPlayers, selectedRoleType);
@@ -608,8 +669,7 @@ public class SREMurderGameMode extends GameMode {
         }
 
         // game end on win and display
-        GameUtils.WinStatus modifiedWinStatus = AllowGameEnd.EVENT.invoker().allowGameEnd(serverWorld,
-                winStatus, false);
+        GameUtils.WinStatus modifiedWinStatus = allowGameEnd(serverWorld, winStatus, false, gameWorldComponent);
         if (!modifiedWinStatus.equals(GameUtils.WinStatus.NOT_MODIFY)) {
             winStatus = modifiedWinStatus;
         }
@@ -620,4 +680,9 @@ public class SREMurderGameMode extends GameMode {
         }
     }
 
+    public GameUtils.WinStatus allowGameEnd(ServerLevel serverWorld, GameUtils.WinStatus winStatus,
+            boolean isLooseEndsMode, SREGameWorldComponent gameWorldComponent) {
+        return AllowGameEnd.EVENT.invoker().allowGameEnd(serverWorld,
+                winStatus, false);
+    }
 }

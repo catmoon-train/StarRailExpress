@@ -16,7 +16,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
@@ -143,5 +142,9 @@ public class ChairWheelRaceGame extends GameMode {
             }
         }));
         gameWorldComponent.syncRoles();
+    }
+    
+    public boolean hasMood(){
+        return false;
     }
 }

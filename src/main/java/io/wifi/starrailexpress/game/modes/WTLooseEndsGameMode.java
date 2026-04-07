@@ -122,4 +122,8 @@ public class WTLooseEndsGameMode extends GameMode {
             }
         }
     }
+    
+    public boolean hasMood(){
+        return false;
+    }
 }

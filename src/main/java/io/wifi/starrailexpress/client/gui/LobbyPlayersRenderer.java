@@ -5,6 +5,7 @@ import io.wifi.starrailexpress.cca.AutoStartComponent;
 import io.wifi.starrailexpress.cca.MapVotingComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.InputHandler;
+import io.wifi.starrailexpress.command.MapVoteCommand;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.utils.client.betterrender.FakeGuiGraphics;
 import net.minecraft.ChatFormatting;
@@ -159,7 +160,7 @@ public class LobbyPlayersRenderer {
 
             // 绘制预设游戏模式信息
             String presetMode = mapVotingComponent.getPresetGameMode();
-            String localizedModeName = getLocalizedGameModeName(presetMode);
+            Component localizedModeName = getLocalizedGameModeName(presetMode);
             Component presetText = Component.translatable("gui.sre.map_selector.preset_mode", localizedModeName);
             int presetWidth = font.width(presetText);
             int presetX = x + (bgWidth - presetWidth) / 2;
@@ -169,16 +170,9 @@ public class LobbyPlayersRenderer {
         }
     }
 
-    private static String getLocalizedGameModeName(String gameModeId) {
+    private static Component getLocalizedGameModeName(String gameModeId) {
         // 根据游戏模式ID返回本地化的名称
-        switch (gameModeId) {
-            case "murder":
-                return Component.translatable("gamemode.sre.murder").getString();
-            case "loose_ends":
-                return Component.translatable("gamemode.wathe.loose_ends").getString();
-            default:
-                return gameModeId; // 如果没有找到翻译，返回原始ID
-        }
+        return MapVoteCommand.getLocalizedGameModeName(gameModeId);
     }
 
     private static void drawCreditsText(FakeGuiGraphics context, Font font) {

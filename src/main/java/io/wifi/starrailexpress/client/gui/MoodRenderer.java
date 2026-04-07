@@ -56,7 +56,7 @@ public class MoodRenderer {
             DeltaTracker tickCounter) {
         SREGameWorldComponent gameWorldComponent = SREClient.gameComponent;
         if (gameWorldComponent == null || !gameWorldComponent.isRunning() || !SREClient.isPlayerAliveAndInSurvival()
-                || gameWorldComponent.getGameMode() != SREGameModes.MURDER)
+                || !gameWorldComponent.getGameMode().hasMood())
             return;
         
         // 缓存delta值，避免多次调用

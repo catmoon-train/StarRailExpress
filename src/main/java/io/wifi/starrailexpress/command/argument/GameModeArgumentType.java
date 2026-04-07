@@ -21,9 +21,7 @@ import java.util.stream.Stream;
 
 public class GameModeArgumentType implements ArgumentType<ResourceLocation> {
     private static final Collection<String> EXAMPLES = Stream.of(
-                    SREGameModes.MURDER,
-                    SREGameModes.LOOSE_ENDS,
-                    SREGameModes.FOURTH_ROOM)
+                    SREGameModes.MURDER)
             .map(key -> key.identifier.toString())
             .collect(Collectors.toList());
     private static final DynamicCommandExceptionType INVALID_GAME_MODE_EXCEPTION = new DynamicCommandExceptionType(

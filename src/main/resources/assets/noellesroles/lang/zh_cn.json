@@ -3,6 +3,7 @@
   "commands.loot.error.execute_fail": "执行失败, 原因:\n %s",
   "commands.loot.success.add_or_degree_chance": "成功为玩家 %s 添加 %s 次抽奖次数. 当前总次数: %s",
   "info.screen.role.see_more": "... (更多信息请右键信纸查看)",
+  "info.screen.roleid.custom_pending": "请按下G选择你的职业",
   "info.screen.roleid.discovery_civilian": "平民阵营\n特殊模式专用职业。",
   "info.screen.roleid.civilian": "平民阵营\n你没有任何特殊能力，努力在这趟旅程中活下去。",
   "info.screen.roleid.killer": "杀手阵营\n你是一名普通的杀手。\n拥有最基础的杀手商店。\n你的目标是杀光所有平民。",

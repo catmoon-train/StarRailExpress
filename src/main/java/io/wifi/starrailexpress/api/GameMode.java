@@ -53,4 +53,8 @@ public abstract class GameMode {
     public void finalizeGame(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent) {
 
     }
+
+    public boolean hasMood(){
+        return true;
+    }
 }

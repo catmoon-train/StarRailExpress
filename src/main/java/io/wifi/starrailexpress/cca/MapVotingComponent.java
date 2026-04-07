@@ -287,16 +287,15 @@ public class MapVotingComponent implements AutoSyncedComponent, CommonTickingCom
 
             // 开始游戏
             try {
-                AtomicBoolean isStarted= new AtomicBoolean(false);
+                AtomicBoolean isStarted = new AtomicBoolean(false);
                 // 根据预设游戏模式启动游戏
-             SREGameModes.GAME_MODES.forEach(
+                SREGameModes.GAME_MODES.forEach(
                         (identifier, gameMode) -> {
                             if (gameMode.identifier.getPath().equals(presetGameMode)) {
                                 GameUtils.startGame(server.overworld(), gameMode, GameConstants.getInTicks(30, 0)); // 30秒后开始
                                 isStarted.set(true);
                             }
-                        }
-                );
+                        });
                 if (!isStarted.get()) {
                     // 如果预设模式不存在，使用默认的murder模式
                     GameUtils.startGame(server.overworld(), SREGameModes.MURDER, GameConstants.getInTicks(30, 0));

@@ -30,12 +30,17 @@ public final class FourthRoomGameMode extends GameMode {
     }
 
     @Override
-    public void initializeGame(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent, List<ServerPlayer> players) {
+    public void initializeGame(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent,
+            List<ServerPlayer> players) {
         FourthRoomGameManager.of(serverWorld).initializeMatch(players);
     }
 
     @Override
     public void finalizeGame(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent) {
         FourthRoomGameManager.of(serverWorld).shutdownMatch();
+    }
+
+    public boolean hasMood() {
+        return false;
     }
 }

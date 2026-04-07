@@ -1,6 +1,7 @@
 package pro.fazeclan.river.stupid_express.constants;
 
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.server.level.ServerPlayer;
@@ -26,7 +27,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.server.level.ServerPlayer;
 import org.agmas.noellesroles.init.ModEffects;
 
 public class SEModifiers {
@@ -95,13 +95,13 @@ public class SEModifiers {
             false,
             false));
 
-                public static SREModifier JEB_ = HMLModifiers.registerModifier(new SREModifier(
-                StupidExpress.id("jeb_"),
+    public static SREModifier JEB_ = HMLModifiers.registerModifier(new SREModifier(
+            StupidExpress.id("jeb_"),
             new Color(64, 224, 208).getRGB(),
             null,
             null,
             false,
-                    false)).setMax(1);
+            false)).setMax(1);
 
     public static SREModifier ALLERGIST = HMLModifiers.registerModifier(new SREModifier(
             StupidExpress.id("allergist"),
@@ -143,8 +143,8 @@ public class SEModifiers {
             false,
             true)).setMax(0);
 
-        // 新增修饰符：矫健（体力上限更多、恢复更快）
-        public static SREModifier VIGOROUS = HMLModifiers.registerModifier(new SREModifier(
+    // 新增修饰符：矫健（体力上限更多、恢复更快）
+    public static SREModifier VIGOROUS = HMLModifiers.registerModifier(new SREModifier(
             StupidExpress.id("vigorous"),
             new Color(80, 200, 120).getRGB(),
             null,
@@ -152,8 +152,8 @@ public class SEModifiers {
             false,
             false));
 
-        // 新增修饰符：不屈（一次性免疫被平民误杀；对杀手阵营攻击免疫）
-        public static SREModifier UNYIELDING = HMLModifiers.registerModifier(new SREModifier(
+    // 新增修饰符：不屈（一次性免疫被平民误杀；对杀手阵营攻击免疫）
+    public static SREModifier UNYIELDING = HMLModifiers.registerModifier(new SREModifier(
             StupidExpress.id("unyielding"),
             new Color(200, 80, 80).getRGB(),
             null,
@@ -161,11 +161,11 @@ public class SEModifiers {
             false,
             false));
 
-        // 标记不屈的一次性免疫是否已被消耗（基于 UUID 的运行时集合）
-        public static Set<UUID> UNYIELDING_IMMUNITY_USED = ConcurrentHashMap.newKeySet();
+    // 标记不屈的一次性免疫是否已被消耗（基于 UUID 的运行时集合）
+    public static Set<UUID> UNYIELDING_IMMUNITY_USED = ConcurrentHashMap.newKeySet();
 
-        // 新增修饰符：偏执（占位，移植外部代码以实现声音/客户端效果）
-        public static SREModifier PARANOID = HMLModifiers.registerModifier(new SREModifier(
+    // 新增修饰符：偏执（占位，移植外部代码以实现声音/客户端效果）
+    public static SREModifier PARANOID = HMLModifiers.registerModifier(new SREModifier(
             StupidExpress.id("paranoid"),
             new Color(180, 160, 220).getRGB(),
             null,
@@ -230,8 +230,23 @@ public class SEModifiers {
             ServerPlayer loverTwo = null;
             var arrs = new ArrayList<>(level.players());
             Collections.shuffle(arrs);
+            WorldModifierComponent modifierCca = WorldModifierComponent.KEY.get(level);
+            var loverComponentOne = LoversComponent.KEY.get(lover);
+            if (!SREConfig.instance().enableNoLimitLoversInLoverMode) {
+                if (loverComponentOne.isLover()) {
+                    // 忽略被绑定的
+                    // 已有恋人~
+                    return;
+                }
+            }
             for (var can_i_love : arrs) {
                 if (GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(can_i_love)) {
+                    if (!SREConfig.instance().enableNoLimitLoversInLoverMode) {
+                        if (modifierCca.isModifier(can_i_love, SEModifiers.LOVERS)) {
+                            // 忽略被绑定的
+                            continue;
+                        }
+                    }
                     if (!lover.equals(can_i_love)) {
                         loverTwo = can_i_love;
                         break;
@@ -246,7 +261,6 @@ public class SEModifiers {
                 return;
             }
             // assign both lovers
-            var loverComponentOne = LoversComponent.KEY.get(lover);
 
             loverComponentOne.setLover(loverTwo.getUUID());
             loverComponentOne.sync();
@@ -337,7 +351,7 @@ public class SEModifiers {
             }
             // 给第二人格添加修饰符
             var worldModifierComponent = WorldModifierComponent.KEY.get(level);
-            worldModifierComponent.addModifier(secondPersonality.getUUID(), SPLIT_PERSONALITY); 
+            worldModifierComponent.addModifier(secondPersonality.getUUID(), SPLIT_PERSONALITY);
 
             // 为两个人格都设置SplitPersonalityComponent
             var componentOne = SplitPersonalityComponent.KEY.get(person);
@@ -433,7 +447,8 @@ public class SEModifiers {
                     if (gameComponent != null) {
                         var role = gameComponent.getRole(player);
                         if (role != null && role.isNeutrals()) {
-                            sp.addEffect(new MobEffectInstance(ModEffects.STAMINA_BOOST, 10000000, 1, false, false, false));
+                            sp.addEffect(
+                                    new MobEffectInstance(ModEffects.STAMINA_BOOST, 10000000, 1, false, false, false));
                         }
                     }
                 }

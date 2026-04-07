@@ -14,6 +14,20 @@ public class SREConfig implements ConfigData {
     // 存储默认配置值 - 在静态初始化块中设置
     public static ConfigClassHandler<SREConfig> HANDLER = new ConfigClassHandler<>(
             SREConfig.class);
+
+            // 游戏模式设置
+    @ConfigEntry.Category(value = "gamemodes")
+    public boolean enableNoLimitLoversInLoverMode = true;
+    @ConfigEntry.Category(value = "gamemodes")
+    public float loverModeLoversPercent = 1f;
+    @ConfigEntry.Category(value = "gamemodes")
+    public float refugeeModeRefugeePercent = 1f;
+    @ConfigEntry.Category(value = "gamemodes")
+    public float gamblerModeGamblerPercent = 1f;
+    @ConfigEntry.Category(value = "gamemodes")
+    public int gamblerModeGamblerKillTime = 200;
+    @ConfigEntry.Category(value = "gamemodes")
+    public int customRoleModeForceSelectTime = 30;
     // 随机地图设置
     @ConfigEntry.Category(value = "map")
     @Tooltip
