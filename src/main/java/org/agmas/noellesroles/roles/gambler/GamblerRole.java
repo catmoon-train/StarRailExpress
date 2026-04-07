@@ -5,14 +5,12 @@ import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.game.GameUtils;
-import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.Noellesroles;
@@ -45,13 +43,13 @@ public class GamblerRole extends SRERole {
             if (player instanceof ServerPlayer sp) {
                 // 掉枪，但不掉手上用的一次性的
                 if (sp.getMainHandItem().is(ModItems.ONCE_REVOLVER)) {
-                    sp.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+                    sp.getMainHandItem().hurtAndBreak(1, sp, EquipmentSlot.MAINHAND);
                 }
                 if (sp.hasEffect(ModEffects.NO_COLLIDE)) {
                     sp.removeEffect(ModEffects.NO_COLLIDE);
                     // 取消自己的安全时间。
                 }
-                RoleUtils.dropAndClearAllSatisfiedItems(sp, TMMItemTags.GUNS);
+                RoleUtils.dropAndClearAllGuns(sp);
             }
 
             if (gamblerPlayerComponent.selectedRole != null) {
@@ -90,6 +88,5 @@ public class GamblerRole extends SRERole {
         if (pos != null) {
             player.teleportTo(pos.x(), pos.y() + 1, pos.z());
         }
-
     }
 }

@@ -135,6 +135,14 @@ public class RoleUtils extends MCItemsUtils {
         return count;
     }
 
+    public static int dropAndClearAllGuns(ServerPlayer player) {
+        int count = MCItemsUtils.clearItem(player, TMMItemTags.GUNS);
+        for (int i = 0; i < count; i++) {
+            player.drop(TMMItems.REVOLVER.getDefaultInstance(), false);
+        }
+        return count;
+    }
+
     public static int dropAndClearAllSatisfiedItems(ServerPlayer player, TagKey<Item> tagKey) {
         int count = 0;
         for (int i = 0; i < player.getInventory().getContainerSize(); i++) {

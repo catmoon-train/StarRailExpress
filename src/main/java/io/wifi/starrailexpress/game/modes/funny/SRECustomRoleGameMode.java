@@ -11,6 +11,8 @@ import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
 import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
 import org.agmas.noellesroles.commands.BroadcastCommand;
 import org.agmas.noellesroles.init.ModEffects;
+import org.agmas.noellesroles.utils.RoleUtils;
+
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.SpecialGameModeRoles;
@@ -59,6 +61,7 @@ public class SRECustomRoleGameMode extends SREMurderGameMode {
                     false, // showParticles - 不显示粒子
                     false // showIcon - 不显示图标
             ));
+            RoleUtils.sendWelcomeAnnouncement(player);
         }
         getRolesAndAssignTeams(serverWorld, gameWorldComponent, unassignedPlayers);
         gameWorldComponent.syncRoles();

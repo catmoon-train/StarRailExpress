@@ -14,6 +14,7 @@ import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.MCItemsUtils;
+import org.agmas.noellesroles.utils.RoleUtils;
 
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.TMMRoles;
@@ -75,6 +76,7 @@ public class SREGamblerGameMode extends SREMurderGameMode {
         for (ServerPlayer player : gamblerPlayers) {
             gameWorldComponent.addRole(player, ModRoles.GAMBLER, false);
             ModdedRoleAssigned.EVENT.invoker().assignModdedRole(player, ModRoles.GAMBLER);
+            RoleUtils.sendWelcomeAnnouncement(player);
             MCItemsUtils.insertStackInFreeSlot(player, ModItems.ONCE_REVOLVER.getDefaultInstance());
             player.addEffect(new MobEffectInstance(
                     ModEffects.NO_COLLIDE,
