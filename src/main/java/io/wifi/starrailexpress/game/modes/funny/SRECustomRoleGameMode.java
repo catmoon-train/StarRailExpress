@@ -147,6 +147,7 @@ public class SRECustomRoleGameMode extends SREMurderGameMode {
                     if (nc > 0) {
                         roleTypesCount.put(roleType, nc - 1);
                         CustomRoleGameModeTeamsPlayerComponent.KEY.get(selectedPlayer).setTeamAndSync(roleType);
+                        PlayerRoleWeightManager.addWeight(selectedPlayer, roleType, 1);
                         unassignedPlayers.remove(selectedPlayer);
                     } else {
                         PlayerRoleWeightManager.boostKillerSideAfterForceFailure(playerUid);
@@ -182,12 +183,15 @@ public class SRECustomRoleGameMode extends SREMurderGameMode {
             if (selectedPlayer != null) {
                 unassignedPlayers.remove(selectedPlayer);
                 CustomRoleGameModeTeamsPlayerComponent.KEY.get(selectedPlayer).setTeamAndSync(selectedRoleType);
+                PlayerRoleWeightManager.addWeight(selectedPlayer, selectedRoleType, 1);
+
                 roleSelector.removeFirst();
             }
         }
         for (var up : unassignedPlayers) {
             // 职业不够分配平民
             CustomRoleGameModeTeamsPlayerComponent.KEY.get(up).setTeamAndSync(1);
+            PlayerRoleWeightManager.addWeight(up, 1, 1);
         }
 
         crgmwc.sync();
