@@ -167,6 +167,7 @@ public class CustomRoleGameModeWorldComponent implements AutoSyncedComponent {
                     .withStyle(ChatFormatting.GOLD), true);
             RoleUtils.changeRole(player, role);
             this.available_roles.remove(role);
+            this.sync();
         } else {
             player.displayClientMessage(Component
                     .translatable("gui.noellesroles.gambler.failed", RoleUtils.getRoleOrModifierNameWithColor(role))
