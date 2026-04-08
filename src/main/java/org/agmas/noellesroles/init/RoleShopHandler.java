@@ -1299,11 +1299,10 @@ public class RoleShopHandler {
       public boolean onBuy(@NotNull Player player) {
 
         boolean triggered = SREPlayerShopComponent.useBlackout(player);
-        player.getCooldowns().addCooldown(TMMItems.BLACKOUT,
-            Math.max(60 * 20, GameConstants.getBlackoutCooldownGlobal()));
         if (triggered) {
-          SRE.REPLAY_MANAGER.recordSkillUsed(player.getUUID(),
-              BuiltInRegistries.ITEM.getKey(TMMItems.BLACKOUT));
+          player.getCooldowns().addCooldown(TMMItems.BLACKOUT,
+              Math.max(60 * 20, GameConstants.getBlackoutCooldownGlobal()));
+          return true;
         }
         return triggered;
       }
