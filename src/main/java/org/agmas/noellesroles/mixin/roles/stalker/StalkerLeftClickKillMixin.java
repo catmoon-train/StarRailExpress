@@ -15,7 +15,6 @@ import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.component.MaChenXuPlayerComponent;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.component.StalkerPlayerComponent;
-import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.item.StalkerKnifeItem;
 import org.agmas.noellesroles.role.ModRoles;
 import org.spongepowered.asm.mixin.Mixin;

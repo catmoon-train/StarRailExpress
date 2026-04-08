@@ -39,7 +39,6 @@ public class VoodooPlayerComponent implements RoleComponent {
         KEY.sync(this.player);
     }
 
-
     public void setTarget(UUID target) {
         this.target = target;
         this.sync();
