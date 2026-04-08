@@ -112,6 +112,6 @@
   "item.starrailexpress.light_toilet.desc": "潛色馬桶，任務方塊，右鍵坐馬桶上可以完成上廁所任務。。",
   "item.starrailexpress.security_monitor.desc": "安全監控，用於觀察監控攝像頭的視角。",
   "item.noellesroles.ninja_knife.desc": "一次性用品，忍者的近戰武器，右鍵立即刺殺目標，無聲。",
-  "item.noellesroles.ninja_shuriken.desc": "一次性用品，忍者的遠程武器，Q鍵發射，無聲。",
+  "item.noellesroles.ninja_shuriken.desc": "一次性用品，忍者的遠程武器，長按右鍵發射，無聲。",
   "item.noellesroles.mercenary_contract.desc": "雇傭兵職業專屬道具，其他人可以右鍵簽訂雇傭契約，選擇目標並支付175金幣，雇傭兵右鍵已簽訂的契約能夠獲得雇傭金並為雇傭兵提供通緝目標。契約可以按Q鍵丟出。"
 }
