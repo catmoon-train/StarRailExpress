@@ -112,6 +112,6 @@
   "item.starrailexpress.light_toilet.desc": "潜色马桶，任务方块，右键坐马桶上可以完成上厕所任务。。",
   "item.starrailexpress.security_monitor.desc": "安全监控，用于观察监控摄像头的视角。",
   "item.noellesroles.ninja_knife.desc": "一次性用品，忍者的近战武器，右键立即刺杀目标，无声。",
-  "item.noellesroles.ninja_shuriken.desc": "一次性用品，忍者的远程武器，Q键发射，无声。",
+  "item.noellesroles.ninja_shuriken.desc": "一次性用品，忍者的远程武器，长按右键发射，无声。",
   "item.noellesroles.mercenary_contract.desc": "雇佣兵职业专属道具，其他人可以右键签订雇佣契约，选择目标并支付175金币，雇佣兵右键已签订的契约能够获得雇佣金并为雇佣兵提供通缉目标。契约可以按Q键丢出。"
 }
