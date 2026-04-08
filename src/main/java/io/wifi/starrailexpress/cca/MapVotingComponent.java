@@ -2,14 +2,13 @@ package io.wifi.starrailexpress.cca;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.SREGameModes;
-import io.wifi.starrailexpress.game.GameConstants;
-import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.network.MapVotingResultsPayload;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
@@ -23,7 +22,6 @@ import org.spongepowered.asm.mixin.Overwrite;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MapVotingComponent implements AutoSyncedComponent, CommonTickingComponent {
     public static final ComponentKey<MapVotingComponent> KEY = ComponentRegistry.getOrCreate(SRE.id("map_voting"),
@@ -264,6 +262,7 @@ public class MapVotingComponent implements AutoSyncedComponent, CommonTickingCom
     }
 
     private void finishVoting() {
+
         votingActive = false;
 
         // 获取得票最多地图
@@ -271,6 +270,10 @@ public class MapVotingComponent implements AutoSyncedComponent, CommonTickingCom
 
         // 在服务器上执行函数
         MinecraftServer server = SRE.SERVER;
+        if (SREGameWorldComponent.KEY.get(world).isRunning()) {
+            // 已经启动了不要启动。
+            return;
+        }
         if (server != null) {
 
             if (!winningMap.equals("random")) {
@@ -287,19 +290,15 @@ public class MapVotingComponent implements AutoSyncedComponent, CommonTickingCom
 
             // 开始游戏
             try {
-                AtomicBoolean isStarted = new AtomicBoolean(false);
+                String resultGameMode = SREGameModes.MURDER.identifier.toString();
                 // 根据预设游戏模式启动游戏
-                SREGameModes.GAME_MODES.forEach(
-                        (identifier, gameMode) -> {
-                            if (gameMode.identifier.getPath().equals(presetGameMode)) {
-                                GameUtils.startGame(server.overworld(), gameMode, GameConstants.getInTicks(30, 0)); // 30秒后开始
-                                isStarted.set(true);
-                            }
-                        });
-                if (!isStarted.get()) {
-                    // 如果预设模式不存在，使用默认的murder模式
-                    GameUtils.startGame(server.overworld(), SREGameModes.MURDER, GameConstants.getInTicks(30, 0));
+                for (ResourceLocation key : SREGameModes.GAME_MODES.keySet()) {
+                    if (key.getPath().equals(presetGameMode)) {
+                        resultGameMode = key.toString();
+                    }
                 }
+                server.getCommands().performPrefixedCommand(server.createCommandSourceStack(),
+                        "tmm:start " + resultGameMode);
             } catch (Exception e) {
                 SRE.LOGGER.error("投票结束后自动开始游戏失败", e);
             }
