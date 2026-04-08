@@ -13,6 +13,7 @@ import io.wifi.starrailexpress.fourthroom.duel.FourthRoomDuelManager;
 import io.wifi.starrailexpress.fourthroom.effect.EffectEvent;
 import io.wifi.starrailexpress.fourthroom.effect.TableEffectEvents;
 import io.wifi.starrailexpress.fourthroom.network.FourthRoomStatePayload;
+import io.wifi.starrailexpress.fourthroom.network.OpenFourthRoomPeekDeckPayload;
 import io.wifi.starrailexpress.fourthroom.room.RoomDefinition;
 import io.wifi.starrailexpress.fourthroom.room.RoomManager;
 import io.wifi.starrailexpress.fourthroom.shop.FourthRoomShopItem;
@@ -496,6 +497,10 @@ public final class FourthRoomGameManager {
         }
         data.setDirty(true);
         syncMatchState();
+        ServerPlayer player = level.getServer().getPlayerList().getPlayer(playerId);
+        if (player != null) {
+            OpenFourthRoomPeekDeckPayload.send(player);
+        }
     }
 
     public void inflictCardDamage(UUID sourceId, UUID targetId, String reason) {

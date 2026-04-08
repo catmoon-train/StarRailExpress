@@ -25,6 +25,7 @@ import io.wifi.starrailexpress.client.fourthroom.FourthRoomCameraDirector;
 import io.wifi.starrailexpress.client.fourthroom.FourthRoomClientState;
 import io.wifi.starrailexpress.client.fourthroom.FourthRoomTableHud;
 import io.wifi.starrailexpress.client.render.block_entity.FourthRoomTableBlockEntityRenderer;
+import io.wifi.starrailexpress.fourthroom.network.OpenFourthRoomPeekDeckPayload;
 import io.wifi.starrailexpress.fourthroom.network.FourthRoomTableEffectsPayload;
 import io.wifi.starrailexpress.fourthroom.network.FourthRoomStatePayload;
 import io.wifi.starrailexpress.client.model.GeneralModelLoadingPlugin;
@@ -456,6 +457,7 @@ public class SREClient implements ClientModInitializer {
         SyncMapConfigPayload.registerReceiver();
         FourthRoomStatePayload.registerReceiver();
         FourthRoomTableEffectsPayload.registerReceiver();
+        OpenFourthRoomPeekDeckPayload.registerReceiver();
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> FourthRoomClientState.clear());
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> FourthRoomCameraDirector.clear());
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {

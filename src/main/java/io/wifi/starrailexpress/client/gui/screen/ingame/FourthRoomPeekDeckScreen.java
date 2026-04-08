@@ -49,7 +49,7 @@ public final class FourthRoomPeekDeckScreen extends Screen {
 
         graphics.drawCenteredString(font, title, width / 2, panelY + 14, 0xFFF3DCA0);
         graphics.drawCenteredString(font,
-                Component.translatable("screen.fourth_room.peek_deck_subtitle", Math.min(3, snapshot.viewer().peekCards().size()),
+                Component.translatable("screen.fourth_room.peek_deck_subtitle", snapshot.viewer().peekCards().size(),
                         snapshot.viewer().drawPileSize()),
                 width / 2, panelY + 30, 0xFFD7E3F0);
         graphics.drawCenteredString(font,
@@ -88,13 +88,13 @@ public final class FourthRoomPeekDeckScreen extends Screen {
                     x + width / 2, y + height / 2, 0xFFD0D5DC);
             return;
         }
-        int count = Math.min(3, cards.size());
+        int count = cards.size();
         int spacing = Math.min(124, Math.max(98, (width - CARD_WIDTH) / Math.max(1, count - 1)));
         int totalWidth = CARD_WIDTH + Math.max(0, count - 1) * spacing;
         int startCenterX = x + Math.max(CARD_WIDTH / 2, (width - totalWidth) / 2 + CARD_WIDTH / 2);
         int bottomY = y + height - 10;
-        for (int index = 0; index < count; index++) {
-            float mid = (count - 1) / 2.0F;
+        for (int index = 0; index < cards.size(); index++) {
+            float mid = (cards.size() - 1) / 2.0F;
             int centerX = startCenterX + index * spacing;
             float rotation = (index - mid) * 4.5F;
             drawPeekCard(graphics, cards.get(index), centerX, bottomY, rotation);

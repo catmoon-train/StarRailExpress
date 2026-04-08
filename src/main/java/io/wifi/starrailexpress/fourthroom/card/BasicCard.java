@@ -78,7 +78,7 @@ public enum BasicCard implements Card {
     PEEK("peek") {
         @Override
         public boolean play(FourthRoomGameManager manager, UUID playerId, @Nullable UUID targetId, CardInstance instance) {
-            manager.peekTopCards(playerId, 5);
+            manager.peekTopCards(playerId, 3);
             return true;
         }
     },

@@ -334,6 +334,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
         PayloadTypeRegistry.playS2C().register(PlayerDeathPayload.ID, PlayerDeathPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(FourthRoomStatePayload.ID, FourthRoomStatePayload.CODEC);
         PayloadTypeRegistry.playS2C().register(FourthRoomTableEffectsPayload.ID, FourthRoomTableEffectsPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(OpenFourthRoomPeekDeckPayload.ID, OpenFourthRoomPeekDeckPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(OpenSkinScreenPaylod.ID, OpenSkinScreenPaylod.CODEC);
         PayloadTypeRegistry.playS2C().register(OpenProgressionScreenPayload.ID, OpenProgressionScreenPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(io.wifi.starrailexpress.network.OpenRoleUnlockScreenPayload.ID,

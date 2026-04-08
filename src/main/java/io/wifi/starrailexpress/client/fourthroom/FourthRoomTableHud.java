@@ -175,7 +175,7 @@ public final class FourthRoomTableHud {
                 x + 12, y + 40, 0xFFE4CAA1, false);
         String peekHint = snapshot.viewer().peekCards().isEmpty()
                 ? "按 H 打开完整牌桌面板"
-                : "按 V 查看窥视牌堆 · 按 H 打开牌桌";
+            : "窥视后自动打开牌堆 · 按 V 可再次查看";
         guiGraphics.drawString(font, fit(font, peekHint, width - 24), x + 12, y + 56, 0xFFBFC7D1, false);
     }
 
@@ -364,7 +364,7 @@ public final class FourthRoomTableHud {
             builder.append(" · 潜行右键自己的身份牌翻开");
         }
         if (!snapshot.viewer().peekCards().isEmpty()) {
-            builder.append(" · 按 V 查看窥视牌堆");
+            builder.append(" · 窥视后自动打开，按 V 可再次查看");
         }
         if (minecraftScreenHint(table, snapshot)) {
             builder.append(" · 按 H 打开完整牌桌");
