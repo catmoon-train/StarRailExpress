@@ -51,6 +51,7 @@
   "gui.sre.gamemode.subtitle": "剩余选择时间：%ss",
   "gui.sre.map_selector.voted_for": "已投票给: %s",
   "command.sre.votemap.success": "已成功开启地图投票",
+  "command.sre.votemap.paused": "投票系统已暂停，无法发起新的投票！",
   "command.sre.votemap.already_running": "投票已在进行中",
   "command.sre.votemap.setmode.invalid": "无效的游戏模式: %s。可用的游戏模式: %s",
   "command.sre.votemap.setmode.success": "预设游戏模式已设置为: %s",
