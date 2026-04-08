@@ -61,9 +61,12 @@ public class GamblerRole extends SRERole {
                         Noellesroles.id("gamble_self_kill"));
                 RoleUtils.changeRole(player, role);
 
-                SREPlayerShopComponent playerShopComponent = (SREPlayerShopComponent) SREPlayerShopComponent.KEY
-                        .get(player);
-                playerShopComponent.addToBalance(50);
+                if (role.canUseKiller()) {
+                    SREPlayerShopComponent playerShopComponent = SREPlayerShopComponent.KEY.get(player);
+                    if (playerShopComponent.balance < 100)
+                        playerShopComponent.setBalance(100);
+                } else {
+                }
 
                 if (player instanceof ServerPlayer serverPlayer) {
                     RoleUtils.sendWelcomeAnnouncement(serverPlayer);

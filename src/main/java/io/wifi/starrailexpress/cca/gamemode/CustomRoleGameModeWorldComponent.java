@@ -14,6 +14,7 @@ import net.minecraft.nbt.StringTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 
@@ -85,7 +86,18 @@ public class CustomRoleGameModeWorldComponent implements AutoSyncedComponent {
 
     public void writeToSyncNbtWithPlayer(CompoundTag tag, HolderLookup.Provider registryLookup,
             ServerPlayer recipient) {
-        writeToSyncNbt(tag, registryLookup);
+        if (this.available_roles.isEmpty())
+            return;
+        int teamType = CustomRoleGameModeTeamsPlayerComponent.KEY.get(recipient).getTeam();
+        var roleInfoCompund = new ListTag();
+        for (SRERole info : available_roles) {
+            if (PlayerRoleWeightManager.getRoleType(info) == teamType) {
+                String roleId = info.identifier().getPath();
+                roleInfoCompund.add(StringTag.valueOf(roleId));
+            }
+        }
+        if (!roleInfoCompund.isEmpty())
+            tag.put("roles", roleInfoCompund);
     }
 
     public @Nullable SRERole getRoleFromPath(String path) {
@@ -122,17 +134,6 @@ public class CustomRoleGameModeWorldComponent implements AutoSyncedComponent {
         }
     }
 
-    public void writeToSyncNbt(@NotNull CompoundTag nbtCompound, HolderLookup.Provider wrapperLookup) {
-        if (this.available_roles.isEmpty())
-            return;
-        var roleInfoCompund = new ListTag();
-        for (SRERole info : available_roles) {
-            String roleId = info.identifier().getPath();
-            roleInfoCompund.add(StringTag.valueOf(roleId));
-        }
-        nbtCompound.put("roles", roleInfoCompund);
-    }
-
     @Override
     public void readFromNbt(@NotNull CompoundTag nbtCompound, HolderLookup.Provider wrapperLookup) {
     }
@@ -167,6 +168,7 @@ public class CustomRoleGameModeWorldComponent implements AutoSyncedComponent {
                     .withStyle(ChatFormatting.GOLD), true);
             RoleUtils.changeRole(player, role);
             this.available_roles.remove(role);
+            this.syncToSpecificRoleTypePlayers(PlayerRoleWeightManager.getRoleType(role));
         } else {
             player.displayClientMessage(Component
                     .translatable("gui.noellesroles.gambler.failed", RoleUtils.getRoleOrModifierNameWithColor(role))
@@ -190,6 +192,16 @@ public class CustomRoleGameModeWorldComponent implements AutoSyncedComponent {
             SRERole role = roleInstance.role();
             if (role != null)
                 this.available_roles.add(role);
+        }
+    }
+
+    public void syncToSpecificRoleTypePlayers(int roletype) {
+        if (this.world instanceof ServerLevel serverLevel) {
+            for (ServerPlayer p : serverLevel.players()) {
+                if (CustomRoleGameModeTeamsPlayerComponent.KEY.get(p).getTeam() == roletype) {
+                    KEY.syncWith(p, this.world.asComponentProvider());
+                }
+            }
         }
     }
 }

@@ -648,6 +648,7 @@ public class CustomRoleSelectScreen extends Screen {
 
     public void updateRoleSelection() {
         // 加载可用角色
+        availableRoles.clear();
         for (ResourceLocation roleId : component.getAvailableRoles()) {
             SRERole role = TMMRoles.ROLES.get(roleId);
             if (role != null) {

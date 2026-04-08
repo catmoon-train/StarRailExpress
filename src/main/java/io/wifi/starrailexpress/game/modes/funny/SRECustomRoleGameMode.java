@@ -19,6 +19,7 @@ import io.wifi.starrailexpress.api.SpecialGameModeRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerProgressionComponent;
 import io.wifi.starrailexpress.cca.SREPlayerProgressionComponent.FactionCardType;
+import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.cca.SRETrainWorldComponent;
 import io.wifi.starrailexpress.cca.gamemode.CustomRoleGameModeTeamsPlayerComponent;
 import io.wifi.starrailexpress.cca.gamemode.CustomRoleGameModeWorldComponent;
@@ -219,6 +220,11 @@ public class SRECustomRoleGameMode extends SREMurderGameMode {
                 for (ServerPlayer p : serverWorld
                         .getPlayers((p) -> GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(p))) {
                     RoleUtils.sendWelcomeAnnouncement(p);
+                    SRERole role = gameWorldComponent.getRole(p);
+                    if (role.canUseKiller()) {
+                        SREPlayerShopComponent playerShopComponent = SREPlayerShopComponent.KEY.get(p);
+                        playerShopComponent.addToBalance(100);
+                    }
                 }
                 roleSelectTimeout = -1;
             }

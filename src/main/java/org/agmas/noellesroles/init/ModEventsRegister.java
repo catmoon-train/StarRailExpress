@@ -960,6 +960,7 @@ public class ModEventsRegister {
                                 || deathReason.getPath().equals("arrow")
                                 || deathReason.getPath().equals("trident")
                                 || deathReason.getPath().equals("knife_stab")
+                                || deathReason.getPath().equals("knife")
                                 || deathReason.getPath().equals("fell_out_of_train")
                                 || deathReason.getPath().equals("poison")
                                 || deathReason.getPath().equals("throwing_knife_hit")
