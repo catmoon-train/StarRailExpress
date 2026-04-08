@@ -164,8 +164,6 @@ public class RoleShopHandler {
   public static ArrayList<ShopEntry> CANDLE_BEARER_SHOP = new ArrayList<>();
   // ==================== 雇佣兵商店 ====================
   public static ArrayList<ShopEntry> MERCENARY_SHOP = new ArrayList<>();
-  // =============忍者商店================
-  public static ArrayList<ShopEntry> NINJA_SHOP = new ArrayList<>();
 
   /**
    * 初始化框架角色商店
@@ -484,7 +482,6 @@ public class RoleShopHandler {
     {
       // 忍者商店
       var NINJA_SHOP = new ArrayList<ShopEntry>();
-
 
       // 苦无 - 130金币
       NINJA_SHOP.add(new ShopEntry(ModItems.NINJA_KNIFE.getDefaultInstance(), 130, ShopEntry.Type.WEAPON));
