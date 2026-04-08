@@ -159,8 +159,8 @@ public class GameConstants {
         return SREConfig.instance().firecrackerDuration * 20;
     }
 
-    public static int getBlackoutRandomRange() {
-        return SREConfig.instance().blackoutRandomRange * 20;
+    public static float getBlackoutRandomRangePercent() {
+        return SREConfig.instance().blackoutRandomRangePercent;
     }
 
     public static int getBlackoutMaxDuration() {

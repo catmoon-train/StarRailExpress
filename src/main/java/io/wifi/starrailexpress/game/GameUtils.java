@@ -392,6 +392,7 @@ public class GameUtils {
             cooldowns.addCooldown(HSRItems.TOXIN, time);
             cooldowns.addCooldown(HSRItems.ANTIDOTE, time);
             cooldowns.addCooldown(TMMItems.SNIPER_RIFLE, time);
+            cooldowns.addCooldown(TMMItems.BLACKOUT, time);
             if (!player.hasEffect(ModEffects.NO_COLLIDE))
                 player.addEffect(new MobEffectInstance(
                         ModEffects.NO_COLLIDE,

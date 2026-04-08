@@ -115,7 +115,7 @@ public class SREConfig implements ConfigData {
     public int psychoModeDuration = 30;
     public int firecrackerDuration = 15;
     public int blackoutMaxDuration = 25;
-    public int blackoutRandomRange = 8;
+    public float blackoutRandomRangePercent = 0.32f;
     public boolean enableAutoTrainReset = false;
     public boolean verboseTrainResetLogs = true;
 

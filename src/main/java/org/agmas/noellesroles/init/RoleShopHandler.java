@@ -164,8 +164,6 @@ public class RoleShopHandler {
   public static ArrayList<ShopEntry> CANDLE_BEARER_SHOP = new ArrayList<>();
   // ==================== 雇佣兵商店 ====================
   public static ArrayList<ShopEntry> MERCENARY_SHOP = new ArrayList<>();
-  // =============忍者商店================
-  public static ArrayList<ShopEntry> NINJA_SHOP = new ArrayList<>();
 
   /**
    * 初始化框架角色商店
@@ -485,7 +483,6 @@ public class RoleShopHandler {
       // 忍者商店
       var NINJA_SHOP = new ArrayList<ShopEntry>();
 
-
       // 苦无 - 130金币
       NINJA_SHOP.add(new ShopEntry(ModItems.NINJA_KNIFE.getDefaultInstance(), 130, ShopEntry.Type.WEAPON));
 
@@ -495,7 +492,13 @@ public class RoleShopHandler {
       // 关灯 - 50金币
       NINJA_SHOP.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), 50, ShopEntry.Type.TOOL) {
         public boolean onBuy(@NotNull Player player) {
-          return SREPlayerShopComponent.useBlackoutWithMultiplier(player, 0.4);
+          if (SREPlayerShopComponent.useBlackoutWithMultiplier(player, 0.4)) {
+            player.getCooldowns().addCooldown(TMMItems.BLACKOUT,
+                Math.max(GameConstants.getBlackoutCooldownGlobal(),
+                    GameConstants.ITEM_COOLDOWNS.get(TMMItems.BLACKOUT) / 5));
+            return true;
+          }
+          return false;
         }
       });
 
@@ -745,11 +748,10 @@ public class RoleShopHandler {
     }
     {
       ShopContent.customEntries.put(
-        ModRoles.AWESOME_BINGLUS_ID,
-        List.of(
-          new ShopEntry(TMMItems.NOTE.getDefaultInstance(), 10, ShopEntry.Type.TOOL),
-          new ShopEntry(ModItems.GIANT_NOTE.getDefaultInstance(), 150, ShopEntry.Type.TOOL)
-        ));
+          ModRoles.AWESOME_BINGLUS_ID,
+          List.of(
+              new ShopEntry(TMMItems.NOTE.getDefaultInstance(), 10, ShopEntry.Type.TOOL),
+              new ShopEntry(ModItems.GIANT_NOTE.getDefaultInstance(), 150, ShopEntry.Type.TOOL)));
     }
     {
       ShopContent.customEntries.put(
@@ -1295,14 +1297,12 @@ public class RoleShopHandler {
     柜子区的商店.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), SREConfig.instance().blackoutPrice,
         ShopEntry.Type.TOOL) {
       public boolean onBuy(@NotNull Player player) {
-        player.getCooldowns().addCooldown(TMMItems.BLACKOUT,
-            60 * 20);
-        boolean triggered = ((SREWorldBlackoutComponent) SREWorldBlackoutComponent.KEY
-            .get(player.level()))
-            .triggerBlackout();
+
+        boolean triggered = SREPlayerShopComponent.useBlackout(player);
         if (triggered) {
-          SRE.REPLAY_MANAGER.recordSkillUsed(player.getUUID(),
-              BuiltInRegistries.ITEM.getKey(TMMItems.BLACKOUT));
+          player.getCooldowns().addCooldown(TMMItems.BLACKOUT,
+              Math.max(60 * 20, GameConstants.getBlackoutCooldownGlobal()));
+          return true;
         }
         return triggered;
       }

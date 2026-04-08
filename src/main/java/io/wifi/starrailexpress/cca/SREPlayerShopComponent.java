@@ -145,6 +145,7 @@ public class SREPlayerShopComponent implements RoleComponent, ServerTickingCompo
             return false;
         boolean triggered = blackCCA.triggerBlackout(true, duration);
         if (triggered) {
+            // 公共 Cooldown
             player.level().players().forEach(
                     p -> p.getCooldowns().addCooldown(TMMItems.BLACKOUT, GameConstants.getBlackoutCooldownGlobal()));
 

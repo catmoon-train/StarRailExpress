@@ -711,7 +711,8 @@ public class ModEventsRegister {
         // 观者掉枪
         AllowShootRevolverDrop.EVENT.register((player, target) -> {
             var gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
-            if (gameWorldComponent.isRole(target, ModRoles.WATCHER)) {
+            ItemStack mainHandStack = player.getMainHandItem();
+            if (!mainHandStack.is(TMMItems.DERRINGER) && gameWorldComponent.isRole(target, ModRoles.WATCHER)) {
                 if (WatcherPlayerComponent.KEY.get(target).isInCalmStance())
                     return ShouldDropResult.TRUE;
             }
