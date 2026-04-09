@@ -251,7 +251,6 @@ public class SRE extends StarRailExpressID implements ModInitializer {
             FourthRoomCommand.register(dispatcher);
             ReloadMapConfigCommand.register(dispatcher);
             SkinsCommand.register(dispatcher);
-            ManageSkinsCommand.register(dispatcher, registryAccess);
             io.wifi.starrailexpress.cca.network.SkinsNetworkSyncCommand.register(dispatcher);
             // CoinModifier.register(dispatcher, registryAccess);
             net.exmo.sre.nametag.NameTagCommand.register(dispatcher);

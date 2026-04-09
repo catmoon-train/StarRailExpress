@@ -183,7 +183,6 @@ public class Noellesroles implements ModInitializer {
         AdminFreeCamCommand.register();
         SetRoleMaxCommand.register();
         ConfigCommand.register();
-        LootCommand.register();
         VTCommand.register();
         ExtraItemsManagerCommand.register();
         GameUtilsCommand.register();
