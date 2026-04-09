@@ -282,7 +282,6 @@ public class MercenaryPlayerComponent implements RoleComponent, ServerTickingCom
         }
 
         // 动态使用开局人数保持一致性（避免中途玩家离开影响目标要求）
-        SREGameWorldComponent gwc = SREGameWorldComponent.KEY.get(player.level());
         int basePlayers = (gwc != null && gwc.getStartingPlayerCount() > 0)
             ? gwc.getStartingPlayerCount()
             : player.level().players().size();
