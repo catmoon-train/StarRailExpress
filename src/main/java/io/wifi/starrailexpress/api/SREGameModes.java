@@ -28,6 +28,9 @@ public class SREGameModes {
     // Author: canyuesama (catmoon233)
     public static final ResourceLocation FOURTH_ROOM_ID = SRE.canyueId("fourth_room");
 
+    // Author: xiao_hei_hand
+    public static final ResourceLocation ANT_WAR_MODE_ID = SRE.xiaoheihandId("ant_war");
+
     // Modified from Harpymodloader
     public static final GameMode MURDER = registerGameMode(new SREMurderGameMode(MURDER_ID));
 
@@ -44,6 +47,9 @@ public class SREGameModes {
     // written by canyuesama
     public static final GameMode FOURTH_ROOM = registerGameMode(new FourthRoomGameMode(FOURTH_ROOM_ID));
     public static final GameMode WHEELCHAR_GAME_MODE = registerGameMode(new ChairWheelRaceGame());
+
+    // written by xiao_hei_hand
+    public static final GameMode ANT_WAR_MODE = registerGameMode(new SREAntWarGameMode(ANT_WAR_MODE_ID));
 
     // register
     public static GameMode registerGameMode(GameMode gameMode) {

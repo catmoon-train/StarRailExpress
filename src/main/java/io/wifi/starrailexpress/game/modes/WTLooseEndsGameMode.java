@@ -27,9 +27,18 @@ import java.util.function.Supplier;
 
 @SuppressWarnings("deprecation")
 public class WTLooseEndsGameMode extends GameMode {
-    public static final List<Supplier<ItemStack>> looseEndsItems = new ArrayList<>();
+    public final List<Supplier<ItemStack>> looseEndsItems = new ArrayList<>();
 
-    static {
+    public WTLooseEndsGameMode(ResourceLocation identifier) {
+        super(identifier, 10, 2);
+        initItemList();
+    }
+
+    protected void initItemList() {
+        // 初始化模式物品列表
+        looseEndsItems.add(TMMItems.CROWBAR::getDefaultInstance);
+        looseEndsItems.add(TMMItems.DERRINGER::getDefaultInstance);
+        looseEndsItems.add(TMMItems.KNIFE::getDefaultInstance);
         // 防御试剂
         looseEndsItems.add(() -> {
             final var defenseVial = TMMItems.DEFENSE_VIAL;
@@ -40,30 +49,19 @@ public class WTLooseEndsGameMode extends GameMode {
         });
     }
 
-    public WTLooseEndsGameMode(ResourceLocation identifier) {
-        super(identifier, 10, 2);
-    }
-
-    @Override
-    public void initializeGame(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent,
-            List<ServerPlayer> players) {
-        SRETrainWorldComponent.KEY.get(serverWorld).setTimeOfDay(SRETrainWorldComponent.TimeOfDay.SUNDOWN);
-
+    protected void initCoolDownItems(List<ServerPlayer> players) {
+        int cooldown = GameConstants.getInTicks(0, 10);
         for (ServerPlayer player : players) {
-            player.getInventory().clearContent();
-
-            ItemStack derringer = new ItemStack(TMMItems.DERRINGER);
-            ItemStack knife = new ItemStack(TMMItems.KNIFE);
-
-            int cooldown = GameConstants.getInTicks(0, 10);
+            // 给所有人的武器添加冷却
             ItemCooldowns itemCooldownManager = player.getCooldowns();
             itemCooldownManager.addCooldown(TMMItems.DERRINGER, cooldown);
             itemCooldownManager.addCooldown(TMMItems.KNIFE, cooldown);
-
-            player.addItem(new ItemStack(TMMItems.CROWBAR));
-            player.addItem(derringer);
-            player.addItem(knife);
-
+        }
+    }
+    /** 初始化亡命徒物品 */
+    protected void initPlayerItems(List<ServerPlayer> players) {
+        for (ServerPlayer player : players) {
+            player.getInventory().clearContent();
             // 添加亡命徒模式专属物品
             for (Supplier<ItemStack> itemSupplier : looseEndsItems) {
                 ItemStack itemStack = itemSupplier.get();
@@ -71,7 +69,17 @@ public class WTLooseEndsGameMode extends GameMode {
                     player.addItem(itemStack);
                 }
             }
+        }
+    }
 
+    @Override
+    public void initializeGame(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent,
+            List<ServerPlayer> players) {
+        SRETrainWorldComponent.KEY.get(serverWorld).setTimeOfDay(SRETrainWorldComponent.TimeOfDay.SUNDOWN);
+
+        initCoolDownItems(players);
+        initPlayerItems(players);
+        for (ServerPlayer player : players) {
             gameWorldComponent.addRole(player, TMMRoles.LOOSE_END);
 
             ServerPlayNetworking.send(player,
