@@ -21,6 +21,8 @@
   "text.autoconfig.starrailexpress-client.option.disableTitleScreenSound": "Disable Annoying Train Sound on Title Screen",
   "text.autoconfig.starrailexpress-client.option.welcome_voice": "Play Train Welcome Voice",
   "text.autoconfig.starrailexpress-client.option.disableTitleScreenVideoBackground": "Disable Train Background on Title Screen",
+  "text.autoconfig.starrailexpress.option.antWarPlayerScale": "Ant war player scale",
+  "text.autoconfig.starrailexpress.option.antWarPlayerSpeedLvl": "Ant war player speed lvl",
   "=== SRE ===": "",
   "text.autoconfig.starrailexpress.title": "Star Rail Express General Settings",
   "text.autoconfig.starrailexpress.category.presents": "Presents",

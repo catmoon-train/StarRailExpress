@@ -108,6 +108,8 @@
   "text.autoconfig.starrailexpress.option.gamblerModeGamblerPercent":"在赌徒模式中，赌徒词条占总玩家数数量。（最大为1）",
   "text.autoconfig.starrailexpress.option.gamblerModeGamblerKillTime":"在赌徒模式中，未变身的赌徒的死亡时间。（单位：秒）",
   "text.autoconfig.starrailexpress.option.customRoleModeForceSelectTime":"在自选职业模式中，玩家最多选择职业的时长。（单位：秒）",
+  "text.autoconfig.starrailexpress.option.antWarPlayerScale": "蚂蚁大战玩家缩放大小",
+  "text.autoconfig.starrailexpress.option.antWarPlayerSpeedLvl": "蚂蚁大战玩家速度等级",
   "====== 分类 ======":"",
   "text.autoconfig.starrailexpress.category.sync": "同步",
   "text.autoconfig.starrailexpress.category.gamemodes": "游戏模式",

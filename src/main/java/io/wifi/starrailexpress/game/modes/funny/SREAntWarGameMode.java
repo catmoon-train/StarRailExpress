@@ -1,5 +1,6 @@
 package io.wifi.starrailexpress.game.modes.funny;
 
+import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.modes.WTLooseEndsGameMode;
@@ -18,9 +19,6 @@ import java.util.List;
 import java.util.Objects;
 
 public class SREAntWarGameMode extends WTLooseEndsGameMode {
-    private static final AttributeModifier antModifier = new AttributeModifier(
-            StupidExpress.id("ant_modifier"), -0.7, AttributeModifier.Operation.ADD_VALUE);
-
     public SREAntWarGameMode(ResourceLocation identifier) {
         super(identifier);
     }
@@ -43,13 +41,15 @@ public class SREAntWarGameMode extends WTLooseEndsGameMode {
     public void initializeGame(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent,
                                List<ServerPlayer> players) {
         super.initializeGame(serverWorld, gameWorldComponent, players);
+        AttributeModifier antModifier = new AttributeModifier(
+                StupidExpress.id("ant_modifier"), SREConfig.instance().antWarPlayerScale, AttributeModifier.Operation.ADD_VALUE);
         for (ServerPlayer player : players) {
             player.removeEffect(MobEffects.MOVEMENT_SPEED);
             player.addEffect(
                     new MobEffectInstance(
                     MobEffects.MOVEMENT_SPEED,  // 速度效果
                     12000,                  // 持续时间（tick）
-                    5,                    // 等级（VI）
+                    SREConfig.instance().antWarPlayerSpeedLvl,                    // 等级（VI）
                     false,                // 是否显示粒子效果
                     true                  // 是否显示图标
             ));

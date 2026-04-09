@@ -28,6 +28,11 @@ public class SREConfig implements ConfigData {
     public int gamblerModeGamblerKillTime = 200;
     @ConfigEntry.Category(value = "gamemodes")
     public int customRoleModeForceSelectTime = 30;
+    @ConfigEntry.Category(value = "gamemodes")
+    public double antWarPlayerScale = -0.7;
+    @ConfigEntry.Category(value = "gamemodes")
+    public int antWarPlayerSpeedLvl = 5;
+
     // 随机地图设置
     @ConfigEntry.Category(value = "map")
     @Tooltip
