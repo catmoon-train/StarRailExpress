@@ -245,7 +245,6 @@ public class SRE extends StarRailExpressID implements ModInitializer {
             io.wifi.starrailexpress.command.ToggleWaypointsCommand.register(dispatcher);
             AFKCommand.register(dispatcher);
             ShowStatsCommand.register(dispatcher);
-            ProgressionCommand.register(dispatcher);
             ShowSelectedMapUICommand.register(dispatcher);
             NetworkStatsCommand.register(dispatcher);
             FourthRoomCommand.register(dispatcher);
@@ -254,8 +253,6 @@ public class SRE extends StarRailExpressID implements ModInitializer {
             io.wifi.starrailexpress.cca.network.SkinsNetworkSyncCommand.register(dispatcher);
             // CoinModifier.register(dispatcher, registryAccess);
             net.exmo.sre.nametag.NameTagCommand.register(dispatcher);
-            net.exmo.sre.client.chat.ChatDialogueCommand.register(dispatcher);
-            io.wifi.starrailexpress.mail.MailCommand.register(dispatcher, registryAccess);
             // io.wifi.starrailexpress.command.UnlockAllRolesCommand.register(dispatcher);
         }));
     }
