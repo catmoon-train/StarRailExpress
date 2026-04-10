@@ -1,4 +1,5 @@
 package org.agmas.noellesroles.client;
+
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREArmorPlayerComponent;
@@ -542,8 +543,8 @@ public class InstinctRenderer {
                     if (target_role != null) {
                         if (RoleUtils.compareRole(target_role, RedHouseRoles.PACHURI)) {
                             return RedHouseRoles.PACHURI.color();
-                        }return RedHouseRoles.FURANDORU.color();
-
+                        }
+                        return RedHouseRoles.FURANDORU.color();
                     }
                     return -1;
                 }
@@ -697,7 +698,8 @@ public class InstinctRenderer {
                                 return Color.CYAN.getRGB();
                             }
                         }
-                        if (SREGameTimeComponent.KEY.get(client.level).getTime() >= GameConstants.getFurandoruSafeLine()) {
+                        if (SREGameTimeComponent.KEY.get(client.level).getTime() >= GameConstants
+                                .getFurandoruSafeLine()) {
                             if (SREClient.gameComponent.isRole(target_player, RedHouseRoles.FURANDORU)) {
                                 return -2;
                             }
