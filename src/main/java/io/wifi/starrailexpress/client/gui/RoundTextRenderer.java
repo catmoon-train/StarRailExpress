@@ -2,7 +2,8 @@ package io.wifi.starrailexpress.client.gui;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.blaze3d.systems.RenderSystem;
-import io.wifi.starrailexpress.api.SREGameModes;
+
+import io.wifi.starrailexpress.api.GameMode;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
@@ -75,7 +76,9 @@ public class RoundTextRenderer {
         if (copyrightWidth <= 0) {
             copyrightWidth = renderer.width(copyright);
         }
-        boolean isLooseEnds = SREGameWorldComponent.KEY.get(player.level()).getGameMode() == SREGameModes.LOOSE_ENDS;
+        // .isLooseEndMode()
+        GameMode gamemode = SREGameWorldComponent.KEY.get(player.level()).getGameMode();
+        boolean isLooseEnds = gamemode.isLooseEndMode();
 
         if (welcomeTime > 0) {
             if (welcomeTime <= WELCOME_DURATION - GameConstants.FADE_TIME + 15) {
@@ -140,7 +143,8 @@ public class RoundTextRenderer {
         }
 
         SREGameWorldComponent game = SREGameWorldComponent.KEY.get(player.level());
-        if (endTime > 0 && endTime < END_DURATION - (GameConstants.FADE_TIME * 2) && !game.isRunning() && game.fade <= 0) {
+        if (endTime > 0 && endTime < END_DURATION - (GameConstants.FADE_TIME * 2) && !game.isRunning()
+                && game.fade <= 0) {
             SREGameRoundEndComponent roundEnd = SREGameRoundEndComponent.KEY.get(player.level());
             if (roundEnd.getWinStatus() == GameUtils.WinStatus.NONE)
                 return;

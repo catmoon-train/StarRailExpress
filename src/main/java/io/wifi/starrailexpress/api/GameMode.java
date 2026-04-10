@@ -46,6 +46,10 @@ public abstract class GameMode {
         return true;
     }
 
+    public boolean isLooseEndMode() {
+        return false;
+    }
+
     public boolean enforcesPlayAreaElimination() {
         return true;
     }

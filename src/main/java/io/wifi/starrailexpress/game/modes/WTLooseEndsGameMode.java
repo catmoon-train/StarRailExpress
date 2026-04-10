@@ -58,6 +58,7 @@ public class WTLooseEndsGameMode extends GameMode {
             itemCooldownManager.addCooldown(TMMItems.KNIFE, cooldown);
         }
     }
+
     /** 初始化亡命徒物品 */
     protected void initPlayerItems(List<ServerPlayer> players) {
         for (ServerPlayer player : players) {
@@ -70,6 +71,11 @@ public class WTLooseEndsGameMode extends GameMode {
                 }
             }
         }
+    }
+
+    @Override
+    public boolean isLooseEndMode() {
+        return true;
     }
 
     @Override
