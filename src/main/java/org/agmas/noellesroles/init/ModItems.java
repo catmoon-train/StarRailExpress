@@ -487,7 +487,8 @@ public class ModItems {
      * 时停钟
      */
     public static final Item TIME_STOP_CLOCK = register(
-            new TimeStopClock(new Item.Properties().stacksTo(1).durability(TimeStopClock.MAX_DURABILITY)),
+            new TimeStopClock(new Item.Properties().stacksTo(1).durability(TimeStopClock.MAX_DURABILITY)
+                    .component(DataComponents.CUSTOM_DATA, TimeStopClock.getDefaultCustomData())),
             "time_stop_clock");
 
     public static final Item ZHANWEIFU1 = registrar.create("zhanweifu1",
