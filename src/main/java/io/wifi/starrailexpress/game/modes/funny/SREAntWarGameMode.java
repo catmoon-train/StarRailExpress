@@ -4,6 +4,9 @@ import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.modes.WTLooseEndsGameMode;
+import io.wifi.starrailexpress.index.TMMItems;
+import io.wifi.starrailexpress.item.DerringerItem;
+import io.wifi.starrailexpress.util.ItemComponentUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -12,12 +15,21 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemCooldowns;
+import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.init.ModItems;
+import org.agmas.noellesroles.item.TimeStopClock;
 import pro.fazeclan.river.stupid_express.StupidExpress;
 
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * 蚂蚁大战模式
+ * <p>
+ *     模式特性：所有人被修改体型并获得加速
+ *     特殊道具：巡警手枪，时停表
+ * </p>
+ */
 public class SREAntWarGameMode extends WTLooseEndsGameMode {
     public SREAntWarGameMode(ResourceLocation identifier) {
         super(identifier);
@@ -26,6 +38,13 @@ public class SREAntWarGameMode extends WTLooseEndsGameMode {
     protected void initItemList() {
         super.initItemList();
         looseEndsItems.add(ModItems.PATROLLER_REVOLVER::getDefaultInstance);
+        looseEndsItems.add(() -> {
+            ItemStack timeStopClock = new ItemStack(ModItems.TIME_STOP_CLOCK);
+            ItemComponentUtils.setTagIntValue(timeStopClock, TimeStopClock.TAG_STOP_TIME, SREConfig.instance().antWarClockStopTick);
+            ItemComponentUtils.setTagIntValue(timeStopClock, TimeStopClock.TAG_COOLDOWN, SREConfig.instance().antWarClockCooldownTick);
+            return timeStopClock;
+        });
+        looseEndsItems.removeIf(item -> item.get().getItem() instanceof DerringerItem);
     }
     @Override
     protected void initCoolDownItems(List<ServerPlayer> players) {

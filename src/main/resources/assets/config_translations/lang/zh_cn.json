@@ -110,6 +110,8 @@
   "text.autoconfig.starrailexpress.option.customRoleModeForceSelectTime":"在自选职业模式中，玩家最多选择职业的时长。（单位：秒）",
   "text.autoconfig.starrailexpress.option.antWarPlayerScale": "蚂蚁大战玩家缩放大小",
   "text.autoconfig.starrailexpress.option.antWarPlayerSpeedLvl": "蚂蚁大战玩家速度等级",
+  "text.autoconfig.starrailexpress.option.antWarClockStopTick": "蚂蚁大战时停时长",
+  "text.autoconfig.starrailexpress.option.antWarClockCooldownTick": "蚂蚁大战时停冷却时长",
   "====== 分类 ======":"",
   "text.autoconfig.starrailexpress.category.sync": "同步",
   "text.autoconfig.starrailexpress.category.gamemodes": "游戏模式",
