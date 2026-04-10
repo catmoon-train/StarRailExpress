@@ -18,6 +18,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.Noellesroles;
+import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.repack.HSRItems;
 import org.agmas.noellesroles.role.ModRoles;
@@ -214,7 +215,7 @@ public class ThiefPlayerComponent implements RoleComponent, ServerTickingCompone
                     true);
             return true; // 失败不进入冷却
         }
-        ConfigWorldComponent.onPlayerUsedSkill( (ServerPlayer) serverPlayer);
+        ConfigWorldComponent.onPlayerUsedSkill((ServerPlayer) serverPlayer);
         if (this.currentMode == MODE_STEAL_MONEY) {
             return stealMoney(target);
         } else {
@@ -797,6 +798,8 @@ public class ThiefPlayerComponent implements RoleComponent, ServerTickingCompone
         var gwc = SREGameWorldComponent.KEY.get(player.level());
         if (!gwc.isRole(player, ModRoles.THIEF))
             return;
+        if (player.hasEffect(ModEffects.NO_COLLIDE)) // 安全时间
+            return;
         var psc = SREPlayerShopComponent.KEY.get(player);
         if (player.level().getGameTime() % 20 == 0) {
             if (psc.balance >= this.honorCost) {
@@ -861,7 +864,6 @@ public class ThiefPlayerComponent implements RoleComponent, ServerTickingCompone
         this.isInSelectionMode = tag.getBoolean("IsInSelectionMode");
     }
 
-    
     @Override
     public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }
