@@ -50,200 +50,175 @@ public class GameUtilsCommand {
   public static void register() {
     CommandRegistrationCallback.EVENT.register(
         (dispatcher, registryAccess, environment) -> {
-          dispatcher.register(Commands.literal("tmm:game").requires(source -> source.hasPermission(2))
-              .requires((t) -> Harpymodloader.isMojangVerify)
-              .then(Commands.literal("tests")
-                  .then(Commands.literal("math").executes((context) -> {
-                    ServerPlayNetworking.send(context.getSource().getPlayerOrException(),
-                        new ProblemScreenOpenC2SPacket(false, 3));
-                    return 1;
-                  }).then(Commands.literal("forced").executes((context) -> {
-                    ServerPlayNetworking.send(context.getSource().getPlayerOrException(),
-                        new ProblemScreenOpenC2SPacket(true, 3));
-                    return 1;
-                  }))))
-              .then(Commands.literal("tasks")
-                  .then(Commands.literal("list").executes((context) -> {
-                    var source = context.getSource();
-                    source.sendSystemMessage(
-                        Component.literal("Sync Task Queue:").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
-                    int idx = 0;
-                    for (ServerTaskInfo inf : GameUtils.serverTaskQueue) {
-                      source.sendSystemMessage(Component.translatable("[%s] %s", idx, inf.getClass().getSimpleName())
-                          .withStyle(ChatFormatting.AQUA));
-                      idx++;
-                    }
-                    source.sendSystemMessage(
-                        Component.literal("\nAsyn Task List:").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
-                    idx = 0;
-                    for (ServerTaskInfo inf : GameUtils.serverAsynTaskLists) {
-                      source.sendSystemMessage(Component.translatable("[%s] %s", idx, inf.getClass().getSimpleName())
-                          .withStyle(ChatFormatting.AQUA));
-                      idx++;
-                    }
-                    source.sendSuccess(() -> {
-                      return Component.translatable("\nSync Task Queue size: %s\nAsyn Task List size: %s",
-                          GameUtils.serverTaskQueue.size(),
-                          GameUtils.serverAsynTaskLists.size()).withStyle(ChatFormatting.GOLD);
-                    }, false);
-                    // GameUtils.serverTaskQueue;
-                    // GameUtils.;
-                    return 1;
-                  }))
-                  .then(Commands.literal("clear")
-                      .then(Commands.literal("task_queue").executes((context) -> {
+          dispatcher.register(
+              Commands.literal("tmm:game").requires(source -> Harpymodloader.isMojangVerify && source.hasPermission(2))
+                  .then(Commands.literal("tests")
+                      .then(Commands.literal("math").executes((context) -> {
+                        ServerPlayNetworking.send(context.getSource().getPlayerOrException(),
+                            new ProblemScreenOpenC2SPacket(false, 3));
+                        return 1;
+                      }).then(Commands.literal("forced").executes((context) -> {
+                        ServerPlayNetworking.send(context.getSource().getPlayerOrException(),
+                            new ProblemScreenOpenC2SPacket(true, 3));
+                        return 1;
+                      }))))
+                  .then(Commands.literal("tasks")
+                      .then(Commands.literal("list").executes((context) -> {
                         var source = context.getSource();
-                        GameUtils.serverTaskQueue.clear();
+                        source.sendSystemMessage(
+                            Component.literal("Sync Task Queue:").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
+                        int idx = 0;
+                        for (ServerTaskInfo inf : GameUtils.serverTaskQueue) {
+                          source
+                              .sendSystemMessage(Component.translatable("[%s] %s", idx, inf.getClass().getSimpleName())
+                                  .withStyle(ChatFormatting.AQUA));
+                          idx++;
+                        }
+                        source.sendSystemMessage(
+                            Component.literal("\nAsyn Task List:").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
+                        idx = 0;
+                        for (ServerTaskInfo inf : GameUtils.serverAsynTaskLists) {
+                          source
+                              .sendSystemMessage(Component.translatable("[%s] %s", idx, inf.getClass().getSimpleName())
+                                  .withStyle(ChatFormatting.AQUA));
+                          idx++;
+                        }
                         source.sendSuccess(() -> {
-                          return Component.literal("Cleared all task queues!");
-                        }, true);
+                          return Component.translatable("\nSync Task Queue size: %s\nAsyn Task List size: %s",
+                              GameUtils.serverTaskQueue.size(),
+                              GameUtils.serverAsynTaskLists.size()).withStyle(ChatFormatting.GOLD);
+                        }, false);
+                        // GameUtils.serverTaskQueue;
+                        // GameUtils.;
                         return 1;
                       }))
-                      .then(Commands.literal("task_list").executes((context) -> {
-                        var source = context.getSource();
-                        GameUtils.serverAsynTaskLists.clear();
-                        source.sendSuccess(() -> {
-                          return Component.literal("Cleared all asyn tasks list!");
-                        }, true);
-                        return 1;
-                      })))
-                  .then(Commands.literal("cancel")
-                      .then(Commands.literal("task_queue")
-                          .then(Commands.argument("tid", IntegerArgumentType.integer(0)).executes((context) -> {
+                      .then(Commands.literal("clear")
+                          .then(Commands.literal("task_queue").executes((context) -> {
                             var source = context.getSource();
-
-                            int tid = IntegerArgumentType.getInteger(context, "tid");
-                            if (tid >= 0 && tid < GameUtils.serverTaskQueue.size()) {
-                              var task = GameUtils.serverTaskQueue.get(tid);
-                              task.cancelled = true;
-                              source.sendSuccess(() -> Component
-                                  .translatable("Cancelled task %s (tid: %s)!", task.getClass().getSimpleName(), tid)
-                                  .withStyle(ChatFormatting.GREEN), true);
-                            } else {
-                              source.sendFailure(Component.literal("Invaild tid!").withStyle(ChatFormatting.RED));
-                              return 0;
-                            }
-                            return 1;
-                          }))
-                          .then(Commands.literal("all").executes((context) -> {
-                            var source = context.getSource();
-                            GameUtils.serverTaskQueue.forEach((t) -> {
-                              t.cancelled = true;
-                            });
+                            GameUtils.serverTaskQueue.clear();
                             source.sendSuccess(() -> {
                               return Component.literal("Cleared all task queues!");
                             }, true);
                             return 1;
-                          })))
-                      .then(Commands.literal("task_list")
-                          .then(Commands.argument("tid", IntegerArgumentType.integer(0)).executes((context) -> {
-                            var source = context.getSource();
-
-                            int tid = IntegerArgumentType.getInteger(context, "tid");
-                            if (tid >= 0 && tid < GameUtils.serverAsynTaskLists.size()) {
-                              var task = GameUtils.serverAsynTaskLists.get(tid);
-                              task.cancelled = true;
-                              source.sendSuccess(() -> Component
-                                  .translatable("Cancelled task %s (tid: %s)!", task.getClass().getSimpleName(), tid)
-                                  .withStyle(ChatFormatting.GREEN), true);
-                            } else {
-                              source.sendFailure(Component.literal("Invaild tid!").withStyle(ChatFormatting.RED));
-                              return 0;
-                            }
-                            return 1;
                           }))
-                          .then(Commands.literal("all").executes((context) -> {
+                          .then(Commands.literal("task_list").executes((context) -> {
                             var source = context.getSource();
-                            GameUtils.serverAsynTaskLists.forEach((t) -> {
-                              t.cancelled = true;
-                            });
+                            GameUtils.serverAsynTaskLists.clear();
                             source.sendSuccess(() -> {
                               return Component.literal("Cleared all asyn tasks list!");
                             }, true);
                             return 1;
-                          })))))
-              .then(Commands.literal("win")
-                  .then(Commands.argument("id", StringArgumentType.string())
-                      .suggests(WinStatusSuggestions::suggestWinStatus)
-                      .executes(GameUtilsCommand::executeWinWithOnlyId))
-                  .then(Commands.literal("CUSTOM")
-                      .then(Commands.argument("color", ModColorArgument.color())
-                          .then(
-                              Commands.argument("id", StringArgumentType.string())
-                                  .executes(GameUtilsCommand::executeCustomWinWithOnlyId))))
-                  .then(Commands.literal("CUSTOM_COMPONENT")
-                      .then(Commands.argument("color", ModColorArgument.color())
-                          .then(Commands.argument("title", ComponentArgument.textComponent(registryAccess))
-                              .then(Commands
-                                  .argument(
-                                      "subtitle", ComponentArgument.textComponent(registryAccess))
-                                  .executes(GameUtilsCommand::executeCustomWinWithIdAndTitle))))))
-              .then(Commands.literal("reset")
-                  .then(Commands.literal("blocks")
-                      .then(Commands.literal("copy").executes((context) -> {
-                        // GameUtils.tryAutoTrainReset(context.getSource().getLevel());
-                        var world = context.getSource().getLevel();
-                        var areas = AreasWorldComponent.KEY.get(world);
-                        ServerTaskInfoClasses.FullTrainResetTask task = new ServerTaskInfoClasses.FullTrainResetTask(
-                            areas,
-                            world, null, 0);
-                        task.shouldStartGame = false;
+                          })))
+                      .then(Commands.literal("cancel")
+                          .then(Commands.literal("task_queue")
+                              .then(Commands.argument("tid", IntegerArgumentType.integer(0)).executes((context) -> {
+                                var source = context.getSource();
 
-                        GameUtils.serverTaskQueue.add(task);
-                        context.getSource()
-                            .sendSuccess(() -> Component.literal("Add server reset task: Normal Reset(copy)!"), true);
-                        return 1;
-                      }))
-                      .then(Commands.literal("simple").executes((context) -> {
-                        var world = context.getSource().getLevel();
-                        MapResetManager.loadArea(world);
-                        var areas = AreasWorldComponent.KEY.get(world);
-                        ServerTaskInfoClasses.OnlySomeBlockResetTask task = new ServerTaskInfoClasses.OnlySomeBlockResetTask(
-                            GameUtils.resetPoints, world, null, 0, areas);
-                        task.shouldStartGame = false;
-                        GameUtils.serverTaskQueue.add(task);
-                        context.getSource().sendSuccess(
-                            () -> Component.literal("Add server reset task: Simple Reset (clean points only)!"),
+                                int tid = IntegerArgumentType.getInteger(context, "tid");
+                                if (tid >= 0 && tid < GameUtils.serverTaskQueue.size()) {
+                                  var task = GameUtils.serverTaskQueue.get(tid);
+                                  task.cancelled = true;
+                                  source.sendSuccess(() -> Component
+                                      .translatable("Cancelled task %s (tid: %s)!", task.getClass().getSimpleName(),
+                                          tid)
+                                      .withStyle(ChatFormatting.GREEN), true);
+                                } else {
+                                  source.sendFailure(Component.literal("Invaild tid!").withStyle(ChatFormatting.RED));
+                                  return 0;
+                                }
+                                return 1;
+                              }))
+                              .then(Commands.literal("all").executes((context) -> {
+                                var source = context.getSource();
+                                GameUtils.serverTaskQueue.forEach((t) -> {
+                                  t.cancelled = true;
+                                });
+                                source.sendSuccess(() -> {
+                                  return Component.literal("Cleared all task queues!");
+                                }, true);
+                                return 1;
+                              })))
+                          .then(Commands.literal("task_list")
+                              .then(Commands.argument("tid", IntegerArgumentType.integer(0)).executes((context) -> {
+                                var source = context.getSource();
+
+                                int tid = IntegerArgumentType.getInteger(context, "tid");
+                                if (tid >= 0 && tid < GameUtils.serverAsynTaskLists.size()) {
+                                  var task = GameUtils.serverAsynTaskLists.get(tid);
+                                  task.cancelled = true;
+                                  source.sendSuccess(() -> Component
+                                      .translatable("Cancelled task %s (tid: %s)!", task.getClass().getSimpleName(),
+                                          tid)
+                                      .withStyle(ChatFormatting.GREEN), true);
+                                } else {
+                                  source.sendFailure(Component.literal("Invaild tid!").withStyle(ChatFormatting.RED));
+                                  return 0;
+                                }
+                                return 1;
+                              }))
+                              .then(Commands.literal("all").executes((context) -> {
+                                var source = context.getSource();
+                                GameUtils.serverAsynTaskLists.forEach((t) -> {
+                                  t.cancelled = true;
+                                });
+                                source.sendSuccess(() -> {
+                                  return Component.literal("Cleared all asyn tasks list!");
+                                }, true);
+                                return 1;
+                              })))))
+                  .then(Commands.literal("win")
+                      .then(Commands.argument("id", StringArgumentType.string())
+                          .suggests(WinStatusSuggestions::suggestWinStatus)
+                          .executes(GameUtilsCommand::executeWinWithOnlyId))
+                      .then(Commands.literal("CUSTOM")
+                          .then(Commands.argument("color", ModColorArgument.color())
+                              .then(
+                                  Commands.argument("id", StringArgumentType.string())
+                                      .executes(GameUtilsCommand::executeCustomWinWithOnlyId))))
+                      .then(Commands.literal("CUSTOM_COMPONENT")
+                          .then(Commands.argument("color", ModColorArgument.color())
+                              .then(Commands.argument("title", ComponentArgument.textComponent(registryAccess))
+                                  .then(Commands
+                                      .argument(
+                                          "subtitle", ComponentArgument.textComponent(registryAccess))
+                                      .executes(GameUtilsCommand::executeCustomWinWithIdAndTitle))))))
+                  .then(Commands.literal("reset")
+                      .then(Commands.literal("blocks")
+                          .then(Commands.literal("copy").executes((context) -> {
+                            // GameUtils.tryAutoTrainReset(context.getSource().getLevel());
+                            var world = context.getSource().getLevel();
+                            var areas = AreasWorldComponent.KEY.get(world);
+                            ServerTaskInfoClasses.FullTrainResetTask task = new ServerTaskInfoClasses.FullTrainResetTask(
+                                areas,
+                                world, null, 0);
+                            task.shouldStartGame = false;
+
+                            GameUtils.serverTaskQueue.add(task);
+                            context.getSource()
+                                .sendSuccess(() -> Component.literal("Add server reset task: Normal Reset(copy)!"),
+                                    true);
+                            return 1;
+                          }))
+                          .then(Commands.literal("simple").executes((context) -> {
+                            var world = context.getSource().getLevel();
+                            MapResetManager.loadArea(world);
+                            var areas = AreasWorldComponent.KEY.get(world);
+                            ServerTaskInfoClasses.OnlySomeBlockResetTask task = new ServerTaskInfoClasses.OnlySomeBlockResetTask(
+                                GameUtils.resetPoints, world, null, 0, areas);
+                            task.shouldStartGame = false;
+                            GameUtils.serverTaskQueue.add(task);
+                            context.getSource().sendSuccess(
+                                () -> Component.literal("Add server reset task: Simple Reset (clean points only)!"),
+                                true);
+                            return 1;
+                          })))
+                      .then(Commands.literal("entity").then(Commands.literal("clear").executes((context) -> {
+                        GameUtils.resetEntities(context.getSource().getLevel());
+                        context.getSource().sendSuccess(() -> Component.literal("Cleared entity!"),
                             true);
                         return 1;
-                      })))
-                  .then(Commands.literal("entity").then(Commands.literal("clear").executes((context) -> {
-                    GameUtils.resetEntities(context.getSource().getLevel());
-                    context.getSource().sendSuccess(() -> Component.literal("Cleared entity!"),
-                        true);
-                    return 1;
-                  }))))
-              .then(Commands.literal("scan").executes((context) -> {
-                var source = context.getSource();
-                var level = source.getLevel();
-                var areas = AreasWorldComponent.KEY.get(level);
-                if (areas.mapName == null) {
-                  context.getSource()
-                      .sendFailure(Component
-                          .literal("You should load map first to scan points!\nUsage: /tmm:switchmap load <MapID>")
-                          .withStyle(ChatFormatting.RED));
-                  return 0;
-                }
-                MapResetManager.scanArea(level, areas);
-                MapResetManager.saveArea(level);
-                context.getSource().sendSuccess(
-                    () -> Component.translatable("Scanned and saved reset points for map %s ! Total %s blocks!",
-                        Component.nullToEmpty(areas.mapName), GameUtils.resetPoints.size()),
-                    true);
-                MapScannerManager.scanAndSaveScannerArea(level, areas);
-                HashMap<Integer, Boolean> map = new HashMap<>();
-                for (Entry<BlockPos, Integer> entry : GameUtils.taskBlocks.entrySet()) {
-                  map.putIfAbsent(entry.getValue(), true);
-                }
-                context.getSource().sendSuccess(
-                    () -> Component.translatable("Scanned Task points! Total %s types!", map.size()), true);
-
-                for (var player : context.getSource().getLevel().players()) {
-                  ServerPlayNetworking.send(player, new ScanAllTaskPointsPayload(GameUtils.taskBlocks));
-                }
-                return 1;
-              })
-                  .then(Commands.literal("reset_points").executes((context) -> {
+                      }))))
+                  .then(Commands.literal("scan").executes((context) -> {
                     var source = context.getSource();
                     var level = source.getLevel();
                     var areas = AreasWorldComponent.KEY.get(level);
@@ -260,11 +235,6 @@ public class GameUtilsCommand {
                         () -> Component.translatable("Scanned and saved reset points for map %s ! Total %s blocks!",
                             Component.nullToEmpty(areas.mapName), GameUtils.resetPoints.size()),
                         true);
-                    return 1;
-                  }))
-                  .then(Commands.literal("task_points").executes((context) -> {
-                    var level = context.getSource().getLevel();
-                    var areas = AreasWorldComponent.KEY.get(level);
                     MapScannerManager.scanAndSaveScannerArea(level, areas);
                     HashMap<Integer, Boolean> map = new HashMap<>();
                     for (Entry<BlockPos, Integer> entry : GameUtils.taskBlocks.entrySet()) {
@@ -277,64 +247,100 @@ public class GameUtilsCommand {
                       ServerPlayNetworking.send(player, new ScanAllTaskPointsPayload(GameUtils.taskBlocks));
                     }
                     return 1;
+                  })
+                      .then(Commands.literal("reset_points").executes((context) -> {
+                        var source = context.getSource();
+                        var level = source.getLevel();
+                        var areas = AreasWorldComponent.KEY.get(level);
+                        if (areas.mapName == null) {
+                          context.getSource()
+                              .sendFailure(Component
+                                  .literal(
+                                      "You should load map first to scan points!\nUsage: /tmm:switchmap load <MapID>")
+                                  .withStyle(ChatFormatting.RED));
+                          return 0;
+                        }
+                        MapResetManager.scanArea(level, areas);
+                        MapResetManager.saveArea(level);
+                        context.getSource().sendSuccess(
+                            () -> Component.translatable("Scanned and saved reset points for map %s ! Total %s blocks!",
+                                Component.nullToEmpty(areas.mapName), GameUtils.resetPoints.size()),
+                            true);
+                        return 1;
+                      }))
+                      .then(Commands.literal("task_points").executes((context) -> {
+                        var level = context.getSource().getLevel();
+                        var areas = AreasWorldComponent.KEY.get(level);
+                        MapScannerManager.scanAndSaveScannerArea(level, areas);
+                        HashMap<Integer, Boolean> map = new HashMap<>();
+                        for (Entry<BlockPos, Integer> entry : GameUtils.taskBlocks.entrySet()) {
+                          map.putIfAbsent(entry.getValue(), true);
+                        }
+                        context.getSource().sendSuccess(
+                            () -> Component.translatable("Scanned Task points! Total %s types!", map.size()), true);
+
+                        for (var player : context.getSource().getLevel().players()) {
+                          ServerPlayNetworking.send(player, new ScanAllTaskPointsPayload(GameUtils.taskBlocks));
+                        }
+                        return 1;
+                      })))
+                  .then(Commands.literal("blackout").executes((context) -> {
+                    return executeBlackout(context, 0);
+                  }).then(Commands.argument("duration", IntegerArgumentType.integer(0)).executes((context) -> {
+                    return executeBlackout(context, IntegerArgumentType.getInteger(context, "duration"));
+                  })).then(Commands.literal("stop").executes((context) -> {
+                    return executeBlackout(context, -1);
                   })))
-              .then(Commands.literal("blackout").executes((context) -> {
-                return executeBlackout(context, 0);
-              }).then(Commands.argument("duration", IntegerArgumentType.integer(0)).executes((context) -> {
-                return executeBlackout(context, IntegerArgumentType.getInteger(context, "duration"));
-              })).then(Commands.literal("stop").executes((context) -> {
-                return executeBlackout(context, -1);
-              })))
-              .then(Commands.literal("psycho").executes((context) -> {
-                return executePsycho(context, -1);
-              }).then(Commands.literal("stop").executes((context) -> {
-                return executePsycho(context, 0);
-              })))
-              .then(Commands.literal("kill")
-                  .then(Commands.argument("victim", EntityArgument.player())
-                      .then(Commands.argument("death_reason", ResourceLocationArgument.id())
-                          .suggests(DeathReasonSuggestions::suggestDeathReasons)
-                          .executes((context) -> {
-                            ServerPlayer victim = EntityArgument.getPlayer(context, "victim");
-                            ResourceLocation deathReason = ResourceLocationArgument.getId(context,
-                                "death_reason");
-                            return executeKillPlayer(context, victim, null, deathReason, true, false);
-                          })
-                          .then(Commands.argument("killer", EntityArgument.player()).executes((context) -> {
-                            ServerPlayer victim = EntityArgument.getPlayer(context, "victim");
-                            ServerPlayer killer = EntityArgument.getPlayer(context, "killer");
-                            ResourceLocation deathReason = ResourceLocationArgument.getId(context,
-                                "death_reason");
-                            return executeKillPlayer(context, victim, killer, deathReason, true, false);
-                          })
-                              .then(Commands.argument("spawn_body", BoolArgumentType.bool()).executes((context) -> {
+                  .then(Commands.literal("psycho").executes((context) -> {
+                    return executePsycho(context, -1);
+                  }).then(Commands.literal("stop").executes((context) -> {
+                    return executePsycho(context, 0);
+                  })))
+                  .then(Commands.literal("kill")
+                      .then(Commands.argument("victim", EntityArgument.player())
+                          .then(Commands.argument("death_reason", ResourceLocationArgument.id())
+                              .suggests(DeathReasonSuggestions::suggestDeathReasons)
+                              .executes((context) -> {
                                 ServerPlayer victim = EntityArgument.getPlayer(context, "victim");
-                                boolean spawnBody = BoolArgumentType.getBool(context, "spawn_body");
+                                ResourceLocation deathReason = ResourceLocationArgument.getId(context,
+                                    "death_reason");
+                                return executeKillPlayer(context, victim, null, deathReason, true, false);
+                              })
+                              .then(Commands.argument("killer", EntityArgument.player()).executes((context) -> {
+                                ServerPlayer victim = EntityArgument.getPlayer(context, "victim");
                                 ServerPlayer killer = EntityArgument.getPlayer(context, "killer");
                                 ResourceLocation deathReason = ResourceLocationArgument.getId(context,
                                     "death_reason");
-                                return executeKillPlayer(context, victim, killer, deathReason, spawnBody, false);
+                                return executeKillPlayer(context, victim, killer, deathReason, true, false);
                               })
-                                  .then(Commands.literal("force").executes((context -> {
+                                  .then(Commands.argument("spawn_body", BoolArgumentType.bool()).executes((context) -> {
                                     ServerPlayer victim = EntityArgument.getPlayer(context, "victim");
                                     boolean spawnBody = BoolArgumentType.getBool(context, "spawn_body");
                                     ServerPlayer killer = EntityArgument.getPlayer(context, "killer");
                                     ResourceLocation deathReason = ResourceLocationArgument.getId(context,
                                         "death_reason");
-                                    return executeKillPlayer(context, victim, killer, deathReason, spawnBody, true);
-                                  }))))))))
-              .then(Commands.literal("timestop")
-                  .then(Commands.argument("duration", IntegerArgumentType.integer(20, 1200))
-                      .then(Commands.argument("message", ComponentArgument.textComponent(registryAccess))
+                                    return executeKillPlayer(context, victim, killer, deathReason, spawnBody, false);
+                                  })
+                                      .then(Commands.literal("force").executes((context -> {
+                                        ServerPlayer victim = EntityArgument.getPlayer(context, "victim");
+                                        boolean spawnBody = BoolArgumentType.getBool(context, "spawn_body");
+                                        ServerPlayer killer = EntityArgument.getPlayer(context, "killer");
+                                        ResourceLocation deathReason = ResourceLocationArgument.getId(context,
+                                            "death_reason");
+                                        return executeKillPlayer(context, victim, killer, deathReason, spawnBody, true);
+                                      }))))))))
+                  .then(Commands.literal("timestop")
+                      .then(Commands.argument("duration", IntegerArgumentType.integer(20, 1200))
+                          .then(Commands.argument("message", ComponentArgument.textComponent(registryAccess))
+                              .executes((context) -> {
+                                int duration = IntegerArgumentType.getInteger(context, "duration");
+                                Component message = ComponentArgument.getComponent(context, "message");
+                                return executeTimeStop(context, duration, message);
+                              })))
+                      .then(Commands.literal("stop")
                           .executes((context) -> {
-                            int duration = IntegerArgumentType.getInteger(context, "duration");
-                            Component message = ComponentArgument.getComponent(context, "message");
-                            return executeTimeStop(context, duration, message);
-                          })))
-                  .then(Commands.literal("stop")
-                      .executes((context) -> {
-                        return executeTimeStopStop(context);
-                      }))));
+                            return executeTimeStopStop(context);
+                          }))));
         });
   }
 

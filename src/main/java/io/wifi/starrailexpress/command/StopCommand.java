@@ -12,8 +12,7 @@ import org.jetbrains.annotations.NotNull;
 public class StopCommand {
     public static void register(@NotNull CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("tmm:stop")
-                .requires((t) -> Harpymodloader.isMojangVerify) // 支持正版
-                .requires(source -> source.hasPermission(2))
+                .requires(source -> Harpymodloader.isMojangVerify && source.hasPermission(2))
                 .then(Commands.literal("force").executes(context -> {
                     GameUtils.finalizeGame(context.getSource().getLevel());
                     return 1;

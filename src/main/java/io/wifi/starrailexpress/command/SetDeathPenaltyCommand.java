@@ -19,8 +19,7 @@ public class SetDeathPenaltyCommand {
   public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
     dispatcher.register(
         Commands.literal("tmm:game")
-            .requires(source -> source.hasPermission(2))
-            .requires((t) -> Harpymodloader.isMojangVerify)
+            .requires(source -> Harpymodloader.isMojangVerify && source.hasPermission(2))
             .then(Commands.literal("penalty")
                 .requires(source -> source.isPlayer())
                 .then(Commands.literal("stop").executes((ctx) -> {

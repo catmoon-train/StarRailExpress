@@ -13,8 +13,7 @@ public class SetBoundCommand {
   // 是否限制玩家在旁观区域
   public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
     dispatcher.register(Commands.literal("tmm:game")
-        .requires(source -> source.hasPermission(2))
-        .requires((t) -> Harpymodloader.isMojangVerify)
+        .requires(source -> Harpymodloader.isMojangVerify && source.hasPermission(2))
         .then(Commands.literal("bounds")
             .then(Commands.argument("enabled", BoolArgumentType.bool())
                 .executes(context -> execute(context.getSource(),

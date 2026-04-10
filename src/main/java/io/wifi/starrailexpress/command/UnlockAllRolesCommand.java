@@ -30,8 +30,7 @@ public class UnlockAllRolesCommand {
 
   public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
     dispatcher.register(Commands.literal("sre:unlock_roles")
-        .requires((t) -> Harpymodloader.isMojangVerify) // 支持正版
-        .requires(d -> d.hasPermission(2))
+        .requires(d -> Harpymodloader.isMojangVerify && d.hasPermission(2))
         // 无参数：为自己打开解锁进度界面
         .executes(ctx -> openScreen(ctx.getSource(),
             ctx.getSource().getPlayerOrException()))
