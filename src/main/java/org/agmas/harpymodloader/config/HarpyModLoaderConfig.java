@@ -15,7 +15,7 @@ public class HarpyModLoaderConfig implements ConfigData {
 
     // Disables roles from being in the role pool. use /listRoles to get role names,
     // use /setEnabledRole to ban/unban them in-game (saves here).
-    private ArrayList<String> disabled = new ArrayList<>();
+    public ArrayList<String> disabled = new ArrayList<>();
 
     // Which Modifiers should be disabled. Modifiers also show up in /listRoles and
     // /setEnabledModifier.

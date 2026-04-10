@@ -52,12 +52,12 @@ public class SetEnabledRoleCommand {
                 style -> style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal(roleId))));
 
         if (disabled && enabled) {
-            HarpyModLoaderConfig.HANDLER.instance().getDisabled().remove(roleId);
+            HarpyModLoaderConfig.HANDLER.instance().disabled.remove(roleId);
             HarpyModLoaderConfig.HANDLER.save();
             context.getSource().sendSuccess(
                     () -> Component.translatable("commands.setenabledrole.enable.success", roleText), true);
         } else if (!disabled && !enabled) {
-            HarpyModLoaderConfig.HANDLER.instance().getDisabled().add(roleId);
+            HarpyModLoaderConfig.HANDLER.instance().disabled.add(roleId);
             HarpyModLoaderConfig.HANDLER.save();
             context.getSource().sendSuccess(
                     () -> Component.translatable("commands.setenabledrole.disable.success", roleText), true);
