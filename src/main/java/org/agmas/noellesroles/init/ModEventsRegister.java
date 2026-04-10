@@ -753,6 +753,8 @@ public class ModEventsRegister {
             return true;
         });
         UseEntityCallback.EVENT.register((player, level, interactionHand, entity, entityHitResult) -> {
+            if (player.isSpectator())
+                return InteractionResult.PASS;
             var gameC = SREGameWorldComponent.KEY.get(level);
             if (!gameC.isRole(player, TMMRoles.VIGILANTE))
                 return InteractionResult.PASS;
