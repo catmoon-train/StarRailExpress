@@ -276,4 +276,8 @@ public class SRERoleWorldComponent implements AutoSyncedComponent {
         }
         nbtCompound.put("roles", roleInfoCompund);
     }
+
+    public void syncWith(ServerPlayer player) {
+        KEY.syncWith(player, this.world.asComponentProvider());
+    }
 }

@@ -2,7 +2,9 @@ package io.wifi.starrailexpress.cca.gamemode;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.api.SpecialGameModeRoles;
 import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.cca.SRERoleWorldComponent;
 import io.wifi.starrailexpress.client.gui.screen.gamemode.custom_role.CustomRoleUpdateHandler;
 import io.wifi.starrailexpress.game.utils.RoleInstance;
 import net.fabricmc.api.EnvType;
@@ -16,9 +18,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.level.Level;
 
 import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
+import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -176,11 +180,27 @@ public class CustomRoleGameModeWorldComponent implements AutoSyncedComponent {
         }
     }
 
+    public void changeRoleButNoEvents(ServerPlayer player, SRERole role) {
+        SRERoleWorldComponent roleWorldComponent = SRERoleWorldComponent.KEY.get(player.level());
+        roleWorldComponent.addRole(player.getUUID(), role, false);
+        player.addEffect(new MobEffectInstance(
+                ModEffects.SKILL_BANED,
+                -1,
+                10,
+                true, // ambient - 环境效果（粒子更少更透明）
+                false, // showParticles - 不显示粒子
+                false // showIcon - 不显示图标
+        ));
+        roleWorldComponent.syncWith(player);
+
+        SRE.REPLAY_MANAGER.recordPlayerRoleChange(player.getUUID(), SpecialGameModeRoles.CUSTOM_PENDING, role);
+    }
+
     public void autoSelect(ServerPlayer player) {
         var crgmtpcca = CustomRoleGameModeTeamsPlayerComponent.KEY.get(player);
         ArrayList<ResourceLocation> roles = crgmtpcca.getAvailableRoles();
         if (roles.isEmpty()) {
-            RoleUtils.changeRole(player, TMMRoles.CIVILIAN);
+            changeRoleButNoEvents(player, TMMRoles.CIVILIAN);
             return;
         } else {
             playerSelectedRole(player, roles.getFirst());

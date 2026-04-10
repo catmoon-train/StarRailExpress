@@ -8,11 +8,13 @@ import java.util.UUID;
 import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.harpymodloader.commands.SetRoleCountCommand;
 import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
+import org.agmas.harpymodloader.events.ModdedRoleAssigned;
 import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
 import org.agmas.noellesroles.commands.BroadcastCommand;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.utils.RoleUtils;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.SpecialGameModeRoles;
@@ -20,6 +22,7 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerProgressionComponent;
 import io.wifi.starrailexpress.cca.SREPlayerProgressionComponent.FactionCardType;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
+import io.wifi.starrailexpress.cca.SRERoleWorldComponent;
 import io.wifi.starrailexpress.cca.SRETrainWorldComponent;
 import io.wifi.starrailexpress.cca.gamemode.CustomRoleGameModeTeamsPlayerComponent;
 import io.wifi.starrailexpress.cca.gamemode.CustomRoleGameModeWorldComponent;
@@ -217,28 +220,40 @@ public class SRECustomRoleGameMode extends SREMurderGameMode {
     public void tickServerGameLoop(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent) {
         if (roleSelectTimeout != -1) {
             if (serverWorld.getGameTime() >= roleSelectTimeout) {
-                var gamblerPlayers = serverWorld.getPlayers((p) -> GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(p)
-                        && gameWorldComponent.isRole(p, SpecialGameModeRoles.CUSTOM_PENDING));
-                if (gamblerPlayers != null && !gamblerPlayers.isEmpty()) {
-                    var crgmwcca = CustomRoleGameModeWorldComponent.KEY.get(serverWorld);
-                    for (var p : gamblerPlayers) {
-                        crgmwcca.autoSelect(p);
-                    }
-                }
-                for (ServerPlayer p : serverWorld
-                        .getPlayers((p) -> GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(p))) {
-                    RoleUtils.sendWelcomeAnnouncement(p);
-                    SRERole role = gameWorldComponent.getRole(p);
-                    if (role.canUseKiller()) {
-                        SREPlayerShopComponent playerShopComponent = SREPlayerShopComponent.KEY.get(p);
-                        playerShopComponent.addToBalance(100);
-                    }
-                }
+                trueStartAfterSelectedRoles(serverWorld, gameWorldComponent);
                 roleSelectTimeout = -1;
             }
         }
 
         super.tickServerGameLoop(serverWorld, gameWorldComponent);
+    }
+
+    private void trueStartAfterSelectedRoles(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent) {
+        var gamblerPlayers = serverWorld.getPlayers((p) -> GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(p)
+                && gameWorldComponent.isRole(p, SpecialGameModeRoles.CUSTOM_PENDING));
+        if (gamblerPlayers != null && !gamblerPlayers.isEmpty()) {
+            var crgmwcca = CustomRoleGameModeWorldComponent.KEY.get(serverWorld);
+            for (var p : gamblerPlayers) {
+                crgmwcca.autoSelect(p);
+            }
+        }
+        SRERoleWorldComponent roleWorldComponent = SRERoleWorldComponent.KEY.get(serverWorld);
+        roleWorldComponent.sync();
+        List<ServerPlayer> players = serverWorld
+                .getPlayers((p) -> GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(p));
+        for (ServerPlayer p : players) {
+            SRERole role = roleWorldComponent.getRole(p);
+            p.removeEffect(ModEffects.SKILL_BANED);
+            if (role != null) {
+                ModdedRoleAssigned.EVENT.invoker().assignModdedRole(p, role);
+                RoleUtils.sendWelcomeAnnouncement(p);
+                if (role.canUseKiller()) {
+                    SREPlayerShopComponent playerShopComponent = SREPlayerShopComponent.KEY.get(p);
+                    playerShopComponent.addToBalance(100);
+                }
+            }
+        }
+        SRE.REPLAY_MANAGER.updateReplayInitialRoles(players, gameWorldComponent.getRoles());
     }
 
     @Override

@@ -255,6 +255,10 @@ public class GameReplayManager {
 
   public void initializeReplay(List<ServerPlayer> players, HashMap<UUID, SRERole> roles) {
     resetReplay();
+    updateReplayInitialRoles(players, roles);
+  }
+
+  public void updateReplayInitialRoles(List<ServerPlayer> players, HashMap<UUID, SRERole> roles) {
     for (ServerPlayer player : players) {
       recordPlayerName(player);
     }
@@ -293,7 +297,7 @@ public class GameReplayManager {
           recordPlayerName(serverPlayer);
         } else {
           // 如果无法获取玩家，使用UUID作为名称
-          recordPlayerName(entry.getKey(), "未知玩家(" + entry.getKey().toString().substring(0, 8) + ")");
+          recordPlayerName(entry.getKey(), "Unknown(" + entry.getKey().toString().substring(0, 8) + ")");
         }
       }
     }
