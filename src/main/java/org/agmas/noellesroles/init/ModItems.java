@@ -483,6 +483,13 @@ public class ModItems {
             new MercenaryContractItem(new Item.Properties().stacksTo(1)),
             "mercenary_contract");
 
+    /**
+     * 时停钟
+     */
+    public static final Item TIME_STOP_CLOCK = register(
+            new TimeStopClock(new Item.Properties().stacksTo(1).durability(TimeStopClock.MAX_DURABILITY)),
+            "time_stop_clock");
+
     public static final Item ZHANWEIFU1 = registrar.create("zhanweifu1",
             new Item(new Item.Properties().stacksTo(64)));
     public static final Item ZHANWEIFU2 = registrar.create("zhanweifu2",
