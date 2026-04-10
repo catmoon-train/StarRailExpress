@@ -108,10 +108,10 @@ public class RoleManageConfigUI {
         }
 
         builder.setSavingRunnable(() -> {
-            HarpyModLoaderConfig.HANDLER.instance().getDisabled().clear();
+            HarpyModLoaderConfig.HANDLER.instance().disabled.clear();
             for (Entry<ResourceLocation, Boolean> entry : RoleEnableStatus.entrySet()) {
                 if (!entry.getValue()) {
-                    HarpyModLoaderConfig.HANDLER.instance().getDisabled().add(entry.getKey().toString());
+                    HarpyModLoaderConfig.HANDLER.instance().disabled.add(entry.getKey().toString());
                 }
             }
             HarpyModLoaderConfig.HANDLER.instance().disabledModifiers.clear();
@@ -146,7 +146,6 @@ public class RoleManageConfigUI {
 
     public static void startConfigUI() {
         Screen screen = getScreen(Minecraft.getInstance().screen);
-
         Minecraft.getInstance().setScreen(screen);
     }
 }
