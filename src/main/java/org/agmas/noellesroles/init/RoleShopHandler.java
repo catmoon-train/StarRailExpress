@@ -338,7 +338,9 @@ public class RoleShopHandler {
           TMMItems.KNIFE.getDefaultInstance(),
           130,
           ShopEntry.Type.TOOL));
-      SHOP.add(new ShopEntry(TMMItems.DERRINGER.getDefaultInstance(), 600,
+      SHOP.add(new ShopEntry(ModItems.FAKE_REVOLVER.getDefaultInstance(), 50,
+          ShopEntry.Type.TOOL));
+      SHOP.add(new ShopEntry(TMMItems.DERRINGER.getDefaultInstance(), 400,
           ShopEntry.Type.TOOL));
       SHOP.add(new ShopEntry(TMMItems.BODY_BAG.getDefaultInstance(), SREConfig.instance().bodyBagPrice,
           ShopEntry.Type.TOOL));
