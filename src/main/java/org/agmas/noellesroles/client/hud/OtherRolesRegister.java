@@ -35,5 +35,6 @@ public class OtherRolesRegister {
         LoversHud.register();
         BroadcasterHud.register();
         ImitatorHud.register();
+        FoolHud.register();
     }
 }

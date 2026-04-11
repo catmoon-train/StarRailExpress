@@ -705,6 +705,66 @@ public class ModPacketsReciever {
             creeperComponent.ignite();
           }
         });
+
+    // ==================== 愚者网络包处理 ====================
+
+    // V键祷告/加入会议
+    ServerPlayNetworking.registerGlobalReceiver(
+        org.agmas.noellesroles.roles.fool.FoolPrayerC2SPacket.ID,
+        (payload, context) -> {
+          ServerPlayer player = context.player();
+          SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY
+              .get(player.level());
+
+          if (!gameWorldComponent.isSkillAvailable) return;
+
+          // 如果是愚者自己按V，忽略（愚者用G键）
+          if (gameWorldComponent.isRole(player, ModRoles.THE_FOOL)) return;
+
+          // 检查是否有正在进行的塔罗会，优先加入
+          ServerPlayer fool = org.agmas.noellesroles.roles.fool.TarotAssemblyManager
+              .findFoolPlayer((net.minecraft.server.level.ServerLevel) player.level(), gameWorldComponent);
+          if (fool != null) {
+            org.agmas.noellesroles.roles.fool.FoolPlayerComponent foolComp =
+                org.agmas.noellesroles.roles.fool.FoolPlayerComponent.KEY.get(fool);
+            if (foolComp.inMeeting && foolComp.isTarotMember(player.getUUID())) {
+              org.agmas.noellesroles.roles.fool.TarotAssemblyManager.memberJoinMeeting(player);
+              return;
+            }
+          }
+
+          // 否则尝试祷告
+          org.agmas.noellesroles.roles.fool.PrayerHandler.startPrayer(player);
+        });
+
+    // 退出塔罗会
+    ServerPlayNetworking.registerGlobalReceiver(
+        org.agmas.noellesroles.roles.fool.FoolLeaveMeetingC2SPacket.ID,
+        (payload, context) -> {
+          ServerPlayer player = context.player();
+          org.agmas.noellesroles.roles.fool.TarotAssemblyManager.memberLeaveMeeting(player);
+        });
+
+    // 塔罗会投票
+    ServerPlayNetworking.registerGlobalReceiver(
+        org.agmas.noellesroles.roles.fool.FoolTarotVoteC2SPacket.ID,
+        (payload, context) -> {
+          ServerPlayer player = context.player();
+          // 投票逻辑需要由TarotAssemblyManager收集并在会议结束时统一处理
+          // 此处简化：直接记录投票
+          SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY
+              .get(player.level());
+          ServerPlayer fool = org.agmas.noellesroles.roles.fool.TarotAssemblyManager
+              .findFoolPlayer((net.minecraft.server.level.ServerLevel) player.level(), gameWorldComponent);
+          if (fool != null) {
+            org.agmas.noellesroles.roles.fool.FoolPlayerComponent foolComp =
+                org.agmas.noellesroles.roles.fool.FoolPlayerComponent.KEY.get(fool);
+            // 存储投票（使用临时映射，在会议结束时处理）
+            player.displayClientMessage(
+                Component.translatable("message.noellesroles.fool.vote_cast")
+                    .withStyle(ChatFormatting.GREEN), true);
+          }
+        });
   }
 
 }

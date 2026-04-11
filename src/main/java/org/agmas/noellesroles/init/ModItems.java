@@ -491,6 +491,39 @@ public class ModItems {
                     .component(DataComponents.CUSTOM_DATA, TimeStopClock.getDefaultCustomData())),
             "time_stop_clock");
 
+    /**
+     * 处刑者手枪
+     * - 愚者专属武器
+     * - 只能对"异端"效果的玩家造成伤害（一击必杀）
+     * - 初始子弹数1，只能通过塔罗会补充
+     */
+    public static final Item EXECUTIONER_GUN = register(
+            new org.agmas.noellesroles.roles.fool.ExecutionerGunItem(
+                    new Item.Properties().stacksTo(1)),
+            "executioner_gun");
+
+    /**
+     * 尊名纸条
+     * - 愚者商店购买（50金币）
+     * - 右键墙壁/地面贴附，生成不可破坏的文本实体
+     * - 玩家对着纸条按V键祷告，获得"塔罗会成员"标签
+     */
+    public static final Item HONORED_NOTE = register(
+            new org.agmas.noellesroles.roles.fool.HonoredNoteItem(
+                    new Item.Properties().stacksTo(16)),
+            "honored_note");
+
+    /**
+     * 灵性斗篷
+     * - 愚者商店购买（200金币）
+     * - 右键使用后获得5秒无敌、无法攻击、移动速度不变
+     * - 冷却90秒
+     */
+    public static final Item SPIRIT_CLOAK = register(
+            new org.agmas.noellesroles.roles.fool.SpiritCloakItem(
+                    new Item.Properties().stacksTo(1)),
+            "spirit_cloak");
+
     public static final Item ZHANWEIFU1 = registrar.create("zhanweifu1",
             new Item(new Item.Properties().stacksTo(64)));
     public static final Item ZHANWEIFU2 = registrar.create("zhanweifu2",
@@ -556,6 +589,8 @@ public class ModItems {
         TMMItems.INVISIBLE_ITEMS.add(ModItems.FLASH_GRENADE);
         TMMItems.INVISIBLE_ITEMS.add(ModItems.DECOY_GRENADE);
         TMMItems.INVISIBLE_ITEMS.add(ModItems.PURIFY_BOMB);
+        TMMItems.INVISIBLE_ITEMS.add(ModItems.HONORED_NOTE);
+        TMMItems.INVISIBLE_ITEMS.add(ModItems.SPIRIT_CLOAK);
         // TMMItems.INVISIBLE_ITEMS.add(TMMItems.KNIFE);
 
         // 为潜水靴添加深海探索者3附魔

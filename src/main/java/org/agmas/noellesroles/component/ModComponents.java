@@ -250,6 +250,8 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
       ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "imitator"),
       ImitatorPlayerComponent.class);
 
+  public static final ComponentKey<org.agmas.noellesroles.roles.fool.FoolPlayerComponent> FOOL = org.agmas.noellesroles.roles.fool.FoolPlayerComponent.KEY;
+
   public ModComponents() {
     // CCA 需要无参构造函数
   }
@@ -538,6 +540,11 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
     registry.beginRegistration(Player.class, WATCHER)
         .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
         .end(WatcherPlayerComponent::new);
+
+    // 注册愚者组件 - 存储塔罗会成员、处刑者手枪子弹、异端效果等
+    registry.beginRegistration(Player.class, FOOL)
+        .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
+        .end(org.agmas.noellesroles.roles.fool.FoolPlayerComponent::new);
 
     // ==================== 示例：注册更多组件 ====================
     //

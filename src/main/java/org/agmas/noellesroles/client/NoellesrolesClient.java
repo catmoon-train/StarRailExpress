@@ -108,6 +108,7 @@ public class NoellesrolesClient implements ClientModInitializer {
     public static KeyMapping abilityBind;
     public static KeyMapping taskInstinctBind;
     public static KeyMapping roleIntroClientBind;
+    public static KeyMapping foolPrayerBind;
     public static Player target;
     public static PlayerBodyEntity targetBody;
     public static Player targetFakeBody;
@@ -274,6 +275,8 @@ public class NoellesrolesClient implements ClientModInitializer {
                 InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_G, "category.starrailexpress.keybinds"));
         taskInstinctBind = KeyBindingHelper.registerKeyBinding(new KeyMapping("key.noellesroles.taskinstinct",
                 InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_B, "category.starrailexpress.keybinds"));
+        foolPrayerBind = KeyBindingHelper.registerKeyBinding(new KeyMapping("key.noellesroles.fool_prayer",
+                InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_V, "category.starrailexpress.keybinds"));
         ClientPlayNetworking.registerGlobalReceiver(CreateClientSmokeAreaPacket.ID, (payload, context) -> {
             ClientSmokeAreaManager.createSmokeArea(context.client().level, payload.position(), payload.radius(),
                     payload.durationTicks());
@@ -822,6 +825,13 @@ public class NoellesrolesClient implements ClientModInitializer {
 
             if (abilityBind.consumeClick()) {
                 ClientAbilityHandler.handler(client);
+            }
+
+            // V键：愚者祷告/加入塔罗会
+            if (foolPrayerBind.consumeClick()) {
+                if (client.player != null) {
+                    ClientPlayNetworking.send(new org.agmas.noellesroles.roles.fool.FoolPrayerC2SPacket());
+                }
             }
         });
 

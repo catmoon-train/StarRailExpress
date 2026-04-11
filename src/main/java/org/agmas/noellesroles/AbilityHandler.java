@@ -575,5 +575,10 @@ public class AbilityHandler {
             }
             return;
         }
+        // 愚者 G 键 — 召开/结束塔罗会
+        if (gameWorldComponent.isRole(player, ModRoles.THE_FOOL)) {
+            org.agmas.noellesroles.roles.fool.TarotAssemblyManager.startAssembly(player);
+            return;
+        }
     }
 }

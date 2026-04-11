@@ -106,5 +106,16 @@ public class ModPackets {
 
         // 注册赌徒 1% 奇迹特效包（客户端渲染）
         PayloadTypeRegistry.playS2C().register(GamblerMiracleS2CPacket.ID, GamblerMiracleS2CPacket.CODEC);
+
+        // 注册愚者网络包
+        PayloadTypeRegistry.playC2S().register(
+                org.agmas.noellesroles.roles.fool.FoolPrayerC2SPacket.ID,
+                org.agmas.noellesroles.roles.fool.FoolPrayerC2SPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(
+                org.agmas.noellesroles.roles.fool.FoolLeaveMeetingC2SPacket.ID,
+                org.agmas.noellesroles.roles.fool.FoolLeaveMeetingC2SPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(
+                org.agmas.noellesroles.roles.fool.FoolTarotVoteC2SPacket.ID,
+                org.agmas.noellesroles.roles.fool.FoolTarotVoteC2SPacket.CODEC);
     }
 }
