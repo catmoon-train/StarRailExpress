@@ -32,7 +32,7 @@ public class MorphlingPlayerComponent implements RoleComponent, ServerTickingCom
 
     @Override
     public void init() {
-        this.stopMorph();
+        this.stopMorph(false);
         this.sync();
     }
 
@@ -100,16 +100,16 @@ public class MorphlingPlayerComponent implements RoleComponent, ServerTickingCom
                         // return;
                         // }
                     } else {
-                        stopMorph();
+                        stopMorph(false);
                         return;
                     }
                 } else {
-                    stopMorph();
+                        stopMorph(false);
                     return;
                 }
 
                 if (--this.morphTicks == 0) {
-                    this.stopMorph();
+                    this.stopMorph(true);
                     return;
                 }
             } else if (this.morphTicks < 0) {
@@ -135,7 +135,19 @@ public class MorphlingPlayerComponent implements RoleComponent, ServerTickingCom
     }
 
     public void stopMorph() {
-        this.morphTicks = -GameConstants.getInTicks(0, NoellesRolesConfig.HANDLER.instance().morphlingMorphCooldown);
+        stopMorph(false);
+    }
+
+    /**
+     * Stop morphing. If {@code startCooldown} is true, start the configured cooldown (negative ticks).
+     * If false, simply end morphing without applying cooldown.
+     */
+    public void stopMorph(boolean startCooldown) {
+        if (startCooldown) {
+            this.morphTicks = -GameConstants.getInTicks(0, NoellesRolesConfig.HANDLER.instance().morphlingMorphCooldown);
+        } else {
+            this.morphTicks = 0;
+        }
         this.sync();
     }
 
@@ -149,10 +161,10 @@ public class MorphlingPlayerComponent implements RoleComponent, ServerTickingCom
     }
 
     public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
-        if (this.morphTicks > 0) {
-            tag.putInt("morphTicks", this.morphTicks);
-            if (disguise != null)
-                tag.putUUID("disguise", this.disguise);
+        // Always sync morphTicks so clients can know cooldown (negative) or ready state (0).
+        tag.putInt("morphTicks", this.morphTicks);
+        if (this.morphTicks > 0 && disguise != null) {
+            tag.putUUID("disguise", this.disguise);
         }
     }
 
