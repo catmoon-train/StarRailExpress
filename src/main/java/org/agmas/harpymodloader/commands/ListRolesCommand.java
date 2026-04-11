@@ -30,7 +30,7 @@ public class ListRolesCommand {
         HashMap<ResourceLocation, Boolean> roleInfos = new HashMap<>();
         HashMap<ResourceLocation, Boolean> modifierInfos = new HashMap<>();
         for (var info : TMMRoles.ROLES.keySet()) {
-            if (HarpyModLoaderConfig.HANDLER.instance().getDisabled().contains(info.toString())) {
+            if (HarpyModLoaderConfig.HANDLER.instance().disabled.contains(info.toString())) {
                 roleInfos.put(info, false);
             } else {
                 roleInfos.put(info, true);
