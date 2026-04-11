@@ -800,6 +800,8 @@ public class ThiefPlayerComponent implements RoleComponent, ServerTickingCompone
             return;
         if (player.hasEffect(ModEffects.NO_COLLIDE)) // 安全时间
             return;
+        if (this.honorCost < 100)
+            return;
         var psc = SREPlayerShopComponent.KEY.get(player);
         if (player.level().getGameTime() % 20 == 0) {
             if (psc.balance >= this.honorCost) {

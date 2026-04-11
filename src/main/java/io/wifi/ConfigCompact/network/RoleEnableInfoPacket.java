@@ -21,6 +21,7 @@ public record RoleEnableInfoPacket(RoleAndModifierSyncInfo packetInfo) implement
             return new RoleEnableInfoPacket(gson.fromJson(str, RoleAndModifierSyncInfo.class));
         } catch (Exception e) {
             SRE.LOGGER.error("ERROR WHILE RECIEVING PAYLOAD FROM SERVER.", e);
+            SRE.LOGGER.info(str);
         }
         return new RoleEnableInfoPacket(new RoleAndModifierSyncInfo());
     }

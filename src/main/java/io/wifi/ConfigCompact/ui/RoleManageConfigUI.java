@@ -17,30 +17,36 @@ import java.util.Map.Entry;
 
 public class RoleManageConfigUI {
 
-    private static HashMap<ResourceLocation, Boolean> RoleEnableStatus = new HashMap<>();
-    private static HashMap<ResourceLocation, Boolean> ModifierEnableStatus = new HashMap<>();
+    private static HashMap<String, Boolean> RoleEnableStatus = new HashMap<>();
+    private static HashMap<String, Boolean> ModifierEnableStatus = new HashMap<>();
 
     public static class RoleAndModifierSyncInfo {
-        public HashMap<ResourceLocation, Boolean> roleInfo;
-        public HashMap<ResourceLocation, Boolean> modifierInfo;
+        public HashMap<String, Boolean> roleInfo;
+        public HashMap<String, Boolean> modifierInfo;
 
         public RoleAndModifierSyncInfo() {
             this(new HashMap<>(), new HashMap<>());
         }
 
-        public RoleAndModifierSyncInfo(HashMap<ResourceLocation, Boolean> roleInfo,
-                HashMap<ResourceLocation, Boolean> modifierInfo) {
-            this.roleInfo = roleInfo;
-            this.modifierInfo = modifierInfo;
+        public RoleAndModifierSyncInfo(HashMap<ResourceLocation, Boolean> roleInfos,
+                HashMap<ResourceLocation, Boolean> modifierInfos) {
+            this.roleInfo = new HashMap<>();
+            this.modifierInfo = new HashMap<>();
+            for (var r : roleInfos.entrySet()) {
+                this.roleInfo.put(r.getKey().toString(), r.getValue());
+            }
+            for (var r : modifierInfos.entrySet()) {
+                this.modifierInfo.put(r.getKey().toString(), r.getValue());
+            }
         }
     }
 
-    public static void setRoleInfo(HashMap<ResourceLocation, Boolean> packetInfo) {
+    public static void setRoleInfo(HashMap<String, Boolean> packetInfo) {
         RoleEnableStatus.clear();
         RoleEnableStatus.putAll(packetInfo);
     }
 
-    public static void setModifierInfo(HashMap<ResourceLocation, Boolean> packetInfo) {
+    public static void setModifierInfo(HashMap<String, Boolean> packetInfo) {
         ModifierEnableStatus.clear();
         ModifierEnableStatus.putAll(packetInfo);
     }
@@ -62,9 +68,9 @@ public class RoleManageConfigUI {
             RoleEnableStatus.clear();
             for (var info : TMMRoles.ROLES.keySet()) {
                 if (HarpyModLoaderConfig.HANDLER.instance().getDisabled().contains(info.toString())) {
-                    RoleEnableStatus.put(info, false);
+                    RoleEnableStatus.put(info.toString(), false);
                 } else {
-                    RoleEnableStatus.put(info, true);
+                    RoleEnableStatus.put(info.toString(), true);
                 }
             }
         }
@@ -72,9 +78,9 @@ public class RoleManageConfigUI {
             ModifierEnableStatus.clear();
             for (var info : HMLModifiers.MODIFIERS) {
                 if (HarpyModLoaderConfig.HANDLER.instance().disabledModifiers.contains(info.identifier().toString())) {
-                    ModifierEnableStatus.put(info.identifier(), false);
+                    ModifierEnableStatus.put(info.identifier().toString(), false);
                 } else {
-                    ModifierEnableStatus.put(info.identifier(), true);
+                    ModifierEnableStatus.put(info.identifier().toString(), true);
                 }
             }
         }
@@ -84,7 +90,7 @@ public class RoleManageConfigUI {
                     entryBuilder
                             .startBooleanToggle(
                                     Component.translatable("option.starrailexpress.role_enable_option",
-                                            RoleUtils.getRoleName(roleId)),
+                                            RoleUtils.getRoleName(ResourceLocation.tryParse(roleId))),
                                     info.getValue())
                             .setDefaultValue(true) // Recommended: Used when user click "Reset"
                             .setTooltip(Component.translatable("option.starrailexpress.role_id_tooltip",
@@ -98,7 +104,7 @@ public class RoleManageConfigUI {
                     entryBuilder
                             .startBooleanToggle(
                                     Component.translatable("option.starrailexpress.modifier_enable_option",
-                                            RoleUtils.getModifierName(roleId)),
+                                            RoleUtils.getModifierName(ResourceLocation.tryParse(roleId))),
                                     info.getValue())
                             .setDefaultValue(true) // Recommended: Used when user click "Reset"
                             .setTooltip(Component.translatable("option.starrailexpress.role_id_tooltip",
@@ -109,20 +115,21 @@ public class RoleManageConfigUI {
 
         builder.setSavingRunnable(() -> {
             HarpyModLoaderConfig.HANDLER.instance().disabled.clear();
-            for (Entry<ResourceLocation, Boolean> entry : RoleEnableStatus.entrySet()) {
+            for (Entry<String, Boolean> entry : RoleEnableStatus.entrySet()) {
                 if (!entry.getValue()) {
-                    HarpyModLoaderConfig.HANDLER.instance().disabled.add(entry.getKey().toString());
+                    HarpyModLoaderConfig.HANDLER.instance().disabled.add(entry.getKey());
                 }
             }
             HarpyModLoaderConfig.HANDLER.instance().disabledModifiers.clear();
-            for (Entry<ResourceLocation, Boolean> entry : ModifierEnableStatus.entrySet()) {
+            for (Entry<String, Boolean> entry : ModifierEnableStatus.entrySet()) {
                 if (!entry.getValue()) {
-                    HarpyModLoaderConfig.HANDLER.instance().disabledModifiers.add(entry.getKey().toString());
+                    HarpyModLoaderConfig.HANDLER.instance().disabledModifiers.add(entry.getKey());
                 }
             }
             HarpyModLoaderConfig.HANDLER.save();
 
-            if (Minecraft.getInstance().player != null && Minecraft.getInstance().player.connection != null && !Minecraft.getInstance().isLocalServer()) {
+            if (Minecraft.getInstance().player != null && Minecraft.getInstance().player.connection != null
+                    && !Minecraft.getInstance().isLocalServer()) {
                 if (Minecraft.getInstance().player.hasPermissions(2)) {
                     String roleCommandPrefix = "setEnabledRole";
                     String modifierCommandPrefix = "setEnabledModifier";
