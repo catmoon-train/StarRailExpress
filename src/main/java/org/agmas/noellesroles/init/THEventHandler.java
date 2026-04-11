@@ -33,6 +33,10 @@ public class THEventHandler {
                 if (gameWorldComponent.isRole(victim, RedHouseRoles.FURANDORU)
                         || gameWorldComponent.isRole(victim, RedHouseRoles.REMILIA))
                     return false;
+            } else if (gameWorldComponent.isRole(killer, RedHouseRoles.PACHURI)) {
+                if (gameWorldComponent.isRole(victim, RedHouseRoles.FURANDORU)
+                        || gameWorldComponent.isRole(victim, RedHouseRoles.REMILIA))
+                    return false;
             }
             return true;
         });
