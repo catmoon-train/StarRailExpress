@@ -101,7 +101,7 @@ public class GrenadeEntity extends ThrowableItemProjectile {
 
         for (Entity entity : candidates) {
             if ((entity instanceof Player player)) {
-                if (GameFunctions.isPlayerAliveAndSurvival(player))
+                if (!GameFunctions.isPlayerAliveAndSurvival(player))
                     continue;
                 // 与爆炸中心的距离比值，> 1.0 则超出范围
                 double distance = Math.sqrt(entity.distanceToSqr(center));
