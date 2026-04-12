@@ -537,10 +537,6 @@ public class SREMurderGameMode extends GameMode {
     public void tickServerGameLoop(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent) {
         GameUtils.WinStatus winStatus = GameUtils.WinStatus.NONE;
 
-        // check if out of time
-        if (!SREGameTimeComponent.KEY.get(serverWorld).hasTime())
-            winStatus = GameUtils.WinStatus.TIME;
-
         boolean civilianAlive = false;
         for (ServerPlayer player : serverWorld.players()) {
             // passive money
@@ -613,6 +609,10 @@ public class SREMurderGameMode extends GameMode {
             }
         }
 
+        // check if out of time
+        if (!SREGameTimeComponent.KEY.get(serverWorld).hasTime())
+            winStatus = GameUtils.WinStatus.TIME;
+        
         // game end on win and display
         GameUtils.WinStatus modifiedWinStatus = allowGameEnd(serverWorld, winStatus, false, gameWorldComponent);
         if (!modifiedWinStatus.equals(GameUtils.WinStatus.NOT_MODIFY)) {
