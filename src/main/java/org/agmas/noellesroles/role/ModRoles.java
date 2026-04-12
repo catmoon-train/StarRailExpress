@@ -1424,7 +1424,7 @@ public class ModRoles {
       TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
       false // 不隐藏计分板
   )).setComponentKey(org.agmas.noellesroles.roles.fool.FoolPlayerComponent.KEY)
-      .setCanSeeCoin(true).setCanPickUpRevolver(true);
+      .setCanSeeCoin(true).setCanPickUpRevolver(true).setMax(1).setEnableChance(30).setEnableNeededPlayerCount(12);
 
   // ==================== 其他变量定义 ====================
   public static ArrayList<SRERole> SHOW_MONEY_ROLES = new ArrayList<>();
