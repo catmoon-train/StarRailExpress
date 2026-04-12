@@ -66,6 +66,7 @@ public class StupidExpress implements ModInitializer {
                 || r.identifier().equals(ModRoles.BEST_VIGILANTE_ID)
                 || r.identifier().equals(ModRoles.BASEBALL_PLAYER_ID)
                 || r.identifier().equals(ModRoles.WATER_GHOST_ID)
+                || r.identifier().equals(ModRoles.THE_FOOL_ID)
                 || (removeNonThisRoundRoles && Harpymodloader.ROLE_MAX.getOrDefault(r.identifier(), 1) <= 0)
                 || r.getOccupiedRoleCount() > 1
                 // 未解锁的职业强制从职业池中移除
