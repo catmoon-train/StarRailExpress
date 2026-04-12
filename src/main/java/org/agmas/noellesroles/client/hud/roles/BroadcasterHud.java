@@ -37,7 +37,7 @@ public class BroadcasterHud {
                 if (i >= 1 && (y >= (screenHeight / 2 - 40) || i >= 4) && i < count - 1) {
                     Component message = Component.translatable("message.broadcast.more_message", (count - i - 1))
                             .withStyle(ChatFormatting.GRAY);
-                    List<FormattedCharSequence> texts = font.split(message, (int) ((double) screenWidth * 0.8));
+                    List<FormattedCharSequence> texts = font.split(message, (int) ((double) screenWidth * 0.6));
                     int textWidth = 0;
                     for (var t : texts) {
                         textWidth = Math.max(textWidth, font.width(t));
@@ -63,7 +63,7 @@ public class BroadcasterHud {
                 }
                 var info = NoellesrolesClient.currentBroadcastMessage.get(i);
                 Component message = info.message();
-                List<FormattedCharSequence> texts = font.split(message, (int) ((double) screenWidth * 0.8));
+                List<FormattedCharSequence> texts = font.split(message, (int) ((double) screenWidth * 0.6));
                 int textWidth = 0;
                 for (var t : texts) {
                     textWidth = Math.max(textWidth, font.width(t));
