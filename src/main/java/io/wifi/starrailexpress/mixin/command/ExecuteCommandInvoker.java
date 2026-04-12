@@ -29,7 +29,7 @@ import net.minecraft.server.commands.ExecuteCommand;
 import net.minecraft.server.level.ServerPlayer;
 
 @Mixin(ExecuteCommand.class)
-public interface ExecuteCommandInvoker {
+public abstract class ExecuteCommandInvoker {
 
   @Shadow
   private static <T extends ArgumentBuilder<CommandSourceStack, T>> T addConditional(
