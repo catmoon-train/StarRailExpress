@@ -50,7 +50,7 @@ public class GamblerHud {
                 context.drawString(textRenderer, readyText, x, y - 20, CommonColors.GREEN);
             }
             // 显示技能冷却
-            int cdSeconds = roleDrawLeft / 20;
+            int cdSeconds = (roleDrawLeft + 19) / 20;
             Component cdText = Component.translatable("hud.noellesroles.gambler.cooldown",
                     String.format("%d", cdSeconds));
 
