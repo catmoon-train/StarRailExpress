@@ -1064,6 +1064,10 @@ public class GameUtils {
                                     SoundSource.MASTER, 5.0F, 1.0F);
                             bartenderPlayerComponent.removeArmor();
                             SRE.REPLAY_MANAGER.breakArmor(victim.getUUID());
+                            SRE.REPLAY_MANAGER.recordPlayerNotKilled(
+                                    killer,
+                                    victim,
+                                    deathReason);
                             ServerPlayNetworking.send(spkiller,
                                     new BreakArmorPayload(victim.getX(), victim.getY(), victim.getZ()));
                             OnShieldBroken.EVENT.invoker().onShieldBroken(victim, killer);
@@ -1081,6 +1085,13 @@ public class GameUtils {
                 if (SRE.REPLAY_MANAGER != null) {
                     SRE.REPLAY_MANAGER.breakArmor(victim.getUUID());
                 }
+
+                victim.displayClientMessage(Component.translatable("message.bartender.armor_broke_self")
+                        .withStyle(ChatFormatting.YELLOW), true);
+                SRE.REPLAY_MANAGER.recordPlayerNotKilled(
+                        killer,
+                        victim,
+                        deathReason);
                 if (killer instanceof ServerPlayer serverPlayer) {
                     ServerPlayNetworking.send(serverPlayer,
                             new BreakArmorPayload(victim.getX(), victim.getY(), victim.getZ()));
