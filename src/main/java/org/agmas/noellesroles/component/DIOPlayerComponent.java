@@ -1,6 +1,5 @@
 package org.agmas.noellesroles.component;
 
-import dev.doctor4t.wathe.game.GameFunctions;
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
@@ -486,7 +485,7 @@ public class DIOPlayerComponent implements RoleComponent, ServerTickingComponent
         if (!SREGameWorldComponent.KEY.get(level).isRole(player, ModRoles.DIO)) {
             return;
         }
-        if (!GameFunctions.isPlayerAliveAndSurvival(player))
+        if (!GameUtils.isPlayerAliveAndSurvival(player))
             return;
         if (level.canSeeSky(getPlayer().blockPosition())) {
             if (level.isDay() && level.getGameTime() % 20 == 0) {

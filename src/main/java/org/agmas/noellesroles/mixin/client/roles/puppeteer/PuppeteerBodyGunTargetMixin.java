@@ -1,6 +1,6 @@
 package org.agmas.noellesroles.mixin.client.roles.puppeteer;
 
-import dev.doctor4t.wathe.game.GameFunctions;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.item.RevolverItem;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
@@ -21,7 +21,7 @@ public class PuppeteerBodyGunTargetMixin {
     private static void allowPuppeteerBodyTarget(Player user, CallbackInfoReturnable<HitResult> cir) {
         // 扩展目标检测，包含 PuppeteerBodyEntity
         HitResult result = ProjectileUtil.getHitResultOnViewVector(user,
-            entity -> (entity instanceof Player player && GameFunctions.isPlayerAliveAndSurvival( player))
+            entity -> (entity instanceof Player player && GameUtils.isPlayerAliveAndSurvival( player))
                     || entity instanceof PuppeteerBodyEntity,
             20f);
         cir.setReturnValue(result);

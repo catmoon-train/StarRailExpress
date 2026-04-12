@@ -62,7 +62,7 @@
 ## 重要提醒 / Important Notes
 
 - **不要引用 Wathe 的库**，它会导致崩溃（未初始化）。  
-  **Do NOT import Wathe libraries** — they will cause crashes (uninitialized state).
+  **Do NOT import Wathe libraries** — they will cause crashes (uninitialized state). 比如 `GameFunctions`，不要用他！请使用 `GameUtils` 代替！
 - 网络同步压力在人少时几乎不可见，但在 16 人以上的服务器上会非常明显，请遵循"尽量不同步"原则。  
   Network sync overhead is negligible with few players but significant on servers with 16+ players. Minimize unnecessary sync.
 - 尽量使用 `RoleComponent` 将存储和同步逻辑分离，避免污染玩家 NBT。  

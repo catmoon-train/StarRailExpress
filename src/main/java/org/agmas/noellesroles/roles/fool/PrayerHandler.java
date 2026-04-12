@@ -1,6 +1,5 @@
 package org.agmas.noellesroles.roles.fool;
 
-import dev.doctor4t.wathe.game.GameFunctions;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.entity.NoteEntity;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -45,7 +44,7 @@ public class PrayerHandler {
             }
             return;
         }
-        if (!GameFunctions.isPlayerAliveAndSurvival(player))return;
+        if (!GameUtils.isPlayerAliveAndSurvival(player))return;
 
         // 已经是成员时，会议中的 J 优先用于入会/打开投票页，不再要求附近必须有尊名纸条
         if (foolComp != null && foolComp.isTarotMember(player.getUUID())) {
