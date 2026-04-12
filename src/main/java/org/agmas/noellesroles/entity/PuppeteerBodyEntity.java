@@ -51,6 +51,16 @@ public class PuppeteerBodyEntity extends LivingEntity {
     /** 所有者玩家引用（缓存） */
     private Player ownerCache = null;
 
+    @Override
+    public boolean hasCustomName() {
+        return false;
+    }
+
+    @Override
+    public boolean shouldShowName() {
+        return false;
+    }
+
     public PuppeteerBodyEntity(EntityType<? extends LivingEntity> entityType, Level world) {
         super(entityType, world);
         this.setNoGravity(false); // 有重力

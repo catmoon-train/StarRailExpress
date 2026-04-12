@@ -142,6 +142,7 @@ public class FoolPlayerComponent implements RoleComponent {
                                 .sendSystemMessage(Component.translatable("message.noellesroles.fool.protection_immune",
                                         player.getDisplayName().getString()), true);
                     }
+                    foolPlayerComponent.protectionSource = null;
                     return false;
                 }
             }

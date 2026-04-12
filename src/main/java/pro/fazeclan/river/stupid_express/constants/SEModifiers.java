@@ -15,6 +15,7 @@ import org.agmas.harpymodloader.events.ModifierRemoved;
 import org.agmas.harpymodloader.events.ResetPlayerEvent;
 import org.agmas.harpymodloader.modifiers.HMLModifiers;
 import org.agmas.harpymodloader.modifiers.SREModifier;
+import org.agmas.noellesroles.role.ModRoles;
 import pro.fazeclan.river.stupid_express.StupidExpress;
 import pro.fazeclan.river.stupid_express.modifier.allergist.cca.AllergistComponent;
 import pro.fazeclan.river.stupid_express.modifier.lovers.cca.LoversComponent;
@@ -25,6 +26,7 @@ import pro.fazeclan.river.stupid_express.modifier.split_personality.cca.SplitPer
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -158,7 +160,7 @@ public class SEModifiers {
     public static SREModifier UNYIELDING = HMLModifiers.registerModifier(new SREModifier(
             StupidExpress.id("unyielding"),
             new Color(200, 80, 80).getRGB(),
-            null,
+            new ArrayList<>(List.of(ModRoles.PUPPETEER)),
             null,
             false,
             false));
