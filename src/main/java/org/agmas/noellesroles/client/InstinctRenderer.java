@@ -496,7 +496,8 @@ public class InstinctRenderer {
                     ExecutionerPlayerComponent executionerPlayerComponent = (ExecutionerPlayerComponent) ExecutionerPlayerComponent.KEY
                             .get(self);
                     if (executionerPlayerComponent != null && executionerPlayerComponent.target != null) {
-                        if (executionerPlayerComponent.target.equals(target.getUUID()) && !SREClient.gameComponent.isRole(target.getUUID(), ModRoles.GHOST)) {
+                        if (executionerPlayerComponent.target.equals(target.getUUID())
+                                && !SREClient.gameComponent.isRole(target.getUUID(), ModRoles.GHOST)) {
                             return new java.awt.Color(0, 254, 254).getRGB();
                         }
                     }
@@ -683,7 +684,7 @@ public class InstinctRenderer {
                                 if (RoleUtils.compareRole(target_role, RedHouseRoles.PACHURI)) {
                                     return RedHouseRoles.PACHURI.color();
                                 } else if (RoleUtils.compareRole(target_role, RedHouseRoles.FURANDORU)) {
-                                    return RedHouseRoles.FURANDORU.color();
+                                    return new Color(253, 114, 255).getRGB();
                                 }
                             }
                         }

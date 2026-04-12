@@ -100,7 +100,7 @@ public class ModRolesInitialEventRegister {
                 return;
             }
             if (role.identifier().equals(ModRoles.THIEF.identifier())) {
-                int totalPlayers = player.level().players().size();
+                int totalPlayers = SREGameWorldComponent.KEY.get(player.level()).getPlayerCount();
                 var tpc = ThiefPlayerComponent.KEY.get(player);
                 tpc.updateHonorCost(totalPlayers);
             }
