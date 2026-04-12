@@ -6,9 +6,16 @@ import io.wifi.starrailexpress.SREConfig.AutoPresetInfo;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.SpecialGameModeRoles;
 import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+
 import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.harpymodloader.events.GameInitializeEvent;
 import org.agmas.harpymodloader.modded_murder.RoleAssignmentManager;
+import org.agmas.harpymodloader.modifiers.HMLModifiers;
+import org.agmas.harpymodloader.modifiers.SREModifier;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.role.ModRoles;
@@ -19,6 +26,7 @@ import pro.fazeclan.river.stupid_express.constants.SERoles;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Random;
 
 public class InitModRolesMax {
@@ -85,7 +93,7 @@ public class InitModRolesMax {
 
         // 滑头鬼每局只能有 1 个
         Harpymodloader.setRoleMaximum(ModRoles.SLIPPERY_GHOST_ID, 1);
-        
+
         // 不应该刷新
         Harpymodloader.setRoleMaximum(SpecialGameModeRoles.CUSTOM_PENDING, 0);
 
@@ -268,7 +276,11 @@ public class InitModRolesMax {
             if (!Harpymodloader.isMojangVerify) {
                 return;
             }
+            autoRoleMaxCount(serverLevel, gameWorldComponent, players);
+            autoModifierMaxCount(serverLevel, gameWorldComponent, players);
+
             autoChangePresent();
+            
             // 获取当前地图ID
             String currentMap = "unknown";
             if (serverLevel.getServer() != null) {
@@ -582,6 +594,27 @@ public class InitModRolesMax {
         });
     }
 
+    private static void autoRoleMaxCount(ServerLevel serverLevel, SREGameWorldComponent gameWorldComponent,
+            List<ServerPlayer> players) {
+        for (var roleInfo : TMMRoles.ROLES.entrySet()) {
+            ResourceLocation name = roleInfo.getKey();
+            SRERole role = roleInfo.getValue();
+            int count = role.getRoundMaxCount(serverLevel, gameWorldComponent, players);
+            if (count >= 0) {
+                Harpymodloader.setRoleMaximum(name, count);
+            }
+        }
+    }
+
+    private static void autoModifierMaxCount(ServerLevel serverLevel, SREGameWorldComponent gameWorldComponent,
+            List<ServerPlayer> players) {
+        for (SREModifier modifier : HMLModifiers.MODIFIERS) {
+            int count = modifier.getRoundMaxCount(serverLevel, gameWorldComponent, players);
+            if (count >= 0) {
+                Harpymodloader.MODIFIER_MAX.put(modifier.identifier(), count);
+            }
+        }
+    }
     public static void initModifiersCount(int players) {
         Random random = new Random();
         // LOVERS

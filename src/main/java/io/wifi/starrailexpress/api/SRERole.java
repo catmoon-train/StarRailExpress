@@ -6,6 +6,7 @@ import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
 import io.wifi.starrailexpress.util.ShopEntry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -16,24 +17,28 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
-import org.agmas.harpymodloader.Harpymodloader;
 import org.jetbrains.annotations.Nullable;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.ToIntFunction;
 
 public abstract class SRERole {
+    private final Random random = new Random();
     private ResourceLocation identifier;
     private boolean canSeeCoin = true;
     private boolean canSeeBodyDeathReason = false;
     private boolean canSeeBodyRoleInfo = false;
     private boolean canUseInstinct = false;
     private boolean canIgnoreBlackout = false;
+    public int maxCount = -1;
+    public int enableChance = -1;
+    public int enableNeedPlayerCount = -1;
     private int occupiedRoleCount = 1;
     public BiConsumer<ServerPlayer, SREGameWorldComponent> serverTickEvent = null;
     public BiConsumer<Player, SREGameWorldComponent> clientTickEvent = null;
@@ -99,11 +104,6 @@ public abstract class SRERole {
         return this.occupiedRoleCount;
     }
 
-    public SRERole setMax(int count) {
-        Harpymodloader.setRoleMaximum(this, count);
-        return this;
-    }
-
     public SRERole setOccupiedRoleCount(int occupiedRoleCount) {
         this.occupiedRoleCount = occupiedRoleCount;
         return this;
@@ -163,8 +163,7 @@ public abstract class SRERole {
     }
 
     private int color;
-    private
-    boolean isInnocent;
+    private boolean isInnocent;
     private boolean canUseKiller;
     private MoodType moodType;
 
@@ -512,4 +511,50 @@ public abstract class SRERole {
     public boolean canAutoAddMoney() {
         return this.canAutoAddMoney;
     }
+
+    /**
+     * 获取一局里最大可出现此职业数量。-1表示不变。
+     * 
+     * @param gameWorldComponent
+     * @param serverLevel
+     * @param players
+     * @return
+     */
+    public int getRoundMaxCount(ServerLevel serverLevel, SREGameWorldComponent gameWorldComponent,
+            List<ServerPlayer> players) {
+        if (this.enableChance >= 0) {
+            int nchance = random.nextInt(0, 100);
+            if (nchance > enableChance) {
+                return 0;
+            }
+        }
+        if (this.enableNeedPlayerCount >= 0) {
+            int playerCount = players.size();
+            if (playerCount < this.enableNeedPlayerCount) {
+                return 0;
+            }
+        }
+        return maxCount;
+    }
+
+    public SRERole setMax(int count) {
+        maxCount = count;
+        return this;
+    };
+
+    public SRERole setEnableNeededPlayerCount(int count) {
+        enableNeedPlayerCount = count;
+        return this;
+    };
+
+    /**
+     * 启用概率（%）
+     * 
+     * @param count
+     * @return
+     */
+    public SRERole setEnableChance(int cahnce) {
+        enableChance = cahnce;
+        return this;
+    };
 }

@@ -1,19 +1,22 @@
 package org.agmas.harpymodloader.modifiers;
 
 import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import org.agmas.harpymodloader.Harpymodloader;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 import java.util.function.Consumer;
 
 public class SREModifier {
-
+    private final Random random = new Random();
     public ResourceLocation identifier;
     public int color;
     public ArrayList<SRERole> cannotBeAppliedTo;
@@ -22,6 +25,9 @@ public class SREModifier {
     public boolean civilianOnly;
     public Consumer<ServerPlayer> serverTickEvent = null;
     public Consumer<Player> clientTickEvent = null;
+    public int maxCount = -1;
+    public int enableChance = 100;
+    public int enableNeedPlayerCount = 6;
 
     public SREModifier setClientGameTickEvent(Consumer<Player> event) {
         this.clientTickEvent = event;
@@ -52,7 +58,22 @@ public class SREModifier {
     }
 
     public SREModifier setMax(int count) {
-        Harpymodloader.MODIFIER_MAX.put(this.identifier, count);
+        maxCount = count;
+        return this;
+    };
+
+    public SREModifier setEnableNeededPlayerCount(int count) {
+        enableNeedPlayerCount = count;
+        return this;
+    };
+
+    /**
+     * 启用概率（%）
+     * @param count 
+     * @return
+     */
+    public SREModifier setEnableChance(int cahnce) {
+        enableChance = cahnce;
         return this;
     };
 
@@ -108,5 +129,31 @@ public class SREModifier {
 
     public void setCanOnlyBeAppliedTo(ArrayList<SRERole> canOnlyBeAppliedTo) {
         this.canOnlyBeAppliedTo = canOnlyBeAppliedTo;
+    }
+
+    
+    /**
+     * 获取一局里最大可出现此修饰符数量。-1表示不变。
+     * 
+     * @param gameWorldComponent
+     * @param serverLevel
+     * @param players
+     * @return
+     */
+    public int getRoundMaxCount(ServerLevel serverLevel, SREGameWorldComponent gameWorldComponent,
+            List<ServerPlayer> players) {
+        if (this.enableChance >= 0) {
+            int nchance = random.nextInt(0, 100);
+            if (nchance > enableChance) {
+                return 0;
+            }
+        }
+        if (this.enableNeedPlayerCount >= 0) {
+            int playerCount = players.size();
+            if (playerCount < this.enableNeedPlayerCount) {
+                return 0;
+            }
+        }
+        return maxCount;
     }
 }
