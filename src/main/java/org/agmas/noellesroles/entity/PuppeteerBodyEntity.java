@@ -19,6 +19,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.component.PuppeteerPlayerComponent;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -54,6 +55,16 @@ public class PuppeteerBodyEntity extends LivingEntity {
     @Override
     public boolean hasCustomName() {
         return false;
+    }
+
+    @Override
+    public void setCustomName(@Nullable Component component) {
+        return;
+    }
+
+    @Override
+    public boolean isCustomNameVisible() {
+        return false ;
     }
 
     @Override

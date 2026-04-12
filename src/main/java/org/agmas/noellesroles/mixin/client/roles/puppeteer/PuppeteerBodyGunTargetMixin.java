@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.mixin.client.roles.puppeteer;
 
+import dev.doctor4t.wathe.game.GameFunctions;
 import io.wifi.starrailexpress.item.RevolverItem;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
@@ -16,13 +17,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(RevolverItem.class)
 public class PuppeteerBodyGunTargetMixin {
     
-    @Inject(method = "getGunTarget", at = @At("HEAD"), cancellable = true)
-    private static void allowPuppeteerBodyTarget(Player user, CallbackInfoReturnable<HitResult> cir) {
-        // 扩展目标检测，包含 PuppeteerBodyEntity
-        HitResult result = ProjectileUtil.getHitResultOnViewVector(user, 
-            entity -> (entity instanceof Player player && player.isAlive() && !player.isSpectator()) 
-                    || entity instanceof PuppeteerBodyEntity, 
-            15f);
-        cir.setReturnValue(result);
-    }
+//    @Inject(method = "getGunTarget", at = @At("HEAD"), cancellable = true)
+//    private static void allowPuppeteerBodyTarget(Player user, CallbackInfoReturnable<HitResult> cir) {
+//        // 扩展目标检测，包含 PuppeteerBodyEntity
+//        HitResult result = ProjectileUtil.getHitResultOnViewVector(user,
+//            entity -> (entity instanceof Player player && GameFunctions.isPlayerAliveAndSurvival( player))
+//                    || entity instanceof PuppeteerBodyEntity,
+//            20f);
+//        cir.setReturnValue(result);
+//    }
 }

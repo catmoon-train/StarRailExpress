@@ -20,6 +20,7 @@ import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
+import org.agmas.noellesroles.entity.PuppeteerBodyEntity;
 import org.jetbrains.annotations.NotNull;
 
 public class KnifeItem extends SkinableItem {
@@ -69,7 +70,14 @@ public class KnifeItem extends SkinableItem {
 
     public static HitResult getKnifeTarget(Player user) {
         return ProjectileUtil.getHitResultOnViewVector(user,
-                entity -> entity instanceof Player player && GameUtils.isPlayerAliveAndSurvival(player), 4f);
+                entity ->{
+            if (entity instanceof PuppeteerBodyEntity puppeteerBodyEntity){
+                var owner = puppeteerBodyEntity.getOwner();
+                return owner != null && GameUtils.isPlayerAliveAndSurvival(owner);
+            }
+           return entity instanceof Player player && GameUtils.isPlayerAliveAndSurvival(player);
+
+                }, 4f);
     }
 
     @Override
