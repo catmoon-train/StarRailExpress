@@ -1,6 +1,7 @@
 package io.wifi.starrailexpress.entity;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import dev.doctor4t.wathe.game.GameFunctions;
@@ -52,9 +53,16 @@ public class GrenadeEntity extends ThrowableItemProjectile {
             world.sendParticles(new ItemParticleOption(ParticleTypes.ITEM, this.getDefaultItem().getDefaultInstance()),
                     this.getX(), this.getY() + .1f, this.getZ(), 100, 0, 0, 0, 1f);
 
-            Vec3 explosionPos = this.position().add(0.0D, 0.5D, 0.0D);
-            var hitted_players = getPlayersAffectedByExplosion(world, explosionPos.x, explosionPos.y, explosionPos.z,
-                    EXPLOSION_RADIUS);
+            Vec3 explosionPos = this.position();
+            var hitted_players = new HashSet<>();
+            hitted_players.addAll(getPlayersAffectedByExplosion(world, explosionPos.x, explosionPos.y, explosionPos.z,
+                    EXPLOSION_RADIUS));
+            hitted_players
+                    .addAll(getPlayersAffectedByExplosion(world, explosionPos.x, explosionPos.y + 0.5, explosionPos.z,
+                            EXPLOSION_RADIUS));
+            hitted_players
+                    .addAll(getPlayersAffectedByExplosion(world, explosionPos.x, explosionPos.y - 0.5, explosionPos.z,
+                            EXPLOSION_RADIUS));
             int count = 0;
             for (var entity : hitted_players) {
                 if (entity instanceof Player player) {
@@ -62,8 +70,9 @@ public class GrenadeEntity extends ThrowableItemProjectile {
                             this.getOwner() instanceof Player playerEntity ? playerEntity : null,
                             GameConstants.DeathReasons.GRENADE);
                 }
-                if (entity instanceof PuppeteerBodyEntity puppeteerBodyEntity){
-                    puppeteerBodyEntity.playerHurt(this.getOwner() instanceof Player playerEntity ? playerEntity : null, GameConstants.DeathReasons.GRENADE);
+                if (entity instanceof PuppeteerBodyEntity puppeteerBodyEntity) {
+                    puppeteerBodyEntity.playerHurt(this.getOwner() instanceof Player playerEntity ? playerEntity : null,
+                            GameConstants.DeathReasons.GRENADE);
                 }
                 count++;
                 if (count >= MAX_KILL_PLAYER_COUNT)
@@ -92,7 +101,8 @@ public class GrenadeEntity extends ThrowableItemProjectile {
 
         for (Entity entity : candidates) {
             if ((entity instanceof Player player)) {
-                if (GameFunctions.isPlayerAliveAndSurvival(player)) continue;
+                if (GameFunctions.isPlayerAliveAndSurvival(player))
+                    continue;
                 // 与爆炸中心的距离比值，> 1.0 则超出范围
                 double distance = Math.sqrt(entity.distanceToSqr(center));
                 double v = distance / diameter;
@@ -106,18 +116,19 @@ public class GrenadeEntity extends ThrowableItemProjectile {
 
                 affected.add(player);
             }
-            if (entity instanceof PuppeteerBodyEntity puppeteerBodyEntity){
+            if (entity instanceof PuppeteerBodyEntity puppeteerBodyEntity) {
                 var owner = puppeteerBodyEntity.getOwner();
                 if (owner instanceof Player player) {
-                    if (GameFunctions.isPlayerAliveAndSurvival(player)) continue;
+                    if (GameFunctions.isPlayerAliveAndSurvival(player))
+                        continue;
                     double distance = Math.sqrt(puppeteerBodyEntity.distanceToSqr(center));
                     double v = distance / diameter;
                     if (v > 1.0)
                         continue;
                     double seenPercent = Explosion.getSeenPercent(center, puppeteerBodyEntity);
-                        if (seenPercent == 0.0)
-                            continue;
-                        affected.add(puppeteerBodyEntity);
+                    if (seenPercent == 0.0)
+                        continue;
+                    affected.add(puppeteerBodyEntity);
                 }
             }
         }
