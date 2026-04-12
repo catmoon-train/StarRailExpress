@@ -59,7 +59,7 @@ public class GamblerPlayerComponent implements RoleComponent, ServerTickingCompo
         this.availableRoles.clear();
         this.selectedRole = null;
         this.roleDrawTimer = 0;
-        this.drawInterval = 30 * 20;
+        this.drawInterval = drawInterval;
         this.sync();
     }
 
