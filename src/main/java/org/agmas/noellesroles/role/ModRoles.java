@@ -1412,15 +1412,19 @@ public class ModRoles {
    *     - 具有商店能买狙击枪等
    * </p>
    */
-  public static SRERole SUPER_LOOSE_END = TMMRoles.registerRole(new NormalRole(
+  public static SRERole SUPER_LOOSE_END = TMMRoles.registerRole(new SuperLooseEnd(
           SUPER_LOOSE_END_ID,
           new Color(0xFF77AA).getRGB(),
           false,
           false,
           SRERole.MoodType.NONE,
-          Integer.MAX_VALUE,
+          -1,
           true
-  )).setCanSeeCoin(true).setCanUseInstinct(true).setCanAutoAddMoney(true).setComponentKey(ModComponents.SUPER_LOOSE_END);
+  ))
+          .setCanSeeCoin(true)
+          .setCanUseInstinct(true)
+          .setCanAutoAddMoney(true)
+          .setComponentKey(ModComponents.SUPER_LOOSE_END);
 
   // ==================== 其他变量定义 ====================
   public static ArrayList<SRERole> SHOW_MONEY_ROLES = new ArrayList<>();

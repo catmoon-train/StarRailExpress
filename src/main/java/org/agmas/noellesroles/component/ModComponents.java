@@ -544,6 +544,11 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
         .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
         .end(WatcherPlayerComponent::new);
 
+    // 注册超级亡命徒组件
+    registry.beginRegistration(Player.class, SUPER_LOOSE_END)
+            .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
+            .end(SuperLooseEndPlayerComponent::new);
+
     // ==================== 示例：注册更多组件 ====================
     //
     // 如果你的角色需要存储特定数据，可以在这里注册更多组件：
