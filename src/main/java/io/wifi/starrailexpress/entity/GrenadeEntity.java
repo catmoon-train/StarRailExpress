@@ -3,6 +3,7 @@ package io.wifi.starrailexpress.entity;
 import java.util.ArrayList;
 import java.util.List;
 
+import dev.doctor4t.wathe.game.GameFunctions;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMEntities;
@@ -24,6 +25,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import org.agmas.noellesroles.entity.PuppeteerBodyEntity;
 
 public class GrenadeEntity extends ThrowableItemProjectile {
     private static final float EXPLOSION_RADIUS = 4f;
@@ -84,24 +86,35 @@ public class GrenadeEntity extends ThrowableItemProjectile {
         ArrayList<Player> affected = new ArrayList<>();
 
         for (Entity entity : candidates) {
-            if (!(entity instanceof Player player))
-                continue;
-            if (player.isSpectator())
-                continue;
-            if (player.isCreative())
-                continue;
-            // 与爆炸中心的距离比值，> 1.0 则超出范围
-            double distance = Math.sqrt(entity.distanceToSqr(center));
-            double v = distance / diameter;
-            if (v > 1.0)
-                continue;
+            if ((entity instanceof Player player)) {
+                if (GameFunctions.isPlayerAliveAndSurvival(player)) continue;
+                // 与爆炸中心的距离比值，> 1.0 则超出范围
+                double distance = Math.sqrt(entity.distanceToSqr(center));
+                double v = distance / diameter;
+                if (v > 1.0)
+                    continue;
 
-            // 检测视线遮挡（与原版 getSeenPercent 一致）
-            double seenPercent = Explosion.getSeenPercent(center, entity);
-            if (seenPercent == 0.0)
-                continue;
+                // 检测视线遮挡（与原版 getSeenPercent 一致）
+                double seenPercent = Explosion.getSeenPercent(center, entity);
+                if (seenPercent == 0.0)
+                    continue;
 
-            affected.add(player);
+                affected.add(player);
+            }
+            if (entity instanceof PuppeteerBodyEntity puppeteerBodyEntity){
+                var owner = puppeteerBodyEntity.getOwner();
+                if (owner instanceof Player player) {
+                    if (GameFunctions.isPlayerAliveAndSurvival(player)) continue;
+                    double distance = Math.sqrt(entity.distanceToSqr(center));
+                    double v = distance / diameter;
+                    if (v > 1.0)
+                        continue;
+                    double seenPercent = Explosion.getSeenPercent(center, entity);
+                        if (seenPercent == 0.0)
+                            continue;
+                        affected.add(player);
+                }
+            }
         }
         affected.sort((a, b) -> {
             double da = a.distanceToSqr(x, y, z);

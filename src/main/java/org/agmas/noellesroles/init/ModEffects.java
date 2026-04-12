@@ -239,6 +239,7 @@ public class ModEffects {
                 return true;
             }
             if (player.hasEffect(ModEffects.INVINCIBLE)|| player.hasEffect(ModEffects.TAROT_ASSEMBLY)){
+
                 return false;
             }
             return true;

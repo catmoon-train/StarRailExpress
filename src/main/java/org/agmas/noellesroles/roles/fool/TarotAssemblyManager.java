@@ -15,6 +15,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
 import org.agmas.noellesroles.entity.PuppeteerBodyEntity;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModEntities;
@@ -119,6 +120,8 @@ public class TarotAssemblyManager {
         }
 
         teleportToMeeting(fool, comp, serverLevel);
+        // 清除场地内的尸体和掉落物
+        clearEntitiesInArea(serverLevel);
         comp.voteInProgress = true;
         comp.voteEndTick = comp.meetingEndTick;
         refreshVoteParticipants(serverLevel, comp);
@@ -128,6 +131,7 @@ public class TarotAssemblyManager {
         fool.displayClientMessage(
                 Component.translatable("message.noellesroles.fool.tarot_started").withStyle(ChatFormatting.GOLD),
                 true);
+
     }
 
     /**
@@ -612,6 +616,34 @@ public class TarotAssemblyManager {
     }
 
     private static void ensureMeetingScene(ServerLevel serverLevel) {
+
+        
+        // 构建场景
         new TarotAssemblySceneBuilder(serverLevel).build(new BlockPos((int) MEETING_X, (int) MEETING_Y, (int) MEETING_Z));
+    }
+
+    /**
+     * 清除会议区域内的所有实体（尸体、掉落物等）
+     */
+    private static void clearEntitiesInArea(ServerLevel serverLevel) {
+        int radius = 30; // 清理半径
+        BlockPos center = new BlockPos((int) MEETING_X, (int) MEETING_Y, (int) MEETING_Z);
+        
+        // 获取范围内的所有实体
+        var entities = serverLevel.getEntities(
+                (Entity) null,
+            net.minecraft.world.phys.AABB.ofSize(center.getCenter(), radius * 2, 50, radius * 2),
+            entity -> true
+        );
+        
+        for (var entity : entities) {
+            // 跳过玩家实体
+            if (entity instanceof ServerPlayer) {
+                continue;
+            }
+            
+            // 移除所有其他实体（包括尸体、掉落物、怪物等）
+            entity.discard();
+        }
     }
 }
