@@ -117,7 +117,7 @@ public class GrenadeEntity extends ThrowableItemProjectile {
             if (entity instanceof PuppeteerBodyEntity puppeteerBodyEntity) {
                 var owner = puppeteerBodyEntity.getOwner();
                 if (owner instanceof Player player) {
-                    if (GameUtils.isPlayerAliveAndSurvival(player))
+                    if (!GameUtils.isPlayerAliveAndSurvival(player))
                         continue;
                     double distance = Math.sqrt(puppeteerBodyEntity.distanceToSqr(center));
                     double v = distance / diameter;
