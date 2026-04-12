@@ -57,12 +57,20 @@ public class TarotAssemblyManager {
     private static final int BLINDNESS_DURATION_TICKS = MEETING_DURATION_TICKS + VOTE_DURATION_TICKS + 60;
     private static final int MANUAL_ADVANCE_LOCK_TICKS = 20;
 
+    private static final int LEAST_MEMBER_REQUIRED = 1;
     /**
      * 愚者按G键召开塔罗会
      */
     public static void startAssembly(ServerPlayer fool) {
         FoolPlayerComponent comp = FoolPlayerComponent.KEY.get(fool);
         long currentTick = fool.level().getGameTime();
+        if (comp.tarotMembers.isEmpty()){
+            fool.displayClientMessage(
+                    Component.translatable("message.noellesroles.fool.tarot_not_enough_members")
+                            .withStyle(ChatFormatting.RED),
+                    true);
+                    return;
+        }
 
         // G键再次使用：直接提前结束并结算当前投票结果
         if (comp.inMeeting) {
