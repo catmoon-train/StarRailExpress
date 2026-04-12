@@ -7,8 +7,10 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
 final class TarotAssemblySceneBuilder {
-    private static final int ROOM_RADIUS = 11;
-    private static final int ROOM_HEIGHT = 7;
+    private static final int HALL_HALF_WIDTH = 18;
+    private static final int HALL_HALF_LENGTH = 28;
+    private static final int ROOM_HEIGHT = 11;
+    private static final int COLUMN_HEIGHT = 7;
 
     private final ServerLevel level;
 
@@ -18,78 +20,192 @@ final class TarotAssemblySceneBuilder {
 
     void build(BlockPos center) {
         clear(center);
+        buildFoundation(center);
+        buildFogSea(center);
         buildFloor(center);
-        buildWalls(center);
+        buildColonnade(center);
         buildRoof(center);
-        buildTable(center);
+        buildThroneDais(center);
+        buildBronzeTable(center);
         buildLanterns(center);
     }
 
     private void clear(BlockPos center) {
-        fill(center.offset(-ROOM_RADIUS - 2, -1, -ROOM_RADIUS - 2),
-                center.offset(ROOM_RADIUS + 2, ROOM_HEIGHT + 2, ROOM_RADIUS + 2),
+        fill(center.offset(-HALL_HALF_WIDTH - 4, -3, -HALL_HALF_LENGTH - 4),
+            center.offset(HALL_HALF_WIDTH + 4, ROOM_HEIGHT + 3, HALL_HALF_LENGTH + 4),
                 Blocks.AIR.defaultBlockState());
     }
 
+        private void buildFoundation(BlockPos center) {
+        fill(center.offset(-HALL_HALF_WIDTH - 3, -2, -HALL_HALF_LENGTH - 3),
+            center.offset(HALL_HALF_WIDTH + 3, -2, HALL_HALF_LENGTH + 3),
+            Blocks.POLISHED_ANDESITE.defaultBlockState());
+        fill(center.offset(-HALL_HALF_WIDTH - 2, -1, -HALL_HALF_LENGTH - 2),
+            center.offset(HALL_HALF_WIDTH + 2, -1, HALL_HALF_LENGTH + 2),
+            Blocks.SMOOTH_STONE.defaultBlockState());
+        fill(center.offset(-HALL_HALF_WIDTH, -1, -HALL_HALF_LENGTH),
+            center.offset(HALL_HALF_WIDTH, -1, HALL_HALF_LENGTH),
+            Blocks.POLISHED_DIORITE.defaultBlockState());
+        }
+
+        private void buildFogSea(BlockPos center) {
+        fill(center.offset(-HALL_HALF_WIDTH - 2, 0, -HALL_HALF_LENGTH - 2),
+            center.offset(HALL_HALF_WIDTH + 2, 0, HALL_HALF_LENGTH + 2),
+            Blocks.WHITE_STAINED_GLASS.defaultBlockState());
+        fill(center.offset(-HALL_HALF_WIDTH - 1, 1, -HALL_HALF_LENGTH - 1),
+            center.offset(HALL_HALF_WIDTH + 1, 1, HALL_HALF_LENGTH + 1),
+            Blocks.WHITE_CARPET.defaultBlockState());
+        }
+
     private void buildFloor(BlockPos center) {
-        fill(center.offset(-ROOM_RADIUS, -1, -ROOM_RADIUS),
-                center.offset(ROOM_RADIUS, -1, ROOM_RADIUS),
-                Blocks.SMOOTH_STONE.defaultBlockState());
-        fill(center.offset(-ROOM_RADIUS + 1, 0, -ROOM_RADIUS + 1),
-                center.offset(ROOM_RADIUS - 1, 0, ROOM_RADIUS - 1),
-                Blocks.LIGHT_GRAY_CONCRETE.defaultBlockState());
-        fill(center.offset(-6, 0, -6), center.offset(6, 0, 6), Blocks.WHITE_CARPET.defaultBlockState());
-        fill(center.offset(-4, 0, -4), center.offset(4, 0, 4), Blocks.GRAY_CARPET.defaultBlockState());
+        fill(center.offset(-HALL_HALF_WIDTH, 0, -HALL_HALF_LENGTH),
+            center.offset(HALL_HALF_WIDTH, 0, HALL_HALF_LENGTH),
+            Blocks.CALCITE.defaultBlockState());
+
+        fill(center.offset(-HALL_HALF_WIDTH, 0, -HALL_HALF_LENGTH),
+            center.offset(HALL_HALF_WIDTH, 0, -HALL_HALF_LENGTH),
+            Blocks.LIGHT_GRAY_CONCRETE.defaultBlockState());
+        fill(center.offset(-HALL_HALF_WIDTH, 0, HALL_HALF_LENGTH),
+            center.offset(HALL_HALF_WIDTH, 0, HALL_HALF_LENGTH),
+            Blocks.LIGHT_GRAY_CONCRETE.defaultBlockState());
+        fill(center.offset(-HALL_HALF_WIDTH, 0, -HALL_HALF_LENGTH),
+            center.offset(-HALL_HALF_WIDTH, 0, HALL_HALF_LENGTH),
+            Blocks.LIGHT_GRAY_CONCRETE.defaultBlockState());
+        fill(center.offset(HALL_HALF_WIDTH, 0, -HALL_HALF_LENGTH),
+            center.offset(HALL_HALF_WIDTH, 0, HALL_HALF_LENGTH),
+            Blocks.LIGHT_GRAY_CONCRETE.defaultBlockState());
+
+        fill(center.offset(-5, 1, -HALL_HALF_LENGTH + 4),
+            center.offset(5, 1, HALL_HALF_LENGTH - 4),
+            Blocks.LIGHT_GRAY_CARPET.defaultBlockState());
+        fill(center.offset(-2, 1, -HALL_HALF_LENGTH + 4),
+            center.offset(2, 1, HALL_HALF_LENGTH - 4),
+            Blocks.WHITE_CARPET.defaultBlockState());
+
+        fill(center.offset(-14, 1, -12), center.offset(-8, 1, 12), Blocks.GRAY_CARPET.defaultBlockState());
+        fill(center.offset(8, 1, -12), center.offset(14, 1, 12), Blocks.GRAY_CARPET.defaultBlockState());
     }
 
-    private void buildWalls(BlockPos center) {
-        BlockState shell = Blocks.WHITE_STAINED_GLASS.defaultBlockState();
-        BlockState trim = Blocks.TINTED_GLASS.defaultBlockState();
-        for (int y = 1; y <= ROOM_HEIGHT; y++) {
-            for (int x = -ROOM_RADIUS; x <= ROOM_RADIUS; x++) {
-                setBlock(center.offset(x, y, -ROOM_RADIUS), trim);
-                setBlock(center.offset(x, y, ROOM_RADIUS), trim);
-            }
-            for (int z = -ROOM_RADIUS; z <= ROOM_RADIUS; z++) {
-                setBlock(center.offset(-ROOM_RADIUS, y, z), trim);
-                setBlock(center.offset(ROOM_RADIUS, y, z), trim);
-            }
+        private void buildColonnade(BlockPos center) {
+        int sideX = HALL_HALF_WIDTH - 2;
+        int sideZ = HALL_HALF_LENGTH - 2;
+
+        for (int z = -sideZ; z <= sideZ; z += 8) {
+            placeColumn(center.offset(-sideX, 0, z));
+            placeColumn(center.offset(sideX, 0, z));
         }
-        fill(center.offset(-ROOM_RADIUS + 1, 1, -ROOM_RADIUS),
-                center.offset(ROOM_RADIUS - 1, ROOM_HEIGHT - 1, -ROOM_RADIUS), shell);
-        fill(center.offset(-ROOM_RADIUS + 1, 1, ROOM_RADIUS),
-                center.offset(ROOM_RADIUS - 1, ROOM_HEIGHT - 1, ROOM_RADIUS), shell);
-        fill(center.offset(-ROOM_RADIUS, 1, -ROOM_RADIUS + 1),
-                center.offset(-ROOM_RADIUS, ROOM_HEIGHT - 1, ROOM_RADIUS - 1), shell);
-        fill(center.offset(ROOM_RADIUS, 1, -ROOM_RADIUS + 1),
-                center.offset(ROOM_RADIUS, ROOM_HEIGHT - 1, ROOM_RADIUS - 1), shell);
+        for (int x = -sideX + 6; x <= sideX - 6; x += 8) {
+            placeColumn(center.offset(x, 0, -sideZ));
+            placeColumn(center.offset(x, 0, sideZ));
+        }
+
+        fill(center.offset(-sideX, COLUMN_HEIGHT + 1, -sideZ),
+            center.offset(sideX, COLUMN_HEIGHT + 1, -sideZ),
+            Blocks.POLISHED_DIORITE.defaultBlockState());
+        fill(center.offset(-sideX, COLUMN_HEIGHT + 1, sideZ),
+            center.offset(sideX, COLUMN_HEIGHT + 1, sideZ),
+            Blocks.POLISHED_DIORITE.defaultBlockState());
+        fill(center.offset(-sideX, COLUMN_HEIGHT + 1, -sideZ),
+            center.offset(-sideX, COLUMN_HEIGHT + 1, sideZ),
+            Blocks.POLISHED_DIORITE.defaultBlockState());
+        fill(center.offset(sideX, COLUMN_HEIGHT + 1, -sideZ),
+            center.offset(sideX, COLUMN_HEIGHT + 1, sideZ),
+            Blocks.POLISHED_DIORITE.defaultBlockState());
+
+        fill(center.offset(-HALL_HALF_WIDTH, 1, -HALL_HALF_LENGTH),
+            center.offset(HALL_HALF_WIDTH, 4, -HALL_HALF_LENGTH),
+            Blocks.WHITE_STAINED_GLASS.defaultBlockState());
+        fill(center.offset(-HALL_HALF_WIDTH, 1, HALL_HALF_LENGTH),
+            center.offset(HALL_HALF_WIDTH, 4, HALL_HALF_LENGTH),
+            Blocks.WHITE_STAINED_GLASS.defaultBlockState());
+        fill(center.offset(-HALL_HALF_WIDTH, 1, -HALL_HALF_LENGTH),
+            center.offset(-HALL_HALF_WIDTH, 4, HALL_HALF_LENGTH),
+            Blocks.WHITE_STAINED_GLASS.defaultBlockState());
+        fill(center.offset(HALL_HALF_WIDTH, 1, -HALL_HALF_LENGTH),
+            center.offset(HALL_HALF_WIDTH, 4, HALL_HALF_LENGTH),
+            Blocks.WHITE_STAINED_GLASS.defaultBlockState());
     }
 
     private void buildRoof(BlockPos center) {
-        fill(center.offset(-ROOM_RADIUS, ROOM_HEIGHT + 1, -ROOM_RADIUS),
-                center.offset(ROOM_RADIUS, ROOM_HEIGHT + 1, ROOM_RADIUS),
+        fill(center.offset(-HALL_HALF_WIDTH, ROOM_HEIGHT, -HALL_HALF_LENGTH),
+            center.offset(HALL_HALF_WIDTH, ROOM_HEIGHT, HALL_HALF_LENGTH),
                 Blocks.TINTED_GLASS.defaultBlockState());
-        fill(center.offset(-5, ROOM_HEIGHT + 1, -5), center.offset(5, ROOM_HEIGHT + 1, 5),
+        fill(center.offset(-10, ROOM_HEIGHT, -18), center.offset(10, ROOM_HEIGHT, 18),
                 Blocks.WHITE_STAINED_GLASS.defaultBlockState());
+        fill(center.offset(-HALL_HALF_WIDTH + 2, ROOM_HEIGHT - 1, -HALL_HALF_LENGTH + 2),
+            center.offset(HALL_HALF_WIDTH - 2, ROOM_HEIGHT - 1, HALL_HALF_LENGTH - 2),
+            Blocks.POLISHED_DIORITE.defaultBlockState());
+        fill(center.offset(-HALL_HALF_WIDTH + 3, ROOM_HEIGHT - 1, -HALL_HALF_LENGTH + 3),
+            center.offset(HALL_HALF_WIDTH - 3, ROOM_HEIGHT - 1, HALL_HALF_LENGTH - 3),
+            Blocks.AIR.defaultBlockState());
     }
 
-    private void buildTable(BlockPos center) {
-        fill(center.offset(-1, 1, -1), center.offset(1, 1, 1), Blocks.POLISHED_DIORITE.defaultBlockState());
-        setBlock(center.offset(0, 2, 0), Blocks.SOUL_LANTERN.defaultBlockState());
+        private void buildThroneDais(BlockPos center) {
+        int throneFront = -HALL_HALF_LENGTH + 10;
+
+        fill(center.offset(-7, 0, -HALL_HALF_LENGTH + 4),
+            center.offset(7, 0, throneFront + 2),
+            Blocks.LIGHT_GRAY_CONCRETE.defaultBlockState());
+        fill(center.offset(-5, 1, -HALL_HALF_LENGTH + 5),
+            center.offset(5, 1, throneFront + 1),
+            Blocks.POLISHED_DIORITE.defaultBlockState());
+        fill(center.offset(-3, 2, -HALL_HALF_LENGTH + 6),
+            center.offset(3, 2, throneFront),
+            Blocks.CALCITE.defaultBlockState());
+
+        fill(center.offset(-1, 3, -HALL_HALF_LENGTH + 7),
+            center.offset(1, 5, -HALL_HALF_LENGTH + 7),
+            Blocks.POLISHED_BLACKSTONE.defaultBlockState());
+        fill(center.offset(-2, 3, -HALL_HALF_LENGTH + 8),
+            center.offset(2, 4, -HALL_HALF_LENGTH + 8),
+            Blocks.POLISHED_BLACKSTONE.defaultBlockState());
+
+        setBlock(center.offset(-4, 3, -HALL_HALF_LENGTH + 7), Blocks.SOUL_LANTERN.defaultBlockState());
+        setBlock(center.offset(4, 3, -HALL_HALF_LENGTH + 7), Blocks.SOUL_LANTERN.defaultBlockState());
+        }
+
+        private void buildBronzeTable(BlockPos center) {
+        fill(center.offset(-1, 0, -14), center.offset(1, 0, 14), Blocks.WEATHERED_CUT_COPPER.defaultBlockState());
+        fill(center.offset(-2, 0, -16), center.offset(2, 0, -13), Blocks.OXIDIZED_CUT_COPPER.defaultBlockState());
+        fill(center.offset(-2, 0, 13), center.offset(2, 0, 16), Blocks.OXIDIZED_CUT_COPPER.defaultBlockState());
+
+        for (int z = -12; z <= 12; z += 4) {
+            setBlock(center.offset(-3, 1, z), Blocks.GRAY_CARPET.defaultBlockState());
+            setBlock(center.offset(3, 1, z), Blocks.GRAY_CARPET.defaultBlockState());
+        }
     }
 
     private void buildLanterns(BlockPos center) {
-        placeLantern(center.offset(-7, 0, -7));
-        placeLantern(center.offset(7, 0, -7));
-        placeLantern(center.offset(-7, 0, 7));
-        placeLantern(center.offset(7, 0, 7));
+        placeHangingLantern(center.offset(0, 0, 0), 4);
+        placeHangingLantern(center.offset(0, 0, -12), 3);
+        placeHangingLantern(center.offset(0, 0, 12), 3);
+        placeFloorLantern(center.offset(-HALL_HALF_WIDTH + 4, 0, -HALL_HALF_LENGTH + 4));
+        placeFloorLantern(center.offset(HALL_HALF_WIDTH - 4, 0, -HALL_HALF_LENGTH + 4));
+        placeFloorLantern(center.offset(-HALL_HALF_WIDTH + 4, 0, HALL_HALF_LENGTH - 4));
+        placeFloorLantern(center.offset(HALL_HALF_WIDTH - 4, 0, HALL_HALF_LENGTH - 4));
     }
 
-    private void placeLantern(BlockPos floorPos) {
+        private void placeColumn(BlockPos base) {
+        setBlock(base, Blocks.CHISELED_STONE_BRICKS.defaultBlockState());
+        fill(base.above(), base.above(COLUMN_HEIGHT), Blocks.POLISHED_DIORITE.defaultBlockState());
+        setBlock(base.above(COLUMN_HEIGHT + 1), Blocks.CHISELED_STONE_BRICKS.defaultBlockState());
+        }
+
+        private void placeFloorLantern(BlockPos floorPos) {
         setBlock(floorPos, Blocks.POLISHED_ANDESITE.defaultBlockState());
         setBlock(floorPos.above(), Blocks.CHAIN.defaultBlockState());
         setBlock(floorPos.above(2), Blocks.SOUL_LANTERN.defaultBlockState());
     }
+
+        private void placeHangingLantern(BlockPos center, int chainLength) {
+        BlockPos anchor = center.above(ROOM_HEIGHT - 1);
+        for (int i = 0; i < chainLength; i++) {
+            setBlock(anchor.below(i), Blocks.CHAIN.defaultBlockState());
+        }
+        setBlock(anchor.below(chainLength), Blocks.SOUL_LANTERN.defaultBlockState());
+        setBlock(anchor.below(chainLength).east(), Blocks.SOUL_LANTERN.defaultBlockState());
+        setBlock(anchor.below(chainLength).west(), Blocks.SOUL_LANTERN.defaultBlockState());
+        }
 
     private void fill(BlockPos from, BlockPos to, BlockState state) {
         int minX = Math.min(from.getX(), to.getX());

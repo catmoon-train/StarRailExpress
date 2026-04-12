@@ -57,6 +57,10 @@ public abstract class WorldRendererMixin {
                 }
             }
             if (player.hasEffect(MobEffects.BLINDNESS)){
+                if (player.hasEffect(ModEffects.TAROT_ASSEMBLY)){
+                    tmm$doFog(0, 20);
+                    return;
+                }
                 tmm$doFog(0, 12);
                 return;
             }

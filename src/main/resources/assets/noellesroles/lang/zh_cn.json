@@ -1812,7 +1812,7 @@
   "announcement.star.role.noellesroles.the_fool": "愚者",
   "announcement.star.goals.the_fool": "利用塔罗会的力量，找出隐藏在人群中的异端，以审判之名守护正义！",
   "announcement.star.win.the_fool": "好人阵营胜利！",
-  "info.screen.roleid.the_fool": "好人阵营\n按右键放置尊名纸条(50金币)\n其他玩家对着纸条按V键祷告成为塔罗会成员\n按G召开塔罗会(冷却5分钟，死亡后6分钟)\n成员投票选出异端(金色发光60秒)\n处刑者手枪：仅对异端一击必杀\n击杀异端后获得庇护(免疫该玩家一次伤害)\n灵性斗篷(200金币)：5秒无敌不可攻击",
+  "info.screen.roleid.the_fool": "好人阵营\n开局自带处刑者手枪\n按右键放置尊名纸条(50金币)\n其他玩家在纸条附近按J键祷告成为塔罗会成员\n按G召开塔罗会(冷却6分钟，死亡后8分钟)\n塔罗会持续60秒，再按G可提前结算\n成员可在会中按J入会或重开投票界面\n所有参会者可投票给任意非愚者玩家，包括死人\n平票、无人投票或第一名已死亡时获得一次性手枪\n第一名存活时直接锁定为异端，并立刻获得对其一次庇护\n处刑者手枪只能处决当前异端，打错只会空枪\n灵性斗篷(200金币)：5秒无敌且无法攻击",
 
   "item.noellesroles.executioner_gun": "处刑者手枪",
   "item.noellesroles.honored_note": "尊名纸条",
