@@ -554,6 +554,8 @@
   "death_reason.starrailexpress.shot_innocent": "誤殺平民而亡",
   "death_reason.starrailexpress.backfire": "槍走火",
   "death_reason.starrailexpress.self_explosion": "自爆而亡",
+  "replay.event.game.failed_kill": "%s 在 %s 的攻擊中存活了下來。",
+  "replay.event.game.failed_death": "%s 成功存活了下來。",
   "replay.event.game.start": "遊戲開始",
   "replay.event.game.end": "遊戲結束",
   "replay.event.player.join": "%s 加入了遊戲",
