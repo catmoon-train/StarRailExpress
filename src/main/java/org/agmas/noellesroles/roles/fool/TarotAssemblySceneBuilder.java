@@ -176,13 +176,37 @@ final class TarotAssemblySceneBuilder {
     }
 
     private void buildLanterns(BlockPos center) {
+        // 中央主吊灯组
         placeHangingLantern(center.offset(0, 0, 0), 4);
         placeHangingLantern(center.offset(0, 0, -12), 3);
         placeHangingLantern(center.offset(0, 0, 12), 3);
+        
+        // 王座区域吊灯
+        placeHangingLantern(center.offset(0, 0, -HALL_HALF_LENGTH + 8), 3);
+        placeHangingLantern(center.offset(-6, 0, -HALL_HALF_LENGTH + 6), 2);
+        placeHangingLantern(center.offset(6, 0, -HALL_HALF_LENGTH + 6), 2);
+        
+        // 长桌上方吊灯
+        for (int z = -10; z <= 10; z += 5) {
+            placeHangingLantern(center.offset(0, 0, z), 2);
+        }
+        
+        // 四角落地灯
         placeFloorLantern(center.offset(-HALL_HALF_WIDTH + 4, 0, -HALL_HALF_LENGTH + 4));
         placeFloorLantern(center.offset(HALL_HALF_WIDTH - 4, 0, -HALL_HALF_LENGTH + 4));
         placeFloorLantern(center.offset(-HALL_HALF_WIDTH + 4, 0, HALL_HALF_LENGTH - 4));
         placeFloorLantern(center.offset(HALL_HALF_WIDTH - 4, 0, HALL_HALF_LENGTH - 4));
+        
+        // 柱子间壁灯
+        for (int z = -HALL_HALF_LENGTH + 6; z <= HALL_HALF_LENGTH - 6; z += 8) {
+            placeWallLantern(center.offset(-HALL_HALF_WIDTH + 1, 4, z));
+            placeWallLantern(center.offset(HALL_HALF_WIDTH - 1, 4, z));
+        }
+        
+        // 王座后方装饰灯
+        setBlock(center.offset(-3, 4, -HALL_HALF_LENGTH + 5), Blocks.SOUL_LANTERN.defaultBlockState());
+        setBlock(center.offset(3, 4, -HALL_HALF_LENGTH + 5), Blocks.SOUL_LANTERN.defaultBlockState());
+        setBlock(center.offset(0, 5, -HALL_HALF_LENGTH + 5), Blocks.SOUL_LANTERN.defaultBlockState());
     }
 
         private void placeColumn(BlockPos base) {
@@ -206,6 +230,10 @@ final class TarotAssemblySceneBuilder {
         setBlock(anchor.below(chainLength).east(), Blocks.SOUL_LANTERN.defaultBlockState());
         setBlock(anchor.below(chainLength).west(), Blocks.SOUL_LANTERN.defaultBlockState());
         }
+
+    private void placeWallLantern(BlockPos pos) {
+        setBlock(pos, Blocks.SOUL_LANTERN.defaultBlockState());
+    }
 
     private void fill(BlockPos from, BlockPos to, BlockState state) {
         int minX = Math.min(from.getX(), to.getX());
