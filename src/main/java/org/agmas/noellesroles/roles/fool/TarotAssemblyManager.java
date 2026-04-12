@@ -37,8 +37,8 @@ import java.util.UUID;
 public class TarotAssemblyManager {
 
     /** 塔罗会冷却：存活5分钟，死亡6分钟 */
-    public static final int COOLDOWN_ALIVE_TICKS = 5 * 60 * 20; // 5分钟
-    public static final int COOLDOWN_DEAD_TICKS = 6 * 60 * 20; // 6分钟
+    public static final int COOLDOWN_ALIVE_TICKS = 6 * 60 * 20; // 5分钟
+    public static final int COOLDOWN_DEAD_TICKS = 8 * 60 * 20; // 6分钟
 
     /** 会议持续时间上限（1分钟） */
     public static final int MEETING_DURATION_TICKS = 60 * 20;

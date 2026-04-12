@@ -128,7 +128,7 @@ public class FoolPlayerComponent implements RoleComponent {
         AllowPlayerDeathWithKiller.EVENT.register((player, killer, deathReason) -> {
             SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
             if (gameWorld.isRole(player, ModRoles.THE_FOOL)) {
-                FoolPlayerComponent foolPlayerComponent = KEY.get(player.level());
+                FoolPlayerComponent foolPlayerComponent = KEY.get(player);
                 if (foolPlayerComponent.protectionSource.equals(killer.getUUID())) {
                     if (player instanceof ServerPlayer serverPlayer) {
                         serverPlayer
@@ -260,7 +260,7 @@ public class FoolPlayerComponent implements RoleComponent {
 
     /**
      * 消耗庇护效果
-     * 
+     *
      * @return true 如果庇护被消耗
      */
     public boolean consumeProtection(UUID attackerUuid) {
