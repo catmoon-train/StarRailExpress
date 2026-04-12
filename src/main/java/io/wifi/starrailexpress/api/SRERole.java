@@ -531,15 +531,15 @@ public abstract class SRERole {
      */
     public int getRoundMaxCount(ServerLevel serverLevel, SREGameWorldComponent gameWorldComponent,
             List<ServerPlayer> players) {
-        if (this.enableChance >= 0) {
-            int nchance = random.nextInt(0, 100);
-            if (nchance > enableChance) {
-                return 0;
-            }
-        }
         if (this.enableNeedPlayerCount >= 0) {
             int playerCount = players.size();
             if (playerCount < this.enableNeedPlayerCount) {
+                return 0;
+            }
+        }
+        if (this.enableChance >= 0) {
+            int nchance = random.nextInt(0, 100);
+            if (nchance > enableChance) {
                 return 0;
             }
         }
