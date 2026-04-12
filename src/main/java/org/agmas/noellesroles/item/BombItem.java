@@ -22,6 +22,7 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.*;
 import org.agmas.noellesroles.Noellesroles;
+import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
 
 import java.util.UUID;
@@ -85,7 +86,9 @@ public class BombItem extends Item {
             killer = player.level().getPlayerByUUID(owner);
         if (killer == null)
             killer = player;
+        ModEffects.pierceDeath = true;
         GameUtils.killPlayer(player, true, killer, Noellesroles.id("bomb_death"));
+        ModEffects.pierceDeath = false;
         ServerLevel serverLevel = player.serverLevel();
         serverLevel.players().forEach(
                 target -> {
