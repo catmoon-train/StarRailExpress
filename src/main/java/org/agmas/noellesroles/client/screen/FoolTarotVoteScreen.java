@@ -217,7 +217,8 @@ public class FoolTarotVoteScreen extends Screen {
         protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
             Font renderer = Minecraft.getInstance().font;
             int bgColor = this.isHovered() ? new Color(74, 50, 18, 215).getRGB() : new Color(42, 30, 12, 185).getRGB();
-            int borderColor = this.candidate.alive() ? 0xD6B665 : 0x9B6464;
+            //int borderColor = this.candidate.alive() ? 0xD6B665 : 0x9B6464;
+            int borderColor =  0xD6B665 ;
             context.fill(this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, bgColor);
             context.renderOutline(this.getX(), this.getY(), this.width, this.height, borderColor);
 
@@ -225,7 +226,8 @@ public class FoolTarotVoteScreen extends Screen {
 
             Component name = parent.resolvePlayerName(this.candidate.candidateId());
             String nameText = renderer.plainSubstrByWidth(name.getString(), this.width - 62);
-            int nameColor = this.candidate.alive() ? 0xF7E6B0 : 0xD49A9A;
+            //int nameColor = this.candidate.alive() ? 0xF7E6B0 : 0xD49A9A;
+            int nameColor =  0xF7E6B0 ;
             context.drawString(renderer, nameText, this.getX() + 34, this.getY() + 6, nameColor);
 
             Component votesText = Component.translatable("screen.noellesroles.fool.vote.entry_votes",
@@ -236,9 +238,11 @@ public class FoolTarotVoteScreen extends Screen {
                     this.getY() + 6,
                     0xE8C15B);
 
-            Component stateText = this.candidate.alive()
-                    ? Component.translatable("screen.noellesroles.fool.vote.entry_alive")
-                    : Component.translatable("screen.noellesroles.fool.vote.entry_dead");
+//            Component stateText = this.candidate.alive()
+//                    ? Component.translatable("screen.noellesroles.fool.vote.entry_alive")
+//                    : Component.translatable("screen.noellesroles.fool.vote.entry_dead");
+            Component stateText = Component.translatable("screen.noellesroles.fool.vote.entry_alive");
+
                 context.drawString(renderer, stateText, this.getX() + 34, this.getY() + 18,
                     this.candidate.alive() ? 0x7CD67C : 0xD67676);
         }

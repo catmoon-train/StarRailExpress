@@ -127,7 +127,7 @@ public class GameReplayUtils {
         MutableComponent sourceRoleName = ReplayDisplayUtils.getRoleDisplayName(sourceRoleId);
         int sourceRoleColor = getRoleColor(sourceRoleId);
 
-        ChatFormatting sourceTMMColor = getTMMRoleColor(sourceRoleId);
+        ChatFormatting sourceTMMColor = getTMMRoleColor(sourceRoleIdNow);
 
         // 如果当前角色与记录的角色不同，则显示为(new(old))格式，old为灰色
         if (sourceRoleId == null) {

@@ -146,7 +146,7 @@ public class TarotAssemblyManager {
         player.displayClientMessage(
                 Component.translatable("message.noellesroles.fool.tarot_invite_chat")
                         .withStyle(ChatFormatting.GOLD),
-                false);
+                true);
     }
 
     /**
@@ -351,7 +351,7 @@ public class TarotAssemblyManager {
                 Component.translatable("message.noellesroles.fool.vote_target_locked",
                     targetPlayer.getName().getString(), maxVotes)
                             .withStyle(ChatFormatting.RED),
-                    false);
+                    true);
         }
 
         comp.sync();
@@ -382,18 +382,33 @@ public class TarotAssemblyManager {
             comp.sync();
         }
 
+    }
+
+    public static void serverLevelTick(ServerLevel serverLevel) {
+        SREGameWorldComponent gameComponent = SREGameWorldComponent.KEY.get(serverLevel);
+        ServerPlayer fool = findFoolPlayer(serverLevel, gameComponent);
+        if (fool == null) {
+            return;
+        }
+
+        tickMeetingState(fool, serverLevel);
+    }
+
+    private static void tickMeetingState(ServerPlayer fool, ServerLevel serverLevel) {
+        FoolPlayerComponent comp = FoolPlayerComponent.KEY.get(fool);
+
         if (!comp.inMeeting) {
             return;
         }
 
-        ServerLevel serverLevel = (ServerLevel) player.level();
+        long currentTick = serverLevel.getGameTime();
         if (currentTick % 10 == 0) {
             serverLevel.sendParticles(ParticleTypes.CLOUD, MEETING_X, MEETING_Y + 2.5D, MEETING_Z, 18,
                     7.0D, 1.5D, 7.0D, 0.01D);
         }
 
         if (currentTick >= comp.meetingEndTick) {
-            finalizeVotingAndEndMeeting(player);
+            finalizeVotingAndEndMeeting(fool);
         }
     }
 
@@ -472,7 +487,7 @@ public class TarotAssemblyManager {
         voter.displayClientMessage(
             Component.translatable("message.noellesroles.fool.vote_started")
                 .withStyle(ChatFormatting.GOLD),
-            false);
+            true);
     }
 
     private static Set<UUID> collectVoteTargets(ServerLevel serverLevel, UUID foolUuid) {
@@ -541,7 +556,7 @@ public class TarotAssemblyManager {
         fool.displayClientMessage(
                 Component.translatable("message.noellesroles.fool.vote_no_heretic")
                         .withStyle(ChatFormatting.YELLOW),
-                false);
+                true);
     }
 
     public static void clearTrackedTarget(ServerLevel serverLevel, UUID targetUuid) {

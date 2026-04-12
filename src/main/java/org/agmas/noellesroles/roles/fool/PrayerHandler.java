@@ -97,13 +97,13 @@ public class PrayerHandler {
         player.displayClientMessage(
                 Component.translatable("message.noellesroles.fool.prayer_complete")
                         .withStyle(ChatFormatting.GOLD),
-                false);
+                true);
 
         // 通知愚者
         fool.displayClientMessage(
                 Component.translatable("message.noellesroles.fool.player_prayed", player.getName().getString())
                         .withStyle(ChatFormatting.GOLD),
-                false);
+                true);
     }
 
     /**
