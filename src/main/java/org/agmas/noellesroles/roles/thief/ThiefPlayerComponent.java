@@ -798,7 +798,12 @@ public class ThiefPlayerComponent implements RoleComponent, ServerTickingCompone
         var gwc = SREGameWorldComponent.KEY.get(player.level());
         if (!gwc.isRole(player, ModRoles.THIEF))
             return;
-        
+
+        if (player.hasEffect(ModEffects.NO_COLLIDE)) // 安全时间
+            return;
+        if (this.honorCost < 100)
+            return;
+
         if (this.cooldown > 0) {
             this.cooldown--;
             if (this.cooldown % 60 == 0 || this.cooldown == 0) {
@@ -806,7 +811,6 @@ public class ThiefPlayerComponent implements RoleComponent, ServerTickingCompone
             }
         }
 
-        
         // 处理延迟通知
         if (!pendingNotifications.isEmpty()) {
             java.util.Iterator<PendingNotification> iterator = pendingNotifications.iterator();
@@ -825,11 +829,7 @@ public class ThiefPlayerComponent implements RoleComponent, ServerTickingCompone
                 }
             }
         }
-        
-        if (player.hasEffect(ModEffects.NO_COLLIDE)) // 安全时间
-            return;
-        if (this.honorCost < 100)
-            return;
+
         var psc = SREPlayerShopComponent.KEY.get(player);
         if (player.level().getGameTime() % 20 == 0) {
             if (psc.balance >= this.honorCost) {
@@ -843,6 +843,8 @@ public class ThiefPlayerComponent implements RoleComponent, ServerTickingCompone
     }
 
     public void clientTick() {
+        if (player.hasEffect(ModEffects.NO_COLLIDE)) // 安全时间
+            return;
         if (this.cooldown > 1) {
             this.cooldown--;
         }
