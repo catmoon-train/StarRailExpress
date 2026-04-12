@@ -23,7 +23,7 @@ import java.util.UUID;
 public class MercenaryPlayerComponent implements RoleComponent, ServerTickingComponent {
     public static final ComponentKey<MercenaryPlayerComponent> KEY = ModComponents.MERCENARY;
 
-    private static final int BASE_IDLE_SHIELDS = 3;
+    private static final int BASE_IDLE_SHIELDS = 2;
     private static final int GLOW_REFRESH_TICKS = 40;
     private static final int CONTRACT_COOLDOWN_TICKS = 90 * 20; // 90秒冷却
 
@@ -73,8 +73,8 @@ public class MercenaryPlayerComponent implements RoleComponent, ServerTickingCom
         // 基于开局玩家人数计算所需击杀数；若不可用则回退到当前在线玩家数
         SREGameWorldComponent gwc = SREGameWorldComponent.KEY.get(player.level());
         int basePlayers = (gwc != null && gwc.getStartingPlayerCount() > 0)
-            ? gwc.getStartingPlayerCount()
-            : player.level().players().size();
+                ? gwc.getStartingPlayerCount()
+                : player.level().players().size();
         requiredContractKills = Math.max(1, basePlayers / 10 + 1);
         contractCooldown = 0;
         enterIdleState(true);
@@ -283,8 +283,8 @@ public class MercenaryPlayerComponent implements RoleComponent, ServerTickingCom
 
         // 动态使用开局人数保持一致性（避免中途玩家离开影响目标要求）
         int basePlayers = (gwc != null && gwc.getStartingPlayerCount() > 0)
-            ? gwc.getStartingPlayerCount()
-            : player.level().players().size();
+                ? gwc.getStartingPlayerCount()
+                : player.level().players().size();
         requiredContractKills = Math.max(1, basePlayers / 10 + 1);
 
         // 处理合约冷却
