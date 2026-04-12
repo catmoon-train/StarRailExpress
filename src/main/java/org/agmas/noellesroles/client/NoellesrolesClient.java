@@ -823,8 +823,9 @@ public class NoellesrolesClient implements ClientModInitializer {
                 return;
             }
 
-            org.agmas.noellesroles.roles.fool.FoolPlayerComponent foolComponent =
+                org.agmas.noellesroles.roles.fool.FoolPlayerComponent foolComponent =
                     org.agmas.noellesroles.roles.fool.FoolPlayerComponent.KEY.get(client.player);
+                boolean inTarotAssembly = client.player.hasEffect(ModEffects.TAROT_ASSEMBLY);
 //            if (client.screen instanceof org.agmas.noellesroles.client.screen.FoolTarotVoteScreen
 //                    && (!foolComponent.inMeeting || !foolComponent.voteInProgress)) {
 //                client.setScreen(null);
@@ -840,7 +841,7 @@ public class NoellesrolesClient implements ClientModInitializer {
                 }
             }
 
-            if (foolComponent.inMeeting) {
+            if (inTarotAssembly) {
                 if (client.options.keyUse.consumeClick()) {
                     ClientPlayNetworking.send(new org.agmas.noellesroles.roles.fool.FoolLeaveMeetingC2SPacket());
                 }

@@ -718,22 +718,6 @@ public class ModPacketsReciever {
 
           if (!gameWorldComponent.isSkillAvailable) return;
 
-          // 如果是愚者自己按V，忽略（愚者用G键）
-          if (gameWorldComponent.isRole(player, ModRoles.THE_FOOL)) return;
-
-          // 检查是否有正在进行的塔罗会，优先加入
-          ServerPlayer fool = org.agmas.noellesroles.roles.fool.TarotAssemblyManager
-              .findFoolPlayer((net.minecraft.server.level.ServerLevel) player.level(), gameWorldComponent);
-          if (fool != null) {
-            org.agmas.noellesroles.roles.fool.FoolPlayerComponent foolComp =
-                org.agmas.noellesroles.roles.fool.FoolPlayerComponent.KEY.get(fool);
-            if (foolComp.inMeeting && foolComp.isTarotMember(player.getUUID())) {
-              org.agmas.noellesroles.roles.fool.TarotAssemblyManager.memberJoinMeeting(player);
-              return;
-            }
-          }
-
-          // 否则尝试祷告
           org.agmas.noellesroles.roles.fool.PrayerHandler.startPrayer(player);
         });
 

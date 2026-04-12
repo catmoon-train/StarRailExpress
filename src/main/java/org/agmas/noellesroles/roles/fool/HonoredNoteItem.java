@@ -60,7 +60,7 @@ public class HonoredNoteItem extends NoteItem implements AdventureUsable {
             // 设置固定的尊名内容到玩家的笔记组件
             SREPlayerNoteComponent component = SREPlayerNoteComponent.KEY.get(player);
             component.setNote(
-                    "§l§6愚者",
+                    "§l§6按下J进行祷告",
                     "§6不属于这个时代的愚者",
                     "§6灰雾之上的神秘主宰",
                     "§6执掌好运的黄黑之王"
@@ -74,7 +74,9 @@ public class HonoredNoteItem extends NoteItem implements AdventureUsable {
 
     @Override
     protected NoteEntity createNoteEntity(Level world) {
-        return new HonoredNoteEntity(world);
+        HonoredNoteEntity honoredNoteEntity = new HonoredNoteEntity(world);
+        honoredNoteEntity.setGlowingTag(true);
+        return honoredNoteEntity;
     }
 
     /**

@@ -173,6 +173,9 @@ public class TarotAssemblyManager {
             new double[] { player.getX(), player.getY(), player.getZ(),
                 player.getYRot(), player.getXRot() });
 
+        syncParticipantMeetingState(player, true, foolComp.meetingEndTick, foolComp.voteInProgress, foolComp.voteEndTick);
+
+        player.addEffect(new MobEffectInstance(ModEffects.BLACK_MONITOR,20*1,0,false,false,false));
         if (GameUtils.isPlayerAliveAndSurvival(player)) {
             spawnMeetingPuppet(player, foolComp, serverLevel);
         }
@@ -264,6 +267,8 @@ public class TarotAssemblyManager {
             player.teleportTo(serverLevel, pos[0], pos[1], pos[2],
                     Set.of(), (float) pos[3], (float) pos[4]);
         }
+
+        syncParticipantMeetingState(player, false, 0, false, 0);
 
         // 移除傀儡
         Integer puppetId = foolComp.meetingPuppetIds.remove(player.getUUID());
@@ -487,12 +492,25 @@ public class TarotAssemblyManager {
             false);
     }
 
+    private static void syncParticipantMeetingState(ServerPlayer player, boolean inMeeting, long meetingEndTick,
+            boolean voteInProgress, long voteEndTick) {
+        FoolPlayerComponent participantComp = FoolPlayerComponent.KEY.get(player);
+        participantComp.inMeeting = inMeeting;
+        participantComp.meetingEndTick = meetingEndTick;
+        participantComp.voteInProgress = voteInProgress;
+        participantComp.voteEndTick = voteEndTick;
+        if (!inMeeting) {
+            participantComp.meetingStartTick = 0;
+        }
+        participantComp.sync();
+    }
+
     private static void spawnMeetingPuppet(ServerPlayer player, FoolPlayerComponent foolComp, ServerLevel serverLevel) {
         PuppeteerBodyEntity puppet = new PuppeteerBodyEntity(ModEntities.PUPPETEER_BODY, serverLevel);
         puppet.setPos(player.getX(), player.getY(), player.getZ());
         puppet.setYRot(player.getYRot());
         puppet.setCustomName(player.getDisplayName());
-        puppet.setCustomNameVisible(true);
+        puppet.setCustomNameVisible(false);
         puppet.setOwner(player);
         puppet.addTag("fool_meeting_puppet");
         puppet.addTag("puppet_owner_" + player.getUUID());

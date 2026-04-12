@@ -1731,6 +1731,8 @@
   "hud.noellesroles.fool.tarot_members": "Tarot Members: %d",
   "hud.noellesroles.fool.heretic": "Heretic: %s (%ds)",
   "hud.noellesroles.fool.meeting_active": "§6Tarot Assembly: %ss (press G to end, J to vote)",
+  "hud.noellesroles.fool.member_meeting_active": "§6Tarot Assembly: %ss",
+  "hud.noellesroles.fool.member_vote_hint": "§ePress J to open voting, right click to leave",
   "hud.noellesroles.fool.vote_active": "§6Voting phase: %ss left",
   "hud.noellesroles.fool.cooldown": "Tarot Cooldown: %ds",
   "hud.noellesroles.fool.protection": "§aProtection: immune to next attack from %s",

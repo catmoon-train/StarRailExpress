@@ -54,6 +54,7 @@ public class PuppeteerBodyEntity extends LivingEntity {
     public PuppeteerBodyEntity(EntityType<? extends LivingEntity> entityType, Level world) {
         super(entityType, world);
         this.setNoGravity(false); // 有重力
+        this.setCustomNameVisible(false);
         this.setHealth(20.0F); // 20点生命值（和玩家一样）
     }
 

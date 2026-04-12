@@ -11,6 +11,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
 
 import java.util.List;
@@ -47,7 +48,7 @@ public class PrayerHandler {
         // 已经是成员时，会议中的 J 优先用于入会/打开投票页，不再要求附近必须有尊名纸条
         if (foolComp != null && foolComp.isTarotMember(player.getUUID())) {
             if (foolComp.inMeeting) {
-                if (foolComp.meetingOriginalPositions.containsKey(player.getUUID())) {
+                if (player.hasEffect(ModEffects.TAROT_ASSEMBLY)) {
                     TarotAssemblyManager.requestVoteScreen(player);
                 } else {
                     TarotAssemblyManager.memberJoinMeeting(player);

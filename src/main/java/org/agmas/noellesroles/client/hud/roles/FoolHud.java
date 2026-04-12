@@ -1,11 +1,14 @@
 package org.agmas.noellesroles.client.hud.roles;
 
+import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
+import org.agmas.noellesroles.client.event.CommonHudRenderCallback;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
+import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.roles.fool.FoolPlayerComponent;
 
@@ -23,6 +26,28 @@ import org.agmas.noellesroles.roles.fool.FoolPlayerComponent;
 public abstract class FoolHud {
 
     public static void register() {
+        CommonHudRenderCallback.EVENT.register((context, tickCounter) -> {
+            Minecraft client = Minecraft.getInstance();
+            LocalPlayer player = client.player;
+            if (player == null || client.level == null) return;
+            if (SREClient.isPlayerSpectator()) return;
+            if (SREClient.gameComponent != null && SREClient.gameComponent.isRole(player, ModRoles.THE_FOOL)) return;
+
+            FoolPlayerComponent comp = FoolPlayerComponent.KEY.get(player);
+            if (!player.hasEffect(ModEffects.TAROT_ASSEMBLY) || !comp.voteInProgress || comp.voteEndTick <= 0) return;
+
+            long remainingTicks = Math.max(0, comp.voteEndTick - client.level.getGameTime());
+            Component meetingText = Component.translatable("hud.noellesroles.fool.member_meeting_active",
+                    remainingTicks / 20);
+            Component hintText = Component.translatable("hud.noellesroles.fool.member_vote_hint");
+
+            Font renderer = client.font;
+            int x = 10;
+            int y = context.guiHeight() - 62;
+            context.drawString(renderer, meetingText, x, y, 0xFFD700);
+            context.drawString(renderer, hintText, x, y + 12, 0xFFF2A8);
+        });
+
         RoleHudRenderCallback.EVENT.register(ModRoles.THE_FOOL_ID, (context, tickCounter) -> {
             Minecraft client = Minecraft.getInstance();
             final Font renderer = client.font;
