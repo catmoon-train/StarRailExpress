@@ -16,6 +16,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.food.Foods;
 import net.minecraft.world.item.*;
+import org.agmas.noellesroles.role.ModRoles;
 
 import java.util.ArrayList;
 
@@ -92,7 +93,9 @@ public interface TMMItems {
         INVISIBLE_ITEMS.add(TMMItems.NOTE);
         INVISIBLE_ITEMS.add(TMMItems.DEFENSE_VIAL);
 
+        // 亡命徒，超级亡命徒 可以直接使用防御药剂
         DefenseItem.canUseByRightClickRolePaths.add(TMMRoles.LOOSE_END.identifier().getPath());
+        DefenseItem.canUseByRightClickRolePaths.add(ModRoles.SUPER_LOOSE_END.identifier().getPath());
 
         registrar.registerEntries();
 

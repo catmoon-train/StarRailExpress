@@ -22,13 +22,16 @@ public class PinYinUtils {
             }
             // 其他字符（标点、空格等）直接跳过
         }
-        return sb.toString();
+        String result = sb.toString();
+        return result;
     }
 
-    public static boolean contains(String search, String pattern) {
+    public static boolean contains(String pattern, String search) {
         if (search == null || pattern == null)
             return false;
-        if (search.toLowerCase().contains(toSearchablePinyin(pattern).toLowerCase())) {
+        String st = toSearchablePinyin(search).toLowerCase();
+        // SRE.LOGGER.info("[PINYIN] {}.contains({})", st, pattern);
+        if (st.toLowerCase().contains(pattern)) {
             return true;
         } else {
             return false;

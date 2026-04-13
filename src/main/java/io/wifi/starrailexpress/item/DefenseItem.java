@@ -12,6 +12,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
+import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.roles.super_loose_end.SuperLooseEnd;
 
 public class DefenseItem extends Item {
     public SREGameWorldComponent gameWorldComponent = null;
@@ -60,7 +62,13 @@ public class DefenseItem extends Item {
                 if (canUseByRightClickRolePaths.contains(role.identifier().getPath())) {
                     if (livingEntity instanceof Player player) {
                         var bartenderComponent = SREArmorPlayerComponent.KEY.get(player);
-                        if (bartenderComponent != null) {
+                        // 超级亡命徒可以无限饮用药剂叠盾
+                        if (role == ModRoles.SUPER_LOOSE_END) {
+                            bartenderComponent.addArmor();
+                            itemStack.consume(1, livingEntity);
+                            return itemStack;
+                        }
+                        else if (bartenderComponent != null) {
                             bartenderComponent.giveArmor();
                             itemStack.consume(1, livingEntity);
                             return itemStack;

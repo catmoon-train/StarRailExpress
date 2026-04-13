@@ -2,6 +2,7 @@ package io.wifi.starrailexpress.item;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.entity.GrenadeEntity;
 import io.wifi.starrailexpress.index.TMMEntities;
 import io.wifi.starrailexpress.index.TMMSounds;
@@ -16,6 +17,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
+import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
 
 public class GrenadeItem extends SkinableItem {
@@ -37,9 +39,13 @@ public class GrenadeItem extends SkinableItem {
 	public void releaseUsing(ItemStack stack, Level world, LivingEntity user, int remainingUseTicks) {
 		if (!world.isClientSide) {
 			if (user instanceof Player player && player.getCooldowns().isOnCooldown(stack.getItem()))
-				return;
-			if (user instanceof Player player) {
-				player.getCooldowns().addCooldown(stack.getItem(), SREConfig.instance().grenadeCooldown * 20);
+                return;
+			if (user instanceof Player player)	 {
+				// 创造模式和超级亡命徒手雷无cd
+				if (!player.isCreative()
+						&& !SREGameWorldComponent.KEY.get(player.level()).isRole(player, ModRoles.SUPER_LOOSE_END)) {
+					player.getCooldowns().addCooldown(stack.getItem(), SREConfig.instance().grenadeCooldown);
+				}
 			}
 			// 计算蓄力时间
 			int chargeTime = this.getUseDuration(stack, user) - remainingUseTicks;

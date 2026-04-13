@@ -106,7 +106,9 @@ public class SREArmorPlayerComponent implements RoleComponent, ServerTickingComp
     }
 
     public boolean giveArmor() {
-        armor = 1;
+        // 防止清空大于1的护盾
+        if (this.armor < 1)
+            armor = 1;
         this.sync();
         return true;
     }

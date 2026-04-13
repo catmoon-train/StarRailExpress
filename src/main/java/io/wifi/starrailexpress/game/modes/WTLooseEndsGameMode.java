@@ -72,6 +72,16 @@ public class WTLooseEndsGameMode extends GameMode {
             }
         }
     }
+    protected void initRoles(List<ServerPlayer> players, SREGameWorldComponent gameWorldComponent) {
+        for (ServerPlayer player : players)
+            gameWorldComponent.addRole(player, TMMRoles.LOOSE_END);
+    }
+    protected void sendPackets(List<ServerPlayer> players) {
+        for (ServerPlayer player : players) {
+            ServerPlayNetworking.send(player,
+                    new AnnounceWelcomePayload(TMMRoles.LOOSE_END.identifier().toString(), -1, -1));
+        }
+    }
 
     @Override
     public boolean isLooseEndMode() {
@@ -85,12 +95,8 @@ public class WTLooseEndsGameMode extends GameMode {
 
         initCoolDownItems(players);
         initPlayerItems(players);
-        for (ServerPlayer player : players) {
-            gameWorldComponent.addRole(player, TMMRoles.LOOSE_END);
-
-            ServerPlayNetworking.send(player,
-                    new AnnounceWelcomePayload(TMMRoles.LOOSE_END.identifier().toString(), -1, -1));
-        }
+        initRoles(players, gameWorldComponent);
+        sendPackets(players);
     }
 
     @Override

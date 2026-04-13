@@ -31,11 +31,11 @@ public class SREConfig implements ConfigData {
     @ConfigEntry.Category(value = "gamemodes")
     public double antWarPlayerScale = -0.5;
     @ConfigEntry.Category(value = "gamemodes")
-    public int antWarPlayerSpeedLvl = 5;
+    public int antWarPlayerSpeedLvl = 1;
     @ConfigEntry.Category(value = "gamemodes")
-    public int antWarClockStopTick = 20;
+    public int antWarClockStopTick = 40;
     @ConfigEntry.Category(value = "gamemodes")
-    public int antWarClockCooldownTick = 100;
+    public int antWarClockCooldownTick = 140;
 
     // 随机地图设置
     @ConfigEntry.Category(value = "map")

@@ -18,6 +18,7 @@ import net.minecraft.world.item.ItemCooldowns;
 import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.item.TimeStopClock;
+import org.agmas.noellesroles.role.ModRoles;
 import pro.fazeclan.river.stupid_express.StupidExpress;
 
 import java.util.List;
@@ -38,12 +39,12 @@ public class SREAntWarGameMode extends WTLooseEndsGameMode {
     protected void initItemList() {
         super.initItemList();
         looseEndsItems.add(ModItems.PATROLLER_REVOLVER::getDefaultInstance);
-        looseEndsItems.add(() -> {
-            ItemStack timeStopClock = new ItemStack(ModItems.TIME_STOP_CLOCK);
-            ItemComponentUtils.setCustomDataTagIntValue(timeStopClock, TimeStopClock.TAG_STOP_TIME, SREConfig.instance().antWarClockStopTick);
-            ItemComponentUtils.setCustomDataTagIntValue(timeStopClock, TimeStopClock.TAG_COOLDOWN, SREConfig.instance().antWarClockCooldownTick);
-            return timeStopClock;
-        });
+//        looseEndsItems.add(() -> {
+//            ItemStack timeStopClock = new ItemStack(ModItems.TIME_STOP_CLOCK);
+//            ItemComponentUtils.setCustomDataTagIntValue(timeStopClock, TimeStopClock.TAG_STOP_TIME, SREConfig.instance().antWarClockStopTick);
+//            ItemComponentUtils.setCustomDataTagIntValue(timeStopClock, TimeStopClock.TAG_COOLDOWN, SREConfig.instance().antWarClockCooldownTick);
+//            return timeStopClock;
+//        });
         looseEndsItems.removeIf(item -> item.get().getItem() instanceof DerringerItem);
     }
     @Override
@@ -54,6 +55,12 @@ public class SREAntWarGameMode extends WTLooseEndsGameMode {
             // 给所有人的武器添加冷却
             ItemCooldowns itemCooldownManager = player.getCooldowns();
             itemCooldownManager.addCooldown(ModItems.PATROLLER_REVOLVER, cooldown);
+        }
+    }
+    @Override
+    protected void initRoles(List<ServerPlayer> players, SREGameWorldComponent gameWorldComponent) {
+        for (ServerPlayer player : players) {
+            gameWorldComponent.addRole(player, ModRoles.SUPER_LOOSE_END);
         }
     }
     @Override

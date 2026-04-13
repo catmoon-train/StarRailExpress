@@ -31,6 +31,7 @@ import org.agmas.noellesroles.roles.manipulator.ManipulatorRole;
 import org.agmas.noellesroles.roles.morphling.MorphlingPlayerComponent;
 import org.agmas.noellesroles.roles.recaller.RecallerPlayerComponent;
 import org.agmas.noellesroles.roles.candlebearer.CandleBearerPlayerComponent;
+import org.agmas.noellesroles.roles.super_loose_end.SuperLooseEnd;
 import org.agmas.noellesroles.roles.thief.ThiefPlayerComponent;
 import org.agmas.noellesroles.roles.voodoo.VoodooPlayerComponent;
 import org.agmas.noellesroles.roles.vulture.VulturePlayerComponent;
@@ -179,6 +180,9 @@ public class ModRoles {
   public static final ResourceLocation WAYFARER_ID = Noellesroles.id("wayfarer");
   public static final ResourceLocation DIO_ID = Noellesroles.id("dio");
   public static final ResourceLocation JOJO_ID = Noellesroles.id("jojo");
+
+  // 特殊角色
+  public static final ResourceLocation SUPER_LOOSE_END_ID = Noellesroles.id("super_loose_end");
 
   // 愚者 (好人阵营)
   public static final ResourceLocation THE_FOOL_ID = Noellesroles.id("the_fool");
@@ -1404,6 +1408,27 @@ public class ModRoles {
       return InteractionResult.PASS;
     }
   }).setComponentKey(ModComponents.IMITATOR).setCanSeeCoin(true);
+
+  /**
+   * 超级亡命徒-特殊中立
+   * <p>
+   *     - 杀人获得增益：时停、叠盾、加速等
+   *     - 具有商店能买狙击枪等
+   * </p>
+   */
+  public static SRERole SUPER_LOOSE_END = TMMRoles.registerRole(new SuperLooseEnd(
+          SUPER_LOOSE_END_ID,
+          new Color(0xFF77AA).getRGB(),
+          false,
+          false,
+          SRERole.MoodType.NONE,
+          -1,
+          true
+  ))
+          .setCanSeeCoin(true)
+          .setCanUseInstinct(true)
+          .setCanAutoAddMoney(true)
+          .setComponentKey(ModComponents.SUPER_LOOSE_END);
 
   /**
    * 愚者角色 - 好人阵营
