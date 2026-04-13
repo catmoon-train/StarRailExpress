@@ -242,7 +242,8 @@ public class ModEffects {
             if (deathReason.equals(Noellesroles.id("bomb_death")))
                 return true;
             if (player.hasEffect(ModEffects.INVINCIBLE) || player.hasEffect(ModEffects.TAROT_ASSEMBLY)) {
-                return false;
+                if (player.position().z >= 19000)
+                    return false;
             }
             return true;
         });

@@ -4,6 +4,7 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
+import io.wifi.starrailexpress.client.util.PinYinUtils;
 import io.wifi.starrailexpress.index.TMMDescItems;
 import io.wifi.starrailexpress.util.ShopEntry;
 import net.minecraft.ChatFormatting;
@@ -325,7 +326,7 @@ public class RoleIntroduceScreen extends Screen {
             String name = RoleUtils.getRoleName(role).getString();
             if (searchContent == null
                     || name.toLowerCase().contains(searchContent.toLowerCase())
-                    || role.identifier().toString().contains(searchContent.toLowerCase()))
+                    || role.identifier().toString().contains(searchContent.toLowerCase()) || PinYinUtils.contains(searchContent, name))
                 filteredItems.add(role);
         }
         for (SREModifier mod : HMLModifiers.MODIFIERS) {
@@ -334,7 +335,7 @@ public class RoleIntroduceScreen extends Screen {
             String name = mod.getName().getString();
             if (searchContent == null
                     || name.toLowerCase().contains(searchContent.toLowerCase())
-                    || mod.identifier().toString().contains(searchContent.toLowerCase()))
+                    || mod.identifier().toString().contains(searchContent.toLowerCase()) || PinYinUtils.contains(searchContent, name))
                 filteredItems.add(mod);
         }
         for (Item mod : TMMDescItems.introItems) {
@@ -343,7 +344,7 @@ public class RoleIntroduceScreen extends Screen {
             String name = mod.getDescription().getString();
             if (searchContent == null
                     || name.toLowerCase().contains(searchContent.toLowerCase())
-                    || BuiltInRegistries.ITEM.getKey(mod).toString().contains(searchContent.toLowerCase()))
+                    || BuiltInRegistries.ITEM.getKey(mod).toString().contains(searchContent.toLowerCase()) || PinYinUtils.contains(searchContent, name))
                 filteredItems.add(mod);
         }
         int totalH = filteredItems.size() * (CARD_H + CARD_SPACING) - CARD_SPACING;

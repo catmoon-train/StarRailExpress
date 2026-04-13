@@ -1,6 +1,7 @@
 package org.agmas.noellesroles.client.screen;
 
 import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.client.util.PinYinUtils;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
@@ -325,7 +326,7 @@ public class RecorderScreen extends Screen {
                 continue;
             roleName = roleName.toLowerCase();
             if (searchText == null || searchText == "" || roleName.contains(lowerCasedSearchText)
-                    || roleId.contains(lowerCasedSearchText)) {
+                    || roleId.contains(lowerCasedSearchText) || PinYinUtils.contains(searchText, roleName)) {
                 if (totalRoles >= startIndex && totalRoles < endIndex) {
                     int col = k % 4;
                     int row = k / 4;

@@ -18,6 +18,7 @@ import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
@@ -71,7 +72,7 @@ public class MagicianPlayerComponent implements RoleComponent, ServerTickingComp
             // 已经疯魔，所以不准！
             return false;
         }
-        if (!ShopEntry.insertStackInFreeSlot(player, ModItems.FAKE_BAT.getDefaultInstance())) {
+        if (!RoleUtils.insertStackInFreeSlot(player, ModItems.FAKE_BAT.getDefaultInstance())) {
             return false;
         }
         // 直接设置疯狂模式状态（不给球棒，因为商店已经给了假球棒）

@@ -11,7 +11,6 @@ public interface IHateWatheModelLayers {
 
     @Overwrite(remap = false)
     static void initialize() {
-        SRE.LOGGER.info("Block WATHE RENDERER!!!");
         // 空实现 —— 阻断渲染器注册、粒子、HUD 等
     }
 

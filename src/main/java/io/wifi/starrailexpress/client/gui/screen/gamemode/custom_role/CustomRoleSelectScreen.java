@@ -3,6 +3,7 @@ package io.wifi.starrailexpress.client.gui.screen.gamemode.custom_role;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.gamemode.CustomRoleGameModeTeamsPlayerComponent;
+import io.wifi.starrailexpress.client.util.PinYinUtils;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -99,7 +100,8 @@ public class CustomRoleSelectScreen extends Screen {
         for (SRERole role : availableRoles) {
             String roleName = RoleUtils.getRoleName(role).getString();
             if (searchContent == null || roleName.toLowerCase().contains(searchContent.toLowerCase())
-                    || role.identifier().toString().contains(searchContent.toLowerCase())) {
+                    || role.identifier().toString().contains(searchContent.toLowerCase())
+                    || PinYinUtils.contains(searchContent, roleName)) {
                 filteredRoles.add(role);
             }
         }

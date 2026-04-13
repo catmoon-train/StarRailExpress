@@ -6,7 +6,8 @@
     "BlockWathe",
     "cca.CCAHttpBlocker",
     "cca.CCAWatheBlockMixin",
-    "cca.ModComponentBlocker"
+    "cca.ModComponentBlocker",
+    "KillCommandMixin"
   ],
   "injectors": {
     "defaultRequire": 1
@@ -18,7 +19,6 @@
     "client.ClientTickMixin",
     "client.BlockWatheClient",
     "client.IHateWatheModelLayers",
-    "client.PanoramaMixin",
-    "client.WatheWheelBlockEntityRendererMixin"
+    "client.PanoramaMixin"
   ]
 }

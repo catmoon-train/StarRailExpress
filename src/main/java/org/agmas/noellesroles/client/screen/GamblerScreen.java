@@ -1,6 +1,7 @@
 package org.agmas.noellesroles.client.screen;
 
 import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.client.util.PinYinUtils;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -108,7 +109,7 @@ public class GamblerScreen extends Screen {
         for (SRERole role : availableRoles) {
             String roleName = RoleUtils.getRoleName(role).getString();
             if (searchContent == null || roleName.toLowerCase().contains(searchContent.toLowerCase())
-                    || role.identifier().toString().contains(searchContent.toLowerCase())) {
+                    || role.identifier().toString().contains(searchContent.toLowerCase()) || PinYinUtils.contains(searchContent, roleName)) {
                 filteredRoles.add(role);
             }
         }

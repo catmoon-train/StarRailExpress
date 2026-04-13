@@ -1,6 +1,7 @@
 package org.agmas.noellesroles.client.screen;
 
 import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.client.util.PinYinUtils;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
@@ -247,7 +248,8 @@ public class ConspiratorScreen extends Screen {
                 roleid = role.identifier().toString();
             }
             String roleName = RoleUtils.getRoleName(role).getString();
-            if (searchContent == null || roleName.contains(searchContent) || roleName.contains(roleid)) {
+            if (searchContent == null || roleName.contains(searchContent) || roleName.contains(roleid)
+                    || PinYinUtils.contains(searchContent, roleName)) {
                 if (count >= startIndex && count < endIndex) {
                     int indexOnPage = count - startIndex;
                     int col = indexOnPage % 4;
