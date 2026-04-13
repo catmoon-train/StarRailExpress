@@ -4,9 +4,7 @@ import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.modes.WTLooseEndsGameMode;
-import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.item.DerringerItem;
-import io.wifi.starrailexpress.util.ItemComponentUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -15,9 +13,7 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemCooldowns;
-import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.init.ModItems;
-import org.agmas.noellesroles.item.TimeStopClock;
 import org.agmas.noellesroles.role.ModRoles;
 import pro.fazeclan.river.stupid_express.StupidExpress;
 
@@ -64,8 +60,7 @@ public class SREAntWarGameMode extends WTLooseEndsGameMode {
         }
     }
     @Override
-    public void initializeGame(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent,
-                               List<ServerPlayer> players) {
+    public void initializeGame(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent, List<ServerPlayer> players) {
         super.initializeGame(serverWorld, gameWorldComponent, players);
         AttributeModifier antModifier = new AttributeModifier(
                 StupidExpress.id("ant_modifier"), SREConfig.instance().antWarPlayerScale, AttributeModifier.Operation.ADD_VALUE);
