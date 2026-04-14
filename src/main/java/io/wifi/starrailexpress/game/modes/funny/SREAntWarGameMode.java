@@ -3,6 +3,7 @@ package io.wifi.starrailexpress.game.modes.funny;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameConstants;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.modes.WTLooseEndsGameMode;
 import io.wifi.starrailexpress.item.DerringerItem;
 import net.minecraft.resources.ResourceLocation;
@@ -17,6 +18,7 @@ import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
 import pro.fazeclan.river.stupid_express.StupidExpress;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -28,6 +30,8 @@ import java.util.Objects;
  * </p>
  */
 public class SREAntWarGameMode extends WTLooseEndsGameMode {
+    public static final int CHECK_TIME = 20;
+    protected int curTick = 0;
     public SREAntWarGameMode(ResourceLocation identifier) {
         super(identifier);
     }
@@ -62,20 +66,59 @@ public class SREAntWarGameMode extends WTLooseEndsGameMode {
     @Override
     public void initializeGame(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent, List<ServerPlayer> players) {
         super.initializeGame(serverWorld, gameWorldComponent, players);
+        curTick = 0;
         AttributeModifier antModifier = new AttributeModifier(
                 StupidExpress.id("ant_modifier"), SREConfig.instance().antWarPlayerScale, AttributeModifier.Operation.ADD_VALUE);
         for (ServerPlayer player : players) {
-            player.removeEffect(MobEffects.MOVEMENT_SPEED);
-            player.addEffect(
-                    new MobEffectInstance(
-                    MobEffects.MOVEMENT_SPEED,  // 速度效果
-                    12000,                  // 持续时间（tick）
-                    SREConfig.instance().antWarPlayerSpeedLvl,                    // 等级（VI）
-                    false,                // 是否显示粒子效果
-                    true                  // 是否显示图标
-            ));
+//            player.removeEffect(MobEffects.MOVEMENT_SPEED);
+//            player.addEffect(
+//                    new MobEffectInstance(
+//                    MobEffects.MOVEMENT_SPEED,  // 速度效果
+//                    12000,                  // 持续时间（tick）
+//                    SREConfig.instance().antWarPlayerSpeedLvl,                    // 等级（VI）
+//                    false,                // 是否显示粒子效果
+//                    true                  // 是否显示图标
+//            ));
             Objects.requireNonNull(player.getAttribute(Attributes.SCALE)).removeModifier(antModifier);
             Objects.requireNonNull(player.getAttribute(Attributes.SCALE)).addPermanentModifier(antModifier);
+        }
+    }
+    @Override
+    public void tickServerGameLoop(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent) {
+        super.tickServerGameLoop(serverWorld, gameWorldComponent);
+        if (curTick < CHECK_TIME)
+            ++curTick;
+        else {
+            // 收集所有未被淘汰的玩家
+            List<ServerPlayer> players = new ArrayList<>();
+            for (ServerPlayer player : serverWorld.players()) {
+                if (!GameUtils.isPlayerEliminated(player)) {
+                    players.add(player);
+                }
+            }
+            // 如果玩家无加速则死亡，如果大于2级且时长不足则掉2级时长缩短为1分钟
+            for (ServerPlayer player : players) {
+                if (player.hasEffect(MobEffects.MOVEMENT_SPEED)) {
+                    int lastDuration = Objects.requireNonNull(player.getEffect(MobEffects.MOVEMENT_SPEED)).getDuration();
+                    if (lastDuration < 2 * CHECK_TIME) {
+                        int lastLevel = Objects.requireNonNull(player.getEffect(MobEffects.MOVEMENT_SPEED)).getAmplifier();
+                        if (lastLevel > 2) {
+                            player.removeEffect(MobEffects.MOVEMENT_SPEED);
+                            player.addEffect(
+                                    new MobEffectInstance(
+                                            MobEffects.MOVEMENT_SPEED,  // 速度效果
+                                            1200 + lastDuration,                  // 持续时间（tick）
+                                            lastLevel - 2,                    // 等级
+                                            false,                // 是否显示粒子效果
+                                            false                  // 是否显示图标
+                                    ));
+                        }
+                    }
+                }
+                else
+                    GameUtils.killPlayer(player, true, null, GameConstants.DeathReasons.FELL_OUT_OF_TRAIN);
+            }
+            curTick = 0;
         }
     }
 }

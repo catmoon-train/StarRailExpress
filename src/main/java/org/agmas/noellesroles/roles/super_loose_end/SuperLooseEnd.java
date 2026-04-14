@@ -5,6 +5,8 @@ import io.wifi.starrailexpress.api.NormalRole;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.ItemComponentUtils;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -35,6 +37,18 @@ public class SuperLooseEnd extends NormalRole {
         super(identifier, color, isInnocent, canUseKiller, moodType, maxSprintTime, canSeeTime);
     }
     @Override
+    public void onInit(MinecraftServer server, ServerPlayer serverPlayer) {
+        serverPlayer.removeEffect(MobEffects.MOVEMENT_SPEED);
+        serverPlayer.addEffect(
+                new MobEffectInstance(
+                        MobEffects.MOVEMENT_SPEED,  // 速度效果
+                        2400,                  // 持续时间（tick）
+                        2,
+                        false,                // 是否显示粒子效果
+                        false                  // 是否显示图标
+                ));
+    }
+    @Override
     public void onKill(Player victim, boolean spawnBody, @Nullable Player killer, ResourceLocation deathReason) {
         if (killer != null) {
             var effect = killer.getEffect(MobEffects.MOVEMENT_SPEED);
@@ -63,6 +77,5 @@ public class SuperLooseEnd extends NormalRole {
             else
                 killer.addItem(TMMItems.DEFENSE_VIAL.getDefaultInstance());
         }
-        return;
     }
 }

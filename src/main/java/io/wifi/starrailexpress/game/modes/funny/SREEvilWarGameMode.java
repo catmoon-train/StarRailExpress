@@ -17,18 +17,24 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemCooldowns;
 import net.minecraft.world.item.ItemStack;
 import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
+import org.agmas.harpymodloader.events.ModdedRoleAssigned;
 import org.agmas.harpymodloader.modded_murder.RoleAssignmentPool;
+import org.agmas.noellesroles.component.StalkerPlayerComponent;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
+import pro.fazeclan.river.stupid_express.StupidExpress;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 /**
@@ -38,10 +44,20 @@ import java.util.function.Supplier;
  * </p>
  */
 public class SREEvilWarGameMode extends WTLooseEndsGameMode {
-    static final int addBalanceTime = 600;
+    public static final List<SRERole> BANED_ROLES = new ArrayList<>();
+    protected static AttributeModifier tinyModifier = new AttributeModifier(
+            StupidExpress.id("tiny_modifier"), -0.15, AttributeModifier.Operation.ADD_VALUE);
+    public static final int ADD_BALANCE_TIME = 600;
     int curTick = 0;
     public SREEvilWarGameMode(ResourceLocation identifier) {
         super(identifier);
+        addBanedRoles();
+    }
+    protected void addBanedRoles() {
+        // 禁用 水鬼，观者，布袋鬼
+        BANED_ROLES.add(ModRoles.WATER_GHOST);
+        BANED_ROLES.add(ModRoles.WATCHER);
+        BANED_ROLES.add(ModRoles.MA_CHEN_XU);
     }
     @Override
     protected void initItemList() {
@@ -71,7 +87,10 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
                 role -> !Harpymodloader.VANNILA_ROLES.contains(role) &&
                         role.canUseKiller() &&
                         !role.isInnocent() &&
-                        role != TMMRoles.CIVILIAN);
+                        role != TMMRoles.CIVILIAN &&
+                        // 禁用角色
+                        !BANED_ROLES.contains(role)
+        );
         List<SRERole> assignedKillers = killerPool.selectRoles(players.size() - superLooseEndCount);
 
         RandomSource random = RandomSource.create();
@@ -104,6 +123,10 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
                     // 阴谋家首次获取金币减少
                     if (role == ModRoles.CONSPIRATOR) {
                         playerShopComponent.setBalance(-300);
+                    // 潜行直接进入二阶段
+                    } else if (role == ModRoles.STALKER) {
+                        StalkerPlayerComponent stalkerPlayerComponent = StalkerPlayerComponent.KEY.get(players.get(i));
+                        stalkerPlayerComponent.advanceToPhase2();
                     }
                 }
                 else
@@ -142,6 +165,9 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
         for (ServerPlayer player : players) {
             if (gameWorldComponent.isRole(player, ModRoles.SUPER_LOOSE_END)) {
                 worldModifierComponent.addModifier(player.getUUID(), SEModifiers.TINY, false);
+                // 使玩家缩小
+                Objects.requireNonNull(player.getAttribute(Attributes.SCALE)).removeModifier(tinyModifier);
+                Objects.requireNonNull(player.getAttribute(Attributes.SCALE)).addPermanentModifier(tinyModifier);
             }
         }
         // 一次性同步
@@ -151,6 +177,7 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
     public void initializeGame(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent, List<ServerPlayer> players) {
         super.initializeGame(serverWorld, gameWorldComponent, players);
         initModifier(players, gameWorldComponent, serverWorld);
+        curTick = 0;
     }
     @Override
     public void tickServerGameLoop(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent) {
@@ -163,7 +190,7 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
 //                Integer balanceToAdd = GameConstants.PASSIVE_MONEY_TICKER.apply(serverWorld.getGameTime());
 //                if (balanceToAdd > 0)
 //                    SREPlayerShopComponent.KEY.get(player).addToBalance(balanceToAdd);
-                if (curTick++ >= addBalanceTime) {
+                if (curTick++ >= ADD_BALANCE_TIME) {
                     SREPlayerShopComponent.KEY.get(player).addToBalance(500);
                     curTick = 0;
                 }
