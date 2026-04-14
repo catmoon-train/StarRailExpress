@@ -1400,10 +1400,10 @@ public class RoleShopHandler {
         30,
         ShopEntry.Type.TOOL));
 
-    // 警报陷阱 - 75金币
+    // 警报陷阱 - 15金币
     ENGINEER_SHOP.add(new ShopEntry(
         ModItems.ALARM_TRAP.getDefaultInstance(),
-        75,
+        15,
         ShopEntry.Type.TOOL));
 
     ENGINEER_SHOP.add(new ShopEntry(

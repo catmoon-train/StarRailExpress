@@ -152,16 +152,16 @@ public class AlarmTrapItem extends Item implements AdventureUsable {
             // 移除陷阱（一次性）
             setDoorAlarmTrap(doorEntity, false);
 
-            // 播放响亮的警报声
+            // 播放响亮的警报声（全场可听）
             if (!world.isClientSide) {
                 BlockPos pos = doorEntity.getBlockPos();
-                // 播放多个叠加的声音让警报更响亮
+                // 播放多个叠加的声音让警报更响亮（MASTER让所有人都能听到）
                 world.playSound(null, pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5,
-                        SoundEvents.BELL_BLOCK, SoundSource.BLOCKS, 3.0f, 0.8f);
+                        SoundEvents.BELL_BLOCK, SoundSource.MASTER, 3.0f, 0.8f);
                 world.playSound(null, pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5,
-                        SoundEvents.NOTE_BLOCK_BELL.value(), SoundSource.BLOCKS, 3.0f, 0.5f);
+                        SoundEvents.NOTE_BLOCK_BELL.value(), SoundSource.MASTER, 3.0f, 0.5f);
                 world.playSound(null, pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5,
-                        SoundEvents.WARDEN_ROAR, SoundSource.BLOCKS, 1.5f, 2.0f);
+                        SoundEvents.WARDEN_ROAR, SoundSource.MASTER, 1.5f, 2.0f);
             }
 
             return true;
