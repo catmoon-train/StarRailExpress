@@ -28,8 +28,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-import org.agmas.harpymodloader.events.ModdedRoleAssigned;
-
 @SuppressWarnings("deprecation")
 public class WTLooseEndsGameMode extends GameMode {
     public final List<Supplier<ItemStack>> looseEndsItems = new ArrayList<>();
@@ -99,10 +97,10 @@ public class WTLooseEndsGameMode extends GameMode {
             gameWorldComponent.addRole(player, TMMRoles.LOOSE_END);
     }
 
-    protected void sendLooseEndsWelcomePackets(List<ServerPlayer> players, SREGameWorldComponent gameWorldComponent, SRERole role) {
+    protected void sendWelcomePackets(List<ServerPlayer> players, SREGameWorldComponent gameWorldComponent) {
         for (ServerPlayer player : players) {
             ServerPlayNetworking.send(player,
-                    new AnnounceWelcomePayload(role.identifier().toString(), -1, -1));
+                    new AnnounceWelcomePayload(TMMRoles.LOOSE_END.identifier().toString(), -1, -1));
         }
     }
     protected void assignModdedRole(List<ServerPlayer> players, SREGameWorldComponent gameWorldComponent) {
@@ -125,7 +123,7 @@ public class WTLooseEndsGameMode extends GameMode {
         initRoles(players, gameWorldComponent);
         initCoolDownItems(players, gameWorldComponent);
         initPlayerItems(players, gameWorldComponent);
-        sendLooseEndsWelcomePackets(players, gameWorldComponent, TMMRoles.LOOSE_END);
+        sendWelcomePackets(players, gameWorldComponent);
     }
 
     @Override

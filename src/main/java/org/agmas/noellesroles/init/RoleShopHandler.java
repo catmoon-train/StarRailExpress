@@ -164,6 +164,8 @@ public class RoleShopHandler {
   public static ArrayList<ShopEntry> CANDLE_BEARER_SHOP = new ArrayList<>();
   // ==================== 雇佣兵商店 ====================
   public static ArrayList<ShopEntry> MERCENARY_SHOP = new ArrayList<>();
+  // ==================== 超级亡命徒商店 ====================
+  public static ArrayList<ShopEntry> SUPER_LOOSE_END_SHOP = new ArrayList<>();
 
   /**
    * 初始化框架角色商店
@@ -1059,6 +1061,12 @@ public class RoleShopHandler {
           ModRoles.CANDLE_BEARER_ID, CANDLE_BEARER_SHOP);
     }
 
+    // 超级亡命徒商店
+    {
+      ShopContent.customEntries.put(
+              ModRoles.SUPER_LOOSE_END_ID, SUPER_LOOSE_END_SHOP);
+    }
+
     // 故障机器人商店
     {
       List<ShopEntry> glitchRobotShop = new ArrayList<>();
@@ -1801,9 +1809,16 @@ public class RoleShopHandler {
 
     // 秉烛人商店
     // 撬锁器 - 75金币
+
     CANDLE_BEARER_SHOP.add(new ShopEntry(
         TMMItems.LOCKPICK.getDefaultInstance(),
         75,
+        ShopEntry.Type.TOOL));
+
+    // 超级亡命徒商店
+    SUPER_LOOSE_END_SHOP.add(new ShopEntry(
+        ModItems.THROWING_KNIFE.getDefaultInstance(),
+        100,
         ShopEntry.Type.TOOL));
   }
 }

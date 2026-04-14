@@ -16,6 +16,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemCooldowns;
 import net.minecraft.world.item.ItemStack;
 import org.agmas.harpymodloader.Harpymodloader;
@@ -29,16 +30,13 @@ import org.agmas.noellesroles.utils.RoleUtils;
 import pro.fazeclan.river.stupid_express.StupidExpress;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Supplier;
 
 /**
  * 邪恶战局
  * <p>
- * 模式特性：每 7 狼（开局 1000 金币）对战 1 超级亡命徒（无友军透视，但是必定矮小）
+ *  - 模式特性：每 7 狼（开局 1000 金币）对战 1 超级亡命徒（无友军透视，但是必定矮小）
  * </p>
  */
 public class SREEvilWarGameMode extends WTLooseEndsGameMode {
@@ -54,9 +52,8 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
     }
 
     protected void addBanedRoles() {
-        // 禁用 水鬼，观者，布袋鬼
+        // 禁用 水鬼，布袋鬼
         BANED_ROLES.add(ModRoles.WATER_GHOST);
-        BANED_ROLES.add(ModRoles.WATCHER);
         BANED_ROLES.add(ModRoles.MA_CHEN_XU);
     }
 
@@ -84,11 +81,40 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
 
     @Override
     protected void initRoles(List<ServerPlayer> players, SREGameWorldComponent gameWorldComponent) {
+        // 处理强制角色
+        Map<UUID, SRERole> forcedRoles = new HashMap<>(Harpymodloader.FORCED_MODDED_ROLE_FLIP);
+        List<ServerPlayer> playersWithoutForcedRoles = new ArrayList<>();
         // 每有一组狼人产生一个超级亡命徒：8人局对应 7 狼 1 亡命徒
         int superLooseEndCount = players.size() / (SREConfig.instance().evilWarKillGroupNumber + 1);
         superLooseEndCount = Math.max(superLooseEndCount, 1);
-        if (superLooseEndCount > players.size())
-            return;
+        for (ServerPlayer player : players) {
+            if (!forcedRoles.containsKey(player.getUUID())) {
+                playersWithoutForcedRoles.add(player);
+            }
+        }
+        for (Map.Entry<UUID, SRERole> entry : forcedRoles.entrySet()) {
+            ServerPlayer forcePlayer = null;
+            for (ServerPlayer player : players) {
+                if (player.getUUID() == entry.getKey())
+                    forcePlayer = player;
+            }
+            if (forcePlayer != null) {
+                SRERole role = entry.getValue();
+                if (role != null) {
+                    if (role == ModRoles.SUPER_LOOSE_END)
+                        --superLooseEndCount;
+                    gameWorldComponent.addRole(forcePlayer, role);
+                }
+                else
+                    playersWithoutForcedRoles.add(forcePlayer);
+            }
+        }
+        if (superLooseEndCount < 0)
+            superLooseEndCount = 0;
+        else if (superLooseEndCount > playersWithoutForcedRoles.size()) {
+            superLooseEndCount = playersWithoutForcedRoles.size();
+        }
+
         // 生成杀手池
         RoleAssignmentPool killerPool = RoleAssignmentPool.createUnlimited("Killer",
                 role -> !Harpymodloader.VANNILA_ROLES.contains(role) &&
@@ -97,42 +123,43 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
                         role != TMMRoles.CIVILIAN &&
                         // 禁用角色
                         !BANED_ROLES.contains(role));
-        List<SRERole> assignedKillers = killerPool.selectRoles(players.size() - superLooseEndCount);
+        List<SRERole> assignedKillers = killerPool.selectRoles(playersWithoutForcedRoles.size() - superLooseEndCount);
         // 如果狼池不够，生成普通杀手池索引, 同时生成超级亡命徒所在索引
         List<Integer> numbers = new ArrayList<>();
-        for (int i = 1; i <= players.size(); i++) {
+        for (int i = 1; i <= playersWithoutForcedRoles.size(); i++) {
             numbers.add(i);
         }
 
         Collections.shuffle(numbers);
         // 前 superLooseEndeCount 个是亡命徒，剩下的为普通杀手
         List<Integer> otherAssignedIdxGroup = numbers.subList(0,
-                superLooseEndCount + players.size() - assignedKillers.size());
+                playersWithoutForcedRoles.size() - assignedKillers.size());
         otherAssignedIdxGroup.sort(Integer::compareTo);
 
         // 当索引等于亡命徒所在索引：分配亡命徒，否则分配杀手
-        for (int i = 0, curOtherIdx = 0, curKillerIdx = 0; i < players.size(); ++i) {
+        for (int i = 0, curOtherIdx = 0, curKillerIdx = 0; i < playersWithoutForcedRoles.size(); ++i) {
             if (curOtherIdx < superLooseEndCount && i == otherAssignedIdxGroup.get(curOtherIdx)) {
-                gameWorldComponent.addRole(players.get(i), ModRoles.SUPER_LOOSE_END);
+                gameWorldComponent.addRole(playersWithoutForcedRoles.get(i), ModRoles.SUPER_LOOSE_END);
                 ++curOtherIdx;
             } else {
                 if (curOtherIdx < otherAssignedIdxGroup.size() && i == otherAssignedIdxGroup.get(curOtherIdx)) {
-                    gameWorldComponent.addRole(players.get(i), TMMRoles.KILLER);
+                    gameWorldComponent.addRole(playersWithoutForcedRoles.get(i), TMMRoles.KILLER);
                     ++curOtherIdx;
                 } else if (curKillerIdx < assignedKillers.size()) {
                     SRERole role = assignedKillers.get(curKillerIdx++);
-                    gameWorldComponent.addRole(players.get(i), role);
-                    SREPlayerShopComponent playerShopComponent = SREPlayerShopComponent.KEY.get(players.get(i));
+                    // 操纵师只会在有2个亡命徒以上时出现
+                    if(role == ModRoles.MANIPULATOR &&
+                            (players.size() / (SREConfig.instance().evilWarKillGroupNumber + 1) < 2)) {
+                        role = TMMRoles.KILLER;
+                    }
+                    gameWorldComponent.addRole(playersWithoutForcedRoles.get(i), role);
+                    SREPlayerShopComponent playerShopComponent = SREPlayerShopComponent.KEY.get(playersWithoutForcedRoles.get(i));
                     // 阴谋家首次获取金币减少
                     if (role == ModRoles.CONSPIRATOR) {
-                        playerShopComponent.setBalance(-300);
-                        // 潜行直接进入二阶段
-                    } else if (role == ModRoles.STALKER) {
-                        StalkerPlayerComponent stalkerPlayerComponent = StalkerPlayerComponent.KEY.get(players.get(i));
-                        stalkerPlayerComponent.advanceToPhase2();
+                        playerShopComponent.setBalance(-1000);
                     }
                 } else
-                    gameWorldComponent.addRole(players.get(i), TMMRoles.KILLER);
+                    gameWorldComponent.addRole(playersWithoutForcedRoles.get(i), TMMRoles.KILLER);
             }
         }
     }
@@ -154,12 +181,17 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
         }
     }
 
-    protected void sendEvilGameWelcomePackets(List<ServerPlayer> players, SREGameWorldComponent gameWorldComponent) {
+    /** 重写发送欢迎包，根据特定角色发送 */
+    @Override
+    protected void sendWelcomePackets(List<ServerPlayer> players, SREGameWorldComponent gameWorldComponent) {
+        int looseEndCount = players.size() / (SREConfig.instance().evilWarKillGroupNumber + 1);
+        looseEndCount = Math.max(looseEndCount, 1);
+        int killerCount = players.size() - looseEndCount;
         for (ServerPlayer player : players) {
             var role = gameWorldComponent.getRole(player);
             if (role == null)
                 continue;
-            RoleUtils.sendWelcomeAnnouncement(player, role.identifier(), -1);
+            RoleUtils.sendWelcomeAnnouncement(player, role.identifier(), killerCount);
         }
     }
 
@@ -170,6 +202,7 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
         for (ServerPlayer player : players) {
             if (gameWorldComponent.isRole(player, ModRoles.SUPER_LOOSE_END)) {
                 worldModifierComponent.addModifier(player.getUUID(), SEModifiers.TINY, false);
+                worldModifierComponent.addModifier(player.getUUID(), SEModifiers.FEATHER, false);
                 // 使玩家缩小
                 Objects.requireNonNull(player.getAttribute(Attributes.SCALE)).removeModifier(tinyModifier);
                 Objects.requireNonNull(player.getAttribute(Attributes.SCALE)).addPermanentModifier(tinyModifier);
@@ -195,16 +228,26 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
         boolean civilianAlive = false;
         for (ServerPlayer player : serverWorld.players()) {
             // passive money
-            if (gameWorldComponent.canAutoAddMoney(player)) {
+//            if (gameWorldComponent.canAutoAddMoney(player)) {
                 // Integer balanceToAdd =
                 // GameConstants.PASSIVE_MONEY_TICKER.apply(serverWorld.getGameTime());
                 // if (balanceToAdd > 0)
                 // SREPlayerShopComponent.KEY.get(player).addToBalance(balanceToAdd);
-                if (curTick++ >= ADD_BALANCE_TIME) {
-                    SREPlayerShopComponent.KEY.get(player).addToBalance(500);
-                    curTick = 0;
+            // 不论什么狼都能默认获取500金币
+            if (curTick++ >= ADD_BALANCE_TIME) {
+                SREPlayerShopComponent.KEY.get(player).addToBalance(500);
+                curTick = 0;
+
+                // 判断是否是特定角色，进行特定操作，每30秒判断一次
+                SRERole role = gameWorldComponent.getRole(player);
+                if (role == ModRoles.STALKER) {
+                    StalkerPlayerComponent stalkerPlayerComponent = StalkerPlayerComponent.KEY.get(player);
+                    // 潜行每30s获得 500 能量
+                    stalkerPlayerComponent.energy += 500;
+                    stalkerPlayerComponent.sync();
                 }
             }
+//            }
 
             // check if some civilians are still alive
             if (gameWorldComponent.isInnocent(player) && !GameUtils.isPlayerEliminated(player)) {
