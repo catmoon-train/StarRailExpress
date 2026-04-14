@@ -49,7 +49,7 @@ import net.minecraft.client.player.RemotePlayer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.particles.DustParticleOptions;
+import net.minecraft.core.particles.DustColorTransitionOptions;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.sounds.SoundSource;
@@ -297,9 +297,9 @@ public class NoellesrolesClient implements ClientModInitializer {
 
             for (int i = 0; i < 100; i++) {
                 // 随机偏移位置
-                double offsetX = (level.random.nextDouble() - 0.5) * 6;
-                double offsetY = level.random.nextDouble() * 4;
-                double offsetZ = (level.random.nextDouble() - 0.5) * 6;
+                double offsetX = (level.random.nextDouble() - 0.5) * 2;
+                double offsetY = level.random.nextDouble() * 2;
+                double offsetZ = (level.random.nextDouble() - 0.5) * 2;
                 double x = pos.x + offsetX;
                 double y = pos.y + offsetY;
                 double z = pos.z + offsetZ;
@@ -310,20 +310,23 @@ public class NoellesrolesClient implements ClientModInitializer {
                 double vy = level.random.nextDouble() * speed;
                 double vz = (level.random.nextDouble() - 0.5) * speed;
 
-                // 动态计算彩虹色 (色调从0到360循环)
-                float hue = (i / 20.0f) * 360.0f; // 让每个粒子的颜色都不同
-                int rgb = java.awt.Color.HSBtoRGB(hue, 1.0f, 1.0f);
-                float r = ((rgb >> 16) & 0xFF) / 255.0f;
-                float g = ((rgb >> 8) & 0xFF) / 255.0f;
-                float b = (rgb & 0xFF) / 255.0f;
+                float startHue = level.random.nextFloat(); // 0-1
+                float endHue = (startHue + 0.3f) % 1.0f;
+                java.awt.Color startRgb = new java.awt.Color(java.awt.Color.HSBtoRGB(startHue, 1.0f, 1.0f));
+                java.awt.Color endRgb = new java.awt.Color(java.awt.Color.HSBtoRGB(endHue, 1.0f, 1.0f));
 
+                Vector3f startColor = new Vector3f(
+                        (startRgb.getRed() * 1f) / 255.0f,
+                        (startRgb.getGreen() * 1f) / 255.0f,
+                        (startRgb.getBlue() * 1f) / 255.0f);
+                Vector3f endColor = new Vector3f(
+                        (endRgb.getRed() * 1f) / 255.0f,
+                        (endRgb.getGreen() * 1f) / 255.0f,
+                        (endRgb.getBlue() * 1f) / 255.0f);
                 // 创建并添加粒子
                 level.addParticle(
-                        // 选择粒子类型
-                        new DustParticleOptions(new Vector3f(r, g, b), 1.0f), // 或 new DustColorTransitionOptions(...)
-                        true, // 设为 true，确保粒子在远距离也能被看到
-                        x, y, z,
-                        vx, vy, vz);
+                        new DustColorTransitionOptions(startColor, endColor, 1.0f),
+                        true, x, y, z, vx, vy, vz);
             }
         });
         ClientPlayNetworking.registerGlobalReceiver(
