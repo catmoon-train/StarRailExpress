@@ -212,6 +212,8 @@ public class ImitatorPlayerComponent implements RoleComponent, ServerTickingComp
             this.sync();
             return;
         }
+        // 尸体会消失
+        corpse.discard();
 
         // 不能吃杀手和中立的能力
         if (!role.isInnocent()) {
@@ -255,7 +257,6 @@ public class ImitatorPlayerComponent implements RoleComponent, ServerTickingComp
         slotFillOrder[slotIndex] = nextFillOrder++;
         activeSlotIndex = slotIndex;
 
-        corpse.discard();
         chargingCorpseUuid = null;
         copyActionCooldown = 40; // 2秒吃完后小冷却
 
