@@ -1062,12 +1062,12 @@ public class RoleShopHandler {
     // 故障机器人商店
     {
       List<ShopEntry> glitchRobotShop = new ArrayList<>();
-      // 夜视仪 - 150金币
+      // 夜视仪 - 100金币
       glitchRobotShop
-          .add(new ShopEntry(ModItems.NIGHT_VISION_GLASSES.getDefaultInstance(), 150,
+          .add(new ShopEntry(ModItems.NIGHT_VISION_GLASSES.getDefaultInstance(), 100,
               ShopEntry.Type.TOOL));
-      // 萤石粉 - 50金币（修复夜视仪）
-      glitchRobotShop.add(new ShopEntry(Items.GLOWSTONE_DUST.getDefaultInstance(), 50,
+      // 萤石粉 - 25金币（修复夜视仪）
+      glitchRobotShop.add(new ShopEntry(Items.GLOWSTONE_DUST.getDefaultInstance(), 25,
           ShopEntry.Type.TOOL) {
         @Override
         public boolean onBuy(@NotNull Player player) {
