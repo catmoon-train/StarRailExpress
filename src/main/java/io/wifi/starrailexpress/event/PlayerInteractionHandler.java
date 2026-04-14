@@ -2,6 +2,7 @@ package io.wifi.starrailexpress.event;
 
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
+import io.wifi.starrailexpress.util.CantRightClickBlocks;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.level.block.*;
@@ -38,6 +39,10 @@ public class PlayerInteractionHandler {
                         }
                     }
                     if (isVanillaWorkstation(block)) {
+                        return InteractionResult.FAIL;
+                    }
+                    
+                    if (CantRightClickBlocks.shouldPreventInteraction(block)) {
                         return InteractionResult.FAIL;
                     }
                 }

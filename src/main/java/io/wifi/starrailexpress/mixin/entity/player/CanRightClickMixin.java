@@ -31,7 +31,6 @@ public abstract class CanRightClickMixin extends LivingEntity implements DataSyn
         if (!cir.getReturnValue())
             return;
         final var player = (Player) (Object) this;
-        final var mainHandItem = player.getMainHandItem();
 //        if (SRE.canDropItem.contains(BuiltInRegistries.ITEM.getKey(mainHandItem.getItem()).toString())
 //                || SRE.canDrop.stream().anyMatch((p) -> {
 //                    return p.test(player);
@@ -46,7 +45,7 @@ public abstract class CanRightClickMixin extends LivingEntity implements DataSyn
 //                }
 //            }
 //        }
-        if (!GameUtils.isPlayerAliveAndSurvival(player)) {
+        if (!GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)) {
             return;
         }
 

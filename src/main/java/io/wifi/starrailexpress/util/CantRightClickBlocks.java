@@ -4,6 +4,8 @@ import io.wifi.starrailexpress.SRE;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.DecoratedPotBlock;
+import net.minecraft.world.level.block.FlowerPotBlock;
 
 import java.util.*;
 
@@ -48,33 +50,6 @@ public class CantRightClickBlocks {
             Blocks.ENDER_CHEST,
             Blocks.SHULKER_BOX,
             Blocks.FLOWER_POT,
-            Blocks.POTTED_TORCHFLOWER,
-            Blocks.POTTED_OAK_SAPLING,
-            Blocks.POTTED_SPRUCE_SAPLING,
-            Blocks.POTTED_BIRCH_SAPLING,
-            Blocks.POTTED_JUNGLE_SAPLING,
-            Blocks.POTTED_ACACIA_SAPLING,
-            Blocks.POTTED_CHERRY_SAPLING,
-            Blocks.POTTED_DARK_OAK_SAPLING,
-            Blocks.POTTED_MANGROVE_PROPAGULE,
-            Blocks.POTTED_FERN,
-            Blocks.POTTED_DANDELION,
-            Blocks.POTTED_POPPY,
-            Blocks.POTTED_BLUE_ORCHID,
-            Blocks.POTTED_ALLIUM,
-            Blocks.POTTED_AZURE_BLUET,
-            Blocks.POTTED_RED_TULIP,
-            Blocks.POTTED_ORANGE_TULIP,
-            Blocks.POTTED_WHITE_TULIP,
-            Blocks.POTTED_PINK_TULIP,
-            Blocks.POTTED_OXEYE_DAISY,
-            Blocks.POTTED_CORNFLOWER,
-            Blocks.POTTED_LILY_OF_THE_VALLEY,
-            Blocks.POTTED_WITHER_ROSE,
-            Blocks.POTTED_RED_MUSHROOM,
-            Blocks.POTTED_BROWN_MUSHROOM,
-            Blocks.POTTED_DEAD_BUSH,
-            Blocks.POTTED_CACTUS,
             // 更多需要限制的方块...
             Blocks.CHEST,
             Blocks.TRAPPED_CHEST,
@@ -106,7 +81,10 @@ public class CantRightClickBlocks {
         if (ALLOWED_BLOCKS.contains(block)) {
             return true;
         }
-
+        if (block instanceof FlowerPotBlock)
+            return false;
+        if (block instanceof DecoratedPotBlock)
+            return false;
         // 如果是原版工作方块，禁止交互
         if (VANILLA_WORKSTATIONS.contains(block)) {
             return false;
