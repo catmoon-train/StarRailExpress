@@ -45,6 +45,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
+import pro.fazeclan.river.stupid_express.role.avaricious.AvariciousGoldHandler;
 
 public class SRECustomRoleGameMode extends SREMurderGameMode {
     public SRECustomRoleGameMode(ResourceLocation identifier) {
@@ -265,6 +266,7 @@ public class SRECustomRoleGameMode extends SREMurderGameMode {
         int SAFE_TIME_COOLDOWN = SREConfig.instance().safeTimeCooldown * 20;
         addItemCooldowns(serverWorld, SAFE_TIME_COOLDOWN);
         SRE.REPLAY_MANAGER.updateReplayInitialRoles(players, gameWorldComponent.getRoles());
+        AvariciousGoldHandler.gameStartTime = -1;
         SREGameTimeComponent.KEY.get(serverWorld).addTime(selectionTick);
     }
 

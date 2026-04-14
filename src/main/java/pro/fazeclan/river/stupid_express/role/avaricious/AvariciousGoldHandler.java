@@ -10,12 +10,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
-import org.agmas.harpymodloader.events.ModdedRoleAssigned;
-import pro.fazeclan.river.stupid_express.constants.SERoles;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 
 public class AvariciousGoldHandler {
 
@@ -25,8 +20,6 @@ public class AvariciousGoldHandler {
     public static int STARTING_BALANCE = 100; // 初始金币翻倍
     public static int BASE_PAYOUT_PER_PLAYER = 25; // 基础金币提高
     public static double DISTANCE_MULTIPLIER = 1.5; // 距离奖励系数
-
-    private static final Map<UUID, Integer> playerBonusMap = new HashMap<>();
 
     public static int calculatePayout(int totalPlayerCount, int nearbyPlayers, double avgDistance) {
         double originalResult = 0;
@@ -49,13 +42,6 @@ public class AvariciousGoldHandler {
         OnGameTrueStarted.EVENT.register((ServerLevel) -> {
             AvariciousGoldHandler.gameStartTime = -1;
         });
-        ModdedRoleAssigned.EVENT.register(((player, role) -> {
-            if (role.equals(SERoles.AVARICIOUS)) {
-                SREPlayerShopComponent shop = SREPlayerShopComponent.KEY.get(player);
-                shop.setBalance(STARTING_BALANCE);
-                playerBonusMap.put(player.getUUID(), 0); // 初始化连续奖励计数
-            }
-        }));
     }
 
     public static void playerServerTick(ServerPlayer player, SREGameWorldComponent gameWorldComponent) {
