@@ -301,6 +301,10 @@ public class CandleBearerPlayerComponent implements RoleComponent, ServerTicking
         return candleLitPlayers.contains(playerId);
     }
 
+    public boolean isCorpseCandleCompleted(UUID playerId) {
+        return corpseCandleCompleted.contains(playerId);
+    }
+
     public static boolean checkCandleBearerVictory(ServerLevel serverLevel) {
         SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(serverLevel);
         for (ServerPlayer sp : serverLevel.players()) {
@@ -422,6 +426,12 @@ public class CandleBearerPlayerComponent implements RoleComponent, ServerTicking
             litList.add(StringTag.valueOf(uuid.toString()));
         }
         tag.put("CandleLitPlayers", litList);
+
+        ListTag corpseList = new ListTag();
+        for (UUID uuid : corpseCandleCompleted) {
+            corpseList.add(StringTag.valueOf(uuid.toString()));
+        }
+        tag.put("CorpseCandleCompleted", corpseList);
     }
 
     @Override
@@ -438,6 +448,17 @@ public class CandleBearerPlayerComponent implements RoleComponent, ServerTicking
             for (Tag t : litList) {
                 try {
                     candleLitPlayers.add(UUID.fromString(t.getAsString()));
+                } catch (Exception ignored) {
+                }
+            }
+        }
+
+        corpseCandleCompleted.clear();
+        if (tag.contains("CorpseCandleCompleted", Tag.TAG_LIST)) {
+            ListTag corpseList = tag.getList("CorpseCandleCompleted", Tag.TAG_STRING);
+            for (Tag t : corpseList) {
+                try {
+                    corpseCandleCompleted.add(UUID.fromString(t.getAsString()));
                 } catch (Exception ignored) {
                 }
             }

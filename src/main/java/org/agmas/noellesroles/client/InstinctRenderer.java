@@ -160,14 +160,19 @@ public class InstinctRenderer {
                 return -1;
 
             CandleBearerPlayerComponent component = CandleBearerPlayerComponent.KEY.get(self);
-            if (target instanceof Player targetPlayer) {
-                if (component.isCandleLit(targetPlayer.getUUID())) {
+            // 尸体：已被完成秉烛的显示蓝色
+            if (target instanceof PlayerBodyEntity body) {
+                if (body.getPlayerUuid() != null && component.isCorpseCandleCompleted(body.getPlayerUuid())) {
+                    return Color.BLUE.getRGB();
+                }
+                if (body.getPlayerUuid() != null && component.isCandleLit(body.getPlayerUuid())) {
                     return ModRoles.CANDLE_BEARER.color();
                 }
                 return Color.GRAY.getRGB();
             }
-            if (target instanceof PlayerBodyEntity body) {
-                if (body.getPlayerUuid() != null && component.isCandleLit(body.getPlayerUuid())) {
+            // 活人：被秉烛过的显示原色
+            if (target instanceof Player targetPlayer) {
+                if (component.isCandleLit(targetPlayer.getUUID())) {
                     return ModRoles.CANDLE_BEARER.color();
                 }
                 return Color.GRAY.getRGB();
