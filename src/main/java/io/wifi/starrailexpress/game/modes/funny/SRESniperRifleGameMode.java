@@ -1,5 +1,6 @@
 package io.wifi.starrailexpress.game.modes.funny;
 
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.modes.WTLooseEndsGameMode;
 import io.wifi.starrailexpress.index.TMMItems;
@@ -19,8 +20,8 @@ import java.util.List;
  *     地图锁定为：天空村庄
  * </p>
  */
-public class SniperRifleGameMode extends WTLooseEndsGameMode {
-    public SniperRifleGameMode(ResourceLocation identifier) {
+public class SRESniperRifleGameMode extends WTLooseEndsGameMode {
+    public SRESniperRifleGameMode(ResourceLocation identifier) {
         super(identifier);
     }
     @Override
@@ -37,8 +38,8 @@ public class SniperRifleGameMode extends WTLooseEndsGameMode {
         looseEndsItems.removeIf(item -> item.get().getItem() instanceof DerringerItem);
     }
     @Override
-    protected void initCoolDownItems(List<ServerPlayer> players) {
-        super.initCoolDownItems(players);
+    protected void initCoolDownItems(List<ServerPlayer> players, SREGameWorldComponent gameWorldComponent) {
+        super.initCoolDownItems(players, gameWorldComponent);
         int cooldown = GameConstants.getInTicks(0, 10);
         for (ServerPlayer player : players) {
             // 给所有人的武器添加冷却

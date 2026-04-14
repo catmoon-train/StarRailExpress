@@ -36,6 +36,8 @@ public class SREConfig implements ConfigData {
     public int antWarClockStopTick = 40;
     @ConfigEntry.Category(value = "gamemodes")
     public int antWarClockCooldownTick = 140;
+    @ConfigEntry.Category(value = "gamemodes")
+    public int evilWarKillGroupNumber = 7;
 
     // 随机地图设置
     @ConfigEntry.Category(value = "map")

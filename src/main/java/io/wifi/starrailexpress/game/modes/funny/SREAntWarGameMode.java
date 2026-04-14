@@ -44,8 +44,8 @@ public class SREAntWarGameMode extends WTLooseEndsGameMode {
         looseEndsItems.removeIf(item -> item.get().getItem() instanceof DerringerItem);
     }
     @Override
-    protected void initCoolDownItems(List<ServerPlayer> players) {
-        super.initCoolDownItems(players);
+    protected void initCoolDownItems(List<ServerPlayer> players, SREGameWorldComponent gameWorldComponent) {
+        super.initCoolDownItems(players, gameWorldComponent);
         int cooldown = GameConstants.getInTicks(0, 10);
         for (ServerPlayer player : players) {
             // 给所有人的武器添加冷却

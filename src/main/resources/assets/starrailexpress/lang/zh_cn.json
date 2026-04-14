@@ -49,6 +49,7 @@
   "hud.sre.tip.gamemode.refugee": "难民模式",
   "hud.sre.tip.gamemode.ant_war": "蚂蚁大战模式",
   "hud.sre.tip.gamemode.sniper_war": "狙击模式",
+  "hud.sre.tip.gamemode.evil_war": "邪恶战争",
   "gui.sre.gamemode.custom.title": "阳光自选角色选择",
   "gui.sre.gamemode.custom.subtitle": "剩余选择时间：%ss",
   "gui.sre.map_selector.voted_for": "已投票给: %s",

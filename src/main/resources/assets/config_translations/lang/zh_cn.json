@@ -112,6 +112,7 @@
   "text.autoconfig.starrailexpress.option.antWarPlayerSpeedLvl": "蚂蚁大战玩家速度等级",
   "text.autoconfig.starrailexpress.option.antWarClockStopTick": "蚂蚁大战时停时长",
   "text.autoconfig.starrailexpress.option.antWarClockCooldownTick": "蚂蚁大战时停冷却时长",
+  "text.autoconfig.starrailexpress.option.evilWarKillGroupNumber": "邪恶战争每组狼的数量（每组狼刷一个亡命徒向下取整）",
   "====== 分类 ======":"",
   "text.autoconfig.starrailexpress.category.sync": "同步",
   "text.autoconfig.starrailexpress.category.gamemodes": "游戏模式",

@@ -31,6 +31,7 @@ public class SREGameModes {
     // Author: xiao_hei_hand
     public static final ResourceLocation ANT_WAR_MODE_ID = SRE.xiaoheihandId("ant_war");
     public static final ResourceLocation SNIPER_RIFLE_ID = SRE.xiaoheihandId("sniper_war");
+    public static final ResourceLocation EVIL_WAR_MODE_ID = SRE.xiaoheihandId("evil_war");
 
     // Modified from Harpymodloader
     public static final GameMode MURDER = registerGameMode(new SREMurderGameMode(MURDER_ID));
@@ -51,7 +52,8 @@ public class SREGameModes {
 
     // written by xiao_hei_hand
     public static final GameMode ANT_WAR_MODE = registerGameMode(new SREAntWarGameMode(ANT_WAR_MODE_ID));
-    public static final GameMode SNIPER_RIFLE_MODE = registerGameMode(new SniperRifleGameMode(SNIPER_RIFLE_ID));
+    public static final GameMode SNIPER_RIFLE_MODE = registerGameMode(new SRESniperRifleGameMode(SNIPER_RIFLE_ID));
+    public static final GameMode EVIL_WAR_MODE = registerGameMode(new SREEvilWarGameMode(EVIL_WAR_MODE_ID));
 
     // register
     public static GameMode registerGameMode(GameMode gameMode) {

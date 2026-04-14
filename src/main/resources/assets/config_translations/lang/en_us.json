@@ -25,6 +25,7 @@
   "text.autoconfig.starrailexpress.option.antWarPlayerSpeedLvl": "Ant war player speed lvl",
   "text.autoconfig.starrailexpress.option.antWarClockStopTick": "Ant war clock stop time",
   "text.autoconfig.starrailexpress.option.antWarClockCooldownTick": "Ant war clock cooldown time",
+  "text.autoconfig.starrailexpress.option.evilWarKillGroupNumber": "Kills number in a group(Every group will spawn a loose end)",
   "=== SRE ===": "",
   "text.autoconfig.starrailexpress.title": "Star Rail Express General Settings",
   "text.autoconfig.starrailexpress.category.presents": "Presents",
