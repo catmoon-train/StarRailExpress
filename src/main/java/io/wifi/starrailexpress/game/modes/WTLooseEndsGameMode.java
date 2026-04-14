@@ -20,7 +20,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemCooldowns;
 import net.minecraft.world.item.ItemStack;
-import org.agmas.harpymodloader.events.ModdedRoleAssigned;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -83,14 +82,6 @@ public class WTLooseEndsGameMode extends GameMode {
                     new AnnounceWelcomePayload(TMMRoles.LOOSE_END.identifier().toString(), -1, -1));
         }
     }
-    /** 触发角色初始化事件 */
-    protected void triggerRoleAssignedEvent(List<ServerPlayer> players, SREGameWorldComponent gameWorldComponent) {
-        for (ServerPlayer player : players) {
-            var role = gameWorldComponent.getRole(player);
-            // 触发角色初始化事件
-            ModdedRoleAssigned.EVENT.invoker().assignModdedRole(player, role);
-        }
-    }
 
     @Override
     public boolean isLooseEndMode() {
@@ -106,7 +97,6 @@ public class WTLooseEndsGameMode extends GameMode {
         initRoles(players, gameWorldComponent);
         initCoolDownItems(players, gameWorldComponent);
         initPlayerItems(players, gameWorldComponent);
-        triggerRoleAssignedEvent(players, gameWorldComponent);
         sendPackets(players, gameWorldComponent);
     }
 
