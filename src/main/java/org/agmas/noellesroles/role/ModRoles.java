@@ -418,7 +418,7 @@ public class ModRoles {
       SRERole.MoodType.FAKE, // 假心情
       -1, // 无限冲刺时间
       false // 显示计分板
-  )).setComponentKey(ModComponents.CREEPER).setEnableChance(5);
+  )).setComponentKey(ModComponents.CREEPER).setEnableChance(10);
 
   /**
    * 作家角色
