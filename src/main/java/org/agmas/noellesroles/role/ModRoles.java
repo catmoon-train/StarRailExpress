@@ -1438,7 +1438,7 @@ public class ModRoles {
       true))
       .setCanSeeCoin(true)
       .setCanUseInstinct(true)
-      .setCanAutoAddMoney(true);
+      .setCanAutoAddMoney(true).setMax(0);
 
   /**
    * 愚者角色 - 好人阵营
