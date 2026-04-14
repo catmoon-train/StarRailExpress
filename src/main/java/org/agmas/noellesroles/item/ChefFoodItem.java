@@ -5,9 +5,11 @@ import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.cca.SREPlayerTaskComponent;
 import io.wifi.starrailexpress.cca.SREPlayerTaskComponent.TrainTask;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
@@ -15,12 +17,14 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.CustomModelData;
 import net.minecraft.world.level.Level;
 import org.agmas.noellesroles.ModDataComponentTypes;
 import org.agmas.noellesroles.Noellesroles;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 
@@ -41,6 +45,59 @@ public class ChefFoodItem extends Item {
         Random random = new Random();
         int randomI = random.nextInt(1, 5);
         cooked_food.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(randomI));
+    }
+
+    @Override
+    public void appendHoverText(ItemStack stack, Item.TooltipContext context,
+                               List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+        var cookData = stack.get(ModDataComponentTypes.COOKED);
+        if (cookData != null) {
+            Map<Integer, Float> effects = ModDataComponentTypes.getCookedFoodInfo(cookData);
+            if (!effects.isEmpty()) {
+                tooltipComponents.add(Component.translatable("item.noellesroles.cooked_food.effects_title")
+                        .withStyle(ChatFormatting.GOLD));
+                for (Map.Entry<Integer, Float> entry : effects.entrySet()) {
+                    int type = entry.getKey();
+                    float duration = Math.min(entry.getValue(), 120f);
+                    int seconds = (int) duration;
+                    tooltipComponents.add(getEffectComponent(type, seconds));
+                }
+            }
+        }
+        super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
+    }
+
+    private static Component getEffectComponent(int type, int seconds) {
+        ChatFormatting color = getEffectColor(type);
+        Component component = switch (type) {
+            case 1 -> Component.translatable("item.noellesroles.cooked_food.effect.glowing", seconds);
+            case 2 -> Component.translatable("item.noellesroles.cooked_food.effect.restore_san");
+            case 3 -> Component.translatable("item.noellesroles.cooked_food.effect.reduce_cooldown", seconds);
+            case 4 -> Component.translatable("item.noellesroles.cooked_food.effect.speed", seconds);
+            case 5 -> Component.translatable("item.noellesroles.cooked_food.effect.skip_task");
+            case 6 -> Component.translatable("item.noellesroles.cooked_food.effect.night_vision", seconds);
+            case 7 -> Component.translatable("item.noellesroles.cooked_food.effect.add_gold", seconds);
+            case -1 -> Component.translatable("item.noellesroles.cooked_food.effect.nausea", seconds);
+            case -2 -> Component.translatable("item.noellesroles.cooked_food.effect.darkness", seconds);
+            case -3 -> Component.translatable("item.noellesroles.cooked_food.effect.slowness", seconds);
+            default -> Component.translatable("item.noellesroles.cooked_food.effect.unknown");
+        };
+        return component.copy().withStyle(color);
+    }
+
+    private static ChatFormatting getEffectColor(int type) {
+        if (type > 0) {
+            return switch (type) {
+                case 2 -> ChatFormatting.GREEN;
+                case 3, 6 -> ChatFormatting.BLUE;
+                case 4 -> ChatFormatting.YELLOW;
+                case 5 -> ChatFormatting.LIGHT_PURPLE;
+                case 7 -> ChatFormatting.GOLD;
+                default -> ChatFormatting.AQUA;
+            };
+        } else {
+            return ChatFormatting.RED;
+        }
     }
 
     @Override
