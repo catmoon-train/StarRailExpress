@@ -163,6 +163,7 @@ public class ScrewdriverItem extends Item implements AdventureUsable {
                         if (!world.isClientSide) {
                             doorEntity.setBlasted(false);
                             unBlastNearBy(context);
+                            doorEntity.setOpen(true);
                             doorEntity.setChanged();
                             player.displayClientMessage(
                                     Component.translatable("message.noellesroles.locksmith.fix")
@@ -190,6 +191,7 @@ public class ScrewdriverItem extends Item implements AdventureUsable {
                 BlockPos lowerPos = state.getValue(SmallDoorBlock.HALF) == DoubleBlockHalf.LOWER ? pos : pos.below();
                 if (world.getBlockEntity(lowerPos) instanceof SmallDoorBlockEntity entity) {
                     entity.setBlasted(false);
+                    entity.setOpen(true);
                 }
             }
         }
