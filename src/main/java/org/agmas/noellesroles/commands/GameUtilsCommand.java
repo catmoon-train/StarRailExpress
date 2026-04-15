@@ -179,6 +179,12 @@ public class GameUtilsCommand {
                         return 1;
                       })))
                   .then(Commands.literal("tests")
+                      .then(Commands.literal("prayer").executes((ctx) -> {
+                        org.agmas.noellesroles.roles.fool.PrayerHandler
+                            .startPrayer(ctx.getSource().getPlayerOrException());
+                        ctx.getSource().sendSuccess(() -> Component.literal("Successfully prayer."), false);
+                        return 1;
+                      }))
                       .then(Commands.literal("math").executes((context) -> {
                         ServerPlayNetworking.send(context.getSource().getPlayerOrException(),
                             new ProblemScreenOpenC2SPacket(false, 3));
