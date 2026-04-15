@@ -7,6 +7,7 @@ import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.util.AdventureUsable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -161,6 +162,7 @@ public class ScrewdriverItem extends Item implements AdventureUsable {
                                 TMMSounds.BLOCK_DOOR_TOGGLE, SoundSource.BLOCKS, 0.7f, 1.5f);
                         if (!world.isClientSide) {
                             doorEntity.setBlasted(false);
+                            unBlastNearBy(context);
                             doorEntity.setChanged();
                             player.displayClientMessage(
                                     Component.translatable("message.noellesroles.locksmith.fix")
@@ -177,4 +179,19 @@ public class ScrewdriverItem extends Item implements AdventureUsable {
         return InteractionResult.PASS;
     }
 
+    public static void unBlastNearBy(UseOnContext context) {
+        Level world = context.getLevel();
+        BlockPos clickpos = context.getClickedPos();
+        Vec3i offsets[] = { new Vec3i(0, 0, -1), new Vec3i(0, 0, 1), new Vec3i(-1, 0, 0), new Vec3i(1, 0, 0) };
+        for (int i = 0; i < offsets.length; i++) {
+            BlockPos pos = clickpos.offset(offsets[i]);
+            BlockState state = world.getBlockState(pos);
+            if (state.getBlock() instanceof SmallDoorBlock) {
+                BlockPos lowerPos = state.getValue(SmallDoorBlock.HALF) == DoubleBlockHalf.LOWER ? pos : pos.below();
+                if (world.getBlockEntity(lowerPos) instanceof SmallDoorBlockEntity entity) {
+                    entity.setBlasted(false);
+                }
+            }
+        }
+    }
 }
