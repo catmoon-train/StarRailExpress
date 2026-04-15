@@ -435,6 +435,7 @@ public class NoellesrolesClient implements ClientModInitializer {
         });
         ClientPlayNetworking.registerGlobalReceiver(PlayerResetS2CPacket.ID, (payload, context) -> {
             final var client = context.client();
+            client.player.getActiveEffects().clear();
             client.execute(() -> {
                 if (client.player != null) {
                     // client.player.sendSystemMessage(Component.translatable("screen.noellesroles.guess_role.reset")
