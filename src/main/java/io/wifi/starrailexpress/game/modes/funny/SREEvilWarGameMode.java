@@ -16,7 +16,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemCooldowns;
 import net.minecraft.world.item.ItemStack;
 import org.agmas.harpymodloader.Harpymodloader;
@@ -181,8 +180,7 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
         }
     }
 
-    /** 重写发送欢迎包，根据特定角色发送 */
-    @Override
+    /** 发送欢迎包，根据特定角色发送 */
     protected void sendWelcomePackets(List<ServerPlayer> players, SREGameWorldComponent gameWorldComponent) {
         int looseEndCount = players.size() / (SREConfig.instance().evilWarKillGroupNumber + 1);
         looseEndCount = Math.max(looseEndCount, 1);
