@@ -152,7 +152,7 @@ public class ScrewdriverItem extends Item implements AdventureUsable {
 
                 // 普通右键：修复maybe
                 if (doorEntity.isBlasted()) {
-                    if (isLockSmith || isEngineer) {
+                    if (isLockSmith || isEngineer || player.isCreative()) {
                         if (player.getCooldowns().isOnCooldown(context.getItemInHand().getItem()))
                             return InteractionResult.FAIL;
                         player.getCooldowns().addCooldown(context.getItemInHand().getItem(), 20 * 30);
