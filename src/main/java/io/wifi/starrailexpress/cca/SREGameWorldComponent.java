@@ -391,9 +391,9 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
                 : false;
         // this.syncRole = nbtCompound.getBoolean("SyncRole");
         // if (!syncRole) {
-        if (nbtCompound.contains("StartingPlayerCount")){
+        if (nbtCompound.contains("StartingPlayerCount")) {
             this.startingPlayerCount = nbtCompound.getInt("StartingPlayerCount");
-        }else {
+        } else {
             this.startingPlayerCount = 0;
         }
         if (nbtCompound.contains("GameMode"))
@@ -556,12 +556,15 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
         final var block2 = player.level()
                 .getBlockState(new BlockPos((int) player.getX(), (int) (player.getY() - 2), (int) player.getZ()))
                 .getBlock();
-        if (player.getY() < areas.playArea.minY
-                || !areas.canSwim && (block == Blocks.WATER && block1 == Blocks.WATER && block2 == Blocks.WATER)) {
-            GameUtils.killPlayer(player, false,
-                    player.getLastAttacker() instanceof Player killerPlayer ? killerPlayer : null,
-                    GameConstants.DeathReasons.FELL_OUT_OF_TRAIN);
+        if (!(player.getZ() >= 18000)) {
+            if (player.getY() < areas.playArea.minY
+                    || !areas.canSwim && (block == Blocks.WATER && block1 == Blocks.WATER && block2 == Blocks.WATER)) {
+                GameUtils.killPlayer(player, false,
+                        player.getLastAttacker() instanceof Player killerPlayer ? killerPlayer : null,
+                        GameConstants.DeathReasons.FELL_OUT_OF_TRAIN);
+            }
         }
+
     }
 
     private void tickCommon() {

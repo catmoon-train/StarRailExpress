@@ -118,6 +118,7 @@ public class RevivalSelectionHandler {
             playerShopComponent.setBalance(200);
 
             StupidRoleUtils.sendWelcomeAnnouncement(revived);
+            SREPlayerPsychoComponent.KEY.get(revived).startPsycho();
 
             return InteractionResult.CONSUME;
         }));
@@ -194,7 +195,6 @@ public class RevivalSelectionHandler {
             playerShopComponent.setBalance(200);
 
             StupidRoleUtils.sendWelcomeAnnouncement(revived);
-            SREPlayerPsychoComponent.KEY.get(revived).startPsycho();
 
             return InteractionResult.CONSUME;
         }));
