@@ -158,7 +158,6 @@ public class InstinctRenderer {
                 return -1;
             if (!hasInstinct)
                 return -1;
-
             CandleBearerPlayerComponent component = CandleBearerPlayerComponent.KEY.get(self);
             // 尸体：已被完成秉烛的显示蓝色
             if (target instanceof PlayerBodyEntity body) {
@@ -172,6 +171,8 @@ public class InstinctRenderer {
             }
             // 活人：被秉烛过的显示原色
             if (target instanceof Player targetPlayer) {
+                if (targetPlayer.distanceToSqr(self) > 20 * 20)
+                    return -2;
                 if (component.isCandleLit(targetPlayer.getUUID())) {
                     return ModRoles.CANDLE_BEARER.color();
                 }
@@ -296,6 +297,9 @@ public class InstinctRenderer {
             if (!SREClient.isInstinctEnabled()) {
                 return -1;
             }
+
+            if (targettedPlayer.distanceToSqr(player) > 20 * 20)
+                return -2;
             var douse = DousedPlayerComponent.KEY.get(targettedPlayer);
             if (douse.getDoused()) {
                 return (SERoles.ARSONIST.color());
@@ -560,7 +564,7 @@ public class InstinctRenderer {
                         if (RoleUtils.compareRole(target_role, RedHouseRoles.PACHURI)) {
                             return RedHouseRoles.PACHURI.color();
                         }
-                        return RedHouseRoles.FURANDORU.color();
+                        return new Color(2, 224, 2).getRGB();
                     }
                     return -1;
                 }
@@ -587,6 +591,10 @@ public class InstinctRenderer {
                 // 记录员
                 if (SREClient.gameComponent.isRole(self, ModRoles.RECORDER)) {
                     if (target instanceof Player targetPlayer) {
+                        if (self.isSpectator())
+                            return -1;
+                        if (targetPlayer.distanceToSqr(self) > 20 * 20)
+                            return -2;
                         if (targetPlayer == self)
                             return -2;
 
@@ -690,7 +698,7 @@ public class InstinctRenderer {
                                 if (RoleUtils.compareRole(target_role, RedHouseRoles.PACHURI)) {
                                     return RedHouseRoles.PACHURI.color();
                                 } else if (RoleUtils.compareRole(target_role, RedHouseRoles.FURANDORU)) {
-                                    return new Color(253, 114, 255).getRGB();
+                                    return RedHouseRoles.FURANDORU.color();
                                 }
                             }
                         }

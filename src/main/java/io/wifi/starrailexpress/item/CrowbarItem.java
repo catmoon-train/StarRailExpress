@@ -6,6 +6,7 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.block_entity.DoorBlockEntity;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameConstants;
+import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.util.AdventureUsable;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -32,8 +33,6 @@ public class CrowbarItem extends Item implements AdventureUsable {
         Player player = context.getPlayer();
         var gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
         if (entity instanceof DoorBlockEntity door && !door.isBlasted() && player != null) {
-            if (!player.isCreative())
-                player.getCooldowns().addCooldown(this, 6000);
             world.playSound(null, context.getClickedPos(), TMMSounds.ITEM_CROWBAR_PRY, SoundSource.BLOCKS, 2.5f, 1f);
             player.swing(InteractionHand.MAIN_HAND, true);
 
@@ -42,9 +41,11 @@ public class CrowbarItem extends Item implements AdventureUsable {
                     SRE.REPLAY_MANAGER.recordItemUse(player.getUUID(), BuiltInRegistries.ITEM.getKey(this));
                 }
                 if (gameWorldComponent.isRole(player, RedHouseRoles.FURANDORU)) {
-                    player.getCooldowns().addCooldown(this, 10 * 20);
+                    player.getCooldowns().addCooldown(this,
+                            GameConstants.ITEM_COOLDOWNS.getOrDefault(TMMItems.CROWBAR, 45 * 20) / 6);
                 } else {
-                    player.getCooldowns().addCooldown(this, GameConstants.ITEM_COOLDOWNS.get(this));
+                    player.getCooldowns().addCooldown(this,
+                            GameConstants.ITEM_COOLDOWNS.getOrDefault(TMMItems.CROWBAR, 45 * 20));
                 }
             }
 

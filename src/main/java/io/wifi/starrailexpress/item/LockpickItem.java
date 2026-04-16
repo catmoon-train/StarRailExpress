@@ -7,6 +7,7 @@ import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.util.AdventureUsable;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
@@ -34,6 +35,7 @@ public class LockpickItem extends Item implements AdventureUsable {
             if (world.getBlockEntity(lowerPos) instanceof SmallDoorBlockEntity entity) {
                 if (player.isShiftKeyDown()) {
                     entity.jam();
+                    jamNearBy(context);
 
                     if (!player.isCreative()) {
                         if (SRE.REPLAY_MANAGER != null) {
@@ -43,7 +45,8 @@ public class LockpickItem extends Item implements AdventureUsable {
                     }
 
                     if (!world.isClientSide)
-                        world.playSound(null, lowerPos.getX() + .5f, lowerPos.getY() + 1, lowerPos.getZ() + .5f, TMMSounds.ITEM_LOCKPICK_DOOR, SoundSource.BLOCKS, 1f, 1f);
+                        world.playSound(null, lowerPos.getX() + .5f, lowerPos.getY() + 1, lowerPos.getZ() + .5f,
+                                TMMSounds.ITEM_LOCKPICK_DOOR, SoundSource.BLOCKS, 1f, 1f);
                     return InteractionResult.SUCCESS;
                 }
             }
@@ -54,4 +57,19 @@ public class LockpickItem extends Item implements AdventureUsable {
         return super.useOn(context);
     }
 
+    private void jamNearBy(UseOnContext context) {
+        Level world = context.getLevel();
+        BlockPos clickpos = context.getClickedPos();
+        Vec3i offsets[] = { new Vec3i(0, 0, -1), new Vec3i(0, 0, 1), new Vec3i(-1, 0, 0), new Vec3i(1, 0, 0) };
+        for (int i = 0; i < offsets.length; i++) {
+            BlockPos pos = clickpos.offset(offsets[i]);
+            BlockState state = world.getBlockState(pos);
+            if (state.getBlock() instanceof SmallDoorBlock) {
+                BlockPos lowerPos = state.getValue(SmallDoorBlock.HALF) == DoubleBlockHalf.LOWER ? pos : pos.below();
+                if (world.getBlockEntity(lowerPos) instanceof SmallDoorBlockEntity entity) {
+                    entity.jam();
+                }
+            }
+        }
+    }
 }

@@ -13,15 +13,18 @@ import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket;
 import net.minecraft.network.protocol.game.ClientboundSetTitlesAnimationPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.players.PlayerList;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.level.entity.EntityTypeTest;
+
 import org.agmas.noellesroles.entity.PuppeteerBodyEntity;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModEntities;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
-import io.wifi.starrailexpress.game.GameUtils;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -37,6 +40,7 @@ import java.util.UUID;
  */
 public class TarotAssemblyManager {
 
+    public static boolean havingMeeting = false;
     /** 塔罗会冷却：存活5分钟，死亡6分钟 */
     public static final int COOLDOWN_ALIVE_TICKS = 6 * 60 * 20; // 5分钟
     public static final int COOLDOWN_DEAD_TICKS = 8 * 60 * 20; // 6分钟
@@ -53,24 +57,25 @@ public class TarotAssemblyManager {
     /** 传送到的会议室Y坐标（使用高空虚空区域） */
     public static final double MEETING_Y = 200;
     public static final double MEETING_X = 0.0;
-    public static final double MEETING_Z = 10000.0;
+    public static final double MEETING_Z = 20000.0;
 
     private static final int BLINDNESS_DURATION_TICKS = MEETING_DURATION_TICKS + VOTE_DURATION_TICKS + 60;
     private static final int MANUAL_ADVANCE_LOCK_TICKS = 20;
 
     private static final int LEAST_MEMBER_REQUIRED = 1;
+
     /**
      * 愚者按G键召开塔罗会
      */
     public static void startAssembly(ServerPlayer fool) {
         FoolPlayerComponent comp = FoolPlayerComponent.KEY.get(fool);
         long currentTick = fool.level().getGameTime();
-        if (comp.tarotMembers.isEmpty()){
+        if (comp.tarotMembers.isEmpty()) {
             fool.displayClientMessage(
                     Component.translatable("message.noellesroles.fool.tarot_not_enough_members")
                             .withStyle(ChatFormatting.RED),
                     true);
-                    return;
+            return;
         }
 
         // G键再次使用：直接提前结束并结算当前投票结果
@@ -97,6 +102,7 @@ public class TarotAssemblyManager {
         int cooldownTicks = isAlive ? COOLDOWN_ALIVE_TICKS : COOLDOWN_DEAD_TICKS;
         comp.tarotCooldownEndTick = currentTick + cooldownTicks;
 
+        havingMeeting = true;
         // 标记进入会议
         comp.inMeeting = true;
         comp.meetingStartTick = currentTick;
@@ -162,16 +168,21 @@ public class TarotAssemblyManager {
 
         // 查找愚者
         ServerPlayer fool = findFoolPlayer(serverLevel, gameComponent);
-        if (fool == null) return;
+        if (fool == null)
+            return;
 
         FoolPlayerComponent comp = FoolPlayerComponent.KEY.get(fool);
         long currentTick = serverLevel.getGameTime();
-        if (!comp.inMeeting) return;
-        if (currentTick >= comp.meetingEndTick) return;
-        if (!comp.isTarotMember(member.getUUID())) return;
+        if (!comp.inMeeting)
+            return;
+        if (currentTick >= comp.meetingEndTick)
+            return;
+        if (!comp.isTarotMember(member.getUUID()))
+            return;
 
         // 避免重复加入
-        if (comp.meetingOriginalPositions.containsKey(member.getUUID())) return;
+        if (comp.meetingOriginalPositions.containsKey(member.getUUID()))
+            return;
 
         teleportToMeeting(member, comp, serverLevel);
         refreshVoteParticipants(serverLevel, comp);
@@ -184,12 +195,13 @@ public class TarotAssemblyManager {
     private static void teleportToMeeting(ServerPlayer player, FoolPlayerComponent foolComp,
             ServerLevel serverLevel) {
         foolComp.meetingOriginalPositions.put(player.getUUID(),
-            new double[] { player.getX(), player.getY(), player.getZ(),
-                player.getYRot(), player.getXRot() });
+                new double[] { player.getX(), player.getY(), player.getZ(),
+                        player.getYRot(), player.getXRot() });
 
-        syncParticipantMeetingState(player, true, foolComp.meetingEndTick, foolComp.voteInProgress, foolComp.voteEndTick);
+        syncParticipantMeetingState(player, true, foolComp.meetingEndTick, foolComp.voteInProgress,
+                foolComp.voteEndTick);
 
-        player.addEffect(new MobEffectInstance(ModEffects.BLACK_MONITOR,20*1,0,false,false,false));
+        player.addEffect(new MobEffectInstance(ModEffects.BLACK_MONITOR, 20 * 1, 0, false, false, false));
         if (GameUtils.isPlayerAliveAndSurvival(player)) {
             spawnMeetingPuppet(player, foolComp, serverLevel);
         }
@@ -205,12 +217,12 @@ public class TarotAssemblyManager {
         player.setDeltaMovement(0.0D, 0.0D, 0.0D);
         player.fallDistance = 0.0F;
 
-        if (foolComp.getPlayer()!=player) {
+        if (foolComp.getPlayer() != player) {
             player.addEffect(new MobEffectInstance(ModEffects.TAROT_ASSEMBLY, BLINDNESS_DURATION_TICKS, 0, false, false,
                     false));
             player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, BLINDNESS_DURATION_TICKS, 0, false, false,
                     false));
-        }else {
+        } else {
             player.addEffect(new MobEffectInstance(MobEffects.NIGHT_VISION, BLINDNESS_DURATION_TICKS, 0, false, false,
                     false));
         }
@@ -229,10 +241,12 @@ public class TarotAssemblyManager {
         SREGameWorldComponent gameComponent = SREGameWorldComponent.KEY.get(serverLevel);
 
         ServerPlayer fool = findFoolPlayer(serverLevel, gameComponent);
-        if (fool == null) return;
+        if (fool == null)
+            return;
 
         FoolPlayerComponent comp = FoolPlayerComponent.KEY.get(fool);
-        if (!comp.inMeeting) return;
+        if (!comp.inMeeting)
+            return;
 
         if (member.getUUID().equals(fool.getUUID())) {
             finalizeVotingAndEndMeeting(fool);
@@ -251,18 +265,20 @@ public class TarotAssemblyManager {
      */
     public static void endMeeting(ServerPlayer fool) {
         FoolPlayerComponent comp = FoolPlayerComponent.KEY.get(fool);
-        if (!comp.inMeeting) return;
+        if (!comp.inMeeting)
+            return;
 
         ServerLevel serverLevel = (ServerLevel) fool.level();
 
         // 将所有参与者传送回原位
+        PlayerList playerList = serverLevel.getServer().getPlayerList();
         for (Map.Entry<UUID, double[]> entry : new HashMap<>(comp.meetingOriginalPositions).entrySet()) {
-            ServerPlayer participant = serverLevel.getServer().getPlayerList().getPlayer(entry.getKey());
+            ServerPlayer participant = playerList.getPlayer(entry.getKey());
             if (participant != null) {
                 teleportBack(participant, comp, serverLevel);
             }
         }
-
+        havingMeeting = false;
         comp.inMeeting = false;
         comp.meetingStartTick = 0;
         comp.voteInProgress = false;
@@ -300,7 +316,6 @@ public class TarotAssemblyManager {
         player.removeEffect(MobEffects.BLINDNESS);
         player.removeEffect(ModEffects.TAROT_ASSEMBLY);
 
-
         player.displayClientMessage(
                 Component.translatable("message.noellesroles.fool.left_meeting").withStyle(ChatFormatting.GRAY),
                 true);
@@ -322,9 +337,12 @@ public class TarotAssemblyManager {
         for (Map.Entry<UUID, UUID> entry : votes.entrySet()) {
             UUID voter = entry.getKey();
             UUID votedFor = entry.getValue();
-            if (!eligibleVoters.contains(voter)) continue;
-            if (!candidateTargets.contains(votedFor)) continue;
-            if (voter.equals(votedFor)) continue;
+            if (!eligibleVoters.contains(voter))
+                continue;
+            if (!candidateTargets.contains(votedFor))
+                continue;
+            if (voter.equals(votedFor))
+                continue;
             voteCount.merge(votedFor, 1, Integer::sum);
         }
 
@@ -344,8 +362,8 @@ public class TarotAssemblyManager {
         }
 
         ServerPlayer targetPlayer = hereticUuid != null
-            ? serverLevel.getServer().getPlayerList().getPlayer(hereticUuid)
-            : null;
+                ? serverLevel.getServer().getPlayerList().getPlayer(hereticUuid)
+                : null;
 
         if (tie || voteCount.isEmpty() || targetPlayer == null || !GameUtils.isPlayerAliveAndSurvival(targetPlayer)) {
             giveOnceRevolverReward(fool);
@@ -356,8 +374,8 @@ public class TarotAssemblyManager {
             ExecutionerGunItem.ensureExecutionerGun(fool);
             comp.executionerBullets = 1;
             fool.displayClientMessage(
-                Component.translatable("message.noellesroles.fool.vote_target_locked",
-                    targetPlayer.getName().getString(), maxVotes)
+                    Component.translatable("message.noellesroles.fool.vote_target_locked",
+                            targetPlayer.getName().getString(), maxVotes)
                             .withStyle(ChatFormatting.RED),
                     true);
         }
@@ -383,13 +401,18 @@ public class TarotAssemblyManager {
     public static void serverTick(ServerPlayer player, SREGameWorldComponent gameComponent) {
         FoolPlayerComponent comp = FoolPlayerComponent.KEY.get(player);
         long currentTick = player.level().getGameTime();
-
         // 检查灵性斗篷效果是否过期
         if (comp.cloakActive && currentTick >= comp.cloakEndTick) {
             comp.cloakActive = false;
             comp.sync();
         }
-
+        if (havingMeeting && currentTick % 40 == 0) {
+            var items = player.serverLevel().getEntities(EntityTypeTest.forExactClass(ItemEntity.class),
+                    (e) -> (e.getZ() >= 19000));
+            for (ItemEntity item : items) {
+                item.discard();
+            }
+        }
     }
 
     public static void serverLevelTick(ServerLevel serverLevel) {
@@ -424,14 +447,20 @@ public class TarotAssemblyManager {
         ServerLevel serverLevel = (ServerLevel) player.level();
         SREGameWorldComponent gameComponent = SREGameWorldComponent.KEY.get(serverLevel);
         ServerPlayer fool = findFoolPlayer(serverLevel, gameComponent);
-        if (fool == null) return;
+        if (fool == null)
+            return;
 
         FoolPlayerComponent comp = FoolPlayerComponent.KEY.get(fool);
-        if (!comp.inMeeting || !comp.voteInProgress) return;
-        if (!comp.canVote(player.getUUID())) return;
-        if (player.getUUID().equals(votedFor)) return;
-        if (votedFor.equals(fool.getUUID())) return;
-        if (!collectVoteTargets(serverLevel, fool.getUUID()).contains(votedFor)) return;
+        if (!comp.inMeeting || !comp.voteInProgress)
+            return;
+        if (!comp.canVote(player.getUUID()))
+            return;
+        if (player.getUUID().equals(votedFor))
+            return;
+        if (votedFor.equals(fool.getUUID()))
+            return;
+        if (!collectVoteTargets(serverLevel, fool.getUUID()).contains(votedFor))
+            return;
 
         comp.meetingVotes.put(player.getUUID(), votedFor);
         player.displayClientMessage(
@@ -444,13 +473,17 @@ public class TarotAssemblyManager {
         ServerLevel serverLevel = (ServerLevel) player.level();
         SREGameWorldComponent gameComponent = SREGameWorldComponent.KEY.get(serverLevel);
         ServerPlayer fool = findFoolPlayer(serverLevel, gameComponent);
-        if (fool == null) return;
+        if (fool == null)
+            return;
 
         FoolPlayerComponent comp = FoolPlayerComponent.KEY.get(fool);
         long currentTick = serverLevel.getGameTime();
-        if (!comp.inMeeting) return;
-        if (currentTick >= comp.meetingEndTick) return;
-        if (!comp.meetingOriginalPositions.containsKey(player.getUUID())) return;
+        if (!comp.inMeeting)
+            return;
+        if (currentTick >= comp.meetingEndTick)
+            return;
+        if (!comp.meetingOriginalPositions.containsKey(player.getUUID()))
+            return;
 
         openVoteScreenForPlayer(player, comp, currentTick);
     }
@@ -476,12 +509,13 @@ public class TarotAssemblyManager {
         comp.voteEligibleParticipants.clear();
         comp.voteEligibleParticipants.addAll(participants);
         Set<UUID> candidateTargets = collectVoteTargets(serverLevel, comp.getPlayer().getUUID());
-        comp.meetingVotes.entrySet().removeIf(entry ->
-                !participants.contains(entry.getKey()) || !candidateTargets.contains(entry.getValue()));
+        comp.meetingVotes.entrySet().removeIf(
+                entry -> !participants.contains(entry.getKey()) || !candidateTargets.contains(entry.getValue()));
     }
 
     private static void openVoteScreenForPlayer(ServerPlayer voter, FoolPlayerComponent comp, long currentTick) {
-        if (!comp.canVote(voter.getUUID())) return;
+        if (!comp.canVote(voter.getUUID()))
+            return;
 
         ServerLevel serverLevel = (ServerLevel) voter.level();
         Map<UUID, Integer> voteCount = buildVoteCount(comp.meetingVotes, comp.voteEligibleParticipants,
@@ -489,13 +523,14 @@ public class TarotAssemblyManager {
         List<FoolOpenTarotVoteS2CPacket.CandidateEntry> candidates = buildCandidateEntries(serverLevel,
                 comp.getPlayer().getUUID(), voter.getUUID(), voteCount);
 
-        if (candidates.isEmpty()) return;
+        if (candidates.isEmpty())
+            return;
         int remainingSeconds = Math.max(1, (int) Math.ceil((comp.meetingEndTick - currentTick) / 20.0D));
         ServerPlayNetworking.send(voter, new FoolOpenTarotVoteS2CPacket(candidates, remainingSeconds));
         voter.displayClientMessage(
-            Component.translatable("message.noellesroles.fool.vote_started")
-                .withStyle(ChatFormatting.GOLD),
-            true);
+                Component.translatable("message.noellesroles.fool.vote_started")
+                        .withStyle(ChatFormatting.GOLD),
+                true);
     }
 
     private static Set<UUID> collectVoteTargets(ServerLevel serverLevel, UUID foolUuid) {
@@ -559,7 +594,8 @@ public class TarotAssemblyManager {
         if (!GameUtils.isPlayerAliveAndSurvival(fool)) {
             return;
         }
-        net.minecraft.world.item.ItemStack onceRevolver = new net.minecraft.world.item.ItemStack(ModItems.ONCE_REVOLVER);
+        net.minecraft.world.item.ItemStack onceRevolver = new net.minecraft.world.item.ItemStack(
+                ModItems.ONCE_REVOLVER);
         fool.getInventory().add(onceRevolver);
         fool.displayClientMessage(
                 Component.translatable("message.noellesroles.fool.vote_no_heretic")
@@ -616,10 +652,9 @@ public class TarotAssemblyManager {
     }
 
     private static void ensureMeetingScene(ServerLevel serverLevel) {
-
-        
         // 构建场景
-        new TarotAssemblySceneBuilder(serverLevel).build(new BlockPos((int) MEETING_X, (int) MEETING_Y, (int) MEETING_Z));
+        new TarotAssemblySceneBuilder(serverLevel)
+                .build(new BlockPos((int) MEETING_X, (int) MEETING_Y, (int) MEETING_Z));
     }
 
     /**
@@ -628,20 +663,19 @@ public class TarotAssemblyManager {
     private static void clearEntitiesInArea(ServerLevel serverLevel) {
         int radius = 30; // 清理半径
         BlockPos center = new BlockPos((int) MEETING_X, (int) MEETING_Y, (int) MEETING_Z);
-        
+
         // 获取范围内的所有实体
         var entities = serverLevel.getEntities(
                 (Entity) null,
-            net.minecraft.world.phys.AABB.ofSize(center.getCenter(), radius * 2, 50, radius * 2),
-            entity -> true
-        );
-        
+                net.minecraft.world.phys.AABB.ofSize(center.getCenter(), radius * 2, 50, radius * 2),
+                entity -> true);
+
         for (var entity : entities) {
             // 跳过玩家实体
             if (entity instanceof ServerPlayer) {
                 continue;
             }
-            
+
             // 移除所有其他实体（包括尸体、掉落物、怪物等）
             entity.discard();
         }

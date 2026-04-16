@@ -490,6 +490,8 @@ public class AbilityHandler {
 
                 target.addEffect(new MobEffectInstance(ModEffects.MOVE_BANED, duration, 0, false, true, false));
                 target.addEffect(new MobEffectInstance(MobEffects.GLOWING, duration, 0, false, true, false));
+                target.addEffect(new MobEffectInstance(ModEffects.USED_BANED, duration, 0, false, true, false));
+                target.addEffect(new MobEffectInstance(ModEffects.TURN_BANED, duration, 0, false, true, false));
                 affected++;
             }
 

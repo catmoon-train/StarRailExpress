@@ -10,6 +10,7 @@ import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.util.AdventureUsable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -262,21 +263,35 @@ public class ReinforcementItem extends Item implements AdventureUsable {
     /**
      * 设置门的加固状态
      */
-    public static void setDoorReinforced(DoorBlockEntity doorEntity, boolean reinforced) {
-        String currentKeyName = doorEntity.getKeyName();
-        if (reinforced) {
-            if (!isDoorReinforced(doorEntity)) {
-                doorEntity.setKeyName("reinforced:" + (currentKeyName != null ? currentKeyName : ""));
-            }
-        } else {
-            if (isDoorReinforced(doorEntity) && currentKeyName != null) {
-                // 只移除 "reinforced:" 前缀，而不是前11个字符
-                int index = currentKeyName.indexOf("reinforced:");
-                if (index != -1) {
-                    doorEntity.setKeyName(currentKeyName.substring(0, index) + currentKeyName.substring(index + 11));
+    public static void setDoorReinforced(DoorBlockEntity fatheDoorEntity, boolean reinforced) {
+        Vec3i offsets[] = { new Vec3i(0, 0, 0), new Vec3i(0, 0, -1), new Vec3i(0, 0, 1), new Vec3i(-1, 0, 0),
+                new Vec3i(1, 0, 0) };
+        Level level = fatheDoorEntity.getLevel();
+        BlockPos clickPos = fatheDoorEntity.getBlockPos();
+        for (int i = 0; i < offsets.length; i++) {
+            BlockPos pos = clickPos.offset(offsets[i]);
+            if (level.getBlockEntity(pos) instanceof SmallDoorBlockEntity doorEntity) {
+                String currentKeyName = doorEntity.getKeyName();
+                if (currentKeyName == null)
+                    currentKeyName = "";
+                if (reinforced) {
+                    if (!isDoorReinforced(doorEntity)) {
+                        doorEntity.setKeyName("reinforced:" + (currentKeyName != null ? currentKeyName : ""));
+                    }
+                } else {
+                    if (isDoorReinforced(doorEntity) && currentKeyName != null) {
+                        // 只移除 "reinforced:" 前缀，而不是前11个字符
+                        int index = currentKeyName.indexOf("reinforced:");
+                        if (index != -1) {
+                            doorEntity.setKeyName(
+                                    currentKeyName.substring(0, index) + currentKeyName.substring(index + 11));
+                        }
+                    }
                 }
             }
+
         }
+
     }
 
     /**
@@ -290,5 +305,21 @@ public class ReinforcementItem extends Item implements AdventureUsable {
             return true;
         }
         return false;
+    }
+
+    public static void unJamNearBy(UseOnContext context) {
+        Level world = context.getLevel();
+        BlockPos clickpos = context.getClickedPos();
+        Vec3i offsets[] = { new Vec3i(0, 0, -1), new Vec3i(0, 0, 1), new Vec3i(-1, 0, 0), new Vec3i(1, 0, 0) };
+        for (int i = 0; i < offsets.length; i++) {
+            BlockPos pos = clickpos.offset(offsets[i]);
+            BlockState state = world.getBlockState(pos);
+            if (state.getBlock() instanceof SmallDoorBlock) {
+                BlockPos lowerPos = state.getValue(SmallDoorBlock.HALF) == DoubleBlockHalf.LOWER ? pos : pos.below();
+                if (world.getBlockEntity(lowerPos) instanceof SmallDoorBlockEntity entity) {
+                    entity.setJammed(0);
+                }
+            }
+        }
     }
 }

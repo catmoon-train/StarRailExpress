@@ -317,7 +317,12 @@ public class ModRoles {
       .setComponentKey(ModComponents.WAYFARER).setCanUseInstinct(false).setCanSeeBodyDeathReason(true);
   public static SRERole JESTER = TMMRoles
       .registerRole(new NormalRole(JESTER_ID, new Color(186, 85, 211).getRGB(), false,
-          false, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true))
+          false, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true) {
+        @Override
+        public ResourceLocation getPsychoSkin(Player player, boolean isSlim) {
+          return SRE.id("textures/entity/custom_psycho/jester.png");
+        };
+      })
       .setNeutralForKiller(true).setCanSeeTeammateKiller(false).setCanUseInstinct(true).setPassiveIncome(true);
   public static SRERole CONDUCTOR = TMMRoles
       .registerRole(new NormalRole(CONDUCTOR_ID, new Color(184, 134, 11).getRGB(), true,
@@ -769,7 +774,7 @@ public class ModRoles {
    */
   public static SRERole AVENGER = TMMRoles.registerRole(new NormalRole(
       AVENGER_ID, // 角色 ID
-      new Color(139, 0, 0).getRGB(), // 暗红色 - 代表复仇的血色
+      new Color(255, 140, 0).getRGB(), // 橙黄色 - 代表复仇的火焰
       true, // isInnocent = 乘客阵营
       false, // canUseKiller = 无杀手能力
       SRERole.MoodType.REAL, // 真实心情

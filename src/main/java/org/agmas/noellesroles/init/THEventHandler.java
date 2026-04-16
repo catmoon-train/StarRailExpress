@@ -26,16 +26,14 @@ public class THEventHandler {
                         || gameWorldComponent.isRole(victim, RedHouseRoles.MAID_SAKUYA))
                     return false;
             } else if (gameWorldComponent.isRole(killer, RedHouseRoles.REMILIA)) {
-                if (gameWorldComponent.isRole(victim, RedHouseRoles.FURANDORU)
-                        || gameWorldComponent.isRole(victim, RedHouseRoles.PACHURI))
+                if (gameWorldComponent.isRole(victim, RedHouseRoles.FURANDORU))
                     return false;
             } else if (gameWorldComponent.isRole(killer, RedHouseRoles.MAID_SAKUYA)) {
                 if (gameWorldComponent.isRole(victim, RedHouseRoles.FURANDORU)
                         || gameWorldComponent.isRole(victim, RedHouseRoles.REMILIA))
                     return false;
             } else if (gameWorldComponent.isRole(killer, RedHouseRoles.PACHURI)) {
-                if (gameWorldComponent.isRole(victim, RedHouseRoles.FURANDORU)
-                        || gameWorldComponent.isRole(victim, RedHouseRoles.REMILIA))
+                if (gameWorldComponent.isRole(victim, RedHouseRoles.FURANDORU))
                     return false;
             }
             return true;

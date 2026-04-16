@@ -16,7 +16,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemCooldowns;
 import net.minecraft.world.item.ItemStack;
 import org.agmas.harpymodloader.Harpymodloader;
@@ -40,7 +39,7 @@ import java.util.function.Supplier;
  * </p>
  */
 public class SREEvilWarGameMode extends WTLooseEndsGameMode {
-    public static final List<SRERole> BANED_ROLES = new ArrayList<>();
+    public final List<SRERole> BANED_ROLES = new ArrayList<>();
     protected static AttributeModifier tinyModifier = new AttributeModifier(
             StupidExpress.id("tiny_modifier"), -0.15, AttributeModifier.Operation.ADD_VALUE);
     public static final int ADD_BALANCE_TIME = 600;
@@ -52,9 +51,10 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
     }
 
     protected void addBanedRoles() {
-        // 禁用 水鬼，布袋鬼
+        // 禁用 水鬼，布袋鬼，猫娘杀手
         BANED_ROLES.add(ModRoles.WATER_GHOST);
         BANED_ROLES.add(ModRoles.MA_CHEN_XU);
+        BANED_ROLES.add(ModRoles.CAT_KILLER);
     }
 
     @Override
@@ -153,15 +153,11 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
                         role = TMMRoles.KILLER;
                     }
                     gameWorldComponent.addRole(playersWithoutForcedRoles.get(i), role);
-                    SREPlayerShopComponent playerShopComponent = SREPlayerShopComponent.KEY.get(playersWithoutForcedRoles.get(i));
-                    // 阴谋家首次获取金币减少
-                    if (role == ModRoles.CONSPIRATOR) {
-                        playerShopComponent.setBalance(-1000);
-                    }
                 } else
                     gameWorldComponent.addRole(playersWithoutForcedRoles.get(i), TMMRoles.KILLER);
             }
         }
+        Harpymodloader.FORCED_MODDED_ROLE_FLIP.clear();
     }
 
     /** 初始化物品 */
@@ -181,9 +177,9 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
         }
     }
 
-    /** 重写发送欢迎包，根据特定角色发送 */
+    /** 发送欢迎包，根据特定角色发送 */
     @Override
-    protected void sendWelcomePackets(List<ServerPlayer> players, SREGameWorldComponent gameWorldComponent) {
+    protected void sendWelcomePackets(List<ServerPlayer> players, SREGameWorldComponent gameWorldComponent, SRERole role1) {
         int looseEndCount = players.size() / (SREConfig.instance().evilWarKillGroupNumber + 1);
         looseEndCount = Math.max(looseEndCount, 1);
         int killerCount = players.size() - looseEndCount;
@@ -202,7 +198,7 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
         for (ServerPlayer player : players) {
             if (gameWorldComponent.isRole(player, ModRoles.SUPER_LOOSE_END)) {
                 worldModifierComponent.addModifier(player.getUUID(), SEModifiers.TINY, false);
-                worldModifierComponent.addModifier(player.getUUID(), SEModifiers.FEATHER, false);
+//                worldModifierComponent.addModifier(player.getUUID(), SEModifiers.FEATHER, false);
                 // 使玩家缩小
                 Objects.requireNonNull(player.getAttribute(Attributes.SCALE)).removeModifier(tinyModifier);
                 Objects.requireNonNull(player.getAttribute(Attributes.SCALE)).addPermanentModifier(tinyModifier);
@@ -218,6 +214,20 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
         super.initializeGame(serverWorld, gameWorldComponent, players);
         initModifier(players, gameWorldComponent, serverWorld);
         assignModdedRole(players, gameWorldComponent);
+
+        // 初始化后处理 component
+        for (ServerPlayer player : players) {
+            SRERole role = gameWorldComponent.getRole(player);
+            // 阴谋家首次获取金币减少
+            if (role == ModRoles.CONSPIRATOR) {
+                SREPlayerShopComponent playerShopComponent = SREPlayerShopComponent.KEY.get(player);
+                playerShopComponent.setBalance(-400);
+            }
+            else if (role == ModRoles.DIO) {
+                SREPlayerShopComponent playerShopComponent = SREPlayerShopComponent.KEY.get(player);
+                playerShopComponent.setBalance(-80);
+            }
+        }
         curTick = 0;
     }
 
@@ -233,17 +243,30 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
                 // GameConstants.PASSIVE_MONEY_TICKER.apply(serverWorld.getGameTime());
                 // if (balanceToAdd > 0)
                 // SREPlayerShopComponent.KEY.get(player).addToBalance(balanceToAdd);
-            // 不论什么狼都能默认获取500金币
             if (curTick++ >= ADD_BALANCE_TIME) {
-                SREPlayerShopComponent.KEY.get(player).addToBalance(500);
+                SRERole role = gameWorldComponent.getRole(player);
+                if (role == ModRoles.DIO) {
+                    SREPlayerShopComponent.KEY.get(player).addToBalance(200);
+                }
+                else if(role == ModRoles.CONSPIRATOR) {
+                    SREPlayerShopComponent.KEY.get(player).addToBalance(200);
+                }
+                else if(role == ModRoles.CREEPER) {
+                    SREPlayerShopComponent.KEY.get(player).addToBalance(500);
+                    player.addItem(TMMItems.GRENADE.getDefaultInstance());
+                }
+                else if(role != ModRoles.SUPER_LOOSE_END)
+                    // 默认获取500金币
+                    SREPlayerShopComponent.KEY.get(player).addToBalance(500);
                 curTick = 0;
 
                 // 判断是否是特定角色，进行特定操作，每30秒判断一次
-                SRERole role = gameWorldComponent.getRole(player);
                 if (role == ModRoles.STALKER) {
                     StalkerPlayerComponent stalkerPlayerComponent = StalkerPlayerComponent.KEY.get(player);
                     // 潜行每30s获得 500 能量
                     stalkerPlayerComponent.energy += 500;
+                    // 每30s获得 4 击杀数
+                    stalkerPlayerComponent.phase2Kills += 4;
                     stalkerPlayerComponent.sync();
                 }
             }

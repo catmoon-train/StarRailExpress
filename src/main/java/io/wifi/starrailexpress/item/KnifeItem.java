@@ -20,7 +20,6 @@ import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
-import org.agmas.noellesroles.entity.PuppeteerBodyEntity;
 import org.jetbrains.annotations.NotNull;
 
 public class KnifeItem extends SkinableItem {

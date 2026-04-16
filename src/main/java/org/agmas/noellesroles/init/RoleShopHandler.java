@@ -1452,10 +1452,10 @@ public class RoleShopHandler {
         ShopEntry.Type.WEAPON));
 
     // 邮差商店
-    // 传递盒 - 250金币
+    // 传递盒 - 100金币
     POSTMAN_SHOP.add(new ShopEntry(
         ModItems.DELIVERY_BOX.getDefaultInstance(),
-        150,
+        100,
         ShopEntry.Type.TOOL));
 
     // 心理学家商店

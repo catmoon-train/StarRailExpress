@@ -76,6 +76,7 @@ import org.agmas.noellesroles.roles.commander.CommanderHandler;
 import org.agmas.noellesroles.roles.conspirator.ConspiratorKilledPlayer;
 import org.agmas.noellesroles.roles.executioner.ExecutionerPlayerComponent;
 import org.agmas.noellesroles.roles.executioner.ShootingFrenzyPlayerComponent;
+import org.agmas.noellesroles.roles.fool.TarotAssemblyManager;
 import org.agmas.noellesroles.roles.fortuneteller.FortunetellerPlayerComponent;
 import org.agmas.noellesroles.roles.gambler.GamblerHandler;
 import org.agmas.noellesroles.roles.hoan_meirin.HoanMeirinFistPunchHandler;
@@ -699,13 +700,15 @@ public class ModEventsRegister {
         });
         AfterShieldAllowPlayerDeath.EVENT.register((victim, deathReason) -> {
             if (victim.level() instanceof ServerLevel serverLevel) {
-                org.agmas.noellesroles.roles.fool.TarotAssemblyManager.clearTrackedTarget(serverLevel, victim.getUUID());
+                org.agmas.noellesroles.roles.fool.TarotAssemblyManager.clearTrackedTarget(serverLevel,
+                        victim.getUUID());
             }
             return true;
         });
         AfterShieldAllowPlayerDeathWithKiller.EVENT.register((victim, killer, deathReason) -> {
             if (victim.level() instanceof ServerLevel serverLevel) {
-                org.agmas.noellesroles.roles.fool.TarotAssemblyManager.clearTrackedTarget(serverLevel, victim.getUUID());
+                org.agmas.noellesroles.roles.fool.TarotAssemblyManager.clearTrackedTarget(serverLevel,
+                        victim.getUUID());
             }
             return true;
         });
@@ -1334,6 +1337,7 @@ public class ModEventsRegister {
         // });
 
         OnGameTrueStarted.EVENT.register((serverLevel) -> {
+            TarotAssemblyManager.havingMeeting = false;
             HoanMeirinFistPunchHandler.PUNCH_RECORDS.clear();
             RoleShopHandler.resetOldmanEasterEggState();
             SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(serverLevel);

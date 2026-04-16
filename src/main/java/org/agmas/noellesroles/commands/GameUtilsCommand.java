@@ -26,6 +26,7 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.ComponentArgument;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
+import net.minecraft.commands.arguments.item.ItemArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -33,6 +34,7 @@ import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.Item;
 
 import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.harpymodloader.commands.argument.RoleArgumentType;
@@ -58,6 +60,24 @@ public class GameUtilsCommand {
   public static void register() {
     CommandRegistrationCallback.EVENT.register(
         (dispatcher, registryAccess, environment) -> {
+          dispatcher.register(Commands.literal("cooldown")
+              .requires(source -> Harpymodloader.isMojangVerify && source.hasPermission(2))
+              .then(Commands.argument("player", EntityArgument.player())
+                  .then(Commands.argument("item", ItemArgument.item(registryAccess))
+                      .then(Commands.argument("time", IntegerArgumentType.integer(0))
+                          .executes((ctx) -> {
+                            var source = ctx.getSource();
+                            ServerPlayer player = EntityArgument.getPlayer(ctx, "player");
+                            Item item = ItemArgument.getItem(ctx, "item").getItem();
+                            int time = IntegerArgumentType.getInteger(ctx, "time");
+                            player.getCooldowns().addCooldown(item, time);
+                            source
+                                .sendSuccess(
+                                    () -> Component.translatable("Add a cooldown of %s seconds to item %s for %s.",
+                                        String.format("%.2f", time / 20d), item.getDescription(), player.getName()),
+                                    true);
+                            return 1;
+                          })))));
           dispatcher.register(
               Commands.literal("tmm:game").requires(source -> Harpymodloader.isMojangVerify && source.hasPermission(2))
                   .then(Commands.literal("role")
@@ -159,6 +179,12 @@ public class GameUtilsCommand {
                         return 1;
                       })))
                   .then(Commands.literal("tests")
+                      .then(Commands.literal("prayer").executes((ctx) -> {
+                        org.agmas.noellesroles.roles.fool.PrayerHandler
+                            .startPrayer(ctx.getSource().getPlayerOrException());
+                        ctx.getSource().sendSuccess(() -> Component.literal("Successfully prayer."), false);
+                        return 1;
+                      }))
                       .then(Commands.literal("math").executes((context) -> {
                         ServerPlayNetworking.send(context.getSource().getPlayerOrException(),
                             new ProblemScreenOpenC2SPacket(false, 3));

@@ -70,7 +70,7 @@
   "item.noellesroles.decoy_grenade.desc": "诱饵弹，投掷后会持续发出枪响。",
   "item.noellesroles.reinforcement.desc": "维修工具，右键安装在门上可以使门抵御一次撬棍，蹲下右键可以拆卸门上的道具",
   "item.noellesroles.screwdriver.desc": "螺丝刀，蹲下右键可以拆卸门上的道具。锁匠职业可以额外使用螺丝刀恢复门的状态（使被撬棍破开的门恢复原状）。",
-  "item.noellesroles.alarm_trap.desc": "警报陷阱，被撬棍触发后会发出警报。",
+  "item.noellesroles.alarm_trap.desc": "警报陷阱，被撬棍触发后会发出警报，按上警报陷阱的门会上锁。",
   "item.noellesroles.delivery_box.desc": "右键玩家使用，可以让传递者和被传递者交换物品",
   "item.noellesroles.hallucination_bottle.desc": "2点耐久，右键使用，使一定范围内的玩家强制扭动视角，扭动3次。",
   "item.noellesroles.mint_candies.desc": "使用后恢复30%%的san值。",

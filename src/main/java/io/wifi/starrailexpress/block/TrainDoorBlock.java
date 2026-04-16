@@ -1,7 +1,6 @@
 package io.wifi.starrailexpress.block;
 
 import io.wifi.starrailexpress.block_entity.SmallDoorBlockEntity;
-import io.wifi.starrailexpress.cca.SRETrainWorldComponent;
 import io.wifi.starrailexpress.event.AllowPlayerOpenLockedDoor;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.TMMSounds;
@@ -39,8 +38,7 @@ public class TrainDoorBlock extends SmallDoorBlock {
                 return super.useWithoutItem(state, world, pos, player, hit);
             }
             if (player.isCreative()
-                    || AllowPlayerOpenLockedDoor.EVENT.invoker().allowOpen(player)
-                    || SRETrainWorldComponent.KEY.get(world).getSpeed() == 0) {
+                    || AllowPlayerOpenLockedDoor.EVENT.invoker().allowOpen(player)) {
                 return open(state, world, entity, lowerPos);
             } else {
                 ItemStack mainHandItem = player.getMainHandItem();
@@ -50,6 +48,14 @@ public class TrainDoorBlock extends SmallDoorBlock {
                 if (entity.isOpen()) {
                     return open(state, world, entity, lowerPos);
                 } else {
+                    if(entity.isJammed()){
+                        if (!world.isClientSide) {
+                            world.playSound(null, lowerPos.getX() + .5f, lowerPos.getY() + 1, lowerPos.getZ() + .5f,
+                                    TMMSounds.BLOCK_DOOR_LOCKED, SoundSource.BLOCKS, 1f, 1f);
+                            player.displayClientMessage(Component.translatable("tip.door.locked"), true);
+                        }
+                        return InteractionResult.FAIL;
+                    }
                     if (hasLockpick) {
                         world.playSound(null, lowerPos.getX() + .5f, lowerPos.getY() + 1, lowerPos.getZ() + .5f,
                                 TMMSounds.ITEM_LOCKPICK_DOOR, SoundSource.BLOCKS, 1f, 1f);

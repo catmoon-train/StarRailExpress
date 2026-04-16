@@ -8,6 +8,7 @@ import io.wifi.starrailexpress.block_entity.SmallDoorBlockEntity;
 import io.wifi.starrailexpress.util.AdventureUsable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
@@ -122,21 +123,30 @@ public class AlarmTrapItem extends Item implements AdventureUsable {
     /**
      * 设置门的警报陷阱状态
      */
-    public static void setDoorAlarmTrap(DoorBlockEntity doorEntity, boolean trapped) {
-        String currentKeyName = doorEntity.getKeyName();
-        if (currentKeyName == null)
-            currentKeyName = "";
-
-        if (trapped) {
-            if (!hasDoorAlarmTrap(doorEntity)) {
-                doorEntity.setKeyName("alarmed:" + currentKeyName);
-            }
-        } else {
-            if (hasDoorAlarmTrap(doorEntity)) {
-                // 只移除 "alarmed:" 前缀，而不是前8个字符
-                int index = currentKeyName.indexOf("alarmed:");
-                if (index != -1) {
-                    doorEntity.setKeyName(currentKeyName.substring(0, index) + currentKeyName.substring(index + 8));
+    public static void setDoorAlarmTrap(DoorBlockEntity fatheDoorEntity, boolean trapped) {
+        Vec3i offsets[] = { new Vec3i(0, 0, 0), new Vec3i(0, 0, -1), new Vec3i(0, 0, 1), new Vec3i(-1, 0, 0),
+                new Vec3i(1, 0, 0) };
+        Level level = fatheDoorEntity.getLevel();
+        BlockPos clickPos = fatheDoorEntity.getBlockPos();
+        for (int i = 0; i < offsets.length; i++) {
+            BlockPos pos = clickPos.offset(offsets[i]);
+            if (level.getBlockEntity(pos) instanceof SmallDoorBlockEntity doorEntity) {
+                String currentKeyName = doorEntity.getKeyName();
+                if (currentKeyName == null)
+                    currentKeyName = "";
+                if (trapped) {
+                    if (!hasDoorAlarmTrap(doorEntity)) {
+                        doorEntity.setKeyName("alarmed:" + currentKeyName);
+                    }
+                } else {
+                    if (hasDoorAlarmTrap(doorEntity)) {
+                        // 只移除 "alarmed:" 前缀，而不是前8个字符
+                        int index = currentKeyName.indexOf("alarmed:");
+                        if (index != -1) {
+                            doorEntity.setKeyName(
+                                    currentKeyName.substring(0, index) + currentKeyName.substring(index + 8));
+                        }
+                    }
                 }
             }
         }

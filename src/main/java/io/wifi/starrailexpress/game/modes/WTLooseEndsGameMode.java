@@ -97,18 +97,23 @@ public class WTLooseEndsGameMode extends GameMode {
             gameWorldComponent.addRole(player, TMMRoles.LOOSE_END);
     }
 
-    protected void sendWelcomePackets(List<ServerPlayer> players, SREGameWorldComponent gameWorldComponent) {
+    protected void sendWelcomePackets(List<ServerPlayer> players, SREGameWorldComponent gameWorldComponent,
+            SRERole role) {
+        if (role == null)
+            return;
         for (ServerPlayer player : players) {
             ServerPlayNetworking.send(player,
-                    new AnnounceWelcomePayload(TMMRoles.LOOSE_END.identifier().toString(), -1, -1));
+                    new AnnounceWelcomePayload(role.identifier().toString(), -1, -1));
         }
     }
+
     protected void assignModdedRole(List<ServerPlayer> players, SREGameWorldComponent gameWorldComponent) {
         for (ServerPlayer player : players) {
             var role = gameWorldComponent.getRole(player);
             ModdedRoleAssigned.EVENT.invoker().assignModdedRole(player, role);
         }
     }
+
     @Override
     public boolean isLooseEndMode() {
         return true;
@@ -123,7 +128,7 @@ public class WTLooseEndsGameMode extends GameMode {
         initRoles(players, gameWorldComponent);
         initCoolDownItems(players, gameWorldComponent);
         initPlayerItems(players, gameWorldComponent);
-        sendWelcomePackets(players, gameWorldComponent);
+        sendWelcomePackets(players, gameWorldComponent, TMMRoles.LOOSE_END);
     }
 
     @Override

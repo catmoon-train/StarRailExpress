@@ -1,6 +1,8 @@
 package org.agmas.noellesroles.mixin.roles.engineer;
 
 import io.wifi.starrailexpress.block_entity.DoorBlockEntity;
+import io.wifi.starrailexpress.game.GameConstants;
+import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.item.CrowbarItem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -61,7 +63,8 @@ public class EngineerCrowbarMixin {
 
                 // 仍然消耗冷却时间
                 if (!player.isCreative()) {
-                    player.getCooldowns().addCooldown(context.getItemInHand().getItem(), 1200);
+                    player.getCooldowns().addCooldown(context.getItemInHand().getItem(),
+                            GameConstants.ITEM_COOLDOWNS.getOrDefault(TMMItems.CROWBAR, 45 * 20));
                 }
 
                 // 取消原版行为（门不会被破坏）

@@ -146,4 +146,10 @@ public class PlayerBodyEntity extends LivingEntity {
         }
     }
 
+    @Override
+    public void tick() {
+        if (this.getZ() >= 19000) {
+            this.discard();
+        }
+    }
 }
