@@ -486,12 +486,13 @@ public class RoleShopHandler {
 
       {
         var CAT_KILLER_SHOP = new ArrayList<>(NECROMANCER_SHOP);
-        // CAT_KILLER_SHOP.add(new ShopEntry(TMMItems.PSYCHO_MODE.getDefaultInstance(), 0, ShopEntry.Type.WEAPON) {
-        //   @Override
-        //   public boolean onBuy(@NotNull Player player) {
-        //     return SREPlayerShopComponent.usePsychoMode(player);
-        //   }
-        // });
+        // 只是给某些特定情况下启用，比如赌徒。
+        CAT_KILLER_SHOP.add(new ShopEntry(TMMItems.PSYCHO_MODE.getDefaultInstance(), 0, ShopEntry.Type.WEAPON) {
+          @Override
+          public boolean onBuy(@NotNull Player player) {
+            return SREPlayerShopComponent.usePsychoMode(player);
+          }
+        });
         ShopContent.customEntries.put(ModRoles.CAT_KILLER.getIdentifier(), CAT_KILLER_SHOP);
       }
     }

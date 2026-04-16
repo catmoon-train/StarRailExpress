@@ -2,8 +2,6 @@ package org.agmas.noellesroles.client;
 
 import com.google.common.collect.Maps;
 import com.mojang.blaze3d.platform.InputConstants;
-import dev.doctor4t.ratatouille.client.util.ambience.AmbienceUtil;
-import dev.doctor4t.ratatouille.client.util.ambience.BackgroundAmbience;
 import dev.doctor4t.ratatouille.util.TextUtils;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREClientConfig;
@@ -11,13 +9,11 @@ import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameTimeComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
-import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.StaminaRenderer;
 import io.wifi.starrailexpress.client.StatusInit;
 import io.wifi.starrailexpress.client.gui.RoleNameRenderer;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
-import io.wifi.starrailexpress.client.util.MyBackgroundAmbience;
 import io.wifi.starrailexpress.client.util.TMMItemTooltips;
 import io.wifi.starrailexpress.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.event.AllowNameRender;
@@ -180,41 +176,7 @@ public class NoellesrolesClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
-        {
-
-            AmbienceUtil.registerBackgroundAmbience(
-                    new BackgroundAmbience(NRSounds.JESTER_AMBIENT,
-                            player -> {
-                                if (SREClient.gameComponent == null)
-                                    return false;
-                                if (SREClient.gameComponent.isPsychoActive()) {
-                                    var level = Minecraft.getInstance().level;
-                                    if (level == null)
-                                        return false;
-                                    return (level.players().stream().anyMatch((p) -> {
-                                        if (SREClient.gameComponent.isRole(p, ModRoles.JESTER)) {
-                                            if (SREPlayerPsychoComponent.KEY.get(p).getPsychoTicks() > 0) {
-                                                return true;
-                                            }
-                                        }
-                                        return false;
-                                    }));
-                                }
-                                return false;
-                            },
-                            1));
-            AmbienceUtil.registerBackgroundAmbience(
-                    new MyBackgroundAmbience(NRSounds.MUSIC_CLOCK, SoundSource.MASTER,
-                            player -> {
-                                var client = Minecraft.getInstance();
-                                if (client == null || client.player == null)
-                                    return false;
-                                if (client.player.hasEffect(ModEffects.OTHERWORLD_AURA))
-                                    return true;
-                                return false;
-                            },
-                            0.8f, 10, 10));
-        }
+       NoellesrolesClientAmbientSounds.register();
         // 注册HUD渲染
         LimitedInventoryScreen.NotAllowItemTakePredicates.add(stack -> stack.is(ModItems.BOMB));
 
