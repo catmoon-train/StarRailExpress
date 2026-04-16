@@ -772,7 +772,7 @@ public class ModRoles {
    */
   public static SRERole AVENGER = TMMRoles.registerRole(new NormalRole(
       AVENGER_ID, // 角色 ID
-      new Color(139, 0, 0).getRGB(), // 暗红色 - 代表复仇的血色
+      new Color(255, 140, 0).getRGB(), // 橙黄色 - 代表复仇的火焰
       true, // isInnocent = 乘客阵营
       false, // canUseKiller = 无杀手能力
       SRERole.MoodType.REAL, // 真实心情
