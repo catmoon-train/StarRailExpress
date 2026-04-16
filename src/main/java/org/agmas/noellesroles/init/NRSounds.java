@@ -19,6 +19,7 @@ public class NRSounds {
     public static final SoundEvent TIME_STOP = registrar.create("noellesroles.time_stop");
     public static final SoundEvent DIO_SPAWN = registrar.create("noellesroles.dio_spawn");
     public static final SoundEvent TIME_START = registrar.create("noellesroles.time_start");
+    public static final SoundEvent PARTY_SKILL = registrar.create("noellesroles.party_skill");
 
     public static void initialize() {
         registrar.registerEntries();
