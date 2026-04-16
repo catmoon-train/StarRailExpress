@@ -76,6 +76,9 @@ public class RevivalSelectionHandler {
                 return InteractionResult.PASS;
             }
 
+            if (!revived.isSpectator()) {
+                return InteractionResult.PASS;
+            }
             var nc = NecromancerComponent.KEY.get(serverLevel);
             if (nc.getAvailableRevives() < 1) {
                 return InteractionResult.PASS;
@@ -151,6 +154,10 @@ public class RevivalSelectionHandler {
             // check if the selected body can be revived
             var revived = (ServerPlayer) serverLevel.getPlayerByUUID(body.getPlayerUuid());
             if (revived == null) {
+                return InteractionResult.PASS;
+            }
+            
+            if (!revived.isSpectator()) {
                 return InteractionResult.PASS;
             }
             var nc = NecromancerComponent.KEY.get(serverLevel);
