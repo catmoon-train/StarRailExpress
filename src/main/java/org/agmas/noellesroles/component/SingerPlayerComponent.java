@@ -22,6 +22,7 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.Noellesroles;
+import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
@@ -321,7 +322,17 @@ public class SingerPlayerComponent implements RoleComponent, ServerTickingCompon
                     ));
                     break;
                 case 5:
-                    // 待添加效果 ===qwq===
+                    // Lupinus唱片：4格内给2秒禁止移动效果，不对自己生效
+                    if (distance <= 4.0 * 4.0 && target.getUUID() != this.player.getUUID()) {
+                        target.addEffect(new MobEffectInstance(
+                                ModEffects.MOVE_BANED,
+                                40, // 持续时间（2秒 = 40 tick）
+                                0, // 等级
+                                false, // ambient
+                                true, // showParticles
+                                true // showIcon
+                        ));
+                    }
                     break;
                 default:
             }
