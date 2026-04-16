@@ -36,7 +36,7 @@ public class NoellesrolesClientAmbientSounds {
               return false;
             },
             1));
-            AmbienceUtil.registerBackgroundAmbience(
+    AmbienceUtil.registerBackgroundAmbience(
         new BackgroundAmbience(NRSounds.NYAN_CAT,
             player -> {
               if (SREClient.gameComponent == null)
