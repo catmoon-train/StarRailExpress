@@ -943,7 +943,7 @@
   "item.noellesroles.shop.singer.effect.2": "每秒恢复 1%% san值",
   "item.noellesroles.shop.singer.effect.3": "缓慢",
   "item.noellesroles.shop.singer.effect.4": "挖掘疲劳 V",
-  "item.noellesroles.shop.singer.effect.5": "禁止移动 (4格范围,不对自身生效)",
+  "item.noellesroles.shop.singer.effect.5": "禁止移动 (1.5格范围,不对自身生效)",
   "==================== 心理学家角色 ====================": "",
   "announcement.star.role.psychologist": "心理学家",
   "announcement.star.goals.psychologist": "你可以恢复别人的san值并分发你的薄荷糖！",
