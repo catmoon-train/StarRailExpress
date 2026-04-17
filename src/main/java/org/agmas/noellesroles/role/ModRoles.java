@@ -1068,7 +1068,7 @@ public class ModRoles {
    */
   public static SRERole TRAPPER = TMMRoles.registerRole(new NormalRole(
       TRAPPER_ID, // 角色 ID
-      new Color(239, 69, 30).getRGB(), // 棕色 - 代表陷阱与大地
+      new Color(180, 30, 20).getRGB(), // 深红色 - 代表陷阱与危险
       false, // isInnocent = 非乘客阵营
       true, // canUseKiller = 有杀手能力
       SRERole.MoodType.FAKE, // 假心情
@@ -1480,7 +1480,7 @@ public class ModRoles {
 
   public static SRERole CAT_KILLER = TMMRoles.registerRole(new NormalRole(
       SRE.wifiId("cat_killer"), // 角色 ID
-      new Color(255, 174, 201).getRGB(), // 粉色 - 猫娘~
+      new Color(255, 80, 140).getRGB(), // 深粉色 - 猫娘~
       false, // isInnocent = 好人阵营
       true, // canUseKiller = 无杀手能力
       SRERole.MoodType.FAKE, // 真实心情
