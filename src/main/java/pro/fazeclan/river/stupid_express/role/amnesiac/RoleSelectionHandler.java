@@ -1,6 +1,7 @@
 package pro.fazeclan.river.stupid_express.role.amnesiac;
 
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.roles.coroner.BodyDeathReasonComponent;
 
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
@@ -49,7 +50,14 @@ public class RoleSelectionHandler {
                         Component.translatable("message.stupid_express.generic.skill_not_available"), true);
                 return InteractionResult.PASS;
             }
-            SRERole role = gameWorldComponent.getRole(victim.getPlayerUuid());
+            var roleRes = BodyDeathReasonComponent.KEY.get(victim).playerRole;
+            if (roleRes == null) {
+                return InteractionResult.PASS;
+            }
+            SRERole role = TMMRoles.ROLES.get(roleRes);
+            if (role == null) {
+                return InteractionResult.PASS;
+            }
             if (role.identifier().equals(ModRoles.MA_CHEN_XU.identifier())) {
                 player.displayClientMessage(
                         Component.translatable("msg.amnesiac.change_role.failed_not_support")
