@@ -46,6 +46,7 @@ public class ConfigCommand {
         .requires(source -> source.hasPermission(3))
         .executes(ConfigCommand::showConfig)
         .then(Commands.literal("config")
+            .requires(source -> source.hasPermission(3))
             .then(Commands.argument("config", StringArgumentType.string())
                 .suggests(ConfigCommand::suggestConfigNames)
                 .then(Commands.argument("entry", StringArgumentType.string())
@@ -129,7 +130,8 @@ public class ConfigCommand {
     var base = Component.translatable(baseId);
     if (Language.getInstance().has(baseId + ".@Tooltip")) {
       base.withStyle(style -> style
-          .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable(baseId + ".@Tooltip"))));
+          .withHoverEvent(
+              new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable(baseId + ".@Tooltip"))));
     } else if (Language.getInstance().has(baseId + ".@Tooltip[0]")) {
       var hover = Component.translatable(baseId + ".@Tooltip[0]");
       int idx = 1;
@@ -170,10 +172,13 @@ public class ConfigCommand {
       context.getSource().sendSuccess(
           () -> Component
               .translatable("Value of '%s': %s\n(Desc: %s)", entryName,
-                  Component.literal(str_content).withStyle(ChatFormatting.WHITE).withStyle(style -> style
-                      .withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, str_content))
-                      .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                          Component.literal("Click to copy").withStyle(ChatFormatting.AQUA)))),
+                  Component.literal(str_content).withStyle(ChatFormatting.WHITE)
+                      .withStyle(style -> style
+                          .withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD,
+                              str_content))
+                          .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                              Component.literal("Click to copy")
+                                  .withStyle(ChatFormatting.AQUA)))),
                   getConfigDescription(configName, entryName).withStyle(ChatFormatting.GRAY))
               .withStyle(ChatFormatting.GREEN),
           false);
