@@ -103,22 +103,23 @@ public class MagicianPlayerComponent implements RoleComponent, ServerTickingComp
 
     public void startDisguiseRandomRole() {
         ArrayList<ResourceLocation> killerRoles = new ArrayList<>();
+        // 白名单：允许模拟的杀手职业
         for (var r : Noellesroles.getEnableKillerRoles()) {
-            if (r.canUseKiller()
-                    && !r.identifier().getPath()
-                            .equals("ma_chen_xu")
-                    && !r.identifier().getPath()
-                            .equals(ModRoles.WATER_GHOST_ID.getPath())
-                    && !r.identifier().getPath()
-                            .equals("killer")
-                    && !r.identifier().getPath().equals("poisoner")
-                    && !r.identifier().getPath().equals("cleaner")
-                    && !r.identifier().getPath().equals("manipulator")
-                    && !r.identifier().getPath().equals("necromancer")
-                    && !r.identifier().getPath().equals("exampler")
-                    && !r.identifier().getPath().equals("dio")
-                    && !r.identifier().getPath().equals("cat_killer")
-                    && !r.identifier().getPath().equals("cat_necromancer")) {
+            String path = r.identifier().getPath();
+            if (path.equals("morphling")           // 变形者
+                    || path.equals("blood_feudist")     // 仇杀客
+                    || path.equals("watcher")      // 观者
+                    || path.equals("executioner")  // 刽子手
+                    || path.equals("swapper")      // 交换者
+                    || path.equals("imitator")     // 模仿者
+                    || path.equals("party_killer") // 派对狂
+                    || path.equals("stalker")      // 潜行者
+                    || path.equals("bandit")       // 强盗
+                    || path.equals("cleaner")      // 清道夫
+                    || path.equals("trapper")      // 设陷者
+                    || path.equals("the_insane_damned_paranoid_killer_of_doom_death_destruction_and_waffles")  // 亡语杀手
+                    || path.equals("phantom")      // 幽灵
+                    || path.equals("avaricious")) { // 扒手
                 killerRoles.add(r.identifier());
             }
         }
