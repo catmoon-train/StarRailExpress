@@ -534,6 +534,9 @@ public interface TMMBlocks {
     Block DARK_TOILET = registrar.createWithItem("dark_toilet",
             new ToiletBlock(BlockBehaviour.Properties.of().noOcclusion().strength(0.5f).sound(SoundType.METAL)),
             TMMItems.DECORATION_GROUP);
+    Block TOILET_CHAIR = registrar.createWithItem("toilet_chair",
+            new ToiletBlock(BlockBehaviour.Properties.of().noOcclusion().strength(0.5f).sound(SoundType.METAL)),
+            TMMItems.DECORATION_GROUP);
     Block WHITE_OTTOMAN = registrar.createWithItem("white_ottoman",
             new OttomanBlock(BlockBehaviour.Properties.ofFullCopy(WHITE_LOUNGE_COUCH)), TMMItems.DECORATION_GROUP);
     Block BLUE_LOUNGE_COUCH = registrar.createWithItem("blue_lounge_couch",

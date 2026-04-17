@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.block;
 
+import io.wifi.starrailexpress.block_entity.ToiletBlockEntity;
 import io.wifi.starrailexpress.fourthroom.block.FourthRoomTableBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -219,6 +220,27 @@ public class DevilRouletteTable extends Block implements EntityBlock {
 //            table.onPlayerInteract(serverPlayer);
 //        }
         return ItemInteractionResult.SUCCESS;
+    }
+
+    /** 检测是否为在正确座位区域 */
+    protected boolean isSeatingZone(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
+//        if (player.getVehicle() instanceof ToiletBlockEntity chair) {
+//            BlockPos tableCore = chair.getTableCorePos();
+//            return tableCore.equals(table.getBlockPos());
+//        }
+//
+//        // 方法2：检查玩家位置是否在椅子方块上（备选）
+//        BlockPos playerStandingOn = player.getOnPos();
+//        for (ChairPosition position : ChairPosition.values()) {
+//            BlockPos chairPos = table.getBlockPos().offset(
+//                    position.getXOffset(), 0, position.getZOffset()
+//            );
+//            if (playerStandingOn.equals(chairPos)) {
+//                return true;
+//            }
+//        }
+
+        return false;
     }
 
     // 获取最近的交互区域
