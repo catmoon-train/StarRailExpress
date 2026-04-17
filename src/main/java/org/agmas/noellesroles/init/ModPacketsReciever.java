@@ -769,18 +769,15 @@ public class ModPacketsReciever {
             ability.setCooldown(35 * 20);
             ability.sync();
 
-            // 计算阈值
-            long aliveCount = player.server.getPlayerList().getPlayers().stream()
-                .filter(GameUtils::isPlayerAliveAndSurvival).count();
-            int threshold = Math.max(1, (int) (aliveCount / 5));
+            // 获取基于开局玩家数计算的阈值（已在游戏开始时初始化）
+            PartyPlayerComponent pc = PartyPlayerComponent.KEY.get(player);
+            int threshold = pc.getThreshold();
 
             // 为目标设置氦气变声（4分钟 = 240秒 = 4800 ticks）
             HeliumBuzzPlayerComponent buzz = HeliumBuzzPlayerComponent.KEY.get(target);
             buzz.apply(4 * 60 * 20, 1);  // 4分钟，强度1
 
             // 记录到组件
-            PartyPlayerComponent pc = PartyPlayerComponent.KEY.get(player);
-            pc.setThreshold(threshold);
             pc.addAffectedTarget(target.getUUID());
             pc.schedulePartySound(6 * 20); // 6秒后从当前位置播放
             pc.sync();

@@ -44,6 +44,12 @@ public class PartyPlayerComponent implements RoleComponent, ServerTickingCompone
     // 触发派对的阈值
     private int threshold = 1;
 
+    // 开局玩家数（固定值，游戏过程中不变化）
+    private int initialPlayerCount = 0;
+
+    // 是否已初始化开局玩家数
+    private boolean thresholdInitialized = false;
+
     public PartyPlayerComponent(Player player) {
         this.player = player;
     }
@@ -51,6 +57,40 @@ public class PartyPlayerComponent implements RoleComponent, ServerTickingCompone
     public Player getPlayer() { return player; }
 
     public void sync() { KEY.sync(this.player); }
+
+    /**
+     * 初始化派对阈值（基于开局玩家数）
+     * 应该在游戏开始时调用一次，之后不再改变
+     */
+    public void initThreshold(int initialPlayerCount) {
+        if (this.thresholdInitialized) {
+            return; // 防止重复初始化
+        }
+        this.initialPlayerCount = initialPlayerCount;
+        // 根据开局玩家数计算阈值：开局玩家数 / 5，最小为1
+        this.threshold = Math.max(1, initialPlayerCount / 5);
+        this.thresholdInitialized = true;
+        sync();
+    }
+
+    /**
+     * 获取基于开局玩家数计算的阈值
+     */
+    public int getThreshold() {
+        // 如果还未初始化，返回默认值
+        if (!thresholdInitialized || initialPlayerCount == 0) {
+            return threshold;
+        }
+        return threshold;
+    }
+
+    /**
+     * 重置阈值初始化状态（游戏结束时调用）
+     */
+    public void resetThresholdInitialization() {
+        this.thresholdInitialized = false;
+        this.initialPlayerCount = 0;
+    }
 
     @Override
     public void init() {
@@ -79,7 +119,7 @@ public class PartyPlayerComponent implements RoleComponent, ServerTickingCompone
             pendingPartySoundTicks--;
             if (pendingPartySoundTicks == 0 && pendingPartySoundPos != null) {
                 ServerLevel level = (ServerLevel) sp.level();
-                level.playSound(null, pendingPartySoundPos, NRSounds.PARTY_SKILL, SoundSource.PLAYERS, 1.0F, 1.0F);
+                level.playSound(null, pendingPartySoundPos, NRSounds.PARTY_SKILL, SoundSource.PLAYERS, 2.0F, 6.0F);
             }
         }
     }
@@ -92,8 +132,11 @@ public class PartyPlayerComponent implements RoleComponent, ServerTickingCompone
 
     public int getCount() { return affectedTargets.size(); }
 
-    public int getThreshold() { return threshold; }
-
+    /**
+     * @deprecated Use {@link #initThreshold(int)} to initialize threshold once at game start.
+     * This method should only be used internally.
+     */
+    @Deprecated
     public void setThreshold(int threshold) {
         this.threshold = threshold;
         sync();
@@ -161,6 +204,8 @@ public class PartyPlayerComponent implements RoleComponent, ServerTickingCompone
             ));
         }
         tag.putInt("threshold", this.threshold);
+        tag.putInt("initialPlayerCount", this.initialPlayerCount);
+        tag.putBoolean("thresholdInitialized", this.thresholdInitialized);
         CompoundTag targetsTag = new CompoundTag();
         int i = 0;
         for (UUID u : this.affectedTargets) {
@@ -183,6 +228,8 @@ public class PartyPlayerComponent implements RoleComponent, ServerTickingCompone
             this.pendingPartySoundPos = null;
         }
         this.threshold = tag.contains("threshold") ? tag.getInt("threshold") : 1;
+        this.initialPlayerCount = tag.contains("initialPlayerCount") ? tag.getInt("initialPlayerCount") : 0;
+        this.thresholdInitialized = tag.contains("thresholdInitialized") ? tag.getBoolean("thresholdInitialized") : false;
         this.affectedTargets.clear();
         if (tag.contains("affectedTargets")) {
             CompoundTag targetsTag = tag.getCompound("affectedTargets");

@@ -85,6 +85,7 @@ import org.agmas.noellesroles.roles.thief.ThiefPlayerComponent;
 import org.agmas.noellesroles.roles.veteran.VeteranKnifeHandler;
 import org.agmas.noellesroles.roles.voodoo.VoodooDeathHandler;
 import org.agmas.noellesroles.utils.*;
+import org.agmas.noellesroles.voice.HeliumBuzzPlayerComponent;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 import pro.fazeclan.river.stupid_express.constants.SERoles;
 import pro.fazeclan.river.stupid_express.modifier.refugee.cca.PlayerStatsBeforeRefugee;
@@ -724,6 +725,13 @@ public class ModEventsRegister {
         OnGameEnd.EVENT.register((world, gameWorldComponent) -> {
             HoanMeirinFistPunchHandler.PUNCH_RECORDS.clear();
             RoleShopHandler.resetOldmanEasterEggState();
+            // 清除所有玩家的氦气变声效果
+            world.players().forEach(player -> {
+                HeliumBuzzPlayerComponent heliumBuzz = HeliumBuzzPlayerComponent.KEY.get(player);
+                heliumBuzz.clear();
+                TemporaryEffectPlayerComponent tempEffect = TemporaryEffectPlayerComponent.KEY.get(player);
+                tempEffect.init();
+            });
             // 重置所有玩家的锁匠灵感
             world.players().forEach(player -> {
                 LocksmithInspirationComponent locksmithInspiration = ModComponents.LOCKSMITH_INSPIRATION.get(player);

@@ -136,6 +136,13 @@ public class ModRolesInitialEventRegister {
                 alchemistComponent.init();
                 return;
             }
+            // 派对狂角色初始化 - 基于开局玩家数设置threshold
+            if (role.identifier().equals(ModRoles.PARTY_KILLER.identifier())) {
+                int totalPlayers = SREGameWorldComponent.KEY.get(player.level()).getPlayerCount();
+                var partyComponent = org.agmas.noellesroles.roles.party.PartyPlayerComponent.KEY.get(player);
+                partyComponent.initThreshold(totalPlayers);
+                return;
+            }
             if (role.identifier().equals(TMMRoles.KILLER.identifier())) {
                 player.addItem(TMMItems.KNIFE.getDefaultInstance().copy());
                 return;

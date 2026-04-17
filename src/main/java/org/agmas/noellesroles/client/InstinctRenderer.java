@@ -171,7 +171,7 @@ public class InstinctRenderer {
             }
             // 活人：被秉烛过的显示原色
             if (target instanceof Player targetPlayer) {
-                if (targetPlayer.distanceToSqr(self) > 20 * 20)
+                if (targetPlayer.distanceToSqr(self) > 40 * 40)
                     return -2;
                 if (component.isCandleLit(targetPlayer.getUUID())) {
                     return ModRoles.CANDLE_BEARER.color();
@@ -298,7 +298,7 @@ public class InstinctRenderer {
                 return -1;
             }
 
-            if (targettedPlayer.distanceToSqr(player) > 20 * 20)
+            if (targettedPlayer.distanceToSqr(player) > 40 * 40)
                 return -2;
             var douse = DousedPlayerComponent.KEY.get(targettedPlayer);
             if (douse.getDoused()) {

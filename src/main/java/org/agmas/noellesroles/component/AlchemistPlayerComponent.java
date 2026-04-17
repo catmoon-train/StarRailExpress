@@ -146,6 +146,9 @@ public class AlchemistPlayerComponent implements RoleComponent, ServerTickingCom
             return;
         if (!gameWorldComponent.isRole(player, ModRoles.ALCHEMIST))
             return;
+        // 检查玩家是否是旁观者模式，旁观者不能获取炼金素材
+        if (player.isSpectator())
+            return;
         // 检查游戏是否开始、玩家是否是药剂师角色
         {
             // 检查玩家是否蹲下
