@@ -11,7 +11,7 @@ import net.minecraft.commands.arguments.EntityArgument;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import org.agmas.noellesroles.component.TemporaryEffectPlayerComponent;
+import org.agmas.noellesroles.voice.HeliumBuzzPlayerComponent;
 
 public class HeliumCommand {
   public static void register() {
@@ -50,8 +50,8 @@ public class HeliumCommand {
     if (target == null)
       return 0;
     try {
-      TemporaryEffectPlayerComponent comp = TemporaryEffectPlayerComponent.KEY.get(target);
-      comp.setHeliumEffect(seconds);
+      HeliumBuzzPlayerComponent comp = HeliumBuzzPlayerComponent.KEY.get(target);
+      comp.apply(seconds * 20, 1);  // ticks = seconds * 20, amplifier = 1
       Component MSG = Component.translatable("message.noellesroles.helium.applied", target.getDisplayName(), seconds)
           .withStyle(ChatFormatting.YELLOW);
       context.getSource().sendSuccess(() -> MSG, false);
