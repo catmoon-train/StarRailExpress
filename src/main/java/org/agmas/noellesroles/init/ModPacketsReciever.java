@@ -781,7 +781,7 @@ public class ModPacketsReciever {
             PartyPlayerComponent pc = PartyPlayerComponent.KEY.get(player);
             pc.setThreshold(threshold);
             pc.addAffectedTarget(target.getUUID());
-            pc.pendingPartySoundTicks = 6 * 20; // 6秒后播放
+            pc.schedulePartySound(6 * 20); // 6秒后从当前位置播放
             pc.sync();
 
             // 检查是否达到触发阈值

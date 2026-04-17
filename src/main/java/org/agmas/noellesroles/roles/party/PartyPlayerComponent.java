@@ -4,6 +4,7 @@ import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.game.GameUtils;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.nbt.CompoundTag;
@@ -36,8 +37,10 @@ public class PartyPlayerComponent implements RoleComponent, ServerTickingCompone
     // 被变声的目标集合（本局累计）
     public Set<UUID> affectedTargets = new HashSet<>();
 
-    // 延迟播放的音效位置
+    // 延迟播放的音效倒计时
     public int pendingPartySoundTicks = 0;
+    // 延迟播放的音效位置（记录释放技能时的位置）
+    private BlockPos pendingPartySoundPos;
 
     // 触发派对的阈值
     private int threshold = 1;
@@ -54,20 +57,30 @@ public class PartyPlayerComponent implements RoleComponent, ServerTickingCompone
     public void init() {
         affectedTargets.clear();
         pendingPartySoundTicks = 0;
+        pendingPartySoundPos = null;
         sync();
     }
 
     @Override
     public void clear() { init(); }
 
+    /**
+     * 设置延迟播放音效，记录当前位置
+     */
+    public void schedulePartySound(int delayTicks) {
+        this.pendingPartySoundTicks = delayTicks;
+        this.pendingPartySoundPos = player.blockPosition();
+        sync();
+    }
+
     public void serverTick() {
         if (!(player instanceof ServerPlayer)) return;
         ServerPlayer sp = (ServerPlayer) player;
         if (pendingPartySoundTicks > 0) {
             pendingPartySoundTicks--;
-            if (pendingPartySoundTicks == 0) {
+            if (pendingPartySoundTicks == 0 && pendingPartySoundPos != null) {
                 ServerLevel level = (ServerLevel) sp.level();
-                level.playSound(null, sp.blockPosition(), NRSounds.PARTY_SKILL, SoundSource.PLAYERS, 1.0F, 1.0F);
+                level.playSound(null, pendingPartySoundPos, NRSounds.PARTY_SKILL, SoundSource.PLAYERS, 1.0F, 1.0F);
             }
         }
     }
@@ -96,6 +109,8 @@ public class PartyPlayerComponent implements RoleComponent, ServerTickingCompone
 
         for (Player p : players) {
             if (!(p instanceof ServerPlayer sp)) continue;
+            // 排除旁观者模式
+            if (sp.isSpectator()) continue;
             // 发射烟花
             ItemStack rocket = new ItemStack(Items.FIREWORK_ROCKET);
             net.minecraft.world.entity.projectile.FireworkRocketEntity fre = new net.minecraft.world.entity.projectile.FireworkRocketEntity(level, sp.getX(), sp.getY()+1.0D, sp.getZ(), rocket);
@@ -111,6 +126,7 @@ public class PartyPlayerComponent implements RoleComponent, ServerTickingCompone
         // 发放金币
         for (Player p : players) {
             if (!(p instanceof ServerPlayer sp)) continue;
+            if (sp.isSpectator()) continue;
             var role = gw.getRole(sp);
             if (role != null && role.canUseKiller()) {
                 SREPlayerShopComponent shop = SREPlayerShopComponent.KEY.get(sp);
@@ -138,6 +154,13 @@ public class PartyPlayerComponent implements RoleComponent, ServerTickingCompone
     @Override
     public void writeToSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
         tag.putInt("pendingPartySoundTicks", this.pendingPartySoundTicks);
+        if (this.pendingPartySoundPos != null) {
+            tag.putIntArray("pendingPartySoundPos", java.util.List.of(
+                this.pendingPartySoundPos.getX(),
+                this.pendingPartySoundPos.getY(),
+                this.pendingPartySoundPos.getZ()
+            ));
+        }
         tag.putInt("threshold", this.threshold);
         CompoundTag targetsTag = new CompoundTag();
         int i = 0;
@@ -152,6 +175,14 @@ public class PartyPlayerComponent implements RoleComponent, ServerTickingCompone
     @Override
     public void readFromSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.pendingPartySoundTicks = tag.contains("pendingPartySoundTicks") ? tag.getInt("pendingPartySoundTicks") : 0;
+        if (tag.contains("pendingPartySoundPos")) {
+            int[] pos = tag.getIntArray("pendingPartySoundPos");
+            if (pos.length == 3) {
+                this.pendingPartySoundPos = new BlockPos(pos[0], pos[1], pos[2]);
+            }
+        } else {
+            this.pendingPartySoundPos = null;
+        }
         this.threshold = tag.contains("threshold") ? tag.getInt("threshold") : 1;
         this.affectedTargets.clear();
         if (tag.contains("affectedTargets")) {
