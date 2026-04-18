@@ -16,6 +16,7 @@
   "gui.sre.map_selector.random.desc": "随机选择地图",
   "hud.noellesroles.stalker.dash_cooldown": "冲刺冷却 %s",
   "screen.sre.skins.no_title": "无称号",
+  "entity.trainmurdermystery.player_body": "玩家尸体",
   "screen.sre.skins.title_selector": "称号选择",
   "message.tip.cant_use_skill": "你当前无法使用技能",
   "message.tip.purchase_failed": "购买失败",
