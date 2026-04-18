@@ -1768,5 +1768,11 @@
   "screen.noellesroles.fool.vote.entry_votes": "%s votes",
   "screen.noellesroles.fool.vote.entry_alive": "Alive",
   "screen.noellesroles.fool.vote.entry_dead": "Dead",
-  "info.screen.roleid.the_fool": "Innocent faction\\nModded Innocent\\nPlace Honored Notes (50 coins)\\nPlayers pray at notes to become Tarot members\\nPress G to convene Tarot Assembly (5min CD)\\nMembers vote to identify Heretic\\nExecutioner's Pistol: one-shot kill on Heretic only\\nSpirit Cloak: 5s invulnerability (200 coins)"
+  "info.screen.roleid.the_fool": "Innocent faction\\nModded Innocent\\nPlace Honored Notes (50 coins)\\nPlayers pray at notes to become Tarot members\\nPress G to convene Tarot Assembly (5min CD)\\nMembers vote to identify Heretic\\nExecutioner's Pistol: one-shot kill on Heretic only\\nSpirit Cloak: 5s invulnerability (200 coins)",
+  "==================== Monokuma Messages ====================": "",
+  "message.noellesroles.monokuma.frenzy_start": "【Monokuma】",
+  "message.noellesroles.monokuma.frenzy_triggered": "has triggered the Monokuma Domain!",
+  "message.noellesroles.monokuma.transform_title": "【Monokuma】",
+  "message.noellesroles.monokuma.transform_message": "has completed the final judgment ritual and transformed into Monokuma!",
+  "message.noellesroles.monokuma.aura_coin": "🐼 Monokuma Aura: +%s Coins"
 }

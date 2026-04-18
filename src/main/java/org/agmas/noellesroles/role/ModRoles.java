@@ -64,6 +64,7 @@ import org.agmas.noellesroles.game.roles.neutral.chef.ChefRole;
 import org.agmas.noellesroles.game.roles.neutral.gambler.GamblerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.gambler.GamblerRole;
 import org.agmas.noellesroles.game.roles.neutral.mercenary.MercenaryPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaRole;
 import org.agmas.noellesroles.game.roles.neutral.nian_shou.NianShouPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.nian_shou.NianShouRole;
 import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
@@ -1552,56 +1553,7 @@ public class ModRoles {
    * - 黑白熊形态无敌+光环效果
    * - 获胜条件：游戏结束时6格内最近玩家的阵营
    */
-  public static SRERole MONOKUMA = TMMRoles.registerRole(new NormalRole(
-      MONOKUMA_ID, // 角色 ID
-      new Color(128, 128, 128).getRGB(), // 灰色 - 代表黑白双面
-      false, // isInnocent = 非乘客阵营
-      false, // canUseKiller = 无杀手能力
-      SRERole.MoodType.FAKE, // 假心情
-      Integer.MAX_VALUE, // 标准冲刺时间
-      true // 隐藏计分板
-  ) {
-
-
-    @Override
-    public boolean onPsychoGiveItem(Player player, io.wifi.starrailexpress.cca.SREPlayerPsychoComponent comp) {
-      // 黑白已经在 onHitTriggered 中给了阴阳剑，不需要再给球棒
-      return true;
-    }
-
-    @Override
-    public Item getPsychoItem() {
-      return org.agmas.noellesroles.init.ModItems.YINYANG_SWORD;
-    }
-
-    @Override
-    public java.util.function.Predicate<Item> cantPickupItem(Player player) {
-      // 黑白熊形态无法捡起任何物品
-      var comp = org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaPlayerComponent.KEY.maybeGet(player).orElse(null);
-      if (comp != null && comp.phase == 3) {
-        return item -> true; // 禁止捡起所有物品
-      }
-      return super.cantPickupItem(player);
-    }
-
-//    @Override
-//    public java.util.List<net.minecraft.world.item.ItemStack> getDefaultItems() {
-//      return java.util.List.of(
-//          new net.minecraft.world.item.ItemStack(TMMItems.REVOLVER)
-//      );
-//    }
-
-
-//    @Override
-//    public ResourceLocation getDisplayRole(Player player) {
-//      // 对所有人（包括自己）显示为义警
-//      var comp = org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaPlayerComponent.KEY.maybeGet(player).orElse(null);
-//      if (comp != null && comp.phase <= 2) {
-//        return TMMRoles.VIGILANTE.identifier();
-//      }
-//      return super.getDisplayRole(player);
-//    }
-  })
+  public static SRERole MONOKUMA = TMMRoles.registerRole(new MonokumaRole())
       .setNeutralForKiller(false) // 杀手视角为好人
       .setCanSeeTeammateKiller(false)
       .setCanPickUpRevolver(false) // 伪装义警可以捡枪
@@ -1659,4 +1611,6 @@ public class ModRoles {
     SREArmorPlayerComponent.canSyncedRolePaths.add(ModRoles.BARTENDER_ID.getPath());
     SREPlayerMoodComponent.canSyncedRolePaths.add(ModRoles.MA_CHEN_XU_ID.getPath());
   }
+
+
 }
