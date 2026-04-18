@@ -61,6 +61,7 @@ import net.minecraft.world.phys.Vec3;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.harpymodloader.events.GameInitializeEvent;
 import org.agmas.harpymodloader.events.ResetPlayerEvent;
+import org.agmas.noellesroles.content.item.LetterItem;
 import org.agmas.noellesroles.game.roles.Innocent.coroner.BodyDeathReasonComponent;
 import org.agmas.noellesroles.game.roles.Innocent.hoan_meirin.HoanMeirinFistPunchHandler;
 import org.agmas.noellesroles.game.roles.neutral.mercenary.MercenaryPlayerComponent;
@@ -360,9 +361,11 @@ public class GameUtils {
     public static void addItemCooldowns(ServerLevel world, int time) {
         if (cooldownItems.isEmpty()){
             BuiltInRegistries.ITEM.forEach(item -> {
-                String namespace = BuiltInRegistries.ITEM.getKey(item).getNamespace();
-                if (namespace.equals(StarRailExpressID.MOD_ID)||namespace.equals(StarRailExpressID.STUPIDEXPRESS)||namespace.equals(StarRailExpressID.NOELLESROLES_ROLE)){
-                    cooldownItems.add(item);
+                if (!(item instanceof LetterItem)) {
+                    String namespace = BuiltInRegistries.ITEM.getKey(item).getNamespace();
+                    if (namespace.equals(StarRailExpressID.MOD_ID) || namespace.equals(StarRailExpressID.STUPIDEXPRESS) || namespace.equals(StarRailExpressID.NOELLESROLES_ROLE)) {
+                        cooldownItems.add(item);
+                    }
                 }
             });
         }

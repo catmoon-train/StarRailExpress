@@ -1557,7 +1557,7 @@ public class ModRoles {
       false, // isInnocent = 非乘客阵营
       false, // canUseKiller = 无杀手能力
       SRERole.MoodType.FAKE, // 假心情
-      TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
+      Integer.MAX_VALUE, // 标准冲刺时间
       true // 隐藏计分板
   ) {
 
