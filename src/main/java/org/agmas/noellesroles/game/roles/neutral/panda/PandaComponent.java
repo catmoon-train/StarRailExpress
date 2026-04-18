@@ -1,6 +1,7 @@
 package org.agmas.noellesroles.game.roles.neutral.panda;
 
 import io.wifi.starrailexpress.api.RoleComponent;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
@@ -13,10 +14,12 @@ public class PandaComponent implements RoleComponent, ClientTickingComponent {
     public static final ComponentKey<PandaComponent> KEY = ModComponents.panda;
     public Player player;
     public boolean isPanda;
+
     @Override
     public Player getPlayer() {
         return player;
     }
+
     public PandaComponent(Player player) {
         this.player = player;
     }
@@ -29,6 +32,11 @@ public class PandaComponent implements RoleComponent, ClientTickingComponent {
 
     @Override
     public void clear() {
+        if (this.player.level().isClientSide) {
+            if (isPanda) {
+                PandaClientHandle.pandaMap.remove(this.getPlayer().getUUID());
+            }
+        }
         if (isPanda) {
             isPanda = false;
             sync();
@@ -48,7 +56,7 @@ public class PandaComponent implements RoleComponent, ClientTickingComponent {
     @Override
     public void readFromSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
         isPanda = tag.contains("isPanda") && tag.getBoolean("isPanda");
-        }
+    }
 
     @Override
     public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
@@ -62,7 +70,11 @@ public class PandaComponent implements RoleComponent, ClientTickingComponent {
 
     @Override
     public void clientTick() {
-
+        if (isPanda) {
+            PandaClientHandle.getOrCreatePanda(this.getPlayer(), Minecraft.getInstance().level);
+        } else {
+            PandaClientHandle.pandaMap.remove(this.getPlayer().getUUID());
+        }
     }
 
     public void sync() {
