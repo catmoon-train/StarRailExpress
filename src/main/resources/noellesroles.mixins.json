@@ -40,7 +40,6 @@
     "roles.insanekiller.ProjectileUtilMixin",
     "roles.jester.JesterItemEntityMixin",
     "roles.manipulator.PlayerControlMixin",
-    "roles.manipulator.PlayerDeathMixin",
     "roles.mercenary.MercenaryConfirmMixin",
     "roles.photographer.PhotographerMixin",
     "roles.poisoner.PoisonerNoPoisonMixin",

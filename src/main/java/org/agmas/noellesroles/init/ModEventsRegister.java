@@ -86,6 +86,7 @@ import org.agmas.noellesroles.game.roles.killer.executioner.ExecutionerPlayerCom
 import org.agmas.noellesroles.game.roles.killer.executioner.ShootingFrenzyPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.insane_killer.InsaneKillerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.ma_chen_xu.MaChenXuEventHandler;
+import org.agmas.noellesroles.game.roles.killer.manipulator.InControlCCA;
 import org.agmas.noellesroles.game.roles.killer.ninja.NinjaPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.stalker.StalkerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.watcher.WatcherPlayerComponent;
@@ -139,7 +140,8 @@ public class ModEventsRegister {
 
         // 模仿者拳击手无敌检测
         if (gameWorld.isRole(victim, ModRoles.IMITATOR)) {
-            org.agmas.noellesroles.game.roles.killer.imitator.ImitatorPlayerComponent imitComp = ModComponents.IMITATOR.get(victim);
+            org.agmas.noellesroles.game.roles.killer.imitator.ImitatorPlayerComponent imitComp = ModComponents.IMITATOR
+                    .get(victim);
             if (imitComp.isImitatorInvulnerable()) {
                 // 播放反弹音效
                 victim.level().playSound(null, victim.blockPosition(),
@@ -552,6 +554,17 @@ public class ModEventsRegister {
     public static boolean isMJVerifyEnabled = false;
 
     public static void registerEvents() {
+        OnKillPlayerTriggered.EVENT.register((victim, spawnBody, _killer, deathReasosn, forceKill) -> {
+            final var level = victim.level();
+            final var gameWorldComponent = SREGameWorldComponent.KEY.get(level);
+            if (gameWorldComponent != null && gameWorldComponent.isRunning()) {
+                final var inControlCCA = InControlCCA.KEY.get(victim);
+                if (inControlCCA != null) {
+                    inControlCCA.isControlling = false;
+                    inControlCCA.sync();
+                }
+            }
+        });
         THEventHandler.registerEvents();
         NinjaPlayerComponent.registerEvents();
         OnPlayerUsedSkill.EVENT.register((player) -> {
@@ -1045,7 +1058,8 @@ public class ModEventsRegister {
 
             // 小偷的击杀奖励逻辑
             if (gameWorldComponent.isRole(killer, ModRoles.THIEF)) {
-                var thiefComponent = org.agmas.noellesroles.game.roles.neutral.thief.ThiefPlayerComponent.KEY.get(killer);
+                var thiefComponent = org.agmas.noellesroles.game.roles.neutral.thief.ThiefPlayerComponent.KEY
+                        .get(killer);
                 if (thiefComponent != null) {
                     thiefComponent.handleKilledVictim(victim);
                 }
@@ -1554,7 +1568,8 @@ public class ModEventsRegister {
             return false;
         });
         SRE.canCollide.add(a -> {
-            if (a.hasEffect(MobEffects.INVISIBILITY) || a.hasEffect(ModEffects.SAFE_TIME) || a.hasEffect(ModEffects.NO_COLLIDE)) {
+            if (a.hasEffect(MobEffects.INVISIBILITY) || a.hasEffect(ModEffects.SAFE_TIME)
+                    || a.hasEffect(ModEffects.NO_COLLIDE)) {
                 return true;
             }
             return false;
@@ -1568,7 +1583,8 @@ public class ModEventsRegister {
         SRE.cantPushableBy.add(entity -> {
             if (entity instanceof Player serverPlayer) {
                 if (serverPlayer.hasEffect(MobEffects.INVISIBILITY)
-                        || serverPlayer.hasEffect(ModEffects.SAFE_TIME) || serverPlayer.hasEffect(ModEffects.NO_COLLIDE)) {
+                        || serverPlayer.hasEffect(ModEffects.SAFE_TIME)
+                        || serverPlayer.hasEffect(ModEffects.NO_COLLIDE)) {
                     return true;
                 } else {
                     var modifiers = WorldModifierComponent.KEY.get(serverPlayer.level());

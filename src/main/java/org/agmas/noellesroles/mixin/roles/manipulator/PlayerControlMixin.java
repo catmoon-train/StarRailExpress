@@ -90,6 +90,7 @@ public class PlayerControlMixin {
         }
     }
 
+    @SuppressWarnings("unused")
     private boolean isPathBlocked(ServerPlayer player, Vec3 from, Vec3 to) {
         // 简化的碰撞检测
         // 在实际游戏中，您可能需要更复杂的碰撞检测逻辑
