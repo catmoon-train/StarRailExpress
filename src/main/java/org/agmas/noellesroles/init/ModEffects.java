@@ -56,7 +56,14 @@ public class ModEffects {
     public static final Holder<MobEffect> TIME_STOP = register("time_stop", new TimeStopEffect());
 
     /**
-     * 安全时间无碰撞效果
+     * 无碰撞效果
+     * - 中性效果
+     * - 绿色粒子
+     */
+    public static final Holder<MobEffect> NO_COLLIDE = register("no_collide", new NoCollideEffect());
+    
+    /**
+     * 安全时间效果
      * - 中性效果
      * - 绿色粒子
      */
