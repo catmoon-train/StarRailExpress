@@ -16,3 +16,4 @@ bin/
 commitCache
 /.vscode/
 /bin/
+/tools/dist/
