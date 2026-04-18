@@ -70,7 +70,7 @@
   "item.noellesroles.decoy_grenade.desc": "誘餌彈，投擲後會持續發出槍響。",
   "item.noellesroles.reinforcement.desc": "維修工具，右鍵安裝在門上可以使門抵禦一次撬棍，蹲下右鍵可以拆卸門上的道具",
   "item.noellesroles.screwdriver.desc": "螺絲刀，蹲下右鍵可以拆卸門上的道具。鎖匠職業可以額外使用螺絲刀恢復門的狀態（使被撬棍破開的門恢復原狀）。",
-  "item.noellesroles.alarm_trap.desc": "警報陷阱，被撬棍觸發後會發出警報。",
+  "item.noellesroles.alarm_trap.desc": "警報陷阱，被撬棍觸發後會發出警報，按上警報陷阱的門會上鎖。",
   "item.noellesroles.delivery_box.desc": "右鍵玩家使用，可以讓傳遞者和被傳遞者交換物品",
   "item.noellesroles.hallucination_bottle.desc": "2點耐久，右鍵使用，使一定範圍內的玩家強制扭動視角，扭動3次。",
   "item.noellesroles.mint_candies.desc": "使用後恢復30%%的san值。",
