@@ -9,6 +9,7 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
+import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.minecraft.ChatFormatting;
@@ -121,7 +122,10 @@ public class RevivalSelectionHandler {
             playerShopComponent.setBalance(200);
 
             StupidRoleUtils.sendWelcomeAnnouncement(revived);
-            SREPlayerPsychoComponent.KEY.get(revived).startPsycho();
+            var psychoCCA = SREPlayerPsychoComponent.KEY.get(revived);
+            psychoCCA.startPsycho();
+            // 使用默认时长 * 1.5
+            psychoCCA.setPsychoTicks((int) ((double) GameConstants.getPsychoTimer() * 1.5));
 
             return InteractionResult.CONSUME;
         }));
@@ -156,7 +160,7 @@ public class RevivalSelectionHandler {
             if (revived == null) {
                 return InteractionResult.PASS;
             }
-            
+
             if (!revived.isSpectator()) {
                 return InteractionResult.PASS;
             }
