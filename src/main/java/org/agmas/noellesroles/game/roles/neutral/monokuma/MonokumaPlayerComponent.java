@@ -47,8 +47,8 @@ public class MonokumaPlayerComponent implements RoleComponent, ServerTickingComp
 
     // ==================== 常量 ====================
 
-    /** 狂暴前奏持续时间 60秒 = 1200 tick */
-    public static final int FRENZY_DURATION = 60 * 20;
+    /** 狂暴前奏持续时间 35秒 = 1200 tick */
+    public static final int FRENZY_DURATION = 35 * 20;
 
     /** 光环范围（格） */
     public static final double AURA_RANGE = 6.0;
@@ -163,8 +163,7 @@ public class MonokumaPlayerComponent implements RoleComponent, ServerTickingComp
         // 启动疯狂模式（psycho）— 给予视觉效果和状态栏
         SREPlayerPsychoComponent psychoComp = SREPlayerPsychoComponent.KEY.get(sp);
         psychoComp.startPsycho();
-        // 使用默认时长 * 1.5
-        psychoComp.setPsychoTicks((int) (GameConstants.getPsychoTimer() * 1.5));
+        psychoComp.setPsychoTicks(FRENZY_DURATION);
         // 给全服施加狂暴前奏效果（移速减少、无法打开背包、水墨风shader）
         ServerLevel serverLevel = sp.serverLevel();
         for (ServerPlayer p : serverLevel.players()) {
@@ -200,9 +199,7 @@ public class MonokumaPlayerComponent implements RoleComponent, ServerTickingComp
     public void onKillPlayer() {
         if (phase == 2) {
             kill_count++;
-            if (kill_count >= 4) {
-                transformToMonokuma();
-            }
+
         }
     }
 
@@ -333,8 +330,12 @@ public class MonokumaPlayerComponent implements RoleComponent, ServerTickingComp
                 dashAnimTimer--;
             }
             if (frenzyTimer <= 0) {
-                GameUtils.forceKillPlayer(player, true, null, GameConstants.DeathReasons.BLACK_WHITE_TIMEOUT);
-                clear();
+                if (kill_count >= Math.max(player.level().players().size()/7,1)) {
+                    transformToMonokuma();
+                }else {
+                    GameUtils.forceKillPlayer(player, true, null, GameConstants.DeathReasons.BLACK_WHITE_TIMEOUT);
+                    clear();
+                }
                 // 试炼失败
                 return;
             }

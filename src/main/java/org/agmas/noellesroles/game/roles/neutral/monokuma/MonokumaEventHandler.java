@@ -6,10 +6,12 @@ import io.wifi.starrailexpress.event.AllowPlayerDeathWithKiller;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
+import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.utils.RoleUtils;
 import pro.fazeclan.river.stupid_express.StupidExpress;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 import pro.fazeclan.river.stupid_express.utils.StupidRoleUtils;
@@ -81,6 +83,7 @@ public class MonokumaEventHandler {
                 return true;
             MonokumaPlayerComponent comp = MonokumaPlayerComponent.KEY.get(sp);
             if (comp.phase == 1) {
+                RoleUtils.dropAndClearAllSatisfiedItems((ServerPlayer) sp, TMMItemTags.GUNS);
                 StupidRoleUtils.changeRole(player, ModRoles.MONOKUMA);
                 StupidRoleUtils.sendWelcomeAnnouncement(sp);
                 comp.onHitTriggered();

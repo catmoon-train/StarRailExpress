@@ -68,11 +68,7 @@ public class SREModifier {
         return this;
     };
 
-    /**
-     * 启用概率（%）
-     * @param count 
-     * @return
-     */
+
     public SREModifier setEnableChance(int cahnce) {
         enableChance = cahnce;
         return this;

@@ -2,6 +2,7 @@ package pro.fazeclan.river.stupid_express.constants;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
+import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.event.OnGameEnd;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -167,9 +168,9 @@ public class SEModifiers {
             StupidExpress.id("black_white"),
             Color.BLACK.getRGB(),
             null,
-            null,
+            new HashSet<>(List.of(TMMRoles.VIGILANTE)),
             false,
-            true)).setMax(1).setEnableChance(10).setEnableNeededPlayerCount(10).setCannotAppliedToVigilante(true);
+            true)).setMax(1).setEnableChance(40).setEnableNeededPlayerCount(10);
 
     // 标记不屈的一次性免疫是否已被消耗（基于 UUID 的运行时集合）
     public static Set<UUID> UNYIELDING_IMMUNITY_USED = ConcurrentHashMap.newKeySet();
