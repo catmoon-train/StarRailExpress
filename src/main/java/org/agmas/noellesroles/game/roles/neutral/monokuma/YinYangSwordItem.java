@@ -188,7 +188,7 @@ public class YinYangSwordItem extends Item {
         sp.setDeltaMovement(dashVector.x, sp.getDeltaMovement().y, dashVector.z);
 
         // 同步给客户端
-        sp.connection.send(new ClientboundSetEntityMotionPacket(sp.getId(), dashVector.scale(0.75f)));
+        sp.hurtMarked = true;
 
         // 清除坠落距离，避免摔落伤害
         sp.fallDistance = 0;
