@@ -199,7 +199,7 @@ public class MonokumaPlayerComponent implements RoleComponent, ServerTickingComp
     public void onKillPlayer() {
         if (phase == 2) {
             kill_count++;
-            if (kill_count >= Math.max(player.level().players().size() / 7, 3)) {
+            if (kill_count >= Math.max(GameUtils.getAlivePlayerCount(player.level()) / 6, 3)) {
                 transformToMonokuma();
             }
         }

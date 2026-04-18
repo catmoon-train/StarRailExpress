@@ -1489,4 +1489,8 @@ public class GameUtils {
             return this.equals(WinStatus.TIME) || this.equals(WinStatus.PASSENGERS);
         }
     }
+
+    public static long getAlivePlayerCount(Level level) {
+        return level.players().stream().filter((p) -> isPlayerAliveAndSurvivalIgnoreShitSplit(p)).count();
+    }
 }
