@@ -15,8 +15,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.block.DevilRouletteTable;
-import org.agmas.noellesroles.block_entity.DevilRouletteTableEntity;
+import org.agmas.noellesroles.content.block.DevilRouletteTable;
+import org.agmas.noellesroles.content.block_entity.DevilRouletteTableEntity;
 import org.agmas.noellesroles.content.block.VendingMachinesBlock;
 import org.agmas.noellesroles.content.block_entity.VendingMachinesBlockEntity;
 

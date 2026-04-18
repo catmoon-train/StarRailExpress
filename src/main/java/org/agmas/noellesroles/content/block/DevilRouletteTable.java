@@ -1,12 +1,8 @@
-package org.agmas.noellesroles.block;
+package org.agmas.noellesroles.content.block;
 
-import io.wifi.starrailexpress.block.entity.SeatEntity;
-import io.wifi.starrailexpress.block_entity.ToiletBlockEntity;
-import io.wifi.starrailexpress.fourthroom.block.FourthRoomTableBlock;
-import io.wifi.starrailexpress.fourthroom.block.FourthRoomTableBlockEntity;
+import io.wifi.starrailexpress.content.block.entity.SeatEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Vec3i;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -30,15 +26,11 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.agmas.noellesroles.block_entity.DevilRouletteTableEntity;
+import org.agmas.noellesroles.content.block_entity.DevilRouletteTableEntity;
 import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.Nullable;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class DevilRouletteTable extends Block implements EntityBlock {
     public enum TablePart implements StringRepresentable {
@@ -260,28 +252,28 @@ public class DevilRouletteTable extends Block implements EntityBlock {
         return false;
     }
 
-    // 获取最近的交互区域
-    public static FourthRoomTableBlock.InteractionZone resolveInteractionZone(BlockState state, BlockPos pos, BlockHitResult hitResult) {
-        if (!(state.getBlock() instanceof FourthRoomTableBlock)) {
-            return FourthRoomTableBlock.InteractionZone.NONE;
-        }
-        BlockPos corePos = getCore(state, pos);
-        Direction facing = state.getValue(FACING);
-        Vec3 hitPos = hitResult.getLocation();
-        FourthRoomTableBlock.InteractionZone zone = nearestZone(hitPos, corePos, facing);
-        if (zone != FourthRoomTableBlock.InteractionZone.NONE) {
-            return zone;
-        }
-        double x = hitPos.x - (corePos.getX() + 0.5D);
-        double z = hitPos.z - (corePos.getZ() + 0.5D);
-        if (Math.abs(x) <= 1.45D && Math.abs(z) <= 1.45D) {
-            return FourthRoomTableBlock.InteractionZone.CENTER;
-        }
-        return FourthRoomTableBlock.InteractionZone.NONE;
-    }
-    private static FourthRoomTableBlock.InteractionZone nearestZone(Vec3 hitPos, BlockPos corePos, Direction facing) {
-        FourthRoomTableBlock.InteractionZone closest = FourthRoomTableBlock.InteractionZone.NONE;
-        double bestDistance = Double.MAX_VALUE;
+//    // 获取最近的交互区域
+//    public static FourthRoomTableBlock.InteractionZone resolveInteractionZone(BlockState state, BlockPos pos, BlockHitResult hitResult) {
+//        if (!(state.getBlock() instanceof FourthRoomTableBlock)) {
+//            return FourthRoomTableBlock.InteractionZone.NONE;
+//        }
+//        BlockPos corePos = getCore(state, pos);
+//        Direction facing = state.getValue(FACING);
+//        Vec3 hitPos = hitResult.getLocation();
+//        FourthRoomTableBlock.InteractionZone zone = nearestZone(hitPos, corePos, facing);
+//        if (zone != FourthRoomTableBlock.InteractionZone.NONE) {
+//            return zone;
+//        }
+//        double x = hitPos.x - (corePos.getX() + 0.5D);
+//        double z = hitPos.z - (corePos.getZ() + 0.5D);
+//        if (Math.abs(x) <= 1.45D && Math.abs(z) <= 1.45D) {
+//            return FourthRoomTableBlock.InteractionZone.CENTER;
+//        }
+//        return FourthRoomTableBlock.InteractionZone.NONE;
+//    }
+//    private static FourthRoomTableBlock.InteractionZone nearestZone(Vec3 hitPos, BlockPos corePos, Direction facing) {
+//        FourthRoomTableBlock.InteractionZone closest = FourthRoomTableBlock.InteractionZone.NONE;
+//        double bestDistance = Double.MAX_VALUE;
 //        for (FourthRoomTableBlock.InteractionZone zone : FourthRoomTableBlock.InteractionZone.values()) {
 //            if (zone.anchor == null) {
 //                continue;
@@ -293,13 +285,13 @@ public class DevilRouletteTable extends Block implements EntityBlock {
 //                bestDistance = distance;
 //            }
 //        }
-        return closest;
-    }
-    private static double horizontalDistanceSquared(Vec3 first, Vec3 second) {
-        double dx = first.x - second.x;
-        double dz = first.z - second.z;
-        return dx * dx + dz * dz;
-    }
+//        return closest;
+//    }
+//    private static double horizontalDistanceSquared(Vec3 first, Vec3 second) {
+//        double dx = first.x - second.x;
+//        double dz = first.z - second.z;
+//        return dx * dx + dz * dz;
+//    }
 
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final EnumProperty<TablePart> PART =

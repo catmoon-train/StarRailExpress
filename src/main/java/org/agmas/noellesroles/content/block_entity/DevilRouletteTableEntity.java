@@ -1,4 +1,4 @@
-package org.agmas.noellesroles.block_entity;
+package org.agmas.noellesroles.content.block_entity;
 
 import com.mojang.math.Transformation;
 import io.wifi.starrailexpress.index.TMMItems;
