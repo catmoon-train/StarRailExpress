@@ -187,7 +187,7 @@ public class ModRoles {
   public static ResourceLocation EXAMPLER_ID = Noellesroles.id("exampler");
   public static final ResourceLocation NINJA_ID = Noellesroles.id("ninja");
 
-  public static ResourceLocation THE_INSANE_DAMNED_PARANOID_KILLER_OF_DOOM_DEATH_DESTRUCTION_AND_WAFFLES_ID = Noellesroles
+  public static ResourceLocation INSANE_KILLER_ID = Noellesroles
       .id("the_insane_damned_paranoid_killer");
   public static final ResourceLocation CONSPIRATOR_ID = Noellesroles.id("conspirator");
   public static final ResourceLocation CLEANER_ID = Noellesroles.id("cleaner");
@@ -811,9 +811,9 @@ public class ModRoles {
       .registerRole(new NormalRole(POISONER_ID, (new Color(115, 0, 57)).getRGB(), false,
           true, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true));
 
-  public static SRERole THE_INSANE_DAMNED_PARANOID_KILLER_OF_DOOM_DEATH_DESTRUCTION_AND_WAFFLES = TMMRoles
+  public static SRERole INSANE_KILLER = TMMRoles
       .registerRole(new NormalRole(
-          THE_INSANE_DAMNED_PARANOID_KILLER_OF_DOOM_DEATH_DESTRUCTION_AND_WAFFLES_ID,
+          INSANE_KILLER_ID,
           new Color(255, 0, 0, 192).getRGB(), false, true, SRERole.MoodType.FAKE,
           Integer.MAX_VALUE, true).setComponentKey(InsaneKillerPlayerComponent.KEY));
 

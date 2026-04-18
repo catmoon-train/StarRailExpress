@@ -1117,12 +1117,12 @@ public class ModEventsRegister {
             RoleUtils.RemoveAllEffects(playerEntity);
             SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(playerEntity.level());
             if (gameWorldComponent.isRole(playerEntity,
-                    ModRoles.THE_INSANE_DAMNED_PARANOID_KILLER_OF_DOOM_DEATH_DESTRUCTION_AND_WAFFLES)) {
+                    ModRoles.INSANE_KILLER)) {
                 final var insaneKillerPlayerComponent = InsaneKillerPlayerComponent.KEY.get(playerEntity);
                 insaneKillerPlayerComponent.init();
             }
             if (gameWorldComponent.isRole(playerEntity, ModRoles.JOJO)) {
-                int dropCount = 1 + MCItemsUtils.hasItem(playerEntity, TMMItemTags.GUNS);
+                int dropCount = 1 + MCItemsUtils.countItem(playerEntity, TMMItemTags.GUNS);
                 while (dropCount > 0) {
                     playerEntity.drop(TMMItems.REVOLVER.getDefaultInstance(), false);
                     dropCount--;
@@ -1270,7 +1270,7 @@ public class ModEventsRegister {
         ModdedRoleRemoved.EVENT.register((player, role) -> {
             if (role != null) {
                 if (role.identifier()
-                        .equals(ModRoles.THE_INSANE_DAMNED_PARANOID_KILLER_OF_DOOM_DEATH_DESTRUCTION_AND_WAFFLES
+                        .equals(ModRoles.INSANE_KILLER
                                 .identifier())) {
                     InsaneKillerPlayerComponent.KEY.get(player).clear();
                 }
@@ -1530,7 +1530,7 @@ public class ModEventsRegister {
         });
         // 设置谓词
         SRE.canUseChatHud.add((role -> role.getIdentifier()
-                .equals(ModRoles.THE_INSANE_DAMNED_PARANOID_KILLER_OF_DOOM_DEATH_DESTRUCTION_AND_WAFFLES_ID)));
+                .equals(ModRoles.INSANE_KILLER_ID)));
         SRE.canUseChatHudPlayer.add(player -> {
             return SREClient.gameComponent != null && SREClient.gameComponent.isRunning()
                     && SREClient.gameComponent.getGameMode() instanceof ChairWheelRaceGame;
@@ -1538,7 +1538,7 @@ public class ModEventsRegister {
         SRE.canUseOtherPerson.add((role -> role.getIdentifier()
                 .equals(TMMRoles.DISCOVERY_CIVILIAN.getIdentifier())));
         SRE.canUseOtherPerson.add((role -> role.getIdentifier()
-                .equals(ModRoles.THE_INSANE_DAMNED_PARANOID_KILLER_OF_DOOM_DEATH_DESTRUCTION_AND_WAFFLES_ID)));
+                .equals(ModRoles.INSANE_KILLER_ID)));
         SRE.canUseOtherPerson.add((role -> role.getIdentifier()
                 .equals(ModRoles.MONOKUMA_ID)));
         SRE.canUseOtherPerson.add((role -> role.getIdentifier()
@@ -1546,7 +1546,7 @@ public class ModEventsRegister {
         SRE.canCollide.add(a -> {
             final var gameWorldComponent = SREGameWorldComponent.KEY.get(a.level());
             if (gameWorldComponent.isRole(a,
-                    ModRoles.THE_INSANE_DAMNED_PARANOID_KILLER_OF_DOOM_DEATH_DESTRUCTION_AND_WAFFLES)) {
+                    ModRoles.INSANE_KILLER)) {
                 if (InsaneKillerPlayerComponent.KEY.get(a).isActive) {
                     return true;
                 }
@@ -1578,7 +1578,7 @@ public class ModEventsRegister {
                     var gameComp = SREGameWorldComponent.KEY.get(serverPlayer.level());
                     if (gameComp != null) {
                         if (gameComp.isRole(serverPlayer,
-                                ModRoles.THE_INSANE_DAMNED_PARANOID_KILLER_OF_DOOM_DEATH_DESTRUCTION_AND_WAFFLES)) {
+                                ModRoles.INSANE_KILLER)) {
                             InsaneKillerPlayerComponent insaneKillerPlayerComponent = InsaneKillerPlayerComponent.KEY
                                     .get(serverPlayer);
                             if (insaneKillerPlayerComponent.isActive) {

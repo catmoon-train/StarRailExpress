@@ -601,7 +601,7 @@ public class ModPacketsReciever {
             Component.translatable("message.tip.skill_disabled").withStyle(ChatFormatting.RED), true);
         return;
       }
-      RoleSkill.beforeUse(player, ModRoles.THE_INSANE_DAMNED_PARANOID_KILLER_OF_DOOM_DEATH_DESTRUCTION_AND_WAFFLES);
+      RoleSkill.beforeUse(player, ModRoles.INSANE_KILLER);
       InsaneKillerPlayerComponent component = InsaneKillerPlayerComponent.KEY.get(player);
 
       // 检查冷却
@@ -610,7 +610,7 @@ public class ModPacketsReciever {
 
       component.toggleAbility();
       component.sync();
-      RoleSkill.afterUse(player, ModRoles.THE_INSANE_DAMNED_PARANOID_KILLER_OF_DOOM_DEATH_DESTRUCTION_AND_WAFFLES);
+      RoleSkill.afterUse(player, ModRoles.INSANE_KILLER);
     });
     ServerPlayNetworking.registerGlobalReceiver(RecorderC2SPacket.TYPE, RecorderC2SPacket::handle);
     ServerPlayNetworking.registerGlobalReceiver(MercenaryContractSignC2SPacket.TYPE,

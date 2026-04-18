@@ -17,7 +17,7 @@ public abstract class InsaneShopMixin {
     @Inject(method = "canBuy", at = @At("HEAD"), cancellable = true)
     private void cantBuy(@NotNull Player player, CallbackInfoReturnable<Boolean> cir) {
         if (SREGameWorldComponent.KEY.get(player.level()).isRole(player,
-                ModRoles.THE_INSANE_DAMNED_PARANOID_KILLER_OF_DOOM_DEATH_DESTRUCTION_AND_WAFFLES)) {
+                ModRoles.INSANE_KILLER)) {
             var ikpc = InsaneKillerPlayerComponent.KEY.get(player);
             if(ikpc.inNearDeath()){
                 cir.setReturnValue(false);

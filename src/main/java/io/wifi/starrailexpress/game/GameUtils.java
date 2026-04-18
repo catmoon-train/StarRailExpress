@@ -359,12 +359,14 @@ public class GameUtils {
     }
 
     public static List<Item> cooldownItems = new ArrayList<>();
+
     public static void addItemCooldowns(ServerLevel world, int time) {
-        if (cooldownItems.isEmpty()){
+        if (cooldownItems.isEmpty()) {
             BuiltInRegistries.ITEM.forEach(item -> {
                 if (!(item instanceof LetterItem)) {
                     String namespace = BuiltInRegistries.ITEM.getKey(item).getNamespace();
-                    if (namespace.equals(StarRailExpressID.MOD_ID) || namespace.equals(StarRailExpressID.STUPIDEXPRESS) || namespace.equals(StarRailExpressID.NOELLESROLES_ROLE)) {
+                    if (namespace.equals(StarRailExpressID.MOD_ID) || namespace.equals(StarRailExpressID.STUPIDEXPRESS)
+                            || namespace.equals(StarRailExpressID.NOELLESROLES_ROLE)) {
                         cooldownItems.add(item);
                     }
                 }
@@ -382,8 +384,6 @@ public class GameUtils {
             cooldowns.addCooldown(Items.CLOCK, time);
             cooldowns.addCooldown(Items.TRIDENT, time);
 
-
-
             cooldowns.addCooldown(TMMItems.GRENADE, time);
             cooldowns.addCooldown(TMMItems.PSYCHO_MODE, time);
             cooldowns.addCooldown(TMMItems.NUNCHUCK, time);
@@ -393,18 +393,17 @@ public class GameUtils {
             cooldowns.addCooldown(TMMItems.BLACKOUT, time);
 
             cooldownItems.forEach(
-                    item -> cooldowns.addCooldown(item, time)
-            );
+                    item -> cooldowns.addCooldown(item, time));
 
-//            cooldowns.addCooldown(ModItems.SP_KNIFE, time);
-//            cooldowns.addCooldown(ModItems.STALKER_KNIFE, time);
-//            cooldowns.addCooldown(ModItems.STALKER_KNIFE_OFFHAND, time);
-//            cooldowns.addCooldown(ModItems.FAKE_REVOLVER, time);
-//            cooldowns.addCooldown(ModItems.THROWING_KNIFE, time);
-//            cooldowns.addCooldown(ModItems.NINJA_KNIFE, time);
-//            cooldowns.addCooldown(ModItems.NINJA_SHURIKEN, time);
-//            cooldowns.addCooldown(HSRItems.TOXIN, time);
-//            cooldowns.addCooldown(HSRItems.ANTIDOTE, time);
+            // cooldowns.addCooldown(ModItems.SP_KNIFE, time);
+            // cooldowns.addCooldown(ModItems.STALKER_KNIFE, time);
+            // cooldowns.addCooldown(ModItems.STALKER_KNIFE_OFFHAND, time);
+            // cooldowns.addCooldown(ModItems.FAKE_REVOLVER, time);
+            // cooldowns.addCooldown(ModItems.THROWING_KNIFE, time);
+            // cooldowns.addCooldown(ModItems.NINJA_KNIFE, time);
+            // cooldowns.addCooldown(ModItems.NINJA_SHURIKEN, time);
+            // cooldowns.addCooldown(HSRItems.TOXIN, time);
+            // cooldowns.addCooldown(HSRItems.ANTIDOTE, time);
 
             if (!player.hasEffect(ModEffects.SAFE_TIME))
                 player.addEffect(new MobEffectInstance(
@@ -810,6 +809,9 @@ public class GameUtils {
                     if (isLoversWin && roundEnd.CustomWinnerPlayers != null
                             && roundEnd.CustomWinnerPlayers.contains(player.getUUID())) {
                         isWinner = true;
+                    }
+                    if (playerRole instanceof CustomWinnerRole cwr) {
+                        isWinner = cwr.didPlayerWin(player, isWinner,winStatus);
                     }
                 }
 
@@ -1232,7 +1234,7 @@ public class GameUtils {
                 }
                 if (spawnBody) {
                     PlayerBodyEntity body = TMMEntities.PLAYER_BODY.create(victim.level());
-                    victimRole.onDeathWithBody(victim, spawnBody, killer, deathReason,body);
+                    victimRole.onDeathWithBody(victim, spawnBody, killer, deathReason, body);
                     double scale = victim.getAttributeValue(Attributes.SCALE);
                     body.getAttribute(Attributes.SCALE).setBaseValue(scale);
                     if (body != null) {
@@ -1468,8 +1470,14 @@ public class GameUtils {
      */
     public enum WinStatus {
         NOT_MODIFY, NONE, KILLERS, PASSENGERS, TIME, LOOSE_END, GAMBLER, RECORDER, NO_PLAYER, NIAN_SHOU, LOVERS,
-        CUSTOM_COMPONENT, CUSTOM
+        CUSTOM_COMPONENT, CUSTOM;
         // 自定义获胜请使用RoleUtils.customWinnerWin(); 将id改为对应角色的id的path即可正常使用。请不要在这里添加枚举项目。
         // 如果有自定义获胜玩家，请添加 roundEnd.CustomWinnerID 或 使用谓词判断：CustomWinnersPredicates
+        public boolean isKillerWin(){
+            return this.equals(WinStatus.KILLERS);
+        }
+        public boolean isInnocentWin(){
+            return this.equals(WinStatus.TIME) || this.equals(WinStatus.PASSENGERS);
+        }
     }
 }

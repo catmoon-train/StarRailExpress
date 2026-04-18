@@ -43,7 +43,7 @@ public abstract class ItemEntityMixin {
         if ((SREGameWorldComponent.KEY.get(player.level()).canPickUpRevolver(player)
                 && !player.equals(this.getOwner()))) {
             // 在拾取物品之前调用角色的onPickupItem方法
-            if (SREItemUtils.hasItem(player, TMMItemTags.GUNS) > 0) {
+            if (SREItemUtils.countItem(player, TMMItemTags.GUNS) > 0) {
                 return;
             }
             if (io.wifi.starrailexpress.api.RoleMethodDispatcher.callOnPickupItem(player,

@@ -46,8 +46,8 @@ public class ChefStartGameScreen extends Screen {
         int maxHeight = this.height;
         int buttonX = maxWidth / 2 - BUTTON_WIDTH / 2;
         int buttonY = maxHeight / 2;
-        if (SREItemUtils.hasItem(this.minecraft.player, ModItems.FOOD_STUFF) >= 2
-                && SREItemUtils.hasItem(this.minecraft.player, (food) -> {
+        if (SREItemUtils.countItem(this.minecraft.player, ModItems.FOOD_STUFF) >= 2
+                && SREItemUtils.countItem(this.minecraft.player, (food) -> {
                     if (food.getItem() instanceof CocktailItem)
                         return false;
                     if (food.has(ModDataComponentTypes.COOKED))

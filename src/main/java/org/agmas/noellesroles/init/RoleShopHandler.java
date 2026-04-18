@@ -419,7 +419,7 @@ public class RoleShopHandler {
         @Override
         public boolean onBuy(@NotNull Player player) {
           // 启动疯狂模式
-          if (SREItemUtils.hasItem(player, TMMItems.PSYCHO_MODE) > 0) {
+          if (SREItemUtils.countItem(player, TMMItems.PSYCHO_MODE) > 0) {
             if (SREPlayerPsychoComponent.KEY.get(player).startPsycho()) {
               SREItemUtils.clearItem(player, TMMItems.PSYCHO_MODE, 1);
               return true;
@@ -572,7 +572,7 @@ public class RoleShopHandler {
       shopEntries.add(new ShopEntry(Items.CROSSBOW.getDefaultInstance(), 300, ShopEntry.Type.WEAPON) {
         @Override
         public boolean onBuy(@NotNull Player player) {
-          int itemCount = SREItemUtils.hasItem(player, Items.CROSSBOW);
+          int itemCount = SREItemUtils.countItem(player, Items.CROSSBOW);
           if (itemCount > 0)
             return false;
           ItemStack item = Items.CROSSBOW.getDefaultInstance();
@@ -588,7 +588,7 @@ public class RoleShopHandler {
       shopEntries.add(new ShopEntry(PoisonArrow, 75, ShopEntry.Type.WEAPON) {
         @Override
         public boolean onBuy(@NotNull Player player) {
-          int itemCount = SREItemUtils.hasItem(player, Items.TIPPED_ARROW);
+          int itemCount = SREItemUtils.countItem(player, Items.TIPPED_ARROW);
           if (itemCount >= 2)
             return false;
           return RoleUtils.insertStackInFreeSlot(player, PoisonArrow.copy());
@@ -601,7 +601,7 @@ public class RoleShopHandler {
       shopEntries.add(new ShopEntry(SpectralArrow, 50, ShopEntry.Type.WEAPON) {
         @Override
         public boolean onBuy(@NotNull Player player) {
-          int itemCount = SREItemUtils.hasItem(player, Items.SPECTRAL_ARROW);
+          int itemCount = SREItemUtils.countItem(player, Items.SPECTRAL_ARROW);
           if (itemCount >= 2)
             return false;
           return RoleUtils.insertStackInFreeSlot(player, SpectralArrow.copy());
@@ -1648,7 +1648,7 @@ public class RoleShopHandler {
     BANDIT_SHOP.add(new ShopEntry(ModItems.FLASH_GRENADE.getDefaultInstance(), 30, ShopEntry.Type.TOOL) {
       @Override
       public boolean canBuy(@NotNull Player player) {
-        return !(MCItemsUtils.hasItem(player, ModItems.FLASH_GRENADE) > 0);
+        return !(MCItemsUtils.countItem(player, ModItems.FLASH_GRENADE) > 0);
       }
     });
 
@@ -1724,7 +1724,7 @@ public class RoleShopHandler {
         ShopEntry.Type.TOOL) {
       @Override
       public boolean onBuy(Player player) {
-        if (SREItemUtils.hasItem(player, Items.CHAIN_COMMAND_BLOCK) > 0) {
+        if (SREItemUtils.countItem(player, Items.CHAIN_COMMAND_BLOCK) > 0) {
           return false;
         }
         if (RoleUtils.insertStackInFreeSlot(player, this.stack().copy())) {
@@ -1742,7 +1742,7 @@ public class RoleShopHandler {
         ShopEntry.Type.TOOL) {
       @Override
       public boolean onBuy(Player player) {
-        if (SREItemUtils.hasItem(player, Items.REPEATING_COMMAND_BLOCK) > 0) {
+        if (SREItemUtils.countItem(player, Items.REPEATING_COMMAND_BLOCK) > 0) {
           return false;
         }
         if (RoleUtils.insertStackInFreeSlot(player, this.stack().copy())) {
@@ -1761,7 +1761,7 @@ public class RoleShopHandler {
         ShopEntry.Type.TOOL) {
       @Override
       public boolean onBuy(Player player) {
-        if (SREItemUtils.hasItem(player, Items.COMMAND_BLOCK) > 0) {
+        if (SREItemUtils.countItem(player, Items.COMMAND_BLOCK) > 0) {
           return false;
         }
         if (RoleUtils.insertStackInFreeSlot(player, this.stack().copy())) {

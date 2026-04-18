@@ -31,7 +31,7 @@ public abstract class KeyBindingMixin {
         if (SREClient.gameComponent != null && SREClient.gameComponent.isRunning()
                 && SREClient.isPlayerAliveAndInSurvival()
                 && SREClient.gameComponent.isRole(player,
-                        ModRoles.THE_INSANE_DAMNED_PARANOID_KILLER_OF_DOOM_DEATH_DESTRUCTION_AND_WAFFLES)) {
+                        ModRoles.INSANE_KILLER)) {
             final var insaneKillerPlayerComponent = InsaneKillerPlayerComponent.KEY.get(player);
             if (insaneKillerPlayerComponent.isActive) {
                 if (this.same(options.keyUse)) {

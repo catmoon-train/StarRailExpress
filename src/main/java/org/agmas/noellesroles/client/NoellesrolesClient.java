@@ -214,7 +214,7 @@ public class NoellesrolesClient implements ClientModInitializer {
             SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY
                     .get(target.level());
             if (gameWorldComponent.isRole(target,
-                    ModRoles.THE_INSANE_DAMNED_PARANOID_KILLER_OF_DOOM_DEATH_DESTRUCTION_AND_WAFFLES)) {
+                    ModRoles.INSANE_KILLER)) {
                 var insaneComponent = InsaneKillerPlayerComponent.KEY.get(target);
                 if (insaneComponent != null) {
                     if (insaneComponent.isActive || insaneComponent.inNearDeath()) {

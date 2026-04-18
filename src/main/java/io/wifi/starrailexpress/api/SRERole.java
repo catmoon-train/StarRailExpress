@@ -53,6 +53,14 @@ public abstract class SRERole {
         return this;
     };
 
+    public boolean isKillerTeam() {
+        return !this.isInnocent && (this.isNeutralForKiller || this.canUseKiller);
+    }
+
+    public boolean isKiller() {
+        return !this.isInnocent && !this.isNeutrals && !this.isNeutralForKiller && this.canUseKiller;
+    }
+
     public boolean canIgnoreBlackout() {
         return canIgnoreBlackout;
     }
@@ -291,7 +299,9 @@ public abstract class SRERole {
     public void onDeath(Player victim, boolean spawnBody, @Nullable Player killer, ResourceLocation deathReason) {
         return;
     }
-    public void onDeathWithBody(Player victim, boolean spawnBody, @Nullable Player killer, ResourceLocation deathReason, PlayerBodyEntity playerBodyEntity) {
+
+    public void onDeathWithBody(Player victim, boolean spawnBody, @Nullable Player killer, ResourceLocation deathReason,
+            PlayerBodyEntity playerBodyEntity) {
         return;
     }
 
@@ -331,6 +341,7 @@ public abstract class SRERole {
 
     /**
      * 左键时发生
+     * 
      * @param player
      * @param victim
      * @return 返回InteractionResult.CONSUME取消原有逻辑。返回其余将继续。

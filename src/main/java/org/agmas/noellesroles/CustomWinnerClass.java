@@ -1,12 +1,13 @@
 package org.agmas.noellesroles;
 
+import io.wifi.starrailexpress.api.CustomWinnerRole;
+import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.event.AllowGameEnd;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.GameUtils.WinStatus;
 import org.agmas.noellesroles.game.roles.neutral.candlebearer.CandleBearerPlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.thief.ThiefPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.RedHouseRoles;
@@ -30,6 +31,18 @@ public class CustomWinnerClass {
             for (var player : serverLevel.players()) {
                 if (GameUtils.isPlayerAliveAndSurvival(player)) {
                     alivePlayerCount++;
+                    SRERole role = gameComponent.getRole(player);
+                    if (role != null) {
+                        if (role instanceof CustomWinnerRole cwr) {
+                            WinStatus resultWinStatus = cwr.checkWin(player, winStatus);
+                            if (resultWinStatus != WinStatus.NOT_MODIFY) {
+                                if (resultWinStatus == WinStatus.CUSTOM) {
+                                    cwr.win(player);
+                                }
+                                return resultWinStatus;
+                            }
+                        }
+                    }
                     if (gameComponent.isRole(player, ModRoles.THIEF)) {
                         hasThiefAlive = true;
                         // thiefCount++;
@@ -72,13 +85,6 @@ public class CustomWinnerClass {
 
             if (CandleBearerPlayerComponent.checkCandleBearerVictory(serverLevel)) {
                 return WinStatus.CUSTOM;
-            }
-
-            // 黑白熊：依附最近玩家的阵营获胜
-            if (!winStatus.equals(WinStatus.NONE)) {
-                var monokumaResult = MonokumaPlayerComponent.checkMonokumaVictory(serverLevel, winStatus);
-                // monokumaResult != null 表示黑白熊成功依附，不修改整体胜负
-                // monokumaResult == null 表示黑白熊失败，同样不修改
             }
 
             if (winStatus.equals(WinStatus.TIME) || winStatus.equals(WinStatus.PASSENGERS)

@@ -276,7 +276,7 @@ public class InstinctRenderer {
             if (!SREClient.gameComponent.isRole(Minecraft.getInstance().player, SERoles.INITIATE)) {
                 return -1;
             }
-            if (SREItemUtils.hasItem(player, TMMItems.KNIFE) <= 0) {
+            if (SREItemUtils.countItem(player, TMMItems.KNIFE) <= 0) {
                 return -1;
             }
             if (target instanceof Player targettedPlayer) {

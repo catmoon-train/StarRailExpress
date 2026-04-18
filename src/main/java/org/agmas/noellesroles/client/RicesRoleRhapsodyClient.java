@@ -468,7 +468,7 @@ public class RicesRoleRhapsodyClient implements ClientModInitializer {
             return true;
         }
         if (gameWorld.isRole(client.player,
-                ModRoles.THE_INSANE_DAMNED_PARANOID_KILLER_OF_DOOM_DEATH_DESTRUCTION_AND_WAFFLES)) {
+                ModRoles.INSANE_KILLER)) {
             if (!GameUtils.isPlayerAliveAndSurvival(client.player))
                 return true;
 

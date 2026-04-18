@@ -13,7 +13,7 @@ public class InsaneHud {
 
     public static void register() {
         RoleHudRenderCallback.EVENT.register(
-                ModRoles.THE_INSANE_DAMNED_PARANOID_KILLER_OF_DOOM_DEATH_DESTRUCTION_AND_WAFFLES_ID,
+                ModRoles.INSANE_KILLER_ID,
                 (context, tickCounter) -> {
                     Minecraft client = Minecraft.getInstance();
                     if (SREClient.isPlayerSpectator())

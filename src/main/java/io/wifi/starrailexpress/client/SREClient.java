@@ -107,6 +107,7 @@ import java.util.function.Predicate;
 
 public class SREClient implements ClientModInitializer {
     private static float soundLevel = 0f;
+    public static boolean hasCustomSkinLoaderAndNeedToWarn = false;
     public static HPManager handParticleManager;
     public static Map<Player, Vec3> particleMap;
     public static Map<UUID, Integer> cachedHighLightMap = new HashMap<>();
@@ -152,6 +153,22 @@ public class SREClient implements ClientModInitializer {
                 || (client.player != null && !client.player.isCreative() && !client.player.isSpectator()));
     }
 
+    public static boolean checkCustomSkinLoader() {
+        final String customSkinLoaderClassName = "customskinloader.CustomSkinLoader";
+        boolean result = isClassPresent(customSkinLoaderClassName);
+        hasCustomSkinLoaderAndNeedToWarn = result;
+        return result;
+    }
+
+    private static boolean isClassPresent(String className) {
+        try {
+            Class.forName(className, false, SRE.class.getClassLoader());
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
+    }
+
     public static boolean isPlayerCreative() {
         return cachedPlayerCreative;
     }
@@ -165,7 +182,7 @@ public class SREClient implements ClientModInitializer {
         // Load config
         ModWhitelistClient.onInitializeClient();
         // ModVersionPacket
-
+        checkCustomSkinLoader();
         // Initialize ScreenParticle
         handParticleManager = new HPManager();
         particleMap = new HashMap<>();

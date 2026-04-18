@@ -87,7 +87,7 @@ public class InsaneKillerPlayerComponent
         AfterShieldAllowPlayerDeath.EVENT.register(((playerEntity, identifier) -> {
             var gameWorldComponent = SREGameWorldComponent.KEY.get(playerEntity.level());
             if (gameWorldComponent.isRole(playerEntity,
-                    ModRoles.THE_INSANE_DAMNED_PARANOID_KILLER_OF_DOOM_DEATH_DESTRUCTION_AND_WAFFLES)) {
+                    ModRoles.INSANE_KILLER)) {
                 if (!gameWorldComponent.isSkillAvailable) {
                     // player.displayClientMessage(
                     // Component.translatable("message.tip.skill_disabled").withStyle(ChatFormatting.RED),
@@ -130,7 +130,7 @@ public class InsaneKillerPlayerComponent
 
         if (player instanceof ServerPlayer serverPlayer) {
             SRE.REPLAY_MANAGER.recordPlayerRevival(serverPlayer.getUUID(),
-                    ModRoles.THE_INSANE_DAMNED_PARANOID_KILLER_OF_DOOM_DEATH_DESTRUCTION_AND_WAFFLES);
+                    ModRoles.INSANE_KILLER);
             serverPlayer.sendSystemMessage(
                     Component.translatable("message.insane_killer.revive").withStyle(ChatFormatting.GOLD), true);
             serverPlayer.sendSystemMessage(
@@ -227,7 +227,7 @@ public class InsaneKillerPlayerComponent
     @Override
     public boolean shouldSyncWith(ServerPlayer p) {
         if (SREGameWorldComponent.KEY.get(player.level()).isRole(this.player,
-                ModRoles.THE_INSANE_DAMNED_PARANOID_KILLER_OF_DOOM_DEATH_DESTRUCTION_AND_WAFFLES))
+                ModRoles.INSANE_KILLER))
             return true;
         return p == this.player;
     }
@@ -235,7 +235,7 @@ public class InsaneKillerPlayerComponent
     @Override
     public void serverTick() {
         if (!SREGameWorldComponent.KEY.get(player.level()).isRole(player,
-                ModRoles.THE_INSANE_DAMNED_PARANOID_KILLER_OF_DOOM_DEATH_DESTRUCTION_AND_WAFFLES))
+                ModRoles.INSANE_KILLER))
             return;
         if (cooldown > 0) {
             cooldown--;

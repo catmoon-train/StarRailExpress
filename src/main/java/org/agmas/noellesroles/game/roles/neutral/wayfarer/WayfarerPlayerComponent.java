@@ -387,7 +387,7 @@ public class WayfarerPlayerComponent implements RoleComponent, ServerTickingComp
             return;
         }
         boolean hasKey = false;
-        boolean hasInited = SREItemUtils.hasItem(this.player, TMMItems.KEY) > 0;
+        boolean hasInited = SREItemUtils.countItem(this.player, TMMItems.KEY) > 0;
         if (!hasInited) {
             if (targetVictim != null) {
                 for (var item : targetVictim.getInventory().items) {

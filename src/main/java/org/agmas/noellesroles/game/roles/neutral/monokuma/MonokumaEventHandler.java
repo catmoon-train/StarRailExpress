@@ -1,6 +1,5 @@
 package org.agmas.noellesroles.game.roles.neutral.monokuma;
 
-import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.event.AllowGameEnd;
 import io.wifi.starrailexpress.event.AllowPlayerDeath;
 import io.wifi.starrailexpress.event.AllowPlayerDeathWithKiller;
@@ -40,24 +39,27 @@ public class MonokumaEventHandler {
     private static void registerHitTrigger() {
         // 使用 AllowPlayerDeathWithKiller 来截获被攻击事件
         // 在伪装义警阶段(phase 1)，任何攻击命中都触发狂暴前奏
-//        AllowPlayerDeathWithKiller.EVENT.register((player, killer, deathReason) -> {
-//            if (!(player instanceof ServerPlayer sp)) return true;
-//            WorldModifierComponent worldModifierComponent = WorldModifierComponent.KEY.get(sp.level());
-//            if (!worldModifierComponent.isModifier(sp, SEModifiers.BLACK_WHITE)) return true;
-//
-//            MonokumaPlayerComponent comp = MonokumaPlayerComponent.KEY.get(sp);
-//            if (comp.phase == 1) {
-//                // 触发狂暴前奏，阻止死亡
-//                comp.onHitTriggered();
-//                return false;
-//            }
-//            // 狂暴阶段(2)正常接受伤害判定（有护盾）
-//            // 黑白熊阶段(3)由 INVINCIBLE 效果处理
-//            return true;
-//        });
+        // AllowPlayerDeathWithKiller.EVENT.register((player, killer, deathReason) -> {
+        // if (!(player instanceof ServerPlayer sp)) return true;
+        // WorldModifierComponent worldModifierComponent =
+        // WorldModifierComponent.KEY.get(sp.level());
+        // if (!worldModifierComponent.isModifier(sp, SEModifiers.BLACK_WHITE)) return
+        // true;
+        //
+        // MonokumaPlayerComponent comp = MonokumaPlayerComponent.KEY.get(sp);
+        // if (comp.phase == 1) {
+        // // 触发狂暴前奏，阻止死亡
+        // comp.onHitTriggered();
+        // return false;
+        // }
+        // // 狂暴阶段(2)正常接受伤害判定（有护盾）
+        // // 黑白熊阶段(3)由 INVINCIBLE 效果处理
+        // return true;
+        // });
         AllowPlayerDeathWithKiller.EVENT.register((player, killer, deathReason) -> {
-            if (!(killer instanceof ServerPlayer sp)) return true;
-            if (killer.getMainHandItem().is(TMMItems.REVOLVER)){
+            if (!(killer instanceof ServerPlayer sp))
+                return true;
+            if (killer.getMainHandItem().is(TMMItems.REVOLVER)) {
                 WorldModifierComponent worldModifierComponent = WorldModifierComponent.KEY.get(sp.level());
                 if (worldModifierComponent.isModifier(killer, SEModifiers.BLACK_WHITE)) {
                     return !(Math.random() > 0.5);
@@ -68,45 +70,48 @@ public class MonokumaEventHandler {
         });
 
         AllowPlayerDeath.EVENT.register((player, deathReason) -> {
-            if (deathReason.equals(GameConstants.DeathReasons.FELL_OUT_OF_TRAIN))return true;
-            if (deathReason.equals(StupidExpress.id("ignited")))return true;
-            if (!(player instanceof ServerPlayer sp)) return true;
-            SREGameWorldComponent gameComponent = SREGameWorldComponent.KEY.get(sp.level());
-                    WorldModifierComponent worldModifierComponent = WorldModifierComponent.KEY.get(sp.level());
-                    if (!worldModifierComponent.isModifier(sp, SEModifiers.BLACK_WHITE)) return true;
+            if (deathReason.equals(GameConstants.DeathReasons.FELL_OUT_OF_TRAIN))
+                return true;
+            if (deathReason.equals(StupidExpress.id("ignited")))
+                return true;
+            if (!(player instanceof ServerPlayer sp))
+                return true;
+            WorldModifierComponent worldModifierComponent = WorldModifierComponent.KEY.get(sp.level());
+            if (!worldModifierComponent.isModifier(sp, SEModifiers.BLACK_WHITE))
+                return true;
             MonokumaPlayerComponent comp = MonokumaPlayerComponent.KEY.get(sp);
             if (comp.phase == 1) {
                 StupidRoleUtils.changeRole(player, ModRoles.MONOKUMA);
-                StupidRoleUtils.sendWelcomeAnnouncement( sp);
-
+                StupidRoleUtils.sendWelcomeAnnouncement(sp);
 
                 comp.onHitTriggered();
                 return false;
             }
-            if (comp.phase == 3){
+            if (comp.phase == 3) {
                 return false;
             }
             return true;
         });
     }
 
-//    /**
-//     * 特制左轮50%命中和好人误杀机制
-//     */
-//    private static void registerRevolverMechanic() {
-//        // 拦截枪击事件：检查是否为特制左轮
-//        OnRevolverUsed.EVENT.register((shooter, target) -> {
-//            if (target == null) return;
-//            if (!(shooter instanceof ServerPlayer sp)) return;
-//            SREGameWorldComponent gameComponent = SREGameWorldComponent.KEY.get(sp.level());
-//            if (!gameComponent.isRole(sp, ModRoles.MONOKUMA)) return;
-//
-//            MonokumaPlayerComponent comp = MonokumaPlayerComponent.KEY.get(sp);
-//            if (comp.phase != 1) return;
-//
-//            // 50%概率不击杀 → 在 onGunHit 回调中处理
-//        });
-//    }
+    // /**
+    // * 特制左轮50%命中和好人误杀机制
+    // */
+    // private static void registerRevolverMechanic() {
+    // // 拦截枪击事件：检查是否为特制左轮
+    // OnRevolverUsed.EVENT.register((shooter, target) -> {
+    // if (target == null) return;
+    // if (!(shooter instanceof ServerPlayer sp)) return;
+    // SREGameWorldComponent gameComponent =
+    // SREGameWorldComponent.KEY.get(sp.level());
+    // if (!gameComponent.isRole(sp, ModRoles.MONOKUMA)) return;
+    //
+    // MonokumaPlayerComponent comp = MonokumaPlayerComponent.KEY.get(sp);
+    // if (comp.phase != 1) return;
+    //
+    // // 50%概率不击杀 → 在 onGunHit 回调中处理
+    // });
+    // }
 
     /**
      * 黑白熊形态保护：
@@ -123,7 +128,8 @@ public class MonokumaEventHandler {
      */
     private static void registerWinCondition() {
         AllowGameEnd.EVENT.register((serverLevel, winStatus, isLooseEnd) -> {
-            if (isLooseEnd) return GameUtils.WinStatus.NOT_MODIFY;
+            if (isLooseEnd)
+                return GameUtils.WinStatus.NOT_MODIFY;
 
             // 不阻止游戏结束，只是在结束时计算黑白熊的胜负
             // 黑白熊的获胜/失败在结果界面中体现

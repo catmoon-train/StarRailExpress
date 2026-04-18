@@ -115,7 +115,7 @@ public class MagicianPlayerComponent implements RoleComponent, ServerTickingComp
         killerRoles.add(ModRoles.BANDIT_ID);
         killerRoles.add(ModRoles.CLEANER_ID);
         killerRoles.add(ModRoles.TRAPPER_ID);
-        killerRoles.add(ModRoles.THE_INSANE_DAMNED_PARANOID_KILLER_OF_DOOM_DEATH_DESTRUCTION_AND_WAFFLES_ID);
+        killerRoles.add(ModRoles.INSANE_KILLER_ID);
         killerRoles.add(ModRoles.PHANTOM_ID);
         killerRoles.add(SERoles.AVARICIOUS.identifier());
 

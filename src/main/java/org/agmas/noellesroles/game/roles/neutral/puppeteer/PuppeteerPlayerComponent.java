@@ -409,7 +409,7 @@ public class PuppeteerPlayerComponent implements RoleComponent, ServerTickingCom
             if (role.identifier().equals(ModRoles.WATER_GHOST_ID))
                 continue;
             if (role.identifier()
-                    .equals(ModRoles.THE_INSANE_DAMNED_PARANOID_KILLER_OF_DOOM_DEATH_DESTRUCTION_AND_WAFFLES_ID))
+                    .equals(ModRoles.INSANE_KILLER_ID))
                 continue;
             if (role.identifier().equals(ModRoles.DIO_ID))
                 continue;

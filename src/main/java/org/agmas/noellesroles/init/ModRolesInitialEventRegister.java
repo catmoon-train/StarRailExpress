@@ -37,6 +37,7 @@ import org.agmas.noellesroles.game.roles.neutral.thief.ThiefPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.vulture.VulturePlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.RedHouseRoles;
+import org.agmas.noellesroles.utils.MCItemsUtils;
 import org.agmas.noellesroles.utils.RoleUtils;
 import pro.fazeclan.river.stupid_express.constants.SEItems;
 import pro.fazeclan.river.stupid_express.constants.SERoles;
@@ -128,7 +129,7 @@ public class ModRolesInitialEventRegister {
                 mercenary.sync();
             }
             if (role.identifier().equals(ModRoles.WAYFARER.identifier())) {
-                player.getInventory().clearContent();
+                MCItemsUtils.clearItem(player);
                 RoleUtils.insertStackInFreeSlot(player, ModItems.FAKE_REVOLVER.getDefaultInstance());
                 RoleUtils.insertStackInFreeSlot(player, ModItems.FAKE_KNIFE.getDefaultInstance());
                 // (WayfarerPlayerComponent.KEY.get(player)).reset();
@@ -153,7 +154,8 @@ public class ModRolesInitialEventRegister {
             // 派对狂角色初始化 - 基于开局玩家数设置threshold
             if (role.identifier().equals(ModRoles.PARTY_KILLER.identifier())) {
                 int totalPlayers = SREGameWorldComponent.KEY.get(player.level()).getPlayerCount();
-                var partyComponent = org.agmas.noellesroles.game.roles.killer.party.PartyPlayerComponent.KEY.get(player);
+                var partyComponent = org.agmas.noellesroles.game.roles.killer.party.PartyPlayerComponent.KEY
+                        .get(player);
                 partyComponent.initThreshold(totalPlayers);
                 return;
             }
@@ -205,7 +207,7 @@ public class ModRolesInitialEventRegister {
                     vulturePlayerComponent.sync();
                 }
             }
-            if (role.equals(ModRoles.THE_INSANE_DAMNED_PARANOID_KILLER_OF_DOOM_DEATH_DESTRUCTION_AND_WAFFLES)) {
+            if (role.equals(ModRoles.INSANE_KILLER)) {
                 final var insaneKillerPlayerComponent = InsaneKillerPlayerComponent.KEY.get(player);
                 insaneKillerPlayerComponent.init();
                 insaneKillerPlayerComponent.sync();

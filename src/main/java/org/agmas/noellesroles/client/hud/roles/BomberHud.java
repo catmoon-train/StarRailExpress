@@ -23,7 +23,7 @@ public class BomberHud {
             ItemStack mainHandItem = player.getMainHandItem();
 
             // 计算背包中的炸弹数量
-            int bombCount = SREItemUtils.hasItem(client.player, ModItems.BOMB);
+            int bombCount = SREItemUtils.countItem(client.player, ModItems.BOMB);
             if (client.player.getOffhandItem().is(ModItems.BOMB)) {
                 bombCount += client.player.getOffhandItem().getCount();
             }
