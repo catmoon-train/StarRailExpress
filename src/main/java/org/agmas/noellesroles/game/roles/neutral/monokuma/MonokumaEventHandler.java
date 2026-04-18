@@ -83,7 +83,6 @@ public class MonokumaEventHandler {
             if (comp.phase == 1) {
                 StupidRoleUtils.changeRole(player, ModRoles.MONOKUMA);
                 StupidRoleUtils.sendWelcomeAnnouncement(sp);
-
                 comp.onHitTriggered();
                 return false;
             }

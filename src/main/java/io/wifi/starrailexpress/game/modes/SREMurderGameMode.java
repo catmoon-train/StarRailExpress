@@ -255,6 +255,9 @@ public class SREMurderGameMode extends GameMode {
                 if (mod.civilianOnly) {
                     valid = valid && gameWorldComponent.isInnocent(player);
                 }
+                if(mod.notVigilante){
+                    valid = valid && !gameWorldComponent.isVigilanteTeam(player);
+                }
                 if (!valid) {
                     continue;
                 }

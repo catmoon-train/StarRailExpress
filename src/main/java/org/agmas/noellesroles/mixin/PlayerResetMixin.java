@@ -35,6 +35,7 @@ import org.agmas.noellesroles.game.roles.killer.morphling.MorphlingPlayerCompone
 import org.agmas.noellesroles.game.roles.killer.stalker.StalkerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.trapper.TrapperPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.admirer.AdmirerPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.recorder.RecorderPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.slippery_ghost.SlipperyGhostPlayerComponent;
@@ -99,6 +100,7 @@ public abstract class PlayerResetMixin {
         SplitPersonalityComponent.KEY.get(player).clear();
         SkinSplitPersonalityComponent.KEY.get(player).clear();
         SkinSplitPersonalityComponent.KEY.get(player).sync();
+        MonokumaPlayerComponent.KEY.get(player).clear();
         (PlayerVolumeComponent.KEY.get(player)).clear();
         (WayfarerPlayerComponent.KEY.get(player)).clear();
         (HoanMeirinPlayerComponent.KEY.get(player)).clear();

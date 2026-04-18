@@ -1557,7 +1557,6 @@ public class ModRoles {
       .setCanPickUpRevolver(false) // 伪装义警可以捡枪
       .setNeutrals(true)
       .setCanUseInstinct(true) // 不能使用杀手直觉
-      .setComponentKey(org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaPlayerComponent.KEY)
       .setCanSeeCoin(true)
       .setMax(0);
 

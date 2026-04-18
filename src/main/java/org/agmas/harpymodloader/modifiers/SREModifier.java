@@ -23,6 +23,7 @@ public class SREModifier {
     public HashSet<SRERole> canOnlyBeAppliedTo;
     public boolean killerOnly;
     public boolean civilianOnly;
+    public boolean notVigilante;
     public Consumer<ServerPlayer> serverTickEvent = null;
     public Consumer<Player> clientTickEvent = null;
     public int maxCount = -1;
@@ -155,5 +156,10 @@ public class SREModifier {
             }
         }
         return maxCount;
+    }
+
+    public SREModifier setCannotAppliedToVigilante(boolean flag){
+        this.notVigilante = flag;
+        return this;
     }
 }

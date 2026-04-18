@@ -2,7 +2,6 @@ package pro.fazeclan.river.stupid_express.constants;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
-import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.event.OnGameEnd;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -17,6 +16,7 @@ import org.agmas.harpymodloader.events.ModifierRemoved;
 import org.agmas.harpymodloader.events.ResetPlayerEvent;
 import org.agmas.harpymodloader.modifiers.HMLModifiers;
 import org.agmas.harpymodloader.modifiers.SREModifier;
+import org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaPlayerComponent;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
 import pro.fazeclan.river.stupid_express.StupidExpress;
@@ -167,9 +167,9 @@ public class SEModifiers {
             StupidExpress.id("black_white"),
             Color.BLACK.getRGB(),
             null,
-            new HashSet<>(Set.of(TMMRoles.VIGILANTE)),
+            null,
             false,
-            false)).setMax(1).setEnableChance(30).setEnableNeededPlayerCount(10);
+            true)).setMax(1).setEnableChance(30).setEnableNeededPlayerCount(10).setCannotAppliedToVigilante(true);
 
     // 标记不屈的一次性免疫是否已被消耗（基于 UUID 的运行时集合）
     public static Set<UUID> UNYIELDING_IMMUNITY_USED = ConcurrentHashMap.newKeySet();
@@ -223,6 +223,13 @@ public class SEModifiers {
                     b.clear();
                 }
             }
+        });
+        /// BLACK_WHITE
+        ModifierAssigned.EVENT.register((player, modifier) -> {
+            if (!modifier.equals(BLACK_WHITE)) {
+                return;
+            }
+            MonokumaPlayerComponent.KEY.get(player).init();
         });
         /// LOVERS
         ModifierAssigned.EVENT.register(((player, modifier) -> {

@@ -659,4 +659,11 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
             return false;
         return role.canAutoAddMoney();
     }
+
+    public boolean isVigilanteTeam(ServerPlayer player) {
+        var role = this.getRole(player);
+        if (role == null)
+            return false;
+        return role.isVigilanteTeam();
+    }
 }
