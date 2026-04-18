@@ -56,11 +56,12 @@ public class DevilRouletteGame {
         protected Player player;
         protected int health = START_HEALTH;
     }
-    public DevilRouletteGame(Player player1, Player player2) {
+    public DevilRouletteGame(Player player1, Player player2, RandomSource random) {
         playerDataList = new ArrayList<>();
         playerDataList.add(new GamePlayerData(player1));
         playerDataList.add(new GamePlayerData(player2));
         currentPlayerData = playerDataList.getFirst();
+        this.random = random;
     }
     public void init() {
 
@@ -164,10 +165,14 @@ public class DevilRouletteGame {
     public GamePlayerData getWinner() {
         return winner;
     }
+    public void setRandom(RandomSource random) {
+        this.random = random;
+    }
+
     protected List<GamePlayerData> playerDataList;
     /** 弹丸列表 */
     protected Queue<Boolean> bulletList = new ArrayDeque<>();
-    protected RandomSource random = RandomSource.create();
+    protected RandomSource random;
     /** 当前操作玩家 */
     protected GamePlayerData currentPlayerData;
     protected GamePlayerData winner = null;

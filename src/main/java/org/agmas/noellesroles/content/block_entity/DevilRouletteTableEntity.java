@@ -9,6 +9,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.Display;
@@ -159,8 +160,11 @@ public class DevilRouletteTableEntity extends BlockEntity {
         if (winnerText != null) {
             winnerText.discard();
         }
+        RandomSource random = RandomSource.create();
+        if (level != null)
+            random = level.getRandom();
         // 创建游戏
-        game = new DevilRouletteGame(frontPlayer, backPlayer);
+        game = new DevilRouletteGame(frontPlayer, backPlayer, random);
         // 初始化游戏
         game.init();
         game.start();
