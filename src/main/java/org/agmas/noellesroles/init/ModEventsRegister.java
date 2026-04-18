@@ -60,7 +60,6 @@ import org.agmas.noellesroles.commands.BroadcastCommand;
 import org.agmas.noellesroles.component.DeathPenaltyComponent;
 import org.agmas.noellesroles.component.DefibrillatorComponent;
 import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.component.TemporaryEffectPlayerComponent;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.content.effects.TimeStopEffect;
 import org.agmas.noellesroles.content.entity.HallucinationAreaManager;
@@ -80,7 +79,6 @@ import org.agmas.noellesroles.game.roles.Innocent.fool.TarotAssemblyManager;
 import org.agmas.noellesroles.game.roles.Innocent.fortuneteller.FortunetellerPlayerComponent;
 import org.agmas.noellesroles.game.roles.Innocent.glitch_robot.GlitchRobotPlayerComponent;
 import org.agmas.noellesroles.game.roles.Innocent.hoan_meirin.HoanMeirinFistPunchHandler;
-import org.agmas.noellesroles.game.roles.Innocent.locksmith_inspiration.LocksmithInspirationComponent;
 import org.agmas.noellesroles.game.roles.Innocent.veteran.VeteranKnifeHandler;
 import org.agmas.noellesroles.game.roles.Innocent.voodoo.VoodooDeathHandler;
 import org.agmas.noellesroles.game.roles.killer.conspirator.ConspiratorKilledPlayer;
@@ -106,7 +104,6 @@ import org.agmas.noellesroles.utils.EntityClearUtils;
 import org.agmas.noellesroles.utils.MCItemsUtils;
 import org.agmas.noellesroles.utils.MapScanner;
 import org.agmas.noellesroles.utils.RoleUtils;
-import org.agmas.noellesroles.voice.HeliumBuzzPlayerComponent;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 import pro.fazeclan.river.stupid_express.constants.SERoles;
 import pro.fazeclan.river.stupid_express.modifier.refugee.cca.PlayerStatsBeforeRefugee;
@@ -742,18 +739,8 @@ public class ModEventsRegister {
         OnGameEnd.EVENT.register((world, gameWorldComponent) -> {
             HoanMeirinFistPunchHandler.PUNCH_RECORDS.clear();
             RoleShopHandler.resetOldmanEasterEggState();
-            // 清除所有玩家的氦气变声效果
-            world.players().forEach(player -> {
-                HeliumBuzzPlayerComponent heliumBuzz = HeliumBuzzPlayerComponent.KEY.get(player);
-                heliumBuzz.clear();
-                TemporaryEffectPlayerComponent tempEffect = TemporaryEffectPlayerComponent.KEY.get(player);
-                tempEffect.init();
-            });
+            // 已经在resetPlayer清除部分cca
             // 重置所有玩家的锁匠灵感
-            world.players().forEach(player -> {
-                LocksmithInspirationComponent locksmithInspiration = ModComponents.LOCKSMITH_INSPIRATION.get(player);
-                locksmithInspiration.init();
-            });
             SREGameRoundEndComponent roundEnd = SREGameRoundEndComponent.KEY.get(world);
             if (roundEnd.getWinStatus().equals(GameUtils.WinStatus.TIME)) {
                 int alivePlayers = 0, aliveKillers = 0, aliveGhost = 0;

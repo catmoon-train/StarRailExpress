@@ -37,6 +37,7 @@ import org.agmas.noellesroles.game.roles.Innocent.clock_maker.ClockmakerPlayerCo
 import org.agmas.noellesroles.game.roles.Innocent.detective.DetectivePlayerComponent;
 import org.agmas.noellesroles.game.roles.Innocent.driver.DiverPlayerComponent;
 import org.agmas.noellesroles.game.roles.Innocent.glitch_robot.GlitchRobotPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.locksmith_inspiration.LocksmithInspirationComponent;
 import org.agmas.noellesroles.game.roles.Innocent.monitor.MonitorPlayerComponent;
 import org.agmas.noellesroles.game.roles.Innocent.postman.PostmanPlayerComponent;
 import org.agmas.noellesroles.game.roles.Innocent.psychologist.PsychologistPlayerComponent;
@@ -280,7 +281,7 @@ public class ModRoles {
       new NormalRole(LOCKSMITH_ID, new Color(100, 200, 200).getRGB(),
           true, false, SRERole.MoodType.REAL,
           TMMRoles.CIVILIAN.getMaxSprintTime(), false))
-      .setCanSeeCoin(true);
+      .setCanSeeCoin(true).setComponentKey(LocksmithInspirationComponent.KEY);
 
   public static SRERole OLDMAN = TMMRoles.registerRole(
       new ExtraEffectRole(OLDMAN_ID, new Color(112, 146, 190).getRGB(),

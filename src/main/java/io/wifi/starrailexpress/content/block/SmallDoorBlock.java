@@ -1,5 +1,6 @@
 package io.wifi.starrailexpress.content.block;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.content.block_entity.DoorBlockEntity;
 import io.wifi.starrailexpress.content.block_entity.SmallDoorBlockEntity;
 import io.wifi.starrailexpress.event.AllowPlayerOpenLockedDoor;
@@ -149,7 +150,7 @@ public class SmallDoorBlock extends DoorPartBlock {
             BlockHitResult hit) {
         BlockPos lowerPos = state.getValue(HALF) == DoubleBlockHalf.LOWER ? pos : pos.below();
         ResourceLocation itid = BuiltInRegistries.ITEM.getKey(player.getMainHandItem().getItem());
-        if (itid.equals(Noellesroles.id("noell_artisan_key"))) {
+        if (itid.equals(Noellesroles.id("noell_artisan_key")) || itid.equals(SRE.TMMId("crowbar"))) {
             return InteractionResult.PASS;
         }
         if (world.getBlockEntity(lowerPos) instanceof SmallDoorBlockEntity entity) {

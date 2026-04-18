@@ -23,7 +23,8 @@ public class LocksmithInspirationComponent implements RoleComponent, ServerTicki
     public static final ComponentKey<LocksmithInspirationComponent> KEY = ModComponents.LOCKSMITH_INSPIRATION;
 
     public static final int MAX_POINTS = 18;
-    public static final int OBSERVE_TICKS_REQUIRED = 20 * 15;
+    // 10s
+    public static final int OBSERVE_TICKS_REQUIRED = 20 * 10;
 
     private final Player player;
     private int inspirationPoints = 0;

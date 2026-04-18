@@ -2,7 +2,6 @@ package io.wifi.starrailexpress;
 
 import com.google.common.reflect.Reflection;
 import com.google.gson.JsonObject;
-import dev.upcraft.datasync.api.util.Entitlements;
 import io.wifi.ConfigCompact.ConfigEvents;
 import io.wifi.StarRailExpressID;
 import io.wifi.starrailexpress.api.SRERole;
@@ -63,7 +62,6 @@ import pro.fazeclan.river.stupid_express.StupidExpressConfig;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Predicate;
 
 public class SRE extends StarRailExpressID implements ModInitializer {
@@ -235,7 +233,6 @@ public class SRE extends StarRailExpressID implements ModInitializer {
             SetBoundCommand.register(dispatcher);
             AutoStartCommand.register(dispatcher);
             AutoShutdownWhenNotRunningCommand.register(dispatcher);
-            LockToSupportersCommand.register(dispatcher);
             ConfigCommand.register(dispatcher);
             SwitchMapCommand.register(dispatcher);
             ReloadReadyAreaCommand.register(dispatcher);
@@ -557,13 +554,6 @@ public class SRE extends StarRailExpressID implements ModInitializer {
     }
 
     public static final ResourceLocation COMMAND_ACCESS = id("commandaccess");
-
-    public static @NotNull Boolean isSupporter(Player player) {
-        Optional<Entitlements> entitlements = Entitlements.token().get(player.getUUID());
-        return entitlements
-                .map(value -> value.keys().stream().anyMatch(identifier -> identifier.equals(COMMAND_ACCESS)))
-                .orElse(false);
-    }
 
     public static boolean isPlayerInGame(Player player) {
         return GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player);

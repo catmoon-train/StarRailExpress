@@ -110,13 +110,13 @@ public class HeliumBuzzPlayerComponent implements AutoSyncedComponent, ServerTic
 
     @Override
     public void writeToNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
-        tag.putInt("ticks", this.ticksRemaining);
-        tag.putByte("amp", this.amplifier);
+        tag.putInt("t", this.ticksRemaining);
+        tag.putByte("a", this.amplifier);
     }
 
     @Override
     public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
-        this.ticksRemaining = tag.contains("ticks") ? tag.getInt("ticks") : 0;
-        this.amplifier = tag.contains("amp") ? tag.getByte("amp") : 0;
+        this.ticksRemaining = tag.contains("t") ? tag.getInt("t") : 0;
+        this.amplifier = tag.contains("a") ? tag.getByte("a") : 0;
     }
 }

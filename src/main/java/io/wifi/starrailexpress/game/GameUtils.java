@@ -70,6 +70,7 @@ import org.agmas.noellesroles.packet.NameTagSyncPayload;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.EntityClearUtils;
 import org.agmas.noellesroles.utils.MCItemsUtils;
+import org.agmas.noellesroles.voice.HeliumBuzzPlayerComponent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
@@ -902,7 +903,7 @@ public class GameUtils {
         SREPlayerNoteComponent.KEY.get(player).clear();
         SREArmorPlayerComponent.KEY.get(player).clear();
         ResetPlayerEvent.EVENT.invoker().resetPlayer(player);
-
+        HeliumBuzzPlayerComponent.KEY.get(player).clear();
         if (!TrainVoicePlugin.isVoiceChatMissing()) {
             TrainVoicePlugin.resetPlayer(player.getUUID());
         }
