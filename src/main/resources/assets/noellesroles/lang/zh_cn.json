@@ -1908,5 +1908,11 @@
   "screen.noellesroles.fool.vote.remaining": "剩余时间：%s秒",
   "screen.noellesroles.fool.vote.entry_votes": "%s票",
   "screen.noellesroles.fool.vote.entry_alive": "存活",
-  "screen.noellesroles.fool.vote.entry_dead": "死亡"
+  "screen.noellesroles.fool.vote.entry_dead": "死亡",
+  "==================== 黑白角色消息 ====================": "",
+  "message.noellesroles.monokuma.frenzy_start": "【黑白】",
+  "message.noellesroles.monokuma.frenzy_triggered": "触发了黑白领域！",
+  "message.noellesroles.monokuma.transform_title": "【黑白】",
+  "message.noellesroles.monokuma.transform_message": "完成了最后的审判仪式，化身黑白熊！",
+  "message.noellesroles.monokuma.aura_coin": "🐼 黑白熊光环：+%s 金币"
 }

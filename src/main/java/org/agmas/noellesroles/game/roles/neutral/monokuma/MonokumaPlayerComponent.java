@@ -145,6 +145,9 @@ public class MonokumaPlayerComponent implements RoleComponent, ServerTickingComp
         SREArmorPlayerComponent armor = SREArmorPlayerComponent.KEY.get(player);
         armor.giveArmor();
 
+        sp.addEffect(new MobEffectInstance(ModEffects.NO_COLLIDE, FRENZY_DURATION, 0, false, false,false));
+        sp.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, FRENZY_DURATION, 0, false, false,false));
+
         // 给予阴阳剑
         RoleUtils.insertStackInFreeSlot(player, new net.minecraft.world.item.ItemStack(ModItems.YINYANG_SWORD));
 
@@ -167,8 +170,10 @@ public class MonokumaPlayerComponent implements RoleComponent, ServerTickingComp
                 ));
             }
         }
-        MutableComponent append = Component.literal("【黑白】").withStyle(ChatFormatting.GRAY)
-                .append(Component.literal("进入了狂暴前奏！").withStyle(ChatFormatting.RED));
+        MutableComponent append = Component.translatable("message.noellesroles.monokuma.frenzy_start")
+                .withStyle(ChatFormatting.GRAY)
+                .append(Component.translatable("message.noellesroles.monokuma.frenzy_triggered")
+                        .withStyle(ChatFormatting.RED));
         org.agmas.noellesroles.packet.BroadcastMessageS2CPacket packet = new org.agmas.noellesroles.packet.BroadcastMessageS2CPacket(
                 append);
         // 全服播报
@@ -223,8 +228,9 @@ public class MonokumaPlayerComponent implements RoleComponent, ServerTickingComp
 
         // 全服播报
         ServerLevel serverLevel = sp.serverLevel();
-        MutableComponent append = Component.literal("【黑白】").withStyle(ChatFormatting.GRAY)
-                .append(Component.literal("完成了最后的审判仪式，化身黑白熊！")
+        MutableComponent append = Component.translatable("message.noellesroles.monokuma.transform_title")
+                .withStyle(ChatFormatting.GRAY)
+                .append(Component.translatable("message.noellesroles.monokuma.transform_message")
                         .withStyle(ChatFormatting.BOLD, ChatFormatting.DARK_PURPLE));
 
         for (ServerPlayer p : serverLevel.players()) {
@@ -260,9 +266,8 @@ public class MonokumaPlayerComponent implements RoleComponent, ServerTickingComp
                 if (sp.distanceTo(target) <= AURA_RANGE) {
                     SkinManager.addCoinNum(target, AURA_COIN_AMOUNT);
                     target.sendSystemMessage(
-                            Component.literal("🐼 ").append(
-                                    Component.literal("黑白熊光环：+" + AURA_COIN_AMOUNT + " 金币")
-                                            .withStyle(ChatFormatting.GOLD)));
+                            Component.translatable("message.noellesroles.monokuma.aura_coin", AURA_COIN_AMOUNT)
+                                    .withStyle(ChatFormatting.GOLD), true);
                 }
             }
         }

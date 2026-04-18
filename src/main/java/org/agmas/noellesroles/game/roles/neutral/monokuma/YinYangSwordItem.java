@@ -173,7 +173,7 @@ public class YinYangSwordItem extends Item {
         Vec3 lookVec = sp.getViewVector(1.0f);
         
         // 基础冲刺速度
-        double dashSpeed = 2.5;
+        double dashSpeed = 1.5;
         
         // 计算冲刺向量（只考虑水平方向）
         Vec3 horizontalLook = new Vec3(lookVec.x, 0, lookVec.z).normalize();
@@ -246,16 +246,18 @@ public class YinYangSwordItem extends Item {
         double centerY = sp.getY() + 1.0;
         double centerZ = sp.getZ();
 
+        // 中心闪光爆发（增加数量）
         serverLevel.sendParticles(ParticleTypes.FLASH,
                 centerX, centerY, centerZ,
-                2, 0.0, 0.0, 0.0, 0.0);
+                4, 0.0, 0.0, 0.0, 0.0);
         serverLevel.sendParticles(ParticleTypes.EXPLOSION,
                 centerX, centerY, centerZ,
-                4, 0.35, 0.25, 0.35, 0.0);
+                8, 0.5, 0.35, 0.5, 0.0);
 
-        for (int ring = 0; ring < 4; ring++) {
+        // 扩展环数从4增加到6，扩大范围
+        for (int ring = 0; ring < 6; ring++) {
             double radius = 1.2 + ring * 1.05;
-            int points = 28 + ring * 12;
+            int points = 32 + ring * 14; // 增加每环的粒子点数
             double speed = 0.12 + ring * 0.035;
             for (int i = 0; i < points; i++) {
                 double angle = (Math.PI * 2.0 * i) / points;
@@ -264,10 +266,12 @@ public class YinYangSwordItem extends Item {
                 double px = centerX + cos * radius;
                 double pz = centerZ + sin * radius;
 
+                // 黑色粒子层
                 serverLevel.sendParticles(
                         new DustParticleOptions(new Vector3f(0.02f, 0.02f, 0.02f), 1.05f + ring * 0.18f),
                         px, centerY + ring * 0.06, pz,
                         1, cos * speed, 0.01, sin * speed, 0.0);
+                // 白色粒子层
                 serverLevel.sendParticles(
                         new DustParticleOptions(new Vector3f(1.0f, 1.0f, 1.0f), 0.95f + ring * 0.16f),
                         centerX + cos * (radius * 0.82), centerY + 0.08 + ring * 0.06, centerZ + sin * (radius * 0.82),
@@ -275,9 +279,29 @@ public class YinYangSwordItem extends Item {
             }
         }
 
+        // 增加末地棒粒子数量和扩散范围
         serverLevel.sendParticles(ParticleTypes.END_ROD,
                 centerX, centerY, centerZ,
-                18, 0.55, 0.35, 0.55, 0.06);
+                10, 0.75, 0.5, 0.75, 0.08);
+        
+        // 添加额外的爆炸冲击波效果
+        for (int wave = 0; wave < 3; wave++) {
+            double waveRadius = 2.0 + wave * 1.5;
+            int wavePoints = 12;
+            for (int i = 0; i < wavePoints; i++) {
+                double angle = (Math.PI * 2.0 * i) / wavePoints + (wave * 0.3);
+                double cos = Math.cos(angle);
+                double sin = Math.sin(angle);
+                double px = centerX + cos * waveRadius;
+                double py = centerY + (wave - 1) * 0.3;
+                double pz = centerZ + sin * waveRadius;
+                
+                serverLevel.sendParticles(
+                        new DustParticleOptions(new Vector3f(0.5f, 0.5f, 0.5f), 0.8f),
+                        px, py, pz,
+                        1, cos * 0.15, 0.05, sin * 0.15, 0.0);
+            }
+        }
     }
 
     private static void spawnDashTrail(ServerLevel serverLevel, ServerPlayer sp, Vec3 dashVector, boolean empowered) {
