@@ -214,8 +214,8 @@ public class DevilRouletteTable extends Block implements EntityBlock {
                 var seatPos = seatEntity.getSeatPos();
                 if (seatPos != null && table.isSeatAvailable(seatPos))
                 {
+                    boolean isFront = table.isFrontSeat(seatPos);
                     if (!table.isGameActive()) {
-                        boolean isFront = table.isFrontSeat(seatPos);
                         // 满足开始条件，且操作玩家位置正确：开始游戏
                         if (corePos.equals(hit.getBlockPos()) && table.checkCanStartGame() &&
                                 table.checkPlayerInRightSeat(player, isFront)) {
@@ -234,8 +234,8 @@ public class DevilRouletteTable extends Block implements EntityBlock {
                             }
                         }
                     }
-                    else {
-
+                    else if (table.checkPlayerInRightSeat(player, isFront) && table.canPlayerOperate(player)) {
+                        return table.useItemOn(stack, state, level, pos, player, hand, hit);
                     }
                 }
             }

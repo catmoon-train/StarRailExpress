@@ -35,15 +35,23 @@ public class DevilRouletteGame {
     }
     public static class FireResult {
         /** 是否是真弹 */
-        protected boolean isTrueBullet = false;
+        public boolean isTrueBullet = false;
         /** 是否重装弹（当子弹打空后返回true） */
-        protected boolean isReload = false;
+        public boolean isReload = false;
         /** 目标是否存活 */
-        protected boolean isTargetAlive = true;
+        public boolean isTargetAlive = true;
+        /** 是否切换操作者 */
+        public boolean isSwitch = false;
     }
     public static class GamePlayerData {
         GamePlayerData(Player player) {
             this.player = player;
+        }
+        public int getHealth() {
+            return health;
+        }
+        public Player getPlayer() {
+            return player;
         }
         protected Player player;
         protected int health = START_HEALTH;
@@ -55,6 +63,7 @@ public class DevilRouletteGame {
         currentPlayerData = playerDataList.getFirst();
     }
     public void init() {
+
     }
     public void start() {
         random.nextInt(2);
@@ -87,7 +96,6 @@ public class DevilRouletteGame {
     public FireResult fire(Target target) {
         FireResult result = new FireResult();
         GamePlayerData targetPlayerData = playerDataList.get(indexOfResult(currentPlayerData.player, target));
-        // 将操作权交给选择目标
         Boolean resultBullet = bulletList.poll();
         result.isTrueBullet = Boolean.TRUE.equals(resultBullet);
         if(Boolean.TRUE.equals(resultBullet)) {
@@ -95,6 +103,10 @@ public class DevilRouletteGame {
             if (targetPlayerData.health <= 0) {
                 result.isTargetAlive = false;
                 isGameEnd = true;
+                for (GamePlayerData playerData : playerDataList) {
+                    if (playerData.health > 0)
+                        winner = playerData;
+                }
             }
         }
 
@@ -103,7 +115,12 @@ public class DevilRouletteGame {
             reloadBullet();
             result.isReload = true;
         }
-        currentPlayerData = targetPlayerData;
+
+        // 将操作权交给选择目标
+        if (currentPlayerData != targetPlayerData) {
+            currentPlayerData = targetPlayerData;
+            result.isSwitch = true;
+        }
         return result;
     }
     public boolean canOperate(Player player) {
@@ -113,7 +130,7 @@ public class DevilRouletteGame {
         bulletList.clear();
         List<Boolean> newBulletList = new ArrayList<>();
         // 添加实弹和虚弹
-        int trueBulletNumber = random.nextInt(1,GUN_BULLET_SLOT_NUMBER);
+        trueBulletNumber = random.nextInt(1,GUN_BULLET_SLOT_NUMBER);
         for (int i = 0; i < GUN_BULLET_SLOT_NUMBER; ++i) {
             newBulletList.add(i < trueBulletNumber);
         }
@@ -138,8 +155,14 @@ public class DevilRouletteGame {
                 return playerData.health;
         return 0;
     }
+    public int getTrueBulletNumber() {
+        return trueBulletNumber;
+    }
     public Queue<Boolean> getBulletList() {
         return bulletList;
+    }
+    public GamePlayerData getWinner() {
+        return winner;
     }
     protected List<GamePlayerData> playerDataList;
     /** 弹丸列表 */
@@ -147,6 +170,8 @@ public class DevilRouletteGame {
     protected RandomSource random = RandomSource.create();
     /** 当前操作玩家 */
     protected GamePlayerData currentPlayerData;
+    protected GamePlayerData winner = null;
     protected GameMode gameMode = GameMode.Lobby;
     protected boolean isGameEnd = false;
+    protected int trueBulletNumber;
 }
