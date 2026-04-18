@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.mixin.client.roles.puppeteer;
 
-import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.contents.item.RevolverItem;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.phys.HitResult;

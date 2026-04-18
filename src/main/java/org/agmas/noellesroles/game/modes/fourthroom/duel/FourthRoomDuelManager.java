@@ -1,15 +1,11 @@
 package org.agmas.noellesroles.game.modes.fourthroom.duel;
 
 import io.wifi.starrailexpress.game.GameUtils;
-import org.agmas.noellesroles.game.modes.fourthroom.config.FourthRoomConfig;
-import org.agmas.noellesroles.game.modes.fourthroom.game.FourthRoomGameManager;
-import org.agmas.noellesroles.game.modes.fourthroom.game.FourthRoomPhase;
-import org.agmas.noellesroles.game.modes.fourthroom.game.FourthRoomPlayerState;
-import org.agmas.noellesroles.game.modes.fourthroom.game.FourthRoomSavedData;
-import org.agmas.noellesroles.game.modes.fourthroom.game.FourthRoomTeam;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.GameType;
+import org.agmas.noellesroles.game.modes.fourthroom.config.FourthRoomConfig;
+import org.agmas.noellesroles.game.modes.fourthroom.game.*;
 
 public final class FourthRoomDuelManager {
     private final FourthRoomGameManager manager;

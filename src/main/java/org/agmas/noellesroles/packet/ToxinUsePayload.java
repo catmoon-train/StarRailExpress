@@ -11,9 +11,9 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.Noellesroles;
+import org.agmas.noellesroles.init.HSRConstants;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.init.NRSounds;
-import org.agmas.noellesroles.init.HSRConstants;
 import org.jetbrains.annotations.NotNull;
 
 public record ToxinUsePayload(int target) implements CustomPacketPayload {
@@ -39,7 +39,7 @@ public record ToxinUsePayload(int target) implements CustomPacketPayload {
                     player.swing(InteractionHand.MAIN_HAND);
                     if (!player.isCreative()) {
                         player.getMainHandItem().shrink(1);
-                        player.getCooldowns().addCooldown(ModItems.TOXIN, (Integer) HSRConstants.ITEM_COOLDOWNS.get(ModItems.TOXIN));
+                        player.getCooldowns().addCooldown(ModItems.TOXIN, (Integer) ModItems.ITEM_COOLDOWNS.get(ModItems.TOXIN));
                     }
 
                 }

@@ -2,12 +2,11 @@ package io.wifi.starrailexpress.cca;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.contents.item.SkinableItem;
-import net.exmo.sre.sync.MysqlPlayerDataStore;
 import io.wifi.starrailexpress.util.SkinManager;
+import net.exmo.sre.sync.MysqlPlayerDataStore;
 import net.fabricmc.api.EnvType;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -25,11 +24,7 @@ import org.ladysnake.cca.api.v3.util.CheckEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTickingComponent {
     private static final Logger logger = LoggerFactory.getLogger(SREPlayerSkinsComponent.class);

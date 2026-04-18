@@ -24,7 +24,6 @@ import org.agmas.noellesroles.init.NRSounds;
 import org.agmas.noellesroles.packet.CanMoveInTimeStopS2CPacket;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.RedHouseRoles;
-
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 
 import java.awt.*;

@@ -11,7 +11,6 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-
 import io.wifi.ConfigCompact.ConfigClassHandler;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
@@ -25,6 +24,10 @@ import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
+import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
+import org.agmas.noellesroles.config.NoellesRolesConfig;
+import org.agmas.noellesroles.init.RoleShopHandler;
+import pro.fazeclan.river.stupid_express.StupidExpressConfig;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -32,11 +35,6 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-
-import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
-import org.agmas.noellesroles.config.NoellesRolesConfig;
-import org.agmas.noellesroles.init.RoleShopHandler;
-import pro.fazeclan.river.stupid_express.StupidExpressConfig;
 
 public class ConfigCommand {
   static Gson gson = new Gson();

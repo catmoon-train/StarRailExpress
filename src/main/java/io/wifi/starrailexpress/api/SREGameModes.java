@@ -1,14 +1,14 @@
 package io.wifi.starrailexpress.api;
 
 import io.wifi.starrailexpress.SRE;
-import org.agmas.noellesroles.game.modes.fourthroom.game.FourthRoomGameMode;
-import io.wifi.starrailexpress.game.modes.*;
+import io.wifi.starrailexpress.game.modes.SREMurderGameMode;
+import io.wifi.starrailexpress.game.modes.WTLooseEndsGameMode;
 import io.wifi.starrailexpress.game.modes.funny.*;
 import net.minecraft.resources.ResourceLocation;
+import org.agmas.noellesroles.game.modes.ChairWheelRaceGame;
+import org.agmas.noellesroles.game.modes.fourthroom.game.FourthRoomGameMode;
 
 import java.util.HashMap;
-
-import org.agmas.noellesroles.game.modes.ChairWheelRaceGame;
 
 public class SREGameModes {
     public static final HashMap<ResourceLocation, GameMode> GAME_MODES = new HashMap<>();

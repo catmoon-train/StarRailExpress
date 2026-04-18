@@ -1,12 +1,11 @@
 package org.agmas.noellesroles.client.event;
 
+import io.wifi.utils.client.betterrender.FakeGuiGraphics;
 import net.fabricmc.fabric.api.event.Event;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 
 import static net.fabricmc.fabric.api.event.EventFactory.createArrayBacked;
-
-import io.wifi.utils.client.betterrender.FakeGuiGraphics;
 
 public interface OnMessageBelowMoneyRenderer {
 

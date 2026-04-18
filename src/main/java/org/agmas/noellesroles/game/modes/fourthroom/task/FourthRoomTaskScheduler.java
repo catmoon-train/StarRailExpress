@@ -1,11 +1,10 @@
 package org.agmas.noellesroles.game.modes.fourthroom.task;
 
+import net.minecraft.network.chat.Component;
 import org.agmas.noellesroles.game.modes.fourthroom.config.FourthRoomConfig;
 import org.agmas.noellesroles.game.modes.fourthroom.game.FourthRoomGameManager;
 import org.agmas.noellesroles.game.modes.fourthroom.game.FourthRoomPlayerState;
 import org.agmas.noellesroles.game.modes.fourthroom.game.FourthRoomSavedData;
-
-import net.minecraft.network.chat.Component;
 
 import java.util.ArrayList;
 import java.util.List;

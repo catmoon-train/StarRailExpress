@@ -1,9 +1,6 @@
 package io.wifi.starrailexpress.client.fourthroom;
 
 import io.wifi.starrailexpress.client.StaminaRenderer;
-import org.agmas.noellesroles.game.modes.fourthroom.block.FourthRoomTableBlock;
-import org.agmas.noellesroles.game.modes.fourthroom.block.FourthRoomTableBlockEntity;
-import org.agmas.noellesroles.game.modes.fourthroom.effect.TableEffectEvents;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -15,6 +12,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import org.agmas.noellesroles.game.modes.fourthroom.block.FourthRoomTableBlock;
+import org.agmas.noellesroles.game.modes.fourthroom.block.FourthRoomTableBlockEntity;
+import org.agmas.noellesroles.game.modes.fourthroom.effect.TableEffectEvents;
 import org.jetbrains.annotations.Nullable;
 
 public final class FourthRoomCameraDirector {

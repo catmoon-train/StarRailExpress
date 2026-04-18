@@ -1,8 +1,8 @@
 package io.wifi.starrailexpress.mixin.whitelist;
 
 import io.wifi.starrailexpress.SRE;
-import net.exmo.sre.mod_whitelist.client.ModWhitelistClient;
 import io.wifi.starrailexpress.network.packet.ModVersionPacket;
+import net.exmo.sre.mod_whitelist.client.ModWhitelistClient;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.network.protocol.game.ClientboundLoginPacket;

@@ -1,7 +1,6 @@
 package io.wifi.starrailexpress.mixin.client;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.event.AllowItemShowInHand;
 import io.wifi.starrailexpress.index.TMMItems;

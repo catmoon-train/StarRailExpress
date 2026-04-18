@@ -1,8 +1,5 @@
 package io.wifi.starrailexpress.contents.entity;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMEntities;
@@ -25,6 +22,10 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.content.entity.PuppeteerBodyEntity;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 
 public class GrenadeEntity extends ThrowableItemProjectile {
     private static final float EXPLOSION_RADIUS = 4f;

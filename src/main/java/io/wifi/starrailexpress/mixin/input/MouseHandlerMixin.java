@@ -1,8 +1,8 @@
 package io.wifi.starrailexpress.mixin.input;
 
 import io.wifi.starrailexpress.contents.block.SecurityMonitorBlock;
-import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.contents.item.SniperRifleItem;
+import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.network.original.SniperShootPayload;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;

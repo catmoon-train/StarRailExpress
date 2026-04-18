@@ -1,11 +1,11 @@
 package org.agmas.noellesroles.game.modes.fourthroom.scene;
 
-import org.agmas.noellesroles.game.modes.fourthroom.room.RoomDefinition;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
+import org.agmas.noellesroles.game.modes.fourthroom.room.RoomDefinition;
 
 import java.util.ArrayList;
 import java.util.List;

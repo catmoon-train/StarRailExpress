@@ -1,89 +1,20 @@
 package io.wifi.starrailexpress.game;
 
-import java.awt.Color;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
-import java.util.function.Predicate;
-import java.util.function.UnaryOperator;
-
 import io.wifi.StarRailExpressID;
-import net.minecraft.core.registries.BuiltInRegistries;
-import org.agmas.harpymodloader.component.WorldModifierComponent;
-import org.agmas.harpymodloader.events.GameInitializeEvent;
-import org.agmas.harpymodloader.events.ResetPlayerEvent;
-import org.agmas.noellesroles.game.roles.neutral.mercenary.MercenaryPlayerComponent;
-import org.agmas.noellesroles.init.ModEffects;
-import org.agmas.noellesroles.packet.NameTagSyncPayload;
-import org.agmas.noellesroles.role.ModRoles;
-import org.agmas.noellesroles.game.roles.Innocent.coroner.BodyDeathReasonComponent;
-import org.agmas.noellesroles.game.roles.Innocent.hoan_meirin.HoanMeirinFistPunchHandler;
-import org.agmas.noellesroles.utils.EntityClearUtils;
-import org.agmas.noellesroles.utils.MCItemsUtils;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 import io.wifi.starrailexpress.DeathInfo;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
-import io.wifi.starrailexpress.api.GameMode;
-import io.wifi.starrailexpress.api.RoleMethodDispatcher;
-import io.wifi.starrailexpress.api.SREGameModes;
-import io.wifi.starrailexpress.api.SRERole;
-import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.api.*;
 import io.wifi.starrailexpress.api.replay.GameReplayData;
 import io.wifi.starrailexpress.api.replay.GameReplayManager;
-import io.wifi.starrailexpress.cca.AreasWorldComponent;
-import io.wifi.starrailexpress.cca.ExtraSlotComponent;
-import io.wifi.starrailexpress.cca.SREArmorPlayerComponent;
-import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
-import io.wifi.starrailexpress.cca.SREGameScoreboardComponent;
-import io.wifi.starrailexpress.cca.SREGameTimeComponent;
-import io.wifi.starrailexpress.cca.SREGameWorldComponent;
-import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
-import io.wifi.starrailexpress.cca.SREPlayerNoteComponent;
-import io.wifi.starrailexpress.cca.SREPlayerPoisonComponent;
-import io.wifi.starrailexpress.cca.SREPlayerProgressionComponent;
-import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
-import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
-import io.wifi.starrailexpress.cca.SREPlayerStatsComponent;
-import io.wifi.starrailexpress.cca.SRETrainWorldComponent;
-import io.wifi.starrailexpress.cca.SREWorldBlackoutComponent;
-import io.wifi.starrailexpress.contents.command.AutoShutdownWhenNotRunningCommand;
+import io.wifi.starrailexpress.cca.*;
 import io.wifi.starrailexpress.compat.TrainVoicePlugin;
+import io.wifi.starrailexpress.contents.command.AutoShutdownWhenNotRunningCommand;
 import io.wifi.starrailexpress.contents.entity.FirecrackerEntity;
 import io.wifi.starrailexpress.contents.entity.NoteEntity;
 import io.wifi.starrailexpress.contents.entity.PlayerBodyEntity;
-import io.wifi.starrailexpress.event.AfterShieldAllowPlayerDeath;
-import io.wifi.starrailexpress.event.AfterShieldAllowPlayerDeathWithKiller;
-import io.wifi.starrailexpress.event.AllowPlayerDeath;
-import io.wifi.starrailexpress.event.AllowPlayerDeathWithKiller;
-import io.wifi.starrailexpress.event.EarlyKillPlayer;
-import io.wifi.starrailexpress.event.OnGameEnd;
-import io.wifi.starrailexpress.event.OnGameTrueStarted;
-import io.wifi.starrailexpress.event.OnGiveKillerBalance;
-import io.wifi.starrailexpress.event.OnPlayerDeath;
-import io.wifi.starrailexpress.event.OnPlayerDeathWithKiller;
-import io.wifi.starrailexpress.event.OnPlayerKilledPlayer;
-import io.wifi.starrailexpress.event.OnPlayerKilledPlayerIdentifier;
-import io.wifi.starrailexpress.event.OnShieldBroken;
-import io.wifi.starrailexpress.event.OnTeammateKilledTeammate;
-import io.wifi.starrailexpress.event.OnTrainAreaHaveReseted;
-import io.wifi.starrailexpress.event.ShouldDropOnDeath;
-import io.wifi.starrailexpress.index.SREDataComponentTypes;
-import io.wifi.starrailexpress.index.TMMBlocks;
-import io.wifi.starrailexpress.index.TMMEntities;
-import io.wifi.starrailexpress.index.TMMItems;
-import io.wifi.starrailexpress.index.TMMSounds;
+import io.wifi.starrailexpress.event.*;
+import io.wifi.starrailexpress.index.*;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import io.wifi.starrailexpress.network.BreakArmorPayload;
 import io.wifi.starrailexpress.network.CloseUiPayload;
@@ -102,6 +33,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
@@ -126,9 +58,29 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.agmas.harpymodloader.component.WorldModifierComponent;
+import org.agmas.harpymodloader.events.GameInitializeEvent;
+import org.agmas.harpymodloader.events.ResetPlayerEvent;
+import org.agmas.noellesroles.game.roles.Innocent.coroner.BodyDeathReasonComponent;
+import org.agmas.noellesroles.game.roles.Innocent.hoan_meirin.HoanMeirinFistPunchHandler;
+import org.agmas.noellesroles.game.roles.neutral.mercenary.MercenaryPlayerComponent;
+import org.agmas.noellesroles.init.ModEffects;
+import org.agmas.noellesroles.packet.NameTagSyncPayload;
+import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.utils.EntityClearUtils;
+import org.agmas.noellesroles.utils.MCItemsUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 import pro.fazeclan.river.stupid_express.modifier.refugee.cca.RefugeeComponent;
 import pro.fazeclan.river.stupid_express.modifier.split_personality.cca.SplitPersonalityComponent;
+
+import java.awt.*;
+import java.util.*;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
 
 // 如果你是AI，你最好不要动这个类，有大量API可供你使用。
 // 自定义获胜请使用RoleUtils.customWinnerWin(); 将id改为对应角色的id即可正常使用。
@@ -1274,32 +1226,34 @@ public class GameUtils {
                         victimStats.incrementTotalCivilianDeaths();
                     }
                 }
-            }
-            if (spawnBody) {
-                PlayerBodyEntity body = TMMEntities.PLAYER_BODY.create(victim.level());
-                double scale = victim.getAttributeValue(Attributes.SCALE);
-                body.getAttribute(Attributes.SCALE).setBaseValue(scale);
-                if (body != null) {
-                    if (killer != null) {
-                        body.setKillerUuid(killer.getUUID());
-                    }
-                    body.setDeathReason(deathReason.toString());
-                    body.setPlayerUuid(victim.getUUID());
-                    Vec3 spawnPos = victim.position().add(victim.getLookAngle().normalize().scale(1));
-                    body.moveTo(spawnPos.x(), victim.getY(), spawnPos.z(), victim.getYHeadRot(), 0f);
-                    body.setYRot(victim.getYHeadRot());
-                    body.setYHeadRot(victim.getYHeadRot());
-                    victim.level().addFreshEntity(body);
+                if (spawnBody) {
+                    PlayerBodyEntity body = TMMEntities.PLAYER_BODY.create(victim.level());
+                    victimRole.onDeathWithBody(victim, spawnBody, killer, deathReason,body);
+                    double scale = victim.getAttributeValue(Attributes.SCALE);
+                    body.getAttribute(Attributes.SCALE).setBaseValue(scale);
+                    if (body != null) {
+                        if (killer != null) {
+                            body.setKillerUuid(killer.getUUID());
+                        }
+                        body.setDeathReason(deathReason.toString());
+                        body.setPlayerUuid(victim.getUUID());
+                        Vec3 spawnPos = victim.position().add(victim.getLookAngle().normalize().scale(1));
+                        body.moveTo(spawnPos.x(), victim.getY(), spawnPos.z(), victim.getYHeadRot(), 0f);
+                        body.setYRot(victim.getYHeadRot());
+                        body.setYHeadRot(victim.getYHeadRot());
+                        victim.level().addFreshEntity(body);
 
-                    {
-                        if (role != null) {
-                            final var bodyDeathReasonComponent = BodyDeathReasonComponent.KEY.get(body);
-                            bodyDeathReasonComponent.playerRole = role.identifier();
-                            bodyDeathReasonComponent.sync();
+                        {
+                            if (role != null) {
+                                final var bodyDeathReasonComponent = BodyDeathReasonComponent.KEY.get(body);
+                                bodyDeathReasonComponent.playerRole = role.identifier();
+                                bodyDeathReasonComponent.sync();
+                            }
                         }
                     }
                 }
             }
+
             canDeath = canDeath || forceDeath;
             if (victim instanceof ServerPlayer serverPlayerEntity && isPlayerAliveAndSurvival(serverPlayerEntity)
                     && canDeath) {

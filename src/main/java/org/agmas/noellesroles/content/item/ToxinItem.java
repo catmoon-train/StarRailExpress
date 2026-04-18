@@ -19,9 +19,9 @@ import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
+import org.agmas.noellesroles.init.HSRConstants;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.init.NRSounds;
-import org.agmas.noellesroles.init.HSRConstants;
 import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
 
@@ -66,7 +66,7 @@ public class ToxinItem extends Item {
                                         });
                                     }
                                     player.getCooldowns().addCooldown(ModItems.TOXIN,
-                                            (Integer) HSRConstants.ITEM_COOLDOWNS.get(ModItems.TOXIN));
+                                            (Integer) ModItems.ITEM_COOLDOWNS.get(ModItems.TOXIN));
                                 }
                             }
                         }

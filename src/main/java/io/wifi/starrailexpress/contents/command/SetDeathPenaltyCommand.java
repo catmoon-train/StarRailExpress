@@ -1,8 +1,5 @@
 package io.wifi.starrailexpress.contents.command;
 
-import org.agmas.harpymodloader.Harpymodloader;
-import org.agmas.noellesroles.component.DeathPenaltyComponent;
-
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
@@ -14,6 +11,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
+import org.agmas.harpymodloader.Harpymodloader;
+import org.agmas.noellesroles.component.DeathPenaltyComponent;
 
 public class SetDeathPenaltyCommand {
   public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {

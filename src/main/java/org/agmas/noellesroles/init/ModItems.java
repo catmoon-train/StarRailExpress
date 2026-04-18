@@ -3,8 +3,10 @@ package org.agmas.noellesroles.init;
 import dev.doctor4t.ratatouille.util.registrar.ItemRegistrar;
 import io.wifi.starrailexpress.api.ChargeableItemRegistry;
 import io.wifi.starrailexpress.api.impl.KnifeChargeableItem;
+import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.index.TMMDescItems;
 import io.wifi.starrailexpress.index.TMMItems;
+import io.wifi.starrailexpress.util.ShopEntry;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Registry;
@@ -15,6 +17,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.food.Foods;
 import net.minecraft.world.item.*;
@@ -24,12 +27,22 @@ import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.content.item.*;
 import org.agmas.noellesroles.content.item.charge_item.*;
 import org.agmas.noellesroles.utils.LocalDateData;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.UnaryOperator;
 
+import static io.wifi.starrailexpress.game.GameConstants.getInTicks;
+
 public class ModItems {
+    public static final ItemRegistrar registrar = new ItemRegistrar(Noellesroles.MOD_ID);
+    public static ResourceKey<CreativeModeTab> MISC_CREATIVE_GROUP = ResourceKey.create(
+            Registries.CREATIVE_MODE_TAB,
+            Noellesroles.id("misc"));
+
     public static final Item ANTIDOTE = register(new AntidoteItem((new Item.Properties()).stacksTo(1)), "antidote");
     public static final Item PILL = register(new PillItem((new Item.Properties()).stacksTo(16).food((new FoodProperties.Builder()).nutrition(1).saturationModifier(0.1F).alwaysEdible().build())), "pill");
     public static final Item TOXIN = register(new ToxinItem((new Item.Properties()).stacksTo(1)), "toxin");
@@ -37,10 +50,6 @@ public class ModItems {
     public static final Item BANDIT_REVOLVER = register(new BanditRevolverItem((new Item.Properties()).stacksTo(1)),
             "bandit_revolver");
     public static final String PILL_POISONOUS_KEY = "poisonous";
-    public static ResourceKey<CreativeModeTab> MISC_CREATIVE_GROUP = ResourceKey.create(
-            Registries.CREATIVE_MODE_TAB,
-            Noellesroles.id("misc"));
-    public static final ItemRegistrar registrar = new ItemRegistrar(Noellesroles.MOD_ID);
 
     public static final Item COOKED_FOOD = register(
             new ChefFoodItem(new Item.Properties().stacksTo(1)), "cooked_food");
@@ -550,6 +559,9 @@ public class ModItems {
             new Item(new Item.Properties().stacksTo(64)));
 
     public static final ItemStack ExamplerPsychoItemStack = TMMItems.PSYCHO_MODE.getDefaultInstance();
+    public static Map<Item, Integer> ITEM_COOLDOWNS = new HashMap<>();
+    public static List<ShopEntry> POISONER_SHOP_ENTRIES = new ArrayList<>();
+    public static List<ShopEntry> BANDIT_SHOP_ENTRIES = new ArrayList<>();
 
     static {
         var examplerPsychoLore = new ItemLore(
@@ -648,6 +660,55 @@ public class ModItems {
                 return new ItemLore(text);
             });
         };
+        ITEM_COOLDOWNS.put(ModItems.ANTIDOTE, getInTicks(1, 0));  // 60秒冷却
+        ITEM_COOLDOWNS.put(ModItems.TOXIN, getInTicks(0, 50));
+        ITEM_COOLDOWNS.put(ModItems.BANDIT_REVOLVER, getInTicks(0, 40));
+        ITEM_COOLDOWNS.put(TMMItems.SCORPION, getInTicks(0, 35));
+        ITEM_COOLDOWNS.put(ModItems.CATALYST, getInTicks(0, 75));
+        // 毒药/80
+        ModItems.POISONER_SHOP_ENTRIES.add(new ShopEntry(ModItems.TOXIN.getDefaultInstance(), 80, ShopEntry.Type.POISON));
+        // 毒药瓶/50
+        ModItems.POISONER_SHOP_ENTRIES.add(new ShopEntry(TMMItems.POISON_VIAL.getDefaultInstance(), 50, ShopEntry.Type.POISON));
+        // 马桶毒药/40
+        ModItems.POISONER_SHOP_ENTRIES.add(new ShopEntry(ModItems.TOILET_POISON.getDefaultInstance(), 40, ShopEntry.Type.POISON));
+        // 毒蝎子/15
+        ModItems.POISONER_SHOP_ENTRIES.add(new ShopEntry(TMMItems.SCORPION.getDefaultInstance(), 15, ShopEntry.Type.POISON));
+        // 催化剂/100
+        ModItems.POISONER_SHOP_ENTRIES.add(new ShopEntry(ModItems.CATALYST.getDefaultInstance(), 100, ShopEntry.Type.TOOL));
+        // 假药丸/30
+        ModItems.POISONER_SHOP_ENTRIES.add(new ShopEntry(ModItems.createPillStack(true), 30, ShopEntry.Type.TOOL));
+        // 氯气弹/275
+        ModItems.POISONER_SHOP_ENTRIES.add(new ShopEntry(ModItems.CHLORINE_BOMB.getDefaultInstance(), 275, ShopEntry.Type.POISON));
+        // 爆竹/10
+        ModItems.POISONER_SHOP_ENTRIES.add(new ShopEntry(TMMItems.FIRECRACKER.getDefaultInstance(), 10, ShopEntry.Type.TOOL));
+        // 便签/10
+        ModItems.POISONER_SHOP_ENTRIES.add(new ShopEntry(new ItemStack(TMMItems.NOTE, 4), 10, ShopEntry.Type.TOOL));
+        // 撬棍/35
+        ModItems.POISONER_SHOP_ENTRIES.add(new ShopEntry(TMMItems.CROWBAR.getDefaultInstance(), 35, ShopEntry.Type.TOOL));
+        // 开锁器/100
+        ModItems.POISONER_SHOP_ENTRIES.add(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), 100, ShopEntry.Type.TOOL));
+        // 黑暗降临/100
+        ModItems.POISONER_SHOP_ENTRIES.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), 100, ShopEntry.Type.TOOL) {
+            public boolean onBuy(@NotNull Player player) {
+                return SREPlayerShopComponent.useBlackout(player);
+            }
+        });
+
+
+        ModItems.BANDIT_SHOP_ENTRIES
+                .add(new ShopEntry(ModItems.BANDIT_REVOLVER.getDefaultInstance(), 175, ShopEntry.Type.WEAPON));
+        ModItems.BANDIT_SHOP_ENTRIES.add(new ShopEntry(TMMItems.KNIFE.getDefaultInstance(), 250, ShopEntry.Type.WEAPON));
+        ModItems.BANDIT_SHOP_ENTRIES.add(new ShopEntry(TMMItems.GRENADE.getDefaultInstance(), 350, ShopEntry.Type.WEAPON));
+        ModItems.BANDIT_SHOP_ENTRIES.add(new ShopEntry(TMMItems.SCORPION.getDefaultInstance(), 40, ShopEntry.Type.POISON));
+        ModItems.BANDIT_SHOP_ENTRIES.add(new ShopEntry(TMMItems.CROWBAR.getDefaultInstance(), 20, ShopEntry.Type.TOOL));
+        ModItems.BANDIT_SHOP_ENTRIES.add(new ShopEntry(TMMItems.FIRECRACKER.getDefaultInstance(), 10, ShopEntry.Type.TOOL));
+        ModItems.BANDIT_SHOP_ENTRIES.add(new ShopEntry(TMMItems.BODY_BAG.getDefaultInstance(), 200, ShopEntry.Type.TOOL));
+        ModItems.BANDIT_SHOP_ENTRIES.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), 200, ShopEntry.Type.TOOL) {
+            public boolean onBuy(@NotNull Player player) {
+                return SREPlayerShopComponent.useBlackout(player);
+            }
+        });
+        ModItems.BANDIT_SHOP_ENTRIES.add(new ShopEntry(new ItemStack(TMMItems.NOTE, 4), 10, ShopEntry.Type.TOOL));
     }
 
     public static ItemStack createPillStack(boolean poisonous) {

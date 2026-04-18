@@ -12,12 +12,11 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
-
-import java.util.UUID;
-
 import org.agmas.noellesroles.init.ModEffects;
 import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
+
+import java.util.UUID;
 
 public class DefibrillatorComponent implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
     private final Player player;

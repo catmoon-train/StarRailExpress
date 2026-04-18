@@ -3,7 +3,6 @@ package io.wifi.starrailexpress.event;
 import net.fabricmc.fabric.api.event.Event;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.world.item.ItemStack;
 
 import static net.fabricmc.fabric.api.event.EventFactory.createArrayBacked;
 

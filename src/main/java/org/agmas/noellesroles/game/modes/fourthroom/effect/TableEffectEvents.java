@@ -2,7 +2,6 @@ package org.agmas.noellesroles.game.modes.fourthroom.effect;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.client.fourthroom.FourthRoomCameraDirector;
-import org.agmas.noellesroles.game.modes.fourthroom.block.FourthRoomTableBlockEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -11,6 +10,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
+import org.agmas.noellesroles.game.modes.fourthroom.block.FourthRoomTableBlockEntity;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;

@@ -1,7 +1,7 @@
 package io.wifi.starrailexpress.mixin.client.self;
 
-import io.wifi.starrailexpress.contents.block_entity.BeveragePlateBlockEntity;
 import io.wifi.starrailexpress.client.SREClient;
+import io.wifi.starrailexpress.contents.block_entity.BeveragePlateBlockEntity;
 import io.wifi.starrailexpress.event.CanSeePoison;
 import io.wifi.starrailexpress.index.TMMParticles;
 import net.fabricmc.api.EnvType;

@@ -1,6 +1,8 @@
 package org.agmas.noellesroles.game.roles.Innocent.fool;
 
 import io.wifi.starrailexpress.api.RoleComponent;
+import io.wifi.starrailexpress.api.RoleSkill;
+import io.wifi.starrailexpress.api.RoleSkill.RoleSkillContext;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.event.AllowPlayerDeathWithKiller;
 import net.minecraft.core.HolderLookup;
@@ -14,10 +16,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
-
 import org.agmas.noellesroles.Noellesroles;
-import io.wifi.starrailexpress.api.RoleSkill;
-import io.wifi.starrailexpress.api.RoleSkill.RoleSkillContext;
 import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;

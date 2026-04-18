@@ -16,8 +16,8 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.GameType;
-import org.agmas.noellesroles.packet.ManipulatorC2SPacket;
 import org.agmas.noellesroles.game.roles.killer.manipulator.ManipulatorPlayerComponent;
+import org.agmas.noellesroles.packet.ManipulatorC2SPacket;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;

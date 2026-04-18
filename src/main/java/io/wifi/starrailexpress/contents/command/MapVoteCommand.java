@@ -1,22 +1,21 @@
 package io.wifi.starrailexpress.contents.command;
 
-import java.util.stream.Collectors;
-
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
-
 import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.contents.command.argument.GameModeArgumentType;
-import io.wifi.starrailexpress.game.data.ServerMapConfig;
 import io.wifi.starrailexpress.game.GameUtils;
-import io.wifi.starrailexpress.network.ShowSelectedMapUIPayload;
+import io.wifi.starrailexpress.game.data.ServerMapConfig;
 import io.wifi.starrailexpress.game.voting.MapVotingManager;
+import io.wifi.starrailexpress.network.ShowSelectedMapUIPayload;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+
+import java.util.stream.Collectors;
 
 public class MapVoteCommand {
   public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {

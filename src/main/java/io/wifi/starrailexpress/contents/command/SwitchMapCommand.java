@@ -3,7 +3,6 @@ package io.wifi.starrailexpress.contents.command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
-
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.contents.command.argument.MapLoadArgumentType;
@@ -20,11 +19,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.players.PlayerList;
+import org.agmas.noellesroles.utils.MapScannerManager;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.agmas.noellesroles.utils.MapScannerManager;
 
 public class SwitchMapCommand {
   public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {

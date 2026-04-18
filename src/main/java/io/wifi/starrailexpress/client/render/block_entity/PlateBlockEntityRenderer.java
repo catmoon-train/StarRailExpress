@@ -2,7 +2,6 @@ package io.wifi.starrailexpress.client.render.block_entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.contents.block_entity.BeveragePlateBlockEntity;
 import net.minecraft.client.Minecraft;
@@ -14,10 +13,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-
-import org.jetbrains.annotations.NotNull;
 
 public class PlateBlockEntityRenderer implements BlockEntityRenderer<BeveragePlateBlockEntity> {
     private final ItemRenderer itemRenderer;

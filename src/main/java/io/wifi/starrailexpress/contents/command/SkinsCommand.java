@@ -1,7 +1,5 @@
 package io.wifi.starrailexpress.contents.command;
 
-import org.agmas.harpymodloader.Harpymodloader;
-
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.wifi.starrailexpress.network.OpenSkinScreenPaylod;
@@ -11,6 +9,7 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import org.agmas.harpymodloader.Harpymodloader;
 
 public class SkinsCommand {
 

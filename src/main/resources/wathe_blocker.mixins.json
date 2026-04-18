@@ -4,21 +4,21 @@
   "compatibilityLevel": "JAVA_17",
   "mixins": [
     "BlockWathe",
+    "KillCommandMixin",
     "cca.CCAHttpBlocker",
     "cca.CCAWatheBlockMixin",
-    "cca.ModComponentBlocker",
-    "KillCommandMixin"
+    "cca.ModComponentBlocker"
   ],
   "injectors": {
     "defaultRequire": 1
   },
   "client": [
-    "client.GuiGraphicsAccessor",
-    "client.SignRendererMixin",
-    "client.GuiRenderMixin",
-    "client.ClientTickMixin",
     "client.BlockWatheClient",
+    "client.ClientTickMixin",
+    "client.GuiGraphicsAccessor",
+    "client.GuiRenderMixin",
     "client.IHateWatheModelLayers",
-    "client.PanoramaMixin"
+    "client.PanoramaMixin",
+    "client.SignRendererMixin"
   ]
 }

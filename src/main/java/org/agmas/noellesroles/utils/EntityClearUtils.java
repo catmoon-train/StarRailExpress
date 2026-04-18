@@ -8,7 +8,6 @@ import net.minecraft.world.entity.AreaEffectCloud;
 import net.minecraft.world.entity.animal.Pig;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.projectile.ThrownTrident;
-
 import org.agmas.harpymodloader.events.GameInitializeEvent;
 import org.agmas.noellesroles.content.entity.KuiXiPuppetEntity;
 import org.agmas.noellesroles.content.entity.LockEntity;

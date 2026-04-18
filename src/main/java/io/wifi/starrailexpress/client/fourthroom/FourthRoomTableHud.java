@@ -1,7 +1,5 @@
 package io.wifi.starrailexpress.client.fourthroom;
 
-import org.agmas.noellesroles.game.modes.fourthroom.block.FourthRoomTableBlock;
-import org.agmas.noellesroles.game.modes.fourthroom.block.FourthRoomTableBlockEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -10,14 +8,10 @@ import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
+import org.agmas.noellesroles.game.modes.fourthroom.block.FourthRoomTableBlock;
+import org.agmas.noellesroles.game.modes.fourthroom.block.FourthRoomTableBlockEntity;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public final class FourthRoomTableHud {
     private static final int CARD_WIDTH = 92;

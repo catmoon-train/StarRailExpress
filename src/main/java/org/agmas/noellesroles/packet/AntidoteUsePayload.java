@@ -13,7 +13,6 @@ import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.init.NRSounds;
-import org.agmas.noellesroles.init.HSRConstants;
 import org.jetbrains.annotations.NotNull;
 
 public record AntidoteUsePayload(int target) implements CustomPacketPayload {
@@ -38,7 +37,7 @@ public record AntidoteUsePayload(int target) implements CustomPacketPayload {
                     target.playSound(NRSounds.ITEM_SYRINGE_STAB, 0.4F, 1.0F);
                     player.swing(InteractionHand.MAIN_HAND);
                     if (!player.isCreative()) {
-                        player.getCooldowns().addCooldown(ModItems.ANTIDOTE, (Integer) HSRConstants.ITEM_COOLDOWNS.get(ModItems.ANTIDOTE));
+                        player.getCooldowns().addCooldown(ModItems.ANTIDOTE, (Integer) ModItems.ITEM_COOLDOWNS.get(ModItems.ANTIDOTE));
                     }
 
                 }

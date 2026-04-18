@@ -1,11 +1,11 @@
 package org.agmas.noellesroles.game.modes.fourthroom.network;
 
 import io.wifi.starrailexpress.SRE;
-import org.agmas.noellesroles.game.modes.fourthroom.game.FourthRoomGameManager;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import org.agmas.noellesroles.game.modes.fourthroom.game.FourthRoomGameManager;
 import org.jetbrains.annotations.NotNull;
 
 public record RevealIdentityPayload() implements CustomPacketPayload {

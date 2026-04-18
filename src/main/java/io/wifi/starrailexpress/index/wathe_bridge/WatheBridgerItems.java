@@ -7,7 +7,9 @@ import io.wifi.starrailexpress.api.impl.GrenadeChargeableItem;
 import io.wifi.starrailexpress.api.impl.KnifeChargeableItem;
 import io.wifi.starrailexpress.contents.item.*;
 import net.minecraft.world.food.Foods;
-import net.minecraft.world.item.*;
+import net.minecraft.world.item.AxeItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Tiers;
 
 public interface WatheBridgerItems {
     public static ItemRegistrar registrar = new ItemRegistrar(SRE.WATHE_MOD_ID);

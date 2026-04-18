@@ -1,10 +1,6 @@
 package org.agmas.noellesroles.game.modes.fourthroom.scene;
 
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
-import org.agmas.noellesroles.game.modes.fourthroom.block.FourthRoomTableBlock;
-import org.agmas.noellesroles.game.modes.fourthroom.config.FourthRoomConfig;
-import org.agmas.noellesroles.game.modes.fourthroom.game.FourthRoomSavedData;
-import org.agmas.noellesroles.game.modes.fourthroom.room.RoomDefinition;
 import io.wifi.starrailexpress.index.TMMBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -14,6 +10,10 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.agmas.noellesroles.game.modes.fourthroom.block.FourthRoomTableBlock;
+import org.agmas.noellesroles.game.modes.fourthroom.config.FourthRoomConfig;
+import org.agmas.noellesroles.game.modes.fourthroom.game.FourthRoomSavedData;
+import org.agmas.noellesroles.game.modes.fourthroom.room.RoomDefinition;
 
 import java.util.ArrayList;
 import java.util.HashMap;

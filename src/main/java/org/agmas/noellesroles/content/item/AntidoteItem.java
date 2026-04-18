@@ -20,7 +20,6 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.init.NRSounds;
-import org.agmas.noellesroles.init.HSRConstants;
 import org.jetbrains.annotations.NotNull;
 
 public class AntidoteItem extends Item {
@@ -55,7 +54,7 @@ public class AntidoteItem extends Item {
                                     ((ServerLevel) world).playLocalSound(blockPos.getX(), blockPos.getY(), blockPos.getZ(), SoundEvents.BREWING_STAND_BREW, SoundSource.PLAYERS,1.4F, 1.0F,false);
                                     player.swing(InteractionHand.MAIN_HAND);
                                     if (!player.isCreative()) {
-                                        player.getCooldowns().addCooldown(ModItems.ANTIDOTE, (Integer) HSRConstants.ITEM_COOLDOWNS.get(ModItems.ANTIDOTE));
+                                        player.getCooldowns().addCooldown(ModItems.ANTIDOTE, (Integer) ModItems.ITEM_COOLDOWNS.get(ModItems.ANTIDOTE));
                                     }
 
 

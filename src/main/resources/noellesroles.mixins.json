@@ -42,7 +42,6 @@
     "roles.manipulator.PlayerControlMixin",
     "roles.manipulator.PlayerDeathMixin",
     "roles.mercenary.MercenaryConfirmMixin",
-    "roles.noisemaker.NoisemakerKillMixin",
     "roles.photographer.PhotographerMixin",
     "roles.poisoner.PoisonerNoPoisonMixin",
     "roles.puppeteer.PuppeteerBodyGunPayloadMixin",
@@ -60,7 +59,6 @@
     "defaultRequire": 1
   },
   "client": [
-    "client.roles.panda.PandaCCAClientMixin",
     "LivingEntityAccessor",
     "client.HandCuffsKeyBindingMixin",
     "client.InstinctMixin",
@@ -94,6 +92,7 @@
     "client.roles.morphling.MorphlingRoleNameRendererMixin",
     "client.roles.morphling.MorphlingScreenMixin",
     "client.roles.morphling.SPClientTick",
+    "client.roles.panda.PandaCCAClientMixin",
     "client.roles.panda.PandaClientMixin",
     "client.roles.party.PartyKillerScreenMixin",
     "client.roles.phantom.PhantomRattatoulieMixin",

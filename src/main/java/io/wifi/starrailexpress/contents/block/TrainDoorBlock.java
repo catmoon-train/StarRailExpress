@@ -1,10 +1,10 @@
 package io.wifi.starrailexpress.contents.block;
 
 import io.wifi.starrailexpress.contents.block_entity.SmallDoorBlockEntity;
+import io.wifi.starrailexpress.contents.item.IronDoorKeyItem;
 import io.wifi.starrailexpress.event.AllowPlayerOpenLockedDoor;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.TMMSounds;
-import io.wifi.starrailexpress.contents.item.IronDoorKeyItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundSource;

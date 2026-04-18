@@ -1,7 +1,6 @@
 package org.agmas.noellesroles.game.modes.fourthroom.network;
 
 import io.wifi.starrailexpress.SRE;
-import org.agmas.noellesroles.game.modes.fourthroom.game.FourthRoomGameManager;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -11,6 +10,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
+import org.agmas.noellesroles.game.modes.fourthroom.game.FourthRoomGameManager;
 
 public record FourthRoomStatePayload(String json) implements CustomPacketPayload {
     public static final Type<FourthRoomStatePayload> ID = new Type<>(SRE.id("fourth_room_state"));

@@ -1,15 +1,5 @@
 package io.wifi.starrailexpress.client.gui.screen.ingame;
 
-import java.util.ArrayList;
-import java.util.function.Consumer;
-
-import org.agmas.noellesroles.client.screen.GameManagementScreen;
-import org.agmas.noellesroles.client.screen.GuessRoleScreen;
-import org.agmas.noellesroles.client.screen.LootInfoScreen;
-import org.agmas.noellesroles.client.screen.RoleIntroduceScreen;
-import org.agmas.noellesroles.packet.Loot.LootPoolsInfoCheckC2SPacket;
-import org.agmas.noellesroles.utils.lottery.LotteryManager;
-
 import io.wifi.ConfigCompact.ui.SettingMenuScreen;
 import io.wifi.starrailexpress.SREClientConfig;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -19,6 +9,15 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import org.agmas.noellesroles.client.screen.GameManagementScreen;
+import org.agmas.noellesroles.client.screen.GuessRoleScreen;
+import org.agmas.noellesroles.client.screen.LootInfoScreen;
+import org.agmas.noellesroles.client.screen.RoleIntroduceScreen;
+import org.agmas.noellesroles.packet.Loot.LootPoolsInfoCheckC2SPacket;
+import org.agmas.noellesroles.utils.lottery.LotteryManager;
+
+import java.util.ArrayList;
+import java.util.function.Consumer;
 
 public class GameMenuEntries {
     public static final int menuButtonHeight = 20;

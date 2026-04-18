@@ -1,7 +1,5 @@
 package io.wifi.starrailexpress.contents.item;
 
-import org.agmas.noellesroles.component.FoodDrinkGlowComponent;
-
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.server.level.ServerPlayer;
@@ -17,6 +15,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
+import org.agmas.noellesroles.component.FoodDrinkGlowComponent;
 
 public class CocktailItem extends Item {
     public CocktailItem(Item.Properties settings) {

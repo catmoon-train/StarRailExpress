@@ -22,8 +22,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.game.modes.ChairWheelRaceGame;
-import org.agmas.noellesroles.utils.WheelchairEffectBlockHandler;
 import org.agmas.noellesroles.init.ModItems;
+import org.agmas.noellesroles.utils.WheelchairEffectBlockHandler;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,9 +1,6 @@
 package org.agmas.noellesroles.game.modes.fourthroom.network;
 
 import io.wifi.starrailexpress.SRE;
-import org.agmas.noellesroles.game.modes.fourthroom.block.FourthRoomTableBlockEntity;
-import org.agmas.noellesroles.game.modes.fourthroom.effect.EffectEvent;
-import org.agmas.noellesroles.game.modes.fourthroom.effect.TableEffectEvents;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -15,6 +12,9 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.phys.Vec3;
+import org.agmas.noellesroles.game.modes.fourthroom.block.FourthRoomTableBlockEntity;
+import org.agmas.noellesroles.game.modes.fourthroom.effect.EffectEvent;
+import org.agmas.noellesroles.game.modes.fourthroom.effect.TableEffectEvents;
 
 import java.util.ArrayList;
 import java.util.List;

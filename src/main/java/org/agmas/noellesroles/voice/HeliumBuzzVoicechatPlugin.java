@@ -1,11 +1,10 @@
 package org.agmas.noellesroles.voice;
 
-import org.agmas.noellesroles.voice.client.HeliumBuzzClientReceiver;
-
 import de.maxhenkel.voicechat.api.VoicechatPlugin;
 import de.maxhenkel.voicechat.api.events.EventRegistration;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
+import org.agmas.noellesroles.voice.client.HeliumBuzzClientReceiver;
 
 /**
  * Voicechat plugin for Helium Buzz effect.

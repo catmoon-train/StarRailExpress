@@ -2,10 +2,10 @@ package org.agmas.noellesroles;
 
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
-import io.wifi.starrailexpress.contents.block_entity.DoorBlockEntity;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
+import io.wifi.starrailexpress.contents.block_entity.DoorBlockEntity;
 import io.wifi.starrailexpress.contents.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
@@ -29,7 +29,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import org.agmas.noellesroles.component.*;
+import org.agmas.noellesroles.client.screen.DetectiveInspectScreenHandler;
+import org.agmas.noellesroles.client.screen.ModScreenHandlers;
+import org.agmas.noellesroles.client.screen.PostmanScreenHandler;
+import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.content.entity.LockEntityManager;
 import org.agmas.noellesroles.game.roles.Innocent.athlete.AthletePlayerComponent;
 import org.agmas.noellesroles.game.roles.Innocent.boxer.BoxerPlayerComponent;
@@ -54,9 +57,6 @@ import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.packet.*;
 import org.agmas.noellesroles.packet.Loot.*;
 import org.agmas.noellesroles.role.ModRoles;
-import org.agmas.noellesroles.client.screen.DetectiveInspectScreenHandler;
-import org.agmas.noellesroles.client.screen.ModScreenHandlers;
-import org.agmas.noellesroles.client.screen.PostmanScreenHandler;
 import org.agmas.noellesroles.utils.Pair;
 import org.agmas.noellesroles.utils.lottery.LotteryManager;
 
@@ -153,7 +153,7 @@ public class RicesRoleRhapsody implements ModInitializer {
         // ModRoles.init();
 
         // 3. 注册物品
-        ModItems.init();
+
 
         ModEffects.init();
 

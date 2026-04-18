@@ -1,6 +1,5 @@
 package org.agmas.noellesroles.game.modes.fourthroom.game;
 
-import org.agmas.noellesroles.game.modes.fourthroom.scene.FourthRoomSceneLayout;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -10,6 +9,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.storage.DimensionDataStorage;
+import org.agmas.noellesroles.game.modes.fourthroom.scene.FourthRoomSceneLayout;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

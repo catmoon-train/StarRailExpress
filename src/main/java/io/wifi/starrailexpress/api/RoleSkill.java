@@ -4,12 +4,12 @@ import io.wifi.starrailexpress.cca.SRERoleWorldComponent;
 import io.wifi.starrailexpress.event.OnRoleSkillUse;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import org.agmas.noellesroles.AbilityHandler;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.HashMap;
 import java.util.UUID;
 import java.util.function.Consumer;
-
-import org.agmas.noellesroles.AbilityHandler;
-import org.jetbrains.annotations.Nullable;
 
 public class RoleSkill {
     public static record RoleSkillContext(ServerPlayer player, @Nullable UUID target){}

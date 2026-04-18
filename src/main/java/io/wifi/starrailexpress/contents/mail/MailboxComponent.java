@@ -1,10 +1,6 @@
 package io.wifi.starrailexpress.contents.mail;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 import io.wifi.starrailexpress.SRE;
 import net.exmo.sre.sync.MysqlPlayerDataStore;
 import net.minecraft.commands.CommandSourceStack;
@@ -24,11 +20,7 @@ import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * 邮箱组件 – 挂载到每个玩家身上。

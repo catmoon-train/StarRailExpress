@@ -9,10 +9,9 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
+import org.agmas.harpymodloader.Harpymodloader;
 
 import java.util.Collection;
-
-import org.agmas.harpymodloader.Harpymodloader;
 
 public class MoneyCommand {
   public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {

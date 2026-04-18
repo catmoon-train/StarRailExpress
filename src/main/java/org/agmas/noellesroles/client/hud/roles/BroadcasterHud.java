@@ -1,11 +1,5 @@
 package org.agmas.noellesroles.client.hud.roles;
 
-import java.util.List;
-
-import org.agmas.noellesroles.client.NoellesrolesClient;
-import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
-import org.agmas.noellesroles.role.ModRoles;
-
 import io.wifi.utils.client.betterrender.FakeGuiGraphics;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;
@@ -13,6 +7,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
+import org.agmas.noellesroles.client.NoellesrolesClient;
+import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
+import org.agmas.noellesroles.role.ModRoles;
+
+import java.util.List;
 
 public class BroadcasterHud {
 

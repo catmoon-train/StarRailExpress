@@ -1,6 +1,7 @@
 package org.agmas.noellesroles.client.hud;
 
-import org.agmas.noellesroles.client.hud.modifiers.*;
+import org.agmas.noellesroles.client.hud.modifiers.LoversHud;
+import org.agmas.noellesroles.client.hud.modifiers.RefugeeHud;
 import org.agmas.noellesroles.client.hud.roles.*;
 
 public class OtherRolesRegister {

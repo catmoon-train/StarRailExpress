@@ -18,6 +18,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.client.renderer.*;
 import org.agmas.noellesroles.client.screen.*;
+import org.agmas.noellesroles.content.item.ConspiracyPageItem;
+import org.agmas.noellesroles.content.item.WrittenNoteItem;
 import org.agmas.noellesroles.game.roles.Innocent.athlete.AthletePlayerComponent;
 import org.agmas.noellesroles.game.roles.Innocent.boxer.BoxerPlayerComponent;
 import org.agmas.noellesroles.game.roles.Innocent.monitor.MonitorPlayerComponent;
@@ -32,11 +34,8 @@ import org.agmas.noellesroles.game.roles.neutral.admirer.AdmirerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
 import org.agmas.noellesroles.init.ModEntities;
 import org.agmas.noellesroles.init.ModItems;
-import org.agmas.noellesroles.content.item.ConspiracyPageItem;
-import org.agmas.noellesroles.content.item.WrittenNoteItem;
 import org.agmas.noellesroles.packet.*;
 import org.agmas.noellesroles.role.ModRoles;
-import org.agmas.noellesroles.client.screen.ModScreenHandlers;
 
 import static org.agmas.noellesroles.client.NoellesrolesClient.abilityBind;
 

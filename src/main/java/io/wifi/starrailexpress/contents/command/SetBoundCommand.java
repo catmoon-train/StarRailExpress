@@ -1,13 +1,12 @@
 package io.wifi.starrailexpress.contents.command;
 
-import org.agmas.harpymodloader.Harpymodloader;
-
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
+import org.agmas.harpymodloader.Harpymodloader;
 
 public class SetBoundCommand {
   // 是否限制玩家在旁观区域

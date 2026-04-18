@@ -1,8 +1,8 @@
 package io.wifi.starrailexpress.client.gui.screen;
 
 import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
-import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.contents.item.SkinableItem;
+import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.util.SkinManager;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;

@@ -2,14 +2,13 @@ package io.wifi.starrailexpress.mixin.entity.player;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.compat.CrosshairaddonsCompat;
+import io.wifi.starrailexpress.contents.item.SREItemProperties;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.TMMSounds;
-import io.wifi.starrailexpress.contents.item.SREItemProperties;
 import io.wifi.starrailexpress.util.SkinUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;

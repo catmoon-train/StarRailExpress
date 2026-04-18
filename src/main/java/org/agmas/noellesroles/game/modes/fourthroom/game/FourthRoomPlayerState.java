@@ -1,10 +1,10 @@
 package org.agmas.noellesroles.game.modes.fourthroom.game;
 
-import org.agmas.noellesroles.game.modes.fourthroom.card.CardInstance;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
+import org.agmas.noellesroles.game.modes.fourthroom.card.CardInstance;
 
 import java.util.ArrayList;
 import java.util.List;

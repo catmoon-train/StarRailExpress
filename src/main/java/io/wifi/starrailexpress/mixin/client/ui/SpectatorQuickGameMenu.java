@@ -1,18 +1,17 @@
 package io.wifi.starrailexpress.mixin.client.ui;
 
-import java.util.ArrayList;
-
+import io.wifi.starrailexpress.client.gui.screen.ingame.GameMenuEntries;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.InventoryScreen;
+import net.minecraft.network.chat.Component;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import io.wifi.starrailexpress.client.gui.screen.ingame.GameMenuEntries;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.inventory.InventoryScreen;
-import net.minecraft.network.chat.Component;
+import java.util.ArrayList;
 
 // ✅ 必须加 abstract
 @Mixin(InventoryScreen.class)

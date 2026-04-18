@@ -1,7 +1,5 @@
 package io.wifi.starrailexpress.contents.item;
 
-import java.util.ArrayList;
-
 import io.wifi.starrailexpress.cca.SREArmorPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import net.minecraft.world.InteractionHand;
@@ -13,6 +11,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
 import org.agmas.noellesroles.role.ModRoles;
+
+import java.util.ArrayList;
 
 public class DefenseItem extends Item {
     public SREGameWorldComponent gameWorldComponent = null;

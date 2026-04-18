@@ -2,8 +2,8 @@ package org.agmas.noellesroles.content.item;
 
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
-import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.contents.item.SkinableItem;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;

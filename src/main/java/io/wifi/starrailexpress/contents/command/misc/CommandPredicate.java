@@ -2,7 +2,6 @@ package io.wifi.starrailexpress.contents.command.misc;
 
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-
 import net.minecraft.commands.CommandSourceStack;
 
 // CommandPredicate.java（放在你自己的包里）

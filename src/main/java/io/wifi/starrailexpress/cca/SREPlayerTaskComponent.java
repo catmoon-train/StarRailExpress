@@ -2,9 +2,9 @@ package io.wifi.starrailexpress.cca;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleComponent;
+import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.contents.block.ToiletBlock;
 import io.wifi.starrailexpress.contents.block.entity.SeatEntity;
-import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.tag.TMMBlockTags;
