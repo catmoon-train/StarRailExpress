@@ -422,19 +422,19 @@ public class MonokumaPlayerComponent implements RoleComponent, ServerTickingComp
 
     @Override
     public void writeToSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
-        tag.putInt("phase", phase);
-        tag.putInt("frenzyTimer", frenzyTimer);
-        tag.putInt("aoeChargeTimer", aoeChargeTimer);
-        tag.putInt("dashAnimTimer", dashAnimTimer);
-        tag.putBoolean("isMonokumaMarked", isMonokumaMarked);
+        tag.putInt("p", phase);
+        tag.putInt("f", frenzyTimer);
+        tag.putInt("a", aoeChargeTimer);
+        tag.putInt("d", dashAnimTimer);
+        tag.putBoolean("i", isMonokumaMarked);
     }
 
     @Override
     public void readFromSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
-        this.phase = tag.contains("phase") ? tag.getInt("phase") : 0;
-        this.frenzyTimer = tag.contains("frenzyTimer") ? tag.getInt("frenzyTimer") : 0;
-        this.aoeChargeTimer = tag.contains("aoeChargeTimer") ? tag.getInt("aoeChargeTimer") : 0;
-        this.dashAnimTimer = tag.contains("dashAnimTimer") ? tag.getInt("dashAnimTimer") : 0;
-        this.isMonokumaMarked = tag.contains("isMonokumaMarked") && tag.getBoolean("isMonokumaMarked");
+        this.phase = tag.contains("p") ? tag.getInt("p") : 0;
+        this.frenzyTimer = tag.contains("f") ? tag.getInt("f") : 0;
+        this.aoeChargeTimer = tag.contains("a") ? tag.getInt("a") : 0;
+        this.dashAnimTimer = tag.contains("d") ? tag.getInt("d") : 0;
+        this.isMonokumaMarked = tag.contains("i") && tag.getBoolean("i");
     }
 }
