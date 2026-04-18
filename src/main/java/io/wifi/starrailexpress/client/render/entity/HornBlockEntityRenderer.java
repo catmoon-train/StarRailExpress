@@ -3,7 +3,7 @@ package io.wifi.starrailexpress.client.render.entity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.doctor4t.ratatouille.client.lib.render.helpers.Easing;
 import dev.doctor4t.ratatouille.mixin.client.BlockRenderManagerAccessor;
-import io.wifi.starrailexpress.block.entity.HornBlockEntity;
+import io.wifi.starrailexpress.content.block.entity.HornBlockEntity;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;

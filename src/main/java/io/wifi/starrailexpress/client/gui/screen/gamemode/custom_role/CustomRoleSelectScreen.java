@@ -327,11 +327,11 @@ public class CustomRoleSelectScreen extends Screen {
 
         // 绘制标题
         guiGraphics.drawCenteredString(font, this.title, width / 2, 30, 0xFFFFFFFF);
-        if (this.minecraft.player.hasEffect(ModEffects.NO_COLLIDE)) {
+        if (this.minecraft.player.hasEffect(ModEffects.SAFE_TIME)) {
             guiGraphics.drawCenteredString(font,
                     Component
                             .translatable("gui.sre.gamemode.custom.subtitle",
-                                    this.minecraft.player.getEffect(ModEffects.NO_COLLIDE).getDuration() / 20)
+                                    this.minecraft.player.getEffect(ModEffects.SAFE_TIME).getDuration() / 20)
                             .withStyle(ChatFormatting.WHITE),
                     width / 2, 45,
                     0xFFFFFFFF);

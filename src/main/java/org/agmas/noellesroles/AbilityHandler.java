@@ -18,24 +18,37 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.AABB;
-import java.util.UUID;
-import org.agmas.noellesroles.component.*;
+import org.agmas.noellesroles.component.ModComponents;
+import org.agmas.noellesroles.component.PlayerVolumeComponent;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
-import org.agmas.noellesroles.effects.TimeStopEffect;
-import org.agmas.noellesroles.entity.WheelchairEntity;
+import org.agmas.noellesroles.content.effects.TimeStopEffect;
+import org.agmas.noellesroles.content.entity.WheelchairEntity;
+import org.agmas.noellesroles.game.roles.Innocent.accountant.AccountantPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.alchemist.AlchemistPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.attendant.AttendantHandler;
+import org.agmas.noellesroles.game.roles.Innocent.clock_maker.ClockmakerPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.fortuneteller.FortunetellerPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.hoan_meirin.HoanMeirinPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.noise_maker.NoiseMakerPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.recaller.RecallerPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.blood_feudist.BloodFeudistPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.bomber.BomberPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.dio.DIOPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.imitator.ImitatorPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.ma_chen_xu.MaChenXuPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.watcher.WatcherPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.candlebearer.CandleBearerPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.commander.CommanderHandler;
+import org.agmas.noellesroles.game.roles.neutral.nian_shou.NianShouPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.thief.ThiefPlayerComponent;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.packet.ProblemScreenOpenC2SPacket;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.RedHouseRoles;
-import org.agmas.noellesroles.roles.commander.CommanderHandler;
-import org.agmas.noellesroles.roles.candlebearer.CandleBearerPlayerComponent;
-import org.agmas.noellesroles.roles.fortuneteller.FortunetellerPlayerComponent;
-import org.agmas.noellesroles.roles.noise_maker.NoiseMakerPlayerComponent;
-import org.agmas.noellesroles.roles.recaller.RecallerPlayerComponent;
-import org.agmas.noellesroles.roles.thief.ThiefPlayerComponent;
-import org.agmas.noellesroles.roles.imitator.ImitatorPlayerComponent;
 import org.agmas.noellesroles.utils.RoleUtils;
+
+import java.util.UUID;
 
 public class AbilityHandler {
 
@@ -273,7 +286,7 @@ public class AbilityHandler {
             return;
         }
         if (gameWorldComponent.isRole(player, ModRoles.GHOST)) {
-            org.agmas.noellesroles.roles.ghost.GhostPlayerComponent ghostPlayerComponent = org.agmas.noellesroles.roles.ghost.GhostPlayerComponent.KEY
+            org.agmas.noellesroles.game.roles.Innocent.ghost.GhostPlayerComponent ghostPlayerComponent = org.agmas.noellesroles.game.roles.Innocent.ghost.GhostPlayerComponent.KEY
                     .get(player);
             ghostPlayerComponent.useAbility();
             return;
@@ -425,7 +438,7 @@ public class AbilityHandler {
             return;
         }
         if (gameWorldComponent.isRole(player, ModRoles.ACCOUNTANT)) {
-            org.agmas.noellesroles.component.AccountantPlayerComponent accountantComponent = org.agmas.noellesroles.component.AccountantPlayerComponent.KEY
+            AccountantPlayerComponent accountantComponent = AccountantPlayerComponent.KEY
                     .get(player);
 
             // 检查玩家是否在蹲下
@@ -439,7 +452,7 @@ public class AbilityHandler {
             return;
         }
         if (gameWorldComponent.isRole(player, ModRoles.ALCHEMIST)) {
-            org.agmas.noellesroles.component.AlchemistPlayerComponent alchemistComponent = org.agmas.noellesroles.component.AlchemistPlayerComponent.KEY
+            AlchemistPlayerComponent alchemistComponent = AlchemistPlayerComponent.KEY
                     .get(player);
 
             // 检查玩家是否在蹲下

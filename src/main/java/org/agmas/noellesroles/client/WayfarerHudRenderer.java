@@ -7,7 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
-import org.agmas.noellesroles.component.WayfarerPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.wayfarer.WayfarerPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 
 import java.awt.*;

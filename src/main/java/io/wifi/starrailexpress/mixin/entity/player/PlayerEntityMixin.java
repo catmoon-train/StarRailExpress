@@ -10,12 +10,13 @@ import io.wifi.starrailexpress.cca.SREArmorPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPoisonComponent;
+import io.wifi.starrailexpress.content.item.CocktailItem;
+import io.wifi.starrailexpress.content.item.SREItemProperties;
 import io.wifi.starrailexpress.event.AllowPlayerPunching;
 import io.wifi.starrailexpress.event.IsPlayerPunchable;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.index.TMMItems;
-import io.wifi.starrailexpress.item.CocktailItem;
 import io.wifi.starrailexpress.util.PlayerStaminaGetter;
 import io.wifi.starrailexpress.util.PoisonComponentUtils;
 import io.wifi.starrailexpress.util.Scheduler;
@@ -25,6 +26,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.util.Unit;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -82,9 +84,9 @@ public abstract class PlayerEntityMixin extends LivingEntity implements PlayerSt
             float speedModifier = 1.0f;
 
             SREPlayerMoodComponent srePlayerMoodComponent = SREPlayerMoodComponent.KEY.get(player);
-            if (srePlayerMoodComponent.isLowerThanDepressed()){
+            if (srePlayerMoodComponent.isLowerThanDepressed()) {
                 speedModifier *= 0.8f;
-            }else if (srePlayerMoodComponent.isHigherThanAngry()){
+            } else if (srePlayerMoodComponent.isHigherThanAngry()) {
                 speedModifier *= 1.2f;
             }
             if (player.hasEffect(MobEffects.MOVEMENT_SPEED)) {
@@ -151,11 +153,13 @@ public abstract class PlayerEntityMixin extends LivingEntity implements PlayerSt
         }
         Player self = (Player) (Object) this;
         if (!GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(self) || this.getMainHandItem().is(TMMItems.KNIFE)
+                || this.getMainHandItem().getItem() instanceof SREItemProperties.LeftClickHurtable
                 || IsPlayerPunchable.EVENT.invoker().gotPunchable(target)
                 || AllowPlayerPunching.EVENT.invoker().allowPunching(self)) {
             // 在攻击实体之前调用角色的左键点击实体方法
-            io.wifi.starrailexpress.api.RoleMethodDispatcher.callLeftClickEntity(self, target);
-            original.call(target);
+            var result = io.wifi.starrailexpress.api.RoleMethodDispatcher.callLeftClickEntity(self, target);
+            if (result != InteractionResult.CONSUME)
+                original.call(target);
         }
     }
 

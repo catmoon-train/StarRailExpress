@@ -25,7 +25,7 @@ public class WorldModifierComponent implements AutoSyncedComponent, ServerTickin
             .getOrCreate(ResourceLocation.fromNamespaceAndPath(Harpymodloader.MOD_ID, "modifier"),
                     WorldModifierComponent.class);
     private final Level world;
-    public HashMap<UUID, ArrayList<SREModifier>> modifiers = new HashMap<>();
+    public HashMap<UUID, HashSet<SREModifier>> modifiers = new HashMap<>();
 
     public WorldModifierComponent(Level world) {
         this.world = world;
@@ -54,18 +54,18 @@ public class WorldModifierComponent implements AutoSyncedComponent, ServerTickin
         return getModifiers(uuid).contains(modifier);
     }
 
-    public HashMap<UUID, ArrayList<SREModifier>> getModifiers() {
+    public HashMap<UUID, HashSet<SREModifier>> getModifiers() {
         return this.modifiers;
     }
 
-    public ArrayList<SREModifier> getModifiers(Player player) {
+    public HashSet<SREModifier> getModifiers(Player player) {
         return this.getModifiers(player.getUUID());
     }
 
-    public ArrayList<SREModifier> getModifiers(UUID uuid) {
+    public HashSet<SREModifier> getModifiers(UUID uuid) {
         synchronized (this.modifiers) {
             if (!modifiers.containsKey(uuid))
-                modifiers.put(uuid, new ArrayList<>());
+                modifiers.put(uuid, new HashSet<>());
             return this.modifiers.get(uuid);
         }
     }
@@ -131,7 +131,7 @@ public class WorldModifierComponent implements AutoSyncedComponent, ServerTickin
             for (SREModifier modifier : HMLModifiers.MODIFIERS) {
                 // 在同步块内直接查找，避免嵌套同步调用
                 List<UUID> uuidsWithModifier = new ArrayList<>();
-                for (Map.Entry<UUID, ArrayList<SREModifier>> entry : this.modifiers.entrySet()) {
+                for (Map.Entry<UUID, HashSet<SREModifier>> entry : this.modifiers.entrySet()) {
                     if (entry.getValue().contains(modifier)) {
                         uuidsWithModifier.add(entry.getKey());
                     }

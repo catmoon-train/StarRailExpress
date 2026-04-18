@@ -5,7 +5,7 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
-import io.wifi.starrailexpress.sync.MysqlPlayerDataStore;
+import net.exmo.sre.sync.MysqlPlayerDataStore;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;

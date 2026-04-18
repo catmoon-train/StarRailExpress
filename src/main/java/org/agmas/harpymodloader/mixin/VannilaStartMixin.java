@@ -2,7 +2,7 @@ package org.agmas.harpymodloader.mixin;
 
 import io.wifi.starrailexpress.api.GameMode;
 import io.wifi.starrailexpress.api.SREGameModes;
-import io.wifi.starrailexpress.command.StartCommand;
+import io.wifi.starrailexpress.content.command.StartCommand;
 import net.minecraft.commands.CommandSourceStack;
 import org.agmas.harpymodloader.Harpymodloader;
 import org.spongepowered.asm.mixin.Mixin;

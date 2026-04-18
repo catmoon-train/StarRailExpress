@@ -5,7 +5,7 @@ import com.google.gson.GsonBuilder;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.RoleComponent;
-import io.wifi.starrailexpress.sync.MysqlPlayerDataStore;
+import net.exmo.sre.sync.MysqlPlayerDataStore;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;

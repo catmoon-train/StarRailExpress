@@ -21,8 +21,8 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.client.widget.SelectedRoleIntroTextWidget;
+import org.agmas.noellesroles.game.roles.neutral.gambler.GamblerPlayerComponent;
 import org.agmas.noellesroles.packet.GamblerSelectRoleC2SPacket;
-import org.agmas.noellesroles.roles.gambler.GamblerPlayerComponent;
 import org.agmas.noellesroles.utils.RoleUtils;
 
 import java.util.ArrayList;

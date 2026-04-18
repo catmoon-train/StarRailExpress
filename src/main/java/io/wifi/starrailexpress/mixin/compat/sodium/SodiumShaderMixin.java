@@ -2,12 +2,7 @@ package io.wifi.starrailexpress.mixin.compat.sodium;
 
 
 import io.wifi.starrailexpress.compat.SodiumShaderInterface;
-// import net.caffeinemc.mods.sodium.client.render.chunk.shader.ShaderBindingContext;
-// import net.irisshaders.iris.gl.blending.BlendModeOverride;
-// import net.irisshaders.iris.pipeline.IrisRenderingPipeline;
-// import net.irisshaders.iris.pipeline.programs.SodiumPrograms;
 import net.irisshaders.iris.pipeline.programs.SodiumShader;
-// import net.irisshaders.iris.uniforms.custom.CustomUniforms;
 import org.spongepowered.asm.mixin.Mixin;
 
 // import java.util.List;

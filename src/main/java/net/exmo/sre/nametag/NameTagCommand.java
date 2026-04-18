@@ -4,25 +4,28 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import io.wifi.starrailexpress.SRE;
+import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.ComponentArgument;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.commands.TitleCommand;
 import net.minecraft.server.level.ServerPlayer;
 
 public class NameTagCommand {
 
-    public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext registryAccess) {
         // /nametag add <nameTag> [target] - 添加名片
         dispatcher.register(Commands.literal("nametag:add").requires(source -> source.hasPermission(2))
-                .then(Commands.argument("nameTag", StringArgumentType.string())
+                .then(Commands.argument("nameTag", ComponentArgument.textComponent(registryAccess))
                         .then(Commands.argument("target", EntityArgument.player())
                                 .executes(
                                         context -> addNametag(context, EntityArgument.getPlayer(context, "target"))))));
 
         // /nametag remove <nameTag> [target] - 移除名片
         dispatcher.register(Commands.literal("nametag:remove").requires(source -> source.hasPermission(2))
-                .then(Commands.argument("nameTag", StringArgumentType.string())
+                .then(Commands.argument("nameTag", ComponentArgument.textComponent(registryAccess))
                         .executes(context -> removeNametag(context, EntityArgument.getPlayer(context, "target")))
                         .then(Commands.argument("target", EntityArgument.player())
                                 .executes(context -> removeNametag(context,
@@ -30,7 +33,7 @@ public class NameTagCommand {
 
         // /nametag set <nameTag> [target] - 设置当前名片
         dispatcher.register(Commands.literal("nametag:set").requires(source -> source.hasPermission(2))
-                .then(Commands.argument("nameTag", StringArgumentType.string())
+                .then(Commands.argument("nameTag", ComponentArgument.textComponent(registryAccess))
                         .executes(context -> setNametag(context, EntityArgument.getPlayer(context, "target")))
                         .then(Commands.argument("target", EntityArgument.player())
                                 .executes(
@@ -66,15 +69,15 @@ public class NameTagCommand {
     private static int addNametag(CommandContext<CommandSourceStack> context, ServerPlayer target) {
         try {
 
-            String nameTag = StringArgumentType.getString(context, "nameTag");
+            var nameTag = ComponentArgument.getComponent(context, "nameTag");
             NameTagInventoryComponent component = NameTagInventoryComponent.KEY.get(target);
 
-            component.addNameTag(nameTag);
+            component.addNameTag(nameTag.getString());
 
             context.getSource().sendSuccess(() -> Component.literal("已为玩家 ")
                     .append(target.getName())
                     .append(Component.literal(" 添加名片: "))
-                    .append(Component.literal(nameTag)), true);
+                    .append((nameTag)), true);
 
         } catch (Exception e) {
             context.getSource().sendFailure(Component.literal("添加名片失败"));
@@ -87,21 +90,21 @@ public class NameTagCommand {
      * 移除名片
      */
     private static int removeNametag(CommandContext<CommandSourceStack> context, ServerPlayer target) {
-        String nameTag = StringArgumentType.getString(context, "nameTag");
+        var nameTag = ComponentArgument.getComponent(context, "nameTag");
         NameTagInventoryComponent component = NameTagInventoryComponent.KEY.get(target);
 
-        if (component.nameTags.contains(nameTag)) {
-            component.removeNameTag(nameTag);
+        if (component.nameTags.contains(nameTag.getString())) {
+            component.removeNameTag(nameTag.getString());
             context.getSource().sendSuccess(() -> Component.literal("已从玩家 ")
                     .append(target.getName())
                     .append(Component.literal(" 移除名片: "))
-                    .append(Component.literal(nameTag)), true);
+                    .append((nameTag)), true);
             return 1;
         } else {
             context.getSource().sendFailure(Component.literal("玩家 ")
                     .append(target.getName())
                     .append(Component.literal(" 没有该名片: "))
-                    .append(Component.literal(nameTag)));
+                    .append((nameTag)));
             return 0;
         }
     }
@@ -110,21 +113,21 @@ public class NameTagCommand {
      * 设置当前名片
      */
     private static int setNametag(CommandContext<CommandSourceStack> context, ServerPlayer target) {
-        String nameTag = StringArgumentType.getString(context, "nameTag");
+        var nameTag = ComponentArgument.getComponent(context, "nameTag");
         NameTagInventoryComponent component = NameTagInventoryComponent.KEY.get(target);
 
-        if (component.nameTags.contains(nameTag)) {
-            component.setCurrentNameTag(nameTag);
+        if (component.nameTags.contains(nameTag.getString())) {
+            component.setCurrentNameTag(nameTag.getString());
             context.getSource().sendSuccess(() -> Component.literal("已将玩家 ")
                     .append(target.getName())
                     .append(Component.literal(" 的当前名片设置为: "))
-                    .append(Component.literal(nameTag)), true);
+                    .append(nameTag), true);
             return 1;
         } else {
             context.getSource().sendFailure(Component.literal("玩家 ")
                     .append(target.getName())
                     .append(Component.literal(" 没有该名片，无法设置: "))
-                    .append(Component.literal(nameTag)));
+                    .append((nameTag)));
             return 0;
         }
     }

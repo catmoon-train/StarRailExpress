@@ -7,10 +7,10 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import org.agmas.noellesroles.client.event.CommonHudRenderCallback;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
+import org.agmas.noellesroles.game.roles.Innocent.fool.ExecutionerGunItem;
+import org.agmas.noellesroles.game.roles.Innocent.fool.FoolPlayerComponent;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
-import org.agmas.noellesroles.roles.fool.ExecutionerGunItem;
-import org.agmas.noellesroles.roles.fool.FoolPlayerComponent;
 
 /**
  * 愚者 HUD 渲染器

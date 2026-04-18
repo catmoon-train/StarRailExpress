@@ -1,16 +1,14 @@
 package org.agmas.noellesroles.client.hud.roles;
 
+import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
-
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
 import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.component.SingerPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.singer.SingerPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
-
-import io.wifi.starrailexpress.client.SREClient;
 
 /**
  * 歌手 HUD 显示

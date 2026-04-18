@@ -5,7 +5,7 @@ import io.wifi.starrailexpress.cca.AutoStartComponent;
 import io.wifi.starrailexpress.cca.MapVotingComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.InputHandler;
-import io.wifi.starrailexpress.command.MapVoteCommand;
+import io.wifi.starrailexpress.content.command.MapVoteCommand;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.utils.client.betterrender.FakeGuiGraphics;
 import net.minecraft.ChatFormatting;
@@ -15,7 +15,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-
 import org.agmas.noellesroles.Noellesroles;
 import org.jetbrains.annotations.NotNull;
 

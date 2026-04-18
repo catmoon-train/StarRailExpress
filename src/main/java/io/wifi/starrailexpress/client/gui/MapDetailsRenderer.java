@@ -1,7 +1,7 @@
 package io.wifi.starrailexpress.client.gui;
 
-import io.wifi.starrailexpress.data.MapConfig;
 import io.wifi.starrailexpress.game.GameConstants;
+import io.wifi.starrailexpress.game.data.MapConfig;
 import io.wifi.utils.client.betterrender.FakeGuiGraphics;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.player.LocalPlayer;

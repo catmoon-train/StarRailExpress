@@ -2,7 +2,7 @@
 package io.wifi.starrailexpress.mixin.item;
 
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
-import io.wifi.starrailexpress.item.CocktailItem;
+import io.wifi.starrailexpress.content.item.CocktailItem;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
@@ -11,7 +11,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.PotionItem;
 import net.minecraft.world.level.Level;
-
 import org.agmas.noellesroles.component.FoodDrinkGlowComponent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

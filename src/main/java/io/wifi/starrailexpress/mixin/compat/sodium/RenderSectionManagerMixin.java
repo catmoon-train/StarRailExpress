@@ -1,7 +1,6 @@
 package io.wifi.starrailexpress.mixin.compat.sodium;
 
 import net.caffeinemc.mods.sodium.client.render.chunk.RenderSectionManager;
-// import net.minecraft.client.Camera;
 import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(RenderSectionManager.class)

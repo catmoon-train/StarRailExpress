@@ -1,13 +1,12 @@
 package org.agmas.noellesroles.client.event;
 
+import io.wifi.utils.client.betterrender.FakeGuiGraphics;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.function.BiConsumer;
-
-import io.wifi.utils.client.betterrender.FakeGuiGraphics;
 
 public class RoleHudRenderCallback {
     public static class CustomRenderEvent<T> {

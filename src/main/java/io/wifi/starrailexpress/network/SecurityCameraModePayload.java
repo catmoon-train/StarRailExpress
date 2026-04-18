@@ -1,6 +1,6 @@
 package io.wifi.starrailexpress.network;
 
-import io.wifi.starrailexpress.block.SecurityMonitorBlock;
+import io.wifi.starrailexpress.content.block.SecurityMonitorBlock;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;

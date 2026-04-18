@@ -1,33 +1,11 @@
 package io.wifi.starrailexpress.game.modes.funny;
 
-import static io.wifi.starrailexpress.game.GameUtils.addItemCooldowns;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
-import org.agmas.harpymodloader.Harpymodloader;
-import org.agmas.harpymodloader.commands.SetRoleCountCommand;
-import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
-import org.agmas.harpymodloader.events.ModdedRoleAssigned;
-import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
-import org.agmas.noellesroles.commands.BroadcastCommand;
-import org.agmas.noellesroles.init.ModEffects;
-import org.agmas.noellesroles.utils.RoleUtils;
-
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.SpecialGameModeRoles;
-import io.wifi.starrailexpress.cca.SREGameTimeComponent;
-import io.wifi.starrailexpress.cca.SREGameWorldComponent;
-import io.wifi.starrailexpress.cca.SREPlayerProgressionComponent;
+import io.wifi.starrailexpress.cca.*;
 import io.wifi.starrailexpress.cca.SREPlayerProgressionComponent.FactionCardType;
-import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
-import io.wifi.starrailexpress.cca.SREPlayerStatsComponent;
-import io.wifi.starrailexpress.cca.SRERoleWorldComponent;
-import io.wifi.starrailexpress.cca.SRETrainWorldComponent;
 import io.wifi.starrailexpress.cca.gamemode.CustomRoleGameModeTeamsPlayerComponent;
 import io.wifi.starrailexpress.cca.gamemode.CustomRoleGameModeWorldComponent;
 import io.wifi.starrailexpress.event.AllowGameEnd;
@@ -45,7 +23,19 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
+import org.agmas.harpymodloader.Harpymodloader;
+import org.agmas.harpymodloader.commands.SetRoleCountCommand;
+import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
+import org.agmas.harpymodloader.events.ModdedRoleAssigned;
+import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
+import org.agmas.noellesroles.commands.BroadcastCommand;
+import org.agmas.noellesroles.init.ModEffects;
+import org.agmas.noellesroles.utils.RoleUtils;
 import pro.fazeclan.river.stupid_express.role.avaricious.AvariciousGoldHandler;
+
+import java.util.*;
+
+import static io.wifi.starrailexpress.game.GameUtils.addItemCooldowns;
 
 public class SRECustomRoleGameMode extends SREMurderGameMode {
     public SRECustomRoleGameMode(ResourceLocation identifier) {
@@ -68,7 +58,7 @@ public class SRECustomRoleGameMode extends SREMurderGameMode {
             gameWorldComponent.addRole(player, SpecialGameModeRoles.CUSTOM_PENDING, false);
             CustomRoleGameModeTeamsPlayerComponent.KEY.get(player).setTeam(0);
             player.addEffect(new MobEffectInstance(
-                    ModEffects.NO_COLLIDE,
+                    ModEffects.SAFE_TIME,
                     selectionTick + 20,
                     10,
                     true, // ambient - 环境效果（粒子更少更透明）
@@ -252,7 +242,7 @@ public class SRECustomRoleGameMode extends SREMurderGameMode {
         for (ServerPlayer p : players) {
             SRERole role = roleWorldComponent.getRole(p);
             p.removeEffect(ModEffects.SKILL_BANED);
-            p.removeEffect(ModEffects.NO_COLLIDE);
+            p.removeEffect(ModEffects.SAFE_TIME);
             if (role != null) {
                 RoleUtils.sendWelcomeAnnouncement(p);
                 if (role.canUseKiller()) {

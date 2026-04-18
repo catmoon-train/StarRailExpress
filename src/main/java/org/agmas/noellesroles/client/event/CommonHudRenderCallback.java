@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.client.event;
 
-import net.minecraft.client.DeltaTracker;
 import io.wifi.utils.client.betterrender.FakeGuiGraphics;
+import net.minecraft.client.DeltaTracker;
 
 import java.util.ArrayList;
 import java.util.function.BiConsumer;

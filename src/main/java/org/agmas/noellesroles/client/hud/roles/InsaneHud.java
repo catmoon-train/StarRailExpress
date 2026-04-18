@@ -6,14 +6,14 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
-import org.agmas.noellesroles.component.InsaneKillerPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.insane_killer.InsaneKillerPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 
 public class InsaneHud {
 
     public static void register() {
         RoleHudRenderCallback.EVENT.register(
-                ModRoles.THE_INSANE_DAMNED_PARANOID_KILLER_OF_DOOM_DEATH_DESTRUCTION_AND_WAFFLES_ID,
+                ModRoles.INSANE_KILLER_ID,
                 (context, tickCounter) -> {
                     Minecraft client = Minecraft.getInstance();
                     if (SREClient.isPlayerSpectator())

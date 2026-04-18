@@ -2,7 +2,7 @@ package io.wifi.starrailexpress.network.packet;
 
 import com.google.common.reflect.TypeToken;
 import io.wifi.starrailexpress.SRE;
-import io.wifi.starrailexpress.data.MapConfig;
+import io.wifi.starrailexpress.game.data.MapConfig;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;

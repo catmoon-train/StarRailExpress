@@ -1,7 +1,7 @@
 package io.wifi.starrailexpress.util;
 
-import io.wifi.starrailexpress.data.WaypointManager;
-import io.wifi.starrailexpress.data.WaypointVisibilityManager;
+import io.wifi.starrailexpress.game.data.WaypointManager;
+import io.wifi.starrailexpress.game.data.WaypointVisibilityManager;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.server.MinecraftServer;
 

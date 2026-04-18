@@ -106,6 +106,11 @@ public class RoleInitialItems {
         });
         INITIAL_ITEMS_MAP.put(ModRoles.ELF, elfItems);
 
+//        //黑白
+//        List<Supplier<ItemStack>> monokuma_items = new ArrayList<>();
+//        elfItems.add(TMMItems.REVOLVER::getDefaultInstance);
+//        INITIAL_ITEMS_MAP.put(ModRoles.MONOKUMA, monokuma_items);
+
         List<Supplier<ItemStack>> ninjaItems = new ArrayList<>();
         ninjaItems.add(() -> {
             ItemStack lockpick = TMMItems.LOCKPICK.getDefaultInstance();
@@ -171,7 +176,7 @@ public class RoleInitialItems {
 
         // 强盗初始物品
         List<Supplier<ItemStack>> banditItems = new ArrayList<>();
-        banditItems.add(() -> org.agmas.noellesroles.repack.HSRItems.BANDIT_REVOLVER.getDefaultInstance());
+        banditItems.add(() -> ModItems.BANDIT_REVOLVER.getDefaultInstance());
         banditItems.add(() -> TMMItems.CROWBAR.getDefaultInstance());
         INITIAL_ITEMS_MAP.put(ModRoles.BANDIT, banditItems);
 

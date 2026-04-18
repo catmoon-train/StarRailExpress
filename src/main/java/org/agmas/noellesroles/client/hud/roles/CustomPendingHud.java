@@ -1,17 +1,16 @@
 package org.agmas.noellesroles.client.hud.roles;
 
+import io.wifi.starrailexpress.api.SpecialGameModeRoles;
+import io.wifi.starrailexpress.cca.gamemode.CustomRoleGameModeTeamsPlayerComponent;
+import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.CommonColors;
-
 import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
 import org.agmas.noellesroles.init.ModEffects;
-import io.wifi.starrailexpress.api.SpecialGameModeRoles;
-import io.wifi.starrailexpress.cca.gamemode.CustomRoleGameModeTeamsPlayerComponent;
-import io.wifi.starrailexpress.client.SREClient;
 
 /**
  * CUSTOM PENDING HUD Mixin
@@ -65,8 +64,8 @@ public class CustomPendingHud {
                                 .withStyle(ChatFormatting.GREEN);
                         context.drawString(font, tip, x - font.width(tip), y + 15, 0xFFFFFFFF);
                     }
-                    if (client.player.hasEffect(ModEffects.NO_COLLIDE)) {
-                        int roleDrawLeft = client.player.getEffect(ModEffects.NO_COLLIDE).getDuration();
+                    if (client.player.hasEffect(ModEffects.SAFE_TIME)) {
+                        int roleDrawLeft = client.player.getEffect(ModEffects.SAFE_TIME).getDuration();
                         // 显示技能冷却
                         int cdSeconds = roleDrawLeft / 20;
                         Component cdText = Component.translatable("hud.custom_pending.tip",

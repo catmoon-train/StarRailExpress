@@ -2,7 +2,7 @@ package io.wifi.starrailexpress.network.packet;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.client.gui.screen.WaypointHUD;
-import io.wifi.starrailexpress.data.WaypointData;
+import io.wifi.starrailexpress.game.data.WaypointData;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;

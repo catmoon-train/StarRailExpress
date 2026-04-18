@@ -7,7 +7,7 @@ import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
-import org.agmas.noellesroles.presets.Preset;
+import org.agmas.noellesroles.game.presets.Preset;
 
 import java.util.List;
 import java.util.Map;

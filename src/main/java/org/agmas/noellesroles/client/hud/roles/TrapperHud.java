@@ -6,7 +6,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.CommonColors;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
-import org.agmas.noellesroles.component.TrapperPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.trapper.TrapperPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 
 public class TrapperHud {

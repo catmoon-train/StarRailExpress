@@ -2,9 +2,7 @@ package io.wifi.starrailexpress.mixin.compat.sodium;
 
 
 import io.wifi.starrailexpress.compat.SodiumShaderInterface;
-// import net.caffeinemc.mods.sodium.client.render.chunk.shader.ChunkShaderOptions;
 import net.caffeinemc.mods.sodium.client.render.chunk.shader.DefaultShaderInterface;
-// import net.caffeinemc.mods.sodium.client.render.chunk.shader.ShaderBindingContext;
 import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(DefaultShaderInterface.class)

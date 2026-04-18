@@ -2,7 +2,8 @@ package io.wifi.starrailexpress.client.render.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import io.wifi.starrailexpress.entity.NoteEntity;
+
+import io.wifi.starrailexpress.content.entity.NoteEntity;
 import io.wifi.starrailexpress.index.TMMItems;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;

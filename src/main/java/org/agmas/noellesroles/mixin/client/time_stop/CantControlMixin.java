@@ -7,7 +7,7 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import org.agmas.noellesroles.client.NoellesrolesClient;
-import org.agmas.noellesroles.effects.TimeStopEffect;
+import org.agmas.noellesroles.content.effects.TimeStopEffect;
 import org.agmas.noellesroles.init.ModEffects;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;

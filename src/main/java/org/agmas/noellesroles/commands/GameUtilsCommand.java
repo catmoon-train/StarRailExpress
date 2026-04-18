@@ -7,11 +7,10 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.cca.*;
-import io.wifi.starrailexpress.command.ConfigCommand;
+import io.wifi.starrailexpress.content.command.ConfigCommand;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.GameUtils.WinStatus;
@@ -35,13 +34,12 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Item;
-
 import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.harpymodloader.commands.argument.RoleArgumentType;
 import org.agmas.harpymodloader.events.ModdedRoleAssigned;
 import org.agmas.harpymodloader.events.ModdedRoleRemoved;
 import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.effects.TimeStopEffect;
+import org.agmas.noellesroles.content.effects.TimeStopEffect;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.packet.ProblemScreenOpenC2SPacket;
 import org.agmas.noellesroles.packet.ScanAllTaskPointsPayload;
@@ -180,7 +178,7 @@ public class GameUtilsCommand {
                       })))
                   .then(Commands.literal("tests")
                       .then(Commands.literal("prayer").executes((ctx) -> {
-                        org.agmas.noellesroles.roles.fool.PrayerHandler
+                        org.agmas.noellesroles.game.roles.Innocent.fool.PrayerHandler
                             .startPrayer(ctx.getSource().getPlayerOrException());
                         ctx.getSource().sendSuccess(() -> Component.literal("Successfully prayer."), false);
                         return 1;

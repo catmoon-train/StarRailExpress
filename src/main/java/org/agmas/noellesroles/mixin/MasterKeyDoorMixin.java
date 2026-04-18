@@ -1,6 +1,6 @@
 package org.agmas.noellesroles.mixin;
 
-import io.wifi.starrailexpress.block.SmallDoorBlock;
+import io.wifi.starrailexpress.content.block.SmallDoorBlock;
 import io.wifi.starrailexpress.index.TMMItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;

@@ -1,27 +1,72 @@
 package org.agmas.noellesroles.component;
 
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
-import io.wifi.starrailexpress.entity.PlayerBodyEntity;
+import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.roles.coroner.BodyDeathReasonComponent;
-import org.agmas.noellesroles.roles.executioner.ExecutionerPlayerComponent;
-import org.agmas.noellesroles.roles.executioner.ShootingFrenzyPlayerComponent;
-import org.agmas.noellesroles.roles.fortuneteller.FortunetellerPlayerComponent;
-import org.agmas.noellesroles.roles.gambler.GamblerPlayerComponent;
-import org.agmas.noellesroles.roles.candlebearer.CandleBearerPlayerComponent;
-import org.agmas.noellesroles.roles.ghost.GhostPlayerComponent;
-import org.agmas.noellesroles.roles.manipulator.InControlCCA;
-import org.agmas.noellesroles.roles.manipulator.ManipulatorPlayerComponent;
-import org.agmas.noellesroles.roles.imitator.ImitatorPlayerComponent;
-import org.agmas.noellesroles.roles.morphling.MorphlingPlayerComponent;
-import org.agmas.noellesroles.roles.noise_maker.NoiseMakerPlayerComponent;
-import org.agmas.noellesroles.roles.recaller.RecallerPlayerComponent;
-import org.agmas.noellesroles.roles.thief.ThiefPlayerComponent;
-import org.agmas.noellesroles.roles.voodoo.VoodooPlayerComponent;
-import org.agmas.noellesroles.roles.vulture.VulturePlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.accountant.AccountantPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.alchemist.AlchemistPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.athlete.AthletePlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.avenger.AvengerPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.awesome_binglus.AwesomePlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.boxer.BoxerPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.broadcaster.BroadcasterPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.clock_maker.ClockmakerPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.coroner.BodyDeathReasonComponent;
+import org.agmas.noellesroles.game.roles.Innocent.detective.DetectivePlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.driver.DiverPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.fortuneteller.FortunetellerPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.ghost.GhostPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.glitch_robot.GlitchRobotPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.hoan_meirin.HoanMeirinPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.locksmith_inspiration.LocksmithInspirationComponent;
+import org.agmas.noellesroles.game.roles.Innocent.magician.MagicianPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.monitor.MonitorPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.noise_maker.NoiseMakerPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.postman.PostmanPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.psychologist.PsychologistPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.recaller.RecallerPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.singer.SingerPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.super_star.SuperStarPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.telegrapher.TelegrapherPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.voodoo.VoodooPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.bandit.BanditPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.blood_feudist.BloodFeudistPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.bomber.BomberPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.conspirator.ConspiratorPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.creeper.CreeperPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.dio.DIOPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.executioner.ExecutionerPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.executioner.ShootingFrenzyPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.imitator.ImitatorPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.insane_killer.InsaneKillerPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.ma_chen_xu.MaChenXuPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.manipulator.InControlCCA;
+import org.agmas.noellesroles.game.roles.killer.manipulator.ManipulatorPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.morphling.MorphlingPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.ninja.NinjaPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.stalker.StalkerPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.swapper.SwapperPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.trapper.TrapperPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.watcher.WatcherPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.water_ghost.WaterGhostPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.admirer.AdmirerPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.candlebearer.CandleBearerPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.gambler.GamblerPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.mercenary.MercenaryPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.nian_shou.NianShouPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.panda.PandaComponent;
+import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.recorder.RecorderPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.slippery_ghost.SlipperyGhostPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.thief.ThiefPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.vulture.VulturePlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.wayfarer.WayfarerPlayerComponent;
+import org.agmas.noellesroles.game.roles.special.better_vigilante.BetterVigilantePlayerComponent;
+import org.agmas.noellesroles.game.roles.vigilante.patroller.PatrollerPlayerComponent;
+import org.agmas.noellesroles.voice.HeliumBuzzPlayerComponent;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
@@ -144,6 +189,10 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
       .getOrCreate(
           ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "hoan_meirin"),
           HoanMeirinPlayerComponent.class);
+  public static final ComponentKey<PandaComponent> panda = ComponentRegistry
+      .getOrCreate(
+          ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "panda"),
+              PandaComponent.class);
   public static final ComponentKey<BetterVigilantePlayerComponent> BETTER_VIGILANTE = ComponentRegistry
       .getOrCreate(
           ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "better_vigilante"),
@@ -235,11 +284,14 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
       ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "watcher"),
       WatcherPlayerComponent.class);
 
-  public static final ComponentKey<org.agmas.noellesroles.modifier.expedition.ExpeditionComponent> EXPEDITION = org.agmas.noellesroles.modifier.expedition.ExpeditionComponent.KEY;
+  public static final ComponentKey<org.agmas.noellesroles.game.modifier.expedition.ExpeditionComponent> EXPEDITION = org.agmas.noellesroles.game.modifier.expedition.ExpeditionComponent.KEY;
 
   public static final ComponentKey<TemporaryEffectPlayerComponent> TEMPORARY_EFFECT = ComponentRegistry.getOrCreate(
       ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "temporary_effect"),
       TemporaryEffectPlayerComponent.class);
+
+  // 氦气变声组件 - 独立同步给所有玩家
+  public static final ComponentKey<HeliumBuzzPlayerComponent> HELIUM_BUZZ = HeliumBuzzPlayerComponent.KEY;
 
   public static final ComponentKey<LocksmithInspirationComponent> LOCKSMITH_INSPIRATION = ComponentRegistry
       .getOrCreate(
@@ -250,8 +302,13 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
       ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "imitator"),
       ImitatorPlayerComponent.class);
 
+  public static final ComponentKey<org.agmas.noellesroles.game.roles.killer.party.PartyPlayerComponent> PARTY = ComponentRegistry.getOrCreate(
+      ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "party_killer"),
+      org.agmas.noellesroles.game.roles.killer.party.PartyPlayerComponent.class);
 
-  public static final ComponentKey<org.agmas.noellesroles.roles.fool.FoolPlayerComponent> FOOL = org.agmas.noellesroles.roles.fool.FoolPlayerComponent.KEY;
+  public static final ComponentKey<org.agmas.noellesroles.game.roles.Innocent.fool.FoolPlayerComponent> FOOL = org.agmas.noellesroles.game.roles.Innocent.fool.FoolPlayerComponent.KEY;
+
+  public static final ComponentKey<org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaPlayerComponent> MONOKUMA = org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaPlayerComponent.KEY;
 
   public ModComponents() {
     // CCA 需要无参构造函数
@@ -303,6 +360,10 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
     registry.beginRegistration(Player.class, SLIPPERY_GHOST)
         .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
         .end(SlipperyGhostPlayerComponent::new);
+
+    registry.beginRegistration(Player.class, panda)
+        .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
+        .end(PandaComponent::new);
 
     // 注册电报员组件 - 存储使用次数
     registry.beginRegistration(Player.class, BROADCASTER)
@@ -484,7 +545,7 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
     // 注册远征队组件
     registry.beginRegistration(Player.class, EXPEDITION)
         .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
-        .end(org.agmas.noellesroles.modifier.expedition.ExpeditionComponent::new);
+        .end(org.agmas.noellesroles.game.modifier.expedition.ExpeditionComponent::new);
     registry.beginRegistration(Player.class, MA_CHEN_XU)
         .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
         .end(MaChenXuPlayerComponent::new);
@@ -492,6 +553,11 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
     registry.beginRegistration(Player.class, TEMPORARY_EFFECT)
         .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
         .end(TemporaryEffectPlayerComponent::new);
+
+    // 注册氦气变声组件 - 独立同步给所有玩家以便变声效果生效
+    registry.beginRegistration(Player.class, HELIUM_BUZZ)
+        .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
+        .end(HeliumBuzzPlayerComponent::new);
 
     // 注册锁匠灵感组件 - 存储灵感点数和看门进度
     registry.beginRegistration(Player.class, LOCKSMITH_INSPIRATION)
@@ -502,6 +568,10 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
     registry.beginRegistration(Player.class, IMITATOR)
         .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
         .end(ImitatorPlayerComponent::new);
+
+    registry.beginRegistration(Player.class, PARTY)
+        .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
+        .end(org.agmas.noellesroles.game.roles.killer.party.PartyPlayerComponent::new);
 
     // 注册会计组件 - 存储模式、被动收入计时器
     registry.beginRegistration(Player.class, ACCOUNTANT)
@@ -546,7 +616,12 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
     // 注册愚者组件 - 存储塔罗会成员、处刑者手枪子弹、异端效果等
     registry.beginRegistration(Player.class, FOOL)
         .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
-        .end(org.agmas.noellesroles.roles.fool.FoolPlayerComponent::new);
+        .end(org.agmas.noellesroles.game.roles.Innocent.fool.FoolPlayerComponent::new);
+
+    // 注册黑白组件 - 存储阶段、狂暴前奏计时器、光环状态
+    registry.beginRegistration(Player.class, MONOKUMA)
+        .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
+        .end(org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaPlayerComponent::new);
 
     // ==================== 示例：注册更多组件 ====================
     //

@@ -3,10 +3,7 @@ package io.wifi.starrailexpress.game.modes.funny;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
-import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
-import io.wifi.starrailexpress.cca.SREGameTimeComponent;
-import io.wifi.starrailexpress.cca.SREGameWorldComponent;
-import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
+import io.wifi.starrailexpress.cca.*;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.modes.WTLooseEndsGameMode;
@@ -21,13 +18,13 @@ import net.minecraft.world.item.ItemStack;
 import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.harpymodloader.modded_murder.RoleAssignmentPool;
-import org.agmas.noellesroles.component.StalkerPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.stalker.StalkerPlayerComponent;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
-
 import pro.fazeclan.river.stupid_express.StupidExpress;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
+import pro.fazeclan.river.stupid_express.constants.SERoles;
 
 import java.util.*;
 import java.util.function.Supplier;
@@ -43,7 +40,9 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
     protected static AttributeModifier tinyModifier = new AttributeModifier(
             StupidExpress.id("tiny_modifier"), -0.15, AttributeModifier.Operation.ADD_VALUE);
     public static final int ADD_BALANCE_TIME = 600;
-    int curTick = 0;
+    public static final int REVIVE_TIME = 200;
+    int curBalanceTick = 0;
+    int curReviveTick = 0;
 
     public SREEvilWarGameMode(ResourceLocation identifier) {
         super(identifier);
@@ -218,32 +217,41 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
         // 初始化后处理 component
         for (ServerPlayer player : players) {
             SRERole role = gameWorldComponent.getRole(player);
-            // 阴谋家首次获取金币减少
+            SREPlayerShopComponent playerShopComponent = SREPlayerShopComponent.KEY.get(player);
+            // 阴谋家首次获取资金时间推迟
             if (role == ModRoles.CONSPIRATOR) {
-                SREPlayerShopComponent playerShopComponent = SREPlayerShopComponent.KEY.get(player);
-                playerShopComponent.setBalance(-400);
+                playerShopComponent.setBalance(-200);
             }
+            // dio初始资金减少
             else if (role == ModRoles.DIO) {
-                SREPlayerShopComponent playerShopComponent = SREPlayerShopComponent.KEY.get(player);
-                playerShopComponent.setBalance(-80);
+                playerShopComponent.setBalance(0);
             }
+            // 默认安全时间结束后有700（一般杀手狂暴400，手雷330，手枪285)，需要斟酌启动配置
+            else
+                playerShopComponent.setBalance(200);
         }
-        curTick = 0;
+        curBalanceTick = 0;
     }
 
     @Override
     public void tickServerGameLoop(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent) {
         GameUtils.WinStatus winStatus = GameUtils.WinStatus.NONE;
 
-        boolean civilianAlive = false;
-        for (ServerPlayer player : serverWorld.players()) {
-            // passive money
-//            if (gameWorldComponent.canAutoAddMoney(player)) {
-                // Integer balanceToAdd =
-                // GameConstants.PASSIVE_MONEY_TICKER.apply(serverWorld.getGameTime());
-                // if (balanceToAdd > 0)
-                // SREPlayerShopComponent.KEY.get(player).addToBalance(balanceToAdd);
-            if (curTick++ >= ADD_BALANCE_TIME) {
+        // tick计数
+        if (curReviveTick++ >= REVIVE_TIME) {
+            for (ServerPlayer player : serverWorld.players()) {
+                SRERole role = gameWorldComponent.getRole(player);
+                // 死灵可以复活cd降至10s
+                if(role == SERoles.NECROMANCER || role == ModRoles.CAT_NECROMANCER) {
+                    SREAbilityPlayerComponent abilityPlayerComponent = SREAbilityPlayerComponent.KEY.get(player);
+                    abilityPlayerComponent.setCooldown(0);
+                }
+            }
+            curReviveTick = 0;
+        }
+        if (curBalanceTick++ >= ADD_BALANCE_TIME) {
+            for (ServerPlayer player : serverWorld.players()) {
+                // 给予角色金币
                 SRERole role = gameWorldComponent.getRole(player);
                 if (role == ModRoles.DIO) {
                     SREPlayerShopComponent.KEY.get(player).addToBalance(200);
@@ -251,17 +259,16 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
                 else if(role == ModRoles.CONSPIRATOR) {
                     SREPlayerShopComponent.KEY.get(player).addToBalance(200);
                 }
-                else if(role == ModRoles.CREEPER) {
-                    SREPlayerShopComponent.KEY.get(player).addToBalance(500);
-                    player.addItem(TMMItems.GRENADE.getDefaultInstance());
-                }
                 else if(role != ModRoles.SUPER_LOOSE_END)
                     // 默认获取500金币
                     SREPlayerShopComponent.KEY.get(player).addToBalance(500);
-                curTick = 0;
 
+                // 角色相关数据修改
+                if(role == ModRoles.CREEPER) {
+                    player.addItem(TMMItems.GRENADE.getDefaultInstance());
+                }
                 // 判断是否是特定角色，进行特定操作，每30秒判断一次
-                if (role == ModRoles.STALKER) {
+                else if (role == ModRoles.STALKER) {
                     StalkerPlayerComponent stalkerPlayerComponent = StalkerPlayerComponent.KEY.get(player);
                     // 潜行每30s获得 500 能量
                     stalkerPlayerComponent.energy += 500;
@@ -270,14 +277,16 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
                     stalkerPlayerComponent.sync();
                 }
             }
-//            }
+            curBalanceTick = 0;
+        }
 
+        boolean civilianAlive = false;
+        for (ServerPlayer player : serverWorld.players()) {
             // check if some civilians are still alive
             if (gameWorldComponent.isInnocent(player) && !GameUtils.isPlayerEliminated(player)) {
                 civilianAlive = true;
             }
         }
-
         // check killer win condition (killed all civilians)
         if (!civilianAlive) {
             winStatus = GameUtils.WinStatus.KILLERS;

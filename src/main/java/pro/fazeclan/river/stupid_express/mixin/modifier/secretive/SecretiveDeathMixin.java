@@ -28,7 +28,7 @@ public class SecretiveDeathMixin {
             serverLevel.getServer().execute(() -> {
                 // 遍历所有实体找到刚生成的尸体
                 serverLevel.getAllEntities().forEach(entity -> {
-                    if (entity instanceof io.wifi.starrailexpress.entity.PlayerBodyEntity body) {
+                    if (entity instanceof io.wifi.starrailexpress.content.entity.PlayerBodyEntity body) {
                         if (body.getPlayerUuid() != null && body.getPlayerUuid().equals(player.getUUID())) {
                             body.setCustomName(Component.literal("???"));
                             body.setCustomNameVisible(true);

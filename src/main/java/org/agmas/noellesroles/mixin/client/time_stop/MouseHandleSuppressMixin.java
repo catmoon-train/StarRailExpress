@@ -4,7 +4,7 @@ import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.MouseHandler;
 import net.minecraft.client.player.LocalPlayer;
-import org.agmas.noellesroles.effects.TimeStopEffect;
+import org.agmas.noellesroles.content.effects.TimeStopEffect;
 import org.agmas.noellesroles.init.ModEffects;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

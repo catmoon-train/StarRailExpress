@@ -3,25 +3,15 @@ package io.wifi.starrailexpress.client.gui.screen.ingame;
 import com.mojang.math.Axis;
 import io.wifi.starrailexpress.client.fourthroom.FourthRoomClientSnapshot;
 import io.wifi.starrailexpress.client.fourthroom.FourthRoomClientState;
-import io.wifi.starrailexpress.fourthroom.network.BuyFourthRoomItemPayload;
-import io.wifi.starrailexpress.fourthroom.network.CardPlayPayload;
-import io.wifi.starrailexpress.fourthroom.network.CompleteFourthRoomTaskPayload;
-import io.wifi.starrailexpress.fourthroom.network.EndTurnPayload;
-import io.wifi.starrailexpress.fourthroom.network.RevealIdentityPayload;
-import io.wifi.starrailexpress.fourthroom.network.UseAssassinationItemPayload;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
+import org.agmas.noellesroles.game.modes.fourthroom.network.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public final class FourthRoomBattleScreen extends Screen {
     private static final int PANEL_MARGIN = 18;

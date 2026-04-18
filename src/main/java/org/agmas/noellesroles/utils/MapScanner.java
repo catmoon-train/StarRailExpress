@@ -1,22 +1,24 @@
 package org.agmas.noellesroles.utils;
 
 import io.wifi.starrailexpress.SRE;
-import io.wifi.starrailexpress.block.*;
-import io.wifi.starrailexpress.block_entity.BeveragePlateBlockEntity;
-import io.wifi.starrailexpress.block_entity.SmallDoorBlockEntity;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.content.block.*;
+import io.wifi.starrailexpress.content.block_entity.BeveragePlateBlockEntity;
+import io.wifi.starrailexpress.content.block_entity.SmallDoorBlockEntity;
+import io.wifi.starrailexpress.content.item.CocktailItem;
 import io.wifi.starrailexpress.event.OnTrainAreaHaveReseted;
 import io.wifi.starrailexpress.game.GameUtils;
-import io.wifi.starrailexpress.item.CocktailItem;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.food.FoodProperties;
+import net.minecraft.world.item.HoneyBottleItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.PotionItem;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LecternBlock;
 import net.minecraft.world.level.block.state.properties.BedPart;
@@ -24,8 +26,8 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.block.VendingMachinesBlock;
-import org.agmas.noellesroles.game.ChairWheelRaceGame;
+import org.agmas.noellesroles.content.block.VendingMachinesBlock;
+import org.agmas.noellesroles.game.modes.ChairWheelRaceGame;
 import org.agmas.noellesroles.init.ModBlocks;
 import org.agmas.noellesroles.packet.ScanAllTaskPointsPayload;
 
@@ -98,7 +100,7 @@ public class MapScanner {
                             if (items.size() > 0) {
                                 ItemStack item_0 = items.get(0);
                                 Item item_ = item_0.getItem();
-                                if ((item_ instanceof CocktailItem)) {
+                                if ((item_ instanceof CocktailItem) || (item_ instanceof PotionItem) || (item_ instanceof HoneyBottleItem)) {
                                     GameUtils.taskBlocks.put(blockPos6, 2);
                                 } else {
                                     FoodProperties foodPro = item_0.get(DataComponents.FOOD);

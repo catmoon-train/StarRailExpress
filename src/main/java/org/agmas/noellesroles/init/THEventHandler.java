@@ -1,18 +1,17 @@
 package org.agmas.noellesroles.init;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.role.RedHouseRoles;
-
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.event.AllowPlayerDeathWithKiller;
 import io.wifi.starrailexpress.game.GameConstants.DeathReasons;
 import net.minecraft.resources.ResourceLocation;
+import org.agmas.noellesroles.Noellesroles;
+import org.agmas.noellesroles.role.RedHouseRoles;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class THEventHandler {
     public static void registerEvents() {
@@ -41,9 +40,9 @@ public class THEventHandler {
     }
 
     public static SRERole getRandomRole() {
-        var roles = Noellesroles.getEnableAndAvailableRoles(false);
+        var roles = Noellesroles.getEnableAndAvailableRoles(true);
         if (roles.isEmpty())
-            return TMMRoles.CIVILIAN;
+            return TMMRoles.KILLER;
         Collections.shuffle(roles);
         return roles.getFirst();
     }

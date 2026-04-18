@@ -2,7 +2,7 @@ package org.agmas.noellesroles.mixin.time_stop;
 
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import net.minecraft.world.entity.player.Player;
-import org.agmas.noellesroles.component.DIOPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.dio.DIOPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

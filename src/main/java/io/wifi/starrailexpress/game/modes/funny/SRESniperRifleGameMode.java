@@ -1,11 +1,11 @@
 package io.wifi.starrailexpress.game.modes.funny;
 
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.content.item.DerringerItem;
+import io.wifi.starrailexpress.content.item.KnifeItem;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.modes.WTLooseEndsGameMode;
 import io.wifi.starrailexpress.index.TMMItems;
-import io.wifi.starrailexpress.item.DerringerItem;
-import io.wifi.starrailexpress.item.KnifeItem;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemCooldowns;

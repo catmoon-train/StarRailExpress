@@ -1,14 +1,7 @@
 package org.agmas.noellesroles.client.screen;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
-
-import org.agmas.noellesroles.commands.GameUtilsCommand;
-
 import io.wifi.starrailexpress.api.SREGameModes;
-import io.wifi.starrailexpress.command.MapVoteCommand;
+import io.wifi.starrailexpress.content.command.MapVoteCommand;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
@@ -18,6 +11,12 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
+import org.agmas.noellesroles.commands.GameUtilsCommand;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
 
 public class GameManagementScreen extends Screen {
 

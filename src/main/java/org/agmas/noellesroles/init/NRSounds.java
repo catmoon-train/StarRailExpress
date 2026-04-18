@@ -13,11 +13,14 @@ public class NRSounds {
     public static final SoundEvent HARPY_WELCOME = registrar.create("noellesroles.harpy_welcome");
     public static final SoundEvent WIND = registrar.create("noellesroles.wind");
     public static final SoundEvent JESTER_AMBIENT = registrar.create("noellesroles.jester");
+    public static final SoundEvent NYAN_CAT = registrar.create("noellesroles.nyan_cat");
+    
     public static final SoundEvent THMUSIC_UN_OWEN = registrar.create("noellesroles.who_kill_un_owen");
     public static final SoundEvent TIME_STOP = registrar.create("noellesroles.time_stop");
     public static final SoundEvent DIO_SPAWN = registrar.create("noellesroles.dio_spawn");
     public static final SoundEvent TIME_START = registrar.create("noellesroles.time_start");
     public static final SoundEvent PARTY_SKILL = registrar.create("noellesroles.party_skill");
+    public static final SoundEvent ITEM_SYRINGE_STAB = registrar.create("item.syringe.stab");
 
     public static void initialize() {
         registrar.registerEntries();

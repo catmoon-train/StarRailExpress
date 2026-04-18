@@ -16,9 +16,9 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.block.DevilRouletteTable;
-import org.agmas.noellesroles.block.VendingMachinesBlock;
 import org.agmas.noellesroles.block_entity.DevilRouletteTableEntity;
-import org.agmas.noellesroles.block_entity.VendingMachinesBlockEntity;
+import org.agmas.noellesroles.content.block.VendingMachinesBlock;
+import org.agmas.noellesroles.content.block_entity.VendingMachinesBlockEntity;
 
 import static io.wifi.starrailexpress.index.TMMBlocks.DARK_STEEL;
 

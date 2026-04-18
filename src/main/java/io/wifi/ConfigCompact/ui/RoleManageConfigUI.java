@@ -1,5 +1,7 @@
 package io.wifi.ConfigCompact.ui;
 
+import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.api.TMMRoles;
 import me.shedaniel.clothconfig2.api.ConfigBuilder;
 import me.shedaniel.clothconfig2.api.ConfigCategory;
 import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
@@ -10,9 +12,6 @@ import net.minecraft.resources.ResourceLocation;
 import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
 import org.agmas.harpymodloader.modifiers.HMLModifiers;
 import org.agmas.noellesroles.utils.RoleUtils;
-
-import io.wifi.starrailexpress.api.SRERole;
-import io.wifi.starrailexpress.api.TMMRoles;
 
 import java.text.Collator;
 import java.util.ArrayList;

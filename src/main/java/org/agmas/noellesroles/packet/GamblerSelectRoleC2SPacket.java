@@ -1,18 +1,17 @@
 package org.agmas.noellesroles.packet;
 
+import io.wifi.starrailexpress.api.SREGameModes;
+import io.wifi.starrailexpress.api.SpecialGameModeRoles;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.gamemode.CustomRoleGameModeWorldComponent;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.roles.gambler.GamblerPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.gambler.GamblerPlayerComponent;
 import org.jetbrains.annotations.NotNull;
-
-import io.wifi.starrailexpress.api.SREGameModes;
-import io.wifi.starrailexpress.api.SpecialGameModeRoles;
-import io.wifi.starrailexpress.cca.SREGameWorldComponent;
-import io.wifi.starrailexpress.cca.gamemode.CustomRoleGameModeWorldComponent;
 
 public record GamblerSelectRoleC2SPacket(ResourceLocation roleId) implements CustomPacketPayload {
     public static final ResourceLocation GAMBLER_SELECT_ROLE_PAYLOAD_ID = ResourceLocation

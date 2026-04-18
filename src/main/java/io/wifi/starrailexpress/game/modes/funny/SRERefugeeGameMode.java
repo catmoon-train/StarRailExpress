@@ -1,17 +1,18 @@
 package io.wifi.starrailexpress.game.modes.funny;
 
 import io.wifi.starrailexpress.SREConfig;
-import io.wifi.starrailexpress.cca.*;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.modes.SREMurderGameMode;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import pro.fazeclan.river.stupid_express.constants.SEModifiers;
-
-import java.util.*;
-
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.harpymodloader.events.ModifierAssigned;
+import pro.fazeclan.river.stupid_express.constants.SEModifiers;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class SRERefugeeGameMode extends SREMurderGameMode {
     public SRERefugeeGameMode(ResourceLocation identifier) {

@@ -1,7 +1,5 @@
 package org.agmas.noellesroles.mixin.roles.framing;
 
-import io.wifi.starrailexpress.block.FoodPlatterBlock;
-import io.wifi.starrailexpress.block_entity.BeveragePlateBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -17,6 +15,9 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import io.wifi.starrailexpress.content.block.FoodPlatterBlock;
+import io.wifi.starrailexpress.content.block_entity.BeveragePlateBlockEntity;
 
 @Mixin(FoodPlatterBlock.class)
 public abstract class DelusionVialApplyMixin {

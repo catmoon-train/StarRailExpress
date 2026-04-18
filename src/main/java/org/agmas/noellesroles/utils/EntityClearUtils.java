@@ -1,19 +1,18 @@
 package org.agmas.noellesroles.utils;
 
-import io.wifi.starrailexpress.entity.NoteEntity;
-import io.wifi.starrailexpress.entity.PlayerBodyEntity;
+import io.wifi.starrailexpress.content.entity.NoteEntity;
+import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.event.OnGameEnd;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.AreaEffectCloud;
 import net.minecraft.world.entity.animal.Pig;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.projectile.ThrownTrident;
-
 import org.agmas.harpymodloader.events.GameInitializeEvent;
-import org.agmas.noellesroles.entity.KuiXiPuppetEntity;
-import org.agmas.noellesroles.entity.LockEntity;
-import org.agmas.noellesroles.entity.LockEntityManager;
-import org.agmas.noellesroles.entity.WheelchairEntity;
+import org.agmas.noellesroles.content.entity.KuiXiPuppetEntity;
+import org.agmas.noellesroles.content.entity.LockEntity;
+import org.agmas.noellesroles.content.entity.LockEntityManager;
+import org.agmas.noellesroles.content.entity.WheelchairEntity;
 import pro.fazeclan.river.stupid_express.role.necromancer.cca.NecromancerComponent;
 
 public class EntityClearUtils {

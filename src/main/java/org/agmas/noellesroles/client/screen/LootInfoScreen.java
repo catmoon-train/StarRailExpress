@@ -24,7 +24,6 @@ import org.agmas.noellesroles.packet.Loot.LootMultiRequestC2SPacket;
 import org.agmas.noellesroles.packet.Loot.LootRequestC2SPacket;
 import org.agmas.noellesroles.utils.Pair;
 import org.agmas.noellesroles.utils.lottery.LotteryManager;
-import org.jspecify.annotations.NonNull;
 
 import java.awt.*;
 import java.util.ArrayList;

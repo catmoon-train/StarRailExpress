@@ -2,7 +2,7 @@ package io.wifi.starrailexpress.cca;
 
 import io.wifi.starrailexpress.cca.gamemode.CustomRoleGameModeTeamsPlayerComponent;
 import io.wifi.starrailexpress.cca.gamemode.CustomRoleGameModeWorldComponent;
-import io.wifi.starrailexpress.mail.MailboxComponent;
+import io.wifi.starrailexpress.content.mail.MailboxComponent;
 import net.exmo.sre.nametag.NameTagInventoryComponent;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;

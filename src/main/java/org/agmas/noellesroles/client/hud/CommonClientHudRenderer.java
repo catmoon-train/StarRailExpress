@@ -2,16 +2,11 @@ package org.agmas.noellesroles.client.hud;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.SRERole;
-import io.wifi.starrailexpress.cca.SREArmorPlayerComponent;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
+import io.wifi.starrailexpress.cca.SREArmorPlayerComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.client.SREClient;
-import io.wifi.starrailexpress.client.gui.HudMoodRenderer;
-import io.wifi.starrailexpress.client.gui.HudStoreRenderer;
-import io.wifi.starrailexpress.client.gui.LobbyPlayersRenderer;
-import io.wifi.starrailexpress.client.gui.RoleNameRenderer;
-import io.wifi.starrailexpress.client.gui.RoundTextRenderer;
-import io.wifi.starrailexpress.client.gui.TimeRenderer;
+import io.wifi.starrailexpress.client.gui.*;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.utils.client.betterrender.FakeGuiGraphics;
 import io.wifi.utils.client.betterrender.FakeHudRenderCallback;
@@ -26,8 +21,6 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.ItemCooldowns.CooldownInstance;
-
-import org.agmas.noellesroles.AttendantHandler;
 import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.agmas.noellesroles.client.WayfarerHudRenderer;
 import org.agmas.noellesroles.client.event.CommonHudRenderCallback;
@@ -35,22 +28,36 @@ import org.agmas.noellesroles.client.event.MutableComponentResult;
 import org.agmas.noellesroles.client.event.OnMessageBelowMoneyRenderer;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
 import org.agmas.noellesroles.client.hud.roles.BroadcasterHud;
-import org.agmas.noellesroles.component.*;
-import org.agmas.noellesroles.entity.WheelchairEntity;
+import org.agmas.noellesroles.component.ModComponents;
+import org.agmas.noellesroles.content.entity.WheelchairEntity;
+import org.agmas.noellesroles.game.roles.Innocent.accountant.AccountantPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.alchemist.AlchemistPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.athlete.AthletePlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.attendant.AttendantHandler;
+import org.agmas.noellesroles.game.roles.Innocent.clock_maker.ClockmakerPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.fortuneteller.FortunetellerPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.ghost.GhostPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.hoan_meirin.HoanMeirinPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.locksmith_inspiration.LocksmithInspirationComponent;
+import org.agmas.noellesroles.game.roles.Innocent.noise_maker.NoiseMakerPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.blood_feudist.BloodFeudistPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.ma_chen_xu.MaChenXuPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.ninja.NinjaPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.stalker.StalkerPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.watcher.WatcherPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.candlebearer.CandleBearerPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.commander.CommanderHudRender;
+import org.agmas.noellesroles.game.roles.neutral.mercenary.MercenaryPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.recorder.RecorderPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.thief.ThiefPlayerComponent;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.RedHouseRoles;
-import org.agmas.noellesroles.roles.commander.CommanderHudRender;
-import org.agmas.noellesroles.roles.candlebearer.CandleBearerPlayerComponent;
-import org.agmas.noellesroles.roles.fortuneteller.FortunetellerPlayerComponent;
-import org.agmas.noellesroles.roles.ghost.GhostPlayerComponent;
-import org.agmas.noellesroles.roles.noise_maker.NoiseMakerPlayerComponent;
-import org.agmas.noellesroles.roles.thief.ThiefPlayerComponent;
 
 import java.awt.*;
-import java.util.UUID;
 import java.util.ArrayList;
+import java.util.UUID;
 import java.util.function.BiConsumer;
 
 public class CommonClientHudRenderer {
@@ -110,8 +117,8 @@ public class CommonClientHudRenderer {
       }
       {
         if (SREClient.gameComponent.isRunning()) {
-          if (client.player.hasEffect(ModEffects.NO_COLLIDE)) {
-            var effect = client.player.getEffect(ModEffects.NO_COLLIDE);
+          if (client.player.hasEffect(ModEffects.SAFE_TIME)) {
+            var effect = client.player.getEffect(ModEffects.SAFE_TIME);
             Component message = Component.translatable("hud.noellesroles.safe_time", effect.getDuration() / 20)
                 .withStyle(ChatFormatting.GREEN);
             guiGraphics.drawCenteredString(client.font, message, guiGraphics.guiWidth() / 2, 40,
@@ -1046,7 +1053,7 @@ public class CommonClientHudRenderer {
 
       // 显示冷却或就绪状态
       int dy = yOffset - font.lineHeight - 4;
-      if (client.player.hasEffect(ModEffects.NO_COLLIDE)) {
+      if (client.player.hasEffect(ModEffects.SAFE_TIME)) {
         var cdText = Component.translatable("hud.noellesroles.safe_time", thiefComponent.cooldown / 20)
             .withStyle(ChatFormatting.RED);
         guiGraphics.drawString(font, cdText, xOffset - font.width(cdText), dy, Color.WHITE.getRGB());
@@ -1193,7 +1200,7 @@ public class CommonClientHudRenderer {
       int yOffset = screenHeight - 10 - font.lineHeight; // 右下角
       int xOffset = screenWidth - 10; // 距离右边缘
 
-      var accountantComponent = org.agmas.noellesroles.component.AccountantPlayerComponent.KEY
+      var accountantComponent = AccountantPlayerComponent.KEY
           .maybeGet(client.player).orElse(null);
       if (accountantComponent == null)
         return;
@@ -1202,7 +1209,7 @@ public class CommonClientHudRenderer {
       // 显示当前模式
       Component modeText;
       if (accountantComponent
-          .getCurrentMode() == org.agmas.noellesroles.component.AccountantPlayerComponent.MODE_INCOME) {
+          .getCurrentMode() == AccountantPlayerComponent.MODE_INCOME) {
         modeText = Component.translatable("hud.accountant.mode.income").withStyle(ChatFormatting.GOLD);
       } else {
         modeText = Component.translatable("hud.accountant.mode.expense").withStyle(ChatFormatting.AQUA);
@@ -1253,7 +1260,7 @@ public class CommonClientHudRenderer {
       int yOffset = screenHeight - 10 - font.lineHeight; // 右下角
       int xOffset = screenWidth - 10; // 距离右边缘
 
-      var alchemistComponent = org.agmas.noellesroles.component.AlchemistPlayerComponent.KEY
+      var alchemistComponent = AlchemistPlayerComponent.KEY
           .maybeGet(client.player).orElse(null);
       if (alchemistComponent == null)
         return;
@@ -1263,7 +1270,7 @@ public class CommonClientHudRenderer {
       // 显示当前选择的药剂
       int currentPotionIndex = alchemistComponent.getCurrentPotionIndex();
       Component potionName = Component.translatable("potion.noellesroles."
-          + org.agmas.noellesroles.component.AlchemistPlayerComponent.getPotionKey(currentPotionIndex));
+          + AlchemistPlayerComponent.getPotionKey(currentPotionIndex));
       Component potionLabel = Component.translatable("hud.alchemist.current_potion")
           .withStyle(ChatFormatting.WHITE);
       guiGraphics.drawString(font, potionLabel, xOffset - font.width(potionLabel) - font.width(potionName), dy,
@@ -1272,16 +1279,16 @@ public class CommonClientHudRenderer {
       dy -= font.lineHeight + 4;
 
       // 显示调制花费
-      int goldCost = org.agmas.noellesroles.component.AlchemistPlayerComponent.getPotionCost(currentPotionIndex);
+      int goldCost = AlchemistPlayerComponent.getPotionCost(currentPotionIndex);
       Component costText = Component.translatable("hud.alchemist.craft_cost", goldCost,
-          org.agmas.noellesroles.component.AlchemistPlayerComponent.MATERIALS_TO_CRAFT)
+          AlchemistPlayerComponent.MATERIALS_TO_CRAFT)
           .withStyle(ChatFormatting.GOLD);
       guiGraphics.drawString(font, costText, xOffset - font.width(costText), dy, Color.WHITE.getRGB());
       dy -= font.lineHeight + 4;
 
       // 显示当前药剂的调制次数
       int craftCount = alchemistComponent.getCurrentPotionCraftCount();
-      int maxCraftCount = org.agmas.noellesroles.component.AlchemistPlayerComponent.MAX_CRAFT_COUNT;
+      int maxCraftCount = AlchemistPlayerComponent.MAX_CRAFT_COUNT;
       Component countText = Component.translatable("hud.alchemist.craft_count", craftCount, maxCraftCount)
           .withStyle(ChatFormatting.LIGHT_PURPLE);
       guiGraphics.drawString(font, countText, xOffset - font.width(countText), dy, Color.WHITE.getRGB());

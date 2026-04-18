@@ -643,13 +643,13 @@ ChargeableItemRegistry.onFullyCharged(stack, player);
 
 | 类 | 包 | 说明 |
 |---|---|---|
-| `SkinableItem` | `io.wifi.starrailexpress.item` | 抽象基类，支持皮肤系统的物品 |
-| `KnifeItem` | `io.wifi.starrailexpress.item` | 近战刀（继承 `SkinableItem`），蓄力刺杀 |
-| `RevolverItem` | `io.wifi.starrailexpress.item` | 左轮手枪（继承 `SkinableItem`），有耐久度 |
-| `BatItem` | `io.wifi.starrailexpress.item` | 球棒（继承 `SkinableItem`） |
-| `GrenadeItem` | `io.wifi.starrailexpress.item` | 手雷（继承 `SkinableItem`），蓄力投掷 |
-| `DefenseItem` | `io.wifi.starrailexpress.item` | 防具/防御物品（继承 `Item`），限制使用职业 |
-| `NoteItem` | `io.wifi.starrailexpress.item` | 便签（继承 `Item` + `AdventureUsable`） |
+| `SkinableItem` | `io.wifi.starrailexpress.contents.item` | 抽象基类，支持皮肤系统的物品 |
+| `KnifeItem` | `io.wifi.starrailexpress.contents.item` | 近战刀（继承 `SkinableItem`），蓄力刺杀 |
+| `RevolverItem` | `io.wifi.starrailexpress.contents.item` | 左轮手枪（继承 `SkinableItem`），有耐久度 |
+| `BatItem` | `io.wifi.starrailexpress.contents.item` | 球棒（继承 `SkinableItem`） |
+| `GrenadeItem` | `io.wifi.starrailexpress.contents.item` | 手雷（继承 `SkinableItem`），蓄力投掷 |
+| `DefenseItem` | `io.wifi.starrailexpress.contents.item` | 防具/防御物品（继承 `Item`），限制使用职业 |
+| `NoteItem` | `io.wifi.starrailexpress.contents.item` | 便签（继承 `Item` + `AdventureUsable`） |
 
 #### DefenseItem — 防御物品
 
@@ -664,7 +664,7 @@ DefenseItem.canUseByRightClickRolePaths.add("my_role");
 
 ### SkinableItem — 可换皮肤物品
 
-**包 / Package:** `io.wifi.starrailexpress.item`
+**包 / Package:** `io.wifi.starrailexpress.contents.item`
 
 继承此抽象类以创建支持皮肤系统的物品。  
 Extend this abstract class to create an item that supports the skin system.

@@ -1,7 +1,9 @@
 package io.wifi;
 
 import net.minecraft.resources.ResourceLocation;
+import org.agmas.noellesroles.Noellesroles;
 import org.jetbrains.annotations.NotNull;
+import pro.fazeclan.river.stupid_express.StupidExpress;
 
 public class StarRailExpressID {
     // 验证版本号系统，强制客户端更新。
@@ -18,6 +20,9 @@ public class StarRailExpressID {
     public final static String MIFAN_MOD_ID = "mifan233";
     public final static String XIAOHEIHAND_MOD_ID = "xiao_hei_hand";
     public final static String BLACK_WHITE_BEAR_MOD_ID = "thef0rs4ken";
+    public final static String NOELLESROLES_ROLE = Noellesroles.MOD_ID;
+    public final static String STUPIDEXPRESS = StupidExpress.MOD_ID;
+
 
     public static @NotNull ResourceLocation shortId(String name) {
         return ResourceLocation.fromNamespaceAndPath(MOD_SHORT_ID, name);

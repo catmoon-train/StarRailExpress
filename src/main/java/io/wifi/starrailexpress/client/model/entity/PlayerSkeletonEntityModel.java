@@ -1,7 +1,8 @@
 package io.wifi.starrailexpress.client.model.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import io.wifi.starrailexpress.entity.PlayerBodyEntity;
+
+import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.model.HumanoidModel;

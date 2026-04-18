@@ -1,7 +1,20 @@
 package io.wifi.starrailexpress.mixin.command;
 
-import java.util.Collections;
-
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.builder.ArgumentBuilder;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
+import com.mojang.brigadier.tree.CommandNode;
+import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.cca.SRERoleWorldComponent;
+import io.wifi.starrailexpress.content.command.misc.CommandPredicate;
+import net.minecraft.commands.CommandBuildContext;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.commands.ExecuteCommand;
+import net.minecraft.server.level.ServerPlayer;
 import org.agmas.harpymodloader.commands.argument.ModifierArgumentType;
 import org.agmas.harpymodloader.commands.argument.RoleArgumentType;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
@@ -14,22 +27,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import com.mojang.brigadier.arguments.IntegerArgumentType;
-import com.mojang.brigadier.builder.ArgumentBuilder;
-import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
-import com.mojang.brigadier.tree.CommandNode;
-
-import io.wifi.starrailexpress.api.SRERole;
-import io.wifi.starrailexpress.cca.SRERoleWorldComponent;
-import io.wifi.starrailexpress.command.misc.CommandPredicate;
-import net.minecraft.commands.CommandBuildContext;
-import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.Commands;
-import net.minecraft.commands.arguments.EntityArgument;
-import net.minecraft.network.chat.Component;
-import net.minecraft.server.commands.ExecuteCommand;
-import net.minecraft.server.level.ServerPlayer;
+import java.util.Collections;
 
 @Mixin(ExecuteCommand.class)
 public abstract class ExecuteCommandInvoker {

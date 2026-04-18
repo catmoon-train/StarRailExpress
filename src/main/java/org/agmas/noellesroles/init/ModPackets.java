@@ -5,7 +5,6 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import org.agmas.noellesroles.packet.*;
 import org.agmas.noellesroles.packet.Loot.*;
-import org.agmas.noellesroles.repack.BanditRevolverShootPayload;
 
 public class ModPackets {
     // ==================== 网络包ID定义 ====================
@@ -92,6 +91,9 @@ public class ModPackets {
         PayloadTypeRegistry.playC2S().register(MonitorMarkC2SPacket.ID, MonitorMarkC2SPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(WaterGhostUseSkillC2SPacket.TYPE, WaterGhostUseSkillC2SPacket.CODEC);
 
+        // 派对狂网络包
+        PayloadTypeRegistry.playC2S().register(PartyKillerC2SPacket.TYPE, PartyKillerC2SPacket.CODEC);
+
         // 注册抽奖网络包
         PayloadTypeRegistry.playS2C().register(LootResultS2CPacket.ID, LootResultS2CPacket.CODEC);
         PayloadTypeRegistry.playS2C().register(LootMultiResultS2CPacket.ID, LootMultiResultS2CPacket.CODEC);
@@ -109,22 +111,22 @@ public class ModPackets {
 
         // 注册愚者网络包
         PayloadTypeRegistry.playC2S().register(
-                org.agmas.noellesroles.roles.fool.FoolPrayerC2SPacket.ID,
-                org.agmas.noellesroles.roles.fool.FoolPrayerC2SPacket.CODEC);
+                org.agmas.noellesroles.game.roles.Innocent.fool.FoolPrayerC2SPacket.ID,
+                org.agmas.noellesroles.game.roles.Innocent.fool.FoolPrayerC2SPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(
-                org.agmas.noellesroles.roles.fool.FoolLeaveMeetingC2SPacket.ID,
-                org.agmas.noellesroles.roles.fool.FoolLeaveMeetingC2SPacket.CODEC);
+                org.agmas.noellesroles.game.roles.Innocent.fool.FoolLeaveMeetingC2SPacket.ID,
+                org.agmas.noellesroles.game.roles.Innocent.fool.FoolLeaveMeetingC2SPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(
-                org.agmas.noellesroles.roles.fool.FoolTarotVoteC2SPacket.ID,
-                org.agmas.noellesroles.roles.fool.FoolTarotVoteC2SPacket.CODEC);
+                org.agmas.noellesroles.game.roles.Innocent.fool.FoolTarotVoteC2SPacket.ID,
+                org.agmas.noellesroles.game.roles.Innocent.fool.FoolTarotVoteC2SPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(
-                org.agmas.noellesroles.roles.fool.FoolExecutionerGunShootC2SPacket.ID,
-                org.agmas.noellesroles.roles.fool.FoolExecutionerGunShootC2SPacket.CODEC);
+                org.agmas.noellesroles.game.roles.Innocent.fool.FoolExecutionerGunShootC2SPacket.ID,
+                org.agmas.noellesroles.game.roles.Innocent.fool.FoolExecutionerGunShootC2SPacket.CODEC);
         PayloadTypeRegistry.playS2C().register(
-                org.agmas.noellesroles.roles.fool.FoolOpenTarotVoteS2CPacket.ID,
-                org.agmas.noellesroles.roles.fool.FoolOpenTarotVoteS2CPacket.CODEC);
+                org.agmas.noellesroles.game.roles.Innocent.fool.FoolOpenTarotVoteS2CPacket.ID,
+                org.agmas.noellesroles.game.roles.Innocent.fool.FoolOpenTarotVoteS2CPacket.CODEC);
         ServerPlayNetworking.registerGlobalReceiver(
-                org.agmas.noellesroles.roles.fool.FoolExecutionerGunShootC2SPacket.ID,
-                new org.agmas.noellesroles.roles.fool.FoolExecutionerGunShootC2SPacket.Receiver());
+                org.agmas.noellesroles.game.roles.Innocent.fool.FoolExecutionerGunShootC2SPacket.ID,
+                new org.agmas.noellesroles.game.roles.Innocent.fool.FoolExecutionerGunShootC2SPacket.Receiver());
     }
 }

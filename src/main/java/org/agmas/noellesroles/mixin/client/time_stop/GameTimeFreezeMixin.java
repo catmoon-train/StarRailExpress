@@ -2,7 +2,7 @@ package org.agmas.noellesroles.mixin.client.time_stop;
 
 import io.wifi.starrailexpress.cca.SREGameTimeComponent;
 import net.minecraft.client.Minecraft;
-import org.agmas.noellesroles.effects.TimeStopEffect;
+import org.agmas.noellesroles.content.effects.TimeStopEffect;
 import org.agmas.noellesroles.init.ModEffects;
 import org.ladysnake.cca.api.v3.component.sync.AutoSyncedComponent;
 import org.ladysnake.cca.api.v3.component.tick.CommonTickingComponent;

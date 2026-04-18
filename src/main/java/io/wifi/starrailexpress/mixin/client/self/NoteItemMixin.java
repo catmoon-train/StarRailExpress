@@ -1,7 +1,7 @@
 package io.wifi.starrailexpress.mixin.client.self;
 
 import io.wifi.starrailexpress.client.gui.screen.ingame.NoteScreen;
-import io.wifi.starrailexpress.item.NoteItem;
+import io.wifi.starrailexpress.content.item.NoteItem;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;

@@ -5,7 +5,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
-import org.agmas.noellesroles.effects.TimeStopEffect;
+import org.agmas.noellesroles.content.effects.TimeStopEffect;
 import org.agmas.noellesroles.init.ModEffects;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

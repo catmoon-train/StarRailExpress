@@ -1,50 +1,83 @@
 package org.agmas.noellesroles.role;
 
 import com.mojang.serialization.Codec;
-
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.ExtraEffectRole;
 import io.wifi.starrailexpress.api.NormalRole;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
-import io.wifi.starrailexpress.cca.SREArmorPlayerComponent;
-import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
-import io.wifi.starrailexpress.cca.SREPlayerPoisonComponent;
-import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
+import io.wifi.starrailexpress.cca.*;
 import io.wifi.starrailexpress.client.gui.RoleAnnouncementTexts;
+import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.component.*;
-import org.agmas.noellesroles.item.StalkerKnifeItem;
-import org.agmas.noellesroles.roles.chef.ChefRole;
 import org.agmas.noellesroles.roles.dirt.Dirt;
-import org.agmas.noellesroles.roles.executioner.ExecutionerPlayerComponent;
-import org.agmas.noellesroles.roles.gambler.GamblerPlayerComponent;
-import org.agmas.noellesroles.roles.gambler.GamblerRole;
-import org.agmas.noellesroles.roles.manipulator.ManipulatorPlayerComponent;
-import org.agmas.noellesroles.roles.manipulator.ManipulatorRole;
-import org.agmas.noellesroles.roles.morphling.MorphlingPlayerComponent;
-import org.agmas.noellesroles.roles.recaller.RecallerPlayerComponent;
-import org.agmas.noellesroles.roles.candlebearer.CandleBearerPlayerComponent;
-import org.agmas.noellesroles.roles.super_loose_end.SuperLooseEnd;
-import org.agmas.noellesroles.roles.thief.ThiefPlayerComponent;
-import org.agmas.noellesroles.roles.voodoo.VoodooPlayerComponent;
-import org.agmas.noellesroles.roles.vulture.VulturePlayerComponent;
 
-import org.agmas.noellesroles.roles.ninja.NinjaRole;
-import org.agmas.noellesroles.roles.watcher.WatcherRole;
+import org.agmas.noellesroles.component.FoodDrinkGlowComponent;
+import org.agmas.noellesroles.component.ModComponents;
+import org.agmas.noellesroles.content.item.StalkerKnifeItem;
+import org.agmas.noellesroles.game.roles.Innocent.accountant.AccountantPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.alchemist.AlchemistPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.avenger.AvengerPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.boxer.BoxerPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.broadcaster.BroadcasterPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.clock_maker.ClockmakerPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.detective.DetectivePlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.driver.DiverPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.glitch_robot.GlitchRobotPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.locksmith_inspiration.LocksmithInspirationComponent;
+import org.agmas.noellesroles.game.roles.Innocent.monitor.MonitorPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.postman.PostmanPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.psychologist.PsychologistPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.recaller.RecallerPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.singer.SingerPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.super_star.SuperStarPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.telegrapher.TelegrapherPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.voodoo.VoodooPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.bomber.BomberPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.conspirator.ConspiratorPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.creeper.RainbowCreeperRole;
+import org.agmas.noellesroles.game.roles.killer.executioner.ExecutionerPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.insane_killer.InsaneKillerPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.manipulator.ManipulatorPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.manipulator.ManipulatorRole;
+import org.agmas.noellesroles.game.roles.killer.morphling.MorphlingPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.ninja.NinjaRole;
+import org.agmas.noellesroles.game.roles.killer.stalker.StalkerPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.trapper.TrapperPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.watcher.WatcherRole;
+import org.agmas.noellesroles.game.roles.neutral.admirer.AdmirerPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.candlebearer.CandleBearerPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.chef.ChefRole;
+import org.agmas.noellesroles.game.roles.neutral.gambler.GamblerPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.gambler.GamblerRole;
+import org.agmas.noellesroles.game.roles.neutral.mercenary.MercenaryPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaRole;
+import org.agmas.noellesroles.game.roles.neutral.nian_shou.NianShouPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.nian_shou.NianShouRole;
+import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.recorder.RecorderPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.super_loose_end.SuperLooseEnd;
+import org.agmas.noellesroles.game.roles.neutral.thief.ThiefPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.vulture.VulturePlayerComponent;
+import org.agmas.noellesroles.game.roles.special.better_vigilante.BetterVigilantePlayerComponent;
+import org.agmas.noellesroles.game.roles.vigilante.patroller.PatrollerPlayerComponent;
+import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -145,6 +178,7 @@ public class ModRoles {
 
   // 杀手阵营角色 ID
   public static ResourceLocation MORPHLING_ID = Noellesroles.id("morphling");
+  public static ResourceLocation PARTY_KILLER_ID = Noellesroles.id("party_killer");
   public static ResourceLocation PHANTOM_ID = Noellesroles.id("phantom");
   public static ResourceLocation SWAPPER_ID = Noellesroles.id("swapper");
   public static ResourceLocation EXECUTIONER_ID = Noellesroles.id("executioner");
@@ -156,7 +190,7 @@ public class ModRoles {
   public static ResourceLocation EXAMPLER_ID = Noellesroles.id("exampler");
   public static final ResourceLocation NINJA_ID = Noellesroles.id("ninja");
 
-  public static ResourceLocation THE_INSANE_DAMNED_PARANOID_KILLER_OF_DOOM_DEATH_DESTRUCTION_AND_WAFFLES_ID = Noellesroles
+  public static ResourceLocation INSANE_KILLER_ID = Noellesroles
       .id("the_insane_damned_paranoid_killer");
   public static final ResourceLocation CONSPIRATOR_ID = Noellesroles.id("conspirator");
   public static final ResourceLocation CLEANER_ID = Noellesroles.id("cleaner");
@@ -194,6 +228,9 @@ public class ModRoles {
   // 特殊角色
   public static final ResourceLocation SUPER_LOOSE_END_ID = Noellesroles.id("super_loose_end");
   public static final ResourceLocation DIRT_ID = Noellesroles.id("dirt_id");
+
+  // 黑白 (中立阵营)
+  public static final ResourceLocation MONOKUMA_ID = Noellesroles.id("monokuma");
 
   public static SRERole GUEST_GHOST = TMMRoles.registerRole(new NormalRole(
       GUEST_GHOST_ID, // 角色 ID
@@ -249,7 +286,7 @@ public class ModRoles {
       new NormalRole(LOCKSMITH_ID, new Color(100, 200, 200).getRGB(),
           true, false, SRERole.MoodType.REAL,
           TMMRoles.CIVILIAN.getMaxSprintTime(), false))
-      .setCanSeeCoin(true);
+      .setCanSeeCoin(true).setComponentKey(LocksmithInspirationComponent.KEY);
 
   public static SRERole OLDMAN = TMMRoles.registerRole(
       new ExtraEffectRole(OLDMAN_ID, new Color(112, 146, 190).getRGB(),
@@ -333,7 +370,36 @@ public class ModRoles {
       .setComponentKey(FoodDrinkGlowComponent.KEY);
   public static SRERole NOISEMAKER = TMMRoles
       .registerRole(new NormalRole(NOISEMAKER_ID, new Color(200, 255, 0).getRGB(), true,
-          false, SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false));
+          false, SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false) {
+        @Override
+        public void onDeathWithBody(Player victim, boolean spawnBody, @Nullable Player killer,
+            ResourceLocation deathReason, PlayerBodyEntity playerBodyEntity) {
+          super.onDeathWithBody(victim, spawnBody, killer, deathReason, playerBodyEntity);
+          SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY
+              .get(victim.level());
+          if (gameWorldComponent.isRole(victim, ModRoles.NOISEMAKER)) {
+            playerBodyEntity.addEffect(new MobEffectInstance(MobEffects.GLOWING, 20 * 60, 0));
+            var serverLevel = victim.level();
+            for (Player p : serverLevel.players()) {
+              if (p.isSpectator()) {
+                continue;
+              }
+              if (!GameUtils.isPlayerAliveAndSurvival(p)) {
+                continue;
+              }
+              serverLevel.playSound(
+                  p,
+                  victim.getX(),
+                  victim.getY(),
+                  victim.getZ(),
+                  SoundEvents.WITHER_DEATH,
+                  SoundSource.MASTER,
+                  3.0F,
+                  1.0F);
+            }
+          }
+        }
+      });
   public static SRERole AWESOME_BINGLUS = TMMRoles
       .registerRole(new NormalRole(AWESOME_BINGLUS_ID, new Color(155, 255, 168).getRGB(), true, false,
           SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false));
@@ -468,7 +534,7 @@ public class ModRoles {
       SRERole.MoodType.REAL, // 真实心情
       TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
       false // 不隐藏计分板
-  )).setCanSeeCoin(true).setComponentKey(org.agmas.noellesroles.component.TelegrapherPlayerComponent.KEY);
+  )).setCanSeeCoin(true).setComponentKey(TelegrapherPlayerComponent.KEY);
 
   /**
    * 搜救员角色
@@ -534,7 +600,7 @@ public class ModRoles {
       SRERole.MoodType.REAL, // 真实心情
       TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
       false // 不隐藏计分板
-  )).setCanSeeCoin(true).setComponentKey(org.agmas.noellesroles.component.AccountantPlayerComponent.KEY);
+  )).setCanSeeCoin(true).setComponentKey(AccountantPlayerComponent.KEY);
 
   /**
    * 药剂师角色
@@ -557,7 +623,7 @@ public class ModRoles {
       SRERole.MoodType.REAL, // 真实心情
       TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
       false // 不隐藏计分板
-  )).setCanSeeCoin(true).setComponentKey(org.agmas.noellesroles.component.AlchemistPlayerComponent.KEY);
+  )).setCanSeeCoin(true).setComponentKey(AlchemistPlayerComponent.KEY);
 
   /**
    * 潜水员角色
@@ -587,7 +653,7 @@ public class ModRoles {
           false, // showParticles（显示粒子）
           true // showIcon（显示图标）
       )))
-      .setCanSeeCoin(true).setComponentKey(org.agmas.noellesroles.component.DiverPlayerComponent.KEY);
+      .setCanSeeCoin(true).setComponentKey(DiverPlayerComponent.KEY);
 
   /**
    * 特警角色
@@ -612,7 +678,7 @@ public class ModRoles {
       false // 不隐藏计分板
   )).setCanSeeCoin(true).setVigilanteTeam(true).setCanPickUpRevolver(false)
       .setServerGameTickEvent((player, gameComponent) -> {
-        org.agmas.noellesroles.roles.swast.SwastTickHandler.serverTick(player, gameComponent);
+        org.agmas.noellesroles.game.roles.vigilante.swast.SwastTickHandler.serverTick(player, gameComponent);
       });
 
   /**
@@ -708,6 +774,14 @@ public class ModRoles {
       .registerRole(new NormalRole(MORPHLING_ID, new Color(220, 20, 60).getRGB(), false,
           true, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true)
           .setComponentKey(MorphlingPlayerComponent.KEY));
+
+  public static SRERole PARTY_KILLER = TMMRoles.registerRole(new NormalRole(PARTY_KILLER_ID,
+      new Color(255, 105, 180).getRGB(), // 派对色
+      false, // 非乘客（杀手）
+      true, // 有杀手功能
+      SRERole.MoodType.FAKE,
+      Integer.MAX_VALUE,
+      true)).setComponentKey(ModComponents.PARTY).setCanSeeCoin(true).setOccupiedRoleCount(1);
   public static SRERole MANIPULATOR = TMMRoles
       .registerRole(new ManipulatorRole(MANIPULATOR_ID, new Color(90, 20, 61).getRGB(), false,
           true, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true)
@@ -739,9 +813,9 @@ public class ModRoles {
       .registerRole(new NormalRole(POISONER_ID, (new Color(115, 0, 57)).getRGB(), false,
           true, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true));
 
-  public static SRERole THE_INSANE_DAMNED_PARANOID_KILLER_OF_DOOM_DEATH_DESTRUCTION_AND_WAFFLES = TMMRoles
+  public static SRERole INSANE_KILLER = TMMRoles
       .registerRole(new NormalRole(
-          THE_INSANE_DAMNED_PARANOID_KILLER_OF_DOOM_DEATH_DESTRUCTION_AND_WAFFLES_ID,
+          INSANE_KILLER_ID,
           new Color(255, 0, 0, 192).getRGB(), false, true, SRERole.MoodType.FAKE,
           Integer.MAX_VALUE, true).setComponentKey(InsaneKillerPlayerComponent.KEY));
 
@@ -1061,7 +1135,7 @@ public class ModRoles {
    */
   public static SRERole TRAPPER = TMMRoles.registerRole(new NormalRole(
       TRAPPER_ID, // 角色 ID
-      new Color(239, 69, 30).getRGB(), // 棕色 - 代表陷阱与大地
+      new Color(180, 30, 20).getRGB(), // 深红色 - 代表陷阱与危险
       false, // isInnocent = 非乘客阵营
       true, // canUseKiller = 有杀手能力
       SRERole.MoodType.FAKE, // 假心情
@@ -1417,8 +1491,8 @@ public class ModRoles {
         return InteractionResult.PASS;
       if (!(player instanceof net.minecraft.server.level.ServerPlayer sp))
         return InteractionResult.PASS;
-      if (target instanceof io.wifi.starrailexpress.entity.PlayerBodyEntity body) {
-        org.agmas.noellesroles.roles.imitator.ImitatorPlayerComponent comp = ModComponents.IMITATOR.get(sp);
+      if (target instanceof io.wifi.starrailexpress.content.entity.PlayerBodyEntity body) {
+        org.agmas.noellesroles.game.roles.killer.imitator.ImitatorPlayerComponent comp = ModComponents.IMITATOR.get(sp);
         if (!comp.isCharging) {
           comp.startCharging(body.getUUID());
           return InteractionResult.SUCCESS;
@@ -1457,7 +1531,7 @@ public class ModRoles {
    * - 核心机制：尊名纸条、塔罗会、处刑者手枪
    * - 商店：尊名纸条(50金币)、灵性斗篷(200金币)
    */
-  public static SRERole THE_FOOL = TMMRoles.registerRole(new org.agmas.noellesroles.roles.fool.FoolRole(
+  public static SRERole THE_FOOL = TMMRoles.registerRole(new org.agmas.noellesroles.game.roles.Innocent.fool.FoolRole(
       THE_FOOL_ID, // 角色 ID
       new Color(180, 160, 220).getRGB(), // 淡紫色 - 代表神秘与命运
       true, // isInnocent = 好人阵营
@@ -1465,15 +1539,34 @@ public class ModRoles {
       SRERole.MoodType.REAL, // 真实心情
       TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
       false // 不隐藏计分板
-  )).setComponentKey(org.agmas.noellesroles.roles.fool.FoolPlayerComponent.KEY).setCanSeeCoin(true)
+  )).setComponentKey(org.agmas.noellesroles.game.roles.Innocent.fool.FoolPlayerComponent.KEY).setCanSeeCoin(true)
       .setCanPickUpRevolver(true)
       .setMax(1)
       .setEnableChance(30)
       .setEnableNeededPlayerCount(12);
 
+  /**
+   * 黑白角色 - 中立阵营（伪装义警）
+   * - 中立阵营 (isInnocent = false, canUseKiller = false)
+   * - 对外伪装为义警
+   * - 假心情系统
+   * - 标准冲刺时间
+   * - 三阶段机制：伪装义警 → 狂暴前奏 → 黑白熊
+   * - 黑白熊形态无敌+光环效果
+   * - 获胜条件：游戏结束时6格内最近玩家的阵营
+   */
+  public static SRERole MONOKUMA = TMMRoles.registerRole(new MonokumaRole())
+      .setNeutralForKiller(false) // 杀手视角为好人
+      .setCanSeeTeammateKiller(false)
+      .setCanPickUpRevolver(false) // 伪装义警可以捡枪
+      .setNeutrals(true)
+      .setCanUseInstinct(true) // 不能使用杀手直觉
+      .setCanSeeCoin(true)
+      .setMax(0);
+
   public static SRERole CAT_KILLER = TMMRoles.registerRole(new NormalRole(
       SRE.wifiId("cat_killer"), // 角色 ID
-      new Color(255, 174, 201).getRGB(), // 粉色 - 猫娘~
+      new Color(255, 80, 140).getRGB(), // 深粉色 - 猫娘~
       false, // isInnocent = 好人阵营
       true, // canUseKiller = 无杀手能力
       SRERole.MoodType.FAKE, // 真实心情
@@ -1533,4 +1626,5 @@ public class ModRoles {
     SREArmorPlayerComponent.canSyncedRolePaths.add(ModRoles.BARTENDER_ID.getPath());
     SREPlayerMoodComponent.canSyncedRolePaths.add(ModRoles.MA_CHEN_XU_ID.getPath());
   }
+
 }

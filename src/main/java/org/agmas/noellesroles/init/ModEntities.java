@@ -10,7 +10,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobCategory;
 import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.entity.*;
+import org.agmas.noellesroles.content.entity.*;
 
 public class ModEntities {
     public static final EntityType<RoleMineEntity> ROLE_MINE_ENTITY_ENTITY_TYPE = Registry.register(
@@ -182,10 +182,10 @@ public class ModEntities {
                     .build());
 
     @SuppressWarnings("deprecation")
-    public static final EntityType<io.wifi.starrailexpress.entity.NoteEntity> GIANT_NOTE = Registry.register(
+    public static final EntityType<io.wifi.starrailexpress.content.entity.NoteEntity> GIANT_NOTE = Registry.register(
             BuiltInRegistries.ENTITY_TYPE,
             Noellesroles.id("giant_note"),
-            FabricEntityTypeBuilder.<io.wifi.starrailexpress.entity.NoteEntity>create(MobCategory.MISC, io.wifi.starrailexpress.entity.NoteEntity::new)
+            FabricEntityTypeBuilder.<io.wifi.starrailexpress.content.entity.NoteEntity>create(MobCategory.MISC, io.wifi.starrailexpress.content.entity.NoteEntity::new)
                     .dimensions(EntityDimensions.fixed(2.5F, 2.5F))
                     .trackRangeBlocks(128)
                     .trackedUpdateRate(10)

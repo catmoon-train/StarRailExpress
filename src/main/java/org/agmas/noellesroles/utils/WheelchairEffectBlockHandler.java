@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.utils;
 
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
@@ -8,9 +9,8 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Blocks;
-import org.agmas.noellesroles.entity.WheelchairEntity;
-import io.wifi.starrailexpress.cca.SREGameWorldComponent;
-import org.agmas.noellesroles.game.ChairWheelRaceGame;
+import org.agmas.noellesroles.content.entity.WheelchairEntity;
+import org.agmas.noellesroles.game.modes.ChairWheelRaceGame;
 
 /**
  * 轮椅模式特殊方块效果处理器

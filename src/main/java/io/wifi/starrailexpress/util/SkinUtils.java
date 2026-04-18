@@ -3,6 +3,7 @@ package io.wifi.starrailexpress.util;
 import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
 import io.wifi.starrailexpress.index.SRECosmetics;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -21,7 +22,7 @@ public class SkinUtils {
      * @param skinName 皮肤名称
      */
     public static void setItemSkin(Player player, ItemStack itemStack, String skinName) {
-        if (itemStack.getItem() instanceof io.wifi.starrailexpress.item.SkinableItem) {
+        if (itemStack.getItem() instanceof io.wifi.starrailexpress.content.item.SkinableItem) {
             SRECosmetics.setSkin(player, itemStack, skinName);
             // 同时更新玩家皮肤组件
             SREPlayerSkinsComponent skinsComponent = SREPlayerSkinsComponent.KEY.get(player);
@@ -38,7 +39,7 @@ public class SkinUtils {
      * @return 是否支持皮肤
      */
     public static boolean isItemSkinnable(ItemStack itemStack) {
-        return itemStack.getItem() instanceof io.wifi.starrailexpress.item.SkinableItem;
+        return itemStack.getItem() instanceof io.wifi.starrailexpress.content.item.SkinableItem;
     }
     
     /**
@@ -75,6 +76,16 @@ public class SkinUtils {
         skinsComponent.getUnlockedSkins().clear();
     }
     
+    /**
+     * 从物品堆栈获取物品类型名称
+     * @param itemStack 物品堆栈
+     * @return 物品类型名称
+     */
+    public static ResourceLocation getItemTypeResourceLocation(ItemStack itemStack) {
+        Item item = itemStack.getItem();
+        ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(item);
+        return itemId;
+    }
     /**
      * 从物品堆栈获取物品类型名称
      * @param itemStack 物品堆栈

@@ -4,7 +4,7 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.compat.TrainVoicePlugin;
-import io.wifi.starrailexpress.entity.PlayerBodyEntity;
+import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -12,12 +12,11 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
-
-import java.util.UUID;
-
 import org.agmas.noellesroles.init.ModEffects;
 import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
+
+import java.util.UUID;
 
 public class DefibrillatorComponent implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
     private final Player player;

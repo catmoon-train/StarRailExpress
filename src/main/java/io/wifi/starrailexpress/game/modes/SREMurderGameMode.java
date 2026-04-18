@@ -28,7 +28,9 @@ import org.agmas.harpymodloader.RoleWeightedUtil;
 import org.agmas.harpymodloader.commands.SetRoleCountCommand;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
-import org.agmas.harpymodloader.events.*;
+import org.agmas.harpymodloader.events.ModdedRoleAssigned;
+import org.agmas.harpymodloader.events.ModifierAssigned;
+import org.agmas.harpymodloader.events.OnGamePlayerRolesConfirm;
 import org.agmas.harpymodloader.modded_murder.PlayerRoleAssigner;
 import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
 import org.agmas.harpymodloader.modded_murder.RoleAssignmentManager;
@@ -105,7 +107,6 @@ public class SREMurderGameMode extends GameMode {
             final var value = entry.getValue();
             if (value != null) {
                 gameWorldComponent.addRole(key, value, false);
-
                 value.getDefaultItems().forEach(item -> key.getInventory().placeItemBackInInventory(item));
                 Harpymodloader.LOGGER.debug("Assigned role " + value.getIdentifier() + " to " + key.getName());
                 if (value.canUseKiller()) {
@@ -139,6 +140,7 @@ public class SREMurderGameMode extends GameMode {
         int modifierRoleCount = (int) ((float) players.size()
                 * HarpyModLoaderConfig.HANDLER.instance().modifierMultiplier);
         assignModifiers(modifierRoleCount, serverWorld, gameWorldComponent, players);
+
         Harpymodloader.FORCED_MODDED_ROLE.clear();
         Harpymodloader.FORCED_MODDED_ROLE_FLIP.clear();
         Harpymodloader.FORCED_MODDED_MODIFIER.clear();
@@ -252,6 +254,9 @@ public class SREMurderGameMode extends GameMode {
                 }
                 if (mod.civilianOnly) {
                     valid = valid && gameWorldComponent.isInnocent(player);
+                }
+                if(mod.notVigilante){
+                    valid = valid && !gameWorldComponent.isVigilanteTeam(player);
                 }
                 if (!valid) {
                     continue;

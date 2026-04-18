@@ -9,7 +9,7 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import org.agmas.noellesroles.roles.gambler.GamblerHandler;
+import org.agmas.noellesroles.game.roles.neutral.gambler.GamblerHandler;
 
 public class GamblerMiracleCommand {
     public static void register() {

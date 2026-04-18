@@ -8,7 +8,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.component.WaterGhostPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.water_ghost.WaterGhostPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 
 public record WaterGhostUseSkillC2SPacket() implements CustomPacketPayload {

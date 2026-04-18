@@ -7,13 +7,13 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.harpymodloader.modifiers.SREModifier;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 
 public class HarpymodloaderClient implements ClientModInitializer {
 
     public static float rainbowRoleTime = 0;
     public static SRERole hudRole = null;
-    public static ArrayList<SREModifier> modifiers = null;
+    public static HashSet<SREModifier> modifiers = null;
 
     @Override
     public void onInitializeClient() {

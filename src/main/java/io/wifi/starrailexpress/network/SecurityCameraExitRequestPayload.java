@@ -1,6 +1,6 @@
 package io.wifi.starrailexpress.network;
 
-import io.wifi.starrailexpress.block.SecurityMonitorBlock;
+import io.wifi.starrailexpress.content.block.SecurityMonitorBlock;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;

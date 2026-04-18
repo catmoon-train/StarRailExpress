@@ -9,27 +9,15 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
-import io.wifi.starrailexpress.block.SecurityMonitorBlock;
-import io.wifi.starrailexpress.cca.AreasWorldComponent;
-import io.wifi.starrailexpress.cca.SREGameWorldComponent;
-import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
-import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
-import io.wifi.starrailexpress.cca.SRETrainWorldComponent;
-import io.wifi.starrailexpress.client.gui.*;
-import io.wifi.starrailexpress.client.gui.screen.MapSelectorScreen;
-import io.wifi.starrailexpress.client.gui.screen.PlayerStatsScreen;
-import io.wifi.starrailexpress.client.gui.screen.ProgressionPassScreen;
-import io.wifi.starrailexpress.client.gui.screen.SkinManagementScreen;
-import io.wifi.starrailexpress.client.gui.screen.WaypointHUD;
+import io.wifi.starrailexpress.cca.*;
 import io.wifi.starrailexpress.client.fourthroom.FourthRoomCameraDirector;
 import io.wifi.starrailexpress.client.fourthroom.FourthRoomClientState;
 import io.wifi.starrailexpress.client.fourthroom.FourthRoomTableHud;
-import io.wifi.starrailexpress.client.render.block_entity.FourthRoomTableBlockEntityRenderer;
-import io.wifi.starrailexpress.fourthroom.network.OpenFourthRoomPeekDeckPayload;
-import io.wifi.starrailexpress.fourthroom.network.FourthRoomTableEffectsPayload;
-import io.wifi.starrailexpress.fourthroom.network.FourthRoomStatePayload;
+import io.wifi.starrailexpress.client.gui.*;
+import io.wifi.starrailexpress.client.gui.screen.*;
 import io.wifi.starrailexpress.client.model.GeneralModelLoadingPlugin;
 import io.wifi.starrailexpress.client.model.TMMModelLayers;
+import io.wifi.starrailexpress.client.render.block_entity.FourthRoomTableBlockEntityRenderer;
 import io.wifi.starrailexpress.client.render.block_entity.PlateBlockEntityRenderer;
 import io.wifi.starrailexpress.client.render.block_entity.SmallDoorBlockEntityRenderer;
 import io.wifi.starrailexpress.client.render.block_entity.WheelBlockEntityRenderer;
@@ -40,31 +28,37 @@ import io.wifi.starrailexpress.client.util.ClientScheduler;
 import io.wifi.starrailexpress.client.util.MyBackgroundAmbience;
 import io.wifi.starrailexpress.client.util.TMMItemTooltips;
 import io.wifi.starrailexpress.compat.TrainVoicePlugin;
-import io.wifi.starrailexpress.data.MapConfig;
-import io.wifi.starrailexpress.entity.FirecrackerEntity;
-import io.wifi.starrailexpress.entity.NoteEntity;
-import io.wifi.starrailexpress.entity.PlayerBodyEntity;
-import io.wifi.starrailexpress.event.AllowOtherCameraType;
+import io.wifi.starrailexpress.content.block.SecurityMonitorBlock;
+import io.wifi.starrailexpress.content.entity.FirecrackerEntity;
+import io.wifi.starrailexpress.content.entity.NoteEntity;
+import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
+import io.wifi.starrailexpress.content.item.GrenadeItem;
+import io.wifi.starrailexpress.content.item.KnifeItem;
 import io.wifi.starrailexpress.event.AllowItemShowInHand;
+import io.wifi.starrailexpress.event.AllowOtherCameraType;
 import io.wifi.starrailexpress.event.ClientHeldItemSwitchEvent;
 import io.wifi.starrailexpress.event.OnGetInstinctHighlight;
+import io.wifi.starrailexpress.event.client.OnGameFinishedClient;
+import io.wifi.starrailexpress.event.client.OnGameStartedClient;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.game.data.MapConfig;
 import io.wifi.starrailexpress.index.*;
-import io.wifi.starrailexpress.item.GrenadeItem;
-import io.wifi.starrailexpress.item.KnifeItem;
-import io.wifi.starrailexpress.mod_whitelist.client.ModWhitelistClient;
-import io.wifi.starrailexpress.mod_whitelist.client.network.ModWhitelistClientNetworkHandler;
-import io.wifi.starrailexpress.mod_whitelist.common.network.ModWhitelistConfigPayload;
 import io.wifi.starrailexpress.network.*;
 import io.wifi.starrailexpress.network.original.*;
-import io.wifi.starrailexpress.network.packet.*;
+import io.wifi.starrailexpress.network.packet.SyncRoomToPlayerPayload;
+import io.wifi.starrailexpress.network.packet.SyncSpecificWaypointVisibilityPacket;
+import io.wifi.starrailexpress.network.packet.SyncWaypointVisibilityPacket;
+import io.wifi.starrailexpress.network.packet.SyncWaypointsPacket;
 import io.wifi.starrailexpress.util.HPManager;
 import io.wifi.starrailexpress.util.MatrixParticleManager;
 import io.wifi.starrailexpress.util.PoisonComponentUtils;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.exmo.sre.EXSREClient;
 import net.exmo.sre.loading.FrameAnimationRenderer;
+import net.exmo.sre.mod_whitelist.client.ModWhitelistClient;
+import net.exmo.sre.mod_whitelist.client.network.ModWhitelistClientNetworkHandler;
+import net.exmo.sre.mod_whitelist.common.network.ModWhitelistConfigPayload;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -96,13 +90,16 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.Vec3;
-import pro.fazeclan.river.stupid_express.modifier.refugee.cca.RefugeeComponent;
-
 import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.agmas.noellesroles.component.DeathPenaltyComponent;
+import org.agmas.noellesroles.game.modes.fourthroom.network.FourthRoomStatePayload;
+import org.agmas.noellesroles.game.modes.fourthroom.network.FourthRoomTableEffectsPayload;
+import org.agmas.noellesroles.game.modes.fourthroom.network.OpenFourthRoomPeekDeckPayload;
+import org.agmas.noellesroles.game.roles.neutral.monokuma.YinYangSwordItem;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.include.com.google.gson.JsonSyntaxException;
+import pro.fazeclan.river.stupid_express.modifier.refugee.cca.RefugeeComponent;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -110,6 +107,7 @@ import java.util.function.Predicate;
 
 public class SREClient implements ClientModInitializer {
     private static float soundLevel = 0f;
+    public static boolean hasCustomSkinLoaderAndNeedToWarn = false;
     public static HPManager handParticleManager;
     public static Map<Player, Vec3> particleMap;
     public static Map<UUID, Integer> cachedHighLightMap = new HashMap<>();
@@ -155,6 +153,22 @@ public class SREClient implements ClientModInitializer {
                 || (client.player != null && !client.player.isCreative() && !client.player.isSpectator()));
     }
 
+    public static boolean checkCustomSkinLoader() {
+        final String customSkinLoaderClassName = "customskinloader.CustomSkinLoader";
+        boolean result = isClassPresent(customSkinLoaderClassName);
+        hasCustomSkinLoaderAndNeedToWarn = result;
+        return result;
+    }
+
+    private static boolean isClassPresent(String className) {
+        try {
+            Class.forName(className, false, SRE.class.getClassLoader());
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
+    }
+
     public static boolean isPlayerCreative() {
         return cachedPlayerCreative;
     }
@@ -168,7 +182,7 @@ public class SREClient implements ClientModInitializer {
         // Load config
         ModWhitelistClient.onInitializeClient();
         // ModVersionPacket
-
+        checkCustomSkinLoader();
         // Initialize ScreenParticle
         handParticleManager = new HPManager();
         particleMap = new HashMap<>();
@@ -547,6 +561,12 @@ public class SREClient implements ClientModInitializer {
                 }
             });
         });
+        ClientPlayNetworking.registerGlobalReceiver(OnGameFinishedPayload.TYPE, (payload, context) -> {
+            OnGameFinishedClient.EVENT.invoker().gameFinished();
+        });
+        ClientPlayNetworking.registerGlobalReceiver(OnGameStartedPayload.TYPE, (payload, context) -> {
+            OnGameStartedClient.EVENT.invoker().gameStarted();
+        });
         ClientPlayNetworking.registerGlobalReceiver(SyncRoomToPlayerPayload.ID, (payload, context) -> {
             Map<UUID, Integer> data = payload.data();
             if (Minecraft.getInstance().isSingleplayer()) {
@@ -592,9 +612,9 @@ public class SREClient implements ClientModInitializer {
             context.client().execute(() -> context.client().setScreen(new ProgressionPassScreen()));
         });
         ClientPlayNetworking.registerGlobalReceiver(
-                io.wifi.starrailexpress.mail.OpenMailboxScreenPayload.ID, (payload, context) -> {
+                io.wifi.starrailexpress.content.mail.OpenMailboxScreenPayload.ID, (payload, context) -> {
                     context.client().execute(() -> context.client().setScreen(
-                            new io.wifi.starrailexpress.mail.MailboxScreen()));
+                            new io.wifi.starrailexpress.content.mail.MailboxScreen()));
                 });
         // ClientPlayNetworking.registerGlobalReceiver(
         // io.wifi.starrailexpress.network.OpenRoleUnlockScreenPayload.ID, (payload,
@@ -899,6 +919,8 @@ public class SREClient implements ClientModInitializer {
         if (player.getMainHandItem().getItem() instanceof KnifeItem)
             return true;
         if (player.getMainHandItem().getItem() instanceof GrenadeItem)
+            return true;
+        if (player.getMainHandItem().getItem() instanceof YinYangSwordItem)
             return true;
         return false;
     };

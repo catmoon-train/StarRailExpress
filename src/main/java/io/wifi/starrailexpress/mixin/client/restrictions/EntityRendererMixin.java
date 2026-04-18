@@ -17,7 +17,9 @@ public class EntityRendererMixin<T extends Entity> {
     protected int renderLabelIfPresent(int color, @Local(argsOnly = true) T entity) {
         if (SREClient.isInLobby) {
             return color;
+
         }
-        return SREClient.gameComponent.isRole(entity.getUUID(), TMMRoles.KILLER) ? CommonColors.RED : color;
+        if (SREClient.gameComponent ==null)return color;
+        return  SREClient.gameComponent.isRole(entity.getUUID(), TMMRoles.KILLER) ? CommonColors.RED : color;
     }
 }

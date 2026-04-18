@@ -12,7 +12,7 @@ import net.minecraft.world.phys.Vec2;
 import org.agmas.noellesroles.client.animation.AbstractAnimation;
 import org.agmas.noellesroles.client.animation.BezierAnimation;
 import org.agmas.noellesroles.client.widget.TextureWidget;
-import org.agmas.noellesroles.entity.LockEntity;
+import org.agmas.noellesroles.content.entity.LockEntity;
 import org.agmas.noellesroles.packet.LockGameC2Packet;
 import org.lwjgl.glfw.GLFW;
 

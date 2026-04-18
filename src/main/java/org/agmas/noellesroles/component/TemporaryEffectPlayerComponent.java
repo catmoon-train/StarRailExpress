@@ -30,6 +30,8 @@ public class TemporaryEffectPlayerComponent implements RoleComponent, ServerTick
     
     /** 狗皮膏药san值保护结束时间（game tick） */
     private int dogskinPlasterProtectionEnd = 0;
+    /** 氦气变声结束时间（game tick） */
+    private int heliumEndTick = 0;
     
     public TemporaryEffectPlayerComponent(Player player) {
         this.player = player;
@@ -53,6 +55,7 @@ public class TemporaryEffectPlayerComponent implements RoleComponent, ServerTick
     public void init() {
         this.staminaBoost = 0f;
         this.dogskinPlasterProtectionEnd = 0;
+        this.heliumEndTick = 0;  // 游戏结束时清除氦气效果
         this.sync();
     }
     
@@ -74,6 +77,11 @@ public class TemporaryEffectPlayerComponent implements RoleComponent, ServerTick
             io.wifi.starrailexpress.cca.SREPlayerMoodComponent mood =
                 io.wifi.starrailexpress.cca.SREPlayerMoodComponent.KEY.get(player);
             mood.setMood(mood.getMood() + io.wifi.starrailexpress.game.GameConstants.MOOD_DRAIN);
+        }
+        // 检查氦气变声是否过期
+        if (heliumEndTick > 0 && player.level().getGameTime() >= heliumEndTick) {
+            heliumEndTick = 0;
+            this.sync();
         }
     }
     
@@ -100,6 +108,31 @@ public class TemporaryEffectPlayerComponent implements RoleComponent, ServerTick
         this.dogskinPlasterProtectionEnd = (int) player.level().getGameTime() + duration * 20;
         this.sync();
     }
+
+    /**
+     * 设置氦气变声效果
+     * @param durationSeconds 持续时间（秒）
+     */
+    public void setHeliumEffect(int durationSeconds) {
+        this.heliumEndTick = (int) player.level().getGameTime() + durationSeconds * 20;
+        this.sync();
+    }
+
+    public boolean hasHeliumEffect() {
+        return heliumEndTick > 0 && player.level().getGameTime() < heliumEndTick;
+    }
+
+    /**
+     * Get the remaining ticks for the helium effect.
+     * @return remaining ticks, or 0 if no effect is active
+     */
+    public int getRemainingHeliumTicks() {
+        if (heliumEndTick <= 0) {
+            return 0;
+        }
+        long remaining = heliumEndTick - player.level().getGameTime();
+        return remaining > 0 ? (int) remaining : 0;
+    }
     
     /**
      * 检查是否受狗皮膏药保护
@@ -112,12 +145,14 @@ public class TemporaryEffectPlayerComponent implements RoleComponent, ServerTick
     public void writeToSyncNbt(@NotNull CompoundTag tag, @NotNull HolderLookup.Provider registryLookup) {
         tag.putFloat("stamina_boost", staminaBoost);
         tag.putInt("dogskin_plaster_protection", dogskinPlasterProtectionEnd);
+        tag.putInt("helium_end_tick", heliumEndTick);
     }
     
     @Override
     public void readFromSyncNbt(@NotNull CompoundTag tag, @NotNull HolderLookup.Provider registryLookup) {
         this.staminaBoost = tag.contains("stamina_boost") ? tag.getFloat("stamina_boost") : 0f;
         this.dogskinPlasterProtectionEnd = tag.contains("dogskin_plaster_protection") ? tag.getInt("dogskin_plaster_protection") : 0;
+        this.heliumEndTick = tag.contains("helium_end_tick") ? tag.getInt("helium_end_tick") : 0;
     }
     
     @Override

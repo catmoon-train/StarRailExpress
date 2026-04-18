@@ -10,15 +10,12 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
-import org.agmas.noellesroles.blood.BloodMain;
+import org.agmas.noellesroles.client.blood.BloodMain;
 import org.agmas.noellesroles.commands.*;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
+import org.agmas.noellesroles.game.modifier.NRModifiers;
+import org.agmas.noellesroles.game.presets.Preset;
 import org.agmas.noellesroles.init.*;
-import org.agmas.noellesroles.modifier.NRModifiers;
-import org.agmas.noellesroles.presets.Preset;
-import org.agmas.noellesroles.repack.HSRConstants;
-import org.agmas.noellesroles.repack.HSRItems;
-import org.agmas.noellesroles.repack.HSRSounds;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.RightClickBlockManager;
 import org.agmas.noellesroles.utils.RoleUtils;
@@ -131,6 +128,7 @@ public class Noellesroles implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        ModItems.init();
         RightClickBlockManager.init();
         ArgumentTypeRegistry.registerArgumentType(
                 Noellesroles.id("color"), // 唯一 ID
@@ -139,6 +137,7 @@ public class Noellesroles implements ModInitializer {
         );
         HSRConstants.init();
         Harpymodloader.HIDDEN_MODIFIERS.add(SEModifiers.REFUGEE.identifier().getPath());
+        Harpymodloader.HIDDEN_MODIFIERS.add(SEModifiers.BLACK_WHITE.identifier().getPath());
         // 初始化模组角色列表
         ModRoles.init();
         // 初始化修饰符
@@ -158,6 +157,7 @@ public class Noellesroles implements ModInitializer {
 
         // 注册事件处理器
         ModEventsRegister.registerEvents();
+        org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaEventHandler.register();
 
         // 注册命令
         BroadcastCommand.register();
@@ -165,6 +165,7 @@ public class Noellesroles implements ModInitializer {
         SetRoleMaxCommand.register();
         ConfigCommand.register();
         VTCommand.register();
+        org.agmas.noellesroles.commands.HeliumCommand.register();
         ExtraItemsManagerCommand.register();
         GameUtilsCommand.register();
         RoomCommand.register();
@@ -186,8 +187,7 @@ public class Noellesroles implements ModInitializer {
         // 注册网络处理器
         ModPacketsReciever.registerPackets();
         // 初始化HSR组件
-        HSRItems.init();
-        HSRSounds.init();
+
 
         // 注册商店
         RoleShopHandler.shopRegister();

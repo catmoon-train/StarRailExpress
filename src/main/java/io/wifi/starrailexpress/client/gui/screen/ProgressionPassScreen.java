@@ -1,8 +1,8 @@
 package io.wifi.starrailexpress.client.gui.screen;
 
 import io.wifi.starrailexpress.cca.SREPlayerProgressionComponent;
-import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
 import io.wifi.starrailexpress.cca.SREPlayerProgressionComponent.FactionCardType;
+import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;

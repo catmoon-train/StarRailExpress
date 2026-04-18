@@ -16,7 +16,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-
 import org.agmas.noellesroles.utils.MCItemsUtils;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
@@ -159,10 +158,18 @@ public class SREPlayerPsychoComponent implements RoleComponent, ServerTickingCom
         init();
     }
 
+    public int stopPsychoAndSync() {
+        int result = stopPsycho();
+        sync();
+        return result;
+    }
+
     public int stopPsycho() {
         SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(this.player.level());
         int result = gameWorldComponent.getPsychosActive();
-        gameWorldComponent.setPsychosActive(result - 1);
+        if (result >= 1) {
+            gameWorldComponent.setPsychosActive(result - 1);
+        }
         this.psychoTicks = -1;
         if (this.player instanceof ServerPlayer serverPlayer) {
             ServerPlayNetworking.send(serverPlayer, new RemoveStatusBarPayload("Psycho"));

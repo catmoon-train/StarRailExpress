@@ -1,12 +1,10 @@
 package pro.fazeclan.river.stupid_express.role.amnesiac;
 
-import org.agmas.noellesroles.role.ModRoles;
-
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
-import io.wifi.starrailexpress.entity.PlayerBodyEntity;
+import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.index.TMMItems;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.minecraft.ChatFormatting;
@@ -15,6 +13,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
+import org.agmas.noellesroles.game.roles.Innocent.coroner.BodyDeathReasonComponent;
+import org.agmas.noellesroles.role.ModRoles;
 import pro.fazeclan.river.stupid_express.constants.SERoles;
 import pro.fazeclan.river.stupid_express.utils.StupidRoleUtils;
 
@@ -49,7 +49,14 @@ public class RoleSelectionHandler {
                         Component.translatable("message.stupid_express.generic.skill_not_available"), true);
                 return InteractionResult.PASS;
             }
-            SRERole role = gameWorldComponent.getRole(victim.getPlayerUuid());
+            var roleRes = BodyDeathReasonComponent.KEY.get(victim).playerRole;
+            if (roleRes == null) {
+                return InteractionResult.PASS;
+            }
+            SRERole role = TMMRoles.ROLES.get(roleRes);
+            if (role == null) {
+                return InteractionResult.PASS;
+            }
             if (role.identifier().equals(ModRoles.MA_CHEN_XU.identifier())) {
                 player.displayClientMessage(
                         Component.translatable("msg.amnesiac.change_role.failed_not_support")

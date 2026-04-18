@@ -1,6 +1,7 @@
 package org.agmas.noellesroles.init;
 
 import io.wifi.starrailexpress.event.AllowPlayerDeath;
+import io.wifi.starrailexpress.game.GameConstants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
@@ -14,9 +15,9 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.flag.FeatureFlagSet;
 import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.effects.NoCollideEffect;
-import org.agmas.noellesroles.effects.SimpleMobEffect;
-import org.agmas.noellesroles.effects.TimeStopEffect;
+import org.agmas.noellesroles.content.effects.NoCollideEffect;
+import org.agmas.noellesroles.content.effects.SimpleMobEffect;
+import org.agmas.noellesroles.content.effects.TimeStopEffect;
 
 public class ModEffects {
     public static final Holder<MobEffect> SKILL_BANED = register("skill_baned",
@@ -31,7 +32,7 @@ public class ModEffects {
                 public boolean applyEffectTick(LivingEntity livingEntity, int amplifier) {
                     if (livingEntity.level().getGameTime() % 20 == 0)
                         livingEntity.addEffect(new MobEffectInstance(
-                                ModEffects.NO_COLLIDE,
+                                ModEffects.SAFE_TIME,
                                 40, // 持续时间 30s（tick）
                                 5, // 等级（0 = 速度 I）
                                 true, // ambient（环境效果，如信标）
@@ -45,6 +46,8 @@ public class ModEffects {
             new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0xFFFFFF));
     public static final Holder<MobEffect> USED_BANED = register("used_baned",
             new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0xFFFFFF));
+    public static final Holder<MobEffect> ONLY_NO_COLLIDE = register("only_no_collide",
+            new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0xFFFFFF));
 
     /**
      * 时间停止效果
@@ -54,11 +57,18 @@ public class ModEffects {
     public static final Holder<MobEffect> TIME_STOP = register("time_stop", new TimeStopEffect());
 
     /**
-     * 安全时间无碰撞效果
+     * 无碰撞效果
      * - 中性效果
      * - 绿色粒子
      */
     public static final Holder<MobEffect> NO_COLLIDE = register("no_collide", new NoCollideEffect());
+
+    /**
+     * 安全时间效果
+     * - 中性效果
+     * - 绿色粒子
+     */
+    public static final Holder<MobEffect> SAFE_TIME = register("safe_time", new NoCollideEffect());
 
     /**
      * 鬼缚效果（布袋鬼攻击诅咒）
@@ -88,7 +98,7 @@ public class ModEffects {
                     }
                     if (livingEntity.level().getGameTime() % 20 == 0)
                         livingEntity.addEffect(new MobEffectInstance(
-                                ModEffects.NO_COLLIDE,
+                                ModEffects.SAFE_TIME,
                                 40, // 持续时间 30s（tick）
                                 5, // 等级（0 = 速度 I）
                                 true, // ambient（环境效果，如信标）
@@ -169,6 +179,15 @@ public class ModEffects {
             new SimpleMobEffect(MobEffectCategory.BENEFICIAL, 0xA9D6FF));
 
     /**
+     * 黑白狂暴前奏效果
+     * - 有害效果
+     * - 全服减速20%+无法打开背包+水墨风shader
+     * - 持续60秒
+     */
+    public static final Holder<MobEffect> MONOKUMA_FRENZY = register("monokuma_frenzy",
+            new org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaFrenzyEffect());
+
+    /**
      * 注册药水效果到注册表
      */
 
@@ -239,9 +258,15 @@ public class ModEffects {
                 pierceDeath = false;
                 return true;
             }
+            if (deathReason.equals(GameConstants.DeathReasons.FELL_OUT_OF_TRAIN)) {
+                return true;
+            }
+            if (player.hasEffect(ModEffects.INVINCIBLE)) {
+                return false;
+            }
             if (deathReason.equals(Noellesroles.id("bomb_death")))
                 return true;
-            if (player.hasEffect(ModEffects.INVINCIBLE) || player.hasEffect(ModEffects.TAROT_ASSEMBLY)) {
+            if (player.hasEffect(ModEffects.TAROT_ASSEMBLY)) {
                 if (player.position().z >= 19000)
                     return false;
             }

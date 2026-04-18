@@ -51,7 +51,6 @@ public class StupidExpress implements ModInitializer {
 
     public static List<SRERole> getEnableRoles(boolean removeNonThisRoundRoles) {
         ArrayList<SRERole> clone = new ArrayList<>(TMMRoles.ROLES.values());
-
         clone.removeIf(r -> HarpyModLoaderConfig.HANDLER.instance().getDisabled().contains(r.getIdentifier().toString())
                 || r.identifier().equals(TMMRoles.DISCOVERY_CIVILIAN.identifier())
                 || r.identifier().equals(TMMRoles.LOOSE_END.identifier())
@@ -65,9 +64,9 @@ public class StupidExpress implements ModInitializer {
                 || r.identifier().equals(SpecialGameModeRoles.CUSTOM_PENDING.identifier())
                 || r.identifier().equals(ModRoles.JOJO_ID)
                 || r.identifier().equals(ModRoles.BEST_VIGILANTE_ID)
-                || r.identifier().equals(ModRoles.BASEBALL_PLAYER_ID)
                 || r.identifier().equals(ModRoles.WATER_GHOST_ID)
                 || r.identifier().equals(ModRoles.THE_FOOL_ID)
+                || r.identifier().equals(ModRoles.MONOKUMA_ID)
                 || (removeNonThisRoundRoles && Harpymodloader.ROLE_MAX.getOrDefault(r.identifier(), 1) <= 0)
                 || r.getOccupiedRoleCount() > 1
         // 未解锁的职业强制从职业池中移除

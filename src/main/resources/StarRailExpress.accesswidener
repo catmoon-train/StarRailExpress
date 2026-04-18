@@ -1,6 +1,10 @@
 accessWidener v2 named
 accessible class net/minecraft/world/item/ItemCooldowns$CooldownInstance
+accessible field net/minecraft/world/item/ItemCooldowns$CooldownInstance startTime I
 accessible field net/minecraft/world/item/ItemCooldowns$CooldownInstance endTime I
+accessible method net/minecraft/world/item/ItemCooldowns$CooldownInstance <init> (II)V
+accessible method net/minecraft/world/item/ItemCooldowns onCooldownStarted (Lnet/minecraft/world/item/Item;I)V
+accessible method net/minecraft/world/item/ItemCooldowns onCooldownEnded (Lnet/minecraft/world/item/Item;)V
 accessible field net/minecraft/world/item/ItemCooldowns tickCount I
 accessible field net/minecraft/world/item/ItemCooldowns cooldowns Ljava/util/Map;
 
@@ -28,3 +32,8 @@ accessible field net/minecraft/client/gui/screens/LoadingOverlay fadeIn Z
 
 accessible method net/minecraft/client/multiplayer/ClientLevel getEntities ()Lnet/minecraft/world/level/entity/LevelEntityGetter;
 accessible class net/minecraft/client/resources/SkinManager$TextureCache
+
+
+accessible field net/minecraft/world/entity/WalkAnimationState    speedOld    F
+accessible field net/minecraft/world/entity/WalkAnimationState    speed       F
+accessible field net/minecraft/world/entity/WalkAnimationState    position    F

@@ -1,8 +1,8 @@
 package io.wifi.starrailexpress.index;
 
-import io.wifi.starrailexpress.block.property.CouchArms;
-import io.wifi.starrailexpress.block.property.OrnamentShape;
-import io.wifi.starrailexpress.block.property.RailingShape;
+import io.wifi.starrailexpress.content.block.property.CouchArms;
+import io.wifi.starrailexpress.content.block.property.OrnamentShape;
+import io.wifi.starrailexpress.content.block.property.RailingShape;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 

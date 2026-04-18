@@ -13,8 +13,8 @@ import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import io.wifi.starrailexpress.network.PacketTracker;
-import io.wifi.starrailexpress.util.Scheduler;
 import io.wifi.starrailexpress.util.SREItemUtils;
+import io.wifi.starrailexpress.util.Scheduler;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.FriendlyByteBuf;
@@ -29,7 +29,6 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.init.ModItems;
-import org.agmas.noellesroles.repack.HSRItems;
 import org.jetbrains.annotations.NotNull;
 
 public record GunShootPayload(int target) implements CustomPacketPayload {
@@ -68,16 +67,15 @@ public record GunShootPayload(int target) implements CustomPacketPayload {
                     mainHandStack.set(SREDataComponentTypes.USED, true);
                 }
             }
-
             if (mainHandStack.is(TMMItemTags.GUNS)
                     && player.serverLevel().getEntity(payload.target()) instanceof ServerPlayer target
-                    && target.distanceTo(player) < 70.0) {
+                    && target.distanceToSqr(player) < 30 * 30) {
                 SREGameWorldComponent game = SREGameWorldComponent.KEY.get(player.level());
                 Item revolver = TMMItems.REVOLVER;
                 boolean isDerringer = mainHandStack.is(TMMItems.DERRINGER);
                 ResourceLocation deathReason = isDerringer ? GameConstants.DeathReasons.DERRINGER
                         : GameConstants.DeathReasons.REVOLVER;
-                if (mainHandStack.is(ModItems.EXECUTIONER_GUN)){
+                if (mainHandStack.is(ModItems.EXECUTIONER_GUN)) {
                     deathReason = GameConstants.DeathReasons.EXECUTE;
                 }
 
@@ -109,7 +107,7 @@ public record GunShootPayload(int target) implements CustomPacketPayload {
                                     flag = true;
                                 } else if (SREItemUtils.clearItem(player, TMMItems.REVOLVER, 1) >= 1) {
                                     flag = true;
-                                } else if (SREItemUtils.clearItem(player, HSRItems.BANDIT_REVOLVER, 1) >= 1) {
+                                } else if (SREItemUtils.clearItem(player, ModItems.BANDIT_REVOLVER, 1) >= 1) {
                                     flag = true;
                                 }
 

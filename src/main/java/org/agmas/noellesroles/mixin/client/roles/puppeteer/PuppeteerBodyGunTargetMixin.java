@@ -1,11 +1,11 @@
 package org.agmas.noellesroles.mixin.client.roles.puppeteer;
 
+import io.wifi.starrailexpress.content.item.RevolverItem;
 import io.wifi.starrailexpress.game.GameUtils;
-import io.wifi.starrailexpress.item.RevolverItem;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.phys.HitResult;
-import org.agmas.noellesroles.entity.PuppeteerBodyEntity;
+import org.agmas.noellesroles.content.entity.PuppeteerBodyEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

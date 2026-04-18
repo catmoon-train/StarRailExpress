@@ -2,8 +2,6 @@ package org.agmas.noellesroles.client;
 
 import com.google.common.collect.Maps;
 import com.mojang.blaze3d.platform.InputConstants;
-import dev.doctor4t.ratatouille.client.util.ambience.AmbienceUtil;
-import dev.doctor4t.ratatouille.client.util.ambience.BackgroundAmbience;
 import dev.doctor4t.ratatouille.util.TextUtils;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREClientConfig;
@@ -11,15 +9,13 @@ import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameTimeComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
-import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.StaminaRenderer;
 import io.wifi.starrailexpress.client.StatusInit;
 import io.wifi.starrailexpress.client.gui.RoleNameRenderer;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
-import io.wifi.starrailexpress.client.util.MyBackgroundAmbience;
 import io.wifi.starrailexpress.client.util.TMMItemTooltips;
-import io.wifi.starrailexpress.entity.PlayerBodyEntity;
+import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.event.AllowNameRender;
 import io.wifi.starrailexpress.event.OnKillerCohortDisplay;
 import io.wifi.starrailexpress.event.OnRoundStartWelcomeTimmer;
@@ -63,11 +59,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.block_entity.VendingMachinesBlockEntity;
-import org.agmas.noellesroles.blood.BloodMain;
+import org.agmas.noellesroles.client.blood.BloodMain;
 import org.agmas.noellesroles.client.commands.GameManagePanelCommand;
 import org.agmas.noellesroles.client.event.MutableComponentResult;
 import org.agmas.noellesroles.client.event.OnMessageBelowMoneyRenderer;
@@ -75,36 +69,36 @@ import org.agmas.noellesroles.client.hud.CommonClientHudRenderer;
 import org.agmas.noellesroles.client.renderer.VendingMachinesBlockEntityRenderer;
 import org.agmas.noellesroles.client.screen.*;
 import org.agmas.noellesroles.component.DeathPenaltyComponent;
-import org.agmas.noellesroles.component.InsaneKillerPlayerComponent;
-import org.agmas.noellesroles.component.MagicianPlayerComponent;
-import org.agmas.noellesroles.effects.TimeStopEffect;
-import org.agmas.noellesroles.entity.LockEntity;
-import org.agmas.noellesroles.entity.WheelchairEntityModel;
-import org.agmas.noellesroles.entity.WheelchairEntityRenderer;
-import org.agmas.noellesroles.entity.WheelchairFieldItemRenderer;
+import org.agmas.noellesroles.content.block_entity.VendingMachinesBlockEntity;
+import org.agmas.noellesroles.content.effects.TimeStopEffect;
+import org.agmas.noellesroles.content.entity.LockEntity;
+import org.agmas.noellesroles.content.entity.WheelchairEntityModel;
+import org.agmas.noellesroles.content.entity.WheelchairEntityRenderer;
+import org.agmas.noellesroles.content.entity.WheelchairFieldItemRenderer;
+import org.agmas.noellesroles.content.item.MercenaryContractItem;
+import org.agmas.noellesroles.content.item.PanItem;
+import org.agmas.noellesroles.content.item.ProblemSetItem;
+import org.agmas.noellesroles.game.roles.Innocent.magician.MagicianPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.insane_killer.InsaneKillerPlayerComponent;
 import org.agmas.noellesroles.init.*;
-import org.agmas.noellesroles.item.MercenaryContractItem;
-import org.agmas.noellesroles.item.PanItem;
-import org.agmas.noellesroles.item.ProblemSetItem;
 import org.agmas.noellesroles.packet.*;
 import org.agmas.noellesroles.packet.Loot.*;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.agmas.noellesroles.utils.lottery.LotteryManager;
 import org.joml.Vector3f;
-
-import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.LoggerFactory;
+import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 
 import java.awt.*;
 import java.util.*;
 import java.util.List;
 
 import static org.agmas.noellesroles.client.RicesRoleRhapsodyClient.*;
-import static org.agmas.noellesroles.component.InsaneKillerPlayerComponent.isPlayerBodyEntity;
-import static org.agmas.noellesroles.component.InsaneKillerPlayerComponent.playerBodyEntities;
-import static org.agmas.noellesroles.effects.TimeStopEffect.clientPositions;
+import static org.agmas.noellesroles.content.effects.TimeStopEffect.clientPositions;
+import static org.agmas.noellesroles.game.roles.killer.insane_killer.InsaneKillerPlayerComponent.isPlayerBodyEntity;
+import static org.agmas.noellesroles.game.roles.killer.insane_killer.InsaneKillerPlayerComponent.playerBodyEntities;
 
 public class NoellesrolesClient implements ClientModInitializer {
     public static boolean hasInitStatusBar = false;
@@ -180,41 +174,7 @@ public class NoellesrolesClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
-        {
-
-            AmbienceUtil.registerBackgroundAmbience(
-                    new BackgroundAmbience(NRSounds.JESTER_AMBIENT,
-                            player -> {
-                                if (SREClient.gameComponent == null)
-                                    return false;
-                                if (SREClient.gameComponent.isPsychoActive()) {
-                                    var level = Minecraft.getInstance().level;
-                                    if (level == null)
-                                        return false;
-                                    return (level.players().stream().anyMatch((p) -> {
-                                        if (SREClient.gameComponent.isRole(p, ModRoles.JESTER)) {
-                                            if (SREPlayerPsychoComponent.KEY.get(p).getPsychoTicks() > 0) {
-                                                return true;
-                                            }
-                                        }
-                                        return false;
-                                    }));
-                                }
-                                return false;
-                            },
-                            1));
-            AmbienceUtil.registerBackgroundAmbience(
-                    new MyBackgroundAmbience(NRSounds.MUSIC_CLOCK, SoundSource.MASTER,
-                            player -> {
-                                var client = Minecraft.getInstance();
-                                if (client == null || client.player == null)
-                                    return false;
-                                if (client.player.hasEffect(ModEffects.OTHERWORLD_AURA))
-                                    return true;
-                                return false;
-                            },
-                            0.8f, 10, 10));
-        }
+       NoellesrolesClientAmbientSounds.register();
         // 注册HUD渲染
         LimitedInventoryScreen.NotAllowItemTakePredicates.add(stack -> stack.is(ModItems.BOMB));
 
@@ -254,7 +214,7 @@ public class NoellesrolesClient implements ClientModInitializer {
             SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY
                     .get(target.level());
             if (gameWorldComponent.isRole(target,
-                    ModRoles.THE_INSANE_DAMNED_PARANOID_KILLER_OF_DOOM_DEATH_DESTRUCTION_AND_WAFFLES)) {
+                    ModRoles.INSANE_KILLER)) {
                 var insaneComponent = InsaneKillerPlayerComponent.KEY.get(target);
                 if (insaneComponent != null) {
                     if (insaneComponent.isActive || insaneComponent.inNearDeath()) {
@@ -330,7 +290,7 @@ public class NoellesrolesClient implements ClientModInitializer {
             }
         });
         ClientPlayNetworking.registerGlobalReceiver(
-                org.agmas.noellesroles.roles.fool.FoolOpenTarotVoteS2CPacket.ID,
+                org.agmas.noellesroles.game.roles.Innocent.fool.FoolOpenTarotVoteS2CPacket.ID,
                 (payload, context) -> {
                     final var client = context.client();
                     client.execute(() -> {
@@ -863,7 +823,7 @@ public class NoellesrolesClient implements ClientModInitializer {
             boolean abilityPressed = abilityBind.consumeClick();
             if (client.player.isCreative()) {
                 if (foolPrayerBind.consumeClick()) {
-                    ClientPlayNetworking.send(new org.agmas.noellesroles.roles.fool.FoolPrayerC2SPacket());
+                    ClientPlayNetworking.send(new org.agmas.noellesroles.game.roles.Innocent.fool.FoolPrayerC2SPacket());
                 }
                 if (abilityPressed) {
                     if (SREClient.gameComponent.isRole(client.player, ModRoles.ATTENDANT)) {
@@ -881,7 +841,7 @@ public class NoellesrolesClient implements ClientModInitializer {
             // }
 
             if (foolPrayerBind.consumeClick()) {
-                ClientPlayNetworking.send(new org.agmas.noellesroles.roles.fool.FoolPrayerC2SPacket());
+                ClientPlayNetworking.send(new org.agmas.noellesroles.game.roles.Innocent.fool.FoolPrayerC2SPacket());
             }
 
             if (abilityPressed) {
@@ -890,7 +850,7 @@ public class NoellesrolesClient implements ClientModInitializer {
 
             if (inTarotAssembly) {
                 if (client.options.keyUse.consumeClick()) {
-                    ClientPlayNetworking.send(new org.agmas.noellesroles.roles.fool.FoolLeaveMeetingC2SPacket());
+                    ClientPlayNetworking.send(new org.agmas.noellesroles.game.roles.Innocent.fool.FoolLeaveMeetingC2SPacket());
                 }
 
                 boolean pauseOpen = client.screen instanceof net.minecraft.client.gui.screens.PauseScreen;
@@ -898,7 +858,7 @@ public class NoellesrolesClient implements ClientModInitializer {
                     if (SREClient.gameComponent.isRole(client.player, ModRoles.THE_FOOL)) {
                         foolMeetingPauseHandled = true;
                     } else {
-                        ClientPlayNetworking.send(new org.agmas.noellesroles.roles.fool.FoolLeaveMeetingC2SPacket());
+                        ClientPlayNetworking.send(new org.agmas.noellesroles.game.roles.Innocent.fool.FoolLeaveMeetingC2SPacket());
                         client.setScreen(null);
                     }
                 }
@@ -966,6 +926,22 @@ public class NoellesrolesClient implements ClientModInitializer {
             }
         });
 
+        ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            if (client.player == null || client.level == null) {
+                MonokumaSceneManager.INSTANCE.forceRestore();
+                return;
+            }
+
+            boolean monokumaActive = client.player.hasEffect(ModEffects.MONOKUMA_FRENZY);
+            if (monokumaActive && !MonokumaSceneManager.INSTANCE.isActive()) {
+                MonokumaSceneManager.INSTANCE.activate();
+            } else if (!monokumaActive && MonokumaSceneManager.INSTANCE.isActive()) {
+                MonokumaSceneManager.INSTANCE.deactivate();
+            }
+
+            MonokumaSceneManager.INSTANCE.tick();
+        });
+
         ItemTooltipCallback.EVENT.register(((itemStack, tooltipContext, tooltipType, list) -> {
             tooltipHelper(TMMItems.DEFENSE_VIAL, itemStack, list);
             tooltipHelper(ModItems.DELUSION_VIAL, itemStack, list);
@@ -1009,6 +985,43 @@ public class NoellesrolesClient implements ClientModInitializer {
                             net.minecraft.world.item.component.CustomData.EMPTY);
                     // 非炸弹客始终不可见
                     return 0.0F;
+                });
+        net.minecraft.client.renderer.item.ItemProperties.register(ModItems.YINYANG_SWORD, Noellesroles.id("charging"),
+                (stack, world, entity, seed) -> {
+                    if (!(entity instanceof Player player)) {
+                        return 0.0F;
+                    }
+                    var component = org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaPlayerComponent.KEY.maybeGet(player)
+                            .orElse(null);
+                    if (component == null) {
+                        return 0.0F;
+                    }
+                    return component.aoeChargeTimer > 0 ? 1.0F : 0.0F;
+                });
+        net.minecraft.client.renderer.item.ItemProperties.register(ModItems.YINYANG_SWORD, Noellesroles.id("charge"),
+                (stack, world, entity, seed) -> {
+                    if (!(entity instanceof Player player)) {
+                        return 0.0F;
+                    }
+                    var component = org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaPlayerComponent.KEY.maybeGet(player)
+                            .orElse(null);
+                    if (component == null || component.aoeChargeTimer <= 0) {
+                        return 0.0F;
+                    }
+                    return 1.0F - ((float) component.aoeChargeTimer
+                            / org.agmas.noellesroles.game.roles.neutral.monokuma.YinYangSwordItem.CHARGE_TIME);
+                });
+        net.minecraft.client.renderer.item.ItemProperties.register(ModItems.YINYANG_SWORD, Noellesroles.id("dash"),
+                (stack, world, entity, seed) -> {
+                    if (!(entity instanceof Player player)) {
+                        return 0.0F;
+                    }
+                    var component = org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaPlayerComponent.KEY.maybeGet(player)
+                            .orElse(null);
+                    if (component == null || component.dashAnimTimer <= 0) {
+                        return 0.0F;
+                    }
+                    return 1.0F;
                 });
         // 当前死亡惩罚
         OnMessageBelowMoneyRenderer.EVENT.register((minecraft, guiGraphics, deltaTracker) -> {

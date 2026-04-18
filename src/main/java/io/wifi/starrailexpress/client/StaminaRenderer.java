@@ -1,7 +1,6 @@
 package io.wifi.starrailexpress.client;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import io.wifi.starrailexpress.SREClientConfig;
 import io.wifi.starrailexpress.api.ChargeableItemRegistry;
 import io.wifi.starrailexpress.api.SRERole;

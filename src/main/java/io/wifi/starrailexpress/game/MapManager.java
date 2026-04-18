@@ -6,7 +6,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
-import io.wifi.starrailexpress.data.MapConfig;
+import io.wifi.starrailexpress.game.data.MapConfig;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.storage.LevelResource;
 import net.minecraft.world.phys.AABB;

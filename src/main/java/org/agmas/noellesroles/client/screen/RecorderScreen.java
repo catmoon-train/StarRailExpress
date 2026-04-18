@@ -18,7 +18,7 @@ import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.client.widget.RecorderPlayerWidget;
 import org.agmas.noellesroles.client.widget.RecorderRoleWidget;
 import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.component.RecorderPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.recorder.RecorderPlayerComponent;
 import org.agmas.noellesroles.packet.RecorderC2SPacket;
 import org.agmas.noellesroles.utils.RoleUtils;
 

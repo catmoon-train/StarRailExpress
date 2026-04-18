@@ -1,19 +1,18 @@
 package io.wifi.mixins;
 
+import com.google.common.collect.ImmutableList;
+import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.commands.KillCommand;
+import net.minecraft.world.entity.Entity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Unique;
 
-import com.mojang.brigadier.CommandDispatcher;
-
-import com.google.common.collect.ImmutableList;
 import java.util.Collection;
-import net.minecraft.commands.Commands;
-import net.minecraft.commands.arguments.EntityArgument;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.Entity;
 
 @Mixin(KillCommand.class)
 public abstract class KillCommandMixin {

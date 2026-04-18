@@ -8,7 +8,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import org.agmas.noellesroles.component.TelegrapherPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.telegrapher.TelegrapherPlayerComponent;
 import org.agmas.noellesroles.packet.TelegrapherC2SPacket;
 
 /**

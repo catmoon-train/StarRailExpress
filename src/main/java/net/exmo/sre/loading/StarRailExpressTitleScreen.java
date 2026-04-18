@@ -8,6 +8,7 @@ import com.terraformersmc.modmenu.api.ModMenuApi;
 import io.wifi.ConfigCompact.ui.SettingMenuScreen;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREClientConfig;
+import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.index.TMMSounds;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -227,7 +228,11 @@ public class StarRailExpressTitleScreen extends Screen {
         }
 
         // 3. 加载并解析日志（依赖 cTextMaxW 和 this.font）
-        this.parsedChangelogLines = parseChangelogLines(loadChangelogLines());
+        var lines = new ArrayList<String>(loadChangelogLines());
+        if (SREClient.hasCustomSkinLoaderAndNeedToWarn) {
+            lines.addFirst("§6检测到您安装了 §e§lCustomSkinLoader§6。\n§6由众多玩家反馈，这个模组与本模组一起使用§c§l可能导致你的客户端崩溃§6！我们建议您删掉这个模组！\n");
+        }
+        this.parsedChangelogLines = parseChangelogLines(lines);
 
         // 4. Splash / Realms
         if (this.splash == null)
@@ -313,7 +318,8 @@ public class StarRailExpressTitleScreen extends Screen {
         if (this.isTransitioning) {
             this.fadeOutProgress = Math.min(this.fadeOutProgress + 0.025F, 1.0F);
         }
-        if (!SREClientConfig.instance().disableTitleScreenSound && !SREClientConfig.instance().disableTitleScreenVideoBackground) {
+        if (!SREClientConfig.instance().disableTitleScreenSound
+                && !SREClientConfig.instance().disableTitleScreenVideoBackground) {
             SoundManager soundManager = Minecraft.getInstance().getSoundManager();
             if (!waitingForContinue.get() && !soundManager.isActive(ambient_sound)) {
                 soundManager.play(ambient_sound);

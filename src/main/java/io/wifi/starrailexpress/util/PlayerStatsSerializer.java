@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.SREPlayerStatsComponent;
-import io.wifi.starrailexpress.data.PlayerStatsData;
+import io.wifi.starrailexpress.game.data.PlayerStatsData;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;

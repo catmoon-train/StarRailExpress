@@ -1,6 +1,6 @@
 package org.agmas.noellesroles.mixin.roles.awesome_binglus;
 
-import io.wifi.starrailexpress.entity.NoteEntity;
+import io.wifi.starrailexpress.content.entity.NoteEntity;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;

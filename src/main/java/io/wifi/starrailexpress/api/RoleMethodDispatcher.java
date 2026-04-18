@@ -182,11 +182,12 @@ public class RoleMethodDispatcher {
     /**
      * 调用玩家角色的 leftClickEntity 方法
      */
-    public static void callLeftClickEntity(Player player, Entity victim) {
+    public static InteractionResult callLeftClickEntity(Player player, Entity victim) {
         SRERole role = getCurrentRole(player);
         if (role != null) {
-            role.leftClickEntity(player, victim);
+            return role.leftClickEntity(player, victim);
         }
+        return InteractionResult.PASS;
     }
 
     /**

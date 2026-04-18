@@ -1,9 +1,9 @@
 package org.agmas.noellesroles.mixin.roles.engineer;
 
-import io.wifi.starrailexpress.block_entity.DoorBlockEntity;
+import io.wifi.starrailexpress.content.block_entity.DoorBlockEntity;
+import io.wifi.starrailexpress.content.item.CrowbarItem;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.index.TMMItems;
-import io.wifi.starrailexpress.item.CrowbarItem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -14,9 +14,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import org.agmas.noellesroles.entity.LockEntityManager;
-import org.agmas.noellesroles.item.AlarmTrapItem;
-import org.agmas.noellesroles.item.ReinforcementItem;
+import org.agmas.noellesroles.content.entity.LockEntityManager;
+import org.agmas.noellesroles.content.item.AlarmTrapItem;
+import org.agmas.noellesroles.content.item.ReinforcementItem;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

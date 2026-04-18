@@ -5,7 +5,6 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
-import org.agmas.noellesroles.screen.DetectiveInspectScreenHandler;
 
 /**
  * 私家侦探审查界面的客户端屏幕

@@ -10,10 +10,9 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
-
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
+import org.agmas.noellesroles.content.item.BombItem;
 import org.agmas.noellesroles.init.ModItems;
-import org.agmas.noellesroles.item.BombItem;
 import org.agmas.noellesroles.role.ModRoles;
 
 public class BomberHud {
@@ -24,7 +23,7 @@ public class BomberHud {
             ItemStack mainHandItem = player.getMainHandItem();
 
             // 计算背包中的炸弹数量
-            int bombCount = SREItemUtils.hasItem(client.player, ModItems.BOMB);
+            int bombCount = SREItemUtils.countItem(client.player, ModItems.BOMB);
             if (client.player.getOffhandItem().is(ModItems.BOMB)) {
                 bombCount += client.player.getOffhandItem().getCount();
             }

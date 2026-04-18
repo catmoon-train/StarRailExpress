@@ -5,7 +5,7 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import org.agmas.noellesroles.roles.manipulator.InControlCCA;
+import org.agmas.noellesroles.game.roles.killer.manipulator.InControlCCA;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;

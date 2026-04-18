@@ -1,7 +1,7 @@
 package io.wifi.starrailexpress.mixin.network;
 
 import io.netty.channel.ChannelHandlerContext;
-import io.wifi.starrailexpress.command.NetworkStatsCommand;
+import io.wifi.starrailexpress.content.command.NetworkStatsCommand;
 import io.wifi.starrailexpress.network.NetworkStatistics;
 import io.wifi.starrailexpress.network.NetworkUtils;
 import net.minecraft.network.Connection;

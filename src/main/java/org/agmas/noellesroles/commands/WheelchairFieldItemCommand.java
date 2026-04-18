@@ -10,7 +10,7 @@ import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.Level;
-import org.agmas.noellesroles.entity.WheelchairFieldItemEntity;
+import org.agmas.noellesroles.content.entity.WheelchairFieldItemEntity;
 import org.agmas.noellesroles.init.ModEntities;
 
 public class WheelchairFieldItemCommand {

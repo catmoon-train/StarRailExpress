@@ -1,15 +1,16 @@
 package org.agmas.noellesroles;
 
+import io.wifi.starrailexpress.api.CustomWinnerRole;
+import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.event.AllowGameEnd;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.GameUtils.WinStatus;
-
+import org.agmas.noellesroles.game.roles.neutral.candlebearer.CandleBearerPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.thief.ThiefPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.RedHouseRoles;
-import org.agmas.noellesroles.roles.candlebearer.CandleBearerPlayerComponent;
-import org.agmas.noellesroles.roles.thief.ThiefPlayerComponent;
 import org.agmas.noellesroles.utils.RoleUtils;
 
 public class CustomWinnerClass {
@@ -30,6 +31,18 @@ public class CustomWinnerClass {
             for (var player : serverLevel.players()) {
                 if (GameUtils.isPlayerAliveAndSurvival(player)) {
                     alivePlayerCount++;
+                    SRERole role = gameComponent.getRole(player);
+                    if (role != null) {
+                        if (role instanceof CustomWinnerRole cwr) {
+                            WinStatus resultWinStatus = cwr.checkWin(player, winStatus);
+                            if (resultWinStatus != WinStatus.NOT_MODIFY) {
+                                if (resultWinStatus == WinStatus.CUSTOM) {
+                                    cwr.win(player);
+                                }
+                                return resultWinStatus;
+                            }
+                        }
+                    }
                     if (gameComponent.isRole(player, ModRoles.THIEF)) {
                         hasThiefAlive = true;
                         // thiefCount++;

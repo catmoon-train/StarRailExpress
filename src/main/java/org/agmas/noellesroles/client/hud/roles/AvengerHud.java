@@ -1,15 +1,14 @@
 package org.agmas.noellesroles.client.hud.roles;
 
-import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
-import org.agmas.noellesroles.component.AvengerPlayerComponent;
-import org.agmas.noellesroles.role.ModRoles;
-
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.CommonColors;
+import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
+import org.agmas.noellesroles.game.roles.Innocent.avenger.AvengerPlayerComponent;
+import org.agmas.noellesroles.role.ModRoles;
 import pro.fazeclan.river.stupid_express.modifier.refugee.cca.RefugeeComponent;
 
 /**

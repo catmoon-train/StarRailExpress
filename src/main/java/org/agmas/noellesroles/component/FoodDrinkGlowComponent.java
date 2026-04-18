@@ -1,15 +1,5 @@
 package org.agmas.noellesroles.component;
 
-import java.util.HashMap;
-import java.util.Set;
-
-import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.role.ModRoles;
-import org.ladysnake.cca.api.v3.component.ComponentKey;
-import org.ladysnake.cca.api.v3.component.ComponentRegistry;
-import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
-import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
-
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -18,6 +8,15 @@ import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.player.Player;
+import org.agmas.noellesroles.Noellesroles;
+import org.agmas.noellesroles.role.ModRoles;
+import org.ladysnake.cca.api.v3.component.ComponentKey;
+import org.ladysnake.cca.api.v3.component.ComponentRegistry;
+import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
+import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
+
+import java.util.HashMap;
+import java.util.Set;
 
 public class FoodDrinkGlowComponent implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
     //

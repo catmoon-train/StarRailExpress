@@ -1,13 +1,13 @@
 package io.wifi.starrailexpress;
 
-import java.util.ArrayList;
-
 import io.wifi.ConfigCompact.ConfigClassHandler;
 import io.wifi.ConfigCompact.annotation.ConfigSync;
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
 import me.shedaniel.autoconfig.annotation.ConfigEntry.Gui.Tooltip;
+
+import java.util.ArrayList;
 
 @Config(name = "starrailexpress")
 public class SREConfig implements ConfigData {

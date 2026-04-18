@@ -19,7 +19,7 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import org.agmas.noellesroles.block_entity.VendingMachinesBlockEntity;
+import org.agmas.noellesroles.content.block_entity.VendingMachinesBlockEntity;
 
 public class GoodsManagerCommand {
   public static void register() {

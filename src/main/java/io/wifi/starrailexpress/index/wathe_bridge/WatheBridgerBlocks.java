@@ -2,7 +2,7 @@ package io.wifi.starrailexpress.index.wathe_bridge;
 
 import dev.doctor4t.ratatouille.util.registrar.BlockRegistrar;
 import io.wifi.starrailexpress.SRE;
-import io.wifi.starrailexpress.block.*;
+import io.wifi.starrailexpress.content.block.*;
 import io.wifi.starrailexpress.index.TMMProperties;
 import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.util.BlockSettingsAdditions;
@@ -10,7 +10,6 @@ import net.fabricmc.fabric.api.object.builder.v1.block.type.BlockSetTypeBuilder;
 import net.fabricmc.fabric.api.registry.FlammableBlockRegistry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.BlockFamily;
-import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;

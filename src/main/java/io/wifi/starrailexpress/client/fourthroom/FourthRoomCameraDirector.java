@@ -1,22 +1,20 @@
 package io.wifi.starrailexpress.client.fourthroom;
 
 import io.wifi.starrailexpress.client.StaminaRenderer;
-import io.wifi.starrailexpress.client.gui.screen.ingame.FourthRoomBattleScreen;
-import io.wifi.starrailexpress.fourthroom.block.FourthRoomTableBlock;
-import io.wifi.starrailexpress.fourthroom.block.FourthRoomTableBlockEntity;
-import io.wifi.starrailexpress.fourthroom.effect.TableEffectEvents;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import org.agmas.noellesroles.game.modes.fourthroom.block.FourthRoomTableBlock;
+import org.agmas.noellesroles.game.modes.fourthroom.block.FourthRoomTableBlockEntity;
+import org.agmas.noellesroles.game.modes.fourthroom.effect.TableEffectEvents;
 import org.jetbrains.annotations.Nullable;
 
 public final class FourthRoomCameraDirector {

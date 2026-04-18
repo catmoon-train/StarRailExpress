@@ -7,7 +7,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.render.entity.PlayerBodyEntityRenderer;
-import io.wifi.starrailexpress.entity.PlayerBodyEntity;
+import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;

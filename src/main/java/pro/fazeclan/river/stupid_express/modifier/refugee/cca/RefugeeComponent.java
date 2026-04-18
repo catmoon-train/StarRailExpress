@@ -4,7 +4,7 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.*;
 import io.wifi.starrailexpress.compat.TrainVoicePlugin;
-import io.wifi.starrailexpress.entity.PlayerBodyEntity;
+import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.network.RemoveStatusBarPayload;
 import io.wifi.starrailexpress.network.TriggerStatusBarPayload;

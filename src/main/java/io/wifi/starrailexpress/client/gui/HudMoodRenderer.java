@@ -1,7 +1,6 @@
 package io.wifi.starrailexpress.client.gui;
 
 import io.wifi.starrailexpress.SRE;
-import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
@@ -21,11 +20,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 public class HudMoodRenderer {
     public static final ResourceLocation ARROW_UP = SRE.watheId("hud/arrow_up");

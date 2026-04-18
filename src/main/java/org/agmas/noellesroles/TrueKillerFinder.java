@@ -6,7 +6,7 @@ import io.wifi.starrailexpress.cca.SREPlayerPoisonComponent;
 import io.wifi.starrailexpress.event.EarlyKillPlayer;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.server.level.ServerPlayer;
-import org.agmas.noellesroles.component.ConspiratorPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.conspirator.ConspiratorPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 
 public class TrueKillerFinder {

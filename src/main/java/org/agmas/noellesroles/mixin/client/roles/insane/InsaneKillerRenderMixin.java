@@ -1,7 +1,8 @@
 package org.agmas.noellesroles.mixin.client.roles.insane;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import io.wifi.starrailexpress.entity.PlayerBodyEntity;
+
+import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.index.TMMEntities;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -12,14 +13,14 @@ import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
-import org.agmas.noellesroles.component.InsaneKillerPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.insane_killer.InsaneKillerPlayerComponent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import static org.agmas.noellesroles.component.InsaneKillerPlayerComponent.isPlayerBodyEntity;
-import static org.agmas.noellesroles.component.InsaneKillerPlayerComponent.playerBodyEntities;
+import static org.agmas.noellesroles.game.roles.killer.insane_killer.InsaneKillerPlayerComponent.isPlayerBodyEntity;
+import static org.agmas.noellesroles.game.roles.killer.insane_killer.InsaneKillerPlayerComponent.playerBodyEntities;
 
 @Mixin(PlayerRenderer.class)
 public abstract class InsaneKillerRenderMixin

@@ -1,0 +1,39 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "noellesroles:item/yinyang_sword"
+  },
+  "display": {
+    "thirdperson_righthand": {
+      "rotation": [90, 104, -12],
+      "translation": [0.1, 5.0, -0.2],
+      "scale": [1.06, 1.06, 1.06]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [90, -104, 12],
+      "translation": [0.1, 5.0, -0.2],
+      "scale": [1.06, 1.06, 1.06]
+    },
+    "firstperson_righthand": {
+      "rotation": [92, 94, -28],
+      "translation": [0.2, 3.2, -0.85],
+      "scale": [1.1, 1.1, 1.1]
+    },
+    "firstperson_lefthand": {
+      "rotation": [92, -94, 28],
+      "translation": [0.2, 3.2, -0.85],
+      "scale": [1.1, 1.1, 1.1]
+    },
+    "ground": {
+      "translation": [0, 2, 0],
+      "scale": [0.5, 0.5, 0.5]
+    },
+    "head": {
+      "rotation": [0, -180, 0],
+      "translation": [0, 13, 7]
+    },
+    "fixed": {
+      "rotation": [0, -180, 0]
+    }
+  }
+}

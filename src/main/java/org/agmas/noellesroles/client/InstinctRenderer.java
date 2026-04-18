@@ -7,7 +7,7 @@ import io.wifi.starrailexpress.cca.SREGameTimeComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPoisonComponent;
 import io.wifi.starrailexpress.client.SREClient;
-import io.wifi.starrailexpress.entity.PlayerBodyEntity;
+import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.event.OnGetInstinctHighlight;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -17,15 +17,28 @@ import io.wifi.starrailexpress.util.SREItemUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
-import org.agmas.noellesroles.component.*;
+import org.agmas.noellesroles.component.FoodDrinkGlowComponent;
+import org.agmas.noellesroles.component.ModComponents;
+import org.agmas.noellesroles.content.item.SignedPaperItem;
+import org.agmas.noellesroles.game.roles.Innocent.awesome_binglus.AwesomePlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.detective.DetectivePlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.fool.FoolPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.magician.MagicianPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.monitor.MonitorPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.executioner.ExecutionerPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.insane_killer.InsaneKillerPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.ma_chen_xu.MaChenXuPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.manipulator.ManipulatorPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.admirer.AdmirerPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.candlebearer.CandleBearerPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaEventHandler;
+import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.recorder.RecorderPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.wayfarer.WayfarerPlayerComponent;
+import org.agmas.noellesroles.game.roles.special.better_vigilante.BetterVigilantePlayerComponent;
 import org.agmas.noellesroles.init.ModEffects;
-import org.agmas.noellesroles.item.SignedPaperItem;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.RedHouseRoles;
-import org.agmas.noellesroles.roles.candlebearer.CandleBearerPlayerComponent;
-import org.agmas.noellesroles.roles.executioner.ExecutionerPlayerComponent;
-import org.agmas.noellesroles.roles.fool.FoolPlayerComponent;
-import org.agmas.noellesroles.roles.manipulator.ManipulatorPlayerComponent;
 import org.agmas.noellesroles.utils.MCItemsUtils;
 import org.agmas.noellesroles.utils.RoleUtils;
 import pro.fazeclan.river.stupid_express.StupidExpress;
@@ -69,7 +82,7 @@ public class InstinctRenderer {
             if (GameUtils.isPlayerSpectatingOrCreative(self))
                 return -1;
 
-            if (!(target instanceof io.wifi.starrailexpress.entity.NoteEntity note))
+            if (!(target instanceof io.wifi.starrailexpress.content.entity.NoteEntity note))
                 return -1;
             if (SREClient.gameComponent.isRole(self, ModRoles.AWESOME_BINGLUS)) {
                 return getGradientColor(note.getId());
@@ -171,7 +184,7 @@ public class InstinctRenderer {
             }
             // 活人：被秉烛过的显示原色
             if (target instanceof Player targetPlayer) {
-                if (targetPlayer.distanceToSqr(self) > 20 * 20)
+                if (targetPlayer.distanceToSqr(self) > 40 * 40)
                     return -2;
                 if (component.isCandleLit(targetPlayer.getUUID())) {
                     return ModRoles.CANDLE_BEARER.color();
@@ -263,7 +276,7 @@ public class InstinctRenderer {
             if (!SREClient.gameComponent.isRole(Minecraft.getInstance().player, SERoles.INITIATE)) {
                 return -1;
             }
-            if (SREItemUtils.hasItem(player, TMMItems.KNIFE) <= 0) {
+            if (SREItemUtils.countItem(player, TMMItems.KNIFE) <= 0) {
                 return -1;
             }
             if (target instanceof Player targettedPlayer) {
@@ -298,7 +311,7 @@ public class InstinctRenderer {
                 return -1;
             }
 
-            if (targettedPlayer.distanceToSqr(player) > 20 * 20)
+            if (targettedPlayer.distanceToSqr(player) > 40 * 40)
                 return -2;
             var douse = DousedPlayerComponent.KEY.get(targettedPlayer);
             if (douse.getDoused()) {
@@ -453,7 +466,7 @@ public class InstinctRenderer {
                     }
                 }
                 if (SREClient.gameComponent.isRole(self, RedHouseRoles.PACHURI)) {
-                    if (!self.hasEffect(ModEffects.NO_COLLIDE)) {
+                    if (!self.hasEffect(ModEffects.SAFE_TIME)) {
                         if (target.distanceToSqr(self) <= 25) {
                             if (SREClient.gameComponent.isRole(target_player, RedHouseRoles.FURANDORU)) {
                                 return RedHouseRoles.FURANDORU.color();
@@ -464,7 +477,7 @@ public class InstinctRenderer {
                 if (SREClient.gameComponent.isRole(self, ModRoles.CHEF)) {
                     // LoggerFactory.getLogger("renderer").info("glowTick {}",
                     // bartenderPlayerComponent.glowTicks);
-                    if (self.hasEffect(ModEffects.NO_COLLIDE))
+                    if (self.hasEffect(ModEffects.SAFE_TIME))
                         return -1;
                     int t = FoodDrinkGlowComponent.KEY.get(self).glowTicks
                             .getOrDefault(target.getScoreboardName(), new HashMap<>())
@@ -476,7 +489,7 @@ public class InstinctRenderer {
                 if (SREClient.gameComponent.isRole(self, ModRoles.BARTENDER)) {
                     // LoggerFactory.getLogger("renderer").info("glowTick {}",
                     // bartenderPlayerComponent.glowTicks);
-                    if (self.hasEffect(ModEffects.NO_COLLIDE))
+                    if (self.hasEffect(ModEffects.SAFE_TIME))
                         return -1;
                     if (armorPlayerComponent.getArmor() > 0 && playerPoisonComponent.poisonTicks > 0) {
                         return (new Color(186, 255, 65).getRGB());
@@ -577,7 +590,23 @@ public class InstinctRenderer {
                         && selfPuppeteerComp.phase >= 1) {
                     return -1;
                 }
+                // 黑白熊形态：对所有人隐藏高亮
+                if (SREClient.gameComponent.isRole(target_player, ModRoles.MONOKUMA)
+                        && MonokumaEventHandler.isMonokumaBearForm(target_player)
+                        && SREClient.isPlayerAliveAndInSurvival()) {
+                    return -2;
+                }
+                if (SREClient.gameComponent.isRole(self, ModRoles.MONOKUMA)&& SREClient.isPlayerAliveAndInSurvival()){
+                    return ModRoles.MONOKUMA.color();
+                }
 
+
+                // 黑白狂暴前奏：杀手看到灰色
+//                if (SREClient.gameComponent.isRole(target_player, ModRoles.MONOKUMA)
+//                        && MonokumaEventHandler.isInFrenzy(target_player)
+//                        && SREClient.isPlayerAliveAndInSurvival()) {
+//                    return Color.RED.getRGB();
+//                }
                 // 秉烛人：杀手无法透视察觉
                 if (SREClient.gameComponent.isRole(target_player, ModRoles.CANDLE_BEARER) && isKillerTeam(self_role)
                         && SREClient.isPlayerAliveAndInSurvival()) {
@@ -693,7 +722,7 @@ public class InstinctRenderer {
                     }
 
                     if (SREClient.gameComponent.isRole(self, RedHouseRoles.REMILIA)) {
-                        if (!self.hasEffect(ModEffects.NO_COLLIDE)) {
+                        if (!self.hasEffect(ModEffects.SAFE_TIME)) {
                             if (target.distanceToSqr(self) <= 25) {
                                 if (RoleUtils.compareRole(target_role, RedHouseRoles.PACHURI)) {
                                     return RedHouseRoles.PACHURI.color();

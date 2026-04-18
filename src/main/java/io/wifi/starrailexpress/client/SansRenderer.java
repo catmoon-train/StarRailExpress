@@ -3,7 +3,6 @@ package io.wifi.starrailexpress.client;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import io.wifi.starrailexpress.SRE;
-import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.util.MathHelper;
@@ -18,6 +17,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.agmas.noellesroles.init.ModEffects;
+import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import pro.fazeclan.river.stupid_express.client.StupidExpressClient;
@@ -35,6 +35,11 @@ public class SansRenderer {
 
     public static final MutableComponent[] HINTS0;
     public static final MutableComponent[] HINTS1;
+
+    private static final float LOW_SAN_SHADER_START_MOOD = 0.45f;
+    private static final float LOW_SAN_SHADER_FULL_MOOD = 0.0f;
+    private static final float BLOOD_TENDRILS_START_MOOD = 0.45f;
+    private static final float BLOOD_TENDRILS_FULL_ALPHA_MOOD = 0.3f;
 
     private final Minecraft m_mc;
 
@@ -85,7 +90,7 @@ public class SansRenderer {
     private static final float BLUR_DURATION_MAX = 60f; // 模糊最长持续时间（ticks）
 
     // 血丝动画参数
-    private static final float BLOOD_TENDRILS_APPEAR_THRESHOLD = 0.3f; // 理智低于此值时开始出现血丝
+    private static final float BLOOD_TENDRILS_APPEAR_THRESHOLD = BLOOD_TENDRILS_START_MOOD; // 理智低于此值时开始出现血丝
     private static final float BLOOD_TENDRILS_MAX_INTENSITY = 0.7f; // 血丝最大强度
     private static final float BLOOD_TENDRILS_PULSE_SPEED = 0.05f; // 血丝脉动速度
     private static final float BLOOD_TENDRILS_DRIFT_SPEED = 0.002f; // 血丝漂移速度
@@ -95,13 +100,19 @@ public class SansRenderer {
     private MutableComponent m_hint;
 
     private static float getLowSanBaseIntensity(float mood) {
-        return Mth.clamp((0.35f - mood) / 0.35f, 0f, 1f);
+        return Mth.clamp((LOW_SAN_SHADER_START_MOOD - mood)
+                / (LOW_SAN_SHADER_START_MOOD - LOW_SAN_SHADER_FULL_MOOD), 0f, 1f);
     }
 
     private static float getLowSanFinalIntensity(LocalPlayer player, float mood) {
-
+        float baseIntensity = getLowSanBaseIntensity(mood);
         float resistance = ModEffects.getLowSanShaderResistance(player);
-        return Mth.clamp((1f - resistance), 0f, 1f);
+        return Mth.clamp(baseIntensity * (1f - resistance), 0f, 1f);
+    }
+
+    private static float getBloodTendrilsMoodAlpha(float mood) {
+        return Mth.clamp((BLOOD_TENDRILS_START_MOOD - mood)
+                / (BLOOD_TENDRILS_START_MOOD - BLOOD_TENDRILS_FULL_ALPHA_MOOD), 0f, 1f);
     }
 
     private void renderHint(Gui gui, PoseStack poseStack, float partialTicks, int scw, int sch, GuiGraphics graphics) {
@@ -168,14 +179,22 @@ public class SansRenderer {
         Minecraft mc = Minecraft.getInstance();
         m_post.addSinglePassEntry("insanity", pass -> {
             return processPlayer(mc.player, cap -> {
-                if (cap.getMood() > .35f && SREPlayerPsychoComponent.KEY.get(mc.player).psychoTicks <= 0)
+                int psychoTicks = SREPlayerPsychoComponent.KEY.get(mc.player).psychoTicks;
+                if (psychoTicks > 0) {
+                    if (SREClient.gameComponent == null || SREClient.gameComponent.isRole(mc.player, ModRoles.MONOKUMA))
+                        return false;
+                }
+                if (cap.getMood() > .35f && psychoTicks <= 0)
                     return false;
 
                 float finalIntensity = getLowSanFinalIntensity(mc.player, cap.getMood());
-                if (finalIntensity <= 0.001f && SREPlayerPsychoComponent.KEY.get(mc.player).psychoTicks <= 0) {
+                if (finalIntensity <= 0.001f && psychoTicks <= 0) {
                     return false;
                 }
 
+                if (psychoTicks > 0) {
+                    finalIntensity = 0.5f;
+                }
                 var effect = pass.getEffect();
                 if (effect == null)
                     return false;
@@ -364,58 +383,25 @@ public class SansRenderer {
         if (m_mc.player == null || m_mc.player.isCreative() || m_mc.player.isSpectator())
             return;
 
+        float moodAlpha = getBloodTendrilsMoodAlpha(m_cap.getMood());
+        if (moodAlpha <= 0.001f) {
+            return;
+        }
+
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
 
-        // 应用血丝动画效果
         poseStack.pushPose();
-        //
-        // // 移动到屏幕中心
-        // poseStack.translate(scw / 2f, sch / 2f, 0f);
 
-        // 应用缩放
-        // float scale = m_bloodTendrilsScale;
-        // poseStack.scale(scale, scale, 1f);
-
-        // 应用旋转
-        // poseStack.mulPose(com.mojang.math.Axis.ZP.rotationDegrees(m_bloodTendrilsRotation));
-
-        // 应用偏移
-        // poseStack.translate(m_bloodTendrilsOffsetX, m_bloodTendrilsOffsetY, 0f);
-
-        // 移回原位置
-        // poseStack.translate(-scw / 2f, -sch / 2f, 0f);
-
-        // 设置纹理
         RenderSystem.setShaderTexture(0, BLOOD_TENDRILS_OVERLAY);
 
         // 根据血丝强度调整透明度
-        float finalAlpha = m_btAlpha * m_bloodTendrilsIntensity;
+        float finalAlpha = Mth.clamp(moodAlpha * Math.max(m_btAlpha, 1f), 0f, 1f);
 
         // 渲染血丝
         renderFullscreen(poseStack, scw, sch, 100, 58, 0, 0, 100, 58, finalAlpha);
 
-        // 如果理智非常低，渲染第二层血丝增强效果
-        /*
-         * if (m_cap != null && m_cap.getMood() < 0.15f) {
-         * float secondaryAlpha = finalAlpha * 0.5f;
-         * float secondaryScale = 1.0f + (float)Math.sin(m_bloodTendrilsAnimationTimer *
-         * 0.03f) * 0.1f;
-         * 
-         * poseStack.pushPose();
-         * poseStack.translate(scw / 2f, sch / 2f, 0f);
-         * poseStack.scale(secondaryScale, secondaryScale, 1f);
-         * poseStack.mulPose(com.mojang.math.Axis.ZP.rotationDegrees(-
-         * m_bloodTendrilsRotation * 0.7f));
-         * poseStack.translate(-m_bloodTendrilsOffsetX * 1.3f, -m_bloodTendrilsOffsetY *
-         * 1.3f, 0f);
-         * poseStack.translate(-scw / 2f, -sch / 2f, 0f);
-         * 
-         * renderFullscreen(poseStack, scw, sch, 100, 58, 0, 0, 100, 58,
-         * secondaryAlpha);
-         * poseStack.popPose();
-         * }
-         */
+
 
         poseStack.popPose();
         RenderSystem.disableBlend();
@@ -423,7 +409,7 @@ public class SansRenderer {
     }
 
     public void tick(@NotNull LocalPlayer player, @NotNull GuiGraphics context, float dt) {
-        if (m_mc.player == null || m_mc.isPaused() || SREClient.isPlayerAliveAndInSurvivalIgnoreShitSplit()
+        if (m_mc.player == null || m_mc.isPaused() || !SREClient.isPlayerAliveAndInSurvivalIgnoreShitSplit()
                 || !SREClient.gameComponent.isRunning())
             return;
 
@@ -454,14 +440,13 @@ public class SansRenderer {
         updateBlurEffect(dt);
 
         // 更新血丝动画
-        updateBloodTendrilsAnimation(dt);
 
-        // 修复renderHint调用，传入正确的参数
-        if (m_mc.player != null && m_hint != null && m_cap != null) {
-            renderHint(new Gui(m_mc), context.pose(), dt, m_mc.getWindow().getGuiScaledWidth(),
-                    m_mc.getWindow().getGuiScaledHeight(), context);
-        }
-        if (m_cap != null && m_cap.getMood() <= .36f) {
+//        // 修复renderHint调用，传入正确的参数
+//        if (m_mc.player != null && m_hint != null && m_cap != null) {
+//            renderHint(new Gui(m_mc), context.pose(), dt, m_mc.getWindow().getGuiScaledWidth(),
+//                    m_mc.getWindow().getGuiScaledHeight(), context);
+//        }
+        if (m_cap != null && m_cap.getMood() <= BLOOD_TENDRILS_APPEAR_THRESHOLD) {
             renderBloodTendrilsOverlay(new Gui(m_mc), context.pose(), dt, m_mc.getWindow().getGuiScaledWidth(),
                     m_mc.getWindow().getGuiScaledHeight());
         }
@@ -523,53 +508,7 @@ public class SansRenderer {
         }
     }
 
-    /**
-     * 更新血丝动画
-     */
-    private void updateBloodTendrilsAnimation(float dt) {
-        m_bloodTendrilsAnimationTimer += dt;
 
-        // 根据理智值计算血丝强度
-        if (m_cap != null) {
-            float mood = m_cap.getMood();
-            if (mood < BLOOD_TENDRILS_APPEAR_THRESHOLD) {
-                // 理智越低，血丝强度越高
-                float targetIntensity = Mth.clamp(1.0f - (mood / BLOOD_TENDRILS_APPEAR_THRESHOLD), 0f, 1.0f)
-                        * BLOOD_TENDRILS_MAX_INTENSITY;
-                m_bloodTendrilsIntensity = Mth.lerp(0.1f, m_bloodTendrilsIntensity, targetIntensity);
-            } else {
-                // 理智高时淡出血丝
-                m_bloodTendrilsIntensity = Mth.lerp(0.05f, m_bloodTendrilsIntensity, 0f);
-            }
-        }
-
-        // 更新血丝动画参数
-        if (m_bloodTendrilsIntensity > 0.01f) {
-            // 脉动效果
-            float pulse = (float) (Math.sin(m_bloodTendrilsAnimationTimer * BLOOD_TENDRILS_PULSE_SPEED) * 0.1f + 1.0f);
-            m_bloodTendrilsScale = 1.0f + pulse * m_bloodTendrilsIntensity * 0.2f;
-
-            // 漂移效果
-            m_bloodTendrilsOffsetX = (float) Math.sin(m_bloodTendrilsAnimationTimer * BLOOD_TENDRILS_DRIFT_SPEED) * 20f
-                    * m_bloodTendrilsIntensity;
-            m_bloodTendrilsOffsetY = (float) Math.cos(m_bloodTendrilsAnimationTimer * BLOOD_TENDRILS_DRIFT_SPEED * 0.8f)
-                    * 15f * m_bloodTendrilsIntensity;
-
-            // 旋转效果（如果理智非常低）
-            if (m_cap != null && m_cap.getMood() < 0.2f) {
-                m_bloodTendrilsRotation = (float) (m_bloodTendrilsAnimationTimer * BLOOD_TENDRILS_ROTATION_SPEED * 360f)
-                        % 360f;
-            } else {
-                m_bloodTendrilsRotation = 0f;
-            }
-        } else {
-            // 重置动画参数
-            m_bloodTendrilsScale = 1.0f;
-            m_bloodTendrilsOffsetX = 0f;
-            m_bloodTendrilsOffsetY = 0f;
-            m_bloodTendrilsRotation = 0f;
-        }
-    }
 
     private void tickHint(float dt) {
         if (m_cap.getMood() <= .4f)

@@ -2,11 +2,11 @@ package org.agmas.noellesroles;
 
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
-import io.wifi.starrailexpress.block_entity.DoorBlockEntity;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
-import io.wifi.starrailexpress.entity.PlayerBodyEntity;
+import io.wifi.starrailexpress.content.block_entity.DoorBlockEntity;
+import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.SREItemUtils;
@@ -29,8 +29,27 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import org.agmas.noellesroles.component.*;
-import org.agmas.noellesroles.entity.LockEntityManager;
+import org.agmas.noellesroles.client.screen.DetectiveInspectScreenHandler;
+import org.agmas.noellesroles.client.screen.ModScreenHandlers;
+import org.agmas.noellesroles.client.screen.PostmanScreenHandler;
+import org.agmas.noellesroles.component.ModComponents;
+import org.agmas.noellesroles.content.entity.LockEntityManager;
+import org.agmas.noellesroles.game.roles.Innocent.athlete.AthletePlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.boxer.BoxerPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.detective.DetectivePlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.locksmith_inspiration.LocksmithInspirationComponent;
+import org.agmas.noellesroles.game.roles.Innocent.postman.PostmanPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.psychologist.PsychologistPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.singer.SingerPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.super_star.SuperStarPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.telegrapher.TelegrapherPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.conspirator.ConspiratorPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.dio.DIOPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.stalker.StalkerPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.trapper.TrapperPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.admirer.AdmirerPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.slippery_ghost.SlipperyGhostPlayerComponent;
 import org.agmas.noellesroles.init.FunnyItems;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModEntities;
@@ -38,9 +57,6 @@ import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.packet.*;
 import org.agmas.noellesroles.packet.Loot.*;
 import org.agmas.noellesroles.role.ModRoles;
-import org.agmas.noellesroles.screen.DetectiveInspectScreenHandler;
-import org.agmas.noellesroles.screen.ModScreenHandlers;
-import org.agmas.noellesroles.screen.PostmanScreenHandler;
 import org.agmas.noellesroles.utils.Pair;
 import org.agmas.noellesroles.utils.lottery.LotteryManager;
 
@@ -137,7 +153,7 @@ public class RicesRoleRhapsody implements ModInitializer {
         // ModRoles.init();
 
         // 3. 注册物品
-        ModItems.init();
+
 
         ModEffects.init();
 
@@ -158,7 +174,7 @@ public class RicesRoleRhapsody implements ModInitializer {
         registerEvents();
 
         // 9. 注册模仿者技能映射
-        org.agmas.noellesroles.roles.imitator.ImitatorSkillRegistry.registerAll();
+        org.agmas.noellesroles.game.roles.killer.imitator.ImitatorSkillRegistry.registerAll();
 
         // 9. 加载配置（如果使用 YACL）
         // ModConfig.HANDLER.load();
@@ -186,7 +202,7 @@ public class RicesRoleRhapsody implements ModInitializer {
             if (gameWorld.isRole(player, ModRoles.CANDLE_BEARER)) {
                 ItemStack held = player.getItemInHand(hand);
                 if (held.is(Items.CANDLE)) {
-                    var candleBearer = org.agmas.noellesroles.roles.candlebearer.CandleBearerPlayerComponent.KEY.get(player);
+                    var candleBearer = org.agmas.noellesroles.game.roles.neutral.candlebearer.CandleBearerPlayerComponent.KEY.get(player);
                     if (entity instanceof Player targetPlayer) {
                         if (candleBearer.candleLivingPlayer(targetPlayer)) {
                             return net.minecraft.world.InteractionResult.SUCCESS;
@@ -522,7 +538,7 @@ public class RicesRoleRhapsody implements ModInitializer {
 
             // 模仿者使用电报员能力
             if (gameWorld.isRole(context.player(), ModRoles.IMITATOR)) {
-                org.agmas.noellesroles.roles.imitator.ImitatorPlayerComponent imitComp =
+                org.agmas.noellesroles.game.roles.killer.imitator.ImitatorPlayerComponent imitComp =
                         org.agmas.noellesroles.component.ModComponents.IMITATOR.get(context.player());
                 imitComp.useMessageAbility(context.player(), payload.message());
                 return;

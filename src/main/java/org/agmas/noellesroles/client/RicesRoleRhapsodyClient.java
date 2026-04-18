@@ -18,14 +18,24 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.client.renderer.*;
 import org.agmas.noellesroles.client.screen.*;
-import org.agmas.noellesroles.component.*;
+import org.agmas.noellesroles.content.item.ConspiracyPageItem;
+import org.agmas.noellesroles.content.item.WrittenNoteItem;
+import org.agmas.noellesroles.game.roles.Innocent.athlete.AthletePlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.boxer.BoxerPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.monitor.MonitorPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.psychologist.PsychologistPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.super_star.SuperStarPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.insane_killer.InsaneKillerPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.ninja.NinjaPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.stalker.StalkerPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.trapper.TrapperPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.water_ghost.WaterGhostPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.admirer.AdmirerPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
 import org.agmas.noellesroles.init.ModEntities;
 import org.agmas.noellesroles.init.ModItems;
-import org.agmas.noellesroles.item.ConspiracyPageItem;
-import org.agmas.noellesroles.item.WrittenNoteItem;
 import org.agmas.noellesroles.packet.*;
 import org.agmas.noellesroles.role.ModRoles;
-import org.agmas.noellesroles.screen.ModScreenHandlers;
 
 import static org.agmas.noellesroles.client.NoellesrolesClient.abilityBind;
 
@@ -458,7 +468,7 @@ public class RicesRoleRhapsodyClient implements ClientModInitializer {
             return true;
         }
         if (gameWorld.isRole(client.player,
-                ModRoles.THE_INSANE_DAMNED_PARANOID_KILLER_OF_DOOM_DEATH_DESTRUCTION_AND_WAFFLES)) {
+                ModRoles.INSANE_KILLER)) {
             if (!GameUtils.isPlayerAliveAndSurvival(client.player))
                 return true;
 

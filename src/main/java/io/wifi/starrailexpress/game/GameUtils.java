@@ -1,5 +1,6 @@
 package io.wifi.starrailexpress.game;
 
+import io.wifi.StarRailExpressID;
 import io.wifi.starrailexpress.DeathInfo;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
@@ -7,11 +8,11 @@ import io.wifi.starrailexpress.api.*;
 import io.wifi.starrailexpress.api.replay.GameReplayData;
 import io.wifi.starrailexpress.api.replay.GameReplayManager;
 import io.wifi.starrailexpress.cca.*;
-import io.wifi.starrailexpress.command.AutoShutdownWhenNotRunningCommand;
 import io.wifi.starrailexpress.compat.TrainVoicePlugin;
-import io.wifi.starrailexpress.entity.FirecrackerEntity;
-import io.wifi.starrailexpress.entity.NoteEntity;
-import io.wifi.starrailexpress.entity.PlayerBodyEntity;
+import io.wifi.starrailexpress.content.command.AutoShutdownWhenNotRunningCommand;
+import io.wifi.starrailexpress.content.entity.FirecrackerEntity;
+import io.wifi.starrailexpress.content.entity.NoteEntity;
+import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.event.*;
 import io.wifi.starrailexpress.index.*;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
@@ -32,6 +33,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
@@ -59,16 +61,16 @@ import net.minecraft.world.phys.Vec3;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.harpymodloader.events.GameInitializeEvent;
 import org.agmas.harpymodloader.events.ResetPlayerEvent;
+import org.agmas.noellesroles.content.item.LetterItem;
+import org.agmas.noellesroles.game.roles.Innocent.coroner.BodyDeathReasonComponent;
+import org.agmas.noellesroles.game.roles.Innocent.hoan_meirin.HoanMeirinFistPunchHandler;
+import org.agmas.noellesroles.game.roles.neutral.mercenary.MercenaryPlayerComponent;
 import org.agmas.noellesroles.init.ModEffects;
-import org.agmas.noellesroles.init.ModItems;
-import org.agmas.noellesroles.role.ModRoles;
-import org.agmas.noellesroles.component.MercenaryPlayerComponent;
 import org.agmas.noellesroles.packet.NameTagSyncPayload;
-import org.agmas.noellesroles.repack.HSRItems;
-import org.agmas.noellesroles.roles.coroner.BodyDeathReasonComponent;
-import org.agmas.noellesroles.roles.hoan_meirin.HoanMeirinFistPunchHandler;
+import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.EntityClearUtils;
 import org.agmas.noellesroles.utils.MCItemsUtils;
+import org.agmas.noellesroles.voice.HeliumBuzzPlayerComponent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
@@ -92,6 +94,7 @@ public class GameUtils {
     public static ArrayList<ServerTaskInfoClasses.ServerTaskInfo> serverAsynTaskLists = new ArrayList<>();
     private static Set<UUID> forcedReadyPlayers;
     public static boolean isStartingGame = false;
+    public static boolean isGameStarted = false;
 
     public static void limitPlayerToBox(ServerPlayer player, AABB box) {
         SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.serverLevel());
@@ -273,6 +276,8 @@ public class GameUtils {
     }
 
     public static void initializeGame(ServerLevel serverWorld) {
+        isGameStarted = false;
+
         isStartingGame = false;
         HoanMeirinFistPunchHandler.PUNCH_RECORDS.clear();
 
@@ -353,9 +358,23 @@ public class GameUtils {
         executeFunction(serverWorld.getServer().createCommandSourceStack(),
                 "harpymodloader:start_game_" + AreasWorldComponent.KEY.get(serverWorld).mapName);
         OnTrainAreaHaveReseted.EVENT.invoker().onWorldHaveInited(serverWorld);
+        isGameStarted = true;
     }
 
+    public static List<Item> cooldownItems = new ArrayList<>();
+
     public static void addItemCooldowns(ServerLevel world, int time) {
+        if (cooldownItems.isEmpty()) {
+            BuiltInRegistries.ITEM.forEach(item -> {
+                if (!(item instanceof LetterItem)) {
+                    String namespace = BuiltInRegistries.ITEM.getKey(item).getNamespace();
+                    if (namespace.equals(StarRailExpressID.MOD_ID) || namespace.equals(StarRailExpressID.STUPIDEXPRESS)
+                            || namespace.equals(StarRailExpressID.NOELLESROLES_ROLE)) {
+                        cooldownItems.add(item);
+                    }
+                }
+            });
+        }
         for (ServerPlayer player : world.players()) {
             var cooldowns = player.getCooldowns();
             var items = new ArrayList<>(MCItemsUtils.getItemsByTag(player.serverLevel(), TMMItemTags.GUNS));
@@ -364,26 +383,34 @@ public class GameUtils {
                 cooldowns.addCooldown(item,
                         (Integer) time);
             });
-            cooldowns.addCooldown(ModItems.THROWING_KNIFE, time);
-            cooldowns.addCooldown(ModItems.NINJA_KNIFE, time);
-            cooldowns.addCooldown(ModItems.NINJA_SHURIKEN, time);
+            cooldowns.addCooldown(Items.BOW, time);
+            cooldowns.addCooldown(Items.CLOCK, time);
             cooldowns.addCooldown(Items.TRIDENT, time);
+
             cooldowns.addCooldown(TMMItems.GRENADE, time);
             cooldowns.addCooldown(TMMItems.PSYCHO_MODE, time);
-            cooldowns.addCooldown(ModItems.SP_KNIFE, time);
-            cooldowns.addCooldown(ModItems.STALKER_KNIFE, time);
-            cooldowns.addCooldown(ModItems.STALKER_KNIFE_OFFHAND, time);
             cooldowns.addCooldown(TMMItems.NUNCHUCK, time);
+            cooldowns.addCooldown(TMMItems.BAT, time);
             cooldowns.addCooldown(TMMItems.KNIFE, time);
-            cooldowns.addCooldown(ModItems.FAKE_REVOLVER, time);
-            cooldowns.addCooldown(Items.CLOCK, time);
-            cooldowns.addCooldown(HSRItems.TOXIN, time);
-            cooldowns.addCooldown(HSRItems.ANTIDOTE, time);
             cooldowns.addCooldown(TMMItems.SNIPER_RIFLE, time);
             cooldowns.addCooldown(TMMItems.BLACKOUT, time);
-            if (!player.hasEffect(ModEffects.NO_COLLIDE))
+
+            cooldownItems.forEach(
+                    item -> cooldowns.addCooldown(item, time));
+
+            // cooldowns.addCooldown(ModItems.SP_KNIFE, time);
+            // cooldowns.addCooldown(ModItems.STALKER_KNIFE, time);
+            // cooldowns.addCooldown(ModItems.STALKER_KNIFE_OFFHAND, time);
+            // cooldowns.addCooldown(ModItems.FAKE_REVOLVER, time);
+            // cooldowns.addCooldown(ModItems.THROWING_KNIFE, time);
+            // cooldowns.addCooldown(ModItems.NINJA_KNIFE, time);
+            // cooldowns.addCooldown(ModItems.NINJA_SHURIKEN, time);
+            // cooldowns.addCooldown(HSRItems.TOXIN, time);
+            // cooldowns.addCooldown(HSRItems.ANTIDOTE, time);
+
+            if (!player.hasEffect(ModEffects.SAFE_TIME))
                 player.addEffect(new MobEffectInstance(
-                        ModEffects.NO_COLLIDE,
+                        ModEffects.SAFE_TIME,
                         (int) (time), // 持续时间 30s（tick）
                         0, // 等级（0 = 速度 I）
                         true, // ambient（环境效果，如信标）
@@ -670,6 +697,7 @@ public class GameUtils {
 
         OnGameEnd.EVENT.invoker().onGameEnd(world, gameComponent);
         SRE.REPLAY_MANAGER.finalizeReplay(roundEnd.getWinStatus(), roundEnd);
+        isGameStarted = false;
 
         // --- 新增统计数据更新逻辑 (胜利/失败) ---
         GameUtils.WinStatus winStatus = roundEnd.getWinStatus();
@@ -786,6 +814,9 @@ public class GameUtils {
                             && roundEnd.CustomWinnerPlayers.contains(player.getUUID())) {
                         isWinner = true;
                     }
+                    if (playerRole instanceof CustomWinnerRole cwr) {
+                        isWinner = cwr.didPlayerWin(player, isWinner, winStatus);
+                    }
                 }
 
                 if (isWinner) {
@@ -878,7 +909,7 @@ public class GameUtils {
         SREPlayerNoteComponent.KEY.get(player).clear();
         SREArmorPlayerComponent.KEY.get(player).clear();
         ResetPlayerEvent.EVENT.invoker().resetPlayer(player);
-
+        HeliumBuzzPlayerComponent.KEY.get(player).clear();
         if (!TrainVoicePlugin.isVoiceChatMissing()) {
             TrainVoicePlugin.resetPlayer(player.getUUID());
         }
@@ -958,6 +989,7 @@ public class GameUtils {
         else
             killer = _killer;
         _killer = killer;
+        OnKillPlayerTriggered.EVENT.invoker().onKillPlayerTriggered(victim, spawnBody, killer, deathReason, forceDeath);
         SREPlayerPsychoComponent component = SREPlayerPsychoComponent.KEY.get(victim);
         if (killer != null && killer instanceof ServerPlayer serverPlayer) {
             final var triggerScreenEdgeEffectPayload = new TriggerScreenEdgeEffectPayload(Color.WHITE.getRGB(), 600,
@@ -1105,6 +1137,7 @@ public class GameUtils {
                     return;
             } else {
                 component.stopPsycho();
+                component.sync();
             }
         }
         if (!role.afterShieldAllowDeath(victim, killer, deathReason, spawnBody)) {
@@ -1205,32 +1238,35 @@ public class GameUtils {
                         victimStats.incrementTotalCivilianDeaths();
                     }
                 }
-            }
-            if (spawnBody) {
-                PlayerBodyEntity body = TMMEntities.PLAYER_BODY.create(victim.level());
-                double scale = victim.getAttributeValue(Attributes.SCALE);
-                body.getAttribute(Attributes.SCALE).setBaseValue(scale);
-                if (body != null) {
-                    if (killer != null) {
-                        body.setKillerUuid(killer.getUUID());
-                    }
-                    body.setDeathReason(deathReason.toString());
-                    body.setPlayerUuid(victim.getUUID());
-                    Vec3 spawnPos = victim.position().add(victim.getLookAngle().normalize().scale(1));
-                    body.moveTo(spawnPos.x(), victim.getY(), spawnPos.z(), victim.getYHeadRot(), 0f);
-                    body.setYRot(victim.getYHeadRot());
-                    body.setYHeadRot(victim.getYHeadRot());
-                    victim.level().addFreshEntity(body);
-
-                    {
-                        if (role != null) {
-                            final var bodyDeathReasonComponent = BodyDeathReasonComponent.KEY.get(body);
-                            bodyDeathReasonComponent.playerRole = role.identifier();
-                            bodyDeathReasonComponent.sync();
+                if (spawnBody) {
+                    PlayerBodyEntity body = TMMEntities.PLAYER_BODY.create(victim.level());
+                    double scale = victim.getAttributeValue(Attributes.SCALE);
+                    victim.stopRiding();
+                    victim.stopSleeping();
+                    body.getAttribute(Attributes.SCALE).setBaseValue(scale);
+                    if (body != null) {
+                        if (killer != null) {
+                            body.setKillerUuid(killer.getUUID());
                         }
+                        body.setDeathReason(deathReason.toString());
+                        body.setPlayerUuid(victim.getUUID());
+                        Vec3 spawnPos = victim.position().add(victim.getLookAngle().normalize().scale(1));
+                        body.moveTo(spawnPos.x(), victim.getY(), spawnPos.z(), victim.getYHeadRot(), 0f);
+                        body.setYRot(victim.getYHeadRot());
+                        body.setYHeadRot(victim.getYHeadRot());
+                        victim.level().addFreshEntity(body);
+                        {
+                            if (role != null) {
+                                final var bodyDeathReasonComponent = BodyDeathReasonComponent.KEY.get(body);
+                                bodyDeathReasonComponent.playerRole = role.identifier();
+                                bodyDeathReasonComponent.sync();
+                            }
+                        }
+                        victimRole.onDeathWithBody(victim, spawnBody, killer, deathReason, body);
                     }
                 }
             }
+
             canDeath = canDeath || forceDeath;
             if (victim instanceof ServerPlayer serverPlayerEntity && isPlayerAliveAndSurvival(serverPlayerEntity)
                     && canDeath) {
@@ -1441,8 +1477,20 @@ public class GameUtils {
      */
     public enum WinStatus {
         NOT_MODIFY, NONE, KILLERS, PASSENGERS, TIME, LOOSE_END, GAMBLER, RECORDER, NO_PLAYER, NIAN_SHOU, LOVERS,
-        CUSTOM_COMPONENT, CUSTOM
+        CUSTOM_COMPONENT, CUSTOM;
+
         // 自定义获胜请使用RoleUtils.customWinnerWin(); 将id改为对应角色的id的path即可正常使用。请不要在这里添加枚举项目。
         // 如果有自定义获胜玩家，请添加 roundEnd.CustomWinnerID 或 使用谓词判断：CustomWinnersPredicates
+        public boolean isKillerWin() {
+            return this.equals(WinStatus.KILLERS);
+        }
+
+        public boolean isInnocentWin() {
+            return this.equals(WinStatus.TIME) || this.equals(WinStatus.PASSENGERS);
+        }
+    }
+
+    public static long getAlivePlayerCount(Level level) {
+        return level.players().stream().filter((p) -> isPlayerAliveAndSurvivalIgnoreShitSplit(p)).count();
     }
 }

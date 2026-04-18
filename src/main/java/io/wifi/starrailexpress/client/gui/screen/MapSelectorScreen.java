@@ -6,7 +6,7 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.MapVotingComponent;
 import io.wifi.starrailexpress.client.InputHandler;
 import io.wifi.starrailexpress.client.SREClient;
-import io.wifi.starrailexpress.data.MapConfig;
+import io.wifi.starrailexpress.game.data.MapConfig;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;

@@ -3,8 +3,8 @@ package io.wifi.starrailexpress.mixin.compat.sodium;
 
 // import io.wifi.starrailexpress.compat.IrisHelper;
 // import io.wifi.starrailexpress.util.ShaderEditor;
+
 import net.caffeinemc.mods.sodium.client.gl.shader.ShaderLoader;
-// import net.minecraft.resources.ResourceLocation;
 import org.spongepowered.asm.mixin.Mixin;
 // import org.spongepowered.asm.mixin.injection.At;
 // import org.spongepowered.asm.mixin.injection.Inject;

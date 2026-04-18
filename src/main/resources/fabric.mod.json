@@ -35,7 +35,7 @@
       "io.wifi.starrailexpress.SRE"
     ],
     "server": [
-      "io.wifi.starrailexpress.mod_whitelist.server.ModWhitelistServer"
+      "net.exmo.sre.mod_whitelist.server.ModWhitelistServer"
     ],
     "cardinal-components": [
       "org.agmas.noellesroles.component.ModComponents",
@@ -45,6 +45,7 @@
     ],
     "voicechat": [
       "org.agmas.noellesroles.voice.NoellesrolesVoiceChatPlugin",
+      "org.agmas.noellesroles.voice.HeliumBuzzVoicechatPlugin",
       "pro.fazeclan.river.stupid_express.StupidExpressVoiceChatPlugin",
       "io.wifi.starrailexpress.compat.TrainVoicePlugin"
     ],
@@ -63,6 +64,7 @@
       "noellesroles:morphling",
       "noellesroles:ability",
       "noellesroles:voodoo",
+      "noellesroles:panda",
       "noellesroles:config",
       "noellesroles:gambler",
       "noellesroles:executioner",
@@ -105,6 +107,7 @@
       "noellesroles:bandit",
       "noellesroles:insane_killer",
       "noellesroles:bomber",
+      "noellesroles:monokuma",
       "noellesroles:monitor",
       "noellesroles:death_penalty",
       "noellesroles:noise_maker",
@@ -113,6 +116,7 @@
       "noellesroles:nianshou",
       "noellesroles:magician",
       "noellesroles:mercenary",
+      "noellesroles:party_killer",
       "noellesroles:blood_feudist",
       "noellesroles:clockmaker",
       "noellesroles:best_vigilante",
@@ -121,6 +125,7 @@
       "noellesroles:expedition",
       "noellesroles:temporary_effect",
       "noellesroles:locksmith_inspiration",
+      "noellesroles:helium_buzz",
       "noellesroles:awesome",
       "noellesroles:accountant",
       "noellesroles:water_ghost",

@@ -6,24 +6,24 @@ import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.*;
+import io.wifi.starrailexpress.content.item.KnifeItem;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.ShopContent;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.TMMSounds;
-import io.wifi.starrailexpress.item.KnifeItem;
-import io.wifi.starrailexpress.util.ShopEntry;
 import io.wifi.starrailexpress.util.SREItemUtils;
+import io.wifi.starrailexpress.util.ShopEntry;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.Filterable;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -32,24 +32,17 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.alchemy.Potions;
-import net.minecraft.world.item.component.CustomData;
-import net.minecraft.world.item.component.CustomModelData;
-import net.minecraft.world.item.component.ItemLore;
-import net.minecraft.world.item.component.Unbreakable;
-import net.minecraft.world.item.component.WrittenBookContent;
+import net.minecraft.world.item.component.*;
 import org.agmas.noellesroles.commands.BroadcastCommand;
-import org.agmas.noellesroles.component.MaChenXuPlayerComponent;
-import org.agmas.noellesroles.component.MercenaryPlayerComponent;
-import org.agmas.noellesroles.component.SingerPlayerComponent;
-import org.agmas.noellesroles.component.StalkerPlayerComponent;
-import org.agmas.noellesroles.component.WatcherPlayerComponent;
-
-import org.agmas.noellesroles.repack.HSRConstants;
-import org.agmas.noellesroles.repack.HSRItems;
+import org.agmas.noellesroles.game.roles.Innocent.singer.SingerPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.executioner.ShootingFrenzyPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.ma_chen_xu.MaChenXuPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.stalker.StalkerPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.watcher.WatcherPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.water_ghost.WaterGhostPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.mercenary.MercenaryPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.RedHouseRoles;
-import org.agmas.noellesroles.roles.executioner.ShootingFrenzyPlayerComponent;
-import org.agmas.noellesroles.roles.framing.FramingShopEntry;
 import org.agmas.noellesroles.utils.MCItemsUtils;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
@@ -172,15 +165,15 @@ public class RoleShopHandler {
    */
   public static void initializeFramingShop() {
     FRAMING_ROLES_SHOP
-        .add(new FramingShopEntry(ModItems.MASTER_KEY_P.getDefaultInstance(), 50,
+        .add(new ShopEntry(ModItems.MASTER_KEY_P.getDefaultInstance(), 50,
             ShopEntry.Type.TOOL));
     FRAMING_ROLES_SHOP
-        .add(new FramingShopEntry(ModItems.DELUSION_VIAL.getDefaultInstance(), 30,
+        .add(new ShopEntry(ModItems.DELUSION_VIAL.getDefaultInstance(), 30,
             ShopEntry.Type.POISON));
-    FRAMING_ROLES_SHOP.add(new FramingShopEntry(TMMItems.FIRECRACKER.getDefaultInstance(), 5,
+    FRAMING_ROLES_SHOP.add(new ShopEntry(TMMItems.FIRECRACKER.getDefaultInstance(), 5,
         ShopEntry.Type.TOOL));
     FRAMING_ROLES_SHOP
-        .add(new FramingShopEntry(TMMItems.NOTE.getDefaultInstance(), 5, ShopEntry.Type.TOOL));
+        .add(new ShopEntry(TMMItems.NOTE.getDefaultInstance(), 5, ShopEntry.Type.TOOL));
   }
 
   /**
@@ -215,7 +208,7 @@ public class RoleShopHandler {
     WATER_GHOST_SHOP.add(new ShopEntry(rainItem, 150, ShopEntry.Type.TOOL) {
       @Override
       public boolean onBuy(@NotNull Player player) {
-        var component = org.agmas.noellesroles.component.WaterGhostPlayerComponent.KEY.get(player);
+        var component = WaterGhostPlayerComponent.KEY.get(player);
         if (component != null) {
           return component.buyRain();
         }
@@ -426,7 +419,7 @@ public class RoleShopHandler {
         @Override
         public boolean onBuy(@NotNull Player player) {
           // 启动疯狂模式
-          if (SREItemUtils.hasItem(player, TMMItems.PSYCHO_MODE) > 0) {
+          if (SREItemUtils.countItem(player, TMMItems.PSYCHO_MODE) > 0) {
             if (SREPlayerPsychoComponent.KEY.get(player).startPsycho()) {
               SREItemUtils.clearItem(player, TMMItems.PSYCHO_MODE, 1);
               return true;
@@ -486,12 +479,13 @@ public class RoleShopHandler {
 
       {
         var CAT_KILLER_SHOP = new ArrayList<>(NECROMANCER_SHOP);
-        // CAT_KILLER_SHOP.add(new ShopEntry(TMMItems.PSYCHO_MODE.getDefaultInstance(), 0, ShopEntry.Type.WEAPON) {
-        //   @Override
-        //   public boolean onBuy(@NotNull Player player) {
-        //     return SREPlayerShopComponent.usePsychoMode(player);
-        //   }
-        // });
+        // 只是给某些特定情况下启用，比如赌徒。
+        CAT_KILLER_SHOP.add(new ShopEntry(TMMItems.PSYCHO_MODE.getDefaultInstance(), 0, ShopEntry.Type.WEAPON) {
+          @Override
+          public boolean onBuy(@NotNull Player player) {
+            return SREPlayerShopComponent.usePsychoMode(player);
+          }
+        });
         ShopContent.customEntries.put(ModRoles.CAT_KILLER.getIdentifier(), CAT_KILLER_SHOP);
       }
     }
@@ -578,7 +572,7 @@ public class RoleShopHandler {
       shopEntries.add(new ShopEntry(Items.CROSSBOW.getDefaultInstance(), 300, ShopEntry.Type.WEAPON) {
         @Override
         public boolean onBuy(@NotNull Player player) {
-          int itemCount = SREItemUtils.hasItem(player, Items.CROSSBOW);
+          int itemCount = SREItemUtils.countItem(player, Items.CROSSBOW);
           if (itemCount > 0)
             return false;
           ItemStack item = Items.CROSSBOW.getDefaultInstance();
@@ -594,7 +588,7 @@ public class RoleShopHandler {
       shopEntries.add(new ShopEntry(PoisonArrow, 75, ShopEntry.Type.WEAPON) {
         @Override
         public boolean onBuy(@NotNull Player player) {
-          int itemCount = SREItemUtils.hasItem(player, Items.TIPPED_ARROW);
+          int itemCount = SREItemUtils.countItem(player, Items.TIPPED_ARROW);
           if (itemCount >= 2)
             return false;
           return RoleUtils.insertStackInFreeSlot(player, PoisonArrow.copy());
@@ -607,7 +601,7 @@ public class RoleShopHandler {
       shopEntries.add(new ShopEntry(SpectralArrow, 50, ShopEntry.Type.WEAPON) {
         @Override
         public boolean onBuy(@NotNull Player player) {
-          int itemCount = SREItemUtils.hasItem(player, Items.SPECTRAL_ARROW);
+          int itemCount = SREItemUtils.countItem(player, Items.SPECTRAL_ARROW);
           if (itemCount >= 2)
             return false;
           return RoleUtils.insertStackInFreeSlot(player, SpectralArrow.copy());
@@ -653,7 +647,7 @@ public class RoleShopHandler {
           ModRoles.MORPHLING_ID, entries);
     }
     ShopContent.customEntries.put(
-        ModRoles.POISONER_ID, HSRConstants.POISONER_SHOP_ENTRIES);
+        ModRoles.POISONER_ID, ModItems.POISONER_SHOP_ENTRIES);
 
     ShopContent.customEntries.put(
         ModRoles.SWAPPER_ID, ShopContent.defaultKnifeEntries);
@@ -1317,7 +1311,7 @@ public class RoleShopHandler {
     CANDLE_BEARER_SHOP.clear();
 
     柜子区的商店.add(new ShopEntry(
-        HSRItems.BANDIT_REVOLVER.getDefaultInstance(),
+        ModItems.BANDIT_REVOLVER.getDefaultInstance(),
         130,
         ShopEntry.Type.TOOL));
     柜子区的商店.add(new ShopEntry(TMMItems.FIRECRACKER.getDefaultInstance(), SREConfig.instance().firecrackerPrice,
@@ -1490,7 +1484,7 @@ public class RoleShopHandler {
         80,
         ShopEntry.Type.TOOL));
     // 歌手商店
-    for (int i = 1; i <= 4; i++) {
+    for (int i = 1; i <= 5; i++) {
       ItemStack singer_shop_item = ModItems.SINGER_MUSIC_DISC.getDefaultInstance();
       singer_shop_item.set(DataComponents.ITEM_NAME,
           Component.translatable("item.noellesroles.shop.singer.display_name.root",
@@ -1506,7 +1500,9 @@ public class RoleShopHandler {
           .withStyle(ChatFormatting.GRAY));
       singer_shop_item.set(DataComponents.LORE, new ItemLore(lores));
       final int idx = i;
-      SINGER_SHOP.add(new ShopEntry(singer_shop_item, 100, ShopEntry.Type.TOOL) {
+      // 第5张唱片(Lupinus)价格为500金币，其他为100金币
+      int price = (i == 5) ? 500 : 100;
+      SINGER_SHOP.add(new ShopEntry(singer_shop_item, price, ShopEntry.Type.TOOL) {
         public boolean onBuy(@NotNull Player player) {
           return SingerPlayerComponent.buyDisc(player, idx);
         }
@@ -1520,12 +1516,12 @@ public class RoleShopHandler {
         ShopEntry.Type.TOOL));
     // 针管 - 75金币
     DOCTOR_SHOP.add(new ShopEntry(
-        HSRItems.ANTIDOTE.getDefaultInstance(),
+        ModItems.ANTIDOTE.getDefaultInstance(),
         75,
         ShopEntry.Type.TOOL));
     // 药丸 - 75金币
     DOCTOR_SHOP.add(new ShopEntry(
-        HSRItems.createPillStack(false),
+        ModItems.createPillStack(false),
         75,
         ShopEntry.Type.TOOL));
     // 净化弹 - 300金币
@@ -1631,7 +1627,7 @@ public class RoleShopHandler {
 
     // 匪徒手枪 - 175金币
     BANDIT_SHOP.add(new ShopEntry(
-        HSRItems.BANDIT_REVOLVER.getDefaultInstance(),
+        ModItems.BANDIT_REVOLVER.getDefaultInstance(),
         175,
         ShopEntry.Type.WEAPON));
 
@@ -1652,7 +1648,7 @@ public class RoleShopHandler {
     BANDIT_SHOP.add(new ShopEntry(ModItems.FLASH_GRENADE.getDefaultInstance(), 30, ShopEntry.Type.TOOL) {
       @Override
       public boolean canBuy(@NotNull Player player) {
-        return !(MCItemsUtils.hasItem(player, ModItems.FLASH_GRENADE) > 0);
+        return !(MCItemsUtils.countItem(player, ModItems.FLASH_GRENADE) > 0);
       }
     });
 
@@ -1728,7 +1724,7 @@ public class RoleShopHandler {
         ShopEntry.Type.TOOL) {
       @Override
       public boolean onBuy(Player player) {
-        if (SREItemUtils.hasItem(player, Items.CHAIN_COMMAND_BLOCK) > 0) {
+        if (SREItemUtils.countItem(player, Items.CHAIN_COMMAND_BLOCK) > 0) {
           return false;
         }
         if (RoleUtils.insertStackInFreeSlot(player, this.stack().copy())) {
@@ -1746,7 +1742,7 @@ public class RoleShopHandler {
         ShopEntry.Type.TOOL) {
       @Override
       public boolean onBuy(Player player) {
-        if (SREItemUtils.hasItem(player, Items.REPEATING_COMMAND_BLOCK) > 0) {
+        if (SREItemUtils.countItem(player, Items.REPEATING_COMMAND_BLOCK) > 0) {
           return false;
         }
         if (RoleUtils.insertStackInFreeSlot(player, this.stack().copy())) {
@@ -1765,7 +1761,7 @@ public class RoleShopHandler {
         ShopEntry.Type.TOOL) {
       @Override
       public boolean onBuy(Player player) {
-        if (SREItemUtils.hasItem(player, Items.COMMAND_BLOCK) > 0) {
+        if (SREItemUtils.countItem(player, Items.COMMAND_BLOCK) > 0) {
           return false;
         }
         if (RoleUtils.insertStackInFreeSlot(player, this.stack().copy())) {

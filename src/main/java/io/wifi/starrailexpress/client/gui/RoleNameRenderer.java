@@ -5,7 +5,7 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.client.SREClient;
-import io.wifi.starrailexpress.entity.NoteEntity;
+import io.wifi.starrailexpress.content.entity.NoteEntity;
 import io.wifi.starrailexpress.event.AllowNameRender;
 import io.wifi.starrailexpress.event.OnKillerCohortDisplay;
 import io.wifi.starrailexpress.game.GameUtils;

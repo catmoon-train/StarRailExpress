@@ -1,9 +1,9 @@
 package io.wifi.starrailexpress.util;
 
 import io.wifi.starrailexpress.SRE;
-import io.wifi.starrailexpress.block_entity.ToiletBlockEntity;
-import io.wifi.starrailexpress.block_entity.TrimmedBedBlockEntity;
 import io.wifi.starrailexpress.cca.SREPlayerPoisonComponent;
+import io.wifi.starrailexpress.content.block_entity.ToiletBlockEntity;
+import io.wifi.starrailexpress.content.block_entity.TrimmedBedBlockEntity;
 import io.wifi.starrailexpress.network.PacketTracker;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

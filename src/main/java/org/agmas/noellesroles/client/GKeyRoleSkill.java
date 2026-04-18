@@ -139,8 +139,8 @@ public final class GKeyRoleSkill {
                 return true;
             }
 
-            org.agmas.noellesroles.roles.imitator.ImitatorPlayerComponent comp =
-                    org.agmas.noellesroles.roles.imitator.ImitatorPlayerComponent.KEY.get(client.player);
+            org.agmas.noellesroles.game.roles.killer.imitator.ImitatorPlayerComponent comp =
+                    org.agmas.noellesroles.game.roles.killer.imitator.ImitatorPlayerComponent.KEY.get(client.player);
 
             // 复制模式：只处理瞄准玩家的情况
             if (comp.isCopyMode) {
@@ -160,7 +160,7 @@ public final class GKeyRoleSkill {
 
             // 非复制模式：检查当前能力是否是消息技能
             ResourceLocation currentAbility = comp.getCurrentAbilityRoleId();
-            if (currentAbility != null && org.agmas.noellesroles.roles.imitator.ImitatorSkillRegistry.isMessageSkill(currentAbility)) {
+            if (currentAbility != null && org.agmas.noellesroles.game.roles.killer.imitator.ImitatorSkillRegistry.isMessageSkill(currentAbility)) {
                 int cd = comp.getCurrentSkillCooldown();
                 if (cd > 0) {
                     client.player.displayClientMessage(Component.translatable(

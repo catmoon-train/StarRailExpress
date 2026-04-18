@@ -1,17 +1,11 @@
 package org.agmas.noellesroles.role;
 
-import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.init.ModEffects;
-import org.agmas.noellesroles.init.THEventHandler;
-import org.agmas.noellesroles.roles.coroner.BodyDeathReasonComponent;
-import org.agmas.noellesroles.roles.ghost.GhostPlayerComponent;
-
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.NormalRole;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
-import io.wifi.starrailexpress.entity.PlayerBodyEntity;
+import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -20,8 +14,13 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import org.agmas.noellesroles.Noellesroles;
+import org.agmas.noellesroles.game.roles.Innocent.coroner.BodyDeathReasonComponent;
+import org.agmas.noellesroles.game.roles.Innocent.ghost.GhostPlayerComponent;
+import org.agmas.noellesroles.init.ModEffects;
+import org.agmas.noellesroles.init.THEventHandler;
 
-import java.awt.Color;
+import java.awt.*;
 import java.util.List;
 
 public class RedHouseRoles {

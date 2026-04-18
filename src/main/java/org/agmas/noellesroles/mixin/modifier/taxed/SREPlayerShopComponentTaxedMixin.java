@@ -2,7 +2,7 @@ package org.agmas.noellesroles.mixin.modifier.taxed;
 
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import net.minecraft.server.level.ServerPlayer;
-import org.agmas.noellesroles.modifier.taxed.TaxedModifier;
+import org.agmas.noellesroles.game.modifier.taxed.TaxedModifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;

@@ -1,17 +1,15 @@
 package io.wifi.starrailexpress.client.render.entity;
 
-import java.awt.Color;
-
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
-
 import dev.doctor4t.ratatouille.client.lib.render.helpers.Easing;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.model.TMMModelLayers;
 import io.wifi.starrailexpress.client.model.entity.PlayerSkeletonEntityModel;
-import io.wifi.starrailexpress.entity.PlayerBodyEntity;
+import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
+import io.wifi.starrailexpress.event.OnGettingPlayerSkin;
 import io.wifi.starrailexpress.game.GameConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
@@ -23,11 +21,14 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.AABB;
+
+import java.awt.*;
 
 public class PlayerBodyEntityRenderer<T extends LivingEntity, M extends EntityModel<T>>
         extends LivingEntityRenderer<PlayerBodyEntity, PlayerModel<PlayerBodyEntity>> {
@@ -191,6 +192,15 @@ public class PlayerBodyEntityRenderer<T extends LivingEntity, M extends EntityMo
     @Override
     public ResourceLocation getTextureLocation(PlayerBodyEntity playerBodyEntity) {
         PlayerInfo playerListEntry = SREClient.PLAYER_ENTRIES_CACHE.get(playerBodyEntity.getPlayerUuid());
+        if (SREClient.getLooseEndPenalty()) {
+            PlayerSkin.Model model = playerListEntry.getSkin().model();
+            boolean isSLIM = (model == PlayerSkin.Model.SLIM);
+            if (isSLIM) {
+                return OnGettingPlayerSkin.PlayerSkinResult.alexSlim().texture;
+            } else {
+                return OnGettingPlayerSkin.PlayerSkinResult.steveWide().texture;
+            }
+        }
         if (playerListEntry != null) {
             return playerListEntry.getSkin().texture();
         } else {
@@ -201,7 +211,6 @@ public class PlayerBodyEntityRenderer<T extends LivingEntity, M extends EntityMo
     @Override
     protected void renderNameTag(PlayerBodyEntity entity, Component component, PoseStack poseStack,
             MultiBufferSource multiBufferSource, int i, float f) {
-
     }
 
     @Override

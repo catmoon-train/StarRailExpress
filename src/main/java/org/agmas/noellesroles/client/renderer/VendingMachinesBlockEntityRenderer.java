@@ -12,8 +12,8 @@ import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import org.agmas.noellesroles.block.VendingMachinesBlock;
-import org.agmas.noellesroles.block_entity.VendingMachinesBlockEntity;
+import org.agmas.noellesroles.content.block.VendingMachinesBlock;
+import org.agmas.noellesroles.content.block_entity.VendingMachinesBlockEntity;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;

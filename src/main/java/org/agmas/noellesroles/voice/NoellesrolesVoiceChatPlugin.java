@@ -14,10 +14,10 @@ import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.component.PlayerVolumeComponent;
-import org.agmas.noellesroles.effects.TimeStopEffect;
+import org.agmas.noellesroles.content.effects.TimeStopEffect;
+import org.agmas.noellesroles.game.roles.neutral.commander.CommanderHandler;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
-import org.agmas.noellesroles.roles.commander.CommanderHandler;
 
 public class NoellesrolesVoiceChatPlugin implements VoicechatPlugin {
   @Override

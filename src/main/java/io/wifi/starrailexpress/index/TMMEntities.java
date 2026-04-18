@@ -2,11 +2,11 @@ package io.wifi.starrailexpress.index;
 
 import dev.doctor4t.ratatouille.util.registrar.EntityTypeRegistrar;
 import io.wifi.starrailexpress.SRE;
-import io.wifi.starrailexpress.block.entity.SeatEntity;
-import io.wifi.starrailexpress.entity.FirecrackerEntity;
-import io.wifi.starrailexpress.entity.GrenadeEntity;
-import io.wifi.starrailexpress.entity.NoteEntity;
-import io.wifi.starrailexpress.entity.PlayerBodyEntity;
+import io.wifi.starrailexpress.content.block.entity.SeatEntity;
+import io.wifi.starrailexpress.content.entity.FirecrackerEntity;
+import io.wifi.starrailexpress.content.entity.GrenadeEntity;
+import io.wifi.starrailexpress.content.entity.NoteEntity;
+import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
@@ -23,7 +23,6 @@ public interface TMMEntities {
     EntityType<PlayerBodyEntity> PLAYER_BODY = registrar.create("player_body", EntityType.Builder.of(PlayerBodyEntity::new, MobCategory.MISC)
             .sized(1f, 0.25f)
             .clientTrackingRange(128)
-            .noSummon()
     );
     EntityType<FirecrackerEntity> FIRECRACKER = registrar.create("firecracker", EntityType.Builder.of(FirecrackerEntity::new, MobCategory.MISC)
             .sized(.2f, .2f)

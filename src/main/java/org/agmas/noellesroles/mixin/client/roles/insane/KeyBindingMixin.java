@@ -5,7 +5,7 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import org.agmas.noellesroles.component.InsaneKillerPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.insane_killer.InsaneKillerPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -31,7 +31,7 @@ public abstract class KeyBindingMixin {
         if (SREClient.gameComponent != null && SREClient.gameComponent.isRunning()
                 && SREClient.isPlayerAliveAndInSurvival()
                 && SREClient.gameComponent.isRole(player,
-                        ModRoles.THE_INSANE_DAMNED_PARANOID_KILLER_OF_DOOM_DEATH_DESTRUCTION_AND_WAFFLES)) {
+                        ModRoles.INSANE_KILLER)) {
             final var insaneKillerPlayerComponent = InsaneKillerPlayerComponent.KEY.get(player);
             if (insaneKillerPlayerComponent.isActive) {
                 if (this.same(options.keyUse)) {

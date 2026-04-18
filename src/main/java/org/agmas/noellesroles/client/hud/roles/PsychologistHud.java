@@ -6,10 +6,9 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
-
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
 import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.component.PsychologistPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.psychologist.PsychologistPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 
 /**

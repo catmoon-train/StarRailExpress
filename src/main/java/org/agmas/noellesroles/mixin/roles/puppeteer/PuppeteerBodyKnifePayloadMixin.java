@@ -8,7 +8,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.entity.PuppeteerBodyEntity;
+import org.agmas.noellesroles.content.entity.PuppeteerBodyEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

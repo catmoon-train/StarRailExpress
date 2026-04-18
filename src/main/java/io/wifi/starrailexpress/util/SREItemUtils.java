@@ -53,6 +53,14 @@ public class SREItemUtils {
         return result;
     }
 
+    public static int clearItem(Player player) {
+        int result = player.getInventory().clearOrCountMatchingItems((t) -> true, -1,
+                player.inventoryMenu.getCraftSlots());
+        player.containerMenu.broadcastChanges();
+        player.inventoryMenu.slotsChanged(player.getInventory());
+        return result;
+    }
+
     public static int clearItem(Player player, Predicate<ItemStack> predicate) {
         int result = player.getInventory().clearOrCountMatchingItems(predicate, -1,
                 player.inventoryMenu.getCraftSlots());
@@ -69,7 +77,37 @@ public class SREItemUtils {
         return result;
     }
 
-    public static int hasItem(Player player, Predicate<ItemStack> predicate) {
+    public static boolean hasItem(Player player, Predicate<ItemStack> predicate) {
+        int result = player.getInventory().clearOrCountMatchingItems(predicate, 0,
+                player.inventoryMenu.getCraftSlots());
+        // player.containerMenu.broadcastChanges();
+        // player.inventoryMenu.slotsChanged(player.getInventory());
+        return result > 0;
+    }
+
+    public static boolean hasItem(Player player, Item item) {
+        Predicate<ItemStack> predicate = (itemStack) -> {
+            return itemStack.is(item);
+        };
+        int result = player.getInventory().clearOrCountMatchingItems(predicate, 0,
+                player.inventoryMenu.getCraftSlots());
+        // player.containerMenu.broadcastChanges();
+        // player.inventoryMenu.slotsChanged(player.getInventory());
+        return result > 0;
+    }
+
+    public static boolean hasItem(Player player, TagKey<Item> item) {
+        Predicate<ItemStack> predicate = (itemStack) -> {
+            return itemStack.is(item);
+        };
+        int result = player.getInventory().clearOrCountMatchingItems(predicate, 0,
+                player.inventoryMenu.getCraftSlots());
+        // player.containerMenu.broadcastChanges();
+        // player.inventoryMenu.slotsChanged(player.getInventory());
+        return result > 0;
+    }
+
+    public static int countItem(Player player, Predicate<ItemStack> predicate) {
         int result = player.getInventory().clearOrCountMatchingItems(predicate, 0,
                 player.inventoryMenu.getCraftSlots());
         // player.containerMenu.broadcastChanges();
@@ -77,7 +115,7 @@ public class SREItemUtils {
         return result;
     }
 
-    public static int hasItem(Player player, Item item) {
+    public static int countItem(Player player, Item item) {
         Predicate<ItemStack> predicate = (itemStack) -> {
             return itemStack.is(item);
         };
@@ -88,7 +126,7 @@ public class SREItemUtils {
         return result;
     }
 
-    public static int hasItem(Player player, TagKey<Item> item) {
+    public static int countItem(Player player, TagKey<Item> item) {
         Predicate<ItemStack> predicate = (itemStack) -> {
             return itemStack.is(item);
         };
@@ -98,5 +136,4 @@ public class SREItemUtils {
         // player.inventoryMenu.slotsChanged(player.getInventory());
         return result;
     }
-
 }

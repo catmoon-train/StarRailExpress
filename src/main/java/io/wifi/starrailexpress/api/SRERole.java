@@ -5,6 +5,7 @@ import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
+import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.ShopEntry;
 import net.minecraft.resources.ResourceLocation;
@@ -20,7 +21,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
-
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.Nullable;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
@@ -52,6 +52,14 @@ public abstract class SRERole {
         this.clientTickEvent = event;
         return this;
     };
+
+    public boolean isKillerTeam() {
+        return !this.isInnocent && (this.isNeutralForKiller || this.canUseKiller);
+    }
+
+    public boolean isKiller() {
+        return !this.isInnocent && !this.isNeutrals && !this.isNeutralForKiller && this.canUseKiller;
+    }
 
     public boolean canIgnoreBlackout() {
         return canIgnoreBlackout;
@@ -292,6 +300,11 @@ public abstract class SRERole {
         return;
     }
 
+    public void onDeathWithBody(Player victim, boolean spawnBody, @Nullable Player killer, ResourceLocation deathReason,
+            PlayerBodyEntity playerBodyEntity) {
+        return;
+    }
+
     public void onKill(Player victim, boolean spawnBody, @Nullable Player killer, ResourceLocation deathReason) {
         return;
     }
@@ -326,7 +339,15 @@ public abstract class SRERole {
         return InteractionResult.PASS;
     }
 
-    public void leftClickEntity(Player player, Entity victim) {
+    /**
+     * 左键时发生
+     * 
+     * @param player
+     * @param victim
+     * @return 返回InteractionResult.CONSUME取消原有逻辑。返回其余将继续。
+     */
+    public InteractionResult leftClickEntity(Player player, Entity victim) {
+        return InteractionResult.PASS;
     }
 
     public List<ShopEntry> getShopEntries() {
@@ -572,11 +593,11 @@ public abstract class SRERole {
     /**
      * 启用概率（%）
      * 
-     * @param count
+     * @param chance
      * @return
      */
-    public SRERole setEnableChance(int cahnce) {
-        enableChance = cahnce;
+    public SRERole setEnableChance(int chance) {
+        enableChance = chance;
         return this;
     }
 

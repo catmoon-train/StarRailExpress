@@ -2,7 +2,8 @@ package org.agmas.noellesroles.mixin.roles.host;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import io.wifi.starrailexpress.block.TrainDoorBlock;
+
+import io.wifi.starrailexpress.content.block.TrainDoorBlock;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.init.FunnyItems;

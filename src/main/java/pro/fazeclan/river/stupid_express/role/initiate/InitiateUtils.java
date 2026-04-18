@@ -11,14 +11,13 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import org.agmas.noellesroles.init.ModEffects;
 import pro.fazeclan.river.stupid_express.constants.SEItems;
 import pro.fazeclan.river.stupid_express.constants.SERoles;
 import pro.fazeclan.river.stupid_express.utils.StupidRoleUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
-import org.agmas.noellesroles.init.ModEffects;
 
 public class InitiateUtils {
 
@@ -83,7 +82,7 @@ public class InitiateUtils {
                 if (gameTime % FIVE_SECONDS_TICKS == 0) {
 
                     // 安全时间
-                    if (initiates.stream().anyMatch(p -> p.hasEffect(ModEffects.NO_COLLIDE))) {
+                    if (initiates.stream().anyMatch(p -> p.hasEffect(ModEffects.SAFE_TIME))) {
                         return;
                     }
 

@@ -1,6 +1,5 @@
 package io.wifi.starrailexpress.mixin.client;
 
-import io.wifi.starrailexpress.block.SecurityMonitorBlock;
 import net.minecraft.client.Camera;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
@@ -12,6 +11,8 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import io.wifi.starrailexpress.content.block.SecurityMonitorBlock;
 
 @Mixin(Camera.class)
 public abstract class CameraPositionMixin {

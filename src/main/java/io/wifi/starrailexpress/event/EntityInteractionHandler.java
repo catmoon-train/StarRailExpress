@@ -1,6 +1,6 @@
 package io.wifi.starrailexpress.event;
 
-import io.wifi.starrailexpress.command.EntityDataCommand;
+import io.wifi.starrailexpress.content.command.EntityDataCommand;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
