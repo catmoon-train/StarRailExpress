@@ -333,7 +333,7 @@ public class MonokumaPlayerComponent implements RoleComponent, ServerTickingComp
                 dashAnimTimer--;
             }
             if (frenzyTimer <= 0) {
-                GameUtils.forceKillPlayer(player, true, player, GameConstants.DeathReasons.BLACK_WHITE_TIMEOUT);
+                GameUtils.forceKillPlayer(player, true, null, GameConstants.DeathReasons.BLACK_WHITE_TIMEOUT);
                 clear();
                 // 试炼失败
                 return;
