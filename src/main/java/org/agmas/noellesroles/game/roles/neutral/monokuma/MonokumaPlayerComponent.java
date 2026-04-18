@@ -163,7 +163,8 @@ public class MonokumaPlayerComponent implements RoleComponent, ServerTickingComp
         // 启动疯狂模式（psycho）— 给予视觉效果和状态栏
         SREPlayerPsychoComponent psychoComp = SREPlayerPsychoComponent.KEY.get(sp);
         psychoComp.startPsycho();
-        psychoComp.setPsychoTicks(FRENZY_DURATION);
+        // 使用默认时长 * 1.5
+        psychoComp.setPsychoTicks((int) (GameConstants.getPsychoTimer() * 1.5));
         // 给全服施加狂暴前奏效果（移速减少、无法打开背包、水墨风shader）
         ServerLevel serverLevel = sp.serverLevel();
         for (ServerPlayer p : serverLevel.players()) {
