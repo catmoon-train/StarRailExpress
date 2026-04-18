@@ -168,7 +168,7 @@ public class SEModifiers {
             null,
             new ArrayList<>(List.of(ModRoles.MONOKUMA)),
             false,
-            false));
+            false)).setMax(0);
 
     // 标记不屈的一次性免疫是否已被消耗（基于 UUID 的运行时集合）
     public static Set<UUID> UNYIELDING_IMMUNITY_USED = ConcurrentHashMap.newKeySet();

@@ -94,6 +94,7 @@ public class GameUtils {
     public static ArrayList<ServerTaskInfoClasses.ServerTaskInfo> serverAsynTaskLists = new ArrayList<>();
     private static Set<UUID> forcedReadyPlayers;
     public static boolean isStartingGame = false;
+    public static boolean isGameStarted = false; 
 
     public static void limitPlayerToBox(ServerPlayer player, AABB box) {
         SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.serverLevel());
@@ -275,6 +276,8 @@ public class GameUtils {
     }
 
     public static void initializeGame(ServerLevel serverWorld) {
+        isGameStarted = false;
+
         isStartingGame = false;
         HoanMeirinFistPunchHandler.PUNCH_RECORDS.clear();
 
@@ -355,7 +358,7 @@ public class GameUtils {
         executeFunction(serverWorld.getServer().createCommandSourceStack(),
                 "harpymodloader:start_game_" + AreasWorldComponent.KEY.get(serverWorld).mapName);
         OnTrainAreaHaveReseted.EVENT.invoker().onWorldHaveInited(serverWorld);
-
+        isGameStarted = true;
     }
 
     public static List<Item> cooldownItems = new ArrayList<>();
@@ -694,6 +697,7 @@ public class GameUtils {
 
         OnGameEnd.EVENT.invoker().onGameEnd(world, gameComponent);
         SRE.REPLAY_MANAGER.finalizeReplay(roundEnd.getWinStatus(), roundEnd);
+        isGameStarted = false;
 
         // --- 新增统计数据更新逻辑 (胜利/失败) ---
         GameUtils.WinStatus winStatus = roundEnd.getWinStatus();

@@ -169,8 +169,9 @@ public class SansRenderer {
         m_post.addSinglePassEntry("insanity", pass -> {
             return processPlayer(mc.player, cap -> {
                 int psychoTicks = SREPlayerPsychoComponent.KEY.get(mc.player).psychoTicks;
-                if (psychoTicks>0){
-                    if (SREClient.gameComponent==null||SREClient.gameComponent.isRole(mc.player, ModRoles.MONOKUMA))return false;
+                if (psychoTicks > 0) {
+                    if (SREClient.gameComponent == null || SREClient.gameComponent.isRole(mc.player, ModRoles.MONOKUMA))
+                        return false;
                 }
                 if (cap.getMood() > .35f && psychoTicks <= 0)
                     return false;
@@ -180,7 +181,7 @@ public class SansRenderer {
                     return false;
                 }
 
-                if (psychoTicks>0){
+                if (psychoTicks > 0) {
                     finalIntensity = 0.5f;
                 }
                 var effect = pass.getEffect();

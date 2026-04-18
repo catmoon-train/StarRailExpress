@@ -6,11 +6,15 @@ import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Items;
+
+import org.agmas.harpymodloader.Harpymodloader;
+import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.harpymodloader.events.ModdedRoleAssigned;
 import org.agmas.noellesroles.RicesRoleRhapsody;
 import org.agmas.noellesroles.component.FoodDrinkGlowComponent;
@@ -30,6 +34,7 @@ import org.agmas.noellesroles.game.roles.killer.stalker.StalkerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.watcher.WatcherPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.candlebearer.CandleBearerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.mercenary.MercenaryPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.nian_shou.NianShouPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.recorder.RecorderPlayerComponent;
@@ -40,6 +45,7 @@ import org.agmas.noellesroles.role.RedHouseRoles;
 import org.agmas.noellesroles.utils.MCItemsUtils;
 import org.agmas.noellesroles.utils.RoleUtils;
 import pro.fazeclan.river.stupid_express.constants.SEItems;
+import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 import pro.fazeclan.river.stupid_express.constants.SERoles;
 
 public class ModRolesInitialEventRegister {
@@ -50,6 +56,18 @@ public class ModRolesInitialEventRegister {
         BloodFeudistPlayerComponent.registerEvents();
         ModdedRoleAssigned.EVENT.register((player, role) -> {
             // 魔术师角色初始化
+            var gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
+            if (role.identifier().equals(ModRoles.MONOKUMA.identifier())) {
+                var wmcca = WorldModifierComponent.KEY.get(player.level());
+                gameWorldComponent.addRole(player, TMMRoles.VIGILANTE, GameUtils.isGameStarted);
+                MonokumaPlayerComponent.KEY.get(player).init();
+                if (GameUtils.isGameStarted) {
+                    wmcca.addModifier(player.getUUID(), SEModifiers.BLACK_WHITE, true);
+                } else {
+                    Harpymodloader.addToForcedModifiers(SEModifiers.BLACK_WHITE, player);
+                }
+                return;
+            }
             if (role.identifier().equals(ModRoles.BARTENDER.identifier())) {
                 FoodDrinkGlowComponent.KEY.get(player).init();
             }
