@@ -1,7 +1,9 @@
 package org.agmas.noellesroles.game.roles.neutral.panda;
 
+import io.wifi.starrailexpress.event.AllowOtherCameraType;
 import io.wifi.starrailexpress.event.client.OnGameFinishedClient;
 import io.wifi.starrailexpress.event.client.OnGameStartedClient;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Panda;
@@ -18,7 +20,8 @@ public class PandaClientHandle {
         if (!pandaMap.containsKey(uuid)){
             Panda value = new Panda(EntityType.PANDA, clientLevel);
             value.setPos(player.getX(),player.getY(),player.getZ());
-            value.setUUID(uuid);
+            value.setNoAi(true);
+
             value.setYHeadRot(player.getYHeadRot());
             pandaMap.put(uuid, value);
             clientLevel.addEntity(pandaMap.get(uuid));
@@ -27,6 +30,13 @@ public class PandaClientHandle {
         }
     }
     static {
+        AllowOtherCameraType.EVENT.register((original, localplayer) -> {
+            if (pandaMap.containsKey(localplayer.getUUID())){
+                return AllowOtherCameraType.ReturnCameraType.THIRD_PERSON_BACK;
+
+            }
+            return AllowOtherCameraType.ReturnCameraType.NO_CHANGE;
+        });
         OnGameStartedClient.EVENT.register(() -> {
             pandaMap.clear();
         });
@@ -37,7 +47,14 @@ public class PandaClientHandle {
 //                client -> {
 //                    ClientLevel level = client.level;
 //                    if (level.getGameTime()%20==0){
-//
+//                        level.players().forEach(player -> {
+//                            PandaComponent pandaComponent = PandaComponent.KEY.get(player);
+//                            if (pandaComponent.isPanda){
+//                                getOrCreatePanda(player, level);
+//                            }else {
+//                                pandaMap.remove(player.getUUID());
+//                            }
+//                        });
 //                    }
 //
 //                }

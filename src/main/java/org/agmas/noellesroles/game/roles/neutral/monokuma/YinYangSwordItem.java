@@ -34,7 +34,7 @@ public class YinYangSwordItem extends Item {
     /** 右键蓄力时间 tick (1秒) */
     public static final int CHARGE_TIME = 20;
     /** 右键范围伤害半径 */
-    private static final double AOE_RANGE = 4.0;
+    private static final double AOE_RANGE = 3.2;
     /** Q键突进距离 */
     private static final double DASH_DISTANCE = 6.0;
 
@@ -173,7 +173,7 @@ public class YinYangSwordItem extends Item {
         Vec3 lookVec = sp.getViewVector(1.0f);
         
         // 基础冲刺速度
-        double dashSpeed = 1.5;
+        double dashSpeed = 1.75;
         
         // 计算冲刺向量（只考虑水平方向）
         Vec3 horizontalLook = new Vec3(lookVec.x, 0, lookVec.z).normalize();

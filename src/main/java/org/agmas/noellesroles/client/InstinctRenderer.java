@@ -590,19 +590,23 @@ public class InstinctRenderer {
                         && selfPuppeteerComp.phase >= 1) {
                     return -1;
                 }
-
                 // 黑白熊形态：对所有人隐藏高亮
                 if (SREClient.gameComponent.isRole(target_player, ModRoles.MONOKUMA)
                         && MonokumaEventHandler.isMonokumaBearForm(target_player)
                         && SREClient.isPlayerAliveAndInSurvival()) {
                     return -2;
                 }
-                // 黑白狂暴前奏：杀手看到灰色
-                if (SREClient.gameComponent.isRole(target_player, ModRoles.MONOKUMA)
-                        && MonokumaEventHandler.isInFrenzy(target_player)
-                        && SREClient.isPlayerAliveAndInSurvival()) {
-                    return Color.RED.getRGB();
+                if (SREClient.gameComponent.isRole(self, ModRoles.MONOKUMA)&& SREClient.isPlayerAliveAndInSurvival()){
+                    return ModRoles.MONOKUMA.color();
                 }
+
+
+                // 黑白狂暴前奏：杀手看到灰色
+//                if (SREClient.gameComponent.isRole(target_player, ModRoles.MONOKUMA)
+//                        && MonokumaEventHandler.isInFrenzy(target_player)
+//                        && SREClient.isPlayerAliveAndInSurvival()) {
+//                    return Color.RED.getRGB();
+//                }
                 // 秉烛人：杀手无法透视察觉
                 if (SREClient.gameComponent.isRole(target_player, ModRoles.CANDLE_BEARER) && isKillerTeam(self_role)
                         && SREClient.isPlayerAliveAndInSurvival()) {

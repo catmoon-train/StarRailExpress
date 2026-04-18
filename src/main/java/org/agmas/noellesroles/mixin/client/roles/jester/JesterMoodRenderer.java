@@ -42,7 +42,7 @@ public class JesterMoodRenderer {
     private static void jesterMood(Font textRenderer, FakeGuiGraphics context, CallbackInfo ci) {
         SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY
                 .get(Minecraft.getInstance().player.level());
-        if (gameWorldComponent.isRole(Minecraft.getInstance().player, ModRoles.JESTER)) {
+        if (gameWorldComponent.isRole(Minecraft.getInstance().player, ModRoles.JESTER) || gameWorldComponent.isRole(Minecraft.getInstance().player, ModRoles.MONOKUMA)) {
             context.pose().pushPose();
             context.pose().translate(0.0F, 3.0F * moodOffset, 0.0F);
             context.blitSprite(JESTER_MOOD, 5, 6, 14, 17);

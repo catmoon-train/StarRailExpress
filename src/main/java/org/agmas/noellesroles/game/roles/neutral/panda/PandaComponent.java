@@ -47,10 +47,8 @@ public class PandaComponent implements RoleComponent, ClientTickingComponent {
 
     @Override
     public void readFromSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
-        if( tag.getBoolean("isPanda")){
-            tag.putBoolean("isPanda", true);
+        isPanda = tag.contains("isPanda") && tag.getBoolean("isPanda");
         }
-    }
 
     @Override
     public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {

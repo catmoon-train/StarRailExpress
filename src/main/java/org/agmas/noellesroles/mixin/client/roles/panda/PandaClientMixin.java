@@ -24,7 +24,12 @@ public abstract class PandaClientMixin extends Animal {
         super(entityType, level);
     }
 
-    @Inject(method = "tick", at = @At("RETURN"))
+    @Override
+    protected void updateWalkAnimation(float f) {
+        super.updateWalkAnimation(f);
+    }
+
+    @Inject(method = "tick", at = @At("TAIL"))
     public void tick(CallbackInfo ci) {
         PandaClientHandle.pandaMap.forEach(
                 (uuid,panda) -> {
@@ -43,7 +48,13 @@ public abstract class PandaClientMixin extends Animal {
                                     ClientLevel level = instance.level;
                                     Player playerByUUID = level.getPlayerByUUID(uuid);
                                     if (playerByUUID!=null){
+
+
+                                        this.xo = playerByUUID.xo;
+                                        this.yo = playerByUUID.yo;
+                                        this.zo = playerByUUID.zo;
                                         this.setPos(playerByUUID.getX(),playerByUUID.getY(),playerByUUID.getZ());
+                                        calculateEntityAnimation(false);
                                         this.setRot(playerByUUID.getYRot(),playerByUUID.getXRot());
                                         this.setYHeadRot(playerByUUID.getYHeadRot());
                                         this.setYBodyRot(playerByUUID.yBodyRot);

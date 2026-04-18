@@ -71,6 +71,7 @@
     "client.general.MobEffectMouseHandleSuppressMixin",
     "client.general.ThrowItemMixin",
     "client.roles.bartender.DefenseVialViewMixin",
+    "client.roles.jester.JesterMoodRenderer",
     "client.roles.conductor.MasterKeyInvisibilityMixin",
     "client.roles.coroner.CoronerHudMixin",
     "client.roles.coroner.CustomRolesRoleNameRendererMixin",

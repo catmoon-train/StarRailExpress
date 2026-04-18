@@ -1540,6 +1540,8 @@ public class ModEventsRegister {
         SRE.canUseOtherPerson.add((role -> role.getIdentifier()
                 .equals(ModRoles.INSANE_KILLER_ID)));
         SRE.canUseOtherPerson.add((role -> role.getIdentifier()
+                .equals(ModRoles.MONOKUMA_ID)));
+        SRE.canUseOtherPerson.add((role -> role.getIdentifier()
                 .equals(ModRoles.MANIPULATOR_ID)));
         SRE.canCollide.add(a -> {
             final var gameWorldComponent = SREGameWorldComponent.KEY.get(a.level());
