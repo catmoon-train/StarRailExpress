@@ -199,7 +199,9 @@ public class MonokumaPlayerComponent implements RoleComponent, ServerTickingComp
     public void onKillPlayer() {
         if (phase == 2) {
             kill_count++;
-
+            if (kill_count >= Math.max(player.level().players().size() / 7, 3)) {
+                transformToMonokuma();
+            }
         }
     }
 
@@ -330,12 +332,11 @@ public class MonokumaPlayerComponent implements RoleComponent, ServerTickingComp
                 dashAnimTimer--;
             }
             if (frenzyTimer <= 0) {
-                if (kill_count >= Math.max(player.level().players().size()/7,1)) {
-                    transformToMonokuma();
-                }else {
+
+
                     GameUtils.forceKillPlayer(player, true, null, GameConstants.DeathReasons.BLACK_WHITE_TIMEOUT);
                     clear();
-                }
+
                 // 试炼失败
                 return;
             }
