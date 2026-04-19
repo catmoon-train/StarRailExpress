@@ -26,6 +26,7 @@
   "text.autoconfig.starrailexpress-client.option.disableTitleScreenVideoBackground": "禁音主页的列车背景",
   "=== SRE ===": "",
   "text.autoconfig.starrailexpress.title": "Star Rail Express 通用设置",
+  "text.autoconfig.starrailexpress.option.logGameEvent": "在控制台输出游戏事件",
   "text.autoconfig.starrailexpress.option.mapRandomCount": "地图选择显示的随机数量",
   "text.autoconfig.starrailexpress.option.mapRandomCount.@Tooltip": "设置为 -1 禁用",
   "text.autoconfig.starrailexpress.option.isLobby": "是否启用大厅模式",

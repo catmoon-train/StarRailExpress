@@ -129,6 +129,7 @@ public class SREConfig implements ConfigData {
     public float blackoutRandomRangePercent = 0.32f;
     public boolean enableAutoTrainReset = false;
     public boolean verboseTrainResetLogs = true;
+    public boolean logGameEvent = false;
 
     // // 自动切换预设配置 - 游戏开始前自动应用指定预设，留空则不自动切换
     // @Tooltip(count = 3)
