@@ -394,11 +394,15 @@ public class ServerTaskInfoClasses {
                     blockState = blockState.setValue(VentHatchBlock.OPEN, false);
                     list2.add(new GameUtils.BlockInfo(blockPos7, blockState, null));
                 } else if (blockState.getBlock() instanceof AutoResetBlockInterface arbi) {
-                    blockState = arbi.onReset(serverWorld, blockState, blockPos7);
-                    BlockEntity entity = serverWorld.getBlockEntity(blockPos6);
+                    blockState = arbi.onResetBlockState(serverWorld, blockState, blockPos7);
+                    BlockEntity entity = serverWorld.getBlockEntity(blockPos7);
                     BlockEntityInfo entityinfo = null;
                     if (entity != null) {
                         entityinfo = arbi.onResetBlockEntity(serverWorld, blockState, entity, blockPos7);
+                        if (entityinfo == null) {
+                            entityinfo = new BlockEntityInfo(entity.saveCustomOnly(serverWorld.registryAccess()),
+                                    entity.components());
+                        }
                     }
                     if (entityinfo != null) {
                         list3.add(new GameUtils.BlockInfo(blockPos7, blockState, entityinfo));
