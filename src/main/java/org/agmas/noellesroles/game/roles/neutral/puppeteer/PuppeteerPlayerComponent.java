@@ -162,24 +162,7 @@ public class PuppeteerPlayerComponent implements RoleComponent, ServerTickingCom
      * 完全清除组件状态（游戏结束时调用）
      */
     public void clearAll() {
-        this.phase = 0;
-        this.collectedBodies = 0;
-        this.collectedBodyUuids.clear();
-        this.collectCooldown = 0;
-        this.abilityCooldown = 0;
-        this.isControllingPuppet = false;
-        this.puppetControlTimer = 0;
-        this.originalPosition = Vec3.ZERO;
-        this.originalYaw = 0;
-        this.originalPitch = 0;
-        this.puppetEntityUuid = null;
-        this.puppetSkinUuid = null;
-        this.puppetRole = null;
-        this.isPuppeteerMarked = false;
-        this.originalInventory = NonNullList.withSize(41, ItemStack.EMPTY);
-        this.puppetInventory = NonNullList.withSize(41, ItemStack.EMPTY);
-        this.usedPuppetCount = 0;
-        this.sync();
+        this.clear();
     }
 
     /**

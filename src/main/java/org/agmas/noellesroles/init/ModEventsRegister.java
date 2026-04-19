@@ -1127,14 +1127,16 @@ public class ModEventsRegister {
         WayfarerPlayerComponent.registerEvents();
         OnPlayerDeath.EVENT.register((playerEntity, reason) -> {
             FortunetellerPlayerComponent.KEY.get(playerEntity).init();
-            PuppeteerPlayerComponent.KEY.get(playerEntity).clear();
-            RoleUtils.RemoveAllEffects(playerEntity);
             SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(playerEntity.level());
-            if (gameWorldComponent.isRole(playerEntity,
-                    ModRoles.INSANE_KILLER)) {
-                final var insaneKillerPlayerComponent = InsaneKillerPlayerComponent.KEY.get(playerEntity);
-                insaneKillerPlayerComponent.init();
+            if (!RefugeeComponent.KEY.get(playerEntity.level()).isAnyRevivals) {
+                PuppeteerPlayerComponent.KEY.get(playerEntity).clear();
+                if (gameWorldComponent.isRole(playerEntity,
+                        ModRoles.INSANE_KILLER)) {
+                    final var insaneKillerPlayerComponent = InsaneKillerPlayerComponent.KEY.get(playerEntity);
+                    insaneKillerPlayerComponent.init();
+                }
             }
+            RoleUtils.RemoveAllEffects(playerEntity);
             if (gameWorldComponent.isRole(playerEntity, ModRoles.JOJO)) {
                 int dropCount = 1 + MCItemsUtils.countItem(playerEntity, TMMItemTags.GUNS);
                 while (dropCount > 0) {
