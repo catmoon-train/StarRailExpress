@@ -357,7 +357,7 @@ public class WheelchairEntity extends Mob {
     @Override
     public Vec3 getDismountLocationForPassenger(LivingEntity passenger) {
         // 玩家下座位时，位置与轮椅完全一致
-        return this.position();
+        return new Vec3(this.getBlockX() + 0.5, this.position().y, this.getBlockZ() + 0.5);
     }
 
     @Override
