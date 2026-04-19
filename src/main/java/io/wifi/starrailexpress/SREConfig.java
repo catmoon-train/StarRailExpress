@@ -21,9 +21,9 @@ public class SREConfig implements ConfigData {
     @ConfigEntry.Category(value = "gamemodes")
     public float loverModeLoversPercent = 1f;
     @ConfigEntry.Category(value = "gamemodes")
-    public float refugeeModeRefugeePercent = 1f;
+    public float refugeeModeRefugeePercent = 0.5f;
     @ConfigEntry.Category(value = "gamemodes")
-    public float gamblerModeGamblerPercent = 1f;
+    public float gamblerModeGamblerPercent = 0.9f;
     @ConfigEntry.Category(value = "gamemodes")
     public int gamblerModeGamblerKillTime = 90;
     @ConfigEntry.Category(value = "gamemodes")
@@ -90,7 +90,7 @@ public class SREConfig implements ConfigData {
     @ConfigEntry.Category(value = "cooldowns")
     public int knifeCooldown = 30;
     @ConfigEntry.Category(value = "cooldowns")
-    public int revolverCooldown = 10;
+    public int revolverCooldown = 20;
     @ConfigEntry.Category(value = "cooldowns")
     public int derringerCooldown = 1;
     @ConfigEntry.Category(value = "cooldowns")
@@ -129,6 +129,7 @@ public class SREConfig implements ConfigData {
     public float blackoutRandomRangePercent = 0.32f;
     public boolean enableAutoTrainReset = false;
     public boolean verboseTrainResetLogs = true;
+    public boolean logGameEvent = false;
 
     // // 自动切换预设配置 - 游戏开始前自动应用指定预设，留空则不自动切换
     // @Tooltip(count = 3)

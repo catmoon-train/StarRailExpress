@@ -74,8 +74,8 @@ public class SniperRifleItem extends Item {
                     // // 已在瞄准模式，射击
                     // int currentAmmo = getAmmoCount(stack);
                     // if (currentAmmo <= 0) {
-                    //     ScopeOverlayRenderer.setInScopeView(false);
-                    //     return InteractionResultHolder.fail(stack); // 没有子弹
+                    // ScopeOverlayRenderer.setInScopeView(false);
+                    // return InteractionResultHolder.fail(stack); // 没有子弹
                     // }
                     // shoot(world, user, stack);
                     // ScopeOverlayRenderer.setInScopeView(false);
@@ -93,8 +93,8 @@ public class SniperRifleItem extends Item {
                     // // 已安装倍镜，右键先切换到瞄准模式，再次右键射击
                     // // 第一次右键：进入瞄准模式
                     // if (!ScopeOverlayRenderer.isInScopeView()) {
-                    //     ScopeOverlayRenderer.setInScopeView(true);
-                    //     return InteractionResultHolder.success(stack);
+                    // ScopeOverlayRenderer.setInScopeView(true);
+                    // return InteractionResultHolder.success(stack);
                     // }
                     // 已在瞄准模式，射击
                     int currentAmmo = getAmmoCount(stack);
@@ -145,7 +145,9 @@ public class SniperRifleItem extends Item {
             user.setXRot(user.getXRot() - 4);
             spawnHandParticle();
             // 客户端设置冷却，防止重复射击
-            user.getCooldowns().addCooldown(stack.getItem(), 80); // 4 秒冷却
+            if (!user.isCreative()) {
+                user.getCooldowns().addCooldown(stack.getItem(), 80); // 4 秒冷却
+            }
         }
     }
 

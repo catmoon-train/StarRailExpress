@@ -691,7 +691,7 @@
   "death_reason.starrailexpress.knife_stab": "刀",
   "death_reason.starrailexpress.poison": "中毒",
   "item.starrailexpress.limited_inventory.cooldown": "\u00a77冷却: %s 秒",
-  "sre.replay.event": "\u00a76[游戏事件] \u00a7r ",
+  "sre.replay.event": "[游戏事件]",
   "commands.sre.entitydata.set.success": "成功为 %s 个实体设置了自定义数据: %s",
   "block.trainmurdermystery.camera": "监控摄像头",
   "screen.starrailexpress.security_monitor.exit": "按下 %s 或 ESC 退出监控",

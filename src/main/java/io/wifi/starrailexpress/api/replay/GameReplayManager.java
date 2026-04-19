@@ -3,6 +3,7 @@ package io.wifi.starrailexpress.api.replay;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
@@ -390,27 +391,37 @@ public class GameReplayManager {
     ReplayEvent event1 = convertReplayEvent(event, provider);
     try {
       var text = currentReplayData.toText(this, currentReplayData, event1);
-      SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(SRE.SERVER.overworld());
-      SRE.SERVER.getPlayerList().getPlayers().forEach(
-          player -> {
-            if (gameWorldComponent != null && gameWorldComponent.isRunning()
-                && !GameUtils.isPlayerAliveAndSurvival(player)) {
-              try {
+      if (text != null) {
+        SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(SRE.SERVER.overworld());
+        if (SREConfig.instance().logGameEvent) {
+          SRE.LOGGER.info("[GAME REPLAY] " + Component
+              .translatable("%s", text)
+              .withStyle(ChatFormatting.WHITE).getString());
+        }
+        SRE.SERVER.getPlayerList().getPlayers().forEach(
+            player -> {
+              if (gameWorldComponent != null && gameWorldComponent.isRunning()
+                  && !GameUtils.isPlayerAliveAndSurvival(player)) {
+                try {
 
-                if (text != null) {
-                  var cantSend = SRE.cantSendReplay.stream().anyMatch((pre) -> {
-                    return pre.test(player);
-                  });
-                  if (!cantSend) {
-                    sendSystemMessage(player, Component.translatable("sre.replay.event")
-                        .append(text));
+                  {
+                    var cantSend = SRE.cantSendReplay.stream().anyMatch((pre) -> {
+                      return pre.test(player);
+                    });
+                    if (!cantSend) {
+                      sendSystemMessage(player, Component
+                          .translatable("%s %s",
+                              Component.translatable("sre.replay.event").withStyle(ChatFormatting.GOLD), text)
+                          .withStyle(ChatFormatting.WHITE));
+                    }
                   }
-                }
-              } catch (Exception e) {
+                } catch (Exception e) {
 
+                }
               }
-            }
-          });
+            });
+      }
+
       return text;
     } catch (Exception ignored) {
 

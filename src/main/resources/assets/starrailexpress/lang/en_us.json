@@ -670,7 +670,7 @@
   "death_reason.starrailexpress.knife_stab": "Knife",
   "death_reason.starrailexpress.poison": "Poison",
   "item.starrailexpress.limited_inventory.cooldown": "\u00a77Cooldown: %s seconds",
-  "sre.replay.event": "\u00a76[Game Event] \u00a7r ",
+  "sre.replay.event": "[Game Event]",
   "commands.sre.entitydata.set.success": "Successfully set custom data for %s entities: %s",
   "block.trainmurdermystery.camera": "Security Camera",
   "screen.starrailexpress.security_monitor.exit": "Press %s or ESC to exit monitoring",
