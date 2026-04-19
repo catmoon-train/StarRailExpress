@@ -17,7 +17,7 @@ import java.util.function.Predicate;
 @Mixin(ProjectileUtil.class)
 public class ProjectileUtilMixin {
 
-    @Inject(method = "getEntityHitResult", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "getEntityHitResult(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/phys/AABB;Ljava/util/function/Predicate;F)Lnet/minecraft/world/phys/EntityHitResult;", at = @At("HEAD"), cancellable = true)
     private static void onGetEntityHitResult(Level level, Entity entity, Vec3 vec3, Vec3 vec32, AABB aABB,
             Predicate<Entity> predicate, float f, CallbackInfoReturnable<EntityHitResult> cir) {
         double closestDistance = Double.MAX_VALUE;
