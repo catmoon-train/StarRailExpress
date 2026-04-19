@@ -21,9 +21,9 @@ public class SREConfig implements ConfigData {
     @ConfigEntry.Category(value = "gamemodes")
     public float loverModeLoversPercent = 1f;
     @ConfigEntry.Category(value = "gamemodes")
-    public float refugeeModeRefugeePercent = 1f;
+    public float refugeeModeRefugeePercent = 0.5f;
     @ConfigEntry.Category(value = "gamemodes")
-    public float gamblerModeGamblerPercent = 1f;
+    public float gamblerModeGamblerPercent = 0.9f;
     @ConfigEntry.Category(value = "gamemodes")
     public int gamblerModeGamblerKillTime = 90;
     @ConfigEntry.Category(value = "gamemodes")
