@@ -128,6 +128,10 @@ public class SREPlayerPsychoComponent implements RoleComponent, ServerTickingCom
     }
 
     public boolean startPsycho() {
+        return startPsycho(1d, GameConstants.getPsychoModeArmour());
+    }
+
+    public boolean startPsycho_time(int time, int armour) {
         if (this.psychoTicks > 0)
             return false;
         SRERole role = SRERoleWorldComponent.KEY.get(this.player.level()).getRole(this.player);
@@ -138,8 +142,8 @@ public class SREPlayerPsychoComponent implements RoleComponent, ServerTickingCom
             success = RoleUtils.insertStackInFreeSlot(player, new ItemStack(TMMItems.BAT));
         }
         if (success) {
-            this.setPsychoTicks(GameConstants.getPsychoTimer());
-            this.setArmour(GameConstants.getPsychoModeArmour());
+            this.setPsychoTicks(time);
+            this.setArmour(armour);
             SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(this.player.level());
             gameWorldComponent.setPsychosActive(gameWorldComponent.getPsychosActive() + 1);
             if (player instanceof ServerPlayer serverPlayer) {
@@ -151,6 +155,10 @@ public class SREPlayerPsychoComponent implements RoleComponent, ServerTickingCom
             return true;
         }
         return false;
+    }
+
+    public boolean startPsycho(double multtiplier, int armour) {
+        return startPsycho_time((int) ((double) GameConstants.getPsychoTimer() * multtiplier), armour);
     }
 
     @Override

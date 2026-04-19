@@ -84,7 +84,8 @@ public class SREPlayerShopComponent implements RoleComponent, ServerTickingCompo
         if (FabricLoader.getInstance().isDevelopmentEnvironment() && this.balance < entry.price())
             this.balance = entry.price() * 10;
         if (this.balance >= entry.price() && !this.player.getCooldowns().isOnCooldown(entry.stack().getItem())
-                && entry.canDisplay(this.player) && entry.canBuy(this.player) && !entry.isSafeTime(this.player) && entry.onBuy(this.player)) {
+                && entry.canDisplay(this.player) && entry.canBuy(this.player) && !entry.isSafeTime(this.player)
+                && entry.onBuy(this.player)) {
             this.balance -= entry.price();
             if (this.player instanceof ServerPlayer player) {
                 player.connection.send(
@@ -160,14 +161,61 @@ public class SREPlayerShopComponent implements RoleComponent, ServerTickingCompo
         return useBlackout(player, SREWorldBlackoutComponent.getMaxDuration(player.level()));
     }
 
-    public static boolean usePsychoMode(@NotNull Player player) {
+    /**
+     * 触发psycho
+     * 
+     * @param player
+     * @param multtiplier 时间倍乘参数
+     * @param armour      护盾层数
+     * @return
+     */
+    public static boolean usePsychoMode(@NotNull Player player, double multtiplier, int armour) {
         player.getCooldowns().addCooldown(TMMItems.PSYCHO_MODE,
                 GameConstants.ITEM_COOLDOWNS.getOrDefault(TMMItems.PSYCHO_MODE, 0));
-        boolean started = SREPlayerPsychoComponent.KEY.get(player).startPsycho();
+        boolean started = SREPlayerPsychoComponent.KEY.get(player).startPsycho(multtiplier, armour);
         if (started) {
             SRE.REPLAY_MANAGER.recordSkillUsed(player.getUUID(), BuiltInRegistries.ITEM.getKey(TMMItems.PSYCHO_MODE));
         }
         return started;
+    }
+
+    /**
+     * 触发psycho
+     * 
+     * @param player
+     * @param time   时间
+     * @param armour 护盾层数
+     * @return
+     */
+    public static boolean usePsychoMode_time(@NotNull Player player, int time, int armour) {
+        player.getCooldowns().addCooldown(TMMItems.PSYCHO_MODE,
+                GameConstants.ITEM_COOLDOWNS.getOrDefault(TMMItems.PSYCHO_MODE, 0));
+        boolean started = SREPlayerPsychoComponent.KEY.get(player).startPsycho_time(time, armour);
+        if (started) {
+            SRE.REPLAY_MANAGER.recordSkillUsed(player.getUUID(), BuiltInRegistries.ITEM.getKey(TMMItems.PSYCHO_MODE));
+        }
+        return started;
+    }
+
+    /**
+     * 触发psycho
+     * 
+     * @param player
+     * @param multtiplier 时间倍乘参数
+     * @return
+     */
+    public static boolean usePsychoMode(@NotNull Player player, double multtiplier) {
+        return usePsychoMode(player, multtiplier, 1);
+    }
+
+    /**
+     * 触发psycho
+     * 
+     * @param player
+     * @return
+     */
+    public static boolean usePsychoMode(@NotNull Player player) {
+        return usePsychoMode(player, 1d);
     }
 
     @Override
