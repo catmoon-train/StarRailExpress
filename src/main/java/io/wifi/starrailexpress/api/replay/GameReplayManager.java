@@ -395,8 +395,7 @@ public class GameReplayManager {
         SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(SRE.SERVER.overworld());
         if (SREConfig.instance().logGameEvent) {
           SRE.LOGGER.info("[GAME REPLAY] " + Component
-              .translatable("%s %s",
-                  Component.translatable("sre.replay.event").withStyle(ChatFormatting.GOLD), text)
+              .translatable("%s", text)
               .withStyle(ChatFormatting.WHITE).getString());
         }
         SRE.SERVER.getPlayerList().getPlayers().forEach(
