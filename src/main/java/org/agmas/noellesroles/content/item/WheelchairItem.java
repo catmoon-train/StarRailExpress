@@ -70,6 +70,9 @@ public class WheelchairItem extends Item {
       if (player.getCooldowns().isOnCooldown(ModItems.WHEELCHAIR)) {
          return InteractionResultHolder.pass(itemStack);
       }
+      if (player.isShiftKeyDown()) { // 不准你潜行用
+         return InteractionResultHolder.pass(itemStack);
+      }
       if (player.getCooldowns().isOnCooldown(TMMBlocks.ACACIA_BRANCH.asItem())) {
          return InteractionResultHolder.pass(itemStack);
       }
