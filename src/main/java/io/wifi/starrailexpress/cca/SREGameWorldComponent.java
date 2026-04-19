@@ -565,12 +565,39 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
                 GameUtils.killPlayer(player, false,
                         player.getLastAttacker() instanceof Player killerPlayer ? killerPlayer : null,
                         GameConstants.DeathReasons.FELL_OUT_OF_TRAIN);
+                {
+                    final var block3 = player.level()
+                            .getBlockState(new BlockPos((int) player.getX(), (int) player.getY(), (int) player.getZ()))
+                            .getBlock();
+                    final var block4 = player.level()
+                            .getBlockState(
+                                    new BlockPos((int) player.getX(), (int) (player.getY() - 1), (int) player.getZ()))
+                            .getBlock();
+                    final var block5 = player.level()
+                            .getBlockState(
+                                    new BlockPos((int) player.getX(), (int) (player.getY() - 2), (int) player.getZ()))
+                            .getBlock();
+                    if (player.getY() < areas.playArea.minY
+                            || !areas.canSwim
+                                    && (block3 == Blocks.WATER && block4 == Blocks.WATER && block5 == Blocks.WATER)) {
+                        // 没有移动那强制死
+                        GameUtils.forceKillPlayer(player, false,
+                                player.getLastAttacker() instanceof Player killerPlayer ? killerPlayer : null,
+                                GameConstants.DeathReasons.FELL_OUT_OF_TRAIN);
+                    }
+
+                }
             }
         } else {
             if (!TarotAssemblyManager.havingMeeting) {
                 GameUtils.killPlayer(player, false,
                         player.getLastAttacker() instanceof Player killerPlayer ? killerPlayer : null,
                         GameConstants.DeathReasons.FELL_OUT_OF_TRAIN);
+                if ((player.getZ() >= 19000)) {
+                    GameUtils.forceKillPlayer(player, false,
+                            player.getLastAttacker() instanceof Player killerPlayer ? killerPlayer : null,
+                            GameConstants.DeathReasons.FELL_OUT_OF_TRAIN);
+                }
             }
         }
 
