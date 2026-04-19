@@ -4,6 +4,7 @@ import com.mojang.math.Transformation;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.util.Scheduler;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -15,6 +16,7 @@ import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -23,19 +25,18 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.init.ModBlocks;
+import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.mini_gme.DevilRouletteGame;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class DevilRouletteTableEntity extends BlockEntity {
     public DevilRouletteTableEntity(BlockPos blockPos, BlockState blockState) {
         super(ModBlocks.DEVIL_ROULETTE_TABLE_ENTITY, blockPos, blockState);
+        CENTER_POS = new Vec3(worldPosition.getX() + 0.5, worldPosition.getY() + 0.3, worldPosition.getZ() + 0.5);
         init();
         winnerText = null;
         Direction facing = blockState.getValue(BlockStateProperties.HORIZONTAL_FACING);
@@ -83,6 +84,11 @@ public class DevilRouletteTableEntity extends BlockEntity {
         for (var itemDisplay : itemDisplays.values())
             itemDisplay.discard();
         itemDisplays.clear();
+        for (var display : tempSubDisplays) {
+            display.discard();
+        }
+        tempSubDisplays.clear();
+        itemDisplays.clear();
     }
     protected void reset() {
         init();
@@ -115,11 +121,15 @@ public class DevilRouletteTableEntity extends BlockEntity {
             }
             else {
                 displayText = new Display.TextDisplay(EntityType.TEXT_DISPLAY ,level);
-                if (duration > 0)
+                if (duration > 0) {
                     Scheduler.schedule(displayText::discard, duration);
-                level.addFreshEntity(displayText);
-                if (isCollectFloatingText)
+                    tempSubDisplays.removeIf(display -> display == null || !display.isAlive());
+                    tempSubDisplays.add(displayText);
+                }
+                else if (isCollectFloatingText) {
                     floatingTexts.put(text, displayText);
+                }
+                level.addFreshEntity(displayText);
             }
             displayText.setText(text);
             displayText.setPos(pos.x, pos.y, pos.z);
@@ -143,7 +153,7 @@ public class DevilRouletteTableEntity extends BlockEntity {
     }
     protected Display.TextDisplay replaceFloatingText(Component oldText, Component newText, int duration, Vec3 scale) {
         if (!floatingTexts.containsKey(oldText))
-            return addFloatingText(new Vec3(worldPosition.getX() + 0.5, worldPosition.getY() + 0.5, worldPosition.getZ() + 0.5),
+            return addFloatingText(CENTER_POS,
                     newText, duration);
         var oldTextPos = floatingTexts.get(oldText).position();
         removeFloatingText(oldText);
@@ -187,7 +197,7 @@ public class DevilRouletteTableEntity extends BlockEntity {
             itemDisplays.put(gunStack, gun);
 
             // 设置位置
-            gun.setPos(worldPosition.getX() + 0.5, worldPosition.getY() + 1, worldPosition.getZ() + 0.5);
+            gun.setPos(worldPosition.getX() + 0.5, worldPosition.getY() + 1.5, worldPosition.getZ() + 0.5);
             // TODO : 旋转动画
             // 根据操作玩家正反决定旋转
             Direction facing = getFacing();
@@ -218,6 +228,8 @@ public class DevilRouletteTableEntity extends BlockEntity {
     /** 实际交互函数 */
     public ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player,
                                               InteractionHand hand, BlockHitResult hit) {
+        if (level.isClientSide)
+            return ItemInteractionResult.SUCCESS;
         DevilRouletteGame.FireResult fireResult = null;
         // 查询玩家操作位置的偏移
         int idxOffset = 0;
@@ -227,14 +239,65 @@ public class DevilRouletteTableEntity extends BlockEntity {
         for (int i = 0; i < playerOperateArea.size(); ++i) {
             if (playerOperateArea.get(i + idxOffset).equals(pos)) {
                 switch (i) {
+                    // 点击左侧
                     case 0 -> {
                         fireResult = game.fire(DevilRouletteGame.Target.self);
                         break;
                     }
+                    // 点击中间
                     case 1 -> {
+                        boolean isNeedRemove = true;
                         // 使用道具
+                        Item item = stack.getItem();
+                        if (item == ModItems.MAGNIFYING_GLASS) {
+                            // 放大镜
+                            player.displayClientMessage(
+                                    Component.translatable(
+                                            game.getCurBullet() ?
+                                            "noellesroles.game.devil_roulette.tip.is_real_bullet" :
+                                            "noellesroles.game.devil_roulette.tip.is_empty_bullet")
+                                            .withStyle(ChatFormatting.RED),
+                                    true);
+                        } else if (item == ModItems.CHEWING) {
+                            // 口香糖
+                            game.getCurrentPlayerData().addHealth(1);
+                            updatePlayerHealth();
+                        } else if (item == ModItems.CLIP) {
+                            // 弹夹逻辑
+                            game.reloadBullet();
+                            afterReload();
+                        } else if (item == ModItems.STEEL_BALL) {
+                            // 钢球逻辑
+                            game.addDamage(1);
+                            showStrongBullet();
+                        } else if (item == ModItems.REVERSING_CARD) {
+                            // 反转卡逻辑
+                            game.reverseCurBullet();
+                            player.displayClientMessage(
+                                    Component.translatable(
+                                "noellesroles.game.devil_roulette.tip.reverse_bullet")
+                                        .withStyle(ChatFormatting.RED),
+                                    true);
+                        } else if (item == ModItems.TELEPHONE) {
+                            // 电话逻辑
+                            int idx = game.getRandomTrueBulletIdx();
+                            player.displayClientMessage(
+                                Component.translatable(
+                                    idx == -1 ?
+                                        "noellesroles.game.devil_roulette.tip.no_real_bullet" :
+                                        "noellesroles.game.devil_roulette.tip.random_real_bullet",
+                                    idx + 1
+                                    )
+                                    .withStyle(ChatFormatting.RED),
+                                true);
+                        }
+                        else
+                            isNeedRemove = false;
+                        if (isNeedRemove)
+                            stack.shrink(1);
                         break;
                     }
+                    // 点击右侧
                     case 2 -> {
                         fireResult = game.fire(DevilRouletteGame.Target.opposite);
                         break;
@@ -243,6 +306,7 @@ public class DevilRouletteTableEntity extends BlockEntity {
                 break;
             }
         }
+
         // 进行了开火操作
         if (fireResult != null) {
             updatePlayerHealth();
@@ -259,10 +323,7 @@ public class DevilRouletteTableEntity extends BlockEntity {
             }
             // 播放重装弹药音效
             if (fireResult.isReload){
-                level.playSound(null, worldPosition,
-                        TMMSounds.ITEM_DERRINGER_RELOAD, SoundSource.BLOCKS,
-                        3f, 1f);
-                showBulletText();
+                afterReload();
             }
             if (fireResult.isSwitch) {
                 // 偏移到对方位置
@@ -287,13 +348,25 @@ public class DevilRouletteTableEntity extends BlockEntity {
         return ItemInteractionResult.SUCCESS;
     }
 
+    protected void afterReload() {
+        if (level != null) {
+            level.playSound(null, worldPosition,
+                    TMMSounds.ITEM_DERRINGER_RELOAD, SoundSource.BLOCKS,
+                    3f, 1f);
+        }
+        showBulletText();
+    }
     protected void showBulletText() {
         // TODO : 添加文本上升动画
         // 添加弹药信息文本
         bulletComponent = Component.translatable("noellesroles.game.devil_roulette.real_bullet",
                 game.getTrueBulletNumber(), DevilRouletteGame.GUN_BULLET_SLOT_NUMBER);
-        addFloatingText(new Vec3(worldPosition.getX() + 0.5, worldPosition.getY() + 0.5, worldPosition.getZ() + 0.5),
-                bulletComponent, 40);
+        addFloatingText(CENTER_POS,
+                bulletComponent, 60);
+    }
+    /** 当子弹被强化时显示强化信息 */
+    protected void showStrongBullet() {
+        addFloatingText(CENTER_POS, Component.literal("💀".repeat(Math.max(game.getDamage(), 0))), 30);
     }
     /**
      * 偏移操作提示文本
@@ -415,6 +488,9 @@ public class DevilRouletteTableEntity extends BlockEntity {
         }
         return false;
     }
+    public void removeIfTextNull() {
+        floatingTexts.values().removeIf(display -> display == null || !display.isAlive());
+    }
     public boolean isGameActive() {
         return game != null && !game.isGameEnd();
     }
@@ -447,6 +523,7 @@ public class DevilRouletteTableEntity extends BlockEntity {
     public static final Vec3 MIDDLE_SCALE = new Vec3(0.5, 0.5, 0.5);
     /** 正常倍数 */
     public static final Vec3 NORMAL_SCALE = new Vec3(1, 1, 1);
+    public final Vec3 CENTER_POS;
     /**
      * 悬浮文本
      */
@@ -464,6 +541,10 @@ public class DevilRouletteTableEntity extends BlockEntity {
      * </p>
      */
     protected final List<BlockPos> playerOperateArea = new ArrayList<>();
+    /**
+     * 存储会自动消失的显示实体，当方块被移除时清空
+     */
+    protected final List<Display> tempSubDisplays = new ArrayList<>();
     protected DevilRouletteGame game;
     protected Component frontPlayerName;
     protected Component backPlayerName;

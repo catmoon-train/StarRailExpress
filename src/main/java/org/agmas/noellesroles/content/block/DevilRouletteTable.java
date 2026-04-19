@@ -213,6 +213,7 @@ public class DevilRouletteTable extends Block implements EntityBlock {
                                 table.checkPlayerInRightSeat(player, isFront)) {
                             table.startGame();
                         }
+                        // 进行占位操作，再次点击取消
                         else {
                             if (isFront){
                                 if(!table.removePlayerIfSame(player, true) && table.addPlayer(player, true)) {
@@ -226,6 +227,7 @@ public class DevilRouletteTable extends Block implements EntityBlock {
                             }
                         }
                     }
+                    // 游戏已开始则由方块实体判断具体玩家操作
                     else if (table.checkPlayerInRightSeat(player, isFront) && table.canPlayerOperate(player)) {
                         return table.useItemOn(stack, state, level, pos, player, hand, hit);
                     }

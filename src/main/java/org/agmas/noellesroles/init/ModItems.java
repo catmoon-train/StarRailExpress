@@ -558,6 +558,29 @@ public class ModItems {
     public static final Item ZHANWEIFU2 = registrar.create("zhanweifu2",
             new Item(new Item.Properties().stacksTo(64)));
 
+
+
+    // 轮盘赌物品
+    public static final Item MAGNIFYING_GLASS = register(
+            new Item(new Item.Properties().stacksTo(64)),
+            "magnifying_glass");
+    public static final Item CHEWING = register(
+            new Item(new Item.Properties().stacksTo(64)),
+            "chewing");
+    public static final Item CLIP = register(
+            new Item(new Item.Properties().stacksTo(64)),
+            "clip");
+    public static final Item STEEL_BALL = register(
+            new Item(new Item.Properties().stacksTo(64)),
+            "steel_ball");
+    public static final Item REVERSING_CARD = register(
+            new Item(new Item.Properties().stacksTo(64)),
+            "reversing_card");
+    public static final Item TELEPHONE = register(
+            new Item(new Item.Properties().stacksTo(64)),
+            "telephone");
+
+
     public static final ItemStack ExamplerPsychoItemStack = TMMItems.PSYCHO_MODE.getDefaultInstance();
     public static Map<Item, Integer> ITEM_COOLDOWNS = new HashMap<>();
     public static List<ShopEntry> POISONER_SHOP_ENTRIES = new ArrayList<>();

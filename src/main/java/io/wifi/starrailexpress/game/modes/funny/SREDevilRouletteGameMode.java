@@ -16,15 +16,8 @@ import java.util.List;
  *     - 局内死亡条件：生命值不足将死亡，或被对手使用场外道具击杀
  *     - 局外死亡条件：死亡次数累计到一定值死亡旁观
  * </p>
- * <p>
- *     场外道具列表：
- *      - 一次性手枪：打死同桌对手
- *      - 毒药：给椅子下毒（趁对方离开做任务）
- *      - 时停钟：时停偷隔壁桌道具
- *      - 阴谋之书页：猜测对方手中是否持有某道具，有则对方心脏麻痹而死
- * </p>
  */
-public class SREDevilRoulette  extends GameMode {
+public class SREDevilRouletteGameMode extends GameMode {
     /**
      * @param identifier       the game mode identifier
      * @param defaultStartTime the default time at which the timer will be set at
@@ -32,7 +25,7 @@ public class SREDevilRoulette  extends GameMode {
      * @param minPlayerCount   the minimum amount of players required to start the
      *                         game mode
      */
-    public SREDevilRoulette(ResourceLocation identifier, int defaultStartTime, int minPlayerCount) {
+    public SREDevilRouletteGameMode(ResourceLocation identifier, int defaultStartTime, int minPlayerCount) {
         super(identifier, defaultStartTime, minPlayerCount);
     }
 
