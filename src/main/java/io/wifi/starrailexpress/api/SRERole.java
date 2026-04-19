@@ -37,7 +37,7 @@ public abstract class SRERole {
     private final Random random = new Random();
     private ResourceLocation identifier;
     private boolean canSeeCoin = true;
-    private boolean canBeRandomed = false;
+    private boolean canBeRandomed = true;
     private boolean canSeeBodyDeathReason = false;
     private boolean canSeeBodyRoleInfo = false;
     private boolean canUseInstinct = false;

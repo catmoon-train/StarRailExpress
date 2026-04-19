@@ -17,7 +17,7 @@ public class TMMRoles {
     public static final List<ComponentKey<? extends RoleComponent>> COMPONENT_KEYS = new ArrayList<>();
     public static final SRERole DISCOVERY_CIVILIAN = registerRole(
             new NormalRole(SRE.id("discovery_civilian"), 0x5CFF4A, false, false, SRERole.MoodType.NONE, -1, true))
-            .setCanPickUpRevolver(false).setNeutrals(true);
+            .setCanPickUpRevolver(false).setNeutrals(true).setCanBeRandomedByOtherRoles(false);
     public static final SRERole CIVILIAN = registerRole(new NormalRole(SRE.id("civilian"), 0x36E51B, true, false,
             SRERole.MoodType.REAL, GameConstants.getInTicks(0, 10), false));
     public static final SRERole VIGILANTE = registerRole(new NormalRole(SRE.id("vigilante"), 0x1B8AE5, true, false,
@@ -34,7 +34,7 @@ public class TMMRoles {
                             false, // showParticles（显示粒子）
                             true // showIcon（显示图标）
                     )))
-            .setCanSeeTime(true).setCanUseInstinct(true);
+            .setCanSeeTime(true).setCanUseInstinct(true).setCanBeRandomedByOtherRoles(false);
 
     public static SRERole registerRole(SRERole role) {
         ROLES.put(role.identifier(), role);

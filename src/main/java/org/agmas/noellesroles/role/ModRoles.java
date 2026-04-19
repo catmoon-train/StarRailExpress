@@ -25,8 +25,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.component.*;
-import org.agmas.noellesroles.roles.dirt.Dirt;
 
 import org.agmas.noellesroles.component.FoodDrinkGlowComponent;
 import org.agmas.noellesroles.component.ModComponents;
@@ -72,7 +70,6 @@ import org.agmas.noellesroles.game.roles.neutral.nian_shou.NianShouPlayerCompone
 import org.agmas.noellesroles.game.roles.neutral.nian_shou.NianShouRole;
 import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.recorder.RecorderPlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.super_loose_end.SuperLooseEnd;
 import org.agmas.noellesroles.game.roles.neutral.thief.ThiefPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.vulture.VulturePlayerComponent;
 import org.agmas.noellesroles.game.roles.special.better_vigilante.BetterVigilantePlayerComponent;
@@ -244,7 +241,8 @@ public class ModRoles {
             SRERole.MoodType.FAKE, // 假心情
             Integer.MAX_VALUE, // 无限冲刺时间
             true // 隐藏计分板
-    )).setComponentKey(ModComponents.MA_CHEN_XU).setCanSeeCoin(true).setOccupiedRoleCount(2);
+    )).setComponentKey(ModComponents.MA_CHEN_XU).setCanSeeCoin(true).setOccupiedRoleCount(2)
+            .setCanBeRandomedByOtherRoles(false);
 
     // DIO 迪奥
     public static SRERole DIO = TMMRoles.registerRole(new NormalRole(
@@ -255,7 +253,8 @@ public class ModRoles {
             SRERole.MoodType.FAKE, // 真实心情
             Integer.MAX_VALUE, // 无限冲刺时间
             true // 不隐藏计分板
-    )).setCanSeeCoin(true).setComponentKey(ModComponents.DIO).setOccupiedRoleCount(2).setCanSeeBodyDeathReason(true);
+    )).setCanSeeCoin(true).setComponentKey(ModComponents.DIO).setOccupiedRoleCount(2).setCanSeeBodyDeathReason(true)
+            .setCanBeRandomedByOtherRoles(false);
     // JOJO 承太郎
     public static SRERole JOJO = TMMRoles.registerRole(new NormalRole(
             JOJO_ID, // 角色 ID
@@ -265,7 +264,7 @@ public class ModRoles {
             SRERole.MoodType.REAL, // 真实心情
             TMMRoles.CIVILIAN.getMaxSprintTime(),
             false // 不隐藏计分板
-    )).setCanSeeCoin(true).setVigilanteTeam(true);
+    )).setCanSeeCoin(true).setVigilanteTeam(true).setCanBeRandomedByOtherRoles(false);
     // ==================== 已注册角色定义 ====================
     // 乘客阵营角色
     // 中立偏狼：小镇做题家
@@ -409,7 +408,8 @@ public class ModRoles {
     public static SRERole BETTER_VIGILANTE = TMMRoles
             .registerRole(new NormalRole(BETTER_VIGILANTE_ID, new Color(0, 255, 255).getRGB(), true, false,
                     SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false)
-                    .setComponentKey(BetterVigilantePlayerComponent.KEY));
+                    .setComponentKey(BetterVigilantePlayerComponent.KEY))
+            .setCanBeRandomedByOtherRoles(false);
     public static SRERole BROADCASTER = TMMRoles
             .registerRole(new NormalRole(BROADCASTER_ID, new Color(0, 255, 0).getRGB(), true,
                     false, SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), true)
@@ -446,7 +446,7 @@ public class ModRoles {
             SRERole.MoodType.REAL, // 真实心情
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
             false // 显示计分板
-    )).setVigilanteTeam(true).setCanPickUpRevolver(true);
+    )).setVigilanteTeam(true).setCanPickUpRevolver(true).setCanBeRandomedByOtherRoles(false);
 
     /**
      * 棒球员角色
@@ -466,7 +466,7 @@ public class ModRoles {
             SRERole.MoodType.REAL, // 真实心情
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
             false // 显示计分板
-    )).setVigilanteTeam(true).setCanPickUpRevolver(true);
+    )).setVigilanteTeam(true).setCanPickUpRevolver(true).setCanBeRandomedByOtherRoles(false);
 
     /**
      * 苦力怕角色
@@ -486,7 +486,7 @@ public class ModRoles {
             SRERole.MoodType.FAKE, // 假心情
             -1, // 无限冲刺时间
             false // 显示计分板
-    )).setComponentKey(ModComponents.CREEPER).setEnableChance(10);
+    )).setComponentKey(ModComponents.CREEPER).setEnableChance(10).setCanBeRandomedByOtherRoles(false);
 
     /**
      * 作家角色
@@ -759,7 +759,7 @@ public class ModRoles {
                     false, // showParticles（显示粒子）
                     true // showIcon（显示图标）
             )))
-            .setComponentKey(ModComponents.WATER_GHOST).setCanSeeCoin(true);
+            .setComponentKey(ModComponents.WATER_GHOST).setCanSeeCoin(true).setCanBeRandomedByOtherRoles(false);
 
     // 杀手阵营角色
     public static SRERole CLEANER = TMMRoles
@@ -1402,7 +1402,8 @@ public class ModRoles {
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
             false // 不显示计分板
     )).setCanPickUpRevolver(true).setCanSeeCoin(true)
-            .setNeutralForKiller(true).setCanSeeTeammateKiller(false).setNeutrals(false);;
+            .setNeutralForKiller(true).setCanSeeTeammateKiller(false).setNeutrals(false)
+            .setCanBeRandomedByOtherRoles(false);
 
     /**
      * 钟表匠角色 - 好人阵营
@@ -1498,7 +1499,6 @@ public class ModRoles {
         }
     }).setComponentKey(ModComponents.IMITATOR).setCanSeeCoin(true);
 
-
     /**
      * 愚者角色 - 好人阵营
      * - 属于乘客阵营 (isInnocent = true)
@@ -1521,7 +1521,8 @@ public class ModRoles {
             .setCanPickUpRevolver(true)
             .setMax(1)
             .setEnableChance(30)
-            .setEnableNeededPlayerCount(12);
+            .setEnableNeededPlayerCount(12)
+            .setCanBeRandomedByOtherRoles(false);
 
     /**
      * 黑白角色 - 中立阵营（伪装义警）
@@ -1540,7 +1541,8 @@ public class ModRoles {
             .setNeutrals(true)
             .setCanUseInstinct(true) // 不能使用杀手直觉
             .setCanSeeCoin(true)
-            .setMax(0);
+            .setMax(0)
+            .setCanBeRandomedByOtherRoles(false);
 
     public static SRERole CAT_KILLER = TMMRoles.registerRole(new NormalRole(
             SRE.wifiId("cat_killer"), // 角色 ID
