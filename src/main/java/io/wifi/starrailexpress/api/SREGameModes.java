@@ -24,6 +24,7 @@ public class SREGameModes {
     public static final ResourceLocation CUSTOM_SELECTED_MODE_ID = SRE.wifiId("role_pick");
     public static final ResourceLocation LOVERS_MODE_ID = SRE.wifiId("lover");
     public static final ResourceLocation REFUGEE_MODE_ID = SRE.wifiId("refugee");
+    public static final ResourceLocation REFUGEE_LOVER_MODE_ID = SRE.wifiId("refugee_lover");
 
     // Author: canyuesama (catmoon233)
     public static final ResourceLocation FOURTH_ROOM_ID = SRE.canyueId("fourth_room");
@@ -45,6 +46,7 @@ public class SREGameModes {
             new SRECustomRoleGameMode(CUSTOM_SELECTED_MODE_ID));
     public static final GameMode LOVERS_MODE = registerGameMode(new SRELoverGameMode(LOVERS_MODE_ID));
     public static final GameMode REFUGEE_MODE = registerGameMode(new SRERefugeeGameMode(REFUGEE_MODE_ID));
+    public static final GameMode REFUGEE_LOVER_MODE = registerGameMode(new SRERefugeeLoversGameMode(REFUGEE_LOVER_MODE_ID));
 
     // written by canyuesama
     public static final GameMode FOURTH_ROOM = registerGameMode(new FourthRoomGameMode(FOURTH_ROOM_ID));
