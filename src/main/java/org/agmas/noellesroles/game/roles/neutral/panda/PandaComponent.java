@@ -1,6 +1,7 @@
 package org.agmas.noellesroles.game.roles.neutral.panda;
 
 import io.wifi.starrailexpress.api.RoleComponent;
+import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -70,7 +71,17 @@ public class PandaComponent implements RoleComponent, ClientTickingComponent {
 
     @Override
     public void clientTick() {
+        if (!SREClient.gameComponent.isRunning()) {
+            if (!PandaClientHandle.pandaMap.isEmpty())
+                PandaClientHandle.pandaMap.clear();
+            this.clear();
+            return;
+        }
         if (isPanda) {
+            if (player.isSpectator()) {
+                this.clear();
+                return;
+            }
             PandaClientHandle.getOrCreatePanda(this.getPlayer(), Minecraft.getInstance().level);
         } else {
             PandaClientHandle.pandaMap.remove(this.getPlayer().getUUID());
