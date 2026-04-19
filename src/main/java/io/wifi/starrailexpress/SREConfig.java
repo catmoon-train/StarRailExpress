@@ -90,7 +90,7 @@ public class SREConfig implements ConfigData {
     @ConfigEntry.Category(value = "cooldowns")
     public int knifeCooldown = 30;
     @ConfigEntry.Category(value = "cooldowns")
-    public int revolverCooldown = 10;
+    public int revolverCooldown = 15;
     @ConfigEntry.Category(value = "cooldowns")
     public int derringerCooldown = 1;
     @ConfigEntry.Category(value = "cooldowns")

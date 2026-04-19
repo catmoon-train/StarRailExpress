@@ -59,7 +59,7 @@ public record SniperShootPayload(Action action, int targetOrShooterId) implement
 
             if (!mainHandStack.is(TMMItems.SNIPER_RIFLE))
                 return;
-
+            // SRE.LOGGER.info("sniper shoot payload");
             switch (payload.action()) {
                 case SHOOT -> {
                     if (player.getCooldowns().isOnCooldown(mainHandStack.getItem()))
@@ -68,9 +68,10 @@ public record SniperShootPayload(Action action, int targetOrShooterId) implement
                         return;
 
                     // 设置冷却时间 - 任何射击行为都应该设置冷却
-                    if (!player.isCreative())
+                    if (!player.isCreative()){
                         player.getCooldowns().addCooldown(mainHandStack.getItem(),
                                 GameConstants.ITEM_COOLDOWNS.getOrDefault(mainHandStack.getItem(), 0));
+                    }
 
                     // 消耗一颗子弹
                     SniperRifleItem.consumeAmmo(mainHandStack);
