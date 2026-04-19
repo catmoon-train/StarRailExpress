@@ -14,6 +14,7 @@ import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 import pro.fazeclan.river.stupid_express.StupidExpress;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
+import pro.fazeclan.river.stupid_express.modifier.refugee.cca.RefugeeComponent;
 import pro.fazeclan.river.stupid_express.utils.StupidRoleUtils;
 
 /**
@@ -82,7 +83,7 @@ public class MonokumaEventHandler {
             if (!worldModifierComponent.isModifier(sp, SEModifiers.BLACK_WHITE))
                 return true;
             MonokumaPlayerComponent comp = MonokumaPlayerComponent.KEY.get(sp);
-            if (comp.phase == 1) {
+            if (!RefugeeComponent.KEY.get(sp.level()).isAnyRevivals && comp.phase == 1) {
                 RoleUtils.dropAndClearAllSatisfiedItems((ServerPlayer) sp, TMMItemTags.GUNS);
                 StupidRoleUtils.changeRole(player, ModRoles.MONOKUMA);
                 StupidRoleUtils.sendWelcomeAnnouncement(sp);
