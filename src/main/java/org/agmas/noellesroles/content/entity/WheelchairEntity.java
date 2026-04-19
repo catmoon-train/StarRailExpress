@@ -319,6 +319,16 @@ public class WheelchairEntity extends Mob {
     }
 
     @Override
+    public boolean shouldShowName() {
+        return false;
+    }
+
+    @Override
+    public boolean isCustomNameVisible() {
+        return false;
+    }
+
+    @Override
     protected void positionRider(Entity passenger, MoveFunction moveFunction) {
         if (this.hasPassenger(passenger)) {
             double offsetY = -0.2;
