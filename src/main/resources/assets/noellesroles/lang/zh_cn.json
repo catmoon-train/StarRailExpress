@@ -123,7 +123,7 @@
   "info.screen.modifier.cursed": "修饰符\n每30s获得随机药水效果\n你死亡后，此修饰符会被传递给击杀你的人。",
   "info.screen.modifier.secretive": "修饰符\n别人无法从你的尸体上获取信息。",
   "info.screen.modifier.knight": "修饰符\n当你处于黑暗环境中时，有概率传送到其它玩家的位置。",
-  "info.screen.modifier.black_white": "中立阵营\n请看职业【黑白】介绍。",
+  "info.screen.modifier.black_white": "修饰符\n获得此修饰符时你的职业变为黑白\n具体详见职业【黑白】介绍。",
   "info.screen.modifier.split_personality": "修饰符\n两人共用一具身体，每60s切换一次人格或者按键主动切换。\n默认为第一人格的皮肤。\n另一个人格可以听到当前人格的声音并看到画面。\n本体死亡时，两个人格需选择“欺骗”或“奉献” 。\n若两个人格都选择“欺骗”则本体直接死亡。\n若一个选“欺骗”一个选“奉献”，“欺骗”的一方复活，“奉献”的一方直接死亡。\n若两个人格都选择“奉献”，则两个人格均复活，但存活时间只有60s且保留生前物品栏。\n\u00a7c\u00a7l当你们在难民时刻死去，你们不会复活。\u00a7r",
   "info.screen.modifier.expedition": "修饰符\n当场上只剩下2名好人时，你的职业将切换为红海军。\n仅在平民阵营中生效。",
   "info.screen.modifier.vigorous": "修饰符\n你拥有更多的体力上限，非冲刺时体力恢复速度更快。",
