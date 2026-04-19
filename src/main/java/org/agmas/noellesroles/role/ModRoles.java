@@ -1555,7 +1555,13 @@ public class ModRoles {
     ) {
         @Override
         public void onPsychoOver(Player player, SREPlayerPsychoComponent psychoComponent) {
-            GameUtils.forceKillPlayer(player, true, null, SRE.wifiId("cat_killer"));
+            GameUtils.killPlayer(player, true, null, SRE.wifiId("cat_killer"));
+            // 先走默认逻辑，防止傀儡死
+            if (!player.isSpectator()) {
+                if (SREGameWorldComponent.KEY.get(player.level()).isRole(player, ModRoles.CAT_KILLER)) {
+                    GameUtils.forceKillPlayer(player, true, null, SRE.wifiId("cat_killer"));
+                }
+            }
         }
 
         @Override
