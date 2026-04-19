@@ -484,7 +484,7 @@ public class RoleShopHandler {
         CAT_KILLER_SHOP.add(new ShopEntry(TMMItems.PSYCHO_MODE.getDefaultInstance(), 0, ShopEntry.Type.WEAPON) {
           @Override
           public boolean onBuy(@NotNull Player player) {
-            return SREPlayerShopComponent.usePsychoMode(player, 1.5);
+            return SREPlayerShopComponent.usePsychoMode(player, 1.1);
           }
         });
         ShopContent.customEntries.put(ModRoles.CAT_KILLER.getIdentifier(), CAT_KILLER_SHOP);
