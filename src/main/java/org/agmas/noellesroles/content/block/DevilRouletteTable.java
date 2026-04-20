@@ -163,10 +163,17 @@ public class DevilRouletteTable extends Block implements EntityBlock {
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
         // 客户端调用 方块实体 tick ： 刷新动画
-        if (level.isClientSide) {
+//        if (level.isClientSide) {
+//            return (lvl, pos, st, be) -> {
+//                if (be instanceof DevilRouletteTableEntity table) {
+//                    table.clientTick();
+//                }
+//            };
+//        }
+        if (state.getValue(PART) == TablePart.CENTER && !level.isClientSide) {
             return (lvl, pos, st, be) -> {
                 if (be instanceof DevilRouletteTableEntity table) {
-                    table.clientTick();
+                    table.serverTick (lvl, pos, st);
                 }
             };
         }

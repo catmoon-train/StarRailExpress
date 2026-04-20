@@ -37,6 +37,9 @@ public class DevilRouletteTableEntity extends BlockEntity {
     public DevilRouletteTableEntity(BlockPos blockPos, BlockState blockState) {
         super(ModBlocks.DEVIL_ROULETTE_TABLE_ENTITY, blockPos, blockState);
         CENTER_POS = new Vec3(worldPosition.getX() + 0.5, worldPosition.getY() + 0.3, worldPosition.getZ() + 0.5);
+        BlockPos centerSidePos = worldPosition.relative(getFacing().getClockWise());
+        TIME_POS = new Vec3(centerSidePos.getX() + 0.5, centerSidePos.getY() + 0.2, centerSidePos.getZ() + 0.5);
+
         init();
         winnerText = null;
         Direction facing = blockState.getValue(BlockStateProperties.HORIZONTAL_FACING);
@@ -65,8 +68,8 @@ public class DevilRouletteTableEntity extends BlockEntity {
     /** 初始化成员 */
     protected void init() {
         game = null;
-        frontPlayer = null;
-        backPlayer = null;
+        frontPlayerUUID = null;
+        backPlayerUUID = null;
 
         gunStack = ItemStack.EMPTY;
         frontPlayerName = Component.empty();
@@ -77,6 +80,8 @@ public class DevilRouletteTableEntity extends BlockEntity {
 
         isCollectFloatingText = true;
         curGunRotationY = 0;
+
+        curAFKTick = 0;
 
         for (var floatingText : floatingTexts.values())
             floatingText.discard();
@@ -99,6 +104,23 @@ public class DevilRouletteTableEntity extends BlockEntity {
         reset();
         if (winnerText != null) {
             winnerText.discard();
+        }
+    }
+    public void serverTick(Level level, BlockPos pos, BlockState state) {
+        // 当有玩家游玩时进行计数
+        if (frontPlayerUUID != null && backPlayerUUID != null && curAFKTick++ >= AFK_TICK) {
+            if (isGameActive()){
+                // 玩家未操作则自动向自己开火
+                processFireResult(game.fire(DevilRouletteGame.Target.self));
+                curAFKTick = AFK_TICK / 2;
+            }
+            // 游戏30未启动：重置
+            else {
+                removeFrontPlayer();
+                removeBackPlayer();
+                reset();
+                curAFKTick = 0;
+            }
         }
     }
     /**
@@ -174,18 +196,18 @@ public class DevilRouletteTableEntity extends BlockEntity {
         if (level != null)
             random = level.getRandom();
         // 创建游戏
-        game = new DevilRouletteGame(frontPlayer, backPlayer, random);
+        game = new DevilRouletteGame(frontPlayerUUID, backPlayerUUID, random, level);
         // 初始化游戏
         game.init();
         game.start();
         removeFloatingText(Component.translatable("noellesroles.game.devil_roulette.wait_start"));
-        updatePlayerHealth();
+        updatePlayerHealthDisplay();
 
         // 生成左轮手枪动画
         if (level != null) {
             // 为当前操作玩家添加操作提示
             int operatorIdxOffset = 0;
-            if (!game.canOperate(frontPlayer)) {
+            if (!game.canOperate(frontPlayerUUID)) {
                 operatorIdxOffset = playerOperateArea.size() / 2;
             }
             offsetOperateText(operatorIdxOffset);
@@ -233,7 +255,7 @@ public class DevilRouletteTableEntity extends BlockEntity {
         DevilRouletteGame.FireResult fireResult = null;
         // 查询玩家操作位置的偏移
         int idxOffset = 0;
-        if (player != frontPlayer) {
+        if (player.getUUID() != frontPlayerUUID) {
             idxOffset = playerOperateArea.size() / 2;
         }
         for (int i = 0; i < playerOperateArea.size(); ++i) {
@@ -261,7 +283,7 @@ public class DevilRouletteTableEntity extends BlockEntity {
                         } else if (item == ModItems.CHEWING) {
                             // 口香糖
                             game.getCurrentPlayerData().addHealth(1);
-                            updatePlayerHealth();
+                            updatePlayerHealthDisplay();
                         } else if (item == ModItems.CLIP) {
                             // 弹夹逻辑
                             game.reloadBullet();
@@ -308,44 +330,60 @@ public class DevilRouletteTableEntity extends BlockEntity {
         }
 
         // 进行了开火操作
-        if (fireResult != null) {
-            updatePlayerHealth();
-            // 根据是否是实弹播放不同音效
-            if (fireResult.isTrueBullet) {
-                level.playSound(null, worldPosition,
-                        TMMSounds.ITEM_REVOLVER_SHOOT, SoundSource.BLOCKS,
-                        2f, 1f + player.getRandom().nextFloat() * .1f - .05f);
+        processFireResult(fireResult);
+
+        // 当玩家进行了操作 则重置AFK计数
+        curAFKTick = 0;
+
+        return ItemInteractionResult.SUCCESS;
+    }
+    protected void processFireResult(DevilRouletteGame.FireResult fireResult) {
+        if (fireResult == null || level == null)
+            return;
+        int idxOffset = 0;
+        if (game.getCurrentPlayerData().getPlayerUUID() != frontPlayerUUID) {
+            idxOffset = playerOperateArea.size() / 2;
+        }
+
+        updatePlayerHealthDisplay();
+        // 根据是否是实弹播放不同音效
+        if (fireResult.isTrueBullet) {
+            level.playSound(null, worldPosition,
+                    TMMSounds.ITEM_REVOLVER_SHOOT, SoundSource.BLOCKS,
+                    2f, 1f);
+        }
+        else {
+            level.playSound(null, worldPosition,
+                    TMMSounds.ITEM_REVOLVER_CLICK, SoundSource.BLOCKS,
+                    3f, 1f);
+        }
+        // 播放重装弹药音效
+        if (fireResult.isReload){
+            afterReload();
+        }
+        if (fireResult.isSwitch) {
+            // 偏移到对方位置
+            idxOffset = (idxOffset + playerOperateArea.size() / 2) % playerOperateArea.size();
+            // 修改操作提示文本的位置到对方
+            if (floatingTexts.get(shootSelfComponent) != null && floatingTexts.get(shootOppositeComponent) != null) {
+                offsetOperateText(idxOffset);
             }
-            else {
-                level.playSound(null, worldPosition,
-                        TMMSounds.ITEM_REVOLVER_CLICK, SoundSource.BLOCKS,
-                        3f, 1f);
-            }
-            // 播放重装弹药音效
-            if (fireResult.isReload){
-                afterReload();
-            }
-            if (fireResult.isSwitch) {
-                // 偏移到对方位置
-                idxOffset = (idxOffset + playerOperateArea.size() / 2) % playerOperateArea.size();
-                // 修改操作提示文本的位置到对方
-                if (floatingTexts.get(shootSelfComponent) != null && floatingTexts.get(shootOppositeComponent) != null) {
-                    offsetOperateText(idxOffset);
-                }
-                updateGunRotation(180);
-            }
-            if (!fireResult.isTargetAlive) {
+            updateGunRotation(180);
+        }
+        if (!fireResult.isTargetAlive) {
+            Player winner = null;
+            winner = level.getPlayerByUUID(game.getWinner().getPlayerUUID());
+            if (winner != null) {
                 isCollectFloatingText = false;
-                winnerText = addFloatingTextInBlockPosCenter(worldPosition, Component.translatable("noellesroles.game.devil_roulette.winner",
-                                game.getWinner().getPlayer().getName().getString()), 200);
+                winnerText = addFloatingTextInBlockPosCenter(worldPosition,
+                        Component.translatable("noellesroles.game.devil_roulette.winner",
+                                winner.getName().getString()), 200);
                 isCollectFloatingText = true;
                 // 播放胜利音效
                 level.playSound(null, worldPosition, SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, SoundSource.BLOCKS, 0.8f, 1f);
                 reset();
             }
         }
-
-        return ItemInteractionResult.SUCCESS;
     }
 
     protected void afterReload() {
@@ -384,7 +422,7 @@ public class DevilRouletteTableEntity extends BlockEntity {
                 shootOppositeComponent, -1, MIDDLE_SCALE);
     }
     public boolean checkCanStartGame() {
-        if (frontPlayer != null && backPlayer != null) {
+        if (frontPlayerUUID != null && backPlayerUUID != null) {
             addFloatingTextInBlockPosCenter(worldPosition.offset(0,1,0), Component.translatable("noellesroles.game.devil_roulette.wait_start"), -1);
             return true;
         }
@@ -392,28 +430,41 @@ public class DevilRouletteTableEntity extends BlockEntity {
     }
     public boolean checkPlayerInRightSeat(Player player, boolean isFront) {
         if (isFront) {
-            return player == frontPlayer;
+            return player.getUUID() == frontPlayerUUID;
         }
-        return player == backPlayer;
+        return player.getUUID() == backPlayerUUID;
     }
     public boolean canPlayerOperate(Player player) {
-        return game != null && game.canOperate(player);
+        return game != null && game.canOperate(player.getUUID());
     }
-    public void updatePlayerHealth() {
+    /** 更新玩家生命显示 */
+    public void updatePlayerHealthDisplay() {
         StringBuilder healthText = new StringBuilder();
+        Component lastText = null;
+        Player player = null;
+        if (level != null) {
+            player = level.getPlayerByUUID(frontPlayerUUID);
+        }
         // 创建玩家生命显示
-        Component lastText = frontPlayerName;
-        healthText.append(frontPlayer.getName().getString()).append("\n");
-        healthText.append("❤".repeat(Math.max(game.getHealth(frontPlayer), 0)));
-        frontPlayerName = Component.literal(String.valueOf(healthText));
-        replaceFloatingText(lastText, frontPlayerName, -1, MIDDLE_SCALE);
+        if (player != null) {
+            lastText = frontPlayerName;
+            healthText.append(player.getName().getString()).append("\n");
+            healthText.append("❤".repeat(Math.max(game.getHealth(frontPlayerUUID), 0)));
+            frontPlayerName = Component.literal(String.valueOf(healthText));
+            replaceFloatingText(lastText, frontPlayerName, -1, MIDDLE_SCALE);
+        }
 
-        lastText = backPlayerName;
-        healthText = new StringBuilder();
-        healthText.append(backPlayer.getName().getString()).append("\n");
-        healthText.append("❤".repeat(Math.max(game.getHealth(backPlayer), 0)));
-        backPlayerName = Component.literal(String.valueOf(healthText));
-        replaceFloatingText(lastText, backPlayerName, -1, MIDDLE_SCALE);
+        if (level != null) {
+            player = level.getPlayerByUUID(backPlayerUUID);
+        }
+        if (player != null) {
+            lastText = backPlayerName;
+            healthText = new StringBuilder();
+            healthText.append(player.getName().getString()).append("\n");
+            healthText.append("❤".repeat(Math.max(game.getHealth(backPlayerUUID), 0)));
+            backPlayerName = Component.literal(String.valueOf(healthText));
+            replaceFloatingText(lastText, backPlayerName, -1, MIDDLE_SCALE);
+        }
     }
     /**
      * 更新枪的旋转角度
@@ -438,20 +489,20 @@ public class DevilRouletteTableEntity extends BlockEntity {
     public boolean addPlayer(@NotNull Player player, boolean isFront) {
         BlockState state = getBlockState();
         if (isFront) {
-            if (frontPlayer != null || backPlayer == player) {
+            if (frontPlayerUUID != null || backPlayerUUID == player.getUUID()) {
                 return false;
             }
-            frontPlayer = player;
+            frontPlayerUUID = player.getUUID();
             BlockPos frontPos = worldPosition.relative(state.getValue(BlockStateProperties.HORIZONTAL_FACING));
             frontPlayerName = player.getName();
             addFloatingText(new Vec3(frontPos.getX() + 0.5, frontPos.getY() + 0.2, frontPos.getZ() + 0.5),
                     frontPlayerName, -1, MIDDLE_SCALE);
         }
         else {
-            if (backPlayer != null || frontPlayer == player) {
+            if (backPlayerUUID != null || frontPlayerUUID == player.getUUID()) {
                 return false;
             }
-            backPlayer = player;
+            backPlayerUUID = player.getUUID();
             BlockPos backPos = worldPosition.relative(state.getValue(BlockStateProperties.HORIZONTAL_FACING).getOpposite());
             backPlayerName = player.getName();
             addFloatingText(new Vec3(backPos.getX() + 0.5, backPos.getY() + 0.2, backPos.getZ() + 0.5),
@@ -461,27 +512,29 @@ public class DevilRouletteTableEntity extends BlockEntity {
         return true;
     }
     protected void removeFrontPlayer() {
-        if (frontPlayer != null) {
-            removeFloatingText(frontPlayer.getName());
+        if (frontPlayerName != null) {
+            removeFloatingText(frontPlayerName);
         }
-        frontPlayer = null;
+        frontPlayerUUID = null;
+        frontPlayerName = Component.empty();
     }
     protected void removeBackPlayer() {
-        if (backPlayer != null) {
-            removeFloatingText(backPlayer.getName());
+        if (frontPlayerName != null) {
+            removeFloatingText(frontPlayerName);
         }
-        backPlayer = null;
+        backPlayerUUID = null;
+        backPlayerName = Component.empty();
     }
     /** 移除同方向相同的玩家，如果成功则为true */
     public boolean removePlayerIfSame(Player player, boolean isFront) {
         if (isFront) {
-            if (frontPlayer != null && frontPlayer == player) {
+            if (frontPlayerUUID != null && frontPlayerUUID == player.getUUID()) {
                 removeFrontPlayer();
                 return true;
             }
         }
         else {
-            if (backPlayer != null && backPlayer == player) {
+            if (backPlayerUUID != null && backPlayerUUID == player.getUUID()) {
                 removeBackPlayer();
                 return true;
             }
@@ -523,7 +576,11 @@ public class DevilRouletteTableEntity extends BlockEntity {
     public static final Vec3 MIDDLE_SCALE = new Vec3(0.5, 0.5, 0.5);
     /** 正常倍数 */
     public static final Vec3 NORMAL_SCALE = new Vec3(1, 1, 1);
+    /** 玩家AFK时间 */
+    public static final int AFK_TICK = 20 * 30;
     public final Vec3 CENTER_POS;
+    /** 玩家操作时间显示位置 */
+    public final Vec3 TIME_POS;
     /**
      * 悬浮文本
      */
@@ -553,10 +610,11 @@ public class DevilRouletteTableEntity extends BlockEntity {
     protected Component bulletComponent;
     protected Display.TextDisplay winnerText;
     /** 前方玩家 */
-    protected Player frontPlayer;
+    protected UUID frontPlayerUUID;
     /** 后方玩家 */
-    protected Player backPlayer;
+    protected UUID backPlayerUUID;
     protected ItemStack gunStack;
     protected boolean isCollectFloatingText;
     protected float curGunRotationY;
+    protected int curAFKTick;
 }
