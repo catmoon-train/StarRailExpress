@@ -7,7 +7,7 @@ import io.wifi.starrailexpress.api.replay.GameReplayManager;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
-import io.wifi.starrailexpress.event.AllowPlayerInAreas;
+import io.wifi.starrailexpress.event.AllowSpectatorPlayerInAreas;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -219,7 +219,7 @@ public abstract class GameMode {
      */
     public void limitSpectatorPlayer(ServerPlayer player, SREGameWorldComponent gameWorldComponent,
             AreasWorldComponent areas) {
-        if (!AllowPlayerInAreas.EVENT.invoker().allowInAreas(player)) {
+        if (!AllowSpectatorPlayerInAreas.EVENT.invoker().allowInAreas(player)) {
             GameUtils.limitPlayerToBox(player, areas.getPlayArea());
         }
     }

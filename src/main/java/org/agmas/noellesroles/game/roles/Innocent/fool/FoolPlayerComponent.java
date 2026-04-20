@@ -5,7 +5,7 @@ import io.wifi.starrailexpress.api.RoleSkill;
 import io.wifi.starrailexpress.api.RoleSkill.RoleSkillContext;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.event.AllowPlayerDeathWithKiller;
-import io.wifi.starrailexpress.event.AllowPlayerInAreas;
+import io.wifi.starrailexpress.event.AllowSpectatorPlayerInAreas;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -139,7 +139,7 @@ public class FoolPlayerComponent implements RoleComponent {
     }
 
     static {
-        AllowPlayerInAreas.EVENT.register((p) -> {
+        AllowSpectatorPlayerInAreas.EVENT.register((p) -> {
             if (TarotAssemblyManager.havingMeeting) {
                 final double PADDING = 10;
                 double x_min = TarotAssemblyManager.MEETING_X - TarotAssemblySceneBuilder.HALL_HALF_WIDTH - PADDING;

@@ -7,13 +7,13 @@ import static net.fabricmc.fabric.api.event.EventFactory.createArrayBacked;
 /**
  * 事件接口：是否允许旁观玩家在指定区域停留。
  */
-public interface AllowPlayerInAreas {
+public interface AllowSpectatorPlayerInAreas {
 
     /**
      * 事件接口：是否允许旁观玩家在指定区域停留。
      */
-    Event<AllowPlayerInAreas> EVENT = createArrayBacked(AllowPlayerInAreas.class, listeners -> (player) -> {
-        for (AllowPlayerInAreas listener : listeners) {
+    Event<AllowSpectatorPlayerInAreas> EVENT = createArrayBacked(AllowSpectatorPlayerInAreas.class, listeners -> (player) -> {
+        for (AllowSpectatorPlayerInAreas listener : listeners) {
             if (listener.allowInAreas(player)) {
                 return true;
             }

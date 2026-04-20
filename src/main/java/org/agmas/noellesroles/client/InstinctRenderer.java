@@ -135,14 +135,14 @@ public class InstinctRenderer {
             if (Minecraft.getInstance() == null)
                 return -1;
             var self = Minecraft.getInstance().player;
-            if (GameUtils.isPlayerAliveAndSurvival(self))
-                return -1;
             if (self == null)
+                return -1;
+            if (!(self.isSpectator()))
                 return -1;
             if (hasInstinct) {
                 var deathPenalty = org.agmas.noellesroles.component.ModComponents.DEATH_PENALTY.get(self);
                 if (deathPenalty.hasPenalty()) {
-                    if (deathPenalty.limitPos != null || deathPenalty.limitCameraUUID != null)
+                    if (!deathPenalty.chatEnabled)
                         return -2;
                     if (target instanceof Player target_player) {
                         if (target_player.isSpectator())
