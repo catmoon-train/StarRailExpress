@@ -8,7 +8,7 @@ import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
-import io.wifi.starrailexpress.client.util.TMMClientUtils;
+import io.wifi.starrailexpress.client.util.SREClientUtils;
 import io.wifi.starrailexpress.event.OnRoundStartWelcomeTimmer;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -150,7 +150,7 @@ public class RoundTextRenderer {
                 return;
             String winner = null;
             if (game.getLooseEndWinner() != null)
-                winner = TMMClientUtils.getPlayerNameByUid(game.getLooseEndWinner());
+                winner = SREClientUtils.getPlayerNameByUid(game.getLooseEndWinner());
             Component endText = role.getEndText(roundEnd.getWinStatus(),
                     winner == null ? roundEnd.getCustomWinners() : Component.literal(winner), roundEnd);
             if (endText == null)

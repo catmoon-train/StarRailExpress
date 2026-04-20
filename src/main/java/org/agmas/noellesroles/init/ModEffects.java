@@ -1,6 +1,8 @@
 package org.agmas.noellesroles.init;
 
-import io.wifi.starrailexpress.event.AllowPlayerDeath;
+import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.event.AllowPlayerDeathWithKiller;
 import io.wifi.starrailexpress.game.GameConstants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -18,6 +20,7 @@ import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.content.effects.NoCollideEffect;
 import org.agmas.noellesroles.content.effects.SimpleMobEffect;
 import org.agmas.noellesroles.content.effects.TimeStopEffect;
+import org.agmas.noellesroles.role.ModRoles;
 
 public class ModEffects {
     public static final Holder<MobEffect> SKILL_BANED = register("skill_baned",
@@ -253,7 +256,7 @@ public class ModEffects {
     public static boolean pierceDeath = false;
 
     public static void init() {
-        AllowPlayerDeath.EVENT.register((player, deathReason) -> {
+        AllowPlayerDeathWithKiller.EVENT.register((player, killer, deathReason) -> {
             if (pierceDeath) {
                 pierceDeath = false;
                 return true;
@@ -262,6 +265,12 @@ public class ModEffects {
                 return true;
             }
             if (player.hasEffect(ModEffects.INVINCIBLE)) {
+                var gameComponent = SREGameWorldComponent.KEY.get(player.level());
+                if (gameComponent.isRole(player, ModRoles.MONOKUMA)) {
+                    if (gameComponent.isRole(killer, TMMRoles.LOOSE_END)) {
+                        return true;
+                    }
+                }
                 return false;
             }
             if (deathReason.equals(Noellesroles.id("bomb_death")))

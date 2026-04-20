@@ -92,6 +92,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.agmas.noellesroles.component.DeathPenaltyComponent;
+import org.agmas.noellesroles.content.entity.PuppeteerBodyEntity;
 import org.agmas.noellesroles.game.modes.fourthroom.network.FourthRoomStatePayload;
 import org.agmas.noellesroles.game.modes.fourthroom.network.FourthRoomTableEffectsPayload;
 import org.agmas.noellesroles.game.modes.fourthroom.network.OpenFourthRoomPeekDeckPayload;
@@ -871,6 +872,7 @@ public class SREClient implements ClientModInitializer {
 
     public static int getCachedInstinctHighlight(Entity target) {
         if (!(target instanceof ItemEntity || target instanceof Player || target instanceof NoteEntity
+                || target instanceof PuppeteerBodyEntity
                 || target instanceof FirecrackerEntity || target instanceof PlayerBodyEntity)) {
             return -1;
         }
@@ -897,9 +899,15 @@ public class SREClient implements ClientModInitializer {
         // if (target instanceof PlayerBodyEntity) return 0x606060;
         if (target instanceof ItemEntity || target instanceof NoteEntity || target instanceof FirecrackerEntity)
             return 0xDB9D00;
+        // 渲染傀儡高亮
+        if (target instanceof PuppeteerBodyEntity) {
+            if (GameUtils.isPlayerSpectatingOrCreativeIgnoreShitSplit(Minecraft.getInstance().player)) {
+                return new java.awt.Color(181, 255, 231).getRGB();
+            }
+        }
         if (target instanceof Player targetPlayer) {
             if (!(targetPlayer).isSpectator()) {
-                if (GameUtils.isPlayerSpectatingOrCreative(Minecraft.getInstance().player)) {
+                if (GameUtils.isPlayerSpectatingOrCreativeIgnoreShitSplit(Minecraft.getInstance().player)) {
                     SRERole role = gameWorldComponent.getRole(targetPlayer);
                     if (role == null) {
                         return (TMMRoles.CIVILIAN.color());

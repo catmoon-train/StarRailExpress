@@ -5,6 +5,7 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.client.SREClient;
+import io.wifi.starrailexpress.client.util.SREClientUtils;
 import io.wifi.starrailexpress.content.entity.NoteEntity;
 import io.wifi.starrailexpress.event.AllowNameRender;
 import io.wifi.starrailexpress.event.OnKillerCohortDisplay;
@@ -23,6 +24,9 @@ import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.phys.EntityHitResult;
+
+import org.agmas.noellesroles.component.ModComponents;
+import org.agmas.noellesroles.content.entity.PuppeteerBodyEntity;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -144,6 +148,33 @@ public class RoleNameRenderer {
                 }
                 context.pose().popPose();
             }
+        }
+        var deathPenalty = ModComponents.DEATH_PENALTY.get(player);
+        boolean hasPenalty = false;
+        hasPenalty = deathPenalty.hasPenalty();
+        if (!hasPenalty && (player.isSpectator() || player.isCreative())) {
+            if (ProjectileUtil.getHitResultOnViewVector(player, entity -> entity instanceof PuppeteerBodyEntity,
+                    range) instanceof EntityHitResult entityHitResult
+                    && entityHitResult.getEntity() instanceof PuppeteerBodyEntity pbe) {
+                UUID uid = pbe.getOwnerUuid().orElse(null);
+                String name2 = SREClientUtils.getPlayerNameByUid(uid);
+                context.pose().pushPose();
+                context.pose().translate(context.guiWidth() / 2f, context.guiHeight() / 2f + 6, 0);
+                context.pose().scale(0.6f, 0.6f, 1f);
+                int nameWidth2 = renderer.width(name2);
+                Component tipC = Component.translatable("entity.noellesroles.puppeteer_body")
+                        .withStyle(ChatFormatting.GRAY);
+                context.drawString(renderer, name2, -nameWidth2 / 2, 16,
+                        Mth.color(1f, 1f, 1f) | ((int) (1 * 255) << 24));
+                context.drawString(renderer, tipC, -renderer.width(tipC) / 2, 4,
+                        Mth.color(1f, 1f, 1f) | ((int) (1 * 255) << 24));
+                context.pose().popPose();
+            }
+        }
+        if (ProjectileUtil.getHitResultOnViewVector(player, entity -> entity instanceof PuppeteerBodyEntity,
+                range) instanceof EntityHitResult entityHitResult
+                && entityHitResult.getEntity() instanceof PuppeteerBodyEntity pbe) {
+
         }
         if (ProjectileUtil.getHitResultOnViewVector(player, entity -> entity instanceof NoteEntity,
                 range) instanceof EntityHitResult entityHitResult

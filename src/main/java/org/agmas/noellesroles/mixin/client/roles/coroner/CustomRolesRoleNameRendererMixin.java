@@ -31,6 +31,7 @@ import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 import pro.fazeclan.river.stupid_express.modifier.split_personality.cca.SplitPersonalityComponent;
 
 import java.awt.*;
+
 @Mixin(RoleNameRenderer.class)
 public abstract class CustomRolesRoleNameRendererMixin {
 
