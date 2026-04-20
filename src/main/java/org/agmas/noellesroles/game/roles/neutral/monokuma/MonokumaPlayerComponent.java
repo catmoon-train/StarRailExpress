@@ -295,7 +295,7 @@ public class MonokumaPlayerComponent implements RoleComponent, ServerTickingComp
         }
 
         // 体力光环：给范围内玩家无限奔跑效果
-        if (sp.level().getGameTime() % 20 == 0) {
+        if (sp.level().getGameTime() % 100 == 0) {
             for (ServerPlayer target : serverLevel.players()) {
                 if (target == sp)
                     continue;
@@ -304,7 +304,7 @@ public class MonokumaPlayerComponent implements RoleComponent, ServerTickingComp
                 if (sp.distanceTo(target) <= AURA_RANGE) {
                     target.addEffect(new MobEffectInstance(
                             ModEffects.INFINITE_STAMINA,
-                            40, // 2秒，持续刷新
+                            110, // 2秒，持续刷新
                             0,
                             true, false, false));
                 }
@@ -377,22 +377,6 @@ public class MonokumaPlayerComponent implements RoleComponent, ServerTickingComp
                         -1,
                         0,
                         true, false, false));
-            }
-            if (player.level().getGameTime() % AURA_COIN_INTERVAL == 0) {
-                // 光环内玩家每5秒获得8金币、无限体力。
-                applyAuraToNearbyPlayers();
-            }
-        }
-    }
-
-    private void applyAuraToNearbyPlayers() {
-        for (var p : this.player.level().players()) {
-            if (!GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(p)) {
-                continue;
-            }
-            if (p.distanceToSqr(this.player) <= AURA_RANGE * AURA_RANGE) {
-                p.addEffect(new MobEffectInstance(ModEffects.INFINITE_STAMINA, 110, 0, true, true, true));
-                SREPlayerShopComponent.KEY.get(p).addToBalance(AURA_COIN_AMOUNT);
             }
         }
     }
