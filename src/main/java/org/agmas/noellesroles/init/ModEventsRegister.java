@@ -19,6 +19,7 @@ import io.wifi.starrailexpress.game.ServerTaskInfoClasses;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
+import io.wifi.starrailexpress.network.CloseUiPayload;
 import io.wifi.starrailexpress.network.RemoveStatusBarPayload;
 import io.wifi.starrailexpress.util.SREItemUtils;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -1126,6 +1127,7 @@ public class ModEventsRegister {
 
         WayfarerPlayerComponent.registerEvents();
         OnPlayerDeath.EVENT.register((playerEntity, reason) -> {
+            ServerPlayNetworking.send((ServerPlayer) playerEntity, new CloseUiPayload());
             FortunetellerPlayerComponent.KEY.get(playerEntity).init();
             SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(playerEntity.level());
             if (!RefugeeComponent.KEY.get(playerEntity.level()).isAnyRevivals) {
@@ -1444,7 +1446,8 @@ public class ModEventsRegister {
                 all_players.forEach((p) -> {
                     if (p != null) {
                         BroadcastCommand.BroadcastMessage(p, Component
-                                .translatable("message.noellesroles.candlebearer.entry").withStyle(ChatFormatting.YELLOW));
+                                .translatable("message.noellesroles.candlebearer.entry")
+                                .withStyle(ChatFormatting.YELLOW));
                     }
                 });
             }
