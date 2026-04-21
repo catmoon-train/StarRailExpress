@@ -2,9 +2,8 @@ package io.wifi.starrailexpress.game.modes.funny;
 
 import io.wifi.starrailexpress.api.GameMode;
 import io.wifi.starrailexpress.api.SRERole;
-import io.wifi.starrailexpress.api.SpecialGameModeRoles;
-import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.network.original.AnnounceWelcomePayload;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -13,8 +12,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.content.block_entity.DevilRouletteTableEntity;
-import org.agmas.noellesroles.role.ModRoles;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;

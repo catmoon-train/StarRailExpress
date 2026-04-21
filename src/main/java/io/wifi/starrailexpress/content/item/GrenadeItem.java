@@ -2,9 +2,9 @@ package io.wifi.starrailexpress.content.item;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
-import io.wifi.starrailexpress.api.SpecialGameModeRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.entity.GrenadeEntity;
+import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
 import io.wifi.starrailexpress.index.TMMEntities;
 import io.wifi.starrailexpress.index.TMMSounds;
 import net.minecraft.core.registries.BuiltInRegistries;

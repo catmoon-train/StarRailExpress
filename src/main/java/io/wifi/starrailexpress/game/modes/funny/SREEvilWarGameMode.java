@@ -2,12 +2,12 @@ package io.wifi.starrailexpress.game.modes.funny;
 
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.SRERole;
-import io.wifi.starrailexpress.api.SpecialGameModeRoles;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.*;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.modes.WTLooseEndsGameMode;
+import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
 import io.wifi.starrailexpress.index.TMMItems;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;

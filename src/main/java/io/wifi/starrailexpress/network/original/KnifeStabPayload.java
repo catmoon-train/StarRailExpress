@@ -1,11 +1,11 @@
 package io.wifi.starrailexpress.network.original;
 
 import io.wifi.starrailexpress.SRE;
-import io.wifi.starrailexpress.api.SpecialGameModeRoles;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.TMMSounds;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;

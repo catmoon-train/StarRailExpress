@@ -1,6 +1,11 @@
-package io.wifi.starrailexpress.api;
+package io.wifi.starrailexpress.game.roles;
 
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.NormalRole;
+import io.wifi.starrailexpress.api.RoleComponent;
+import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.api.TMMRoles;
+
 import org.agmas.noellesroles.game.roles.special.super_loose_end.SuperLooseEnd;
 import org.agmas.noellesroles.game.roles.special.dirt.Dirt;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
@@ -8,6 +13,16 @@ import java.awt.Color;
 
 public class SpecialGameModeRoles {
 
+  /**
+   * 躲猫猫寻找者
+   */
+  public static final SRERole SEEKER = registerRole(
+      new SeekerRole(SRE.wifiId("hide_and_seek_seeker"), TMMRoles.KILLER.color(), false, true, SRERole.MoodType.NONE, -1, true))
+      .setCanPickUpRevolver(true).setCanBeRandomedByOtherRoles(false).setMax(0);
+      
+  /**
+   * 自选职业
+   */
   public static final SRERole CUSTOM_PENDING = registerRole(
       new NormalRole(SRE.wifiId("custom_pending"), 0x5CFF4A, false, false, SRERole.MoodType.NONE, -1, true))
       .setCanPickUpRevolver(false).setNeutrals(true).setNeutralForKiller(false).setCanBeRandomedByOtherRoles(false).setMax(0);

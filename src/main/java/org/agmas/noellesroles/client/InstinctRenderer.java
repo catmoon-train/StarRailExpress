@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.client;
 
+import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.api.SRERole;
-import io.wifi.starrailexpress.api.SpecialGameModeRoles;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREArmorPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameTimeComponent;
@@ -12,10 +12,13 @@ import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.event.OnGetInstinctHighlight;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.game.roles.SpecialGameModeModifiers;
+import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.SREItemUtils;
 import net.minecraft.client.Minecraft;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.component.FoodDrinkGlowComponent;
@@ -54,6 +57,31 @@ import java.util.HashMap;
 
 public class InstinctRenderer {
     public static void registerInstinctEvents() {
+        OnGetInstinctHighlight.EVENT.register((target, hasInstinct) -> {
+            if (!(target instanceof Player target_player))
+                return -1;
+            if (Minecraft.getInstance() == null || Minecraft.getInstance().player == null)
+                return -1;
+            if (!SREClient.isPlayerAliveAndInSurvivalIgnoreShitSplit()) {
+                return -1;
+            }
+            var self = Minecraft.getInstance().player;
+            if (SREClient.gameComponent.gameMode.identifier.equals(SREGameModes.HIDE_AND_SEEK_MODE.identifier)) {
+                if (SREClient.gameComponent.isKillerTeam(self) && SREClient.gameComponent.isKillerTeam(target_player)) {
+                    return TMMRoles.KILLER.color();
+                }
+                if (self.hasEffect(MobEffects.GLOWING)) {
+                    return TMMRoles.VIGILANTE.color();
+                }
+                return -2;
+            }
+            if (SREClient.gameComponent.gameMode.identifier.equals(SREGameModes.TNT_TAG_MODE.identifier)) {
+                if (SREClient.modifierComponent.isModifier(target_player, SpecialGameModeModifiers.TNT_TAGGED))
+                    return SpecialGameModeModifiers.TNT_TAGGED.color();
+                return TMMRoles.CIVILIAN.color();
+            }
+            return -1;
+        });
         OnGetInstinctHighlight.EVENT.register((target, hasInstinct) -> {
             if (!(target instanceof Player targetPlayer))
                 return -1;
@@ -597,17 +625,16 @@ public class InstinctRenderer {
                         && SREClient.isPlayerAliveAndInSurvival()) {
                     return -2;
                 }
-                if (SREClient.gameComponent.isRole(self, ModRoles.MONOKUMA)&& SREClient.isPlayerAliveAndInSurvival()){
+                if (SREClient.gameComponent.isRole(self, ModRoles.MONOKUMA) && SREClient.isPlayerAliveAndInSurvival()) {
                     return ModRoles.MONOKUMA.color();
                 }
 
-
                 // 黑白狂暴前奏：杀手看到灰色
-//                if (SREClient.gameComponent.isRole(target_player, ModRoles.MONOKUMA)
-//                        && MonokumaEventHandler.isInFrenzy(target_player)
-//                        && SREClient.isPlayerAliveAndInSurvival()) {
-//                    return Color.RED.getRGB();
-//                }
+                // if (SREClient.gameComponent.isRole(target_player, ModRoles.MONOKUMA)
+                // && MonokumaEventHandler.isInFrenzy(target_player)
+                // && SREClient.isPlayerAliveAndInSurvival()) {
+                // return Color.RED.getRGB();
+                // }
                 // 秉烛人：杀手无法透视察觉
                 if (SREClient.gameComponent.isRole(target_player, ModRoles.CANDLE_BEARER) && isKillerTeam(self_role)
                         && SREClient.isPlayerAliveAndInSurvival()) {

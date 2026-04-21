@@ -1,12 +1,12 @@
 package io.wifi.starrailexpress.game.modes.funny;
 
 import io.wifi.starrailexpress.SREConfig;
-import io.wifi.starrailexpress.api.SpecialGameModeRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.item.DerringerItem;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.modes.WTLooseEndsGameMode;
+import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -16,6 +16,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemCooldowns;
 import org.agmas.noellesroles.init.ModItems;
+
 import pro.fazeclan.river.stupid_express.StupidExpress;
 
 import java.util.ArrayList;
@@ -79,7 +80,6 @@ public class SREAntWarGameMode extends WTLooseEndsGameMode {
 //                    false,                // 是否显示粒子效果
 //                    true                  // 是否显示图标
 //            ));
-            Objects.requireNonNull(player.getAttribute(Attributes.SCALE)).removeModifier(antModifier);
             Objects.requireNonNull(player.getAttribute(Attributes.SCALE)).addPermanentModifier(antModifier);
         }
         assignModdedRole(players, gameWorldComponent);

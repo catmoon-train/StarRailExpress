@@ -21,6 +21,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.game.roles.Innocent.fool.TarotAssemblyManager;
+import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
@@ -469,7 +470,7 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
         if (this.isRunning()) {
             if (gameMode == null)
                 return;
-            gameMode.tickClientGameLoop();
+            gameMode.tickClientGameLoop(this.world);
         }
     }
 
@@ -632,7 +633,7 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
             if (gameMode == null) {
                 return;
             }
-            gameMode.tickCommonGameLoop();
+            gameMode.tickCommonGameLoop(this.world);
         }
     }
 
@@ -692,5 +693,13 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
         if (role == null)
             return false;
         return role.isVigilanteTeam();
+    }
+
+    public int getRoleType(Player player) {
+        if (player == null) {
+            return -1;
+        }
+        SRERole role = this.getRole(player);
+        return RoleUtils.getRoleType(role);
     }
 }

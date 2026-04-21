@@ -2,10 +2,10 @@ package io.wifi.starrailexpress.cca.gamemode;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.SRERole;
-import io.wifi.starrailexpress.api.SpecialGameModeRoles;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SRERoleWorldComponent;
 import io.wifi.starrailexpress.client.gui.screen.gamemode.custom_role.CustomRoleUpdateHandler;
+import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
 import io.wifi.starrailexpress.game.utils.RoleInstance;
 import net.fabricmc.api.EnvType;
 import net.minecraft.ChatFormatting;

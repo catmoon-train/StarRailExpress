@@ -15,7 +15,7 @@ public class SREConfig implements ConfigData {
     public static ConfigClassHandler<SREConfig> HANDLER = new ConfigClassHandler<>(
             SREConfig.class);
 
-            // 游戏模式设置
+    // 游戏模式设置
     @ConfigEntry.Category(value = "gamemodes")
     public boolean enableNoLimitLoversInLoverMode = false;
     @ConfigEntry.Category(value = "gamemodes")
@@ -38,7 +38,16 @@ public class SREConfig implements ConfigData {
     public int antWarClockCooldownTick = 140;
     @ConfigEntry.Category(value = "gamemodes")
     public int evilWarKillGroupNumber = 7;
-
+    @ConfigEntry.Category(value = "gamemodes")
+    public int hideAndSeekRewardKillRemoveTime = 30;
+    @ConfigEntry.Category(value = "gamemodes")
+    public int hideAndSeekRewardKillAddTime = 10;
+    @ConfigEntry.Category(value = "gamemodes")
+    public int hideAndSeekBaseTime = 30;
+    @ConfigEntry.Category(value = "gamemodes")
+    public int hideAndSeekTimePerPlayer = 15;
+    @ConfigEntry.Category(value = "gamemodes")
+    public double hideAndSeekHiderScale = -0.25;
     // 随机地图设置
     @ConfigEntry.Category(value = "map")
     @Tooltip

@@ -90,6 +90,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.Vec3;
+
+import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.agmas.noellesroles.component.DeathPenaltyComponent;
 import org.agmas.noellesroles.content.entity.PuppeteerBodyEntity;
@@ -114,11 +116,13 @@ public class SREClient implements ClientModInitializer {
     public static Map<UUID, Integer> cachedHighLightMap = new HashMap<>();
     private static boolean prevGameRunning;
     public static SREGameWorldComponent gameComponent;
+    public static WorldModifierComponent modifierComponent;
     public static AreasWorldComponent areaComponent;
     public static SRETrainWorldComponent trainComponent;
     public static SREPlayerMoodComponent moodComponent;
     public static int intervalTime = 0;
     public static boolean isInLobby = false;
+    public static Player cached_player = null;
     // HUD/API 缓存：在 END_CLIENT_TICK 统一更新，在渲染 mixin 中仅做读取，避免渲染流程重复判断。
     private static boolean cachedPlayerAliveAndInSurvival;
     private static boolean cachedPlayerSpectatingOrCreative;
@@ -304,6 +308,7 @@ public class SREClient implements ClientModInitializer {
         // Caching components
         ClientTickEvents.START_WORLD_TICK.register(clientWorld -> {
             gameComponent = SREGameWorldComponent.KEY.get(clientWorld);
+            modifierComponent = WorldModifierComponent.KEY.get(clientWorld);
             areaComponent = AreasWorldComponent.KEY.get(clientWorld);
             trainComponent = SRETrainWorldComponent.KEY.get(clientWorld);
             moodComponent = SREPlayerMoodComponent.KEY.get(Minecraft.getInstance().player);
@@ -411,6 +416,7 @@ public class SREClient implements ClientModInitializer {
         ClientTickEvents.END_CLIENT_TICK.register((client) -> {
             FrameAnimationRenderer.setInWorld(client != null && client.level != null);
             LocalPlayer player = client.player;
+            cached_player = player;
             if (player == null) {
                 localPlayerPsychoActive = false;
                 PLAYER_PSYCHO_CACHE.clear();

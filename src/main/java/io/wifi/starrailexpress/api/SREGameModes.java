@@ -5,7 +5,6 @@ import io.wifi.starrailexpress.game.modes.SREMurderGameMode;
 import io.wifi.starrailexpress.game.modes.WTLooseEndsGameMode;
 import io.wifi.starrailexpress.game.modes.funny.*;
 import net.minecraft.resources.ResourceLocation;
-import org.agmas.noellesroles.content.block_entity.DevilRouletteTableEntity;
 import org.agmas.noellesroles.game.modes.ChairWheelRaceGame;
 import org.agmas.noellesroles.game.modes.fourthroom.game.FourthRoomGameMode;
 
@@ -26,6 +25,8 @@ public class SREGameModes {
     public static final ResourceLocation LOVERS_MODE_ID = SRE.wifiId("lover");
     public static final ResourceLocation REFUGEE_MODE_ID = SRE.wifiId("refugee");
     public static final ResourceLocation REFUGEE_LOVER_MODE_ID = SRE.wifiId("refugee_lover");
+    public static final ResourceLocation HIDE_AND_SEEK_MODE_ID = SRE.wifiId("hide_and_seek");
+    public static final ResourceLocation TNT_TAG_MODE_ID = SRE.wifiId("tnt_tag");
 
     // Author: canyuesama (catmoon233)
     public static final ResourceLocation FOURTH_ROOM_ID = SRE.canyueId("fourth_room");
@@ -48,8 +49,12 @@ public class SREGameModes {
             new SRECustomRoleGameMode(CUSTOM_SELECTED_MODE_ID));
     public static final GameMode LOVERS_MODE = registerGameMode(new SRELoverGameMode(LOVERS_MODE_ID));
     public static final GameMode REFUGEE_MODE = registerGameMode(new SRERefugeeGameMode(REFUGEE_MODE_ID));
-    public static final GameMode REFUGEE_LOVER_MODE = registerGameMode(new SRERefugeeLoversGameMode(REFUGEE_LOVER_MODE_ID));
-
+    public static final GameMode REFUGEE_LOVER_MODE = registerGameMode(
+            new SRERefugeeLoversGameMode(REFUGEE_LOVER_MODE_ID));
+    public static final GameMode HIDE_AND_SEEK_MODE = registerGameMode(
+            new SREHideAndSeekGameMode(HIDE_AND_SEEK_MODE_ID));
+    public static final GameMode TNT_TAG_MODE = registerGameMode(new SRETNTTagGameMode(TNT_TAG_MODE_ID));
+    //
     // written by canyuesama
     public static final GameMode FOURTH_ROOM = registerGameMode(new FourthRoomGameMode(FOURTH_ROOM_ID));
     public static final GameMode WHEELCHAR_GAME_MODE = registerGameMode(new ChairWheelRaceGame());
@@ -58,7 +63,8 @@ public class SREGameModes {
     public static final GameMode ANT_WAR_MODE = registerGameMode(new SREAntWarGameMode(ANT_WAR_MODE_ID));
     public static final GameMode SNIPER_RIFLE_MODE = registerGameMode(new SRESniperRifleGameMode(SNIPER_RIFLE_ID));
     public static final GameMode EVIL_WAR_MODE = registerGameMode(new SREEvilWarGameMode(EVIL_WAR_MODE_ID));
-    public static final GameMode DEVIL_ROULETTE_MODE = registerGameMode(new SREDevilRouletteGameMode(DEVIL_ROULETTE_ID));
+    public static final GameMode DEVIL_ROULETTE_MODE = registerGameMode(
+            new SREDevilRouletteGameMode(DEVIL_ROULETTE_ID));
 
     // register
     public static GameMode registerGameMode(GameMode gameMode) {

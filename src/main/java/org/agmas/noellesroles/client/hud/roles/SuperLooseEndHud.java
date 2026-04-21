@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.client.hud.roles;
 
-import io.wifi.starrailexpress.api.SpecialGameModeRoles;
 import io.wifi.starrailexpress.cca.SREArmorPlayerComponent;
+import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;

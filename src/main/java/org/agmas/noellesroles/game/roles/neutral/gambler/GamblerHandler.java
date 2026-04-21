@@ -144,13 +144,11 @@ public class GamblerHandler {
     }
 
     private static void teleport(Player player) {
-
         Vec3 pos = GameUtils.getSpawnPos(AreasWorldComponent.KEY.get(player.level()),
                 GameUtils.roomToPlayer.get(player.getUUID()));
         if (pos != null) {
             player.teleportTo(pos.x(), pos.y() + 1, pos.z());
         }
-
     }
 
     public static void triggerOnePercentMiracle(ServerLevel serverWorld, Player victim) {
