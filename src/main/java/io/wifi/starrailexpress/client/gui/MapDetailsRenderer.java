@@ -20,9 +20,8 @@ public class MapDetailsRenderer {
     public static String mapDescription = "";
     public static String mapAuthor = "";
     private static long displayStartTime = 0L;
-    private static final long DISPLAY_DURATION = 10000L; // 12秒显示时间
+    private static final long DISPLAY_DURATION = 10000L; // 10秒显示时间
     private static final long FADE_DURATION = 1000L; // 1秒淡入淡出时间
-    private static final long FINAL_ANIMATION_START = 10000L; // 最后4秒开始合拢再张开动画
 
     // 文字颜色 - 电影风格黑白
     private static final int TITLE_COLOR = 0xFFFFFFFF; // 纯白标题
@@ -44,15 +43,14 @@ public class MapDetailsRenderer {
     private static final int VIGNETTE_COLOR = 0x80000000; // 黑色暗角
 
     // 上下黑框参数
-    private static final int BLACK_BAR_COLOR = 0xFF000000; // 纯黑色
     private static final float MAX_BLACK_BAR_HEIGHT = 0.25f; // 最大覆盖1/4屏幕
     private static float currentBarHeightRatio = 0f; // 当前黑框高度比例
-    private static boolean barsAnimatingOut = false; // 标记黑边是否在合拢阶段
-    private static boolean finalAnimationPlayed = false; // 标记最终动画是否已播放
 
     // 动画效果
-    private static float titleOffsetX = 0f; // 标题偏移动画
+    private static float titleOffsetX = 0f; // 标题偏移动画（胶片抖动）
     private static float titlePulse = 0f; // 标题脉动动画
+    private static float titleSlideX = 0f; // 标题滑入偏移
+    private static float authorSlideX = 0f; // 作者/描述滑入偏移
 
     public static void renderHud(Font font, @NotNull LocalPlayer player, FakeGuiGraphics context, float delta) {
         if (mapId.isEmpty() || System.currentTimeMillis() - displayStartTime > DISPLAY_DURATION) {
@@ -91,7 +89,7 @@ public class MapDetailsRenderer {
         context.pose().pushPose();
 
         // 渲染上下黑框
-        renderBlackBars(context, screenWidth, screenHeight);
+        renderBlackBars(context, screenWidth, screenHeight, alphaInt);
 
         // 渲染全屏电影效果
         renderFullscreenEffects(context, screenWidth, screenHeight, alphaInt);
@@ -131,73 +129,63 @@ public class MapDetailsRenderer {
 
         // 标题脉动动画
         titlePulse = (float) Math.sin(elapsed * 0.002f) * 0.05f + 1.0f;
+
+        // 滑入动画：淡入阶段内从左侧滑入（缓动）
+        if (elapsed < FADE_DURATION) {
+            float t = (float) elapsed / FADE_DURATION;
+            // ease-out quad: 1-(1-t)^2
+            float eased = 1f - (1f - t) * (1f - t);
+            titleSlideX = -40f * (1f - eased);
+            // 作者/描述稍晚 200ms 开始滑入
+            long authorDelay = 200;
+            float authorT = (FADE_DURATION > authorDelay)
+                    ? Math.max(0f, (float) (elapsed - authorDelay) / (FADE_DURATION - authorDelay))
+                    : 1f;
+            float authorEased = 1f - (1f - authorT) * (1f - authorT);
+            authorSlideX = -20f * (1f - authorEased);
+        } else {
+            titleSlideX = 0f;
+            authorSlideX = 0f;
+        }
     }
 
     /**
      * 更新黑框动画
      */
     private static void updateBlackBarAnimation(long elapsed) {
-        // 确保时间在有效范围内
         if (elapsed > DISPLAY_DURATION) {
             currentBarHeightRatio = 0f;
             return;
         }
 
-        // 第一阶段：淡入时黑边展开到最大（0-1秒）
+        // 淡入阶段：黑边从 0 缓动展开到最大（ease-out quad）
         if (elapsed < FADE_DURATION) {
-            float progress = (float) elapsed / FADE_DURATION;
-            currentBarHeightRatio = MAX_BLACK_BAR_HEIGHT * progress;
-            barsAnimatingOut = false;
-            finalAnimationPlayed = false;
-            return;
-        }
-
-        // 第二阶段：保持黑边在最大位置（1-8秒）
-        if (elapsed < FINAL_ANIMATION_START) {
+            float t = (float) elapsed / FADE_DURATION;
+            float eased = 1f - (1f - t) * (1f - t);
+            currentBarHeightRatio = MAX_BLACK_BAR_HEIGHT * eased;
+        } else {
+            // 之后保持最大高度，透明度由全局 alpha 控制淡出
             currentBarHeightRatio = MAX_BLACK_BAR_HEIGHT;
-            barsAnimatingOut = false;
-            return;
-        }
-
-        // 第三阶段：最后4秒，执行一次合拢再张开的动画（8-12秒）
-        if (!finalAnimationPlayed) {
-            float progress = (float) (elapsed - FINAL_ANIMATION_START) / (DISPLAY_DURATION - FINAL_ANIMATION_START);
-
-            // 前半部分：合拢（8-10秒）
-            if (progress < 0.5f) {
-                float closeProgress = progress * 2f; // 0到1
-                currentBarHeightRatio = MAX_BLACK_BAR_HEIGHT * (1f - closeProgress);
-                barsAnimatingOut = true;
-            }
-            // 后半部分：张开（10-12秒）
-            else {
-                float openProgress = (progress - 0.5f) * 2f; // 0到1
-                currentBarHeightRatio = MAX_BLACK_BAR_HEIGHT * openProgress;
-                barsAnimatingOut = false;
-
-                // 标记动画已播放完成
-                if (progress >= 0.99f) {
-                    finalAnimationPlayed = true;
-                }
-            }
         }
     }
 
     /**
-     * 渲染上下黑框
+     * 渲染上下黑框（透明度随全局 alpha 淡入淡出）
      */
-    private static void renderBlackBars(FakeGuiGraphics context, int screenWidth, int screenHeight) {
-        if (currentBarHeightRatio <= 0f)
+    private static void renderBlackBars(FakeGuiGraphics context, int screenWidth, int screenHeight, int alphaInt) {
+        if (currentBarHeightRatio <= 0f || alphaInt <= 0)
             return;
 
         int barHeight = (int) (screenHeight * currentBarHeightRatio);
+        // 黑框颜色携带全局 alpha，实现淡入淡出而非突然出现/消失
+        int barColor = alphaInt << 24;
 
-        // 上黑框 - 纯黑色，不使用透明度
-        context.fill(0, 0, screenWidth, barHeight, BLACK_BAR_COLOR);
+        // 上黑框
+        context.fill(0, 0, screenWidth, barHeight, barColor);
 
-        // 下黑框 - 纯黑色，不使用透明度
+        // 下黑框
         int bottomBarY = screenHeight - barHeight;
-        context.fill(0, bottomBarY, screenWidth, screenHeight, BLACK_BAR_COLOR);
+        context.fill(0, bottomBarY, screenWidth, screenHeight, barColor);
     }
 
     /**
@@ -341,8 +329,8 @@ public class MapDetailsRenderer {
     private static void renderTitle(FakeGuiGraphics context, Font font, String title, int y, int alpha) {
         context.pose().pushPose();
 
-        // 应用位置和动画效果
-        int titleX = LEFT_MARGIN + (int) titleOffsetX;
+        // 应用位置和动画效果（含滑入偏移）
+        int titleX = LEFT_MARGIN + (int) titleOffsetX + (int) titleSlideX;
         context.pose().translate(titleX, y, 0);
 
         // 应用脉动缩放
@@ -366,7 +354,7 @@ public class MapDetailsRenderer {
     private static void renderAuthor(FakeGuiGraphics context, Font font, int y, int alpha) {
         context.pose().pushPose();
 
-        int authorX = LEFT_MARGIN;
+        int authorX = LEFT_MARGIN + (int) authorSlideX;
         context.pose().translate(authorX, y, 0);
         context.pose().scale(AUTHOR_SCALE, AUTHOR_SCALE, 1.0f);
 
@@ -397,7 +385,7 @@ public class MapDetailsRenderer {
         int linesToShow = Math.min(2, lines.size());
 
         context.pose().pushPose();
-        int descX = LEFT_MARGIN;
+        int descX = LEFT_MARGIN + (int) authorSlideX;
         context.pose().translate(descX, y, 0);
         context.pose().scale(DESC_SCALE, DESC_SCALE, 1.0f);
 
@@ -460,9 +448,9 @@ public class MapDetailsRenderer {
         // 重置动画状态
         titleOffsetX = 0f;
         titlePulse = 1.0f;
+        titleSlideX = 0f;
+        authorSlideX = 0f;
         currentBarHeightRatio = 0f;
-        barsAnimatingOut = false;
-        finalAnimationPlayed = false;
     }
 
     /**
@@ -480,8 +468,8 @@ public class MapDetailsRenderer {
         mapDescription = "";
         mapAuthor = "";
         currentBarHeightRatio = 0f;
-        barsAnimatingOut = false;
-        finalAnimationPlayed = false;
+        titleSlideX = 0f;
+        authorSlideX = 0f;
     }
 
     /**
