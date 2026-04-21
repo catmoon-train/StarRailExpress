@@ -1,6 +1,7 @@
 package org.agmas.noellesroles.packet;
 
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -44,7 +45,8 @@ public record RecorderC2SPacket(UUID targetUuid, String roleId) implements Custo
 
             if (!gameWorld.isRole(player, ModRoles.RECORDER))
                 return;
-
+            if (!GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player))
+                return;
             RecorderPlayerComponent recorder = ModComponents.RECORDER.get(player);
             ResourceLocation roleId = ResourceLocation.tryParse(payload.roleId());
 
