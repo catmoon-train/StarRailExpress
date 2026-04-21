@@ -625,7 +625,7 @@ public class LootInfoScreen extends AbstractPixelScreen {
                     button -> {
                         Minecraft minecraft = Minecraft.getInstance();
                         if(minecraft.player != null) {
-                            minecraft.player.connection.sendCommand("sre:loot coin2lottery 1");
+                            minecraft.player.connection.sendCommand("sre:loot coin2lottery");
                             ClientPlayNetworking.send(new LootDataRefreshC2SPacket());
                         }
                     },
