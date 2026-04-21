@@ -143,7 +143,7 @@ public class SRETNTTagGameMode extends SREMurderGameMode {
     public void newRound(ServerLevel serverWorld) {
         long player_size = serverWorld.players().stream()
                 .filter((p) -> GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(p)).count();
-        int roundTime = getRoundTime(serverWorld, (int) player_size);
+        int roundTime = getRoundTime(serverWorld, (int) player_size) * 20;
         nextRoundTime = 0;
         nextBombTime = serverWorld.getGameTime() + roundTime;
         SREGameTimeComponent.KEY.get(serverWorld).setTime(roundTime);

@@ -110,6 +110,7 @@ public class BowenBadgeItem extends Item implements AdventureUsable{
             double z = player.getZ();
 
             float yaw = player.getYRot();
+            @SuppressWarnings("unused")
             float pitch = player.getXRot();
 
             // 将角度转换为弧度
