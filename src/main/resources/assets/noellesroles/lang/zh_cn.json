@@ -1265,6 +1265,7 @@
   "message.noellesroles.monitor.target_not_found": "目标无效或已死亡！",
   "message.noellesroles.swapper.swapped": "你被交换者交换了位置！",
   "message.swapper.failed.not_on_ground": "%s 不在地面上，无法交换",
+  "message.swapper.failed.to_far": "%s 距离 %s 太远了，无法交换",
   "==================== 精灵角色 ====================": "",
   "item.poison_arrow.name": "毒箭",
   "==================== 巡警角色 ====================": "",

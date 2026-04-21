@@ -58,6 +58,12 @@ public class SwapperPlayerComponent implements RoleComponent, ServerTickingCompo
                     Component.translatable("message.swapper.failed.died", player2.getName()), true);
             return;
         }
+        if (player1.distanceToSqr(player2) >= 50 * 50) {
+            this.player.displayClientMessage(
+                    Component.translatable("message.swapper.failed.to_far", player1.getName(), player2.getName()),
+                    true);
+            return;
+        }
         if (!player1.onGround()) {
             this.player.displayClientMessage(
                     Component.translatable("message.swapper.failed.not_on_ground", player1.getName()), true);
@@ -80,7 +86,7 @@ public class SwapperPlayerComponent implements RoleComponent, ServerTickingCompo
         this.isSwapping = true;
         this.swapTimer = 50; // 2.5秒 = 50 ticks
 
-        if (player instanceof ServerPlayer serverPlayer){
+        if (player instanceof ServerPlayer serverPlayer) {
             ConfigWorldComponent.onPlayerUsedSkill(serverPlayer);
         }
         ModComponents.SWAPPER.sync(player);
@@ -171,7 +177,6 @@ public class SwapperPlayerComponent implements RoleComponent, ServerTickingCompo
         this.init();
     }
 
-    
     @Override
     public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }
