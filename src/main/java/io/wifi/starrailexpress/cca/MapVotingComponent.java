@@ -279,7 +279,7 @@ public class MapVotingComponent implements AutoSyncedComponent, CommonTickingCom
             if (!winningMap.equals("random")) {
                 // 加载对应地图
                 server.getCommands().performPrefixedCommand(server.createCommandSourceStack(),
-                        "tmm:switchmap load " + winningMap);
+                        "tmm:switchmap load '" + winningMap + "'");
             } else {
                 server.getCommands().performPrefixedCommand(server.createCommandSourceStack(),
                         "tmm:switchmap random");
