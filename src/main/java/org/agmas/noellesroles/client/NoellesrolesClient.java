@@ -174,7 +174,7 @@ public class NoellesrolesClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
-       NoellesrolesClientAmbientSounds.register();
+        NoellesrolesClientAmbientSounds.register();
         // 注册HUD渲染
         LimitedInventoryScreen.NotAllowItemTakePredicates.add(stack -> stack.is(ModItems.BOMB));
 
@@ -823,7 +823,8 @@ public class NoellesrolesClient implements ClientModInitializer {
             boolean abilityPressed = abilityBind.consumeClick();
             if (client.player.isCreative()) {
                 if (foolPrayerBind.consumeClick()) {
-                    ClientPlayNetworking.send(new org.agmas.noellesroles.game.roles.Innocent.fool.FoolPrayerC2SPacket());
+                    ClientPlayNetworking
+                            .send(new org.agmas.noellesroles.game.roles.Innocent.fool.FoolPrayerC2SPacket());
                 }
                 if (abilityPressed) {
                     if (SREClient.gameComponent.isRole(client.player, ModRoles.ATTENDANT)) {
@@ -850,7 +851,8 @@ public class NoellesrolesClient implements ClientModInitializer {
 
             if (inTarotAssembly) {
                 if (client.options.keyUse.consumeClick()) {
-                    ClientPlayNetworking.send(new org.agmas.noellesroles.game.roles.Innocent.fool.FoolLeaveMeetingC2SPacket());
+                    ClientPlayNetworking
+                            .send(new org.agmas.noellesroles.game.roles.Innocent.fool.FoolLeaveMeetingC2SPacket());
                 }
 
                 boolean pauseOpen = client.screen instanceof net.minecraft.client.gui.screens.PauseScreen;
@@ -858,7 +860,8 @@ public class NoellesrolesClient implements ClientModInitializer {
                     if (SREClient.gameComponent.isRole(client.player, ModRoles.THE_FOOL)) {
                         foolMeetingPauseHandled = true;
                     } else {
-                        ClientPlayNetworking.send(new org.agmas.noellesroles.game.roles.Innocent.fool.FoolLeaveMeetingC2SPacket());
+                        ClientPlayNetworking
+                                .send(new org.agmas.noellesroles.game.roles.Innocent.fool.FoolLeaveMeetingC2SPacket());
                         client.setScreen(null);
                     }
                 }
@@ -991,7 +994,8 @@ public class NoellesrolesClient implements ClientModInitializer {
                     if (!(entity instanceof Player player)) {
                         return 0.0F;
                     }
-                    var component = org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaPlayerComponent.KEY.maybeGet(player)
+                    var component = org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaPlayerComponent.KEY
+                            .maybeGet(player)
                             .orElse(null);
                     if (component == null) {
                         return 0.0F;
@@ -1003,7 +1007,8 @@ public class NoellesrolesClient implements ClientModInitializer {
                     if (!(entity instanceof Player player)) {
                         return 0.0F;
                     }
-                    var component = org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaPlayerComponent.KEY.maybeGet(player)
+                    var component = org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaPlayerComponent.KEY
+                            .maybeGet(player)
                             .orElse(null);
                     if (component == null || component.aoeChargeTimer <= 0) {
                         return 0.0F;
@@ -1016,13 +1021,27 @@ public class NoellesrolesClient implements ClientModInitializer {
                     if (!(entity instanceof Player player)) {
                         return 0.0F;
                     }
-                    var component = org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaPlayerComponent.KEY.maybeGet(player)
+                    var component = org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaPlayerComponent.KEY
+                            .maybeGet(player)
                             .orElse(null);
                     if (component == null || component.dashAnimTimer <= 0) {
                         return 0.0F;
                     }
                     return 1.0F;
                 });
+        // 当前游戏模式
+        OnMessageBelowMoneyRenderer.EVENT.register((minecraft, guiGraphics, deltaTracker) -> {
+            if (SREClient.gameComponent != null && minecraft != null && minecraft.player != null) {
+                if (SREClient.gameComponent.isRunning() && SREClient.gameComponent.gameMode != null) {
+
+                    return new MutableComponentResult(
+                            Component
+                                    .translatable("message.tip.game_mode", SREClient.gameComponent.gameMode.getName())
+                                    .withStyle(ChatFormatting.WHITE));
+                }
+            }
+            return null;
+        });
         // 当前死亡惩罚
         OnMessageBelowMoneyRenderer.EVENT.register((minecraft, guiGraphics, deltaTracker) -> {
             if (SREClient.gameComponent != null && minecraft != null && minecraft.player != null) {

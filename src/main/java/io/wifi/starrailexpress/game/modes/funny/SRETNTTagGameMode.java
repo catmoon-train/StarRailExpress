@@ -41,8 +41,8 @@ public class SRETNTTagGameMode extends SREMurderGameMode {
     }
 
     public final static int roundGapTime = 10 * 20;
-    public long nextBombTime = 0;
-    public long nextRoundTime = 0;
+    public long nextBombTime = -1;
+    public long nextRoundTime = -1;
 
     @Override
     public void writeToNbt(CompoundTag nbtCompound, HolderLookup.Provider wrapperLookup) {
@@ -54,7 +54,7 @@ public class SRETNTTagGameMode extends SREMurderGameMode {
         if (nbtCompound.contains("nextBomb")) {
             this.nextBombTime = nbtCompound.getLong("nextBomb");
         } else {
-            this.nextBombTime = 0;
+            this.nextBombTime = -1;
         }
     }
 
@@ -66,8 +66,8 @@ public class SRETNTTagGameMode extends SREMurderGameMode {
     @Override
     public void initializeGame(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent,
             List<ServerPlayer> players) {
-        nextBombTime = 0;
-        nextRoundTime = 0;
+        nextBombTime = -1;
+        nextRoundTime = -1;
         super.initializeGame(serverWorld, gameWorldComponent, players);
     }
 
@@ -193,7 +193,7 @@ public class SRETNTTagGameMode extends SREMurderGameMode {
         }
         if (this.nextBombTime > 0 && serverWorld.getGameTime() >= this.nextBombTime) {
             tntBomb(serverWorld);
-        } else if (this.nextBombTime <= 0) {
+        } else if (this.nextBombTime <= 0 && this.nextRoundTime <= 0) {
             pendingNextRound(serverWorld);
         } else if (this.nextRoundTime > 0 && serverWorld.getGameTime() >= this.nextRoundTime) {
             newRound(serverWorld);

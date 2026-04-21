@@ -1178,6 +1178,7 @@
   "message.tip.skill_disabled": "当前场上部分职业及修饰符的技能已被禁用",
   "message.tip.for_death_vt": "启用/禁用死亡频道的语音：%s",
   "message.tip.voice_setting": "按下 %s 打开语音设置",
+  "message.tip.game_mode": "游戏模式：%s",
   "message.noellesroles.better_vigilante.last_stand_activated": "被动技能背水一战已激活！",
   "message.lock.game.start": "撬锁小游戏开始！",
   "message.lock.unlock": "锁已被撬掉！",
