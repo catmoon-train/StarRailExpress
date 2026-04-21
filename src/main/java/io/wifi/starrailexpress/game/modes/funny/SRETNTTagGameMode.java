@@ -168,6 +168,7 @@ public class SRETNTTagGameMode extends SREMurderGameMode {
                 Component.translatable("gui.sre.gamemode.tnt_tag.new_round", allTaggedPlayersMessage)
                         .withStyle(ChatFormatting.GOLD),
                 false);
+        SREGameWorldComponent.KEY.get(serverWorld).sync();
     }
 
     @Override
@@ -229,6 +230,7 @@ public class SRETNTTagGameMode extends SREMurderGameMode {
                 Component.translatable("gui.sre.gamemode.tnt_tag.next_round_time", roundGapTime / 20)
                         .withStyle(ChatFormatting.GREEN),
                 false);
+        SREGameWorldComponent.KEY.get(serverWorld).sync();
     }
 
     public void broadcastMessage(ServerLevel serverWorld, Component message, boolean bomb) {
