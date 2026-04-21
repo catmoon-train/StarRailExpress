@@ -1652,7 +1652,7 @@
   "item.noellesroles.fire_axe.on_cooldown": "消防斧正在冷却中！",
   "item.noellesroles.fire_axe.target_dead": "目标已经死亡！",
   "death_reason.noellesroles.fire_axe": "消防斧劈砍",
-  "death_reason.starrailexpress.hot_potato": "消防斧劈砍",
+  "death_reason.starrailexpress.hot_potato": "烫手的山芋",
   "item.noellesroles.rope": "绳索",
   "item.noellesroles.rope.tooltip.durability": "耐久度: %s/%s",
   "item.noellesroles.rope.tooltip.use": "右键：将前方直线距离10格内最近的玩家拉到自己身前",

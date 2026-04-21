@@ -34,13 +34,11 @@ public class HotPotatoItem extends Item implements LeftClickHurtable {
     }
 
     @Override
-    public boolean hurtEnemy(ItemStack itemStack, LivingEntity livingEntity, LivingEntity livingEntity2) {
-        if (livingEntity instanceof ServerPlayer from_player && livingEntity2 instanceof ServerPlayer to_player) {
+    public boolean hurtEnemy(ItemStack itemStack, LivingEntity target, LivingEntity attacker) {
+        if (attacker instanceof ServerPlayer from_player && target instanceof ServerPlayer to_player) {
             SRETNTTagGameMode.transformTNTTag(from_player, to_player);
-            return true;
         }
-        return false;
-
+        return true;
     }
 
 }
