@@ -34,7 +34,7 @@ public class SeekerRole extends NormalRole {
                 ShopEntry.Type.TOOL));
         shop.add(new ShopEntry(TMMItems.CROWBAR.getDefaultInstance(), SREConfig.instance().crowbarPrice,
                 ShopEntry.Type.TOOL));
-        shop.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), SREConfig.instance().blackoutPrice,
+        shop.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), SREConfig.instance().blackoutPrice * 2,
                 ShopEntry.Type.TOOL) {
             @Override
             public boolean onBuy(Player player) {

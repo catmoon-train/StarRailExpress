@@ -62,6 +62,9 @@ public class InstinctRenderer {
                 return -1;
             if (Minecraft.getInstance() == null || Minecraft.getInstance().player == null)
                 return -1;
+            if (!SREClient.gameComponent.isRunning()) {
+                return -1;
+            }
             if (!SREClient.isPlayerAliveAndInSurvivalIgnoreShitSplit()) {
                 return -1;
             }
