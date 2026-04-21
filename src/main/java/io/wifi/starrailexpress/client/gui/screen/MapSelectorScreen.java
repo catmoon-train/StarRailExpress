@@ -28,6 +28,10 @@ public class MapSelectorScreen extends Screen {
     private static final int CARD_WIDTH = 164;
     private static final int CARD_HEIGHT = 224;
     private static final int CARD_SPACING = 18;
+    private static final int SMALL_CARD_WIDTH = 120;
+    private static final int SMALL_CARD_HEIGHT = 160;
+    private static final int SMALL_CARD_SPACING = 10;
+    private static final int ROW_SPACING = 12;
     private static final int SIDE_PADDING = 56;
     private static final int BOTTOM_PANEL_HEIGHT = 86;
     private static final int PARTICLE_COUNT = 68;
@@ -56,6 +60,13 @@ public class MapSelectorScreen extends Screen {
     private float scrollPosition;
     private long openedAt;
 
+    // Computed by recalculateLayout(), read by getMaxScroll / ensureMapVisible / render
+    private int layoutRows = 1;
+    private int layoutCols;
+    private int layoutCW = CARD_WIDTH;
+    private int layoutCH = CARD_HEIGHT;
+    private int layoutCS = CARD_SPACING;
+
     public MapSelectorScreen() {
         super(Component.translatable("gui.sre.map_selector.title"));
         initMapOptions();
@@ -73,7 +84,7 @@ public class MapSelectorScreen extends Screen {
                         Component.translatable(entry.getDisplayName()).getString(),
                         Component.translatable(entry.getDescription()).getString(),
                         entry.getColor(),
-                        i * 0.07f));
+                        Math.min(i * 0.07f, 0.35f)));
             }
             return;
         }
@@ -107,6 +118,35 @@ public class MapSelectorScreen extends Screen {
         }
     }
 
+    private void recalculateLayout() {
+        int cardCount = mapOptions.size();
+        if (cardCount == 0) {
+            layoutRows = 1;
+            layoutCols = 0;
+            layoutCW = CARD_WIDTH;
+            layoutCH = CARD_HEIGHT;
+            layoutCS = CARD_SPACING;
+            return;
+        }
+
+        int availableWidth = width - SIDE_PADDING * 2;
+        int perRowFull = Math.max(1, (availableWidth + CARD_SPACING) / (CARD_WIDTH + CARD_SPACING));
+
+        if (cardCount <= perRowFull) {
+            layoutRows = 1;
+            layoutCols = cardCount;
+            layoutCW = CARD_WIDTH;
+            layoutCH = CARD_HEIGHT;
+            layoutCS = CARD_SPACING;
+        } else {
+            layoutRows = 2;
+            layoutCols = (cardCount + 1) / 2;
+            layoutCW = SMALL_CARD_WIDTH;
+            layoutCH = SMALL_CARD_HEIGHT;
+            layoutCS = SMALL_CARD_SPACING;
+        }
+    }
+
     @Override
     protected void init() {
         super.init();
@@ -114,6 +154,7 @@ public class MapSelectorScreen extends Screen {
         openedAt = System.currentTimeMillis();
         introProgress = 0.0f;
         backgroundTick = 0.0f;
+        recalculateLayout();
         scrollTarget = Mth.clamp(scrollTarget, 0.0f, getMaxScroll());
         scrollPosition = scrollTarget;
 
@@ -321,57 +362,71 @@ public class MapSelectorScreen extends Screen {
             return;
         }
 
+        recalculateLayout();
         hoveredMap = null;
 
         int cardCount = mapOptions.size();
-        int totalWidth = cardCount * CARD_WIDTH + Math.max(0, cardCount - 1) * CARD_SPACING;
+        int totalWidth = layoutCols * layoutCW + Math.max(0, layoutCols - 1) * layoutCS;
         int availableWidth = width - SIDE_PADDING * 2;
+        int totalHeight = layoutCH * layoutRows + (layoutRows - 1) * ROW_SPACING;
 
         int startX = totalWidth > availableWidth ? SIDE_PADDING : (width - totalWidth) / 2;
-        int startY = Mth.clamp((height - CARD_HEIGHT) / 2, 84, Math.max(84, height - CARD_HEIGHT - 12));
+        int startY;
+        if (layoutRows == 1) {
+            startY = Mth.clamp((height - layoutCH) / 2, 84, Math.max(84, height - layoutCH - 12));
+        } else {
+            int topBound = 84;
+            int bottomBound = height - BOTTOM_PANEL_HEIGHT - 12;
+            startY = Mth.clamp((height - totalHeight) / 2, topBound, Math.max(topBound, bottomBound - totalHeight));
+        }
 
         if (totalWidth > availableWidth) {
-            guiGraphics.fill(0, startY - 10, SIDE_PADDING, startY + CARD_HEIGHT + 10, withAlpha(0x02050E, 115));
-            guiGraphics.fill(width - SIDE_PADDING, startY - 10, width, startY + CARD_HEIGHT + 10, withAlpha(0x02050E, 115));
+            int arrowY = startY + totalHeight / 2 - 4;
+            guiGraphics.fill(0, startY - 10, SIDE_PADDING, startY + totalHeight + 10, withAlpha(0x02050E, 115));
+            guiGraphics.fill(width - SIDE_PADDING, startY - 10, width, startY + totalHeight + 10, withAlpha(0x02050E, 115));
 
             int pulseAlpha = (int) (140.0f + Math.sin(backgroundTick * 4.0f) * 55.0f);
             if (scrollTarget > 1.0f) {
-                guiGraphics.drawString(font, "<", 16, startY + CARD_HEIGHT / 2 - 4, withAlpha(COLOR_TEXT_DIM, pulseAlpha), false);
+                guiGraphics.drawString(font, "<", 16, arrowY, withAlpha(COLOR_TEXT_DIM, pulseAlpha), false);
             }
             if (scrollTarget < getMaxScroll() - 1) {
-                guiGraphics.drawString(font, ">", width - 22, startY + CARD_HEIGHT / 2 - 4, withAlpha(COLOR_TEXT_DIM, pulseAlpha), false);
+                guiGraphics.drawString(font, ">", width - 22, arrowY, withAlpha(COLOR_TEXT_DIM, pulseAlpha), false);
             }
         }
 
         for (int i = 0; i < cardCount; i++) {
             MapOption map = mapOptions.get(i);
 
-            float entrance = easeOutCubic(Mth.clamp((introProgress - map.introDelay) * 1.8f, 0.0f, 1.0f));
-            float cardX = startX + i * (CARD_WIDTH + CARD_SPACING) - scrollPosition + (1.0f - entrance) * 10.0f;
-            float cardY = startY + (1.0f - entrance) * (22.0f + i * 1.2f) - map.hoverTime * 8.0f - map.selectionTime * 4.0f;
+            int col = i < layoutCols ? i : i - layoutCols;
+            int row = i < layoutCols ? 0 : 1;
 
-            if (cardX + CARD_WIDTH < -24 || cardX > width + 24) {
+            float entrance = easeOutCubic(Mth.clamp((introProgress - map.introDelay) * 1.8f, 0.0f, 1.0f));
+            float cardX = startX + col * (layoutCW + layoutCS) - scrollPosition + (1.0f - entrance) * 10.0f;
+            float baseY = startY + row * (layoutCH + ROW_SPACING);
+            float cardY = baseY + (1.0f - entrance) * (22.0f + col * 1.2f) - map.hoverTime * 8.0f - map.selectionTime * 4.0f;
+
+            if (cardX + layoutCW < -24 || cardX > width + 24) {
                 continue;
             }
 
-            boolean isHovered = mouseX >= cardX && mouseX <= cardX + CARD_WIDTH
-                    && mouseY >= cardY && mouseY <= cardY + CARD_HEIGHT;
+            boolean isHovered = mouseX >= cardX && mouseX <= cardX + layoutCW
+                    && mouseY >= cardY && mouseY <= cardY + layoutCH;
             if (isHovered) {
                 hoveredMap = map;
             }
 
-            drawMapCard(guiGraphics, map, i, cardX, cardY, entrance, isHovered);
+            drawMapCard(guiGraphics, map, i, cardX, cardY, layoutCW, layoutCH, entrance, isHovered);
         }
     }
 
     private void drawMapCard(GuiGraphics guiGraphics, MapOption map, int index, float x, float y,
-            float entrance, boolean isHovered) {
+            int cw, int ch, float entrance, boolean isHovered) {
         PoseStack poseStack = guiGraphics.pose();
         poseStack.pushPose();
 
         float scale = 0.92f + entrance * 0.08f + map.hoverTime * 0.025f + map.selectionTime * 0.02f;
-        float centerX = x + CARD_WIDTH / 2.0f;
-        float centerY = y + CARD_HEIGHT / 2.0f;
+        float centerX = x + cw / 2.0f;
+        float centerY = y + ch / 2.0f;
 
         poseStack.translate(centerX, centerY, 0.0f);
         poseStack.scale(scale, scale, 1.0f);
@@ -388,13 +443,13 @@ public class MapSelectorScreen extends Screen {
         int bottomColor = mixColor(COLOR_CARD_BOTTOM, mapAccent, accentMix * 0.62f);
 
         int shadowAlpha = (int) (alpha * (0.30f + map.hoverTime * 0.25f + map.selectionTime * 0.18f));
-        guiGraphics.fill(cardX - 7, cardY + 5, cardX + CARD_WIDTH + 7, cardY + CARD_HEIGHT + 10, withAlpha(0x000000, shadowAlpha));
+        guiGraphics.fill(cardX - 7, cardY + 5, cardX + cw + 7, cardY + ch + 10, withAlpha(0x000000, shadowAlpha));
 
         guiGraphics.fillGradient(
                 cardX,
                 cardY,
-                cardX + CARD_WIDTH,
-                cardY + CARD_HEIGHT,
+                cardX + cw,
+                cardY + ch,
                 withAlpha(topColor, alpha),
                 withAlpha(bottomColor, alpha));
 
@@ -402,12 +457,12 @@ public class MapSelectorScreen extends Screen {
         float pulse = 0.62f + 0.38f * (float) Math.sin(backgroundTick * 4.8f + index * 0.8f);
         int borderAlpha = (int) (alpha * (0.34f + map.hoverTime * 0.26f + map.selectionTime * (0.30f + 0.20f * pulse)));
         int borderWidth = map == selectedMap ? 2 : 1;
-        drawRectBorder(guiGraphics, cardX, cardY, CARD_WIDTH, CARD_HEIGHT, borderWidth, withAlpha(borderColor, borderAlpha));
+        drawRectBorder(guiGraphics, cardX, cardY, cw, ch, borderWidth, withAlpha(borderColor, borderAlpha));
 
         guiGraphics.fillGradient(
                 cardX + 1,
                 cardY + 1,
-                cardX + CARD_WIDTH - 1,
+                cardX + cw - 1,
                 cardY + 8,
                 withAlpha(mapAccent, alpha),
                 withAlpha(mixColor(mapAccent, 0x0E172F, 0.42f), alpha));
@@ -415,24 +470,28 @@ public class MapSelectorScreen extends Screen {
         int nameColor = withAlpha(COLOR_TEXT, (int) (alpha * (0.90f + map.hoverTime * 0.10f)));
         guiGraphics.drawCenteredString(
                 font,
-                clipText(map.displayName, CARD_WIDTH - 18),
-                cardX + CARD_WIDTH / 2,
+                clipText(map.displayName, cw - 18),
+                cardX + cw / 2,
                 cardY + 16,
                 nameColor);
 
         if (SREClient.isPlayerSpectatingOrCreative()) {
             guiGraphics.drawCenteredString(
                     font,
-                    clipText(map.id, CARD_WIDTH - 18),
-                    cardX + CARD_WIDTH / 2,
+                    clipText(map.id, cw - 18),
+                    cardX + cw / 2,
                     cardY + 30,
                     withAlpha(COLOR_TEXT_DIM, (int) (alpha * 0.86f)));
         }
 
-        int previewX = cardX + 12;
-        int previewY = cardY + 50;
-        int previewWidth = CARD_WIDTH - 24;
-        int previewHeight = 110;
+        // Scale preview area proportionally to card dimensions
+        int sidePad = Math.max(8, (int) (12.0f * cw / CARD_WIDTH));
+        int previewX = cardX + sidePad;
+        int previewWidth = cw - sidePad * 2;
+        int previewOffsetY = Math.max(42, (int) (50.0f * ch / CARD_HEIGHT));
+        int bottomReserve = Math.max(52, (int) (64.0f * ch / CARD_HEIGHT));
+        int previewY = cardY + previewOffsetY;
+        int previewHeight = Math.max(30, ch - previewOffsetY - bottomReserve);
 
         guiGraphics.fillGradient(
                 previewX,
@@ -454,11 +513,12 @@ public class MapSelectorScreen extends Screen {
                 (int) (previewY + scanY + 5),
                 withAlpha(0xFFFFFF, scanAlpha));
 
-        int descriptionY = cardY + CARD_HEIGHT - 46;
+        int descOffsetFromBottom = Math.max(30, (int) (46.0f * ch / CARD_HEIGHT));
+        int descriptionY = cardY + ch - descOffsetFromBottom;
         guiGraphics.drawCenteredString(
                 font,
-                clipText(map.description, CARD_WIDTH - 18),
-                cardX + CARD_WIDTH / 2,
+                clipText(map.description, cw - 18),
+                cardX + cw / 2,
                 descriptionY,
                 withAlpha(COLOR_TEXT_DIM, (int) (alpha * 0.90f)));
 
@@ -471,9 +531,10 @@ public class MapSelectorScreen extends Screen {
                 voteText = voteText + "  " + percent + "%";
             }
 
-            int badgeWidth = Math.min(CARD_WIDTH - 18, font.width(voteText) + 12);
-            int badgeX = cardX + (CARD_WIDTH - badgeWidth) / 2;
-            int badgeY = cardY + CARD_HEIGHT - 28;
+            int badgeWidth = Math.min(cw - 18, font.width(voteText) + 12);
+            int badgeX = cardX + (cw - badgeWidth) / 2;
+            int badgeOffsetFromBottom = Math.max(18, (int) (28.0f * ch / CARD_HEIGHT));
+            int badgeY = cardY + ch - badgeOffsetFromBottom;
             int badgeColor = mixColor(mapAccent, COLOR_ACCENT, 0.45f);
 
             guiGraphics.fill(
@@ -486,20 +547,20 @@ public class MapSelectorScreen extends Screen {
             guiGraphics.drawCenteredString(
                     font,
                     voteText,
-                    cardX + CARD_WIDTH / 2,
+                    cardX + cw / 2,
                     badgeY + 2,
                     withAlpha(COLOR_TEXT, (int) (alpha * 0.98f)));
         }
 
         if (map == selectedMap) {
-            drawSelectionIndicator(guiGraphics, cardX, cardY, index, mapAccent, map.selectionTime, alpha);
+            drawSelectionIndicator(guiGraphics, cardX, cardY, cw, ch, index, mapAccent, map.selectionTime, alpha);
         } else if (isHovered) {
             drawRectBorder(
                     guiGraphics,
                     cardX - 1,
                     cardY - 1,
-                    CARD_WIDTH + 2,
-                    CARD_HEIGHT + 2,
+                    cw + 2,
+                    ch + 2,
                     1,
                     withAlpha(COLOR_ACCENT, (int) (alpha * 0.40f)));
         }
@@ -545,8 +606,8 @@ public class MapSelectorScreen extends Screen {
         guiGraphics.drawString(font, initial, textX, textY, textColor, false);
     }
 
-    private void drawSelectionIndicator(GuiGraphics guiGraphics, int x, int y, int index, int mapAccent,
-            float selectionAmount, int alpha) {
+    private void drawSelectionIndicator(GuiGraphics guiGraphics, int x, int y, int cw, int ch, int index,
+            int mapAccent, float selectionAmount, int alpha) {
         int glowColor = mixColor(mapAccent, COLOR_ACCENT, 0.40f);
 
         for (int i = 4; i >= 1; i--) {
@@ -557,37 +618,37 @@ public class MapSelectorScreen extends Screen {
                     guiGraphics,
                     x - inset,
                     y - inset,
-                    CARD_WIDTH + inset * 2,
-                    CARD_HEIGHT + inset * 2,
+                    cw + inset * 2,
+                    ch + inset * 2,
                     1,
                     withAlpha(glowColor, borderAlpha));
         }
 
-        drawRectBorder(guiGraphics, x - 2, y - 2, CARD_WIDTH + 4, CARD_HEIGHT + 4, 2,
+        drawRectBorder(guiGraphics, x - 2, y - 2, cw + 4, ch + 4, 2,
                 withAlpha(glowColor, (int) (alpha * selectionAmount * 0.70f)));
 
-        float perimeter = CARD_WIDTH * 2.0f + CARD_HEIGHT * 2.0f;
+        float perimeter = cw * 2.0f + ch * 2.0f;
         float markerOffset = (backgroundTick * 96.0f + index * 20.0f) % perimeter;
         int markerColor = withAlpha(0xFFFFFF, (int) (230.0f * selectionAmount));
         int markerSize = 8;
 
-        if (markerOffset < CARD_WIDTH) {
+        if (markerOffset < cw) {
             int markerX = x + (int) markerOffset;
             guiGraphics.fill(markerX, y - 2, markerX + markerSize, y, markerColor);
-        } else if (markerOffset < CARD_WIDTH + CARD_HEIGHT) {
-            int markerY = y + (int) (markerOffset - CARD_WIDTH);
-            guiGraphics.fill(x + CARD_WIDTH + 2, markerY, x + CARD_WIDTH + 4, markerY + markerSize, markerColor);
-        } else if (markerOffset < CARD_WIDTH * 2.0f + CARD_HEIGHT) {
-            int markerX = x + CARD_WIDTH - (int) (markerOffset - CARD_WIDTH - CARD_HEIGHT);
-            guiGraphics.fill(markerX, y + CARD_HEIGHT + 2, markerX + markerSize, y + CARD_HEIGHT + 4, markerColor);
+        } else if (markerOffset < cw + ch) {
+            int markerY = y + (int) (markerOffset - cw);
+            guiGraphics.fill(x + cw + 2, markerY, x + cw + 4, markerY + markerSize, markerColor);
+        } else if (markerOffset < cw * 2.0f + ch) {
+            int markerX = x + cw - (int) (markerOffset - cw - ch);
+            guiGraphics.fill(markerX, y + ch + 2, markerX + markerSize, y + ch + 4, markerColor);
         } else {
-            int markerY = y + CARD_HEIGHT - (int) (markerOffset - CARD_WIDTH * 2.0f - CARD_HEIGHT);
+            int markerY = y + ch - (int) (markerOffset - cw * 2.0f - ch);
             guiGraphics.fill(x - 4, markerY, x - 2, markerY + markerSize, markerColor);
         }
 
         String tagText = "PICK";
         int tagWidth = font.width(tagText) + 10;
-        int tagX = x + CARD_WIDTH - tagWidth - 6;
+        int tagX = x + cw - tagWidth - 6;
         int tagY = y + 10;
         int tagTextColor = withAlpha(0x081126, (int) (255.0f * selectionAmount));
 
@@ -802,8 +863,10 @@ public class MapSelectorScreen extends Screen {
             return;
         }
 
-        float cardLeft = SIDE_PADDING + index * (CARD_WIDTH + CARD_SPACING) - scrollTarget;
-        float cardRight = cardLeft + CARD_WIDTH;
+        // In 2-row layout, column is different from raw index
+        int col = (layoutCols > 0 && index >= layoutCols) ? index - layoutCols : index;
+        float cardLeft = SIDE_PADDING + col * (layoutCW + layoutCS) - scrollTarget;
+        float cardRight = cardLeft + layoutCW;
         float visibleLeft = SIDE_PADDING + 8.0f;
         float visibleRight = width - SIDE_PADDING - 8.0f;
 
@@ -817,7 +880,7 @@ public class MapSelectorScreen extends Screen {
     }
 
     private int getMaxScroll() {
-        int totalWidth = mapOptions.size() * CARD_WIDTH + Math.max(0, mapOptions.size() - 1) * CARD_SPACING;
+        int totalWidth = layoutCols * layoutCW + Math.max(0, layoutCols - 1) * layoutCS;
         int visibleWidth = width - SIDE_PADDING * 2;
         return Math.max(0, totalWidth - visibleWidth);
     }
