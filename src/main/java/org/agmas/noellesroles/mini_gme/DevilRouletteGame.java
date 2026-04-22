@@ -122,7 +122,7 @@ public class DevilRouletteGame {
     public boolean start() {
         List<Player> players = new ArrayList<>();
         for (var playerData : playerDataList) {
-            if (level.getPlayerByUUID(playerData.getPlayerUUID()) == null)
+            if (playerData.getPlayerUUID() == null || level.getPlayerByUUID(playerData.getPlayerUUID()) == null)
             {
                 // 出现空玩家返回false，在外部删除类
                 return false;
@@ -277,6 +277,19 @@ public class DevilRouletteGame {
 
         // 重置伤害
         damage = 1;
+        return result;
+    }
+    public FireResult forceGameOverByKillPlayer(UUID playerID) {
+        FireResult result = new FireResult();
+        result.isTrueBullet = true;
+        result.isTargetAlive = false;
+        result.operatorUUID = playerID;
+        for (GamePlayerData playerData : playerDataList)
+            if (playerData.getPlayerUUID() == playerID) {
+                playerData.health = 0;
+                winner = playerData;
+            }
+        isGameEnd = true;
         return result;
     }
 

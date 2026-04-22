@@ -93,9 +93,10 @@ public interface TMMItems {
         INVISIBLE_ITEMS.add(TMMItems.NOTE);
         INVISIBLE_ITEMS.add(TMMItems.DEFENSE_VIAL);
 
-        // 亡命徒，超级亡命徒 可以直接使用防御药剂
+        // 亡命徒，超级亡命徒，土块 可以直接使用防御药剂
         DefenseItem.canUseByRightClickRolePaths.add(TMMRoles.LOOSE_END.identifier().getPath());
         DefenseItem.canUseByRightClickRolePaths.add(SpecialGameModeRoles.SUPER_LOOSE_END.identifier().getPath());
+        DefenseItem.canUseByRightClickRolePaths.add(SpecialGameModeRoles.DIRT.identifier().getPath());
 
         registrar.registerEntries();
 

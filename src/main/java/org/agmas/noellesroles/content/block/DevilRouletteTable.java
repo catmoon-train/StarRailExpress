@@ -222,7 +222,8 @@ public class DevilRouletteTable extends Block implements EntityBlock, AutoResetB
                 if (seatPos != null && table.isSeatAvailable(seatPos))
                 {
                     boolean isFront = table.isFrontSeat(seatPos);
-                    if (!table.isGameActive()) {
+                    // 游戏未开始时，如果游戏模式是轮盘赌模式，则不允许自动开启
+                    if (!table.isGameActive() && table.getGameMode() != DevilRouletteGame.GameMode.Roulette) {
                         // 满足开始条件，且操作玩家位置正确：开始游戏
                         if (corePos.equals(hit.getBlockPos()) && table.checkCanStartGame() &&
                                 table.checkPlayerInRightSeat(player, isFront)) {

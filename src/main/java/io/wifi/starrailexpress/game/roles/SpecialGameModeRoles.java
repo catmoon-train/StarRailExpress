@@ -58,7 +58,12 @@ public class SpecialGameModeRoles {
       false,
       SRERole.MoodType.FAKE,
       Integer.MAX_VALUE,
-      true)).setCanSeeCoin(true).setCanSeeTime(true).setMax(0).setCanBeRandomedByOtherRoles(false);
+      true))
+          .setCanSeeCoin(true)
+          .setCanSeeTime(true)
+          .setMax(0)
+          .setCanBeRandomedByOtherRoles(false)
+          .setNeutrals(true);
 
   public static SRERole registerRole(SRERole role) {
     TMMRoles.ROLES.put(role.identifier(), role);

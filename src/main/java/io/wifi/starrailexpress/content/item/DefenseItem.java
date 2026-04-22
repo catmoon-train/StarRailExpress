@@ -62,7 +62,7 @@ public class DefenseItem extends Item {
                     if (livingEntity instanceof Player player) {
                         var bartenderComponent = SREArmorPlayerComponent.KEY.get(player);
                         // 超级亡命徒可以无限饮用药剂叠盾
-                        if (role == SpecialGameModeRoles.SUPER_LOOSE_END) {
+                        if (role == SpecialGameModeRoles.SUPER_LOOSE_END || role == SpecialGameModeRoles.DIRT) {
                             bartenderComponent.addArmor();
                             itemStack.consume(1, livingEntity);
                             return itemStack;

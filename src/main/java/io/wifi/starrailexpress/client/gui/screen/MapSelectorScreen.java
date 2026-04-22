@@ -142,7 +142,9 @@ public class MapSelectorScreen extends Screen {
             layoutRows = 2;
             layoutCols = (cardCount + 1) / 2;
             layoutCW = SMALL_CARD_WIDTH;
-            layoutCH = SMALL_CARD_HEIGHT;
+            // Cap card height so both rows fit between the header (84px top) and the bottom panel
+            int availableHeight = height - 84 - BOTTOM_PANEL_HEIGHT - 12 - ROW_SPACING;
+            layoutCH = Math.min(SMALL_CARD_HEIGHT, Math.max(80, availableHeight / 2));
             layoutCS = SMALL_CARD_SPACING;
         }
     }
