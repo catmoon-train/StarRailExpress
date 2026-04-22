@@ -47,6 +47,7 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
     private boolean syncMode = false;
     private volatile boolean databaseSyncQueued = false;
     private volatile boolean databaseSyncInFlight = false;
+    private volatile boolean databaseLoadPending = false;
     private volatile long nextDatabaseSyncAt = 0L;
 
     public SREPlayerSkinsComponent(Player player) {
@@ -81,6 +82,7 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
         this.isNetworkSyncEnabled = SREConfig.instance().itemSkinSyncServerEnabled
                 && SREConfig.instance().mysqlPlayerSyncEnabled
                 && MysqlPlayerDataStore.isAvailable();
+        this.databaseLoadPending = false;
         if (this.isNetworkSyncEnabled) {
             logger.info("玩家 {} 的皮肤 MySQL 同步已启用", this.player.getName().getString());
         } else if (SREConfig.instance().itemSkinSyncServerEnabled) {
@@ -100,6 +102,7 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
      */
     public void disableNetworkSync() {
         this.isNetworkSyncEnabled = false;
+        this.databaseLoadPending = false;
     }
 
     @Override
@@ -362,24 +365,28 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
             return;
         }
 
+        this.databaseLoadPending = true;
         MysqlPlayerDataStore.loadBatchAsync(this.player.getUUID(), List.of(DATABASE_SYNC_KEY))
                 .thenAccept(records -> {
                     MysqlPlayerDataStore.SyncRecord record = records.get(DATABASE_SYNC_KEY);
-                    if (record == null || record.payload() == null || record.payload().isBlank()) {
-                        return;
-                    }
-                    @SuppressWarnings("unchecked")
-                    Map<String, Object> skinData = GSON.fromJson(record.payload(), Map.class);
-                    if (skinData == null) {
-                        return;
-                    }
                     serverPlayer.getServer().execute(() -> {
-                        this.applyNetworkSkinData(skinData);
-                        this.sync();
-                        logger.debug("玩家 {} 的皮肤数据已从 MySQL 拉取", this.player.getName().getString());
+                        this.databaseLoadPending = false;
+                        if (record != null && record.payload() != null && !record.payload().isBlank()) {
+                            @SuppressWarnings("unchecked")
+                            Map<String, Object> skinData = GSON.fromJson(record.payload(), Map.class);
+                            if (skinData != null) {
+                                this.applyNetworkSkinData(skinData);
+                                this.sync();
+                                logger.debug("玩家 {} 的皮肤数据已从 MySQL 拉取", this.player.getName().getString());
+                            }
+                        }
+                        if (this.databaseSyncQueued) {
+                            this.nextDatabaseSyncAt = 0L;
+                        }
                     });
                 })
                 .exceptionally(throwable -> {
+                    this.databaseLoadPending = false;
                     logger.error("从 MySQL 拉取玩家 {} 的皮肤数据时出错", this.player.getName().getString(), throwable);
                     this.isNetworkSyncEnabled = false;
                     return null;
@@ -432,7 +439,7 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
     }
 
     public void flushNetworkSyncAsyncOnDisconnect() {
-        if (!this.isNetworkSyncEnabled) {
+        if (!this.isNetworkSyncEnabled || this.databaseLoadPending) {
             return;
         }
 
@@ -484,6 +491,12 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
 
     private boolean flushSkinDataToDatabase(boolean blocking) {
         if (!this.isNetworkSyncEnabled) {
+            return false;
+        }
+        if (this.databaseLoadPending) {
+            if (!blocking) {
+                this.databaseSyncQueued = true;
+            }
             return false;
         }
 

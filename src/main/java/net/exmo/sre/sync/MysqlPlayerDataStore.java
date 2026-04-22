@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
 public final class MysqlPlayerDataStore {
     private static final Logger logger = LoggerFactory.getLogger(MysqlPlayerDataStore.class);
     private static final Pattern TABLE_PREFIX_PATTERN = Pattern.compile("[A-Za-z0-9_]*");
+    private static final long FAILURE_BACKOFF_MS = 15_000L;
     private static final ExecutorService EXECUTOR = Executors.newFixedThreadPool(2, new ThreadFactory() {
         private int index = 1;
 
@@ -27,6 +28,7 @@ public final class MysqlPlayerDataStore {
 
     private static volatile HikariDataSource dataSource;
     private static volatile String tableName = "sre_player_sync_data";
+    private static volatile long fastFailUntil = 0L;
 
     private MysqlPlayerDataStore() {
     }
@@ -36,6 +38,7 @@ public final class MysqlPlayerDataStore {
 
     public static synchronized void initializeFromConfig() {
         shutdownDataSource();
+        fastFailUntil = 0L;
         if (!SREConfig.instance().mysqlPlayerSyncEnabled) {
             return;
         }
@@ -49,9 +52,10 @@ public final class MysqlPlayerDataStore {
         hikariConfig.setPassword(SREConfig.instance().mysqlSyncPassword);
         hikariConfig.setPoolName("SRE-MySQLSync");
         hikariConfig.setMaximumPoolSize(Math.max(2, SREConfig.instance().mysqlSyncPoolSize));
-        hikariConfig.setMinimumIdle(1);
-        hikariConfig.setConnectionTimeout(Math.max(2000, SREConfig.instance().mysqlSyncConnectTimeoutMs));
-        hikariConfig.setValidationTimeout(Math.min(hikariConfig.getConnectionTimeout(), 2000));
+        hikariConfig.setMinimumIdle(0);
+        hikariConfig.setConnectionTimeout(getPoolConnectionTimeoutMs());
+        hikariConfig.setValidationTimeout(getValidationTimeoutMs());
+        hikariConfig.setInitializationFailTimeout(0L);
         hikariConfig.addDataSourceProperty("cachePrepStmts", "true");
         hikariConfig.addDataSourceProperty("prepStmtCacheSize", "250");
         hikariConfig.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
@@ -107,6 +111,9 @@ public final class MysqlPlayerDataStore {
 
     public static boolean saveBatchBlocking(UUID playerUuid, Map<String, String> payloads, long updatedAt,
             long timeoutMs) {
+        if (isFastFailActive()) {
+            return false;
+        }
         try {
             return saveBatchAsync(playerUuid, payloads, updatedAt).get(Math.max(1000L, timeoutMs),
                     TimeUnit.MILLISECONDS);
@@ -121,6 +128,7 @@ public final class MysqlPlayerDataStore {
         if (source == null) {
             return Map.of();
         }
+        throwIfFastFailActive();
 
         String placeholders = String.join(",", Collections.nCopies(dataKeys.size(), "?"));
         String sql = "SELECT data_key, payload_json, updated_at FROM " + tableName
@@ -128,6 +136,7 @@ public final class MysqlPlayerDataStore {
         Map<String, SyncRecord> records = new LinkedHashMap<>();
         try (Connection connection = source.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setQueryTimeout(getStatementTimeoutSeconds());
             statement.setString(1, playerUuid.toString());
             for (int index = 0; index < dataKeys.size(); index++) {
                 statement.setString(index + 2, dataKeys.get(index));
@@ -138,15 +147,17 @@ public final class MysqlPlayerDataStore {
                             new SyncRecord(resultSet.getString("payload_json"), resultSet.getLong("updated_at")));
                 }
             }
+            clearFastFail();
         } catch (SQLException exception) {
-            logger.warn("从 MySQL 读取玩家 {} 的同步数据失败。", playerUuid, exception);
+            handleSqlFailure("读取", playerUuid, exception);
+            throw new CompletionException(exception);
         }
         return records;
     }
 
     private static boolean saveBatch(UUID playerUuid, Map<String, String> payloads, long updatedAt) {
         HikariDataSource source = dataSource;
-        if (source == null) {
+        if (source == null || isFastFailActive()) {
             return false;
         }
 
@@ -155,30 +166,124 @@ public final class MysqlPlayerDataStore {
                 + "ON DUPLICATE KEY UPDATE payload_json = IF(VALUES(updated_at) >= updated_at, VALUES(payload_json), payload_json), "
                 + "updated_at = GREATEST(updated_at, VALUES(updated_at))";
 
-        try (Connection connection = source.getConnection();
-                PreparedStatement statement = connection.prepareStatement(sql)) {
+        Connection connection = null;
+        try {
+            connection = source.getConnection();
             connection.setAutoCommit(false);
-            for (var entry : payloads.entrySet()) {
-                statement.setString(1, playerUuid.toString());
-                statement.setString(2, entry.getKey());
-                statement.setString(3, entry.getValue());
-                statement.setLong(4, updatedAt);
-                statement.addBatch();
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                statement.setQueryTimeout(getStatementTimeoutSeconds());
+                for (var entry : payloads.entrySet()) {
+                    statement.setString(1, playerUuid.toString());
+                    statement.setString(2, entry.getKey());
+                    statement.setString(3, entry.getValue());
+                    statement.setLong(4, updatedAt);
+                    statement.addBatch();
+                }
+                statement.executeBatch();
             }
-            statement.executeBatch();
             connection.commit();
+            clearFastFail();
             return true;
         } catch (SQLException exception) {
-            logger.warn("写入玩家 {} 的 MySQL 同步数据失败。", playerUuid, exception);
+            rollbackQuietly(connection, playerUuid);
+            handleSqlFailure("写入", playerUuid, exception);
+            return false;
+        } finally {
+            closeQuietly(connection);
+        }
+    }
+
+    private static void rollbackQuietly(Connection connection, UUID playerUuid) {
+        if (connection == null) {
+            return;
+        }
+        try {
+            connection.rollback();
+        } catch (SQLException rollbackException) {
+            logger.warn("回滚玩家 {} 的 MySQL 同步事务失败。", playerUuid, rollbackException);
+        }
+    }
+
+    private static void closeQuietly(Connection connection) {
+        if (connection == null) {
+            return;
+        }
+        try {
+            connection.close();
+        } catch (SQLException closeException) {
+            logger.debug("关闭 MySQL 连接失败。", closeException);
+        }
+    }
+
+    private static boolean isFastFailActive() {
+        return System.currentTimeMillis() < fastFailUntil;
+    }
+
+    private static void throwIfFastFailActive() {
+        if (!isFastFailActive()) {
+            return;
+        }
+        throw new CompletionException(new SQLException("MySQL sync is temporarily paused after recent connection failures."));
+    }
+
+    private static void clearFastFail() {
+        fastFailUntil = 0L;
+    }
+
+    private static void handleSqlFailure(String operation, UUID playerUuid, SQLException exception) {
+        if (shouldFastFail(exception)) {
+            fastFailUntil = System.currentTimeMillis() + FAILURE_BACKOFF_MS;
+        }
+        logger.warn("{}玩家 {} 的 MySQL 同步数据失败。", operation, playerUuid, exception);
+    }
+
+    private static boolean shouldFastFail(SQLException exception) {
+        if (exception instanceof SQLTransientConnectionException
+                || exception instanceof SQLRecoverableException
+                || exception instanceof SQLNonTransientConnectionException) {
+            return true;
+        }
+        String sqlState = exception.getSQLState();
+        if (sqlState != null && sqlState.startsWith("08")) {
+            return true;
+        }
+        String message = exception.getMessage();
+        if (message == null) {
             return false;
         }
+        String lowerMessage = message.toLowerCase(Locale.ROOT);
+        return lowerMessage.contains("connection is not available")
+                || lowerMessage.contains("communications link failure")
+                || lowerMessage.contains("connection timed out")
+                || lowerMessage.contains("connect timed out");
+    }
+
+    private static int getStatementTimeoutSeconds() {
+        return Math.max(1, (int) Math.ceil(Math.max(1000L, SREConfig.instance().mysqlSyncConnectTimeoutMs) / 1000.0));
+    }
+
+    private static int getSocketTimeoutMs() {
+        return (int) Math.max(3000L, Math.max(1000L, SREConfig.instance().mysqlSyncConnectTimeoutMs) * 2L);
+    }
+
+    private static int getConnectTimeoutMs() {
+        return Math.max(1000, SREConfig.instance().mysqlSyncConnectTimeoutMs);
+    }
+
+    private static int getValidationTimeoutMs() {
+        return Math.min(getConnectTimeoutMs(), 2000);
+    }
+
+    private static int getPoolConnectionTimeoutMs() {
+        return Math.max(2000, SREConfig.instance().mysqlSyncConnectTimeoutMs);
     }
 
     private static String buildJdbcUrl() {
         return "jdbc:mysql://" + SREConfig.instance().mysqlSyncHost + ":" + SREConfig.instance().mysqlSyncPort
                 + "/" + SREConfig.instance().mysqlSyncDatabase
                 + "?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC&allowPublicKeyRetrieval=true&useSSL="
-                + SREConfig.instance().mysqlSyncUseSsl + "&connectTimeout=2000&socketTimeout=5000";
+                + SREConfig.instance().mysqlSyncUseSsl + "&connectTimeout=" + getConnectTimeoutMs()
+                + "&socketTimeout=" + getSocketTimeoutMs();
     }
 
     private static void ensureSchema(Connection connection) throws SQLException {
@@ -199,6 +304,7 @@ public final class MysqlPlayerDataStore {
     private static synchronized void shutdownDataSource() {
         HikariDataSource source = dataSource;
         dataSource = null;
+        fastFailUntil = 0L;
         if (source != null) {
             source.close();
         }

@@ -56,6 +56,7 @@ public class MailboxComponent implements AutoSyncedComponent, ServerTickingCompo
     private boolean dirty = false;
     private int tickCounter = 0;
     private boolean dbLoaded = false;
+    private boolean databaseLoadPending = false;
 
     public MailboxComponent(Player player) {
         this.player = player;
@@ -317,9 +318,10 @@ public class MailboxComponent implements AutoSyncedComponent, ServerTickingCompo
         tickCounter++;
         if (tickCounter >= SYNC_INTERVAL && dirty) {
             tickCounter = 0;
-            dirty = false;
             sync();
-            saveToDatabase();
+            if (saveToDatabase()) {
+                dirty = false;
+            }
         }
     }
 
@@ -329,24 +331,31 @@ public class MailboxComponent implements AutoSyncedComponent, ServerTickingCompo
 
     private void loadFromDatabase() {
         if (!MysqlPlayerDataStore.isAvailable()) return;
+        this.databaseLoadPending = true;
         MysqlPlayerDataStore.loadBatchAsync(player.getUUID(), List.of(DB_KEY))
                 .thenAccept(records -> {
                     MysqlPlayerDataStore.SyncRecord record = records.get(DB_KEY);
-                    if (record != null && record.payload() != null && !record.payload().isEmpty()) {
-                        try {
-                            List<Mail> loaded = deserializeFromJson(record.payload());
-                            // 在主线程合并
-                            if (player instanceof ServerPlayer sp && sp.getServer() != null) {
-                                sp.getServer().execute(() -> {
+                    if (player instanceof ServerPlayer sp && sp.getServer() != null) {
+                        sp.getServer().execute(() -> {
+                            this.databaseLoadPending = false;
+                            if (record != null && record.payload() != null && !record.payload().isEmpty()) {
+                                try {
+                                    List<Mail> loaded = deserializeFromJson(record.payload());
                                     mergeFromDatabase(loaded);
                                     sync();
-                                });
+                                } catch (Exception e) {
+                                    LOGGER.warn("Failed to load mailbox from DB for player {}",
+                                            player.getName().getString(), e);
+                                }
                             }
-                        } catch (Exception e) {
-                            LOGGER.warn("Failed to load mailbox from DB for player {}",
-                                    player.getName().getString(), e);
-                        }
+                        });
                     }
+                })
+                .exceptionally(throwable -> {
+                    this.databaseLoadPending = false;
+                    LOGGER.warn("Failed to load mailbox from DB for player {}",
+                            player.getName().getString(), throwable);
+                    return null;
                 });
     }
 
@@ -378,8 +387,8 @@ public class MailboxComponent implements AutoSyncedComponent, ServerTickingCompo
         if (changed) markDirty();
     }
 
-    private void saveToDatabase() {
-        if (!MysqlPlayerDataStore.isAvailable()) return;
+    private boolean saveToDatabase() {
+        if (!MysqlPlayerDataStore.isAvailable() || this.databaseLoadPending) return false;
         String json = serializeToJson();
         long now = System.currentTimeMillis();
         MysqlPlayerDataStore.saveBatchAsync(player.getUUID(), Map.of(DB_KEY, json), now)
@@ -388,6 +397,7 @@ public class MailboxComponent implements AutoSyncedComponent, ServerTickingCompo
                             player.getName().getString(), ex);
                     return false;
                 });
+        return true;
     }
 
     private String serializeToJson() {

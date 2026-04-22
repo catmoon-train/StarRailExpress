@@ -40,6 +40,8 @@ public class NameTagInventoryComponent implements RoleComponent {
     public String CurrentNameTag = "";
 
     private boolean isNetworkSyncEnabled = false;
+    private boolean databaseLoadPending = false;
+    private boolean databaseSyncQueued = false;
 
     public NameTagInventoryComponent(Player player) {
         this.player = player;
@@ -56,6 +58,8 @@ public class NameTagInventoryComponent implements RoleComponent {
         this.isNetworkSyncEnabled = SREConfig.instance().itemSkinSyncServerEnabled
                 && SREConfig.instance().mysqlPlayerSyncEnabled
                 && MysqlPlayerDataStore.isAvailable();
+        this.databaseLoadPending = false;
+        this.databaseSyncQueued = false;
         if (this.isNetworkSyncEnabled) {
             logger.info("玩家 {} 的名片 MySQL 同步已启用", this.player.getName().getString());
         } else if (SREConfig.instance().itemSkinSyncServerEnabled) {
@@ -75,6 +79,8 @@ public class NameTagInventoryComponent implements RoleComponent {
      */
     public void disableNetworkSync() {
         this.isNetworkSyncEnabled = false;
+        this.databaseLoadPending = false;
+        this.databaseSyncQueued = false;
     }
 
     public void syncFromLinkedServer() {
@@ -85,24 +91,26 @@ public class NameTagInventoryComponent implements RoleComponent {
             return;
         }
 
+        this.databaseLoadPending = true;
         MysqlPlayerDataStore.loadBatchAsync(this.player.getUUID(), List.of(DATABASE_SYNC_KEY))
                 .thenAccept(records -> {
                     MysqlPlayerDataStore.SyncRecord record = records.get(DATABASE_SYNC_KEY);
-                    if (record == null || record.payload() == null || record.payload().isBlank()) {
-                        return;
-                    }
-                    @SuppressWarnings("unchecked")
-                    Map<String, Object> nametagData = GSON.fromJson(record.payload(), Map.class);
-                    if (nametagData == null) {
-                        return;
-                    }
                     serverPlayer.getServer().execute(() -> {
-                        this.applyNetworkNametagData(nametagData);
-                        this.sync();
-                        logger.debug("玩家 {} 的名片数据已从 MySQL 拉取", this.player.getName().getString());
+                        this.databaseLoadPending = false;
+                        if (record != null && record.payload() != null && !record.payload().isBlank()) {
+                            @SuppressWarnings("unchecked")
+                            Map<String, Object> nametagData = GSON.fromJson(record.payload(), Map.class);
+                            if (nametagData != null) {
+                                this.applyNetworkNametagData(nametagData);
+                                this.sync();
+                                logger.debug("玩家 {} 的名片数据已从 MySQL 拉取", this.player.getName().getString());
+                            }
+                        }
+                        flushQueuedNetworkSync();
                     });
                 })
                 .exceptionally(throwable -> {
+                    this.databaseLoadPending = false;
                     logger.error("从 MySQL 拉取玩家 {} 的名片数据时出错", this.player.getName().getString(), throwable);
                     this.isNetworkSyncEnabled = false;
                     // 出错不同步
@@ -230,6 +238,10 @@ public class NameTagInventoryComponent implements RoleComponent {
         if (!this.isNetworkSyncEnabled) {
             return;
         }
+        if (this.databaseLoadPending) {
+            this.databaseSyncQueued = true;
+            return;
+        }
 
         MysqlPlayerDataStore.saveBatchAsync(
                 this.player.getUUID(),
@@ -279,7 +291,7 @@ public class NameTagInventoryComponent implements RoleComponent {
     }
 
     public boolean flushNetworkSyncBlocking() {
-        if (!this.isNetworkSyncEnabled) {
+        if (!this.isNetworkSyncEnabled || this.databaseLoadPending) {
             return false;
         }
         return MysqlPlayerDataStore.saveBatchBlocking(
@@ -290,7 +302,7 @@ public class NameTagInventoryComponent implements RoleComponent {
     }
 
     public void flushNetworkSyncAsyncOnDisconnect() {
-        if (!this.isNetworkSyncEnabled) {
+        if (!this.isNetworkSyncEnabled || this.databaseLoadPending) {
             return;
         }
 
@@ -307,6 +319,14 @@ public class NameTagInventoryComponent implements RoleComponent {
                         logger.warn("断线时异步同步玩家 {} 的名片数据到 MySQL 未成功写入。", this.player.getName().getString());
                     }
                 });
+    }
+
+    private void flushQueuedNetworkSync() {
+        if (!this.databaseSyncQueued || !this.isNetworkSyncEnabled || this.databaseLoadPending) {
+            return;
+        }
+        this.databaseSyncQueued = false;
+        syncToNetwork();
     }
 
     /**

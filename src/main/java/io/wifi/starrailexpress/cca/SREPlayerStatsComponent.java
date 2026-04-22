@@ -861,7 +861,7 @@ public class SREPlayerStatsComponent implements AutoSyncedComponent, ServerTicki
     }
 
     public boolean flushDatabaseSyncBlocking() {
-        if (!isDatabaseSyncEnabled()) {
+        if (!isDatabaseSyncEnabled() || !canWriteToDatabase()) {
             return false;
         }
         boolean success = MysqlPlayerDataStore.saveBatchBlocking(
@@ -877,11 +877,7 @@ public class SREPlayerStatsComponent implements AutoSyncedComponent, ServerTicki
     }
 
     public void flushDatabaseAsync() {
-        if (!isDatabaseSyncEnabled()) {
-            return;
-        }
-        // 如果同步失败且有本地数据，不保存以避免覆盖数据库
-        if (!syncedFromDatabase && loaded) {
+        if (!isDatabaseSyncEnabled() || !canWriteToDatabase()) {
             return;
         }
         String jsonData = PlayerStatsSerializer.toJson(this);
@@ -910,7 +906,7 @@ public class SREPlayerStatsComponent implements AutoSyncedComponent, ServerTicki
     }
 
     private void saveToDatabaseAsync() {
-        if (!isDatabaseSyncEnabled() || databaseSyncInFlight) {
+        if (!isDatabaseSyncEnabled() || databaseSyncInFlight || !canWriteToDatabase()) {
             return;
         }
 
@@ -933,6 +929,10 @@ public class SREPlayerStatsComponent implements AutoSyncedComponent, ServerTicki
                         this.databaseDirty = true;
                     }
                 });
+    }
+
+    private boolean canWriteToDatabase() {
+        return syncedFromDatabase || !loaded;
     }
 
     public class RoleStats {

@@ -122,6 +122,7 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
     private boolean syncPending = false;
     private volatile boolean databaseSyncPending = false;
     private volatile boolean databaseSyncInFlight = false;
+    private volatile boolean databaseLoadPending = false;
     private volatile long nextDatabaseSyncAt = 0L;
 
     public SREPlayerProgressionComponent(Player player) {
@@ -214,6 +215,7 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
         this.networkSyncEnabled = SREConfig.instance().progressionSyncServerEnabled
                 && SREConfig.instance().mysqlPlayerSyncEnabled
                 && MysqlPlayerDataStore.isAvailable();
+        this.databaseLoadPending = false;
         if (this.networkSyncEnabled) {
             logger.info("玩家 {} 的进度 MySQL 同步已启用", this.player.getName().getString());
         } else if (SREConfig.instance().progressionSyncServerEnabled) {
@@ -223,6 +225,7 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
 
     public void disableNetworkSync() {
         this.networkSyncEnabled = false;
+        this.databaseLoadPending = false;
     }
 
     public boolean isNetworkSyncEnabled() {
@@ -379,13 +382,16 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
             return;
         }
 
+        this.databaseLoadPending = true;
         MysqlPlayerDataStore.loadBatchAsync(this.player.getUUID(), List.of(NETWORK_TASKS_KEY, NETWORK_DATA_KEY))
                 .thenAccept(records -> serverPlayer.getServer().execute(() -> {
+                    this.databaseLoadPending = false;
                     if (!applyDatabaseRecords(records)) {
                         scheduleDatabaseSync(SYNC_DIRTY_ALL);
                     }
                 }))
                 .exceptionally(throwable -> {
+                    this.databaseLoadPending = false;
                     logger.warn("异步拉取玩家 {} 的 MySQL 进度失败。", this.player.getName().getString(), throwable);
                     this.networkSyncEnabled = false;
 
@@ -402,7 +408,7 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
     }
 
     public void flushNetworkSyncAsyncOnDisconnect() {
-        if (!SREConfig.instance().progressionSyncServerEnabled || !this.networkSyncEnabled) {
+        if (!SREConfig.instance().progressionSyncServerEnabled || !this.networkSyncEnabled || this.databaseLoadPending) {
             return;
         }
 
@@ -848,6 +854,10 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
 
     private boolean flushDatabaseSync(int dirtyMask, boolean blocking) {
         if (!SREConfig.instance().progressionSyncServerEnabled || !this.networkSyncEnabled || dirtyMask == 0) {
+            return false;
+        }
+        if (this.databaseLoadPending) {
+            this.databaseSyncPending = true;
             return false;
         }
 
