@@ -65,6 +65,7 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
     private static final int SYNC_DIRTY_PROGRESS = 1;
     private static final int SYNC_DIRTY_CARDS = 1 << 1;
     private static final int SYNC_DIRTY_TASKS = 1 << 2;
+    private static final int SYNC_DIRTY_TASK_DEFINITIONS = 1 << 3;
     private static final int SYNC_DIRTY_ALL = SYNC_DIRTY_PROGRESS | SYNC_DIRTY_CARDS | SYNC_DIRTY_TASKS;
     private static final Map<String, String> PROGRESS_SYNC_KEYS = Map.ofEntries(
             Map.entry("level", "lv"),
@@ -107,6 +108,7 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
     private final Player player;
     private final EnumMap<FactionCardType, Integer> factionCards = new EnumMap<>(FactionCardType.class);
     private final List<PassQuest> activeQuests = new ArrayList<>();
+    private final Map<String, PassQuest> syncedQuestDefinitions = new LinkedHashMap<>();
     private final Set<String> rewardedLevelMilestones = new HashSet<>();
 
     private boolean networkSyncEnabled = false;
@@ -209,6 +211,16 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
         if (!SREConfig.instance().enableProgressionSystem)
             return;
         KEY.sync(this.player);
+    }
+
+    public void syncImmediately() {
+        sync();
+        this.syncDirtyMask = 0;
+        this.syncPending = false;
+    }
+
+    public void requestTaskDefinitionSync() {
+        this.syncDirtyMask |= SYNC_DIRTY_TASK_DEFINITIONS;
     }
 
     public void initializeNetworkSync(String host, int port, String key) {
@@ -834,6 +846,7 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
             return false;
         }
 
+        requestTaskDefinitionSync();
         this.syncDirtyMask |= SYNC_DIRTY_ALL;
         this.syncPending = true;
         this.databaseDirtyMask = 0;
@@ -965,11 +978,19 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
         }
 
         if ((mask & SYNC_DIRTY_TASKS) != 0) {
-            ListTag questTag = new ListTag();
+            ListTag stateTag = new ListTag();
             for (PassQuest quest : this.activeQuests) {
+                stateTag.add(quest.toSyncStateNbt());
+            }
+            tag.put("ActiveQuestStates", stateTag);
+        }
+
+        if ((mask & SYNC_DIRTY_TASK_DEFINITIONS) != 0) {
+            ListTag questTag = new ListTag();
+            for (PassQuest quest : buildQuestDefinitionsForSync()) {
                 questTag.add(quest.toNbt());
             }
-            tag.put("ActiveQuests", questTag);
+            tag.put("QuestDefinitions", questTag);
         }
     }
 
@@ -986,9 +1007,30 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
             this.lastWeeklyRefreshTime = tag.getLong("LastWeeklyRefreshTime");
         }
 
+        if ((mask & SYNC_DIRTY_TASK_DEFINITIONS) != 0 && tag.contains("QuestDefinitions", Tag.TAG_LIST)) {
+            this.syncedQuestDefinitions.clear();
+            ListTag questDefinitions = tag.getList("QuestDefinitions", Tag.TAG_COMPOUND);
+            for (Tag element : questDefinitions) {
+                if (element instanceof CompoundTag questTag) {
+                    PassQuest definition = PassQuest.fromNbt(questTag);
+                    this.syncedQuestDefinitions.put(definition.id, definition.asDefinition());
+                }
+            }
+        }
+
         if ((mask & SYNC_DIRTY_TASKS) != 0) {
             this.activeQuests.clear();
-            if (tag.contains("ActiveQuests", Tag.TAG_LIST)) {
+            if (tag.contains("ActiveQuestStates", Tag.TAG_LIST)) {
+                ListTag questList = tag.getList("ActiveQuestStates", Tag.TAG_COMPOUND);
+                for (Tag element : questList) {
+                    if (element instanceof CompoundTag questTag) {
+                        PassQuest quest = createQuestFromSyncedState(questTag);
+                        if (quest != null) {
+                            this.activeQuests.add(quest);
+                        }
+                    }
+                }
+            } else if (tag.contains("ActiveQuests", Tag.TAG_LIST)) {
                 ListTag questList = tag.getList("ActiveQuests", Tag.TAG_COMPOUND);
                 for (Tag element : questList) {
                     if (element instanceof CompoundTag questTag) {
@@ -1138,6 +1180,73 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
             Object value) {
         String alias = keyMap.getOrDefault(canonicalKey, canonicalKey);
         map.put(alias, value);
+    }
+
+    private List<PassQuest> buildQuestDefinitionsForSync() {
+        Map<String, PassQuest> definitions = new LinkedHashMap<>();
+        QuestTemplatePools pools = loadTaskTemplatePools();
+        addQuestDefinitions(definitions, pools.daily());
+        addQuestDefinitions(definitions, pools.weekly());
+        addQuestDefinitions(definitions, pools.permanent());
+        for (PassQuest quest : this.activeQuests) {
+            definitions.put(quest.id, quest.asDefinition());
+        }
+        return new ArrayList<>(definitions.values());
+    }
+
+    private static void addQuestDefinitions(Map<String, PassQuest> definitions, List<QuestTemplate> templates) {
+        for (QuestTemplate template : templates) {
+            PassQuest quest = template.instantiate().asDefinition();
+            definitions.put(quest.id, quest);
+        }
+    }
+
+    private PassQuest createQuestFromSyncedState(CompoundTag tag) {
+        String id = tag.getString("Id");
+        if (id.isBlank()) {
+            return null;
+        }
+        PassQuest definition = this.syncedQuestDefinitions.get(id);
+        if (definition == null) {
+            definition = findLocalQuestDefinition(id);
+        }
+        int progress = tag.getInt("Progress");
+        boolean rewarded = tag.getBoolean("Rewarded");
+        if (definition == null) {
+            return PassQuest.createUnknown(id, progress, rewarded);
+        }
+        return definition.withRuntimeState(progress, rewarded);
+    }
+
+    private static @Nullable PassQuest findQuestDefinitionInTemplates(List<QuestTemplate> templates, String id) {
+        for (QuestTemplate template : templates) {
+            if (template.id().equals(id)) {
+                return template.instantiate().asDefinition();
+            }
+        }
+        return null;
+    }
+
+    private @Nullable PassQuest findLocalQuestDefinition(String id) {
+        QuestTemplatePools pools = loadTaskTemplatePools();
+        PassQuest definition = findQuestDefinitionInTemplates(pools.daily(), id);
+        if (definition != null) {
+            return definition;
+        }
+        definition = findQuestDefinitionInTemplates(pools.weekly(), id);
+        if (definition != null) {
+            return definition;
+        }
+        definition = findQuestDefinitionInTemplates(pools.permanent(), id);
+        if (definition != null) {
+            return definition;
+        }
+        for (PassQuest quest : this.activeQuests) {
+            if (quest.id.equals(id)) {
+                return quest.asDefinition();
+            }
+        }
+        return null;
     }
 
     private static synchronized QuestTemplatePools loadTaskTemplatePools() {
@@ -1444,6 +1553,31 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
             tag.putBoolean("Rewarded", this.rewarded);
             tag.putString("Category", this.category.name());
             return tag;
+        }
+
+        public CompoundTag toSyncStateNbt() {
+            CompoundTag tag = new CompoundTag();
+            tag.putString("Id", this.id);
+            tag.putInt("Progress", this.progress);
+            tag.putBoolean("Rewarded", this.rewarded);
+            return tag;
+        }
+
+        public PassQuest asDefinition() {
+            return new PassQuest(this.id, this.title, this.description, this.objectiveType, this.objectiveKey, 0,
+                    this.target, this.rewardExperience, this.rewardCoins, this.rewardLoot, this.rewardCard, false,
+                    this.category);
+        }
+
+        public PassQuest withRuntimeState(int progress, boolean rewarded) {
+            return new PassQuest(this.id, this.title, this.description, this.objectiveType, this.objectiveKey,
+                    Math.max(0, progress), this.target, this.rewardExperience, this.rewardCoins, this.rewardLoot,
+                    this.rewardCard, rewarded, this.category);
+        }
+
+        public static PassQuest createUnknown(String id, int progress, boolean rewarded) {
+            return new PassQuest(id, id, id, ObjectiveType.PLAY_MATCH, null, Math.max(0, progress), 1, 0, 0, 0,
+                    FactionCardType.NONE, rewarded, QuestCategory.DAILY);
         }
 
         public static PassQuest fromNbt(CompoundTag tag) {

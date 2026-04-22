@@ -77,8 +77,9 @@ public class SkinsNetworkSyncInitializer {
             }
             if (progressionComponent != null && SREConfig.instance().progressionSyncServerEnabled) {
                 progressionComponent.initializeNetworkSync(NETWORK_HOST, NETWORK_PORT, NETWORK_KEY);
+                progressionComponent.requestTaskDefinitionSync();
                 progressionComponent.pullProgressionFromNetwork();
-                progressionComponent.sync();
+                progressionComponent.syncImmediately();
             }
             if (nameTagInventoryComponent != null && SREConfig.instance().itemSkinSyncServerEnabled) {
                 nameTagInventoryComponent.initializeNetworkSync(NETWORK_HOST, NETWORK_PORT, NETWORK_KEY);
