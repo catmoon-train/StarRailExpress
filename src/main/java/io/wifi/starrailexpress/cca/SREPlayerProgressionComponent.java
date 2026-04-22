@@ -1576,8 +1576,8 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
         }
 
         public static PassQuest createUnknown(String id, int progress, boolean rewarded) {
-            return new PassQuest(id, id, id, ObjectiveType.PLAY_MATCH, null, clampProgress(progress), 1, 0, 0, 0,
-                    FactionCardType.NONE, rewarded, QuestCategory.DAILY);
+            return new PassQuest(id, "未知任务", "任务数据不可用", ObjectiveType.PLAY_MATCH, null,
+                    clampProgress(progress), 1, 0, 0, 0, FactionCardType.NONE, rewarded, QuestCategory.DAILY);
         }
 
         private static int clampProgress(int progress) {
