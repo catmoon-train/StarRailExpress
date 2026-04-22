@@ -87,7 +87,7 @@ public interface TMMItems {
     Item NUNCHUCK = registrar.create("nunchuck", new NunchuckItem(new Item.Properties().stacksTo(1)),
             EQUIPMENT_GROUP);
 
-    static void initialize() {
+    public static void initialize() {
         INVISIBLE_ITEMS.add(TMMItems.NOTE);
         INVISIBLE_ITEMS.add(TMMItems.DEFENSE_VIAL);
 
@@ -123,6 +123,5 @@ public interface TMMItems {
         ChargeableItemRegistry.register(TMMItems.KNIFE, new KnifeChargeableItem());
         ChargeableItemRegistry.register(TMMItems.GRENADE, new GrenadeChargeableItem());
         WatheBridgerItems.initialize();
-        DevItems.init();
     }
 }

@@ -1,8 +1,8 @@
 package io.wifi.starrailexpress.index;
 
-import org.agmas.noellesroles.Noellesroles;
 
 import dev.doctor4t.ratatouille.util.registrar.ItemRegistrar;
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.content.item.BindingToolItem;
 import io.wifi.starrailexpress.content.item.map_dev.MapBuildHelperItem;
 import net.minecraft.resources.ResourceKey;
@@ -11,10 +11,10 @@ import net.minecraft.world.item.Item;
 
 // OP以及建造使用的物品
 public class DevItems {
-    public static final ItemRegistrar registrar = new ItemRegistrar(Noellesroles.MOD_ID);
-    public Item BINDING_TOOL = register(new BindingToolItem(new Item.Properties().stacksTo(1)),
+    public static final ItemRegistrar registrar = new ItemRegistrar(SRE.MOD_ID);
+    public static Item BINDING_TOOL = register(new BindingToolItem(new Item.Properties().stacksTo(1)),
             "binding_tool");
-    public Item MAP_TOOL = register(new MapBuildHelperItem(new Item.Properties().stacksTo(1)),
+    public static Item MAP_TOOL = register(new MapBuildHelperItem(new Item.Properties().stacksTo(1)),
             "map_tool");
     @SuppressWarnings("unchecked")
     public static Item register(Item item, String id) {
