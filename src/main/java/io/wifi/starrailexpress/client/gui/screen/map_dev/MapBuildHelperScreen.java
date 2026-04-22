@@ -181,7 +181,7 @@ public class MapBuildHelperScreen extends Screen {
                     Component.translatable("sre.map_helper.area.set_max", areaName),
                     b -> sendAndClose(
                             String.format("sre:area_manager set %s set max %.4f %.4f %.4f", cmd, ax(), ay(), az())))
-                    .bounds(panelLeftX + 6 + bw + gap, rowY, bw, bh)
+                    .bounds(panelLeftX + 12 + bw + gap, rowY, bw, bh)
                     .accentBar(AccentSide.RIGHT)
                     .build());
         }
@@ -210,7 +210,7 @@ public class MapBuildHelperScreen extends Screen {
             addTabWidget(tabWidgets2, ModernButton.builder(
                     Component.translatable("sre.map_helper.set_false", Component.translatable(boolFieldKeys[i])),
                     b -> sendOnly("sre:area_manager set " + field + " false"))
-                    .bounds(panelLeftX + 6 + bw + gap, rowY, bw, bh)
+                    .bounds(panelLeftX + 12 + bw + gap, rowY, bw, bh)
                     .accentBar(AccentSide.RIGHT)
                     .build());
         }

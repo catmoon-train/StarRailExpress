@@ -29,7 +29,7 @@
   "sre.field.noReset": "跳过地图重置",
   "sre.field.haveOutsideSound": "列车音效",
   "sre.field.sceneOffsetEnabled": "场景偏移（弃用）",
-  "sre.field.mustCopy": "强制复制区域（不允许简单重置）",
+  "sre.field.mustCopy": "强制全复制区域",
   "sre.area.readyArea": "大厅准备区域",
   "sre.area.playArea": "正式游玩区域",
   "sre.area.sceneArea": "Scene 区域",
