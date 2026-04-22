@@ -297,7 +297,7 @@ public class SREClient implements ClientModInitializer {
                 (player) -> GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)
                         && gameComponent.isOutsideSoundsAvailable() && isTrainMoving()
                         && !SRE.isSkyVisible(player),
-                0.5f, 20, 10));
+                0.25f, 20, 10));
         AmbienceUtil.registerBackgroundAmbience(new MyBackgroundAmbience(TMMSounds.AMBIENT_TRAIN_OUTSIDE,
                 SoundSource.AMBIENT,
                 (player) -> GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)
