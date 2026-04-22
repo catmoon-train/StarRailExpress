@@ -17,6 +17,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.GameType;
 import org.agmas.noellesroles.game.roles.killer.manipulator.ManipulatorPlayerComponent;
+import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.packet.ManipulatorC2SPacket;
 import org.jetbrains.annotations.NotNull;
 
@@ -64,7 +65,7 @@ public class ManipulatorPlayerWidget extends Button {
         ManipulatorPlayerComponent manipulatorComp = ManipulatorPlayerComponent.KEY.get(player);
         SREAbilityPlayerComponent abilityComp = SREAbilityPlayerComponent.KEY.get(player);
 
-        boolean canControl = abilityComp.cooldown <= 0 && !manipulatorComp.isControlling;
+        boolean canControl = abilityComp.cooldown <= 0 && !manipulatorComp.isControlling && !player.hasEffect(ModEffects.SAFE_TIME);
 
         if (canControl) {
             super.renderWidget(context, mouseX, mouseY, delta);

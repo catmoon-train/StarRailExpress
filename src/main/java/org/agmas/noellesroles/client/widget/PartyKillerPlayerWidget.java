@@ -17,6 +17,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.GameType;
 import org.agmas.noellesroles.game.roles.killer.party.PartyPlayerComponent;
+import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.packet.PartyKillerC2SPacket;
 import org.jetbrains.annotations.NotNull;
 
@@ -54,7 +55,8 @@ public class PartyKillerPlayerWidget extends Button {
         if (targetInfo.getGameMode() != GameType.ADVENTURE) {
             setDisplayText(Component.translatable("hud.general.dead").withStyle(ChatFormatting.DARK_RED));
         } else {
-            if (SREClient.gameComponent != null && SREClient.gameComponent.getRole(targetInfo.getProfile().getId()) != null) {
+            if (SREClient.gameComponent != null
+                    && SREClient.gameComponent.getRole(targetInfo.getProfile().getId()) != null) {
                 if (SREClient.gameComponent.isKillerTeam(targetInfo.getProfile().getId())) {
                     setDisplayText(Component.translatable("hud.general.killer_friend").withStyle(ChatFormatting.GOLD));
                 }
@@ -65,11 +67,12 @@ public class PartyKillerPlayerWidget extends Button {
     @Override
     protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
         AbstractClientPlayer player = Minecraft.getInstance().player;
-        if (player == null) return;
+        if (player == null)
+            return;
 
         SREAbilityPlayerComponent ability = SREAbilityPlayerComponent.KEY.get(player);
         boolean canUse = ability.canUseAbility();
-        boolean onCooldown = ability.cooldown > 0;
+        boolean onCooldown = ability.cooldown > 0 || player.hasEffect(ModEffects.SAFE_TIME);
 
         // 渲染背景
         context.blitSprite(ShopEntry.Type.POISON.getTexture(), this.getX() - 7, this.getY() - 7, 30, 30);
@@ -81,8 +84,10 @@ public class PartyKillerPlayerWidget extends Button {
             // 技能可用时的悬浮提示
             if (this.isHovered()) {
                 this.drawShopSlotHighlight(context, this.getX(), this.getY(), 0);
-                context.renderTooltip(Minecraft.getInstance().font, Component.nullToEmpty(targetInfo.getProfile().getName()),
-                    this.getX() - 4 - Minecraft.getInstance().font.width(targetInfo.getProfile().getName()) / 2, this.getY() - 9);
+                context.renderTooltip(Minecraft.getInstance().font,
+                        Component.nullToEmpty(targetInfo.getProfile().getName()),
+                        this.getX() - 4 - Minecraft.getInstance().font.width(targetInfo.getProfile().getName()) / 2,
+                        this.getY() - 9);
             }
         } else {
             // 冷却中时的效果
@@ -92,17 +97,16 @@ public class PartyKillerPlayerWidget extends Button {
 
             if (this.isHovered()) {
                 this.drawShopSlotHighlight(context, this.getX(), this.getY(), 0);
-                Component tooltip = onCooldown ?
-                    Component.translatable("hud.general.cooldown", ability.cooldown / 20) :
-                    Component.translatable("hud.general.dead");
+                Component tooltip = onCooldown ? Component.translatable("hud.general.cooldown", ability.cooldown / 20)
+                        : Component.translatable("hud.general.dead");
                 context.renderTooltip(Minecraft.getInstance().font, tooltip,
-                    this.getX() - 4 - Minecraft.getInstance().font.width(tooltip) / 2, this.getY() - 9);
+                        this.getX() - 4 - Minecraft.getInstance().font.width(tooltip) / 2, this.getY() - 9);
             }
 
             // 显示冷却秒数
             if (onCooldown) {
                 context.drawString(Minecraft.getInstance().font, String.valueOf(ability.cooldown / 20),
-                    this.getX(), this.getY(), Color.RED.getRGB(), true);
+                        this.getX(), this.getY(), Color.RED.getRGB(), true);
             }
         }
 

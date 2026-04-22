@@ -14,6 +14,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.Level;
 import org.agmas.noellesroles.game.roles.Innocent.voodoo.VoodooPlayerComponent;
+import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.packet.MorphC2SPacket;
 
 import java.awt.*;
@@ -59,7 +60,7 @@ public class VoodooPlayerWidget extends Button {
         final var textRenderer = Minecraft.getInstance().font;
         if (textRenderer == null)
             return;
-        if (abilityPlayerComponent.cooldown == 0) {
+        if (abilityPlayerComponent.cooldown == 0 && !player.hasEffect(ModEffects.SAFE_TIME)) {
             context.blitSprite(ShopEntry.Type.TOOL.getTexture(), this.getX() - 7, this.getY() - 7, 30, 30);
             PlayerFaceRenderer.draw(context, skinTextures.texture(), this.getX(), this.getY(), 16);
             if (this.isHovered()) {

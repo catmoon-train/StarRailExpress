@@ -6,6 +6,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.component.ModComponents;
+import org.agmas.noellesroles.init.ModEffects;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
@@ -117,7 +118,7 @@ public class SREAbilityPlayerComponent
      * 检查技能是否可用
      */
     public boolean canUseAbility() {
-        return cooldown <= 0 && (charges == -1 || charges > 0);
+        return cooldown <= 0 && (charges == -1 || charges > 0) && !this.player.hasEffect(ModEffects.SAFE_TIME);
     }
 
     public int getCooldown() {

@@ -17,6 +17,8 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.GameType;
+
+import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.packet.AbilityWithTargetC2SPacket;
 
 import java.awt.*;
@@ -61,7 +63,7 @@ public class ExamplerPlayerWidget extends Button {
         SREAbilityPlayerComponent component = SREAbilityPlayerComponent.KEY.get(player);
         SREPlayerShopComponent shopComponent = SREPlayerShopComponent.KEY.get(player);
 
-        if (component.cooldown <= 0 && shopComponent.balance >= 50) {
+        if (component.cooldown <= 0 && !player.hasEffect(ModEffects.SAFE_TIME) && shopComponent.balance >= 50) {
             super.renderWidget(context, mouseX, mouseY, delta);
             context.blitSprite(ShopEntry.Type.POISON.getTexture(), this.getX() - 7, this.getY() - 7, 30, 30);
             PlayerFaceRenderer.draw(context, target.getSkin().texture(), this.getX(), this.getY(), 16);
