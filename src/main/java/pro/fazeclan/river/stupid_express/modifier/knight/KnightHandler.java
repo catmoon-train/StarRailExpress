@@ -51,7 +51,7 @@ public class KnightHandler {
                     ServerPlayer target = targets.get(random.nextInt(targets.size()));
                     if (target.getUUID().equals(knight.getUUID()))
                         continue;
-                    if (knight.distanceToSqr(target) >= 200 * 200)// 太远了
+                    if (knight.distanceToSqr(target) >= 250 * 250)// 太远了
                         continue;
                     knight.stopRiding();
 

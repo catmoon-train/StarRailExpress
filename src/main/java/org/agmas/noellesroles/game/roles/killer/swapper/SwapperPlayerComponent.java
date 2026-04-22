@@ -58,7 +58,7 @@ public class SwapperPlayerComponent implements RoleComponent, ServerTickingCompo
                     Component.translatable("message.swapper.failed.died", player2.getName()), true);
             return;
         }
-        if (player1.distanceToSqr(player2) >= 300 * 300) {
+        if (player1.distanceToSqr(player2) >= 500 * 500) {
             this.player.displayClientMessage(
                     Component.translatable("message.swapper.failed.to_far", player1.getName(), player2.getName()),
                     true);
