@@ -36,7 +36,7 @@ public class CameraMixin {
     private void tmm$doScreenshake(BlockGetter area, Entity focusedEntity, boolean thirdPerson, boolean inverseView,
             float tickDelta, CallbackInfo ci) {
         if (SREClient.isTrainMoving() && !SREClientConfig.instance().disableScreenShake && SREClient.gameComponent.isRunning()
-                && SREClient.gameComponent.isOutsideSoundsAvailable()) {
+                && SREClient.gameComponent.isOutsideSoundsAvailable() && SREClient.isPlayerAliveAndInSurvivalIgnoreShitSplit()) {
             Camera camera = (Camera) (Object) this;
 
             LocalPlayer player = Minecraft.getInstance().player;
