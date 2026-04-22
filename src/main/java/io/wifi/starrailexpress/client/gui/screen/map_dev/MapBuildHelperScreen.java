@@ -35,6 +35,7 @@ public class MapBuildHelperScreen extends Screen {
     private final List<AbstractWidget> tabWidgets0 = new ArrayList<>();
     private final List<AbstractWidget> tabWidgets1 = new ArrayList<>();
     private final List<AbstractWidget> tabWidgets2 = new ArrayList<>();
+    private final List<AbstractWidget> tabWidgets3 = new ArrayList<>(); // 新增：房间选项卡
 
     // 面板居中定位
     private int panelLeftX;
@@ -103,6 +104,7 @@ public class MapBuildHelperScreen extends Screen {
         tabWidgets0.clear();
         tabWidgets1.clear();
         tabWidgets2.clear();
+        tabWidgets3.clear();
 
         final int bw = 158;
         final int gap = 12;
@@ -143,7 +145,8 @@ public class MapBuildHelperScreen extends Screen {
             addTabWidget(tabWidgets1, ModernButton.builder(
                     Component.translatable("sre.map_helper.area.set_min", areaName),
                     b -> sendAndClose(
-                            String.format("sre:area_manager set %s min %.0f %.0f %.0f", cmd, Math.floor(ax()), Math.floor(ay()), Math.floor(az()))))
+                            String.format("sre:area_manager set %s min %.0f %.0f %.0f", cmd, Math.floor(ax()),
+                                    Math.floor(ay()), Math.floor(az()))))
                     .bounds(panelLeftX + 6, rowY, bw, bh)
                     .accentBar(AccentSide.LEFT)
                     .build());
@@ -151,7 +154,8 @@ public class MapBuildHelperScreen extends Screen {
             addTabWidget(tabWidgets1, ModernButton.builder(
                     Component.translatable("sre.map_helper.area.set_max", areaName),
                     b -> sendAndClose(
-                            String.format("sre:area_manager set %s max %.0f %.0f %.0f", cmd, Math.floor(ax()), Math.floor(ay()), Math.floor(az()))))
+                            String.format("sre:area_manager set %s max %.0f %.0f %.0f", cmd, Math.floor(ax()),
+                                    Math.floor(ay()), Math.floor(az()))))
                     .bounds(panelLeftX + 6 + bw + gap, rowY, bw, bh)
                     .accentBar(AccentSide.RIGHT)
                     .build());
@@ -185,10 +189,84 @@ public class MapBuildHelperScreen extends Screen {
                     .build());
         }
 
+        // ---------- Tab 3: Rooms (新增) ----------
+        buildRoomsTab(cy, bw, gap, bh);
+
         tabWidgets0.forEach(this::addRenderableWidget);
         tabWidgets1.forEach(this::addRenderableWidget);
         tabWidgets2.forEach(this::addRenderableWidget);
+        tabWidgets3.forEach(this::addRenderableWidget);
         syncTabVisibility();
+    }
+
+    // ── 房间选项卡 UI ────────────────────────────────────────────────
+    private void buildRoomsTab(int startY, int bw, int gap, int bh) {
+        // 第一行：房间数量设置
+        final int row1 = startY;
+        final int fieldWidth = 60;
+        EditBox roomCountBox = makeField(panelLeftX + 6, row1, fieldWidth, bh, "0",
+                v -> {
+                    /* 不需要实时响应，点击按钮时读取 */ });
+        addTabWidget(tabWidgets3, roomCountBox);
+
+        ModernButton setCountBtn = ModernButton.builder(
+                Component.literal("设置房间数量"),
+                b -> {
+                    String count = roomCountBox.getValue().trim();
+                    if (!count.isEmpty()) {
+                        sendOnly("sre:area_manager set roomCount " + count);
+                    }
+                })
+                .bounds(panelLeftX + 6 + fieldWidth + gap, row1, bw, bh)
+                .accentBar(AccentSide.LEFT)
+                .build();
+        addTabWidget(tabWidgets3, setCountBtn);
+
+        // 第二行：房间 ID 输入框 + 添加按钮
+        final int row2 = startY + (bh + gap);
+        EditBox roomIdBox = makeField(panelLeftX + 6, row2, fieldWidth, bh, "0",
+                v -> {
+                });
+        addTabWidget(tabWidgets3, roomIdBox);
+
+        ModernButton addRoomBtn = ModernButton.builder(
+                Component.translatable("sre.map_helper.add_to_room"),
+                b -> {
+                    String idStr = roomIdBox.getValue().trim();
+                    if (!idStr.isEmpty()) {
+                        try {
+                            int id = Integer.parseInt(idStr);
+                            long x = (long) Math.floor(ax());
+                            long y = (long) Math.floor(ay());
+                            long z = (long) Math.floor(az());
+                            sendOnly(String.format("sre:area_manager set roomPositions add %d %d %d %d", id, x, y, z));
+                        } catch (NumberFormatException ignored) {
+                        }
+                    }
+                })
+                .bounds(panelLeftX + 6 + fieldWidth + gap, row2, bw, bh)
+                .accentBar(AccentSide.LEFT)
+                .build();
+        addTabWidget(tabWidgets3, addRoomBtn);
+
+        // 第三行：移除房间按钮（使用相同的 ID 输入框）
+        final int row3 = startY + 2 * (bh + gap);
+        ModernButton removeRoomBtn = ModernButton.builder(
+                Component.translatable("sre.map_helper.remove_room"),
+                b -> {
+                    String idStr = roomIdBox.getValue().trim();
+                    if (!idStr.isEmpty()) {
+                        try {
+                            int id = Integer.parseInt(idStr);
+                            sendOnly("sre:area_manager set roomPositions remove " + id);
+                        } catch (NumberFormatException ignored) {
+                        }
+                    }
+                })
+                .bounds(panelLeftX + 6 + fieldWidth + gap, row3, bw, bh)
+                .accentBar(AccentSide.RIGHT)
+                .build();
+        addTabWidget(tabWidgets3, removeRoomBtn);
     }
 
     // ── 偏移量行 ─────────────────────────────────────────────────────
@@ -248,17 +326,17 @@ public class MapBuildHelperScreen extends Screen {
                 .build());
     }
 
-    // ── Tab 栏 ──────────────────────────────────────────────────────
+    // ── Tab 栏（4个选项卡）────────────────────────────────────────────
     private void buildTabBar() {
         final int tabY = panelTopY + 74;
         final int tabH = 22;
-        final int tabW = 98;
-        final int tabGap = 12;
-        final int totalTabW = tabW * 3 + tabGap * 2;
+        final int tabW = 76; // 稍微缩小以容纳4个选项卡
+        final int tabGap = 8;
+        final int totalTabW = tabW * 4 + tabGap * 3;
         final int startX = panelLeftX + (PANEL_WIDTH - totalTabW) / 2;
 
-        String[] tabKeys = { "positions", "areas", "settings" };
-        for (int i = 0; i < 3; i++) {
+        String[] tabKeys = { "positions", "areas", "settings", "rooms" };
+        for (int i = 0; i < 4; i++) {
             final int idx = i;
             var builder = ModernButton.builder(Component.translatable("sre.map_helper.tab." + tabKeys[i]), b -> {
                 activeTab = idx;
@@ -282,6 +360,7 @@ public class MapBuildHelperScreen extends Screen {
         tabWidgets0.forEach(w -> w.visible = (activeTab == 0));
         tabWidgets1.forEach(w -> w.visible = (activeTab == 1));
         tabWidgets2.forEach(w -> w.visible = (activeTab == 2));
+        tabWidgets3.forEach(w -> w.visible = (activeTab == 3));
     }
 
     private EditBox makeField(int x, int y, int w, int h, String defaultVal, Consumer<String> responder) {
@@ -352,7 +431,7 @@ public class MapBuildHelperScreen extends Screen {
         g.fill(panelLeftX, panelTopY + 70, panelLeftX + PANEL_WIDTH, panelTopY + 71, 0x33AABBCC);
         g.fill(panelLeftX, panelTopY + 94, panelLeftX + PANEL_WIDTH, panelTopY + 95, 0x33AABBCC);
 
-        String[] tabTitlesKeys = { "spawn_offset", "aabb_areas", "boolean_settings" };
+        String[] tabTitlesKeys = { "spawn_offset", "aabb_areas", "boolean_settings", "rooms_config" };
         g.drawString(font,
                 Component.translatable("sre.map_helper.tab_title." + tabTitlesKeys[activeTab])
                         .withStyle(Style.EMPTY.withColor(0x5577CC).withBold(true)),
@@ -361,6 +440,11 @@ public class MapBuildHelperScreen extends Screen {
         if (activeTab == 1) {
             g.drawString(font,
                     Component.translatable("sre.map_helper.areas.hint", ax(), ay(), az())
+                            .withStyle(s -> s.withColor(0x445566)),
+                    panelLeftX + 6, panelTopY + PANEL_HEIGHT - 12, 0xFFFFFF, false);
+        } else if (activeTab == 3) {
+            g.drawString(font,
+                    Component.literal("房间 ID 必须为整数，坐标自动取整为当前偏移位置")
                             .withStyle(s -> s.withColor(0x445566)),
                     panelLeftX + 6, panelTopY + PANEL_HEIGHT - 12, 0xFFFFFF, false);
         }
