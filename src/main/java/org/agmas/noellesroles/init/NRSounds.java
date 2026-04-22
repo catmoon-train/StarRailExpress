@@ -21,6 +21,8 @@ public class NRSounds {
     public static final SoundEvent TIME_START = registrar.create("noellesroles.time_start");
     public static final SoundEvent PARTY_SKILL = registrar.create("noellesroles.party_skill");
     public static final SoundEvent ITEM_SYRINGE_STAB = registrar.create("item.syringe.stab");
+    public static final SoundEvent SHOTGUN_FIRE = registrar.create("noellesroles:shotgun_fire");
+    public static final SoundEvent SHORT_CIRCUIT = registrar.create("noellesroles:short_circuit");
 
     public static void initialize() {
         registrar.registerEntries();
