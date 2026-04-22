@@ -131,7 +131,7 @@ public class GhostPlayerComponent implements RoleComponent, ServerTickingCompone
         if (invisibilityTicks > 0) {
             invisibilityTicks--;
         }
-        if (cooldown % 200 == 0) {
+        if (cooldown % 400 == 0) {
             sync();
         }
     }

@@ -102,8 +102,8 @@ public class MapVotingComponent implements AutoSyncedComponent, CommonTickingCom
                 finishVoting();
                 sync();
             } else {
-                // 每5秒同步一次倒计时
-                if (votingTimeLeft % 100 == 0) {
+                // 每10秒同步一次倒计时
+                if (votingTimeLeft % 200 == 0) {
                     shouldSync = true;
                 }
             }
@@ -204,7 +204,7 @@ public class MapVotingComponent implements AutoSyncedComponent, CommonTickingCom
         // 记录新投票
         playerVotes.put(playerId, mapId);
         votes.put(mapId, votes.getOrDefault(mapId, 0) + 1);
-        this.shouldSync = true;
+        // this.shouldSync = true;
 
         return true;
     }
