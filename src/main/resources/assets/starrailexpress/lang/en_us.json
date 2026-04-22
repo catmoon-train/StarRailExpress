@@ -953,6 +953,12 @@
   "gui.sre.mailbox.attachments": "Attachments:",
   "gui.sre.mailbox.status_claimed": "Claimed",
   "gui.sre.mailbox.status_expired": "Expired",
+  "gui.sre.mailbox.select_hint": "Select a Mail",
+  "gui.sre.mailbox.no_selection": "No mail selected",
+  "gui.sre.mailbox.feedback_claimed": "\u2713 Claimed",
+  "gui.sre.mailbox.feedback_claimed_all": "\u2713 \u00d7%s",
+  "gui.sre.mailbox.tag_claimed": "\u2713 Claimed",
+  "gui.sre.mailbox.tag_reward": "\u2605 Reward",
   "message.fourth_room.life_card_auto_used": "Automatically used Life card to block Death card damage.",
   "=== END ===": ""
 }
