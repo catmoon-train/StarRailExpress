@@ -39,6 +39,8 @@ public class ParanoidHandler {
         Level world = player.level();
         WorldModifierComponent modifierComp = WorldModifierComponent.KEY.get(world);
         if (modifierComp == null) return;
+        // 忽略处于旁观者模式的玩家，不应对旁观者生效
+        if (player.isSpectator()) return;
 
         if (!modifierComp.isModifier(player.getUUID(), SEModifiers.PARANOID)) {
             return;
