@@ -34,6 +34,32 @@ public class MapManager {
     private static final Random random = new Random();
 
     /**
+     * 删除指定地图文件
+     * 
+     * @param serverWorld 服务器世界
+     * @param mapName     地图名称
+     * @return 是否成功删除
+     */
+    public static boolean removeMapWithoutTry(ServerLevel serverWorld, String mapName)
+            throws Exception {
+        // 创建地图目录
+        Path mapsDirPath = Paths.get(serverWorld.getServer().getWorldPath(LevelResource.ROOT).toString(),
+                "train_maps");
+        File mapsDir = mapsDirPath.toFile();
+        if (!mapsDir.exists()) {
+            mapsDir.mkdirs();
+        }
+
+        // 构建地图配置文件路径
+        Path mapConfigPath = Paths.get(mapsDirPath.toString(), mapName + ".json");
+        File mapConfigFile = mapConfigPath.toFile();
+        if (!mapConfigFile.exists()) {
+            return false;
+        }
+        return mapConfigFile.delete();
+    }
+
+    /**
      * 保存当前地图配置到指定的地图文件
      * 
      * @param serverWorld   服务器世界

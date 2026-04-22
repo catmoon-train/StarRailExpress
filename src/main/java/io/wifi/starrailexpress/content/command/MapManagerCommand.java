@@ -100,6 +100,12 @@ public class MapManagerCommand {
                 .then(buildGetSimple("mustCopy", a -> String.valueOf(a.mustCopy)))
                 .then(buildGetSimple("mapName", a -> "\"" + a.mapName + "\""))
                 .then(getDisabledTasks()))
+            .then(Commands.literal("remove")
+                .requires(source -> source.hasPermission(3))
+                .then(Commands.argument("mapName", MapLoadArgumentType.string())
+                    .executes(context -> executeRemove(
+                        context.getSource(),
+                        StringArgumentType.getString(context, "mapName")))))
             .then(Commands.literal("save")
                 .then(Commands.argument("mapName", MapLoadArgumentType.string())
                     .executes(context -> executeSave(
@@ -107,7 +113,7 @@ public class MapManagerCommand {
                         StringArgumentType.getString(context, "mapName"),
                         false))
                     .then(Commands.literal("force")
-                        .requires(source -> source.hasPermission(2))
+                        .requires(source -> source.hasPermission(3))
                         .executes(context -> executeSave(
                             context.getSource(),
                             StringArgumentType.getString(context, "mapName"),
@@ -416,6 +422,31 @@ public class MapManagerCommand {
             true);
       } else {
         source.sendFailure(Component.translatable("commands.sre.switchmap.error.save_failed", mapName));
+      }
+    } catch (Exception e) {
+      throw ConfigCommand.createSimpleSyntaxException(e);
+    }
+
+    return 1;
+  }
+  // ======================== 删除命令 ========================
+
+  private static int executeRemove(CommandSourceStack source, String mapName)
+      throws CommandSyntaxException {
+    ServerLevel serverWorld = source.getLevel();
+    SREGameWorldComponent gameComponent = SREGameWorldComponent.KEY.get(serverWorld);
+    if (gameComponent.isRunning()) {
+      source.sendFailure(Component.translatable("commands.sre.switchmap.error.game_running"));
+      return 1;
+    }
+    try {
+      if (MapManager.removeMapWithoutTry(serverWorld, mapName)) {
+        source.sendSuccess(
+            () -> Component.translatable("commands.sre.switchmap.remove.success", mapName)
+                .withStyle(style -> style.withColor(0x00FF00)),
+            true);
+      } else {
+        source.sendFailure(Component.translatable("commands.sre.switchmap.error.remove_failed", mapName));
       }
     } catch (Exception e) {
       throw ConfigCommand.createSimpleSyntaxException(e);

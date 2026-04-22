@@ -848,6 +848,8 @@
   "commands.sre.switchmap.error.invalid_map": "无效的地图: %s",
   "commands.sre.switchmap.save.success": "地图保存成功: %s",
   "commands.sre.switchmap.error.save_failed": "地图保存失败: %s。可能文件已存在。你可能需要添加 force 来强制保存。",
+  "commands.sre.switchmap.remove.success": "成功删除地图文件: %s！",
+  "commands.sre.switchmap.error.remove_failed": "删除文件失败: %s。文件可能无法访问。",
   "commands.sre.switchmap.list.none": "没有可用的地图",
   "commands.sre.switchmap.list.header": "可用地图列表:",
   "commands.sre.switchmap.random.success": "随机加载地图",
