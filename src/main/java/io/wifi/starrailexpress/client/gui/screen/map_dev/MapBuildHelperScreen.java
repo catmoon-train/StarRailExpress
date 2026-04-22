@@ -208,7 +208,7 @@ public class MapBuildHelperScreen extends Screen {
                     .build());
 
             addTabWidget(tabWidgets2, ModernButton.builder(
-                    Component.translatable("sre.map_helper.set_true", Component.translatable(boolFieldKeys[i])),
+                    Component.translatable("sre.map_helper.set_false", Component.translatable(boolFieldKeys[i])),
                     b -> sendOnly("sre:area_manager set " + field + " false"))
                     .bounds(panelLeftX + 6 + bw + gap, rowY, bw, bh)
                     .accentBar(AccentSide.RIGHT)
