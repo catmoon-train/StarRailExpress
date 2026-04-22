@@ -66,7 +66,7 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
     private static final int SYNC_DIRTY_CARDS = 1 << 1;
     private static final int SYNC_DIRTY_TASKS = 1 << 2;
     private static final int SYNC_DIRTY_TASK_DEFINITIONS = 1 << 3;
-    private static final int SYNC_DIRTY_ALL = SYNC_DIRTY_PROGRESS | SYNC_DIRTY_CARDS | SYNC_DIRTY_TASKS;
+    private static final int SYNC_DIRTY_RUNTIME_ALL = SYNC_DIRTY_PROGRESS | SYNC_DIRTY_CARDS | SYNC_DIRTY_TASKS;
     private static final Map<String, String> PROGRESS_SYNC_KEYS = Map.ofEntries(
             Map.entry("level", "lv"),
             Map.entry("experience", "xp"),
@@ -119,8 +119,8 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
     private int totalExperience;
     private int claimedCoinRewards;
     private int claimedLootRewards;
-    private int syncDirtyMask = SYNC_DIRTY_ALL;
-    private int databaseDirtyMask = SYNC_DIRTY_ALL;
+    private int syncDirtyMask = SYNC_DIRTY_RUNTIME_ALL;
+    private int databaseDirtyMask = SYNC_DIRTY_RUNTIME_ALL;
     private boolean syncPending = false;
     private volatile boolean databaseSyncPending = false;
     private volatile boolean databaseSyncInFlight = false;
@@ -399,7 +399,7 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
                 .thenAccept(records -> serverPlayer.getServer().execute(() -> {
                     this.databaseLoadPending = false;
                     if (!applyDatabaseRecords(records)) {
-                        scheduleDatabaseSync(SYNC_DIRTY_ALL);
+                        scheduleDatabaseSync(SYNC_DIRTY_RUNTIME_ALL);
                     }
                 }))
                 .exceptionally(throwable -> {
@@ -412,7 +412,7 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
     }
 
     public void syncToNetwork() {
-        syncToNetwork(SYNC_DIRTY_ALL);
+        syncToNetwork(SYNC_DIRTY_RUNTIME_ALL);
     }
 
     public void syncToNetwork(int dirtyMask) {
@@ -424,7 +424,7 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
             return;
         }
 
-        Map<String, String> payloads = buildDatabasePayloads(SYNC_DIRTY_ALL);
+        Map<String, String> payloads = buildDatabasePayloads(SYNC_DIRTY_RUNTIME_ALL);
         if (payloads.isEmpty()) {
             return;
         }
@@ -502,7 +502,7 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
             }
         }
         if (changed) {
-            markChanged(SYNC_DIRTY_ALL);
+            markChanged(SYNC_DIRTY_RUNTIME_ALL);
         }
     }
 
@@ -792,7 +792,7 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
     }
 
     public void markChanged() {
-        markChanged(SYNC_DIRTY_ALL);
+        markChanged(SYNC_DIRTY_RUNTIME_ALL);
     }
 
     private void markChanged(int dirtyMask) {
@@ -814,7 +814,7 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
     }
 
     public boolean flushNetworkSyncBlocking() {
-        int dirtyMask = this.databaseDirtyMask == 0 ? SYNC_DIRTY_ALL : this.databaseDirtyMask;
+        int dirtyMask = this.databaseDirtyMask == 0 ? SYNC_DIRTY_RUNTIME_ALL : this.databaseDirtyMask;
         return flushDatabaseSync(dirtyMask, true);
     }
 
@@ -847,7 +847,7 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
         }
 
         requestTaskDefinitionSync();
-        this.syncDirtyMask |= SYNC_DIRTY_ALL;
+        this.syncDirtyMask |= SYNC_DIRTY_RUNTIME_ALL;
         this.syncPending = true;
         this.databaseDirtyMask = 0;
         this.databaseSyncPending = false;
@@ -964,7 +964,7 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
     public void writeToSyncNbt(CompoundTag tag, HolderLookup.Provider provider) {
         if (!SREConfig.instance().enableProgressionSystem)
             return;
-        int mask = this.syncDirtyMask == 0 ? SYNC_DIRTY_ALL : this.syncDirtyMask;
+        int mask = this.syncDirtyMask == 0 ? SYNC_DIRTY_RUNTIME_ALL : this.syncDirtyMask;
         tag.putInt("SyncDirtyMask", mask);
 
         if ((mask & SYNC_DIRTY_PROGRESS) != 0) {
@@ -995,7 +995,7 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
     }
 
     public void readFromSyncNbt(CompoundTag tag, HolderLookup.Provider provider) {
-        int mask = tag.contains("SyncDirtyMask", Tag.TAG_INT) ? tag.getInt("SyncDirtyMask") : SYNC_DIRTY_ALL;
+        int mask = tag.contains("SyncDirtyMask", Tag.TAG_INT) ? tag.getInt("SyncDirtyMask") : SYNC_DIRTY_RUNTIME_ALL;
 
         if ((mask & SYNC_DIRTY_PROGRESS) != 0) {
             this.level = Math.max(1, tag.getInt("Level"));
@@ -1571,13 +1571,17 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
 
         public PassQuest withRuntimeState(int progress, boolean rewarded) {
             return new PassQuest(this.id, this.title, this.description, this.objectiveType, this.objectiveKey,
-                    Math.max(0, progress), this.target, this.rewardExperience, this.rewardCoins, this.rewardLoot,
+                    clampProgress(progress), this.target, this.rewardExperience, this.rewardCoins, this.rewardLoot,
                     this.rewardCard, rewarded, this.category);
         }
 
         public static PassQuest createUnknown(String id, int progress, boolean rewarded) {
-            return new PassQuest(id, id, id, ObjectiveType.PLAY_MATCH, null, Math.max(0, progress), 1, 0, 0, 0,
+            return new PassQuest(id, id, id, ObjectiveType.PLAY_MATCH, null, clampProgress(progress), 1, 0, 0, 0,
                     FactionCardType.NONE, rewarded, QuestCategory.DAILY);
+        }
+
+        private static int clampProgress(int progress) {
+            return Math.max(0, progress);
         }
 
         public static PassQuest fromNbt(CompoundTag tag) {
