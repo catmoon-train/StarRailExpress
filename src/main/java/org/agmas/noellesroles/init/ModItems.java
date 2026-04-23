@@ -383,6 +383,9 @@ public class ModItems {
     public static final Item RADIO = register(
             new org.agmas.noellesroles.content.item.RadioItem(new Item.Properties().stacksTo(1)),
             "radio");
+    public static final Item MONITORING_TERMINAL = register(
+            new org.agmas.noellesroles.content.item.MonitoringTerminalItem(new Item.Properties().stacksTo(1)),
+            "monitoring_terminal");
     /**
      * 锁
      * - 工程师专属物品

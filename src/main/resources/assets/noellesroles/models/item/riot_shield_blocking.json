@@ -1,5 +1,9 @@
 {
     "parent": "minecraft:item/flow_pottery_sherd",
+    "textures": {
+        "layer0": "noellesroles:item/riot_shield",
+        "particle": "noellesroles:item/riot_shield"
+    },
     "display": {
         "thirdperson_righthand": {
             "rotation": [ 45, 155, 0 ],
@@ -12,13 +16,13 @@
             "scale": [ 1, 1, 1 ]
         },
         "firstperson_righthand": {
-            "rotation": [ 0, 180, -5 ],
-            "translation": [ -15, 5, -11 ],
+            "rotation": [ 0, 180, -2 ],
+            "translation": [ -6, 4, -14 ],
             "scale": [ 1.25, 1.25, 1.25 ]
         },
         "firstperson_lefthand": {
-            "rotation": [ 0, 180, -5 ],
-            "translation": [ 5, 5, -11 ],
+            "rotation": [ 0, 180, 2 ],
+            "translation": [ 6, 4, -14 ],
             "scale": [ 1.25, 1.25, 1.25 ]
         },
         "gui": {

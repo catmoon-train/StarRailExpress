@@ -93,7 +93,10 @@ public class SREConfig implements ConfigData {
     public int blackoutPrice = 100;
     @ConfigSync(shouldSync = true)
     @ConfigEntry.Category(value = "shop")
-    public int monitorBrokenPrice = 100;
+    public int monitorBrokenPrice = 60;
+    @ConfigSync(shouldSync = true)
+    @ConfigEntry.Category(value = "shop")
+    public int shortShotgunPrice = 300;
     @ConfigSync(shouldSync = true)
     @ConfigEntry.Category(value = "shop")
     public int notePrice = 10;

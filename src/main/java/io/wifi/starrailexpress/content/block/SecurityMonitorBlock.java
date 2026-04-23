@@ -257,26 +257,31 @@ public class SecurityMonitorBlock extends BaseEntityBlock {
             exitSecurityMode((net.minecraft.server.level.ServerPlayer) player);
             return InteractionResult.SUCCESS;
         } else {
-            // 检查监控器上是否有摄像头位置数据
-            SecurityMonitorBlockEntity monitorEntity = (SecurityMonitorBlockEntity) world.getBlockEntity(pos);
-            if (monitorEntity != null) {
-                List<BlockPos> cameraPositions = monitorEntity.getCameraPositions();
-                if (cameraPositions.isEmpty()) {
-                    player.displayClientMessage(Component.literal("此监控器未连接任何摄像头").withStyle(ChatFormatting.RED), true);
-                    return InteractionResult.SUCCESS;
-                } else {
-                    // 记录当前监控控制台的位置
-                    currentMonitorPos = pos;
-                    // 进入监控模式，循环切换摄像头
-                    cycleToNextCamera(player, cameraPositions);
-                    enterSecurityMode((net.minecraft.server.level.ServerPlayer) player);
-                    return InteractionResult.SUCCESS;
-                }
-            } else {
-                player.displayClientMessage(Component.literal("监控器数据错误").withStyle(ChatFormatting.RED), true);
-                return InteractionResult.SUCCESS;
+            if (player instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
+                openMonitorRemotely(serverPlayer, pos);
             }
+            return InteractionResult.SUCCESS;
         }
+    }
+
+    public static boolean openMonitorRemotely(net.minecraft.server.level.ServerPlayer player, BlockPos monitorPos) {
+        Level world = player.level();
+        BlockEntity blockEntity = world.getBlockEntity(monitorPos);
+        if (!(blockEntity instanceof SecurityMonitorBlockEntity monitorEntity)) {
+            player.displayClientMessage(Component.literal("绑定的监控器不存在或已损坏").withStyle(ChatFormatting.RED), true);
+            return false;
+        }
+
+        List<BlockPos> cameraPositions = monitorEntity.getCameraPositions();
+        if (cameraPositions.isEmpty()) {
+            player.displayClientMessage(Component.literal("此监控器未连接任何摄像头").withStyle(ChatFormatting.RED), true);
+            return false;
+        }
+
+        currentMonitorPos = monitorPos;
+        cycleToNextCamera(player, cameraPositions);
+        enterSecurityMode(player);
+        return true;
     }
 
     public static void cycleToNextCamera(Player player, List<BlockPos> cameraPositions) {

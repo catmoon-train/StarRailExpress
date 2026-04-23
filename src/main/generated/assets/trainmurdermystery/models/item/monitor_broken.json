@@ -1,3 +1,7 @@
 {
-  "parent": "starrailexpress:block/camera"
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "noellesroles:item/monitor_broken",
+    "particle": "noellesroles:item/monitor_broken"
+  }
 }

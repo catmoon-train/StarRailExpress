@@ -585,6 +585,8 @@
   "item.noellesroles.alarm_trap.tooltip": "Right-click a door to place a trap; triggers alarm when a pry bar is used",
   "item.noellesroles.alarm_trap.tooltip2": "Alters the door lock, making it impossible to open with the original key",
   "item.noellesroles.lock": "Lock",
+  "item.noellesroles.monitoring_terminal": "Monitoring Terminal",
+  "item.noellesroles.monitoring_terminal.tooltip": "Right-click a security monitor to bind it, then right-click to remotely view the bound monitor",
   "item.noellesroles.stalker_knife": "Stalker's Main Hand Knife",
   "item.noellesroles.stalker_knife_offhand": "Stalker's Off‑hand Knife",
   "item.noellesroles.lock.tooltip": "Right-click to lock a door, blocking lock‑picking tools",

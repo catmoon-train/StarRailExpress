@@ -949,6 +949,7 @@ public class NoellesrolesClient implements ClientModInitializer {
             tooltipHelper(TMMItems.DEFENSE_VIAL, itemStack, list);
             tooltipHelper(ModItems.DELUSION_VIAL, itemStack, list);
             tooltipHelper(ModItems.ONCE_REVOLVER, itemStack, list);
+            tooltipHelper(ModItems.SHORT_SHOTGUN, itemStack, list);
             tooltipHelper(FunnyItems.PROBLEM_SET, itemStack, list);
             tooltipHelper(FunnyItems.SHISIYE, itemStack, list);
             tooltipHelper(FunnyItems.BOWEN_BADGE, itemStack, list);

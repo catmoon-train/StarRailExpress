@@ -8,6 +8,7 @@ import io.wifi.starrailexpress.game.ShopContent;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.util.ShopEntry;
+import org.agmas.noellesroles.init.NRSounds;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
@@ -163,6 +164,9 @@ public class SREPlayerShopComponent implements RoleComponent, ServerTickingCompo
             return false;
         boolean triggered = monitorCCA.triggerBroken(true, duration);
         if (triggered) {
+            player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
+                    NRSounds.SHORT_CIRCUIT, SoundSource.MASTER, 5.0F, 1.0F);
+
             // 公共 Cooldown
             player.level().players().forEach(
                     p -> p.getCooldowns().addCooldown(TMMItems.MONITOR_BROKEN, GameConstants.getMonitorBrokenCooldownGlobal()));

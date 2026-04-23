@@ -4,6 +4,7 @@ import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.index.TMMItems;
+import org.agmas.noellesroles.init.ModItems;
 import io.wifi.starrailexpress.util.ShopEntry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
@@ -24,8 +25,9 @@ public class ShopContent {
                     ShopEntry.Type.WEAPON));
             defaultKnifeEntries.add(new ShopEntry(TMMItems.REVOLVER.getDefaultInstance(),
                     SREConfig.instance().revolverPrice, ShopEntry.Type.WEAPON));
-            defaultKnifeEntries.add(new ShopEntry(TMMItems.GRENADE.getDefaultInstance(),
+                defaultKnifeEntries.add(new ShopEntry(TMMItems.GRENADE.getDefaultInstance(),
                     SREConfig.instance().grenadePrice, ShopEntry.Type.WEAPON));
+                defaultKnifeEntries.add(new ShopEntry(ModItems.SHORT_SHOTGUN.getDefaultInstance(), SREConfig.instance().shortShotgunPrice, ShopEntry.Type.WEAPON));
             defaultKnifeEntries.add(new ShopEntry(TMMItems.PSYCHO_MODE.getDefaultInstance(),
                     SREConfig.instance().psychoModePrice, ShopEntry.Type.WEAPON) {
                 @Override
