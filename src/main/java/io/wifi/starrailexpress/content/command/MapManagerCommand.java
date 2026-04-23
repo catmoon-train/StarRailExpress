@@ -20,6 +20,7 @@ import net.minecraft.commands.arguments.coordinates.Vec3Argument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -34,9 +35,47 @@ public class MapManagerCommand {
   public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
     dispatcher.register(
         Commands.literal("sre:monitor").requires(source -> source.hasPermission(2))
-            .then(Commands.literal("search_camera_and_bind")
+            .then(Commands.literal("search")
                 .then(Commands.argument("block_pos", BlockPosArgument.blockPos())
-                    .then(Commands.argument("range", IntegerArgumentType.integer(0)).executes((ctx) -> {
+                    .then(Commands.literal("in_reset_template").executes((ctx) -> {
+
+                      BlockPos blockPos = BlockPosArgument.getBlockPos(ctx, "block_pos");
+                      var source = ctx.getSource();
+                      var level = source.getLevel();
+                      var areas = AreasWorldComponent.KEY.get(level);
+                      if (level.getBlockState(blockPos).is(TMMBlocks.SECURITY_MONITOR)) {
+                        if (level.getBlockEntity(blockPos) instanceof SecurityMonitorBlockEntity smbe) {
+                          smbe.clearCameraPositions();
+                          int count = 0;
+                          BlockPos trainMinPos = BlockPos.containing(areas.getResetTemplateArea().getMinPosition());
+                          BlockPos trainMaxPos = BlockPos.containing(areas.getResetTemplateArea().getMaxPosition());
+                          BoundingBox trainBox = BoundingBox.fromCorners(trainMinPos, trainMaxPos);
+                          for (int x = trainBox.minZ(); x <= trainBox.maxZ(); x++) {
+                            for (int y = trainBox.minY(); y <= trainBox.maxY(); y++) {
+                              for (int z = trainBox.minX(); z <= trainBox.maxX(); z++) {
+                                if (level.getBlockState(new BlockPos(x, y, z)).is(TMMBlocks.CAMERA)) {
+                                  smbe.addCameraPosition(new BlockPos(x, y, z));
+                                  source.sendSystemMessage(
+                                      Component.translatable("- Found camera at [%s, %s, %s]", x, y, z)
+                                          .withStyle(ChatFormatting.GRAY));
+                                  count++;
+                                }
+                              }
+                            }
+                          }
+                          final int ccount = count;
+                          source.sendSuccess(
+                              () -> Component.translatable("Successfully added %s cameras to security monitor %s",
+                                  ccount, blockPos.toShortString()).withStyle(ChatFormatting.GREEN),
+                              true);
+                          return count;
+                        }
+                      }
+                      source.sendFailure(Component.literal("Not a security monitor or invaild position!")
+                          .withStyle(ChatFormatting.RED));
+                      return 0;
+                    }))
+                    .then(Commands.argument("range", IntegerArgumentType.integer(0, 100)).executes((ctx) -> {
                       int range = IntegerArgumentType.getInteger(ctx, "range");
                       BlockPos blockPos = BlockPosArgument.getBlockPos(ctx, "block_pos");
                       var source = ctx.getSource();
@@ -46,8 +85,9 @@ public class MapManagerCommand {
                           smbe.clearCameraPositions();
                           int count = 0;
                           for (int x = blockPos.getX() - range; x <= blockPos.getX() + range; x++) {
-                            for (int y = blockPos.getY() - range; y <= blockPos.getX() + range; y++) {
-                              for (int z = blockPos.getZ() - range; z <= blockPos.getX() + range; z++) {
+                            for (int y = Math.max(0, blockPos.getY() - range); y <= blockPos.getY() + range
+                                && y <= 356; y++) {
+                              for (int z = blockPos.getZ() - range; z <= blockPos.getZ() + range; z++) {
                                 if (level.getBlockState(new BlockPos(x, y, z)).is(TMMBlocks.CAMERA)) {
                                   smbe.addCameraPosition(new BlockPos(x, y, z));
                                   source.sendSystemMessage(
