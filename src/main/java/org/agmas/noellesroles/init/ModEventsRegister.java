@@ -1320,13 +1320,14 @@ public class ModEventsRegister {
                         } else {
                             if (p.isSpectator()) {
                                 toDeleted.add(p_u);
-                            } else {
-                                if (!MCItemsUtils.hasItem(p, ModItems.RADIO)) {
-                                    toDeleted.add(p_u);
-                                    p.displayClientMessage(Component.translatable("message.noellesroles.radio.left")
-                                            .withStyle(ChatFormatting.RED), true);
-                                }
+                                p.displayClientMessage(Component.translatable("message.noellesroles.radio.left")
+                                        .withStyle(ChatFormatting.RED), true);
+                            } else if (!MCItemsUtils.hasItem(p, ModItems.RADIO)) {
+                                toDeleted.add(p_u);
+                                p.displayClientMessage(Component.translatable("message.noellesroles.radio.left")
+                                        .withStyle(ChatFormatting.RED), true);
                             }
+
                         }
                     }
                     RadioItem.RADIO_GROUP.removeAll(toDeleted);
