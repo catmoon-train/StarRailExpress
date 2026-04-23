@@ -75,7 +75,7 @@ public class MapManagerCommand {
                           .withStyle(ChatFormatting.RED));
                       return 0;
                     }))
-                    .then(Commands.argument("range", IntegerArgumentType.integer(0, 100)).executes((ctx) -> {
+                    .then(Commands.argument("range", IntegerArgumentType.integer(0, 200)).executes((ctx) -> {
                       int range = IntegerArgumentType.getInteger(ctx, "range");
                       BlockPos blockPos = BlockPosArgument.getBlockPos(ctx, "block_pos");
                       var source = ctx.getSource();
