@@ -34,7 +34,7 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
             .watheId("textures/gui/container/limited_inventory.png");
 
     private static final int SHOP_ITEM_SPACING_X = 38;
-    private static final int SHOP_ITEM_SPACING_Y = 44;
+    private static final int SHOP_ITEM_SPACING_Y = 52;
     private int SHOP_MAX_ROWS_PER_PAGE = 1;
     private static final int SHOP_TOP_SAFE_Y = 20;
 
@@ -188,7 +188,7 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
     }
 
     private void refreshShopLayout() {
-        SHOP_MAX_ROWS_PER_PAGE = Math.max(1, Math.min((this.y - SHOP_TOP_SAFE_Y - 4) / 60, 4));
+        SHOP_MAX_ROWS_PER_PAGE = Math.max(1, Math.min((this.y - SHOP_TOP_SAFE_Y - 24) / SHOP_ITEM_SPACING_Y, 4));
         SRE.LOGGER.info("super.y:" + super.y);
         int count = shopWidgets.size();
         if (count <= 0) {
@@ -242,7 +242,7 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
             widget.setPosition(x, y);
         }
 
-        shopNavY = Math.min(this.height - 24, shopGridStartY + shopRowsOnCurrentPage * SHOP_ITEM_SPACING_Y - 16);
+        shopNavY = Math.min(this.height - 24, shopGridStartY + shopRowsOnCurrentPage * SHOP_ITEM_SPACING_Y - 16) - 4;
 
         boolean needPaging = shopTotalPages > 1;
         if (shopPrevPageButton != null && shopNextPageButton != null) {
