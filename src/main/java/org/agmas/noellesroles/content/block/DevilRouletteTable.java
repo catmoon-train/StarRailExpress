@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.content.block;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.GameMode;
 import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -256,6 +257,7 @@ public class DevilRouletteTable extends Block implements EntityBlock, AutoResetB
     // 游戏模式内重置逻辑
     @Override
     public BlockState onResetBlockState(ServerLevel level, BlockState state, BlockPos pos) {
+        SRE.LOGGER.info("[table] on reset");
         if (state.getValue(PART) == TablePart.CENTER) {
             BlockEntity be = level.getBlockEntity(pos);
             if (be instanceof DevilRouletteTableEntity table) {

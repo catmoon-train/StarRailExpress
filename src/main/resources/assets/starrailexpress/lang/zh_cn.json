@@ -22,7 +22,7 @@
   "sre.map_helper.add_to_room": "添加当前位置为房间",
   "sre.map_helper.remove_room": "删除房间",
   "sre.map_helper.tab.rooms": "房间",
-  "sre.map_helper.tab_title.rooms_config": "房间配置",
+  "sre.map_helper.tab_title.rooms_config": "| 房间配置",
   "sre.map_helper.area.set_min": "%s [最小坐标]",
   "sre.map_helper.area.set_max": "%s [最大坐标]",
   "sre.map_helper.set_true": "设置为 true ✔ %s",

@@ -49,9 +49,6 @@ public interface ModBlocks {
                 .title(Component.translatable("item_group.noellesroles.block")).icon(() -> {
                     return new ItemStack(VENDING_MACHINES_BLOCK.asItem());
                 })
-                .icon(()->{
-                    return new ItemStack(DEVIL_ROULETTE_TABLE.asItem());
-                })
                 .build());
         blockRegistrar.registerEntries();
         blockEntityRegistrar.registerEntries();
