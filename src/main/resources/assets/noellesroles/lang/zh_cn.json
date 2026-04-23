@@ -786,7 +786,7 @@
   "screen.noellesroles.broadcaster.placeholder": "输入要发送的匿名消息...",
   "screen.noellesroles.broadcaster.confirm": "发送",
   "screen.noellesroles.broadcaster.remaining": "剩余次数：%s/6",
-  "screen.noellesroles.broadcaster.hint": "输入消息并点击发送按钮",
+  "screen.noellesroles.broadcaster.hint": "输入消息并点击发送按钮，或者按下ESC保存消息。",
   "==================== 电报员屏幕 ====================": "",
   "screen.noellesroles.telegrapher.title": "电报编辑",
   "screen.noellesroles.telegrapher.message": "消息内容",
