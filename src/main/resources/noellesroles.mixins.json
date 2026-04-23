@@ -65,7 +65,6 @@
     "client.LobbyCreditsHudMixin",
     "client.game.ChairWheelKeyMappingMixin",
     "client.general.InventoryIntroductionRenderer",
-    "client.general.MessageBelowMoney",
     "client.general.MobEffectKeyMixin",
     "client.general.MobEffectMouseHandleSuppressMixin",
     "client.general.ThrowItemMixin",
