@@ -874,6 +874,9 @@ public class ModEventsRegister {
                     return true;
                 }
             }
+            if (mainHandItem.is(ModItems.RADIO)) {
+                return true;
+            }
             if (RoleShopHandler.isOldmanEasterEggRod(mainHandItem)) {
                 return true;
             }

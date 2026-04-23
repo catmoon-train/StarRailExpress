@@ -62,8 +62,10 @@ public class RadioItem extends Item {
         var api = event.getVoicechat();
         if (RADIO_GROUP.contains(player.getUUID())) {
             for (UUID p_u : RADIO_GROUP) {
+                if (p_u == player.getUUID())
+                    continue;
                 ServerPlayer p = getPlayerByUUID(player.serverLevel(), p_u);
-                if (p == null || p_u == player.getUUID() || p.distanceTo(player) >= api.getVoiceChatDistance() * 8)
+                if (p == null || p.distanceTo(player) >= api.getVoiceChatDistance() * 8)
                     continue;
                 VoicechatConnection con = api.getConnectionOf(p_u);
                 if (con != null && con.isInstalled() && con.isConnected()) {
