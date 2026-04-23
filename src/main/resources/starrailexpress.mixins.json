@@ -80,6 +80,7 @@
     "client.self.BeveragePlateBlockEntityMixin",
     "client.self.NoteItemMixin",
     "client.ui.InGameHudMixin",
+    "client.ui.RenderEffectMixin",
     "client.ui.SpectatorQuickGameMenu",
     "client.ui.TooltipBackgroundRendererMixin",
     "compat.sodium.DefaultChunkRendererMixin",

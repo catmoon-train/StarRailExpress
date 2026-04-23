@@ -63,7 +63,7 @@ import java.util.function.BiConsumer;
 public class CommonClientHudRenderer {
   static ArrayList<BiConsumer<FakeGuiGraphics, DeltaTracker>> roleRenderConsumers = null;
   static SRERole lastRenderRole = null;
-
+  public static int effectStartY = 0;
   public static void registerFather() {
     // Use FakeHudRenderCallback instead of Fabric's HudRenderCallback
     // This ensures rendering happens INSIDE the frame lifecycle
@@ -113,6 +113,7 @@ public class CommonClientHudRenderer {
                 java.awt.Color.WHITE.getRGB());
             y += lineHeight;
           }
+          effectStartY = y;
         }
       }
       {
