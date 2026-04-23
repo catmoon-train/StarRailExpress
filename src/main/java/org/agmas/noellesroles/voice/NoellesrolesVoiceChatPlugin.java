@@ -15,6 +15,7 @@ import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.component.PlayerVolumeComponent;
 import org.agmas.noellesroles.content.effects.TimeStopEffect;
+import org.agmas.noellesroles.content.item.RadioItem;
 import org.agmas.noellesroles.game.roles.neutral.commander.CommanderHandler;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
@@ -197,8 +198,13 @@ public class NoellesrolesVoiceChatPlugin implements VoicechatPlugin {
                     }
                   }
                 });
-              } else
+              } else {
                 CommanderHandler.vcparanoidEvent(gameWorldComponent, player, event);
+                if (event.isCancelled()) {
+                  return;
+                }
+                RadioItem.vcparanoidEvent(gameWorldComponent, player, event);
+              }
             }
           }
         }
