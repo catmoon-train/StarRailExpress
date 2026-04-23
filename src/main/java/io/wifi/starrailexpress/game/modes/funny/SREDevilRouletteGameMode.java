@@ -317,9 +317,6 @@ public class SREDevilRouletteGameMode extends GameMode {
     public static final int WINNER_COIN = 100;
     protected static final List<Supplier<ItemStack>> devilRouletteItems = new ArrayList<>();
     protected static final HashSet<BlockPos> rouletteTablePos = new HashSet<>();
-    /**
-     * 延迟启动列表
-     */
     protected final List<UUID> winners = new ArrayList<>();
     /**
      * 如果桌子不够分配，则由该指针指向未分配的玩家头
