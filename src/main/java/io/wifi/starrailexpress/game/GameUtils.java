@@ -58,6 +58,7 @@ import org.agmas.noellesroles.content.item.LetterItem;
 import org.agmas.noellesroles.game.roles.Innocent.hoan_meirin.HoanMeirinFistPunchHandler;
 import org.agmas.noellesroles.game.roles.neutral.mercenary.MercenaryPlayerComponent;
 import org.agmas.noellesroles.init.ModEffects;
+import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.packet.NameTagSyncPayload;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.EntityClearUtils;
@@ -374,6 +375,8 @@ public class GameUtils {
             cooldowns.addCooldown(Items.CLOCK, time);
             cooldowns.addCooldown(Items.TRIDENT, time);
 
+            cooldowns.addCooldown(TMMItems.MONITOR_BROKEN, time);
+            cooldowns.addCooldown(ModItems.SHORT_SHOTGUN, time);
             cooldowns.addCooldown(TMMItems.GRENADE, time);
             cooldowns.addCooldown(TMMItems.PSYCHO_MODE, time);
             cooldowns.addCooldown(TMMItems.NUNCHUCK, time);

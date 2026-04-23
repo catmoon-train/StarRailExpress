@@ -7,6 +7,8 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+
+import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.cca.*;
@@ -421,6 +423,13 @@ public class GameUtilsCommand {
                   })).then(Commands.literal("stop").executes((context) -> {
                     return executeBlackout(context, -1);
                   })))
+                  .then(Commands.literal("monitor_broken").executes((context) -> {
+                    return executeMonitorBroken(context, 0);
+                  }).then(Commands.argument("duration", IntegerArgumentType.integer(0)).executes((context) -> {
+                    return executeMonitorBroken(context, IntegerArgumentType.getInteger(context, "duration"));
+                  })).then(Commands.literal("stop").executes((context) -> {
+                    return executeMonitorBroken(context, -1);
+                  })))
                   .then(Commands.literal("psycho").executes((context) -> {
                     return executePsycho(context, -1);
                   }).then(Commands.literal("stop").executes((context) -> {
@@ -509,6 +518,27 @@ public class GameUtilsCommand {
       context.getSource()
           .sendSuccess(() -> Component.translatable("Stopped %s Psycho!", player.getScoreboardName()), true);
     }
+    return 1;
+  }
+
+  public static int executeMonitorBroken(CommandContext<CommandSourceStack> context, int time) {
+    var wbc = SREMonitorWorldComponent.KEY.get(context.getSource().getLevel());
+    if (time != -1) {
+      if (time == 0) {
+        wbc.triggerBroken(true, SREConfig.instance().monitorBrokenDuration * 20);
+      } else {
+        wbc.triggerBroken(true, time);
+      }
+      context.getSource()
+          .sendSuccess(() -> Component.translatable("Triggered Monitor Broken!"), true);
+
+    } else {
+      context.getSource()
+          .sendSuccess(() -> Component.translatable("Stopped All Monitor Broken!"), true);
+      wbc.reset();
+
+    }
+
     return 1;
   }
 
