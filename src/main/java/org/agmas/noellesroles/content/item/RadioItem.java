@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.content.item;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -9,6 +10,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
 
 import java.util.HashSet;
@@ -34,7 +36,8 @@ public class RadioItem extends Item {
         if (!world.isClientSide) {
             UUID id = user.getUUID();
             RADIO_GROUP.add(id);
-            user.displayClientMessage(Component.translatable("message.noellesroles.radio.joined"),
+            user.displayClientMessage(
+                    Component.translatable("message.noellesroles.radio.joined").withStyle(ChatFormatting.GREEN),
                     true);
         }
         return InteractionResultHolder.consume(itemStack);
@@ -46,9 +49,15 @@ public class RadioItem extends Item {
             UUID id = livingEntity.getUUID();
             if (RADIO_GROUP.contains(id)) {
                 RADIO_GROUP.remove(id);
-                player.displayClientMessage(Component.translatable("message.noellesroles.radio.left"), true);
+                player.displayClientMessage(
+                        Component.translatable("message.noellesroles.radio.left").withStyle(ChatFormatting.RED), true);
             }
         }
+    }
+
+    @Override
+    public UseAnim getUseAnimation(ItemStack stack) {
+        return UseAnim.SPYGLASS;
     }
 
     public static ServerPlayer getPlayerByUUID(ServerLevel level, UUID uUID) {

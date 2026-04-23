@@ -38,7 +38,7 @@ public class MonitoringTerminalItem extends Item {
     @Override
     public void appendHoverText(ItemStack itemStack, TooltipContext tooltipContext, List<Component> list,
             TooltipFlag tooltipFlag) {
-        list.add(Component.translatable(getDescriptionId() + ".tooltip"));
+        list.add(Component.translatable(getDescriptionId() + ".tooltip").withStyle(ChatFormatting.GRAY));
     }
 
     @Override
