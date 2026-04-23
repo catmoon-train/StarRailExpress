@@ -84,9 +84,10 @@ public class MapManagerCommand {
                         if (level.getBlockEntity(blockPos) instanceof SecurityMonitorBlockEntity smbe) {
                           smbe.clearCameraPositions();
                           int count = 0;
+                          int miny = Math.max(blockPos.getY() - range, level.getMinBuildHeight());
+                          int maxy = Math.min(blockPos.getY() + range, level.getMaxBuildHeight());
                           for (int x = blockPos.getX() - range; x <= blockPos.getX() + range; x++) {
-                            for (int y = Math.max(0, blockPos.getY() - range); y <= blockPos.getY() + range
-                                && y <= 356; y++) {
+                            for (int y = miny; y <= maxy; y++) {
                               for (int z = blockPos.getZ() - range; z <= blockPos.getZ() + range; z++) {
                                 if (level.getBlockState(new BlockPos(x, y, z)).is(TMMBlocks.CAMERA)) {
                                   smbe.addCameraPosition(new BlockPos(x, y, z));
