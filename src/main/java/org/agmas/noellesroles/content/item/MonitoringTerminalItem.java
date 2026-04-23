@@ -3,11 +3,14 @@ package org.agmas.noellesroles.content.item;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.content.block.SecurityMonitorBlock;
 import io.wifi.starrailexpress.content.block_entity.SecurityMonitorBlockEntity;
+import io.wifi.starrailexpress.util.SRENBTUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -21,12 +24,12 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MonitoringTerminalItem extends Item {
-    private static final String MONITOR_POS_X = "monitor_pos_x";
-    private static final String MONITOR_POS_Y = "monitor_pos_y";
-    private static final String MONITOR_POS_Z = "monitor_pos_z";
+    private static final String MONITOR_POS_FATHER = "monitor_pos";
+    private static int stackIdx = 0;
 
     public MonitoringTerminalItem(Properties properties) {
         super(properties);
@@ -57,13 +60,23 @@ public class MonitoringTerminalItem extends Item {
         }
 
         ItemStack stack = context.getItemInHand();
-        setBoundMonitorPos(stack, clickedPos);
-        player.displayClientMessage(Component.literal("已绑定远程监控器: X=" + clickedPos.getX() + ", Y="
-                + clickedPos.getY() + ", Z=" + clickedPos.getZ()).withStyle(ChatFormatting.GREEN), true);
-
-        if (SRE.REPLAY_MANAGER != null) {
-            SRE.REPLAY_MANAGER.recordItemUse(player.getUUID(), BuiltInRegistries.ITEM.getKey(this));
+        if (containsBoundMonitorPos(stack, clickedPos)) {
+            removeBoundMonitorPos(stack, clickedPos);
+            player.displayClientMessage(
+                    Component.translatable("message.item.noellesroles.monitoring_terminal.remove_successfully",
+                            clickedPos.toShortString()).withStyle(ChatFormatting.RED),
+                    true);
+        } else {
+            addBoundMonitorPos(stack, clickedPos);
+            player.displayClientMessage(
+                    Component.translatable("message.item.noellesroles.monitoring_terminal.bind_successfully",
+                            clickedPos.toShortString()).withStyle(ChatFormatting.GREEN),
+                    true);
         }
+        // if (SRE.REPLAY_MANAGER != null) {
+        // SRE.REPLAY_MANAGER.recordItemUse(player.getUUID(),
+        // BuiltInRegistries.ITEM.getKey(this));
+        // }
         return InteractionResult.SUCCESS;
     }
 
@@ -74,16 +87,23 @@ public class MonitoringTerminalItem extends Item {
             return InteractionResultHolder.consume(stack);
         }
 
-        BlockPos monitorPos = getBoundMonitorPos(stack);
-        if (monitorPos == null) {
-            player.displayClientMessage(Component.literal("请先右键一个安全监控器进行绑定").withStyle(ChatFormatting.RED), true);
+        ArrayList<BlockPos> monitorPoses = getBoundMonitorPos(stack);
+        if (monitorPoses == null || monitorPoses.isEmpty()) {
+            player.displayClientMessage(
+                    Component.translatable("message.item.noellesroles.monitoring_terminal.please_bind")
+                            .withStyle(ChatFormatting.RED),
+                    true);
             return InteractionResultHolder.fail(stack);
         }
 
         if (!(player instanceof net.minecraft.server.level.ServerPlayer serverPlayer)) {
             return InteractionResultHolder.fail(stack);
         }
-
+        if (stackIdx < 0)
+            stackIdx = 0;
+        if (stackIdx >= monitorPoses.size())
+            stackIdx = 0;
+        BlockPos monitorPos = monitorPoses.get(stackIdx);
         boolean opened = SecurityMonitorBlock.openMonitorRemotely(serverPlayer, monitorPos);
         if (!opened) {
             return InteractionResultHolder.fail(stack);
@@ -95,19 +115,75 @@ public class MonitoringTerminalItem extends Item {
         return InteractionResultHolder.consume(stack);
     }
 
-    private static void setBoundMonitorPos(ItemStack stack, BlockPos pos) {
+    private static boolean containsBoundMonitorPos(ItemStack stack, BlockPos pos) {
         CompoundTag tag = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
-        tag.putInt(MONITOR_POS_X, pos.getX());
-        tag.putInt(MONITOR_POS_Y, pos.getY());
-        tag.putInt(MONITOR_POS_Z, pos.getZ());
+        if (!tag.contains(MONITOR_POS_FATHER)) {
+            return false;
+        }
+        ListTag listTag = tag.getList(MONITOR_POS_FATHER, Tag.TAG_LIST);
+        for (Tag t : listTag) {
+            CompoundTag t1 = (CompoundTag) t;
+
+            var ppos = SRENBTUtils.tagToBlockPos(t1);
+            if (ppos == null)
+                continue;
+            if (pos.equals(ppos)) {
+                return true;
+            }
+            // t1.h
+        }
+        return false;
+    }
+
+    private static void removeBoundMonitorPos(ItemStack stack, BlockPos pos) {
+        CompoundTag tag = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
+        if (!tag.contains(MONITOR_POS_FATHER)) {
+            return;
+        }
+        ListTag listTag = tag.getList(MONITOR_POS_FATHER, Tag.TAG_LIST);
+        int l = -1;
+        for (int i = 0; i < listTag.size(); i++) {
+
+            CompoundTag t1 = listTag.getCompound(i);
+            var ppos = SRENBTUtils.tagToBlockPos(t1);
+            if (ppos == null)
+                continue;
+            if (pos.equals(ppos)) {
+                l = i;
+                break;
+            }
+            // t1.h
+        }
+        if (l >= 0) {
+            listTag.remove(l);
+        }
+        tag.put(MONITOR_POS_FATHER, listTag);
         stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
     }
 
-    private static BlockPos getBoundMonitorPos(ItemStack stack) {
+    private static void addBoundMonitorPos(ItemStack stack, BlockPos pos) {
         CompoundTag tag = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
-        if (!tag.contains(MONITOR_POS_X) || !tag.contains(MONITOR_POS_Y) || !tag.contains(MONITOR_POS_Z)) {
+        if (!tag.contains(MONITOR_POS_FATHER)) {
+            tag.put(MONITOR_POS_FATHER, new ListTag());
+        }
+        ListTag listTag = tag.getList(MONITOR_POS_FATHER, Tag.TAG_LIST);
+        listTag.add(SRENBTUtils.blockPosToTag(pos));
+        tag.put(MONITOR_POS_FATHER, listTag);
+        stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
+    }
+
+    private static ArrayList<BlockPos> getBoundMonitorPos(ItemStack stack) {
+        ArrayList<BlockPos> results = new ArrayList<>();
+        CompoundTag tag = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
+        if (tag.contains(MONITOR_POS_FATHER)) {
+            var listTag = tag.getList(MONITOR_POS_FATHER, Tag.TAG_COMPOUND);
+            for (int i = 0; i < listTag.size(); i++) {
+                var pos = SRENBTUtils.tagToBlockPos(listTag.getCompound(i));
+                results.add(pos);
+            }
+        } else {
             return null;
         }
-        return new BlockPos(tag.getInt(MONITOR_POS_X), tag.getInt(MONITOR_POS_Y), tag.getInt(MONITOR_POS_Z));
+        return results;
     }
 }

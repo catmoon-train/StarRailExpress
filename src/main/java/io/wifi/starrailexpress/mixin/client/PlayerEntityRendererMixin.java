@@ -17,7 +17,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.HashMap;
-import java.util.Objects;
 import java.util.UUID;
 
 @Mixin(PlayerRenderer.class)
@@ -25,20 +24,19 @@ public class PlayerEntityRendererMixin {
     @Inject(method = "getArmPose", at = @At("TAIL"), cancellable = true)
     private static void tmm$customArmPose(@NotNull AbstractClientPlayer player,
             @NotNull InteractionHand hand, CallbackInfoReturnable<HumanoidModel.ArmPose> cir) {
-        ItemStack heldStack = player.getItemInHand(Objects.requireNonNull(hand));
-
-        if (heldStack.is(Objects.requireNonNull(ModItems.SHORT_SHOTGUN))) {
+        ItemStack heldStack = player.getItemInHand(hand);
+        if (heldStack.is(ModItems.SHORT_SHOTGUN)) {
             cir.setReturnValue(HumanoidModel.ArmPose.CROSSBOW_CHARGE);
             return;
-        }
-
-        if (heldStack.is(Objects.requireNonNull(TMMItems.BAT))
-            || heldStack.is(Objects.requireNonNull(ModItems.FAKE_BAT)))
+        } else if (heldStack.is(TMMItems.BAT)
+                || heldStack.is(ModItems.FAKE_BAT)) {
             cir.setReturnValue(HumanoidModel.ArmPose.CROSSBOW_CHARGE);
+        }
     }
 
     @ModifyExpressionValue(method = "getArmPose", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/AbstractClientPlayer;getItemInHand(Lnet/minecraft/world/InteractionHand;)Lnet/minecraft/world/item/ItemStack;"))
-    private static ItemStack tmm$changeNoteAndPsychosisItemsArmPos(@NotNull ItemStack original, @NotNull AbstractClientPlayer player,
+    private static ItemStack tmm$changeNoteAndPsychosisItemsArmPos(@NotNull ItemStack original,
+            @NotNull AbstractClientPlayer player,
             @NotNull InteractionHand hand) {
         if (hand.equals(InteractionHand.MAIN_HAND)) {
             for (var i : TMMItems.INVISIBLE_ITEMS) {
