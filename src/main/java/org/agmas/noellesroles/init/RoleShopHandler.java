@@ -384,6 +384,7 @@ public class RoleShopHandler {
           return SREPlayerShopComponent.useMonitorBroken(player, SREConfig.instance().monitorBrokenDuration * 20);
         }
       });
+      SHOP.add(new ShopEntry(ModItems.CAMERA_SHEARS.getDefaultInstance(), 50, ShopEntry.Type.TOOL));
       SHOP.add(new ShopEntry(TMMItems.FIRECRACKER.getDefaultInstance(), 15, ShopEntry.Type.TOOL));
 
       ShopContent.customEntries.put(ModRoles.DELAYER.getIdentifier(), SHOP);
