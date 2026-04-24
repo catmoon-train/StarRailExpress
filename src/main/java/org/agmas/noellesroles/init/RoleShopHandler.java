@@ -474,11 +474,6 @@ public class RoleShopHandler {
       var SHOP = new java.util.ArrayList<ShopEntry>();
       SHOP.add(new ShopEntry(ModItems.RADIO.getDefaultInstance(), 150, ShopEntry.Type.TOOL) {
         @Override
-        public boolean canBuy(@NotNull Player player) {
-          return !(MCItemsUtils.countItem(player, ModItems.RADIO) > 0);
-        }
-
-        @Override
         public boolean onBuy(@NotNull Player player) {
           return RoleUtils.insertStackInFreeSlot(player, ModItems.RADIO.getDefaultInstance().copy());
         }
