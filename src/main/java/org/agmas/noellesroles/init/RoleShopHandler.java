@@ -362,6 +362,33 @@ public class RoleShopHandler {
       ShopContent.customEntries.put(RedHouseRoles.FURANDORU.getIdentifier(), SHOP);
     }
     {
+      // 滞时鬼（Delayer）商店：只可购买 刀（130）、枪（285）、短管霰弹枪（300）、疯狂模式（400）、监控失灵（40）、鞭炮（15）
+      var SHOP = new ArrayList<ShopEntry>();
+      SHOP.add(new ShopEntry(TMMItems.KNIFE.getDefaultInstance(), 130, ShopEntry.Type.TOOL));
+      SHOP.add(new ShopEntry(io.wifi.starrailexpress.index.TMMItems.REVOLVER.getDefaultInstance(), 285, ShopEntry.Type.TOOL));
+      SHOP.add(new ShopEntry(org.agmas.noellesroles.init.ModItems.SHORT_SHOTGUN.getDefaultInstance(), 300, ShopEntry.Type.TOOL));
+      SHOP.add(new ShopEntry(TMMItems.PSYCHO_MODE.getDefaultInstance(), 400, ShopEntry.Type.WEAPON) {
+        @Override
+        public boolean onBuy(@NotNull Player player) {
+          var psycc = io.wifi.starrailexpress.cca.SREPlayerPsychoComponent.KEY.get(player);
+          boolean success = psycc.startPsycho();
+          if (success) {
+            player.getCooldowns().addCooldown(TMMItems.PSYCHO_MODE, 20 * 60);
+          }
+          return success;
+        }
+      });
+      SHOP.add(new ShopEntry(TMMItems.MONITOR_BROKEN.getDefaultInstance(), 40, ShopEntry.Type.TOOL) {
+        @Override
+        public boolean onBuy(@NotNull Player player) {
+          return SREPlayerShopComponent.useMonitorBroken(player, SREConfig.instance().monitorBrokenDuration * 20);
+        }
+      });
+      SHOP.add(new ShopEntry(TMMItems.FIRECRACKER.getDefaultInstance(), 15, ShopEntry.Type.TOOL));
+
+      ShopContent.customEntries.put(ModRoles.DELAYER.getIdentifier(), SHOP);
+    }
+    {
       // BAKA的商店
       var SHOP = new ArrayList<ShopEntry>();
       SHOP.add(new ShopEntry(ModItems.SIGNATURE_PAPER.getDefaultInstance(), 100, ShopEntry.Type.TOOL));

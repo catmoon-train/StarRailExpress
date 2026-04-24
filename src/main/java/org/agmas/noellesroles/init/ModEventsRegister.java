@@ -674,6 +674,7 @@ public class ModEventsRegister {
         VeteranKnifeHandler.register();
         GamblerHandler.register();
         StalkerPlayerComponent.registerEvents();
+        org.agmas.noellesroles.game.roles.killer.delayer.DelayerPlayerComponent.registerEvents();
         SRE.cantUseChatHud.add((p) -> {
             /**
              * 这只会发生在客户端
@@ -762,6 +763,7 @@ public class ModEventsRegister {
         OnGameEnd.EVENT.register((world, gameWorldComponent) -> {
             HoanMeirinFistPunchHandler.PUNCH_RECORDS.clear();
             RoleShopHandler.resetOldmanEasterEggState();
+            org.agmas.noellesroles.game.roles.killer.delayer.DelayerPlayerComponent.timeBoostTriggered = false;
             // 已经在resetPlayer清除部分cca
             // 重置所有玩家的锁匠灵感
             SREGameRoundEndComponent roundEnd = SREGameRoundEndComponent.KEY.get(world);
