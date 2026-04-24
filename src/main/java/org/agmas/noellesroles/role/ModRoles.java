@@ -189,6 +189,8 @@ public class ModRoles {
 
     public static ResourceLocation INSANE_KILLER_ID = Noellesroles
             .id("the_insane_damned_paranoid_killer");
+        public static ResourceLocation DELAYER_ID = Noellesroles.id("delayer");
+    
     public static final ResourceLocation CONSPIRATOR_ID = Noellesroles.id("conspirator");
     public static final ResourceLocation CLEANER_ID = Noellesroles.id("cleaner");
     public static final ResourceLocation TRAPPER_ID = Noellesroles.id("trapper");
@@ -314,6 +316,16 @@ public class ModRoles {
                     .setComponentKey(ModComponents.NINJA)
                     .setCanSeeCoin(true)
                     .setOccupiedRoleCount(1));
+
+            public static SRERole DELAYER = TMMRoles.registerRole(new NormalRole(
+                    DELAYER_ID,
+                    new Color(100, 100, 200).getRGB(), // 淡蓝紫色
+                    false, // 非乘客阵营
+                    true, // 有杀手能力
+                    SRERole.MoodType.FAKE,
+                    Integer.MAX_VALUE, // 无限冲刺 / 疲劳
+                    true // 隐藏计分板
+            )).setComponentKey(ModComponents.DELAYER).setCanSeeCoin(true).setOccupiedRoleCount(1);
     public static SRERole ELF = TMMRoles.registerRole(
             new NormalRole(ELF_ID, new Color(106, 255, 179).getRGB(),
                     true, false, SRERole.MoodType.REAL,

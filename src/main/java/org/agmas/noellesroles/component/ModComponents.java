@@ -284,6 +284,10 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
       ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "watcher"),
       WatcherPlayerComponent.class);
 
+  public static final ComponentKey<org.agmas.noellesroles.game.roles.killer.delayer.DelayerPlayerComponent> DELAYER = ComponentRegistry.getOrCreate(
+      ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "delayer"),
+      org.agmas.noellesroles.game.roles.killer.delayer.DelayerPlayerComponent.class);
+
   public static final ComponentKey<org.agmas.noellesroles.game.modifier.expedition.ExpeditionComponent> EXPEDITION = org.agmas.noellesroles.game.modifier.expedition.ExpeditionComponent.KEY;
 
   public static final ComponentKey<TemporaryEffectPlayerComponent> TEMPORARY_EFFECT = ComponentRegistry.getOrCreate(
@@ -436,6 +440,10 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
     registry.beginRegistration(Player.class, INSANE_KILLER)
         .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
         .end(InsaneKillerPlayerComponent::new);
+
+    registry.beginRegistration(Player.class, DELAYER)
+        .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
+        .end(org.agmas.noellesroles.game.roles.killer.delayer.DelayerPlayerComponent::new);
 
     registry.beginRegistration(Player.class, GamblerPlayerComponent.KEY)
         .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(GamblerPlayerComponent::new);
