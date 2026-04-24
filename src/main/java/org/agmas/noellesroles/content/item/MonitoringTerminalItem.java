@@ -105,6 +105,7 @@ public class MonitoringTerminalItem extends Item implements AdventureUsable {
         if (stackIdx >= monitorPoses.size())
             stackIdx = 0;
         BlockPos monitorPos = monitorPoses.get(stackIdx);
+        stackIdx++;
         boolean opened = SecurityMonitorBlock.openMonitorRemotely(serverPlayer, monitorPos);
         if (!opened) {
             return InteractionResultHolder.fail(stack);

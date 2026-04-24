@@ -88,6 +88,7 @@ public class SecurityMonitorBlock extends BaseEntityBlock implements TaskInstinc
     }
 
     private static boolean preventShiftTillNextKeyUp = false;
+    public static int lastCameraId = -1;
 
     public static void onInputUpdate(Input input) {
         // resets input
@@ -305,7 +306,7 @@ public class SecurityMonitorBlock extends BaseEntityBlock implements TaskInstinc
         int nextIndex = (currentIndex + 1) % cameraPositions.size();
         currentCameraOffset = cameraPositions.get(nextIndex);
         currentCameraPos = AddBlockPosOffset(currentMonitorPos, currentCameraOffset);
-
+        lastCameraId = nextIndex;
         // 重置视角为新摄像头的初始视角
         currentYaw = 0.0f;
         // currentPitch = 0.0f;

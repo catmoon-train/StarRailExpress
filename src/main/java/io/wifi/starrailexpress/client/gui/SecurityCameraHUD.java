@@ -144,7 +144,11 @@ public class SecurityCameraHUD {
                 0xFFFFFFFF, false);
 
         // 绘制摄像头编号
-        String camNumber = "CAM 01";
+        String camId = "UNKNOWN";
+        if (SecurityMonitorBlock.lastCameraId >= 0) {
+            camId = String.valueOf(SecurityMonitorBlock.lastCameraId + 1);
+        }
+        String camNumber = "CAM " + camId;
         int numberWidth = font.width(camNumber);
         int numberX = x + (feedWidth - numberWidth) / 2;
         int numberY = y + 20;
