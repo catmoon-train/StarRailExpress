@@ -6,6 +6,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.client.SREClient;
+import io.wifi.starrailexpress.content.block.api.TaskInstinctShowableInterface;
 import io.wifi.starrailexpress.content.block_entity.SmallDoorBlockEntity;
 import io.wifi.starrailexpress.index.TMMItems;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
@@ -371,6 +372,15 @@ public class TaskBlockOverlayRenderer {
                                 Component.translatable("hud.noellesroles.task_instinct.render.vending_machine"));
                     }
                 default:
+                    BlockState block = renderContext.world().getBlockState(pos);
+                    if(block.getBlock() instanceof TaskInstinctShowableInterface it){
+                        if(it.shouldRender(block,pos)){
+                            TaskBlockOverlayRenderer.renderBlockOverlay(renderContext, pos,
+                                new Color(255, 174, 201), 1f,
+                                true, 0f,
+                                null);
+                        }
+                    }
                     break;
             }
         }

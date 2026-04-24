@@ -473,7 +473,9 @@ public class ModItems {
     public static final Item ROPE = register(
             new RopeItem(new Item.Properties().stacksTo(1).durability(2)),
             "rope");
-
+    public static final Item CAMERA_SHEARS = register(
+            new CameraShearsItem(new Item.Properties().stacksTo(1).durability(3)),
+            "camera_shears");
     /**
      * 灭火器
      * - 5点耐久

@@ -4,6 +4,7 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.block.*;
+import io.wifi.starrailexpress.content.block.api.TaskInstinctShowableInterface;
 import io.wifi.starrailexpress.content.block_entity.BeveragePlateBlockEntity;
 import io.wifi.starrailexpress.content.block_entity.SmallDoorBlockEntity;
 import io.wifi.starrailexpress.content.item.CocktailItem;
@@ -117,6 +118,8 @@ public class MapScanner {
                         }
                     } else if (blockState.getBlock() instanceof SprinklerBlock) {
                         GameUtils.taskBlocks.put(blockPos6, 3);
+                    } else if (blockState.getBlock() instanceof TaskInstinctShowableInterface it) {
+                        GameUtils.taskBlocks.put(blockPos6, it.instinct_id());
                     }
                 }
             }
