@@ -86,7 +86,7 @@ import org.agmas.noellesroles.game.roles.Innocent.hoan_meirin.HoanMeirinFistPunc
 import org.agmas.noellesroles.game.roles.Innocent.veteran.VeteranKnifeHandler;
 import org.agmas.noellesroles.game.roles.Innocent.voodoo.VoodooDeathHandler;
 import org.agmas.noellesroles.game.roles.killer.conspirator.ConspiratorKilledPlayer;
-import org.agmas.noellesroles.game.roles.vigilante.guard.GuardPlayerComponent;
+import org.agmas.noellesroles.game.roles.vigilante.guard.GuardPlayerHandler;
 import org.agmas.noellesroles.game.roles.killer.executioner.ExecutionerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.executioner.ShootingFrenzyPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.insane_killer.InsaneKillerPlayerComponent;
@@ -754,7 +754,7 @@ public class ModEventsRegister {
         BatonHandler.register();
         RiotShieldHandler.register();
         // 注册保安技能
-        GuardPlayerComponent.register();
+        GuardPlayerHandler.register();
         VoodooDeathHandler.registerEvents();
         PlayerStatsBeforeRefugee.beforeLoadFunc = (player) -> {
             ModComponents.DEATH_PENALTY.get(player).init();

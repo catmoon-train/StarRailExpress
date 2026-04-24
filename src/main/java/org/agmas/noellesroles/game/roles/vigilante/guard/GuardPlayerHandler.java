@@ -10,10 +10,10 @@ import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 
-public class GuardPlayerComponent {
+public class GuardPlayerHandler {
 
     public static void register() {
-        RoleSkill.register(ModRoles.GUARD, GuardPlayerComponent::useSkill);
+        RoleSkill.register(ModRoles.GUARD, GuardPlayerHandler::useSkill);
     }
 
     public static void useSkill(RoleSkillContext context) {
