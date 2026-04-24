@@ -37,7 +37,7 @@ public interface ModBlocks {
     BlockEntityType<VendingMachinesBlockEntity> VENDING_MACHINES_BLOCK_ENTITY = blockEntityRegistrar.create(
             "vending_machines",
             BlockEntityType.Builder.of(VendingMachinesBlockEntity::new,
-                    new Block[] { ModBlocks.VENDING_MACHINES_BLOCK }));
+                    ModBlocks.VENDING_MACHINES_BLOCK));
     // 创建轮盘赌桌方块实体类型
     BlockEntityType<DevilRouletteTableEntity> DEVIL_ROULETTE_TABLE_ENTITY = blockEntityRegistrar.create(
             "devil_roulette_table",

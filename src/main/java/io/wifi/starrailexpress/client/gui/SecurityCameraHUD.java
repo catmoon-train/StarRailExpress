@@ -41,6 +41,7 @@ public class SecurityCameraHUD {
                 flag = true;
             if (!flag) {
                 if (minecraft.level.getBlockEntity(cameraPos) instanceof CameraBlockEntity cbe) {
+                    // SRE.LOGGER.info("brokenTime: "+cbe.getBrokenTime());
                     if (cbe.isBroken()) {
                         flag = true;
                     }
