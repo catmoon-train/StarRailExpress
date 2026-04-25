@@ -960,5 +960,11 @@
   "gui.sre.mailbox.tag_claimed": "\u2713 Claimed",
   "gui.sre.mailbox.tag_reward": "\u2605 Reward",
   "message.fourth_room.life_card_auto_used": "Automatically used Life card to block Death card damage.",
+  "gui.sre.vote.title": "Vote",
+  "gui.sre.vote.voted": "Voted: %s",
+  "gui.sre.vote.total_votes": "%s votes total",
+  "gui.sre.vote.no_revote": "(Cannot change)",
+  "gui.sre.vote.time_up": "Voting has ended",
+  "gui.sre.vote.my_vote": "Your choice",
   "=== END ===": ""
 }

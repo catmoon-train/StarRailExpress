@@ -174,6 +174,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
             net.exmo.sre.client.chat.ChatDialogueManager.getInstance(server);
             ServerTickEvents.START_SERVER_TICK.register(serv -> {
                 io.wifi.starrailexpress.game.voting.MapVotingManager.getInstance().tick();
+                io.wifi.starrailexpress.content.vote.VoteManager.getInstance().tick(serv);
             });
             REPLAY_MANAGER = new GameReplayManager(server);
             SyncMapConfigPayload.sendToAllPlayers();
@@ -184,6 +185,14 @@ public class SRE extends StarRailExpressID implements ModInitializer {
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
             SRE.isLobby = SREConfig.instance().isLobby;
             sender.sendPacket(new IsLobbyConfigPayload(SRE.isLobby));
+        });
+        // 玩家加入时，如果有活跃投票则发送投票界面
+        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
+            for (io.wifi.starrailexpress.content.vote.VoteSession vs
+                    : io.wifi.starrailexpress.content.vote.VoteManager.getInstance().getActiveSessions()) {
+                io.wifi.starrailexpress.content.vote.VoteManager.getInstance()
+                        .sendOpenVote(handler.getPlayer(), vs);
+            }
         });
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
             ServerPlayer player = handler.getPlayer();
@@ -247,6 +256,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
             EntityDataCommand.register(dispatcher);
             MoodChangeCommand.register(dispatcher);
             io.wifi.starrailexpress.content.command.MapVoteCommand.register(dispatcher);
+            io.wifi.starrailexpress.content.command.VoteCommand.register(dispatcher);
             io.wifi.starrailexpress.content.command.CreateWaypointCommand.register(dispatcher);
             io.wifi.starrailexpress.content.command.ToggleWaypointsCommand.register(dispatcher);
             AFKCommand.register(dispatcher);
@@ -394,6 +404,16 @@ public class SRE extends StarRailExpressID implements ModInitializer {
                 io.wifi.starrailexpress.content.mail.MailDeleteAllReadC2SPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(io.wifi.starrailexpress.content.mail.MailMarkReadC2SPayload.ID,
                 io.wifi.starrailexpress.content.mail.MailMarkReadC2SPayload.CODEC);
+
+        // Vote
+        PayloadTypeRegistry.playS2C().register(io.wifi.starrailexpress.content.vote.OpenVoteScreenS2CPayload.ID,
+                io.wifi.starrailexpress.content.vote.OpenVoteScreenS2CPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(io.wifi.starrailexpress.content.vote.UpdateVoteCountsS2CPayload.ID,
+                io.wifi.starrailexpress.content.vote.UpdateVoteCountsS2CPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(io.wifi.starrailexpress.content.vote.CloseVoteScreenS2CPayload.ID,
+                io.wifi.starrailexpress.content.vote.CloseVoteScreenS2CPayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(io.wifi.starrailexpress.content.vote.VoteSubmitC2SPayload.ID,
+                io.wifi.starrailexpress.content.vote.VoteSubmitC2SPayload.CODEC);
     }
 
     private void registerGlobalReceivers() {
@@ -438,6 +458,10 @@ public class SRE extends StarRailExpressID implements ModInitializer {
                 new io.wifi.starrailexpress.content.mail.MailDeleteAllReadC2SPayload.Receiver());
         ServerPlayNetworking.registerGlobalReceiver(io.wifi.starrailexpress.content.mail.MailMarkReadC2SPayload.ID,
                 new io.wifi.starrailexpress.content.mail.MailMarkReadC2SPayload.Receiver());
+
+        // Vote receiver
+        ServerPlayNetworking.registerGlobalReceiver(io.wifi.starrailexpress.content.vote.VoteSubmitC2SPayload.ID,
+                new io.wifi.starrailexpress.content.vote.VoteSubmitC2SPayload.Receiver());
 
         // Chat Dialogue advance handler
         ServerPlayNetworking.registerGlobalReceiver(

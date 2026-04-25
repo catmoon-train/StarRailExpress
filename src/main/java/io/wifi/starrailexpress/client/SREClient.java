@@ -623,6 +623,49 @@ public class SREClient implements ClientModInitializer {
                     context.client().execute(() -> context.client().setScreen(
                             new io.wifi.starrailexpress.content.mail.MailboxScreen()));
                 });
+        // Vote S2C receivers
+        ClientPlayNetworking.registerGlobalReceiver(
+                io.wifi.starrailexpress.content.vote.OpenVoteScreenS2CPayload.ID, (payload, context) -> {
+                    context.client().execute(() -> {
+                        io.wifi.starrailexpress.content.vote.VoteClientState state =
+                                new io.wifi.starrailexpress.content.vote.VoteClientState();
+                        state.sessionId      = payload.sessionId();
+                        state.title          = payload.title();
+                        state.options        = payload.options();
+                        state.showResults    = payload.showResults();
+                        state.allowRevote    = payload.allowRevote();
+                        state.endTimeMillis  = payload.endTimeMillis();
+                        state.voteCounts     = payload.voteCounts();
+                        state.myVote         = payload.playerVote();
+                        io.wifi.starrailexpress.content.vote.VoteClientState.current = state;
+                        if (context.client().screen instanceof io.wifi.starrailexpress.content.vote.VoteScreen vs) {
+                            vs.refreshState(state);
+                        } else {
+                            context.client().setScreen(
+                                    new io.wifi.starrailexpress.content.vote.VoteScreen(state));
+                        }
+                    });
+                });
+        ClientPlayNetworking.registerGlobalReceiver(
+                io.wifi.starrailexpress.content.vote.UpdateVoteCountsS2CPayload.ID, (payload, context) -> {
+                    context.client().execute(() -> {
+                        var current = io.wifi.starrailexpress.content.vote.VoteClientState.current;
+                        if (current != null && current.sessionId.equals(payload.sessionId())) {
+                            current.updateCounts(payload.voteCounts(), payload.endTimeMillis());
+                        }
+                    });
+                });
+        ClientPlayNetworking.registerGlobalReceiver(
+                io.wifi.starrailexpress.content.vote.CloseVoteScreenS2CPayload.ID, (payload, context) -> {
+                    context.client().execute(() -> {
+                        var current = io.wifi.starrailexpress.content.vote.VoteClientState.current;
+                        if (current != null && current.sessionId.equals(payload.sessionId())) {
+                            current.updateCounts(payload.finalCounts(), -1L);
+                            io.wifi.starrailexpress.content.vote.VoteClientState.current = null;
+                        }
+                        io.wifi.starrailexpress.content.vote.VoteScreen.tryClose(payload.sessionId());
+                    });
+                });
         // ClientPlayNetworking.registerGlobalReceiver(
         // io.wifi.starrailexpress.network.OpenRoleUnlockScreenPayload.ID, (payload,
         // context) -> {

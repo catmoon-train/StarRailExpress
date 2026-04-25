@@ -1103,5 +1103,11 @@
   "shop.fourth_room.bulletproof_vest.description": "被手枪命中时自动抵挡一次。",
   "shop.fourth_room.test_strip.description": "保留作后续任务与检定扩展。",
   "shop.fourth_room.sticky_note.description": "保留作便利贴放置与搜索扩展。",
+  "gui.sre.vote.title": "投票",
+  "gui.sre.vote.voted": "已投票：%s",
+  "gui.sre.vote.total_votes": "共 %s 票",
+  "gui.sre.vote.no_revote": "（不可更改）",
+  "gui.sre.vote.time_up": "投票已结束",
+  "gui.sre.vote.my_vote": "你的选择",
   "=== END ===": ""
 }
