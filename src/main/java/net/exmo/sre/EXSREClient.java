@@ -3,6 +3,8 @@ package net.exmo.sre;
 import io.wifi.starrailexpress.SRE;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,6 +19,7 @@ public class EXSREClient {
     public static final Path GAME_VIDEO_DIR = FabricLoader.getInstance().getGameDir().resolve("video");
     private static final String VIDEO_ZIP_RESOURCE = "assets/" + SRE.MOD_ID + "/textures/gui/title/video.zip";
 
+    public static MobEffectInstance night_vision_cache_ = new MobEffectInstance(MobEffects.NIGHT_VISION,100,0,false,false,false);
     public InputStream getBackgroundImage() {
         String path = "textures/gui/background.png";
         ResourceLocation loc = SRE.id(path);
