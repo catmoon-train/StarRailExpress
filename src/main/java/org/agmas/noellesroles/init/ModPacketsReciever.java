@@ -847,7 +847,7 @@ public class ModPacketsReciever {
       ServerPlayer player = context.player();
       if (player.level().isClientSide) return;
       // 播放上膛音效，让附近所有玩家都能听到
-      player.level().playSound(null, player.blockPosition(), NRSounds.SHOTGUNU_COCK, SoundSource.PLAYERS, 2.0F, 5.0F);
+      player.level().playSound(null, player.blockPosition(), NRSounds.SHOTGUNU_COCK, SoundSource.PLAYERS, 1.0F, 1.0F);
     });
   }
 
