@@ -32,12 +32,12 @@ public class ModWhitelistCommand {
 	public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
 		dispatcher.register(
 				Commands.literal("mw:reload")
-						.requires(source -> source.hasPermission(2)) // OP only
+						.requires(source -> source.hasPermission(3)) // OP only
 						.executes(ModWhitelistCommand::reloadConfig));
 
 		dispatcher.register(
 				Commands.literal("mw:maxplayers")
-						.requires(source -> source.hasPermission(2)) // OP only
+						.requires(source -> source.hasPermission(3)) // OP only
 						.then(Commands.literal("get")
 								.executes(ModWhitelistCommand::getMaxPlayers))
 						.then(Commands.literal("set")
@@ -59,7 +59,6 @@ public class ModWhitelistCommand {
 			source.sendSuccess(
 					() -> Component.literal("§aMod Whitelist configuration reloaded successfully!"),
 					true);
-			MWLogger.LOGGER.info("Config reloaded by: " + source.getEntity().getName().getString());
 			return Command.SINGLE_SUCCESS;
 		} catch (Exception e) {
 			source.sendFailure(
@@ -128,8 +127,7 @@ public class ModWhitelistCommand {
 					() -> Component
 							.literal("§aMax players changed from §f" + oldMaxPlayers + "§a to §f" + newMaxPlayers),
 					true);
-
-			String playerName = source.getEntity() != null ? source.getEntity().getName().getString() : "unknown";
+			String playerName = source.getDisplayName().getString();
 			MWLogger.LOGGER
 					.info("Max players changed from " + oldMaxPlayers + " to " + newMaxPlayers + " by " + playerName);
 
