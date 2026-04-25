@@ -161,7 +161,7 @@
   "noellesroles.game.devil_roulette.tip.play_with": "你的对手是: %s ,首次装填了 %s 发实弹",
   "noellesroles.game.devil_roulette.tip.wait_player": "未匹配到对手或桌子，本轮轮空",
   "item.noellesroles.short_shotgun": "短管霰弹枪",
-  "item.noellesroles.short_shotgun.tooltip": "右键射击，击杀2格扇形范围内的所有玩家，使用后损坏",
+  "item.noellesroles.short_shotgun.tooltip": "右键蓄力射击，击杀2格扇形范围内的所有玩家，使用后损坏",
   "item.noellesroles.monitoring_terminal": "远程监控终端",
   "item.noellesroles.monitoring_terminal.tooltip": "右键安全监控器进行绑定，再次右键可取消绑定，对空气右键可远程查看绑定的监控器",
   "message.item.noellesroles.monitoring_terminal.please_bind": "请先右键一个安全监控器进行绑定",

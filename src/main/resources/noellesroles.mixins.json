@@ -63,6 +63,7 @@
     "client.InstinctMixin",
     "client.LamBugFix",
     "client.LobbyCreditsHudMixin",
+    "client.ShortShotgunCockMixin",
     "client.game.ChairWheelKeyMappingMixin",
     "client.general.InventoryIntroductionRenderer",
     "client.general.MobEffectKeyMixin",

@@ -23,6 +23,7 @@ public class NRSounds {
     public static final SoundEvent ITEM_SYRINGE_STAB = registrar.create("item.syringe.stab");
     public static final SoundEvent SHOTGUN_FIRE = registrar.create("noellesroles.shotgun_fire");
     public static final SoundEvent SHORT_CIRCUIT = registrar.create("noellesroles.short_circuit");
+    public static final SoundEvent SHOTGUNU_COCK = registrar.create("noellesroles.shotgun_cock");
 
     public static void initialize() {
         registrar.registerEntries();
