@@ -1,6 +1,7 @@
 package io.wifi.starrailexpress.content.vote.network;
 
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.content.vote.ClientPlayerOption;
 import io.wifi.starrailexpress.content.vote.VoteOption;
 import io.wifi.starrailexpress.content.vote.VoteSession;
 import net.minecraft.nbt.CompoundTag;
@@ -18,12 +19,11 @@ public record VoteSyncS2CPacket(
         Component title,
         boolean hasOptions,
         List<VoteOption> options,
-        long endTick,            // 服务端游戏刻，投票结束时间；-1 表示暂停
+        long endTick, // 服务端游戏刻，投票结束时间；-1 表示暂停
         boolean showResults,
         Map<Integer, Integer> results,
         int totalVotes,
-        boolean allowReVote
-) implements CustomPacketPayload {
+        boolean allowReVote) implements CustomPacketPayload {
 
     public static final Type<VoteSyncS2CPacket> TYPE = new Type<>(SRE.id("vote_sync"));
 
@@ -34,7 +34,8 @@ public record VoteSyncS2CPacket(
                 buf.writeBoolean(packet.hasOptions);
                 if (packet.hasOptions) {
                     buf.writeVarInt(packet.options.size());
-                    for (VoteOption opt : packet.options) writeOption(buf, opt);
+                    for (VoteOption opt : packet.options)
+                        writeOption(buf, opt);
                 }
                 buf.writeVarLong(packet.endTick);
                 buf.writeBoolean(packet.showResults);
@@ -54,7 +55,8 @@ public record VoteSyncS2CPacket(
                 if (hasOptions) {
                     int size = buf.readVarInt();
                     options = new ArrayList<>(size);
-                    for (int i = 0; i < size; i++) options.add(readOption(buf));
+                    for (int i = 0; i < size; i++)
+                        options.add(readOption(buf));
                 }
                 long endTick = buf.readVarLong();
                 boolean show = buf.readBoolean();
@@ -65,20 +67,23 @@ public record VoteSyncS2CPacket(
                     totalVotes = buf.readVarInt();
                 }
                 boolean allowRe = buf.readBoolean();
-                return new VoteSyncS2CPacket(active, title, hasOptions, options, endTick, show, results, totalVotes, allowRe);
+                return new VoteSyncS2CPacket(active, title, hasOptions, options, endTick, show, results, totalVotes,
+                        allowRe);
             });
 
     // ── 工厂方法 ──────────────────────────────────────
     public static VoteSyncS2CPacket fullSync(VoteSession session) {
         long endTick = session.isPaused() ? -1 : session.getEndTick();
         return new VoteSyncS2CPacket(true, session.getTitle(), true, session.getOptions(),
-                endTick, session.isShowResults(), session.getResults(), session.getTotalVotes(), session.isAllowReVote());
+                endTick, session.isShowResults(), session.getResults(), session.getTotalVotes(),
+                session.isAllowReVote());
     }
 
     public static VoteSyncS2CPacket update(VoteSession session) {
         long endTick = session.isPaused() ? -1 : session.getEndTick();
         return new VoteSyncS2CPacket(true, session.getTitle(), false, List.of(),
-                endTick, session.isShowResults(), session.getResults(), session.getTotalVotes(), session.isAllowReVote());
+                endTick, session.isShowResults(), session.getResults(), session.getTotalVotes(),
+                session.isAllowReVote());
     }
 
     public static VoteSyncS2CPacket end() {
@@ -86,9 +91,9 @@ public record VoteSyncS2CPacket(
     }
 
     // ── 序列化工具（不变） ─────────────────────────────
-    private static final byte TYPE_TEXT  = 0;
+    private static final byte TYPE_TEXT = 0;
     private static final byte TYPE_PLAYER = 1;
-    private static final byte TYPE_ITEM  = 2;
+    private static final byte TYPE_ITEM = 2;
 
     private static void writeOption(RegistryFriendlyByteBuf buf, VoteOption option) {
         if (option.isPlayer()) {
@@ -113,7 +118,7 @@ public record VoteSyncS2CPacket(
         return switch (type) {
             case TYPE_PLAYER -> {
                 UUID uid = buf.readUUID();
-                yield VoteOption.player(display, uid);
+                yield new ClientPlayerOption(display, uid);
             }
             case TYPE_ITEM -> {
                 CompoundTag tag = buf.readNbt();
@@ -125,5 +130,7 @@ public record VoteSyncS2CPacket(
     }
 
     @Override
-    public Type<? extends CustomPacketPayload> type() { return TYPE; }
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
+    }
 }
