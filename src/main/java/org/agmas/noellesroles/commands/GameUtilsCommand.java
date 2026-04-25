@@ -195,7 +195,7 @@ public class GameUtilsCommand {
                               StringBuilder topResult = new StringBuilder();
                               for (Entry<String, Integer> topResults : s.getTopResults()) {
                                 if (topResult.length() != 0)
-                                  topResult.append(",");
+                                  topResult.append(", ");
                                 topResult.append(topResults.getKey());
                               }
                               for (ServerPlayer p : players) {
