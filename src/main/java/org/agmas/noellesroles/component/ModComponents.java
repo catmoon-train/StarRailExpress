@@ -60,6 +60,7 @@ import org.agmas.noellesroles.game.roles.neutral.nian_shou.NianShouPlayerCompone
 import org.agmas.noellesroles.game.roles.neutral.panda.PandaComponent;
 import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.recorder.RecorderPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.cuckoo.CuckooPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.slippery_ghost.SlipperyGhostPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.thief.ThiefPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.vulture.VulturePlayerComponent;
@@ -200,6 +201,10 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
   public static final ComponentKey<RecorderPlayerComponent> RECORDER = ComponentRegistry.getOrCreate(
       ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "recorder"),
       RecorderPlayerComponent.class);
+
+  public static final ComponentKey<CuckooPlayerComponent> CUCKOO = ComponentRegistry.getOrCreate(
+      ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "cuckoo"),
+      CuckooPlayerComponent.class);
 
   public static final ComponentKey<PlayerVolumeComponent> VOLUME = ComponentRegistry.getOrCreate(
       ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "volume"),
@@ -494,6 +499,9 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
     registry.beginRegistration(Player.class, RECORDER)
         .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
         .end(RecorderPlayerComponent::new);
+    registry.beginRegistration(Player.class, CUCKOO)
+        .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
+        .end(CuckooPlayerComponent::new);
     // 注册炸弹客组件
 
     registry.beginRegistration(Player.class, VOLUME)

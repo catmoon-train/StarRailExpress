@@ -617,6 +617,18 @@ public class RoleShopHandler {
       ShopContent.customEntries.put(ModRoles.MERCENARY_ID, shop);
     }
     {
+      // 布谷鸟（Cuckoo）商店：撬锁器 - 250金币
+      var SHOP = new ArrayList<ShopEntry>();
+      SHOP.add(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), 250, ShopEntry.Type.TOOL) {
+        @Override
+        public boolean onBuy(@NotNull Player player) {
+          // 将撬锁器放入玩家空位
+          return RoleUtils.insertStackInFreeSlot(player, TMMItems.LOCKPICK.getDefaultInstance());
+        }
+      });
+      ShopContent.customEntries.put(ModRoles.CUCKOO.getIdentifier(), SHOP);
+    }
+    {
       // 游侠商店
       var shopEntries = new ArrayList<ShopEntry>();
       shopEntries.add(new ShopEntry(Items.CROSSBOW.getDefaultInstance(), 300, ShopEntry.Type.WEAPON) {

@@ -8,6 +8,7 @@ import io.wifi.starrailexpress.event.AllowGameEnd;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.GameUtils.WinStatus;
 import org.agmas.noellesroles.game.roles.neutral.candlebearer.CandleBearerPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.cuckoo.CuckooPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.thief.ThiefPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.RedHouseRoles;
@@ -85,6 +86,14 @@ public class CustomWinnerClass {
 
             if (CandleBearerPlayerComponent.checkCandleBearerVictory(serverLevel)) {
                 return WinStatus.CUSTOM;
+            }
+
+            // 布谷鸟胜利：在常规结局和年兽/纵火犯胜利时判定，优先级大于纵火犯和年兽
+            if (winStatus.equals(WinStatus.PASSENGERS) || winStatus.equals(WinStatus.KILLERS) || winStatus.equals(WinStatus.TIME)
+                    || winStatus.equals(WinStatus.NIAN_SHOU)) {
+                if (CuckooPlayerComponent.checkCuckooVictory(serverLevel)) {
+                    return WinStatus.CUSTOM;
+                }
             }
 
             if (winStatus.equals(WinStatus.TIME) || winStatus.equals(WinStatus.PASSENGERS)

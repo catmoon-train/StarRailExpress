@@ -19,6 +19,7 @@ import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.SREItemUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.component.FoodDrinkGlowComponent;
@@ -35,6 +36,7 @@ import org.agmas.noellesroles.game.roles.killer.ma_chen_xu.MaChenXuPlayerCompone
 import org.agmas.noellesroles.game.roles.killer.manipulator.ManipulatorPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.admirer.AdmirerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.candlebearer.CandleBearerPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.cuckoo.CuckooEggData;
 import org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaEventHandler;
 import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.recorder.RecorderPlayerComponent;
@@ -466,6 +468,16 @@ public class InstinctRenderer {
                     }
                 }
             }
+            // 布谷鸟：无法透视玩家；非布谷鸟：无法透视蛋
+            if (SREClient.gameComponent.isRole(self, ModRoles.CUCKOO)) {
+                if (target instanceof Player) {
+                    return -2;
+                }
+            } else {
+                if (target instanceof Display.BlockDisplay) {
+                    return -2;
+                }
+            }
             if (target instanceof Player target_player) {
                 // 不开直觉，默认有
                 // 红尘客
@@ -801,7 +813,21 @@ public class InstinctRenderer {
                     }
                 }
             }
-
+            // 布谷鸟：只透视自己下的蛋（BlockDisplay）
+            if (SREClient.gameComponent.isRole(self, ModRoles.CUCKOO)) {
+                if (target instanceof Display.BlockDisplay blockDisplay) {
+                    if (!hasInstinct)
+                        return -1;
+                    if (!GameUtils.isPlayerAliveAndSurvival(self))
+                        return -1;
+                    try {
+                        if (CuckooEggData.isOwnEggClient(blockDisplay)) {
+                            return ModRoles.CUCKOO.color();
+                        }
+                    } catch (Exception ignored) {
+                    }
+                }
+            }
             return -1;
         });
     }

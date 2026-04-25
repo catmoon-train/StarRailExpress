@@ -97,6 +97,7 @@ import org.agmas.noellesroles.game.roles.killer.stalker.StalkerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.watcher.WatcherPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.commander.CommanderHandler;
 import org.agmas.noellesroles.game.roles.neutral.gambler.GamblerHandler;
+import org.agmas.noellesroles.game.roles.neutral.cuckoo.CuckooEggHandler;
 import org.agmas.noellesroles.game.roles.neutral.mercenary.MercenaryPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.thief.ThiefPlayerComponent;
@@ -754,6 +755,8 @@ public class ModEventsRegister {
         // 注册警棍与防暴盾处理器
         BatonHandler.register();
         RiotShieldHandler.register();
+        // 布谷鸟蛋交互注册
+        CuckooEggHandler.register();
         // 注册保安技能
         GuardPlayerHandler.register();
         VoodooDeathHandler.registerEvents();

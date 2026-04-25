@@ -14,17 +14,23 @@ import org.agmas.noellesroles.content.entity.KuiXiPuppetEntity;
 import org.agmas.noellesroles.content.entity.LockEntity;
 import org.agmas.noellesroles.content.entity.LockEntityManager;
 import org.agmas.noellesroles.content.entity.WheelchairEntity;
+import org.agmas.noellesroles.game.roles.neutral.cuckoo.CuckooEggData;
 import pro.fazeclan.river.stupid_express.role.necromancer.cca.NecromancerComponent;
 
 public class EntityClearUtils {
     public static void registerResetEvent() {
         GameInitializeEvent.EVENT.register((serverLevel, gameWorldComponent, players) -> {
             LockEntityManager.getInstance().resetLockEntities();
+            clearCuckooEggs(serverLevel);
+            CuckooEggData.reset();
         });
         OnGameEnd.EVENT.register((world, gameWorldComponent) -> {
             var component = NecromancerComponent.KEY.get(world);
             component.reset();
             LockEntityManager.getInstance().resetLockEntities();
+            // 先清除蛋实体，再重置蛋数据（顺序很重要！）
+            clearCuckooEggs(world);
+            CuckooEggData.reset();
         });
     }
 
@@ -50,8 +56,8 @@ public class EntityClearUtils {
                         entity instanceof WheelchairEntity ||
                         entity instanceof KuiXiPuppetEntity ||
                         entity instanceof NoteEntity ||
-                        entity instanceof DevilRouletteTableEntity.TableTextDisplay ||
-                        entity instanceof DevilRouletteTableEntity.TableItemDisplay
+                    entity instanceof DevilRouletteTableEntity.TableTextDisplay ||
+                    entity instanceof DevilRouletteTableEntity.TableItemDisplay
                 ) {
                     entitiesToRemove.add(entity);
                 }
@@ -60,6 +66,24 @@ public class EntityClearUtils {
             for (net.minecraft.world.entity.Entity entity : entitiesToRemove) {
                 if (!entity.isRemoved()) { // 双重检查确保实体未被其他地方删除
                     entity.remove(net.minecraft.world.entity.Entity.RemovalReason.DISCARDED);
+                }
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
+    /** 在reset之前清除所有布谷鸟蛋实体 */
+    private static void clearCuckooEggs(ServerLevel world) {
+        try {
+            java.util.List<net.minecraft.world.entity.Entity> eggsToRemove = new java.util.ArrayList<>();
+            world.getAllEntities().forEach((entity) -> {
+                if (entity instanceof net.minecraft.world.entity.Display.BlockDisplay && CuckooEggData.isCuckooEgg(entity)) {
+                    eggsToRemove.add(entity);
+                }
+            });
+            for (net.minecraft.world.entity.Entity egg : eggsToRemove) {
+                if (!egg.isRemoved()) {
+                    egg.remove(net.minecraft.world.entity.Entity.RemovalReason.DISCARDED);
                 }
             }
         } catch (Exception ignored) {

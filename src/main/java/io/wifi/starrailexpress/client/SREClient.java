@@ -83,6 +83,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -879,7 +880,8 @@ public class SREClient implements ClientModInitializer {
     public static int getCachedInstinctHighlight(Entity target) {
         if (!(target instanceof ItemEntity || target instanceof Player || target instanceof NoteEntity
                 || target instanceof PuppeteerBodyEntity
-                || target instanceof FirecrackerEntity || target instanceof PlayerBodyEntity)) {
+                || target instanceof FirecrackerEntity || target instanceof PlayerBodyEntity
+                || target instanceof Display.BlockDisplay)) {
             return -1;
         }
         if (!cachedHighLightMap.containsKey(target.getUUID())) {
