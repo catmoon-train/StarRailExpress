@@ -4,52 +4,58 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-
-import java.util.UUID;
-
 import net.minecraft.core.registries.BuiltInRegistries;
+import java.util.UUID;
 
 /**
  * 投票中的一个选项，可以是玩家、文本或物品。
+ * 每个选项都有一个 {@link #resultId()} 用于在结果中标识该选项（替换数字索引）。
  */
 public interface VoteOption {
 
-    /** 该选项在 UI 中显示的文本 */
     Component display();
 
-    /** 用于网络传输的标识符 */
     ResourceLocation typeId();
 
-    /** 是否为玩家类型 */
     boolean isPlayer();
 
-    /** 是否为物品类型 */
     boolean isItem();
+
+    /**
+     * 结果映射中使用的唯一标识符。
+     * 默认为选项的数字索引（由 {@link VoteBuilder} 自动分配）。
+     */
+    String resultId();
 
     // ── 具体实现 ───────────────────────────────────────────
 
     class PlayerOption implements VoteOption {
-        private Component displayName = null;
-        private UUID player = null;
+        private final Component displayName;
+        private final UUID player;
+        private final String resultId;
 
-        public UUID player() {
-            return player;
+        public PlayerOption(Component text, UUID uuid, String resultId) {
+            this.player = uuid;
+            this.displayName = text;
+            this.resultId = resultId;
         }
 
         public PlayerOption(Component text, UUID uuid) {
-            this.player = uuid;
-            this.displayName = text;
+            this(text, uuid, ""); // 空字符串表示由 builder 后分配
         }
 
+        /** @deprecated 请使用 {@link #player(Component, UUID)} */
+        @Deprecated
         public PlayerOption(UUID player) {
-            this.player = player;
+            this(Component.literal(player.toString()), player);
         }
 
         public PlayerOption(Player player) {
-            if (player != null) {
-                this.player = player.getUUID();
-                this.displayName = player.getDisplayName();
-            }
+            this(player.getDisplayName(), player.getUUID());
+        }
+
+        public UUID uuid() {
+            return player;
         }
 
         @Override
@@ -71,11 +77,20 @@ public interface VoteOption {
         public boolean isItem() {
             return false;
         }
+
+        @Override
+        public String resultId() {
+            return resultId;
+        }
     }
 
-    record TextOption(Component text, ResourceLocation id) implements VoteOption {
+    record TextOption(Component text, ResourceLocation id, String resultId) implements VoteOption {
         public TextOption(Component text) {
-            this(text, ResourceLocation.withDefaultNamespace("text"));
+            this(text, ResourceLocation.withDefaultNamespace("text"), "");
+        }
+
+        public TextOption(Component text, String resultId) {
+            this(text, ResourceLocation.withDefaultNamespace("text"), resultId);
         }
 
         @Override
@@ -97,9 +112,18 @@ public interface VoteOption {
         public boolean isItem() {
             return false;
         }
+
+        @Override
+        public String resultId() {
+            return resultId;
+        }
     }
 
-    record ItemOption(ItemStack stack) implements VoteOption {
+    record ItemOption(ItemStack stack, String resultId) implements VoteOption {
+        public ItemOption(ItemStack stack) {
+            this(stack, "");
+        }
+
         @Override
         public Component display() {
             return stack.getHoverName();
@@ -119,32 +143,45 @@ public interface VoteOption {
         public boolean isItem() {
             return true;
         }
+
+        @Override
+        public String resultId() {
+            return resultId;
+        }
     }
 
-    // 工厂方法
+    // ── 工厂方法 ──────────────────────────────────────────
     static VoteOption player(Player player) {
         return new PlayerOption(player);
     }
 
-    /**
-     * @deprecated
-     * 请使用 {@link #player(Component, UUID)} 代替。
-     */
-    @Deprecated
-    static VoteOption player(UUID player) {
-        return new PlayerOption(player);
+    static VoteOption player(Component text, UUID uuid) {
+        return new PlayerOption(text, uuid);
     }
 
-    // 工厂方法
-    static VoteOption player(Component text, UUID player) {
-        return new PlayerOption(text, player);
+    static VoteOption player(Component text, UUID uuid, String resultId) {
+        return new PlayerOption(text, uuid, resultId);
+    }
+
+    /** @deprecated 请使用 {@link #player(Component, UUID)} */
+    @Deprecated
+    static VoteOption player(UUID uuid) {
+        return new PlayerOption(uuid);
     }
 
     static VoteOption text(Component text) {
         return new TextOption(text);
     }
 
+    static VoteOption text(Component text, String resultId) {
+        return new TextOption(text, resultId);
+    }
+
     static VoteOption item(ItemStack stack) {
         return new ItemOption(stack);
+    }
+
+    static VoteOption item(ItemStack stack, String resultId) {
+        return new ItemOption(stack, resultId);
     }
 }

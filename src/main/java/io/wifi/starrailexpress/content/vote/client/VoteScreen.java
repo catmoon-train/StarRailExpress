@@ -29,6 +29,11 @@ public class VoteScreen extends Screen {
     private static final int SCROLL_WIDTH = 7;
     private static final int SCROLL_MIN_THUMB = 20;
 
+    // 图标与文本之间的间距（像素）
+    private static final int ICON_TEXT_GAP = 4;
+    // 图标宽高
+    private static final int ICON_SIZE = 16;
+
     private int scrollOffset = 0;
     private int maxScroll = 0;
 
@@ -121,7 +126,7 @@ public class VoteScreen extends Screen {
             graphics.fill(scrollX, thumbY, scrollX + SCROLL_WIDTH, thumbY + thumbH, 0xFF556699);
         }
 
-        // ---- 物品悬停 Tooltip 绘制 ----
+        // 物品悬停提示
         drawY = CONTENT_Y - scrollOffset;
         for (int i = 0; i < buttons.size(); i++) {
             VoteOption option = ClientVoteCache.getOptions().get(i);
@@ -131,7 +136,7 @@ public class VoteScreen extends Screen {
                         mouseY >= btnY && mouseY < btnY + BUTTON_HEIGHT) {
                     ItemStack stack = itemOpt.stack();
                     graphics.renderTooltip(font, stack, mouseX, mouseY);
-                    break; // 只显示一个物品的提示
+                    break;
                 }
             }
             drawY += BUTTON_HEIGHT + BUTTON_SPACING;
@@ -206,24 +211,36 @@ public class VoteScreen extends Screen {
             VoteOption option = ClientVoteCache.getOptions().get(optionIndex);
             Component display = option.display();
 
+            // 计算图标与文字的总宽度，以便整体居中
+            boolean hasIcon = option instanceof VoteOption.ItemOption || option instanceof ClientPlayerOption;
+            int textWidth = font.width(display);
+            int totalContentWidth = textWidth;
+            if (hasIcon) {
+                totalContentWidth += ICON_SIZE + ICON_TEXT_GAP;
+            }
+            // 整体居中的起始 X
+            int startX = x + (w - totalContentWidth) / 2;
+
             if (option instanceof VoteOption.ItemOption itemOpt) {
                 ItemStack stack = itemOpt.stack();
-                g.renderFakeItem(stack, x + 3, y + (h - 16) / 2);
-                g.drawString(font, display, x + 26, y + (h - 8) / 2, 0xFFFFFF);
-                // 不在此处画 tooltip，交给外层统一绘制
+                g.renderFakeItem(stack, startX, y + (h - ICON_SIZE) / 2);
+                g.drawString(font, display, startX + ICON_SIZE + ICON_TEXT_GAP, y + (h - 8) / 2, 0xFFFFFF);
             } else if (option instanceof ClientPlayerOption playerOpt) {
                 UUID uuid = playerOpt.uuid();
                 PlayerInfo info = Minecraft.getInstance().getConnection().getPlayerInfo(uuid);
                 if (info != null) {
-                    PlayerFaceRenderer.draw(g, info.getSkin(), x + 4, y + (h - 16) / 2, 16);
-                    g.drawString(font, display, x + 22, y + (h - 8) / 2, 0xFFFFFF);
+                    PlayerFaceRenderer.draw(g, info.getSkin(), startX, y + (h - ICON_SIZE) / 2, ICON_SIZE);
+                    g.drawString(font, display, startX + ICON_SIZE + ICON_TEXT_GAP, y + (h - 8) / 2, 0xFFFFFF);
                 } else {
-                    g.drawString(font, display, x + 8, y + (h - 8) / 2, 0xFFFFFF);
+                    // 无头像时直接绘制纯文本（居中）
+                    g.drawCenteredString(font, display, x + w / 2, y + (h - 8) / 2, 0xFFFFFF);
                 }
             } else {
+                // 纯文本，使用快捷居中
                 g.drawCenteredString(font, display, x + w / 2, y + (h - 8) / 2, 0xFFFFFF);
             }
 
+            // 显示票数（始终在右侧）
             if (ClientVoteCache.isShowResults()) {
                 int votes = ClientVoteCache.getResults().getOrDefault(optionIndex, 0);
                 g.drawString(font, String.valueOf(votes), x + w - 20, y + (h - 8) / 2, 0xAAAAAA);

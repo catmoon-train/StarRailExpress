@@ -9,7 +9,7 @@
   "vote.added.text": "已添加文本选项：%s",
   "vote.added.item": "已添加物品选项：%s",
   "vote.removed": "已移除选项 #%s",
-  "vote.cast_success": "投票成功！",
+  "vote.cast_success": "投票成功！你投给了 %s！",
   "vote.already_voted": "你已经投过票了",
   "vote.can_revote": "你可以重新投票",
   "vote.no_vote_data": "没有投票数据。",

@@ -1,6 +1,20 @@
 package io.wifi.starrailexpress.content.vote;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
+import org.jetbrains.annotations.Nullable;
+
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.content.vote.VoteOption.ItemOption;
+import io.wifi.starrailexpress.content.vote.VoteOption.PlayerOption;
+import io.wifi.starrailexpress.content.vote.VoteOption.TextOption;
 import io.wifi.starrailexpress.content.vote.network.VoteSyncS2CPacket;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -9,12 +23,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.*;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * 服务端投票管理器，单例，同一时间只允许一个活跃投票。
@@ -27,21 +35,13 @@ import java.util.stream.Collectors;
  *
  * // 创建投票
  * VoteSession session = VoteManager.builder(Component.literal("标题"))
- *         .addOption(VoteOption.text("选项 A"))
- *         .addOption(VoteOption.text("选项 B"))
- *         .addOption(VoteOption.player(player))
- *         .addOption(VoteOption.item(itemStack))
- *         .duration(20 * 30) // 30 秒
- *         .allowReVote(true)
- *         .showResults(true)
- *         .syncInterval(20 * 5)
- *         .callback(s -> {
- *             System.out.println("投票结束！获胜选项：" + s.getResults());
- *         })
+ *         ...
  *         .start();
  *
  * }</pre>
- *
+ * 
+ * {@link VoteBuilder}
+ * 
  * @author wifi-left
  */
 public class VoteManager {
@@ -49,7 +49,7 @@ public class VoteManager {
     @Nullable
     private static VoteSession currentSession;
     private static MinecraftServer server;
-    private static int lastSyncTick = 0;
+    private static long lastSyncTick = 0;
     private static boolean optionsSent = false;
 
     /** 投票结束回调列表 */
@@ -194,7 +194,8 @@ public class VoteManager {
      */
     @Nullable
     public static VoteSession getCurrentSession() {
-        if (currentSession != null && !currentSession.isEnded() && currentSession.shouldEnd(server.getTickCount())) {
+        if (currentSession != null && !currentSession.isEnded()
+                && currentSession.shouldEnd(server.overworld().getGameTime())) {
             currentSession.markEnded();
             broadcastEnd();
             fireEndCallbacks(currentSession);
@@ -270,7 +271,8 @@ public class VoteManager {
             if (session.isShowResults()) {
                 broadcastUpdate();
             }
-            player.displayClientMessage(Component.translatable("vote.cast_success"), true);
+            var option = session.getOptions().get(optionIndex);
+            player.displayClientMessage(Component.translatable("vote.cast_success", option.display()), true);
         } else {
             player.displayClientMessage(Component.translatable("vote.already_voted"), true);
         }
@@ -284,8 +286,9 @@ public class VoteManager {
         if (session == null || session.isEnded())
             return;
 
-        int tick = server.getTickCount();
-        if (session.isShowResults() && tick - lastSyncTick >= session.getSyncIntervalTicks()) {
+        long tick = server.overworld().getGameTime();
+        if (session.isShowResults() && session.getSyncIntervalTicks() > 0
+                && tick - lastSyncTick >= session.getSyncIntervalTicks()) {
             broadcastUpdate();
             lastSyncTick = tick;
         }
@@ -376,9 +379,9 @@ public class VoteManager {
      * // 创建投票
      * VoteSession session = VoteManager.builder(Component.literal("标题"))
      *         .addOption(VoteOption.text("选项 A"))
-     *         .addOption(VoteOption.text("选项 B"))
-     *         .addOption(VoteOption.player(player))
-     *         .addOption(VoteOption.item(itemStack))
+     *         .addOption(VoteOption.text("选项 B"), "sel_b")
+     *         .addOption(VoteOption.player(player), "player")
+     *         .addOption(VoteOption.item(itemStack), "item_a")
      *         .duration(20 * 30) // 30 秒
      *         .allowReVote(true)
      *         .showResults(true)
@@ -397,8 +400,9 @@ public class VoteManager {
         private boolean allowReVote = false;
         private boolean showResults = false;
         private Consumer<VoteSession> callbackConsumer = null;
-        private int syncIntervalTicks = 20 * 10; // 默认 10 秒
+        private int syncIntervalTicks = 0; // 默认禁用
         private Predicate<VoteSession> customEnd = null;
+        private int autoIdCounter = 0;
 
         VoteBuilder(Component title) {
             this.title = title;
@@ -409,9 +413,30 @@ public class VoteManager {
             return this;
         }
 
-        /** 添加一个投票选项 */
+        /** 添加选项（自动分配 resultId） */
         public VoteBuilder addOption(VoteOption option) {
+            // 若选项未携带 resultId，则用当前计数器自动生成
+            if (option.resultId().isEmpty()) {
+                option = wrapWithResultId(option, "autoid:" + String.valueOf(autoIdCounter++));
+            }
             options.add(option);
+            return this;
+        }
+
+        private VoteOption wrapWithResultId(VoteOption original, String id) {
+            if (original instanceof TextOption t)
+                return new TextOption(t.text(), t.typeId(), id);
+            if (original instanceof ItemOption i)
+                return new ItemOption(i.stack(), id);
+            if (original instanceof PlayerOption p)
+                return new PlayerOption(p.display(), p.uuid(), id);
+            return original; // fallback
+        }
+
+        /** 添加选项并指定 resultId */
+        public VoteBuilder addOption(VoteOption option, @Nullable String resultId) {
+            String id = resultId != null ? resultId : String.valueOf(autoIdCounter++);
+            options.add(wrapWithResultId(option, id));
             return this;
         }
 
@@ -463,7 +488,7 @@ public class VoteManager {
     /**
      * 获取当前服务器游戏刻数，无服务器时返回 0。
      */
-    public static int getCurrentTick() {
-        return server == null ? 0 : server.getTickCount();
+    public static long getCurrentTick() {
+        return server == null ? 0 : server.overworld().getGameTime();
     }
 }

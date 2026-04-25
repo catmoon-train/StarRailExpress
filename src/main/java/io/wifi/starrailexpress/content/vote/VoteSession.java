@@ -53,6 +53,8 @@ public class VoteSession {
 
     // 投票时增加校验
     boolean castVote(UUID playerId, int optionIndex) {
+        if (!(optionIndex >= 0 && optionIndex < options.size()))
+            return false;
         if (ended || !isAllowedToVote(playerId))
             return false;
         if (!allowReVote && votes.containsKey(playerId))
@@ -93,14 +95,39 @@ public class VoteSession {
         return endTick;
     }
 
-    public Map<Integer, Integer> getResults() {
+    public Map<Integer, Integer> getIndexResults() {
         Map<Integer, Integer> tally = new LinkedHashMap<>();
         for (int i = 0; i < options.size(); i++)
             tally.put(i, 0);
         for (int choice : votes.values()) {
+            if (choice >= options.size() || choice < 0)
+                continue;
             tally.merge(choice, 1, Integer::sum);
         }
         return tally;
+    }
+
+    public Map<String, Integer> getResults() {
+        Map<String, Integer> tally = new LinkedHashMap<>();
+        for (int i = 0; i < options.size(); i++)
+            tally.put(options.get(i).resultId(), 0);
+        for (int choice : votes.values()) {
+            if (choice >= options.size() || choice < 0)
+                continue;
+            tally.merge(options.get(choice).resultId(), 1, Integer::sum);
+        }
+        return tally;
+    }
+
+    /** 获取最高票数的 resultId 和票数，若无投票则返回 null */
+    @Nullable
+    public Map.Entry<String, Integer> getTopResult() {
+        Map<String, Integer> results = getResults();
+        if (results.isEmpty())
+            return null;
+        return results.entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .orElse(null);
     }
 
     public int getTotalVotes() {
@@ -135,7 +162,7 @@ public class VoteSession {
         ended = false;
     }
 
-    boolean shouldEnd(int serverTick) {
+    boolean shouldEnd(long serverTick) {
         if (ended)
             return true;
         if (paused)

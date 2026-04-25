@@ -75,14 +75,14 @@ public record VoteSyncS2CPacket(
     public static VoteSyncS2CPacket fullSync(VoteSession session) {
         long endTick = session.isPaused() ? -1 : session.getEndTick();
         return new VoteSyncS2CPacket(true, session.getTitle(), true, session.getOptions(),
-                endTick, session.isShowResults(), session.getResults(), session.getTotalVotes(),
+                endTick, session.isShowResults(), session.getIndexResults(), session.getTotalVotes(),
                 session.isAllowReVote());
     }
 
     public static VoteSyncS2CPacket update(VoteSession session) {
         long endTick = session.isPaused() ? -1 : session.getEndTick();
         return new VoteSyncS2CPacket(true, session.getTitle(), false, List.of(),
-                endTick, session.isShowResults(), session.getResults(), session.getTotalVotes(),
+                endTick, session.isShowResults(), session.getIndexResults(), session.getTotalVotes(),
                 session.isAllowReVote());
     }
 
@@ -99,7 +99,7 @@ public record VoteSyncS2CPacket(
         if (option.isPlayer()) {
             buf.writeByte(TYPE_PLAYER);
             ComponentSerialization.TRUSTED_STREAM_CODEC.encode(buf, option.display());
-            buf.writeUUID(((VoteOption.PlayerOption) option).player());
+            buf.writeUUID(((VoteOption.PlayerOption) option).uuid());
         } else if (option.isItem()) {
             buf.writeByte(TYPE_ITEM);
             ComponentSerialization.TRUSTED_STREAM_CODEC.encode(buf, option.display());

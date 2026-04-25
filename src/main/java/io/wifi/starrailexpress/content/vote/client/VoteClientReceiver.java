@@ -11,11 +11,10 @@ public class VoteClientReceiver {
             client.execute(() -> {
                 ClientVoteCache.updateFromPacket(packet);
                 if (packet.active()) {
-                    // 若已有投票画面，则更新；否则新建
                     if (client.screen instanceof VoteScreen screen) {
                         // 更新屏幕数据
                         screen.updateData(packet);
-                    } else {
+                    } else if (packet.hasOptions()) {
                         client.setScreen(new VoteScreen()); // 无参构造
                     }
                 } else {

@@ -13,6 +13,8 @@ import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.cca.*;
 import io.wifi.starrailexpress.content.command.ConfigCommand;
+import io.wifi.starrailexpress.content.vote.VoteManager;
+import io.wifi.starrailexpress.content.vote.VoteOption;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.GameUtils.WinStatus;
@@ -179,6 +181,27 @@ public class GameUtilsCommand {
                         return 1;
                       })))
                   .then(Commands.literal("tests")
+                      .then(Commands.literal("vote_players").executes((ctx) -> {
+                        var builder = VoteManager.builder(Component.literal("测试投票玩家"));
+                        var source = ctx.getSource();
+                        var players = source.getLevel().players();
+                        for (ServerPlayer p : players) {
+                          builder.addOption(VoteOption.player(p), p.getGameProfile().getName());
+                        }
+                        builder
+                            .duration(20 * 30) // 30 秒
+                            .allowReVote(true)
+                            .showResults(true)
+                            .syncInterval(20 * 5)
+                            .callback(s -> {
+                              for (ServerPlayer p : players) {
+                                p.sendSystemMessage(
+                                    Component.translatable("Select Result:\nWinner: %s", s.getTopResult().getKey()));
+                              }
+                            })
+                            .start();
+                        return 1;
+                      }))
                       .then(Commands.literal("prayer").executes((ctx) -> {
                         org.agmas.noellesroles.game.roles.Innocent.fool.PrayerHandler
                             .startPrayer(ctx.getSource().getPlayerOrException());

@@ -24,4 +24,12 @@ public record ClientPlayerOption(Component display, UUID uuid) implements VoteOp
     public boolean isItem() {
         return false;
     }
+
+    /**
+     * Not used for client and server
+     */
+    @Override
+    public String resultId() {
+        return "";
+    }
 }
