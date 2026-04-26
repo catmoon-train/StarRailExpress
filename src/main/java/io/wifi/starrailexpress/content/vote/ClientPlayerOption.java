@@ -4,7 +4,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import java.util.UUID;
 
-public record ClientPlayerOption(Component display, UUID uuid) implements VoteOption {
+public record ClientPlayerOption(Component display, UUID uuid, Component description) implements VoteOption {
     @Override
     public Component display() {
         return display;

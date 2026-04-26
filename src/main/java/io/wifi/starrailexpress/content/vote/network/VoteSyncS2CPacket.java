@@ -99,6 +99,13 @@ public record VoteSyncS2CPacket(
     private static final byte TYPE_ITEM = 2;
 
     private static void writeOption(RegistryFriendlyByteBuf buf, VoteOption option) {
+
+        Component writeData = Component.empty();
+        if (option.description() != null) {
+            writeData = option.description();
+        }
+        ComponentSerialization.TRUSTED_STREAM_CODEC.encode(buf, writeData);
+
         if (option.isPlayer()) {
             buf.writeByte(TYPE_PLAYER);
             ComponentSerialization.TRUSTED_STREAM_CODEC.encode(buf, option.display());
@@ -116,19 +123,20 @@ public record VoteSyncS2CPacket(
     }
 
     private static VoteOption readOption(RegistryFriendlyByteBuf buf) {
+        Component description = ComponentSerialization.TRUSTED_STREAM_CODEC.decode(buf);
         byte type = buf.readByte();
         Component display = ComponentSerialization.TRUSTED_STREAM_CODEC.decode(buf);
         return switch (type) {
             case TYPE_PLAYER -> {
                 UUID uid = buf.readUUID();
-                yield new ClientPlayerOption(display, uid);
+                yield new ClientPlayerOption(display, uid, description);
             }
             case TYPE_ITEM -> {
                 CompoundTag tag = buf.readNbt();
                 ItemStack stack = ItemStack.parseOptional(buf.registryAccess(), tag);
-                yield VoteOption.item(stack);
+                yield VoteOption.item(stack, description);
             }
-            default -> VoteOption.text(display);
+            default -> VoteOption.text(display, description);
         };
     }
 

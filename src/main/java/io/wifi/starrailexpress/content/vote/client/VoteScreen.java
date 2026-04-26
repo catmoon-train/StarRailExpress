@@ -262,8 +262,21 @@ public class VoteScreen extends Screen {
             if (opt instanceof VoteOption.ItemOption itemOpt) {
                 if (mouseX >= contentX && mouseX < contentX + BUTTON_WIDTH &&
                         mouseY >= drawY && mouseY < drawY + BUTTON_HEIGHT) {
-                    g.renderTooltip(font, itemOpt.stack(), mouseX, mouseY);
+                    var itemStack = itemOpt.stack();
+                    List<Component> tooltiplist = new ArrayList<>(Screen.getTooltipFromItem(this.minecraft, itemStack));
+                    if (opt.description() != null)
+                        tooltiplist.add(opt.description());
+                    g.renderTooltip(font, tooltiplist,
+                            itemStack.getTooltipImage(), mouseX, mouseY);
                     break;
+                }
+            } else {
+                if (opt.description() != null) {
+                    if (mouseX >= contentX && mouseX < contentX + BUTTON_WIDTH &&
+                            mouseY >= drawY && mouseY < drawY + BUTTON_HEIGHT) {
+                        g.renderTooltip(font, opt.description(), mouseX, mouseY);
+                        break;
+                    }
                 }
             }
             drawY += BUTTON_HEIGHT + BUTTON_SPACING;

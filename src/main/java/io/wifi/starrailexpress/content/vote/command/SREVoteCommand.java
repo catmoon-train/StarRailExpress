@@ -64,16 +64,20 @@ public class SREVoteCommand {
     var addNode = Commands.literal("add")
         .then(Commands.literal("player")
             .then(Commands.argument("target", EntityArgument.player())
-                .executes(ctx -> addPlayerOption(ctx, EntityArgument.getPlayer(ctx, "target"), null))
+                .executes(ctx -> addPlayerOption(ctx, EntityArgument.getPlayer(ctx, "target"), null, null))
                 .then(Commands.argument("id", StringArgumentType.string())
-                    .executes(ctx -> addPlayerOption(ctx, EntityArgument.getPlayer(ctx, "target"),
-                        StringArgumentType.getString(ctx, "id"))))))
+                    .then(Commands.argument("option_desciption", ComponentArgument.textComponent(registryAccess))
+                        .executes(ctx -> addPlayerOption(ctx, EntityArgument.getPlayer(ctx, "target"),
+                            StringArgumentType.getString(ctx, "id"),
+                            ComponentArgument.getComponent(ctx, "option_desciption")))))))
         .then(Commands.literal("text")
             .then(Commands.argument("text", ComponentArgument.textComponent(registryAccess))
-                .executes(ctx -> addTextOption(ctx, ComponentArgument.getComponent(ctx, "text"), null))
+                .executes(ctx -> addTextOption(ctx, ComponentArgument.getComponent(ctx, "text"), null, null))
                 .then(Commands.argument("id", StringArgumentType.string())
-                    .executes(ctx -> addTextOption(ctx, ComponentArgument.getComponent(ctx, "text"),
-                        StringArgumentType.getString(ctx, "id"))))))
+                    .then(Commands.argument("option_desciption", ComponentArgument.textComponent(registryAccess))
+                        .executes(ctx -> addTextOption(ctx, ComponentArgument.getComponent(ctx, "text"),
+                            StringArgumentType.getString(ctx, "id"),
+                            ComponentArgument.getComponent(ctx, "option_desciption")))))))
         .then(Commands.literal("item")
             .then(Commands.argument("item", ItemArgument.item(registryAccess))
                 .executes(ctx -> addItemOption(ctx, ItemArgument.getItem(ctx, "item").createItemStack(1, true), null))
@@ -327,21 +331,23 @@ public class SREVoteCommand {
   }
 
   // addPlayerOption, addTextOption, addItemOption, removeOption 方法保持不变
-  private static int addPlayerOption(CommandContext<CommandSourceStack> ctx, ServerPlayer player, String voteId) {
+  private static int addPlayerOption(CommandContext<CommandSourceStack> ctx, ServerPlayer player, String voteId,
+      Component desc) {
     if (voteId != null && !voteId.isEmpty() && !voteId.isBlank()) {
-      pendingOptions.add(VoteOption.player(player, voteId));
+      pendingOptions.add(VoteOption.player(player, voteId, desc));
     } else {
-      pendingOptions.add(VoteOption.player(player));
+      pendingOptions.add(VoteOption.player(player, desc));
     }
     ctx.getSource().sendSuccess(() -> Component.translatable("vote.added.player", player.getDisplayName()), true);
     return 1;
   }
 
-  private static int addTextOption(CommandContext<CommandSourceStack> ctx, Component text, String voteId) {
+  private static int addTextOption(CommandContext<CommandSourceStack> ctx, Component text, String voteId,
+      Component desc) {
     if (voteId != null && !voteId.isEmpty() && !voteId.isBlank()) {
-      pendingOptions.add(VoteOption.text(text, voteId));
+      pendingOptions.add(VoteOption.text(text, voteId, desc));
     } else {
-      pendingOptions.add(VoteOption.text(text));
+      pendingOptions.add(VoteOption.text(text, desc));
     }
     ctx.getSource().sendSuccess(() -> Component.translatable("vote.added.text", text), true);
     return 1;

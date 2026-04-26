@@ -284,11 +284,11 @@ public class VoteManager {
 
         private VoteOption wrapWithResultId(VoteOption original, String id) {
             if (original instanceof TextOption t)
-                return new TextOption(t.text(), t.typeId(), id);
+                return new TextOption(t.text(), t.typeId(), id, t.description());
             if (original instanceof ItemOption i)
-                return new ItemOption(i.stack(), id);
+                return new ItemOption(i.stack(), id, i.description());
             if (original instanceof PlayerOption p)
-                return new PlayerOption(p.display(), p.uuid(), id);
+                return new PlayerOption(p.display(), p.uuid(), id, p.description());
             return original;
         }
 
