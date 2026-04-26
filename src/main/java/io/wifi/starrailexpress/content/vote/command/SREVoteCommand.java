@@ -217,7 +217,8 @@ public class SREVoteCommand {
         msg = msg.copy().append("\nNo votes cast yet.");
       } else {
         for (var entry : results.entrySet()) {
-          msg = msg.copy().append("\n  [Option " + entry.getKey() + "]: " + entry.getValue() + " votes");
+          msg = msg.copy().append("\n  [Option ").append(entry.getValue().option.display())
+              .append("]: " + entry.getValue().count() + " votes");
         }
       }
       Component finalMsg = msg;
