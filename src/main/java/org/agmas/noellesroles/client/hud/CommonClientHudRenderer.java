@@ -170,18 +170,19 @@ public class CommonClientHudRenderer {
         BroadcasterHud.renderBroadcast(guiGraphics, deltaTracker);
       }
 
+      var consumer1 = CommonHudRenderCallback.EVENT.getConsumer();
+      if (consumer1 != null && !consumer1.isEmpty()) {
+        consumer1.forEach((c) -> {
+          c.accept(guiGraphics, deltaTracker);
+        });
+      }
+      
       SRERole role = SREClient.getCachedPlayerRole();
       if (role == null)
         return;
       if (role != lastRenderRole) {
         roleRenderConsumers = RoleHudRenderCallback.EVENT.getConsumer(role.identifier());
         lastRenderRole = role;
-      }
-      var consumer1 = CommonHudRenderCallback.EVENT.getConsumer();
-      if (consumer1 != null && !consumer1.isEmpty()) {
-        consumer1.forEach((c) -> {
-          c.accept(guiGraphics, deltaTracker);
-        });
       }
       if (roleRenderConsumers != null) {
         try {
