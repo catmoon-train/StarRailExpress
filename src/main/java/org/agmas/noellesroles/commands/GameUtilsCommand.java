@@ -191,6 +191,7 @@ public class GameUtilsCommand {
                             .duration(20 * 10) // 30 秒
                             .allowReVote(true)
                             .showResults(true)
+                            .maxSelect(3)
                             .callback(s -> {
                               StringBuilder topResult = new StringBuilder();
                               for (Entry<String, Integer> topResults : s.getTopResults()) {

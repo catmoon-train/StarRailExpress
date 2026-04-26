@@ -413,7 +413,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
         UpdateNameTagSelectedPayload.registerReceiver();
         // 服务端处理客户端投票包
         ServerPlayNetworking.registerGlobalReceiver(VoteCastC2SPacket.TYPE, (packet, context) -> {
-            VoteManager.handleVoteCast(context.player(), packet.optionIndex());
+            VoteManager.handleVoteCast(context.player(), packet.optionIndices());
         });
         ServerPlayNetworking.registerGlobalReceiver(KnifeStabPayload.ID, new KnifeStabPayload.Receiver());
         ServerPlayNetworking.registerGlobalReceiver(ModVersionPacket.ID, new ModVersionPacket.Receiver());

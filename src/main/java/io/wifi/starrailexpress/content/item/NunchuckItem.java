@@ -57,6 +57,7 @@ public class NunchuckItem extends Item {
         return InteractionResultHolder.consume(stack);
     }
 
+    @SuppressWarnings("unused")
     public static Player getTargetPlayer(Player user) {
         // 在前方4格内找到最近的玩家
         Vec3 start = user.getEyePosition();

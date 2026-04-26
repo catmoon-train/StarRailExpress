@@ -16,9 +16,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
+
 import java.util.*;
 
-@SuppressWarnings("unused")
 public class VoteScreen extends Screen {
 
     private static final int BUTTON_WIDTH = 280;
@@ -30,10 +30,13 @@ public class VoteScreen extends Screen {
     private static final int SCROLL_WIDTH = 7;
     private static final int SCROLL_MIN_THUMB = 20;
 
-    // 图标与文本之间的间距（像素）
+    @SuppressWarnings("unused")
     private static final int ICON_TEXT_GAP = 4;
-    // 图标宽高
     private static final int ICON_SIZE = 16;
+
+    private static final int CONFIRM_BUTTON_WIDTH = 120;
+    private static final int CONFIRM_BUTTON_HEIGHT = 20;
+    private static final int CONFIRM_BUTTON_Y_OFFSET = 10;
 
     private int scrollOffset = 0;
     private int maxScroll = 0;
@@ -41,12 +44,23 @@ public class VoteScreen extends Screen {
     private final List<WidgetButton> buttons = new ArrayList<>();
     private boolean hasVoted = false;
 
+    // 多选相关
+    private final Set<Integer> selectedIndices = new LinkedHashSet<>();
+    private boolean multiSelectMode;
+    private int maxSelect;
+
     public VoteScreen() {
         super(ClientVoteCache.getTitle());
     }
 
     @Override
     protected void init() {
+        this.multiSelectMode = ClientVoteCache.getMaxSelectCount() > 1;
+        this.maxSelect = ClientVoteCache.getMaxSelectCount();
+        if (!ClientVoteCache.isAllowReVote() || !hasVoted) {
+            selectedIndices.clear();
+            hasVoted = false;
+        }
         updateContentX();
         rebuildWidgets();
     }
@@ -63,16 +77,15 @@ public class VoteScreen extends Screen {
     }
 
     public void updateData(VoteSyncS2CPacket packet) {
+        // 数据已在 ClientVoteCache 中更新，这里如果需要可重建按钮
         rebuildWidgets();
     }
 
     public void rebuildWidgets() {
         buttons.clear();
         List<VoteOption> options = ClientVoteCache.getOptions();
-        int y = CONTENT_Y;
         for (int i = 0; i < options.size(); i++) {
             buttons.add(new WidgetButton(i));
-            y += BUTTON_HEIGHT + BUTTON_SPACING;
         }
         int totalContentHeight = buttons.size() * (BUTTON_HEIGHT + BUTTON_SPACING) - BUTTON_SPACING;
         int availableHeight = height - CONTENT_Y - 30;
@@ -98,6 +111,7 @@ public class VoteScreen extends Screen {
         graphics.drawCenteredString(font, Component.literal(timerText).withStyle(ChatFormatting.YELLOW),
                 width / 2, 40, 0xFFFFFF);
 
+        // 可重投提示
         if (hasVoted && ClientVoteCache.isAllowReVote()) {
             graphics.drawCenteredString(font,
                     Component.translatable("vote.can_revote").withStyle(ChatFormatting.GREEN),
@@ -109,7 +123,7 @@ public class VoteScreen extends Screen {
 
         int drawY = CONTENT_Y - scrollOffset;
         for (WidgetButton btn : buttons) {
-            btn.render(graphics, mouseX, mouseY, drawY);
+            btn.render(graphics, mouseX, mouseY, drawY, selectedIndices.contains(btn.optionIndex));
             drawY += BUTTON_HEIGHT + BUTTON_SPACING;
         }
         graphics.disableScissor();
@@ -124,6 +138,24 @@ public class VoteScreen extends Screen {
             int thumbY = CONTENT_Y + (int) ((scrollH - thumbH) * ((double) scrollOffset / maxScroll));
             graphics.fill(scrollX, CONTENT_Y, scrollX + SCROLL_WIDTH, CONTENT_Y + scrollH, 0xFF111828);
             graphics.fill(scrollX, thumbY, scrollX + SCROLL_WIDTH, thumbY + thumbH, 0xFF556699);
+        }
+
+        // 多选确认按钮
+        if (multiSelectMode && !hasVoted) {
+            int btnX = contentX + BUTTON_WIDTH - CONFIRM_BUTTON_WIDTH;
+            int btnY = CONTENT_Y + scrollAreaHeight + CONFIRM_BUTTON_Y_OFFSET;
+            boolean canConfirm = selectedIndices.size() >= 2;
+            int bgColor = canConfirm ? 0xFF44AA44 : 0xFF666666;
+            if (canConfirm && mouseX >= btnX && mouseX < btnX + CONFIRM_BUTTON_WIDTH
+                    && mouseY >= btnY && mouseY < btnY + CONFIRM_BUTTON_HEIGHT) {
+                bgColor = 0xFF55CC55;
+            }
+            graphics.fill(btnX, btnY, btnX + CONFIRM_BUTTON_WIDTH, btnY + CONFIRM_BUTTON_HEIGHT, bgColor);
+            graphics.renderOutline(btnX, btnY, CONFIRM_BUTTON_WIDTH, CONFIRM_BUTTON_HEIGHT, 0xFFAAAAAA);
+            Component confirmText = Component.translatable("vote.confirm")
+                    .withStyle(canConfirm ? ChatFormatting.WHITE : ChatFormatting.GRAY);
+            graphics.drawCenteredString(font, confirmText, btnX + CONFIRM_BUTTON_WIDTH / 2,
+                    btnY + (CONFIRM_BUTTON_HEIGHT - 8) / 2, canConfirm ? 0xFFFFFF : 0xAAAAAA);
         }
 
         // 物品悬停提示
@@ -145,11 +177,45 @@ public class VoteScreen extends Screen {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        // 多选确认按钮点击
+        if (multiSelectMode && !hasVoted) {
+            int scrollAreaHeight = height - CONTENT_Y - 30;
+            int btnX = contentX + BUTTON_WIDTH - CONFIRM_BUTTON_WIDTH;
+            int btnY = CONTENT_Y + scrollAreaHeight + CONFIRM_BUTTON_Y_OFFSET;
+            if (mouseX >= btnX && mouseX < btnX + CONFIRM_BUTTON_WIDTH
+                    && mouseY >= btnY && mouseY < btnY + CONFIRM_BUTTON_HEIGHT) {
+                if (selectedIndices.size() >= 2) {
+                    castMultiVote();
+                    return true;
+                }
+                return true; // 吞掉无效点击，防止穿透
+            }
+        }
+
+        // 选项点击
         int drawY = CONTENT_Y - scrollOffset;
         for (WidgetButton btn : buttons) {
             if (btn.mouseClicked(mouseX, mouseY, drawY)) {
-                castVote(btn.optionIndex);
-                return true;
+                if (multiSelectMode && !hasVoted) {
+                    playClickSound();
+                    // 多选模式：切换选中状态
+                    if (selectedIndices.contains(btn.optionIndex)) {
+                        selectedIndices.remove(btn.optionIndex);
+                    } else {
+                        if (selectedIndices.size() < maxSelect) {
+                            selectedIndices.add(btn.optionIndex);
+                        } else {
+                            this.minecraft.getSoundManager()
+                                    .play(SimpleSoundInstance.forUI(SoundEvents.VILLAGER_NO, 1.0f));
+                        }
+                        // 达到上限时忽略添加，可以播放提示音或显示消息（按需扩展）
+                    }
+                    return true;
+                } else {
+                    // 单选模式：立即投票
+                    castVote(btn.optionIndex);
+                    return true;
+                }
             }
             drawY += BUTTON_HEIGHT + BUTTON_SPACING;
         }
@@ -167,12 +233,30 @@ public class VoteScreen extends Screen {
     private void castVote(int optionIndex) {
         if (hasVoted && !ClientVoteCache.isAllowReVote())
             return;
-        ClientPlayNetworking.send(new VoteCastC2SPacket(optionIndex));
+        ClientPlayNetworking.send(new VoteCastC2SPacket(List.of(optionIndex)));
+        afterVote();
+    }
+
+    private void castMultiVote() {
+        if (hasVoted && !ClientVoteCache.isAllowReVote())
+            return;
+        if (selectedIndices.isEmpty())
+            return;
+        ClientPlayNetworking.send(new VoteCastC2SPacket(new ArrayList<>(selectedIndices)));
+        afterVote();
+    }
+
+    private void afterVote() {
         hasVoted = true;
-        Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0f));
+        playClickSound();
         if (!ClientVoteCache.isAllowReVote()) {
             onClose();
         }
+    }
+
+    private void playClickSound() {
+        Minecraft.getInstance().getSoundManager()
+                .play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0f));
     }
 
     @Override
@@ -199,47 +283,52 @@ public class VoteScreen extends Screen {
             this.optionIndex = index;
         }
 
-        void render(GuiGraphics g, int mouseX, int mouseY, int baseY) {
+        void render(GuiGraphics g, int mouseX, int mouseY, int baseY, boolean selected) {
             int x = contentX;
             int y = baseY;
             int w = BUTTON_WIDTH;
             int h = BUTTON_HEIGHT;
             boolean hovered = mouseX >= x && mouseX < x + w && mouseY >= y && mouseY < y + h;
-            int bgColor = hovered ? 0xFFAABBCC : 0xFF557799;
+            int bgColor = selected ? 0xFF44AA66 : (hovered ? 0xFFAABBCC : 0xFF557799);
             g.fill(x, y, x + w, y + h, bgColor);
-            g.renderOutline(x, y, w, h, hovered ? 0xFFFFFFFF : 0xFF556677);
+            g.renderOutline(x, y, w, h, hovered || selected ? 0xFFFFFFFF : 0xFF556677);
 
             VoteOption option = ClientVoteCache.getOptions().get(optionIndex);
             Component display = option.display();
-
-            // 文字居中
             int textWidth = font.width(display);
-            // 整体居中的起始 X
             int startX = x + (w - textWidth) / 2;
 
             if (option instanceof VoteOption.ItemOption itemOpt) {
                 ItemStack stack = itemOpt.stack();
                 g.renderFakeItem(stack, x + 8, y + (h - ICON_SIZE) / 2);
-                g.drawString(font, display, startX, y + (h - 8) / 2, 0xFFFFFF);
             } else if (option instanceof ClientPlayerOption playerOpt) {
                 UUID uuid = playerOpt.uuid();
                 PlayerInfo info = Minecraft.getInstance().getConnection().getPlayerInfo(uuid);
                 if (info != null) {
                     PlayerFaceRenderer.draw(g, info.getSkin(), x + 8, y + (h - ICON_SIZE) / 2, ICON_SIZE);
-                    g.drawString(font, display, startX, y + (h - 8) / 2, 0xFFFFFF);
-                } else {
-                    // 无头像时直接绘制纯文本（居中）
-                    g.drawCenteredString(font, display, x + w / 2, y + (h - 8) / 2, 0xFFFFFF);
                 }
+            }
+
+            if (option instanceof VoteOption.ItemOption || option instanceof ClientPlayerOption) {
+                g.drawString(font, display, startX, y + (h - 8) / 2, 0xFFFFFF);
             } else {
-                // 纯文本，使用快捷居中
                 g.drawCenteredString(font, display, x + w / 2, y + (h - 8) / 2, 0xFFFFFF);
             }
 
-            // 显示票数（始终在右侧）
+            // 选中勾
+            if (selected) {
+                String check = "✔";
+                int checkX = x + w - 24;
+                int checkY = y + (h - 8) / 2;
+                g.drawString(font, check, checkX, checkY, 0xFF00FF00);
+            }
+
+            // 票数
             if (ClientVoteCache.isShowResults()) {
                 int votes = ClientVoteCache.getResults().getOrDefault(optionIndex, 0);
-                g.drawString(font, String.valueOf(votes), x + w - 20, y + (h - 8) / 2, 0xAAAAAA);
+                String voteStr = String.valueOf(votes);
+                int voteX = selected ? x + w - 44 : x + w - 20;
+                g.drawString(font, voteStr, voteX, y + (h - 8) / 2, 0xAAAAAA);
             }
         }
 
