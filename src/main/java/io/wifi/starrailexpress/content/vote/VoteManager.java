@@ -183,10 +183,8 @@ public class VoteManager {
     }
 
     public static String getStatusString() {
-        if (currentSession == null)
+        if (currentSession == null || currentSession.isEnded())
             return "idle";
-        if (currentSession.isEnded())
-            return "ended";
         if (currentSession.isPaused())
             return "paused";
         return "active";
