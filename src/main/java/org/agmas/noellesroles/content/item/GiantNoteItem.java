@@ -65,7 +65,7 @@ public class GiantNoteItem extends io.wifi.starrailexpress.content.item.NoteItem
                         }
                     }
                 } else {
-                    serverPlayer.displayClientMessage(Component.translatable("message.note.not_enough_money").withColor(Mth.hsvToRgb(0.0F, 1.0F, 0.6F)), true);
+                    serverPlayer.displayClientMessage(Component.translatable("message.note.not_enough_money",125).withColor(Mth.hsvToRgb(0.0F, 1.0F, 0.6F)), true);
                 }
             }
         }

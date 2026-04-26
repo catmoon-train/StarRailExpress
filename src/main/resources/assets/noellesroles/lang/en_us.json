@@ -1060,7 +1060,7 @@
   "message.avenger.target_died": "Your bound target %s was killed by %s",
   "message.note.write_sth": "I should write something first",
   "message.note.put_back": "You spent 50\uE781 to stick a note on %s's back",
-  "message.note.not_enough_money": "You don't have enough money - 50\uE781 needed to place a note on someone",
+  "message.note.not_enough_money": "You don't have enough money - %s\uE781 needed to place a note on someone",
   "message.arrow.near_by_players": "Nearby player count: %s",
   "message.bartender.armor_broke": "Your shield was broken",
   "hud.bartender.has_armor": "You currently have %s layers of shield",

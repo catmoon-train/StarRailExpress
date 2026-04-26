@@ -1183,7 +1183,7 @@
   "message.avenger.target_died": "你绑定的目标 %s 被 %s 杀死了",
   "message.note.write_sth": "我应该先写下点东西",
   "message.note.put_back": "你花费50\uE781将一张便签贴到了 %s 的背上",
-  "message.note.not_enough_money": "你没有足够的钱 - 需要50\uE781来将便签放到人身上",
+  "message.note.not_enough_money": "你没有足够的钱 - 需要%s\uE781来将便签放到人身上",
   "item.noellesroles.giant_note": "巨大便签",
   "message.arrow.near_by_players": "附近玩家数量：%s",
   "message.bartender.armor_broke": "目标的盾被破坏了",

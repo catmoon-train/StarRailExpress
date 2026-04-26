@@ -89,7 +89,7 @@ public abstract class NoteMixin {
                         }
                     }
                 } else {
-                    player.displayClientMessage(Component.translatable("message.note.not_enough_money")
+                    player.displayClientMessage(Component.translatable("message.note.not_enough_money",50)
                             .withColor(Mth.hsvToRgb(0.0F, 1.0F, 0.6F)), true);
                     cir.setReturnValue(InteractionResult.PASS);
                     return;
