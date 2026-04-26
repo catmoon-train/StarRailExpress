@@ -1614,7 +1614,7 @@ public class ModRoles {
         public ResourceLocation getPsychoSkin(Player player, boolean isSlim) {
             return SRE.id("textures/entity/custom_psycho/cat_killer.png");
         }
-    }).setCanSeeTime(true).setCanSeeCoin(true).setMax(0);
+    }).setCanSeeTime(true).setCanSeeCoin(true).setMax(0).setCanBeRandomedByOtherRoles(false);
 
     public static SRERole CAT_NECROMANCER = TMMRoles.registerRole(new NormalRole(
             SRE.wifiId("cat_necromancer"), // 角色 ID
