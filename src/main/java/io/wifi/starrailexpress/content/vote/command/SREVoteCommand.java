@@ -4,14 +4,19 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.content.vote.VoteManager;
 import io.wifi.starrailexpress.content.vote.VoteOption;
+import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.ComponentArgument;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.item.ItemArgument;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
@@ -112,15 +117,22 @@ public class SREVoteCommand {
     var stopNode = Commands.literal("stop")
         .executes(ctx -> {
           VoteManager.stopCurrentVote();
+          ctx.getSource().sendSuccess(() -> Component.literal("[SRE-VOTE] Stopped vote!").withStyle(ChatFormatting.RED),
+              true);
           return 1;
         });
     var pauseNode = Commands.literal("pause")
         .executes(ctx -> {
+
+          ctx.getSource().sendSuccess(() -> Component.literal("[SRE-VOTE] Paused vote!").withStyle(ChatFormatting.RED),
+              true);
           VoteManager.pauseCurrentVote();
           return 1;
         });
     var resumeNode = Commands.literal("resume")
         .executes(ctx -> {
+          ctx.getSource().sendSuccess(() -> Component.literal("[SRE-VOTE] Resumed vote!").withStyle(ChatFormatting.RED),
+              true);
           VoteManager.resumeCurrentVote();
           return 1;
         });
@@ -260,8 +272,9 @@ public class SREVoteCommand {
       boolean showResults,
       int syncIntervalSec,
       @Nullable Collection<ServerPlayer> targets) {
+    var source = ctx.getSource();
     if (pendingOptions.size() < 2) {
-      ctx.getSource().sendFailure(Component.literal("Need at least 2 options. Use /sre:vote add ..."));
+      source.sendFailure(Component.literal("Need at least 2 options. Use /sre:vote add ..."));
       return 0;
     }
 
@@ -276,13 +289,67 @@ public class SREVoteCommand {
     if (targets != null && !targets.isEmpty()) {
       builder.targetPlayers(targets);
     }
+    builder.callback((session) -> {
+      var tag = new CompoundTag();
+      var tag_results = new ListTag();
+      var tag_options = new ListTag();
+      var tag_top_results = new ListTag();
+      {
+        // 存储options
+        int idx = 0;
+        for (var opt : session.getOptions()) {
+          var ttag = new CompoundTag();
+          ttag.putInt("id", idx);
+          ttag.putString("display", Component.Serializer.toJson(opt.display(), source.registryAccess()));
+          ttag.putString("type", opt.typeId().toString());
+          if (opt.isItem() && opt instanceof VoteOption.ItemOption ito) {
+            ttag.put("item", ito.stack().save(source.registryAccess()));
+          } else if (opt.isPlayer() && opt instanceof VoteOption.PlayerOption ito) {
+            var player_info_tag = new CompoundTag();
+            player_info_tag.putUUID("id",
+                ito.uuid());
+            player_info_tag.putString("display_name",
+                ito.display().getString());
+            ttag.put("player", player_info_tag);
+          }
+          tag_options.add(ttag);
+          idx++;
+        }
+      }
+      {
+        // 存储所有results
+        for (var entry : session.getResults().entrySet()) {
+          var ttag = new CompoundTag();
+          ttag.putInt(entry.getKey(), entry.getValue());
+          tag_options.add(ttag);
+        }
+      }
+      {
+        // 存储获胜者
 
+        // 存储所有results
+        for (var entry : session.getTopResults()) {
+          var ttag = new CompoundTag();
+          ttag.putInt(entry.getKey(), entry.getValue());
+          tag_options.add(ttag);
+        }
+      }
+      {
+        tag.put("results", tag_results);
+        tag.put("tops", tag_top_results);
+        tag.put("options", tag_options);
+      }
+      var storageID = SRE.id("vote_results");
+      source.getServer().getCommandStorage().set(storageID, tag);
+      source.sendSystemMessage(Component.translatable("Vote data have been saved to DataStorage[%s]", storageID));
+      session.getResults();
+    });
     var session = builder.start();
     if (session != null) {
-      ctx.getSource().sendSuccess(() -> Component.literal("Vote started!"), true);
+      source.sendSuccess(() -> Component.literal("Vote started!"), true);
       // 不清空选项，不清空标题，方便复用
     } else {
-      ctx.getSource().sendFailure(Component.literal("Another vote is already active"));
+      source.sendFailure(Component.literal("Another vote is already active"));
     }
     return 1;
   }
