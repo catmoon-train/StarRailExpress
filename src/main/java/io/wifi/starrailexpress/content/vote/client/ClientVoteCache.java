@@ -108,4 +108,9 @@ public class ClientVoteCache {
         selectedIndices.clear();
         selectedIndices.addAll(indices);
     }
+
+    public static void clear() {
+        active = false;
+        selectedIndices.clear();
+    }
 }

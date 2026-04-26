@@ -16,6 +16,7 @@ import io.wifi.starrailexpress.client.gui.RoleNameRenderer;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
 import io.wifi.starrailexpress.client.util.TMMItemTooltips;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
+import io.wifi.starrailexpress.content.vote.client.ClientVoteCache;
 import io.wifi.starrailexpress.event.AllowNameRender;
 import io.wifi.starrailexpress.event.OnKillerCohortDisplay;
 import io.wifi.starrailexpress.event.OnRoundStartWelcomeTimmer;
@@ -762,6 +763,7 @@ public class NoellesrolesClient implements ClientModInitializer {
         ClientPlayConnectionEvents.JOIN.register((a, b, c) -> {
             // 加入游戏清空信息
             currentBroadcastMessage.clear();
+            ClientVoteCache.clear();
         });
         ClientTickEvents.END_WORLD_TICK.register((client) -> {
             if (!hasInitStatusBar) {
