@@ -7,6 +7,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.core.registries.BuiltInRegistries;
 import java.util.UUID;
 
+import io.wifi.starrailexpress.content.vote.VoteManager.VoteBuilder;
+
 /**
  * 投票中的一个选项，可以是玩家、文本或物品。
  * 每个选项都有一个 {@link #resultId()} 用于在结果中标识该选项（替换数字索引）。
@@ -48,6 +50,10 @@ public interface VoteOption {
         @Deprecated
         public PlayerOption(UUID player) {
             this(Component.literal(player.toString()), player);
+        }
+
+        public PlayerOption(Player player, String resultId) {
+            this(player.getDisplayName(), player.getUUID(), resultId);
         }
 
         public PlayerOption(Player player) {
@@ -153,6 +159,10 @@ public interface VoteOption {
     // ── 工厂方法 ──────────────────────────────────────────
     static VoteOption player(Player player) {
         return new PlayerOption(player);
+    }
+
+    static VoteOption player(Player player, String id) {
+        return new PlayerOption(player, id);
     }
 
     static VoteOption player(Component text, UUID uuid) {

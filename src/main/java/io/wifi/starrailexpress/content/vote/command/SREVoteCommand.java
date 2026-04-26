@@ -3,6 +3,7 @@ package io.wifi.starrailexpress.content.vote.command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.datafixers.util.Either;
@@ -62,13 +63,22 @@ public class SREVoteCommand {
     var addNode = Commands.literal("add")
         .then(Commands.literal("player")
             .then(Commands.argument("target", EntityArgument.player())
-                .executes(ctx -> addPlayerOption(ctx, EntityArgument.getPlayer(ctx, "target")))))
+                .executes(ctx -> addPlayerOption(ctx, EntityArgument.getPlayer(ctx, "target"), null))
+                .then(Commands.argument("id", StringArgumentType.string())
+                    .executes(ctx -> addPlayerOption(ctx, EntityArgument.getPlayer(ctx, "target"),
+                        StringArgumentType.getString(ctx, "id"))))))
         .then(Commands.literal("text")
             .then(Commands.argument("text", ComponentArgument.textComponent(registryAccess))
-                .executes(ctx -> addTextOption(ctx, ComponentArgument.getComponent(ctx, "text")))))
+                .executes(ctx -> addTextOption(ctx, ComponentArgument.getComponent(ctx, "text"), null))
+                .then(Commands.argument("id", StringArgumentType.string())
+                    .executes(ctx -> addTextOption(ctx, ComponentArgument.getComponent(ctx, "text"),
+                        StringArgumentType.getString(ctx, "id"))))))
         .then(Commands.literal("item")
             .then(Commands.argument("item", ItemArgument.item(registryAccess))
-                .executes(ctx -> addItemOption(ctx, ItemArgument.getItem(ctx, "item").createItemStack(1, true)))));
+                .executes(ctx -> addItemOption(ctx, ItemArgument.getItem(ctx, "item").createItemStack(1, true), null))
+                .then(Commands.argument("id", StringArgumentType.string())
+                    .executes(ctx -> addItemOption(ctx, ItemArgument.getItem(ctx, "item").createItemStack(1, true),
+                        StringArgumentType.getString(ctx, "id"))))));
 
     var listNode = Commands.literal("list")
         .executes(ctx -> {
@@ -295,20 +305,32 @@ public class SREVoteCommand {
   }
 
   // addPlayerOption, addTextOption, addItemOption, removeOption 方法保持不变
-  private static int addPlayerOption(CommandContext<CommandSourceStack> ctx, ServerPlayer player) {
-    pendingOptions.add(VoteOption.player(player));
+  private static int addPlayerOption(CommandContext<CommandSourceStack> ctx, ServerPlayer player, String voteId) {
+    if (voteId != null && !voteId.isEmpty() && !voteId.isBlank()) {
+      pendingOptions.add(VoteOption.player(player, voteId));
+    } else {
+      pendingOptions.add(VoteOption.player(player));
+    }
     ctx.getSource().sendSuccess(() -> Component.translatable("vote.added.player", player.getDisplayName()), true);
     return 1;
   }
 
-  private static int addTextOption(CommandContext<CommandSourceStack> ctx, Component text) {
-    pendingOptions.add(VoteOption.text(text));
+  private static int addTextOption(CommandContext<CommandSourceStack> ctx, Component text, String voteId) {
+    if (voteId != null && !voteId.isEmpty() && !voteId.isBlank()) {
+      pendingOptions.add(VoteOption.text(text, voteId));
+    } else {
+      pendingOptions.add(VoteOption.text(text));
+    }
     ctx.getSource().sendSuccess(() -> Component.translatable("vote.added.text", text), true);
     return 1;
   }
 
-  private static int addItemOption(CommandContext<CommandSourceStack> ctx, ItemStack stack) {
-    pendingOptions.add(VoteOption.item(stack));
+  private static int addItemOption(CommandContext<CommandSourceStack> ctx, ItemStack stack, String voteId) {
+    if (voteId != null && !voteId.isEmpty() && !voteId.isBlank()) {
+      pendingOptions.add(VoteOption.item(stack, voteId));
+    } else {
+      pendingOptions.add(VoteOption.item(stack));
+    }
     ctx.getSource().sendSuccess(() -> Component.translatable("vote.added.item", stack.getHoverName()), true);
     return 1;
   }
