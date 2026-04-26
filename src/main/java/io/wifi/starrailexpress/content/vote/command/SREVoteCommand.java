@@ -4,20 +4,28 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.suggestion.SuggestionProvider;
+import com.mojang.datafixers.util.Either;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.content.vote.VoteManager;
 import io.wifi.starrailexpress.content.vote.VoteOption;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.ComponentArgument;
 import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.commands.arguments.item.FunctionArgument;
 import net.minecraft.commands.arguments.item.ItemArgument;
+import net.minecraft.commands.functions.CommandFunction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.ServerFunctionManager;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 
@@ -31,6 +39,14 @@ public class SREVoteCommand {
 
   private static final List<VoteOption> pendingOptions = new ArrayList<>();
   private static Component pendingTitle = Component.literal("Vote");
+  public static ResourceLocation DATA_STORAGE_ID = SRE.id("vote_results");
+  public static final SuggestionProvider<CommandSourceStack> SUGGEST_FUNCTION = (commandContext,
+      suggestionsBuilder) -> {
+    ServerFunctionManager serverFunctionManager = ((CommandSourceStack) commandContext.getSource()).getServer()
+        .getFunctions();
+    SharedSuggestionProvider.suggestResource(serverFunctionManager.getTagNames(), suggestionsBuilder, "#");
+    return SharedSuggestionProvider.suggestResource(serverFunctionManager.getFunctionNames(), suggestionsBuilder);
+  };
 
   public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext registryAccess) {
     var root = Commands.literal("sre:vote")
@@ -111,7 +127,15 @@ public class SREVoteCommand {
                                 BoolArgumentType.getBool(ctx, "allowReVote"),
                                 BoolArgumentType.getBool(ctx, "showResults"),
                                 IntegerArgumentType.getInteger(ctx, "syncInterval"),
-                                EntityArgument.getPlayers(ctx, "targets"))))))));
+                                EntityArgument.getPlayers(ctx, "targets")))
+                            .then(Commands.argument("after_function", FunctionArgument.functions())
+                                .suggests(SUGGEST_FUNCTION).executes(ctx -> startVote(ctx,
+                                    IntegerArgumentType.getInteger(ctx, "duration"),
+                                    BoolArgumentType.getBool(ctx, "allowReVote"),
+                                    BoolArgumentType.getBool(ctx, "showResults"),
+                                    IntegerArgumentType.getInteger(ctx, "syncInterval"),
+                                    EntityArgument.getPlayers(ctx, "targets"),
+                                    FunctionArgument.getFunctionOrTag(ctx, "after_function")))))))));
 
     // ── stop / pause / resume / clear ──────────────
     var stopNode = Commands.literal("stop")
@@ -141,7 +165,8 @@ public class SREVoteCommand {
           VoteManager.clear();
           pendingOptions.clear();
           pendingTitle = Component.literal("Vote");
-          ctx.getSource().sendSuccess(() -> Component.literal("Vote data cleared."), true);
+          ctx.getSource().sendSuccess(() -> Component.literal("Vote data and storage have been cleared."), true);
+          ctx.getSource().getServer().getCommandStorage().set(DATA_STORAGE_ID, new CompoundTag());
           return 1;
         });
 
@@ -272,6 +297,21 @@ public class SREVoteCommand {
       boolean showResults,
       int syncIntervalSec,
       @Nullable Collection<ServerPlayer> targets) {
+    return startVote(ctx, durationSeconds, allowReVote, showResults, syncIntervalSec, targets, null);
+  }
+
+  /**
+   * 启动投票（带可选目标玩家）。
+   * 
+   * @param targets 限定玩家集合，null 或空表示全体玩家
+   */
+  private static int startVote(CommandContext<CommandSourceStack> ctx,
+      int durationSeconds,
+      boolean allowReVote,
+      boolean showResults,
+      int syncIntervalSec,
+      @Nullable Collection<ServerPlayer> targets,
+      com.mojang.datafixers.util.Pair<ResourceLocation, Either<CommandFunction<CommandSourceStack>, Collection<CommandFunction<CommandSourceStack>>>> functions) {
     var source = ctx.getSource();
     if (pendingOptions.size() < 2) {
       source.sendFailure(Component.literal("Need at least 2 options. Use /sre:vote add ..."));
@@ -339,10 +379,14 @@ public class SREVoteCommand {
         tag.put("tops", tag_top_results);
         tag.put("options", tag_options);
       }
-      var storageID = SRE.id("vote_results");
-      source.getServer().getCommandStorage().set(storageID, tag);
-      source.sendSystemMessage(Component.translatable("Vote data have been saved to DataStorage[%s]", storageID));
+      source.getServer().getCommandStorage().set(DATA_STORAGE_ID, tag);
+      source.sendSystemMessage(
+          Component.translatable("Vote data have been saved to DataStorage[%s]", DATA_STORAGE_ID.toString())
+              .withStyle(ChatFormatting.GREEN));
       session.getResults();
+      if (functions != null) {
+        GameUtils.executeFunction(source, functions.getFirst().toString());
+      }
     });
     var session = builder.start();
     if (session != null) {
