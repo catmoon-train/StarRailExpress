@@ -766,6 +766,7 @@ public class NoellesrolesClient implements ClientModInitializer {
             ClientVoteCache.clear();
         });
         ClientTickEvents.END_WORLD_TICK.register((client) -> {
+            ClientVoteCache.clientTick();
             if (!hasInitStatusBar) {
                 hasInitStatusBar = true;
                 StatusInit.statusBars.put("Time_Stop", new StatusInit.StatusBar("Time_Stop",

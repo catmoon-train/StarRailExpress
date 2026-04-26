@@ -42,6 +42,23 @@ public class ClientVoteCache {
         }
     }
 
+    public static void clientTick() {
+        if (active) {
+            if (Minecraft.getInstance().level == null) {
+                active = false;
+                return;
+            }
+            if (endTick == -1) {
+                active = false;
+                return;
+            }
+            long currentTick = Minecraft.getInstance().level.getGameTime();
+            if (currentTick > endTick + 30) { // 延迟1.5s
+                clear();
+            }
+        }
+    }
+
     public static boolean isActive() {
         return active;
     }
