@@ -19,24 +19,20 @@ import net.minecraft.world.item.ItemStack;
 import org.lwjgl.glfw.GLFW;
 
 public class InputHandler {
-    private static KeyMapping openVotingScreenKeybind;
-    private static KeyMapping openFourthRoomScreenKeybind;
-    private static KeyMapping openFourthRoomPeekScreenKeybind;
+    public static KeyMapping openVotingScreenKeybind = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+            "key.starrailexpress.open_voting_screen",
+            GLFW.GLFW_KEY_M,
+            "category.starrailexpress.general"));
+    public static KeyMapping openFourthRoomScreenKeybind = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+            "key.starrailexpress.open_fourth_room_screen",
+            GLFW.GLFW_KEY_UNKNOWN,
+            "category.starrailexpress.general"));
+    public static KeyMapping openFourthRoomPeekScreenKeybind = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+            "key.starrailexpress.open_fourth_room_peek_screen",
+            GLFW.GLFW_KEY_UNKNOWN,
+            "category.starrailexpress.general"));
 
     public static void initialize() {
-        openVotingScreenKeybind = KeyBindingHelper.registerKeyBinding(new KeyMapping(
-                "key.starrailexpress.open_voting_screen",
-                GLFW.GLFW_KEY_M,
-                "category.starrailexpress.general"));
-
-        openFourthRoomScreenKeybind = KeyBindingHelper.registerKeyBinding(new KeyMapping(
-                "key.starrailexpress.open_fourth_room_screen",
-                GLFW.GLFW_KEY_H,
-                "category.starrailexpress.general"));
-        openFourthRoomPeekScreenKeybind = KeyBindingHelper.registerKeyBinding(new KeyMapping(
-                "key.starrailexpress.open_fourth_room_peek_screen",
-                GLFW.GLFW_KEY_Z,
-                "category.starrailexpress.general"));
 
         ClientTickEvents.END_CLIENT_TICK.register(InputHandler::onClientTick);
     }

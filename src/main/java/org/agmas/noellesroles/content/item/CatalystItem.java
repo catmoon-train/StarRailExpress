@@ -1,6 +1,7 @@
 package org.agmas.noellesroles.content.item;
 
 import io.wifi.starrailexpress.cca.SREPlayerPoisonComponent;
+import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -8,7 +9,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import org.agmas.noellesroles.init.HSRConstants;
 import org.agmas.noellesroles.init.ModItems;
 
 public class CatalystItem extends Item {
@@ -41,7 +41,7 @@ public class CatalystItem extends Item {
             // 消耗物品并设置冷却
             if (!player.isCreative()) {
                 itemStack.shrink(1);
-                player.getCooldowns().addCooldown(ModItems.CATALYST, HSRConstants.getInTicks(0, 75));
+                player.getCooldowns().addCooldown(ModItems.CATALYST, GameConstants.getInTicks(0, 75));
             }
 
             return InteractionResultHolder.success(itemStack);

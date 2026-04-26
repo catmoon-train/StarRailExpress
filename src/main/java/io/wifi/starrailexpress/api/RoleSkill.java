@@ -12,7 +12,9 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 public class RoleSkill {
-    public static record RoleSkillContext(ServerPlayer player, @Nullable UUID target){}
+    public static record RoleSkillContext(ServerPlayer player, @Nullable UUID target) {
+    }
+
     private static final HashMap<ResourceLocation, Consumer<RoleSkillContext>> REGISTERED_ROLE_SKILLS = new HashMap<>();
 
     static {
@@ -92,7 +94,9 @@ public class RoleSkill {
             Consumer<RoleSkillContext> consumer = REGISTERED_ROLE_SKILLS.get(role.identifier());
             consumer.accept(new RoleSkillContext(player, null));
         } else {
-            AbilityHandler.handler(player);
+            if (!RoleMethodDispatcher.callOnAbilityUse(player)) {
+                AbilityHandler.handler(player);
+            }
         }
         afterUse(player, role);
         return true;
@@ -111,11 +115,12 @@ public class RoleSkill {
             Consumer<RoleSkillContext> consumer = REGISTERED_ROLE_SKILLS.get(role.identifier());
             consumer.accept(new RoleSkillContext(player, target));
         } else {
-            AbilityHandler.handlerWithTarget(player,target);
+            AbilityHandler.handlerWithTarget(player, target);
         }
         afterUse(player, role);
         return true;
     }
+
     private static void registerDefaults() {
         // 默认不用注册
     }

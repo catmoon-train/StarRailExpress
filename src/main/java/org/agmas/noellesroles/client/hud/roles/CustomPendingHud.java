@@ -30,15 +30,17 @@ public class CustomPendingHud {
                     // innocent
                     // neutral
                     // neutral_for_killer
-                    // vigilante
-                    int roleType = CustomRoleGameModeTeamsPlayerComponent.KEY.get(client.player).getTeam();
+                    // vigilantehud.custom_pending.already
+                    var ccccca = CustomRoleGameModeTeamsPlayerComponent.KEY.get(client.player);
+                    int roleType = ccccca.getTeam();
                     Component teamName = Component.translatable("Unknown").withStyle(ChatFormatting.GRAY);
                     if (roleType == 1) {
                         teamName = Component.translatable("display.type.role.innocent").withStyle(ChatFormatting.GREEN);
                     } else if (roleType == 2) {
                         teamName = Component.translatable("display.type.role.neutral").withStyle(ChatFormatting.YELLOW);
                     } else if (roleType == 3) {
-                        teamName = Component.translatable("display.type.role.neutral_for_killer").withStyle(ChatFormatting.LIGHT_PURPLE);
+                        teamName = Component.translatable("display.type.role.neutral_for_killer")
+                                .withStyle(ChatFormatting.LIGHT_PURPLE);
                     } else if (roleType == 4) {
                         teamName = Component.translatable("display.type.role.killer").withStyle(ChatFormatting.RED);
                     } else if (roleType == 5) {
@@ -51,7 +53,13 @@ public class CustomPendingHud {
                     int y = screenHeight - 10 - 15 * 4; // 距离底部4行
 
                     Font font = client.font;
-                    {
+                    if (ccccca.selected()) {
+                        Component tip = Component
+                                .translatable("hud.custom_pending.already")
+                                .withStyle(ChatFormatting.GOLD);
+                        context.drawString(font, tip, x - font.width(tip), y, 0xFFFFFFFF);
+                    } else {
+
                         Component tip = Component
                                 .translatable("hud.custom_pending.keybind",
                                         NoellesrolesClient.abilityBind.getTranslatedKeyMessage())

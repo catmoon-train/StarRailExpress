@@ -18,6 +18,7 @@ public class OtherworldShaderMixin {
 //            cir.setReturnValue(100d);
 //        }
 //    }
+    @SuppressWarnings("resource")
     @Inject(method = "render", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/pipeline/RenderTarget;bindWrite(Z)V"))
     private void renderOtherworld(DeltaTracker deltaTracker, boolean bl, CallbackInfo ci) {
         GameRenderer renderer = (GameRenderer) (Object) this;

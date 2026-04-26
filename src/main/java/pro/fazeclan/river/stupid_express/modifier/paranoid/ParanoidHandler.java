@@ -22,8 +22,7 @@ public class ParanoidHandler {
             TMMSounds.ITEM_LOCKPICK_DOOR,
             TMMSounds.ITEM_CROWBAR_PRY,
             TMMSounds.ITEM_BAT_HIT,
-            TMMSounds.ITEM_GRENADE_THROW
-    );
+            TMMSounds.ITEM_GRENADE_THROW);
 
     public static void init() {
         ServerTickEvents.END_SERVER_TICK.register(server -> {
@@ -38,9 +37,11 @@ public class ParanoidHandler {
     private static void tickPhantasmagoria(ServerPlayer player) {
         Level world = player.level();
         WorldModifierComponent modifierComp = WorldModifierComponent.KEY.get(world);
-        if (modifierComp == null) return;
+        if (modifierComp == null)
+            return;
         // 忽略处于旁观者模式的玩家，不应对旁观者生效
-        if (player.isSpectator()) return;
+        if (player.isSpectator())
+            return;
 
         if (!modifierComp.isModifier(player.getUUID(), SEModifiers.PARANOID)) {
             return;
@@ -60,6 +61,7 @@ public class ParanoidHandler {
         double offsetZ = (random.nextBoolean() ? 1.0D : -1.0D) * (3.0D + random.nextDouble() * 4.0D);
         double offsetY = random.nextDouble() * 2.0D - 1.0D;
 
+        @SuppressWarnings("unused")
         Vec3 pos = player.position().add(offsetX, offsetY, offsetZ);
 
         float volume = 1.0f;

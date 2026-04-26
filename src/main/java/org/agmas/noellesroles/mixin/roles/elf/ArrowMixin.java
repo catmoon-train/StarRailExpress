@@ -68,7 +68,7 @@ public class ArrowMixin {
     private void noellesroles$onHitPlayerBody(EntityHitResult entityHitResult, CallbackInfo ci) {
         if (SRE.isLobby)
             return;
-        if (entityHitResult.getEntity() instanceof PlayerBodyEntity player) {
+        if (entityHitResult.getEntity() instanceof PlayerBodyEntity) {
             AbstractArrow arrow = (AbstractArrow) (Object) this;
             arrow.discard();
         }

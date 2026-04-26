@@ -384,6 +384,7 @@ public class StalkerKnifeItem extends KnifeItem {
 
         // 2. 生成炫酷的冲刺轨迹粒子（服务端）
         int trailCount = 30;
+        @SuppressWarnings("unused")
         double speedFactor = dashVector.length();
 
         for (int i = 0; i < trailCount; i++) {

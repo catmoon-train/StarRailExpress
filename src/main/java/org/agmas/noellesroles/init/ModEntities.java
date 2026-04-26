@@ -21,13 +21,15 @@ public class ModEntities {
     public static final EntityType<WheelchairEntity> WHEELCHAIR = Registry.register(
             BuiltInRegistries.ENTITY_TYPE,
             Noellesroles.id("wheelchair"),
-            EntityType.Builder.of(WheelchairEntity::new, MobCategory.MISC).sized(0.8f, 1.6f) // 0.8 宽度，1.6 高度
+            EntityType.Builder.of(WheelchairEntity::new, MobCategory.MISC).sized(0.8f, 1.6f) // 0.8 宽度，1.6
+                                                                                             // 高度
                     .build("wheelchair"));
 
     public static final EntityType<WheelchairFieldItemEntity> WHEELCHAIR_FIELD_ITEM = Registry.register(
             BuiltInRegistries.ENTITY_TYPE,
             Noellesroles.id("wheelchair_field_item"),
-            EntityType.Builder.<WheelchairFieldItemEntity>of(WheelchairFieldItemEntity::new, MobCategory.MISC)
+            EntityType.Builder
+                    .<WheelchairFieldItemEntity>of(WheelchairFieldItemEntity::new, MobCategory.MISC)
                     .sized(0.25f, 0.25f)
                     .build("wheelchair_field_item"));
 
@@ -119,16 +121,18 @@ public class ModEntities {
     /**
      * 操纵师本体实体 - 操纵师使用操控技能时生成的本体
      */
-//     @SuppressWarnings("deprecation")
-//     public static final EntityType<ManipulatorBodyEntity> MANIPULATOR_BODY = Registry.register(
-//             BuiltInRegistries.ENTITY_TYPE,
-//             ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "manipulator_body"),
-//             FabricEntityTypeBuilder
-//                     .<ManipulatorBodyEntity>create(MobCategory.MISC, ManipulatorBodyEntity::new)
-//                     .dimensions(EntityDimensions.fixed(0.6F, 1.8F))
-//                     .trackRangeBlocks(64)
-//                     .trackedUpdateRate(2)
-//                     .build());
+    // @SuppressWarnings("deprecation")
+    // public static final EntityType<ManipulatorBodyEntity> MANIPULATOR_BODY =
+    // Registry.register(
+    // BuiltInRegistries.ENTITY_TYPE,
+    // ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID,
+    // "manipulator_body"),
+    // FabricEntityTypeBuilder
+    // .<ManipulatorBodyEntity>create(MobCategory.MISC, ManipulatorBodyEntity::new)
+    // .dimensions(EntityDimensions.fixed(0.6F, 1.8F))
+    // .trackRangeBlocks(64)
+    // .trackedUpdateRate(2)
+    // .build());
 
     /**
      * 锁实体 - 保护门不被撬锁器打开
@@ -166,10 +170,11 @@ public class ModEntities {
                     .trackRangeBlocks(64)
                     .trackedUpdateRate(2)
                     .build());
-    /** .dimensions(EntityDimensions.fixed(0.6F, 1.8F)) // 玩家尺寸
-                    .trackRangeBlocks(64)
-                    .trackedUpdateRate(2)
-                    .build()
+    /**
+     * .dimensions(EntityDimensions.fixed(0.6F, 1.8F)) // 玩家尺寸
+     * .trackRangeBlocks(64)
+     * .trackedUpdateRate(2)
+     * .build()
      * 诱饵弹实体 - 可投掷物品，落地时播放5声左轮手枪射击声
      */
     @SuppressWarnings("deprecation")
@@ -183,32 +188,43 @@ public class ModEntities {
                     .build());
 
     @SuppressWarnings("deprecation")
-    public static final EntityType<io.wifi.starrailexpress.content.entity.NoteEntity> GIANT_NOTE = Registry.register(
-            BuiltInRegistries.ENTITY_TYPE,
-            Noellesroles.id("giant_note"),
-            FabricEntityTypeBuilder.<io.wifi.starrailexpress.content.entity.NoteEntity>create(MobCategory.MISC, io.wifi.starrailexpress.content.entity.NoteEntity::new)
-                    .dimensions(EntityDimensions.fixed(2.5F, 2.5F))
-                    .trackRangeBlocks(128)
-                    .trackedUpdateRate(10)
-                    .build());
+    public static final EntityType<io.wifi.starrailexpress.content.entity.NoteEntity> GIANT_NOTE = Registry
+            .register(
+                    BuiltInRegistries.ENTITY_TYPE,
+                    Noellesroles.id("giant_note"),
+                    FabricEntityTypeBuilder.<io.wifi.starrailexpress.content.entity.NoteEntity>create(
+                            MobCategory.MISC,
+                            io.wifi.starrailexpress.content.entity.NoteEntity::new)
+                            .dimensions(EntityDimensions.fixed(2.5F, 2.5F))
+                            .trackRangeBlocks(128)
+                            .trackedUpdateRate(10)
+                            .build());
 
     /** 轮盘赌展示实体 */
-    public static final EntityType<DevilRouletteTableEntity.TableTextDisplay> TABLE_TEXT_DISpLAY = Registry.register(
-            BuiltInRegistries.ENTITY_TYPE,
-            ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "table_text_display"),
-            FabricEntityTypeBuilder.<DevilRouletteTableEntity.TableTextDisplay>create(MobCategory.MISC,
+    @SuppressWarnings("deprecation")
+    public static final EntityType<DevilRouletteTableEntity.TableTextDisplay> TABLE_TEXT_DISpLAY = Registry
+            .register(
+                    BuiltInRegistries.ENTITY_TYPE,
+                    ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID,
+                            "table_text_display"),
+                    FabricEntityTypeBuilder.<DevilRouletteTableEntity.TableTextDisplay>create(
+                            MobCategory.MISC,
                             DevilRouletteTableEntity.TableTextDisplay::new)
-//                    .dimensions(EntityDimensions.fixed(0.2F, 0.2F))
-                    .trackRangeBlocks(32)
-                    .build());
-    public static final EntityType<DevilRouletteTableEntity.TableItemDisplay> TABLE_ITEM_DISPLAY = Registry.register(
-            BuiltInRegistries.ENTITY_TYPE,
-            ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "table_item_display"),
-            FabricEntityTypeBuilder.<DevilRouletteTableEntity.TableItemDisplay>create(MobCategory.MISC,
+                            // .dimensions(EntityDimensions.fixed(0.2F, 0.2F))
+                            .trackRangeBlocks(32)
+                            .build());
+    @SuppressWarnings("deprecation")
+    public static final EntityType<DevilRouletteTableEntity.TableItemDisplay> TABLE_ITEM_DISPLAY = Registry
+            .register(
+                    BuiltInRegistries.ENTITY_TYPE,
+                    ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID,
+                            "table_item_display"),
+                    FabricEntityTypeBuilder.<DevilRouletteTableEntity.TableItemDisplay>create(
+                            MobCategory.MISC,
                             DevilRouletteTableEntity.TableItemDisplay::new)
-//                    .dimensions(EntityDimensions.fixed(0.2F, 0.2F))
-                    .trackRangeBlocks(32)
-                    .build());
+                            // .dimensions(EntityDimensions.fixed(0.2F, 0.2F))
+                            .trackRangeBlocks(32)
+                            .build());
 
     /**
      * 初始化实体

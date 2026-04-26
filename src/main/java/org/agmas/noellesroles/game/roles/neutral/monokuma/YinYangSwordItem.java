@@ -2,7 +2,6 @@ package org.agmas.noellesroles.game.roles.neutral.monokuma;
 
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.Options;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;

@@ -199,8 +199,7 @@ public class CustomRoleGameModeWorldComponent implements AutoSyncedComponent {
                 false, // showParticles - 不显示粒子
                 false // showIcon - 不显示图标
         ));
-        roleWorldComponent.syncWith(player);
-
+        CustomRoleGameModeTeamsPlayerComponent.KEY.get(player).setSelectedAndSync(true);
         SRE.REPLAY_MANAGER.recordPlayerRoleChange(player.getUUID(), SpecialGameModeRoles.CUSTOM_PENDING, role);
     }
 

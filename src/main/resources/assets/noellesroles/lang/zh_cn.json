@@ -1332,6 +1332,7 @@
   "announcement.star.win.diver": "乘客胜利！",
   "==================== Custom Pending ====================": "",
   "hud.custom_pending.keybind": "按下 %s 选择你的职业！",
+  "hud.custom_pending.already": "您已经选了职业，请等待所有人选择完职业！",
   "hud.custom_pending.myteam": "你的阵营【%s】",
   "hud.custom_pending.tip": "剩余选择时间：%ss",
   "hud.custom_pending.tip_2": "超过选择时间将会自动选择",

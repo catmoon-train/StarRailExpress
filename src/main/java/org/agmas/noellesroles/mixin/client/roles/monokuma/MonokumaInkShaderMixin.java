@@ -11,6 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(GameRenderer.class)
 public class MonokumaInkShaderMixin {
 
+    @SuppressWarnings("resource")
     @Inject(method = "render", at = @At(value = "INVOKE",
             target = "Lcom/mojang/blaze3d/pipeline/RenderTarget;bindWrite(Z)V"))
     private void renderMonokumaInk(DeltaTracker deltaTracker, boolean bl, CallbackInfo ci) {

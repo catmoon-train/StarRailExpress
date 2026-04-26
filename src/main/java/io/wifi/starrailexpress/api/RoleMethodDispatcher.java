@@ -204,11 +204,12 @@ public class RoleMethodDispatcher {
     /**
      * 调用玩家角色的 onAbilityUse 方法
      */
-    public static void callOnAbilityUse(Player player) {
+    public static boolean callOnAbilityUse(ServerPlayer player) {
         SRERole role = getCurrentRole(player);
         if (role != null) {
-            role.onAbilityUse(player);
+            return role.onAbilityUse(player);
         }
+        return false;
     }
 
     /**

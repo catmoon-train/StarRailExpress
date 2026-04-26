@@ -84,7 +84,7 @@ public class DNFFlyingKnifeEntity extends ThrowingKnifeEntity {
                         SoundSource.PLAYERS, 1.0f, 1.0f);
                 serverLevel.playSound(null, location.x, location.y, location.z, SoundEvents.CHAIN_HIT,
                         SoundSource.PLAYERS, 0.8f, 1.35f);
-                GameUtils.killPlayer(target, true, owner, DNF.FLYING_KNIFE_DEATH);
+                GameUtils.killPlayer(target, true, owner, DNFRoles.FLYING_KNIFE_DEATH);
                 remove(RemovalReason.KILLED);
                 return;
             }

@@ -1090,6 +1090,7 @@ public final class FourthRoomGameManager {
         return builder.toString();
     }
 
+    @SuppressWarnings("unused")
     private String formatActionBanner(FourthRoomPublicAction action) {
         String summary = formatActionSummary(action);
         return summary.isBlank() ? "牌桌状态已更新" : summary;

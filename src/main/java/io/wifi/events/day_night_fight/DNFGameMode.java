@@ -1,6 +1,5 @@
 package io.wifi.events.day_night_fight;
 
-import io.wifi.starrailexpress.api.GameMode;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameTimeComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -66,8 +65,8 @@ public class DNFGameMode extends SREMurderGameMode {
             SRERole role = gameWorldComponent.getRole(player);
             DNFPlayerComponent component = DNFPlayerComponent.KEY.get(player);
             component.init();
-            component.startDnfDay(player, 0, role == DNF.CHEF);
-            if (role == DNF.CHEF) {
+            component.startDnfDay(player, 0, role == DNFRoles.CHEF);
+            if (role == DNFRoles.CHEF) {
                 component.giveInitialCafeteriaFood(player);
             }
         }
@@ -100,13 +99,13 @@ public class DNFGameMode extends SREMurderGameMode {
         ArrayList<SRERole> roles = new ArrayList<>();
 
         int maxSpecials = Math.max(1, Math.min(13, players.size() - Math.max(1, players.size() / 2)));
-        addRoles(roles, DNF.KILLER, Math.min(4, Math.max(1, players.size() / 10)), maxSpecials);
-        addRoles(roles, DNF.CHEF, players.size() >= 6 ? 1 : 0, maxSpecials);
-        addRoles(roles, DNF.SOLDIER, 2, maxSpecials);
-        addRoles(roles, DNF.PSYCHOLOGIST, 2, maxSpecials);
-        addRoles(roles, DNF.LOCKSMITH, 4, maxSpecials);
+        addRoles(roles, DNFRoles.KILLER, Math.min(4, Math.max(1, players.size() / 10)), maxSpecials);
+        addRoles(roles, DNFRoles.CHEF, players.size() >= 6 ? 1 : 0, maxSpecials);
+        addRoles(roles, DNFRoles.SOLDIER, 2, maxSpecials);
+        addRoles(roles, DNFRoles.PSYCHOLOGIST, 2, maxSpecials);
+        addRoles(roles, DNFRoles.LOCKSMITH, 4, maxSpecials);
         while (roles.size() < players.size()) {
-            roles.add(DNF.CIVILIAN);
+            roles.add(DNFRoles.CIVILIAN);
         }
         Collections.shuffle(roles);
 
@@ -142,8 +141,8 @@ public class DNFGameMode extends SREMurderGameMode {
                 continue;
             }
             DNFPlayerComponent component = DNFPlayerComponent.KEY.get(player);
-            component.startDnfDay(player, day, role == DNF.CHEF);
-            if (role == DNF.CHEF) {
+            component.startDnfDay(player, day, role == DNFRoles.CHEF);
+            if (role == DNFRoles.CHEF) {
                 player.displayClientMessage(net.minecraft.network.chat.Component.translatable(
                         "message.dnf.chef.new_day", day + 1).withStyle(net.minecraft.ChatFormatting.DARK_GREEN),
                         false);

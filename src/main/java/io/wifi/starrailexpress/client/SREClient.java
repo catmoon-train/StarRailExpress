@@ -5,7 +5,6 @@ import dev.doctor4t.ratatouille.client.util.OptionLocker;
 import dev.doctor4t.ratatouille.client.util.ambience.AmbienceUtil;
 import dev.doctor4t.ratatouille.client.util.ambience.BackgroundAmbience;
 import io.wifi.ConfigCompact.ClientConfigEvents;
-import io.wifi.events.day_night_fight.client.DNFHud;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.SRERole;
@@ -185,7 +184,6 @@ public class SREClient implements ClientModInitializer {
         ClientScheduler.init();
 
         ClientConfigEvents.register();
-        DNFHud.register();
         new EXSREClient().onInitializeClient();
         // Load config
         ModWhitelistClient.onInitializeClient();

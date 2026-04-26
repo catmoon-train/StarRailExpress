@@ -320,13 +320,13 @@ public class DNFPlayerComponent implements RoleComponent {
         this.lastCorpseEatTick = eater.level().getGameTime();
         this.hungerWarned = false;
 
-        if (roleId.equals(DNF.SOLDIER_ID)) {
+        if (roleId.equals(DNFRoles.SOLDIER_ID)) {
             soldierEaten++;
-        } else if (roleId.equals(DNF.PSYCHOLOGIST_ID)) {
+        } else if (roleId.equals(DNFRoles.PSYCHOLOGIST_ID)) {
             psychologistEaten++;
-        } else if (roleId.equals(DNF.LOCKSMITH_ID)) {
+        } else if (roleId.equals(DNFRoles.LOCKSMITH_ID)) {
             locksmithEaten++;
-        } else if (roleId.equals(DNF.CIVILIAN_ID)
+        } else if (roleId.equals(DNFRoles.CIVILIAN_ID)
                 || roleId.equals(io.wifi.starrailexpress.api.TMMRoles.CIVILIAN.identifier())) {
             civilianEaten++;
         }

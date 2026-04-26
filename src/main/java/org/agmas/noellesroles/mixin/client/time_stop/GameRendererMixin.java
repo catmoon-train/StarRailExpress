@@ -10,25 +10,22 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import static org.agmas.noellesroles.client.TimeStopShader.instance;
 
-
 @Mixin(GameRenderer.class)
-public class GameRendererMixin
-{
+public class GameRendererMixin {
     @Inject(method = "render", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/pipeline/RenderTarget;bindWrite(Z)V"))
-    private void render(DeltaTracker deltaTracker, boolean bl, CallbackInfo ci)
-    {
-        GameRenderer renderer = (GameRenderer)(Object)this;
+    private void render(DeltaTracker deltaTracker, boolean bl, CallbackInfo ci) {
+        @SuppressWarnings("resource")
+        GameRenderer renderer = (GameRenderer) (Object) this;
 
-        if (renderer != null&& bl && renderer.getMinecraft().level != null)
-        {
+        if (renderer != null && bl && renderer.getMinecraft().level != null) {
             TimeStopShader gui = instance;
             gui.initPostProcessor();
             gui.renderPostProcess(deltaTracker.getGameTimeDeltaPartialTick(true));
         }
     }
+
     @Inject(method = "resize(II)V", at = @At("TAIL"))
-    private void resize(int pWidth, int pHeight, CallbackInfo ci)
-    {
+    private void resize(int pWidth, int pHeight, CallbackInfo ci) {
         if (instance != null)
             instance.resize(pWidth, pHeight);
     }

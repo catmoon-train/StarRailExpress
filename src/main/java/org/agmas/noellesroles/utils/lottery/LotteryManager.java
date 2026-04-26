@@ -300,5 +300,6 @@ public class LotteryManager {
     /** 抽奖消耗的硬币数量 */
     public static final int baseLootConsumeCoin = 648;
     private final ArrayList<LotteryPool> lotteryPoolList = new ArrayList<>();
+    @SuppressWarnings("unused")
     private final String defaultPoolItem = "coin_common";
 }

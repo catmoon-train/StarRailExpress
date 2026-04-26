@@ -40,6 +40,8 @@ public class CustomRoleGameModeTeamsPlayerComponent
     private final Player player;
     private int team = 0;
 
+    private boolean selected = false;
+
     /**
      * 构造函数
      */
@@ -59,6 +61,10 @@ public class CustomRoleGameModeTeamsPlayerComponent
 
     public int getTeam() {
         return this.team;
+    }
+
+    public boolean selected() {
+        return selected;
     }
 
     public void setTeam(int type) {
@@ -85,11 +91,14 @@ public class CustomRoleGameModeTeamsPlayerComponent
     @Override
     public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         tag.putInt("team", this.team);
+        if (selected)
+            tag.putBoolean("s", this.selected);
     }
 
     @Override
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.team = tag.contains("team") ? tag.getInt("team") : 0;
+        this.selected = tag.contains("s") ? tag.getBoolean("s") : false;
     }
 
     public ArrayList<ResourceLocation> getAvailableRoles() {
@@ -98,7 +107,7 @@ public class CustomRoleGameModeTeamsPlayerComponent
         CustomRoleGameModeWorldComponent crgmwcca = CustomRoleGameModeWorldComponent.KEY.get(this.player.level());
         ArrayList<ResourceLocation> result = new ArrayList<>();
         result.addAll(crgmwcca.getRole(this.team).stream().map(t -> t.identifier()).toList());
-        
+
         return result;
     }
 
@@ -110,5 +119,14 @@ public class CustomRoleGameModeTeamsPlayerComponent
     public void setTeamAndSync(int roleType) {
         this.setTeam(roleType);
         this.sync();
+    }
+
+    public void setSelected(boolean b) {
+        this.selected = b;
+    }
+
+    public void setSelectedAndSync(boolean b) {
+        setSelected(b);
+        sync();
     }
 }

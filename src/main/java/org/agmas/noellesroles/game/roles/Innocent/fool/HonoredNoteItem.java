@@ -4,7 +4,6 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerNoteComponent;
 import io.wifi.starrailexpress.content.entity.NoteEntity;
 import io.wifi.starrailexpress.content.item.NoteItem;
-import io.wifi.starrailexpress.util.AdventureUsable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -24,7 +23,7 @@ import org.jetbrains.annotations.NotNull;
  *
  * 价格：50金币
  */
-public class HonoredNoteItem extends NoteItem implements AdventureUsable {
+public class HonoredNoteItem extends NoteItem {
 
     public HonoredNoteItem(Properties settings) {
         super(settings);

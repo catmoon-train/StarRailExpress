@@ -46,6 +46,7 @@ public class FireAxeItem extends Item implements AdventureUsable {
     private static final int MAX_DURABILITY = 3;
     private static final int PRY_COOLDOWN = 30 * 20; // 30秒
     private static final int CHARGE_TIME = 2 * 20; // 2秒
+    @SuppressWarnings("unused")
     private static final int KILL_COOLDOWN = 60 * 20; // 60秒冷却，防止连续使用
 
     // 消防斧死因

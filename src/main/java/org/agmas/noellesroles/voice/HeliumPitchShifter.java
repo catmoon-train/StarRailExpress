@@ -4,6 +4,7 @@ package org.agmas.noellesroles.voice;
  * Phase Vocoder implementation for pitch shifting audio in real-time.
  * Based on the WSOLA (Waveform Similarity Overlap-Add) algorithm.
  */
+@SuppressWarnings("unused")
 public class HeliumPitchShifter {
 
     private static final int WINDOW = 960;
@@ -36,8 +37,10 @@ public class HeliumPitchShifter {
 
     /**
      * Process audio samples with pitch shifting.
-     * @param in Input PCM audio data (16-bit signed)
-     * @param ratio Pitch ratio (1.0 = normal, >1.0 = higher pitch, <1.0 = lower pitch)
+     * 
+     * @param in    Input PCM audio data (16-bit signed)
+     * @param ratio Pitch ratio (1.0 = normal, >1.0 = higher pitch, <1.0 = lower
+     *              pitch)
      * @return Pitch-shifted PCM audio data
      */
     public short[] process(short[] in, float ratio) {
@@ -45,7 +48,7 @@ public class HeliumPitchShifter {
         short[] out = new short[in.length];
 
         for (int i = 0; i < in.length; i++) {
-            this.inRing[(int)(this.inWriteCount & IN_MASK)] = in[i] * 3.0517578E-5F;
+            this.inRing[(int) (this.inWriteCount & IN_MASK)] = in[i] * 3.0517578E-5F;
             this.inWriteCount++;
 
             while (canSynth()) {
@@ -63,8 +66,8 @@ public class HeliumPitchShifter {
                     out[i] = toShort(s);
                     this.resamplePos += ratio;
 
-                    while (this.zeroedThrough + 2L < (long)this.resamplePos) {
-                        this.stretchRing[(int)(this.zeroedThrough & STRETCH_MASK)] = 0.0F;
+                    while (this.zeroedThrough + 2L < (long) this.resamplePos) {
+                        this.stretchRing[(int) (this.zeroedThrough & STRETCH_MASK)] = 0.0F;
                         this.zeroedThrough++;
                     }
                 } else {
@@ -76,11 +79,11 @@ public class HeliumPitchShifter {
     }
 
     private boolean canSynth() {
-        return ((long)this.anaPosD + WINDOW + SEARCH_RADIUS <= this.inWriteCount);
+        return ((long) this.anaPosD + WINDOW + SEARCH_RADIUS <= this.inWriteCount);
     }
 
     private void runSynthFrame(float ratio) {
-        long naive = (long)this.anaPosD;
+        long naive = (long) this.anaPosD;
         long bestA = naive;
 
         if (this.synthFrames > 0L) {
@@ -91,7 +94,7 @@ public class HeliumPitchShifter {
                 if (cand >= 0L && cand + WINDOW <= this.inWriteCount && this.inWriteCount - cand <= IN_RING) {
                     float score = 0.0F;
                     for (int i = 0; i < CORR_WIN; i++) {
-                        float diff = this.inRing[(int)(cand + i & IN_MASK)] - this.prevTailRaw[i];
+                        float diff = this.inRing[(int) (cand + i & IN_MASK)] - this.prevTailRaw[i];
                         score += diff * diff * CORR_WEIGHTS[i];
                         if (score >= bestScore)
                             break;
@@ -106,13 +109,13 @@ public class HeliumPitchShifter {
 
         long synthPos = this.synthFrames * 240L;
         for (int k = 0; k < WINDOW; k++) {
-            this.stretchRing[(int)(synthPos + k & STRETCH_MASK)] = 
-                this.stretchRing[(int)(synthPos + k & STRETCH_MASK)] + 
-                this.inRing[(int)(bestA + k & IN_MASK)] * HANN[k];
+            this.stretchRing[(int) (synthPos + k
+                    & STRETCH_MASK)] = this.stretchRing[(int) (synthPos + k & STRETCH_MASK)] +
+                            this.inRing[(int) (bestA + k & IN_MASK)] * HANN[k];
         }
 
         for (int k = 0; k < CORR_WIN; k++) {
-            this.prevTailRaw[k] = this.inRing[(int)(bestA + 240L + k & IN_MASK)];
+            this.prevTailRaw[k] = this.inRing[(int) (bestA + 240L + k & IN_MASK)];
         }
 
         this.anaPosD += 240.0D / ratio;
@@ -120,13 +123,13 @@ public class HeliumPitchShifter {
     }
 
     private float hermite4(double pos) {
-        long base = (long)pos;
-        float t = (float)(pos - base);
+        long base = (long) pos;
+        float t = (float) (pos - base);
 
-        float y0 = this.stretchRing[(int)(base - 1L & STRETCH_MASK)];
-        float y1 = this.stretchRing[(int)(base & STRETCH_MASK)];
-        float y2 = this.stretchRing[(int)(base + 1L & STRETCH_MASK)];
-        float y3 = this.stretchRing[(int)(base + 2L & STRETCH_MASK)];
+        float y0 = this.stretchRing[(int) (base - 1L & STRETCH_MASK)];
+        float y1 = this.stretchRing[(int) (base & STRETCH_MASK)];
+        float y2 = this.stretchRing[(int) (base + 1L & STRETCH_MASK)];
+        float y3 = this.stretchRing[(int) (base + 2L & STRETCH_MASK)];
 
         float c0 = y1;
         float c1 = 0.5F * (y2 - y0);
@@ -137,16 +140,18 @@ public class HeliumPitchShifter {
 
     private static short toShort(float v) {
         float s = v * 32767.0F;
-        if (s > 32767.0F) return Short.MAX_VALUE;
-        if (s < -32768.0F) return Short.MIN_VALUE;
-        return (short)(int)s;
+        if (s > 32767.0F)
+            return Short.MAX_VALUE;
+        if (s < -32768.0F)
+            return Short.MIN_VALUE;
+        return (short) (int) s;
     }
 
     private static float[] buildHann(int n) {
         float[] w = new float[n];
         double c = 6.283185307179586D / n;
         for (int k = 0; k < n; k++) {
-            w[k] = (float)(0.5D - 0.5D * Math.cos(c * k));
+            w[k] = (float) (0.5D - 0.5D * Math.cos(c * k));
         }
         return w;
     }
@@ -155,7 +160,7 @@ public class HeliumPitchShifter {
         float[] w = new float[n];
         double c = Math.PI / n;
         for (int k = 0; k < n; k++) {
-            w[k] = (float)Math.sin(c * (k + 0.5D));
+            w[k] = (float) Math.sin(c * (k + 0.5D));
         }
         return w;
     }

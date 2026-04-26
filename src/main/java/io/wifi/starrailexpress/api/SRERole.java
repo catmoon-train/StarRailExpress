@@ -37,7 +37,7 @@ import java.util.function.Predicate;
 import java.util.function.ToIntFunction;
 
 public abstract class SRERole {
-    private final Random random = new Random();
+    protected final Random random = new Random();
     private ResourceLocation identifier;
     private boolean canSeeCoin = true;
     private boolean canBeRandomed = true;
@@ -52,6 +52,9 @@ public abstract class SRERole {
     public BiConsumer<ServerPlayer, SREGameWorldComponent> serverTickEvent = null;
     public BiConsumer<Player, SREGameWorldComponent> clientTickEvent = null;
 
+    public Random getRandom(){
+        return random;
+    }
     public SRERole setClientGameTickEvent(BiConsumer<Player, SREGameWorldComponent> event) {
         this.clientTickEvent = event;
         return this;
@@ -444,8 +447,13 @@ public abstract class SRERole {
         return SREAbilityPlayerComponent.KEY.get(player);
     }
 
-    public void onAbilityUse(Player player) {
-
+    /**
+     * 玩家按下技能键时触发（服务端）
+     * @param player
+     * @return 是否成功触发，返回true取消后续逻辑。
+     */
+    public boolean onAbilityUse(ServerPlayer player) {
+        return false;
     }
 
     /**

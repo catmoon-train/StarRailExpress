@@ -17,12 +17,12 @@ import java.security.ProtectionDomain;
 public class URLBlockTransformer implements ClassFileTransformer {
 
     public static boolean transformed = false;
+
     public static synchronized void tryTransform() {
-        if (transformed) return;
+        if (transformed)
+            return;
 
         try {
-            // 方法1: 使用Java的Instrumentation API
-            Class<?> agentClass = Class.forName("java.lang.instrument.Instrumentation");
 
             // 尝试从Fabric的类加载器中获取Instrumentation
             Instrumentation instrumentation = getInstrumentation();
@@ -135,7 +135,8 @@ public class URLBlockTransformer implements ClassFileTransformer {
 
                                         // 定义转换后的类
                                         c = defineClass(name, transformed, 0, transformed.length);
-                                        System.out.println("[NoellesRoles] Successfully transformed URL via ClassLoader");
+                                        System.out
+                                                .println("[NoellesRoles] Successfully transformed URL via ClassLoader");
                                     }
                                 } catch (Exception e) {
                                     throw new ClassNotFoundException(name, e);
@@ -161,11 +162,12 @@ public class URLBlockTransformer implements ClassFileTransformer {
             System.err.println("[NoellesRoles] ClassLoader transformation failed: " + e.getMessage());
         }
     }
+
     @Override
     public byte[] transform(ClassLoader loader, String className,
-                            Class<?> classBeingRedefined,
-                            ProtectionDomain protectionDomain,
-                            byte[] classfileBuffer) throws IllegalClassFormatException {
+            Class<?> classBeingRedefined,
+            ProtectionDomain protectionDomain,
+            byte[] classfileBuffer) throws IllegalClassFormatException {
 
         // 只处理 java.net.URL 类
         if (!"java/net/URL".equals(className)) {
@@ -200,7 +202,8 @@ public class URLBlockTransformer implements ClassFileTransformer {
     private void saveClassFile(String filename, byte[] data) {
         try {
             File debugDir = new File("asm_debug");
-            if (!debugDir.exists()) debugDir.mkdirs();
+            if (!debugDir.exists())
+                debugDir.mkdirs();
 
             try (FileOutputStream fos = new FileOutputStream(new File(debugDir, filename))) {
                 fos.write(data);
@@ -218,7 +221,7 @@ public class URLBlockTransformer implements ClassFileTransformer {
 
         @Override
         public MethodVisitor visitMethod(int access, String name, String descriptor,
-                                         String signature, String[] exceptions) {
+                String signature, String[] exceptions) {
             MethodVisitor mv = super.visitMethod(access, name, descriptor, signature, exceptions);
 
             // 拦截 openConnection() 方法
@@ -239,12 +242,9 @@ public class URLBlockTransformer implements ClassFileTransformer {
 
     private static class URLMethodVisitor extends AdviceAdapter {
 
-        private final String methodDesc;
-
         protected URLMethodVisitor(int api, MethodVisitor mv, int access,
-                                   String name, String desc) {
+                String name, String desc) {
             super(api, mv, access, name, desc);
-            this.methodDesc = desc;
         }
 
         @Override
