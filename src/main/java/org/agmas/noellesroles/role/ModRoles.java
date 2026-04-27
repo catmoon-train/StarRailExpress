@@ -172,6 +172,11 @@ public class ModRoles {
     public static final ResourceLocation MARTIAL_ARTS_INSTRUCTOR_ID = Noellesroles.id("martial_arts_instructor");
     public static final ResourceLocation SEA_KING_ID = Noellesroles.id("sea_king");
     public static final ResourceLocation WATER_GHOST_ID = Noellesroles.id("water_ghost");
+    
+    // 飞行员角色 ID
+    public static final ResourceLocation PILOT_ID = Noellesroles.id("pilot");
+    // 影隼角色 ID
+    public static final ResourceLocation SHADOW_FALCON_ID = Noellesroles.id("shadow_falcon");
 
     // 杀手阵营角色 ID
     public static ResourceLocation MORPHLING_ID = Noellesroles.id("morphling");
@@ -225,6 +230,54 @@ public class ModRoles {
     public static final ResourceLocation THE_FOOL_ID = Noellesroles.id("the_fool");
     // 黑白 (中立阵营)
     public static final ResourceLocation MONOKUMA_ID = Noellesroles.id("monokuma");
+
+    /**
+     * 飞行员角色 - 平民阵营
+     * - 属于平民阵营 (isInnocent = true)
+     * - 不能使用杀手能力 (canUseKiller = false)
+     * - 真实心情系统
+     * - 标准冲刺时间
+     * - 在计分板上显示
+     * - 与影隼绑定生成
+     * - 仅在空港(areas_konggang)生成
+     * - 可在商店花费175金币购买喷气背包
+     * - 技能：按下技能键脱下喷气背包
+     */
+    public static SRERole PILOT = TMMRoles.registerRole(new NormalRole(
+            PILOT_ID, // 角色 ID
+            new Color(135, 206, 250).getRGB(), // 天空蓝色 - 代表飞行员/航空
+            true, // isInnocent = 平民阵营
+            false, // canUseKiller = 无杀手能力
+            SRERole.MoodType.REAL, // 真实心情
+            TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
+            false // 显示计分板
+    )).setCanSeeCoin(true).setComponentKey(org.agmas.noellesroles.component.ModComponents.PILOT);
+
+    /**
+     * 影隼角色 - 杀手阵营
+     * - 属于杀手阵营 (isInnocent = false, canUseKiller = true)
+     * - 假心情系统
+     * - 无限体力 (Integer.MAX_VALUE)
+     * - 在计分板上隐藏
+     * - 与飞行员绑定生成
+     * - 仅在空港(areas_konggang)生成
+     * - 商店：刀(130g)、飞刀(200g)、跳跃提升2(180g, 30秒)、手榴弹(350g)、撬棍(35g)、撬锁器(100g)
+     * - 技能：掠食
+     *   - 开局60秒冷却
+     *   - 使用后获得20秒创造模式飞行
+     *   - 浮空时获得1层临时护盾（被打掉就没了）
+     *   - 技能持续20秒，冷却240秒
+     * - 死亡后为所有存活杀手提供喷气背包
+     */
+    public static SRERole SHADOW_FALCON = TMMRoles.registerRole(new NormalRole(
+            SHADOW_FALCON_ID, // 角色 ID
+            new Color(47, 79, 79).getRGB(), // 暗灰色 - 代表影隼的隐匿
+            false, // isInnocent = 非平民阵营（杀手）
+            true, // canUseKiller = 有杀手能力
+            SRERole.MoodType.FAKE, // 假心情
+            Integer.MAX_VALUE, // 无限体力
+            true // 隐藏计分板
+    )).setCanSeeCoin(true).setComponentKey(org.agmas.noellesroles.component.ModComponents.SHADOW_FALCON);
 
     public static SRERole GUEST_GHOST = TMMRoles.registerRole(new NormalRole(
             GUEST_GHOST_ID, // 角色 ID

@@ -49,6 +49,7 @@ import org.agmas.noellesroles.game.roles.killer.watcher.WatcherPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.candlebearer.CandleBearerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.commander.CommanderHudRender;
 import org.agmas.noellesroles.game.roles.neutral.mercenary.MercenaryPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.shadow_falcon.ShadowFalconPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.recorder.RecorderPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.thief.ThiefPlayerComponent;
 import org.agmas.noellesroles.init.ModEffects;
@@ -1369,6 +1370,65 @@ public class CommonClientHudRenderer {
         var igniteText = Component.translatable("hud.creeper.ignite", abilityKey)
             .withStyle(ChatFormatting.GREEN);
         guiGraphics.drawString(font, igniteText, xOffset - font.width(igniteText), yOffset, Color.WHITE.getRGB());
+      }
+    });
+
+    // 影隼HUD
+    RoleHudRenderCallback.EVENT.register(ModRoles.SHADOW_FALCON_ID, (guiGraphics, deltaTracker) -> {
+      var client = Minecraft.getInstance();
+      if (client == null || client.player == null || SREClient.gameComponent == null) {
+        return;
+      }
+      if (!SREClient.gameComponent.isRole(client.player, ModRoles.SHADOW_FALCON)) {
+        return;
+      }
+
+      var shadowFalconComponent = ShadowFalconPlayerComponent.KEY.maybeGet(client.player).orElse(null);
+      if (shadowFalconComponent == null) {
+        return;
+      }
+
+      int screenWidth = guiGraphics.guiWidth();
+      int screenHeight = guiGraphics.guiHeight();
+      var font = client.font;
+      int yOffset = screenHeight - 10 - font.lineHeight; // 右下角
+      int xOffset = screenWidth - 10; // 距离右边缘
+      int dy = yOffset;
+
+      // 显示护盾层数（酒保风格）
+      int shieldLayers = shadowFalconComponent.temporaryShield;
+      var shieldText = Component.translatable("hud.noellesroles.shadow_falcon.shield", shieldLayers)
+          .withStyle(ChatFormatting.AQUA);
+      guiGraphics.drawString(font, shieldText, xOffset - font.width(shieldText), dy, Color.WHITE.getRGB());
+      dy -= font.lineHeight + 4;
+
+      // 显示技能状态
+      if (shadowFalconComponent.isPredationActive) {
+        // 技能激活中
+        int secondsLeft = shadowFalconComponent.skillTicks / 20;
+        var activeText = Component.translatable("hud.noellesroles.shadow_falcon.active", secondsLeft)
+            .withStyle(ChatFormatting.GOLD);
+        guiGraphics.drawString(font, activeText, xOffset - font.width(activeText), dy, Color.WHITE.getRGB());
+        dy -= font.lineHeight + 4;
+
+        // 显示护盾状态提示
+        if (shadowFalconComponent.temporaryShield > 0) {
+          var shieldStatusText = Component.translatable("hud.noellesroles.shadow_falcon.shield_active")
+              .withStyle(ChatFormatting.GREEN);
+          guiGraphics.drawString(font, shieldStatusText, xOffset - font.width(shieldStatusText), dy, Color.WHITE.getRGB());
+        }
+      } else if (shadowFalconComponent.cooldown > 0) {
+        // 冷却中
+        int secondsLeft = shadowFalconComponent.cooldown / 20;
+        var cooldownText = Component.translatable("hud.noellesroles.shadow_falcon.cooldown", secondsLeft)
+            .withStyle(ChatFormatting.RED);
+        guiGraphics.drawString(font, cooldownText, xOffset - font.width(cooldownText), dy, Color.WHITE.getRGB());
+      } else {
+        // 技能就绪
+        var abilityKey = NoellesrolesClient.abilityBind.getTranslatedKeyMessage();
+        var readyText = Component.translatable("hud.noellesroles.shadow_falcon.ready", abilityKey)
+            .withStyle(ChatFormatting.GREEN);
+        guiGraphics.drawString(font, readyText, xOffset - font.width(readyText), dy, Color.WHITE.getRGB());
       }
     });
   }

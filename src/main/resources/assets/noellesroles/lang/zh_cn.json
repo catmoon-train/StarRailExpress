@@ -114,6 +114,8 @@
   "info.screen.roleid.party_killer": "杀手阵营\n点击玩家头像释放技能使目标获得氦气变声效果。\n派对狂每次释放技能会在6秒后从释放技能处播放派对音效。\n氦气变声效果持续4分钟，技能冷却为35秒。\n每有一人被变声会为派对狂累计一层计数，当计数到达游戏开始时玩家数/5(至少为3)时，会自动进入派对狂欢时刻。\n进入派对狂欢时所有人的身上会发射一枚烟花火箭，并立即刷新一次所有杀手身上的物品冷却\n派对狂欢会给予除派对狂以外的所有杀手60金币，给予派对狂125金币。",
   "info.screen.roleid.guard": "警长阵营\n自带一个防暴盾牌和警棍，商店可购买远程监控终端。\n远程监控终端：手持终端右键地图中的监控台来与终端进行绑定，再次右键可以随时查看监控。\n防暴盾牌：按技能键可以将防暴盾牌放到副手(再次右键放回物品栏),举盾时可以抵挡一次正面的伤害，使用后消失。\n警棍：4点耐久，每命中1次目标会使目标定身1秒并击退，同个目标在4秒内受到两次棍击就死亡，击杀目标会使警棍进入冷却。\n当你拥有警棍时，你无法捡起左轮手枪/巡警手枪。\n当你死后，警棍会掉落为左轮手枪。",
   "info.screen.roleid.cuckoo": "中立阵营\n拥有独立胜利条件\n商店中可以以较高的价格购买撬锁器。\n可以开启直觉，但是无法透视玩家，仅能够透视自己下的蛋。\n按下技能键下蛋（20秒冷却，最多可下超过胜利目标2个的蛋）。\n蛋的6格半径范围内（y轴方向为3格）无法再次下蛋。\n其它玩家可以通过在布谷鸟蛋的三格范围内蹲下看向布谷鸟蛋来破坏它的蛋。\n如果游戏结束时，场上蛋的数量大于等于总人数的3/8（最低为5），则布谷鸟胜利。（无论布谷鸟是否存活，优先级大于纵火犯和年兽胜利小于其它独立胜利中立）",
+  "info.screen.roleid.pilot": "平民阵营\n与影隼(杀手阵营)绑定生成。\n仅在空港刷新。\n飞行员可购买喷气背包，按下技能键可脱下背包。\n蹲下激活喷气背包获得漂浮效果，耐久耗尽后背包消失，喷气背包可以按Q键丢出，拥有60点耐久。\n飞行员使用喷气背包会获得漂浮5效果，其他人为漂浮1(除了影隼)。",
+  "info.screen.roleid.shadow_falcon": "杀手阵营\n与飞行员(平民阵营)绑定生成。\n仅在空港刷新。\n你初始获得一个喷气背包，你使用喷气背包不会消耗耐久且推进能力更强。\n蹲下按技能键可脱下喷气背包\n主动技能-掠食：\n开局60秒冷却，使用后在技能期间浮空时拥有1层临时护盾(着陆后立刻消失，且重新起飞时不会补充护盾)，临时护盾会在技能结束后立刻消失。\n技能结束后进入240秒冷却。\n\n被动-反哺：\n影隼死亡时，所有存活的杀手将获得一个喷气背包。",
   "==================== 修饰符 ====================": "",
   "info.screen.modifier.lovers": "修饰符\n你会与另一名随机玩家绑定为恋人(恋人分配与阵营无关)。\n当恋人的其中一方死亡时，另一方会殉情而亡。\n若只有你与你的恋人存活到了最后，则恋人获胜。\n为了达成胜利条件，你可以击杀你的队友来取得胜利（特指杀手阵营）。\n当你的恋人是亡命徒时，在亡命徒期间被动死亡你可能无法复活。（因为你死于亡命徒死亡之后）",
   "info.screen.modifier.refugee": "修饰符\n拥有难民修饰符的玩家会在死亡120秒后复活成亡命徒，并进入亡命徒时刻。\n变成亡命徒后你需要击杀掉所有玩家才能获胜。\n若你在变成亡命徒后被别人杀死，则场上的游戏时间/物品栏/金币/理智回溯到亡命徒复活的时刻。\n- 请注意，只会恢复如上状态，其余状态可能会被清除或覆盖！\n- 例如：纵火犯纵火、傀儡尸体数量等。\n所有在亡命徒期间被杀死的玩家会复活。\n处于亡命徒期间，部分职业、修饰符的主动、被动将不可用。\n例如：\n- 亡语杀手变尸体及免死、死灵法师复活、复仇者复仇、爱慕者观察、秃鹫吃尸体\n- 傀儡师吃尸体、初学者变身、失忆患者选择尸体、双重人格主动切换（被动仍生效）\n- 红尘客阶段切换（除了获胜）、潜行者进阶二阶段、小偷技能、巡警被动",
@@ -2017,5 +2019,42 @@
   "message.noellesroles.cuckoo.place_fail_air": "必须在地面才能下蛋",
   "message.noellesroles.cuckoo.place_fail_max": "场上蛋数已达到上限，无法继续下蛋",
   "message.noellesroles.cuckoo.place_success": "你放置了一个蛋",
-  "message.noellesroles.cuckoo.cant_break_own_egg": "布谷鸟无法打碎自己下的蛋"
+  "message.noellesroles.cuckoo.cant_break_own_egg": "布谷鸟无法打碎自己下的蛋",
+  
+  "item.noellesroles.jetpack": "喷气背包",
+  "item.noellesroles.jetpack.tooltip": "穿上后蹲下获得漂浮效果，每秒消耗1点耐久",
+  "item.noellesroles.jetpack.durability": "耐久度: %s/%s",
+  "message.noellesroles.jetpack_broken": "喷气背包的燃料耗尽了！",
+  
+  
+  "announcement.star.role.pilot": "飞行员",
+  "announcement.star.goals.pilot": "协助好人阵营生存到最后！",
+  "ability.noellesroles.pilot.remove_jetpack.name": "脱下喷气背包",
+  "hud.noellesroles.pilot.jetpack_equipped": "喷气背包已装备",
+  "hud.noellesroles.pilot.press_to_remove": "按 %s 脱下喷气背包",
+  "message.noellesroles.pilot.no_jetpack": "你没有装备喷气背包",
+  "message.noellesroles.pilot.jetpack_removed": "你脱下了喷气背包",
+  
+  
+  "announcement.star.role.shadow_falcon": "影隼",
+  "announcement.star.goals.shadow_falcon": "与杀手阵营一同获胜！",
+  "ability.noellesroles.shadow_falcon.predation.name": "掠食",
+  "hud.noellesroles.shadow_falcon.shield": "护盾: %s层",
+  "hud.noellesroles.shadow_falcon.active": "掠食激活中: %s秒",
+  "hud.noellesroles.shadow_falcon.shield_active": "护盾激活中",
+  "hud.noellesroles.shadow_falcon.cooldown": "冷却中: %s秒",
+  "hud.noellesroles.shadow_falcon.ready": "掠食就绪 [%s]",
+  "message.noellesroles.shadow_falcon.predation_activated": "【掠食】技能已激活！浮空获取护盾！",
+  "message.noellesroles.shadow_falcon.shield_gained": "你获得了临时护盾！",
+  "message.noellesroles.shadow_falcon.shield_lost_landed": "着陆了！临时护盾消失了！",
+  "message.noellesroles.shadow_falcon.predation_ended": "【掠食】技能结束，护盾已移除",
+  "message.noellesroles.shadow_falcon.predation_ended_shield_broken": "【掠食】技能结束，护盾已被打破",
+  "message.noellesroles.shadow_falcon.jetpack_gifted": "%s 的亡者赠礼生效！你获得了喷气背包！",
+  "message.noellesroles.shadow_falcon.on_cooldown": "掠食技能冷却中: %.1f秒",
+  "message.noellesroles.shadow_falcon.already_active": "掠食技能正在使用中！",
+  "message.noellesroles.shadow_falcon.no_jetpack": "你没有佩戴喷气背包！",
+  "message.noellesroles.shadow_falcon.jetpack_removed": "喷气背包已脱下！",
+  
+  "item.noellesroles.shadow_falcon.jump_boost": "跳跃提升II",
+  "item.noellesroles.shadow_falcon.jump_boost.lore1": "给予跳跃提升II效果，持续8分钟"
 }

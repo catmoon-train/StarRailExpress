@@ -28,6 +28,7 @@ import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.content.item.*;
 import org.agmas.noellesroles.content.item.charge_item.*;
 import org.agmas.noellesroles.utils.LocalDateData;
+import org.agmas.noellesroles.content.item.JetpackItem;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -101,6 +102,19 @@ public class ModItems {
             new DivingBootsItem(ArmorMaterials.GOLD, net.minecraft.world.item.ArmorItem.Type.BOOTS,
                     (new Item.Properties()).stacksTo(1)),
             "diving_boots");
+
+    /**
+     * 喷气背包
+     * - 穿在身上（渲染为铁胸甲）
+     * - 蹲下时给予漂浮1效果（飞行员给予漂浮2）
+     * - 每秒消耗1点耐久
+     * - 60点耐久
+     * - 可丢弃
+     */
+    public static final Item JETPACK = register(
+            new JetpackItem(ArmorMaterials.IRON, net.minecraft.world.item.ArmorItem.Type.CHESTPLATE,
+                    (new Item.Properties()).stacksTo(1).durability(60)),
+            "jetpack");
 
     public static final Item FAKE_KNIFE = register(
             new FakeKnifeItem(new Item.Properties().stacksTo(1)),

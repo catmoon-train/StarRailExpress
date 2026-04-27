@@ -95,6 +95,7 @@ import org.agmas.noellesroles.game.roles.killer.manipulator.InControlCCA;
 import org.agmas.noellesroles.game.roles.killer.ninja.NinjaPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.stalker.StalkerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.watcher.WatcherPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.shadow_falcon.ShadowFalconPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.commander.CommanderHandler;
 import org.agmas.noellesroles.game.roles.neutral.gambler.GamblerHandler;
 import org.agmas.noellesroles.game.roles.neutral.cuckoo.CuckooEggHandler;
@@ -1048,6 +1049,10 @@ public class ModEventsRegister {
                 }
             }
         });
+        // 影隼死亡处理 - 为存活杀手提供喷气背包
+        OnPlayerDeathWithKiller.EVENT.register((victim, killer, deathReason) -> {
+            ShadowFalconPlayerComponent.onDeathGiveJetpacks(victim);
+        });
         OnPlayerKilledPlayerIdentifier.EVENT.register((victim, killer, deathReason) -> {
             var gameWorldComponent = SREGameWorldComponent.KEY.get(victim.level());
             if (gameWorldComponent.isRole(killer, ModRoles.MERCENARY)) {
@@ -1139,6 +1144,11 @@ public class ModEventsRegister {
                                     .withStyle(ChatFormatting.RED),
                             true);
                 }
+            }
+            // 影隼临时护盾破碎处理
+            if (gameWorldComponent.isRole(victim, ModRoles.SHADOW_FALCON)) {
+                ShadowFalconPlayerComponent shadowFalconComponent = ShadowFalconPlayerComponent.KEY.get(victim);
+                shadowFalconComponent.onShieldBroken();
             }
         });
 
@@ -1588,6 +1598,14 @@ public class ModEventsRegister {
                 }
             }
         });
+
+        // 服务器Tick事件 - 喷气背包效果处理
+        ServerTickEvents.END_SERVER_TICK.register(server -> {
+            for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+                org.agmas.noellesroles.content.item.JetpackItem.tickJetpackEffect(player);
+            }
+        });
+
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
             sender.sendPacket(new BloodConfigS2CPacket(NoellesRolesConfig.HANDLER.instance().enableClientBlood));
             final ServerPlayer p = handler.player;
@@ -1696,6 +1714,7 @@ public class ModEventsRegister {
                 "noellesroles:night_vision_glasses",
                 "noellesroles:life_and_death_shape",
                 "noellesroles:noell_paperclip",
+                "noellesroles:jetpack",
                 "minecraft:clock",
                 "minecraft:lantern",
                 "noellesroles:passbook",
