@@ -57,7 +57,8 @@ public class CantRightClickBlocks {
             Blocks.DISPENSER,
             Blocks.DROPPER,
             Blocks.HOPPER,
-            Blocks.COMPOSTER));
+            Blocks.COMPOSTER,
+            Blocks.CRAFTER));
     public static List<String> cantClickItems = new ArrayList<>(List.of(
             "supplementaries:item_shelf",
             "supplementaries:notice_board",
