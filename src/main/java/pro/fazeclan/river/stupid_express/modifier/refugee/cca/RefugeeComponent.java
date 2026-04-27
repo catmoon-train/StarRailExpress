@@ -64,6 +64,8 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
 
     private final List<RefugeeData> pendingRevivals = new ArrayList<>();
     public boolean isAnyRevivals = false;
+    public boolean isPendingRestore = false;
+    private Player pendingWho = null;
 
     public RefugeeComponent(Level level) {
         this.level = level;
@@ -108,6 +110,10 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         if (currentTime % 200 == 0) {
             sendCountdownMessages();
             this.sync();
+        }
+        if (isPendingRestore) {
+            isPendingRestore = false;
+            afterLooseEndTryRestore(pendingWho);
         }
     }
 
@@ -180,7 +186,7 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         player.getInventory().clearContent();
 
         // Change role to LOOSE_END and remove REFUGEE modifier
-        StupidRoleUtils.changeRole(player, TMMRoles.LOOSE_END, false,false);
+        StupidRoleUtils.changeRole(player, TMMRoles.LOOSE_END, false, false);
         SRE.REPLAY_MANAGER.recordPlayerRevival(player.getUUID(), TMMRoles.LOOSE_END);
         StupidRoleUtils.sendWelcomeAnnouncement(player);
 
@@ -296,13 +302,39 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         if (a) {
             return;
         }
+        isPendingRestore = true;
+        pendingWho = who;
+        sp.setGameMode(GameType.SPECTATOR);
+    }
+
+    public void afterLooseEndTryRestore(Player who) {
+        if (!(who instanceof ServerPlayer sp)) {
+            return;
+        }
+        var gameWorldComponent = SREGameWorldComponent.KEY.get(sp.level());
+        var a = sp.getServer().getPlayerList().getPlayers().stream().anyMatch((p) -> {
+            if (!GameUtils.isPlayerAliveAndSurvival(p) || p.getUUID().equals(who.getUUID())) {
+                return false;
+            }
+            var r = gameWorldComponent.getRole(p);
+            if (r != null) {
+                if (r.identifier().getPath().equals(TMMRoles.LOOSE_END.identifier().getPath())) {
+                    return true;
+                }
+            }
+            return false;
+        });
+        if (a) {
+            return;
+        }
+        sp.setGameMode(GameType.SPECTATOR);
+        isAnyRevivals = false;
         StupidExpress.LOGGER.info("Try to restore player's stat");
         for (var rev : this.pendingRevivals) {
             if (rev.uuid.equals(who.getUUID())) {
                 rev.isDead = true;
             }
         }
-
         isAnyRevivals = false;
         gameWorldComponent.enableSkillsAndSync();
         sp.getServer().getCommands().performPrefixedCommand(sp.getServer().createCommandSourceStack(),
@@ -318,7 +350,6 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
             p.displayClientMessage(Component.translatable("gui.stupid_express.refugee.all_death"), true);
             StopSound(p, StupidExpress.SOUND_REGUGEE.getLocation(), SoundSource.AMBIENT);
         });
-        sp.setGameMode(GameType.SPECTATOR);
 
         LoadPlayersStats();
         players_stats.clear(); // 清空玩家位置信息，避免浪费资源
@@ -436,7 +467,8 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         this.players_stats.clear();
         this.isAnyRevivals = false;
         this.pendingRevivals.clear();
-
+        this.isPendingRestore = false;
+        this.pendingWho = null;
         this.sync();
     }
 }
