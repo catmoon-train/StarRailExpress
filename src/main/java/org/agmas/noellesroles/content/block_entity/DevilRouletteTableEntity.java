@@ -439,24 +439,24 @@ public class DevilRouletteTableEntity extends BlockEntity {
             Player winner = null;
             winner = level.getPlayerByUUID(game.getWinner().getPlayerUUID());
 
-            // 对局中失败会被击杀
-            if (GameUtils.isGameStarted) {
-                if (level.getPlayerByUUID(frontPlayerUUID) != null && level.getPlayerByUUID(frontPlayerUUID) != winner) {
-                    GameUtils.killPlayer(
-                            level.getPlayerByUUID(frontPlayerUUID), false,
-                            // 杀手使用null 防止被小脑惩罚
-                            null, SRE.id("gun_shot"), false
-                    );
-                }
-                if (level.getPlayerByUUID(backPlayerUUID) != null && level.getPlayerByUUID(backPlayerUUID) != winner) {
-                    GameUtils.killPlayer(
-                            level.getPlayerByUUID(backPlayerUUID), false,
-                            null, SRE.id("gun_shot"), false
-                    );
-                }
-            }
             switch (gameMode) {
                 case Roulette -> {
+                    // 对局中失败会被击杀
+                    if (GameUtils.isGameStarted) {
+                        if (level.getPlayerByUUID(frontPlayerUUID) != null && level.getPlayerByUUID(frontPlayerUUID) != winner) {
+                            GameUtils.killPlayer(
+                                    level.getPlayerByUUID(frontPlayerUUID), false,
+                                    winner, SRE.id("gun_shot"), false
+                            );
+                        }
+                        if (level.getPlayerByUUID(backPlayerUUID) != null && level.getPlayerByUUID(backPlayerUUID) != winner) {
+                            GameUtils.killPlayer(
+                                    level.getPlayerByUUID(backPlayerUUID), false,
+                                    winner, SRE.id("gun_shot"), false
+                            );
+                        }
+                    }
+
                     SREGameWorldComponent gameComponent = SREGameWorldComponent.KEY.get(level);
                     if (gameComponent.gameMode instanceof SREDevilRouletteGameMode mode) {
                         if (winner != null) {
@@ -476,6 +476,22 @@ public class DevilRouletteTableEntity extends BlockEntity {
                     }
                 }
                 default -> {
+                    // 普通对局没有小脑，直接穿盾
+                    if (GameUtils.isGameStarted) {
+                        if (level.getPlayerByUUID(frontPlayerUUID) != null && level.getPlayerByUUID(frontPlayerUUID) != winner) {
+                            GameUtils.killPlayer(
+                                    level.getPlayerByUUID(frontPlayerUUID), false,
+                                    // 杀手使用null 防止被小脑惩罚
+                                    null, SRE.id("gun_shot"), false
+                            );
+                        }
+                        if (level.getPlayerByUUID(backPlayerUUID) != null && level.getPlayerByUUID(backPlayerUUID) != winner) {
+                            GameUtils.killPlayer(
+                                    level.getPlayerByUUID(backPlayerUUID), false,
+                                    null, SRE.id("gun_shot"), false
+                            );
+                        }
+                    }
                 }
             }
             if (winner != null) {
