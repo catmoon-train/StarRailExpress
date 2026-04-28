@@ -9,6 +9,7 @@ import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.modes.SREMurderGameMode;
 import io.wifi.starrailexpress.game.roles.SpecialGameModeModifiers;
+import io.wifi.starrailexpress.index.TMMItems;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -38,7 +39,7 @@ import java.util.List;
 
 public class SRETNTTagGameMode extends SREMurderGameMode {
     public SRETNTTagGameMode(ResourceLocation identifier) {
-        super(identifier);
+        super(identifier, 10, 2);
     }
 
     public final static int roundGapTime = 10 * 20;
@@ -96,6 +97,15 @@ public class SRETNTTagGameMode extends SREMurderGameMode {
         return;
     }
 
+    @Override
+    public void afterInitializeGame(ServerLevel serverWorld, SREGameWorldComponent gameComponent,
+            ArrayList<ServerPlayer> readyPlayerList) {
+        for (ServerPlayer p : serverWorld.players()) {
+            MCItemsUtils.insertStackInFreeSlot(p, TMMItems.CROWBAR.getDefaultInstance());
+        }
+        super.afterInitializeGame(serverWorld, gameComponent, readyPlayerList);
+    }
+
     public static boolean transformTNTTag(Player from_player, Player to_player) {
         Level level = from_player.level();
         var modifierComponent = WorldModifierComponent.KEY.get(level);
@@ -111,6 +121,7 @@ public class SRETNTTagGameMode extends SREMurderGameMode {
         modifierComponent.addModifier(to_player.getUUID(), SpecialGameModeModifiers.TNT_TAGGED);
         MCItemsUtils.clearItem(from_player, FunnyItems.HOT_POTATO);
         MCItemsUtils.insertStackInFreeSlot(to_player, FunnyItems.HOT_POTATO.getDefaultInstance());
+
         return true;
     }
 
