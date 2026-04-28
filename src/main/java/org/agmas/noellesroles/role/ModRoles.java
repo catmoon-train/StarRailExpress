@@ -1486,7 +1486,7 @@ public class ModRoles {
             false,
             false,
             SRERole.MoodType.FAKE,
-            TMMRoles.CIVILIAN.getMaxSprintTime(),
+            Integer.MAX_VALUE,
             true)).setComponentKey(CandleBearerPlayerComponent.KEY).setCanSeeCoin(true).setNeutrals(true)
             .setCanSeeTeammateKiller(false).setCanUseInstinct(true);;
 

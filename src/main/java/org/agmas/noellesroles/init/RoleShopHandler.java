@@ -1953,7 +1953,7 @@ public class RoleShopHandler {
         75,
         ShopEntry.Type.TOOL));
 
-    // 隐身机会 - 175金币（图标为药水，购买后隐身机会+1）
+    // 隐身机会 - 125金币（图标为药水，购买后隐身机会+1）
     {
       var invisItem = Items.POTION.getDefaultInstance();
       invisItem.set(DataComponents.ITEM_NAME,
@@ -1964,7 +1964,7 @@ public class RoleShopHandler {
           .setStyle(Style.EMPTY.withItalic(false)).withStyle(ChatFormatting.GRAY));
       invisItem.set(DataComponents.LORE, new ItemLore(invisLore));
 
-      CANDLE_BEARER_SHOP.add(new ShopEntry(invisItem, 175, ShopEntry.Type.TOOL) {
+      CANDLE_BEARER_SHOP.add(new ShopEntry(invisItem, 125, ShopEntry.Type.TOOL) {
         @Override
         public boolean onBuy(@NotNull Player player) {
           var comp = CandleBearerPlayerComponent.KEY.get(player);
