@@ -134,7 +134,7 @@ public class DNFRoles {
                     return original;
                 }
             }.setComponentKey(DNFPlayerComponent.KEY).setCanSeeCoin(false).setCanUseInstinct(true).setMax(4)
-                    .setCanSeeTeammateKiller(false));
+                    .setCanSeeTeammateKiller(false)).setCanBeRandomedByOtherRoles(false);
 
     public static final SRERole SOLDIER = TMMRoles.registerRole(new DNFNormalRole(SOLDIER_ID, 0x496D89, true, false,
             SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false).setVigilanteTeam(true).setMax(2))
