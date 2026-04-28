@@ -51,6 +51,7 @@ import org.agmas.noellesroles.packet.ShortShotgunEquipPayload;
 import org.agmas.noellesroles.game.roles.Innocent.broadcaster.BroadcasterPlayerComponent;
 import org.agmas.noellesroles.game.roles.Innocent.coroner.BodyDeathReasonComponent;
 import org.agmas.noellesroles.game.roles.Innocent.monitor.MonitorPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.pilot.PilotPlayerComponent;
 import org.agmas.noellesroles.game.roles.Innocent.voodoo.VoodooPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.creeper.CreeperPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.executioner.ExecutionerPlayerComponent;
@@ -61,6 +62,7 @@ import org.agmas.noellesroles.game.roles.killer.ninja.NinjaPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.party.PartyPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.stalker.StalkerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.swapper.SwapperPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.shadow_falcon.ShadowFalconPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.vulture.VulturePlayerComponent;
 import org.agmas.noellesroles.packet.*;
 import org.agmas.noellesroles.role.ModRoles;
@@ -746,6 +748,49 @@ public class ModPacketsReciever {
           if (gameWorldComponent.isRole(player, ModRoles.CREEPER)) {
             CreeperPlayerComponent creeperComponent = CreeperPlayerComponent.KEY.get(player);
             creeperComponent.ignite();
+          }
+        });
+
+    // 影隼技能包处理
+    ServerPlayNetworking.registerGlobalReceiver(org.agmas.noellesroles.RicesRoleRhapsody.SHADOW_FALCON_ABILITY_PACKET,
+        (payload, context) -> {
+          if (context.player().hasEffect(ModEffects.SAFE_TIME))
+            return;
+          ServerPlayer player = context.player();
+          SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
+
+          if (!gameWorldComponent.isSkillAvailable) {
+            player.displayClientMessage(
+                Component.translatable("message.tip.skill_disabled").withStyle(ChatFormatting.RED), true);
+            return;
+          }
+
+          if (gameWorldComponent.isRole(player, ModRoles.SHADOW_FALCON)) {
+            ShadowFalconPlayerComponent shadowFalconComponent = ShadowFalconPlayerComponent.KEY.get(player);
+            // 蹲下优先脱下喷气背包，无条件优先执行
+            if (player.isShiftKeyDown()) {
+              shadowFalconComponent.removeJetpack();
+              return;
+            }
+            // 使用技能
+            shadowFalconComponent.useAbility();
+          }
+        });
+
+    // 飞行员/影隼脱下喷气背包包处理
+    ServerPlayNetworking.registerGlobalReceiver(org.agmas.noellesroles.RicesRoleRhapsody.PILOT_REMOVE_JETPACK_PACKET,
+        (payload, context) -> {
+          if (context.player().hasEffect(ModEffects.SAFE_TIME))
+            return;
+          ServerPlayer player = context.player();
+          SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
+
+          if (gameWorldComponent.isRole(player, ModRoles.PILOT)) {
+            PilotPlayerComponent pilotComponent = PilotPlayerComponent.KEY.get(player);
+            pilotComponent.removeJetpack();
+          } else if (gameWorldComponent.isRole(player, ModRoles.SHADOW_FALCON)) {
+            ShadowFalconPlayerComponent shadowFalconComponent = ShadowFalconPlayerComponent.KEY.get(player);
+            shadowFalconComponent.removeJetpack();
           }
         });
 

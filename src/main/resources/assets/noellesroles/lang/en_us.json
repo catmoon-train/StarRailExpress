@@ -1795,5 +1795,42 @@
   "hud.noellesroles.guard.shield_equipped": "Riot Shield equipped",
   "hud.noellesroles.guard.shield_ready": "Press %s to toggle Riot Shield",
   "message.noellesroles.guard.shield_taken": "Riot Shield moved to offhand",
-  "message.noellesroles.guard.shield_putaway": "Riot Shield stored"
+  "message.noellesroles.guard.shield_putaway": "Riot Shield stored",
+  
+  "item.noellesroles.jetpack": "Jetpack",
+  "item.noellesroles.jetpack.tooltip": "Sneak while equipped to gain Levitation, consumes 1 durability per second",
+  "item.noellesroles.jetpack.durability": "Durability: %s/%s",
+  "message.noellesroles.jetpack_broken": "Your jetpack has run out of fuel!",
+  
+  "info.screen.roleid.pilot": "Innocent faction\nSpawns bound with Shadow Falcon (Killer faction).\nOnly spawns in Konggang area.\nStarts with a jetpack. Press ability key to remove it.\nSneak while equipped to activate levitation. Jetpack disappears when durability runs out.\nPurchase additional jetpacks for 175 coins.",
+  "announcement.star.role.pilot": "Pilot",
+  "announcement.star.goals.pilot": "Help the innocent faction survive to the end!",
+  "ability.noellesroles.pilot.remove_jetpack.name": "Remove Jetpack",
+  "hud.noellesroles.pilot.jetpack_equipped": "Jetpack equipped",
+  "hud.noellesroles.pilot.press_to_remove": "Press %s to remove jetpack",
+  "message.noellesroles.pilot.no_jetpack": "You don't have a jetpack equipped",
+  "message.noellesroles.pilot.jetpack_removed": "You removed your jetpack",
+  
+  "info.screen.roleid.shadow_falcon": "Killer faction\nSpawns bound with Pilot (Innocent faction).\nOnly spawns in Konggang area.\nHas infinite stamina.\n\nActive Ability - Predation:\n60 second cooldown at game start. Grants 20 seconds of Creative flight.\nGain 1 temporary shield while airborne. Ability ends when shield breaks.\n240 second cooldown after ability ends.\n\nPassive - Gift of the Fallen:\nWhen Shadow Falcon dies, all surviving killer players receive a jetpack.",
+  "announcement.star.role.shadow_falcon": "Shadow Falcon",
+  "announcement.star.goals.shadow_falcon": "Win with the Killer faction!",
+  "ability.noellesroles.shadow_falcon.predation.name": "Predation",
+  "hud.noellesroles.shadow_falcon.shield": "Shield: %s layer(s)",
+  "hud.noellesroles.shadow_falcon.active": "Predation Active: %ss",
+  "hud.noellesroles.shadow_falcon.shield_active": "Shield Active",
+  "hud.noellesroles.shadow_falcon.cooldown": "Cooldown: %ss",
+  "hud.noellesroles.shadow_falcon.ready": "Predation Ready [%s]",
+  "message.noellesroles.shadow_falcon.predation_activated": "【Predation】 ability activated! Gain shield by floating!",
+  "message.noellesroles.shadow_falcon.shield_gained": "You gained a temporary shield!",
+  "message.noellesroles.shadow_falcon.shield_lost_landed": "Landed! Temporary shield lost!",
+  "message.noellesroles.shadow_falcon.predation_ended": "【Predation】 ended, shield removed",
+  "message.noellesroles.shadow_falcon.predation_ended_shield_broken": "【Predation】 ended, shield was broken",
+  "message.noellesroles.shadow_falcon.jetpack_gifted": "Gift of the Fallen from %s! You received a jetpack!",
+  "message.noellesroles.shadow_falcon.on_cooldown": "Predation on cooldown: %.1fs",
+  "message.noellesroles.shadow_falcon.already_active": "Predation is already active!",
+  "message.noellesroles.shadow_falcon.no_jetpack": "You are not wearing a jetpack!",
+  "message.noellesroles.shadow_falcon.jetpack_removed": "Jetpack removed!",
+  
+  "item.noellesroles.shadow_falcon.jump_boost": "Potion of Jump Boost II",
+  "item.noellesroles.shadow_falcon.jump_boost.lore1": "Grants Jump Boost II effect for 8 minutes"
 }

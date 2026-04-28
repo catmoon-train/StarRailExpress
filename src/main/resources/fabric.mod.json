@@ -185,8 +185,11 @@
       "starrailexpress:dnf_killer_stats",
       "starrailexpress:dnf_daily_task",
       "starrailexpress:mailbox",
+      "noellesroles:cuckoo",
       "noellesroles:ma_chen_xu",
-      "noellesroles:imitator"
+      "noellesroles:imitator",
+      "noellesroles:shadow_falcon",
+      "noellesroles:pilot"
     ],
     "loom:injected_interfaces": {
       "net/minecraft/class_5483/class_5496": [

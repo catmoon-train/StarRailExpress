@@ -60,6 +60,9 @@ import org.agmas.noellesroles.game.roles.neutral.nian_shou.NianShouPlayerCompone
 import org.agmas.noellesroles.game.roles.neutral.panda.PandaComponent;
 import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.recorder.RecorderPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.cuckoo.CuckooPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.shadow_falcon.ShadowFalconPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.pilot.PilotPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.slippery_ghost.SlipperyGhostPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.thief.ThiefPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.vulture.VulturePlayerComponent;
@@ -201,6 +204,10 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
       ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "recorder"),
       RecorderPlayerComponent.class);
 
+  public static final ComponentKey<CuckooPlayerComponent> CUCKOO = ComponentRegistry.getOrCreate(
+      ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "cuckoo"),
+      CuckooPlayerComponent.class);
+
   public static final ComponentKey<PlayerVolumeComponent> VOLUME = ComponentRegistry.getOrCreate(
       ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "volume"),
       PlayerVolumeComponent.class);
@@ -313,6 +320,16 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
   public static final ComponentKey<org.agmas.noellesroles.game.roles.Innocent.fool.FoolPlayerComponent> FOOL = org.agmas.noellesroles.game.roles.Innocent.fool.FoolPlayerComponent.KEY;
 
   public static final ComponentKey<org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaPlayerComponent> MONOKUMA = org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaPlayerComponent.KEY;
+
+  // 影隼组件 - 杀手阵营，掠食技能
+  public static final ComponentKey<ShadowFalconPlayerComponent> SHADOW_FALCON = ComponentRegistry.getOrCreate(
+      ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "shadow_falcon"),
+      ShadowFalconPlayerComponent.class);
+
+  // 飞行员组件 - 平民阵营，喷气背包
+  public static final ComponentKey<PilotPlayerComponent> PILOT = ComponentRegistry.getOrCreate(
+      ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "pilot"),
+      PilotPlayerComponent.class);
 
   public ModComponents() {
     // CCA 需要无参构造函数
@@ -494,6 +511,9 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
     registry.beginRegistration(Player.class, RECORDER)
         .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
         .end(RecorderPlayerComponent::new);
+    registry.beginRegistration(Player.class, CUCKOO)
+        .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
+        .end(CuckooPlayerComponent::new);
     // 注册炸弹客组件
 
     registry.beginRegistration(Player.class, VOLUME)
@@ -630,6 +650,16 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
     registry.beginRegistration(Player.class, MONOKUMA)
         .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
         .end(org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaPlayerComponent::new);
+
+    // 注册影隼组件 - 存储掠食技能冷却、临时护盾
+    registry.beginRegistration(Player.class, SHADOW_FALCON)
+        .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
+        .end(ShadowFalconPlayerComponent::new);
+
+    // 注册飞行员组件 - 存储喷气背包状态
+    registry.beginRegistration(Player.class, PILOT)
+        .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
+        .end(PilotPlayerComponent::new);
 
     // ==================== 示例：注册更多组件 ====================
     //

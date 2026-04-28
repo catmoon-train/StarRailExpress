@@ -231,6 +231,11 @@ public class RoleInitialItems {
         List<Supplier<ItemStack>> broadcasterItems = new ArrayList<>();
         broadcasterItems.add(() -> ModItems.RADIO.getDefaultInstance());
         INITIAL_ITEMS_MAP.put(ModRoles.BROADCASTER, broadcasterItems);
+
+        // 影隼初始物品 - 喷气背包
+        List<Supplier<ItemStack>> shadowFalconItems = new ArrayList<>();
+        shadowFalconItems.add(() -> ModItems.JETPACK.getDefaultInstance());
+        INITIAL_ITEMS_MAP.put(ModRoles.SHADOW_FALCON, shadowFalconItems);
     }
 
 }

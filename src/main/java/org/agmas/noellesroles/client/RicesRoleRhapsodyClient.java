@@ -36,6 +36,8 @@ import org.agmas.noellesroles.game.roles.killer.ninja.NinjaPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.stalker.StalkerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.trapper.TrapperPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.water_ghost.WaterGhostPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.shadow_falcon.ShadowFalconPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.pilot.PilotPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.admirer.AdmirerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
 import org.agmas.noellesroles.init.ModEntities;
@@ -552,6 +554,50 @@ public class RicesRoleRhapsodyClient implements ClientModInitializer {
             });
             return true;
         }
+
+        // ==================== 影隼：使用掠食技能 ====================
+        if (gameWorld.isRole(client.player, ModRoles.SHADOW_FALCON)) {
+            // 检查玩家是否存活
+            if (!GameUtils.isPlayerAliveAndSurvival(client.player))
+                return true;
+
+            ShadowFalconPlayerComponent shadowFalconComponent = ShadowFalconPlayerComponent.KEY.get(client.player);
+            // 蹲下优先脱下喷气背包
+            if (client.player.isShiftKeyDown()) {
+                ClientPlayNetworking.send(new PilotRemoveJetpackC2SPacket());
+                return true;
+            }
+            // 检查技能是否可用
+            if (shadowFalconComponent.canUseAbility()) {
+                // 发送网络包到服务端激活技能
+                ClientPlayNetworking.send(new ShadowFalconAbilityC2SPacket());
+            } else if (shadowFalconComponent.cooldown > 0) {
+                // 显示冷却提示
+                client.player.displayClientMessage(
+                        net.minecraft.network.chat.Component.translatable("message.noellesroles.shadow_falcon.on_cooldown",
+                                String.format("%.1f", shadowFalconComponent.getCooldownSeconds())),
+                        true);
+            } else if (shadowFalconComponent.isPredationActive) {
+                // 技能正在使用中
+                client.player.displayClientMessage(
+                        net.minecraft.network.chat.Component.translatable("message.noellesroles.shadow_falcon.already_active"),
+                        true);
+            }
+            return true;
+        }
+
+        // ==================== 飞行员：脱下喷气背包 ====================
+        if (gameWorld.isRole(client.player, ModRoles.PILOT)) {
+            // 检查玩家是否存活
+            if (!GameUtils.isPlayerAliveAndSurvival(client.player))
+                return true;
+
+            PilotPlayerComponent pilotComponent = PilotPlayerComponent.KEY.get(client.player);
+            // 脱下喷气背包
+            ClientPlayNetworking.send(new PilotRemoveJetpackC2SPacket());
+            return true;
+        }
+
         // if (abilityComponent.cooldown > 0) {
         // return;
         // }

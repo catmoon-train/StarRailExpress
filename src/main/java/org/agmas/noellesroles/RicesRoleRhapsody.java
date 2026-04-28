@@ -40,6 +40,7 @@ import org.agmas.noellesroles.game.roles.Innocent.detective.DetectivePlayerCompo
 import org.agmas.noellesroles.game.roles.Innocent.locksmith_inspiration.LocksmithInspirationComponent;
 import org.agmas.noellesroles.game.roles.Innocent.postman.PostmanPlayerComponent;
 import org.agmas.noellesroles.game.roles.Innocent.psychologist.PsychologistPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.pilot.PilotPlayerComponent;
 import org.agmas.noellesroles.game.roles.Innocent.singer.SingerPlayerComponent;
 import org.agmas.noellesroles.game.roles.Innocent.super_star.SuperStarPlayerComponent;
 import org.agmas.noellesroles.game.roles.Innocent.telegrapher.TelegrapherPlayerComponent;
@@ -47,6 +48,7 @@ import org.agmas.noellesroles.game.roles.killer.conspirator.ConspiratorPlayerCom
 import org.agmas.noellesroles.game.roles.killer.dio.DIOPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.stalker.StalkerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.trapper.TrapperPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.shadow_falcon.ShadowFalconPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.admirer.AdmirerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.slippery_ghost.SlipperyGhostPlayerComponent;
@@ -101,6 +103,8 @@ public class RicesRoleRhapsody implements ModInitializer {
     public static final CustomPacketPayload.Type<PuppeteerC2SPacket> PUPPETEER_PACKET = PuppeteerC2SPacket.ID;
 
     public static final CustomPacketPayload.Type<CreeperAbilityC2SPacket> CREEPER_ABILITY_PACKET = CreeperAbilityC2SPacket.ID;
+    public static final CustomPacketPayload.Type<ShadowFalconAbilityC2SPacket> SHADOW_FALCON_ABILITY_PACKET = ShadowFalconAbilityC2SPacket.ID;
+    public static final CustomPacketPayload.Type<PilotRemoveJetpackC2SPacket> PILOT_REMOVE_JETPACK_PACKET = PilotRemoveJetpackC2SPacket.ID;
 
     public static final CustomPacketPayload.Type<LockGameC2Packet> LOCK_GAME_PACKET = LockGameC2Packet.ID;
     public static final CustomPacketPayload.Type<KeyForgeGameC2Packet> KEY_FORGE_GAME_PACKET = KeyForgeGameC2Packet.ID;
@@ -333,6 +337,12 @@ public class RicesRoleRhapsody implements ModInitializer {
 
         // 注册苦力怕技能包
         PayloadTypeRegistry.playC2S().register(CreeperAbilityC2SPacket.ID, CreeperAbilityC2SPacket.CODEC);
+
+        // 注册影隼技能包
+        PayloadTypeRegistry.playC2S().register(ShadowFalconAbilityC2SPacket.ID, ShadowFalconAbilityC2SPacket.CODEC);
+
+        // 注册飞行员脱下喷气背包包
+        PayloadTypeRegistry.playC2S().register(PilotRemoveJetpackC2SPacket.ID, PilotRemoveJetpackC2SPacket.CODEC);
 
         // 注册撬锁小游戏完成包
         PayloadTypeRegistry.playC2S().register(LockGameC2Packet.ID, LockGameC2Packet.CODEC);

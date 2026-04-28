@@ -303,6 +303,23 @@ public class AbilityHandler {
             return;
         }
 
+        if (gameWorldComponent.isRole(player, ModRoles.CUCKOO)) {
+            // 布谷鸟按技能键下蛋逻辑
+            if (abilityPlayerComponent.cooldown > 0) {
+                player.displayClientMessage(Component.translatable("tip.noellesroles.cooldown", abilityPlayerComponent.cooldown / 20)
+                        .withStyle(net.minecraft.ChatFormatting.RED), true);
+                return;
+            }
+            var cuckooComp = org.agmas.noellesroles.game.roles.neutral.cuckoo.CuckooPlayerComponent.KEY.get(player);
+            if (cuckooComp == null) return;
+            if (!(player instanceof ServerPlayer sp)) return;
+            boolean success = cuckooComp.placeEgg(sp);
+            if (success) {
+                abilityPlayerComponent.setCooldown(20 * 20);
+            }
+            return;
+        }
+
         if (gameWorldComponent.isRole(player, ModRoles.RECALLER)
                 && abilityPlayerComponent.cooldown <= 0) {
             RecallerPlayerComponent recallerPlayerComponent = RecallerPlayerComponent.KEY.get(player);

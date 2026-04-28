@@ -5,6 +5,7 @@ import io.wifi.starrailexpress.event.AllowGameEnd;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.GameUtils.WinStatus;
 import net.minecraft.server.level.ServerPlayer;
+import org.agmas.noellesroles.game.roles.neutral.cuckoo.CuckooPlayerComponent;
 import pro.fazeclan.river.stupid_express.StupidExpress;
 import pro.fazeclan.river.stupid_express.constants.SERoles;
 import pro.fazeclan.river.stupid_express.utils.StupidRoleUtils;
@@ -26,6 +27,10 @@ public class ArsonistWinChecker {
                 }
 
                 if (players.size() == 1 && arsonistAlive) {
+                    // 纵火犯独立胜利前，先检查布谷鸟是否满足条件（布谷鸟优先级大于纵火犯）
+                    if (CuckooPlayerComponent.checkCuckooVictory(serverWorld)) {
+                        return GameUtils.WinStatus.CUSTOM;
+                    }
                     // 纵火犯独立胜利统计：使用 RoleUtils.customWinnerWin
                     StupidRoleUtils.customWinnerWin(serverWorld, GameUtils.WinStatus.CUSTOM,
                             SERoles.ARSONIST.identifier().getPath(),

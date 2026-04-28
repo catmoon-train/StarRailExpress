@@ -268,6 +268,13 @@ public class InitModRolesMax {
         Harpymodloader.setRoleMaximum(ModRoles.DIVER_ID, 0);
         Harpymodloader.setRoleMaximum(ModRoles.WATER_GHOST_ID, 0);
         Harpymodloader.setRoleMaximum(ModRoles.SEA_KING_ID, 0);
+
+        // 飞行员和影隼初始为0
+        Harpymodloader.setRoleMaximum(ModRoles.PILOT_ID, 0);
+        Harpymodloader.setRoleMaximum(ModRoles.SHADOW_FALCON_ID, 0);
+
+        // 设置飞行员和影隼绑定生成
+        RoleAssignmentManager.addOccupationRole(ModRoles.PILOT, ModRoles.SHADOW_FALCON);
     }
 
     public static void registerDynamic() {
@@ -568,6 +575,22 @@ public class InitModRolesMax {
                 } else {
                     Harpymodloader.setRoleMaximum(ModRoles.SEA_KING_ID, 0);
                     Harpymodloader.setRoleMaximum(ModRoles.WATER_GHOST_ID, 0);
+                }
+            }
+
+            // 飞行员和影隼（空港角色）- 仅在空港地图必定生成
+            {
+                boolean isKonggangMap = false;
+                var konggangMaps = new ArrayList<>(NoellesRolesConfig.HANDLER.instance().konggangMaps);
+                if (konggangMaps != null && konggangMaps.size() > 0) {
+                    isKonggangMap = konggangMaps.contains(currentMap);
+                }
+                if (isKonggangMap) {
+                    Harpymodloader.setRoleMaximum(ModRoles.PILOT_ID, 1);
+                    Harpymodloader.setRoleMaximum(ModRoles.SHADOW_FALCON_ID, 1);
+                } else {
+                    Harpymodloader.setRoleMaximum(ModRoles.PILOT_ID, 0);
+                    Harpymodloader.setRoleMaximum(ModRoles.SHADOW_FALCON_ID, 0);
                 }
             }
             // WRITER (作家) - 0.2%概率生成
