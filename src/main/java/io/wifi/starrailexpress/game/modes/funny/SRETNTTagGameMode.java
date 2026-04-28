@@ -26,6 +26,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
 import org.agmas.harpymodloader.component.WorldModifierComponent;
+import org.agmas.harpymodloader.events.ModifierAssigned;
 import org.agmas.noellesroles.commands.BroadcastCommand;
 import org.agmas.noellesroles.game.modifier.NRModifiers;
 import org.agmas.noellesroles.init.FunnyItems;
@@ -76,8 +77,9 @@ public class SRETNTTagGameMode extends SREMurderGameMode {
         for (ServerPlayer p : serverWorld.players()) {
             MCItemsUtils.insertStackInFreeSlot(p, TMMItems.CROWBAR.getDefaultInstance());
             int roleType = gameWorldComponent.getRoleType(p);
-            if (roleType == 1) {
+            if (roleType == 1 || roleType == 5) {
                 wmc.addModifier(p.getUUID(), NRModifiers.EXPEDITION, false);
+                ModifierAssigned.EVENT.invoker().assignModifier(p, NRModifiers.EXPEDITION);
             }
         }
         wmc.sync();
@@ -100,7 +102,9 @@ public class SRETNTTagGameMode extends SREMurderGameMode {
         }
 
         if (_killer != null) {
-            transformTNTTag(_killer, victim);
+            if (transformTNTTag(_killer, victim)) {
+                return;
+            }
         }
         GameUtils.teleportBackToRoom(victim);
         return;
