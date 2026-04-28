@@ -394,7 +394,7 @@ public class LootInfoScreen extends AbstractPixelScreen {
             addRenderableWidget(poolBtn);
         }
         if (curPool != null) {
-            PoolButton curPoolBtn = poolButtons.get(curPool.getPoolID() - 1);
+            PoolButton curPoolBtn = getPoolBtnByPoolId(curPool.getPoolID());
             if (curPoolBtn != null)
                 curPoolBtn.setSelected(true);
         }
@@ -746,6 +746,15 @@ public class LootInfoScreen extends AbstractPixelScreen {
         for (PoolButton poolButton : poolButtons) {
             poolButton.setSelected(poolButton.getPoolID() == poolD);
         }
+    }
+
+    /** 卡池按钮的索引并不等于卡池id，使用该函数可以获取，不存在则返回null */
+    protected PoolButton getPoolBtnByPoolId(int poolId) {
+        for (PoolButton poolButton : poolButtons) {
+            if (poolButton.getPoolID() == poolId)
+                return poolButton;
+        }
+        return null;
     }
 
     private void setSidebarScroll(float nextScrollOffset) {
