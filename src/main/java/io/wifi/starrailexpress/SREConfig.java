@@ -217,6 +217,17 @@ public class SREConfig implements ConfigData {
     @ConfigEntry.Category(value = "sync")
     public int mysqlSyncConnectTimeoutMs = 5000;
 
+
+    @ConfigEntry.Category(value = "clue")
+    public int clueBookMaxSelections = 4;
+    @ConfigEntry.Category(value = "clue")
+    public int clueBookshelfX = 0;
+    @ConfigEntry.Category(value = "clue")
+    public int clueBookshelfY = 64;
+    @ConfigEntry.Category(value = "clue")
+    public int clueBookshelfZ = 0;
+    @ConfigEntry.Category(value = "clue")
+    public String clueBookshelfDimension = "minecraft:overworld";
     @ConfigEntry.Category(value = "progression")
     public boolean enableProgressionSystem = false;
     @ConfigEntry.Category(value = "progression")
