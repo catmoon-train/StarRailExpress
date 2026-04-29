@@ -37,7 +37,6 @@ import org.agmas.noellesroles.game.roles.killer.stalker.StalkerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.trapper.TrapperPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.water_ghost.WaterGhostPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.shadow_falcon.ShadowFalconPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.pilot.PilotPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.admirer.AdmirerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
 import org.agmas.noellesroles.init.ModEntities;
@@ -592,7 +591,6 @@ public class RicesRoleRhapsodyClient implements ClientModInitializer {
             if (!GameUtils.isPlayerAliveAndSurvival(client.player))
                 return true;
 
-            PilotPlayerComponent pilotComponent = PilotPlayerComponent.KEY.get(client.player);
             // 脱下喷气背包
             ClientPlayNetworking.send(new PilotRemoveJetpackC2SPacket());
             return true;

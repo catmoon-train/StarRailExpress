@@ -27,7 +27,6 @@ import org.agmas.noellesroles.client.event.MutableComponentResult;
 import org.agmas.noellesroles.client.event.OnMessageBelowMoneyRenderer;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
 import org.agmas.noellesroles.client.hud.roles.BroadcasterHud;
-import org.agmas.noellesroles.client.hud.roles.CuckooHud;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.content.entity.WheelchairEntity;
 import org.agmas.noellesroles.game.roles.Innocent.accountant.AccountantPlayerComponent;
@@ -573,7 +572,6 @@ public class CommonClientHudRenderer {
 
     CommanderHudRender.register();
     WayfarerHudRenderer.registerRendererEvent();
-    CuckooHud.register();
     RoleHudRenderCallback.EVENT.register(ModRoles.RECORDER.identifier(), (guiGraphics, deltaTracker) -> {
       // 记录员
       var client = Minecraft.getInstance();

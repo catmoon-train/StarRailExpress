@@ -35,6 +35,7 @@ import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
 import io.wifi.starrailexpress.index.*;
 import io.wifi.starrailexpress.network.*;
 import io.wifi.starrailexpress.network.original.*;
+import io.wifi.starrailexpress.network.packet.CustomNarratorPacket;
 import io.wifi.starrailexpress.network.packet.ModVersionPacket;
 import io.wifi.starrailexpress.network.packet.SyncRoomToPlayerPayload;
 import io.wifi.starrailexpress.util.PoisonComponentUtils;
@@ -235,6 +236,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
     private void registerCommands() {
         CommandRegistrationCallback.EVENT.register(((dispatcher, registryAccess, environment) -> {
             SREVoteCommand.register(dispatcher, registryAccess);
+            NarratorCommand.register(dispatcher);
             GiveRoomKeyCommand.register(dispatcher);
             ListRoleInRoundCommand.register(dispatcher);
             StartCommand.register(dispatcher);
@@ -316,6 +318,8 @@ public class SRE extends StarRailExpressID implements ModInitializer {
 
         PayloadTypeRegistry.playS2C().register(ModVersionPacket.ID, ModVersionPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(ModVersionPacket.ID, ModVersionPacket.CODEC);
+        PayloadTypeRegistry.playS2C().register(CustomNarratorPacket.ID, CustomNarratorPacket.CODEC);
+
 
         PayloadTypeRegistry.playS2C().register(SyncRoomToPlayerPayload.ID, SyncRoomToPlayerPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(SyncRoomToPlayerPayload.ID, SyncRoomToPlayerPayload.CODEC);

@@ -1,6 +1,8 @@
 package io.wifi.starrailexpress.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
+import com.mojang.text2speech.Narrator;
+
 import dev.doctor4t.ratatouille.client.util.OptionLocker;
 import dev.doctor4t.ratatouille.client.util.ambience.AmbienceUtil;
 import dev.doctor4t.ratatouille.client.util.ambience.BackgroundAmbience;
@@ -48,6 +50,7 @@ import io.wifi.starrailexpress.game.data.MapConfig;
 import io.wifi.starrailexpress.index.*;
 import io.wifi.starrailexpress.network.*;
 import io.wifi.starrailexpress.network.original.*;
+import io.wifi.starrailexpress.network.packet.CustomNarratorPacket;
 import io.wifi.starrailexpress.network.packet.SyncRoomToPlayerPayload;
 import io.wifi.starrailexpress.network.packet.SyncSpecificWaypointVisibilityPacket;
 import io.wifi.starrailexpress.network.packet.SyncWaypointVisibilityPacket;
@@ -126,6 +129,7 @@ public class SREClient implements ClientModInitializer {
     public static int intervalTime = 0;
     public static boolean isInLobby = false;
     public static Player cached_player = null;
+    public static Narrator narrator = Narrator.getNarrator();
     // HUD/API 缓存：在 END_CLIENT_TICK 统一更新，在渲染 mixin 中仅做读取，避免渲染流程重复判断。
     private static boolean cachedPlayerAliveAndInSurvival;
     private static boolean cachedPlayerSpectatingOrCreative;
@@ -484,10 +488,23 @@ public class SREClient implements ClientModInitializer {
             SREClient.handParticleManager.tick();
             RoundTextRenderer.tick();
         });
-
         SyncMapConfigPayload.registerReceiver();
         FourthRoomStatePayload.registerReceiver();
         FourthRoomTableEffectsPayload.registerReceiver();
+        ClientPlayNetworking.registerGlobalReceiver(CustomNarratorPacket.ID, (payload, context) -> {
+            String content = payload.content();
+            boolean shouldInterrupt = payload.shouldInterrupt();
+            if (narrator == null)
+                return;
+
+            if (!content.isBlank()) {
+                narrator.say(content, shouldInterrupt);
+            } else {
+                if (narrator.active()) {
+                    narrator.clear();
+                }
+            }
+        });
         ClientPlayNetworking.registerGlobalReceiver(OpenFourthRoomPeekDeckPayload.ID,
                 (payload, context) -> context.client().execute(() -> {
                     var client = context.client();
