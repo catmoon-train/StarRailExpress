@@ -186,7 +186,31 @@ public class ModEffects {
      * - 全服减速20%+无法打开背包+水墨风shader
      * - 持续60秒
      */
-    public static final Holder<MobEffect> MONOKUMA_FRENZY = register("monokuma_frenzy",
+    
+    /**
+     * 沉浸式滤镜效果：仙境
+     */
+    public static final Holder<MobEffect> FAIRYLAND_FILTER = register("fairyland_filter",
+            new SimpleMobEffect(MobEffectCategory.BENEFICIAL, 0xB7F7FF));
+
+    /**
+     * 沉浸式滤镜效果：后世
+     */
+    public static final Holder<MobEffect> AFTERLIFE_FILTER = register("afterlife_filter",
+            new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0xD7D7D7));
+
+    /**
+     * 沉浸式滤镜效果：梦核
+     */
+    public static final Holder<MobEffect> DREAMCORE_FILTER = register("dreamcore_filter",
+            new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0xFFC0F5));
+
+    /**
+     * 玩家隔离：看不见/听不见其他玩家
+     */
+    public static final Holder<MobEffect> PLAYER_ISOLATION = register("player_isolation",
+            new SimpleMobEffect(MobEffectCategory.HARMFUL, 0x6A5ACD));
+public static final Holder<MobEffect> MONOKUMA_FRENZY = register("monokuma_frenzy",
             new org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaFrenzyEffect());
 
     /**

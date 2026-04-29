@@ -115,6 +115,9 @@ public class NoellesrolesVoiceChatPlugin implements VoicechatPlugin {
         return true;
       }
     }
+    if (receiverPlayer.hasEffect(ModEffects.PLAYER_ISOLATION) || senderPlayer.hasEffect(ModEffects.PLAYER_ISOLATION)) {
+      return true;
+    }
     var deathPenalty = ModComponents.DEATH_PENALTY.get(receiverPlayer);
     if (deathPenalty.hasPenalty()) {
       if (deathPenalty.limitCameraUUID != null) {
