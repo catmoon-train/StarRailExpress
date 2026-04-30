@@ -36,7 +36,7 @@ public final class ClueSystem {
         if (display == null) throw new IllegalStateException("cannot create text display");
         display.setPos(pos.getX() + 0.5, pos.getY() + 1.2, pos.getZ() + 0.5);
         display.setBillboardConstraints(Display.BillboardConstraints.CENTER);
-        display.setText(Component.literal("§b【线索】§f" + title));
+        display.setText(Component.translatable("message.sre.clue_system.display_title", title));
         level.addFreshEntity(display);
         return new SREPlayerClueComponent.ClueEntry(display.getUUID(), title, content, System.currentTimeMillis());
     }
@@ -100,13 +100,13 @@ public final class ClueSystem {
     private static ItemStack buildClueBook(ServerPlayer sender, List<SREPlayerClueComponent.ClueEntry> clues) {
         ItemStack book = new ItemStack(Items.WRITTEN_BOOK);
         var pages = new ArrayList<Filterable<Component>>();
-        Component intro = Component.literal("发送者: " + sender.getName().getString());
+        Component intro = Component.translatable("message.sre.clue_system.book.sender", sender.getName());
         pages.add(new Filterable<>(intro, Optional.of(intro)));
         for (var clue : clues) {
-            Component page = Component.literal("【" + clue.title() + "】\n" + clue.content());
+            Component page = Component.translatable("message.sre.clue_system.book.page", clue.title(), clue.content());
             pages.add(new Filterable<>(page, Optional.of(page)));
         }
-        String title = "线索汇编";
+        String title = Component.translatable("message.sre.clue_system.book.title").getString();
         book.set(DataComponents.WRITTEN_BOOK_CONTENT,
                 new WrittenBookContent(new Filterable<>(title, Optional.of(title)), sender.getName().getString(), 1, pages, true));
         return book;

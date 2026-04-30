@@ -10,7 +10,7 @@ public class ClueArchiveScreen extends Screen {
     private long openTime;
 
     public ClueArchiveScreen() {
-        super(Component.literal("线索档案库"));
+        super(Component.translatable("screen.sre.clue_archive.title"));
     }
 
     @Override
@@ -29,11 +29,11 @@ public class ClueArchiveScreen extends Screen {
         int x = (this.width - panelW) / 2;
         int y = (this.height - panelH) / 2;
         graphics.fill(x, y, x + panelW, y + panelH, (alpha << 24) | 0x101826);
-        graphics.drawCenteredString(this.font, "线索档案库（现代化UI原型）", this.width / 2, y + 14, 0xAEE7FF);
-        graphics.drawString(this.font, "• 线索Screen职责: 仅显示与发送线索", x + 20, y + 42, 0xD9E8FF, false);
-        graphics.drawString(this.font, "• 线索实体: 在主世界以展示实体存在", x + 20, y + 58, 0xD9E8FF, false);
-        graphics.drawString(this.font, "• 书籍投递: 发送到雕刻书架并支持旁侧堆叠", x + 20, y + 74, 0xD9E8FF, false);
-        graphics.drawString(this.font, "• 调试命令: /clue spawn|list|times|clear|sendbook", x + 20, y + 90, 0xD9E8FF, false);
+        graphics.drawCenteredString(this.font, Component.translatable("screen.sre.clue_archive.header"), this.width / 2, y + 14, 0xAEE7FF);
+        graphics.drawString(this.font, Component.translatable("screen.sre.clue_archive.line1"), x + 20, y + 42, 0xD9E8FF, false);
+        graphics.drawString(this.font, Component.translatable("screen.sre.clue_archive.line2"), x + 20, y + 58, 0xD9E8FF, false);
+        graphics.drawString(this.font, Component.translatable("screen.sre.clue_archive.line3"), x + 20, y + 74, 0xD9E8FF, false);
+        graphics.drawString(this.font, Component.translatable("screen.sre.clue_archive.line4"), x + 20, y + 90, 0xD9E8FF, false);
         super.render(graphics, mouseX, mouseY, partialTick);
     }
 }

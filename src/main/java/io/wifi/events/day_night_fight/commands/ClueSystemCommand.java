@@ -38,7 +38,7 @@ public class ClueSystemCommand {
         var data = ClueSystem.getData(player);
         data.clues.add(entry);
         data.sync();
-        player.sendSystemMessage(Component.literal("已在主世界生成线索实体: " + title + " uuid=" + entry.clueEntityUuid()));
+        player.sendSystemMessage(Component.translatable("commands.sre.clue.spawn.success", title, entry.clueEntityUuid()));
         return 1;
     }
 
@@ -46,7 +46,7 @@ public class ClueSystemCommand {
         var data = ClueSystem.getData(player);
         data.sendTimesLeft = count;
         data.sync();
-        player.sendSystemMessage(Component.literal("线索发送次数=" + count + "（0=无限）"));
+        player.sendSystemMessage(Component.translatable("commands.sre.clue.times", count));
         return 1;
     }
 
@@ -56,15 +56,15 @@ public class ClueSystemCommand {
         data.sentClues.clear();
         data.sendTimesLeft = 0;
         data.sync();
-        player.sendSystemMessage(Component.literal("线索记录已清空"));
+        player.sendSystemMessage(Component.translatable("commands.sre.clue.clear"));
         return 1;
     }
 
     private static int list(ServerPlayer player) {
         var data = ClueSystem.getData(player);
-        player.sendSystemMessage(Component.literal("当前线索数: " + data.clues.size()));
+        player.sendSystemMessage(Component.translatable("commands.sre.clue.list.count", data.clues.size()));
         for (var clue : data.clues) {
-            player.sendSystemMessage(Component.literal("- " + clue.title() + " | " + clue.clueEntityUuid()));
+            player.sendSystemMessage(Component.translatable("commands.sre.clue.list.entry", clue.title(), clue.clueEntityUuid()));
         }
         return 1;
     }
@@ -74,10 +74,10 @@ public class ClueSystemCommand {
             java.util.List<UUID> ids = java.util.Arrays.stream(uuidsCsv.split(","))
                     .map(String::trim).filter(v -> !v.isEmpty()).map(UUID::fromString).toList();
             boolean ok = ClueSystem.sendCluesAsBook(player, ids);
-            player.sendSystemMessage(Component.literal(ok ? "线索书已发送到配置书架" : "发送失败（数量超限/线索无效/书架无空位）"));
+            player.sendSystemMessage(Component.translatable(ok ? "commands.sre.clue.sendbook.success" : "commands.sre.clue.sendbook.fail"));
             return ok ? 1 : 0;
         } catch (Exception ex) {
-            player.sendSystemMessage(Component.literal("UUID格式错误，请使用逗号分隔"));
+            player.sendSystemMessage(Component.translatable("commands.sre.clue.sendbook.uuid_format_error"));
             return 0;
         }
     }
