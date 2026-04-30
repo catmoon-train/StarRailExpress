@@ -4,6 +4,7 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.NormalRole;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.cca.PlayerBodyEntityComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -15,7 +16,6 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.game.roles.Innocent.coroner.BodyDeathReasonComponent;
 import org.agmas.noellesroles.game.roles.Innocent.ghost.GhostPlayerComponent;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.THEventHandler;
@@ -41,7 +41,7 @@ public class RedHouseRoles {
           if (!GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player))
             return InteractionResult.PASS;
           if (target instanceof PlayerBodyEntity be) {
-            BodyDeathReasonComponent bdrc = BodyDeathReasonComponent.KEY.get(be);
+            PlayerBodyEntityComponent bdrc = PlayerBodyEntityComponent.KEY.get(be);
             bdrc.playerRole = THEventHandler.getRandomRole().identifier();
             bdrc.sync();
             be.setDeathReason(THEventHandler.getRandomDeathReason());

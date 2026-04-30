@@ -4,6 +4,7 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleSkill;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.cca.PlayerBodyEntityComponent;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
@@ -49,7 +50,6 @@ import org.agmas.noellesroles.content.item.ThrowingKnife;
 import org.agmas.noellesroles.events.OnVendingMachinesBuyItems;
 import org.agmas.noellesroles.packet.ShortShotgunEquipPayload;
 import org.agmas.noellesroles.game.roles.Innocent.broadcaster.BroadcasterPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.coroner.BodyDeathReasonComponent;
 import org.agmas.noellesroles.game.roles.Innocent.monitor.MonitorPlayerComponent;
 import org.agmas.noellesroles.game.roles.Innocent.pilot.PilotPlayerComponent;
 import org.agmas.noellesroles.game.roles.Innocent.voodoo.VoodooPlayerComponent;
@@ -410,7 +410,7 @@ public class ModPacketsReciever {
               return playerBodyEntity.getUUID().equals(payload.playerBody());
             }));
         if (!playerBodyEntities.isEmpty()) {
-          BodyDeathReasonComponent bodyDeathReasonComponent = BodyDeathReasonComponent.KEY
+          PlayerBodyEntityComponent bodyDeathReasonComponent = PlayerBodyEntityComponent.KEY
               .get(playerBodyEntities.getFirst());
           if (!bodyDeathReasonComponent.vultured) {
             abilityPlayerComponent.cooldown = GameConstants.getInTicks(0,

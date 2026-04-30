@@ -2,6 +2,7 @@ package pro.fazeclan.river.stupid_express.role.amnesiac;
 
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.cca.PlayerBodyEntityComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
@@ -13,7 +14,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
-import org.agmas.noellesroles.game.roles.Innocent.coroner.BodyDeathReasonComponent;
+
 import org.agmas.noellesroles.role.ModRoles;
 import pro.fazeclan.river.stupid_express.constants.SERoles;
 import pro.fazeclan.river.stupid_express.utils.StupidRoleUtils;
@@ -49,7 +50,7 @@ public class RoleSelectionHandler {
                         Component.translatable("message.stupid_express.generic.skill_not_available"), true);
                 return InteractionResult.PASS;
             }
-            var roleRes = BodyDeathReasonComponent.KEY.get(victim).playerRole;
+            var roleRes = PlayerBodyEntityComponent.KEY.get(victim).playerRole;
             if (roleRes == null) {
                 return InteractionResult.PASS;
             }

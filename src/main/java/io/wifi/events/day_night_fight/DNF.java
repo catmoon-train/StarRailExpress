@@ -4,6 +4,7 @@ import io.wifi.events.day_night_fight.cca.DNFPlayerComponent;
 import io.wifi.events.day_night_fight.commands.ClueSystemCommand;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.cca.PlayerBodyEntityComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SRETrainWorldComponent;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
@@ -28,7 +29,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import org.agmas.noellesroles.game.roles.Innocent.coroner.BodyDeathReasonComponent;
 
 import com.mojang.brigadier.CommandDispatcher;
 
@@ -97,7 +97,7 @@ public class DNF {
 
     public static InteractionResult eatBody(ServerPlayer player, PlayerBodyEntity body) {
         DNFPlayerComponent component = DNFPlayerComponent.KEY.get(player);
-        ResourceLocation bodyRole = BodyDeathReasonComponent.KEY.get(body).playerRole;
+        ResourceLocation bodyRole = PlayerBodyEntityComponent.KEY.get(body).playerRole;
         component.eatCorpse(player, bodyRole, BLOOD_PER_CORPSE);
         body.discard();
         player.level().playSound(null, body.blockPosition(), SoundEvents.HONEY_DRINK, SoundSource.PLAYERS, 0.8f, 0.55f);

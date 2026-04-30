@@ -1,7 +1,6 @@
 package io.wifi.starrailexpress.content.entity;
 
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -25,17 +24,17 @@ import net.minecraft.world.MenuProvider;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
+import org.agmas.noellesroles.game.roles.Innocent.fool.TarotAssemblyManager;
+
+import io.wifi.starrailexpress.cca.PlayerBodyEntityComponent;
+import io.wifi.starrailexpress.game.GameUtils;
+
 import java.util.Optional;
 import java.util.UUID;
 
 public class PlayerBodyEntity extends LivingEntity {
     private static final EntityDataAccessor<Optional<UUID>> PLAYER = SynchedEntityData.defineId(PlayerBodyEntity.class,
             EntityDataSerializers.OPTIONAL_UUID);
-    private static final EntityDataAccessor<String> DEATH_REASON = SynchedEntityData.defineId(PlayerBodyEntity.class,
-            EntityDataSerializers.STRING);
-    private static final EntityDataAccessor<Optional<UUID>> KILLER = SynchedEntityData.defineId(PlayerBodyEntity.class,
-            EntityDataSerializers.OPTIONAL_UUID);
-    private final SimpleContainer corpseInventory = new SimpleContainer(36);
 
     public PlayerBodyEntity(EntityType<? extends LivingEntity> entityType, Level world) {
         super(entityType, world);
@@ -45,8 +44,11 @@ public class PlayerBodyEntity extends LivingEntity {
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
         builder.define(PLAYER, Optional.empty());
-        builder.define(KILLER, Optional.empty());
-        builder.define(DEATH_REASON, "");
+    }
+
+    // 获取本实体上的 BodyDeathReasonComponent
+    public PlayerBodyEntityComponent getComponent() {
+        return PlayerBodyEntityComponent.KEY.get(this);
     }
 
     @Override
@@ -61,12 +63,28 @@ public class PlayerBodyEntity extends LivingEntity {
 
     @Override
     public ItemStack getItemBySlot(EquipmentSlot slot) {
-        return ItemStack.EMPTY;
+        SimpleContainer inv = getComponent().getCorpseInventory();
+        return switch (slot) {
+            case FEET -> inv.getItem(12);
+            case LEGS -> inv.getItem(11);
+            case CHEST -> inv.getItem(10);
+            case HEAD -> inv.getItem(9);
+            case OFFHAND -> inv.getItem(13);
+            default -> ItemStack.EMPTY;
+        };
     }
 
+    @SuppressWarnings("incomplete-switch")
     @Override
     public void setItemSlot(EquipmentSlot slot, ItemStack stack) {
-
+        SimpleContainer inv = getComponent().getCorpseInventory();
+        switch (slot) {
+            case FEET -> inv.setItem(12, stack);
+            case LEGS -> inv.setItem(11, stack);
+            case CHEST -> inv.setItem(10, stack);
+            case HEAD -> inv.setItem(9, stack);
+            case OFFHAND -> inv.setItem(13, stack);
+        }
     }
 
     @Override
@@ -75,37 +93,61 @@ public class PlayerBodyEntity extends LivingEntity {
     }
 
     public void setDeathReason(String deathReason) {
-        this.entityData.set(DEATH_REASON, deathReason);
+        getComponent().setDeathReason(deathReason);
     }
 
     public String getDeathReason() {
-        String optional = this.entityData.get(DEATH_REASON);
-        return optional;
+        return getComponent().getDeathReason();
     }
 
     public void setKillerUuid(UUID playerUuid) {
-        this.entityData.set(KILLER, Optional.of(playerUuid));
+        getComponent().setKillerUuid(playerUuid);
     }
 
     public UUID getKillerUuid() {
-        Optional<UUID> optional = this.entityData.get(KILLER);
-        return optional.orElse(null);
+        return getComponent().getKillerUuid();
     }
 
     public void setPlayerUuid(UUID playerUuid) {
         this.entityData.set(PLAYER, Optional.of(playerUuid));
     }
 
-    public void setCorpseInventoryFromPlayerInventory(Inventory inventory) {
-        for (int i = 0; i < this.corpseInventory.getContainerSize(); i++) {
-            this.corpseInventory.setItem(i, inventory.getItem(i).copy());
-            inventory.setItem(i, ItemStack.EMPTY);
-        }
+    public UUID getPlayerUuid() {
+        return this.entityData.get(PLAYER).orElse(null);
     }
 
-    public UUID getPlayerUuid() {
-        Optional<UUID> optional = this.entityData.get(PLAYER);
-        return optional.orElse(null);
+    // 原有方法（默认同步）
+    public void setCorpseInventoryFromPlayerInventory(Inventory inventory) {
+        setCorpseInventoryFromPlayerInventory(inventory, true);
+    }
+
+    // 新重载，可控制是否同步
+    public void setCorpseInventoryFromPlayerInventory(Inventory inventory, boolean sync) {
+        SimpleContainer inv = getComponent().getCorpseInventory();
+        int[][] mapping = {
+                { 0, 0 }, { 1, 1 }, { 2, 2 }, { 3, 3 }, { 4, 4 }, { 5, 5 }, { 6, 6 }, { 7, 7 }, { 8, 8 },
+                { 39, 9 }, { 38, 10 }, { 37, 11 }, { 36, 12 }, { 40, 13 }
+        };
+
+        for (int i = 0; i < 14; i++) {
+            inv.setItem(i, ItemStack.EMPTY);
+        }
+
+        for (int[] map : mapping) {
+            int playerSlot = map[0];
+            int bodySlot = map[1];
+            if (playerSlot >= 0 && playerSlot < inventory.getContainerSize()) {
+                ItemStack stack = inventory.getItem(playerSlot);
+                if (!stack.isEmpty()) {
+                    inv.setItem(bodySlot, stack.copy());
+                    inventory.setItem(playerSlot, ItemStack.EMPTY);
+                }
+            }
+        }
+
+        if (sync) {
+            getComponent().sync();
+        }
     }
 
     @Override
@@ -136,64 +178,33 @@ public class PlayerBodyEntity extends LivingEntity {
         if (this.getPlayerUuid() != null) {
             nbt.putUUID("Player", this.getPlayerUuid());
         }
-        if (this.getKillerUuid() != null) {
-            nbt.putUUID("Killer", this.getKillerUuid());
-        }
-        if (this.getDeathReason() != null) {
-            nbt.putString("DeathReason", this.getDeathReason());
-        }
-        ListTag inventoryTag = new ListTag();
-        for (int i = 0; i < this.corpseInventory.getContainerSize(); i++) {
-            ItemStack stack = this.corpseInventory.getItem(i);
-            if (stack.isEmpty()) {
-                continue;
-            }
-            CompoundTag itemTag = new CompoundTag();
-            itemTag.putByte("Slot", (byte) i);
-            itemTag.put("Item", stack.save(this.registryAccess()));
-            inventoryTag.add(itemTag);
-        }
-        nbt.put("CorpseInventory", inventoryTag);
+        // 将组件数据写入子标签
+        CompoundTag componentTag = new CompoundTag();
+        getComponent().writeToNbt(componentTag, this.registryAccess());
+        nbt.put("BodyComponent", componentTag);
     }
 
     @Override
     public void readAdditionalSaveData(CompoundTag nbt) {
         super.readAdditionalSaveData(nbt);
-        UUID uUID = null;
-        UUID killerUUID = null;
         if (nbt.hasUUID("Player")) {
-            uUID = nbt.getUUID("Player");
+            this.setPlayerUuid(nbt.getUUID("Player"));
         }
-        if (nbt.hasUUID("Killer")) {
-            killerUUID = nbt.getUUID("Killer");
+        // 读取组件数据
+        if (nbt.contains("BodyComponent", Tag.TAG_COMPOUND)) {
+            getComponent().readFromNbt(nbt.getCompound("BodyComponent"), this.registryAccess());
         }
-        if (uUID != null) {
-            this.setPlayerUuid(uUID);
-        }
-        if (killerUUID != null) {
-            this.setKillerUuid(killerUUID);
-        }
-        if (nbt.contains("DeathReason")) {
-            this.setDeathReason(nbt.getString("DeathReason"));
-        }
-        if (nbt.contains("CorpseInventory", Tag.TAG_LIST)) {
-            ListTag inventoryTag = nbt.getList("CorpseInventory", Tag.TAG_COMPOUND);
-            for (int i = 0; i < inventoryTag.size(); i++) {
-                CompoundTag itemTag = inventoryTag.getCompound(i);
-                int slot = itemTag.getByte("Slot") & 255;
-                if (slot < 0 || slot >= this.corpseInventory.getContainerSize()) {
-                    continue;
-                }
-                ItemStack stack = ItemStack.parse(this.registryAccess(), itemTag.getCompound("Item"))
-                        .orElse(ItemStack.EMPTY);
-                this.corpseInventory.setItem(slot, stack);
-            }
+        // 若为服务端，同步一次状态
+        if (!this.level().isClientSide) {
+            getComponent().sync();
         }
     }
 
     @Override
     public InteractionResult interactAt(Player player, Vec3 vec3, InteractionHand hand) {
-        if (player instanceof ServerPlayer serverPlayer && hasCorpseItems()) {
+        if (player instanceof ServerPlayer serverPlayer
+                && hasCorpseItems()
+                && !GameUtils.isPlayerAliveAndSurvival(serverPlayer)) { // 仅旁观玩家可查看
             serverPlayer.openMenu(new MenuProvider() {
                 @Override
                 public Component getDisplayName() {
@@ -202,7 +213,7 @@ public class PlayerBodyEntity extends LivingEntity {
 
                 @Override
                 public AbstractContainerMenu createMenu(int i, Inventory inventory, Player player) {
-                    return ChestMenu.threeRows(i, inventory, corpseInventory);
+                    return ChestMenu.threeRows(i, inventory, getComponent().getCorpseInventory());
                 }
             });
             return InteractionResult.SUCCESS;
@@ -211,10 +222,10 @@ public class PlayerBodyEntity extends LivingEntity {
     }
 
     private boolean hasCorpseItems() {
-        for (int i = 0; i < corpseInventory.getContainerSize(); i++) {
-            if (!corpseInventory.getItem(i).isEmpty()) {
+        SimpleContainer inv = getComponent().getCorpseInventory();
+        for (int i = 0; i < 14; i++) {
+            if (!inv.getItem(i).isEmpty())
                 return true;
-            }
         }
         return false;
     }
@@ -222,7 +233,9 @@ public class PlayerBodyEntity extends LivingEntity {
     @Override
     public void tick() {
         super.tick();
-        if (this.getZ() >= 19000) {
+        if (this.getZ() > TarotAssemblyManager.MEETING_Z - 100 && this.getZ() < TarotAssemblyManager.MEETING_Z + 100
+                && this.getX() > TarotAssemblyManager.MEETING_X - 100
+                && this.getX() < TarotAssemblyManager.MEETING_X + 100) {
             this.discard();
         }
     }

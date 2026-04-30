@@ -2,6 +2,7 @@ package org.agmas.noellesroles.mixin.client.roles.coroner;
 
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.cca.PlayerBodyEntityComponent;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
@@ -30,7 +31,6 @@ import java.util.UUID;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.game.roles.Innocent.coroner.BodyDeathReasonComponent;
 import org.agmas.noellesroles.game.roles.killer.insane_killer.InsaneKillerPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 import org.spongepowered.asm.mixin.Mixin;
@@ -134,7 +134,7 @@ public abstract class CoronerHudMixin {
                     context.drawString(renderer, name, -renderer.width(name) / 2, 32, CommonColors.YELLOW);
                     return;
                 }
-                BodyDeathReasonComponent bodyDeathReasonComponent = (BodyDeathReasonComponent) BodyDeathReasonComponent.KEY
+                PlayerBodyEntityComponent bodyDeathReasonComponent = (PlayerBodyEntityComponent) PlayerBodyEntityComponent.KEY
                         .get(NoellesrolesClient.targetBody);
                 String deathReason_str = NoellesrolesClient.targetBody.getDeathReason();
                 if (deathReason_str.isBlank() || deathReason_str.isEmpty()) {

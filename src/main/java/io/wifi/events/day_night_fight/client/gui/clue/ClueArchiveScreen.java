@@ -1,4 +1,4 @@
-package io.wifi.starrailexpress.client.gui.clue;
+package io.wifi.events.day_night_fight.client.gui.clue;
 
 import net.minecraft.Util;
 import net.minecraft.client.gui.GuiGraphics;

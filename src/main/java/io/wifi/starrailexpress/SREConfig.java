@@ -151,6 +151,7 @@ public class SREConfig implements ConfigData {
     public boolean enableAutoTrainReset = false;
     public boolean verboseTrainResetLogs = true;
     public boolean logGameEvent = false;
+    public boolean savePlayerBodyItems = false;
 
     // // 自动切换预设配置 - 游戏开始前自动应用指定预设，留空则不自动切换
     // @Tooltip(count = 3)

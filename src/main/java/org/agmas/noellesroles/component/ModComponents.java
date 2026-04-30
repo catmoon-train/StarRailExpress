@@ -1,7 +1,6 @@
 package org.agmas.noellesroles.component;
 
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
-import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.ConfigWorldComponent;
@@ -14,7 +13,6 @@ import org.agmas.noellesroles.game.roles.Innocent.awesome_binglus.AwesomePlayerC
 import org.agmas.noellesroles.game.roles.Innocent.boxer.BoxerPlayerComponent;
 import org.agmas.noellesroles.game.roles.Innocent.broadcaster.BroadcasterPlayerComponent;
 import org.agmas.noellesroles.game.roles.Innocent.clock_maker.ClockmakerPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.coroner.BodyDeathReasonComponent;
 import org.agmas.noellesroles.game.roles.Innocent.detective.DetectivePlayerComponent;
 import org.agmas.noellesroles.game.roles.Innocent.driver.DiverPlayerComponent;
 import org.agmas.noellesroles.game.roles.Innocent.fortuneteller.FortunetellerPlayerComponent;
@@ -78,6 +76,7 @@ import org.ladysnake.cca.api.v3.entity.EntityComponentInitializer;
 import org.ladysnake.cca.api.v3.entity.RespawnCopyStrategy;
 import org.ladysnake.cca.api.v3.world.WorldComponentFactoryRegistry;
 import org.ladysnake.cca.api.v3.world.WorldComponentInitializer;
+
 /**
  * Cardinal Components API 组件注册
  *
@@ -195,7 +194,7 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
   public static final ComponentKey<PandaComponent> panda = ComponentRegistry
       .getOrCreate(
           ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "panda"),
-              PandaComponent.class);
+          PandaComponent.class);
   public static final ComponentKey<BetterVigilantePlayerComponent> BETTER_VIGILANTE = ComponentRegistry
       .getOrCreate(
           ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "better_vigilante"),
@@ -220,7 +219,6 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
   public static final ComponentKey<TelegrapherPlayerComponent> TELEGRAPHER = ComponentRegistry.getOrCreate(
       ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "telegrapher"),
       TelegrapherPlayerComponent.class);
-
 
   public static final ComponentKey<DefibrillatorComponent> DEFIBRILLATOR = ComponentRegistry.getOrCreate(
       ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "defibrillator"),
@@ -252,8 +250,8 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
       ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "bandit"),
       BanditPlayerComponent.class);
   public static final ComponentKey<NinjaPlayerComponent> NINJA = ComponentRegistry.getOrCreate(
-          ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "ninja"),
-          NinjaPlayerComponent.class);
+      ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "ninja"),
+      NinjaPlayerComponent.class);
 
   public static final ComponentKey<BloodFeudistPlayerComponent> BLOOD_FEUDIST = ComponentRegistry.getOrCreate(
       ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "blood_feudist"),
@@ -291,9 +289,10 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
       ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "watcher"),
       WatcherPlayerComponent.class);
 
-  public static final ComponentKey<org.agmas.noellesroles.game.roles.killer.delayer.DelayerPlayerComponent> DELAYER = ComponentRegistry.getOrCreate(
-      ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "delayer"),
-      org.agmas.noellesroles.game.roles.killer.delayer.DelayerPlayerComponent.class);
+  public static final ComponentKey<org.agmas.noellesroles.game.roles.killer.delayer.DelayerPlayerComponent> DELAYER = ComponentRegistry
+      .getOrCreate(
+          ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "delayer"),
+          org.agmas.noellesroles.game.roles.killer.delayer.DelayerPlayerComponent.class);
 
   public static final ComponentKey<org.agmas.noellesroles.game.modifier.expedition.ExpeditionComponent> EXPEDITION = org.agmas.noellesroles.game.modifier.expedition.ExpeditionComponent.KEY;
 
@@ -313,9 +312,10 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
       ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "imitator"),
       ImitatorPlayerComponent.class);
 
-  public static final ComponentKey<org.agmas.noellesroles.game.roles.killer.party.PartyPlayerComponent> PARTY = ComponentRegistry.getOrCreate(
-      ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "party_killer"),
-      org.agmas.noellesroles.game.roles.killer.party.PartyPlayerComponent.class);
+  public static final ComponentKey<org.agmas.noellesroles.game.roles.killer.party.PartyPlayerComponent> PARTY = ComponentRegistry
+      .getOrCreate(
+          ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "party_killer"),
+          org.agmas.noellesroles.game.roles.killer.party.PartyPlayerComponent.class);
 
   public static final ComponentKey<org.agmas.noellesroles.game.roles.Innocent.fool.FoolPlayerComponent> FOOL = org.agmas.noellesroles.game.roles.Innocent.fool.FoolPlayerComponent.KEY;
 
@@ -364,8 +364,8 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
         .end(AvengerPlayerComponent::new);
 
     registry.beginRegistration(Player.class, NINJA)
-            .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
-            .end(NinjaPlayerComponent::new);
+        .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
+        .end(NinjaPlayerComponent::new);
 
     // 注册算命大师组件 - 存储目标和死亡倒计时
     registry.beginRegistration(Player.class, FORTUNETELLER)
@@ -468,8 +468,6 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
         .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(MorphlingPlayerComponent::new);
     registry.beginRegistration(Player.class, VoodooPlayerComponent.KEY)
         .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(VoodooPlayerComponent::new);
-    registry.beginRegistration(PlayerBodyEntity.class, BodyDeathReasonComponent.KEY)
-        .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(BodyDeathReasonComponent::new);
     registry.beginRegistration(Player.class, ExecutionerPlayerComponent.KEY)
         .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(ExecutionerPlayerComponent::new);
     registry.beginRegistration(Player.class, RecallerPlayerComponent.KEY)
@@ -639,7 +637,6 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
     registry.beginRegistration(Player.class, WATCHER)
         .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
         .end(WatcherPlayerComponent::new);
-
 
     // 注册愚者组件 - 存储塔罗会成员、处刑者手枪子弹、异端效果等
     registry.beginRegistration(Player.class, FOOL)

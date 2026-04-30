@@ -1,6 +1,7 @@
 package org.agmas.noellesroles.game.roles.neutral.wayfarer;
 
 import io.wifi.starrailexpress.api.RoleComponent;
+import io.wifi.starrailexpress.cca.PlayerBodyEntityComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.event.AfterShieldAllowPlayerDeath;
@@ -29,7 +30,6 @@ import net.minecraft.world.item.component.ItemLore;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.game.roles.Innocent.coroner.BodyDeathReasonComponent;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.ModNBTUtils;
@@ -270,7 +270,7 @@ public class WayfarerPlayerComponent implements RoleComponent, ServerTickingComp
                     return InteractionResult.SUCCESS;
                 Player targetVictim = level.getPlayerByUUID(be.getPlayerUuid());
 
-                BodyDeathReasonComponent bodyDeathReasonComponent = (BodyDeathReasonComponent) BodyDeathReasonComponent.KEY
+                PlayerBodyEntityComponent bodyDeathReasonComponent = (PlayerBodyEntityComponent) PlayerBodyEntityComponent.KEY
                         .get(be);
                 UUID killerUid = be.getKillerUuid();
                 Player targetKiller = null;
@@ -344,7 +344,7 @@ public class WayfarerPlayerComponent implements RoleComponent, ServerTickingComp
             body.setYRot(player.getYHeadRot());
             body.setYHeadRot(player.getYHeadRot());
             player.level().addFreshEntity(body);
-            final var bodyDeathReasonComponent = BodyDeathReasonComponent.KEY.get(body);
+            final var bodyDeathReasonComponent = PlayerBodyEntityComponent.KEY.get(body);
             bodyDeathReasonComponent.playerRole = ModRoles.WAYFARER_ID;
             bodyDeathReasonComponent.sync();
         }
@@ -379,7 +379,7 @@ public class WayfarerPlayerComponent implements RoleComponent, ServerTickingComp
     }
 
     public void startFindKiller(PlayerBodyEntity be, @Nullable Player targetVictim, @NotNull Player targetKiller,
-            BodyDeathReasonComponent bodyDeathReasonComponent) {
+            PlayerBodyEntityComponent bodyDeathReasonComponent) {
         var gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
         if (!gameWorldComponent.isSkillAvailable) {
             player.displayClientMessage(

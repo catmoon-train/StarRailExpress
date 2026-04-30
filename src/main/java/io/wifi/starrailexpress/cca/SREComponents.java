@@ -2,6 +2,7 @@ package io.wifi.starrailexpress.cca;
 
 import io.wifi.starrailexpress.cca.gamemode.CustomRoleGameModeTeamsPlayerComponent;
 import io.wifi.starrailexpress.cca.gamemode.CustomRoleGameModeWorldComponent;
+import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.content.mail.MailboxComponent;
 import io.wifi.events.day_night_fight.DNFDailyTaskComponent;
 import io.wifi.events.day_night_fight.cca.DNFKillerStatsComponent;
@@ -62,8 +63,12 @@ public class SREComponents
                 .end(SREPlayerAFKComponent::new);
         registry.beginRegistration(Player.class, SREPlayerSkinsComponent.KEY)
                 .respawnStrategy(RespawnCopyStrategy.ALWAYS_COPY).end(SREPlayerSkinsComponent::new);
+
+        registry.beginRegistration(PlayerBodyEntity.class, PlayerBodyEntityComponent.KEY)
+                .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(PlayerBodyEntityComponent::new);
         registry.beginRegistration(Player.class, SREPlayerProgressionComponent.KEY)
-                .respawnStrategy(RespawnCopyStrategy.ALWAYS_COPY).end(SREPlayerProgressionComponent::new);
+                .respawnStrategy(RespawnCopyStrategy.ALWAYS_COPY)
+                .end(SREPlayerProgressionComponent::new);
         registry.beginRegistration(Player.class, SREPlayerNunchuckComponent.KEY)
                 .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(SREPlayerNunchuckComponent::new);
         registry.beginRegistration(Player.class, NameTagInventoryComponent.KEY)
@@ -71,7 +76,8 @@ public class SREComponents
         registry.beginRegistration(Player.class, MailboxComponent.KEY)
                 .respawnStrategy(RespawnCopyStrategy.ALWAYS_COPY).end(MailboxComponent::new);
         registry.beginRegistration(Player.class, CustomRoleGameModeTeamsPlayerComponent.KEY)
-                .respawnStrategy(RespawnCopyStrategy.ALWAYS_COPY).end(CustomRoleGameModeTeamsPlayerComponent::new);
+                .respawnStrategy(RespawnCopyStrategy.ALWAYS_COPY)
+                .end(CustomRoleGameModeTeamsPlayerComponent::new);
         registry.beginRegistration(Player.class, DNFKillerStatsComponent.KEY)
                 .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(DNFKillerStatsComponent::new);
         registry.beginRegistration(Player.class, DNFDailyTaskComponent.KEY)

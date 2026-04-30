@@ -6,6 +6,7 @@ import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.replay.GameReplayData;
 import io.wifi.starrailexpress.api.replay.GameReplayManager;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
+import io.wifi.starrailexpress.cca.PlayerBodyEntityComponent;
 import io.wifi.starrailexpress.cca.SREArmorPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
 import io.wifi.starrailexpress.cca.SREGameTimeComponent;
@@ -59,8 +60,6 @@ import net.minecraft.world.phys.Vec3;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.agmas.noellesroles.game.roles.Innocent.coroner.BodyDeathReasonComponent;
-import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class GameMode {
@@ -319,7 +318,7 @@ public abstract class GameMode {
             killer = _killer;
         _killer = killer;
         OnKillPlayerTriggered.EVENT.invoker().onKillPlayerTriggered(victim, spawnBody, killer, deathReason, forceDeath);
-        SREPlayerPsychoComponent component = SREPlayerPsychoComponent.KEY.get(victim);
+        SREPlayerPsychoComponent psychocca = SREPlayerPsychoComponent.KEY.get(victim);
         if (killer != null && killer instanceof ServerPlayer serverPlayer) {
             final var triggerScreenEdgeEffectPayload = new TriggerScreenEdgeEffectPayload(java.awt.Color.WHITE.getRGB(),
                     600,
@@ -441,9 +440,9 @@ public abstract class GameMode {
             }
         }
 
-        if (component.getPsychoTicks() > 0) {
-            if (!forceDeath && component.getArmour() > 0) {
-                component.setArmour(component.getArmour() - 1);
+        if (psychocca.getPsychoTicks() > 0) {
+            if (!forceDeath && psychocca.getArmour() > 0) {
+                psychocca.setArmour(psychocca.getArmour() - 1);
                 if (SRE.REPLAY_MANAGER != null) {
                     SRE.REPLAY_MANAGER.breakArmor(victim.getUUID());
                 }
@@ -458,7 +457,7 @@ public abstract class GameMode {
                     ServerPlayNetworking.send(serverPlayer,
                             new BreakArmorPayload(victim.getX(), victim.getY(), victim.getZ()));
                 }
-                component.sync();
+                psychocca.sync();
                 victim.playNotifySound(TMMSounds.ITEM_PSYCHO_ARMOUR, SoundSource.MASTER, 5F, 1F);
                 victim.displayClientMessage(Component.translatable("message.bartender.armor_broke_self")
                         .withStyle(ChatFormatting.YELLOW), true);
@@ -466,8 +465,8 @@ public abstract class GameMode {
                 if (!forceDeath)
                     return;
             } else {
-                component.stopPsycho();
-                component.sync();
+                psychocca.stopPsycho();
+                psychocca.sync();
             }
         }
         if (!role.afterShieldAllowDeath(victim, killer, deathReason, spawnBody)) {
@@ -582,32 +581,37 @@ public abstract class GameMode {
                 }
                 if (spawnBody) {
                     PlayerBodyEntity body = TMMEntities.PLAYER_BODY.create(victim.level());
-                    double scale = victim.getAttributeValue(Attributes.SCALE);
-                    victim.stopRiding();
-                    victim.stopSleeping();
-                    body.getAttribute(Attributes.SCALE).setBaseValue(scale);
                     if (body != null) {
+                        double scale = victim.getAttributeValue(Attributes.SCALE);
+                        victim.stopRiding();
+                        victim.stopSleeping();
+                        body.getAttribute(Attributes.SCALE).setBaseValue(scale);
+                        PlayerBodyEntityComponent bodycca = body.getComponent();
                         if (killer != null) {
-                            body.setKillerUuid(killer.getUUID());
+                            bodycca.setKillerUuid(killer.getUUID(), false);
                         }
-                        body.setDeathReason(deathReason.toString());
+                        bodycca.setDeathReason(deathReason.toString(), false);
                         body.setPlayerUuid(victim.getUUID());
+
                         Vec3 spawnPos = victim.position().add(victim.getLookAngle().normalize().scale(1));
                         body.moveTo(spawnPos.x(), victim.getY(), spawnPos.z(), victim.getYHeadRot(), 0f);
                         body.setYRot(victim.getYHeadRot());
                         body.setYHeadRot(victim.getYHeadRot());
                         victim.level().addFreshEntity(body);
-                        if (NoellesRolesConfig.HANDLER.instance().allowDropItems) {
-                            body.setCorpseInventoryFromPlayerInventory(victim.getInventory());
+
+                        if (SREConfig.instance().savePlayerBodyItems) {
+                            body.setCorpseInventoryFromPlayerInventory(victim.getInventory(), false);
                         }
-                        {
-                            if (role != null) {
-                                final var bodyDeathReasonComponent = BodyDeathReasonComponent.KEY.get(body);
-                                bodyDeathReasonComponent.playerRole = role.identifier();
-                                bodyDeathReasonComponent.sync();
-                            }
+
+                        if (role != null) {
+                            bodycca.playerRole = role.identifier();
+                            // 不立即同步
                         }
+
                         victimRole.onDeathWithBody(victim, spawnBody, killer, deathReason, body);
+
+                        // 最后统一同步一次
+                        bodycca.sync();
                     }
                 }
             }
