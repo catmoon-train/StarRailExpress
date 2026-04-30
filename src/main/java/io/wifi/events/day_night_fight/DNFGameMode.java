@@ -31,6 +31,16 @@ public class DNFGameMode extends SREMurderGameMode {
     private static final int DAYLIGHT_TICKS = 12000;
 
     @Override
+    public boolean canPickBodyContent() {
+        return true;
+    };
+
+    @Override
+    public boolean canSeeBodyContent() {
+        return true;
+    };
+
+    @Override
     public boolean shouldRecordPlayerStats() {
         return false;
     }

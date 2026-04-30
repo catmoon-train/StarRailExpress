@@ -17,7 +17,6 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ChestMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.MenuProvider;
@@ -29,7 +28,8 @@ import org.agmas.noellesroles.game.roles.Innocent.fool.TarotAssemblyManager;
 
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.PlayerBodyEntityComponent;
-import io.wifi.starrailexpress.cca.SRERoleWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.content.gui.PlayerBodyChestMenu;
 import io.wifi.starrailexpress.game.GameUtils;
 
 import java.util.Optional;
@@ -170,7 +170,6 @@ public class PlayerBodyEntity extends LivingEntity {
                 ItemStack stack = inventory.getItem(playerSlot);
                 if (!stack.isEmpty()) {
                     inv.setItem(bodySlot, stack.copy());
-                    inventory.setItem(playerSlot, ItemStack.EMPTY);
                 }
             }
         }
@@ -230,10 +229,14 @@ public class PlayerBodyEntity extends LivingEntity {
         }
     }
 
+    public boolean isLocked() {
+        return getComponent().getCorpseInventory().currentUser != null;
+    }
+
     @Override
     public InteractionResult interactAt(Player player, Vec3 vec3, InteractionHand hand) {
         if (player instanceof ServerPlayer serverPlayer
-                && hasCorpseItems()
+                && !isLocked() && hasCorpseItems()
                 && (!GameUtils.isPlayerAliveAndSurvival(serverPlayer) || canSeeDeathBodyContent(serverPlayer))) { // 仅旁观玩家可查看
             serverPlayer.openMenu(new MenuProvider() {
                 @Override
@@ -243,7 +246,7 @@ public class PlayerBodyEntity extends LivingEntity {
 
                 @Override
                 public AbstractContainerMenu createMenu(int i, Inventory inventory, Player player) {
-                    return ChestMenu.threeRows(i, inventory, getComponent().getCorpseInventory());
+                    return new PlayerBodyChestMenu(i, inventory, getComponent().getCorpseInventory());
                 }
             });
             return InteractionResult.SUCCESS;
@@ -252,7 +255,11 @@ public class PlayerBodyEntity extends LivingEntity {
     }
 
     private boolean canSeeDeathBodyContent(ServerPlayer serverPlayer) {
-        SRERole role = SRERoleWorldComponent.KEY.get(serverPlayer.serverLevel()).getRole(serverPlayer);
+        var cca = SREGameWorldComponent.KEY.get(serverPlayer.level());
+        if (cca.gameMode.canSeeBodyContent()) {
+            return true;
+        }
+        SRERole role = cca.getRole(serverPlayer);
         if (role == null)
             return false;
         return role.canSeeBodyItems();

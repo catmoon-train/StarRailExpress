@@ -4,13 +4,13 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
+import io.wifi.starrailexpress.content.gui.BodyEntityContainer;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -31,22 +31,15 @@ public class PlayerBodyEntityComponent implements RoleComponent, ServerTickingCo
 
     private UUID killer;
     private String deathReason = "";
-
     // 容器大小27，仅允许0-13槽放置物品
-    private final SimpleContainer corpseInventory = new SimpleContainer(27) {
-        @Override
-        public boolean canPlaceItem(int slot, ItemStack stack) {
-            return slot < 14 && super.canPlaceItem(slot, stack);
-        }
-        // setItem 不再自动同步，由调用者根据需要手动调用 sync()
-    };
+    private final BodyEntityContainer corpseInventory = new BodyEntityContainer(27);
 
     public PlayerBodyEntityComponent(PlayerBodyEntity playerBodyEntity) {
         this.playerBodyEntity = playerBodyEntity;
     }
 
     // ---------- 物品容器访问 ----------
-    public SimpleContainer getCorpseInventory() {
+    public BodyEntityContainer getCorpseInventory() {
         return corpseInventory;
     }
 
@@ -131,8 +124,9 @@ public class PlayerBodyEntityComponent implements RoleComponent, ServerTickingCo
             ItemStack stack = corpseInventory.getItem(i);
             if (!stack.isEmpty()) {
                 CompoundTag itemTag = new CompoundTag();
+                Tag itemItemTag = stack.save(registryLookup);
+                itemTag.put("Item", itemItemTag);
                 itemTag.putByte("Slot", (byte) i);
-                stack.save(registryLookup, itemTag);
                 items.add(itemTag);
             }
         }
@@ -166,8 +160,11 @@ public class PlayerBodyEntityComponent implements RoleComponent, ServerTickingCo
                 CompoundTag itemTag = items.getCompound(i);
                 int slot = itemTag.getByte("Slot") & 255;
                 if (slot >= 0 && slot < 14) {
-                    ItemStack stack = ItemStack.parse(registryLookup, itemTag).orElse(ItemStack.EMPTY);
-                    corpseInventory.setItem(slot, stack);
+                    if (itemTag.contains("Item")) {
+                        ItemStack stack = ItemStack.parse(registryLookup, itemTag.getCompound("Item"))
+                                .orElse(ItemStack.EMPTY);
+                        corpseInventory.setItem(slot, stack);
+                    }
                 }
             }
         }

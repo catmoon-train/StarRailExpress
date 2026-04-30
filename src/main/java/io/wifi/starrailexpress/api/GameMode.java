@@ -67,6 +67,14 @@ public abstract class GameMode {
     public final int defaultStartTime;
     public final int minPlayerCount;
 
+    public boolean canPickBodyContent() {
+        return false;
+    };
+
+    public boolean canSeeBodyContent() {
+        return false;
+    };
+
     /**
      * @param identifier       游戏的id
      * @param defaultStartTime 默认游戏时长（分钟）

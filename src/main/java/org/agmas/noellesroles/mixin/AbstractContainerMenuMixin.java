@@ -1,6 +1,7 @@
 package org.agmas.noellesroles.mixin;
 
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.content.gui.CustomInventoryMenu;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -21,6 +22,8 @@ public class AbstractContainerMenuMixin {
             return;
         final var instance1 = (AbstractContainerMenu) (Object) this;
         if (!GameUtils.isPlayerAliveAndSurvival(player))
+            return;
+        if (instance1 instanceof CustomInventoryMenu)
             return;
         if (!(instance1 instanceof InventoryMenu || instance1 instanceof PostmanScreenHandler
                 || instance1 instanceof DetectiveInspectScreenHandler)) {

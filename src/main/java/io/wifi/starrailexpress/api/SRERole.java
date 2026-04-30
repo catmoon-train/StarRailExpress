@@ -41,6 +41,7 @@ public abstract class SRERole {
     private ResourceLocation identifier;
     private boolean canSeeCoin = true;
     private boolean canSeeBodyItems = false;
+    private boolean canGetBodyItems = false;
     private boolean canBeRandomed = true;
     private boolean canSeeBodyDeathReason = false;
     private boolean canSeeBodyRoleInfo = false;
@@ -106,6 +107,15 @@ public abstract class SRERole {
     public SRERole setCanSeeBodyItems(boolean flag) {
         canSeeBodyItems = flag;
         return this;
+    }
+
+    public SRERole setCanGetBodyItems(boolean flag) {
+        canGetBodyItems = flag;
+        return this;
+    }
+
+    public boolean canGetBodyItems() {
+        return canGetBodyItems;
     }
 
     public boolean canSeeBodyItems() {
