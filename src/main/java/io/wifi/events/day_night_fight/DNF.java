@@ -1,6 +1,7 @@
 package io.wifi.events.day_night_fight;
 
 import io.wifi.events.day_night_fight.cca.DNFPlayerComponent;
+import io.wifi.events.day_night_fight.commands.ClueSystemCommand;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -13,6 +14,9 @@ import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.ShopEntry;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.minecraft.ChatFormatting;
+import net.minecraft.commands.CommandBuildContext;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands.CommandSelection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -25,6 +29,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import org.agmas.noellesroles.game.roles.Innocent.coroner.BodyDeathReasonComponent;
+
+import com.mojang.brigadier.CommandDispatcher;
+
 import java.util.List;
 import java.util.ArrayList;
 
@@ -241,5 +248,10 @@ public class DNF {
             return player instanceof ServerPlayer serverPlayer
                     && DNFBloodPurchaseItem.buy(serverPlayer, bloodPrice, stack().copy(), itemNameKey);
         }
+    }
+
+    public static void registerCommands(CommandDispatcher<CommandSourceStack> dispatcher,
+            CommandBuildContext registryAccess, CommandSelection environment) {
+        ClueSystemCommand.register(dispatcher);
     }
 }

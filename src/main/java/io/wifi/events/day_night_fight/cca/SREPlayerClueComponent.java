@@ -15,22 +15,29 @@ import org.ladysnake.cca.api.v3.component.ComponentRegistry;
 import java.util.*;
 
 public class SREPlayerClueComponent implements RoleComponent {
-    public static final ComponentKey<SREPlayerClueComponent> KEY = ComponentRegistry.getOrCreate(SRE.id("clue"), SREPlayerClueComponent.class);
+    public static final ComponentKey<SREPlayerClueComponent> KEY = ComponentRegistry.getOrCreate(SRE.id("clue"),
+            SREPlayerClueComponent.class);
 
-    public record ClueEntry(UUID clueEntityUuid, String title, String content, long createdAt) {}
+    public record ClueEntry(UUID clueEntityUuid, String title, String content, long createdAt) {
+    }
 
     private final Player player;
     public final List<ClueEntry> clues = new ArrayList<>();
     public final Set<UUID> sentClues = new HashSet<>();
     public int sendTimesLeft = 0;
 
-    public SREPlayerClueComponent(Player player) { this.player = player; }
+    public SREPlayerClueComponent(Player player) {
+        this.player = player;
+    }
 
     @Override
-    public Player getPlayer() { return player; }
+    public Player getPlayer() {
+        return player;
+    }
 
     public void sync() {
-        if (player instanceof ServerPlayer sp) KEY.sync(sp);
+        if (player instanceof ServerPlayer sp)
+            KEY.sync(sp);
     }
 
     @Override
@@ -70,7 +77,8 @@ public class SREPlayerClueComponent implements RoleComponent {
         }
         tag.put("clues", clueList);
         ListTag sent = new ListTag();
-        for (UUID uuid : sentClues) sent.add(StringTag.valueOf(uuid.toString()));
+        for (UUID uuid : sentClues)
+            sent.add(StringTag.valueOf(uuid.toString()));
         tag.put("sent", sent);
     }
 
@@ -82,9 +90,11 @@ public class SREPlayerClueComponent implements RoleComponent {
         ListTag clueList = tag.getList("clues", 10);
         for (int i = 0; i < clueList.size(); i++) {
             CompoundTag ct = clueList.getCompound(i);
-            clues.add(new ClueEntry(ct.getUUID("uuid"), ct.getString("title"), ct.getString("content"), ct.getLong("created_at")));
+            clues.add(new ClueEntry(ct.getUUID("uuid"), ct.getString("title"), ct.getString("content"),
+                    ct.getLong("created_at")));
         }
         ListTag sent = tag.getList("sent", 8);
-        for (int i = 0; i < sent.size(); i++) sentClues.add(UUID.fromString(sent.getString(i)));
+        for (int i = 0; i < sent.size(); i++)
+            sentClues.add(UUID.fromString(sent.getString(i)));
     }
 }

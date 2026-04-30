@@ -235,6 +235,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
 
     private void registerCommands() {
         CommandRegistrationCallback.EVENT.register(((dispatcher, registryAccess, environment) -> {
+            DNF.registerCommands(dispatcher,registryAccess,environment);
             SREVoteCommand.register(dispatcher, registryAccess);
             NarratorCommand.register(dispatcher,registryAccess);
             GiveRoomKeyCommand.register(dispatcher);
@@ -268,7 +269,6 @@ public class SRE extends StarRailExpressID implements ModInitializer {
             NetworkStatsCommand.register(dispatcher);
             FourthRoomCommand.register(dispatcher);
             ReloadMapConfigCommand.register(dispatcher);
-            ClueSystemCommand.register(dispatcher);
             SkinsCommand.register(dispatcher);
             io.wifi.starrailexpress.cca.network.SkinsNetworkSyncCommand.register(dispatcher);
             // CoinModifier.register(dispatcher, registryAccess);

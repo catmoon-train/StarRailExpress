@@ -1,4 +1,4 @@
-package io.wifi.starrailexpress.content.command;
+package io.wifi.events.day_night_fight.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
