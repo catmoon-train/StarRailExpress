@@ -26,7 +26,9 @@ import net.minecraft.world.phys.Vec3;
 
 import org.agmas.noellesroles.game.roles.Innocent.fool.TarotAssemblyManager;
 
+import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.PlayerBodyEntityComponent;
+import io.wifi.starrailexpress.cca.SRERoleWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 
 import java.util.Optional;
@@ -180,7 +182,7 @@ public class PlayerBodyEntity extends LivingEntity {
         }
         // 将组件数据写入子标签
         CompoundTag componentTag = new CompoundTag();
-        getComponent().writeToNbt(componentTag, this.registryAccess());
+        getComponent().writeToNbtFromBody(componentTag, this.registryAccess());
         nbt.put("BodyComponent", componentTag);
     }
 
@@ -192,7 +194,7 @@ public class PlayerBodyEntity extends LivingEntity {
         }
         // 读取组件数据
         if (nbt.contains("BodyComponent", Tag.TAG_COMPOUND)) {
-            getComponent().readFromNbt(nbt.getCompound("BodyComponent"), this.registryAccess());
+            getComponent().readFromNbtFromBody(nbt.getCompound("BodyComponent"), this.registryAccess());
         }
         // 若为服务端，同步一次状态
         if (!this.level().isClientSide) {
@@ -204,7 +206,7 @@ public class PlayerBodyEntity extends LivingEntity {
     public InteractionResult interactAt(Player player, Vec3 vec3, InteractionHand hand) {
         if (player instanceof ServerPlayer serverPlayer
                 && hasCorpseItems()
-                && !GameUtils.isPlayerAliveAndSurvival(serverPlayer)) { // 仅旁观玩家可查看
+                && (!GameUtils.isPlayerAliveAndSurvival(serverPlayer) || canSeeDeathBodyContent(serverPlayer))) { // 仅旁观玩家可查看
             serverPlayer.openMenu(new MenuProvider() {
                 @Override
                 public Component getDisplayName() {
@@ -219,6 +221,13 @@ public class PlayerBodyEntity extends LivingEntity {
             return InteractionResult.SUCCESS;
         }
         return super.interactAt(player, vec3, hand);
+    }
+
+    private boolean canSeeDeathBodyContent(ServerPlayer serverPlayer) {
+        SRERole role = SRERoleWorldComponent.KEY.get(serverPlayer.serverLevel()).getRole(serverPlayer);
+        if (role == null)
+            return false;
+        return role.canSeeBodyItems();
     }
 
     private boolean hasCorpseItems() {

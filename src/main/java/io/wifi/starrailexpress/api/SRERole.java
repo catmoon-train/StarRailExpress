@@ -40,6 +40,7 @@ public abstract class SRERole {
     protected final Random random = new Random();
     private ResourceLocation identifier;
     private boolean canSeeCoin = true;
+    private boolean canSeeBodyItems = false;
     private boolean canBeRandomed = true;
     private boolean canSeeBodyDeathReason = false;
     private boolean canSeeBodyRoleInfo = false;
@@ -100,6 +101,15 @@ public abstract class SRERole {
     public SRERole setCanIgnoreBlackout(Boolean bl) {
         this.canIgnoreBlackout = bl;
         return this;
+    }
+
+    public SRERole setCanSeeBodyItems(boolean flag) {
+        canSeeBodyItems = flag;
+        return this;
+    }
+
+    public boolean canSeeBodyItems() {
+        return canSeeBodyItems;
     }
 
     public boolean canSeeBodyRoleInfo() {

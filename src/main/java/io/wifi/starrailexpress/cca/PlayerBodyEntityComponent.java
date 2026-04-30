@@ -116,6 +116,9 @@ public class PlayerBodyEntityComponent implements RoleComponent, ServerTickingCo
     // ---------- 持久化 ----------
     @Override
     public void writeToNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    public void writeToNbtFromBody(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         tag.putString("playerRole", playerRole.toString());
         tag.putBoolean("vultured", vultured);
         if (killer != null) {
@@ -138,6 +141,9 @@ public class PlayerBodyEntityComponent implements RoleComponent, ServerTickingCo
 
     @Override
     public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    public void readFromNbtFromBody(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.playerRole = ResourceLocation.tryParse(tag.getString("playerRole"));
         if (this.playerRole == null)
             this.playerRole = TMMRoles.CIVILIAN.identifier();
