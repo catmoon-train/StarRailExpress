@@ -229,6 +229,7 @@ public class SREConfig implements ConfigData {
     public int clueBookshelfZ = 0;
     @ConfigEntry.Category(value = "clue")
     public String clueBookshelfDimension = "minecraft:overworld";
+
     @ConfigEntry.Category(value = "progression")
     public boolean enableProgressionSystem = false;
     @ConfigEntry.Category(value = "progression")
