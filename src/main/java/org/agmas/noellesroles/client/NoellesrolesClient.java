@@ -936,6 +936,9 @@ public class NoellesrolesClient implements ClientModInitializer {
 
             OtherworldSceneManager.INSTANCE.tick();
 
+            boolean dnfHellActive = SREClient.gameComponent.isRole(client.player, org.agmas.noellesroles.role.ModRoles.DNF_ABYSS);
+            DnfHellTrailSceneManager.INSTANCE.tick(dnfHellActive);
+
             // 鬼缚效果红色粒子渲染
             for (var p : client.level.players()) {
                 if (p.hasEffect(ModEffects.GHOST_CURSE)) {

@@ -60,6 +60,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.agmas.noellesroles.game.roles.Innocent.coroner.BodyDeathReasonComponent;
+import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class GameMode {
@@ -596,6 +597,9 @@ public abstract class GameMode {
                         body.setYRot(victim.getYHeadRot());
                         body.setYHeadRot(victim.getYHeadRot());
                         victim.level().addFreshEntity(body);
+                        if (NoellesRolesConfig.HANDLER.instance().allowDropItems) {
+                            body.setCorpseInventoryFromPlayerInventory(victim.getInventory());
+                        }
                         {
                             if (role != null) {
                                 final var bodyDeathReasonComponent = BodyDeathReasonComponent.KEY.get(body);

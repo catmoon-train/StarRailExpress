@@ -131,6 +131,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
         TMMRoles.addRoleComponents(SREPlayerPsychoComponent.KEY);
         TMMRoles.addRoleComponents(SREPlayerMoodComponent.KEY);
         TMMRoles.addRoleComponents(SREPlayerNoteComponent.KEY);
+        TMMRoles.addRoleComponents(SREPlayerClueComponent.KEY);
         TMMRoles.addRoleComponents(PandaComponent.KEY);
         TMMRoles.addRoleComponents(SREPlayerPoisonComponent.KEY);
         TMMRoles.addRoleComponents(SREPlayerShopComponent.KEY);
@@ -246,6 +247,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
             ForceTeamCommand.register(dispatcher);
             SetTimerCommand.register(dispatcher);
             SetDeathPenaltyCommand.register(dispatcher);
+            RevivePlayerCommand.register(dispatcher);
             MoneyCommand.register(dispatcher);
             CustomReplayEventCommand.register(dispatcher, registryAccess);
             SetAutoTrainResetCommand.register(dispatcher);
@@ -267,6 +269,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
             NetworkStatsCommand.register(dispatcher);
             FourthRoomCommand.register(dispatcher);
             ReloadMapConfigCommand.register(dispatcher);
+            ClueSystemCommand.register(dispatcher);
             SkinsCommand.register(dispatcher);
             io.wifi.starrailexpress.cca.network.SkinsNetworkSyncCommand.register(dispatcher);
             // CoinModifier.register(dispatcher, registryAccess);

@@ -2046,7 +2046,7 @@ public class RoleShopHandler {
         TMMItems.GRENADE.getDefaultInstance(),
         350,
         ShopEntry.Type.WEAPON));
-    // 跳跃提升2药水 - 180金币，购买后给予30秒效果（图标为poison）
+    // 跳跃提升2药水 - 100金币，购买后给予30秒效果（图标为poison）
     {
       ItemStack jumpBoostPotion = Items.SPLASH_POTION.getDefaultInstance();
       jumpBoostPotion.set(DataComponents.ITEM_NAME,
@@ -2058,7 +2058,7 @@ public class RoleShopHandler {
           .withStyle(ChatFormatting.GRAY));
       jumpBoostPotion.set(DataComponents.LORE, new ItemLore(jumpBoostLore));
 
-      SHADOW_FALCON_SHOP.add(new ShopEntry(jumpBoostPotion, 180, ShopEntry.Type.TOOL) {
+      SHADOW_FALCON_SHOP.add(new ShopEntry(jumpBoostPotion, 100, ShopEntry.Type.TOOL) {
         @Override
         public boolean onBuy(@NotNull Player player) {
           // 给予30秒跳跃提升2效果

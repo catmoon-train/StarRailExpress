@@ -117,6 +117,9 @@ import java.util.HashMap;
  * | 邪恶乘客 | true | true | 乘客阵营但有杀手能力（特殊） |
  */
 public class ModRoles {
+    private static final java.util.Map<java.util.UUID, Integer> DNF_CHARGING_TICKS = new java.util.HashMap<>();
+    private static final java.util.Map<java.util.UUID, Long> DNF_TRAIL_EXPIRE = new java.util.HashMap<>();
+
     @SuppressWarnings("deprecation")
     public static final AttachmentType<String> ENTITY_NOTE_MAKER = AttachmentRegistry.<String>builder()
             .persistent(Codec.STRING)
@@ -207,6 +210,7 @@ public class ModRoles {
     public static final ResourceLocation GUEST_GHOST_ID = Noellesroles.id("guest_ghost");
     public static final ResourceLocation WATCHER_ID = Noellesroles.id("watcher");
     public static final ResourceLocation IMITATOR_ID = Noellesroles.id("imitator");
+    public static final ResourceLocation DNF_ABYSS_ID = Noellesroles.id("dnf_abyss");
 
     // 中立阵营
     public static final ResourceLocation STALKER_ID = Noellesroles.id("stalker");
@@ -1605,7 +1609,47 @@ public class ModRoles {
         }
     }).setComponentKey(ModComponents.IMITATOR).setCanSeeCoin(true);
 
-    /**
+    
+
+    public static SRERole DNF_ABYSS = TMMRoles.registerRole(new NormalRole(
+            DNF_ABYSS_ID,
+            new Color(120, 0, 0).getRGB(),
+            false,
+            true,
+            SRERole.MoodType.FAKE,
+            Integer.MAX_VALUE,
+            true) {
+        @Override
+        public net.minecraft.world.InteractionResultHolder<net.minecraft.world.item.ItemStack> onItemUse(Player player, net.minecraft.world.level.Level world, InteractionHand hand) {
+            player.startUsingItem(hand);
+            return net.minecraft.world.InteractionResultHolder.success(player.getItemInHand(hand));
+        }
+
+        @Override
+        public void serverTick(ServerPlayer player) {
+            player.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, 40, 0, false, false, false));
+            if (player.level() instanceof net.minecraft.server.level.ServerLevel sl) {
+                sl.sendParticles(net.minecraft.core.particles.ParticleTypes.CRIMSON_SPORE, player.getX(), player.getY() + 1, player.getZ(), 3, 0.4, 0.8, 0.4, 0.01);
+            }
+            java.util.UUID id = player.getUUID();
+            if (player.isUsingItem()) {
+                DNF_CHARGING_TICKS.put(id, DNF_CHARGING_TICKS.getOrDefault(id, 0) + 1);
+                player.setDeltaMovement(0, player.getDeltaMovement().y, 0);
+                if (DNF_CHARGING_TICKS.get(id) >= 10) {
+                    DNF_CHARGING_TICKS.put(id, 0);
+                    player.stopUsingItem();
+                    var hitBox = player.getBoundingBox().inflate(2.5).move(player.getLookAngle().scale(2.0));
+                    for (Player p2 : player.level().getEntitiesOfClass(Player.class, hitBox, p -> p != player && GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(p))) {
+                        GameUtils.killPlayer((ServerPlayer) p2, true, player, Noellesroles.id("dnf_tentacle"));
+                    }
+                }
+            } else {
+                DNF_CHARGING_TICKS.remove(id);
+            }
+            DNF_TRAIL_EXPIRE.put(id, player.level().getGameTime() + 60);
+        }
+    }).setCanSeeCoin(true);
+/**
      * 愚者角色 - 好人阵营
      * - 属于乘客阵营 (isInnocent = true)
      * - 不能使用杀手能力 (canUseKiller = false)

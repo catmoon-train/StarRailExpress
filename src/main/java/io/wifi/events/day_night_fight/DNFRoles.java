@@ -21,6 +21,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 public class DNFRoles {
@@ -46,6 +47,7 @@ public class DNFRoles {
                     ArrayList<ItemStack> items = new ArrayList<>();
                     items.add(DNFItems.BLOOD_BUY_FLYING_KNIFE.getDefaultInstance());
                     items.add(DNFItems.BLOOD_BUY_LOCKPICK.getDefaultInstance());
+                    items.add(DNFItems.ABYSS_VIAL.getDefaultInstance());
                     return items;
                 }
 
@@ -93,6 +95,43 @@ public class DNFRoles {
                         return false;
                     }
                     return true;
+                }
+
+
+
+                @Override
+                public Item getPsychoItem() {
+                    return DNFItems.ABYSS_TENTACLE;
+                }
+
+                @Override
+                public InteractionResult leftClickEntity(Player player, Entity target) {
+                    if (!(player instanceof ServerPlayer serverPlayer) || !(target instanceof Player victim)) {
+                        return InteractionResult.PASS;
+                    }
+                    if (!serverPlayer.getMainHandItem().is(DNFItems.ABYSS_TENTACLE)) {
+                        return InteractionResult.PASS;
+                    }
+                    if (io.wifi.starrailexpress.cca.SREPlayerPsychoComponent.KEY.get(serverPlayer).getPsychoTicks() <= 0) {
+                        return InteractionResult.PASS;
+                    }
+                    serverPlayer.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.MOVEMENT_SLOWDOWN, 25, 6, false, false, false));
+                    io.wifi.starrailexpress.util.Scheduler.schedule(() -> {
+                        if (serverPlayer.isAlive() && victim.isAlive()) {
+                            victim.hurt(serverPlayer.damageSources().playerAttack(serverPlayer), 1000f);
+                        }
+                    }, 5);
+                    io.wifi.starrailexpress.util.Scheduler.schedule(() -> {
+                        if (serverPlayer.isAlive()) {
+                            serverPlayer.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.MOVEMENT_SLOWDOWN, 25, 6, false, false, false));
+                        }
+                    }, 0);
+                    io.wifi.starrailexpress.util.Scheduler.schedule(() -> {
+                        if (serverPlayer.isAlive()) {
+                            serverPlayer.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.MOVEMENT_SLOWDOWN, 25, 6, false, false, false));
+                        }
+                    }, 25);
+                    return InteractionResult.CONSUME;
                 }
 
                 @Override

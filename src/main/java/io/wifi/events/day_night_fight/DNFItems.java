@@ -59,6 +59,10 @@ public class DNFItems {
     public static final Item BLOOD_BUY_LOCKPICK = register("dnf_blood_buy_lockpick",
             new DNFBloodPurchaseItem(new Item.Properties().stacksTo(1), DNF.BLOOD_PRICE,
                     DNFItems.LOCKPICK::getDefaultInstance, "item.starrailexpress.dnf_lockpick"));
+    public static final Item ABYSS_VIAL = register("dnf_abyss_vial",
+            new DNFKillerPsychoItem(new Item.Properties().stacksTo(1)));
+    public static final Item ABYSS_TENTACLE = register("dnf_abyss_tentacle",
+            new DNFTentacleItem(new Item.Properties().stacksTo(1)));
 
     public static void init() {
         ItemGroupEvents.modifyEntriesEvent(TMMItems.EQUIPMENT_GROUP).register(entries -> {
@@ -74,6 +78,8 @@ public class DNFItems {
             entries.accept(WATER_BOTTLE);
             entries.accept(BLOOD_BUY_FLYING_KNIFE);
             entries.accept(BLOOD_BUY_LOCKPICK);
+            entries.accept(ABYSS_VIAL);
+            entries.accept(ABYSS_TENTACLE);
         });
     }
 

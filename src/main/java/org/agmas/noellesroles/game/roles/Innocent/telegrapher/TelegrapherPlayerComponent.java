@@ -1,6 +1,8 @@
 package org.agmas.noellesroles.game.roles.Innocent.telegrapher;
 
 import io.wifi.starrailexpress.api.RoleComponent;
+import io.wifi.starrailexpress.network.packet.CustomNarratorPacket;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -9,6 +11,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.component.ModComponents;
+import io.wifi.starrailexpress.game.GameUtils;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 /**
@@ -101,14 +104,22 @@ public class TelegrapherPlayerComponent implements RoleComponent {
         // 创建Title文本 - 淡蓝色显示消息内容
         Component titleText = Component.literal(message).withStyle(ChatFormatting.AQUA);
 
-        // 向所有玩家显示Title（包括生存模式玩家）
+        // 向所有存活的玩家显示Title并发送语音播报
         for (ServerPlayer targetPlayer : serverPlayer.getServer().getPlayerList().getPlayers()) {
+            // 只向存活的玩家发送
+            if (!GameUtils.isPlayerAliveAndSurvival(targetPlayer)) {
+                continue;
+            }
+            
             // 只使用主标题显示消息，淡蓝色
             // 参数：fadeIn(淡入), stay(停留), fadeOut(淡出) - 单位：tick
             targetPlayer.connection.send(
                     new net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket(titleText));
             targetPlayer.connection.send(
                     new net.minecraft.network.protocol.game.ClientboundSetTitlesAnimationPacket(10, 60, 10));
+            
+            // 同时以语音方式播报消息
+            ServerPlayNetworking.send(targetPlayer, new CustomNarratorPacket(titleText, false));
         }
 
         // 向发送者确认

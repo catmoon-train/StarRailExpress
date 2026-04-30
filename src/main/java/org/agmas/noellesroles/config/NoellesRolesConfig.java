@@ -84,6 +84,10 @@ public class NoellesRolesConfig implements ConfigData {
      */
 
     public boolean accidentalKillPunishment = true;
+    /**
+     * Keep victim inventory in corpse when a body is generated on death.
+     */
+    public boolean allowDropItems = false;
 
     /**
      * Allow Natural deaths to trigger voodoo (deaths without an assigned killer)
