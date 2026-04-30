@@ -1135,7 +1135,7 @@ public class GameUtils {
     }
 
     public static void revivePlayer(ServerPlayer player, double x, double y, double z) {
-        player.setPos(x, y, z);
+        player.teleportTo(x, y, z);
         player.setGameMode(GameType.ADVENTURE);
         TrainVoicePlugin.resetPlayer(player.getUUID());
         SRE.REPLAY_MANAGER.recordPlayerRevival(player.getUUID(), null);
