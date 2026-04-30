@@ -7,10 +7,10 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
-public class BodyEntityContainer extends SimpleContainer {
+public class PlayerBodyEntityContainer extends SimpleContainer {
     public Player currentUser = null; // 当前打开尸体的玩家（null 表示无操作者）
 
-    public BodyEntityContainer(int i) {
+    public PlayerBodyEntityContainer(int i) {
         super(i);
     }
 
@@ -43,6 +43,9 @@ public class BodyEntityContainer extends SimpleContainer {
         if (player.isCreative())
             return true;
         var cca = SREGameWorldComponent.KEY.get(player.level());
+        if (cca.gameMode == null) {
+            return false;
+        }
         if (cca.gameMode.canPickBodyContent()) {
             return true;
         }

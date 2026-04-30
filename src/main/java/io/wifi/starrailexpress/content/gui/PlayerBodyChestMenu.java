@@ -10,11 +10,11 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
 public class PlayerBodyChestMenu extends AbstractContainerMenu implements CustomInventoryMenu {
-    private final BodyEntityContainer container;
+    private final PlayerBodyEntityContainer container;
     private final int rows;
 
     // 如果你使用原版 MenuType，可在此替换为你的自定义类型或直接用原版
-    public PlayerBodyChestMenu(int containerId, Inventory playerInventory, BodyEntityContainer container) {
+    public PlayerBodyChestMenu(int containerId, Inventory playerInventory, PlayerBodyEntityContainer container) {
         super(MenuType.GENERIC_9x3, containerId);
         this.container = container;
         this.rows = 3;

@@ -4,7 +4,7 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
-import io.wifi.starrailexpress.content.gui.BodyEntityContainer;
+import io.wifi.starrailexpress.content.gui.PlayerBodyEntityContainer;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -32,14 +32,14 @@ public class PlayerBodyEntityComponent implements RoleComponent, ServerTickingCo
     private UUID killer;
     private String deathReason = "";
     // 容器大小27，仅允许0-13槽放置物品
-    private final BodyEntityContainer corpseInventory = new BodyEntityContainer(27);
+    private final PlayerBodyEntityContainer corpseInventory = new PlayerBodyEntityContainer(27);
 
     public PlayerBodyEntityComponent(PlayerBodyEntity playerBodyEntity) {
         this.playerBodyEntity = playerBodyEntity;
     }
 
     // ---------- 物品容器访问 ----------
-    public BodyEntityContainer getCorpseInventory() {
+    public PlayerBodyEntityContainer getCorpseInventory() {
         return corpseInventory;
     }
 

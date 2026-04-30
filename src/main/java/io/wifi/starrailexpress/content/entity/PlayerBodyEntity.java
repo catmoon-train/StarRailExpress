@@ -256,6 +256,9 @@ public class PlayerBodyEntity extends LivingEntity {
 
     private boolean canSeeDeathBodyContent(ServerPlayer serverPlayer) {
         var cca = SREGameWorldComponent.KEY.get(serverPlayer.level());
+        if (cca.gameMode == null) {
+            return false;
+        }
         if (cca.gameMode.canSeeBodyContent()) {
             return true;
         }
