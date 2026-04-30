@@ -1124,6 +1124,7 @@
   "shop.fourth_room.test_strip.description": "保留作后续任务与检定扩展。",
   "shop.fourth_room.sticky_note.description": "保留作便利贴放置与搜索扩展。",
   "container.starrailexpress.player_body": "玩家尸体",
+  "entity.starrailexpress.player_body.custom_name": "%s的玩家尸体",
   "item.starrailexpress.dnf_flying_knife": "凝血飞刀",
   "item.starrailexpress.dnf_lockpick": "凝血开锁器",
   "item.starrailexpress.dnf_crowbar": "感染撬棍",

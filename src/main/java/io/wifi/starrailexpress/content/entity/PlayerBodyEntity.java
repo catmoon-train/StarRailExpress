@@ -23,6 +23,7 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.scores.PlayerTeam;
 
 import org.agmas.noellesroles.game.roles.Innocent.fool.TarotAssemblyManager;
 
@@ -51,6 +52,33 @@ public class PlayerBodyEntity extends LivingEntity {
     // 获取本实体上的 BodyDeathReasonComponent
     public PlayerBodyEntityComponent getComponent() {
         return PlayerBodyEntityComponent.KEY.get(this);
+    }
+
+    @Override
+    public Component getDisplayName() {
+        var c = getCustomName();
+        if (c != null) {
+            PlayerTeam.formatNameForTeam(this.getTeam(), c).withStyle(
+                    (style) -> style.withHoverEvent(this.createHoverEvent()).withInsertion(this.getStringUUID()));
+            return c;
+        }
+        return super.getDisplayName();
+    }
+
+    @Override
+    public Component getCustomName() {
+        var playerUuid = getPlayerUuid();
+        var name = super.getCustomName();
+        if (name != null)
+            return name;
+        if (playerUuid != null) {
+            var player = this.getServer().getPlayerList().getPlayer(playerUuid);
+            if (player != null) {
+                return Component.translatable("entity.starrailexpress.player_body.custom_name",
+                        player.getDisplayName());
+            }
+        }
+        return null;
     }
 
     @Override
