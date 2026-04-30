@@ -1,5 +1,6 @@
-package io.wifi.events.day_night_fight;
+package io.wifi.events.day_night_fight.cca;
 
+import io.wifi.events.day_night_fight.DNFRoles;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleComponent;
 import net.minecraft.core.HolderLookup;

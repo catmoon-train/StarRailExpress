@@ -4,8 +4,9 @@ import io.wifi.starrailexpress.cca.gamemode.CustomRoleGameModeTeamsPlayerCompone
 import io.wifi.starrailexpress.cca.gamemode.CustomRoleGameModeWorldComponent;
 import io.wifi.starrailexpress.content.mail.MailboxComponent;
 import io.wifi.events.day_night_fight.DNFDailyTaskComponent;
-import io.wifi.events.day_night_fight.DNFKillerStatsComponent;
-import io.wifi.events.day_night_fight.DNFPlayerComponent;
+import io.wifi.events.day_night_fight.cca.DNFKillerStatsComponent;
+import io.wifi.events.day_night_fight.cca.DNFPlayerComponent;
+import io.wifi.events.day_night_fight.cca.SREPlayerClueComponent;
 import net.exmo.sre.nametag.NameTagInventoryComponent;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;

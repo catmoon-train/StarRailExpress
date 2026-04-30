@@ -1,7 +1,7 @@
 package io.wifi.events.day_night_fight.client;
 
-import io.wifi.events.day_night_fight.DNFPlayerComponent;
 import io.wifi.events.day_night_fight.DNFRoles;
+import io.wifi.events.day_night_fight.cca.DNFPlayerComponent;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;

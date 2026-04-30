@@ -2,6 +2,8 @@ package io.wifi.events.day_night_fight;
 
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+
+import io.wifi.events.day_night_fight.cca.DNFPlayerComponent;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;

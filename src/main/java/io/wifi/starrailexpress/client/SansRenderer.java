@@ -2,7 +2,8 @@ package io.wifi.starrailexpress.client;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
-import io.wifi.events.day_night_fight.DNFPlayerComponent;
+
+import io.wifi.events.day_night_fight.cca.DNFPlayerComponent;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;

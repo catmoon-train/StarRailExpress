@@ -1,5 +1,6 @@
 package io.wifi.events.day_night_fight;
 
+import io.wifi.events.day_night_fight.cca.DNFPlayerComponent;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.content.block.SmallDoorBlock;
 import io.wifi.starrailexpress.content.block.TrainDoorBlock;

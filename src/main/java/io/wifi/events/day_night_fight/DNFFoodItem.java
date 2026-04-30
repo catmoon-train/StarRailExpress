@@ -1,5 +1,6 @@
 package io.wifi.events.day_night_fight;
 
+import io.wifi.events.day_night_fight.cca.DNFPlayerComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;

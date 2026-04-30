@@ -3,7 +3,8 @@ package io.wifi.starrailexpress.content.command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
-import io.wifi.starrailexpress.content.clue.ClueSystem;
+
+import io.wifi.events.day_night_fight.clue.ClueSystem;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;

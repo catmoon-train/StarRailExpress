@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.agmas.noellesroles.utils.RoleUtils;
 
+import io.wifi.events.day_night_fight.cca.DNFPlayerComponent;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.CustomWinnerRole;
 import io.wifi.starrailexpress.api.SREGameModes;

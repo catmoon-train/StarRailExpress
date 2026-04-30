@@ -1,8 +1,8 @@
-package io.wifi.starrailexpress.content.clue;
+package io.wifi.events.day_night_fight.clue;
 
+import io.wifi.events.day_night_fight.cca.SREPlayerClueComponent;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
-import io.wifi.starrailexpress.cca.SREPlayerClueComponent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;

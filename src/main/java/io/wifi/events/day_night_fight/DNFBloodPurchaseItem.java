@@ -14,6 +14,8 @@ import net.minecraft.world.level.Level;
 import java.util.List;
 import java.util.function.Supplier;
 
+import io.wifi.events.day_night_fight.cca.DNFPlayerComponent;
+
 public class DNFBloodPurchaseItem extends Item {
     private final int price;
     private final Supplier<ItemStack> purchase;

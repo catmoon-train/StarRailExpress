@@ -1,4 +1,4 @@
-package io.wifi.starrailexpress.cca;
+package io.wifi.events.day_night_fight.cca;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleComponent;

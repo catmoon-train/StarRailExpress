@@ -152,6 +152,7 @@
       "harpymodloader:modifier",
       "starrailexpress:train",
       "starrailexpress:extra_slots",
+      "starrailexpress:clue",
       "starrailexpress:game",
       "starrailexpress:roles",
       "starrailexpress:custom_roles",

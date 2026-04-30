@@ -131,7 +131,6 @@ public class SRE extends StarRailExpressID implements ModInitializer {
         TMMRoles.addRoleComponents(SREPlayerPsychoComponent.KEY);
         TMMRoles.addRoleComponents(SREPlayerMoodComponent.KEY);
         TMMRoles.addRoleComponents(SREPlayerNoteComponent.KEY);
-        TMMRoles.addRoleComponents(SREPlayerClueComponent.KEY);
         TMMRoles.addRoleComponents(PandaComponent.KEY);
         TMMRoles.addRoleComponents(SREPlayerPoisonComponent.KEY);
         TMMRoles.addRoleComponents(SREPlayerShopComponent.KEY);
