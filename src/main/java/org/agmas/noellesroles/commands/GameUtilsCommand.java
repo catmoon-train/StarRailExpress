@@ -494,17 +494,19 @@ public class GameUtilsCommand {
                             () -> Component.translatable("Killed player body of %s", player.getName()), true);
                         return 1;
                       }))
-                      .then(Commands.literal("as_run")).fork(dispatcher.getRoot(), (commandContext) -> {
-                        List<CommandSourceStack> list = Lists.newArrayList();
-                        ServerPlayer player = commandContext.getSource().getPlayerOrException();
-                        var body = GameUtils.findPlayerBodyEntity(player);
-                        if (body == null) {
-                          throw ConfigCommand
-                              .createSimpleSyntaxException(new Exception("Cannot find the player body in the world!"));
-                        }
-                        list.add(body.createCommandSourceStack());
-                        return list;
-                      }))
+                      .then(Commands.literal("as_run")
+                          .fork(dispatcher.getRoot(), (commandContext) -> {
+                            List<CommandSourceStack> list = Lists.newArrayList();
+                            ServerPlayer player = commandContext.getSource().getPlayerOrException();
+                            var body = GameUtils.findPlayerBodyEntity(player);
+                            if (body == null) {
+                              throw ConfigCommand
+                                  .createSimpleSyntaxException(
+                                      new Exception("Cannot find the player body in the world!"));
+                            }
+                            list.add(body.createCommandSourceStack());
+                            return list;
+                          })))
                   .then(Commands.literal("revive")
                       .then(Commands.argument("player", EntityArgument.player())
                           .executes(ctx -> {
