@@ -2102,6 +2102,7 @@
   "mob_effect.noellesroles.player_isolation": "玩家隔离",
   "announcement.star.role.spellbreaker": "破法者",
   "announcement.star.goals.spellbreaker": "封禁乘客的技能与行动窗口，掌控关键区域并猎杀目标",
+  "info.screen.roleid.spellbreaker": "杀手阵营\n按G释放破法力场：50米内非杀手玩家25秒内无法使用技能和打开背包，并获得滤镜覆盖，冷却120s。\n破法药剂：对玩家使用后使其下一次技能尝试失败，并进入20秒技能封禁,80s有效。\n沉默图腾：投掷隐形图腾，30秒内使6米内非杀手玩家持续缓慢I与失明。同一时间只能存在一个图腾。",
   "item.noellesroles.spellbreaker_potion": "破法药剂",
   "item.noellesroles.silence_totem": "沉默图腾",
   "message.noellesroles.spellbreaker.area_silenced": "你被破法力场压制，暂时无法使用技能或打开背包",

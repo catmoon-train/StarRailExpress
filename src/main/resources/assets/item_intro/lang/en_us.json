@@ -118,5 +118,9 @@
   "item.noellesroles.short_shotgun.desc": "Short-range shotgun used by bandits; deals high damage at close range.",
   "item.noellesroles.executioner_gun.desc": "Fool exclusive weapon. Can only deal damage to players with the 'Heresy' effect (instant kill). Starts with 1 bullet, can only be replenished through the Tarot Society.",
   "item.noellesroles.honored_note.desc": "Fool exclusive item, purchasable at the shop (50 gold). Right-click walls/floors to place, creating an indestructible text entity. Players can press V near the note to pray and gain the 'Tarot Society Member' tag.",
-  "item.noellesroles.spirit_cloak.desc": "Fool exclusive item, purchasable at the shop (200 gold). Right-click to gain 5 seconds of invincibility, cannot attack, movement speed unchanged. 90 second cooldown."
+  "item.noellesroles.spirit_cloak.desc": "Fool exclusive item, purchasable at the shop (200 gold). Right-click to gain 5 seconds of invincibility, cannot attack, movement speed unchanged. 90 second cooldown.",
+  "item.starrailexpress.dnf_cleaning_byproduct.desc": "A byproduct from DNF cleaning tasks. Exchange 1 for 1 emerald at an exchange task point.",
+  "item.starrailexpress.dnf_task_tool.desc": "Hold right-click while looking at a DNF task point for 8 seconds to complete it.",
+  "item.starrailexpress.dnf_cleaning_task_point.desc": "DNF cleaning task point. Hold right-click with the task tool to clean it.",
+  "item.starrailexpress.dnf_exchange_task_point.desc": "DNF exchange task point. Trades 1 cleaning byproduct for 1 emerald."
 }

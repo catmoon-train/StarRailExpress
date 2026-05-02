@@ -1,9 +1,12 @@
 package io.wifi.events.day_night_fight;
 
 import io.wifi.events.day_night_fight.block.WashingMachineBlock;
+import io.wifi.events.day_night_fight.block.DNFBlocks;
 import io.wifi.events.day_night_fight.cca.DNFPlayerComponent;
 import io.wifi.events.day_night_fight.cca.DNFWorldComponent;
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.ChargeableItem;
+import io.wifi.starrailexpress.api.ChargeableItemRegistry;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.content.block.SmallDoorBlock;
 import io.wifi.starrailexpress.content.block.TrainDoorBlock;
@@ -95,6 +98,21 @@ public class DNFItems {
             });
     public static final Item DNF_CLOCK = register("dnf_clock",
             new DNFClockItem(new Item.Properties().stacksTo(1)));
+    public static final Item CLEANING_BYPRODUCT = register("dnf_cleaning_byproduct",
+            new Item(new Item.Properties().stacksTo(64)) {
+                @Override
+                public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip,
+                        TooltipFlag flag) {
+                    appendDnfTooltip(stack, context, tooltip, flag,
+                            "item.starrailexpress.dnf_cleaning_byproduct.tooltip");
+                }
+            });
+    public static final Item TASK_TOOL = register("dnf_task_tool",
+            new DNFTaskToolItem(new Item.Properties().stacksTo(1)));
+    public static final Item CLEANING_TASK_POINT_ITEM = register("dnf_cleaning_task_point",
+            new BlockItem(DNFBlocks.CLEANING_TASK_POINT, new Item.Properties()));
+    public static final Item EXCHANGE_TASK_POINT_ITEM = register("dnf_exchange_task_point",
+            new BlockItem(DNFBlocks.EXCHANGE_TASK_POINT, new Item.Properties()));
     public static final Block WASHING_MACHINE = registerBlock("dnf_washing_machine",
             new WashingMachineBlock(FabricBlockSettings.create()
                     .strength(2.0f)
@@ -123,7 +141,27 @@ public class DNFItems {
             entries.accept(PAPER_SCRAP);
             entries.accept(SOAP);
             entries.accept(DNF_CLOCK);
+            entries.accept(CLEANING_BYPRODUCT);
+            entries.accept(TASK_TOOL);
+            entries.accept(CLEANING_TASK_POINT_ITEM);
+            entries.accept(EXCHANGE_TASK_POINT_ITEM);
             entries.accept(WASHING_MACHINE_ITEM);
+        });
+        ChargeableItemRegistry.register(TASK_TOOL, new ChargeableItem() {
+            @Override
+            public int getMaxChargeTime(ItemStack stack, Player player) {
+                return DNF.CLEANING_TICKS;
+            }
+
+            @Override
+            public float getChargePercentage(ItemStack stack, Player player, int ticksUsingItem) {
+                return Math.min(1.0f, (float) ticksUsingItem / DNF.CLEANING_TICKS);
+            }
+
+            @Override
+            public float getMaxStamina(ItemStack stack, Player player) {
+                return DNF.CLEANING_TICKS / 20.0f;
+            }
         });
     }
 

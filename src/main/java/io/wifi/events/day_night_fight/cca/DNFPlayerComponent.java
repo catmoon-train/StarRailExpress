@@ -8,7 +8,6 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
-import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.cca.SREPlayerTaskComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -145,6 +144,7 @@ public class DNFPlayerComponent implements RoleComponent {
         daily.setDustCleanedToday(false);
         daily.setToiletToday(false);
         daily.setLectureToday(false);
+        daily.setChatToday(false);
         daily.setCleaningTasksToday(0);
         daily.setCleaningInProgress(false);
         daily.setChefFoodWorkToday(0);
@@ -255,8 +255,8 @@ public class DNFPlayerComponent implements RoleComponent {
             daily.setDustCleanedToday(true);
         }
         recoverSan(serverPlayer, DNF.SAN_CLEANING_GAIN, messageKey);
-        SREPlayerShopComponent.KEY.get(serverPlayer).addToBalance(1);
-        serverPlayer.displayClientMessage(Component.translatable("message.dnf.task.cleaning_reward", 1)
+        giveOrDrop(serverPlayer, DNFItems.CLEANING_BYPRODUCT.getDefaultInstance());
+        serverPlayer.displayClientMessage(Component.translatable("message.dnf.task.cleaning_reward")
                 .withStyle(ChatFormatting.GREEN), true);
         if (daily.getCleaningTasksToday() >= DNF.MAX_DAILY_CLEANING_TASKS) {
             removeHudTask(SREPlayerTaskComponent.Task.DNF_LIBRARY_WEB);
@@ -282,16 +282,24 @@ public class DNFPlayerComponent implements RoleComponent {
     }
 
     public boolean completeLecture(ServerPlayer serverPlayer) {
+        return completeChat(serverPlayer, null);
+    }
+
+    public boolean completeChat(ServerPlayer serverPlayer, ServerPlayer target) {
         DNFDailyTaskComponent daily = daily();
-        if (daily.isLectureToday()) {
+        if (daily.isChatToday()) {
             return false;
         }
-        if (!completeSanTask(serverPlayer, daily, "message.dnf.task.lecture", DNF.SAN_CHAT_GAIN)) {
-            return false;
-        }
+        recoverSan(serverPlayer, DNF.SAN_CHAT_GAIN,
+                target == null ? "message.dnf.task.lecture" : "message.dnf.task.chat");
+        daily.setChatToday(true);
         daily.setLectureToday(true);
         removeHudTask(SREPlayerTaskComponent.Task.DNF_LECTURE);
         daily.sync();
+        if (target != null) {
+            target.displayClientMessage(Component.translatable("message.dnf.task.chat_target",
+                    serverPlayer.getDisplayName()).withStyle(ChatFormatting.GREEN), true);
+        }
         return true;
     }
 

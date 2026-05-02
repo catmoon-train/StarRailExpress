@@ -14,6 +14,11 @@ public interface DNFEntities {
                     .sized(0.6f, 1.95f)
                     .clientTrackingRange(128)
     );
+    EntityType<DNFTaskPointEntity> TASK_POINT = registrar.create("dnf_task_point",
+            EntityType.Builder.of(DNFTaskPointEntity::new, MobCategory.MISC)
+                    .sized(0.25f, 0.25f)
+                    .clientTrackingRange(64)
+    );
 
     static void initialize() {
         registrar.registerEntries();

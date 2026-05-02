@@ -38,11 +38,11 @@ public class SpellbreakerPlayerComponent implements RoleComponent, ServerTicking
             ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "spellbreaker"),
             SpellbreakerPlayerComponent.class);
 
-    public static final int ABILITY_COOLDOWN = 140 * 20;
-    public static final int ABILITY_DURATION = 20 * 20;
+    public static final int ABILITY_COOLDOWN = 120 * 20;
+    public static final int ABILITY_DURATION = 25 * 20;
     public static final double ABILITY_RADIUS = 50.0D;
     public static final int POTION_DURATION = 15 * 20;
-    public static final int HIT_SKILL_BAN_DURATION = 30 * 20;
+    public static final int HIT_SKILL_BAN_DURATION = 20 * 20;
 
     private final Player player;
 

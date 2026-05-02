@@ -17,6 +17,25 @@ public interface DNFBlocks {
                     .sound(SoundType.WOOD)
                     .randomTicks()
             ));
+    Block WHITE_BLOCK = registrar.create("white_block",
+            new WhiteBlock(Block.Properties.ofFullCopy(Blocks.WHITE_CONCRETE)
+                    .lightLevel(state -> 20)
+                    .sound(SoundType.WOOD)
+            ));
+    Block CLEANING_TASK_POINT = registrar.create("dnf_cleaning_task_point",
+            new DNFTaskPointBlock(DNFTaskPointBlock.TaskPointType.CLEANING,
+                    Block.Properties.ofFullCopy(Blocks.LIGHT_GRAY_CARPET)
+                            .noCollission()
+                            .strength(0.3F)
+                            .lightLevel(state -> 6)
+                            .sound(SoundType.WOOL)));
+    Block EXCHANGE_TASK_POINT = registrar.create("dnf_exchange_task_point",
+            new DNFTaskPointBlock(DNFTaskPointBlock.TaskPointType.EXCHANGE,
+                    Block.Properties.ofFullCopy(Blocks.EMERALD_BLOCK)
+                            .noCollission()
+                            .strength(0.6F)
+                            .lightLevel(state -> 8)
+                            .sound(SoundType.METAL)));
 
     static void initialize() {
         registrar.registerEntries();

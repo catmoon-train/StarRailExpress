@@ -123,5 +123,9 @@
   "item.noellesroles.short_shotgun.desc": "一次性用品，可以击杀2格扇形范围内的所有人。",
   "item.noellesroles.executioner_gun.desc": "愚者专属武器，只能对拥有“异端”效果的玩家造成伤害（一击必杀）。初始子弹数1，只能通过塔罗会补充子弹。",
   "item.noellesroles.honored_note.desc": "愚者商店购买。右键墙壁/地面贴附，生成不可破坏的文本实体。玩家对着纸条按J键祷告，加入“塔罗会成员”。",
-  "item.noellesroles.spirit_cloak.desc": "愚者商店购买。右键使用后获得5秒无敌、无法攻击、移动速度不变。冷却90秒。"
+  "item.noellesroles.spirit_cloak.desc": "愚者商店购买。右键使用后获得5秒无敌、无法攻击、移动速度不变。冷却90秒。",
+  "item.starrailexpress.dnf_cleaning_byproduct.desc": "清理任务产出的副产品，可在 DNF 兑换任务点换成 1 个绿宝石。",
+  "item.starrailexpress.dnf_task_tool.desc": "看向 DNF 任务点长按右键 8 秒完成任务。",
+  "item.starrailexpress.dnf_cleaning_task_point.desc": "DNF 清理任务点，使用任务工具长按右键清理。",
+  "item.starrailexpress.dnf_exchange_task_point.desc": "DNF 兑换任务点，可将 1 个清理副产品换成 1 个绿宝石。"
 }

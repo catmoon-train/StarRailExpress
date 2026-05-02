@@ -75,10 +75,10 @@ public class DNF {
     public static final int MAX_DAILY_CLEANING_TASKS = 3;
     public static final float INITIAL_SAN = 0.5f;
     public static final float MORNING_SAN = 0.3f;
-    public static final float SAN_CLEANING_GAIN = 0.4f;
-    public static final float SAN_CHAT_GAIN = 0.4f;
-    public static final float SAN_FOOD_GAIN = 0.4f;
-    public static final float SAN_WATER_GAIN = 0.4f;
+    public static final float SAN_CLEANING_GAIN = 0.1f;
+    public static final float SAN_CHAT_GAIN = 0.2f;
+    public static final float SAN_FOOD_GAIN = 0.3f;
+    public static final float SAN_WATER_GAIN = 0.1f;
     public static final float SAN_ROOM_INSPECT_THRESHOLD = 0.8f;
     public static final float SAN_TASK_MOOD_GAIN = SAN_CLEANING_GAIN;
     public static final int CHEF_DAILY_FOOD_CAPACITY = 40;
@@ -94,9 +94,9 @@ public class DNF {
     private static boolean winnerPredicatesRegistered;
 
     public static void init() {
+        DNFBlocks.initialize();
         DNFItems.init();
         DNFEntities.initialize();
-        DNFBlocks.initialize();
         TMMRoles.addRoleComponents(DNFPlayerComponent.KEY);
         TMMRoles.addRoleComponents(DNFClothingComponent.KEY);
         TMMRoles.addRoleComponents(DNFUnderworldComponent.KEY);
@@ -581,8 +581,15 @@ public class DNF {
         });
         UseEntityCallback.EVENT.register((player, world, hand, entity, hitResult) -> {
             if (world.isClientSide || !(player instanceof ServerPlayer serverPlayer)
-                    || !isDayNightFightMode(world) || !GameUtils.isPlayerAliveAndSurvival(serverPlayer)
-                    || !(entity instanceof PlayerBodyEntity)) {
+                    || !isDayNightFightMode(world) || !GameUtils.isPlayerAliveAndSurvival(serverPlayer)) {
+                return InteractionResult.PASS;
+            }
+            if (entity instanceof ServerPlayer target && target != serverPlayer && isDnfAlive(target)) {
+                return DNFPlayerComponent.KEY.get(serverPlayer).completeChat(serverPlayer, target)
+                        ? InteractionResult.SUCCESS
+                        : InteractionResult.PASS;
+            }
+            if (!(entity instanceof PlayerBodyEntity)) {
                 return InteractionResult.PASS;
             }
             SRERole role = SREGameWorldComponent.KEY.get(world).getRole(serverPlayer);

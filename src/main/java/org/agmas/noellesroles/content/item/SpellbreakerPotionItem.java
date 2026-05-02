@@ -69,7 +69,7 @@ public class SpellbreakerPotionItem extends Item {
             if (hitResult instanceof EntityHitResult entityHitResult) {
                 if (entityHitResult.getEntity() instanceof Player targetPlayer) {
                     // 对目标玩家使用效果
-                    targetPlayer.addEffect(new MobEffectInstance(ModEffects.NEXT_SKILL_BANED,45*20,0,false,false,false));
+                    targetPlayer.addEffect(new MobEffectInstance(ModEffects.NEXT_SKILL_BANED,80*20,0,false,false,false));
                     itemInHand.consume(1, player);
                         
                     player.displayClientMessage(

@@ -22,6 +22,7 @@ public class DNFDailyTaskComponent implements RoleComponent {
     private boolean dustCleanedToday;
     private boolean toiletToday;
     private boolean lectureToday;
+    private boolean chatToday;
     private int cleaningTasksToday;
     private boolean cleaningInProgress;
     private int chefFoodWorkToday;
@@ -53,6 +54,7 @@ public class DNFDailyTaskComponent implements RoleComponent {
         this.dustCleanedToday = false;
         this.toiletToday = false;
         this.lectureToday = false;
+        this.chatToday = false;
         this.cleaningTasksToday = 0;
         this.cleaningInProgress = false;
         this.chefFoodWorkToday = 0;
@@ -128,6 +130,14 @@ public class DNFDailyTaskComponent implements RoleComponent {
         this.lectureToday = lectureToday;
     }
 
+    public boolean isChatToday() {
+        return chatToday;
+    }
+
+    public void setChatToday(boolean chatToday) {
+        this.chatToday = chatToday;
+    }
+
     public int getCleaningTasksToday() {
         return cleaningTasksToday;
     }
@@ -188,6 +198,7 @@ public class DNFDailyTaskComponent implements RoleComponent {
         tag.putBoolean("DustCleanedToday", dustCleanedToday);
         tag.putBoolean("ToiletToday", toiletToday);
         tag.putBoolean("LectureToday", lectureToday);
+        tag.putBoolean("ChatToday", chatToday);
         tag.putInt("CleaningTasksToday", cleaningTasksToday);
         tag.putBoolean("CleaningInProgress", cleaningInProgress);
         tag.putInt("ChefFoodWorkToday", chefFoodWorkToday);
@@ -205,6 +216,7 @@ public class DNFDailyTaskComponent implements RoleComponent {
         this.dustCleanedToday = tag.getBoolean("DustCleanedToday");
         this.toiletToday = tag.getBoolean("ToiletToday");
         this.lectureToday = tag.getBoolean("LectureToday");
+        this.chatToday = tag.getBoolean("ChatToday");
         this.cleaningTasksToday = tag.getInt("CleaningTasksToday");
         this.cleaningInProgress = tag.getBoolean("CleaningInProgress");
         this.chefFoodWorkToday = tag.getInt("ChefFoodWorkToday");
