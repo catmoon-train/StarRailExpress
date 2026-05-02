@@ -1776,6 +1776,8 @@
   "role.starrailexpress.ninja.desc": "暗影中的刺客，無聲無息",
   "item.noellesroles.ninja_knife": "苦無",
   "item.noellesroles.ninja_shuriken": "手裏劍",
+  "item.noellesroles.benevolence_sword": "仁之劍",
+  "item.noellesroles.benevolence_sword.desc": "左鍵玩家造成1點傷害並扣除20%%san值",
   "death_reason.noellesroles.ninja_knife_kill": "被苦無刺殺",
   "death_reason.noellesroles.ninja_shuriken_kill": "被手裏劍刺殺",
   "message.noellesroles.ninja.block_activate": "§a你進入了格擋姿態，獲得一次格擋機會！",

@@ -71,6 +71,7 @@ import org.agmas.noellesroles.content.entity.WheelchairEntity;
 import org.agmas.noellesroles.content.item.HandCuffsItem;
 import org.agmas.noellesroles.content.item.RadioItem;
 import org.agmas.noellesroles.content.item.BatonHandler;
+import org.agmas.noellesroles.content.item.BenevolenceSwordHandler;
 import org.agmas.noellesroles.content.item.RiotShieldHandler;
 import org.agmas.noellesroles.events.OnVendingMachinesBuyItems;
 import org.agmas.noellesroles.game.modes.ChairWheelRaceGame;
@@ -759,6 +760,8 @@ public class ModEventsRegister {
         // 注册警棍与防暴盾处理器
         BatonHandler.register();
         RiotShieldHandler.register();
+        // 注册仁之剑处理器
+        BenevolenceSwordHandler.register();
         // 布谷鸟蛋交互注册
         CuckooEggHandler.register();
         // 注册保安技能

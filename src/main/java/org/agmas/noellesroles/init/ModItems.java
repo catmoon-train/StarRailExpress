@@ -79,6 +79,15 @@ public class ModItems {
     public static final Item NINJA_SHURIKEN = register(
             new NinjaShurikenItem(new Item.Properties().stacksTo(1)),
             "ninja_shuriken");
+
+    /**
+     * 仁之剑
+     * - 左键玩家造成1点伤害并扣除受击玩家20%的san值
+     * - 材质继承原版木棍
+     */
+    public static final Item BENEVOLENCE_SWORD = register(
+            new BenevolenceSwordItem(new Item.Properties().stacksTo(1)),
+            "benevolence_sword");
     public static final Item ONCE_REVOLVER = register(
             new OnceRevolverItem((new Item.Properties()).stacksTo(1).durability(1)), "once_revolver");
     public static final Item HANDCUFFS = register(
