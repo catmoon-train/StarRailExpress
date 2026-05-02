@@ -111,6 +111,8 @@ public class DNFItems {
             new DNFTaskToolItem(new Item.Properties().stacksTo(1)));
     public static final Item CLEANING_TASK_POINT_ITEM = register("dnf_cleaning_task_point",
             new BlockItem(DNFBlocks.CLEANING_TASK_POINT, new Item.Properties()));
+    public static final Item WHITE_BLOCK = register("white_block",
+            new BlockItem(DNFBlocks.WHITE_BLOCK, new Item.Properties()));
     public static final Item EXCHANGE_TASK_POINT_ITEM = register("dnf_exchange_task_point",
             new BlockItem(DNFBlocks.EXCHANGE_TASK_POINT, new Item.Properties()));
     public static final Block WASHING_MACHINE = registerBlock("dnf_washing_machine",

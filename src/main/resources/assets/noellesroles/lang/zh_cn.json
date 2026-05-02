@@ -2102,7 +2102,7 @@
   "mob_effect.noellesroles.player_isolation": "玩家隔离",
   "announcement.star.role.spellbreaker": "破法者",
   "announcement.star.goals.spellbreaker": "封禁乘客的技能与行动窗口，掌控关键区域并猎杀目标",
-  "info.screen.roleid.spellbreaker": "杀手阵营\n按G释放破法力场：50米内非杀手玩家25秒内无法使用技能和打开背包，并获得滤镜覆盖，冷却120s。\n破法药剂：对玩家使用后使其下一次技能尝试失败，并进入20秒技能封禁,80s有效。\n沉默图腾：投掷隐形图腾，30秒内使6米内非杀手玩家持续缓慢I与失明。同一时间只能存在一个图腾。",
+  "info.screen.roleid.spellbreaker": "杀手阵营\n按G释放破法力场：50米内非杀手玩家25秒内无法使用技能和打开背包，并获得滤镜覆盖，冷却130s。\n破法药剂：对玩家使用后使其下一次技能尝试失败，并进入20秒技能封禁,70s有效。\n沉默图腾：投掷隐形图腾，30秒内使6米内非杀手玩家持续缓慢I与失明。同一时间只能存在一个图腾。",
   "item.noellesroles.spellbreaker_potion": "破法药剂",
   "starrailexpress.tip.can_thrown": "\u00a77可丢弃",
   "item.noellesroles.silence_totem": "沉默图腾",
@@ -2111,7 +2111,7 @@
   "message.noellesroles.spellbreaker.potion_used": "破法药剂生效，15秒内攻击可标记目标",
   "message.noellesroles.spellbreaker.next_skill_marked": "你的下一次技能尝试将被破法",
   "message.noellesroles.spellbreaker.hit_marked": "已标记%s的下一次技能",
-  "message.noellesroles.spellbreaker.skill_failed": "你被剥夺力量，进入30秒封禁",
+  "message.noellesroles.spellbreaker.skill_failed": "你被剥夺力量，进入%s秒封禁",
   "message.noellesroles.spellbreaker.potion_success": "药剂已生效",
   "message.noellesroles.spellbreaker.no_target": "未选中目标",
   "message.noellesroles.spellbreaker.item_only": "只有破法者可以使用这个物品"

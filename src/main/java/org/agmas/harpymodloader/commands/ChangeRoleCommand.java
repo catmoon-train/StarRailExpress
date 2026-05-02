@@ -14,9 +14,12 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
 import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.harpymodloader.commands.argument.RoleArgumentType;
 import org.agmas.noellesroles.utils.RoleUtils;
+
+import java.util.ArrayList;
 
 public class ChangeRoleCommand {
   public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
@@ -47,7 +50,20 @@ public class ChangeRoleCommand {
       srePlayerTaskComponent.sync();
 
       SRERole oldRole = gameWorldComponent.getRole(targetPlayer);
-
+      var cacheItems = new ArrayList<ItemStack>();
+      targetPlayer.getInventory().items.forEach(
+              itemStack -> {
+              if (oldRole.getDefaultItems().stream().anyMatch(itemStack1 -> itemStack1.getItem().equals(itemStack.getItem()))){
+                cacheItems.add(itemStack);
+              }
+              }
+      );
+      cacheItems.forEach(
+              itemStack -> {
+                targetPlayer.getInventory().removeItem(itemStack);
+              }
+      );
+      newRole.getDefaultItems().forEach(itemStack -> targetPlayer.getInventory().add(itemStack.copy()));
       RoleUtils.changeRole(targetPlayer, newRole, record, addStats);
 
       // 发送反馈消息

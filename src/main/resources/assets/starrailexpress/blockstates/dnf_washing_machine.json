@@ -1,6 +1,7 @@
 {
-  "parent": "block/cube_all",
-  "textures": {
-    "all": "starrailexpress:block/dnf_washing_machine"
+  "variants": {
+    "": {
+      "model": "starrailexpress:block/dnf_washing_machine"
+    }
   }
 }

@@ -8,7 +8,6 @@
     {"name": "NoiseSampler"},
     {"name": "DirectionSampler"},
     {"name": "SuperNoiseSampler"},
-    {"name": "VhsSampler"},
     {"name": "DitherSampler"},
     {"name": "ContrastSampler"}
   ],
@@ -18,6 +17,7 @@
     {"name":"OutSize","type":"float","count":2,"values":[1,1]},
     {"name":"Strength","type":"float","count":1,"values":[0]},
     {"name":"Time","type":"float","count":1,"values":[0]},
-    {"name":"EffectTime","type":"float","count":1,"values":[0]}
+    {"name":"EffectTime","type":"float","count":1,"values":[0]},
+    {"name":"Darkness","type":"float","count":1,"values":[0]}
   ]
 }

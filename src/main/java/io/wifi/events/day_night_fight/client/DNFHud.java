@@ -38,37 +38,6 @@ public class DNFHud {
             context.drawString(font, bodies, x, y + 10, 0xFFAA0000, true);
         });
 
-        // 里世界HUD - 显示复活倒计时
-        RoleHudRenderCallback.EVENT.register(DNFRoles.CIVILIAN_ID, (context, deltaTracker) -> {
-            Minecraft client = Minecraft.getInstance();
-            if (client.player == null) return;
-            
-            DNFUnderworldComponent underworld = DNFUnderworldComponent.KEY.get(client.player);
-            if (!underworld.isInUnderworld()) return;
-            
-            Font font = client.font;
-            int screenWidth = context.guiWidth();
-            int screenHeight = context.guiHeight();
-            
-            // 显示倒计时
-            int minutes = underworld.getRemainingMinutes();
-            int seconds = underworld.getRemainingSeconds();
-            Component timerText = Component.translatable("hud.dnf.underworld.timer", minutes, seconds)
-                    .withStyle(net.minecraft.ChatFormatting.DARK_PURPLE);
-            
-            int textWidth = font.width(timerText);
-            int x = screenWidth / 2 - textWidth / 2;
-            int y = screenHeight / 2 - 30;
-            
-            context.drawString(font, timerText, x, y, -1, true);
-            
-            // 显示提示信息
-            Component hint = Component.translatable("hud.dnf.underworld.hint")
-                    .withStyle(net.minecraft.ChatFormatting.GRAY);
-            int hintWidth = font.width(hint);
-            context.drawString(font, hint, screenWidth / 2 - hintWidth / 2, y + 12, -1, true);
-        });
-
         // 通用HUD - 时钟和衣物状态
         registerCommonHud((context, deltaTracker) -> {
             Minecraft client = Minecraft.getInstance();
@@ -79,6 +48,27 @@ public class DNFHud {
             Font font = client.font;
             int screenWidth = context.guiWidth();
             int screenHeight = context.guiHeight();
+            DNFUnderworldComponent underworld = DNFUnderworldComponent.KEY.get(client.player);
+
+            if (underworld.isWaitingRoom()) {
+                Component hint = Component.translatable("hud.dnf.underworld.waiting_room")
+                        .withStyle(net.minecraft.ChatFormatting.DARK_PURPLE);
+                int hintWidth = font.width(hint);
+                context.drawString(font, hint, screenWidth / 2 - hintWidth / 2, screenHeight / 2 - 30, -1, true);
+            } else if (underworld.isInUnderworld()) {
+                int minutes = underworld.getRemainingMinutes();
+                int seconds = underworld.getRemainingSeconds();
+                Component timerText = Component.translatable("hud.dnf.underworld.timer", minutes,
+                        String.format("%02d", seconds)).withStyle(net.minecraft.ChatFormatting.DARK_PURPLE);
+                int textWidth = font.width(timerText);
+                int yTimer = screenHeight / 2 - 30;
+                context.drawString(font, timerText, screenWidth / 2 - textWidth / 2, yTimer, -1, true);
+
+                Component hint = Component.translatable("hud.dnf.underworld.hint")
+                        .withStyle(net.minecraft.ChatFormatting.GRAY);
+                int hintWidth = font.width(hint);
+                context.drawString(font, hint, screenWidth / 2 - hintWidth / 2, yTimer + 12, -1, true);
+            }
             
             // 检查是否手持时钟
             ItemStack mainHand = client.player.getMainHandItem();

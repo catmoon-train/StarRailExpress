@@ -9,6 +9,8 @@ import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.*;
 import io.wifi.starrailexpress.client.gui.RoleAnnouncementTexts;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
+import io.wifi.starrailexpress.event.AllowPlayerDeathWithKiller;
+import io.wifi.starrailexpress.event.OnPlayerDeathWithKiller;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
@@ -1684,12 +1686,24 @@ public class ModRoles {
             }
         }
 
+
         @Override
         public ResourceLocation getPsychoSkin(Player player, boolean isSlim) {
             return SRE.id("textures/entity/custom_psycho/cat_killer.png");
         }
     }).setCanSeeTime(true).setCanSeeCoin(true).setMax(0).setCanBeRandomedByOtherRoles(false);
 
+    static {
+        AllowPlayerDeathWithKiller.EVENT.register((player, killer, deathReason) -> {
+            SREGameWorldComponent sreGameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
+            if (sreGameWorldComponent.isRole(killer, ModRoles.CAT_KILLER)) {
+                if (sreGameWorldComponent.isRole(player,ModRoles.CAT_NECROMANCER)){
+                    return false;
+                }
+            }
+            return true;
+        });
+    }
     public static SRERole CAT_NECROMANCER = TMMRoles.registerRole(new NormalRole(
             SRE.wifiId("cat_necromancer"), // 角色 ID
             new Color(255, 174, 201).getRGB(), // 粉色 - 猫娘~

@@ -14,7 +14,9 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BundleItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.BundleContents;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
@@ -30,6 +32,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class FoodPlatterBlock extends BaseEntityBlock {
     public static final MapCodec<FoodPlatterBlock> CODEC = simpleCodec(FoodPlatterBlock::new);
@@ -114,20 +117,34 @@ public class FoodPlatterBlock extends BaseEntityBlock {
                 return InteractionResult.SUCCESS;
             }
 
-            boolean hasPlatterItem = false;
+            AtomicBoolean hasPlatterItem = new AtomicBoolean(false);
             for (ItemStack platterItem : platter) {
                 for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
                     ItemStack invItem = player.getInventory().getItem(i);
+                    if (invItem.getItem() instanceof BundleItem bundleItem) {
+                        BundleContents bundleContents = invItem.get(DataComponents.BUNDLE_CONTENTS);
+                        if (bundleContents != null) {
+                            bundleContents.items().forEach(
+                                    itemStack -> {
+                                        if (itemStack.getItem() == platterItem.getItem()) {
+                                            hasPlatterItem.set(true);
+                                            return;
+                                        }
+                                    }
+
+                            );
+                        }
+                    }
                     if (invItem.getItem() == platterItem.getItem()) {
-                        hasPlatterItem = true;
+                        hasPlatterItem.set(true);
                         break;
                     }
                 }
-                if (hasPlatterItem)
+                if (hasPlatterItem.get())
                     break;
             }
 
-            if (!hasPlatterItem) {
+            if (!hasPlatterItem.get()) {
                 ItemStack randomItem = platter.get(world.random.nextInt(platter.size())).copy();
                 randomItem.setCount(1);
                 randomItem.set(DataComponents.MAX_STACK_SIZE, 1);

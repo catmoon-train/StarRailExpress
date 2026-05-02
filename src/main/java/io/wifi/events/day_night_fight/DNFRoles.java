@@ -481,7 +481,17 @@ public class DNFRoles {
         public void onInit(MinecraftServer server, ServerPlayer serverPlayer) {
             DNFPlayerComponent.KEY.get(serverPlayer).init();
         }
-
+                @Override
+                public List<ShopEntry> getShopEntries() {
+                    ArrayList<ShopEntry> shopEntries = new ArrayList<>();
+                    shopEntries.add(new ShopEntry(Items.BARRIER.getDefaultInstance(),0, dev.doctor4t.wathe.util.ShopEntry.Type.TOOL){
+                        @Override
+                        public boolean canBuy(@NotNull Player player) {
+                            return false;
+                        }
+                    });
+                    return shopEntries;
+                }
         @Override
         public boolean onAbilityUse(ServerPlayer player) {
             return DNF.tryPoisonerAbility(player);

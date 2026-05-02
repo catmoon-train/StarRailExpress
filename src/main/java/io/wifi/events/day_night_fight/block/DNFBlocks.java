@@ -19,7 +19,14 @@ public interface DNFBlocks {
             ));
     Block WHITE_BLOCK = registrar.create("white_block",
             new WhiteBlock(Block.Properties.ofFullCopy(Blocks.WHITE_CONCRETE)
-                    .lightLevel(state -> 20)
+                    .lightLevel(state -> 14)
+                    .sound(SoundType.WOOD)
+            ));
+    Block UNDERWORLD_DOOR = registrar.create("dnf_underworld_door",
+            new DNFUnderworldDoorBlock(Block.Properties.ofFullCopy(Blocks.WHITE_CONCRETE)
+                    .noCollission()
+                    .strength(-1.0F, 3600000.0F)
+                    .lightLevel(state -> 15)
                     .sound(SoundType.WOOD)
             ));
     Block CLEANING_TASK_POINT = registrar.create("dnf_cleaning_task_point",

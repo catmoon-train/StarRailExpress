@@ -198,8 +198,7 @@ public class DNF {
         ResourceLocation bodyRole = PlayerBodyEntityComponent.KEY.get(body).playerRole;
         PlayerBodyEntityComponent playerBodyEntityComponent = PlayerBodyEntityComponent.KEY.get(body);
         if (playerBodyEntityComponent.vultured){
-            player.displayClientMessage(Component.translatable("message.dnf.killer.blood",
-                    component.getBlood(), component.getBodiesEaten()).withStyle(ChatFormatting.RED), true);
+            player.displayClientMessage(Component.translatable("message.dnf.killer.eaten"),true);
             return InteractionResult.FAIL;
 
         }
@@ -207,7 +206,7 @@ public class DNF {
         playerBodyEntityComponent.vultured = true;
         playerBodyEntityComponent.sync();
         player.level().playSound(null, body.blockPosition(), SoundEvents.HONEY_DRINK, SoundSource.PLAYERS, 0.8f, 0.55f);
-
+        player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 30, 1, false, false, false));
         if (component.hasPersonalEnding()) {
             player.displayClientMessage(Component.translatable("message.dnf.killer.ending")
                     .withStyle(ChatFormatting.DARK_PURPLE), false);
@@ -339,44 +338,14 @@ public class DNF {
      */
     public static void sendPlayerToUnderworld(ServerPlayer player) {
         if (player == null || player.level() == null) return;
-        
-        // 获取里世界组件
-        DNFUnderworldComponent underworld = DNFUnderworldComponent.KEY.get(player);
-        DNFWorldComponent worldComponent = DNFWorldComponent.KEY.get(player.level());
-        
-        // 生成发光线索点
-        BlockPos cluePoint = worldComponent.generateCluePoint(player.level());
-        
-        // 进入里世界
-        underworld.enterUnderworld(cluePoint);
-        
-        // 设置玩家为旁观模式
-//        player.setGameMode(net.minecraft.world.level.GameType.SPECTATOR);
-        
-        // 播放音效
-        player.level().playSound(null, player.blockPosition(), 
-                net.minecraft.sounds.SoundEvents.WARDEN_DEATH, 
-                net.minecraft.sounds.SoundSource.PLAYERS, 1.0f, 0.8f);
-        
-        // 显示消息
-        player.displayClientMessage(net.minecraft.network.chat.Component.translatable("message.dnf.underworld.enter")
-                .withStyle(net.minecraft.ChatFormatting.DARK_PURPLE), true);
-        
-        // 在发光线索点生成粒子效果
-        if (player.level() instanceof net.minecraft.server.level.ServerLevel sl) {
-            sl.sendParticles(net.minecraft.core.particles.ParticleTypes.GLOW,
-                    cluePoint.getX() + 0.5, cluePoint.getY() + 0.5, cluePoint.getZ() + 0.5,
-                    20, 0.5, 0.5, 0.5, 0.1);
-            
-            // 生成里世界怪物
-            spawnUnderworldMonster(sl, player);
-        }
+
+        DNFUnderworldComponent.KEY.get(player).enterUnderworld();
     }
 
     /**
      * 在里世界生成怪物
      */
-    private static void spawnUnderworldMonster(net.minecraft.server.level.ServerLevel serverLevel, ServerPlayer player) {
+    public static void spawnUnderworldMonster(net.minecraft.server.level.ServerLevel serverLevel, ServerPlayer player) {
         // 在玩家附近生成怪物
         double angle = Math.random() * Math.PI * 2;
         double distance = 15 + Math.random() * 10; // 15-25格距离

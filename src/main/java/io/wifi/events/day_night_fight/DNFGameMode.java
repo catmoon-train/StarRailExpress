@@ -55,7 +55,7 @@ public class DNFGameMode extends SREMurderGameMode {
     private int phaseTicks = 0;
 
     public DNFGameMode(ResourceLocation identifier) {
-        super(identifier, 140, 6);
+        super(identifier, 1000, 6);
     }
 
     @Override
@@ -92,7 +92,7 @@ public class DNFGameMode extends SREMurderGameMode {
             SRERole role = gameWorldComponent.getRole(player);
             ItemStack defaultInstance = Items.BUNDLE.getDefaultInstance();
             player.addItem(defaultInstance);
-            player.addEffect(new MobEffectInstance(ModEffects.MOOD_DRAIN_IMMUNITY, Integer.MAX_VALUE, 1, false, false,false));
+            player.addEffect(new MobEffectInstance(ModEffects.MOOD_DRAIN_IMMUNITY, Integer.MAX_VALUE, 10, false, false,false));
             DNFPlayerComponent component = DNFPlayerComponent.KEY.get(player);
             component.init();
             component.startDnfDay(player, 0, role == DNFRoles.CHEF);

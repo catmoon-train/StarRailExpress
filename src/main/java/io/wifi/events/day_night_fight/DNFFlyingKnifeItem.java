@@ -63,8 +63,8 @@ public class DNFFlyingKnifeItem extends ThrowingKnife {
         player.getCooldowns().addCooldown(DNFItems.FLYING_KNIFE, 20);
         DNFFlyingKnifeEntity entity = new DNFFlyingKnifeEntity(ModEntities.THROWING_KNIFE, player, player.level(),
                 DNFItems.FLYING_KNIFE.getDefaultInstance());
-        entity.setPos(player.getEyePosition());
-        entity.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0f, 1.55f, 0.25f);
+        entity.setPos(player.getEyePosition(1.4f));
+        entity.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0f, 1.3f, 1.0f);
         entity.setOwner(player);
         player.level().addFreshEntity(entity);
         player.level().playSound(null, entity.getX(), entity.getY(), entity.getZ(), SoundEvents.TRIDENT_THROW.value(),

@@ -1850,6 +1850,6 @@
   "message.noellesroles.spellbreaker.potion_used": "Spellbreaker Potion active. Attacks mark targets for 15 seconds",
   "message.noellesroles.spellbreaker.next_skill_marked": "Your next skill attempt will be broken",
   "message.noellesroles.spellbreaker.hit_marked": "Marked %s's next skill",
-  "message.noellesroles.spellbreaker.skill_failed": "Your skill was broken. Skill ban for 30 seconds",
+  "message.noellesroles.spellbreaker.skill_failed": "Your skill was broken. Skill ban for %s seconds",
   "message.noellesroles.spellbreaker.item_only": "Only Spellbreakers can use this item"
 }

@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.client;
 
+import io.wifi.events.day_night_fight.cca.DNFUnderworldComponent;
 import io.wifi.starrailexpress.client.PostProcessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -14,7 +15,6 @@ public class ImmersiveFilterShader {
     private static final ResourceLocation AFTERLIFE_NOISE = ResourceLocation.withDefaultNamespace("textures/gui/shaders/rnoise.png");
     private static final ResourceLocation AFTERLIFE_DIRECTION_NOISE = ResourceLocation.withDefaultNamespace("textures/gui/shaders/rnoisedir.png");
     private static final ResourceLocation AFTERLIFE_SUPER_NOISE = ResourceLocation.withDefaultNamespace("textures/gui/shaders/super_noise.png");
-    private static final ResourceLocation AFTERLIFE_VHS_NOISE = ResourceLocation.withDefaultNamespace("textures/gui/shaders/vhs_noise.png");
     private static final ResourceLocation AFTERLIFE_DITHER = ResourceLocation.withDefaultNamespace("textures/gui/shaders/dither.png");
     private static final ResourceLocation AFTERLIFE_CONTRAST_NOISE = ResourceLocation.withDefaultNamespace("textures/gui/shaders/contrast_noise.png");
 
@@ -61,6 +61,13 @@ public class ImmersiveFilterShader {
             if (time != null) time.set(totalTime);
             var effectTime = effect.safeGetUniform("EffectTime");
             if (effectTime != null) effectTime.set(totalTime);
+            var darkness = effect.safeGetUniform("Darkness");
+            if (darkness != null) {
+                float value = effectHolder == ModEffects.AFTERLIFE_FILTER
+                        ? DNFUnderworldComponent.KEY.get(mc.player).getDarkness()
+                        : 0.0f;
+                darkness.set(value);
+            }
             return true;
         }));
     }
@@ -69,7 +76,6 @@ public class ImmersiveFilterShader {
         pass.addAuxAsset("NoiseSampler", () -> mc.getTextureManager().getTexture(AFTERLIFE_NOISE).getId(), 256, 256);
         pass.addAuxAsset("DirectionSampler", () -> mc.getTextureManager().getTexture(AFTERLIFE_DIRECTION_NOISE).getId(), 100, 100);
         pass.addAuxAsset("SuperNoiseSampler", () -> mc.getTextureManager().getTexture(AFTERLIFE_SUPER_NOISE).getId(), 256, 256);
-        pass.addAuxAsset("VhsSampler", () -> mc.getTextureManager().getTexture(AFTERLIFE_VHS_NOISE).getId(), 256, 256);
         pass.addAuxAsset("DitherSampler", () -> mc.getTextureManager().getTexture(AFTERLIFE_DITHER).getId(), 256, 256);
         pass.addAuxAsset("ContrastSampler", () -> mc.getTextureManager().getTexture(AFTERLIFE_CONTRAST_NOISE).getId(), 250, 250);
     }

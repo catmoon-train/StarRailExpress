@@ -6,6 +6,7 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.renderer.ScreenEffectRenderer;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -16,6 +17,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -38,7 +40,7 @@ public class SpellbreakerPlayerComponent implements RoleComponent, ServerTicking
             ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "spellbreaker"),
             SpellbreakerPlayerComponent.class);
 
-    public static final int ABILITY_COOLDOWN = 120 * 20;
+    public static final int ABILITY_COOLDOWN = 130 * 20;
     public static final int ABILITY_DURATION = 25 * 20;
     public static final double ABILITY_RADIUS = 50.0D;
     public static final int POTION_DURATION = 15 * 20;
@@ -142,10 +144,12 @@ public class SpellbreakerPlayerComponent implements RoleComponent, ServerTicking
         if(!serverPlayer.hasEffect(ModEffects.NEXT_SKILL_BANED))return false;
 
         serverPlayer.addEffect(new MobEffectInstance(ModEffects.SKILL_BANED, HIT_SKILL_BAN_DURATION, 0, false, false, true));
+        serverPlayer.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, HIT_SKILL_BAN_DURATION, 0, false, false, true));
         serverPlayer.displayClientMessage(
-                Component.translatable("message.noellesroles.spellbreaker.skill_failed")
+                Component.translatable("message.noellesroles.spellbreaker.skill_failed",HIT_SKILL_BAN_DURATION/20)
                         .withStyle(ChatFormatting.RED),
                 true);
+        serverPlayer.playNotifySound(SoundEvents.GLASS_BREAK, SoundSource.PLAYERS, 1.0F, 0.7F);
         sync();
         return true;
     }

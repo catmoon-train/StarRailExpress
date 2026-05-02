@@ -4,13 +4,13 @@ uniform sampler2D DiffuseSampler;
 uniform sampler2D NoiseSampler;
 uniform sampler2D DirectionSampler;
 uniform sampler2D SuperNoiseSampler;
-uniform sampler2D VhsSampler;
 uniform sampler2D DitherSampler;
 uniform sampler2D ContrastSampler;
 
 uniform float Strength;
 uniform float Time;
 uniform float EffectTime;
+uniform float Darkness;
 uniform vec2 InSize;
 uniform vec2 OutSize;
 
@@ -113,21 +113,17 @@ void main() {
     backrooms *= eyePressure;
     backrooms = mix(backrooms, wetShadow, (ceiling + floorBand) * strength);
 
-    float vhsLine = texture(VhsSampler, fract(vec2(uv.x * 1.45 + floor(t * 9.0) * 0.037, uv.y * screen.y / 256.0 + t * 0.22))).r;
     float staticNoise = texture(NoiseSampler, fract(uv * screen / 256.0 + vec2(t * 0.91, -t * 0.37))).r;
     float dither = texture(DitherSampler, fract(uv * screen / 256.0)).r;
-    float scan = sin(uv.y * screen.y * 0.78 + t * 15.0) * 0.5 + 0.5;
-    float horizontalTear = smoothstep(0.985, 1.0, vhsLine) * (hash21(vec2(floor(t * 11.0), floor(uv.y * 90.0))) - 0.5);
 
     backrooms += (staticNoise - 0.5) * 0.070 * strength;
     backrooms += (dither - 0.5) * 0.030 * strength;
-    backrooms -= scan * 0.020 * strength;
-    backrooms += horizontalTear * 0.040 * strength;
 
     float outOfBounds = smoothstep(0.001, 0.045, min(min(sampleUv.x, sampleUv.y), min(1.0 - sampleUv.x, 1.0 - sampleUv.y)));
     vec3 finalColor = mix(color, backrooms, strength);
     finalColor = mix(wetShadow * 0.55, finalColor, outOfBounds);
     finalColor = clamp(finalColor, 0.0, 1.0);
+    finalColor *= 1.0 - clamp(Darkness, 0.0, 0.5);
 
     fragColor = vec4(finalColor, alpha);
 }

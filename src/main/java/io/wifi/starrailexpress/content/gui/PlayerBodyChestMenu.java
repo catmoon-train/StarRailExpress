@@ -1,5 +1,6 @@
 package io.wifi.starrailexpress.content.gui;
 
+import io.wifi.events.day_night_fight.DNFChefHatItem;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -7,7 +8,9 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import org.agmas.noellesroles.init.ModEventsRegister;
 
 public class PlayerBodyChestMenu extends AbstractContainerMenu implements CustomInventoryMenu {
     private final PlayerBodyEntityContainer container;
@@ -118,6 +121,14 @@ public class PlayerBodyChestMenu extends AbstractContainerMenu implements Custom
                     return;
             }
         }
+        Slot slot = getSlot(slotId);
+        if (slot.hasItem()){
+            Item item = slot.getItem().getItem();
+            if (!ModEventsRegister.canThrowItems.contains(item) && !(item instanceof DNFChefHatItem) ){
+                return;
+            }
+        }
+
         // 非容器槽位的操作正常放行
         super.clicked(slotId, button, clickType, player);
     }
