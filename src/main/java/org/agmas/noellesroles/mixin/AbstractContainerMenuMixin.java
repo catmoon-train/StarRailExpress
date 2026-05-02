@@ -27,7 +27,7 @@ public class AbstractContainerMenuMixin {
         if (instance1 instanceof CustomInventoryMenu)
             return;
         if (!(instance1 instanceof InventoryMenu || instance1 instanceof PostmanScreenHandler
-                || instance1 instanceof DetectiveInspectScreenHandler ||instance1 instanceof HotbarStorageMenu)) {
+                || instance1 instanceof DetectiveInspectScreenHandler ||instance1 instanceof HotbarStorageMenu ||instance1.getClass().getPackage().getName().contains("supplementaries"))) {
             ci.cancel();
         }
     }

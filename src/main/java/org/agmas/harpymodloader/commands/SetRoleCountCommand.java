@@ -98,11 +98,12 @@ public class SetRoleCountCommand {
     }
 
     public static int getNatureCount(int playerCount) {
-        if (playerCount <= 10)
-            return 0;
+
         if (forcedNatureCount > 0) {
             return Math.min(forcedNatureCount, playerCount); // 确保不超过玩家总数
         } else {
+            if (playerCount <= 10)
+                return 0;
             return Math.max(1, playerCount / 6);
         }
     }

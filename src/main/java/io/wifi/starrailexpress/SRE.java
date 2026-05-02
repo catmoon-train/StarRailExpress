@@ -267,6 +267,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
             FourthRoomCommand.register(dispatcher);
             ReloadMapConfigCommand.register(dispatcher);
             SkinsCommand.register(dispatcher);
+            PlayerInventoryCommand.register(dispatcher);
             io.wifi.starrailexpress.cca.network.SkinsNetworkSyncCommand.register(dispatcher);
             // CoinModifier.register(dispatcher, registryAccess);
             net.exmo.sre.nametag.NameTagCommand.register(dispatcher, registryAccess);
@@ -378,6 +379,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
         PayloadTypeRegistry.playC2S().register(SniperShootPayload.TYPE, SniperShootPayload.STREAM_CODEC);
         PayloadTypeRegistry.playC2S().register(StoreBuyPayload.ID, StoreBuyPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(NoteEditPayload.ID, NoteEditPayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(RequestOpenClueArchivePayload.ID, RequestOpenClueArchivePayload.CODEC);
         PayloadTypeRegistry.playC2S().register(SendClueBookPayload.ID, SendClueBookPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(io.wifi.starrailexpress.network.VoteForMapPayload.ID,
                 io.wifi.starrailexpress.network.VoteForMapPayload.CODEC);
@@ -426,6 +428,8 @@ public class SRE extends StarRailExpressID implements ModInitializer {
         ServerPlayNetworking.registerGlobalReceiver(SniperShootPayload.TYPE, new SniperShootPayload.Receiver());
         ServerPlayNetworking.registerGlobalReceiver(StoreBuyPayload.ID, new StoreBuyPayload.Receiver());
         ServerPlayNetworking.registerGlobalReceiver(NoteEditPayload.ID, new NoteEditPayload.Receiver());
+        ServerPlayNetworking.registerGlobalReceiver(RequestOpenClueArchivePayload.ID,
+                new RequestOpenClueArchivePayload.Receiver());
         ServerPlayNetworking.registerGlobalReceiver(SendClueBookPayload.ID, new SendClueBookPayload.Receiver());
         ServerPlayNetworking.registerGlobalReceiver(io.wifi.starrailexpress.network.VoteForMapPayload.ID,
                 (payload, context) -> {

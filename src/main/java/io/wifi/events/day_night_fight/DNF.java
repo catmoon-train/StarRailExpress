@@ -34,7 +34,9 @@ import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands.CommandSelection;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerLevel;
@@ -190,6 +192,43 @@ public class DNF {
 
     public static boolean isDNFAntagonist(SRERole role) {
         return isDNFKiller(role) || isDNFPoisoner(role) || isDNFManiac(role);
+    }
+
+    public static BlockPos getConfiguredMeetingPos() {
+        SREConfig config = SREConfig.instance();
+        return new BlockPos(config.dnfMeetingX, config.dnfMeetingY, config.dnfMeetingZ);
+    }
+
+    public static double getConfiguredMeetingRadius() {
+        return Math.max(1.0, SREConfig.instance().dnfMeetingRadius);
+    }
+
+    public static ResourceKey<Level> getConfiguredMeetingDimension() {
+        ResourceLocation id = ResourceLocation.tryParse(SREConfig.instance().dnfMeetingDimension);
+        if (id == null) {
+            id = Level.OVERWORLD.location();
+        }
+        return ResourceKey.create(Registries.DIMENSION, id);
+    }
+
+    public static boolean isInConfiguredMeetingArea(Player player) {
+        if (player == null || player.level() == null) {
+            return false;
+        }
+        if (!player.level().dimension().equals(getConfiguredMeetingDimension())) {
+            return false;
+        }
+        BlockPos pos = getConfiguredMeetingPos();
+        double radius = getConfiguredMeetingRadius();
+        return player.distanceToSqr(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5) <= radius * radius;
+    }
+
+    public static boolean canUseMeetingVote(ServerPlayer player) {
+        if (!isDayNightFightMode(player.level()) || !isDnfAlive(player)) {
+            return false;
+        }
+        SRERole role = SREGameWorldComponent.KEY.get(player.level()).getRole(player);
+        return !isDNFAntagonist(role) && isInConfiguredMeetingArea(player);
     }
 
     public static boolean isDnfAlive(ServerPlayer player) {
@@ -526,6 +565,21 @@ public class DNF {
             DNFPlayerComponent component = DNFPlayerComponent.KEY.get(serverPlayer);
             DNFWorldComponent dnfWorld = DNFWorldComponent.KEY.get(world);
             BlockPos clickedPos = hitResult.getBlockPos();
+            ItemStack held = serverPlayer.getItemInHand(hand);
+            if (state.is(Blocks.SMOKER) && DNF.isDNFChef(serverPlayer)
+                    && (held.is(DNFItems.CORNMEAL_BAG) || held.is(DNFItems.FLOUR_BAG)
+                            || held.is(DNFItems.SUSPICIOUS_MEAT))) {
+                if (!serverPlayer.isShiftKeyDown()) {
+                    serverPlayer.displayClientMessage(Component.translatable("message.dnf.chef.smoker_hint")
+                            .withStyle(ChatFormatting.YELLOW), true);
+                    return InteractionResult.SUCCESS;
+                }
+                serverPlayer.startUsingItem(hand);
+                world.playSound(null, clickedPos, SoundEvents.SMOKER_SMOKE, SoundSource.BLOCKS, 0.6f, 1.0f);
+                serverPlayer.displayClientMessage(Component.translatable("message.dnf.chef.smoker_started")
+                        .withStyle(ChatFormatting.AQUA), true);
+                return InteractionResult.SUCCESS;
+            }
             if (dnfWorld.isOldChefDiary(clickedPos)) {
                 if (!DNF.isDNFChef(serverPlayer)) {
                     serverPlayer.displayClientMessage(Component.translatable("message.dnf.chef.diary_chef_only")
@@ -543,7 +597,6 @@ public class DNF {
                 if (DNF.isDNFChef(serverPlayer) && serverPlayer.isShiftKeyDown()) {
                     return inspectFoodBox(serverPlayer) ? InteractionResult.SUCCESS : InteractionResult.PASS;
                 }
-                ItemStack held = serverPlayer.getItemInHand(hand);
                 if (DNF.isDNFPoisoner(serverPlayer) && DNF.isNight(serverPlayer) && DNFItems.isContaminated(held)) {
                     Container container = dnfWorld.getFoodBoxContainer();
                     if (container == null) {
@@ -610,15 +663,16 @@ public class DNF {
                         .withStyle(ChatFormatting.YELLOW), true);
                 return InteractionResult.PASS;
             }
-            SRERole role = SREGameWorldComponent.KEY.get(world).getRole(serverPlayer);
-            if (isDNFAntagonist(role)) {
-                return InteractionResult.PASS;
-            }
             return startBodyReportVote(serverPlayer);
         });
     }
 
     private static InteractionResult startBodyReportVote(ServerPlayer reporter) {
+        if (isNight(reporter)) {
+            reporter.displayClientMessage(Component.translatable("message.dnf.vote.day_only")
+                    .withStyle(ChatFormatting.YELLOW), true);
+            return InteractionResult.FAIL;
+        }
         DNFWorldComponent world = DNFWorldComponent.KEY.get(reporter.serverLevel());
         if (world.isMeetingActive() || VoteManager.getCurrentSession() != null) {
             reporter.displayClientMessage(Component.translatable("message.dnf.vote.already_active")
@@ -627,7 +681,6 @@ public class DNF {
         }
         List<ServerPlayer> voters = reporter.serverLevel().players().stream()
                 .filter(DNF::isDnfAlive)
-                .filter(player -> !isDNFManiac(player))
                 .toList();
         if (voters.isEmpty()) {
             return InteractionResult.FAIL;
@@ -643,15 +696,8 @@ public class DNF {
 
     private static InteractionResult startMeetingPreVote(ServerPlayer reporter, List<ServerPlayer> voters) {
         DNFWorldComponent world = DNFWorldComponent.KEY.get(reporter.serverLevel());
-        BlockPos meetingPos = world.getMeetingPos();
-        
-        if (meetingPos == null) {
-            // 如果没有配置会议位置，直接开始投票
-            return startMainVote(reporter, voters);
-        }
-
-        double meetingRadius = world.getMeetingRadius();
         VoteManager.VoteBuilder builder = VoteManager.builder(Component.translatable("message.dnf.vote.meeting_request"))
+                .type("dnf_meeting_request")
                 .duration(30 * 20)
                 .allowReVote(false)
                 .showResults(false)
@@ -681,9 +727,16 @@ public class DNF {
     }
 
     private static void handleMeetingPreVoteResult(ServerPlayer reporter, VoteSession session, List<ServerPlayer> voters) {
+        if (isNight(reporter)) {
+            reporter.serverLevel().getServer().getPlayerList().broadcastSystemMessage(
+                    Component.translatable("message.dnf.vote.day_only").withStyle(ChatFormatting.YELLOW),
+                    false);
+            return;
+        }
         DNFWorldComponent world = DNFWorldComponent.KEY.get(reporter.serverLevel());
-        BlockPos meetingPos = world.getMeetingPos();
-        double meetingRadius = world.getMeetingRadius();
+        BlockPos meetingPos = getConfiguredMeetingPos();
+        ServerLevel configuredLevel = reporter.getServer().getLevel(getConfiguredMeetingDimension());
+        ServerLevel meetingLevel = configuredLevel == null ? reporter.serverLevel() : configuredLevel;
         
         if (session.getTotalVotes() <= 0) {
             reporter.serverLevel().getServer().getPlayerList().broadcastSystemMessage(
@@ -699,7 +752,7 @@ public class DNF {
             }
             DNFPlayerComponent playerComp = DNFPlayerComponent.KEY.get(voter);
             voter.teleportTo(
-                voter.serverLevel(),
+                meetingLevel,
                 meetingPos.getX() + 0.5,
                 meetingPos.getY() + 1.0,
                 meetingPos.getZ() + 0.5,
@@ -777,13 +830,28 @@ public class DNF {
 
     private static InteractionResult startMainVote(ServerPlayer reporter, List<ServerPlayer> voters) {
         DNFWorldComponent world = DNFWorldComponent.KEY.get(reporter.serverLevel());
+        List<ServerPlayer> eligibleVoters = voters.stream()
+                .filter(DNF::canUseMeetingVote)
+                .toList();
+        if (eligibleVoters.isEmpty()) {
+            reporter.serverLevel().getServer().getPlayerList().broadcastSystemMessage(
+                    Component.translatable("message.dnf.vote.no_meeting_voters")
+                            .withStyle(ChatFormatting.GRAY),
+                    false);
+            world.setMeetingActive(false);
+            return InteractionResult.FAIL;
+        }
+        List<ServerPlayer> candidates = reporter.getServer().getPlayerList().getPlayers().stream()
+                .filter(DNF::isDnfAlive)
+                .toList();
         
         VoteManager.VoteBuilder builder = VoteManager.builder(Component.translatable("message.dnf.vote.title"))
+                .type("dnf_meeting_vote")
                 .duration(60 * 20)
                 .allowReVote(true)
                 .showResults(true)
                 .syncInterval(20)
-                .targetPlayers(voters)
+                .targetPlayers(eligibleVoters)
                 .callback(session -> {
                     world.setMeetingActive(false);
                     var top = session.getTopResults();
@@ -811,13 +879,13 @@ public class DNF {
                     }
                     
                     // 重置玩家的会议参与状态
-                    for (ServerPlayer voter : voters) {
+                    for (ServerPlayer voter : eligibleVoters) {
                         DNFPlayerComponent.KEY.get(voter).setJoinedMeeting(false, voter);
                     }
                 });
         
-        for (ServerPlayer voter : voters) {
-            builder.addOption(VoteOption.player(voter, voter.getUUID().toString()));
+        for (ServerPlayer candidate : candidates) {
+            builder.addOption(VoteOption.player(candidate, candidate.getUUID().toString()));
         }
         
         if (builder.start() == null) {

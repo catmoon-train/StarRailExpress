@@ -37,7 +37,9 @@ public class DNFRuleBookCommand {
                 .then(Commands.literal("maniac").executes(ctx -> giveRuleBook(ctx, "maniac")))
                 .then(Commands.literal("psychologist").executes(ctx -> giveRuleBook(ctx, "psychologist")))
                 .then(Commands.literal("locksmith").executes(ctx -> giveRuleBook(ctx, "locksmith")))
-                .then(Commands.literal("civilian").executes(ctx -> giveRuleBook(ctx, "civilian"))));
+                .then(Commands.literal("civilian").executes(ctx -> giveRuleBook(ctx, "civilian")))
+                .then(Commands.literal("all_players").requires(source -> source.hasPermission(2))
+                        .executes(DNFRuleBookCommand::giveRuleBooksToAllPlayers)));
     }
 
     private static int giveCurrentRoleBook(ServerPlayer player) {
@@ -59,6 +61,34 @@ public class DNFRuleBookCommand {
         ServerPlayer player = ctx.getSource().getPlayerOrException();
         DNFItems.giveOrDrop(player, buildBook(role));
         player.displayClientMessage(Component.translatable("message.dnf.rules.given"), true);
+        return 1;
+    }
+
+    private static int giveRuleBooksToAllPlayers(CommandContext<CommandSourceStack> ctx)
+            throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+        CommandSourceStack source = ctx.getSource();
+        ServerPlayer sender = source.getPlayerOrException();
+        
+        // 获取服务器实例
+        var server = sender.getServer();
+        if (server == null) {
+            return 0;
+        }
+        
+        // 遍历所有在线玩家
+        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+            String role = "common";
+            var playerRole = SREGameWorldComponent.KEY.get(player.level()).getRole(player);
+            if (playerRole != null) {
+                String path = playerRole.identifier().getPath();
+                if (path.startsWith("dnf_")) {
+                    role = path.substring("dnf_".length());
+                }
+            }
+            DNFItems.giveOrDrop(player, buildBook(role));
+        }
+        
+        sender.displayClientMessage(Component.translatable("message.dnf.rules.given_all_players"), true);
         return 1;
     }
 

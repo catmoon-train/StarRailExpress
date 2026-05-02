@@ -83,7 +83,7 @@ public class DNFHud {
                     0, 100);
             Component sanText = Component.translatable("hud.dnf.san", sanPercent);
             int sanWidth = font.width(sanText);
-            context.drawString(font, sanText, screenWidth / 2 - sanWidth / 2, y, 0xAEE7FF, true);
+            context.drawString(font, sanText, screenWidth / 2 - sanWidth / 2, 20, 0xAEE7FF, true);
             y += 12;
             
             // 如果手持时钟,显示天数和时间

@@ -17,6 +17,7 @@ public class ClientVoteCache {
     private static int totalVotes;
     private static boolean allowReVote;
     private static int maxSelectCount = 1;
+    private static String typeId = "";
 
     public static void updateFromPacket(VoteSyncS2CPacket packet) {
         active = packet.active();
@@ -31,8 +32,10 @@ public class ClientVoteCache {
             totalVotes = packet.totalVotes();
             allowReVote = packet.allowReVote();
             maxSelectCount = packet.maxSelectCount();
+            typeId = packet.typeId();
         } else {
             active = false;
+            typeId = "";
         }
 
         if (!packet.active()) {
@@ -95,6 +98,10 @@ public class ClientVoteCache {
         return maxSelectCount;
     }
 
+    public static String getTypeId() {
+        return typeId;
+    }
+
     public static int getRemainingSeconds() {
         if (endTick == -1)
             return -1;
@@ -128,6 +135,7 @@ public class ClientVoteCache {
 
     public static void clear() {
         active = false;
+        typeId = "";
         selectedIndices.clear();
     }
 }

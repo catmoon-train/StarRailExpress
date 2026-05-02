@@ -53,9 +53,12 @@ public class ClueArchiveScreen extends Screen {
         graphics.fill(x, y, x + panelW, y + panelH, (alpha << 24) | 0x0F1724);
         graphics.fill(x, y, x + panelW, y + 34, (alpha << 24) | 0x16253A);
         graphics.drawString(this.font, this.title, x + 16, y + 13, 0xDDF3FF, false);
-        graphics.drawString(this.font, Component.translatable("screen.sre.clue_archive.count",
-                data.clues.size(), selected.size(), ClueSystem.maxSelectable()), x + panelW - 150, y + 13,
+        Component countText = Component.translatable("screen.sre.clue_archive.count",
+                data.clues.size(), selected.size(), ClueSystem.maxSelectable());
+        graphics.drawString(this.font, countText, x + panelW - 16 - this.font.width(countText), y + 13,
                 0x9EC8DC, false);
+        graphics.drawString(this.font, Component.translatable("screen.sre.clue_archive.remaining", data.sendTimesLeft),
+                x + 16, y + panelH - 39, data.sendTimesLeft > 0 ? 0x8FFFD2 : 0xFF9D93, false);
 
         int listTop = y + 44;
         int rowH = 38;
@@ -151,7 +154,9 @@ public class ClueArchiveScreen extends Screen {
 
     private void updateButton() {
         if (sendButton != null) {
-            sendButton.active = !selected.isEmpty() && selected.size() <= ClueSystem.maxSelectable();
+            sendButton.active = !selected.isEmpty()
+                    && selected.size() <= ClueSystem.maxSelectable()
+                    && getData().sendTimesLeft > 0;
         }
     }
 

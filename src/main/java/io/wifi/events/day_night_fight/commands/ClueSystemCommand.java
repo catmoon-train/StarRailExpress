@@ -39,9 +39,7 @@ public class ClueSystemCommand {
 
     private static int spawn(ServerPlayer player, String title, String content) {
         var entry = ClueSystem.spawnClueEntity((ServerLevel) player.level(), player.blockPosition(), title, content);
-        var data = ClueSystem.getData(player);
-        data.clues.add(entry);
-        data.sync();
+        ClueSystem.recordClue(player, entry);
         player.sendSystemMessage(Component.translatable("commands.sre.clue.spawn.success", title, entry.clueEntityUuid()));
         return 1;
     }
@@ -58,7 +56,7 @@ public class ClueSystemCommand {
         var data = ClueSystem.getData(player);
         data.clues.clear();
         data.sentClues.clear();
-        data.sendTimesLeft = 0;
+        data.sendTimesLeft = io.wifi.events.day_night_fight.cca.SREPlayerClueComponent.DEFAULT_SEND_TIMES_LEFT;
         data.sync();
         player.sendSystemMessage(Component.translatable("commands.sre.clue.clear"));
         return 1;

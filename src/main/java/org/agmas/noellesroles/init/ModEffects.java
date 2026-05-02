@@ -29,6 +29,8 @@ public class ModEffects {
             new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0xFFFFFF));
     public static final Holder<MobEffect> INVENTORY_BANED = register("inventory_baned",
             new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0xFFFFFF));
+    public static final Holder<MobEffect> EAT_MEAT_FOOD = register("eat_meat_food",
+            new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0xFFFFFF));
     public static final Holder<MobEffect> NEXT_SKILL_BANED = register("next_skill_baned",
             new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0xFFFFFF));
     public static final Holder<MobEffect> TAROT_ASSEMBLY = register("tarot_assembly",

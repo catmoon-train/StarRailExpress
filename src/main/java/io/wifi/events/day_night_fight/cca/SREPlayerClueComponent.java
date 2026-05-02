@@ -17,6 +17,7 @@ import java.util.*;
 public class SREPlayerClueComponent implements RoleComponent {
     public static final ComponentKey<SREPlayerClueComponent> KEY = ComponentRegistry.getOrCreate(SRE.id("clue"),
             SREPlayerClueComponent.class);
+    public static final int DEFAULT_SEND_TIMES_LEFT = 1;
 
     public record ClueEntry(UUID clueEntityUuid, String title, String content, long createdAt) {
     }
@@ -24,7 +25,7 @@ public class SREPlayerClueComponent implements RoleComponent {
     private final Player player;
     public final List<ClueEntry> clues = new ArrayList<>();
     public final Set<UUID> sentClues = new HashSet<>();
-    public int sendTimesLeft = 0;
+    public int sendTimesLeft = DEFAULT_SEND_TIMES_LEFT;
 
     public SREPlayerClueComponent(Player player) {
         this.player = player;
@@ -44,7 +45,7 @@ public class SREPlayerClueComponent implements RoleComponent {
     public void init() {
         clues.clear();
         sentClues.clear();
-        sendTimesLeft = 0;
+        sendTimesLeft = DEFAULT_SEND_TIMES_LEFT;
         sync();
     }
 
@@ -84,7 +85,7 @@ public class SREPlayerClueComponent implements RoleComponent {
 
     @Override
     public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider provider) {
-        sendTimesLeft = tag.getInt("send_times_left");
+        sendTimesLeft = tag.contains("send_times_left") ? tag.getInt("send_times_left") : DEFAULT_SEND_TIMES_LEFT;
         clues.clear();
         sentClues.clear();
         ListTag clueList = tag.getList("clues", 10);

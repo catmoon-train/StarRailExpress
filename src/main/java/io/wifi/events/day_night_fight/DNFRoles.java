@@ -8,6 +8,7 @@ import io.wifi.events.day_night_fight.cca.DNFUnderworldComponent;
 import io.wifi.starrailexpress.api.*;
 import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
+import io.wifi.starrailexpress.event.AllowPlayerDeathWithKiller;
 import io.wifi.starrailexpress.event.AllowPlayerOpenLockedDoor;
 import io.wifi.starrailexpress.event.CantPlayerOpenDoor;
 import io.wifi.starrailexpress.util.ShopEntry;
@@ -25,6 +26,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import org.agmas.noellesroles.Noellesroles;
+import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.utils.RoleUtils;
 
 import io.wifi.events.day_night_fight.cca.DNFPlayerComponent;
@@ -61,24 +63,25 @@ public class DNFRoles {
     private static final Map<UUID, Integer> DNF_CHARGING_TICKS = new HashMap<>();
     private static final Map<UUID, Long> DNF_TRAIL_EXPIRE = new HashMap<>();
     public static final ResourceLocation DNF_ABYSS_ID = SRE.id("dnf_abyss");
+    public static final ResourceLocation GHOST_ID = SRE.id("dnf_ghost");
 
-    static {
-        CantPlayerOpenDoor.EVENT.register(player -> {
-            if (!(player instanceof ServerPlayer serverPlayer))return false;
-            if (player.level() instanceof ServerLevel sl) {
-                if (SREGameWorldComponent.KEY.get( sl).gameMode== SREGameModes.DAY_NIGHT_FIGHT) {
-                    if (!DNF.isDNFKiller(serverPlayer)) {
-                        if (!DNFPlayerComponent.KEY.get(serverPlayer).hasSafeRoomSan(serverPlayer)){
-                            return true;
-                        }
 
-                    }
-                }
-
-            }
-            return  false;
-        });
-    }
+    public static SRERole DNF_GHOST =
+            TMMRoles.registerRole(new NormalRole(
+            GHOST_ID,
+            new Color(120, 0, 0).getRGB(),
+            false,
+            true,
+            SRERole.MoodType.FAKE,
+            Integer.MAX_VALUE,
+            true) {
+                                      @Override
+                                      public void serverTick(ServerPlayer player) {
+                                          player.addEffect(new MobEffectInstance(ModEffects.GHOST_STATE, 25, 6, false, false, false));
+                                          super.serverTick(player);
+                                      }
+                                  }
+            );
     public static SRERole DNF_ABYSS = TMMRoles.registerRole(new NormalRole(
             DNF_ABYSS_ID,
             new Color(120, 0, 0).getRGB(),
@@ -147,7 +150,7 @@ public class DNFRoles {
                     for (Player p2 : player.level().getEntitiesOfClass(Player.class, hitBox, p -> p != player && GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(p))) {
                         // 修改:让玩家进入里世界而不是直接死亡
                         if (p2 instanceof ServerPlayer serverP2) {
-                            DNF.sendPlayerToUnderworld(serverP2);
+
                         }
                     }
                 }
@@ -560,5 +563,44 @@ public class DNFRoles {
     }.setMax(4)).setCanBeRandomedByOtherRoles(false).setCanGetBodyItems(true);
     public static final SRERole CIVILIAN = TMMRoles.registerRole(new DNFNormalRole(CIVILIAN_ID, 0x719E5B, true, false,
             SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false)).setCanBeRandomedByOtherRoles(false).setCanGetBodyItems(true);
+    static {
+        CantPlayerOpenDoor.EVENT.register(player -> {
+            if (!(player instanceof ServerPlayer serverPlayer))return false;
+            if (player.level() instanceof ServerLevel sl) {
+                if (SREGameWorldComponent.KEY.get( sl).gameMode== SREGameModes.DAY_NIGHT_FIGHT) {
+                    if (!DNF.isDNFKiller(serverPlayer)) {
+                        if (!DNFPlayerComponent.KEY.get(serverPlayer).hasSafeRoomSan(serverPlayer)){
+                            return true;
+                        }
 
+                    }
+                }
+
+            }
+            return  false;
+        });
+        AllowPlayerDeathWithKiller.EVENT.register(
+                (player, killer, deathReason) -> {
+                    if (!(player instanceof ServerPlayer serverPlayer))return true;
+                    Level level = player.level();
+                    SREGameWorldComponent sreGameWorldComponent = SREGameWorldComponent.KEY.get(level);
+                    if (sreGameWorldComponent.isKillerTeam( player)) {
+                        return true;
+                    }
+                    if (sreGameWorldComponent.gameMode== SREGameModes.DAY_NIGHT_FIGHT){
+
+                        if (!player.hasEffect(ModEffects.GHOST_STATE)) {
+                            if (DNF.isDNFKiller(player)) {
+                                return true;
+                            }
+                            sreGameWorldComponent.addRole(player, DNF_GHOST);
+                            DNF.sendPlayerToUnderworld(serverPlayer);
+                            return false;
+
+                        }
+                    }
+                    return true;
+                }
+        );
+    }
 }

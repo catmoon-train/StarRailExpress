@@ -12,11 +12,13 @@ import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.*;
+import io.wifi.events.day_night_fight.client.gui.clue.ClueArchiveHud;
 import io.wifi.starrailexpress.client.fourthroom.FourthRoomCameraDirector;
 import io.wifi.starrailexpress.client.fourthroom.FourthRoomClientState;
 import io.wifi.starrailexpress.client.fourthroom.FourthRoomTableHud;
 import io.wifi.events.day_night_fight.client.gui.clue.ClueArchiveScreen;
 import io.wifi.events.day_night_fight.client.gui.HotbarStorageScreen;
+import io.wifi.events.day_night_fight.block_entity.DNFBlockEntities;
 import io.wifi.events.day_night_fight.gui.DNFMenus;
 import io.wifi.starrailexpress.client.commandmacro.CommandMacroExecutor;
 import io.wifi.starrailexpress.client.gui.*;
@@ -307,6 +309,7 @@ public class SREClient implements ClientModInitializer {
         BlockEntityRenderers.register(
                 TMMBlockEntities.BEVERAGE_PLATE,
                 PlateBlockEntityRenderer::new);
+        BlockEntityRenderers.register(DNFBlockEntities.SERVING_PLATE, PlateBlockEntityRenderer::new);
         BlockEntityRenderers.register(TMMBlockEntities.HORN, HornBlockEntityRenderer::new);
         BlockEntityRenderers.register(TMMBlockEntities.FOURTH_ROOM_TABLE, FourthRoomTableBlockEntityRenderer::new);
 
@@ -748,6 +751,7 @@ public class SREClient implements ClientModInitializer {
             AFKRenderer.renderAFKEffects(guiGraphics, deltaTick.getRealtimeDeltaTicks());
             FourthRoomCameraDirector.renderOverlay(guiGraphics);
             FourthRoomTableHud.render(guiGraphics);
+            ClueArchiveHud.render(guiGraphics);
             // RoleUnlockHudRenderer.render(guiGraphics);
 
             // // 添加地图详情渲染

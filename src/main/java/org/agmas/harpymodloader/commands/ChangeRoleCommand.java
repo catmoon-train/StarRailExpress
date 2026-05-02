@@ -50,19 +50,21 @@ public class ChangeRoleCommand {
       srePlayerTaskComponent.sync();
 
       SRERole oldRole = gameWorldComponent.getRole(targetPlayer);
-      var cacheItems = new ArrayList<ItemStack>();
-      targetPlayer.getInventory().items.forEach(
-              itemStack -> {
-              if (oldRole.getDefaultItems().stream().anyMatch(itemStack1 -> itemStack1.getItem().equals(itemStack.getItem()))){
-                cacheItems.add(itemStack);
-              }
-              }
-      );
-      cacheItems.forEach(
-              itemStack -> {
-                targetPlayer.getInventory().removeItem(itemStack);
-              }
-      );
+      if (oldRole!=null) {
+        var cacheItems = new ArrayList<ItemStack>();
+        targetPlayer.getInventory().items.forEach(
+                itemStack -> {
+                  if (oldRole.getDefaultItems().stream().anyMatch(itemStack1 -> itemStack1.getItem().equals(itemStack.getItem()))) {
+                    cacheItems.add(itemStack);
+                  }
+                }
+        );
+        cacheItems.forEach(
+                itemStack -> {
+                  targetPlayer.getInventory().removeItem(itemStack);
+                }
+        );
+      }
       newRole.getDefaultItems().forEach(itemStack -> targetPlayer.getInventory().add(itemStack.copy()));
       RoleUtils.changeRole(targetPlayer, newRole, record, addStats);
 

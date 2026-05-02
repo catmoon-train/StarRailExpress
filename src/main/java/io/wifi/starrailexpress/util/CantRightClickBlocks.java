@@ -74,14 +74,17 @@ public class CantRightClickBlocks {
     public static boolean shouldPreventInteraction(Block block,Level level) {
         if (SRE.isLobby)
             return false;
+        String string = BuiltInRegistries.BLOCK.getKey(block).toString();
         SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(level);
         if (gameWorldComponent.gameMode== SREGameModes.DAY_NIGHT_FIGHT){
-            if (block == Blocks.CHEST || block == Blocks.BARREL) {
+            if (block == Blocks.CHEST || block == Blocks.BARREL || block == Blocks.CHISELED_BOOKSHELF
+                    || block == Blocks.SMOKER || string.equals("supplementaries:pedestal")) {
                 return false;
             }
         }
-        return !isAllowedBlock(block,level) || cantClickItems.contains(BuiltInRegistries.BLOCK.getKey(block).toString())
-                || CANNOT_INTERACT_IDS.contains(BuiltInRegistries.BLOCK.getKey(block).toString());
+
+        return !isAllowedBlock(block,level) || cantClickItems.contains(string)
+                || CANNOT_INTERACT_IDS.contains(string);
     }
 
     /**

@@ -220,6 +220,7 @@ public class SREConfig implements ConfigData {
 
 
     @ConfigEntry.Category(value = "clue")
+    @ConfigSync(shouldSync = true)
     public int clueBookMaxSelections = 4;
     @ConfigEntry.Category(value = "clue")
     public int clueBookshelfX = 0;
@@ -229,6 +230,22 @@ public class SREConfig implements ConfigData {
     public int clueBookshelfZ = 0;
     @ConfigEntry.Category(value = "clue")
     public String clueBookshelfDimension = "minecraft:overworld";
+
+    @ConfigEntry.Category(value = "dnf_meeting")
+    @ConfigSync(shouldSync = true)
+    public int dnfMeetingX = 0;
+    @ConfigEntry.Category(value = "dnf_meeting")
+    @ConfigSync(shouldSync = true)
+    public int dnfMeetingY = 64;
+    @ConfigEntry.Category(value = "dnf_meeting")
+    @ConfigSync(shouldSync = true)
+    public int dnfMeetingZ = 0;
+    @ConfigEntry.Category(value = "dnf_meeting")
+    @ConfigSync(shouldSync = true)
+    public double dnfMeetingRadius = 10.0;
+    @ConfigEntry.Category(value = "dnf_meeting")
+    @ConfigSync(shouldSync = true)
+    public String dnfMeetingDimension = "minecraft:overworld";
 
     // 里世界传送配置
     @ConfigEntry.Category(value = "underworld")

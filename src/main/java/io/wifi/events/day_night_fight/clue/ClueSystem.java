@@ -16,6 +16,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.network.Filterable;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.item.component.WrittenBookContent;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -41,13 +44,31 @@ public final class ClueSystem {
         return new SREPlayerClueComponent.ClueEntry(display.getUUID(), title, content, System.currentTimeMillis());
     }
 
+    public static void recordClue(ServerPlayer player, SREPlayerClueComponent.ClueEntry entry) {
+        SREPlayerClueComponent data = getData(player);
+        boolean exists = data.clues.stream().anyMatch(clue -> clue.clueEntityUuid().equals(entry.clueEntityUuid()));
+        if (exists) {
+            return;
+        }
+        data.clues.add(entry);
+        data.sync();
+        ServerLevel level = player.serverLevel();
+        level.sendParticles(ParticleTypes.ENCHANT, player.getX(), player.getY() + 1.1, player.getZ(),
+                24, 0.45, 0.35, 0.45, 0.02);
+        level.sendParticles(ParticleTypes.GLOW, player.getX(), player.getY() + 1.0, player.getZ(),
+                8, 0.3, 0.25, 0.3, 0.01);
+        level.playSound(null, player.blockPosition(), SoundEvents.EXPERIENCE_ORB_PICKUP,
+                SoundSource.PLAYERS, 0.8f, 1.45f);
+        player.displayClientMessage(Component.translatable("message.sre.clue_system.recorded", entry.title()), true);
+    }
+
     public static int maxSelectable() { return Math.max(1, SREConfig.instance().clueBookMaxSelections); }
 
     public static boolean sendCluesAsBook(ServerPlayer player, List<UUID> clueUuids) {
         if (clueUuids.isEmpty() || clueUuids.size() > maxSelectable()) return false;
         if (new HashSet<>(clueUuids).size() != clueUuids.size()) return false;
         SREPlayerClueComponent data = getData(player);
-        if (data.sendTimesLeft < 0) return false;
+        if (data.sendTimesLeft <= 0) return false;
         List<SREPlayerClueComponent.ClueEntry> selected = new ArrayList<>();
         for (UUID uuid : clueUuids) {
             var found = data.clues.stream().filter(v -> v.clueEntityUuid().equals(uuid)).findFirst();
@@ -67,9 +88,7 @@ public final class ClueSystem {
         shelf.setChanged();
 
         for (UUID uuid : clueUuids) data.sentClues.add(uuid);
-        if (data.sendTimesLeft > 0) {
-            data.sendTimesLeft--;
-        }
+        data.sendTimesLeft--;
         data.sync();
         return true;
     }

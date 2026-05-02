@@ -83,8 +83,8 @@ public class DNFGameMode extends SREMurderGameMode {
         for (ServerPlayer player : players) {
             SRERole role = gameWorldComponent.getRole(player);
             PlayerRoleWeightManager.addWeight(player, PlayerRoleWeightManager.getRoleType(role), 1);
-            ServerPlayNetworking.send(player, new AnnounceWelcomePayload(role.getIdentifier().toString(),
-                    (int) killerCount, players.size() - (int) killerCount));
+//            ServerPlayNetworking.send(player, new AnnounceWelcomePayload(role.getIdentifier().toString(),
+//                    (int) killerCount, players.size() - (int) killerCount));
             ModdedRoleAssigned.EVENT.invoker().assignModdedRole(player, role);
         }
 

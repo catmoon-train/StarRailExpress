@@ -11,6 +11,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -26,7 +27,11 @@ public class BeveragePlateBlockEntity extends BlockEntity {
     private PlateType plate = PlateType.DRINK;
 
     public BeveragePlateBlockEntity(BlockPos pos, BlockState state) {
-        super(TMMBlockEntities.BEVERAGE_PLATE, pos, state);
+        this(TMMBlockEntities.BEVERAGE_PLATE, pos, state);
+    }
+
+    protected BeveragePlateBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+        super(type, pos, state);
     }
 
     private void sync() {
@@ -49,6 +54,11 @@ public class BeveragePlateBlockEntity extends BlockEntity {
         if (stack.isEmpty())
             return;
         this.storedItems.add(stack.copy());
+        this.sync();
+    }
+
+    public void clearItems() {
+        this.storedItems.clear();
         this.sync();
     }
 

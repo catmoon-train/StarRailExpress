@@ -48,6 +48,7 @@ public class CommandMacroEditorScreen extends Screen {
             int delay = i < script.commands.size() ? script.commands.get(i).delayMs : 1000;
             EditBox cmdBox = new EditBox(this.font, 20, y, 300, 18, Component.literal("命令"));
             cmdBox.setValue(cmd == null ? "" : cmd);
+            cmdBox.setMaxLength(2000);
             addRenderableWidget(cmdBox);
             commandBoxes.add(cmdBox);
 

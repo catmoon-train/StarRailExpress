@@ -53,10 +53,11 @@ public class VoteSession {
     @Nullable
     private final Set<UUID> targetPlayers;
     private final int maxSelectCount; // 最大可选项数
+    private final String typeId;
 
     VoteSession(Component title, List<VoteOption> options, boolean showResults, int syncIntervalTicks,
             int durationTicks, Predicate<VoteSession> customEndPredicate, boolean allowReVote,
-            @Nullable Set<UUID> targetPlayers, int maxSelectCount) {
+            @Nullable Set<UUID> targetPlayers, int maxSelectCount, String typeId) {
         this.title = title;
         this.options.addAll(options);
         this.showResults = showResults;
@@ -68,6 +69,11 @@ public class VoteSession {
         this.ended = false;
         this.targetPlayers = targetPlayers == null ? null : new HashSet<>(targetPlayers);
         this.maxSelectCount = Math.max(1, maxSelectCount);
+        this.typeId = typeId == null ? "" : typeId;
+    }
+
+    public String getTypeId() {
+        return typeId;
     }
 
     public int getMaxSelectCount() {

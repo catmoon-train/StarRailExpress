@@ -28,7 +28,10 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.Container;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
@@ -44,6 +47,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
+import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.utils.RoleUtils;
 
 import java.util.List;
@@ -56,11 +60,11 @@ public class DNFItems {
     public static final Item CROWBAR = register("dnf_crowbar",
             new DNFCrowbarItem(new Item.Properties().stacksTo(1)));
     public static final Item CORNMEAL_BAG = register("dnf_cornmeal_bag",
-            new Item(new Item.Properties().stacksTo(16)));
+            new DNFChefIngredientItem(new Item.Properties().stacksTo(16)));
     public static final Item FLOUR_BAG = register("dnf_flour_bag",
-            new Item(new Item.Properties().stacksTo(16)));
+            new DNFChefIngredientItem(new Item.Properties().stacksTo(16)));
     public static final Item SUSPICIOUS_MEAT = register("dnf_suspicious_meat",
-            new Item(new Item.Properties().stacksTo(16)));
+            new DNFChefIngredientItem(new Item.Properties().stacksTo(16)));
     public static final Item CORN_GRUEL = register("dnf_corn_gruel",
             new DNFFoodItem(new Item.Properties().stacksTo(64).food(new FoodProperties.Builder()
                     .nutrition(3).saturationModifier(0.35f).alwaysEdible().build())));
@@ -69,7 +73,13 @@ public class DNFItems {
                     .nutrition(5).saturationModifier(0.5f).alwaysEdible().build())));
     public static final Item MEAT_RATION = register("dnf_meat_ration",
             new DNFFoodItem(new Item.Properties().stacksTo(64).food(new FoodProperties.Builder()
-                    .nutrition(6).saturationModifier(0.7f).alwaysEdible().build())));
+                    .nutrition(6).saturationModifier(0.7f).alwaysEdible().build())){
+                @Override
+                public ItemStack finishUsingItem(ItemStack stack, Level world, LivingEntity entity) {
+                    entity.addEffect(new MobEffectInstance(ModEffects.EAT_MEAT_FOOD,99999,0,false,false,false));
+                    return super.finishUsingItem(stack, world, entity);
+                }
+            });
     public static final Item WATER_BOTTLE = register("dnf_water_bottle",
             new DNFWaterItem(new Item.Properties().stacksTo(16)));
     public static final Item TOXIC_HEART = register("dnf_toxic_heart",
@@ -88,6 +98,25 @@ public class DNFItems {
                         TooltipFlag flag) {
                     appendDnfTooltip(stack, context, tooltip, flag,
                             "item.starrailexpress.dnf_redemption_potion.tooltip");
+                }
+
+                @Override
+                public void inventoryTick(ItemStack itemStack, Level level, Entity entity, int i, boolean bl) {
+                    if (entity instanceof Player player){
+                        if (!player.getInventory().hasAnyMatching(a -> a.getItem() == Items.NETHERITE_HELMET)){
+                            player.setItemSlot(EquipmentSlot.CHEST,new ItemStack(Items.NETHERITE_HELMET)) ;
+                        }
+                        if (!player.getInventory().hasAnyMatching(a -> a.getItem() == Items.NETHERITE_LEGGINGS)){
+                            player.setItemSlot(EquipmentSlot.LEGS,new ItemStack(Items.NETHERITE_LEGGINGS)) ;
+                        }
+                        if (!player.getInventory().hasAnyMatching(a -> a.getItem() == Items.NETHERITE_HELMET)){
+                            player.setItemSlot(EquipmentSlot.HEAD,new ItemStack(Items.NETHERITE_HELMET)) ;
+                        }
+                        if (!player.getInventory().hasAnyMatching(a -> a.getItem() == Items.NETHERITE_BOOTS)){
+                            player.setItemSlot(EquipmentSlot.FEET,new ItemStack(Items.NETHERITE_BOOTS)) ;
+                        }
+                    }
+                    super.inventoryTick(itemStack, level, entity, i, bl);
                 }
             });
     public static final Item OLD_CHEF_DIARY = register("dnf_old_chef_diary",
@@ -146,6 +175,10 @@ public class DNFItems {
             new BlockItem(DNFBlocks.WHITE_BLOCK, new Item.Properties()));
     public static final Item EXCHANGE_TASK_POINT_ITEM = register("dnf_exchange_task_point",
             new BlockItem(DNFBlocks.EXCHANGE_TASK_POINT, new Item.Properties()));
+    public static final Item SERVING_PLATE_ITEM = register("dnf_serving_plate",
+            new BlockItem(DNFBlocks.SERVING_PLATE, new Item.Properties()));
+    public static final Item WATER_DISPENSER_ITEM = register("dnf_water_dispenser",
+            new BlockItem(DNFBlocks.WATER_DISPENSER, new Item.Properties()));
     public static final Item LAB_CARD = register("dnf_lab_card",
             new DNFLabCardItem(new Item.Properties().stacksTo(16)));
     public static final Item LAB_BLOCK_ITEM = register("dnf_lab_block",
@@ -189,6 +222,8 @@ public class DNFItems {
             entries.accept(CLEANING_TASK_POINT_ITEM);
             entries.accept(WEB_TASK_POINT_ITEM);
             entries.accept(EXCHANGE_TASK_POINT_ITEM);
+            entries.accept(SERVING_PLATE_ITEM);
+            entries.accept(WATER_DISPENSER_ITEM);
             entries.accept(LAB_CARD);
             entries.accept(LAB_BLOCK_ITEM);
             entries.accept(HOTBAR_STORAGE_ITEM);
@@ -210,6 +245,24 @@ public class DNFItems {
                 return DNF.CLEANING_TICKS / 20.0f;
             }
         });
+        for (Item item : List.of(CORNMEAL_BAG, FLOUR_BAG, SUSPICIOUS_MEAT)) {
+            ChargeableItemRegistry.register(item, new ChargeableItem() {
+                @Override
+                public int getMaxChargeTime(ItemStack stack, Player player) {
+                    return DNFChefIngredientItem.WORK_TICKS;
+                }
+
+                @Override
+                public float getChargePercentage(ItemStack stack, Player player, int ticksUsingItem) {
+                    return Math.min(1.0f, (float) ticksUsingItem / DNFChefIngredientItem.WORK_TICKS);
+                }
+
+                @Override
+                public float getMaxStamina(ItemStack stack, Player player) {
+                    return DNFChefIngredientItem.WORK_TICKS / 20.0f;
+                }
+            });
+        }
     }
 
     private static Item register(String id, Item item) {
@@ -494,7 +547,7 @@ public class DNFItems {
         }
     }
 
-    static void giveOrDrop(ServerPlayer player, ItemStack stack) {
+    public static void giveOrDrop(ServerPlayer player, ItemStack stack) {
         if (!player.addItem(stack.copy())) {
             player.drop(stack.copy(), false);
         }

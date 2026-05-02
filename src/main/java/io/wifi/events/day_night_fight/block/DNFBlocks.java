@@ -51,6 +51,17 @@ public interface DNFBlocks {
                             .strength(0.6F)
                             .lightLevel(state -> 8)
                             .sound(SoundType.METAL)));
+    Block SERVING_PLATE = registrar.create("dnf_serving_plate",
+            new DNFServingPlateBlock(Block.Properties.ofFullCopy(Blocks.WHITE_GLAZED_TERRACOTTA)
+                    .noOcclusion()
+                    .noCollission()
+                    .instabreak()
+                    .sound(SoundType.COPPER)));
+    Block WATER_DISPENSER = registrar.create("dnf_water_dispenser",
+            new DNFWaterDispenserBlock(Block.Properties.ofFullCopy(Blocks.IRON_BLOCK)
+                    .noOcclusion()
+                    .strength(1.5F)
+                    .sound(SoundType.METAL)));
     Block LAB_BLOCK = registrar.create("dnf_lab_block",
             new LabBlock(Block.Properties.ofFullCopy(Blocks.PURPUR_BLOCK)
                     .strength(1.5F)
