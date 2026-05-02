@@ -59,6 +59,11 @@ public class DNFDebugCommand {
                                         .then(Commands.literal("water_source").executes(ctx -> setTargetPos(ctx, "water_source")))
                                         .then(Commands.literal("meteor").executes(ctx -> setTargetPos(ctx, "meteor")))
                                         .then(Commands.literal("wall_hole").executes(ctx -> setTargetPos(ctx, "wall_hole")))
+                                        .then(Commands.literal("old_chef_diary").executes(ctx -> setTargetPos(ctx, "old_chef_diary")))
+                                        .then(Commands.literal("meeting_pos").executes(ctx -> setTargetPos(ctx, "meeting_pos")))
+                                        .then(Commands.literal("meeting_radius")
+                                                .then(Commands.argument("radius", IntegerArgumentType.integer(1))
+                                                        .executes(DNFDebugCommand::setMeetingRadius)))
                                         .then(Commands.literal("underworld_center").executes(ctx -> setTargetPos(ctx, "underworld_center")))
                                         .then(Commands.literal("underworld_radius")
                                                 .then(Commands.argument("radius", IntegerArgumentType.integer(1))
@@ -214,12 +219,22 @@ public class DNFDebugCommand {
             case "water_source" -> component.setWaterSourcePos(pos);
             case "meteor" -> component.setMeteorPos(pos);
             case "wall_hole" -> component.setWallHolePos(pos);
+            case "old_chef_diary" -> component.setOldChefDiaryPos(pos);
+            case "meeting_pos" -> component.setMeetingPos(pos);
             case "underworld_center" -> component.setUnderworldCenter(pos);
             default -> {
                 return 0;
             }
         }
         ctx.getSource().sendSuccess(() -> Component.literal("DNF " + key + " = " + pos.toShortString()), false);
+        return 1;
+    }
+
+    private static int setMeetingRadius(CommandContext<CommandSourceStack> ctx) {
+        int radius = IntegerArgumentType.getInteger(ctx, "radius");
+        DNFWorldComponent component = DNFWorldComponent.KEY.get(ctx.getSource().getLevel());
+        component.setMeetingRadius(radius);
+        ctx.getSource().sendSuccess(() -> Component.literal("DNF meeting radius = " + radius), false);
         return 1;
     }
 
@@ -258,6 +273,8 @@ public class DNFDebugCommand {
         ctx.getSource().sendSuccess(() -> Component.literal("DNF config: food_box="
                 + component.getFoodBoxPos() + ", water_source=" + component.getWaterSourcePos()
                 + ", meteor=" + component.getMeteorPos() + ", wall_hole=" + component.getWallHolePos()
+                + ", old_chef_diary=" + component.getOldChefDiaryPos()
+                + ", meeting_pos=" + component.getMeetingPos() + ", meeting_radius=" + component.getMeetingRadius()
                 + ", underworld_center=" + component.getUnderworldCenter()
                 + ", underworld_radius=" + component.getUnderworldRadius()
                 + ", day=" + component.getCurrentDay() + ", night=" + component.isNight()), false);

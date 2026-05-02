@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.mixin.roles.poisoner;
 
+import io.wifi.events.day_night_fight.DNFRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPoisonComponent;
 import net.minecraft.world.entity.player.Player;
@@ -20,7 +21,7 @@ public abstract class PoisonerNoPoisonMixin {
     @Inject(method = "setPoisonTicks", at = @At("HEAD"), cancellable = true)
     private void poisonerNoPoison(int ticks, UUID poisoner, CallbackInfo ci) {
         SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(this.player.level());
-        if (gameWorld.isRole(this.player, ModRoles.POISONER)) {
+        if (gameWorld.isRole(this.player, ModRoles.POISONER) || gameWorld.isRole(this.player, DNFRoles.POISONER)) {
             ci.cancel();
         }
     }

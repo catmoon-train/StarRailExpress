@@ -181,6 +181,16 @@ public class DNFWorldComponent implements AutoSyncedComponent, ServerTickingComp
     }
 
     @Nullable
+    public BlockPos getOldChefDiaryPos() {
+        return map.oldChefDiaryPos;
+    }
+
+    public void setOldChefDiaryPos(@Nullable BlockPos oldChefDiaryPos) {
+        map.oldChefDiaryPos = oldChefDiaryPos == null ? null : oldChefDiaryPos.immutable();
+        sync();
+    }
+
+    @Nullable
     public AABB getCafeteriaArea() {
         return map.cafeteriaArea;
     }
@@ -200,6 +210,37 @@ public class DNFWorldComponent implements AutoSyncedComponent, ServerTickingComp
         return map.dormRooms.get(player);
     }
 
+    @Nullable
+    public BlockPos getMeetingPos() {
+        return map.meetingPos;
+    }
+
+    public void setMeetingPos(@Nullable BlockPos meetingPos) {
+        map.meetingPos = meetingPos == null ? null : meetingPos.immutable();
+        sync();
+    }
+
+    public double getMeetingRadius() {
+        return map.meetingRadius;
+    }
+
+    public void setMeetingRadius(double meetingRadius) {
+        map.meetingRadius = meetingRadius;
+        sync();
+    }
+
+    public boolean isPlayerNearMeeting(ServerPlayer player) {
+        if (map.meetingPos == null || map.meetingRadius <= 0) {
+            return false;
+        }
+        double distSq = player.distanceToSqr(
+            map.meetingPos.getX() + 0.5, 
+            map.meetingPos.getY() + 0.5, 
+            map.meetingPos.getZ() + 0.5
+        );
+        return distSq <= map.meetingRadius * map.meetingRadius;
+    }
+
     public boolean isFoodBox(BlockPos pos) {
         return map.foodBoxPos != null && map.foodBoxPos.equals(pos);
     }
@@ -214,6 +255,10 @@ public class DNFWorldComponent implements AutoSyncedComponent, ServerTickingComp
 
     public boolean isWallHole(BlockPos pos) {
         return map.wallHolePos != null && map.wallHolePos.equals(pos);
+    }
+
+    public boolean isOldChefDiary(BlockPos pos) {
+        return map.oldChefDiaryPos != null && map.oldChefDiaryPos.equals(pos);
     }
 
     @Nullable
@@ -523,7 +568,12 @@ public class DNFWorldComponent implements AutoSyncedComponent, ServerTickingComp
         @Nullable
         private BlockPos wallHolePos;
         @Nullable
+        private BlockPos oldChefDiaryPos;
+        @Nullable
         private AABB cafeteriaArea;
+        @Nullable
+        private BlockPos meetingPos;
+        private double meetingRadius = 10.0;
         private final Map<UUID, AABB> dormRooms = new HashMap<>();
 
         private void write(CompoundTag tag) {
@@ -531,7 +581,10 @@ public class DNFWorldComponent implements AutoSyncedComponent, ServerTickingComp
             putBlockPos(tag, "WaterSourcePos", waterSourcePos);
             putBlockPos(tag, "MeteorPos", meteorPos);
             putBlockPos(tag, "WallHolePos", wallHolePos);
+            putBlockPos(tag, "OldChefDiaryPos", oldChefDiaryPos);
             putBox(tag, "CafeteriaArea", cafeteriaArea);
+            putBlockPos(tag, "MeetingPos", meetingPos);
+            tag.putDouble("MeetingRadius", meetingRadius);
 
             ListTag dormList = new ListTag();
             for (Map.Entry<UUID, AABB> entry : dormRooms.entrySet()) {
@@ -548,7 +601,10 @@ public class DNFWorldComponent implements AutoSyncedComponent, ServerTickingComp
             waterSourcePos = getBlockPos(tag, "WaterSourcePos");
             meteorPos = getBlockPos(tag, "MeteorPos");
             wallHolePos = getBlockPos(tag, "WallHolePos");
+            oldChefDiaryPos = getBlockPos(tag, "OldChefDiaryPos");
             cafeteriaArea = getBox(tag, "CafeteriaArea");
+            meetingPos = getBlockPos(tag, "MeetingPos");
+            meetingRadius = tag.getDouble("MeetingRadius");
 
             dormRooms.clear();
             ListTag dormList = tag.getList("DormRooms", CompoundTag.TAG_COMPOUND);

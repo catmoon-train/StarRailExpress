@@ -61,7 +61,7 @@ public class DNFHud {
                 Component timerText = Component.translatable("hud.dnf.underworld.timer", minutes,
                         String.format("%02d", seconds)).withStyle(net.minecraft.ChatFormatting.DARK_PURPLE);
                 int textWidth = font.width(timerText);
-                int yTimer = screenHeight / 2 - 30;
+                int yTimer = screenHeight / 2 -8;
                 context.drawString(font, timerText, screenWidth / 2 - textWidth / 2, yTimer, -1, true);
 
                 Component hint = Component.translatable("hud.dnf.underworld.hint")

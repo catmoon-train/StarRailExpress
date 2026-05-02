@@ -133,7 +133,8 @@ public class DNFRoles {
             player.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, 40, 0, false, false, false));
             player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 40, 1, false, false, false));
             if (player.level() instanceof ServerLevel sl) {
-                sl.sendParticles(ParticleTypes.CRIMSON_SPORE, player.getX(), player.getY() + 1, player.getZ(), 3, 0.4, 0.8, 0.4, 0.01);
+                sl.sendParticles(ParticleTypes.CRIMSON_SPORE, player.getX(), player.getY() + 1, player.getZ(), 5, 0.4, 0.8, 0.4, 0.01);
+                sl.sendParticles(ParticleTypes.SMOKE, player.getX(), player.getY() + 1, player.getZ(), 5, 0.4, 0.8, 0.4, 0.01);
             }
             UUID id = player.getUUID();
             if (player.isUsingItem()) {
@@ -250,8 +251,8 @@ public class DNFRoles {
                                         .withStyle(ChatFormatting.RED), true);
                                 return false;
                             }
-                            DNFBloodPurchaseItem bloodBuyFlyingKnife = (DNFBloodPurchaseItem) DNFItems.BLOOD_BUY_FLYING_KNIFE;
-                            return buy(player, bloodBuyFlyingKnife.price, bloodBuyFlyingKnife.purchase.get(), bloodBuyFlyingKnife.nameKey);
+                            DNFBloodPurchaseItem bloodBuyLockpick = (DNFBloodPurchaseItem) DNFItems.BLOOD_BUY_LOCKPICK;
+                            return buy(player, bloodBuyLockpick.price, bloodBuyLockpick.purchase.get(), bloodBuyLockpick.nameKey);
                         }
                     });
                     shopEntries.add(new ShopEntry(new ItemStack(DNFItems.BLOOD_BUY_LOCKPICK), 10, dev.doctor4t.wathe.util.ShopEntry.Type.TOOL){
@@ -413,7 +414,7 @@ public class DNFRoles {
                     }
                     return original;
                 }
-            }.setComponentKey(DNFPlayerComponent.KEY).setCanSeeCoin(false).setCanUseInstinct(true).setMax(4)
+            }.setComponentKey(DNFPlayerComponent.KEY).setCanSeeCoin(false).setCanUseInstinct(false).setMax(4)
                     .setCanSeeTeammateKiller(false)).setCanBeRandomedByOtherRoles(false).setCanGetBodyItems(false);
 
     public static final SRERole SOLDIER = TMMRoles.registerRole(new DNFNormalRole(SOLDIER_ID, 0x496D89, true, false,
@@ -465,6 +466,13 @@ public class DNFRoles {
         }
 
         @Override
+        public List<ItemStack> getDefaultItems() {
+            ArrayList<ItemStack> itemStacks = new ArrayList<>();
+            itemStacks.add(DNFItems.CHEF_HAT.getDefaultInstance());
+            return itemStacks;
+        }
+
+        @Override
         public InteractionResult rightClickEntity(Player player, Entity target) {
             if (!(player instanceof ServerPlayer serverPlayer) || !(target instanceof PlayerBodyEntity body)) {
                 return InteractionResult.PASS;
@@ -500,11 +508,13 @@ public class DNFRoles {
         @Override
         public void onKill(Player victim, boolean spawnBody, Player killer, ResourceLocation deathReason) {
             if (killer instanceof ServerPlayer serverKiller && deathReason.equals(GameConstants.DeathReasons.POISON)) {
-                DNFPlayerComponent.KEY.get(serverKiller).recordKill(serverKiller);
-                DNFPlayerComponent.KEY.get(serverKiller).recordPoisonKill();
+                DNFPlayerComponent component = DNFPlayerComponent.KEY.get(serverKiller);
+                component.recordKill(serverKiller);
+                component.recordPoisonKill();
+                component.giveToxicHeart(serverKiller);
             }
         }
-    }.setMax(1).setCanSeeCoin(false).setCanUseInstinct(false)).setCanBeRandomedByOtherRoles(false)
+    }.setMax(1).setCanSeeCoin(false).setCanUseInstinct(false).setCanSeeTeammateKiller(false)).setCanBeRandomedByOtherRoles(false)
             .setCanGetBodyItems(false);
 
     public static final SRERole PSYCHOLOGIST = TMMRoles.registerRole(new DNFNormalRole(PSYCHOLOGIST_ID, 0x8E6BC6, true,

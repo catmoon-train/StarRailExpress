@@ -45,6 +45,8 @@
     "defaultRequire": 1
   },
   "client": [
+    "client.DNFClockTooltipMixin",
+
     "client.AbstractClientPlayerEntityMixin",
     "client.CameraPositionMixin",
     "client.DisconnectedScreenMixin",

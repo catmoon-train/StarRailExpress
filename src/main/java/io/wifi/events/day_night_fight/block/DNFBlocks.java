@@ -2,6 +2,7 @@ package io.wifi.events.day_night_fight.block;
 
 import dev.doctor4t.ratatouille.util.registrar.BlockRegistrar;
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.index.TMMBlocks;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
@@ -18,7 +19,7 @@ public interface DNFBlocks {
                     .randomTicks()
             ));
     Block WHITE_BLOCK = registrar.create("white_block",
-            new WhiteBlock(Block.Properties.ofFullCopy(Blocks.WHITE_CONCRETE)
+            new WhiteBlock(Block.Properties.ofFullCopy(TMMBlocks.DARK_STEEL)
                     .lightLevel(state -> 14)
                     .sound(SoundType.WOOD)
             ));

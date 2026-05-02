@@ -72,6 +72,35 @@ public class DNFItems {
                     .nutrition(6).saturationModifier(0.7f).alwaysEdible().build())));
     public static final Item WATER_BOTTLE = register("dnf_water_bottle",
             new DNFWaterItem(new Item.Properties().stacksTo(16)));
+    public static final Item TOXIC_HEART = register("dnf_toxic_heart",
+            new Item(new Item.Properties().stacksTo(16)) {
+                @Override
+                public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip,
+                        TooltipFlag flag) {
+                    appendDnfTooltip(stack, context, tooltip, flag,
+                            "item.starrailexpress.dnf_toxic_heart.tooltip");
+                }
+            });
+    public static final Item REDEMPTION_POTION = register("dnf_redemption_potion",
+            new Item(new Item.Properties().stacksTo(2)) {
+                @Override
+                public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip,
+                        TooltipFlag flag) {
+                    appendDnfTooltip(stack, context, tooltip, flag,
+                            "item.starrailexpress.dnf_redemption_potion.tooltip");
+                }
+            });
+    public static final Item OLD_CHEF_DIARY = register("dnf_old_chef_diary",
+            new Item(new Item.Properties().stacksTo(1)) {
+                @Override
+                public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip,
+                        TooltipFlag flag) {
+                    appendDnfTooltip(stack, context, tooltip, flag,
+                            "item.starrailexpress.dnf_old_chef_diary.tooltip");
+                }
+            });
+    public static final Item REDEMPTION_FORMULA = register("dnf_redemption_formula",
+            new DNFRedemptionFormulaItem(new Item.Properties().stacksTo(1)));
     public static final Item BLOOD_BUY_FLYING_KNIFE = register("dnf_blood_buy_flying_knife",
             new DNFBloodPurchaseItem(new Item.Properties().stacksTo(1), DNF.BLOOD_PRICE,
                     DNFItems.FLYING_KNIFE::getDefaultInstance, "item.starrailexpress.dnf_flying_knife"));
@@ -134,6 +163,10 @@ public class DNFItems {
             entries.accept(BLACK_BREAD);
             entries.accept(MEAT_RATION);
             entries.accept(WATER_BOTTLE);
+            entries.accept(TOXIC_HEART);
+            entries.accept(REDEMPTION_POTION);
+            entries.accept(OLD_CHEF_DIARY);
+            entries.accept(REDEMPTION_FORMULA);
             entries.accept(BLOOD_BUY_FLYING_KNIFE);
             entries.accept(BLOOD_BUY_LOCKPICK);
             entries.accept(ABYSS_VIAL);

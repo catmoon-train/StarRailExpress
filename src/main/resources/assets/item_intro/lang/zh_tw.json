@@ -127,5 +127,9 @@
   "item.starrailexpress.dnf_cleaning_byproduct.desc": "清理任務產出的副產物，可在 DNF 兌換任務點換成 1 個綠寶石。",
   "item.starrailexpress.dnf_task_tool.desc": "看向 DNF 任務點長按右鍵 8 秒完成任務。",
   "item.starrailexpress.dnf_cleaning_task_point.desc": "DNF 清理任務點，使用任務工具長按右鍵清理。",
-  "item.starrailexpress.dnf_exchange_task_point.desc": "DNF 兌換任務點，可將 1 個清理副產物換成 1 個綠寶石。"
+  "item.starrailexpress.dnf_exchange_task_point.desc": "DNF 兌換任務點，可將 1 個清理副產物換成 1 個綠寶石。",
+  "item.starrailexpress.dnf_toxic_heart.desc": "毒師毒殺後獲得的特殊材料，五顆可以參與救贖配方。",
+  "item.starrailexpress.dnf_redemption_potion.desc": "救贖之道藥劑，製作出兩瓶後會觸發廚師與毒師獨立結局。",
+  "item.starrailexpress.dnf_old_chef_diary.desc": "廚師在配置點找到的舊日記，記錄老廚師、毒師和救贖藥劑的線索。",
+  "item.starrailexpress.dnf_redemption_formula.desc": "毒師與廚師匯合後獲得的配方，右鍵消耗材料製作兩瓶救贖藥劑。"
 }

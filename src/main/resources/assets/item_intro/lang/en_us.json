@@ -122,5 +122,9 @@
   "item.starrailexpress.dnf_cleaning_byproduct.desc": "A byproduct from DNF cleaning tasks. Exchange 1 for 1 emerald at an exchange task point.",
   "item.starrailexpress.dnf_task_tool.desc": "Hold right-click while looking at a DNF task point for 8 seconds to complete it.",
   "item.starrailexpress.dnf_cleaning_task_point.desc": "DNF cleaning task point. Hold right-click with the task tool to clean it.",
-  "item.starrailexpress.dnf_exchange_task_point.desc": "DNF exchange task point. Trades 1 cleaning byproduct for 1 emerald."
+  "item.starrailexpress.dnf_exchange_task_point.desc": "DNF exchange task point. Trades 1 cleaning byproduct for 1 emerald.",
+  "item.starrailexpress.dnf_toxic_heart.desc": "Special material gained from Poisoner poison kills. Five can be used in the redemption formula.",
+  "item.starrailexpress.dnf_redemption_potion.desc": "Path of Redemption potion. Crafting two triggers the Chef and Poisoner independent ending.",
+  "item.starrailexpress.dnf_old_chef_diary.desc": "An old diary found by the Chef at the configured point, with clues about the old chef, Poisoner, and redemption potions.",
+  "item.starrailexpress.dnf_redemption_formula.desc": "Formula gained after the Poisoner and Chef meet. Right-click to consume materials and craft two redemption potions."
 }

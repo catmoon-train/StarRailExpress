@@ -259,8 +259,8 @@ public class PlayerBodyEntity extends LivingEntity {
         if (cca.gameMode == null) {
             return false;
         }
-        if (cca.gameMode.canSeeBodyContent()) {
-            return true;
+        if (!cca.gameMode.canSeeBodyContent()) {
+            return false;
         }
         SRERole role = cca.getRole(serverPlayer);
         if (role == null)

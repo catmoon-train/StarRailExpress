@@ -19,6 +19,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
@@ -28,6 +29,8 @@ import org.agmas.noellesroles.init.ModItems;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
+
+import java.util.UUID;
 
 /**
  * DNF facade component:
@@ -56,6 +59,11 @@ public class DNFPlayerComponent implements RoleComponent {
     private int soldierShotDay = -1;
     private int soldierShotsToday;
     private boolean maniacStunned;
+    private boolean chefDiaryFound;
+    private boolean redemptionRecipeUnlocked;
+    private UUID redemptionPartner;
+    private boolean redemptionPotionCrafted;
+    private boolean joinedMeeting;
 
     public DNFPlayerComponent(Player player) {
         this.player = player;
@@ -100,6 +108,11 @@ public class DNFPlayerComponent implements RoleComponent {
         soldierShotDay = -1;
         soldierShotsToday = 0;
         maniacStunned = false;
+        chefDiaryFound = false;
+        redemptionRecipeUnlocked = false;
+        redemptionPartner = null;
+        redemptionPotionCrafted = false;
+        joinedMeeting = false;
     }
 
     public int getBlood() {
@@ -181,10 +194,6 @@ public class DNFPlayerComponent implements RoleComponent {
         knifeUsesTonight = 0;
         crowbarNightDay = day;
         crowbarUsedTonight = false;
-        if (DNF.isDNFKiller(serverPlayer)) {
-            serverPlayer.getCooldowns().addCooldown(io.wifi.starrailexpress.index.TMMItems.KNIFE,
-                    DNF.KNIFE_COOLDOWN_TICKS);
-        }
         if (pendingAidType != 0 && pendingAidDay <= day) {
             if (pendingAidType == 1) {
                 giveOrDrop(serverPlayer, DNFItems.LOCKPICK.getDefaultInstance());
@@ -419,8 +428,71 @@ public class DNFPlayerComponent implements RoleComponent {
         KEY.sync(player);
     }
 
+    public void giveToxicHeart(ServerPlayer serverPlayer) {
+        giveOrDrop(serverPlayer, DNFItems.TOXIC_HEART.getDefaultInstance());
+        serverPlayer.displayClientMessage(Component.translatable("message.dnf.poisoner.toxic_heart",
+                poisonKills).withStyle(ChatFormatting.DARK_GREEN), true);
+    }
+
     public int getPoisonKills() {
         return poisonKills;
+    }
+
+    public boolean hasChefDiaryFound() {
+        return chefDiaryFound;
+    }
+
+    public void markChefDiaryFound(ServerPlayer serverPlayer) {
+        if (chefDiaryFound) {
+            serverPlayer.displayClientMessage(Component.translatable("message.dnf.chef.diary_already_found")
+                    .withStyle(ChatFormatting.GRAY), true);
+            return;
+        }
+        chefDiaryFound = true;
+        giveOrDrop(serverPlayer, DNFItems.OLD_CHEF_DIARY.getDefaultInstance());
+        serverPlayer.displayClientMessage(Component.translatable("message.dnf.chef.diary_found")
+                .withStyle(ChatFormatting.DARK_GREEN), false);
+        KEY.sync(serverPlayer);
+    }
+
+    public boolean isRedemptionRecipeUnlocked() {
+        return redemptionRecipeUnlocked;
+    }
+
+    public boolean isRedemptionPotionCrafted() {
+        return redemptionPotionCrafted;
+    }
+
+    public void unlockRedemptionRecipe(ServerPlayer self, ServerPlayer partner) {
+        redemptionRecipeUnlocked = true;
+        redemptionPartner = partner.getUUID();
+        giveOrDrop(self, DNFItems.REDEMPTION_FORMULA.getDefaultInstance());
+        self.displayClientMessage(Component.translatable("message.dnf.redemption.unlocked", partner.getDisplayName())
+                .withStyle(ChatFormatting.DARK_GREEN), false);
+        KEY.sync(self);
+    }
+
+    public ServerPlayer getRedemptionPartner(ServerLevel level) {
+        if (redemptionPartner == null || !(level.getPlayerByUUID(redemptionPartner) instanceof ServerPlayer partner)) {
+            return null;
+        }
+        return partner;
+    }
+
+    public void markRedemptionPotionCrafted(ServerPlayer serverPlayer) {
+        redemptionPotionCrafted = true;
+        KEY.sync(serverPlayer);
+    }
+
+    public boolean hasJoinedMeeting() {
+        return joinedMeeting;
+    }
+
+    public void setJoinedMeeting(boolean joined, ServerPlayer player) {
+        joinedMeeting = joined;
+        if (player instanceof ServerPlayer serverPlayer) {
+            KEY.sync(serverPlayer);
+        }
     }
 
     public boolean craftPoisonedFood(ServerPlayer serverPlayer, int day, ItemStack stack) {
@@ -443,13 +515,8 @@ public class DNFPlayerComponent implements RoleComponent {
     }
 
     public boolean canUseKnife(ServerPlayer serverPlayer) {
-        int day = DNFWorldComponent.KEY.get(serverPlayer.serverLevel()).getCurrentDay();
-        if (knifeNightDay != day) {
-            knifeNightDay = day;
-            knifeUsesTonight = 0;
-        }
-        if (knifeUsesTonight >= 3) {
-            serverPlayer.displayClientMessage(Component.translatable("message.dnf.killer.knife_limit")
+        if (serverPlayer.getCooldowns().isOnCooldown(io.wifi.starrailexpress.index.TMMItems.KNIFE)) {
+            serverPlayer.displayClientMessage(Component.translatable("message.dnf.killer.knife_cooldown")
                     .withStyle(ChatFormatting.RED), true);
             return false;
         }
@@ -457,23 +524,13 @@ public class DNFPlayerComponent implements RoleComponent {
     }
 
     public void consumeKnifeUse(ServerPlayer serverPlayer) {
-        int day = DNFWorldComponent.KEY.get(serverPlayer.serverLevel()).getCurrentDay();
-        if (knifeNightDay != day) {
-            knifeNightDay = day;
-            knifeUsesTonight = 0;
-        }
         knifeUsesTonight++;
         KEY.sync(serverPlayer);
     }
 
     public boolean tryUseCrowbar(ServerPlayer serverPlayer) {
-        int day = DNFWorldComponent.KEY.get(serverPlayer.serverLevel()).getCurrentDay();
-        if (crowbarNightDay != day) {
-            crowbarNightDay = day;
-            crowbarUsedTonight = false;
-        }
-        if (crowbarUsedTonight) {
-            serverPlayer.displayClientMessage(Component.translatable("message.dnf.killer.crowbar_limit")
+        if (serverPlayer.getCooldowns().isOnCooldown(DNFItems.CROWBAR)) {
+            serverPlayer.displayClientMessage(Component.translatable("message.dnf.killer.crowbar_cooldown")
                     .withStyle(ChatFormatting.RED), true);
             return false;
         }
@@ -633,6 +690,12 @@ public class DNFPlayerComponent implements RoleComponent {
         tag.putInt("SoldierShotDay", soldierShotDay);
         tag.putInt("SoldierShotsToday", soldierShotsToday);
         tag.putBoolean("ManiacStunned", maniacStunned);
+        tag.putBoolean("ChefDiaryFound", chefDiaryFound);
+        tag.putBoolean("RedemptionRecipeUnlocked", redemptionRecipeUnlocked);
+        if (redemptionPartner != null) {
+            tag.putUUID("RedemptionPartner", redemptionPartner);
+        }
+        tag.putBoolean("RedemptionPotionCrafted", redemptionPotionCrafted);
     }
 
     private void readRuntimeState(CompoundTag tag) {
@@ -650,5 +713,9 @@ public class DNFPlayerComponent implements RoleComponent {
         soldierShotDay = tag.getInt("SoldierShotDay");
         soldierShotsToday = tag.getInt("SoldierShotsToday");
         maniacStunned = tag.getBoolean("ManiacStunned");
+        chefDiaryFound = tag.getBoolean("ChefDiaryFound");
+        redemptionRecipeUnlocked = tag.getBoolean("RedemptionRecipeUnlocked");
+        redemptionPartner = tag.contains("RedemptionPartner") ? tag.getUUID("RedemptionPartner") : null;
+        redemptionPotionCrafted = tag.getBoolean("RedemptionPotionCrafted");
     }
 }

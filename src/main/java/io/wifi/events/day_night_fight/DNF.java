@@ -19,6 +19,7 @@ import io.wifi.starrailexpress.content.vote.VoteOption;
 import io.wifi.starrailexpress.cca.SRETrainWorldComponent;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.content.block.ToiletBlock;
+import io.wifi.starrailexpress.content.vote.VoteSession;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.ShopContent;
 import io.wifi.starrailexpress.index.TMMItems;
@@ -79,6 +80,7 @@ public class DNF {
     public static final float SAN_CHAT_GAIN = 0.2f;
     public static final float SAN_FOOD_GAIN = 0.3f;
     public static final float SAN_WATER_GAIN = 0.1f;
+    public static final float SAN_REPORT_COST = 0.2f;
     public static final float SAN_ROOM_INSPECT_THRESHOLD = 0.8f;
     public static final float SAN_TASK_MOOD_GAIN = SAN_CLEANING_GAIN;
     public static final int CHEF_DAILY_FOOD_CAPACITY = 40;
@@ -89,6 +91,7 @@ public class DNF {
     public static final float CLOTHES_DIRTY_THRESHOLD = 0.6f;
     public static final float SAN_NO_CLOTHES_PENALTY = 0.8f;
     public static final float SAN_DIRTY_CLOTHES_PENALTY = 0.6f;
+    public static final int REDEMPTION_HEART_COST = 5;
 
     private static boolean eventsRegistered;
     private static boolean winnerPredicatesRegistered;
@@ -104,6 +107,7 @@ public class DNF {
         registerShops();
         registerWinnerPredicates();
         DNFDebugCommand.register();
+        DNFRuleBookCommand.register();
     }
 
     private static void registerWinnerPredicates() {
@@ -120,6 +124,8 @@ public class DNF {
                 case "dnf_true" -> isDnfAlive(player) && !isDNFManiac(role);
                 case "dnf_survival" -> isDnfAlive(player) && !isDNFAntagonist(role);
                 case "dnf_wipeout" -> isDnfAlive(player) && isDNFAntagonist(role);
+                case "dnf_redemption" -> isDnfAlive(player)
+                        && DNFPlayerComponent.KEY.get(player).isRedemptionPotionCrafted();
                 default -> false;
             };
         });
@@ -436,6 +442,35 @@ public class DNF {
         return true;
     }
 
+    public static boolean tryPoisonerMeetChef(ServerPlayer poisoner, ServerPlayer chef) {
+        if (!isDNFPoisoner(poisoner) || !isDNFChef(chef)) {
+            return false;
+        }
+        DNFPlayerComponent chefComponent = DNFPlayerComponent.KEY.get(chef);
+        if (!chefComponent.hasChefDiaryFound()) {
+            poisoner.displayClientMessage(Component.translatable("message.dnf.redemption.chef_no_diary")
+                    .withStyle(ChatFormatting.YELLOW), true);
+            return true;
+        }
+        if (!hasItem(poisoner, DNFItems.TOXIC_HEART, REDEMPTION_HEART_COST)) {
+            poisoner.displayClientMessage(Component.translatable("message.dnf.redemption.need_hearts",
+                    REDEMPTION_HEART_COST).withStyle(ChatFormatting.RED), true);
+            return true;
+        }
+        DNFPlayerComponent poisonerComponent = DNFPlayerComponent.KEY.get(poisoner);
+        if (poisonerComponent.isRedemptionRecipeUnlocked() && chefComponent.isRedemptionRecipeUnlocked()) {
+            poisoner.displayClientMessage(Component.translatable("message.dnf.redemption.already_unlocked")
+                    .withStyle(ChatFormatting.GRAY), true);
+            return true;
+        }
+        consumeItem(poisoner, DNFItems.TOXIC_HEART, REDEMPTION_HEART_COST);
+        poisonerComponent.unlockRedemptionRecipe(poisoner, chef);
+        chefComponent.unlockRedemptionRecipe(chef, poisoner);
+        chef.displayClientMessage(Component.translatable("message.dnf.redemption.partner_met",
+                poisoner.getDisplayName()).withStyle(ChatFormatting.DARK_GREEN), false);
+        return true;
+    }
+
     public static ServerPlayer findLookedAtPlayer(ServerPlayer player, double range) {
         HitResult result = ProjectileUtil.getHitResultOnViewVector(player,
                 entity -> entity instanceof ServerPlayer target && target != player && isDnfAlive(target), range);
@@ -466,6 +501,15 @@ public class DNF {
             DNFPlayerComponent component = DNFPlayerComponent.KEY.get(serverPlayer);
             DNFWorldComponent dnfWorld = DNFWorldComponent.KEY.get(world);
             BlockPos clickedPos = hitResult.getBlockPos();
+            if (dnfWorld.isOldChefDiary(clickedPos)) {
+                if (!DNF.isDNFChef(serverPlayer)) {
+                    serverPlayer.displayClientMessage(Component.translatable("message.dnf.chef.diary_chef_only")
+                            .withStyle(ChatFormatting.YELLOW), true);
+                    return InteractionResult.FAIL;
+                }
+                component.markChefDiaryFound(serverPlayer);
+                return InteractionResult.SUCCESS;
+            }
             if (dnfWorld.isMeteor(clickedPos)) {
                 triggerTrueEnding(serverPlayer.serverLevel());
                 return InteractionResult.SUCCESS;
@@ -554,6 +598,9 @@ public class DNF {
                 return InteractionResult.PASS;
             }
             if (entity instanceof ServerPlayer target && target != serverPlayer && isDnfAlive(target)) {
+                if (tryPoisonerMeetChef(serverPlayer, target)) {
+                    return InteractionResult.SUCCESS;
+                }
                 return DNFPlayerComponent.KEY.get(serverPlayer).completeChat(serverPlayer, target)
                         ? InteractionResult.SUCCESS
                         : InteractionResult.PASS;
@@ -562,7 +609,10 @@ public class DNF {
                 return InteractionResult.PASS;
             }
             SRERole role = SREGameWorldComponent.KEY.get(world).getRole(serverPlayer);
-            if (isDNFAntagonist(role) || role == DNFRoles.CHEF) {
+            if (role == DNFRoles.CHEF && !serverPlayer.isShiftKeyDown()) {
+                return InteractionResult.PASS;
+            }
+            if (isDNFAntagonist(role)) {
                 return InteractionResult.PASS;
             }
             return startBodyReportVote(serverPlayer);
@@ -583,6 +633,111 @@ public class DNF {
         if (voters.isEmpty()) {
             return InteractionResult.FAIL;
         }
+        if (!DNFPlayerComponent.KEY.get(reporter).spendSan(reporter, SAN_REPORT_COST,
+                "message.dnf.vote.not_enough_san")) {
+            return InteractionResult.FAIL;
+        }
+        
+        // 第一步：询问玩家是否要参加会议
+        return startMeetingPreVote(reporter, voters);
+    }
+
+    private static InteractionResult startMeetingPreVote(ServerPlayer reporter, List<ServerPlayer> voters) {
+        DNFWorldComponent world = DNFWorldComponent.KEY.get(reporter.serverLevel());
+        BlockPos meetingPos = world.getMeetingPos();
+        
+        if (meetingPos == null) {
+            // 如果没有配置会议位置，直接开始投票
+            return startMainVote(reporter, voters);
+        }
+
+        double meetingRadius = world.getMeetingRadius();
+        VoteManager.VoteBuilder builder = VoteManager.builder(Component.translatable("message.dnf.vote.meeting_request"))
+                .duration(30 * 20)
+                .allowReVote(false)
+                .showResults(false)
+                .syncInterval(20)
+                .targetPlayers(voters)
+                .callback(session -> {
+                    world.setMeetingActive(false);
+                    handleMeetingPreVoteResult(reporter, session, voters);
+                });
+        
+        // 添加选项：参加 / 不参加
+        builder.addOption(VoteOption.text(Component.translatable("message.dnf.vote.join_meeting"), "join", 
+                Component.translatable("message.dnf.vote.join_meeting_desc")));
+        builder.addOption(VoteOption.text(Component.translatable("message.dnf.vote.skip_meeting"), "skip",
+                Component.translatable("message.dnf.vote.skip_meeting_desc")));
+        
+        if (builder.start() == null) {
+            return InteractionResult.FAIL;
+        }
+        
+        world.setMeetingActive(true);
+        reporter.serverLevel().getServer().getPlayerList().broadcastSystemMessage(
+                Component.translatable("message.dnf.vote.meeting_initiated", reporter.getDisplayName())
+                        .withStyle(ChatFormatting.YELLOW),
+                false);
+        return InteractionResult.SUCCESS;
+    }
+
+    private static void handleMeetingPreVoteResult(ServerPlayer reporter, VoteSession session, List<ServerPlayer> voters) {
+        DNFWorldComponent world = DNFWorldComponent.KEY.get(reporter.serverLevel());
+        BlockPos meetingPos = world.getMeetingPos();
+        double meetingRadius = world.getMeetingRadius();
+        
+        var top = session.getTopResults();
+        if (top == null || top.isEmpty()) {
+            reporter.serverLevel().getServer().getPlayerList().broadcastSystemMessage(
+                    Component.translatable("message.dnf.vote.no_response").withStyle(ChatFormatting.GRAY),
+                    false);
+            return;
+        }
+
+        String resultId = top.get(0).getKey();
+        List<ServerPlayer> joinedPlayers = new ArrayList<>();
+        
+        // 传送选择参加的玩家到会议位置
+        if ("join".equals(resultId)) {
+            for (ServerPlayer voter : voters) {
+                DNFPlayerComponent playerComp = DNFPlayerComponent.KEY.get(voter);
+                // 传送到会议位置
+                voter.teleportTo(
+                    voter.serverLevel(),
+                    meetingPos.getX() + 0.5,
+                    meetingPos.getY() + 1.0,
+                    meetingPos.getZ() + 0.5,
+                    voter.getYRot(),
+                    voter.getXRot()
+                );
+                playerComp.setJoinedMeeting(true, voter);
+                joinedPlayers.add(voter);
+                voter.displayClientMessage(Component.translatable("message.dnf.vote.teleported_to_meeting")
+                        .withStyle(ChatFormatting.AQUA), false);
+            }
+            
+            reporter.serverLevel().getServer().getPlayerList().broadcastSystemMessage(
+                    Component.translatable("message.dnf.vote.players_joined_meeting", joinedPlayers.size())
+                            .withStyle(ChatFormatting.YELLOW),
+                    false);
+            
+            // 稍后启动主投票
+            reporter.serverLevel().getServer().execute(() -> {
+                if (VoteManager.getCurrentSession() == null) {
+                    startMainVote(reporter, joinedPlayers);
+                }
+            });
+        } else {
+            reporter.serverLevel().getServer().getPlayerList().broadcastSystemMessage(
+                    Component.translatable("message.dnf.vote.meeting_cancelled")
+                            .withStyle(ChatFormatting.GRAY),
+                    false);
+        }
+    }
+
+    private static InteractionResult startMainVote(ServerPlayer reporter, List<ServerPlayer> voters) {
+        DNFWorldComponent world = DNFWorldComponent.KEY.get(reporter.serverLevel());
+        
         VoteManager.VoteBuilder builder = VoteManager.builder(Component.translatable("message.dnf.vote.title"))
                 .duration(60 * 20)
                 .allowReVote(true)
@@ -614,13 +769,21 @@ public class DNF {
                     } catch (IllegalArgumentException ignored) {
                         world.setVotedTarget(null);
                     }
+                    
+                    // 重置玩家的会议参与状态
+                    for (ServerPlayer voter : voters) {
+                        DNFPlayerComponent.KEY.get(voter).setJoinedMeeting(false, voter);
+                    }
                 });
+        
         for (ServerPlayer voter : voters) {
             builder.addOption(VoteOption.player(voter, voter.getUUID().toString()));
         }
+        
         if (builder.start() == null) {
             return InteractionResult.FAIL;
         }
+        
         world.setMeetingActive(true);
         reporter.serverLevel().getServer().getPlayerList().broadcastSystemMessage(
                 Component.translatable("message.dnf.vote.reported", reporter.getDisplayName())
@@ -628,6 +791,7 @@ public class DNF {
                 false);
         return InteractionResult.SUCCESS;
     }
+
 
     private static void triggerTrueEnding(ServerLevel serverLevel) {
         DNFWorldComponent world = DNFWorldComponent.KEY.get(serverLevel);
@@ -639,6 +803,45 @@ public class DNF {
         roundEnd.CustomWinnerTitle = Component.translatable("game.win.star.dnf_true");
         roundEnd.CustomWinnerSubtitle = Component.translatable("message.dnf.ending.true");
         RoleUtils.customWinnerWin(serverLevel, "dnf_true", 0xA8F0FF);
+    }
+
+    public static void triggerRedemptionEnding(ServerLevel serverLevel) {
+        SREGameRoundEndComponent roundEnd = SREGameRoundEndComponent.KEY.get(serverLevel);
+        roundEnd.CustomWinnerTitle = Component.translatable("game.win.star.dnf_redemption");
+        roundEnd.CustomWinnerSubtitle = Component.translatable("message.dnf.ending.redemption");
+        RoleUtils.customWinnerWin(serverLevel, "dnf_redemption", 0x3A7F55);
+    }
+
+    private static boolean hasItem(ServerPlayer player, net.minecraft.world.item.Item item, int count) {
+        int found = 0;
+        for (List<ItemStack> compartment : player.getInventory().compartments) {
+            for (ItemStack stack : compartment) {
+                if (stack.is(item)) {
+                    found += stack.getCount();
+                    if (found >= count) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    private static void consumeItem(ServerPlayer player, net.minecraft.world.item.Item item, int count) {
+        int remaining = count;
+        for (List<ItemStack> compartment : player.getInventory().compartments) {
+            for (ItemStack stack : compartment) {
+                if (!stack.is(item)) {
+                    continue;
+                }
+                int taken = Math.min(remaining, stack.getCount());
+                stack.shrink(taken);
+                remaining -= taken;
+                if (remaining <= 0) {
+                    return;
+                }
+            }
+        }
     }
 
     private static boolean isDustBlock(BlockState state) {

@@ -58,6 +58,9 @@ public class PlayerBodyChestMenu extends AbstractContainerMenu implements Custom
     // 可选：如果还想保留部分 Shift 功能（仅对有权限玩家开放），可以写：
     @Override
     public ItemStack quickMoveStack(Player player, int index) {
+        if (true){
+            return ItemStack.EMPTY;
+        }
         if (!container.canGetBodyContent(player))
             return ItemStack.EMPTY;
         // 实现正常快速移动逻辑（复制自 ChestMenu），但通常没必要

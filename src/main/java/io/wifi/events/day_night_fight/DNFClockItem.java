@@ -25,26 +25,7 @@ public class DNFClockItem extends Item {
         super(properties);
     }
 
-    @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
-        tooltip.add(Component.translatable("message.dnf.clock.tooltip").withStyle(ChatFormatting.GRAY));
-        
-        // 如果有上下文,显示当前天数和时间
-        if (context instanceof Item.TooltipContext itemContext && Minecraft.getInstance().level != null) {
-            Level world =Minecraft.getInstance().level;
-            SRETrainWorldComponent.TimeOfDay timeOfDay = SRETrainWorldComponent.KEY.get(world).getTimeOfDay();
-            
-            String timeText = switch (timeOfDay) {
-                case DAY -> "§e白天";
-                case NIGHT -> "§c夜晚";
-                case MIDNIGHT -> "§4午夜";
-                case SUNDOWN -> "§6黄昏";
-                case NOON -> "§a正午";
-            };
-            
-            tooltip.add(Component.literal("§7时间: " + timeText).withStyle(ChatFormatting.GRAY));
-        }
-    }
+
 
     /**
      * 获取时钟显示文本(用于HUD渲染)
