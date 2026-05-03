@@ -4,6 +4,7 @@ import com.mojang.serialization.MapCodec;
 import io.wifi.events.day_night_fight.DNF;
 import io.wifi.events.day_night_fight.DNFItems;
 import io.wifi.events.day_night_fight.block_entity.DNFWaterDispenserBlockEntity;
+import io.wifi.events.day_night_fight.cca.DNFPlayerComponent;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -79,6 +80,17 @@ public class DNFWaterDispenserBlock extends BaseEntityBlock {
         if (!(player instanceof ServerPlayer serverPlayer)) {
             return ItemInteractionResult.FAIL;
         }
+        if (!DNF.isDayNightFightMode(world)) {
+            serverPlayer.displayClientMessage(Component.translatable("message.dnf.clothes.dnf_only")
+                    .withStyle(ChatFormatting.YELLOW), true);
+            return ItemInteractionResult.FAIL;
+        }
+        // 检查玩家今天是否还能使用饮水机
+        if (!DNFPlayerComponent.KEY.get(serverPlayer).canUseWaterDispenserToday(serverPlayer)) {
+            serverPlayer.displayClientMessage(Component.translatable("message.dnf.water_dispenser.limit_reached")
+                    .withStyle(ChatFormatting.GRAY), true);
+            return ItemInteractionResult.FAIL;
+        }
         ItemStack water = DNFItems.createWaterBottle(serverPlayer, 1);
         if (dispenser.getPoisoner() != null) {
             water.set(SREDataComponentTypes.POISONER, dispenser.getPoisoner());
@@ -87,6 +99,8 @@ public class DNFWaterDispenserBlock extends BaseEntityBlock {
             stack.shrink(1);
         }
         DNFItems.giveOrDrop(serverPlayer, water);
+        // 标记玩家今天已经使用过饮水机
+        DNFPlayerComponent.KEY.get(serverPlayer).markWaterDispenserUsedToday(serverPlayer);
         world.playSound(null, pos, SoundEvents.BOTTLE_FILL, SoundSource.BLOCKS, 0.9f, 1.1f);
         player.displayClientMessage(Component.translatable("message.dnf.water_dispenser.filled")
                 .withStyle(ChatFormatting.AQUA), true);

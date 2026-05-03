@@ -62,6 +62,7 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.game.roles.neutral.vulture.VulturePlayerComponent;
+import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.utils.RoleUtils;
 
 import com.mojang.brigadier.CommandDispatcher;
@@ -77,8 +78,9 @@ public class DNF {
     public static final int CROWBAR_COOLDOWN_TICKS = 300 * 20;
     public static final int FIRST_DAYLIGHT_TICKS = 2 * 60 * 20;
     public static final int DAYLIGHT_TICKS = 5 * 60 * 20;
+    public static final int DUSK_TICKS = 2 * 60 * 20;
     public static final int NIGHT_TICKS = 5 * 60 * 20;
-    public static final int TWO_DAYS_TICKS = 2 * (DAYLIGHT_TICKS + NIGHT_TICKS);
+    public static final int TWO_DAYS_TICKS = 2 * (DAYLIGHT_TICKS + DUSK_TICKS + NIGHT_TICKS);
     public static final int CHAT_FOCUS_TICKS = 5 * 20;
     public static final int TOILET_TASK_TICKS = 15 * 20;
     public static final int CLEANING_TICKS = 8 * 20;
@@ -237,6 +239,9 @@ public class DNF {
 
     public static boolean isDnfAlive(ServerPlayer player) {
         if (player == null || player.isCreative()) {
+            return false;
+        }
+        if (player.hasEffect(ModEffects.GHOST_STATE)){
             return false;
         }
         if (isDNFManiac(player)) {
@@ -853,6 +858,8 @@ public class DNF {
 
     private static InteractionResult startMainVote(ServerPlayer reporter, List<ServerPlayer> voters) {
         DNFWorldComponent world = DNFWorldComponent.KEY.get(reporter.serverLevel());
+        if (world.isNight())return InteractionResult.FAIL;
+        if (reporter.hasEffect(ModEffects.GHOST_STATE))return InteractionResult.FAIL;
         List<ServerPlayer> eligibleVoters = voters.stream()
                 .filter(DNF::canUseMeetingVote)
                 .toList();
@@ -903,12 +910,16 @@ public class DNF {
                     
                     // 重置玩家的会议参与状态
                     for (ServerPlayer voter : eligibleVoters) {
-                        DNFPlayerComponent.KEY.get(voter).setJoinedMeeting(false, voter);
+                        if (GameUtils.isPlayerAliveAndSurvival(voter) && !voter.hasEffect(ModEffects.GHOST_STATE)) {
+                            DNFPlayerComponent.KEY.get(voter).setJoinedMeeting(false, voter);
+                        }
                     }
                 });
         
         for (ServerPlayer candidate : candidates) {
-            builder.addOption(VoteOption.player(candidate, candidate.getUUID().toString()));
+            if (GameUtils.isPlayerAliveAndSurvival(candidate) && !candidate.hasEffect(ModEffects.GHOST_STATE)) {
+                builder.addOption(VoteOption.player(candidate, candidate.getUUID().toString()));
+            }
         }
         
         if (builder.start() == null) {

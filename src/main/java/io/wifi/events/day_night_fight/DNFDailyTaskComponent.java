@@ -31,6 +31,10 @@ public class DNFDailyTaskComponent implements RoleComponent {
     private int chefFoodWorkToday;
     private boolean chefWaterCheckedToday;
     private boolean chefInitialFoodSeeded;
+    // 新增：跟踪玩家每天拿取食物的次数
+    private int foodTakenToday;
+    // 新增：跟踪玩家每天是否使用过饮水机
+    private boolean waterDispenserUsedToday;
 
     public DNFDailyTaskComponent(Player player) {
         this.player = player;
@@ -66,6 +70,18 @@ public class DNFDailyTaskComponent implements RoleComponent {
         this.chefFoodWorkToday = 0;
         this.chefWaterCheckedToday = false;
         this.chefInitialFoodSeeded = false;
+        this.foodTakenToday = 0;
+        this.waterDispenserUsedToday = false;
+    }
+
+    @Override
+    public void writeToSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+
+    }
+
+    @Override
+    public void readFromSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+
     }
 
     public void sync() {
@@ -113,11 +129,11 @@ public class DNFDailyTaskComponent implements RoleComponent {
     }
 
     public int getWaterDrinksRequiredToday() {
-        return Math.max(1, waterDrinksRequiredToday);
+        return waterDrinksRequiredToday;
     }
 
     public void setWaterDrinksRequiredToday(int waterDrinksRequiredToday) {
-        this.waterDrinksRequiredToday = Math.max(1, waterDrinksRequiredToday);
+        this.waterDrinksRequiredToday = waterDrinksRequiredToday;
     }
 
     public boolean isWebCleanedToday() {
@@ -208,57 +224,78 @@ public class DNFDailyTaskComponent implements RoleComponent {
         this.chefInitialFoodSeeded = chefInitialFoodSeeded;
     }
 
+    // 新增方法：获取和设置食物拿取次数
+    public int getFoodTakenToday() {
+        return foodTakenToday;
+    }
+
+    public void setFoodTakenToday(int foodTakenToday) {
+        this.foodTakenToday = foodTakenToday;
+    }
+
+    public void incrementFoodTakenToday() {
+        this.foodTakenToday++;
+    }
+
+    // 新增方法：获取和设置饮水机使用状态
+    public boolean isWaterDispenserUsedToday() {
+        return waterDispenserUsedToday;
+    }
+
+    public void setWaterDispenserUsedToday(boolean waterDispenserUsedToday) {
+        this.waterDispenserUsedToday = waterDispenserUsedToday;
+    }
+
+    // 在NBT读写方法中添加foodTakenToday字段的处理
     @Override
-    public void writeToNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
-        writeToSyncNbt(tag, registryLookup);
+    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+        if (tag.contains("dnfDay")) {
+            this.dnfDay = tag.getInt("dnfDay");
+        }
+        this.ateToday = tag.getBoolean("ateToday");
+        this.drankToday = tag.getBoolean("drankToday");
+        this.mealTaskCompleted = tag.getBoolean("mealTaskCompleted");
+        this.waterDrinksToday = tag.getInt("waterDrinksToday");
+        this.waterDrinksRequiredToday = tag.getInt("waterDrinksRequiredToday");
+        this.webCleanedToday = tag.getBoolean("webCleanedToday");
+        this.dustCleanedToday = tag.getBoolean("dustCleanedToday");
+        this.toiletToday = tag.getBoolean("toiletToday");
+        this.toiletInProgress = tag.getBoolean("toiletInProgress");
+        this.lectureToday = tag.getBoolean("lectureToday");
+        this.chatToday = tag.getBoolean("chatToday");
+        this.cleaningTasksToday = tag.getInt("cleaningTasksToday");
+        this.cleaningInProgress = tag.getBoolean("cleaningInProgress");
+        this.chefFoodWorkToday = tag.getInt("chefFoodWorkToday");
+        this.chefWaterCheckedToday = tag.getBoolean("chefWaterCheckedToday");
+        this.chefInitialFoodSeeded = tag.getBoolean("chefInitialFoodSeeded");
+        // 读取foodTakenToday字段
+        this.foodTakenToday = tag.getInt("foodTakenToday");
+        // 读取waterDispenserUsedToday字段
+        this.waterDispenserUsedToday = tag.getBoolean("waterDispenserUsedToday");
     }
 
     @Override
-    public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
-        readFromSyncNbt(tag, registryLookup);
-    }
-
-    @Override
-    public void writeToSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
-        tag.putInt("DnfDay", dnfDay);
-        tag.putBoolean("AteToday", ateToday);
-        tag.putBoolean("DrankToday", drankToday);
-        tag.putBoolean("MealTaskCompleted", mealTaskCompleted);
-        tag.putInt("WaterDrinksToday", waterDrinksToday);
-        tag.putInt("WaterDrinksRequiredToday", waterDrinksRequiredToday);
-        tag.putBoolean("WebCleanedToday", webCleanedToday);
-        tag.putBoolean("DustCleanedToday", dustCleanedToday);
-        tag.putBoolean("ToiletToday", toiletToday);
-        tag.putBoolean("ToiletInProgress", toiletInProgress);
-        tag.putBoolean("LectureToday", lectureToday);
-        tag.putBoolean("ChatToday", chatToday);
-        tag.putInt("CleaningTasksToday", cleaningTasksToday);
-        tag.putBoolean("CleaningInProgress", cleaningInProgress);
-        tag.putInt("ChefFoodWorkToday", chefFoodWorkToday);
-        tag.putBoolean("ChefWaterCheckedToday", chefWaterCheckedToday);
-        tag.putBoolean("ChefInitialFoodSeeded", chefInitialFoodSeeded);
-    }
-
-    @Override
-    public void readFromSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
-        this.dnfDay = tag.getInt("DnfDay");
-        this.ateToday = tag.getBoolean("AteToday");
-        this.drankToday = tag.getBoolean("DrankToday");
-        this.mealTaskCompleted = tag.getBoolean("MealTaskCompleted");
-        this.waterDrinksToday = tag.getInt("WaterDrinksToday");
-        this.waterDrinksRequiredToday = tag.contains("WaterDrinksRequiredToday")
-                ? Math.max(1, tag.getInt("WaterDrinksRequiredToday"))
-                : 1;
-        this.webCleanedToday = tag.getBoolean("WebCleanedToday");
-        this.dustCleanedToday = tag.getBoolean("DustCleanedToday");
-        this.toiletToday = tag.getBoolean("ToiletToday");
-        this.toiletInProgress = tag.getBoolean("ToiletInProgress");
-        this.lectureToday = tag.getBoolean("LectureToday");
-        this.chatToday = tag.getBoolean("ChatToday");
-        this.cleaningTasksToday = tag.getInt("CleaningTasksToday");
-        this.cleaningInProgress = tag.getBoolean("CleaningInProgress");
-        this.chefFoodWorkToday = tag.getInt("ChefFoodWorkToday");
-        this.chefWaterCheckedToday = tag.getBoolean("ChefWaterCheckedToday");
-        this.chefInitialFoodSeeded = tag.getBoolean("ChefInitialFoodSeeded");
+    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+        tag.putInt("dnfDay", this.dnfDay);
+        tag.putBoolean("ateToday", this.ateToday);
+        tag.putBoolean("drankToday", this.drankToday);
+        tag.putBoolean("mealTaskCompleted", this.mealTaskCompleted);
+        tag.putInt("waterDrinksToday", this.waterDrinksToday);
+        tag.putInt("waterDrinksRequiredToday", this.waterDrinksRequiredToday);
+        tag.putBoolean("webCleanedToday", this.webCleanedToday);
+        tag.putBoolean("dustCleanedToday", this.dustCleanedToday);
+        tag.putBoolean("toiletToday", this.toiletToday);
+        tag.putBoolean("toiletInProgress", this.toiletInProgress);
+        tag.putBoolean("lectureToday", this.lectureToday);
+        tag.putBoolean("chatToday", this.chatToday);
+        tag.putInt("cleaningTasksToday", this.cleaningTasksToday);
+        tag.putBoolean("cleaningInProgress", this.cleaningInProgress);
+        tag.putInt("chefFoodWorkToday", this.chefFoodWorkToday);
+        tag.putBoolean("chefWaterCheckedToday", this.chefWaterCheckedToday);
+        tag.putBoolean("chefInitialFoodSeeded", this.chefInitialFoodSeeded);
+        // 写入foodTakenToday字段
+        tag.putInt("foodTakenToday", this.foodTakenToday);
+        // 写入waterDispenserUsedToday字段
+        tag.putBoolean("waterDispenserUsedToday", this.waterDispenserUsedToday);
     }
 }

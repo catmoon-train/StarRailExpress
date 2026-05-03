@@ -4,10 +4,12 @@ import com.mojang.serialization.MapCodec;
 import io.wifi.events.day_night_fight.DNF;
 import io.wifi.events.day_night_fight.DNFItems;
 import io.wifi.events.day_night_fight.block_entity.DNFServingPlateBlockEntity;
+import io.wifi.events.day_night_fight.cca.DNFPlayerComponent;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -129,6 +131,14 @@ public class DNFServingPlateBlock extends BaseEntityBlock {
                     .withStyle(ChatFormatting.GRAY), true);
             return InteractionResult.SUCCESS;
         }
+        
+        // 检查玩家今天是否还能拿取食物
+        if (!DNFPlayerComponent.KEY.get(player).canTakeFoodToday((ServerPlayer) player)) {
+            player.displayClientMessage(Component.translatable("message.dnf.plate.food_limit_reached")
+                    .withStyle(ChatFormatting.GRAY), true);
+            return InteractionResult.FAIL;
+        }
+
         if (poisoner != null) {
             food.set(SREDataComponentTypes.POISONER, poisoner);
         }
@@ -136,6 +146,9 @@ public class DNFServingPlateBlock extends BaseEntityBlock {
         world.playSound(null, pos, SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 0.9f, 1.1f);
         player.displayClientMessage(Component.translatable("message.dnf.plate.food_taken")
                 .withStyle(ChatFormatting.GREEN), true);
+        
+        // 标记玩家今天拿取了一次食物（即使是厨师也要记录，虽然不限制）
+        DNFPlayerComponent.KEY.get(player).markFoodTakenToday((ServerPlayer) player);
         return InteractionResult.SUCCESS;
     }
 

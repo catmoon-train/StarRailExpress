@@ -15,6 +15,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 
+import static io.wifi.events.day_night_fight.DNFItems.giveOrDrop;
+
 public class DNFDebugCommand {
     public static void register() {
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> dispatcher.register(
@@ -53,6 +55,22 @@ public class DNFDebugCommand {
                                 .then(Commands.literal("chef_work").executes(DNFDebugCommand::completeChefWork))
                                 .then(Commands.literal("water_check").executes(DNFDebugCommand::checkWater))
                                 .then(Commands.literal("reset_day").executes(DNFDebugCommand::resetDay)))
+                        // 新增food_limit指令
+                        .then(Commands.literal("food_limit")
+                                .then(Commands.literal("reset_taken").executes(DNFDebugCommand::resetFoodTaken))
+                                .then(Commands.literal("reset_ate").executes(DNFDebugCommand::resetFoodAte))
+                                .then(Commands.literal("set_taken")
+                                        .then(Commands.argument("count", IntegerArgumentType.integer(0))
+                                                .executes(DNFDebugCommand::setFoodTaken)))
+                                .then(Commands.literal("set_ate")
+                                        .then(Commands.argument("count", IntegerArgumentType.integer(0, 1))
+                                                .executes(DNFDebugCommand::setFoodAte))))
+                        // 新增water_dispenser指令
+                        .then(Commands.literal("water_dispenser")
+                                .then(Commands.literal("reset_used").executes(DNFDebugCommand::resetWaterDispenserUsed))
+                                .then(Commands.literal("set_used")
+                                        .then(Commands.argument("used", IntegerArgumentType.integer(0, 1))
+                                                .executes(DNFDebugCommand::setWaterDispenserUsed))))
                         .then(Commands.literal("config")
                                 .then(Commands.literal("show").executes(DNFDebugCommand::showConfig))
                                 .then(Commands.literal("set")
@@ -305,9 +323,68 @@ public class DNFDebugCommand {
         return 1;
     }
 
-    private static void giveOrDrop(ServerPlayer player, ItemStack stack) {
-        if (!player.addItem(stack.copy())) {
-            player.drop(stack.copy(), false);
-        }
+    // 新增方法：重置食物拿取次数
+    private static int resetFoodTaken(CommandContext<CommandSourceStack> ctx) 
+            throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+        ServerPlayer player = ctx.getSource().getPlayerOrException();
+        DNFPlayerComponent.KEY.get(player).daily().setFoodTakenToday(0);
+        DNFPlayerComponent.KEY.get(player).daily().sync();
+        ctx.getSource().sendSuccess(() -> Component.literal("Reset food taken count to 0"), false);
+        return 1;
+    }
+
+    // 新增方法：重置食物食用状态
+    private static int resetFoodAte(CommandContext<CommandSourceStack> ctx) 
+            throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+        ServerPlayer player = ctx.getSource().getPlayerOrException();
+        DNFPlayerComponent.KEY.get(player).daily().setAteToday(false);
+        DNFPlayerComponent.KEY.get(player).daily().sync();
+        ctx.getSource().sendSuccess(() -> Component.literal("Reset food eaten status to false"), false);
+        return 1;
+    }
+
+    // 新增方法：设置食物拿取次数
+    private static int setFoodTaken(CommandContext<CommandSourceStack> ctx) 
+            throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+        ServerPlayer player = ctx.getSource().getPlayerOrException();
+        int count = IntegerArgumentType.getInteger(ctx, "count");
+        DNFPlayerComponent.KEY.get(player).daily().setFoodTakenToday(count);
+        DNFPlayerComponent.KEY.get(player).daily().sync();
+        ctx.getSource().sendSuccess(() -> Component.literal("Set food taken count to " + count), false);
+        return 1;
+    }
+
+    // 新增方法：设置食物食用状态（0=false, 1=true）
+    private static int setFoodAte(CommandContext<CommandSourceStack> ctx) 
+            throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+        ServerPlayer player = ctx.getSource().getPlayerOrException();
+        int ate = IntegerArgumentType.getInteger(ctx, "count");
+        boolean ateBool = ate == 1;
+        DNFPlayerComponent.KEY.get(player).daily().setAteToday(ateBool);
+        DNFPlayerComponent.KEY.get(player).daily().sync();
+        ctx.getSource().sendSuccess(() -> Component.literal("Set food eaten status to " + ateBool), false);
+        return 1;
+    }
+
+    // 新增方法：重置饮水机使用状态
+    private static int resetWaterDispenserUsed(CommandContext<CommandSourceStack> ctx) 
+            throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+        ServerPlayer player = ctx.getSource().getPlayerOrException();
+        DNFPlayerComponent.KEY.get(player).daily().setWaterDispenserUsedToday(false);
+        DNFPlayerComponent.KEY.get(player).daily().sync();
+        ctx.getSource().sendSuccess(() -> Component.literal("Reset water dispenser used status to false"), false);
+        return 1;
+    }
+
+    // 新增方法：设置饮水机使用状态（0=false, 1=true）
+    private static int setWaterDispenserUsed(CommandContext<CommandSourceStack> ctx) 
+            throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+        ServerPlayer player = ctx.getSource().getPlayerOrException();
+        int used = IntegerArgumentType.getInteger(ctx, "used");
+        boolean usedBool = used == 1;
+        DNFPlayerComponent.KEY.get(player).daily().setWaterDispenserUsedToday(usedBool);
+        DNFPlayerComponent.KEY.get(player).daily().sync();
+        ctx.getSource().sendSuccess(() -> Component.literal("Set water dispenser used status to " + usedBool), false);
+        return 1;
     }
 }

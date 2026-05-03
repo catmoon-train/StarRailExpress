@@ -77,7 +77,7 @@ public class DNFHud {
             ItemStack offHand = client.player.getOffhandItem();
             boolean hasClock = mainHand.is(DNFItems.DNF_CLOCK) || offHand.is(DNFItems.DNF_CLOCK);
             
-            int y = screenHeight - 60;
+            int y = screenHeight - 110;
 
             int sanPercent = Mth.clamp((int) (SREPlayerMoodComponent.KEY.get(client.player).getMood() * 100.0f),
                     0, 100);

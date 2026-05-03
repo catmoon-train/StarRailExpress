@@ -5,12 +5,15 @@ import java.util.*;
 import java.util.List;
 
 import io.wifi.events.day_night_fight.cca.DNFUnderworldComponent;
+import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.*;
+import io.wifi.starrailexpress.cca.PlayerBodyEntityComponent;
 import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.event.AllowPlayerDeathWithKiller;
 import io.wifi.starrailexpress.event.AllowPlayerOpenLockedDoor;
 import io.wifi.starrailexpress.event.CantPlayerOpenDoor;
+import io.wifi.starrailexpress.index.TMMEntities;
 import io.wifi.starrailexpress.util.ShopEntry;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.index.TMMItems;
@@ -22,9 +25,11 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.utils.RoleUtils;
@@ -463,7 +468,7 @@ public class DNFRoles {
         @Override
         public boolean onAbilityUse(ServerPlayer player) {
             if (player instanceof ServerPlayer serverPlayer) {
-                DNFItems.tryChefWork(serverPlayer, serverPlayer.isShiftKeyDown());
+                DNFItems.tryChefWork(serverPlayer);
             }
             return true;
         }
@@ -475,16 +480,16 @@ public class DNFRoles {
             return itemStacks;
         }
 
-        @Override
-        public InteractionResult rightClickEntity(Player player, Entity target) {
-            if (!(player instanceof ServerPlayer serverPlayer) || !(target instanceof PlayerBodyEntity body)) {
-                return InteractionResult.PASS;
-            }
-            if (!GameUtils.isPlayerAliveAndSurvival(serverPlayer)) {
-                return InteractionResult.PASS;
-            }
-            return DNFItems.cookBodyAsChef(serverPlayer, body);
-        }
+//        @Override
+//        public InteractionResult rightClickEntity(Player player, Entity target) {
+//            if (!(player instanceof ServerPlayer serverPlayer) || !(target instanceof PlayerBodyEntity body)) {
+//                return InteractionResult.PASS;
+//            }
+//            if (!GameUtils.isPlayerAliveAndSurvival(serverPlayer)) {
+//                return InteractionResult.PASS;
+//            }
+//            return
+//        }
     }.setMax(1)).setCanBeRandomedByOtherRoles(false).setCanGetBodyItems(true);
     public static final SRERole POISONER = TMMRoles.registerRole(new DNFNormalRole(POISONER_ID, 0x355F2D, false, true,
             SRERole.MoodType.FAKE, TMMRoles.CIVILIAN.getMaxSprintTime(), false) {
@@ -594,6 +599,31 @@ public class DNFRoles {
                                 return true;
                             }
                             sreGameWorldComponent.addRole(player, DNF_GHOST);
+                            PlayerBodyEntity body = TMMEntities.PLAYER_BODY.create(player.level());
+                            if (body != null) {
+                                double scale = player.getAttributeValue(Attributes.SCALE);
+                                player.stopRiding();
+                                player.stopSleeping();
+                                body.getAttribute(Attributes.SCALE).setBaseValue(scale);
+                                PlayerBodyEntityComponent bodycca = body.getComponent();
+                                if (killer != null) {
+                                    bodycca.setKillerUuid(killer.getUUID(), false);
+                                }
+                                bodycca.setDeathReason(deathReason.toString(), false);
+                                body.setPlayerUuid(player.getUUID());
+
+                                Vec3 spawnPos = player.position().add(player.getLookAngle().normalize().scale(1));
+                                body.moveTo(spawnPos.x(), player.getY(), spawnPos.z(), player.getYHeadRot(), 0f);
+                                body.setYRot(player.getYHeadRot());
+                                body.setYHeadRot(player.getYHeadRot());
+                                player.level().addFreshEntity(body);
+
+                                if (SREConfig.instance().savePlayerBodyItems) {
+                                    body.setCorpseInventoryFromPlayerInventory(player.getInventory(), false);
+                                }
+                                // 最后统一同步一次
+                                bodycca.sync();
+                            }
                             DNF.sendPlayerToUnderworld(serverPlayer);
                             return false;
 

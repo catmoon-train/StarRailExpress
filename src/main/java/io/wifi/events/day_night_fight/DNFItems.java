@@ -11,6 +11,8 @@ import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.content.block.SmallDoorBlock;
 import io.wifi.starrailexpress.content.block.TrainDoorBlock;
 import io.wifi.starrailexpress.content.block_entity.SmallDoorBlockEntity;
+import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.util.SREItemUtils;
@@ -34,6 +36,7 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -47,6 +50,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.utils.RoleUtils;
 
@@ -403,41 +408,40 @@ public class DNFItems {
         }
     }
 
-    public static InteractionResult tryChefWork(ServerPlayer player, boolean checkWater) {
+    public static HitResult getBodyTarget(Player user) {
+        return ProjectileUtil.getHitResultOnViewVector(user,
+                entity ->{
+//            if (entity instanceof PuppeteerBodyEntity puppeteerBodyEntity){
+//                var owner = puppeteerBodyEntity.getOwner();
+//                return owner != null && GameUtils.isPlayerAliveAndSurvival(owner);
+//            }
+                    return entity instanceof PlayerBodyEntity  ;
+
+                }, 4f);
+    }
+    public static InteractionResult tryChefWork(ServerPlayer player) {
         if (!DNF.isDNFChef(player)) {
             return InteractionResult.PASS;
         }
-        if (checkWater) {
-            if (DNF.inspectFoodBox(player)) {
-                return InteractionResult.SUCCESS;
+        if (getBodyTarget( player) instanceof EntityHitResult entityHitResult) {
+            Entity entity = entityHitResult.getEntity();
+            if (entity instanceof PlayerBodyEntity) {
+                DNFItems.cookBodyAsChef(player, entity);
             }
-            return DNFPlayerComponent.KEY.get(player).checkChefWater(player)
-                    ? InteractionResult.SUCCESS
-                    : InteractionResult.FAIL;
         }
-
-        ItemStack mainHand = player.getMainHandItem();
-        if (mainHand.is(CORNMEAL_BAG)) {
-            return craftChefFood(player, CORNMEAL_BAG, WATER_BOTTLE, CORN_GRUEL,
-                    "message.dnf.chef.craft_corn_gruel");
-        }
-        if (mainHand.is(FLOUR_BAG)) {
-            return craftChefFood(player, FLOUR_BAG, WATER_BOTTLE, BLACK_BREAD,
-                    "message.dnf.chef.craft_black_bread");
-        }
-        if (mainHand.is(SUSPICIOUS_MEAT)) {
-            return craftChefFood(player, SUSPICIOUS_MEAT, null, MEAT_RATION,
-                    "message.dnf.chef.craft_meat");
-        }
-
-        player.displayClientMessage(Component.translatable("message.dnf.chef.need_ingredient")
-                .withStyle(ChatFormatting.YELLOW), true);
-        return InteractionResult.FAIL;
+        return InteractionResult.SUCCESS;
     }
 
     public static InteractionResult cookBodyAsChef(ServerPlayer player, net.minecraft.world.entity.Entity body) {
         if (!DNF.isDNFChef(player)) {
             return InteractionResult.PASS;
+        }
+        if (body instanceof PlayerBodyEntity playerBodyEntity){
+            if (playerBodyEntity.hasEffect(ModEffects.EAT_MEAT_FOOD)){
+                player.sendSystemMessage(Component.translatable("message.dnf.chef.already_cooked"));
+                return InteractionResult.FAIL;
+            }
+            playerBodyEntity.addEffect(new MobEffectInstance(ModEffects.EAT_MEAT_FOOD, 99999));
         }
         DNFPlayerComponent component = DNFPlayerComponent.KEY.get(player);
         ItemStack output = new ItemStack(MEAT_RATION, DNF.CHEF_RECIPE_OUTPUT);
@@ -447,7 +451,7 @@ public class DNFItems {
         if (!component.useChefCapacity(player, DNF.CHEF_RECIPE_OUTPUT)) {
             return InteractionResult.FAIL;
         }
-        body.discard();
+
         if (!putFoodBoxOrFail(player, output)) {
             return InteractionResult.FAIL;
         }

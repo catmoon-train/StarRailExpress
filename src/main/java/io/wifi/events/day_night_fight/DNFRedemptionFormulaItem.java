@@ -65,7 +65,7 @@ public class DNFRedemptionFormulaItem extends Item {
         if (partner != null) {
             DNFPlayerComponent.KEY.get(partner).markRedemptionPotionCrafted(partner);
         }
-        DNF.triggerRedemptionEnding(player.serverLevel());
+//        DNF.triggerRedemptionEnding(player.serverLevel());
         return InteractionResultHolder.success(stack);
     }
 

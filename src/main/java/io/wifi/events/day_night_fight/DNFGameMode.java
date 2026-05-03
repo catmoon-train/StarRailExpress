@@ -2,6 +2,7 @@ package io.wifi.events.day_night_fight;
 
 import io.wifi.events.day_night_fight.cca.DNFPlayerComponent;
 import io.wifi.events.day_night_fight.cca.DNFWorldComponent;
+import io.wifi.events.day_night_fight.cca.SREPlayerClueComponent;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -54,6 +55,13 @@ public class DNFGameMode extends SREMurderGameMode {
     private Phase currentPhase = Phase.DAY;
     private int phaseTicks = 0;
 
+    private static final java.util.Map<String, String> PHASE_MESSAGES = new java.util.HashMap<>();
+    static {
+        PHASE_MESSAGES.put("DAY", "message.dnf.phase.day");
+        PHASE_MESSAGES.put("DUSK", "message.dnf.phase.dusk");
+        PHASE_MESSAGES.put("NIGHT", "message.dnf.phase.night");
+    }
+
     public DNFGameMode(ResourceLocation identifier) {
         super(identifier, 1000, 6);
     }
@@ -93,8 +101,13 @@ public class DNFGameMode extends SREMurderGameMode {
             ItemStack defaultInstance = Items.BUNDLE.getDefaultInstance();
             player.addItem(defaultInstance);
             player.addEffect(new MobEffectInstance(ModEffects.MOOD_DRAIN_IMMUNITY, Integer.MAX_VALUE, 10, false, false,false));
+            player.addEffect(new MobEffectInstance(ModEffects.STAMINA_RECOVERY, Integer.MAX_VALUE, 1, false, false,false));
+            player.addEffect(new MobEffectInstance(ModEffects.LOW_SAN_SHADER_RESISTANCE, Integer.MAX_VALUE, 2, false, false,false));
+            player.addEffect(new MobEffectInstance(ModEffects.STAMINA_BOOST, Integer.MAX_VALUE, 2, false, false,false));
             DNFPlayerComponent component = DNFPlayerComponent.KEY.get(player);
             component.init();
+            // 清空玩家的线索库
+            SREPlayerClueComponent.KEY.get(player).init();
             component.startDnfDay(player, 0, role == DNFRoles.CHEF);
             DNFItems.ensureDefaultClothes(player);
             DNF.applyPhaseState(player, false);
@@ -233,6 +246,17 @@ public class DNFGameMode extends SREMurderGameMode {
         phaseTicks = 0;
         DNFWorldComponent dnfWorld = DNFWorldComponent.KEY.get(serverWorld);
         if (currentPhase == Phase.DAY) {
+            currentPhase = Phase.DUSK;
+            updateWorldTime(serverWorld);
+            announcePhase(serverWorld, "message.dnf.phase.dusk", currentDay + 1);
+            broadcastDuskWarning(serverWorld);
+            for (ServerPlayer player : serverWorld.players()) {
+                DNF.applyPhaseState(player, false);
+            }
+            return;
+        }
+
+        if (currentPhase == Phase.DUSK) {
             currentPhase = Phase.NIGHT;
             dnfWorld.setPhase(currentDay, true);
             updateWorldTime(serverWorld);
@@ -311,13 +335,19 @@ public class DNFGameMode extends SREMurderGameMode {
         if (currentPhase == Phase.NIGHT) {
             return DNF.NIGHT_TICKS;
         }
+        if (currentPhase == Phase.DUSK) {
+            return DNF.DUSK_TICKS;
+        }
         return currentDay == 0 ? DNF.FIRST_DAYLIGHT_TICKS : DNF.DAYLIGHT_TICKS;
     }
 
     private void updateWorldTime(ServerLevel serverWorld) {
-        SRETrainWorldComponent.KEY.get(serverWorld).setTimeOfDay(currentPhase == Phase.DAY
-                ? SRETrainWorldComponent.TimeOfDay.DAY
-                : SRETrainWorldComponent.TimeOfDay.NIGHT);
+        SRETrainWorldComponent.TimeOfDay timeOfDay = switch (currentPhase) {
+            case DAY -> SRETrainWorldComponent.TimeOfDay.DAY;
+            case DUSK -> SRETrainWorldComponent.TimeOfDay.SUNDOWN;
+            case NIGHT -> SRETrainWorldComponent.TimeOfDay.NIGHT;
+        };
+        SRETrainWorldComponent.KEY.get(serverWorld).setTimeOfDay(timeOfDay);
     }
 
     private void announcePhase(ServerLevel serverWorld, String key, int displayDay) {
@@ -325,8 +355,18 @@ public class DNFGameMode extends SREMurderGameMode {
                 net.minecraft.network.chat.Component.translatable(key, displayDay), false);
     }
 
+    private void broadcastDuskWarning(ServerLevel serverWorld) {
+        for (ServerPlayer player : serverWorld.players()) {
+            net.minecraft.network.chat.Component message = net.minecraft.network.chat.Component
+                    .translatable("message.dnf.dusk.warning")
+                    .withStyle(net.minecraft.ChatFormatting.GOLD);
+            ServerPlayNetworking.send(player, new org.agmas.noellesroles.packet.BroadcastMessageS2CPacket(message));
+        }
+    }
+
     private enum Phase {
         DAY,
+        DUSK,
         NIGHT
     }
 }

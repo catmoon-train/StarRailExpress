@@ -80,7 +80,7 @@ public class DNFPlayerComponent implements RoleComponent {
         return DNFKillerStatsComponent.KEY.get(player);
     }
 
-    private DNFDailyTaskComponent daily() {
+    public DNFDailyTaskComponent daily() {
         return DNFDailyTaskComponent.KEY.get(player);
     }
 
@@ -148,6 +148,20 @@ public class DNFPlayerComponent implements RoleComponent {
         return daily().getChefFoodWorkToday();
     }
 
+    // 新增方法：检查玩家今天是否还能拿取食物（非厨师只能拿一次，厨师可以无限次）
+    public boolean canTakeFoodToday(ServerPlayer player) {
+        DNFDailyTaskComponent daily = daily();
+        return DNF.isDNFChef(player) || daily.getFoodTakenToday() < 1;
+    }
+
+    // 新增方法：标记玩家今天拿取了一次食物
+    public void markFoodTakenToday(ServerPlayer serverPlayer) {
+        DNFDailyTaskComponent daily = daily();
+        daily.incrementFoodTakenToday();
+        daily.sync();
+        KEY.sync(serverPlayer);
+    }
+
     public boolean hasChefWaterCheckedToday() {
         return daily().isChefWaterCheckedToday();
     }
@@ -174,6 +188,10 @@ public class DNFPlayerComponent implements RoleComponent {
         daily.setCleaningInProgress(false);
         daily.setChefFoodWorkToday(0);
         daily.setChefWaterCheckedToday(false);
+        // 重置每天的食物拿取次数
+        daily.setFoodTakenToday(0);
+        // 重置每天的饮水机使用状态
+        daily.setWaterDispenserUsedToday(false);
         soldierShotDay = day;
         soldierShotsToday = 0;
         poisonCraftDay = day;
@@ -441,9 +459,10 @@ public class DNFPlayerComponent implements RoleComponent {
     public boolean completeChat(ServerPlayer serverPlayer, ServerPlayer target) {
         DNFDailyTaskComponent daily = daily();
         boolean firstChatToday = !daily.isChatToday();
-        recoverSan(serverPlayer, DNF.SAN_CHAT_GAIN,
-                target == null ? "message.dnf.task.lecture" : "message.dnf.task.chat");
+
         if (firstChatToday) {
+            recoverSan(serverPlayer, DNF.SAN_CHAT_GAIN,
+                    target == null ? "message.dnf.task.lecture" : "message.dnf.task.chat");
             daily.setChatToday(true);
             daily.setLectureToday(true);
             removeHudTask(SREPlayerTaskComponent.Task.DNF_LECTURE);
@@ -530,9 +549,10 @@ public class DNFPlayerComponent implements RoleComponent {
     }
 
     private static void broadcastNeedFood(ServerPlayer serverPlayer) {
-        serverPlayer.server.getPlayerList().broadcastSystemMessage(Component.translatable(
-                "message.dnf.task.need_food.broadcast", serverPlayer.getDisplayName())
-                .withStyle(ChatFormatting.YELLOW), false);
+        ServerPlayNetworking.send(serverPlayer, new BroadcastMessageS2CPacket(Component.translatable(
+                        "message.dnf.task.need_food.broadcast", serverPlayer.getDisplayName())
+                .withStyle(ChatFormatting.YELLOW)));
+
     }
 
     private void recoverSan(ServerPlayer serverPlayer, float sanGain, String messageKey) {
@@ -890,5 +910,19 @@ public class DNFPlayerComponent implements RoleComponent {
         redemptionPotionCrafted = tag.getBoolean("RedemptionPotionCrafted");
         otherRoomNightTicks = tag.getInt("OtherRoomNightTicks");
         otherRoomWarningStage = tag.getInt("OtherRoomWarningStage");
+    }
+
+    // 新增方法：检查玩家今天是否还能使用饮水机（非厨师只能用一次，厨师可以无限次）
+    public boolean canUseWaterDispenserToday(ServerPlayer player) {
+        DNFDailyTaskComponent daily = daily();
+        return DNF.isDNFChef(player) || !daily.isWaterDispenserUsedToday();
+    }
+
+    // 新增方法：标记玩家今天使用了一次饮水机
+    public void markWaterDispenserUsedToday(ServerPlayer serverPlayer) {
+        DNFDailyTaskComponent daily = daily();
+        daily.setWaterDispenserUsedToday(true);
+        daily.sync();
+        KEY.sync(serverPlayer);
     }
 }

@@ -236,7 +236,7 @@ public class DNFUnderworldComponent implements RoleComponent, ServerTickingCompo
         tick();
         if (inUnderworld && reviveCountdownTicks <= 0) {
             if (GameUtils.isPlayerAliveAndSurvival(player)) {
-                GameUtils.killPlayer(player, true, null);
+                GameUtils.killPlayer(player, false, null);
             }
         }
     }
