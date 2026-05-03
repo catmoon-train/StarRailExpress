@@ -47,7 +47,8 @@ public class RecorderScreen extends Screen {
             SRE.id("dnf_locksmith"),
             SRE.id("dnf_civilian"),
             SRE.id("dnf_flying_knife"),
-            SRE.id("dnf_abyss")
+            SRE.id("dnf_abyss"),
+            SRE.id("dnf_ghost")
     );
 
     // 当前阶段：0 = 选择玩家，1 = 选择角色

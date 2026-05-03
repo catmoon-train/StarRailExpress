@@ -60,17 +60,47 @@ public class DNFItems {
     public static final Item CROWBAR = register("dnf_crowbar",
             new DNFCrowbarItem(new Item.Properties().stacksTo(1)));
     public static final Item CORNMEAL_BAG = register("dnf_cornmeal_bag",
-            new DNFChefIngredientItem(new Item.Properties().stacksTo(16)));
+            new DNFChefIngredientItem(new Item.Properties().stacksTo(16)) {
+                @Override
+                public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip,
+                        TooltipFlag flag) {
+                    appendDnfTooltip(stack, context, tooltip, flag, "item.starrailexpress.dnf_cornmeal_bag.tooltip");
+                }
+            });
     public static final Item FLOUR_BAG = register("dnf_flour_bag",
-            new DNFChefIngredientItem(new Item.Properties().stacksTo(16)));
+            new DNFChefIngredientItem(new Item.Properties().stacksTo(16)) {
+                @Override
+                public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip,
+                        TooltipFlag flag) {
+                    appendDnfTooltip(stack, context, tooltip, flag, "item.starrailexpress.dnf_flour_bag.tooltip");
+                }
+            });
     public static final Item SUSPICIOUS_MEAT = register("dnf_suspicious_meat",
-            new DNFChefIngredientItem(new Item.Properties().stacksTo(16)));
+            new DNFChefIngredientItem(new Item.Properties().stacksTo(16)) {
+                @Override
+                public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip,
+                        TooltipFlag flag) {
+                    appendDnfTooltip(stack, context, tooltip, flag, "item.starrailexpress.dnf_suspicious_meat.tooltip");
+                }
+            });
     public static final Item CORN_GRUEL = register("dnf_corn_gruel",
             new DNFFoodItem(new Item.Properties().stacksTo(64).food(new FoodProperties.Builder()
-                    .nutrition(3).saturationModifier(0.35f).alwaysEdible().build())));
+                    .nutrition(3).saturationModifier(0.35f).alwaysEdible().build())) {
+                @Override
+                public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip,
+                        TooltipFlag flag) {
+                    appendDnfTooltip(stack, context, tooltip, flag, "item.starrailexpress.dnf_corn_gruel.tooltip");
+                }
+            });
     public static final Item BLACK_BREAD = register("dnf_black_bread",
             new DNFFoodItem(new Item.Properties().stacksTo(64).food(new FoodProperties.Builder()
-                    .nutrition(5).saturationModifier(0.5f).alwaysEdible().build())));
+                    .nutrition(5).saturationModifier(0.5f).alwaysEdible().build())) {
+                @Override
+                public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip,
+                        TooltipFlag flag) {
+                    appendDnfTooltip(stack, context, tooltip, flag, "item.starrailexpress.dnf_black_bread.tooltip");
+                }
+            });
     public static final Item MEAT_RATION = register("dnf_meat_ration",
             new DNFFoodItem(new Item.Properties().stacksTo(64).food(new FoodProperties.Builder()
                     .nutrition(6).saturationModifier(0.7f).alwaysEdible().build())){
@@ -79,9 +109,20 @@ public class DNFItems {
                     entity.addEffect(new MobEffectInstance(ModEffects.EAT_MEAT_FOOD,99999,0,false,false,false));
                     return super.finishUsingItem(stack, world, entity);
                 }
+                @Override
+                public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip,
+                        TooltipFlag flag) {
+                    appendDnfTooltip(stack, context, tooltip, flag, "item.starrailexpress.dnf_meat_ration.tooltip");
+                }
             });
     public static final Item WATER_BOTTLE = register("dnf_water_bottle",
-            new DNFWaterItem(new Item.Properties().stacksTo(16)));
+            new DNFWaterItem(new Item.Properties().stacksTo(16)) {
+                @Override
+                public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip,
+                        TooltipFlag flag) {
+                    appendDnfTooltip(stack, context, tooltip, flag, "item.starrailexpress.dnf_water_bottle.tooltip");
+                }
+            });
     public static final Item TOXIC_HEART = register("dnf_toxic_heart",
             new Item(new Item.Properties().stacksTo(16)) {
                 @Override
@@ -130,9 +171,21 @@ public class DNFItems {
             new DNFBloodPurchaseItem(new Item.Properties().stacksTo(1), DNF.BLOOD_PRICE,
                     DNFItems.LOCKPICK::getDefaultInstance, "item.starrailexpress.dnf_lockpick"));
     public static final Item ABYSS_VIAL = register("dnf_abyss_vial",
-            new DNFKillerPsychoItem(new Item.Properties().stacksTo(1)));
+            new DNFKillerPsychoItem(new Item.Properties().stacksTo(1)) {
+                @Override
+                public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip,
+                        TooltipFlag flag) {
+                    appendDnfTooltip(stack, context, tooltip, flag, "item.starrailexpress.dnf_abyss_vial.tooltip");
+                }
+            });
     public static final Item ABYSS_TENTACLE = register("dnf_abyss_tentacle",
-            new DNFTentacleItem(new Item.Properties().stacksTo(1)));
+            new DNFTentacleItem(new Item.Properties().stacksTo(1)) {
+                @Override
+                public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip,
+                        TooltipFlag flag) {
+                    appendDnfTooltip(stack, context, tooltip, flag, "item.starrailexpress.dnf_abyss_tentacle.tooltip");
+                }
+            });
     public static final Item CHEF_HAT = register("dnf_chef_hat",
             new DNFChefHatItem(new Item.Properties().stacksTo(1)));
     public static final Item REPAIR_TOOL = register("dnf_repair_tool",

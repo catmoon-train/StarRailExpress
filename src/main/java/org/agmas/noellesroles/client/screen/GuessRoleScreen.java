@@ -38,7 +38,8 @@ public class GuessRoleScreen extends Screen {
             SRE.id("dnf_locksmith"),
             SRE.id("dnf_civilian"),
             SRE.id("dnf_flying_knife"),
-            SRE.id("dnf_abyss")
+            SRE.id("dnf_abyss"),
+            SRE.id("dnf_ghost")
     );
 
     public Screen parent = null;
