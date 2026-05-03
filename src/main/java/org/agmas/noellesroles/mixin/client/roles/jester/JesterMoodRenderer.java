@@ -1,6 +1,7 @@
 package org.agmas.noellesroles.mixin.client.roles.jester;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.gui.HudMoodRenderer;
 import io.wifi.utils.client.betterrender.FakeGuiGraphics;
@@ -39,7 +40,7 @@ public class JesterMoodRenderer {
             "hud/mood_jester");
 
     @Inject(method = "renderKiller", at = @At("HEAD"), cancellable = true)
-    private static void jesterMood(Font textRenderer, FakeGuiGraphics context, int color, CallbackInfo ci) {
+    private static void jesterMood(Font textRenderer, FakeGuiGraphics context, int color, SRERole role, CallbackInfo ci) {
         SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY
                 .get(Minecraft.getInstance().player.level());
         if (gameWorldComponent.isRole(Minecraft.getInstance().player, ModRoles.JESTER) || gameWorldComponent.isRole(Minecraft.getInstance().player, ModRoles.MONOKUMA)) {

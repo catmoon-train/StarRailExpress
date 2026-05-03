@@ -18,6 +18,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
+import org.agmas.noellesroles.Noellesroles;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -32,6 +33,11 @@ public class HudMoodRenderer {
     public static final ResourceLocation MOOD_PSYCHO = SRE.watheId("hud/mood_psycho");
     public static final ResourceLocation MOOD_PSYCHO_HIT = SRE.watheId("hud/mood_psycho_hit");
     public static final ResourceLocation MOOD_PSYCHO_EYES = SRE.watheId("hud/mood_psycho_eyes");
+    // 中立和 Vigilante 图标 (来自 noellesroles 资源包)
+    public static final ResourceLocation MOOD_NEU = Noellesroles.id("hud/mood_neu");
+    public static final ResourceLocation MOOD_VIG = Noellesroles.id("hud/mood_vig");
+    // 小丑图标 (来自 noellesroles 资源包)
+    public static final ResourceLocation MOOD_JESTER = Noellesroles.id("hud/mood_jester");
     private static final Map<SREPlayerTaskComponent.Task, TaskRenderer> renderers = new HashMap<>();
     // 预分配的列表，避免每帧创建新对象
     private static final List<SREPlayerTaskComponent.Task> toRemoveList = new ArrayList<>();
@@ -115,18 +121,29 @@ public class HudMoodRenderer {
         SRERole role = gameWorldComponent.getRole(player);
         if (role != null) {
             if (role.getMoodType() == SRERole.MoodType.FAKE) {
-                renderKiller(textRenderer, context, role.getMoodColor());
+                renderKiller(textRenderer, context, role.getMoodColor(), role);
             } else if (role.getMoodType() == SRERole.MoodType.REAL) {
-                renderCivilian(textRenderer, context, oldMood,role.getMoodColor());
+                renderCivilian(textRenderer, context, oldMood, role.getMoodColor(), role);
             }
         }
         arrowProgress = Mth.lerp(delta / 8, arrowProgress, 0f);
     }
 
-    private static void renderCivilian(@NotNull Font textRenderer, @NotNull FakeGuiGraphics context, float prevMood, int color) {
+    private static void renderCivilian(@NotNull Font textRenderer, @NotNull FakeGuiGraphics context, float prevMood, int color, SRERole role) {
         context.pose().pushPose();
         context.pose().translate(0, 3 * moodOffset, 0);
+        
+        // 根据阵营选择心情图标
         ResourceLocation mood = MOOD_HAPPY;
+        if (role.isVigilanteTeam()) {
+            // 警长阵营
+            mood = MOOD_VIG;
+        } else if (role.isNeutrals() && !role.isNeutralForKiller()) {
+            // 中立阵营 (setNeutrals=true 但不是 setNeutralForKiller)
+            mood = MOOD_NEU;
+        }
+        // 其他情况默认使用 MOOD_HAPPY
+        
         if (moodRender < GameConstants.DEPRESSIVE_MOOD_THRESHOLD) {
             mood = MOOD_DEPRESSIVE;
         } else if (moodRender < GameConstants.MID_MOOD_THRESHOLD) {
@@ -165,12 +182,24 @@ public class HudMoodRenderer {
         context.pose().popPose();
     }
 
-    private static void renderKiller(@NotNull Font textRenderer, @NotNull FakeGuiGraphics context, int color) {
+    private static void renderKiller(@NotNull Font textRenderer, @NotNull FakeGuiGraphics context, int color, SRERole role) {
         if (moodRender < 0)
             moodRender = 0;
+        
+        // 根据阵营选择心情图标
+        ResourceLocation moodIcon = MOOD_KILLER;
+        if (role.isNeutrals() && !role.isNeutralForKiller()) {
+            // 中立阵营 (setNeutrals=true 但不是 setNeutralForKiller)
+            moodIcon = MOOD_NEU;
+        } else if (role.isNeutrals() && role.isNeutralForKiller()) {
+            // 中立阵营 (setNeutrals=true 且 setNeutralForKiller=true)
+            moodIcon = MOOD_JESTER;
+        }
+        // 其他情况默认使用 MOOD_KILLER
+        
         context.pose().pushPose();
         context.pose().translate(0, 3 * moodOffset, 0);
-        context.blitSprite(MOOD_KILLER, 5, 6, 14, 17);
+        context.blitSprite(moodIcon, 5, 6, 14, 17);
         context.pose().popPose();
         context.pose().pushPose();
         context.pose().translate(0, 10 * moodOffset, 0);
