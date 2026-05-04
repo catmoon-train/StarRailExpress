@@ -55,7 +55,7 @@ public class CuckooPlayerComponent implements RoleComponent, ServerTickingCompon
         if (player.level() instanceof ServerLevel serverLevel) {
             var gameWorld = SREGameWorldComponent.KEY.get(serverLevel);
             startPlayers = gameWorld.getPlayerCount();
-            requiredEggs = Math.max(5, (startPlayers * 3) / 8 + 1);
+            requiredEggs = Math.max(4, (startPlayers * 3) / 8 - 1);
         }
         sync();
     }
