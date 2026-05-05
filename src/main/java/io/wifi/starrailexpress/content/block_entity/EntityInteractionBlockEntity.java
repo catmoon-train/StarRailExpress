@@ -7,6 +7,8 @@ import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMBlockEntities;
 import io.wifi.starrailexpress.network.EntityInteractionBlockPayload;
+import io.wifi.starrailexpress.network.packet.CustomNarratorPacket;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -128,19 +130,37 @@ public class EntityInteractionBlockEntity extends BlockEntity {
 
     // 方块冷却相关
     public boolean isInCooldown(long currentGameTime) {
+        // 如果冷却已过期，自动重置为0
+        if (blockCooldownEndGameTime > 0 && currentGameTime > blockCooldownEndGameTime) {
+            blockCooldownEndGameTime = 0;
+            blockCooldownTicks = 0;
+            setChanged();
+        }
         return blockCooldownEndGameTime > 0 && currentGameTime <= blockCooldownEndGameTime;
     }
 
     public void setBlockCooldown(int seconds, long currentGameTime) {
-        this.blockCooldownTicks = seconds * 20;
-        this.blockCooldownEndGameTime = (int) (currentGameTime + this.blockCooldownTicks);
+        this.blockCooldownTicks = Math.max(0, seconds) * 20;
+        // 使用安全的计算，避免整数溢出
+        if (this.blockCooldownTicks > 0) {
+            this.blockCooldownEndGameTime = (int) (currentGameTime + this.blockCooldownTicks);
+        } else {
+            this.blockCooldownEndGameTime = 0;
+        }
         setChanged();
     }
 
     // 不带游戏时间的旧方法，保持兼容
     public void setBlockCooldown(int seconds) {
         // 使用默认值，将在tick时正确设置
-        this.blockCooldownTicks = seconds * 20;
+        this.blockCooldownTicks = Math.max(0, seconds) * 20;
+    }
+
+    // 重置方块冷却
+    public void resetBlockCooldown() {
+        this.blockCooldownTicks = 0;
+        this.blockCooldownEndGameTime = 0;
+        setChanged();
     }
 
     // 从服务端接收更新
@@ -177,7 +197,8 @@ public class EntityInteractionBlockEntity extends BlockEntity {
 
         // 获取游戏世界组件
         SREGameTimeComponent timeComponent = SREGameTimeComponent.KEY.get(world);
-        long currentGameTime = timeComponent.getTime();
+        // 使用 resetTime - time 计算游戏开始后经过的时间（tick）
+        long elapsedGameTime = timeComponent.getResetTime() - timeComponent.getTime();
 
         // 处理碰撞箱计时
         if (entity.collisionEnabled) {
@@ -188,8 +209,8 @@ public class EntityInteractionBlockEntity extends BlockEntity {
             }
         }
 
-        // 检查方块冷却
-        if (entity.isInCooldown(currentGameTime)) {
+        // 检查方块冷却（使用经过的时间计算）
+        if (entity.isInCooldown(elapsedGameTime)) {
             return; // 冷却期间不处理任何触发
         }
 
@@ -201,13 +222,13 @@ public class EntityInteractionBlockEntity extends BlockEntity {
 
         for (ServerPlayer player : playersInRange) {
             // 检查所有条件是否满足
-            if (entity.checkConditions(player, serverWorld, pos, currentGameTime, entity.timerTick)) {
+            if (entity.checkConditions(player, serverWorld, pos, elapsedGameTime, entity.timerTick)) {
                 // 检查玩家冷却
                 long lastTrigger = entity.lastTriggerTime.getOrDefault(player.getUUID(), 0L);
-                if (currentGameTime - lastTrigger >= entity.cooldownTicks) {
+                if (elapsedGameTime - lastTrigger >= entity.cooldownTicks) {
                     // 执行触发内容
-                    entity.executeActions(player, serverWorld, pos, currentGameTime);
-                    entity.lastTriggerTime.put(player.getUUID(), currentGameTime);
+                    entity.executeActions(player, serverWorld, pos, elapsedGameTime);
+                    entity.lastTriggerTime.put(player.getUUID(), elapsedGameTime);
                 }
             }
         }
@@ -906,6 +927,15 @@ public class EntityInteractionBlockEntity extends BlockEntity {
                 }
                 taskComponent.sync();
             }
+            case NARRATOR -> {
+                // 语音播报
+                String narratorText = action.narratorText;
+                if (narratorText != null && !narratorText.isEmpty()) {
+                    boolean shouldInterrupt = action.narratorInterrupt;
+                    Component textComponent = Component.literal(narratorText);
+                    ServerPlayNetworking.send(player, new CustomNarratorPacket(textComponent, shouldInterrupt));
+                }
+            }
         }
     }
 
@@ -1083,7 +1113,8 @@ public class EntityInteractionBlockEntity extends BlockEntity {
         END_BLACKOUT,          // 结束关灯
         FIX_MONITOR,           // 修复监控
         ADD_CUSTOM_TASK,       // 增加自定义任务（清空当前任务后添加）
-        COMPLETE_CUSTOM_TASK   // 完成自定义任务
+        COMPLETE_CUSTOM_TASK,   // 完成自定义任务
+        NARRATOR               // 语音播报
     }
 
     // 条件数据类
@@ -1149,6 +1180,8 @@ public class EntityInteractionBlockEntity extends BlockEntity {
         public int effectAmplifier;    // 效果等级（用于GIVE_EFFECT）
         public String customTaskName;  // 自定义任务名称（用于ADD_CUSTOM_TASK）
         public String customTaskId;    // 自定义任务ID（用于ADD_CUSTOM_TASK和COMPLETE_CUSTOM_TASK）
+        public String narratorText;     // 语音播报文本（用于NARRATOR）
+        public boolean narratorInterrupt; // 是否打断当前播报（用于NARRATOR）
 
         public CompoundTag toNbt() {
             CompoundTag tag = new CompoundTag();
@@ -1160,6 +1193,8 @@ public class EntityInteractionBlockEntity extends BlockEntity {
             tag.putInt("EffectAmplifier", effectAmplifier);
             tag.putString("CustomTaskName", customTaskName != null ? customTaskName : "");
             tag.putString("CustomTaskId", customTaskId != null ? customTaskId : "");
+            tag.putString("NarratorText", narratorText != null ? narratorText : "");
+            tag.putBoolean("NarratorInterrupt", narratorInterrupt);
             return tag;
         }
 
@@ -1177,6 +1212,9 @@ public class EntityInteractionBlockEntity extends BlockEntity {
             if (action.customTaskName.isEmpty()) action.customTaskName = null;
             action.customTaskId = tag.getString("CustomTaskId");
             if (action.customTaskId.isEmpty()) action.customTaskId = null;
+            action.narratorText = tag.getString("NarratorText");
+            if (action.narratorText.isEmpty()) action.narratorText = null;
+            action.narratorInterrupt = tag.getBoolean("NarratorInterrupt");
             return action;
         }
     }

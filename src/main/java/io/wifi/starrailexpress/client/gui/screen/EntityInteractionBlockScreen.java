@@ -404,6 +404,11 @@ public class EntityInteractionBlockScreen extends Screen {
                     action.customTaskId != null ? action.customTaskId : "?").getString();
             case COMPLETE_CUSTOM_TASK -> Component.translatable("action.complete_custom_task",
                     action.customTaskId != null ? action.customTaskId : "?").getString();
+            case NARRATOR -> Component.translatable("action.narrator",
+                    action.narratorText != null ? action.narratorText : "?",
+                    Component.translatable(action.narratorInterrupt ?
+                            "gui.entity_interaction_block.narrator_interrupt" :
+                            "gui.entity_interaction_block.narrator_queue")).getString();
         };
     }
 
@@ -1057,6 +1062,7 @@ public class EntityInteractionBlockScreen extends Screen {
         private EditBox secondsInput;
         private String selectedTaskType = "random";
         private boolean addTimeMode = true; // true=增加，false=减少
+        private boolean narratorInterrupt = false; // 语音播报是否打断
         private int scrollY = 0;
         private static final int SCROLL_STEP = 15;
 
@@ -1440,6 +1446,32 @@ public class EntityInteractionBlockScreen extends Screen {
                             Component.translatable("gui.entity_interaction_block.complete_custom_task_desc"), b -> {})
                             .bounds(centerX - 100, y, 200, 15).build());
                 }
+                case NARRATOR -> {
+                    // 语音播报文本
+                    addRenderableWidget(new EditBox(this.font, centerX - 150, y, 300, 20,
+                            Component.translatable("gui.entity_interaction_block.narrator_text")));
+                    stringInput = findAndAttachInput(Component.translatable("gui.entity_interaction_block.narrator_text"));
+                    if (stringInput != null) {
+                        stringInput.setMaxLength(500);
+                    }
+
+                    y += 25;
+                    // 是否打断当前播报
+                    addRenderableWidget(CycleButton.<Boolean>builder(interrupt ->
+                                    Component.translatable(interrupt ?
+                                            "gui.entity_interaction_block.narrator_interrupt" :
+                                            "gui.entity_interaction_block.narrator_queue"))
+                            .withValues(true, false)
+                            .withInitialValue(narratorInterrupt)
+                            .create(centerX - 100, y, 200, 20,
+                                    Component.translatable("gui.entity_interaction_block.narrator_mode"),
+                                    (b, interrupt) -> narratorInterrupt = interrupt));
+
+                    y += 25;
+                    addRenderableWidget(Button.builder(
+                            Component.translatable("gui.entity_interaction_block.narrator_desc"), b -> {})
+                            .bounds(centerX - 100, y, 200, 15).build());
+                }
                 // 其他类型不需要输入
             }
 
@@ -1544,6 +1576,14 @@ public class EntityInteractionBlockScreen extends Screen {
                 if (stringInput != null) {
                     action.customTaskId = stringInput.getValue();
                 }
+            }
+
+            // 保存语音播报参数
+            if (selectedType == EntityInteractionBlockEntity.ActionType.NARRATOR) {
+                if (stringInput != null) {
+                    action.narratorText = stringInput.getValue();
+                }
+                action.narratorInterrupt = narratorInterrupt;
             }
 
             parent.addAction(action);

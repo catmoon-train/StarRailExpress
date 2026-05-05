@@ -1467,6 +1467,10 @@
   "action_type.fix_monitor": "Fix Monitor",
   "action_type.add_custom_task": "Add Custom Task",
   "action_type.complete_custom_task": "Complete Custom Task",
+  "action_type.narrator": "Narrator",
+
+
+
 
 
   "condition.pass_through": "Player passes through block",
@@ -1531,6 +1535,7 @@
   "action.fix_monitor": "Fix monitor",
   "action.add_custom_task": "Add custom task: %s (ID:%s)",
   "action.complete_custom_task": "Complete custom task: %s",
+  "action.narrator": "Narrator: %s [%s]",
 
   "logic.and": "AND",
   "logic.or": "OR",
@@ -1662,6 +1667,11 @@
   "gui.entity_interaction_block.clear_entities_desc": "Remove entities within specified radius from block, * for any non-player entities",
   "gui.entity_interaction_block.add_custom_task_desc": "Clear current tasks then add custom task, requires task name and unique ID",
   "gui.entity_interaction_block.complete_custom_task_desc": "Find and complete player's custom task by ID",
+  "gui.entity_interaction_block.narrator_text": "Narrator text",
+  "gui.entity_interaction_block.narrator_mode": "Narrator mode",
+  "gui.entity_interaction_block.narrator_interrupt": "Interrupt",
+  "gui.entity_interaction_block.narrator_queue": "Queue",
+  "gui.entity_interaction_block.narrator_desc": "Send voice narration to player, true=interrupt current, false=queue",
 
   "message.custom_task.added": "§a[Task]§r New task: %s",
   "message.custom_task.completed": "§a[Task]§r Completed: %s"

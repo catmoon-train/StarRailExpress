@@ -1584,6 +1584,10 @@
   "action_type.fix_monitor": "修复监控",
   "action_type.add_custom_task": "添加自定义任务",
   "action_type.complete_custom_task": "完成自定义任务",
+  "action_type.narrator": "语音播报",
+
+
+
 
 
   "action.give_effect": "给予效果 %s (%s秒)",
@@ -1602,6 +1606,7 @@
   "action.fix_monitor": "修复监控",
   "action.add_custom_task": "添加自定义任务：%s (ID:%s)",
   "action.complete_custom_task": "完成自定义任务：%s",
+  "action.narrator": "语音播报：%s [%s]",
 
   "logic.and": "与",
   "logic.or": "或",
@@ -1727,6 +1732,11 @@
   "gui.entity_interaction_block.clear_entities_desc": "清除以实体交互方块为圆心指定半径范围内的实体，*为任意非玩家实体",
   "gui.entity_interaction_block.add_custom_task_desc": "先清空当前任务，再添加自定义任务，需要填写任务名称和唯一ID",
   "gui.entity_interaction_block.complete_custom_task_desc": "根据ID查找并完成玩家当前的自定义任务",
+  "gui.entity_interaction_block.narrator_text": "语音播报内容",
+  "gui.entity_interaction_block.narrator_mode": "播报模式",
+  "gui.entity_interaction_block.narrator_interrupt": "打断",
+  "gui.entity_interaction_block.narrator_queue": "排队",
+  "gui.entity_interaction_block.narrator_desc": "向玩家发送语音播报，true=打断当前播报，false=排队等待",
 
   "message.custom_task.added": "§a[任务]§r 新任务：%s",
   "message.custom_task.completed": "§a[任务]§r 已完成：%s",
