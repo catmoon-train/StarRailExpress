@@ -83,10 +83,9 @@ public class EntityInteractionBlockPayload {
                     }
 
                     int cooldown = data.getInt("CooldownTicks");
-
-                    // 读取传送点设置
                     boolean isTeleportPoint = data.getBoolean("IsTeleportPoint");
                     int teleportPointId = data.getInt("TeleportPointId");
+
                     entity.setTeleportPoint(isTeleportPoint);
                     entity.setTeleportPointId(teleportPointId);
 

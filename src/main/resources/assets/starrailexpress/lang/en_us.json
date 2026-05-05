@@ -1674,5 +1674,6 @@
   "gui.entity_interaction_block.narrator_desc": "Send voice narration to player, true=interrupt current, false=queue",
 
   "message.custom_task.added": "§a[Task]§r New task: %s",
-  "message.custom_task.completed": "§a[Task]§r Completed: %s"
+  "message.custom_task.completed": "§a[Task]§r Completed: %s",
+  "message.teleport_point_not_found": "§cTeleport point %s not found or out of %s blocks range"
 }

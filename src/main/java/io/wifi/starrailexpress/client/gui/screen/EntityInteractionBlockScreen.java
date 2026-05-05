@@ -1,6 +1,7 @@
 package io.wifi.starrailexpress.client.gui.screen;
 
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.content.block_entity.EntityInteractionBlockEntity;
 import io.wifi.starrailexpress.network.EntityInteractionBlockPayload;
 import net.minecraft.client.gui.GuiGraphics;

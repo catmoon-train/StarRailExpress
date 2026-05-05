@@ -1740,6 +1740,7 @@
 
   "message.custom_task.added": "§a[任务]§r 新任务：%s",
   "message.custom_task.completed": "§a[任务]§r 已完成：%s",
+  "message.teleport_point_not_found": "§c传送点 %s 不存在或在 %s 格范围外",
 
   "message.dnf.rules.given": "规则书已放入你的背包。",
   "message.dnf.rules.given_all_players": "已为所有玩家发送了对应职业的规则书。",

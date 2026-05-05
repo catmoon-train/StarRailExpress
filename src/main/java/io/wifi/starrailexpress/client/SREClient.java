@@ -737,7 +737,9 @@ public class SREClient implements ClientModInitializer {
                 }
 
                 int cooldown = data.getInt("CooldownTicks");
-                context.client().setScreen(new io.wifi.starrailexpress.client.gui.screen.EntityInteractionBlockScreen(payload.pos(), conditions, actions, cooldown));
+                boolean isTeleportPoint = data.getBoolean("IsTeleportPoint");
+                int teleportPointId = data.getInt("TeleportPointId");
+                context.client().setScreen(new io.wifi.starrailexpress.client.gui.screen.EntityInteractionBlockScreen(payload.pos(), conditions, actions, cooldown, isTeleportPoint, teleportPointId));
             });
         });
         // Chat Dialogue

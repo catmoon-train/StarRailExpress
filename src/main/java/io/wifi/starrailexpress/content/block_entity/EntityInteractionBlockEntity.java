@@ -25,6 +25,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 实体交互方块的BlockEntity
@@ -114,18 +115,8 @@ public class EntityInteractionBlockEntity extends BlockEntity {
         return isTeleportPoint;
     }
 
-    public void setTeleportPoint(boolean teleportPoint) {
-        this.isTeleportPoint = teleportPoint;
-        setChanged();
-    }
-
     public int getTeleportPointId() {
         return teleportPointId;
-    }
-
-    public void setTeleportPointId(int id) {
-        this.teleportPointId = id;
-        setChanged();
     }
 
     // 方块冷却相关
@@ -742,11 +733,14 @@ public class EntityInteractionBlockEntity extends BlockEntity {
                 }
             }
             case TELEPORT -> {
-                // 传送到指定传送点
+                // 传送到指定传送点（限制100格范围）
                 int targetId = (int) action.value;
-                BlockPos targetPos = findTeleportPoint(world, targetId);
+                BlockPos targetPos = findTeleportPoint(world, pos, targetId);
                 if (targetPos != null) {
                     player.teleportTo(targetPos.getX() + 0.5, targetPos.getY(), targetPos.getZ() + 0.5);
+                } else {
+                    // 传送目标不存在或在范围外
+                    player.sendSystemMessage(net.minecraft.network.chat.Component.translatable("message.teleport_point_not_found", targetId, MAX_TELEPORT_RANGE));
                 }
             }
             case SHOW_TITLE -> {
@@ -939,14 +933,109 @@ public class EntityInteractionBlockEntity extends BlockEntity {
         }
     }
 
-    // 查找指定ID的传送点
-    private static BlockPos findTeleportPoint(ServerLevel world, int targetId) {
-        for (BlockPos pos : BlockPos.betweenClosed(
-                (int) world.getWorldBorder().getMinX(), world.getMinBuildHeight(), (int) world.getWorldBorder().getMinZ(),
-                (int) world.getWorldBorder().getMaxX(), world.getMaxBuildHeight(), (int) world.getWorldBorder().getMaxZ())) {
-            if (world.getBlockEntity(pos) instanceof EntityInteractionBlockEntity blockEntity) {
-                if (blockEntity.isTeleportPoint() && blockEntity.getTeleportPointId() == targetId) {
-                    return pos.immutable();
+    // 传送点注册表 - 用于高效查找传送点（按维度存储）
+    private static final Map<Level, Map<Integer, BlockPos>> TELEPORT_POINT_REGISTRY = new java.util.concurrent.ConcurrentHashMap<>();
+    // 传送范围限制（球形半径）
+    private static final int MAX_TELEPORT_RANGE = 100;
+
+    // 注册传送点（当方块设置为传送点时调用）
+    public void registerTeleportPoint() {
+        if (this.isTeleportPoint && this.teleportPointId >= 0) {
+            TELEPORT_POINT_REGISTRY
+                    .computeIfAbsent(this.level, k -> new ConcurrentHashMap<>())
+                    .put(this.teleportPointId, this.worldPosition.immutable());
+        }
+    }
+
+    // 注销传送点（当方块不再作为传送点时调用）
+    public void unregisterTeleportPoint() {
+        if (this.level != null) {
+            Map<Integer, BlockPos> registry = TELEPORT_POINT_REGISTRY.get(this.level);
+            if (registry != null) {
+                registry.remove(this.teleportPointId);
+            }
+        }
+    }
+
+    // 设置传送点时调用此方法
+    public void setTeleportPoint(boolean teleportPoint) {
+        // 如果之前是传送点，先注销
+        if (this.isTeleportPoint) {
+            unregisterTeleportPoint();
+        }
+        this.isTeleportPoint = teleportPoint;
+        setChanged();
+        // 如果现在是传送点，注册它
+        if (teleportPoint && this.teleportPointId >= 0) {
+            registerTeleportPoint();
+        }
+    }
+
+    // 设置传送点ID时调用此方法
+    public void setTeleportPointId(int id) {
+        // 如果之前是传送点，先注销
+        if (this.isTeleportPoint) {
+            unregisterTeleportPoint();
+        }
+        this.teleportPointId = id;
+        setChanged();
+        // 如果是传送点，用新ID重新注册
+        if (this.isTeleportPoint && id >= 0) {
+            registerTeleportPoint();
+        }
+    }
+
+    // 查找指定ID的传送点（限制在100格范围内）
+    private static BlockPos findTeleportPoint(ServerLevel world, BlockPos sourcePos, int targetId) {
+        // 先尝试从注册表快速查找
+        Map<Integer, BlockPos> registry = TELEPORT_POINT_REGISTRY.get(world);
+        if (registry != null) {
+            BlockPos registeredPos = registry.get(targetId);
+            if (registeredPos != null) {
+                // 检查是否在范围内
+                double dist = sourcePos.distSqr(registeredPos);
+                if (dist <= MAX_TELEPORT_RANGE * MAX_TELEPORT_RANGE) {
+                    // 验证该位置确实是传送点
+                    if (world.getBlockEntity(registeredPos) instanceof EntityInteractionBlockEntity blockEntity) {
+                        if (blockEntity.isTeleportPoint && blockEntity.getTeleportPointId() == targetId) {
+                            return registeredPos;
+                        }
+                    }
+                } else {
+                    // 在范围外，发送提示消息（如果能找到源传送点的话）
+                    return null;
+                }
+            }
+        }
+
+        // 如果注册表中没有，限制范围搜索（作为备用）
+        BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
+        int range = MAX_TELEPORT_RANGE;
+        int sourceX = sourcePos.getX();
+        int sourceY = sourcePos.getY();
+        int sourceZ = sourcePos.getZ();
+        int rangeSq = range * range;
+
+        // 只搜索源点周围100格的球形范围
+        for (int dx = -range; dx <= range; dx++) {
+            for (int dy = -range; dy <= range; dy++) {
+                for (int dz = -range; dz <= range; dz++) {
+                    // 球形检查
+                    if (dx * dx + dy * dy + dz * dz > rangeSq) continue;
+
+                    mutablePos.set(sourceX + dx, sourceY + dy, sourceZ + dz);
+
+                    BlockEntity be = world.getBlockEntity(mutablePos);
+                    if (be instanceof EntityInteractionBlockEntity blockEntity) {
+                        if (blockEntity.isTeleportPoint && blockEntity.getTeleportPointId() == targetId) {
+                            BlockPos result = mutablePos.immutable();
+                            // 更新注册表
+                            TELEPORT_POINT_REGISTRY
+                                    .computeIfAbsent(world, k -> new ConcurrentHashMap<>())
+                                    .put(targetId, result);
+                            return result;
+                        }
+                    }
                 }
             }
         }
@@ -1007,7 +1096,8 @@ public class EntityInteractionBlockEntity extends BlockEntity {
         collisionEnabled = tag.getBoolean("CollisionEnabled");
         collisionRemainingTicks = tag.getInt("CollisionRemainingTicks");
         isTeleportPoint = tag.getBoolean("IsTeleportPoint");
-        teleportPointId = tag.getInt("TeleportPointId");
+        // 使用 contains 检查，避免旧数据或缺失时覆盖默认值 -1
+        teleportPointId = tag.contains("TeleportPointId") ? tag.getInt("TeleportPointId") : -1;
         blockCooldownTicks = tag.getInt("BlockCooldownTicks");
         blockCooldownEndGameTime = tag.getInt("BlockCooldownEndGameTime");
     }
