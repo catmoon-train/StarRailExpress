@@ -714,6 +714,32 @@ public class SREClient implements ClientModInitializer {
             NoellesrolesClient.isTaskInstinctEnabled = false;
             // isInstinctToggleEnabled = false;
         });
+        // 实体交互方块UI
+        ClientPlayNetworking.registerGlobalReceiver(EntityInteractionBlockPayload.OpenUI.TYPE, (payload, context) -> {
+            context.client().execute(() -> {
+                if (context.client().level == null) return;
+                var data = payload.data();
+                java.util.List<io.wifi.starrailexpress.content.block_entity.EntityInteractionBlockEntity.TriggerCondition> conditions = new java.util.ArrayList<>();
+                java.util.List<io.wifi.starrailexpress.content.block_entity.EntityInteractionBlockEntity.TriggerAction> actions = new java.util.ArrayList<>();
+
+                if (data.contains("Conditions", net.minecraft.nbt.ListTag.TAG_LIST)) {
+                    var list = data.getList("Conditions", net.minecraft.nbt.ListTag.TAG_COMPOUND);
+                    for (int i = 0; i < list.size(); i++) {
+                        conditions.add(io.wifi.starrailexpress.content.block_entity.EntityInteractionBlockEntity.TriggerCondition.fromNbt(list.getCompound(i)));
+                    }
+                }
+
+                if (data.contains("Actions", net.minecraft.nbt.ListTag.TAG_LIST)) {
+                    var list = data.getList("Actions", net.minecraft.nbt.ListTag.TAG_COMPOUND);
+                    for (int i = 0; i < list.size(); i++) {
+                        actions.add(io.wifi.starrailexpress.content.block_entity.EntityInteractionBlockEntity.TriggerAction.fromNbt(list.getCompound(i)));
+                    }
+                }
+
+                int cooldown = data.getInt("CooldownTicks");
+                context.client().setScreen(new io.wifi.starrailexpress.client.gui.screen.EntityInteractionBlockScreen(payload.pos(), conditions, actions, cooldown));
+            });
+        });
         // Chat Dialogue
         ClientPlayNetworking.registerGlobalReceiver(
                 net.exmo.sre.client.chat.OpenChatDialoguePayload.ID, (payload, context) -> {

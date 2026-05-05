@@ -5,6 +5,7 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.events.day_night_fight.block_entity.HologramDisplayBlockEntity;
 import io.wifi.starrailexpress.content.block.entity.HornBlockEntity;
 import io.wifi.starrailexpress.content.block_entity.*;
+import io.wifi.starrailexpress.content.block_entity.EntityInteractionBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 
 public interface TMMBlockEntities {
@@ -35,6 +36,9 @@ public interface TMMBlockEntities {
 
     BlockEntityType<HologramDisplayBlockEntity> HOLOGRAM_DISPLAY = registrar.create("hologram_display",
             BlockEntityType.Builder.of(HologramDisplayBlockEntity::new, TMMBlocks.HOLOGRAM_DISPLAY));
+
+    BlockEntityType<EntityInteractionBlockEntity> ENTITY_INTERACTION_BLOCK = registrar.create("entity_interaction_block",
+            BlockEntityType.Builder.of(EntityInteractionBlockEntity::new, TMMBlocks.ENTITY_INTERACTION_BLOCK, TMMBlocks.ENTITY_INTERACTION_PANEL));
 
     static void initialize() {
         registrar.registerEntries();

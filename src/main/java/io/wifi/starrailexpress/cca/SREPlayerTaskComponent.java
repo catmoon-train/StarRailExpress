@@ -375,7 +375,8 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
         DNF_POISON_FOOD(nbt -> new PassiveTask("dnf_poison_food", nbt.getInt("type"))),
         DNF_POISON_DEPOSIT(nbt -> new PassiveTask("dnf_poison_deposit", nbt.getInt("type"))),
         DNF_POISON_WATER(nbt -> new PassiveTask("dnf_poison_water", nbt.getInt("type"))),
-        DNF_REDEMPTION(nbt -> new PassiveTask("dnf_redemption", nbt.getInt("type")));
+        DNF_REDEMPTION(nbt -> new PassiveTask("dnf_redemption", nbt.getInt("type"))),
+        CUSTOM(nbt -> new CustomTask(nbt.getString("customName"), nbt.getString("customId")));
 
         private static List<Task> availableTasksList = List.of(SLEEP, RAED_BOOK, EAT, DRINK, EXERCISE, MEDITATE, BATHE,
                 CHAIR,
@@ -913,6 +914,54 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
         }
     }
 
+    /**
+     * 自定义任务类
+     * 用于实体交互方块创建的自定义任务
+     */
+    public static class CustomTask implements TrainTask {
+        private final String customName;
+        private final String customId;
+        private boolean fulfilled = false;
+
+        public CustomTask(String customName, String customId) {
+            this.customName = customName != null ? customName : "自定义任务";
+            this.customId = customId != null ? customId : "custom_" + System.currentTimeMillis();
+        }
+
+        @Override
+        public boolean isFulfilled(@NotNull Player player) {
+            return this.fulfilled;
+        }
+
+        public void setFulfilled(boolean fulfilled) {
+            this.fulfilled = fulfilled;
+        }
+
+        @Override
+        public String getName() {
+            return this.customName;
+        }
+
+        public String getCustomTaskId() {
+            return this.customId;
+        }
+
+        @Override
+        public Task getType() {
+            return Task.CUSTOM;
+        }
+
+        @Override
+        public CompoundTag toNbt() {
+            CompoundTag nbt = new CompoundTag();
+            nbt.putInt("type", Task.CUSTOM.ordinal());
+            nbt.putString("customName", this.customName);
+            nbt.putString("customId", this.customId);
+            nbt.putBoolean("fulfilled", this.fulfilled);
+            return nbt;
+        }
+    }
+
     public interface TrainTask {
         default void tick(@NotNull Player player) {
         }
@@ -920,6 +969,10 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
         boolean isFulfilled(Player player);
 
         String getName();
+
+        default String getCustomTaskId() {
+            return null;
+        }
 
         Task getType();
 

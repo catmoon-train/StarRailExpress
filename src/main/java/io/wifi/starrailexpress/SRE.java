@@ -326,6 +326,10 @@ public class SRE extends StarRailExpressID implements ModInitializer {
         PayloadTypeRegistry.playC2S().register(SyncRoomToPlayerPayload.ID, SyncRoomToPlayerPayload.CODEC);
 
         PayloadTypeRegistry.playS2C().register(IsLobbyConfigPayload.ID, IsLobbyConfigPayload.CODEC);
+
+        // 实体交互方块网络包
+        PayloadTypeRegistry.playS2C().register(EntityInteractionBlockPayload.OpenUI.TYPE, EntityInteractionBlockPayload.OpenUI.CODEC);
+        PayloadTypeRegistry.playC2S().register(EntityInteractionBlockPayload.SaveConfig.TYPE, EntityInteractionBlockPayload.SaveConfig.CODEC);
         PayloadTypeRegistry.playC2S().register(IsLobbyConfigPayload.ID, IsLobbyConfigPayload.CODEC);
 
         PayloadTypeRegistry.playS2C().register(JoinSpecGroupPayload.ID, JoinSpecGroupPayload.CODEC);
@@ -436,6 +440,37 @@ public class SRE extends StarRailExpressID implements ModInitializer {
                 (payload, context) -> {
                     io.wifi.starrailexpress.network.VoteForMapPayload.Handler.handle(payload, context.player());
                 });
+
+        // 实体交互方块保存配置
+        ServerPlayNetworking.registerGlobalReceiver(EntityInteractionBlockPayload.SaveConfig.TYPE, (payload, context) -> {
+            context.server().execute(() -> {
+                var player = context.player();
+                var level = player.level();
+                var be = level.getBlockEntity(payload.pos());
+                if (be instanceof io.wifi.starrailexpress.content.block_entity.EntityInteractionBlockEntity entity) {
+                    var data = payload.data();
+                    java.util.List<io.wifi.starrailexpress.content.block_entity.EntityInteractionBlockEntity.TriggerCondition> conditions = new java.util.ArrayList<>();
+                    java.util.List<io.wifi.starrailexpress.content.block_entity.EntityInteractionBlockEntity.TriggerAction> actions = new java.util.ArrayList<>();
+
+                    if (data.contains("Conditions", net.minecraft.nbt.ListTag.TAG_LIST)) {
+                        var list = data.getList("Conditions", net.minecraft.nbt.ListTag.TAG_COMPOUND);
+                        for (int i = 0; i < list.size(); i++) {
+                            conditions.add(io.wifi.starrailexpress.content.block_entity.EntityInteractionBlockEntity.TriggerCondition.fromNbt(list.getCompound(i)));
+                        }
+                    }
+
+                    if (data.contains("Actions", net.minecraft.nbt.ListTag.TAG_LIST)) {
+                        var list = data.getList("Actions", net.minecraft.nbt.ListTag.TAG_COMPOUND);
+                        for (int i = 0; i < list.size(); i++) {
+                            actions.add(io.wifi.starrailexpress.content.block_entity.EntityInteractionBlockEntity.TriggerAction.fromNbt(list.getCompound(i)));
+                        }
+                    }
+
+                    int cooldown = data.getInt("CooldownTicks");
+                    entity.updateFromServer(conditions, actions, cooldown);
+                }
+            });
+        });
         ServerPlayNetworking.registerGlobalReceiver(SecurityCameraExitRequestPayload.ID,
                 new SecurityCameraExitRequestPayload.ServerReceiver());
         ServerPlayNetworking.registerGlobalReceiver(JoinSpecGroupPayload.ID, (payload, context) -> {

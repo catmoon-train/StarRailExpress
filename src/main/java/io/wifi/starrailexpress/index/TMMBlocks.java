@@ -6,6 +6,8 @@ import dev.doctor4t.ratatouille.util.registrar.BlockRegistrar;
 import io.wifi.events.day_night_fight.block.HologramDisplayBlock;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.content.block.*;
+import io.wifi.starrailexpress.content.block.EntityInteractionBlock;
+import io.wifi.starrailexpress.content.block.EntityInteractionPanelBlock;
 import io.wifi.starrailexpress.index.wathe_bridge.WatheBridgerBlocks;
 import io.wifi.starrailexpress.util.BlockSettingsAdditions;
 import net.fabricmc.fabric.api.object.builder.v1.block.type.BlockSetTypeBuilder;
@@ -675,6 +677,24 @@ public interface TMMBlocks {
           .noOcclusion()
           .lightLevel(state -> 15)), // 发光效果
       TMMItems.DECORATION_GROUP);
+
+  // 实体交互方块 - 普通版本
+  Block ENTITY_INTERACTION_BLOCK = registrar.createWithItem("entity_interaction_block",
+      new EntityInteractionBlock(BlockBehaviour.Properties.of()
+          .strength(-1.0F, 3600000.8F)
+          .noOcclusion()
+          .noCollission()
+          .sound(SoundType.STONE)),
+      new Item.Properties().rarity(Rarity.EPIC), CreativeModeTabs.OP_BLOCKS);
+
+  // 实体交互方块 - 镶板版本
+  Block ENTITY_INTERACTION_PANEL = registrar.createWithItem("entity_interaction_panel",
+      new EntityInteractionPanelBlock(BlockBehaviour.Properties.of()
+          .strength(-1.0F, 3600000.8F)
+          .noOcclusion()
+          .noCollission()
+          .sound(SoundType.STONE)),
+      new Item.Properties().rarity(Rarity.EPIC), CreativeModeTabs.OP_BLOCKS);
 
   private static Block createBranch(String name, Block wood, BlockRegistrar registrar) {
     return registrar.createWithItem(name,
