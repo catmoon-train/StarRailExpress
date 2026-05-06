@@ -349,10 +349,42 @@ public class EntityInteractionBlockEntity extends BlockEntity {
                 yield Math.sqrt(distance) <= condition.value;
             }
             case PROXIMITY_LINE -> {
-                // 直线范围（水平距离）
+                // 直线范围（支持方向检测）
                 double dx = player.getX() - (pos.getX() + 0.5);
+                double dy = player.getY() - (pos.getY() + 0.5);
                 double dz = player.getZ() - (pos.getZ() + 0.5);
-                yield Math.sqrt(dx * dx + dz * dz) <= condition.value;
+                double distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+
+                // 如果距离超出范围，直接返回false
+                if (distance > condition.value) {
+                    yield false;
+                }
+
+                // 检查方向
+                LineDirection direction = condition.lineDirection != null ? condition.lineDirection : LineDirection.ALL;
+                if (direction == LineDirection.ALL) {
+                    // 所有方向都包含
+                    yield true;
+                }
+
+                // 计算玩家相对于方块的方向偏移
+                double absDx = Math.abs(dx);
+                double absDy = Math.abs(dy);
+                double absDz = Math.abs(dz);
+
+                // 判断是水平方向还是垂直方向，以及东西还是南北
+                boolean isVertical = absDy >= absDx && absDy >= absDz;
+                boolean isEastWest = absDx > absDz;
+
+                yield switch (direction) {
+                    case EAST -> dx > 0 && isEastWest;
+                    case WEST -> dx < 0 && isEastWest;
+                    case SOUTH -> dz > 0 && !isEastWest;
+                    case NORTH -> dz < 0 && !isEastWest;
+                    case UP -> dy > 0 && isVertical;
+                    case DOWN -> dy < 0 && isVertical;
+                    case ALL -> true; // 默认全部方向
+                };
             }
             case HAS_ITEM -> {
                 // 物品栏中有特定物品
@@ -1290,6 +1322,17 @@ public class EntityInteractionBlockEntity extends BlockEntity {
         CIVILIAN, SHERIFF, NEUTRAL, NEUTRAL_KILLER, NEUTRAL_SPECIAL, KILLER
     }
 
+    // 直线范围方向枚举
+    public enum LineDirection {
+        ALL,     // * - 所有方向
+        EAST,    // 东 (+X)
+        WEST,    // 西 (-X)
+        SOUTH,   // 南 (+Z)
+        NORTH,   // 北 (-Z)
+        UP,      // 上 (+Y)
+        DOWN     // 下 (-Y)
+    }
+
     // 逻辑运算符枚举（用于条件组合）
     public enum LogicOperator {
         AND,      // 与 - 前一个和后一个条件都必须满足
@@ -1349,6 +1392,7 @@ public class EntityInteractionBlockEntity extends BlockEntity {
         public WorldTimeType worldTimeType; // 世界时间类型（用于WORLD_TIME条件）
         public int entityCount; // 实体数量（用于ENTITY_COUNT条件）
         public boolean checkAnyCount; // 是否检查任意数量（*表示不检查数量）
+        public LineDirection lineDirection; // 直线范围方向（用于PROXIMITY_LINE条件）
 
         public CompoundTag toNbt() {
             CompoundTag tag = new CompoundTag();
@@ -1362,6 +1406,7 @@ public class EntityInteractionBlockEntity extends BlockEntity {
             if (worldTimeType != null) tag.putString("WorldTimeType", worldTimeType.name());
             tag.putInt("EntityCount", entityCount);
             tag.putBoolean("CheckAnyCount", checkAnyCount);
+            if (lineDirection != null) tag.putString("LineDirection", lineDirection.name());
             return tag;
         }
 
@@ -1386,6 +1431,11 @@ public class EntityInteractionBlockEntity extends BlockEntity {
             }
             condition.entityCount = tag.getInt("EntityCount");
             condition.checkAnyCount = tag.getBoolean("CheckAnyCount");
+            if (tag.contains("LineDirection")) {
+                condition.lineDirection = LineDirection.valueOf(tag.getString("LineDirection"));
+            } else {
+                condition.lineDirection = LineDirection.ALL; // 默认值
+            }
             return condition;
         }
     }

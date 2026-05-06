@@ -291,7 +291,8 @@ public class EntityInteractionBlockScreen extends Screen {
             case TIME_ANCHOR -> Component.translatable("condition.time_anchor", formatTimeDisplay(condition.value),
                     Component.translatable("comparison." + condition.comparison.name().toLowerCase())).getString();
             case PROXIMITY_SPHERE -> Component.translatable("condition.proximity_sphere.blocks_display", condition.value).getString();
-            case PROXIMITY_LINE -> Component.translatable("condition.proximity_line.blocks_display", condition.value).getString();
+            case PROXIMITY_LINE -> Component.translatable("condition.proximity_line.blocks_display", condition.value,
+                    Component.translatable("direction." + (condition.lineDirection != null ? condition.lineDirection.name().toLowerCase() : "all"))).getString();
             case HAS_ITEM -> Component.translatable("condition.has_item", condition.stringValue).getString();
             case CLICK_BLOCK -> Component.translatable(condition.leftClick ? "condition.click_left" : "condition.click_right").getString();
             case LOOKING_AT -> Component.translatable("condition.looking_at.blocks_display", condition.value).getString();
@@ -472,6 +473,7 @@ public class EntityInteractionBlockScreen extends Screen {
         private EditBox secondsInput;
         private EntityInteractionBlockEntity.ComparisonType selectedComparison = EntityInteractionBlockEntity.ComparisonType.EQUALS;
         private EntityInteractionBlockEntity.TeamType selectedTeam = EntityInteractionBlockEntity.TeamType.CIVILIAN;
+        private EntityInteractionBlockEntity.LineDirection selectedLineDirection = EntityInteractionBlockEntity.LineDirection.ALL;
         private boolean leftClick = false;
         private int scrollY = 0;
         private static final int SCROLL_STEP = 15;
@@ -559,7 +561,16 @@ public class EntityInteractionBlockScreen extends Screen {
                     if (valueInput != null) {
                         valueInput.setFilter(s -> s.matches("[0-9.]*"));
                     }
-                    y += 22;
+                    y += 25;
+                    // 方向选择
+                    addRenderableWidget(CycleButton.<EntityInteractionBlockEntity.LineDirection>builder(dir ->
+                                    Component.translatable("direction." + dir.name().toLowerCase()))
+                            .withValues(EntityInteractionBlockEntity.LineDirection.values())
+                            .withInitialValue(selectedLineDirection)
+                            .create(centerX - 100, y, 200, 20,
+                                    Component.translatable("gui.entity_interaction_block.direction"),
+                                    (b, dir) -> selectedLineDirection = dir));
+                    y += 25;
                     // 添加详细描述
                     addRenderableWidget(Button.builder(
                             Component.translatable("gui.entity_interaction_block.proximity_line_desc"), b -> {})
@@ -1025,6 +1036,7 @@ public class EntityInteractionBlockScreen extends Screen {
 
             condition.comparison = selectedComparison;
             condition.teamType = selectedTeam;
+            condition.lineDirection = selectedLineDirection;
             condition.leftClick = leftClick;
 
             // 处理世界时间类型
