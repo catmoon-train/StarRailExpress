@@ -130,6 +130,38 @@ public class InstinctRenderer {
 
             return -1;
         });
+
+        // 殡仪员：透视物品掉落物
+        OnGetInstinctHighlight.EVENT.register((target, hasInstinct) -> {
+            if (Minecraft.getInstance() == null)
+                return -1;
+            var self = Minecraft.getInstance().player;
+            if (self == null)
+                return -1;
+            if (SREClient.gameComponent == null)
+                return -1;
+            if (GameUtils.isPlayerSpectatingOrCreative(self))
+                return -1;
+
+            if (!(target instanceof net.minecraft.world.entity.item.ItemEntity itemEntity))
+                return -1;
+
+            // 检查是否是殡仪员
+            if (!SREClient.gameComponent.isRole(self, ModRoles.MORTICIAN))
+                return -1;
+
+            // 检查是否在范围内（10格水平，3格垂直）
+            double dx = self.getX() - itemEntity.getX();
+            double dy = self.getY() - itemEntity.getY();
+            double dz = self.getZ() - itemEntity.getZ();
+            double horizontalDist = Math.sqrt(dx * dx + dz * dz);
+            if (horizontalDist > 10.0 || Math.abs(dy) > 3.0)
+                return -1;
+
+            // 返回渐变颜色高亮
+            return getGradientColor(itemEntity.getId());
+        });
+
         // 恋人
         OnGetInstinctHighlight.EVENT.register((target, hasInstinct) -> {
             if (Minecraft.getInstance() == null)

@@ -301,10 +301,25 @@ public class PlayerBodyEntity extends LivingEntity {
     public InteractionResult interactAt(Player player, Vec3 vec3, InteractionHand hand) {
         if (player instanceof ServerPlayer serverPlayer
                 && !isLocked() && hasCorpseItems()
-                && (!GameUtils.isPlayerAliveAndSurvival(serverPlayer) || canSeeDeathBodyContent(serverPlayer))) { // 仅旁观玩家可查看
+                && (!GameUtils.isPlayerAliveAndSurvival(serverPlayer) || canSeeDeathBodyContent(serverPlayer) || canMorticianOpenCorpse(serverPlayer))) {
+            
             // 检查是否为 DAY_NIGHT_FIGHT 模式
             var cca = SREGameWorldComponent.KEY.get(serverPlayer.level());
             boolean isDayNightFight = cca != null && cca.gameMode == SREGameModes.DAY_NIGHT_FIGHT;
+            
+            // 殡仪员特殊检查 - canMorticianOpenCorpse 已经检查了冷却
+            if (canMorticianOpenCorpse(serverPlayer)) {
+                // 殡仪员可以打开
+            } else if (isMorticianPlayer(serverPlayer)) {
+                // 是殡仪员但无法打开（冷却中或已打开过）
+                org.agmas.noellesroles.component.ModComponents.MORTICIAN.get(player);
+                serverPlayer.displayClientMessage(
+                    Component.translatable("message.noellesroles.mortician.on_cooldown")
+                        .withStyle(net.minecraft.ChatFormatting.RED),
+                    true
+                );
+                return super.interactAt(player, vec3, hand);
+            }
             
             serverPlayer.openMenu(new MenuProvider() {
                 @Override
@@ -314,7 +329,9 @@ public class PlayerBodyEntity extends LivingEntity {
 
                 @Override
                 public AbstractContainerMenu createMenu(int i, Inventory inventory, Player player) {
-                    return new PlayerBodyChestMenu(i, inventory, getComponent().getCorpseInventory(), isDayNightFight);
+                    PlayerBodyChestMenu menu = new PlayerBodyChestMenu(i, inventory, getComponent().getCorpseInventory(), isDayNightFight);
+                    menu.setCorpseEntity(PlayerBodyEntity.this);
+                    return menu;
                 }
             });
             return InteractionResult.SUCCESS;
@@ -334,6 +351,68 @@ public class PlayerBodyEntity extends LivingEntity {
         if (role == null)
             return false;
         return role.canSeeBodyItems();
+    }
+    
+    /**
+     * 检查玩家是否是殡仪员且可以打开此尸体
+     */
+    private boolean canMorticianOpenCorpse(ServerPlayer serverPlayer) {
+        try {
+            var cca = SREGameWorldComponent.KEY.get(serverPlayer.level());
+            if (cca == null || cca.gameMode == null) {
+                return false;
+            }
+            if (!GameUtils.isPlayerAliveAndSurvival(serverPlayer)) {
+                return false;
+            }
+            SRERole role = cca.getRole(serverPlayer);
+            if (role == null) {
+                return false;
+            }
+            // 检查是否是殡仪员
+            if (!role.identifier().getPath().equals("mortician")) {
+                return false;
+            }
+            // 检查冷却
+            var morticianComponent = org.agmas.noellesroles.component.ModComponents.MORTICIAN.get(serverPlayer);
+            if (morticianComponent == null) {
+                return false;
+            }
+            if (!morticianComponent.isCooldownReady()) {
+                return false;
+            }
+            // 检查这具尸体是否已被打开过
+            if (morticianComponent.hasOpenedCorpse(this.getUUID())) {
+                return false;
+            }
+            // 检查是否在范围内（10格水平，3格垂直）
+            double dx = serverPlayer.getX() - this.getX();
+            double dy = serverPlayer.getY() - this.getY();
+            double dz = serverPlayer.getZ() - this.getZ();
+            double horizontalDist = Math.sqrt(dx * dx + dz * dz);
+            return horizontalDist <= 10.0 && Math.abs(dy) <= 3.0;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
+     * 检查玩家是否是殡仪员（不检查是否可打开）
+     */
+    private boolean isMorticianPlayer(ServerPlayer serverPlayer) {
+        try {
+            var cca = SREGameWorldComponent.KEY.get(serverPlayer.level());
+            if (cca == null || cca.gameMode == null) {
+                return false;
+            }
+            SRERole role = cca.getRole(serverPlayer);
+            if (role == null) {
+                return false;
+            }
+            return role.identifier().getPath().equals("mortician");
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     private boolean hasCorpseItems() {

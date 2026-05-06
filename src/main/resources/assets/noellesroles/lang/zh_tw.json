@@ -119,6 +119,7 @@
   "info.screen.roleid.shadow_falcon": "殺手陣營\n與飛行員(平民陣營)綁定生成。\n僅在空中地圖刷新。\n你初始獲得一個噴氣背包，你使用噴氣背包不會消耗耐久且推進能力更強。\n蹲下按技能鍵可脫下噴氣背包和鞘翅\n主動技能-掠食：\n開局60秒冷卻，使用後在技能期間浮空時擁有1層臨時護盾(著陸後立刻消失，且重新起飛時不會補充護盾)，臨時護盾會在技能結束後立刻消失。\n技能結束後進入240秒冷卻。\n\n被動-反哺：\n影隼死亡時，所有存活的殺手將獲得一個噴氣背包。\n\n商店可購買刀、飛刀、手榴彈、撬棍、撬鎖器、跳躍提升2、鞘翅(購買時附贈10個煙花火箭)。",
   "info.screen.roleid.spellbreaker": "殺手陣營\n按G釋放破法力場：50米內非殺手玩家20秒內無法使用技能或打開背包，並獲得仙境濾鏡。\n破法藥劑：對玩家使用後使其下一次技能嘗試失敗，並進入30秒技能封禁,45s有效。\n沉默圖騰：投擲隱形圖騰，30秒內使6米內非殺手玩家持續緩慢I與失明。同一時間只能存在一個圖騰。",
   "info.screen.roleid.meatball": "乘客陣營\n你的san值消耗較慢\n殺手/中立只能在與你獨處的時候擊殺你（4格半徑範圍內沒有其他好人陣營時會被判定為獨處）\n但是你每做一個任務會增加40金幣的賞金\n殺手擊殺你會獲得所有賞金\n所以請儘量通過非任務的方式回復san值",
+  "info.screen.roleid.mortician": "平民陣營\n你可以透視十格範圍內的物品掉落物\n你可以打開屍體的物品欄，並從中拿取至多2個物品\n冷卻240秒",
   "==================== 修飾符 ====================": "",
   "info.screen.modifier.lovers": "修飾符\n你會與另一名隨機玩家綁定為戀人(戀人分配與陣營無關)。\n當戀人的其中一方死亡時，另一方會殉情而亡。\n若只有你與你的戀人存活到了最後，則戀人獲勝。\n為了達成勝利條件，你可以擊殺你的隊友來取得勝利（特指殺手陣營）。\n當你的戀人是亡命徒時，在亡命徒期間被動死亡你可能無法復活。（因為你死於亡命徒死亡之後）",
   "info.screen.modifier.refugee": "修飾符\n擁有難民修飾符的玩家會在死亡120秒後復活成亡命徒，並進入亡命徒時刻。\n變成亡命徒後你需要擊殺掉所有玩家才能獲勝。\n若你在變成亡命徒後被別人殺死，則場上的遊戲時間/物品欄/金幣/理智回溯到亡命徒復活的時刻。\n- 請注意，只會恢復如上狀態，其餘狀態可能會被清除或覆蓋！\n- 例如：縱火犯縱火、傀儡屍體數量等。\n所有在亡命徒期間被殺死的玩家會復活。\n處於亡命徒期間，部分職業、修飾符的主動、被動將不可用。\n例如：\n- 亡語殺手變屍體及免死、死靈法師復活、復仇者復仇、愛慕者觀察、禿鷲吃屍體\n- 傀儡師吃屍體、初學者變身、失憶患者選擇屍體、雙重人格主動切換（被動仍生效）\n- 紅塵客階段切換（除了獲勝）、潛行者進階二階段、小偷技能、巡警被動",
@@ -2141,5 +2142,19 @@
   "message.noellesroles.meatball.bounty_increased": "懸賞增加了！當前懸賞：%s金幣",
   "message.noellesroles.meatball.killer_reward": "你擊殺了肉汁，獲得了%s金幣賞金！",
   "hud.noellesroles.meatball.bounty": "懸賞：%s金幣",
-  "hud.noellesroles.meatball.no_bounty": "暫無懸賞"
+  "hud.noellesroles.meatball.no_bounty": "暫無懸賞",
+  "=============== 殯儀員 Mortician ===============": "",
+  "announcement.star.role.mortician": "殯儀員",
+  "announcement.star.role.noellesroles.mortician": "殯儀員",
+  "announcement.star.goals.mortician": "利用他人的遺物保護好自己！",
+  "message.noellesroles.mortician.corpse_opened": "你打開了屍體",
+  "message.noellesroles.mortician.corpse_already_opened": "這具屍體已經被搜刮過了",
+  "message.noellesroles.mortician.cooldown": "技能冷卻：%s秒",
+  "message.noellesroles.mortician.on_cooldown": "技能冷卻中，無法操作屍體",
+  "message.noellesroles.mortician.cannot_take_command_block": "無法拿取該物品",
+  "message.noellesroles.mortician.items_taken": "你從屍體中拿取了%s個物品",
+  "message.noellesroles.mortician.inventory_full": "你的物品欄已滿，無法拿取物品",
+  "hud.noellesroles.mortician.ready": "技能已就緒",
+  "hud.noellesroles.mortician.cooldown": "冷卻：%s秒"
+  
 }

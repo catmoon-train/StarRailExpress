@@ -3,6 +3,9 @@ package io.wifi.starrailexpress.content.gui;
 import io.wifi.events.day_night_fight.DNFChefHatItem;
 import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -12,12 +15,18 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import org.agmas.noellesroles.component.ModComponents;
+import org.agmas.noellesroles.game.roles.Innocent.mortician.MorticianPlayerComponent;
 import org.agmas.noellesroles.init.ModEventsRegister;
+
+import java.util.UUID;
 
 public class PlayerBodyChestMenu extends AbstractContainerMenu implements CustomInventoryMenu {
     private final PlayerBodyEntityContainer container;
     private final int rows;
     private final boolean isDayNightFight;
+    private PlayerBodyEntity corpseEntity;
 
     // 如果你使用原版 MenuType，可在此替换为你的自定义类型或直接用原版
     public PlayerBodyChestMenu(int containerId, Inventory playerInventory, PlayerBodyEntityContainer container) {
@@ -50,6 +59,13 @@ public class PlayerBodyChestMenu extends AbstractContainerMenu implements Custom
         for (int col = 0; col < 9; ++col) {
             this.addSlot(new Slot(playerInventory, col, 8 + col * 18, 161 + i));
         }
+    }
+    
+    /**
+     * 设置尸体实体引用（用于殡仪员记录已打开的尸体）
+     */
+    public void setCorpseEntity(PlayerBodyEntity entity) {
+        this.corpseEntity = entity;
     }
 
     @Override
@@ -105,6 +121,27 @@ public class PlayerBodyChestMenu extends AbstractContainerMenu implements Custom
 
     @Override
     public void removed(Player player) {
+        // 处理殡仪员尸体关闭逻辑
+        if (isMorticianPlayer(player) && corpseEntity != null) {
+            UUID corpseUuid = corpseEntity.getUUID();
+            MorticianPlayerComponent mortician = ModComponents.MORTICIAN.get(player);
+            if (mortician != null) {
+                mortician.onCorpseOpened(corpseUuid);
+                
+                // 发送消息提示
+                if (player instanceof ServerPlayer serverPlayer) {
+                    int itemsTaken = container.getMorticianItemsTaken();
+                    if (itemsTaken > 0) {
+                        serverPlayer.displayClientMessage(
+                            Component.translatable("message.noellesroles.mortician.items_taken", itemsTaken)
+                                .withStyle(net.minecraft.ChatFormatting.GOLD),
+                            true
+                        );
+                    }
+                }
+            }
+        }
+        
         super.removed(player);
         container.stopOpen(player);
     }
@@ -113,35 +150,103 @@ public class PlayerBodyChestMenu extends AbstractContainerMenu implements Custom
     public Container getContainer() {
         return container;
     }
+    
+    /**
+     * 检查玩家是否是殡仪员
+     */
+    private boolean isMorticianPlayer(Player player) {
+        try {
+            var cca = SREGameWorldComponent.KEY.get(player.level());
+            if (cca == null || cca.gameMode == null) {
+                return false;
+            }
+            io.wifi.starrailexpress.api.SRERole role = cca.getRole(player);
+            if (role == null) {
+                return false;
+            }
+            // 检查是否是殡仪员
+            return role.identifier().getPath().equals("mortician");
+        } catch (Exception e) {
+            return false;
+        }
+    }
 
     // 核心拦截：彻底禁止没有权限的玩家通过数字键（SWAP）取出或交换物品
     // 拦截全部点击事件，精确控制允许的操作
     @Override
     public void clicked(int slotId, int button, ClickType clickType, Player player) {
-
+        
+        // 殡仪员特殊处理：允许基本点击操作，由 canTakeItem 控制物品拿取
+        if (isMorticianPlayer(player)) {
+            // 检查冷却状态
+            MorticianPlayerComponent mortician = ModComponents.MORTICIAN.get(player);
+            if (mortician == null || !mortician.isCooldownReady()) {
+                // 冷却中，禁止任何操作
+                if (player instanceof ServerPlayer serverPlayer) {
+                    serverPlayer.displayClientMessage(
+                        Component.translatable("message.noellesroles.mortician.on_cooldown")
+                            .withStyle(net.minecraft.ChatFormatting.RED),
+                        true
+                    );
+                }
+                return;
+            }
+            
+            // 如果操作涉及容器槽位（索引 0 ~ rows*9-1）
+            if (slotId >= 0 && slotId < this.rows * 9) {
+                Slot slot = this.slots.get(slotId);
+                
+                switch (clickType) {
+                    case THROW: // 丢出（Q键）
+                        return; // 直接禁止
+                    case PICKUP: // 左键点击拿起物品
+                    case SWAP: // 数字键交换
+                    case CLONE: // 中键复制
+                    case QUICK_MOVE: // Shift+点击
+                    case QUICK_CRAFT: // Ctrl+点击
+                        // 允许操作，canTakeItem 会控制是否能真正拿走物品
+                        super.clicked(slotId, button, clickType, player);
+                        
+                        // 检查物品是否被拿走
+                        if (slot != null && !slot.hasItem()) {
+                            container.morticianTookItem();
+                            
+                            // 检查是否已经拿够了2个物品
+                            if (!container.canMorticianTakeMore()) {
+                                // 关闭菜单
+                                if (player instanceof ServerPlayer serverPlayer) {
+                                    serverPlayer.closeContainer();
+                                }
+                            }
+                        }
+                        return;
+                    default:
+                        super.clicked(slotId, button, clickType, player);
+                        return;
+                }
+            }
+            // 非容器槽位放行
+            super.clicked(slotId, button, clickType, player);
+            return;
+        }
+        
+        // 非殡仪员玩家：检查权限
         if (!container.canGetBodyContent(player))
             return;
-        // 如果操作涉及容器槽位（索引 0 ~ rows*9-1）
-        if (slotId >= 0 && slotId < this.rows * 9) {
-            switch (clickType) {
-                case THROW: // 丢出（Q键）
-                    return; // 直接禁止
-                default:
-                    // 允许，交给父类逻辑
-                    super.clicked(slotId, button, clickType, player);
-                    return;
-            }
-        }
-//        Slot slot = getSlot(slotId);
-//        if (slot.hasItem()){
-//            Item item = slot.getItem().getItem();
-//            if (!ModEventsRegister.canThrowItems.contains(item) && !(item instanceof DNFChefHatItem) ){
-//                return;
-//            }
-//        }
 
         // 非容器槽位的操作正常放行
         super.clicked(slotId, button, clickType, player);
     }
-
+    
+    /**
+     * 检查物品是否是命令方块
+     */
+    private boolean isCommandBlock(ItemStack stack) {
+        if (stack.isEmpty()) {
+            return false;
+        }
+        return stack.is(Items.COMMAND_BLOCK) || 
+               stack.is(Items.REPEATING_COMMAND_BLOCK) || 
+               stack.is(Items.CHAIN_COMMAND_BLOCK);
+    }
 }

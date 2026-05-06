@@ -1864,5 +1864,18 @@
   "message.noellesroles.spellbreaker.next_skill_marked": "Your next skill attempt will be broken",
   "message.noellesroles.spellbreaker.hit_marked": "Marked %s's next skill",
   "message.noellesroles.spellbreaker.skill_failed": "Your skill was broken. Skill ban for %s seconds",
-  "message.noellesroles.spellbreaker.item_only": "Only Spellbreakers can use this item"
+  "message.noellesroles.spellbreaker.item_only": "Only Spellbreakers can use this item",
+  "=============== Mortician ===============": "",
+  "announcement.star.role.mortician": "Mortician",
+  "announcement.star.role.noellesroles.mortician": "Mortician",
+  "message.noellesroles.mortician.corpse_opened": "You opened the corpse",
+  "message.noellesroles.mortician.corpse_already_opened": "This corpse has already been searched",
+  "message.noellesroles.mortician.cooldown": "Search cooldown: %s seconds",
+  "message.noellesroles.mortician.on_cooldown": "Skill is on cooldown, cannot interact with corpse",
+  "message.noellesroles.mortician.cannot_take_command_block": "Cannot take command blocks",
+  "message.noellesroles.mortician.items_taken": "You took %s items from the corpse",
+  "message.noellesroles.mortician.inventory_full": "Your inventory is full, cannot take items",
+  "hud.noellesroles.mortician.ready": "Skill Ready",
+  "hud.noellesroles.mortician.cooldown": "Cooldown: %s seconds",
+  "info.screen.roleid.mortician": "Crewmate\n\nPassive: See Item Drops\n- Items within 10 blocks (y-axis 3) glow\n\nAbility: Search Corpses\n- Open corpse inventory\n- Take up to 2 items\n- Cannot take command blocks (normal, repeating, chain)\n- Items go to inventory, close menu\n- Cannot reopen searched corpses\n- CD 240 seconds"
 }

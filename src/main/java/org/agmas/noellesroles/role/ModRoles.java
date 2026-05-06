@@ -43,6 +43,7 @@ import org.agmas.noellesroles.game.roles.Innocent.clock_maker.ClockmakerPlayerCo
 import org.agmas.noellesroles.game.roles.Innocent.detective.DetectivePlayerComponent;
 import org.agmas.noellesroles.game.roles.Innocent.driver.DiverPlayerComponent;
 import org.agmas.noellesroles.game.roles.Innocent.meatball.MeatballPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.mortician.MorticianPlayerComponent;
 import org.agmas.noellesroles.game.roles.Innocent.glitch_robot.GlitchRobotPlayerComponent;
 import org.agmas.noellesroles.game.roles.Innocent.locksmith_inspiration.LocksmithInspirationComponent;
 import org.agmas.noellesroles.game.roles.Innocent.monitor.MonitorPlayerComponent;
@@ -190,6 +191,8 @@ public class ModRoles {
     public static final ResourceLocation SHADOW_FALCON_ID = Noellesroles.id("shadow_falcon");
     // 肉汁角色 ID
     public static final ResourceLocation MEATBALL_ID = Noellesroles.id("meatball");
+    // 殡仪员角色 ID
+    public static final ResourceLocation MORTICIAN_ID = Noellesroles.id("mortician");
 
     // 杀手阵营角色 ID
     public static ResourceLocation MORPHLING_ID = Noellesroles.id("morphling");
@@ -331,6 +334,33 @@ public class ModRoles {
                     false // showIcon（显示图标）
             )))
             .setCanSeeCoin(true).setComponentKey(ModComponents.MEATBALL).setOccupiedRoleCount(1);
+
+    /**
+     * 殡仪员角色 - 平民阵营
+     * - 属于乘客阵营 (isInnocent = true)
+     * - 不能使用杀手能力 (canUseKiller = false)
+     * - 真实心情系统
+     * - 标准冲刺时间
+     * - 在计分板上显示
+     * - 被动技能：透视物品掉落物
+     *   - 10格范围内（y轴3格）的物品掉落物发光
+     * - 技能：搜刮尸体
+     *   - 打开尸体的物品栏
+     *   - 最多拿取2个物品
+     *   - 无法拿取命令方块（普通、循环、连锁）
+     *   - 拿取后物品放到物品栏，关闭页面
+     *   - 无法再次打开已打开过的尸体
+     *   - CD 240秒
+     */
+    public static SRERole MORTICIAN = TMMRoles.registerRole(new NormalRole(
+            MORTICIAN_ID, // 角色 ID
+            new Color(105, 105, 105).getRGB(), // 深灰色 - 代表殡仪员
+            true, // isInnocent = 平民阵营
+            false, // canUseKiller = 无杀手能力
+            SRERole.MoodType.REAL, // 真实心情
+            TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
+            false // 不隐藏计分板
+    )).setCanSeeCoin(true).setComponentKey(ModComponents.MORTICIAN).setOccupiedRoleCount(1);
 
     public static SRERole GUEST_GHOST = TMMRoles.registerRole(new NormalRole(
             GUEST_GHOST_ID, // 角色 ID
