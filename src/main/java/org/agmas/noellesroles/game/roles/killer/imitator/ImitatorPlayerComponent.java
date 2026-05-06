@@ -32,9 +32,9 @@ public class ImitatorPlayerComponent implements RoleComponent, ServerTickingComp
     public static final int COPY_ACTION_COOLDOWN = 60 * 20; // 复制动作冷却60秒
 
     // ==================== 3个永久槽位 ====================
-    private final ResourceLocation[] slotRoleId = new ResourceLocation[MAX_SLOTS];
-    private final int[] slotFillOrder = new int[MAX_SLOTS];
-    private final int[] slotCooldown = new int[MAX_SLOTS]; // 每槽位独立冷却
+    public final ResourceLocation[] slotRoleId = new ResourceLocation[MAX_SLOTS];
+    public final int[] slotFillOrder = new int[MAX_SLOTS];
+    public final int[] slotCooldown = new int[MAX_SLOTS]; // 每槽位独立冷却
     public int activeSlotIndex = 0;
     public int filledSlots = 0;
     private int nextFillOrder = 0;

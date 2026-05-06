@@ -4,6 +4,7 @@ import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.event.AllowShootRevolverDrop;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -11,6 +12,7 @@ import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
@@ -88,6 +90,9 @@ public class ExecutionerPlayerComponent implements RoleComponent, ServerTickingC
             var t_role = gameWorldComponent.getRole(targetPlayer);
             if (t_role == null || targetPlayer == null || GameUtils.isPlayerEliminatedIgnoreShitSplit(targetPlayer)
                     || !t_role.isInnocent() || t_role.isNeutrals()) {
+                if (RoleUtils.compareRole(t_role, SpecialGameModeRoles.SUPER_LOOSE_END)) {
+                    return;
+                }
                 // 目标死亡，解锁商店并分配新目标
                 this.shopUnlocked = true;
                 this.target = null;
