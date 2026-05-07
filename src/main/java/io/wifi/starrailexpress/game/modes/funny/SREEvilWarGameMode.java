@@ -33,6 +33,7 @@ import org.agmas.noellesroles.game.roles.killer.executioner.ExecutionerPlayerCom
 import org.agmas.noellesroles.game.roles.killer.imitator.ImitatorPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.imitator.ImitatorSkillRegistry;
 import org.agmas.noellesroles.game.roles.killer.stalker.StalkerPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.trapper.TrapperPlayerComponent;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
 import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
@@ -317,6 +318,11 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
                                 false                  // 是否显示图标
                         ));
             }
+            else if (role == ModRoles.TRAPPER) {
+                TrapperPlayerComponent trapperPlayerComponent = TrapperPlayerComponent.KEY.get(player);
+                trapperPlayerComponent.trapCharges = 0;
+                trapperPlayerComponent.sync();
+            }
         }
         curBalanceTick = 0;
         curReviveTick = 0;
@@ -426,16 +432,16 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
                     stalkerPlayerComponent.phase2Kills += 4;
                     stalkerPlayerComponent.sync();
                 }
-                // 刽子手每30秒重新锁定目标为超级亡命徒
+                // 刽子手每30秒重新锁定目标为超级亡命徒：现已能自动锁定
                 else if (role == ModRoles.EXECUTIONER) {
-                    ExecutionerPlayerComponent executionerPlayerComponent = ExecutionerPlayerComponent.KEY.get(player);
-                    for (ServerPlayer target : serverWorld.players())
-                        if (!GameUtils.isPlayerEliminated(target)
-                                && gameWorldComponent.isRole(target, SpecialGameModeRoles.SUPER_LOOSE_END)) {
-                            executionerPlayerComponent.target = target.getUUID();
-                            executionerPlayerComponent.targetSelected = true;
-                            executionerPlayerComponent.sync();
-                        }
+//                    ExecutionerPlayerComponent executionerPlayerComponent = ExecutionerPlayerComponent.KEY.get(player);
+//                    for (ServerPlayer target : serverWorld.players())
+//                        if (!GameUtils.isPlayerEliminated(target)
+//                                && gameWorldComponent.isRole(target, SpecialGameModeRoles.SUPER_LOOSE_END)) {
+//                            executionerPlayerComponent.target = target.getUUID();
+//                            executionerPlayerComponent.targetSelected = true;
+//                            executionerPlayerComponent.sync();
+//                        }
 
                     // 刽子手每30s回复德林加子弹和消耗的德林加
                     int leftDerringerCount = 0;

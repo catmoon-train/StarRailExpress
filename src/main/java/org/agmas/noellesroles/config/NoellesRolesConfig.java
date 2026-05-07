@@ -1,6 +1,7 @@
 package org.agmas.noellesroles.config;
 
 import io.wifi.ConfigCompact.ConfigClassHandler;
+import io.wifi.ConfigCompact.annotation.ConfigSync;
 import io.wifi.starrailexpress.game.GameConstants;
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
@@ -187,7 +188,7 @@ public class NoellesRolesConfig implements ConfigData {
      * Whether Executioners can manually select their targets. If disabled, targets
      * will be assigned randomly
      */
-
+    @ConfigSync(shouldSync = true)
     public boolean executionerCanSelectTarget = false;
 
     /**

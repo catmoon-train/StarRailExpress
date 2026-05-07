@@ -731,11 +731,11 @@ public class InstinctRenderer {
                     if (SREClient.gameComponent.isRole(target_player, ModRoles.GHOST)) {
                         return -2;
                     }
-//                    // 超级亡命徒无法看到隐身的人：hasEffect始终为false
-//                    if (SREClient.gameComponent.isRole(self, SpecialGameModeRoles.SUPER_LOOSE_END) &&
-//                        target_player.hasEffect(MobEffects.INVISIBILITY)) {
-//                        return -2;
-//                    }
+                    // 超级亡命徒无法看到隐身的人
+                    if (SREClient.gameComponent.isRole(self, SpecialGameModeRoles.SUPER_LOOSE_END) &&
+                        target_player.isInvisible()) {
+                        return -2;
+                    }
                     return (Color.PINK.getRGB());
                 }
                 // // 柜子区

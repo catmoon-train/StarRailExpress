@@ -252,6 +252,7 @@ public class ConfigCommand {
       SREConfig.HANDLER.syncToClient(source.getServer());
       HarpyModLoaderConfig.HANDLER.load();
       NoellesRolesConfig.HANDLER.load();
+      NoellesRolesConfig.HANDLER.syncToClient(source.getServer());
       StupidExpressConfig.HANDLER.load();
       StupidExpressConfig.HANDLER.syncToClient(source.getServer());
       RoleShopHandler.shopRegister();

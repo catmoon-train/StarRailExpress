@@ -1399,7 +1399,6 @@
   "task.dnf_poison_deposit": "投放毒药",
   "task.dnf_poison_water": "污染水源",
   "task.dnf_redemption": "救赎之道",
-
   "block.starrailexpress.entity_interaction_block": "实体交互方块",
   "block.starrailexpress.entity_interaction_panel": "实体交互镶板",
   "gui.entity_interaction_block.title": "实体交互方块配置",
@@ -1441,7 +1440,6 @@
   "gui.entity_interaction_block.coin_amount_signed": "金币（负数减少）",
   "gui.entity_interaction_block.confirm": "确认",
   "gui.entity_interaction_block.cancel": "取消",
-
   "gui.entity_interaction_block.teleport_point": "传送点设置",
   "gui.entity_interaction_block.teleport_point_title": "设置传送点",
   "gui.entity_interaction_block.is_teleport_point": "是否是传送点",
@@ -1468,7 +1466,6 @@
   "gui.entity_interaction_block.player_damaged_by_player_desc": "检测方块范围内是否有玩家受到其他玩家的伤害",
   "gui.entity_interaction_block.player_damaged_by_non_player_desc": "检测方块范围内是否有玩家受到非玩家来源的伤害",
   "gui.entity_interaction_block.command_hint_relative": "提示：使用<player>指代触发玩家，使用~表示方块坐标偏移",
-
   "condition_type.pass_through": "玩家穿越实体交互方块时",
   "condition_type.timer": "自动定时",
   "condition_type.time_anchor": "游戏时间锚点",
@@ -1486,7 +1483,6 @@
   "condition_type.role_is": "特定职业",
   "condition_type.role_team": "职业阵营",
   "condition_type.has_killed": "玩家曾击杀过其它玩家",
-
   "action_type.execute_command": "执行指令",
   "action_type.poison": "中毒",
   "action_type.cure_poison": "解毒",
@@ -1505,7 +1501,6 @@
   "action_type.set_time": "设置时间",
   "action_type.game_win": "游戏胜利",
   "action_type.coin_change": "改变金币",
-
   "condition.pass_through": "玩家穿过方块",
   "condition.timer": "每 %s 秒触发",
   "condition.timer.blocks_display": "每 %s 秒触发一次",
@@ -1556,14 +1551,11 @@
   "condition.player_damaged_by_player": "范围内玩家受到玩家伤害（%s格）",
   "condition.player_damaged_by_non_player": "范围内玩家受到非玩家伤害（%s格）",
   "condition.block_game_end": "阻止游戏结束（时间耗尽除外）",
-
-
   "world_time.day": "白天",
   "world_time.noon": "中午",
   "world_time.sunset": "傍晚",
   "world_time.night": "夜晚",
   "world_time.midnight": "午夜",
-
   "condition_type.player_count": "玩家数量",
   "condition_type.alive_players": "存活玩家数量",
   "condition_type.is_sneaking": "潜行状态",
@@ -1589,8 +1581,6 @@
   "condition_type.player_damaged_by_player": "范围内玩家受到其它玩家的原版伤害",
   "condition_type.player_damaged_by_non_player": "范围内玩家受到非玩家的原版伤害",
   "condition_type.block_game_end": "阻止游戏结束",
-
-
   "action_type.give_effect": "给予状态效果",
   "action_type.teleport": "传送到传送点",
   "action_type.show_title": "显示标题",
@@ -1608,11 +1598,6 @@
   "action_type.add_extra_task": "额外添加任务",
   "action_type.complete_custom_task": "完成自定义任务",
   "action_type.narrator": "语音播报",
-
-
-
-
-
   "action.give_effect": "给予效果 %s (%s秒)",
   "action.teleport": "传送到传送点 #%s",
   "action.show_title": "显示标题：%s",
@@ -1631,12 +1616,10 @@
   "action.add_extra_task": "额外添加任务：%s",
   "action.complete_custom_task": "完成自定义任务：%s",
   "action.narrator": "语音播报：%s [%s]",
-
   "logic.and": "与",
   "logic.or": "或",
   "logic.nand": "与非",
   "logic.nor": "或非",
-
   "action.execute_command": "执行：%s",
   "action.poison": "中毒 %s 秒",
   "action.cure_poison": "解毒",
@@ -1657,13 +1640,11 @@
   "action.coin_change": "金币 %s",
   "action.prevent_game_end": "阻止游戏结束",
   "action_type.prevent_game_end": "阻止游戏结束",
-
   "comparison.equals": "等于",
   "comparison.greater": "大于",
   "comparison.less": "小于",
   "comparison.greater_equal": "大于等于",
   "comparison.less_equal": "小于等于",
-
   "team.civilian": "平民",
   "team.sheriff": "警长",
   "team.neutral": "中立",
@@ -1685,7 +1666,6 @@
   "gui.entity_interaction_block.teleport_trigger": "触发玩家",
   "gui.entity_interaction_block.teleport_random": "随机玩家",
   "gui.entity_interaction_block.teleport_all": "所有玩家",
-
   "task_type.random": "随机",
   "task_type.sleep": "睡觉",
   "task_type.read_book": "读书",
@@ -1698,7 +1678,6 @@
   "task_type.toilet": "上厕所",
   "task_type.chair": "休息",
   "task_type.breathe": "呼吸新鲜空气",
-
   "gui.entity_interaction_block.task_type": "任务类型",
   "gui.entity_interaction_block.custom_task_id": "自定义任务ID",
   "gui.entity_interaction_block.custom_task_name": "自定义任务名称",
@@ -1717,7 +1696,6 @@
   "direction.down": "下(-Y)",
   "gui.entity_interaction_block.blocks_distance": "距离(格)",
   "gui.entity_interaction_block.minutes": "分",
-  "gui.entity_interaction_block.seconds": "秒",
   "gui.entity_interaction_block.mood_hint": "心情值(0-1，支持小数)",
   "gui.entity_interaction_block.mood_desc": "0=最低心情 0.5=中等 1=最高心情",
   "gui.entity_interaction_block.armor_hint": "护盾值(整数)",
@@ -1797,12 +1775,10 @@
   "gui.entity_interaction_block.narrator_interrupt": "打断",
   "gui.entity_interaction_block.narrator_queue": "排队",
   "gui.entity_interaction_block.narrator_desc": "向玩家发送语音播报，true=打断当前播报，false=排队等待",
-
   "message.custom_task.added": "§a[任务]§r 新任务：%s",
   "message.custom_task.completed": "§a[任务]§r 已完成：%s",
   "message.extra_task.added": "§a[任务]§r 额外任务：%s",
   "message.teleport_point_not_found": "§c传送点 %s 不存在或在 %s 格范围外",
-
   "message.dnf.rules.given": "规则书已放入你的背包。",
   "message.dnf.rules.given_all_players": "已为所有玩家发送了对应职业的规则书。",
   "message.dnf.vote.not_enough_san": "报告尸体需要 %s%% san。",
@@ -1916,5 +1892,6 @@
   "message.dnf.killer.revived": "你已作为杀手复活！",
   "command.dnf.time_skip.not_in_dnf": "此命令只能在昼夜战模式中使用",
   "command.dnf.time_skip.day_skipped": "已成功跳过到下一天",
-  "command.dnf.time_skip.phase_skipped": "已成功跳过到下一阶段"
+  "command.dnf.time_skip.phase_skipped": "已成功跳过到下一阶段",
+  "message.disconnect.afk": "你因为挂机被踢出游戏"
 }

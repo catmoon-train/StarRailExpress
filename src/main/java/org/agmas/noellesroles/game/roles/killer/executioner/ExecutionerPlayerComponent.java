@@ -3,6 +3,7 @@ package org.agmas.noellesroles.game.roles.killer.executioner;
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent.AlivePlayerRoleTeamInfo;
 import io.wifi.starrailexpress.event.AllowShootRevolverDrop;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
@@ -10,6 +11,8 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.role.ModRoles;
@@ -89,7 +92,7 @@ public class ExecutionerPlayerComponent implements RoleComponent, ServerTickingC
             Player targetPlayer = player.level().getPlayerByUUID(target);
             var t_role = gameWorldComponent.getRole(targetPlayer);
             // 判断职业是否允许被绑定，否则就应该更换。
-            boolean needChange = judgeRole(t_role);
+            boolean needChange = judgeRole(player.level(), t_role);
             if (t_role == null || targetPlayer == null || GameUtils.isPlayerEliminatedIgnoreShitSplit(targetPlayer)
                     || needChange) {
 
@@ -102,7 +105,13 @@ public class ExecutionerPlayerComponent implements RoleComponent, ServerTickingC
         }
     }
 
-    public static boolean judgeRole(SRERole t_role) {
+    /**
+     * 是否为不可选角色
+     * 
+     * @param t_role
+     * @return 是否为<b>不可选</b>角色
+     */
+    public static boolean judgeRole(Level level, SRERole t_role) {
         if (t_role == null)
             return true;
         if (RoleUtils.compareRole(t_role, SpecialGameModeRoles.SUPER_LOOSE_END)) {
@@ -110,6 +119,10 @@ public class ExecutionerPlayerComponent implements RoleComponent, ServerTickingC
         }
         if (t_role.isInnocent()) {
             return false;
+        }
+        AlivePlayerRoleTeamInfo info = SREGameWorldComponent.KEY.get(level).getAlivePlayerRoleTeamInfo();
+        if (info.hasInnocentAndVigilante()) {
+            return true;
         }
         if (t_role.isNeutrals() && !t_role.isNeutralForKiller()) {
             return false;
@@ -146,7 +159,7 @@ public class ExecutionerPlayerComponent implements RoleComponent, ServerTickingC
             }
             final var role = gameWorldComponent.getRole(p);
             if (role != null
-                    && (role.isInnocent() && !role.isNeutrals() || role.isNeutrals() && !role.isNeutralForKiller())) { // 只考虑平民、中立阵营
+                    && !judgeRole(player.level(), role)) { // 只考虑平民、中立阵营
                 eligibleTargets.add(p);
             }
         }

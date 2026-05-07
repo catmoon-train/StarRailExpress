@@ -6,6 +6,7 @@ import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.util.SREPlayerUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -585,7 +586,8 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
         if (player.isSpectator() || player.isCreative())
             return;
         SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
-        if (gameWorldComponent.gameMode==SREGameModes.DAY_NIGHT_FIGHT)return;
+        if (gameWorldComponent.gameMode == SREGameModes.DAY_NIGHT_FIGHT)
+            return;
         final var block = player.level()
                 .getBlockState(new BlockPos((int) player.getX(), (int) player.getY(), (int) player.getZ())).getBlock();
         final var block1 = player.level()
@@ -735,5 +737,90 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
         }
         SRERole role = this.getRole(player);
         return RoleUtils.getRoleType(role);
+    }
+
+    /**
+     * 获取当前场上剩余玩家阵营信息（返回阵营数量）
+     */
+    public static class AlivePlayerRoleTeamInfo {
+        public final int innocent;
+        public final int all_neturals;
+        public final int neturals_for_killer;
+        public final int custom_winner_neturals;
+        public final int killer;
+        public final int vigilante;
+
+        public AlivePlayerRoleTeamInfo(int innocent, int vigilante, int all_neturals, int neturals_for_killer,
+                int custom_winner_neturals, int killer) {
+            this.innocent = innocent;
+            this.all_neturals = all_neturals;
+            this.neturals_for_killer = neturals_for_killer;
+            this.custom_winner_neturals = custom_winner_neturals;
+            this.killer = killer;
+            this.vigilante = vigilante;
+        }
+
+        public boolean hasKiller() {
+            return killer > 0;
+        }
+
+        public boolean hasKillerTeam() {
+            return killer + neturals_for_killer > 0;
+        }
+
+        public boolean hasNeuturals() {
+            return all_neturals > 0;
+        }
+
+        public boolean hasNeuturalsForKiller() {
+            return neturals_for_killer > 0;
+        }
+
+        public boolean hasVigilante() {
+            return vigilante > 0;
+        }
+
+        public boolean hasInnocentAndVigilante() {
+            return innocent + vigilante > 0;
+        }
+
+        public boolean hasCustomWinnerNeturals() {
+            return custom_winner_neturals > 0;
+        }
+    }
+
+    public AlivePlayerRoleTeamInfo getAlivePlayerRoleTeamInfo() {
+        List<UUID> players = SREPlayerUtils.getServerPlayersUUID(world);
+        int innocent = 0;
+        int all_neturals = 0;
+        int neturals_for_killer = 0;
+        int custom_winner_neturals = 0;
+        int killer = 0;
+        int vigilante = 0;
+        for (var p : players) {
+            if (!SREPlayerUtils.isPlayerAlive(this.world, p)) {
+                continue;
+            }
+            SRERole role = roleWorldComponent.getRole(p);
+            if (role == null) {
+                continue;
+            }
+            if (role.isVigilanteTeam()) {
+                vigilante++;
+            } else if (role.isInnocent() && !role.isNeutrals()) {
+                innocent++;
+            } else if (role.isNeutrals()) {
+                all_neturals++;
+                if (role.isNeutralForKiller()) {
+                    neturals_for_killer++;
+                } else {
+                    custom_winner_neturals++;
+                }
+            } else {
+                killer++;
+            }
+        }
+        return new AlivePlayerRoleTeamInfo(innocent, vigilante, all_neturals, neturals_for_killer,
+                custom_winner_neturals, killer);
     }
 }
