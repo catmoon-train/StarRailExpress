@@ -71,6 +71,10 @@ public class EntityInteractionBlock extends BaseEntityBlock {
 
         BlockEntity blockEntity = world.getBlockEntity(pos);
         if (blockEntity instanceof EntityInteractionBlockEntity interactionBlockEntity) {
+            // 记录右键点击
+            if (player instanceof ServerPlayer serverPlayer) {
+                interactionBlockEntity.recordPlayerClick(serverPlayer, false); // false = 右键
+            }
             // 只有创造模式玩家可以打开UI
             if (player instanceof ServerPlayer serverPlayer && serverPlayer.isCreative()) {
                 interactionBlockEntity.openUI(serverPlayer);
@@ -78,6 +82,19 @@ public class EntityInteractionBlock extends BaseEntityBlock {
         }
 
         return InteractionResult.SUCCESS;
+    }
+
+    @Override
+    public void attack(BlockState state, Level world, BlockPos pos, Player player) {
+        if (!world.isClientSide) {
+            BlockEntity blockEntity = world.getBlockEntity(pos);
+            if (blockEntity instanceof EntityInteractionBlockEntity interactionBlockEntity) {
+                // 记录左键点击
+                if (player instanceof ServerPlayer serverPlayer) {
+                    interactionBlockEntity.recordPlayerClick(serverPlayer, true); // true = 左键
+                }
+            }
+        }
     }
 
     @Nullable

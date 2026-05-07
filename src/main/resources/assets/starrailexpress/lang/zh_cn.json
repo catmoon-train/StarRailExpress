@@ -1667,6 +1667,21 @@
   "team.neutral_special": "特殊中立",
   "team.killer": "杀手",
 
+  "team_type.all": "全部",
+  "team_type.civilian": "平民阵营",
+  "team_type.sheriff": "警长阵营",
+  "team_type.neutral": "中立阵营",
+  "team_type.neutral_killer": "杀手方中立阵营",
+  "team_type.neutral_special": "特殊中立阵营",
+  "team_type.killer": "杀手阵营",
+
+  "gui.entity_interaction_block.team_all": "全部",
+  "gui.entity_interaction_block.target_team": "目标阵营",
+  "gui.entity_interaction_block.teleport_target": "传送目标",
+  "gui.entity_interaction_block.teleport_trigger": "触发玩家",
+  "gui.entity_interaction_block.teleport_random": "随机玩家",
+  "gui.entity_interaction_block.teleport_all": "所有玩家",
+
   "task_type.random": "随机",
   "task_type.sleep": "睡觉",
   "task_type.read_book": "读书",

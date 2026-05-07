@@ -1,6 +1,7 @@
 package io.wifi.starrailexpress.content.block_entity;
 
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.*;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.game.GameConstants;
@@ -9,6 +10,7 @@ import io.wifi.starrailexpress.index.TMMBlockEntities;
 import io.wifi.starrailexpress.network.EntityInteractionBlockPayload;
 import io.wifi.starrailexpress.network.packet.CustomNarratorPacket;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import com.mojang.datafixers.util.Pair;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -54,6 +56,9 @@ public class EntityInteractionBlockEntity extends BlockEntity {
     // 方块冷却（期间不触发）
     private int blockCooldownTicks = 0;
     private int blockCooldownEndGameTime = 0; // 基于游戏时间的冷却结束时刻
+
+    // 玩家点击追踪（用于CLICK_BLOCK条件）
+    private final Map<UUID, Pair<Boolean, Long>> playerClicks = new HashMap<>(); // <PlayerUUID, <isLeftClick, timestamp>>
 
     public EntityInteractionBlockEntity(BlockPos pos, BlockState state) {
         super(TMMBlockEntities.ENTITY_INTERACTION_BLOCK, pos, state);
@@ -173,6 +178,51 @@ public class EntityInteractionBlockEntity extends BlockEntity {
     // 打开UI
     public void openUI(ServerPlayer player) {
         EntityInteractionBlockPayload.sendOpenUI(player, this.worldPosition, this);
+    }
+
+    // 记录玩家点击（用于CLICK_BLOCK条件）
+    public void recordPlayerClick(ServerPlayer player, boolean isLeftClick) {
+        playerClicks.put(player.getUUID(), Pair.of(isLeftClick, player.level().getGameTime()));
+        setChanged();
+    }
+
+    // 检查玩家点击条件
+    private boolean checkPlayerClickCondition(ServerPlayer player, boolean requireLeftClick) {
+        UUID playerId = player.getUUID();
+        if (!playerClicks.containsKey(playerId)) {
+            return false;
+        }
+        Pair<Boolean, Long> clickData = playerClicks.get(playerId);
+        boolean clickedLeft = clickData.getFirst();
+        long clickTime = clickData.getSecond();
+        // 点击记录在10秒（200 tick）内有效
+        long currentTime = player.level().getGameTime();
+        if (currentTime - clickTime > 200) {
+            playerClicks.remove(playerId);
+            return false;
+        }
+        return clickedLeft == requireLeftClick;
+    }
+
+    // 检查玩家是否匹配目标阵营（用于传送逻辑）
+    private boolean checkTeamMatch(ServerPlayer player, ServerLevel world, TeamType targetTeamType) {
+        if (targetTeamType == TeamType.ALL) {
+            return true;
+        }
+        SRERoleWorldComponent roles = SRERoleWorldComponent.KEY.get(world);
+        SRERole role = roles.getRole(player);
+        if (role == null) {
+            return false;
+        }
+        return switch (targetTeamType) {
+            case CIVILIAN -> role.isInnocent() && !role.isVigilanteTeam();
+            case SHERIFF -> role.isVigilanteTeam();
+            case NEUTRAL -> role.isNeutrals();
+            case NEUTRAL_KILLER -> role.isNeutrals() && role.isNeutralForKiller();
+            case NEUTRAL_SPECIAL -> role.isNeutrals() && !role.isNeutralForKiller();
+            case KILLER -> role.canUseKiller() && !role.isNeutrals();
+            default -> true;
+        };
     }
 
     // 传送点相关getter/setter
@@ -394,8 +444,12 @@ public class EntityInteractionBlockEntity extends BlockEntity {
                                 stack.getItem().builtInRegistryHolder().key().location().toString().equals(itemId));
             }
             case CLICK_BLOCK -> {
-                // 点击方块（由方块处理）
-                yield false; // 这个条件由方块右键事件处理
+                // 点击方块（需要玩家在方块范围内并点击）
+                AABB blockBox = new AABB(pos).inflate(2); // 2格范围内
+                if (!blockBox.contains(player.getBoundingBox().getCenter())) {
+                    yield false; // 玩家不在方块附近
+                }
+                yield checkPlayerClickCondition(player, condition.leftClick);
             }
             case LOOKING_AT -> {
                 // 玩家看向方块
@@ -449,6 +503,7 @@ public class EntityInteractionBlockEntity extends BlockEntity {
                 var role = roles.getRole(player);
                 if (role == null) yield false;
                 yield switch (condition.teamType) {
+                    case ALL -> true; // 所有职业都匹配
                     case CIVILIAN -> role.isInnocent() && !role.isVigilanteTeam();
                     case SHERIFF -> role.isVigilanteTeam();
                     case NEUTRAL -> role.isNeutrals();
@@ -458,9 +513,9 @@ public class EntityInteractionBlockEntity extends BlockEntity {
                 };
             }
             case HAS_KILLED -> {
-                // 击杀过其他玩家 - 检查玩家统计组件中的击杀记录
-                SREPlayerStatsComponent stats = SREPlayerStatsComponent.KEY.get(player);
-                yield stats.getTotalKills() > 0;
+                // 击杀过其他玩家 - 检查本局击杀数
+                SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(world);
+                yield gameWorldComponent.getPlayerKills(player.getUUID()) > 0;
             }
             case PLAYER_COUNT -> {
                 // 玩家数量条件
@@ -669,6 +724,27 @@ public class EntityInteractionBlockEntity extends BlockEntity {
     }
 
     private void executeSingleAction(TriggerAction action, ServerPlayer player, ServerLevel world, BlockPos pos, long currentGameTime) {
+        // 阵营过滤检查
+        if (action.targetTeamType != TeamType.ALL) {
+            SRERoleWorldComponent roles = SRERoleWorldComponent.KEY.get(world);
+            SRERole role = roles.getRole(player);
+            if (role == null) {
+                return; // 没有职业，跳过此动作
+            }
+            boolean teamMatch = switch (action.targetTeamType) {
+                case CIVILIAN -> role.isInnocent() && !role.isVigilanteTeam();
+                case SHERIFF -> role.isVigilanteTeam();
+                case NEUTRAL -> role.isNeutrals();
+                case NEUTRAL_KILLER -> role.isNeutrals() && role.isNeutralForKiller();
+                case NEUTRAL_SPECIAL -> role.isNeutrals() && !role.isNeutralForKiller();
+                case KILLER -> role.canUseKiller() && !role.isNeutrals();
+                default -> true;
+            };
+            if (!teamMatch) {
+                return; // 阵营不匹配，跳过此动作
+            }
+        }
+
         switch (action.type) {
             case EXECUTE_COMMAND -> {
                 // 执行指令
@@ -779,6 +855,11 @@ public class EntityInteractionBlockEntity extends BlockEntity {
                     if (deadPlayer == null) continue;
                     if (!deadPlayer.isSpectator()) continue; // 只复活旁观模式的玩家
 
+                    // 阵营过滤检查
+                    if (!checkTeamMatch(deadPlayer, world, action.targetTeamType)) {
+                        continue; // 阵营不匹配，跳过
+                    }
+
                     // 复活玩家
                     deadPlayer.getInventory().clearContent();
                     deadPlayer.teleportTo(body.getX(), body.getY(), body.getZ());
@@ -857,11 +938,37 @@ public class EntityInteractionBlockEntity extends BlockEntity {
                 // 传送到指定传送点（限制100格范围）
                 int targetId = (int) action.value;
                 BlockPos targetPos = findTeleportPoint(world, pos, targetId);
-                if (targetPos != null) {
-                    player.teleportTo(targetPos.getX() + 0.5, targetPos.getY(), targetPos.getZ() + 0.5);
-                } else {
+                if (targetPos == null) {
                     // 传送目标不存在或在范围外
                     player.sendSystemMessage(net.minecraft.network.chat.Component.translatable("message.teleport_point_not_found", targetId, MAX_TELEPORT_RANGE));
+                    return;
+                }
+
+                // 根据传送目标类型选择玩家
+                switch (action.teleportTarget) {
+                    case 0 -> {
+                        // 触发玩家
+                        player.teleportTo(targetPos.getX() + 0.5, targetPos.getY(), targetPos.getZ() + 0.5);
+                    }
+                    case 1 -> {
+                        // 随机玩家（根据阵营过滤）
+                        List<ServerPlayer> eligiblePlayers = world.players().stream()
+                                .filter(p -> !p.isSpectator())
+                                .filter(p -> checkTeamMatch(p, world, action.targetTeamType))
+                                .toList();
+                        if (!eligiblePlayers.isEmpty()) {
+                            ServerPlayer randomPlayer = eligiblePlayers.get(world.getRandom().nextInt(eligiblePlayers.size()));
+                            randomPlayer.teleportTo(targetPos.getX() + 0.5, targetPos.getY(), targetPos.getZ() + 0.5);
+                        }
+                    }
+                    case 2 -> {
+                        // 所有玩家（根据阵营过滤）
+                        for (ServerPlayer p : world.players()) {
+                            if (!p.isSpectator() && checkTeamMatch(p, world, action.targetTeamType)) {
+                                p.teleportTo(targetPos.getX() + 0.5, targetPos.getY(), targetPos.getZ() + 0.5);
+                            }
+                        }
+                    }
                 }
             }
             case SHOW_TITLE -> {
@@ -870,9 +977,13 @@ public class EntityInteractionBlockEntity extends BlockEntity {
                 player.connection.send(new net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket(Component.literal(title)));
             }
             case BROADCAST_MESSAGE -> {
-                // 广播消息
+                // 广播消息（根据阵营过滤）
                 String message = action.stringValue;
-                world.players().forEach(p -> p.sendSystemMessage(Component.literal(message)));
+                for (ServerPlayer p : world.players()) {
+                    if (checkTeamMatch(p, world, action.targetTeamType)) {
+                        p.sendSystemMessage(Component.literal(message));
+                    }
+                }
             }
             case ITEM_COOLDOWN -> {
                 // 物品冷却
@@ -912,7 +1023,12 @@ public class EntityInteractionBlockEntity extends BlockEntity {
                         matches = !(entity instanceof ServerPlayer);
                     } else if ("player".equalsIgnoreCase(entityId)) {
                         // 特殊值 "player" 代表玩家实体
-                        matches = entity instanceof ServerPlayer;
+                        if (entity instanceof ServerPlayer serverPlayer) {
+                            // 玩家需要阵营过滤检查
+                            matches = checkTeamMatch(serverPlayer, world, action.targetTeamType);
+                        } else {
+                            matches = false;
+                        }
                     } else if ("*all".equalsIgnoreCase(entityId)) {
                         // *all 表示任意实体（包括玩家）
                         matches = true;
@@ -1326,7 +1442,7 @@ public class EntityInteractionBlockEntity extends BlockEntity {
 
     // 阵营类型枚举
     public enum TeamType {
-        CIVILIAN, SHERIFF, NEUTRAL, NEUTRAL_KILLER, NEUTRAL_SPECIAL, KILLER
+        ALL, CIVILIAN, SHERIFF, NEUTRAL, NEUTRAL_KILLER, NEUTRAL_SPECIAL, KILLER
     }
 
     // 直线范围方向枚举
@@ -1460,6 +1576,10 @@ public class EntityInteractionBlockEntity extends BlockEntity {
         public String narratorText;     // 语音播报文本（用于NARRATOR）
         public boolean narratorInterrupt; // 是否打断当前播报（用于NARRATOR）
         public boolean clearTasks;       // 是否清空当前任务（用于ADD_CUSTOM_TASK，true=清空后添加，false=不清空直接添加）
+        // 阵营过滤类型（用于过滤触发内容对什么阵营生效，默认为ALL表示全部阵营）
+        public TeamType targetTeamType = TeamType.ALL;
+        // 传送目标类型（用于TELEPORT动作，0=触发玩家，1=随机玩家，2=所有玩家）
+        public int teleportTarget = 0;
 
         public CompoundTag toNbt() {
             CompoundTag tag = new CompoundTag();
@@ -1474,6 +1594,8 @@ public class EntityInteractionBlockEntity extends BlockEntity {
             tag.putString("NarratorText", narratorText != null ? narratorText : "");
             tag.putBoolean("NarratorInterrupt", narratorInterrupt);
             tag.putBoolean("ClearTasks", clearTasks);
+            tag.putString("TargetTeamType", targetTeamType.name());
+            tag.putInt("TeleportTarget", teleportTarget);
             return tag;
         }
 
@@ -1495,6 +1617,12 @@ public class EntityInteractionBlockEntity extends BlockEntity {
             if (action.narratorText.isEmpty()) action.narratorText = null;
             action.narratorInterrupt = tag.getBoolean("NarratorInterrupt");
             action.clearTasks = tag.getBoolean("ClearTasks");
+            if (tag.contains("TargetTeamType")) {
+                action.targetTeamType = TeamType.valueOf(tag.getString("TargetTeamType"));
+            } else {
+                action.targetTeamType = TeamType.ALL;
+            }
+            action.teleportTarget = tag.contains("TeleportTarget") ? tag.getInt("TeleportTarget") : 0;
             return action;
         }
     }

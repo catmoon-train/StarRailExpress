@@ -1594,6 +1594,21 @@
   "team.neutral_special": "Special Neutral",
   "team.killer": "Killer",
 
+  "team_type.all": "All",
+  "team_type.civilian": "Civilian Team",
+  "team_type.sheriff": "Sheriff Team",
+  "team_type.neutral": "Neutral Team",
+  "team_type.neutral_killer": "Neutral for Killer Team",
+  "team_type.neutral_special": "Special Neutral Team",
+  "team_type.killer": "Killer Team",
+
+  "gui.entity_interaction_block.team_all": "All",
+  "gui.entity_interaction_block.target_team": "Target Team",
+  "gui.entity_interaction_block.teleport_target": "Teleport Target",
+  "gui.entity_interaction_block.teleport_trigger": "Trigger Player",
+  "gui.entity_interaction_block.teleport_random": "Random Player",
+  "gui.entity_interaction_block.teleport_all": "All Players",
+
   "task_type.random": "Random",
   "task_type.sleep": "Sleep",
   "task_type.read_book": "Read Book",

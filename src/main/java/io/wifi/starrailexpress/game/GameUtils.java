@@ -746,6 +746,7 @@ public class GameUtils {
 
         SREGameTimeComponent.KEY.get(world).reset();
         gameComponent.clearRoleMap(false);
+        gameComponent.resetPerPlayerKills(); // 重置本局击杀数
         gameComponent.setGameStatus(SREGameWorldComponent.GameStatus.INACTIVE);
         trainComponent.setTime(0);
         gameComponent.roleWorldComponent.sync();

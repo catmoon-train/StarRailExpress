@@ -514,6 +514,9 @@ public abstract class GameMode {
                 killerStats.incrementTotalKills();
             }
 
+            // 增加本局击杀数
+            gameWorldComponent.addPlayerKill(serverKiller.getUUID());
+
             SREPlayerProgressionComponent.KEY.get(serverKiller).onPlayerKill();
 
             SRERole killerRole = gameWorldComponent.getRole(serverKiller);

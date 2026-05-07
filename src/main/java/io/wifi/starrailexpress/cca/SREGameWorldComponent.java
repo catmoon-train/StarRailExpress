@@ -47,6 +47,30 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
     private boolean lockedToSupporters = false;
     private boolean enableWeights = false;
 
+    // 本局击杀数统计（按玩家UUID存储）
+    private HashMap<UUID, Integer> perPlayerKills = new HashMap<>();
+
+    /**
+     * 获取玩家本局击杀数
+     */
+    public int getPlayerKills(UUID playerUuid) {
+        return perPlayerKills.getOrDefault(playerUuid, 0);
+    }
+
+    /**
+     * 增加玩家本局击杀数
+     */
+    public void addPlayerKill(UUID playerUuid) {
+        perPlayerKills.merge(playerUuid, 1, Integer::sum);
+    }
+
+    /**
+     * 重置本局击杀数统计
+     */
+    public void resetPerPlayerKills() {
+        perPlayerKills.clear();
+    }
+
     public int getPlayerCount() {
         return playerCount;
     }
