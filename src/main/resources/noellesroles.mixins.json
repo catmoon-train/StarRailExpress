@@ -79,7 +79,6 @@
     "client.roles.coroner.CustomRolesRoleNameRendererMixin",
     "client.roles.detective.PlaySoundEventMixin",
     "client.roles.exampler.ExamplerScreenMixin",
-    "client.roles.executioner.ExecutionerScreenMixin",
     "client.roles.executioner.ExecutionerShopScreenMixin",
     "client.roles.glitch_robot.GlitchRobotMoodMixin",
     "client.roles.insane.FixInsaneRenderMixin",
