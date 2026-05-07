@@ -1092,26 +1092,33 @@ public class EntityInteractionBlockEntity extends BlockEntity {
         }
     }
 
-    // 传送点注册表 - 用于高效查找传送点（按维度存储）
-    private static final Map<Level, Map<Integer, BlockPos>> TELEPORT_POINT_REGISTRY = new java.util.concurrent.ConcurrentHashMap<>();
+    // 传送点注册表 - 用于高效查找传送点（按维度存储，支持同一ID多个位置）
+    private static final Map<Level, Map<Integer, List<BlockPos>>> TELEPORT_POINT_REGISTRY = new java.util.concurrent.ConcurrentHashMap<>();
     // 传送范围限制（球形半径）
     private static final int MAX_TELEPORT_RANGE = 100;
 
     // 注册传送点（当方块设置为传送点时调用）
     public void registerTeleportPoint() {
-        if (this.isTeleportPoint && this.teleportPointId >= 0) {
+        if (this.isTeleportPoint && this.teleportPointId >= 0 && this.level != null) {
             TELEPORT_POINT_REGISTRY
                     .computeIfAbsent(this.level, k -> new ConcurrentHashMap<>())
-                    .put(this.teleportPointId, this.worldPosition.immutable());
+                    .computeIfAbsent(this.teleportPointId, k -> new java.util.concurrent.CopyOnWriteArrayList<>())
+                    .add(this.worldPosition.immutable());
         }
     }
 
     // 注销传送点（当方块不再作为传送点时调用）
     public void unregisterTeleportPoint() {
         if (this.level != null) {
-            Map<Integer, BlockPos> registry = TELEPORT_POINT_REGISTRY.get(this.level);
+            Map<Integer, List<BlockPos>> registry = TELEPORT_POINT_REGISTRY.get(this.level);
             if (registry != null) {
-                registry.remove(this.teleportPointId);
+                List<BlockPos> positions = registry.get(this.teleportPointId);
+                if (positions != null) {
+                    positions.remove(this.worldPosition.immutable());
+                    if (positions.isEmpty()) {
+                        registry.remove(this.teleportPointId);
+                    }
+                }
             }
         }
     }
@@ -1147,27 +1154,26 @@ public class EntityInteractionBlockEntity extends BlockEntity {
     // 查找指定ID的传送点（限制在100格范围内）
     private static BlockPos findTeleportPoint(ServerLevel world, BlockPos sourcePos, int targetId) {
         // 先尝试从注册表快速查找
-        Map<Integer, BlockPos> registry = TELEPORT_POINT_REGISTRY.get(world);
+        Map<Integer, List<BlockPos>> registry = TELEPORT_POINT_REGISTRY.get(world);
         if (registry != null) {
-            BlockPos registeredPos = registry.get(targetId);
-            if (registeredPos != null) {
-                // 检查是否在范围内
-                double dist = sourcePos.distSqr(registeredPos);
-                if (dist <= MAX_TELEPORT_RANGE * MAX_TELEPORT_RANGE) {
-                    // 验证该位置确实是传送点
-                    if (world.getBlockEntity(registeredPos) instanceof EntityInteractionBlockEntity blockEntity) {
-                        if (blockEntity.isTeleportPoint && blockEntity.getTeleportPointId() == targetId) {
-                            return registeredPos;
+            List<BlockPos> positions = registry.get(targetId);
+            if (positions != null && !positions.isEmpty()) {
+                for (BlockPos registeredPos : positions) {
+                    // 检查是否在范围内
+                    double distSq = sourcePos.distSqr(registeredPos);
+                    if (distSq <= MAX_TELEPORT_RANGE * MAX_TELEPORT_RANGE) {
+                        // 验证该位置确实是传送点
+                        if (world.getBlockEntity(registeredPos) instanceof EntityInteractionBlockEntity blockEntity) {
+                            if (blockEntity.isTeleportPoint && blockEntity.getTeleportPointId() == targetId) {
+                                return registeredPos;
+                            }
                         }
                     }
-                } else {
-                    // 在范围外，发送提示消息（如果能找到源传送点的话）
-                    return null;
                 }
             }
         }
 
-        // 如果注册表中没有，限制范围搜索（作为备用）
+        // 如果注册表中没有找到（可能未注册或全部超出范围），限制范围搜索
         BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
         int range = MAX_TELEPORT_RANGE;
         int sourceX = sourcePos.getX();
@@ -1188,10 +1194,11 @@ public class EntityInteractionBlockEntity extends BlockEntity {
                     if (be instanceof EntityInteractionBlockEntity blockEntity) {
                         if (blockEntity.isTeleportPoint && blockEntity.getTeleportPointId() == targetId) {
                             BlockPos result = mutablePos.immutable();
-                            // 更新注册表
+                            // 更新注册表（添加到列表）
                             TELEPORT_POINT_REGISTRY
                                     .computeIfAbsent(world, k -> new ConcurrentHashMap<>())
-                                    .put(targetId, result);
+                                    .computeIfAbsent(targetId, k -> new java.util.concurrent.CopyOnWriteArrayList<>())
+                                    .add(result);
                             return result;
                         }
                     }
