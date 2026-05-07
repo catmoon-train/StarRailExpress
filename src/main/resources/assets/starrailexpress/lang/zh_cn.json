@@ -1512,7 +1512,6 @@
   "condition.proximity_line.blocks_display": "玩家在 %s 格范围内（直线/%s）",
   "condition.has_item": "拥有物品：%s",
   "condition.click_right": "右键点击方块",
-  "condition.click_right": "右键点击方块",
   "condition.looking_at": "在 %s 格内看向方块",
   "condition.looking_at.blocks_display": "看向方块距离 %s 格",
   "condition.standing_on_block": "在 %s 格内站在 %s 上",
