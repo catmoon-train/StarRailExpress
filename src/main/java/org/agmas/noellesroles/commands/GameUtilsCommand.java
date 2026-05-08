@@ -51,7 +51,6 @@ import org.agmas.noellesroles.content.effects.TimeStopEffect;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.packet.ProblemScreenOpenC2SPacket;
 import org.agmas.noellesroles.packet.ScanAllTaskPointsPayload;
-import org.agmas.noellesroles.utils.MapScanner;
 import org.agmas.noellesroles.utils.MapScannerManager;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.Nullable;
@@ -412,8 +411,6 @@ public class GameUtilsCommand {
                     for (var player : context.getSource().getLevel().players()) {
                       ServerPlayNetworking.send(player, new ScanAllTaskPointsPayload(GameUtils.taskBlocks));
                     }
-                    // 强制同步所有 EntityInteractionBlockEntity 的数据到所有客户端
-                    MapScanner.syncEntityInteractionBlockEntities(level);
                     return 1;
                   })
                       .then(Commands.literal("reset_points").executes((context) -> {
@@ -450,8 +447,6 @@ public class GameUtilsCommand {
                         for (var player : context.getSource().getLevel().players()) {
                           ServerPlayNetworking.send(player, new ScanAllTaskPointsPayload(GameUtils.taskBlocks));
                         }
-                        // 强制同步所有 EntityInteractionBlockEntity 的数据到所有客户端
-                        MapScanner.syncEntityInteractionBlockEntities(level);
                         return 1;
                       })))
                   .then(Commands.literal("blackout").executes((context) -> {

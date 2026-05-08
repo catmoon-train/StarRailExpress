@@ -350,15 +350,6 @@ public class NoellesrolesClient implements ClientModInitializer {
                                             .withStyle(net.minecraft.ChatFormatting.GREEN), true);
                         }
                     }
-                    // 添加被启用的任务路标位置
-                    if (payload.blockPos() != null && !payload.blockPos().equals(net.minecraft.core.BlockPos.ZERO)) {
-                        NoellesrolesClient.enabledTaskMarkerPositions.add(payload.blockPos());
-                    }
-                } else {
-                    // 禁用任务透视 - 从集合中移除位置
-                    if (payload.blockPos() != null && !payload.blockPos().equals(net.minecraft.core.BlockPos.ZERO)) {
-                        NoellesrolesClient.enabledTaskMarkerPositions.remove(payload.blockPos());
-                    }
                 }
             });
         });
