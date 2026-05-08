@@ -586,6 +586,21 @@ public class ModEventsRegister {
                 return true;
             }
             
+            // 检查是否是炸弹客炸弹伤害（不触发独处保护）
+            if (deathReason != null && deathReason.getPath().equals("bomb_death")) {
+                return true;
+            }
+            
+            // 检查是否是中毒伤害（不触发独处保护）
+            if (deathReason != null && deathReason.getPath().equals("poison")) {
+                return true;
+            }
+            
+            // 检查是否是阴谋家心脏骤停伤害（不触发独处保护）
+            if (deathReason != null && deathReason.getPath().equals("heart_attack")) {
+                return true;
+            }
+            
             // 检查击杀者是否存在且是否为非乘客阵营
             if (killer == null || gameWorld.isInnocent(killer)) {
                 return true;
