@@ -65,7 +65,8 @@ public class EntityInteractionBlock extends BaseEntityBlock implements TaskInsti
     }
 
     @Override
-    protected InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult hit) {
+    protected InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player,
+            BlockHitResult hit) {
         if (world.isClientSide) {
             return InteractionResult.SUCCESS;
         }
@@ -106,12 +107,13 @@ public class EntityInteractionBlock extends BaseEntityBlock implements TaskInsti
 
     @Nullable
     @Override
-    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level world, BlockState state, BlockEntityType<T> type) {
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level world, BlockState state,
+            BlockEntityType<T> type) {
         return createTickerHelper(type, TMMBlockEntities.ENTITY_INTERACTION_BLOCK, EntityInteractionBlockEntity::tick);
     }
 
-    // 任务路标ID - 用于MapScanner扫描识别（默认值）
-    public static final int TASK_MARKER_INSTINCT_ID = 100;
+    // 任务路标ID - 不用于MapScanner扫描识别（没什么用）
+    public static final int TASK_MARKER_INSTINCT_ID = 13;
 
     @Override
     public int taskInstinctId() {
@@ -123,7 +125,8 @@ public class EntityInteractionBlock extends BaseEntityBlock implements TaskInsti
      * 获取指定位置的自定义任务本能ID
      */
     public static int getCustomTaskInstinctId(Level level, BlockPos pos) {
-        if (level == null) return TASK_MARKER_INSTINCT_ID;
+        if (level == null)
+            return TASK_MARKER_INSTINCT_ID;
         BlockEntity be = level.getBlockEntity(pos);
         if (be instanceof EntityInteractionBlockEntity entity) {
             if (entity.isTaskMarker()) {
@@ -139,8 +142,7 @@ public class EntityInteractionBlock extends BaseEntityBlock implements TaskInsti
         if (state.getBlock() instanceof EntityInteractionBlock) {
             Level level = player.level();
             if (level != null) {
-                BlockEntity be = level.getBlockEntity(pos);
-                if (be instanceof EntityInteractionBlockEntity entity) {
+                if (level.getBlockEntity(pos) instanceof EntityInteractionBlockEntity entity) {
                     if (!entity.isTaskMarker()) {
                         return false;
                     }
@@ -159,9 +161,11 @@ public class EntityInteractionBlock extends BaseEntityBlock implements TaskInsti
                         case CUSTOM_TASK: {
                             // 检查玩家是否有匹配的自定义任务
                             var taskComponent = io.wifi.starrailexpress.cca.SREPlayerTaskComponent.KEY.get(player);
-                            if (taskComponent == null) return false;
+                            if (taskComponent == null)
+                                return false;
                             String customTaskId = entity.getTaskHighlightCustomTaskId();
-                            if (customTaskId == null || customTaskId.isEmpty()) return false;
+                            if (customTaskId == null || customTaskId.isEmpty())
+                                return false;
                             return taskComponent.tasks.values().stream()
                                     .anyMatch(task -> customTaskId.equals(task.getCustomTaskId()));
                         }
