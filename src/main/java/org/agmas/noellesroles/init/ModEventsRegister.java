@@ -16,6 +16,7 @@ import io.wifi.starrailexpress.event.AllowShootRevolverDrop.ShouldDropResult;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.ServerTaskInfoClasses;
+import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
@@ -873,6 +874,8 @@ public class ModEventsRegister {
                 var role = gameWorldComponent.getRole(player);
                 if (role != null) {
                     if (role.isInnocent() && role.canPickUpRevolver() && !role.isNeutrals()) {
+                        return true;
+                    } else if (role == SpecialGameModeRoles.DIRT) {
                         return true;
                     } else {
                         return false;
