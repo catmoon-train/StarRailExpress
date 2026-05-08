@@ -13,7 +13,7 @@ import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.event.AllowPlayerDeathWithKiller;
 import io.wifi.starrailexpress.event.AllowPlayerOpenLockedDoor;
-import io.wifi.starrailexpress.event.CantPlayerOpenDoor;
+import io.wifi.starrailexpress.event.DisallowPlayerOpenDoor;
 import io.wifi.starrailexpress.index.TMMEntities;
 import io.wifi.starrailexpress.util.SREItemUtils;
 import io.wifi.starrailexpress.util.ShopEntry;
@@ -605,7 +605,7 @@ public class DNFRoles {
     public static final SRERole CIVILIAN = TMMRoles.registerRole(new DNFNormalRole(CIVILIAN_ID, 0x719E5B, true, false,
             SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false)).setCanBeRandomedByOtherRoles(false).setCanGetBodyItems(true);
     static {
-        CantPlayerOpenDoor.EVENT.register(player -> {
+        DisallowPlayerOpenDoor.EVENT.register(player -> {
             if (!(player instanceof ServerPlayer serverPlayer))return false;
             if (player.level() instanceof ServerLevel sl) {
                 if (SREGameWorldComponent.KEY.get( sl).gameMode== SREGameModes.DAY_NIGHT_FIGHT) {

@@ -4,7 +4,7 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.content.block_entity.DoorBlockEntity;
 import io.wifi.starrailexpress.content.block_entity.SmallDoorBlockEntity;
 import io.wifi.starrailexpress.event.AllowPlayerOpenLockedDoor;
-import io.wifi.starrailexpress.event.CantPlayerOpenDoor;
+import io.wifi.starrailexpress.event.DisallowPlayerOpenDoor;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.TMMSounds;
 import net.minecraft.core.BlockPos;
@@ -159,7 +159,7 @@ public class SmallDoorBlock extends DoorPartBlock {
                 return InteractionResult.FAIL;
             }
 
-            if (!player.isCreative() && CantPlayerOpenDoor.EVENT.invoker().cantOpen(player)){
+            if (!player.isCreative() && DisallowPlayerOpenDoor.EVENT.invoker().cantOpen(player)){
                 return InteractionResult.FAIL;
             }
             if (player.isCreative() || AllowPlayerOpenLockedDoor.EVENT.invoker().allowOpen(player)) {

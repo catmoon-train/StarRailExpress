@@ -12,7 +12,7 @@ import static net.fabricmc.fabric.api.event.EventFactory.createArrayBacked;
  * <p>Event interface to determine whether an entity is allowed to open a locked door.
  * If any listener returns {@code true}, the door may be opened.
  */
-public interface CantPlayerOpenDoor {
+public interface DisallowPlayerOpenDoor {
 
     /**
      * 判断实体是否允许打开上锁的门的事件。
@@ -21,8 +21,8 @@ public interface CantPlayerOpenDoor {
      * <p>Callback for determining whether a player can open a locked door.
      * Any listener returning {@code true} grants permission.
      */
-    Event<CantPlayerOpenDoor> EVENT = createArrayBacked(CantPlayerOpenDoor.class, listeners -> player -> {
-        for (CantPlayerOpenDoor listener : listeners) {
+    Event<DisallowPlayerOpenDoor> EVENT = createArrayBacked(DisallowPlayerOpenDoor.class, listeners -> player -> {
+        for (DisallowPlayerOpenDoor listener : listeners) {
             if (listener.cantOpen(player)) {
                 return true;
             }
