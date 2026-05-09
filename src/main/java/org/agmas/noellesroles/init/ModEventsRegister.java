@@ -33,6 +33,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -698,6 +699,9 @@ public class ModEventsRegister {
                         if (victim instanceof ServerPlayer sp) {
                             sp.displayClientMessage(Component.translatable("message.sre.unyielding.immune_killer")
                                     .withStyle(ChatFormatting.RED), true);
+                            // 释放鸡蛋裂纹粒子效果
+                            sp.serverLevel().sendParticles(ParticleTypes.EGG_CRACK,
+                                    sp.getX(), sp.getY() + 1.0, sp.getZ(), 1, 0, 0, 0, 0);
                         }
                         return false;
                     }
@@ -717,6 +721,9 @@ public class ModEventsRegister {
                                 1.0F, 1.0F);
                         sp.displayClientMessage(Component.translatable("message.sre.unyielding.immune_civilian")
                                 .withStyle(ChatFormatting.GREEN), true);
+                        // 释放鸡蛋裂纹粒子效果
+                        sp.serverLevel().sendParticles(ParticleTypes.EGG_CRACK,
+                                sp.getX(), sp.getY() + 1.0, sp.getZ(), 1, 0, 0, 0, 0);
                     }
                     return false;
                 }
