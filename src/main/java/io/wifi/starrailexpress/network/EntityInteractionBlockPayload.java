@@ -77,6 +77,7 @@ public class EntityInteractionBlockPayload {
     public static void register() {
         // S2C: 服务端 -> 客户端
         PayloadTypeRegistry.playS2C().register(OpenUI.TYPE, OpenUI.CODEC);
+        PayloadTypeRegistry.playS2C().register(SyncBlockEntity.TYPE, SyncBlockEntity.CODEC);
         // C2S: 客户端 -> 服务端
         PayloadTypeRegistry.playC2S().register(SaveConfig.TYPE, SaveConfig.CODEC);
 
