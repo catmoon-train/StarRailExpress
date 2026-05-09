@@ -91,6 +91,9 @@ public class Harpymodloader implements ModInitializer {
         registerCommands();
         HMLModifiers.init();
 
+        // 将不屈设为隐藏词条，玩家自己不会看到
+        HIDDEN_MODIFIERS.add("unyielding");
+
         MODDED_GAMEMODE = SREGameModes.MURDER;
 
         ServerLifecycleEvents.SERVER_STARTED.register((minecraftServer -> {
