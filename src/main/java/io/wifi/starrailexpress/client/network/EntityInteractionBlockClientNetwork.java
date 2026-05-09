@@ -40,7 +40,7 @@ public class EntityInteractionBlockClientNetwork {
                         // 同步 Conditions
                         List<EntityInteractionBlockEntity.TriggerCondition> conditions = new ArrayList<>();
                         if (data.contains("Conditions", ListTag.TAG_LIST)) {
-                            var list = data.getList("Conditions", ListTag.TAG_LIST);
+                            var list = data.getList("Conditions", ListTag.TAG_COMPOUND);
                             for (int i = 0; i < list.size(); i++) {
                                 conditions.add(EntityInteractionBlockEntity.TriggerCondition.fromNbt(list.getCompound(i)));
                             }
@@ -51,7 +51,7 @@ public class EntityInteractionBlockClientNetwork {
                         // 同步 Actions
                         List<EntityInteractionBlockEntity.TriggerAction> actions = new ArrayList<>();
                         if (data.contains("Actions", ListTag.TAG_LIST)) {
-                            var list = data.getList("Actions", ListTag.TAG_LIST);
+                            var list = data.getList("Actions", ListTag.TAG_COMPOUND);
                             for (int i = 0; i < list.size(); i++) {
                                 actions.add(EntityInteractionBlockEntity.TriggerAction.fromNbt(list.getCompound(i)));
                             }
@@ -88,14 +88,14 @@ public class EntityInteractionBlockClientNetwork {
                 var actions = new ArrayList<EntityInteractionBlockEntity.TriggerAction>();
 
                 if (data.contains("Conditions", ListTag.TAG_LIST)) {
-                    var list = data.getList("Conditions", ListTag.TAG_LIST);
+                    var list = data.getList("Conditions", ListTag.TAG_COMPOUND);
                     for (int i = 0; i < list.size(); i++) {
                         conditions.add(EntityInteractionBlockEntity.TriggerCondition.fromNbt(list.getCompound(i)));
                     }
                 }
 
                 if (data.contains("Actions", ListTag.TAG_LIST)) {
-                    var list = data.getList("Actions", ListTag.TAG_LIST);
+                    var list = data.getList("Actions", ListTag.TAG_COMPOUND);
                     for (int i = 0; i < list.size(); i++) {
                         actions.add(EntityInteractionBlockEntity.TriggerAction.fromNbt(list.getCompound(i)));
                     }

@@ -35,14 +35,14 @@ public class EntityInteractionBlockServerNetwork {
                     List<EntityInteractionBlockEntity.TriggerAction> actions = new ArrayList<>();
 
                     if (data.contains("Conditions", ListTag.TAG_LIST)) {
-                        ListTag list = data.getList("Conditions", ListTag.TAG_LIST);
+                        ListTag list = data.getList("Conditions", ListTag.TAG_COMPOUND);
                         for (int i = 0; i < list.size(); i++) {
                             conditions.add(EntityInteractionBlockEntity.TriggerCondition.fromNbt(list.getCompound(i)));
                         }
                     }
 
                     if (data.contains("Actions", ListTag.TAG_LIST)) {
-                        ListTag list = data.getList("Actions", ListTag.TAG_LIST);
+                        ListTag list = data.getList("Actions", ListTag.TAG_COMPOUND);
                         for (int i = 0; i < list.size(); i++) {
                             actions.add(EntityInteractionBlockEntity.TriggerAction.fromNbt(list.getCompound(i)));
                         }
