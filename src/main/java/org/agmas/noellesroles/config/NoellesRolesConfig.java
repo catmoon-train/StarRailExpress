@@ -237,7 +237,7 @@ public class NoellesRolesConfig implements ConfigData {
      * Voodoo - Voodoo ritual cooldown in seconds
      */
 
-    public int voodooCooldown = 30;
+    public int voodooCooldown = 15;
 
     /**
      * Vulture - Eat body cooldown in seconds

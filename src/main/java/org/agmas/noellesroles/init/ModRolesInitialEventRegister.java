@@ -263,6 +263,11 @@ public class ModRolesInitialEventRegister {
                 manipulatorPlayerComponent.init();
                 manipulatorPlayerComponent.sync();
             }
+            // 巫毒师角色初始化 - 开局75秒冷却
+            if (role.equals(ModRoles.VOODOO)) {
+                abilityPlayerComponent.cooldown = 75 * 20; // 75秒冷却
+                abilityPlayerComponent.sync();
+            }
             if (role.equals(ModRoles.BOMBER)) {
                 if (role.equals(ModRoles.MONITOR)) {
                     MonitorPlayerComponent monitorComponent = MonitorPlayerComponent.KEY.get(player);
