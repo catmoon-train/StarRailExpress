@@ -699,9 +699,18 @@ public class ModEventsRegister {
                         if (victim instanceof ServerPlayer sp) {
                             sp.displayClientMessage(Component.translatable("message.sre.unyielding.immune_killer")
                                     .withStyle(ChatFormatting.RED), true);
-                            // 释放鸡蛋裂纹粒子效果
-                            sp.serverLevel().sendParticles(ParticleTypes.EGG_CRACK,
-                                    sp.getX(), sp.getY() + 1.0, sp.getZ(), 1, 0, 0, 0, 0);
+                            // 播放盾牌格挡音效，让附近所有人听到
+                            sp.serverLevel().playSound(null, sp.blockPosition(), SoundEvents.SHIELD_BLOCK, SoundSource.MASTER,
+                                    1.0F, 1.0F);
+                            // 释放不灭图腾粒子效果
+                            ServerLevel level = sp.serverLevel();
+                            for (int i = 0; i < 30; i++) {
+                                level.sendParticles(ParticleTypes.TOTEM_OF_UNDYING,
+                                        sp.getX() + level.random.nextDouble() * 2.0 - 1.0,
+                                        sp.getY() + 0.5 + level.random.nextDouble() * 2.5,
+                                        sp.getZ() + level.random.nextDouble() * 2.0 - 1.0,
+                                        1, 0, 0, 0, 0);
+                            }
                         }
                         return false;
                     }
@@ -715,15 +724,21 @@ public class ModEventsRegister {
                         .contains(victim.getUUID())) {
                     pro.fazeclan.river.stupid_express.constants.SEModifiers.UNYIELDING_IMMUNITY_USED
                             .add(victim.getUUID());
-                    // 播放提示音并向玩家发送提示（只对受害玩家播放）
+                    // 播放盾牌格挡音效，让附近所有人听到
                     if (victim instanceof ServerPlayer sp) {
-                        sp.serverLevel().playSound(sp, sp.blockPosition(), SoundEvents.SHIELD_BLOCK, SoundSource.MASTER,
+                        sp.serverLevel().playSound(null, sp.blockPosition(), SoundEvents.SHIELD_BLOCK, SoundSource.MASTER,
                                 1.0F, 1.0F);
                         sp.displayClientMessage(Component.translatable("message.sre.unyielding.immune_civilian")
                                 .withStyle(ChatFormatting.GREEN), true);
-                        // 释放鸡蛋裂纹粒子效果
-                        sp.serverLevel().sendParticles(ParticleTypes.EGG_CRACK,
-                                sp.getX(), sp.getY() + 1.0, sp.getZ(), 1, 0, 0, 0, 0);
+                        // 释放不灭图腾粒子效果
+                        ServerLevel level = sp.serverLevel();
+                        for (int i = 0; i < 30; i++) {
+                            level.sendParticles(ParticleTypes.TOTEM_OF_UNDYING,
+                                    sp.getX() + level.random.nextDouble() * 2.0 - 1.0,
+                                    sp.getY() + 0.5 + level.random.nextDouble() * 2.5,
+                                    sp.getZ() + level.random.nextDouble() * 2.0 - 1.0,
+                                    1, 0, 0, 0, 0);
+                        }
                     }
                     return false;
                 }
