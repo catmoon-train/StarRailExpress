@@ -95,7 +95,7 @@ public class BroadcasterHud {
             Minecraft client = Minecraft.getInstance();
             Font font = client.font;
             Component line = Component.translatable("tip.broadcaster.with_cost",
-                    NoellesrolesClient.abilityBind.getTranslatedKeyMessage(), 100);
+                    NoellesrolesClient.abilityBind.getTranslatedKeyMessage(), 50);
             int drawY = context.guiHeight() - font.wordWrapHeight(line, 999999);
             context.drawString(font, line, context.guiWidth() - font.width(line), drawY,
                     ModRoles.BROADCASTER.color());
