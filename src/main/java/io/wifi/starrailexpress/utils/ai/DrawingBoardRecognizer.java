@@ -8764,37 +8764,37 @@ public class DrawingBoardRecognizer {
         // 6. centroid     - 最宽松，只看位置和数量（权重1）
         Map<Integer, Integer> votes = new java.util.HashMap<>();
 
-        // euclidean（权重6）
-        int result1 = knn.predictByAlgorithm(features, "euclidean");
+        // euclidean（权重6）- 最严格，逐像素精确匹配，阈值最高
+        int result1 = knn.predictWithThresholdByAlgorithm(features, 0.85, "euclidean");
         if (result1 != -1) {
             votes.put(result1, votes.getOrDefault(result1, 0) + 6);
         }
 
-        // histogram（权重5）
-        int result2 = knn.predictByAlgorithm(features, "histogram");
+        // histogram（权重5）- 颜色直方图，中等严格
+        int result2 = knn.predictWithThresholdByAlgorithm(features, 0.70, "histogram");
         if (result2 != -1) {
             votes.put(result2, votes.getOrDefault(result2, 0) + 5);
         }
 
-        // colorCount（权重4）
-        int result3 = knn.predictByAlgorithm(features, "colorCount");
+        // colorCount（权重4）- 色块数量，中等严格
+        int result3 = knn.predictWithThresholdByAlgorithm(features, 0.65, "colorCount");
         if (result3 != -1) {
             votes.put(result3, votes.getOrDefault(result3, 0) + 4);
         }
 
-        // shape（权重3）
-        int result4 = knn.predictByAlgorithm(features, "shape");
+        // shape（权重3）- 宽松形状匹配，考虑颜色，中等严格
+        int result4 = knn.predictWithThresholdByAlgorithm(features, 0.70, "shape");
         if (result4 != -1) {
             votes.put(result4, votes.getOrDefault(result4, 0) + 3);
         }
 
-        // pureShape（权重2）
-        int result5 = knn.predictByAlgorithm(features, "pureShape");
+        // pureShape（权重2）- 忽略颜色只看轮廓，较宽松
+        int result5 = knn.predictWithThresholdByAlgorithm(features, 0.55, "pureShape");
         if (result5 != -1) {
             votes.put(result5, votes.getOrDefault(result5, 0) + 2);
         }
 
-        // centroid（权重1）
+        // centroid（权重1）- 最宽松，只看位置和数量
         int result6 = knn.predictByAlgorithmWithDims(features, "centroid", 16, 16);
         if (result6 != -1) {
             votes.put(result6, votes.getOrDefault(result6, 0) + 1);
@@ -8833,7 +8833,8 @@ public class DrawingBoardRecognizer {
         }
 
         // 只有票数达到最低要求才返回结果
-        if (bestCount < 3 || bestVoteRatio < 0.3) {
+        // 权重总和21，中位数位置10.5，需要至少11票（约50%）才能通过
+        if (bestCount < 11 || bestVoteRatio < 0.5) {
             // 所有pattern得票率都很低，返回不在识别范围的消息
             return new RecognizeResult(UNKNOWN, UNKNOWN, "starrailexpress.drawing_board.hint.out_of_range", bestCount, totalVoteWeight);
         }
