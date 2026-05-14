@@ -50,6 +50,7 @@ import org.agmas.noellesroles.game.roles.Innocent.monitor.MonitorPlayerComponent
 import org.agmas.noellesroles.game.roles.Innocent.postman.PostmanPlayerComponent;
 import org.agmas.noellesroles.game.roles.Innocent.psychologist.PsychologistPlayerComponent;
 import org.agmas.noellesroles.game.roles.Innocent.recaller.RecallerPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.painter.PainterPlayerComponent;
 import org.agmas.noellesroles.game.roles.Innocent.singer.SingerPlayerComponent;
 import org.agmas.noellesroles.game.roles.Innocent.super_star.SuperStarPlayerComponent;
 import org.agmas.noellesroles.game.roles.Innocent.telegrapher.TelegrapherPlayerComponent;
@@ -168,6 +169,7 @@ public class ModRoles {
     public static final ResourceLocation SINGER_ID = Noellesroles.id("singer");
     public static final ResourceLocation PSYCHOLOGIST_ID = Noellesroles.id("psychologist");
     public static final ResourceLocation PHOTOGRAPHER_ID = Noellesroles.id("photographer");
+    public static final ResourceLocation PAINTER_ID = Noellesroles.id("painter");
     public static ResourceLocation ELF_ID = Noellesroles.id("elf");
     public static ResourceLocation WIND_YAOSE_ID = Noellesroles.id("wind_yaose");
     public static ResourceLocation CHEF_ID = Noellesroles.id("chef");
@@ -1303,6 +1305,30 @@ public class ModRoles {
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
             false // 不显示计分板
     ));
+
+    /**
+     * 画家角色
+     * - 属于乘客阵营 (isInnocent = true)
+     * - 不能使用杀手能力 (canUseKiller = false)
+     * - 真实心情系统
+     * - 标准冲刺时间
+     * - 在计分板上显示
+     * - 技能一：绘画灵感 - 触发以下场景时获得画板，每种场景只会给予一次
+     *   1. 捡起摄影师丢在地上的照片（exposure:stacked_photographs 或 exposure:photograph）
+     *   2. 从地上捡起左轮手枪/巡警手枪
+     *   3. 坐着的时间达到40秒
+     * - 技能二：求索 - 游戏时间每过4分钟获得一个画板
+     * - 技能三：挚友 - 当场上同时存在画家和作家时，同时给予作家和画家一个画板
+     */
+    public static SRERole PAINTER = TMMRoles.registerRole(new NormalRole(
+            PAINTER_ID, // 角色 ID
+            new Color(255, 182, 193).getRGB(), // 粉红色 - 代表画家的艺术气息
+            true, // isInnocent = 乘客阵营
+            false, // canUseKiller = 无杀手能力
+            SRERole.MoodType.REAL, // 真实心情
+            TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
+            false // 不隐藏计分板
+    )).setComponentKey(PainterPlayerComponent.KEY).setCanSeeCoin(true).setEnableChance(55).setOccupiedRoleCount(1);
 
     // 杀手阵营角色
     /**

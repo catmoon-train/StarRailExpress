@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.content.item;
 
+import io.wifi.starrailexpress.cca.SRERoleWorldComponent;
 import io.wifi.starrailexpress.util.ItemComponentUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
@@ -59,7 +60,13 @@ public class TimeStopClock extends Item {
                 if (!player.isCreative()) {
                     player.getCooldowns().addCooldown(this,
                             ItemComponentUtils.getCustomDataTagIntValue(stack, TAG_COOLDOWN));
-                    stack.hurtAndBreak(1, player, EquipmentSlot.MAINHAND);
+                    // 如果使用玩家是平民，直接损坏时停钟
+                    var role = SRERoleWorldComponent.KEY.get(player.level()).getRole(player);
+                    if (role != null && role.isInnocent()) {
+                        stack.setDamageValue(MAX_DURABILITY);
+                    } else {
+                        stack.hurtAndBreak(1, player, EquipmentSlot.MAINHAND);
+                    }
                 }
                 return InteractionResultHolder.success(stack);
             }

@@ -25,6 +25,7 @@ import org.agmas.noellesroles.game.roles.Innocent.meatball.MeatballPlayerCompone
 import org.agmas.noellesroles.game.roles.Innocent.mortician.MorticianPlayerComponent;
 import org.agmas.noellesroles.game.roles.Innocent.monitor.MonitorPlayerComponent;
 import org.agmas.noellesroles.game.roles.Innocent.noise_maker.NoiseMakerPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.painter.PainterPlayerComponent;
 import org.agmas.noellesroles.game.roles.Innocent.postman.PostmanPlayerComponent;
 import org.agmas.noellesroles.game.roles.Innocent.psychologist.PsychologistPlayerComponent;
 import org.agmas.noellesroles.game.roles.Innocent.recaller.RecallerPlayerComponent;
@@ -349,6 +350,8 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
   public static final ComponentKey<RepairRolePlayerComponent> REPAIR_ROLES = ComponentRegistry.getOrCreate(
       ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "repair_roles"),
       RepairRolePlayerComponent.class);
+  // 画家组件 - 平民阵营，绘画灵感、求索、挚友技能
+  public static final ComponentKey<PainterPlayerComponent> PAINTER = PainterPlayerComponent.KEY;
 
   public ModComponents() {
     // CCA 需要无参构造函数
@@ -699,6 +702,10 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
     registry.beginRegistration(Player.class, REPAIR_ROLES)
         .respawnStrategy(RespawnCopyStrategy.ALWAYS_COPY)
         .end(RepairRolePlayerComponent::new);
+    // 注册画家组件 - 存储绘画灵感、求索、挚友技能状态
+    registry.beginRegistration(Player.class, PAINTER)
+        .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
+        .end(PainterPlayerComponent::new);
 
     // ==================== 示例：注册更多组件 ====================
     //

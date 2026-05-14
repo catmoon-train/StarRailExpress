@@ -442,6 +442,8 @@ public class SRE extends StarRailExpressID implements ModInitializer {
 
         // 实体交互方块服务端网络处理
         EntityInteractionBlockServerNetwork.register();
+        // 画板服务端网络处理
+        DrawingBoardServerNetwork.register();
         ServerPlayNetworking.registerGlobalReceiver(SecurityCameraExitRequestPayload.ID,
                 new SecurityCameraExitRequestPayload.ServerReceiver());
         ServerPlayNetworking.registerGlobalReceiver(JoinSpecGroupPayload.ID, (payload, context) -> {

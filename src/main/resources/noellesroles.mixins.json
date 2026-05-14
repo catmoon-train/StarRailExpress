@@ -43,6 +43,7 @@
     "roles.manipulator.PlayerControlMixin",
     "roles.mercenary.MercenaryConfirmMixin",
     "roles.photographer.PhotographerMixin",
+    "roles.painter.PainterItemPickupMixin",
     "roles.poisoner.PoisonerNoPoisonMixin",
     "roles.puppeteer.PuppeteerBodyGunPayloadMixin",
     "roles.puppeteer.PuppeteerBodyKnifePayloadMixin",

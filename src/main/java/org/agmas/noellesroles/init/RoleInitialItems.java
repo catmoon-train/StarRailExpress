@@ -241,6 +241,11 @@ public class RoleInitialItems {
         List<Supplier<ItemStack>> noiseMakerItems = new ArrayList<>();
         noiseMakerItems.add(() -> ModItems.RADIO.getDefaultInstance());
         INITIAL_ITEMS_MAP.put(ModRoles.NOISEMAKER, noiseMakerItems);
+
+        // 画家初始物品 - 画板
+        List<Supplier<ItemStack>> painterItems = new ArrayList<>();
+        painterItems.add(() -> TMMItems.DRAWING_BOARD.getDefaultInstance());
+        INITIAL_ITEMS_MAP.put(ModRoles.PAINTER, painterItems);
     }
 
 }

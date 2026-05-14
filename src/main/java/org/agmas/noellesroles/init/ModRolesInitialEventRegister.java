@@ -31,6 +31,7 @@ import org.agmas.noellesroles.game.roles.killer.stalker.StalkerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.watcher.WatcherPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.candlebearer.CandleBearerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.mercenary.MercenaryPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.painter.PainterPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.nian_shou.NianShouPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.recorder.RecorderPlayerComponent;
@@ -323,6 +324,12 @@ public class ModRolesInitialEventRegister {
                     if (!comc.isActivePuppeteer())
                         comc.init();
                 }
+            }
+            // 画家角色初始化
+            if (role.equals(ModRoles.PAINTER)) {
+                var painterComponent = PainterPlayerComponent.KEY.get(player);
+                painterComponent.init();
+                painterComponent.sync();
             }
         });
     }

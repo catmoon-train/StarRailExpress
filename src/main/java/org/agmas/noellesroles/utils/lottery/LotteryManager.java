@@ -57,26 +57,18 @@ public class LotteryManager {
                 if (curNum < level * maxGranularity) {
                     List<String> curQualityList = qualityListGroupConfigs.get(i).second;
                     int resultIdx = randomSource.nextInt(curQualityList.size());
-                    // TODO : 使用配置文件存储皮肤物品类型
-                    ItemStack itemStack = null;
                     // 设置itemStack
-                    if (curQualityList.get(resultIdx).startsWith("knife/")) {
-                        itemStack = TMMItems.KNIFE.getDefaultInstance();
-                    }
-                    else if (curQualityList.get(resultIdx).startsWith("gun/")) {
-                        itemStack = TMMItems.REVOLVER.getDefaultInstance();
-                    }
-                    else if (curQualityList.get(resultIdx).startsWith("bat/")) {
-                        itemStack = TMMItems.BAT.getDefaultInstance();
-                    }
-                    else if (curQualityList.get(resultIdx).startsWith("grenade/")) {
-                        itemStack = TMMItems.GRENADE.getDefaultInstance();
-                    }
+                    ItemStack itemStack = getSkinItemStack(curQualityList.get(resultIdx));
+
                     // 去除前缀
-                    String trueName = curQualityList.get(resultIdx).substring(curQualityList.get(resultIdx).indexOf('/') + 1);
+                    String trueName = getTrueName(curQualityList.get(resultIdx));
                     if (itemStack != null && !SkinManager.isSkinUnlocked(player, itemStack, trueName))
                         SkinManager.unlockSkin(player, itemStack, trueName);
-                    // 处理重复皮肤/coin
+                    //coin
+                    else if (trueName.equals("coin")) {
+                        SkinManager.addCoinNum(player, (int) (baseLootConsumeCoin * getSkinToCoinPercentage(i) * COIN_CARD_EXTRA_REWARD));
+                    }
+                    // 处理重复皮肤
                     else
                         SkinManager.addCoinNum(player, (int) (baseLootConsumeCoin * getSkinToCoinPercentage(i)));
                     int resultQuality = i;
@@ -90,6 +82,43 @@ public class LotteryManager {
             }
             Noellesroles.LOGGER.warn("[LootSys] 玩家UUID:" + player.getUUID() + "抽奖失败");
             return new Pair<>(-1, -1);
+        }
+
+        /**
+         *  获取卡池真实皮肤名称
+         *  - 皮肤名组成：type/truename[/resources_location]
+         *  - 方括号为可选内容
+         * @param rawName 待处理的配置文件皮肤名
+         */
+        public static String getTrueName(String rawName) {
+            String[] names = rawName.split("/");
+            if (names.length > 1)
+                return names[1];
+            return "coin";
+        }
+
+        /**
+         *  获取皮肤对应物品的itemStack
+         *  - 皮肤名组成：type/truename[/resources_location]
+         *  - 方括号为可选内容
+         * @param rawName 待处理的配置文件皮肤名
+         */
+        public static ItemStack getSkinItemStack(String rawName) {
+            ItemStack itemStack = null;
+            // 设置itemStack
+            if (rawName.startsWith("knife/")) {
+                itemStack = TMMItems.KNIFE.getDefaultInstance();
+            }
+            else if (rawName.startsWith("gun/")) {
+                itemStack = TMMItems.REVOLVER.getDefaultInstance();
+            }
+            else if (rawName.startsWith("bat/")) {
+                itemStack = TMMItems.BAT.getDefaultInstance();
+            }
+            else if (rawName.startsWith("grenade/")) {
+                itemStack = TMMItems.GRENADE.getDefaultInstance();
+            }
+            return itemStack;
         }
 
         public int getPoolID() {
@@ -286,9 +315,11 @@ public class LotteryManager {
             ResourceLocation.fromNamespaceAndPath("noellesroles", "textures/gui/loot/unbelievable.png"),
     };
     /** 不同品质重复皮肤对应折算的为单抽硬币数量的比例 */
-    private static final float[] skinToCoin = {
+    public static final float[] skinToCoin = {
             0.1f, 0.125f, 0.25f, 0.5f, 1f, 2f, 3f
     };
+    /** 抽到金币时的额外奖励，默认1.1倍 */
+    public static final float COIN_CARD_EXTRA_REWARD = 1.1f;
     /**
      * 抽奖粒度
      * <p>

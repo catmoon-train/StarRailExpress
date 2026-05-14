@@ -23,6 +23,7 @@ import java.util.ArrayList;
 @SuppressWarnings("unchecked")
 public interface TMMItems {
     public static ItemRegistrar registrar = new ItemRegistrar(SRE.TMM_MOD_ID);
+    public static ItemRegistrar sreRegistrar = new ItemRegistrar(SRE.MOD_ID);
     public static ArrayList<Item> INVISIBLE_ITEMS = new ArrayList<>();
     public ReplaceableItems INIT_ITEMS = new ReplaceableItems();
 
@@ -89,6 +90,7 @@ public interface TMMItems {
             EQUIPMENT_GROUP);
     Item EMOJI_HELMET = registrar.create("emoji_helmet", new EmojiHelmetItem(new Item.Properties().stacksTo(1)),
             EQUIPMENT_GROUP);
+    Item DRAWING_BOARD = sreRegistrar.create("drawing_board", new io.wifi.starrailexpress.content.item.DrawingBoardItem(), EQUIPMENT_GROUP);
 
     public static void initialize() {
         INVISIBLE_ITEMS.add(TMMItems.NOTE);
@@ -126,5 +128,6 @@ public interface TMMItems {
         ChargeableItemRegistry.register(TMMItems.KNIFE, new KnifeChargeableItem());
         ChargeableItemRegistry.register(TMMItems.GRENADE, new GrenadeChargeableItem());
         WatheBridgerItems.initialize();
+        sreRegistrar.registerEntries();
     }
 }

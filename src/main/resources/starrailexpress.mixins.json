@@ -83,6 +83,7 @@
     "client.scenery.ClientWorldMixin",
     "client.scenery.WorldRendererMixin",
     "client.self.BeveragePlateBlockEntityMixin",
+    "client.self.DrawingBoardItemMixin",
     "client.self.NoteItemMixin",
     "client.ui.InGameHudMixin",
     "client.ui.RenderEffectMixin",
