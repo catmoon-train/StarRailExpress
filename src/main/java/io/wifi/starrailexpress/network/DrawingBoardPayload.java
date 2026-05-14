@@ -112,16 +112,35 @@ public class DrawingBoardPayload {
 
             // 如果识别成功，消耗画板并给予对应物品
             if (recognized) {
-                // 消耗画板
-                if (!player.getAbilities().instabuild) {
-                    stack.shrink(1);
-                }
                 Item item = DrawingBoardRecognizer.getItemForCategory(category);
                 if (item != null) {
                     ItemStack itemStack = new ItemStack(item);
-                    if (!player.getInventory().add(itemStack)) {
-                        // 背包满了就丢在地上
-                        player.drop(itemStack, true);
+                    // 非创造模式下，先检查快捷栏是否有空间
+                    if (!player.getAbilities().instabuild) {
+                        boolean hotbarFull = true;
+                        for (int i = 0; i < 9; i++) {
+                            if (player.getInventory().getItem(i).isEmpty()) {
+                                hotbarFull = false;
+                                break;
+                            }
+                        }
+                        if (hotbarFull) {
+                            // 快捷栏满了，不消耗画板也不给予物品
+                            context.player().displayClientMessage(
+                                    net.minecraft.network.chat.Component.translatable(
+                                            "starrailexpress.drawing_board.recognize.inventory_full"
+                                    ),
+                                    true // actionbar
+                            );
+                            return;
+                        }
+                        // 给予物品到快捷栏
+                        player.getInventory().add(itemStack);
+                        // 消耗画板
+                        stack.shrink(1);
+                    } else {
+                        // 创造模式直接给予物品
+                        player.getInventory().add(itemStack);
                     }
                     // actionbar 提示识别成功并给出物品
                     context.player().displayClientMessage(

@@ -1949,5 +1949,6 @@
   "starrailexpress.drawing_board.recognize.fail": "Could not recognize the pattern",
   "starrailexpress.drawing_board.recognize.success_with": "Recognition successful!",
   "starrailexpress.drawing_board.recognize.unknown": "Unknown item",
-  "starrailexpress.drawing_board.consumed": "Drawing board consumed"
+  "starrailexpress.drawing_board.consumed": "Drawing board consumed",
+  "starrailexpress.drawing_board.recognize.inventory_full": "Inventory is full"
 }

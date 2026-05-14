@@ -20,7 +20,7 @@ public class DrawingBoardItem extends Item {
     public static final int MAX_COLORS = 16;
 
     public DrawingBoardItem() {
-        super(new Properties().stacksTo(1));
+        super(new Properties().stacksTo(4));
     }
 
     @Override

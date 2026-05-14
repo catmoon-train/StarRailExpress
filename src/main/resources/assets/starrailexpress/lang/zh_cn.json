@@ -1951,5 +1951,6 @@
   "starrailexpress.drawing_board.recognize.fail": "无法识别该图案",
   "starrailexpress.drawing_board.recognize.success_with": "识别成功！",
   "starrailexpress.drawing_board.recognize.unknown": "未知物品",
-  "starrailexpress.drawing_board.consumed": "画板已消耗"
+  "starrailexpress.drawing_board.consumed": "画板已消耗",
+  "starrailexpress.drawing_board.recognize.inventory_full": "物品栏已满"
 }
