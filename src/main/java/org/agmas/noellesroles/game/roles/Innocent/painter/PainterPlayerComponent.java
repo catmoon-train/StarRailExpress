@@ -8,15 +8,16 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.MCItemsUtils;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
+import org.ladysnake.cca.api.v3.component.ComponentRegistry;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
 /**
@@ -30,7 +31,9 @@ import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 public class PainterPlayerComponent implements RoleComponent, ServerTickingComponent {
     
     /** 组件键 - 用于从玩家获取此组件 */
-    public static final ComponentKey<PainterPlayerComponent> KEY = ModComponents.PAINTER;
+    public static final ComponentKey<PainterPlayerComponent> KEY = ComponentRegistry.getOrCreate(
+            ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "painter"),
+            PainterPlayerComponent.class);
     
     // ==================== 常量定义 ====================
     
@@ -133,14 +136,25 @@ public class PainterPlayerComponent implements RoleComponent, ServerTickingCompo
     }
     
     /**
-     * 给予画板物品
+     * 给予画板物品（普通来源）
      */
     public void giveDrawingBoard() {
+        giveDrawingBoard(false);
+    }
+
+    /**
+     * 给予画板物品
+     * @param fromFriend 是否来自挚友技能
+     */
+    public void giveDrawingBoard(boolean fromFriend) {
         if (player != null && !player.level().isClientSide()) {
             MCItemsUtils.insertStackInFreeSlot(player, TMMItems.DRAWING_BOARD.getDefaultInstance());
             if (player instanceof ServerPlayer sp) {
+                String key = fromFriend
+                        ? "message.noellesroles.painter.friend_drawing_board_received"
+                        : "message.noellesroles.painter.drawing_board_received";
                 sp.displayClientMessage(
-                        Component.translatable("message.noellesroles.painter.drawing_board_received")
+                        Component.translatable(key)
                                 .withStyle(ChatFormatting.GOLD),
                         true);
             }
@@ -182,7 +196,7 @@ public class PainterPlayerComponent implements RoleComponent, ServerTickingCompo
      */
     public void sync() {
         if (player != null && !player.level().isClientSide()) {
-            ModComponents.PAINTER.sync(this.player);
+            KEY.sync(this.player);
         }
     }
     
@@ -327,11 +341,11 @@ public class PainterPlayerComponent implements RoleComponent, ServerTickingCompo
             
             SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(p.level());
             
-            // 给予画家画板
+            // 给予画家画板（挚友技能）
             if (gameWorld.isRole(p, ModRoles.PAINTER)) {
-                PainterPlayerComponent comp = ModComponents.PAINTER.get(p);
+                PainterPlayerComponent comp = KEY.get(p);
                 if (comp != null) {
-                    comp.giveDrawingBoard();
+                    comp.giveDrawingBoard(true);
                 }
             }
             
@@ -340,7 +354,7 @@ public class PainterPlayerComponent implements RoleComponent, ServerTickingCompo
                 MCItemsUtils.insertStackInFreeSlot(p, TMMItems.DRAWING_BOARD.getDefaultInstance());
                 if (p instanceof ServerPlayer sp) {
                     sp.displayClientMessage(
-                            Component.translatable("message.noellesroles.painter.friend_drawing_board_received")
+                            Component.translatable("message.noellesroles.writer.painter_gave_drawing_board")
                                     .withStyle(ChatFormatting.GOLD),
                             true);
                 }

@@ -19,6 +19,8 @@ public class DrawingBoardRecognizer {
 
     private static DrawingBoardRecognizer instance;
     private final SimpleKNN knn;
+    // 存储每个类别的代表pattern，用于像素级校验
+    private final Map<Integer, byte[][]> categoryPatterns = new HashMap<>();
 
     // 物品类别定义（与翻译键对应）
     public static final int UNKNOWN = -1;
@@ -164,202 +166,300 @@ public class DrawingBoardRecognizer {
     }
 
     private void initializeTrainingData() {
-        // 添加各种物品的训练样本
+        // 添加各种物品的训练样本，并存储代表pattern用于像素级校验
         // 刀
-        knn.addSample(SimpleKNN.matrixToFeature(createKnifePattern()), KNIFE);
+        byte[][] knife = createKnifePattern();
+        knn.addSample(SimpleKNN.matrixToFeature(knife), KNIFE);
         knn.addSample(SimpleKNN.matrixToFeature(createKnifePattern2()), KNIFE);
+        categoryPatterns.put(KNIFE, knife);
 
         // 撬棍
-        knn.addSample(SimpleKNN.matrixToFeature(createCrowbarPattern()), CROWBAR);
+        byte[][] crowbar = createCrowbarPattern();
+        knn.addSample(SimpleKNN.matrixToFeature(crowbar), CROWBAR);
         knn.addSample(SimpleKNN.matrixToFeature(createCrowbarPattern2()), CROWBAR);
+        categoryPatterns.put(CROWBAR, crowbar);
 
         // 鞭炮
-        knn.addSample(SimpleKNN.matrixToFeature(createFirecrackerPattern()), FIRECRACKER);
+        byte[][] firecracker = createFirecrackerPattern();
+        knn.addSample(SimpleKNN.matrixToFeature(firecracker), FIRECRACKER);
         knn.addSample(SimpleKNN.matrixToFeature(createFirecrackerPattern2()), FIRECRACKER);
+        categoryPatterns.put(FIRECRACKER, firecracker);
 
         // 左轮手枪
-        knn.addSample(SimpleKNN.matrixToFeature(createRevolverPattern()), REVOLVER);
+        byte[][] revolver = createRevolverPattern();
+        knn.addSample(SimpleKNN.matrixToFeature(revolver), REVOLVER);
         knn.addSample(SimpleKNN.matrixToFeature(createRevolverPattern2()), REVOLVER);
+        categoryPatterns.put(REVOLVER, revolver);
 
         // 便签
-        knn.addSample(SimpleKNN.matrixToFeature(createNotePattern()), NOTE);
+        byte[][] note = createNotePattern();
+        knn.addSample(SimpleKNN.matrixToFeature(note), NOTE);
         knn.addSample(SimpleKNN.matrixToFeature(createNotePattern2()), NOTE);
+        categoryPatterns.put(NOTE, note);
 
         // 裹尸袋
-        knn.addSample(SimpleKNN.matrixToFeature(createBodyBagPattern()), BODY_BAG);
+        byte[][] bodyBag = createBodyBagPattern();
+        knn.addSample(SimpleKNN.matrixToFeature(bodyBag), BODY_BAG);
         knn.addSample(SimpleKNN.matrixToFeature(createBodyBagPattern2()), BODY_BAG);
+        categoryPatterns.put(BODY_BAG, bodyBag);
 
         // 防御药剂
-        knn.addSample(SimpleKNN.matrixToFeature(createDefenseVialPattern()), DEFENSE_VIAL);
+        byte[][] defenseVial = createDefenseVialPattern();
+        knn.addSample(SimpleKNN.matrixToFeature(defenseVial), DEFENSE_VIAL);
         knn.addSample(SimpleKNN.matrixToFeature(createDefenseVialPattern2()), DEFENSE_VIAL);
+        categoryPatterns.put(DEFENSE_VIAL, defenseVial);
 
         // 解药
-        knn.addSample(SimpleKNN.matrixToFeature(createAntidotePattern()), ANTIDOTE);
+        byte[][] antidote = createAntidotePattern();
+        knn.addSample(SimpleKNN.matrixToFeature(antidote), ANTIDOTE);
         knn.addSample(SimpleKNN.matrixToFeature(createAntidotePattern2()), ANTIDOTE);
+        categoryPatterns.put(ANTIDOTE, antidote);
 
         // 毒针
-        knn.addSample(SimpleKNN.matrixToFeature(createToxinPattern()), TOXIN);
+        byte[][] toxin = createToxinPattern();
+        knn.addSample(SimpleKNN.matrixToFeature(toxin), TOXIN);
         knn.addSample(SimpleKNN.matrixToFeature(createToxinPattern2()), TOXIN);
+        categoryPatterns.put(TOXIN, toxin);
 
         // 催化剂
-        knn.addSample(SimpleKNN.matrixToFeature(createCatalystPattern()), CATALYST);
+        byte[][] catalyst = createCatalystPattern();
+        knn.addSample(SimpleKNN.matrixToFeature(catalyst), CATALYST);
         knn.addSample(SimpleKNN.matrixToFeature(createCatalystPattern2()), CATALYST);
+        categoryPatterns.put(CATALYST, catalyst);
 
         // 一杯水
-        knn.addSample(SimpleKNN.matrixToFeature(createBottlePattern()), BOTTLE_OF_WATER);
+        byte[][] bottle = createBottlePattern();
+        knn.addSample(SimpleKNN.matrixToFeature(bottle), BOTTLE_OF_WATER);
         knn.addSample(SimpleKNN.matrixToFeature(createBottlePattern2()), BOTTLE_OF_WATER);
+        categoryPatterns.put(BOTTLE_OF_WATER, bottle);
 
         // 一包零食
-        knn.addSample(SimpleKNN.matrixToFeature(createLingshiPattern()), LINGSHI);
+        byte[][] lingshi = createLingshiPattern();
+        knn.addSample(SimpleKNN.matrixToFeature(lingshi), LINGSHI);
         knn.addSample(SimpleKNN.matrixToFeature(createLingshiPattern2()), LINGSHI);
+        categoryPatterns.put(LINGSHI, lingshi);
 
         // 苦无
-        knn.addSample(SimpleKNN.matrixToFeature(createKunaiPattern()), KUNAI);
+        byte[][] kunai = createKunaiPattern();
+        knn.addSample(SimpleKNN.matrixToFeature(kunai), KUNAI);
         knn.addSample(SimpleKNN.matrixToFeature(createKunaiPattern2()), KUNAI);
+        categoryPatterns.put(KUNAI, kunai);
 
         // 手里剑
-        knn.addSample(SimpleKNN.matrixToFeature(createShurikenPattern()), SHURIKEN);
+        byte[][] shuriken = createShurikenPattern();
+        knn.addSample(SimpleKNN.matrixToFeature(shuriken), SHURIKEN);
         knn.addSample(SimpleKNN.matrixToFeature(createShurikenPattern2()), SHURIKEN);
+        categoryPatterns.put(SHURIKEN, shuriken);
 
         // 手铐
-        knn.addSample(SimpleKNN.matrixToFeature(createHandcuffsPattern()), HANDCUFFS);
+        byte[][] handcuffs = createHandcuffsPattern();
+        knn.addSample(SimpleKNN.matrixToFeature(handcuffs), HANDCUFFS);
         knn.addSample(SimpleKNN.matrixToFeature(createHandcuffsPattern2()), HANDCUFFS);
+        categoryPatterns.put(HANDCUFFS, handcuffs);
 
         // 夜视仪
-        knn.addSample(SimpleKNN.matrixToFeature(createNightVisionPattern()), NIGHT_VISION);
+        byte[][] nightVision = createNightVisionPattern();
+        knn.addSample(SimpleKNN.matrixToFeature(nightVision), NIGHT_VISION);
         knn.addSample(SimpleKNN.matrixToFeature(createNightVisionPattern2()), NIGHT_VISION);
+        categoryPatterns.put(NIGHT_VISION, nightVision);
 
         // 潜水头盔
-        knn.addSample(SimpleKNN.matrixToFeature(createDivingHelmetPattern()), DIVING_HELMET);
+        byte[][] divingHelmet = createDivingHelmetPattern();
+        knn.addSample(SimpleKNN.matrixToFeature(divingHelmet), DIVING_HELMET);
         knn.addSample(SimpleKNN.matrixToFeature(createDivingHelmetPattern2()), DIVING_HELMET);
+        categoryPatterns.put(DIVING_HELMET, divingHelmet);
 
         // 潜水靴
-        knn.addSample(SimpleKNN.matrixToFeature(createDivingBootsPattern()), DIVING_BOOTS);
+        byte[][] divingBoots = createDivingBootsPattern();
+        knn.addSample(SimpleKNN.matrixToFeature(divingBoots), DIVING_BOOTS);
         knn.addSample(SimpleKNN.matrixToFeature(createDivingBootsPattern2()), DIVING_BOOTS);
+        categoryPatterns.put(DIVING_BOOTS, divingBoots);
 
         // 乘务员钥匙
-        knn.addSample(SimpleKNN.matrixToFeature(createMasterKeyPPattern()), MASTER_KEY_P);
+        byte[][] masterKey = createMasterKeyPPattern();
+        knn.addSample(SimpleKNN.matrixToFeature(masterKey), MASTER_KEY_P);
         knn.addSample(SimpleKNN.matrixToFeature(createMasterKeyPPattern2()), MASTER_KEY_P);
+        categoryPatterns.put(MASTER_KEY_P, masterKey);
 
         // 心脏起搏器
-        knn.addSample(SimpleKNN.matrixToFeature(createDefibrillatorPattern()), DEFIBRILLATOR);
+        byte[][] defib = createDefibrillatorPattern();
+        knn.addSample(SimpleKNN.matrixToFeature(defib), DEFIBRILLATOR);
         knn.addSample(SimpleKNN.matrixToFeature(createDefibrillatorPattern2()), DEFIBRILLATOR);
+        categoryPatterns.put(DEFIBRILLATOR, defib);
 
         // 拳套
-        knn.addSample(SimpleKNN.matrixToFeature(createBoxingGlovePattern()), BOXING_GLOVE);
+        byte[][] boxingGlove = createBoxingGlovePattern();
+        knn.addSample(SimpleKNN.matrixToFeature(boxingGlove), BOXING_GLOVE);
         knn.addSample(SimpleKNN.matrixToFeature(createBoxingGlovePattern2()), BOXING_GLOVE);
+        categoryPatterns.put(BOXING_GLOVE, boxingGlove);
 
         // 验毒试剂
-        knn.addSample(SimpleKNN.matrixToFeature(createAntidoteReagentPattern()), ANTIDOTE_REAGENT);
+        byte[][] antidoteReagent = createAntidoteReagentPattern();
+        knn.addSample(SimpleKNN.matrixToFeature(antidoteReagent), ANTIDOTE_REAGENT);
         knn.addSample(SimpleKNN.matrixToFeature(createAntidoteReagentPattern2()), ANTIDOTE_REAGENT);
+        categoryPatterns.put(ANTIDOTE_REAGENT, antidoteReagent);
 
         // 烟雾弹
-        knn.addSample(SimpleKNN.matrixToFeature(createSmokeGrenadePattern()), SMOKE_GRENADE);
+        byte[][] smokeGrenade = createSmokeGrenadePattern();
+        knn.addSample(SimpleKNN.matrixToFeature(smokeGrenade), SMOKE_GRENADE);
         knn.addSample(SimpleKNN.matrixToFeature(createSmokeGrenadePattern2()), SMOKE_GRENADE);
+        categoryPatterns.put(SMOKE_GRENADE, smokeGrenade);
 
         // 闪光弹
-        knn.addSample(SimpleKNN.matrixToFeature(createFlashGrenadePattern()), FLASH_GRENADE);
+        byte[][] flashGrenade = createFlashGrenadePattern();
+        knn.addSample(SimpleKNN.matrixToFeature(flashGrenade), FLASH_GRENADE);
         knn.addSample(SimpleKNN.matrixToFeature(createFlashGrenadePattern2()), FLASH_GRENADE);
+        categoryPatterns.put(FLASH_GRENADE, flashGrenade);
 
         // 维修工具
-        knn.addSample(SimpleKNN.matrixToFeature(createRepairToolPattern()), REPAIR_TOOL);
+        byte[][] repairTool = createRepairToolPattern();
+        knn.addSample(SimpleKNN.matrixToFeature(repairTool), REPAIR_TOOL);
         knn.addSample(SimpleKNN.matrixToFeature(createRepairToolPattern2()), REPAIR_TOOL);
+        categoryPatterns.put(REPAIR_TOOL, repairTool);
 
         // 螺丝刀
-        knn.addSample(SimpleKNN.matrixToFeature(createScrewdriverPattern()), SCREWDRIVER);
+        byte[][] screwdriver = createScrewdriverPattern();
+        knn.addSample(SimpleKNN.matrixToFeature(screwdriver), SCREWDRIVER);
         knn.addSample(SimpleKNN.matrixToFeature(createScrewdriverPattern2()), SCREWDRIVER);
+        categoryPatterns.put(SCREWDRIVER, screwdriver);
 
         // 警报陷阱
-        knn.addSample(SimpleKNN.matrixToFeature(createAlarmTrapPattern()), ALARM_TRAP);
+        byte[][] alarmTrap = createAlarmTrapPattern();
+        knn.addSample(SimpleKNN.matrixToFeature(alarmTrap), ALARM_TRAP);
         knn.addSample(SimpleKNN.matrixToFeature(createAlarmTrapPattern2()), ALARM_TRAP);
+        categoryPatterns.put(ALARM_TRAP, alarmTrap);
 
         // 邮件
-        knn.addSample(SimpleKNN.matrixToFeature(createDeliveryBoxPattern()), DELIVERY_BOX);
+        byte[][] deliveryBox = createDeliveryBoxPattern();
+        knn.addSample(SimpleKNN.matrixToFeature(deliveryBox), DELIVERY_BOX);
         knn.addSample(SimpleKNN.matrixToFeature(createDeliveryBoxPattern2()), DELIVERY_BOX);
+        categoryPatterns.put(DELIVERY_BOX, deliveryBox);
 
         // 迷幻瓶
-        knn.addSample(SimpleKNN.matrixToFeature(createHallucinationPattern()), HALLUCINATION);
+        byte[][] hallucination = createHallucinationPattern();
+        knn.addSample(SimpleKNN.matrixToFeature(hallucination), HALLUCINATION);
         knn.addSample(SimpleKNN.matrixToFeature(createHallucinationPattern2()), HALLUCINATION);
+        categoryPatterns.put(HALLUCINATION, hallucination);
 
         // 薄荷糖
-        knn.addSample(SimpleKNN.matrixToFeature(createMintCandiesPattern()), MINT_CANDIES);
+        byte[][] mintCandies = createMintCandiesPattern();
+        knn.addSample(SimpleKNN.matrixToFeature(mintCandies), MINT_CANDIES);
         knn.addSample(SimpleKNN.matrixToFeature(createMintCandiesPattern2()), MINT_CANDIES);
+        categoryPatterns.put(MINT_CANDIES, mintCandies);
 
         // 炸弹
-        knn.addSample(SimpleKNN.matrixToFeature(createBombPattern()), BOMB);
+        byte[][] bomb = createBombPattern();
+        knn.addSample(SimpleKNN.matrixToFeature(bomb), BOMB);
         knn.addSample(SimpleKNN.matrixToFeature(createBombPattern2()), BOMB);
+        categoryPatterns.put(BOMB, bomb);
 
         // 轮椅
-        knn.addSample(SimpleKNN.matrixToFeature(createWheelchairPattern()), WHEELCHAIR);
+        byte[][] wheelchair = createWheelchairPattern();
+        knn.addSample(SimpleKNN.matrixToFeature(wheelchair), WHEELCHAIR);
         knn.addSample(SimpleKNN.matrixToFeature(createWheelchairPattern2()), WHEELCHAIR);
+        categoryPatterns.put(WHEELCHAIR, wheelchair);
 
         // 短管霰弹枪
-        knn.addSample(SimpleKNN.matrixToFeature(createShortShotgunPattern()), SHORT_SHOTGUN);
+        byte[][] shotgun = createShortShotgunPattern();
+        knn.addSample(SimpleKNN.matrixToFeature(shotgun), SHORT_SHOTGUN);
         knn.addSample(SimpleKNN.matrixToFeature(createShortShotgunPattern2()), SHORT_SHOTGUN);
+        categoryPatterns.put(SHORT_SHOTGUN, shotgun);
 
         // 警棍
-        knn.addSample(SimpleKNN.matrixToFeature(createBatonPattern()), BATON);
+        byte[][] baton = createBatonPattern();
+        knn.addSample(SimpleKNN.matrixToFeature(baton), BATON);
         knn.addSample(SimpleKNN.matrixToFeature(createBatonPattern2()), BATON);
+        categoryPatterns.put(BATON, baton);
 
         // 对讲机
-        knn.addSample(SimpleKNN.matrixToFeature(createRadioPattern()), RADIO);
+        byte[][] radio = createRadioPattern();
+        knn.addSample(SimpleKNN.matrixToFeature(radio), RADIO);
         knn.addSample(SimpleKNN.matrixToFeature(createRadioPattern2()), RADIO);
+        categoryPatterns.put(RADIO, radio);
 
         // 远程监控终端
-        knn.addSample(SimpleKNN.matrixToFeature(createMonitoringTerminalPattern()), MONITORING_TERMINAL);
+        byte[][] monitor = createMonitoringTerminalPattern();
+        knn.addSample(SimpleKNN.matrixToFeature(monitor), MONITORING_TERMINAL);
         knn.addSample(SimpleKNN.matrixToFeature(createMonitoringTerminalPattern2()), MONITORING_TERMINAL);
+        categoryPatterns.put(MONITORING_TERMINAL, monitor);
 
         // 锁
-        knn.addSample(SimpleKNN.matrixToFeature(createLockPattern()), LOCK);
+        byte[][] lock = createLockPattern();
+        knn.addSample(SimpleKNN.matrixToFeature(lock), LOCK);
         knn.addSample(SimpleKNN.matrixToFeature(createLockPattern2()), LOCK);
+        categoryPatterns.put(LOCK, lock);
 
         // 怀表
-        knn.addSample(SimpleKNN.matrixToFeature(createPocketWatchPattern()), POCKET_WATCH);
+        byte[][] pocketWatch = createPocketWatchPattern();
+        knn.addSample(SimpleKNN.matrixToFeature(pocketWatch), POCKET_WATCH);
         knn.addSample(SimpleKNN.matrixToFeature(createPocketWatchPattern2()), POCKET_WATCH);
+        categoryPatterns.put(POCKET_WATCH, pocketWatch);
 
         // 维生素
-        knn.addSample(SimpleKNN.matrixToFeature(createVitaminPattern()), VITAMIN);
+        byte[][] vitamin = createVitaminPattern();
+        knn.addSample(SimpleKNN.matrixToFeature(vitamin), VITAMIN);
         knn.addSample(SimpleKNN.matrixToFeature(createVitaminPattern2()), VITAMIN);
+        categoryPatterns.put(VITAMIN, vitamin);
 
         // 消防斧
-        knn.addSample(SimpleKNN.matrixToFeature(createFireAxePattern()), FIRE_AXE);
+        byte[][] fireAxe = createFireAxePattern();
+        knn.addSample(SimpleKNN.matrixToFeature(fireAxe), FIRE_AXE);
         knn.addSample(SimpleKNN.matrixToFeature(createFireAxePattern2()), FIRE_AXE);
+        categoryPatterns.put(FIRE_AXE, fireAxe);
 
         // 飞刀
-        knn.addSample(SimpleKNN.matrixToFeature(createThrowingKnifePattern()), THROWING_KNIFE);
+        byte[][] throwingKnife = createThrowingKnifePattern();
+        knn.addSample(SimpleKNN.matrixToFeature(throwingKnife), THROWING_KNIFE);
         knn.addSample(SimpleKNN.matrixToFeature(createThrowingKnifePattern2()), THROWING_KNIFE);
+        categoryPatterns.put(THROWING_KNIFE, throwingKnife);
 
         // 绳索
-        knn.addSample(SimpleKNN.matrixToFeature(createRopePattern()), ROPE);
+        byte[][] rope = createRopePattern();
+        knn.addSample(SimpleKNN.matrixToFeature(rope), ROPE);
         knn.addSample(SimpleKNN.matrixToFeature(createRopePattern2()), ROPE);
+        categoryPatterns.put(ROPE, rope);
 
         // 灭火器
-        knn.addSample(SimpleKNN.matrixToFeature(createExtinguisherPattern()), EXTINGUISHER);
+        byte[][] extinguisher = createExtinguisherPattern();
+        knn.addSample(SimpleKNN.matrixToFeature(extinguisher), EXTINGUISHER);
         knn.addSample(SimpleKNN.matrixToFeature(createExtinguisherPattern2()), EXTINGUISHER);
+        categoryPatterns.put(EXTINGUISHER, extinguisher);
 
         // 存折
-        knn.addSample(SimpleKNN.matrixToFeature(createPassbookPattern()), PASSBOOK);
+        byte[][] passbook = createPassbookPattern();
+        knn.addSample(SimpleKNN.matrixToFeature(passbook), PASSBOOK);
         knn.addSample(SimpleKNN.matrixToFeature(createPassbookPattern2()), PASSBOOK);
+        categoryPatterns.put(PASSBOOK, passbook);
 
         // 时停钟
-        knn.addSample(SimpleKNN.matrixToFeature(createTimeStopClockPattern()), TIME_STOP_CLOCK);
+        byte[][] timeStopClock = createTimeStopClockPattern();
+        knn.addSample(SimpleKNN.matrixToFeature(timeStopClock), TIME_STOP_CLOCK);
         knn.addSample(SimpleKNN.matrixToFeature(createTimeStopClockPattern2()), TIME_STOP_CLOCK);
+        categoryPatterns.put(TIME_STOP_CLOCK, timeStopClock);
 
         // 十四夜
-        knn.addSample(SimpleKNN.matrixToFeature(createShisiyePattern()), SHISYE);
+        byte[][] shisiye = createShisiyePattern();
+        knn.addSample(SimpleKNN.matrixToFeature(shisiye), SHISYE);
         knn.addSample(SimpleKNN.matrixToFeature(createShisiyePattern2()), SHISYE);
+        categoryPatterns.put(SHISYE, shisiye);
 
         // 习题集
-        knn.addSample(SimpleKNN.matrixToFeature(createProblemSetPattern()), PROBLEM_SET);
+        byte[][] problemSet = createProblemSetPattern();
+        knn.addSample(SimpleKNN.matrixToFeature(problemSet), PROBLEM_SET);
         knn.addSample(SimpleKNN.matrixToFeature(createProblemSetPattern2()), PROBLEM_SET);
+        categoryPatterns.put(PROBLEM_SET, problemSet);
 
         // 回形针
-        knn.addSample(SimpleKNN.matrixToFeature(createPaperclipPattern()), PAPERCLIP);
+        byte[][] paperclip = createPaperclipPattern();
+        knn.addSample(SimpleKNN.matrixToFeature(paperclip), PAPERCLIP);
         knn.addSample(SimpleKNN.matrixToFeature(createPaperclipPattern2()), PAPERCLIP);
+        categoryPatterns.put(PAPERCLIP, paperclip);
 
         // 诱饵弹
-        knn.addSample(SimpleKNN.matrixToFeature(createDecoyGrenadePattern()), DECOY_GRENADE);
+        byte[][] decoyGrenade = createDecoyGrenadePattern();
+        knn.addSample(SimpleKNN.matrixToFeature(decoyGrenade), DECOY_GRENADE);
         knn.addSample(SimpleKNN.matrixToFeature(createDecoyGrenadePattern2()), DECOY_GRENADE);
+        categoryPatterns.put(DECOY_GRENADE, decoyGrenade);
     }
 
     /**
@@ -8619,28 +8719,28 @@ public class DrawingBoardRecognizer {
         // 多算法融合检测
         Map<Integer, Integer> votes = new java.util.HashMap<>();
 
-        // 算法1: 标准欧氏距离（精确匹配）
-        int result1 = knn.predictWithThresholdByAlgorithm(features, 0.6, "euclidean");
+        // 算法1: 标准欧氏距离（精确匹配）- 最严格，提高阈值
+        int result1 = knn.predictWithThresholdByAlgorithm(features, 0.8, "euclidean");
         if (result1 != -1) {
-            votes.put(result1, votes.getOrDefault(result1, 0) + 2);  // 权重2
+            votes.put(result1, votes.getOrDefault(result1, 0) + 4);  // 权重4
         }
 
-        // 算法2: 宽松形状匹配（允许多余像素）
-        int result2 = knn.predictWithThresholdByAlgorithm(features, 0.5, "shape");
-        if (result2 != -1) {
-            votes.put(result2, votes.getOrDefault(result2, 0) + 1);  // 权重1
-        }
-
-        // 算法3: 多算法融合（按严格程度加权投票）
+        // 算法2: 多算法融合（按严格程度加权投票）- 提高要求
         int result3 = knn.predictMultiAlgorithm(features);
         if (result3 != -1) {
-            votes.put(result3, votes.getOrDefault(result3, 0) + 1);
+            votes.put(result3, votes.getOrDefault(result3, 0) + 2);  // 权重2
         }
 
-        // 算法4: 色块数量匹配
-        int result4 = knn.predictWithThresholdByAlgorithm(features, 0.3, "colorCount");
+        // 算法3: 色块数量匹配
+        int result4 = knn.predictWithThresholdByAlgorithm(features, 0.6, "colorCount");
         if (result4 != -1) {
-            votes.put(result4, votes.getOrDefault(result4, 0) + 3);  // 权重3
+            votes.put(result4, votes.getOrDefault(result4, 0) + 2);  // 权重2
+        }
+
+        // 算法4: 宽松形状匹配（允许多余像素）- 提高阈值
+        int result2 = knn.predictWithThresholdByAlgorithm(features, 0.7, "shape");
+        if (result2 != -1) {
+            votes.put(result2, votes.getOrDefault(result2, 0) + 1);  // 权重1
         }
 
         // 返回得票最多的标签
@@ -8652,7 +8752,86 @@ public class DrawingBoardRecognizer {
                 bestLabel = entry.getKey();
             }
         }
+        // 只有票数达到最低要求才返回结果
+        if (bestCount < 3) {
+            return UNKNOWN;
+        }
+
+        // 像素级校验：检查输入是否符合pattern的约束
+        if (!validatePixelConstraints(pixels, bestLabel)) {
+            return UNKNOWN; // 超过阈值，拒绝识别
+        }
+
         return bestLabel;
+    }
+
+    /**
+     * 像素级校验：检查输入是否符合pattern的约束
+     * - pattern中透明位置被画上颜色的比例不超过35%
+     * - pattern中有色位置被画成透明的比例不超过40%
+     * @param input 输入像素矩阵（原始）
+     * @param label 识别的类别
+     * @return true 表示通过校验，false 表示被否决
+     */
+    private boolean validatePixelConstraints(byte[][] input, int label) {
+        byte[][] pattern = categoryPatterns.get(label);
+        if (pattern == null) {
+            return true; // 没有pattern数据，默认通过
+        }
+
+        // 透明阈值：pattern中透明位置被画上颜色的比例不超过此值
+        final double EXTRA_PIXEL_THRESHOLD = 0.35;  // 35%
+        // 遗漏阈值：pattern中有色位置被画成透明的比例不超过此值
+        final double MISSING_PIXEL_THRESHOLD = 0.40; // 40%
+
+        int patternTransparentCount = 0; // pattern中透明位置总数
+        int extraColorCount = 0;          // pattern中透明位置被画上颜色的数量
+
+        int patternColoredCount = 0;      // pattern中有色位置总数
+        int missingColorCount = 0;         // pattern中有色位置被画成透明的数量
+
+        for (int y = 0; y < 16; y++) {
+            for (int x = 0; x < 16; x++) {
+                int patternColor = pattern[y][x] & 0xFF;
+                int inputColor = input[y][x] & 0xFF;
+
+                // 判断是否为透明/背景色（索引为0或等于16）
+                boolean patternIsTransparent = patternColor == 0 || patternColor == 16;
+                boolean inputIsTransparent = inputColor == 0 || inputColor == 16;
+
+                if (patternIsTransparent) {
+                    patternTransparentCount++;
+                    // pattern是透明的，但输入画上了颜色
+                    if (!inputIsTransparent) {
+                        extraColorCount++;
+                    }
+                } else {
+                    patternColoredCount++;
+                    // pattern是有色的，但输入画成了透明
+                    if (inputIsTransparent) {
+                        missingColorCount++;
+                    }
+                }
+            }
+        }
+
+        // 检查透明位置被占领的比例
+        if (patternTransparentCount > 0) {
+            double extraRatio = (double) extraColorCount / patternTransparentCount;
+            if (extraRatio > EXTRA_PIXEL_THRESHOLD) {
+                return false; // 超过35%阈值，拒绝
+            }
+        }
+
+        // 检查有色位置变成透明的比例
+        if (patternColoredCount > 0) {
+            double missingRatio = (double) missingColorCount / patternColoredCount;
+            if (missingRatio > MISSING_PIXEL_THRESHOLD) {
+                return false; // 超过40%阈值，拒绝
+            }
+        }
+
+        return true;
     }
 
     /**

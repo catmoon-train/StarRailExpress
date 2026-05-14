@@ -19,7 +19,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ItemEntity.class)
 public abstract class PainterItemPickupMixin {
 
-    @Inject(method = "playerTouch", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;canPickUpItems(Lnet/minecraft/world/entity/item/ItemEntity;)Z"))
+    @Inject(method = "playerTouch", at = @At("HEAD"))
     private void onPainterItemPickup(Player player, CallbackInfo ci) {
         try {
             // 检查是否为画家

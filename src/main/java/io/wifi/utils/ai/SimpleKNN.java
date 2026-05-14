@@ -12,6 +12,7 @@ public class SimpleKNN {
     // 存储训练样本
     private static class Sample {
         double[] features;  // 特征向量（展平后的矩阵）
+        byte[][] rawMatrix; // 原始矩阵，用于像素级校验
         int label;          // 类别标签，如 0=圆形, 1=方形
     }
 
@@ -33,8 +34,19 @@ public class SimpleKNN {
      * @param label    类别标签
      */
     public void addSample(double[] features, int label) {
+        addSample(features, null, label);
+    }
+
+    /**
+     * 添加一个训练样本（带原始矩阵）
+     * @param features 特征向量（double数组）
+     * @param rawMatrix 原始矩阵，用于像素级校验
+     * @param label    类别标签
+     */
+    public void addSample(double[] features, byte[][] rawMatrix, int label) {
         Sample s = new Sample();
         s.features = features.clone();
+        s.rawMatrix = rawMatrix;
         s.label = label;
         samples.add(s);
     }
@@ -399,6 +411,105 @@ public class SimpleKNN {
             case "centroid": return centroidAwareDistance(a, b, width, height);
             default: return calculateDistance(a, b, algorithm);
         }
+    }
+
+    // ========== 像素级校验方法 ==========
+    // 透明阈值：pattern中透明位置被画上颜色的比例不超过此值
+    private static final double EXTRA_PIXEL_THRESHOLD = 0.35;  // 35%
+    // 遗漏阈值：pattern中有色位置被画成透明的比例不超过此值
+    private static final double MISSING_PIXEL_THRESHOLD = 0.40; // 40%
+
+    /**
+     * 像素级校验：检查输入是否符合pattern的约束
+     * @param input 输入像素矩阵（归一化）
+     * @param patternSample 训练样本的原始矩阵
+     * @return true 表示通过校验，false 表示被否决
+     */
+    public boolean validatePixelConstraints(byte[][] input, int label) {
+        // 找到该label对应的样本
+        for (Sample s : samples) {
+            if (s.label == label && s.rawMatrix != null) {
+                return validatePixelConstraintsForMatrix(input, s.rawMatrix);
+            }
+        }
+        // 没有原始矩阵，默认通过
+        return true;
+    }
+
+    /**
+     * 像素级校验：检查输入是否符合约束
+     * @param input 输入像素矩阵
+     * @param pattern pattern矩阵
+     * @return true 表示通过校验，false 表示被否决
+     */
+    private boolean validatePixelConstraintsForMatrix(byte[][] input, byte[][] pattern) {
+        if (input == null || pattern == null || input.length != pattern.length) {
+            return true; // 默认通过
+        }
+
+        int width = Math.min(input[0].length, pattern[0].length);
+        int height = Math.min(input.length, pattern.length);
+
+        int patternTransparentCount = 0; // pattern中透明位置总数
+        int extraColorCount = 0;          // pattern中透明位置被画上颜色的数量
+
+        int patternColoredCount = 0;      // pattern中有色位置总数
+        int missingColorCount = 0;         // pattern中有色位置被画成透明的数量
+
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                int patternColor = pattern[y][x] & 0xFF;
+                int inputColor = input[y][x] & 0xFF;
+
+                // 判断是否为透明/背景色（索引接近0或等于背景白色16）
+                boolean patternIsTransparent = patternColor == 0 || patternColor == 16;
+                boolean inputIsTransparent = inputColor == 0 || inputColor == 16;
+
+                if (patternIsTransparent) {
+                    patternTransparentCount++;
+                    // pattern是透明的，但输入画上了颜色
+                    if (!inputIsTransparent) {
+                        extraColorCount++;
+                    }
+                } else {
+                    patternColoredCount++;
+                    // pattern是有色的，但输入画成了透明
+                    if (inputIsTransparent) {
+                        missingColorCount++;
+                    }
+                }
+            }
+        }
+
+        // 检查透明位置被占领的比例
+        if (patternTransparentCount > 0) {
+            double extraRatio = (double) extraColorCount / patternTransparentCount;
+            if (extraRatio > EXTRA_PIXEL_THRESHOLD) {
+                return false; // 超过35%阈值，拒绝
+            }
+        }
+
+        // 检查有色位置变成透明的比例
+        if (patternColoredCount > 0) {
+            double missingRatio = (double) missingColorCount / patternColoredCount;
+            if (missingRatio > MISSING_PIXEL_THRESHOLD) {
+                return false; // 超过40%阈值，拒绝
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * 获取样本的原始矩阵
+     */
+    public byte[][] getSampleRawMatrix(int label) {
+        for (Sample s : samples) {
+            if (s.label == label && s.rawMatrix != null) {
+                return s.rawMatrix;
+            }
+        }
+        return null;
     }
 
     /**

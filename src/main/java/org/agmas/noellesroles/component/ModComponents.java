@@ -348,9 +348,7 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
   public static final ComponentKey<MorticianPlayerComponent> MORTICIAN = MorticianPlayerComponent.KEY;
 
   // 画家组件 - 平民阵营，绘画灵感、求索、挚友技能
-  public static final ComponentKey<PainterPlayerComponent> PAINTER = ComponentRegistry.getOrCreate(
-      ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "painter"),
-      PainterPlayerComponent.class);
+  public static final ComponentKey<PainterPlayerComponent> PAINTER = PainterPlayerComponent.KEY;
 
   public ModComponents() {
     // CCA 需要无参构造函数
