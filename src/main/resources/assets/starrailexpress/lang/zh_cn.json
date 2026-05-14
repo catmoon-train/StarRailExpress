@@ -1954,6 +1954,7 @@
   "starrailexpress.drawing_board.consumed": "画板已消耗",
   "starrailexpress.drawing_board.recognize.inventory_full": "物品栏已满",
   "starrailexpress.drawing_board.hint.closest_category": "你画的可能是：",
+  "starrailexpress.drawing_board.hint.out_of_range": "你画的物品不在可识别范围中",
   "starrailexpress.drawing_board.hint.category_0": "小刀",
   "starrailexpress.drawing_board.hint.category_1": "撬棍",
   "starrailexpress.drawing_board.hint.category_2": "鞭炮",

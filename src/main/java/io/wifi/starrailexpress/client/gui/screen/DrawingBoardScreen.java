@@ -60,6 +60,7 @@ public class DrawingBoardScreen extends Screen {
     private boolean isDrawing = false;
     private int lastRecognizeResult = DrawingBoardRecognizer.UNKNOWN;
     private String lastRecognizeMessage = "";
+    private String lastHint = "";  // 提示信息
 
     // 保底机制：追踪连续识别次数
     private static final int FALLBACK_THRESHOLD = 4;  // 连续4次相同类别触发保底
@@ -150,6 +151,7 @@ public class DrawingBoardScreen extends Screen {
         }
         lastRecognizeResult = DrawingBoardRecognizer.UNKNOWN;
         lastRecognizeMessage = "";
+        lastHint = "";
         // 重置保底计数器
         consecutiveSameCategoryCount = 0;
         lastClosestCategory = DrawingBoardRecognizer.UNKNOWN;
@@ -194,6 +196,8 @@ public class DrawingBoardScreen extends Screen {
         }
 
         lastRecognizeResult = recognizedCategory;
+        lastHint = result.hint;  // 保存提示信息
+
         if (recognizedCategory == DrawingBoardRecognizer.UNKNOWN) {
             // 识别失败，只显示消息，不关闭界面
             lastRecognizeMessage = Component.translatable("starrailexpress.drawing_board.recognize.fail").getString();
@@ -272,11 +276,16 @@ public class DrawingBoardScreen extends Screen {
             int color = lastRecognizeResult != DrawingBoardRecognizer.UNKNOWN ? 0x00FF00 : 0xFF6060;
             graphics.drawString(font, lastRecognizeMessage, canvasX, infoY + 15, color);
 
-            // 识别失败时显示最近类别提示
-            if (lastRecognizeResult == DrawingBoardRecognizer.UNKNOWN && displayClosestCategory != DrawingBoardRecognizer.UNKNOWN) {
-                String categoryHint = Component.translatable("starrailexpress.drawing_board.hint.closest_category").getString();
-                String categoryName = Component.translatable(DrawingBoardRecognizer.getClosestCategoryTranslationKey(displayClosestCategory)).getString();
-                graphics.drawString(font, categoryHint + categoryName, canvasX, infoY + 45, 0xFFAA00);
+            // 识别失败时显示提示信息
+            if (lastRecognizeResult == DrawingBoardRecognizer.UNKNOWN && !lastHint.isEmpty()) {
+                String hintText = Component.translatable(lastHint).getString();
+                graphics.drawString(font, hintText, canvasX, infoY + 45, 0xFFAA00);
+
+                // 如果有最近类别，再显示类别名
+                if (displayClosestCategory != DrawingBoardRecognizer.UNKNOWN) {
+                    String categoryName = Component.translatable(DrawingBoardRecognizer.getClosestCategoryTranslationKey(displayClosestCategory)).getString();
+                    graphics.drawString(font, categoryName, canvasX, infoY + 60, 0xFFAA00);
+                }
             }
         }
 

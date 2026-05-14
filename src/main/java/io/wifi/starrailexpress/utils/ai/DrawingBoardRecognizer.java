@@ -31,16 +31,24 @@ public class DrawingBoardRecognizer {
     public static class RecognizeResult {
         public final int category;
         public final int closestCategory;  // 最接近的类别（用于提示）
-        public final String hint;          // 提示文本
+        public final String hint;            // 提示文本
+        public final int voteCount;          // 得票数
+        public final int totalVotes;         // 总投票权重
 
-        public RecognizeResult(int category, int closestCategory, String hint) {
+        public RecognizeResult(int category, int closestCategory, String hint, int voteCount, int totalVotes) {
             this.category = category;
             this.closestCategory = closestCategory;
             this.hint = hint;
+            this.voteCount = voteCount;
+            this.totalVotes = totalVotes;
         }
 
         public RecognizeResult(int category) {
-            this(category, category, "");
+            this(category, category, "", 0, 0);
+        }
+
+        public RecognizeResult(int category, int closestCategory, String hint) {
+            this(category, closestCategory, hint, 0, 0);
         }
     }
 
@@ -8776,6 +8784,12 @@ public class DrawingBoardRecognizer {
             votes.put(result2, votes.getOrDefault(result2, 0) + 1);  // 权重1
         }
 
+        // 计算总投票权重
+        int totalVoteWeight = 0;
+        for (int weight : votes.values()) {
+            totalVoteWeight += weight;
+        }
+
         // 返回得票最多的标签
         int bestLabel = UNKNOWN;
         int bestCount = 0;
@@ -8785,16 +8799,31 @@ public class DrawingBoardRecognizer {
                 bestLabel = entry.getKey();
             }
         }
+
+        // 计算最高得票率
+        double bestVoteRatio = totalVoteWeight > 0 ? (double) bestCount / totalVoteWeight : 0.0;
+
+        // 颜色错误率校验：如果颜色错误率达到40%以上，直接降低得票数到3以下
+        if (bestCount >= 2) {
+            double colorMismatchRatio = calculateColorMismatchRatio(normalizedPixels, bestLabel);
+            if (colorMismatchRatio > 0.40) {
+                // 颜色错误率超过40%，降低得票数
+                bestCount = 1;
+                bestVoteRatio = totalVoteWeight > 0 ? (double) bestCount / totalVoteWeight : 0.0;
+            }
+        }
+
         // 只有票数达到最低要求才返回结果
-        if (bestCount < 3) {
-            String hint = generateHintMessage(closestCategory);
-            return new RecognizeResult(UNKNOWN, closestCategory, hint);
+        if (bestCount < 2 || bestVoteRatio < 0.2) {
+            // 所有pattern得票率都很低，返回不在识别范围的消息
+            return new RecognizeResult(UNKNOWN, UNKNOWN, "starrailexpress.drawing_board.hint.out_of_range", bestCount, totalVoteWeight);
         }
 
         // 像素级校验：使用规范化后的像素进行检查（颜色互通生效）
+        // 如果透明位置被画上颜色或有色位置被画成透明的比例超过阈值，降低得票率至1
         if (!validatePixelConstraints(normalizedPixels, bestLabel)) {
-            String hint = generateHintMessage(bestLabel);
-            return new RecognizeResult(UNKNOWN, bestLabel, hint);
+            bestCount = 1;
+            bestVoteRatio = totalVoteWeight > 0 ? (double) bestCount / totalVoteWeight : 0.0;
         }
 
         return new RecognizeResult(bestLabel);
@@ -8853,6 +8882,47 @@ public class DrawingBoardRecognizer {
 
         // 直接返回最近类别
         return knn.getClosestCategory(features);
+    }
+
+    /**
+     * 计算颜色错误率（在pattern有色位置上，输入颜色与pattern不匹配的比例，考虑颜色互通）
+     * @param input 输入像素矩阵（已规范化）
+     * @param label 识别的类别
+     * @return 颜色错误率（0.0 - 1.0），-1表示无法计算
+     */
+    private double calculateColorMismatchRatio(byte[][] input, int label) {
+        byte[][] pattern = categoryPatterns.get(label);
+        if (pattern == null) {
+            return 0.0; // 没有pattern数据，默认通过
+        }
+
+        int coloredCount = 0;      // pattern中有色位置总数
+        int mismatchCount = 0;      // 颜色不匹配的数量（考虑互通）
+
+        for (int y = 0; y < 16; y++) {
+            for (int x = 0; x < 16; x++) {
+                int patternColor = pattern[y][x] & 0xFF;
+                int inputColor = input[y][x] & 0xFF;
+
+                // 判断是否为透明/背景色（索引为0或等于16）
+                boolean patternIsTransparent = patternColor == 0 || patternColor == 16;
+                boolean inputIsTransparent = inputColor == 0 || inputColor == 16;
+
+                if (!patternIsTransparent && !inputIsTransparent) {
+                    coloredCount++;
+                    // 检查颜色是否兼容（考虑颜色互通）
+                    if (!areColorsCompatible(patternColor, inputColor)) {
+                        mismatchCount++;
+                    }
+                }
+            }
+        }
+
+        if (coloredCount == 0) {
+            return 0.0; // 没有有色位置，默认通过
+        }
+
+        return (double) mismatchCount / coloredCount;
     }
 
     /**
@@ -8927,12 +8997,15 @@ public class DrawingBoardRecognizer {
         final double EXTRA_PIXEL_THRESHOLD = 0.60;  // 60%
         // 遗漏阈值：pattern中有色位置被画成透明的比例不超过此值
         final double MISSING_PIXEL_THRESHOLD = 0.60; // 60%
+        // 颜色错误阈值：有色位置颜色错误（考虑互通）的比例不超过此值
+        final double COLOR_MISMATCH_THRESHOLD = 0.50; // 50%
 
         int patternTransparentCount = 0; // pattern中透明位置总数
         int extraColorCount = 0;          // pattern中透明位置被画上颜色的数量
 
         int patternColoredCount = 0;      // pattern中有色位置总数
         int missingColorCount = 0;         // pattern中有色位置被画成透明的数量
+        int colorMismatchCount = 0;       // 颜色不匹配的数量（考虑互通）
 
         for (int y = 0; y < 16; y++) {
             for (int x = 0; x < 16; x++) {
@@ -8970,6 +9043,11 @@ public class DrawingBoardRecognizer {
                     // pattern是有色的，但输入画成了透明
                     if (inputIsTransparent) {
                         missingColorCount++;
+                    } else {
+                        // 检查颜色是否正确（考虑颜色组互通）
+                        if (!areColorsCompatible(patternColor, inputColor)) {
+                            colorMismatchCount++;
+                        }
                     }
                 }
             }
@@ -8991,6 +9069,14 @@ public class DrawingBoardRecognizer {
             }
         }
 
+        // 检查颜色不匹配的比例（考虑颜色互通）
+        if (patternColoredCount > 0) {
+            double colorMismatchRatio = (double) colorMismatchCount / patternColoredCount;
+            if (colorMismatchRatio > COLOR_MISMATCH_THRESHOLD) {
+                return false; // 超过阈值，拒绝
+            }
+        }
+
         return true;
     }
 
@@ -9000,7 +9086,6 @@ public class DrawingBoardRecognizer {
      * - 蓝色和深蓝色互通
      * - 红色和深红色互通
      * - 绿色和深绿色互通
-     * - 背景白色(16) -> 调色盘白色(1)，确保可识别
      * - 调色盘白色保持不变
      */
     private byte[][] normalizeColors(byte[][] pixels) {
@@ -9011,12 +9096,9 @@ public class DrawingBoardRecognizer {
                 int color = pixels[y][x] & 0xFF;
                 int normalized = color;
                 
-                // 背景白色(16) -> 调色盘白色(1)
-                if (color == COLOR_BACKGROUND_WHITE) {
-                    normalized = COLOR_PALETTE_WHITE;
-                }
+
                 // 灰色 -> 淡灰色
-                else if (color == COLOR_GRAY) {
+                if (color == COLOR_GRAY) {
                     normalized = COLOR_LIGHT_GRAY;
                 }
                 // 深红色 -> 棕色
@@ -9061,5 +9143,43 @@ public class DrawingBoardRecognizer {
 
     public static int getCategoryCount() {
         return CATEGORY_COUNT;
+    }
+
+    /**
+     * 检查两个颜色是否兼容（属于同一颜色组）
+     * 颜色组互通规则：
+     * - 灰色(8) <-> 淡灰色(7)
+     * - 深红色(1) <-> 棕色(3)
+     * - 深蓝色(11) <-> 蓝色(4)
+     * - 深绿色(2) <-> 绿色(13)
+     */
+    private boolean areColorsCompatible(int color1, int color2) {
+        // 规范化两个颜色
+        int norm1 = normalizeColorGroup(color1);
+        int norm2 = normalizeColorGroup(color2);
+        return norm1 == norm2;
+    }
+
+    /**
+     * 将颜色规范化到颜色组
+     */
+    private int normalizeColorGroup(int color) {
+        // 灰色 -> 淡灰色
+        if (color == COLOR_GRAY) {
+            return COLOR_LIGHT_GRAY;
+        }
+        // 深红色 -> 棕色
+        if (color == COLOR_DARK_RED) {
+            return COLOR_BROWN;
+        }
+        // 深蓝色 -> 蓝色
+        if (color == COLOR_DARK_BLUE) {
+            return COLOR_BLUE;
+        }
+        // 深绿色 -> 绿色
+        if (color == COLOR_DARK_GREEN) {
+            return COLOR_GREEN;
+        }
+        return color;
     }
 }
