@@ -25,6 +25,25 @@ public class DrawingBoardRecognizer {
     // 物品类别定义（与翻译键对应）
     public static final int UNKNOWN = -1;
 
+    /**
+     * 识别结果类，包含识别结果和提示信息
+     */
+    public static class RecognizeResult {
+        public final int category;
+        public final int closestCategory;  // 最接近的类别（用于提示）
+        public final String hint;          // 提示文本
+
+        public RecognizeResult(int category, int closestCategory, String hint) {
+            this.category = category;
+            this.closestCategory = closestCategory;
+            this.hint = hint;
+        }
+
+        public RecognizeResult(int category) {
+            this(category, category, "");
+        }
+    }
+
     // 物品类别ID
     public static final int KNIFE = 0;
     public static final int CROWBAR = 1;
@@ -8694,8 +8713,18 @@ public class DrawingBoardRecognizer {
      * 识别 16x16 像素数据 - 使用多算法融合
      */
     public int recognize(byte[][] pixels) {
+        RecognizeResult result = recognizeWithHint(pixels);
+        return result.category;
+    }
+
+    /**
+     * 带提示信息的识别方法
+     * @param pixels 像素矩阵
+     * @return 识别结果，包含最接近的类别提示
+     */
+    public RecognizeResult recognizeWithHint(byte[][] pixels) {
         if (pixels == null || pixels.length != 16 || pixels[0].length != 16) {
-            return UNKNOWN;
+            return new RecognizeResult(UNKNOWN);
         }
 
         // 检查画板是否全部为背景白色(16)，如果是则不识别
@@ -8710,12 +8739,15 @@ public class DrawingBoardRecognizer {
             if (!allWhite) break;
         }
         if (allWhite) {
-            return UNKNOWN;
+            return new RecognizeResult(UNKNOWN);
         }
 
         // 复制像素数据以避免修改原始数据
         byte[][] normalizedPixels = normalizeColors(pixels);
         double[] features = SimpleKNN.matrixToFeature(normalizedPixels, true);
+
+        // 获取最接近的类别（用于提示）
+        int closestCategory = knn.getClosestCategory(features);
 
         // 多算法融合检测
         Map<Integer, Integer> votes = new java.util.HashMap<>();
@@ -8755,15 +8787,72 @@ public class DrawingBoardRecognizer {
         }
         // 只有票数达到最低要求才返回结果
         if (bestCount < 3) {
-            return UNKNOWN;
+            String hint = generateHintMessage(closestCategory);
+            return new RecognizeResult(UNKNOWN, closestCategory, hint);
         }
 
         // 像素级校验：使用规范化后的像素进行检查（颜色互通生效）
         if (!validatePixelConstraints(normalizedPixels, bestLabel)) {
-            return UNKNOWN; // 超过阈值，拒绝识别
+            String hint = generateHintMessage(bestLabel);
+            return new RecognizeResult(UNKNOWN, bestLabel, hint);
         }
 
-        return bestLabel;
+        return new RecognizeResult(bestLabel);
+    }
+
+    /**
+     * 生成提示信息
+     * @param closestCategory 最接近的类别
+     * @return 提示文本
+     */
+    private String generateHintMessage(int closestCategory) {
+        if (closestCategory == -1) {
+            return "";
+        }
+        return "starrailexpress.drawing_board.hint.closest_category";
+    }
+
+    /**
+     * 获取最接近类别的翻译键
+     * @param closestCategory 最接近的类别
+     * @return 翻译键
+     */
+    public static String getClosestCategoryTranslationKey(int closestCategory) {
+        return "starrailexpress.drawing_board.hint.category_" + closestCategory;
+    }
+
+    /**
+     * 获取最近匹配的类别（不进行严格校验）
+     * 用于保底机制
+     * @param pixels 像素矩阵
+     * @return 最接近的类别，如果无法确定返回 UNKNOWN
+     */
+    public int getClosestCategory(byte[][] pixels) {
+        if (pixels == null || pixels.length != 16 || pixels[0].length != 16) {
+            return UNKNOWN;
+        }
+
+        // 检查画板是否全部为背景白色
+        boolean allWhite = true;
+        for (int y = 0; y < 16; y++) {
+            for (int x = 0; x < 16; x++) {
+                if ((pixels[y][x] & 0xFF) != COLOR_BACKGROUND_WHITE) {
+                    allWhite = false;
+                    break;
+                }
+            }
+            if (!allWhite) break;
+        }
+        if (allWhite) {
+            return UNKNOWN;
+        }
+
+        // 复制像素数据以避免修改原始数据
+        byte[][] normalizedPixels = normalizeColors(pixels);
+        double[] features = SimpleKNN.matrixToFeature(normalizedPixels, true);
+
+        // 直接返回最近类别
+        return knn.getClosestCategory(features);
     }
 
     /**
@@ -8835,9 +8924,9 @@ public class DrawingBoardRecognizer {
      */
     private boolean validatePixelConstraintsAtOffset(byte[][] input, byte[][] pattern, int xOffset, int yOffset) {
         // 透明阈值：pattern中透明位置被画上颜色的比例不超过此值
-        final double EXTRA_PIXEL_THRESHOLD = 0.40;  // 放宽到40%
+        final double EXTRA_PIXEL_THRESHOLD = 0.60;  // 60%
         // 遗漏阈值：pattern中有色位置被画成透明的比例不超过此值
-        final double MISSING_PIXEL_THRESHOLD = 0.45; // 放宽到45%
+        final double MISSING_PIXEL_THRESHOLD = 0.60; // 60%
 
         int patternTransparentCount = 0; // pattern中透明位置总数
         int extraColorCount = 0;          // pattern中透明位置被画上颜色的数量

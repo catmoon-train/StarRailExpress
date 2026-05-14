@@ -368,6 +368,30 @@ public class SimpleKNN {
         return bestLabel;
     }
 
+    /**
+     * 获取最接近的类别（基于欧氏距离）
+     * @param features 特征向量
+     * @return 最接近的类别标签
+     */
+    public int getClosestCategory(double[] features) {
+        if (samples.isEmpty()) {
+            return -1;
+        }
+
+        double minDistance = Double.MAX_VALUE;
+        int closestLabel = -1;
+
+        for (Sample s : samples) {
+            double dist = calculateDistance(features, s.features, "euclidean");
+            if (dist < minDistance) {
+                minDistance = dist;
+                closestLabel = s.label;
+            }
+        }
+
+        return closestLabel;
+    }
+
     public int predictByAlgorithmWithDims(double[] features, String algorithm, int width, int height) {
         if (samples.isEmpty()) {
             throw new IllegalStateException("No training samples added");
