@@ -38,6 +38,7 @@ public class SREGameModes {
     public static final ResourceLocation SNIPER_RIFLE_ID = SRE.xiaoheihandId("sniper_war");
     public static final ResourceLocation EVIL_WAR_MODE_ID = SRE.xiaoheihandId("evil_war");
     public static final ResourceLocation DEVIL_ROULETTE_ID = SRE.xiaoheihandId("devil_roulette");
+    public static final ResourceLocation THIEF_MODE_ID = SRE.xiaoheihandId("thief_mode");
 
     // Modified from Harpymodloader
     public static final GameMode MURDER = registerGameMode(new SREMurderGameMode(MURDER_ID));
@@ -67,6 +68,7 @@ public class SREGameModes {
     public static final GameMode EVIL_WAR_MODE = registerGameMode(new SREEvilWarGameMode(EVIL_WAR_MODE_ID));
     public static final GameMode DEVIL_ROULETTE_MODE = registerGameMode(
             new SREDevilRouletteGameMode(DEVIL_ROULETTE_ID));
+    public static final GameMode THIEF_MODE = registerGameMode(new SREThiefWarGameMode(THIEF_MODE_ID));
 
     // register
     public static GameMode registerGameMode(GameMode gameMode) {
