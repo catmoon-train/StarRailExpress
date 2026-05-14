@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.client.screen;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
-import io.wifi.starrailexpress.index.TMMItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -117,7 +117,10 @@ public class LootScreen extends AbstractPixelScreen {
         // skin: 16*16 ; bg: 18*18
         protected TextureWidget skinBG;
         protected TextureWidget skin;
+        protected ItemStack itemType;
+        protected String skinName;
         protected boolean isSelected = false;// 是否被选中过：首次选中播放音效
+        protected int pixelSize = 1;
         protected int quality;// 卡片品质，用于发光效果
         public Card(int x, int y, int poolID, Pair<Integer, Integer> qualityAndId, int pixelSize) {
             this(x, y, 16, 16, poolID, qualityAndId, pixelSize);
@@ -131,6 +134,10 @@ public class LootScreen extends AbstractPixelScreen {
             skin = new TextureWidget(x + pixelSize, y + pixelSize,
                     w - 2 * pixelSize, h - 2 * pixelSize, w - 2 * pixelSize, h - 2 * pixelSize,
                     LootScreenUtils.getItemResourceLocation(itemName));
+            skinName = LotteryManager.LotteryPool.getTrueName(itemName);
+            // 设置itemStack
+            itemType = LotteryManager.LotteryPool.getSkinItemStack(itemName);
+            this.pixelSize = pixelSize;
         }
 
         @Override
@@ -148,7 +155,12 @@ public class LootScreen extends AbstractPixelScreen {
             }
             if(skinBG != null)
                 skinBG.render(guiGraphics, i, j, f);
-            if(skin != null)
+
+            if (itemType != null && !itemType.isEmpty()) {
+                LootScreenUtils.renderPixelScaleSkinItem(skin.getX(), skin.getY(), pixelSize, guiGraphics, itemType, skinName);
+            }
+            // 渲染金币等
+            else if(skin != null)
                 skin.render(guiGraphics, i, j, f);
         }
         @Override
@@ -505,19 +517,7 @@ public class LootScreen extends AbstractPixelScreen {
 
         String itemName = LotteryManager.getInstance().getLotteryPool(poolId)
                 .getQualityListGroupConfigs().get(trueQualityAndId.first).second.get(trueQualityAndId.second);
-        ItemStack itemStack = null;
-        if (itemName.startsWith("knife/")) {
-            itemStack = TMMItems.KNIFE.getDefaultInstance();
-        }
-        else if (itemName.startsWith("gun/")) {
-            itemStack = TMMItems.REVOLVER.getDefaultInstance();
-        }
-        else if (itemName.startsWith("bat/")) {
-            itemStack = TMMItems.BAT.getDefaultInstance();
-        }
-        else if (itemName.startsWith("grenade/")) {
-            itemStack = TMMItems.GRENADE.getDefaultInstance();
-        }
+        ItemStack itemStack = LotteryManager.LotteryPool.getSkinItemStack(itemName);
 
         if (itemStack != null) {
             Minecraft minecraft = Minecraft.getInstance();

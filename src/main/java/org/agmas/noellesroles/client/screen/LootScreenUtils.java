@@ -1,9 +1,14 @@
 package org.agmas.noellesroles.client.screen;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import io.wifi.StarRailExpressID;
+import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 public class LootScreenUtils {
     public static ResourceLocation getItemResourceLocation(String itemName) {
@@ -47,5 +52,17 @@ public class LootScreenUtils {
             else
                 environment.setScreen(new LootInfoScreen());
         }
+    }
+    public static void renderPixelScaleSkinItem(int x, int y, int pixelSize, GuiGraphics guiGraphics,
+                                                @NotNull ItemStack itemType, String skinName) {
+        ItemStack skinItem = itemType.copy();
+        skinItem.set(SREDataComponentTypes.SKIN, skinName);
+        // 使用缩放渲染
+        PoseStack poseStack = guiGraphics.pose();
+        poseStack.pushPose();
+        poseStack.translate(x, y, 0);
+        poseStack.scale(pixelSize, pixelSize, 1.0f);
+        guiGraphics.renderFakeItem(skinItem, 0, 0);
+        poseStack.popPose();
     }
 }

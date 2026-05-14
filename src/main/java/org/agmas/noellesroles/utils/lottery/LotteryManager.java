@@ -57,21 +57,9 @@ public class LotteryManager {
                 if (curNum < level * maxGranularity) {
                     List<String> curQualityList = qualityListGroupConfigs.get(i).second;
                     int resultIdx = randomSource.nextInt(curQualityList.size());
-                    // TODO : 使用配置文件存储皮肤物品类型
-                    ItemStack itemStack = null;
                     // 设置itemStack
-                    if (curQualityList.get(resultIdx).startsWith("knife/")) {
-                        itemStack = TMMItems.KNIFE.getDefaultInstance();
-                    }
-                    else if (curQualityList.get(resultIdx).startsWith("gun/")) {
-                        itemStack = TMMItems.REVOLVER.getDefaultInstance();
-                    }
-                    else if (curQualityList.get(resultIdx).startsWith("bat/")) {
-                        itemStack = TMMItems.BAT.getDefaultInstance();
-                    }
-                    else if (curQualityList.get(resultIdx).startsWith("grenade/")) {
-                        itemStack = TMMItems.GRENADE.getDefaultInstance();
-                    }
+                    ItemStack itemStack = getSkinItemStack(curQualityList.get(resultIdx));
+
                     // 去除前缀
                     String trueName = getTrueName(curQualityList.get(resultIdx));
                     if (itemStack != null && !SkinManager.isSkinUnlocked(player, itemStack, trueName))
@@ -107,6 +95,30 @@ public class LotteryManager {
             if (names.length > 1)
                 return names[1];
             return "coin";
+        }
+
+        /**
+         *  获取皮肤对应物品的itemStack
+         *  - 皮肤名组成：type/truename[/resources_location]
+         *  - 方括号为可选内容
+         * @param rawName 待处理的配置文件皮肤名
+         */
+        public static ItemStack getSkinItemStack(String rawName) {
+            ItemStack itemStack = null;
+            // 设置itemStack
+            if (rawName.startsWith("knife/")) {
+                itemStack = TMMItems.KNIFE.getDefaultInstance();
+            }
+            else if (rawName.startsWith("gun/")) {
+                itemStack = TMMItems.REVOLVER.getDefaultInstance();
+            }
+            else if (rawName.startsWith("bat/")) {
+                itemStack = TMMItems.BAT.getDefaultInstance();
+            }
+            else if (rawName.startsWith("grenade/")) {
+                itemStack = TMMItems.GRENADE.getDefaultInstance();
+            }
+            return itemStack;
         }
 
         public int getPoolID() {
