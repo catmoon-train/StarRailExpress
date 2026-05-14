@@ -8754,34 +8754,50 @@ public class DrawingBoardRecognizer {
         byte[][] normalizedPixels = normalizeColors(pixels);
         double[] features = SimpleKNN.matrixToFeature(normalizedPixels, true);
 
-        // 获取最接近的类别（用于提示）
-        int closestCategory = knn.getClosestCategory(features);
-
-        // 多算法融合检测
+        // 多算法融合检测（与SimpleKNN.predictMultiAlgorithmWithDims一致的权重）
+        // 算法严格程度排名（从高到低）:
+        // 1. euclidean    - 最严格，逐像素精确匹配（权重6）
+        // 2. histogram    - 颜色直方图，统计颜色分布（权重5）
+        // 3. colorCount   - 色块数量统计，权重高数量多（权重4）
+        // 4. shape        - 宽松形状匹配，允许多余像素（权重3）
+        // 5. pureShape    - 忽略颜色，只看轮廓（权重2）
+        // 6. centroid     - 最宽松，只看位置和数量（权重1）
         Map<Integer, Integer> votes = new java.util.HashMap<>();
 
-        // 算法1: 标准欧氏距离（精确匹配）- 最严格，提高阈值
-        int result1 = knn.predictWithThresholdByAlgorithm(features, 0.8, "euclidean");
+        // euclidean（权重6）
+        int result1 = knn.predictByAlgorithm(features, "euclidean");
         if (result1 != -1) {
-            votes.put(result1, votes.getOrDefault(result1, 0) + 4);  // 权重4
+            votes.put(result1, votes.getOrDefault(result1, 0) + 6);
         }
 
-        // 算法2: 多算法融合（按严格程度加权投票）- 提高要求
-        int result3 = knn.predictMultiAlgorithm(features);
-        if (result3 != -1) {
-            votes.put(result3, votes.getOrDefault(result3, 0) + 2);  // 权重2
-        }
-
-        // 算法3: 色块数量匹配
-        int result4 = knn.predictWithThresholdByAlgorithm(features, 0.6, "colorCount");
-        if (result4 != -1) {
-            votes.put(result4, votes.getOrDefault(result4, 0) + 2);  // 权重2
-        }
-
-        // 算法4: 宽松形状匹配（允许多余像素）- 提高阈值
-        int result2 = knn.predictWithThresholdByAlgorithm(features, 0.7, "shape");
+        // histogram（权重5）
+        int result2 = knn.predictByAlgorithm(features, "histogram");
         if (result2 != -1) {
-            votes.put(result2, votes.getOrDefault(result2, 0) + 1);  // 权重1
+            votes.put(result2, votes.getOrDefault(result2, 0) + 5);
+        }
+
+        // colorCount（权重4）
+        int result3 = knn.predictByAlgorithm(features, "colorCount");
+        if (result3 != -1) {
+            votes.put(result3, votes.getOrDefault(result3, 0) + 4);
+        }
+
+        // shape（权重3）
+        int result4 = knn.predictByAlgorithm(features, "shape");
+        if (result4 != -1) {
+            votes.put(result4, votes.getOrDefault(result4, 0) + 3);
+        }
+
+        // pureShape（权重2）
+        int result5 = knn.predictByAlgorithm(features, "pureShape");
+        if (result5 != -1) {
+            votes.put(result5, votes.getOrDefault(result5, 0) + 2);
+        }
+
+        // centroid（权重1）
+        int result6 = knn.predictByAlgorithmWithDims(features, "centroid", 16, 16);
+        if (result6 != -1) {
+            votes.put(result6, votes.getOrDefault(result6, 0) + 1);
         }
 
         // 计算总投票权重
@@ -8790,7 +8806,7 @@ public class DrawingBoardRecognizer {
             totalVoteWeight += weight;
         }
 
-        // 返回得票最多的标签
+        // 返回得票最多的标签（用于识别结果）
         int bestLabel = UNKNOWN;
         int bestCount = 0;
         for (Map.Entry<Integer, Integer> entry : votes.entrySet()) {
@@ -8799,6 +8815,9 @@ public class DrawingBoardRecognizer {
                 bestLabel = entry.getKey();
             }
         }
+
+        // 综合投票匹配度最高的类别（用于"你画的可能是"提示）
+        int closestCategory = bestLabel;
 
         // 计算最高得票率
         double bestVoteRatio = totalVoteWeight > 0 ? (double) bestCount / totalVoteWeight : 0.0;
