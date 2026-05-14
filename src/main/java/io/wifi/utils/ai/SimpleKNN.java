@@ -439,10 +439,9 @@ public class SimpleKNN {
 
     // ========== 像素级校验方法 ==========
     // 透明阈值：pattern中透明位置被画上颜色的比例不超过此值
-    private static final double EXTRA_PIXEL_THRESHOLD = 0.35;  // 35%
+    private static final double EXTRA_PIXEL_THRESHOLD = 0.45; 
     // 遗漏阈值：pattern中有色位置被画成透明的比例不超过此值
-    private static final double MISSING_PIXEL_THRESHOLD = 0.40; // 40%
-
+    private static final double MISSING_PIXEL_THRESHOLD = 0.40; 
     /**
      * 像素级校验：检查输入是否符合pattern的约束
      * @param input 输入像素矩阵（归一化）

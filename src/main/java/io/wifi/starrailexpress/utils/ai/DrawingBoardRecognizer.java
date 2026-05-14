@@ -8994,9 +8994,9 @@ public class DrawingBoardRecognizer {
      */
     private boolean validatePixelConstraintsAtOffset(byte[][] input, byte[][] pattern, int xOffset, int yOffset) {
         // 透明阈值：pattern中透明位置被画上颜色的比例不超过此值
-        final double EXTRA_PIXEL_THRESHOLD = 0.40;  
+        final double EXTRA_PIXEL_THRESHOLD = 0.50;  
         // 遗漏阈值：pattern中有色位置被画成透明的比例不超过此值
-        final double MISSING_PIXEL_THRESHOLD = 0.40; 
+        final double MISSING_PIXEL_THRESHOLD = 0.50; 
         // 颜色错误阈值：有色位置颜色错误（考虑互通）的比例不超过此值
         final double COLOR_MISMATCH_THRESHOLD = 0.40; 
 
