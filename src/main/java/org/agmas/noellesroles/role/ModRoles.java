@@ -1357,7 +1357,7 @@ public class ModRoles {
             SRERole.MoodType.REAL, // 真实心情
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
             false // 不隐藏计分板
-    )).setComponentKey(PainterPlayerComponent.KEY).setCanSeeCoin(true).setEnableChance(55).setOccupiedRoleCount(1);
+    )).setComponentKey(PainterPlayerComponent.KEY).setCanSeeCoin(true).setEnableChance(50).setOccupiedRoleCount(1);
 
     // 杀手阵营角色
     /**
