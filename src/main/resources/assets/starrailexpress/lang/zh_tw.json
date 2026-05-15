@@ -1929,7 +1929,10 @@
   "command.dnf.time_skip.day_skipped": "已成功跳過到下一天",
   "command.dnf.time_skip.phase_skipped": "已成功跳過到下一階段",
   "message.disconnect.afk": "你因為掛機被踢出遊戲",
+  "============ 畫板物品 ====================": "",
+  "item.starrailexpress.drawing_board": "畫板",
   "item.starrailexpress.drawing_board.tooltip": "右鍵打開畫板，繪製圖案來生成物品",
+  "screen.starrailexpress.drawing_board": "畫板 - 繪製圖案生成物品",
   "starrailexpress.drawing_board.title": "畫板 - 繪製圖案生成物品",
   "starrailexpress.drawing_board.brush": "畫筆",
   "starrailexpress.drawing_board.brush_selected": "● 畫筆",
@@ -1973,7 +1976,7 @@
   "starrailexpress.drawing_board.hint.category_18": "乘務員鑰匙",
   "starrailexpress.drawing_board.hint.category_19": "除顫器",
   "starrailexpress.drawing_board.hint.category_20": "拳擊手套",
-  "starrailexpress.drawing_board.hint.category_21": "解毒劑試劑",
+  "starrailexpress.drawing_board.hint.category_21": "驗毒試劑",
   "starrailexpress.drawing_board.hint.category_22": "煙霧彈",
   "starrailexpress.drawing_board.hint.category_23": "閃光彈",
   "starrailexpress.drawing_board.hint.category_24": "維修工具",
@@ -2000,6 +2003,6 @@
   "starrailexpress.drawing_board.hint.category_45": "十四夜",
   "starrailexpress.drawing_board.hint.category_46": "題集",
   "starrailexpress.drawing_board.hint.category_47": "毒液試劑",
-  "starrailexpress.drawing_board.hint.category_48": "迴形針",
+  "starrailexpress.drawing_board.hint.category_48": "迴紋針",
   "starrailexpress.drawing_board.hint.category_49": "誘餌彈"
 }
