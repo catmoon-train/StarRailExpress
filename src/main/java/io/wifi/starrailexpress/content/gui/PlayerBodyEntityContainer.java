@@ -77,6 +77,11 @@ public class PlayerBodyEntityContainer extends SimpleContainer {
                 return false;
             }
             
+            // 检查是否是德林加手枪
+            if (isDerringer(stack)) {
+                return false;
+            }
+            
             return true;
         }
         
@@ -114,6 +119,17 @@ public class PlayerBodyEntityContainer extends SimpleContainer {
         return stack.is(Items.COMMAND_BLOCK) || 
                stack.is(Items.REPEATING_COMMAND_BLOCK) || 
                stack.is(Items.CHAIN_COMMAND_BLOCK);
+    }
+    
+    /**
+     * 检查物品是否是德林加手枪
+     */
+    private boolean isDerringer(ItemStack stack) {
+        if (stack.isEmpty()) {
+            return false;
+        }
+        // 检查德林加手枪
+        return stack.is(io.wifi.starrailexpress.index.TMMItems.DERRINGER);
     }
     
     /**

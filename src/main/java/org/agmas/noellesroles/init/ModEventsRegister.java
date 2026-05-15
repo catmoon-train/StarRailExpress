@@ -868,6 +868,14 @@ public class ModEventsRegister {
             HoanMeirinFistPunchHandler.PUNCH_RECORDS.clear();
             RoleShopHandler.resetOldmanEasterEggState();
             org.agmas.noellesroles.game.roles.killer.delayer.DelayerPlayerComponent.timeBoostTriggered = false;
+            // 清除所有建筑师的客户端墙
+            for (ServerPlayer player : world.players()) {
+                org.agmas.noellesroles.game.roles.Innocent.builder.BuilderPlayerComponent builderComp =
+                    org.agmas.noellesroles.component.ModComponents.BUILDER.get(player);
+                builderComp.clearAllWalls();
+            }
+            // 清除全局墙位置注册表
+            org.agmas.noellesroles.game.roles.Innocent.builder.BuilderWallPositions.clearAll();
             // 已经在resetPlayer清除部分cca
             // 重置所有玩家的锁匠灵感
             SREGameRoundEndComponent roundEnd = SREGameRoundEndComponent.KEY.get(world);
