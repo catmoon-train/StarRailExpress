@@ -25,6 +25,22 @@ public class DrawingBoardRecognizer {
     // 物品类别定义（与翻译键对应）
     public static final int UNKNOWN = -1;
 
+    // ==================== 像素验证结果类 ====================
+    /**
+     * 像素验证结果，包含验证状态和超标程度
+     */
+    private static class PixelValidationResult {
+        final boolean passed;                    // 是否通过验证
+        final double extraPixelRatio;             // 透明超标程度（超过阈值的比例）
+        final double missingPixelRatio;           // 遗漏超标程度（超过阈值的比例）
+
+        PixelValidationResult(boolean passed, double extraPixelRatio, double missingPixelRatio) {
+            this.passed = passed;
+            this.extraPixelRatio = extraPixelRatio;
+            this.missingPixelRatio = missingPixelRatio;
+        }
+    }
+
     /**
      * 识别结果类，包含识别结果和提示信息
      */
@@ -8816,11 +8832,9 @@ public class DrawingBoardRecognizer {
             }
         }
 
-        // 综合投票匹配度最高的类别（用于"你画的可能是"提示）
-        int closestCategory = bestLabel;
-
         // 计算最高得票率
         double bestVoteRatio = totalVoteWeight > 0 ? (double) bestCount / totalVoteWeight : 0.0;
+
 
         // 颜色错误率校验：如果颜色错误率达到40%以上，直接降低得票数到3以下
         if (bestCount >= 3) {
@@ -8832,21 +8846,37 @@ public class DrawingBoardRecognizer {
             }
         }
 
-        // 只有票数达到最低要求才返回结果
-        // K=3，最大63票（3×21权重），最低要求12票（约19%）和得票率20%
-        if (bestCount < 12 || bestVoteRatio < 0.20) {
-            // 所有pattern得票率都很低，返回不在识别范围的消息
-            return new RecognizeResult(UNKNOWN, UNKNOWN, "starrailexpress.drawing_board.hint.out_of_range", bestCount, totalVoteWeight);
-        }
 
         // 像素级校验：使用规范化后的像素进行检查（颜色互通生效）
-        // 如果透明位置被画上颜色或有色位置被画成透明的比例超过阈值，降低得票率至1
-        if (!validatePixelConstraints(normalizedPixels, bestLabel)) {
-            bestCount = 1;
-            bestVoteRatio = totalVoteWeight > 0 ? (double) bestCount / totalVoteWeight : 0.0;
+        // 根据超标程度减少票数：透明超标-3票，遗漏超标-2票，取最大超程度
+        if (bestCount >= 3) {
+            PixelValidationResult validationResult = validatePixelConstraints(normalizedPixels, bestLabel);
+            if (!validationResult.passed) {
+                // 计算票数减少量
+                // 透明超标程度对应-3票，遗漏超标程度对应-2票，取最大
+                int extraReduction = (int) Math.ceil(validationResult.extraPixelRatio * 3.0); // 透明超标最多-3票
+                int missingReduction = (int) Math.ceil(validationResult.missingPixelRatio * 2.0); // 遗漏超标最多-2票
+                int reduction = Math.max(extraReduction, missingReduction);
+                bestCount = Math.max(1, bestCount - reduction);
+                bestVoteRatio = totalVoteWeight > 0 ? (double) bestCount / totalVoteWeight : 0.0;
+            }
         }
 
-        return new RecognizeResult(bestLabel);
+        // 识别结果三级标准：
+        // 1. 直接成功：bestCount >= 12 && bestVoteRatio >= 0.20
+        // 2. 预测（提示可能画的）：bestCount >= 3 && bestCount < 12
+        // 3. 识别失败（out_of_range）：bestCount < 3
+
+        if (bestCount >= 12 && bestVoteRatio >= 0.20) {
+            // 直接成功
+            return new RecognizeResult(bestLabel);
+        } else if (bestCount >= 3) {
+            // 预测：票数在3-12之间，将权数最高的pattern作为预测
+            return new RecognizeResult(UNKNOWN, bestLabel, generateHintMessage(bestLabel), bestCount, totalVoteWeight);
+        } else {
+            // 票数 < 3，识别失败
+            return new RecognizeResult(UNKNOWN, UNKNOWN, "starrailexpress.drawing_board.hint.out_of_range", bestCount, totalVoteWeight);
+        }
     }
 
     /**
@@ -8947,61 +8977,92 @@ public class DrawingBoardRecognizer {
 
     /**
      * 像素级校验：检查输入是否符合pattern的约束
-     * - pattern中透明位置被画上颜色的比例不超过35%
-     * - pattern中有色位置被画成透明的比例不超过40%
+     * - pattern中透明位置被画上颜色的比例不超过50%
+     * - pattern中有色位置被画成透明的比例不超过50%
      * - 如果原始位置校验失败，允许将pattern向四个方向偏移1-2像素后再次校验
      * @param input 输入像素矩阵（原始）
      * @param label 识别的类别
-     * @return true 表示通过校验，false 表示被否决
+     * @return PixelValidationResult 验证结果
      */
-    private boolean validatePixelConstraints(byte[][] input, int label) {
+    private PixelValidationResult validatePixelConstraints(byte[][] input, int label) {
         byte[][] pattern = categoryPatterns.get(label);
         if (pattern == null) {
-            return true; // 没有pattern数据，默认通过
+            return new PixelValidationResult(true, 0, 0); // 没有pattern数据，默认通过
         }
 
+        // 记录所有偏移中的最大超标程度
+        double maxExtraPixelRatio = 0.0;
+        double maxMissingPixelRatio = 0.0;
+
         // 先尝试原始位置校验
-        if (validatePixelConstraintsAtOffset(input, pattern, 0, 0)) {
-            return true;
+        PixelValidationResult result = validatePixelConstraintsAtOffset(input, pattern, 0, 0);
+        if (result.passed) {
+            return result;
         }
+        maxExtraPixelRatio = Math.max(maxExtraPixelRatio, result.extraPixelRatio);
+        maxMissingPixelRatio = Math.max(maxMissingPixelRatio, result.missingPixelRatio);
 
         // 原始位置校验失败，尝试四个方向的偏移
         for (int offset = 1; offset <= 2; offset++) {
             // 左
-            if (validatePixelConstraintsAtOffset(input, pattern, -offset, 0)) {
-                return true;
+            result = validatePixelConstraintsAtOffset(input, pattern, -offset, 0);
+            if (result.passed) {
+                return result;
             }
+            maxExtraPixelRatio = Math.max(maxExtraPixelRatio, result.extraPixelRatio);
+            maxMissingPixelRatio = Math.max(maxMissingPixelRatio, result.missingPixelRatio);
             // 右
-            if (validatePixelConstraintsAtOffset(input, pattern, offset, 0)) {
-                return true;
+            result = validatePixelConstraintsAtOffset(input, pattern, offset, 0);
+            if (result.passed) {
+                return result;
             }
+            maxExtraPixelRatio = Math.max(maxExtraPixelRatio, result.extraPixelRatio);
+            maxMissingPixelRatio = Math.max(maxMissingPixelRatio, result.missingPixelRatio);
             // 上
-            if (validatePixelConstraintsAtOffset(input, pattern, 0, -offset)) {
-                return true;
+            result = validatePixelConstraintsAtOffset(input, pattern, 0, -offset);
+            if (result.passed) {
+                return result;
             }
+            maxExtraPixelRatio = Math.max(maxExtraPixelRatio, result.extraPixelRatio);
+            maxMissingPixelRatio = Math.max(maxMissingPixelRatio, result.missingPixelRatio);
             // 下
-            if (validatePixelConstraintsAtOffset(input, pattern, 0, offset)) {
-                return true;
+            result = validatePixelConstraintsAtOffset(input, pattern, 0, offset);
+            if (result.passed) {
+                return result;
             }
+            maxExtraPixelRatio = Math.max(maxExtraPixelRatio, result.extraPixelRatio);
+            maxMissingPixelRatio = Math.max(maxMissingPixelRatio, result.missingPixelRatio);
             // 左上
-            if (validatePixelConstraintsAtOffset(input, pattern, -offset, -offset)) {
-                return true;
+            result = validatePixelConstraintsAtOffset(input, pattern, -offset, -offset);
+            if (result.passed) {
+                return result;
             }
+            maxExtraPixelRatio = Math.max(maxExtraPixelRatio, result.extraPixelRatio);
+            maxMissingPixelRatio = Math.max(maxMissingPixelRatio, result.missingPixelRatio);
             // 右上
-            if (validatePixelConstraintsAtOffset(input, pattern, offset, -offset)) {
-                return true;
+            result = validatePixelConstraintsAtOffset(input, pattern, offset, -offset);
+            if (result.passed) {
+                return result;
             }
+            maxExtraPixelRatio = Math.max(maxExtraPixelRatio, result.extraPixelRatio);
+            maxMissingPixelRatio = Math.max(maxMissingPixelRatio, result.missingPixelRatio);
             // 左下
-            if (validatePixelConstraintsAtOffset(input, pattern, -offset, offset)) {
-                return true;
+            result = validatePixelConstraintsAtOffset(input, pattern, -offset, offset);
+            if (result.passed) {
+                return result;
             }
+            maxExtraPixelRatio = Math.max(maxExtraPixelRatio, result.extraPixelRatio);
+            maxMissingPixelRatio = Math.max(maxMissingPixelRatio, result.missingPixelRatio);
             // 右下
-            if (validatePixelConstraintsAtOffset(input, pattern, offset, offset)) {
-                return true;
+            result = validatePixelConstraintsAtOffset(input, pattern, offset, offset);
+            if (result.passed) {
+                return result;
             }
+            maxExtraPixelRatio = Math.max(maxExtraPixelRatio, result.extraPixelRatio);
+            maxMissingPixelRatio = Math.max(maxMissingPixelRatio, result.missingPixelRatio);
         }
 
-        return false;
+        return new PixelValidationResult(false, maxExtraPixelRatio, maxMissingPixelRatio);
     }
 
     /**
@@ -9010,15 +9071,15 @@ public class DrawingBoardRecognizer {
      * @param pattern pattern矩阵
      * @param xOffset 水平偏移量（负数向左，正数向右）
      * @param yOffset 垂直偏移量（负数向上，正数向下）
-     * @return true 表示通过校验
+     * @return PixelValidationResult 验证结果，包含通过状态和超标程度
      */
-    private boolean validatePixelConstraintsAtOffset(byte[][] input, byte[][] pattern, int xOffset, int yOffset) {
+    private PixelValidationResult validatePixelConstraintsAtOffset(byte[][] input, byte[][] pattern, int xOffset, int yOffset) {
         // 透明阈值：pattern中透明位置被画上颜色的比例不超过此值
-        final double EXTRA_PIXEL_THRESHOLD = 0.50;  
+        final double EXTRA_PIXEL_THRESHOLD = 0.50;
         // 遗漏阈值：pattern中有色位置被画成透明的比例不超过此值
-        final double MISSING_PIXEL_THRESHOLD = 0.50; 
+        final double MISSING_PIXEL_THRESHOLD = 0.50;
         // 颜色错误阈值：有色位置颜色错误（考虑互通）的比例不超过此值
-        final double COLOR_MISMATCH_THRESHOLD = 0.40; 
+        final double COLOR_MISMATCH_THRESHOLD = 0.40;
 
         int patternTransparentCount = 0; // pattern中透明位置总数
         int extraColorCount = 0;          // pattern中透明位置被画上颜色的数量
@@ -9073,19 +9134,26 @@ public class DrawingBoardRecognizer {
             }
         }
 
+        // 计算实际超标程度
+        double extraPixelRatio = 0.0;  // 透明超标程度（超出阈值的部分）
+        double missingPixelRatio = 0.0; // 遗漏超标程度（超出阈值的部分）
+        boolean passed = true;
+
         // 检查透明位置被占领的比例
         if (patternTransparentCount > 0) {
-            double extraRatio = (double) extraColorCount / patternTransparentCount;
-            if (extraRatio > EXTRA_PIXEL_THRESHOLD) {
-                return false; // 超过阈值，拒绝
+            double actualExtraRatio = (double) extraColorCount / patternTransparentCount;
+            if (actualExtraRatio > EXTRA_PIXEL_THRESHOLD) {
+                extraPixelRatio = actualExtraRatio - EXTRA_PIXEL_THRESHOLD;
+                passed = false;
             }
         }
 
         // 检查有色位置变成透明的比例
         if (patternColoredCount > 0) {
-            double missingRatio = (double) missingColorCount / patternColoredCount;
-            if (missingRatio > MISSING_PIXEL_THRESHOLD) {
-                return false; // 超过阈值，拒绝
+            double actualMissingRatio = (double) missingColorCount / patternColoredCount;
+            if (actualMissingRatio > MISSING_PIXEL_THRESHOLD) {
+                missingPixelRatio = actualMissingRatio - MISSING_PIXEL_THRESHOLD;
+                passed = false;
             }
         }
 
@@ -9093,11 +9161,11 @@ public class DrawingBoardRecognizer {
         if (patternColoredCount > 0) {
             double colorMismatchRatio = (double) colorMismatchCount / patternColoredCount;
             if (colorMismatchRatio > COLOR_MISMATCH_THRESHOLD) {
-                return false; // 超过阈值，拒绝
+                return new PixelValidationResult(false, 0, 0);
             }
         }
 
-        return true;
+        return new PixelValidationResult(passed, extraPixelRatio, missingPixelRatio);
     }
 
     /**
