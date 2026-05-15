@@ -7966,7 +7966,7 @@ public class DrawingBoardRecognizer {
     private byte[][] createThrowingKnifePattern3() {
         byte[][] p = new byte[16][16];
         for (int y = 3; y < 13; y++) p[y][8] = 15;  // 刀身 - 棕色
-        p[3][8] = 0; p[4][8] = 0;  // 刀尖 - 黑色
+        p[3][8] = 10; p[4][8] = 10;  // 刀尖 - 灰色
         for (int y = 9; y < 13; y++) p[y][7] = 11;  // 手柄 - 淡灰色
         return p;
     }
