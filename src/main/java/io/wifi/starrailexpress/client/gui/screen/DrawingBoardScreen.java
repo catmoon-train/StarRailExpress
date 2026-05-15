@@ -61,6 +61,7 @@ public class DrawingBoardScreen extends Screen {
     private int lastRecognizeResult = DrawingBoardRecognizer.UNKNOWN;
     private String lastRecognizeMessage = "";
     private String lastHint = "";  // 提示信息
+    private double lastSimilarityPercent = 0.0; // 上次识别的相似度百分比
 
     // 保底机制：追踪连续识别次数
     private static final int FALLBACK_THRESHOLD = 4;  // 连续4次相同类别触发保底
@@ -197,6 +198,7 @@ public class DrawingBoardScreen extends Screen {
 
         lastRecognizeResult = recognizedCategory;
         lastHint = result.hint;  // 保存提示信息
+        lastSimilarityPercent = result.similarity;
 
         if (recognizedCategory == DrawingBoardRecognizer.UNKNOWN) {
             // 识别失败，只显示消息，不关闭界面
@@ -286,6 +288,9 @@ public class DrawingBoardScreen extends Screen {
                     String categoryName = Component.translatable(DrawingBoardRecognizer.getClosestCategoryTranslationKey(displayClosestCategory)).getString();
                     graphics.drawString(font, categoryName, canvasX, infoY + 60, 0xFFAA00);
                 }
+                // 显示相似度百分比（0%失败，100%成功）
+                String simText = String.format("相似度: %.0f%%", lastSimilarityPercent);
+                graphics.drawString(font, simText, canvasX, infoY + 75, 0xFFAA00);
             }
         }
 

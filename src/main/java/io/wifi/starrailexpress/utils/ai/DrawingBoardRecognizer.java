@@ -50,21 +50,31 @@ public class DrawingBoardRecognizer {
         public final String hint;            // 提示文本
         public final int voteCount;          // 得票数
         public final int totalVotes;         // 总投票权重
+        public final double similarity;     // 相似程度，0.0-100.0
 
         public RecognizeResult(int category, int closestCategory, String hint, int voteCount, int totalVotes) {
+            this(category, closestCategory, hint, voteCount, totalVotes, 0.0);
+        }
+
+        public RecognizeResult(int category) {
+            this(category, category, "", 0, 0, 0.0);
+        }
+
+        public RecognizeResult(int category, int closestCategory, String hint) {
+            this(category, closestCategory, hint, 0, 0, 0.0);
+        }
+
+        public RecognizeResult(int category, int closestCategory, String hint, int voteCount, int totalVotes, double similarity) {
             this.category = category;
             this.closestCategory = closestCategory;
             this.hint = hint;
             this.voteCount = voteCount;
             this.totalVotes = totalVotes;
+            this.similarity = similarity;
         }
 
-        public RecognizeResult(int category) {
-            this(category, category, "", 0, 0);
-        }
-
-        public RecognizeResult(int category, int closestCategory, String hint) {
-            this(category, closestCategory, hint, 0, 0);
+        public RecognizeResult(int category, double similarity) {
+            this(category, category, "", 0, 0, similarity);
         }
     }
 
@@ -8863,19 +8873,32 @@ public class DrawingBoardRecognizer {
         }
 
         // 识别结果三级标准：
-        // 1. 直接成功：bestCount >= 12 && bestVoteRatio >= 0.20
-        // 2. 预测（提示可能画的）：2 <= bestCount < 12
+        // 1. 直接成功：bestCount >= 13 && bestVoteRatio >= 0.30
+        // 2. 预测（提示可能画的）：2 <= bestCount < 13
         // 3. 识别失败（out_of_range）：bestCount < 2
 
-        if (bestCount >= 12 && bestVoteRatio >= 0.20) {
+        // 计算相似度：直接成功为100%，识别失败为0%，中间按得票数与投票比例综合归一化
+        double similarity = 0.0;
+        if (totalVoteWeight > 0) {
+            // 归一化得票数部分（将 2 映射为 0，13 映射为 1）
+            double countPart = (double) (bestCount - 2) / (13 - 2);
+            countPart = Math.max(0.0, Math.min(1.0, countPart));
+            // 归一化投票比例部分（将 0 映射为 0，0.30 映射为 1）
+            double ratioPart = bestVoteRatio / 0.30;
+            ratioPart = Math.max(0.0, Math.min(1.0, ratioPart));
+            // 综合相似度为两部分平均
+            similarity = ((countPart + ratioPart) / 2.0) * 100.0;
+        }
+
+        if (bestCount >= 13 && bestVoteRatio >= 0.30) {
             // 直接成功
-            return new RecognizeResult(bestLabel);
+            return new RecognizeResult(bestLabel, bestLabel, "", bestCount, totalVoteWeight, 100.0);
         } else if (bestCount >= 2) {
-            // 预测：票数在3-12之间，将权数最高的pattern作为预测
-            return new RecognizeResult(UNKNOWN, bestLabel, generateHintMessage(bestLabel), bestCount, totalVoteWeight);
+            // 预测：票数在2-12之间，将权数最高的pattern作为预测，并返回相似度
+            return new RecognizeResult(UNKNOWN, bestLabel, generateHintMessage(bestLabel), bestCount, totalVoteWeight, similarity);
         } else {
-            // 票数 < 3，识别失败
-            return new RecognizeResult(UNKNOWN, UNKNOWN, "starrailexpress.drawing_board.hint.out_of_range", bestCount, totalVoteWeight);
+            // 票数 < 2，识别失败
+            return new RecognizeResult(UNKNOWN, UNKNOWN, "starrailexpress.drawing_board.hint.out_of_range", bestCount, totalVoteWeight, 0.0);
         }
     }
 
