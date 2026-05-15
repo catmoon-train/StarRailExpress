@@ -423,6 +423,12 @@ public class SimpleKNN {
     private double calculateDistance(double[] a, double[] b, String algorithm) {
         switch (algorithm) {
             case "shape": return shapeAwareDistance(a, b);
+            case "shapeColor":
+                // 结合 shapeAwareDistance 与 colorCountDistance 的混合距离
+                double sd = shapeAwareDistance(a, b);
+                double cd = colorCountDistance(a, b);
+                // 归一化 colorCountDistance（通常在 [0,1]），与 shape 距离平均
+                return (sd + cd) / 2.0;
             case "pureShape": return pureShapeDistance(a, b);
             case "histogram": return colorHistogramDistance(a, b, 8);
             case "colorCount": return colorCountDistance(a, b);

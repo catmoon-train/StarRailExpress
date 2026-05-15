@@ -8802,16 +8802,22 @@ public class DrawingBoardRecognizer {
             votes.put(entry.getKey(), votes.getOrDefault(entry.getKey(), 0) + entry.getValue() * 5);
         }
 
-        // colorCount（权重4）- 色块数量
+        // colorCount（权重3）- 色块数量（降低为与 shape 相同）
         Map<Integer, Integer> colorCountVotes = knn.getVotesByAlgorithm(features, "colorCount");
         for (Map.Entry<Integer, Integer> entry : colorCountVotes.entrySet()) {
-            votes.put(entry.getKey(), votes.getOrDefault(entry.getKey(), 0) + entry.getValue() * 4);
+            votes.put(entry.getKey(), votes.getOrDefault(entry.getKey(), 0) + entry.getValue() * 3);
         }
 
         // shape（权重3）- 宽松形状匹配，考虑颜色
         Map<Integer, Integer> shapeVotes = knn.getVotesByAlgorithm(features, "shape");
         for (Map.Entry<Integer, Integer> entry : shapeVotes.entrySet()) {
             votes.put(entry.getKey(), votes.getOrDefault(entry.getKey(), 0) + entry.getValue() * 3);
+        }
+
+        // 新增：shapeColor 组合算法（权重1） - 结合 shape 与 colorCount 的判断，补回权重总和
+        Map<Integer, Integer> shapeColorVotes = knn.getVotesByAlgorithm(features, "shapeColor");
+        for (Map.Entry<Integer, Integer> entry : shapeColorVotes.entrySet()) {
+            votes.put(entry.getKey(), votes.getOrDefault(entry.getKey(), 0) + entry.getValue() * 1);
         }
 
         // pureShape（权重2）- 忽略颜色只看轮廓
@@ -8858,18 +8864,39 @@ public class DrawingBoardRecognizer {
 
 
         // 像素级校验：使用规范化后的像素进行检查（颜色互通生效）
-        // 根据超标程度减少票数：透明超标-3票，遗漏超标-2票，取最大超程度
+        // 将校验结果作为直接成功的必要条件，但仍允许显示预测提示
+        boolean pixelValidationPassed = true;
+        PixelValidationResult validationResult = null;
         if (bestCount >= 2) {
-            PixelValidationResult validationResult = validatePixelConstraints(normalizedPixels, bestLabel);
-            if (!validationResult.passed) {
-                // 计算票数减少量
-                // 透明超标程度对应-3票，遗漏超标程度对应-2票，取最大
-                int extraReduction = (int) Math.ceil(validationResult.extraPixelRatio * 3.0); // 透明超标最多-3票
-                int missingReduction = (int) Math.ceil(validationResult.missingPixelRatio * 2.0); // 遗漏超标最多-2票
-                int reduction = Math.max(extraReduction, missingReduction);
-                bestCount = Math.max(1, bestCount - reduction);
-                bestVoteRatio = totalVoteWeight > 0 ? (double) bestCount / totalVoteWeight : 0.0;
+            validationResult = validatePixelConstraints(normalizedPixels, bestLabel);
+            pixelValidationPassed = validationResult.passed;
+        }
+
+        // 根据超标程度减少票数：取透明超标与遗漏超标中的最大值决定减少量
+        // 透明超标（extra）导致更大的减少，遗漏超标（missing）减少较少
+        if (validationResult != null && !pixelValidationPassed && bestCount >= 2) {
+            double extra = validationResult.extraPixelRatio;   // 透明超标程度（超过阈值的部分）
+            double missing = validationResult.missingPixelRatio; // 遗漏超标程度
+            double major = Math.max(extra, missing);
+
+            int reduction;
+            if (extra >= missing) {
+                // 透明超标更严重时，放大系数更高
+                reduction = (int) Math.ceil(extra * 40.0);
+            } else {
+                // 遗漏超标影响较小
+                reduction = (int) Math.ceil(missing * 20.0);
             }
+
+            // 如果超标已经比较严重，直接降到可预测的最低标准（2票），以避免过度误判
+            if (major >= 0.25) {
+                bestCount = 2;
+            } else {
+                if (reduction <= 0 && major > 0) reduction = 1; // 保证有超标时至少减少1票
+                bestCount = Math.max(2, bestCount - reduction);
+            }
+
+            bestVoteRatio = totalVoteWeight > 0 ? (double) bestCount / totalVoteWeight : 0.0;
         }
 
         // 识别结果三级标准：
@@ -8890,7 +8917,7 @@ public class DrawingBoardRecognizer {
             similarity = ((countPart + ratioPart) / 2.0) * 100.0;
         }
 
-        if (bestCount >= 13 && bestVoteRatio >= 0.30) {
+        if (bestCount >= 13 && bestVoteRatio >= 0.30 && pixelValidationPassed) {
             // 直接成功
             return new RecognizeResult(bestLabel, bestLabel, "", bestCount, totalVoteWeight, 100.0);
         } else if (bestCount >= 2) {
