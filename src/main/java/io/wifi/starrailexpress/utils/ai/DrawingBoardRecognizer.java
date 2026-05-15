@@ -8836,8 +8836,8 @@ public class DrawingBoardRecognizer {
         double bestVoteRatio = totalVoteWeight > 0 ? (double) bestCount / totalVoteWeight : 0.0;
 
 
-        // 颜色错误率校验：如果颜色错误率达到40%以上，直接降低得票数到3以下
-        if (bestCount >= 3) {
+        // 颜色错误率校验：如果颜色错误率达到40%以上，直接降低得票数到2以下
+        if (bestCount >= 2) {
             double colorMismatchRatio = calculateColorMismatchRatio(normalizedPixels, bestLabel);
             if (colorMismatchRatio > 0.40) {
                 // 颜色错误率超过40%，降低得票数
@@ -8849,7 +8849,7 @@ public class DrawingBoardRecognizer {
 
         // 像素级校验：使用规范化后的像素进行检查（颜色互通生效）
         // 根据超标程度减少票数：透明超标-3票，遗漏超标-2票，取最大超程度
-        if (bestCount >= 3) {
+        if (bestCount >= 2) {
             PixelValidationResult validationResult = validatePixelConstraints(normalizedPixels, bestLabel);
             if (!validationResult.passed) {
                 // 计算票数减少量
@@ -8864,13 +8864,13 @@ public class DrawingBoardRecognizer {
 
         // 识别结果三级标准：
         // 1. 直接成功：bestCount >= 12 && bestVoteRatio >= 0.20
-        // 2. 预测（提示可能画的）：bestCount >= 3 && bestCount < 12
-        // 3. 识别失败（out_of_range）：bestCount < 3
+        // 2. 预测（提示可能画的）：2 <= bestCount < 12
+        // 3. 识别失败（out_of_range）：bestCount < 2
 
         if (bestCount >= 12 && bestVoteRatio >= 0.20) {
             // 直接成功
             return new RecognizeResult(bestLabel);
-        } else if (bestCount >= 3) {
+        } else if (bestCount >= 2) {
             // 预测：票数在3-12之间，将权数最高的pattern作为预测
             return new RecognizeResult(UNKNOWN, bestLabel, generateHintMessage(bestLabel), bestCount, totalVoteWeight);
         } else {
@@ -8954,9 +8954,9 @@ public class DrawingBoardRecognizer {
                 int patternColor = pattern[y][x] & 0xFF;
                 int inputColor = input[y][x] & 0xFF;
 
-                // 判断是否为透明/背景色（索引为0或等于16）
-                boolean patternIsTransparent = patternColor == 0 || patternColor == 16;
-                boolean inputIsTransparent = inputColor == 16;
+                // 判断是否为透明/背景色（仅背景白色ID视为透明）
+                boolean patternIsTransparent = patternColor == COLOR_BACKGROUND_WHITE;
+                boolean inputIsTransparent = inputColor == COLOR_BACKGROUND_WHITE;
 
                 if (!patternIsTransparent && !inputIsTransparent) {
                     coloredCount++;
@@ -9109,9 +9109,9 @@ public class DrawingBoardRecognizer {
                 int patternColor = pattern[patternY][patternX] & 0xFF;
                 int inputColor = input[y][x] & 0xFF;
 
-                // 判断是否为透明/背景色（索引为0或等于16）
-                boolean patternIsTransparent = patternColor == 0 || patternColor == 16;
-                boolean inputIsTransparent = inputColor == 16;
+                // 判断是否为透明/背景色（仅背景白色ID视为透明）
+                boolean patternIsTransparent = patternColor == COLOR_BACKGROUND_WHITE;
+                boolean inputIsTransparent = inputColor == COLOR_BACKGROUND_WHITE;
 
                 if (patternIsTransparent) {
                     patternTransparentCount++;
