@@ -195,6 +195,10 @@ public class NoellesrolesClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         NoellesrolesClientAmbientSounds.register();
+        // 注册游戏结束事件，清除建筑师客户端墙
+        io.wifi.starrailexpress.event.client.OnGameFinishedClient.EVENT.register(() -> {
+            ClientWallManager.clearAll();
+        });
         // 注册HUD渲染
         LimitedInventoryScreen.NotAllowItemTakePredicates.add(stack -> stack.is(ModItems.BOMB));
 
@@ -255,6 +259,13 @@ public class NoellesrolesClient implements ClientModInitializer {
             ClientSmokeAreaManager.createSmokeArea(context.client().level, payload.position(), payload.radius(),
                     payload.durationTicks());
         });
+        // 建筑师墙数据S2C包
+        ClientPlayNetworking.registerGlobalReceiver(org.agmas.noellesroles.packet.BuilderWallS2CPacket.ID, (payload, context) -> {
+            ClientWallManager.createWall(payload.wallId(), payload.positions(), payload.durationTicks());
+        });
+        ClientPlayNetworking.registerGlobalReceiver(org.agmas.noellesroles.packet.BuilderRemoveWallS2CPacket.ID, (payload, context) -> {
+            ClientWallManager.removeWall(payload.wallId());
+        });
         ClientPlayNetworking.registerGlobalReceiver(CreateCreeperBombAreaPacket.ID, (payload, context) -> {
             final var p = context.player();
             final var level = context.client().level;
@@ -313,6 +324,7 @@ public class NoellesrolesClient implements ClientModInitializer {
             if (level == null)
                 return;
             ClientSmokeAreaManager.tick();
+            ClientWallManager.tick();
         });
         ClientPlayNetworking.registerGlobalReceiver(ProblemScreenOpenC2SPacket.ID, (payload, context) -> {
             var client = context.client();

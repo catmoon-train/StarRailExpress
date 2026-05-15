@@ -120,6 +120,15 @@
   "info.screen.roleid.spellbreaker": "殺手陣營\n按G釋放破法力場：50米內非殺手玩家20秒內無法使用技能或打開背包，並獲得仙境濾鏡。\n破法藥劑：對玩家使用後使其下一次技能嘗試失敗，並進入30秒技能封禁,45s有效。\n沉默圖騰：投擲隱形圖騰，30秒內使6米內非殺手玩家持續緩慢I與失明。同一時間只能存在一個圖騰。",
   "info.screen.roleid.meatball": "乘客陣營\n你的san值消耗較慢\n殺手/中立只能在與你獨處的時候擊殺你（4格半徑範圍內沒有其他好人陣營時會被判定為獨處）\n肉汁無法免疫好人誤殺/被好人誤殺/無來源傷害/炸彈客的炸彈/中毒/陰謀書頁。\n你每做一個任務會積累40金幣的賞金\n殺手擊殺你會獲得所有累計的賞金\n所以請儘量通過非任務的方式回復san值",
   "info.screen.roleid.mortician": "平民陣營\n你可以透視十格範圍內的物品掉落物\n你可以打開屍體的物品欄，並從中拿取至多2個物品\n冷卻240秒",
+  "info.screen.roleid.builder": "平民陣營\n按G鍵在自身位置建造一堵客戶端牆（長4格高3格厚1格），牆60秒後消失\n蹲下按G鍵切換建造/拆除模式\n建造模式：按G鍵建造牆體，冷卻100秒，開局120秒冷卻\n拆除模式：按G鍵拆除最近建造的牆體，無冷卻\n蹲下按G鍵切換模式不受冷卻影響",
+  "hud.noellesroles.builder.mode.build": "建造模式",
+  "hud.noellesroles.builder.mode.demolish": "拆除模式",
+  "hud.noellesroles.builder.mode_switched": "已切換為%s",
+  "hud.noellesroles.builder.cooldown": "冷卻中 %.1f秒",
+  "hud.noellesroles.builder.ready": "技能就緒",
+  "hud.noellesroles.builder.wall_built": "牆體已建造",
+  "hud.noellesroles.builder.wall_demolished": "牆體已拆除",
+  "hud.noellesroles.builder.no_walls": "沒有可拆除的牆體",
   "info.screen.roleid.painter": "平民陣營\n初始擁有一個畫板。\n技能一 - 繪畫靈感：觸發以下場景時獲得畫板，每種場景只會給予一次：\n- 撿起攝影師丟在地上的照片\n- 從地上撿起左輪手槍/巡警手槍\n- 坐著的時間達到40秒\n技能二 - 求索：每過4分鐘自動獲得一個畫板。\n技能三 - 摯友：當場上同時存在畫家和作家時，同時給予作家和畫家一個畫板。\n畫板：右鍵打開，在繪畫區域內作畫，確定時系統會根據繪畫內容進行識別，成功識別出物品後你會獲得繪畫的物品並消耗1個畫板。\n如果物品材質中包含白色，請在調色盤中使用白色填圖，系統不會識別背景的白色。\n如果圖像識別失敗，可以修改個別像素多試幾次，圖像識別不一定100%標準(你亂畫也有機會蒙到其他東西)\n \n你無法通過畫板獲取以下物品\n- 畫板/手榴彈/撬鎖器/球棒/德林加手槍/蠍子/警長陣營的特殊武器(警棍除外)\n- 手槍只會識別出左輪手槍，刀只會識別出普通的刀 \n- 氯氣彈/淨化彈/毒液試劑/藥丸/幻覺藥劑/平底鍋/硫酸桶/空包彈/鑰胚 \n- 中立陣營的專屬物品和假物品 \n- 藥劑師/明星/愚者/滯時鬼的專屬物品 \n- 除乘務員鑰匙/撬棍/迴紋針以外的其他鑰匙",
   "==================== 修飾符 ====================": "",
   "info.screen.modifier.lovers": "修飾符\n你會與另一名隨機玩家綁定為戀人(戀人分配與陣營無關)。\n當戀人的其中一方死亡時，另一方會殉情而亡。\n若只有你與你的戀人存活到了最後，則戀人獲勝。\n為了達成勝利條件，你可以擊殺你的隊友來取得勝利（特指殺手陣營）。\n當你的戀人是亡命徒時，在亡命徒期間被動死亡你可能無法復活。（因為你死於亡命徒死亡之後）",
@@ -2273,5 +2282,9 @@
   "message.noellesroles.repair.station_jammed_hint": "該修機方塊正在被干擾：本次修理效率降低。",
   "message.noellesroles.repair.coin_reward": "任務獎勵：+%s 金幣",
   "message.noellesroles.repair.team_station_reward": "全隊修機獎勵：+%s 金幣",
-  "message.noellesroles.repair.hunter_frenzy": "逃脫方修好了一臺機器，追捕者進入短暫狂熱！"
+  "message.noellesroles.repair.hunter_frenzy": "逃脫方修好了一臺機器，追捕者進入短暫狂熱！",
+  "=============== 建築師 Builder ===============": "",
+  "announcement.star.role.builder": "建築師",
+  "announcement.star.role.noellesroles.builder": "建築師",
+  "announcement.star.goals.builder": "用牆壁封鎖通道，保護平民！"
 }

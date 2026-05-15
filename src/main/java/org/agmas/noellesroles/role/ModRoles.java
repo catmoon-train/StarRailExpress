@@ -54,6 +54,7 @@ import org.agmas.noellesroles.game.roles.Innocent.painter.PainterPlayerComponent
 import org.agmas.noellesroles.game.roles.Innocent.singer.SingerPlayerComponent;
 import org.agmas.noellesroles.game.roles.Innocent.super_star.SuperStarPlayerComponent;
 import org.agmas.noellesroles.game.roles.Innocent.telegrapher.TelegrapherPlayerComponent;
+import org.agmas.noellesroles.game.roles.Innocent.builder.BuilderPlayerComponent;
 import org.agmas.noellesroles.game.roles.Innocent.voodoo.VoodooPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.bomber.BomberPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.conspirator.ConspiratorPlayerComponent;
@@ -195,6 +196,8 @@ public class ModRoles {
     public static final ResourceLocation MEATBALL_ID = Noellesroles.id("meatball");
     // 殡仪员角色 ID
     public static final ResourceLocation MORTICIAN_ID = Noellesroles.id("mortician");
+    // 建筑师角色 ID
+    public static final ResourceLocation BUILDER_ID = Noellesroles.id("builder");
     public static final ResourceLocation REPAIR_SURVIVOR_ID = Noellesroles.id("repair_survivor");
     public static final ResourceLocation REPAIR_HUNTER_ID = Noellesroles.id("repair_hunter");
     public static final ResourceLocation REPAIR_NEUTRAL_ID = Noellesroles.id("repair_neutral");
@@ -375,6 +378,32 @@ public class ModRoles {
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
             false // 不隐藏计分板
     )).setCanSeeCoin(true).setComponentKey(ModComponents.MORTICIAN).setOccupiedRoleCount(1);
+
+    /**
+     * 建筑师角色 - 平民阵营
+     * - 属于乘客阵营 (isInnocent = true)
+     * - 不能使用杀手能力 (canUseKiller = false)
+     * - 真实心情系统
+     * - 标准冲刺时间
+     * - 在计分板上显示
+     * - 技能：建造模式（默认）- 按技能键在自身位置建造一堵客户端墙
+     *   - 墙长4格高3格厚1格，沿视角朝向垂直建造
+     *   - 只替换空气方块
+     *   - 墙会在60秒后消失
+     *   - 技能冷却100秒，开局120秒冷却
+     * - 技能：拆除模式 - 按技能键拆除墙体，无冷却
+     * - 蹲下按技能键切换模式（不受冷却影响）
+     * - 游戏结束时清除所有客户端墙
+     */
+    public static SRERole BUILDER = TMMRoles.registerRole(new NormalRole(
+            BUILDER_ID, // 角色 ID
+            new Color(205, 133, 63).getRGB(), // 铜棕色 - 代表建筑师/砖块
+            true, // isInnocent = 平民阵营
+            false, // canUseKiller = 无杀手能力
+            SRERole.MoodType.REAL, // 真实心情
+            TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
+            false // 不隐藏计分板
+    )).setCanSeeCoin(true).setComponentKey(ModComponents.BUILDER).setEnableChance(70).setOccupiedRoleCount(1);
 
     public static SRERole GUEST_GHOST = TMMRoles.registerRole(new NormalRole(
             GUEST_GHOST_ID, // 角色 ID

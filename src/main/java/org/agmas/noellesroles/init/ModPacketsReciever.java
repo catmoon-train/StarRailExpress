@@ -897,6 +897,39 @@ public class ModPacketsReciever {
       // 播放上膛音效，让附近所有玩家都能听到
       player.level().playSound(null, player.blockPosition(), NRSounds.SHOTGUNU_COCK, SoundSource.PLAYERS, 1.0F, 1.0F);
     });
+
+    // 建筑师技能包处理
+    ServerPlayNetworking.registerGlobalReceiver(org.agmas.noellesroles.RicesRoleRhapsody.BUILDER_ABILITY_PACKET, (payload, context) -> {
+      if (context.player().hasEffect(ModEffects.SAFE_TIME))
+        return;
+      ServerPlayer player = context.player();
+      SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
+
+      if (!gameWorldComponent.isSkillAvailable) {
+        player.displayClientMessage(
+            Component.translatable("message.tip.skill_disabled").withStyle(ChatFormatting.RED), true);
+        return;
+      }
+
+      if (gameWorldComponent.isRole(player, ModRoles.BUILDER)) {
+        org.agmas.noellesroles.game.roles.Innocent.builder.BuilderPlayerComponent builderComponent =
+            org.agmas.noellesroles.component.ModComponents.BUILDER.get(player);
+
+        // 蹲下按技能键切换模式（不受冷却影响）
+        if (payload.shiftDown()) {
+          builderComponent.switchMode();
+          return;
+        }
+
+        // 根据当前模式使用技能
+        if (builderComponent.isBuildMode()) {
+          builderComponent.useBuildAbility();
+        } else {
+          builderComponent.useDemolishAbility();
+        }
+        ConfigWorldComponent.onPlayerUsedSkill(player);
+      }
+    });
   }
 
 }

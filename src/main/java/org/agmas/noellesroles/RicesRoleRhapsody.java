@@ -106,6 +106,9 @@ public class RicesRoleRhapsody implements ModInitializer {
     public static final CustomPacketPayload.Type<ShadowFalconAbilityC2SPacket> SHADOW_FALCON_ABILITY_PACKET = ShadowFalconAbilityC2SPacket.ID;
     public static final CustomPacketPayload.Type<PilotRemoveJetpackC2SPacket> PILOT_REMOVE_JETPACK_PACKET = PilotRemoveJetpackC2SPacket.ID;
 
+    // 建筑师技能包
+    public static final CustomPacketPayload.Type<BuilderAbilityC2SPacket> BUILDER_ABILITY_PACKET = BuilderAbilityC2SPacket.ID;
+
     public static final CustomPacketPayload.Type<LockGameC2Packet> LOCK_GAME_PACKET = LockGameC2Packet.ID;
     public static final CustomPacketPayload.Type<KeyForgeGameC2Packet> KEY_FORGE_GAME_PACKET = KeyForgeGameC2Packet.ID;
     public static final CustomPacketPayload.Type<LootRequestC2SPacket> LOOT_REQUIRE_PACKET = LootRequestC2SPacket.ID;
@@ -343,6 +346,13 @@ public class RicesRoleRhapsody implements ModInitializer {
 
         // 注册飞行员脱下喷气背包包
         PayloadTypeRegistry.playC2S().register(PilotRemoveJetpackC2SPacket.ID, PilotRemoveJetpackC2SPacket.CODEC);
+
+        // 注册建筑师技能包
+        PayloadTypeRegistry.playC2S().register(BuilderAbilityC2SPacket.ID, BuilderAbilityC2SPacket.CODEC);
+
+        // 注册建筑师墙数据S2C包
+        PayloadTypeRegistry.playS2C().register(BuilderWallS2CPacket.ID, BuilderWallS2CPacket.CODEC);
+        PayloadTypeRegistry.playS2C().register(BuilderRemoveWallS2CPacket.ID, BuilderRemoveWallS2CPacket.CODEC);
 
         // 注册撬锁小游戏完成包
         PayloadTypeRegistry.playC2S().register(LockGameC2Packet.ID, LockGameC2Packet.CODEC);
@@ -1336,6 +1346,12 @@ public class RicesRoleRhapsody implements ModInitializer {
 
         // ==================== 示例：根据角色给予物品 ====================
         //
+
+        // ==================== 建筑师角色处理 ====================
+        if (role.equals(ModRoles.BUILDER)) {
+            org.agmas.noellesroles.game.roles.Innocent.builder.BuilderPlayerComponent builderComponent = org.agmas.noellesroles.component.ModComponents.BUILDER.get(player);
+            builderComponent.init();
+        }
         // if (role.equals(ModRoles.EXAMPLE_ROLE)) {
         // // 给予物品
         // player.giveItemStack(new ItemStack(Items.PAPER));
