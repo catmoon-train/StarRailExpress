@@ -18,14 +18,14 @@ public class SpecialGameModeRoles {
    */
   public static final SRERole SEEKER = registerRole(
       new SeekerRole(SRE.wifiId("hide_and_seek_seeker"), TMMRoles.KILLER.color(), false, true, SRERole.MoodType.NONE, -1, true))
-      .setCanPickUpRevolver(true).setCanBeRandomedByOtherRoles(false).setMax(0);
+      .setCanPickUpRevolver(true).setCanBeRandomedByOtherRoles(false).setMax(0).setOtherModeRole(true);
       
   /**
    * 自选职业
    */
   public static final SRERole CUSTOM_PENDING = registerRole(
       new NormalRole(SRE.wifiId("custom_pending"), 0x5CFF4A, false, false, SRERole.MoodType.NONE, -1, true))
-      .setCanPickUpRevolver(false).setNeutrals(true).setNeutralForKiller(false).setCanBeRandomedByOtherRoles(false).setMax(0);
+      .setCanPickUpRevolver(false).setNeutrals(true).setNeutralForKiller(false).setCanBeRandomedByOtherRoles(false).setMax(0).setOtherModeRole(true);
 
   /**
    * 职业：超级亡命徒
@@ -43,7 +43,7 @@ public class SpecialGameModeRoles {
       true))
       .setCanSeeCoin(true)
       .setCanUseInstinct(true)
-      .setCanAutoAddMoney(true).setMax(0).setCanBeRandomedByOtherRoles(false);
+      .setCanAutoAddMoney(true).setMax(0).setCanBeRandomedByOtherRoles(false).setOtherModeRole(true);
 
   /**
    * 职业：土块
@@ -64,7 +64,7 @@ public class SpecialGameModeRoles {
       .setCanUseInstinct(true)
       .setMax(0)
       .setCanBeRandomedByOtherRoles(false)
-      .setNeutrals(true);
+      .setNeutrals(true).setOtherModeRole(true);
 
   public static SRERole registerRole(SRERole role) {
     TMMRoles.ROLES.put(role.identifier(), role);

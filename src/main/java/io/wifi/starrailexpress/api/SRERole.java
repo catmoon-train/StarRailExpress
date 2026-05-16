@@ -499,6 +499,7 @@ public abstract class SRERole {
     private int maxSprintTime;
     private ToIntFunction<Player> customSprintTimeGetter = null;
     private boolean canSeeTime;
+    private boolean isOtherModeRole = false;
 
     public Consumer<LimitedInventoryScreen> getAddChild() {
         return addChild;
@@ -743,4 +744,23 @@ public abstract class SRERole {
     public boolean canSeeBodyKiller() {
         return this.bodyKillerVisibility;
     };
+
+    /**
+     * 是否是"其它模式"的职业（用于U键职业介绍页面的模式筛选）
+     * 其他模式包括：游客、职业待定、超级亡命徒、土块、寻找者等
+     * @return 是否为其他模式职业
+     */
+    public boolean isOtherModeRole() {
+        return this.isOtherModeRole;
+    }
+
+    /**
+     * 设置是否为"其它模式"的职业
+     * @param isOtherModeRole 是否为其他模式职业
+     * @return this
+     */
+    public SRERole setOtherModeRole(boolean isOtherModeRole) {
+        this.isOtherModeRole = isOtherModeRole;
+        return this;
+    }
 }
