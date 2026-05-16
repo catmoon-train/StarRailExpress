@@ -378,8 +378,8 @@ public class InitModRolesMax {
                 Harpymodloader.setRoleMaximum(ModRoles.MAGICIAN_ID, 0);
             }
 
-            // 死灵法师数量 - 仅在12人以上对局出现，50%概率
-            if (players_count >= 12 && random.nextInt(0, 100) <= 50) {
+            // 死灵法师数量 - 从配置读取最小玩家数和概率
+            if (players_count >= config.minPlayerForNecromancer && random.nextInt(0, 100) <= config.chanceOfNecromancer) {
                 Harpymodloader.setRoleMaximum(SERoles.NECROMANCER, 1);
             } else {
                 Harpymodloader.setRoleMaximum(SERoles.NECROMANCER, 0);
@@ -409,8 +409,8 @@ public class InitModRolesMax {
             } else {
                 Harpymodloader.setRoleMaximum(ModRoles.VULTURE, 0);
             }
-            // 纵火犯数量
-            if (players_count >= 12) {
+            // 纵火犯数量 - 从配置读取最小玩家数
+            if (players_count >= config.minPlayerForArsonist) {
                 Harpymodloader.setRoleMaximum(SERoles.ARSONIST, 1);
             } else {
                 Harpymodloader.setRoleMaximum(SERoles.ARSONIST, 0);
@@ -662,8 +662,8 @@ public class InitModRolesMax {
     private static void applyRoleChanceFromConfig() {
         NoellesRolesConfig config = NoellesRolesConfig.HANDLER.instance();
 
-        // 建筑师 - 70%概率，12人以上
-        ModRoles.BUILDER.setEnableChance(config.chanceOfBuilder).setEnableNeededPlayerCount(12);
+        // 建筑师 - 从配置读取概率和最小玩家数
+        ModRoles.BUILDER.setEnableChance(config.chanceOfBuilder).setEnableNeededPlayerCount(config.minPlayerForBuilder);
 
         // 杜鹃 - 45%概率
         ModRoles.CUCKOO.setEnableChance(config.chanceOfCuckoo);
@@ -674,17 +674,21 @@ public class InitModRolesMax {
         // 画家 - 50%概率
         ModRoles.PAINTER.setEnableChance(config.chanceOfPainter);
 
-        // 雇佣兵 - 10%概率，12人以上
-        ModRoles.MERCENARY.setEnableChance(config.chanceOfMercenary).setEnableNeededPlayerCount(12);
+        // 雇佣兵 - 从配置读取概率和最小玩家数
+        ModRoles.MERCENARY.setEnableChance(config.chanceOfMercenary).setEnableNeededPlayerCount(config.minPlayerForMercenary);
 
-        // 愚者 - 30%概率，12人以上
-        ModRoles.THE_FOOL.setEnableChance(config.chanceOfTheFool).setEnableNeededPlayerCount(12);
+        // 愚者 - 从配置读取概率和最小玩家数
+        ModRoles.THE_FOOL.setEnableChance(config.chanceOfTheFool).setEnableNeededPlayerCount(config.minPlayerForTheFool);
 
-        // 猫死灵法师 - 10%概率，12人以上
-        ModRoles.CAT_NECROMANCER.setEnableChance(config.chanceOfCatNecromancer).setEnableNeededPlayerCount(12);
+        // 猫死灵法师 - 从配置读取概率和最小玩家数
+        ModRoles.CAT_NECROMANCER.setEnableChance(config.chanceOfCatNecromancer).setEnableNeededPlayerCount(config.minPlayerForCatNecromancer);
 
         // 更好的义警 - 小概率（基于10000）
         ModRoles.BEST_VIGILANTE.setEnableRareChance(config.chanceOfBestVigilante);
+
+        // StupidExpress 角色配置
+        // 失忆者
+        SERoles.AMNESIAC.setEnableNeededPlayerCount(config.minPlayerForAmnesiac).setEnableChance(config.chanceOfAmnesiac);
     }
 
     public static void initModifiersCount(int players) {

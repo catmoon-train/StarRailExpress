@@ -60,6 +60,11 @@ public class NoellesRolesConfig implements ConfigData {
     public int chanceOfBuilder = 70;
 
     /**
+     * 建筑师刷新最小玩家数
+     */
+    public int minPlayerForBuilder = 12;
+
+    /**
      * 布谷鸟刷新概率（%）
      */
     public int chanceOfCuckoo = 45;
@@ -80,9 +85,19 @@ public class NoellesRolesConfig implements ConfigData {
     public int chanceOfMercenary = 20;
 
     /**
+     * 雇佣兵刷新最小玩家数
+     */
+    public int minPlayerForMercenary = 12;
+
+    /**
      * 愚者刷新概率（%）
      */
     public int chanceOfTheFool = 30;
+
+    /**
+     * 愚者刷新最小玩家数
+     */
+    public int minPlayerForTheFool = 12;
 
     /**
      * 红尘客刷新概率（%）
@@ -129,6 +144,48 @@ public class NoellesRolesConfig implements ConfigData {
      */
     public int chanceOfCatNecromancer = 10;
 
+    /**
+     * 猫死灵法师刷新最小玩家数
+     */
+    public int minPlayerForCatNecromancer = 12;
+
+    // StupidExpress 角色配置
+
+    /**
+     * 纵火犯刷新最小玩家数
+     */
+    public int minPlayerForArsonist = 12;
+
+    /**
+     * 死灵法师刷新最小玩家数
+     */
+    public int minPlayerForNecromancer = 12;
+
+    /**
+     * 死灵法师刷新概率（%）
+     */
+    public int chanceOfNecromancer = 50;
+
+    /**
+     * 贪婪者刷新最小玩家数
+     */
+    public int minPlayerForAvaricious = 12;
+
+    /**
+     * 新手刷新最小玩家数
+     */
+    public int minPlayerForInitiate = 12;
+
+    /**
+     * 失忆者刷新最小玩家数
+     */
+    public int minPlayerForAmnesiac = 12;
+
+    /**
+     * 失忆者刷新概率（%）
+     */
+    public int chanceOfAmnesiac = 50;
+
     // 小概率配置（0-10000，基于10000的概率）
 
     /**
@@ -162,6 +219,16 @@ public class NoellesRolesConfig implements ConfigData {
      */
 
     public int chanceOfModifierSplitPersonality = 0;
+
+    /**
+     * 黑白修饰符刷新概率（%）
+     */
+    public int chanceOfBlackWhite = 10;
+
+    /**
+     * 黑白修饰符刷新最小玩家数
+     */
+    public int minPlayerForBlackWhite = 10;
 
     /**
      * Starting cooldown (in ticks)

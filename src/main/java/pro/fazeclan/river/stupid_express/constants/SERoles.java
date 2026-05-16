@@ -10,6 +10,7 @@ import net.minecraft.Util;
 import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.harpymodloader.events.ResetPlayerEvent;
 import org.agmas.harpymodloader.modded_murder.RoleAssignmentManager;
+import org.agmas.noellesroles.config.NoellesRolesConfig;
 import pro.fazeclan.river.stupid_express.StupidExpress;
 import pro.fazeclan.river.stupid_express.role.amnesiac.RoleSelectionHandler;
 import pro.fazeclan.river.stupid_express.role.arsonist.OilDousingHandler;
@@ -104,12 +105,13 @@ public class SERoles {
             if (playerList.isEmpty()) {
                 return;
             }
+            NoellesRolesConfig config = NoellesRolesConfig.HANDLER.instance();
             var killerRoleCount = (int) Math.floor((float) playerList.size() / (float) 6);
 
             if (killerRoleCount > 1) {
-                Harpymodloader.setRoleMaximum(NECROMANCER.getIdentifier(), playerList.size() >= 12 ? 1 : 0);
-                Harpymodloader.setRoleMaximum(AVARICIOUS.getIdentifier(), 1);
-                Harpymodloader.setRoleMaximum(INITIATE.getIdentifier(), playerList.size() >= 12 ? 1 : 0);
+                Harpymodloader.setRoleMaximum(NECROMANCER.getIdentifier(), playerList.size() >= config.minPlayerForNecromancer ? 1 : 0);
+                Harpymodloader.setRoleMaximum(AVARICIOUS.getIdentifier(), playerList.size() >= config.minPlayerForAvaricious ? 1 : 0);
+                Harpymodloader.setRoleMaximum(INITIATE.getIdentifier(), playerList.size() >= config.minPlayerForInitiate ? 1 : 0);
                 RoleAssignmentManager.addOccupationRole(SERoles.INITIATE, SERoles.INITIATE);
             } else {
                 Harpymodloader.setRoleMaximum(NECROMANCER.getIdentifier(), 0);
