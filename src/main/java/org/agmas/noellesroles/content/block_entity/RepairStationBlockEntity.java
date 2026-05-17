@@ -2,11 +2,17 @@ package org.agmas.noellesroles.content.block_entity;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -18,6 +24,8 @@ public class RepairStationBlockEntity extends BlockEntity {
     private int progress;
     private int animationTicks;
     private int jamTicks;
+    private int repairBlockedTicks;
+    private int blackSmokeTicks;
 
     public RepairStationBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlocks.REPAIR_STATION_BLOCK_ENTITY, pos, state);
@@ -42,6 +50,14 @@ public class RepairStationBlockEntity extends BlockEntity {
         return jamTicks;
     }
 
+    public int getRepairBlockedTicks() {
+        return repairBlockedTicks;
+    }
+
+    public boolean isRepairBlocked() {
+        return repairBlockedTicks > 0;
+    }
+
     public boolean isJammed() {
         return jamTicks > 0;
     }
@@ -51,7 +67,7 @@ public class RepairStationBlockEntity extends BlockEntity {
     }
 
     public boolean addProgress(int amount) {
-        if (isCompleted()) {
+        if (isCompleted() || isRepairBlocked()) {
             return false;
         }
         if (isJammed()) {
@@ -76,6 +92,25 @@ public class RepairStationBlockEntity extends BlockEntity {
         setChangedAndSync();
     }
 
+    public void triggerAccidentFailure(ServerPlayer cause) {
+        if (!(level instanceof ServerLevel serverLevel) || isCompleted()) {
+            return;
+        }
+        repairBlockedTicks = Math.max(repairBlockedTicks, 20 * 5);
+        blackSmokeTicks = Math.max(blackSmokeTicks, 20 * 5);
+        animationTicks = 20;
+        serverLevel.playSound(null, worldPosition, SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 1.0F, 0.55F);
+        for (ServerPlayer player : serverLevel.players()) {
+            if (player.distanceToSqr(worldPosition.getCenter()) <= 8.0D * 8.0D) {
+                player.addEffect(new MobEffectInstance(MobEffects.GLOWING, 20 * 8, 0, false, true, true));
+            }
+        }
+        serverLevel.sendParticles(ParticleTypes.LARGE_SMOKE,
+                worldPosition.getX() + 0.5D, worldPosition.getY() + 0.9D, worldPosition.getZ() + 0.5D,
+                45, 0.45D, 0.5D, 0.45D, 0.04D);
+        setChangedAndSync();
+    }
+
     public static void tick(net.minecraft.world.level.Level level, BlockPos pos, BlockState state,
             RepairStationBlockEntity entity) {
         boolean changed = false;
@@ -86,6 +121,22 @@ public class RepairStationBlockEntity extends BlockEntity {
         if (entity.jamTicks > 0) {
             entity.jamTicks--;
             changed = true;
+        }
+        if (entity.repairBlockedTicks > 0) {
+            entity.repairBlockedTicks--;
+            changed = true;
+        }
+        if (entity.blackSmokeTicks > 0) {
+            entity.blackSmokeTicks--;
+            changed = true;
+            if (level instanceof ServerLevel serverLevel && entity.blackSmokeTicks % 5 == 0) {
+                serverLevel.sendParticles(ParticleTypes.LARGE_SMOKE,
+                        pos.getX() + 0.5D, pos.getY() + 0.9D, pos.getZ() + 0.5D,
+                        5, 0.28D, 0.28D, 0.28D, 0.02D);
+                serverLevel.sendParticles(ParticleTypes.SMOKE,
+                        pos.getX() + 0.5D, pos.getY() + 1.0D, pos.getZ() + 0.5D,
+                        8, 0.35D, 0.35D, 0.35D, 0.03D);
+            }
         }
         if (changed) {
             entity.setChangedAndSync();
@@ -105,6 +156,8 @@ public class RepairStationBlockEntity extends BlockEntity {
         tag.putInt("Progress", progress);
         tag.putInt("AnimationTicks", animationTicks);
         tag.putInt("JamTicks", jamTicks);
+        tag.putInt("RepairBlockedTicks", repairBlockedTicks);
+        tag.putInt("BlackSmokeTicks", blackSmokeTicks);
     }
 
     @Override
@@ -113,6 +166,8 @@ public class RepairStationBlockEntity extends BlockEntity {
         progress = tag.getInt("Progress");
         animationTicks = tag.getInt("AnimationTicks");
         jamTicks = tag.getInt("JamTicks");
+        repairBlockedTicks = tag.getInt("RepairBlockedTicks");
+        blackSmokeTicks = tag.getInt("BlackSmokeTicks");
     }
 
     @Override

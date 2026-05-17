@@ -178,6 +178,8 @@ public class Noellesroles implements ModInitializer {
         WheelchairFieldItemCommand.register();
         GamblerMiracleCommand.register();
         EggClearCommand.register();
+        RepairShopCommand.register();
+        RepairRoleCommand.register();
 
         // 加载预设配置
         Preset.PresetManager.loadPresets();

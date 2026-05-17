@@ -180,6 +180,9 @@ public class MapManager {
         jsonObject.addProperty("noReset", areas.noReset);
         jsonObject.addProperty("mustCopy", areas.mustCopy);
 
+        // 保存支持的游戏模式列表
+        jsonObject.add("gameModes", gson.toJsonTree(areas.gameModes));
+
         // 保存场景偏移配置
         JsonObject sceneOffsetObj = new JsonObject();
         sceneOffsetObj.addProperty("enabled", areas.sceneOffsetEnabled);
@@ -428,6 +431,16 @@ public class MapManager {
                 }
             } else {
                 areas.disabledTasks.add("BREATHE");
+            }
+
+            // 加载支持的游戏模式列表
+            areas.gameModes.clear();
+            if (jsonObject.has("gameModes")) {
+                var jsonArr = jsonObject.get("gameModes").getAsJsonArray();
+                for (JsonElement data : jsonArr.asList()) {
+                    areas.gameModes.add(data.getAsString());
+                }
+                SRE.LOGGER.info("Loaded game modes for map " + mapName + ": " + areas.gameModes);
             }
             if (jsonObject.has("roomCount")) {
                 int roomCount = jsonObject.get("roomCount").getAsInt();

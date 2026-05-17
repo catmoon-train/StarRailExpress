@@ -4,6 +4,7 @@ import io.wifi.starrailexpress.api.GameMode;
 import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
 import io.wifi.starrailexpress.cca.SREGameTimeComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.network.original.AnnounceWelcomePayload;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -20,6 +21,7 @@ import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.content.block_entity.HunterCageBlockEntity;
 import org.agmas.noellesroles.init.ModBlocks;
+import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.packet.OpenRepairRoleSelectionS2CPacket;
 import org.agmas.noellesroles.role.ModRoles;
@@ -52,25 +54,49 @@ public class RepairEscapeGameMode extends GameMode {
         RepairModeState.reset(serverWorld);
         RepairEventSystem.reset(serverWorld);
         rolesFinalized = false;
-        selectionEndTick = serverWorld.getGameTime() + 40 * 20L;
+        selectionEndTick = serverWorld.getGameTime() + 30 * 20L;
 
         ArrayList<ServerPlayer> shuffled = new ArrayList<>(players);
         Collections.shuffle(shuffled);
         int hunterCount = hunterCount(shuffled.size());
         int neutralCount = neutralCount(shuffled.size());
+        int forcedHunters = 0;
+        int forcedNeutrals = 0;
+        for (ServerPlayer player : shuffled) {
+            var forced = RepairForcedRoleState.forcedRole(player.getUUID());
+            if (forced.isPresent()) {
+                if (forced.get().faction == RepairRoleDefinition.Faction.HUNTER) {
+                    forcedHunters++;
+                } else if (forced.get().faction == RepairRoleDefinition.Faction.NEUTRAL) {
+                    forcedNeutrals++;
+                }
+            }
+        }
+        int remainingHunters = Math.max(0, hunterCount - forcedHunters);
+        int remainingNeutrals = Math.max(0, neutralCount - forcedNeutrals);
         List<String> playerNames = shuffled.stream().map(player -> player.getGameProfile().getName()).toList();
 
-        for (int i = 0; i < shuffled.size(); i++) {
-            ServerPlayer player = shuffled.get(i);
+        for (ServerPlayer player : shuffled) {
             RepairRoleDatabase.loadInto(player);
-            RepairRoleDefinition.Faction faction = i < hunterCount
-                    ? RepairRoleDefinition.Faction.HUNTER
-                    : i < hunterCount + neutralCount
-                            ? RepairRoleDefinition.Faction.NEUTRAL
-                            : RepairRoleDefinition.Faction.SURVIVOR;
-
             var component = ModComponents.REPAIR_ROLES.get(player);
             component.init();
+            var forcedRole = RepairForcedRoleState.forcedRole(player.getUUID()).orElse(null);
+            if (forcedRole != null) {
+                component.forcedRole = forcedRole.id;
+                component.setSelectedRole(forcedRole);
+            }
+            RepairRoleDefinition.Faction faction;
+            if (forcedRole != null) {
+                faction = forcedRole.faction;
+            } else if (remainingHunters > 0) {
+                remainingHunters--;
+                faction = RepairRoleDefinition.Faction.HUNTER;
+            } else if (remainingNeutrals > 0) {
+                remainingNeutrals--;
+                faction = RepairRoleDefinition.Faction.NEUTRAL;
+            } else {
+                faction = RepairRoleDefinition.Faction.SURVIVOR;
+            }
             component.selectionEndTick = selectionEndTick;
             component.sync();
 
@@ -79,6 +105,7 @@ public class RepairEscapeGameMode extends GameMode {
                 case NEUTRAL -> ModRoles.REPAIR_NEUTRAL;
                 case SURVIVOR -> ModRoles.REPAIR_SURVIVOR;
             }, false);
+            SREPlayerShopComponent.KEY.get(player).setBalance(startingCoins(faction));
             giveModeItems(player, faction, serverWorld.random);
             player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 40 * 20, 10, false, false, true));
             ServerPlayNetworking.send(player,
@@ -89,6 +116,7 @@ public class RepairEscapeGameMode extends GameMode {
             player.displayClientMessage(Component.translatable("message.noellesroles.repair.select_role", 40)
                     .withStyle(ChatFormatting.GOLD), false);
         }
+        RepairArenaBuilder.prepare(serverWorld, shuffled);
         gameWorldComponent.syncRoles();
     }
 
@@ -106,6 +134,7 @@ public class RepairEscapeGameMode extends GameMode {
     private static void giveModeItems(ServerPlayer player, RepairRoleDefinition.Faction faction, RandomSource random) {
         switch (faction) {
             case HUNTER -> {
+                player.addItem(new ItemStack(ModItems.HUNTER_WEAPON));
                 player.addItem(new ItemStack(ModItems.HUNTER_CHAIN));
                 player.addItem(new ItemStack(ModItems.ROPE));
                 player.addItem(new ItemStack(ModBlocks.HUNTER_SNARE.asItem(), 2));
@@ -127,8 +156,22 @@ public class RepairEscapeGameMode extends GameMode {
         }
     }
 
+    private static int startingCoins(RepairRoleDefinition.Faction faction) {
+        return switch (faction) {
+            case HUNTER -> 75;
+            case NEUTRAL -> 45;
+            case SURVIVOR -> 35;
+        };
+    }
+
     @Override
     public void tickServerGameLoop(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent) {
+        if (!rolesFinalized) {
+            RepairArenaBuilder.tickSelection(serverWorld);
+            if (serverWorld.getGameTime() % 40L == 0L) {
+                reopenRoleSelection(serverWorld, gameWorldComponent);
+            }
+        }
         if (!rolesFinalized && serverWorld.getGameTime() >= selectionEndTick) {
             finalizeSelectedRoles(serverWorld, gameWorldComponent);
         }
@@ -202,8 +245,30 @@ public class RepairEscapeGameMode extends GameMode {
         }
     }
 
+    private void reopenRoleSelection(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent) {
+        List<String> playerNames = serverWorld.players().stream()
+                .map(player -> player.getGameProfile().getName())
+                .toList();
+        for (ServerPlayer player : serverWorld.players()) {
+            ServerPlayNetworking.send(player,
+                    new OpenRepairRoleSelectionS2CPacket(selectionFaction(player, gameWorldComponent).id(),
+                            selectionEndTick, playerNames));
+        }
+    }
+
+    private static RepairRoleDefinition.Faction selectionFaction(ServerPlayer player, SREGameWorldComponent gameWorldComponent) {
+        if (gameWorldComponent.isRole(player, ModRoles.REPAIR_HUNTER)) {
+            return RepairRoleDefinition.Faction.HUNTER;
+        }
+        if (gameWorldComponent.isRole(player, ModRoles.REPAIR_NEUTRAL)) {
+            return RepairRoleDefinition.Faction.NEUTRAL;
+        }
+        return RepairRoleDefinition.Faction.SURVIVOR;
+    }
+
     private void finalizeSelectedRoles(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent) {
         rolesFinalized = true;
+        RepairArenaBuilder.finishSelection(serverWorld);
         for (ServerPlayer player : serverWorld.players()) {
             var component = ModComponents.REPAIR_ROLES.get(player);
             RepairRoleDefinition.Faction faction = gameWorldComponent.isRole(player, ModRoles.REPAIR_HUNTER)
@@ -211,7 +276,8 @@ public class RepairEscapeGameMode extends GameMode {
                     : gameWorldComponent.isRole(player, ModRoles.REPAIR_NEUTRAL)
                             ? RepairRoleDefinition.Faction.NEUTRAL
                             : RepairRoleDefinition.Faction.SURVIVOR;
-            RepairRoleDefinition role = component.selectedRole(faction);
+            RepairRoleDefinition role = RepairForcedRoleState.forcedRole(player.getUUID())
+                    .orElseGet(() -> component.selectedRole(faction));
             component.activeRole = role.id;
             component.neutralTaskProgress = 0;
             component.neutralTaskCompleted = false;
@@ -327,6 +393,7 @@ public class RepairEscapeGameMode extends GameMode {
                 }
             }
             if (component.carriedBy != null) {
+                player.addEffect(new MobEffectInstance(ModEffects.NO_COLLIDE, 10, 0, false, false, true));
                 if (!(serverWorld.getPlayerByUUID(component.carriedBy) instanceof ServerPlayer carrier)
                         || !player.getUUID().equals(ModComponents.REPAIR_ROLES.get(carrier).carrying)) {
                     component.carriedBy = null;
@@ -388,8 +455,10 @@ public class RepairEscapeGameMode extends GameMode {
 
     @Override
     public void stopGame(ServerLevel world) {
+        RepairArenaBuilder.restoreAll(world);
         RepairModeState.reset(world);
         RepairEventSystem.reset(world);
+        RepairForcedRoleState.clearAll();
         rolesFinalized = false;
     }
 }

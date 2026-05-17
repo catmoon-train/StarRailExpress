@@ -47,6 +47,7 @@ public class HunterPulseItem extends Item {
             player.displayClientMessage(Component.translatable("message.noellesroles.repair.hunter_pulse", revealed)
                     .withStyle(ChatFormatting.RED), true);
             player.getCooldowns().addCooldown(this, 20 * 45);
+            RepairModeState.startSkillCooldown(serverPlayer, 20 * 45, "tracker_pulse");
         }
         return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
     }

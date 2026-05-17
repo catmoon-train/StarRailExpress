@@ -6,13 +6,17 @@ import io.wifi.starrailexpress.game.GameUtils;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import org.agmas.noellesroles.component.ModComponents;
+import org.agmas.noellesroles.content.block_entity.RepairStationBlockEntity;
 import org.agmas.noellesroles.packet.RepairCoinRewardS2CPacket;
 import org.agmas.noellesroles.packet.RepairCombatFeedbackS2CPacket;
 import org.agmas.noellesroles.role.ModRoles;
@@ -54,6 +58,15 @@ public final class RepairModeState {
             component.currentEventDanger = 0;
             component.lastRepairActionTick = -100L;
             component.neutralTaskNeeded = 0;
+            component.repairInjuryLevel = 0;
+            component.lastHunterHitTick = -1000L;
+            component.activeSkillCooldownEndTick = 0L;
+            component.selectedSkillState = "";
+            component.carryStruggleProgress = 0;
+            component.lastStruggleSide = "";
+            component.lastStruggleTick = -1000L;
+            component.activeAttackPlugin = "";
+            component.forcedRole = "";
             player.setPose(Pose.STANDING);
             player.removeEffect(MobEffects.MOVEMENT_SLOWDOWN);
             player.removeEffect(MobEffects.WEAKNESS);
@@ -124,6 +137,19 @@ public final class RepairModeState {
         ServerPlayNetworking.send(player, new RepairCoinRewardS2CPacket(amount, sourceKey));
     }
 
+    public static void startSkillCooldown(ServerPlayer player, int ticks, String state) {
+        var component = ModComponents.REPAIR_ROLES.get(player);
+        component.activeSkillCooldownEndTick = Math.max(component.activeSkillCooldownEndTick,
+                player.level().getGameTime() + ticks);
+        component.selectedSkillState = state == null ? "" : state;
+        component.sync();
+    }
+
+    public static int skillCooldownSeconds(ServerPlayer player) {
+        long remaining = ModComponents.REPAIR_ROLES.get(player).activeSkillCooldownEndTick - player.level().getGameTime();
+        return remaining <= 0L ? 0 : (int) Math.ceil(remaining / 20.0D);
+    }
+
     public static boolean isHunter(ServerPlayer player) {
         SREGameWorldComponent game = SREGameWorldComponent.KEY.get(player.level());
         var role = ModComponents.REPAIR_ROLES.get(player).activeRole;
@@ -177,6 +203,11 @@ public final class RepairModeState {
         component.downed = true;
         component.carriedBy = null;
         component.trialStand = org.agmas.noellesroles.component.RepairRolePlayerComponent.BlockPosTag.NONE;
+        component.repairInjuryLevel = 0;
+        component.lastHunterHitTick = -1000L;
+        component.carryStruggleProgress = 0;
+        component.lastStruggleSide = "";
+        component.lastStruggleTick = -1000L;
         player.setHealth(1.0F);
         player.setPose(Pose.SWIMMING);
         player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 20 * 60, 8, false, false, true));
@@ -196,6 +227,11 @@ public final class RepairModeState {
         component.carriedBy = null;
         component.carrying = null;
         component.trialStand = org.agmas.noellesroles.component.RepairRolePlayerComponent.BlockPosTag.NONE;
+        component.repairInjuryLevel = 0;
+        component.lastHunterHitTick = -1000L;
+        component.carryStruggleProgress = 0;
+        component.lastStruggleSide = "";
+        component.lastStruggleTick = -1000L;
         target.setPose(Pose.STANDING);
         target.setHealth(Math.min(target.getMaxHealth(), REVIVE_HEALTH));
         target.removeEffect(MobEffects.MOVEMENT_SLOWDOWN);
@@ -217,6 +253,14 @@ public final class RepairModeState {
         component.carrying = null;
         component.carryBlockedTicks = 0;
         component.trialStand = org.agmas.noellesroles.component.RepairRolePlayerComponent.BlockPosTag.NONE;
+        component.repairInjuryLevel = 0;
+        component.lastHunterHitTick = -1000L;
+        component.activeSkillCooldownEndTick = 0L;
+        component.selectedSkillState = "";
+        component.carryStruggleProgress = 0;
+        component.lastStruggleSide = "";
+        component.lastStruggleTick = -1000L;
+        component.activeAttackPlugin = "";
         player.setPose(Pose.STANDING);
         player.removeEffect(MobEffects.MOVEMENT_SLOWDOWN);
         player.removeEffect(MobEffects.WEAKNESS);
@@ -247,6 +291,9 @@ public final class RepairModeState {
         if (level.getPlayerByUUID(hunterComponent.carrying) instanceof ServerPlayer carried) {
             var carriedComponent = ModComponents.REPAIR_ROLES.get(carried);
             carriedComponent.carriedBy = null;
+            carriedComponent.carryStruggleProgress = 0;
+            carriedComponent.lastStruggleSide = "";
+            carriedComponent.lastStruggleTick = -1000L;
             carried.teleportTo(hunter.getX(), hunter.getY(), hunter.getZ());
             carriedComponent.sync();
         }
@@ -265,10 +312,43 @@ public final class RepairModeState {
         }
     }
 
+    public static void highlightActiveStationsFor(ServerPlayer hunter, int ticks) {
+        if (!(hunter.level() instanceof ServerLevel level)) {
+            return;
+        }
+        int radius = 32;
+        int highlighted = 0;
+        for (BlockPos pos : BlockPos.betweenClosed(hunter.blockPosition().offset(-radius, -8, -radius),
+                hunter.blockPosition().offset(radius, 8, radius))) {
+            if (!(level.getBlockEntity(pos) instanceof RepairStationBlockEntity station)
+                    || station.isCompleted()
+                    || station.getAnimationTicks() <= 0) {
+                continue;
+            }
+            highlighted++;
+            level.sendParticles(hunter, ParticleTypes.NOTE, true,
+                    pos.getX() + 0.5D, pos.getY() + 1.3D, pos.getZ() + 0.5D,
+                    8, 0.2D, 0.35D, 0.2D, 0.02D);
+            level.playSound(null, pos, SoundEvents.NOTE_BLOCK_BELL.value(), SoundSource.BLOCKS, 0.9F, 1.35F);
+        }
+        if (highlighted > 0) {
+            hunter.addEffect(new MobEffectInstance(MobEffects.NIGHT_VISION, Math.max(40, ticks), 0, false, false, true));
+            hunter.displayClientMessage(Component.translatable("message.noellesroles.repair.tracker_station_ping", highlighted)
+                    .withStyle(ChatFormatting.AQUA), true);
+        }
+    }
+
     public static void blockHunterCarry(ServerPlayer hunter, int ticks) {
         releaseCarried(hunter);
         var component = ModComponents.REPAIR_ROLES.get(hunter);
         component.carryBlockedTicks = Math.max(component.carryBlockedTicks, ticks);
+        component.sync();
+    }
+
+    public static void dropCarried(ServerPlayer hunter, int carryBlockTicks) {
+        releaseCarried(hunter);
+        var component = ModComponents.REPAIR_ROLES.get(hunter);
+        component.carryBlockedTicks = Math.max(component.carryBlockedTicks, carryBlockTicks);
         component.sync();
     }
 }

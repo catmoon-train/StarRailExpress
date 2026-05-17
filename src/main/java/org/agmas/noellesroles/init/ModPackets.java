@@ -81,10 +81,18 @@ public class ModPackets {
         ServerPlayNetworking.registerGlobalReceiver(RepairStationActionC2SPacket.ID, RepairStationActionC2SPacket::handle);
         PayloadTypeRegistry.playS2C().register(OpenRepairRoleSelectionS2CPacket.ID,
                 OpenRepairRoleSelectionS2CPacket.CODEC);
+        PayloadTypeRegistry.playS2C().register(OpenRepairRoleShopS2CPacket.ID,
+                OpenRepairRoleShopS2CPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(RepairRoleSelectC2SPacket.ID, RepairRoleSelectC2SPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(RepairRolePurchaseC2SPacket.ID, RepairRolePurchaseC2SPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(RepairRoleShopPurchaseC2SPacket.ID, RepairRoleShopPurchaseC2SPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(RepairPrimarySkillC2SPacket.ID, RepairPrimarySkillC2SPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(RepairCarryStruggleC2SPacket.ID, RepairCarryStruggleC2SPacket.CODEC);
         ServerPlayNetworking.registerGlobalReceiver(RepairRoleSelectC2SPacket.ID, RepairRoleSelectC2SPacket::handle);
         ServerPlayNetworking.registerGlobalReceiver(RepairRolePurchaseC2SPacket.ID, RepairRolePurchaseC2SPacket::handle);
+        ServerPlayNetworking.registerGlobalReceiver(RepairRoleShopPurchaseC2SPacket.ID, RepairRoleShopPurchaseC2SPacket::handle);
+        ServerPlayNetworking.registerGlobalReceiver(RepairPrimarySkillC2SPacket.ID, RepairPrimarySkillC2SPacket::handle);
+        ServerPlayNetworking.registerGlobalReceiver(RepairCarryStruggleC2SPacket.ID, RepairCarryStruggleC2SPacket::handle);
 
         PayloadTypeRegistry.playS2C().register(BloodConfigS2CPacket.ID, BloodConfigS2CPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(BloodConfigS2CPacket.ID, BloodConfigS2CPacket.CODEC);

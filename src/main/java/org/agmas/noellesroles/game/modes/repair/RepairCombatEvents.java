@@ -24,7 +24,8 @@ public final class RepairCombatEvents {
                         .withStyle(ChatFormatting.RED), true);
                 return InteractionResult.FAIL;
             }
-            if (RepairModeState.isHunter(serverPlayer) || RepairModeState.isNonHunterRepairPlayer(serverPlayer)) {
+            boolean repairActor = RepairModeState.isHunter(serverPlayer) || RepairModeState.isNonHunterRepairPlayer(serverPlayer);
+            if (repairActor) {
                 RepairModeState.broadcastCombatFeedback(serverLevel, RepairCombatFeedbackS2CPacket.ATTACK, serverPlayer,
                         serverPlayer.getX(), serverPlayer.getY() + 1.0D, serverPlayer.getZ(), 20.0D);
                 if (entity instanceof LivingEntity target) {
@@ -37,6 +38,11 @@ public final class RepairCombatEvents {
                             target.getX(), target.getY() + target.getBbHeight() * 0.65D, target.getZ(), 4,
                             0.25D, 0.25D, 0.25D, 0.05D);
                 }
+                if (RepairModeState.isHunter(serverPlayer)) {
+                    serverPlayer.displayClientMessage(Component.translatable("message.noellesroles.repair.use_hunter_weapon")
+                            .withStyle(ChatFormatting.YELLOW), true);
+                }
+                return InteractionResult.FAIL;
             }
             return InteractionResult.PASS;
         });

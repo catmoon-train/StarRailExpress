@@ -160,6 +160,9 @@ public class AreasWorldComponent implements AutoSyncedComponent {
     public double sceneOffsetZ = 0;
     public boolean mustCopy = false;
 
+    // 支持的游戏模式列表，为空表示支持所有模式
+    public java.util.List<String> gameModes = new java.util.ArrayList<>();
+
     public PosWithOrientation getSpawnPos() {
         return spawnPos;
     }

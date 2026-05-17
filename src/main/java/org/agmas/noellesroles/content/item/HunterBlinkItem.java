@@ -28,8 +28,8 @@ public class HunterBlinkItem extends Item {
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-        if (level instanceof ServerLevel && player instanceof ServerPlayer serverPlayer
-                && !RepairModeState.canUseHunterUtility(serverPlayer)) {
+        ServerPlayer serverPlayer = player instanceof ServerPlayer sp ? sp : null;
+        if (level instanceof ServerLevel && (serverPlayer == null || !RepairModeState.canUseHunterUtility(serverPlayer))) {
             return InteractionResultHolder.fail(stack);
         }
         Vec3 look = player.getLookAngle().normalize();
@@ -43,6 +43,9 @@ public class HunterBlinkItem extends Item {
                 stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
             }
             player.getCooldowns().addCooldown(this, 20 * 22);
+            if (serverPlayer != null) {
+                RepairModeState.startSkillCooldown(serverPlayer, 20 * 22, "brute_lunge");
+            }
         }
         return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
     }

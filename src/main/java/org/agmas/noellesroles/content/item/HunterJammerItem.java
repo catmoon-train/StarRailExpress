@@ -41,6 +41,7 @@ public class HunterJammerItem extends Item {
             player.displayClientMessage(Component.translatable("message.noellesroles.repair.station_jammed")
                     .withStyle(ChatFormatting.RED), true);
             player.getCooldowns().addCooldown(this, 20 * 35);
+            RepairModeState.startSkillCooldown(player, 20 * 35, "warden_jam");
             if (!player.getAbilities().instabuild) {
                 context.getItemInHand().hurtAndBreak(1, player,
                         net.minecraft.world.entity.LivingEntity.getSlotForHand(context.getHand()));
