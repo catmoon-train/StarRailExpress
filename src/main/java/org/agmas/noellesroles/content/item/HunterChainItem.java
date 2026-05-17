@@ -93,38 +93,9 @@ public class HunterChainItem extends Item {
             return InteractionResult.FAIL;
         }
 
-        BlockPos cagePos = findExistingCage(level, context.getClickedPos());
-        HunterCageBlockEntity cage = cagePos != null && level.getBlockEntity(cagePos) instanceof HunterCageBlockEntity existing
-                ? existing
-                : null;
-        if (cage == null) {
-            BlockPos placementPos = context.getClickedPos().relative(context.getClickedFace());
-            if (!level.getBlockState(placementPos).canBeReplaced()) {
-                placementPos = findCagePos(level, context.getClickedPos());
-            }
-            if (placementPos == null) {
-                hunter.displayClientMessage(Component.translatable("message.noellesroles.repair.no_cage_space")
-                        .withStyle(ChatFormatting.RED), true);
-                return InteractionResult.FAIL;
-            }
-            BlockState state = ModBlocks.HUNTER_CAGE.defaultBlockState();
-            RepairArenaBuilder.trackGameplayPlacement(level, placementPos);
-            level.setBlockAndUpdate(placementPos, state);
-            if (level.getBlockEntity(placementPos) instanceof HunterCageBlockEntity created) {
-                cagePos = placementPos;
-                cage = created;
-            }
-        }
-        if (cage == null || cagePos == null || !cage.addPrisoner(prisoner.getUUID(), hunter.getUUID())) {
-            hunter.displayClientMessage(Component.translatable("message.noellesroles.repair.trial_full")
-                    .withStyle(ChatFormatting.RED), true);
-            return InteractionResult.FAIL;
-        }
-
-        RepairModeState.startTrial(hunter, prisoner, cagePos);
-        RepairGameplayEffects.burst(level, cagePos.getX() + 0.5D, cagePos.getY() + 1.0D, cagePos.getZ() + 0.5D, 2);
-        hunter.displayClientMessage(Component.translatable("message.noellesroles.repair.trial_started"), true);
-        return InteractionResult.SUCCESS;
+        // 现在笼子放置和囚禁逻辑已经在HunterCageBlock中处理
+        // 这里只需要允许锁链作为有效的猎人工具使用
+        return InteractionResult.PASS;
     }
 
 

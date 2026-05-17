@@ -1,7 +1,9 @@
 package org.agmas.noellesroles.content.block;
 
 import com.mojang.serialization.MapCodec;
+import io.wifi.starrailexpress.util.SREItemUtils;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
@@ -19,6 +21,7 @@ import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.content.block_entity.HotbarStorageBlockEntity;
 import org.agmas.noellesroles.game.modes.repair.RepairModeState;
 import org.agmas.noellesroles.game.modes.repair.RepairSearchState;
+import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.Nullable;
 
 public class HotbarStorageBlock extends BaseEntityBlock {
@@ -63,6 +66,10 @@ public class HotbarStorageBlock extends BaseEntityBlock {
             // 如果已经在搜索同一个箱子，不重复开始（防止进度重置）
             var comp = ModComponents.REPAIR_ROLES.get(serverPlayer);
             if (comp.searchTarget.present() && comp.searchTarget.toBlockPos().equals(pos)) {
+                return;
+            }
+            if (!RoleUtils.isPlayerHasFreeSlot(serverPlayer)){
+                player.displayClientMessage(Component.translatable("noellesroles.no_free_slot"),true);
                 return;
             }
             RepairSearchState.begin(serverPlayer, pos);

@@ -18,7 +18,7 @@ public class RepairStationScreen extends Screen {
     private static final int BAR_W = 180;
     private static final int GREAT_W = 28;
     private static final int ACCIDENT_W = 22;
-    private static final float ACCIDENT_CHANCE = 0.18F;
+    private static final float ACCIDENT_CHANCE = 0.12F;
 
     private final BlockPos blockPos;
     private final Random random = new Random();
@@ -32,6 +32,15 @@ public class RepairStationScreen extends Screen {
         super(Component.translatable("screen.noellesroles.repair_station.title"));
         this.blockPos = blockPos;
         rerollGreatZone();
+    }
+
+    @Override
+    public void onClose() {
+        // 如果处于事故模式且玩家直接关闭GUI，判定为失败
+        if (accidentMode && minecraft != null && minecraft.player != null) {
+            ClientPlayNetworking.send(new RepairStationActionC2SPacket(blockPos, false, true, false));
+        }
+        super.onClose();
     }
 
     @Override

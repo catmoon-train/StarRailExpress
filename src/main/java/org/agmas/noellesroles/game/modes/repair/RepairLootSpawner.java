@@ -42,7 +42,6 @@ public final class RepairLootSpawner {
     private static void prepareDefaultMansionLoot(ServerLevel level, Map<BlockPos, Reward> entries) {
         BlockPos base = RepairArenaBuilder.defaultMansionBase(level);
         List<ItemStack> required = new ArrayList<>(List.of(
-                new ItemStack(ModItems.REPAIR_OLD_KEY),
                 new ItemStack(ModItems.REPAIR_CROWBAR),
                 new ItemStack(ModItems.REPAIR_FUSE),
                 new ItemStack(ModItems.REPAIR_GEAR_HANDLE),
@@ -133,8 +132,7 @@ public final class RepairLootSpawner {
         return switch (category == null ? "" : category) {
             case "coin", "coins", "gold" -> Reward.coins(10 + level.random.nextInt(21));
             case "empty" -> Reward.empty();
-            case "key" -> Reward.item(new ItemStack(random(level, ModItems.REPAIR_AREA_KEY, ModItems.REPAIR_OLD_KEY,
-                    ModItems.REPAIR_LOCKPICK)));
+            case "key" -> Reward.item(new ItemStack(random(level, ModItems.REPAIR_AREA_KEY, ModItems.REPAIR_LOCKPICK)));
             case "weapon" -> Reward.item(new ItemStack(level.random.nextBoolean() ? ModItems.HUNTER_HAMMER : ModItems.HUNTER_HOOK));
             case "escape" -> Reward.item(new ItemStack(random(level, ModItems.REPAIR_FUSE, ModItems.REPAIR_GEAR_HANDLE,
                     ModItems.REPAIR_BATTERY, ModItems.REPAIR_VALVE_HANDLE)));
@@ -159,6 +157,9 @@ public final class RepairLootSpawner {
 
     public record Reward(Kind kind, ItemStack stack, int coins) {
         public static Reward item(ItemStack stack) {
+            if (stack == null || stack.isEmpty()) {
+                return empty();
+            }
             return new Reward(Kind.ITEM, stack.copy(), 0);
         }
 

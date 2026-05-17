@@ -1,10 +1,12 @@
 package io.wifi.starrailexpress.api;
 
 import io.wifi.starrailexpress.util.ShopEntry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import org.agmas.noellesroles.game.modes.repair.RepairArenaBuilder;
 import org.agmas.noellesroles.init.ModBlocks;
 import org.agmas.noellesroles.init.ModItems;
 import org.jetbrains.annotations.NotNull;
@@ -68,39 +70,65 @@ public class RepairRole extends NormalRole{
     // === 机械师：快速解锁机器区域和修机爆发 ===
     private List<ShopEntry> mechanicShop() {
         List<ShopEntry> entries = new ArrayList<>();
-        entries.add(shopItem(ModItems.REPAIR_TOOLBOX, 70, ShopEntry.Type.TOOL));
-        entries.add(shopItem(ModItems.SPARE_PARTS, 24, ShopEntry.Type.TOOL));
-            
-        entries.add(shopItem(ModItems.REPAIR_BOLT_CUTTER, 80, ShopEntry.Type.TOOL));
-        entries.add(shopItem(ModItems.REPAIR_BATTERY, 40, ShopEntry.Type.TOOL));
-        entries.add(shopItem(ModItems.REPAIR_VALVE_HANDLE, 36, ShopEntry.Type.TOOL));
-        entries.add(shopItem(ModItems.SMOKE_PELLET, 30, ShopEntry.Type.TOOL));
+        entries.add(shopItem(ModItems.REPAIR_TOOLBOX, 120, ShopEntry.Type.TOOL));
+        entries.add(shopItem(ModItems.SPARE_PARTS, 48, ShopEntry.Type.TOOL));
+        entries.add(shopItem(ModItems.FLARE, 48, ShopEntry.Type.TOOL));
+
+        entries.add(shopItem(ModItems.REPAIR_BOLT_CUTTER, 160, ShopEntry.Type.TOOL));
+        entries.add(shopItem(ModItems.REPAIR_BATTERY, 80, ShopEntry.Type.TOOL));
+        entries.add(shopItem(ModItems.REPAIR_VALVE_HANDLE, 72, ShopEntry.Type.TOOL));
+        entries.add(shopItem(ModItems.SMOKE_PELLET, 60, ShopEntry.Type.TOOL));
+        if (BuiltInRegistries.ITEM.containsKey(ResourceLocation.parse("handheldmoon:moonlight_lamp"))) {
+            final var moonlightLampItem = BuiltInRegistries.ITEM
+                    .get(ResourceLocation.parse("handheldmoon:moonlight_lamp"));
+            if (moonlightLampItem != null) {
+                final var defaultInstance = moonlightLampItem.getDefaultInstance();
+                entries.add(new ShopEntry(defaultInstance, 120, ShopEntry.Type.TOOL));
+            }
+        }
         return entries;
     }
+
 
     // === 医师：搜索医疗物资和快速救援 ===
     private List<ShopEntry> medicShop() {
         List<ShopEntry> entries = new ArrayList<>();
-        entries.add(shopItem(ModItems.RESCUE_FLARE, 60, ShopEntry.Type.TOOL));
-        entries.add(shopItem(ModItems.SMOKE_PELLET, 30, ShopEntry.Type.TOOL));
-            
-        entries.add(shopItem(ModItems.REPAIR_OLD_KEY, 30, ShopEntry.Type.TOOL));
-        entries.add(shopItem(ModItems.REPAIR_LOCKPICK, 20, ShopEntry.Type.TOOL));
-        entries.add(shopItem(ModItems.SPARE_PARTS, 24, ShopEntry.Type.TOOL));
-        entries.add(shopItem(ModItems.DECOY_BEACON, 40, ShopEntry.Type.TOOL));
+        entries.add(shopItem(ModItems.RESCUE_FLARE, 80, ShopEntry.Type.TOOL));
+        entries.add(shopItem(ModItems.SMOKE_PELLET, 60, ShopEntry.Type.TOOL));
+        entries.add(shopItem(ModItems.FLARE, 48, ShopEntry.Type.TOOL));
+        entries.add(shopItem(ModItems.REPAIR_OLD_KEY, 60, ShopEntry.Type.TOOL));
+        entries.add(shopItem(ModItems.REPAIR_LOCKPICK, 40, ShopEntry.Type.TOOL));
+        entries.add(shopItem(ModItems.SPARE_PARTS, 48, ShopEntry.Type.TOOL));
+        entries.add(shopItem(ModItems.DECOY_BEACON, 80, ShopEntry.Type.TOOL));
+        if (BuiltInRegistries.ITEM.containsKey(ResourceLocation.parse("handheldmoon:moonlight_lamp"))) {
+            final var moonlightLampItem = BuiltInRegistries.ITEM
+                    .get(ResourceLocation.parse("handheldmoon:moonlight_lamp"));
+            if (moonlightLampItem != null) {
+                final var defaultInstance = moonlightLampItem.getDefaultInstance();
+                entries.add(new ShopEntry(defaultInstance, 120, ShopEntry.Type.TOOL));
+            }
+        }
         return entries;
     }
 
     // === 飞毛腿：真实dash位移和逃脱 ===
     private List<ShopEntry> runnerShop() {
         List<ShopEntry> entries = new ArrayList<>();
-        entries.add(shopItem(ModItems.ESCAPE_GRAPPLE, 80, ShopEntry.Type.TOOL));
-        entries.add(shopItem(ModItems.SMOKE_PELLET, 24, ShopEntry.Type.TOOL));
-        entries.add(shopItem(ModItems.DECOY_BEACON, 44, ShopEntry.Type.TOOL));
-            
-        entries.add(shopItem(ModItems.REPAIR_LOCKPICK, 20, ShopEntry.Type.TOOL));
-        entries.add(shopItem(ModItems.SPARE_PARTS, 28, ShopEntry.Type.TOOL));
-        entries.add(shopItem(ModItems.REPAIR_CROWBAR, 70, ShopEntry.Type.TOOL));
+        entries.add(shopItem(ModItems.ESCAPE_GRAPPLE, 160, ShopEntry.Type.TOOL));
+        entries.add(shopItem(ModItems.SMOKE_PELLET, 48, ShopEntry.Type.TOOL));
+        entries.add(shopItem(ModItems.DECOY_BEACON, 88, ShopEntry.Type.TOOL));
+        entries.add(shopItem(ModItems.FLARE, 48, ShopEntry.Type.TOOL));
+        entries.add(shopItem(ModItems.REPAIR_LOCKPICK, 40, ShopEntry.Type.TOOL));
+        entries.add(shopItem(ModItems.SPARE_PARTS, 56, ShopEntry.Type.TOOL));
+        entries.add(shopItem(ModItems.REPAIR_CROWBAR, 140, ShopEntry.Type.TOOL));
+        if (BuiltInRegistries.ITEM.containsKey(ResourceLocation.parse("handheldmoon:moonlight_lamp"))) {
+            final var moonlightLampItem = BuiltInRegistries.ITEM
+                    .get(ResourceLocation.parse("handheldmoon:moonlight_lamp"));
+            if (moonlightLampItem != null) {
+                final var defaultInstance = moonlightLampItem.getDefaultInstance();
+                entries.add(new ShopEntry(defaultInstance, 120, ShopEntry.Type.TOOL));
+            }
+        }
         return entries;
     }
 
@@ -143,24 +171,24 @@ public class RepairRole extends NormalRole{
     // === 档案员：收集信息和记录 ===
     private List<ShopEntry> archivistShop() {
         List<ShopEntry> entries = new ArrayList<>();
-        entries.add(shopItem(ModItems.SPARE_PARTS, 8, ShopEntry.Type.TOOL));
-        entries.add(shopItem(ModItems.REPAIR_LOCKPICK, 12, ShopEntry.Type.TOOL));
-        entries.add(shopItem(ModItems.REPAIR_OLD_KEY, 15, ShopEntry.Type.TOOL));
-        entries.add(shopItem(ModItems.DECOY_BEACON, 18, ShopEntry.Type.TOOL));
-        entries.add(shopItem(ModItems.SMOKE_PELLET, 14, ShopEntry.Type.TOOL));
-        entries.add(shopItem(ModItems.REPAIR_BATTERY, 22, ShopEntry.Type.TOOL));
+        entries.add(shopItem(ModItems.SPARE_PARTS, 80, ShopEntry.Type.TOOL));
+        entries.add(shopItem(ModItems.REPAIR_LOCKPICK, 120, ShopEntry.Type.TOOL));
+        entries.add(shopItem(ModItems.REPAIR_OLD_KEY, 150, ShopEntry.Type.TOOL));
+        entries.add(shopItem(ModItems.DECOY_BEACON, 180, ShopEntry.Type.TOOL));
+        entries.add(shopItem(ModItems.SMOKE_PELLET, 140, ShopEntry.Type.TOOL));
+        entries.add(shopItem(ModItems.REPAIR_BATTERY, 220, ShopEntry.Type.TOOL));
         return entries;
     }
 
     // === 破坏者：假声音和误导追捕者 ===
     private List<ShopEntry> saboteurShop() {
         List<ShopEntry> entries = new ArrayList<>();
-        entries.add(shopItem(ModItems.DECOY_BEACON, 18, ShopEntry.Type.TOOL));
-        entries.add(shopItem(ModItems.SMOKE_PELLET, 10, ShopEntry.Type.TOOL));
-        entries.add(shopItem(ModItems.REPAIR_BOLT_CUTTER, 35, ShopEntry.Type.TOOL));
-        entries.add(shopItem(ModItems.REPAIR_LOCKPICK, 10, ShopEntry.Type.TOOL));
-        entries.add(shopItem(ModItems.SPARE_PARTS, 10, ShopEntry.Type.TOOL));
-        entries.add(shopItem(ModItems.REPAIR_CROWBAR, 32, ShopEntry.Type.TOOL));
+        entries.add(shopItem(ModItems.DECOY_BEACON, 180, ShopEntry.Type.TOOL));
+        entries.add(shopItem(ModItems.SMOKE_PELLET, 100, ShopEntry.Type.TOOL));
+        entries.add(shopItem(ModItems.REPAIR_BOLT_CUTTER, 350, ShopEntry.Type.TOOL));
+        entries.add(shopItem(ModItems.REPAIR_LOCKPICK, 100, ShopEntry.Type.TOOL));
+        entries.add(shopItem(ModItems.SPARE_PARTS, 100, ShopEntry.Type.TOOL));
+        entries.add(shopItem(ModItems.REPAIR_CROWBAR, 320, ShopEntry.Type.TOOL));
         return entries;
     }
 

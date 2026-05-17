@@ -21,7 +21,7 @@ public class HunterCageBlockEntityRenderer implements BlockEntityRenderer<Hunter
             return;
         }
         poseStack.pushPose();
-        poseStack.translate(0.5D, 1.65D, 0.5D);
+        poseStack.translate(0.5D, 2.65D, 0.5D);
         poseStack.mulPose(Minecraft.getInstance().gameRenderer.getMainCamera().rotation());
         poseStack.scale(-0.018F, -0.018F, 0.018F);
         Matrix4f matrix = poseStack.last().pose();

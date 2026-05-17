@@ -19,6 +19,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.content.block_entity.HunterCageBlockEntity;
 import org.agmas.noellesroles.init.ModBlocks;
@@ -113,7 +114,8 @@ public class RepairEscapeGameMode extends GameMode {
         ArrayList<ServerPlayer> shuffled = new ArrayList<>(players);
         Collections.shuffle(shuffled);
         int hunterCount = hunterCount(shuffled.size());
-        int neutralCount = neutralCount(shuffled.size());
+        //int neutralCount = neutralCount(shuffled.size());
+        int neutralCount = 0;
         int forcedHunters = 0;
         int forcedNeutrals = 0;
         for (ServerPlayer player : shuffled) {
@@ -131,6 +133,7 @@ public class RepairEscapeGameMode extends GameMode {
         List<String> playerNames = shuffled.stream().map(player -> player.getGameProfile().getName()).toList();
 
         for (ServerPlayer player : shuffled) {
+            player.addItem(Items.BUNDLE.getDefaultInstance());
             RepairRoleDatabase.loadInto(player);
             var component = ModComponents.REPAIR_ROLES.get(player);
             component.init();
@@ -161,7 +164,7 @@ public class RepairEscapeGameMode extends GameMode {
             }, false);
             SREPlayerShopComponent.KEY.get(player).setBalance(startingCoins(faction));
             giveModeItems(player, faction, serverWorld.random);
-            player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 40 * 20, 10, false, false, true));
+            // 移除所有玩家的通用缓慢效果，只保留猎人的特定缓慢效果
             ServerPlayNetworking.send(player,
                     new AnnounceWelcomePayload(gameWorldComponent.getRole(player).getIdentifier().toString(),
                             hunterCount, shuffled.size() - hunterCount));
@@ -188,8 +191,11 @@ public class RepairEscapeGameMode extends GameMode {
     private static void giveModeItems(ServerPlayer player, RepairRoleDefinition.Faction faction, RandomSource random) {
         switch (faction) {
             case HUNTER -> {
-                // 追捕者初始只获得基础利刃武器，不给钩镰
+                // 追捕者初始获得基础利刃和开门钥匙，避免出生房间被铁门卡住。
                 player.addItem(new ItemStack(ModItems.HUNTER_WEAPON));
+                player.addItem(new ItemStack(ModItems.REPAIR_OLD_KEY));
+                // 追捕者开局12s缓慢5
+                player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 12 * 20, 5, false, false, true));
             }
             case NEUTRAL -> {
                 player.addItem(new ItemStack(ModItems.SPARE_PARTS));

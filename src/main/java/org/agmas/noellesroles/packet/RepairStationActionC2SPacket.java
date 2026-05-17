@@ -88,7 +88,7 @@ public record RepairStationActionC2SPacket(BlockPos blockPos, boolean greatHit, 
         component.lastRepairActionTick = now;
         component.sync();
 
-        int reward = (payload.greatHit() ? 8 : 3) + RepairEventSystem.repairCoinBonus(level);
+        int reward = (payload.greatHit() ? 7 : 3) + RepairEventSystem.repairCoinBonus(level);
         if (station.isCompleted()) {
             reward += 75;
         }

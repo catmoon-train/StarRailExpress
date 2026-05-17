@@ -11,7 +11,7 @@ import org.agmas.noellesroles.content.block_entity.HotbarStorageBlockEntity;
 import org.agmas.noellesroles.init.ModBlocks;
 
 public final class RepairSearchState {
-    public static final int SEARCH_TICKS = 20 * 4;
+    public static final int SEARCH_TICKS = 20 * 2;
 
     private RepairSearchState() {
     }
@@ -76,22 +76,27 @@ public final class RepairSearchState {
             }
         }
         if (!reward.isEmpty()) {
-            player.addItem(reward);
+
             player.displayClientMessage(Component.translatable("message.noellesroles.repair.search_found",
                     reward.getHoverName()), true);
             if ("collector".equals(ModComponents.REPAIR_ROLES.get(player).activeRole)) {
                 RepairModeState.addNeutralTaskProgress(player, "collector", 1, RepairModeState.COLLECTOR_TASK_NEEDED);
             }
+            player.addItem(reward);
         } else {
             RepairLootSpawner.Reward generated = RepairLootSpawner.take(level, pos);
             switch (generated.kind()) {
                 case ITEM -> {
                     ItemStack stack = generated.stack();
-                    player.addItem(stack);
-                    player.displayClientMessage(Component.translatable("message.noellesroles.repair.search_found",
-                            stack.getHoverName()), true);
-                    if ("collector".equals(ModComponents.REPAIR_ROLES.get(player).activeRole)) {
-                        RepairModeState.addNeutralTaskProgress(player, "collector", 1, RepairModeState.COLLECTOR_TASK_NEEDED);
+                    if (stack.isEmpty()) {
+                        player.displayClientMessage(Component.translatable("message.noellesroles.repair.search_empty"), true);
+                    } else {
+                        player.addItem(stack);
+                        player.displayClientMessage(Component.translatable("message.noellesroles.repair.search_found",
+                                stack.getHoverName()), true);
+                        if ("collector".equals(ModComponents.REPAIR_ROLES.get(player).activeRole)) {
+                            RepairModeState.addNeutralTaskProgress(player, "collector", 1, RepairModeState.COLLECTOR_TASK_NEEDED);
+                        }
                     }
                 }
                 case COINS -> {

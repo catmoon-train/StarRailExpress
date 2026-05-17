@@ -63,7 +63,7 @@ public class HunterWeaponItem extends Item {
         ItemStack stack = player.getItemInHand(hand);
         if (player instanceof ServerPlayer serverPlayer) {
             var hunterComponent = ModComponents.REPAIR_ROLES.get(serverPlayer);
-            // 使用共享冷却池检查
+            // 使用共享冷却池检查，并检查攻击命中后的20秒冷却
             if (!RepairModeState.canUseHunterUtility(serverPlayer)
                     || hunterComponent.carrying != null
                     || hunterComponent.hunterWeaponCooldownEndTick > level.getGameTime()) {

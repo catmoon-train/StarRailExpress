@@ -40,6 +40,16 @@ public class HunterCageBlockEntity extends BlockEntity {
     // 多方块结构子方块位置列表
     private final List<BlockPos> structureBlocks = new ArrayList<>();
     private boolean structureBuilt = false;
+    // 跟踪上次救援金币奖励的时间
+    private long lastRescueRewardTick = 0L;
+
+    public long getLastRescueRewardTick() {
+        return lastRescueRewardTick;
+    }
+
+    public void setLastRescueRewardTick(long tick) {
+        this.lastRescueRewardTick = tick;
+    }
 
     public HunterCageBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlocks.HUNTER_CAGE_BLOCK_ENTITY, pos, state);
@@ -195,7 +205,7 @@ public class HunterCageBlockEntity extends BlockEntity {
     }
 
     public static void tick(net.minecraft.world.level.Level level, BlockPos pos, BlockState state,
-            HunterCageBlockEntity entity) {
+                            HunterCageBlockEntity entity) {
         if (!(level instanceof ServerLevel serverLevel)) {
             return;
         }
@@ -259,8 +269,8 @@ public class HunterCageBlockEntity extends BlockEntity {
 
             // === 审判进度全图播报 ===
             int totalTicks = RepairModeState.TRIAL_EXECUTION_TICKS;
-            int[] milestones = { totalTicks / 4, totalTicks / 2, totalTicks * 3 / 4, totalTicks * 9 / 10 };
-            String[] milestoneKeys = { "25", "50", "75", "90" };
+            int[] milestones = {totalTicks / 4, totalTicks / 2, totalTicks * 3 / 4, totalTicks * 9 / 10};
+            String[] milestoneKeys = {"25", "50", "75", "90"};
             for (int i = 0; i < milestones.length; i++) {
                 if (entry.progress == milestones[i]) {
                     net.minecraft.network.chat.Component msg = net.minecraft.network.chat.Component.translatable(

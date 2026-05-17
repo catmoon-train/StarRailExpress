@@ -2,10 +2,10 @@
 	"format_version": "1.9.0",
 	"credit": "Made with Blockbench",
 	"textures": {
-		"0": "noellesroles:item/flare_0",
-		"1": "noellesroles:item/flare_2",
-		"2": "noellesroles:item/flare_1",
-		"particle": "noellesroles:item/flare_0"
+		"0": "noellesroles:block/flare_0",
+		"1": "noellesroles:block/flare_2",
+		"2": "noellesroles:block/flare_1",
+		"particle": "noellesroles:block/flare_0"
 	},
 	"elements": [
 		{

@@ -3,6 +3,7 @@
   "sre.general.unknown": "未知",
   "commands.loot.error.execute_fail": "执行失败, 原因:\n %s",
   "commands.loot.success.add_or_degree_chance": "成功为玩家 %s 添加 %s 次抽奖次数. 当前总次数: %s",
+  "noellesroles.no_free_slot": "没有空余的物品栏",
   "info.screen.role.see_more": "... (更多信息请右键信纸查看)",
   "info.screen.roleid.custom_pending": "请按下G选择你的职业",
   "info.screen.roleid.hide_and_seek_seeker": "请寻找地图里的躲藏者。",
