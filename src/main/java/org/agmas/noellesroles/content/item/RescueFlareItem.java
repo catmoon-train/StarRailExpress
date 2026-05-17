@@ -35,6 +35,9 @@ public class RescueFlareItem extends Item {
             return InteractionResult.PASS;
         }
         RepairModeState.revivePlayer(medic, downed);
+        if ("medic".equals(ModComponents.REPAIR_ROLES.get(medic).activeRole)) {
+            RepairModeState.startSkillCooldown(medic, 20 * 45, "medic_first_aid");
+        }
         if (!medic.getAbilities().instabuild) {
             stack.shrink(1);
         }

@@ -41,6 +41,15 @@ public class RepairRolePlayerComponent implements RoleComponent {
     public int currentEventDanger = 0;
     public long lastRepairActionTick = -100L;
     public int neutralTaskNeeded = 0;
+    public int repairInjuryLevel = 0;
+    public long lastHunterHitTick = -1000L;
+    public long activeSkillCooldownEndTick = 0L;
+    public String selectedSkillState = "";
+    public int carryStruggleProgress = 0;
+    public String lastStruggleSide = "";
+    public long lastStruggleTick = -1000L;
+    public String activeAttackPlugin = "";
+    public String forcedRole = "";
     private final Player player;
 
     public RepairRolePlayerComponent(Player player) {
@@ -75,6 +84,15 @@ public class RepairRolePlayerComponent implements RoleComponent {
         currentEventDanger = 0;
         lastRepairActionTick = -100L;
         neutralTaskNeeded = 0;
+        repairInjuryLevel = 0;
+        lastHunterHitTick = -1000L;
+        activeSkillCooldownEndTick = 0L;
+        selectedSkillState = "";
+        carryStruggleProgress = 0;
+        lastStruggleSide = "";
+        lastStruggleTick = -1000L;
+        activeAttackPlugin = "";
+        forcedRole = "";
         ensureStarterRoles();
         sync();
     }
@@ -93,7 +111,7 @@ public class RepairRolePlayerComponent implements RoleComponent {
     }
 
     public boolean owns(RepairRoleDefinition role) {
-        return ownedRoles.contains(role.id);
+        return ownedRoles.contains(role.id) || role.id.equals(forcedRole);
     }
 
     public RepairRoleDefinition selectedRole(RepairRoleDefinition.Faction faction) {
@@ -126,26 +144,26 @@ public class RepairRolePlayerComponent implements RoleComponent {
 
     @Override
     public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
-        writeData(tag);
+        writeData(tag, true);
     }
 
     @Override
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
-        readData(tag);
+        readData(tag, true);
     }
 
     @Override
     public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
-        writeData(tag);
+        writeData(tag, false);
     }
 
     @Override
     public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
-        readData(tag);
+        readData(tag, false);
         ensureStarterRoles();
     }
 
-    private void writeData(CompoundTag tag) {
+    private void writeData(CompoundTag tag, boolean includeRoundOnly) {
         ListTag owned = new ListTag();
         ownedRoles.forEach(role -> owned.add(StringTag.valueOf(role)));
         tag.put("Owned", owned);
@@ -172,9 +190,20 @@ public class RepairRolePlayerComponent implements RoleComponent {
         tag.putInt("CurrentEventDanger", currentEventDanger);
         tag.putLong("LastRepairActionTick", lastRepairActionTick);
         tag.putInt("NeutralTaskNeeded", neutralTaskNeeded);
+        tag.putInt("RepairInjuryLevel", repairInjuryLevel);
+        tag.putLong("LastHunterHitTick", lastHunterHitTick);
+        tag.putLong("ActiveSkillCooldownEndTick", activeSkillCooldownEndTick);
+        tag.putString("SelectedSkillState", selectedSkillState);
+        tag.putInt("CarryStruggleProgress", carryStruggleProgress);
+        tag.putString("LastStruggleSide", lastStruggleSide);
+        tag.putLong("LastStruggleTick", lastStruggleTick);
+        if (includeRoundOnly) {
+            tag.putString("ActiveAttackPlugin", activeAttackPlugin);
+            tag.putString("ForcedRole", forcedRole);
+        }
     }
 
-    private void readData(CompoundTag tag) {
+    private void readData(CompoundTag tag, boolean includeRoundOnly) {
         ownedRoles.clear();
         if (tag.contains("Owned", Tag.TAG_LIST)) {
             ListTag owned = tag.getList("Owned", Tag.TAG_STRING);
@@ -210,6 +239,15 @@ public class RepairRolePlayerComponent implements RoleComponent {
         currentEventDanger = tag.getInt("CurrentEventDanger");
         lastRepairActionTick = tag.getLong("LastRepairActionTick");
         neutralTaskNeeded = tag.getInt("NeutralTaskNeeded");
+        repairInjuryLevel = tag.getInt("RepairInjuryLevel");
+        lastHunterHitTick = tag.getLong("LastHunterHitTick");
+        activeSkillCooldownEndTick = tag.getLong("ActiveSkillCooldownEndTick");
+        selectedSkillState = tag.getString("SelectedSkillState");
+        carryStruggleProgress = tag.getInt("CarryStruggleProgress");
+        lastStruggleSide = tag.getString("LastStruggleSide");
+        lastStruggleTick = tag.getLong("LastStruggleTick");
+        activeAttackPlugin = includeRoundOnly ? tag.getString("ActiveAttackPlugin") : "";
+        forcedRole = includeRoundOnly ? tag.getString("ForcedRole") : "";
     }
 
     public record BlockPosTag(int x, int y, int z, boolean present) {

@@ -50,6 +50,9 @@ public class RepairBoostItem extends Item {
             player.displayClientMessage(Component.translatable("message.noellesroles.repair.coin_reward", 12)
                     .withStyle(ChatFormatting.GOLD), true);
             RepairModeState.addNeutralTaskProgress(player, "collector", 1, RepairModeState.COLLECTOR_TASK_NEEDED);
+            if ("mechanic".equals(org.agmas.noellesroles.component.ModComponents.REPAIR_ROLES.get(player).activeRole)) {
+                RepairModeState.startSkillCooldown(player, 20 * 28, "mechanic_overload");
+            }
             if (!player.getAbilities().instabuild) {
                 context.getItemInHand().shrink(1);
             }

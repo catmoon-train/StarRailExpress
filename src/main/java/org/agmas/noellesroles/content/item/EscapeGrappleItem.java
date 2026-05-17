@@ -25,8 +25,8 @@ public class EscapeGrappleItem extends Item {
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-        if (level instanceof ServerLevel && player instanceof ServerPlayer serverPlayer
-                && !RepairModeState.canUseSurvivorUtility(serverPlayer)) {
+        ServerPlayer serverPlayer = player instanceof ServerPlayer sp ? sp : null;
+        if (level instanceof ServerLevel && (serverPlayer == null || !RepairModeState.canUseSurvivorUtility(serverPlayer))) {
             return InteractionResultHolder.fail(stack);
         }
         Vec3 look = player.getLookAngle().normalize();
@@ -38,6 +38,9 @@ public class EscapeGrappleItem extends Item {
                 stack.hurtAndBreak(1, player, net.minecraft.world.entity.LivingEntity.getSlotForHand(hand));
             }
             player.getCooldowns().addCooldown(this, 20 * 16);
+            if (serverPlayer != null) {
+                RepairModeState.startSkillCooldown(serverPlayer, 20 * 16, "runner_dash");
+            }
         }
         return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
     }

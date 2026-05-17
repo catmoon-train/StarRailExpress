@@ -587,9 +587,25 @@ public class NoellesrolesClient implements ClientModInitializer {
             }
         });
         ClientPlayNetworking.registerGlobalReceiver(OpenRepairRoleSelectionS2CPacket.ID, (payload, context) -> {
-            context.client().execute(() -> context.client().setScreen(
-                    new org.agmas.noellesroles.client.screen.repair.RepairRoleSelectionScreen(
-                            payload.faction(), payload.endTick(), payload.playerNames())));
+            context.client().execute(() -> {
+                if (context.client().screen instanceof org.agmas.noellesroles.client.screen.repair.RepairRoleSelectionScreen) {
+                    return;
+                }
+                context.client().setScreen(new org.agmas.noellesroles.client.screen.repair.RepairRoleSelectionScreen(
+                        payload.faction(), payload.endTick(), payload.playerNames()));
+            });
+        });
+        ClientPlayNetworking.registerGlobalReceiver(OpenRepairRoleShopS2CPacket.ID, (payload, context) -> {
+            context.client().execute(() -> {
+                if (context.client().screen instanceof org.agmas.noellesroles.client.screen.repair.RepairRoleShopScreen screen) {
+                    screen.updateData(payload.skinCoins(), payload.ownedRoles());
+                    screen.init(context.client(), context.client().getWindow().getGuiScaledWidth(),
+                            context.client().getWindow().getGuiScaledHeight());
+                } else {
+                    context.client().setScreen(new org.agmas.noellesroles.client.screen.repair.RepairRoleShopScreen(
+                            payload.skinCoins(), payload.ownedRoles()));
+                }
+            });
         });
 
         ClientPlayNetworking.registerGlobalReceiver(OpenRepairStationScreenS2CPacket.ID, (payload, context) -> {
@@ -905,6 +921,15 @@ public class NoellesrolesClient implements ClientModInitializer {
                 });
             }
             boolean abilityPressed = abilityBind.consumeClick();
+            var repairInputComponent = org.agmas.noellesroles.component.ModComponents.REPAIR_ROLES.get(client.player);
+            if (client.screen == null && repairInputComponent.carriedBy != null) {
+                if (client.options.keyAttack.consumeClick()) {
+                    ClientPlayNetworking.send(new org.agmas.noellesroles.packet.RepairCarryStruggleC2SPacket("left"));
+                }
+                if (client.options.keyUse.consumeClick()) {
+                    ClientPlayNetworking.send(new org.agmas.noellesroles.packet.RepairCarryStruggleC2SPacket("right"));
+                }
+            }
             if (client.player.isCreative()) {
                 if (foolPrayerBind.consumeClick()) {
                     ClientPlayNetworking

@@ -18,7 +18,8 @@ import org.agmas.noellesroles.game.modes.repair.RepairEventSystem;
 import org.agmas.noellesroles.game.modes.repair.RepairGameplayEffects;
 import org.agmas.noellesroles.game.modes.repair.RepairModeState;
 
-public record RepairStationActionC2SPacket(BlockPos blockPos, boolean greatHit) implements CustomPacketPayload {
+public record RepairStationActionC2SPacket(BlockPos blockPos, boolean greatHit, boolean accidentCheck,
+        boolean accidentSuccess) implements CustomPacketPayload {
     public static final Type<RepairStationActionC2SPacket> ID = new Type<>(Noellesroles.id("repair_station_action"));
     public static final StreamCodec<RegistryFriendlyByteBuf, RepairStationActionC2SPacket> CODEC = StreamCodec
             .ofMember(RepairStationActionC2SPacket::encode, RepairStationActionC2SPacket::decode);
@@ -26,10 +27,12 @@ public record RepairStationActionC2SPacket(BlockPos blockPos, boolean greatHit) 
     public void encode(RegistryFriendlyByteBuf buf) {
         buf.writeBlockPos(blockPos);
         buf.writeBoolean(greatHit);
+        buf.writeBoolean(accidentCheck);
+        buf.writeBoolean(accidentSuccess);
     }
 
     public static RepairStationActionC2SPacket decode(RegistryFriendlyByteBuf buf) {
-        return new RepairStationActionC2SPacket(buf.readBlockPos(), buf.readBoolean());
+        return new RepairStationActionC2SPacket(buf.readBlockPos(), buf.readBoolean(), buf.readBoolean(), buf.readBoolean());
     }
 
     @Override
@@ -51,11 +54,27 @@ public record RepairStationActionC2SPacket(BlockPos blockPos, boolean greatHit) 
         if (now - component.lastRepairActionTick < RepairModeState.REPAIR_ACTION_COOLDOWN_TICKS) {
             return;
         }
+        if (payload.accidentCheck() && !payload.accidentSuccess()) {
+            station.triggerAccidentFailure(player);
+            component.lastRepairActionTick = now;
+            component.sync();
+            player.displayClientMessage(Component.translatable("message.noellesroles.repair.accident_failed")
+                    .withStyle(ChatFormatting.RED), true);
+            return;
+        }
+        if (station.isRepairBlocked()) {
+            player.displayClientMessage(Component.translatable("message.noellesroles.repair.station_accident_locked",
+                    Math.max(1, (station.getRepairBlockedTicks() + 19) / 20)).withStyle(ChatFormatting.RED), true);
+            return;
+        }
 
         String activeRole = component.activeRole;
-        int amount = payload.greatHit() ? 6 : 3;
+        int amount = 3;
         if ("mechanic".equals(activeRole)) {
-            amount += payload.greatHit() ? 3 : 2;
+            amount += 2;
+        }
+        if (payload.greatHit()) {
+            amount = Math.max(amount + 1, (int) Math.ceil(amount * 1.75D));
         }
         amount += RepairEventSystem.repairProgressBonus(level);
 

@@ -56,6 +56,9 @@ public class HunterChainItem extends Item {
 
         hunterComponent.carrying = prisoner.getUUID();
         prisonerComponent.carriedBy = hunter.getUUID();
+        prisonerComponent.carryStruggleProgress = 0;
+        prisonerComponent.lastStruggleSide = "";
+        prisonerComponent.lastStruggleTick = -1000L;
         hunterComponent.sync();
         prisonerComponent.sync();
         prisoner.teleportTo(hunter.getX(), hunter.getY(), hunter.getZ());

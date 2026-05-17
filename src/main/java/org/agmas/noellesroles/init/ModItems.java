@@ -59,6 +59,21 @@ public class ModItems {
     public static final Item HUNTER_CHAIN = register(
             new HunterChainItem(new Item.Properties().stacksTo(1).durability(6)),
             "hunter_chain");
+    public static final Item HUNTER_WEAPON = register(
+            new HunterWeaponItem(new Item.Properties().stacksTo(1).durability(96)),
+            "hunter_weapon");
+    public static final Item HUNTER_PLUGIN_LACERATION = register(
+            new HunterAttackPluginItem("laceration", new Item.Properties().stacksTo(4)),
+            "hunter_plugin_laceration");
+    public static final Item HUNTER_PLUGIN_CONCUSSION = register(
+            new HunterAttackPluginItem("concussion", new Item.Properties().stacksTo(4)),
+            "hunter_plugin_concussion");
+    public static final Item HUNTER_PLUGIN_TRACKING = register(
+            new HunterAttackPluginItem("tracking", new Item.Properties().stacksTo(4)),
+            "hunter_plugin_tracking");
+    public static final Item HUNTER_PLUGIN_SUPPRESSION = register(
+            new HunterAttackPluginItem("suppression", new Item.Properties().stacksTo(4)),
+            "hunter_plugin_suppression");
 
     public static final Item HUNTER_PULSE = register(
             new HunterPulseItem(new Item.Properties().stacksTo(1)),

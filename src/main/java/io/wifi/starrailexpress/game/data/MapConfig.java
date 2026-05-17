@@ -41,6 +41,10 @@ public class MapConfig {
         @SerializedName("disabledTasks")
         public List<String> disabledTasks = new ArrayList<>();
         
+        // 支持的游戏模式列表（如 "repairmode", "murder" 等），为空表示支持所有模式
+        @SerializedName("gameModes")
+        public List<String> gameModes = new ArrayList<>();
+        
         // 用于运行时转换颜色值
         public transient int parsedColor;
         

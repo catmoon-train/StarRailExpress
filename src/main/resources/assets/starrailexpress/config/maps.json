@@ -5,14 +5,16 @@
       "displayName": "gui.sre.map_selector.random",
       "description": "gui.sre.map_selector.random.desc",
       "color": "0xFF4CC9F0",
-      "disabledTasks": []
+      "disabledTasks": [],
+      "gameModes": []
     },
     {
       "id": "areas1",
       "displayName": "Default",
       "description": "Default Description",
       "color": "0xFF9D0208",
-      "disabledTasks": []
+      "disabledTasks": [],
+      "gameModes": []
     }
   ]
 }
