@@ -233,6 +233,10 @@ public class LotteryManager {
         return skinToCoin[idx];
     }
 
+    public void clearPools() {
+        lotteryPoolList.clear();
+    }
+
     // TODO :
     // 会优先读取本地数据，理论上没有人有本地配置因此不影响向服务器请求，但是如果本地真有配置，就会顶掉对应id的卡池，甚至有服务器不存在的卡池会导致未知情况
     private void init() {
