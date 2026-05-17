@@ -14,7 +14,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.Pose;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -22,6 +21,7 @@ import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.game.modes.repair.RepairModeState;
 import org.agmas.noellesroles.init.ModBlocks;
+import org.agmas.noellesroles.init.ModEffects;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -131,11 +131,11 @@ public class HunterCageBlockEntity extends BlockEntity {
             }
             entry.progress++;
             target.teleportTo(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D);
-            target.setPose(Pose.SWIMMING);
             target.setHealth(Math.max(1.0F, target.getHealth()));
             target.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 40, 10, false, false, true));
             target.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 40, 2, false, false, true));
             target.addEffect(new MobEffectInstance(MobEffects.DARKNESS, 80, 0, false, false, true));
+            target.addEffect(new MobEffectInstance(ModEffects.NO_COLLIDE, 40, 0, false, false, true));
 
             if (entry.progress >= RepairModeState.TRIAL_EXECUTION_TICKS) {
                 var component = ModComponents.REPAIR_ROLES.get(target);
@@ -143,7 +143,7 @@ public class HunterCageBlockEntity extends BlockEntity {
                 component.carriedBy = null;
                 component.trialStand = org.agmas.noellesroles.component.RepairRolePlayerComponent.BlockPosTag.NONE;
                 component.sync();
-                target.setPose(Pose.STANDING);
+                target.removeEffect(ModEffects.NO_COLLIDE);
                 GameUtils.forceKillPlayer(target, true,
                         entry.captor != null ? serverLevel.getPlayerByUUID(entry.captor) : null,
                         ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "repair_trial_execution"));

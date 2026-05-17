@@ -180,6 +180,7 @@ public class Noellesroles implements ModInitializer {
         GamblerMiracleCommand.register();
         EggClearCommand.register();
         RepairShopCommand.register();
+        RepairStartCommand.register();
         RepairRoleCommand.register();
         RepairMapCommand.register();
         RepairPresetCommand.register();

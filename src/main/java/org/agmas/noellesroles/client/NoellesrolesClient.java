@@ -461,7 +461,7 @@ public class NoellesrolesClient implements ClientModInitializer {
         });
         ClientPlayNetworking.registerGlobalReceiver(RepairCombatFeedbackS2CPacket.ID, (payload, context) -> {
             context.client().execute(() -> RepairEscapeHud.pushCombatCue(payload.kind(), payload.entityId(),
-                    payload.x(), payload.y(), payload.z()));
+                    payload.x(), payload.y(), payload.z(), payload.weaponId()));
         });
         ClientPlayNetworking.registerGlobalReceiver(OpenLockGuiS2CPacket.ID, (payload, context) -> {
             final var client = context.client();
@@ -931,6 +931,10 @@ public class NoellesrolesClient implements ClientModInitializer {
                 if (client.options.keyUse.consumeClick()) {
                     ClientPlayNetworking.send(new org.agmas.noellesroles.packet.RepairCarryStruggleC2SPacket("right"));
                 }
+            }
+            if (client.screen == null && repairInputComponent.downed && repairInputComponent.carriedBy == null
+                    && client.options.keyShift.consumeClick()) {
+                ClientPlayNetworking.send(new org.agmas.noellesroles.packet.RepairCarryStruggleC2SPacket("downed"));
             }
             handleRepairSearchInput(client);
             if (client.player.isCreative()) {

@@ -20,6 +20,7 @@ import org.agmas.noellesroles.content.block_entity.RepairStationBlockEntity;
 import org.agmas.noellesroles.packet.RepairCoinRewardS2CPacket;
 import org.agmas.noellesroles.packet.RepairCombatFeedbackS2CPacket;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.init.ModEffects;
 
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -61,8 +62,11 @@ public final class RepairModeState {
             component.repairInjuryLevel = 0;
             component.lastHunterHitTick = -1000L;
             component.activeSkillCooldownEndTick = 0L;
+            component.hunterWeaponCooldownEndTick = 0L;
             component.selectedSkillState = "";
             component.carryStruggleProgress = 0;
+            component.downedStruggleProgress = 0;
+            component.downedLastStruggleTick = -1000L;
             component.lastStruggleSide = "";
             component.lastStruggleTick = -1000L;
             component.activeAttackPlugin = "";
@@ -77,6 +81,7 @@ public final class RepairModeState {
             player.removeEffect(MobEffects.MOVEMENT_SLOWDOWN);
             player.removeEffect(MobEffects.WEAKNESS);
             player.removeEffect(MobEffects.DARKNESS);
+            player.removeEffect(ModEffects.NO_COLLIDE);
             component.sync();
         });
     }
@@ -203,7 +208,7 @@ public final class RepairModeState {
         var component = ModComponents.REPAIR_ROLES.get(player);
         if (component.downed) {
             player.setHealth(Math.max(1.0F, player.getHealth()));
-            player.setPose(Pose.SWIMMING);
+            player.addEffect(new MobEffectInstance(ModEffects.NO_COLLIDE, 40, 0, false, false, true));
             return true;
         }
         component.downed = true;
@@ -212,13 +217,15 @@ public final class RepairModeState {
         component.repairInjuryLevel = 0;
         component.lastHunterHitTick = -1000L;
         component.carryStruggleProgress = 0;
+        component.downedStruggleProgress = 0;
+        component.downedLastStruggleTick = -1000L;
         component.lastStruggleSide = "";
         component.lastStruggleTick = -1000L;
         player.setHealth(1.0F);
-        player.setPose(Pose.SWIMMING);
         player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 20 * 60, 8, false, false, true));
         player.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 20 * 60, 3, false, false, true));
         player.addEffect(new MobEffectInstance(MobEffects.DARKNESS, 20 * 10, 0, false, false, true));
+        player.addEffect(new MobEffectInstance(ModEffects.NO_COLLIDE, 20 * 60, 0, false, false, true));
         component.sync();
         broadcastCombatFeedback((ServerLevel) player.level(), RepairCombatFeedbackS2CPacket.DOWNED, player, player.getX(),
                 player.getY() + 0.8D, player.getZ(), 24.0D);
@@ -236,6 +243,8 @@ public final class RepairModeState {
         component.repairInjuryLevel = 0;
         component.lastHunterHitTick = -1000L;
         component.carryStruggleProgress = 0;
+        component.downedStruggleProgress = 0;
+        component.downedLastStruggleTick = -1000L;
         component.lastStruggleSide = "";
         component.lastStruggleTick = -1000L;
         target.setPose(Pose.STANDING);
@@ -243,6 +252,7 @@ public final class RepairModeState {
         target.removeEffect(MobEffects.MOVEMENT_SLOWDOWN);
         target.removeEffect(MobEffects.WEAKNESS);
         target.removeEffect(MobEffects.DARKNESS);
+        target.removeEffect(ModEffects.NO_COLLIDE);
         component.sync();
         awardCoins(medic, 40, "repair_coin_source.revive");
         broadcastCombatFeedback((ServerLevel) target.level(), RepairCombatFeedbackS2CPacket.REVIVED, target, target.getX(),
@@ -262,8 +272,11 @@ public final class RepairModeState {
         component.repairInjuryLevel = 0;
         component.lastHunterHitTick = -1000L;
         component.activeSkillCooldownEndTick = 0L;
+        component.hunterWeaponCooldownEndTick = 0L;
         component.selectedSkillState = "";
         component.carryStruggleProgress = 0;
+        component.downedStruggleProgress = 0;
+        component.downedLastStruggleTick = -1000L;
         component.lastStruggleSide = "";
         component.lastStruggleTick = -1000L;
         component.activeAttackPlugin = "";
@@ -276,6 +289,7 @@ public final class RepairModeState {
         player.removeEffect(MobEffects.MOVEMENT_SLOWDOWN);
         player.removeEffect(MobEffects.WEAKNESS);
         player.removeEffect(MobEffects.DARKNESS);
+        player.removeEffect(ModEffects.NO_COLLIDE);
         component.sync();
     }
 
@@ -303,6 +317,8 @@ public final class RepairModeState {
             var carriedComponent = ModComponents.REPAIR_ROLES.get(carried);
             carriedComponent.carriedBy = null;
             carriedComponent.carryStruggleProgress = 0;
+            carriedComponent.downedStruggleProgress = 0;
+            carriedComponent.downedLastStruggleTick = -1000L;
             carriedComponent.lastStruggleSide = "";
             carriedComponent.lastStruggleTick = -1000L;
             carried.teleportTo(hunter.getX(), hunter.getY(), hunter.getZ());
@@ -314,8 +330,13 @@ public final class RepairModeState {
 
     public static void broadcastCombatFeedback(ServerLevel level, int kind, net.minecraft.world.entity.Entity entity, double x,
             double y, double z, double radius) {
+        broadcastCombatFeedback(level, kind, entity, x, y, z, radius, "");
+    }
+
+    public static void broadcastCombatFeedback(ServerLevel level, int kind, net.minecraft.world.entity.Entity entity, double x,
+            double y, double z, double radius, String weaponId) {
         double radiusSqr = radius * radius;
-        RepairCombatFeedbackS2CPacket packet = new RepairCombatFeedbackS2CPacket(kind, entity.getId(), x, y, z);
+        RepairCombatFeedbackS2CPacket packet = new RepairCombatFeedbackS2CPacket(kind, entity.getId(), x, y, z, weaponId == null ? "" : weaponId);
         for (ServerPlayer player : level.players()) {
             if (player.distanceToSqr(x, y, z) <= radiusSqr) {
                 ServerPlayNetworking.send(player, packet);

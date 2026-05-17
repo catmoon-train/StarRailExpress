@@ -44,8 +44,11 @@ public class RepairRolePlayerComponent implements RoleComponent {
     public int repairInjuryLevel = 0;
     public long lastHunterHitTick = -1000L;
     public long activeSkillCooldownEndTick = 0L;
+    public long hunterWeaponCooldownEndTick = 0L;
     public String selectedSkillState = "";
     public int carryStruggleProgress = 0;
+    public int downedStruggleProgress = 0;
+    public long downedLastStruggleTick = -1000L;
     public String lastStruggleSide = "";
     public long lastStruggleTick = -1000L;
     public String activeAttackPlugin = "";
@@ -93,8 +96,11 @@ public class RepairRolePlayerComponent implements RoleComponent {
         repairInjuryLevel = 0;
         lastHunterHitTick = -1000L;
         activeSkillCooldownEndTick = 0L;
+        hunterWeaponCooldownEndTick = 0L;
         selectedSkillState = "";
         carryStruggleProgress = 0;
+        downedStruggleProgress = 0;
+        downedLastStruggleTick = -1000L;
         lastStruggleSide = "";
         lastStruggleTick = -1000L;
         activeAttackPlugin = "";
@@ -205,8 +211,11 @@ public class RepairRolePlayerComponent implements RoleComponent {
         tag.putInt("RepairInjuryLevel", repairInjuryLevel);
         tag.putLong("LastHunterHitTick", lastHunterHitTick);
         tag.putLong("ActiveSkillCooldownEndTick", activeSkillCooldownEndTick);
+        tag.putLong("HunterWeaponCooldownEndTick", hunterWeaponCooldownEndTick);
         tag.putString("SelectedSkillState", selectedSkillState);
         tag.putInt("CarryStruggleProgress", carryStruggleProgress);
+        tag.putInt("DownedStruggleProgress", downedStruggleProgress);
+        tag.putLong("DownedLastStruggleTick", downedLastStruggleTick);
         tag.putString("LastStruggleSide", lastStruggleSide);
         tag.putLong("LastStruggleTick", lastStruggleTick);
         if (includeRoundOnly) {
@@ -260,8 +269,11 @@ public class RepairRolePlayerComponent implements RoleComponent {
         repairInjuryLevel = tag.getInt("RepairInjuryLevel");
         lastHunterHitTick = tag.getLong("LastHunterHitTick");
         activeSkillCooldownEndTick = tag.getLong("ActiveSkillCooldownEndTick");
+        hunterWeaponCooldownEndTick = tag.getLong("HunterWeaponCooldownEndTick");
         selectedSkillState = tag.getString("SelectedSkillState");
         carryStruggleProgress = tag.getInt("CarryStruggleProgress");
+        downedStruggleProgress = tag.getInt("DownedStruggleProgress");
+        downedLastStruggleTick = tag.getLong("DownedLastStruggleTick");
         lastStruggleSide = tag.getString("LastStruggleSide");
         lastStruggleTick = tag.getLong("LastStruggleTick");
         activeAttackPlugin = includeRoundOnly ? tag.getString("ActiveAttackPlugin") : "";

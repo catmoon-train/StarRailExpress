@@ -80,10 +80,10 @@ public class RoleShopHandler {
   private static void registerRepairModeShops() {
     var hunterCommon = new ArrayList<ShopEntry>();
     hunterCommon.add(new ShopEntry(ModItems.HUNTER_WEAPON.getDefaultInstance(), 45, ShopEntry.Type.WEAPON));
-    hunterCommon.add(new ShopEntry(ModItems.HUNTER_HAMMER.getDefaultInstance(), 70, ShopEntry.Type.WEAPON));
-    hunterCommon.add(new ShopEntry(ModItems.HUNTER_HOOK.getDefaultInstance(), 65, ShopEntry.Type.WEAPON));
-    hunterCommon.add(new ShopEntry(ModItems.HUNTER_CHAIN.getDefaultInstance(), 55, ShopEntry.Type.TOOL));
-    hunterCommon.add(new ShopEntry(new ItemStack(ModBlocks.HUNTER_SNARE.asItem(), 2), 35, ShopEntry.Type.TOOL));
+    hunterCommon.add(new ShopEntry(ModItems.HUNTER_HAMMER.getDefaultInstance(), 58, ShopEntry.Type.WEAPON));
+    hunterCommon.add(new ShopEntry(ModItems.HUNTER_HOOK.getDefaultInstance(), 52, ShopEntry.Type.WEAPON));
+    hunterCommon.add(new ShopEntry(ModItems.HUNTER_CHAIN.getDefaultInstance(), 42, ShopEntry.Type.TOOL));
+    hunterCommon.add(new ShopEntry(new ItemStack(ModBlocks.HUNTER_SNARE.asItem(), 2), 30, ShopEntry.Type.TOOL));
     hunterCommon.add(new ShopEntry(ModItems.HUNTER_PLUGIN_LACERATION.getDefaultInstance(), 32, ShopEntry.Type.TOOL));
 
     var warden = new ArrayList<>(hunterCommon);

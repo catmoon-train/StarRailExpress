@@ -33,7 +33,14 @@ public record RepairCarryStruggleC2SPacket(String side) implements CustomPacketP
     public static void handle(RepairCarryStruggleC2SPacket payload, ServerPlayNetworking.Context context) {
         ServerPlayer player = context.player();
         var component = ModComponents.REPAIR_ROLES.get(player);
-        if (component.carriedBy == null || !(player.level() instanceof ServerLevel level)) {
+        if (!(player.level() instanceof ServerLevel level)) {
+            return;
+        }
+        if ("downed".equals(payload.side())) {
+            handleDownedStruggle(player, level, component);
+            return;
+        }
+        if (component.carriedBy == null) {
             return;
         }
         if (!(level.getPlayerByUUID(component.carriedBy) instanceof ServerPlayer hunter)) {
@@ -61,12 +68,36 @@ public record RepairCarryStruggleC2SPacket(String side) implements CustomPacketP
         if (component.carryStruggleProgress >= 100) {
             RepairModeState.dropCarried(hunter, 20 * 6);
             component.downed = true;
-            player.setPose(net.minecraft.world.entity.Pose.SWIMMING);
+            player.addEffect(new net.minecraft.world.effect.MobEffectInstance(
+                    org.agmas.noellesroles.init.ModEffects.NO_COLLIDE, 20 * 60, 0, false, false, true));
             component.sync();
             player.displayClientMessage(Component.translatable("message.noellesroles.repair.struggle_free")
                     .withStyle(ChatFormatting.GREEN), true);
             hunter.displayClientMessage(Component.translatable("message.noellesroles.repair.struggle_escape")
                     .withStyle(ChatFormatting.RED), true);
         }
+    }
+
+    private static void handleDownedStruggle(ServerPlayer player, ServerLevel level,
+            org.agmas.noellesroles.component.RepairRolePlayerComponent component) {
+        if (!component.downed || component.carriedBy != null || component.trialStand.present()) {
+            return;
+        }
+        long now = level.getGameTime();
+        if (now - component.downedLastStruggleTick < 6) {
+            return;
+        }
+        component.downedLastStruggleTick = now;
+        component.downedStruggleProgress = Math.min(100, component.downedStruggleProgress +
+                ("runner".equals(component.activeRole) ? 9 : 7));
+        player.addEffect(new net.minecraft.world.effect.MobEffectInstance(
+                org.agmas.noellesroles.init.ModEffects.NO_COLLIDE, 40, 0, false, false, true));
+        if (component.downedStruggleProgress >= 100) {
+            component.downedStruggleProgress = 0;
+            component.carryBlockedTicks = Math.max(component.carryBlockedTicks, 20 * 4);
+            player.displayClientMessage(Component.translatable("message.noellesroles.repair.downed_struggle_relief")
+                    .withStyle(ChatFormatting.GREEN), true);
+        }
+        component.sync();
     }
 }

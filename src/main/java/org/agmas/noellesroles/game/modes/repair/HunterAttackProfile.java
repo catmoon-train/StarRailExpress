@@ -74,7 +74,10 @@ public record HunterAttackProfile(
                     4.35D, Math.max(2.0F, profile.damage - 0.4F), profile.slowTicks,
                     profile.slowAmplifier, Math.max(0.25D, profile.knockback - 0.15D),
                     ParticleTypes.SCULK_SOUL, SoundEvents.CHAIN_PLACE);
-            default -> profile;
+            default -> new HunterAttackProfile(profile.id + "_blade", profile.windupTicks,
+                    Math.max(28, profile.cooldownTicks - 8), profile.secondHitWindowTicks,
+                    profile.reach, profile.damage, profile.slowTicks, profile.slowAmplifier, profile.knockback,
+                    ParticleTypes.SWEEP_ATTACK, SoundEvents.PLAYER_ATTACK_STRONG);
         };
     }
 

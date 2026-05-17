@@ -6,6 +6,7 @@ import io.wifi.starrailexpress.game.ServerTaskInfoClasses;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -51,7 +52,7 @@ public class HunterWeaponItem extends Item {
         if (player instanceof ServerPlayer serverPlayer) {
             if (!RepairModeState.canUseHunterUtility(serverPlayer)
                     || ModComponents.REPAIR_ROLES.get(serverPlayer).carrying != null
-                    || player.getCooldowns().isOnCooldown(this)) {
+                    || ModComponents.REPAIR_ROLES.get(serverPlayer).hunterWeaponCooldownEndTick > level.getGameTime()) {
                 return InteractionResultHolder.fail(stack);
             }
         }
@@ -61,12 +62,14 @@ public class HunterWeaponItem extends Item {
         var hunterComponent = ModComponents.REPAIR_ROLES.get(hunter);
         HunterAttackProfile profile = HunterAttackProfile.of(hunterComponent.activeRole,
                 hunterComponent.activeAttackPlugin, weaponId);
+        hunterComponent.hunterWeaponCooldownEndTick = serverLevel.getGameTime() + profile.cooldownTicks();
+        hunterComponent.sync();
         hunter.getCooldowns().addCooldown(this, profile.cooldownTicks());
         hunter.addEffect(new net.minecraft.world.effect.MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN,
                 profile.windupTicks() + 4, 9, false, false, true));
         level.playSound(null, hunter.blockPosition(), windupSound(), SoundSource.PLAYERS, 0.8F, 0.8F);
         RepairModeState.broadcastCombatFeedback(serverLevel, RepairCombatFeedbackS2CPacket.ATTACK, hunter,
-                hunter.getX(), hunter.getY() + 1.0D, hunter.getZ(), 24.0D);
+                hunter.getX(), hunter.getY() + 1.0D, hunter.getZ(), 24.0D, weaponId);
         GameUtils.serverTaskQueue.add(new ServerTaskInfoClasses.SchedulerTask(profile.windupTicks(), () ->
                 executeDelayedAttack(hunter, stack, profile)));
         return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
@@ -100,8 +103,12 @@ public class HunterWeaponItem extends Item {
             }
         } else if ("hook".equals(weaponId)) {
             Vec3 pull = hunter.position().subtract(target.position()).normalize();
-            target.push(pull.x * 0.85D, 0.08D, pull.z * 0.85D);
+            target.push(pull.x * 1.05D, 0.10D, pull.z * 1.05D);
             target.hurtMarked = true;
+            serverLevel.sendParticles(ParticleTypes.SCULK_SOUL, target.getX(), target.getY() + 0.9D, target.getZ(),
+                    18, 0.35D, 0.35D, 0.35D, 0.02D);
+            serverLevel.playSound(null, target.blockPosition(), SoundEvents.CHAIN_PLACE, SoundSource.PLAYERS,
+                    0.9F, 1.25F);
         }
         if (hit && !hunter.getAbilities().instabuild) {
             stack.hurtAndBreak(1, hunter, LivingEntity.getSlotForHand(hunter.getUsedItemHand()));
@@ -128,7 +135,8 @@ public class HunterWeaponItem extends Item {
         Vec3 eye = hunter.getEyePosition();
         Vec3 look = hunter.getViewVector(1.0F);
         Vec3 end = eye.add(look.scale(reach));
-        AABB box = hunter.getBoundingBox().expandTowards(look.scale(reach)).inflate(0.85D);
+        double inflate = "hook".equals(weaponId) ? 0.42D : 0.85D;
+        AABB box = hunter.getBoundingBox().expandTowards(look.scale(reach)).inflate(inflate, 0.65D, inflate);
         EntityHitResult hit = ProjectileUtil.getEntityHitResult(hunter, eye, end, box, this::isPotentialTarget, reach * reach);
         if (hit == null || !(hit.getEntity() instanceof ServerPlayer target)) {
             return null;

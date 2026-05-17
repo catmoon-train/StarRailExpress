@@ -36,9 +36,32 @@ public final class RepairLockedDoorState {
                 routes.put(entry.id, new EscapeRoute(entry.id, entry.displayKey, entry.pos.toBlockPos(),
                         Math.max(1, entry.capacity), new ArrayList<>(entry.requiredItems), 0));
             }
+        } else {
+            prepareDefaultMansionLocks(level, locks, routes);
         }
         LOCKS.put(level, locks);
         ROUTES.put(level, routes);
+    }
+
+    private static void prepareDefaultMansionLocks(ServerLevel level, Map<BlockPos, DoorLock> locks,
+            Map<String, EscapeRoute> routes) {
+        BlockPos spawn = level.getSharedSpawnPos();
+        int routeIndex = 0;
+        int lockIndex = 0;
+        for (BlockPos pos : BlockPos.betweenClosed(spawn.offset(-64, -8, -64), spawn.offset(64, 12, 64))) {
+            BlockState state = level.getBlockState(pos);
+            ResourceLocation blockId = BuiltInRegistries.BLOCK.getKey(state.getBlock());
+            if (blockId.equals(ResourceLocation.withDefaultNamespace("iron_door"))
+                    && state.hasProperty(BlockStateProperties.DOUBLE_BLOCK_HALF)
+                    && state.getValue(BlockStateProperties.DOUBLE_BLOCK_HALF) == net.minecraft.world.level.block.state.properties.DoubleBlockHalf.LOWER) {
+                locks.put(pos.immutable(), new DoorLock("default_mansion_lock_" + lockIndex++,
+                        "repair_old_key", true, false));
+            } else if (blockId.getPath().equals("repair_exit_gate")) {
+                routes.put("default_mansion_exit_" + routeIndex, new EscapeRoute("default_mansion_exit_" + routeIndex,
+                        "hud.noellesroles.repair.route.default_mansion", pos.immutable(), 12, new ArrayList<>(), 0));
+                routeIndex++;
+            }
+        }
     }
 
     public static boolean handleUse(ServerPlayer player, BlockPos pos) {
@@ -50,7 +73,15 @@ public final class RepairLockedDoorState {
                 return tryEscape(level, player, route);
             }
         }
-        DoorLock lock = LOCKS.getOrDefault(level, Map.of()).get(pos);
+        Map<BlockPos, DoorLock> levelLocks = LOCKS.getOrDefault(level, Map.of());
+        DoorLock lock = levelLocks.get(pos);
+        BlockPos lockPos = pos;
+        if (lock == null && level.getBlockState(pos).hasProperty(BlockStateProperties.DOUBLE_BLOCK_HALF)
+                && level.getBlockState(pos).getValue(BlockStateProperties.DOUBLE_BLOCK_HALF)
+                        == net.minecraft.world.level.block.state.properties.DoubleBlockHalf.UPPER) {
+            lockPos = pos.below();
+            lock = levelLocks.get(lockPos);
+        }
         if (lock == null || lock.opened) {
             return false;
         }
@@ -61,7 +92,7 @@ public final class RepairLockedDoorState {
         }
         consumeOrDamage(player, lock.requiredItem, lock.consume);
         lock.opened = true;
-        openBlock(level, pos);
+        openBlock(level, lockPos);
         prompt(player, Component.translatable("message.noellesroles.repair.lock_opened").withStyle(ChatFormatting.GREEN));
         level.playSound(null, pos, SoundEvents.IRON_DOOR_OPEN, SoundSource.BLOCKS, 1.0F, 1.0F);
         return true;

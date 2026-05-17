@@ -18,7 +18,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.Pose;
 import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.content.block_entity.HunterCageBlockEntity;
@@ -137,32 +136,26 @@ public class RepairEscapeGameMode extends GameMode {
         switch (faction) {
             case HUNTER -> {
                 player.addItem(new ItemStack(ModItems.HUNTER_WEAPON));
-                player.addItem(new ItemStack(ModItems.HUNTER_HAMMER));
-                player.addItem(new ItemStack(ModItems.HUNTER_HOOK));
-                player.addItem(new ItemStack(ModItems.HUNTER_CHAIN));
-                player.addItem(new ItemStack(ModItems.ROPE));
-                player.addItem(new ItemStack(ModBlocks.HUNTER_SNARE.asItem(), 2));
+
             }
             case NEUTRAL -> {
-                player.addItem(new ItemStack(ModItems.SPARE_PARTS, 2));
-                player.addItem(new ItemStack(ModItems.RESCUE_FLARE));
-                player.addItem(new ItemStack(ModItems.SMOKE_PELLET));
+                player.addItem(new ItemStack(ModItems.SPARE_PARTS));
             }
             case SURVIVOR -> {
                 player.addItem(new ItemStack(ModItems.REPAIR_TOOLBOX));
                 ItemStack parts = new ItemStack(ModItems.SPARE_PARTS);
-                parts.setCount(3 + random.nextInt(3));
+                parts.setCount(1 + random.nextInt(2));
                 player.addItem(parts);
-                player.addItem(new ItemStack(ModItems.RESCUE_FLARE));
-                player.addItem(new ItemStack(ModItems.SMOKE_PELLET));
-                player.addItem(new ItemStack(random.nextBoolean() ? ModItems.DECOY_BEACON : ModItems.ESCAPE_GRAPPLE));
+                if (random.nextBoolean()) {
+                    player.addItem(new ItemStack(ModItems.RESCUE_FLARE));
+                }
             }
         }
     }
 
     private static int startingCoins(RepairRoleDefinition.Faction faction) {
         return switch (faction) {
-            case HUNTER -> 75;
+            case HUNTER -> 60;
             case NEUTRAL -> 45;
             case SURVIVOR -> 35;
         };
@@ -411,7 +404,7 @@ public class RepairEscapeGameMode extends GameMode {
                         && !carried.getTags().contains(RepairModeState.ESCAPED_TAG)) {
                     carried.teleportTo(player.getX() - Math.sin(Math.toRadians(player.getYRot())) * 0.75D,
                             player.getY(), player.getZ() + Math.cos(Math.toRadians(player.getYRot())) * 0.75D);
-                    carried.setPose(Pose.SWIMMING);
+                    carried.addEffect(new MobEffectInstance(ModEffects.NO_COLLIDE, 20, 0, false, false, true));
                     player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 10, 1, false, false, true));
                     player.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 10, 4, false, false, true));
                 } else {
@@ -428,11 +421,11 @@ public class RepairEscapeGameMode extends GameMode {
                 }
             }
             if (component.downed) {
-                player.setPose(Pose.SWIMMING);
                 player.setHealth(Math.max(1.0F, player.getHealth()));
                 player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 40, 8, false, false, true));
                 player.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 40, 3, false, false, true));
                 player.addEffect(new MobEffectInstance(MobEffects.DARKNESS, 80, 0, false, false, true));
+                player.addEffect(new MobEffectInstance(ModEffects.NO_COLLIDE, 40, 0, false, false, true));
             }
         }
     }

@@ -39,7 +39,7 @@ public final class RepairArenaBuilder {
         if (repairConfig != null) {
             buildConfiguredGameplay(level, state, repairConfig);
         } else {
-            buildGameplayStructures(level, state);
+            buildDefaultMansionTemplate(level, state);
         }
         RepairLootSpawner.prepare(level, repairConfig);
         RepairLockedDoorState.prepare(level, repairConfig);
@@ -191,56 +191,85 @@ public final class RepairArenaBuilder {
         }
     }
 
-    private static void buildGameplayStructures(ServerLevel level, ArenaState state) {
-        BlockPos center = level.getSharedSpawnPos();
-        int[][] stationOffsets = {
-                { 0, -18 }, { 17, -7 }, { -17, -7 }
-        };
-        for (int[] offset : stationOffsets) {
-            BlockPos pos = surface(level, center.getX() + offset[0], center.getZ() + offset[1]);
-            placeGameplay(level, state, pos, ModBlocks.REPAIR_STATION.defaultBlockState());
-            ruinCluster(level, state, pos, offset[0] < 0 ? -1 : 1);
+    private static void buildDefaultMansionTemplate(ServerLevel level, ArenaState state) {
+        BlockPos spawn = level.getSharedSpawnPos();
+        int baseX = spawn.getX() - 18;
+        int baseZ = spawn.getZ() - 24;
+        int baseY = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, spawn.getX(), spawn.getZ());
+        BlockPos base = new BlockPos(baseX, baseY, baseZ);
+
+        for (int x = 0; x <= 36; x++) {
+            for (int z = 0; z <= 48; z++) {
+                boolean outer = x == 0 || x == 36 || z == 0 || z == 48;
+                boolean hallWall = (x == 12 || x == 24) && z > 6 && z < 42 && z % 9 != 4 && z % 9 != 5;
+                boolean crossWall = (z == 15 || z == 31) && x > 3 && x < 33 && x % 12 != 6 && x % 12 != 7;
+                placeGameplay(level, state, base.offset(x, 0, z), checker(x, z));
+                for (int y = 1; y <= 5; y++) {
+                    if (outer || hallWall || crossWall) {
+                        placeGameplay(level, state, base.offset(x, y, z), Blocks.DARK_OAK_PLANKS.defaultBlockState());
+                    } else {
+                        placeGameplay(level, state, base.offset(x, y, z), Blocks.AIR.defaultBlockState());
+                    }
+                }
+                placeGameplay(level, state, base.offset(x, 6, z), Blocks.SPRUCE_SLAB.defaultBlockState());
+            }
         }
 
-        int[][] cageOffsets = {
-                { 0, 12 }, { -19, 0 }, { 19, 0 }
-        };
-        for (int[] offset : cageOffsets) {
-            BlockPos pos = surface(level, center.getX() + offset[0], center.getZ() + offset[1]);
+        for (int z : new int[] { 1, 47 }) {
+            for (int x = 16; x <= 20; x++) {
+                placeGameplay(level, state, base.offset(x, 1, z), Blocks.AIR.defaultBlockState());
+                placeGameplay(level, state, base.offset(x, 2, z), Blocks.AIR.defaultBlockState());
+            }
+        }
+        for (int x : new int[] { 1, 35 }) {
+            for (int z = 22; z <= 26; z++) {
+                placeGameplay(level, state, base.offset(x, 1, z), Blocks.AIR.defaultBlockState());
+                placeGameplay(level, state, base.offset(x, 2, z), Blocks.AIR.defaultBlockState());
+            }
+        }
+
+        int[][] stations = { { 6, 8 }, { 30, 8 }, { 18, 39 } };
+        for (int[] offset : stations) {
+            BlockPos pos = base.offset(offset[0], 1, offset[1]);
+            placeGameplay(level, state, pos, ModBlocks.REPAIR_STATION.defaultBlockState());
+            placeGameplay(level, state, pos.above(), Blocks.CHAIN.defaultBlockState());
+        }
+
+        int[][] cages = { { 18, 7 }, { 6, 39 }, { 30, 39 } };
+        for (int[] offset : cages) {
+            BlockPos pos = base.offset(offset[0], 1, offset[1]);
             placeGameplay(level, state, pos, ModBlocks.HUNTER_CAGE.defaultBlockState());
             placeGameplay(level, state, pos.offset(1, 0, 0), Blocks.IRON_BARS.defaultBlockState());
             placeGameplay(level, state, pos.offset(-1, 0, 0), Blocks.IRON_BARS.defaultBlockState());
         }
 
-        int[][] gateOffsets = {
-                { 0, -30 }, { 0, 30 }
-        };
-        for (int[] offset : gateOffsets) {
-            BlockPos pos = surface(level, center.getX() + offset[0], center.getZ() + offset[1]);
+        for (int[] offset : new int[][] { { 18, 0 }, { 18, 48 }, { 0, 24 }, { 36, 24 } }) {
+            BlockPos pos = base.offset(offset[0], 1, offset[1]);
             placeGameplay(level, state, pos, ModBlocks.REPAIR_EXIT_GATE.defaultBlockState());
             placeGameplay(level, state, pos.above(), Blocks.IRON_BARS.defaultBlockState());
         }
 
-        int[][] supplyOffsets = {
-                { -8, -13 }, { 8, -13 }, { 20, 8 }, { -20, 8 }, { 10, 23 }, { -10, 23 }
-        };
-        for (int[] offset : supplyOffsets) {
-            BlockPos pos = surface(level, center.getX() + offset[0], center.getZ() + offset[1]);
-            placeGameplay(level, state, pos, ModBlocks.HOTBAR_STORAGE.defaultBlockState());
+        for (int[] offset : new int[][] { { 5, 5 }, { 31, 5 }, { 5, 21 }, { 31, 21 }, { 5, 43 }, { 31, 43 },
+                { 18, 20 }, { 18, 28 }, { 10, 35 }, { 26, 35 } }) {
+            placeGameplay(level, state, base.offset(offset[0], 1, offset[1]), ModBlocks.HOTBAR_STORAGE.defaultBlockState());
         }
 
-        int[][] palletOffsets = {
-                { -6, -5 }, { 6, -5 }, { -6, 6 }, { 6, 6 }, { -22, -10 }, { 22, -10 }, { -22, 16 }, { 22, 16 }
-        };
-        for (int[] offset : palletOffsets) {
-            BlockPos pos = surface(level, center.getX() + offset[0], center.getZ() + offset[1]);
-            placeGameplay(level, state, pos, ModBlocks.REPAIR_PALLET.defaultBlockState());
+        for (int[] offset : new int[][] { { 11, 12 }, { 25, 12 }, { 11, 28 }, { 25, 28 }, { 14, 37 }, { 22, 37 } }) {
+            placeGameplay(level, state, base.offset(offset[0], 1, offset[1]), ModBlocks.REPAIR_PALLET.defaultBlockState());
         }
 
-        for (int i = -3; i <= 3; i++) {
-            BlockPos wall = surface(level, center.getX() + i * 4, center.getZ());
-            placeGameplay(level, state, wall, Blocks.STONE_BRICKS.defaultBlockState());
-            placeGameplay(level, state, wall.above(), Blocks.MOSSY_STONE_BRICKS.defaultBlockState());
+        for (int[] offset : new int[][] { { 12, 15 }, { 24, 31 }, { 12, 31 }, { 24, 15 } }) {
+            BlockPos pos = base.offset(offset[0], 1, offset[1]);
+            placeGameplay(level, state, pos, Blocks.IRON_DOOR.defaultBlockState());
+            placeGameplay(level, state, pos.above(), Blocks.IRON_DOOR.defaultBlockState().setValue(net.minecraft.world.level.block.DoorBlock.HALF,
+                    net.minecraft.world.level.block.state.properties.DoubleBlockHalf.UPPER));
+        }
+
+        for (int x = 4; x <= 32; x += 7) {
+            for (int z = 6; z <= 42; z += 9) {
+                placeGameplay(level, state, base.offset(x, 5, z),
+                        Blocks.LANTERN.defaultBlockState().setValue(LanternBlock.HANGING, true));
+            }
         }
     }
 

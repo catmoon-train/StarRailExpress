@@ -12,6 +12,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.LivingEntity;
 import org.agmas.noellesroles.client.event.CommonHudRenderCallback;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.component.RepairRolePlayerComponent;
@@ -76,12 +78,21 @@ public final class RepairEscapeHud {
         client.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.EXPERIENCE_ORB_PICKUP, 1.35F, 0.28F));
     }
 
-    public static void pushCombatCue(int kind, int entityId, double x, double y, double z) {
+    public static void pushCombatCue(int kind, int entityId, double x, double y, double z, String weaponId) {
         Minecraft client = Minecraft.getInstance();
         long tick = client.level == null ? 0L : client.level.getGameTime();
-        combatCues.add(new CombatCue(kind, entityId, x, y, z, tick));
+        String weapon = weaponId == null ? "" : weaponId;
+        combatCues.add(new CombatCue(kind, entityId, x, y, z, weapon, tick));
         if (combatCues.size() > 8) {
             combatCues.remove(0);
+        }
+        if (kind == org.agmas.noellesroles.packet.RepairCombatFeedbackS2CPacket.ATTACK && client.level != null
+                && client.level.getEntity(entityId) instanceof LivingEntity attacker) {
+            attacker.swing(InteractionHand.MAIN_HAND);
+            var particle = "hammer".equals(weapon) ? net.minecraft.core.particles.ParticleTypes.CRIT
+                    : "hook".equals(weapon) ? net.minecraft.core.particles.ParticleTypes.SCULK_SOUL
+                    : net.minecraft.core.particles.ParticleTypes.SWEEP_ATTACK;
+            client.level.addParticle(particle, x, y, z, 0.0D, 0.03D, 0.0D);
         }
         if (kind == org.agmas.noellesroles.packet.RepairCombatFeedbackS2CPacket.HIT
                 || kind == org.agmas.noellesroles.packet.RepairCombatFeedbackS2CPacket.DOWNED) {
@@ -116,12 +127,17 @@ public final class RepairEscapeHud {
 
         Component pressure = Component.translatable("hud.noellesroles.repair.pressure",
                 component.downedAllies, component.activeTrialPrisoners);
-        drawFitted(graphics, font, pressure, x + 9, y + 28, 132, 0xFFF2C88B);
+        drawFitted(graphics, font, pressure, x + 9, y + 28, 70, 0xFFF2C88B);
+        drawFitted(graphics, font, injuryText(component), x + 83, y + 28, 58, injuryColor(component));
 
         int cooldown = skillCooldown(component, tick);
+        int weaponCooldown = weaponCooldown(component, tick);
         Component skill = Component.translatable("hud.noellesroles.repair.skill_line",
                 activeSkillName(component.activeRole), cooldown <= 0 ? "OK" : cooldown + "s");
-        drawFitted(graphics, font, skill, x + 9, y + 38, 132, cooldown <= 0 ? 0xFFB9F6CA : 0xFFFFB36B);
+        drawFitted(graphics, font, skill, x + 9, y + 38, 78, cooldown <= 0 ? 0xFFB9F6CA : 0xFFFFB36B);
+        drawFitted(graphics, font, Component.translatable("hud.noellesroles.repair.weapon_cooldown_line",
+                weaponCooldown <= 0 ? "OK" : weaponCooldown + "s"), x + 89, y + 38, 52,
+                weaponCooldown <= 0 ? 0xFFB9F6CA : 0xFFFFB36B);
 
         Component subSkill = subSkillLine(component);
         drawFitted(graphics, font, subSkill, x + 9, y + 48, 132, 0xFFFFE8A3);
@@ -210,6 +226,33 @@ public final class RepairEscapeHud {
         return remaining <= 0L ? 0 : (int) Math.ceil(remaining / 20.0D);
     }
 
+    private static int weaponCooldown(RepairRolePlayerComponent component, long tick) {
+        long remaining = component.hunterWeaponCooldownEndTick - tick;
+        return remaining <= 0L ? 0 : (int) Math.ceil(remaining / 20.0D);
+    }
+
+    private static Component injuryText(RepairRolePlayerComponent component) {
+        if (component.trialStand.present()) return Component.translatable("hud.noellesroles.repair.injury.trial");
+        if (component.carriedBy != null) return Component.translatable("hud.noellesroles.repair.injury.carried");
+        if (component.downed) return Component.translatable("hud.noellesroles.repair.injury.downed");
+        return Component.translatable(switch (Mth.clamp(component.repairInjuryLevel, 0, 3)) {
+            case 0 -> "hud.noellesroles.repair.injury.healthy";
+            case 1 -> "hud.noellesroles.repair.injury.light";
+            case 2 -> "hud.noellesroles.repair.injury.heavy";
+            default -> "hud.noellesroles.repair.injury.critical";
+        });
+    }
+
+    private static int injuryColor(RepairRolePlayerComponent component) {
+        if (component.trialStand.present() || component.carriedBy != null || component.downed) return 0xFFFF8A80;
+        return switch (Mth.clamp(component.repairInjuryLevel, 0, 3)) {
+            case 0 -> 0xFFB9F6CA;
+            case 1 -> 0xFFFFE082;
+            case 2 -> 0xFFFFB36B;
+            default -> 0xFFFF8A80;
+        };
+    }
+
     private static Component activeSkillName(String activeRole) {
         if (activeRole == null || activeRole.isEmpty()) {
             return Component.translatable("hud.noellesroles.repair.active_skill.selecting");
@@ -218,6 +261,10 @@ public final class RepairEscapeHud {
     }
 
     private static Component subSkillLine(RepairRolePlayerComponent component) {
+        if (component.downed && component.carriedBy == null) {
+            return Component.translatable("hud.noellesroles.repair.downed_struggle_line",
+                    Mth.clamp(component.downedStruggleProgress, 0, 100));
+        }
         if (component.carriedBy != null) {
             return Component.translatable("hud.noellesroles.repair.struggle_line",
                     Mth.clamp(component.carryStruggleProgress, 0, 100));
@@ -332,6 +379,6 @@ public final class RepairEscapeHud {
     private record CoinToast(int amount, Component source, long createdTick) {
     }
 
-    private record CombatCue(int kind, int entityId, double x, double y, double z, long createdTick) {
+    private record CombatCue(int kind, int entityId, double x, double y, double z, String weaponId, long createdTick) {
     }
 }

@@ -7,6 +7,7 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import org.agmas.noellesroles.client.NoellesrolesClient;
+import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.content.effects.TimeStopEffect;
 import org.agmas.noellesroles.init.ModEffects;
 import org.spongepowered.asm.mixin.Mixin;
@@ -31,6 +32,28 @@ public abstract class CantControlMixin {
         if (player == null)
             return false;
         final var options = instance.options;
+        if (SREClient.gameComponent != null && SREClient.gameComponent.isRunning()
+                && SREClient.isPlayerAliveAndInSurvival()) {
+            var repairComponent = ModComponents.REPAIR_ROLES.get(player);
+            if (repairComponent.downed || repairComponent.carriedBy != null || repairComponent.trialStand.present()) {
+                for (var hotbarSlot : options.keyHotbarSlots) {
+                    if (this.same(hotbarSlot)) {
+                        return true;
+                    }
+                }
+                return this.same(options.keySwapOffhand) ||
+                        this.same(options.keyJump) ||
+                        this.same(options.keyDrop) ||
+                        this.same(options.keyLeft) ||
+                        this.same(options.keyUp) ||
+                        this.same(options.keyDown) ||
+                        this.same(options.keyRight) ||
+                        this.same(NoellesrolesClient.abilityBind) ||
+                        this.same(options.keyAttack) ||
+                        this.same(options.keyInventory) ||
+                        this.same(options.keyUse);
+            }
+        }
         if (SREClient.gameComponent != null && SREClient.gameComponent.isRunning()
                 && SREClient.isPlayerAliveAndInSurvival()
                 && player.hasEffect((ModEffects.TIME_STOP))) {

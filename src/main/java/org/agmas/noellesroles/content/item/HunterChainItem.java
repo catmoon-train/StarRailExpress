@@ -136,11 +136,18 @@ public class HunterChainItem extends Item {
     }
 
     private static BlockPos findCagePos(ServerLevel level, BlockPos clickedPos) {
-        if (level.getBlockState(clickedPos).canBeReplaced()) {
-            return clickedPos;
+        for (BlockPos candidate : List.of(clickedPos, clickedPos.above(), clickedPos.north(), clickedPos.south(),
+                clickedPos.east(), clickedPos.west())) {
+            if (level.getBlockState(candidate).canBeReplaced() && level.getBlockState(candidate.above()).canBeReplaced()) {
+                return candidate;
+            }
         }
-        BlockPos above = clickedPos.above();
-        return level.getBlockState(above).canBeReplaced() ? above : null;
+        for (BlockPos candidate : BlockPos.betweenClosed(clickedPos.offset(-1, 0, -1), clickedPos.offset(1, 1, 1))) {
+            if (level.getBlockState(candidate).canBeReplaced() && level.getBlockState(candidate.above()).canBeReplaced()) {
+                return candidate.immutable();
+            }
+        }
+        return null;
     }
 
     @Override

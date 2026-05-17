@@ -5,7 +5,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import org.agmas.noellesroles.Noellesroles;
 
-public record RepairCombatFeedbackS2CPacket(int kind, int entityId, double x, double y, double z)
+public record RepairCombatFeedbackS2CPacket(int kind, int entityId, double x, double y, double z, String weaponId)
         implements CustomPacketPayload {
     public static final int ATTACK = 0;
     public static final int HIT = 1;
@@ -21,11 +21,12 @@ public record RepairCombatFeedbackS2CPacket(int kind, int entityId, double x, do
         buf.writeDouble(x);
         buf.writeDouble(y);
         buf.writeDouble(z);
+        buf.writeUtf(weaponId == null ? "" : weaponId);
     }
 
     public static RepairCombatFeedbackS2CPacket decode(RegistryFriendlyByteBuf buf) {
         return new RepairCombatFeedbackS2CPacket(buf.readVarInt(), buf.readVarInt(), buf.readDouble(), buf.readDouble(),
-                buf.readDouble());
+                buf.readDouble(), buf.readUtf());
     }
 
     @Override
