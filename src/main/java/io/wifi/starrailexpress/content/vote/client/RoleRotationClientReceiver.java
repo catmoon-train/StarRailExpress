@@ -21,9 +21,8 @@ public class RoleRotationClientReceiver {
                 // 检测是否轮到自己（从不是轮到变为轮到）- 仅客户端播放村民音效
                 boolean currentIsMyTurn = RoleRotationCache.getWasMyTurn();
                 if (!previousWasMyTurn && currentIsMyTurn && mc.player != null) {
-                    mc.getSoundManager().play(
-                        SimpleSoundInstance.forUI(SoundEvents.VILLAGER_YES, 1.0f, 1.0f)
-                    );
+                    // 直接让本地玩家播放音效，确保本地可听（UI 音量或 SoundManager 行为可能影响可听性）
+                    mc.player.playSound(SoundEvents.VILLAGER_YES, 1.0f, 1.0f);
                 }
 
                 // 如果isSelecting变为false，关闭界面

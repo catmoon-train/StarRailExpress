@@ -54,8 +54,8 @@ public class RoleRotationCache {
         currentCandidates.clear();
         currentCandidates.addAll(packet.getCurrentCandidates());
         
-        // 更新myRotationIndex
-        if (packet.getMyRotationIndex() > 0) {
+        // 更新myRotationIndex（支持0号玩家）
+        if (packet.getMyRotationIndex() >= 0) {
             myRotationIndex = packet.getMyRotationIndex();
         }
         
