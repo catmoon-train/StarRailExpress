@@ -606,6 +606,50 @@ public class ModItems {
                     new Item.Properties().stacksTo(1)),
             "spirit_cloak");
 
+    // 封印物：收益与代价并存的稀有神秘物品。
+    public static final Item SEALED_COIN_OF_ECHOES = register(
+            new SealedArtifactItem(new Item.Properties().stacksTo(1).rarity(Rarity.RARE),
+                    SealedArtifactItem.Tier.FRAGMENT, "sealed_coin_of_echoes"),
+            "sealed_coin_of_echoes");
+    public static final Item SEALED_BLIND_LANTERN = register(
+            new SealedArtifactItem(new Item.Properties().stacksTo(1).rarity(Rarity.RARE),
+                    SealedArtifactItem.Tier.FRAGMENT, "sealed_blind_lantern"),
+            "sealed_blind_lantern");
+    public static final Item SEALED_RUSTED_ANKLET = register(
+            new SealedArtifactItem(new Item.Properties().stacksTo(1).rarity(Rarity.RARE),
+                    SealedArtifactItem.Tier.RELIC, "sealed_rusted_anklet"),
+            "sealed_rusted_anklet");
+    public static final Item SEALED_MIRROR_SHARD = register(
+            new SealedArtifactItem(new Item.Properties().stacksTo(1).rarity(Rarity.EPIC),
+                    SealedArtifactItem.Tier.RELIC, "sealed_mirror_shard"),
+            "sealed_mirror_shard");
+    public static final Item SEALED_BREATHLESS_BREAD = register(
+            new SealedArtifactItem(new Item.Properties().stacksTo(1).rarity(Rarity.EPIC),
+                    SealedArtifactItem.Tier.ANOMALY, "sealed_breathless_bread"),
+            "sealed_breathless_bread");
+    public static final Item SEALED_THUNDERBOLT_NAIL = register(
+            new SealedArtifactItem(new Item.Properties().stacksTo(1).rarity(Rarity.EPIC),
+                    SealedArtifactItem.Tier.ANOMALY, "sealed_thunderbolt_nail"),
+            "sealed_thunderbolt_nail");
+    public static final Item SEALED_VANISHING_CLOAK = register(
+            new SealedArtifactItem(new Item.Properties().stacksTo(1).rarity(Rarity.EPIC),
+                    SealedArtifactItem.Tier.CALAMITY, "sealed_vanishing_cloak"),
+            "sealed_vanishing_cloak");
+    public static final Item SEALED_DOORLESS_KEY = register(
+            new SealedArtifactItem(new Item.Properties().stacksTo(1).rarity(Rarity.EPIC),
+                    SealedArtifactItem.Tier.CALAMITY, "sealed_doorless_key"),
+            "sealed_doorless_key");
+
+    public static final List<Item> SEALED_ARTIFACTS = List.of(
+            SEALED_COIN_OF_ECHOES,
+            SEALED_BLIND_LANTERN,
+            SEALED_RUSTED_ANKLET,
+            SEALED_MIRROR_SHARD,
+            SEALED_BREATHLESS_BREAD,
+            SEALED_THUNDERBOLT_NAIL,
+            SEALED_VANISHING_CLOAK,
+            SEALED_DOORLESS_KEY);
+
     public static final Item ZHANWEIFU1 = registrar.create("zhanweifu1",
             new Item(new Item.Properties().stacksTo(64)));
     public static final Item ZHANWEIFU2 = registrar.create("zhanweifu2",
