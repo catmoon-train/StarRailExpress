@@ -98,9 +98,10 @@ public class ImmersiveFilterShader {
                     .map(role -> role.faction == RepairRoleDefinition.Faction.HUNTER).orElse(false);
             float healthPct = mc.player.getHealth() / Math.max(1.0f, mc.player.getMaxHealth());
             float hurt = Math.max(0.0f, 1.0f - healthPct);
-            float darkness = component.downed ? 0.56f : hunter ? 0.20f : hurt * 0.22f;
-            float vignette = component.downed ? 1.15f : hunter ? 1.28f : 0.45f + hurt * 0.45f;
-            float red = component.downed ? 0.85f : hurt;
+            boolean repairInjured = component.repairInjuryLevel > 0;
+            float darkness = component.downed ? 0.56f : hunter ? 0.20f : repairInjured ? 0.10f : hurt * 0.22f;
+            float vignette = component.downed ? 1.15f : hunter ? 1.28f : repairInjured ? 0.98f : 0.45f + hurt * 0.45f;
+            float red = component.downed ? 0.85f : Math.max(hurt, repairInjured ? 0.62f : 0.0f);
             float madness = component.downed ? 1.0f : hunter ? 0.38f : hurt * 0.8f;
 
             var strength = effect.safeGetUniform("Strength");

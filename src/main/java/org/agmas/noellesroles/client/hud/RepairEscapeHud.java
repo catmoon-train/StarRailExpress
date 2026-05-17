@@ -61,6 +61,7 @@ public final class RepairEscapeHud {
         renderMainPanel(graphics, player, component, 8, Math.max(8, height - MAIN_H - 50), tick);
         renderEventPanel(graphics, component, Mth.clamp(width / 2 - EVENT_W / 2, 8, width - EVENT_W - 8), 8);
         renderSearchAndLockPrompt(graphics, player, component, width, height, tick);
+        renderRepairInjuryEdges(graphics, component, width, height, tick);
         renderCombatCues(graphics, width, height, tick);
         renderCoinToasts(graphics, width, height, tick);
     }
@@ -175,6 +176,32 @@ public final class RepairEscapeHud {
                 && player.distanceToSqr(blockHit.getBlockPos().getCenter()) <= 4.8D * 4.8D) {
             drawFitted(graphics, font, Component.translatable("hud.noellesroles.repair.search_hint"),
                     centerX + 10, centerY + 8, 104, 0xFFFFE6A3);
+        }
+    }
+
+    private static void renderRepairInjuryEdges(FakeGuiGraphics graphics, RepairRolePlayerComponent component,
+            int width, int height, long tick) {
+        if (component.repairInjuryLevel <= 0 || component.downed) {
+            return;
+        }
+        float pulse = 0.55F + 0.25F * Mth.sin(tick * 0.22F);
+        int alpha = (int) (pulse * 105.0F);
+        int color = (alpha << 24) | 0xAA0F08;
+        int edgeW = Math.max(10, width / 13);
+        int edgeH = Math.max(10, height / 11);
+        graphics.fill(0, 0, width, 3, color);
+        graphics.fill(0, height - 3, width, height, color);
+        graphics.fill(0, 0, 3, height, color);
+        graphics.fill(width - 3, 0, width, height, color);
+        for (int i = 0; i < edgeW; i += 2) {
+            int a = (int) (alpha * (1.0F - i / (float) edgeW) * 0.42F);
+            graphics.fill(i, 0, i + 1, height, (a << 24) | 0xAA0F08);
+            graphics.fill(width - i - 1, 0, width - i, height, (a << 24) | 0xAA0F08);
+        }
+        for (int i = 0; i < edgeH; i += 2) {
+            int a = (int) (alpha * (1.0F - i / (float) edgeH) * 0.34F);
+            graphics.fill(0, i, width, i + 1, (a << 24) | 0xAA0F08);
+            graphics.fill(0, height - i - 1, width, height - i, (a << 24) | 0xAA0F08);
         }
     }
 

@@ -94,6 +94,12 @@ public class HunterChainItem extends Item {
         }
 
         BlockPos cagePos = context.getClickedPos();
+        if (!(level.getBlockEntity(cagePos) instanceof HunterCageBlockEntity)) {
+            BlockPos relative = cagePos.relative(context.getClickedFace());
+            if (level.getBlockState(relative).canBeReplaced()) {
+                cagePos = relative;
+            }
+        }
         HunterCageBlockEntity cage = level.getBlockEntity(cagePos) instanceof HunterCageBlockEntity existing
                 ? existing
                 : null;

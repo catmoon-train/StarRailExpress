@@ -38,6 +38,10 @@ public class HunterCageBlock extends BaseEntityBlock {
     @Override
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
             Player player, InteractionHand hand, BlockHitResult hitResult) {
+        if (stack.is(ModItems.HUNTER_CHAIN) || player instanceof ServerPlayer serverPlayer
+                && RepairModeState.canUseHunterUtility(serverPlayer)) {
+            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        }
         if (stack.is(ModItems.RESCUE_FLARE)) {
             boolean rescued = rescue(level, pos, player, 100);
             if (rescued && !player.getAbilities().instabuild) {
@@ -45,15 +49,15 @@ public class HunterCageBlock extends BaseEntityBlock {
             }
             return ItemInteractionResult.SUCCESS;
         }
-        rescue(level, pos, player, 25);
-        return ItemInteractionResult.SUCCESS;
+        return rescue(level, pos, player, 25)
+                ? ItemInteractionResult.SUCCESS
+                : ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
     }
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player,
             BlockHitResult hitResult) {
-        rescue(level, pos, player, 25);
-        return InteractionResult.SUCCESS;
+        return rescue(level, pos, player, 25) ? InteractionResult.SUCCESS : InteractionResult.PASS;
     }
 
     private static boolean rescue(Level level, BlockPos pos, Player player, int amount) {

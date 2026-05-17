@@ -109,6 +109,7 @@ public class RoleShopHandler {
     mechanic.add(new ShopEntry(ModItems.REPAIR_TOOLBOX.getDefaultInstance(), 45, ShopEntry.Type.TOOL));
     mechanic.add(new ShopEntry(new ItemStack(ModItems.SPARE_PARTS, 4), 30, ShopEntry.Type.TOOL));
     mechanic.add(new ShopEntry(ModItems.REPAIR_CROWBAR.getDefaultInstance(), 40, ShopEntry.Type.TOOL));
+    mechanic.add(new ShopEntry(ModItems.REPAIR_BOLT_CUTTER.getDefaultInstance(), 45, ShopEntry.Type.TOOL));
     mechanic.add(new ShopEntry(ModItems.REPAIR_FUSE.getDefaultInstance(), 55, ShopEntry.Type.TOOL));
     mechanic.add(new ShopEntry(ModItems.SMOKE_PELLET.getDefaultInstance(), 25, ShopEntry.Type.TOOL));
     ShopContent.customEntries.put(ModRoles.REPAIR_MECHANIC_ID, mechanic);
@@ -125,6 +126,7 @@ public class RoleShopHandler {
     runner.add(new ShopEntry(ModItems.DECOY_BEACON.getDefaultInstance(), 35, ShopEntry.Type.TOOL));
     runner.add(new ShopEntry(ModItems.SMOKE_PELLET.getDefaultInstance(), 30, ShopEntry.Type.TOOL));
     runner.add(new ShopEntry(ModItems.REPAIR_OLD_KEY.getDefaultInstance(), 60, ShopEntry.Type.TOOL));
+    runner.add(new ShopEntry(ModItems.REPAIR_LOCKPICK.getDefaultInstance(), 36, ShopEntry.Type.TOOL));
     runner.add(new ShopEntry(new ItemStack(ModItems.SPARE_PARTS, 3), 28, ShopEntry.Type.TOOL));
     ShopContent.customEntries.put(ModRoles.REPAIR_RUNNER_ID, runner);
 
@@ -144,6 +146,8 @@ public class RoleShopHandler {
     var collector = new ArrayList<ShopEntry>();
     collector.add(new ShopEntry(new ItemStack(ModItems.SPARE_PARTS, 4), 28, ShopEntry.Type.TOOL));
     collector.add(new ShopEntry(ModItems.REPAIR_GEAR_HANDLE.getDefaultInstance(), 50, ShopEntry.Type.TOOL));
+    collector.add(new ShopEntry(ModItems.REPAIR_BATTERY.getDefaultInstance(), 45, ShopEntry.Type.TOOL));
+    collector.add(new ShopEntry(ModItems.REPAIR_VALVE_HANDLE.getDefaultInstance(), 45, ShopEntry.Type.TOOL));
     collector.add(new ShopEntry(ModItems.RESCUE_FLARE.getDefaultInstance(), 45, ShopEntry.Type.TOOL));
     collector.add(new ShopEntry(ModItems.DECOY_BEACON.getDefaultInstance(), 35, ShopEntry.Type.TOOL));
     collector.add(new ShopEntry(new ItemStack(ModItems.SMOKE_PELLET, 2), 40, ShopEntry.Type.TOOL));

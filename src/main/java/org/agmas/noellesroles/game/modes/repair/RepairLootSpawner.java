@@ -71,12 +71,19 @@ public final class RepairLootSpawner {
 
     private static ItemStack fallback(ServerLevel level, String category) {
         return switch (category == null ? "" : category) {
-            case "key" -> new ItemStack(level.random.nextBoolean() ? ModItems.REPAIR_AREA_KEY : ModItems.REPAIR_OLD_KEY);
+            case "key" -> new ItemStack(random(level, ModItems.REPAIR_AREA_KEY, ModItems.REPAIR_OLD_KEY,
+                    ModItems.REPAIR_LOCKPICK));
             case "weapon" -> new ItemStack(level.random.nextBoolean() ? ModItems.HUNTER_HAMMER : ModItems.HUNTER_HOOK);
-            case "escape" -> new ItemStack(level.random.nextBoolean() ? ModItems.REPAIR_FUSE : ModItems.REPAIR_GEAR_HANDLE);
+            case "escape" -> new ItemStack(random(level, ModItems.REPAIR_FUSE, ModItems.REPAIR_GEAR_HANDLE,
+                    ModItems.REPAIR_BATTERY, ModItems.REPAIR_VALVE_HANDLE));
             case "medical" -> new ItemStack(level.random.nextBoolean() ? ModItems.RESCUE_FLARE : ModItems.SMOKE_PELLET);
-            default -> new ItemStack(level.random.nextBoolean() ? ModItems.REPAIR_CROWBAR : ModItems.SPARE_PARTS);
+            default -> new ItemStack(random(level, ModItems.REPAIR_CROWBAR, ModItems.REPAIR_BOLT_CUTTER,
+                    ModItems.SPARE_PARTS));
         };
+    }
+
+    private static net.minecraft.world.item.Item random(ServerLevel level, net.minecraft.world.item.Item... items) {
+        return items[level.random.nextInt(items.length)];
     }
 
     private record LootEntry(String category, ItemStack stack) {

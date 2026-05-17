@@ -115,6 +115,18 @@ public class ModItems {
     public static final Item REPAIR_CROWBAR = register(
             new RepairRouteItem("crowbar", new Item.Properties().stacksTo(1).durability(24)),
             "repair_crowbar");
+    public static final Item REPAIR_LOCKPICK = register(
+            new RepairRouteItem("lockpick", new Item.Properties().stacksTo(8)),
+            "repair_lockpick");
+    public static final Item REPAIR_BATTERY = register(
+            new RepairRouteItem("battery", new Item.Properties().stacksTo(4)),
+            "repair_battery");
+    public static final Item REPAIR_VALVE_HANDLE = register(
+            new RepairRouteItem("valve_handle", new Item.Properties().stacksTo(4)),
+            "repair_valve_handle");
+    public static final Item REPAIR_BOLT_CUTTER = register(
+            new RepairRouteItem("bolt_cutter", new Item.Properties().stacksTo(1).durability(18)),
+            "repair_bolt_cutter");
     public static final Item REPAIR_PRESET_WAND = register(
             new RepairPresetWandItem(new Item.Properties().stacksTo(1)),
             "repair_preset_wand");
