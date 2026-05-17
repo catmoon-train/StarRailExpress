@@ -334,21 +334,38 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
         GameUtils.WinStatus winStatus = GameUtils.WinStatus.NONE;
 
         // tick计数
-        // if (curOneSecondTick++ >= 20) {
-        // for (ServerPlayer player : serverWorld.players()) {
-        // if (GameUtils.isPlayerEliminated(player))
-        // continue;
-        //
-        // SRERole role = gameWorldComponent.getRole(player);
-        // // 刽子手强盗手枪cd减为1s
-        // if(role == ModRoles.EXECUTIONER) {
-        // ItemCooldowns itemCooldownManager = player.getCooldowns();
-        // itemCooldownManager.removeCooldown(ModItems.BANDIT_REVOLVER);
-        // }
-        // }
-        // curOneSecondTick = 0;
-        // }
+        if (curOneSecondTick++ >= ONE_SECOND_TICK) {
+            for (ServerPlayer player : serverWorld.players()) {
+                if (GameUtils.isPlayerEliminated(player))
+                   continue;
+                SRERole role = gameWorldComponent.getRole(player);
 
+                // 超级亡命徒速度效果降级，当将为0则死亡
+                if (role == SpecialGameModeRoles.SUPER_LOOSE_END) {
+                    if (player.hasEffect(MobEffects.MOVEMENT_SPEED)) {
+                        int lastDuration = Objects.requireNonNull(player.getEffect(MobEffects.MOVEMENT_SPEED))
+                                .getDuration();
+                        if (lastDuration < 2 * ONE_SECOND_TICK) {
+                            int lastLevel = Objects.requireNonNull(player.getEffect(MobEffects.MOVEMENT_SPEED))
+                                    .getAmplifier();
+                            if (lastLevel > 2) {
+                                player.removeEffect(MobEffects.MOVEMENT_SPEED);
+                                player.addEffect(
+                                        new MobEffectInstance(
+                                                MobEffects.MOVEMENT_SPEED, // 速度效果
+                                                1200 + lastDuration, // 持续时间（tick）
+                                                lastLevel - 2, // 等级
+                                                false, // 是否显示粒子效果
+                                                false // 是否显示图标
+                                        ));
+                            }
+                        }
+                    } else
+                        GameUtils.killPlayer(player, true, null, GameConstants.DeathReasons.FELL_OUT_OF_TRAIN);
+                }
+            }
+            curOneSecondTick = 0;
+        }
         // 复活cd事件
         if (curReviveTick++ >= REVIVE_TIME) {
             for (ServerPlayer player : serverWorld.players()) {
