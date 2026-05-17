@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.client;
 
+import io.wifi.starrailexpress.api.RepairRole;
 import io.wifi.starrailexpress.client.PostProcessor;
 import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.client.Minecraft;
@@ -9,7 +10,6 @@ import net.minecraft.resources.ResourceLocation;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.game.modes.repair.RepairRoleDefinition;
 import org.agmas.noellesroles.init.ModEffects;
-import org.agmas.noellesroles.role.ModRoles;
 
 import java.util.function.BooleanSupplier;
 
@@ -121,14 +121,7 @@ public class ImmersiveFilterShader {
 
     private boolean isRepairEscapePlayer() {
         var role = SREClient.getCachedPlayerRole();
-        if (role == null) {
-            return false;
-        }
-        ResourceLocation roleId = role.identifier();
-        return roleId.equals(ModRoles.REPAIR_SURVIVOR_ID)
-                || roleId.equals(ModRoles.REPAIR_HUNTER_ID)
-                || roleId.equals(ModRoles.REPAIR_NEUTRAL_ID)
-                || roleId.getPath().startsWith("repair_");
+        return role instanceof RepairRole;
     }
 
     private void bindAfterlifeTextures(Minecraft mc, PostPass pass) {

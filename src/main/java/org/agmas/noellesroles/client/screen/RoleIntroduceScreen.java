@@ -1,6 +1,7 @@
 package org.agmas.noellesroles.client.screen;
 
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.RepairRole;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
@@ -424,7 +425,7 @@ public class RoleIntroduceScreen extends Screen {
      * 检查是否为修机模式专属职业
      */
     private boolean isRepairRole(SRERole role) {
-        return role.identifier().getPath().startsWith("repair_");
+        return role instanceof RepairRole;
     }
 
     /**

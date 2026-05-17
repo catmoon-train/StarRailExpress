@@ -1,6 +1,7 @@
 package io.wifi.starrailexpress.game.modes;
 
 import io.wifi.starrailexpress.api.GameMode;
+import io.wifi.starrailexpress.api.RepairRole;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.*;
@@ -326,17 +327,17 @@ public class SREMurderGameMode extends GameMode {
         RoleAssignmentPool killerPool = RoleAssignmentPool.create("Killer",
                 role -> !Harpymodloader.VANNILA_ROLES.contains(role) &&
                         !role.isOtherModeRole() &&
-                        !role.identifier().getPath().startsWith("repair_") &&
+                        !(role instanceof RepairRole) &&
                         role.canUseKiller() &&
                         !role.isInnocent() &&
                         role != TMMRoles.CIVILIAN);
         RoleAssignmentPool vigilantePool = RoleAssignmentPool.create("Vigilante",
-                role -> role.isVigilanteTeam() && !role.isOtherModeRole() && !role.identifier().getPath().startsWith("repair_"));
+                role -> role.isVigilanteTeam() && !role.isOtherModeRole() && !(role instanceof RepairRole));
         // 中立池
         RoleAssignmentPool neutralsPool = RoleAssignmentPool.create("Neutrals",
                 role -> (!Harpymodloader.VANNILA_ROLES.contains(role) &&
                         !role.isOtherModeRole() &&
-                        !role.identifier().getPath().startsWith("repair_") &&
+                        !(role instanceof RepairRole) &&
                         ((!role.canUseKiller() &&
                                 !role.isInnocent()) || role.isNeutrals())
                         &&
@@ -346,7 +347,7 @@ public class SREMurderGameMode extends GameMode {
         RoleAssignmentPool civilianPool = RoleAssignmentPool.create("Civilian",
                 role -> !Harpymodloader.VANNILA_ROLES.contains(role) &&
                         !role.isOtherModeRole() &&
-                        !role.identifier().getPath().startsWith("repair_") &&
+                        !(role instanceof RepairRole) &&
                         !role.isVigilanteTeam() &&
                         !role.canUseKiller() &&
                         !role.isNeutrals() &&

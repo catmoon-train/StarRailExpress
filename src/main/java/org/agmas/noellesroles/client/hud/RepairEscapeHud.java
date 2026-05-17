@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.client.hud;
 
+import io.wifi.starrailexpress.api.RepairRole;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.utils.client.betterrender.FakeGuiGraphics;
 import net.minecraft.ChatFormatting;
@@ -17,7 +18,6 @@ import org.agmas.noellesroles.component.RepairRolePlayerComponent;
 import org.agmas.noellesroles.game.modes.repair.RepairModeState;
 import org.agmas.noellesroles.game.modes.repair.RepairRoleDefinition;
 import org.agmas.noellesroles.init.ModBlocks;
-import org.agmas.noellesroles.role.ModRoles;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 
@@ -89,11 +89,8 @@ public final class RepairEscapeHud {
     }
 
     private static boolean isRepairRole() {
-        ResourceLocation roleId = SREClient.getCachedPlayerRole() == null ? null : SREClient.getCachedPlayerRole().identifier();
-        return roleId != null && (roleId.equals(ModRoles.REPAIR_SURVIVOR_ID)
-                || roleId.equals(ModRoles.REPAIR_HUNTER_ID)
-                || roleId.equals(ModRoles.REPAIR_NEUTRAL_ID)
-                || roleId.getPath().startsWith("repair_"));
+        var role = SREClient.getCachedPlayerRole();
+        return role instanceof RepairRole;
     }
 
     private static void renderMainPanel(FakeGuiGraphics graphics, LocalPlayer player,
