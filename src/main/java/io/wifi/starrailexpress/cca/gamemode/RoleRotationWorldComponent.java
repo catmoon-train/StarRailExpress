@@ -84,8 +84,8 @@ public class RoleRotationWorldComponent implements AutoSyncedComponent {
     // 当前玩家选择的3个候选职业
     private ArrayList<SRERole> currentCandidates = new ArrayList<>();
 
-    // 最后阶段阈值（总人数/5，最低为3）
-    private int finalPhaseThreshold = 7;
+    // 最后阶段阈值（总人数/5，最低为6）
+    private int finalPhaseThreshold = 6;
 
     public RoleRotationWorldComponent(Level world) {
         this.world = world;
@@ -115,7 +115,12 @@ public class RoleRotationWorldComponent implements AutoSyncedComponent {
     public void initializeRolePool(ServerLevel serverWorld, List<ServerPlayer> players) {
         rolePool.clear();
         totalPlayerCount = players.size();
-        finalPhaseThreshold = Math.max(7, totalPlayerCount / 5);
+        // 人数>=15时：总人数/5，最低为6；人数<15时：总人数/3，最低为6
+        if (totalPlayerCount >= 15) {
+            finalPhaseThreshold = Math.max(6, totalPlayerCount / 5);
+        } else {
+            finalPhaseThreshold = Math.max(2, totalPlayerCount / 3);
+        }
 
         // 计算需要的杀手/警卫/中立数量
         int killerCount = SetRoleCountCommand.getKillerCount(totalPlayerCount);

@@ -13,7 +13,7 @@ public class RoleRotationCache {
     private static int currentIndex = 0;
     private static int totalPlayers = 0;
     private static int confirmCountdown = -1;
-    private static int finalPhaseThreshold = 7;
+    private static int finalPhaseThreshold = 6;
     private static int remainingTime = 0;
 
     // 玩家序号映射 (玩家UUID -> 序号)

@@ -2,8 +2,7 @@ package io.wifi.starrailexpress.network;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.gamemode.RoleRotationWorldComponent;
-import io.wifi.starrailexpress.client.gui.screen.gamemode.role_rotation.RoleRotationScreen;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import io.wifi.starrailexpress.api.SRERole;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -161,13 +160,13 @@ public class RoleRotationSyncS2CPacket implements CustomPacketPayload {
         
         // 构建已选职业map
         HashMap<UUID, String> selectedMap = new HashMap<>();
-        for (Map.Entry<UUID, io.wifi.starrailexpress.api.SRERole> entry : rrwc.getSelectedRoles().entrySet()) {
+        for (Map.Entry<UUID, SRERole> entry : rrwc.getSelectedRoles().entrySet()) {
             selectedMap.put(entry.getKey(), entry.getValue().identifier().toString());
         }
         
         // 构建候选职业列表
         List<String> candidatesList = new ArrayList<>();
-        for (io.wifi.starrailexpress.api.SRERole role : rrwc.getCurrentCandidates()) {
+        for (SRERole role : rrwc.getCurrentCandidates()) {
             candidatesList.add(role.identifier().toString());
         }
 
@@ -183,66 +182,6 @@ public class RoleRotationSyncS2CPacket implements CustomPacketPayload {
                 candidatesList,
                 myIndex
         ));
-    }
-
-    public static void registerClientReceiver() {
-        ClientPlayNetworking.registerGlobalReceiver(TYPE, (payload, context) -> {
-            context.client().execute(() -> {
-                // 检测是否有玩家刚选择完职业（通过检查selectedRoles变化）
-                int previousSelectedCount = io.wifi.starrailexpress.content.vote.client.RoleRotationCache.getSelectedRoles().size();
-                
-                // 保存上次的轮到状态
-                boolean previousWasMyTurn = io.wifi.starrailexpress.content.vote.client.RoleRotationCache.getWasMyTurn();
-
-                // 更新客户端缓存
-                io.wifi.starrailexpress.content.vote.client.RoleRotationCache.updateFromPacket(payload);
-
-                // 检测是否有玩家刚选择完职业，播放音符盒音效
-                int currentSelectedCount = io.wifi.starrailexpress.content.vote.client.RoleRotationCache.getSelectedRoles().size();
-                if (currentSelectedCount > previousSelectedCount) {
-                    // 有玩家选择了职业，播放音符盒音效
-                    net.minecraft.client.Minecraft mc = context.client();
-                    if (mc.player != null) {
-                        mc.getSoundManager().play(
-                            net.minecraft.client.resources.sounds.SimpleSoundInstance.forUI(
-                                net.minecraft.sounds.SoundEvents.EXPERIENCE_ORB_PICKUP,
-                                0.5f,
-                                1.2f
-                            )
-                        );
-                    }
-                }
-                
-                // 检测是否轮到自己（从不是轮到变为轮到）
-                boolean currentIsMyTurn = io.wifi.starrailexpress.content.vote.client.RoleRotationCache.getWasMyTurn();
-                if (!previousWasMyTurn && currentIsMyTurn) {
-                    // 轮到当前玩家了，播放村民成功的声音
-                    net.minecraft.client.Minecraft mc = context.client();
-                    if (mc.player != null) {
-                        mc.getSoundManager().play(
-                            net.minecraft.client.resources.sounds.SimpleSoundInstance.forUI(
-                                net.minecraft.sounds.SoundEvents.VILLAGER_YES, 
-                                1.0f, 
-                                1.0f
-                            )
-                        );
-                    }
-                }
-
-                // 如果isSelecting变为false，关闭界面
-                if (!payload.isSelecting() && payload.getConfirmCountdown() <= 0) {
-                    net.minecraft.client.Minecraft mc = context.client();
-                    if (mc.screen instanceof RoleRotationScreen) {
-                        mc.setScreen(null);
-                    }
-                }
-
-                // 如果当前在轮选界面，更新界面
-                if (context.client().screen instanceof RoleRotationScreen screen) {
-                    screen.updateData();
-                }
-            });
-        });
     }
 
     // Getter
