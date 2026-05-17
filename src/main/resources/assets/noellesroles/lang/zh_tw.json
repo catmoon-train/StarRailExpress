@@ -2611,6 +2611,15 @@
   "message.noellesroles.repair.preset_export_failed": "匯出失敗：%s",
   "message.noellesroles.repair.preset_undo": "已撤銷上個複製點，剩餘 %s 個。",
   "message.noellesroles.repair.preset_clear_all": "已清空 %s 個複製點。",
+  "message.noellesroles.repair.map_need_target": "請看向一個方塊後再執行該命令。",
+  "message.noellesroles.repair.map_lock_added": "地圖 %s 已新增鎖 %s：%s %s %s，需要 %s，消耗=%s",
+  "message.noellesroles.repair.map_lock_removed": "地圖 %s 已移除鎖門：%s %s %s",
+  "message.noellesroles.repair.map_lock_not_found": "地圖 %s 在 %s %s %s 沒有鎖門配置",
+  "message.noellesroles.repair.map_lock_list": "地圖 %s 目前有 %s 個鎖門：",
+  "message.noellesroles.repair.map_escape_added": "地圖 %s 已新增逃脫點 %s：%s %s %s，容量 %s，需要 %s",
+  "message.noellesroles.repair.map_escape_removed": "地圖 %s 已移除逃脫點 %s",
+  "message.noellesroles.repair.map_escape_not_found": "地圖 %s 未找到逃脫點 %s",
+  "message.noellesroles.repair.map_escape_list": "地圖 %s 目前有 %s 個額外逃脫點：",
   "repair.escape_route.secret_tunnel": "密道出口",
   "repair.escape_route.service_lift": "維修升降機"
 }

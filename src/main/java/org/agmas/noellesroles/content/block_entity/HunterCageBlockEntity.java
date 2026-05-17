@@ -109,11 +109,7 @@ public class HunterCageBlockEntity extends BlockEntity {
             }
         }
         rescueProgress = 0;
-        if (prisoners.isEmpty() && level != null) {
-            level.destroyBlock(worldPosition, false);
-        } else {
-            setChangedAndSync();
-        }
+        setChangedAndSync();
     }
 
     public static void tick(net.minecraft.world.level.Level level, BlockPos pos, BlockState state,
@@ -156,11 +152,7 @@ public class HunterCageBlockEntity extends BlockEntity {
             }
         }
 
-        if (entity.prisoners.isEmpty()) {
-            if (!level.isClientSide()) {
-                level.destroyBlock(pos, false);
-            }
-        } else if (changed || level.getGameTime() % 10 == 0) {
+        if (changed || level.getGameTime() % 10 == 0) {
             entity.setChangedAndSync();
         }
     }

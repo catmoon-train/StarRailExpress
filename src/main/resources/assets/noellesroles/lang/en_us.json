@@ -2461,6 +2461,15 @@
   "message.noellesroles.repair.preset_export_failed": "Export failed: %s",
   "message.noellesroles.repair.preset_undo": "Undid the last clone point. %s remain.",
   "message.noellesroles.repair.preset_clear_all": "Cleared %s clone points.",
+  "message.noellesroles.repair.map_need_target": "Look at a block before running this command.",
+  "message.noellesroles.repair.map_lock_added": "Map %s added lock %s at %s %s %s, requires %s, consume=%s",
+  "message.noellesroles.repair.map_lock_removed": "Map %s removed locked door at %s %s %s",
+  "message.noellesroles.repair.map_lock_not_found": "Map %s has no locked door at %s %s %s",
+  "message.noellesroles.repair.map_lock_list": "Map %s has %s locked doors:",
+  "message.noellesroles.repair.map_escape_added": "Map %s added escape %s at %s %s %s, capacity %s, requires %s",
+  "message.noellesroles.repair.map_escape_removed": "Map %s removed escape %s",
+  "message.noellesroles.repair.map_escape_not_found": "Map %s has no escape %s",
+  "message.noellesroles.repair.map_escape_list": "Map %s has %s side escape routes:",
   "repair.escape_route.secret_tunnel": "Secret Tunnel",
   "repair.escape_route.service_lift": "Service Lift"
 }

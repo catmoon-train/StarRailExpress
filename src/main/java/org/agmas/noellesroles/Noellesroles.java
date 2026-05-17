@@ -181,6 +181,7 @@ public class Noellesroles implements ModInitializer {
         EggClearCommand.register();
         RepairShopCommand.register();
         RepairRoleCommand.register();
+        RepairMapCommand.register();
         RepairPresetCommand.register();
 
         // 加载预设配置

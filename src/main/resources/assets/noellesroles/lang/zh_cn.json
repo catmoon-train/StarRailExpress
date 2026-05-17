@@ -2461,6 +2461,15 @@
   "message.noellesroles.repair.preset_export_failed": "导出失败：%s",
   "message.noellesroles.repair.preset_undo": "已撤销上个复制点，剩余 %s 个。",
   "message.noellesroles.repair.preset_clear_all": "已清空 %s 个复制点。",
+  "message.noellesroles.repair.map_need_target": "请看向一个方块后再执行该命令。",
+  "message.noellesroles.repair.map_lock_added": "地图 %s 已添加锁 %s：%s %s %s，需要 %s，消耗=%s",
+  "message.noellesroles.repair.map_lock_removed": "地图 %s 已移除锁门：%s %s %s",
+  "message.noellesroles.repair.map_lock_not_found": "地图 %s 在 %s %s %s 没有锁门配置",
+  "message.noellesroles.repair.map_lock_list": "地图 %s 当前有 %s 个锁门：",
+  "message.noellesroles.repair.map_escape_added": "地图 %s 已添加逃脱点 %s：%s %s %s，容量 %s，需要 %s",
+  "message.noellesroles.repair.map_escape_removed": "地图 %s 已移除逃脱点 %s",
+  "message.noellesroles.repair.map_escape_not_found": "地图 %s 未找到逃脱点 %s",
+  "message.noellesroles.repair.map_escape_list": "地图 %s 当前有 %s 个额外逃脱点：",
   "repair.escape_route.secret_tunnel": "密道出口",
   "repair.escape_route.service_lift": "维修升降机"
 }
