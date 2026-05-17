@@ -12,24 +12,13 @@ public class RoleRotationClientReceiver {
         ClientPlayNetworking.registerGlobalReceiver(RoleRotationSyncS2CPacket.TYPE, (payload, context) -> {
             Minecraft mc = context.client();
             mc.execute(() -> {
-                // 检测是否有玩家刚选择完职业（通过检查selectedRoles变化）
-                int previousSelectedCount = RoleRotationCache.getSelectedRoles().size();
-                
                 // 保存上次的轮到状态
                 boolean previousWasMyTurn = RoleRotationCache.getWasMyTurn();
 
                 // 更新客户端缓存
                 RoleRotationCache.updateFromPacket(payload);
 
-                // 检测是否有玩家刚选择完职业，播放音符盒音效
-                int currentSelectedCount = RoleRotationCache.getSelectedRoles().size();
-                if (currentSelectedCount > previousSelectedCount && mc.player != null) {
-                    mc.getSoundManager().play(
-                        SimpleSoundInstance.forUI(SoundEvents.EXPERIENCE_ORB_PICKUP, 0.5f, 1.2f)
-                    );
-                }
-                
-                // 检测是否轮到自己（从不是轮到变为轮到）
+                // 检测是否轮到自己（从不是轮到变为轮到）- 仅客户端播放村民音效
                 boolean currentIsMyTurn = RoleRotationCache.getWasMyTurn();
                 if (!previousWasMyTurn && currentIsMyTurn && mc.player != null) {
                     mc.getSoundManager().play(

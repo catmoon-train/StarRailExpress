@@ -12,6 +12,8 @@ import io.wifi.starrailexpress.game.modes.SREMurderGameMode;
 import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
 import io.wifi.starrailexpress.game.utils.RoleInstance;
 import io.wifi.starrailexpress.network.CloseUiPayload;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -350,6 +352,12 @@ public class RoleRotationWorldComponent implements AutoSyncedComponent {
                         RoleUtils.getRoleName(randomRole).withColor(randomRole.getColor()));
                 player.displayClientMessage(timeoutMsg.withStyle(ChatFormatting.YELLOW), true);
             }
+
+            // 播放全场音效（音符盒 - 所有人能听到）
+            for (ServerPlayer p : serverWorld.players()) {
+                serverWorld.playSound(null, p.getX(), p.getY(), p.getZ(),
+                    SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.MASTER, 1.0f, 1.2f);
+            }
         }
 
         // 移除已选职业
@@ -448,6 +456,14 @@ public class RoleRotationWorldComponent implements AutoSyncedComponent {
 
         // 移除已选职业
         rolePool.remove(selectedRole);
+
+        // 播放全场音效（音符盒 - 所有人能听到）
+        if (world instanceof ServerLevel serverWorld) {
+            for (ServerPlayer p : serverWorld.players()) {
+                serverWorld.playSound(null, p.getX(), p.getY(), p.getZ(),
+                    SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.MASTER, 1.0f, 1.2f);
+            }
+        }
 
         // 进入下一个玩家
         currentRotationIndex++;
