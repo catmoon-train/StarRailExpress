@@ -1936,6 +1936,10 @@ public class ModRoles {
         SREPlayerPoisonComponent.canSyncedRolePaths.add(ModRoles.BARTENDER_ID.getPath());
         SREArmorPlayerComponent.canSyncedRolePaths.add(ModRoles.BARTENDER_ID.getPath());
         SREPlayerMoodComponent.canSyncedRolePaths.add(ModRoles.MA_CHEN_XU_ID.getPath());
+        
+        // 初始化叛徒职业和新修饰符
+        TraitorAndModifiers.init();
+        ModifierEffects.init();
     }
 
 }

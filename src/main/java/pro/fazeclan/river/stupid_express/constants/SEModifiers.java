@@ -26,6 +26,7 @@ import pro.fazeclan.river.stupid_express.modifier.lovers.cca.LoversComponent;
 import pro.fazeclan.river.stupid_express.modifier.refugee.cca.RefugeeComponent;
 import pro.fazeclan.river.stupid_express.modifier.split_personality.cca.SkinSplitPersonalityComponent;
 import pro.fazeclan.river.stupid_express.modifier.split_personality.cca.SplitPersonalityComponent;
+import org.agmas.noellesroles.role.TraitorAndModifiers;
 
 import java.awt.*;
 import java.util.*;
@@ -35,11 +36,11 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SEModifiers {
 
     // Attribute modifier for tiny players
-    private static AttributeModifier tinyModifier = new AttributeModifier(
+    public static AttributeModifier TINY_MODIFIER = new AttributeModifier(
             StupidExpress.id("tiny_modifier"), -0.15, AttributeModifier.Operation.ADD_VALUE);
 
     // Attribute modifier for tall players
-    private static AttributeModifier tallModifier = new AttributeModifier(
+    public static AttributeModifier TALL_MODIFIER = new AttributeModifier(
             StupidExpress.id("tall_modifier"), 0.0763, AttributeModifier.Operation.ADD_VALUE);
 
     public static SREModifier LOVERS = HMLModifiers.registerModifier(new SREModifier(
@@ -407,26 +408,36 @@ public class SEModifiers {
                 // Cannot assign TALL if player has TINY
                 if (worldModifierComponent.isModifier(player.getUUID(), TALL)) {
                     worldModifierComponent.removeModifier(player.getUUID(), TALL);
-                    player.getAttribute(Attributes.SCALE).removeModifier(tallModifier);
+                    player.getAttribute(Attributes.SCALE).removeModifier(TALL_MODIFIER);
                 }
-                player.getAttribute(Attributes.SCALE).removeModifier(tinyModifier);
-                player.getAttribute(Attributes.SCALE).addPermanentModifier(tinyModifier);
+                // Cannot assign TINY if player already has DWARF (mutually exclusive)
+                if (worldModifierComponent.isModifier(player.getUUID(), TraitorAndModifiers.DWARF)) {
+                    worldModifierComponent.removeModifier(player.getUUID(), TraitorAndModifiers.DWARF);
+                    player.getAttribute(Attributes.SCALE).removeModifier(TraitorAndModifiers.DWARF_MODIFIER);
+                }
+                player.getAttribute(Attributes.SCALE).removeModifier(TINY_MODIFIER);
+                player.getAttribute(Attributes.SCALE).addPermanentModifier(TINY_MODIFIER);
             }
             if (modifier.equals(TALL)) {
                 // Cannot assign TINY if player has TALL
                 if (worldModifierComponent.isModifier(player.getUUID(), TINY)) {
                     worldModifierComponent.removeModifier(player.getUUID(), TINY);
-                    player.getAttribute(Attributes.SCALE).removeModifier(tinyModifier);
+                    player.getAttribute(Attributes.SCALE).removeModifier(TINY_MODIFIER);
                 }
-                player.getAttribute(Attributes.SCALE).removeModifier(tallModifier);
-                player.getAttribute(Attributes.SCALE).addPermanentModifier(tallModifier);
+                // Cannot assign TALL if player already has DWARF (mutually exclusive)
+                if (worldModifierComponent.isModifier(player.getUUID(), TraitorAndModifiers.DWARF)) {
+                    worldModifierComponent.removeModifier(player.getUUID(), TraitorAndModifiers.DWARF);
+                    player.getAttribute(Attributes.SCALE).removeModifier(TraitorAndModifiers.DWARF_MODIFIER);
+                }
+                player.getAttribute(Attributes.SCALE).removeModifier(TALL_MODIFIER);
+                player.getAttribute(Attributes.SCALE).addPermanentModifier(TALL_MODIFIER);
             }
             // Double-check: ensure TINY and TALL are never both present
             if (worldModifierComponent.isModifier(player.getUUID(), TINY)
                     && worldModifierComponent.isModifier(player.getUUID(), TALL)) {
                 // If both are present, remove TALL (arbitrary choice)
                 worldModifierComponent.removeModifier(player.getUUID(), TALL);
-                player.getAttribute(Attributes.SCALE).removeModifier(tallModifier);
+                player.getAttribute(Attributes.SCALE).removeModifier(TALL_MODIFIER);
             }
             if (modifier.equals(FEATHER)) {
                 // Feather modifier no longer has slow falling effect

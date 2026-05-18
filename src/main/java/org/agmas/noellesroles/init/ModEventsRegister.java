@@ -77,6 +77,7 @@ import org.agmas.noellesroles.content.item.BenevolenceSwordHandler;
 import org.agmas.noellesroles.content.item.BombItem;
 import org.agmas.noellesroles.content.item.RiotShieldHandler;
 import org.agmas.noellesroles.events.OnVendingMachinesBuyItems;
+import org.agmas.noellesroles.events.OnShopPurchase;
 import org.agmas.noellesroles.game.modes.ChairWheelRaceGame;
 import org.agmas.noellesroles.game.modifier.NRModifiers;
 import org.agmas.noellesroles.game.modifier.expedition.ExpeditionComponent;
@@ -113,6 +114,7 @@ import org.agmas.noellesroles.game.roles.vigilante.patroller.PatrollerPlayerComp
 import org.agmas.noellesroles.packet.BloodConfigS2CPacket;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.RedHouseRoles;
+import org.agmas.noellesroles.role.TraitorAndModifiers;
 import org.agmas.noellesroles.utils.EntityClearUtils;
 import org.agmas.noellesroles.utils.MCItemsUtils;
 import org.agmas.noellesroles.utils.MapScanner;
@@ -567,6 +569,11 @@ public class ModEventsRegister {
     public static List<Item> canThrowItems = new ArrayList<>();
 
     public static void registerEvents() {
+        // 吝啬 - 商店购买返还20%金币
+        OnShopPurchase.EVENT.register((player, entry, price) -> {
+            org.agmas.noellesroles.role.ModifierEffects.onStingyPurchase((net.minecraft.server.level.ServerPlayer) player, price);
+        });
+
         OnKillPlayerTriggered.EVENT.register((victim, spawnBody, _killer, deathReasosn, forceKill) -> {
             final var level = victim.level();
             final var gameWorldComponent = SREGameWorldComponent.KEY.get(level);
@@ -828,6 +835,36 @@ public class ModEventsRegister {
                 if (gameWorldComponent.isRole(player, ModRoles.JOJO)) {
                     player.getCooldowns().addCooldown(mainHandStack.getItem(),
                             (Integer) GameConstants.ITEM_COOLDOWNS.getOrDefault(mainHandStack.getItem(), 0) * 2);
+                }
+            }
+        });
+        // 黄油手 - 手枪冷却随机变化
+        OnRevolverUsed.EVENT.register((player, target) -> {
+            if (!(player instanceof ServerPlayer sp)) return;
+            WorldModifierComponent modifiers = WorldModifierComponent.KEY.get(player.level());
+            ItemStack mainHandStack = player.getMainHandItem();
+            if (mainHandStack.is(TMMItemTags.GUNS) && modifiers.isModifier(player.getUUID(), TraitorAndModifiers.BUTTER_FINGERS)) {
+                int roll = player.getRandom().nextInt(100);
+                int baseCooldown = (Integer) GameConstants.ITEM_COOLDOWNS.getOrDefault(mainHandStack.getItem(), 400);
+                int newCooldown = baseCooldown;
+                if (roll < 33) {
+                    // 33%: 冷却 +3秒
+                    newCooldown = baseCooldown + 60;
+                    player.displayClientMessage(Component.translatable("modifier.noellesroles.butter_fingers.cooldown_up"), true);
+                } else if (roll < 66) {
+                    // 33%: 冷却 -3秒
+                    newCooldown = Math.max(0, baseCooldown - 60);
+                    player.displayClientMessage(Component.translatable("modifier.noellesroles.butter_fingers.cooldown_down"), true);
+                } else if (roll < 99) {
+                    // 33%: 无事发生
+                    // 不做处理
+                } else {
+                    // 1%: 冷却归零
+                    newCooldown = 0;
+                    player.displayClientMessage(Component.translatable("modifier.noellesroles.butter_fingers.reset"), true);
+                }
+                if (newCooldown != baseCooldown) {
+                    player.getCooldowns().addCooldown(mainHandStack.getItem(), newCooldown);
                 }
             }
         });

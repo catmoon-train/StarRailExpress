@@ -10,6 +10,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.ConfigWorldComponent;
+import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.component.ModComponents;
 import io.wifi.starrailexpress.game.GameUtils;
 import org.jetbrains.annotations.NotNull;
@@ -100,6 +101,9 @@ public class TelegrapherPlayerComponent implements RoleComponent {
         if (!useAbility()) {
             return;
         }
+
+        // 记录电报员发送的消息
+        Noellesroles.LOGGER.info("[Telegrapher] {} sent telegraph: {}", player.getName().getString(), message);
 
         // 创建Title文本 - 淡蓝色显示消息内容
         Component titleText = Component.literal(message).withStyle(ChatFormatting.AQUA);

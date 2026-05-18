@@ -86,6 +86,13 @@ public class RoleSelectionHandler {
                         true);
                 return InteractionResult.PASS;
             }
+            if (role.identifier().equals(org.agmas.noellesroles.role.TraitorAndModifiers.TRAITOR.identifier())) {
+                player.displayClientMessage(
+                        Component.translatable("msg.amnesiac.change_role.failed_not_support")
+                                .withStyle(ChatFormatting.RED),
+                        true);
+                return InteractionResult.PASS;
+            }
             if (role.identifier().equals(SERoles.AMNESIAC.identifier())) {
                 player.displayClientMessage(
                         Component.translatable("msg.amnesiac.change_role.failed_not_support")

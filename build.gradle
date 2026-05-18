@@ -17,7 +17,8 @@ loom {
         client {
             // 添加程序参数来设置玩家名
             programArg "--username"
-            programArg "canyuesama" // 把这里改成你想要的游戏内名字
+            programArg "debug_player" // 把这里改成你想要的游戏内名字
+
         }
     }
 }

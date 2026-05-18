@@ -39,6 +39,8 @@ import java.util.UUID;
 public class PlayerBodyEntity extends LivingEntity {
     private static final EntityDataAccessor<Optional<UUID>> PLAYER = SynchedEntityData.defineId(PlayerBodyEntity.class,
             EntityDataSerializers.OPTIONAL_UUID);
+    private static final EntityDataAccessor<Boolean> CORRUPTED = SynchedEntityData.defineId(PlayerBodyEntity.class,
+            EntityDataSerializers.BOOLEAN);
 
     public PlayerBodyEntity(EntityType<? extends LivingEntity> entityType, Level world) {
         super(entityType, world);
@@ -48,6 +50,21 @@ public class PlayerBodyEntity extends LivingEntity {
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
         builder.define(PLAYER, Optional.empty());
+        builder.define(CORRUPTED, false);
+    }
+
+    /**
+     * 设置腐化标记（腐化修饰符的尸体直接显示为骷髅）
+     */
+    public void setCorrupted(boolean corrupted) {
+        this.entityData.set(CORRUPTED, corrupted);
+    }
+
+    /**
+     * 检查尸体是否是腐化修饰符的尸体
+     */
+    public boolean isCorrupted() {
+        return this.entityData.get(CORRUPTED);
     }
 
     // 获取本实体上的 BodyDeathReasonComponent

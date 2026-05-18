@@ -78,6 +78,15 @@ public class PlayerBodyEntityRenderer<T extends LivingEntity, M extends EntityMo
         final var moodComponent = SREClient.moodComponent;
         if (moodComponent == null)
             return;
+
+        // 腐化尸体直接只显示骷髅模型，不渲染原玩家身体
+        if (playerBodyEntity.isCorrupted()) {
+            // 腐化尸体只渲染骷髅，不下沉
+            renderSkeleton(playerBodyEntity, f, g, matrixStack, vertexConsumerProvider, light, 1f);
+            matrixStack.popPose();
+            return;
+        }
+
         if (ease > -1) {
             matrixStack.translate(0, ease, 0);
             float alpha = moodComponent.isLowerThanDepressed() ? Mth.lerp(Mth

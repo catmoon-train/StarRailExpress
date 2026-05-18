@@ -45,6 +45,7 @@ import org.agmas.noellesroles.game.roles.special.better_vigilante.BetterVigilant
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.RedHouseRoles;
+import org.agmas.noellesroles.role.TraitorAndModifiers;
 import org.agmas.noellesroles.utils.MCItemsUtils;
 import org.agmas.noellesroles.utils.RoleUtils;
 import pro.fazeclan.river.stupid_express.StupidExpress;
@@ -59,6 +60,40 @@ import java.util.HashMap;
 
 public class InstinctRenderer {
     public static void registerInstinctEvents() {
+        // 鬼祟效果：当目标玩家8格范围内时，禁用杀手直觉高亮
+        OnGetInstinctHighlight.EVENT.register((target, hasInstinct) -> {
+            if (!(target instanceof Player targetPlayer)) {
+                return -1;
+            }
+            if (Minecraft.getInstance() == null || Minecraft.getInstance().player == null) {
+                return -1;
+            }
+            if (SREClient.gameComponent == null || !SREClient.gameComponent.isRunning()) {
+                return -1;
+            }
+            if (!SREClient.isPlayerAliveAndInSurvivalIgnoreShitSplit()) {
+                return -1;
+            }
+            
+            Player localPlayer = Minecraft.getInstance().player;
+            
+            // 检查目标玩家是否有鬼祟修饰符
+            try {
+                WorldModifierComponent modifiers = WorldModifierComponent.KEY.get(targetPlayer.level());
+                if (modifiers != null && modifiers.isModifier(targetPlayer.getUUID(), TraitorAndModifiers.SNEAKY)) {
+                    // 检查目标是否在当前玩家8格范围内
+                    double dist = localPlayer.distanceTo(targetPlayer);
+                    if (dist <= 8.0) {
+                        // 鬼祟生效：禁用直觉高亮
+                        return -2;
+                    }
+                }
+            } catch (Exception e) {
+                // 静默处理错误
+            }
+            
+            return -1;
+        });
         OnGetInstinctHighlight.EVENT.register((target, hasInstinct) -> {
             if (!(target instanceof Player target_player))
                 return -1;

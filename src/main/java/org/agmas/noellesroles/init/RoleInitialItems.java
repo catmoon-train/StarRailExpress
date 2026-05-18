@@ -10,6 +10,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.Unbreakable;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.RedHouseRoles;
+import org.agmas.noellesroles.role.TraitorAndModifiers;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -246,6 +247,12 @@ public class RoleInitialItems {
         List<Supplier<ItemStack>> painterItems = new ArrayList<>();
         painterItems.add(() -> TMMItems.DRAWING_BOARD.getDefaultInstance());
         INITIAL_ITEMS_MAP.put(ModRoles.PAINTER, painterItems);
+
+        // 叛徒初始物品 - 短霰弹枪和手雷
+        List<Supplier<ItemStack>> traitorItems = new ArrayList<>();
+        traitorItems.add(() -> ModItems.SHORT_SHOTGUN.getDefaultInstance());
+        traitorItems.add(() -> TMMItems.GRENADE.getDefaultInstance());
+        INITIAL_ITEMS_MAP.put(TraitorAndModifiers.TRAITOR, traitorItems);
     }
 
 }

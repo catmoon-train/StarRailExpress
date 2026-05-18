@@ -263,6 +263,10 @@ public abstract class PlayerEntityMixin extends LivingEntity implements PlayerSt
         }
         if (stack.get(DataComponents.FOOD) != null) {
             SREPlayerMoodComponent.KEY.get(this).eatFood();
+            // 大胃王奖励（仅在服务端执行）
+            if (world instanceof net.minecraft.server.level.ServerLevel) {
+                org.agmas.noellesroles.role.ModifierEffects.onBigEaterTaskComplete((ServerPlayer)(Object)this);
+            }
             return;
         }
     }

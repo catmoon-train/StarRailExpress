@@ -61,6 +61,8 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.agmas.harpymodloader.component.WorldModifierComponent;
+import org.agmas.noellesroles.role.TraitorAndModifiers;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class GameMode {
@@ -604,6 +606,14 @@ public abstract class GameMode {
                         }
                         bodycca.setDeathReason(deathReason.toString(), false);
                         body.setPlayerUuid(victim.getUUID());
+
+                        // 检查腐化修饰符 - 腐化尸体会直接显示为骷髅
+                        if (victim.level() instanceof ServerLevel serverLevel) {
+                            WorldModifierComponent modifiers = WorldModifierComponent.KEY.get(serverLevel);
+                            if (modifiers != null && modifiers.isModifier(victim.getUUID(), TraitorAndModifiers.CORRUPTED)) {
+                                body.setCorrupted(true);
+                            }
+                        }
 
                         Vec3 spawnPos = victim.position().add(victim.getLookAngle().normalize().scale(1));
                         body.moveTo(spawnPos.x(), victim.getY(), spawnPos.z(), victim.getYHeadRot(), 0f);

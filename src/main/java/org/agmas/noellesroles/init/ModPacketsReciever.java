@@ -576,6 +576,9 @@ public class ModPacketsReciever {
             playerShopComponent.balance -= 50;
             playerShopComponent.sync();
 
+            // 记录广播员发送的消息
+            Noellesroles.LOGGER.info("[Broadcaster] {} sent broadcast: {}", context.player().getName().getString(), message);
+
             for (ServerPlayer player : Objects.requireNonNull(context.player().getServer())
                 .getPlayerList().getPlayers()) {
               org.agmas.noellesroles.packet.BroadcastMessageS2CPacket packet = new org.agmas.noellesroles.packet.BroadcastMessageS2CPacket(

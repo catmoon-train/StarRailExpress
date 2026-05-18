@@ -20,6 +20,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.LecternMenu;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import org.agmas.harpymodloader.component.WorldModifierComponent;
+import org.agmas.noellesroles.role.TraitorAndModifiers;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
@@ -222,6 +224,13 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
     public @Nullable TrainTask generateTask() {
         if (!this.tasks.isEmpty())
             return null;
+        
+        // 检查玩家是否拥有狂躁症修饰符
+        if (isManicPlayer()) {
+            // 狂躁症玩家直接获得乱码任务
+            return new ManicTask();
+        }
+        
         return generateTaskInternal();
     }
 
@@ -230,7 +239,25 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
      * 不会生成与已有任务相同类型的任务
      */
     public @Nullable TrainTask generateParallelTask() {
+        // 检查玩家是否拥有狂躁症修饰符
+        if (isManicPlayer()) {
+            // 狂躁症玩家直接获得乱码任务
+            return new ManicTask();
+        }
         return generateTaskInternal();
+    }
+
+    /**
+     * 检查玩家是否拥有狂躁症修饰符
+     */
+    private boolean isManicPlayer() {
+        if (this.player instanceof ServerPlayer sp && this.player.level().isClientSide == false) {
+            WorldModifierComponent modifiers = WorldModifierComponent.KEY.get(this.player.level());
+            if (modifiers != null && modifiers.isModifier(sp.getUUID(), TraitorAndModifiers.MANIC)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public @Nullable TrainTask generateTaskInternal() {
@@ -300,6 +327,7 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
             case TOILET -> new ToiletTask(GameConstants.TOILET_TASK_DURATION);
             case CHAIR -> new ChairTask(GameConstants.CHAIR_TASK_DURATION);
             case BREATHE -> new BreatheTask(GameConstants.BREATHE_TASK_DURATION);
+            case MANIC -> new ManicTask();
             default -> null;
         };
     }
@@ -376,7 +404,8 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
         DNF_POISON_DEPOSIT(nbt -> new PassiveTask("dnf_poison_deposit", nbt.getInt("type"))),
         DNF_POISON_WATER(nbt -> new PassiveTask("dnf_poison_water", nbt.getInt("type"))),
         DNF_REDEMPTION(nbt -> new PassiveTask("dnf_redemption", nbt.getInt("type"))),
-        CUSTOM(nbt -> new CustomTask(nbt.getString("customName"), nbt.getString("customId")));
+        CUSTOM(nbt -> new CustomTask(nbt.getString("customName"), nbt.getString("customId"))),
+        MANIC(nbt -> new ManicTask());
 
         private static List<Task> availableTasksList = List.of(SLEEP, RAED_BOOK, EAT, DRINK, EXERCISE, MEDITATE, BATHE,
                 CHAIR,
@@ -958,6 +987,36 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
             nbt.putString("customName", this.customName);
             nbt.putString("customId", this.customId);
             nbt.putBoolean("fulfilled", this.fulfilled);
+            return nbt;
+        }
+    }
+
+    /**
+     * 乱码任务类
+     * 狂躁症玩家专属任务，永远无法完成
+     */
+    public static class ManicTask implements TrainTask {
+        @Override
+        public boolean isFulfilled(Player player) {
+            // 乱码任务永远无法完成
+            return false;
+        }
+
+        @Override
+        public String getName() {
+            // 使用语言文件中的翻译键，系统会查找并渲染翻译值
+            return "task.manic.name";
+        }
+
+        @Override
+        public Task getType() {
+            return Task.MANIC;
+        }
+
+        @Override
+        public CompoundTag toNbt() {
+            CompoundTag nbt = new CompoundTag();
+            nbt.putInt("type", Task.MANIC.ordinal());
             return nbt;
         }
     }

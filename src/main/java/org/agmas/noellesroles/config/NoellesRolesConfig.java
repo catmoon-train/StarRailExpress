@@ -381,6 +381,128 @@ public class NoellesRolesConfig implements ConfigData {
      */
     public int minPlayerForBlackWhite = 10;
 
+    // ==================== 新修饰符概率配置（叛徒扩展包）====================
+
+    /**
+     * 鬼祟修饰符刷新概率（%）
+     * 当距离8格内有玩家时，杀手无法透视看到你
+     */
+    public int chanceOfSneaky = 10;
+
+    /**
+     * 黄油手修饰符刷新概率（%）
+     * 手枪冷却随机变化
+     */
+    public int chanceOfButterFingers = 15;
+
+    /**
+     * 强壮修饰符刷新概率（%）
+     * 35%击退抗性
+     */
+    public int chanceOfStrong = 80;
+
+    /**
+     * 夜猫子修饰符刷新概率（%）
+     * 免疫黑暗效果
+     */
+    public int chanceOfNightOwl = 15;
+
+    /**
+     * 慷慨修饰符刷新概率（%）
+     * 每1.5分钟给予最近玩家25金币
+     */
+    public int chanceOfGenerous = 10;
+
+    /**
+     * 勇敢修饰符刷新概率（%）
+     * 关灯时恢复50%理智
+     */
+    public int chanceOfBrave = 15;
+
+    /**
+     * 工作狂修饰符刷新概率（%）
+     * 任务刷新快50%
+     */
+    public int chanceOfWorkaholic = 20;
+
+    /**
+     * 大胃王修饰符刷新概率（%）
+     * 每1.5分钟获得苹果，吃饭任务恢复75% san和25金币
+     */
+    public int chanceOfBigEater = 10;
+
+    /**
+     * 狂躁症修饰符刷新概率（%）
+     * 任务乱码，无法完成任务，附近完成任务恢复san和金币
+     */
+    public int chanceOfManic = 5;
+
+    /**
+     * 回光返照修饰符刷新概率（%）
+     * 被击杀时获得3秒特殊效果后死亡
+     */
+    public int chanceOfLastGasp = 5;
+
+    /**
+     * 起义军修饰符刷新概率（%）
+     * 被同阵营误杀时变为叛徒
+     */
+    public int chanceOfRebel = 5;
+
+    /**
+     * 晕血症修饰符刷新概率（%）
+     * 看到死亡获得缓慢和反胃
+     */
+    public int chanceOfHemophobia = 5;
+
+    /**
+     * 敛财修饰符刷新概率（%）
+     * 死后扣除击杀者40%金币
+     */
+    public int chanceOfMoneyGrubber = 5;
+
+    /**
+     * 素食主义者修饰符刷新概率（%）
+     * 肉类获得负面效果，其他食物获得正面效果
+     */
+    public int chanceOfVegetarian = 20;
+
+    /**
+     * 侏儒修饰符刷新概率（%）
+     * 尺寸缩小50%
+     */
+    public int chanceOfDwarf = 3;
+
+    /**
+     * 绝境信徒修饰符刷新概率（%）
+     * 唯一杀手时获得金币和药水效果，刀冷却减半
+     */
+    public int chanceOfDesperateFaith = 5;
+
+    /**
+     * 吝啬修饰符刷新概率（%）
+     * 商店购买返还20%金币
+     */
+    public int chanceOfStingy = 10;
+
+    /**
+     * 腐化修饰符刷新概率（%）
+     * 死亡后尸体直接变骷髅
+     */
+    public int chanceOfCorrupted = 10;
+
+    /**
+     * 柔韧修饰符刷新概率（%）
+     * 潜行速度提升40%
+     */
+    public int chanceOfFlexible = 40;
+
+    /**
+     * 反牛顿修饰符刷新概率（%）
+     * 重力减少20%
+     */
+    public int chanceOfAntiNewton = 10;
+
     /**
      * Starting cooldown (in ticks)
      */
