@@ -147,7 +147,7 @@
   "info.screen.modifier.introverted": "修饰符\n你讨厌身处人群之中。\n如果在你周围5格范围内有超过2名玩家时，你的san值会下降得更快。\n如果你独处或只有一名玩家在附近时，你的san值不会下降。",
   "info.screen.modifier.taxed": "修饰符\n你从击杀和被动收入中获得的金币减少25%%。",
   "info.screen.modifier.last_gasp": "修饰符\n被其他玩家击杀时，获得3秒无敌效果后死亡，期间你无法移动也无法干任何事。\n（不受列车坠落和挂机死亡影响）",
-  "info.screen.modifier.rebel": "修饰符\n仅在平民阵营刷新，玩家不会知道自己拥有起义军修饰符\n被同阵营的玩家击杀时，转变为叛徒。\n（每局游戏仅触发一次）",
+  "info.screen.modifier.rebel": "修饰符\n仅在平民阵营刷新，玩家不会知道自己拥有起义军修饰符\n被同阵营的玩家击杀时，转变为叛徒。\n（同一个玩家每局游戏仅触发一次）",
   "info.screen.modifier.desperate_faith": "修饰符\n当你成为唯一的杀手时，获得：\n- +100 金币\n- 永久的速度II和急迫V\n- 刀冷却时间减少50%%",
   "info.screen.modifier.sneaky": "修饰符\n当其他玩家在你8格范围内时，杀手和部分中立将无法通过杀手透视看到你。",
   "info.screen.modifier.butter_fingers": "修饰符\n使用手枪时触发以下效果之一：\n- 33%% 概率：手枪冷却 +3秒\n- 33%% 概率：手枪冷却 -3秒\n- 33%% 概率：无事发生\n- 1%% 概率：手枪冷却重置为0",
