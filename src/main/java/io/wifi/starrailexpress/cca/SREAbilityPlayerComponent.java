@@ -150,8 +150,8 @@ public class SREAbilityPlayerComponent
         // 服务端每 tick 减少冷却时间
         if (this.cooldown > 0) {
             this.cooldown--;
-            // 每5秒同步一次（而不是每 tick），减少网络压力
-            if (this.cooldown % 100 == 0 || this.cooldown == 0) {
+            // 每10秒同步一次（而不是每 tick），减少网络压力
+            if (this.cooldown % 200 == 0 || this.cooldown == 0) {
                 this.sync();
             }
         }
