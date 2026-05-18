@@ -2,17 +2,21 @@ package org.agmas.noellesroles.mixin.client;
 
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
+import io.wifi.starrailexpress.event.OnGetInstinctHighlight;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.player.Player;
+import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.game.roles.killer.manipulator.ManipulatorPlayerComponent;
 import org.agmas.noellesroles.game.roles.special.better_vigilante.BetterVigilantePlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role.TraitorAndModifiers;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(SREClient.class)
@@ -41,6 +45,48 @@ public abstract class InstinctMixin {
                 cir.cancel();
             }
         }
+    }
+
+    /**
+     * 鬼祟效果：当目标玩家8格范围内时，禁用杀手直觉高亮
+     */
+    @Inject(method = "<clinit>", at = @At("TAIL"))
+    private static void onInit(CallbackInfo cir) {
+        // 注册直觉高亮事件监听器
+        OnGetInstinctHighlight.EVENT.register((target, hasInstinct) -> {
+            if (!(target instanceof Player targetPlayer)) {
+                return -1; // 不改变
+            }
+            
+            Player localPlayer = Minecraft.getInstance().player;
+            if (localPlayer == null || localPlayer.level().isClientSide) {
+                return -1;
+            }
+            
+            // 如果当前玩家是杀手，检查目标玩家是否有鬼祟修饰符
+            if (SREClient.isKiller()) {
+                // 获取世界组件
+                SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(localPlayer.level());
+                if (gameWorld != null) {
+                    try {
+                        // 获取目标的修饰符组件
+                        var modifiers = WorldModifierComponent.KEY.get(targetPlayer.level());
+                        if (modifiers != null && modifiers.isModifier(targetPlayer.getUUID(), TraitorAndModifiers.SNEAKY)) {
+                            // 检查目标是否在当前杀手8格范围内
+                            double dist = localPlayer.distanceTo(targetPlayer);
+                            if (dist <= 8.0) {
+                                // 鬼祟生效：禁用直觉高亮
+                                return -2;
+                            }
+                        }
+                    } catch (Exception e) {
+                        // 静默处理错误
+                    }
+                }
+            }
+            
+            return -1; // 不改变
+        });
     }
 
     /**

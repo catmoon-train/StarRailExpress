@@ -78,9 +78,6 @@ public class ModifierEffects {
                     TraitorAndModifiers.LAST_APPLE_TIME.put(uuid, System.currentTimeMillis());
                 } else if (System.currentTimeMillis() - lastTime >= 90 * 1000L) {
                     player.addItem(new ItemStack(Items.APPLE));
-                    player.displayClientMessage(
-                            net.minecraft.network.chat.Component.translatable("modifier.noellesroles.big_eater.apple"), 
-                            true);
                     TraitorAndModifiers.LAST_APPLE_TIME.put(uuid, System.currentTimeMillis());
                 }
             }
@@ -131,10 +128,13 @@ public class ModifierEffects {
                 }
             }
             
-            // === 夜猫子 - 免疫黑暗效果 ===
+            // === 夜猫子 - 免疫黑暗和失明效果 ===
             if (modifiers.isModifier(uuid, TraitorAndModifiers.NIGHT_OWL)) {
                 if (player.hasEffect(MobEffects.DARKNESS)) {
                     player.removeEffect(MobEffects.DARKNESS);
+                }
+                if (player.hasEffect(MobEffects.BLINDNESS)) {
+                    player.removeEffect(MobEffects.BLINDNESS);
                 }
             }
         }
@@ -248,10 +248,6 @@ public class ModifierEffects {
                         player.getX(), player.getY() + 1.5, player.getZ(), 
                         5, 0.3, 0.3, 0.3, 0.1);
             }
-            
-            player.displayClientMessage(
-                    net.minecraft.network.chat.Component.translatable("modifier.noellesroles.big_eater.task_reward"), 
-                    true);
         }
     }
     
