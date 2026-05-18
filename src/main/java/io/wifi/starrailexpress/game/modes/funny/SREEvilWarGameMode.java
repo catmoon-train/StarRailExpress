@@ -42,6 +42,7 @@ import org.agmas.noellesroles.role.ModRoles;
 import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
 
 import org.agmas.noellesroles.role.RedHouseRoles;
+import org.agmas.noellesroles.role.TraitorAndModifiers;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.Nullable;
 import pro.fazeclan.river.stupid_express.StupidExpress;
@@ -245,6 +246,18 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
                 player.addItem(timeStopClock);
                 ItemCooldowns itemCooldownManager = player.getCooldowns();
             }
+            // 强盗有狙
+            else if (role == ModRoles.BANDIT) {
+                player.addItem(new ItemStack(TMMItems.SNIPER_RIFLE));
+                player.addItem(new ItemStack(TMMItems.SCOPE));
+                ItemStack bullet = new ItemStack(TMMItems.MAGNUM_BULLET);
+                bullet.setCount(64);
+                player.addItem(bullet);
+            }
+            // 叛徒有强盗手枪
+            else if (role == TraitorAndModifiers.TRAITOR) {
+                player.addItem(new ItemStack(ModItems.BANDIT_REVOLVER));
+            }
         }
     }
 
@@ -340,12 +353,13 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
             }
             // 蕾米莉亚开局获得20分钟速度4
             else if (role == RedHouseRoles.REMILIA) {
-                player.removeEffect(MobEffects.MOVEMENT_SPEED);
+                if (player.hasEffect(MobEffects.MOVEMENT_SPEED))
+                    player.removeEffect(MobEffects.MOVEMENT_SPEED);
                 player.addEffect(
                         new MobEffectInstance(
                                 MobEffects.MOVEMENT_SPEED,  // 速度效果
                                 20 * 1200,                  // 持续时间（tick）
-                                3,
+                                2,
                                 false,                // 是否显示粒子效果
                                 false                  // 是否显示图标
                         ));
@@ -360,6 +374,22 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
             else if (role == ModRoles.BANDIT) {
                 SREArmorPlayerComponent armor = SREArmorPlayerComponent.KEY.get(player);
                 armor.giveArmor();
+            }
+            // 叛徒有很厚的盾 初始速度快
+            else if (role == TraitorAndModifiers.TRAITOR) {
+                SREArmorPlayerComponent armor = SREArmorPlayerComponent.KEY.get(player);
+                armor.armor = 30;
+
+                if (player.hasEffect(MobEffects.MOVEMENT_SPEED))
+                    player.removeEffect(MobEffects.MOVEMENT_SPEED);
+                player.addEffect(
+                        new MobEffectInstance(
+                                MobEffects.MOVEMENT_SPEED,  // 速度效果
+                                20 * 1200,                  // 持续时间（tick）
+                                3,
+                                false,                // 是否显示粒子效果
+                                false                  // 是否显示图标
+                        ));
             }
         }
         curBalanceTick = 0;
