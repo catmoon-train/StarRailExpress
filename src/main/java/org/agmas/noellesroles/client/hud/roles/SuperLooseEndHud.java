@@ -19,16 +19,12 @@ public class SuperLooseEndHud {
             var font = client.font;
             int yOffset = screenHeight - 10 - font.lineHeight;
             // 渲染护盾数量
-            var abpc = SREArmorPlayerComponent.KEY.get(client.player);
-            {
-                var text = Component
-                        .translatable("hud.bartender.has_armor",
-                                abpc.armor)
-                        .withStyle(ChatFormatting.GOLD);
-                // 左下角渲染护盾数量文本
-                guiGraphics.drawString(font, text, 10, yOffset - font.lineHeight - 4,
-                        Color.WHITE.getRGB());
-            }
+            var armorPlayerComponent = SREArmorPlayerComponent.KEY.get(client.player);
+            var armorText = Component.translatable("hud.bartender.has_armor", armorPlayerComponent.armor)
+                    .withStyle(ChatFormatting.GOLD);
+            // 左下角渲染护盾数量文本
+            guiGraphics.drawString(font, armorText, 10, yOffset - font.lineHeight - 4,
+                    Color.WHITE.getRGB());
             // 渲染技能状态
             SuperLooseEndPlayerComponent superLooseEndPlayerComponent = SuperLooseEndPlayerComponent.KEY.get(client.player);
             // 渲染位置 - 右下角
@@ -65,16 +61,18 @@ public class SuperLooseEndHud {
                 }
                 case 1 -> {
                     if (superLooseEndPlayerComponent.abilityCooldowns.get(1) <= 0)
-                        text = Component.translatable("hud.super_loose_end.explode")
-                                .withStyle(ChatFormatting.AQUA);
+                        text = Component.translatable("hud.super_loose_end.explode",
+                                        superLooseEndPlayerComponent.getExplodeLvl(), superLooseEndPlayerComponent.getExplosionRange())
+                                .withStyle(ChatFormatting.LIGHT_PURPLE);
                     else
                         text = Component.translatable("hud.super_loose_end.cool_down",
                                         superLooseEndPlayerComponent.abilityCooldowns.get(1) / 20)
                                 .withStyle(ChatFormatting.GRAY);
                     yOffset += font.lineHeight + 1;
                     guiGraphics.drawString(font, text, x, y + yOffset, Color.WHITE.getRGB());
-//                    consumeText = Component.translatable("hud.super_loose_end.comsume.armor",
-//                            SuperLooseEndPlayerComponent.RECALL_COST);
+                    consumeText = Component.translatable("hud.super_loose_end.comsume.armor",
+                            Math.max(armorPlayerComponent.getArmor(), 2));
+
                 }
             }
             // 渲染技能消耗
