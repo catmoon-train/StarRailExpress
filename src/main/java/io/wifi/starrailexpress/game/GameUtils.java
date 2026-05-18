@@ -1187,4 +1187,16 @@ public class GameUtils {
         TrainVoicePlugin.resetPlayer(player.getUUID());
         SRE.REPLAY_MANAGER.recordPlayerRevival(player.getUUID(), null);
     }
+
+    public static boolean isGameRunning(Player player) {
+        if (player == null)
+            return false;
+        return isGameRunning(player.level());
+    }
+
+    public static boolean isGameRunning(Level level) {
+        if (level == null)
+            return false;
+        return SREGameWorldComponent.KEY.get(level).isRunning();
+    }
 }

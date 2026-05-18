@@ -2,6 +2,8 @@ package org.agmas.noellesroles.game.roles.special.super_loose_end;
 
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.cca.SREArmorPlayerComponent;
+import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.ParticleTypes;
@@ -14,6 +16,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.component.ModComponents;
+import org.agmas.noellesroles.utils.RoleUtils;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
@@ -25,6 +28,7 @@ public class SuperLooseEndPlayerComponent implements RoleComponent, ServerTickin
     public interface SuperLooseEndAbility {
         void useAbility();
     }
+
     public static final ComponentKey<SuperLooseEndPlayerComponent> KEY = ModComponents.SUPER_LOOSE_END;
     public static final int RECALL_COOLDOWN = 20 * 30;
     public static final int RECALL_COST = 2;
@@ -41,37 +45,9 @@ public class SuperLooseEndPlayerComponent implements RoleComponent, ServerTickin
 
     public SuperLooseEndPlayerComponent(Player player) {
         this.player = player;
-
-        curAbilityIdx = 0;
-        // 添加传送能力：消耗2层护盾进行传送
-        abilityCooldowns.add(0);
-        superLooseEndAbilities.add(() ->{
-            if (abilityCooldowns.get(0) > 0)
-                return;
-
-            SREArmorPlayerComponent armorPlayerComponent = SREArmorPlayerComponent.KEY.get(player);
-            if (placed) {
-                if (armorPlayerComponent.getArmor() >= RECALL_COST) {
-                    armorPlayerComponent.removeArmor(RECALL_COST);
-                    teleport();
-                    abilityCooldowns.set(0, RECALL_COOLDOWN);
-                } else {
-                    player.displayClientMessage(Component.translatable("message.super_loose_end.not_enough_armor")
-                            .withStyle(ChatFormatting.RED), true);
-                }
-            }
-            // 放置传送点后有1/10的cd
-            else {
-                setPosition();
-                abilityCooldowns.set(0, RECALL_COOLDOWN / 10);
-            }
-        });
-        // 添加爆炸技能，独立cd
-        abilityCooldowns.add(0);
-        superLooseEndAbilities.add(() -> {
-
-        });
+        // 这里不是初始化不要写这里。
     }
+
     @Override
     public Player getPlayer() {
         return null;
@@ -80,13 +56,47 @@ public class SuperLooseEndPlayerComponent implements RoleComponent, ServerTickin
     @Override
     public void init() {
         curAbilityIdx = 0;
+        abilityCooldowns.clear();
+        superLooseEndAbilities.clear();
+        {
+            // 添加传送能力：消耗2层护盾进行传送
+            abilityCooldowns.add(0);
+            superLooseEndAbilities.add(() -> {
+                if (abilityCooldowns.get(0) > 0)
+                    return;
+
+                SREArmorPlayerComponent armorPlayerComponent = SREArmorPlayerComponent.KEY.get(player);
+                if (placed) {
+                    if (armorPlayerComponent.getArmor() >= RECALL_COST) {
+                        armorPlayerComponent.removeArmor(RECALL_COST);
+                        teleport();
+                        abilityCooldowns.set(0, RECALL_COOLDOWN);
+                    } else {
+                        player.displayClientMessage(Component.translatable("message.super_loose_end.not_enough_armor")
+                                .withStyle(ChatFormatting.RED), true);
+                    }
+                }
+                // 放置传送点后有1/10的cd
+                else {
+                    setPosition();
+                    abilityCooldowns.set(0, RECALL_COOLDOWN / 10);
+                }
+            });
+            // 添加爆炸技能，独立cd
+            abilityCooldowns.add(0);
+            superLooseEndAbilities.add(() -> {
+
+            });
+        }
         abilityCooldowns.replaceAll(ignored -> 0);
+        sync();
     }
 
     @Override
     public void clear() {
         abilityCooldowns.replaceAll(ignored -> 0);
         curAbilityIdx = -1;
+        sync();
     }
 
     public void setPosition() {
@@ -96,17 +106,18 @@ public class SuperLooseEndPlayerComponent implements RoleComponent, ServerTickin
         placed = true;
         this.sync();
     }
+
     public void teleport() {
         double fromX = player.getX();
         double fromY = player.getY();
         double fromZ = player.getZ();
 
         if (player.level() instanceof ServerLevel serverLevel) {
-            ConfigWorldComponent.onPlayerUsedSkill( (ServerPlayer) player);
+            ConfigWorldComponent.onPlayerUsedSkill((ServerPlayer) player);
             playTeleportEffects(serverLevel, fromX, fromY, fromZ);
         }
 
-        player.teleportTo(x,y,z);
+        player.teleportTo(x, y, z);
 
         if (player.level() instanceof ServerLevel serverLevel) {
             playTeleportEffects(serverLevel, x, y, z);
@@ -115,6 +126,7 @@ public class SuperLooseEndPlayerComponent implements RoleComponent, ServerTickin
         placed = false;
         this.sync();
     }
+
     private void playTeleportEffects(ServerLevel serverLevel, double centerX, double centerY, double centerZ) {
         double particleY = centerY + 0.9D;
 
@@ -134,6 +146,7 @@ public class SuperLooseEndPlayerComponent implements RoleComponent, ServerTickin
         serverLevel.playSound(null, centerX, centerY, centerZ,
                 SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 1.0F, 1.0F);
     }
+
     public void useAbility(boolean isShiftPressed) {
         if (superLooseEndAbilities.isEmpty())
             return;
@@ -147,15 +160,30 @@ public class SuperLooseEndPlayerComponent implements RoleComponent, ServerTickin
 
     @Override
     public void serverTick() {
+        if (!GameUtils.isGameRunning(player)) {
+            return;
+        }
+        if (!RoleUtils.isPlayerTheJob(player, SpecialGameModeRoles.SUPER_LOOSE_END))
+            return;
         // 服务端每 tick 减少冷却时间
         for (int i = 0; i < abilityCooldowns.size(); ++i) {
             if (this.abilityCooldowns.get(i) > 0) {
                 this.abilityCooldowns.set(i, this.abilityCooldowns.get(i) - 1);
             }
         }
+        // 10s -> sync
+        if (this.player.level().getGameTime() % 200 == 0) {
+            sync();
+        }
     }
+
     @Override
     public void clientTick() {
+        if (!GameUtils.isGameRunning(player)) {
+            return;
+        }
+        if (!RoleUtils.isPlayerTheJob(player, SpecialGameModeRoles.SUPER_LOOSE_END))
+            return;
         // 客户端也进行冷却计算（用于预测显示）
         for (int i = 0; i < abilityCooldowns.size(); ++i) {
             if (this.abilityCooldowns.get(i) > 0) {
@@ -163,7 +191,6 @@ public class SuperLooseEndPlayerComponent implements RoleComponent, ServerTickin
             }
         }
     }
-
 
     public void sync() {
         KEY.sync(this.player);

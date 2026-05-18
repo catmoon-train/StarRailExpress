@@ -8,6 +8,7 @@ import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerStatsComponent;
+import io.wifi.starrailexpress.cca.SRERoleWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.GameUtils.WinStatus;
 import io.wifi.starrailexpress.index.TMMItems;
@@ -511,5 +512,11 @@ public class RoleUtils extends MCItemsUtils {
     public static Component getTeamName(SRERole role) {
         int roleType = PlayerRoleWeightManager.getRoleType(role);
         return getTeamName(roleType);
+    }
+
+    public static boolean isPlayerTheJob(Player player, SRERole role) {
+        if (player == null)
+            return false;
+        return SRERoleWorldComponent.KEY.get(player.level()).isRole(player, role);
     }
 }
