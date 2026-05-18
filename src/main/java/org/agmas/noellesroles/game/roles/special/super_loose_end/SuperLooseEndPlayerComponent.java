@@ -50,7 +50,7 @@ public class SuperLooseEndPlayerComponent implements RoleComponent, ServerTickin
 
     @Override
     public Player getPlayer() {
-        return null;
+        return player;
     }
 
     @Override
@@ -88,7 +88,6 @@ public class SuperLooseEndPlayerComponent implements RoleComponent, ServerTickin
 
             });
         }
-        abilityCooldowns.replaceAll(ignored -> 0);
         sync();
     }
 
@@ -153,9 +152,11 @@ public class SuperLooseEndPlayerComponent implements RoleComponent, ServerTickin
         if (isShiftPressed) {
             ++curAbilityIdx;
             curAbilityIdx %= superLooseEndAbilities.size();
-            return;
         }
-        superLooseEndAbilities.get(curAbilityIdx).useAbility();
+        else {
+            superLooseEndAbilities.get(curAbilityIdx).useAbility();
+        }
+        sync();
     }
 
     @Override
@@ -198,6 +199,7 @@ public class SuperLooseEndPlayerComponent implements RoleComponent, ServerTickin
 
     @Override
     public void writeToSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+        tag.putInt("cooldown_num", abilityCooldowns.size());
         for (int i = 0; i < abilityCooldowns.size(); ++i) {
             tag.putInt("cooldown" + i, this.abilityCooldowns.get(i));
         }
@@ -210,8 +212,10 @@ public class SuperLooseEndPlayerComponent implements RoleComponent, ServerTickin
 
     @Override
     public void readFromSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
-        for (int i = 0; i < abilityCooldowns.size(); ++i) {
-            abilityCooldowns.set(i, tag.contains("cooldown" + i) ? tag.getInt("cooldown" + i) : 0);
+        abilityCooldowns.clear();
+        int abilityCooldownsNum = tag.contains("cooldown_num") ? tag.getInt("cooldown_num") : 0;
+        for (int i = 0; i < abilityCooldownsNum; ++i) {
+            abilityCooldowns.add(tag.contains("cooldown" + i) ? tag.getInt("cooldown" + i) : 0);
         }
         curAbilityIdx = tag.contains("cur_ability") ? tag.getInt("cur_ability") : -1;
         this.x = tag.contains("x") ? tag.getDouble("x") : 0;

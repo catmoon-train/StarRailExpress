@@ -44,18 +44,19 @@ public class SuperLooseEndHud {
             switch (superLooseEndPlayerComponent.curAbilityIdx) {
                 // 召回技能
                 case 0 -> {
-                    if (superLooseEndPlayerComponent.placed) {
-                        if (superLooseEndPlayerComponent.abilityCooldowns.get(0) <= 0)
+                    if (superLooseEndPlayerComponent.abilityCooldowns.get(0) <= 0) {
+                        if (superLooseEndPlayerComponent.placed) {
                             text = Component.translatable("hud.super_loose_end.recall")
                                     .withStyle(ChatFormatting.AQUA);
-                        else
-                            text = Component.translatable("hud.super_loose_end.cool_down",
-                                            superLooseEndPlayerComponent.abilityCooldowns.get(0) / 20)
-                                    .withStyle(ChatFormatting.GRAY);
+                        } else {
+                            text = Component.translatable("hud.super_loose_end.recall.place")
+                                    .withStyle(ChatFormatting.AQUA);
+                        }
                     }
                     else {
-                        text = Component.translatable("hud.super_loose_end.recall.place")
-                                .withStyle(ChatFormatting.AQUA);
+                        text = Component.translatable("hud.super_loose_end.cool_down",
+                                        superLooseEndPlayerComponent.abilityCooldowns.get(0) / 20)
+                                .withStyle(ChatFormatting.GRAY);
                     }
                     yOffset += font.lineHeight + 1;
                     guiGraphics.drawString(font, text, x, y + yOffset, Color.WHITE.getRGB());
@@ -72,8 +73,8 @@ public class SuperLooseEndHud {
                                 .withStyle(ChatFormatting.GRAY);
                     yOffset += font.lineHeight + 1;
                     guiGraphics.drawString(font, text, x, y + yOffset, Color.WHITE.getRGB());
-                    consumeText = Component.translatable("hud.super_loose_end.comsume.armor",
-                            SuperLooseEndPlayerComponent.RECALL_COST);
+//                    consumeText = Component.translatable("hud.super_loose_end.comsume.armor",
+//                            SuperLooseEndPlayerComponent.RECALL_COST);
                 }
             }
             // 渲染技能消耗
