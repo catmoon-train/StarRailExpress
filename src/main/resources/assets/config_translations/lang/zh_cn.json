@@ -92,6 +92,7 @@
   "text.autoconfig.starrailexpress.option.itemSkinSyncServerPort": "物品皮肤同步数据库端口（仅服务端）",
   "text.autoconfig.starrailexpress.option.itemSkinSyncServerKey": "物品皮肤同步数据库密钥（仅服务端）",
   "text.autoconfig.starrailexpress.option.itemSkinSyncServerEnabled": "启用物品皮肤同步功能（仅服务端）",
+  "text.autoconfig.starrailexpress.option.afkDeathEnabled": "启用挂机死亡/踢出功能",
   "text.autoconfig.starrailexpress.option.afkThresholdSeconds": "挂机临界时间",
   "text.autoconfig.starrailexpress.option.afkDeathSeconds": "挂机死亡时间",
   "text.autoconfig.starrailexpress.option.afkWarningSeconds": "挂机警告时间",

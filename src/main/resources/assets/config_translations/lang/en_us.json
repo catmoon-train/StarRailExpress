@@ -92,6 +92,7 @@
   "text.autoconfig.starrailexpress.option.itemSkinSyncServerPort": "Item Skin Synchronization Database Port (Server-side only)",
   "text.autoconfig.starrailexpress.option.itemSkinSyncServerKey": "Item Skin Synchronization Database Key (Server-side only)",
   "text.autoconfig.starrailexpress.option.itemSkinSyncServerEnabled": "Enable Item Skin Synchronization Feature (Server-side only)",
+  "text.autoconfig.starrailexpress.option.afkDeathEnabled": "Enable AFK Death/Kick Function",
   "text.autoconfig.starrailexpress.option.afkThresholdSeconds": "AFK Critical Time",
   "text.autoconfig.starrailexpress.option.afkDeathSeconds": "AFK Death Time",
   "text.autoconfig.starrailexpress.option.afkWarningSeconds": "AFK Warning Time",

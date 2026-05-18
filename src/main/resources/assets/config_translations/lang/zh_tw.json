@@ -92,6 +92,7 @@
   "text.autoconfig.starrailexpress.option.itemSkinSyncServerPort": "物品皮膚同步資料庫端口（僅服務端）",
   "text.autoconfig.starrailexpress.option.itemSkinSyncServerKey": "物品皮膚同步資料庫密鑰（僅服務端）",
   "text.autoconfig.starrailexpress.option.itemSkinSyncServerEnabled": "啟用物品皮膚同步功能（僅服務端）",
+  "text.autoconfig.starrailexpress.option.afkDeathEnabled": "啟用掛機死亡/踢出功能",
   "text.autoconfig.starrailexpress.option.afkThresholdSeconds": "掛機臨界時間",
   "text.autoconfig.starrailexpress.option.afkDeathSeconds": "掛機死亡時間",
   "text.autoconfig.starrailexpress.option.afkWarningSeconds": "掛機警告時間",
