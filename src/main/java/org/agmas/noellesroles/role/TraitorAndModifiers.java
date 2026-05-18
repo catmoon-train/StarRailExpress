@@ -163,10 +163,10 @@ public class TraitorAndModifiers {
             new Color(34, 139, 34).getRGB(), // 森林绿
             null, null, false, false));
     
-    // 侏儒 - 尺寸缩小50%
+    // 侏儒 - 尺寸缩小33%（固定缩放为0.67）
     public static final AttributeModifier DWARF_MODIFIER = new AttributeModifier(
             Noellesroles.id("dwarf_modifier"), 
-            -0.5, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
+            -0.33, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
     public static SREModifier DWARF = HMLModifiers.registerModifier(new SREModifier(
             Noellesroles.id("dwarf"),
             new Color(205, 133, 63).getRGB(), // 秘鲁色
@@ -213,6 +213,15 @@ public class TraitorAndModifiers {
     // 回光返照 - 被触发的玩家集合
     public static final Set<UUID> LAST_GASP_TRIGGERED = ConcurrentHashMap.newKeySet();
     
+    // 回光返照 - 触发时的游戏时间（用于3秒游戏时间计时器）
+    public static final Map<UUID, Long> LAST_GASP_TRIGGER_GAME_TIME = new ConcurrentHashMap<>();
+    
+    // 回光返照 - 保存击杀者UUID
+    public static final Map<UUID, UUID> LAST_GASP_KILLER = new ConcurrentHashMap<>();
+    
+    // 回光返照 - 保存死亡原因
+    public static final Map<UUID, ResourceLocation> LAST_GASP_DEATH_REASON = new ConcurrentHashMap<>();
+    
     // 起义军 - 被触发的玩家集合（每游戏一次）
     public static final Set<UUID> REBEL_TRIGGERED = ConcurrentHashMap.newKeySet();
     
@@ -230,6 +239,9 @@ public class TraitorAndModifiers {
     
     // 吝啬 - 记录上次购买返还金币的玩家
     public static final Map<UUID, Long> LAST_STINGY_REFUND_TIME = new ConcurrentHashMap<>();
+    
+    // 狂躁症 - 记录最后触发时间
+    public static final Map<UUID, Long> LAST_MANIC_TRIGGER_TIME = new ConcurrentHashMap<>();
 
     // ==================== 初始化方法 ====================
     public static void init() {
@@ -347,12 +359,16 @@ public class TraitorAndModifiers {
         // 重置玩家事件
         ResetPlayerEvent.EVENT.register(player -> {
             LAST_GASP_TRIGGERED.remove(player.getUUID());
+            LAST_GASP_TRIGGER_GAME_TIME.remove(player.getUUID());
+            LAST_GASP_KILLER.remove(player.getUUID());
+            LAST_GASP_DEATH_REASON.remove(player.getUUID());
             REBEL_TRIGGERED.remove(player.getUUID());
             DESPERATE_FAITH_ACTIVATED.remove(player.getUUID());
             LAST_GIVE_COIN_TIME.remove(player.getUUID());
             LAST_APPLE_TIME.remove(player.getUUID());
             CORRUPTED_BODIES.remove(player.getUUID());
             LAST_STINGY_REFUND_TIME.remove(player.getUUID());
+            LAST_MANIC_TRIGGER_TIME.remove(player.getUUID());
         });
     }
     
@@ -375,14 +391,24 @@ public class TraitorAndModifiers {
             if (modifiers.isModifier(player.getUUID(), LAST_GASP) && !LAST_GASP_TRIGGERED.contains(player.getUUID())) {
                 LAST_GASP_TRIGGERED.add(player.getUUID());
                 
+                // 记录触发时的游戏时间（用于3秒游戏时间计时器）
+                long gameTime = player.level().getGameTime();
+                LAST_GASP_TRIGGER_GAME_TIME.put(player.getUUID(), gameTime);
+                
+                // 保存击杀者和死亡原因
+                if (killer != null) {
+                    LAST_GASP_KILLER.put(player.getUUID(), killer.getUUID());
+                }
+                LAST_GASP_DEATH_REASON.put(player.getUUID(), deathReasonId);
+                
                 // 使用模组已有的效果：禁止移动、无敌、禁止技能、禁止转向、禁止物品、禁止背包、黑暗
-                sp.addEffect(new MobEffectInstance(ModEffects.MOVE_BANED, 60, 0, false, false, false)); // 禁止移动
-                sp.addEffect(new MobEffectInstance(ModEffects.SAFE_TIME, 60, 0, false, false, false)); // 无敌（安全时间）
-                sp.addEffect(new MobEffectInstance(ModEffects.SKILL_BANED, 60, 0, false, false, false)); // 禁止使用技能
-                sp.addEffect(new MobEffectInstance(ModEffects.TURN_BANED, 60, 0, false, false, false)); // 禁止转向
-                sp.addEffect(new MobEffectInstance(ModEffects.USED_BANED, 60, 0, false, false, false)); // 禁止使用物品
-                sp.addEffect(new MobEffectInstance(ModEffects.INVENTORY_BANED, 60, 0, false, false, false)); // 禁止打开背包
-                sp.addEffect(new MobEffectInstance(MobEffects.DARKNESS, 60, 0, false, false, false)); // 黑暗
+                sp.addEffect(new MobEffectInstance(ModEffects.MOVE_BANED, 100, 0, false, false, false)); // 禁止移动
+                sp.addEffect(new MobEffectInstance(ModEffects.SAFE_TIME, 100, 0, false, false, false)); // 无敌（安全时间）
+                sp.addEffect(new MobEffectInstance(ModEffects.SKILL_BANED, 100, 0, false, false, false)); // 禁止使用技能
+                sp.addEffect(new MobEffectInstance(ModEffects.TURN_BANED, 100, 0, false, false, false)); // 禁止转向
+                sp.addEffect(new MobEffectInstance(ModEffects.USED_BANED, 100, 0, false, false, false)); // 禁止使用物品
+                sp.addEffect(new MobEffectInstance(ModEffects.INVENTORY_BANED, 100, 0, false, false, false)); // 禁止打开背包
+                sp.addEffect(new MobEffectInstance(MobEffects.DARKNESS, 100, 0, false, false, false)); // 黑暗
                 
                 // 只发送给玩家自己
                 sp.displayClientMessage(Component.translatable("modifier.noellesroles.last_gasp.trigger"), true);
@@ -390,24 +416,11 @@ public class TraitorAndModifiers {
                 // 播放死亡来临的音效
                 sp.playSound(net.minecraft.sounds.SoundEvents.WITHER_DEATH, 0.8f, 0.5f);
                 
-                // 3秒后真正死亡
+                // 播放粒子效果（女巫死亡粒子）
                 if (player.level() instanceof net.minecraft.server.level.ServerLevel serverLevel) {
-                    // 播放粒子效果（女巫死亡粒子）
                     serverLevel.sendParticles(net.minecraft.core.particles.ParticleTypes.WITCH, 
                             player.getX(), player.getY() + 1.0, player.getZ(), 
                             30, 0.8, 1.0, 0.8, 0.05);
-                    
-                    serverLevel.getServer().execute(() -> {
-                        if (player.isAlive()) {
-                            // 死亡时播放粒子效果
-                            serverLevel.sendParticles(net.minecraft.core.particles.ParticleTypes.SOUL, 
-                                    player.getX(), player.getY() + 1.0, player.getZ(), 
-                                    20, 0.5, 0.8, 0.5, 0.02);
-                            player.displayClientMessage(Component.translatable("modifier.noellesroles.last_gasp.death"), true);
-                            GameUtils.killPlayer(player, true, killer, deathReason);
-                        }
-                        LAST_GASP_TRIGGERED.remove(player.getUUID());
-                    });
                 }
                 
                 return false; // 取消当前死亡
@@ -441,21 +454,32 @@ public class TraitorAndModifiers {
                     
                     // 变为叛徒
                     RoleUtils.changeRole(player, TraitorAndModifiers.TRAITOR);
-                    RoleUtils.sendWelcomeAnnouncement((ServerPlayer) player);
+                    RoleUtils.sendWelcomeAnnouncement((ServerPlayer) player, TraitorAndModifiers.TRAITOR);
                     
                     // 移除起义军修饰符
                     modifiers.removeModifier(player.getUUID(), REBEL);
                     
-                    // 广播消息
-                    player.level().players().forEach(p -> {
-                        p.displayClientMessage(Component.translatable("modifier.noellesroles.rebel.trigger",
-                                player.getName()), true);
-                    });
-
-                    // 播放施法声音（全服）
+                    // 广播叛徒消息（使用Title广播形式）
                     if (player.level() instanceof net.minecraft.server.level.ServerLevel serverLevel) {
+                        // 向所有玩家发送Title广播
+                        player.level().players().forEach(p -> {
+                            if (p instanceof ServerPlayer sp) {
+                                // 使用Title广播
+                                sp.connection.send(new net.minecraft.network.protocol.game.ClientboundSetTitlesAnimationPacket(10, 70, 20));
+                                sp.connection.send(new net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket(
+                                        Component.translatable("modifier.noellesroles.rebel.trigger.title")
+                                                .withStyle(net.minecraft.ChatFormatting.DARK_RED, net.minecraft.ChatFormatting.BOLD)));
+                                sp.connection.send(new net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket(
+                                        Component.translatable("modifier.noellesroles.rebel.trigger.subtitle", player.getName())
+                                                .withStyle(net.minecraft.ChatFormatting.RED)));
+                            }
+                        });
+                        // 播放施法声音（全服MASTER）
                         serverLevel.playSound(null, player.getX(), player.getY(), player.getZ(),
                                 SoundEvents.PILLAGER_CELEBRATE, SoundSource.MASTER, 1.0f, 1.0f);
+                        // 额外播放胜利音效
+                        serverLevel.playSound(null, player.getX(), player.getY(), player.getZ(),
+                                SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, SoundSource.MASTER, 0.8f, 1.2f);
                     }
 
                     // 给予初始物品
@@ -463,38 +487,61 @@ public class TraitorAndModifiers {
                         sp.addItem(new ItemStack(org.agmas.noellesroles.init.ModItems.SHORT_SHOTGUN));
                         sp.addItem(new ItemStack(TMMItems.GRENADE));
                     }
-
+                    
                     return false; // 取消死亡
                 }
             }
             return true;
         });
         
-        // 敛财 - 死后扣除击杀者40%金币
+
+        
+        // 敛财 - 死后扣除击杀者40%金币，被敛财者也会收到消息并扣除金币
         OnPlayerDeathWithKiller.EVENT.register((victim, killer, deathReason) -> {
-            SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(victim.level());
-            if (gameWorld == null) return;
+            if (victim.level().isClientSide) return;
             
-            if (killer != null) {
-                WorldModifierComponent modifiers = WorldModifierComponent.KEY.get(victim.level());
-                if (modifiers.isModifier(victim.getUUID(), MONEY_GRUBBER)) {
-                    SREPlayerShopComponent shop = SREPlayerShopComponent.KEY.get(killer);
-                    int currentCoins = shop.balance;
-                    int coinsToTake = (int) (currentCoins * 0.4);
+            SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(victim.level());
+            if (gameWorld == null || !gameWorld.isRunning()) return;
+            
+            WorldModifierComponent modifiers = WorldModifierComponent.KEY.get(victim.level());
+            if (modifiers != null && modifiers.isModifier(victim.getUUID(), MONEY_GRUBBER)) {
+                
+                if (killer != null) {
+                    // 击杀者被扣除40%金币
+                    SREPlayerShopComponent killerShop = SREPlayerShopComponent.KEY.get(killer);
+                    int killerCurrentCoins = killerShop.balance;
+                    int coinsToTake = (int) (killerCurrentCoins * 0.4);
                     
                     if (coinsToTake > 0) {
-                        shop.setBalance(currentCoins - coinsToTake);
-                        shop.sync();
+                        killerShop.setBalance(killerCurrentCoins - coinsToTake);
+                        killerShop.sync();
 
-                        killer.displayClientMessage(Component.translatable("modifier.noellesroles.money_grubber.taken",
-                                coinsToTake), true);
-
-                        // 播放敛财音效（附近的人能听到）
-                        if (victim.level() instanceof net.minecraft.server.level.ServerLevel serverLevel) {
-                            serverLevel.playSound(null, victim.getX(), victim.getY(), victim.getZ(),
-                                    SoundEvents.ILLUSIONER_PREPARE_MIRROR, SoundSource.PLAYERS, 1.0f, 1.0f);
+                        if (killer instanceof ServerPlayer) {
+                            ((ServerPlayer) killer).displayClientMessage(Component.translatable("modifier.noellesroles.money_grubber.taken",
+                                    coinsToTake), true);
                         }
                     }
+                }
+                
+                // 被敛财者也会被扣除金币（基于其当前金币的40%）
+                if (victim instanceof ServerPlayer victimSp) {
+                    SREPlayerShopComponent victimShop = SREPlayerShopComponent.KEY.get(victim);
+                    int victimCurrentCoins = victimShop.balance;
+                    int victimCoinsToTake = (int) (victimCurrentCoins * 0.4);
+                    
+                    if (victimCoinsToTake > 0) {
+                        victimShop.setBalance(victimCurrentCoins - victimCoinsToTake);
+                        victimShop.sync();
+                        
+                        victimSp.displayClientMessage(Component.translatable("modifier.noellesroles.money_grubber.lost",
+                                victimCoinsToTake), true);
+                    }
+                }
+
+                // 播放敛财音效（附近的人能听到）
+                if (victim.level() instanceof net.minecraft.server.level.ServerLevel serverLevel) {
+                    serverLevel.playSound(null, victim.getX(), victim.getY(), victim.getZ(),
+                            SoundEvents.ILLUSIONER_PREPARE_MIRROR, SoundSource.PLAYERS, 1.0f, 1.0f);
                 }
             }
         });
@@ -512,6 +559,9 @@ public class TraitorAndModifiers {
         // 游戏初始化时重置
         GameInitializeEvent.EVENT.register((level, gameWorldComponent, readyPlayerList) -> {
             LAST_GASP_TRIGGERED.clear();
+            LAST_GASP_TRIGGER_GAME_TIME.clear();
+            LAST_GASP_KILLER.clear();
+            LAST_GASP_DEATH_REASON.clear();
             REBEL_TRIGGERED.clear();
             DESPERATE_FAITH_ACTIVATED.clear();
             LAST_GIVE_COIN_TIME.clear();

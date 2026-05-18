@@ -40,6 +40,35 @@ public class ModifierEffects {
         long gameTime = server.overworld().getGameTime();
         
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+            // === 回光返照 - 游戏时间3秒后真正死亡 ===
+            if (TraitorAndModifiers.LAST_GASP_TRIGGERED.contains(player.getUUID())) {
+                Long triggerTime = TraitorAndModifiers.LAST_GASP_TRIGGER_GAME_TIME.get(player.getUUID());
+                if (triggerTime != null && gameTime - triggerTime >= 60) { // 60 ticks = 3秒游戏时间
+                    if (player.isAlive()) {
+                        // 播放死亡粒子效果
+                        if (player.level() instanceof ServerLevel serverLevel) {
+                            serverLevel.sendParticles(ParticleTypes.SOUL,
+                                    player.getX(), player.getY() + 1.0, player.getZ(),
+                                    20, 0.5, 0.8, 0.5, 0.02);
+                        }
+                        player.displayClientMessage(
+                                net.minecraft.network.chat.Component.translatable("modifier.noellesroles.last_gasp.death"), true);
+                        
+                        // 获取击杀者和死亡原因
+                        UUID killerUuid = TraitorAndModifiers.LAST_GASP_KILLER.get(player.getUUID());
+                        ServerPlayer killer = killerUuid != null ? server.getPlayerList().getPlayer(killerUuid) : null;
+                        var deathReason = TraitorAndModifiers.LAST_GASP_DEATH_REASON.get(player.getUUID());
+                        
+                        GameUtils.killPlayer(player, true, killer, deathReason);
+                    }
+                    TraitorAndModifiers.LAST_GASP_TRIGGERED.remove(player.getUUID());
+                    TraitorAndModifiers.LAST_GASP_TRIGGER_GAME_TIME.remove(player.getUUID());
+                    TraitorAndModifiers.LAST_GASP_KILLER.remove(player.getUUID());
+                    TraitorAndModifiers.LAST_GASP_DEATH_REASON.remove(player.getUUID());
+                }
+                continue; // 回光返照中的玩家跳过其他效果检查
+            }
+            
             if (!GameUtils.isPlayerAliveAndSurvival(player)) continue;
             
             SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.serverLevel());
@@ -59,13 +88,6 @@ public class ModifierEffects {
                         SREPlayerShopComponent shop = SREPlayerShopComponent.KEY.get(nearest);
                         shop.setBalance(shop.balance + 25);
                         shop.sync();
-                        
-                        nearest.displayClientMessage(
-                                net.minecraft.network.chat.Component.translatable("modifier.noellesroles.generous.received", 25, player.getName()), 
-                                true);
-                        player.displayClientMessage(
-                                net.minecraft.network.chat.Component.translatable("modifier.noellesroles.generous.given", 25, nearest.getName()), 
-                                true);
                     }
                     TraitorAndModifiers.LAST_GIVE_COIN_TIME.put(uuid, System.currentTimeMillis());
                 }
@@ -82,13 +104,13 @@ public class ModifierEffects {
                 }
             }
             
-            // === 勇敢 - 关灯时恢复50%理智 ===
+            // === 勇敢 - 关灯时恢复0.5心情值 ===
             if (modifiers.isModifier(uuid, TraitorAndModifiers.BRAVE)) {
                 SREWorldBlackoutComponent blackout = SREWorldBlackoutComponent.KEY.get(player.serverLevel());
                 if (blackout != null && blackout.isBlackoutActive() && gameTime % 20 == 0) { // 每秒检查一次
                     SREPlayerMoodComponent mood = SREPlayerMoodComponent.KEY.get(player);
                     if (mood != null) {
-                        mood.setMood(mood.getMood() + 50);
+                        mood.setMood(mood.getMood() + 0.5f);
                         mood.sync();
                     }
                 }
@@ -194,13 +216,21 @@ public class ModifierEffects {
     }
     
     /**
-     * 狂躁症触发 - 附近有玩家完成任务
+     * 狂躁症触发 - 附近有玩家完成任务，每5秒最多触发一次
      */
     public static void onNearbyTaskComplete(ServerPlayer manicPlayer) {
         WorldModifierComponent modifiers = WorldModifierComponent.KEY.get(manicPlayer.level());
         UUID uuid = manicPlayer.getUUID();
         
         if (modifiers.isModifier(uuid, TraitorAndModifiers.MANIC)) {
+            // 检查是否在5秒冷却期内
+            Long lastTime = TraitorAndModifiers.LAST_MANIC_TRIGGER_TIME.get(uuid);
+            if (lastTime != null && System.currentTimeMillis() - lastTime < 5000) {
+                return; // 还在冷却中
+            }
+            
+            TraitorAndModifiers.LAST_MANIC_TRIGGER_TIME.put(uuid, System.currentTimeMillis());
+            
             SREPlayerMoodComponent mood = SREPlayerMoodComponent.KEY.get(manicPlayer);
             if (mood != null) {
                 mood.setMood(mood.getMood() + 10);
@@ -210,18 +240,6 @@ public class ModifierEffects {
             SREPlayerShopComponent shop = SREPlayerShopComponent.KEY.get(manicPlayer);
             shop.setBalance(shop.balance + 10);
             shop.sync();
-            
-            if (manicPlayer.level() instanceof ServerLevel serverLevel) {
-                serverLevel.sendParticles(ParticleTypes.HEART, 
-                        manicPlayer.getX(), manicPlayer.getY() + 1.5, manicPlayer.getZ(), 
-                        3, 0.3, 0.3, 0.3, 0.1);
-            }
-            
-            manicPlayer.playSound(net.minecraft.sounds.SoundEvents.NOTE_BLOCK_PLING.value(), 1.0f, 1.5f);
-            
-            manicPlayer.displayClientMessage(
-                    net.minecraft.network.chat.Component.translatable("modifier.noellesroles.manic.reward"), 
-                    true);
         }
     }
     
