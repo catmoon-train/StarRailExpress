@@ -83,7 +83,7 @@ public class ModifierEffects {
                 if (lastTime == null) {
                     TraitorAndModifiers.LAST_GIVE_COIN_TIME.put(uuid, System.currentTimeMillis());
                 } else if (System.currentTimeMillis() - lastTime >= 90 * 1000L) {
-                    ServerPlayer nearest = findNearestPlayer(player, 100);
+                    ServerPlayer nearest = findNearestPlayer(player, 6);
                     if (nearest != null && nearest != player) {
                         SREPlayerShopComponent shop = SREPlayerShopComponent.KEY.get(nearest);
                         shop.setBalance(shop.balance + 25);
