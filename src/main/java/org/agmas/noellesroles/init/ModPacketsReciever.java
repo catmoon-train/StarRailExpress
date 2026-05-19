@@ -960,8 +960,6 @@ public class ModPacketsReciever {
 
     // 葬仪造尸包处理
     ServerPlayNetworking.registerGlobalReceiver(ModPackets.MORTICIAN_CREATE_BODY_PACKET, (payload, context) -> {
-      if (context.player().hasEffect(ModEffects.SAFE_TIME))
-        return;
       ServerPlayer player = context.player();
       SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
 
@@ -973,10 +971,17 @@ public class ModPacketsReciever {
         MorticianPlayerComponent morticianComponent = MorticianPlayerComponent.KEY.get(player);
         if (morticianComponent == null) return;
         
-        // 检查冷却
-        if (morticianComponent.cooldown > 0) {
+        // 安全时间内也进入冷却
+        if (context.player().hasEffect(ModEffects.SAFE_TIME)) {
+          morticianComponent.bodyCreationCooldown = MorticianPlayerComponent.BODY_CREATION_COOLDOWN;
+          morticianComponent.sync();
+          return;
+        }
+        
+        // 检查造尸冷却
+        if (!morticianComponent.canCreateBody()) {
           player.displayClientMessage(
-              Component.translatable("message.noellesroles.mortician.cooldown", (morticianComponent.cooldown + 19) / 20)
+              Component.translatable("message.noellesroles.mortician.cooldown", (morticianComponent.bodyCreationCooldown + 19) / 20)
                   .withStyle(ChatFormatting.RED),
               true);
           return;
@@ -992,12 +997,8 @@ public class ModPacketsReciever {
           return;
         }
 
-        // 创建尸体
-        if (morticianComponent.createBody((ServerPlayer) targetPlayer, payload.deathReason(), payload.roleId())) {
-          // 设置冷却为120秒
-          morticianComponent.cooldown = 120 * 20;
-          morticianComponent.sync();
-        }
+        // 创建尸体（冷却在createBody内部设置）
+        morticianComponent.createBody((ServerPlayer) targetPlayer, payload.deathReason());
       }
     });
   }

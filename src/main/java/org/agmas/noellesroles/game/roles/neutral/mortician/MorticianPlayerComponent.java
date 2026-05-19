@@ -52,7 +52,7 @@ public class MorticianPlayerComponent extends SREAbilityPlayerComponent {
     /** 组件键 */
     public static final org.ladysnake.cca.api.v3.component.ComponentKey<MorticianPlayerComponent> KEY =
             org.ladysnake.cca.api.v3.component.ComponentRegistry.getOrCreate(
-                    ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "mortician"),
+                    ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "mortician_bodymaker"),
                     MorticianPlayerComponent.class);
 
     // 技能冷却时间
@@ -71,6 +71,10 @@ public class MorticianPlayerComponent extends SREAbilityPlayerComponent {
     /** 技能冷却 */
     public int cooldown = 0;
 
+    /** 造尸冷却（独立于技能冷却） */
+    public int bodyCreationCooldown = 0;
+    public static final int BODY_CREATION_COOLDOWN = 120 * 20; // 造尸冷却120秒
+
     /** 当前模式：0=曳柩, 1=丧钟, 2=清洗 */
     public int currentMode = 0;
 
@@ -82,6 +86,7 @@ public class MorticianPlayerComponent extends SREAbilityPlayerComponent {
 
     public MorticianPlayerComponent(Player player) {
         super(player);
+        this.player = player;
     }
 
     @Override
@@ -92,6 +97,7 @@ public class MorticianPlayerComponent extends SREAbilityPlayerComponent {
     @Override
     public void init() {
         this.cooldown = 0;
+        this.bodyCreationCooldown = 0;
         this.currentMode = 0;
         this.draggedBodyUuid = null;
         this.draggedBody = null;
@@ -110,7 +116,7 @@ public class MorticianPlayerComponent extends SREAbilityPlayerComponent {
 
     @Override
     public int getCooldown() {
-        return cooldown;
+        return Math.max(cooldown, bodyCreationCooldown);
     }
 
     @Override
@@ -120,9 +126,14 @@ public class MorticianPlayerComponent extends SREAbilityPlayerComponent {
     }
 
     /**
-     * 切换技能模式（蹲下按技能键）- 不受冷却影响
+     * 切换技能模式（蹲下按技能键）
+     * 拖动尸体时不允许切换
      */
     public void toggleMode() {
+        if (this.draggedBody != null && this.draggedBody.isAlive()) {
+            return;
+        }
+
         this.currentMode = (this.currentMode + 1) % 3;
 
         if (player instanceof ServerPlayer serverPlayer) {
@@ -246,7 +257,7 @@ public class MorticianPlayerComponent extends SREAbilityPlayerComponent {
 
         // 播放钟敲响的音效
         serverPlayer.serverLevel().playSound(null, serverPlayer.getX(), serverPlayer.getY(), serverPlayer.getZ(),
-                SoundEvents.BELL_USE, SoundSource.PLAYERS, 2.0f, 0.8f);
+                SoundEvents.BELL_BLOCK, SoundSource.PLAYERS, 2.0f, 0.8f);
 
         // 对范围内所有玩家施加缓慢效果（相当于减少体力）
         int affected = 0;
@@ -356,24 +367,33 @@ public class MorticianPlayerComponent extends SREAbilityPlayerComponent {
     }
 
     /**
+     * 检查造尸是否可用
+     */
+    public boolean canCreateBody() {
+        return this.bodyCreationCooldown <= 0;
+    }
+
+    /**
      * 创建尸体（尸匠能力）
      * @param target 目标玩家
      * @param deathReason 死亡原因ID
-     * @param roleId 角色ID（可选，为空时使用默认角色）
      */
-    public boolean createBody(ServerPlayer target, String deathReason, String roleId) {
+    public boolean createBody(ServerPlayer target, String deathReason) {
         if (!(player instanceof ServerPlayer serverPlayer)) {
             return false;
         }
 
+        // 检查造尸冷却
+        if (this.bodyCreationCooldown > 0) {
+            return false;
+        }
+
         try {
-            // 直接使用 TMMEntities 创建 PlayerBodyEntity
             PlayerBodyEntity playerBody = TMMEntities.PLAYER_BODY.create(serverPlayer.level());
 
             if (playerBody != null) {
                 playerBody.setPlayerUuid(target.getUUID());
 
-                // 计算生成位置：玩家前方1格
                 Vec3 forward = serverPlayer.getViewVector(1.0f).scale(1);
                 Vec3 spawnPos = serverPlayer.position().add(forward);
                 playerBody.moveTo(spawnPos.x, serverPlayer.getY(), spawnPos.z,
@@ -384,38 +404,27 @@ public class MorticianPlayerComponent extends SREAbilityPlayerComponent {
                 playerBody.yBodyRotO = serverPlayer.getYRot();
                 playerBody.setXRot(0f);
 
-                // 获取 PlayerBodyEntityComponent 并设置属性
                 PlayerBodyEntityComponent bodyComponent = PlayerBodyEntityComponent.KEY.get(playerBody);
 
-                // 设置死亡原因
                 ResourceLocation deathReasonLoc = deathReason != null && !deathReason.isEmpty()
                     ? ResourceLocation.parse(deathReason)
-                    : ResourceLocation.fromNamespaceAndPath("noellesroles", "mortician_body");
+                    : ResourceLocation.fromNamespaceAndPath("noellesroles", "mortician_bodymaker");
                 bodyComponent.setDeathReason(deathReasonLoc.toString(), true);
 
-                // 设置角色
-                ResourceLocation roleLoc = roleId != null && !roleId.isEmpty()
-                    ? ResourceLocation.parse(roleId)
-                    : ModRoles.MORTICIAN_BODYMAKER.identifier();
-                bodyComponent.playerRole = roleLoc;
-
-                // 设置为葬仪伪造的尸体 - 这是关键标志！
+                bodyComponent.playerRole = ModRoles.MORTICIAN_BODYMAKER.identifier();
                 bodyComponent.isFakeBody = true;
 
-                // 同步组件
                 bodyComponent.sync();
-
-                // 生成实体到世界
                 serverPlayer.level().addFreshEntity(playerBody);
 
-                // 播放音效 - 向所有玩家播放骨骼转化音效
+                // 进入造尸冷却
+                this.bodyCreationCooldown = BODY_CREATION_COOLDOWN;
+                this.sync();
+
                 serverPlayer.serverLevel().players().forEach(p -> {
                     serverPlayer.serverLevel().playSound(null, p.getX(), p.getY(), p.getZ(),
                         SoundEvents.SKELETON_CONVERTED_TO_STRAY, SoundSource.PLAYERS, 1.0f, 1.0f);
                 });
-
-                Noellesroles.LOGGER.info("[Mortician] Created fake body with isFakeBody=true, deathReason={}, role={}",
-                    deathReasonLoc, roleLoc);
 
                 return true;
             }
@@ -432,6 +441,12 @@ public class MorticianPlayerComponent extends SREAbilityPlayerComponent {
     public void serverTick() {
         var gwc = SREGameWorldComponent.KEY.get(player.level());
         if (!gwc.isRole(player, ModRoles.MORTICIAN_BODYMAKER)) {
+            // 不再是葬仪角色，强制解除拖动状态
+            if (this.draggedBody != null) {
+                this.draggedBody = null;
+                this.draggedBodyUuid = null;
+                this.sync();
+            }
             return;
         }
 
@@ -439,7 +454,14 @@ public class MorticianPlayerComponent extends SREAbilityPlayerComponent {
             return;
         }
 
-        // 减少冷却
+        // 玩家死亡时自动解除拖动
+        if (!player.isAlive() && this.draggedBody != null) {
+            this.draggedBody = null;
+            this.draggedBodyUuid = null;
+            this.sync();
+        }
+
+        // 减少技能冷却
         if (this.cooldown > 0) {
             this.cooldown--;
             if (this.cooldown % 60 == 0 || this.cooldown == 0) {
@@ -447,9 +469,16 @@ public class MorticianPlayerComponent extends SREAbilityPlayerComponent {
             }
         }
 
+        // 减少造尸冷却
+        if (this.bodyCreationCooldown > 0) {
+            this.bodyCreationCooldown--;
+            if (this.bodyCreationCooldown % 60 == 0 || this.bodyCreationCooldown == 0) {
+                this.sync();
+            }
+        }
+
         // 更新拖动的尸体位置
         if (this.draggedBody != null && this.draggedBody.isAlive()) {
-            // 将尸体移动到玩家位置
             Vec3 playerPos = player.position();
             this.draggedBody.setPos(playerPos.x, playerPos.y, playerPos.z);
             this.draggedBody.setYRot(player.getYRot());
@@ -468,6 +497,9 @@ public class MorticianPlayerComponent extends SREAbilityPlayerComponent {
         if (this.cooldown > 1) {
             this.cooldown--;
         }
+        if (this.bodyCreationCooldown > 1) {
+            this.bodyCreationCooldown--;
+        }
     }
 
     public void sync() {
@@ -477,6 +509,7 @@ public class MorticianPlayerComponent extends SREAbilityPlayerComponent {
     @Override
     public void writeToSyncNbt(@NotNull CompoundTag tag, @NotNull HolderLookup.Provider registryLookup) {
         tag.putInt("Cooldown", this.cooldown);
+        tag.putInt("BodyCreationCooldown", this.bodyCreationCooldown);
         tag.putInt("CurrentMode", this.currentMode);
         if (this.draggedBodyUuid != null) {
             tag.putUUID("DraggedBodyUuid", this.draggedBodyUuid);
@@ -486,10 +519,10 @@ public class MorticianPlayerComponent extends SREAbilityPlayerComponent {
     @Override
     public void readFromSyncNbt(@NotNull CompoundTag tag, @NotNull HolderLookup.Provider registryLookup) {
         this.cooldown = tag.getInt("Cooldown");
+        this.bodyCreationCooldown = tag.getInt("BodyCreationCooldown");
         this.currentMode = tag.getInt("CurrentMode");
         if (tag.contains("DraggedBodyUuid")) {
             this.draggedBodyUuid = tag.getUUID("DraggedBodyUuid");
-            // 尝试获取尸体实体
             if (player.level() != null) {
                 List<PlayerBodyEntity> bodies = player.level().getEntitiesOfClass(PlayerBodyEntity.class,
                         new AABB(player.getX() - 5, player.getY() - 5, player.getZ() - 5,

@@ -2655,6 +2655,7 @@
   "hud.mortician_bodymaker.mode.clean": "Cleanse",
   "hud.mortician_bodymaker.ready": "Press %s to use skill",
   "hud.mortician_bodymaker.cooldown": "Cooldown, %s seconds remaining",
+  "hud.mortician_bodymaker.create_cooldown": "Body creation cooldown, %s seconds remaining",
   "hud.mortician_bodymaker.dragging": "Currently dragging body, cannot switch skills",
   "death_reason.noellesroles.mortician_bodymaker": "Body Maker Creation"
 }

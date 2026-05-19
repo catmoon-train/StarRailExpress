@@ -32,10 +32,9 @@ import java.util.UUID;
 
 /**
  * 葬仪物品栏屏幕Mixin
- * 在物品栏界面显示三阶段选择流程：
+ * 在物品栏界面显示两阶段选择流程：
  * 1. 选择目标玩家
  * 2. 选择死亡原因
- * 3. 输入要伪造的角色（可选）
  */
 @Mixin(LimitedInventoryScreen.class)
 public abstract class BodymakerScreenMixin extends LimitedHandledScreen<InventoryMenu> implements MorticianScreenCallback {
@@ -44,13 +43,10 @@ public abstract class BodymakerScreenMixin extends LimitedHandledScreen<Inventor
     public LocalPlayer player;
     
     @Unique
-    private int selectedLevel = 0; // 0=选择玩家, 1=选择死亡原因, 2=输入角色名
-    
+    private int selectedLevel = 0; // 0=选择玩家, 1=选择死亡原因
+
     @Unique
     private UUID selectedPlayerUuid = null;
-    
-    @Unique
-    private String selectedDeathReason = null;
 
     public BodymakerScreenMixin(@NotNull InventoryMenu handler, @NotNull Inventory inventory, @NotNull Component title) {
         super(handler, inventory, title);
@@ -71,11 +67,6 @@ public abstract class BodymakerScreenMixin extends LimitedHandledScreen<Inventor
         
         MorticianPlayerComponent component = ModComponents.MORTICIAN_BODYMAKER.get(client.player);
         if (component == null) return;
-        
-        // 只有在冷却为0时才显示
-        if (component.cooldown > 0) {
-            return;
-        }
         
         int apart = 36;
         int shouldBeY = (this.height - 32) / 2;
@@ -112,20 +103,10 @@ public abstract class BodymakerScreenMixin extends LimitedHandledScreen<Inventor
                 String deathReasonId = DeathReasonHelper.getDeathReasonId(deathReasons[i]);
                 BodymakerDeathReasonWidget widget = new BodymakerDeathReasonWidget(
                         (LimitedInventoryScreen) (Object) this,
-                        x + apart * i, y, deathReasons[i], deathReasonId, selectedPlayerUuid, this
+                        x + apart * i, y, deathReasons[i], deathReasonId, selectedPlayerUuid
                 );
                 addRenderableWidget(widget);
             }
-        }
-        else if (selectedLevel == 2) {
-            // 阶段3：输入角色名
-            int x = this.width / 2 - 100;
-            BodymakerRoleWidget widget = new BodymakerRoleWidget(
-                    (LimitedInventoryScreen) (Object) this,
-                    this.font, x, y, selectedPlayerUuid, selectedDeathReason
-            );
-            addRenderableWidget(widget);
-            widget.setFocused(true);
         }
     }
 
@@ -141,9 +122,6 @@ public abstract class BodymakerScreenMixin extends LimitedHandledScreen<Inventor
     @Unique
     @Override
     public void setSelectedDeathReason(@NotNull String deathReason) {
-        this.selectedDeathReason = deathReason;
-        this.selectedLevel = 2;
-        clearWidgets();
-        init();
+        // 已不再需要，删除阶段3后此回调可移除
     }
 }

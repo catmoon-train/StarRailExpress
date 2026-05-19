@@ -20,8 +20,8 @@ import org.jetbrains.annotations.NotNull;
  */
 public class BloodBottleItem extends Item {
 
-    private static final int BLOOD_PARTICLE_COUNT = 15;  // 血液粒子数量
-    private static final double BLOOD_RADIUS = 3.0;      // 血液洒落半径
+    private static final int BLOOD_PARTICLE_COUNT = 12;  // 血液粒子数量
+    private static final double BLOOD_RADIUS = 1.0;      // 血液洒落半径（更集中）
 
     public BloodBottleItem(Properties properties) {
         super(properties);

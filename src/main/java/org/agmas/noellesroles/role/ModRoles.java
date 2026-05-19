@@ -1068,7 +1068,7 @@ public class ModRoles {
      * 商店：乘务员钥匙(100金币)、裹尸袋(150金币)、血瓶(75金币)
      */
     public static SRERole MORTICIAN_BODYMAKER = TMMRoles
-            .registerRole(new NormalRole(MORTICIAN_BODYMAKER_ID, new Color(50, 50, 50).getRGB(), false,
+            .registerRole(new NormalRole(MORTICIAN_BODYMAKER_ID, new Color(180, 160, 220).getRGB(), false,
                     false, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true))
             .setComponentKey(ModComponents.MORTICIAN_BODYMAKER)
             .setNeutralForKiller(true)
