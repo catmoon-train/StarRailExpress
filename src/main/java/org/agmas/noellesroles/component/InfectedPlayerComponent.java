@@ -9,6 +9,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.Noellesroles;
@@ -190,11 +191,11 @@ public class InfectedPlayerComponent implements RoleComponent, ServerTickingComp
         // 增加感染时间
         this.infectedTicks++;
         
-        // 播放咳嗽音效（每20tick有几率触发，或快死前10秒）
+        // 播放咳嗽音效（每20tick有几率触发，或快死前10秒）- 附近所有人都能听到
         if ((this.infectedTicks % 20 == 0 && this.player.getRandom().nextInt(100) < 5) || 
             this.infectedTicks == INFECTED_KILL_TIME - 200) {
             this.player.level().playSound(null, this.player.getX(), this.player.getY(), this.player.getZ(),
-                NRSounds.INFECTED_COUGH, SoundSource.MASTER, 1f, 
+                NRSounds.INFECTED_COUGH, SoundSource.PLAYERS, 1.5f, 
                 1f + (this.player.getRandom().nextInt(5) - 2) * 0.1f);
         }
         
@@ -202,10 +203,13 @@ public class InfectedPlayerComponent implements RoleComponent, ServerTickingComp
         if (this.infectedTicks >= INFECTED_KILL_TIME) {
             // 检查是否可以致死
             if (canDieFromInfection(this.player)) {
-                Player killer = this.infector != null ? 
+                Player killer = this.infector != null ?
                     player.level().getPlayerByUUID(this.infector) : null;
                 GameUtils.killPlayer(this.player, true, killer, INFECTION_DEATH_REASON);
-                
+
+                // 清除感染状态，防止玩家复活后再次触发死亡
+                this.cure();
+
                 // 重置疫使的技能冷却
                 if (killer != null) {
                     SREAbilityPlayerComponent abilityComponent = SREAbilityPlayerComponent.KEY.get(killer);
@@ -254,9 +258,9 @@ public class InfectedPlayerComponent implements RoleComponent, ServerTickingComp
                         targetComponent.infect(infectorPlayer);
                         spreadCount++;
                         
-                        // 播放咳嗽音效
+                        // 播放熊猫打喷嚏音效 - 表示病毒传播
                         nearby.level().playSound(null, nearby.getX(), nearby.getY(), nearby.getZ(),
-                            NRSounds.INFECTED_COUGH, SoundSource.MASTER, 0.8f, 1f);
+                            SoundEvents.PANDA_SNEEZE, SoundSource.PLAYERS, 0.8f, 1f);
                         
                         if (spreadCount >= MAX_SPREAD_COUNT) {
                             break;

@@ -60,9 +60,9 @@ public class InfectedAbilityHandler {
         abilityComponent.cooldown = GameConstants.getInTicks(1, 20); // 80秒冷却
         abilityComponent.sync();
         
-        // 播放感染音效
+        // 播放注射器刺入音效 - 附近所有人都能听到
         player.serverLevel().playSound(null, player.getX(), player.getY(), player.getZ(),
-            NRSounds.INFECTED_INFECT, SoundSource.MASTER, 1f, 1f);
+            NRSounds.SYRINGE_STAB, SoundSource.PLAYERS, 0.5f, 0.5f);
         
         return true;
     }

@@ -104,7 +104,7 @@ public class AlchemistBuffPotionItem extends Item {
 
         notifyTarget(targetPlayer, appliedEffect);
 
-        target.playSound(NRSounds.ITEM_SYRINGE_STAB, 0.4F, 1.0F);
+        target.playSound(NRSounds.SYRINGE_STAB, 0.4F, 1.0F);
         final var blockPos = target.blockPosition();
         ((ServerLevel) world).playLocalSound(blockPos.getX(), blockPos.getY(), blockPos.getZ(),
                 SoundEvents.BREWING_STAND_BREW, SoundSource.PLAYERS, 1.4F, 1.0F, false);

@@ -35,7 +35,7 @@ public record ToxinUsePayload(int target) implements CustomPacketPayload {
             if (var5 instanceof Player target) {
                 if (!((double)target.distanceTo(player) > (double)3.0F)) {
                     ((SREPlayerPoisonComponent)SREPlayerPoisonComponent.KEY.get(target)).setPoisonTicks(HSRConstants.toxinPoisonTime, player.getUUID());
-                    player.playSound(NRSounds.ITEM_SYRINGE_STAB, 0.15F, 1.0F);
+                    player.playSound(NRSounds.SYRINGE_STAB, 0.15F, 1.0F);
                     player.swing(InteractionHand.MAIN_HAND);
                     if (!player.isCreative()) {
                         player.getMainHandItem().shrink(1);

@@ -59,11 +59,10 @@ public class AntidoteItem extends Item {
                             InfectedPlayerComponent infectedComponent = ModComponents.INFECTED.get(target);
                             infectedComponent.cure();
                             
-                            // 播放音效
-                            target.playSound(NRSounds.ITEM_SYRINGE_STAB, 0.4F, 1.0F);
+                            // 播放音效 - 附近所有人都能听到
                             final var blockPos = target.blockPosition();
-                            ((ServerLevel) world).playLocalSound(blockPos.getX(), blockPos.getY(), blockPos.getZ(), 
-                                SoundEvents.BREWING_STAND_BREW, SoundSource.PLAYERS, 1.4F, 1.0F, false);
+                            ((ServerLevel) world).playSound(null, blockPos.getX(), blockPos.getY(), blockPos.getZ(), 
+                                NRSounds.SYRINGE_STAB, SoundSource.PLAYERS, 1.0F, 1.0F);
                             player.swing(InteractionHand.MAIN_HAND);
                             if (!player.isCreative()) {
                                 player.getCooldowns().addCooldown(ModItems.ANTIDOTE, 

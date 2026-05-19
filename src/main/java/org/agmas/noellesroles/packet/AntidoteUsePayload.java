@@ -34,7 +34,7 @@ public record AntidoteUsePayload(int target) implements CustomPacketPayload {
             if (var5 instanceof Player target) {
                 if (!((double)target.distanceTo(player) > (double)3.0F)) {
                     ((SREPlayerPoisonComponent)SREPlayerPoisonComponent.KEY.get(target)).init();
-                    target.playSound(NRSounds.ITEM_SYRINGE_STAB, 0.4F, 1.0F);
+                    target.playSound(NRSounds.SYRINGE_STAB, 0.4F, 1.0F);
                     player.swing(InteractionHand.MAIN_HAND);
                     if (!player.isCreative()) {
                         player.getCooldowns().addCooldown(ModItems.ANTIDOTE, (Integer) ModItems.ITEM_COOLDOWNS.get(ModItems.ANTIDOTE));

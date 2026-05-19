@@ -45,6 +45,7 @@ import org.agmas.noellesroles.game.roles.killer.water_ghost.WaterGhostPlayerComp
 import org.agmas.noellesroles.game.roles.neutral.candlebearer.CandleBearerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.mercenary.MercenaryPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role.TraitorAndModifiers;
 import org.agmas.noellesroles.role.RedHouseRoles;
 import org.agmas.noellesroles.utils.MCItemsUtils;
 import org.agmas.noellesroles.utils.RoleUtils;
@@ -1472,6 +1473,12 @@ public class RoleShopHandler {
             }
           });
       ShopContent.customEntries.put(ModRoles.WATCHER_ID, shop);
+    }
+    
+    // 叛徒商店 - 空商店，不显示默认杀手商店
+    {
+      var TRAITOR_SHOP = new ArrayList<ShopEntry>();
+      ShopContent.customEntries.put(TraitorAndModifiers.TRAITOR.identifier(), TRAITOR_SHOP);
     }
     
     // 疫使商店

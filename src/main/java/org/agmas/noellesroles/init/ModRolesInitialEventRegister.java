@@ -386,7 +386,7 @@ public class ModRolesInitialEventRegister {
             // 播放感染音效
             if (NRSounds.INFECTED_INFECT != null) {
                 player.serverLevel().playSound(null, player.getX(), player.getY(), player.getZ(),
-                    NRSounds.INFECTED_INFECT, SoundSource.MASTER, 1f, 1f);
+                    NRSounds.SYRINGE_STAB, SoundSource.MASTER, 0.5f, 0.5f);
             }
         });
     }

@@ -49,7 +49,7 @@ public class ToxinItem extends Item {
                             if (target1 instanceof Player target) {
                                 ((SREPlayerPoisonComponent) SREPlayerPoisonComponent.KEY.get(target))
                                         .setPoisonTicks(HSRConstants.toxinPoisonTime, player.getUUID());
-                                player.playSound(NRSounds.ITEM_SYRINGE_STAB, 0.15F, 1.0F);
+                                player.playSound(NRSounds.SYRINGE_STAB, 0.15F, 1.0F);
                                 player.swing(InteractionHand.MAIN_HAND);
                                 if (!player.isCreative()) {
                                     player.getMainHandItem().shrink(1);

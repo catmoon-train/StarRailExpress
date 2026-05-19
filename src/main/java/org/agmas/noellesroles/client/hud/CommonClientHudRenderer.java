@@ -558,7 +558,7 @@ public class CommonClientHudRenderer {
       context.drawString(client.font, text, x, y, color);
     });
 
-    // 疫使HUD：显示感染技能冷却
+    // 疫使HUD：显示感染技能冷却和疫使时刻状态
     RoleHudRenderCallback.EVENT.register(ModRoles.INFECTED_ID, (context, tickCounter) -> {
       Minecraft client = Minecraft.getInstance();
       if (client.player == null) {
@@ -572,6 +572,31 @@ public class CommonClientHudRenderer {
       int y = screenHeight - 20;
       Font font = client.font;
 
+      // 疫使时刻状态显示
+      Component infectedTimeText;
+      int infectedTimeColor;
+      try {
+        // 尝试获取加速状态
+        java.lang.reflect.Method isAcceleratedMethod = 
+            org.agmas.noellesroles.game.roles.neutral.infected.InfectedWinChecker.class.getMethod("isAccelerated");
+        boolean isAccelerated = (boolean) isAcceleratedMethod.invoke(null);
+        if (isAccelerated) {
+          infectedTimeText = Component.translatable("gui.noellesroles.infected.time.unlocked")
+              .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD);
+          infectedTimeColor = 0xFFD700;
+        } else {
+          infectedTimeText = Component.translatable("gui.noellesroles.infected.time.locked")
+              .withStyle(ChatFormatting.GRAY);
+          infectedTimeColor = 0x888888;
+        }
+      } catch (Exception e) {
+        infectedTimeText = Component.translatable("gui.noellesroles.infected.time.locked")
+            .withStyle(ChatFormatting.GRAY);
+        infectedTimeColor = 0x888888;
+      }
+      context.drawString(font, infectedTimeText, x - font.width(infectedTimeText), y - font.lineHeight - 2, infectedTimeColor);
+
+      // 技能冷却显示
       Component cooldownText;
       int cooldownColor;
       if (abilityComponent.cooldown > 0) {
