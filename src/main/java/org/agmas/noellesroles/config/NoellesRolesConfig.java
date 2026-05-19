@@ -167,6 +167,11 @@ public class NoellesRolesConfig implements ConfigData {
     public int minPlayerForMagician = 16;
 
     /**
+     * 迷失杀手刷新概率（%）
+     */
+    public int chanceOfLostKiller = 20;
+
+    /**
      * 监察员刷新概率（%）
      */
     public int chanceOfMonitor = 75;

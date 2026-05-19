@@ -231,6 +231,7 @@ public class ModRoles {
     public static final ResourceLocation CLEANER_ID = Noellesroles.id("cleaner");
     public static final ResourceLocation TRAPPER_ID = Noellesroles.id("trapper");
     public static final ResourceLocation BOMBER_ID = Noellesroles.id("bomber");
+    public static final ResourceLocation LOST_KILLER_ID = Noellesroles.id("lost_killer");
     public static final ResourceLocation MANIPULATOR_ID = Noellesroles.id("manipulator");
     public static final ResourceLocation BANDIT_ID = Noellesroles.id("bandit");
     public static final ResourceLocation BLOOD_FEUDIST_ID = Noellesroles.id("blood_feudist");
@@ -1463,6 +1464,29 @@ public class ModRoles {
             true // 隐藏计分板
     ).setComponentKey(BomberPlayerComponent.KEY));
 
+    /**
+     * 迷失杀手角色 - 杀手阵营
+     * - 杀手阵营 (isInnocent = false, canUseKiller = true)
+     * - 默认杀手商店
+     * - 与魔术师互斥生成
+     * - 不占用杀手位 (setOccupiedRoleCount(0))
+     * - 没有杀手透视 (setCanUseInstinct(false))
+     * - 杀手本能透视你时框与平民一致，看不到杀手同伙和职业信息 (setCanSeeTeammateKiller(false))
+     * - 开局自带一把左轮手枪
+     */
+    public static SRERole LOST_KILLER = TMMRoles.registerRole(new NormalRole(
+            LOST_KILLER_ID, // 角色 ID
+            new Color(180, 30, 45).getRGB(), // 暗红色 - 独特的迷失感
+            false, // isInnocent = 非乘客阵营
+            true, // canUseKiller = 有杀手能力（默认杀手商店）
+            SRERole.MoodType.FAKE, // 假心情
+            Integer.MAX_VALUE, // 无限冲刺时间
+            false // 隐藏计分板
+    )).setOccupiedRoleCount(0)         // 不占用杀手位
+            .setCanUseInstinct(false)         // 没有杀手透视
+            .setCanSeeTeammateKiller(false)
+            .setMax(1);  // 杀手本能看不到队友，对杀手的框显示如平民
+
     // 中立阵营角色
     /**
      * 跟踪者角色
@@ -1987,6 +2011,9 @@ public class ModRoles {
         
         // 设置疫使与毒师互斥
         ModRoles.INFECTED.addTwoWayOpposingJobs(ModRoles.POISONER);
+        
+        // 设置迷失杀手与魔术师互斥
+        ModRoles.LOST_KILLER.addTwoWayOpposingJobs(ModRoles.MAGICIAN);
         
         // 初始化叛徒职业和新修饰符
         TraitorAndModifiers.init();

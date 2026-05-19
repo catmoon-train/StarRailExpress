@@ -186,6 +186,11 @@ public class RoleInitialItems {
         mercenaryItems.add(() -> TMMItems.REVOLVER.getDefaultInstance());
         INITIAL_ITEMS_MAP.put(ModRoles.MERCENARY, mercenaryItems);
 
+        // 迷失杀手初始物品 - 左轮手枪
+        List<Supplier<ItemStack>> lostKillerItems = new ArrayList<>();
+        lostKillerItems.add(() -> TMMItems.REVOLVER.getDefaultInstance());
+        INITIAL_ITEMS_MAP.put(ModRoles.LOST_KILLER, lostKillerItems);
+
         // 特警初始物品
         List<Supplier<ItemStack>> swastItems = new ArrayList<>();
         swastItems.add(() -> TMMItems.SNIPER_RIFLE.getDefaultInstance());

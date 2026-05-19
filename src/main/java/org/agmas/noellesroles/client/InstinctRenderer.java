@@ -894,6 +894,9 @@ public class InstinctRenderer {
                     if (RoleUtils.compareRole(target_role, ModRoles.JESTER)) {
                         return (Color.PINK.getRGB());
                     }
+                    if (RoleUtils.compareRole(target_role, ModRoles.LOST_KILLER)) {
+                        return TMMRoles.CIVILIAN.color();
+                    }
                     if (RoleUtils.compareRole(target_role, ModRoles.SLIPPERY_GHOST)) {
                         return -2;
                     }

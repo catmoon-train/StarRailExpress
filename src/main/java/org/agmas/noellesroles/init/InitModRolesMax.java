@@ -191,6 +191,9 @@ public class InitModRolesMax {
         // 魔术师
         Harpymodloader.setRoleMaximum(ModRoles.MAGICIAN_ID, 1);
 
+        // 迷失杀手 - 由动态概率控制
+        Harpymodloader.setRoleMaximum(ModRoles.LOST_KILLER_ID, 0);
+
         // 强盗
         Harpymodloader.setRoleMaximum(ModRoles.BANDIT_ID, 1);
         Harpymodloader.setRoleMaximum(ModRoles.DIO_ID, 0);
@@ -380,6 +383,13 @@ public class InitModRolesMax {
                 Harpymodloader.setRoleMaximum(ModRoles.MAGICIAN_ID, 1);
             } else {
                 Harpymodloader.setRoleMaximum(ModRoles.MAGICIAN_ID, 0);
+            }
+
+            // 迷失杀手 - 从配置读取概率
+            if (random.nextInt(0, 100) <= config.chanceOfLostKiller) {
+                Harpymodloader.setRoleMaximum(ModRoles.LOST_KILLER_ID, 1);
+            } else {
+                Harpymodloader.setRoleMaximum(ModRoles.LOST_KILLER_ID, 0);
             }
 
             // 死灵法师数量 - 从配置读取最小玩家数和概率
