@@ -712,6 +712,8 @@
   "item.noellesroles.decoy_grenade.tooltip": "Throw, plays 5 revolver shot sounds on impact, confusing enemies",
   "item.noellesroles.purify_bomb": "Purify Bomb",
   "item.noellesroles.purify_bomb.tooltip": "Throw, cancels poison status for players within 3 blocks on impact",
+  "item.noellesroles.blood_bottle": "Blood Bottle",
+  "item.noellesroles.blood_bottle.tooltip": "Right-click to spill blood nearby",
   "item.noellesroles.screwdriver": "Screwdriver",
   "item.noellesroles.screwdriver.tooltip": "Right-click door to repair\nCrouch + right-click door to remove items (e.g., Lock, Alarm)",
   "item.noellesroles.reinforcement": "Reinforcement",

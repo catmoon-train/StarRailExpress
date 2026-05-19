@@ -368,6 +368,15 @@ public class ModItems {
             "purify_bomb");
 
     /**
+     * 血瓶
+     * - 右键使用后在附近洒落血液
+     * - 使用后消失
+     */
+    public static final Item BLOOD_BOTTLE = register(
+            new BloodBottleItem(new Item.Properties().stacksTo(16)),
+            "blood_bottle");
+
+    /**
      * 闪光弹
      * - 可投掷物品
      * - 右键投掷，落地时使半径6格内有闪光弹的玩家获得试炼之兆效果（WEAVING）3秒

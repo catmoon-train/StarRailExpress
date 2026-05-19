@@ -724,6 +724,8 @@
   "item.noellesroles.decoy_grenade.tooltip": "投擲，落地時播放5聲左輪手槍射擊聲，迷惑敵人",
   "item.noellesroles.purify_bomb": "淨化彈",
   "item.noellesroles.purify_bomb.tooltip": "投擲，落地時取消半徑3格內玩家的中毒狀態",
+  "item.noellesroles.blood_bottle": "血瓶",
+  "item.noellesroles.blood_bottle.tooltip": "右鍵使用，在附近灑落血液",
   "item.noellesroles.screwdriver": "螺絲刀",
   "item.noellesroles.screwdriver.tooltip": "右鍵門修復門\n蹲下右鍵門可拆下門上道具（如鎖、警報等）",
   "item.noellesroles.reinforcement": "維修工具",

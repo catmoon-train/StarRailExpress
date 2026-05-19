@@ -9,7 +9,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
 import org.agmas.noellesroles.init.HSRConstants;
-import org.agmas.noellesroles.init.ModComponents;
+import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.component.InfectedPlayerComponent;
 import org.jetbrains.annotations.NotNull;
