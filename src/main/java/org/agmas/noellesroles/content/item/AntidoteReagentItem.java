@@ -18,8 +18,9 @@ import org.agmas.noellesroles.component.ModComponents;
 
 /**
  * 解毒试剂
- * - 检测玩家是否中毒或感染
- * - 治愈中毒和感染玩家
+ * - 检测玩家是否中毒、感染或两者兼有
+ * - 给予医生对应提示
+ * - 不会损坏（不减少物品）
  */
 public class AntidoteReagentItem extends Item {
     public AntidoteReagentItem(Properties properties) {
@@ -47,28 +48,30 @@ public class AntidoteReagentItem extends Item {
                         boolean isPoisoned = poisonComponent.poisonTicks > 0;
                         boolean isInfected = infectedComponent.infectedTicks > 0;
 
-                        if (isPoisoned || isInfected) {
+                        if (isPoisoned && isInfected) {
+                            // 两者兼有
                             player.displayClientMessage(Component.translatable(
-                                    "message.noellesroles.antidote_reagent.poisoned", target.getName()), true);
-                            
-                            // 治愈中毒
-                            if (isPoisoned) {
-                                poisonComponent.init();
-                                poisonComponent.sync();
-                            }
-                            
-                            // 治愈感染
-                            if (isInfected) {
-                                infectedComponent.cure();
-                            }
+                                    "message.noellesroles.antidote_reagent.both", target.getName()), true);
+                            poisonComponent.init();
+                            poisonComponent.sync();
+                            infectedComponent.cure();
+                        } else if (isPoisoned) {
+                            // 只有中毒
+                            player.displayClientMessage(Component.translatable(
+                                    "message.noellesroles.antidote_reagent.poisoned_only", target.getName()), true);
+                            poisonComponent.init();
+                            poisonComponent.sync();
+                        } else if (isInfected) {
+                            // 只有感染
+                            player.displayClientMessage(Component.translatable(
+                                    "message.noellesroles.antidote_reagent.infected_only", target.getName()), true);
+                            infectedComponent.cure();
                         } else {
+                            // 安全
                             player.displayClientMessage(Component.translatable(
                                     "message.noellesroles.antidote_reagent.safe", target.getName()), true);
                         }
-
-                        if (!player.isCreative()) {
-                            stack.shrink(1);
-                        }
+                        // 不会损坏（不减少物品数量）
                     }
                 }
             }

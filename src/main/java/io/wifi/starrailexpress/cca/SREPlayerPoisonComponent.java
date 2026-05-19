@@ -20,6 +20,8 @@ import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 import java.util.ArrayList;
 import java.util.UUID;
 
+import org.agmas.noellesroles.component.InfectedPlayerComponent;
+
 public class SREPlayerPoisonComponent implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
     public static final ComponentKey<SREPlayerPoisonComponent> KEY = ComponentRegistry.getOrCreate(SRE.id("poison"),
             SREPlayerPoisonComponent.class);
@@ -152,6 +154,12 @@ public class SREPlayerPoisonComponent implements RoleComponent, ServerTickingCom
                         GameConstants.DeathReasons.POISON);
                 this.poisoner = null;
                 this.sync();
+                
+                // 清除感染状态（中毒致死时清除感染）
+                InfectedPlayerComponent infectedComponent = org.agmas.noellesroles.component.ModComponents.INFECTED.get(this.player);
+                if (infectedComponent.infectedTicks > 0) {
+                    infectedComponent.cure();
+                }
             }
         }
     }

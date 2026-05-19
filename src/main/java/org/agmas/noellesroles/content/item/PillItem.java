@@ -9,7 +9,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
 import org.agmas.noellesroles.init.HSRConstants;
+import org.agmas.noellesroles.init.ModComponents;
 import org.agmas.noellesroles.init.ModItems;
+import org.agmas.noellesroles.component.InfectedPlayerComponent;
 import org.jetbrains.annotations.NotNull;
 
 public class PillItem extends Item {
@@ -31,6 +33,9 @@ public class PillItem extends Item {
                 SREPlayerPoisonComponent.KEY.get(player).setPoisonTicks(HSRConstants.toxinPoisonTime, player.getUUID());
             } else {
                 SREPlayerPoisonComponent.KEY.get(player).init();
+                // 治愈感染
+                InfectedPlayerComponent infectedComponent = ModComponents.INFECTED.get(player);
+                infectedComponent.cure();
             }
         }
         return result;

@@ -1042,7 +1042,8 @@ public class ModRoles {
             .setCanUseInstinct(true)
             .setOccupiedRoleCount(1)
             .setCanSeeCoin(true)
-            .setMax(1);
+            .setMax(1)
+            .setCanBeRandomedByOtherRoles(false);
 
     public static SRERole SPELLBREAKER = TMMRoles
             .registerRole(new NormalRole(SPELLBREAKER_ID, (new Color(132, 46, 170)).getRGB(), false,

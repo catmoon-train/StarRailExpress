@@ -209,6 +209,14 @@ public class InfectedPlayerComponent implements RoleComponent, ServerTickingComp
 
                 // 清除感染状态，防止玩家复活后再次触发死亡
                 this.cure();
+                
+                // 清除中毒状态（感染致死时不清除中毒会导致问题）
+                io.wifi.starrailexpress.cca.SREPlayerPoisonComponent poisonComponent = 
+                    io.wifi.starrailexpress.cca.SREPlayerPoisonComponent.KEY.get(this.player);
+                if (poisonComponent.poisonTicks > 0) {
+                    poisonComponent.init();
+                    poisonComponent.sync();
+                }
 
                 // 重置疫使的技能冷却
                 if (killer != null) {
