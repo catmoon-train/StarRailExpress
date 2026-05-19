@@ -66,6 +66,7 @@ import net.minecraft.world.phys.Vec3;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.client.blood.BloodMain;
+import org.agmas.noellesroles.client.blood.particle.BloodParticle;
 import org.agmas.noellesroles.client.commands.SREClientCommand;
 import org.agmas.noellesroles.client.event.MutableComponentResult;
 import org.agmas.noellesroles.client.event.OnMessageBelowMoneyRenderer;
@@ -453,6 +454,9 @@ public class NoellesrolesClient implements ClientModInitializer {
             bloodMain.enabled = payload.enabled();
             LoggerFactory.getLogger(this.getClass())
                     .info("Blood Particle status: " + (bloodMain.enabled ? "Enabled" : "Disabled"));
+        });
+        ClientPlayNetworking.registerGlobalReceiver(ClearBloodParticlesS2CPacket.ID, (payload, context) -> {
+            context.client().execute(() -> BloodParticle.clearParticles());
         });
         ClientPlayNetworking.registerGlobalReceiver(NameTagSyncPayload.ID, (payload, context) -> {
             RoleNameRenderer.displayTags.putAll(payload.nametags());

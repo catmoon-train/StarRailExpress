@@ -8,8 +8,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.PlayerFaceRenderer;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.multiplayer.PlayerInfo;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
 import org.agmas.noellesroles.client.widget.MorticianScreenCallback;
 
 import java.util.UUID;
@@ -34,7 +33,7 @@ public class BodymakerPlayerWidget extends Button {
     public BodymakerPlayerWidget(@NotNull LimitedInventoryScreen screen, int x, int y, 
                                  @NotNull UUID targetUUID, @NotNull PlayerInfo targetPlayerInfo, 
                                  @NotNull MorticianScreenCallback callback) {
-        super(x, y, 16, 16, targetPlayerInfo.getProfile().getName(), (button) -> {
+        super(x, y, 16, 16, Component.nullToEmpty(targetPlayerInfo.getProfile().getName()), (button) -> {
             if (Minecraft.getInstance().player == null) return;
             
             // 检查葬仪是否有冷却
@@ -62,10 +61,10 @@ public class BodymakerPlayerWidget extends Button {
         if (component.cooldown <= 0) {
             // 可以使用技能 - 正常显示
             context.blitSprite(ShopEntry.Type.POISON.getTexture(), this.getX() - 7, this.getY() - 7, 30, 30);
-            PlayerFaceRenderer.draw(context, targetPlayerInfo.getSkinTextures().texture(), this.getX(), this.getY(), 16);
+            PlayerFaceRenderer.draw(context, targetPlayerInfo.getSkin().texture(), this.getX(), this.getY(), 16);
             if (this.isHovered()) {
                 this.drawShopSlotHighlight(context, this.getX(), this.getY());
-                context.renderTooltip(Minecraft.getInstance().font, targetPlayerInfo.getProfile().getName(), 
+                context.renderTooltip(Minecraft.getInstance().font, Component.nullToEmpty(targetPlayerInfo.getProfile().getName()), 
                     this.getX() - 4 - Minecraft.getInstance().font.width(targetPlayerInfo.getProfile().getName()) / 2, 
                     this.getY() - 9);
             }
@@ -73,10 +72,10 @@ public class BodymakerPlayerWidget extends Button {
             // 冷却中 - 显示灰色
             context.setColor(0.25f, 0.25f, 0.25f, 0.5f);
             context.blitSprite(ShopEntry.Type.POISON.getTexture(), this.getX() - 7, this.getY() - 7, 30, 30);
-            PlayerFaceRenderer.draw(context, targetPlayerInfo.getSkinTextures().texture(), this.getX(), this.getY(), 16);
+            PlayerFaceRenderer.draw(context, targetPlayerInfo.getSkin().texture(), this.getX(), this.getY(), 16);
             if (this.isHovered()) {
                 this.drawShopSlotHighlight(context, this.getX(), this.getY());
-                context.renderTooltip(Minecraft.getInstance().font, targetPlayerInfo.getProfile().getName(), 
+                context.renderTooltip(Minecraft.getInstance().font, Component.nullToEmpty(targetPlayerInfo.getProfile().getName()), 
                     this.getX() - 4 - Minecraft.getInstance().font.width(targetPlayerInfo.getProfile().getName()) / 2, 
                     this.getY() - 9);
             }
@@ -87,9 +86,9 @@ public class BodymakerPlayerWidget extends Button {
     }
 
     private void drawShopSlotHighlight(@NotNull GuiGraphics context, int x, int y) {
-        int color = -1862287543;
-        context.fillGradient(RenderType.guiOverlay(), x, y, x + 16, y + 14, color, color, 0);
-        context.fillGradient(RenderType.guiOverlay(), x, y + 14, x + 15, y + 15, color, color, 0);
-        context.fillGradient(RenderType.guiOverlay(), x, y + 15, x + 14, y + 16, color, color, 0);
+        int color = 0x80000000;
+        context.fillGradient(net.minecraft.client.renderer.RenderType.guiOverlay(), x, y, x + 16, y + 14, color, color, 0);
+        context.fillGradient(net.minecraft.client.renderer.RenderType.guiOverlay(), x, y + 14, x + 15, y + 15, color, color, 0);
+        context.fillGradient(net.minecraft.client.renderer.RenderType.guiOverlay(), x, y + 15, x + 14, y + 16, color, color, 0);
     }
 }

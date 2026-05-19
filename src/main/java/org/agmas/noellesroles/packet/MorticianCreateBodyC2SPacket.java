@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.packet;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteCodecs;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
@@ -13,11 +13,12 @@ public class MorticianCreateBodyC2SPacket implements CustomPacketPayload {
 
     public static final Type<MorticianCreateBodyC2SPacket> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "mortician_create_body"));
     public static final StreamCodec<RegistryFriendlyByteBuf, MorticianCreateBodyC2SPacket> CODEC = StreamCodec.composite(
-            ByteCodecs.UUID,
+            (buf, uuid) -> buf.writeLong(uuid.getMostSignificantBits()).writeLong(uuid.getLeastSignificantBits()),
+            buf -> new java.util.UUID(buf.readLong(), buf.readLong()),
             MorticianCreateBodyC2SPacket::targetUuid,
-            ByteCodecs.STRING_UTF8,
+            ByteBufCodecs.STRING_UTF8,
             MorticianCreateBodyC2SPacket::deathReason,
-            ByteCodecs.STRING_UTF8,
+            ByteBufCodecs.STRING_UTF8,
             MorticianCreateBodyC2SPacket::roleId,
             MorticianCreateBodyC2SPacket::new
     );

@@ -6,7 +6,6 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.render.RenderType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
@@ -46,7 +45,7 @@ public class BodymakerDeathReasonWidget extends Button {
             } else {
                 // 直接发送创建尸体包（不指定角色）
                 ClientPlayNetworking.send(new MorticianCreateBodyC2SPacket(targetPlayerUuid, deathReasonId, ""));
-                screen.close();
+                screen.onClose();
             }
         }, DEFAULT_NARRATION);
         this.screen = screen;
@@ -70,9 +69,9 @@ public class BodymakerDeathReasonWidget extends Button {
     }
 
     private void drawShopSlotHighlight(@NotNull GuiGraphics context, int x, int y) {
-        int color = -1862287543;
-        context.fillGradient(RenderType.guiOverlay(), x, y, x + 16, y + 14, color, color, 0);
-        context.fillGradient(RenderType.guiOverlay(), x, y + 14, x + 15, y + 15, color, color, 0);
-        context.fillGradient(RenderType.guiOverlay(), x, y + 15, x + 14, y + 16, color, color, 0);
+        int color = 0x80000000;
+        context.fillGradient(net.minecraft.client.renderer.RenderType.guiOverlay(), x, y, x + 16, y + 14, color, color, 0);
+        context.fillGradient(net.minecraft.client.renderer.RenderType.guiOverlay(), x, y + 14, x + 15, y + 15, color, color, 0);
+        context.fillGradient(net.minecraft.client.renderer.RenderType.guiOverlay(), x, y + 15, x + 14, y + 16, color, color, 0);
     }
 }

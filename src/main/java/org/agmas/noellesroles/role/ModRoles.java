@@ -79,7 +79,6 @@ import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerCompon
 import org.agmas.noellesroles.game.roles.neutral.recorder.RecorderPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.thief.ThiefPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.vulture.VulturePlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.mortician.MorticianPlayerComponent;
 import org.agmas.noellesroles.game.roles.special.better_vigilante.BetterVigilantePlayerComponent;
 import org.agmas.noellesroles.game.roles.vigilante.patroller.PatrollerPlayerComponent;
 import org.agmas.noellesroles.utils.RandomColorUtil;

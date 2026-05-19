@@ -1231,7 +1231,7 @@ public class ModEventsRegister {
                 if (!gameWorldComponent.isRole(player, ModRoles.MORTICIAN_BODYMAKER))
                     continue;
                 if (player instanceof ServerPlayer sp) {
-                    player.displayClientMessage(deathMessage.withStyle(ChatFormatting.DARK_GRAY), true);
+                    player.displayClientMessage(deathMessage.copy().withStyle(style -> style.withColor(ChatFormatting.DARK_GRAY)), true);
                 }
             }
         });

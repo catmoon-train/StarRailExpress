@@ -2,6 +2,7 @@ package org.agmas.noellesroles.game.roles.neutral.mortician;
 
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.cca.PlayerBodyEntityComponent;
+import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
@@ -11,6 +12,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -21,7 +23,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import org.agmas.noellesroles.Noellesroles;
+import org.agmas.noellesroles.packet.ClearBloodParticlesS2CPacket;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
@@ -43,7 +47,7 @@ import java.util.UUID;
  *
  * 被动-引渡：杀手/杀手方中立/魔术师死亡时广播
  */
-public class MorticianPlayerComponent implements RoleComponent, io.wifi.starrailexpress.cca.SREAbilityPlayerComponent {
+public class MorticianPlayerComponent extends SREAbilityPlayerComponent {
 
     /** 组件键 */
     public static final org.ladysnake.cca.api.v3.component.ComponentKey<MorticianPlayerComponent> KEY =
@@ -77,7 +81,7 @@ public class MorticianPlayerComponent implements RoleComponent, io.wifi.starrail
     private transient PlayerBodyEntity draggedBody = null;
 
     public MorticianPlayerComponent(Player player) {
-        this.player = player;
+        super(player);
     }
 
     @Override
@@ -149,6 +153,7 @@ public class MorticianPlayerComponent implements RoleComponent, io.wifi.starrail
     /**
      * 使用当前技能
      */
+    @Override
     public boolean useAbility() {
         if (!(player instanceof ServerPlayer serverPlayer)) {
             return false;
@@ -217,7 +222,8 @@ public class MorticianPlayerComponent implements RoleComponent, io.wifi.starrail
         }
 
         // 播放穿上盔甲的音效
-        serverPlayer.playSound(SoundEvents.ARMOR_EQUIP_IRON, SoundSource.PLAYERS, 1.0f, 1.0f);
+        serverPlayer.serverLevel().playSound(null, serverPlayer.getX(), serverPlayer.getY(), serverPlayer.getZ(),
+                SoundEvents.ARMOR_EQUIP_IRON, SoundSource.PLAYERS, 1.0f, 1.0f);
 
         // 开始拖动尸体
         this.draggedBody = targetBody;
@@ -239,7 +245,8 @@ public class MorticianPlayerComponent implements RoleComponent, io.wifi.starrail
         double range = FUNERAL_RANGE;
 
         // 播放钟敲响的音效
-        serverPlayer.playSound(SoundEvents.BELL_USE, SoundSource.PLAYERS, 2.0f, 0.8f);
+        serverPlayer.serverLevel().playSound(null, serverPlayer.getX(), serverPlayer.getY(), serverPlayer.getZ(),
+                SoundEvents.BELL_USE, SoundSource.PLAYERS, 2.0f, 0.8f);
 
         // 对范围内所有玩家施加缓慢效果（相当于减少体力）
         int affected = 0;
@@ -307,18 +314,13 @@ public class MorticianPlayerComponent implements RoleComponent, io.wifi.starrail
      * 清除玩家周围的血液效果
      */
     private void clearBloodNearPlayer(ServerPlayer serverPlayer, double range) {
-        try {
-            // 尝试调用血液mod的API
-            if (net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("blood")) {
-                // 尝试找到血液清除方法
-                Class<?> bloodMainClass = Class.forName("org.agmas.noellesroles.client.blood.BloodMain");
-                Method clearMethod = bloodMainClass.getMethod("clearBloodAround", ServerPlayer.class, double.class);
-                clearMethod.invoke(null, serverPlayer, range);
-            }
-        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            // 血液mod未加载或方法不存在，尝试其他方式
-            // 播放清除音效作为反馈
-            serverPlayer.playSound(SoundEvents.GENERIC_SPLASH, SoundSource.PLAYERS, 0.5f, 1.5f);
+        // 播放清除音效作为反馈
+        serverPlayer.serverLevel().playSound(null, serverPlayer.getX(), serverPlayer.getY(), serverPlayer.getZ(),
+                SoundEvents.GENERIC_SPLASH, SoundSource.PLAYERS, 0.5f, 1.5f);
+
+        // 向所有玩家发送清除血液粒子数据包
+        for (ServerPlayer onlinePlayer : serverPlayer.serverLevel().players()) {
+            ServerPlayNetworking.send(onlinePlayer, new ClearBloodParticlesS2CPacket());
         }
     }
 
@@ -331,7 +333,7 @@ public class MorticianPlayerComponent implements RoleComponent, io.wifi.starrail
         double closestDistance = maxDistance;
 
         Vec3 eyePos = serverPlayer.getEyePosition();
-        Vec3 lookVec = serverPlayer.getLookAngle().normalize();
+        Vec3 lookVec = serverPlayer.getViewVector(1.0f);
 
         for (PlayerBodyEntity body : serverPlayer.level().getEntitiesOfClass(PlayerBodyEntity.class,
                 new AABB(eyePos.x - maxDistance, eyePos.y - maxDistance, eyePos.z - maxDistance,
@@ -339,7 +341,7 @@ public class MorticianPlayerComponent implements RoleComponent, io.wifi.starrail
 
             Vec3 bodyPos = body.position();
             Vec3 toBody = bodyPos.subtract(eyePos);
-            double dot = toBody.normalize().dotProduct(lookVec);
+            double dot = toBody.normalize().dot(lookVec);
 
             if (dot > 0.9) { // 大约25度角
                 double distance = eyePos.distanceTo(bodyPos);
@@ -369,20 +371,18 @@ public class MorticianPlayerComponent implements RoleComponent, io.wifi.starrail
             PlayerBodyEntity playerBody = TMMEntities.PLAYER_BODY.create(serverPlayer.level());
 
             if (playerBody != null) {
-                playerBody.setPlayerUuid(target.getUuid());
+                playerBody.setPlayerUuid(target.getUUID());
 
                 // 计算生成位置：玩家前方1格
-                Vec3 spawnPos = serverPlayer.getPos().add(serverPlayer.getRotationVector().normalize().multiply(1));
-                playerBody.refreshPositionAndAngles(spawnPos.x, serverPlayer.getY(), spawnPos.z,
-                        serverPlayer.getYaw(), 0f);
-                playerBody.setYaw(serverPlayer.getYaw());
-                playerBody.setHeadYaw(serverPlayer.getYaw());
-                playerBody.prevYaw = serverPlayer.getYaw();
-                playerBody.prevHeadYaw = serverPlayer.getYaw();
-                playerBody.bodyYaw = serverPlayer.getYaw();
-                playerBody.prevBodyYaw = serverPlayer.getYaw();
-                playerBody.setPitch(0f);
-                playerBody.age = 0;
+                Vec3 forward = serverPlayer.getViewVector(1.0f).scale(1);
+                Vec3 spawnPos = serverPlayer.position().add(forward);
+                playerBody.moveTo(spawnPos.x, serverPlayer.getY(), spawnPos.z,
+                        serverPlayer.getYRot(), 0f);
+                playerBody.setYRot(serverPlayer.getYRot());
+                playerBody.setYHeadRot(serverPlayer.getYRot());
+                playerBody.yBodyRot = serverPlayer.getYRot();
+                playerBody.yBodyRotO = serverPlayer.getYRot();
+                playerBody.setXRot(0f);
 
                 // 获取 PlayerBodyEntityComponent 并设置属性
                 PlayerBodyEntityComponent bodyComponent = PlayerBodyEntityComponent.KEY.get(playerBody);
@@ -408,13 +408,10 @@ public class MorticianPlayerComponent implements RoleComponent, io.wifi.starrail
                 // 生成实体到世界
                 serverPlayer.level().addFreshEntity(playerBody);
 
-                // 播放音效
-                serverPlayer.playSoundToPlayer(SoundEvents.ENTITY_SKELETON_CONVERTED_TO_STRAY, SoundSource.PLAYERS, 1.0f, 1.0f);
-
-                // 向所有玩家播放骨骼转化音效
+                // 播放音效 - 向所有玩家播放骨骼转化音效
                 serverPlayer.serverLevel().players().forEach(p -> {
                     serverPlayer.serverLevel().playSound(null, p.getX(), p.getY(), p.getZ(),
-                        SoundEvents.ENTITY_SKELETON_CONVERTED_TO_STRAY, SoundSource.PLAYERS, 1.0f, 1.0f);
+                        SoundEvents.SKELETON_CONVERTED_TO_STRAY, SoundSource.PLAYERS, 1.0f, 1.0f);
                 });
 
                 Noellesroles.LOGGER.info("[Mortician] Created fake body with isFakeBody=true, deathReason={}, role={}",
@@ -455,9 +452,9 @@ public class MorticianPlayerComponent implements RoleComponent, io.wifi.starrail
             // 将尸体移动到玩家位置
             Vec3 playerPos = player.position();
             this.draggedBody.setPos(playerPos.x, playerPos.y, playerPos.z);
-            this.draggedBody.setYaw(player.getYaw());
-            this.draggedBody.setHeadYaw(player.getYaw());
-            this.draggedBody.bodyYaw = player.getYaw();
+            this.draggedBody.setYRot(player.getYRot());
+            this.draggedBody.setYHeadRot(player.getYRot());
+            this.draggedBody.yBodyRot = player.getYRot();
         } else if (this.draggedBody != null) {
             // 尸体已消失
             this.draggedBody = null;
@@ -466,6 +463,7 @@ public class MorticianPlayerComponent implements RoleComponent, io.wifi.starrail
         }
     }
 
+    @Override
     public void clientTick() {
         if (this.cooldown > 1) {
             this.cooldown--;

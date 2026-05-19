@@ -176,6 +176,9 @@ public class ModPackets {
                 org.agmas.noellesroles.game.roles.Innocent.fool.FoolExecutionerGunShootC2SPacket.ID,
                 new org.agmas.noellesroles.game.roles.Innocent.fool.FoolExecutionerGunShootC2SPacket.Receiver());
 
+        // 注册清除血液粒子网络包
+        PayloadTypeRegistry.playS2C().register(ClearBloodParticlesS2CPacket.ID, ClearBloodParticlesS2CPacket.CODEC);
+
         // 注册启用任务透视网络包
         PayloadTypeRegistry.playS2C().register(EnableTaskHighlightPacket.ID, EnableTaskHighlightPacket.CODEC);
     }

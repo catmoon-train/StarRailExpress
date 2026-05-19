@@ -93,7 +93,7 @@ public class BodymakerRoleWidget extends EditBox {
                 }
                 // 发送创建尸体包
                 ClientPlayNetworking.send(new MorticianCreateBodyC2SPacket(targetPlayerUuid, deathReason, roleName));
-                screen.close();
+                screen.onClose();
             }
             return true;
         }
@@ -106,12 +106,6 @@ public class BodymakerRoleWidget extends EditBox {
         boolean original = super.charTyped(chr, modifiers);
         updateSuggestion();
         return original;
-    }
-
-    @Override
-    public void eraseCharacters(int characterOffset) {
-        super.eraseCharacters(characterOffset);
-        updateSuggestion();
     }
 
     private void updateSuggestion() {
@@ -154,7 +148,7 @@ public class BodymakerRoleWidget extends EditBox {
         
         // 绘制提示文本
         if (getValue().isEmpty() && !isFocused()) {
-            context.drawString(this.getValue(), 
+            context.drawString(this.font, 
                 Component.translatable("hud.bodymaker.enter_role").getString(), 
                 this.getX() + 4, this.getY() + 4, 0x808080, false);
         }

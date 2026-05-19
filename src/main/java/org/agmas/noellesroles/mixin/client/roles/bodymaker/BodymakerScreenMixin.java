@@ -3,16 +3,18 @@ package org.agmas.noellesroles.mixin.client.roles.bodymaker;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedHandledScreen;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.world.entity.player.PlayerInventory;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.client.widget.*;
 import org.agmas.noellesroles.component.ModComponents;
+import org.agmas.noellesroles.game.roles.neutral.mortician.MorticianPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.util.DeathReasonHelper;
 import org.jetbrains.annotations.NotNull;
@@ -50,16 +52,16 @@ public abstract class BodymakerScreenMixin extends LimitedHandledScreen<Inventor
     @Unique
     private String selectedDeathReason = null;
 
-    public BodymakerScreenMixin(@NotNull InventoryMenu handler, @NotNull PlayerInventory inventory, @NotNull Component title) {
+    public BodymakerScreenMixin(@NotNull InventoryMenu handler, @NotNull Inventory inventory, @NotNull Component title) {
         super(handler, inventory, title);
     }
 
     @Inject(method = "init", at = @At("HEAD"))
     void renderBodymakerWidgets(CallbackInfo ci) {
-        MinecraftClient client = MinecraftClient.getInstance();
+        Minecraft client = Minecraft.getInstance();
         if (client.player == null) return;
         
-        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(client.player.getWorld());
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(client.player.clientLevel);
         if (gameWorld == null) return;
         
         // 检查是否为葬仪角色

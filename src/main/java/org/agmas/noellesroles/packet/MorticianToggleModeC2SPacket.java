@@ -9,8 +9,9 @@ import org.agmas.noellesroles.Noellesroles;
 public class MorticianToggleModeC2SPacket implements CustomPacketPayload {
 
     public static final Type<MorticianToggleModeC2SPacket> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "mortician_toggle_mode"));
-    public static final StreamCodec<RegistryFriendlyByteBuf, MorticianToggleModeC2SPacket> CODEC = StreamCodec.composite(
-            MorticianToggleModeC2SPacket::new
+    public static final StreamCodec<RegistryFriendlyByteBuf, MorticianToggleModeC2SPacket> CODEC = StreamCodec.of(
+            (buf, packet) -> {},
+            buf -> new MorticianToggleModeC2SPacket()
     );
 
     public MorticianToggleModeC2SPacket() {

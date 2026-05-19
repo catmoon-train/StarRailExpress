@@ -1,6 +1,5 @@
 package org.agmas.noellesroles.content.item;
 
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -11,6 +10,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import org.agmas.noellesroles.client.blood.BloodMain;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -45,7 +45,7 @@ public class BloodBottleItem extends Item {
         // 使用后物品消失
         itemStack.shrink(1);
         
-        return InteractionResultHolder.consumed(itemStack);
+        return InteractionResultHolder.sidedSuccess(itemStack, level.isClientSide);
     }
 
     /**
@@ -57,13 +57,17 @@ public class BloodBottleItem extends Item {
             double offsetX = (level.random.nextDouble() - 0.5) * BLOOD_RADIUS * 2;
             double offsetY = level.random.nextDouble() * 2;
             double offsetZ = (level.random.nextDouble() - 0.5) * BLOOD_RADIUS * 2;
-            
-            // 使用血液粒子
-            level.sendParticles(ParticleTypes.BLOOD,
+
+            double velX = (level.random.nextDouble() - 0.5) * 0.2;
+            double velY = level.random.nextDouble() * 0.3;
+            double velZ = (level.random.nextDouble() - 0.5) * 0.2;
+
+            // 使用血液粒子类型
+            level.sendParticles(BloodMain.BLOOD_PARTICLE,
                     pos.x + offsetX, pos.y + offsetY, pos.z + offsetZ,
-                    0,  // 每次生成的数量
-                    0.02, 0.02, 0.02,  // 速度偏移
-                    0.05);  // 速度
+                    1,  // 每次生成的数量
+                    velX, velY, velZ,  // 速度分量
+                    0.5);  // 粒子大小
         }
     }
 }
