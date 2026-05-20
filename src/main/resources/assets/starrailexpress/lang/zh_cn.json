@@ -1653,6 +1653,7 @@
   "action_type.add_extra_task": "额外添加任务",
   "action_type.complete_custom_task": "完成自定义任务",
   "action_type.narrator": "语音播报",
+  "action_type.infect": "进入感染",
   "action_type.enable_task_highlight": "任务透视",
   "action.give_effect": "给予效果 %s (%s秒)",
   "action.teleport": "传送到传送点 #%s",

@@ -1653,6 +1653,7 @@
   "action_type.add_extra_task": "Add Extra Task",
   "action_type.complete_custom_task": "Complete Custom Task",
   "action_type.narrator": "Voice Narration",
+  "action_type.infect": "Enter Infection",
   "action_type.enable_task_highlight": "Task Highlight",
   "action.give_effect": "Give effect %s (%s seconds)",
   "action.teleport": "Teleport to teleport point #%s",
