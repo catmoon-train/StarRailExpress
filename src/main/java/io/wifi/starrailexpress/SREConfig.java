@@ -51,7 +51,7 @@ public class SREConfig implements ConfigData {
     public double hideAndSeekHiderScale = -0.25;
     @ConfigEntry.Category(value = "gamemodes")
     @Tooltip
-    public boolean hideRandomRoleInRoleRotation = false;
+    public boolean hideRandomRoleInRoleRotation = true;
     // 随机地图设置
     @ConfigEntry.Category(value = "map")
     @Tooltip
