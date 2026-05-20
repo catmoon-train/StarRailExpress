@@ -244,7 +244,6 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
                 ItemComponentUtils.setCustomDataTagIntValue(timeStopClock, TimeStopClock.TAG_COOLDOWN, 400);
 //                timeStopClock.setDamageValue(TimeStopClock.MAX_DURABILITY);
                 player.addItem(timeStopClock);
-                ItemCooldowns itemCooldownManager = player.getCooldowns();
             }
             // 强盗有狙
             else if (role == ModRoles.BANDIT) {
@@ -258,10 +257,13 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
             else if (role == TraitorAndModifiers.TRAITOR) {
                 player.addItem(new ItemStack(ModItems.BANDIT_REVOLVER));
             }
-            // 炸弹客自带2个手雷
+            // 炸弹客自带2次时停1s的机会
             else if (role == ModRoles.BOMBER) {
-                player.addItem(new ItemStack(TMMItems.GRENADE));
-                player.addItem(new ItemStack(TMMItems.GRENADE));
+                ItemStack timeStopClock = new ItemStack(ModItems.TIME_STOP_CLOCK);
+                ItemComponentUtils.setCustomDataTagIntValue(timeStopClock, TimeStopClock.TAG_STOP_TIME, 20);
+                ItemComponentUtils.setCustomDataTagIntValue(timeStopClock, TimeStopClock.TAG_COOLDOWN, 400);
+                timeStopClock.setDamageValue(TimeStopClock.MAX_DURABILITY - 2);
+                player.addItem(timeStopClock);
             }
         }
     }
