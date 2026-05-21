@@ -42,8 +42,8 @@ public class BuilderPlayerComponent implements RoleComponent, ServerTickingCompo
     /** 开局冷却时间（120秒 = 2400 tick） */
     public static final int INITIAL_COOLDOWN = 2400;
     
-    /** 建造技能冷却时间（100秒 = 2000 tick） */
-    public static final int BUILD_COOLDOWN = 2000;
+    /** 建造技能冷却时间（200秒 = 4000 tick） */
+    public static final int BUILD_COOLDOWN = 4000;
     
     /** 墙存在时间（60秒 = 1200 tick） */
     public static final int WALL_DURATION = 1200;
