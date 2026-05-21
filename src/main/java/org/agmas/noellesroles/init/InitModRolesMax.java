@@ -245,6 +245,7 @@ public class InitModRolesMax {
         Harpymodloader.setRoleMaximum(ModRoles.VULTURE_ID, NoellesRolesConfig.HANDLER.instance().vultureMax);
         Harpymodloader.setRoleMaximum(ModRoles.JESTER_ID, NoellesRolesConfig.HANDLER.instance().jesterMax);
         Harpymodloader.setRoleMaximum(ModRoles.MORPHLING_ID, NoellesRolesConfig.HANDLER.instance().morphlingMax);
+        Harpymodloader.setRoleMaximum(ModRoles.SILENCER_ID, NoellesRolesConfig.HANDLER.instance().silencerMax);
         Harpymodloader.setRoleMaximum(ModRoles.BARTENDER_ID, NoellesRolesConfig.HANDLER.instance().bartenderMax);
         Harpymodloader.setRoleMaximum(ModRoles.NOISEMAKER_ID, NoellesRolesConfig.HANDLER.instance().noisemakerMax);
         Harpymodloader.setRoleMaximum(ModRoles.PHANTOM_ID, NoellesRolesConfig.HANDLER.instance().phantomMax);
@@ -709,6 +710,9 @@ public class InitModRolesMax {
 
         // 更好的义警 - 小概率（基于10000）
         ModRoles.BEST_VIGILANTE.setEnableRareChance(config.chanceOfBestVigilante);
+
+        // 静语者 - 从配置读取概率
+        ModRoles.SILENCER.setEnableChance(config.chanceOfSilencer);
 
         // StupidExpress 角色配置
         // 失忆者

@@ -510,6 +510,8 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
         .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(GamblerPlayerComponent::new);
     registry.beginRegistration(Player.class, MorphlingPlayerComponent.KEY)
         .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(MorphlingPlayerComponent::new);
+    registry.beginRegistration(Player.class, org.agmas.noellesroles.game.roles.killer.silencer.SilencerPlayerComponent.KEY)
+        .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(org.agmas.noellesroles.game.roles.killer.silencer.SilencerPlayerComponent::new);
 
     registry.beginRegistration(Player.class, VoodooPlayerComponent.KEY)
         .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(VoodooPlayerComponent::new);

@@ -370,5 +370,7 @@
   "text.autoconfig.stupid_express.option.modifiersSection": "修饰符选项（服务端）",
   "text.autoconfig.stupid_express.option.modifiersSection.loversSection": "恋人选项",
   "text.autoconfig.stupid_express.option.modifiersSection.loversSection.loversKnowImmediately": "恋人能够知道彼此",
-  "text.autoconfig.stupid_express.option.modifiersSection.loversSection.canLoverHaveMultipleLovers": "允许恋人词条重复绑定"
+  "text.autoconfig.stupid_express.option.modifiersSection.loversSection.canLoverHaveMultipleLovers": "允许恋人词条重复绑定",
+  "text.autoconfig.noellesroles.option.silencerMax": "静语者最大数量",
+  "text.autoconfig.noellesroles.option.chanceOfSilencer": "静语者生成概率（%）"
 }

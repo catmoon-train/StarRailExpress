@@ -1255,6 +1255,13 @@ public class RicesRoleRhapsody implements ModInitializer {
             postmanComponent.init();
         }
 
+        // ==================== 静语者角色处理 ====================
+        if (role.equals(ModRoles.SILENCER)) {
+            org.agmas.noellesroles.game.roles.killer.silencer.SilencerPlayerComponent silencerComponent =
+                org.agmas.noellesroles.game.roles.killer.silencer.SilencerPlayerComponent.KEY.get(player);
+            silencerComponent.init();
+        }
+
         // ==================== 私家侦探角色处理 ====================
         if (role.equals(ModRoles.DETECTIVE)) {
             // 重置私家侦探组件

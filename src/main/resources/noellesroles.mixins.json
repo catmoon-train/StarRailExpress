@@ -104,6 +104,8 @@
     "client.roles.morphling.MorphlingRoleNameRendererMixin",
     "client.roles.morphling.MorphlingScreenMixin",
     "client.roles.morphling.SPClientTick",
+    "client.roles.silencer.SilencerScreenMixin",
+    "client.roles.silencer.SilencerHelpMixin",
     "client.roles.panda.PandaClientMixin",
     "client.roles.party.PartyKillerScreenMixin",
     "client.roles.phantom.PhantomRattatoulieMixin",

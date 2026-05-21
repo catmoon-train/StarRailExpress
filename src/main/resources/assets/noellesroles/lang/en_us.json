@@ -2668,5 +2668,17 @@
   "hud.noellesroles.mortician_bodymaker.skill_cooldown": "Skill Cooldown: %s sec",
   "hud.noellesroles.mortician_bodymaker.create_cooldown": "Body Creation Cooldown: %s sec",
   "hud.noellesroles.mortician_bodymaker.dragging": "Dragging body",
-  "death_reason.noellesroles.mortician_bodymaker": "Body Maker Creation"
+  "death_reason.noellesroles.mortician_bodymaker": "Body Maker Creation",
+  "role.noellesroles.silencer": "Silencer",
+  "role.noellesroles.silencer.goals": "Silence targets and punish those who fail to get help",
+  "role.noellesroles.silencer.introduction": "You are the Silencer. Your goal is to suppress communication. Open inventory and click a player avatar to silence them - they cannot speak or type for 45 seconds. Then enters help phase: target keeps chat ban and must find others to right-click them within 30s. If no one helps, punishment triggers: warden death sound plays globally, target's mood and stamina cleared, all Silencers gain 120 coins",
+  "hud.silencer.player_selection": "Select a target to silence",
+  "hud.silencer.ready": "Skill Ready",
+  "hud.silencer.cooldown": "Cooldown: %s sec",
+  "hud.silencer.active": "Active (%s phase, %s sec)",
+  "hud.silencer.phase1": "Silence",
+  "hud.silencer.phase2": "Help",
+  "message.noellesroles.silencer.silenced": "You have been silenced",
+  "message.noellesroles.silencer.help_phase": "Your voice silence has been lifted, find another player to right-click you to remove the aftereffect",
+  "message.noellesroles.silencer.help_success": "You have successfully lifted their silence curse"
 }

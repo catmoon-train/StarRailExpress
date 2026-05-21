@@ -302,6 +302,49 @@ public class ModPacketsReciever {
       }
     });
 
+    // 静语者技能数据包处理
+    ServerPlayNetworking.registerGlobalReceiver(SilencerC2SPacket.ID, (payload, context) -> {
+      if (context.player().hasEffect(ModEffects.SAFE_TIME))
+        return;
+      SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY
+          .get(context.player().level());
+      if (payload.targetPlayer() == null) return;
+      if (context.player().level().getPlayerByUUID(payload.targetPlayer()) == null) return;
+      if (gameWorldComponent.isRole(context.player(), ModRoles.SILENCER)) {
+        org.agmas.noellesroles.game.roles.killer.silencer.SilencerPlayerComponent silencerComponent =
+            org.agmas.noellesroles.game.roles.killer.silencer.SilencerPlayerComponent.KEY.get(context.player());
+        if (silencerComponent != null) {
+          silencerComponent.startSkill(payload.targetPlayer());
+        }
+      }
+    });
+
+    // 静语者帮助数据包处理（其他玩家右键静语者目标）
+    ServerPlayNetworking.registerGlobalReceiver(SilencerHelpC2SPacket.ID, (payload, context) -> {
+      ServerPlayer helper = context.player();
+      ServerPlayer targetPlayer = context.player().level().getServer().getPlayerList().getPlayer(payload.targetPlayer());
+      if (targetPlayer == null) return;
+      if (!GameUtils.isPlayerAliveAndSurvival(helper)) return;
+      if (!GameUtils.isPlayerAliveAndSurvival(targetPlayer)) return;
+      // Find the silencer who has targetPlayer as their target
+      targetPlayer.level().players().forEach(p -> {
+        if (p instanceof ServerPlayer sp && GameUtils.isPlayerAliveAndSurvival(sp)) {
+          SREGameWorldComponent gw = SREGameWorldComponent.KEY.get(sp.level());
+          if (gw.isRole(sp, ModRoles.SILENCER)) {
+            org.agmas.noellesroles.game.roles.killer.silencer.SilencerPlayerComponent sc =
+                org.agmas.noellesroles.game.roles.killer.silencer.SilencerPlayerComponent.KEY.get(sp);
+            if (sc != null && sc.phase == 2 && targetPlayer.getUUID().equals(sc.targetUUID)) {
+              sc.helpTarget();
+              // 提示帮助者
+              helper.displayClientMessage(
+                  Component.translatable("message.noellesroles.silencer.help_success"),
+                  true);
+            }
+          }
+        }
+      });
+    });
+
     ServerPlayNetworking.registerGlobalReceiver(NinjaAbilityC2SPacket.ID, (payload, context) -> {
       NinjaPlayerComponent comp = NinjaPlayerComponent.KEY.get(context.player());
       if (comp != null)

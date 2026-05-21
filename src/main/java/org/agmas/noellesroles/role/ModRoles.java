@@ -236,6 +236,7 @@ public class ModRoles {
     public static final ResourceLocation BANDIT_ID = Noellesroles.id("bandit");
     public static final ResourceLocation BLOOD_FEUDIST_ID = Noellesroles.id("blood_feudist");
     public static final ResourceLocation GUEST_GHOST_ID = Noellesroles.id("guest_ghost");
+    public static final ResourceLocation SILENCER_ID = Noellesroles.id("silencer");
     public static final ResourceLocation WATCHER_ID = Noellesroles.id("watcher");
     public static final ResourceLocation IMITATOR_ID = Noellesroles.id("imitator");
 
@@ -999,6 +1000,22 @@ public class ModRoles {
             .registerRole(new NormalRole(MORPHLING_ID, new Color(220, 20, 60).getRGB(), false,
                     true, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true)
                     .setComponentKey(MorphlingPlayerComponent.KEY));
+
+    /**
+     * 静语者角色 - 杀手阵营
+     * - 属于杀手阵营 (isInnocent = false, canUseKiller = true)
+     * - 假心情 (MoodType.FAKE)
+     * - 无限体力 (Integer.MAX_VALUE)
+     * - 计分板隐藏
+     * - 技能：打开技能页面点击玩家头像，使目标进入静语阶段
+     *   - 第一阶段（禁言）：45秒 voice_silence + chat_ban
+     *   - 第二阶段（求助）：30秒 chat_ban，其它玩家可右键解救
+     *   - 第三阶段（惩罚）：清空心情+体力，全体静语者+120金币
+     */
+    public static SRERole SILENCER = TMMRoles
+            .registerRole(new NormalRole(SILENCER_ID, new Color(160, 40, 100).getRGB(), false,
+                    true, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true)
+                    .setComponentKey(org.agmas.noellesroles.game.roles.killer.silencer.SilencerPlayerComponent.KEY));
 
     public static SRERole PARTY_KILLER = TMMRoles.registerRole(new NormalRole(PARTY_KILLER_ID,
             new Color(255, 105, 180).getRGB(), // 派对色

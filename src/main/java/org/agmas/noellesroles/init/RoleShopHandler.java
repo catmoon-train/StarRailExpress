@@ -823,6 +823,9 @@ public class RoleShopHandler {
       ShopContent.customEntries.put(
           ModRoles.MORPHLING_ID, entries);
     }
+    // 静语者商店：默认杀手刀具列表
+    ShopContent.customEntries.put(
+        ModRoles.SILENCER_ID, ShopContent.defaultKnifeEntries);
     ShopContent.customEntries.put(
         ModRoles.POISONER_ID, ModItems.POISONER_SHOP_ENTRIES);
 

@@ -365,5 +365,7 @@
   "text.autoconfig.stupid_express.option.modifiersSection": "Modifier Options (Server)",
   "text.autoconfig.stupid_express.option.modifiersSection.loversSection": "Lover Options",
   "text.autoconfig.stupid_express.option.modifiersSection.loversSection.loversKnowImmediately": "Lovers can know each other",
-  "text.autoconfig.stupid_express.option.modifiersSection.loversSection.canLoverHaveMultipleLovers": "Allow Lover Trait Stacking"
+  "text.autoconfig.stupid_express.option.modifiersSection.loversSection.canLoverHaveMultipleLovers": "Allow Lover Trait Stacking",
+  "text.autoconfig.noellesroles.option.silencerMax": "Silencer Maximum Count",
+  "text.autoconfig.noellesroles.option.chanceOfSilencer": "Silencer Spawn Chance (%)"
 }

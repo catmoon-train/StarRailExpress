@@ -597,6 +597,16 @@ public class NoellesRolesConfig implements ConfigData {
      */
 
     public int morphlingMax = 1;
+
+    /**
+     * 静语者最大数量
+     */
+    public int silencerMax = 1;
+
+    /**
+     * 静语者生成概率（%）
+     */
+    public int chanceOfSilencer = 60;
     /**
      * Maximum number of Bartenders allowed
      */
