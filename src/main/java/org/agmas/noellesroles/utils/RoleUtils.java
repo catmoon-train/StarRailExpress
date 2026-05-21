@@ -38,6 +38,7 @@ import org.agmas.harpymodloader.events.ModdedRoleRemoved;
 import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
 import org.agmas.harpymodloader.modifiers.SREModifier;
 import org.agmas.noellesroles.Noellesroles;
+import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -213,9 +214,14 @@ public class RoleUtils extends MCItemsUtils {
         SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY
                 .get(player.level());
         final var size = gameWorldComponent.getAllKillerPlayers().size();
+        // 魔术师是伪装成杀手的好人角色，报幕时需要将魔术师计入杀手人数
+        long magicianCount = ((ServerLevel) player.level()).players().stream()
+                .filter(p -> gameWorldComponent.isRole(p, ModRoles.MAGICIAN))
+                .count();
+        final int totalKillers = size + (int) magicianCount;
         if (identifier == null)
             return;
-        sendWelcomeAnnouncement(player, identifier, size);
+        sendWelcomeAnnouncement(player, identifier, totalKillers);
     }
 
     public static void sendWelcomeAnnouncement(ServerPlayer player, SRERole role) {

@@ -88,7 +88,7 @@ public class NoellesRolesConfig implements ConfigData {
     /**
      * 苦力怕刷新概率（%）
      */
-    public int chanceOfCreeper = 20;
+    public int chanceOfCreeper = 25;
 
     /**
      * 画家刷新概率（%）
@@ -98,7 +98,7 @@ public class NoellesRolesConfig implements ConfigData {
     /**
      * 雇佣兵刷新概率（%）
      */
-    public int chanceOfMercenary = 20;
+    public int chanceOfMercenary = 25;
 
     /**
      * 雇佣兵刷新最小玩家数

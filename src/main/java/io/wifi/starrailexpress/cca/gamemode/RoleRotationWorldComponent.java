@@ -123,11 +123,13 @@ public class RoleRotationWorldComponent implements AutoSyncedComponent {
     public void initializeRolePool(ServerLevel serverWorld, List<ServerPlayer> players) {
         rolePool.clear();
         totalPlayerCount = players.size();
-        // 人数>=15时：总人数/5，最低为6；人数<15时：总人数/3，最低为6
-        if (totalPlayerCount >= 15) {
-            finalPhaseThreshold = Math.max(6, totalPlayerCount / 5);
+        // 人数<=12时固定6, 12<人数<24时ceil(人数/2), 人数>=24时floor(人数/2+人数/7)
+        if (totalPlayerCount <= 12) {
+            finalPhaseThreshold = 6;
+        } else if (totalPlayerCount < 24) {
+            finalPhaseThreshold = (int) Math.ceil(totalPlayerCount / 2.0);
         } else {
-            finalPhaseThreshold = Math.max(2, totalPlayerCount / 3);
+            finalPhaseThreshold = (int) Math.floor(totalPlayerCount / 2.0 + totalPlayerCount / 7.0);
         }
 
         // 计算需要的杀手/警卫/中立数量
@@ -541,33 +543,84 @@ public class RoleRotationWorldComponent implements AutoSyncedComponent {
     
     /**
      * 执行职业调整阶段：把剩余池子中的杀手/中立/警长职业和特殊平民职业分配给随机平民
+     * 会根据场上已选职业数量，只补充不足的类型
      */
     public void adjustRemainingRoles(ServerLevel serverWorld) {
         // 获取剩余池子中的杀手/中立/警长职业和特殊平民职业
-        ArrayList<SRERole> remainingPriorityRoles = new ArrayList<>();
         ArrayList<SRERole> remainingPool = new ArrayList<>(rolePool);
+
+        // 按类型分类剩余优先职业
+        ArrayList<SRERole> remainingKillers = new ArrayList<>();      // type 4
+        ArrayList<SRERole> remainingVigilantes = new ArrayList<>();   // type 5
+        ArrayList<SRERole> remainingNeutrals = new ArrayList<>();     // type 2, 3
+        ArrayList<SRERole> remainingSpecialCivilians = new ArrayList<>();
 
         for (SRERole role : remainingPool) {
             int roleType = PlayerRoleWeightManager.getRoleType(role);
-            // type 4=Killer, 5=Vigilante, 2=Neutral, 3=Evil/Arson
-            if (roleType == 4 || roleType == 5 || roleType == 2 || roleType == 3) {
-                remainingPriorityRoles.add(role);
-            } else if (isSpecialCivilianRole(role)) { // 特殊平民职业也要优先替换
-                remainingPriorityRoles.add(role);
+            if (roleType == 4) {
+                remainingKillers.add(role);
+            } else if (roleType == 5) {
+                remainingVigilantes.add(role);
+            } else if (roleType == 2 || roleType == 3) {
+                remainingNeutrals.add(role);
+            } else if (isSpecialCivilianRole(role)) {
+                remainingSpecialCivilians.add(role);
             }
         }
 
-        if (remainingPriorityRoles.isEmpty()) {
+        // 统计场上已选职业的各类型数量
+        int selectedKillers = 0;
+        int selectedVigilantes = 0;
+        int selectedNeutrals = 0;
+        int selectedSpecialCivilians = 0;
+        int selectedPureCivilians = 0;
+
+        for (ServerPlayer player : serverWorld.players()) {
+            UUID uuid = player.getUUID();
+            if (selectedRoles.containsKey(uuid)) {
+                SRERole role = selectedRoles.get(uuid);
+                if (role != null) {
+                    int roleType = PlayerRoleWeightManager.getRoleType(role);
+                    if (roleType == 4) {
+                        selectedKillers++;
+                    } else if (roleType == 5) {
+                        selectedVigilantes++;
+                    } else if (roleType == 2 || roleType == 3) {
+                        selectedNeutrals++;
+                    } else if (isSpecialCivilianRole(role)) {
+                        selectedSpecialCivilians++;
+                    } else if (role.isInnocent() && !role.canUseKiller() && !role.isVigilanteTeam() && !role.isNeutrals()) {
+                        selectedPureCivilians++;
+                    }
+                }
+            }
+        }
+
+        // 计算各类型预期总量 = 已选 + 剩余池子
+        int totalKillers = selectedKillers + remainingKillers.size();
+        int totalVigilantes = selectedVigilantes + remainingVigilantes.size();
+        int totalNeutrals = selectedNeutrals + remainingNeutrals.size();
+        int totalSpecialCivilians = selectedSpecialCivilians + remainingSpecialCivilians.size();
+
+        // 只补充不足的部分
+        int neededKillers = Math.max(0, totalKillers - selectedKillers);
+        int neededVigilantes = Math.max(0, totalVigilantes - selectedVigilantes);
+        int neededNeutrals = Math.max(0, totalNeutrals - selectedNeutrals);
+        int neededSpecialCivilians = Math.max(0, totalSpecialCivilians - selectedSpecialCivilians);
+
+        int totalNeeded = neededKillers + neededVigilantes + neededNeutrals + neededSpecialCivilians;
+        if (totalNeeded <= 0) {
             return;
         }
 
-        // 获取场上已分配职业的平民玩家
+        // 获取场上已分配纯平民的玩家
         List<ServerPlayer> civilianPlayers = new ArrayList<>();
         for (ServerPlayer player : serverWorld.players()) {
             UUID uuid = player.getUUID();
             if (selectedRoles.containsKey(uuid)) {
                 SRERole role = selectedRoles.get(uuid);
-                if (role != null && role.isInnocent() && !role.canUseKiller() && !role.isVigilanteTeam() && !role.isNeutrals()) {
+                if (role != null && role.isInnocent() && !role.canUseKiller() && !role.isVigilanteTeam()
+                        && !role.isNeutrals() && !isSpecialCivilianRole(role)) {
                     civilianPlayers.add(player);
                 }
             }
@@ -579,17 +632,31 @@ public class RoleRotationWorldComponent implements AutoSyncedComponent {
 
         Random random = new Random(serverWorld.getGameTime());
 
-        // 随机分配剩余的杀手/中立/警长职业和特殊平民职业给平民
-        for (SRERole priorityRole : new ArrayList<>(remainingPriorityRoles)) {
+        // 构建需要分配的优先职业列表（只取需要的数量）
+        ArrayList<SRERole> toAssign = new ArrayList<>();
+        for (int i = 0; i < neededKillers && i < remainingKillers.size(); i++) {
+            toAssign.add(remainingKillers.get(i));
+        }
+        for (int i = 0; i < neededVigilantes && i < remainingVigilantes.size(); i++) {
+            toAssign.add(remainingVigilantes.get(i));
+        }
+        for (int i = 0; i < neededNeutrals && i < remainingNeutrals.size(); i++) {
+            toAssign.add(remainingNeutrals.get(i));
+        }
+        for (int i = 0; i < neededSpecialCivilians && i < remainingSpecialCivilians.size(); i++) {
+            toAssign.add(remainingSpecialCivilians.get(i));
+        }
+
+        // 随机分配优先职业给纯平民
+        for (SRERole priorityRole : toAssign) {
             if (civilianPlayers.isEmpty()) {
                 break;
             }
 
-            // 随机选择一个平民
             ServerPlayer targetPlayer = civilianPlayers.remove(random.nextInt(civilianPlayers.size()));
             UUID targetUuid = targetPlayer.getUUID();
 
-            // 移除该平民的旧职业（从池子中移除）
+            // 移除该平民的旧职业（放回池子）
             SRERole oldRole = selectedRoles.get(targetUuid);
             if (oldRole != null && !rolePool.contains(oldRole)) {
                 rolePool.add(oldRole);
