@@ -207,6 +207,7 @@
   "text.autoconfig.noellesroles.option.swastMaps": "Will refresh the SWAT map",
   "text.autoconfig.noellesroles.option.underwaterRolesMaps": "Will refresh the map for underwater Roles (e.g., Aquaman, Diver, Water Ghost)",
   "text.autoconfig.noellesroles.option.konggangMaps": "Will refresh the map for flying Roles (e.g., Pilot, Shadow Falcon)",
+  "text.autoconfig.noellesroles.option.cuckooMaps": "Cuckoo exclusive maps (empty = all maps, otherwise only spawn on specified maps)",
   "text.autoconfig.noellesroles.option.chanceOfTouhouRoles": "Eastern Role (Easter Egg) Spawn Probability",
   "text.autoconfig.noellesroles.option.chanceOfEggRoles": "Easter Egg Role Spawn Probability",
   "text.autoconfig.noellesroles.option.chanceOfModifierRefugee": "Refugee Trait Probability (%%)",

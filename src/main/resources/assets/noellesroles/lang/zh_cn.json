@@ -532,6 +532,8 @@
   "effect.noellesroles.voice_echo": "回响语音",
   "effect.noellesroles.monokuma_frenzy": "黑白熊狂热",
   "effect.noellesroles.voice_silence": "沉默语音",
+  "effect.noellesroles.chat_ban": "禁止聊天",
+  "mob_effect.noellesroles.chat_ban": "禁止聊天",
   "mob_effect.noellesroles.used_baned": "按键封印",
   "effect.noellesroles.used_baned": "按键封印",
   "mob_effect.noellesroles.time_stop": "时间停止",

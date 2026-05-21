@@ -261,6 +261,11 @@ public class ModEffects {
      */
     public static final Holder<MobEffect> VOICE_SILENCE = register("voice_silence",
             new SimpleMobEffect(MobEffectCategory.HARMFUL, 0x808080));
+    /**
+     * 聊天禁止：拥有此效果的玩家发送的聊天消息不会被任何人看到
+     */
+    public static final Holder<MobEffect> CHAT_BAN = register("chat_ban",
+            new SimpleMobEffect(MobEffectCategory.HARMFUL, 0x666666));
 public static final Holder<MobEffect> MONOKUMA_FRENZY = register("monokuma_frenzy",
             new org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaFrenzyEffect());
 

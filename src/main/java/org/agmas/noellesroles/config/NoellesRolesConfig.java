@@ -45,6 +45,12 @@ public class NoellesRolesConfig implements ConfigData {
     public ArrayList<String> konggangMaps = new ArrayList<>(List.of("areas_konggang"));
 
     /**
+     * Areas that will spawn Cuckoo. If empty, Cuckoo spawns on all maps.
+     * Adding maps here restricts Cuckoo to only spawn on those maps.
+     */
+    public ArrayList<String> cuckooMaps = new ArrayList<>();
+
+    /**
      * Role - The chance of egg roles
      */
 

@@ -508,6 +508,8 @@
   "effect.noellesroles.voice_echo": "Voice Echo",
   "effect.noellesroles.monokuma_frenzy": "Monokuma Frenzy",
   "effect.noellesroles.voice_silence": "Voice Silence",
+  "effect.noellesroles.chat_ban": "Chat Banned",
+  "mob_effect.noellesroles.chat_ban": "Chat Banned",
   "mob_effect.noellesroles.used_baned": "Keybind Sealed",
   "effect.noellesroles.used_baned": "Keybind Sealed",
   "mob_effect.noellesroles.time_stop": "Time Stop",

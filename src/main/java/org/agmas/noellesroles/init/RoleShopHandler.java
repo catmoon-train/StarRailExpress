@@ -1716,6 +1716,11 @@ public class RoleShopHandler {
         ModItems.DELIVERY_BOX.getDefaultInstance(),
         100,
         ShopEntry.Type.TOOL));
+    // 收纳袋 - 150金币
+    POSTMAN_SHOP.add(new ShopEntry(
+        Items.BUNDLE.getDefaultInstance(),
+        150,
+        ShopEntry.Type.TOOL));
 
     // 心理学家商店
     // 薄荷糖 - 75金币

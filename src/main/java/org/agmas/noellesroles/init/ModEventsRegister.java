@@ -1630,6 +1630,13 @@ public class ModEventsRegister {
             }
             return true;
         });
+        // 禁止聊天药水效果：拥有CHAT_BAN效果的玩家发送的聊天消息不被任何人接收
+        ServerMessageEvents.ALLOW_CHAT_MESSAGE.register((message, serverPlayer, bound) -> {
+            if (serverPlayer.hasEffect(ModEffects.CHAT_BAN)) {
+                return false;
+            }
+            return true;
+        });
         // 可以改玩家职业
         // OnGamePlayerRolesConfirm.EVENT.register((serverLevel, roleAssignments) -> {
         // String currentMap = "unknown";
