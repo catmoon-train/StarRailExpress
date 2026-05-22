@@ -5,6 +5,7 @@ import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.cca.SRERoleWorldComponent;
 import io.wifi.starrailexpress.cca.gamemode.RoleRotationWorldComponent;
@@ -201,6 +202,12 @@ public class SRERoleRotationGameMode extends SREMurderGameMode {
         } else {
             autoAssignRemainingPlayers(serverWorld, gameWorldComponent, finalSelectedRoles, finalRolePool);
         }
+        serverWorld.players().forEach(p ->{
+            SREPlayerMoodComponent srePlayerMoodComponent = SREPlayerMoodComponent.KEY.get(p);
+            srePlayerMoodComponent.setMood(1);
+            srePlayerMoodComponent.sync();
+
+        });
     }
 
     public void completeRoleSelection(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent) {

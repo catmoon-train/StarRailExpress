@@ -389,6 +389,12 @@ public class RoleRotationScreen extends Screen {
         }
     }
 
+    @Override
+    public boolean shouldCloseOnEsc() {
+
+        return false;
+    }
+
     private void drawRoleCards(GuiGraphics g, int startX, int startY, int mouseX, int mouseY) {
         List<String> candidates = RoleRotationCache.getCurrentCandidates();
         if (candidates.isEmpty()) return;
