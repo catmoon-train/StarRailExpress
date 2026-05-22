@@ -2,11 +2,11 @@ package org.agmas.noellesroles.content.item;
 
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
-import io.wifi.starrailexpress.event.EarlyKillPlayer;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -37,35 +37,34 @@ public class BombItem extends Item {
         super(properties);
     }
 
-    public static void registerEvents() {
-        EarlyKillPlayer.FIND_KILLER_EVENT.register((player, originalKiller, deathReason) -> {
-            var stack = MCItemsUtils.getFirstMatchedItem(player, (p) -> p.is(ModItems.BOMB));
-            if (stack == null) {
-                return null;
-            }
-            if (player.isSpectator())
-                return null;
-            CustomData customData = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
-            CompoundTag tag = customData.copyTag();
-            UUID owner = null;
-            if (tag.contains("owner")) {
-                owner = tag.getUUID("owner");
-            }
-            if (owner == null || (originalKiller != null && owner == originalKiller.getUUID())) {
-                return null;
-            }
-            player.level().playSound(null, player.blockPosition(), SoundEvents.GENERIC_EXPLODE.value(),
-                    SoundSource.PLAYERS,
-                    2.0f, 1.0f);
-            ((ServerLevel) player.level()).sendParticles(ParticleTypes.EXPLOSION, player.getX(), player.getY(),
-                    player.getZ(), 1, 0, 0, 0, 0);
-            Player bomber = null;
-            if (owner != null)
-                bomber = player.level().getPlayerByUUID(owner);
-            if (bomber == null)
-                return null;
-            return bomber;
-        });
+    public static Player findBomber(Player player, Player originalKiller, ResourceLocation deathReason) {
+        var stack = MCItemsUtils.getFirstMatchedItem(player, (p) -> p.is(ModItems.BOMB));
+        if (stack == null) {
+            return null;
+        }
+        if (player.isSpectator())
+            return null;
+        CustomData customData = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
+        CompoundTag tag = customData.copyTag();
+        UUID owner = null;
+        if (tag.contains("owner")) {
+            owner = tag.getUUID("owner");
+        }
+        if (owner == null || (originalKiller != null && owner == originalKiller.getUUID())) {
+            return null;
+        }
+        player.level().playSound(null, player.blockPosition(), SoundEvents.GENERIC_EXPLODE.value(),
+                SoundSource.PLAYERS,
+                2.0f, 1.0f);
+        ((ServerLevel) player.level()).sendParticles(ParticleTypes.EXPLOSION, player.getX(), player.getY(),
+                player.getZ(), 1, 0, 0, 0, 0);
+        Player bomber = null;
+        if (owner != null)
+            bomber = player.level().getPlayerByUUID(owner);
+        if (bomber == null)
+            return null;
+        GameUtils.killPlayer(player, false, bomber, Noellesroles.id("bomb_death"));
+        return null;
     }
 
     @Override

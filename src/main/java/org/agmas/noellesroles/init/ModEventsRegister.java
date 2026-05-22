@@ -910,7 +910,6 @@ public class ModEventsRegister {
         ShootingFrenzyPlayerComponent.registerGunNoDropEvent();
         ExecutionerPlayerComponent.registerBackfireEvent();
         ShootingFrenzyPlayerComponent.registerFrenzyCooldownEvent();
-        BombItem.registerEvents();
         HoanMeirinFistPunchHandler.register();
         org.agmas.noellesroles.game.roles.killer.spellbreaker.SpellbreakerPlayerComponent.registerEvents();
         // 注册警棍与防暴盾处理器
