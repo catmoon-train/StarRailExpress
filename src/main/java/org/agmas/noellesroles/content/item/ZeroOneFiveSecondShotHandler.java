@@ -13,8 +13,8 @@ import net.minecraft.world.InteractionHand;
 @Environment(EnvType.CLIENT)
 public class ZeroOneFiveSecondShotHandler implements ClientPlayNetworking.PlayPayloadHandler<ZeroOneFiveSecondShotPayload> {
 
-    /** 延迟时间（tick） = 1.2秒 */
-    private static final int DELAY_TICKS = 24;
+    /** 延迟时间（tick） = 0.3秒 */
+    private static final int DELAY_TICKS = 6;
 
     @Override
     public void receive(ZeroOneFiveSecondShotPayload payload, ClientPlayNetworking.Context context) {
