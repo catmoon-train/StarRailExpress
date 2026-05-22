@@ -99,12 +99,12 @@ public final class ReplayScreenService {
 
     public static void buildBackground(ServerLevel level, ReplayScreenSavedData.ReplayScreenEntry entry) {
         BlockPos origin = entry.origin();
-        for (int w = 0; w < entry.width(); w++) {
-            for (int h = 0; h < entry.height(); h++) {
-                BlockPos pos = backgroundPos(origin, entry.direction(), w, h);
-                level.setBlock(pos, Blocks.BLACK_WOOL.defaultBlockState(), Block.UPDATE_ALL);
-            }
-        }
+//        for (int w = 0; w < entry.width(); w++) {
+//            for (int h = 0; h < entry.height(); h++) {
+//                BlockPos pos = backgroundPos(origin, entry.direction(), w, h);
+//                level.setBlock(pos, Blocks.BLACK_WOOL.defaultBlockState(), Block.UPDATE_ALL);
+//            }
+//        }
     }
 
     private static BlockPos backgroundPos(BlockPos origin, Direction direction, int widthOffset, int heightOffset) {

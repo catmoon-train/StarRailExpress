@@ -33,10 +33,10 @@ public class DrawingBoardItem extends Item {
 
     public static byte[][] getPixelData(ItemStack stack) {
         byte[][] pixels = new byte[CANVAS_SIZE][CANVAS_SIZE];
-        // 初始化为白色 (1)
+        // 初始化为背景白色 (16)
         for (int y = 0; y < CANVAS_SIZE; y++) {
             for (int x = 0; x < CANVAS_SIZE; x++) {
-                pixels[y][x] = 1;  // 默认白色
+                pixels[y][x] = 16;  // 默认背景白色
             }
         }
         CustomData customData = stack.get(DataComponents.CUSTOM_DATA);

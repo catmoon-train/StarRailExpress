@@ -457,7 +457,6 @@ public class SEModifiers {
                 var secretiveComponent = pro.fazeclan.river.stupid_express.modifier.secretive.cca.SecretiveComponent.KEY
                         .get(player);
                 secretiveComponent.setSecretive(player.getUUID());
-                secretiveComponent.sync();
             }
             if (modifier.equals(KNIGHT)) {
                 var knightComponent = pro.fazeclan.river.stupid_express.modifier.knight.cca.KnightComponent.KEY
@@ -527,7 +526,6 @@ public class SEModifiers {
             var secretiveComponent = pro.fazeclan.river.stupid_express.modifier.secretive.cca.SecretiveComponent.KEY
                     .get(player);
             secretiveComponent.reset();
-            secretiveComponent.sync();
             // Reset knight component
             var knightComponent = pro.fazeclan.river.stupid_express.modifier.knight.cca.KnightComponent.KEY.get(player);
             knightComponent.init();

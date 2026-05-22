@@ -139,6 +139,32 @@ public class RoleNameRenderer {
                             }
                         }
                     }
+                    if (targetRole2 == ModRoles.MEATBALL){
+                        // 显示肉汁提示
+                        context.pose().translate(0, 20 + renderer.lineHeight, 0);
+                        MutableComponent meatballTip = Component.translatable("game.tip.meatball_role");
+                        int meatballTipWidth = renderer.width(meatballTip);
+                        context.drawString(renderer, meatballTip, -meatballTipWidth / 2, 0,
+                                Mth.color(1f, 0.5f, 0f) | ((int) (1 * 255) << 24));
+                        
+                        // 检查附近是否有其他玩家，如果有则显示无法攻击的提示
+                        boolean nearbyPlayers = false;
+                        for (Player nearbyPlayer : player.level().players()) {
+                            if (nearbyPlayer != null && nearbyPlayer != target && nearbyPlayer.distanceTo(target) <= 4.0D) {
+                                nearbyPlayers = true;
+                                break;
+                            }
+                        }
+                        
+                        if (nearbyPlayers) {
+                            // 无法在人群中攻击的提示
+                            context.pose().translate(0, 20 + renderer.lineHeight, 0);
+                            MutableComponent crowdTip = Component.translatable("game.tip.meatball_cannot_attack_in_crowd");
+                            int crowdTipWidth = renderer.width(crowdTip);
+                            context.drawString(renderer, crowdTip, -crowdTipWidth / 2, 0,
+                                    Mth.color(1f, 0f, 0f) | ((int) (1 * 255) << 24));
+                        }
+                    }
                     // 迷失杀手：不显示杀手同伙标签
                     if (playerRole == TrainRole.KILLER && targetRole == TrainRole.KILLER && !component.isRole(target, ModRoles.LOST_KILLER)) {
                         context.pose().translate(0, 20 + renderer.lineHeight, 0);

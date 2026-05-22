@@ -63,8 +63,8 @@ public class BombItem extends Item {
             bomber = player.level().getPlayerByUUID(owner);
         if (bomber == null)
             return null;
-        GameUtils.killPlayer(player, false, bomber, Noellesroles.id("bomb_death"));
-        return null;
+        // Removed the recursive killPlayer call that was causing StackOverflowError
+        return bomber;
     }
 
     @Override

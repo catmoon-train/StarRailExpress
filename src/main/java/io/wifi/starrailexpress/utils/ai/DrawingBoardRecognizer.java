@@ -162,7 +162,7 @@ public class DrawingBoardRecognizer {
         CATEGORY_TO_ITEM.put(NIGHT_VISION, findItem("noellesroles", "night_vision_glasses"));
         CATEGORY_TO_ITEM.put(DIVING_HELMET, findItem("noellesroles", "diving_helmet"));
         CATEGORY_TO_ITEM.put(DIVING_BOOTS, findItem("noellesroles", "diving_boots"));
-        CATEGORY_TO_ITEM.put(MASTER_KEY_P, findItem("trainmurdermystery", "key"));  // 乘务员钥匙
+        CATEGORY_TO_ITEM.put(MASTER_KEY_P, findItem("noellesroles", "master_key_p"));  // 乘务员钥匙
         CATEGORY_TO_ITEM.put(DEFIBRILLATOR, findItem("noellesroles", "defibrillator"));
         CATEGORY_TO_ITEM.put(BOXING_GLOVE, findItem("noellesroles", "boxing_glove"));
         CATEGORY_TO_ITEM.put(ANTIDOTE_REAGENT, findItem("noellesroles", "antidote_reagent"));
@@ -8088,6 +8088,14 @@ public class DrawingBoardRecognizer {
 
         // 复制像素数据以避免修改原始数据
         byte[][] normalizedPixels = normalizeColors(pixels);
+
+        // 精确匹配检查：如果用户画的图案与某个pattern像素色彩、位置完全一致
+        // （至多允许4个像素差异），直接给予对应物品
+        int exactMatch = checkExactMatch(normalizedPixels);
+        if (exactMatch != UNKNOWN) {
+            return new RecognizeResult(exactMatch, exactMatch, "", 0, 0, 100.0);
+        }
+
         double[] features = SimpleKNN.matrixToFeature(normalizedPixels, true);
 
         // 多算法融合检测（与SimpleKNN.predictMultiAlgorithmWithDims一致的权重）
@@ -8639,5 +8647,54 @@ public class DrawingBoardRecognizer {
             return COLOR_GREEN;
         }
         return color;
+    }
+
+    /**
+     * 精确匹配检查：将用户画的图案与所有存储的pattern逐一比对
+     * 如果像素色彩和位置完全一致（至多允许4个像素差异），直接返回匹配的类别
+     * @param normalizedPixels 经过颜色规范化后的输入像素
+     * @return 匹配的类别ID，如果不匹配则返回 UNKNOWN
+     */
+    private int checkExactMatch(byte[][] normalizedPixels) {
+        int bestCategory = UNKNOWN;
+        int bestDiff = Integer.MAX_VALUE;
+
+        for (Map.Entry<Integer, byte[][]> entry : categoryPatterns.entrySet()) {
+            int category = entry.getKey();
+            byte[][] pattern = entry.getValue();
+            int differences = 0;
+
+            for (int y = 0; y < 16 && differences <= 4; y++) {
+                for (int x = 0; x < 16 && differences <= 4; x++) {
+                    int patternColor = pattern[y][x] & 0xFF;
+                    int inputColor = normalizedPixels[y][x] & 0xFF;
+
+                    boolean patternIsTransparent = (patternColor == COLOR_BACKGROUND_WHITE);
+                    boolean inputIsTransparent = (inputColor == COLOR_BACKGROUND_WHITE);
+
+                    if (patternIsTransparent && inputIsTransparent) {
+                        // 双方都是透明背景，一致，跳过
+                        continue;
+                    }
+
+                    if (patternIsTransparent != inputIsTransparent) {
+                        // 一方透明、另一方着色：差异
+                        differences++;
+                    } else {
+                        // 双方都着色：检查颜色是否兼容
+                        if (!areColorsCompatible(patternColor, inputColor)) {
+                            differences++;
+                        }
+                    }
+                }
+            }
+
+            if (differences <= 4 && differences < bestDiff) {
+                bestDiff = differences;
+                bestCategory = category;
+            }
+        }
+
+        return bestCategory;
     }
 }

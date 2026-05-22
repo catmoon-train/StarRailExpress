@@ -47,6 +47,7 @@ public class InfectedPlayerComponent implements RoleComponent, ServerTickingComp
     private static final int SPREAD_INTERVAL_ACCELERATED = 200;  // 加速情况10秒传播一次
     private static final int SPREAD_RADIUS = 3;                                    // 传播范围3格
     private static final int MAX_SPREAD_COUNT = 3;                                  // 最多传播3人
+    private static final int PROGRESS_SYNC_INTERVAL = 20;                           // 感染倒计时每秒同步一次
     
     // 获取当前传播间隔（根据是否加速）
     private int getSpreadInterval() {
@@ -61,7 +62,7 @@ public class InfectedPlayerComponent implements RoleComponent, ServerTickingComp
     public static void setSpreadAcceleratedForAll(net.minecraft.server.level.ServerLevel level, boolean accelerated) {
         for (Player p : level.players()) {
             InfectedPlayerComponent comp = ModComponents.INFECTED.get(p);
-            if (comp != null && comp.infectedTicks > 0) {
+            if (comp != null && comp.infectedTicks > 0 && comp.spreadAccelerated != accelerated) {
                 comp.spreadAccelerated = accelerated;
                 comp.sync();
             }
@@ -89,12 +90,7 @@ public class InfectedPlayerComponent implements RoleComponent, ServerTickingComp
     }
     
     public void sync_with_all() {
-        if (this.player.getServer() != null) {
-            for (var p : this.player.getServer().getPlayerList().getPlayers()) {
-                ModComponents.INFECTED.syncWith(p, this.player.asComponentProvider());
-            }
-        }
-        ModComponents.INFECTED.sync(this.player);
+        this.sync();
     }
     
     @Override
@@ -102,6 +98,7 @@ public class InfectedPlayerComponent implements RoleComponent, ServerTickingComp
         this.infectedTicks = 0;
         this.infector = null;
         this.lastSpreadTick = 0;
+        this.spreadAccelerated = false;
     }
     
     @Override
@@ -125,8 +122,13 @@ public class InfectedPlayerComponent implements RoleComponent, ServerTickingComp
      * 治愈感染
      */
     public void cure() {
+        if (this.infectedTicks <= 0 && this.infector == null && !this.spreadAccelerated) {
+            return;
+        }
         this.infectedTicks = 0;
         this.infector = null;
+        this.lastSpreadTick = 0;
+        this.spreadAccelerated = false;
         this.sync_with_all();
     }
     
@@ -242,7 +244,9 @@ public class InfectedPlayerComponent implements RoleComponent, ServerTickingComp
             this.spreadVirus();
         }
         
-        this.sync();
+        if (this.infectedTicks > 0 && this.infectedTicks % PROGRESS_SYNC_INTERVAL == 0) {
+            this.sync();
+        }
     }
     
     /**
@@ -292,12 +296,16 @@ public class InfectedPlayerComponent implements RoleComponent, ServerTickingComp
         if (this.infector != null) {
             tag.putUUID("infector", this.infector);
         }
+        if (this.spreadAccelerated) {
+            tag.putBoolean("spreadAccelerated", true);
+        }
     }
     
     @Override
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.infectedTicks = tag.contains("infectedTicks") ? tag.getInt("infectedTicks") : 0;
         this.infector = tag.contains("infector") ? tag.getUUID("infector") : null;
+        this.spreadAccelerated = tag.getBoolean("spreadAccelerated");
     }
     
     @Override
@@ -306,11 +314,13 @@ public class InfectedPlayerComponent implements RoleComponent, ServerTickingComp
         if (this.infector != null) {
             tag.putUUID("infector", this.infector);
         }
+        tag.putBoolean("spreadAccelerated", this.spreadAccelerated);
     }
     
     @Override
     public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.infectedTicks = tag.contains("infectedTicks") ? tag.getInt("infectedTicks") : 0;
         this.infector = tag.contains("infector") ? tag.getUUID("infector") : null;
+        this.spreadAccelerated = tag.getBoolean("spreadAccelerated");
     }
 }

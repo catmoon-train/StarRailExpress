@@ -7,6 +7,7 @@ import io.wifi.starrailexpress.event.EarlyKillPlayer;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.server.level.ServerPlayer;
 
+import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.content.item.BombItem;
 import org.agmas.noellesroles.game.roles.killer.conspirator.ConspiratorPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
@@ -17,7 +18,10 @@ public class TrueKillerFinder {
         EarlyKillPlayer.FIND_KILLER_EVENT.register((victim, originalKiller, deathReason) -> {
             if (!(victim instanceof ServerPlayer serverVictim))
                 return null;
-            BombItem.findBomber(victim, originalKiller, deathReason);
+            Player bomber = BombItem.findBomber(victim, originalKiller, deathReason);
+            if (bomber != null) {
+                return bomber;
+            }
             // Noellesroles.LOGGER.info("!!!");
             var gameWorldComponent = SREGameWorldComponent.KEY.get(victim.level());
             var poisonerC = SREPlayerPoisonComponent.KEY.maybeGet(victim).orElse(null);

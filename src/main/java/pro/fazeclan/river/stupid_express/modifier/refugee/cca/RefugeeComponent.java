@@ -164,7 +164,7 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
             i = 1;
         }
         MonokumaPlayerComponent.KEY.get( player).clear();
-        WorldModifierComponent.KEY.get( player).removeModifier(data.uuid, SEModifiers.REFUGEE);
+        WorldModifierComponent.KEY.get( player.serverLevel()).removeModifier(data.uuid, SEModifiers.REFUGEE);
 
         final var areasWorldComponent = AreasWorldComponent.KEY.get(serverLevel);
         final var roomPosition = areasWorldComponent.getRoomPosition(i);
