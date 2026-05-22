@@ -317,10 +317,10 @@ public class InitModRolesMax {
             }
 
             {
-                // 杀手中立
+                // 杀手中立（只处理没有单独配置概率的职业，有配置的职业由 autoRoleMaxCount 处理）
                 var neutralRoles = new ArrayList<SRERole>(TMMRoles.ROLES.values());
                 neutralRoles.removeIf((r) -> {
-                    if (r.isNeutrals() && r.isNeutralForKiller())
+                    if (r.isNeutrals() && r.isNeutralForKiller() && r.enableChance < 0)
                         return false;
                     return true;
                 });
@@ -330,6 +330,11 @@ public class InitModRolesMax {
                 }
                 int neutralForKillers = 0;
                 neutralForKillers = players_count / 6;
+                // 减去已有配置的职业数（如疫使），避免超额分配
+                neutralForKillers -= (int) TMMRoles.ROLES.values().stream()
+                    .filter(r -> r.isNeutrals() && r.isNeutralForKiller() && r.enableChance >= 0)
+                    .count();
+                neutralForKillers = Math.max(0, neutralForKillers);
                 for (int i = 0; i < neutralForKillers && i < neutralRoles.size(); i++) {
                     Harpymodloader.setRoleMaximum(neutralRoles.get(i), 1);
                 }
