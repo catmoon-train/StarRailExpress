@@ -34,10 +34,12 @@ public class ClientAbilityHandler {
         if (client.player == null)
             return;
 
+        boolean repairGameRunning = gameWorldComponent.isRunning()
+                && gameWorldComponent.getGameMode() == SREGameModes.REPAIR_ESCAPE_MODE;
         var repairComponent = ModComponents.REPAIR_ROLES.get(client.player);
-        if (RepairRoleDefinition.byId(repairComponent.activeRole).isPresent()
+        if (repairGameRunning && (RepairRoleDefinition.byId(repairComponent.activeRole).isPresent()
                 || repairComponent.carriedBy != null
-                || repairComponent.carrying != null) {
+                || repairComponent.carrying != null)) {
             ClientPlayNetworking.send(new RepairPrimarySkillC2SPacket());
             return;
         }

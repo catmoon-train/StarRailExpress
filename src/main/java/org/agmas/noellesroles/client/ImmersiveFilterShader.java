@@ -1,6 +1,7 @@
 package org.agmas.noellesroles.client;
 
 import io.wifi.starrailexpress.api.RepairRole;
+import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.client.PostProcessor;
 import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.client.Minecraft;
@@ -78,6 +79,7 @@ public class ImmersiveFilterShader {
     private void addRepairEscapePass(Minecraft mc) {
         post.addSinglePassEntry("repair_escape", pass -> process(mc.player, () -> {
             if (SREClient.gameComponent == null || !SREClient.gameComponent.isRunning()
+                    || SREClient.gameComponent.getGameMode() != SREGameModes.REPAIR_ESCAPE_MODE
                     || !isRepairEscapePlayer()) {
                 repairStrength = 0.0f;
                 return false;

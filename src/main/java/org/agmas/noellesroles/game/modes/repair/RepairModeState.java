@@ -2,6 +2,7 @@ package org.agmas.noellesroles.game.modes.repair;
 
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
+import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
@@ -48,11 +49,20 @@ public final class RepairModeState {
             player.removeTag(ESCAPED_TAG);
             player.removeTag(NEUTRAL_WIN_TAG);
             var component = ModComponents.REPAIR_ROLES.get(player);
+            component.activeRole = "";
+            component.neutralTaskProgress = 0;
+            component.neutralTaskCompleted = false;
+            component.selectionEndTick = 0L;
             component.downed = false;
             component.carriedBy = null;
             component.carrying = null;
             component.carryBlockedTicks = 0;
             component.trialStand = org.agmas.noellesroles.component.RepairRolePlayerComponent.BlockPosTag.NONE;
+            component.completedStations = 0;
+            component.gatesPowered = false;
+            component.downedAllies = 0;
+            component.activeTrialPrisoners = 0;
+            component.nearestTrialProgress = 0;
             component.currentEventKey = "";
             component.currentEventRewardKey = "";
             component.currentEventTicks = 0;
@@ -81,9 +91,30 @@ public final class RepairModeState {
             player.removeEffect(MobEffects.MOVEMENT_SLOWDOWN);
             player.removeEffect(MobEffects.WEAKNESS);
             player.removeEffect(MobEffects.DARKNESS);
+            player.removeEffect(MobEffects.MOVEMENT_SPEED);
+            player.removeEffect(MobEffects.DAMAGE_BOOST);
+            player.removeEffect(MobEffects.GLOWING);
+            player.removeEffect(MobEffects.NIGHT_VISION);
+            player.removeEffect(MobEffects.REGENERATION);
+            player.removeEffect(MobEffects.DIG_SPEED);
+            player.removeEffect(MobEffects.SLOW_FALLING);
+            player.removeEffect(MobEffects.DAMAGE_RESISTANCE);
+            player.removeEffect(MobEffects.BLINDNESS);
+            player.removeEffect(MobEffects.INVISIBILITY);
+            player.removeEffect(MobEffects.POISON);
+            player.removeEffect(MobEffects.JUMP);
             player.removeEffect(ModEffects.NO_COLLIDE);
             component.sync();
         });
+    }
+
+    public static boolean isRepairGameRunning(ServerPlayer player) {
+        return player != null && player.level() instanceof ServerLevel level && isRepairGameRunning(level);
+    }
+
+    public static boolean isRepairGameRunning(ServerLevel level) {
+        SREGameWorldComponent game = SREGameWorldComponent.KEY.get(level);
+        return game != null && game.isRunning() && game.getGameMode() == SREGameModes.REPAIR_ESCAPE_MODE;
     }
 
     public static void stationCompleted(ServerLevel level) {
@@ -170,7 +201,7 @@ public final class RepairModeState {
 
     public static boolean isNonHunterRepairPlayer(ServerPlayer player) {
         SREGameWorldComponent game = SREGameWorldComponent.KEY.get(player.level());
-        if (game == null || !game.isRunning()) {
+        if (game == null || !isRepairGameRunning(player)) {
             return false;
         }
         var component = ModComponents.REPAIR_ROLES.get(player);
@@ -196,7 +227,7 @@ public final class RepairModeState {
     public static boolean canUseHunterUtility(ServerPlayer player) {
         SREGameWorldComponent game = SREGameWorldComponent.KEY.get(player.level());
         return !ModComponents.REPAIR_ROLES.get(player).activeRole.isEmpty()
-                && game != null && game.isRunning()
+                && game != null && isRepairGameRunning(player)
                 && isHunter(player) && !GameUtils.isPlayerEliminated(player)
                 && !player.getTags().contains(ESCAPED_TAG);
     }

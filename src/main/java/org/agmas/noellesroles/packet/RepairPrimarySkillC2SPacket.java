@@ -44,6 +44,9 @@ public record RepairPrimarySkillC2SPacket() implements CustomPacketPayload {
         if (!(player.level() instanceof ServerLevel level)) {
             return;
         }
+        if (!RepairModeState.isRepairGameRunning(level)) {
+            return;
+        }
         var component = ModComponents.REPAIR_ROLES.get(player);
         if (component.carrying != null && RepairModeState.isHunter(player)) {
             RepairModeState.dropCarried(player, 20 * 2);

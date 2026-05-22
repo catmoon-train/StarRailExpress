@@ -1,6 +1,7 @@
 package org.agmas.noellesroles.client.hud;
 
 import io.wifi.starrailexpress.api.RepairRole;
+import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.utils.client.betterrender.FakeGuiGraphics;
 import net.minecraft.ChatFormatting;
@@ -56,7 +57,9 @@ public final class RepairEscapeHud {
     private static void render(FakeGuiGraphics graphics) {
         Minecraft client = Minecraft.getInstance();
         if (client.player == null || client.level == null || SREClient.gameComponent == null
-                || !SREClient.gameComponent.isRunning() || !isRepairRole()) {
+                || !SREClient.gameComponent.isRunning()
+                || SREClient.gameComponent.getGameMode() != SREGameModes.REPAIR_ESCAPE_MODE
+                || !isRepairRole()) {
             return;
         }
 

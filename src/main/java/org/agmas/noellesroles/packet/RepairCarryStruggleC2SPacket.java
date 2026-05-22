@@ -36,6 +36,9 @@ public record RepairCarryStruggleC2SPacket(String side) implements CustomPacketP
         if (!(player.level() instanceof ServerLevel level)) {
             return;
         }
+        if (!RepairModeState.isRepairGameRunning(level)) {
+            return;
+        }
         if ("downed".equals(payload.side())) {
             handleDownedStruggle(player, level, component);
             return;

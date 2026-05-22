@@ -937,7 +937,10 @@ public class NoellesrolesClient implements ClientModInitializer {
             }
             boolean abilityPressed = abilityBind.consumeClick();
             var repairInputComponent = org.agmas.noellesroles.component.ModComponents.REPAIR_ROLES.get(client.player);
-            if (client.screen == null && repairInputComponent.carriedBy != null) {
+            boolean repairGameRunning = SREClient.gameComponent != null
+                    && SREClient.gameComponent.isRunning()
+                    && SREClient.gameComponent.getGameMode() == io.wifi.starrailexpress.api.SREGameModes.REPAIR_ESCAPE_MODE;
+            if (client.screen == null && repairGameRunning && repairInputComponent.carriedBy != null) {
                 if (client.options.keyAttack.consumeClick()) {
                     ClientPlayNetworking.send(new org.agmas.noellesroles.packet.RepairCarryStruggleC2SPacket("left"));
                 }
@@ -945,7 +948,7 @@ public class NoellesrolesClient implements ClientModInitializer {
                     ClientPlayNetworking.send(new org.agmas.noellesroles.packet.RepairCarryStruggleC2SPacket("right"));
                 }
             }
-            if (client.screen == null && repairInputComponent.downed && repairInputComponent.carriedBy == null
+            if (client.screen == null && repairGameRunning && repairInputComponent.downed && repairInputComponent.carriedBy == null
                     && client.options.keyShift.consumeClick()) {
                 ClientPlayNetworking.send(new org.agmas.noellesroles.packet.RepairCarryStruggleC2SPacket("downed"));
             }
@@ -1373,6 +1376,13 @@ public class NoellesrolesClient implements ClientModInitializer {
 
     private static void handleRepairSearchInput(Minecraft client) {
         if (client.player == null || client.level == null || client.screen != null) {
+            return;
+        }
+        boolean repairGameRunning = SREClient.gameComponent != null
+                && SREClient.gameComponent.isRunning()
+                && SREClient.gameComponent.getGameMode() == io.wifi.starrailexpress.api.SREGameModes.REPAIR_ESCAPE_MODE;
+        if (!repairGameRunning) {
+            repairHeldSearchTarget = null;
             return;
         }
         if (!(client.hitResult instanceof net.minecraft.world.phys.BlockHitResult blockHit)
