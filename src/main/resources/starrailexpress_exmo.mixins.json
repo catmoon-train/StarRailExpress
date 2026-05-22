@@ -3,13 +3,14 @@
   "package": "net.exmo.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "client.IrisShaderReload",
-    "client.OnResourcePackReload"
+
   ],
   "injectors": {
     "defaultRequire": 1
   },
   "client": [
+    "client.IrisShaderReload",
+    "client.OnResourcePackReload",
     "client.IsNightVisionMixin",
     "client.LoadingScreenMixin",
     "client.VolumeGetMixin"

@@ -93,7 +93,7 @@ public class SREConfig implements ConfigData {
     public int bodyBagPrice = 100;
     @ConfigSync(shouldSync = true)
     @ConfigEntry.Category(value = "shop")
-    public int blackoutPrice = 100;
+    public int blackoutPrice = 140;
     @ConfigSync(shouldSync = true)
     @ConfigEntry.Category(value = "shop")
     public int monitorBrokenPrice = 60;
