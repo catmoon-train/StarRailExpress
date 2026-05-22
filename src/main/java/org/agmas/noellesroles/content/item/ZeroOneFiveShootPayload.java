@@ -59,13 +59,13 @@ public record ZeroOneFiveShootPayload(int target, boolean isAutoSecondShot) impl
                 player.getCooldowns().addCooldown(ModItems.ZERO_ONE_FIVE_GUN, ZeroOneFiveGunItem.getCooldown());
             }
 
-            // 第一枪时发送第二枪计时器数据包给客户端
-            if (!payload.isAutoSecondShot()) {
-                for (ServerPlayer tracking : PlayerLookup.tracking(player)) {
-                    PacketTracker.sendToClient(tracking, new ZeroOneFiveSecondShotPayload(player.getId()));
-                }
-                PacketTracker.sendToClient(player, new ZeroOneFiveSecondShotPayload(player.getId()));
-            }
+//            // 第一枪时发送第二枪计时器数据包给客户端
+//            if (!payload.isAutoSecondShot()) {
+//                for (ServerPlayer tracking : PlayerLookup.tracking(player)) {
+//                    PacketTracker.sendToClient(tracking, new ZeroOneFiveSecondShotPayload(player.getId()));
+//                }
+//                PacketTracker.sendToClient(player, new ZeroOneFiveSecondShotPayload(player.getId()));
+//            }
 
             // 播放音效
             player.level().playSound(null, player.getX(), player.getEyeY(), player.getZ(),

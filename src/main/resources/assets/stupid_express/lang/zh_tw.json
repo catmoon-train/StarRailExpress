@@ -11,6 +11,8 @@
   "announcement.star.goals.arsonist": "將所有玩家澆濕後點燃，燒死所有玩家後獲勝",
   "announcement.star.goals.stupid_express.arsonist": "將所有玩家澆濕後點燃，燒死所有玩家後獲勝",
   "announcement.star.role.stupid_express.arsonist": "縱火犯",
+  "title.stupid_express.refugee.subtlte.active": "\u00a74迎 接 地 狱 的 怀 抱",
+
   "announcement.star.role.arsonist": "縱火犯",
   "announcement.star.win.stupid_express.arsonist": "縱火犯勝利",
   "announcement.star.win.arsonist": "縱火犯勝利",
@@ -127,7 +129,7 @@
   "msg.amnesiac.change_role.failed_same": "無法切換職業：你無法從失憶患者切換到失憶患者",
   "msg.amnesiac.change_role.failed_not_support":"無法切換職業：你無法從失憶患者切換到這個職業",
   "msg.amnesiac.change_role.failed_initiate": "無法切換職業：你無法從失憶患者切換到初學者",
-  "title.stupid_express.refugee.active": "亡命時刻",
+  "title.stupid_express.refugee.active": "亡 命 時 刻",
   "title.stupid_express.refugee.died": "一切恢復平靜",
   "hud.stupid_express.allergist.cure_poison": "你對這種食物產生了免疫反應，清除了體內的毒素！",
   "hud.stupid_express.allergist.no_poison": "你感覺身體很好，沒有中毒跡象",

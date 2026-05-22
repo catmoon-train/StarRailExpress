@@ -15,8 +15,11 @@ import io.wifi.starrailexpress.network.PacketTracker;
 import io.wifi.starrailexpress.network.original.ShootMuzzleS2CPayload;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -140,23 +143,21 @@ public class ZeroOneFiveGunItem extends SkinableItem {
         } else {
             // 第一次命中，给3秒缓慢2
             target.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, HIT_MARK_DURATION, 1, false, false));
-            
+            target.serverLevel().sendParticles(
+                    ParticleTypes.CAMPFIRE_SIGNAL_SMOKE,
+                    target.getX(), target.getY()+1, target.getZ(),
+                    5,0.2,0.2,0.2,0.35
+            );
             // 标记目标
             shooterMarks.put(targetUUID, HIT_MARK_DURATION);
             
-            // 1.2秒后（24 ticks）自动开第二枪，添加到延迟队列
+            // 0.45秒后自动开第二枪，添加到延迟队列
             long currentTick = target.level().getServer().getTickCount();
-            DELAYED_SHOTS.add(new DelayedShotTask(currentTick + 24, shooter, target, true));
+            DELAYED_SHOTS.add(new DelayedShotTask(currentTick + 9, shooter, target, true));
         }
     }
 
-    /**
-     * 手动触发延迟射击任务（用于自动开枪）
-     */
-    public static void scheduleDelayedShot(ServerPlayer shooter, ServerPlayer target) {
-        long currentTick = shooter.level().getServer().getTickCount();
-        DELAYED_SHOTS.add(new DelayedShotTask(currentTick + 24, shooter, target, false));
-    }
+
 
     public static int getCooldown() {
         return COOLDOWN;
@@ -176,6 +177,18 @@ public class ZeroOneFiveGunItem extends SkinableItem {
         }
         PacketTracker.sendToClient(shooter, new ShootMuzzleS2CPayload(shooter.getId()));
         
+        // 生成弹道粒子效果
+        HitResult hitResult = getGunTarget(shooter);
+        Vec3 hitPos;
+        if (hitResult.getType() != HitResult.Type.MISS) {
+            hitPos = hitResult.getLocation();
+        } else {
+            Vec3 eyePos = shooter.getEyePosition(1.0F);
+            Vec3 lookVec = shooter.getViewVector(1.0F);
+            hitPos = eyePos.add(lookVec.scale(RANGE));
+        }
+        spawnBulletTrail(shooter, hitPos);
+        
         // 如果目标仍然存活且在范围内，造成击杀
         if (GameUtils.isPlayerAliveAndSurvival(target)) {
             double distSq = shooter.distanceToSqr(target);
@@ -191,8 +204,41 @@ public class ZeroOneFiveGunItem extends SkinableItem {
                 }
             }
         }
-        
+
         // 两枪后进入15秒冷却
+    }
+    
+    /**
+     * 在子弹路径上生成粒子轨迹
+     */
+    private static void spawnBulletTrail(ServerPlayer shooter, Vec3 hitPos) {
+        Vec3 startPos = shooter.getEyePosition(1.0F);
+        Vec3 direction = hitPos.subtract(startPos);
+        double distance = direction.length();
+        if (distance <= 0) return;
+        direction = direction.normalize();
+        
+        double stepSize = 0.5;
+        int particleCount = (int) (distance / stepSize);
+        
+        for (int i = 0; i < particleCount; i++) {
+            double ratio = (double) i / particleCount;
+            Vec3 particlePos = startPos.add(
+                    direction.x * distance * ratio,
+                    direction.y * distance * ratio,
+                    direction.z * distance * ratio);
+            
+            double offsetX = (shooter.level().getRandom().nextFloat() - 0.5) * 0.2;
+            double offsetY = (shooter.level().getRandom().nextFloat() - 0.5) * 0.2;
+            double offsetZ = (shooter.level().getRandom().nextFloat() - 0.5) * 0.2;
+            
+            ((ServerLevel) shooter.level()).sendParticles(
+                    ParticleTypes.SMOKE,
+                    particlePos.x + offsetX,
+                    particlePos.y + offsetY,
+                    particlePos.z + offsetZ,
+                    1, 0, 0.02, 0, 0.01);
+        }
     }
     
     /**

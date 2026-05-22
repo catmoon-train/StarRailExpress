@@ -10,10 +10,11 @@
     "chat.PlayerPrefixMixin",
     "command.ExecuteCommandInvoker",
     "entity.EntityMixin",
+    "entity.ItemFrameMixin",
     "entity.ProjectileUtilMixin",
     "entity.item.ItemEntityMixin",
-    "entity.living.LivingEntityMixin",
     "entity.living.LivingEntityDamageMixin",
+    "entity.living.LivingEntityMixin",
     "entity.player.CanRightClickMixin",
     "entity.player.HungerManagerMixin",
     "entity.player.InventoryClearMixin",
@@ -46,7 +47,6 @@
     "defaultRequire": 1
   },
   "client": [
-
     "client.AbstractClientPlayerEntityMixin",
     "client.CameraPositionMixin",
     "client.CustomHeadLayerMixin",

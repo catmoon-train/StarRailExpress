@@ -826,9 +826,9 @@ public class NoellesrolesClient implements ClientModInitializer {
         DetectiveListenStepHandler.registerEvents();
         InvisbleHandItem.register();
         // 注册零一五第二枪客户端处理器
-        ClientPlayNetworking.registerGlobalReceiver(
-                org.agmas.noellesroles.content.item.ZeroOneFiveSecondShotPayload.ID,
-                new ZeroOneFiveSecondShotHandler());
+//        ClientPlayNetworking.registerGlobalReceiver(
+//                org.agmas.noellesroles.content.item.ZeroOneFiveSecondShotPayload.ID,
+//                new ZeroOneFiveSecondShotHandler());
         OnKillerCohortDisplay.EVENT.register((player) -> {
             if (player == null)
                 return null;
