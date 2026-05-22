@@ -5,6 +5,7 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.event.AllowGameEnd;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.GameUtils.WinStatus;
+import io.wifi.starrailexpress.api.TMMRoles;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -69,6 +70,18 @@ public class InfectedWinChecker {
             }
         }
         return true;  // 没有纵火犯
+    }
+    
+    /**
+     * 检查场上是否处于亡命时刻（有LOOSE_END存活）
+     */
+    private static boolean isLooseEndActive(ServerLevel level, SREGameWorldComponent gameWorldComponent) {
+        for (ServerPlayer player : level.getPlayers(GameUtils::isPlayerAliveAndSurvival)) {
+            if (gameWorldComponent.isRole(player, TMMRoles.LOOSE_END)) {
+                return true;
+            }
+        }
+        return false;
     }
     
     /**
@@ -234,10 +247,10 @@ public class InfectedWinChecker {
                 return;
             }
 
-            // 检查触发条件：所有杀手已阵亡 且 没有医生
+            // 检查触发条件：所有杀手已阵亡 且 没有医生 且 不处于亡命时刻
             boolean killersAllDead = allKillersDead(level, gameWorldComponent);
             boolean noDoctor = !hasDoctor(level, gameWorldComponent);
-            boolean shouldAccelerate = killersAllDead && noDoctor;
+            boolean shouldAccelerate = killersAllDead && noDoctor && !isLooseEndActive(level, gameWorldComponent);
 
             if (shouldAccelerate) {
                 // 设置加速传播（病毒传染时间缩短至10秒）

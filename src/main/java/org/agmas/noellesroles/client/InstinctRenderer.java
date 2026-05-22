@@ -926,6 +926,12 @@ public class InstinctRenderer {
                     if (SREClient.gameComponent.isRole(target_player, ModRoles.MORTICIAN_BODYMAKER)) {
                         return new Color(180, 180, 180).getRGB(); // 淡灰色
                     }
+                    // 肉汁：当杀手在4格范围内时，该杀手的透视框变为深蓝色
+                    if (RoleUtils.compareRole(target_role, ModRoles.MEATBALL)) {
+                        if (self.distanceTo(target_player) <= 4.0) {
+                            return new Color(0, 0, 180).getRGB(); // 深蓝色
+                        }
+                    }
                     
                 // 默认fallback
                     if (target_role == null)

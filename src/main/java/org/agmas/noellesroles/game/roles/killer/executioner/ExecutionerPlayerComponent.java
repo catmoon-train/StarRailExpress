@@ -131,7 +131,7 @@ public class ExecutionerPlayerComponent implements RoleComponent, ServerTickingC
     }
 
     /**
-     * 自动分配随机目标（仅限平民阵营）
+     * 自动分配随机目标（仅限平民阵营，优先排除肉汁）
      */
     public void assignRandomTarget() {
         // 如果配置允许手动选择目标，则不自动分配
@@ -148,8 +148,9 @@ public class ExecutionerPlayerComponent implements RoleComponent, ServerTickingC
         if (gameWorldComponent == null)
             return;
         List<Player> eligibleTargets = new ArrayList<>();
+        List<Player> nonMeatballTargets = new ArrayList<>();
 
-        // 获取所有存活的平民玩家
+        // 获取所有存活的平民玩家，同时区分肉汁和非肉汁
         for (Player p : player.level().players()) {
             if (p.getUUID().equals(player.getUUID())) {
                 continue; // 跳过自己
@@ -161,13 +162,18 @@ public class ExecutionerPlayerComponent implements RoleComponent, ServerTickingC
             if (role != null
                     && !judgeRole(player.level(), role)) { // 只考虑平民、中立阵营
                 eligibleTargets.add(p);
+                // 肉汁最后才选（除非场上只剩肉汁）
+                if (!RoleUtils.compareRole(role, ModRoles.MEATBALL)) {
+                    nonMeatballTargets.add(p);
+                }
             }
         }
 
-        // 随机选择一个目标
-        if (!eligibleTargets.isEmpty()) {
-            Collections.shuffle(eligibleTargets);
-            this.target = eligibleTargets.getFirst().getUUID();
+        // 优先从非肉汁玩家中随机选择；如果没有非肉汁目标，才从全体（只剩肉汁）中选
+        List<Player> selectionPool = nonMeatballTargets.isEmpty() ? eligibleTargets : nonMeatballTargets;
+        if (!selectionPool.isEmpty()) {
+            Collections.shuffle(selectionPool);
+            this.target = selectionPool.getFirst().getUUID();
             this.targetSelected = true;
             this.sync();
         }

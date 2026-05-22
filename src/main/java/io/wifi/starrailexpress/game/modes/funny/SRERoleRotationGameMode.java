@@ -81,6 +81,10 @@ public class SRERoleRotationGameMode extends SREMurderGameMode {
                     ROTATION_SAFE_TIME + 40,
                     10, true, false, false));
             player.addEffect(new MobEffectInstance(
+                    ModEffects.MOVE_BANED,
+                    ROTATION_SAFE_TIME + 40,
+                    10, true, false, false));
+            player.addEffect(new MobEffectInstance(
                     ModEffects.SKILL_BANED,
                     40,
                     10, true, false, false));
@@ -238,6 +242,7 @@ public class SRERoleRotationGameMode extends SREMurderGameMode {
             // 移除安全时间效果
             p.removeEffect(ModEffects.SKILL_BANED);
             p.removeEffect(ModEffects.SAFE_TIME);
+            p.removeEffect(ModEffects.MOVE_BANED);
             p.removeEffect(MobEffects.INVISIBILITY);
             
             if (role != null) {

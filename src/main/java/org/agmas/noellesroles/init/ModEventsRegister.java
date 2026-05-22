@@ -624,11 +624,6 @@ public class ModEventsRegister {
                 return true;
             }
 
-            // 检查是否是阴谋家心脏骤停伤害（不触发独处保护）
-            if (deathReason != null && deathReason.getPath().equals("heart_attack")) {
-                return true;
-            }
-
             // 检查是否是病毒感染伤害（不触发独处保护）
             if (deathReason != null && deathReason.getPath().equals("infection")) {
                 return true;
