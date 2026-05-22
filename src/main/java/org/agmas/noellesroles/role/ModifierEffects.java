@@ -16,6 +16,7 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.phys.Vec3;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 
 import java.util.*;
@@ -179,10 +180,9 @@ public class ModifierEffects {
                 WorldModifierComponent modifiers = WorldModifierComponent.KEY.get(player.level());
                 UUID uuid = player.getUUID();
                 
-                // 晕血症
+                // 晕血症 - 仅当尸体在7格扇形视野内时触发
                 if (modifiers.isModifier(uuid, TraitorAndModifiers.HEMOPHOBIA)) {
-                    double dist = player.distanceTo(victim);
-                    if (dist <= 30) {
+                    if (isInFieldOfView(sp, victim, 7.0, 0.707)) {
                         sp.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 40, 2, false, false, false));
                         sp.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 40, 2, false, false, false));
                         sp.displayClientMessage(
@@ -195,6 +195,23 @@ public class ModifierEffects {
     }
     
     // ==================== 工具方法 ====================
+    
+    /**
+     * 判断目标实体是否在玩家的扇形视野内
+     * @param player 玩家
+     * @param target 目标实体
+     * @param maxDistance 最大距离（格）
+     * @param minDot 最小点积（0~1），越大越窄，cos(45°)=0.707 表示90°锥角
+     * @return 是否在视野内
+     */
+    private static boolean isInFieldOfView(ServerPlayer player, Player target, double maxDistance, double minDot) {
+        Vec3 lookDir = player.getLookAngle();
+        Vec3 toTarget = target.getEyePosition().subtract(player.getEyePosition());
+        double dist = toTarget.length();
+        if (dist > maxDistance) return false;
+        double dot = lookDir.dot(toTarget.normalize());
+        return dot >= minDot;
+    }
     
     private static ServerPlayer findNearestPlayer(ServerPlayer player, double maxDistance) {
         ServerPlayer nearest = null;
