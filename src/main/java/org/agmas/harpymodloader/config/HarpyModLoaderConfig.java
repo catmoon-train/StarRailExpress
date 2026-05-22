@@ -22,7 +22,7 @@ public class HarpyModLoaderConfig implements ConfigData {
     public ArrayList<String> disabledModifiers = new ArrayList<>();
 
     // Maximum amount of modifiers a player can have.")
-    public int modifierMaximum = 1;
+    public int modifierMaximum = 4;
 
     // How many modifiers should be given relative to the Player Count
     // (Multiplier)")

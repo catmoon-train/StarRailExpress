@@ -198,6 +198,7 @@ public class SREMurderGameMode extends GameMode {
 
         // 使用临时映射存储要添加的修饰符，避免在遍历过程中修改数据结构
         Map<UUID, List<SREModifier>> tempModifierAssignments = new HashMap<>();
+        int maxModifiersPerPlayer = Math.max(0, HarpyModLoaderConfig.HANDLER.instance().modifierMaximum);
         var allModifiers = new ArrayList<>(HMLModifiers.MODIFIERS);
         int killerMods = (int) allModifiers.stream().filter(modifier -> modifier.killerOnly).count();
         Collections.shuffle(allModifiers);
@@ -217,70 +218,47 @@ public class SREMurderGameMode extends GameMode {
             if (Harpymodloader.FORCED_MODDED_MODIFIER.containsKey(mod)) {
                 for (ServerPlayer player : shuffledPlayers) {
                     if (Harpymodloader.FORCED_MODDED_MODIFIER.get(mod).contains(player.getUUID())) {
+                        if (getAssignedModifierCount(tempModifierAssignments,
+                                player.getUUID()) >= maxModifiersPerPlayer) {
+                            continue;
+                        }
                         // 临时存储，稍后统一添加
-                        tempModifierAssignments.computeIfAbsent(player.getUUID(), k -> new ArrayList<>()).add(mod);
-                        // ModifierAssigned.EVENT.invoker().assignModifier(player, mod);
-                        playersAssigned++;
+                        if (addModifierAssignment(tempModifierAssignments, player.getUUID(), mod)) {
+                            // ModifierAssigned.EVENT.invoker().assignModifier(player, mod);
+                            playersAssigned++;
+                        }
                     }
                 }
             }
-            for (ServerPlayer player : shuffledPlayers) {
-                if (HarpyModLoaderConfig.HANDLER.instance().disabledModifiers.contains(mod.identifier.toString())) {
+
+            if (HarpyModLoaderConfig.HANDLER.instance().disabledModifiers.contains(mod.identifier.toString())) {
+                continue;
+            }
+
+            int m_max = Harpymodloader.MODIFIER_MAX.getOrDefault(mod.identifier, 1);
+            int targetAssignments = specificDesiredRoleCount;
+            if (m_max != -1) {
+                targetAssignments = Math.min(targetAssignments, m_max);
+            }
+            if (playersAssigned >= targetAssignments) {
+                continue;
+            }
+
+            List<ServerPlayer> candidates = new ArrayList<>(shuffledPlayers);
+            candidates.removeIf(player -> !canAssignModifierToPlayer(mod, player, gameWorldComponent,
+                    tempModifierAssignments, maxModifiersPerPlayer));
+            Collections.shuffle(candidates);
+            candidates.sort(Comparator.comparingInt(
+                    player -> getAssignedModifierCount(tempModifierAssignments, player.getUUID())));
+
+            for (ServerPlayer player : candidates) {
+                if (playersAssigned >= targetAssignments) {
                     break;
                 }
-                if (playersAssigned >= specificDesiredRoleCount) {
-                    break;
-                }
-
-                int m_max = Harpymodloader.MODIFIER_MAX.getOrDefault(mod.identifier, 1);
-                if (m_max != -1) {
-                    if (playersAssigned >= m_max) {
-                        break;
-                    }
-                }
-
-                boolean valid = true;
-
-                if (mod.canOnlyBeAppliedTo != null) {
-                    if (gameWorldComponent.getRole(player) != null) {
-                        valid = valid && mod.canOnlyBeAppliedTo.contains(gameWorldComponent.getRole(player));
-                    }
-                }
-                if (mod.cannotBeAppliedTo != null) {
-                    if (gameWorldComponent.getRole(player) != null) {
-                        valid = valid && !mod.cannotBeAppliedTo.contains(gameWorldComponent.getRole(player));
-                    }
-                }
-                if (!valid) {
-                    continue;
-                }
-
-                if (mod.killerOnly) {
-                    var role = gameWorldComponent.getRole(player);
-                    valid = valid && role != null && role.canUseKiller();
-                }
-                if (mod.civilianOnly) {
-                    valid = valid && gameWorldComponent.isInnocent(player);
-                }
-                if (mod.notVigilante) {
-                    valid = valid && !gameWorldComponent.isVigilanteTeam(player);
-                }
-                if (!valid) {
-                    continue;
-                }
-                var pModifiers = tempModifierAssignments.getOrDefault(player, null);
-                if (pModifiers != null) {
-                    if (pModifiers.size() >= HarpyModLoaderConfig.HANDLER.instance().modifierMaximum) {
-                        continue;
-                    }
-                    if (pModifiers.contains(mod)) {
-                        continue;
-                    }
-                }
-
                 // 临时存储，稍后统一添加
-                tempModifierAssignments.computeIfAbsent(player.getUUID(), k -> new ArrayList<>()).add(mod);
-                playersAssigned++;
+                if (addModifierAssignment(tempModifierAssignments, player.getUUID(), mod)) {
+                    playersAssigned++;
+                }
             }
         }
 
@@ -314,6 +292,54 @@ public class SREMurderGameMode extends GameMode {
                 }
             }
         }
+    }
+
+    private static boolean addModifierAssignment(Map<UUID, List<SREModifier>> modifierAssignments, UUID playerUuid,
+            SREModifier modifier) {
+        List<SREModifier> playerModifiers = modifierAssignments.computeIfAbsent(playerUuid, k -> new ArrayList<>());
+        if (playerModifiers.contains(modifier)) {
+            return false;
+        }
+        playerModifiers.add(modifier);
+        return true;
+    }
+
+    private static boolean canAssignModifierToPlayer(SREModifier modifier, ServerPlayer player,
+            SREGameWorldComponent gameWorldComponent, Map<UUID, List<SREModifier>> modifierAssignments,
+            int maxModifiersPerPlayer) {
+        UUID playerUuid = player.getUUID();
+        if (getAssignedModifierCount(modifierAssignments, playerUuid) >= maxModifiersPerPlayer) {
+            return false;
+        }
+        List<SREModifier> playerModifiers = modifierAssignments.get(playerUuid);
+        if (playerModifiers != null) {
+            if (playerModifiers.contains(modifier)) {
+                return false;
+            }
+        }
+
+        var role = gameWorldComponent.getRole(player);
+        if (modifier.canOnlyBeAppliedTo != null && role != null && !modifier.canOnlyBeAppliedTo.contains(role)) {
+            return false;
+        }
+        if (modifier.cannotBeAppliedTo != null && role != null && modifier.cannotBeAppliedTo.contains(role)) {
+            return false;
+        }
+        if (modifier.killerOnly && (role == null || !role.canUseKiller())) {
+            return false;
+        }
+        if (modifier.civilianOnly && !gameWorldComponent.isInnocent(player)) {
+            return false;
+        }
+        if (modifier.notVigilante && gameWorldComponent.isVigilanteTeam(player)) {
+            return false;
+        }
+        return true;
+    }
+
+    private static int getAssignedModifierCount(Map<UUID, List<SREModifier>> modifierAssignments, UUID playerUuid) {
+        List<SREModifier> playerModifiers = modifierAssignments.get(playerUuid);
+        return playerModifiers == null ? 0 : playerModifiers.size();
     }
 
     /**
