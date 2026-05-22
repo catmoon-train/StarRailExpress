@@ -9,6 +9,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import org.agmas.noellesroles.content.item.TimeStopClock;
+import org.agmas.noellesroles.init.ModItems;
 
 /**
  * 画板的服务端网络处理
@@ -83,6 +85,10 @@ public class DrawingBoardServerNetwork {
                                     true // actionbar
                             );
                             return;
+                        }
+                        // 如果是时停钟，则只能使用一次
+                        if (itemStack.getItem() == ModItems.TIME_STOP_CLOCK){
+                            itemStack.setDamageValue(TimeStopClock.MAX_DURABILITY - 1);
                         }
                         // 给予物品到快捷栏
                         player.getInventory().add(itemStack);
