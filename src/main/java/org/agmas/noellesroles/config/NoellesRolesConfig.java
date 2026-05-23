@@ -158,7 +158,7 @@ public class NoellesRolesConfig implements ConfigData {
     public int infectedCooldown = 80;
 
     /**
-     * DIO/东方角色刷新最小玩家数
+     * 彩蛋角色刷新最小玩家数
      */
     public int minPlayerForEggRoles = 12;
 

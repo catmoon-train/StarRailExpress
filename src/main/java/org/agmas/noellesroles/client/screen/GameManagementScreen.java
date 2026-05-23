@@ -150,10 +150,9 @@ public class GameManagementScreen extends Screen {
     // 【数据定义】在这里追加分类 / 小节 / 按钮，无需改动其他代码。
     // 所有翻译键以 screen.game_manage. 开头。
     // ══════════════════════════════════════════════════════════════════
+    public static final Random random = new Random();
 
     public static final List<Category> CATEGORIES = initializeCategories();
-
-    public static Random random = new Random();
 
     private static List<Category> initializeCategories() {
         List<Category> categories = new ArrayList<>();

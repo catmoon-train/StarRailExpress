@@ -71,7 +71,7 @@ public class SERoles {
             false,
             SRERole.MoodType.REAL,
             TMMRoles.CIVILIAN.getMaxSprintTime(),
-            true)).setCanBeRandomedByOtherRoles(false);
+            true)).setCanBeRandomedByOtherRoles(false).setMax(1).setEnableChance(50).setEnableNeededPlayerCount(10);
 
     public static List<ShopEntry> INITIATE_SHOP = Util.make(new ArrayList<>(), entries -> {
         entries.add(new ShopEntry(TMMItems.KNIFE.getDefaultInstance(), 200, ShopEntry.Type.WEAPON));
@@ -109,9 +109,12 @@ public class SERoles {
             var killerRoleCount = (int) Math.floor((float) playerList.size() / (float) 6);
 
             if (killerRoleCount > 1) {
-                Harpymodloader.setRoleMaximum(NECROMANCER.getIdentifier(), playerList.size() >= config.minPlayerForNecromancer ? 1 : 0);
-                Harpymodloader.setRoleMaximum(AVARICIOUS.getIdentifier(), playerList.size() >= config.minPlayerForAvaricious ? 1 : 0);
-                Harpymodloader.setRoleMaximum(INITIATE.getIdentifier(), playerList.size() >= config.minPlayerForInitiate ? 1 : 0);
+                Harpymodloader.setRoleMaximum(NECROMANCER.getIdentifier(),
+                        playerList.size() >= config.minPlayerForNecromancer ? 1 : 0);
+                Harpymodloader.setRoleMaximum(AVARICIOUS.getIdentifier(),
+                        playerList.size() >= config.minPlayerForAvaricious ? 1 : 0);
+                Harpymodloader.setRoleMaximum(INITIATE.getIdentifier(),
+                        playerList.size() >= config.minPlayerForInitiate ? 1 : 0);
                 RoleAssignmentManager.addOccupationRole(SERoles.INITIATE, SERoles.INITIATE);
             } else {
                 Harpymodloader.setRoleMaximum(NECROMANCER.getIdentifier(), 0);
