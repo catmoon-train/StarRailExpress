@@ -1661,34 +1661,34 @@ public class ModEventsRegister {
         // }
         // });
 
-        // 年兽二次分发身份时补发鞭炮（适配阳光自选/职业轮选模式）
-        ModdedRoleAssigned.EVENT.register((player, role) -> {
-            if (!role.identifier().equals(ModRoles.NIAN_SHOU_ID)) {
-                return;
-            }
-            if (nianShouFirecrackersDistributedThisGame) {
-                return;
-            }
-            // 场上存在年兽，发放全场鞭炮
-            var level = player.level();
-            SREGameWorldComponent gw = SREGameWorldComponent.KEY.get(level);
-            if (gw == null || !gw.isRunning()) {
-                return;
-            }
-            nianShouFirecrackersDistributedThisGame = true;
-            if (level instanceof ServerLevel serverLevel) {
-                for (var p : serverLevel.players()) {
-                    ItemStack firecrackerStack = new ItemStack(TMMItems.FIRECRACKER);
-                    firecrackerStack.set(DataComponents.MAX_STACK_SIZE, 4);
-                    firecrackerStack.setCount(4);
-                    p.getInventory().add(firecrackerStack);
-                    BroadcastCommand.BroadcastMessage(p, Component
-                            .translatable("message.noellesroles.nianshou.firecrackers_distributed")
-                            .withStyle(ChatFormatting.GOLD));
-                }
-            }
-            Noellesroles.LOGGER.info("NianShou firecrackers distributed via ModdedRoleAssigned (补发)");
-        });
+        // // 年兽二次分发身份时补发鞭炮（适配阳光自选/职业轮选模式）
+        // ModdedRoleAssigned.EVENT.register((player, role) -> {
+        //     if (!role.identifier().equals(ModRoles.NIAN_SHOU_ID)) {
+        //         return;
+        //     }
+        //     if (nianShouFirecrackersDistributedThisGame) {
+        //         return;
+        //     }
+        //     // 场上存在年兽，发放全场鞭炮
+        //     var level = player.level();
+        //     SREGameWorldComponent gw = SREGameWorldComponent.KEY.get(level);
+        //     if (gw == null || !gw.isRunning()) {
+        //         return;
+        //     }
+        //     nianShouFirecrackersDistributedThisGame = true;
+        //     if (level instanceof ServerLevel serverLevel) {
+        //         for (var p : serverLevel.players()) {
+        //             ItemStack firecrackerStack = new ItemStack(TMMItems.FIRECRACKER);
+        //             firecrackerStack.set(DataComponents.MAX_STACK_SIZE, 4);
+        //             firecrackerStack.setCount(4);
+        //             p.getInventory().add(firecrackerStack);
+        //             BroadcastCommand.BroadcastMessage(p, Component
+        //                     .translatable("message.noellesroles.nianshou.firecrackers_distributed")
+        //                     .withStyle(ChatFormatting.GOLD));
+        //         }
+        //     }
+        //     Noellesroles.LOGGER.info("NianShou firecrackers distributed via ModdedRoleAssigned (补发)");
+        // });
 
         OnGameTrueStarted.EVENT.register((serverLevel) -> {
             TarotAssemblyManager.havingMeeting = false;
