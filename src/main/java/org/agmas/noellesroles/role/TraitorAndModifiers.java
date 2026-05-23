@@ -484,9 +484,7 @@ public class TraitorAndModifiers {
                     serverLevel.playSound(null, triggerX, triggerY, triggerZ,
                             SoundEvents.WARDEN_AGITATED, SoundSource.MASTER, 1.0f, 1.0f);
                     
-                    // 给予初始物品
-                    sp.addItem(new ItemStack(org.agmas.noellesroles.init.ModItems.SHORT_SHOTGUN));
-                    sp.addItem(new ItemStack(TMMItems.GRENADE));
+                    // 初始物品已由 changeRole() → ModdedRoleAssigned.EVENT → RoleInitialItems 自动分发
                     
                     return false; // 取消死亡
                 }

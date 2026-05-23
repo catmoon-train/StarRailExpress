@@ -264,11 +264,13 @@ public class PainterPlayerComponent implements RoleComponent, ServerTickingCompo
         if (sittingInspirationTriggered)
             return;
         
-        boolean isSneaking = player.isCrouching();
+        // 检测坐在椅子上（参考座椅任务：getVehicle() instanceof SeatEntity）
+        boolean isSitting = player.getVehicle() != null 
+                && player.getVehicle() instanceof io.wifi.starrailexpress.content.block.entity.SeatEntity;
         
-        if (isSneaking) {
+        if (isSitting) {
             // 玩家正在坐着
-            sittingTime++;
+            sittingTime++; 
             
             // 每秒同步一次
             if (sittingTime % 20 == 0 && sittingTime <= SITTING_TIME_THRESHOLD) {
@@ -290,8 +292,6 @@ public class PainterPlayerComponent implements RoleComponent, ServerTickingCompo
                 sittingTime = 0;
             }
         }
-        
-        this.wasSneaking = isSneaking;
     }
     
     /**
