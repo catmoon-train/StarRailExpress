@@ -40,6 +40,9 @@ public class JetpackItem extends ArmorItem {
     
     /** 玩家是否在上一次检测时处于蹲下状态 */
     private static final Map<UUID, Boolean> wasSneaking = new HashMap<>();
+    
+    /** 玩家是否在上一次检测时穿着喷气背包（用于过渡检测，只清除一次） */
+    private static final Map<UUID, Boolean> wasWearingJetpack = new HashMap<>();
 
     public JetpackItem(Holder<ArmorMaterial> holder, Type type, Properties properties) {
         super(holder, type, properties);
@@ -92,17 +95,25 @@ public class JetpackItem extends ArmorItem {
         ItemStack chestplate = player.getInventory().getArmor(2);
         
         // 检查是否是喷气背包
-        if (!chestplate.is(ModItems.JETPACK)) {
-            // 如果没有穿喷气背包，清除漂浮效果
-            if (player.hasEffect(MobEffects.LEVITATION)) {
-                // 检查是否是喷气背包给予的漂浮效果
-                MobEffectInstance levitation = player.getEffect(MobEffects.LEVITATION);
-                if (levitation != null && levitation.getDuration() > 100) { // 长时间持续的是喷气背包给的
-                    player.removeEffect(MobEffects.LEVITATION);
+        boolean isWearingJetpack = chestplate.is(ModItems.JETPACK);
+        
+        if (!isWearingJetpack) {
+            // 没有喷气背包 -> 只在从穿到脱的过渡瞬间清除一次漂浮（不要每tick持续清除，会误删其他来源的漂浮）
+            boolean prevWearing = wasWearingJetpack.getOrDefault(player.getUUID(), false);
+            if (prevWearing) {
+                if (player.hasEffect(MobEffects.LEVITATION)) {
+                    MobEffectInstance levitation = player.getEffect(MobEffects.LEVITATION);
+                    if (levitation != null && levitation.getDuration() > 100) {
+                        player.removeEffect(MobEffects.LEVITATION);
+                    }
                 }
             }
+            wasWearingJetpack.put(player.getUUID(), false);
             return;
         }
+        
+        // 穿着喷气背包，更新状态
+        wasWearingJetpack.put(player.getUUID(), true);
         
         // 如果玩家正在蹲下
         if (player.isShiftKeyDown()) {
