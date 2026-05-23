@@ -5,12 +5,11 @@ import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.ShopEntry;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.Util;
 import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.harpymodloader.events.ResetPlayerEvent;
 import org.agmas.harpymodloader.modded_murder.RoleAssignmentManager;
-import org.agmas.noellesroles.config.NoellesRolesConfig;
+
 import pro.fazeclan.river.stupid_express.StupidExpress;
 import pro.fazeclan.river.stupid_express.role.amnesiac.RoleSelectionHandler;
 import pro.fazeclan.river.stupid_express.role.arsonist.OilDousingHandler;
@@ -82,6 +81,7 @@ public class SERoles {
     });
 
     public static void init() {
+        RoleAssignmentManager.addOccupationRole(SERoles.INITIATE, SERoles.INITIATE);
 
         /// AMNESIAC
         Harpymodloader.setRoleMaximum(AMNESIAC.getIdentifier(), 1);
@@ -99,29 +99,6 @@ public class SERoles {
         /// NECROMANCER
 
         RevivalSelectionHandler.init();
-
-        ServerTickEvents.END_SERVER_TICK.register(server -> {
-            var playerList = server.getPlayerList().getPlayers();
-            if (playerList.isEmpty()) {
-                return;
-            }
-            NoellesRolesConfig config = NoellesRolesConfig.HANDLER.instance();
-            var killerRoleCount = (int) Math.floor((float) playerList.size() / (float) 6);
-
-            if (killerRoleCount > 1) {
-                Harpymodloader.setRoleMaximum(NECROMANCER.getIdentifier(),
-                        playerList.size() >= config.minPlayerForNecromancer ? 1 : 0);
-                Harpymodloader.setRoleMaximum(AVARICIOUS.getIdentifier(),
-                        playerList.size() >= config.minPlayerForAvaricious ? 1 : 0);
-                Harpymodloader.setRoleMaximum(INITIATE.getIdentifier(),
-                        playerList.size() >= config.minPlayerForInitiate ? 1 : 0);
-                RoleAssignmentManager.addOccupationRole(SERoles.INITIATE, SERoles.INITIATE);
-            } else {
-                Harpymodloader.setRoleMaximum(NECROMANCER.getIdentifier(), 0);
-                Harpymodloader.setRoleMaximum(AVARICIOUS.getIdentifier(), 0);
-                Harpymodloader.setRoleMaximum(INITIATE.getIdentifier(), 0);
-            }
-        });
 
         /// AVARICIOUS
 

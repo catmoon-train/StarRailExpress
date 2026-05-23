@@ -297,7 +297,7 @@ public class InitModRolesMax {
             autoModifierMaxCount(serverLevel, gameWorldComponent, players);
 
             autoChangePresent();
-            
+
             // 获取当前地图ID
             String currentMap = "unknown";
             if (serverLevel.getServer() != null) {
@@ -317,6 +317,23 @@ public class InitModRolesMax {
             }
 
             {
+                NoellesRolesConfig config = NoellesRolesConfig.HANDLER.instance();
+                var killerRoleCount = (int) Math.floor((float) players_count / (float) 6);
+
+                if (killerRoleCount > 1) {
+                    Harpymodloader.setRoleMaximum(SERoles.NECROMANCER.getIdentifier(),
+                            players_count >= config.minPlayerForNecromancer ? 1 : 0);
+                    Harpymodloader.setRoleMaximum(SERoles.AVARICIOUS.getIdentifier(),
+                            players_count >= config.minPlayerForAvaricious ? 1 : 0);
+                    Harpymodloader.setRoleMaximum(SERoles.INITIATE.getIdentifier(),
+                            players_count >= config.minPlayerForInitiate ? 1 : 0);
+                } else {
+                    Harpymodloader.setRoleMaximum(SERoles.NECROMANCER.getIdentifier(), 0);
+                    Harpymodloader.setRoleMaximum(SERoles.AVARICIOUS.getIdentifier(), 0);
+                    Harpymodloader.setRoleMaximum(SERoles.INITIATE.getIdentifier(), 0);
+                }
+            }
+            {
                 // 杀手中立（只处理没有配置的职业：无概率 且 无显式 setMax）
                 var neutralRoles = new ArrayList<SRERole>(TMMRoles.ROLES.values());
                 neutralRoles.removeIf((r) -> {
@@ -332,8 +349,9 @@ public class InitModRolesMax {
                 neutralForKillers = players_count / 6;
                 // 减去已有配置的职业数，避免超额分配
                 neutralForKillers -= (int) TMMRoles.ROLES.values().stream()
-                    .filter(r -> r.isNeutrals() && r.isNeutralForKiller() && (r.enableChance >= 0 || r.maxCount > 0))
-                    .count();
+                        .filter(r -> r.isNeutrals() && r.isNeutralForKiller()
+                                && (r.enableChance >= 0 || r.maxCount > 0))
+                        .count();
                 neutralForKillers = Math.max(0, neutralForKillers);
                 for (int i = 0; i < neutralForKillers && i < neutralRoles.size(); i++) {
                     Harpymodloader.setRoleMaximum(neutralRoles.get(i), 1);
@@ -364,7 +382,8 @@ public class InitModRolesMax {
             }
 
             // 红尘客 - 从配置读取概率 (100 - 配置值 = 不刷新的概率)
-            if (players_count >= config.minPlayerForWayfarer && random.nextInt(0, 100) >= (100 - config.chanceOfWayfarer)) {
+            if (players_count >= config.minPlayerForWayfarer
+                    && random.nextInt(0, 100) >= (100 - config.chanceOfWayfarer)) {
                 Harpymodloader.setRoleMaximum(ModRoles.WAYFARER_ID, 1);
             } else {
                 Harpymodloader.setRoleMaximum(ModRoles.WAYFARER_ID, 0);
@@ -400,7 +419,8 @@ public class InitModRolesMax {
             }
 
             // 死灵法师数量 - 从配置读取最小玩家数和概率
-            if (players_count >= config.minPlayerForNecromancer && random.nextInt(0, 100) <= config.chanceOfNecromancer) {
+            if (players_count >= config.minPlayerForNecromancer
+                    && random.nextInt(0, 100) <= config.chanceOfNecromancer) {
                 Harpymodloader.setRoleMaximum(SERoles.NECROMANCER, 1);
             } else {
                 Harpymodloader.setRoleMaximum(SERoles.NECROMANCER, 0);
@@ -705,13 +725,16 @@ public class InitModRolesMax {
         ModRoles.PAINTER.setEnableChance(config.chanceOfPainter);
 
         // 雇佣兵 - 从配置读取概率和最小玩家数
-        ModRoles.MERCENARY.setEnableChance(config.chanceOfMercenary).setEnableNeededPlayerCount(config.minPlayerForMercenary);
+        ModRoles.MERCENARY.setEnableChance(config.chanceOfMercenary)
+                .setEnableNeededPlayerCount(config.minPlayerForMercenary);
 
         // 愚者 - 从配置读取概率和最小玩家数
-        ModRoles.THE_FOOL.setEnableChance(config.chanceOfTheFool).setEnableNeededPlayerCount(config.minPlayerForTheFool);
+        ModRoles.THE_FOOL.setEnableChance(config.chanceOfTheFool)
+                .setEnableNeededPlayerCount(config.minPlayerForTheFool);
 
         // 猫死灵法师 - 从配置读取概率和最小玩家数
-        ModRoles.CAT_NECROMANCER.setEnableChance(config.chanceOfCatNecromancer).setEnableNeededPlayerCount(config.minPlayerForCatNecromancer);
+        ModRoles.CAT_NECROMANCER.setEnableChance(config.chanceOfCatNecromancer)
+                .setEnableNeededPlayerCount(config.minPlayerForCatNecromancer);
 
         // 更好的义警 - 小概率（基于10000）
         ModRoles.BEST_VIGILANTE.setEnableRareChance(config.chanceOfBestVigilante);
@@ -721,7 +744,8 @@ public class InitModRolesMax {
 
         // StupidExpress 角色配置
         // 失忆者
-        SERoles.AMNESIAC.setEnableNeededPlayerCount(config.minPlayerForAmnesiac).setEnableChance(config.chanceOfAmnesiac);
+        SERoles.AMNESIAC.setEnableNeededPlayerCount(config.minPlayerForAmnesiac)
+                .setEnableChance(config.chanceOfAmnesiac);
 
         // 对没有 enableChance 的杀手方中立职业，默认 max=1、概率 75%
         for (var entry : TMMRoles.ROLES.entrySet()) {
