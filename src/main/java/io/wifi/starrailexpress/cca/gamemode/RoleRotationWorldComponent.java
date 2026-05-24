@@ -165,7 +165,7 @@ public class RoleRotationWorldComponent implements AutoSyncedComponent {
             role.canUseKiller() ||
             role.isNeutrals() ||
             isSpecialCivilianRole(role) ||  // 排除特殊平民职业
-            rolePool.contains(role)  // 排除基础池中已有的职业，防止重复
+            isRoleInPool(role)  // 排除基础池中已有的职业，防止重复
         );
 
         // 创建平民职业池并抽取5个
@@ -235,7 +235,7 @@ public class RoleRotationWorldComponent implements AutoSyncedComponent {
         List<SRERole> usedRoles = result.stream().map(RoleInstance::role).collect(Collectors.toList());
         List<SRERole> extraInnocents = new ArrayList<>();
         List<SRERole> availableExtra = new ArrayList<>(innocentRoles);
-        availableExtra.removeIf(role -> role == TMMRoles.CIVILIAN || usedRoles.contains(role) || isSpecialCivilianRole(role));
+        availableExtra.removeIf(role -> role == TMMRoles.CIVILIAN || usedRoles.stream().anyMatch(r -> r.identifier().equals(role.identifier())) || isSpecialCivilianRole(role));
         Collections.shuffle(availableExtra, random);
         for (int i = 0; i < 5 && i < availableExtra.size() && result.size() < count; i++) {
             SRERole extraRole = availableExtra.get(i);
@@ -659,7 +659,7 @@ public class RoleRotationWorldComponent implements AutoSyncedComponent {
 
             // 移除该平民的旧职业（放回池子）
             SRERole oldRole = selectedRoles.get(targetUuid);
-            if (oldRole != null && !rolePool.contains(oldRole)) {
+            if (oldRole != null && !isRoleInPool(oldRole)) {
                 rolePool.add(oldRole);
             }
 
@@ -745,10 +745,31 @@ public class RoleRotationWorldComponent implements AutoSyncedComponent {
     );
 
     /**
-     * 检查是否是特殊平民职业
+     * 检查是否是特殊平民职业（基于 identifier 比较，防止 SRERole 未覆写 equals 导致的去重失效）
      */
     private boolean isSpecialCivilianRole(SRERole role) {
-        return SPECIAL_CIVILIAN_ROLES.contains(role);
+        if (role == null) return false;
+        ResourceLocation id = role.identifier();
+        for (SRERole special : SPECIAL_CIVILIAN_ROLES) {
+            if (id.equals(special.identifier())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 检查角色是否已在池子中（基于 identifier 比较）
+     */
+    private boolean isRoleInPool(SRERole role) {
+        if (role == null) return false;
+        ResourceLocation id = role.identifier();
+        for (SRERole r : rolePool) {
+            if (id.equals(r.identifier())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // ==================== NBT 序列化 ====================
