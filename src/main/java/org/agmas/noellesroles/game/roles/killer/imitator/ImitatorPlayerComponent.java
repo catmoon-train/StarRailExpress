@@ -148,7 +148,7 @@ public class ImitatorPlayerComponent implements RoleComponent, ServerTickingComp
         // 复制新能力时重置召回者状态
         imitRecallerPlaced = false;
 
-        String roleName = role.identifier().getPath();
+        String roleName = Component.translatable("announcement.star.role." + role.identifier().getPath()).getString();
         self.displayClientMessage(Component.translatable("message.noellesroles.imitator.copy_success",
                 roleName, tempCopiedUsesRemaining).withStyle(ChatFormatting.GREEN), true);
         this.sync();
@@ -260,7 +260,7 @@ public class ImitatorPlayerComponent implements RoleComponent, ServerTickingComp
         chargingCorpseUuid = null;
         copyActionCooldown = 40; // 2秒吃完后小冷却
 
-        String roleName = role.identifier().getPath();
+        String roleName = Component.translatable("announcement.star.role." + role.identifier().getPath()).getString();
         sp.displayClientMessage(Component.translatable("message.noellesroles.imitator.eat_complete",
                 roleName).withStyle(ChatFormatting.GREEN), true);
         this.sync();
@@ -310,10 +310,10 @@ public class ImitatorPlayerComponent implements RoleComponent, ServerTickingComp
                 int cd = tempSkillCooldown;
                 String cdStr = cd > 0 ? " (" + ((cd + 19) / 20) + "s)" : "";
                 sp.displayClientMessage(Component.translatable("message.noellesroles.imitator.slot_switch_temp",
-                        tempCopiedRoleId.getPath(), tempCopiedUsesRemaining + cdStr)
+                        Component.translatable("announcement.star.role." + tempCopiedRoleId.getPath()).getString(), tempCopiedUsesRemaining + cdStr)
                         .withStyle(ChatFormatting.GREEN), true);
             } else {
-                String name = slotRoleId[activeSlotIndex] != null ? slotRoleId[activeSlotIndex].getPath() : "empty";
+                String name = slotRoleId[activeSlotIndex] != null ? Component.translatable("announcement.star.role." + slotRoleId[activeSlotIndex].getPath()).getString() : "empty";
                 int cd = slotCooldown[activeSlotIndex];
                 String cdStr = cd > 0 ? " (" + ((cd + 19) / 20) + "s)" : "";
                 sp.displayClientMessage(Component.translatable("message.noellesroles.imitator.slot_switch",
