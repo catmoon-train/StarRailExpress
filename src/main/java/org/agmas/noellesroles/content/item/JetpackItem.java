@@ -23,7 +23,8 @@ import java.util.UUID;
  * - 穿在身上（渲染为铁胸甲）
  * - 蹲下时给予漂浮效果：
  *   - 普通人：漂浮1
- *   - 飞行员：漂浮2
+ *   - 飞行员：漂浮5
+ *   - 杀手阵营：漂浮3
  *   - 影隼：漂浮7，不消耗耐久
  * - 普通玩家每秒消耗1点耐久，60点耐久
  * - 可丢弃
@@ -80,6 +81,17 @@ public class JetpackItem extends ArmorItem {
             return false;
         }
         return gameWorld.isRole(player, ModRoles.SHADOW_FALCON);
+    }
+
+    /**
+     * 检查玩家是否是杀手阵营（含杀手方中立，不含影隼）
+     */
+    private static boolean isKillerTeam(Player player) {
+        if (isShadowFalcon(player)) return false;
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
+        if (gameWorld == null) return false;
+        var role = gameWorld.getRole(player);
+        return role != null && role.isKillerTeam();
     }
 
     /**
@@ -145,6 +157,10 @@ public class JetpackItem extends ArmorItem {
                 } else if (isPilot(player)) {
                     // 飞行员获得漂浮5
                     player.addEffect(new MobEffectInstance(MobEffects.LEVITATION, LEVITATION_DURATION, 4, 
+                            false, false, true));
+                } else if (isKillerTeam(player)) {
+                    // 杀手阵营获得漂浮3
+                    player.addEffect(new MobEffectInstance(MobEffects.LEVITATION, LEVITATION_DURATION, 2, 
                             false, false, true));
                 } else {
                     // 普通人获得漂浮1

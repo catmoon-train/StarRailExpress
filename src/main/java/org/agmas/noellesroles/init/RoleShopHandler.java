@@ -2159,15 +2159,15 @@ public class RoleShopHandler {
         ModItems.JETPACK.getDefaultInstance(),
         150,
         ShopEntry.Type.TOOL));
-    // 鞘翅 - 300金币
+    // 鞘翅 - 400金币
     PILOT_SHOP.add(new ShopEntry(
         Items.ELYTRA.getDefaultInstance(),
-        300,
+        400,
         ShopEntry.Type.TOOL));
-    // 烟花火箭 - 50金币
+    // 烟花火箭 - 75金币
     PILOT_SHOP.add(new ShopEntry(
         new ItemStack(Items.FIREWORK_ROCKET, 1),
-        50,
+        75,
         ShopEntry.Type.TOOL));
 
     // 影隼商店
@@ -2177,7 +2177,7 @@ public class RoleShopHandler {
         ShopEntry.Type.WEAPON));
     SHADOW_FALCON_SHOP.add(new ShopEntry(
         ModItems.THROWING_KNIFE.getDefaultInstance(),
-        200,
+        145,
         ShopEntry.Type.TOOL));
     SHADOW_FALCON_SHOP.add(new ShopEntry(
         TMMItems.CROWBAR.getDefaultInstance(),
