@@ -1,7 +1,7 @@
 {
   "or_2_argu": "%s 或 %s",
   "message.stupid_express.generic.skill_not_available":"技能暫不可用",
-  "message.stupid_express.amnesiac.cannot_interact_fake_body": "無法與偽造的屍體互動",
+  "message.stupid_express.amnesiac.cannot_interact_fake_body": "無法與偽造的屍體交互",
   "message.stupid_express.necromancer.cannot_revive_fake_body": "無法復活偽造的屍體",
   "announcement.star.goals.amnesiac": "從屍首上汲取回憶，穿戴其過往經歷",
   "announcement.star.goals.stupid_express.amnesiac": "從屍首上汲取回憶，穿戴其過往經歷",
@@ -11,8 +11,6 @@
   "announcement.star.goals.arsonist": "將所有玩家澆濕後點燃，燒死所有玩家後獲勝",
   "announcement.star.goals.stupid_express.arsonist": "將所有玩家澆濕後點燃，燒死所有玩家後獲勝",
   "announcement.star.role.stupid_express.arsonist": "縱火犯",
-  "title.stupid_express.refugee.subtlte.active": "\u00a74迎 接 地 狱 的 怀 抱",
-
   "announcement.star.role.arsonist": "縱火犯",
   "announcement.star.win.stupid_express.arsonist": "縱火犯勝利",
   "announcement.star.win.arsonist": "縱火犯勝利",
@@ -122,6 +120,7 @@
   "stupid_express.config.modifiersSection.loversSection.loversWinWithCivilians.desc": "如果此選項為開啟狀態，且兩位戀人的身份都為平民時，那麼戀人與平民會共同獲勝，否則他們必須被淘汰遊戲才會結束",
   "hud.stupid_express.necromancer.revived_player": "%s復活了一名殺手%s",
   "hud.stupid_express.refugee.revived": "\u00a74亡命徒已復活",
+  "title.stupid_express.refugee.subtlte.active": "\u00a74迎 接 地 獄 的 懷 抱",
   "hud.stupid_express.refugee.countdown": "還有 %s 秒後復活",
   "gui.stupid_express.refugee.revival": "復活倒計時: %s 秒",
   "gui.stupid_express.refugee.all_death": "所有亡命徒已死亡！時間回溯！",

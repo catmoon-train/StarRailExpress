@@ -92,8 +92,8 @@
   "text.autoconfig.starrailexpress.option.itemSkinSyncServerPort": "物品皮膚同步資料庫端口（僅服務端）",
   "text.autoconfig.starrailexpress.option.itemSkinSyncServerKey": "物品皮膚同步資料庫密鑰（僅服務端）",
   "text.autoconfig.starrailexpress.option.itemSkinSyncServerEnabled": "啟用物品皮膚同步功能（僅服務端）",
-  "text.autoconfig.starrailexpress.option.afkKickEnabled": "啟用掛機踢出功能",
   "text.autoconfig.starrailexpress.option.afkDeathEnabled": "啟用掛機死亡/踢出功能",
+  "text.autoconfig.starrailexpress.option.afkKickEnabled": "啟用掛機踢出功能",
   "text.autoconfig.starrailexpress.option.afkThresholdSeconds": "掛機臨界時間",
   "text.autoconfig.starrailexpress.option.afkDeathSeconds": "掛機死亡時間",
   "text.autoconfig.starrailexpress.option.afkWarningSeconds": "掛機警告時間",
@@ -115,7 +115,7 @@
   "text.autoconfig.starrailexpress.option.hideAndSeekTimePerPlayer": "躲貓貓模式：每個玩家的時長增量（總時長=基數+玩家數*增量）(單位：秒)",
   "text.autoconfig.starrailexpress.option.hideAndSeekHiderScale": "躲貓貓模式：躲藏者體型縮放",
   "text.autoconfig.starrailexpress.option.hideRandomRoleInRoleRotation": "鵝鴨殺輪抽模式(玩家選擇隨機時不會展示職業)",
-  "text.autoconfig.starrailexpress.option.hideRandomRoleInRoleRotation.@Tooltip": "啟用後，在職業輪選模式中，如果玩家選擇了隨機，GUI左側的玩家列表將顯示“隨機”而不是實際分配的職業。",
+  "text.autoconfig.starrailexpress.option.hideRandomRoleInRoleRotation.@Tooltip": "啟用後，在職業輪選模式中，如果玩家選擇了隨機，GUI左側的玩家列表將顯示“隨機”不是實際分配的職業。",
   "text.autoconfig.starrailexpress.option.enableNoLimitLoversInLoverMode": "戀人模式：不限制單個人的戀人數量（允許多重鏈子存在）",
   "text.autoconfig.starrailexpress.option.loverModeLoversPercent": "戀人模式：戀人詞條占總玩家數數量占比。（最大為1）",
   "text.autoconfig.starrailexpress.option.refugeeModeRefugeePercent": "難民模式：難民詞條占總玩家數數量占比。（最大為1）",
@@ -208,6 +208,7 @@
   "text.autoconfig.noellesroles.option.swastMaps": "會刷新特警的地圖",
   "text.autoconfig.noellesroles.option.underwaterRolesMaps": "會刷新水下角色的地圖（如海王、潛水夫、水鬼）",
   "text.autoconfig.noellesroles.option.konggangMaps": "會刷新飛行角色的地圖（如飛行員、影隼）",
+  "text.autoconfig.noellesroles.option.cuckooMaps": "布穀鳥專屬地圖（空則不限制，填了則僅在指定地圖刷新）",
   "text.autoconfig.noellesroles.option.chanceOfTouhouRoles": "東方職業（彩蛋）刷新概率",
   "text.autoconfig.noellesroles.option.chanceOfEggRoles": "彩蛋職業刷新概率",
   "text.autoconfig.noellesroles.option.chanceOfModifierRefugee": "難民詞條概率(%%)",
@@ -370,5 +371,7 @@
   "text.autoconfig.stupid_express.option.modifiersSection": "修飾符選項（服務端）",
   "text.autoconfig.stupid_express.option.modifiersSection.loversSection": "戀人選項",
   "text.autoconfig.stupid_express.option.modifiersSection.loversSection.loversKnowImmediately": "戀人能夠知道彼此",
-  "text.autoconfig.stupid_express.option.modifiersSection.loversSection.canLoverHaveMultipleLovers": "允許戀人詞條重複綁定"
+  "text.autoconfig.stupid_express.option.modifiersSection.loversSection.canLoverHaveMultipleLovers": "允許戀人詞條重複綁定",
+  "text.autoconfig.noellesroles.option.silencerMax": "靜語者最大數量",
+  "text.autoconfig.noellesroles.option.chanceOfSilencer": "靜語者生成概率（%）"
 }
