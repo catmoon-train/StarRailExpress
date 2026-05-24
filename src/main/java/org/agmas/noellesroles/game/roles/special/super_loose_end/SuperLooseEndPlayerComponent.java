@@ -59,7 +59,13 @@ public class SuperLooseEndPlayerComponent implements RoleComponent, ServerTickin
 
     @Override
     public void init() {
+        // 重置数据
+        placed = false;
+        x = 0;
+        y = 0;
+        z = 0;
         curAbilityIdx = 0;
+
         abilityCooldowns.clear();
         superLooseEndAbilities.clear();
         {
@@ -189,7 +195,7 @@ public class SuperLooseEndPlayerComponent implements RoleComponent, ServerTickin
     }
     public double getExplosionRange() {
         SREArmorPlayerComponent armorPlayerComponent = SREArmorPlayerComponent.KEY.get(player);
-        return (armorPlayerComponent.getArmor() > 4 ? (armorPlayerComponent.getArmor() - 4) * 0.5d : 0) + 1.5d;
+        return (armorPlayerComponent.getArmor() > 4 ? (armorPlayerComponent.getArmor() - 4) * 0.5d : 0) + 2d;
     }
 
     public void useAbility(boolean isShiftPressed) {

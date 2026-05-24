@@ -77,12 +77,13 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
     }
 
     protected void addBanedRoles() {
-        // 禁用 水鬼，布袋鬼，猫娘杀手，影隼，寻找者，dnf_killer
+        // 禁用 水鬼，布袋鬼，猫娘杀手，影隼，寻找者，dnf_killer,迷失杀手
         BANED_ROLES.add(ModRoles.WATER_GHOST);
         BANED_ROLES.add(ModRoles.MA_CHEN_XU);
         BANED_ROLES.add(ModRoles.CAT_KILLER);
         BANED_ROLES.add(ModRoles.SHADOW_FALCON);
         BANED_ROLES.add(SpecialGameModeRoles.SEEKER);
+        BANED_ROLES.add(ModRoles.LOST_KILLER);
 
     }
 
@@ -114,7 +115,7 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
             for (Player player : level.players()) {
                 // 排除被淘汰的、玩家自己、距离超过2格的玩家
                 if (GameUtils.isPlayerEliminated(player) || player == victim
-                        || player.distanceToSqr(victim) > 2.5 * 2.5)
+                        || player.distanceToSqr(victim) > 1.5 * 1.5)
                     continue;
                 SRERole playerRole = gameWorldComponent.getRole(player);
                 // 排除超级亡命徒
