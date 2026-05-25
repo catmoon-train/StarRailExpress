@@ -1002,7 +1002,7 @@ public class RoleIntroduceScreen extends Screen {
      * 检查列表中的职业/修饰符是否已被禁用
      */
     private boolean isItemDisabled(Object role) {
-        if (!SREClient.gameComponent.isRunning()) {
+        if (SREClient.gameComponent == null || !SREClient.gameComponent.isRunning()) {
             // 游戏没开始，默认显示全部。
             return false;
         }
