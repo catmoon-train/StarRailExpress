@@ -724,7 +724,7 @@ public class ModRoles {
         public int getMoodColor() {
             return PUPPETEER_COLOR.getOrRandomColor();
         }
-    }).setComponentKey(ModComponents.CREEPER).setCanBeRandomedByOtherRoles(false);
+    }).setComponentKey(ModComponents.CREEPER).setCanBeRandomedByOtherRoles(false).setMax(1);
 
     /**
      * 作家角色
