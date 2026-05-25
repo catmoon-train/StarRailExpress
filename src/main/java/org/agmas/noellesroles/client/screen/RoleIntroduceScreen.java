@@ -25,6 +25,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
 import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
 import org.agmas.harpymodloader.modifiers.HMLModifiers;
 import org.agmas.harpymodloader.modifiers.SREModifier;
@@ -982,11 +983,31 @@ public class RoleIntroduceScreen extends Screen {
             g.renderOutline(x - 1, y - 1, w + 2, h + 2,
                     (rawColor & 0x00FFFFFF) | 0x55000000);
         }
+
+        // 已禁用的职业/修饰符覆盖深灰色滤镜 + 红色描边
+        if (isItemDisabled(role)) {
+            g.fill(x + 1, y + 1, x + w - 1, y + h - 1, 0x88000000);
+            g.renderOutline(x, y, w, h, 0xFFCC3333);
+        }
     }
 
     // ══════════════════════════════════════════════════════════════════
     // 右侧面板
     // ══════════════════════════════════════════════════════════════════
+
+    /**
+     * 检查列表中的职业/修饰符是否已被禁用
+     */
+    private boolean isItemDisabled(Object role) {
+        var config = HarpyModLoaderConfig.HANDLER.instance();
+        if (role instanceof SRERole r) {
+            return config.getDisabled().contains(r.identifier().toString());
+        }
+        if (role instanceof SREModifier m) {
+            return config.disabledModifiers.contains(m.identifier.toString());
+        }
+        return false;
+    }
 
     private Component getCardSubText(Object role) {
         if (role instanceof SRERole r) {
@@ -1049,13 +1070,24 @@ public class RoleIntroduceScreen extends Screen {
         g.renderOutline(bIconX, bIconY, bIconSize, bIconSize,
                 (rawColor & 0x00FFFFFF) | 0xAA000000);
 
-        g.drawString(font,
-                Component.translatable("gui.roleintroduce.right.warp",
-                        RoleUtils.getRoleOrModifierOrItemTypeName(selectedRole)
-                                .withStyle(ChatFormatting.BOLD, ChatFormatting.AQUA),
-                        RoleUtils.getRoleOrModifierOrItemName(selectedRole)),
+        Component nameLine = Component.translatable("gui.roleintroduce.right.warp",
+                RoleUtils.getRoleOrModifierOrItemTypeName(selectedRole)
+                        .withStyle(ChatFormatting.BOLD, ChatFormatting.AQUA),
+                RoleUtils.getRoleOrModifierOrItemName(selectedRole));
+        g.drawString(font, nameLine,
                 bIconX + bIconSize + 5, panelY + (BANNER_H - font.lineHeight) / 2,
                 0xFFFFFF, true);
+
+        // 已禁用标记
+        if (isItemDisabled(selectedRole)) {
+            int nameWidth = font.width(nameLine);
+            int disabledX = bIconX + bIconSize + 5 + nameWidth + 5;
+            g.drawString(font,
+                    Component.translatable("screen.roleintroduce.disabled")
+                            .withStyle(ChatFormatting.RED),
+                    disabledX, panelY + (BANNER_H - font.lineHeight) / 2,
+                    0xFFFFFF, true);
+        }
 
         int textX0 = rightX + PANEL_PAD;
         int textY0 = panelY + BANNER_H + PANEL_PAD;

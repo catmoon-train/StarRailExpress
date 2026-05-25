@@ -1432,6 +1432,7 @@
   "screen.roleintroduce.detail.name": "%s",
   "screen.roleintroduce.detail.name.id.warp": " (%s)",
   "screen.roleintroduce.detail.description": "描述",
+  "screen.roleintroduce.disabled": "已禁用",
   "screen.roleintroduce.select_hint": "← 从左侧选择一个项目",
   "screen.roleintroduce.view_detail": "查看详情",
   "screen.roleintroduce.shop.price": "物品价格: %s",

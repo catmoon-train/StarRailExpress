@@ -1432,6 +1432,7 @@
   "screen.roleintroduce.detail.name": "%s",
   "screen.roleintroduce.detail.name.id.warp": " (%s)",
   "screen.roleintroduce.detail.description": "Description",
+  "screen.roleintroduce.disabled": "Disabled",
   "screen.roleintroduce.select_hint": "← Select an item from the left",
   "screen.roleintroduce.view_detail": "View Details",
   "screen.roleintroduce.shop.price": "Item price: %s",
