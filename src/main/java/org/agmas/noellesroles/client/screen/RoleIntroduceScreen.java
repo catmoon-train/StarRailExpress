@@ -289,7 +289,7 @@ public class RoleIntroduceScreen extends Screen {
         rightW = usableWidth - leftW;
         panelX = (width - usableWidth) / 2;
         panelY = 48;
-        panelH = height - panelY - 42; 
+        panelH = height - panelY - 42;
         leftX = panelX;
         rightX = panelX + leftW;
         // 顶部行紧贴 panelY 上方
@@ -371,7 +371,8 @@ public class RoleIntroduceScreen extends Screen {
             String name = RoleUtils.getRoleName(role).getString();
             if (searchContent == null
                     || name.toLowerCase().contains(searchContent.toLowerCase())
-                    || role.identifier().toString().contains(searchContent.toLowerCase()) || PinYinUtils.contains(searchContent, name))
+                    || role.identifier().toString().contains(searchContent.toLowerCase())
+                    || PinYinUtils.contains(searchContent, name))
                 filteredItems.add(role);
         }
         for (SREModifier mod : HMLModifiers.MODIFIERS) {
@@ -383,7 +384,8 @@ public class RoleIntroduceScreen extends Screen {
             String name = mod.getName().getString();
             if (searchContent == null
                     || name.toLowerCase().contains(searchContent.toLowerCase())
-                    || mod.identifier().toString().contains(searchContent.toLowerCase()) || PinYinUtils.contains(searchContent, name))
+                    || mod.identifier().toString().contains(searchContent.toLowerCase())
+                    || PinYinUtils.contains(searchContent, name))
                 filteredItems.add(mod);
         }
         for (Item item : TMMDescItems.introItems) {
@@ -395,7 +397,8 @@ public class RoleIntroduceScreen extends Screen {
             String name = item.getDescription().getString();
             if (searchContent == null
                     || name.toLowerCase().contains(searchContent.toLowerCase())
-                    || BuiltInRegistries.ITEM.getKey(item).toString().contains(searchContent.toLowerCase()) || PinYinUtils.contains(searchContent, name))
+                    || BuiltInRegistries.ITEM.getKey(item).toString().contains(searchContent.toLowerCase())
+                    || PinYinUtils.contains(searchContent, name))
                 filteredItems.add(item);
         }
         int totalH = filteredItems.size() * (CARD_H + CARD_SPACING) - CARD_SPACING;
@@ -999,6 +1002,10 @@ public class RoleIntroduceScreen extends Screen {
      * 检查列表中的职业/修饰符是否已被禁用
      */
     private boolean isItemDisabled(Object role) {
+        if (!SREClient.gameComponent.isRunning()) {
+            // 游戏没开始，默认显示全部。
+            return false;
+        }
         var config = HarpyModLoaderConfig.HANDLER.instance();
         if (role instanceof SRERole r) {
             return config.getDisabled().contains(r.identifier().toString());
