@@ -267,6 +267,11 @@ public class SEModifiers {
             for (var can_i_love : arrs) {
                 if (GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(can_i_love)) {
                     if (!SREConfig.instance().enableNoLimitLoversInLoverMode) {
+                        // 检查候选人是否已有恋人，防止重复绑定
+                        var candidateLoverComp = LoversComponent.KEY.get(can_i_love);
+                        if (candidateLoverComp != null && candidateLoverComp.isLover()) {
+                            continue;
+                        }
                         if (modifierCca.isModifier(can_i_love, SEModifiers.LOVERS)) {
                             // 忽略被绑定的
                             continue;
