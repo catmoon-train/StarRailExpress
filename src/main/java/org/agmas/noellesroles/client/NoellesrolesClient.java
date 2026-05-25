@@ -338,11 +338,11 @@ public class NoellesrolesClient implements ClientModInitializer {
         ClientPlayNetworking.registerGlobalReceiver(ProblemScreenOpenC2SPacket.ID, (payload, context) -> {
             var client = context.client();
             client.execute(() -> {
-                if (client.screen != null && client.screen instanceof MathSolverScreen) {
-                    return;
-                } else {
-                    client.setScreen(new MathSolverScreen(payload.forced(), payload.maxTrial()));
+                // 强制关闭当前打开的页面（如监控页面），再打开做题页面
+                if (client.screen != null && !(client.screen instanceof MathSolverScreen)) {
+                    client.screen.onClose();
                 }
+                client.setScreen(new MathSolverScreen(payload.forced(), payload.maxTrial()));
             });
         });
         ClientPlayNetworking.registerGlobalReceiver(ScanAllTaskPointsPayload.ID, (payload, context) -> {

@@ -9,6 +9,7 @@ import net.minecraft.server.level.ServerPlayer;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
+import org.agmas.noellesroles.game.roles.Innocent.avenger.AvengerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.blood_feudist.BloodFeudistPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 
@@ -31,6 +32,15 @@ public class XiaoNaoHandler {
                         var psychoComponent = SREPlayerPsychoComponent.KEY.get(victim);
                         if (psychoComponent != null && psychoComponent.getPsychoTicks() > 0) {
                             // 魔术师处于疯狂模式，不算误杀
+                            return;
+                        }
+                    }
+                    // 检查是否是复仇者击杀复仇目标的凶手，如果是则不算误杀
+                    if (gameWorldComponent.isRole(killer, ModRoles.AVENGER)) {
+                        AvengerPlayerComponent avengerComp = ModComponents.AVENGER.get(killer);
+                        if (avengerComp != null && avengerComp.killerUuid != null
+                                && avengerComp.killerUuid.equals(victim.getUUID())) {
+                            // 复仇者击杀的是杀死复仇目标的凶手，不算误杀
                             return;
                         }
                     }
