@@ -55,7 +55,7 @@ public class ListRolesCommand {
     message.append(Component.translatable("commands.listroles.detail.name.role",
         RoleUtils.getRoleOrModifierOrItemNameWithColor(role).withStyle(ChatFormatting.BOLD))
         .withStyle(ChatFormatting.GOLD));
-    message.append("\n\n").append(Component.translatable("commands.listroles.detail.id",
+    message.append("\n").append(Component.translatable("commands.listroles.detail.id",
         RoleUtils.getRoleOrModifierOrItemIdentifier(role).toString())
         .withStyle(ChatFormatting.GRAY))
         .withStyle(ChatFormatting.GRAY);
@@ -63,12 +63,12 @@ public class ListRolesCommand {
     message.append("\n").append(Component.translatable("commands.listroles.detail.goal",
         Component.translatable(
             "announcement.star.goals." + role.identifier().getPath()).withStyle(ChatFormatting.WHITE))
-        .withStyle(ChatFormatting.GRAY));
+        .withStyle(ChatFormatting.YELLOW));
     ctx.getSource().sendSystemMessage(message);
     message.append("\n").append(Component.translatable("commands.listroles.detail.introduction",
         RoleUtils.getRoleOrModifierOrItemDescription(role)
             .copy().withStyle(ChatFormatting.WHITE))
-        .withStyle(ChatFormatting.GRAY));
+        .withStyle(ChatFormatting.GREEN));
     ctx.getSource().sendSystemMessage(message);
     return 1;
   }
@@ -79,13 +79,13 @@ public class ListRolesCommand {
         RoleUtils.getRoleOrModifierOrItemNameWithColor(modifier).withStyle(ChatFormatting.BOLD))
         .withStyle(ChatFormatting.GOLD));
 
-    message.append("\n\n").append(Component.translatable("commands.listroles.detail.id",
+    message.append("\n").append(Component.translatable("commands.listroles.detail.id",
         RoleUtils.getRoleOrModifierOrItemIdentifier(modifier).toString())
         .withStyle(ChatFormatting.GRAY))
         .withStyle(ChatFormatting.GRAY);
     message.append("\n").append(Component.translatable("commands.listroles.detail.introduction",
         RoleUtils.getRoleOrModifierOrItemDescription(modifier)
-            .copy().withStyle(ChatFormatting.WHITE)));
+            .copy().withStyle(ChatFormatting.WHITE)).withStyle(ChatFormatting.GREEN));
     message.append("\n");
     ctx.getSource().sendSystemMessage(message);
 
