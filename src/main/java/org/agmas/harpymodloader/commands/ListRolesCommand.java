@@ -55,7 +55,7 @@ public class ListRolesCommand {
     message.append(Component.translatable("commands.listroles.detail.name.role",
         RoleUtils.getRoleOrModifierOrItemNameWithColor(role).withStyle(ChatFormatting.BOLD))
         .withStyle(ChatFormatting.GOLD));
-    message.append("\n").append(Component.translatable("commands.listroles.detail.id",
+    message.append("\n\n").append(Component.translatable("commands.listroles.detail.id",
         RoleUtils.getRoleOrModifierOrItemIdentifier(role).toString())
         .withStyle(ChatFormatting.GRAY))
         .withStyle(ChatFormatting.GRAY);
@@ -78,13 +78,15 @@ public class ListRolesCommand {
     message.append(Component.translatable("commands.listroles.detail.name.modifier",
         RoleUtils.getRoleOrModifierOrItemNameWithColor(modifier).withStyle(ChatFormatting.BOLD))
         .withStyle(ChatFormatting.GOLD));
-    message.append("\n").append(Component.translatable("commands.listroles.detail.id",
+
+    message.append("\n\n").append(Component.translatable("commands.listroles.detail.id",
         RoleUtils.getRoleOrModifierOrItemIdentifier(modifier).toString())
-        .withStyle(ChatFormatting.DARK_GRAY))
-        .withStyle(ChatFormatting.DARK_GRAY);
+        .withStyle(ChatFormatting.GRAY))
+        .withStyle(ChatFormatting.GRAY);
     message.append("\n").append(Component.translatable("commands.listroles.detail.introduction",
         RoleUtils.getRoleOrModifierOrItemDescription(modifier)
             .copy().withStyle(ChatFormatting.WHITE)));
+    message.append("\n");
     ctx.getSource().sendSystemMessage(message);
 
     return 1;
