@@ -632,6 +632,11 @@ public class ModEventsRegister {
                 return true;
             }
 
+            // 纵火犯点火伤害（不触发独处保护）
+            if (deathReason != null && deathReason.getPath().equals("ignited")) {
+                return true;
+            }
+
             // 亡命徒职业：肉汁不免疫来自亡命徒角色的伤害
             if (gameWorld.isRole(killer, TMMRoles.LOOSE_END) || gameWorld.isRole(killer, SpecialGameModeRoles.SUPER_LOOSE_END)) {
                 return true;
