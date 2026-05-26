@@ -425,7 +425,7 @@ public class NoellesRolesConfig implements ConfigData {
      * 鬼祟修饰符刷新概率（%）
      * 当距离8格内有玩家时，杀手无法透视看到你
      */
-    public int chanceOfSneaky = 10;
+    public int chanceOfSneaky = 8;
 
     /**
      * 黄油手修饰符刷新概率（%）
@@ -515,7 +515,7 @@ public class NoellesRolesConfig implements ConfigData {
      * 绝境信徒修饰符刷新概率（%）
      * 唯一杀手时获得金币和药水效果，刀冷却减半
      */
-    public int chanceOfDesperateFaith = 5;
+    public int chanceOfDesperateFaith = 18;
 
     /**
      * 吝啬修饰符刷新概率（%）
@@ -539,7 +539,7 @@ public class NoellesRolesConfig implements ConfigData {
      * 反牛顿修饰符刷新概率（%）
      * 重力减少20%
      */
-    public int chanceOfAntiNewton = 10;
+    public int chanceOfAntiNewton = 30;
 
     /**
      * Starting cooldown (in ticks)

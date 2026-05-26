@@ -13,6 +13,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.client.renderer.entity.NoopRenderer;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -700,6 +701,12 @@ public class RicesRoleRhapsodyClient implements ClientModInitializer {
 
         // 氯气弹实体渲染器 - 使用飞行物品渲染器
         EntityRendererRegistry.register(ModEntities.CHLORINE_BOMB, ThrownItemRenderer::new);
+
+        // 毒气瓶实体渲染器 - 使用飞行物品渲染器
+        EntityRendererRegistry.register(ModEntities.POISON_GAS_TANK_ENTITY, ThrownItemRenderer::new);
+
+        // 毒气云实体渲染器 - 空渲染器（纯粒子效果，无需模型）
+        EntityRendererRegistry.register(ModEntities.POISON_GAS_CLOUD_ENTITY, NoopRenderer::new);
 
         // 净化弹实体渲染器 - 使用飞行物品渲染器
         EntityRendererRegistry.register(ModEntities.PURIFY_BOMB, ThrownItemRenderer::new);

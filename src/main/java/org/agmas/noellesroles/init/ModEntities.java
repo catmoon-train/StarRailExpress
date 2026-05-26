@@ -68,6 +68,32 @@ public class ModEntities {
                     .build());
 
     /**
+     * 毒气瓶投掷实体 - 可投掷物品，落地时生成毒气云
+     */
+    @SuppressWarnings("deprecation")
+    public static final EntityType<PoisonGasTankEntity> POISON_GAS_TANK_ENTITY = Registry.register(
+            BuiltInRegistries.ENTITY_TYPE,
+            ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "poison_gas_tank"),
+            FabricEntityTypeBuilder.<PoisonGasTankEntity>create(MobCategory.MISC, PoisonGasTankEntity::new)
+                    .dimensions(EntityDimensions.fixed(0.25F, 0.25F))
+                    .trackRangeBlocks(4)
+                    .trackedUpdateRate(10)
+                    .build());
+
+    /**
+     * 毒气云实体 - 气体扩散，60秒消散，停留8秒中毒
+     */
+    @SuppressWarnings("deprecation")
+    public static final EntityType<PoisonGasCloudEntity> POISON_GAS_CLOUD_ENTITY = Registry.register(
+            BuiltInRegistries.ENTITY_TYPE,
+            ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "poison_gas_cloud"),
+            FabricEntityTypeBuilder.<PoisonGasCloudEntity>create(MobCategory.MISC, PoisonGasCloudEntity::new)
+                    .dimensions(EntityDimensions.fixed(0.5F, 0.5F))
+                    .trackRangeBlocks(64)
+                    .trackedUpdateRate(1)
+                    .build());
+
+    /**
      * 净化弹实体 - 可投掷物品，落地时取消范围内玩家中毒状态
      */
     @SuppressWarnings("deprecation")

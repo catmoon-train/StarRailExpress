@@ -735,6 +735,8 @@
   "item.noellesroles.smoke_grenade.tooltip": "Creates smoke area on impact, blinds those inside; direct hit clears target's sanity",
   "item.noellesroles.chlorine_bomb": "Chlorine Bomb",
   "item.noellesroles.chlorine_bomb.tooltip": "Throw, poisons players within 3 blocks on impact (30s duration)",
+  "item.noellesroles.poison_gas_tank": "Poison Gas Tank",
+  "item.noellesroles.poison_gas_tank.tooltip": "Right-click to throw\nReleases gas that spreads through open spaces\nGas cannot pass through blocks\nStaying in gas for 8s causes poisoning\nGas dissipates after 60s",
   "item.noellesroles.flash_grenade": "Flash Grenade",
   "item.noellesroles.flash_grenade.tooltip": "Throw, blinds players within 6 blocks looking at it (3s duration)",
   "item.noellesroles.decoy_grenade": "Decoy Grenade",

@@ -1,6 +1,7 @@
 package org.agmas.noellesroles.init;
 
 import dev.doctor4t.ratatouille.util.registrar.ItemRegistrar;
+import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.ChargeableItemRegistry;
 import io.wifi.starrailexpress.api.impl.KnifeChargeableItem;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
@@ -355,6 +356,17 @@ public class ModItems {
     public static final Item CHLORINE_BOMB = register(
             new ChlorineBombItem(new Item.Properties().stacksTo(8)),
             "chlorine_bomb");
+
+    /**
+     * 毒气瓶
+     * - 可投掷物品
+     * - 右键投掷，落地后释放持续扩散的毒气云
+     * - 毒气60秒后消散，在毒气中停留8秒将中毒
+     * - 最大扩散半径20格，毒师免疫
+     */
+    public static final Item POISON_GAS_TANK = register(
+            new PoisonGasTankItem(new Item.Properties().stacksTo(16)),
+            "poison_gas_tank");
 
     /**
      * 净化弹
@@ -964,12 +976,16 @@ public class ModItems {
         // 催化剂/100
         ModItems.POISONER_SHOP_ENTRIES
                 .add(new ShopEntry(ModItems.CATALYST.getDefaultInstance(), 100, ShopEntry.Type.TOOL));
-        // 假药丸/30
+        // 假药丸/20
         ModItems.POISONER_SHOP_ENTRIES
-                .add(new ShopEntry(ModItems.createPillStack(true), 30, ShopEntry.Type.TOOL));
+                .add(new ShopEntry(ModItems.createPillStack(true), 20, ShopEntry.Type.TOOL));
         // 氯气弹/275
         ModItems.POISONER_SHOP_ENTRIES
                 .add(new ShopEntry(ModItems.CHLORINE_BOMB.getDefaultInstance(), 275,
+                        ShopEntry.Type.POISON));
+        // 毒气瓶/215
+        ModItems.POISONER_SHOP_ENTRIES
+                .add(new ShopEntry(ModItems.POISON_GAS_TANK.getDefaultInstance(), 215,
                         ShopEntry.Type.POISON));
         // 爆竹/10
         ModItems.POISONER_SHOP_ENTRIES
@@ -988,6 +1004,13 @@ public class ModItems {
                 .add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), 100, ShopEntry.Type.TOOL) {
                     public boolean onBuy(@NotNull Player player) {
                         return SREPlayerShopComponent.useBlackout(player);
+                    }
+                });
+        // 监控失灵/100
+        ModItems.POISONER_SHOP_ENTRIES
+                .add(new ShopEntry(TMMItems.MONITOR_BROKEN.getDefaultInstance(), 100, ShopEntry.Type.TOOL) {
+                    public boolean onBuy(@NotNull Player player) {
+                        return SREPlayerShopComponent.useMonitorBroken(player, SREConfig.instance().monitorBrokenDuration * 20);
                     }
                 });
 

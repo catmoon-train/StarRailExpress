@@ -14,10 +14,13 @@ import org.agmas.noellesroles.content.block_entity.DevilRouletteTableEntity;
 import org.agmas.noellesroles.content.entity.CalamityMarkEntity;
 import org.agmas.noellesroles.content.entity.ChlorineBombEntity;
 import org.agmas.noellesroles.content.entity.DecoyGrenadeEntity;
+import org.agmas.noellesroles.content.entity.FlareEntity;
 import org.agmas.noellesroles.content.entity.FlashGrenadeEntity;
 import org.agmas.noellesroles.content.entity.KuiXiPuppetEntity;
 import org.agmas.noellesroles.content.entity.LockEntity;
 import org.agmas.noellesroles.content.entity.LockEntityManager;
+import org.agmas.noellesroles.content.entity.PoisonGasCloudEntity;
+import org.agmas.noellesroles.content.entity.PoisonGasTankEntity;
 import org.agmas.noellesroles.content.entity.PuppeteerBodyEntity;
 import org.agmas.noellesroles.content.entity.PurifyBombEntity;
 import org.agmas.noellesroles.content.entity.SilenceTotemEntity;
@@ -65,10 +68,13 @@ public class EntityClearUtils {
                         entity instanceof ThrowingKnifeEntity ||
                         entity instanceof ChlorineBombEntity ||
                         entity instanceof PurifyBombEntity ||
+                        entity instanceof PoisonGasTankEntity ||
+                        entity instanceof PoisonGasCloudEntity ||
                         entity instanceof CalamityMarkEntity ||
                         entity instanceof TripwireTrapEntity ||
                         entity instanceof PuppeteerBodyEntity ||
                         entity instanceof FlashGrenadeEntity ||
+                        entity instanceof FlareEntity ||
                         entity instanceof DecoyGrenadeEntity ||
                         entity instanceof SilenceTotemEntity ||
                         entity instanceof ThrownTrident ||
