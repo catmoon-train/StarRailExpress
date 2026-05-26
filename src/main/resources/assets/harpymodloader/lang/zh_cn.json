@@ -43,7 +43,7 @@
   "title.starrailexpress.role_config": "哈比角色管理",
   "category.starrailexpress.config.role": "角色",
   "category.starrailexpress.config.modifier": "修饰符",
-  "option.starrailexpress.role_id_tooltip": "ID: %s",
+  "option.starrailexpress.role_id_tooltip": "ID: %s\n简介：",
   "option.starrailexpress.role_enable_option": "[%s] 职业：%s (%s)",
   "option.starrailexpress.modifier_enable_option": "修饰符：%s (%s)",
   "category.starrailexpress.config.other": "其他",

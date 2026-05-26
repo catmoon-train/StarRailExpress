@@ -43,7 +43,7 @@
   "title.starrailexpress.role_config": "Harpy Role Management",
   "category.starrailexpress.config.role": "Roles",
   "category.starrailexpress.config.modifier": "Modifiers",
-  "option.starrailexpress.role_id_tooltip": "ID: %s",
+  "option.starrailexpress.role_id_tooltip": "ID: %s\nDescription: ",
   "option.starrailexpress.role_enable_option": "[%s] Role: %s (%s)",
   "option.starrailexpress.modifier_enable_option": "Modifier: %s (%s)",
   "category.starrailexpress.config.other": "Other",

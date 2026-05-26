@@ -95,11 +95,12 @@ public class RoleManageConfigUI {
                     entryBuilder
                             .startBooleanToggle(
                                     Component.translatable("option.starrailexpress.role_enable_option",
-                                            RoleUtils.getTeamName(ResourceLocation.tryParse(roleId)),RoleUtils.getRoleName(ResourceLocation.tryParse(roleId)), roleId),
+                                            RoleUtils.getTeamName(ResourceLocation.tryParse(roleId)),
+                                            RoleUtils.getRoleName(ResourceLocation.tryParse(roleId)), roleId),
                                     info.getValue())
                             .setDefaultValue(true) // Recommended: Used when user click "Reset"
                             .setTooltip(Component.translatable("option.starrailexpress.role_id_tooltip",
-                                    info.getKey().toString()))
+                                    info.getKey().toString(), RoleUtils.getRoleDescription(roleId)))
                             .setSaveConsumer(newValue -> RoleEnableStatus.put(roleId, newValue))
                             .build());
         }
@@ -113,7 +114,7 @@ public class RoleManageConfigUI {
                                     info.getValue())
                             .setDefaultValue(true) // Recommended: Used when user click "Reset"
                             .setTooltip(Component.translatable("option.starrailexpress.role_id_tooltip",
-                                    info.getKey().toString()))
+                                    info.getKey().toString(), RoleUtils.getModifierDescription(roleId)))
                             .setSaveConsumer(newValue -> ModifierEnableStatus.put(roleId, newValue))
                             .build());
         }
