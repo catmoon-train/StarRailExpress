@@ -236,7 +236,8 @@ public class StarRailExpressTitleScreen extends Screen {
              * CustomSkinLoader does indeed occasionally cause crashes. Please do not remove
              * this statement, to prevent more people from encountering issues!!!
              */
-            lines.addFirst("§6检测到您安装了 §e§lCustomSkinLoader§6。\n§6由于众多玩家反馈，这个模组与本模组一起使用§c§l可能导致你的客户端崩溃§6！我们建议您删掉这个模组！\n§7而且根据我们测试，我们发现这个模组本身有很多bug，只是刚好我们模组会导致它们写的bug触发并导致崩溃。\n");
+            lines.addFirst(
+                    "§6检测到您安装了 §e§lCustomSkinLoader§6。\n§6由于众多玩家反馈，这个模组与本模组一起使用§c§l可能导致你的客户端崩溃§6！我们建议您删掉这个模组！\n§7而且根据我们测试，我们发现这个模组本身有很多bug，只是刚好我们模组会导致它们写的bug触发并导致崩溃。\n");
         }
         this.parsedChangelogLines = parseChangelogLines(lines);
 
@@ -257,11 +258,10 @@ public class StarRailExpressTitleScreen extends Screen {
                             : new SafetyScreen(this);
                     this.minecraft.setScreen(next);
                 }));
-        if (FabricLoader.getInstance().isDevelopmentEnvironment()){
+
         this.menuEntries.add(new MenuEntry(
                 Component.translatable("menu.sre.singleplayer"),
                 () -> this.minecraft.setScreen(new SelectWorldScreen(this))));
-        }
         this.menuEntries.add(new MenuEntry(
                 Component.translatable("menu.sre.join_qq"),
                 () -> Util.getPlatform().openUri(QQ_GROUP_URL)));
