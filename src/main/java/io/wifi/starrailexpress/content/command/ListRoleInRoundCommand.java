@@ -8,7 +8,9 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
@@ -19,11 +21,7 @@ public class ListRoleInRoundCommand {
                 .executes(ListRoleInRoundCommand::execute));
     }
 
-    private static int execute(CommandContext<CommandSourceStack> ctx) {
-        var source = ctx.getSource();
-        var level = source.getLevel();
-        if (level == null)
-            level = source.getServer().overworld();
+    public static Component generateRoleInRoundText(ServerLevel level) {
         var gameWorldComponent = SREGameWorldComponent.KEY.get(level);
         WorldModifierComponent worldModifierComponent = WorldModifierComponent.KEY.get(level);
         var texts = Component.literal("")
@@ -35,15 +33,24 @@ public class ListRoleInRoundCommand {
             var modifiers = worldModifierComponent.getModifiers(player);
             if (!modifiers.isEmpty()) {
                 modifierTexts = (ComponentUtils.formatList(modifiers,
-                                modifier -> Component.translatable("[%s]", modifier.getName(false))
-                                        .withColor(modifier.color))).copy();
+                        modifier -> Component.translatable("[%s]", modifier.getName(false))
+                                .withColor(modifier.color)))
+                        .copy();
             }
             texts = texts.append(
                     Component.translatable("\n%s: %s%s",
                             player.getName().copy().withStyle(ChatFormatting.WHITE), name, modifierTexts)
                             .withStyle(ChatFormatting.GRAY));
         }
-        final var resultTexts = texts;
+        return texts;
+    }
+
+    private static int execute(CommandContext<CommandSourceStack> ctx) {
+        var source = ctx.getSource();
+        var level = source.getLevel();
+        if (level == null)
+            level = source.getServer().overworld();
+        final var resultTexts = generateRoleInRoundText(level);
         source.sendSuccess(() -> resultTexts, false);
         return 1;
     }

@@ -4,6 +4,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.RoleNameRenderer;
+import io.wifi.starrailexpress.client.util.ClientSkinCache;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.PlayerInfo;
@@ -61,7 +62,7 @@ public abstract class MorphlingRoleNameRendererMixin {
         }
         var mocca = MorphlingPlayerComponent.KEY.get(instance);
         if ((mocca).getMorphTicks() > 0) {
-            PlayerInfo targetInfo = SREClient.PLAYER_ENTRIES_CACHE.getOrDefault(mocca.disguise, null);
+            PlayerInfo targetInfo = ClientSkinCache.getCachedPlayerInfo(mocca.disguise);
             if (targetInfo != null && targetInfo.getProfile() != null && targetInfo.getProfile().getId() != null) {
                 return getDisplayName$PlayerInfo(targetInfo);
             } else {

@@ -3,6 +3,7 @@ package org.agmas.noellesroles.client.renderer;
 import com.mojang.authlib.GameProfile;
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.wifi.starrailexpress.client.SREClient;
+import io.wifi.starrailexpress.client.util.ClientSkinCache;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -30,7 +31,7 @@ public class KuiXiBodyEntityRenderer extends EntityRenderer<KuiXiPuppetEntity> {
             MultiBufferSource vertexConsumers, int light) {
         final var instance = Minecraft.getInstance();
         UUID ownerUuid = entity.getOwnerUuid();
-        PlayerInfo entry = SREClient.PLAYER_ENTRIES_CACHE.get(ownerUuid);
+        PlayerInfo entry = ClientSkinCache.getCachedPlayerInfo(ownerUuid);
         if (entry != null) {
             AbstractClientPlayer fakePlayer = new RemotePlayer(instance.level,
                     new GameProfile(ownerUuid, entry.getProfile().getName()));
@@ -49,7 +50,7 @@ public class KuiXiBodyEntityRenderer extends EntityRenderer<KuiXiPuppetEntity> {
 
         if (ownerUuid != null) {
             // 通过 UUID 从玩家列表获取皮肤
-            PlayerInfo entry = SREClient.PLAYER_ENTRIES_CACHE.get(ownerUuid);
+            PlayerInfo entry = ClientSkinCache.getCachedPlayerInfo(ownerUuid);
             if (entry != null) {
                 return entry.getSkin().texture();
             }

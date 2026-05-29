@@ -198,20 +198,26 @@ public abstract class GameMode {
         return true;
     }
 
+    public void tickServerSafeTimeChecker(ServerLevel serverWorld, SREGameWorldComponent gameCCA) {
+        if (safeTimeStarted > 10) {
+            if (serverWorld.getGameTime() - safeTimeStarted >= SREConfig.instance().safeTimeCooldown * 20) {
+                safeTimeStarted = 0;
+                OnGameTrueStarted.EVENT.invoker().onGameTrueStarted(serverWorld);
+                SRE.LOGGER.info("-".repeat(20));
+                SRE.LOGGER.info("Game True Started after Safe Time!");
+                SRE.LOGGER.info("-".repeat(20));
+            }
+        }
+    }
+
     /**
      * 服务器游戏主循环
      * 
      * @param serverWorld
      * @param gameWorldComponent
      */
-
     public void tickServerGameLoop(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent) {
-        if (safeTimeStarted > 10) {
-            if (serverWorld.getGameTime() - safeTimeStarted >= SREConfig.instance().safeTimeCooldown * 20) {
-                safeTimeStarted = 0;
-                OnGameTrueStarted.EVENT.invoker().onGameTrueStarted(serverWorld);
-            }
-        }
+        tickServerSafeTimeChecker(serverWorld, gameWorldComponent);
     }
 
     /**

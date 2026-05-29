@@ -8,6 +8,7 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.RoleNameRenderer;
+import io.wifi.starrailexpress.client.util.ClientSkinCache;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.utils.client.betterrender.FakeGuiGraphics;
@@ -229,7 +230,7 @@ public abstract class CoronerHudMixin {
                     var killerName = Component.translatable("sre.general.unknown");
                     UUID killerId = NoellesrolesClient.targetBody.getKillerUuid();
                     if (killerId != null) {
-                        var b = SREClient.PLAYER_ENTRIES_CACHE.getOrDefault(killerId, null);
+                        var b = ClientSkinCache.getCachedPlayerInfo(killerId);
                         if (b != null) {
                             killerName = Component.literal(b.getProfile().getName());
                         }
