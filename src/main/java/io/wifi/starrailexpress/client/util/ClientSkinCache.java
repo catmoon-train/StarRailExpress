@@ -31,9 +31,8 @@ public class ClientSkinCache {
                     var id = playerinfo.getProfile().getId();
                     if (Minecraft.getInstance().player == null || id == Minecraft.getInstance().player.getUUID())
                         return;
-                    if (SREClientConfig.instance().enableRandomSkinForStreaming)
-                        PLAYER_ENTRIES_CACHE.put(id,
-                                playerinfo);
+                    PLAYER_ENTRIES_CACHE.put(id,
+                            playerinfo);
                 }
             }
         });
