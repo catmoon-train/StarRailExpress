@@ -107,6 +107,7 @@ public class InitModRolesMax {
         Harpymodloader.setOccupationRole(ModRoles.ENGINEER, ModRoles.LOCKSMITH);
         Harpymodloader.setOccupationRole(RedHouseRoles.FURANDORU, RedHouseRoles.PACHURI);
         Harpymodloader.setOccupationRole(ModRoles.MA_CHEN_XU, ModRoles.GUEST_GHOST);
+        Harpymodloader.setOccupationRole(ModRoles.GANGSTERS, ModRoles.FITTER);
 
         // 拳击手每局只能有 1 个
         Harpymodloader.setRoleMaximum(ModRoles.BOXER_ID, 1);
@@ -196,6 +197,10 @@ public class InitModRolesMax {
 
         // 强盗
         Harpymodloader.setRoleMaximum(ModRoles.BANDIT_ID, 1);
+        // 悍匪
+        Harpymodloader.setRoleMaximum(ModRoles.GANGSTERS_ID, 1);
+        // 钳工
+        Harpymodloader.setRoleMaximum(ModRoles.FITTER_ID, 1);
         Harpymodloader.setRoleMaximum(ModRoles.DIO_ID, 0);
 
         // 仇杀客 - 仅在12人及以上对局生成
@@ -746,6 +751,11 @@ public class InitModRolesMax {
         // 失忆者
         SERoles.AMNESIAC.setEnableNeededPlayerCount(config.minPlayerForAmnesiac)
                 .setEnableChance(config.chanceOfAmnesiac);
+
+        // 悍匪 - 75%概率
+        ModRoles.GANGSTERS.setEnableChance(75);
+        // 钳工 - 与悍匪绑定，由悍匪概率控制
+        ModRoles.FITTER.setEnableChance(75);
 
         // 对没有 enableChance 的杀手方中立职业，默认 max=1、概率 75%
         for (var entry : TMMRoles.ROLES.entrySet()) {

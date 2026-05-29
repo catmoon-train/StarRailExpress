@@ -2708,5 +2708,16 @@
   "c4.wrong_wire_explode": "§c剪錯了線！C4爆炸了！",
   "c4.you_cut_wrong_wire": "§c你剪錯了線，導致C4爆炸！",
   "c4.defuse_success": "§aC4已成功拆除！",
-  "c4.defuse_success_self": "§aC4拆除成功！"
+  "c4.defuse_success_self": "§aC4拆除成功！",
+  "announcement.star.role.noellesroles.gangsters": "悍匪",
+  "announcement.star.goals.gangsters": "用C4和武器消滅所有平民！",
+  "announcement.star.win.gangsters": "殺手勝利！",
+  "info.screen.roleid.gangsters": "殺手陣營\n與鉗工綁定生成。\n擁有無限體力。\n初始物品：1個C4炸藥和1個C4引爆器。\n專屬商店：短管霰彈槍(185金幣)、C4炸藥(300金幣)、撬棍(25金幣)、開鎖器(80金幣)、關燈(100金幣)。",
+  "announcement.star.role.noellesroles.fitter": "鉗工",
+  "announcement.star.goals.fitter": "使用拆彈鉗拆除C4，保護平民安全！",
+  "announcement.star.win.fitter": "乘客勝利！",
+  "info.screen.roleid.fitter": "平民陣營\n與悍匪綁定生成。\n初始物品：拆彈鉗（無限次使用且不會損壞，拆C4必定成功）。\n專屬商店：開燈(175金幣)、監控恢復(75金幣)。\n死亡後拆彈鉗傳遞給附近平民。",
+  "item.noellesroles.lightup": "開燈",
+  "item.noellesroles.monitor_recovery": "監控恢復",
+  "message.noellesroles.fitter.pliers_inherited": "你從 %s 那裡繼承了拆彈鉗！"
 }

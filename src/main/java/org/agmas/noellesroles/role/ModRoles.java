@@ -204,6 +204,11 @@ public class ModRoles {
     public static final ResourceLocation REPAIR_SABOTEUR_ID = Noellesroles.id("repair_saboteur");
     public static final ResourceLocation REPAIR_COLLECTOR_ID = Noellesroles.id("repair_collector");
 
+    // 悍匪角色 ID
+    public static final ResourceLocation GANGSTERS_ID = Noellesroles.id("gangsters");
+    // 钳工角色 ID
+    public static final ResourceLocation FITTER_ID = Noellesroles.id("fitter");
+
     // 杀手阵营角色 ID
     public static ResourceLocation MORPHLING_ID = Noellesroles.id("morphling");
     public static ResourceLocation PARTY_KILLER_ID = Noellesroles.id("party_killer");
@@ -1832,6 +1837,49 @@ public class ModRoles {
             Integer.MAX_VALUE, // 无限冲刺时间
             true // 隐藏计分板
     )).setComponentKey(ModComponents.BANDIT);
+    
+    /**
+     * 悍匪角色
+     * - 属于杀手阵营 (isInnocent = false)
+     * - 可以使用杀手能力 (canUseKiller = true)
+     * - 假心情系统
+     * - 无限体力 (Integer.MAX_VALUE)
+     * - 隐藏计分板
+     * - 与钳工绑定生成
+     * - 初始物品：1个C4炸药 + 1个C4引爆器
+     * - 专属商店：短管霰弹枪(185金币)、C4炸药(300金币)、撬棍(25金币)、开锁器(80金币)、关灯(100金币)
+     */
+    public static SRERole GANGSTERS = TMMRoles.registerRole(new NormalRole(
+            GANGSTERS_ID,
+            new Color(60, 60, 60).getRGB(),
+            false,
+            true,
+            SRERole.MoodType.FAKE,
+            Integer.MAX_VALUE,
+            true
+    )).setCanSeeCoin(true).setMax(1);
+
+    /**
+     * 钳工角色
+     * - 属于平民阵营 (isInnocent = true)
+     * - 不能使用杀手能力 (canUseKiller = false)
+     * - 真实心情系统
+     * - 标准冲刺时间
+     * - 在计分板上显示
+     * - 初始物品：拆弹钳（无限次使用，拆C4必定成功）
+     * - 专属商店：开灯(175金币)、监控恢复(75金币)
+     * - 死亡后拆弹钳传递给附近平民
+     */
+    public static SRERole FITTER = TMMRoles.registerRole(new NormalRole(
+            FITTER_ID,
+            new Color(70, 130, 180).getRGB(),
+            true,
+            false,
+            SRERole.MoodType.REAL,
+            TMMRoles.CIVILIAN.getMaxSprintTime(),
+            false
+    )).setCanSeeCoin(true).setMax(1);
+
     public static SRERole BLOOD_FEUDIST = TMMRoles.registerRole(new NormalRole(
             BLOOD_FEUDIST_ID, // 角色 ID
             new Color(178, 34, 34).getRGB(), // 暗红色 - 代表复仇与愤怒

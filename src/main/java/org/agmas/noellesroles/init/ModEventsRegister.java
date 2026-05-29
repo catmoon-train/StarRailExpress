@@ -529,6 +529,60 @@ public class ModEventsRegister {
     }
 
     /**
+     * 处理钳工死亡 - 将拆弹钳传递给另一名存活的平民（参考会计传递存折逻辑）
+     */
+    private static void handleFitterDeath(Player victim) {
+        if (victim == null || victim.level().isClientSide())
+            return;
+
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(victim.level());
+        if (!gameWorld.isRole(victim, ModRoles.FITTER))
+            return;
+
+        // 查找钳工背包中的拆弹钳
+        ArrayList<ItemStack> itemsToTransfer = new ArrayList<>();
+        for (int i = 0; i < victim.getInventory().getContainerSize(); i++) {
+            ItemStack stack = victim.getInventory().getItem(i);
+            if (stack.getItem() == org.agmas.noellesroles.init.ModItems.PLIERS) {
+                itemsToTransfer.add(stack.copy());
+                victim.getInventory().setItem(i, ItemStack.EMPTY);
+            }
+        }
+
+        if (itemsToTransfer.isEmpty())
+            return;
+
+        // 查找另一名存活的平民
+        Player targetPlayer = null;
+        for (Player player : victim.level().players()) {
+            if (player == victim)
+                continue;
+            if (!GameUtils.isPlayerAliveAndSurvival(player))
+                continue;
+
+            SRERole role = gameWorld.getRole(player);
+            if (role != null && role.isInnocent()) {
+                targetPlayer = player;
+                break;
+            }
+        }
+
+        // 如果找到存活的平民，传递物品
+        if (targetPlayer != null) {
+            for (ItemStack item : itemsToTransfer) {
+                targetPlayer.addItem(item);
+            }
+            if (targetPlayer instanceof ServerPlayer serverTarget) {
+                serverTarget.displayClientMessage(
+                        Component.translatable("message.noellesroles.fitter.pliers_inherited",
+                                victim.getName().getString())
+                                .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD),
+                        true);
+            }
+        }
+    }
+
+    /**
      * 处理锁匠死亡 - 将巧匠钥匙和撬锁器传递给附近一名存活的平民
      */
     private static void handleLocksmithDeath(Player victim) {
@@ -1854,6 +1908,9 @@ public class ModEventsRegister {
 
             // 检查会计死亡 - 传递存折
             handleAccountantDeath(victim);
+
+            // 检查钳工死亡 - 传递拆弹钳
+            handleFitterDeath(victim);
 
             // 检查死亡惩罚
             handleDeathPenalty(victim);

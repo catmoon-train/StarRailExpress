@@ -876,6 +876,24 @@ public class ModItems {
             "pliers");
 
     /**
+     * 开灯
+     * - 立即结束关灯时间并清除全场黑暗与失明药水效果
+     * - 未处于关灯时间无法购买
+     */
+    public static final Item LIGHTUP = register(
+            new Item(new Item.Properties().stacksTo(1)),
+            "lightup");
+
+    /**
+     * 监控恢复
+     * - 立即结束监控失灵时间
+     * - 未处于监控失灵期间无法购买
+     */
+    public static final Item MONITOR_RECOVERY = register(
+            new Item(new Item.Properties().stacksTo(1)),
+            "monitor_recovery");
+
+    /**
      * 子弹
      * - 右键使用：装填子弹
      */

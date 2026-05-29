@@ -17,6 +17,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.cca.C4BackComponent;
 import org.agmas.noellesroles.init.ModItems;
+import org.agmas.noellesroles.role.ModRoles;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -129,13 +131,18 @@ public final class PliersDefuseManager {
     }
 
     private static void complete(ServerLevel level, ServerPlayer defuser, DefuseAttempt attempt, DefuseTarget target) {
-        boolean clippedWrongWire = level.getRandom().nextInt(100) < 20;
+        // 钳工拆除C4必定成功，且不消耗耐久
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(defuser.level());
+        boolean isFitter = gameWorld.isRole(defuser, ModRoles.FITTER);
+        boolean clippedWrongWire = isFitter ? false : level.getRandom().nextInt(100) < 20;
         if (target.playerTarget()) {
             completePlayerDefuse(level, defuser, attempt, clippedWrongWire);
         } else {
             completeBlockDefuse(level, defuser, attempt, clippedWrongWire);
         }
-        consumePliers(defuser, attempt.hand());
+        if (!isFitter) {
+            consumePliers(defuser, attempt.hand());
+        }
     }
 
     private static void completePlayerDefuse(ServerLevel level, ServerPlayer defuser,

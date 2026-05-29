@@ -258,6 +258,21 @@ public class RoleInitialItems {
         traitorItems.add(() -> ModItems.SHORT_SHOTGUN.getDefaultInstance());
         traitorItems.add(() -> TMMItems.GRENADE.getDefaultInstance());
         INITIAL_ITEMS_MAP.put(TraitorAndModifiers.TRAITOR, traitorItems);
+
+        // 悍匪初始物品 - C4炸药 + C4引爆器
+        List<Supplier<ItemStack>> gangstersItems = new ArrayList<>();
+        gangstersItems.add(() -> ModItems.C4.getDefaultInstance());
+        gangstersItems.add(() -> ModItems.C4_DETONATOR.getDefaultInstance());
+        INITIAL_ITEMS_MAP.put(ModRoles.GANGSTERS, gangstersItems);
+
+        // 钳工初始物品 - 拆弹钳（无限次使用，不会损坏）
+        List<Supplier<ItemStack>> fitterItems = new ArrayList<>();
+        fitterItems.add(() -> {
+            ItemStack pliers = ModItems.PLIERS.getDefaultInstance();
+            pliers.set(DataComponents.UNBREAKABLE, new Unbreakable(true));
+            return pliers;
+        });
+        INITIAL_ITEMS_MAP.put(ModRoles.FITTER, fitterItems);
     }
 
 }
