@@ -2341,4 +2341,3 @@ public class RoleShopHandler {
     });
   }
 }
-}

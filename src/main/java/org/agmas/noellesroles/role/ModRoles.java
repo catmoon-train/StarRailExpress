@@ -1878,7 +1878,7 @@ public class ModRoles {
             SRERole.MoodType.REAL,
             TMMRoles.CIVILIAN.getMaxSprintTime(),
             false
-    )).setCanSeeCoin(true).setMax(1);
+    )).setCanSeeCoin(true).setMax(0);
 
     public static SRERole BLOOD_FEUDIST = TMMRoles.registerRole(new NormalRole(
             BLOOD_FEUDIST_ID, // 角色 ID
