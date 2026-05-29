@@ -17,6 +17,7 @@
   "text.autoconfig.starrailexpress-client.option.enableSecurityCameraHUD": "启用安全监视器的HUD",
   "text.autoconfig.starrailexpress-client.option.disableStaminaBarSmoothing": "禁用耐力条平滑动画",
   "text.autoconfig.starrailexpress-client.option.disableScreenShake": "禁用屏幕抖动",
+  "text.autoconfig.starrailexpress-client.option.enableRandomSkinForStreaming": "启用直播模式，以禁用玩家的自定义皮肤，使用系统给予的随机皮肤（本地）",
   "text.autoconfig.starrailexpress-client.option.title": "客户端",
   "text.autoconfig.starrailexpress-client.option.ultraPerfMode": "极限性能模式",
   "text.autoconfig.starrailexpress-client.option.ultraPerfMode.@Tooltip": "禁用场景以换取较差的视觉体验，但获得最佳性能。渲染距离降低至2。同时，建议你在Sodium菜单中关闭屏幕暗角 (Vignette) 有助于获得更高的fps。",

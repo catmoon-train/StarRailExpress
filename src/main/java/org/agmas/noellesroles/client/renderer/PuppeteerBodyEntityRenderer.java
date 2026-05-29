@@ -2,6 +2,7 @@ package org.agmas.noellesroles.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.wifi.starrailexpress.client.SREClient;
+import io.wifi.starrailexpress.client.util.ClientSkinCache;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.multiplayer.PlayerInfo;
@@ -49,7 +50,7 @@ public class PuppeteerBodyEntityRenderer extends LivingEntityRenderer<PuppeteerB
         // ResourceLocation texture = getTextureLocation(entity);
 //        final var instance = Minecraft.getInstance();
 //        UUID ownerUuid = entity.getOwnerUuid().orElse(null);
-//        PlayerInfo entry = SREClient.PLAYER_ENTRIES_CACHE.get(ownerUuid);
+//        PlayerInfo entry = ClientSkinCache.PLAYER_ENTRIES_CACHE.get(ownerUuid);
 //        if (entry != null) {
 //            AbstractClientPlayer fakePlayer = new RemotePlayer(instance.level,
 //                    new GameProfile(ownerUuid, entry.getProfile().getName()));
@@ -76,7 +77,7 @@ public class PuppeteerBodyEntityRenderer extends LivingEntityRenderer<PuppeteerB
 
         if (ownerUuid != null) {
             // 通过 UUID 从玩家列表获取皮肤
-            PlayerInfo entry = SREClient.PLAYER_ENTRIES_CACHE.get(ownerUuid);
+            PlayerInfo entry = ClientSkinCache.getCachedPlayerInfo(ownerUuid);
             if (entry != null) {
                 if( entry.getSkin().model().equals(PlayerSkin.Model.WIDE)){
                     model = modelNormal;

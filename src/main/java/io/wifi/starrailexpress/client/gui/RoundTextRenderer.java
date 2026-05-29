@@ -8,6 +8,7 @@ import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
+import io.wifi.starrailexpress.client.util.ClientSkinCache;
 import io.wifi.starrailexpress.client.util.SREClientUtils;
 import io.wifi.starrailexpress.event.OnRoundStartWelcomeTimmer;
 import io.wifi.starrailexpress.game.GameConstants;
@@ -192,7 +193,7 @@ public class RoundTextRenderer {
                     float yPos = 14 + (looseEnds / 6) * 12f; // 24f = 12 * 2
                     looseEnds++;
 
-                    PlayerInfo playerEntry = SREClient.PLAYER_ENTRIES_CACHE.get(entry.player().getId());
+                    PlayerInfo playerEntry = ClientSkinCache.getCachedPlayerInfo(entry.player().getId());
                     if (playerEntry != null && playerEntry.getSkin().texture() != null) {
                         ResourceLocation texture = playerEntry.getSkin().texture();
                         float offColour = entry.wasDead() ? 0.4f : 1f;
@@ -342,7 +343,7 @@ public class RoundTextRenderer {
                         context.drawString(renderer, text, -textWidth / 2, 0, 0xffffff);
                         context.pose().popPose();
                     }
-                    PlayerInfo playerListEntry = SREClient.PLAYER_ENTRIES_CACHE.get(entry.player().getId());
+                    PlayerInfo playerListEntry = ClientSkinCache.getCachedPlayerInfo(entry.player().getId());
                     if (playerListEntry != null) {
                         GameProfile playerProfile = playerListEntry.getProfile();
                         ResourceLocation texture = playerListEntry.getSkin().texture();

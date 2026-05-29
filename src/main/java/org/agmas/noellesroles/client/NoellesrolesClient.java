@@ -14,6 +14,7 @@ import io.wifi.starrailexpress.client.StaminaRenderer;
 import io.wifi.starrailexpress.client.StatusInit;
 import io.wifi.starrailexpress.client.gui.RoleNameRenderer;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
+import io.wifi.starrailexpress.client.util.ClientSkinCache;
 import io.wifi.starrailexpress.client.util.TMMItemTooltips;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.content.vote.client.ClientVoteCache;
@@ -163,7 +164,7 @@ public class NoellesrolesClient implements ClientModInitializer {
             return;
         }
 
-        List<UUID> candidates = new ArrayList<>(SREClient.PLAYER_ENTRIES_CACHE.keySet());
+        List<UUID> candidates = new ArrayList<>(ClientSkinCache.PLAYER_ENTRIES_CACHE.keySet());
         if (candidates.isEmpty()) {
             JEB_SHUFFLED_PLAYER_ENTRIES_CACHE.clear();
             return;
@@ -864,7 +865,6 @@ public class NoellesrolesClient implements ClientModInitializer {
             // 加入游戏清空信息
             currentBroadcastMessage.clear();
             ClientVoteCache.clear();
-            SREClient.PLAYER_ENTRIES_CACHE.clear();
         });
         // 监听客户端断开连接：清空卡池配置信息
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
@@ -1020,8 +1020,8 @@ public class NoellesrolesClient implements ClientModInitializer {
             insanityTime++;
             if (insanityTime >= 20 * 6) {
                 insanityTime = 0;
-                List<UUID> keys = new ArrayList<UUID>(SREClient.PLAYER_ENTRIES_CACHE.keySet());
-                List<UUID> originalkeys = new ArrayList<UUID>(SREClient.PLAYER_ENTRIES_CACHE.keySet());
+                List<UUID> keys = new ArrayList<UUID>(ClientSkinCache.PLAYER_ENTRIES_CACHE.keySet());
+                List<UUID> originalkeys = new ArrayList<UUID>(ClientSkinCache.PLAYER_ENTRIES_CACHE.keySet());
                 Collections.shuffle(keys);
                 int i = 0;
                 for (UUID o : originalkeys) {

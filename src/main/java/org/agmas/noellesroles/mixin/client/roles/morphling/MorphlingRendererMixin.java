@@ -3,6 +3,7 @@ package org.agmas.noellesroles.mixin.client.roles.morphling;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import io.wifi.starrailexpress.client.SREClient;
+import io.wifi.starrailexpress.client.util.ClientSkinCache;
 import net.fabricmc.loader.impl.util.log.Log;
 import net.fabricmc.loader.impl.util.log.LogCategory;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -73,7 +74,7 @@ public abstract class MorphlingRendererMixin {
             if (level == null)return;
             final var shuffledTarget = getShuffledTarget(abstractClientPlayerEntity);
             if (shuffledTarget != null) {
-                final var playerInfo = SREClient.PLAYER_ENTRIES_CACHE.get(shuffledTarget);
+                final var playerInfo = ClientSkinCache.getCachedPlayerInfo(shuffledTarget);
                 if (playerInfo == null)
                     return;
                 final var skin = playerInfo.getSkin();
@@ -91,7 +92,7 @@ public abstract class MorphlingRendererMixin {
                 final var skinToAppearAs = splitPersonalityComponent.getSkinToAppearAs();
                 if (skinToAppearAs !=null) {
 
-                        final var playerInfo = SREClient.PLAYER_ENTRIES_CACHE.get(skinToAppearAs);
+                        final var playerInfo = ClientSkinCache.getCachedPlayerInfo(skinToAppearAs);
                         if (playerInfo == null) {
                             return;
                         }
@@ -108,7 +109,7 @@ public abstract class MorphlingRendererMixin {
             final var morphlingPlayerComponent = MorphlingPlayerComponent.KEY.get(abstractClientPlayerEntity);
             if (morphlingPlayerComponent != null && morphlingPlayerComponent.getMorphTicks() > 0 ) {
                 final var disguise = (MorphlingPlayerComponent.KEY.get(abstractClientPlayerEntity)).disguise;
-                final var playerInfo = SREClient.PLAYER_ENTRIES_CACHE.get(disguise);
+                final var playerInfo = ClientSkinCache.getCachedPlayerInfo(disguise);
                 if (playerInfo==null)return;
                 final var skin = playerInfo.getSkin();
                 if (skin==null)return;
@@ -142,7 +143,7 @@ public abstract class MorphlingRendererMixin {
             if (splitPersonalityComponent != null && !splitPersonalityComponent.isCurrentlyActive()) {
                 UUID mainPersonalityId = splitPersonalityComponent.getMainPersonality();
                 if (mainPersonalityId != null) {
-                    final var playerInfo = SREClient.PLAYER_ENTRIES_CACHE.get((mainPersonalityId));
+                    final var playerInfo = ClientSkinCache.getCachedPlayerInfo((mainPersonalityId));
                     if (playerInfo == null) {
                         return original.call(instance);
                     }
@@ -154,7 +155,7 @@ public abstract class MorphlingRendererMixin {
 
             var component = MorphlingPlayerComponent.KEY.get(instance);
             if (component != null && component.getMorphTicks() > 0 && component.disguise != null) {
-                final var playerInfo = SREClient.PLAYER_ENTRIES_CACHE.get((component.disguise));
+                final var playerInfo = ClientSkinCache.getCachedPlayerInfo((component.disguise));
                 if (playerInfo != null) {
                     final var skin = playerInfo.getSkin();
                     if (skin != null) {
@@ -167,7 +168,7 @@ public abstract class MorphlingRendererMixin {
 
             final var shuffledTarget = getShuffledTarget(instance);
             if (shuffledTarget != null) {
-                var playerInfo = SREClient.PLAYER_ENTRIES_CACHE.get(shuffledTarget);
+                var playerInfo = ClientSkinCache.getCachedPlayerInfo(shuffledTarget);
                 if (playerInfo != null) {
                     final var skin = playerInfo.getSkin();
                     if (skin != null) {

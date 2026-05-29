@@ -86,7 +86,7 @@ public class GameMenuEntries {
                 // mod client settings
                 var btn1 = Button
                         .builder(Component.translatable("screen.limited_inventory.menu.mod_settings_client")
-                                .withStyle(ChatFormatting.RED), (btn) -> {
+                                .withStyle(ChatFormatting.WHITE), (btn) -> {
                                     var screen = SREClientConfig.HANDLER.generateGui().generateScreen(parent);
                                     minecraft.setScreen(screen);
                                     toggleViewMenu.accept(false);
