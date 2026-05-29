@@ -6,9 +6,6 @@ import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry.Gui.CollapsibleObject;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Config(name = "stupid_express")
 public class StupidExpressConfig implements ConfigData {
     public static ConfigClassHandler<StupidExpressConfig> HANDLER = new ConfigClassHandler<>(

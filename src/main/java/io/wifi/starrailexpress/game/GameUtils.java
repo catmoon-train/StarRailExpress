@@ -289,7 +289,7 @@ public class GameUtils {
         if (SRE.isLobby)
             return;
         // 延迟5s
-        SRE.LOGGER.info("=".repeat(10));
+        SRE.LOGGER.info("=".repeat(20));
         SRE.LOGGER.info("Game Started!");
         executeFunction(world.getServer().createCommandSourceStack(), "harpymodloader:early_start_game");
         executeFunction(world.getServer().createCommandSourceStack(),
@@ -716,7 +716,7 @@ public class GameUtils {
     public static final Set<ChunkPos> chunksToClearEntities = new HashSet<>();
 
     public static void finalizeGame(ServerLevel world) {
-        SRE.LOGGER.info("-".repeat(10));
+        SRE.LOGGER.info("-".repeat(20));
 
         SRE.LOGGER.info("Game Stopped!");
         RefugeeComponent.KEY.get(world).reset();
@@ -747,9 +747,9 @@ public class GameUtils {
         // Show replay to all players
         gameComponent.getGameMode().showReplay(world, roundEnd, gameComponent);
         if (SREConfig.instance().logGameEvent) {
-            SRE.LOGGER.info("-".repeat(10));
-            SRE.LOGGER.info(ListRoleInRoundCommand.generateRoleInRoundText(world).getString());
-            SRE.LOGGER.info("-".repeat(10));
+            SRE.LOGGER.info("-".repeat(20));
+            SRE.LOGGER.info(ListRoleInRoundCommand.generateRoleInRoundText(world).getString().replaceAll("\n", ", "));
+            SRE.LOGGER.info("-".repeat(20));
         }
 
         SREWorldBlackoutComponent.KEY.get(world).reset();
@@ -789,8 +789,11 @@ public class GameUtils {
                 world.getServer().halt(false);
             }));
         }
-        SRE.LOGGER.info("=".repeat(10));
+        SRE.LOGGER.info("=".repeat(20));
 
+        WorldModifierComponent worldModifierComponent = WorldModifierComponent.KEY.get(world);
+        worldModifierComponent.modifiers.clear();
+        worldModifierComponent.sync();
     }
 
     public static void recordWinStats(ServerLevel world, SREGameRoundEndComponent roundEnd,

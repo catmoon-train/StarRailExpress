@@ -203,9 +203,9 @@ public abstract class GameMode {
             if (serverWorld.getGameTime() - safeTimeStarted >= SREConfig.instance().safeTimeCooldown * 20) {
                 safeTimeStarted = 0;
                 OnGameTrueStarted.EVENT.invoker().onGameTrueStarted(serverWorld);
-                SRE.LOGGER.info("-".repeat(10));
+                SRE.LOGGER.info("-".repeat(20));
                 SRE.LOGGER.info("Game True Started after Safe Time!");
-                SRE.LOGGER.info("-".repeat(10));
+                SRE.LOGGER.info("-".repeat(20));
             }
         }
     }
