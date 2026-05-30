@@ -2718,5 +2718,17 @@
   "info.screen.roleid.fitter": "Civilian Team\nBound with Gangster.\nInitial item: Defusal Pliers (unlimited uses, never breaks, always succeeds at defusing C4).\nExclusive shop: Lights On (175 coins), Monitor Recovery (75 coins).\nDeath: pliers passed to nearby civilian.",
   "item.noellesroles.lightup": "Lights On",
   "item.noellesroles.monitor_recovery": "Monitor Recovery",
-  "message.noellesroles.fitter.pliers_inherited": "You inherited defusal pliers from %s!"
+  "message.noellesroles.fitter.pliers_inherited": "You inherited defusal pliers from %s!",
+  "announcement.star.role.noellesroles.pelican": "Pelican",
+  "announcement.star.goals.pelican": "Swallow enough players to achieve an independent victory!",
+  "announcement.star.win.pelican": "Pelican Wins!",
+  "game.win.star.pelican": "The Pelican swallowed enough players and achieved a solo victory!",
+  "info.screen.roleid.pelican": "Solo Neutral\nIndependent from both killers and civilians.\nSkill: Press ability key to swallow a living player within 3.15 blocks.\nCrouch+ability: Release the last swallowed player.\nWin condition: Swallow 80% of starting players.\nInstinct range: 25 blocks.\nSwallowed players can only voice chat with the Pelican and other swallowed players.\nOnly appears in games with 12+ players.",
+  "message.noellesroles.pelican.swallowed": "You swallowed %s! (%s/%s)",
+  "message.noellesroles.pelican.cooldown": "Swallow on cooldown, %s seconds remaining",
+  "message.noellesroles.pelican.belly_empty": "Your belly is empty",
+  "message.noellesroles.pelican.released_one": "You released one player",
+  "message.noellesroles.pelican.no_target": "No living player close enough to swallow",
+  "message.noellesroles.pelican.spat_out_dead": "The Pelican died and spat you out!",
+  "hud.noellesroles.pelican.progress": "Swallowed %s/%s"
 }

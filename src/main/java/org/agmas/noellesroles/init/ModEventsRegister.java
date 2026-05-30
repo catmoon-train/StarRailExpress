@@ -583,6 +583,17 @@ public class ModEventsRegister {
     }
 
     /**
+     * 处理鹈鹕死亡 - 将肚子里的所有玩家释放出来
+     */
+    private static void handlePelicanDeath(Player victim) {
+        if (victim == null || victim.level().isClientSide()) return;
+        if (!(victim instanceof ServerPlayer sp)) return;
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(victim.level());
+        if (!gameWorld.isRole(victim, ModRoles.PELICAN)) return;
+        org.agmas.noellesroles.game.roles.neutral.pelican.PelicanManager.onPelicanDeath(sp);
+    }
+
+    /**
      * 处理锁匠死亡 - 将巧匠钥匙和撬锁器传递给附近一名存活的平民
      */
     private static void handleLocksmithDeath(Player victim) {
@@ -1018,6 +1029,8 @@ public class ModEventsRegister {
             }
             // 清除全局墙位置注册表
             org.agmas.noellesroles.game.roles.Innocent.builder.BuilderWallPositions.clearAll();
+            // 清除鹈鹕状态 - 释放所有被吞噬的玩家
+            org.agmas.noellesroles.game.roles.neutral.pelican.PelicanManager.clearAll();
             // 清除所有肉汁的悬赏
             for (ServerPlayer player : world.players()) {
                 org.agmas.noellesroles.component.ModComponents.MEATBALL.get(player).init();
@@ -1915,6 +1928,9 @@ public class ModEventsRegister {
 
             // 检查钳工死亡 - 传递拆弹钳
             handleFitterDeath(victim);
+
+            // 检查鹈鹕死亡 - 释放肚子里的所有玩家
+            handlePelicanDeath(victim);
 
             // 检查死亡惩罚
             handleDeathPenalty(victim);

@@ -50,5 +50,6 @@ public class OtherRolesRegister {
         MeatballHud.register();
         MorticianHud.register();
         BuilderHud.register();
+        PelicanHud.register();
     }
 }

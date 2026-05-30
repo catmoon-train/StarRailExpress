@@ -46,6 +46,7 @@ import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerCompon
 import org.agmas.noellesroles.game.roles.neutral.recorder.RecorderPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.thief.ThiefPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.vulture.VulturePlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.pelican.PelicanPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.mortician.MorticianPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.RedHouseRoles;
@@ -218,6 +219,14 @@ public class ModRolesInitialEventRegister {
                             - Math.floor(player.level().players().size() / 6f)));
                     vulturePlayerComponent.sync();
                 }
+            }
+            if (role.equals(ModRoles.PELICAN)) {
+                var pelicanComponent = PelicanPlayerComponent.KEY.get(player);
+                pelicanComponent.init();
+                int totalPlayers = SREGameWorldComponent.KEY.get(player.level()).getPlayerCount();
+                double percent = NoellesRolesConfig.HANDLER.instance().pelicanEatPercentage;
+                pelicanComponent.requiredEaten = Math.max(1, (int) Math.floor(totalPlayers * (percent / 100.0D)));
+                pelicanComponent.sync();
             }
             if (role.equals(ModRoles.INSANE_KILLER)) {
                 final var insaneKillerPlayerComponent = InsaneKillerPlayerComponent.KEY.get(player);
@@ -394,6 +403,32 @@ public class ModRolesInitialEventRegister {
             if (NRSounds.INFECTED_INFECT != null) {
                 player.serverLevel().playSound(null, player.getX(), player.getY(), player.getZ(),
                     NRSounds.SYRINGE_STAB, SoundSource.MASTER, 0.5f, 0.5f);
+            }
+        });
+
+        // 鹈鹕技能注册：按技能键吞噬玩家，蹲下按技能键释放最后吞噬的玩家
+        RoleSkill.register(ModRoles.PELICAN, context -> {
+            ServerPlayer player = context.player();
+            PelicanPlayerComponent comp = PelicanPlayerComponent.KEY.get(player);
+            if (comp == null) return;
+
+            if (player.isShiftKeyDown()) {
+                // 蹲下：释放最后吞噬的玩家
+                comp.releaseLast();
+            } else {
+                // 吞噬目标玩家
+                UUID targetUuid = context.target();
+                if (targetUuid == null) {
+                    player.displayClientMessage(
+                            Component.translatable("message.noellesroles.pelican.no_target")
+                                    .withStyle(ChatFormatting.RED),
+                            true);
+                    return;
+                }
+                Player target = player.level().getPlayerByUUID(targetUuid);
+                if (target instanceof ServerPlayer targetSp) {
+                    comp.tryEat(targetSp);
+                }
             }
         });
 

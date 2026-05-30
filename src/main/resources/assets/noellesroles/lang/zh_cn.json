@@ -2719,5 +2719,17 @@
   "announcement.star.win.fitter": "乘客胜利！",
   "item.noellesroles.lightup": "开灯",
   "item.noellesroles.monitor_recovery": "监控恢复",
-  "message.noellesroles.fitter.pliers_inherited": "你从 %s 那里继承了拆弹钳！"
+  "message.noellesroles.fitter.pliers_inherited": "你从 %s 那里继承了拆弹钳！",
+  "announcement.star.role.noellesroles.pelican": "鹈鹕",
+  "announcement.star.goals.pelican": "吞噬足够多的玩家来获得独立胜利！",
+  "announcement.star.win.pelican": "鹈鹕获胜！",
+  "game.win.star.pelican": "鹈鹕吃饱啦！",
+  "info.screen.roleid.pelican": "独立胜利中立阵营\n与杀手、平民都无关。\n技能：按技能键吞噬面前3.15格内的存活玩家进肚子里。\n蹲下+技能键：释放最后吞噬的玩家。\n胜利条件：吞噬开局玩家数80%的玩家。\n本能透视范围：25格。\n被吞噬的玩家只能与鹈鹕和肚子里的其他玩家语音交流。\n只在12人及以上对局中出现。",
+  "message.noellesroles.pelican.swallowed": "你吞噬了 %s！(%s/%s)",
+  "message.noellesroles.pelican.cooldown": "吞噬技能冷却中，还需 %s 秒",
+  "message.noellesroles.pelican.belly_empty": "你的肚子里没有玩家可以释放",
+  "message.noellesroles.pelican.released_one": "你释放了一个玩家",
+  "message.noellesroles.pelican.no_target": "没有足够近的存活玩家可以吞噬",
+  "message.noellesroles.pelican.spat_out_dead": "鹈鹕死了，你被吐了出来！",
+  "hud.noellesroles.pelican.progress": "吞噬 %s/%s"
 }

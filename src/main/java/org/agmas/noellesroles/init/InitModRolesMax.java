@@ -757,6 +757,10 @@ public class InitModRolesMax {
         // 钳工 - 与悍匪绑定，由悍匪概率控制
         ModRoles.FITTER.setEnableChance(75);
 
+        // 鹈鹕 - 从配置读取概率和最小玩家数
+        ModRoles.PELICAN.setEnableChance(config.chanceOfPelican)
+                .setEnableNeededPlayerCount(config.minPlayerForPelican);
+
         // 对没有 enableChance 的杀手方中立职业，默认 max=1、概率 75%
         for (var entry : TMMRoles.ROLES.entrySet()) {
             var role = entry.getValue();

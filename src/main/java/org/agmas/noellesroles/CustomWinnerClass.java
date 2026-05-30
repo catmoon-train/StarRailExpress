@@ -11,6 +11,7 @@ import pro.fazeclan.river.stupid_express.modifier.refugee.cca.RefugeeComponent;
 
 import org.agmas.noellesroles.game.roles.neutral.candlebearer.CandleBearerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.cuckoo.CuckooPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.pelican.PelicanPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.thief.ThiefPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.RedHouseRoles;
@@ -21,6 +22,8 @@ public class CustomWinnerClass {
     public static void registerCustomWinners() {
         AllowGameEnd.EVENT.register((serverLevel, winStatus, isLooseEnd) -> {
             if (isLooseEnd) {
+                // 亡命时刻：释放鹈鹕肚子里的所有玩家
+                org.agmas.noellesroles.game.roles.neutral.pelican.PelicanManager.onLastStand(serverLevel);
                 return WinStatus.NOT_MODIFY;
             }
             var refugeeCCA = RefugeeComponent.KEY.get(serverLevel);
@@ -90,6 +93,10 @@ public class CustomWinnerClass {
             }
 
             if (CandleBearerPlayerComponent.checkCandleBearerVictory(serverLevel)) {
+                return WinStatus.CUSTOM;
+            }
+
+            if (PelicanPlayerComponent.checkPelicanVictory(serverLevel)) {
                 return WinStatus.CUSTOM;
             }
 

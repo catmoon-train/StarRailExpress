@@ -904,6 +904,42 @@ public class ModPacketsReciever {
           }
         });
 
+    // ==================== 鹈鹕技能网络包处理 ====================
+    ServerPlayNetworking.registerGlobalReceiver(PelicanEatC2SPacket.ID,
+        (payload, context) -> {
+            ServerPlayer player = context.player();
+            SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
+            if (!gameWorldComponent.isSkillAvailable) {
+                player.displayClientMessage(
+                    Component.translatable("message.tip.skill_disabled").withStyle(ChatFormatting.RED), true);
+                return;
+            }
+            if (!gameWorldComponent.isRole(player, ModRoles.PELICAN)) return;
+            org.agmas.noellesroles.game.roles.neutral.pelican.PelicanPlayerComponent comp =
+                org.agmas.noellesroles.game.roles.neutral.pelican.PelicanPlayerComponent.KEY.get(player);
+            // 蹲下释放，否则吞噬
+            if (player.isShiftKeyDown()) {
+                comp.releaseLast();
+            } else {
+                // 在服务器端寻找3.15格内最近的存活玩家
+                ServerPlayer target = null;
+                double closest = 3.15D * 3.15D;
+                for (ServerPlayer p : player.serverLevel().getPlayers(p -> p != player && GameUtils.isPlayerAliveAndSurvival(p))) {
+                    double dist = player.distanceToSqr(p);
+                    if (dist < closest) {
+                        closest = dist;
+                        target = p;
+                    }
+                }
+                if (target != null) {
+                    comp.tryEat(target);
+                } else {
+                    player.displayClientMessage(
+                        Component.translatable("message.noellesroles.pelican.no_target").withStyle(ChatFormatting.RED), true);
+                }
+            }
+        });
+
     // ==================== 愚者网络包处理 ====================
 
     // V键祷告/加入会议

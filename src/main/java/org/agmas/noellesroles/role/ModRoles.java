@@ -251,6 +251,7 @@ public class ModRoles {
     public static final ResourceLocation COMMANDER_ID = Noellesroles.id("commander");
     public static final ResourceLocation RECORDER_ID = Noellesroles.id("recorder");
     public static ResourceLocation VULTURE_ID = Noellesroles.id("vulture");
+    public static ResourceLocation PELICAN_ID = Noellesroles.id("pelican");
     public static final ResourceLocation NIAN_SHOU_ID = Noellesroles.id("nianshou");
     public static final ResourceLocation OLDMAN_ID = Noellesroles.id("oldman");
     public static final ResourceLocation THIEF_ID = Noellesroles.id("thief");
@@ -1129,6 +1130,25 @@ public class ModRoles {
                     false, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true)
                     .setComponentKey(VulturePlayerComponent.KEY))
             .setNeutralForKiller(true).setCanSeeTeammateKiller(false).setCanSeeBodyDeathReason(true);
+
+    /**
+     * 鹈鹕角色 (Pelican)
+     * - 独立胜利中立阵营 (isInnocent = false, canUseKiller = false, setNeutrals(true))
+     * - 不帮助杀手阵营 (setNeutralForKiller(false))
+     * - 技能：吞噬面前3.15格内的存活玩家进肚子里
+     * - 蹲下+技能：释放最后吞噬的玩家
+     * - 胜利条件：吞噬开局玩家数80%的玩家
+     * - 本能透视范围：25格
+     * - 只在12人及以上对局中出现（可配置）
+     * - 刷新几率25%（可配置）
+     */
+    public static SRERole PELICAN = TMMRoles
+            .registerRole(new NormalRole(PELICAN_ID, new Color(111, 138, 36).getRGB(), false,
+                    false, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true)
+                    .setComponentKey(org.agmas.noellesroles.game.roles.neutral.pelican.PelicanPlayerComponent.KEY))
+            .setNeutrals(true).setNeutralForKiller(false).setCanSeeTeammateKiller(false)
+            .setCanUseInstinct(true).setCanSeeCoin(true).setCanPickUpRevolver(false);
+
     public static SRERole CORONER = TMMRoles
             .registerRole(new NormalRole(CORONER_ID, new Color(122, 122, 122).getRGB(), true,
                     false, SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false))

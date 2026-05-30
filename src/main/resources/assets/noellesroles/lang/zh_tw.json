@@ -2719,5 +2719,17 @@
   "info.screen.roleid.fitter": "平民陣營\n與悍匪綁定生成。\n初始物品：拆彈鉗（無限次使用且不會損壞，拆C4必定成功）。\n專屬商店：開燈(175金幣)、監控恢復(75金幣)。\n死亡後拆彈鉗傳遞給附近平民。",
   "item.noellesroles.lightup": "開燈",
   "item.noellesroles.monitor_recovery": "監控恢復",
-  "message.noellesroles.fitter.pliers_inherited": "你從 %s 那裡繼承了拆彈鉗！"
+  "message.noellesroles.fitter.pliers_inherited": "你從 %s 那裡繼承了拆彈鉗！",
+  "announcement.star.role.noellesroles.pelican": "鵜鶘",
+  "announcement.star.goals.pelican": "吞噬足夠多的玩家來獲得獨立勝利！",
+  "announcement.star.win.pelican": "鵜鶘獲勝！",
+  "game.win.star.pelican": "鵜鶘吞噬了足夠多的玩家，獨自取得了勝利！",
+  "info.screen.roleid.pelican": "獨立勝利中立陣營\n與殺手、平民都無關。\n技能：按技能鍵吞噬面前3.15格內的存活玩家進肚子裡。\n蹲下+技能鍵：釋放最後吞噬的玩家。\n勝利條件：吞噬開局玩家數80%的玩家。\n本能透視範圍：25格。\n被吞噬的玩家只能與鵜鶘和肚子裡的其他玩家語音交流。\n只在12人及以上對局中出現。",
+  "message.noellesroles.pelican.swallowed": "你吞噬了 %s！(%s/%s)",
+  "message.noellesroles.pelican.cooldown": "吞噬技能冷卻中，還需 %s 秒",
+  "message.noellesroles.pelican.belly_empty": "你的肚子裡沒有玩家可以釋放",
+  "message.noellesroles.pelican.released_one": "你釋放了一個玩家",
+  "message.noellesroles.pelican.no_target": "沒有足夠近的存活玩家可以吞噬",
+  "message.noellesroles.pelican.spat_out_dead": "鵜鶘死了，你被吐了出來！",
+  "hud.noellesroles.pelican.progress": "吞噬 %s/%s"
 }

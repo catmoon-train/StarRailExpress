@@ -756,6 +756,26 @@ public class NoellesRolesConfig implements ConfigData {
     public int skillEchoRandomIntervalSeconds = 90;
 
     /**
+     * Pelican - minimum players required for Pelican to appear
+     */
+    public int minPlayerForPelican = 12;
+
+    /**
+     * Pelican - percentage chance (0-100) for Pelican to spawn
+     */
+    public int chanceOfPelican = 25;
+
+    /**
+     * Pelican - eat cooldown in seconds
+     */
+    public int pelicanEatCooldownSeconds = 20;
+
+    /**
+     * Pelican - percentage of starting players needed to swallow for victory
+     */
+    public double pelicanEatPercentage = 80.0D;
+
+    /**
      * (Client Side) Welcome Voice - Play welcome voice
      */
 
