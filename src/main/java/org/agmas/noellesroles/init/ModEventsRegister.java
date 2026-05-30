@@ -582,6 +582,17 @@ public class ModEventsRegister {
         }
     }
 
+
+    /**
+     * 处理被鹈鹕吞噬的玩家死亡 - 从鹈鹕肚子中释放并恢复正常死亡状态
+     */
+    private static void handleStashedPlayerDeath(Player victim) {
+        if (victim == null || victim.level().isClientSide()) return;
+        if (!(victim instanceof ServerPlayer sp)) return;
+        if (!org.agmas.noellesroles.game.roles.neutral.pelican.PelicanManager.isStashed(sp)) return;
+        org.agmas.noellesroles.game.roles.neutral.pelican.PelicanManager.onStashedPlayerDeath(sp);
+    }
+
     /**
      * 处理鹈鹕死亡 - 将肚子里的所有玩家释放出来
      */
@@ -1917,6 +1928,9 @@ public class ModEventsRegister {
             return true; // 允许死亡
         });
         OnPlayerDeath.EVENT.register((victim, deathReason) -> {
+            // 检查被吞噬玩家死亡 - 从鹈鹕肚子中释放并正常进入死亡
+            handleStashedPlayerDeath(victim);
+
             // 检查医生死亡 - 传递针管
             handleDoctorDeath(victim);
 

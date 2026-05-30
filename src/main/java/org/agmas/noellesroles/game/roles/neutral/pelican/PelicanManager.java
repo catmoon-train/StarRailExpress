@@ -197,6 +197,31 @@ public final class PelicanManager {
         stashedPreviousGameMode.clear();
     }
 
+    /**
+     * 处理被吞噬玩家死亡 - 清理鹈鹕数据并恢复玩家状态，使其正常进入死亡
+     */
+    public static void onStashedPlayerDeath(ServerPlayer target) {
+        UUID targetId = target.getUUID();
+        UUID pelicanId = pelicanByStashed.remove(targetId);
+        if (pelicanId != null) {
+            Deque<UUID> belly = stashedByPelican.get(pelicanId);
+            if (belly != null) {
+                belly.remove(targetId);
+                if (belly.isEmpty()) stashedByPelican.remove(pelicanId);
+            }
+        }
+        stashedPreviousGameMode.remove(targetId);
+
+        // 恢复游戏模式，确保玩家以正常状态进入死亡
+        if (target.gameMode.getGameModeForPlayer() == GameType.SPECTATOR) {
+            target.setGameMode(GameType.ADVENTURE);
+        }
+        target.setInvisible(false);
+        target.connection.send(new ClientboundSetCameraPacket(target));
+
+        NoellesrolesVoiceChatPlugin.onPelicanRelease(targetId);
+    }
+
     public static void onPelicanDeath(ServerPlayer pelican) {
         UUID pelicanId = pelican.getUUID();
         Deque<UUID> belly = stashedByPelican.get(pelicanId);
