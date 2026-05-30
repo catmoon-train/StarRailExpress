@@ -126,7 +126,8 @@
     "client.time_stop.StatusHudMixin",
     "roles.insanekiller.CrossHairFixer",
     "roles.photographer.BlindnessEffectMixin",
-    "client.C4ItemEntityRendererMixin"
+    "client.C4ItemEntityRendererMixin",
+    "game.PelicanAliveCheckMixin"
   ],
   "overwrites": {
     "requireAnnotations": true

@@ -35,6 +35,7 @@ public class CustomWinnerClass {
             // 检查是否有小偷存活
             boolean hasFurandoru = false;
             boolean hasThiefAlive = false;
+            boolean hasPelicanAlive = false;
             // int thiefCount = 0;
             int alivePlayerCount = 0;
             for (var player : serverLevel.players()) {
@@ -54,11 +55,12 @@ public class CustomWinnerClass {
                     }
                     if (gameComponent.isRole(player, ModRoles.THIEF)) {
                         hasThiefAlive = true;
-                        // thiefCount++;
                     }
                     if (gameComponent.isRole(player, RedHouseRoles.FURANDORU)) {
                         hasFurandoru = true;
-                        // thiefCount++;
+                    }
+                    if (gameComponent.isRole(player, ModRoles.PELICAN)) {
+                        hasPelicanAlive = true;
                     }
                 }
             }
@@ -96,8 +98,20 @@ public class CustomWinnerClass {
                 return WinStatus.CUSTOM;
             }
 
+            // 鹈鹕存活时检查独立胜利
             if (PelicanPlayerComponent.checkPelicanVictory(serverLevel)) {
                 return WinStatus.CUSTOM;
+            }
+            // 鹈鹕是唯一存活玩家时独立胜利（参考纵火犯）
+            if (hasPelicanAlive && alivePlayerCount == 1) {
+                RoleUtils.customWinnerWin(serverLevel,
+                        ModRoles.PELICAN_ID.getPath(),
+                        ModRoles.PELICAN.color());
+                return WinStatus.CUSTOM;
+            }
+            // 鹈鹕存活时阻止乘客/杀手胜利导致游戏结束（参考纵火犯）
+            if (hasPelicanAlive && (winStatus == WinStatus.KILLERS || winStatus == WinStatus.PASSENGERS)) {
+                return WinStatus.NONE;
             }
 
             // 布谷鸟胜利：在常规结局和年兽/纵火犯胜利时判定，优先级大于纵火犯和年兽

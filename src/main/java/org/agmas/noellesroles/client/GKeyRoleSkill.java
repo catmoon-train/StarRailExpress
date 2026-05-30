@@ -16,7 +16,6 @@ import org.agmas.noellesroles.packet.AbilityC2SPacket;
 import org.agmas.noellesroles.packet.AbilityWithTargetC2SPacket;
 import org.agmas.noellesroles.packet.BuilderAbilityC2SPacket;
 import org.agmas.noellesroles.packet.VultureEatC2SPacket;
-import org.agmas.noellesroles.packet.PelicanEatC2SPacket;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 
@@ -126,7 +125,7 @@ public final class GKeyRoleSkill {
             return true;
         });
         register(ModRoles.PELICAN, true, (client, gameWorld) -> {
-            ClientPlayNetworking.send(new PelicanEatC2SPacket());
+            ClientPlayNetworking.send(new AbilityC2SPacket());
             return true;
         });
         register(ModRoles.BROADCASTER, false, (client, gameWorld) -> {

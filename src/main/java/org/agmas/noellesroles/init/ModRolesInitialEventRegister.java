@@ -221,12 +221,14 @@ public class ModRolesInitialEventRegister {
                 }
             }
             if (role.equals(ModRoles.PELICAN)) {
-                var pelicanComponent = PelicanPlayerComponent.KEY.get(player);
-                pelicanComponent.init();
-                int totalPlayers = SREGameWorldComponent.KEY.get(player.level()).getPlayerCount();
-                double percent = NoellesRolesConfig.HANDLER.instance().pelicanEatPercentage;
-                pelicanComponent.requiredEaten = Math.max(1, (int) Math.floor(totalPlayers * (percent / 100.0D)));
-                pelicanComponent.sync();
+                if (PelicanPlayerComponent.KEY.isProvidedBy(player)) {
+                    var pelicanComponent = PelicanPlayerComponent.KEY.get(player);
+                    pelicanComponent.init();
+                    int totalPlayers = SREGameWorldComponent.KEY.get(player.level()).getPlayerCount();
+                    double percent = NoellesRolesConfig.HANDLER.instance().pelicanEatPercentage;
+                    pelicanComponent.requiredEaten = Math.max(1, (int) Math.ceil(totalPlayers * (percent / 100.0D)) - 1);
+                    pelicanComponent.sync();
+                }
             }
             if (role.equals(ModRoles.INSANE_KILLER)) {
                 final var insaneKillerPlayerComponent = InsaneKillerPlayerComponent.KEY.get(player);
@@ -413,22 +415,37 @@ public class ModRolesInitialEventRegister {
             if (comp == null) return;
 
             if (player.isShiftKeyDown()) {
-                // 蹲下：释放最后吞噬的玩家
                 comp.releaseLast();
+                return;
+            }
+
+            // 先在传入的 target 中查找；没有则搜索附近3.15格内最近的存活玩家
+            ServerPlayer target = null;
+            UUID targetUuid = context.target();
+            if (targetUuid != null) {
+                Player p = player.level().getPlayerByUUID(targetUuid);
+                if (p instanceof ServerPlayer sp && GameUtils.isPlayerAliveAndSurvival(sp) && player.distanceToSqr(sp) <= 3.15D * 3.15D) {
+                    target = sp;
+                }
+            }
+            if (target == null) {
+                double closest = 3.15D * 3.15D;
+                for (ServerPlayer p : player.serverLevel().getPlayers(p2 -> p2 != player && GameUtils.isPlayerAliveAndSurvival(p2))) {
+                    double dist = player.distanceToSqr(p);
+                    if (dist < closest) {
+                        closest = dist;
+                        target = p;
+                    }
+                }
+            }
+
+            if (target != null) {
+                comp.tryEat(target);
             } else {
-                // 吞噬目标玩家
-                UUID targetUuid = context.target();
-                if (targetUuid == null) {
-                    player.displayClientMessage(
-                            Component.translatable("message.noellesroles.pelican.no_target")
-                                    .withStyle(ChatFormatting.RED),
-                            true);
-                    return;
-                }
-                Player target = player.level().getPlayerByUUID(targetUuid);
-                if (target instanceof ServerPlayer targetSp) {
-                    comp.tryEat(targetSp);
-                }
+                player.displayClientMessage(
+                        Component.translatable("message.noellesroles.pelican.no_target")
+                                .withStyle(ChatFormatting.RED),
+                        true);
             }
         });
 

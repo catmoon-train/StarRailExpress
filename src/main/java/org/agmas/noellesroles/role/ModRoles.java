@@ -79,6 +79,7 @@ import org.agmas.noellesroles.game.roles.special.better_vigilante.BetterVigilant
 import org.agmas.noellesroles.game.roles.vigilante.patroller.PatrollerPlayerComponent;
 import org.agmas.noellesroles.utils.RandomColorUtil;
 import org.jetbrains.annotations.Nullable;
+import pro.fazeclan.river.stupid_express.constants.SERoles;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -1147,7 +1148,7 @@ public class ModRoles {
                     false, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true)
                     .setComponentKey(org.agmas.noellesroles.game.roles.neutral.pelican.PelicanPlayerComponent.KEY))
             .setNeutrals(true).setNeutralForKiller(false).setCanSeeTeammateKiller(false)
-            .setCanUseInstinct(true).setCanSeeCoin(true).setCanPickUpRevolver(false);
+            .setCanUseInstinct(true).setCanSeeCoin(true).setCanPickUpRevolver(false).setCanBeRandomedByOtherRoles(false);
 
     public static SRERole CORONER = TMMRoles
             .registerRole(new NormalRole(CORONER_ID, new Color(122, 122, 122).getRGB(), true,
@@ -2115,6 +2116,11 @@ public class ModRoles {
         
         // 设置迷失杀手与魔术师互斥
         ModRoles.LOST_KILLER.addTwoWayOpposingJobs(ModRoles.MAGICIAN);
+        
+        // 设置鹈鹕与纵火犯互斥
+        ModRoles.PELICAN.addTwoWayOpposingJobs(SERoles.ARSONIST);
+        // 设置鹈鹕与秉烛人互斥
+        ModRoles.PELICAN.addTwoWayOpposingJobs(ModRoles.CANDLE_BEARER);
         
         // 初始化叛徒职业和新修饰符
         TraitorAndModifiers.init();

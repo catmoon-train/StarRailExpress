@@ -253,6 +253,8 @@ public class RoleShopHandler {
   public static ArrayList<ShopEntry> GANGSTERS_SHOP = new ArrayList<>();
   // ==================== 钳工商店 ====================
   public static ArrayList<ShopEntry> FITTER_SHOP = new ArrayList<>();
+  // ==================== 鹈鹕商店 ====================
+  public static ArrayList<ShopEntry> PELICAN_SHOP = new ArrayList<>();
 
   /**
    * 初始化框架角色商店
@@ -1174,6 +1176,11 @@ public class RoleShopHandler {
     {
       ShopContent.customEntries.put(
           ModRoles.FITTER_ID, FITTER_SHOP);
+    }
+    // 鹈鹕商店
+    {
+      ShopContent.customEntries.put(
+          ModRoles.PELICAN_ID, PELICAN_SHOP);
     }
     // 小偷商店
     {
@@ -2339,5 +2346,12 @@ public class RoleShopHandler {
         return true;
       }
     });
+
+    // ==================== 鹈鹕商店 ====================
+    // 开锁器 - 150金币
+    PELICAN_SHOP.add(new ShopEntry(
+        TMMItems.LOCKPICK.getDefaultInstance(),
+        150,
+        ShopEntry.Type.TOOL));
   }
 }

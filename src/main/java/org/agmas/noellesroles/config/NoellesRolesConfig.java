@@ -773,7 +773,7 @@ public class NoellesRolesConfig implements ConfigData {
     /**
      * Pelican - percentage of starting players needed to swallow for victory
      */
-    public double pelicanEatPercentage = 80.0D;
+    public double pelicanEatPercentage = 70.0D;
 
     /**
      * (Client Side) Welcome Voice - Play welcome voice

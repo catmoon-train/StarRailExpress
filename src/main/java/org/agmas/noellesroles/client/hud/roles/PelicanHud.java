@@ -15,7 +15,7 @@ public class PelicanHud {
             if (client.player == null || SREClient.isPlayerSpectator())
                 return;
 
-            PelicanPlayerComponent comp = PelicanPlayerComponent.KEY.get(client.player);
+            PelicanPlayerComponent comp = PelicanPlayerComponent.KEY.maybeGet(client.player).orElse(null);
             if (comp == null) return;
 
             int guiWidth = context.guiWidth();

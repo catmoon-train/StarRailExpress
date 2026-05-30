@@ -44,6 +44,7 @@ public class PelicanPlayerComponent implements RoleComponent, ServerTickingCompo
     public int cooldownTicks = 0;
     public List<String> bellyNames = new ArrayList<>();
     public List<UUID> bellyPlayerIds = new ArrayList<>();
+    public Set<UUID> uniqueEaten = new HashSet<>();
     public long eatCooldownUntil = 0;
 
     public PelicanPlayerComponent(Player player) {
@@ -62,6 +63,7 @@ public class PelicanPlayerComponent implements RoleComponent, ServerTickingCompo
         cooldownTicks = 0;
         bellyNames.clear();
         bellyPlayerIds.clear();
+        uniqueEaten.clear();
         eatCooldownUntil = 0;
         sync();
     }
@@ -89,11 +91,13 @@ public class PelicanPlayerComponent implements RoleComponent, ServerTickingCompo
 
         int totalParticipants = gameWorld.getPlayerCount();
         double percent = org.agmas.noellesroles.config.NoellesRolesConfig.HANDLER.instance().pelicanEatPercentage;
-        int newRequired = Math.max(1, (int) Math.floor(totalParticipants * (percent / 100.0D)));
+        int newRequired = Math.max(1, (int) Math.ceil(totalParticipants * (percent / 100.0D)) - 1);
         if (requiredEaten != newRequired) {
             requiredEaten = newRequired;
+            sync();
         }
 
+        int prevCooldown = cooldownTicks;
         if (eatCooldownUntil > 0 && player.level().getGameTime() >= eatCooldownUntil) {
             eatCooldownUntil = 0;
         }
@@ -101,6 +105,10 @@ public class PelicanPlayerComponent implements RoleComponent, ServerTickingCompo
             cooldownTicks = Math.max(0, (int)(eatCooldownUntil - player.level().getGameTime()));
         } else {
             cooldownTicks = 0;
+        }
+        // 冷却变化时同步到客户端（每秒同步一次足够）
+        if (prevCooldown != cooldownTicks && cooldownTicks % 20 == 0) {
+            sync();
         }
     }
 
@@ -130,7 +138,8 @@ public class PelicanPlayerComponent implements RoleComponent, ServerTickingCompo
 
         bellyPlayerIds.add(target.getUUID());
         bellyNames.add(target.getName().getString());
-        eatenCount = bellyPlayerIds.size();
+        uniqueEaten.add(target.getUUID());
+        eatenCount = uniqueEaten.size();
 
         player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
                 SoundEvents.PLAYER_BURP, SoundSource.PLAYERS, 0.9F, 0.65F);
@@ -158,7 +167,7 @@ public class PelicanPlayerComponent implements RoleComponent, ServerTickingCompo
 
         UUID targetId = bellyPlayerIds.remove(bellyPlayerIds.size() - 1);
         if (!bellyNames.isEmpty()) bellyNames.remove(bellyNames.size() - 1);
-        eatenCount = bellyPlayerIds.size();
+        // 不减少 uniqueEaten（重复吞噬同一玩家不再计数，释放后再次吞噬也不增加计数）
 
         ServerPlayer target = player.getServer().getPlayerList().getPlayer(targetId);
         if (target != null) {
@@ -189,6 +198,7 @@ public class PelicanPlayerComponent implements RoleComponent, ServerTickingCompo
         for (ServerPlayer sp : serverLevel.players()) {
             if (!GameUtils.isPlayerAliveAndSurvival(sp)) continue;
             if (!gameWorld.isRole(sp, ModRoles.PELICAN)) continue;
+            if (!KEY.isProvidedBy(sp)) continue;
             PelicanPlayerComponent comp = KEY.get(sp);
             if (comp.eatenCount >= comp.requiredEaten && comp.requiredEaten > 0) {
                 RoleUtils.customWinnerWin(serverLevel,
@@ -224,6 +234,12 @@ public class PelicanPlayerComponent implements RoleComponent, ServerTickingCompo
             idList.add(StringTag.valueOf(id.toString()));
         }
         tag.put("BellyPlayerIds", idList);
+
+        ListTag uniqueList = new ListTag();
+        for (UUID id : uniqueEaten) {
+            uniqueList.add(StringTag.valueOf(id.toString()));
+        }
+        tag.put("UniqueEaten", uniqueList);
     }
 
     @Override
@@ -247,6 +263,16 @@ public class PelicanPlayerComponent implements RoleComponent, ServerTickingCompo
             for (Tag t : list) {
                 try {
                     bellyPlayerIds.add(UUID.fromString(t.getAsString()));
+                } catch (Exception ignored) {}
+            }
+        }
+
+        uniqueEaten.clear();
+        if (tag.contains("UniqueEaten", Tag.TAG_LIST)) {
+            ListTag list = tag.getList("UniqueEaten", Tag.TAG_STRING);
+            for (Tag t : list) {
+                try {
+                    uniqueEaten.add(UUID.fromString(t.getAsString()));
                 } catch (Exception ignored) {}
             }
         }

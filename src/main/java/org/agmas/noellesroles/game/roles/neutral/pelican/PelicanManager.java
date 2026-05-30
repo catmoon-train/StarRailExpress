@@ -206,7 +206,7 @@ public final class PelicanManager {
             if (target != null) {
                 pelicanByStashed.remove(targetId);
                 stashedPreviousGameMode.remove(targetId);
-                target.setGameMode(GameType.SPECTATOR);
+                target.setGameMode(GameType.ADVENTURE);
                 target.setInvisible(false);
                 target.teleportTo(pelican.serverLevel(), pelican.getX(), pelican.getY(), pelican.getZ(),
                         pelican.getYRot(), pelican.getXRot());
