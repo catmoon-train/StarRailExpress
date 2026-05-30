@@ -1813,6 +1813,7 @@ public class ModEventsRegister {
             boolean hasNianShou = false;
             boolean hasArsonist = false;
             boolean hasCuckoo = false;
+            boolean hasPelican = false;
             final var all_players = serverLevel.players();
             for (var p : all_players) {
                 if (!gameWorldComponent.isJumpAvailable() && GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(p)) {
@@ -1839,6 +1840,8 @@ public class ModEventsRegister {
                     hasArsonist = true;
                 } else if (gameWorldComponent.isRole(p, ModRoles.CUCKOO)) {
                     hasCuckoo = true;
+                } else if (gameWorldComponent.isRole(p, ModRoles.PELICAN)) {
+                    hasPelican = true;
                 }
             }
             if (hasDio) {
@@ -1880,6 +1883,14 @@ public class ModEventsRegister {
                     if (p != null) {
                         BroadcastCommand.BroadcastMessage(p, Component
                                 .translatable("message.noellesroles.cuckoo.entry").withStyle(ChatFormatting.YELLOW));
+                    }
+                });
+            }
+            if (hasPelican) {
+                all_players.forEach((p) -> {
+                    if (p != null) {
+                        BroadcastCommand.BroadcastMessage(p, Component
+                                .translatable("message.noellesroles.pelican.entry").withStyle(ChatFormatting.YELLOW));
                     }
                 });
             }
