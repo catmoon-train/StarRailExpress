@@ -231,6 +231,10 @@ public class SingerPlayerComponent implements RoleComponent, ServerTickingCompon
         if (!isActiveSinger())
             return;
 
+        // 旁观者模式时不施加药水效果
+        if (player.isSpectator())
+            return;
+
         // 减少主动技能冷却时间
         if (this.abilityCooldown > 0) {
             this.abilityCooldown--;
