@@ -1972,7 +1972,7 @@ public class ModRoles {
             .setCanSeeTeammateKiller(false)
             .setCanPickUpRevolver(false) // 伪装义警可以捡枪
             .setNeutrals(true)
-            .setCanUseInstinct(true) // 不能使用杀手直觉
+            .setCanUseInstinct(false) // 不能使用杀手直觉
             .setCanSeeCoin(true)
             .setMax(0)
             .setCanBeRandomedByOtherRoles(false);
