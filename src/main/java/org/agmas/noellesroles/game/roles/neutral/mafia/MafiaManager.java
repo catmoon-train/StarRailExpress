@@ -2,7 +2,11 @@ package org.agmas.noellesroles.game.roles.neutral.mafia;
 
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
+import io.wifi.starrailexpress.event.AllowPlayerDeathWithKiller;
+import io.wifi.starrailexpress.event.OnPlayerKilledPlayer;
 import io.wifi.starrailexpress.event.OnRevolverUsed;
+import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.GameUtils.WinStatus;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
@@ -41,6 +45,30 @@ public final class MafiaManager {
             if (isGodfather(player) && player.getMainHandItem().is(TMMItems.DERRINGER)) {
                 consumeBullet(player);
             }
+        });
+        OnPlayerKilledPlayer.EVENT.register((victim, killer, reason) -> {
+            if (killer instanceof ServerPlayer sp) {
+                if (isGodfather(sp)) {
+                    SREPlayerShopComponent.KEY.get(sp).addToBalance(50);
+                } else if (isMafiaMember(sp)) {
+                    SREPlayerShopComponent.KEY.get(sp).addToBalance(75);
+                }
+            }
+        });
+        GameUtils.CustomWinnersPredicates.add(entry -> {
+            if (entry.getValue() != null && entry.getValue().equals("godfather")) {
+                return isMafiaMember((ServerPlayer) entry.getKey());
+            }
+            return false;
+        });
+        AllowPlayerDeathWithKiller.EVENT.register((victim, killer, deathReason) -> {
+            if (deathReason != null && deathReason.equals(GameConstants.DeathReasons.FELL_OUT_OF_TRAIN))
+                return true;
+            if (killer instanceof ServerPlayer sk && victim instanceof ServerPlayer sv) {
+                if (isMafiaMember(sk) && isMafiaMember(sv))
+                    return false;
+            }
+            return true;
         });
     }
 
@@ -161,14 +189,7 @@ public final class MafiaManager {
             if (isMafiaMember(p)) mafiaAlive++;
         }
         if (mafiaAlive > 0 && alive == mafiaAlive) {
-            for (ServerPlayer p : level.players()) {
-                if (isMafiaMember(p) && GameUtils.isPlayerAliveAndSurvival(p)) {
-                    var role = SREGameWorldComponent.KEY.get(level).getRole(p);
-                    String winName = role != null ? role.getIdentifier().toString() : "godfather";
-                    int color = role != null ? role.color() : ModRoles.GODFATHER.color();
-                    RoleUtils.customWinnerWin(level, WinStatus.CUSTOM, winName, java.util.OptionalInt.of(color));
-                }
-            }
+            RoleUtils.customWinnerWin(level, WinStatus.CUSTOM, "godfather", java.util.OptionalInt.of(ModRoles.GODFATHER.color()));
             return true;
         }
         return false;

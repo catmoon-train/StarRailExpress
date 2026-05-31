@@ -2142,6 +2142,9 @@ public class ModRoles {
         // 设置鹈鹕与秉烛人互斥
         ModRoles.PELICAN.addTwoWayOpposingJobs(ModRoles.CANDLE_BEARER);
         
+        // 设置教父与初学者互斥
+        ModRoles.GODFATHER.addTwoWayOpposingJobs(SERoles.INITIATE);
+        
         // 初始化叛徒职业和新修饰符
         TraitorAndModifiers.init();
         ModifierEffects.init();
