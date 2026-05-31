@@ -358,6 +358,15 @@ public class ModRolesInitialEventRegister {
                 morticianComponent.init();
                 morticianComponent.sync();
             }
+            if (role.equals(ModRoles.GODFATHER)) {
+                if (player instanceof ServerPlayer sp) {
+                    for (var p : sp.serverLevel().players()) {
+                        if (p != null) {
+                            p.playNotifySound(NRSounds.MAFIA, SoundSource.MASTER, 1.0F, 1.0F);
+                        }
+                    }
+                }
+            }
         });
     }
 

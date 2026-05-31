@@ -253,6 +253,9 @@ public class ModRoles {
     public static final ResourceLocation RECORDER_ID = Noellesroles.id("recorder");
     public static ResourceLocation VULTURE_ID = Noellesroles.id("vulture");
     public static ResourceLocation PELICAN_ID = Noellesroles.id("pelican");
+    public static ResourceLocation GODFATHER_ID = Noellesroles.id("godfather");
+    public static ResourceLocation MAFIOSO_ID = Noellesroles.id("mafioso");
+    public static ResourceLocation JANITOR_ID = Noellesroles.id("janitor");
     public static final ResourceLocation NIAN_SHOU_ID = Noellesroles.id("nianshou");
     public static final ResourceLocation OLDMAN_ID = Noellesroles.id("oldman");
     public static final ResourceLocation THIEF_ID = Noellesroles.id("thief");
@@ -1149,6 +1152,23 @@ public class ModRoles {
                     .setComponentKey(org.agmas.noellesroles.game.roles.neutral.pelican.PelicanPlayerComponent.KEY))
             .setNeutrals(true).setNeutralForKiller(false).setCanSeeTeammateKiller(false)
             .setCanUseInstinct(true).setCanSeeCoin(true).setCanPickUpRevolver(false).setCanBeRandomedByOtherRoles(false);
+
+    // ==================== Mafia 家族角色 ====================
+    public static SRERole GODFATHER = TMMRoles
+            .registerRole(new NormalRole(GODFATHER_ID, new Color(199, 21, 133).getRGB(), false,
+                    false, SRERole.MoodType.FAKE, TMMRoles.CIVILIAN.getMaxSprintTime() * 2, true))
+            .setNeutrals(true).setCanSeeTeammateKiller(false).setCanUseInstinct(true)
+            .setCanSeeCoin(true).setOccupiedRoleCount(3).setMax(1).setCanBeRandomedByOtherRoles(false);
+    public static SRERole MAFIOSO = TMMRoles
+            .registerRole(new NormalRole(MAFIOSO_ID, new Color(218, 112, 214).getRGB(), false,
+                    false, SRERole.MoodType.FAKE, TMMRoles.CIVILIAN.getMaxSprintTime() * 2, true))
+            .setNeutrals(true).setCanSeeTeammateKiller(false).setCanUseInstinct(true)
+            .setCanSeeCoin(true).setMax(0).setCanBeRandomedByOtherRoles(false);
+    public static SRERole JANITOR = TMMRoles
+            .registerRole(new NormalRole(JANITOR_ID, new Color(255, 105, 180).getRGB(), false,
+                    false, SRERole.MoodType.FAKE, TMMRoles.CIVILIAN.getMaxSprintTime() * 2, true))
+            .setNeutrals(true).setCanSeeTeammateKiller(false).setCanUseInstinct(true)
+            .setCanSeeCoin(true).setMax(0).setCanBeRandomedByOtherRoles(false);
 
     public static SRERole CORONER = TMMRoles
             .registerRole(new NormalRole(CORONER_ID, new Color(122, 122, 122).getRGB(), true,

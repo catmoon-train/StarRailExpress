@@ -128,6 +128,20 @@ public final class GKeyRoleSkill {
             ClientPlayNetworking.send(new AbilityC2SPacket());
             return true;
         });
+        register(ModRoles.GODFATHER, true, (client, gameWorld) -> {
+            var comp = org.agmas.noellesroles.game.roles.neutral.mafia.GodfatherComponent.KEY.maybeGet(client.player).orElse(null);
+            if (comp != null && client.player != null && client.player.level() != null) {
+                long now = client.player.level().getGameTime();
+                if (comp.recruitCooldownUntil > 0 && now < comp.recruitCooldownUntil) {
+                    long remaining = (comp.recruitCooldownUntil - now) / 20 + 1;
+                    client.player.displayClientMessage(
+                        net.minecraft.network.chat.Component.translatable("message.noellesroles.godfather.cooldown", remaining), true);
+                    return true;
+                }
+            }
+            client.execute(() -> client.setScreen(new org.agmas.noellesroles.client.screen.GodfatherRecruitScreen()));
+            return true;
+        });
         register(ModRoles.BROADCASTER, false, (client, gameWorld) -> {
             if (!NoellesrolesClient.isPlayerInAdventureMode(client.player)) {
                 return true;

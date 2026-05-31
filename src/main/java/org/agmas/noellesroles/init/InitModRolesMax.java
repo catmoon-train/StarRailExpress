@@ -764,6 +764,10 @@ public class InitModRolesMax {
         ModRoles.PELICAN.setEnableChance(config.chanceOfPelican)
                 .setEnableNeededPlayerCount(config.minPlayerForPelican);
 
+        // 教父 - 从配置读取概率和最小玩家数
+        ModRoles.GODFATHER.setEnableChance(config.chanceOfGodfather)
+                .setEnableNeededPlayerCount(config.mafiaMinimumPlayers);
+
         // 对没有 enableChance 的杀手方中立职业，默认 max=1、概率 75%
         for (var entry : TMMRoles.ROLES.entrySet()) {
             var role = entry.getValue();

@@ -265,6 +265,11 @@ public class RoleInitialItems {
         gangstersItems.add(() -> ModItems.C4_DETONATOR.getDefaultInstance());
         INITIAL_ITEMS_MAP.put(ModRoles.GANGSTERS, gangstersItems);
 
+        // 教父初始物品 - 德林加手枪(初始无子弹)
+        List<Supplier<ItemStack>> godfatherItems = new ArrayList<>();
+        godfatherItems.add(() -> TMMItems.DERRINGER.getDefaultInstance());
+        INITIAL_ITEMS_MAP.put(ModRoles.GODFATHER, godfatherItems);
+
         // 钳工初始物品 - 拆弹钳（无限次使用，不会损坏）
         List<Supplier<ItemStack>> fitterItems = new ArrayList<>();
         fitterItems.add(() -> {

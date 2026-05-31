@@ -102,6 +102,16 @@ public class CustomWinnerClass {
             if (PelicanPlayerComponent.checkPelicanVictory(serverLevel)) {
                 return WinStatus.CUSTOM;
             }
+
+            // 教父家族独立胜利
+            if (org.agmas.noellesroles.game.roles.neutral.mafia.MafiaManager.checkMafiaVictory(serverLevel)) {
+                return WinStatus.CUSTOM;
+            }
+            // 教父存活时阻止游戏结束
+            if (org.agmas.noellesroles.game.roles.neutral.mafia.MafiaManager.shouldPreventGameEnd(serverLevel)
+                    && (winStatus == WinStatus.KILLERS || winStatus == WinStatus.PASSENGERS)) {
+                return WinStatus.NONE;
+            }
             // 鹈鹕是唯一存活玩家时独立胜利（参考纵火犯）
             if (hasPelicanAlive && alivePlayerCount == 1) {
                 RoleUtils.customWinnerWin(serverLevel,

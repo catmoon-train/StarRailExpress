@@ -594,6 +594,17 @@ public class ModEventsRegister {
     }
 
     /**
+     * 处理教父死亡 - 家族成员恢复原身份
+     */
+    private static void handleGodfatherDeath(Player victim) {
+        if (victim == null || victim.level().isClientSide()) return;
+        if (!(victim instanceof ServerPlayer sp)) return;
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(victim.level());
+        if (!gameWorld.isRole(victim, ModRoles.GODFATHER)) return;
+        org.agmas.noellesroles.game.roles.neutral.mafia.MafiaManager.onGodfatherDeath(sp);
+    }
+
+    /**
      * 处理鹈鹕死亡 - 将肚子里的所有玩家释放出来
      */
     private static void handlePelicanDeath(Player victim) {
@@ -1814,6 +1825,7 @@ public class ModEventsRegister {
             boolean hasArsonist = false;
             boolean hasCuckoo = false;
             boolean hasPelican = false;
+            boolean hasGodfather = false;
             final var all_players = serverLevel.players();
             for (var p : all_players) {
                 if (!gameWorldComponent.isJumpAvailable() && GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(p)) {
@@ -1842,6 +1854,8 @@ public class ModEventsRegister {
                     hasCuckoo = true;
                 } else if (gameWorldComponent.isRole(p, ModRoles.PELICAN)) {
                     hasPelican = true;
+                } else if (gameWorldComponent.isRole(p, ModRoles.GODFATHER)) {
+                    hasGodfather = true;
                 }
             }
             if (hasDio) {
@@ -1893,6 +1907,15 @@ public class ModEventsRegister {
                                 .translatable("message.noellesroles.pelican.entry").withStyle(ChatFormatting.YELLOW));
                     }
                 });
+            }
+            if (hasGodfather) {
+                GameUtils.serverAsynTaskLists.add(new ServerTaskInfoClasses.SchedulerTask(20 * 6, () -> {
+                    all_players.forEach((p) -> {
+                        if (p != null) {
+                            p.playNotifySound(NRSounds.MAFIA, SoundSource.MASTER, 1.0F, 1.0F);
+                        }
+                    });
+                }));
             }
             if (hasNianShou && !nianShouFirecrackersDistributedThisGame) {
                 nianShouFirecrackersDistributedThisGame = true;
@@ -1956,6 +1979,9 @@ public class ModEventsRegister {
 
             // 检查鹈鹕死亡 - 释放肚子里的所有玩家
             handlePelicanDeath(victim);
+
+            // 检查教父死亡 - 家族成员恢复原身份
+            handleGodfatherDeath(victim);
 
             // 检查死亡惩罚
             handleDeathPenalty(victim);

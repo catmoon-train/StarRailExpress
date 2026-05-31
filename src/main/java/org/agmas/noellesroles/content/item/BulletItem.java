@@ -17,11 +17,13 @@ public class BulletItem extends Item {
     public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level level, @NotNull Player user, @NotNull InteractionHand hand) {
         ItemStack stack = user.getItemInHand(hand);
         if (level.isClientSide) return InteractionResultHolder.success(stack);
-        
-        // TODO: 实现子弹装填逻辑
-        // if (user instanceof ServerPlayer serverPlayer && MafiaManager.tryLoadBullet(serverPlayer, stack)) {
-        //     return InteractionResultHolder.consume(stack);
-        // }
+        if (user instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
+            if (org.agmas.noellesroles.game.roles.neutral.mafia.MafiaManager.isGodfather(serverPlayer)) {
+                org.agmas.noellesroles.game.roles.neutral.mafia.MafiaManager.tryLoadBullet(serverPlayer);
+                stack.shrink(1);
+                return InteractionResultHolder.consume(stack);
+            }
+        }
         return InteractionResultHolder.pass(stack);
     }
 }

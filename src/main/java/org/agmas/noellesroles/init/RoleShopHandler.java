@@ -255,6 +255,10 @@ public class RoleShopHandler {
   public static ArrayList<ShopEntry> FITTER_SHOP = new ArrayList<>();
   // ==================== 鹈鹕商店 ====================
   public static ArrayList<ShopEntry> PELICAN_SHOP = new ArrayList<>();
+  // ==================== Mafia 商店 ====================
+  public static ArrayList<ShopEntry> GODFATHER_SHOP = new ArrayList<>();
+  public static ArrayList<ShopEntry> MAFIOSO_SHOP = new ArrayList<>();
+  public static ArrayList<ShopEntry> JANITOR_SHOP = new ArrayList<>();
 
   /**
    * 初始化框架角色商店
@@ -1181,6 +1185,21 @@ public class RoleShopHandler {
     {
       ShopContent.customEntries.put(
           ModRoles.PELICAN_ID, PELICAN_SHOP);
+    }
+    // 教父商店
+    {
+      ShopContent.customEntries.put(
+          ModRoles.GODFATHER_ID, GODFATHER_SHOP);
+    }
+    // 家族教徒商店
+    {
+      ShopContent.customEntries.put(
+          ModRoles.MAFIOSO_ID, MAFIOSO_SHOP);
+    }
+    // 家族门卫商店
+    {
+      ShopContent.customEntries.put(
+          ModRoles.JANITOR_ID, JANITOR_SHOP);
     }
     // 小偷商店
     {
@@ -2363,5 +2382,29 @@ public class RoleShopHandler {
         TMMItems.LOCKPICK.getDefaultInstance(),
         150,
         ShopEntry.Type.TOOL));
+
+    // ==================== 教父商店 ====================
+    // 子弹 - 75金币（右键装填或购买时自动装填）
+    GODFATHER_SHOP.add(new ShopEntry(
+        ModItems.BULLET.getDefaultInstance(),
+        75,
+        ShopEntry.Type.WEAPON) {
+      @Override
+      public boolean onBuy(@NotNull Player player) {
+        return org.agmas.noellesroles.game.roles.neutral.mafia.MafiaManager.tryLoadBullet((ServerPlayer) player);
+      }
+    });
+
+    // ==================== 家族教徒商店 ====================
+    // 刀 - 130金币
+    MAFIOSO_SHOP.add(new ShopEntry(TMMItems.KNIFE.getDefaultInstance(), 130, ShopEntry.Type.WEAPON));
+    // 左轮手枪 - 225金币
+    MAFIOSO_SHOP.add(new ShopEntry(TMMItems.REVOLVER.getDefaultInstance(), 225, ShopEntry.Type.WEAPON));
+
+    // ==================== 家族门卫商店 ====================
+    // 飞刀 - 130金币
+    JANITOR_SHOP.add(new ShopEntry(ModItems.THROWING_KNIFE.getDefaultInstance(), 130, ShopEntry.Type.WEAPON));
+    // 短管霰弹枪 - 250金币
+    JANITOR_SHOP.add(new ShopEntry(ModItems.SHORT_SHOTGUN.getDefaultInstance(), 250, ShopEntry.Type.WEAPON));
   }
 }
