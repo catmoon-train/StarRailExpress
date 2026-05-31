@@ -1093,6 +1093,8 @@ public class ModPacketsReciever {
       var comp = org.agmas.noellesroles.game.roles.killer.warlock.WarlockPlayerComponent.KEY.get(player);
       ServerPlayer victim = comp.tryHexKill();
       if (victim != null) {
+        player.serverLevel().playSound(null, player.getX(), player.getY(), player.getZ(),
+            io.wifi.starrailexpress.index.TMMSounds.ITEM_REVOLVER_SHOOT, SoundSource.PLAYERS, 5.0F, 1.0F);
         GameUtils.killPlayer(victim, true, player, GameConstants.DeathReasons.REVOLVER);
         player.displayClientMessage(Component.translatable("message.noellesroles.warlock.hex_killed", victim.getName().getString()).withStyle(ChatFormatting.DARK_PURPLE), true);
       } else {
@@ -1134,6 +1136,13 @@ public class ModPacketsReciever {
       comp.masqueradeTicksLeft = org.agmas.noellesroles.game.roles.killer.embalmer.EmbalmerPlayerComponent.MASQUERADE_DURATION;
       comp.masqueradeCooldown = org.agmas.noellesroles.game.roles.killer.embalmer.EmbalmerPlayerComponent.MASQUERADE_COOLDOWN;
       comp.sync();
+      // 广播皮肤交换数据给所有玩家
+      org.agmas.noellesroles.packet.EmbalmerSkinSwapS2CPacket swapPacket =
+          new org.agmas.noellesroles.packet.EmbalmerSkinSwapS2CPacket(swaps, pitches,
+              org.agmas.noellesroles.game.roles.killer.embalmer.EmbalmerPlayerComponent.MASQUERADE_DURATION);
+      for (ServerPlayer p : player.serverLevel().getPlayers(p2 -> true)) {
+        ServerPlayNetworking.send(p, swapPacket);
+      }
       player.displayClientMessage(Component.translatable("message.noellesroles.embalmer.activated").withStyle(ChatFormatting.DARK_PURPLE), true);
     });
 
@@ -1156,6 +1165,10 @@ public class ModPacketsReciever {
         comp.stolenSkin = body.getPlayerUuid();
         body.setPlayerUuid(prev);
         comp.stealCooldown = org.agmas.noellesroles.game.roles.killer.skincrawler.SkincrawlerPlayerComponent.STEAL_COOLDOWN;
+        // 广播皮肤给所有玩家
+        for (ServerPlayer p : player.serverLevel().getPlayers(p2 -> true)) {
+            ServerPlayNetworking.send(p, new org.agmas.noellesroles.packet.SkincrawlerSkinS2CPacket(player.getUUID(), comp.stolenSkin));
+        }
         comp.sync();
         player.displayClientMessage(Component.translatable("message.noellesroles.skincrawler.stolen").withStyle(ChatFormatting.GOLD), true);
       } else {

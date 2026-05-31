@@ -2156,25 +2156,25 @@ public class ModRoles {
     // ==================== 咒法师 ====================
     public static SRERole WARLOCK = TMMRoles.registerRole(new NormalRole(
             WARLOCK_ID, new java.awt.Color(139, 0, 139).getRGB(), false,
-            false, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true)
+            true, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true)
             .setComponentKey(org.agmas.noellesroles.game.roles.killer.warlock.WarlockPlayerComponent.KEY))
-            .setCanUseKiller(true).setCanSeeTeammateKiller(true).setNeutralForKiller(false)
+            .setCanUseKiller(true).setCanSeeTeammateKiller(true)
             .setCanUseInstinct(true).setCanSeeCoin(true);
 
     // ==================== 嬉命人（Embalmer）====================
     public static SRERole EMBALMER = TMMRoles.registerRole(new NormalRole(
-            EMBALMER_ID, new java.awt.Color(136, 68, 204).getRGB(), false,
+            EMBALMER_ID, new java.awt.Color(255, 140, 140).getRGB(), false,
             false, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true)
             .setComponentKey(org.agmas.noellesroles.game.roles.killer.embalmer.EmbalmerPlayerComponent.KEY))
-            .setNeutralForKiller(true).setCanSeeTeammateKiller(false).setNeutrals(false)
+            .setNeutralForKiller(true).setCanSeeTeammateKiller(false).setNeutrals(true)
             .setCanUseInstinct(true).setCanSeeCoin(true);
 
     // ==================== 窃皮者 ====================
     public static SRERole SKINCRAWLER = TMMRoles.registerRole(new NormalRole(
             SKINCRAWLER_ID, new java.awt.Color(204, 68, 68).getRGB(), false,
-            false, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true)
+            true, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true)
             .setComponentKey(org.agmas.noellesroles.game.roles.killer.skincrawler.SkincrawlerPlayerComponent.KEY))
-            .setCanUseKiller(true).setCanSeeTeammateKiller(true).setNeutralForKiller(false)
+            .setCanUseKiller(true).setCanSeeTeammateKiller(true)
             .setCanUseInstinct(true).setCanSeeCoin(true);
 
 }

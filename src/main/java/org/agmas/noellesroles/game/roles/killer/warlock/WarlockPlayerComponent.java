@@ -44,8 +44,8 @@ public class WarlockPlayerComponent implements RoleComponent, ServerTickingCompo
     @Override
     public void init() {
         markedTarget = null;
-        markCooldown = 0;
-        killCooldown = 0;
+        markCooldown = 60 * 20;
+        killCooldown = 60 * 20;
         sync();
     }
 

@@ -175,11 +175,13 @@ public class ModEventsRegister {
         if (!GameConstants.DeathReasons.REVOLVER.equals(deathReason)) return false;
         var comp = org.agmas.noellesroles.game.roles.killer.skincrawler.SkincrawlerPlayerComponent.KEY.get(sp);
         if (comp == null || comp.stolenSkin == null || comp.stolenSkin.equals(sp.getUUID())) return false;
-        // 取消偷皮并进入眩晕
+        // 取消偷皮并进入眩晕（5秒缓慢III），广播恢复原皮肤
         comp.stolenSkin = null;
         comp.sync();
-        sp.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 100, 4, false, false, false));
-        sp.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 80, 0, false, false, false));
+        for (ServerPlayer p : sp.serverLevel().getPlayers(p2 -> true)) {
+            ServerPlayNetworking.send(p, new org.agmas.noellesroles.packet.SkincrawlerSkinS2CPacket(sp.getUUID(), null));
+        }
+        sp.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 100, 2, false, false, false));
         sp.displayClientMessage(Component.translatable("message.noellesroles.skincrawler.stunned").withStyle(ChatFormatting.RED), true);
         return true;
     }
@@ -1096,6 +1098,14 @@ public class ModEventsRegister {
             org.agmas.noellesroles.game.roles.Innocent.builder.BuilderWallPositions.clearAll();
             // 清除鹈鹕状态 - 释放所有被吞噬的玩家
             org.agmas.noellesroles.game.roles.neutral.pelican.PelicanManager.clearAll();
+            // 清除窃皮者皮肤 - 恢复所有玩家原皮肤
+            for (ServerPlayer p : world.players()) {
+                ServerPlayNetworking.send(p, new org.agmas.noellesroles.packet.SkincrawlerSkinS2CPacket(p.getUUID(), null));
+            }
+            // 清除嬉命人变装 - 恢复所有玩家皮肤和语音
+            for (ServerPlayer p : world.players()) {
+                ServerPlayNetworking.send(p, org.agmas.noellesroles.packet.EmbalmerSkinSwapS2CPacket.clear());
+            }
             // 清除所有肉汁的悬赏
             for (ServerPlayer player : world.players()) {
                 org.agmas.noellesroles.component.ModComponents.MEATBALL.get(player).init();

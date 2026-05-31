@@ -270,6 +270,8 @@ public class NoellesrolesClient implements ClientModInitializer {
             }
             return true;
         });
+        ClientEmbalmerState.register();
+        ClientSkincrawlerState.register();
         CommonClientHudRenderer.registerRenderersEvent();
         MenuScreens.register(ModMenus.HOTBAR_STORAGE, HotbarStorageScreen::new);
         WorldRenderEvents.AFTER_TRANSLUCENT.register((renderContext) -> {

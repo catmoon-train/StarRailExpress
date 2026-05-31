@@ -47,6 +47,7 @@
     "voicechat": [
       "org.agmas.noellesroles.voice.NoellesrolesVoiceChatPlugin",
       "org.agmas.noellesroles.voice.HeliumBuzzVoicechatPlugin",
+      "org.agmas.noellesroles.voice.EmbalmerPitchPlugin",
       "pro.fazeclan.river.stupid_express.StupidExpressVoiceChatPlugin",
       "io.wifi.starrailexpress.compat.TrainVoicePlugin"
     ],

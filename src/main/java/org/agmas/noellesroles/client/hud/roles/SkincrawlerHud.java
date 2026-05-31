@@ -1,6 +1,7 @@
 package org.agmas.noellesroles.client.hud.roles;
 
 import io.wifi.starrailexpress.client.SREClient;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
@@ -14,13 +15,18 @@ public class SkincrawlerHud {
             Minecraft client = Minecraft.getInstance();
             if (SREClient.isPlayerSpectator()) return;
             var comp = SkincrawlerPlayerComponent.KEY.get(client.player);
-            if (comp.stealCooldown <= 0) return;
             Font font = client.font;
             int sw = client.getWindow().getGuiScaledWidth();
-            int y = client.getWindow().getGuiScaledHeight() - 80;
-            int sec = (comp.stealCooldown + 19) / 20;
-            Component t = Component.literal("Steal: " + sec + "s").withColor(0xCC4444);
-            context.drawString(font, t, (sw - font.width(t)) / 2, y, 0xCC4444);
+            int sy = client.getWindow().getGuiScaledHeight();
+
+            Component text;
+            if (comp.stealCooldown > 0) {
+                int sec = (comp.stealCooldown + 19) / 20;
+                text = Component.translatable("hud.noellesroles.skincrawler.cooldown", sec).withStyle(ChatFormatting.GRAY);
+            } else {
+                text = Component.translatable("hud.noellesroles.skincrawler.ready").withStyle(ChatFormatting.GREEN);
+            }
+            context.drawString(font, text, sw - font.width(text) - 8, sy - 24, 0xFFFFFF);
         });
     }
 }

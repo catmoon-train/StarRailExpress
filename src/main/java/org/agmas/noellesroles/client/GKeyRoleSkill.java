@@ -244,9 +244,15 @@ public final class GKeyRoleSkill {
             return true;
         });
 
-        // 咒法师：按技能键标记目标（冷却60秒）
+        // 咒法师：按技能键标记目标，蹲下按技能键触发咒杀
         register(ModRoles.WARLOCK, true, (client, gameWorld) -> {
             if (!GameUtils.isPlayerAliveAndSurvival(client.player)) return true;
+            // 蹲下 = 咒杀
+            if (client.player.isShiftKeyDown()) {
+                ClientPlayNetworking.send(new org.agmas.noellesroles.packet.WarlockKillC2SPacket());
+                return true;
+            }
+            // 普通 = 标记目标
             var hitResult = client.hitResult;
             if (hitResult != null && hitResult.getType() == net.minecraft.world.phys.HitResult.Type.ENTITY) {
                 net.minecraft.world.phys.EntityHitResult e = (net.minecraft.world.phys.EntityHitResult) hitResult;
@@ -256,13 +262,6 @@ public final class GKeyRoleSkill {
             } else {
                 client.player.displayClientMessage(Component.translatable("hud.warlock.target_miss"), true);
             }
-            return true;
-        });
-
-        // 咒法师二技能：蹲下按技能键施法击杀（冷却90秒）
-        register(ModRoles.WARLOCK, false, (client, gameWorld) -> {
-            if (!GameUtils.isPlayerAliveAndSurvival(client.player)) return true;
-            ClientPlayNetworking.send(new org.agmas.noellesroles.packet.WarlockKillC2SPacket());
             return true;
         });
 

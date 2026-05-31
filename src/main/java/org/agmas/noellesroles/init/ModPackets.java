@@ -195,8 +195,10 @@ public class ModPackets {
 
         // 注册嬉命人网络包
         PayloadTypeRegistry.playC2S().register(EmbalmerC2SPacket.ID, EmbalmerC2SPacket.CODEC);
+        PayloadTypeRegistry.playS2C().register(EmbalmerSkinSwapS2CPacket.ID, EmbalmerSkinSwapS2CPacket.CODEC);
 
         // 注册窃皮者网络包
         PayloadTypeRegistry.playC2S().register(SkincrawlerC2SPacket.ID, SkincrawlerC2SPacket.CODEC);
+        PayloadTypeRegistry.playS2C().register(SkincrawlerSkinS2CPacket.ID, SkincrawlerSkinS2CPacket.CODEC);
     }
 }

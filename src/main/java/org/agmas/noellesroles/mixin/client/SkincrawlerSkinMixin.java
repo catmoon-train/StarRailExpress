@@ -1,51 +1,40 @@
 package org.agmas.noellesroles.mixin.client;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.resources.PlayerSkin;
-import org.agmas.noellesroles.game.roles.killer.skincrawler.SkincrawlerPlayerComponent;
+import org.agmas.noellesroles.client.ClientEmbalmerState;
+import org.agmas.noellesroles.client.ClientSkincrawlerState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.util.UUID;
-
+/** Replace player skin for Skincrawler (stolen skin) and Embalmer (masquerade). */
 @Mixin(AbstractClientPlayer.class)
 public abstract class SkincrawlerSkinMixin {
     @Unique
-    private static final ThreadLocal<Boolean> resolvingSkin = ThreadLocal.withInitial(() -> false);
+    private static final ThreadLocal<Boolean> resolving = ThreadLocal.withInitial(() -> false);
 
     @Inject(method = "getSkin", at = @At("HEAD"), cancellable = true)
-    private void applyStolenSkin(CallbackInfoReturnable<PlayerSkin> cir) {
-        if (Boolean.TRUE.equals(resolvingSkin.get())) return;
+    private void applySkinSwap(CallbackInfoReturnable<PlayerSkin> cir) {
+        if (Boolean.TRUE.equals(resolving.get())) return;
         AbstractClientPlayer self = (AbstractClientPlayer) (Object) this;
-        UUID replacementId = null;
-
         Minecraft client = Minecraft.getInstance();
-        if (client == null || client.level == null) return;
-
-        var comp = SkincrawlerPlayerComponent.KEY.get(self);
-        if (comp != null && comp.stolenSkin != null && !comp.stolenSkin.equals(self.getUUID())) {
-            replacementId = comp.stolenSkin;
-        }
-        if (replacementId == null) return;
-
-        AbstractClientPlayer replacement = null;
-        for (var player : client.level.players()) {
-            if (player instanceof AbstractClientPlayer acp && replacementId.equals(acp.getUUID())) {
-                replacement = acp;
-                break;
+        if (client == null || client.getConnection() == null) return;
+        java.util.UUID targetId = ClientEmbalmerState.replacement(self.getUUID());
+        if (targetId == null) targetId = ClientSkincrawlerState.stolenSkinFor(self.getUUID());
+        if (targetId == null || targetId.equals(self.getUUID())) return;
+        PlayerInfo info = client.getConnection().getPlayerInfo(targetId);
+        if (info != null) {
+            try {
+                resolving.set(true);
+                cir.setReturnValue(info.getSkin());
+            } finally {
+                resolving.set(false);
             }
-        }
-        if (replacement == null || replacement == self) return;
-
-        try {
-            resolvingSkin.set(true);
-            cir.setReturnValue(replacement.getSkin());
-        } finally {
-            resolvingSkin.set(false);
         }
     }
 }

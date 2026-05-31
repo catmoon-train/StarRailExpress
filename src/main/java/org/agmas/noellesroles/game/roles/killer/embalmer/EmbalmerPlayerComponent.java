@@ -20,7 +20,7 @@ public class EmbalmerPlayerComponent implements RoleComponent, ServerTickingComp
             net.minecraft.resources.ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "embalmer"),
             EmbalmerPlayerComponent.class);
 
-    public static final int MASQUERADE_COOLDOWN = 80 * 20;
+    public static final int MASQUERADE_COOLDOWN = 110 * 20;
     public static final int MASQUERADE_DURATION = 30 * 20;
     public static final int PITCH_MIN = 70;
     public static final int PITCH_MAX = 130;
