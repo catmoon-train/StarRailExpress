@@ -127,6 +127,7 @@
     "roles.insanekiller.CrossHairFixer",
     "roles.photographer.BlindnessEffectMixin",
     "client.C4ItemEntityRendererMixin",
+    "client.SkincrawlerSkinMixin",
     "game.PelicanAliveCheckMixin"
   ],
   "overwrites": {

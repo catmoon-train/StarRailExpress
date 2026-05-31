@@ -466,6 +466,26 @@ public class ModRolesInitialEventRegister {
                 morticianComponent.useAbility();
             }
         });
+
+        // 咒法师技能注册：标记目标玩家
+        RoleSkill.register(ModRoles.WARLOCK, context -> {
+            ServerPlayer player = context.player();
+            var comp = org.agmas.noellesroles.game.roles.killer.warlock.WarlockPlayerComponent.KEY.get(player);
+            if (comp == null) return;
+            UUID targetUuid = context.target();
+            ServerPlayer target = null;
+            if (targetUuid != null) {
+                Player p = player.level().getPlayerByUUID(targetUuid);
+                if (p instanceof ServerPlayer sp && GameUtils.isPlayerAliveAndSurvival(sp) && player.distanceToSqr(sp) <= 4.0D * 4.0D) {
+                    target = sp;
+                }
+            }
+            if (target != null && comp.tryMark(target)) {
+                player.displayClientMessage(Component.translatable("message.noellesroles.warlock.marked", target.getName().getString()).withStyle(ChatFormatting.LIGHT_PURPLE), true);
+            } else {
+                player.displayClientMessage(Component.translatable("message.noellesroles.warlock.mark_fail").withStyle(ChatFormatting.RED), true);
+            }
+        });
     }
 
 }

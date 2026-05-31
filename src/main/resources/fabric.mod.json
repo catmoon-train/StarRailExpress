@@ -147,6 +147,9 @@
       "noellesroles:builder",
       "noellesroles:infected",
       "noellesroles:c4_back",
+      "noellesroles:warlock",
+      "noellesroles:embalmer",
+      "noellesroles:skincrawler",
 
       "stupid_express:doused",
       "stupid_express:custom_winner",

@@ -18,6 +18,7 @@ import org.agmas.noellesroles.component.PlayerVolumeComponent;
 import org.agmas.noellesroles.content.effects.TimeStopEffect;
 import org.agmas.noellesroles.content.item.RadioItem;
 import org.agmas.noellesroles.game.roles.neutral.commander.CommanderHandler;
+import org.agmas.noellesroles.game.roles.killer.embalmer.EmbalmerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.pelican.PelicanManager;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
@@ -257,6 +258,14 @@ public class NoellesrolesVoiceChatPlugin implements VoicechatPlugin {
     // if (players.interactionManager.getGameMode().equals(GameMode.SPECTATOR)) {
 
     // }
+  }
+
+  /**
+   * 获取嬉命人变装时的语音音调，1.0F为正常
+   */
+  public static float getEmbalmerVoicePitch(Player player) {
+    if (player == null) return 1.0F;
+    return EmbalmerPlayerComponent.getVoicePitch(player);
   }
 
   /**

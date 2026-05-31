@@ -259,6 +259,10 @@ public class RoleShopHandler {
   public static ArrayList<ShopEntry> GODFATHER_SHOP = new ArrayList<>();
   public static ArrayList<ShopEntry> MAFIOSO_SHOP = new ArrayList<>();
   public static ArrayList<ShopEntry> JANITOR_SHOP = new ArrayList<>();
+  // ==================== 咒法师商店 ====================
+  public static ArrayList<ShopEntry> WARLOCK_SHOP = new ArrayList<>();
+  // ==================== 嬉命人商店 ====================
+  public static ArrayList<ShopEntry> EMBALMER_SHOP = new ArrayList<>();
 
   /**
    * 初始化框架角色商店
@@ -1200,6 +1204,16 @@ public class RoleShopHandler {
     {
       ShopContent.customEntries.put(
           ModRoles.JANITOR_ID, JANITOR_SHOP);
+    }
+    // 咒法师商店
+    {
+      ShopContent.customEntries.put(
+          ModRoles.WARLOCK_ID, WARLOCK_SHOP);
+    }
+    // 嬉命人商店
+    {
+      ShopContent.customEntries.put(
+          ModRoles.EMBALMER_ID, EMBALMER_SHOP);
     }
     // 小偷商店
     {
@@ -2406,5 +2420,33 @@ public class RoleShopHandler {
     JANITOR_SHOP.add(new ShopEntry(ModItems.THROWING_KNIFE.getDefaultInstance(), 130, ShopEntry.Type.WEAPON));
     // 短管霰弹枪 - 250金币
     JANITOR_SHOP.add(new ShopEntry(ModItems.SHORT_SHOTGUN.getDefaultInstance(), 250, ShopEntry.Type.WEAPON));
+
+    // ==================== 咒法师商店 ====================
+    // 刀 - 130金币
+    WARLOCK_SHOP.add(new ShopEntry(TMMItems.KNIFE.getDefaultInstance(), 130, ShopEntry.Type.WEAPON));
+    // 撬棍 - 35金币
+    WARLOCK_SHOP.add(new ShopEntry(TMMItems.CROWBAR.getDefaultInstance(), 35, ShopEntry.Type.TOOL));
+    // 开锁器 - 80金币
+    WARLOCK_SHOP.add(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), 80, ShopEntry.Type.TOOL));
+    // 疯狂模式 - 400金币
+    WARLOCK_SHOP.add(new ShopEntry(TMMItems.PSYCHO_MODE.getDefaultInstance(), 400, ShopEntry.Type.WEAPON) {
+      @Override
+      public boolean onBuy(@NotNull Player player) {
+        var psycc = io.wifi.starrailexpress.cca.SREPlayerPsychoComponent.KEY.get(player);
+        boolean success = psycc.startPsycho();
+        if (success) {
+          player.getCooldowns().addCooldown(TMMItems.PSYCHO_MODE, 20 * 60);
+        }
+        return success;
+      }
+    });
+    // 关灯 - 100金币
+    WARLOCK_SHOP.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), 100, ShopEntry.Type.TOOL));
+    // 监控失灵 - 60金币
+    WARLOCK_SHOP.add(new ShopEntry(TMMItems.MONITOR_BROKEN.getDefaultInstance(), 60, ShopEntry.Type.TOOL));
+
+    // ==================== 嬉命人商店 ====================
+    // 开锁器 - 100金币
+      EMBALMER_SHOP.add(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), 100, ShopEntry.Type.TOOL));
   }
 }

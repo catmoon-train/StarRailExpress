@@ -189,5 +189,14 @@ public class ModPackets {
 
         // 注册启用任务透视网络包
         PayloadTypeRegistry.playS2C().register(EnableTaskHighlightPacket.ID, EnableTaskHighlightPacket.CODEC);
+
+        // 注册咒法师网络包
+        PayloadTypeRegistry.playC2S().register(WarlockKillC2SPacket.ID, WarlockKillC2SPacket.CODEC);
+
+        // 注册嬉命人网络包
+        PayloadTypeRegistry.playC2S().register(EmbalmerC2SPacket.ID, EmbalmerC2SPacket.CODEC);
+
+        // 注册窃皮者网络包
+        PayloadTypeRegistry.playC2S().register(SkincrawlerC2SPacket.ID, SkincrawlerC2SPacket.CODEC);
     }
 }

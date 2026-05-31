@@ -243,6 +243,42 @@ public final class GKeyRoleSkill {
             ClientPlayNetworking.send(new AbilityC2SPacket());
             return true;
         });
+
+        // 咒法师：按技能键标记目标（冷却60秒）
+        register(ModRoles.WARLOCK, true, (client, gameWorld) -> {
+            if (!GameUtils.isPlayerAliveAndSurvival(client.player)) return true;
+            var hitResult = client.hitResult;
+            if (hitResult != null && hitResult.getType() == net.minecraft.world.phys.HitResult.Type.ENTITY) {
+                net.minecraft.world.phys.EntityHitResult e = (net.minecraft.world.phys.EntityHitResult) hitResult;
+                if (e.getEntity() instanceof Player targetPlayer) {
+                    ClientPlayNetworking.send(new AbilityWithTargetC2SPacket(targetPlayer));
+                }
+            } else {
+                client.player.displayClientMessage(Component.translatable("hud.warlock.target_miss"), true);
+            }
+            return true;
+        });
+
+        // 咒法师二技能：蹲下按技能键施法击杀（冷却90秒）
+        register(ModRoles.WARLOCK, false, (client, gameWorld) -> {
+            if (!GameUtils.isPlayerAliveAndSurvival(client.player)) return true;
+            ClientPlayNetworking.send(new org.agmas.noellesroles.packet.WarlockKillC2SPacket());
+            return true;
+        });
+
+        // 嬉命人：按技能键发动变装（冷却80秒）
+        register(ModRoles.EMBALMER, true, (client, gameWorld) -> {
+            if (!GameUtils.isPlayerAliveAndSurvival(client.player)) return true;
+            ClientPlayNetworking.send(new org.agmas.noellesroles.packet.EmbalmerC2SPacket());
+            return true;
+        });
+
+        // 窃皮者：按技能键偷皮
+        register(ModRoles.SKINCRAWLER, true, (client, gameWorld) -> {
+            if (!GameUtils.isPlayerAliveAndSurvival(client.player)) return true;
+            ClientPlayNetworking.send(new org.agmas.noellesroles.packet.SkincrawlerC2SPacket());
+            return true;
+        });
     }
 
     @FunctionalInterface

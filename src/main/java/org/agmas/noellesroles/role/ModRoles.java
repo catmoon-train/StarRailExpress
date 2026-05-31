@@ -260,6 +260,9 @@ public class ModRoles {
     public static final ResourceLocation OLDMAN_ID = Noellesroles.id("oldman");
     public static final ResourceLocation THIEF_ID = Noellesroles.id("thief");
     public static final ResourceLocation MERCENARY_ID = Noellesroles.id("mercenary");
+    public static final ResourceLocation WARLOCK_ID = Noellesroles.id("warlock");
+    public static final ResourceLocation EMBALMER_ID = Noellesroles.id("embalmer");
+    public static final ResourceLocation SKINCRAWLER_ID = Noellesroles.id("skincrawler");
     public static final ResourceLocation CANDLE_BEARER_ID = Noellesroles.id("candlebearer");
     public static final ResourceLocation FORTUNETELLER_ID = Noellesroles.id("fortuneteller");
     // 疫使 ID - 杀手方中立
@@ -2149,5 +2152,29 @@ public class ModRoles {
         TraitorAndModifiers.init();
         ModifierEffects.init();
     }
+
+    // ==================== 咒法师 ====================
+    public static SRERole WARLOCK = TMMRoles.registerRole(new NormalRole(
+            WARLOCK_ID, new java.awt.Color(139, 0, 139).getRGB(), false,
+            false, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true)
+            .setComponentKey(org.agmas.noellesroles.game.roles.killer.warlock.WarlockPlayerComponent.KEY))
+            .setCanUseKiller(true).setCanSeeTeammateKiller(true).setNeutralForKiller(false)
+            .setCanUseInstinct(true).setCanSeeCoin(true);
+
+    // ==================== 嬉命人（Embalmer）====================
+    public static SRERole EMBALMER = TMMRoles.registerRole(new NormalRole(
+            EMBALMER_ID, new java.awt.Color(136, 68, 204).getRGB(), false,
+            false, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true)
+            .setComponentKey(org.agmas.noellesroles.game.roles.killer.embalmer.EmbalmerPlayerComponent.KEY))
+            .setNeutralForKiller(true).setCanSeeTeammateKiller(false).setNeutrals(false)
+            .setCanUseInstinct(true).setCanSeeCoin(true);
+
+    // ==================== 窃皮者 ====================
+    public static SRERole SKINCRAWLER = TMMRoles.registerRole(new NormalRole(
+            SKINCRAWLER_ID, new java.awt.Color(204, 68, 68).getRGB(), false,
+            false, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true)
+            .setComponentKey(org.agmas.noellesroles.game.roles.killer.skincrawler.SkincrawlerPlayerComponent.KEY))
+            .setCanUseKiller(true).setCanSeeTeammateKiller(true).setNeutralForKiller(false)
+            .setCanUseInstinct(true).setCanSeeCoin(true);
 
 }

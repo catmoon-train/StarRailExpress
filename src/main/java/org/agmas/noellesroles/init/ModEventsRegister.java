@@ -141,6 +141,49 @@ public class ModEventsRegister {
     // AttributeModifier(
     // Noellesroles.id("wind_yaose"), -0.2f, AttributeModifier.Operation.ADD_VALUE);
 
+
+    /**
+     * 处理嬉命人死亡免疫 - 变装期间被刀/枪击杀时取消变装并免疫死亡
+     */
+    private static boolean handleEmbalmerDeath(Player victim, ResourceLocation deathReason) {
+        if (victim == null || victim.level().isClientSide()) return false;
+        if (!(victim instanceof ServerPlayer sp)) return false;
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(victim.level());
+        if (!gameWorld.isRole(victim, ModRoles.EMBALMER)) return false;
+        if (!GameConstants.DeathReasons.KNIFE.equals(deathReason) && !GameConstants.DeathReasons.REVOLVER.equals(deathReason))
+            return false;
+        var comp = org.agmas.noellesroles.game.roles.killer.embalmer.EmbalmerPlayerComponent.KEY.get(sp);
+        if (comp == null || !comp.masqueradeActive) return false;
+        // 取消变装，免疫死亡
+        comp.masqueradeActive = false;
+        comp.masqueradeTicksLeft = 0;
+        comp.skinSwaps.clear();
+        comp.voicePitches.clear();
+        comp.sync();
+        sp.displayClientMessage(Component.translatable("message.noellesroles.embalmer.death_negated").withStyle(ChatFormatting.LIGHT_PURPLE), true);
+        return true;
+    }
+
+    /**
+     * 处理窃皮者死亡免疫 - 有偷来皮肤时被枪击中进入眩晕
+     */
+    private static boolean handleSkincrawlerDeath(Player victim, ResourceLocation deathReason) {
+        if (victim == null || victim.level().isClientSide()) return false;
+        if (!(victim instanceof ServerPlayer sp)) return false;
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(victim.level());
+        if (!gameWorld.isRole(victim, ModRoles.SKINCRAWLER)) return false;
+        if (!GameConstants.DeathReasons.REVOLVER.equals(deathReason)) return false;
+        var comp = org.agmas.noellesroles.game.roles.killer.skincrawler.SkincrawlerPlayerComponent.KEY.get(sp);
+        if (comp == null || comp.stolenSkin == null || comp.stolenSkin.equals(sp.getUUID())) return false;
+        // 取消偷皮并进入眩晕
+        comp.stolenSkin = null;
+        comp.sync();
+        sp.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 100, 4, false, false, false));
+        sp.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 80, 0, false, false, false));
+        sp.displayClientMessage(Component.translatable("message.noellesroles.skincrawler.stunned").withStyle(ChatFormatting.RED), true);
+        return true;
+    }
+
     /**
      * 处理拳击手无敌反制
      * 钢筋铁骨期间可以反弹任何死亡
@@ -1935,6 +1978,10 @@ public class ModEventsRegister {
         });
         // 监听玩家死亡事件 - 用于激活复仇者能力、拳击手反制、跟踪者免疫和操纵师死亡判定
         AllowPlayerDeath.EVENT.register((victim, deathReason) -> {
+            // 检查嬉命人变装死亡免疫
+            if (handleEmbalmerDeath(victim, deathReason)) return false;
+            // 检查窃皮者皮肤死亡免疫
+            if (handleSkincrawlerDeath(victim, deathReason)) return false;
             // 检查拳击手无敌反制
             if (handleBoxerInvulnerability(victim, deathReason)) {
                 return false; // 阻止死亡
