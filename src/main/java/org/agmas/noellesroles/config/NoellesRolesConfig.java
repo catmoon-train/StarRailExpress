@@ -758,7 +758,7 @@ public class NoellesRolesConfig implements ConfigData {
     /**
      * Pelican - minimum players required for Pelican to appear
      */
-    public int minPlayerForPelican = 12;
+    public int minPlayerForPelican = 16;
 
     /**
      * Pelican - percentage chance (0-100) for Pelican to spawn
