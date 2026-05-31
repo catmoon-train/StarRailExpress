@@ -46,8 +46,8 @@ public class MorticianPlayerComponent implements RoleComponent, ServerTickingCom
             ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "mortician"),
             MorticianPlayerComponent.class);
     
-    /** 技能冷却时间（240秒 = 4800 tick） */
-    public static final int ABILITY_COOLDOWN = 240 * 20;
+    /** 技能冷却时间（120秒 = 2400 tick） */
+    public static final int ABILITY_COOLDOWN = 120 * 20;
     
     /** 透视范围（水平） */
     public static final double SEE_RANGE = 10.0;

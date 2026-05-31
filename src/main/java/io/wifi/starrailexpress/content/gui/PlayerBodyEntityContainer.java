@@ -67,8 +67,8 @@ public class PlayerBodyEntityContainer extends SimpleContainer {
         
         // 殡仪员特殊检查
         if (isMorticianPlayer(currentUser)) {
-            // 检查是否已达到拿取上限（最多2个）
-            if (morticianItemsTaken >= 2) {
+            // 检查是否已达到拿取上限（最多1个）
+            if (morticianItemsTaken >= 1) {
                 return false;
             }
             
@@ -79,6 +79,11 @@ public class PlayerBodyEntityContainer extends SimpleContainer {
             
             // 检查是否是德林加手枪
             if (isDerringer(stack)) {
+                return false;
+            }
+            
+            // 如果身上已有左轮手枪，无法再拿取左轮手枪或巡警手枪
+            if (isRevolver(stack) && hasRevolverInInventory(currentUser)) {
                 return false;
             }
             
@@ -150,7 +155,27 @@ public class PlayerBodyEntityContainer extends SimpleContainer {
      * 检查殡仪员是否还能拿取物品
      */
     public boolean canMorticianTakeMore() {
-        return morticianItemsTaken < 2;
+        return morticianItemsTaken < 1;
+    }
+    
+    /**
+     * 检查物品是否是左轮手枪或巡警手枪
+     */
+    private boolean isRevolver(ItemStack stack) {
+        if (stack.isEmpty()) return false;
+        return stack.is(io.wifi.starrailexpress.index.TMMItems.REVOLVER) || 
+               stack.is(org.agmas.noellesroles.init.ModItems.PATROLLER_REVOLVER);
+    }
+    
+    /**
+     * 检查玩家物品栏中是否已有左轮手枪或巡警手枪
+     */
+    private boolean hasRevolverInInventory(Player player) {
+        for (var stack : player.getInventory().items) {
+            if (isRevolver(stack)) return true;
+        }
+        if (isRevolver(player.getOffhandItem())) return true;
+        return false;
     }
 
     public boolean canGetBodyContent(Player player) {

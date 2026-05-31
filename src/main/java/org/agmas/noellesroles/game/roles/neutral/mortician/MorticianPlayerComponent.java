@@ -502,10 +502,10 @@ public class MorticianPlayerComponent extends SREAbilityPlayerComponent {
             }
         }
 
-        // 更新拖动的尸体位置
+        // 更新拖动的尸体位置（举在头顶，做出类似举起三叉戟的动作）
         if (this.draggedBody != null && this.draggedBody.isAlive()) {
             Vec3 playerPos = player.position();
-            this.draggedBody.setPos(playerPos.x, playerPos.y, playerPos.z);
+            this.draggedBody.setPos(playerPos.x, playerPos.y + 1.8, playerPos.z);
             this.draggedBody.setYRot(player.getYRot());
             this.draggedBody.setYHeadRot(player.getYRot());
             this.draggedBody.yBodyRot = player.getYRot();

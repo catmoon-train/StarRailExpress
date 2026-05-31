@@ -39,14 +39,14 @@ public class BuilderPlayerComponent implements RoleComponent, ServerTickingCompo
     
     // ==================== 常量定义 ====================
     
-    /** 开局冷却时间（120秒 = 2400 tick） */
+    /** 开局冷却时间 */
     public static final int INITIAL_COOLDOWN = 2400;
     
-    /** 建造技能冷却时间（200秒 = 4000 tick） */
-    public static final int BUILD_COOLDOWN = 4000;
+    /** 建造技能冷却时间（90秒 = 1800 tick） */
+    public static final int BUILD_COOLDOWN = 1800;
     
-    /** 墙存在时间（60秒 = 1200 tick） */
-    public static final int WALL_DURATION = 1200;
+    /** 墙存在时间（20秒 = 400 tick） */
+    public static final int WALL_DURATION = 400;
     
     /** 墙长度（格） */
     public static final int WALL_LENGTH = 4;
@@ -150,6 +150,19 @@ public class BuilderPlayerComponent implements RoleComponent, ServerTickingCompo
             return false;
         }
         
+        // 分离第三行（顶部y+2）为蜘蛛网位置
+        int minY = wallPositions.stream().mapToInt(BlockPos::getY).min().orElse(0);
+        int cobwebY = minY + 2;
+        List<BlockPos> brickPositions = new ArrayList<>();
+        List<BlockPos> cobwebPositions = new ArrayList<>();
+        for (BlockPos pos : wallPositions) {
+            if (pos.getY() == cobwebY) {
+                cobwebPositions.add(pos);
+            } else {
+                brickPositions.add(pos);
+            }
+        }
+        
         // 创建墙数据
         UUID wallId = UUID.randomUUID();
         WallData wallData = new WallData(wallId, wallPositions, WALL_DURATION);
@@ -162,7 +175,7 @@ public class BuilderPlayerComponent implements RoleComponent, ServerTickingCompo
         this.cooldown = BUILD_COOLDOWN;
         
         // 发送S2C包给所有玩家
-        sendWallToAllPlayers(wallId, wallPositions);
+        sendWallToAllPlayers(wallId, brickPositions, cobwebPositions);
         
         // 播放方块放置的声音
         if (player instanceof ServerPlayer serverPlayer) {
@@ -259,10 +272,10 @@ public class BuilderPlayerComponent implements RoleComponent, ServerTickingCompo
     /**
      * 发送墙数据给所有玩家
      */
-    private void sendWallToAllPlayers(UUID wallId, List<BlockPos> positions) {
+    private void sendWallToAllPlayers(UUID wallId, List<BlockPos> brickPositions, List<BlockPos> cobwebPositions) {
         if (!(player.level() instanceof ServerLevel serverLevel)) return;
         
-        BuilderWallS2CPacket packet = new BuilderWallS2CPacket(wallId, positions, WALL_DURATION);
+        BuilderWallS2CPacket packet = new BuilderWallS2CPacket(wallId, brickPositions, cobwebPositions, WALL_DURATION);
         for (ServerPlayer serverPlayer : serverLevel.players()) {
             net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.send(serverPlayer, packet);
         }
