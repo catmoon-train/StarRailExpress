@@ -362,7 +362,7 @@ public class ModRoles {
                     false, // showParticles（显示粒子）
                     false // showIcon（显示图标）
             )))
-            .setCanSeeCoin(true).setComponentKey(ModComponents.MEATBALL).setMax(1);
+            .setCanSeeCoin(true).setComponentKey(ModComponents.MEATBALL).setMax(1).setCanBeRandomedByOtherRoles(false);
 
     /**
      * 殡仪员角色 - 平民阵营

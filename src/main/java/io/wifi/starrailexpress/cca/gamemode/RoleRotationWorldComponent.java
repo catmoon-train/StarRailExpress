@@ -519,10 +519,6 @@ public class RoleRotationWorldComponent implements AutoSyncedComponent {
     private void assignRoleToPlayer(ServerPlayer player, SRERole role) {
         selectedRoles.put(player.getUUID(), role);
 
-        // 应用职业
-        SRERoleWorldComponent roleWorldComponent = SRERoleWorldComponent.KEY.get(player.level());
-        roleWorldComponent.addRole(player.getUUID(), role, false);
-
         // 发送消息
         MutableComponent msg = Component.translatable("gui.sre.role_rotation.selected",
                 Component.literal(String.valueOf(playerRotationOrder.get(player.getUUID()))).withStyle(ChatFormatting.GOLD),
