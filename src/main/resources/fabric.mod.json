@@ -13,7 +13,8 @@
   "environment": "*",
   "entrypoints": {
     "mixinsquared": [
-      "io.wifi.WatheMixinBlocker"
+      "io.wifi.WatheMixinBlocker",
+      "io.wifi.SodiumExtraLightOptionMixinBlocker"
     ],
     "preLaunch": [
       "io.wifi.WatheBlocker"
