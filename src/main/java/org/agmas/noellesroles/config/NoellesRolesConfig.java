@@ -54,7 +54,9 @@ public class NoellesRolesConfig implements ConfigData {
      * Role - The chance of egg roles
      */
 
+    @ConfigEntry.Category(value = "detail")
     public int chanceOfTouhouRoles = 40;
+    @ConfigEntry.Category(value = "detail")
     public int chanceOfEggRoles = 15;
 
     // ==================== 角色刷新概率配置 ====================
@@ -318,16 +320,24 @@ public class NoellesRolesConfig implements ConfigData {
     /**
      * 更好的义警刷新概率（0-10000，0.1% = 10）
      */
+    @ConfigEntry.Category(value = "detail")
     public int chanceOfBestVigilante = 10;
 
     /**
      * 特殊警卫配置
      */
+    
+    @ConfigEntry.Category(value = "detail")
     public int chanceOfPatroller = 80;
+    @ConfigEntry.Category(value = "detail")
     public int chanceOfMartialArtsInstructor = 60;
+    @ConfigEntry.Category(value = "detail")
     public int chanceOfElf = 70;
+    @ConfigEntry.Category(value = "detail")
     public int chanceOfSwast = 70;
+    @ConfigEntry.Category(value = "detail")
     public int chanceOfDoublePatroller = 20;
+    @ConfigEntry.Category(value = "detail")
     public int chanceOfDoubleElf = 10;
 
     /**
@@ -335,9 +345,13 @@ public class NoellesRolesConfig implements ConfigData {
      */
     @ConfigEntry.Category(value = "detail")
     public int minPlayerForSpecialPolice1 = 12;
+    @ConfigEntry.Category(value = "detail")
     public int minPlayerForSpecialPolice2 = 18;
+    @ConfigEntry.Category(value = "detail")
     public int minPlayerForSpecialPolice3 = 24;
+    @ConfigEntry.Category(value = "detail")
     public int minPlayerForSpecialPolice4 = 30;
+    @ConfigEntry.Category(value = "detail")
     public int minPlayerForSpecialPolice5 = 36;
 
     /**
