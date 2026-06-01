@@ -270,6 +270,8 @@
   "text.autoconfig.noellesroles.option.chanceOfCuckoo": "杜鹃刷新概率（%）",
   "text.autoconfig.noellesroles.option.chanceOfCreeper": "苦力怕刷新概率（%）",
   "text.autoconfig.noellesroles.option.chanceOfPainter": "画家刷新概率（%）",
+  "text.autoconfig.noellesroles.option.chanceOfMeatball": "肉汁刷新概率（%）",
+  "text.autoconfig.noellesroles.option.minPlayerForMeatball": "肉汁最小玩家数",
   "text.autoconfig.noellesroles.option.chanceOfMercenary": "雇佣兵刷新概率（%）",
   "text.autoconfig.noellesroles.option.minPlayerForMercenary": "雇佣兵最小玩家数",
   "text.autoconfig.noellesroles.option.chanceOfTheFool": "愚者刷新概率（%）",

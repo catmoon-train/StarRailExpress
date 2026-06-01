@@ -32,7 +32,8 @@ public class NoellesRolesConfig implements ConfigData {
      */
 
     public ArrayList<String> swastMaps = new ArrayList<>(
-            List.of("areas1", "areas3", "areas4", "areas7", "areas10", "areas_qiyucun", "areas17", "areas_konggang"));
+            List.of("areas1", "areas3", "areas4", "areas7", "areas10", "areas_qiyucun", "areas17",
+                    "areas_konggang"));
 
     /**
      * Areas that will spawn underwater roles (Sea King, Diver, Water Ghost)
@@ -104,6 +105,16 @@ public class NoellesRolesConfig implements ConfigData {
     @ConfigEntry.Category(value = "detail")
     public int chanceOfPainter = 50;
 
+    /**
+     * 肉汁刷新概率（%）
+     */
+    @ConfigEntry.Category(value = "detail")
+    public int chanceOfMeatball = 25;
+    /**
+     * 雇佣兵刷新最小玩家数
+     */
+    @ConfigEntry.Category(value = "detail")
+    public int minPlayerForMeatball = 12;
     /**
      * 雇佣兵刷新概率（%）
      */
@@ -326,7 +337,7 @@ public class NoellesRolesConfig implements ConfigData {
     /**
      * 特殊警卫配置
      */
-    
+
     @ConfigEntry.Category(value = "detail")
     public int chanceOfPatroller = 80;
     @ConfigEntry.Category(value = "detail")
@@ -578,7 +589,8 @@ public class NoellesRolesConfig implements ConfigData {
     @ConfigEntry.Category(value = "detail")
     public int chanceOfLastGasp = 5;
 
-    /**s
+    /**
+     * s
      * 起义军修饰符刷新概率（%）
      * 被同阵营误杀时变为叛徒
      */

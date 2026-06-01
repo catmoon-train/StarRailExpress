@@ -715,6 +715,10 @@ public class InitModRolesMax {
         // 建筑师 - 从配置读取概率和最小玩家数
         ModRoles.BUILDER.setEnableChance(config.chanceOfBuilder).setEnableNeededPlayerCount(config.minPlayerForBuilder);
 
+        // 肉汁 - 25%概率
+        ModRoles.MEATBALL.setEnableChance(config.chanceOfMeatball)
+                .setEnableNeededPlayerCount(config.minPlayerForMeatball);
+
         // 杜鹃 - 45%概率
         ModRoles.CUCKOO.setEnableChance(config.chanceOfCuckoo);
 
