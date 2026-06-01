@@ -108,7 +108,7 @@ public class SodiumExtraDisableOptionMixin {
                         .setName(Component.translatable("sodium-extra.option.light_updates_starrailexpress"))
                         .setTooltip(Component.translatable("sodium-extra.option.light_updates_starrailexpress.tooltip"))
                         .setControl(TickBoxControl::new)
-                        .setBinding((options, value) -> options.renderSettings.lightUpdates = value,
+                        .setBinding((options, value) -> options.renderSettings.lightUpdates = true,
                                 options -> options.renderSettings.lightUpdates)
                         .build())
                 .build());
