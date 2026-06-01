@@ -107,8 +107,9 @@ public class MorticianPlayerComponent extends SREAbilityPlayerComponent {
 
     @Override
     public void clear() {
-        // 放下尸体
+        // 放下尸体并恢复重力
         if (this.draggedBody != null && this.draggedBody.isAlive()) {
+            this.draggedBody.setNoGravity(false);
             this.draggedBody = null;
         }
         this.draggedBodyUuid = null;
@@ -207,6 +208,8 @@ public class MorticianPlayerComponent extends SREAbilityPlayerComponent {
     private boolean useDragAbility(ServerPlayer serverPlayer) {
         // 如果正在拖动尸体，放下它
         if (this.draggedBody != null && this.draggedBody.isAlive()) {
+            // 恢复尸体重力
+            this.draggedBody.setNoGravity(false);
             // 放下尸体
             this.draggedBody = null;
             this.draggedBodyUuid = null;
@@ -236,7 +239,8 @@ public class MorticianPlayerComponent extends SREAbilityPlayerComponent {
         serverPlayer.serverLevel().playSound(null, serverPlayer.getX(), serverPlayer.getY(), serverPlayer.getZ(),
                 SoundEvents.ARMOR_EQUIP_IRON, SoundSource.PLAYERS, 1.0f, 1.0f);
 
-        // 开始拖动尸体
+        // 取消尸体重力，开始拖动到头顶
+        targetBody.setNoGravity(true);
         this.draggedBody = targetBody;
         this.draggedBodyUuid = targetBody.getUUID();
         this.sync();
@@ -451,8 +455,9 @@ public class MorticianPlayerComponent extends SREAbilityPlayerComponent {
     public void serverTick() {
         var gwc = SREGameWorldComponent.KEY.get(player.level());
         if (!gwc.isRole(player, ModRoles.MORTICIAN_BODYMAKER)) {
-            // 不再是葬仪角色，强制解除拖动状态
+            // 不再是葬仪角色，强制解除拖动状态并恢复重力
             if (this.draggedBody != null) {
+                if (this.draggedBody.isAlive()) this.draggedBody.setNoGravity(false);
                 this.draggedBody = null;
                 this.draggedBodyUuid = null;
                 this.sync();
@@ -463,6 +468,7 @@ public class MorticianPlayerComponent extends SREAbilityPlayerComponent {
         // 旁观者模式立刻解除拖动
         if (player.isSpectator()) {
             if (this.draggedBody != null) {
+                if (this.draggedBody.isAlive()) this.draggedBody.setNoGravity(false);
                 this.draggedBody = null;
                 this.draggedBodyUuid = null;
                 this.sync();
@@ -473,6 +479,7 @@ public class MorticianPlayerComponent extends SREAbilityPlayerComponent {
         // 玩家死亡时立即解除拖动（必须在SAFE_TIME检查之前，否则死亡后可能被跳过）
         if (!player.isAlive()) {
             if (this.draggedBody != null) {
+                if (this.draggedBody.isAlive()) this.draggedBody.setNoGravity(false);
                 this.draggedBody = null;
                 this.draggedBodyUuid = null;
                 this.sync();
@@ -502,10 +509,10 @@ public class MorticianPlayerComponent extends SREAbilityPlayerComponent {
             }
         }
 
-        // 更新拖动的尸体位置
+        // 更新拖动的尸体位置（举在头顶2.1格高处，做出类似举起三叉戟的动作）
         if (this.draggedBody != null && this.draggedBody.isAlive()) {
             Vec3 playerPos = player.position();
-            this.draggedBody.setPos(playerPos.x, playerPos.y, playerPos.z);
+            this.draggedBody.setPos(playerPos.x, playerPos.y + 2.1, playerPos.z);
             this.draggedBody.setYRot(player.getYRot());
             this.draggedBody.setYHeadRot(player.getYRot());
             this.draggedBody.yBodyRot = player.getYRot();

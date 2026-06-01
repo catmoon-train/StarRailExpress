@@ -362,7 +362,7 @@ public class ModRoles {
                     false, // showParticles（显示粒子）
                     false // showIcon（显示图标）
             )))
-            .setCanSeeCoin(true).setComponentKey(ModComponents.MEATBALL).setMax(1);
+            .setCanSeeCoin(true).setComponentKey(ModComponents.MEATBALL).setMax(1).setCanBeRandomedByOtherRoles(false);
 
     /**
      * 殡仪员角色 - 平民阵营
@@ -1423,7 +1423,7 @@ public class ModRoles {
             SRERole.MoodType.REAL, // 真实心情
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
             false // 不隐藏计分板
-    )).setComponentKey(PainterPlayerComponent.KEY).setCanSeeCoin(true).setMax(1).setEnableChance(10).setEnableNeededPlayerCount(12);
+    )).setComponentKey(PainterPlayerComponent.KEY).setCanSeeCoin(true).setMax(1).setEnableNeededPlayerCount(12);
 
     // 杀手阵营角色
     /**

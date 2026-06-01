@@ -302,10 +302,6 @@ public class SRERoleRotationGameMode extends SREMurderGameMode {
                     rolePool.remove(0);
                 }
 
-                // 应用职业
-                SRERoleWorldComponent roleWorldComponent = SRERoleWorldComponent.KEY.get(player.level());
-                roleWorldComponent.addRole(player.getUUID(), role, false);
-
                 player.displayClientMessage(
                         Component.translatable("gui.sre.role_rotation.auto_assigned",
                                 RoleUtils.getRoleName(role).withColor(role.getColor()))

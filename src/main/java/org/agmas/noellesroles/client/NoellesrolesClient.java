@@ -271,7 +271,7 @@ public class NoellesrolesClient implements ClientModInitializer {
         });
         // 建筑师墙数据S2C包
         ClientPlayNetworking.registerGlobalReceiver(org.agmas.noellesroles.packet.BuilderWallS2CPacket.ID, (payload, context) -> {
-            ClientWallManager.createWall(payload.wallId(), payload.positions(), payload.durationTicks());
+            ClientWallManager.createWall(payload.wallId(), payload.brickPositions(), payload.cobwebPositions(), payload.durationTicks());
         });
         ClientPlayNetworking.registerGlobalReceiver(org.agmas.noellesroles.packet.BuilderRemoveWallS2CPacket.ID, (payload, context) -> {
             ClientWallManager.removeWall(payload.wallId());

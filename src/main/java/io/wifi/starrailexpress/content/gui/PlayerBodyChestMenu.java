@@ -204,7 +204,16 @@ public class PlayerBodyChestMenu extends AbstractContainerMenu implements Custom
                     case CLONE: // 中键复制
                     case QUICK_MOVE: // Shift+点击
                     case QUICK_CRAFT: // Ctrl+点击
-                        // 允许操作，canTakeItem 会控制是否能真正拿走物品
+                        // 殡仪员物品限制检查（在 super.clicked 之前阻止）
+                        if (slot != null && slot.hasItem()) {
+                            ItemStack stack = slot.getItem();
+                            if (isDerringer(stack) || isCommandBlock(stack)) {
+                                return; // 禁止拿取，不关闭页面
+                            }
+                            if (isRevolver(stack) && morticianHasRevolver(player)) {
+                                return; // 禁止拿取，不关闭页面
+                            }
+                        }
                         super.clicked(slotId, button, clickType, player);
                         
                         // 检查物品是否被拿走
@@ -221,6 +230,12 @@ public class PlayerBodyChestMenu extends AbstractContainerMenu implements Custom
                         }
                         return;
                     default:
+                        // 殡仪员物品限制检查
+                        if (slot != null && slot.hasItem()) {
+                            ItemStack stack = slot.getItem();
+                            if (isDerringer(stack) || isCommandBlock(stack)) return;
+                            if (isRevolver(stack) && morticianHasRevolver(player)) return;
+                        }
                         super.clicked(slotId, button, clickType, player);
                         return;
                 }
@@ -248,5 +263,33 @@ public class PlayerBodyChestMenu extends AbstractContainerMenu implements Custom
         return stack.is(Items.COMMAND_BLOCK) || 
                stack.is(Items.REPEATING_COMMAND_BLOCK) || 
                stack.is(Items.CHAIN_COMMAND_BLOCK);
+    }
+
+    /**
+     * 检查物品是否是德林加手枪
+     */
+    private boolean isDerringer(ItemStack stack) {
+        return !stack.isEmpty() && stack.is(io.wifi.starrailexpress.index.TMMItems.DERRINGER);
+    }
+
+    /**
+     * 检查物品是否是左轮手枪或巡警手枪
+     */
+    private boolean isRevolver(ItemStack stack) {
+        if (stack.isEmpty()) return false;
+        return stack.is(io.wifi.starrailexpress.index.TMMItems.REVOLVER) ||
+               stack.is(org.agmas.noellesroles.init.ModItems.PATROLLER_REVOLVER);
+    }
+
+    /**
+     * 检查殡仪员身上是否已有左轮手枪或巡警手枪
+     */
+    private boolean morticianHasRevolver(Player player) {
+        for (var list : player.getInventory().compartments) {
+            for (var stack : list) {
+                if (isRevolver(stack)) return true;
+            }
+        }
+        return false;
     }
 }
