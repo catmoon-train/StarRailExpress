@@ -93,8 +93,10 @@ public class MonokumaEventHandler {
                 comp.onHitTriggered();
                 return false;
             } else if (comp.phase == 3) {
-                boolean flag = false;
                 var gameCCA = SREGameWorldComponent.KEY.get(player.level());
+                if (!gameCCA.isRole(player, ModRoles.MONOKUMA))
+                    return true;
+                boolean flag = false;
                 if (!flag) {
                     if (killer != null) {
                         if (gameCCA.isRole(player, ModRoles.MONOKUMA)) {

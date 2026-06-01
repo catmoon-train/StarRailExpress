@@ -36,7 +36,8 @@ import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.item.component.*;
 import org.agmas.noellesroles.commands.BroadcastCommand;
-import org.agmas.noellesroles.game.roles.Innocent.singer.SingerPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.singer.SingerPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.executioner.ExecutionerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.executioner.ShootingFrenzyPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.ma_chen_xu.MaChenXuPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.stalker.StalkerPlayerComponent;
@@ -358,12 +359,18 @@ public class RoleShopHandler {
 
     {
       var SHOP = new ArrayList<ShopEntry>();
-      SHOP.add(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), SREConfig.instance().lockpickPrice, ShopEntry.Type.TOOL));
-      SHOP.add(new ShopEntry(TMMItems.CROWBAR.getDefaultInstance(), SREConfig.instance().crowbarPrice, ShopEntry.Type.TOOL));
-      SHOP.add(new ShopEntry(TMMItems.KNIFE.getDefaultInstance(), SREConfig.instance().knifePrice, ShopEntry.Type.WEAPON));
-      SHOP.add(new ShopEntry(TMMItems.REVOLVER.getDefaultInstance(), SREConfig.instance().revolverPrice, ShopEntry.Type.WEAPON));
-      SHOP.add(new ShopEntry(ModItems.SHORT_SHOTGUN.getDefaultInstance(), SREConfig.instance().shortShotgunPrice, ShopEntry.Type.WEAPON));
-      SHOP.add(new ShopEntry(TMMItems.GRENADE.getDefaultInstance(), SREConfig.instance().grenadePrice, ShopEntry.Type.WEAPON));
+      SHOP.add(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), SREConfig.instance().lockpickPrice,
+          ShopEntry.Type.TOOL));
+      SHOP.add(
+          new ShopEntry(TMMItems.CROWBAR.getDefaultInstance(), SREConfig.instance().crowbarPrice, ShopEntry.Type.TOOL));
+      SHOP.add(
+          new ShopEntry(TMMItems.KNIFE.getDefaultInstance(), SREConfig.instance().knifePrice, ShopEntry.Type.WEAPON));
+      SHOP.add(new ShopEntry(TMMItems.REVOLVER.getDefaultInstance(), SREConfig.instance().revolverPrice,
+          ShopEntry.Type.WEAPON));
+      SHOP.add(new ShopEntry(ModItems.SHORT_SHOTGUN.getDefaultInstance(), SREConfig.instance().shortShotgunPrice,
+          ShopEntry.Type.WEAPON));
+      SHOP.add(new ShopEntry(TMMItems.GRENADE.getDefaultInstance(), SREConfig.instance().grenadePrice,
+          ShopEntry.Type.WEAPON));
       SHOP.add(new ShopEntry(ModItems.SPELLBREAKER_POTION.getDefaultInstance(), 75, ShopEntry.Type.TOOL));
       SHOP.add(new ShopEntry(ModItems.SILENCE_TOTEM.getDefaultInstance(), 130, ShopEntry.Type.TOOL));
       ShopContent.customEntries.put(ModRoles.SPELLBREAKER.getIdentifier(), SHOP);
@@ -466,8 +473,10 @@ public class RoleShopHandler {
       // 滞时鬼（Delayer）商店：只可购买 刀（130）、枪（285）、短管霰弹枪（300）、疯狂模式（400）、监控失灵（40）、鞭炮（15）
       var SHOP = new ArrayList<ShopEntry>();
       SHOP.add(new ShopEntry(TMMItems.KNIFE.getDefaultInstance(), 130, ShopEntry.Type.TOOL));
-      SHOP.add(new ShopEntry(io.wifi.starrailexpress.index.TMMItems.REVOLVER.getDefaultInstance(), 285, ShopEntry.Type.TOOL));
-      SHOP.add(new ShopEntry(org.agmas.noellesroles.init.ModItems.SHORT_SHOTGUN.getDefaultInstance(), 300, ShopEntry.Type.TOOL));
+      SHOP.add(new ShopEntry(io.wifi.starrailexpress.index.TMMItems.REVOLVER.getDefaultInstance(), 285,
+          ShopEntry.Type.TOOL));
+      SHOP.add(new ShopEntry(org.agmas.noellesroles.init.ModItems.SHORT_SHOTGUN.getDefaultInstance(), 300,
+          ShopEntry.Type.TOOL));
       SHOP.add(new ShopEntry(TMMItems.PSYCHO_MODE.getDefaultInstance(), 400, ShopEntry.Type.WEAPON) {
         @Override
         public boolean onBuy(@NotNull Player player) {
@@ -1473,7 +1482,7 @@ public class RoleShopHandler {
           });
       ShopContent.customEntries.put(ModRoles.WATCHER_ID, shop);
     }
-    
+
     // 叛徒商店 - 屏障商品，不可交互、不可购买、不可显示，阻止默认杀手商店出现
     {
       var TRAITOR_SHOP = new ArrayList<ShopEntry>();
@@ -1483,6 +1492,7 @@ public class RoleShopHandler {
         public boolean canDisplay(@NotNull Player player) {
           return false;
         }
+
         @Override
         public boolean canBuy(@NotNull Player player) {
           return false;
@@ -1490,7 +1500,7 @@ public class RoleShopHandler {
       });
       ShopContent.customEntries.put(TraitorAndModifiers.TRAITOR.identifier(), TRAITOR_SHOP);
     }
-    
+
     // 疫使商店
     {
       var INFECTED_SHOP_LIST = new ArrayList<ShopEntry>();
@@ -1600,7 +1610,32 @@ public class RoleShopHandler {
         }
       });
     }
-
+    {
+      // 切换目标 - 200金币
+      var 柜子区切换目标 = Items.PAPER.getDefaultInstance();
+      柜子区切换目标.set(DataComponents.ITEM_NAME, Component.translatable("itemstack.executioner.change_target.item_name"));
+      var lore = new ItemLore(List.of(
+          Component.translatable("itemstack.executioner.change_target.item_lore.1")
+              .withStyle(style -> style.withItalic(false).withColor(ChatFormatting.GRAY)),
+          Component.translatable("itemstack.executioner.change_target.item_lore.2")
+              .withStyle(style -> style.withItalic(false).withColor(ChatFormatting.GRAY))));
+      柜子区切换目标.set(DataComponents.LORE, lore);
+      柜子区的商店.add(new ShopEntry(
+          柜子区切换目标,
+          200,
+          ShopEntry.Type.WEAPON) {
+        @Override
+        public boolean onBuy(@NotNull Player player) {
+          boolean success = false;
+          var cca = ExecutionerPlayerComponent.KEY.get(player);
+          success = cca.assignRandomTarget(true);
+          if (success) {
+            player.getCooldowns().addCooldown(Items.PAPER, 20);
+          }
+          return success;
+        }
+      });
+    }
     // 阴谋家商店
     CONSPIRATOR_SHOP.add(new ShopEntry(
         ModItems.CONSPIRACY_PAGE.getDefaultInstance(),
@@ -2113,8 +2148,10 @@ public class RoleShopHandler {
         @Override
         public boolean onBuy(@NotNull Player player) {
           var comp = CandleBearerPlayerComponent.KEY.get(player);
-          if (comp == null) return false;
-          if (comp.invisibilityCharges >= CandleBearerPlayerComponent.MAX_INVISIBILITY_CHARGES) return false;
+          if (comp == null)
+            return false;
+          if (comp.invisibilityCharges >= CandleBearerPlayerComponent.MAX_INVISIBILITY_CHARGES)
+            return false;
           comp.invisibilityCharges++;
           if (player instanceof ServerPlayer sp) {
             sp.displayClientMessage(

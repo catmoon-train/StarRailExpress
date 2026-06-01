@@ -957,6 +957,7 @@ public class EntityInteractionBlockEntity extends BlockEntity {
             }
             case CHANGE_ROLE -> {
                 // TODO: 实现职业切换逻辑
+                player.displayClientMessage(Component.literal("未实现。 Not vailid."), true);
             }
             case CHANGE_TASK -> {
                 SREPlayerTaskComponent taskComponent = SREPlayerTaskComponent.KEY.get(player);

@@ -13,15 +13,16 @@ import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import org.agmas.noellesroles.game.roles.Innocent.fool.FoolTarotVoteC2SPacket;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.agmas.noellesroles.game.roles.innocent.fool.FoolTarotVoteC2SPacket;
+
 public class FoolTarotVoteScreen extends Screen {
-    private final List<org.agmas.noellesroles.game.roles.Innocent.fool.FoolOpenTarotVoteS2CPacket.CandidateEntry> candidates;
+    private final List<org.agmas.noellesroles.game.roles.innocent.fool.FoolOpenTarotVoteS2CPacket.CandidateEntry> candidates;
     private final int durationSeconds;
     private long openTime;
     private EditBox searchWidget;
@@ -32,7 +33,7 @@ public class FoolTarotVoteScreen extends Screen {
     private int totalPages = 0;
     private static final int ENTRIES_PER_PAGE = 12;
 
-    public FoolTarotVoteScreen(List<org.agmas.noellesroles.game.roles.Innocent.fool.FoolOpenTarotVoteS2CPacket.CandidateEntry> candidates,
+    public FoolTarotVoteScreen(List<org.agmas.noellesroles.game.roles.innocent.fool.FoolOpenTarotVoteS2CPacket.CandidateEntry> candidates,
             int durationSeconds) {
         super(Component.translatable("screen.noellesroles.fool.vote.title"));
         this.candidates = List.copyOf(candidates);
@@ -65,9 +66,9 @@ public class FoolTarotVoteScreen extends Screen {
         if (prevPageButton != null) this.removeWidget(prevPageButton);
         if (nextPageButton != null) this.removeWidget(nextPageButton);
 
-        List<org.agmas.noellesroles.game.roles.Innocent.fool.FoolOpenTarotVoteS2CPacket.CandidateEntry> filtered = new ArrayList<>();
+        List<org.agmas.noellesroles.game.roles.innocent.fool.FoolOpenTarotVoteS2CPacket.CandidateEntry> filtered = new ArrayList<>();
         String loweredSearch = searchText != null ? searchText.toLowerCase() : null;
-        for (org.agmas.noellesroles.game.roles.Innocent.fool.FoolOpenTarotVoteS2CPacket.CandidateEntry candidate : this.candidates) {
+        for (org.agmas.noellesroles.game.roles.innocent.fool.FoolOpenTarotVoteS2CPacket.CandidateEntry candidate : this.candidates) {
             String candidateName = resolvePlayerName(candidate.candidateId()).getString();
             if (loweredSearch == null || loweredSearch.isEmpty()
                     || candidateName.toLowerCase().contains(loweredSearch)
@@ -104,7 +105,7 @@ public class FoolTarotVoteScreen extends Screen {
         }
 
         for (int index = startIndex; index < endIndex; index++) {
-            org.agmas.noellesroles.game.roles.Innocent.fool.FoolOpenTarotVoteS2CPacket.CandidateEntry candidate = filtered.get(index);
+            org.agmas.noellesroles.game.roles.innocent.fool.FoolOpenTarotVoteS2CPacket.CandidateEntry candidate = filtered.get(index);
             int localIndex = index - startIndex;
             int column = localIndex % 4;
             int row = localIndex / 4;
@@ -203,10 +204,10 @@ public class FoolTarotVoteScreen extends Screen {
 
     private static class VoteCandidateButton extends Button {
         private final FoolTarotVoteScreen parent;
-        private final org.agmas.noellesroles.game.roles.Innocent.fool.FoolOpenTarotVoteS2CPacket.CandidateEntry candidate;
+        private final org.agmas.noellesroles.game.roles.innocent.fool.FoolOpenTarotVoteS2CPacket.CandidateEntry candidate;
 
         protected VoteCandidateButton(FoolTarotVoteScreen parent, int x, int y, int width, int height,
-                org.agmas.noellesroles.game.roles.Innocent.fool.FoolOpenTarotVoteS2CPacket.CandidateEntry candidate) {
+                org.agmas.noellesroles.game.roles.innocent.fool.FoolOpenTarotVoteS2CPacket.CandidateEntry candidate) {
             super(x, y, width, height, Component.empty(),
                     button -> parent.submitVote(candidate.candidateId()), DEFAULT_NARRATION);
             this.parent = parent;

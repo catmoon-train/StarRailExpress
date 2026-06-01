@@ -62,9 +62,36 @@ public class GrenadeEntity extends ThrowableItemProjectile {
             hitted_players
                     .addAll(getPlayersAffectedByExplosion(world, explosionPos.x, explosionPos.y - 0.5, explosionPos.z,
                             EXPLOSION_RADIUS));
+            // 肉汁独处保护：先扫描爆炸范围内是否有肉汁被好人保护
+            boolean meatballInRange = false;
+            boolean hasInnocentInRange = false;
+            for (var entity : hitted_players) {
+                if (entity instanceof Player player) {
+                    var gameWorld = io.wifi.starrailexpress.cca.SREGameWorldComponent.KEY.get(player.level());
+                    if (gameWorld.isRole(player, org.agmas.noellesroles.role.ModRoles.MEATBALL)) {
+                        meatballInRange = true;
+                    } else if (gameWorld.isInnocent(player)) {
+                        hasInnocentInRange = true;
+                    }
+                }
+            }
+
             int count = 0;
             for (var entity : hitted_players) {
                 if (entity instanceof Player player) {
+                    // 肉汁独处保护：范围内同时有肉汁和好人时，跳过肉汁的击杀
+                    if (meatballInRange && hasInnocentInRange) {
+                        var gameWorld = io.wifi.starrailexpress.cca.SREGameWorldComponent.KEY.get(player.level());
+                        if (gameWorld.isRole(player, org.agmas.noellesroles.role.ModRoles.MEATBALL)) {
+                            if (player instanceof net.minecraft.server.level.ServerPlayer sp) {
+                                sp.displayClientMessage(
+                                        net.minecraft.network.chat.Component.translatable("message.noellesroles.meatball.protected")
+                                                .withStyle(net.minecraft.ChatFormatting.GREEN),
+                                        true);
+                            }
+                            continue;
+                        }
+                    }
                     GameUtils.killPlayer(player, true,
                             this.getOwner() instanceof Player playerEntity ? playerEntity : null,
                             GameConstants.DeathReasons.GRENADE);

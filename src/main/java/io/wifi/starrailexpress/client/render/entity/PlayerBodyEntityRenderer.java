@@ -8,6 +8,7 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.model.TMMModelLayers;
 import io.wifi.starrailexpress.client.model.entity.PlayerSkeletonEntityModel;
+import io.wifi.starrailexpress.client.util.ClientSkinCache;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.event.OnGettingPlayerSkin;
 import io.wifi.starrailexpress.game.GameConstants;
@@ -200,7 +201,7 @@ public class PlayerBodyEntityRenderer<T extends LivingEntity, M extends EntityMo
 
     @Override
     public ResourceLocation getTextureLocation(PlayerBodyEntity playerBodyEntity) {
-        PlayerInfo playerListEntry = SREClient.PLAYER_ENTRIES_CACHE.get(playerBodyEntity.getPlayerUuid());
+        PlayerInfo playerListEntry = ClientSkinCache.getCachedPlayerInfo(playerBodyEntity.getPlayerUuid());
         if (SREClient.getLooseEndPenalty()) {
             PlayerSkin.Model model = playerListEntry.getSkin().model();
             boolean isSLIM = (model == PlayerSkin.Model.SLIM);

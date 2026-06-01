@@ -81,16 +81,16 @@ import org.agmas.noellesroles.events.OnShopPurchase;
 import org.agmas.noellesroles.game.modes.ChairWheelRaceGame;
 import org.agmas.noellesroles.game.modifier.NRModifiers;
 import org.agmas.noellesroles.game.modifier.expedition.ExpeditionComponent;
-import org.agmas.noellesroles.game.roles.Innocent.avenger.AvengerPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.awesome_binglus.AwesomePlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.boxer.BoxerPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.broadcaster.BroadcasterPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.fool.TarotAssemblyManager;
-import org.agmas.noellesroles.game.roles.Innocent.fortuneteller.FortunetellerPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.glitch_robot.GlitchRobotPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.hoan_meirin.HoanMeirinFistPunchHandler;
-import org.agmas.noellesroles.game.roles.Innocent.veteran.VeteranKnifeHandler;
-import org.agmas.noellesroles.game.roles.Innocent.voodoo.VoodooDeathHandler;
+import org.agmas.noellesroles.game.roles.innocent.avenger.AvengerPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.awesome_binglus.AwesomePlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.boxer.BoxerPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.broadcaster.BroadcasterPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.fool.TarotAssemblyManager;
+import org.agmas.noellesroles.game.roles.innocent.fortuneteller.FortunetellerPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.glitch_robot.GlitchRobotPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.hoan_meirin.HoanMeirinFistPunchHandler;
+import org.agmas.noellesroles.game.roles.innocent.veteran.VeteranKnifeHandler;
+import org.agmas.noellesroles.game.roles.innocent.voodoo.VoodooDeathHandler;
 import org.agmas.noellesroles.game.roles.killer.conspirator.ConspiratorKilledPlayer;
 import org.agmas.noellesroles.game.roles.vigilante.guard.GuardPlayerHandler;
 import org.agmas.noellesroles.game.roles.killer.executioner.ExecutionerPlayerComponent;
@@ -647,7 +647,9 @@ public class ModEventsRegister {
                 return true;
             }
 
-            // 检查附近4格范围内（y轴3格）是否有其他好人
+            // 肉汁独处判定：
+            // 规则：规定范围内只存在杀手或中立时，肉汁被判定为「独处」，允许击杀
+            //       范围内只要存在至少一个好人，无论是否有杀手/中立同时存在，肉汁就不算独处，阻止击杀
             double safeDistanceSq = 4.0 * 4.0; // 水平4格距离平方
             double safeHeightSq = 3.0 * 3.0; // y轴3格距离平方
 
@@ -659,16 +661,16 @@ public class ModEventsRegister {
                     continue;
                 }
 
-                // 检查是否是好人阵营
-                if (gameWorld.isInnocent(nearbyPlayer)) {
-                    double dx = nearbyPlayer.getX() - victim.getX();
-                    double dy = nearbyPlayer.getY() - victim.getY();
-                    double dz = nearbyPlayer.getZ() - victim.getZ();
+                double dx = nearbyPlayer.getX() - victim.getX();
+                double dy = nearbyPlayer.getY() - victim.getY();
+                double dz = nearbyPlayer.getZ() - victim.getZ();
 
-                    // 检查是否在范围内（水平4格，y轴3格）
-                    double horizontalDistSq = dx * dx + dz * dz;
-                    if (horizontalDistSq <= safeDistanceSq && dy * dy <= safeHeightSq) {
-                        // 附近有好人在保护范围内，阻止击杀
+                double horizontalDistSq = dx * dx + dz * dz;
+                // 先判断此人是否在保护范围内
+                if (horizontalDistSq <= safeDistanceSq && dy * dy <= safeHeightSq) {
+                    // 范围内有人 —— 看其阵营
+                    if (gameWorld.isInnocent(nearbyPlayer)) {
+                        // 范围内有好人 → 不独处，阻止击杀（保护肉汁）
                         if (victim instanceof ServerPlayer sp) {
                             sp.displayClientMessage(
                                     Component.translatable("message.noellesroles.meatball.protected")
@@ -677,9 +679,11 @@ public class ModEventsRegister {
                         }
                         return false;
                     }
+                    // 此人是杀手/中立 —— 不构成保护，继续检查其他玩家
                 }
             }
 
+            // 循环结束仍未触发保护 → 范围内不存在好人（只存在杀手/中立）→ 独处 → 允许击杀
             return true;
         });
         THEventHandler.registerEvents();
@@ -907,14 +911,14 @@ public class ModEventsRegister {
         });
         AfterShieldAllowPlayerDeath.EVENT.register((victim, deathReason) -> {
             if (victim.level() instanceof ServerLevel serverLevel) {
-                org.agmas.noellesroles.game.roles.Innocent.fool.TarotAssemblyManager.clearTrackedTarget(serverLevel,
+                org.agmas.noellesroles.game.roles.innocent.fool.TarotAssemblyManager.clearTrackedTarget(serverLevel,
                         victim.getUUID());
             }
             return true;
         });
         AfterShieldAllowPlayerDeathWithKiller.EVENT.register((victim, killer, deathReason) -> {
             if (victim.level() instanceof ServerLevel serverLevel) {
-                org.agmas.noellesroles.game.roles.Innocent.fool.TarotAssemblyManager.clearTrackedTarget(serverLevel,
+                org.agmas.noellesroles.game.roles.innocent.fool.TarotAssemblyManager.clearTrackedTarget(serverLevel,
                         victim.getUUID());
             }
             return true;
@@ -954,12 +958,12 @@ public class ModEventsRegister {
             org.agmas.noellesroles.game.roles.neutral.infected.InfectedWinChecker.resetAcceleratedState();
             // 清除所有建筑师的客户端墙
             for (ServerPlayer player : world.players()) {
-                org.agmas.noellesroles.game.roles.Innocent.builder.BuilderPlayerComponent builderComp = org.agmas.noellesroles.component.ModComponents.BUILDER
+                org.agmas.noellesroles.game.roles.innocent.builder.BuilderPlayerComponent builderComp = org.agmas.noellesroles.component.ModComponents.BUILDER
                         .get(player);
                 builderComp.clearAllWalls();
             }
             // 清除全局墙位置注册表
-            org.agmas.noellesroles.game.roles.Innocent.builder.BuilderWallPositions.clearAll();
+            org.agmas.noellesroles.game.roles.innocent.builder.BuilderWallPositions.clearAll();
             // 清除所有肉汁的悬赏
             for (ServerPlayer player : world.players()) {
                 org.agmas.noellesroles.component.ModComponents.MEATBALL.get(player).init();
@@ -1587,7 +1591,7 @@ public class ModEventsRegister {
             HallucinationAreaManager.tick();
             ServerLevel level = server.overworld();
             {
-                org.agmas.noellesroles.game.roles.Innocent.fool.TarotAssemblyManager.serverLevelTick(level);
+                org.agmas.noellesroles.game.roles.innocent.fool.TarotAssemblyManager.serverLevelTick(level);
             }
             {
                 if (server.getTickCount() % 10 == 0) {

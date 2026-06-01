@@ -110,7 +110,7 @@ public class ShadowFalconPlayerComponent implements RoleComponent, ServerTicking
     }
 
     /**
-     * 使用掠食技能（浮空时给盾）
+     * 使用掠食技能（浮空时给盾 + 开启创造模式飞行）
      * 
      * @return 是否成功使用
      */
@@ -140,6 +140,11 @@ public class ShadowFalconPlayerComponent implements RoleComponent, ServerTicking
                     false,
                     false
             ));
+            
+            // 开启创造模式飞行能力
+            serverPlayer.getAbilities().mayfly = true;
+            serverPlayer.getAbilities().flying = true;
+            serverPlayer.onUpdateAbilities();
         }
 
         // 设置状态
@@ -373,9 +378,14 @@ public class ShadowFalconPlayerComponent implements RoleComponent, ServerTicking
     private void endPredation() {
         this.isPredationActive = false;
         
-        // 清除虚弱效果
+        // 清除虚弱效果和创造模式飞行
         if (player instanceof ServerPlayer serverPlayer) {
             player.removeEffect(MobEffects.WEAKNESS);
+            
+            // 关闭创造模式飞行能力
+            serverPlayer.getAbilities().mayfly = false;
+            serverPlayer.getAbilities().flying = false;
+            serverPlayer.onUpdateAbilities();
             
             // 如果护盾还在，移除护盾
             if (temporaryShield > 0 && !shieldBroken) {

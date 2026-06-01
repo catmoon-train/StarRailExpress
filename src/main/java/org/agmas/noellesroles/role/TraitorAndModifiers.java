@@ -40,6 +40,7 @@ import org.agmas.noellesroles.packet.BroadcastMessageS2CPacket;
 import org.agmas.noellesroles.utils.RoleUtils;
 import pro.fazeclan.river.stupid_express.StupidExpress;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
+import pro.fazeclan.river.stupid_express.modifier.lovers.cca.LoversComponent;
 
 import java.awt.*;
 import java.util.*;
@@ -444,6 +445,9 @@ public class TraitorAndModifiers {
             
             WorldModifierComponent modifiers = WorldModifierComponent.KEY.get(player.level());
             if (modifiers.isModifier(player.getUUID(), REBEL)) {
+                // 如果是殉情（恋人修饰符），不触发起义军
+                if (LoversComponent.KEY.get(player).isLover()) return true;
+
                 // 检查杀手是否是平民阵营（误杀）
                 if (gameWorld.isInnocent(killer)) {
                     // 标记为已触发
@@ -542,6 +546,9 @@ public class TraitorAndModifiers {
             // 检查被击杀者是否是起义军玩家
             WorldModifierComponent modifiers = WorldModifierComponent.KEY.get(victim.level());
             if (modifiers != null && modifiers.isModifier(victim.getUUID(), REBEL)) {
+                // 如果是殉情（恋人修饰符），不起义军惩罚
+                if (LoversComponent.KEY.get(victim).isLover()) return;
+
                 // 检查击杀者是否是平民阵营
                 if (gameWorld.isInnocent(killer)) {
                     // 使用误杀平民的死亡原因

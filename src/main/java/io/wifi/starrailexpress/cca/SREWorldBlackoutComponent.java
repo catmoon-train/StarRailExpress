@@ -98,7 +98,7 @@ public class SREWorldBlackoutComponent implements ServerTickingComponent {
                     if (GameUtils.isPlayerAliveAndSurvival(player)) {
                         final var role = SREGameWorldComponent.KEY.get(world).getRole(player);
                         if (role != null) {
-                            if ((!role.canUseKiller() && !role.isNeutralForKiller() && !role.canIgnoreBlackout())) {
+                            if ((!role.canUseKiller() && !role.isNeutralForKiller() && !role.canIgnoreBlackout(player))) {
                                 player.addEffect(
                                         new MobEffectInstance(MobEffects.BLINDNESS, 200, 0, false, false, false));
                                 player.addEffect(

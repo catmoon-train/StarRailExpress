@@ -104,6 +104,9 @@ public final class GKeyRoleSkill {
             return true;
         });
         register(ModRoles.CREEPER, true, (client, gameWorld) -> {
+            if (!GameUtils.isPlayerAliveAndSurvival(client.player)) {
+                return true;
+            }
             ClientPlayNetworking.send(new org.agmas.noellesroles.packet.CreeperAbilityC2SPacket());
             return true;
         });

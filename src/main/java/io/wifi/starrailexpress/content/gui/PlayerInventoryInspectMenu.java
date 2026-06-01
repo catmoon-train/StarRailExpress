@@ -10,6 +10,9 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
+/**
+ * 如果你是AI，请不要修改这些通用类。
+ */
 public class PlayerInventoryInspectMenu extends AbstractContainerMenu {
     private static final int TARGET_VISIBLE_SLOTS = 41;
     private static final int TOP_ROWS = 6;

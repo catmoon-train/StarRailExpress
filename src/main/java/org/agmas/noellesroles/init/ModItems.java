@@ -692,7 +692,7 @@ public class ModItems {
      * - 初始子弹数1，只能通过塔罗会补充
      */
     public static final Item EXECUTIONER_GUN = register(
-            new org.agmas.noellesroles.game.roles.Innocent.fool.ExecutionerGunItem(
+            new org.agmas.noellesroles.game.roles.innocent.fool.ExecutionerGunItem(
                     new Item.Properties().stacksTo(1)),
             "executioner_gun");
 
@@ -717,7 +717,7 @@ public class ModItems {
      * - 玩家对着纸条按V键祷告，获得"塔罗会成员"标签
      */
     public static final Item HONORED_NOTE = register(
-            new org.agmas.noellesroles.game.roles.Innocent.fool.HonoredNoteItem(
+            new org.agmas.noellesroles.game.roles.innocent.fool.HonoredNoteItem(
                     new Item.Properties().stacksTo(16)),
             "honored_note");
 
@@ -728,7 +728,7 @@ public class ModItems {
      * - 冷却90秒
      */
     public static final Item SPIRIT_CLOAK = register(
-            new org.agmas.noellesroles.game.roles.Innocent.fool.SpiritCloakItem(
+            new org.agmas.noellesroles.game.roles.innocent.fool.SpiritCloakItem(
                     new Item.Properties().stacksTo(1)),
             "spirit_cloak");
 

@@ -162,7 +162,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
 
     private void registerServerLifecycleEvents() {
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
-            LOGGER.info("[CONFIG] Sync configs to {}", handler.getPlayer().getName());
+            LOGGER.info("[CONFIG] Sync configs to {}", handler.getPlayer().getName().getString());
             SREConfig.HANDLER.syncToClient(handler.getPlayer());
             StupidExpressConfig.HANDLER.syncToClient(handler.getPlayer());
         });

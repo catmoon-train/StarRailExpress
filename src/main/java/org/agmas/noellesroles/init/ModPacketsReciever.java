@@ -50,10 +50,10 @@ import org.agmas.noellesroles.content.item.ThrowingKnife;
 import org.agmas.noellesroles.content.item.ZeroOneFiveShootPayload;
 import org.agmas.noellesroles.events.OnVendingMachinesBuyItems;
 import org.agmas.noellesroles.packet.ShortShotgunEquipPayload;
-import org.agmas.noellesroles.game.roles.Innocent.broadcaster.BroadcasterPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.monitor.MonitorPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.pilot.PilotPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.voodoo.VoodooPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.broadcaster.BroadcasterPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.monitor.MonitorPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.pilot.PilotPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.voodoo.VoodooPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.creeper.CreeperPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.executioner.ExecutionerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.insane_killer.InsaneKillerPlayerComponent;
@@ -65,7 +65,7 @@ import org.agmas.noellesroles.game.roles.killer.stalker.StalkerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.swapper.SwapperPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.shadow_falcon.ShadowFalconPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.vulture.VulturePlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.mortician.MorticianPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.mortician.MorticianBodyMakerPlayerComponent;
 import org.agmas.noellesroles.packet.*;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.RedHouseRoles;
@@ -908,7 +908,7 @@ public class ModPacketsReciever {
 
     // V键祷告/加入会议
     ServerPlayNetworking.registerGlobalReceiver(
-        org.agmas.noellesroles.game.roles.Innocent.fool.FoolPrayerC2SPacket.ID,
+        org.agmas.noellesroles.game.roles.innocent.fool.FoolPrayerC2SPacket.ID,
         (payload, context) -> {
           if (context.player().hasEffect(ModEffects.SAFE_TIME))// 安全时间
             return;
@@ -919,23 +919,23 @@ public class ModPacketsReciever {
           if (!gameWorldComponent.isSkillAvailable)
             return;
 
-          org.agmas.noellesroles.game.roles.Innocent.fool.PrayerHandler.startPrayer(player);
+          org.agmas.noellesroles.game.roles.innocent.fool.PrayerHandler.startPrayer(player);
         });
 
     // 退出塔罗会
     ServerPlayNetworking.registerGlobalReceiver(
-        org.agmas.noellesroles.game.roles.Innocent.fool.FoolLeaveMeetingC2SPacket.ID,
+        org.agmas.noellesroles.game.roles.innocent.fool.FoolLeaveMeetingC2SPacket.ID,
         (payload, context) -> {
           ServerPlayer player = context.player();
-          org.agmas.noellesroles.game.roles.Innocent.fool.TarotAssemblyManager.memberLeaveMeeting(player);
+          org.agmas.noellesroles.game.roles.innocent.fool.TarotAssemblyManager.memberLeaveMeeting(player);
         });
 
     // 塔罗会投票
     ServerPlayNetworking.registerGlobalReceiver(
-        org.agmas.noellesroles.game.roles.Innocent.fool.FoolTarotVoteC2SPacket.ID,
+        org.agmas.noellesroles.game.roles.innocent.fool.FoolTarotVoteC2SPacket.ID,
         (payload, context) -> {
           ServerPlayer player = context.player();
-          org.agmas.noellesroles.game.roles.Innocent.fool.TarotAssemblyManager.submitVote(player, payload.votedFor());
+          org.agmas.noellesroles.game.roles.innocent.fool.TarotAssemblyManager.submitVote(player, payload.votedFor());
         });
 
     // 短管霰弹枪装备音效包处理
@@ -963,7 +963,7 @@ public class ModPacketsReciever {
       }
 
       if (gameWorldComponent.isRole(player, ModRoles.BUILDER)) {
-        org.agmas.noellesroles.game.roles.Innocent.builder.BuilderPlayerComponent builderComponent =
+        org.agmas.noellesroles.game.roles.innocent.builder.BuilderPlayerComponent builderComponent =
             org.agmas.noellesroles.component.ModComponents.BUILDER.get(player);
 
         // 蹲下按技能键切换模式（不受冷却影响）
@@ -994,7 +994,7 @@ public class ModPacketsReciever {
       }
 
       if (gameWorldComponent.isRole(player, ModRoles.MORTICIAN_BODYMAKER)) {
-        MorticianPlayerComponent morticianComponent = MorticianPlayerComponent.KEY.get(player);
+        MorticianBodyMakerPlayerComponent morticianComponent = MorticianBodyMakerPlayerComponent.KEY.get(player);
         if (morticianComponent != null) {
           morticianComponent.toggleMode();
         }
@@ -1007,12 +1007,12 @@ public class ModPacketsReciever {
       SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
 
       if (gameWorldComponent.isRole(player, ModRoles.MORTICIAN_BODYMAKER)) {
-        MorticianPlayerComponent morticianComponent = MorticianPlayerComponent.KEY.get(player);
+        MorticianBodyMakerPlayerComponent morticianComponent = MorticianBodyMakerPlayerComponent.KEY.get(player);
         if (morticianComponent == null) return;
         
         // 安全时间内直接进入造尸冷却（必须在isSkillAvailable判断之前）
         if (context.player().hasEffect(ModEffects.SAFE_TIME)) {
-          morticianComponent.bodyCreationCooldown = MorticianPlayerComponent.BODY_CREATION_COOLDOWN;
+          morticianComponent.bodyCreationCooldown = MorticianBodyMakerPlayerComponent.BODY_CREATION_COOLDOWN;
           morticianComponent.sync();
           return;
         }

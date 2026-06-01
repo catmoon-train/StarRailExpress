@@ -213,7 +213,7 @@ public class GameUtilsCommand {
                         return 1;
                       }))
                       .then(Commands.literal("prayer").executes((ctx) -> {
-                        org.agmas.noellesroles.game.roles.Innocent.fool.PrayerHandler
+                        org.agmas.noellesroles.game.roles.innocent.fool.PrayerHandler
                             .startPrayer(ctx.getSource().getPlayerOrException());
                         ctx.getSource().sendSuccess(() -> Component.literal("Successfully prayer."), false);
                         return 1;

@@ -99,6 +99,10 @@ public class CreeperPlayerComponent implements RoleComponent, ServerTickingCompo
         if (ignited || !(player instanceof ServerPlayer))
             return false;
 
+        // 死亡或旁观者状态下不允许引燃
+        if (!GameUtils.isPlayerAliveAndSurvival(player))
+            return false;
+
         // 检查金币
         var shopComponent = io.wifi.starrailexpress.cca.SREPlayerShopComponent.KEY.get(player);
         if (shopComponent.balance < 300)

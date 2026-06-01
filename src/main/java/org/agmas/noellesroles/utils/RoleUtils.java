@@ -328,6 +328,7 @@ public class RoleUtils extends MCItemsUtils {
         }
         return Component.translatable("info.screen.roleid." + res.getPath());
     }
+
     public static MutableComponent getRoleDescription(String roleName) {
         var res = ResourceLocation.tryParse(roleName);
         if (res == null) {
@@ -533,6 +534,12 @@ public class RoleUtils extends MCItemsUtils {
     public static Component getTeamName(SRERole role) {
         int roleType = PlayerRoleWeightManager.getRoleType(role);
         return getTeamName(roleType);
+    }
+
+    public static SRERole getPlayerRole(Player player) {
+        if (player == null)
+            return null;
+        return SRERoleWorldComponent.KEY.get(player.level()).getRole(player);
     }
 
     public static boolean isPlayerTheJob(Player player, SRERole role) {

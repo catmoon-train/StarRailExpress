@@ -160,23 +160,23 @@ public class ModPackets {
 
         // 注册愚者网络包
         PayloadTypeRegistry.playC2S().register(
-                org.agmas.noellesroles.game.roles.Innocent.fool.FoolPrayerC2SPacket.ID,
-                org.agmas.noellesroles.game.roles.Innocent.fool.FoolPrayerC2SPacket.CODEC);
+                org.agmas.noellesroles.game.roles.innocent.fool.FoolPrayerC2SPacket.ID,
+                org.agmas.noellesroles.game.roles.innocent.fool.FoolPrayerC2SPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(
-                org.agmas.noellesroles.game.roles.Innocent.fool.FoolLeaveMeetingC2SPacket.ID,
-                org.agmas.noellesroles.game.roles.Innocent.fool.FoolLeaveMeetingC2SPacket.CODEC);
+                org.agmas.noellesroles.game.roles.innocent.fool.FoolLeaveMeetingC2SPacket.ID,
+                org.agmas.noellesroles.game.roles.innocent.fool.FoolLeaveMeetingC2SPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(
-                org.agmas.noellesroles.game.roles.Innocent.fool.FoolTarotVoteC2SPacket.ID,
-                org.agmas.noellesroles.game.roles.Innocent.fool.FoolTarotVoteC2SPacket.CODEC);
+                org.agmas.noellesroles.game.roles.innocent.fool.FoolTarotVoteC2SPacket.ID,
+                org.agmas.noellesroles.game.roles.innocent.fool.FoolTarotVoteC2SPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(
-                org.agmas.noellesroles.game.roles.Innocent.fool.FoolExecutionerGunShootC2SPacket.ID,
-                org.agmas.noellesroles.game.roles.Innocent.fool.FoolExecutionerGunShootC2SPacket.CODEC);
+                org.agmas.noellesroles.game.roles.innocent.fool.FoolExecutionerGunShootC2SPacket.ID,
+                org.agmas.noellesroles.game.roles.innocent.fool.FoolExecutionerGunShootC2SPacket.CODEC);
         PayloadTypeRegistry.playS2C().register(
-                org.agmas.noellesroles.game.roles.Innocent.fool.FoolOpenTarotVoteS2CPacket.ID,
-                org.agmas.noellesroles.game.roles.Innocent.fool.FoolOpenTarotVoteS2CPacket.CODEC);
+                org.agmas.noellesroles.game.roles.innocent.fool.FoolOpenTarotVoteS2CPacket.ID,
+                org.agmas.noellesroles.game.roles.innocent.fool.FoolOpenTarotVoteS2CPacket.CODEC);
         ServerPlayNetworking.registerGlobalReceiver(
-                org.agmas.noellesroles.game.roles.Innocent.fool.FoolExecutionerGunShootC2SPacket.ID,
-                new org.agmas.noellesroles.game.roles.Innocent.fool.FoolExecutionerGunShootC2SPacket.Receiver());
+                org.agmas.noellesroles.game.roles.innocent.fool.FoolExecutionerGunShootC2SPacket.ID,
+                new org.agmas.noellesroles.game.roles.innocent.fool.FoolExecutionerGunShootC2SPacket.Receiver());
 
         // 注册清除血液粒子网络包
         PayloadTypeRegistry.playS2C().register(ClearBloodParticlesS2CPacket.ID, ClearBloodParticlesS2CPacket.CODEC);
