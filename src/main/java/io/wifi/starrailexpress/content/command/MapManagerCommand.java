@@ -140,6 +140,7 @@ public class MapManagerCommand {
                   areas.effect = "";
                   areas.time = 18000;
                   areas.daylightCycle = false;
+                  areas.weatherCycle = false;
                   areas.sync();
                   ctx.getSource().sendSuccess(
                       () -> Component.literal("Created new area configuration")
@@ -174,7 +175,8 @@ public class MapManagerCommand {
                 .then(setGravity())
                 .then(setEffect())
                 .then(setTime())
-                .then(setDaylightCycle()))
+                .then(setDaylightCycle())
+                .then(setWeatherCycle()))
             .then(Commands.literal("get")
                 .requires(source -> source.hasPermission(2))
                 .then(getSpawnPos())
@@ -203,6 +205,7 @@ public class MapManagerCommand {
                 .then(buildGetSimple("effect", a -> a.effect.isEmpty() ? "(none)" : a.effect))
                 .then(buildGetSimple("time", a -> String.valueOf(a.time)))
                 .then(buildGetSimple("daylightCycle", a -> String.valueOf(a.daylightCycle)))
+                .then(buildGetSimple("weatherCycle", a -> String.valueOf(a.weatherCycle)))
                 .then(getDisabledTasks()))
             .then(Commands.literal("remove")
                 .requires(source -> source.hasPermission(3))
@@ -522,6 +525,14 @@ public class MapManagerCommand {
     sendSetFeedback(source, "daylightCycle", String.valueOf(value));
   }
 
+  // 15. weatherCycle
+  private static void setWeatherCycle(CommandSourceStack source, boolean value) {
+    AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
+    areas.weatherCycle = value;
+    areas.sync();
+    sendSetFeedback(source, "weatherCycle", String.valueOf(value));
+  }
+
   // ======================== list 子命令实现 ========================
 
   private static int executeList(CommandSourceStack source) {
@@ -554,6 +565,7 @@ public class MapManagerCommand {
     sb.append("effect: ").append(areas.effect.isEmpty() ? "(none)" : areas.effect).append("\n");
     sb.append("time: ").append(areas.time).append("\n");
     sb.append("daylightCycle: ").append(areas.daylightCycle).append("\n");
+    sb.append("weatherCycle: ").append(areas.weatherCycle).append("\n");
     sb.append("disabledTasks: ").append(formatDisabledTasks(areas.disabledTasks));
     source.sendSuccess(
         () -> Component.literal(sb.toString()).withStyle(style -> style.withColor(ChatFormatting.AQUA)),
@@ -722,6 +734,15 @@ public class MapManagerCommand {
         .then(Commands.argument("value", BoolArgumentType.bool())
             .executes(ctx -> {
               setDaylightCycle(ctx.getSource(), BoolArgumentType.getBool(ctx, "value"));
+              return 1;
+            }));
+  }
+
+  private static LiteralArgumentBuilder<CommandSourceStack> setWeatherCycle() {
+    return Commands.literal("weatherCycle")
+        .then(Commands.argument("value", BoolArgumentType.bool())
+            .executes(ctx -> {
+              setWeatherCycle(ctx.getSource(), BoolArgumentType.getBool(ctx, "value"));
               return 1;
             }));
   }

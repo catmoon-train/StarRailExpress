@@ -61,6 +61,7 @@
   "sre.field.sceneOffsetEnabled": "场景偏移（弃用）",
   "sre.field.snowEnabled": "启用雪花",
   "sre.field.daylightCycle": "启用昼夜循环",
+  "sre.field.weatherCycle": "启用天气循环",
   "sre.field.mustCopy": "强制全复制区域",
   "sre.area.readyArea": "大厅准备区域",
   "sre.area.playArea": "正式游玩区域",

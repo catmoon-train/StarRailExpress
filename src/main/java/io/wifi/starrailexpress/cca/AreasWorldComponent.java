@@ -177,6 +177,9 @@ public class AreasWorldComponent implements AutoSyncedComponent {
     // 昼夜循环配置（默认关闭）
     public boolean daylightCycle = false;
     
+    // 天气循环配置（默认关闭）
+    public boolean weatherCycle = false;
+    
     public boolean mustCopy = false;
 
     // 支持的游戏模式列表，为空表示支持所有模式
@@ -386,6 +389,7 @@ public class AreasWorldComponent implements AutoSyncedComponent {
         this.effect = tag.contains("effect") ? tag.getString("effect") : "";
         this.time = tag.contains("time") ? tag.getLong("time") : 18000;
         this.daylightCycle = tag.contains("daylightCycle") ? tag.getBoolean("daylightCycle") : false;
+        this.weatherCycle = tag.contains("weatherCycle") ? tag.getBoolean("weatherCycle") : false;
         // this.playAreaOffset = getVec3dFromNbt(tag, "playAreaOffset");
         // this.playArea = getBoxFromNbt(tag, "playArea");
         //
@@ -450,6 +454,7 @@ public class AreasWorldComponent implements AutoSyncedComponent {
         tag.putString("effect", this.effect);
         tag.putLong("time", this.time);
         tag.putBoolean("daylightCycle", this.daylightCycle);
+        tag.putBoolean("weatherCycle", this.weatherCycle);
 
         // 房间位置需要写入NBT（如果实现此功能）
         // 这里暂时不实现，因为NBT格式可能需要专门处理Map类型

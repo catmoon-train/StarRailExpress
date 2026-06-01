@@ -219,6 +219,9 @@ public class MapManager {
         // 保存昼夜循环配置
         jsonObject.addProperty("daylightCycle", areas.daylightCycle);
 
+        // 保存天气循环配置
+        jsonObject.addProperty("weatherCycle", areas.weatherCycle);
+
         // 写入文件
         FileWriter writer = new FileWriter(mapConfigFile);
         prettyGson.toJson(jsonObject, writer);
@@ -357,6 +360,14 @@ public class MapManager {
                 SRE.LOGGER.info("Loaded daylightCycle: " + areas.daylightCycle);
             } else {
                 areas.daylightCycle = false;
+            }
+
+            // 加载天气循环配置（默认关闭）
+            if (jsonObject.has("weatherCycle")) {
+                areas.weatherCycle = jsonObject.get("weatherCycle").getAsBoolean();
+                SRE.LOGGER.info("Loaded weatherCycle: " + areas.weatherCycle);
+            } else {
+                areas.weatherCycle = false;
             }
 
             // 应用配置到AreasWorldComponent，使用新的嵌套结构

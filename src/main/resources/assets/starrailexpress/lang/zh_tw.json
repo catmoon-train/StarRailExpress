@@ -61,6 +61,7 @@
   "sre.field.sceneOffsetEnabled": "場景偏移（棄用）",
   "sre.field.snowEnabled": "啟用雪花",
   "sre.field.daylightCycle": "啟用晝夜循環",
+  "sre.field.weatherCycle": "啟用天氣循環",
   "sre.field.mustCopy": "強制全複製區域",
   "sre.area.readyArea": "大廳準備區域",
   "sre.area.playArea": "正式遊玩區域",

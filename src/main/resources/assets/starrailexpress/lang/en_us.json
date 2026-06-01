@@ -61,6 +61,7 @@
   "sre.field.sceneOffsetEnabled": "Scene Offset (Deprecated)",
   "sre.field.snowEnabled": "Enable Snowflake",
   "sre.field.daylightCycle": "Enable Daylight Cycle",
+  "sre.field.weatherCycle": "Enable Weather Cycle",
   "sre.field.mustCopy": "Force Full Copy Area",
   "sre.area.readyArea": "Lobby Ready Area",
   "sre.area.playArea": "Gameplay Area",

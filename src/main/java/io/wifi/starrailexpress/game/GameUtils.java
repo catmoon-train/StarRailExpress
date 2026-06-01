@@ -214,6 +214,9 @@ public class GameUtils {
         AreasWorldComponent areas = AreasWorldComponent.KEY.get(world);
         if (areas.mapName == null) {
             MapManager.loadRandomMap(world);
+        } else {
+            // 重新加载当前地图配置，确保获取最新配置
+            MapManager.loadMap(world, areas.mapName);
         }
         MapResetManager.loadArea(world);
         if (areas.noReset) {
@@ -531,18 +534,20 @@ public class GameUtils {
         gameComponent.resetDrawnCategories();
         serverWorld.setDayTime(areas.time);
         serverWorld.getGameRules().getRule(GameRules.RULE_KEEPINVENTORY).set(true, serverWorld.getServer());
-        serverWorld.getGameRules().getRule(GameRules.RULE_WEATHER_CYCLE).set(false, serverWorld.getServer());
+        // 天气循环配置 - 默认关闭
+        serverWorld.getGameRules().getRule(GameRules.RULE_WEATHER_CYCLE).set(areas.weatherCycle,
+                serverWorld.getServer());
 
         // 应用地图天气配置
         switch (areas.weather) {
             case "rain":
-                serverWorld.setWeatherParameters(0, 6000, true, false);
+                serverWorld.setWeatherParameters(0, 120000, true, false);
                 break;
             case "thunder":
-                serverWorld.setWeatherParameters(0, 6000, true, true);
+                serverWorld.setWeatherParameters(0, 120000, true, true);
                 break;
             default: // clear
-                serverWorld.setWeatherParameters(6000, 0, false, false);
+                serverWorld.setWeatherParameters(120000, 0, false, false);
                 break;
         }
 
@@ -780,6 +785,7 @@ public class GameUtils {
 
         world.setDayTime(Level.TICKS_PER_DAY / 2);
         world.getGameRules().getRule(GameRules.RULE_DAYLIGHT).set(false, world.getServer());
+        world.getGameRules().getRule(GameRules.RULE_WEATHER_CYCLE).set(false, world.getServer());
         gameComponent.getGameMode().finalizeGame(world, gameComponent);
 
         OnGameEnd.EVENT.invoker().onGameEnd(world, gameComponent);

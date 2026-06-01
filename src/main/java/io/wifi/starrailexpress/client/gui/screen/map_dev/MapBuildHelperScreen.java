@@ -397,6 +397,24 @@ public class MapBuildHelperScreen extends Screen {
                 .accentBar(AccentSide.RIGHT)
                 .build();
         addTabWidget(tabWidgets4, daylightDisableBtn);
+
+        // 第7行：天气循环开关
+        final int row7 = startY + 7 * (bh + gap);
+        ModernButton weatherCycleEnableBtn = ModernButton.builder(
+                Component.translatable("sre.map_helper.set_true", Component.translatable("sre.field.weatherCycle")),
+                b -> sendOnly("sre:area_manager set weatherCycle true"))
+                .bounds(panelLeftX + 6, row7, bw, bh)
+                .accentBar(AccentSide.LEFT)
+                .build();
+        addTabWidget(tabWidgets4, weatherCycleEnableBtn);
+
+        ModernButton weatherCycleDisableBtn = ModernButton.builder(
+                Component.translatable("sre.map_helper.set_false", Component.translatable("sre.field.weatherCycle")),
+                b -> sendOnly("sre:area_manager set weatherCycle false"))
+                .bounds(panelLeftX + 6 + bw + gap, row7, bw, bh)
+                .accentBar(AccentSide.RIGHT)
+                .build();
+        addTabWidget(tabWidgets4, weatherCycleDisableBtn);
     }
 
     // ── 偏移量行 ─────────────────────────────────────────────────────
