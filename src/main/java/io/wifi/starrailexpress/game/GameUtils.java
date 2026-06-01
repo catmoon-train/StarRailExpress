@@ -704,9 +704,10 @@ public class GameUtils {
         }
 
         // 应用全局药水效果
-        if (!areas.effect.isEmpty()) {
+        for (String effectStr : areas.effect) {
+            if (effectStr.isEmpty()) continue;
             try {
-                String[] parts = areas.effect.split(",");
+                String[] parts = effectStr.split(",");
                 if (parts.length >= 1) {
                     ResourceLocation effectId = ResourceLocation.parse(parts[0]);
                     int level = parts.length >= 2 ? Integer.parseInt(parts[1]) : 0;
@@ -716,13 +717,13 @@ public class GameUtils {
                             player.addEffect(new MobEffectInstance(
                                     effectHolder, Integer.MAX_VALUE, level, true, false, false));
                         }
-                        SRE.LOGGER.info("Applied global effect: " + areas.effect);
+                        SRE.LOGGER.info("Applied global effect: " + effectStr);
                     } else {
                         SRE.LOGGER.warn("Unknown effect: " + effectId);
                     }
                 }
             } catch (Exception e) {
-                SRE.LOGGER.error("Failed to apply effect: " + areas.effect, e);
+                SRE.LOGGER.error("Failed to apply effect: " + effectStr, e);
             }
         }
     }
@@ -820,9 +821,10 @@ public class GameUtils {
             }
             // 清除全局药水效果
             AreasWorldComponent areas = AreasWorldComponent.KEY.get(world);
-            if (!areas.effect.isEmpty()) {
+            for (String effectStr : areas.effect) {
+                if (effectStr.isEmpty()) continue;
                 try {
-                    String[] parts = areas.effect.split(",");
+                    String[] parts = effectStr.split(",");
                     if (parts.length >= 1) {
                         ResourceLocation effectId = ResourceLocation.parse(parts[0]);
                         var effectHolder = BuiltInRegistries.MOB_EFFECT.getHolder(effectId).orElse(null);

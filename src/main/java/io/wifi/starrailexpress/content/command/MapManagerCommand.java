@@ -137,7 +137,7 @@ public class MapManagerCommand {
                   areas.sceneOffsetZ = 0;
                   areas.weather = "clear";
                   areas.gravity = 0.08;
-                  areas.effect = "";
+                  areas.effect = new java.util.ArrayList<>();
                   areas.time = 18000;
                   areas.daylightCycle = false;
                   areas.weatherCycle = false;
@@ -202,7 +202,7 @@ public class MapManagerCommand {
                 .then(buildGetSimple("mapName", a -> "\"" + a.mapName + "\""))
                 .then(buildGetSimple("weather", a -> a.weather))
                 .then(buildGetSimple("gravity", a -> String.valueOf(a.gravity)))
-                .then(buildGetSimple("effect", a -> a.effect.isEmpty() ? "(none)" : a.effect))
+                .then(buildGetSimple("effect", a -> a.effect.isEmpty() ? "(none)" : String.join(", ", a.effect)))
                 .then(buildGetSimple("time", a -> String.valueOf(a.time)))
                 .then(buildGetSimple("daylightCycle", a -> String.valueOf(a.daylightCycle)))
                 .then(buildGetSimple("weatherCycle", a -> String.valueOf(a.weatherCycle)))
@@ -504,7 +504,12 @@ public class MapManagerCommand {
   // 12. effect
   private static void setEffect(CommandSourceStack source, String value) {
     AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
-    areas.effect = value;
+    areas.effect = new java.util.ArrayList<>();
+    if (!value.isEmpty()) {
+        // 支持逗号分隔的多个效果，如 "minecraft:speed,2,minecraft:jump_boost,1"
+        // 这里简单地把整个 value 当作单个效果
+        areas.effect.add(value);
+    }
     areas.sync();
     sendSetFeedback(source, "effect", "\"" + value + "\"");
   }
@@ -562,7 +567,7 @@ public class MapManagerCommand {
     sb.append("mapName: \"").append(areas.mapName).append("\"\n");
     sb.append("weather: ").append(areas.weather).append("\n");
     sb.append("gravity: ").append(areas.gravity).append("\n");
-    sb.append("effect: ").append(areas.effect.isEmpty() ? "(none)" : areas.effect).append("\n");
+    sb.append("effect: ").append(areas.effect.isEmpty() ? "(none)" : String.join(", ", areas.effect)).append("\n");
     sb.append("time: ").append(areas.time).append("\n");
     sb.append("daylightCycle: ").append(areas.daylightCycle).append("\n");
     sb.append("weatherCycle: ").append(areas.weatherCycle).append("\n");

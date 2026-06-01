@@ -211,7 +211,7 @@ public class MapManager {
         jsonObject.addProperty("gravity", areas.gravity);
 
         // 保存药水效果配置
-        jsonObject.addProperty("effect", areas.effect);
+        jsonObject.add("effect", gson.toJsonTree(areas.effect));
 
         // 保存时间配置
         jsonObject.addProperty("time", areas.time);
@@ -338,12 +338,22 @@ public class MapManager {
                 areas.gravity = 0.08;
             }
 
-            // 加载药水效果配置（默认空）
+            // 加载药水效果配置（默认空数组）
+            areas.effect = new java.util.ArrayList<>();
             if (jsonObject.has("effect")) {
-                areas.effect = jsonObject.get("effect").getAsString();
+                var effectElement = jsonObject.get("effect");
+                if (effectElement.isJsonArray()) {
+                    for (var e : effectElement.getAsJsonArray()) {
+                        areas.effect.add(e.getAsString());
+                    }
+                } else if (effectElement.isJsonPrimitive()) {
+                    // 兼容旧格式：单个字符串 "namespace:id,level"
+                    String oldFormat = effectElement.getAsString();
+                    if (!oldFormat.isEmpty()) {
+                        areas.effect.add(oldFormat);
+                    }
+                }
                 SRE.LOGGER.info("Loaded effect: " + areas.effect);
-            } else {
-                areas.effect = "";
             }
 
             // 加载时间配置（默认午夜 18000）

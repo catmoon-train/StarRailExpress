@@ -31,7 +31,7 @@
   "snowEnabled": false,
   "weather": "clear",
   "gravity": 0.08,
-  "effect": "minecraft:speed,2",
+  "effect": ["minecraft:speed,2", "minecraft:jump_boost,1"],
   "time": 18000,
   "daylightCycle": false,
   "weatherCycle": false,

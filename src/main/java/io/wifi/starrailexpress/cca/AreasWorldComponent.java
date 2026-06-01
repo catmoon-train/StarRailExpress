@@ -26,8 +26,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 
 public class AreasWorldComponent implements AutoSyncedComponent {
@@ -168,8 +170,8 @@ public class AreasWorldComponent implements AutoSyncedComponent {
     // 重力配置（默认0.08）
     public double gravity = 0.08;
     
-    // 药水效果配置（格式："namespace:effect_id,level"，为空则无效果）
-    public String effect = "";
+    // 药水效果配置（格式：["namespace:effect_id,level", ...]，为空数组则无效果）
+    public List<String> effect = new ArrayList<>();
     
     // 时间配置（默认午夜 18000）
     public long time = 18000;
@@ -386,7 +388,13 @@ public class AreasWorldComponent implements AutoSyncedComponent {
         this.sceneOffsetZ = tag.contains("sceneOffsetZ") ? tag.getDouble("sceneOffsetZ") : 0;
         this.weather = tag.contains("weather") ? tag.getString("weather") : "clear";
         this.gravity = tag.contains("gravity") ? tag.getDouble("gravity") : 0.08;
-        this.effect = tag.contains("effect") ? tag.getString("effect") : "";
+        this.effect = new ArrayList<>();
+        if (tag.contains("effect")) {
+            var list = tag.getList("effect", net.minecraft.nbt.Tag.TAG_STRING);
+            for (int i = 0; i < list.size(); i++) {
+                this.effect.add(list.getString(i));
+            }
+        }
         this.time = tag.contains("time") ? tag.getLong("time") : 18000;
         this.daylightCycle = tag.contains("daylightCycle") ? tag.getBoolean("daylightCycle") : false;
         this.weatherCycle = tag.contains("weatherCycle") ? tag.getBoolean("weatherCycle") : false;
@@ -451,7 +459,11 @@ public class AreasWorldComponent implements AutoSyncedComponent {
         tag.putDouble("sceneOffsetZ", this.sceneOffsetZ);
         tag.putString("weather", this.weather);
         tag.putDouble("gravity", this.gravity);
-        tag.putString("effect", this.effect);
+        var effectList = new net.minecraft.nbt.ListTag();
+        for (String e : this.effect) {
+            effectList.add(net.minecraft.nbt.StringTag.valueOf(e));
+        }
+        tag.put("effect", effectList);
         tag.putLong("time", this.time);
         tag.putBoolean("daylightCycle", this.daylightCycle);
         tag.putBoolean("weatherCycle", this.weatherCycle);
