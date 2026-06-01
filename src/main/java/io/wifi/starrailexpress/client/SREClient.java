@@ -209,13 +209,11 @@ public class SREClient implements ClientModInitializer {
         // Register particle factories
         TMMParticles.registerFactories();
 
-
         // Entity renderer registration
         EntityRendererRegistry.register(TMMEntities.SEAT, NoopRenderer::new);
         EntityRendererRegistry.register(TMMEntities.FIRECRACKER, FirecrackerEntityRenderer::new);
         EntityRendererRegistry.register(TMMEntities.GRENADE, ThrownItemRenderer::new);
         EntityRendererRegistry.register(TMMEntities.NOTE, NoteEntityRenderer::new);
-
 
         // Register entity model layers
         TMMModelLayers.initialize();
@@ -302,7 +300,6 @@ public class SREClient implements ClientModInitializer {
                 TMMBlockEntities.BEVERAGE_PLATE,
                 PlateBlockEntityRenderer::new);
 
-
         BlockEntityRenderers.register(TMMBlockEntities.HORN, HornBlockEntityRenderer::new);
         BlockEntityRenderers.register(TMMBlockEntities.FOURTH_ROOM_TABLE, FourthRoomTableBlockEntityRenderer::new);
 
@@ -376,11 +373,10 @@ public class SREClient implements ClientModInitializer {
         });
         ItemTooltipCallback.EVENT.register(
                 (itemStack, tooltipContext, tooltipFlag, list) -> {
-                    if (canThrowItems.contains(itemStack.getItem())){
+                    if (canThrowItems.contains(itemStack.getItem())) {
                         list.add(Component.translatable("starrailexpress.tip.can_thrown"));
                     }
-                }
-        );
+                });
         ClientTickEvents.START_WORLD_TICK.register(clientWorld -> {
             if (Minecraft.getInstance() == null || Minecraft.getInstance().player == null) {
                 return;
@@ -439,12 +435,12 @@ public class SREClient implements ClientModInitializer {
                 StaminaRenderer.tick();
             }
 
-//            // 全息展示方块客户端tick
-//            for (var blockEntity : clientWorld.getbl.values()) {
-//                if (blockEntity instanceof HologramDisplayBlockEntity hologramEntity) {
-//                    hologramEntity.clientTick();
-//                }
-//            }
+            // // 全息展示方块客户端tick
+            // for (var blockEntity : clientWorld.getbl.values()) {
+            // if (blockEntity instanceof HologramDisplayBlockEntity hologramEntity) {
+            // hologramEntity.clientTick();
+            // }
+            // }
 
         });
         intervalTime = new Random().nextInt(0, 200);
@@ -1091,5 +1087,13 @@ public class SREClient implements ClientModInitializer {
         if (crosshairPickEntity instanceof Player && ((LocalPlayer) entity).getTicksUsingItem() > 3) {
             ((LocalPlayer) entity).releaseUsingItem();
         }
+    }
+
+    public static boolean isInLobby() {
+        if (Minecraft.getInstance().player == null)
+            return true;
+        if (isInLobby)
+            return true;
+        return false;
     }
 }

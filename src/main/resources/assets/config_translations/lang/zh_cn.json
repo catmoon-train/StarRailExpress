@@ -1,7 +1,7 @@
 {
-  "=== SODIUM-EXTRA 补充===":"",
-  "sodium-extra.option.light_updates":"关照更新 (已被StarRailExpress强制启用)",
-  "sodium-extra.option.light_updates.tooltip":"处理光照更新。无论此选项是否启用，始终都会更新光照。(已被StarRailExpress强制启用)",
+  "=== SODIUM-EXTRA 补充===": "",
+  "sodium-extra.option.light_updates_starrailexpress": "关照更新 (已被StarRailExpress强制启用)",
+  "sodium-extra.option.light_updates_starrailexpress.tooltip": "处理光照更新。无论此选项是否启用，始终都会更新光照。(已被StarRailExpress强制启用)",
   "=== SODIUM补充 ===": "",
   "sodium.options.vignette.name": "屏幕暗角 (影响性能)",
   "sodium.options.vignette.tooltip": "(低配机建议关闭) 开启后，当玩家处于较暗区域时将应用晕影效果，使画面整体变暗，从而营造出更深沉、更具戏剧性的视觉氛围。",
