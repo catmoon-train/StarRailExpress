@@ -32,6 +32,7 @@ public class SREGameModes {
     public static final ResourceLocation DAY_NIGHT_FIGHT_ID = SRE.shortId("day_night_fight");
 
     // Author: canyuesama (catmoon233)
+    public static final ResourceLocation REPAIR_ESCAPE_ID = SRE.canyueId("repair_escape");
     public static final ResourceLocation FOURTH_ROOM_ID = SRE.canyueId("fourth_room");
 
     // Author: xiao_hei_hand
@@ -39,7 +40,6 @@ public class SREGameModes {
     public static final ResourceLocation SNIPER_RIFLE_ID = SRE.xiaoheihandId("sniper_war");
     public static final ResourceLocation EVIL_WAR_MODE_ID = SRE.xiaoheihandId("evil_war");
     public static final ResourceLocation DEVIL_ROULETTE_ID = SRE.xiaoheihandId("devil_roulette");
-    public static final ResourceLocation REPAIR_ESCAPE_ID = SRE.shortId("repair_escape");
     public static final ResourceLocation THIEF_MODE_ID = SRE.xiaoheihandId("thief_mode");
 
     // Role Rotation Mode (haiman)
