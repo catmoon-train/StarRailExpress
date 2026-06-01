@@ -61,10 +61,6 @@ public class SRERoleRotationGameMode extends SREMurderGameMode {
     @Override
     public void initializeGame(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent,
             List<ServerPlayer> players) {
-        // 设置为午夜
-        (io.wifi.starrailexpress.cca.SRETrainWorldComponent.KEY.get(serverWorld))
-                .setTimeOfDay(io.wifi.starrailexpress.cca.SRETrainWorldComponent.TimeOfDay.MIDNIGHT);
-
         // 清除现有角色
         gameWorldComponent.clearRoleMap();
 

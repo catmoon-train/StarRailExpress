@@ -122,8 +122,6 @@ public class ChairWheelRaceGame extends GameMode {
     @Override
     public void initializeGame(ServerLevel serverLevel, SREGameWorldComponent gameWorldComponent,
             List<ServerPlayer> list) {
-        ((SRETrainWorldComponent) SRETrainWorldComponent.KEY.get(serverLevel))
-                .setTimeOfDay(SRETrainWorldComponent.TimeOfDay.DAY);
         isWin.clear();
         gamePrepareTime = 20 * 10;
         executeFunction(serverLevel.getServer().createCommandSourceStack(), "harpymodloader:chair_wheel_race/init");

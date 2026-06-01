@@ -84,8 +84,6 @@ public class SREHideAndSeekGameMode extends SREMurderGameMode {
                 Objects.requireNonNull(p.getAttribute(Attributes.SCALE)).addPermanentModifier(hiderModifier);
             }
         }
-        ((SRETrainWorldComponent) SRETrainWorldComponent.KEY.get(serverWorld))
-                .setTimeOfDay(SRETrainWorldComponent.TimeOfDay.DAY);
     }
 
     public static void assignRole(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent,

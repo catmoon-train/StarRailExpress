@@ -1,35 +1,70 @@
+// ============================================================
+// 地图注册表配置: world/train_vote_maps.json 或 assets/starrailexpress/config/maps.json
+// 定义哪些地图可选，以及注册表中每个地图的元数据
+// ============================================================
 {
-  "mapName": "example_train_map",
-  
+  "maps": [
+    {
+      "id": "example_map",
+      "displayName": "示例地图",
+      "description": "这是一个示例地图",
+      "color": "0xFF4CC9F0",
+      "mincount": -1,
+      "maxcount": -1,
+      "canSelect": true,
+      "gameModes": [],
+      "repair": {}
+    }
+  ]
+}
+
+// ============================================================
+// 地图实例配置: world/train_maps/<mapName>.json
+// 每张地图的具体区域、环境、游戏规则等配置
+// ============================================================
+{
   "canJump": false,
   "canSwim": false,
   "noReset": false,
   "mustCopy": false,
   "haveOutsideSound": false,
-  
-  "snowEnabled": true,
-  
+  "snowEnabled": false,
+  "weather": "clear",
+  "gravity": 0.08,
+  "effect": ["minecraft:speed,2", "minecraft:jump_boost,1"],
+  "time": 18000,
+  "daylightCycle": false,
+  "weatherCycle": false,
+
   "sceneOffset": {
     "enabled": true,
     "x": 0,
     "y": 125,
     "z": 0
   },
-  
+
   "spawnPos": {
     "x": 0.5,
     "y": 100,
     "z": 0.5,
-    "yaw": 0
+    "yaw": 0,
+    "pitch": 0
   },
-  
+
   "spectatorSpawnPos": {
     "x": 0.5,
     "y": 100,
     "z": 0.5,
-    "yaw": 0
+    "yaw": 0,
+    "pitch": 15
   },
-  
+
+  "playAreaOffset": {
+    "x": 0,
+    "y": 0,
+    "z": 0
+  },
+
   "readyArea": {
     "minX": -10,
     "minY": 95,
@@ -38,7 +73,7 @@
     "maxY": 105,
     "maxZ": 10
   },
-  
+
   "playArea": {
     "minX": -50,
     "minY": 90,
@@ -47,7 +82,7 @@
     "maxY": 120,
     "maxZ": 50
   },
-  
+
   "sceneArea": {
     "minX": -50,
     "minY": -30,
@@ -56,7 +91,7 @@
     "maxY": 10,
     "maxZ": 200
   },
-  
+
   "resetTemplateArea": {
     "minX": -50,
     "minY": -30,
@@ -65,7 +100,7 @@
     "maxY": 10,
     "maxZ": 200
   },
-  
+
   "resetPasteArea": {
     "minX": -50,
     "minY": 90,
@@ -74,8 +109,15 @@
     "maxY": 130,
     "maxZ": 200
   },
-  
+
   "roomCount": 1,
-  
-  "gameModes": ["survival"]
+
+  "roomPositions": {
+    "1": { "x": 0, "y": 100, "z": 0 },
+    "2": { "x": 10, "y": 100, "z": 0 }
+  },
+
+  "disabledTasks": ["BREATHE"],
+
+  "gameModes": []
 }

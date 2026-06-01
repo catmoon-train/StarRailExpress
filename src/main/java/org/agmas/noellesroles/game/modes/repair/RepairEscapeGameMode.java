@@ -68,7 +68,22 @@ public class RepairEscapeGameMode extends GameMode {
                 .set(false, serverWorld.getServer());
         serverWorld.getGameRules().getRule(net.minecraft.world.level.GameRules.RULE_DO_TRADER_SPAWNING)
                 .set(false, serverWorld.getServer());
-        serverWorld.setDayTime(13000);
+        // 应用地图配置的时间、天气和昼夜循环
+        var areas = io.wifi.starrailexpress.cca.AreasWorldComponent.KEY.get(serverWorld);
+        serverWorld.setDayTime(areas.time);
+        serverWorld.getGameRules().getRule(net.minecraft.world.level.GameRules.RULE_DAYLIGHT)
+                .set(areas.daylightCycle, serverWorld.getServer());
+        switch (areas.weather) {
+            case "rain":
+                serverWorld.setWeatherParameters(0, 6000, true, false);
+                break;
+            case "thunder":
+                serverWorld.setWeatherParameters(0, 6000, true, true);
+                break;
+            default:
+                serverWorld.setWeatherParameters(6000, 0, false, false);
+                break;
+        }
         serverWorld.getServer().setDifficulty(net.minecraft.world.Difficulty.PEACEFUL, true);
 
         // 将所有玩家设为冒险模式

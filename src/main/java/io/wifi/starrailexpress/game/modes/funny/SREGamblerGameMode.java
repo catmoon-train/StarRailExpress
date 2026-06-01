@@ -44,8 +44,6 @@ public class SREGamblerGameMode extends SREMurderGameMode {
     public void initializeGame(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent,
             List<ServerPlayer> players) {
 
-        (SRETrainWorldComponent.KEY.get(serverWorld))
-                .setTimeOfDay(SRETrainWorldComponent.TimeOfDay.MIDNIGHT);
         gameWorldComponent.clearRoleMap();
 
         int safeTick = SREConfig.instance().gamblerModeGamblerKillTime * 20;

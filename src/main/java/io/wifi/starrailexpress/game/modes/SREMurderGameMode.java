@@ -76,8 +76,6 @@ public class SREMurderGameMode extends GameMode {
 
         Harpymodloader.refreshRoles();
 
-        ((SRETrainWorldComponent) SRETrainWorldComponent.KEY.get(serverWorld))
-                .setTimeOfDay(SRETrainWorldComponent.TimeOfDay.MIDNIGHT);
         gameWorldComponent.clearRoleMap();
 
         // 将所有玩家添加到队伍中
