@@ -1000,7 +1000,7 @@
   "screen.limited_inventory.menu.role_guess": "職業猜測記事本",
   "screen.limited_inventory.menu.modmenu_settings": "模組設置",
   "screen.limited_inventory.menu.mod_settings": "列車模組設置",
-  "screen.limited_inventory.menu.mod_settings_client": "客戶端選項",
+  "screen.limited_inventory.menu.mod_settings_client": "列車客戶端選項",
   "screen.limited_inventory.menu.game_menu": "遊戲管理",
   "=== 遊戲管理UI ===": "",
   "tip.game_manage.send_command": "已發送命令：%s",

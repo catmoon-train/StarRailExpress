@@ -171,10 +171,11 @@ public class PlayerBodyEntityContainer extends SimpleContainer {
      * 检查玩家物品栏中是否已有左轮手枪或巡警手枪
      */
     private boolean hasRevolverInInventory(Player player) {
-        for (var stack : player.getInventory().items) {
-            if (isRevolver(stack)) return true;
+        for (var list : player.getInventory().compartments) {
+            for (var stack : list) {
+                if (isRevolver(stack)) return true;
+            }
         }
-        if (isRevolver(player.getOffhandItem())) return true;
         return false;
     }
 
