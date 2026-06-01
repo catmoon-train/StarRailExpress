@@ -6,7 +6,6 @@ import io.wifi.starrailexpress.cca.SREGameTimeComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.game.GameUtils;
-import io.wifi.starrailexpress.game.modes.WTLooseEndsGameMode;
 import io.wifi.starrailexpress.index.TMMItems;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -40,34 +39,26 @@ import java.util.OptionalInt;
  *  - 保安返厂：死亡的部分玩家复活为保安（根据在场人数），当玩家在60s内进行过偷窃行为则可被击杀，否则会导致小脑
  * </p>
  */
-public class SREThiefWarGameMode extends WTLooseEndsGameMode {
+public class SREThiefWarGameMode extends SREBaseCustomizationGameMode {
+    /**
+     * @param identifier       游戏的id
+     */
     public SREThiefWarGameMode(ResourceLocation identifier) {
-        super(identifier);
+        super(identifier, 10, 2);
     }
-    @Override
-    public boolean isLooseEndMode() {
-        return false;
-    }
+
     @Override
     protected void initItemList() {
-        looseEndsItems.add(TMMItems.CROWBAR::getDefaultInstance);
+        sharedItems.add(TMMItems.CROWBAR::getDefaultInstance);
     }
+
     @Override
     protected void initRoles(List<ServerPlayer> players, SREGameWorldComponent gameWorldComponent) {
         for (ServerPlayer player : players) {
             gameWorldComponent.addRole(player, ModRoles.THIEF);
         }
     }
-    @Override
-    protected void sendWelcomePackets(List<ServerPlayer> players, SREGameWorldComponent gameWorldComponent,
-                                      SRERole role1) {
-        for (ServerPlayer player : players) {
-            var role = gameWorldComponent.getRole(player);
-            if (role == null)
-                continue;
-            RoleUtils.sendWelcomeAnnouncement(player, role.identifier(), 0);
-        }
-    }
+
     @Override
     public void initializeGame(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent,
                                List<ServerPlayer> players) {
