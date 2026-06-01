@@ -661,6 +661,15 @@ public class InitModRolesMax {
                     }
                 }
             }
+            // 小透明地图限制 - 默认在所有地图刷新，只有ghostMaps中配置了地图时才仅在特定地图刷新
+            {
+                var ghostMaps = new ArrayList<>(NoellesRolesConfig.HANDLER.instance().ghostMaps);
+                if (ghostMaps != null && ghostMaps.size() > 0) {
+                    if (!ghostMaps.contains(currentMap)) {
+                        Harpymodloader.setRoleMaximum(ModRoles.GHOST_ID, 0);
+                    }
+                }
+            }
             // WRITER (作家) - 从配置读取概率
             if (random.nextInt(0, 100) <= config.chanceOfWriter) {
                 Harpymodloader.setRoleMaximum(ModRoles.WRITER_ID, 1);

@@ -52,6 +52,12 @@ public class NoellesRolesConfig implements ConfigData {
     public ArrayList<String> cuckooMaps = new ArrayList<>();
 
     /**
+     * Areas that will spawn Ghost (小透明). If empty, Ghost spawns on all maps.
+     * Adding maps here restricts Ghost to only spawn on those maps.
+     */
+    public ArrayList<String> ghostMaps = new ArrayList<>();
+
+    /**
      * Role - The chance of egg roles
      */
 

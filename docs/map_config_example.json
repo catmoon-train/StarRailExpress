@@ -9,6 +9,12 @@
   
   "snowEnabled": true,
   
+  "weather": "clear",
+  "gravity": 0.08,
+  "effect": "",
+  "time": 18000,
+  "daylightCycle": false,
+  
   "sceneOffset": {
     "enabled": true,
     "x": 0,

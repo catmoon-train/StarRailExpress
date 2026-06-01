@@ -204,6 +204,21 @@ public class MapManager {
         // 保存雪花效果配置
         jsonObject.addProperty("snowEnabled", areas.snowEnabled);
 
+        // 保存天气配置
+        jsonObject.addProperty("weather", areas.weather);
+
+        // 保存重力配置
+        jsonObject.addProperty("gravity", areas.gravity);
+
+        // 保存药水效果配置
+        jsonObject.addProperty("effect", areas.effect);
+
+        // 保存时间配置
+        jsonObject.addProperty("time", areas.time);
+
+        // 保存昼夜循环配置
+        jsonObject.addProperty("daylightCycle", areas.daylightCycle);
+
         // 写入文件
         FileWriter writer = new FileWriter(mapConfigFile);
         prettyGson.toJson(jsonObject, writer);
@@ -302,6 +317,46 @@ public class MapManager {
                 areas.sceneOffsetX = 0;
                 areas.sceneOffsetY = 125;
                 areas.sceneOffsetZ = 0;
+            }
+
+            // 加载天气配置（默认晴天）
+            if (jsonObject.has("weather")) {
+                areas.weather = jsonObject.get("weather").getAsString();
+                SRE.LOGGER.info("Loaded weather: " + areas.weather);
+            } else {
+                areas.weather = "clear";
+            }
+
+            // 加载重力配置（默认0.08）
+            if (jsonObject.has("gravity")) {
+                areas.gravity = jsonObject.get("gravity").getAsDouble();
+                SRE.LOGGER.info("Loaded gravity: " + areas.gravity);
+            } else {
+                areas.gravity = 0.08;
+            }
+
+            // 加载药水效果配置（默认空）
+            if (jsonObject.has("effect")) {
+                areas.effect = jsonObject.get("effect").getAsString();
+                SRE.LOGGER.info("Loaded effect: " + areas.effect);
+            } else {
+                areas.effect = "";
+            }
+
+            // 加载时间配置（默认午夜 18000）
+            if (jsonObject.has("time")) {
+                areas.time = jsonObject.get("time").getAsLong();
+                SRE.LOGGER.info("Loaded time: " + areas.time);
+            } else {
+                areas.time = 18000;
+            }
+
+            // 加载昼夜循环配置（默认关闭）
+            if (jsonObject.has("daylightCycle")) {
+                areas.daylightCycle = jsonObject.get("daylightCycle").getAsBoolean();
+                SRE.LOGGER.info("Loaded daylightCycle: " + areas.daylightCycle);
+            } else {
+                areas.daylightCycle = false;
             }
 
             // 应用配置到AreasWorldComponent，使用新的嵌套结构

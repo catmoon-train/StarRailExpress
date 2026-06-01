@@ -210,6 +210,7 @@
   "text.autoconfig.noellesroles.option.underwaterRolesMaps": "會刷新水下角色的地圖（如海王、潛水夫、水鬼）",
   "text.autoconfig.noellesroles.option.konggangMaps": "會刷新飛行角色的地圖（如飛行員、影隼）",
   "text.autoconfig.noellesroles.option.cuckooMaps": "布穀鳥專屬地圖（空則不限制，填了則僅在指定地圖刷新）",
+  "text.autoconfig.noellesroles.option.ghostMaps": "小透明專屬地圖（空則不限制，填了則僅在指定地圖刷新）",
   "text.autoconfig.noellesroles.option.chanceOfTouhouRoles": "東方職業（彩蛋）刷新概率",
   "text.autoconfig.noellesroles.option.chanceOfEggRoles": "彩蛋職業刷新概率",
   "text.autoconfig.noellesroles.option.chanceOfModifierRefugee": "難民詞條概率(%%)",

@@ -36,6 +36,7 @@ public class MapBuildHelperScreen extends Screen {
     private final List<AbstractWidget> tabWidgets1 = new ArrayList<>();
     private final List<AbstractWidget> tabWidgets2 = new ArrayList<>();
     private final List<AbstractWidget> tabWidgets3 = new ArrayList<>(); // 新增：房间选项卡
+    private final List<AbstractWidget> tabWidgets4 = new ArrayList<>(); // 新增：环境选项卡
 
     // 面板居中定位
     private int panelLeftX;
@@ -105,6 +106,7 @@ public class MapBuildHelperScreen extends Screen {
         tabWidgets1.clear();
         tabWidgets2.clear();
         tabWidgets3.clear();
+        tabWidgets4.clear();
 
         final int bw = 158;
         final int gap = 12;
@@ -192,10 +194,14 @@ public class MapBuildHelperScreen extends Screen {
         // ---------- Tab 3: Rooms (新增) ----------
         buildRoomsTab(cy, bw, gap, bh);
 
+        // ---------- Tab 4: Environment (新增) ----------
+        buildEnvironmentTab(cy, bw, gap, bh);
+
         tabWidgets0.forEach(this::addRenderableWidget);
         tabWidgets1.forEach(this::addRenderableWidget);
         tabWidgets2.forEach(this::addRenderableWidget);
         tabWidgets3.forEach(this::addRenderableWidget);
+        tabWidgets4.forEach(this::addRenderableWidget);
         syncTabVisibility();
     }
 
@@ -269,6 +275,130 @@ public class MapBuildHelperScreen extends Screen {
         addTabWidget(tabWidgets3, removeRoomBtn);
     }
 
+    // ── 环境选项卡 UI ────────────────────────────────────────────────
+    private void buildEnvironmentTab(int startY, int bw, int gap, int bh) {
+        final int halfW = (bw - gap) / 2;
+        final int smallH = 18;
+        final int fieldW = 120;
+
+        // 第0行：天气按钮
+        final int row0 = startY;
+        ModernButton weatherClearBtn = ModernButton.builder(
+                Component.translatable("screen.game_manage.btn.weather_clear"),
+                b -> sendOnly("sre:area_manager set weather clear"))
+                .bounds(panelLeftX + 6, row0, bw, bh)
+                .accentBar(AccentSide.LEFT)
+                .build();
+        addTabWidget(tabWidgets4, weatherClearBtn);
+
+        ModernButton weatherRainBtn = ModernButton.builder(
+                Component.translatable("screen.game_manage.btn.weather_rain"),
+                b -> sendOnly("sre:area_manager set weather rain"))
+                .bounds(panelLeftX + 6 + bw + gap, row0, bw, bh)
+                .accentBar(AccentSide.RIGHT)
+                .build();
+        addTabWidget(tabWidgets4, weatherRainBtn);
+
+        // 第1行：雷暴按钮
+        final int row1 = startY + (bh + gap);
+        ModernButton weatherThunderBtn = ModernButton.builder(
+                Component.translatable("screen.game_manage.btn.weather_thunder"),
+                b -> sendOnly("sre:area_manager set weather thunder"))
+                .bounds(panelLeftX + 6, row1, bw, bh)
+                .accentBar(AccentSide.LEFT)
+                .build();
+        addTabWidget(tabWidgets4, weatherThunderBtn);
+
+        // 第2行：重力输入
+        final int row2 = startY + 2 * (bh + gap);
+        EditBox gravityBox = makeField(panelLeftX + 6, row2, fieldW, smallH, "0.08",
+                v -> {});
+        addTabWidget(tabWidgets4, gravityBox);
+
+        ModernButton gravityBtn = ModernButton.builder(
+                Component.translatable("sre.map_helper.set_gravity"),
+                b -> {
+                    String val = gravityBox.getValue().trim();
+                    if (!val.isEmpty())
+                        sendOnly("sre:area_manager set gravity " + val);
+                })
+                .bounds(panelLeftX + 6 + fieldW + gap, row2, bw - fieldW - gap + gap, bh)
+                .accentBar(AccentSide.RIGHT)
+                .build();
+        addTabWidget(tabWidgets4, gravityBtn);
+
+        // 第3行：时间输入
+        final int row3 = startY + 3 * (bh + gap);
+        EditBox timeBox = makeField(panelLeftX + 6, row3, fieldW, smallH, "18000",
+                v -> {});
+        addTabWidget(tabWidgets4, timeBox);
+
+        ModernButton timeBtn = ModernButton.builder(
+                Component.translatable("sre.map_helper.set_time"),
+                b -> {
+                    String val = timeBox.getValue().trim();
+                    if (!val.isEmpty())
+                        sendOnly("sre:area_manager set time " + val);
+                })
+                .bounds(panelLeftX + 6 + fieldW + gap, row3, bw - fieldW - gap + gap, bh)
+                .accentBar(AccentSide.RIGHT)
+                .build();
+        addTabWidget(tabWidgets4, timeBtn);
+
+        // 第4行：药水效果输入
+        final int row4 = startY + 4 * (bh + gap);
+        EditBox effectBox = makeField(panelLeftX + 6, row4, fieldW, smallH, "",
+                v -> {});
+        addTabWidget(tabWidgets4, effectBox);
+
+        ModernButton effectBtn = ModernButton.builder(
+                Component.translatable("sre.map_helper.set_effect"),
+                b -> {
+                    String val = effectBox.getValue().trim();
+                    sendOnly("sre:area_manager set effect " + (val.isEmpty() ? "\"\"" : val));
+                })
+                .bounds(panelLeftX + 6 + fieldW + gap, row4, bw - fieldW - gap + gap, bh)
+                .accentBar(AccentSide.RIGHT)
+                .build();
+        addTabWidget(tabWidgets4, effectBtn);
+
+        // 第5行：雪花效果开关
+        final int row5 = startY + 5 * (bh + gap);
+        ModernButton snowEnableBtn = ModernButton.builder(
+                Component.translatable("sre.map_helper.set_true", Component.translatable("sre.field.snowEnabled")),
+                b -> sendOnly("sre:area_manager set snowEnabled true"))
+                .bounds(panelLeftX + 6, row5, bw, bh)
+                .accentBar(AccentSide.LEFT)
+                .build();
+        addTabWidget(tabWidgets4, snowEnableBtn);
+
+        ModernButton snowDisableBtn = ModernButton.builder(
+                Component.translatable("sre.map_helper.set_false", Component.translatable("sre.field.snowEnabled")),
+                b -> sendOnly("sre:area_manager set snowEnabled false"))
+                .bounds(panelLeftX + 6 + bw + gap, row5, bw, bh)
+                .accentBar(AccentSide.RIGHT)
+                .build();
+        addTabWidget(tabWidgets4, snowDisableBtn);
+
+        // 第6行：昼夜循环开关
+        final int row6 = startY + 6 * (bh + gap);
+        ModernButton daylightEnableBtn = ModernButton.builder(
+                Component.translatable("sre.map_helper.set_true", Component.translatable("sre.field.daylightCycle")),
+                b -> sendOnly("sre:area_manager set daylightCycle true"))
+                .bounds(panelLeftX + 6, row6, bw, bh)
+                .accentBar(AccentSide.LEFT)
+                .build();
+        addTabWidget(tabWidgets4, daylightEnableBtn);
+
+        ModernButton daylightDisableBtn = ModernButton.builder(
+                Component.translatable("sre.map_helper.set_false", Component.translatable("sre.field.daylightCycle")),
+                b -> sendOnly("sre:area_manager set daylightCycle false"))
+                .bounds(panelLeftX + 6 + bw + gap, row6, bw, bh)
+                .accentBar(AccentSide.RIGHT)
+                .build();
+        addTabWidget(tabWidgets4, daylightDisableBtn);
+    }
+
     // ── 偏移量行 ─────────────────────────────────────────────────────
     private void buildOffsetRow() {
         final int oy = panelTopY + 52;
@@ -326,17 +456,17 @@ public class MapBuildHelperScreen extends Screen {
                 .build());
     }
 
-    // ── Tab 栏（4个选项卡）────────────────────────────────────────────
+    // ── Tab 栏（5个选项卡）────────────────────────────────────────────
     private void buildTabBar() {
         final int tabY = panelTopY + 74;
         final int tabH = 22;
-        final int tabW = 76; // 稍微缩小以容纳4个选项卡
-        final int tabGap = 8;
-        final int totalTabW = tabW * 4 + tabGap * 3;
+        final int tabW = 60; // 缩小以容纳5个选项卡
+        final int tabGap = 6;
+        final int totalTabW = tabW * 5 + tabGap * 4;
         final int startX = panelLeftX + (PANEL_WIDTH - totalTabW) / 2;
 
-        String[] tabKeys = { "positions", "areas", "settings", "rooms" };
-        for (int i = 0; i < 4; i++) {
+        String[] tabKeys = { "positions", "areas", "settings", "rooms", "environment" };
+        for (int i = 0; i < 5; i++) {
             final int idx = i;
             var builder = ModernButton.builder(Component.translatable("sre.map_helper.tab." + tabKeys[i]), b -> {
                 activeTab = idx;
@@ -361,6 +491,7 @@ public class MapBuildHelperScreen extends Screen {
         tabWidgets1.forEach(w -> w.visible = (activeTab == 1));
         tabWidgets2.forEach(w -> w.visible = (activeTab == 2));
         tabWidgets3.forEach(w -> w.visible = (activeTab == 3));
+        tabWidgets4.forEach(w -> w.visible = (activeTab == 4));
     }
 
     private EditBox makeField(int x, int y, int w, int h, String defaultVal, Consumer<String> responder) {
@@ -431,7 +562,7 @@ public class MapBuildHelperScreen extends Screen {
         g.fill(panelLeftX, panelTopY + 70, panelLeftX + PANEL_WIDTH, panelTopY + 71, 0x33AABBCC);
         g.fill(panelLeftX, panelTopY + 94, panelLeftX + PANEL_WIDTH, panelTopY + 95, 0x33AABBCC);
 
-        String[] tabTitlesKeys = { "spawn_offset", "aabb_areas", "boolean_settings", "rooms_config" };
+        String[] tabTitlesKeys = { "spawn_offset", "aabb_areas", "boolean_settings", "rooms_config", "environment" };
         g.drawString(font,
                 Component.translatable("sre.map_helper.tab_title." + tabTitlesKeys[activeTab])
                         .withStyle(Style.EMPTY.withColor(0x5577CC).withBold(true)),
