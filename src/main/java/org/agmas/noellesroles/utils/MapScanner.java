@@ -72,7 +72,8 @@ public class MapScanner {
                     if (blockState.is(BlockTags.AIR))
                         continue;
                     // blockCounts++;
-                    if (blockState.is(ModBlocks.VENDING_MACHINES_BLOCK) && blockState.getValue(VendingMachinesBlock.HALF).equals(DoubleBlockHalf.LOWER)) {
+                    if (blockState.is(ModBlocks.VENDING_MACHINES_BLOCK)
+                            && blockState.getValue(VendingMachinesBlock.HALF).equals(DoubleBlockHalf.LOWER)) {
                         GameUtils.taskBlocks.put(blockPos6, 11);
                     } else if (blockState.is(Blocks.NOTE_BLOCK)) {
                         GameUtils.taskBlocks.put(blockPos6, 10);
@@ -101,7 +102,8 @@ public class MapScanner {
                             if (items.size() > 0) {
                                 ItemStack item_0 = items.get(0);
                                 Item item_ = item_0.getItem();
-                                if ((item_ instanceof CocktailItem) || (item_ instanceof PotionItem) || (item_ instanceof HoneyBottleItem)) {
+                                if ((item_ instanceof CocktailItem) || (item_ instanceof PotionItem)
+                                        || (item_ instanceof HoneyBottleItem)) {
                                     GameUtils.taskBlocks.put(blockPos6, 2);
                                 } else {
                                     FoodProperties foodPro = item_0.get(DataComponents.FOOD);

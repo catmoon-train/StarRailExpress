@@ -1,8 +1,11 @@
 package org.agmas.noellesroles.init;
 
+import io.wifi.starrailexpress.network.packet.EnableTaskHighlightPacket;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import org.agmas.noellesroles.content.item.ZeroOneFiveSecondShotPayload;
+import org.agmas.noellesroles.content.item.ZeroOneFiveShootPayload;
 import org.agmas.noellesroles.packet.*;
 import org.agmas.noellesroles.packet.Loot.*;
 
@@ -22,6 +25,10 @@ public class ModPackets {
         public static final CustomPacketPayload.Type<MercenaryContractSignC2SPacket> MERCENARY_CONTRACT_SIGN_PACKET = MercenaryContractSignC2SPacket.TYPE;
     public static final CustomPacketPayload.Type<MonitorMarkC2SPacket> MONITOR_MARK_PACKET = MonitorMarkC2SPacket.ID;
     public static final CustomPacketPayload.Type<WaterGhostUseSkillC2SPacket> WATER_GHOST_SKILL_PACKET = WaterGhostUseSkillC2SPacket.TYPE;
+
+    public static final CustomPacketPayload.Type<MorticianToggleModeC2SPacket> MORTICIAN_TOGGLE_MODE_PACKET = MorticianToggleModeC2SPacket.TYPE;
+
+    public static final CustomPacketPayload.Type<MorticianCreateBodyC2SPacket> MORTICIAN_CREATE_BODY_PACKET = MorticianCreateBodyC2SPacket.TYPE;
 
     public static void registerPackets() {
         PayloadTypeRegistry.playS2C().register(ProblemScreenOpenC2SPacket.ID,
@@ -54,6 +61,8 @@ public class ModPackets {
         PayloadTypeRegistry.playS2C().register(GamblerSelectRoleC2SPacket.ID, GamblerSelectRoleC2SPacket.CODEC);
 
         PayloadTypeRegistry.playC2S().register(MorphC2SPacket.ID, MorphC2SPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(SilencerC2SPacket.ID, SilencerC2SPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(SilencerHelpC2SPacket.ID, SilencerHelpC2SPacket.CODEC);
         PayloadTypeRegistry.playS2C().register(OpenIntroPayload.ID, OpenIntroPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(NameTagSyncPayload.ID, NameTagSyncPayload.CODEC);
 
@@ -69,6 +78,33 @@ public class ModPackets {
         PayloadTypeRegistry.playS2C().register(OpenKeyForgeGuiS2CPacket.ID, OpenKeyForgeGuiS2CPacket.CODEC);
         PayloadTypeRegistry.playS2C().register(OpenVendingMachinesScreenS2CPacket.ID,
                 OpenVendingMachinesScreenS2CPacket.CODEC);
+        PayloadTypeRegistry.playS2C().register(OpenRepairStationScreenS2CPacket.ID,
+                OpenRepairStationScreenS2CPacket.CODEC);
+        PayloadTypeRegistry.playS2C().register(RepairCoinRewardS2CPacket.ID,
+                RepairCoinRewardS2CPacket.CODEC);
+        PayloadTypeRegistry.playS2C().register(RepairCombatFeedbackS2CPacket.ID,
+                RepairCombatFeedbackS2CPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(RepairStationActionC2SPacket.ID,
+                RepairStationActionC2SPacket.CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(RepairStationActionC2SPacket.ID, RepairStationActionC2SPacket::handle);
+        PayloadTypeRegistry.playS2C().register(OpenRepairRoleSelectionS2CPacket.ID,
+                OpenRepairRoleSelectionS2CPacket.CODEC);
+        PayloadTypeRegistry.playS2C().register(OpenRepairRoleShopS2CPacket.ID,
+                OpenRepairRoleShopS2CPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(RepairRoleSelectC2SPacket.ID, RepairRoleSelectC2SPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(RepairRolePurchaseC2SPacket.ID, RepairRolePurchaseC2SPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(RepairRoleShopPurchaseC2SPacket.ID, RepairRoleShopPurchaseC2SPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(RepairPrimarySkillC2SPacket.ID, RepairPrimarySkillC2SPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(RepairCarryStruggleC2SPacket.ID, RepairCarryStruggleC2SPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(RepairSearchBeginC2SPacket.ID, RepairSearchBeginC2SPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(RepairSearchCancelC2SPacket.ID, RepairSearchCancelC2SPacket.CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(RepairRoleSelectC2SPacket.ID, RepairRoleSelectC2SPacket::handle);
+        ServerPlayNetworking.registerGlobalReceiver(RepairRolePurchaseC2SPacket.ID, RepairRolePurchaseC2SPacket::handle);
+        ServerPlayNetworking.registerGlobalReceiver(RepairRoleShopPurchaseC2SPacket.ID, RepairRoleShopPurchaseC2SPacket::handle);
+        ServerPlayNetworking.registerGlobalReceiver(RepairPrimarySkillC2SPacket.ID, RepairPrimarySkillC2SPacket::handle);
+        ServerPlayNetworking.registerGlobalReceiver(RepairCarryStruggleC2SPacket.ID, RepairCarryStruggleC2SPacket::handle);
+        ServerPlayNetworking.registerGlobalReceiver(RepairSearchBeginC2SPacket.ID, RepairSearchBeginC2SPacket::handle);
+        ServerPlayNetworking.registerGlobalReceiver(RepairSearchCancelC2SPacket.ID, RepairSearchCancelC2SPacket::handle);
 
         PayloadTypeRegistry.playS2C().register(BloodConfigS2CPacket.ID, BloodConfigS2CPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(BloodConfigS2CPacket.ID, BloodConfigS2CPacket.CODEC);
@@ -91,11 +127,21 @@ public class ModPackets {
         PayloadTypeRegistry.playC2S().register(MonitorMarkC2SPacket.ID, MonitorMarkC2SPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(WaterGhostUseSkillC2SPacket.TYPE, WaterGhostUseSkillC2SPacket.CODEC);
 
+        // 葬仪模式切换网络包
+        PayloadTypeRegistry.playC2S().register(MorticianToggleModeC2SPacket.TYPE, MorticianToggleModeC2SPacket.CODEC);
+
+        // 葬仪造尸网络包
+        PayloadTypeRegistry.playC2S().register(MorticianCreateBodyC2SPacket.TYPE, MorticianCreateBodyC2SPacket.CODEC);
+
         // 派对狂网络包
         PayloadTypeRegistry.playC2S().register(PartyKillerC2SPacket.TYPE, PartyKillerC2SPacket.CODEC);
 
         // 注册短管霰弹枪装备音效网络包
         PayloadTypeRegistry.playC2S().register(ShortShotgunEquipPayload.ID, ShortShotgunEquipPayload.CODEC);
+
+        // 注册零一五枪射击网络包
+        PayloadTypeRegistry.playC2S().register(ZeroOneFiveShootPayload.ID, ZeroOneFiveShootPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(ZeroOneFiveSecondShotPayload.ID, ZeroOneFiveSecondShotPayload.CODEC);
 
         // 注册抽奖网络包
         PayloadTypeRegistry.playS2C().register(LootResultS2CPacket.ID, LootResultS2CPacket.CODEC);
@@ -114,22 +160,28 @@ public class ModPackets {
 
         // 注册愚者网络包
         PayloadTypeRegistry.playC2S().register(
-                org.agmas.noellesroles.game.roles.Innocent.fool.FoolPrayerC2SPacket.ID,
-                org.agmas.noellesroles.game.roles.Innocent.fool.FoolPrayerC2SPacket.CODEC);
+                org.agmas.noellesroles.game.roles.innocent.fool.FoolPrayerC2SPacket.ID,
+                org.agmas.noellesroles.game.roles.innocent.fool.FoolPrayerC2SPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(
-                org.agmas.noellesroles.game.roles.Innocent.fool.FoolLeaveMeetingC2SPacket.ID,
-                org.agmas.noellesroles.game.roles.Innocent.fool.FoolLeaveMeetingC2SPacket.CODEC);
+                org.agmas.noellesroles.game.roles.innocent.fool.FoolLeaveMeetingC2SPacket.ID,
+                org.agmas.noellesroles.game.roles.innocent.fool.FoolLeaveMeetingC2SPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(
-                org.agmas.noellesroles.game.roles.Innocent.fool.FoolTarotVoteC2SPacket.ID,
-                org.agmas.noellesroles.game.roles.Innocent.fool.FoolTarotVoteC2SPacket.CODEC);
+                org.agmas.noellesroles.game.roles.innocent.fool.FoolTarotVoteC2SPacket.ID,
+                org.agmas.noellesroles.game.roles.innocent.fool.FoolTarotVoteC2SPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(
-                org.agmas.noellesroles.game.roles.Innocent.fool.FoolExecutionerGunShootC2SPacket.ID,
-                org.agmas.noellesroles.game.roles.Innocent.fool.FoolExecutionerGunShootC2SPacket.CODEC);
+                org.agmas.noellesroles.game.roles.innocent.fool.FoolExecutionerGunShootC2SPacket.ID,
+                org.agmas.noellesroles.game.roles.innocent.fool.FoolExecutionerGunShootC2SPacket.CODEC);
         PayloadTypeRegistry.playS2C().register(
-                org.agmas.noellesroles.game.roles.Innocent.fool.FoolOpenTarotVoteS2CPacket.ID,
-                org.agmas.noellesroles.game.roles.Innocent.fool.FoolOpenTarotVoteS2CPacket.CODEC);
+                org.agmas.noellesroles.game.roles.innocent.fool.FoolOpenTarotVoteS2CPacket.ID,
+                org.agmas.noellesroles.game.roles.innocent.fool.FoolOpenTarotVoteS2CPacket.CODEC);
         ServerPlayNetworking.registerGlobalReceiver(
-                org.agmas.noellesroles.game.roles.Innocent.fool.FoolExecutionerGunShootC2SPacket.ID,
-                new org.agmas.noellesroles.game.roles.Innocent.fool.FoolExecutionerGunShootC2SPacket.Receiver());
+                org.agmas.noellesroles.game.roles.innocent.fool.FoolExecutionerGunShootC2SPacket.ID,
+                new org.agmas.noellesroles.game.roles.innocent.fool.FoolExecutionerGunShootC2SPacket.Receiver());
+
+        // 注册清除血液粒子网络包
+        PayloadTypeRegistry.playS2C().register(ClearBloodParticlesS2CPacket.ID, ClearBloodParticlesS2CPacket.CODEC);
+
+        // 注册启用任务透视网络包
+        PayloadTypeRegistry.playS2C().register(EnableTaskHighlightPacket.ID, EnableTaskHighlightPacket.CODEC);
     }
 }

@@ -1,12 +1,13 @@
 package io.wifi.starrailexpress.api;
 
 import io.wifi.starrailexpress.SRE;
-import io.wifi.events.day_night_fight.DNFGameMode;
+
 import io.wifi.starrailexpress.game.modes.SREMurderGameMode;
 import io.wifi.starrailexpress.game.modes.WTLooseEndsGameMode;
 import io.wifi.starrailexpress.game.modes.funny.*;
 import net.minecraft.resources.ResourceLocation;
 import org.agmas.noellesroles.game.modes.ChairWheelRaceGame;
+import org.agmas.noellesroles.game.modes.repair.RepairEscapeGameMode;
 import org.agmas.noellesroles.game.modes.fourthroom.game.FourthRoomGameMode;
 
 import java.util.HashMap;
@@ -28,7 +29,7 @@ public class SREGameModes {
     public static final ResourceLocation REFUGEE_LOVER_MODE_ID = SRE.wifiId("refugee_lover");
     public static final ResourceLocation HIDE_AND_SEEK_MODE_ID = SRE.wifiId("hide_and_seek");
     public static final ResourceLocation TNT_TAG_MODE_ID = SRE.wifiId("tnt_tag");
-    public static final ResourceLocation DAY_NIGHT_FIGHT_ID = SRE.wifiId("day_night_fight");
+    public static final ResourceLocation DAY_NIGHT_FIGHT_ID = SRE.shortId("day_night_fight");
 
     // Author: canyuesama (catmoon233)
     public static final ResourceLocation FOURTH_ROOM_ID = SRE.canyueId("fourth_room");
@@ -38,6 +39,11 @@ public class SREGameModes {
     public static final ResourceLocation SNIPER_RIFLE_ID = SRE.xiaoheihandId("sniper_war");
     public static final ResourceLocation EVIL_WAR_MODE_ID = SRE.xiaoheihandId("evil_war");
     public static final ResourceLocation DEVIL_ROULETTE_ID = SRE.xiaoheihandId("devil_roulette");
+    public static final ResourceLocation REPAIR_ESCAPE_ID = SRE.shortId("repair_escape");
+    public static final ResourceLocation THIEF_MODE_ID = SRE.xiaoheihandId("thief_mode");
+
+    // Role Rotation Mode (haiman)
+    public static final ResourceLocation ROLE_ROTATION_MODE_ID = SRE.haimanId("role_rotation");
 
     // Modified from Harpymodloader
     public static final GameMode MURDER = registerGameMode(new SREMurderGameMode(MURDER_ID));
@@ -56,7 +62,6 @@ public class SREGameModes {
     public static final GameMode HIDE_AND_SEEK_MODE = registerGameMode(
             new SREHideAndSeekGameMode(HIDE_AND_SEEK_MODE_ID));
     public static final GameMode TNT_TAG_MODE = registerGameMode(new SRETNTTagGameMode(TNT_TAG_MODE_ID));
-    public static final GameMode DAY_NIGHT_FIGHT = registerGameMode(new DNFGameMode(DAY_NIGHT_FIGHT_ID));
     //
     // written by canyuesama
     public static final GameMode FOURTH_ROOM = registerGameMode(new FourthRoomGameMode(FOURTH_ROOM_ID));
@@ -68,6 +73,11 @@ public class SREGameModes {
     public static final GameMode EVIL_WAR_MODE = registerGameMode(new SREEvilWarGameMode(EVIL_WAR_MODE_ID));
     public static final GameMode DEVIL_ROULETTE_MODE = registerGameMode(
             new SREDevilRouletteGameMode(DEVIL_ROULETTE_ID));
+    public static final GameMode REPAIR_ESCAPE_MODE = registerGameMode(new RepairEscapeGameMode(REPAIR_ESCAPE_ID));
+    public static final GameMode THIEF_MODE = registerGameMode(new SREThiefWarGameMode(THIEF_MODE_ID));
+
+    // Role Rotation Mode
+    public static final GameMode ROLE_ROTATION_MODE = registerGameMode(new SRERoleRotationGameMode(ROLE_ROTATION_MODE_ID));
 
     // register
     public static GameMode registerGameMode(GameMode gameMode) {

@@ -8,6 +8,7 @@ import io.wifi.starrailexpress.cca.SREPlayerProgressionComponent.FactionCardType
 import io.wifi.starrailexpress.cca.gamemode.CustomRoleGameModeTeamsPlayerComponent;
 import io.wifi.starrailexpress.cca.gamemode.CustomRoleGameModeWorldComponent;
 import io.wifi.starrailexpress.event.AllowGameEnd;
+import io.wifi.starrailexpress.event.OnGameTrueStarted;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.modes.SREMurderGameMode;
@@ -40,6 +41,11 @@ import static io.wifi.starrailexpress.game.GameUtils.addItemCooldowns;
 public class SRECustomRoleGameMode extends SREMurderGameMode {
     public SRECustomRoleGameMode(ResourceLocation identifier) {
         super(identifier, 10, 6);
+    }
+
+    @Override
+    public boolean shouldRecordPlayerStats() {
+        return true;
     }
 
     long roleSelectTimeout = -1;
@@ -234,6 +240,11 @@ public class SRECustomRoleGameMode extends SREMurderGameMode {
         super.tickServerGameLoop(serverWorld, gameWorldComponent);
     }
 
+    @Override
+    public boolean autoTriggerGameTrueStarted() {
+        return false;
+    }
+
     private void trueStartAfterSelectedRoles(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent) {
         var gamblerPlayers = serverWorld.getPlayers((p) -> GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(p)
                 && gameWorldComponent.isRole(p, SpecialGameModeRoles.CUSTOM_PENDING));
@@ -268,6 +279,7 @@ public class SRECustomRoleGameMode extends SREMurderGameMode {
         SRE.REPLAY_MANAGER.updateReplayInitialRoles(players, gameWorldComponent.getRoles());
         AvariciousGoldHandler.gameStartTime = -1;
         SREGameTimeComponent.KEY.get(serverWorld).addTime(selectionTick);
+        OnGameTrueStarted.EVENT.invoker().onGameTrueStarted(serverWorld);
     }
 
     @Override

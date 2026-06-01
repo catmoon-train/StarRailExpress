@@ -17,7 +17,7 @@ import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.game.roles.Innocent.detective.DetectivePlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.detective.DetectivePlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;

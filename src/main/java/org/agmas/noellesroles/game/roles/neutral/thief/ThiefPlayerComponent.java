@@ -143,13 +143,9 @@ public class ThiefPlayerComponent implements RoleComponent, ServerTickingCompone
     }
 
     /**
-     * 切换偷取模式（蹲下按技能键）
+     * 切换偷取模式（蹲下按技能键）- 不受冷却影响
      */
     public void toggleMode() {
-        if (this.cooldown > 0) {
-            return;
-        }
-
         if (this.currentMode == MODE_STEAL_MONEY) {
             this.currentMode = MODE_STEAL_ITEM;
         } else if (this.currentMode == MODE_STEAL_ITEM) {
@@ -333,9 +329,25 @@ public class ThiefPlayerComponent implements RoleComponent, ServerTickingCompone
                     true);
             return true; // 没有物品可偷，不进入冷却
         }
-        Collections.shuffle(arr);
+        // 优先偷钥匙以外的物品，如果没有则偷钥匙
+        ArrayList<StolenableItemInfo> nonKeyItems = new ArrayList<>();
+        ArrayList<StolenableItemInfo> keyItems = new ArrayList<>();
+        for (StolenableItemInfo info : arr) {
+            if (info.itemStack.is(TMMItems.KEY)) {
+                keyItems.add(info);
+            } else {
+                nonKeyItems.add(info);
+            }
+        }
 
-        StolenableItemInfo stoleninfo = arr.getFirst();
+        StolenableItemInfo stoleninfo;
+        if (!nonKeyItems.isEmpty()) {
+            Collections.shuffle(nonKeyItems);
+            stoleninfo = nonKeyItems.getFirst();
+        } else {
+            Collections.shuffle(keyItems);
+            stoleninfo = keyItems.getFirst();
+        }
 
         if (stoleninfo.slot == -1 || stoleninfo.itemStack.isEmpty()) {
             return true;
@@ -521,6 +533,95 @@ public class ThiefPlayerComponent implements RoleComponent, ServerTickingCompone
         if (stack.is(ModItems.MASTER_KEY))
             return true;
         if (stack.is(ModItems.MASTER_KEY_P))
+            return true;
+
+        // ==================== 新增可偷物品 ====================
+
+        // 血瓶
+        if (stack.is(ModItems.BLOOD_BOTTLE))
+            return true;
+        // 画板
+        if (stack.is(TMMItems.DRAWING_BOARD))
+            return true;
+        // 巨大便签
+        if (stack.is(ModItems.GIANT_NOTE))
+            return true;
+        // 药丸
+        if (stack.is(ModItems.PILL))
+            return true;
+        // 硫酸桶
+        if (stack.is(ModItems.BUCKET_OF_H2SO4))
+            return true;
+        // 苦无 / 手里剑
+        if (stack.is(ModItems.NINJA_KNIFE))
+            return true;
+        if (stack.is(ModItems.NINJA_SHURIKEN))
+            return true;
+        // 潜水头盔 / 潜水靴
+        if (stack.is(ModItems.DIVING_HELMET))
+            return true;
+        if (stack.is(ModItems.DIVING_BOOTS))
+            return true;
+        // 喷气背包
+        if (stack.is(ModItems.JETPACK))
+            return true;
+        // 毒液试剂（毒师）
+        if (stack.is(ModItems.TOILET_POISON))
+            return true;
+        // 短管霰弹枪
+        if (stack.is(ModItems.SHORT_SHOTGUN))
+            return true;
+        // 防暴盾牌 / 警棍 / 对讲机 / 远程监控终端
+        if (stack.is(ModItems.RIOT_SHIELD))
+            return true;
+        if (stack.is(ModItems.BATON))
+            return true;
+        if (stack.is(ModItems.RADIO))
+            return true;
+        if (stack.is(ModItems.MONITORING_TERMINAL))
+            return true;
+        // 怀表
+        if (stack.is(ModItems.POCKET_WATCH))
+            return true;
+        // 肾上腺素 / 抗生素 / 鹤顶红 / 狗皮膏药 / 维生素
+        if (stack.is(ModItems.ADRENALINE))
+            return true;
+        if (stack.is(ModItems.ANTIBIOTIC))
+            return true;
+        if (stack.is(ModItems.HEDINGHONG))
+            return true;
+        if (stack.is(ModItems.DOGSKIN_PLASTER))
+            return true;
+        if (stack.is(ModItems.ALCHEMIST_BUFF_POTION))
+            return true;
+        // 消防斧 / 飞刀 / 绳索 / 钳子 / 灭火器
+        if (stack.is(ModItems.FIRE_AXE))
+            return true;
+        if (stack.is(ModItems.THROWING_KNIFE))
+            return true;
+        if (stack.is(ModItems.ROPE))
+            return true;
+        if (stack.is(ModItems.CAMERA_SHEARS))
+            return true;
+        if (stack.is(ModItems.EXTINGUISHER))
+            return true;
+        // 存折 / 空白签名纸 / 生死状 / 不知道谁的签名纸 / 未签订的契约
+        if (stack.is(ModItems.PASSBOOK))
+            return true;
+        if (stack.is(ModItems.SIGNATURE_PAPER))
+            return true;
+        if (stack.is(ModItems.LIFE_AND_DEATH_SHAPE))
+            return true;
+        if (stack.is(ModItems.SIGNED_PAPER))
+            return true;
+        if (stack.is(ModItems.MERCENARY_CONTRACT))
+            return true;
+        // 零一五 / 尊名纸条 / 灵性斗篷
+        if (stack.is(ModItems.ZERO_ONE_FIVE_GUN))
+            return true;
+        if (stack.is(ModItems.HONORED_NOTE))
+            return true;
+        if (stack.is(ModItems.SPIRIT_CLOAK))
             return true;
 
         // 其他物品不可偷取

@@ -11,7 +11,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.game.roles.Innocent.postman.PostmanPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.postman.PostmanPlayerComponent;
 import org.agmas.noellesroles.init.ModItems;
 import pro.fazeclan.river.stupid_express.constants.SEItems;
 
@@ -220,6 +220,12 @@ public class PostmanScreenHandler extends AbstractContainerMenu {
             if (stack.is(ModItems.WRITTEN_NOTE))
                 return false;
             if (stack.is(ModItems.CONSPIRACY_PAGE))
+                return false;
+            if (stack.is(ModItems.SIGNATURE_PAPER))
+                return false;
+            if (stack.is(ModItems.LIFE_AND_DEATH_SHAPE))
+                return false;
+            if (stack.is(ModItems.SIGNED_PAPER))
                 return false;
             return true;
         }

@@ -42,7 +42,7 @@ public class PlayerInteractionHandler {
                         return InteractionResult.FAIL;
                     }
                     
-                    if (CantRightClickBlocks.shouldPreventInteraction(block)) {
+                    if (CantRightClickBlocks.shouldPreventInteraction(block,world)) {
                         return InteractionResult.FAIL;
                     }
                 }

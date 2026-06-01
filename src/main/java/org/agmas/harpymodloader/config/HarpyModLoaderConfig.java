@@ -22,7 +22,7 @@ public class HarpyModLoaderConfig implements ConfigData {
     public ArrayList<String> disabledModifiers = new ArrayList<>();
 
     // Maximum amount of modifiers a player can have.")
-    public int modifierMaximum = 1;
+    public int modifierMaximum = 4;
 
     // How many modifiers should be given relative to the Player Count
     // (Multiplier)")
@@ -35,6 +35,12 @@ public class HarpyModLoaderConfig implements ConfigData {
 
     // Whether to use custom role weights instead of default round-based weights")
     public boolean useCustomRoleWeights = true;
+
+    // Minimum player count required to spawn neutral roles
+    public int neutralMinPlayerCount = 10;
+
+    // Enable sre:civilian to be included in normal role assignment pool (max 1)
+    public boolean enableCivilianInPool = false;
 
     public ArrayList<String> getDisabled() {
         if (disabled != null)

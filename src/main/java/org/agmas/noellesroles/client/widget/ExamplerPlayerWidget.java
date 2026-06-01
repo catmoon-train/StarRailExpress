@@ -48,7 +48,8 @@ public class ExamplerPlayerWidget extends Button {
             setDisplayText(Component.translatable("hud.general.dead").withStyle(ChatFormatting.DARK_RED));
         } else {
             if (SREClient.gameComponent != null && SREClient.gameComponent.getRole(target.getProfile().getId()) != null
-                    && SREClient.gameComponent.isKillerTeam(target.getProfile().getId())) {
+                    && org.agmas.noellesroles.role.ModRoles.isVisibleKillerTeammate(
+                        SREClient.gameComponent.getRole(target.getProfile().getId()))) {
                 setDisplayText(Component.translatable("hud.general.killer_friend").withStyle(ChatFormatting.GOLD));
             }
         }

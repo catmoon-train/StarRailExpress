@@ -2,11 +2,13 @@ package org.agmas.noellesroles.mixin.client.roles.coroner;
 
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.cca.PlayerBodyEntityComponent;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.RoleNameRenderer;
+import io.wifi.starrailexpress.client.util.ClientSkinCache;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.utils.client.betterrender.FakeGuiGraphics;
@@ -30,7 +32,6 @@ import java.util.UUID;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.game.roles.Innocent.coroner.BodyDeathReasonComponent;
 import org.agmas.noellesroles.game.roles.killer.insane_killer.InsaneKillerPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 import org.spongepowered.asm.mixin.Mixin;
@@ -43,6 +44,30 @@ import pro.fazeclan.river.stupid_express.modifier.split_personality.cca.SplitPer
 @Mixin(RoleNameRenderer.class)
 public abstract class CoronerHudMixin {
 
+    /** 迟滞状态标记：防止理智在阈值附近波动时页面闪烁 */
+    private static boolean coronerWasShowingWarning = false;
+
+    /**
+     * 使用迟滞效应检查是否应该显示理智不足警告
+     * - 理智 < 0.50：显示警告
+     * - 理智 >= 0.60：不显示警告
+     * - 理智在 0.50 ~ 0.60 之间：维持上一次状态，防止闪烁
+     */
+    private static boolean shouldShowSanityWarning(SREPlayerMoodComponent moodComponent, boolean playerAlive) {
+        if (!playerAlive) return false;
+        float mood = moodComponent.getMood();
+        if (mood < 0.50f) {
+            coronerWasShowingWarning = true;
+            return true;
+        }
+        if (mood >= 0.60f) {
+            coronerWasShowingWarning = false;
+            return false;
+        }
+        // 理智在 0.50~0.60 之间，维持上一次状态
+        return coronerWasShowingWarning;
+    }
+
     @Inject(method = "renderHud", at = @At("TAIL"))
     private static void coronerRoleNameRenderer(Font renderer, LocalPlayer player, FakeGuiGraphics context,
             DeltaTracker tickCounter, CallbackInfo ci) {
@@ -52,7 +77,7 @@ public abstract class CoronerHudMixin {
         if (NoellesrolesClient.targetFakeBody != null) {
             SRERole selfrole = SREClient.getCachedPlayerRole();
             boolean canSeeBody = false;
-            if (selfrole != null && selfrole.canSeeBodyDeathReason())
+            if (selfrole != null && selfrole.canSeeBodyDeathReason(SREClient.cached_player))
                 canSeeBody = true;
             if (canSeeBody
                     || SREClient.isPlayerSpectatingOrCreative()) {
@@ -75,7 +100,7 @@ public abstract class CoronerHudMixin {
                 }
                 SREPlayerMoodComponent moodComponent = (SREPlayerMoodComponent) SREPlayerMoodComponent.KEY
                         .get(Minecraft.getInstance().player);
-                if (moodComponent.isLowerThanMid() && SREClient.isPlayerAliveAndInSurvival()) {
+                if (shouldShowSanityWarning(moodComponent, SREClient.isPlayerAliveAndInSurvival())) {
                     Component name = Component.translatable("hud.coroner.sanity_requirements");
                     context.drawString(renderer, name, -renderer.width(name) / 2, 32, CommonColors.YELLOW);
                     context.pose().popPose();
@@ -102,7 +127,7 @@ public abstract class CoronerHudMixin {
         if (NoellesrolesClient.targetBody != null) {
             SRERole selfrole = SREClient.getCachedPlayerRole();
             boolean canSeeBody = false;
-            if (selfrole != null && selfrole.canSeeBodyDeathReason())
+            if (selfrole != null && selfrole.canSeeBodyDeathReason(SREClient.cached_player))
                 canSeeBody = true;
             if (canSeeBody
                     || SREClient.isPlayerSpectatingOrCreative()) {
@@ -128,14 +153,25 @@ public abstract class CoronerHudMixin {
                 context.pose().scale(0.6F, 0.6F, 1.0F);
                 SREPlayerMoodComponent moodComponent = (SREPlayerMoodComponent) SREPlayerMoodComponent.KEY
                         .get(Minecraft.getInstance().player);
-                if (moodComponent.isLowerThanMid() && SREClient.isPlayerAliveAndInSurvival()) {
-                    // Text name = Text.literal("50% sanity required to use ability");
+                if (shouldShowSanityWarning(moodComponent, SREClient.isPlayerAliveAndInSurvival())) {
                     Component name = Component.translatable("hud.coroner.sanity_requirements");
                     context.drawString(renderer, name, -renderer.width(name) / 2, 32, CommonColors.YELLOW);
+                    context.pose().popPose();
                     return;
                 }
-                BodyDeathReasonComponent bodyDeathReasonComponent = (BodyDeathReasonComponent) BodyDeathReasonComponent.KEY
+                PlayerBodyEntityComponent bodyDeathReasonComponent = (PlayerBodyEntityComponent) PlayerBodyEntityComponent.KEY
                         .get(NoellesrolesClient.targetBody);
+
+                // 检查是否是葬仪伪造的尸体
+                if (bodyDeathReasonComponent.isFakeBody) {
+                    // 显示"伪造的尸体"
+                    Component fakeBodyName = Component.translatable("hud.coroner.fake_body")
+                            .withColor(ModRoles.MORTICIAN_BODYMAKER.color());
+                    context.drawString(renderer, fakeBodyName, -renderer.width(fakeBodyName) / 2, 32, CommonColors.RED);
+                    context.pose().popPose();
+                    return;
+                }
+
                 String deathReason_str = NoellesrolesClient.targetBody.getDeathReason();
                 if (deathReason_str.isBlank() || deathReason_str.isEmpty()) {
                     deathReason_str = GameConstants.DeathReasons.GENERIC.toString();
@@ -178,7 +214,7 @@ public abstract class CoronerHudMixin {
                         foundRole = role;
                 }
                 if ((SREClient.isPlayerSpectatingOrCreative()
-                        || selfrole.canSeeBodyRoleInfo())
+                        || selfrole.canSeeBodyRoleInfo(SREClient.cached_player))
                         && !bodyDeathReasonComponent.vultured) {
                     Component roleInfo = Component.translatable("hud.coroner.role_info").withColor(CommonColors.RED)
                             .append(Component
@@ -194,7 +230,7 @@ public abstract class CoronerHudMixin {
                     var killerName = Component.translatable("sre.general.unknown");
                     UUID killerId = NoellesrolesClient.targetBody.getKillerUuid();
                     if (killerId != null) {
-                        var b = SREClient.PLAYER_ENTRIES_CACHE.getOrDefault(killerId, null);
+                        var b = ClientSkinCache.getCachedPlayerInfo(killerId);
                         if (b != null) {
                             killerName = Component.literal(b.getProfile().getName());
                         }

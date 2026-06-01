@@ -4,6 +4,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import io.wifi.starrailexpress.api.GameMode;
 import io.wifi.starrailexpress.api.SREGameModes;
+import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.command.argument.GameModeArgumentType;
 import io.wifi.starrailexpress.game.GameConstants;
@@ -34,6 +35,18 @@ public class StartCommand {
     if (SREGameWorldComponent.KEY.get(source.getLevel()).isRunning()) {
       source.sendFailure(Component.translatable("game.start_error.game_running"));
       return -1;
+    }
+
+    // 检查当前地图是否支持该游戏模式
+    AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
+    if (gameMode != SREGameModes.REPAIR_ESCAPE_MODE && areas.gameModes != null && !areas.gameModes.isEmpty()) {
+      String modeId = gameMode.identifier.getPath();
+      boolean isSupported = areas.gameModes.contains(modeId);
+      if (!isSupported) {
+        source.sendFailure(Component.translatable("commands.sre.start.error.map_not_supported", 
+            gameMode.getName(), areas.mapName != null ? areas.mapName : "unknown"));
+        return -1;
+      }
     }
     int startMinutes = minutes;
     if (gameMode == SREGameModes.FOURTH_ROOM) {

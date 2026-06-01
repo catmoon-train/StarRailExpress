@@ -2,6 +2,7 @@ package org.agmas.noellesroles.mixin.time_stop;
 
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import net.minecraft.world.entity.player.Player;
+import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.game.roles.killer.dio.DIOPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 import org.spongepowered.asm.mixin.Mixin;
@@ -14,6 +15,12 @@ public class PlayerMixin {
     @Inject(method = "isSwimming",at = @At("HEAD"), cancellable = true)
     public void isSwim(CallbackInfoReturnable<Boolean> cir){
         Player player = (Player) (Object)this;
+        var repairComponent = ModComponents.REPAIR_ROLES.get(player);
+        if (repairComponent.downed || repairComponent.carriedBy != null || repairComponent.trialStand.present()) {
+            cir.setReturnValue(true);
+            cir.cancel();
+            return;
+        }
         if (SREGameWorldComponent.KEY.get(player.level()).isRole(player, ModRoles.DIO)){
             if (DIOPlayerComponent.KEY.get(player).isFeeding){
                 cir.setReturnValue(true);

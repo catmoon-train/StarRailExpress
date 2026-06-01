@@ -4,12 +4,16 @@ import io.wifi.starrailexpress.cca.MapVotingComponent;
 import io.wifi.starrailexpress.client.fourthroom.FourthRoomCameraDirector;
 import io.wifi.starrailexpress.client.fourthroom.FourthRoomClientState;
 import io.wifi.starrailexpress.client.gui.ScopeOverlayRenderer;
+import io.wifi.starrailexpress.client.gui.screen.CommandMacroScreen;
 import io.wifi.starrailexpress.client.gui.screen.MapSelectorScreen;
 import io.wifi.starrailexpress.client.gui.screen.ingame.FourthRoomBattleScreen;
 import io.wifi.starrailexpress.client.gui.screen.ingame.FourthRoomPeekDeckScreen;
 import io.wifi.starrailexpress.content.vote.client.ClientVoteCache;
 import io.wifi.starrailexpress.content.vote.client.VoteScreen;
+
 import io.wifi.starrailexpress.index.TMMItems;
+import io.wifi.starrailexpress.network.RequestOpenClueArchivePayload;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.KeyMapping;
@@ -31,6 +35,14 @@ public class InputHandler {
             "key.starrailexpress.open_fourth_room_peek_screen",
             GLFW.GLFW_KEY_UNKNOWN,
             "category.starrailexpress.general"));
+    public static KeyMapping openCommandMacroScreenKeybind = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+            "key.starrailexpress.open_command_macro_screen",
+            GLFW.GLFW_KEY_K,
+            "category.starrailexpress.general"));
+    public static KeyMapping openClueArchiveKeybind = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+            "key.starrailexpress.open_clue_archive",
+            GLFW.GLFW_KEY_Z,
+            "category.starrailexpress.general"));
 
     public static void initialize() {
 
@@ -39,6 +51,10 @@ public class InputHandler {
 
     public static KeyMapping getOpenVotingScreenKeybind() {
         return openVotingScreenKeybind;
+    }
+
+    public static KeyMapping getOpenClueArchiveKeybind() {
+        return openClueArchiveKeybind;
     }
 
     private static boolean canOpenFourthRoomTableUi(Minecraft client) {
@@ -67,7 +83,25 @@ public class InputHandler {
                 // 打开投票界面
                 client.setScreen(new MapSelectorScreen());
             } else if (ClientVoteCache.canReOpen() && !(client.screen instanceof VoteScreen)) {
+                if ("dnf_meeting_vote".equals(ClientVoteCache.getTypeId())
+                        ) {
+                    if (client.player != null) {
+                        client.player.displayClientMessage(
+                                Component.translatable("message.dnf.vote.must_be_near_meeting"), true);
+                    }
+                    return;
+                }
                 client.setScreen(new VoteScreen());
+            }
+        }
+
+        if (openClueArchiveKeybind.consumeClick()) {
+
+            if (client.screen != null) {
+                return;
+            }
+            if (client.getConnection() != null) {
+                ClientPlayNetworking.send(RequestOpenClueArchivePayload.INSTANCE);
             }
         }
 
@@ -86,6 +120,13 @@ public class InputHandler {
                 } else if (client.player != null) {
                     client.player.displayClientMessage(Component.literal("请先看向自己房间的牌桌"), true);
                 }
+            }
+        }
+
+
+        if (openCommandMacroScreenKeybind.consumeClick()) {
+            if (!(client.screen instanceof CommandMacroScreen)) {
+                client.setScreen(new CommandMacroScreen());
             }
         }
 

@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.utils;
 
+import io.wifi.starrailexpress.content.entity.GrenadeEntity;
 import io.wifi.starrailexpress.content.entity.NoteEntity;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.event.OnGameEnd;
@@ -10,9 +11,22 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.projectile.ThrownTrident;
 import org.agmas.harpymodloader.events.GameInitializeEvent;
 import org.agmas.noellesroles.content.block_entity.DevilRouletteTableEntity;
+import org.agmas.noellesroles.content.entity.CalamityMarkEntity;
+import org.agmas.noellesroles.content.entity.ChlorineBombEntity;
+import org.agmas.noellesroles.content.entity.DecoyGrenadeEntity;
+import org.agmas.noellesroles.content.entity.FlareEntity;
+import org.agmas.noellesroles.content.entity.FlashGrenadeEntity;
 import org.agmas.noellesroles.content.entity.KuiXiPuppetEntity;
 import org.agmas.noellesroles.content.entity.LockEntity;
 import org.agmas.noellesroles.content.entity.LockEntityManager;
+import org.agmas.noellesroles.content.entity.PoisonGasCloudEntity;
+import org.agmas.noellesroles.content.entity.PoisonGasTankEntity;
+import org.agmas.noellesroles.content.entity.PuppeteerBodyEntity;
+import org.agmas.noellesroles.content.entity.PurifyBombEntity;
+import org.agmas.noellesroles.content.entity.SilenceTotemEntity;
+import org.agmas.noellesroles.content.entity.SmokeGrenadeEntity;
+import org.agmas.noellesroles.content.entity.ThrowingKnifeEntity;
+import org.agmas.noellesroles.content.entity.TripwireTrapEntity;
 import org.agmas.noellesroles.content.entity.WheelchairEntity;
 import org.agmas.noellesroles.game.roles.neutral.cuckoo.CuckooEggData;
 import pro.fazeclan.river.stupid_express.role.necromancer.cca.NecromancerComponent;
@@ -49,6 +63,20 @@ public class EntityClearUtils {
             world.getAllEntities().forEach((entity) -> {
                 if (entity instanceof LockEntity ||
                         entity instanceof Pig ||
+                        entity instanceof GrenadeEntity ||
+                        entity instanceof SmokeGrenadeEntity ||
+                        entity instanceof ThrowingKnifeEntity ||
+                        entity instanceof ChlorineBombEntity ||
+                        entity instanceof PurifyBombEntity ||
+                        entity instanceof PoisonGasTankEntity ||
+                        entity instanceof PoisonGasCloudEntity ||
+                        entity instanceof CalamityMarkEntity ||
+                        entity instanceof TripwireTrapEntity ||
+                        entity instanceof PuppeteerBodyEntity ||
+                        entity instanceof FlashGrenadeEntity ||
+                        entity instanceof FlareEntity ||
+                        entity instanceof DecoyGrenadeEntity ||
+                        entity instanceof SilenceTotemEntity ||
                         entity instanceof ThrownTrident ||
                         entity instanceof AreaEffectCloud ||
                         entity instanceof ItemEntity ||
@@ -56,9 +84,8 @@ public class EntityClearUtils {
                         entity instanceof WheelchairEntity ||
                         entity instanceof KuiXiPuppetEntity ||
                         entity instanceof NoteEntity ||
-                    entity instanceof DevilRouletteTableEntity.TableTextDisplay ||
-                    entity instanceof DevilRouletteTableEntity.TableItemDisplay
-                ) {
+                        entity instanceof DevilRouletteTableEntity.TableTextDisplay ||
+                        entity instanceof DevilRouletteTableEntity.TableItemDisplay) {
                     entitiesToRemove.add(entity);
                 }
             });
@@ -77,7 +104,8 @@ public class EntityClearUtils {
         try {
             java.util.List<net.minecraft.world.entity.Entity> eggsToRemove = new java.util.ArrayList<>();
             world.getAllEntities().forEach((entity) -> {
-                if (entity instanceof net.minecraft.world.entity.Display.BlockDisplay && CuckooEggData.isCuckooEgg(entity)) {
+                if (entity instanceof net.minecraft.world.entity.Display.BlockDisplay
+                        && CuckooEggData.isCuckooEgg(entity)) {
                     eggsToRemove.add(entity);
                 }
             });

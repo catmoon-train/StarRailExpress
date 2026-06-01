@@ -6,6 +6,7 @@ import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 
+import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.game.roles.special.super_loose_end.SuperLooseEnd;
 import org.agmas.noellesroles.game.roles.special.dirt.Dirt;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
@@ -18,14 +19,14 @@ public class SpecialGameModeRoles {
    */
   public static final SRERole SEEKER = registerRole(
       new SeekerRole(SRE.wifiId("hide_and_seek_seeker"), TMMRoles.KILLER.color(), false, true, SRERole.MoodType.NONE, -1, true))
-      .setCanPickUpRevolver(true).setCanBeRandomedByOtherRoles(false).setMax(0);
+      .setCanPickUpRevolver(true).setCanBeRandomedByOtherRoles(false).setMax(0).setOtherModeRole(true);
       
   /**
    * 自选职业
    */
   public static final SRERole CUSTOM_PENDING = registerRole(
       new NormalRole(SRE.wifiId("custom_pending"), 0x5CFF4A, false, false, SRERole.MoodType.NONE, -1, true))
-      .setCanPickUpRevolver(false).setNeutrals(true).setNeutralForKiller(false).setCanBeRandomedByOtherRoles(false).setMax(0);
+      .setCanPickUpRevolver(false).setNeutrals(true).setNeutralForKiller(false).setCanBeRandomedByOtherRoles(false).setMax(0).setOtherModeRole(true);
 
   /**
    * 职业：超级亡命徒
@@ -41,9 +42,10 @@ public class SpecialGameModeRoles {
       SRERole.MoodType.NONE,
       -1,
       true))
+      .setComponentKey(ModComponents.SUPER_LOOSE_END)
       .setCanSeeCoin(true)
       .setCanUseInstinct(true)
-      .setCanAutoAddMoney(true).setMax(0).setCanBeRandomedByOtherRoles(false);
+      .setCanAutoAddMoney(true).setMax(0).setCanBeRandomedByOtherRoles(false).setOtherModeRole(true);
 
   /**
    * 职业：土块
@@ -59,11 +61,12 @@ public class SpecialGameModeRoles {
       SRERole.MoodType.FAKE,
       Integer.MAX_VALUE,
       true))
-          .setCanSeeCoin(true)
-          .setCanSeeTime(true)
-          .setMax(0)
-          .setCanBeRandomedByOtherRoles(false)
-          .setNeutrals(true);
+      .setCanSeeCoin(true)
+      .setCanSeeTime(true)
+      .setCanUseInstinct(true)
+      .setMax(0)
+      .setCanBeRandomedByOtherRoles(false)
+      .setNeutrals(true).setOtherModeRole(true);
 
   public static SRERole registerRole(SRERole role) {
     TMMRoles.ROLES.put(role.identifier(), role);

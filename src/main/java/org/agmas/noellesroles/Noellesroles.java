@@ -2,15 +2,20 @@ package org.agmas.noellesroles;
 
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
+import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.commands.synchronization.SingletonArgumentInfo;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import org.agmas.harpymodloader.Harpymodloader;
+import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
 import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
+import org.agmas.harpymodloader.modifiers.SREModifier;
 import org.agmas.noellesroles.client.blood.BloodMain;
+import org.agmas.noellesroles.client.utils.RoleDisabledUtilsForClient;
 import org.agmas.noellesroles.commands.*;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.game.modifier.NRModifiers;
@@ -23,6 +28,7 @@ import org.agmas.noellesroles.utils.ServerManager;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import pro.fazeclan.river.stupid_express.StupidExpress;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 
@@ -82,9 +88,38 @@ public class Noellesroles implements ModInitializer {
         return getAllRolesSorted(false);
     }
 
+    public static boolean isModifierDisabled(SREModifier modifier) {
+        if (FabricLoader.getInstance().getEnvironmentType().equals(EnvType.CLIENT)) {
+            return RoleDisabledUtilsForClient.isModifierDisabled(modifier);
+        }
+        var hpconfig = HarpyModLoaderConfig.HANDLER.instance();
+        return hpconfig.getDisabledModifiers().contains(modifier.identifier().toString());
+    }
+
+    public static boolean isRoleDisabled(SRERole role) {
+        if (FabricLoader.getInstance().getEnvironmentType().equals(EnvType.CLIENT)) {
+            return RoleDisabledUtilsForClient.isRoleDisabled(role);
+        }
+        var hpconfig = HarpyModLoaderConfig.HANDLER.instance();
+        return hpconfig.getDisabled().contains(role.identifier().toString());
+    }
+
     public static void sortRoles(ArrayList<SRERole> clone, boolean killerFirst) {
+        sortRoles(clone, killerFirst, true);
+    }
+
+    public static void sortRoles(ArrayList<SRERole> clone, boolean killerFirst, boolean considerDisabled) {
         Collator collator = Collator.getInstance();
         clone.sort((a, b) -> {
+            if (considerDisabled) {
+                boolean Adisable = isRoleDisabled(a);
+                boolean Bdisable = isRoleDisabled(b);
+                if (Adisable && !Bdisable) {
+                    return 1;
+                } else if (!Adisable && Bdisable) {
+                    return -1;
+                }
+            }
             int rt_a = getRoleType$Int(a);
             int rt_b = getRoleType$Int(b);
             if (a != null && b != null) {
@@ -109,7 +144,7 @@ public class Noellesroles implements ModInitializer {
 
     public static List<SRERole> getAllRolesSorted(boolean killerFirst) {
         ArrayList<SRERole> clone = new ArrayList<>(TMMRoles.ROLES.values());
-        sortRoles(clone, killerFirst);
+        sortRoles(clone, killerFirst, true);
         return clone;
     }
 
@@ -128,8 +163,11 @@ public class Noellesroles implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        io.wifi.starrailexpress.game.GameUtils.CustomWinnersPredicates.add(entry -> entry.getKey().getTags()
+                .contains(org.agmas.noellesroles.game.modes.repair.RepairModeState.NEUTRAL_WIN_TAG));
         ModItems.init();
         RightClickBlockManager.init();
+        org.agmas.noellesroles.content.item.ZeroOneFiveGunItem.register();
         ArgumentTypeRegistry.registerArgumentType(
                 Noellesroles.id("color"), // 唯一 ID
                 ModColorArgument.class, // 你的参数类
@@ -138,6 +176,7 @@ public class Noellesroles implements ModInitializer {
         HSRConstants.init();
         Harpymodloader.HIDDEN_MODIFIERS.add(SEModifiers.REFUGEE.identifier().getPath());
         Harpymodloader.HIDDEN_MODIFIERS.add(SEModifiers.BLACK_WHITE.identifier().getPath());
+        Harpymodloader.HIDDEN_MODIFIERS.add("rebel");
         // 初始化模组角色列表
         ModRoles.init();
         // 初始化修饰符
@@ -158,6 +197,11 @@ public class Noellesroles implements ModInitializer {
         // 注册事件处理器
         ModEventsRegister.registerEvents();
         org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaEventHandler.register();
+        org.agmas.noellesroles.game.modes.repair.RepairCombatEvents.register();
+        org.agmas.noellesroles.game.modes.repair.RepairWorldInteractions.register();
+
+        // 注册疫使胜利检测
+        org.agmas.noellesroles.game.roles.neutral.infected.InfectedWinChecker.registerEvent();
 
         // 注册命令
         BroadcastCommand.register();
@@ -174,6 +218,15 @@ public class Noellesroles implements ModInitializer {
         GoodsManagerCommand.register();
         WheelchairFieldItemCommand.register();
         GamblerMiracleCommand.register();
+        EggClearCommand.register();
+        RepairShopCommand.register();
+        RepairStartCommand.register();
+        RepairRoleCommand.register();
+        RepairMapCommand.register();
+        RepairPresetCommand.register();
+
+        // 注册疫使测试指令
+        org.agmas.noellesroles.commands.InfectedCommand.register();
 
         // 加载预设配置
         Preset.PresetManager.loadPresets();
@@ -187,7 +240,6 @@ public class Noellesroles implements ModInitializer {
         // 注册网络处理器
         ModPacketsReciever.registerPackets();
         // 初始化HSR组件
-
 
         // 注册商店
         RoleShopHandler.shopRegister();

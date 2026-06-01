@@ -29,6 +29,7 @@ public class SREModifier {
     public int maxCount = -1;
     public int enableChance = 100;
     public int enableNeedPlayerCount = 6;
+    public boolean isOtherModeRole = false;
 
     public SREModifier setClientGameTickEvent(Consumer<Player> event) {
         this.clientTickEvent = event;
@@ -172,6 +173,24 @@ public class SREModifier {
 
     public SREModifier setCannotAppliedToVigilante(boolean flag) {
         this.notVigilante = flag;
+        return this;
+    }
+
+    /**
+     * 是否是"其它模式"的修饰符（用于U键职业介绍页面的模式筛选）
+     * @return 是否为其他模式修饰符
+     */
+    public boolean isOtherModeRole() {
+        return this.isOtherModeRole;
+    }
+
+    /**
+     * 设置是否为"其它模式"的修饰符
+     * @param isOtherModeRole 是否为其他模式修饰符
+     * @return this
+     */
+    public SREModifier setOtherModeRole(boolean isOtherModeRole) {
+        this.isOtherModeRole = isOtherModeRole;
         return this;
     }
 }

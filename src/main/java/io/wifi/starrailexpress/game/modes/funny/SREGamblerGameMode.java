@@ -36,6 +36,11 @@ public class SREGamblerGameMode extends SREMurderGameMode {
     long gamblerTimeout = -1;
 
     @Override
+    public boolean shouldRecordPlayerStats() {
+        return false;
+    }
+
+    @Override
     public void initializeGame(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent,
             List<ServerPlayer> players) {
 
@@ -75,7 +80,8 @@ public class SREGamblerGameMode extends SREMurderGameMode {
         }
         for (ServerPlayer player : gamblerPlayers) {
             gameWorldComponent.addRole(player, ModRoles.GAMBLER, false);
-            // ModdedRoleAssigned.EVENT.invoker().assignModdedRole(player, ModRoles.GAMBLER);
+            // ModdedRoleAssigned.EVENT.invoker().assignModdedRole(player,
+            // ModRoles.GAMBLER);
             GamblerPlayerComponent.KEY.get(player).initWithDrawInterval(20 * 15);
             RoleUtils.sendWelcomeAnnouncement(player);
             MCItemsUtils.insertStackInFreeSlot(player, ModItems.ONCE_REVOLVER.getDefaultInstance());
@@ -87,7 +93,7 @@ public class SREGamblerGameMode extends SREMurderGameMode {
                     false, // showParticles - 不显示粒子
                     false // showIcon - 不显示图标
             ));
-            
+
             player.addEffect(new MobEffectInstance(
                     ModEffects.SKILL_BANED,
                     20 * 15,

@@ -10,13 +10,16 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.flag.FeatureFlagSet;
 import org.agmas.noellesroles.Noellesroles;
+import org.agmas.noellesroles.component.GhostStateComponent;
 import org.agmas.noellesroles.content.effects.NoCollideEffect;
 import org.agmas.noellesroles.content.effects.SimpleMobEffect;
 import org.agmas.noellesroles.content.effects.TimeStopEffect;
@@ -24,10 +27,38 @@ import org.agmas.noellesroles.content.effects.TimeStopEffect;
 public class ModEffects {
     public static final Holder<MobEffect> SKILL_BANED = register("skill_baned",
             new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0xFFFFFF));
+    public static final Holder<MobEffect> INVENTORY_BANED = register("inventory_baned",
+            new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0xFFFFFF));
+    public static final Holder<MobEffect> EAT_MEAT_FOOD = register("eat_meat_food",
+            new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0xFFFFFF));
+    public static final Holder<MobEffect> NEXT_SKILL_BANED = register("next_skill_baned",
+            new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0xFFFFFF));
     public static final Holder<MobEffect> TAROT_ASSEMBLY = register("tarot_assembly",
             new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0xFFFFFF));
     public static final Holder<MobEffect> BLACK_MONITOR = register("black_monitor",
             new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0xFFFFFF));
+    public static final Holder<MobEffect> GHOST_STATE = register("ghost_state",
+            new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0xFFFFFF){
+                @Override
+                public boolean shouldApplyEffectTickThisTick(int i, int j) {
+                    return true;
+                }
+
+
+
+                @Override
+                public boolean applyEffectTick(LivingEntity livingEntity, int i) {
+
+                    if (livingEntity instanceof ServerPlayer serverPlayer){
+                        GhostStateComponent ghostStateComponent = GhostStateComponent.KEY.get(serverPlayer);
+                        if (!ghostStateComponent.isGhostState()) {
+                            ghostStateComponent.isGhost = true;
+                            ghostStateComponent.sync();
+                        }
+                    }
+                    return super.applyEffectTick(livingEntity, i);
+                }
+            });
     public static final Holder<MobEffect> MOVE_BANED = register("move_baned",
             new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0xFFFFFF) {
                 @Override
@@ -186,7 +217,56 @@ public class ModEffects {
      * - 全服减速20%+无法打开背包+水墨风shader
      * - 持续60秒
      */
-    public static final Holder<MobEffect> MONOKUMA_FRENZY = register("monokuma_frenzy",
+    
+    /**
+     * 沉浸式滤镜效果：仙境
+     */
+    public static final Holder<MobEffect> FAIRYLAND_FILTER = register("fairyland_filter",
+            new SimpleMobEffect(MobEffectCategory.BENEFICIAL, 0xB7F7FF));
+
+    /**
+     * 沉浸式滤镜效果：后世
+     */
+    public static final Holder<MobEffect> AFTERLIFE_FILTER = register("afterlife_filter",
+            new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0xD7D7D7));
+
+    /**
+     * 沉浸式滤镜效果：梦核
+     */
+    public static final Holder<MobEffect> DREAMCORE_FILTER = register("dreamcore_filter",
+            new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0xFFC0F5));
+
+    /**
+     * 玩家隔离：看不见/听不见其他玩家
+     */
+    public static final Holder<MobEffect> PLAYER_ISOLATION = register("player_isolation",
+            new SimpleMobEffect(MobEffectCategory.HARMFUL, 0x6A5ACD));
+    /**
+     * 重金属语音：让 simple voice chat 的说话音色变低沉
+     */
+    public static final Holder<MobEffect> HEAVY_METAL_VOICE = register("heavy_metal_voice",
+            new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0x505050));
+    /**
+     * 扩音语音：扩大语音传播范围
+     */
+    public static final Holder<MobEffect> VOICE_RANGE_BOOST = register("voice_range_boost",
+            new SimpleMobEffect(MobEffectCategory.BENEFICIAL, 0x8FD3FF));
+    /**
+     * 回响语音：让语音出现回音
+     */
+    public static final Holder<MobEffect> VOICE_ECHO = register("voice_echo",
+            new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0xCBB6FF));
+    /**
+     * 沉默语音：让其他人听不到说话者的声音
+     */
+    public static final Holder<MobEffect> VOICE_SILENCE = register("voice_silence",
+            new SimpleMobEffect(MobEffectCategory.HARMFUL, 0x808080));
+    /**
+     * 聊天禁止：拥有此效果的玩家发送的聊天消息不会被任何人看到
+     */
+    public static final Holder<MobEffect> CHAT_BAN = register("chat_ban",
+            new SimpleMobEffect(MobEffectCategory.HARMFUL, 0x666666));
+public static final Holder<MobEffect> MONOKUMA_FRENZY = register("monokuma_frenzy",
             new org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaFrenzyEffect());
 
     /**
@@ -247,6 +327,30 @@ public class ModEffects {
             return 0f;
         }
         return Mth.clamp(0.25f * (amp + 1), 0f, 1f);
+    }
+
+    public static float getHeavyMetalPitchRatio(LivingEntity entity) {
+        int amp = getAmplifier(entity, HEAVY_METAL_VOICE);
+        if (amp < 0) {
+            return 1f;
+        }
+        return Mth.clamp(1f - 0.15f * (amp + 1), 0.4f, 1f);
+    }
+
+    public static float getVoiceRangeMultiplier(LivingEntity entity) {
+        int amp = getAmplifier(entity, VOICE_RANGE_BOOST);
+        if (amp < 0) {
+            return 1f;
+        }
+        return 1f + (amp + 1);
+    }
+
+    public static int getVoiceEchoCount(LivingEntity entity) {
+        int amp = getAmplifier(entity, VOICE_ECHO);
+        if (amp < 0) {
+            return 0;
+        }
+        return Mth.clamp(amp + 1, 1, 5);
     }
 
     /**

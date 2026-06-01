@@ -13,7 +13,7 @@ public final class ShowSelectedMapUIPayload implements CustomPacketPayload {
     public static final Type<ShowSelectedMapUIPayload> ID = new Type<>(SRE.id("show_selected_map_ui"));
     public static final StreamCodec<FriendlyByteBuf, ShowSelectedMapUIPayload> CODEC = CustomPacketPayload
             .codec(ShowSelectedMapUIPayload::write, ShowSelectedMapUIPayload::new);
-    private  String serverConfig;
+    private String serverConfig;
 
     public ShowSelectedMapUIPayload(String serverConfig) {
         this.serverConfig = serverConfig;
@@ -25,9 +25,7 @@ public final class ShowSelectedMapUIPayload implements CustomPacketPayload {
 
     public ShowSelectedMapUIPayload(boolean joinLater) {
         if (joinLater) {
-            this.serverConfig = MapConfig.gson.toJson(ServerMapConfig.cache_maps) ;
-
-        }else {
+            this.serverConfig = MapConfig.gson.toJson(ServerMapConfig.cache_maps);
         }
     }
 
@@ -60,8 +58,10 @@ public final class ShowSelectedMapUIPayload implements CustomPacketPayload {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == this) return true;
-        if (obj == null || obj.getClass() != this.getClass()) return false;
+        if (obj == this)
+            return true;
+        if (obj == null || obj.getClass() != this.getClass())
+            return false;
         var that = (ShowSelectedMapUIPayload) obj;
         return Objects.equals(this.serverConfig, that.serverConfig);
     }

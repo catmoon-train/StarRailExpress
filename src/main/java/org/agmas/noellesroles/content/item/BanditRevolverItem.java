@@ -81,8 +81,7 @@ public class BanditRevolverItem extends SkinableItem {
             return var10000;
         }, (double) 20.0F);
     }
-
-    // TODO: 不显示皮肤
+    
     @Override
     public String getItemSkinType() {
         return "revolver";

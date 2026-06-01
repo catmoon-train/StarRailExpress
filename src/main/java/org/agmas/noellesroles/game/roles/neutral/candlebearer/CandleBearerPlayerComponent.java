@@ -1,6 +1,7 @@
 package org.agmas.noellesroles.game.roles.neutral.candlebearer;
 
 import io.wifi.starrailexpress.api.RoleComponent;
+import io.wifi.starrailexpress.cca.PlayerBodyEntityComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -204,6 +205,15 @@ public class CandleBearerPlayerComponent implements RoleComponent, ServerTicking
 
     public boolean candleCorpse(PlayerBodyEntity body) {
         if (!(player instanceof ServerPlayer serverPlayer)) {
+            return false;
+        }
+
+        // 检查是否是葬仪伪造的尸体，不能与伪造的尸体交互
+        if (PlayerBodyEntityComponent.KEY.get(body).isFakeBody) {
+            serverPlayer.displayClientMessage(
+                    Component.translatable("message.noellesroles.candlebearer.cannot_candle_fake_body")
+                            .withStyle(ChatFormatting.RED),
+                    true);
             return false;
         }
 

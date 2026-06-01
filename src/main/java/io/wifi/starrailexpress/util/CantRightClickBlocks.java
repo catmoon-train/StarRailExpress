@@ -1,12 +1,16 @@
 package io.wifi.starrailexpress.util;
 
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.SREGameModes;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DecoratedPotBlock;
 import net.minecraft.world.level.block.FlowerPotBlock;
 
+import javax.print.DocFlavor;
 import java.util.*;
 
 public class CantRightClickBlocks {
@@ -67,18 +71,23 @@ public class CantRightClickBlocks {
     /**
      * 判断是否应该阻止与方块的交互
      */
-    public static boolean shouldPreventInteraction(Block block) {
+    public static boolean shouldPreventInteraction(Block block,Level level) {
         if (SRE.isLobby)
             return false;
-        return !isAllowedBlock(block) || cantClickItems.contains(BuiltInRegistries.BLOCK.getKey(block).toString())
-                || CANNOT_INTERACT_IDS.contains(BuiltInRegistries.BLOCK.getKey(block).toString());
+        String string = BuiltInRegistries.BLOCK.getKey(block).toString();
+        SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(level);
+
+
+        return !isAllowedBlock(block,level) || cantClickItems.contains(string)
+                || CANNOT_INTERACT_IDS.contains(string);
     }
 
     /**
      * 检查方块是否在允许的列表中
      */
-    public static boolean isAllowedBlock(Block block) {
+    public static boolean isAllowedBlock(Block block, Level level) {
         // 如果在允许列表中，直接返回true
+
         if (ALLOWED_BLOCKS.contains(block)) {
             return true;
         }

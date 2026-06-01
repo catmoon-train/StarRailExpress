@@ -6,9 +6,11 @@ import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.cca.SREGameTimeComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
+import io.wifi.starrailexpress.event.OnGameTrueStarted;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.modes.SREMurderGameMode;
 import io.wifi.starrailexpress.game.roles.SpecialGameModeModifiers;
+import io.wifi.starrailexpress.index.TMMItems;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -25,7 +27,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
 import org.agmas.harpymodloader.component.WorldModifierComponent;
+import org.agmas.harpymodloader.events.ModifierAssigned;
 import org.agmas.noellesroles.commands.BroadcastCommand;
+import org.agmas.noellesroles.game.modifier.NRModifiers;
 import org.agmas.noellesroles.init.FunnyItems;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.utils.MCItemsUtils;
@@ -38,7 +42,7 @@ import java.util.List;
 
 public class SRETNTTagGameMode extends SREMurderGameMode {
     public SRETNTTagGameMode(ResourceLocation identifier) {
-        super(identifier);
+        super(identifier, 10, 2);
     }
 
     public final static int roundGapTime = 10 * 20;
@@ -70,6 +74,16 @@ public class SRETNTTagGameMode extends SREMurderGameMode {
         nextBombTime = -1;
         nextRoundTime = -1;
         super.initializeGame(serverWorld, gameWorldComponent, players);
+        var wmc = WorldModifierComponent.KEY.get(serverWorld);
+        for (ServerPlayer p : serverWorld.players()) {
+            MCItemsUtils.insertStackInFreeSlot(p, TMMItems.CROWBAR.getDefaultInstance());
+            int roleType = gameWorldComponent.getRoleType(p);
+            if (roleType == 1 || roleType == 5) {
+                wmc.addModifier(p.getUUID(), NRModifiers.EXPEDITION, false);
+                ModifierAssigned.EVENT.invoker().assignModifier(p, NRModifiers.EXPEDITION);
+            }
+        }
+        wmc.sync();
     }
 
     /**
@@ -89,11 +103,18 @@ public class SRETNTTagGameMode extends SREMurderGameMode {
         }
 
         if (_killer != null) {
-            if (transformTNTTag(_killer, victim))
+            if (transformTNTTag(_killer, victim)) {
                 return;
+            }
         }
         GameUtils.teleportBackToRoom(victim);
         return;
+    }
+
+    @Override
+    public void afterInitializeGame(ServerLevel serverWorld, SREGameWorldComponent gameComponent,
+            ArrayList<ServerPlayer> readyPlayerList) {
+        super.afterInitializeGame(serverWorld, gameComponent, readyPlayerList);
     }
 
     public static boolean transformTNTTag(Player from_player, Player to_player) {
@@ -111,6 +132,7 @@ public class SRETNTTagGameMode extends SREMurderGameMode {
         modifierComponent.addModifier(to_player.getUUID(), SpecialGameModeModifiers.TNT_TAGGED);
         MCItemsUtils.clearItem(from_player, FunnyItems.HOT_POTATO);
         MCItemsUtils.insertStackInFreeSlot(to_player, FunnyItems.HOT_POTATO.getDefaultInstance());
+
         return true;
     }
 
@@ -173,6 +195,16 @@ public class SRETNTTagGameMode extends SREMurderGameMode {
 
     @Override
     public boolean hasMood() {
+        return false;
+    }
+
+    @Override
+    public boolean shouldRecordPlayerStats() {
+        return false;
+    }
+
+    @Override
+    public boolean autoTriggerGameTrueStarted() {
         return false;
     }
 
@@ -310,6 +342,13 @@ public class SRETNTTagGameMode extends SREMurderGameMode {
             }
             return false;
         });
+    }
+
+    @Override
+    public void gameStarted(ServerLevel serverWorld, SREGameWorldComponent gameComponent,
+            ArrayList<ServerPlayer> readyPlayerList) {
+        super.gameStarted(serverWorld, gameComponent, readyPlayerList);
+        OnGameTrueStarted.EVENT.invoker().onGameTrueStarted(serverWorld);
     }
 
     @Override

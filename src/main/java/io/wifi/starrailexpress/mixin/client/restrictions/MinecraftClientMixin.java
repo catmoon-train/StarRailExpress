@@ -2,9 +2,9 @@ package io.wifi.starrailexpress.mixin.client.restrictions;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
-import io.wifi.starrailexpress.event.OnOpenInventory;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.player.LocalPlayer;
@@ -27,15 +27,25 @@ public abstract class MinecraftClientMixin {
             return;
         }
 
-        if (SREClient.gameComponent.getFade() > 0) {
+        SREGameWorldComponent gameComponent = SREClient.gameComponent;
+        if (gameComponent!=null){
+
+        if (gameComponent.getFade() > 0) {
             return;
         }
+
+
+        }
         boolean flag = SREClient.isPlayerAliveAndInSurvival();
-        if(!flag && OnOpenInventory.EVENT.invoker().needOpenLimittedInventory(player, screen)){
+        if(!flag && checkOnOpenInventory(player, screen)){
             flag = true;
         }
 
         original.call(instance,
                 flag ? new LimitedInventoryScreen(this.player) : screen);
+    }
+
+    private static boolean checkOnOpenInventory(LocalPlayer player, Screen screen) {
+        return io.wifi.starrailexpress.event.OnOpenInventory.EVENT.invoker().needOpenLimittedInventory(player, screen);
     }
 }

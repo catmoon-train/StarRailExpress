@@ -1,0 +1,81 @@
+{
+  "mapName": "example_train_map",
+  
+  "canJump": false,
+  "canSwim": false,
+  "noReset": false,
+  "mustCopy": false,
+  "haveOutsideSound": false,
+  
+  "snowEnabled": true,
+  
+  "sceneOffset": {
+    "enabled": true,
+    "x": 0,
+    "y": 125,
+    "z": 0
+  },
+  
+  "spawnPos": {
+    "x": 0.5,
+    "y": 100,
+    "z": 0.5,
+    "yaw": 0
+  },
+  
+  "spectatorSpawnPos": {
+    "x": 0.5,
+    "y": 100,
+    "z": 0.5,
+    "yaw": 0
+  },
+  
+  "readyArea": {
+    "minX": -10,
+    "minY": 95,
+    "minZ": -10,
+    "maxX": 10,
+    "maxY": 105,
+    "maxZ": 10
+  },
+  
+  "playArea": {
+    "minX": -50,
+    "minY": 90,
+    "minZ": -50,
+    "maxX": 50,
+    "maxY": 120,
+    "maxZ": 50
+  },
+  
+  "sceneArea": {
+    "minX": -50,
+    "minY": -30,
+    "minZ": -200,
+    "maxX": 50,
+    "maxY": 10,
+    "maxZ": 200
+  },
+  
+  "resetTemplateArea": {
+    "minX": -50,
+    "minY": -30,
+    "minZ": -200,
+    "maxX": 50,
+    "maxY": 10,
+    "maxZ": 200
+  },
+  
+  "resetPasteArea": {
+    "minX": -50,
+    "minY": 90,
+    "minZ": -200,
+    "maxX": 50,
+    "maxY": 130,
+    "maxZ": 200
+  },
+  
+  "roomCount": 1,
+  
+  "gameModes": ["survival"]
+}

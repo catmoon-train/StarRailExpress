@@ -1,7 +1,10 @@
 package io.wifi.starrailexpress.game.data;
 
 import com.google.gson.Gson;
+
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
+import io.wifi.starrailexpress.cca.MapVotingComponent;
 import io.wifi.starrailexpress.game.data.MapConfig.MapEntry;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -47,16 +50,36 @@ public class ServerMapConfig {
     public List<MapEntry> getRandomMaps() {
         return getRandomMaps(SREConfig.instance().mapRandomCount);
     }
+
     public static List<MapEntry> cache_maps = new ArrayList<>();
 
     public List<MapEntry> getRandomMaps(int count) {
-        if (count < 0) {
-            return this.maps;
+        if (SRE.SERVER == null) {
+            return getRandomMaps(count, null);
         }
-        var a = new ArrayList<>(this.maps);
+
+        return getRandomMaps(count, MapVotingComponent.KEY.get(SRE.SERVER.overworld()).getPresetGameMode());
+    }
+
+    public List<MapEntry> getRandomMaps(int count, String gameMode) {
+
+        ArrayList<MapEntry> a = new ArrayList<>(this.maps);
+        int pCount = -1;
+        if (SRE.SERVER != null) {
+            pCount = SRE.SERVER.getPlayerCount();
+        }
+        final int playerCount = pCount;
         a.removeIf(
                 mapEntry -> !mapEntry.canSelect
-        );
+                        || (!mapEntry.isSupportedGameMode(gameMode))
+                        || (playerCount >= 0
+                                &&
+                                ((mapEntry.maxCount >= 0 && playerCount > mapEntry.maxCount)
+                                        || (mapEntry.minCount >= 0 && playerCount < mapEntry.minCount))));
+        if (count < 0) {
+            cache_maps = a;
+            return a;
+        }
         Collections.shuffle(a);
         List<MapEntry> mapEntries = a.subList(0, count);
         cache_maps = mapEntries;

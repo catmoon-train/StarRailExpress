@@ -31,7 +31,7 @@ public class ServerPlayerEntityMixin {
     public void tmm$disableSleepMessage(ServerPlayer instance, Component message, boolean overlay,
             Operation<Void> original) {
         if (SRE.isLobby) {
-            original.call();
+            original.call(instance, message, overlay);
         }
     }
 
@@ -39,7 +39,7 @@ public class ServerPlayerEntityMixin {
     public void tmm$disableSetSpawnpoint(ServerPlayer instance, ResourceKey<Level> dimension, @Nullable BlockPos pos,
             float angle, boolean forced, boolean sendMessage, Operation<Void> original) {
         if (SRE.isLobby) {
-            original.call();
+            original.call(dimension, pos, angle, forced, sendMessage); // 传递正确的参数
         }
     }
 
@@ -61,7 +61,7 @@ public class ServerPlayerEntityMixin {
             }
         }
         var mainhandItem = self.getMainHandItem();
-        if (mainhandItem.is(TMMItems.BAT)
+        if (!self.getCooldowns().isOnCooldown(TMMItems.BAT) && mainhandItem.is(TMMItems.BAT)
                 && self.getAttackStrengthScale(0.75F) >= 1f) {
             if (target instanceof ServerPlayer playerTarget) {
                 GameUtils.killPlayer(playerTarget, true, self, GameConstants.DeathReasons.BAT);
@@ -73,10 +73,10 @@ public class ServerPlayerEntityMixin {
             self.level().playSound(null, self.blockPosition(), TMMSounds.ITEM_BAT_HIT, SoundSource.PLAYERS, 3f, 1f);
             ci.cancel();
             return;
-        } else if (mainhandItem.getItem() instanceof SREItemProperties.LeftClickKillable
+        } else if (mainhandItem.getItem() instanceof SREItemProperties.LeftClickHurtable htit
                 && self.getAttackStrengthScale(0.75F) >= 1f) {
             if (target instanceof ServerPlayer playerTarget) {
-                GameUtils.killPlayer(playerTarget, true, self, SkinUtils.getItemTypeResourceLocation(mainhandItem));
+                htit.onAttack(self, playerTarget, mainhandItem);
             }
             if (target instanceof PuppeteerBodyEntity puppeteerBodyEntity) {
                 puppeteerBodyEntity.playerHurt(self, SkinUtils.getItemTypeResourceLocation(mainhandItem));

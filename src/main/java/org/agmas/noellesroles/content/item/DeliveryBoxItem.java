@@ -34,6 +34,12 @@ public class DeliveryBoxItem extends Item {
     @Override
     public InteractionResultHolder<ItemStack> use(Level world, Player user, InteractionHand hand) {
         ItemStack stack = user.getItemInHand(hand);
+
+        // 检查物品冷却（3秒 = 60 ticks）
+        if (user.getCooldowns().isOnCooldown(this)) {
+            return InteractionResultHolder.fail(stack);
+        }
+
         if (world.isClientSide) {
 
             // 客户端：检查是否瞄准玩家
@@ -64,6 +70,9 @@ public class DeliveryBoxItem extends Item {
             );
             return InteractionResultHolder.fail(stack);
         }
+
+        // 服务端：应用3秒冷却
+        user.getCooldowns().addCooldown(this, 60);
         return InteractionResultHolder.sidedSuccess(user.getItemInHand(hand), world.isClientSide());
     }
     

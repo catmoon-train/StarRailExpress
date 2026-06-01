@@ -103,6 +103,33 @@ public class MWServerConfig {
 		}
 	}
 
+	public static class HashListConfigValue extends ListConfigValue<String> {
+		public HashListConfigValue(String name, String... defaultValues) {
+			super(name, defaultValues);
+		}
+
+		@SuppressWarnings("unused")
+		public HashListConfigValue(String name, ArrayList<String> value) {
+			super(name, value);
+		}
+
+		@Override
+		protected boolean isValid(String element) {
+			// SHA256 hash should be 64 hexadecimal characters
+			return Pattern.matches("[a-fA-F0-9]{64}", element);
+		}
+
+		@Override
+		protected String createExceptionDescription(String element) {
+			return "\"%s\" is not a valid SHA256 hash!".formatted(element);
+		}
+
+		@Override
+		protected String parseAsElementValue(JsonElement element) {
+			return element.getAsString();
+		}
+	}
+
 	public static class BoolConfigValue implements IConfigValue<Boolean> {
 		private final String name;
 		private boolean value;
@@ -142,7 +169,14 @@ public class MWServerConfig {
 	public static final BoolConfigValue ENABLE_MOD_FILTER = new BoolConfigValue("ENABLE_MOD_FILTER", true);
 	public static final BoolConfigValue SYNC_HASH_VALUES = new BoolConfigValue("SYNC_HASH_VALUES", false);
 	public static final BoolConfigValue USE_WHITELIST_ONLY = new BoolConfigValue("USE_WHITELIST_ONLY", false);
+	public static final BoolConfigValue ENABLE_RESOURCE_PACK_VERIFICATION = new BoolConfigValue("ENABLE_RESOURCE_PACK_VERIFICATION", false);
+	public static final BoolConfigValue ENABLE_SHADER_PACK_VERIFICATION = new BoolConfigValue("ENABLE_SHADER_PACK_VERIFICATION", false);
+	public static final BoolConfigValue VERIFY_RESOURCE_PACK_HASHES = new BoolConfigValue("VERIFY_RESOURCE_PACK_HASHES", false);
+	public static final BoolConfigValue VERIFY_SHADER_PACK_HASHES = new BoolConfigValue("VERIFY_SHADER_PACK_HASHES", false);
+	public static final BoolConfigValue VERIFY_STARRAILEXPRESS_HASHES = new BoolConfigValue("VERIFY_STARRAILEXPRESS_HASHES", false);
+	public static final BoolConfigValue SKIP_VERIFICATION_FOR_OPS = new BoolConfigValue("SKIP_VERIFICATION_FOR_OPS", true);
 	public static final MOD_IDListConfigValue CLIENT_MOD_NECESSARY = new MOD_IDListConfigValue("CLIENT_MOD_NECESSARY", MOD_ID);
+	public static final MOD_IDListConfigValue STARRAILEXPRESS_HASH_MOD_IDS = new MOD_IDListConfigValue("STARRAILEXPRESS_HASH_MOD_IDS", MOD_ID);
 	public static final MOD_IDListConfigValue CLIENT_MOD_WHITELIST = new MOD_IDListConfigValue("CLIENT_MOD_WHITELIST",
 			"fabric-api", "fabric-api-base",
 			"fabric-api-lookup-api-v1", "fabric-biome-api-v1",
@@ -173,6 +207,9 @@ public class MWServerConfig {
 			"java", "minecraft",
 			"mixinextras", MOD_ID);
 	public static final MOD_IDListConfigValue CLIENT_MOD_BLACKLIST = new MOD_IDListConfigValue("CLIENT_MOD_BLACKLIST", "aristois", "bleachhack", "meteor-client", "wurst");
+	public static final HashListConfigValue ALLOWED_STARRAILEXPRESS_HASHES = new HashListConfigValue("ALLOWED_STARRAILEXPRESS_HASHES");
+	public static final HashListConfigValue ALLOWED_RESOURCE_PACK_HASHES = new HashListConfigValue("ALLOWED_RESOURCE_PACK_HASHES");
+	public static final HashListConfigValue ALLOWED_SHADER_PACK_HASHES = new HashListConfigValue("ALLOWED_SHADER_PACK_HASHES");
 
 	public static List<Pair<String, MismatchType>> test(List<String> mods) {
 		List<Pair<String, MismatchType>> ret = Lists.newArrayList();
@@ -227,6 +264,7 @@ public class MWServerConfig {
 						MWLogger.LOGGER.error("Could not create new file " + readmeFile);
 					}
 				}
+				AllowedHashConfigFiles.ensureFiles();
 			}
 		} catch (IOException e) {
 			MWLogger.LOGGER.error("Error during loading config.", e);
@@ -255,6 +293,51 @@ public class MWServerConfig {
 			writer.write("- Default: false\n");
 			writer.write("- Description: Enable/Disable synchronization of SHA256 hash values for mod verification. When enabled, clients will send full hash values for all mods. When disabled (default), only StarRailExpress-related mods will have hash values sent, while other mods will use dummy values to reduce network traffic.\n\n");
 
+			writer.write("## ENABLE_RESOURCE_PACK_VERIFICATION\n");
+			writer.write("- Type: Boolean (true/false)\n");
+			writer.write("- Default: false\n");
+			writer.write("- Description: Enable/Disable verification of enabled resource packs. When enabled, the server will check if clients have unauthorized resource packs enabled.\n\n");
+
+			writer.write("## ENABLE_SHADER_PACK_VERIFICATION\n");
+			writer.write("- Type: Boolean (true/false)\n");
+			writer.write("- Default: false\n");
+			writer.write("- Description: Enable/Disable verification of enabled shader packs. When enabled, the server will check if clients have unauthorized shader packs enabled.\n\n");
+
+			writer.write("## VERIFY_RESOURCE_PACK_HASHES\n");
+			writer.write("- Type: Boolean (true/false)\n");
+			writer.write("- Default: false\n");
+			writer.write("- Description: Enable/Disable SHA256 hash verification for resource packs. When enabled, resource packs must match hashes in ALLOWED_RESOURCE_PACK_HASHES array.\n\n");
+
+			writer.write("## VERIFY_SHADER_PACK_HASHES\n");
+			writer.write("- Type: Boolean (true/false)\n");
+			writer.write("- Default: false\n");
+			writer.write("- Description: Enable/Disable SHA256 hash verification for shader packs. When enabled, shader packs must match hashes in ALLOWED_SHADER_PACK_HASHES array.\n\n");
+
+			writer.write("## VERIFY_STARRAILEXPRESS_HASHES\n");
+			writer.write("- Type: Boolean (true/false)\n");
+			writer.write("- Default: false\n");
+			writer.write("- Description: Enable/Disable SHA256 hash verification for StarRailExpress-related client mods. Hashes are matched against ALLOWED_STARRAILEXPRESS_HASHES and files under config/mod_whitelist/hashes/mods/.\n\n");
+
+			writer.write("## STARRAILEXPRESS_HASH_MOD_IDS\n");
+			writer.write("- Type: Array of MOD_ID strings\n");
+			writer.write("- Default: [\"starrailexpress\"]\n");
+			writer.write("- Description: Mod ids that should be checked when VERIFY_STARRAILEXPRESS_HASHES is true.\n\n");
+
+			writer.write("## ALLOWED_STARRAILEXPRESS_HASHES\n");
+			writer.write("- Type: Array of SHA256 hashes\n");
+			writer.write("- Default: []\n");
+			writer.write("- Description: Inline allowed SHA256 hashes for StarRailExpress-related mods. You can also use multiple files under config/mod_whitelist/hashes/mods/.\n\n");
+
+			writer.write("## ALLOWED_RESOURCE_PACK_HASHES\n");
+			writer.write("- Type: Array of SHA256 hashes\n");
+			writer.write("- Default: []\n");
+			writer.write("- Description: Array of allowed SHA256 hashes for resource packs. Only used when VERIFY_RESOURCE_PACK_HASHES is true. You can also use multiple files under config/mod_whitelist/hashes/resourcepacks/.\n\n");
+
+			writer.write("## ALLOWED_SHADER_PACK_HASHES\n");
+			writer.write("- Type: Array of SHA256 hashes\n");
+			writer.write("- Default: []\n");
+			writer.write("- Description: Array of allowed SHA256 hashes for shader packs. Only used when VERIFY_SHADER_PACK_HASHES is true. You can also use multiple files under config/mod_whitelist/hashes/shaderpacks/.\n\n");
+
 			writer.write("# Adding a mod to whitelist and blacklist\n\n");
 			writer.write("The config file is in \"&lt;server directory&gt;/config/mod_whitelist-config.json\". If you want to add mods to the whitelist or blacklist, please read the following guides.\n\n");
 			writer.write("First, you should find the identifier of the mod (MOD_ID), a simple way is open the jar file with an archiver software (eg. WinZip, HaoZip, 7-Zip), open \"fabric.mod.json\" and see what the value of key \"id\" is. For example, the MOD_ID of Mod Whitelist mod is \"mod_whitelist\".\n\n");
@@ -263,8 +346,6 @@ public class MWServerConfig {
 			writer.write("As you might see, if fabric-api is installed, the modlist will contains quite a lot of MOD_IDs. You can run a client with this mod installed, and open \".minecraft/logs/latest.log\", and you will see the following format line to simplify gathering the modlist manually:\n\n");
 			writer.write("```\nMod Whitelist vx.x.x from the client! Modlist: [\"fabric-api\", \"fabric-api-base\", ...]\n```\n\n");
 
-			writer.write("# Issue tracker\n\n");
-			writer.write("Visit https://github.com/Viola-Siemens/Mod-Whitelist/issues and post your issue and logs if you find any problems with this mod.\n");
 		}
 	}
 	
@@ -343,6 +424,7 @@ public class MWServerConfig {
 					loadFromJson(json.getAsJsonObject());
 				}
 				checkValues();
+				AllowedHashConfigFiles.ensureFiles();
 				MWLogger.LOGGER.info("Configuration reloaded successfully!");
 			} else {
 				MWLogger.LOGGER.warn("Config file does not exist: " + configFile.getAbsolutePath());

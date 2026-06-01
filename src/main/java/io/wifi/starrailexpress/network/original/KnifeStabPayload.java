@@ -1,7 +1,7 @@
 package io.wifi.starrailexpress.network.original;
 
 import io.wifi.starrailexpress.SRE;
-import io.wifi.events.day_night_fight.DNF;
+
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameConstants;
@@ -52,7 +52,7 @@ public record KnifeStabPayload(int target) implements CustomPacketPayload {
                     && !SREGameWorldComponent.KEY.get(player.level()).isRole(player,
                             SpecialGameModeRoles.SUPER_LOOSE_END)) {
                 cooldowns.addCooldown(TMMItems.KNIFE, GameConstants.ITEM_COOLDOWNS.get(TMMItems.KNIFE));
-                DNF.applyKnifeCooldown(player);
+
             }
         }
     }

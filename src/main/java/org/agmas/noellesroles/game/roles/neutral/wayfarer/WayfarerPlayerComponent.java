@@ -1,6 +1,7 @@
 package org.agmas.noellesroles.game.roles.neutral.wayfarer;
 
 import io.wifi.starrailexpress.api.RoleComponent;
+import io.wifi.starrailexpress.cca.PlayerBodyEntityComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.event.AfterShieldAllowPlayerDeath;
@@ -29,7 +30,6 @@ import net.minecraft.world.item.component.ItemLore;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.game.roles.Innocent.coroner.BodyDeathReasonComponent;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.ModNBTUtils;
@@ -268,10 +268,19 @@ public class WayfarerPlayerComponent implements RoleComponent, ServerTickingComp
                 }
                 if (level.isClientSide)
                     return InteractionResult.SUCCESS;
-                Player targetVictim = level.getPlayerByUUID(be.getPlayerUuid());
 
-                BodyDeathReasonComponent bodyDeathReasonComponent = (BodyDeathReasonComponent) BodyDeathReasonComponent.KEY
+                // 检查是否是葬仪伪造的尸体，不能与伪造的尸体交互
+                PlayerBodyEntityComponent bodyDeathReasonComponent = (PlayerBodyEntityComponent) PlayerBodyEntityComponent.KEY
                         .get(be);
+                if (bodyDeathReasonComponent.isFakeBody) {
+                    player.displayClientMessage(
+                            Component.translatable("message.noellesroles.wayfarer.cannot_interact_fake_body")
+                                    .withStyle(ChatFormatting.RED),
+                            true);
+                    return InteractionResult.FAIL;
+                }
+
+                Player targetVictim = level.getPlayerByUUID(be.getPlayerUuid());
                 UUID killerUid = be.getKillerUuid();
                 Player targetKiller = null;
                 if (killerUid != null) {
@@ -335,18 +344,19 @@ public class WayfarerPlayerComponent implements RoleComponent, ServerTickingComp
                 Component.translatable("message.noellesroles.wayfarer.phase.2.finish").withStyle(ChatFormatting.GOLD),
                 true);
         // 生成尸体
-        PlayerBodyEntity body = (PlayerBodyEntity) TMMEntities.PLAYER_BODY.create(this.player.level());
+        PlayerBodyEntity body = TMMEntities.PLAYER_BODY.create(this.player.level());
         if (body != null) {
-            body.setDeathReason(trueDeathReason.toString());
             body.setPlayerUuid(player.getUUID());
             Vec3 spawnPos = player.position().add(player.getLookAngle().normalize().scale(1.0));
             body.moveTo(spawnPos.x(), player.getY(), spawnPos.z(), player.getYHeadRot(), 0.0F);
             body.setYRot(player.getYHeadRot());
             body.setYHeadRot(player.getYHeadRot());
             player.level().addFreshEntity(body);
-            final var bodyDeathReasonComponent = BodyDeathReasonComponent.KEY.get(body);
-            bodyDeathReasonComponent.playerRole = ModRoles.WAYFARER_ID;
-            bodyDeathReasonComponent.sync();
+
+            PlayerBodyEntityComponent component = PlayerBodyEntityComponent.KEY.get(body);
+            component.setDeathReason(trueDeathReason.toString(), false); // 不同步
+            component.playerRole = ModRoles.WAYFARER_ID; // 直接赋值，不触发同步
+            component.sync(); // 最终统一同步
         }
         // 传送
         this.player.teleportTo(this.pos.x, this.pos.y, this.pos.z);
@@ -379,7 +389,7 @@ public class WayfarerPlayerComponent implements RoleComponent, ServerTickingComp
     }
 
     public void startFindKiller(PlayerBodyEntity be, @Nullable Player targetVictim, @NotNull Player targetKiller,
-            BodyDeathReasonComponent bodyDeathReasonComponent) {
+            PlayerBodyEntityComponent bodyDeathReasonComponent) {
         var gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
         if (!gameWorldComponent.isSkillAvailable) {
             player.displayClientMessage(

@@ -1,6 +1,7 @@
 package org.agmas.noellesroles.mixin.client.roles.glitch_robot;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.gui.HudMoodRenderer;
 import io.wifi.utils.client.betterrender.FakeGuiGraphics;
@@ -40,7 +41,7 @@ public class GlitchRobotMoodMixin {
             "hud/mood_jester");
 
     @Inject(method = "renderKiller", at = @At("HEAD"), cancellable = true)
-    private static void glitchRobotMood(Font textRenderer, FakeGuiGraphics context, int color, CallbackInfo ci) {
+    private static void glitchRobotMood(Font textRenderer, FakeGuiGraphics context, int color, SRERole role, CallbackInfo ci) {
         SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY
                 .get(Minecraft.getInstance().player.level());
         if (gameWorldComponent.isRole(Minecraft.getInstance().player, ModRoles.GLITCH_ROBOT)) {

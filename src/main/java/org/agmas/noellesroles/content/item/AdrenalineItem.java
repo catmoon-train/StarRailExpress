@@ -67,7 +67,7 @@ public class AdrenalineItem extends Item {
                                     targetPlayer.addEffect(new MobEffectInstance(ModEffects.STAMINA_BOOST, 40 * 20, 0, true, true, true));
                                 }
                                 
-                                target.playSound(NRSounds.ITEM_SYRINGE_STAB, 0.4F, 1.0F);
+                                target.playSound(NRSounds.SYRINGE_STAB, 0.4F, 1.0F);
                                 final var blockPos = target.blockPosition();
                                 ((ServerLevel) world).playLocalSound(blockPos.getX(), blockPos.getY(), blockPos.getZ(),
                                         SoundEvents.BREWING_STAND_BREW, SoundSource.PLAYERS, 1.4F, 1.0F, false);

@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.client.screen;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.index.TMMItems;
 import net.minecraft.client.Minecraft;
@@ -56,7 +57,7 @@ public class ViewLotteryPoolScreen extends AbstractPixelScreen{
         public List<List<ItemCard>> itemCards = null;
     }
     public static class ItemCard extends AbstractWidget {
-        public ItemCard(int i, int j, int pixelSize, int quality, ResourceLocation itemResLocation, Button.OnPress onPress) {
+        public ItemCard(int i, int j, int pixelSize, int quality, String rawName, Button.OnPress onPress) {
             super(i, j,
                     ITEM_PIXELS_SIZE * pixelSize,
                     (ITEM_PIXELS_SIZE + QUALITY_BAR_PIXELS_SIZE) * pixelSize, Component.empty());
@@ -64,7 +65,7 @@ public class ViewLotteryPoolScreen extends AbstractPixelScreen{
                     i, j,
                     ITEM_PIXELS_SIZE * pixelSize, ITEM_PIXELS_SIZE * pixelSize,
                     ITEM_PIXELS_SIZE, ITEM_PIXELS_SIZE,
-                    itemResLocation
+                    LootScreenUtils.getItemResourceLocation(rawName)
             );
             qualityBar = new TextureWidget(
                     i, j + ITEM_PIXELS_SIZE * pixelSize,
@@ -79,14 +80,23 @@ public class ViewLotteryPoolScreen extends AbstractPixelScreen{
                     .size(ITEM_PIXELS_SIZE * pixelSize, (ITEM_PIXELS_SIZE + QUALITY_BAR_PIXELS_SIZE) * pixelSize)
                     .build();
             button.setAlpha(0f);
+
+            skinName = LotteryManager.LotteryPool.getTrueName(rawName);
+            // 设置itemStack
+            itemType = LotteryManager.LotteryPool.getSkinItemStack(rawName);
             this.pixelSize = pixelSize;
         }
         @Override
         protected void renderWidget(GuiGraphics guiGraphics, int i, int j, float f) {
             // render BG
             guiGraphics.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), BG_COLOR.getRGB());
-            item.render(guiGraphics, i, j, f);
             qualityBar.render(guiGraphics, i, j, f);
+            if (itemType != null && !itemType.isEmpty()) {
+                LootScreenUtils.renderPixelScaleSkinItem(item.getX(), item.getY(), pixelSize, guiGraphics, itemType, skinName);
+            }
+            // 渲染金币等非物品
+            else if(item != null)
+                item.render(guiGraphics, i, j, f);
         }
         @Override
         protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
@@ -112,6 +122,8 @@ public class ViewLotteryPoolScreen extends AbstractPixelScreen{
         private TextureWidget item = null;
         private TextureWidget qualityBar = null;
         private Button button = null;
+        protected ItemStack itemType;
+        protected String skinName;
         private int pixelSize;
     }
     protected ViewLotteryPoolScreen(int poolID) {
@@ -156,22 +168,9 @@ public class ViewLotteryPoolScreen extends AbstractPixelScreen{
                         curX, curY,
                         pixelSize,
                         i,
-                        LootScreenUtils.getItemResourceLocation(itemName),
+                        itemName,
                         button -> {
-                            ItemStack itemStack = null;
-                            // 设置itemStack
-                            if (itemName.startsWith("knife/")) {
-                                itemStack = TMMItems.KNIFE.getDefaultInstance();
-                            }
-                            else if (itemName.startsWith("gun/")) {
-                                itemStack = TMMItems.REVOLVER.getDefaultInstance();
-                            }
-                            else if (itemName.startsWith("bat/")) {
-                                itemStack = TMMItems.BAT.getDefaultInstance();
-                            }
-                            else if (itemName.startsWith("grenade/")) {
-                                itemStack = TMMItems.GRENADE.getDefaultInstance();
-                            }
+                            ItemStack itemStack = LotteryManager.LotteryPool.getSkinItemStack(itemName);
                             Minecraft minecraft = Minecraft.getInstance();
                             if (itemStack != null) {
                                 String trueName = itemName.substring(itemName.indexOf('/') + 1);

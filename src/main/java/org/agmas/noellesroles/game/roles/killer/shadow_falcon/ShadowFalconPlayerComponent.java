@@ -110,7 +110,7 @@ public class ShadowFalconPlayerComponent implements RoleComponent, ServerTicking
     }
 
     /**
-     * 使用掠食技能（浮空时给盾）
+     * 使用掠食技能（浮空时给盾 + 开启创造模式飞行）
      * 
      * @return 是否成功使用
      */
@@ -140,6 +140,11 @@ public class ShadowFalconPlayerComponent implements RoleComponent, ServerTicking
                     false,
                     false
             ));
+            
+            // 开启创造模式飞行能力
+            serverPlayer.getAbilities().mayfly = true;
+            serverPlayer.getAbilities().flying = true;
+            serverPlayer.onUpdateAbilities();
         }
 
         // 设置状态
@@ -163,7 +168,7 @@ public class ShadowFalconPlayerComponent implements RoleComponent, ServerTicking
     }
 
     /**
-     * 脱下喷气背包
+     * 脱下喷气背包和鞘翅
      * 
      * @return 是否成功脱下
      */
@@ -173,9 +178,57 @@ public class ShadowFalconPlayerComponent implements RoleComponent, ServerTicking
             return false;
         }
 
+        boolean removedSomething = false;
+        StringBuilder messageBuilder = new StringBuilder();
+
         // 检查身上是否有喷气背包
         ItemStack chestplate = player.getInventory().getArmor(2); // 胸甲槽位
-        if (!chestplate.is(ModItems.JETPACK)) {
+        if (chestplate.is(ModItems.JETPACK)) {
+            // 尝试将喷气背包放入背包
+            ItemStack jetpack = chestplate.copy();
+            player.getInventory().armor.set(2, ItemStack.EMPTY);
+            
+            if (!player.getInventory().add(jetpack)) {
+                // 背包满了，恢复装备并提示
+                player.getInventory().armor.set(2, jetpack);
+                if (player instanceof ServerPlayer serverPlayer) {
+                    serverPlayer.displayClientMessage(
+                            Component.translatable("message.noellesroles.shadow_falcon.inventory_full"),
+                            true);
+                }
+                return false;
+            }
+            
+            removedSomething = true;
+            messageBuilder.append(Component.translatable("message.noellesroles.shadow_falcon.jetpack_removed").getString());
+        }
+
+        // 检查身上是否有鞘翅（胸甲位置）
+        ItemStack currentChest = player.getInventory().getArmor(2);
+        if (currentChest.is(net.minecraft.world.item.Items.ELYTRA)) {
+            // 尝试将鞘翅放入背包
+            ItemStack elytra = currentChest.copy();
+            player.getInventory().armor.set(2, ItemStack.EMPTY);
+            
+            if (!player.getInventory().add(elytra)) {
+                // 背包满了，恢复装备并提示
+                player.getInventory().armor.set(2, elytra);
+                if (player instanceof ServerPlayer serverPlayer) {
+                    serverPlayer.displayClientMessage(
+                            Component.translatable("message.noellesroles.shadow_falcon.inventory_full"),
+                            true);
+                }
+                return false;
+            }
+            
+            if (removedSomething) {
+                messageBuilder.append(", ");
+            }
+            messageBuilder.append(Component.translatable("message.noellesroles.shadow_falcon.elytra_removed").getString());
+            removedSomething = true;
+        }
+
+        if (!removedSomething) {
             if (player instanceof ServerPlayer serverPlayer) {
                 serverPlayer.displayClientMessage(
                         Component.translatable("message.noellesroles.shadow_falcon.no_jetpack"),
@@ -184,19 +237,9 @@ public class ShadowFalconPlayerComponent implements RoleComponent, ServerTicking
             return false;
         }
 
-        // 脱下喷气背包并丢出
-        ItemStack jetpack = chestplate.copy();
-        player.getInventory().armor.set(2, ItemStack.EMPTY);
-        
-        // 将喷气背包放入玩家背包或丢到地上
-        if (!player.getInventory().add(jetpack)) {
-            // 背包满了就丢在地上
-            player.drop(jetpack, true);
-        }
-
         if (player instanceof ServerPlayer serverPlayer) {
             serverPlayer.displayClientMessage(
-                    Component.translatable("message.noellesroles.shadow_falcon.jetpack_removed"),
+                    Component.literal(messageBuilder.toString()),
                     true);
         }
 
@@ -335,9 +378,14 @@ public class ShadowFalconPlayerComponent implements RoleComponent, ServerTicking
     private void endPredation() {
         this.isPredationActive = false;
         
-        // 清除虚弱效果
+        // 清除虚弱效果和创造模式飞行
         if (player instanceof ServerPlayer serverPlayer) {
             player.removeEffect(MobEffects.WEAKNESS);
+            
+            // 关闭创造模式飞行能力
+            serverPlayer.getAbilities().mayfly = false;
+            serverPlayer.getAbilities().flying = false;
+            serverPlayer.onUpdateAbilities();
             
             // 如果护盾还在，移除护盾
             if (temporaryShield > 0 && !shieldBroken) {

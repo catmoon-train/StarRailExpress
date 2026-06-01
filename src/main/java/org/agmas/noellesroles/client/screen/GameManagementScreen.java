@@ -33,9 +33,13 @@ public class GameManagementScreen extends Screen {
     public static class Entry {
         public final EntryType type;
         public final Component text;
-        /** 点击执行的指令（不含 /）；LABEL / SEPARATOR 为 null */
+        /**
+         * 点击执行的指令（不含 /）；LABEL / SEPARATOR 为 null
+         */
         public final String command;
-        /** 主题色 */
+        /**
+         * 主题色
+         */
         public final int color;
 
         private Entry(EntryType type, Component text, String command, int color) {
@@ -47,7 +51,9 @@ public class GameManagementScreen extends Screen {
 
         // ── 工厂方法 ───────────────────────────────────────────────
 
-        /** 小节标题（黄色粗体，使用翻译键） */
+        /**
+         * 小节标题（黄色粗体，使用翻译键）
+         */
         public static Entry label(String key) {
             return new Entry(EntryType.LABEL,
                     Component.translatable(key).withStyle(ChatFormatting.YELLOW,
@@ -55,36 +61,48 @@ public class GameManagementScreen extends Screen {
                     null, 0xFFCCAA22);
         }
 
-        /** 小节标题（自定义颜色，使用翻译键） */
+        /**
+         * 小节标题（自定义颜色，使用翻译键）
+         */
         public static Entry label(String key, int color) {
             return new Entry(EntryType.LABEL,
                     Component.translatable(key).withStyle(ChatFormatting.BOLD),
                     null, color);
         }
 
-        /** 小节标题（完全自定义 Component） */
+        /**
+         * 小节标题（完全自定义 Component）
+         */
         public static Entry label(Component text, int color) {
             return new Entry(EntryType.LABEL, text, null, color);
         }
 
-        /** 按钮（翻译键 + 指令，默认蓝色） */
+        /**
+         * 按钮（翻译键 + 指令，默认蓝色）
+         */
         public static Entry button(String key, String command) {
             return new Entry(EntryType.BUTTON,
                     Component.translatable(key), command, 0xFF5577CC);
         }
 
-        /** 按钮（翻译键 + 指令 + 主题色） */
+        /**
+         * 按钮（翻译键 + 指令 + 主题色）
+         */
         public static Entry button(String key, String command, int color) {
             return new Entry(EntryType.BUTTON,
                     Component.translatable(key), command, color);
         }
 
-        /** 按钮（自定义 Component + 指令 + 主题色） */
+        /**
+         * 按钮（自定义 Component + 指令 + 主题色）
+         */
         public static Entry button(Component text, String command, int color) {
             return new Entry(EntryType.BUTTON, text, command, color);
         }
 
-        /** 分隔线 */
+        /**
+         * 分隔线
+         */
         public static Entry separator() {
             return new Entry(EntryType.SEPARATOR, Component.empty(), null, 0xFF334466);
         }
@@ -104,7 +122,9 @@ public class GameManagementScreen extends Screen {
             this.color = color;
         }
 
-        /** 追加任意条目，支持链式调用 */
+        /**
+         * 追加任意条目，支持链式调用
+         */
         public Category add(Entry e) {
             entries.add(e);
             return this;
@@ -130,11 +150,12 @@ public class GameManagementScreen extends Screen {
     // 【数据定义】在这里追加分类 / 小节 / 按钮，无需改动其他代码。
     // 所有翻译键以 screen.game_manage. 开头。
     // ══════════════════════════════════════════════════════════════════
+    public static final Random random = new Random();
 
-    public static final List<Category> CATEGORIES = new ArrayList<>();
+    public static final List<Category> CATEGORIES = initializeCategories();
 
-    public static Random random = new Random();
-    static {
+    private static List<Category> initializeCategories() {
+        List<Category> categories = new ArrayList<>();
 
         // ── 分类：游戏流程 ──────────────────────────────────────────
         Category game = new Category("screen.game_manage.category.game", 0xFF5577CC);
@@ -169,7 +190,7 @@ public class GameManagementScreen extends Screen {
                 .add(Entry.button("screen.game_manage.btn.vote_20s", "tmm:votemap 400", 0xFF44BB66))
                 .add(Entry.button("screen.game_manage.btn.vote_30s", "tmm:votemap 600", 0xFF44BB66));
 
-        CATEGORIES.add(game);
+        categories.add(game);
 
         // ── 分类：游戏效果管理 ──────────────────────────────────────────
         Category effects = new Category("screen.game_manage.category.effects", 0xFF44BB88);
@@ -196,7 +217,7 @@ public class GameManagementScreen extends Screen {
                         "tmm:game timestop 600 \"30s Time Stop\"", 0xFFBB5533))
                 .add(Entry.button("screen.game_manage.btn.stop_timestop",
                         "tmm:game timestop stop", 0xFF5577CC));
-        CATEGORIES.add(effects);
+        categories.add(effects);
 
         // ── 分类：地图 ──────────────────────────────────────────
         Category world = new Category("screen.game_manage.category.world", 0xFFEEBB33);
@@ -211,7 +232,7 @@ public class GameManagementScreen extends Screen {
                 .add(Entry.button("screen.game_manage.btn.weather_clear", "weather clear", 0xFF55AADD))
                 .add(Entry.button("screen.game_manage.btn.weather_rain", "weather rain", 0xFF334477))
                 .add(Entry.button("screen.game_manage.btn.weather_thunder", "weather thunder", 0xFFAA8833));
-        CATEGORIES.add(world);
+        categories.add(world);
 
         // ── 分类：地图配置 ──────────────────────────────────────────
         Category maps = new Category("screen.game_manage.category.maps", 0xFFAA44CC);
@@ -234,7 +255,7 @@ public class GameManagementScreen extends Screen {
                         "tmm:game scan reset_points", 0xFF6644AA))
                 .add(Entry.button("screen.game_manage.section.scan_task",
                         "tmm:game scan task_points", 0xFF5566BB));
-        CATEGORIES.add(maps);
+        categories.add(maps);
 
         // ── 分类：调试工具 ──────────────────────────────────────────
         Category misc = new Category("screen.game_manage.category.misc", 0xFF778899);
@@ -258,8 +279,10 @@ public class GameManagementScreen extends Screen {
                 .add(Entry.button("screen.game_manage.btn.role_management",
                         "manageRolesUI", 0xFF26f5fC));
 
-        CATEGORIES.add(misc);
+        categories.add(misc);
+        return categories;
     }
+
 
     // ══════════════════════════════════════════════════════════════════
     // 布局常量

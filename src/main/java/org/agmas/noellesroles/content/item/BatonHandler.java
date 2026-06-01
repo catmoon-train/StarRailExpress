@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.content.item;
 
+import io.wifi.starrailexpress.api.SREGameModes;
 import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -11,7 +12,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import org.agmas.noellesroles.init.ModItems;
+
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -37,6 +42,9 @@ public class BatonHandler {
         if (attacker.getCooldowns().isOnCooldown(ModItems.BATON)) {
             return InteractionResult.FAIL;
         }
+        SREGameWorldComponent game = SREGameWorldComponent.KEY.get(level);
+
+
 
         UUID aId = attacker.getUUID();
         HitRecord rec = RECORDS.get(aId);
@@ -68,7 +76,10 @@ public class BatonHandler {
         if (rec.count >= 2) {
             // 击杀
             RECORDS.remove(aId);
-            io.wifi.starrailexpress.game.GameUtils.killPlayer(victim, true, attacker, org.agmas.noellesroles.Noellesroles.id("baton_kill"));
+
+            {
+                io.wifi.starrailexpress.game.GameUtils.killPlayer(victim, true, attacker, org.agmas.noellesroles.Noellesroles.id("baton_kill"));
+            }
             // 冷却
             attacker.getCooldowns().addCooldown(ModItems.BATON, 15 * 20);
             return InteractionResult.SUCCESS;

@@ -1,6 +1,11 @@
 # StarRail Express
 **[English]** [[简体中文]](README.zh.md)
 
+## Translation Tips
+Since the developer's native language **is not English**, the English version of the README will lag behind **the Chinese version** in updates. Please use **AI translation tools** to view **the Chinese version** of the README whenever possible.
+
+We also welcome players and developers who provide translations for us! (Except for Simplified Chinese translations, since that is the developers’ native language.)
+
 ## Please Note!
 This Wathe addon is **highly likely** incompatible with any other Wathe addons.
 

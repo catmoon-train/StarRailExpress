@@ -51,24 +51,73 @@ public abstract class ClientWorldMixin extends Level {
     @Mutable
     private static Set<Item> MARKER_PARTICLE_ITEMS;
 
+    // 雪花效果性能优化：节流计数器
+    private static int sre_snowFrameCount = 0;
+    private static final int SRE_SNOW_UPDATE_INTERVAL = 3; // 每3tick更新一次（约50ms）
+    private static final int SRE_SNOW_PARTICLES_PER_TICK = 50; // 减少粒子数量
+
     @Inject(method = "<init>", at = @At("TAIL"))
     public void tmm$addCustomBlockMarkers(ClientPacketListener networkHandler, ClientLevel.ClientLevelData properties, ResourceKey registryRef, Holder dimensionTypeEntry, int loadDistance, int simulationDistance, Supplier profiler, LevelRenderer worldRenderer, boolean debugWorld, long seed, CallbackInfo ci) {
         MARKER_PARTICLE_ITEMS = new HashSet<>(MARKER_PARTICLE_ITEMS);
         MARKER_PARTICLE_ITEMS.add(TMMBlocks.BARRIER_PANEL.asItem());
         MARKER_PARTICLE_ITEMS.add(TMMBlocks.LIGHT_BARRIER.asItem());
+        // 手持实体交互方块/镶板时显示屏障粒子
+        MARKER_PARTICLE_ITEMS.add(TMMBlocks.ENTITY_INTERACTION_BLOCK.asItem());
+        MARKER_PARTICLE_ITEMS.add(TMMBlocks.ENTITY_INTERACTION_PANEL.asItem());
     }
 
     @Inject(method = "tick", at = @At("TAIL"))
     public void tmm$addSnowflakes(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
-        if (SREClient.isTrainMoving() && SREClient.getTrainComponent().isSnowing()) {
-            LocalPlayer player = minecraft.player;
-            RandomSource random = player.getRandom();
-            for (int i = 0; i < 200; i++) {
-                Vec3 playerVel = player.getKnownMovement();
-                Vec3 pos = new Vec3(player.getX() - 20f + random.nextFloat() + playerVel.x(), player.getY() + (random.nextFloat() * 2 - 1) * 10f + playerVel.y(), player.getZ() + (random.nextFloat() * 2 - 1) * 10f + playerVel.z());
-                if (this.minecraft.level.canSeeSky(BlockPos.containing(pos))) {
-                    this.addParticle(TMMParticles.SNOWFLAKE, pos.x(), pos.y(), pos.z(), 2 + playerVel.x(), playerVel.y(), playerVel.z());
-                }
+        // 第1级过滤：快速检查所有条件（零开销）
+        // 雪花效果依赖列车移动、下雪启用和地图配置
+        if (!SREClient.isTrainMoving() || 
+            !SREClient.getTrainComponent().isSnowing() || 
+            SREClient.areaComponent == null || 
+            !SREClient.areaComponent.snowEnabled) {
+            return;
+        }
+        
+        // 第2级过滤：节流机制，每3tick更新一次（降低CPU负载66%）
+        sre_snowFrameCount++;
+        if (sre_snowFrameCount % SRE_SNOW_UPDATE_INTERVAL != 0) {
+            return;
+        }
+        
+        LocalPlayer player = minecraft.player;
+        if (player == null) return;
+        
+        RandomSource random = player.getRandom();
+        Vec3 playerVel = player.getKnownMovement();
+        
+        // 预计算玩家位置（避免重复调用）
+        double playerX = player.getX();
+        double playerY = player.getY();
+        double playerZ = player.getZ();
+        
+        // 性能优化：减少粒子数量从200降到50
+        for (int i = 0; i < SRE_SNOW_PARTICLES_PER_TICK; i++) {
+            // 使用局部变量减少对象创建
+            float randX = random.nextFloat();
+            float randY = random.nextFloat();
+            float randZ = random.nextFloat();
+            
+            // 计算粒子位置（内联计算，避免创建中间Vec3对象）
+            double posX = playerX - 20f + randX + playerVel.x();
+            double posY = playerY + (randY * 2 - 1) * 10f + playerVel.y();
+            double posZ = playerZ + (randZ * 2 - 1) * 10f + playerVel.z();
+            
+            // 性能优化：只在部分粒子上检查天空可见性（降低75%的canSeeSky调用）
+            boolean shouldCheckSky = (i % 4 == 0);
+            
+            if (!shouldCheckSky || this.minecraft.level.canSeeSky(BlockPos.containing(posX, posY, posZ))) {
+                // 添加雪花粒子
+                this.addParticle(
+                    TMMParticles.SNOWFLAKE, 
+                    posX, posY, posZ, 
+                    2 + playerVel.x(), 
+                    playerVel.y(), 
+                    playerVel.z()
+                );
             }
         }
     }

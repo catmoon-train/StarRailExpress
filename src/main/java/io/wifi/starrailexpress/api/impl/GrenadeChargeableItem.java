@@ -1,8 +1,11 @@
 package io.wifi.starrailexpress.api.impl;
 
 import io.wifi.starrailexpress.api.ChargeableItem;
+import io.wifi.starrailexpress.client.StaminaRenderer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+
+import java.awt.*;
 
 /**
  * 手榴弹的蓄力实现
@@ -17,7 +20,11 @@ public class GrenadeChargeableItem implements ChargeableItem {
     public float getChargePercentage(ItemStack stack, Player player, int ticksUsingItem) {
         return Math.min((float) ticksUsingItem / getMaxChargeTime(stack, player), 1f);
     }
-
+    @Override
+    public void onFullyCharged(ItemStack stack, Player player) {
+        // 触发屏幕边缘效果
+        StaminaRenderer.triggerScreenEdgeEffect(Color.WHITE.getRGB(), 300L, 0.5f);
+    }
     @Override
     public float getMaxStamina(ItemStack stack, Player player) {
         return 20.0f;

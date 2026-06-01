@@ -2,8 +2,10 @@ package io.wifi.starrailexpress.index;
 
 import dev.doctor4t.ratatouille.util.registrar.BlockEntityTypeRegistrar;
 import io.wifi.starrailexpress.SRE;
+
 import io.wifi.starrailexpress.content.block.entity.HornBlockEntity;
 import io.wifi.starrailexpress.content.block_entity.*;
+import io.wifi.starrailexpress.content.block_entity.EntityInteractionBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 
 public interface TMMBlockEntities {
@@ -31,6 +33,11 @@ public interface TMMBlockEntities {
             registrar.create("fourth_room_table", BlockEntityType.Builder.of(
                     org.agmas.noellesroles.game.modes.fourthroom.block.FourthRoomTableBlockEntity::new,
                     TMMBlocks.FOURTH_ROOM_TABLE));
+
+
+
+    BlockEntityType<EntityInteractionBlockEntity> ENTITY_INTERACTION_BLOCK = registrar.create("entity_interaction_block",
+            BlockEntityType.Builder.of(EntityInteractionBlockEntity::new, TMMBlocks.ENTITY_INTERACTION_BLOCK, TMMBlocks.ENTITY_INTERACTION_PANEL));
 
     static void initialize() {
         registrar.registerEntries();

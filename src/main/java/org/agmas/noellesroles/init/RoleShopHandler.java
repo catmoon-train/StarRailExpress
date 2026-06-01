@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.init;
 
 import io.github.mortuusars.exposure_polaroid.ExposurePolaroid;
-import io.wifi.events.day_night_fight.DNF;
+
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.SRERole;
@@ -36,7 +36,8 @@ import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.item.component.*;
 import org.agmas.noellesroles.commands.BroadcastCommand;
-import org.agmas.noellesroles.game.roles.Innocent.singer.SingerPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.singer.SingerPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.executioner.ExecutionerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.executioner.ShootingFrenzyPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.ma_chen_xu.MaChenXuPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.stalker.StalkerPlayerComponent;
@@ -45,6 +46,7 @@ import org.agmas.noellesroles.game.roles.killer.water_ghost.WaterGhostPlayerComp
 import org.agmas.noellesroles.game.roles.neutral.candlebearer.CandleBearerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.mercenary.MercenaryPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role.TraitorAndModifiers;
 import org.agmas.noellesroles.role.RedHouseRoles;
 import org.agmas.noellesroles.utils.MCItemsUtils;
 import org.agmas.noellesroles.utils.RoleUtils;
@@ -75,6 +77,83 @@ public class RoleShopHandler {
     tag.putBoolean(OLDMAN_EASTER_EGG_USED_TAG, false);
     rod.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
     return rod;
+  }
+
+  private static void registerRepairModeShops() {
+    var hunterCommon = new ArrayList<ShopEntry>();
+    hunterCommon.add(new ShopEntry(ModItems.HUNTER_WEAPON.getDefaultInstance(), 45, ShopEntry.Type.WEAPON));
+    hunterCommon.add(new ShopEntry(ModItems.HUNTER_HAMMER.getDefaultInstance(), 58, ShopEntry.Type.WEAPON));
+    hunterCommon.add(new ShopEntry(ModItems.HUNTER_HOOK.getDefaultInstance(), 52, ShopEntry.Type.WEAPON));
+    hunterCommon.add(new ShopEntry(ModItems.HUNTER_CHAIN.getDefaultInstance(), 42, ShopEntry.Type.TOOL));
+    hunterCommon.add(new ShopEntry(new ItemStack(ModBlocks.HUNTER_SNARE.asItem(), 2), 30, ShopEntry.Type.TOOL));
+    hunterCommon.add(new ShopEntry(ModItems.HUNTER_PLUGIN_LACERATION.getDefaultInstance(), 32, ShopEntry.Type.TOOL));
+
+    var warden = new ArrayList<>(hunterCommon);
+    warden.add(new ShopEntry(ModItems.HUNTER_JAMMER.getDefaultInstance(), 60, ShopEntry.Type.TOOL));
+    warden.add(new ShopEntry(new ItemStack(ModBlocks.HUNTER_SNARE.asItem(), 3), 45, ShopEntry.Type.TOOL));
+    warden.add(new ShopEntry(ModItems.HUNTER_PLUGIN_SUPPRESSION.getDefaultInstance(), 38, ShopEntry.Type.TOOL));
+
+    var brute = new ArrayList<>(hunterCommon);
+    brute.add(new ShopEntry(ModItems.HUNTER_BLINK.getDefaultInstance(), 70, ShopEntry.Type.TOOL));
+    brute.add(new ShopEntry(ModItems.ROPE.getDefaultInstance(), 40, ShopEntry.Type.TOOL));
+    brute.add(new ShopEntry(ModItems.HUNTER_PLUGIN_CONCUSSION.getDefaultInstance(), 38, ShopEntry.Type.TOOL));
+
+    var tracker = new ArrayList<>(hunterCommon);
+    tracker.add(new ShopEntry(ModItems.HUNTER_PULSE.getDefaultInstance(), 70, ShopEntry.Type.TOOL));
+    tracker.add(new ShopEntry(ModItems.ROPE.getDefaultInstance(), 40, ShopEntry.Type.TOOL));
+    tracker.add(new ShopEntry(ModItems.HUNTER_PLUGIN_TRACKING.getDefaultInstance(), 34, ShopEntry.Type.TOOL));
+
+    ShopContent.customEntries.put(ModRoles.REPAIR_WARDEN_ID, warden);
+    ShopContent.customEntries.put(ModRoles.REPAIR_BRUTE_ID, brute);
+    ShopContent.customEntries.put(ModRoles.REPAIR_TRACKER_ID, tracker);
+
+    var mechanic = new ArrayList<ShopEntry>();
+    mechanic.add(new ShopEntry(ModItems.REPAIR_TOOLBOX.getDefaultInstance(), 45, ShopEntry.Type.TOOL));
+    mechanic.add(new ShopEntry(new ItemStack(ModItems.SPARE_PARTS, 4), 30, ShopEntry.Type.TOOL));
+    mechanic.add(new ShopEntry(ModItems.REPAIR_CROWBAR.getDefaultInstance(), 40, ShopEntry.Type.TOOL));
+    mechanic.add(new ShopEntry(ModItems.REPAIR_BOLT_CUTTER.getDefaultInstance(), 45, ShopEntry.Type.TOOL));
+    mechanic.add(new ShopEntry(ModItems.REPAIR_FUSE.getDefaultInstance(), 55, ShopEntry.Type.TOOL));
+    mechanic.add(new ShopEntry(ModItems.SMOKE_PELLET.getDefaultInstance(), 25, ShopEntry.Type.TOOL));
+    ShopContent.customEntries.put(ModRoles.REPAIR_MECHANIC_ID, mechanic);
+
+    var medic = new ArrayList<ShopEntry>();
+    medic.add(new ShopEntry(ModItems.RESCUE_FLARE.getDefaultInstance(), 45, ShopEntry.Type.TOOL));
+    medic.add(new ShopEntry(new ItemStack(ModItems.SMOKE_PELLET, 2), 40, ShopEntry.Type.TOOL));
+    medic.add(new ShopEntry(new ItemStack(ModItems.SPARE_PARTS, 3), 25, ShopEntry.Type.TOOL));
+    medic.add(new ShopEntry(ModItems.ESCAPE_GRAPPLE.getDefaultInstance(), 55, ShopEntry.Type.TOOL));
+    ShopContent.customEntries.put(ModRoles.REPAIR_MEDIC_ID, medic);
+
+    var runner = new ArrayList<ShopEntry>();
+    runner.add(new ShopEntry(ModItems.ESCAPE_GRAPPLE.getDefaultInstance(), 45, ShopEntry.Type.TOOL));
+    runner.add(new ShopEntry(ModItems.DECOY_BEACON.getDefaultInstance(), 35, ShopEntry.Type.TOOL));
+    runner.add(new ShopEntry(ModItems.SMOKE_PELLET.getDefaultInstance(), 30, ShopEntry.Type.TOOL));
+    runner.add(new ShopEntry(ModItems.REPAIR_OLD_KEY.getDefaultInstance(), 60, ShopEntry.Type.TOOL));
+    runner.add(new ShopEntry(ModItems.REPAIR_LOCKPICK.getDefaultInstance(), 36, ShopEntry.Type.TOOL));
+    runner.add(new ShopEntry(new ItemStack(ModItems.SPARE_PARTS, 3), 28, ShopEntry.Type.TOOL));
+    ShopContent.customEntries.put(ModRoles.REPAIR_RUNNER_ID, runner);
+
+    var archivist = new ArrayList<ShopEntry>();
+    archivist.add(new ShopEntry(new ItemStack(ModItems.SPARE_PARTS, 5), 35, ShopEntry.Type.TOOL));
+    archivist.add(new ShopEntry(ModItems.REPAIR_TOOLBOX.getDefaultInstance(), 50, ShopEntry.Type.TOOL));
+    archivist.add(new ShopEntry(ModItems.REPAIR_AREA_KEY.getDefaultInstance(), 45, ShopEntry.Type.TOOL));
+    archivist.add(new ShopEntry(ModItems.RESCUE_FLARE.getDefaultInstance(), 45, ShopEntry.Type.TOOL));
+    ShopContent.customEntries.put(ModRoles.REPAIR_ARCHIVIST_ID, archivist);
+
+    var saboteur = new ArrayList<ShopEntry>();
+    saboteur.add(new ShopEntry(ModItems.SMOKE_PELLET.getDefaultInstance(), 30, ShopEntry.Type.TOOL));
+    saboteur.add(new ShopEntry(ModItems.DECOY_BEACON.getDefaultInstance(), 35, ShopEntry.Type.TOOL));
+    saboteur.add(new ShopEntry(new ItemStack(ModItems.SPARE_PARTS, 4), 35, ShopEntry.Type.TOOL));
+    ShopContent.customEntries.put(ModRoles.REPAIR_SABOTEUR_ID, saboteur);
+
+    var collector = new ArrayList<ShopEntry>();
+    collector.add(new ShopEntry(new ItemStack(ModItems.SPARE_PARTS, 4), 28, ShopEntry.Type.TOOL));
+    collector.add(new ShopEntry(ModItems.REPAIR_GEAR_HANDLE.getDefaultInstance(), 50, ShopEntry.Type.TOOL));
+    collector.add(new ShopEntry(ModItems.REPAIR_BATTERY.getDefaultInstance(), 45, ShopEntry.Type.TOOL));
+    collector.add(new ShopEntry(ModItems.REPAIR_VALVE_HANDLE.getDefaultInstance(), 45, ShopEntry.Type.TOOL));
+    collector.add(new ShopEntry(ModItems.RESCUE_FLARE.getDefaultInstance(), 45, ShopEntry.Type.TOOL));
+    collector.add(new ShopEntry(ModItems.DECOY_BEACON.getDefaultInstance(), 35, ShopEntry.Type.TOOL));
+    collector.add(new ShopEntry(new ItemStack(ModItems.SMOKE_PELLET, 2), 40, ShopEntry.Type.TOOL));
+    ShopContent.customEntries.put(ModRoles.REPAIR_COLLECTOR_ID, collector);
   }
 
   public static boolean isOldmanEasterEggRod(@NotNull ItemStack stack) {
@@ -166,6 +245,10 @@ public class RoleShopHandler {
   public static ArrayList<ShopEntry> PILOT_SHOP = new ArrayList<>();
   // ==================== 影隼商店 ====================
   public static ArrayList<ShopEntry> SHADOW_FALCON_SHOP = new ArrayList<>();
+  // ==================== 疫使商店 ====================
+  public static ArrayList<ShopEntry> INFECTED_SHOP = new ArrayList<>();
+  // ==================== 葬仪商店 ====================
+  public static ArrayList<ShopEntry> MORTICIAN_BODYMAKER_SHOP = new ArrayList<>();
 
   /**
    * 初始化框架角色商店
@@ -272,7 +355,26 @@ public class RoleShopHandler {
     initializeBloodFeudistShop();
 
     ShopContent.register();
-    DNF.registerShops();
+    registerRepairModeShops();
+
+    {
+      var SHOP = new ArrayList<ShopEntry>();
+      SHOP.add(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), SREConfig.instance().lockpickPrice,
+          ShopEntry.Type.TOOL));
+      SHOP.add(
+          new ShopEntry(TMMItems.CROWBAR.getDefaultInstance(), SREConfig.instance().crowbarPrice, ShopEntry.Type.TOOL));
+      SHOP.add(
+          new ShopEntry(TMMItems.KNIFE.getDefaultInstance(), SREConfig.instance().knifePrice, ShopEntry.Type.WEAPON));
+      SHOP.add(new ShopEntry(TMMItems.REVOLVER.getDefaultInstance(), SREConfig.instance().revolverPrice,
+          ShopEntry.Type.WEAPON));
+      SHOP.add(new ShopEntry(ModItems.SHORT_SHOTGUN.getDefaultInstance(), SREConfig.instance().shortShotgunPrice,
+          ShopEntry.Type.WEAPON));
+      SHOP.add(new ShopEntry(TMMItems.GRENADE.getDefaultInstance(), SREConfig.instance().grenadePrice,
+          ShopEntry.Type.WEAPON));
+      SHOP.add(new ShopEntry(ModItems.SPELLBREAKER_POTION.getDefaultInstance(), 75, ShopEntry.Type.TOOL));
+      SHOP.add(new ShopEntry(ModItems.SILENCE_TOTEM.getDefaultInstance(), 130, ShopEntry.Type.TOOL));
+      ShopContent.customEntries.put(ModRoles.SPELLBREAKER.getIdentifier(), SHOP);
+    }
     {
       // 布袋鬼商店（诡舍·缚灵）
       // 设计要求：无法购买刀、枪、狂暴模式，只能购买强化领域的道具
@@ -371,8 +473,10 @@ public class RoleShopHandler {
       // 滞时鬼（Delayer）商店：只可购买 刀（130）、枪（285）、短管霰弹枪（300）、疯狂模式（400）、监控失灵（40）、鞭炮（15）
       var SHOP = new ArrayList<ShopEntry>();
       SHOP.add(new ShopEntry(TMMItems.KNIFE.getDefaultInstance(), 130, ShopEntry.Type.TOOL));
-      SHOP.add(new ShopEntry(io.wifi.starrailexpress.index.TMMItems.REVOLVER.getDefaultInstance(), 285, ShopEntry.Type.TOOL));
-      SHOP.add(new ShopEntry(org.agmas.noellesroles.init.ModItems.SHORT_SHOTGUN.getDefaultInstance(), 300, ShopEntry.Type.TOOL));
+      SHOP.add(new ShopEntry(io.wifi.starrailexpress.index.TMMItems.REVOLVER.getDefaultInstance(), 285,
+          ShopEntry.Type.TOOL));
+      SHOP.add(new ShopEntry(org.agmas.noellesroles.init.ModItems.SHORT_SHOTGUN.getDefaultInstance(), 300,
+          ShopEntry.Type.TOOL));
       SHOP.add(new ShopEntry(TMMItems.PSYCHO_MODE.getDefaultInstance(), 400, ShopEntry.Type.WEAPON) {
         @Override
         public boolean onBuy(@NotNull Player player) {
@@ -390,7 +494,13 @@ public class RoleShopHandler {
           return SREPlayerShopComponent.useMonitorBroken(player, SREConfig.instance().monitorBrokenDuration * 20);
         }
       });
-      SHOP.add(new ShopEntry(ModItems.CAMERA_SHEARS.getDefaultInstance(), 50, ShopEntry.Type.TOOL));
+      // 关灯 - 100金币
+      SHOP.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), 100, ShopEntry.Type.TOOL) {
+        public boolean onBuy(@NotNull Player player) {
+          return SREPlayerShopComponent.useBlackout(player);
+        }
+      });
+      SHOP.add(new ShopEntry(ModItems.CAMERA_SHEARS.getDefaultInstance(), 25, ShopEntry.Type.TOOL));
       SHOP.add(new ShopEntry(TMMItems.FIRECRACKER.getDefaultInstance(), 15, ShopEntry.Type.TOOL));
       SHOP.add(new ShopEntry(TMMItems.CROWBAR.getDefaultInstance(), 35, ShopEntry.Type.TOOL));
       SHOP.add(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), 80, ShopEntry.Type.TOOL));
@@ -523,6 +633,7 @@ public class RoleShopHandler {
           return false;
         }
       });
+      SHOP.add(new ShopEntry(ModItems.FLARE.getDefaultInstance(), 90, ShopEntry.Type.TOOL));
       ShopContent.customEntries.put(ModRoles.MONITOR.getIdentifier(), SHOP);
     }
     {
@@ -716,6 +827,9 @@ public class RoleShopHandler {
       ShopContent.customEntries.put(
           ModRoles.MORPHLING_ID, entries);
     }
+    // 静语者商店：默认杀手刀具列表
+    ShopContent.customEntries.put(
+        ModRoles.SILENCER_ID, ShopContent.defaultKnifeEntries);
     ShopContent.customEntries.put(
         ModRoles.POISONER_ID, ModItems.POISONER_SHOP_ENTRIES);
 
@@ -1293,7 +1407,7 @@ public class RoleShopHandler {
             }
           });
       // 左轮手枪 - 285金币（愤怒姿态）
-      shop.add(new ShopEntry(TMMItems.REVOLVER.getDefaultInstance(), 285, ShopEntry.Type.WEAPON) {
+      shop.add(new ShopEntry(ModItems.ZERO_ONE_FIVE_GUN.getDefaultInstance(), 285, ShopEntry.Type.WEAPON) {
         @Override
         public boolean canDisplay(Player player) {
           return !WatcherPlayerComponent.KEY.get(player).isInCalmStance();
@@ -1368,6 +1482,40 @@ public class RoleShopHandler {
           });
       ShopContent.customEntries.put(ModRoles.WATCHER_ID, shop);
     }
+
+    // 叛徒商店 - 屏障商品，不可交互、不可购买、不可显示，阻止默认杀手商店出现
+    {
+      var TRAITOR_SHOP = new ArrayList<ShopEntry>();
+      // 添加一个屏障商品：不可显示、不可购买，仅用于阻止 getRoleShopEntries 回退到默认杀手商店
+      TRAITOR_SHOP.add(new ShopEntry(Items.BARRIER.getDefaultInstance(), Integer.MAX_VALUE, ShopEntry.Type.TOOL) {
+        @Override
+        public boolean canDisplay(@NotNull Player player) {
+          return false;
+        }
+
+        @Override
+        public boolean canBuy(@NotNull Player player) {
+          return false;
+        }
+      });
+      ShopContent.customEntries.put(TraitorAndModifiers.TRAITOR.identifier(), TRAITOR_SHOP);
+    }
+
+    // 疫使商店
+    {
+      var INFECTED_SHOP_LIST = new ArrayList<ShopEntry>();
+      // 催化剂 - 450金币
+      // 使所有感染玩家和中毒玩家致死，但不会使杀手阵营/杀手方中立玩家致死
+      INFECTED_SHOP_LIST.add(new ShopEntry(ModItems.CATALYST.getDefaultInstance(), 450, ShopEntry.Type.TOOL));
+      // 乘务员钥匙 - 100金币
+      INFECTED_SHOP_LIST.add(new ShopEntry(ModItems.MASTER_KEY_P.getDefaultInstance(), 100, ShopEntry.Type.TOOL));
+      ShopContent.customEntries.put(ModRoles.INFECTED.getIdentifier(), INFECTED_SHOP_LIST);
+    }
+
+    // 葬仪商店
+    {
+      ShopContent.customEntries.put(ModRoles.MORTICIAN_BODYMAKER_ID, MORTICIAN_BODYMAKER_SHOP);
+    }
   }
 
   /**
@@ -1405,6 +1553,8 @@ public class RoleShopHandler {
     CANDLE_BEARER_SHOP.clear();
     PILOT_SHOP.clear();
     SHADOW_FALCON_SHOP.clear();
+    INFECTED_SHOP.clear();
+    MORTICIAN_BODYMAKER_SHOP.clear();
 
     柜子区的商店.add(new ShopEntry(
         ModItems.BANDIT_REVOLVER.getDefaultInstance(),
@@ -1460,7 +1610,32 @@ public class RoleShopHandler {
         }
       });
     }
-
+    {
+      // 切换目标 - 200金币
+      var 柜子区切换目标 = Items.PAPER.getDefaultInstance();
+      柜子区切换目标.set(DataComponents.ITEM_NAME, Component.translatable("itemstack.executioner.change_target.item_name"));
+      var lore = new ItemLore(List.of(
+          Component.translatable("itemstack.executioner.change_target.item_lore.1")
+              .withStyle(style -> style.withItalic(false).withColor(ChatFormatting.GRAY)),
+          Component.translatable("itemstack.executioner.change_target.item_lore.2")
+              .withStyle(style -> style.withItalic(false).withColor(ChatFormatting.GRAY))));
+      柜子区切换目标.set(DataComponents.LORE, lore);
+      柜子区的商店.add(new ShopEntry(
+          柜子区切换目标,
+          200,
+          ShopEntry.Type.WEAPON) {
+        @Override
+        public boolean onBuy(@NotNull Player player) {
+          boolean success = false;
+          var cca = ExecutionerPlayerComponent.KEY.get(player);
+          success = cca.assignRandomTarget(true);
+          if (success) {
+            player.getCooldowns().addCooldown(Items.PAPER, 20);
+          }
+          return success;
+        }
+      });
+    }
     // 阴谋家商店
     CONSPIRATOR_SHOP.add(new ShopEntry(
         ModItems.CONSPIRACY_PAGE.getDefaultInstance(),
@@ -1572,6 +1747,11 @@ public class RoleShopHandler {
     POSTMAN_SHOP.add(new ShopEntry(
         ModItems.DELIVERY_BOX.getDefaultInstance(),
         100,
+        ShopEntry.Type.TOOL));
+    // 收纳袋 - 150金币
+    POSTMAN_SHOP.add(new ShopEntry(
+        Items.BUNDLE.getDefaultInstance(),
+        150,
         ShopEntry.Type.TOOL));
 
     // 心理学家商店
@@ -1953,7 +2133,7 @@ public class RoleShopHandler {
         75,
         ShopEntry.Type.TOOL));
 
-    // 隐身机会 - 175金币（图标为药水，购买后隐身机会+1）
+    // 隐身机会 - 125金币（图标为药水，购买后隐身机会+1）
     {
       var invisItem = Items.POTION.getDefaultInstance();
       invisItem.set(DataComponents.ITEM_NAME,
@@ -1964,12 +2144,14 @@ public class RoleShopHandler {
           .setStyle(Style.EMPTY.withItalic(false)).withStyle(ChatFormatting.GRAY));
       invisItem.set(DataComponents.LORE, new ItemLore(invisLore));
 
-      CANDLE_BEARER_SHOP.add(new ShopEntry(invisItem, 175, ShopEntry.Type.TOOL) {
+      CANDLE_BEARER_SHOP.add(new ShopEntry(invisItem, 125, ShopEntry.Type.TOOL) {
         @Override
         public boolean onBuy(@NotNull Player player) {
           var comp = CandleBearerPlayerComponent.KEY.get(player);
-          if (comp == null) return false;
-          if (comp.invisibilityCharges >= CandleBearerPlayerComponent.MAX_INVISIBILITY_CHARGES) return false;
+          if (comp == null)
+            return false;
+          if (comp.invisibilityCharges >= CandleBearerPlayerComponent.MAX_INVISIBILITY_CHARGES)
+            return false;
           comp.invisibilityCharges++;
           if (player instanceof ServerPlayer sp) {
             sp.displayClientMessage(
@@ -2009,9 +2191,20 @@ public class RoleShopHandler {
         ShopEntry.Type.TOOL));
 
     // 飞行员商店
+    // 喷气背包 - 150金币
     PILOT_SHOP.add(new ShopEntry(
         ModItems.JETPACK.getDefaultInstance(),
-        175,
+        150,
+        ShopEntry.Type.TOOL));
+    // 鞘翅 - 400金币
+    PILOT_SHOP.add(new ShopEntry(
+        Items.ELYTRA.getDefaultInstance(),
+        400,
+        ShopEntry.Type.TOOL));
+    // 烟花火箭 - 75金币
+    PILOT_SHOP.add(new ShopEntry(
+        new ItemStack(Items.FIREWORK_ROCKET, 1),
+        75,
         ShopEntry.Type.TOOL));
 
     // 影隼商店
@@ -2021,7 +2214,7 @@ public class RoleShopHandler {
         ShopEntry.Type.WEAPON));
     SHADOW_FALCON_SHOP.add(new ShopEntry(
         ModItems.THROWING_KNIFE.getDefaultInstance(),
-        200,
+        145,
         ShopEntry.Type.TOOL));
     SHADOW_FALCON_SHOP.add(new ShopEntry(
         TMMItems.CROWBAR.getDefaultInstance(),
@@ -2035,7 +2228,7 @@ public class RoleShopHandler {
         TMMItems.GRENADE.getDefaultInstance(),
         350,
         ShopEntry.Type.WEAPON));
-    // 跳跃提升2药水 - 180金币，购买后给予30秒效果（图标为poison）
+    // 跳跃提升2药水 - 100金币，购买后给予30秒效果（图标为poison）
     {
       ItemStack jumpBoostPotion = Items.SPLASH_POTION.getDefaultInstance();
       jumpBoostPotion.set(DataComponents.ITEM_NAME,
@@ -2047,7 +2240,7 @@ public class RoleShopHandler {
           .withStyle(ChatFormatting.GRAY));
       jumpBoostPotion.set(DataComponents.LORE, new ItemLore(jumpBoostLore));
 
-      SHADOW_FALCON_SHOP.add(new ShopEntry(jumpBoostPotion, 180, ShopEntry.Type.TOOL) {
+      SHADOW_FALCON_SHOP.add(new ShopEntry(jumpBoostPotion, 100, ShopEntry.Type.TOOL) {
         @Override
         public boolean onBuy(@NotNull Player player) {
           // 给予30秒跳跃提升2效果
@@ -2063,5 +2256,44 @@ public class RoleShopHandler {
         }
       });
     }
+    // 鞘翅 - 250金币，购买时额外给予10个烟花火箭
+    {
+      SHADOW_FALCON_SHOP.add(new ShopEntry(Items.ELYTRA.getDefaultInstance(), 250, ShopEntry.Type.TOOL) {
+        @Override
+        public boolean onBuy(@NotNull Player player) {
+          // 给予鞘翅
+          if (!RoleUtils.insertStackInFreeSlot(player, Items.ELYTRA.getDefaultInstance().copy())) {
+            player.displayClientMessage(
+                Component.translatable("message.noellesroles.shadow_falcon.elytra_inventory_full"),
+                true);
+            return false;
+          }
+          // 额外给予10个烟花火箭
+          ItemStack fireworks = new ItemStack(Items.FIREWORK_ROCKET, 10);
+          if (!player.getInventory().add(fireworks)) {
+            // 背包满了就丢在地上
+            player.drop(fireworks, true);
+          }
+          return true;
+        }
+      });
+    }
+
+    // 葬仪商店
+    // 乘务员钥匙 - 100金币
+    MORTICIAN_BODYMAKER_SHOP.add(new ShopEntry(
+        ModItems.MASTER_KEY_P.getDefaultInstance(),
+        100,
+        ShopEntry.Type.TOOL));
+    // 裹尸袋 - 150金币
+    MORTICIAN_BODYMAKER_SHOP.add(new ShopEntry(
+        TMMItems.BODY_BAG.getDefaultInstance(),
+        150,
+        ShopEntry.Type.TOOL));
+    // 血瓶 - 75金币
+    MORTICIAN_BODYMAKER_SHOP.add(new ShopEntry(
+        ModItems.BLOOD_BOTTLE.getDefaultInstance(),
+        75,
+        ShopEntry.Type.TOOL));
   }
 }

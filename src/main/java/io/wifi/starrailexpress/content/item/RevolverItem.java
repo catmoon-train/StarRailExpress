@@ -20,6 +20,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
+
+import org.agmas.noellesroles.content.entity.PuppeteerBodyEntity;
 import org.jetbrains.annotations.NotNull;
 
 public class RevolverItem extends SkinableItem {
@@ -88,7 +90,8 @@ public class RevolverItem extends SkinableItem {
     public static HitResult getGunTarget(Player user) {
         return ProjectileUtil.getHitResultOnViewVector(user,
                 entity -> {
-                    return entity instanceof Player player && GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player);
+                    return entity instanceof Player player && GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)
+                            || entity instanceof PuppeteerBodyEntity;
                 }, 20f);
     }
 

@@ -36,6 +36,11 @@ public class HeldItemFeatureRendererMixin {
         }
 
         if (instance instanceof Player player) {
+            if (player.isCreative()){
+                if (player.isInvisible()){
+                    return ItemStack.EMPTY;
+                }
+            }
             
             if (sre$shouldHideLocalLayerItem(player, false)) {
                 return ItemStack.EMPTY;
@@ -59,6 +64,11 @@ public class HeldItemFeatureRendererMixin {
         }
 
         if (instance instanceof Player player) {
+            if (player.isCreative()){
+                if (player.isInvisible()){
+                    return ItemStack.EMPTY;
+                }
+            }
             if (sre$shouldHideLocalLayerItem(player, true)) {
                 return ItemStack.EMPTY;
             }

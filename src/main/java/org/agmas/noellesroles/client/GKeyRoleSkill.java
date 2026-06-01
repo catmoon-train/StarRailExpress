@@ -14,6 +14,7 @@ import org.agmas.noellesroles.client.screen.TelegrapherScreen;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.packet.AbilityC2SPacket;
 import org.agmas.noellesroles.packet.AbilityWithTargetC2SPacket;
+import org.agmas.noellesroles.packet.BuilderAbilityC2SPacket;
 import org.agmas.noellesroles.packet.VultureEatC2SPacket;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
@@ -103,7 +104,17 @@ public final class GKeyRoleSkill {
             return true;
         });
         register(ModRoles.CREEPER, true, (client, gameWorld) -> {
+            if (!GameUtils.isPlayerAliveAndSurvival(client.player)) {
+                return true;
+            }
             ClientPlayNetworking.send(new org.agmas.noellesroles.packet.CreeperAbilityC2SPacket());
+            return true;
+        });
+        register(ModRoles.BUILDER, true, (client, gameWorld) -> {
+            if (!GameUtils.isPlayerAliveAndSurvival(client.player)) {
+                return true;
+            }
+            ClientPlayNetworking.send(new BuilderAbilityC2SPacket(client.player.isShiftKeyDown()));
             return true;
         });
         register(ModRoles.VULTURE, false, (client, gameWorld) -> {
@@ -126,6 +137,23 @@ public final class GKeyRoleSkill {
                 return true;
             }
             client.execute(() -> client.setScreen(new TelegrapherScreen()));
+            return true;
+        });
+
+        // 疫使：瞄准玩家时按技能键感染目标
+        register(ModRoles.INFECTED, true, (client, gameWorld) -> {
+            if (!GameUtils.isPlayerAliveAndSurvival(client.player)) {
+                return true;
+            }
+            var hitResult = client.hitResult;
+            if (hitResult != null && hitResult.getType() == net.minecraft.world.phys.HitResult.Type.ENTITY) {
+                net.minecraft.world.phys.EntityHitResult entityHit = (net.minecraft.world.phys.EntityHitResult) hitResult;
+                if (entityHit.getEntity() instanceof Player targetPlayer) {
+                    ClientPlayNetworking.send(new AbilityWithTargetC2SPacket(targetPlayer));
+                }
+            } else {
+                client.player.displayClientMessage(Component.translatable("hud.infected.target_miss"), true);
+            }
             return true;
         });
 
@@ -177,6 +205,23 @@ public final class GKeyRoleSkill {
             }
 
             // 普通使用：无目标直接发包，有目标也当作无目标使用（因为8个技能都不需要目标）
+            ClientPlayNetworking.send(new AbilityC2SPacket());
+            return true;
+        });
+
+        // 葬仪：蹲下按技能键切换模式，按技能键使用当前模式技能
+        register(ModRoles.MORTICIAN_BODYMAKER, true, (client, gameWorld) -> {
+            if (!GameUtils.isPlayerAliveAndSurvival(client.player)) {
+                return true;
+            }
+
+            // Shift+技能键 = 切换模式
+            if (client.player.isShiftKeyDown()) {
+                ClientPlayNetworking.send(new org.agmas.noellesroles.packet.MorticianToggleModeC2SPacket());
+                return true;
+            }
+
+            // 普通技能键 = 使用当前模式技能
             ClientPlayNetworking.send(new AbilityC2SPacket());
             return true;
         });

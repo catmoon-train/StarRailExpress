@@ -120,8 +120,12 @@ public class RoleAssignmentPool {
                 SRERole role = selectRole();
                 if (role != null) {
                     int roleOccupiedCount = role.getOccupiedRoleCount();
-                    if (roleOccupiedCount <= 0)
-                        roleOccupiedCount = 1;
+                    // 额外逻辑：occupiedRoleCount <= 0 表示不占用角色槽位（如迷失杀手）
+                    // 选中此角色但 needCount 不变，使其不占用正常杀手名额
+                    if (roleOccupiedCount <= 0) {
+                        selected.add(role);
+                        break;
+                    }
                     if(ignoreeRoleOccupiedCount)
                         roleOccupiedCount = 1;
                     if (i + roleOccupiedCount <= needCount) {

@@ -1,16 +1,23 @@
 package org.agmas.noellesroles.game.roles.killer.executioner;
 
 import io.wifi.starrailexpress.api.RoleComponent;
+import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent.AlivePlayerRoleTeamInfo;
 import io.wifi.starrailexpress.event.AllowShootRevolverDrop;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import pro.fazeclan.river.stupid_express.modifier.lovers.cca.LoversComponent;
+
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
@@ -28,7 +35,6 @@ public class ExecutionerPlayerComponent implements RoleComponent, ServerTickingC
             ExecutionerPlayerComponent.class);
     private final Player player;
     public UUID target;
-    public boolean won = false;
     public boolean targetSelected = false;
     public boolean shopUnlocked = false;
 
@@ -44,7 +50,6 @@ public class ExecutionerPlayerComponent implements RoleComponent, ServerTickingC
     public void init() {
         this.target = null;
         this.targetSelected = false;
-        this.won = false;
         this.shopUnlocked = false;
         this.sync();
     }
@@ -78,16 +83,18 @@ public class ExecutionerPlayerComponent implements RoleComponent, ServerTickingC
             assignRandomTarget(); // 分配新目标
 
         }
-        if (target != null && !won) {
+        if (target != null) {
             if (!gameWorldComponent.isRunning())
                 return;
             if (!gameWorldComponent.isRole(player, ModRoles.EXECUTIONER))
                 return;
-
             Player targetPlayer = player.level().getPlayerByUUID(target);
             var t_role = gameWorldComponent.getRole(targetPlayer);
+            // 判断职业是否允许被绑定，否则就应该更换。
+            boolean needChange = judgeRole(player.level(), t_role);
             if (t_role == null || targetPlayer == null || GameUtils.isPlayerEliminatedIgnoreShitSplit(targetPlayer)
-                    || !t_role.isInnocent() || t_role.isNeutrals()) {
+                    || needChange) {
+
                 // 目标死亡，解锁商店并分配新目标
                 this.shopUnlocked = true;
                 this.target = null;
@@ -98,45 +105,94 @@ public class ExecutionerPlayerComponent implements RoleComponent, ServerTickingC
     }
 
     /**
-     * 自动分配随机目标（仅限平民阵营）
+     * 是否为不可选角色
+     * 
+     * @param t_role
+     * @return 是否为<b>不可选</b>角色
+     */
+    public static boolean judgeRole(Level level, SRERole t_role) {
+        if (t_role == null)
+            return true;
+        if (RoleUtils.compareRole(t_role, SpecialGameModeRoles.SUPER_LOOSE_END)) {
+            return false;
+        }
+        if (t_role.isInnocent()) {
+            return false;
+        }
+        AlivePlayerRoleTeamInfo info = SREGameWorldComponent.KEY.get(level).getAlivePlayerRoleTeamInfo();
+        if (info.hasInnocentAndVigilante()) {
+            return true;
+        }
+        if (t_role.isNeutrals() && !t_role.isNeutralForKiller()) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * 自动分配随机目标（仅限平民阵营，优先排除肉汁）
      */
     public void assignRandomTarget() {
+        assignRandomTarget(false);
+    }
+
+    public boolean assignRandomTarget(boolean bindNewOne) {
         // 如果配置允许手动选择目标，则不自动分配
         if (NoellesRolesConfig.HANDLER.instance().executionerCanSelectTarget) {
-            return;
+            return false;
         }
 
         // 如果已经有目标或者已经获胜，则不需要分配新目标
-        if (target != null || won) {
-            return;
+        if (!bindNewOne && (target != null)) {
+            return false;
         }
         SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY
                 .get(player.level());
         if (gameWorldComponent == null)
-            return;
+            return false;
         List<Player> eligibleTargets = new ArrayList<>();
-
-        // 获取所有存活的平民玩家
+        List<Player> nonMeatballTargets = new ArrayList<>();
+        var lovercca = LoversComponent.KEY.get(player);
+        Player mylover = null;
+        if (lovercca.isLover()) {
+            mylover = lovercca.getLoverAsPlayer();
+        }
+        // 获取所有存活的平民玩家，同时区分肉汁和非肉汁
         for (Player p : player.level().players()) {
             if (p.getUUID().equals(player.getUUID())) {
                 continue; // 跳过自己
             }
+            if (mylover != null && p.getUUID() == mylover.getUUID()) {
+                continue; // 跳过恋人
+            }
+            if (bindNewOne && target == p.getUUID())
+                continue;// 跳过当前
             if (!GameUtils.isPlayerAliveAndSurvival(p)) {
                 continue; // 只考虑存活玩家
             }
             final var role = gameWorldComponent.getRole(p);
-            if (role != null && role.isInnocent() && !role.isNeutrals()) { // 只考虑平民阵营
+            if (role != null
+                    && !judgeRole(player.level(), role)) { // 只考虑平民、中立阵营
                 eligibleTargets.add(p);
+                // 肉汁最后才选（除非场上只剩肉汁）
+                if (!RoleUtils.compareRole(role, ModRoles.MEATBALL)) {
+                    nonMeatballTargets.add(p);
+                }
             }
         }
-
-        // 随机选择一个目标
-        if (!eligibleTargets.isEmpty()) {
-            Collections.shuffle(eligibleTargets);
-            this.target = eligibleTargets.getFirst().getUUID();
+        if (bindNewOne && target != null && nonMeatballTargets.isEmpty()) {
+            return false;
+        }
+        // 优先从非肉汁玩家中随机选择；如果没有非肉汁目标，才从全体（只剩肉汁）中选
+        List<Player> selectionPool = nonMeatballTargets.isEmpty() ? eligibleTargets : nonMeatballTargets;
+        if (!selectionPool.isEmpty()) {
+            Collections.shuffle(selectionPool);
+            this.target = selectionPool.getFirst().getUUID();
             this.targetSelected = true;
             this.sync();
+            return true;
         }
+        return false;
     }
 
     /**
@@ -167,14 +223,12 @@ public class ExecutionerPlayerComponent implements RoleComponent, ServerTickingC
         if (this.target != null) {
             tag.putUUID("target", this.target);
         }
-        tag.putBoolean("won", this.won);
         tag.putBoolean("targetSelected", this.targetSelected);
         tag.putBoolean("shopUnlocked", this.shopUnlocked);
     }
 
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.target = tag.contains("target") ? tag.getUUID("target") : null;
-        this.won = tag.getBoolean("won");
         this.targetSelected = tag.getBoolean("targetSelected");
         this.shopUnlocked = tag.getBoolean("shopUnlocked");
     }

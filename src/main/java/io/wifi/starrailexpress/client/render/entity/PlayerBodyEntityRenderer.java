@@ -8,6 +8,7 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.model.TMMModelLayers;
 import io.wifi.starrailexpress.client.model.entity.PlayerSkeletonEntityModel;
+import io.wifi.starrailexpress.client.util.ClientSkinCache;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.event.OnGettingPlayerSkin;
 import io.wifi.starrailexpress.game.GameConstants;
@@ -78,6 +79,15 @@ public class PlayerBodyEntityRenderer<T extends LivingEntity, M extends EntityMo
         final var moodComponent = SREClient.moodComponent;
         if (moodComponent == null)
             return;
+
+        // 腐化尸体直接只显示骷髅模型，不渲染原玩家身体
+        if (playerBodyEntity.isCorrupted()) {
+            // 腐化尸体只渲染骷髅，不下沉
+            renderSkeleton(playerBodyEntity, f, g, matrixStack, vertexConsumerProvider, light, 1f);
+            matrixStack.popPose();
+            return;
+        }
+
         if (ease > -1) {
             matrixStack.translate(0, ease, 0);
             float alpha = moodComponent.isLowerThanDepressed() ? Mth.lerp(Mth
@@ -191,7 +201,7 @@ public class PlayerBodyEntityRenderer<T extends LivingEntity, M extends EntityMo
 
     @Override
     public ResourceLocation getTextureLocation(PlayerBodyEntity playerBodyEntity) {
-        PlayerInfo playerListEntry = SREClient.PLAYER_ENTRIES_CACHE.get(playerBodyEntity.getPlayerUuid());
+        PlayerInfo playerListEntry = ClientSkinCache.getCachedPlayerInfo(playerBodyEntity.getPlayerUuid());
         if (SREClient.getLooseEndPenalty()) {
             PlayerSkin.Model model = playerListEntry.getSkin().model();
             boolean isSLIM = (model == PlayerSkin.Model.SLIM);

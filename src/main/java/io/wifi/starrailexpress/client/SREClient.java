@@ -1,30 +1,34 @@
 package io.wifi.starrailexpress.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
+import com.mojang.text2speech.Narrator;
+
 import dev.doctor4t.ratatouille.client.util.OptionLocker;
 import dev.doctor4t.ratatouille.client.util.ambience.AmbienceUtil;
 import dev.doctor4t.ratatouille.client.util.ambience.BackgroundAmbience;
 import io.wifi.ConfigCompact.ClientConfigEvents;
+
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.*;
+
 import io.wifi.starrailexpress.client.fourthroom.FourthRoomCameraDirector;
 import io.wifi.starrailexpress.client.fourthroom.FourthRoomClientState;
 import io.wifi.starrailexpress.client.fourthroom.FourthRoomTableHud;
+
+import io.wifi.starrailexpress.client.commandmacro.CommandMacroExecutor;
 import io.wifi.starrailexpress.client.gui.*;
 import io.wifi.starrailexpress.client.gui.screen.*;
 import io.wifi.starrailexpress.client.model.GeneralModelLoadingPlugin;
 import io.wifi.starrailexpress.client.model.TMMModelLayers;
-import io.wifi.starrailexpress.client.render.block_entity.FourthRoomTableBlockEntityRenderer;
-import io.wifi.starrailexpress.client.render.block_entity.PlateBlockEntityRenderer;
-import io.wifi.starrailexpress.client.render.block_entity.SmallDoorBlockEntityRenderer;
-import io.wifi.starrailexpress.client.render.block_entity.WheelBlockEntityRenderer;
+import io.wifi.starrailexpress.client.render.block_entity.*;
 import io.wifi.starrailexpress.client.render.entity.FirecrackerEntityRenderer;
 import io.wifi.starrailexpress.client.render.entity.HornBlockEntityRenderer;
 import io.wifi.starrailexpress.client.render.entity.NoteEntityRenderer;
 import io.wifi.starrailexpress.client.util.ClientScheduler;
+import io.wifi.starrailexpress.client.util.ClientSkinCache;
 import io.wifi.starrailexpress.client.util.MyBackgroundAmbience;
 import io.wifi.starrailexpress.client.util.TMMItemTooltips;
 import io.wifi.starrailexpress.compat.TrainVoicePlugin;
@@ -35,6 +39,9 @@ import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.content.item.GrenadeItem;
 import io.wifi.starrailexpress.content.item.KnifeItem;
 import io.wifi.starrailexpress.content.vote.client.VoteClientReceiver;
+import io.wifi.starrailexpress.content.vote.client.RoleRotationCache;
+import io.wifi.starrailexpress.content.vote.client.RoleRotationClientReceiver;
+import io.wifi.starrailexpress.client.gui.screen.gamemode.role_rotation.RoleRotationScreen;
 import io.wifi.starrailexpress.event.AllowItemShowInHand;
 import io.wifi.starrailexpress.event.AllowOtherCameraType;
 import io.wifi.starrailexpress.event.ClientHeldItemSwitchEvent;
@@ -47,6 +54,7 @@ import io.wifi.starrailexpress.game.data.MapConfig;
 import io.wifi.starrailexpress.index.*;
 import io.wifi.starrailexpress.network.*;
 import io.wifi.starrailexpress.network.original.*;
+import io.wifi.starrailexpress.network.packet.CustomNarratorPacket;
 import io.wifi.starrailexpress.network.packet.SyncRoomToPlayerPayload;
 import io.wifi.starrailexpress.network.packet.SyncSpecificWaypointVisibilityPacket;
 import io.wifi.starrailexpress.network.packet.SyncWaypointVisibilityPacket;
@@ -63,6 +71,7 @@ import net.exmo.sre.mod_whitelist.common.network.ModWhitelistConfigPayload;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
@@ -72,7 +81,6 @@ import net.minecraft.client.CameraType;
 import net.minecraft.client.CloudStatus;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
@@ -81,6 +89,7 @@ import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.client.resources.model.UnbakedModel;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
@@ -110,6 +119,8 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 
+import static org.agmas.noellesroles.init.ModEventsRegister.canThrowItems;
+
 public class SREClient implements ClientModInitializer {
     private static float soundLevel = 0f;
     public static boolean hasCustomSkinLoaderAndNeedToWarn = false;
@@ -125,6 +136,7 @@ public class SREClient implements ClientModInitializer {
     public static int intervalTime = 0;
     public static boolean isInLobby = false;
     public static Player cached_player = null;
+    public static Narrator narrator = Narrator.getNarrator();
     // HUD/API 缓存：在 END_CLIENT_TICK 统一更新，在渲染 mixin 中仅做读取，避免渲染流程重复判断。
     private static boolean cachedPlayerAliveAndInSurvival;
     private static boolean cachedPlayerSpectatingOrCreative;
@@ -139,7 +151,6 @@ public class SREClient implements ClientModInitializer {
     private static SRERole cachedPlayerRole;
     public static boolean hideLocalMainHandItemInLayer = false;
     public static boolean hideLocalOffHandItemInLayer = false;
-    public static final Map<UUID, PlayerInfo> PLAYER_ENTRIES_CACHE = new HashMap<>();
     public static final Map<UUID, Boolean> PLAYER_PSYCHO_CACHE = new ConcurrentHashMap<>();
     public static boolean localPlayerPsychoActive = false;
     private static ItemStack prevMainHandSnapshot = ItemStack.EMPTY;
@@ -183,7 +194,7 @@ public class SREClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         ClientScheduler.init();
-
+        ClientSkinCache.init();
         ClientConfigEvents.register();
         new EXSREClient().onInitializeClient();
         // Load config
@@ -198,11 +209,13 @@ public class SREClient implements ClientModInitializer {
         // Register particle factories
         TMMParticles.registerFactories();
 
+
         // Entity renderer registration
         EntityRendererRegistry.register(TMMEntities.SEAT, NoopRenderer::new);
         EntityRendererRegistry.register(TMMEntities.FIRECRACKER, FirecrackerEntityRenderer::new);
         EntityRendererRegistry.register(TMMEntities.GRENADE, ThrownItemRenderer::new);
         EntityRendererRegistry.register(TMMEntities.NOTE, NoteEntityRenderer::new);
+
 
         // Register entity model layers
         TMMModelLayers.initialize();
@@ -288,6 +301,8 @@ public class SREClient implements ClientModInitializer {
         BlockEntityRenderers.register(
                 TMMBlockEntities.BEVERAGE_PLATE,
                 PlateBlockEntityRenderer::new);
+
+
         BlockEntityRenderers.register(TMMBlockEntities.HORN, HornBlockEntityRenderer::new);
         BlockEntityRenderers.register(TMMBlockEntities.FOURTH_ROOM_TABLE, FourthRoomTableBlockEntityRenderer::new);
 
@@ -339,6 +354,7 @@ public class SREClient implements ClientModInitializer {
         VoteClientReceiver.register();
         ClientPlayNetworking.registerGlobalReceiver(SecurityCameraModePayload.ID,
                 new SecurityCameraModePayload.ClientReceiver());
+
         ClientPlayNetworking.registerGlobalReceiver(IsLobbyConfigPayload.ID, (payload, context) -> {
             SREClient.isInLobby = payload.isLobby();
             SRE.isLobby = payload.isLobby();
@@ -358,6 +374,13 @@ public class SREClient implements ClientModInitializer {
             hideLocalMainHandItemInLayer = isHandHiddenByEvent(player, mainHand, true);
             hideLocalOffHandItemInLayer = isHandHiddenByEvent(player, offHand, false);
         });
+        ItemTooltipCallback.EVENT.register(
+                (itemStack, tooltipContext, tooltipFlag, list) -> {
+                    if (canThrowItems.contains(itemStack.getItem())){
+                        list.add(Component.translatable("starrailexpress.tip.can_thrown"));
+                    }
+                }
+        );
         ClientTickEvents.START_WORLD_TICK.register(clientWorld -> {
             if (Minecraft.getInstance() == null || Minecraft.getInstance().player == null) {
                 return;
@@ -415,6 +438,13 @@ public class SREClient implements ClientModInitializer {
                 TimeRenderer.tick();
                 StaminaRenderer.tick();
             }
+
+//            // 全息展示方块客户端tick
+//            for (var blockEntity : clientWorld.getbl.values()) {
+//                if (blockEntity instanceof HologramDisplayBlockEntity hologramEntity) {
+//                    hologramEntity.clientTick();
+//                }
+//            }
 
         });
         intervalTime = new Random().nextInt(0, 200);
@@ -483,10 +513,24 @@ public class SREClient implements ClientModInitializer {
             SREClient.handParticleManager.tick();
             RoundTextRenderer.tick();
         });
-
         SyncMapConfigPayload.registerReceiver();
         FourthRoomStatePayload.registerReceiver();
         FourthRoomTableEffectsPayload.registerReceiver();
+        ClientPlayNetworking.registerGlobalReceiver(CustomNarratorPacket.ID, (payload, context) -> {
+            Component content1 = payload.content();
+            String content = content1.getString();
+            boolean shouldInterrupt = payload.shouldInterrupt();
+            if (narrator == null)
+                return;
+
+            if (!content.isBlank()) {
+                narrator.say(content, shouldInterrupt);
+            } else {
+                if (narrator.active()) {
+                    narrator.clear();
+                }
+            }
+        });
         ClientPlayNetworking.registerGlobalReceiver(OpenFourthRoomPeekDeckPayload.ID,
                 (payload, context) -> context.client().execute(() -> {
                     var client = context.client();
@@ -591,6 +635,7 @@ public class SREClient implements ClientModInitializer {
             GameUtils.roomToPlayer.putAll(data);
         });
         ClientPlayNetworking.registerGlobalReceiver(ModWhitelistConfigPayload.ID, (payload, context) -> {
+            ModWhitelistClientNetworkHandler.handleModWhitelistConfigPayload(payload, context);
             ModWhitelistClientNetworkHandler.sendModWhitelistPayload();
         });
 
@@ -654,6 +699,12 @@ public class SREClient implements ClientModInitializer {
             NoellesrolesClient.isTaskInstinctEnabled = false;
             // isInstinctToggleEnabled = false;
         });
+        // 注册实体交互方块的客户端网络接收器
+        io.wifi.starrailexpress.client.network.EntityInteractionBlockClientNetwork.register();
+
+        // 注册职业轮选网络包
+        RoleRotationClientReceiver.register();
+
         // Chat Dialogue
         ClientPlayNetworking.registerGlobalReceiver(
                 net.exmo.sre.client.chat.OpenChatDialoguePayload.ID, (payload, context) -> {
@@ -692,6 +743,7 @@ public class SREClient implements ClientModInitializer {
         // TMMCommandUI.init();
         // KeyPressHandler.register();
         InputHandler.initialize();
+        CommandMacroExecutor.initialize();
 
         // Register HUD rendering for security camera
         net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback.EVENT.register((guiGraphics, deltaTick) -> {
@@ -704,6 +756,7 @@ public class SREClient implements ClientModInitializer {
             AFKRenderer.renderAFKEffects(guiGraphics, deltaTick.getRealtimeDeltaTicks());
             FourthRoomCameraDirector.renderOverlay(guiGraphics);
             FourthRoomTableHud.render(guiGraphics);
+
             // RoleUnlockHudRenderer.render(guiGraphics);
 
             // // 添加地图详情渲染
@@ -750,6 +803,15 @@ public class SREClient implements ClientModInitializer {
                     client.setScreen(null);
                 } else {
                     client.setScreen(new SkinManagementScreen());
+                }
+            }
+
+            // 职业轮选GUI - 按N键打开
+            if (RoleRotationCache.canReOpen()) {
+                // 排除职业介绍页面，查看职业介绍时不应该强制跳转回轮选页面
+                boolean isViewingRoleIntro = client.screen instanceof org.agmas.noellesroles.client.screen.RoleIntroduceScreen;
+                if (!isViewingRoleIntro && (client.screen == null || !(client.screen instanceof RoleRotationScreen))) {
+                    client.setScreen(new RoleRotationScreen());
                 }
             }
         });

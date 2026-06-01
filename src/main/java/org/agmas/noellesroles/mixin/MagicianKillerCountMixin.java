@@ -17,12 +17,14 @@ import java.util.List;
  * 
  * 当魔术师在场时，开局显示的杀手数量需要加上魔术师的数量
  * 这样可以让其他玩家误以为魔术师也是杀手，增加混淆效果
+ * 
+ * 目标: SREMurderGameMode.assignRole - 修改 AnnounceWelcomePayload 中的 killers 数量
  */
-@Mixin(targets = "org.agmas.harpymodloader.modded_murder.ModdedMurderGameMode")
+@Mixin(io.wifi.starrailexpress.game.modes.SREMurderGameMode.class)
 public class MagicianKillerCountMixin {
 
     /**
-     * 在 initializeGame 方法中，修改发送给玩家的 AnnounceWelcomePayload 中的 killerCount
+     * 在 assignRole 方法中，修改发送给玩家的 AnnounceWelcomePayload 中的 killerCount
      * 加上魔术师的数量
      */
     @ModifyArgs(
@@ -33,22 +35,21 @@ public class MagicianKillerCountMixin {
         )
     )
     private static void modifyAnnounceWelcomePayload(Args args, ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent, List<ServerPlayer> players) {
+        // 获取第一个参数（玩家）
+        Object playerObj = args.get(0);
         // 获取第二个参数（AnnounceWelcomePayload）
         Object payload = args.get(1);
         
         if (payload instanceof AnnounceWelcomePayload announcePayload) {
             // 计算场上魔术师的数量
-            int magicianCount = 0;
-            for (ServerPlayer player : players) {
-                if (gameWorldComponent.isRole(player, ModRoles.MAGICIAN)) {
-                    magicianCount++;
-                }
-            }
+            long magicianCount = players.stream()
+                .filter(p -> gameWorldComponent.isRole(p, ModRoles.MAGICIAN))
+                .count();
             
             // 如果有魔术师，则修改杀手数量
             if (magicianCount > 0) {
                 int originalKillers = announcePayload.killers();
-                int modifiedKillers = originalKillers + magicianCount;
+                int modifiedKillers = originalKillers + (int) magicianCount;
                 
                 // 创建新的 payload，修改杀手数量
                 AnnounceWelcomePayload modifiedPayload = new AnnounceWelcomePayload(

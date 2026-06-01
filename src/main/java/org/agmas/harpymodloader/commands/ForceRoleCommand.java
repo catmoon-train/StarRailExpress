@@ -17,7 +17,7 @@ import org.agmas.harpymodloader.commands.argument.RoleArgumentType;
 public class ForceRoleCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("forceRole")
-                .requires(serverCommandSource -> serverCommandSource.hasPermission(2))
+                .requires(serverCommandSource -> serverCommandSource.hasPermission(3))
                 .then(Commands.argument("player", EntityArgument.player())
                         .executes(ForceRoleCommand::query)
                         .then(Commands.argument("role", RoleArgumentType.create())

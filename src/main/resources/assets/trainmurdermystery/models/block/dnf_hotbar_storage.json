@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "starrailexpress:block/dnf_hotbar_storage",
+    "down": "starrailexpress:block/dnf_hotbar_storage",
+    "up": "starrailexpress:block/dnf_hotbar_storage",
+    "north": "starrailexpress:block/dnf_hotbar_storage",
+    "south": "starrailexpress:block/dnf_hotbar_storage",
+    "west": "starrailexpress:block/dnf_hotbar_storage",
+    "east": "starrailexpress:block/dnf_hotbar_storage"
+  }
+}

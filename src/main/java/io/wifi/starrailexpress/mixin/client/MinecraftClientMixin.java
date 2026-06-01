@@ -6,7 +6,9 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.index.TMMItems;
@@ -46,6 +48,11 @@ public class MinecraftClientMixin {
 
     @WrapOperation(method = "handleKeybinds", at = @At(value = "FIELD", target = "Lnet/minecraft/world/entity/player/Inventory;selected:I"))
     private void tmm$invalid(@NotNull Inventory instance, int value, Operation<Void> original) {
+        SREGameWorldComponent gameComponent = SREGameWorldComponent.KEY.get(instance.player.level());
+        if (gameComponent.gameStatus == SREGameWorldComponent.GameStatus.ACTIVE){
+            original.call(instance, value);
+            return;
+        }
         int oldSlot = instance.selected;
         SREPlayerPsychoComponent component = SREPlayerPsychoComponent.KEY.get(instance.player);
 

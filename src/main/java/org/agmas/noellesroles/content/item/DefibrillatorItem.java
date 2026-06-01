@@ -53,6 +53,9 @@ public class DefibrillatorItem extends Item {
                         // 设置120秒的保护时间
                         component.setProtection(120 * 20);
 
+                        // 设置心脏起搏器标记
+                        component.defibrillatorMark = true;
+
                         // 通知使用者
                         player.displayClientMessage(
                                 Component.translatable("message.noellesroles.defibrillator.used",

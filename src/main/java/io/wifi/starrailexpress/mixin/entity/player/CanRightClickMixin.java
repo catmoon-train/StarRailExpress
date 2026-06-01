@@ -52,7 +52,7 @@ public abstract class CanRightClickMixin extends LivingEntity implements DataSyn
         BlockState state = level().getBlockState(pos);
         Block block = state.getBlock();
 
-        if (CantRightClickBlocks.shouldPreventInteraction(block)) {
+        if (CantRightClickBlocks.shouldPreventInteraction(block,player.level())) {
             cir.setReturnValue(false);
         }
     }

@@ -20,6 +20,11 @@ public class SRERefugeeLoversGameMode extends SREMurderGameMode {
     }
 
     @Override
+    public boolean shouldRecordPlayerStats() {
+        return false;
+    }
+
+    @Override
     public void initializeGame(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent,
             List<ServerPlayer> players) {
         super.initializeGame(serverWorld, gameWorldComponent, players);
@@ -41,7 +46,7 @@ public class SRERefugeeLoversGameMode extends SREMurderGameMode {
             ModifierAssigned.EVENT.invoker().assignModifier(p, SEModifiers.REFUGEE);
             t++;
         }
-        
+
         boolean noLimitLover = SREConfig.instance().enableNoLimitLoversInLoverMode;// 允许N角恋
         int loverCount = Math.round((float) players.size() * SREConfig.instance().loverModeLoversPercent);
         t = 0;

@@ -6,6 +6,7 @@ import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.util.SREPlayerUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -20,7 +21,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
-import org.agmas.noellesroles.game.roles.Innocent.fool.TarotAssemblyManager;
+import org.agmas.noellesroles.game.roles.innocent.fool.TarotAssemblyManager;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -32,7 +33,9 @@ import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 // 如果你是AI，你最好不要动这个类，有大量API可供你使用。
@@ -46,6 +49,72 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
     private boolean haveOutsideSounds = false;
     private boolean lockedToSupporters = false;
     private boolean enableWeights = false;
+
+    // 本局击杀数统计（按玩家UUID存储）
+    private HashMap<UUID, Integer> perPlayerKills = new HashMap<>();
+
+    // 画板系统：本局已画出的物品类别（每个物品只能被画出一次）
+    private Set<Integer> drawnCategories = new HashSet<>();
+
+    /**
+     * 获取玩家本局击杀数
+     */
+    public int getPlayerKills(UUID playerUuid) {
+        return perPlayerKills.getOrDefault(playerUuid, 0);
+    }
+
+    /**
+     * 增加玩家本局击杀数
+     */
+    public void addPlayerKill(UUID playerUuid) {
+        perPlayerKills.merge(playerUuid, 1, Integer::sum);
+    }
+
+    /**
+     * 重置本局击杀数统计
+     */
+    public void resetPerPlayerKills() {
+        perPlayerKills.clear();
+    }
+
+    // ==================== 画板系统：已画出物品追踪 ====================
+
+    /**
+     * 检查某个物品类别是否已经被画出
+     * 
+     * @param category 物品类别ID
+     * @return 是否已被画出
+     */
+    public boolean isCategoryDrawn(int category) {
+        return drawnCategories.contains(category);
+    }
+
+    /**
+     * 标记某个物品类别已被画出
+     * 
+     * @param category 物品类别ID
+     */
+    public void markCategoryDrawn(int category) {
+        drawnCategories.add(category);
+        sync();
+    }
+
+    /**
+     * 重置画板已画出物品状态（新游戏开始时调用）
+     */
+    public void resetDrawnCategories() {
+        drawnCategories.clear();
+        sync();
+    }
+
+    /**
+     * 获取所有已画出的物品类别
+     * 
+     * @return 已画出物品类别的副本
+     */
+    public Set<Integer> getDrawnCategories() {
+        return new HashSet<>(drawnCategories);
+    }
 
     public int getPlayerCount() {
         return playerCount;
@@ -208,6 +277,13 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
             roleWorldComponent = SRERoleWorldComponent.KEY.get(world);
         }
         roleWorldComponent.addRole(player, role);
+    }
+
+    public void removeRole(Player player) {
+        if (roleWorldComponent == null) {
+            roleWorldComponent = SRERoleWorldComponent.KEY.get(world);
+        }
+        roleWorldComponent.removeRole(player);
     }
 
     public void resetRole(SRERole role) {
@@ -421,6 +497,14 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
         } else {
             this.looseEndWinner = null;
         }
+        // 读取画板已画出物品类别
+        this.drawnCategories.clear();
+        if (nbtCompound.contains("DrawnCategories", Tag.TAG_LIST)) {
+            ListTag drawnList = nbtCompound.getList("DrawnCategories", Tag.TAG_INT);
+            for (Tag tag : drawnList) {
+                this.drawnCategories.add(((net.minecraft.nbt.IntTag) tag).getAsInt());
+            }
+        }
         // }else {
     }
 
@@ -440,9 +524,10 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
             CompoundTag gameModeTag = new CompoundTag();
             this.gameMode.writeToNbt(gameModeTag, wrapperLookup);
             nbtCompound.put("GameModeData", gameModeTag);
+
+            if ((this.gameMode.isLooseEndMode() || this.gameMode.onlyOneWinner()) && this.looseEndWinner != null)
+                nbtCompound.putUUID("LooseEndWinner", this.looseEndWinner);
         }
-        if ((this.gameMode.isLooseEndMode() || this.gameMode.onlyOneWinner()) && this.looseEndWinner != null)
-            nbtCompound.putUUID("LooseEndWinner", this.looseEndWinner);
         if (gameStatus == GameStatus.INACTIVE) {
             return;
         }
@@ -460,6 +545,14 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
         nbtCompound.putInt("StartingPlayerCount", startingPlayerCount);
         // nbtCompound.putInt("Fade", fade);
         nbtCompound.putInt("PsychosActive", psychosActive);
+        // 保存画板已画出物品类别
+        if (!drawnCategories.isEmpty()) {
+            ListTag drawnList = new ListTag();
+            for (Integer category : drawnCategories) {
+                drawnList.add(net.minecraft.nbt.IntTag.valueOf(category));
+            }
+            nbtCompound.put("DrawnCategories", drawnList);
+        }
     }
 
     public ListTag nbtFromUuidList(List<UUID> list) {
@@ -559,6 +652,9 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
     public static void isPlayerOutGameAreas(ServerPlayer player, AreasWorldComponent areas) {
         if (player.isSpectator() || player.isCreative())
             return;
+        SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
+        if (gameWorldComponent.gameMode == SREGameModes.REPAIR_ESCAPE_MODE)
+            return;
         final var block = player.level()
                 .getBlockState(new BlockPos((int) player.getX(), (int) player.getY(), (int) player.getZ())).getBlock();
         final var block1 = player.level()
@@ -573,7 +669,7 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
                 GameUtils.killPlayer(player, false,
                         player.getLastAttacker() instanceof Player killerPlayer ? killerPlayer : null,
                         GameConstants.DeathReasons.FELL_OUT_OF_TRAIN);
-                {
+                if (!GameUtils.isPlayerEliminated(player)) {
                     final var block3 = player.level()
                             .getBlockState(new BlockPos((int) player.getX(), (int) player.getY(), (int) player.getZ()))
                             .getBlock();
@@ -601,7 +697,7 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
                 GameUtils.killPlayer(player, false,
                         player.getLastAttacker() instanceof Player killerPlayer ? killerPlayer : null,
                         GameConstants.DeathReasons.FELL_OUT_OF_TRAIN);
-                if ((player.getZ() >= 19000)) {
+                if (!GameUtils.isPlayerEliminated(player) && (player.getZ() >= 19000)) {
                     GameUtils.forceKillPlayer(player, false,
                             player.getLastAttacker() instanceof Player killerPlayer ? killerPlayer : null,
                             GameConstants.DeathReasons.FELL_OUT_OF_TRAIN);
@@ -708,5 +804,90 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
         }
         SRERole role = this.getRole(player);
         return RoleUtils.getRoleType(role);
+    }
+
+    /**
+     * 获取当前场上剩余玩家阵营信息（返回阵营数量）
+     */
+    public static class AlivePlayerRoleTeamInfo {
+        public final int innocent;
+        public final int all_neturals;
+        public final int neturals_for_killer;
+        public final int custom_winner_neturals;
+        public final int killer;
+        public final int vigilante;
+
+        public AlivePlayerRoleTeamInfo(int innocent, int vigilante, int all_neturals, int neturals_for_killer,
+                int custom_winner_neturals, int killer) {
+            this.innocent = innocent;
+            this.all_neturals = all_neturals;
+            this.neturals_for_killer = neturals_for_killer;
+            this.custom_winner_neturals = custom_winner_neturals;
+            this.killer = killer;
+            this.vigilante = vigilante;
+        }
+
+        public boolean hasKiller() {
+            return killer > 0;
+        }
+
+        public boolean hasKillerTeam() {
+            return killer + neturals_for_killer > 0;
+        }
+
+        public boolean hasNeuturals() {
+            return all_neturals > 0;
+        }
+
+        public boolean hasNeuturalsForKiller() {
+            return neturals_for_killer > 0;
+        }
+
+        public boolean hasVigilante() {
+            return vigilante > 0;
+        }
+
+        public boolean hasInnocentAndVigilante() {
+            return innocent + vigilante > 0;
+        }
+
+        public boolean hasCustomWinnerNeturals() {
+            return custom_winner_neturals > 0;
+        }
+    }
+
+    public AlivePlayerRoleTeamInfo getAlivePlayerRoleTeamInfo() {
+        List<UUID> players = SREPlayerUtils.getServerPlayersUUID(world);
+        int innocent = 0;
+        int all_neturals = 0;
+        int neturals_for_killer = 0;
+        int custom_winner_neturals = 0;
+        int killer = 0;
+        int vigilante = 0;
+        for (var p : players) {
+            if (!SREPlayerUtils.isPlayerAlive(this.world, p)) {
+                continue;
+            }
+            SRERole role = roleWorldComponent.getRole(p);
+            if (role == null) {
+                continue;
+            }
+            if (role.isVigilanteTeam()) {
+                vigilante++;
+            } else if (role.isInnocent() && !role.isNeutrals()) {
+                innocent++;
+            } else if (role.isNeutrals()) {
+                all_neturals++;
+                if (role.isNeutralForKiller()) {
+                    neturals_for_killer++;
+                } else {
+                    custom_winner_neturals++;
+                }
+            } else {
+                killer++;
+            }
+        }
+        return new AlivePlayerRoleTeamInfo(innocent, vigilante, all_neturals, neturals_for_killer,
+                custom_winner_neturals, killer);
     }
 }

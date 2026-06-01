@@ -20,6 +20,11 @@ public class SRELoverGameMode extends SREMurderGameMode {
     }
 
     @Override
+    public boolean shouldRecordPlayerStats() {
+        return false;
+    }
+
+    @Override
     public void initializeGame(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent,
             List<ServerPlayer> players) {
         super.initializeGame(serverWorld, gameWorldComponent, players);

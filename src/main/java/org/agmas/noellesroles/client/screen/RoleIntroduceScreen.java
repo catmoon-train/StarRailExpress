@@ -1,6 +1,8 @@
 package org.agmas.noellesroles.client.screen;
 
+import io.wifi.ConfigCompact.ui.RoleManageConfigUI;
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.RepairRole;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
@@ -24,6 +26,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
 import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
 import org.agmas.harpymodloader.modifiers.HMLModifiers;
 import org.agmas.harpymodloader.modifiers.SREModifier;
@@ -37,6 +40,35 @@ import java.util.Map;
 import java.util.function.Predicate;
 
 public class RoleIntroduceScreen extends Screen {
+
+    // ══════════════════════════════════════════════════════════════════
+    // 【模式切换】三种模式：谋杀、修机、其它
+    // ══════════════════════════════════════════════════════════════════
+    public enum IntroductionGameMode {
+        MURDER("screen.roleintroduce.mode.murder", 0xFFCC2233),
+        REPAIR("screen.roleintroduce.mode.repair", 0xFF44AACC),
+        OTHER("screen.roleintroduce.mode.other", 0xFFAA88CC);
+
+        public final String labelKey;
+        public final int color;
+
+        IntroductionGameMode(String labelKey, int color) {
+            this.labelKey = labelKey;
+            this.color = color;
+        }
+    }
+
+    private IntroductionGameMode currentMode = IntroductionGameMode.MURDER;
+
+    // 模式按钮布局缓存
+    private int modeButtonX = 0;
+    private int modeButtonY = 0;
+    private int modeButtonW = 0;
+    private int modeButtonH = 16;
+    private static final int MODE_GAP = 4;
+
+    // 分类标签的 Y 坐标偏移（为左下角模式按钮留空间）
+    private static final int BOTTOM_BUTTON_AREA_H = 24;
 
     // ══════════════════════════════════════════════════════════════════
     // 【可自定义分类】在 CATEGORIES 末尾追加即可，无需改动其他代码。
@@ -162,6 +194,10 @@ public class RoleIntroduceScreen extends Screen {
     private final int[] tabX = new int[64];
     private final int[] tabW = new int[64];
 
+    // 模式按钮预计算坐标与宽度（仿照分类标签）
+    private final int[] modeBtnX = new int[IntroductionGameMode.values().length + 1];
+    private final int[] modeBtnW = new int[IntroductionGameMode.values().length + 1];
+
     // 左侧列表滚动
     private int listScrollOffset = 0;
     private int maxListScroll = 0;
@@ -198,7 +234,6 @@ public class RoleIntroduceScreen extends Screen {
     // Widgets
     private EditBox searchWidget = null;
     private String searchContent = null;
-    private Button closeButton = null;
 
     // ══════════════════════════════════════════════════════════════════
     // 构造
@@ -263,6 +298,16 @@ public class RoleIntroduceScreen extends Screen {
         rightX = panelX + leftW;
         // 顶部行紧贴 panelY 上方
         topBarY = panelY - TOP_BAR_H - 4;
+
+        // 计算左下角模式按钮位置
+        int totalModeW = 0;
+        for (IntroductionGameMode mode : IntroductionGameMode.values()) {
+            totalModeW += font.width(Component.translatable(mode.labelKey)) + 20 + MODE_GAP;
+        }
+        totalModeW -= MODE_GAP;
+        modeButtonX = panelX + PANEL_PAD * 2;
+        modeButtonY = panelY + panelH - 24;
+        modeButtonW = totalModeW;
     }
 
     private void initSearchBox() {
@@ -295,16 +340,16 @@ public class RoleIntroduceScreen extends Screen {
     }
 
     private void initCloseButton() {
-        if (closeButton != null) {
-            removeWidget(closeButton);
-            closeButton = null;
-        }
-        int btnW = rightX - leftX, btnH = 18;
-        closeButton = Button.builder(
-                Component.translatable("gui.back").withStyle(ChatFormatting.WHITE),
-                btn -> onClose())
-                .bounds((width - btnW) / 2, panelY + panelH + 8, btnW, btnH)
-                .build();
+        // if (closeButton != null) {
+        // removeWidget(closeButton);
+        // closeButton = null;
+        // }
+        // int btnW = rightX - leftX, btnH = 18;
+        // closeButton = Button.builder(
+        // Component.translatable("gui.back").withStyle(ChatFormatting.WHITE),
+        // btn -> onClose())
+        // .bounds((width - btnW) / 2, panelY + panelH + 8, btnW, btnH)
+        // .build();
         // addRenderableWidget(closeButton);
     }
 
@@ -323,33 +368,144 @@ public class RoleIntroduceScreen extends Screen {
         for (SRERole role : availableRoles) {
             if (!cat.filter.test(role))
                 continue;
+            // 模式过滤
+            if (!matchesMode(role))
+                continue;
             String name = RoleUtils.getRoleName(role).getString();
             if (searchContent == null
                     || name.toLowerCase().contains(searchContent.toLowerCase())
-                    || role.identifier().toString().contains(searchContent.toLowerCase()) || PinYinUtils.contains(searchContent, name))
+                    || role.identifier().toString().contains(searchContent.toLowerCase())
+                    || PinYinUtils.contains(searchContent, name))
                 filteredItems.add(role);
         }
         for (SREModifier mod : HMLModifiers.MODIFIERS) {
             if (!cat.filter.test(mod))
                 continue;
+            // 模式过滤
+            if (!matchesModifierMode(mod))
+                continue;
             String name = mod.getName().getString();
             if (searchContent == null
                     || name.toLowerCase().contains(searchContent.toLowerCase())
-                    || mod.identifier().toString().contains(searchContent.toLowerCase()) || PinYinUtils.contains(searchContent, name))
+                    || mod.identifier().toString().contains(searchContent.toLowerCase())
+                    || PinYinUtils.contains(searchContent, name))
                 filteredItems.add(mod);
         }
-        for (Item mod : TMMDescItems.introItems) {
-            if (!cat.filter.test(mod))
+        for (Item item : TMMDescItems.introItems) {
+            if (!cat.filter.test(item))
                 continue;
-            String name = mod.getDescription().getString();
+            // 模式过滤
+            if (!matchesItemMode(item))
+                continue;
+            String name = item.getDescription().getString();
             if (searchContent == null
                     || name.toLowerCase().contains(searchContent.toLowerCase())
-                    || BuiltInRegistries.ITEM.getKey(mod).toString().contains(searchContent.toLowerCase()) || PinYinUtils.contains(searchContent, name))
-                filteredItems.add(mod);
+                    || BuiltInRegistries.ITEM.getKey(item).toString().contains(searchContent.toLowerCase())
+                    || PinYinUtils.contains(searchContent, name))
+                filteredItems.add(item);
         }
         int totalH = filteredItems.size() * (CARD_H + CARD_SPACING) - CARD_SPACING;
         maxListScroll = Math.max(0, totalH - listAreaH());
         listScrollOffset = Mth.clamp(listScrollOffset, 0, maxListScroll);
+    }
+
+    /**
+     * 检查角色是否符合当前模式
+     */
+    private boolean matchesMode(SRERole role) {
+        switch (currentMode) {
+            case MURDER:
+                // 谋杀模式：排除修机模式和"其它模式"的职业
+                return !isRepairRole(role) && !role.isOtherModeRole();
+            case REPAIR:
+                // 修机模式：只显示repair开头的职业
+                return isRepairRole(role);
+            case OTHER:
+                // 其它模式：只显示标记为isOtherModeRole()的职业
+                return role.isOtherModeRole();
+            default:
+                return true;
+        }
+    }
+
+    /**
+     * 检查是否为修机模式专属职业
+     */
+    private boolean isRepairRole(SRERole role) {
+        return role instanceof RepairRole;
+    }
+
+    /**
+     * 检查修饰符是否符合当前模式
+     * 修机模式：修饰符为空
+     */
+    private boolean matchesModifierMode(SREModifier mod) {
+        switch (currentMode) {
+            case MURDER:
+                // 谋杀模式：排除"其它模式"的修饰符
+                return !mod.isOtherModeRole();
+            case REPAIR:
+                // 修机模式：修饰符为空
+                return false;
+            case OTHER:
+                // 其它模式：只显示标记为isOtherModeRole()的修饰符
+                return mod.isOtherModeRole();
+            default:
+                return true;
+        }
+    }
+
+    /**
+     * 检查物品是否符合当前模式
+     * 修机模式物品：修机工作箱、备用零件、救援信号弹、抓捕锁链、猎场脉冲、残影突进、修机干扰器、烟幕弹丸、诱饵信标、逃生绳索
+     * 其他模式物品：放大镜、口香糖、弹夹、钢珠、反转卡、电话（烫手的山芋是修饰符，已在修饰符中处理）
+     * 谋杀模式物品：剩余所有物品
+     */
+    private boolean matchesItemMode(Item item) {
+        String path = BuiltInRegistries.ITEM.getKey(item).getPath();
+        switch (currentMode) {
+            case MURDER:
+                // 谋杀模式：排除修机模式和其他模式的物品
+                return !isRepairItem(path) && !isOtherModeItem(path);
+            case REPAIR:
+                // 修机模式：只显示修机模式的物品
+                return isRepairItem(path);
+            case OTHER:
+                // 其它模式：只显示其他模式的物品
+                return isOtherModeItem(path);
+            default:
+                return true;
+        }
+    }
+
+    /**
+     * 检查是否为修机模式物品
+     */
+    private boolean isRepairItem(String path) {
+        return path.equals("repair_toolbox")
+                || path.equals("spare_parts")
+                || path.equals("rescue_flare")
+                || path.equals("hunter_chain")
+                || path.equals("hunter_pulse")
+                || path.equals("hunter_blink")
+                || path.equals("hunter_jammer")
+                || path.equals("smoke_pellet")
+                || path.equals("decoy_beacon")
+                || path.equals("escape_grapple");
+    }
+
+    /**
+     * 检查是否为其他模式物品
+     * 包括：放大镜、口香糖、弹夹、钢珠、反转卡、电话、烫手的山芋
+     */
+    private boolean isOtherModeItem(String path) {
+        return path.equals("magnifying_glass")
+                || path.equals("chewing")
+                || path.equals("clip")
+                || path.equals("steel_ball")
+                || path.equals("reversing_card")
+                || path.equals("telephone")
+                || path.equals("hot_potato");
     }
 
     private RoleCategory currentCategory() {
@@ -360,7 +516,7 @@ public class RoleIntroduceScreen extends Screen {
 
     /** 左侧列表可用高度（面板全高，不再扣除分类栏） */
     private int listAreaH() {
-        return panelH - PANEL_PAD * 2;
+        return panelH - PANEL_PAD * 2 - 24;
     }
 
     private void rebuildDetailLines() {
@@ -566,8 +722,106 @@ public class RoleIntroduceScreen extends Screen {
         // 顶部遮罩 + 标题
         g.fillGradient(0, 0, width, topBarY - 4, 0xBB000000, 0x00000000);
         g.drawCenteredString(font, this.title, width / 2, 8, 0xEEEEFF);
+        // 底部提示上移，为模式按钮留空间
         g.drawCenteredString(font, Component.translatable("screen.roleintroduce.hint").withStyle(ChatFormatting.GRAY),
                 width / 2, height - 24, 0xEEEEFF);
+
+        // ── 左下角模式切换按钮 ──────────────────────────────────
+        renderModeButtons(g, mouseX, mouseY, leftW - PANEL_PAD * 4);
+    }
+
+    /**
+     * 渲染左下角模式切换按钮（整体居中）
+     * 
+     * @param maxWidth 按钮区域的最大可用宽度（即 leftW）
+     */
+    private void renderModeButtons(GuiGraphics g, int mouseX, int mouseY, int maxWidth) {
+        IntroductionGameMode[] modes = IntroductionGameMode.values();
+        int n = modes.length;
+
+        if (n == 0)
+            return;
+
+        // 1. 计算每个按钮的自然宽度（文字宽度 + 左右各10px）
+        int[] naturalW = new int[n];
+        int totalNaturalWidth = 0;
+        for (int i = 0; i < n; i++) {
+            String label = Component.translatable(modes[i].labelKey).getString();
+            naturalW[i] = font.width(label) + 20; // 左右各10px内边距
+            totalNaturalWidth += naturalW[i];
+        }
+
+        int totalGap = MODE_GAP * (n - 1); // 固定间距总和
+        int totalNaturalWithGap = totalNaturalWidth + totalGap;
+
+        // 2. 计算缩放比例（只缩放按钮宽度，间距不变）
+        float scale = 1.0f;
+        if (totalNaturalWithGap > maxWidth) {
+            // 可用宽度减去固定间距后，剩余给按钮宽度的总量
+            int availableForButtons = maxWidth - totalGap;
+            if (availableForButtons > 0) {
+                scale = (float) availableForButtons / totalNaturalWidth;
+            } else {
+                scale = 0; // 极端情况：连间距都放不下，按钮宽度为0
+            }
+        }
+
+        // 3. 计算缩放后的总宽度（用于居中）
+        int totalScaledWidth = 0;
+        int[] scaledW = new int[n];
+        for (int i = 0; i < n; i++) {
+            scaledW[i] = (int) (naturalW[i] * scale);
+            totalScaledWidth += scaledW[i];
+        }
+        totalScaledWidth += totalGap;
+
+        // 4. 计算起始 X 使得按钮组水平居中
+        int startX = modeButtonX + (maxWidth - totalScaledWidth) / 2;
+
+        int curX = startX;
+        int curY = modeButtonY;
+        int btnH = modeButtonH;
+
+        for (int i = 0; i < n; i++) {
+            int btnW = scaledW[i];
+            modeBtnX[i] = curX;
+            modeBtnW[i] = btnW;
+
+            String label = Component.translatable(modes[i].labelKey).getString();
+            // 截断文本以适应按钮宽度（减去左右各4px留白）
+            String truncated = font.plainSubstrByWidth(label, Math.max(4, btnW - 8));
+
+            boolean isActive = (modes[i] == currentMode);
+            boolean isHovered = !isActive && isInRect(mouseX, mouseY, curX, curY, btnW, btnH);
+
+            // 绘制背景与边框（颜色逻辑保持不变）
+            if (isActive) {
+                g.fillGradient(curX, curY, curX + btnW, curY + btnH,
+                        blendColors(0xFF0D1020, modes[i].color, 0.55f),
+                        blendColors(0xFF0A0C18, modes[i].color, 0.30f));
+                g.fill(curX, curY + btnH - 2, curX + btnW, curY + btnH, modes[i].color);
+                g.fill(curX, curY, curX + 1, curY + btnH, (modes[i].color & 0x00FFFFFF) | 0xAA000000);
+                g.fill(curX + btnW - 1, curY, curX + btnW, curY + btnH, (modes[i].color & 0x00FFFFFF) | 0xAA000000);
+            } else if (isHovered) {
+                g.fillGradient(curX, curY, curX + btnW, curY + btnH,
+                        blendColors(0xFF0D1020, modes[i].color, 0.25f),
+                        blendColors(0xFF0A0C18, modes[i].color, 0.12f));
+                g.renderOutline(curX, curY, btnW, btnH, (modes[i].color & 0x00FFFFFF) | 0x44000000);
+            } else {
+                g.fill(curX, curY, curX + btnW, curY + btnH, 0x55111828);
+                g.renderOutline(curX, curY, btnW, btnH, 0x55334466);
+            }
+
+            // 绘制文本
+            int textColor = isActive ? (modes[i].color | 0xFF000000)
+                    : isHovered ? 0xFFCCDDFF : 0xFF7788AA;
+            g.drawCenteredString(font, truncated,
+                    curX + btnW / 2,
+                    curY + (btnH - font.lineHeight) / 2,
+                    textColor);
+
+            curX += btnW + MODE_GAP;
+        }
     }
 
     // ══════════════════════════════════════════════════════════════════
@@ -789,11 +1043,56 @@ public class RoleIntroduceScreen extends Screen {
             g.renderOutline(x - 1, y - 1, w + 2, h + 2,
                     (rawColor & 0x00FFFFFF) | 0x55000000);
         }
+
+        // 已禁用的职业/修饰符覆盖深灰色滤镜 + 红色描边
+        if (isItemDisabled(role)) {
+            g.fill(x + 1, y + 1, x + w - 1, y + h - 1, 0x88000000);
+            g.renderOutline(x, y, w, h, 0xFFCC3333);
+        }
     }
 
     // ══════════════════════════════════════════════════════════════════
     // 右侧面板
     // ══════════════════════════════════════════════════════════════════
+
+    /**
+     * 检查列表中的职业/修饰符是否已被禁用
+     */
+    private boolean isItemDisabled(Object role) {
+        if (!minecraft.isLocalServer() && !minecraft.isSingleplayer() && minecraft.level != null) {
+            {
+                if (SREClient.gameComponent == null || minecraft == null
+                        || minecraft.level == null) {
+                    // 没进入游戏，也显示全部。
+                    return false;
+                }
+                if (!SREClient.gameComponent.isRunning()) {
+                    // 游戏没开始，默认显示全部。
+                    return false;
+                }
+            }
+            // 非本地从RoleConfigUI读取
+            if (role instanceof SRERole r) {
+                if (RoleManageConfigUI.RoleEnableStatus.isEmpty())
+                    return false;
+                return !RoleManageConfigUI.RoleEnableStatus.getOrDefault(r.identifier().toString(), false);
+            }
+            if (role instanceof SREModifier m) {
+                if (RoleManageConfigUI.ModifierEnableStatus.isEmpty())
+                    return false;
+                return !RoleManageConfigUI.ModifierEnableStatus.getOrDefault(m.identifier().toString(), false);
+            }
+            return false;
+        }
+        var config = HarpyModLoaderConfig.HANDLER.instance();
+        if (role instanceof SRERole r) {
+            return config.getDisabled().contains(r.identifier().toString());
+        }
+        if (role instanceof SREModifier m) {
+            return config.disabledModifiers.contains(m.identifier.toString());
+        }
+        return false;
+    }
 
     private Component getCardSubText(Object role) {
         if (role instanceof SRERole r) {
@@ -856,13 +1155,24 @@ public class RoleIntroduceScreen extends Screen {
         g.renderOutline(bIconX, bIconY, bIconSize, bIconSize,
                 (rawColor & 0x00FFFFFF) | 0xAA000000);
 
-        g.drawString(font,
-                Component.translatable("gui.roleintroduce.right.warp",
-                        RoleUtils.getRoleOrModifierOrItemTypeName(selectedRole)
-                                .withStyle(ChatFormatting.BOLD, ChatFormatting.AQUA),
-                        RoleUtils.getRoleOrModifierOrItemName(selectedRole)),
+        Component nameLine = Component.translatable("gui.roleintroduce.right.warp",
+                RoleUtils.getRoleOrModifierOrItemTypeName(selectedRole)
+                        .withStyle(ChatFormatting.BOLD, ChatFormatting.AQUA),
+                RoleUtils.getRoleOrModifierOrItemName(selectedRole));
+        g.drawString(font, nameLine,
                 bIconX + bIconSize + 5, panelY + (BANNER_H - font.lineHeight) / 2,
                 0xFFFFFF, true);
+
+        // 已禁用标记
+        if (isItemDisabled(selectedRole)) {
+            int nameWidth = font.width(nameLine);
+            int disabledX = bIconX + bIconSize + 5 + nameWidth + 5;
+            g.drawString(font,
+                    Component.translatable("screen.roleintroduce.disabled")
+                            .withStyle(ChatFormatting.RED),
+                    disabledX, panelY + (BANNER_H - font.lineHeight) / 2,
+                    0xFFFFFF, true);
+        }
 
         int textX0 = rightX + PANEL_PAD;
         int textY0 = panelY + BANNER_H + PANEL_PAD;
@@ -940,6 +1250,30 @@ public class RoleIntroduceScreen extends Screen {
     @Override
     public boolean mouseClicked(double mx, double my, int button) {
         if (button == 0) {
+            // ── 左下角模式切换按钮（仿照分类标签，使用预计算数组）─────────────────
+            if (modeBtnX != null && modeBtnW != null) {
+                for (int i = 0; i < modeBtnX.length; i++) {
+                    int btnX = modeBtnX[i];
+                    int btnW = modeBtnW[i];
+                    if (btnW > 0 && isInRect((int) mx, (int) my,
+                            btnX, modeButtonY, btnW, modeButtonH)) {
+                        IntroductionGameMode clickedMode = IntroductionGameMode.values()[i];
+                        if (currentMode != clickedMode) {
+                            currentMode = clickedMode;
+                            listScrollOffset = 0;
+                            this.minecraft.getSoundManager()
+                                    .play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1f));
+                            refreshFilter();
+                            if (selectedRole != null && !filteredItems.contains(selectedRole)) {
+                                selectedRole = filteredItems.isEmpty() ? null : filteredItems.get(0);
+                                rebuildDetailLines();
+                            }
+                        }
+                        return true;
+                    }
+                }
+            }
+
             // ── 分类标签点击（搜索框右侧）────────────────────────
             for (int i = 0; i < CATEGORIES.size(); i++) {
                 if (tabW[i] > 0 && isInRect((int) mx, (int) my,

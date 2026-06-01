@@ -6,17 +6,22 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
+import io.wifi.starrailexpress.content.gui.PlayerBodyEntityContainer;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.ShopEntry;
+import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -29,6 +34,7 @@ import org.ladysnake.cca.api.v3.component.ComponentKey;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.function.BiConsumer;
@@ -40,6 +46,8 @@ public abstract class SRERole {
     protected final Random random = new Random();
     private ResourceLocation identifier;
     private boolean canSeeCoin = true;
+    private boolean canSeeBodyItems = false;
+    private boolean canGetBodyItems = false;
     private boolean canBeRandomed = true;
     private boolean canSeeBodyDeathReason = false;
     private boolean canSeeBodyRoleInfo = false;
@@ -47,10 +55,12 @@ public abstract class SRERole {
     private boolean canIgnoreBlackout = false;
     public int maxCount = -1;
     public int enableChance = -1;
+    public int enableRareChance = -1;
     public int enableNeedPlayerCount = -1;
     private int occupiedRoleCount = 1;
     public BiConsumer<ServerPlayer, SREGameWorldComponent> serverTickEvent = null;
     public BiConsumer<Player, SREGameWorldComponent> clientTickEvent = null;
+    public HashSet<SRERole> opposingJobs = new HashSet<>();
 
     public Random getRandom() {
         return random;
@@ -93,7 +103,7 @@ public abstract class SRERole {
         return !this.isInnocent && !this.isNeutrals && !this.isNeutralForKiller && this.canUseKiller;
     }
 
-    public boolean canIgnoreBlackout() {
+    public boolean canIgnoreBlackout(Player player) {
         return canIgnoreBlackout;
     }
 
@@ -102,7 +112,26 @@ public abstract class SRERole {
         return this;
     }
 
-    public boolean canSeeBodyRoleInfo() {
+    public SRERole setCanSeeBodyItems(boolean flag) {
+        canSeeBodyItems = flag;
+        return this;
+    }
+
+    public SRERole setCanGetBodyItems(boolean flag) {
+        canGetBodyItems = flag;
+        canSeeBodyItems = flag;
+        return this;
+    }
+
+    public boolean canGetBodyItems(Player player) {
+        return canGetBodyItems;
+    }
+
+    public boolean canSeeBodyItems(Player player, PlayerBodyEntity body) {
+        return canSeeBodyItems;
+    }
+
+    public boolean canSeeBodyRoleInfo(Player player) {
         return canSeeBodyRoleInfo;
     }
 
@@ -111,7 +140,7 @@ public abstract class SRERole {
         return this;
     }
 
-    public boolean canSeeBodyDeathReason() {
+    public boolean canSeeBodyDeathReason(Player player) {
         return canSeeBodyDeathReason;
     }
 
@@ -147,6 +176,52 @@ public abstract class SRERole {
 
     public int getOccupiedRoleCount() {
         return this.occupiedRoleCount;
+    }
+
+    /**
+     * 删除互斥职业
+     * 
+     * @param role
+     * @return
+     */
+    public SRERole removeOpposingJobs(SRERole role) {
+        this.opposingJobs.remove(role);
+        return this;
+    }
+
+    /**
+     * 添加双向互斥职业。互斥职业可能导致平民阵营角色数量增加。
+     * 
+     * @param role
+     * @return
+     */
+    public SRERole addTwoWayOpposingJobs(SRERole role) {
+        this.opposingJobs.add(role);
+        role.opposingJobs.add(this);
+        return this;
+    }
+
+    /**
+     * 添加单向互斥职业。互斥职业可能导致平民阵营角色数量增加。
+     * 
+     * @param role
+     * @return
+     */
+    public SRERole addOpposingJobs(SRERole role) {
+        this.opposingJobs.add(role);
+        return this;
+    }
+
+    /**
+     * 设置单向互斥职业
+     * 
+     * @param roles
+     * @return
+     */
+    public SRERole setOpposingJobs(List<SRERole> roles) {
+        this.opposingJobs.clear();
+        this.opposingJobs.addAll(roles);
+        return this;
     }
 
     public SRERole setOccupiedRoleCount(int occupiedRoleCount) {
@@ -477,6 +552,7 @@ public abstract class SRERole {
     private int maxSprintTime;
     private ToIntFunction<Player> customSprintTimeGetter = null;
     private boolean canSeeTime;
+    private boolean isOtherModeRole = false;
 
     public Consumer<LimitedInventoryScreen> getAddChild() {
         return addChild;
@@ -627,6 +703,12 @@ public abstract class SRERole {
                 return 0;
             }
         }
+        if (this.enableRareChance >= 0) {
+            int nchance = random.nextInt(0, 10000);
+            if (nchance > enableRareChance) {
+                return 0;
+            }
+        }
         return this.maxCount;
     }
 
@@ -649,6 +731,26 @@ public abstract class SRERole {
     public SRERole setEnableChance(int chance) {
         enableChance = chance;
         return this;
+    }
+
+    /**
+     * 小概率启用（基于10000的概率）
+     * 
+     * @param chance 概率值（0-10000），例如10表示0.1%
+     * @return
+     */
+    public SRERole setEnableRareChance(int chance) {
+        enableRareChance = chance;
+        return this;
+    }
+
+    /**
+     * 获取小概率启用值
+     * 
+     * @return
+     */
+    public int getEnableRareChance() {
+        return enableRareChance;
     }
 
     /**
@@ -689,6 +791,10 @@ public abstract class SRERole {
         return texture;
     }
 
+    /**
+     * -1: Unknown - 1: Innocent - 2: Neturals but not for killer - 3: Neturals for killer - 4: Killer - 5: Vigilante
+     * @return
+     */
     public int getRoleType() {
         return PlayerRoleWeightManager.getRoleType(this);
     }
@@ -696,4 +802,74 @@ public abstract class SRERole {
     public boolean canSeeBodyKiller() {
         return this.bodyKillerVisibility;
     };
+
+    /**
+     * 是否是"其它模式"的职业（用于U键职业介绍页面的模式筛选）
+     * 其他模式包括：游客、职业待定、超级亡命徒、土块、寻找者等
+     * 
+     * @return 是否为其他模式职业
+     */
+    public boolean isOtherModeRole() {
+        return this.isOtherModeRole;
+    }
+
+    /**
+     * 设置是否为"其它模式"的职业
+     * 
+     * @param isOtherModeRole 是否为其他模式职业
+     * @return this
+     */
+    public SRERole setOtherModeRole(boolean isOtherModeRole) {
+        this.isOtherModeRole = isOtherModeRole;
+        return this;
+    }
+
+    /**
+     * 玩家关闭尸体获取容器时触发
+     * @param player 玩家
+     * @param corpseEntity 尸体实体
+     * @param container 尸体物品容器
+     */
+    public void onClosedPlayerBodyChest(Player player, PlayerBodyEntity corpseEntity, PlayerBodyEntityContainer container) {
+    }
+
+    /**
+     * 玩家在容器左键时触发
+     * @param slotId
+     * @param button
+     * @param clickType
+     * @param player
+     * @param slots 
+     * @param rows 
+     * @param container 
+     * @return 返回 true 默认逻辑，返回 false 阻止。
+     */
+    public boolean canGetBodyContent(int slotId, int button, ClickType clickType, Player player, PlayerBodyEntityContainer container, int rows, NonNullList<Slot> slots) {
+        return canGetBodyItems(player);
+    }
+
+    /**
+     * 玩家打开玩家尸体容器时触发
+     * @param player
+     */
+    public void startOpenPlayerBody(Player player) {
+    }
+
+    /**
+     * 玩家关闭玩家尸体容器时触发
+     * @param player
+     */
+    public void stopOpenPlayerBody(Player player) {
+    }
+
+    /**
+     * 打开玩家尸体时可否带走物品
+     * @param player
+     * @param container
+     * @param slot
+     * @param stack
+     */
+    public boolean canTakePlayerBodyItem(Player player, Container container, int slot, ItemStack stack) {
+        return canGetBodyItems(player);
+    }
 }

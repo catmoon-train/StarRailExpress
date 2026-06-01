@@ -18,13 +18,15 @@ import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
+import org.agmas.noellesroles.component.InfectedPlayerComponent;
+import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.init.NRSounds;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * 抗生素
  * - 一次性道具
- * - 对目标使用后使目标解除中毒（参考解毒剂）
+ * - 对目标使用后使目标解除中毒和解毒感染
  */
 public class AntibioticItem extends Item {
     public AntibioticItem(Properties settings) {
@@ -49,10 +51,17 @@ public class AntibioticItem extends Item {
                     Entity target = entityHitResult.getEntity();
                     if (attacker instanceof ServerPlayer player) {
                         if (!((double)target.distanceTo(player) > 3.0F)) {
+                            // 清除中毒状态
                             final var playerPoisonComponent = SREPlayerPoisonComponent.KEY.get(target);
                             ((SREPlayerPoisonComponent) playerPoisonComponent).init();
                             playerPoisonComponent.sync();
-                            target.playSound(NRSounds.ITEM_SYRINGE_STAB, 0.4F, 1.0F);
+                            
+                            // 清除感染状态
+                            InfectedPlayerComponent infectedComponent = ModComponents.INFECTED.get(target);
+                            infectedComponent.cure();
+                            
+                            // 播放音效
+                            target.playSound(NRSounds.SYRINGE_STAB, 0.4F, 1.0F);
                             final var blockPos = target.blockPosition();
                             ((ServerLevel) world).playLocalSound(blockPos.getX(), blockPos.getY(), blockPos.getZ(),
                                     SoundEvents.BREWING_STAND_BREW, SoundSource.PLAYERS, 1.4F, 1.0F, false);

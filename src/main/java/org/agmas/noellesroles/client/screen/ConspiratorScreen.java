@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.client.screen;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.client.util.PinYinUtils;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -10,6 +11,7 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.Noellesroles;
@@ -20,6 +22,7 @@ import org.agmas.noellesroles.utils.RoleUtils;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -31,6 +34,21 @@ import java.util.UUID;
  * 2. 选择角色（显示所有可用角色）
  */
 public class ConspiratorScreen extends Screen {
+
+    // 需要排除的DNF职业ID列表
+    private static final List<ResourceLocation> DNF_ROLE_IDS = Arrays.asList(
+            SRE.id("dnf_killer"),
+            SRE.id("dnf_maniac"),
+            SRE.id("dnf_soldier"),
+            SRE.id("dnf_chef"),
+            SRE.id("dnf_poisoner"),
+            SRE.id("dnf_psychologist"),
+            SRE.id("dnf_locksmith"),
+            SRE.id("dnf_civilian"),
+            SRE.id("dnf_flying_knife"),
+            SRE.id("dnf_abyss"),
+            SRE.id("dnf_ghost")
+    );
 
     // 当前阶段：0 = 选择玩家，1 = 选择角色
     private int phase = 0;
@@ -205,6 +223,8 @@ public class ConspiratorScreen extends Screen {
         // 获取所有注册的角色
         roles = Noellesroles.getAllRolesSorted(false);
         roles.removeIf(r -> r != null && r.identifier().equals(org.agmas.noellesroles.role.ModRoles.MERCENARY_ID));
+        // 排除所有DNF职业
+        roles.removeIf(r -> r != null && DNF_ROLE_IDS.contains(r.identifier()));
 
         if (roles.isEmpty()) {
             onClose();

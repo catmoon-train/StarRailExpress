@@ -371,6 +371,7 @@ public class TaskBlockOverlayRenderer {
                                 true, 0f,
                                 Component.translatable("hud.noellesroles.task_instinct.render.vending_machine"));
                     }
+                    break;
                 default:
                     BlockState block = renderContext.world().getBlockState(pos);
                     if (block.getBlock() instanceof TaskInstinctShowableInterface it) {

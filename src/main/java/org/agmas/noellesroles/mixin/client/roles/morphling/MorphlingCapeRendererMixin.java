@@ -2,6 +2,7 @@ package org.agmas.noellesroles.mixin.client.roles.morphling;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.wifi.starrailexpress.client.SREClient;
+import io.wifi.starrailexpress.client.util.ClientSkinCache;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -76,7 +77,7 @@ public abstract class MorphlingCapeRendererMixin {
             
             final var shuffledTarget = getShuffledTarget(abstractClientPlayerEntity);
             if (shuffledTarget != null) {
-                final var playerInfo = SREClient.PLAYER_ENTRIES_CACHE.get(shuffledTarget);
+                final var playerInfo = ClientSkinCache.getCachedPlayerInfo(shuffledTarget);
                 if (playerInfo == null)
                     return instance.capeTexture();
                 final var skin = playerInfo.getSkin();
@@ -91,7 +92,7 @@ public abstract class MorphlingCapeRendererMixin {
                 final var skinToAppearAs = skinSplitPersonalityComponent.getSkinToAppearAs();
                 if (skinToAppearAs !=null) {
 
-                        final var playerInfo = SREClient.PLAYER_ENTRIES_CACHE.get(skinToAppearAs);
+                        final var playerInfo = ClientSkinCache.getCachedPlayerInfo(skinToAppearAs);
                         if (playerInfo == null) {
                             return instance.capeTexture();
                         }
@@ -111,7 +112,7 @@ public abstract class MorphlingCapeRendererMixin {
                 UUID disguiseUuid = MorphlingPlayerComponent.KEY.get(abstractClientPlayerEntity).disguise;
                 if (disguiseUuid != null) {
                     // 尝试通过 TMMClient 获取玩家信息，而不是直接获取世界中的玩家
-                    final var playerInfo = SREClient.PLAYER_ENTRIES_CACHE.get(disguiseUuid);
+                    final var playerInfo = ClientSkinCache.getCachedPlayerInfo(disguiseUuid);
                     if (playerInfo != null) {
                         final var skin = playerInfo.getSkin();
                         if (skin != null) {

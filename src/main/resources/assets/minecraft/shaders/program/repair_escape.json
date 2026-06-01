@@ -1,0 +1,17 @@
+{
+  "blend": { "func": "add", "srcrgb": "srcalpha", "dstrgb": "1-srcalpha" },
+  "vertex": "blit",
+  "fragment": "repair_escape",
+  "attributes": ["Position"],
+  "samplers": [{ "name": "DiffuseSampler" }],
+  "uniforms": [
+    { "name": "ProjMat", "type": "matrix4x4", "count": 16, "values": [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1] },
+    { "name": "OutSize", "type": "float", "count": 2, "values": [1, 1] },
+    { "name": "Strength", "type": "float", "count": 1, "values": [0.0] },
+    { "name": "Time", "type": "float", "count": 1, "values": [0.0] },
+    { "name": "RedPulse", "type": "float", "count": 1, "values": [0.0] },
+    { "name": "Darkness", "type": "float", "count": 1, "values": [0.0] },
+    { "name": "Vignette", "type": "float", "count": 1, "values": [0.0] },
+    { "name": "Madness", "type": "float", "count": 1, "values": [0.0] }
+  ]
+}

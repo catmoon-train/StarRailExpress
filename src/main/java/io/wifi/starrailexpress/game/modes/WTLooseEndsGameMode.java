@@ -28,6 +28,11 @@ import java.util.function.Supplier;
 public class WTLooseEndsGameMode extends GameMode {
     public final List<Supplier<ItemStack>> looseEndsItems = new ArrayList<>();
 
+    @Override
+    public boolean shouldRecordPlayerStats() {
+        return false;
+    }
+
     /** 触发角色初始化事件 */
     public static void triggerRoleAssignedEvent(List<ServerPlayer> players, SREGameWorldComponent gameWorldComponent) {
         for (ServerPlayer player : players) {
@@ -129,6 +134,7 @@ public class WTLooseEndsGameMode extends GameMode {
 
     @Override
     public void tickServerGameLoop(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent) {
+        super.tickServerGameLoop(serverWorld, gameWorldComponent);
         GameUtils.WinStatus winStatus = GameUtils.WinStatus.NONE;
 
         // check if out of time

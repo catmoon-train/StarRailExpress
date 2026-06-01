@@ -248,10 +248,10 @@ new ExtraEffectRole(ResourceLocation id, int color, boolean isInnocent,
 | 常量 | ID | 阵营 |
 |------|-----|------|
 | `DISCOVERY_CIVILIAN` | `sre:discovery_civilian` | 乘客（发现模式） |
-| `CIVILIAN` | `sre:civilian` | 乘客 |
-| `VIGILANTE` | `sre:vigilante` | 自警阵营 |
+| `CIVILIAN` | `sre:civilian` | 平民 |
+| `VIGILANTE` | `sre:vigilante` | 义警 |
 | `KILLER` | `sre:killer` | 杀手 |
-| `LOOSE_END` | `sre:loose_end` | 散局（中立） |
+| `LOOSE_END` | `sre:loose_end` | 亡命徒（中立） |
 
 #### 注册新角色 / Registering a New Role
 

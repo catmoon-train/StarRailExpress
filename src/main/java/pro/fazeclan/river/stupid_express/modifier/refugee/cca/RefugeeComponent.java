@@ -1,10 +1,12 @@
 package pro.fazeclan.river.stupid_express.modifier.refugee.cca;
 
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.*;
 import io.wifi.starrailexpress.compat.TrainVoicePlugin;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
+import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.network.RemoveStatusBarPayload;
 import io.wifi.starrailexpress.network.TriggerStatusBarPayload;
@@ -29,6 +31,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
+import org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaPlayerComponent;
 import org.agmas.noellesroles.init.ModEffects;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
@@ -85,7 +88,7 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         });
         for (RefugeeData data : pendingRevivals) {
             if (!data.isRevive && currentTime >= data.revivalTime) {
-                revivePlayer(data);
+                reviveLooseEnd(data);
                 data.isRevive = true;
             }
             if (data.isRevive && !data.isDead && currentTime >= data.revivalTime + 3000) {
@@ -146,7 +149,7 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
 
     private static int lastTime = -1;
 
-    private void revivePlayer(RefugeeData data) {
+    private void reviveLooseEnd(RefugeeData data) {
         if (!(level instanceof ServerLevel serverLevel)) {
             return;
         }
@@ -160,6 +163,9 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         if (i == null) {
             i = 1;
         }
+        MonokumaPlayerComponent.KEY.get( player).clear();
+        WorldModifierComponent.KEY.get( player.serverLevel()).removeModifier(data.uuid, SEModifiers.REFUGEE);
+
         final var areasWorldComponent = AreasWorldComponent.KEY.get(serverLevel);
         final var roomPosition = areasWorldComponent.getRoomPosition(i);
         // Teleport to death location
@@ -201,12 +207,16 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         // 变更：亡命徒发光时间由 30s 调整为 5 分钟（300s）
         player.addEffect(new MobEffectInstance(MobEffects.GLOWING, 5 * 60 * 20, 0, false, false));
         serverLevel.getServer().getCommands().performPrefixedCommand(serverLevel.getServer().createCommandSourceStack(),
+                "title @a subtitle {\"translate\":\"title.stupid_express.refugee.subtlte.active\",\"color\":\"dark_red\"}");
+        serverLevel.getServer().getCommands().performPrefixedCommand(serverLevel.getServer().createCommandSourceStack(),
                 "title @a title {\"translate\":\"title.stupid_express.refugee.active\",\"color\":\"dark_red\"}");
-
+        serverLevel.getServer().getCommands().performPrefixedCommand(serverLevel.getServer().createCommandSourceStack(),
+                "title @a subtitle \"\"");
         serverLevel.players().forEach(p -> {
             ServerPlayNetworking.send(p, new TriggerStatusBarPayload("loose_end"));
             p.playNotifySound(SoundEvents.WITHER_DEATH, SoundSource.PLAYERS, 1.0f, 1.0f);
             p.addEffect(new MobEffectInstance(MobEffects.WEAVING, 150 * 20, 0, false, false));
+            p.addEffect(new MobEffectInstance(MobEffects.DARKNESS, 40, 0, false, false));
             p.playNotifySound(SoundEvents.WITHER_SPAWN, SoundSource.PLAYERS, 1.0f, 1.0f);
 
             p.displayClientMessage(Component.translatable("hud.stupid_express.refugee.revived", player.getName()),
@@ -230,7 +240,11 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         for (var player : players) {
             var ppc = SREPlayerPsychoComponent.KEY.get(player);
             if (ppc.psychoTicks > 0) {
-                ppc.stopPsychoAndRefreshPsychoCount(false);
+                ppc.stopPsychoAndRefreshPsychoCount(true);
+                ppc.sync();
+                SREPlayerShopComponent srePlayerShopComponent = SREPlayerShopComponent.KEY.get(player);
+                srePlayerShopComponent.addToBalance((int) (SREConfig.instance().psychoModePrice*0.75));
+                srePlayerShopComponent.sync();
             }
             boolean isAlive = GameUtils.isPlayerAliveAndSurvival(player);
             if (isAlive) {
@@ -280,7 +294,7 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         bodies.clear();
     }
 
-    public void onLooseEndDeath(Player who) {
+    public void onLooseEndDeath(Player who, ResourceLocation deathReason) {
         if (!(who instanceof ServerPlayer sp)) {
             return;
         }
@@ -300,6 +314,11 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
             return false;
         });
         if (a) {
+            return;
+        }
+
+        if (deathReason.equals(GameConstants.DeathReasons.DISCONNECT)) {
+            afterLooseEndTryRestore(who);
             return;
         }
         isPendingRestore = true;

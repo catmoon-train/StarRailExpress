@@ -115,6 +115,9 @@ public class NoellesrolesVoiceChatPlugin implements VoicechatPlugin {
         return true;
       }
     }
+    if (receiverPlayer.hasEffect(ModEffects.PLAYER_ISOLATION) || senderPlayer.hasEffect(ModEffects.PLAYER_ISOLATION)) {
+      return true;
+    }
     var deathPenalty = ModComponents.DEATH_PENALTY.get(receiverPlayer);
     if (deathPenalty.hasPenalty()) {
       if (deathPenalty.limitCameraUUID != null) {
@@ -168,12 +171,39 @@ public class NoellesrolesVoiceChatPlugin implements VoicechatPlugin {
           var player = (ServerPlayer) vctplayer;
           SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
           if (gameWorldComponent != null) {
+            // 检查沉默语音效果
+            if (player != null && player.hasEffect(ModEffects.VOICE_SILENCE)) {
+              event.cancel();
+              return;
+            }
             if (gameWorldComponent.getGameStatus().equals(GameStatus.STOPPING)
                 || gameWorldComponent.getGameStatus().equals(GameStatus.STARTING)) {
               event.cancel();
               return;
             }
             if (GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)) {
+              float voiceRangeMultiplier = ModEffects.getVoiceRangeMultiplier(player);
+              if (voiceRangeMultiplier > 1.0f) {
+                event.cancel();
+                double maxDistance = api.getVoiceChatDistance() * voiceRangeMultiplier;
+                var players = player.level().players();
+                if (players == null) {
+                  return;
+                }
+                players.forEach((p) -> {
+                  if (p.getUUID() != player.getUUID() && player.distanceTo(p) <= maxDistance) {
+                    VoicechatConnection con = api.getConnectionOf(p.getUUID());
+                    if (con != null && con.isInstalled() && con.isConnected()) {
+                      api.sendLocationalSoundPacketTo(con, event.getPacket()
+                          .locationalSoundPacketBuilder()
+                          .position(api.createPosition(player.getX(), player.getY(), player.getZ()))
+                          .distance((float) maxDistance)
+                          .build());
+                    }
+                  }
+                });
+                return;
+              }
               if (gameWorldComponent.isRole(player, ModRoles.NOISEMAKER)) {
                 event.cancel();
                 var players = player.level().players();
@@ -210,6 +240,9 @@ public class NoellesrolesVoiceChatPlugin implements VoicechatPlugin {
         }
       }
     }
+    
+
+    
     // ServerPlayer players = ((ServerPlayer)
     // event.getSenderConnection().getPlayer().getPlayer());
 

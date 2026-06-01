@@ -12,6 +12,7 @@ import net.minecraft.world.entity.MobCategory;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.content.block_entity.DevilRouletteTableEntity;
 import org.agmas.noellesroles.content.entity.*;
+import org.agmas.noellesroles.content.entity.FlareEntity;
 
 public class ModEntities {
     public static final EntityType<RoleMineEntity> ROLE_MINE_ENTITY_ENTITY_TYPE = Registry.register(
@@ -64,6 +65,32 @@ public class ModEntities {
                     .dimensions(EntityDimensions.fixed(0.25F, 0.25F))
                     .trackRangeBlocks(4)
                     .trackedUpdateRate(10)
+                    .build());
+
+    /**
+     * 毒气瓶投掷实体 - 可投掷物品，落地时生成毒气云
+     */
+    @SuppressWarnings("deprecation")
+    public static final EntityType<PoisonGasTankEntity> POISON_GAS_TANK_ENTITY = Registry.register(
+            BuiltInRegistries.ENTITY_TYPE,
+            ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "poison_gas_tank"),
+            FabricEntityTypeBuilder.<PoisonGasTankEntity>create(MobCategory.MISC, PoisonGasTankEntity::new)
+                    .dimensions(EntityDimensions.fixed(0.25F, 0.25F))
+                    .trackRangeBlocks(4)
+                    .trackedUpdateRate(10)
+                    .build());
+
+    /**
+     * 毒气云实体 - 气体扩散，60秒消散，停留8秒中毒
+     */
+    @SuppressWarnings("deprecation")
+    public static final EntityType<PoisonGasCloudEntity> POISON_GAS_CLOUD_ENTITY = Registry.register(
+            BuiltInRegistries.ENTITY_TYPE,
+            ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "poison_gas_cloud"),
+            FabricEntityTypeBuilder.<PoisonGasCloudEntity>create(MobCategory.MISC, PoisonGasCloudEntity::new)
+                    .dimensions(EntityDimensions.fixed(0.5F, 0.5F))
+                    .trackRangeBlocks(64)
+                    .trackedUpdateRate(1)
                     .build());
 
     /**
@@ -182,6 +209,29 @@ public class ModEntities {
             BuiltInRegistries.ENTITY_TYPE,
             ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "decoy_grenade"),
             FabricEntityTypeBuilder.<DecoyGrenadeEntity>create(MobCategory.MISC, DecoyGrenadeEntity::new)
+                    .dimensions(EntityDimensions.fixed(0.25F, 0.25F))
+                    .trackRangeBlocks(4)
+                    .trackedUpdateRate(10)
+                    .build());
+
+    @SuppressWarnings("deprecation")
+    public static final EntityType<SilenceTotemEntity> SILENCE_TOTEM = Registry.register(
+            BuiltInRegistries.ENTITY_TYPE,
+            ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "silence_totem"),
+            FabricEntityTypeBuilder.<SilenceTotemEntity>create(MobCategory.MISC, SilenceTotemEntity::new)
+                    .dimensions(EntityDimensions.fixed(0.25F, 0.25F))
+                    .trackRangeBlocks(32)
+                    .trackedUpdateRate(10)
+                    .build());
+
+    /**
+     * 照明弹实体 - 投掷后飞行，撞到方块时放置照明弹方块，10秒后消失
+     */
+    @SuppressWarnings("deprecation")
+    public static final EntityType<FlareEntity> FLARE = Registry.register(
+            BuiltInRegistries.ENTITY_TYPE,
+            ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "flare"),
+            FabricEntityTypeBuilder.<FlareEntity>create(MobCategory.MISC, FlareEntity::new)
                     .dimensions(EntityDimensions.fixed(0.25F, 0.25F))
                     .trackRangeBlocks(4)
                     .trackedUpdateRate(10)

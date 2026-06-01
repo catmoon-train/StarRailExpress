@@ -7,6 +7,8 @@ import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
@@ -108,6 +110,7 @@ public class SREPlayerAFKComponent implements RoleComponent, ServerTickingCompon
         ++tickR;
         if (player.isSpectator()) {
             this.lastActionTime = 0;
+            this.afkTime = 0;
         }
         if (!SRE.isPlayerInGame(this.player))
             return;
@@ -124,9 +127,21 @@ public class SREPlayerAFKComponent implements RoleComponent, ServerTickingCompon
         if (tickR % 400 == 0) {// 20s 同步一次
             this.sync(); // 确保客户端同步进度
         }
+
+        if (!SREConfig.instance().afkDeathEnabled) {
+            return;
+        }
+
         if (this.lastActionTime >= deathThreshold) {
-            // 如果达到死亡阈值，直接杀死玩家
-            GameUtils.killPlayer(this.player, true, null, SRE.id("death_afk"));
+            // 如果达到死亡阈值，直接强制杀死玩家
+            // 只有在启用挂机死亡功能时才执行
+
+            GameUtils.forceKillPlayer(this.player, true, null, SRE.id("death_afk"));
+            this.clear();
+            if (SREConfig.instance().afkKickEnabled && this.player instanceof ServerPlayer sp) {
+                sp.connection.disconnect(Component.translatable("message.disconnect.afk"));
+            }
+            // 如果禁用挂机死亡，重置AFK状态以避免永久触发s
         } else if (this.lastActionTime >= afkThreshold && !this.isAFK) {
             this.isAFK = true;
             if (tickR % 400 == 0) { // 20s同步一次
@@ -162,6 +177,7 @@ public class SREPlayerAFKComponent implements RoleComponent, ServerTickingCompon
     public void clientTick() {
         if (player.isSpectator()) {
             this.lastActionTime = 0;
+            this.afkTime = 0;
         }
         if (!SRE.isPlayerInGame(this.player))
             return;

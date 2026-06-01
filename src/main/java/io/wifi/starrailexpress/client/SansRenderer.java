@@ -2,7 +2,8 @@ package io.wifi.starrailexpress.client;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
-import io.wifi.events.day_night_fight.DNFPlayerComponent;
+
+
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
@@ -451,30 +452,10 @@ public class SansRenderer {
             renderBloodTendrilsOverlay(new Gui(m_mc), context.pose(), dt, m_mc.getWindow().getGuiScaledWidth(),
                     m_mc.getWindow().getGuiScaledHeight());
         }
-        renderDnfKillerOverlay(context.pose(), m_mc.getWindow().getGuiScaledWidth(),
-                m_mc.getWindow().getGuiScaledHeight());
+
     }
 
-    private void renderDnfKillerOverlay(PoseStack poseStack, int scw, int sch) {
-        if (m_mc.player == null || m_mc.level == null || m_mc.player.isCreative() || m_mc.player.isSpectator()) {
-            return;
-        }
-        DNFPlayerComponent component = DNFPlayerComponent.KEY.get(m_mc.player);
-        float progress = component.hasPersonalEnding() ? 1f : component.getTransformationProgress();
-        if (progress <= 0.001f) {
-            return;
-        }
 
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        poseStack.pushPose();
-        RenderSystem.setShaderTexture(0, BLOOD_TENDRILS_OVERLAY);
-        float pulse = 0.75f + (float) Math.sin((m_mc.level.getGameTime() + m_dt) * 0.08f) * 0.25f;
-        float alpha = Mth.clamp((0.10f + progress * 0.28f) * pulse, 0f, component.hasPersonalEnding() ? 0.55f : 0.35f);
-        renderFullscreen(poseStack, scw, sch, 100, 58, 0, 0, 100, 58, alpha);
-        poseStack.popPose();
-        RenderSystem.disableBlend();
-    }
 
     /**
      * 更新电影效果（文字缓慢移动）

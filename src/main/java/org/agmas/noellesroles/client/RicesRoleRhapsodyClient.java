@@ -13,6 +13,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.client.renderer.entity.NoopRenderer;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -26,18 +27,17 @@ import org.agmas.noellesroles.client.renderer.*;
 import org.agmas.noellesroles.client.screen.*;
 import org.agmas.noellesroles.content.item.ConspiracyPageItem;
 import org.agmas.noellesroles.content.item.WrittenNoteItem;
-import org.agmas.noellesroles.game.roles.Innocent.athlete.AthletePlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.boxer.BoxerPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.monitor.MonitorPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.psychologist.PsychologistPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.super_star.SuperStarPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.athlete.AthletePlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.boxer.BoxerPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.monitor.MonitorPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.psychologist.PsychologistPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.super_star.SuperStarPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.insane_killer.InsaneKillerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.ninja.NinjaPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.stalker.StalkerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.trapper.TrapperPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.water_ghost.WaterGhostPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.shadow_falcon.ShadowFalconPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.pilot.PilotPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.admirer.AdmirerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
 import org.agmas.noellesroles.init.ModEntities;
@@ -592,7 +592,6 @@ public class RicesRoleRhapsodyClient implements ClientModInitializer {
             if (!GameUtils.isPlayerAliveAndSurvival(client.player))
                 return true;
 
-            PilotPlayerComponent pilotComponent = PilotPlayerComponent.KEY.get(client.player);
             // 脱下喷气背包
             ClientPlayNetworking.send(new PilotRemoveJetpackC2SPacket());
             return true;
@@ -696,11 +695,18 @@ public class RicesRoleRhapsodyClient implements ClientModInitializer {
      */
     public static void registerEntityRenderers() {
         EntityRendererRegistry.register(ModEntities.THROWING_KNIFE, ThrowingKnifeRenderer::new);
+        EntityRendererRegistry.register(ModEntities.FLARE, ThrownItemRenderer::new);
         // 烟雾弹实体渲染器 - 使用飞行物品渲染器
         EntityRendererRegistry.register(ModEntities.SMOKE_GRENADE, ThrownItemRenderer::new);
 
         // 氯气弹实体渲染器 - 使用飞行物品渲染器
         EntityRendererRegistry.register(ModEntities.CHLORINE_BOMB, ThrownItemRenderer::new);
+
+        // 毒气瓶实体渲染器 - 使用飞行物品渲染器
+        EntityRendererRegistry.register(ModEntities.POISON_GAS_TANK_ENTITY, ThrownItemRenderer::new);
+
+        // 毒气云实体渲染器 - 空渲染器（纯粒子效果，无需模型）
+        EntityRendererRegistry.register(ModEntities.POISON_GAS_CLOUD_ENTITY, NoopRenderer::new);
 
         // 净化弹实体渲染器 - 使用飞行物品渲染器
         EntityRendererRegistry.register(ModEntities.PURIFY_BOMB, ThrownItemRenderer::new);
@@ -710,6 +716,8 @@ public class RicesRoleRhapsodyClient implements ClientModInitializer {
 
         // 诱饵弹实体渲染器 - 使用飞行物品渲染器
         EntityRendererRegistry.register(ModEntities.DECOY_GRENADE, ThrownItemRenderer::new);
+
+        EntityRendererRegistry.register(ModEntities.SILENCE_TOTEM, TotemItemRenderer::new);
 
         // 灾厄印记实体渲染器 - 使用自定义渲染器（对设陷者半透明可见）
         EntityRendererRegistry.register(ModEntities.CALAMITY_MARK, CalamityMarkEntityRenderer::new);

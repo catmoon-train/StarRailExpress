@@ -2,6 +2,7 @@ package pro.fazeclan.river.stupid_express.role.amnesiac;
 
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.cca.PlayerBodyEntityComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
@@ -13,7 +14,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
-import org.agmas.noellesroles.game.roles.Innocent.coroner.BodyDeathReasonComponent;
+
 import org.agmas.noellesroles.role.ModRoles;
 import pro.fazeclan.river.stupid_express.constants.SERoles;
 import pro.fazeclan.river.stupid_express.utils.StupidRoleUtils;
@@ -43,13 +44,21 @@ public class RoleSelectionHandler {
             if (!(entity instanceof PlayerBodyEntity victim)) {
                 return InteractionResult.PASS;
             }
+            // 检查是否是葬仪伪造的尸体，不能与伪造的尸体交互
+            if (PlayerBodyEntityComponent.KEY.get(victim).isFakeBody) {
+                player.displayClientMessage(
+                        Component.translatable("message.stupid_express.amnesiac.cannot_interact_fake_body")
+                                .withStyle(ChatFormatting.RED),
+                        true);
+                return InteractionResult.PASS;
+            }
             if (!gameWorldComponent.isSkillAvailable) {
                 // 技能不可用
                 player.displayClientMessage(
                         Component.translatable("message.stupid_express.generic.skill_not_available"), true);
                 return InteractionResult.PASS;
             }
-            var roleRes = BodyDeathReasonComponent.KEY.get(victim).playerRole;
+            var roleRes = PlayerBodyEntityComponent.KEY.get(victim).playerRole;
             if (roleRes == null) {
                 return InteractionResult.PASS;
             }
@@ -79,6 +88,13 @@ public class RoleSelectionHandler {
                 return InteractionResult.PASS;
             }
             if (role.identifier().equals(SERoles.INITIATE.identifier())) {
+                player.displayClientMessage(
+                        Component.translatable("msg.amnesiac.change_role.failed_not_support")
+                                .withStyle(ChatFormatting.RED),
+                        true);
+                return InteractionResult.PASS;
+            }
+            if (role.identifier().equals(org.agmas.noellesroles.role.TraitorAndModifiers.TRAITOR.identifier())) {
                 player.displayClientMessage(
                         Component.translatable("msg.amnesiac.change_role.failed_not_support")
                                 .withStyle(ChatFormatting.RED),

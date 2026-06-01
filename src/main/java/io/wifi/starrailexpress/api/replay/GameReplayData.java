@@ -388,13 +388,24 @@ public class GameReplayData {
         public final long timestamp;
         public final String text_a;
         public final String text_b;
+        public final boolean hidden;
 
         public ReplayEvent(EventType type, UUID sourcePlayer, UUID targetPlayer, String itemUsed, String message) {
-            this(type, sourcePlayer, targetPlayer, itemUsed, message, "", "");
+            this(type, sourcePlayer, targetPlayer, itemUsed, message, "", "", false);
         }
 
         public ReplayEvent(EventType type, UUID sourcePlayer, UUID targetPlayer, String itemUsed, String message,
                 String text_a, String text_b) {
+            this(type, sourcePlayer, targetPlayer, itemUsed, message, text_a, text_b, false);
+        }
+
+        public ReplayEvent(EventType type, UUID sourcePlayer, UUID targetPlayer, String itemUsed, String message,
+                boolean hidden) {
+            this(type, sourcePlayer, targetPlayer, itemUsed, message, "", "", hidden);
+        }
+
+        public ReplayEvent(EventType type, UUID sourcePlayer, UUID targetPlayer, String itemUsed, String message,
+                String text_a, String text_b, boolean hidden) {
             this.type = type;
             this.sourcePlayer = sourcePlayer;
             this.targetPlayer = targetPlayer;
@@ -403,6 +414,7 @@ public class GameReplayData {
             this.timestamp = System.currentTimeMillis();
             this.text_a = text_a;
             this.text_b = text_b;
+            this.hidden = hidden;
         }
 
         public EventType getType() {
@@ -427,6 +439,10 @@ public class GameReplayData {
 
         public long getTimestamp() {
             return timestamp;
+        }
+
+        public boolean isHidden() {
+            return hidden;
         }
     }
 

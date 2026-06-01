@@ -400,6 +400,20 @@ public class MailboxComponent implements AutoSyncedComponent, ServerTickingCompo
         return true;
     }
 
+    public boolean flushDatabaseSyncBlocking() {
+        if (!MysqlPlayerDataStore.isAvailable() || this.databaseLoadPending) return false;
+        boolean success = MysqlPlayerDataStore.saveBatchBlocking(
+                player.getUUID(),
+                Map.of(DB_KEY, serializeToJson()),
+                System.currentTimeMillis(),
+                4000L);
+        if (success) {
+            dirty = false;
+            tickCounter = 0;
+        }
+        return success;
+    }
+
     private String serializeToJson() {
         JsonArray arr = new JsonArray();
         for (Mail m : mails) {

@@ -18,6 +18,7 @@ loom {
             // 添加程序参数来设置玩家名
             programArg "--username"
             programArg "debug_player" // 把这里改成你想要的游戏内名字
+
         }
     }
 }
@@ -99,7 +100,7 @@ dependencies {
     // 只剩下部分接口的wathe空壳子
     modImplementation files("libs/wathe-1.3.2.jar")
     // Other libs
-    modImplementation files("libs/sre_resource-1.0.0.jar")
+    modImplementation files("libs/sre-lib-${project.sre_lib_version}.jar")
     modImplementation files("libs/HandheldMoon-fabric-1.21.1-1.0.0.jar")
     modImplementation files("libs/modernfix-fabric-5.25.1+mc1.21.1.jar")
     modImplementation files("libs/fabric-carpet-1.21-1.4.147+v240613.jar")

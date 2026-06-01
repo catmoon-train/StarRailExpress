@@ -5,8 +5,8 @@ import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import io.wifi.starrailexpress.SRE;
-import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.render.entity.PlayerBodyEntityRenderer;
+import io.wifi.starrailexpress.client.util.ClientSkinCache;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.PlayerInfo;
@@ -62,7 +62,7 @@ public class EntityRendererDispatchMixin {
     public <T extends Entity> void tmm$addPlayerBodyRenderer(T entity,
             CallbackInfoReturnable<EntityRenderer<? super T>> cir) {
         if (entity instanceof PlayerBodyEntity body) {
-            PlayerInfo playerListEntry = SREClient.PLAYER_ENTRIES_CACHE.get(body.getPlayerUuid());
+            PlayerInfo playerListEntry = ClientSkinCache.getCachedPlayerInfo(body.getPlayerUuid());
             if (playerListEntry == null) {
                 cir.setReturnValue((EntityRenderer<? super T>) this.bodyModelRenderers.get(PlayerSkin.Model.WIDE));
             } else {

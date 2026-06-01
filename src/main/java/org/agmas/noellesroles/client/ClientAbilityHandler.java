@@ -7,7 +7,10 @@ import io.wifi.starrailexpress.client.gui.screen.gamemode.custom_role.CustomRole
 import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
+import org.agmas.noellesroles.component.ModComponents;
+import org.agmas.noellesroles.game.modes.repair.RepairRoleDefinition;
 import org.agmas.noellesroles.packet.AbilityC2SPacket;
+import org.agmas.noellesroles.packet.RepairPrimarySkillC2SPacket;
 
 public class ClientAbilityHandler {
 
@@ -30,6 +33,16 @@ public class ClientAbilityHandler {
         RicesRoleRhapsodyClient.handleAdmirerContinuousInput(client);
         if (client.player == null)
             return;
+
+        boolean repairGameRunning = gameWorldComponent.isRunning()
+                && gameWorldComponent.getGameMode() == SREGameModes.REPAIR_ESCAPE_MODE;
+        var repairComponent = ModComponents.REPAIR_ROLES.get(client.player);
+        if (repairGameRunning && (RepairRoleDefinition.byId(repairComponent.activeRole).isPresent()
+                || repairComponent.carriedBy != null
+                || repairComponent.carrying != null)) {
+            ClientPlayNetworking.send(new RepairPrimarySkillC2SPacket());
+            return;
+        }
 
         if (GKeyRoleSkill.trigger(client, gameWorldComponent, true)) {
             return;

@@ -21,6 +21,13 @@ public interface IGameReplayRecorder {
     void recordEvent(EventType eventType, EventDetails details);
 
     /**
+     * 记录一个通用事件，并控制它是否默认展示。
+     */
+    default void recordEvent(EventType eventType, EventDetails details, boolean hidden) {
+        recordEvent(eventType, details);
+    }
+
+    /**
      * 记录一个自定义事件。
      *
      * @param customEventTypeId 自定义事件的唯一标识符。
@@ -28,6 +35,13 @@ public interface IGameReplayRecorder {
      * @param message           自定义事件的消息内容。
      */
     void recordCustomEvent(ResourceLocation customEventTypeId, UUID playerUuid, String message);
+
+    /**
+     * 记录一个自定义事件，并控制它是否默认展示。
+     */
+    default void recordCustomEvent(ResourceLocation customEventTypeId, UUID playerUuid, String message, boolean hidden) {
+        recordCustomEvent(customEventTypeId, playerUuid, message);
+    }
 
     // 可以根据需要添加更多记录方法，例如：
     // void recordPlayerAction(UUID playerUuid, PlayerActionType actionType, BlockPos pos);

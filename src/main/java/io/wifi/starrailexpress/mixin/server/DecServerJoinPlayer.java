@@ -1,6 +1,7 @@
 package io.wifi.starrailexpress.mixin.server;
 
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.api.replay.GameReplayManager;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -22,7 +23,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(PlayerList.class)
 public class DecServerJoinPlayer {
 
-    @Inject(method = "placeNewPlayer", at = @At("TAIL"), cancellable = true)
+    @Inject(method = "placeNewPlayer", at = @At("TAIL"))
     public void placeNewPlayer(Connection connection, ServerPlayer serverPlayer,
             CommonListenerCookie commonListenerCookie, CallbackInfo ci) {
         if (SRE.isLobby)
@@ -39,22 +40,26 @@ public class DecServerJoinPlayer {
         // }
         if (gameWorldComponent.getGameStatus() == GameStatus.ACTIVE) {
             if (serverPlayer.level() instanceof ServerLevel serverWorld) {
-                AreasWorldComponent areas = AreasWorldComponent.KEY.get(serverWorld);
-                AreasWorldComponent.PosWithOrientation spectatorSpawnPos = areas.getSpectatorSpawnPos();
-                serverPlayer.teleportTo(serverWorld, spectatorSpawnPos.pos.x(), spectatorSpawnPos.pos.y(),
-                        spectatorSpawnPos.pos.z(), spectatorSpawnPos.yaw, spectatorSpawnPos.pitch);
-                serverPlayer.setGameMode(net.minecraft.world.level.GameType.SPECTATOR);
+
+                    AreasWorldComponent areas = AreasWorldComponent.KEY.get(serverWorld);
+                    AreasWorldComponent.PosWithOrientation spectatorSpawnPos = areas.getSpectatorSpawnPos();
+                    serverPlayer.teleportTo(serverWorld, spectatorSpawnPos.pos.x(), spectatorSpawnPos.pos.y(),
+                            spectatorSpawnPos.pos.z(), spectatorSpawnPos.yaw, spectatorSpawnPos.pitch);
+                    serverPlayer.setGameMode(net.minecraft.world.level.GameType.SPECTATOR);
+
             }
         } else {
-            if (serverPlayer.level() instanceof ServerLevel serverWorld) {
-                BlockPos spawn = serverWorld.getSharedSpawnPos();
-                float angle = serverWorld.getSharedSpawnAngle();
-                serverPlayer.teleportTo(serverWorld, spawn.getX(), spawn.getY(),
-                        spawn.getZ(), angle, 0);
-                SREItemUtils.clearItem(serverPlayer, (a) -> true);
-                if (!serverPlayer.isCreative())
-                    serverPlayer.setGameMode(net.minecraft.world.level.GameType.ADVENTURE);
-            }
+
+                if (serverPlayer.level() instanceof ServerLevel serverWorld) {
+                    BlockPos spawn = serverWorld.getSharedSpawnPos();
+                    float angle = serverWorld.getSharedSpawnAngle();
+                    serverPlayer.teleportTo(serverWorld, spawn.getX(), spawn.getY(),
+                            spawn.getZ(), angle, 0);
+                    SREItemUtils.clearItem(serverPlayer, (a) -> true);
+                    if (!serverPlayer.isCreative())
+                        serverPlayer.setGameMode(net.minecraft.world.level.GameType.ADVENTURE);
+                }
+
         }
         SyncMapConfigPayload.sendToPlayer(serverPlayer);
         SREGameWorldComponent.KEY.syncWith(serverPlayer, (ComponentProvider) serverPlayer.level());

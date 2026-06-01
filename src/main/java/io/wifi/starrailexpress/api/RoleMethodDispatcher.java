@@ -97,7 +97,7 @@ public class RoleMethodDispatcher {
                 player -> {
                     TMMRoles.COMPONENT_KEYS.forEach(
                             componentKey -> {
-                                RoleComponent roleComponent = componentKey.get(player);
+                                RoleComponent roleComponent = componentKey.maybeGet(player).orElse(null);
                                 if (roleComponent != null) {
                                     roleComponent.clear();
                                     componentKey.sync(player);
@@ -111,7 +111,7 @@ public class RoleMethodDispatcher {
                 player -> {
                     TMMRoles.COMPONENT_KEYS.forEach(
                             componentKey -> {
-                                RoleComponent roleComponent = componentKey.get(player);
+                                RoleComponent roleComponent = componentKey.maybeGet(player).orElse(null);
                                 if (roleComponent != null) {
                                     roleComponent.clear();
                                     componentKey.sync(player);
@@ -152,7 +152,10 @@ public class RoleMethodDispatcher {
         if (role.isAutoReset()) {
             ComponentKey<? extends RoleComponent> componentKey = role.getComponentKey();
             if (componentKey != null) {
-                componentKey.get(player).init();
+                RoleComponent component = componentKey.maybeGet(player).orElse(null);
+                if (component != null) {
+                    component.init();
+                }
             }
         }
     }

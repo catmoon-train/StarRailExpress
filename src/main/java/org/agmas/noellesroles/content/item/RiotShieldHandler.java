@@ -1,5 +1,7 @@
 package org.agmas.noellesroles.content.item;
 
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.item.ItemStack;
@@ -72,8 +74,8 @@ public class RiotShieldHandler {
             return true;
         }
 
-        // 阻挡：播放音效并损坏盾
-        victim.level().playSound(null, victim.blockPosition(), SoundEvents.SHIELD_BLOCK, SoundSource.PLAYERS, 1.0F,
+        // 阻挡：播放 entity.iron_golem.damage 音效并损坏盾
+        victim.level().playSound(null, victim.blockPosition(), SoundEvents.IRON_GOLEM_DAMAGE, SoundSource.PLAYERS, 1.0F,
                 1.0F);
         if (!victim.isCreative()) {
             shieldStack.hurtAndBreak(1, victim, mainHand ? net.minecraft.world.entity.EquipmentSlot.MAINHAND
@@ -81,5 +83,26 @@ public class RiotShieldHandler {
         }
 
         return false;
+    }
+
+    /**
+     * 检查玩家是否正在举防暴盾牌
+     */
+    public static boolean isBlockingWithRiotShield(Player player) {
+        if (!player.isUsingItem()) {
+            return false;
+        }
+        ItemStack main = player.getMainHandItem();
+        ItemStack off = player.getOffhandItem();
+        return (main != null && main.is(ModItems.RIOT_SHIELD)) || 
+               (off != null && off.is(ModItems.RIOT_SHIELD));
+    }
+
+    /**
+     * 获取举盾提示消息
+     */
+    public static Component getShieldBlockingMessage() {
+        return Component.translatable("message.noellesroles.shield_blocking")
+                .withStyle(ChatFormatting.YELLOW);
     }
 }

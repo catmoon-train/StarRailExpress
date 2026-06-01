@@ -29,6 +29,7 @@ public final class MysqlPlayerDataStore {
     private static volatile HikariDataSource dataSource;
     private static volatile String tableName = "sre_player_sync_data";
     private static volatile long fastFailUntil = 0L;
+    private static volatile boolean shutdownFlushMode = false;
 
     private MysqlPlayerDataStore() {
     }
@@ -38,6 +39,7 @@ public final class MysqlPlayerDataStore {
 
     public static synchronized void initializeFromConfig() {
         shutdownDataSource();
+        shutdownFlushMode = false;
         fastFailUntil = 0L;
         if (!SREConfig.instance().mysqlPlayerSyncEnabled) {
             return;
@@ -88,6 +90,10 @@ public final class MysqlPlayerDataStore {
         shutdownDataSource();
     }
 
+    public static void beginShutdownFlushMode() {
+        shutdownFlushMode = true;
+    }
+
     public static boolean isAvailable() {
         return dataSource != null;
     }
@@ -106,6 +112,9 @@ public final class MysqlPlayerDataStore {
         Map<String, String> normalizedPayloads = normalizePayloads(payloads);
         if (playerUuid == null || normalizedPayloads.isEmpty() || dataSource == null) {
             return CompletableFuture.completedFuture(false);
+        }
+        if (shutdownFlushMode) {
+            return CompletableFuture.completedFuture(saveBatch(playerUuid, normalizedPayloads, updatedAt));
         }
         return CompletableFuture.supplyAsync(() -> saveBatch(playerUuid, normalizedPayloads, updatedAt), EXECUTOR);
     }
@@ -309,6 +318,7 @@ public final class MysqlPlayerDataStore {
     private static synchronized void shutdownDataSource() {
         HikariDataSource source = dataSource;
         dataSource = null;
+        shutdownFlushMode = false;
         fastFailUntil = 0L;
         if (source != null) {
             source.close();

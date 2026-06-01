@@ -27,6 +27,7 @@ import net.minecraft.world.phys.EntityHitResult;
 
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.content.entity.PuppeteerBodyEntity;
+import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -114,7 +115,10 @@ public class RoleNameRenderer {
                     if (component.isNeutralForKiller(player))
                         playerRole = TrainRole.KILLER;
                     if (targetRole2 != null) {
-                        if (component.isKillerTeamRole(targetRole2) && playerRole.equals(TrainRole.KILLER)) {
+                        // 迷失杀手：杀手本能中不显示迷失杀手和杀手同伙信息
+                        if (component.isRole(target, ModRoles.LOST_KILLER)) {
+                            // 不做任何显示
+                        } else if (component.isKillerTeamRole(targetRole2) && playerRole.equals(TrainRole.KILLER)) {
                             if (component.canSeeKillerTeammate(player)) {
                                 context.pose().translate(0, 20 + renderer.lineHeight, 0);
                                 if (target != null) {
@@ -135,7 +139,35 @@ public class RoleNameRenderer {
                             }
                         }
                     }
-                    if (playerRole == TrainRole.KILLER && targetRole == TrainRole.KILLER) {
+                    // 肉汁：本能提示只对杀手（isKiller）生效
+                    if (targetRole2 == ModRoles.MEATBALL && component.canUseKillerFeatures(player)){
+                        // 显示肉汁提示
+                        context.pose().translate(0, 20 + renderer.lineHeight, 0);
+                        MutableComponent meatballTip = Component.translatable("game.tip.meatball_role");
+                        int meatballTipWidth = renderer.width(meatballTip);
+                        context.drawString(renderer, meatballTip, -meatballTipWidth / 2, 0,
+                                Mth.color(1f, 0.5f, 0f) | ((int) (1 * 255) << 24));
+                        
+                        // 检查附近是否有其他玩家，如果有则显示无法攻击的提示
+                        boolean nearbyPlayers = false;
+                        for (Player nearbyPlayer : player.level().players()) {
+                            if (nearbyPlayer != null && nearbyPlayer != target && nearbyPlayer.distanceTo(target) <= 4.0D) {
+                                nearbyPlayers = true;
+                                break;
+                            }
+                        }
+                        
+                        if (nearbyPlayers) {
+                            // 无法在人群中攻击的提示
+                            context.pose().translate(0, 20 + renderer.lineHeight, 0);
+                            MutableComponent crowdTip = Component.translatable("game.tip.meatball_cannot_attack_in_crowd");
+                            int crowdTipWidth = renderer.width(crowdTip);
+                            context.drawString(renderer, crowdTip, -crowdTipWidth / 2, 0,
+                                    Mth.color(1f, 0f, 0f) | ((int) (1 * 255) << 24));
+                        }
+                    }
+                    // 迷失杀手：不显示杀手同伙标签
+                    if (playerRole == TrainRole.KILLER && targetRole == TrainRole.KILLER && !component.isRole(target, ModRoles.LOST_KILLER)) {
                         context.pose().translate(0, 20 + renderer.lineHeight, 0);
                         if (component.canSeeKillerTeammate(player)) {
                             MutableComponent roleText = Component.translatable("game.tip.cohort");

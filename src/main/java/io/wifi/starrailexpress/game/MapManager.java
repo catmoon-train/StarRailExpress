@@ -137,6 +137,16 @@ public class MapManager {
         playAreaObj.addProperty("maxZ", areas.getPlayArea().maxZ);
         jsonObject.add("playArea", playAreaObj);
 
+        // 保存场景区域 - 使用嵌套对象（定义场景建筑的实际位置）
+        JsonObject sceneAreaObj = new JsonObject();
+        sceneAreaObj.addProperty("minX", areas.getSceneArea().minX);
+        sceneAreaObj.addProperty("minY", areas.getSceneArea().minY);
+        sceneAreaObj.addProperty("minZ", areas.getSceneArea().minZ);
+        sceneAreaObj.addProperty("maxX", areas.getSceneArea().maxX);
+        sceneAreaObj.addProperty("maxY", areas.getSceneArea().maxY);
+        sceneAreaObj.addProperty("maxZ", areas.getSceneArea().maxZ);
+        jsonObject.add("sceneArea", sceneAreaObj);
+
         // 保存重置粘贴区域 - 使用嵌套对象
         JsonObject resetPasteAreaObj = new JsonObject();
         resetPasteAreaObj.addProperty("minX", areas.getResetPasteArea().minX);
@@ -180,6 +190,9 @@ public class MapManager {
         jsonObject.addProperty("noReset", areas.noReset);
         jsonObject.addProperty("mustCopy", areas.mustCopy);
 
+        // 保存支持的游戏模式列表
+        jsonObject.add("gameModes", gson.toJsonTree(areas.gameModes));
+
         // 保存场景偏移配置
         JsonObject sceneOffsetObj = new JsonObject();
         sceneOffsetObj.addProperty("enabled", areas.sceneOffsetEnabled);
@@ -187,6 +200,9 @@ public class MapManager {
         sceneOffsetObj.addProperty("y", areas.sceneOffsetY);
         sceneOffsetObj.addProperty("z", areas.sceneOffsetZ);
         jsonObject.add("sceneOffset", sceneOffsetObj);
+
+        // 保存雪花效果配置
+        jsonObject.addProperty("snowEnabled", areas.snowEnabled);
 
         // 写入文件
         FileWriter writer = new FileWriter(mapConfigFile);
@@ -262,6 +278,13 @@ public class MapManager {
                 areas.canSwim = jsonObject.get("canSwim").getAsBoolean();
             } else {
                 areas.canSwim = false;
+            }
+
+            // 加载雪花效果配置（默认关闭）
+            if (jsonObject.has("snowEnabled")) {
+                areas.snowEnabled = jsonObject.get("snowEnabled").getAsBoolean();
+            } else {
+                areas.snowEnabled = false;
             }
 
             // 加载场景偏移配置（默认关闭）
@@ -366,6 +389,7 @@ public class MapManager {
                 SRE.LOGGER.warn("Missing play area data in map config: " + mapName);
             }
 
+            // 只在启用了场景偏移或列车移动时才需要 sceneArea
             if (jsonObject.has("sceneArea")) {
                 JsonObject sceneAreaObj = jsonObject.getAsJsonObject("sceneArea");
                 areas.setSceneArea(new AABB(
@@ -380,8 +404,11 @@ public class MapManager {
                         sceneAreaObj.get("maxX").getAsDouble() + "," + sceneAreaObj.get("maxY").getAsDouble() + "," +
                         sceneAreaObj.get("maxZ").getAsDouble());
             } else {
+                // 如果配置中没有 sceneArea，使用 playArea 作为默认值
+                // 注意：只有在启用场景偏移或列车移动时，sceneArea 才有意义
                 areas.setSceneArea(areas.getPlayArea());
-                SRE.LOGGER.warn("Missing 'sceneArea' data in map config: " + mapName);
+                // 不输出警告，因为 sceneArea 是可选配置
+                // SRE.LOGGER.debug("Using playArea as default sceneArea for map: " + mapName);
             }
             if (jsonObject.has("resetTemplateArea")) {
                 JsonObject resetTemplateAreaObj = jsonObject.getAsJsonObject("resetTemplateArea");
@@ -428,6 +455,16 @@ public class MapManager {
                 }
             } else {
                 areas.disabledTasks.add("BREATHE");
+            }
+
+            // 加载支持的游戏模式列表
+            areas.gameModes.clear();
+            if (jsonObject.has("gameModes")) {
+                var jsonArr = jsonObject.get("gameModes").getAsJsonArray();
+                for (JsonElement data : jsonArr.asList()) {
+                    areas.gameModes.add(data.getAsString());
+                }
+                SRE.LOGGER.info("Loaded game modes for map " + mapName + ": " + areas.gameModes);
             }
             if (jsonObject.has("roomCount")) {
                 int roomCount = jsonObject.get("roomCount").getAsInt();
@@ -487,12 +524,16 @@ public class MapManager {
                 e -> {
                     final var first = MapConfig.getInstance().maps.stream().filter(mapEntry -> mapEntry.id.equals(e))
                             .findFirst();
-                    AtomicBoolean isAvailable = new AtomicBoolean(false);
+                    AtomicBoolean isNotAvailable = new AtomicBoolean(false);
                     first.ifPresent(
                             a -> {
-                                isAvailable.set(!a.canSelect || first.get().maxCount >= serverWorld.players().size());
+                                isNotAvailable.set(!a.canSelect
+                                        || (first.get().maxCount >= 0
+                                                && serverWorld.players().size() > first.get().maxCount)
+                                        || (first.get().minCount >= 0
+                                                && serverWorld.players().size() < first.get().minCount));
                             });
-                    return isAvailable.get();
+                    return isNotAvailable.get();
                 });
 
         if (availableMaps.isEmpty()) {

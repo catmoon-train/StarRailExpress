@@ -1,4 +1,4 @@
-{
+﻿{
   "item.trainmurdermystery.bat.desc": "原版攻擊邏輯，左鍵打人。",
   "item.trainmurdermystery.defense_vial.desc": "亡命徒可直接右鍵飲用獲得護盾。\n普通玩家可以右鍵託盤，將防禦藥劑倒在託盤上。\n下一個拿取防禦藥劑的玩家食用/飲用物品後即可獲得護盾。\n此方法獲得的護盾最多獲得1層。",
   "item.noellesroles.bucket_of_h2so4.desc": "清道夫道具。\n右鍵屍體可以清除。",
@@ -64,7 +64,7 @@
   "item.noellesroles.boxing_glove.desc": "拳擊手套，拳擊手職業專屬物品，長按右鍵舉起拳套，右鍵將人擊退、眩暈並使身上的所有物品進入冷卻。",
   "item.noellesroles.antidote_reagent.desc": "長按右鍵對玩家使用，可以查看這個玩家是否中毒，有使用次數",
   "item.noellesroles.conspiracy_page.desc": "陰謀家職業專屬道具，右鍵打開頁面猜測職業，被猜中的玩家會死亡",
-  "item.noellesroles.blank_cartridge.desc": "滑頭鬼職業專屬道具，右鍵對玩家使用可以使其身上的左輪手槍進入冷卻",
+  "item.noellesroles.blank_cartridge.desc": "滑頭鬼職業專屬道具，右鍵對玩家使用可以使其手上的左輪手槍進入冷卻",
   "item.noellesroles.smoke_grenade.desc": "滑頭鬼職業專屬道具，投擲後造成大量煙霧，有30秒使用cd",
   "item.noellesroles.chlorine_bomb.desc": "毒師職業專屬道具，投擲後使落地時一定範圍內的玩家中毒",
   "item.noellesroles.purify_bomb.desc": "醫生職業專屬道具，投擲後使落地時一定範圍內的玩家解毒",
@@ -75,7 +75,7 @@
   "item.noellesroles.alarm_trap.desc": "警報陷阱，被撬棍觸發後會發出警報，按上警報陷阱的門會上鎖。",
   "item.noellesroles.delivery_box.desc": "右鍵玩家使用，可以讓傳遞者和被傳遞者交換物品",
   "item.noellesroles.hallucination_bottle.desc": "2點耐久，右鍵使用，使一定範圍內的玩家強制扭動視角，扭動3次。",
-  "item.noellesroles.mint_candies.desc": "使用後恢復30%%的san值。",
+  "item.noellesroles.mint_candies.desc": "使用後恢復50%%的san值。",
   "item.noellesroles.written_note.desc": "記錄員職業專屬道具，右鍵記錄玩家的身份",
   "item.noellesroles.bomb.desc": "炸彈客職業專屬道具，右鍵玩家將手中的炸彈傳遞出去，炸彈會在一定時間後爆炸，並炸死持有者",
   "item.noellesroles.wheelchair.desc": "老人職業專屬道具，右鍵可以在地面上防止輪椅",
@@ -99,7 +99,7 @@
   "item.noellesroles.bowen_badge.desc": "波文徽章，承太郎職業專屬道具，長按右鍵3s進行衝刺，殺死衝撞到的目標並對周圍目標造成擊退。",
   "item.noellesroles.shisiye.desc": "女僕咲夜職業專屬道具，飲用後獲得速度10。",
   "item.noellesroles.problem_set.desc": "習題集，右鍵開始做題，做題正確會給予獎勵，失敗會給予懲罰。",
-  "item.noellesroles.antidote.desc": "右鍵對玩家使用，可以使玩家解毒，使用後進入cd。",
+  "item.noellesroles.antidote.desc": "右鍵對玩家使用，可以使玩家解毒，使用後進入cd，當場上存在疫使時cd更快。",
   "item.noellesroles.pill.desc": "可食用藥丸，醫生商店購買為解毒藥丸，毒師商店購買為致毒藥丸。",
   "item.noellesroles.toxin.desc": "一次性用品，遠程武器，右鍵對玩家使用，可以使瞄準的玩家中毒。",
   "item.noellesroles.catalyst.desc": "毒師職業專屬道具，右鍵使所有進入中毒狀態的玩家死亡。",
@@ -111,7 +111,7 @@
   "item.wathe.thrown_grenade.desc": "投擲出的手雷。",
   "item.starrailexpress.camera.desc": "監控攝像頭，用途同現實中的監控",
   "item.starrailexpress.dark_toilet.desc": "深色馬桶，任務方塊，右鍵坐馬桶上可以完成上廁所任務。",
-  "item.starrailexpress.light_toilet.desc": "潛色馬桶，任務方塊，右鍵坐馬桶上可以完成上廁所任務。。",
+  "item.starrailexpress.light_toilet.desc": "潛色馬桶，任務方塊，右鍵坐馬桶上可以完成上廁所任務。",
   "item.starrailexpress.security_monitor.desc": "安全監控，用於觀察監控攝像頭的視角。",
   "item.noellesroles.monitoring_terminal.desc": "遠程監控終端。先右鍵安全監控器進行綁定，再右鍵即可遠程查看已綁定監控器。",
   "item.noellesroles.ninja_knife.desc": "一次性用品，忍者的近戰武器，右鍵立即刺殺目標，無聲。",
@@ -123,5 +123,15 @@
   "item.noellesroles.short_shotgun.desc": "一次性用品，可以擊殺2格扇形範圍內的所有人。",
   "item.noellesroles.executioner_gun.desc": "愚者專屬武器，只能對擁有“異端”效果的玩家造成傷害（一擊必殺）。初始子彈數1，只能通過塔羅會補充子彈。",
   "item.noellesroles.honored_note.desc": "愚者商店購買。右鍵牆壁/地面貼附，生成不可破壞的文本實體。玩家對著紙條按J鍵禱告，加入“塔羅會成員”。",
-  "item.noellesroles.spirit_cloak.desc": "愚者商店購買。右鍵使用後獲得5秒無敵、無法攻擊、移動速度不變。冷卻90秒。"
+  "item.noellesroles.spirit_cloak.desc": "愚者商店購買。右鍵使用後獲得5秒無敵、無法攻擊、移動速度不變。冷卻90秒。",
+  "item.starrailexpress.dnf_cleaning_byproduct.desc": "清理任務產出的副產品，可在 DNF 兌換任務點換成 1 個綠寶石。",
+  "item.starrailexpress.dnf_task_tool.desc": "看向 DNF 任務點長按右鍵 8 秒完成任務。",
+  "item.starrailexpress.dnf_cleaning_task_point.desc": "DNF 清理任務點，使用任務工具長按右鍵清理。",
+  "item.starrailexpress.dnf_exchange_task_point.desc": "DNF 兌換任務點，可將 1 個清理副產品換成 1 個綠寶石。",
+  "item.starrailexpress.dnf_toxic_heart.desc": "毒師毒殺後獲得的特殊材料，五顆可以參與救贖配方。",
+  "item.starrailexpress.dnf_redemption_potion.desc": "救贖之道藥劑，製作出兩瓶後會觸發廚師與毒師獨立結局。",
+  "item.starrailexpress.dnf_old_chef_diary.desc": "廚師在配置點找到的舊日記，記錄老廚師、毒師和救贖藥劑的線索。",
+  "item.starrailexpress.dnf_redemption_formula.desc": "毒師與廚師匯合後獲得的配方，右鍵消耗材料製作兩瓶救贖藥劑。",
+  "item.starrailexpress.drawing_board.desc": "你可以通過在畫板中描繪物品的材質來獲取相應的物品。\n右鍵打開，在繪畫區域內作畫，確定時系統會根據繪畫內容進行識別，成功識別出物品後你會獲得繪畫的物品並消耗1個畫板。\n如果物品材質中包含白色，請在調色盤中使用白色填塗，系統不會識別背景的白色。\n如果圖像識別失敗，可以修改個別像素多試幾次，圖像識別不一定100%標準(你亂畫也有機會蒙到其他東西)\n \n你無法通過畫板獲取以下物品\n- 畫板/手榴彈/撬鎖器/球棒/德林加手槍/蠍子/警長陣營的特殊武器(警棍除外)\n- 手槍只會識別出左輪手槍，刀只會識別出普通的刀\n- 氯氣彈/淨化彈/毒液試劑/藥丸/幻覺藥劑/平底鍋/硫酸桶/空包彈/鑰胚\n- 中立陣營的專屬物品/假物品/我的世界原版物品\n- 藥劑師/明星/愚者/滯時鬼/攝影師的專屬物品\n- 除乘務員鑰匙/撬棍/迴紋針以外的其他鑰匙",
+  "item.noellesroles.zero_one_five_gun.desc": "專屬手槍。右鍵射擊。第一槍命中給予3秒緩慢II，1.2秒後自動發射第二槍，第二槍命中直接擊殺。兩槍後進入15秒冷卻。射程30格。"
 }

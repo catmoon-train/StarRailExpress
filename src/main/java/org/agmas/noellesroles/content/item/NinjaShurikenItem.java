@@ -18,7 +18,8 @@ import java.util.List;
 
 public class NinjaShurikenItem extends ThrowingKnife {
 
-    // private static final float SHURIKEN_RANGE = 20.0F;
+    /** 最小蓄力时间：0.2秒 = 4刻 */
+    private static final int MIN_CHARGE_TICKS = 4;
 
     public NinjaShurikenItem(Properties properties) {
         super(properties);
@@ -26,6 +27,25 @@ public class NinjaShurikenItem extends ThrowingKnife {
 
     @Override
     public void releaseUsing(ItemStack stack, Level world, LivingEntity user, int remainingUseTicks) {
+        if (user.isSpectator()) {
+            return;
+        }
+        if (!(user instanceof Player player)) {
+            return;
+        }
+        if (player.getCooldowns().isOnCooldown(ModItems.NINJA_SHURIKEN)) {
+            return;
+        }
+        if (!world.isClientSide) {
+            return;
+        }
+        // 参考短管霰弹枪：蓄力超过最小时间就能发射
+        // remainingUseTicks > getUseDuration - MIN_CHARGE_TICKS 表示蓄力不足
+        if (remainingUseTicks > this.getUseDuration(stack, user) - MIN_CHARGE_TICKS) {
+            // 蓄力不足，取消发射
+            return;
+        }
+        ClientPlayNetworking.send(new TryThrowItemPacket());
     }
 
     @Override
@@ -35,25 +55,12 @@ public class NinjaShurikenItem extends ThrowingKnife {
             return InteractionResultHolder.pass(itemStack);
         }
         user.startUsingItem(hand);
-        // user.playSound(TMMSounds.ITEM_KNIFE_PREPARE, 1.0f, 1.0f);
         return InteractionResultHolder.consume(itemStack);
     }
 
     @Override
     public ItemStack finishUsingItem(ItemStack itemStack, Level level, LivingEntity livingEntity) {
-        if (livingEntity instanceof Player attacker) {
-            if (attacker.getCooldowns().isOnCooldown(ModItems.NINJA_SHURIKEN)) {
-                return itemStack;
-            }
-            if (!livingEntity.isSpectator()) {
-                // 发射飞刀
-                if (level.isClientSide) {
-                    ClientPlayNetworking.send(new TryThrowItemPacket());
-                }
-                // itemStack.shrink(1);
-                return itemStack;
-            }
-        }
+        // 不再自动发射，只返回物品
         return itemStack;
     }
 
@@ -68,7 +75,7 @@ public class NinjaShurikenItem extends ThrowingKnife {
     }
     @Override
     public int getUseDuration(ItemStack stack, LivingEntity user) {
-        return 5;
+        return 7200;
     }
 
     @Override

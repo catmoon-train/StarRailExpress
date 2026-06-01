@@ -3,6 +3,7 @@ package io.wifi.starrailexpress.client.gui;
 import dev.doctor4t.ratatouille.util.TextUtils;
 import io.wifi.starrailexpress.cca.AutoStartComponent;
 import io.wifi.starrailexpress.cca.MapVotingComponent;
+import io.wifi.starrailexpress.cca.ParticipationComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.InputHandler;
 import io.wifi.starrailexpress.content.command.MapVoteCommand;
@@ -13,24 +14,25 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import org.agmas.noellesroles.Noellesroles;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.List;
 
 public class LobbyPlayersRenderer {
     public static void renderHud(Font font, @NotNull LocalPlayer player, @NotNull FakeGuiGraphics guiGraphics) {
         SREGameWorldComponent game = SREGameWorldComponent.KEY.get(player.level());
         if (!game.isRunning()) {
             Level world = player.level();
-            List<? extends Player> players = world.players();
-            int count = players.size();
+            int count = GameUtils.getParticipatingPlayerCount(world);
             int readyPlayerCount = GameUtils.getReadyPlayerCount(world);
+            int optedOutCount = GameUtils.getOptedOutPlayerCount(world);
+            boolean participating = ParticipationComponent.KEY.get(world).isParticipating(player);
 
             // 绘制玩家计数信息
-            drawPlayerCountInfo(guiGraphics, font, readyPlayerCount, count);
+            drawPlayerCountInfo(guiGraphics, font, readyPlayerCount, count, optedOutCount);
+
+            // 绘制当前玩家参与状态
+            drawParticipationStatus(guiGraphics, font, participating);
 
             // 绘制自动开始信息
             drawAutoStartInfo(guiGraphics, font, world, game);
@@ -44,7 +46,7 @@ public class LobbyPlayersRenderer {
     }
 
     private static void drawPlayerCountInfo(FakeGuiGraphics guiGraphics, Font font, int readyPlayerCount,
-            int totalCount) {
+            int totalCount, int optedOutCount) {
         // 背景矩形
         int bgWidth = 200;
         int bgHeight = 20;
@@ -66,13 +68,30 @@ public class LobbyPlayersRenderer {
          */
 
         // 绘制玩家计数文本
-        MutableComponent playerCountText = Component.translatable("lobby.sre.players.count", readyPlayerCount,
-                totalCount);
+        MutableComponent playerCountText = optedOutCount > 0
+                ? Component.translatable("lobby.sre.players.count_with_opted_out", readyPlayerCount, totalCount,
+                        optedOutCount)
+                : Component.translatable("lobby.sre.players.count", readyPlayerCount, totalCount);
         int textWidth = font.width(playerCountText);
         int textX = x + (bgWidth - textWidth) / 2;
         int textY = y + (bgHeight - font.lineHeight) / 2;
 
         guiGraphics.drawString(font, playerCountText, textX, textY, 0xFFFFFFFF, false);
+    }
+
+    private static void drawParticipationStatus(FakeGuiGraphics guiGraphics, Font font, boolean participating) {
+        int bgWidth = 200;
+        int bgHeight = 15;
+        int x = (guiGraphics.guiWidth() - bgWidth) / 2;
+        int y = 22;
+        MutableComponent statusText = Component.translatable(
+                participating ? "lobby.sre.participation.joined" : "lobby.sre.participation.left");
+        int textWidth = font.width(statusText);
+        int textX = x + (bgWidth - textWidth) / 2;
+        int textY = y + (bgHeight - font.lineHeight) / 2;
+        int color = participating ? 0xFF00BC16 : 0xFFFFB000;
+
+        guiGraphics.drawString(font, statusText, textX, textY, color, false);
     }
 
     private static void drawAutoStartInfo(FakeGuiGraphics guiGraphics, Font font, Level world,
@@ -85,7 +104,7 @@ public class LobbyPlayersRenderer {
             int bgWidth = 200;
             int bgHeight = 15;
             int x = (guiGraphics.guiWidth() - bgWidth) / 2;
-            int y = 30; // 在玩家计数框下方
+            int y = 40; // 在玩家计数和参与状态下方
 
             // 注释掉背景矩形绘制
             /*

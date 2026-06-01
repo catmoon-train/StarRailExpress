@@ -1,0 +1,23 @@
+{
+  "blend": {"func": "add", "srcrgb": "one", "dstrgb": "zero"},
+  "vertex": "sobel",
+  "fragment": "afterlife",
+  "attributes": ["Position"],
+  "samplers": [
+    {"name": "DiffuseSampler"},
+    {"name": "NoiseSampler"},
+    {"name": "DirectionSampler"},
+    {"name": "SuperNoiseSampler"},
+    {"name": "DitherSampler"},
+    {"name": "ContrastSampler"}
+  ],
+  "uniforms": [
+    {"name":"ProjMat","type":"matrix4x4","count":16,"values":[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]},
+    {"name":"InSize","type":"float","count":2,"values":[1,1]},
+    {"name":"OutSize","type":"float","count":2,"values":[1,1]},
+    {"name":"Strength","type":"float","count":1,"values":[0]},
+    {"name":"Time","type":"float","count":1,"values":[0]},
+    {"name":"EffectTime","type":"float","count":1,"values":[0]},
+    {"name":"Darkness","type":"float","count":1,"values":[0]}
+  ]
+}

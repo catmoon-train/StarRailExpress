@@ -49,6 +49,21 @@ public class SRERoleWorldComponent implements AutoSyncedComponent {
         this.addRole(player, role, true);
     }
 
+    public void removeRole(Player player) {
+        this.removeRole(player.getUUID());
+    }
+
+    public void removeRole(UUID player) {
+        this.removeRole(player, true);
+    }
+
+    public void removeRole(UUID player, boolean sync) {
+        if (player == null) return;
+        roles.remove(player);
+        if (sync)
+            this.sync();
+    }
+
     public void resetRole(SRERole role) {
         this.resetRole(role, true);
     }

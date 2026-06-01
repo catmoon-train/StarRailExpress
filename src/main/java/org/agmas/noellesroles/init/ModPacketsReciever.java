@@ -4,6 +4,7 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleSkill;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.cca.PlayerBodyEntityComponent;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
@@ -46,13 +47,13 @@ import org.agmas.noellesroles.content.entity.ThrowingKnifeEntity;
 import org.agmas.noellesroles.content.item.ChefFoodItem;
 import org.agmas.noellesroles.content.item.StalkerKnifeItem;
 import org.agmas.noellesroles.content.item.ThrowingKnife;
+import org.agmas.noellesroles.content.item.ZeroOneFiveShootPayload;
 import org.agmas.noellesroles.events.OnVendingMachinesBuyItems;
 import org.agmas.noellesroles.packet.ShortShotgunEquipPayload;
-import org.agmas.noellesroles.game.roles.Innocent.broadcaster.BroadcasterPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.coroner.BodyDeathReasonComponent;
-import org.agmas.noellesroles.game.roles.Innocent.monitor.MonitorPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.pilot.PilotPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.voodoo.VoodooPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.broadcaster.BroadcasterPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.monitor.MonitorPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.pilot.PilotPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.voodoo.VoodooPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.creeper.CreeperPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.executioner.ExecutionerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.insane_killer.InsaneKillerPlayerComponent;
@@ -64,6 +65,7 @@ import org.agmas.noellesroles.game.roles.killer.stalker.StalkerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.swapper.SwapperPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.shadow_falcon.ShadowFalconPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.vulture.VulturePlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.mortician.MorticianBodyMakerPlayerComponent;
 import org.agmas.noellesroles.packet.*;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.RedHouseRoles;
@@ -205,10 +207,13 @@ public class ModPacketsReciever {
               Component.translatable("message.exampler.problem_set.failed").withStyle(ChatFormatting.YELLOW),
               true);
           // 如果是小镇做题家给的则杀死玩家
-          var killer = player.level().players().stream().filter((p) -> {
-            return gameWorldComponent.isRole(p, ModRoles.EXAMPLER);
-          }).findFirst().orElse(null);
-          if (killer != null) {
+          // 获取所有小镇做题家，给所有小镇做题家同时增加能量
+          List<ServerPlayer> allExamplers = player.level().players().stream()
+              .filter(p -> p instanceof ServerPlayer && gameWorldComponent.isRole(p, ModRoles.EXAMPLER))
+              .map(p -> (ServerPlayer) p)
+              .toList();
+          ServerPlayer firstKiller = allExamplers.isEmpty() ? null : allExamplers.getFirst();
+          for (ServerPlayer killer : allExamplers) {
             var abpc = SREAbilityPlayerComponent.KEY.get(killer);
             abpc.charges++;
             // Noellesroles.LOGGER.info("Increase 1");
@@ -231,7 +236,7 @@ public class ModPacketsReciever {
                       ChatFormatting.BOLD),
                   true);
             } else {
-              GameUtils.killPlayer(player, true, killer, Noellesroles.id("fail_exam"));
+              GameUtils.killPlayer(player, true, firstKiller, Noellesroles.id("fail_exam"));
             }
           }
         } else {
@@ -295,6 +300,49 @@ public class ModPacketsReciever {
             .get(context.player());
         morphlingPlayerComponent.startMorph(payload.player());
       }
+    });
+
+    // 静语者技能数据包处理
+    ServerPlayNetworking.registerGlobalReceiver(SilencerC2SPacket.ID, (payload, context) -> {
+      if (context.player().hasEffect(ModEffects.SAFE_TIME))
+        return;
+      SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY
+          .get(context.player().level());
+      if (payload.targetPlayer() == null) return;
+      if (context.player().level().getPlayerByUUID(payload.targetPlayer()) == null) return;
+      if (gameWorldComponent.isRole(context.player(), ModRoles.SILENCER)) {
+        org.agmas.noellesroles.game.roles.killer.silencer.SilencerPlayerComponent silencerComponent =
+            org.agmas.noellesroles.game.roles.killer.silencer.SilencerPlayerComponent.KEY.get(context.player());
+        if (silencerComponent != null) {
+          silencerComponent.startSkill(payload.targetPlayer());
+        }
+      }
+    });
+
+    // 静语者帮助数据包处理（其他玩家右键静语者目标）
+    ServerPlayNetworking.registerGlobalReceiver(SilencerHelpC2SPacket.ID, (payload, context) -> {
+      ServerPlayer helper = context.player();
+      ServerPlayer targetPlayer = context.player().level().getServer().getPlayerList().getPlayer(payload.targetPlayer());
+      if (targetPlayer == null) return;
+      if (!GameUtils.isPlayerAliveAndSurvival(helper)) return;
+      if (!GameUtils.isPlayerAliveAndSurvival(targetPlayer)) return;
+      // Find the silencer who has targetPlayer as their target
+      targetPlayer.level().players().forEach(p -> {
+        if (p instanceof ServerPlayer sp && GameUtils.isPlayerAliveAndSurvival(sp)) {
+          SREGameWorldComponent gw = SREGameWorldComponent.KEY.get(sp.level());
+          if (gw.isRole(sp, ModRoles.SILENCER)) {
+            org.agmas.noellesroles.game.roles.killer.silencer.SilencerPlayerComponent sc =
+                org.agmas.noellesroles.game.roles.killer.silencer.SilencerPlayerComponent.KEY.get(sp);
+            if (sc != null && sc.phase == 2 && targetPlayer.getUUID().equals(sc.targetUUID)) {
+              sc.helpTarget();
+              // 提示帮助者
+              helper.displayClientMessage(
+                  Component.translatable("message.noellesroles.silencer.help_success"),
+                  true);
+            }
+          }
+        }
+      });
     });
 
     ServerPlayNetworking.registerGlobalReceiver(NinjaAbilityC2SPacket.ID, (payload, context) -> {
@@ -410,7 +458,7 @@ public class ModPacketsReciever {
               return playerBodyEntity.getUUID().equals(payload.playerBody());
             }));
         if (!playerBodyEntities.isEmpty()) {
-          BodyDeathReasonComponent bodyDeathReasonComponent = BodyDeathReasonComponent.KEY
+          PlayerBodyEntityComponent bodyDeathReasonComponent = PlayerBodyEntityComponent.KEY
               .get(playerBodyEntities.getFirst());
           if (!bodyDeathReasonComponent.vultured) {
             abilityPlayerComponent.cooldown = GameConstants.getInTicks(0,
@@ -571,6 +619,9 @@ public class ModPacketsReciever {
             }
             playerShopComponent.balance -= 50;
             playerShopComponent.sync();
+
+            // 记录广播员发送的消息
+            Noellesroles.LOGGER.info("[Broadcaster] {} sent broadcast: {}", context.player().getName().getString(), message);
 
             for (ServerPlayer player : Objects.requireNonNull(context.player().getServer())
                 .getPlayerList().getPlayers()) {
@@ -767,7 +818,7 @@ public class ModPacketsReciever {
 
           if (gameWorldComponent.isRole(player, ModRoles.SHADOW_FALCON)) {
             ShadowFalconPlayerComponent shadowFalconComponent = ShadowFalconPlayerComponent.KEY.get(player);
-            // 蹲下优先脱下喷气背包，无条件优先执行
+            // 蹲下优先脱下喷气背包和鞘翅，无条件优先执行
             if (player.isShiftKeyDown()) {
               shadowFalconComponent.removeJetpack();
               return;
@@ -857,7 +908,7 @@ public class ModPacketsReciever {
 
     // V键祷告/加入会议
     ServerPlayNetworking.registerGlobalReceiver(
-        org.agmas.noellesroles.game.roles.Innocent.fool.FoolPrayerC2SPacket.ID,
+        org.agmas.noellesroles.game.roles.innocent.fool.FoolPrayerC2SPacket.ID,
         (payload, context) -> {
           if (context.player().hasEffect(ModEffects.SAFE_TIME))// 安全时间
             return;
@@ -868,23 +919,23 @@ public class ModPacketsReciever {
           if (!gameWorldComponent.isSkillAvailable)
             return;
 
-          org.agmas.noellesroles.game.roles.Innocent.fool.PrayerHandler.startPrayer(player);
+          org.agmas.noellesroles.game.roles.innocent.fool.PrayerHandler.startPrayer(player);
         });
 
     // 退出塔罗会
     ServerPlayNetworking.registerGlobalReceiver(
-        org.agmas.noellesroles.game.roles.Innocent.fool.FoolLeaveMeetingC2SPacket.ID,
+        org.agmas.noellesroles.game.roles.innocent.fool.FoolLeaveMeetingC2SPacket.ID,
         (payload, context) -> {
           ServerPlayer player = context.player();
-          org.agmas.noellesroles.game.roles.Innocent.fool.TarotAssemblyManager.memberLeaveMeeting(player);
+          org.agmas.noellesroles.game.roles.innocent.fool.TarotAssemblyManager.memberLeaveMeeting(player);
         });
 
     // 塔罗会投票
     ServerPlayNetworking.registerGlobalReceiver(
-        org.agmas.noellesroles.game.roles.Innocent.fool.FoolTarotVoteC2SPacket.ID,
+        org.agmas.noellesroles.game.roles.innocent.fool.FoolTarotVoteC2SPacket.ID,
         (payload, context) -> {
           ServerPlayer player = context.player();
-          org.agmas.noellesroles.game.roles.Innocent.fool.TarotAssemblyManager.submitVote(player, payload.votedFor());
+          org.agmas.noellesroles.game.roles.innocent.fool.TarotAssemblyManager.submitVote(player, payload.votedFor());
         });
 
     // 短管霰弹枪装备音效包处理
@@ -893,6 +944,105 @@ public class ModPacketsReciever {
       if (player.level().isClientSide) return;
       // 播放上膛音效，让附近所有玩家都能听到
       player.level().playSound(null, player.blockPosition(), NRSounds.SHOTGUNU_COCK, SoundSource.PLAYERS, 1.0F, 1.0F);
+    });
+
+    // 零一五枪射击包处理
+    ServerPlayNetworking.registerGlobalReceiver(ZeroOneFiveShootPayload.ID, new ZeroOneFiveShootPayload.Receiver());
+
+        // 建筑师技能包处理
+    ServerPlayNetworking.registerGlobalReceiver(org.agmas.noellesroles.RicesRoleRhapsody.BUILDER_ABILITY_PACKET, (payload, context) -> {
+      if (context.player().hasEffect(ModEffects.SAFE_TIME))
+        return;
+      ServerPlayer player = context.player();
+      SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
+
+      if (!gameWorldComponent.isSkillAvailable) {
+        player.displayClientMessage(
+            Component.translatable("message.tip.skill_disabled").withStyle(ChatFormatting.RED), true);
+        return;
+      }
+
+      if (gameWorldComponent.isRole(player, ModRoles.BUILDER)) {
+        org.agmas.noellesroles.game.roles.innocent.builder.BuilderPlayerComponent builderComponent =
+            org.agmas.noellesroles.component.ModComponents.BUILDER.get(player);
+
+        // 蹲下按技能键切换模式（不受冷却影响）
+        if (payload.shiftDown()) {
+          builderComponent.switchMode();
+          return;
+        }
+
+        // 根据当前模式使用技能
+        if (builderComponent.isBuildMode()) {
+          builderComponent.useBuildAbility();
+        } else {
+          builderComponent.useDemolishAbility();
+        }
+        ConfigWorldComponent.onPlayerUsedSkill(player);
+      }
+    });
+
+    // 葬仪模式切换包处理
+    ServerPlayNetworking.registerGlobalReceiver(ModPackets.MORTICIAN_TOGGLE_MODE_PACKET, (payload, context) -> {
+      if (context.player().hasEffect(ModEffects.SAFE_TIME))
+        return;
+      ServerPlayer player = context.player();
+      SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
+
+      if (!gameWorldComponent.isSkillAvailable) {
+        return;
+      }
+
+      if (gameWorldComponent.isRole(player, ModRoles.MORTICIAN_BODYMAKER)) {
+        MorticianBodyMakerPlayerComponent morticianComponent = MorticianBodyMakerPlayerComponent.KEY.get(player);
+        if (morticianComponent != null) {
+          morticianComponent.toggleMode();
+        }
+      }
+    });
+
+    // 葬仪造尸包处理
+    ServerPlayNetworking.registerGlobalReceiver(ModPackets.MORTICIAN_CREATE_BODY_PACKET, (payload, context) -> {
+      ServerPlayer player = context.player();
+      SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
+
+      if (gameWorldComponent.isRole(player, ModRoles.MORTICIAN_BODYMAKER)) {
+        MorticianBodyMakerPlayerComponent morticianComponent = MorticianBodyMakerPlayerComponent.KEY.get(player);
+        if (morticianComponent == null) return;
+        
+        // 安全时间内直接进入造尸冷却（必须在isSkillAvailable判断之前）
+        if (context.player().hasEffect(ModEffects.SAFE_TIME)) {
+          morticianComponent.bodyCreationCooldown = MorticianBodyMakerPlayerComponent.BODY_CREATION_COOLDOWN;
+          morticianComponent.sync();
+          return;
+        }
+
+        if (!gameWorldComponent.isSkillAvailable) {
+          return;
+        }
+        
+        // 检查造尸冷却
+        if (!morticianComponent.canCreateBody()) {
+          player.displayClientMessage(
+              Component.translatable("message.noellesroles.mortician_bodymaker.cooldown", (morticianComponent.bodyCreationCooldown + 19) / 20)
+                  .withStyle(ChatFormatting.RED),
+              true);
+          return;
+        }
+
+        // 找到目标玩家
+        Player targetPlayer = player.level().getPlayerByUUID(payload.targetUuid());
+        if (targetPlayer == null || !(targetPlayer instanceof ServerPlayer)) {
+          player.displayClientMessage(
+              Component.translatable("message.noellesroles.mortician_bodymaker.create_body.target_not_found")
+                  .withStyle(ChatFormatting.RED),
+              true);
+          return;
+        }
+
+        // 创建尸体（冷却在createBody内部设置）
+        morticianComponent.createBody((ServerPlayer) targetPlayer, payload.deathReason());
+      }
     });
   }
 

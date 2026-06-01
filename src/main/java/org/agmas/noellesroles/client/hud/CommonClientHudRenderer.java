@@ -21,33 +21,35 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.ItemCooldowns.CooldownInstance;
 import org.agmas.noellesroles.client.NoellesrolesClient;
+import org.agmas.noellesroles.content.item.RiotShieldHandler;
 import org.agmas.noellesroles.client.WayfarerHudRenderer;
 import org.agmas.noellesroles.client.event.CommonHudRenderCallback;
 import org.agmas.noellesroles.client.event.MutableComponentResult;
 import org.agmas.noellesroles.client.event.OnMessageBelowMoneyRenderer;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
 import org.agmas.noellesroles.client.hud.roles.BroadcasterHud;
-import org.agmas.noellesroles.client.hud.roles.CuckooHud;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.content.entity.WheelchairEntity;
-import org.agmas.noellesroles.game.roles.Innocent.accountant.AccountantPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.alchemist.AlchemistPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.athlete.AthletePlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.attendant.AttendantHandler;
-import org.agmas.noellesroles.game.roles.Innocent.clock_maker.ClockmakerPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.fortuneteller.FortunetellerPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.ghost.GhostPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.hoan_meirin.HoanMeirinPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.locksmith_inspiration.LocksmithInspirationComponent;
-import org.agmas.noellesroles.game.roles.Innocent.noise_maker.NoiseMakerPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.accountant.AccountantPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.alchemist.AlchemistPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.athlete.AthletePlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.attendant.AttendantHandler;
+import org.agmas.noellesroles.game.roles.innocent.clock_maker.ClockmakerPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.fortuneteller.FortunetellerPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.ghost.GhostPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.hoan_meirin.HoanMeirinPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.locksmith_inspiration.LocksmithInspirationComponent;
+import org.agmas.noellesroles.game.roles.innocent.noise_maker.NoiseMakerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.blood_feudist.BloodFeudistPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.ma_chen_xu.MaChenXuPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.ninja.NinjaPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.spellbreaker.SpellbreakerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.stalker.StalkerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.watcher.WatcherPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.candlebearer.CandleBearerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.commander.CommanderHudRender;
 import org.agmas.noellesroles.game.roles.neutral.mercenary.MercenaryPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.mortician.MorticianBodyMakerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.shadow_falcon.ShadowFalconPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.recorder.RecorderPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.thief.ThiefPlayerComponent;
@@ -112,6 +114,15 @@ public class CommonClientHudRenderer {
       }
       {
         HudMoodRenderer.renderHud(player, font, guiGraphics, deltaTracker);
+      }
+      {
+        // 举盾提示：当玩家主手/副手举防暴盾牌时显示 actionbar 提示
+        if (client.screen == null && RiotShieldHandler.isBlockingWithRiotShield(player)) {
+          Component shieldMessage = RiotShieldHandler.getShieldBlockingMessage();
+          int screenWidth = guiGraphics.guiWidth();
+          guiGraphics.drawCenteredString(font, shieldMessage, screenWidth / 2,
+              guiGraphics.guiHeight() / 2 + 30, 0xFFFFFF);
+        }
       }
       {
         if (client.screen == null) {
@@ -204,10 +215,13 @@ public class CommonClientHudRenderer {
         }
       }
     });
+
+
   }
 
   public static void registerRenderersEvent() {
     registerFather();
+    RepairEscapeHud.register();
     registerSons();
     OtherRolesRegister.registerSons();
   }
@@ -518,6 +532,88 @@ public class CommonClientHudRenderer {
 
       context.drawString(client.font, text, x, y, color);
     });
+    RoleHudRenderCallback.EVENT.register(ModRoles.SPELLBREAKER_ID, (context, tickCounter) -> {
+      Minecraft client = Minecraft.getInstance();
+      Component text = null;
+      int color = 0xFFFFFFFF;
+      if (client.player.hasEffect(ModEffects.SKILL_BANED))
+        return;
+      SREAbilityPlayerComponent spellbreakerPlayerComponent = SREAbilityPlayerComponent.KEY.get(client.player);
+      if (!spellbreakerPlayerComponent.canUseAbility()) {
+        text = Component.translatable("gui.noellesroles.spellbreaker.locked");
+        color = 0xFFFF00; // 黄色
+      } else if (spellbreakerPlayerComponent.cooldown > 0) {
+        int seconds = (spellbreakerPlayerComponent.cooldown) / 20;
+        text = Component.translatable("gui.noellesroles.spellbreaker.cooldown", seconds);
+        color = 0xFF5555; // 红色
+      } else {
+        text = Component.translatable("gui.noellesroles.spellbreaker.unlocked");
+        color = 0x55FF55; // 绿色
+      }
+      int screenWidth = client.getWindow().getGuiScaledWidth();
+      int screenHeight = client.getWindow().getGuiScaledHeight();
+      int textWidth = client.font.width(text);
+
+      // 右下角显示，留出一些边距
+      int x = screenWidth - textWidth - 10;
+      int y = screenHeight - 20;
+
+      context.drawString(client.font, text, x, y, color);
+    });
+
+    // 疫使HUD：显示感染技能冷却和疫使时刻状态
+    RoleHudRenderCallback.EVENT.register(ModRoles.INFECTED_ID, (context, tickCounter) -> {
+      Minecraft client = Minecraft.getInstance();
+      if (client.player == null) {
+        return;
+      }
+      SREAbilityPlayerComponent abilityComponent = SREAbilityPlayerComponent.KEY.get(client.player);
+
+      int screenWidth = client.getWindow().getGuiScaledWidth();
+      int screenHeight = client.getWindow().getGuiScaledHeight();
+      int x = screenWidth - 10;
+      int y = screenHeight - 20;
+      Font font = client.font;
+
+      // 疫使时刻状态显示
+      Component infectedTimeText;
+      int infectedTimeColor;
+      try {
+        // 尝试获取加速状态
+        java.lang.reflect.Method isAcceleratedMethod = 
+            org.agmas.noellesroles.game.roles.neutral.infected.InfectedWinChecker.class.getMethod("isAccelerated");
+        boolean isAccelerated = (boolean) isAcceleratedMethod.invoke(null);
+        if (isAccelerated) {
+          infectedTimeText = Component.translatable("gui.noellesroles.infected.time.unlocked")
+              .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD);
+          infectedTimeColor = 0xFFD700;
+        } else {
+          infectedTimeText = Component.translatable("gui.noellesroles.infected.time.locked")
+              .withStyle(ChatFormatting.GRAY);
+          infectedTimeColor = 0x888888;
+        }
+      } catch (Exception e) {
+        infectedTimeText = Component.translatable("gui.noellesroles.infected.time.locked")
+            .withStyle(ChatFormatting.GRAY);
+        infectedTimeColor = 0x888888;
+      }
+      context.drawString(font, infectedTimeText, x - font.width(infectedTimeText), y - font.lineHeight - 2, infectedTimeColor);
+
+      // 技能冷却显示
+      Component cooldownText;
+      int cooldownColor;
+      if (abilityComponent.cooldown > 0) {
+        int seconds = (abilityComponent.cooldown + 19) / 20; // 向上取整
+        cooldownText = Component.translatable("gui.noellesroles.infected.cooldown", seconds)
+            .withStyle(ChatFormatting.RED);
+        cooldownColor = 0xFF5555;
+      } else {
+        cooldownText = Component.translatable("gui.noellesroles.infected.ready")
+            .withStyle(ChatFormatting.GREEN);
+        cooldownColor = 0x55FF55;
+      }
+      context.drawString(font, cooldownText, x - font.width(cooldownText), y, cooldownColor);
+    });
 
     RoleHudRenderCallback.EVENT.register(ModRoles.CANDLE_BEARER_ID, (context, tickCounter) -> {
       Minecraft client = Minecraft.getInstance();
@@ -573,7 +669,6 @@ public class CommonClientHudRenderer {
 
     CommanderHudRender.register();
     WayfarerHudRenderer.registerRendererEvent();
-    CuckooHud.register();
     RoleHudRenderCallback.EVENT.register(ModRoles.RECORDER.identifier(), (guiGraphics, deltaTracker) -> {
       // 记录员
       var client = Minecraft.getInstance();
@@ -1468,5 +1563,48 @@ public class CommonClientHudRenderer {
         guiGraphics.drawString(font, readyText, xOffset - font.width(readyText), dy, Color.WHITE.getRGB());
       }
     });
+
+    // 葬仪 HUD - 当前模式 | 技能冷却 | 造尸冷却 | 拖动状态
+    RoleHudRenderCallback.EVENT.register(ModRoles.MORTICIAN_BODYMAKER_ID, (guiGraphics, tickCounter) -> {
+      var client = Minecraft.getInstance();
+      if (client.player == null) return;
+      if (!SREClient.isPlayerAliveAndInSurvival()) return;
+
+      var morticianComponent = ModComponents.MORTICIAN_BODYMAKER.get(client.player);
+      if (morticianComponent == null) return;
+
+      var font = client.font;
+      int yOffset = guiGraphics.guiHeight() - 10 - font.lineHeight;
+      int xOffset = guiGraphics.guiWidth() - 10;
+
+      Component modeLabel = Component.translatable("message.noellesroles.mortician_bodymaker.current_mode");
+      Component modeText = switch (morticianComponent.currentMode) {
+        case 0 -> Component.translatable("hud.noellesroles.mortician_bodymaker.mode.drag").withStyle(ChatFormatting.GOLD);
+        case 1 -> Component.translatable("hud.noellesroles.mortician_bodymaker.mode.funeral").withStyle(ChatFormatting.RED);
+        case 2 -> Component.translatable("hud.noellesroles.mortician_bodymaker.mode.clean").withStyle(ChatFormatting.AQUA);
+        default -> Component.empty();
+      };
+      Component fullModeText = modeLabel.copy().append(modeText);
+      guiGraphics.drawString(font, fullModeText, xOffset - font.width(fullModeText), yOffset, 0xFFFFFF);
+
+      if (morticianComponent.cooldown > 0) {
+        yOffset -= font.lineHeight + 4;
+        int secondsLeft = (morticianComponent.cooldown + 19) / 20;
+        var ct = Component.translatable("hud.noellesroles.mortician_bodymaker.skill_cooldown", secondsLeft).withStyle(ChatFormatting.RED);
+        guiGraphics.drawString(font, ct, xOffset - font.width(ct), yOffset, 0xFFFFFF);
+      }
+      if (morticianComponent.bodyCreationCooldown > 0) {
+        yOffset -= font.lineHeight + 4;
+        int secondsLeft = (morticianComponent.bodyCreationCooldown + 19) / 20;
+        var ct = Component.translatable("hud.noellesroles.mortician_bodymaker.create_cooldown", secondsLeft).withStyle(ChatFormatting.DARK_PURPLE);
+        guiGraphics.drawString(font, ct, xOffset - font.width(ct), yOffset, 0xFFFFFF);
+      }
+      if (morticianComponent.draggedBodyUuid != null) {
+        yOffset -= font.lineHeight + 4;
+        var ct = Component.translatable("hud.noellesroles.mortician_bodymaker.dragging").withStyle(ChatFormatting.GRAY);
+        guiGraphics.drawString(font, ct, xOffset - font.width(ct), yOffset, 0xFFFFFF);
+      }
+    });
+
   }
 }

@@ -1,6 +1,7 @@
 package org.agmas.harpymodloader.modded_murder;
 
 import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.game.modes.SREMurderGameMode;
 import io.wifi.starrailexpress.game.utils.RoleInstance;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.harpymodloader.Harpymodloader;
@@ -161,5 +162,66 @@ public class RoleAssignmentManager {
      */
     public static void addOccupationRole(SRERole mainRole, SRERole companionRole) {
         Harpymodloader.Occupations_Roles.put(mainRole, companionRole);
+    }
+
+    public static List<RoleInstance> removeOpposingJobs(List<RoleInstance> roles, RoleAssignmentPool killerPool,
+            RoleAssignmentPool neutralsPool,
+            RoleAssignmentPool vigilantePool, RoleAssignmentPool civilianPool, boolean haveOccupationRoles,
+            int maxDepth) {
+        int neutrals = 0, civilian = 0, killer = 0, neturals_for_killer = 0, vigilante = 0;
+        List<SRERole> all_roles = new ArrayList<>();
+        for (var rolei : roles) {
+            all_roles.add(rolei.role());
+        }
+        List<SRERole> new_all_roles = new ArrayList<>(all_roles);
+
+        for (var role : all_roles) {
+            if (!new_all_roles.contains(role))
+                continue;
+            for (var oprole : role.opposingJobs) {
+                if (new_all_roles.contains(oprole)) {
+                    int roleType = oprole.getRoleType();
+                    while (new_all_roles.remove(oprole)) {
+                        // -1: Unknown - 1: Innocent - 2: Neturals but not for killer - 3: Neturals for
+                        // killer - 4: Killer - 5: Vigilante
+                        switch (roleType) {
+                            case 1: {
+                                civilian++;
+                                break;
+                            }
+                            case 2: {
+                                neutrals++;
+                                break;
+                            }
+                            case 3: {
+                                neturals_for_killer++;
+                                break;
+                            }
+                            case 4: {
+                                killer++;
+                                break;
+                            }
+                            case 5: {
+                                vigilante++;
+                                break;
+                            }
+                            default:
+                                civilian++;
+                        }
+                    }
+                }
+            }
+        }
+        List<RoleInstance> all_role_instances = new ArrayList<>();
+        for (var r : new_all_roles) {
+            all_role_instances.add(new RoleInstance(UUID.randomUUID(), r));
+        }
+        if (maxDepth <= 0) {
+            return all_role_instances;
+        }
+        int all = killer + civilian + neutrals + neturals_for_killer + vigilante;
+        all_role_instances.addAll(SREMurderGameMode.getAllRoles(killer, vigilante, neutrals + neturals_for_killer, all,
+                0, killerPool, neutralsPool, vigilantePool, civilianPool, haveOccupationRoles, maxDepth - 1));
+        return all_role_instances;
     }
 }

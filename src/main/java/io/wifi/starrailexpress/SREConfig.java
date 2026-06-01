@@ -49,6 +49,9 @@ public class SREConfig implements ConfigData {
     public int hideAndSeekTimePerPlayer = 15;
     @ConfigEntry.Category(value = "gamemodes")
     public double hideAndSeekHiderScale = -0.25;
+    @ConfigEntry.Category(value = "gamemodes")
+    @Tooltip
+    public boolean hideRandomRoleInRoleRotation = true;
     // 随机地图设置
     @ConfigEntry.Category(value = "map")
     @Tooltip
@@ -90,7 +93,7 @@ public class SREConfig implements ConfigData {
     public int bodyBagPrice = 100;
     @ConfigSync(shouldSync = true)
     @ConfigEntry.Category(value = "shop")
-    public int blackoutPrice = 100;
+    public int blackoutPrice = 140;
     @ConfigSync(shouldSync = true)
     @ConfigEntry.Category(value = "shop")
     public int monitorBrokenPrice = 60;
@@ -112,6 +115,8 @@ public class SREConfig implements ConfigData {
     @ConfigEntry.Category(value = "cooldowns")
     public int grenadeCooldown = 300;
     @ConfigEntry.Category(value = "cooldowns")
+    public int grenadePurchaseCooldown = 30;
+    @ConfigEntry.Category(value = "cooldowns")
     public int lockpickCooldown = 180;
     @ConfigEntry.Category(value = "cooldowns")
     public int crowbarCooldown = 45;
@@ -128,6 +133,11 @@ public class SREConfig implements ConfigData {
     @ConfigEntry.Category(value = "cooldowns")
     public int monitorBrokenCooldownGlobal = 40;
     // 游戏配置 - 服务端只读
+
+    // 双重人格配置
+    @ConfigEntry.Category(value = "modifiers")
+    @Tooltip(count = 2)
+    public int splitPersonalityMax = 0;
 
     // Bartender - Glow duration in seconds
 
@@ -150,7 +160,8 @@ public class SREConfig implements ConfigData {
     public float blackoutRandomRangePercent = 0.32f;
     public boolean enableAutoTrainReset = false;
     public boolean verboseTrainResetLogs = true;
-    public boolean logGameEvent = false;
+    public boolean logGameEvent = true;
+    public boolean savePlayerBodyItems = true;
 
     // // 自动切换预设配置 - 游戏开始前自动应用指定预设，留空则不自动切换
     // @Tooltip(count = 3)
@@ -237,6 +248,10 @@ public class SREConfig implements ConfigData {
     public boolean itemSkinSyncServerEnabled = false;
     // AFK设置
 
+    @ConfigEntry.Category(value = "afk")
+    public boolean afkKickEnabled = true; // 是否启用挂机踢出功能
+    @ConfigEntry.Category(value = "afk")
+    public boolean afkDeathEnabled = true; // 是否启用挂机死亡功能
     @ConfigEntry.Category(value = "afk") // 3秒到20分钟
     public int afkThresholdSeconds = (int) (4.5 * 60); // 5分钟
     @ConfigEntry.Category(value = "afk") // 3秒到10分钟

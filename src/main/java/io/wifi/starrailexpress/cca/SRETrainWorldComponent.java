@@ -66,7 +66,7 @@ public class SRETrainWorldComponent implements AutoSyncedComponent, ServerTickin
     }
 
     public void setSnow(boolean snow) {
-        this.snow = false;
+        this.snow = snow;
         this.markDirty();
     }
 

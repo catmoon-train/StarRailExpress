@@ -8,6 +8,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import org.agmas.harpymodloader.Harpymodloader;
+import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
 
 public class SetRoleCountCommand {
 
@@ -98,11 +99,14 @@ public class SetRoleCountCommand {
     }
 
     public static int getNatureCount(int playerCount) {
-        if (playerCount <= 10)
-            return 0;
+        HarpyModLoaderConfig config = HarpyModLoaderConfig.HANDLER.instance();
+        int minPlayer = config.neutralMinPlayerCount;
+
         if (forcedNatureCount > 0) {
-            return Math.min(forcedNatureCount, playerCount); // 确保不超过玩家总数
+            return Math.min(forcedNatureCount, playerCount);
         } else {
+            if (playerCount <= minPlayer)
+                return 0;
             return Math.max(1, playerCount / 6);
         }
     }

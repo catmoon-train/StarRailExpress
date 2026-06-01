@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import org.jetbrains.annotations.Nullable;
 
+
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.content.vote.VoteOption.ItemOption;
 import io.wifi.starrailexpress.content.vote.VoteOption.PlayerOption;
@@ -64,14 +65,15 @@ public class VoteManager {
             @Nullable Predicate<VoteSession> customEnd,
             @Nullable Set<UUID> targetPlayers,
             Consumer<VoteSession> callback,
-            int maxSelectCount) {
+            int maxSelectCount,
+            String typeId) {
         if (currentSession != null && !currentSession.isEnded())
             return null;
         clear(); // 清除之前的结束回调等
         if (callback != null)
             addEndCallback(callback);
         return startVote(title, options, durationTicks, allowReVote, showResults, syncIntervalTicks, customEnd,
-                targetPlayers, maxSelectCount);
+                targetPlayers, maxSelectCount, typeId);
     }
 
     @Nullable
@@ -83,13 +85,14 @@ public class VoteManager {
             int syncIntervalTicks,
             @Nullable Predicate<VoteSession> customEnd,
             @Nullable Set<UUID> targetPlayers,
-            int maxSelectCount) {
+            int maxSelectCount,
+            String typeId) {
         if (currentSession != null && !currentSession.isEnded())
             return null;
         if (currentSession != null && currentSession.isEnded())
             clear();
         VoteSession session = new VoteSession(title, options, showResults, syncIntervalTicks,
-                durationTicks, customEnd, allowReVote, targetPlayers, maxSelectCount);
+                durationTicks, customEnd, allowReVote, targetPlayers, maxSelectCount, typeId);
         optionsSent = false;
         session.start(server.overworld().getGameTime());
         currentSession = session;
@@ -104,6 +107,15 @@ public class VoteManager {
             currentSession.markEnded();
             broadcastEnd();
             fireEndCallbacks(currentSession);
+            // 投票结束后清除currentSession，允许开启新的投票
+            currentSession = null;
+            optionsSent = false;
+            return null;
+        }
+        if (currentSession != null && currentSession.isEnded()) {
+            currentSession = null;
+            optionsSent = false;
+            return null;
         }
         return currentSession;
     }
@@ -113,6 +125,8 @@ public class VoteManager {
             currentSession.markEnded();
             broadcastEnd();
             fireEndCallbacks(currentSession);
+            currentSession = null;
+            optionsSent = false;
         }
     }
 
@@ -150,9 +164,21 @@ public class VoteManager {
             player.displayClientMessage(Component.translatable("vote.not_allowed").withStyle(ChatFormatting.RED), true);
             return;
         }
+        if ("dnf_meeting_vote".equals(session.getTypeId())) {
+            player.displayClientMessage(Component.translatable("message.dnf.vote.must_be_near_meeting")
+                    .withStyle(ChatFormatting.YELLOW), true);
+            return;
+        }
         if (session.castVote(player.getUUID(), optionIndices)) {
             if (session.isShowResults())
                 broadcastUpdate();
+            if (!session.isEnded() && session.shouldEnd(server.overworld().getGameTime())) {
+                session.markEnded();
+                broadcastEnd();
+                fireEndCallbacks(session);
+                currentSession = null;
+                optionsSent = false;
+            }
             // 可拼接选项名称
             StringBuilder names = new StringBuilder();
             for (int idx : optionIndices) {
@@ -256,6 +282,7 @@ public class VoteManager {
         private int autoIdCounter = 0;
         private Set<UUID> targetPlayers = null;
         private int maxSelectCount = 1; // 默认单选
+        private String typeId = "";
 
         VoteBuilder(Component title) {
             this.title = title;
@@ -326,11 +353,16 @@ public class VoteManager {
             return this;
         }
 
+        public VoteBuilder type(String typeId) {
+            this.typeId = typeId == null ? "" : typeId;
+            return this;
+        }
+
         @Nullable
         public VoteSession start() {
             return VoteManager.startVote(title, options, durationTicks,
                     allowReVote, showResults, syncIntervalTicks, customEnd, targetPlayers,
-                    callbackConsumer, maxSelectCount);
+                    callbackConsumer, maxSelectCount, typeId);
         }
     }
 }

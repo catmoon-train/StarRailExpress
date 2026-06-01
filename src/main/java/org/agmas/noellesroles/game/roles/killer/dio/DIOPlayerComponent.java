@@ -1,6 +1,7 @@
 package org.agmas.noellesroles.game.roles.killer.dio;
 
 import io.wifi.starrailexpress.api.RoleComponent;
+import io.wifi.starrailexpress.cca.PlayerBodyEntityComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
@@ -23,7 +24,6 @@ import net.minecraft.world.level.Level;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.content.effects.TimeStopEffect;
-import org.agmas.noellesroles.game.roles.Innocent.coroner.BodyDeathReasonComponent;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
@@ -286,7 +286,7 @@ public class DIOPlayerComponent implements RoleComponent, ServerTickingComponent
         double dist = player.distanceTo(corpse);
         if (dist > 3.0)
             return false;
-        BodyDeathReasonComponent bodyDeathReasonComponent = BodyDeathReasonComponent.KEY.get(corpse);
+        PlayerBodyEntityComponent bodyDeathReasonComponent = PlayerBodyEntityComponent.KEY.get(corpse);
         if (bodyDeathReasonComponent.vultured)
             return false;
         bodyDeathReasonComponent.vultured = true;

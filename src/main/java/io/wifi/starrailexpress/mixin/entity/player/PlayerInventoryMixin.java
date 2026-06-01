@@ -2,7 +2,9 @@ package io.wifi.starrailexpress.mixin.entity.player;
 
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
@@ -27,10 +29,12 @@ public class PlayerInventoryMixin {
             original.call(scrollAmount);
             return;
         }
+        var gameWorldComponent = SREGameWorldComponent.KEY.get(this.player.level());
+
         int oldSlot = this.player.getInventory().selected;
         original.call(scrollAmount);
         SREPlayerPsychoComponent component = SREPlayerPsychoComponent.KEY.get(this.player);
-        var gameWorldComponent = SREGameWorldComponent.KEY.get(this.player.level());
+
         if (component.getPsychoTicks() > 0) {
             Item psychoItem = TMMItems.BAT;
             SRERole role = gameWorldComponent.getRole(player);

@@ -17,10 +17,6 @@ public record BroadcastMessageS2CPacket(Component content, boolean overlay) impl
             ComponentSerialization.TRUSTED_STREAM_CODEC, BroadcastMessageS2CPacket::content, ByteBufCodecs.BOOL,
             BroadcastMessageS2CPacket::overlay, BroadcastMessageS2CPacket::new);
 
-    public boolean isSkippable() {
-        return true;
-    }
-
     public Component content() {
         return this.content;
     }

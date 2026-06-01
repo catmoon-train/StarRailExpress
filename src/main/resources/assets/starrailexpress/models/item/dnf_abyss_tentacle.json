@@ -1,0 +1,6 @@
+{
+  "parent": "wathe:item/revolver",
+  "textures": {
+    "layer0": "starrailexpress:item/dnf_abyss_tentacle"
+  }
+}

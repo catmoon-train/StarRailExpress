@@ -39,4 +39,5 @@ public abstract class LivingEntityRendererMixin<T extends LivingEntity, M extend
             original.call(instance, matrixStack, vertexConsumerProvider, i, t, limbAngle, limbDistance, tickDelta, animationProgress, headYaw, headPitch);
         }
     }
+
 }

@@ -55,7 +55,7 @@ public class CuckooPlayerComponent implements RoleComponent, ServerTickingCompon
         if (player.level() instanceof ServerLevel serverLevel) {
             var gameWorld = SREGameWorldComponent.KEY.get(serverLevel);
             startPlayers = gameWorld.getPlayerCount();
-            requiredEggs = Math.max(5, (startPlayers * 3) / 8);
+            requiredEggs = Math.max(4, (startPlayers * 3) / 8 - 1);
         }
         sync();
     }
@@ -100,7 +100,7 @@ public class CuckooPlayerComponent implements RoleComponent, ServerTickingCompon
         }
         if (!(serverPlayer.level() instanceof ServerLevel level)) return false;
 
-        var aabb = serverPlayer.getBoundingBox().inflate(6.0, 3.0, 6.0);
+        var aabb = serverPlayer.getBoundingBox().inflate(10.0, 3.0, 10.0);
         if (CuckooEggData.hasNearbyEgg(level, aabb)) {
             serverPlayer.displayClientMessage(Component.translatable("message.noellesroles.cuckoo.place_fail_near"), true);
             return false;

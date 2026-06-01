@@ -32,7 +32,7 @@ public class GameMenuEntries {
             // 添加菜单按钮
             {
                 // 职业介绍
-                var btn1 = org.agmas.noellesroles.client.widget.custom_button.ModernButton
+                var btn1 =Button
                         .builder(Component.translatable("screen.limited_inventory.menu.introduction"), (btn) -> {
                             var role = SREGameWorldComponent.KEY.get(minecraft.level)
                                     .getRole(minecraft.player);
@@ -46,7 +46,7 @@ public class GameMenuEntries {
             }
             {
                 // 抽卡页面
-                var btn1 = org.agmas.noellesroles.client.widget.custom_button.ModernButton
+                var btn1 = Button
                         .builder(Component.translatable("screen.limited_inventory.menu.loot_screen"), (btn) -> {
                             if (LotteryManager.getInstance().getLotteryPools().isEmpty())
                                 ClientPlayNetworking.send(new LootPoolsInfoCheckC2SPacket());
@@ -59,7 +59,7 @@ public class GameMenuEntries {
             }
             {
                 // 职业猜测
-                var btn1 = org.agmas.noellesroles.client.widget.custom_button.ModernButton
+                var btn1 = Button
                         .builder(Component.translatable("screen.limited_inventory.menu.role_guess"), (btn) -> {
                             var screen = new GuessRoleScreen(parent);
                             minecraft.setScreen(screen);
@@ -71,7 +71,7 @@ public class GameMenuEntries {
             }
             if (minecraft.player.hasPermissions(2)) {
                 // mod_settings
-                var btn1 = org.agmas.noellesroles.client.widget.custom_button.ModernButton
+                var btn1 = Button
                         .builder(Component.translatable("screen.limited_inventory.menu.mod_settings")
                                 .withStyle(ChatFormatting.RED), (btn) -> {
                                     var screen = new SettingMenuScreen(parent);
@@ -84,9 +84,9 @@ public class GameMenuEntries {
                 startY -= menuButtonHeight;
             } else {
                 // mod client settings
-                var btn1 = org.agmas.noellesroles.client.widget.custom_button.ModernButton
+                var btn1 = Button
                         .builder(Component.translatable("screen.limited_inventory.menu.mod_settings_client")
-                                .withStyle(ChatFormatting.RED), (btn) -> {
+                                .withStyle(ChatFormatting.WHITE), (btn) -> {
                                     var screen = SREClientConfig.HANDLER.generateGui().generateScreen(parent);
                                     minecraft.setScreen(screen);
                                     toggleViewMenu.accept(false);
@@ -98,7 +98,7 @@ public class GameMenuEntries {
             }
             if (minecraft.player.hasPermissions(2)) {
                 // game_menu
-                var btn1 = org.agmas.noellesroles.client.widget.custom_button.ModernButton
+                var btn1 = Button
                         .builder(Component.translatable("screen.limited_inventory.menu.game_menu")
                                 .withStyle(ChatFormatting.RED), (btn) -> {
                                     var screen = new GameManagementScreen(parent);

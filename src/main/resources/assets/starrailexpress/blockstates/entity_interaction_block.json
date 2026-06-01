@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "starrailexpress:block/entity_interaction_block"
+    }
+  }
+}

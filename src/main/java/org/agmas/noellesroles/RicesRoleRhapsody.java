@@ -34,16 +34,16 @@ import org.agmas.noellesroles.client.screen.ModScreenHandlers;
 import org.agmas.noellesroles.client.screen.PostmanScreenHandler;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.content.entity.LockEntityManager;
-import org.agmas.noellesroles.game.roles.Innocent.athlete.AthletePlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.boxer.BoxerPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.detective.DetectivePlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.locksmith_inspiration.LocksmithInspirationComponent;
-import org.agmas.noellesroles.game.roles.Innocent.postman.PostmanPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.psychologist.PsychologistPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.pilot.PilotPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.singer.SingerPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.super_star.SuperStarPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.telegrapher.TelegrapherPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.athlete.AthletePlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.boxer.BoxerPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.detective.DetectivePlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.locksmith_inspiration.LocksmithInspirationComponent;
+import org.agmas.noellesroles.game.roles.innocent.pilot.PilotPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.postman.PostmanPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.psychologist.PsychologistPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.singer.SingerPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.super_star.SuperStarPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.telegrapher.TelegrapherPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.conspirator.ConspiratorPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.dio.DIOPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.stalker.StalkerPlayerComponent;
@@ -52,10 +52,7 @@ import org.agmas.noellesroles.game.roles.killer.shadow_falcon.ShadowFalconPlayer
 import org.agmas.noellesroles.game.roles.neutral.admirer.AdmirerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.slippery_ghost.SlipperyGhostPlayerComponent;
-import org.agmas.noellesroles.init.FunnyItems;
-import org.agmas.noellesroles.init.ModEffects;
-import org.agmas.noellesroles.init.ModEntities;
-import org.agmas.noellesroles.init.ModItems;
+import org.agmas.noellesroles.init.*;
 import org.agmas.noellesroles.packet.*;
 import org.agmas.noellesroles.packet.Loot.*;
 import org.agmas.noellesroles.role.ModRoles;
@@ -105,6 +102,9 @@ public class RicesRoleRhapsody implements ModInitializer {
     public static final CustomPacketPayload.Type<CreeperAbilityC2SPacket> CREEPER_ABILITY_PACKET = CreeperAbilityC2SPacket.ID;
     public static final CustomPacketPayload.Type<ShadowFalconAbilityC2SPacket> SHADOW_FALCON_ABILITY_PACKET = ShadowFalconAbilityC2SPacket.ID;
     public static final CustomPacketPayload.Type<PilotRemoveJetpackC2SPacket> PILOT_REMOVE_JETPACK_PACKET = PilotRemoveJetpackC2SPacket.ID;
+
+    // 建筑师技能包
+    public static final CustomPacketPayload.Type<BuilderAbilityC2SPacket> BUILDER_ABILITY_PACKET = BuilderAbilityC2SPacket.ID;
 
     public static final CustomPacketPayload.Type<LockGameC2Packet> LOCK_GAME_PACKET = LockGameC2Packet.ID;
     public static final CustomPacketPayload.Type<KeyForgeGameC2Packet> KEY_FORGE_GAME_PACKET = KeyForgeGameC2Packet.ID;
@@ -165,6 +165,7 @@ public class RicesRoleRhapsody implements ModInitializer {
 
         // 4. 注册实体
         ModEntities.init();
+        ModMenus.initialize();
 
         // 5. 注册 ScreenHandlers
         ModScreenHandlers.init();
@@ -343,6 +344,13 @@ public class RicesRoleRhapsody implements ModInitializer {
 
         // 注册飞行员脱下喷气背包包
         PayloadTypeRegistry.playC2S().register(PilotRemoveJetpackC2SPacket.ID, PilotRemoveJetpackC2SPacket.CODEC);
+
+        // 注册建筑师技能包
+        PayloadTypeRegistry.playC2S().register(BuilderAbilityC2SPacket.ID, BuilderAbilityC2SPacket.CODEC);
+
+        // 注册建筑师墙数据S2C包
+        PayloadTypeRegistry.playS2C().register(BuilderWallS2CPacket.ID, BuilderWallS2CPacket.CODEC);
+        PayloadTypeRegistry.playS2C().register(BuilderRemoveWallS2CPacket.ID, BuilderRemoveWallS2CPacket.CODEC);
 
         // 注册撬锁小游戏完成包
         PayloadTypeRegistry.playC2S().register(LockGameC2Packet.ID, LockGameC2Packet.CODEC);
@@ -1247,6 +1255,13 @@ public class RicesRoleRhapsody implements ModInitializer {
             postmanComponent.init();
         }
 
+        // ==================== 静语者角色处理 ====================
+        if (role.equals(ModRoles.SILENCER)) {
+            org.agmas.noellesroles.game.roles.killer.silencer.SilencerPlayerComponent silencerComponent =
+                org.agmas.noellesroles.game.roles.killer.silencer.SilencerPlayerComponent.KEY.get(player);
+            silencerComponent.init();
+        }
+
         // ==================== 私家侦探角色处理 ====================
         if (role.equals(ModRoles.DETECTIVE)) {
             // 重置私家侦探组件
@@ -1336,6 +1351,12 @@ public class RicesRoleRhapsody implements ModInitializer {
 
         // ==================== 示例：根据角色给予物品 ====================
         //
+
+        // ==================== 建筑师角色处理 ====================
+        if (role.equals(ModRoles.BUILDER)) {
+            org.agmas.noellesroles.game.roles.innocent.builder.BuilderPlayerComponent builderComponent = org.agmas.noellesroles.component.ModComponents.BUILDER.get(player);
+            builderComponent.init();
+        }
         // if (role.equals(ModRoles.EXAMPLE_ROLE)) {
         // // 给予物品
         // player.giveItemStack(new ItemStack(Items.PAPER));

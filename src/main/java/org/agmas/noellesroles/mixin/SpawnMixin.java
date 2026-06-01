@@ -4,7 +4,9 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import org.agmas.noellesroles.game.modes.repair.RepairModeState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -15,6 +17,10 @@ public class SpawnMixin {
     @Inject(at = @At("HEAD"), method = "die", cancellable = true)
     public void onDeath(DamageSource damageSource, CallbackInfo ci) {
         final var player = (Player) (Object) this;
+        if (player instanceof ServerPlayer serverPlayer && RepairModeState.downPlayer(serverPlayer)) {
+            ci.cancel();
+            return;
+        }
         if (GameUtils.isPlayerAliveAndSurvival(player)) {
             final var gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
             if (gameWorldComponent != null) {

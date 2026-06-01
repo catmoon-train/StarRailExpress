@@ -53,10 +53,11 @@ public class VoteSession {
     @Nullable
     private final Set<UUID> targetPlayers;
     private final int maxSelectCount; // 最大可选项数
+    private final String typeId;
 
     VoteSession(Component title, List<VoteOption> options, boolean showResults, int syncIntervalTicks,
             int durationTicks, Predicate<VoteSession> customEndPredicate, boolean allowReVote,
-            @Nullable Set<UUID> targetPlayers, int maxSelectCount) {
+            @Nullable Set<UUID> targetPlayers, int maxSelectCount, String typeId) {
         this.title = title;
         this.options.addAll(options);
         this.showResults = showResults;
@@ -68,6 +69,11 @@ public class VoteSession {
         this.ended = false;
         this.targetPlayers = targetPlayers == null ? null : new HashSet<>(targetPlayers);
         this.maxSelectCount = Math.max(1, maxSelectCount);
+        this.typeId = typeId == null ? "" : typeId;
+    }
+
+    public String getTypeId() {
+        return typeId;
     }
 
     public int getMaxSelectCount() {
@@ -200,6 +206,20 @@ public class VoteSession {
 
     public int getTotalVotes() {
         return votes.size();
+    }
+
+    public boolean hasVotedFor(UUID playerId, String resultId) {
+        Set<Integer> choices = votes.get(playerId);
+        if (choices == null || choices.isEmpty()) {
+            return false;
+        }
+        for (int choice : choices) {
+            if (choice >= 0 && choice < options.size()
+                    && Objects.equals(options.get(choice).resultId(), resultId)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     void start(long serverTick) {

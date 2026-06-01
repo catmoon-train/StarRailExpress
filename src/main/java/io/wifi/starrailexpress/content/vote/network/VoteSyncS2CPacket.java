@@ -24,7 +24,8 @@ public record VoteSyncS2CPacket(
         Map<Integer, Integer> results,
         int totalVotes,
         boolean allowReVote,
-        int maxSelectCount) implements CustomPacketPayload {
+        int maxSelectCount,
+        String typeId) implements CustomPacketPayload {
 
     public static final Type<VoteSyncS2CPacket> TYPE = new Type<>(SRE.id("vote_sync"));
 
@@ -48,6 +49,7 @@ public record VoteSyncS2CPacket(
                 }
                 buf.writeBoolean(packet.allowReVote);
                 buf.writeVarInt(packet.maxSelectCount);
+                buf.writeUtf(packet.typeId);
             },
             buf -> {
                 boolean active = buf.readBoolean();
@@ -70,8 +72,9 @@ public record VoteSyncS2CPacket(
                 }
                 boolean allowRe = buf.readBoolean();
                 int maxSelect = buf.readVarInt();
+                String typeId = buf.readUtf();
                 return new VoteSyncS2CPacket(active, title, hasOptions, options, endTick, show, results, totalVotes,
-                        allowRe, maxSelect);
+                        allowRe, maxSelect, typeId);
             });
 
     // ── 工厂方法 ──────────────────────────────────────
@@ -79,18 +82,18 @@ public record VoteSyncS2CPacket(
         long endTick = session.isPaused() ? -1 : session.getEndTick();
         return new VoteSyncS2CPacket(true, session.getTitle(), true, session.getOptions(),
                 endTick, session.isShowResults(), session.getIndexResults(), session.getTotalVotes(),
-                session.isAllowReVote(), session.getMaxSelectCount());
+                session.isAllowReVote(), session.getMaxSelectCount(), session.getTypeId());
     }
 
     public static VoteSyncS2CPacket update(VoteSession session) {
         long endTick = session.isPaused() ? -1 : session.getEndTick();
         return new VoteSyncS2CPacket(true, session.getTitle(), false, List.of(),
                 endTick, session.isShowResults(), session.getIndexResults(), session.getTotalVotes(),
-                session.isAllowReVote(), session.getMaxSelectCount());
+                session.isAllowReVote(), session.getMaxSelectCount(), session.getTypeId());
     }
 
     public static VoteSyncS2CPacket end() {
-        return new VoteSyncS2CPacket(false, Component.empty(), false, List.of(), 0, false, Map.of(), 0, false, 1);
+        return new VoteSyncS2CPacket(false, Component.empty(), false, List.of(), 0, false, Map.of(), 0, false, 1, "");
     }
 
     // ── 序列化工具（不变） ─────────────────────────────

@@ -2,6 +2,7 @@ package io.wifi.starrailexpress.client.render.block_entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.content.block_entity.BeveragePlateBlockEntity;
 import net.minecraft.client.Minecraft;
@@ -49,7 +50,7 @@ public class PlateBlockEntityRenderer implements BlockEntityRenderer<BeveragePla
     private void renderItems(@NotNull BeveragePlateBlockEntity entity, List<ItemStack> items,
             PoseStack matrices, MultiBufferSource vertexConsumers, int light, int overlay) {
         boolean isDrink = entity.isDrink();
-        double centerY = isDrink ? 0.225 : 0.0375;
+        double centerY = (isDrink ? 0.225 : 0.0375);
 
         int maxRender = SREConfig.isUltraPerfMode() ? 6 : 12;
         int itemCount = Math.min(items.size(), maxRender);

@@ -47,7 +47,8 @@ public class MorphlingPlayerWidget extends Button {
         } else {
             if (SREClient.gameComponent != null
                     && SREClient.gameComponent.getRole(disguiseTarget.getProfile().getId()) != null
-                    && SREClient.gameComponent.isKillerTeam(disguiseTarget.getProfile().getId())) {
+                    && org.agmas.noellesroles.role.ModRoles.isVisibleKillerTeammate(
+                        SREClient.gameComponent.getRole(disguiseTarget.getProfile().getId()))) {
                 setDisplayText(Component.translatable("hud.general.killer_friend").withStyle(ChatFormatting.GOLD));
             }
         }

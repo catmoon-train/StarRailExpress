@@ -3,14 +3,16 @@ package org.agmas.noellesroles.client.hud;
 import org.agmas.noellesroles.client.hud.modifiers.LoversHud;
 import org.agmas.noellesroles.client.hud.modifiers.RefugeeHud;
 import org.agmas.noellesroles.client.hud.roles.*;
+import org.agmas.noellesroles.client.hud.roles.CuckooHud;
 
-import io.wifi.events.day_night_fight.client.DNFHud;
+
 
 public class OtherRolesRegister {
 
     public static void registerSons() {
+    CuckooHud.register();
         VoteHud.register();
-        DNFHud.register();
+
         CustomPendingHud.register();
         AdmirerHud.register();
         AvengerHud.register();
@@ -26,6 +28,7 @@ public class OtherRolesRegister {
         MagicianHud.register();
         MonitorHud.register();
         MorphlingHud.register();
+        SilencerHud.register();
         NianShouHud.register();
         PhantomHud.register();
         PsychologistHud.register();
@@ -44,5 +47,8 @@ public class OtherRolesRegister {
         FoolHud.register();
         SuperLooseEndHud.register();
         PartyKillerHud.register();
+        MeatballHud.register();
+        MorticianHud.register();
+        BuilderHud.register();
     }
 }

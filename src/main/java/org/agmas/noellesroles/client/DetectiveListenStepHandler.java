@@ -8,6 +8,8 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.Noellesroles;
+import org.agmas.noellesroles.component.ModComponents;
+import org.agmas.noellesroles.game.modes.repair.RepairRoleDefinition;
 import org.agmas.noellesroles.role.ModRoles;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
@@ -48,9 +50,13 @@ public class DetectiveListenStepHandler {
             }
             final var gameWorldComponent = SREClient.gameComponent;
             if (gameWorldComponent==null ){
+                listening = false;
+                inListen = false;
                 return;
             }
-            if (!gameWorldComponent.isRole(mc.player, ModRoles.DETECTIVE)){
+            if (!canUseListenPassive(mc.player)){
+                listening = false;
+                inListen = false;
                 return;
             }
             LocalPlayer player = mc.player;
@@ -69,6 +75,22 @@ public class DetectiveListenStepHandler {
                 inListen = false;
             }
         });
+    }
+
+    public static boolean canUseListenPassive(LocalPlayer player) {
+        if (player == null || SREClient.gameComponent == null) {
+            return false;
+        }
+        if (SREClient.gameComponent.isRole(player, ModRoles.DETECTIVE)) {
+            return true;
+        }
+        if (SREClient.gameComponent.isRole(player, ModRoles.REPAIR_HUNTER)) {
+            return true;
+        }
+        var component = ModComponents.REPAIR_ROLES.get(player);
+        return RepairRoleDefinition.byId(component.activeRole)
+                .map(role -> role.faction == RepairRoleDefinition.Faction.HUNTER)
+                .orElse(false);
     }
 
 

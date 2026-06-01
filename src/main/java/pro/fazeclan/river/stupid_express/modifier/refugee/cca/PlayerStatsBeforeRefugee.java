@@ -13,9 +13,11 @@ import io.wifi.starrailexpress.index.TMMItems;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
+import org.agmas.noellesroles.content.entity.PuppeteerBodyEntity;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 import pro.fazeclan.river.stupid_express.utils.StupidRoleUtils;
 
@@ -84,7 +86,19 @@ public record PlayerStatsBeforeRefugee(Vec3 pos, int money, ListTag inventory, V
         var shopComponent = SREPlayerShopComponent.KEY.get(player);
         var moodComponent = SREPlayerMoodComponent.KEY.get(player);
         int armorAmount = SREArmorPlayerComponent.KEY.get(player).getArmor();
-        var playerStats = new PlayerStatsBeforeRefugee(player.position(),
+
+        Vec3 pos = player.position();
+        Level level = player.level();
+        AreasWorldComponent areas = AreasWorldComponent.KEY.get(level);
+        var puppeteerBodyEntities = level.getEntitiesOfClass(PuppeteerBodyEntity.class, areas.getPlayArea());
+        for (PuppeteerBodyEntity puppeteerBodyEntity : puppeteerBodyEntities) {
+            if (puppeteerBodyEntity.getOwner() == player) {
+                // 当存在玩家傀儡位置时，优先存储傀儡位置
+                pos = puppeteerBodyEntity.position();
+                break;
+            }
+        }
+        var playerStats = new PlayerStatsBeforeRefugee(pos,
                 shopComponent.balance, listTag.copy(), player.getRotationVector(),
                 isAlive, moodComponent.getMood(), armorAmount);
         return playerStats;

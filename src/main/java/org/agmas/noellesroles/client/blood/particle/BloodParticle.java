@@ -99,6 +99,31 @@ public class BloodParticle extends TextureSheetParticle {
     }
 
     /**
+     * 清除指定范围内的血液粒子
+     * @param centerX 中心X坐标
+     * @param centerY 中心Y坐标
+     * @param centerZ 中心Z坐标
+     * @param range 清除半径范围
+     */
+    public static void clearParticlesInRange(double centerX, double centerY, double centerZ, double range) {
+        double rangeSq = range * range;
+        var iterator = ALL_PARTICLES.iterator();
+
+        while (iterator.hasNext()) {
+            BloodParticle particle = (BloodParticle) iterator.next();
+            if (particle.isAlive()) {
+                double dx = particle.x - centerX;
+                double dy = particle.y - centerY;
+                double dz = particle.z - centerZ;
+                if (dx * dx + dy * dy + dz * dz <= rangeSq) {
+                    particle.remove();
+                    iterator.remove();
+                }
+            }
+        }
+    }
+
+    /**
      * 获取粒子渲染类型
      * 使用半透明的粒子渲染类型，支持透明度混合
      */

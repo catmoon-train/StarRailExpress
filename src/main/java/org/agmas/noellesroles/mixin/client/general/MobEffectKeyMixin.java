@@ -39,7 +39,8 @@ public abstract class MobEffectKeyMixin {
                     || this.same(options.keyUp) || this.same(options.keyShift) || this.same(options.keyDown))
                 return true;
         }
-        if (player.hasEffect(ModEffects.TAROT_ASSEMBLY)){
+
+        if (player.hasEffect(ModEffects.TAROT_ASSEMBLY) || player.hasEffect(ModEffects.INVENTORY_BANED)){
             if (this.same(options.keyInventory))return true;
         }
         if (player.hasEffect(ModEffects.USED_BANED) || player.hasEffect(ModEffects.GHOST_CURSE) || player.hasEffect(ModEffects.TAROT_ASSEMBLY)) {

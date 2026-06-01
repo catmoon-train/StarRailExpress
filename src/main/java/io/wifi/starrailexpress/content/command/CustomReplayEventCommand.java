@@ -19,7 +19,10 @@ public class CustomReplayEventCommand {
             .requires(source -> source.hasPermission(2))
             .then(Commands.literal("record")
                 .then(Commands.argument("message", ComponentArgument.textComponent(registryAccess))
-                    .executes(CustomReplayEventCommand::execute))));
+                    .executes(ctx -> execute(ctx, false))))
+            .then(Commands.literal("record_hidden")
+                .then(Commands.argument("message", ComponentArgument.textComponent(registryAccess))
+                    .executes(ctx -> execute(ctx, true)))));
     dispatcher.register(
         Commands.literal("sre:show_replay")
             .requires(source -> source.hasPermission(2))
@@ -34,7 +37,7 @@ public class CustomReplayEventCommand {
     return 1;
   }
 
-  private static int execute(CommandContext<CommandSourceStack> ctx) {
+  private static int execute(CommandContext<CommandSourceStack> ctx, boolean hidden) {
     ServerPlayer serverPlayer = ctx.getSource().getPlayer();
     Component res = ComponentArgument.getComponent(ctx, "message");
     if (serverPlayer != null) {
@@ -50,7 +53,7 @@ public class CustomReplayEventCommand {
       }
     } else {
     }
-    Component result = SRE.REPLAY_MANAGER.recordCustomEvent(res);
+    Component result = SRE.REPLAY_MANAGER.recordCustomEvent(res, hidden);
     ctx.getSource().sendSuccess(() -> Component.literal("Successfully record custom event!"), true);
     ctx.getSource().sendSystemMessage(Component.literal("[ADD REPLAY] ").append(result));
     return 1;

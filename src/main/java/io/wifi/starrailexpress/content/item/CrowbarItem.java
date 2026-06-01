@@ -1,6 +1,8 @@
 package io.wifi.starrailexpress.content.item;
 
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.block_entity.DoorBlockEntity;
 import io.wifi.starrailexpress.game.GameConstants;
@@ -39,10 +41,15 @@ public class CrowbarItem extends Item implements AdventureUsable {
                 if (SRE.REPLAY_MANAGER != null) {
                     SRE.REPLAY_MANAGER.recordItemUse(player.getUUID(), BuiltInRegistries.ITEM.getKey(this));
                 }
-                if (gameWorldComponent.isRole(player, RedHouseRoles.FURANDORU)) {
+                if (gameWorldComponent.isRole(player, TMMRoles.LOOSE_END)) {
+                    player.getCooldowns().addCooldown(this,
+                            GameConstants.ITEM_COOLDOWNS.getOrDefault(TMMItems.CROWBAR, 45 * 20) / 4);
+                }
+                else if (gameWorldComponent.isRole(player, RedHouseRoles.FURANDORU)) {
                     player.getCooldowns().addCooldown(this,
                             GameConstants.ITEM_COOLDOWNS.getOrDefault(TMMItems.CROWBAR, 45 * 20) / 6);
-                } else {
+                }
+                else {
                     player.getCooldowns().addCooldown(this,
                             GameConstants.ITEM_COOLDOWNS.getOrDefault(TMMItems.CROWBAR, 45 * 20));
                 }

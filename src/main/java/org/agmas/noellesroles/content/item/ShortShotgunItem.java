@@ -34,6 +34,10 @@ public class ShortShotgunItem extends Item {
     @Override
     public InteractionResultHolder<ItemStack> use(Level world, Player user, InteractionHand hand) {
         ItemStack stack = user.getItemInHand(hand);
+        // 右键时播放上膛音效（服务端播放，附近所有玩家都能听到）
+        if (!world.isClientSide) {
+            world.playSound(null, user.blockPosition(), NRSounds.SHOTGUNU_COCK, SoundSource.PLAYERS, 1.0F, 1.0F);
+        }
         user.startUsingItem(hand);
         return InteractionResultHolder.consume(stack);
     }
@@ -69,29 +73,48 @@ public class ShortShotgunItem extends Item {
         // 生成烈焰弹粒子效果
         spawnFlameParticles(serverLevel, player);
 
-        double radius = 2.0D;
-        AABB box = new AABB(player.getX() - radius, player.getY() - radius, player.getZ() - radius,
-                player.getX() + radius, player.getY() + radius, player.getZ() + radius);
-        List<Player> nearby = world.getEntitiesOfClass(Player.class, box,
-                p -> p != player && GameUtils.isPlayerAliveAndSurvival(p));
-
+        // 2格扇形范围检测：基于方块判定，扇形内不完整的方块也算一格
         Vec3 look = player.getLookAngle();
-        double cosThreshold = Math.cos(Math.toRadians(35.0)); // 70度扇形
-        for (Player target : nearby) {
-            Vec3 dir = new Vec3(target.getX() - player.getX(), 0, target.getZ() - player.getZ());
-            double len = Math.sqrt(dir.x * dir.x + dir.z * dir.z);
-            if (len == 0)
-                continue;
-            Vec3 ndir = dir.scale(1.0 / len);
-            Vec3 l2 = new Vec3(look.x, 0, look.z);
-            double llen = Math.sqrt(l2.x * l2.x + l2.z * l2.z);
-            if (llen == 0)
-                continue;
+        Vec3 l2 = new Vec3(look.x, 0, look.z);
+        double llen = Math.sqrt(l2.x * l2.x + l2.z * l2.z);
+        if (llen > 0) {
             Vec3 nlook = l2.scale(1.0 / llen);
-            double dot = nlook.x * ndir.x + nlook.z * ndir.z;
-            if (dot >= cosThreshold && canSeeTarget(world, player, target)) {
-                io.wifi.starrailexpress.game.GameUtils.killPlayer(target, true, player,
-                        Noellesroles.id("short_shotgun"));
+            double cosHalfAngle = Math.cos(Math.toRadians(35.0)); // 70度扇形
+            double maxRange = 2.0; // 2格范围
+
+            int pBlockX = player.blockPosition().getX();
+            int pBlockZ = player.blockPosition().getZ();
+            int pBlockY = player.blockPosition().getY();
+
+            java.util.Set<Integer> processed = new java.util.HashSet<>();
+
+            // 遍历玩家前方2格范围内的所有方块
+            for (int dx = -2; dx <= 2; dx++) {
+                for (int dz = -2; dz <= 2; dz++) {
+                    int bx = pBlockX + dx;
+                    int bz = pBlockZ + dz;
+
+                    // 只检查前方（点积大于0的方块，排除身后和自己站立的方块）
+                    if (dx * nlook.x + dz * nlook.z <= 0.1)
+                        continue;
+
+                    // 检查方块是否与扇形相交（4角+中心任意一点在扇形内即算该方块命中）
+                    if (!isBlockInFan(bx, bz, player.getX(), player.getZ(), nlook, cosHalfAngle, maxRange)) {
+                        continue;
+                    }
+
+                    // 搜索该方块上的存活玩家
+                    AABB tileBox = new AABB(bx, pBlockY - 1, bz, bx + 1, pBlockY + 2, bz + 1);
+                    List<Player> tilePlayers = world.getEntitiesOfClass(Player.class, tileBox,
+                            p -> p != player && GameUtils.isPlayerAliveAndSurvival(p)
+                                    && processed.add(p.getId()));
+                    for (Player target : tilePlayers) {
+                        if (canSeeTarget(world, player, target)) {
+                            io.wifi.starrailexpress.game.GameUtils.killPlayer(target, true, player,
+                                    Noellesroles.id("short_shotgun"));
+                        }
+                    }
+                }
             }
         }
 
@@ -165,6 +188,49 @@ public class ShortShotgunItem extends Item {
                     look.z * speed + (serverLevel.random.nextDouble() - 0.5) * 0.03,
                     0.01);
         }
+    }
+
+    /**
+     * 检查方块是否与扇形区域相交。
+     * 检查方块的四个角和中心点，只要有一个点在扇形内（距离<=maxRange 且 角度<=半角），
+     * 就认为该方块命中——即"不完整的部分也算作一格"。
+     *
+     * @param bx           方块X坐标
+     * @param bz           方块Z坐标
+     * @param playerX      玩家精确X
+     * @param playerZ      玩家精确Z
+     * @param nlook        玩家视线方向单位向量（XZ平面）
+     * @param cosHalfAngle 扇形半角的余弦值
+     * @param maxRange     最大射程（格）
+     * @return 方块是否与扇形相交
+     */
+    private static boolean isBlockInFan(int bx, int bz, double playerX, double playerZ,
+                                         Vec3 nlook, double cosHalfAngle, double maxRange) {
+        // 检查方块的4个角和中心点
+        double[][] checkPoints = {
+            {bx + 0.0, bz + 0.0},
+            {bx + 1.0, bz + 0.0},
+            {bx + 0.0, bz + 1.0},
+            {bx + 1.0, bz + 1.0},
+            {bx + 0.5, bz + 0.5}
+        };
+
+        for (double[] point : checkPoints) {
+            double cx = point[0];
+            double cz = point[1];
+            double dx = cx - playerX;
+            double dz = cz - playerZ;
+            double dist = Math.sqrt(dx * dx + dz * dz);
+            if (dist == 0)
+                continue;
+            if (dist > maxRange)
+                continue;
+            double dot = nlook.x * (dx / dist) + nlook.z * (dz / dist);
+            if (dot >= cosHalfAngle) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

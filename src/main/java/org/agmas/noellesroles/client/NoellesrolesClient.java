@@ -14,6 +14,7 @@ import io.wifi.starrailexpress.client.StaminaRenderer;
 import io.wifi.starrailexpress.client.StatusInit;
 import io.wifi.starrailexpress.client.gui.RoleNameRenderer;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
+import io.wifi.starrailexpress.client.util.ClientSkinCache;
 import io.wifi.starrailexpress.client.util.TMMItemTooltips;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.content.vote.client.ClientVoteCache;
@@ -25,6 +26,7 @@ import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.network.BreakArmorPayload;
+import io.wifi.starrailexpress.network.packet.EnableTaskHighlightPacket;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -39,6 +41,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -64,10 +67,13 @@ import net.minecraft.world.phys.Vec3;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.client.blood.BloodMain;
-import org.agmas.noellesroles.client.commands.GameManagePanelCommand;
+import org.agmas.noellesroles.client.blood.particle.BloodParticle;
+import org.agmas.noellesroles.client.commands.SREClientCommand;
 import org.agmas.noellesroles.client.event.MutableComponentResult;
 import org.agmas.noellesroles.client.event.OnMessageBelowMoneyRenderer;
 import org.agmas.noellesroles.client.hud.CommonClientHudRenderer;
+import org.agmas.noellesroles.client.hud.RepairEscapeHud;
+import org.agmas.noellesroles.client.renderer.HunterCageBlockEntityRenderer;
 import org.agmas.noellesroles.client.renderer.VendingMachinesBlockEntityRenderer;
 import org.agmas.noellesroles.client.screen.*;
 import org.agmas.noellesroles.component.DeathPenaltyComponent;
@@ -80,7 +86,8 @@ import org.agmas.noellesroles.content.entity.WheelchairFieldItemRenderer;
 import org.agmas.noellesroles.content.item.MercenaryContractItem;
 import org.agmas.noellesroles.content.item.PanItem;
 import org.agmas.noellesroles.content.item.ProblemSetItem;
-import org.agmas.noellesroles.game.roles.Innocent.magician.MagicianPlayerComponent;
+import org.agmas.noellesroles.content.item.ZeroOneFiveSecondShotHandler;
+import org.agmas.noellesroles.game.roles.innocent.magician.MagicianPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.insane_killer.InsaneKillerPlayerComponent;
 import org.agmas.noellesroles.init.*;
 import org.agmas.noellesroles.packet.*;
@@ -97,6 +104,7 @@ import java.awt.*;
 import java.util.*;
 import java.util.List;
 
+
 import static org.agmas.noellesroles.client.RicesRoleRhapsodyClient.*;
 import static org.agmas.noellesroles.content.effects.TimeStopEffect.clientPositions;
 import static org.agmas.noellesroles.game.roles.killer.insane_killer.InsaneKillerPlayerComponent.isPlayerBodyEntity;
@@ -105,6 +113,7 @@ import static org.agmas.noellesroles.game.roles.killer.insane_killer.InsaneKille
 public class NoellesrolesClient implements ClientModInitializer {
     public static boolean hasInitStatusBar = false;
     public static int insanityTime = 0;
+    private static BlockPos repairHeldSearchTarget = null;
     public static KeyMapping roleIntroClientBind = KeyBindingHelper
             .registerKeyBinding(new KeyMapping("key." + Noellesroles.MOD_ID + ".role_intro",
                     InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_U, "category.starrailexpress.keybinds"));
@@ -128,6 +137,8 @@ public class NoellesrolesClient implements ClientModInitializer {
     public static Player targetFakeBody;
     public static Player hudTarget;
     public static boolean isTaskInstinctEnabled = false;
+    // 记录被触发启用透视的任务路标位置
+    public static Set<BlockPos> enabledTaskMarkerPositions = new HashSet<>();
     public static boolean isShowHelpDisplay = true;
     private static boolean foolMeetingPauseHandled = false;
     public static Map<UUID, UUID> SHUFFLED_PLAYER_ENTRIES_CACHE = Maps.newHashMap();
@@ -152,7 +163,7 @@ public class NoellesrolesClient implements ClientModInitializer {
             return;
         }
 
-        List<UUID> candidates = new ArrayList<>(SREClient.PLAYER_ENTRIES_CACHE.keySet());
+        List<UUID> candidates = new ArrayList<>(ClientSkinCache.PLAYER_ENTRIES_CACHE.keySet());
         if (candidates.isEmpty()) {
             JEB_SHUFFLED_PLAYER_ENTRIES_CACHE.clear();
             return;
@@ -191,12 +202,19 @@ public class NoellesrolesClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         NoellesrolesClientAmbientSounds.register();
+        // 注册游戏结束事件，清除建筑师客户端墙
+        io.wifi.starrailexpress.event.client.OnGameFinishedClient.EVENT.register(() -> {
+            ClientWallManager.clearAll();
+        });
         // 注册HUD渲染
         LimitedInventoryScreen.NotAllowItemTakePredicates.add(stack -> stack.is(ModItems.BOMB));
 
         BlockEntityRenderers.register(
                 ModBlocks.VENDING_MACHINES_BLOCK_ENTITY,
                 VendingMachinesBlockEntityRenderer::new);
+        BlockEntityRenderers.register(
+                ModBlocks.HUNTER_CAGE_BLOCK_ENTITY,
+                HunterCageBlockEntityRenderer::new);
 
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.VENDING_MACHINES_BLOCK, RenderType.translucent());
         MercenaryContractItem.openGuiRunner = () -> {
@@ -242,7 +260,7 @@ public class NoellesrolesClient implements ClientModInitializer {
             return true;
         });
         CommonClientHudRenderer.registerRenderersEvent();
-
+        MenuScreens.register(ModMenus.HOTBAR_STORAGE, HotbarStorageScreen::new);
         WorldRenderEvents.AFTER_TRANSLUCENT.register((renderContext) -> {
             TaskBlockOverlayRenderer.render(renderContext);
         });
@@ -250,6 +268,13 @@ public class NoellesrolesClient implements ClientModInitializer {
         ClientPlayNetworking.registerGlobalReceiver(CreateClientSmokeAreaPacket.ID, (payload, context) -> {
             ClientSmokeAreaManager.createSmokeArea(context.client().level, payload.position(), payload.radius(),
                     payload.durationTicks());
+        });
+        // 建筑师墙数据S2C包
+        ClientPlayNetworking.registerGlobalReceiver(org.agmas.noellesroles.packet.BuilderWallS2CPacket.ID, (payload, context) -> {
+            ClientWallManager.createWall(payload.wallId(), payload.brickPositions(), payload.cobwebPositions(), payload.durationTicks());
+        });
+        ClientPlayNetworking.registerGlobalReceiver(org.agmas.noellesroles.packet.BuilderRemoveWallS2CPacket.ID, (payload, context) -> {
+            ClientWallManager.removeWall(payload.wallId());
         });
         ClientPlayNetworking.registerGlobalReceiver(CreateCreeperBombAreaPacket.ID, (payload, context) -> {
             final var p = context.player();
@@ -294,7 +319,7 @@ public class NoellesrolesClient implements ClientModInitializer {
             }
         });
         ClientPlayNetworking.registerGlobalReceiver(
-                org.agmas.noellesroles.game.roles.Innocent.fool.FoolOpenTarotVoteS2CPacket.ID,
+                org.agmas.noellesroles.game.roles.innocent.fool.FoolOpenTarotVoteS2CPacket.ID,
                 (payload, context) -> {
                     final var client = context.client();
                     client.execute(() -> {
@@ -309,15 +334,16 @@ public class NoellesrolesClient implements ClientModInitializer {
             if (level == null)
                 return;
             ClientSmokeAreaManager.tick();
+            ClientWallManager.tick();
         });
         ClientPlayNetworking.registerGlobalReceiver(ProblemScreenOpenC2SPacket.ID, (payload, context) -> {
             var client = context.client();
             client.execute(() -> {
-                if (client.screen != null && client.screen instanceof MathSolverScreen) {
-                    return;
-                } else {
-                    client.setScreen(new MathSolverScreen(payload.forced(), payload.maxTrial()));
+                // 强制关闭当前打开的页面（如监控页面），再打开做题页面
+                if (client.screen != null && !(client.screen instanceof MathSolverScreen)) {
+                    client.screen.onClose();
                 }
+                client.setScreen(new MathSolverScreen(payload.forced(), payload.maxTrial()));
             });
         });
         ClientPlayNetworking.registerGlobalReceiver(ScanAllTaskPointsPayload.ID, (payload, context) -> {
@@ -332,6 +358,22 @@ public class NoellesrolesClient implements ClientModInitializer {
                     NoellesrolesClient.taskBlocks.put(set.getKey(), set.getValue());
                 }
             }
+        });
+        ClientPlayNetworking.registerGlobalReceiver(EnableTaskHighlightPacket.ID, (payload, context) -> {
+            final var client = context.client();
+            client.execute(() -> {
+                if (payload.enable()) {
+                    // 启用任务透视功能
+                    if (!NoellesrolesClient.isTaskInstinctEnabled) {
+                        NoellesrolesClient.isTaskInstinctEnabled = true;
+                        if (client.player != null) {
+                            client.player.displayClientMessage(
+                                    net.minecraft.network.chat.Component.translatable("message.tip.taskpoint_instinct_enable")
+                                            .withStyle(net.minecraft.ChatFormatting.GREEN), true);
+                        }
+                    }
+                }
+            });
         });
         ClientPlayNetworking.registerGlobalReceiver(BroadcastMessageS2CPacket.ID, (payload, context) -> {
             final var client = context.client();
@@ -414,8 +456,18 @@ public class NoellesrolesClient implements ClientModInitializer {
             LoggerFactory.getLogger(this.getClass())
                     .info("Blood Particle status: " + (bloodMain.enabled ? "Enabled" : "Disabled"));
         });
+        ClientPlayNetworking.registerGlobalReceiver(ClearBloodParticlesS2CPacket.ID, (payload, context) -> {
+            context.client().execute(() -> BloodParticle.clearParticlesInRange(payload.x(), payload.y(), payload.z(), payload.range()));
+        });
         ClientPlayNetworking.registerGlobalReceiver(NameTagSyncPayload.ID, (payload, context) -> {
             RoleNameRenderer.displayTags.putAll(payload.nametags());
+        });
+        ClientPlayNetworking.registerGlobalReceiver(RepairCoinRewardS2CPacket.ID, (payload, context) -> {
+            context.client().execute(() -> RepairEscapeHud.pushCoinToast(payload.amount(), payload.sourceKey()));
+        });
+        ClientPlayNetworking.registerGlobalReceiver(RepairCombatFeedbackS2CPacket.ID, (payload, context) -> {
+            context.client().execute(() -> RepairEscapeHud.pushCombatCue(payload.kind(), payload.entityId(),
+                    payload.x(), payload.y(), payload.z(), payload.weaponId()));
         });
         ClientPlayNetworking.registerGlobalReceiver(OpenLockGuiS2CPacket.ID, (payload, context) -> {
             final var client = context.client();
@@ -542,6 +594,34 @@ public class NoellesrolesClient implements ClientModInitializer {
                 }
             }
         });
+        ClientPlayNetworking.registerGlobalReceiver(OpenRepairRoleSelectionS2CPacket.ID, (payload, context) -> {
+            context.client().execute(() -> {
+                if (context.client().screen instanceof org.agmas.noellesroles.client.screen.repair.RepairRoleSelectionScreen) {
+                    return;
+                }
+                context.client().setScreen(new org.agmas.noellesroles.client.screen.repair.RepairRoleSelectionScreen(
+                        payload.faction(), payload.endTick(), payload.playerNames()));
+            });
+        });
+        ClientPlayNetworking.registerGlobalReceiver(OpenRepairRoleShopS2CPacket.ID, (payload, context) -> {
+            context.client().execute(() -> {
+                if (context.client().screen instanceof org.agmas.noellesroles.client.screen.repair.RepairRoleShopScreen screen) {
+                    screen.updateData(payload.skinCoins(), payload.ownedRoles());
+                    screen.init(context.client(), context.client().getWindow().getGuiScaledWidth(),
+                            context.client().getWindow().getGuiScaledHeight());
+                } else {
+                    context.client().setScreen(new org.agmas.noellesroles.client.screen.repair.RepairRoleShopScreen(
+                            payload.skinCoins(), payload.ownedRoles()));
+                }
+            });
+        });
+
+        ClientPlayNetworking.registerGlobalReceiver(OpenRepairStationScreenS2CPacket.ID, (payload, context) -> {
+            context.client().execute(() -> {
+                context.client().setScreen(new org.agmas.noellesroles.client.screen.repair.RepairStationScreen(payload.blockPos()));
+            });
+        });
+
         ClientPlayNetworking.registerGlobalReceiver(OpenVendingMachinesScreenS2CPacket.ID, (payload, context) -> {
             context.client().execute(() -> {
                 BlockEntity blockEntity = context.client().level.getBlockEntity(payload.blockPos());
@@ -746,6 +826,10 @@ public class NoellesrolesClient implements ClientModInitializer {
 
         DetectiveListenStepHandler.registerEvents();
         InvisbleHandItem.register();
+        // 注册零一五第二枪客户端处理器
+//        ClientPlayNetworking.registerGlobalReceiver(
+//                org.agmas.noellesroles.content.item.ZeroOneFiveSecondShotPayload.ID,
+//                new ZeroOneFiveSecondShotHandler());
         OnKillerCohortDisplay.EVENT.register((player) -> {
             if (player == null)
                 return null;
@@ -770,7 +854,10 @@ public class NoellesrolesClient implements ClientModInitializer {
             // 加入游戏清空信息
             currentBroadcastMessage.clear();
             ClientVoteCache.clear();
-            SREClient.PLAYER_ENTRIES_CACHE.clear();
+        });
+        // 监听客户端断开连接：清空卡池配置信息
+        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
+            LotteryManager.getInstance().clearPools();
         });
         //
         ClientTickEvents.END_WORLD_TICK.register((client) -> {
@@ -849,10 +936,27 @@ public class NoellesrolesClient implements ClientModInitializer {
                 });
             }
             boolean abilityPressed = abilityBind.consumeClick();
+            var repairInputComponent = org.agmas.noellesroles.component.ModComponents.REPAIR_ROLES.get(client.player);
+            boolean repairGameRunning = SREClient.gameComponent != null
+                    && SREClient.gameComponent.isRunning()
+                    && SREClient.gameComponent.getGameMode() == io.wifi.starrailexpress.api.SREGameModes.REPAIR_ESCAPE_MODE;
+            if (client.screen == null && repairGameRunning && repairInputComponent.carriedBy != null) {
+                if (client.options.keyAttack.consumeClick()) {
+                    ClientPlayNetworking.send(new org.agmas.noellesroles.packet.RepairCarryStruggleC2SPacket("left"));
+                }
+                if (client.options.keyUse.consumeClick()) {
+                    ClientPlayNetworking.send(new org.agmas.noellesroles.packet.RepairCarryStruggleC2SPacket("right"));
+                }
+            }
+            if (client.screen == null && repairGameRunning && repairInputComponent.downed && repairInputComponent.carriedBy == null
+                    && client.options.keyShift.consumeClick()) {
+                ClientPlayNetworking.send(new org.agmas.noellesroles.packet.RepairCarryStruggleC2SPacket("downed"));
+            }
+            handleRepairSearchInput(client);
             if (client.player.isCreative()) {
                 if (foolPrayerBind.consumeClick()) {
                     ClientPlayNetworking
-                            .send(new org.agmas.noellesroles.game.roles.Innocent.fool.FoolPrayerC2SPacket());
+                            .send(new org.agmas.noellesroles.game.roles.innocent.fool.FoolPrayerC2SPacket());
                 }
                 if (abilityPressed) {
                     if (SREClient.gameComponent.isRole(client.player, ModRoles.ATTENDANT)) {
@@ -870,7 +974,7 @@ public class NoellesrolesClient implements ClientModInitializer {
             // }
 
             if (foolPrayerBind.consumeClick()) {
-                ClientPlayNetworking.send(new org.agmas.noellesroles.game.roles.Innocent.fool.FoolPrayerC2SPacket());
+                ClientPlayNetworking.send(new org.agmas.noellesroles.game.roles.innocent.fool.FoolPrayerC2SPacket());
             }
 
             if (abilityPressed) {
@@ -880,7 +984,7 @@ public class NoellesrolesClient implements ClientModInitializer {
             if (inTarotAssembly) {
                 if (client.options.keyUse.consumeClick()) {
                     ClientPlayNetworking
-                            .send(new org.agmas.noellesroles.game.roles.Innocent.fool.FoolLeaveMeetingC2SPacket());
+                            .send(new org.agmas.noellesroles.game.roles.innocent.fool.FoolLeaveMeetingC2SPacket());
                 }
 
                 boolean pauseOpen = client.screen instanceof net.minecraft.client.gui.screens.PauseScreen;
@@ -889,7 +993,7 @@ public class NoellesrolesClient implements ClientModInitializer {
                         foolMeetingPauseHandled = true;
                     } else {
                         ClientPlayNetworking
-                                .send(new org.agmas.noellesroles.game.roles.Innocent.fool.FoolLeaveMeetingC2SPacket());
+                                .send(new org.agmas.noellesroles.game.roles.innocent.fool.FoolLeaveMeetingC2SPacket());
                         client.setScreen(null);
                     }
                 }
@@ -905,8 +1009,8 @@ public class NoellesrolesClient implements ClientModInitializer {
             insanityTime++;
             if (insanityTime >= 20 * 6) {
                 insanityTime = 0;
-                List<UUID> keys = new ArrayList<UUID>(SREClient.PLAYER_ENTRIES_CACHE.keySet());
-                List<UUID> originalkeys = new ArrayList<UUID>(SREClient.PLAYER_ENTRIES_CACHE.keySet());
+                List<UUID> keys = new ArrayList<UUID>(ClientSkinCache.PLAYER_ENTRIES_CACHE.keySet());
+                List<UUID> originalkeys = new ArrayList<UUID>(ClientSkinCache.PLAYER_ENTRIES_CACHE.keySet());
                 Collections.shuffle(keys);
                 int i = 0;
                 for (UUID o : originalkeys) {
@@ -935,6 +1039,9 @@ public class NoellesrolesClient implements ClientModInitializer {
             }
 
             OtherworldSceneManager.INSTANCE.tick();
+
+            boolean dnfHellActive = false;
+            DnfHellTrailSceneManager.INSTANCE.tick(dnfHellActive);
 
             // 鬼缚效果红色粒子渲染
             for (var p : client.level.players()) {
@@ -1238,7 +1345,7 @@ public class NoellesrolesClient implements ClientModInitializer {
     }
 
     private void registerCommands() {
-        GameManagePanelCommand.register();
+        SREClientCommand.register();
     }
 
     private void ShowBroadcastMessage(Component message) {
@@ -1265,5 +1372,32 @@ public class NoellesrolesClient implements ClientModInitializer {
             return entry != null && entry.getGameMode() == GameType.ADVENTURE;
         }
         return false;
+    }
+
+    private static void handleRepairSearchInput(Minecraft client) {
+        if (client.player == null || client.level == null || client.screen != null) {
+            return;
+        }
+        boolean repairGameRunning = SREClient.gameComponent != null
+                && SREClient.gameComponent.isRunning()
+                && SREClient.gameComponent.getGameMode() == io.wifi.starrailexpress.api.SREGameModes.REPAIR_ESCAPE_MODE;
+        if (!repairGameRunning) {
+            repairHeldSearchTarget = null;
+            return;
+        }
+        if (!(client.hitResult instanceof net.minecraft.world.phys.BlockHitResult blockHit)
+                || !client.level.getBlockState(blockHit.getBlockPos()).is(ModBlocks.HOTBAR_STORAGE)
+                || !client.options.keyUse.isDown()) {
+            if (repairHeldSearchTarget != null) {
+                ClientPlayNetworking.send(new RepairSearchCancelC2SPacket());
+                repairHeldSearchTarget = null;
+            }
+            return;
+        }
+        BlockPos pos = blockHit.getBlockPos();
+        if (!pos.equals(repairHeldSearchTarget)) {
+            repairHeldSearchTarget = pos;
+            ClientPlayNetworking.send(new RepairSearchBeginC2SPacket(pos));
+        }
     }
 }

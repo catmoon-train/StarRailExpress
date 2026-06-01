@@ -5,6 +5,7 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -23,24 +24,26 @@ import org.agmas.noellesroles.component.PlayerVolumeComponent;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.content.effects.TimeStopEffect;
 import org.agmas.noellesroles.content.entity.WheelchairEntity;
-import org.agmas.noellesroles.game.roles.Innocent.accountant.AccountantPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.alchemist.AlchemistPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.attendant.AttendantHandler;
-import org.agmas.noellesroles.game.roles.Innocent.clock_maker.ClockmakerPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.fortuneteller.FortunetellerPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.hoan_meirin.HoanMeirinPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.noise_maker.NoiseMakerPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.recaller.RecallerPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.accountant.AccountantPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.alchemist.AlchemistPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.attendant.AttendantHandler;
+import org.agmas.noellesroles.game.roles.innocent.clock_maker.ClockmakerPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.fortuneteller.FortunetellerPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.hoan_meirin.HoanMeirinPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.noise_maker.NoiseMakerPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.recaller.RecallerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.blood_feudist.BloodFeudistPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.bomber.BomberPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.dio.DIOPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.imitator.ImitatorPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.ma_chen_xu.MaChenXuPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.spellbreaker.SpellbreakerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.watcher.WatcherPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.candlebearer.CandleBearerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.commander.CommanderHandler;
 import org.agmas.noellesroles.game.roles.neutral.nian_shou.NianShouPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.thief.ThiefPlayerComponent;
+import org.agmas.noellesroles.game.roles.special.super_loose_end.SuperLooseEndPlayerComponent;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.packet.ProblemScreenOpenC2SPacket;
@@ -63,6 +66,9 @@ public class AbilityHandler {
         if (player.hasEffect(ModEffects.TIME_STOP) && !TimeStopEffect.canMovePlayers.contains(player.getUUID())) {
             return;
         }
+        if (SpellbreakerPlayerComponent.consumePendingSkillFail(player)) {
+            return;
+        }
         if (player.hasEffect(ModEffects.SKILL_BANED)) {
             return;
         }
@@ -73,6 +79,7 @@ public class AbilityHandler {
                 player.displayClientMessage(
                         Component.translatable("hud.hoan_meirin.ability_stop").withStyle(ChatFormatting.AQUA),
                         true);
+                return;
             } else if (hmpc.cooldown > 0) {
                 player.displayClientMessage(
                         Component.translatable("message.noellesroles.ability_cooldown").withStyle(ChatFormatting.RED),
@@ -86,6 +93,7 @@ public class AbilityHandler {
                 player.addEffect(new MobEffectInstance(MobEffects.LEVITATION,
                         10 * 20, 1, true, false,
                         true));
+                return;
             }
         }
         if (gameWorldComponent.isRole(player, RedHouseRoles.MAID_SAKUYA)) {
@@ -235,6 +243,10 @@ public class AbilityHandler {
             watcher.toggleStance();
             return;
         }
+        if (gameWorldComponent.isRole(player, ModRoles.SPELLBREAKER)) {
+            SpellbreakerPlayerComponent.KEY.get(player).useAbility();
+            return;
+        }
         if (gameWorldComponent.isRole(player, ModRoles.COMMANDER)) {
             CommanderHandler.tryActiveAbility(player);
             return;
@@ -286,7 +298,7 @@ public class AbilityHandler {
             return;
         }
         if (gameWorldComponent.isRole(player, ModRoles.GHOST)) {
-            org.agmas.noellesroles.game.roles.Innocent.ghost.GhostPlayerComponent ghostPlayerComponent = org.agmas.noellesroles.game.roles.Innocent.ghost.GhostPlayerComponent.KEY
+            org.agmas.noellesroles.game.roles.innocent.ghost.GhostPlayerComponent ghostPlayerComponent = org.agmas.noellesroles.game.roles.innocent.ghost.GhostPlayerComponent.KEY
                     .get(player);
             ghostPlayerComponent.useAbility();
             return;
@@ -542,6 +554,11 @@ public class AbilityHandler {
             }
             return;
         }
+        // 处理超级亡命徒技能
+        if (gameWorldComponent.isRole(player, SpecialGameModeRoles.SUPER_LOOSE_END)) {
+            SuperLooseEndPlayerComponent comp = SuperLooseEndPlayerComponent.KEY.get(player);
+            comp.useAbility(player.isShiftKeyDown());
+        }
     }
 
     public static void handlerWithTarget(ServerPlayer player, UUID targetUUID) {
@@ -555,6 +572,9 @@ public class AbilityHandler {
         SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY
                 .get(player.level());
         if (player.hasEffect(ModEffects.TIME_STOP) && !TimeStopEffect.canMovePlayers.contains(player.getUUID())) {
+            return;
+        }
+        if (SpellbreakerPlayerComponent.KEY.get(player).consumePendingSkillFail(player)) {
             return;
         }
         if (player.hasEffect(ModEffects.SKILL_BANED)) {

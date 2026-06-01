@@ -73,12 +73,12 @@ public class ChlorineBombEntity extends ThrowableItemProjectile {
             // 设置玩家中毒状态（参考毒针的实现）
             SREPlayerPoisonComponent poisonComponent = SREPlayerPoisonComponent.KEY.get(player);
 
-            // 设置中毒时间为30秒（600 ticks），投掷者为攻击者
+            // 设置中毒时间为15秒（300 ticks），投掷者为攻击者
             Player thrower = this.getOwner() instanceof Player ? (Player) this.getOwner() : null;
             if (thrower != null) {
-                poisonComponent.setPoisonTicks(600, thrower.getUUID());
+                poisonComponent.setPoisonTicks(300, thrower.getUUID());
             } else {
-                poisonComponent.setPoisonTicks(600, null);
+                poisonComponent.setPoisonTicks(300, null);
             }
             poisonComponent.sync();
         }

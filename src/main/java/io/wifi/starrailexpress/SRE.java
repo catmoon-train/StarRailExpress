@@ -3,7 +3,7 @@ package io.wifi.starrailexpress;
 import com.google.common.reflect.Reflection;
 import com.google.gson.JsonObject;
 import io.wifi.ConfigCompact.ConfigEvents;
-import io.wifi.events.day_night_fight.DNF;
+
 import io.wifi.StarRailExpressID;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
@@ -11,6 +11,7 @@ import io.wifi.starrailexpress.api.replay.GameReplayData;
 import io.wifi.starrailexpress.api.replay.GameReplayManager;
 import io.wifi.starrailexpress.api.replay.ReplayApiInitializer;
 import io.wifi.starrailexpress.api.replay.ReplayPayload;
+import io.wifi.starrailexpress.api.replay.screen.ReplayScreenService;
 import io.wifi.starrailexpress.cca.*;
 import io.wifi.starrailexpress.compat.TrainVoicePlugin;
 import io.wifi.starrailexpress.content.block.DoorPartBlock;
@@ -35,6 +36,7 @@ import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
 import io.wifi.starrailexpress.index.*;
 import io.wifi.starrailexpress.network.*;
 import io.wifi.starrailexpress.network.original.*;
+import io.wifi.starrailexpress.network.packet.CustomNarratorPacket;
 import io.wifi.starrailexpress.network.packet.ModVersionPacket;
 import io.wifi.starrailexpress.network.packet.SyncRoomToPlayerPayload;
 import io.wifi.starrailexpress.util.PoisonComponentUtils;
@@ -121,7 +123,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
         initSkinsNetworkSync();
         SpecialGameModeRoles.init();
         SpecialGameModeModifiers.init();
-        DNF.init();
+
     }
 
     private void initCCAAuto() {
@@ -160,7 +162,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
 
     private void registerServerLifecycleEvents() {
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
-            LOGGER.info("[CONFIG] Sync configs to {}", handler.getPlayer().getName());
+            LOGGER.info("[CONFIG] Sync configs to {}", handler.getPlayer().getName().getString());
             SREConfig.HANDLER.syncToClient(handler.getPlayer());
             StupidExpressConfig.HANDLER.syncToClient(handler.getPlayer());
         });
@@ -186,9 +188,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
         });
         ServerTickEvents.END_SERVER_TICK.register(serv -> {
             VoteManager.onServerTick();
-        });
-        ServerLifecycleEvents.SERVER_STOPPING.register(server -> {
-            MysqlPlayerDataStore.shutdown();
+            ReplayScreenService.tick(serv);
         });
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
             SRE.isLobby = SREConfig.instance().isLobby;
@@ -234,7 +234,9 @@ public class SRE extends StarRailExpressID implements ModInitializer {
 
     private void registerCommands() {
         CommandRegistrationCallback.EVENT.register(((dispatcher, registryAccess, environment) -> {
+
             SREVoteCommand.register(dispatcher, registryAccess);
+            NarratorCommand.register(dispatcher,registryAccess);
             GiveRoomKeyCommand.register(dispatcher);
             ListRoleInRoundCommand.register(dispatcher);
             StartCommand.register(dispatcher);
@@ -246,9 +248,11 @@ public class SRE extends StarRailExpressID implements ModInitializer {
             SetDeathPenaltyCommand.register(dispatcher);
             MoneyCommand.register(dispatcher);
             CustomReplayEventCommand.register(dispatcher, registryAccess);
+            ReplayScreenCommand.register(dispatcher);
             SetAutoTrainResetCommand.register(dispatcher);
             SetBoundCommand.register(dispatcher);
             AutoStartCommand.register(dispatcher);
+            ParticipationCommand.register(dispatcher);
             AutoShutdownWhenNotRunningCommand.register(dispatcher);
             ConfigCommand.register(dispatcher);
             SwitchMapCommand.register(dispatcher);
@@ -266,7 +270,9 @@ public class SRE extends StarRailExpressID implements ModInitializer {
             FourthRoomCommand.register(dispatcher);
             ReloadMapConfigCommand.register(dispatcher);
             SkinsCommand.register(dispatcher);
+            PlayerInventoryCommand.register(dispatcher);
             io.wifi.starrailexpress.cca.network.SkinsNetworkSyncCommand.register(dispatcher);
+            RestoreDNFInventoryCommand.register(dispatcher);
             // CoinModifier.register(dispatcher, registryAccess);
             net.exmo.sre.nametag.NameTagCommand.register(dispatcher, registryAccess);
             // io.wifi.starrailexpress.contents.command.UnlockAllRolesCommand.register(dispatcher);
@@ -309,6 +315,12 @@ public class SRE extends StarRailExpressID implements ModInitializer {
         PayloadTypeRegistry.playC2S().register(
                 net.exmo.sre.mod_whitelist.common.network.ModWhitelistPayload.ID,
                 net.exmo.sre.mod_whitelist.common.network.ModWhitelistPayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(
+                net.exmo.sre.mod_whitelist.common.network.ResourcePackWhitelistPayload.ID,
+                net.exmo.sre.mod_whitelist.common.network.ResourcePackWhitelistPayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(
+                net.exmo.sre.mod_whitelist.common.network.ShaderPackWhitelistPayload.ID,
+                net.exmo.sre.mod_whitelist.common.network.ShaderPackWhitelistPayload.CODEC);
 
         PayloadTypeRegistry.playS2C().register(
                 net.exmo.sre.mod_whitelist.common.network.ModWhitelistConfigPayload.ID,
@@ -316,6 +328,8 @@ public class SRE extends StarRailExpressID implements ModInitializer {
 
         PayloadTypeRegistry.playS2C().register(ModVersionPacket.ID, ModVersionPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(ModVersionPacket.ID, ModVersionPacket.CODEC);
+        PayloadTypeRegistry.playS2C().register(CustomNarratorPacket.ID, CustomNarratorPacket.CODEC);
+
 
         PayloadTypeRegistry.playS2C().register(SyncRoomToPlayerPayload.ID, SyncRoomToPlayerPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(SyncRoomToPlayerPayload.ID, SyncRoomToPlayerPayload.CODEC);
@@ -357,6 +371,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
         PayloadTypeRegistry.playS2C().register(OpenFourthRoomPeekDeckPayload.ID, OpenFourthRoomPeekDeckPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(OpenSkinScreenPaylod.ID, OpenSkinScreenPaylod.CODEC);
         PayloadTypeRegistry.playS2C().register(OpenProgressionScreenPayload.ID, OpenProgressionScreenPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(OpenClueArchivePayload.ID, OpenClueArchivePayload.CODEC);
         PayloadTypeRegistry.playS2C().register(io.wifi.starrailexpress.network.OpenRoleUnlockScreenPayload.ID,
                 io.wifi.starrailexpress.network.OpenRoleUnlockScreenPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(io.wifi.starrailexpress.network.RoleUnlockedHudPayload.ID,
@@ -374,6 +389,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
         PayloadTypeRegistry.playC2S().register(SniperShootPayload.TYPE, SniperShootPayload.STREAM_CODEC);
         PayloadTypeRegistry.playC2S().register(StoreBuyPayload.ID, StoreBuyPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(NoteEditPayload.ID, NoteEditPayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(RequestOpenClueArchivePayload.ID, RequestOpenClueArchivePayload.CODEC);
         PayloadTypeRegistry.playC2S().register(io.wifi.starrailexpress.network.VoteForMapPayload.ID,
                 io.wifi.starrailexpress.network.VoteForMapPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(SecurityCameraExitRequestPayload.ID,
@@ -405,6 +421,15 @@ public class SRE extends StarRailExpressID implements ModInitializer {
                 io.wifi.starrailexpress.content.mail.MailDeleteAllReadC2SPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(io.wifi.starrailexpress.content.mail.MailMarkReadC2SPayload.ID,
                 io.wifi.starrailexpress.content.mail.MailMarkReadC2SPayload.CODEC);
+
+        // 实体交互方块数据包
+        PayloadTypeRegistry.playS2C().register(EntityInteractionBlockPayload.OpenUI.TYPE, EntityInteractionBlockPayload.OpenUI.CODEC);
+        PayloadTypeRegistry.playS2C().register(EntityInteractionBlockPayload.SyncBlockEntity.TYPE, EntityInteractionBlockPayload.SyncBlockEntity.CODEC);
+        PayloadTypeRegistry.playC2S().register(EntityInteractionBlockPayload.SaveConfig.TYPE, EntityInteractionBlockPayload.SaveConfig.CODEC);
+
+        // 职业轮选数据包
+        PayloadTypeRegistry.playC2S().register(RoleRotationSelectC2SPacket.TYPE, RoleRotationSelectC2SPacket.CODEC);
+        PayloadTypeRegistry.playS2C().register(RoleRotationSyncS2CPacket.TYPE, RoleRotationSyncS2CPacket.CODEC);
     }
 
     private void registerGlobalReceivers() {
@@ -421,10 +446,17 @@ public class SRE extends StarRailExpressID implements ModInitializer {
         ServerPlayNetworking.registerGlobalReceiver(SniperShootPayload.TYPE, new SniperShootPayload.Receiver());
         ServerPlayNetworking.registerGlobalReceiver(StoreBuyPayload.ID, new StoreBuyPayload.Receiver());
         ServerPlayNetworking.registerGlobalReceiver(NoteEditPayload.ID, new NoteEditPayload.Receiver());
+        ServerPlayNetworking.registerGlobalReceiver(RequestOpenClueArchivePayload.ID,
+                new RequestOpenClueArchivePayload.Receiver());
         ServerPlayNetworking.registerGlobalReceiver(io.wifi.starrailexpress.network.VoteForMapPayload.ID,
                 (payload, context) -> {
                     io.wifi.starrailexpress.network.VoteForMapPayload.Handler.handle(payload, context.player());
                 });
+
+        // 实体交互方块服务端网络处理
+        EntityInteractionBlockServerNetwork.register();
+        // 画板服务端网络处理
+        DrawingBoardServerNetwork.register();
         ServerPlayNetworking.registerGlobalReceiver(SecurityCameraExitRequestPayload.ID,
                 new SecurityCameraExitRequestPayload.ServerReceiver());
         ServerPlayNetworking.registerGlobalReceiver(JoinSpecGroupPayload.ID, (payload, context) -> {
@@ -441,6 +473,9 @@ public class SRE extends StarRailExpressID implements ModInitializer {
         ServerPlayNetworking.registerGlobalReceiver(EndTurnPayload.ID, new EndTurnPayload.Receiver());
         ServerPlayNetworking.registerGlobalReceiver(UseAssassinationItemPayload.ID,
                 new UseAssassinationItemPayload.Receiver());
+
+        // Role Rotation receivers
+        RoleRotationSelectC2SPacket.registerServerReceiver();
 
         // Mailbox receivers
         ServerPlayNetworking.registerGlobalReceiver(io.wifi.starrailexpress.content.mail.MailClaimC2SPayload.ID,

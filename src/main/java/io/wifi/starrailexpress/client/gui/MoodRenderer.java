@@ -250,9 +250,17 @@ public class MoodRenderer {
         public Component text = Component.empty();
 
         public boolean tick(SREPlayerTaskComponent.TrainTask present, float delta) {
-            if (present != null)
+            if (present != null) {
+                // 对于自定义任务，直接使用任务名称（没有对应的翻译key）
+                Component taskNameComponent;
+                if (present.getType() == SREPlayerTaskComponent.Task.CUSTOM) {
+                    taskNameComponent = Component.literal(present.getName());
+                } else {
+                    taskNameComponent = Component.translatable("task." + present.getName());
+                }
                 this.text = Component.translatable("task." + (SREClient.isKiller() ? "fake" : "feel"))
-                        .append(Component.translatable("task." + present.getName()));
+                        .append(taskNameComponent);
+            }
             this.present = present != null;
             this.alpha = Mth.lerp(delta / 16, this.alpha, present != null ? 1f : 0f);
             this.offset = Mth.lerp(delta / 32, this.offset, this.index);

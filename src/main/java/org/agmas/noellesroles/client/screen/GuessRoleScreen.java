@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.client.screen;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.SRERole;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -9,6 +10,7 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.client.widget.ConspiratorRoleWidget;
 import org.agmas.noellesroles.client.widget.GuessPlayerWidget;
@@ -24,6 +26,21 @@ import java.util.List;
  * 允许玩家记录对其他玩家身份的猜测
  */
 public class GuessRoleScreen extends Screen {
+
+    // 需要排除的DNF职业ID列表
+    private static final List<ResourceLocation> DNF_ROLE_IDS = Arrays.asList(
+            SRE.id("dnf_killer"),
+            SRE.id("dnf_maniac"),
+            SRE.id("dnf_soldier"),
+            SRE.id("dnf_chef"),
+            SRE.id("dnf_poisoner"),
+            SRE.id("dnf_psychologist"),
+            SRE.id("dnf_locksmith"),
+            SRE.id("dnf_civilian"),
+            SRE.id("dnf_flying_knife"),
+            SRE.id("dnf_abyss"),
+            SRE.id("dnf_ghost")
+    );
 
     public Screen parent = null;
     // 静态存储猜测记录，游戏结束时清除
@@ -287,6 +304,8 @@ public class GuessRoleScreen extends Screen {
         // 获取所有注册的角色
         roles = Noellesroles.getAllRolesSorted(true);
         roles.add(0, null);
+        // 排除所有DNF职业
+        roles.removeIf(r -> r != null && DNF_ROLE_IDS.contains(r.identifier()));
         if (roles.isEmpty()) {
             // 如果没有角色，返回上一级
             phase = 0;

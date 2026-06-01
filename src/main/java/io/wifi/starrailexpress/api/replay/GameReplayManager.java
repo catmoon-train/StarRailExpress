@@ -21,6 +21,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
@@ -30,11 +31,12 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import static net.fabricmc.loader.api.FabricLoader.getInstance;
 
-public class GameReplayManager {
+public class GameReplayManager implements IGameReplayRecorder {
   private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
   private static final String REPLAY_FILE_NAME = "game_replay.json";
 
@@ -42,6 +44,10 @@ public class GameReplayManager {
   private final MinecraftServer server;
   public static final Map<UUID, String> playerNames = new HashMap<>();
   private GameReplay currentReplay;
+  private ReplaySession session;
+  private ReplayRecorder recorder;
+  private ReplayFormatter formatter;
+  private ReplayStorage storage;
 
   public GameReplayManager(MinecraftServer server) {
     this.server = server;
@@ -49,6 +55,10 @@ public class GameReplayManager {
     // this.playerNames = new HashMap<>();
     this.currentReplay = new GameReplay(0, GameUtils.WinStatus.NONE, new java.util.ArrayList<>(),
         new java.util.ArrayList<>());
+    this.session = new ReplaySession(server, this.currentReplayData);
+    this.recorder = new ReplayRecorder(this.session);
+    this.formatter = new ReplayFormatter(this);
+    this.storage = new ReplayStorage(server);
   }
 
   public void resetReplay() {
@@ -56,6 +66,7 @@ public class GameReplayManager {
     // this.playerNames.clear();
     this.currentReplay = new GameReplay(0, GameUtils.WinStatus.NONE, new java.util.ArrayList<>(),
         new java.util.ArrayList<>());
+    this.session.reset(this.currentReplayData);
   }
 
   private ReplayEventTypes.EventType mapEventType(GameReplayData.EventType dataEventType) {
@@ -381,23 +392,40 @@ public class GameReplayManager {
 
   public Component addEvent(GameReplayData.EventType type, UUID sourcePlayer, UUID targetPlayer, String itemUsed,
       String message, HolderLookup.Provider provider) {
+    return addEvent(type, sourcePlayer, targetPlayer, itemUsed, message, provider, false);
+  }
+
+  public Component addEvent(GameReplayData.EventType type, UUID sourcePlayer, UUID targetPlayer, String itemUsed,
+      String message, boolean hidden) {
+    return addEvent(type, sourcePlayer, targetPlayer, itemUsed, message, null, hidden);
+  }
+
+  public Component addEvent(GameReplayData.EventType type, UUID sourcePlayer, UUID targetPlayer, String itemUsed,
+      String message, HolderLookup.Provider provider, boolean hidden) {
+    SREGameWorldComponent sreGameWorldComponent = SREGameWorldComponent.KEY.get(SRE.SERVER.getLevel(Level.OVERWORLD));
+
     // 对可能为null的字符串参数进行处理
     String safeItemUsed = itemUsed != null ? itemUsed : "minecraft:air";
     String safeMessage = message != null ? message : "";
     GameReplayData.ReplayEvent event = new GameReplayData.ReplayEvent(type, sourcePlayer, targetPlayer,
-        safeItemUsed, safeMessage);
+        safeItemUsed, safeMessage, hidden);
     currentReplayData
         .addEvent(event);
     ReplayEvent event1 = convertReplayEvent(event, provider);
+    Component eventText = null;
+    boolean timelineRecorded = false;
     try {
-      var text = currentReplayData.toText(this, currentReplayData, event1);
-      if (text != null) {
+      eventText = currentReplayData.toText(this, currentReplayData, event1);
+      recordTimelineEvent(event, event1, eventText);
+      timelineRecorded = true;
+      if (eventText != null && !hidden) {
         SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(SRE.SERVER.overworld());
         if (SREConfig.instance().logGameEvent) {
           SRE.LOGGER.info("[GAME REPLAY] " + Component
-              .translatable("%s", text)
+              .translatable("%s", eventText)
               .withStyle(ChatFormatting.WHITE).getString());
         }
+        Component finalEventText = eventText;
         SRE.SERVER.getPlayerList().getPlayers().forEach(
             player -> {
               if (gameWorldComponent != null && gameWorldComponent.isRunning()
@@ -413,7 +441,7 @@ public class GameReplayManager {
                     if (!cantSend) {
                       sendSystemMessage(player, Component
                           .translatable("%s %s",
-                              Component.translatable("sre.replay.event").withStyle(ChatFormatting.GOLD), text)
+                              Component.translatable("sre.replay.event").withStyle(ChatFormatting.GOLD), finalEventText)
                           .withStyle(ChatFormatting.WHITE));
                     }
                   }
@@ -424,26 +452,60 @@ public class GameReplayManager {
             });
       }
 
-      return text;
+      return eventText;
     } catch (Exception ignored) {
-
+      if (!timelineRecorded) {
+        recordTimelineEvent(event, event1, eventText);
+      }
     }
     return null;
   }
 
+  private void recordTimelineEvent(GameReplayData.ReplayEvent dataEvent, ReplayEvent replayEvent, Component eventText) {
+    if (dataEvent == null || replayEvent == null || recorder == null || session == null) {
+      return;
+    }
+    recorder.record(buildTimelineEvent(dataEvent, replayEvent, eventText));
+  }
+
+  private ReplayTimelineEvent buildTimelineEvent(GameReplayData.ReplayEvent dataEvent, ReplayEvent replayEvent,
+      Component eventText) {
+    Component text = eventText != null ? eventText
+        : Component.literal(dataEvent.getType().name()).withStyle(ChatFormatting.DARK_GRAY);
+    long startTime = session.startTimestamp();
+    return new ReplayTimelineEvent(
+        UUID.randomUUID(),
+        replayEvent.eventType(),
+        dataEvent.getTimestamp(),
+        startTime <= 0L ? 0L : Math.max(0L, dataEvent.getTimestamp() - startTime),
+        dataEvent.getSourcePlayer() == null ? null : session.profile(dataEvent.getSourcePlayer()),
+        dataEvent.getTargetPlayer() == null ? null : session.profile(dataEvent.getTargetPlayer()),
+        text,
+        dataEvent.isHidden(),
+        session.eventData(dataEvent));
+  }
+
   // public static List<Predicate<Player>> cantSeeEvent = new ArrayList<>();
   public Component recordCustomEvent(Component msg) {
+    return recordCustomEvent(msg, false);
+  }
+
+  public Component recordCustomEvent(Component msg, boolean hidden) {
     if (SRE.SERVER != null) {
       var provider = SRE.SERVER.registryAccess();
       String msgStr = Component.Serializer.toJson(msg, provider);
-      return addEvent(GameReplayData.EventType.CUSTOM_MESSAGE, null, null, null, msgStr, provider);
+      return addEvent(GameReplayData.EventType.CUSTOM_MESSAGE, null, null, null, msgStr, provider, hidden);
     }
     return Component.literal("Error: unable to get SRE.SERVER").withStyle(ChatFormatting.RED);
   }
 
   public Component recordPlayerKill(UUID killerUuid, UUID victimUuid, ResourceLocation deathReason) {
+    return recordPlayerKill(killerUuid, victimUuid, deathReason, false);
+  }
+
+  public Component recordPlayerKill(UUID killerUuid, UUID victimUuid, ResourceLocation deathReason, boolean hidden) {
     String deathReasonStr = deathReason != null ? deathReason.toString() : "unknown";
-    return addEvent(GameReplayData.EventType.PLAYER_KILL, killerUuid, victimUuid, deathReasonStr, null);
+    return addEvent(GameReplayData.EventType.PLAYER_KILL, killerUuid, victimUuid, deathReasonStr, null, hidden);
   }
 
   /**
@@ -451,6 +513,10 @@ public class GameReplayManager {
    * @param role   可为空，为空默认为当前玩家职业。
    */
   public void recordPlayerRevival(UUID player, @Nullable SRERole role) {
+    recordPlayerRevival(player, role, false);
+  }
+
+  public void recordPlayerRevival(UUID player, @Nullable SRERole role, boolean hidden) {
     String rolen = "";
     SRERole trole = role;
     if (trole == null) {
@@ -461,37 +527,53 @@ public class GameReplayManager {
     }
     if (trole != null)
       rolen = trole.identifier().getPath();
-    addEvent(GameReplayData.EventType.PLAYER_REVIVAL, player, null, "", rolen);
+    addEvent(GameReplayData.EventType.PLAYER_REVIVAL, player, null, "", rolen, hidden);
   }
 
   public void recordPlayerRoleChange(UUID player, SRERole oldRole, SRERole newRole) {
+    recordPlayerRoleChange(player, oldRole, newRole, false);
+  }
+
+  public void recordPlayerRoleChange(UUID player, SRERole oldRole, SRERole newRole, boolean hidden) {
     String old_role_str = "unknown";
     String new_role_str = "unknown";
     if (oldRole != null)
       old_role_str = oldRole.identifier().getPath();
-    if (new_role_str != null)
+    if (newRole != null)
       new_role_str = newRole.identifier().getPath();
-    addEvent(GameReplayData.EventType.CHANGE_ROLE, player, null, "", old_role_str + "===" + new_role_str);
+    addEvent(GameReplayData.EventType.CHANGE_ROLE, player, null, "", old_role_str + "===" + new_role_str, hidden);
   }
 
   public void recordStoreBuy(UUID playerUuid, ResourceLocation itemBought, int amount, int price) {
+    recordStoreBuy(playerUuid, itemBought, amount, price, false);
+  }
+
+  public void recordStoreBuy(UUID playerUuid, ResourceLocation itemBought, int amount, int price, boolean hidden) {
     String itemBoughtStr = itemBought != null ? itemBought.toString() : "unknown";
     addEvent(GameReplayData.EventType.STORE_BUY, playerUuid, null, itemBoughtStr + ":" + amount,
-        String.valueOf(price));
+        String.valueOf(price), hidden);
   }
 
   public void recordItemUse(UUID playerUuid, ResourceLocation itemUsed) {
+    recordItemUse(playerUuid, itemUsed, false);
+  }
+
+  public void recordItemUse(UUID playerUuid, ResourceLocation itemUsed, boolean hidden) {
     String itemUsedStr = itemUsed != null ? itemUsed.toString() : "unknown";
-    addEvent(GameReplayData.EventType.ITEM_USED, playerUuid, null, itemUsedStr, null);
+    addEvent(GameReplayData.EventType.ITEM_USED, playerUuid, null, itemUsedStr, null, hidden);
   }
 
   public void breakArmor(UUID playerUuid) {
-    addEvent(GameReplayData.EventType.ARMOR_BREAK, playerUuid, null, "unknown", null);
+    addEvent(GameReplayData.EventType.ARMOR_BREAK, playerUuid, null, "unknown", null, false);
   }
 
   public void recordSkillUsed(UUID playerUuid, ResourceLocation skillUsed) {
+    recordSkillUsed(playerUuid, skillUsed, false);
+  }
+
+  public void recordSkillUsed(UUID playerUuid, ResourceLocation skillUsed, boolean hidden) {
     String skillUsedStr = skillUsed != null ? skillUsed.toString() : "unknown";
-    addEvent(GameReplayData.EventType.SKILL_USED, playerUuid, null, skillUsedStr, null);
+    addEvent(GameReplayData.EventType.SKILL_USED, playerUuid, null, skillUsedStr, null, hidden);
   }
 
   public void setPlayerCount(int count) {
@@ -526,16 +608,150 @@ public class GameReplayManager {
     return currentReplay;
   }
 
-  public void saveReplay() {
-    File replayFile = new File(server.getServerDirectory().toFile(), REPLAY_FILE_NAME);
-    try (FileWriter writer = new FileWriter(replayFile)) {
-      try {
-        GSON.toJson(currentReplayData, writer);
-        SRE.LOGGER.info("Game replay saved to {}", replayFile.getAbsolutePath());
+  public ReplaySession getSession() {
+    return session;
+  }
 
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
+  public List<ReplayTimelineEvent> getTimelineEvents(boolean includeHidden) {
+    if (session == null) {
+      return List.of();
+    }
+    List<ReplayTimelineEvent> events = session.timelineSnapshot();
+    if (events.isEmpty() && currentReplayData != null && !currentReplayData.getTimeline().isEmpty()) {
+      events = currentReplayData.getTimeline().stream()
+          .map(event -> {
+            ReplayEvent replayEvent = convertReplayEvent(event, SRE.SERVER == null ? null : SRE.SERVER.registryAccess());
+            Component text = null;
+            try {
+              text = currentReplayData.toText(this, currentReplayData, replayEvent);
+            } catch (Exception ignored) {
+            }
+            return buildTimelineEvent(event, replayEvent, text);
+          })
+          .toList();
+    }
+    if (includeHidden) {
+      return events;
+    }
+    return events.stream().filter(event -> !event.hidden()).toList();
+  }
+
+  public Component generateScreenReplay(int maxLines) {
+    return formatter.formatScreen(currentReplayData, getTimelineEvents(true), maxLines);
+  }
+
+  public List<Component> generateScreenReplayLines(int maxLines) {
+    return formatter.formatScreenLines(currentReplayData, getTimelineEvents(true), maxLines);
+  }
+
+  @Override
+  public void recordEvent(ReplayEventTypes.EventType eventType, ReplayEventTypes.EventDetails details) {
+    recordEvent(eventType, details, false);
+  }
+
+  public void recordEvent(ReplayEventTypes.EventType eventType, ReplayEventTypes.EventDetails details, boolean hidden) {
+    if (eventType == null) {
+      return;
+    }
+    if (details instanceof ReplayEventTypes.PlayerKillDetails kill) {
+      recordPlayerKill(kill.killerUuid(), kill.victimUuid(), kill.deathReason(), hidden);
+    } else if (details instanceof ReplayEventTypes.PlayerRevivalDetails revival) {
+      addEvent(GameReplayData.EventType.PLAYER_REVIVAL, revival.player(), null, "", revival.role(), hidden);
+    } else if (details instanceof ReplayEventTypes.ChangeRoleDetails role) {
+      addEvent(GameReplayData.EventType.CHANGE_ROLE, role.player(), null, "",
+          role.oldRole() + "===" + role.newRole(), hidden);
+    } else if (details instanceof ReplayEventTypes.ItemUsedDetails item) {
+      addEvent(GameReplayData.EventType.ITEM_USED, item.playerUuid(), null, item.itemId().toString(), null, hidden);
+    } else if (details instanceof ReplayEventTypes.StoreBuyDetails store) {
+      addEvent(GameReplayData.EventType.STORE_BUY, store.playerUuid(), null,
+          store.itemId() + ":1", String.valueOf(store.cost()), hidden);
+    } else if (details instanceof ReplayEventTypes.ArmorBreakDetails armor) {
+      addEvent(GameReplayData.EventType.ARMOR_BREAK, armor.playerUuid(), null, "unknown", null, hidden);
+    } else if (details instanceof ReplayEventTypes.CustomEventDetails custom) {
+      recordCustomEvent(custom.Message(), hidden);
+    } else {
+      addEvent(toLegacyEventType(eventType), null, null, null, null, hidden);
+    }
+  }
+
+  @Override
+  public void recordCustomEvent(ResourceLocation customEventTypeId, UUID playerUuid, String message) {
+    Component component = Component.literal("[" + customEventTypeId + "] " + (message == null ? "" : message));
+    addEvent(GameReplayData.EventType.CUSTOM_MESSAGE, playerUuid, null, null,
+        SRE.SERVER == null ? component.getString() : Component.Serializer.toJson(component, SRE.SERVER.registryAccess()),
+        SRE.SERVER == null ? null : SRE.SERVER.registryAccess(), false);
+  }
+
+  public void recordCustomEvent(ResourceLocation customEventTypeId, UUID playerUuid, String message, boolean hidden) {
+    Component component = Component.literal("[" + customEventTypeId + "] " + (message == null ? "" : message));
+    addEvent(GameReplayData.EventType.CUSTOM_MESSAGE, playerUuid, null, null,
+        SRE.SERVER == null ? component.getString() : Component.Serializer.toJson(component, SRE.SERVER.registryAccess()),
+        SRE.SERVER == null ? null : SRE.SERVER.registryAccess(), hidden);
+  }
+
+  private GameReplayData.EventType toLegacyEventType(ReplayEventTypes.EventType eventType) {
+    return switch (eventType) {
+      case GAME_START -> GameReplayData.EventType.GAME_START;
+      case GAME_END -> GameReplayData.EventType.GAME_END;
+      case PLAYER_JOIN -> GameReplayData.EventType.PLAYER_JOIN;
+      case PLAYER_LEAVE -> GameReplayData.EventType.PLAYER_LEAVE;
+      case PLAYER_KILL -> GameReplayData.EventType.PLAYER_KILL;
+      case PLAYER_POISONED -> GameReplayData.EventType.PLAYER_POISONED;
+      case TASK_COMPLETE -> GameReplayData.EventType.TASK_COMPLETE;
+      case STORE_BUY -> GameReplayData.EventType.STORE_BUY;
+      case DOOR_LOCK -> GameReplayData.EventType.DOOR_LOCK;
+      case DOOR_UNLOCK -> GameReplayData.EventType.DOOR_UNLOCK;
+      case DOOR_OPEN -> GameReplayData.EventType.DOOR_OPEN;
+      case DOOR_CLOSE -> GameReplayData.EventType.DOOR_CLOSE;
+      case LOCKPICK_ATTEMPT -> GameReplayData.EventType.LOCKPICK_ATTEMPT;
+      case ITEM_USED -> GameReplayData.EventType.ITEM_USED;
+      case MOOD_CHANGE -> GameReplayData.EventType.MOOD_CHANGE;
+      case PSYCHO_STATE_CHANGE -> GameReplayData.EventType.PSYCHO_STATE_CHANGE;
+      case BLACKOUT_START -> GameReplayData.EventType.BLACKOUT_START;
+      case BLACKOUT_END -> GameReplayData.EventType.BLACKOUT_END;
+      case GRENADE_THROWN -> GameReplayData.EventType.GRENADE_THROWN;
+      case CHANGE_ROLE -> GameReplayData.EventType.CHANGE_ROLE;
+      case PLAYER_REVIVAL -> GameReplayData.EventType.PLAYER_REVIVAL;
+      case ARMOR_BREAK -> GameReplayData.EventType.ARMOR_BREAK;
+      case CUSTOM_EVENT -> GameReplayData.EventType.CUSTOM_MESSAGE;
+    };
+  }
+
+  public List<ReplayEvent> getEvents() {
+    return currentReplayData.getTimeline().stream()
+        .map(event -> convertReplayEvent(event, SRE.SERVER == null ? null : SRE.SERVER.registryAccess()))
+        .toList();
+  }
+
+  public List<ReplayEvent> getEventsInTimeRange(long startTime, long endTime) {
+    return getEvents().stream()
+        .filter(event -> event.timestamp() >= startTime && event.timestamp() <= endTime)
+        .toList();
+  }
+
+  public List<ReplayEvent> getEventsByPlayer(UUID playerUuid) {
+    return currentReplayData.getTimeline().stream()
+        .filter(event -> playerUuid != null
+            && (playerUuid.equals(event.getSourcePlayer()) || playerUuid.equals(event.getTargetPlayer())))
+        .map(event -> convertReplayEvent(event, SRE.SERVER == null ? null : SRE.SERVER.registryAccess()))
+        .toList();
+  }
+
+  public List<ReplayEvent> getEventsByType(ReplayEventTypes.EventType eventType) {
+    return getEvents().stream().filter(event -> event.eventType() == eventType).toList();
+  }
+
+  public List<UUID> getAllPlayerUuids() {
+    return currentReplayData.getPlayerRoles().keySet().stream().toList();
+  }
+
+  public Optional<String> getPlayerNameOptional(UUID playerUuid) {
+    return Optional.ofNullable(playerNames.get(playerUuid));
+  }
+
+  public void saveReplay() {
+    try {
+      storage.save(currentReplayData, getTimelineEvents(true));
     } catch (IOException e) {
       SRE.LOGGER.error("Failed to save game replay", e);
     }
@@ -573,10 +789,18 @@ public class GameReplayManager {
   }
 
   public Component generateReplay() {
+    return generateReplay(false);
+  }
+
+  public Component generateReplay(boolean includeHidden) {
     GameReplayData replayData = currentReplayData;
     if (replayData == null) {
       replayData = loadReplay();
     }
+    return generateReplayFromData(replayData, includeHidden);
+  }
+
+  Component generateReplayFromData(GameReplayData replayData, boolean includeHidden) {
     if (replayData == null) {
       return Component.translatable("sre.replay.error.no_data").withStyle(ChatFormatting.RED);
     }
@@ -725,6 +949,8 @@ public class GameReplayManager {
       for (GameReplayData.ReplayEvent dataEvent : timeline) {
         if (dataEvent == null)
           continue; // 跳过空事件
+        if (dataEvent.isHidden() && !includeHidden)
+          continue;
         long relativeTime = dataEvent.getTimestamp() - gameStartTime;
         String timePrefix = ReplayDisplayUtils.formatTime(relativeTime) + " ";
         ReplayEvent event = null;

@@ -165,11 +165,11 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
     }
 
     public void initMenuSelections() {
-        menuButton = org.agmas.noellesroles.client.widget.custom_button.ModernButton
+        menuButton = Button
                 .builder(Component.translatable("screen.limited_inventory.button.menu"), (btn) -> {
                     toggleViewMenu(!this.isMenuOpen);
                 }).bounds(width - menuButtonWidth, height - menuButtonHeight, menuButtonWidth, menuButtonHeight)
-                .accentColor(new java.awt.Color(34, 177, 76).getRGB()).build();
+                .build();
         this.addRenderableWidget(menuButton);
         menuSelections.clear();
         menuSelections.addAll(GameMenuEntries.register(width, height, minecraft, this, this::toggleViewMenu));

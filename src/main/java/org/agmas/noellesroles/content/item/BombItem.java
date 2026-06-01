@@ -6,6 +6,7 @@ import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -22,7 +23,9 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.*;
 import org.agmas.noellesroles.Noellesroles;
+import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.utils.MCItemsUtils;
 
 import java.util.UUID;
 
@@ -32,6 +35,36 @@ public class BombItem extends Item {
 
     public BombItem(Properties properties) {
         super(properties);
+    }
+
+    public static Player findBomber(Player player, Player originalKiller, ResourceLocation deathReason) {
+        var stack = MCItemsUtils.getFirstMatchedItem(player, (p) -> p.is(ModItems.BOMB));
+        if (stack == null) {
+            return null;
+        }
+        if (player.isSpectator())
+            return null;
+        CustomData customData = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
+        CompoundTag tag = customData.copyTag();
+        UUID owner = null;
+        if (tag.contains("owner")) {
+            owner = tag.getUUID("owner");
+        }
+        if (owner == null || (originalKiller != null && owner == originalKiller.getUUID())) {
+            return null;
+        }
+        player.level().playSound(null, player.blockPosition(), SoundEvents.GENERIC_EXPLODE.value(),
+                SoundSource.PLAYERS,
+                2.0f, 1.0f);
+        ((ServerLevel) player.level()).sendParticles(ParticleTypes.EXPLOSION, player.getX(), player.getY(),
+                player.getZ(), 1, 0, 0, 0, 0);
+        Player bomber = null;
+        if (owner != null)
+            bomber = player.level().getPlayerByUUID(owner);
+        if (bomber == null)
+            return null;
+        // Removed the recursive killPlayer call that was causing StackOverflowError
+        return bomber;
     }
 
     @Override
@@ -71,7 +104,8 @@ public class BombItem extends Item {
 
     private void explode(ServerPlayer player, ItemStack stack, CompoundTag customTag) {
         stack.shrink(1);
-        if (player.isSpectator())return;
+        if (player.isSpectator())
+            return;
         player.level().playSound(null, player.blockPosition(), SoundEvents.GENERIC_EXPLODE.value(), SoundSource.PLAYERS,
                 2.0f, 1.0f);
         ((ServerLevel) player.level()).sendParticles(ParticleTypes.EXPLOSION, player.getX(), player.getY(),
@@ -114,15 +148,16 @@ public class BombItem extends Item {
                 (entity) -> entity instanceof Player && !entity.isSpectator(), reachDistance * reachDistance);
 
         // 检查视线是否被阻挡
-        ClipContext clipContext = new ClipContext(eyePosition, endPosition, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player);
+        ClipContext clipContext = new ClipContext(eyePosition, endPosition, ClipContext.Block.COLLIDER,
+                ClipContext.Fluid.NONE, player);
         BlockHitResult blockHitResult = player.level().clip(clipContext);
-        
+
         if (hitResult != null && hitResult.getEntity() instanceof ServerPlayer target) {
             // 检查是否有方块阻挡了视线
             if (blockHitResult.getType() == HitResult.Type.BLOCK) {
                 Vec3 blockPos = blockHitResult.getLocation();
                 Vec3 entityPos = hitResult.getEntity().getEyePosition();
-                
+
                 // 如果方块距离玩家更近，则说明视线被阻挡
                 if (eyePosition.distanceTo(blockPos) < eyePosition.distanceTo(entityPos)) {
                     return InteractionResultHolder.pass(stack);

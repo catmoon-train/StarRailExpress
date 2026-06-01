@@ -30,7 +30,7 @@ import java.util.*;
 public class ImitatorSkillRegistry {
 
     /** 可复制的角色ID集合 */
-    private static final Set<ResourceLocation> ALLOWED_ROLES = new HashSet<>();
+    public static final Set<ResourceLocation> ALLOWED_ROLES = new HashSet<>();
 
     /** 每个技能的冷却时间(ticks) */
     private static final Map<ResourceLocation, Integer> SKILL_COOLDOWNS = new HashMap<>();

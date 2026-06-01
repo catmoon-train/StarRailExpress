@@ -1,8 +1,10 @@
 package io.wifi.starrailexpress.cca.network;
 
 import io.wifi.starrailexpress.SREConfig;
+import io.wifi.starrailexpress.cca.SREPlayerStatsComponent;
 import io.wifi.starrailexpress.cca.SREPlayerProgressionComponent;
 import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
+import io.wifi.starrailexpress.content.mail.MailboxComponent;
 import net.exmo.sre.nametag.NameTagInventoryComponent;
 import net.exmo.sre.sync.MysqlPlayerDataStore;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -23,6 +25,7 @@ public class SkinsNetworkSyncInitializer {
     public static String NETWORK_HOST = SREConfig.instance().mysqlSyncHost;
     public static int NETWORK_PORT = SREConfig.instance().mysqlSyncPort;
     public static String NETWORK_KEY = SREConfig.instance().mysqlSyncDatabase;
+    private static volatile boolean serverStopping = false;
 
     /**
      * 注册服务器连接事件
@@ -36,6 +39,7 @@ public class SkinsNetworkSyncInitializer {
         });
 
         ServerLifecycleEvents.SERVER_STARTED.register((server) -> {
+            serverStopping = false;
             setNetworkServer(
                     SREConfig.instance().mysqlSyncHost,
                     SREConfig.instance().mysqlSyncPort,
@@ -51,11 +55,17 @@ public class SkinsNetworkSyncInitializer {
             }
         });
         ServerLifecycleEvents.SERVER_STOPPING.register(server -> {
+            serverStopping = true;
+            MysqlPlayerDataStore.beginShutdownFlushMode();
+            flushOnlinePlayersBeforeShutdown(server);
             isEnabled = false;
+        });
+        ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
             MysqlPlayerDataStore.shutdown();
+            serverStopping = false;
         });
         ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
-            if (isEnabled) {
+            if (isEnabled || serverStopping) {
                 ServerPlayer player = handler.getPlayer();
                 onPlayerDisconnect(player);
             }
@@ -114,6 +124,48 @@ public class SkinsNetworkSyncInitializer {
             }
         } catch (Exception e) {
             logger.error("处理玩家 {} 的 MySQL 数据同步断开时出错", player.getName().getString(), e);
+        }
+    }
+
+    private static void flushOnlinePlayersBeforeShutdown(net.minecraft.server.MinecraftServer server) {
+        if (!MysqlPlayerDataStore.isAvailable()) {
+            return;
+        }
+        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+            try {
+                boolean wroteAny = false;
+
+                SREPlayerStatsComponent statsComponent = SREPlayerStatsComponent.KEY.get(player);
+                if (statsComponent != null) {
+                    wroteAny |= statsComponent.flushDatabaseSyncBlocking();
+                }
+
+                SREPlayerSkinsComponent skinsComponent = SREPlayerSkinsComponent.KEY.get(player);
+                if (skinsComponent != null && skinsComponent.isNetworkSyncEnabled()) {
+                    wroteAny |= skinsComponent.flushNetworkSyncBlocking();
+                }
+
+                SREPlayerProgressionComponent progressionComponent = SREPlayerProgressionComponent.KEY.get(player);
+                if (progressionComponent != null && progressionComponent.isNetworkSyncEnabled()) {
+                    wroteAny |= progressionComponent.flushNetworkSyncBlocking();
+                }
+
+                NameTagInventoryComponent nameTagInventoryComponent = NameTagInventoryComponent.KEY.get(player);
+                if (nameTagInventoryComponent != null && nameTagInventoryComponent.isNetworkSyncEnabled()) {
+                    wroteAny |= nameTagInventoryComponent.flushNetworkSyncBlocking();
+                }
+
+                MailboxComponent mailboxComponent = MailboxComponent.KEY.get(player);
+                if (mailboxComponent != null) {
+                    wroteAny |= mailboxComponent.flushDatabaseSyncBlocking();
+                }
+
+                if (wroteAny) {
+                    logger.info("玩家 {} 的 MySQL 停服同步已完成", player.getName().getString());
+                }
+            } catch (Exception exception) {
+                logger.warn("停服同步玩家 {} 的 MySQL 数据失败。", player.getName().getString(), exception);
+            }
         }
     }
 

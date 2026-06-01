@@ -19,7 +19,7 @@ public class RenderEffectMixin {
         guiGraphics.pose().translate(0, CommonClientHudRenderer.effectStartY, 0);
     }
 
-    @Inject(method = "renderEffects", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;disableBlend()V",shift = At.Shift.BEFORE))
+    @Inject(method = "renderEffects", at = @At(value = "RETURN"))
     private void sre$moveEffectPostion_tail(GuiGraphics guiGraphics, DeltaTracker deltaTracker, CallbackInfo ci) {
         guiGraphics.pose().popPose();
     }

@@ -7,6 +7,7 @@ import io.wifi.starrailexpress.api.*;
 import io.wifi.starrailexpress.cca.*;
 import io.wifi.starrailexpress.compat.TrainVoicePlugin;
 import io.wifi.starrailexpress.content.command.AutoShutdownWhenNotRunningCommand;
+import io.wifi.starrailexpress.content.command.ListRoleInRoundCommand;
 import io.wifi.starrailexpress.content.entity.FirecrackerEntity;
 import io.wifi.starrailexpress.content.entity.NoteEntity;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
@@ -51,12 +52,16 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+
+import org.agmas.harpymodloader.commands.ListRolesCommand;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.harpymodloader.events.GameInitializeEvent;
 import org.agmas.harpymodloader.events.ResetPlayerEvent;
+import org.agmas.noellesroles.component.DeathPenaltyComponent;
+import org.agmas.noellesroles.component.DefibrillatorComponent;
 import org.agmas.noellesroles.content.item.LetterItem;
 import org.agmas.noellesroles.content.item.RadioItem;
-import org.agmas.noellesroles.game.roles.Innocent.hoan_meirin.HoanMeirinFistPunchHandler;
+import org.agmas.noellesroles.game.roles.innocent.hoan_meirin.HoanMeirinFistPunchHandler;
 import org.agmas.noellesroles.game.roles.neutral.mercenary.MercenaryPlayerComponent;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
@@ -199,6 +204,12 @@ public class GameUtils {
             return;
         }
         isStartingGame = true;
+        // 修机模式：跳过正常 Areas 加载，使用自动生成的庄园地图
+        if (gameMode == SREGameModes.REPAIR_ESCAPE_MODE) {
+            SRE.LOGGER.info("Repair Escape mode - skipping area loading, using auto-generated manor");
+            trueStartGame(world, gameMode, time);
+            return;
+        }
         AreasWorldComponent areas = AreasWorldComponent.KEY.get(world);
         if (areas.mapName == null) {
             MapManager.loadRandomMap(world);
@@ -217,6 +228,24 @@ public class GameUtils {
             var task = new ServerTaskInfoClasses.OnlySomeBlockResetTask(resetPoints, world, gameMode, time, areas);
             serverTaskQueue.add(task);
         }
+    }
+
+    public static PlayerBodyEntity findPlayerBodyEntity(ServerPlayer player) {
+        var serverLevel = player.serverLevel();
+        var bodies = serverLevel.getAllEntities();
+
+        List<PlayerBodyEntity> bodiesMatched = new ArrayList<>();
+        for (var body : bodies) {
+            if (body instanceof PlayerBodyEntity bodyEntity) {
+                if (bodyEntity.getPlayerUuid().equals(player.getUUID())) {
+                    bodiesMatched.add(bodyEntity);
+                    break;
+                }
+            }
+        }
+        if (bodiesMatched.isEmpty())
+            return null;
+        return bodiesMatched.getFirst();
     }
 
     public static void registerEventForServerTickForDoingResetTasks() {
@@ -260,6 +289,7 @@ public class GameUtils {
         if (SRE.isLobby)
             return;
         // 延迟5s
+        SRE.LOGGER.info("=".repeat(20));
         SRE.LOGGER.info("Game Started!");
         executeFunction(world.getServer().createCommandSourceStack(), "harpymodloader:early_start_game");
         executeFunction(world.getServer().createCommandSourceStack(),
@@ -286,6 +316,10 @@ public class GameUtils {
     }
 
     public static void stopGame(ServerLevel world) {
+        world.players().forEach(serverPlayer -> {
+            serverPlayer.addEffect(new MobEffectInstance(ModEffects.INVINCIBLE, 80, 0, false, false, false));
+            serverPlayer.addEffect(new MobEffectInstance(ModEffects.USED_BANED, 80, 0, false, false, false));
+        });
         SREGameWorldComponent component = SREGameWorldComponent.KEY.get(world);
         SREWorldBlackoutComponent.KEY.get(world).reset();
         component.setGameStatus(SREGameWorldComponent.GameStatus.STOPPING);
@@ -302,7 +336,10 @@ public class GameUtils {
 
     public static void initializeGame(ServerLevel serverWorld) {
         isGameStarted = false;
-
+        var packet = ListRolesCommand.getRoleAndModifierEnableInfoPacket(false);
+        for (var p : serverWorld.players()) {
+            ServerPlayNetworking.send(p, packet);
+        }
         isStartingGame = false;
         HoanMeirinFistPunchHandler.PUNCH_RECORDS.clear();
         RadioItem.RADIO_GROUP.clear();
@@ -341,9 +378,9 @@ public class GameUtils {
 
         gameComponent.getGameMode().recordPlayerStats(serverWorld, gameComponent, readyPlayerList);
 
-        gameComponent.getGameMode().gameTrueStarted(serverWorld, gameComponent, readyPlayerList);
+        gameComponent.getGameMode().gameStarted(serverWorld, gameComponent, readyPlayerList);
 
-        OnGameTrueStarted.EVENT.invoker().onGameTrueStarted(serverWorld);
+        OnGameStarted.EVENT.invoker().onGameStarted(serverWorld);
         // --- 结束新增统计数据更新逻辑 ---
         OnTrainAreaHaveReseted.EVENT.invoker().onWorldHaveInited(serverWorld);
         isGameStarted = true;
@@ -489,6 +526,8 @@ public class GameUtils {
 
         SRETrainWorldComponent.KEY.get(serverWorld).reset();
         SREWorldBlackoutComponent.KEY.get(serverWorld).reset();
+        // 重置画板已画出物品状态
+        gameComponent.resetDrawnCategories();
         serverWorld.setDayTime(SRETrainWorldComponent.TimeOfDay.SUNDOWN.time);
         serverWorld.getGameRules().getRule(GameRules.RULE_KEEPINVENTORY).set(true, serverWorld.getServer());
         serverWorld.getGameRules().getRule(GameRules.RULE_WEATHER_CYCLE).set(false, serverWorld.getServer());
@@ -651,10 +690,12 @@ public class GameUtils {
     }
 
     private static List<ServerPlayer> getStartingPlayers(ServerLevel serverWorld) {
+        ParticipationComponent participation = ParticipationComponent.KEY.get(serverWorld);
         if (forcedReadyPlayers != null && !forcedReadyPlayers.isEmpty()) {
             List<ServerPlayer> selected = forcedReadyPlayers.stream()
                     .map(serverWorld.getServer().getPlayerList()::getPlayer)
                     .filter(Objects::nonNull)
+                    .filter(participation::isParticipating)
                     .toList();
             if (!selected.isEmpty()) {
                 return selected;
@@ -665,7 +706,9 @@ public class GameUtils {
 
     private static List<ServerPlayer> getReadyPlayerList(ServerLevel serverWorld) {
         AreasWorldComponent areas = AreasWorldComponent.KEY.get(serverWorld);
+        ParticipationComponent participation = ParticipationComponent.KEY.get(serverWorld);
         return serverWorld.getServer().getPlayerList().getPlayers().stream()
+                .filter(participation::isParticipating)
                 .filter(serverPlayerEntity -> areas.getReadyArea().contains(serverPlayerEntity.position())).toList();
     }
 
@@ -673,6 +716,8 @@ public class GameUtils {
     public static final Set<ChunkPos> chunksToClearEntities = new HashSet<>();
 
     public static void finalizeGame(ServerLevel world) {
+        SRE.LOGGER.info("-".repeat(20));
+
         SRE.LOGGER.info("Game Stopped!");
         RefugeeComponent.KEY.get(world).reset();
         world.setWeatherParameters(6000, 0, false, false);
@@ -701,6 +746,11 @@ public class GameUtils {
         // roundEnd.sync();
         // Show replay to all players
         gameComponent.getGameMode().showReplay(world, roundEnd, gameComponent);
+        if (SREConfig.instance().logGameEvent) {
+            SRE.LOGGER.info("-".repeat(20));
+            SRE.LOGGER.info(ListRoleInRoundCommand.generateRoleInRoundText(world).getString().replaceAll("\n", "; "));
+            SRE.LOGGER.info("-".repeat(20));
+        }
 
         SREWorldBlackoutComponent.KEY.get(world).reset();
         SRETrainWorldComponent trainComponent = SRETrainWorldComponent.KEY.get(world);
@@ -722,6 +772,7 @@ public class GameUtils {
 
         SREGameTimeComponent.KEY.get(world).reset();
         gameComponent.clearRoleMap(false);
+        gameComponent.resetPerPlayerKills(); // 重置本局击杀数
         gameComponent.setGameStatus(SREGameWorldComponent.GameStatus.INACTIVE);
         trainComponent.setTime(0);
         gameComponent.roleWorldComponent.sync();
@@ -738,6 +789,11 @@ public class GameUtils {
                 world.getServer().halt(false);
             }));
         }
+        SRE.LOGGER.info("=".repeat(20));
+
+        WorldModifierComponent worldModifierComponent = WorldModifierComponent.KEY.get(world);
+        worldModifierComponent.modifiers.clear();
+        worldModifierComponent.sync();
     }
 
     public static void recordWinStats(ServerLevel world, SREGameRoundEndComponent roundEnd,
@@ -1108,7 +1164,19 @@ public class GameUtils {
     public static int getReadyPlayerCount(Level world) {
         List<? extends Player> players = world.players();
         AreasWorldComponent areas = AreasWorldComponent.KEY.get(world);
-        return Math.toIntExact(players.stream().filter(p -> areas.getReadyArea().contains(p.position())).count());
+        ParticipationComponent participation = ParticipationComponent.KEY.get(world);
+        return Math.toIntExact(players.stream()
+                .filter(participation::isParticipating)
+                .filter(p -> areas.getReadyArea().contains(p.position()))
+                .count());
+    }
+
+    public static int getParticipatingPlayerCount(Level world) {
+        return ParticipationComponent.KEY.get(world).getParticipatingOnlineCount();
+    }
+
+    public static int getOptedOutPlayerCount(Level world) {
+        return ParticipationComponent.KEY.get(world).getOptedOutOnlineCount();
     }
 
     /**
@@ -1132,5 +1200,26 @@ public class GameUtils {
 
     public static long getAlivePlayerCount(Level level) {
         return level.players().stream().filter((p) -> isPlayerAliveAndSurvivalIgnoreShitSplit(p)).count();
+    }
+
+    public static void revivePlayer(ServerPlayer player, double x, double y, double z) {
+        DeathPenaltyComponent.KEY.get(player).clear();
+        DefibrillatorComponent.KEY.get(player).clear();
+        player.teleportTo(x, y, z);
+        player.setGameMode(GameType.ADVENTURE);
+        TrainVoicePlugin.resetPlayer(player.getUUID());
+        SRE.REPLAY_MANAGER.recordPlayerRevival(player.getUUID(), null);
+    }
+
+    public static boolean isGameRunning(Player player) {
+        if (player == null)
+            return false;
+        return isGameRunning(player.level());
+    }
+
+    public static boolean isGameRunning(Level level) {
+        if (level == null)
+            return false;
+        return SREGameWorldComponent.KEY.get(level).isRunning();
     }
 }

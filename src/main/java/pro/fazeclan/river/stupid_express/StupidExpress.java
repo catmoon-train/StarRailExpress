@@ -98,7 +98,7 @@ public class StupidExpress implements ModInitializer {
                 if (role != null) {
                     if (role.identifier().getPath().equals(TMMRoles.LOOSE_END.identifier().getPath())) {
                         var refugeeComponent = RefugeeComponent.KEY.get(victim.level());
-                        refugeeComponent.onLooseEndDeath(victim);
+                        refugeeComponent.onLooseEndDeath(victim, deathReason);
                     }
                 }
             }

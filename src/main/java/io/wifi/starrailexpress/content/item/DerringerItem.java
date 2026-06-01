@@ -7,7 +7,6 @@ import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.particle.HandParticle;
 import io.wifi.starrailexpress.client.render.TMMRenderLayers;
 import io.wifi.starrailexpress.client.util.TMMItemTooltips;
-import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.network.original.GunShootPayload;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -17,7 +16,6 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
@@ -55,7 +53,7 @@ public class DerringerItem extends RevolverItem {
                 ClientPlayNetworking.send(new GunShootPayload(-1));
             }
             if (!used) {
-                user.setXRot(user.getXRot() - 4);
+                user.setXRot(user.getXRot() - 20);
                 spawnHandParticle();
                 if (!world.isClientSide) {
                     if (SRE.REPLAY_MANAGER != null) {
@@ -101,8 +99,7 @@ public class DerringerItem extends RevolverItem {
     }
 
     public static HitResult getGunTarget(Player user) {
-        return ProjectileUtil.getHitResultOnViewVector(user,
-                entity -> entity instanceof Player player && GameUtils.isPlayerAliveAndSurvival(player), 25F);
+        return RevolverItem.getGunTarget(user);
     }
 
     @Override

@@ -16,6 +16,7 @@ import io.wifi.starrailexpress.event.AllowShootRevolverDrop.ShouldDropResult;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.ServerTaskInfoClasses;
+import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
@@ -32,6 +33,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -49,6 +51,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.Pig;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ThrownTrident;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.entity.EntityTypeTest;
@@ -60,6 +63,7 @@ import org.agmas.noellesroles.*;
 import org.agmas.noellesroles.commands.BroadcastCommand;
 import org.agmas.noellesroles.component.DeathPenaltyComponent;
 import org.agmas.noellesroles.component.DefibrillatorComponent;
+import org.agmas.noellesroles.component.InfectedPlayerComponent;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.content.effects.TimeStopEffect;
@@ -70,21 +74,23 @@ import org.agmas.noellesroles.content.entity.WheelchairEntity;
 import org.agmas.noellesroles.content.item.HandCuffsItem;
 import org.agmas.noellesroles.content.item.RadioItem;
 import org.agmas.noellesroles.content.item.BatonHandler;
+import org.agmas.noellesroles.content.item.BenevolenceSwordHandler;
 import org.agmas.noellesroles.content.item.RiotShieldHandler;
 import org.agmas.noellesroles.events.OnVendingMachinesBuyItems;
+import org.agmas.noellesroles.events.OnShopPurchase;
 import org.agmas.noellesroles.game.modes.ChairWheelRaceGame;
 import org.agmas.noellesroles.game.modifier.NRModifiers;
 import org.agmas.noellesroles.game.modifier.expedition.ExpeditionComponent;
-import org.agmas.noellesroles.game.roles.Innocent.avenger.AvengerPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.awesome_binglus.AwesomePlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.boxer.BoxerPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.broadcaster.BroadcasterPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.fool.TarotAssemblyManager;
-import org.agmas.noellesroles.game.roles.Innocent.fortuneteller.FortunetellerPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.glitch_robot.GlitchRobotPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.hoan_meirin.HoanMeirinFistPunchHandler;
-import org.agmas.noellesroles.game.roles.Innocent.veteran.VeteranKnifeHandler;
-import org.agmas.noellesroles.game.roles.Innocent.voodoo.VoodooDeathHandler;
+import org.agmas.noellesroles.game.roles.innocent.avenger.AvengerPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.awesome_binglus.AwesomePlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.boxer.BoxerPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.broadcaster.BroadcasterPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.fool.TarotAssemblyManager;
+import org.agmas.noellesroles.game.roles.innocent.fortuneteller.FortunetellerPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.glitch_robot.GlitchRobotPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.hoan_meirin.HoanMeirinFistPunchHandler;
+import org.agmas.noellesroles.game.roles.innocent.veteran.VeteranKnifeHandler;
+import org.agmas.noellesroles.game.roles.innocent.voodoo.VoodooDeathHandler;
 import org.agmas.noellesroles.game.roles.killer.conspirator.ConspiratorKilledPlayer;
 import org.agmas.noellesroles.game.roles.vigilante.guard.GuardPlayerHandler;
 import org.agmas.noellesroles.game.roles.killer.executioner.ExecutionerPlayerComponent;
@@ -99,6 +105,7 @@ import org.agmas.noellesroles.game.roles.killer.shadow_falcon.ShadowFalconPlayer
 import org.agmas.noellesroles.game.roles.neutral.commander.CommanderHandler;
 import org.agmas.noellesroles.game.roles.neutral.gambler.GamblerHandler;
 import org.agmas.noellesroles.game.roles.neutral.cuckoo.CuckooEggHandler;
+import org.agmas.noellesroles.game.roles.neutral.infected.InfectedWinChecker;
 import org.agmas.noellesroles.game.roles.neutral.mercenary.MercenaryPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.thief.ThiefPlayerComponent;
@@ -108,6 +115,7 @@ import org.agmas.noellesroles.game.roles.vigilante.patroller.PatrollerPlayerComp
 import org.agmas.noellesroles.packet.BloodConfigS2CPacket;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.RedHouseRoles;
+import org.agmas.noellesroles.role.TraitorAndModifiers;
 import org.agmas.noellesroles.utils.EntityClearUtils;
 import org.agmas.noellesroles.utils.MCItemsUtils;
 import org.agmas.noellesroles.utils.MapScanner;
@@ -124,6 +132,9 @@ public class ModEventsRegister {
     private static AttributeModifier noJumpingAttribute = new AttributeModifier(
             Noellesroles.id("no_jumping"), -1.0f, AttributeModifier.Operation.ADD_VALUE);
     private static final Map<UUID, Vec3> oldmanPigRidePositions = new HashMap<>();
+
+    // 本局游戏是否已发放过年兽鞭炮（一局只能有一次）
+    private static boolean nianShouFirecrackersDistributedThisGame = false;
     // private static AttributeModifier oldmanAttribute = new AttributeModifier(
     // Noellesroles.id("oldman"), -0.4f, AttributeModifier.Operation.ADD_VALUE);
     // private static AttributeModifier windYaoseScaleAttribute = new
@@ -276,7 +287,24 @@ public class ModEventsRegister {
     private static boolean handleDefibrillator(Player victim) {
         DefibrillatorComponent component = ModComponents.DEFIBRILLATOR.get(victim);
         if (component.hasProtection()) {
-            component.triggerDeath(30 * 20, null, victim.position());
+            if (component.defibrillatorMark) {
+                // 拥有标记的玩家死亡后进入医生的死亡惩罚
+                component.isDead = true;
+                component.resurrectionTime = victim.level().getGameTime() + 30 * 20;
+                component.deathPos = victim.position();
+                ModComponents.DEFIBRILLATOR.sync(victim);
+
+                DeathPenaltyComponent deathPenaltyComponent = ModComponents.DEATH_PENALTY.get(victim);
+                deathPenaltyComponent.setPenalty(45 * 20, true);
+                victim.displayClientMessage(
+                        Component.translatable("message.noellesroles.doctor.penalty").withStyle(ChatFormatting.RED),
+                        true);
+                victim.sendSystemMessage(
+                        Component.translatable("message.noellesroles.doctor.penalty").withStyle(ChatFormatting.RED));
+            } else {
+                // 无标记：保持原有位置锁定逻辑
+                component.triggerDeath(30 * 20, null, victim.position());
+            }
             return true;
         }
         return false;
@@ -559,8 +587,15 @@ public class ModEventsRegister {
     }
 
     public static boolean isMJVerifyEnabled = false;
+    public static List<Item> canThrowItems = new ArrayList<>();
 
     public static void registerEvents() {
+        // 吝啬 - 商店购买返还20%金币
+        OnShopPurchase.EVENT.register((player, entry, price) -> {
+            org.agmas.noellesroles.role.ModifierEffects
+                    .onStingyPurchase((net.minecraft.server.level.ServerPlayer) player, price);
+        });
+
         OnKillPlayerTriggered.EVENT.register((victim, spawnBody, _killer, deathReasosn, forceKill) -> {
             final var level = victim.level();
             final var gameWorldComponent = SREGameWorldComponent.KEY.get(level);
@@ -571,6 +606,85 @@ public class ModEventsRegister {
                     inControlCCA.sync();
                 }
             }
+        });
+
+        // 肉汁独处保护机制 - 杀手/中立只能在单独相处时击杀肉汁
+        AllowPlayerDeathWithKiller.EVENT.register((victim, killer, deathReason) -> {
+            SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(victim.level());
+
+            // 检查受害者是否是肉汁
+            if (!gameWorld.isRole(victim, ModRoles.MEATBALL)) {
+                return true;
+            }
+
+            // 检查是否是炸弹客炸弹伤害（不触发独处保护）
+            if (deathReason != null && deathReason.getPath().equals("bomb_death")) {
+                return true;
+            }
+
+            // 检查是否是中毒伤害（不触发独处保护）
+            if (deathReason != null && deathReason.getPath().equals("poison")) {
+                return true;
+            }
+
+            // 检查是否是病毒感染伤害（不触发独处保护）
+            if (deathReason != null && deathReason.getPath().equals("infection")) {
+                return true;
+            }
+
+            // 纵火犯点火伤害（不触发独处保护）
+            if (deathReason != null && deathReason.getPath().equals("ignited")) {
+                return true;
+            }
+
+            // 亡命徒职业：肉汁不免疫来自亡命徒角色的伤害
+            if (gameWorld.isRole(killer, TMMRoles.LOOSE_END) || gameWorld.isRole(killer, SpecialGameModeRoles.SUPER_LOOSE_END)) {
+                return true;
+            }
+
+            // 检查击杀者是否存在且是否为非乘客阵营
+            if (killer == null || gameWorld.isInnocent(killer)) {
+                return true;
+            }
+
+            // 肉汁独处判定：
+            // 规则：规定范围内只存在杀手或中立时，肉汁被判定为「独处」，允许击杀
+            //       范围内只要存在至少一个好人，无论是否有杀手/中立同时存在，肉汁就不算独处，阻止击杀
+            double safeDistanceSq = 4.0 * 4.0; // 水平4格距离平方
+            double safeHeightSq = 3.0 * 3.0; // y轴3格距离平方
+
+            for (Player nearbyPlayer : victim.level().players()) {
+                if (nearbyPlayer == victim || nearbyPlayer == killer) {
+                    continue;
+                }
+                if (!GameUtils.isPlayerAliveAndSurvival(nearbyPlayer)) {
+                    continue;
+                }
+
+                double dx = nearbyPlayer.getX() - victim.getX();
+                double dy = nearbyPlayer.getY() - victim.getY();
+                double dz = nearbyPlayer.getZ() - victim.getZ();
+
+                double horizontalDistSq = dx * dx + dz * dz;
+                // 先判断此人是否在保护范围内
+                if (horizontalDistSq <= safeDistanceSq && dy * dy <= safeHeightSq) {
+                    // 范围内有人 —— 看其阵营
+                    if (gameWorld.isInnocent(nearbyPlayer)) {
+                        // 范围内有好人 → 不独处，阻止击杀（保护肉汁）
+                        if (victim instanceof ServerPlayer sp) {
+                            sp.displayClientMessage(
+                                    Component.translatable("message.noellesroles.meatball.protected")
+                                            .withStyle(ChatFormatting.GREEN),
+                                    true);
+                        }
+                        return false;
+                    }
+                    // 此人是杀手/中立 —— 不构成保护，继续检查其他玩家
+                }
+            }
+
+            // 循环结束仍未触发保护 → 范围内不存在好人（只存在杀手/中立）→ 独处 → 允许击杀
+            return true;
         });
         THEventHandler.registerEvents();
         NinjaPlayerComponent.registerEvents();
@@ -627,6 +741,19 @@ public class ModEventsRegister {
                         if (victim instanceof ServerPlayer sp) {
                             sp.displayClientMessage(Component.translatable("message.sre.unyielding.immune_killer")
                                     .withStyle(ChatFormatting.RED), true);
+                            // 播放盾牌格挡音效，让附近所有人听到
+                            sp.serverLevel().playSound(null, sp.blockPosition(), SoundEvents.SHIELD_BLOCK,
+                                    SoundSource.MASTER,
+                                    1.0F, 1.0F);
+                            // 释放不灭图腾粒子效果
+                            ServerLevel level = sp.serverLevel();
+                            for (int i = 0; i < 30; i++) {
+                                level.sendParticles(ParticleTypes.TOTEM_OF_UNDYING,
+                                        sp.getX() + level.random.nextDouble() * 2.0 - 1.0,
+                                        sp.getY() + 0.5 + level.random.nextDouble() * 2.5,
+                                        sp.getZ() + level.random.nextDouble() * 2.0 - 1.0,
+                                        1, 0, 0, 0, 0);
+                            }
                         }
                         return false;
                     }
@@ -640,12 +767,25 @@ public class ModEventsRegister {
                         .contains(victim.getUUID())) {
                     pro.fazeclan.river.stupid_express.constants.SEModifiers.UNYIELDING_IMMUNITY_USED
                             .add(victim.getUUID());
-                    // 播放提示音并向玩家发送提示（只对受害玩家播放）
+                    // 播放盾牌格挡音效，让附近所有人听到
                     if (victim instanceof ServerPlayer sp) {
-                        sp.serverLevel().playSound(sp, sp.blockPosition(), SoundEvents.SHIELD_BLOCK, SoundSource.MASTER,
+                        sp.serverLevel().playSound(null, sp.blockPosition(), SoundEvents.SHIELD_BLOCK,
+                                SoundSource.MASTER,
                                 1.0F, 1.0F);
                         sp.displayClientMessage(Component.translatable("message.sre.unyielding.immune_civilian")
                                 .withStyle(ChatFormatting.GREEN), true);
+                        // 释放不灭图腾粒子效果
+                        ServerLevel level = sp.serverLevel();
+                        for (var p : level.players()) {
+                            // boolean sendParticles( ServerPlayer player, ParticleOptions type, boolean
+                            // longDistance, double posX, double posY, double posZ, int particleCount,
+                            // double xOffset, double yOffset, double zOffset, double speed)
+                            level.sendParticles(p, ParticleTypes.TOTEM_OF_UNDYING, true,
+                                    sp.getX(),
+                                    sp.getY(),
+                                    sp.getZ(),
+                                    30, 1, 1, 1, 0);
+                        }
                     }
                     return false;
                 }
@@ -734,16 +874,51 @@ public class ModEventsRegister {
                 }
             }
         });
+        // 黄油手 - 手枪冷却随机变化
+        OnRevolverUsed.EVENT.register((player, target) -> {
+            if (!(player instanceof ServerPlayer))
+                return;
+            WorldModifierComponent modifiers = WorldModifierComponent.KEY.get(player.level());
+            ItemStack mainHandStack = player.getMainHandItem();
+            if (mainHandStack.is(TMMItemTags.GUNS)
+                    && modifiers.isModifier(player.getUUID(), TraitorAndModifiers.BUTTER_FINGERS)) {
+                int roll = player.getRandom().nextInt(100);
+                int baseCooldown = (Integer) GameConstants.ITEM_COOLDOWNS.getOrDefault(mainHandStack.getItem(), 400);
+                int newCooldown = baseCooldown;
+                if (roll < 33) {
+                    // 33%: 冷却 +3秒
+                    newCooldown = baseCooldown + 60;
+                    player.displayClientMessage(
+                            Component.translatable("modifier.noellesroles.butter_fingers.cooldown_up"), true);
+                } else if (roll < 66) {
+                    // 33%: 冷却 -3秒
+                    newCooldown = Math.max(0, baseCooldown - 60);
+                    player.displayClientMessage(
+                            Component.translatable("modifier.noellesroles.butter_fingers.cooldown_down"), true);
+                } else if (roll < 99) {
+                    // 33%: 无事发生
+                    // 不做处理
+                } else {
+                    // 1%: 冷却归零
+                    newCooldown = 0;
+                    player.displayClientMessage(Component.translatable("modifier.noellesroles.butter_fingers.reset"),
+                            true);
+                }
+                if (newCooldown != baseCooldown) {
+                    player.getCooldowns().addCooldown(mainHandStack.getItem(), newCooldown);
+                }
+            }
+        });
         AfterShieldAllowPlayerDeath.EVENT.register((victim, deathReason) -> {
             if (victim.level() instanceof ServerLevel serverLevel) {
-                org.agmas.noellesroles.game.roles.Innocent.fool.TarotAssemblyManager.clearTrackedTarget(serverLevel,
+                org.agmas.noellesroles.game.roles.innocent.fool.TarotAssemblyManager.clearTrackedTarget(serverLevel,
                         victim.getUUID());
             }
             return true;
         });
         AfterShieldAllowPlayerDeathWithKiller.EVENT.register((victim, killer, deathReason) -> {
             if (victim.level() instanceof ServerLevel serverLevel) {
-                org.agmas.noellesroles.game.roles.Innocent.fool.TarotAssemblyManager.clearTrackedTarget(serverLevel,
+                org.agmas.noellesroles.game.roles.innocent.fool.TarotAssemblyManager.clearTrackedTarget(serverLevel,
                         victim.getUUID());
             }
             return true;
@@ -751,11 +926,13 @@ public class ModEventsRegister {
         ShootingFrenzyPlayerComponent.registerGunNoDropEvent();
         ExecutionerPlayerComponent.registerBackfireEvent();
         ShootingFrenzyPlayerComponent.registerFrenzyCooldownEvent();
-
         HoanMeirinFistPunchHandler.register();
+        org.agmas.noellesroles.game.roles.killer.spellbreaker.SpellbreakerPlayerComponent.registerEvents();
         // 注册警棍与防暴盾处理器
         BatonHandler.register();
         RiotShieldHandler.register();
+        // 注册仁之剑处理器
+        BenevolenceSwordHandler.register();
         // 布谷鸟蛋交互注册
         CuckooEggHandler.register();
         // 注册保安技能
@@ -765,9 +942,32 @@ public class ModEventsRegister {
             ModComponents.DEATH_PENALTY.get(player).init();
         };
         OnGameEnd.EVENT.register((world, gameWorldComponent) -> {
+            nianShouFirecrackersDistributedThisGame = false;
             HoanMeirinFistPunchHandler.PUNCH_RECORDS.clear();
             RoleShopHandler.resetOldmanEasterEggState();
             org.agmas.noellesroles.game.roles.killer.delayer.DelayerPlayerComponent.timeBoostTriggered = false;
+            // 清除所有玩家的感染状态
+            for (ServerPlayer player : world.players()) {
+                InfectedPlayerComponent infectedComponent = org.agmas.noellesroles.component.ModComponents.INFECTED
+                        .get(player);
+                if (infectedComponent != null) {
+                    infectedComponent.cure();
+                }
+            }
+            // 清除疫使时刻状态
+            org.agmas.noellesroles.game.roles.neutral.infected.InfectedWinChecker.resetAcceleratedState();
+            // 清除所有建筑师的客户端墙
+            for (ServerPlayer player : world.players()) {
+                org.agmas.noellesroles.game.roles.innocent.builder.BuilderPlayerComponent builderComp = org.agmas.noellesroles.component.ModComponents.BUILDER
+                        .get(player);
+                builderComp.clearAllWalls();
+            }
+            // 清除全局墙位置注册表
+            org.agmas.noellesroles.game.roles.innocent.builder.BuilderWallPositions.clearAll();
+            // 清除所有肉汁的悬赏
+            for (ServerPlayer player : world.players()) {
+                org.agmas.noellesroles.component.ModComponents.MEATBALL.get(player).init();
+            }
             // 已经在resetPlayer清除部分cca
             // 重置所有玩家的锁匠灵感
             SREGameRoundEndComponent roundEnd = SREGameRoundEndComponent.KEY.get(world);
@@ -800,6 +1000,8 @@ public class ModEventsRegister {
                 var role = gameWorldComponent.getRole(player);
                 if (role != null) {
                     if (role.isInnocent() && role.canPickUpRevolver() && !role.isNeutrals()) {
+                        return true;
+                    } else if (role == SpecialGameModeRoles.DIRT) {
                         return true;
                     } else {
                         return false;
@@ -902,6 +1104,8 @@ public class ModEventsRegister {
         CommanderHandler.registerChatEvent();
         InsaneKillerPlayerComponent.registerEvent();
         ConspiratorKilledPlayer.registerEvents();
+        // 注册疫使胜利检测和加速检测
+        InfectedWinChecker.registerEvent();
         EntityClearUtils.registerResetEvent();
         SRE.cantSendReplay.add(player -> {
             DeathPenaltyComponent component = ModComponents.DEATH_PENALTY.get(player);
@@ -1053,6 +1257,49 @@ public class ModEventsRegister {
         OnPlayerDeathWithKiller.EVENT.register((victim, killer, deathReason) -> {
             ShadowFalconPlayerComponent.onDeathGiveJetpacks(victim);
         });
+        // 葬仪被动-引渡：杀手/杀手方中立/魔术师死亡时向所有杀手、杀手方中立和魔术师广播
+        // 葬仪死亡后被动失效（场上没有存活的葬仪时不会触发广播）
+        OnPlayerDeathWithKiller.EVENT.register((victim, killer, deathReason) -> {
+            var gameWorldComponent = SREGameWorldComponent.KEY.get(victim.level());
+            if (gameWorldComponent == null || !gameWorldComponent.isRunning())
+                return;
+            // 场上没有存活的葬仪时，被动失效
+            boolean hasAliveMortician = false;
+            for (Player player : victim.level().players()) {
+                if (GameUtils.isPlayerAliveAndSurvival(player)
+                        && gameWorldComponent.isRole(player, ModRoles.MORTICIAN_BODYMAKER)) {
+                    hasAliveMortician = true;
+                    break;
+                }
+            }
+            if (!hasAliveMortician)
+                return;
+            // 检查死亡玩家是否是杀手阵营、杀手方中立或魔术师
+            var victimRole = gameWorldComponent.getRole(victim);
+            if (victimRole == null || !gameWorldComponent.isKillerTeamRole(victimRole))
+                return;
+            // 获取死亡玩家的翻译职业名
+            String rolePath = victimRole.identifier().getPath();
+            Component roleName = Component.translatable("announcement.star.role." + rolePath);
+            Component deathMessage = Component
+                    .translatable("message.noellesroles.mortician_bodymaker.passive_death", roleName)
+                    .withStyle(ChatFormatting.GOLD);
+            // 向所有杀手、杀手方中立和魔术师广播
+            for (Player player : victim.level().players()) {
+                if (!GameUtils.isPlayerAliveAndSurvival(player))
+                    continue;
+                var targetRole = gameWorldComponent.getRole(player);
+                if (targetRole == null)
+                    continue;
+                // 杀手 (canUseKiller) 或 杀手方中立 (isNeutralForKiller) 或 魔术师
+                if (!targetRole.canUseKiller() && !targetRole.isNeutralForKiller()
+                        && !gameWorldComponent.isRole(player, ModRoles.MAGICIAN))
+                    continue;
+                if (player instanceof ServerPlayer sp) {
+                    org.agmas.noellesroles.commands.BroadcastCommand.BroadcastMessage(sp, deathMessage);
+                }
+            }
+        });
         OnPlayerKilledPlayerIdentifier.EVENT.register((victim, killer, deathReason) -> {
             var gameWorldComponent = SREGameWorldComponent.KEY.get(victim.level());
             if (gameWorldComponent.isRole(killer, ModRoles.MERCENARY)) {
@@ -1166,6 +1413,14 @@ public class ModEventsRegister {
                 }
             }
             RoleUtils.RemoveAllEffects(playerEntity);
+            // 葬仪死亡时清除拖动状态
+            if (gameWorldComponent.isRole(playerEntity, ModRoles.MORTICIAN_BODYMAKER)) {
+                var morticianComponent = org.agmas.noellesroles.component.ModComponents.MORTICIAN_BODYMAKER.get(playerEntity);
+                if (morticianComponent != null && morticianComponent.draggedBodyUuid != null) {
+                    morticianComponent.draggedBodyUuid = null;
+                    morticianComponent.sync();
+                }
+            }
             if (gameWorldComponent.isRole(playerEntity, ModRoles.JOJO)) {
                 int dropCount = 1 + MCItemsUtils.countItem(playerEntity, TMMItemTags.GUNS);
                 while (dropCount > 0) {
@@ -1336,7 +1591,7 @@ public class ModEventsRegister {
             HallucinationAreaManager.tick();
             ServerLevel level = server.overworld();
             {
-                org.agmas.noellesroles.game.roles.Innocent.fool.TarotAssemblyManager.serverLevelTick(level);
+                org.agmas.noellesroles.game.roles.innocent.fool.TarotAssemblyManager.serverLevelTick(level);
             }
             {
                 if (server.getTickCount() % 10 == 0) {
@@ -1412,30 +1667,74 @@ public class ModEventsRegister {
             }
             return true;
         });
-        // 可以改玩家职业
-        // OnGamePlayerRolesConfirm.EVENT.register((serverLevel, roleAssignments) -> {
-        // String currentMap = "unknown";
-        // if (serverLevel.getServer() != null) {
-        // var areas =
-        // io.wifi.starrailexpress.cca.AreasWorldComponent.KEY.get(serverLevel);
-        // if (areas != null && areas.mapName != null) {
-        // currentMap = areas.mapName;
-        // }
-        // }
-        // });
+        // 禁止聊天药水效果：拥有CHAT_BAN效果的玩家发送的聊天消息不被任何人接收
+        ServerMessageEvents.ALLOW_CHAT_MESSAGE.register((message, serverPlayer, bound) -> {
+            if (serverPlayer.hasEffect(ModEffects.CHAT_BAN)) {
+                return false;
+            }
+            return true;
+        });
 
-        OnGameTrueStarted.EVENT.register((serverLevel) -> {
+        // 游戏开始，安全时间刚开始计时
+        OnGameStarted.EVENT.register((serverLevel) -> {
             TarotAssemblyManager.havingMeeting = false;
             HoanMeirinFistPunchHandler.PUNCH_RECORDS.clear();
             RoleShopHandler.resetOldmanEasterEggState();
+            // 清除所有玩家的感染状态
+            for (ServerPlayer player : serverLevel.players()) {
+                InfectedPlayerComponent infectedComponent = org.agmas.noellesroles.component.ModComponents.INFECTED
+                        .get(player);
+                if (infectedComponent != null) {
+                    infectedComponent.cure();
+                }
+            }
+            // 重置疫使时刻状态
+            org.agmas.noellesroles.game.roles.neutral.infected.InfectedWinChecker.resetAcceleratedState();
+
+            // 判断是否有指定职业
             SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(serverLevel);
             WorldModifierComponent worldModifierComponent = WorldModifierComponent.KEY.get(serverLevel);
+            final var all_players = serverLevel.players();
+            for (var p : all_players) {
+                if (!gameWorldComponent.isJumpAvailable() && GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(p)) {
+                    // NO JUMPING! For everyone who hasn't permissions
+                    if (!p.hasPermissions(2)) {
+                        p.getAttribute(Attributes.JUMP_STRENGTH).addOrReplacePermanentModifier(noJumpingAttribute);
+                    }
+                }
+                if (worldModifierComponent.isModifier(p, NRModifiers.EXPEDITION)) {
+                    SRERole role = gameWorldComponent.getRole(p);
+                    var expeditionComponent = ExpeditionComponent.KEY.get(p);
+                    if (expeditionComponent != null && expeditionComponent.isExpedition()) {
+                        // 检查新角色是否是好人阵营
+                        // 如果不是好人阵营（是杀手或中立），则清除远征队组件
+                        if (role != null && (!role.isInnocent() || role.canUseKiller() || role.isNeutrals())) {
+                            // 清除远征队组件
+                            expeditionComponent.clear();
+                            expeditionComponent.sync();
+
+                            // 注意：由于 Harpymodloader 的修饰符系统限制，我们只能清除组件功能
+                            // 修饰符本身仍然保留在系统中，但不会生效
+                            // 这是为了防止某些角色（如赌徒、慕恋者）变成杀手后仍保留远征队能力
+                            worldModifierComponent.removeModifier(p.getUUID(), NRModifiers.EXPEDITION);
+                            Noellesroles.LOGGER
+                                    .info("Expedition modifier effect disabled for player due to role change: "
+                                            + p.getName().getString() + ", new role: " + role.identifier());
+                        }
+                    }
+                }
+            }
+        });
+        // 游戏正式开始，安全时间结束！
+        OnGameTrueStarted.EVENT.register((serverLevel) -> {
+            SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(serverLevel);
             boolean hasDio = false;
             boolean hasRecorder = false;
             boolean hasCandlebearer = false;
             // 年兽除岁效果：给所有玩家分发4个鞭炮
             boolean hasNianShou = false;
             boolean hasArsonist = false;
+            boolean hasCuckoo = false;
             final var all_players = serverLevel.players();
             for (var p : all_players) {
                 if (!gameWorldComponent.isJumpAvailable() && GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(p)) {
@@ -1460,27 +1759,8 @@ public class ModEventsRegister {
                     hasNianShou = true;
                 } else if (gameWorldComponent.isRole(p, SERoles.ARSONIST)) {
                     hasArsonist = true;
-                }
-                if (worldModifierComponent.isModifier(p, NRModifiers.EXPEDITION)) {
-                    SRERole role = gameWorldComponent.getRole(p);
-                    var expeditionComponent = ExpeditionComponent.KEY.get(p);
-                    if (expeditionComponent != null && expeditionComponent.isExpedition()) {
-                        // 检查新角色是否是好人阵营
-                        // 如果不是好人阵营（是杀手或中立），则清除远征队组件
-                        if (role != null && (!role.isInnocent() || role.canUseKiller() || role.isNeutrals())) {
-                            // 清除远征队组件
-                            expeditionComponent.clear();
-                            expeditionComponent.sync();
-
-                            // 注意：由于 Harpymodloader 的修饰符系统限制，我们只能清除组件功能
-                            // 修饰符本身仍然保留在系统中，但不会生效
-                            // 这是为了防止某些角色（如赌徒、慕恋者）变成杀手后仍保留远征队能力
-                            worldModifierComponent.removeModifier(p.getUUID(), NRModifiers.EXPEDITION);
-                            Noellesroles.LOGGER
-                                    .info("Expedition modifier effect disabled for player due to role change: "
-                                            + p.getName().getString() + ", new role: " + role.identifier());
-                        }
-                    }
+                } else if (gameWorldComponent.isRole(p, ModRoles.CUCKOO)) {
+                    hasCuckoo = true;
                 }
             }
             if (hasDio) {
@@ -1517,7 +1797,16 @@ public class ModEventsRegister {
                     }
                 });
             }
-            if (hasNianShou) {
+            if (hasCuckoo) {
+                all_players.forEach((p) -> {
+                    if (p != null) {
+                        BroadcastCommand.BroadcastMessage(p, Component
+                                .translatable("message.noellesroles.cuckoo.entry").withStyle(ChatFormatting.YELLOW));
+                    }
+                });
+            }
+            if (hasNianShou && !nianShouFirecrackersDistributedThisGame) {
+                nianShouFirecrackersDistributedThisGame = true;
                 for (var player : all_players) {
                     // 给每个玩家4个鞭炮
                     ItemStack firecrackerStack = new ItemStack(TMMItems.FIRECRACKER);
@@ -1707,6 +1996,18 @@ public class ModEventsRegister {
                 "noellesroles:pill",
                 "noellesroles:pocket_watch",
                 "noellesroles:throwing_knife",
+                "starrailexpress:dnf_suspicious_meat",
+                "starrailexpress:dnf_paper_scrap",
+                "supplementaries:key",
+                "minecraft:emerald",
+                "minecraft:glass_bottle",
+                "starrailexpress:dnf_cornmeal_bag",
+                "starrailexpress:dnf_toxic_heart",
+                "starrailexpress:dnf_redemption_potion",
+                "starrailexpress:dnf_redemption_formula",
+                "starrailexpress:dnf_water_bottle",
+                "starrailexpress:dnf_flour_bag",
+                "starrailexpress:dnf_soap",
                 "noellesroles:shisiye",
                 "noellesroles:signed_paper",
                 "noellesroles:mercenary_contract",
@@ -1719,6 +2020,12 @@ public class ModEventsRegister {
                 "minecraft:lantern",
                 "noellesroles:passbook",
                 "minecraft:written_book"));
+        BuiltInRegistries.ITEM.entrySet().stream()
+                .filter(entry -> SRE.canDropItem.contains(entry.getKey().toString()))
+                .map(entry -> entry.getValue().getDefaultInstance().getItem())
+                .forEach(item -> {
+                    ModEventsRegister.canThrowItems.add(item);
+                });
 
     }
 

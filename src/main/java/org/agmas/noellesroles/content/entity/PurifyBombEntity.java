@@ -12,7 +12,9 @@ import net.minecraft.world.entity.projectile.ThrowableItemProjectile;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
+import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.init.ModItems;
+import org.agmas.noellesroles.component.InfectedPlayerComponent;
 
 import java.util.List;
 
@@ -70,13 +72,17 @@ public class PurifyBombEntity extends ThrowableItemProjectile {
         );
 
         for (ServerPlayer player : players) {
-            // 获取玩家的中毒组件
+            // 清除中毒状态
             SREPlayerPoisonComponent poisonComponent = SREPlayerPoisonComponent.KEY.get(player);
-
-            // 如果玩家处于中毒状态，则清除中毒
-            if ((poisonComponent).poisonTicks > 0) {
+            if (poisonComponent.poisonTicks > 0) {
                 poisonComponent.setPoisonTicks(0, null);
                 poisonComponent.sync();
+            }
+            
+            // 清除感染状态
+            InfectedPlayerComponent infectedComponent = ModComponents.INFECTED.get(player);
+            if (infectedComponent.infectedTicks > 0) {
+                infectedComponent.cure();
             }
         }
     }

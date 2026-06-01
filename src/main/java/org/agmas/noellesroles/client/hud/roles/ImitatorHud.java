@@ -69,7 +69,7 @@ public class ImitatorHud {
             // ==================== 临时能力 ====================
             if (comp.tempCopiedRoleId != null) {
                 y += 14;
-                String roleName = comp.tempCopiedRoleId.getPath();
+                String roleName = Component.translatable("announcement.star.role." + comp.tempCopiedRoleId.getPath()).getString();
                 int tempCd = comp.tempSkillCooldown;
                 String cdStr = tempCd > 0 ? " [" + ((tempCd + 19) / 20) + "s]" : "";
                 boolean isTempActive = comp.useTemp;
@@ -108,7 +108,7 @@ public class ImitatorHud {
                 Component slotText;
 
                 if (slotRole != null) {
-                    String name = slotRole.getPath();
+                    String name = Component.translatable("announcement.star.role." + slotRole.getPath()).getString();
                     int cd = comp.getSlotCooldown(i);
                     String cdStr = cd > 0 ? " [" + ((cd + 19) / 20) + "s]" : "";
                     String slotPrefix = isActiveSlot ? "> " : "  ";

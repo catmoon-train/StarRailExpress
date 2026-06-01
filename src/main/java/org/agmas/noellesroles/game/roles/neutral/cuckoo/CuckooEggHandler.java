@@ -131,6 +131,10 @@ public class CuckooEggHandler {
             }
         }
         if (eggEntity != null && !eggEntity.isRemoved()) {
+            // 播放海龟蛋破碎音效
+            eggEntity.level().playSound(null, eggEntity.blockPosition(),
+                    net.minecraft.sounds.SoundEvents.TURTLE_EGG_BREAK,
+                    net.minecraft.sounds.SoundSource.BLOCKS, 1.0F, 1.0F);
             eggEntity.remove(Entity.RemovalReason.DISCARDED);
         }
     }

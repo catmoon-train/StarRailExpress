@@ -45,11 +45,13 @@ public class DevilRouletteTableEntity extends BlockEntity {
             super(entityType, level);
         }
     }
+
     public static class TableItemDisplay extends Display.ItemDisplay {
         public TableItemDisplay(EntityType<?> entityType, Level level) {
             super(entityType, level);
         }
     }
+
     public DevilRouletteTableEntity(BlockPos blockPos, BlockState blockState) {
         super(ModBlocks.DEVIL_ROULETTE_TABLE_ENTITY, blockPos, blockState);
         Direction facing = blockState.getValue(BlockStateProperties.HORIZONTAL_FACING);
@@ -71,7 +73,8 @@ public class DevilRouletteTableEntity extends BlockEntity {
                 // 中
                 seatArea.add(worldPosition.offset(posOffset).relative(facing, i));
                 // 右
-                seatArea.add(worldPosition.offset(posOffset).relative(facing, i).relative(facing.getCounterClockWise()));
+                seatArea.add(
+                        worldPosition.offset(posOffset).relative(facing, i).relative(facing.getCounterClockWise()));
             }
         }
         for (int i = 1; i >= -1; i -= 2) {
@@ -84,6 +87,7 @@ public class DevilRouletteTableEntity extends BlockEntity {
             }
         }
     }
+
     /** 初始化成员 */
     public void init() {
         game = null;
@@ -116,9 +120,11 @@ public class DevilRouletteTableEntity extends BlockEntity {
         tempSubDisplays.clear();
         itemDisplays.clear();
     }
+
     public void reset() {
         init();
     }
+
     @Override
     public void setRemoved() {
         super.setRemoved();
@@ -128,6 +134,7 @@ public class DevilRouletteTableEntity extends BlockEntity {
             winnerText.discard();
         }
     }
+
     public void serverTick(Level level, BlockPos pos, BlockState state) {
         // 当有玩家游玩时进行计数
         if (frontPlayerUUID == null && backPlayerUUID == null) {
@@ -143,8 +150,8 @@ public class DevilRouletteTableEntity extends BlockEntity {
         }
         ++curLeftTickGap;
 
-        if (curAFKTick++ >= AFK_TICK){
-            if (isGameActive()){
+        if (curAFKTick++ >= AFK_TICK) {
+            if (isGameActive()) {
                 // 玩家未操作则自动向自己开火
                 processFireResult(game.fire(DevilRouletteGame.Target.self));
                 // 挂机响应时长会越来越短，以尽快结束等待的对局
@@ -152,10 +159,11 @@ public class DevilRouletteTableEntity extends BlockEntity {
 
                 // 轮盘赌模式挂机会判断对手是否存活，如果不存活则强制结束
                 if (gameMode == DevilRouletteGame.GameMode.Roulette && level != null) {
-                    if (frontPlayerUUID != null && GameUtils.isPlayerEliminated(level.getPlayerByUUID(frontPlayerUUID))) {
+                    if (frontPlayerUUID != null
+                            && GameUtils.isPlayerEliminated(level.getPlayerByUUID(frontPlayerUUID))) {
                         processFireResult(game.forceGameOverByKillPlayer(backPlayerUUID));
-                    }
-                    else if (backPlayerUUID != null && GameUtils.isPlayerEliminated(level.getPlayerByUUID(backPlayerUUID))) {
+                    } else if (backPlayerUUID != null
+                            && GameUtils.isPlayerEliminated(level.getPlayerByUUID(backPlayerUUID))) {
                         processFireResult(game.forceGameOverByKillPlayer(frontPlayerUUID));
                     }
                 }
@@ -170,6 +178,7 @@ public class DevilRouletteTableEntity extends BlockEntity {
             }
         }
     }
+
     /**
      * 创建悬浮文字显示
      * - 会自动根据方块坐标偏移至中心
@@ -178,6 +187,7 @@ public class DevilRouletteTableEntity extends BlockEntity {
         return addFloatingText(new Vec3(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5),
                 text, duration);
     }
+
     /**
      * 创建悬浮文字显示
      * - 如果已存在则仅修改文本，不会重置之前的定时器
@@ -187,16 +197,14 @@ public class DevilRouletteTableEntity extends BlockEntity {
         if (level != null) {
             if (floatingTexts.containsKey(text)) {
                 displayText = floatingTexts.get(text);
-            }
-            else {
-                displayText = new TableTextDisplay(EntityType.TEXT_DISPLAY ,level);
+            } else {
+                displayText = new TableTextDisplay(EntityType.TEXT_DISPLAY, level);
                 if (duration > 0) {
                     Scheduler.schedule(displayText::discard, duration);
-//                    tempSubDisplays.removeIf(display -> display == null || !display.isAlive());
+                    // tempSubDisplays.removeIf(display -> display == null || !display.isAlive());
                     if (isCollectFloatingText)
                         tempSubDisplays.add(displayText);
-                }
-                else if (isCollectFloatingText) {
+                } else if (isCollectFloatingText) {
                     floatingTexts.put(text, displayText);
                 }
                 level.addFreshEntity(displayText);
@@ -212,15 +220,18 @@ public class DevilRouletteTableEntity extends BlockEntity {
         }
         return displayText;
     }
+
     protected TableTextDisplay addFloatingText(Vec3 pos, Component text, int duration) {
         return addFloatingText(pos, text, duration, NORMAL_SCALE);
     }
+
     protected void removeFloatingText(Component text) {
         if (floatingTexts.containsKey(text)) {
             floatingTexts.get(text).discard();
             floatingTexts.remove(text);
         }
     }
+
     protected TableTextDisplay replaceFloatingText(Component oldText, Component newText, int duration, Vec3 scale) {
         if (!floatingTexts.containsKey(oldText))
             return addFloatingText(CENTER_POS,
@@ -229,12 +240,14 @@ public class DevilRouletteTableEntity extends BlockEntity {
         removeFloatingText(oldText);
         return addFloatingText(oldTextPos, newText, duration, scale);
     }
+
     public void clientTick() {
         // 如果游戏未创建，则在两个方向显示对应的玩家名
         if (game == null) {
             return;
         }
     }
+
     public void startGame() {
         // 移除之前显示的结果
         if (winnerText != null) {
@@ -249,7 +262,7 @@ public class DevilRouletteTableEntity extends BlockEntity {
             game.setGameMode(gameMode);
         // 初始化游戏
         game.init();
-        if(!game.start()) {
+        if (!game.start()) {
             // 开始游戏失败，重置游戏
             reset();
         }
@@ -300,6 +313,7 @@ public class DevilRouletteTableEntity extends BlockEntity {
             showBulletText();
         }
     }
+
     public void assignMatch(Player player1, Player player2) {
         reset();
         if (player1 == null || player2 == null)
@@ -310,9 +324,10 @@ public class DevilRouletteTableEntity extends BlockEntity {
         addPlayer(player2, false);
         startGame();
     }
+
     /** 实际交互函数 */
     public ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player,
-                                              InteractionHand hand, BlockHitResult hit) {
+            InteractionHand hand, BlockHitResult hit) {
         if (level.isClientSide)
             return ItemInteractionResult.SUCCESS;
         DevilRouletteGame.FireResult fireResult = null;
@@ -321,7 +336,7 @@ public class DevilRouletteTableEntity extends BlockEntity {
         if (player.getUUID() != frontPlayerUUID) {
             idxOffset = playerOperateArea.size() / 2;
         }
-        for (int i = 0; i < playerOperateArea.size(); ++i) {
+        for (int i = 0; i < playerOperateArea.size() / 2 && i + idxOffset < playerOperateArea.size(); ++i) {
             if (playerOperateArea.get(i + idxOffset).equals(pos)) {
                 switch (i) {
                     // 点击左侧
@@ -338,9 +353,8 @@ public class DevilRouletteTableEntity extends BlockEntity {
                             // 放大镜
                             player.displayClientMessage(
                                     Component.translatable(
-                                            game.getCurBullet() ?
-                                            "noellesroles.game.devil_roulette.tip.is_real_bullet" :
-                                            "noellesroles.game.devil_roulette.tip.is_empty_bullet")
+                                            game.getCurBullet() ? "noellesroles.game.devil_roulette.tip.is_real_bullet"
+                                                    : "noellesroles.game.devil_roulette.tip.is_empty_bullet")
                                             .withStyle(game.getCurBullet() ? ChatFormatting.RED : ChatFormatting.AQUA),
                                     true);
                         } else if (item == ModItems.CHEWING) {
@@ -362,23 +376,20 @@ public class DevilRouletteTableEntity extends BlockEntity {
                             game.reverseCurBullet();
                             player.displayClientMessage(
                                     Component.translatable(
-                                "noellesroles.game.devil_roulette.tip.reverse_bullet")
-                                        .withStyle(ChatFormatting.AQUA),
+                                            "noellesroles.game.devil_roulette.tip.reverse_bullet")
+                                            .withStyle(ChatFormatting.AQUA),
                                     true);
                         } else if (item == ModItems.TELEPHONE) {
                             // 电话逻辑
                             int idx = game.getRandomTrueBulletIdx();
                             player.displayClientMessage(
-                                Component.translatable(
-                                    idx == -1 ?
-                                        "noellesroles.game.devil_roulette.tip.no_real_bullet" :
-                                        "noellesroles.game.devil_roulette.tip.random_real_bullet",
-                                    idx + 1
-                                    )
-                                    .withStyle(idx == -1 ? ChatFormatting.AQUA : ChatFormatting.RED),
-                                true);
-                        }
-                        else
+                                    Component.translatable(
+                                            idx == -1 ? "noellesroles.game.devil_roulette.tip.no_real_bullet"
+                                                    : "noellesroles.game.devil_roulette.tip.random_real_bullet",
+                                            idx + 1)
+                                            .withStyle(idx == -1 ? ChatFormatting.AQUA : ChatFormatting.RED),
+                                    true);
+                        } else
                             isNeedRemove = false;
                         if (isNeedRemove)
                             stack.shrink(1);
@@ -402,6 +413,7 @@ public class DevilRouletteTableEntity extends BlockEntity {
 
         return ItemInteractionResult.SUCCESS;
     }
+
     protected void processFireResult(DevilRouletteGame.FireResult fireResult) {
         if (fireResult == null || level == null)
             return;
@@ -416,14 +428,13 @@ public class DevilRouletteTableEntity extends BlockEntity {
             level.playSound(null, worldPosition,
                     TMMSounds.ITEM_REVOLVER_SHOOT, SoundSource.BLOCKS,
                     0.15625f, 1f);
-        }
-        else {
+        } else {
             level.playSound(null, worldPosition,
                     TMMSounds.ITEM_REVOLVER_CLICK, SoundSource.BLOCKS,
                     0.15625f, 1f);
         }
         // 播放重装弹药音效
-        if (fireResult.isReload){
+        if (fireResult.isReload) {
             afterReload();
         }
         if (fireResult.isSwitch) {
@@ -439,29 +450,30 @@ public class DevilRouletteTableEntity extends BlockEntity {
             Player winner = null;
             winner = level.getPlayerByUUID(game.getWinner().getPlayerUUID());
 
-            // 对局中失败会被击杀
-            if (GameUtils.isGameStarted) {
-                if (level.getPlayerByUUID(frontPlayerUUID) != null && level.getPlayerByUUID(frontPlayerUUID) != winner) {
-                    GameUtils.killPlayer(
-                            level.getPlayerByUUID(frontPlayerUUID), false,
-                            // 杀手使用null 防止被小脑惩罚
-                            null, SRE.id("gun_shot"), false
-                    );
-                }
-                if (level.getPlayerByUUID(backPlayerUUID) != null && level.getPlayerByUUID(backPlayerUUID) != winner) {
-                    GameUtils.killPlayer(
-                            level.getPlayerByUUID(backPlayerUUID), false,
-                            null, SRE.id("gun_shot"), false
-                    );
-                }
-            }
             switch (gameMode) {
                 case Roulette -> {
+                    // 对局中失败会被击杀
+                    if (GameUtils.isGameStarted) {
+                        if (level.getPlayerByUUID(frontPlayerUUID) != null
+                                && level.getPlayerByUUID(frontPlayerUUID) != winner) {
+                            GameUtils.killPlayer(
+                                    level.getPlayerByUUID(frontPlayerUUID), false,
+                                    winner, SRE.id("gun_shot"), false);
+                        }
+                        if (level.getPlayerByUUID(backPlayerUUID) != null
+                                && level.getPlayerByUUID(backPlayerUUID) != winner) {
+                            GameUtils.killPlayer(
+                                    level.getPlayerByUUID(backPlayerUUID), false,
+                                    winner, SRE.id("gun_shot"), false);
+                        }
+                    }
+
                     SREGameWorldComponent gameComponent = SREGameWorldComponent.KEY.get(level);
                     if (gameComponent.gameMode instanceof SREDevilRouletteGameMode mode) {
                         if (winner != null) {
                             SREPlayerShopComponent shopComponent = SREPlayerShopComponent.KEY.get(winner);
-                            shopComponent.addToBalance(SREDevilRouletteGameMode.WINNER_COIN * game.getHealth(winner.getUUID()));
+                            shopComponent.addToBalance(
+                                    SREDevilRouletteGameMode.WINNER_COIN * game.getHealth(winner.getUUID()));
                             mode.addWinner(winner);
                         }
                         // 判断两次防止winner为空
@@ -476,16 +488,34 @@ public class DevilRouletteTableEntity extends BlockEntity {
                     }
                 }
                 default -> {
+                    // 普通对局没有小脑，直接穿盾
+                    if (GameUtils.isGameStarted) {
+                        if (level.getPlayerByUUID(frontPlayerUUID) != null
+                                && level.getPlayerByUUID(frontPlayerUUID) != winner) {
+                            GameUtils.killPlayer(
+                                    level.getPlayerByUUID(frontPlayerUUID), false,
+                                    // 杀手使用null 防止被小脑惩罚
+                                    null, SRE.id("gun_shot"), false);
+                        }
+                        if (level.getPlayerByUUID(backPlayerUUID) != null
+                                && level.getPlayerByUUID(backPlayerUUID) != winner) {
+                            GameUtils.killPlayer(
+                                    level.getPlayerByUUID(backPlayerUUID), false,
+                                    null, SRE.id("gun_shot"), false);
+                        }
+                    }
                 }
             }
             if (winner != null) {
                 isCollectFloatingText = false;
                 winnerText = addFloatingTextInBlockPosCenter(worldPosition,
                         Component.translatable("noellesroles.game.devil_roulette.winner",
-                                winner.getName().getString()), 200);
+                                winner.getName().getString()),
+                        200);
                 isCollectFloatingText = true;
                 // 播放胜利音效
-                level.playSound(null, worldPosition, SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, SoundSource.BLOCKS, 0.15625f, 1f);
+                level.playSound(null, worldPosition, SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, SoundSource.BLOCKS,
+                        0.15625f, 1f);
                 reset();
             }
         }
@@ -499,6 +529,7 @@ public class DevilRouletteTableEntity extends BlockEntity {
         }
         showBulletText();
     }
+
     protected void showBulletText() {
         // TODO : 添加文本上升动画
         // 添加弹药信息文本
@@ -507,12 +538,15 @@ public class DevilRouletteTableEntity extends BlockEntity {
         addFloatingText(CENTER_POS,
                 bulletComponent, 60);
     }
+
     /** 当子弹被强化时显示强化信息 */
     protected void showStrongBullet() {
         addFloatingText(CENTER_POS, Component.literal("💀".repeat(Math.max(game.getDamage(), 0))), 30);
     }
+
     /**
      * 偏移操作提示文本
+     * 
      * @param idxOffset 偏移量
      */
     protected void offsetOperateText(int idxOffset) {
@@ -526,22 +560,27 @@ public class DevilRouletteTableEntity extends BlockEntity {
         addFloatingText(new Vec3(nextPos.getX() + 0.5, nextPos.getY() + 0.3, nextPos.getZ() + 0.5),
                 shootOppositeComponent, -1, MIDDLE_SCALE);
     }
+
     public boolean checkCanStartGame() {
         if (frontPlayerUUID != null && backPlayerUUID != null) {
-            addFloatingTextInBlockPosCenter(worldPosition.offset(0,1,0), Component.translatable("noellesroles.game.devil_roulette.wait_start"), -1);
+            addFloatingTextInBlockPosCenter(worldPosition.offset(0, 1, 0),
+                    Component.translatable("noellesroles.game.devil_roulette.wait_start"), -1);
             return true;
         }
         return false;
     }
+
     public boolean checkPlayerInRightSeat(Player player, boolean isFront) {
         if (isFront) {
             return player.getUUID() == frontPlayerUUID;
         }
         return player.getUUID() == backPlayerUUID;
     }
+
     public boolean canPlayerOperate(Player player) {
         return game != null && game.canOperate(player.getUUID());
     }
+
     /** 更新玩家生命显示 */
     public void updatePlayerHealthDisplay() {
         StringBuilder healthText = new StringBuilder();
@@ -571,13 +610,16 @@ public class DevilRouletteTableEntity extends BlockEntity {
             replaceFloatingText(lastText, backPlayerName, -1, MIDDLE_SCALE);
         }
     }
+
     /**
      * 更新枪的旋转角度
+     * 
      * @param additionalYaw 额外的 Y 轴旋转角度（度数）
      */
     public void updateGunRotation(float additionalYaw) {
         TableItemDisplay gun = itemDisplays.get(gunStack);
-        if (gun == null || !gun.isAlive()) return;
+        if (gun == null || !gun.isAlive())
+            return;
 
         curGunRotationY += additionalYaw;
         curGunRotationY %= 360;
@@ -591,6 +633,7 @@ public class DevilRouletteTableEntity extends BlockEntity {
         Matrix4f matrix = new Matrix4f().rotate(rotation);
         gun.setTransformation(new Transformation(matrix));
     }
+
     public boolean addPlayer(@NotNull Player player, boolean isFront) {
         BlockState state = getBlockState();
         if (isFront) {
@@ -602,13 +645,13 @@ public class DevilRouletteTableEntity extends BlockEntity {
             frontPlayerName = player.getName();
             addFloatingText(new Vec3(frontPos.getX() + 0.5, frontPos.getY() + 0.2, frontPos.getZ() + 0.5),
                     frontPlayerName, -1, MIDDLE_SCALE);
-        }
-        else {
+        } else {
             if (backPlayerUUID != null || frontPlayerUUID == player.getUUID()) {
                 return false;
             }
             backPlayerUUID = player.getUUID();
-            BlockPos backPos = worldPosition.relative(state.getValue(BlockStateProperties.HORIZONTAL_FACING).getOpposite());
+            BlockPos backPos = worldPosition
+                    .relative(state.getValue(BlockStateProperties.HORIZONTAL_FACING).getOpposite());
             backPlayerName = player.getName();
             addFloatingText(new Vec3(backPos.getX() + 0.5, backPos.getY() + 0.2, backPos.getZ() + 0.5),
                     backPlayerName, -1, MIDDLE_SCALE);
@@ -616,6 +659,7 @@ public class DevilRouletteTableEntity extends BlockEntity {
         checkCanStartGame();
         return true;
     }
+
     protected void removeFrontPlayer() {
         if (frontPlayerName != null) {
             removeFloatingText(frontPlayerName);
@@ -623,6 +667,7 @@ public class DevilRouletteTableEntity extends BlockEntity {
         frontPlayerUUID = null;
         frontPlayerName = Component.empty();
     }
+
     protected void removeBackPlayer() {
         if (backPlayerName != null) {
             removeFloatingText(backPlayerName);
@@ -630,6 +675,7 @@ public class DevilRouletteTableEntity extends BlockEntity {
         backPlayerUUID = null;
         backPlayerName = Component.empty();
     }
+
     /** 移除同方向相同的玩家，如果成功则为true */
     public boolean removePlayerIfSame(Player player, boolean isFront) {
         if (isFront) {
@@ -637,8 +683,7 @@ public class DevilRouletteTableEntity extends BlockEntity {
                 removeFrontPlayer();
                 return true;
             }
-        }
-        else {
+        } else {
             if (backPlayerUUID != null && backPlayerUUID == player.getUUID()) {
                 removeBackPlayer();
                 return true;
@@ -646,9 +691,11 @@ public class DevilRouletteTableEntity extends BlockEntity {
         }
         return false;
     }
+
     public void removeIfTextNull() {
         floatingTexts.values().removeIf(display -> display == null || !display.isAlive());
     }
+
     // 召集玩家到桌子上
     public void convenePlayers() {
         if (level != null && frontPlayerUUID != null && backPlayerUUID != null) {
@@ -660,34 +707,43 @@ public class DevilRouletteTableEntity extends BlockEntity {
                 player2.teleportTo(CENTER_POS.x, CENTER_POS.y, CENTER_POS.z);
         }
     }
+
     public int getTrueBulletNumber() {
         if (game != null) {
             return game.getTrueBulletNumber();
         }
         return 0;
     }
+
     public boolean isGameActive() {
         return game != null && !game.isGameEnd();
     }
+
     public boolean isSeatAvailable(BlockPos pos) {
         return seatArea.contains(pos);
     }
+
     public boolean isFrontSeat(BlockPos pos) {
         return seatArea.contains(pos) && seatArea.indexOf(pos) < seatArea.size() / 2;
     }
+
     public void resetTick() {
         curAFKTick = 0;
         curAFKCount = 1;
         curLeftTickGap = 0;
     }
+
     public void setGameMode(DevilRouletteGame.GameMode gameMode) {
         this.gameMode = gameMode;
     }
+
     public DevilRouletteGame.GameMode getGameMode() {
         return gameMode;
     }
+
     public Direction getFacing() {
-        if (this.level == null) return Direction.NORTH;
+        if (this.level == null)
+            return Direction.NORTH;
         BlockState state = this.getBlockState();
 
         // 如果方块有 HORIZONTAL_FACING 属性
@@ -700,11 +756,13 @@ public class DevilRouletteTableEntity extends BlockEntity {
             return state.getValue(BlockStateProperties.FACING);
         }
 
-        return Direction.NORTH;  // 默认
+        return Direction.NORTH; // 默认
     }
+
     public List<BlockPos> getSeatArea() {
         return seatArea;
     }
+
     /** 0.5 倍 */
     public static final Vec3 MIDDLE_SCALE = new Vec3(0.5, 0.5, 0.5);
     /** 正常倍数 */
@@ -723,15 +781,17 @@ public class DevilRouletteTableEntity extends BlockEntity {
      */
     protected final Map<Component, TableTextDisplay> floatingTexts = new HashMap<>();
     protected final Map<ItemStack, TableItemDisplay> itemDisplays = new HashMap<>();
-    /** 游戏可用的座位区域
+    /**
+     * 游戏可用的座位区域
      * <p>
-     *     前半是前方座位，后半是后方座位
-     * </p> */
+     * 前半是前方座位，后半是后方座位
+     * </p>
+     */
     protected final List<BlockPos> seatArea = new ArrayList<>();
     /**
      * 玩家操作区域
      * <p>
-     *     - 前半是前方玩家，后半是后方玩家，顺序为玩家的左中右
+     * - 前半是前方玩家，后半是后方玩家，顺序为玩家的左中右
      * </p>
      */
     protected final List<BlockPos> playerOperateArea = new ArrayList<>();

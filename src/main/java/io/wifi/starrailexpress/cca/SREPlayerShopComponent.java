@@ -1,6 +1,7 @@
 package io.wifi.starrailexpress.cca;
 
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -32,6 +33,7 @@ public class SREPlayerShopComponent implements RoleComponent, ServerTickingCompo
             SREPlayerShopComponent.class);
     private final Player player;
     public int balance = 0;
+    public long grenadeLastPurchaseTime = 0;
 
     public SREPlayerShopComponent(Player player) {
         this.player = player;
@@ -49,6 +51,7 @@ public class SREPlayerShopComponent implements RoleComponent, ServerTickingCompo
     @Override
     public void init() {
         this.balance = 0;
+        this.grenadeLastPurchaseTime = 0;
         this.sync();
     }
 
@@ -82,12 +85,35 @@ public class SREPlayerShopComponent implements RoleComponent, ServerTickingCompo
         if (index < 0 || index >= getShopEntries().size())
             return;
         ShopEntry entry = getShopEntries().get(index);
+        // 手榴弹购买冷却检查（可配置，默认30秒）
+        if (entry.stack().is(TMMItems.GRENADE)) {
+            int purchaseCooldownTicks = SREConfig.instance().grenadePurchaseCooldown * 20;
+            long timeSincePurchase = player.level().getGameTime() - this.grenadeLastPurchaseTime;
+            if (timeSincePurchase < purchaseCooldownTicks) {
+                this.player.displayClientMessage(
+                        Component.translatable("message.tip.purchase_cooldown",
+                                (purchaseCooldownTicks - timeSincePurchase) / 20).withStyle(ChatFormatting.DARK_RED),
+                        true);
+                if (this.player instanceof ServerPlayer serverPlayer) {
+                    serverPlayer.connection.send(new ClientboundSoundPacket(
+                            BuiltInRegistries.SOUND_EVENT.wrapAsHolder(TMMSounds.UI_SHOP_BUY_FAIL),
+                            SoundSource.PLAYERS, serverPlayer.getX(), serverPlayer.getY(), serverPlayer.getZ(), 1.0f,
+                            0.9f + this.player.getRandom().nextFloat() * 0.2f,
+                            serverPlayer.getRandom().nextLong()));
+                }
+                return;
+            }
+        }
         if (FabricLoader.getInstance().isDevelopmentEnvironment() && this.balance < entry.price())
             this.balance = entry.price() * 10;
         if (this.balance >= entry.price() && !this.player.getCooldowns().isOnCooldown(entry.stack().getItem())
                 && entry.canDisplay(this.player) && entry.canBuy(this.player) && !entry.isSafeTime(this.player)
                 && entry.onBuy(this.player)) {
             this.balance -= entry.price();
+            // 手榴弹购买后记录购买时间
+            if (entry.stack().is(TMMItems.GRENADE)) {
+                this.grenadeLastPurchaseTime = player.level().getGameTime();
+            }
             if (this.player instanceof ServerPlayer player) {
                 player.connection.send(
                         new ClientboundSoundPacket(BuiltInRegistries.SOUND_EVENT.wrapAsHolder(TMMSounds.UI_SHOP_BUY),
@@ -171,7 +197,7 @@ public class SREPlayerShopComponent implements RoleComponent, ServerTickingCompo
             player.level().players().forEach(
                     p -> p.getCooldowns().addCooldown(TMMItems.MONITOR_BROKEN, GameConstants.getMonitorBrokenCooldownGlobal()));
 
-            SRE.REPLAY_MANAGER.recordSkillUsed(player.getUUID(), BuiltInRegistries.ITEM.getKey(TMMItems.BLACKOUT));
+            SRE.REPLAY_MANAGER.recordSkillUsed(player.getUUID(), BuiltInRegistries.ITEM.getKey(TMMItems.MONITOR_BROKEN));
             player.getCooldowns().addCooldown(TMMItems.MONITOR_BROKEN,
                     GameConstants.ITEM_COOLDOWNS.getOrDefault(TMMItems.MONITOR_BROKEN, 0));
         }

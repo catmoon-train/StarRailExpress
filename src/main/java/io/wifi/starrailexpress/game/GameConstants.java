@@ -175,6 +175,7 @@ public class GameConstants {
     }
 
     public static class DeathReasons {
+        public static ResourceLocation DISCONNECT = SRE.id("disconnected");
         public static ResourceLocation BLACK_WHITE_TIMEOUT = SRE.id("black_white");
         public static ResourceLocation BACKFIRE = SRE.id("backfire");
         public static ResourceLocation EXECUTE = SRE.id("execute");
@@ -192,6 +193,7 @@ public class GameConstants {
         public static ResourceLocation SNIPER_RIFLE = SRE.id("sniper_rifle");
         public static ResourceLocation SNIPER_RIFLE_BACKFIRE = SRE.id("sniper_rifle_backfire");
         public static ResourceLocation NUNCHUCK = SRE.id("nunchuck_hit");
+        public static ResourceLocation ZERO_ONE_FIVE = SRE.id("zero_one_five_shot");
     }
 
     public static int getFurandoruSafeLine() {

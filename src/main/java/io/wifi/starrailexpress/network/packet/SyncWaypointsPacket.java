@@ -94,7 +94,6 @@ public class SyncWaypointsPacket implements CustomPacketPayload {
             
             // 添加新的路径点
             for (Map.Entry<String, List<WaypointData>> entry : packet.waypoints.entrySet()) {
-                String path = entry.getKey();
                 for (WaypointData wp : entry.getValue()) {
                     WaypointHUD.addWaypoint(wp.getPos(), wp.getName(), new Color(wp.getColor()));
                 }

@@ -5,7 +5,9 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.replay.GameReplayData;
 import io.wifi.starrailexpress.api.replay.GameReplayManager;
+import io.wifi.starrailexpress.api.replay.screen.ReplayScreenService;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
+import io.wifi.starrailexpress.cca.PlayerBodyEntityComponent;
 import io.wifi.starrailexpress.cca.SREArmorPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
 import io.wifi.starrailexpress.cca.SREGameTimeComponent;
@@ -24,6 +26,7 @@ import io.wifi.starrailexpress.event.AllowPlayerDeath;
 import io.wifi.starrailexpress.event.AllowPlayerDeathWithKiller;
 import io.wifi.starrailexpress.event.AllowSpectatorPlayerInAreas;
 import io.wifi.starrailexpress.event.EarlyKillPlayer;
+import io.wifi.starrailexpress.event.OnGameTrueStarted;
 import io.wifi.starrailexpress.event.OnGiveKillerBalance;
 import io.wifi.starrailexpress.event.OnKillPlayerTriggered;
 import io.wifi.starrailexpress.event.OnPlayerDeath;
@@ -56,16 +59,27 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.agmas.noellesroles.game.roles.Innocent.coroner.BodyDeathReasonComponent;
+import org.agmas.harpymodloader.component.WorldModifierComponent;
+import org.agmas.noellesroles.role.TraitorAndModifiers;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class GameMode {
     public final ResourceLocation identifier;
     public final int defaultStartTime;
     public final int minPlayerCount;
+    public long safeTimeStarted = 0;
+
+    public boolean canPickBodyContent() {
+        return false;
+    };
+
+    public boolean canSeeBodyContent() {
+        return false;
+    };
 
     /**
      * @param identifier       游戏的id
@@ -101,6 +115,15 @@ public abstract class GameMode {
     }
 
     /**
+     * 此模式是否计入玩家数据
+     * 
+     * @return
+     */
+    public boolean shouldRecordPlayerStats() {
+        return false;
+    }
+
+    /**
      * 此模式是否必须有职业（true将导致没职业的玩家变旁观）
      * 
      * @return
@@ -117,6 +140,7 @@ public abstract class GameMode {
     public boolean onlyOneWinner() {
         return this.isLooseEndMode();
     }
+
     /**
      * 是否是亡命徒模式
      * 
@@ -135,24 +159,34 @@ public abstract class GameMode {
      */
     public void recordPlayerStats(ServerLevel serverWorld, SREGameWorldComponent gameComponent,
             ArrayList<ServerPlayer> readyPlayerList) {
-        GameUtils.recordPlayerStats(serverWorld, gameComponent, readyPlayerList);
+        if (shouldRecordPlayerStats()) {
+            GameUtils.recordPlayerStats(serverWorld, gameComponent, readyPlayerList);
+        }
     }
 
     /**
-     * 在游戏开始initializeGame后触发，在OnGameTrueStarted前触发
+     * 在游戏开始initializeGame后触发，在OnGameStarted前触发
      * 
      * @param serverWorld
      * @param gameComponent
      * @param readyPlayerList
      */
-    public void gameTrueStarted(ServerLevel serverWorld, SREGameWorldComponent gameComponent,
+    public void gameStarted(ServerLevel serverWorld, SREGameWorldComponent gameComponent,
             ArrayList<ServerPlayer> readyPlayerList) {
         int SAFE_TIME_COOLDOWN = SREConfig.instance().safeTimeCooldown * 20;
+        safeTimeStarted = 0;
         if (hasSafeTime()) {
+            if (autoTriggerGameTrueStarted()) {
+                safeTimeStarted = serverWorld.getGameTime();
+            }
             GameUtils.addItemCooldowns(serverWorld, SAFE_TIME_COOLDOWN);
         }
         GameUtils.executeFunction(serverWorld.getServer().createCommandSourceStack(),
                 "harpymodloader:start_game_" + AreasWorldComponent.KEY.get(serverWorld).mapName);
+    }
+
+    public boolean autoTriggerGameTrueStarted() {
+        return true;
     }
 
     /**
@@ -164,14 +198,27 @@ public abstract class GameMode {
         return true;
     }
 
+    public void tickServerSafeTimeChecker(ServerLevel serverWorld, SREGameWorldComponent gameCCA) {
+        if (safeTimeStarted > 10) {
+            if (serverWorld.getGameTime() - safeTimeStarted >= SREConfig.instance().safeTimeCooldown * 20) {
+                safeTimeStarted = 0;
+                OnGameTrueStarted.EVENT.invoker().onGameTrueStarted(serverWorld);
+                SRE.LOGGER.info("-".repeat(20));
+                SRE.LOGGER.info("Game True Started after Safe Time!");
+                SRE.LOGGER.info("-".repeat(20));
+            }
+        }
+    }
+
     /**
      * 服务器游戏主循环
      * 
      * @param serverWorld
      * @param gameWorldComponent
      */
-
-    public abstract void tickServerGameLoop(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent);
+    public void tickServerGameLoop(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent) {
+        tickServerSafeTimeChecker(serverWorld, gameWorldComponent);
+    }
 
     /**
      * 初始化游戏，还未正式开始。
@@ -193,6 +240,7 @@ public abstract class GameMode {
     public void beforeInitializeGame(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent,
             List<ServerPlayer> players) {
         GameUtils.baseInitialize(serverWorld, gameWorldComponent, players);
+        safeTimeStarted = 0;
     }
 
     /**
@@ -253,7 +301,10 @@ public abstract class GameMode {
      */
     public void recordWinStats(ServerLevel world, SREGameRoundEndComponent roundEnd,
             SREGameWorldComponent gameComponent) {
-        GameUtils.recordWinStats(world, roundEnd, gameComponent, this.onlyOneWinner());
+        if (shouldRecordPlayerStats()) {
+            GameUtils.recordWinStats(world, roundEnd, gameComponent, this.onlyOneWinner());
+
+        }
     }
 
     /**
@@ -268,6 +319,7 @@ public abstract class GameMode {
         for (ServerPlayer player : world.players()) {
             GameReplayManager.sendSystemMessage(player, text);
         }
+        ReplayScreenService.showDefault(world, SRE.REPLAY_MANAGER);
     }
 
     /**
@@ -303,9 +355,9 @@ public abstract class GameMode {
             killer = _killer;
         _killer = killer;
         OnKillPlayerTriggered.EVENT.invoker().onKillPlayerTriggered(victim, spawnBody, killer, deathReason, forceDeath);
-        SREPlayerPsychoComponent component = SREPlayerPsychoComponent.KEY.get(victim);
+        SREPlayerPsychoComponent psychocca = SREPlayerPsychoComponent.KEY.get(victim);
         if (killer != null && killer instanceof ServerPlayer serverPlayer) {
-            final var triggerScreenEdgeEffectPayload = new TriggerScreenEdgeEffectPayload(java.awt.Color.WHITE.getRGB(),
+            final var triggerScreenEdgeEffectPayload = new TriggerScreenEdgeEffectPayload(Color.RED.getRGB(),
                     600,
                     0.6f);
             ServerPlayNetworking.send(serverPlayer, triggerScreenEdgeEffectPayload);
@@ -425,9 +477,9 @@ public abstract class GameMode {
             }
         }
 
-        if (component.getPsychoTicks() > 0) {
-            if (!forceDeath && component.getArmour() > 0) {
-                component.setArmour(component.getArmour() - 1);
+        if (psychocca.getPsychoTicks() > 0) {
+            if (!forceDeath && psychocca.getArmour() > 0) {
+                psychocca.setArmour(psychocca.getArmour() - 1);
                 if (SRE.REPLAY_MANAGER != null) {
                     SRE.REPLAY_MANAGER.breakArmor(victim.getUUID());
                 }
@@ -442,7 +494,7 @@ public abstract class GameMode {
                     ServerPlayNetworking.send(serverPlayer,
                             new BreakArmorPayload(victim.getX(), victim.getY(), victim.getZ()));
                 }
-                component.sync();
+                psychocca.sync();
                 victim.playNotifySound(TMMSounds.ITEM_PSYCHO_ARMOUR, SoundSource.MASTER, 5F, 1F);
                 victim.displayClientMessage(Component.translatable("message.bartender.armor_broke_self")
                         .withStyle(ChatFormatting.YELLOW), true);
@@ -450,8 +502,8 @@ public abstract class GameMode {
                 if (!forceDeath)
                     return;
             } else {
-                component.stopPsycho();
-                component.sync();
+                psychocca.stopPsycho();
+                psychocca.sync();
             }
         }
         if (!role.afterShieldAllowDeath(victim, killer, deathReason, spawnBody)) {
@@ -487,23 +539,32 @@ public abstract class GameMode {
             } // --- 新增统计数据更新逻辑 (击杀者) ---
         if (killer instanceof ServerPlayer serverKiller) {
             SREPlayerStatsComponent killerStats = SREPlayerStatsComponent.KEY.get(serverKiller);
-            killerStats.incrementTotalKills();
+            if (shouldRecordPlayerStats()) {
+                killerStats.incrementTotalKills();
+            }
+
+            // 增加本局击杀数
+            gameWorldComponent.addPlayerKill(serverKiller.getUUID());
+
             SREPlayerProgressionComponent.KEY.get(serverKiller).onPlayerKill();
 
             SRERole killerRole = gameWorldComponent.getRole(serverKiller);
             if (killerRole != null) {
                 killerRole.onKill(victim, spawnBody, killer, deathReason);
-                killerStats.getOrCreateRoleStats(killerRole.identifier()).incrementKillsAsRole();
-                // 更新阵营击杀数
-                if (killerRole.isVigilanteTeam()) {
-                    killerStats.incrementTotalSheriffKills();
-                } else if (killerRole.canUseKiller()) {
-                    killerStats.incrementTotalKillerKills();
-                } else if (killerRole.isNeutrals()) {
-                    killerStats.incrementTotalNeutralKills();
-                } else if (killerRole.isInnocent() && !killerRole.isVigilanteTeam()) {
-                    killerStats.incrementTotalCivilianKills();
+                if (shouldRecordPlayerStats()) {
+                    killerStats.getOrCreateRoleStats(killerRole.identifier()).incrementKillsAsRole();
+                    // 更新阵营击杀数
+                    if (killerRole.isVigilanteTeam()) {
+                        killerStats.incrementTotalSheriffKills();
+                    } else if (killerRole.canUseKiller()) {
+                        killerStats.incrementTotalKillerKills();
+                    } else if (killerRole.isNeutrals()) {
+                        killerStats.incrementTotalNeutralKills();
+                    } else if (killerRole.isInnocent() && !killerRole.isVigilanteTeam()) {
+                        killerStats.incrementTotalCivilianKills();
+                    }
                 }
+
                 // 检测是否为友军击杀
                 if (victim instanceof ServerPlayer serverVictim) {
                     SRERole victimRole = gameWorldComponent.getRole(serverVictim);
@@ -522,8 +583,10 @@ public abstract class GameMode {
                                     deathReason);
                         }
                         if (isTeamKill) {
-                            killerStats.incrementTotalTeamKills();
-                            killerStats.getOrCreateRoleStats(killerRole.identifier()).incrementTeamKillsAsRole();
+                            if (shouldRecordPlayerStats()) {
+                                killerStats.incrementTotalTeamKills();
+                                killerStats.getOrCreateRoleStats(killerRole.identifier()).incrementTeamKillsAsRole();
+                            }
                         }
                     }
                 }
@@ -538,45 +601,66 @@ public abstract class GameMode {
                 SRERole victimRole = gameWorldComponent.getRole(serverVictim);
                 victimRole.onDeath(victim, spawnBody, killer, deathReason);
                 SREPlayerStatsComponent victimStats = SREPlayerStatsComponent.KEY.get(serverVictim);
-                victimStats.incrementTotalDeaths();
+                if (shouldRecordPlayerStats()) {
+                    victimStats.incrementTotalDeaths();
+                }
                 if (victimRole != null) {
-                    victimStats.getOrCreateRoleStats(victimRole.identifier()).incrementDeathsAsRole();
-                    // 更新阵营死亡数
-                    if (victimRole.isVigilanteTeam()) {
-                        victimStats.incrementTotalSheriffDeaths();
-                    } else if (victimRole.canUseKiller()) {
-                        victimStats.incrementTotalKillerDeaths();
-                    } else if (victimRole.isNeutrals()) {
-                        victimStats.incrementTotalNeutralDeaths();
-                    } else if (victimRole.isInnocent() && !victimRole.isVigilanteTeam()) {
-                        victimStats.incrementTotalCivilianDeaths();
+                    if (shouldRecordPlayerStats()) {
+                        victimStats.getOrCreateRoleStats(victimRole.identifier()).incrementDeathsAsRole();
+                        // 更新阵营死亡数
+                        if (victimRole.isVigilanteTeam()) {
+                            victimStats.incrementTotalSheriffDeaths();
+                        } else if (victimRole.canUseKiller()) {
+                            victimStats.incrementTotalKillerDeaths();
+                        } else if (victimRole.isNeutrals()) {
+                            victimStats.incrementTotalNeutralDeaths();
+                        } else if (victimRole.isInnocent() && !victimRole.isVigilanteTeam()) {
+                            victimStats.incrementTotalCivilianDeaths();
+                        }
                     }
                 }
                 if (spawnBody) {
                     PlayerBodyEntity body = TMMEntities.PLAYER_BODY.create(victim.level());
-                    double scale = victim.getAttributeValue(Attributes.SCALE);
-                    victim.stopRiding();
-                    victim.stopSleeping();
-                    body.getAttribute(Attributes.SCALE).setBaseValue(scale);
                     if (body != null) {
+                        double scale = victim.getAttributeValue(Attributes.SCALE);
+                        victim.stopRiding();
+                        victim.stopSleeping();
+                        body.getAttribute(Attributes.SCALE).setBaseValue(scale);
+                        PlayerBodyEntityComponent bodycca = body.getComponent();
                         if (killer != null) {
-                            body.setKillerUuid(killer.getUUID());
+                            bodycca.setKillerUuid(killer.getUUID(), false);
                         }
-                        body.setDeathReason(deathReason.toString());
+                        bodycca.setDeathReason(deathReason.toString(), false);
                         body.setPlayerUuid(victim.getUUID());
+
+                        // 检查腐化修饰符 - 腐化尸体会直接显示为骷髅
+                        if (victim.level() instanceof ServerLevel serverLevel) {
+                            WorldModifierComponent modifiers = WorldModifierComponent.KEY.get(serverLevel);
+                            if (modifiers != null
+                                    && modifiers.isModifier(victim.getUUID(), TraitorAndModifiers.CORRUPTED)) {
+                                body.setCorrupted(true);
+                            }
+                        }
+
                         Vec3 spawnPos = victim.position().add(victim.getLookAngle().normalize().scale(1));
                         body.moveTo(spawnPos.x(), victim.getY(), spawnPos.z(), victim.getYHeadRot(), 0f);
                         body.setYRot(victim.getYHeadRot());
                         body.setYHeadRot(victim.getYHeadRot());
                         victim.level().addFreshEntity(body);
-                        {
-                            if (role != null) {
-                                final var bodyDeathReasonComponent = BodyDeathReasonComponent.KEY.get(body);
-                                bodyDeathReasonComponent.playerRole = role.identifier();
-                                bodyDeathReasonComponent.sync();
-                            }
+
+                        if (SREConfig.instance().savePlayerBodyItems) {
+                            body.setCorpseInventoryFromPlayerInventory(victim.getInventory(), false);
                         }
+
+                        if (role != null) {
+                            bodycca.playerRole = role.identifier();
+                            // 不立即同步
+                        }
+
                         victimRole.onDeathWithBody(victim, spawnBody, killer, deathReason, body);
+
+                        // 最后统一同步一次
+                        bodycca.sync();
                     }
                 }
             }

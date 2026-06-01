@@ -98,7 +98,7 @@ public class BloodFeudistPlayerComponent implements RoleComponent, CommonTicking
         var gwc = SREGameWorldComponent.KEY.get(this.player.level());
         if (!gwc.isRole(player, ModRoles.BLOOD_FEUDIST))
             return;
-        // 根据开关状态应用药水效果
+        // 根据开关状态应用药水效果（只负责应用，不负责移除）
         if (gotSpeed2 && speedEnabled) {
             if (!player.hasEffect(MobEffects.MOVEMENT_SPEED)
                     || player.getEffect(MobEffects.MOVEMENT_SPEED).getAmplifier() != 1) {
@@ -111,21 +111,11 @@ public class BloodFeudistPlayerComponent implements RoleComponent, CommonTicking
                 player.addEffect(
                         new MobEffectInstance(MobEffects.MOVEMENT_SPEED, Integer.MAX_VALUE, 0, false, false, true));
             }
-        } else {
-            // 如果开关关闭，移除速度效果
-            if (player.hasEffect(MobEffects.MOVEMENT_SPEED)) {
-                player.removeEffect(MobEffects.MOVEMENT_SPEED);
-            }
         }
 
         if (gotHaste2 && hasteEnabled) {
             if (!player.hasEffect(MobEffects.DIG_SPEED) || player.getEffect(MobEffects.DIG_SPEED).getAmplifier() != 1) {
                 player.addEffect(new MobEffectInstance(MobEffects.DIG_SPEED, Integer.MAX_VALUE, 1, false, false, true));
-            }
-        } else {
-            // 如果开关关闭，移除急迫效果
-            if (player.hasEffect(MobEffects.DIG_SPEED)) {
-                player.removeEffect(MobEffects.DIG_SPEED);
             }
         }
 
@@ -172,21 +162,18 @@ public class BloodFeudistPlayerComponent implements RoleComponent, CommonTicking
      * 应用奖励
      */
     private void applyRewards() {
-        // 1人误杀：永久速度1
+        // 1人误杀：永久速度1（不直接添加效果，由tick根据开关状态处理）
         if (accidentalKillCount >= 1 && !gotSpeed1) {
             gotSpeed1 = true;
-            player.addEffect(
-                    new MobEffectInstance(MobEffects.MOVEMENT_SPEED, Integer.MAX_VALUE, 0, false, false, true));
             if (player instanceof ServerPlayer sp) {
                 sp.sendSystemMessage(Component.translatable("message.noellesroles.blood_feudist.speed1")
                         .withStyle(net.minecraft.ChatFormatting.GREEN));
             }
         }
 
-        // 2人误杀：永久急迫2（阶段2）
+        // 2人误杀：永久急迫2（阶段2）（不直接添加效果，由tick根据开关状态处理）
         if (accidentalKillCount >= 2 && !gotHaste2) {
             gotHaste2 = true;
-            player.addEffect(new MobEffectInstance(MobEffects.DIG_SPEED, Integer.MAX_VALUE, 1, false, false, true));
             // 播放重生锚充能声音 - 全场播放
             player.level().playSound(null, player.blockPosition(),
                     SoundEvents.RESPAWN_ANCHOR_CHARGE, SoundSource.MASTER, 3.0F, 1.0F);
@@ -207,12 +194,9 @@ public class BloodFeudistPlayerComponent implements RoleComponent, CommonTicking
             }
         }
 
-        // 4人误杀：永久速度2（替换速度1）（阶段4）
+        // 4人误杀：永久速度2（替换速度1）（阶段4）（不直接添加效果，由tick根据开关状态处理）
         if (accidentalKillCount >= 4 && !gotSpeed2) {
             gotSpeed2 = true;
-            player.removeEffect(MobEffects.MOVEMENT_SPEED);
-            player.addEffect(
-                    new MobEffectInstance(MobEffects.MOVEMENT_SPEED, Integer.MAX_VALUE, 1, false, false, true));
             // 播放重生锚能量被消耗声音 - 全场播放
             player.level().playSound(null, player.blockPosition(),
                     SoundEvents.RESPAWN_ANCHOR_DEPLETE.value(), SoundSource.MASTER, 3.0F, 1.0F);
@@ -302,6 +286,12 @@ public class BloodFeudistPlayerComponent implements RoleComponent, CommonTicking
         }
         if (gotHaste2) {
             hasteEnabled = newState;
+        }
+
+        // 关闭效果时，立即清理药水，避免tick循环重复检查/清理
+        if (!newState) {
+            player.removeEffect(MobEffects.MOVEMENT_SPEED);
+            player.removeEffect(MobEffects.DIG_SPEED);
         }
 
         sync();

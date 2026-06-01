@@ -1,5 +1,5 @@
 {
-  "fragment": "minecraft:shaders/program/blur.fsh",
+  "fragment": "blur",
   "attributes": [
     "Position"
   ],

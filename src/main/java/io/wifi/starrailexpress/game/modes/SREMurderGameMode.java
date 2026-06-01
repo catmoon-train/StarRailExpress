@@ -1,6 +1,7 @@
 package io.wifi.starrailexpress.game.modes;
 
 import io.wifi.starrailexpress.api.GameMode;
+import io.wifi.starrailexpress.api.RepairRole;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.*;
@@ -47,6 +48,11 @@ public class SREMurderGameMode extends GameMode {
         super(identifier, 10, 6);
     }
 
+    @Override
+    public boolean shouldRecordPlayerStats() {
+        return true;
+    }
+
     public SREMurderGameMode(ResourceLocation identifier, int defaultStartTime, int minPlayerCount) {
         super(identifier, defaultStartTime, minPlayerCount);
     }
@@ -58,13 +64,6 @@ public class SREMurderGameMode extends GameMode {
 
         // 将玩家从队伍中移除
         removePlayersFromTeam(serverWorld.getServer().createCommandSourceStack(), "harpymodloader_game");
-        Harpymodloader.FORCED_MODDED_ROLE.clear();
-        Harpymodloader.FORCED_MODDED_MODIFIER.clear();
-        Harpymodloader.FORCED_MODDED_ROLE_FLIP.clear();
-        WorldModifierComponent worldModifierComponent = WorldModifierComponent.KEY.get(serverWorld);
-        worldModifierComponent.modifiers.clear();
-        worldModifierComponent.sync();
-
         super.finalizeGame(serverWorld, gameWorldComponent);
     }
 
@@ -192,6 +191,7 @@ public class SREMurderGameMode extends GameMode {
 
         // 使用临时映射存储要添加的修饰符，避免在遍历过程中修改数据结构
         Map<UUID, List<SREModifier>> tempModifierAssignments = new HashMap<>();
+        int maxModifiersPerPlayer = Math.max(0, HarpyModLoaderConfig.HANDLER.instance().modifierMaximum);
         var allModifiers = new ArrayList<>(HMLModifiers.MODIFIERS);
         int killerMods = (int) allModifiers.stream().filter(modifier -> modifier.killerOnly).count();
         Collections.shuffle(allModifiers);
@@ -211,69 +211,47 @@ public class SREMurderGameMode extends GameMode {
             if (Harpymodloader.FORCED_MODDED_MODIFIER.containsKey(mod)) {
                 for (ServerPlayer player : shuffledPlayers) {
                     if (Harpymodloader.FORCED_MODDED_MODIFIER.get(mod).contains(player.getUUID())) {
+                        if (getAssignedModifierCount(tempModifierAssignments,
+                                player.getUUID()) >= maxModifiersPerPlayer) {
+                            continue;
+                        }
                         // 临时存储，稍后统一添加
-                        tempModifierAssignments.computeIfAbsent(player.getUUID(), k -> new ArrayList<>()).add(mod);
-                        // ModifierAssigned.EVENT.invoker().assignModifier(player, mod);
-                        playersAssigned++;
+                        if (addModifierAssignment(tempModifierAssignments, player.getUUID(), mod)) {
+                            // ModifierAssigned.EVENT.invoker().assignModifier(player, mod);
+                            playersAssigned++;
+                        }
                     }
                 }
             }
-            for (ServerPlayer player : shuffledPlayers) {
-                if (HarpyModLoaderConfig.HANDLER.instance().disabledModifiers.contains(mod.identifier.toString())) {
+
+            if (HarpyModLoaderConfig.HANDLER.instance().disabledModifiers.contains(mod.identifier.toString())) {
+                continue;
+            }
+
+            int m_max = Harpymodloader.MODIFIER_MAX.getOrDefault(mod.identifier, 1);
+            int targetAssignments = specificDesiredRoleCount;
+            if (m_max != -1) {
+                targetAssignments = Math.min(targetAssignments, m_max);
+            }
+            if (playersAssigned >= targetAssignments) {
+                continue;
+            }
+
+            List<ServerPlayer> candidates = new ArrayList<>(shuffledPlayers);
+            candidates.removeIf(player -> !canAssignModifierToPlayer(mod, player, gameWorldComponent,
+                    tempModifierAssignments, maxModifiersPerPlayer));
+            Collections.shuffle(candidates);
+            candidates.sort(Comparator.comparingInt(
+                    player -> getAssignedModifierCount(tempModifierAssignments, player.getUUID())));
+
+            for (ServerPlayer player : candidates) {
+                if (playersAssigned >= targetAssignments) {
                     break;
                 }
-                if (playersAssigned >= specificDesiredRoleCount) {
-                    break;
-                }
-
-                int m_max = Harpymodloader.MODIFIER_MAX.getOrDefault(mod.identifier, 1);
-                if (m_max != -1) {
-                    if (playersAssigned >= m_max) {
-                        break;
-                    }
-                }
-
-                boolean valid = true;
-
-                if (mod.canOnlyBeAppliedTo != null) {
-                    if (gameWorldComponent.getRole(player) != null) {
-                        valid = valid && mod.canOnlyBeAppliedTo.contains(gameWorldComponent.getRole(player));
-                    }
-                }
-                if (mod.cannotBeAppliedTo != null) {
-                    if (gameWorldComponent.getRole(player) != null) {
-                        valid = valid && !mod.cannotBeAppliedTo.contains(gameWorldComponent.getRole(player));
-                    }
-                }
-                if (!valid) {
-                    continue;
-                }
-
-                if (mod.killerOnly) {
-                    valid = valid && gameWorldComponent.isKillerTeam(player);
-                }
-                if (mod.civilianOnly) {
-                    valid = valid && gameWorldComponent.isInnocent(player);
-                }
-                if (mod.notVigilante) {
-                    valid = valid && !gameWorldComponent.isVigilanteTeam(player);
-                }
-                if (!valid) {
-                    continue;
-                }
-                var pModifiers = tempModifierAssignments.getOrDefault(player, null);
-                if (pModifiers != null) {
-                    if (pModifiers.size() >= HarpyModLoaderConfig.HANDLER.instance().modifierMaximum) {
-                        continue;
-                    }
-                    if (pModifiers.contains(mod)) {
-                        continue;
-                    }
-                }
-
                 // 临时存储，稍后统一添加
-                tempModifierAssignments.computeIfAbsent(player.getUUID(), k -> new ArrayList<>()).add(mod);
-                playersAssigned++;
+                if (addModifierAssignment(tempModifierAssignments, player.getUUID(), mod)) {
+                    playersAssigned++;
+                }
             }
         }
 
@@ -309,35 +287,105 @@ public class SREMurderGameMode extends GameMode {
         }
     }
 
+    private static boolean addModifierAssignment(Map<UUID, List<SREModifier>> modifierAssignments, UUID playerUuid,
+            SREModifier modifier) {
+        List<SREModifier> playerModifiers = modifierAssignments.computeIfAbsent(playerUuid, k -> new ArrayList<>());
+        if (playerModifiers.contains(modifier)) {
+            return false;
+        }
+        playerModifiers.add(modifier);
+        return true;
+    }
+
+    private static boolean canAssignModifierToPlayer(SREModifier modifier, ServerPlayer player,
+            SREGameWorldComponent gameWorldComponent, Map<UUID, List<SREModifier>> modifierAssignments,
+            int maxModifiersPerPlayer) {
+        UUID playerUuid = player.getUUID();
+        if (getAssignedModifierCount(modifierAssignments, playerUuid) >= maxModifiersPerPlayer) {
+            return false;
+        }
+        List<SREModifier> playerModifiers = modifierAssignments.get(playerUuid);
+        if (playerModifiers != null) {
+            if (playerModifiers.contains(modifier)) {
+                return false;
+            }
+        }
+
+        var role = gameWorldComponent.getRole(player);
+        if (modifier.canOnlyBeAppliedTo != null && role != null && !modifier.canOnlyBeAppliedTo.contains(role)) {
+            return false;
+        }
+        if (modifier.cannotBeAppliedTo != null && role != null && modifier.cannotBeAppliedTo.contains(role)) {
+            return false;
+        }
+        if (modifier.killerOnly && (role == null || !role.canUseKiller())) {
+            return false;
+        }
+        if (modifier.civilianOnly && !gameWorldComponent.isInnocent(player)) {
+            return false;
+        }
+        if (modifier.notVigilante && gameWorldComponent.isVigilanteTeam(player)) {
+            return false;
+        }
+        return true;
+    }
+
+    private static int getAssignedModifierCount(Map<UUID, List<SREModifier>> modifierAssignments, UUID playerUuid) {
+        List<SREModifier> playerModifiers = modifierAssignments.get(playerUuid);
+        return playerModifiers == null ? 0 : playerModifiers.size();
+    }
+
     /**
      * 新的模块化角色分配方法
      * 处理强制角色、计算各类型角色数量、创建角色池、分配角色以及处理关联角色
      */
     public static List<RoleInstance> getAllRoles(int killerCount, int vigilanteCount, int neutralsCount, int playerSize,
             int forcedRoleSize) {
+        HarpyModLoaderConfig config = HarpyModLoaderConfig.HANDLER.instance();
+        boolean enableCivilianInPool = config.enableCivilianInPool;
+
         RoleAssignmentPool killerPool = RoleAssignmentPool.create("Killer",
                 role -> !Harpymodloader.VANNILA_ROLES.contains(role) &&
+                        !role.isOtherModeRole() &&
+                        !(role instanceof RepairRole) &&
                         role.canUseKiller() &&
                         !role.isInnocent() &&
                         role != TMMRoles.CIVILIAN);
-        RoleAssignmentPool vigilantePool = RoleAssignmentPool.create("Vigilante", SRERole::isVigilanteTeam);
+        RoleAssignmentPool vigilantePool = RoleAssignmentPool.create("Vigilante",
+                role -> role.isVigilanteTeam() && !role.isOtherModeRole() && !(role instanceof RepairRole));
         // 中立池
         RoleAssignmentPool neutralsPool = RoleAssignmentPool.create("Neutrals",
                 role -> (!Harpymodloader.VANNILA_ROLES.contains(role) &&
+                        !role.isOtherModeRole() &&
+                        !(role instanceof RepairRole) &&
                         ((!role.canUseKiller() &&
                                 !role.isInnocent()) || role.isNeutrals())
                         &&
                         role != TMMRoles.CIVILIAN));
         // 平民池（只包含真正的"平民"角色，例如医生等）
+        // 当 enableCivilianInPool 开启时，允许 sre:civilian 进入池中
         RoleAssignmentPool civilianPool = RoleAssignmentPool.create("Civilian",
                 role -> !Harpymodloader.VANNILA_ROLES.contains(role) &&
+                        !role.isOtherModeRole() &&
+                        !(role instanceof RepairRole) &&
                         !role.isVigilanteTeam() &&
                         !role.canUseKiller() &&
                         !role.isNeutrals() &&
                         role.isInnocent() &&
-                        role != TMMRoles.CIVILIAN);
+                        (enableCivilianInPool || role != TMMRoles.CIVILIAN));
+        // 如果开启 civilian 进池，设置最大数量为 1
+        if (enableCivilianInPool) {
+            Harpymodloader.setRoleMaximum(TMMRoles.CIVILIAN.getIdentifier(), 1);
+        }
         return getAllRoles(killerCount, vigilanteCount, neutralsCount, playerSize, forcedRoleSize, killerPool,
                 neutralsPool, vigilantePool, civilianPool, true);
+    }
+
+    public static List<RoleInstance> getAllRoles(int killerCount, int vigilanteCount, int neutralsCount, int playerSize,
+            int forcedRoleSize, RoleAssignmentPool killerPool, RoleAssignmentPool neutralsPool,
+            RoleAssignmentPool vigilantePool, RoleAssignmentPool civilianPool, boolean haveOccupationRoles) {
+        return getAllRoles(killerCount, vigilanteCount, neutralsCount, playerSize, forcedRoleSize, killerPool,
+                neutralsPool, vigilantePool, civilianPool, haveOccupationRoles, 5);
     }
 
     /**
@@ -346,7 +394,8 @@ public class SREMurderGameMode extends GameMode {
      */
     public static List<RoleInstance> getAllRoles(int killerCount, int vigilanteCount, int neutralsCount, int playerSize,
             int forcedRoleSize, RoleAssignmentPool killerPool, RoleAssignmentPool neutralsPool,
-            RoleAssignmentPool vigilantePool, RoleAssignmentPool civilianPool, boolean haveOccupationRoles) {
+            RoleAssignmentPool vigilantePool, RoleAssignmentPool civilianPool, boolean haveOccupationRoles,
+            int maxDepth) {
         // 第二步：创建角色池并分配角色
         // 杀手池
 
@@ -359,12 +408,36 @@ public class SREMurderGameMode extends GameMode {
 
         List<SRERole> assignedNatures = neutralsPool.selectRoles(neutralsCount);
 
+        // 处理 setOccupiedRoleCount(0) 的职业：这些职业不占用原有杀手/中立/警长名额，
+        // 而是替换一个平民位。统计各阵营中 occupied=0 的数量，额外补充同阵营职业并减少平民数。
+        // 注意：平民（非警长阵营）不应该设置 occupiedRoleCount(0)，此处做安全兜底改为1，避免平民自己"替换"平民。
+        long zeroKillers = assignedKillers.stream().filter(r -> r.getOccupiedRoleCount() <= 0).count();
+        long zeroVigilantes = assignedVigilantes.stream().filter(r -> r.getOccupiedRoleCount() <= 0).count();
+        long zeroNeutrals = assignedNatures.stream().filter(r -> r.getOccupiedRoleCount() <= 0).count();
+
+        if (zeroKillers > 0) {
+            assignedKillers.addAll(killerPool.selectRoles((int) zeroKillers));
+        }
+        if (zeroVigilantes > 0) {
+            assignedVigilantes.addAll(vigilantePool.selectRoles((int) zeroVigilantes));
+        }
+        if (zeroNeutrals > 0) {
+            assignedNatures.addAll(neutralsPool.selectRoles((int) zeroNeutrals));
+        }
+
         // 第三步：计算平民数量（只分配基础非平民角色，不包含补充的平民角色）
         int assignedSpecialCount = assignedKillers.size() + assignedVigilantes.size() + assignedNatures.size();
         int civilianCount = playerSize - assignedSpecialCount - forcedRoleSize;
 
         civilianPool.setIgnoreRoleOccupiedCount(true);
         List<SRERole> assignedCivilians = civilianPool.selectRoles(civilianCount);
+
+        // 平民（非警长阵营）如果设置了 setOccupiedRoleCount(0)，兜底改为1，避免平民自身触发"替换平民"逻辑
+        for (SRERole civilian : assignedCivilians) {
+            if (!civilian.isVigilanteTeam() && civilian.getOccupiedRoleCount() <= 0) {
+                civilian.setOccupiedRoleCount(1);
+            }
+        }
 
         // 第四步：合并所有分配的角色（包括处理关联角色）
         List<SRERole> allRoles = new ArrayList<>();
@@ -380,10 +453,12 @@ public class SREMurderGameMode extends GameMode {
             roleInstantList.add(new RoleInstance(UUID.randomUUID(), role));
         }
         List<RoleInstance> expandedRoles = roleInstantList;
+        List<RoleInstance> newRoleInstances = RoleAssignmentManager.removeOpposingJobs(roleInstantList, killerPool,
+                neutralsPool,
+                vigilantePool, civilianPool, haveOccupationRoles, maxDepth);
         if (haveOccupationRoles) {
-            expandedRoles = RoleAssignmentManager.expandWithCompanionRoles(roleInstantList);
+            expandedRoles = RoleAssignmentManager.expandWithCompanionRoles(newRoleInstances);
         }
-
         return expandedRoles;
     }
 
@@ -557,6 +632,7 @@ public class SREMurderGameMode extends GameMode {
 
     @Override
     public void tickServerGameLoop(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent) {
+        super.tickServerGameLoop(serverWorld, gameWorldComponent);
         GameUtils.WinStatus winStatus = GameUtils.WinStatus.NONE;
 
         boolean civilianAlive = false;

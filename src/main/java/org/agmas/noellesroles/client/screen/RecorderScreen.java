@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.client.screen;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.client.util.PinYinUtils;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -34,6 +35,21 @@ import java.util.List;
  * 2. 选择角色（显示当前局有的身份）
  */
 public class RecorderScreen extends Screen {
+
+    // 需要排除的DNF职业ID列表
+    private static final List<ResourceLocation> DNF_ROLE_IDS = Arrays.asList(
+            SRE.id("dnf_killer"),
+            SRE.id("dnf_maniac"),
+            SRE.id("dnf_soldier"),
+            SRE.id("dnf_chef"),
+            SRE.id("dnf_poisoner"),
+            SRE.id("dnf_psychologist"),
+            SRE.id("dnf_locksmith"),
+            SRE.id("dnf_civilian"),
+            SRE.id("dnf_flying_knife"),
+            SRE.id("dnf_abyss"),
+            SRE.id("dnf_ghost")
+    );
 
     // 当前阶段：0 = 选择玩家，1 = 选择角色
     private int phase = 0;
@@ -271,6 +287,8 @@ public class RecorderScreen extends Screen {
         roles.clear();
         roles.addAll(availableRoleIds);
         roles.removeIf(r -> r != null && r.identifier().equals(org.agmas.noellesroles.role.ModRoles.MERCENARY_ID));
+        // 排除所有DNF职业
+        roles.removeIf(r -> r != null && DNF_ROLE_IDS.contains(r.identifier()));
 
         // 如果列表为空（可能是单人测试或者数据未同步），回退到显示所有角色
         if (roles.isEmpty()) {

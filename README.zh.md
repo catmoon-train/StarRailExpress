@@ -1,5 +1,12 @@
 # StarRail Express
 [[English]](README.md) **[简体中文]**
+
+## 翻译提示
+
+由于开发者的母语不是英语，英文版本的 README 在更新上将会落后于中文版本。请尽可能查看本README。
+
+我们也欢迎为我们提供翻译的玩家和开发者们！（简体中文翻译除外）
+
 ## 请注意！
 本 Wathe 扩展**极有可能**不支持任何其他 Wathe 扩展。
 
@@ -96,9 +103,41 @@
 目前经过不严谨测试，发包数量明显减少，网络压力大幅下降。
 
 ## 地图
-保存在 `存档/train_maps`
+保存在 `<存档>/train_maps`
+
 用json文件保存
-内容示范：
+
+### 地图工具
+您可以通过游戏内`管理员标签页`中的`地图工具`来使用UI快速的修改配置文件
+
+在游戏内使用地图工具修改前，使用`/sre:area_manager create_new`创建一个完全新的地图或者使用`/tmm:switchmap load <地图ID>`加载一个地图，在此地图基础上进行修改。
+
+您可以通过`/tmm:switchmap list`查看地图列表。
+
+修改完毕后，输入`/sre:area_manager save <地图名>`来保存地图（不需要带后缀）。
+
+对于子文件夹，可以通过加引号实现。比如：
+
+```mcfunction
+/sre:area_manager save "new/my/map"
+```
+
+如果文件已存在，会提示报错。您可以在指令后面加一个`force`来覆盖保存。
+
+比如：
+
+```mcfunction
+/sre:area_manager save "new/my/map" force
+```
+
+您可以使用`/sre:area_manager remove <地图ID>`来删除一个地图。
+
+对于其他配置项内容，可以通过`/sre:area_manager set/get`来进行设置/获取/删除操作（有补全）
+
+地图修改后不会自动保存，只会临时保存在内存里。如需保存，请务必参考上述过程。
+
+### 文件内容格式
+
 ```json
 {
   "spawnPos": { // 出生点（游戏结束后返回的地方），但新玩家进入将传送到原版的世界出生点而不是这里。
@@ -183,6 +222,27 @@
 }
 ```
 使用时请去掉里面的注释（`//`开头）
+
+## 地图投票
+大厅地图投票。`/tmm:votemap <秒数>` 触发投票UI。
+
+投票配置文件位置：`<存档>/train_vote_maps.json`
+
+投票配置文件格式（不支持注释，文中的注释是为了方便理解）：
+
+```json
+{
+  "id": "my/space_station_alpha", // 地图id，对应前文的地图配置的id。同样支持子文件夹。子文件夹不需要额外加引号。
+  "displayName": "星空站 · 阿尔法", // 显示名称。支持翻译键。
+  "mincount": 2, // 最小玩家数。需要达到这个数量才会显示。设置为负数忽略。
+  "maxcount": 8, // 最大玩家数。玩家数量（投票开始瞬间）不能超过这个数量才会显示。设置为负数忽略。
+  "canSelect": true, // 是否可以出现在投票选项中
+  "description": "一座废弃的轨道空间站，维修小队需要重启核心反应堆。", // 描述。支持翻译键。
+  "color": "0xFF3A86FF", // 显示的卡片的颜色
+  "gameModes": ["repairmode", "murder"] // 支持的游戏模式ID的path（如游戏模式sre:murder的path为murder）
+}
+```
+
 
 ## 开发
 

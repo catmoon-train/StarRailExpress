@@ -197,6 +197,7 @@ public class WheelchairEntity extends Mob {
             }
         }
         if (this.durability <= 0) {
+            player.stopRiding();
             this.discard();
             player.displayClientMessage(
                     Component.translatable("entity.noellesroles.wheelchair.damaged")

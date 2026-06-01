@@ -61,7 +61,7 @@ public abstract class WorldRendererMixin {
                     tmm$doFog(0, 20);
                     return;
                 }
-                tmm$doFog(0, 12);
+                tmm$doFog(0, 7);
                 return;
             }
             if (SREClient.isTrainMoving()) {

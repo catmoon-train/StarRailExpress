@@ -23,13 +23,14 @@ import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.component.FoodDrinkGlowComponent;
+import org.agmas.noellesroles.component.InfectedPlayerComponent;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.content.item.SignedPaperItem;
-import org.agmas.noellesroles.game.roles.Innocent.awesome_binglus.AwesomePlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.detective.DetectivePlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.fool.FoolPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.magician.MagicianPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.monitor.MonitorPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.awesome_binglus.AwesomePlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.detective.DetectivePlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.fool.FoolPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.magician.MagicianPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.monitor.MonitorPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.executioner.ExecutionerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.insane_killer.InsaneKillerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.ma_chen_xu.MaChenXuPlayerComponent;
@@ -45,6 +46,7 @@ import org.agmas.noellesroles.game.roles.special.better_vigilante.BetterVigilant
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.RedHouseRoles;
+import org.agmas.noellesroles.role.TraitorAndModifiers;
 import org.agmas.noellesroles.utils.MCItemsUtils;
 import org.agmas.noellesroles.utils.RoleUtils;
 import pro.fazeclan.river.stupid_express.StupidExpress;
@@ -59,6 +61,40 @@ import java.util.HashMap;
 
 public class InstinctRenderer {
     public static void registerInstinctEvents() {
+        // 鬼祟效果：当目标玩家8格范围内时，禁用杀手直觉高亮
+        OnGetInstinctHighlight.EVENT.register((target, hasInstinct) -> {
+            if (!(target instanceof Player targetPlayer)) {
+                return -1;
+            }
+            if (Minecraft.getInstance() == null || Minecraft.getInstance().player == null) {
+                return -1;
+            }
+            if (SREClient.gameComponent == null || !SREClient.gameComponent.isRunning()) {
+                return -1;
+            }
+            if (!SREClient.isPlayerAliveAndInSurvivalIgnoreShitSplit()) {
+                return -1;
+            }
+            
+            Player localPlayer = Minecraft.getInstance().player;
+            
+            // 检查目标玩家是否有鬼祟修饰符
+            try {
+                WorldModifierComponent modifiers = WorldModifierComponent.KEY.get(targetPlayer.level());
+                if (modifiers != null && modifiers.isModifier(targetPlayer.getUUID(), TraitorAndModifiers.SNEAKY)) {
+                    // 检查目标是否在当前玩家8格范围内
+                    double dist = localPlayer.distanceTo(targetPlayer);
+                    if (dist <= 8.0) {
+                        // 鬼祟生效：禁用直觉高亮
+                        return -2;
+                    }
+                }
+            } catch (Exception e) {
+                // 静默处理错误
+            }
+            
+            return -1;
+        });
         OnGetInstinctHighlight.EVENT.register((target, hasInstinct) -> {
             if (!(target instanceof Player target_player))
                 return -1;
@@ -130,6 +166,38 @@ public class InstinctRenderer {
 
             return -1;
         });
+
+        // 殡仪员：透视物品掉落物
+        OnGetInstinctHighlight.EVENT.register((target, hasInstinct) -> {
+            if (Minecraft.getInstance() == null)
+                return -1;
+            var self = Minecraft.getInstance().player;
+            if (self == null)
+                return -1;
+            if (SREClient.gameComponent == null)
+                return -1;
+            if (GameUtils.isPlayerSpectatingOrCreative(self))
+                return -1;
+
+            if (!(target instanceof net.minecraft.world.entity.item.ItemEntity itemEntity))
+                return -1;
+
+            // 检查是否是殡仪员
+            if (!SREClient.gameComponent.isRole(self, ModRoles.MORTICIAN))
+                return -1;
+
+            // 检查是否在范围内（10格水平，3格垂直）
+            double dx = self.getX() - itemEntity.getX();
+            double dy = self.getY() - itemEntity.getY();
+            double dz = self.getZ() - itemEntity.getZ();
+            double horizontalDist = Math.sqrt(dx * dx + dz * dz);
+            if (horizontalDist > 10.0 || Math.abs(dy) > 3.0)
+                return -1;
+
+            // 返回渐变颜色高亮
+            return getGradientColor(itemEntity.getId());
+        });
+
         // 恋人
         OnGetInstinctHighlight.EVENT.register((target, hasInstinct) -> {
             if (Minecraft.getInstance() == null)
@@ -222,14 +290,85 @@ public class InstinctRenderer {
                 }
                 return Color.GRAY.getRGB();
             }
-            // 活人：被秉烛过的显示原色
+            // 活人：无法透视的职业不显示，被秉烛过的显示原色，其余灰色
             if (target instanceof Player targetPlayer) {
                 if (targetPlayer.distanceToSqr(self) > 40 * 40)
                     return -2;
+                // 无法被透视的职业（小透明/秉烛人/雇佣兵/滑头鬼）
+                if (isTargetInvisibleToInstinct(targetPlayer)) {
+                    return -2;
+                }
                 if (component.isCandleLit(targetPlayer.getUUID())) {
                     return ModRoles.CANDLE_BEARER.color();
                 }
                 return Color.GRAY.getRGB();
+            }
+            return -1;
+        });
+
+        // 疫使：透视所有玩家，被感染者显示橙色边框
+        OnGetInstinctHighlight.EVENT.register((target, hasInstinct) -> {
+            if (Minecraft.getInstance() == null)
+                return -1;
+            var self = Minecraft.getInstance().player;
+            if (self == null)
+                return -1;
+            if (SREClient.gameComponent == null)
+                return -1;
+            if (!SREClient.gameComponent.isRole(self, ModRoles.INFECTED))
+                return -1;
+            if (GameUtils.isPlayerSpectatingOrCreative(self))
+                return -1;
+            if (!hasInstinct)
+                return -1;
+
+            if (target instanceof Player targetPlayer) {
+                // 无法被透视的职业（小透明/秉烛人/雇佣兵/滑头鬼）
+                if (isTargetInvisibleToInstinct(targetPlayer)) {
+                    return -2;
+                }
+                // 检查目标玩家是否被感染（非疫使角色的玩家被感染）
+                InfectedPlayerComponent infectedComponent = ModComponents.INFECTED.get(targetPlayer);
+                if (infectedComponent != null && infectedComponent.infectedTicks > 0) {
+                    // 被感染者显示橙色边框
+                    return Color.ORANGE.getRGB();
+                }
+                // 其他玩家显示疫使的颜色
+                return ModRoles.INFECTED.color();
+            }
+            return -1;
+        });
+
+        // 葬仪：看所有人和尸体都是自己的颜色，且可以透视场上所有尸体
+        OnGetInstinctHighlight.EVENT.register((target, hasInstinct) -> {
+            if (Minecraft.getInstance() == null)
+                return -1;
+            var self = Minecraft.getInstance().player;
+            if (self == null)
+                return -1;
+            if (SREClient.gameComponent == null)
+                return -1;
+            if (!SREClient.gameComponent.isRole(self, ModRoles.MORTICIAN_BODYMAKER))
+                return -1;
+            if (GameUtils.isPlayerSpectatingOrCreative(self))
+                return -1;
+
+            // 葬仪总是可以看到尸体（不需要开启杀手直觉）
+            if (target instanceof PlayerBodyEntity) {
+                return ModRoles.MORTICIAN_BODYMAKER.color();
+            }
+
+            // 需要开启杀手直觉才能看到玩家
+            if (!hasInstinct)
+                return -1;
+
+            // 所有玩家都显示葬仪的颜色（无法透视的职业除外）
+            if (target instanceof Player targetPlayer) {
+                // 无法被透视的职业（小透明/秉烛人/雇佣兵/滑头鬼）
+                if (isTargetInvisibleToInstinct(targetPlayer)) {
+                    return -2;
+                }
+                return ModRoles.MORTICIAN_BODYMAKER.color();
             }
             return -1;
         });
@@ -693,9 +832,15 @@ public class InstinctRenderer {
                 // 小丑&LOOSE END
                 if ((SREClient.gameComponent.isRole(self, ModRoles.JESTER)
                         || SREClient.gameComponent.isRole(self, TMMRoles.LOOSE_END)
-                        || SREClient.gameComponent.isRole(self, SpecialGameModeRoles.SUPER_LOOSE_END))
+                        || SREClient.gameComponent.isRole(self, SpecialGameModeRoles.SUPER_LOOSE_END)
+                        || SREClient.gameComponent.isRole(self, SpecialGameModeRoles.DIRT))
                         && SREClient.isPlayerAliveAndInSurvival()) {
                     if (SREClient.gameComponent.isRole(target_player, ModRoles.GHOST)) {
+                        return -2;
+                    }
+                    // 超级亡命徒无法看到隐身的人
+                    if (SREClient.gameComponent.isRole(self, SpecialGameModeRoles.SUPER_LOOSE_END) &&
+                        target_player.isInvisible()) {
                         return -2;
                     }
                     return (Color.PINK.getRGB());
@@ -761,6 +906,9 @@ public class InstinctRenderer {
                     if (RoleUtils.compareRole(target_role, ModRoles.JESTER)) {
                         return (Color.PINK.getRGB());
                     }
+                    if (RoleUtils.compareRole(target_role, ModRoles.LOST_KILLER)) {
+                        return TMMRoles.CIVILIAN.color();
+                    }
                     if (RoleUtils.compareRole(target_role, ModRoles.SLIPPERY_GHOST)) {
                         return -2;
                     }
@@ -782,7 +930,22 @@ public class InstinctRenderer {
                         }
 
                     }
-                    // 默认fallback
+                    // 疫使：杀手本能中透视的框为深绿色
+                    if (SREClient.gameComponent.isRole(target_player, ModRoles.INFECTED)) {
+                        return new Color(0, 100, 0).getRGB(); // 深绿色
+                    }
+                    // 葬仪：杀手本能中透视的框为淡灰色
+                    if (SREClient.gameComponent.isRole(target_player, ModRoles.MORTICIAN_BODYMAKER)) {
+                        return new Color(180, 180, 180).getRGB(); // 淡灰色
+                    }
+                    // 肉汁：当杀手在4格范围内时，该杀手的透视框变为深蓝色
+                    if (RoleUtils.compareRole(target_role, ModRoles.MEATBALL)) {
+                        if (self.distanceTo(target_player) <= 4.0) {
+                            return new Color(0, 0, 180).getRGB(); // 深蓝色
+                        }
+                    }
+                    
+                // 默认fallback
                     if (target_role == null)
                         return Color.WHITE.getRGB();
                     if (target_role.canUseKiller()) {
@@ -846,6 +1009,19 @@ public class InstinctRenderer {
         if (role.canUseInstinct() && role.isNeutralForKiller())
             return true;
         return false;
+    }
+
+    /**
+     * 检查目标玩家是否属于「无法被任何本能透视」的职业。
+     * 包含：小透明、秉烛人、雇佣兵、滑头鬼、赌徒。
+     */
+    private static boolean isTargetInvisibleToInstinct(Player target) {
+        if (SREClient.gameComponent == null || target == null) return false;
+        return SREClient.gameComponent.isRole(target, ModRoles.GHOST)
+            || SREClient.gameComponent.isRole(target, ModRoles.CANDLE_BEARER)
+            || SREClient.gameComponent.isRole(target, ModRoles.MERCENARY)
+            || SREClient.gameComponent.isRole(target, ModRoles.SLIPPERY_GHOST)
+            || SREClient.gameComponent.isRole(target, ModRoles.GAMBLER);
     }
 
     private static final int[] GRADIENT_COLORS = {
