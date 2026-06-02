@@ -1185,6 +1185,8 @@ public class ModPacketsReciever {
             ServerPlayNetworking.send(p, new org.agmas.noellesroles.packet.SkincrawlerSkinS2CPacket(player.getUUID(), comp.stolenSkin));
         }
         comp.sync();
+        player.serverLevel().playSound(null, player.getX(), player.getY(), player.getZ(),
+            net.minecraft.sounds.SoundEvents.ARMOR_EQUIP_LEATHER, net.minecraft.sounds.SoundSource.PLAYERS, 0.8f, 1.0f);
         player.displayClientMessage(Component.translatable("message.noellesroles.skincrawler.stolen").withStyle(ChatFormatting.GOLD), true);
       } else {
         player.displayClientMessage(Component.translatable("message.noellesroles.skincrawler.no_body").withStyle(ChatFormatting.RED), true);

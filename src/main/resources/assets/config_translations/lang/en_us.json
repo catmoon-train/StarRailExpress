@@ -254,7 +254,6 @@
   "text.autoconfig.noellesroles.option.skillEchoRandomIntervalSeconds": "Skill Echo Random Broadcast Interval (seconds)",
   "text.autoconfig.noellesroles.option.minPlayerForPelican": "Pelican Minimum Players (required for Pelican to appear)",
   "text.autoconfig.noellesroles.option.chanceOfPelican": "Pelican Spawn Chance (%)",
-  "text.autoconfig.noellesroles.option.pelicanEatCooldownSeconds": "Pelican Swallow Cooldown (seconds)",
   "text.autoconfig.noellesroles.option.pelicanEatPercentage": "Pelican Victory Swallow Requirement (%)",
   "text.autoconfig.noellesroles.option.mafiaMinimumPlayers": "Godfather Minimum Players",
   "text.autoconfig.noellesroles.option.chanceOfGodfather": "Godfather Spawn Chance (%)",

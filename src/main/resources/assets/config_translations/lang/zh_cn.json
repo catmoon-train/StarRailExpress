@@ -258,7 +258,6 @@
   "text.autoconfig.noellesroles.option.skillEchoRandomIntervalSeconds": "技能回响随机广播间隔（秒）",
   "text.autoconfig.noellesroles.option.minPlayerForPelican": "鹈鹕最少玩家数（达到此人数才可能出现鹈鹕）",
   "text.autoconfig.noellesroles.option.chanceOfPelican": "鹈鹕刷新概率（%）",
-  "text.autoconfig.noellesroles.option.pelicanEatCooldownSeconds": "鹈鹕吞噬冷却（秒）",
   "text.autoconfig.noellesroles.option.pelicanEatPercentage": "鹈鹕胜利所需吞噬比例（%）",
   "text.autoconfig.noellesroles.option.mafiaMinimumPlayers": "教父最少玩家数",
   "text.autoconfig.noellesroles.option.chanceOfGodfather": "教父刷新概率（%）",

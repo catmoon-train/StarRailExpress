@@ -134,7 +134,7 @@ public class PelicanPlayerComponent implements RoleComponent, ServerTickingCompo
         // 吞噬玩家
         PelicanManager.stashPlayer(sp, target);
 
-        long cooldownTicks = (long) org.agmas.noellesroles.config.NoellesRolesConfig.HANDLER.instance().pelicanEatCooldownSeconds * 20L;
+        long cooldownTicks = 45 * 20L; // 硬编码：45秒冷却
         eatCooldownUntil = player.level().getGameTime() + cooldownTicks;
 
         bellyPlayerIds.add(target.getUUID());

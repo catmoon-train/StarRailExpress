@@ -921,11 +921,6 @@ public class NoellesRolesConfig implements ConfigData {
     public int chanceOfPelican = 25;
 
     /**
-     * Pelican - eat cooldown in seconds
-     */
-    public int pelicanEatCooldownSeconds = 45;
-
-    /**
      * Pelican - percentage of starting players needed to swallow for victory
      */
     public double pelicanEatPercentage = 70.0D;
