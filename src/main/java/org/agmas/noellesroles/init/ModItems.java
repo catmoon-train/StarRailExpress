@@ -849,58 +849,6 @@ public class ModItems {
             },
             "telephone");
 
-    /**
-     * C4炸药
-     * - 右键玩家：在目标玩家身上放置C4
-     * - 右键空气：投掷C4实体
-     */
-    public static final Item C4 = register(
-            new org.agmas.noellesroles.content.item.C4Item(new Item.Properties().stacksTo(16)),
-            "c4");
-
-    /**
-     * C4引爆器
-     * - 右键使用：引爆所有已放置的C4
-     */
-    public static final Item C4_DETONATOR = register(
-            new org.agmas.noellesroles.content.item.C4DetonatorItem(new Item.Properties().stacksTo(1)),
-            "c4_detonator");
-
-    /**
-     * 钳子
-     * - 右键玩家：拆除玩家身上的C4
-     * - 右键空气：拆除地面的C4实体
-     */
-    public static final Item PLIERS = register(
-            new org.agmas.noellesroles.content.item.PliersItem(new Item.Properties().stacksTo(1).durability(3)),
-            "pliers");
-
-    /**
-     * 开灯
-     * - 立即结束关灯时间并清除全场黑暗与失明药水效果
-     * - 未处于关灯时间无法购买
-     */
-    public static final Item LIGHTUP = register(
-            new Item(new Item.Properties().stacksTo(1)),
-            "lightup");
-
-    /**
-     * 监控恢复
-     * - 立即结束监控失灵时间
-     * - 未处于监控失灵期间无法购买
-     */
-    public static final Item MONITOR_RECOVERY = register(
-            new Item(new Item.Properties().stacksTo(1)),
-            "monitor_recovery");
-
-    /**
-     * 子弹
-     * - 右键使用：装填子弹
-     */
-    public static final Item BULLET = register(
-            new org.agmas.noellesroles.content.item.BulletItem(new Item.Properties().stacksTo(64)),
-            "bullet");
-
     public static final ItemStack ExamplerPsychoItemStack = TMMItems.PSYCHO_MODE.getDefaultInstance();
     public static Map<Item, Integer> ITEM_COOLDOWNS = new HashMap<>();
     public static List<ShopEntry> POISONER_SHOP_ENTRIES = new ArrayList<>();

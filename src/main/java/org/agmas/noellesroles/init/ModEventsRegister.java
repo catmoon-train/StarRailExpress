@@ -141,51 +141,6 @@ public class ModEventsRegister {
     // AttributeModifier(
     // Noellesroles.id("wind_yaose"), -0.2f, AttributeModifier.Operation.ADD_VALUE);
 
-
-    /**
-     * 处理嬉命人死亡免疫 - 变装期间被刀/枪击杀时取消变装并免疫死亡
-     */
-    private static boolean handleEmbalmerDeath(Player victim, ResourceLocation deathReason) {
-        if (victim == null || victim.level().isClientSide()) return false;
-        if (!(victim instanceof ServerPlayer sp)) return false;
-        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(victim.level());
-        if (!gameWorld.isRole(victim, ModRoles.EMBALMER)) return false;
-        if (!GameConstants.DeathReasons.KNIFE.equals(deathReason) && !GameConstants.DeathReasons.REVOLVER.equals(deathReason))
-            return false;
-        var comp = org.agmas.noellesroles.game.roles.killer.embalmer.EmbalmerPlayerComponent.KEY.get(sp);
-        if (comp == null || !comp.masqueradeActive) return false;
-        // 取消变装，免疫死亡
-        comp.masqueradeActive = false;
-        comp.masqueradeTicksLeft = 0;
-        comp.skinSwaps.clear();
-        comp.voicePitches.clear();
-        comp.sync();
-        sp.displayClientMessage(Component.translatable("message.noellesroles.embalmer.death_negated").withStyle(ChatFormatting.LIGHT_PURPLE), true);
-        return true;
-    }
-
-    /**
-     * 处理窃皮者死亡免疫 - 有偷来皮肤时被枪击中进入眩晕
-     */
-    private static boolean handleSkincrawlerDeath(Player victim, ResourceLocation deathReason) {
-        if (victim == null || victim.level().isClientSide()) return false;
-        if (!(victim instanceof ServerPlayer sp)) return false;
-        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(victim.level());
-        if (!gameWorld.isRole(victim, ModRoles.SKINCRAWLER)) return false;
-        if (!GameConstants.DeathReasons.REVOLVER.equals(deathReason)) return false;
-        var comp = org.agmas.noellesroles.game.roles.killer.skincrawler.SkincrawlerPlayerComponent.KEY.get(sp);
-        if (comp == null || comp.stolenSkin == null || comp.stolenSkin.equals(sp.getUUID())) return false;
-        // 取消偷皮并进入眩晕（5秒缓慢III），广播恢复原皮肤
-        comp.stolenSkin = null;
-        comp.sync();
-        for (ServerPlayer p : sp.serverLevel().getPlayers(p2 -> true)) {
-            ServerPlayNetworking.send(p, new org.agmas.noellesroles.packet.SkincrawlerSkinS2CPacket(sp.getUUID(), null));
-        }
-        sp.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 100, 2, false, false, false));
-        sp.displayClientMessage(Component.translatable("message.noellesroles.skincrawler.stunned").withStyle(ChatFormatting.RED), true);
-        return true;
-    }
-
     /**
      * 处理拳击手无敌反制
      * 钢筋铁骨期间可以反弹任何死亡
@@ -571,93 +526,6 @@ public class ModEventsRegister {
                         true);
             }
         }
-    }
-
-    /**
-     * 处理钳工死亡 - 将拆弹钳传递给另一名存活的平民（参考会计传递存折逻辑）
-     */
-    private static void handleFitterDeath(Player victim) {
-        if (victim == null || victim.level().isClientSide())
-            return;
-
-        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(victim.level());
-        if (!gameWorld.isRole(victim, ModRoles.FITTER))
-            return;
-
-        // 查找钳工背包中的拆弹钳
-        ArrayList<ItemStack> itemsToTransfer = new ArrayList<>();
-        for (int i = 0; i < victim.getInventory().getContainerSize(); i++) {
-            ItemStack stack = victim.getInventory().getItem(i);
-            if (stack.getItem() == org.agmas.noellesroles.init.ModItems.PLIERS) {
-                itemsToTransfer.add(stack.copy());
-                victim.getInventory().setItem(i, ItemStack.EMPTY);
-            }
-        }
-
-        if (itemsToTransfer.isEmpty())
-            return;
-
-        // 查找另一名存活的平民
-        Player targetPlayer = null;
-        for (Player player : victim.level().players()) {
-            if (player == victim)
-                continue;
-            if (!GameUtils.isPlayerAliveAndSurvival(player))
-                continue;
-
-            SRERole role = gameWorld.getRole(player);
-            if (role != null && role.isInnocent()) {
-                targetPlayer = player;
-                break;
-            }
-        }
-
-        // 如果找到存活的平民，传递物品
-        if (targetPlayer != null) {
-            for (ItemStack item : itemsToTransfer) {
-                targetPlayer.addItem(item);
-            }
-            if (targetPlayer instanceof ServerPlayer serverTarget) {
-                serverTarget.displayClientMessage(
-                        Component.translatable("message.noellesroles.fitter.pliers_inherited",
-                                victim.getName().getString())
-                                .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD),
-                        true);
-            }
-        }
-    }
-
-
-    /**
-     * 处理被鹈鹕吞噬的玩家死亡 - 从鹈鹕肚子中释放并恢复正常死亡状态
-     */
-    private static void handleStashedPlayerDeath(Player victim) {
-        if (victim == null || victim.level().isClientSide()) return;
-        if (!(victim instanceof ServerPlayer sp)) return;
-        if (!org.agmas.noellesroles.game.roles.neutral.pelican.PelicanManager.isStashed(sp)) return;
-        org.agmas.noellesroles.game.roles.neutral.pelican.PelicanManager.onStashedPlayerDeath(sp);
-    }
-
-    /**
-     * 处理教父死亡 - 家族成员恢复原身份
-     */
-    private static void handleGodfatherDeath(Player victim) {
-        if (victim == null || victim.level().isClientSide()) return;
-        if (!(victim instanceof ServerPlayer sp)) return;
-        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(victim.level());
-        if (!gameWorld.isRole(victim, ModRoles.GODFATHER)) return;
-        org.agmas.noellesroles.game.roles.neutral.mafia.MafiaManager.onGodfatherDeath(sp);
-    }
-
-    /**
-     * 处理鹈鹕死亡 - 将肚子里的所有玩家释放出来
-     */
-    private static void handlePelicanDeath(Player victim) {
-        if (victim == null || victim.level().isClientSide()) return;
-        if (!(victim instanceof ServerPlayer sp)) return;
-        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(victim.level());
-        if (!gameWorld.isRole(victim, ModRoles.PELICAN)) return;
-        org.agmas.noellesroles.game.roles.neutral.pelican.PelicanManager.onPelicanDeath(sp);
     }
 
     /**
@@ -1096,16 +964,6 @@ public class ModEventsRegister {
             }
             // 清除全局墙位置注册表
             org.agmas.noellesroles.game.roles.innocent.builder.BuilderWallPositions.clearAll();
-            // 清除鹈鹕状态 - 释放所有被吞噬的玩家
-            org.agmas.noellesroles.game.roles.neutral.pelican.PelicanManager.clearAll();
-            // 清除窃皮者皮肤 - 恢复所有玩家原皮肤
-            for (ServerPlayer p : world.players()) {
-                ServerPlayNetworking.send(p, new org.agmas.noellesroles.packet.SkincrawlerSkinS2CPacket(p.getUUID(), null));
-            }
-            // 清除嬉命人变装 - 恢复所有玩家皮肤和语音
-            for (ServerPlayer p : world.players()) {
-                ServerPlayNetworking.send(p, org.agmas.noellesroles.packet.EmbalmerSkinSwapS2CPacket.clear());
-            }
             // 清除所有肉汁的悬赏
             for (ServerPlayer player : world.players()) {
                 org.agmas.noellesroles.component.ModComponents.MEATBALL.get(player).init();
@@ -1877,8 +1735,6 @@ public class ModEventsRegister {
             boolean hasNianShou = false;
             boolean hasArsonist = false;
             boolean hasCuckoo = false;
-            boolean hasPelican = false;
-            boolean hasGodfather = false;
             final var all_players = serverLevel.players();
             for (var p : all_players) {
                 if (!gameWorldComponent.isJumpAvailable() && GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(p)) {
@@ -1905,10 +1761,6 @@ public class ModEventsRegister {
                     hasArsonist = true;
                 } else if (gameWorldComponent.isRole(p, ModRoles.CUCKOO)) {
                     hasCuckoo = true;
-                } else if (gameWorldComponent.isRole(p, ModRoles.PELICAN)) {
-                    hasPelican = true;
-                } else if (gameWorldComponent.isRole(p, ModRoles.GODFATHER)) {
-                    hasGodfather = true;
                 }
             }
             if (hasDio) {
@@ -1953,23 +1805,6 @@ public class ModEventsRegister {
                     }
                 });
             }
-            if (hasPelican) {
-                all_players.forEach((p) -> {
-                    if (p != null) {
-                        BroadcastCommand.BroadcastMessage(p, Component
-                                .translatable("message.noellesroles.pelican.entry").withStyle(ChatFormatting.YELLOW));
-                    }
-                });
-            }
-            if (hasGodfather) {
-                GameUtils.serverAsynTaskLists.add(new ServerTaskInfoClasses.SchedulerTask(20 * 6, () -> {
-                    all_players.forEach((p) -> {
-                        if (p != null) {
-                            p.playNotifySound(NRSounds.MAFIA, SoundSource.MASTER, 1.0F, 1.0F);
-                        }
-                    });
-                }));
-            }
             if (hasNianShou && !nianShouFirecrackersDistributedThisGame) {
                 nianShouFirecrackersDistributedThisGame = true;
                 for (var player : all_players) {
@@ -1988,10 +1823,6 @@ public class ModEventsRegister {
         });
         // 监听玩家死亡事件 - 用于激活复仇者能力、拳击手反制、跟踪者免疫和操纵师死亡判定
         AllowPlayerDeath.EVENT.register((victim, deathReason) -> {
-            // 检查嬉命人变装死亡免疫
-            if (handleEmbalmerDeath(victim, deathReason)) return false;
-            // 检查窃皮者皮肤死亡免疫
-            if (handleSkincrawlerDeath(victim, deathReason)) return false;
             // 检查拳击手无敌反制
             if (handleBoxerInvulnerability(victim, deathReason)) {
                 return false; // 阻止死亡
@@ -2019,9 +1850,6 @@ public class ModEventsRegister {
             return true; // 允许死亡
         });
         OnPlayerDeath.EVENT.register((victim, deathReason) -> {
-            // 检查被吞噬玩家死亡 - 从鹈鹕肚子中释放并正常进入死亡
-            handleStashedPlayerDeath(victim);
-
             // 检查医生死亡 - 传递针管
             handleDoctorDeath(victim);
 
@@ -2030,15 +1858,6 @@ public class ModEventsRegister {
 
             // 检查会计死亡 - 传递存折
             handleAccountantDeath(victim);
-
-            // 检查钳工死亡 - 传递拆弹钳
-            handleFitterDeath(victim);
-
-            // 检查鹈鹕死亡 - 释放肚子里的所有玩家
-            handlePelicanDeath(victim);
-
-            // 检查教父死亡 - 家族成员恢复原身份
-            handleGodfatherDeath(victim);
 
             // 检查死亡惩罚
             handleDeathPenalty(victim);

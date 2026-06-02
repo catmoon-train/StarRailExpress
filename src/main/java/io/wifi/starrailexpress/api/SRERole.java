@@ -53,7 +53,6 @@ public abstract class SRERole {
     private boolean canSeeBodyRoleInfo = false;
     private boolean canUseInstinct = false;
     private boolean canIgnoreBlackout = false;
-    private boolean mafiaTeam = false;
     public int maxCount = -1;
     public int enableChance = -1;
     public int enableRareChance = -1;
@@ -102,15 +101,6 @@ public abstract class SRERole {
 
     public boolean isKiller() {
         return !this.isInnocent && !this.isNeutrals && !this.isNeutralForKiller && this.canUseKiller;
-    }
-
-    public boolean isMafiaTeam() {
-        return mafiaTeam;
-    }
-
-    public SRERole setMafiaTeam(boolean flag) {
-        this.mafiaTeam = flag;
-        return this;
     }
 
     public boolean canIgnoreBlackout(Player player) {

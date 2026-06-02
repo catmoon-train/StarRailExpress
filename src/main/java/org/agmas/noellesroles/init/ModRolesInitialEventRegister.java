@@ -41,7 +41,6 @@ import org.agmas.noellesroles.game.roles.killer.watcher.WatcherPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.candlebearer.CandleBearerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.mercenary.MercenaryPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.nian_shou.NianShouPlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.pelican.PelicanPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.recorder.RecorderPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.thief.ThiefPlayerComponent;
@@ -218,16 +217,6 @@ public class ModRolesInitialEventRegister {
                     vulturePlayerComponent.sync();
                 }
             }
-            if (role.equals(ModRoles.PELICAN)) {
-                if (PelicanPlayerComponent.KEY.isProvidedBy(player)) {
-                    var pelicanComponent = PelicanPlayerComponent.KEY.get(player);
-                    pelicanComponent.init();
-                    int totalPlayers = SREGameWorldComponent.KEY.get(player.level()).getPlayerCount();
-                    double percent = NoellesRolesConfig.HANDLER.instance().pelicanEatPercentage;
-                    pelicanComponent.requiredEaten = Math.max(1, (int) Math.ceil(totalPlayers * (percent / 100.0D)) - 1);
-                    pelicanComponent.sync();
-                }
-            }
             if (role.equals(ModRoles.INSANE_KILLER)) {
                 final var insaneKillerPlayerComponent = InsaneKillerPlayerComponent.KEY.get(player);
                 insaneKillerPlayerComponent.init();
@@ -356,15 +345,6 @@ public class ModRolesInitialEventRegister {
                 morticianComponent.init();
                 morticianComponent.sync();
             }
-            if (role.equals(ModRoles.GODFATHER)) {
-                if (player instanceof ServerPlayer sp) {
-                    for (var p : sp.serverLevel().players()) {
-                        if (p != null) {
-                            p.playNotifySound(NRSounds.MAFIA, SoundSource.MASTER, 1.0F, 1.0F);
-                        }
-                    }
-                }
-            }
         });
     }
 
@@ -415,73 +395,12 @@ public class ModRolesInitialEventRegister {
             }
         });
 
-        // 鹈鹕技能注册：按技能键吞噬玩家，蹲下按技能键释放最后吞噬的玩家
-        RoleSkill.register(ModRoles.PELICAN, context -> {
-            ServerPlayer player = context.player();
-            PelicanPlayerComponent comp = PelicanPlayerComponent.KEY.get(player);
-            if (comp == null) return;
-
-            if (player.isShiftKeyDown()) {
-                comp.releaseLast();
-                return;
-            }
-
-            // 先在传入的 target 中查找；没有则搜索附近3.15格内最近的存活玩家
-            ServerPlayer target = null;
-            UUID targetUuid = context.target();
-            if (targetUuid != null) {
-                Player p = player.level().getPlayerByUUID(targetUuid);
-                if (p instanceof ServerPlayer sp && GameUtils.isPlayerAliveAndSurvival(sp) && player.distanceToSqr(sp) <= 3.15D * 3.15D) {
-                    target = sp;
-                }
-            }
-            if (target == null) {
-                double closest = 3.15D * 3.15D;
-                for (ServerPlayer p : player.serverLevel().getPlayers(p2 -> p2 != player && GameUtils.isPlayerAliveAndSurvival(p2))) {
-                    double dist = player.distanceToSqr(p);
-                    if (dist < closest) {
-                        closest = dist;
-                        target = p;
-                    }
-                }
-            }
-
-            if (target != null) {
-                comp.tryEat(target);
-            } else {
-                player.displayClientMessage(
-                        Component.translatable("message.noellesroles.pelican.no_target")
-                                .withStyle(ChatFormatting.RED),
-                        true);
-            }
-        });
-
         // 葬仪技能注册：使用当前模式的技能
         RoleSkill.register(ModRoles.MORTICIAN_BODYMAKER, context -> {
             ServerPlayer player = context.player();
             MorticianBodyMakerPlayerComponent morticianComponent = MorticianBodyMakerPlayerComponent.KEY.get(player);
             if (morticianComponent != null) {
                 morticianComponent.useAbility();
-            }
-        });
-
-        // 咒法师技能注册：标记目标玩家
-        RoleSkill.register(ModRoles.WARLOCK, context -> {
-            ServerPlayer player = context.player();
-            var comp = org.agmas.noellesroles.game.roles.killer.warlock.WarlockPlayerComponent.KEY.get(player);
-            if (comp == null) return;
-            UUID targetUuid = context.target();
-            ServerPlayer target = null;
-            if (targetUuid != null) {
-                Player p = player.level().getPlayerByUUID(targetUuid);
-                if (p instanceof ServerPlayer sp && GameUtils.isPlayerAliveAndSurvival(sp) && player.distanceToSqr(sp) <= 4.0D * 4.0D) {
-                    target = sp;
-                }
-            }
-            if (target != null && comp.tryMark(target)) {
-                player.displayClientMessage(Component.translatable("message.noellesroles.warlock.marked", target.getName().getString()).withStyle(ChatFormatting.LIGHT_PURPLE), true);
-            } else {
-                player.displayClientMessage(Component.translatable("message.noellesroles.warlock.mark_fail").withStyle(ChatFormatting.RED), true);
             }
         });
     }

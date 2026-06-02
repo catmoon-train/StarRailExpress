@@ -36,7 +36,6 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
-import net.fabricmc.fabric.api.client.rendering.v1.LivingEntityFeatureRendererRegistrationCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.CameraType;
@@ -217,16 +216,6 @@ public class NoellesrolesClient implements ClientModInitializer {
                 HunterCageBlockEntityRenderer::new);
 
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.VENDING_MACHINES_BLOCK, RenderType.translucent());
-
-        // 注册C4背部渲染
-        LivingEntityFeatureRendererRegistrationCallback.EVENT.register(
-            (entityType, entityRenderer, registrationHelper, context) -> {
-                if (entityRenderer instanceof net.minecraft.client.renderer.entity.player.PlayerRenderer pr) {
-                    registrationHelper.register(new C4BackFeatureRenderer(pr));
-                }
-            }
-        );
-
         MercenaryContractItem.openGuiRunner = () -> {
             Minecraft client = Minecraft.getInstance();
             if (client.player == null)
@@ -269,8 +258,6 @@ public class NoellesrolesClient implements ClientModInitializer {
             }
             return true;
         });
-        ClientEmbalmerState.register();
-        ClientSkincrawlerState.register();
         CommonClientHudRenderer.registerRenderersEvent();
         MenuScreens.register(ModMenus.HOTBAR_STORAGE, HotbarStorageScreen::new);
         WorldRenderEvents.AFTER_TRANSLUCENT.register((renderContext) -> {

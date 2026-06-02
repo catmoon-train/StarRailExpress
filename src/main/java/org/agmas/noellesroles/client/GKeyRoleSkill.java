@@ -124,24 +124,6 @@ public final class GKeyRoleSkill {
             ClientPlayNetworking.send(new VultureEatC2SPacket(NoellesrolesClient.targetBody.getUUID()));
             return true;
         });
-        register(ModRoles.PELICAN, true, (client, gameWorld) -> {
-            ClientPlayNetworking.send(new AbilityC2SPacket());
-            return true;
-        });
-        register(ModRoles.GODFATHER, true, (client, gameWorld) -> {
-            var comp = org.agmas.noellesroles.game.roles.neutral.mafia.GodfatherComponent.KEY.maybeGet(client.player).orElse(null);
-            if (comp != null && client.player != null && client.player.level() != null) {
-                long now = client.player.level().getGameTime();
-                if (comp.recruitCooldownUntil > 0 && now < comp.recruitCooldownUntil) {
-                    long remaining = (comp.recruitCooldownUntil - now) / 20 + 1;
-                    client.player.displayClientMessage(
-                        net.minecraft.network.chat.Component.translatable("message.noellesroles.godfather.cooldown", remaining), true);
-                    return true;
-                }
-            }
-            client.execute(() -> client.setScreen(new org.agmas.noellesroles.client.screen.GodfatherRecruitScreen()));
-            return true;
-        });
         register(ModRoles.BROADCASTER, false, (client, gameWorld) -> {
             if (!NoellesrolesClient.isPlayerInAdventureMode(client.player)) {
                 return true;
@@ -241,41 +223,6 @@ public final class GKeyRoleSkill {
 
             // 普通技能键 = 使用当前模式技能
             ClientPlayNetworking.send(new AbilityC2SPacket());
-            return true;
-        });
-
-        // 咒法师：按技能键标记目标，蹲下按技能键触发咒杀
-        register(ModRoles.WARLOCK, true, (client, gameWorld) -> {
-            if (!GameUtils.isPlayerAliveAndSurvival(client.player)) return true;
-            // 蹲下 = 咒杀
-            if (client.player.isShiftKeyDown()) {
-                ClientPlayNetworking.send(new org.agmas.noellesroles.packet.WarlockKillC2SPacket());
-                return true;
-            }
-            // 普通 = 标记目标
-            var hitResult = client.hitResult;
-            if (hitResult != null && hitResult.getType() == net.minecraft.world.phys.HitResult.Type.ENTITY) {
-                net.minecraft.world.phys.EntityHitResult e = (net.minecraft.world.phys.EntityHitResult) hitResult;
-                if (e.getEntity() instanceof Player targetPlayer) {
-                    ClientPlayNetworking.send(new AbilityWithTargetC2SPacket(targetPlayer));
-                }
-            } else {
-                client.player.displayClientMessage(Component.translatable("hud.warlock.target_miss"), true);
-            }
-            return true;
-        });
-
-        // 嬉命人：按技能键发动变装（冷却80秒）
-        register(ModRoles.EMBALMER, true, (client, gameWorld) -> {
-            if (!GameUtils.isPlayerAliveAndSurvival(client.player)) return true;
-            ClientPlayNetworking.send(new org.agmas.noellesroles.packet.EmbalmerC2SPacket());
-            return true;
-        });
-
-        // 窃皮者：按技能键偷皮
-        register(ModRoles.SKINCRAWLER, true, (client, gameWorld) -> {
-            if (!GameUtils.isPlayerAliveAndSurvival(client.player)) return true;
-            ClientPlayNetworking.send(new org.agmas.noellesroles.packet.SkincrawlerC2SPacket());
             return true;
         });
     }

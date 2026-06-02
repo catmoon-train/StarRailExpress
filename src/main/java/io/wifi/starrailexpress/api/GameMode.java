@@ -708,16 +708,12 @@ public abstract class GameMode {
                 SREPlayerShopComponent.KEY.get(killer).addToBalance(gift);
             }
             if (killer != null) {
-                var killerRole = SREGameWorldComponent.KEY.get(killer.level()).getRole(killer);
-                boolean isGodfather = killerRole != null && killerRole.getIdentifier().toString().equals("noellesroles:godfather");
-                if (!isGodfather) {
-                    inventory_label: for (List<ItemStack> list : killer.getInventory().compartments) {
-                        for (int i = 0; i < list.size(); i++) {
-                            ItemStack stack = list.get(i);
-                            if (stack.is(TMMItems.DERRINGER)) {
-                                stack.set(SREDataComponentTypes.USED, false);
-                                break inventory_label;
-                            }
+                inventory_label: for (List<ItemStack> list : killer.getInventory().compartments) {
+                    for (int i = 0; i < list.size(); i++) {
+                        ItemStack stack = list.get(i);
+                        if (stack.is(TMMItems.DERRINGER)) {
+                            stack.set(SREDataComponentTypes.USED, false);
+                            break inventory_label;
                         }
                     }
                 }

@@ -40,7 +40,6 @@
     ],
     "cardinal-components": [
       "org.agmas.noellesroles.component.ModComponents",
-      "org.agmas.noellesroles.cca.NRComponents",
       "pro.fazeclan.river.stupid_express.constants.SEComponents",
       "org.agmas.harpymodloader.component.HarpyModLoaderComponents",
       "io.wifi.starrailexpress.cca.SREComponents"
@@ -48,7 +47,6 @@
     "voicechat": [
       "org.agmas.noellesroles.voice.NoellesrolesVoiceChatPlugin",
       "org.agmas.noellesroles.voice.HeliumBuzzVoicechatPlugin",
-      "org.agmas.noellesroles.voice.EmbalmerPitchPlugin",
       "pro.fazeclan.river.stupid_express.StupidExpressVoiceChatPlugin",
       "io.wifi.starrailexpress.compat.TrainVoicePlugin"
     ],
@@ -74,8 +72,6 @@
       "noellesroles:dio",
       "noellesroles:recaller",
       "noellesroles:vulture",
-      "noellesroles:pelican",
-      "noellesroles:godfather",
       "noellesroles:broadcaster",
       "noellesroles:ghost",
       "noellesroles:thief",
@@ -148,11 +144,6 @@
       "noellesroles:repair_roles",
       "noellesroles:builder",
       "noellesroles:infected",
-      "noellesroles:c4_back",
-      "noellesroles:warlock",
-      "noellesroles:embalmer",
-      "noellesroles:skincrawler",
-
       "stupid_express:doused",
       "stupid_express:custom_winner",
       "stupid_express:cooldown",
