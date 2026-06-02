@@ -82,10 +82,48 @@ public interface ModBlocks {
             new SREPlushBlock(Properties.ofFullCopy(Blocks.LIGHT_BLUE_WOOL).noOcclusion()));
     Block KAORUKO_PLUSH = registerBlock("kaoruko_plush",
             new SREPlushBlock(Properties.ofFullCopy(Blocks.LIGHT_BLUE_WOOL).noOcclusion()));
+    Block BACKVOICE_PLUSH = registerBlock("backvoice_plush",
+            new SREPlushBlock(Properties.ofFullCopy(Blocks.LIGHT_BLUE_WOOL).noOcclusion()));
+    Block BIANTWIN_PLUSH = registerBlock("biantwin_plush",
+            new SREPlushBlock(Properties.ofFullCopy(Blocks.LIGHT_BLUE_WOOL).noOcclusion()));
+    Block CANYUESAMA_PLUSH = registerBlock("canyuesama_plush",
+            new SREPlushBlock(Properties.ofFullCopy(Blocks.LIGHT_BLUE_WOOL).noOcclusion()));
+    Block DIO_PLUSH = registerBlock("dio_plush",
+            new SREPlushBlock(Properties.ofFullCopy(Blocks.LIGHT_BLUE_WOOL).noOcclusion()));
+    Block FUSHIMI_KONIRO_PLUSH = registerBlock("fushimi_koniro_plush",
+            new SREPlushBlock(Properties.ofFullCopy(Blocks.LIGHT_BLUE_WOOL).noOcclusion()));
+    Block GUANZHEQWQ_PLUSH = registerBlock("guanzheqwq_plush",
+            new SREPlushBlock(Properties.ofFullCopy(Blocks.LIGHT_BLUE_WOOL).noOcclusion()));
+    Block HAIMAN233_PLUSH = registerBlock("haiman233_plush",
+            new SREPlushBlock(Properties.ofFullCopy(Blocks.LIGHT_BLUE_WOOL).noOcclusion()));
+    Block LENGXIAOCN_PLUSH = registerBlock("lengxiaocn_plush",
+            new SREPlushBlock(Properties.ofFullCopy(Blocks.LIGHT_BLUE_WOOL).noOcclusion()));
+    Block LICRAFTLQ_PLUSH = registerBlock("licraftlq_plush",
+            new SREPlushBlock(Properties.ofFullCopy(Blocks.LIGHT_BLUE_WOOL).noOcclusion()));
+    Block LUOYERUOSHUI_PLUSH = registerBlock("luoyeruoshui_plush",
+            new SREPlushBlock(Properties.ofFullCopy(Blocks.LIGHT_BLUE_WOOL).noOcclusion()));
+    Block MIFAN520_PLUSH = registerBlock("mifan520_plush",
+            new SREPlushBlock(Properties.ofFullCopy(Blocks.LIGHT_BLUE_WOOL).noOcclusion()));
+    Block NONE_PLUSH = registerBlock("none_plush",
+            new SREPlushBlock(Properties.ofFullCopy(Blocks.LIGHT_BLUE_WOOL).noOcclusion()));
+    Block OTITH_PLUSH = registerBlock("otith_plush",
+            new SREPlushBlock(Properties.ofFullCopy(Blocks.LIGHT_BLUE_WOOL).noOcclusion()));
+    Block THEF0RS4KEN_PLUSH = registerBlock("thef0rs4ken_plush",
+            new SREPlushBlock(Properties.ofFullCopy(Blocks.LIGHT_BLUE_WOOL).noOcclusion()));
+    Block TOMATO_PLUSH = registerBlock("tomato_plush",
+            new SREPlushBlock(Properties.ofFullCopy(Blocks.LIGHT_BLUE_WOOL).noOcclusion()));
+    Block XIAO_HEI_HAND_PLUSH = registerBlock("xiao_hei_hand_plush",
+            new SREPlushBlock(Properties.ofFullCopy(Blocks.LIGHT_BLUE_WOOL).noOcclusion()));
+    Block XIAOZHANQWQ_PLUSH = registerBlock("xiaozhanqwq_plush",
+            new SREPlushBlock(Properties.ofFullCopy(Blocks.LIGHT_BLUE_WOOL).noOcclusion()));
     BlockEntityType<SREPlushBlockEntity> PLUSH_BLOCK_ENTITY = blockEntityRegistrar.create("plush",
             BlockEntityType.Builder.of(SREPlushBlockEntity::new, new Block[] { BAKA_PLUSH, FURANDORU_PLUSH,
                     REMILIA_PLUSH, MISTIA_PLUSH, MARISA_PLUSH, REIMU_PLUSH, BAMBOO_PLUSH,
-                    KAORUKO_PLUSH }));
+                    KAORUKO_PLUSH, BACKVOICE_PLUSH, BIANTWIN_PLUSH, CANYUESAMA_PLUSH,
+                    DIO_PLUSH, FUSHIMI_KONIRO_PLUSH, GUANZHEQWQ_PLUSH, HAIMAN233_PLUSH,
+                    LENGXIAOCN_PLUSH, LICRAFTLQ_PLUSH, LUOYERUOSHUI_PLUSH, MIFAN520_PLUSH,
+                    NONE_PLUSH, OTITH_PLUSH, THEF0RS4KEN_PLUSH, TOMATO_PLUSH,
+                    XIAO_HEI_HAND_PLUSH, XIAOZHANQWQ_PLUSH }));
     // 创建轮盘赌桌方块实体类型
     BlockEntityType<DevilRouletteTableEntity> DEVIL_ROULETTE_TABLE_ENTITY = blockEntityRegistrar.create(
             "devil_roulette_table",
