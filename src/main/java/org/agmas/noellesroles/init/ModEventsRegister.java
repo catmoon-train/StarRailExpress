@@ -161,7 +161,7 @@ public class ModEventsRegister {
         for (ServerPlayer p : sp.serverLevel().getPlayers(p2 -> true)) {
             ServerPlayNetworking.send(p, new org.agmas.noellesroles.packet.SkincrawlerSkinS2CPacket(sp.getUUID(), null));
         }
-        sp.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 100, 2, false, false, false));
+        sp.addEffect(new MobEffectInstance(ModEffects.MOVE_BANED, 100, 0, false, false, false));
         sp.displayClientMessage(Component.translatable("message.noellesroles.skincrawler.stunned").withStyle(ChatFormatting.RED), true);
         return true;
     }
@@ -1083,9 +1083,13 @@ public class ModEventsRegister {
             // 清除鹈鹕状态 - 释放所有被吞噬的玩家
             org.agmas.noellesroles.game.roles.neutral.pelican.PelicanManager.releaseAllInWorld(world);
             org.agmas.noellesroles.game.roles.neutral.pelican.PelicanManager.clearAll();
-            // 清除窃皮者皮肤 - 恢复所有玩家原皮肤
+            // 清除窃皮者皮肤 - 向所有玩家广播清除窃皮者皮肤
             for (ServerPlayer p : world.players()) {
-                ServerPlayNetworking.send(p, new org.agmas.noellesroles.packet.SkincrawlerSkinS2CPacket(p.getUUID(), null));
+                if (gameWorldComponent.isRole(p, ModRoles.SKINCRAWLER)) {
+                    for (ServerPlayer receiver : world.players()) {
+                        ServerPlayNetworking.send(receiver, new org.agmas.noellesroles.packet.SkincrawlerSkinS2CPacket(p.getUUID(), null));
+                    }
+                }
             }
             // 清除嬉命人变装 - 恢复所有玩家皮肤和语音
             for (ServerPlayer p : world.players()) {

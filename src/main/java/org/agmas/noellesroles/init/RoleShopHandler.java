@@ -2430,10 +2430,10 @@ public class RoleShopHandler {
         ShopEntry.Type.TOOL));
 
     // ==================== 教父商店 ====================
-    // 子弹 - 75金币（右键装填或购买时自动装填）
+    // 子弹 - 200金币（右键装填或购买时自动装填）
     GODFATHER_SHOP.add(new ShopEntry(
         ModItems.BULLET.getDefaultInstance(),
-        75,
+        200,
         ShopEntry.Type.WEAPON) {
       @Override
       public boolean onBuy(@NotNull Player player) {

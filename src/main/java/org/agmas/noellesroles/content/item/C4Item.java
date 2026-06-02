@@ -85,7 +85,7 @@ public class C4Item extends Item {
             return InteractionResult.CONSUME;
         }
 
-        if (!comp.addC4(target.getUUID())) return InteractionResult.FAIL;
+        if (!comp.addC4(target.getUUID(), user.getUUID())) return InteractionResult.FAIL;
 
         if (!user.getAbilities().instabuild) {
             stack.shrink(1);

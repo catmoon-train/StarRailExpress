@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.mixin.client;
 
+import io.wifi.starrailexpress.client.util.ClientSkinCache;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -27,8 +28,12 @@ public abstract class SkincrawlerSkinMixin {
         java.util.UUID targetId = ClientEmbalmerState.replacement(self.getUUID());
         if (targetId == null) targetId = ClientSkincrawlerState.stolenSkinFor(self.getUUID());
         if (targetId == null || targetId.equals(self.getUUID())) return;
-        PlayerInfo info = client.getConnection().getPlayerInfo(targetId);
-        if (info != null) {
+        // 优先使用 ClientSkinCache 获取完整皮肤数据（含有双层），回退到玩家列表
+        PlayerInfo info = ClientSkinCache.getCachedPlayerInfo(targetId);
+        if (info == null) {
+            info = client.getConnection().getPlayerInfo(targetId);
+        }
+        if (info != null && info.getSkin() != null) {
             try {
                 resolving.set(true);
                 cir.setReturnValue(info.getSkin());

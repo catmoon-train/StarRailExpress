@@ -125,7 +125,20 @@ public final class GKeyRoleSkill {
             return true;
         });
         register(ModRoles.PELICAN, true, (client, gameWorld) -> {
-            ClientPlayNetworking.send(new AbilityC2SPacket());
+            // 蹲下释放，否则对鼠标准星目标吞噬
+            if (client.player.isShiftKeyDown()) {
+                ClientPlayNetworking.send(new AbilityC2SPacket());
+                return true;
+            }
+            var hitResult = client.hitResult;
+            if (hitResult != null && hitResult.getType() == net.minecraft.world.phys.HitResult.Type.ENTITY) {
+                net.minecraft.world.phys.EntityHitResult entityHit = (net.minecraft.world.phys.EntityHitResult) hitResult;
+                if (entityHit.getEntity() instanceof Player targetPlayer) {
+                    ClientPlayNetworking.send(new AbilityWithTargetC2SPacket(targetPlayer));
+                    return true;
+                }
+            }
+            client.player.displayClientMessage(Component.translatable("message.noellesroles.pelican.no_target").withStyle(ChatFormatting.RED), true);
             return true;
         });
         register(ModRoles.GODFATHER, true, (client, gameWorld) -> {

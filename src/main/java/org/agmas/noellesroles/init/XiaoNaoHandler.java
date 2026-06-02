@@ -27,6 +27,10 @@ public class XiaoNaoHandler {
                         // 跳过游客惩罚
                         return;
                     }
+                    // 跳过家族成员（教父、教徒、侍卫）的惩罚——好人不应该因为打家族成员而受小脑惩罚
+                    if (gameWorldComponent.getRole(victim) != null && gameWorldComponent.getRole(victim).isMafiaTeam()) {
+                        return;
+                    }
                     // 检查是否是疯狂模式下的魔术师，如果是则不算误杀
                     if (gameWorldComponent.isRole(victim, ModRoles.MAGICIAN)) {
                         var psychoComponent = SREPlayerPsychoComponent.KEY.get(victim);

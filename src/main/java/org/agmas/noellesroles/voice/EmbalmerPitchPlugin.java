@@ -36,7 +36,6 @@ public class EmbalmerPitchPlugin implements VoicechatPlugin {
 
     private void onOpenALSound(OpenALSoundEvent.Post event) {
         float pitch = clientPitchFor(event.getChannelId());
-        if (pitch == 1.0F) return;
         try {
             AL10.alSourcef(event.getSource(), AL10.AL_PITCH, pitch);
         } catch (Throwable ignored) {

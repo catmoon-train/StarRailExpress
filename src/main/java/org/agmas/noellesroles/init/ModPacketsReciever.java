@@ -917,16 +917,16 @@ public class ModPacketsReciever {
             if (!gameWorldComponent.isRole(player, ModRoles.PELICAN)) return;
             org.agmas.noellesroles.game.roles.neutral.pelican.PelicanPlayerComponent comp =
                 org.agmas.noellesroles.game.roles.neutral.pelican.PelicanPlayerComponent.KEY.get(player);
-            // 蹲下释放，否则吞噬
+            // 蹲下释放，否则对鼠标准星目标吞噬
             if (player.isShiftKeyDown()) {
                 comp.releaseLast();
             } else {
-                // 在服务器端寻找3.15格内最近的存活玩家
+                // 寻找3.15格内有视线的最近存活玩家
                 ServerPlayer target = null;
                 double closest = 3.15D * 3.15D;
                 for (ServerPlayer p : player.serverLevel().getPlayers(p -> p != player && GameUtils.isPlayerAliveAndSurvival(p))) {
                     double dist = player.distanceToSqr(p);
-                    if (dist < closest) {
+                    if (dist < closest && player.hasLineOfSight(p)) {
                         closest = dist;
                         target = p;
                     }
@@ -1150,7 +1150,7 @@ public class ModPacketsReciever {
       comp.sync();
       // 全场播放音效
       player.serverLevel().playSound(null, player.getX(), player.getY(), player.getZ(),
-          SoundEvents.ILLUSIONER_PREPARE_MIRROR, SoundSource.PLAYERS, 1.0F, 1.0F);
+          SoundEvents.ILLUSIONER_PREPARE_MIRROR, SoundSource.MASTER, 1.0F, 1.0F);
       // 广播皮肤交换数据给所有玩家
       EmbalmerSkinSwapS2CPacket swapPacket =
           new EmbalmerSkinSwapS2CPacket(swaps, pitches,

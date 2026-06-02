@@ -243,6 +243,37 @@ public class NoellesrolesVoiceChatPlugin implements VoicechatPlugin {
                   return;
                 }
                 RadioItem.vcparanoidEvent(gameWorldComponent, player, event);
+                if (event.isCancelled()) {
+                  return;
+                }
+              }
+              // 鹈鹕语音频道：鹈鹕同时听内外，肚内玩家只能听鹈鹕和肚内（参考对讲机实现）
+              {
+                var bellyReceivers = PelicanManager.getBellyReceivers(player.getUUID());
+                if (!bellyReceivers.isEmpty()) {
+                  boolean isStashed = PelicanManager.isStashed(player);
+                  // 肚内玩家：取消默认语音，只转发给鹈鹕和肚内玩家
+                  if (isStashed) {
+                    event.cancel();
+                  }
+                  // 鹈鹕或肚内玩家：转发语音给肚内接收者
+                  for (UUID rUuid : bellyReceivers) {
+                    ServerPlayer rp = player.serverLevel().getServer().getPlayerList().getPlayer(rUuid);
+                    if (rp != null && !rp.isSpectator()) {
+                      VoicechatConnection con = api.getConnectionOf(rp.getUUID());
+                      if (con != null && con.isInstalled() && con.isConnected()) {
+                        api.sendLocationalSoundPacketTo(con, event.getPacket()
+                            .locationalSoundPacketBuilder()
+                            .position(api.createPosition(rp.getX(), rp.getY(), rp.getZ()))
+                            .distance((float) api.getVoiceChatDistance())
+                            .build());
+                      }
+                    }
+                  }
+                  if (isStashed) {
+                    return;
+                  }
+                }
               }
             }
           }

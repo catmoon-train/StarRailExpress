@@ -259,7 +259,6 @@
   "text.autoconfig.noellesroles.option.mafiaMinimumPlayers": "Godfather Minimum Players",
   "text.autoconfig.noellesroles.option.chanceOfGodfather": "Godfather Spawn Chance (%)",
   "text.autoconfig.noellesroles.option.godfatherRecruitCooldownSeconds": "Godfather Recruit Cooldown (seconds)",
-  "text.autoconfig.noellesroles.option.godfatherBulletPrice": "Godfather Bullet Price",
   "text.autoconfig.noellesroles.option.godfatherStartingBullets": "Godfather Starting Bullets",
   "text.autoconfig.noellesroles.option.godfatherMaxLoadedBullets": "Godfather Max Loaded Bullets",
   "text.autoconfig.noellesroles.option.mafiaRecruitRange": "Godfather Recruit Range",

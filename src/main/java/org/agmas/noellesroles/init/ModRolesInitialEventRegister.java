@@ -415,7 +415,7 @@ public class ModRolesInitialEventRegister {
             }
         });
 
-        // 鹈鹕技能注册：按技能键吞噬玩家，蹲下按技能键释放最后吞噬的玩家
+        // 鹈鹕技能注册：按技能键吞噬鼠标准星对准的玩家，蹲下按技能键释放最后吞噬的玩家
         RoleSkill.register(ModRoles.PELICAN, context -> {
             ServerPlayer player = context.player();
             PelicanPlayerComponent comp = PelicanPlayerComponent.KEY.get(player);
@@ -426,23 +426,15 @@ public class ModRolesInitialEventRegister {
                 return;
             }
 
-            // 先在传入的 target 中查找；没有则搜索附近3.15格内最近的存活玩家
+            // 获取鼠标准星目标
             ServerPlayer target = null;
             UUID targetUuid = context.target();
             if (targetUuid != null) {
                 Player p = player.level().getPlayerByUUID(targetUuid);
-                if (p instanceof ServerPlayer sp && GameUtils.isPlayerAliveAndSurvival(sp) && player.distanceToSqr(sp) <= 3.15D * 3.15D) {
+                if (p instanceof ServerPlayer sp && GameUtils.isPlayerAliveAndSurvival(sp)
+                        && player.distanceToSqr(sp) <= 3.15D * 3.15D
+                        && player.hasLineOfSight(sp)) {
                     target = sp;
-                }
-            }
-            if (target == null) {
-                double closest = 3.15D * 3.15D;
-                for (ServerPlayer p : player.serverLevel().getPlayers(p2 -> p2 != player && GameUtils.isPlayerAliveAndSurvival(p2))) {
-                    double dist = player.distanceToSqr(p);
-                    if (dist < closest) {
-                        closest = dist;
-                        target = p;
-                    }
                 }
             }
 

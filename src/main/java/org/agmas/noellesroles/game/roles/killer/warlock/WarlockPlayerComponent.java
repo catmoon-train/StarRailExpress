@@ -25,7 +25,7 @@ public class WarlockPlayerComponent implements RoleComponent, ServerTickingCompo
             WarlockPlayerComponent.class);
 
     public static final int MARK_COOLDOWN = 60 * 20;
-    public static final int KILL_COOLDOWN = 90 * 20;
+    public static final int KILL_COOLDOWN = 150 * 20;
     public static final double MARK_RANGE = 4.0D;
     public static final double KILL_RANGE = 3.0D;
     /** 蹲下技能可发动的最大距离（与标记目标的距离） */

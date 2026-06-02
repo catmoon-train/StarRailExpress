@@ -31,6 +31,8 @@ public class C4BackComponent implements AutoSyncedComponent {
     private final Level level;
     /** 玩家UUID -> C4引爆时刻的世界tick */
     private final Map<UUID, Long> carriers = new LinkedHashMap<>();
+    /** 玩家UUID -> planter UUID（C4的放置者） */
+    private final Map<UUID, UUID> planters = new LinkedHashMap<>();
     private final Map<UUID, Long> readOnlyCarriers = Collections.unmodifiableMap(carriers);
     private final Map<UUID, Long> plantedAt = new LinkedHashMap<>();
 
@@ -57,27 +59,34 @@ public class C4BackComponent implements AutoSyncedComponent {
         return readOnlyCarriers;
     }
 
-    /** 附加C4到玩家（使用默认fuse时间）。如果已附加则返回false */
-    public boolean addC4(UUID uuid) {
-        return addC4(uuid, C4_FUSE_SECONDS * 20L);
+    /** 附加C4到玩家（使用默认fuse时间）。planter为C4放置者UUID */
+    public boolean addC4(UUID uuid, UUID planter) {
+        return addC4(uuid, C4_FUSE_SECONDS * 20L, planter);
     }
 
     /**
-     * 附加C4到玩家，指定fuse长度（tick）
+     * 附加C4到玩家，指定fuse长度（tick）和放置者
      */
-    public boolean addC4(UUID uuid, long fuseTicks) {
+    public boolean addC4(UUID uuid, long fuseTicks, UUID planter) {
         if (uuid == null || carriers.containsKey(uuid)) return false;
         long firstBeepDelayTicks = Math.max(0L, (long) C4_FIRST_BEEP_SECONDS * 20L);
         long detonationAt = level.getGameTime() + firstBeepDelayTicks + Math.max(1L, fuseTicks);
         carriers.put(uuid, detonationAt);
         plantedAt.put(uuid, level.getGameTime());
+        if (planter != null) planters.put(uuid, planter);
         KEY.sync(this.level);
         return true;
+    }
+
+    /** 获取C4放置者UUID，如果不存在返回null */
+    public UUID getPlanter(UUID carrierUuid) {
+        return planters.get(carrierUuid);
     }
 
     public boolean removeC4(UUID uuid) {
         if (uuid == null || carriers.remove(uuid) == null) return false;
         plantedAt.remove(uuid);
+        planters.remove(uuid);
         KEY.sync(this.level);
         return true;
     }
@@ -86,6 +95,7 @@ public class C4BackComponent implements AutoSyncedComponent {
         if (carriers.isEmpty()) return false;
         carriers.clear();
         plantedAt.clear();
+        planters.clear();
         KEY.sync(this.level);
         return true;
     }
@@ -107,6 +117,7 @@ public class C4BackComponent implements AutoSyncedComponent {
     public void readFromNbt(CompoundTag tag, HolderLookup.Provider lookup) {
         carriers.clear();
         plantedAt.clear();
+        planters.clear();
         ListTag list = tag.getList("carriers", Tag.TAG_COMPOUND);
         for (int i = 0; i < list.size(); i++) {
             CompoundTag entry = list.getCompound(i);
@@ -120,6 +131,9 @@ public class C4BackComponent implements AutoSyncedComponent {
                 UUID uuid = UUID.fromString(uuidStr);
                 carriers.put(uuid, detonationAt);
                 plantedAt.put(uuid, plantedTick);
+                if (entry.contains("planter")) {
+                    planters.put(uuid, UUID.fromString(entry.getString("planter")));
+                }
             } catch (IllegalArgumentException ignored) {
             }
         }
@@ -133,6 +147,8 @@ public class C4BackComponent implements AutoSyncedComponent {
             entry.putString("uuid", e.getKey().toString());
             entry.putLong("detonation_tick", e.getValue());
             entry.putLong("planted_tick", plantedAt.getOrDefault(e.getKey(), level.getGameTime()));
+            UUID planter = planters.get(e.getKey());
+            if (planter != null) entry.putString("planter", planter.toString());
             list.add(entry);
         }
         tag.put("carriers", list);

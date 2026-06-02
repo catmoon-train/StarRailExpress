@@ -219,10 +219,12 @@ public final class C4Detonation {
         if (expired != null) {
             for (UUID carrierId : expired) {
                 ServerPlayer carrier = server.getPlayerList().getPlayer(carrierId);
+                UUID planter = comp.getPlanter(carrierId);
+                ServerPlayer attacker = planter != null ? server.getPlayerList().getPlayer(planter) : null;
                 comp.removeC4(carrierId);
                 if (carrier == null || carrier.isRemoved()) continue;
                 if (!(carrier.level() instanceof ServerLevel currentLevel)) continue;
-                detonateAt(currentLevel, carrier.position(), carrier);
+                detonateAt(currentLevel, carrier.position(), attacker != null ? attacker : carrier);
             }
         }
 
@@ -275,7 +277,7 @@ public final class C4Detonation {
 
         C4BackComponent comp = C4BackComponent.KEY.getNullable(level);
         if (comp == null || comp.hasC4(target.getUUID())) return false;
-        if (!comp.addC4(target.getUUID())) return false;
+        if (!comp.addC4(target.getUUID(), charge.owner())) return false;
         entity.discard();
         level.playSound(null, target.getX(), target.getY(), target.getZ(),
             SoundEvents.TRIPWIRE_CLICK_ON, SoundSource.PLAYERS, 0.8F, 1.3F);
@@ -455,6 +457,8 @@ public final class C4Detonation {
 
         List<ServerPlayer> victims = level.players().stream()
             .filter(p -> p.isAlive()
+                && !p.isSpectator()
+                && !p.isCreative()
                 && p.distanceToSqr(blastCenter) <= BLAST_RADIUS * BLAST_RADIUS
                 && hasExplosionLineOfSight(level, blastCenter, p))
             .toList();

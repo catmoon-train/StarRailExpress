@@ -260,7 +260,6 @@
   "text.autoconfig.noellesroles.option.mafiaMinimumPlayers": "教父最少玩家數",
   "text.autoconfig.noellesroles.option.chanceOfGodfather": "教父刷新概率（%）",
   "text.autoconfig.noellesroles.option.godfatherRecruitCooldownSeconds": "教父招募冷卻（秒）",
-  "text.autoconfig.noellesroles.option.godfatherBulletPrice": "教父子彈價格",
   "text.autoconfig.noellesroles.option.godfatherStartingBullets": "教父初始子彈數",
   "text.autoconfig.noellesroles.option.godfatherMaxLoadedBullets": "教父最大裝彈數",
   "text.autoconfig.noellesroles.option.mafiaRecruitRange": "教父招募範圍",

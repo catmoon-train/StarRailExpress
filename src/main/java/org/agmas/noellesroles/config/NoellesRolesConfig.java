@@ -923,7 +923,7 @@ public class NoellesRolesConfig implements ConfigData {
     /**
      * Pelican - eat cooldown in seconds
      */
-    public int pelicanEatCooldownSeconds = 20;
+    public int pelicanEatCooldownSeconds = 45;
 
     /**
      * Pelican - percentage of starting players needed to swallow for victory
@@ -934,7 +934,6 @@ public class NoellesRolesConfig implements ConfigData {
     public int mafiaMinimumPlayers = 18;
     public int chanceOfGodfather = 20;
     public int godfatherRecruitCooldownSeconds = 55;
-    public int godfatherBulletPrice = 75;
     public int godfatherStartingBullets = 1;
     public int godfatherMaxLoadedBullets = 3;
     public int mafiaRecruitRange = 16;
