@@ -78,11 +78,8 @@ public class PlayerBodyChestMenu extends AbstractContainerMenu implements Custom
     public ItemStack quickMoveStack(Player player, int index) {
         if (!container.canGetBodyContent(player))
             return ItemStack.EMPTY;
-        // 实现正常快速移动逻辑（复制自 ChestMenu），但通常没必要
-        if (!container.canGetBodyContent(player)) {
+        if (!container.quickMoveStack(player, index))
             return ItemStack.EMPTY;
-        }
-
         ItemStack itemStack = ItemStack.EMPTY;
         Slot slot = this.slots.get(index);
         if (slot != null && slot.hasItem()) {

@@ -115,4 +115,22 @@ public class PlayerBodyEntityContainer extends SimpleContainer {
             return false;
         return role.canGetBodyContent(slotId, button, clickType, player, container, rows, slots);
     }
+
+    public boolean quickMoveStack(Player player, int index) {
+        if (player.isSpectator())
+            return false;
+        if (player.isCreative())
+            return true;
+        var cca = SREGameWorldComponent.KEY.get(player.level());
+        if (cca.gameMode == null) {
+            return false;
+        }
+        if (cca.gameMode.canPickBodyContent()) {
+            return true;
+        }
+        SRERole role = cca.getRole(player);
+        if (role == null)
+            return false;
+        return role.playerBodyQuickMoveStack(player,index);
+    }
 }

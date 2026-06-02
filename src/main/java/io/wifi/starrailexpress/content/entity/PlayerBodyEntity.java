@@ -26,7 +26,6 @@ import net.minecraft.world.scores.PlayerTeam;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.PlayerBodyEntityComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
-import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.content.gui.PlayerBodyChestMenu;
 import io.wifi.starrailexpress.game.GameUtils;
 

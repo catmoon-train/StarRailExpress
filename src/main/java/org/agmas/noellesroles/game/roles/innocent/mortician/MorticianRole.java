@@ -3,10 +3,9 @@ package org.agmas.noellesroles.game.roles.innocent.mortician;
 import java.util.UUID;
 
 import org.agmas.noellesroles.component.ModComponents;
+import org.agmas.noellesroles.utils.MCItemsUtils;
 
-import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.NormalRole;
-import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.content.gui.PlayerBodyEntityContainer;
@@ -96,7 +95,7 @@ public class MorticianRole extends NormalRole {
         }
 
         // 如果操作涉及容器槽位（索引 0 ~ rows*9-1）
-        if (slotId >= 0 && slotId < rows * 9) {
+        {
             Slot slot = slots.get(slotId);
 
             switch (clickType) {
@@ -116,9 +115,6 @@ public class MorticianRole extends NormalRole {
                         if (isRevolver(stack) && morticianHasRevolver(player)) {
                             return false; // 禁止拿取，不关闭页面
                         }
-                    }
-
-                    if (slot != null && !slot.hasItem()) {
                         morticianTookItem(player);
 
                         // 检查是否已经拿够了2个物品
@@ -128,6 +124,10 @@ public class MorticianRole extends NormalRole {
                                 serverPlayer.closeContainer();
                             }
                         }
+                        MCItemsUtils.insertStackInFreeSlot(player, stack.copy());
+                        slot.set(ItemStack.EMPTY);
+                        slots.set(slotId, slot);
+                        return false;
                     }
                     return true;
                 default:
@@ -142,8 +142,6 @@ public class MorticianRole extends NormalRole {
                     return true;
             }
         }
-        // 非容器槽位放行
-        return true;
     }
 
     /**
