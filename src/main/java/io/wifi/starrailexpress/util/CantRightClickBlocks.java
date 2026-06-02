@@ -114,7 +114,7 @@ public class CantRightClickBlocks {
             if (keys.getPath().contains("drawer")) {
                 return false;
             }
-            if (keys.getPath().contains("side_table")) {
+            if (keys.getPath().contains("table")) {
                 return false;
             }
             if (keys.getPath().contains("nightstand")) {
