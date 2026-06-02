@@ -16,7 +16,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-
 @Mixin(Player.class)
 public abstract class CanRightClickMixin extends LivingEntity implements DataSyncPlayerExt {
     protected CanRightClickMixin(EntityType<? extends LivingEntity> entityType, Level world) {
@@ -31,20 +30,6 @@ public abstract class CanRightClickMixin extends LivingEntity implements DataSyn
         if (!cir.getReturnValue())
             return;
         final var player = (Player) (Object) this;
-//        if (SRE.canDropItem.contains(BuiltInRegistries.ITEM.getKey(mainHandItem.getItem()).toString())
-//                || SRE.canDrop.stream().anyMatch((p) -> {
-//                    return p.test(player);
-//                })) {
-//            if (player.isShiftKeyDown()) {
-//                final var drop = player.drop(mainHandItem.copy(), true);
-//                player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
-//
-//                if (drop != null) {
-//                    drop.setGlowingTag(true);
-//                    drop.setPickUpDelay(20);
-//                }
-//            }
-//        }
         if (!GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)) {
             return;
         }
@@ -52,7 +37,7 @@ public abstract class CanRightClickMixin extends LivingEntity implements DataSyn
         BlockState state = level().getBlockState(pos);
         Block block = state.getBlock();
 
-        if (CantRightClickBlocks.shouldPreventInteraction(block,player.level())) {
+        if (CantRightClickBlocks.shouldPreventInteraction(player, block, player.level())) {
             cir.setReturnValue(false);
         }
     }

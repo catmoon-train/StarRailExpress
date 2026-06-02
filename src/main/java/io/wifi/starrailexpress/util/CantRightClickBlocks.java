@@ -4,6 +4,7 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -69,21 +70,25 @@ public class CantRightClickBlocks {
 
     /**
      * 判断是否应该阻止与方块的交互
+     * 
+     * @param player
      */
-    public static boolean shouldPreventInteraction(Block block, Level level) {
+    public static boolean shouldPreventInteraction(Player player, Block block, Level level) {
         if (SRE.isLobby)
             return false;
         String string = BuiltInRegistries.BLOCK.getKey(block).toString();
         SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(level);
 
-        return !isAllowedBlock(block, level) || cantClickItems.contains(string)
+        return !isAllowedBlock(player, block, level) || cantClickItems.contains(string)
                 || CANNOT_INTERACT_IDS.contains(string);
     }
 
     /**
      * 检查方块是否在允许的列表中
+     * 
+     * @param player
      */
-    public static boolean isAllowedBlock(Block block, Level level) {
+    public static boolean isAllowedBlock(Player player, Block block, Level level) {
         // 如果在允许列表中，直接返回true
 
         if (ALLOWED_BLOCKS.contains(block)) {
@@ -105,6 +110,9 @@ public class CantRightClickBlocks {
             return false;
         }
         if (keys.getNamespace().equals("handcrafted")) {
+            if (player.isShiftKeyDown()) {
+                return false;
+            }
             if (keys.getPath().contains("counter")) {
                 return false;
             }
