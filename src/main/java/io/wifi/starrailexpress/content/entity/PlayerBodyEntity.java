@@ -355,7 +355,7 @@ public class PlayerBodyEntity extends LivingEntity {
         SRERole role = cca.getRole(serverPlayer);
         if (role == null)
             return false;
-        return role.canSeeBodyItems(SREClient.cached_player, this);
+        return role.canSeeBodyItems(serverPlayer, this);
     }
 
     private boolean hasCorpseItems() {

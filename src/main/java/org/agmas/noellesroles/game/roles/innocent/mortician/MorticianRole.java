@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import org.agmas.noellesroles.component.ModComponents;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.NormalRole;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
