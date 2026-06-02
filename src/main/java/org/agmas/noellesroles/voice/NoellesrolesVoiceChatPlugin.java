@@ -196,6 +196,28 @@ public class NoellesrolesVoiceChatPlugin implements VoicechatPlugin {
               event.cancel();
               return;
             }
+            // 如果发送者被鹈鹕吞噬，单独处理路由：只转发给鹈鹕和肚内玩家，避免默认逻辑忽略旁观者
+            if (PelicanManager.isStashed(player)) {
+              var bellyReceivers = PelicanManager.getBellyReceivers(player.getUUID());
+              if (!bellyReceivers.isEmpty()) {
+                // 取消默认广播，仅转发给肚内接收者（包括鹈鹕）
+                event.cancel();
+                for (UUID rUuid : bellyReceivers) {
+                  ServerPlayer rp = player.serverLevel().getServer().getPlayerList().getPlayer(rUuid);
+                  if (rp != null) {
+                    VoicechatConnection con = api.getConnectionOf(rp.getUUID());
+                    if (con != null && con.isInstalled() && con.isConnected()) {
+                      api.sendLocationalSoundPacketTo(con, event.getPacket()
+                          .locationalSoundPacketBuilder()
+                          .position(api.createPosition(rp.getX(), rp.getY(), rp.getZ()))
+                          .distance((float) api.getVoiceChatDistance())
+                          .build());
+                    }
+                  }
+                }
+                return;
+              }
+            }
             if (GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)) {
               float voiceRangeMultiplier = ModEffects.getVoiceRangeMultiplier(player);
               if (voiceRangeMultiplier > 1.0f) {
