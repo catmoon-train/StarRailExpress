@@ -69,6 +69,8 @@ import org.agmas.noellesroles.game.roles.killer.spellbreaker.SpellbreakerPlayerC
 import org.agmas.noellesroles.game.roles.neutral.slippery_ghost.SlipperyGhostPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.thief.ThiefPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.vulture.VulturePlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.pelican.PelicanPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.mafia.GodfatherComponent;
 import org.agmas.noellesroles.game.roles.neutral.wayfarer.WayfarerPlayerComponent;
 import org.agmas.noellesroles.game.roles.special.better_vigilante.BetterVigilantePlayerComponent;
 import org.agmas.noellesroles.game.roles.special.super_loose_end.SuperLooseEndPlayerComponent;
@@ -175,6 +177,18 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
   public static final ComponentKey<SingerPlayerComponent> SINGER = ComponentRegistry.getOrCreate(
       ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "singer"),
       SingerPlayerComponent.class);
+
+  public static final ComponentKey<org.agmas.noellesroles.game.roles.killer.warlock.WarlockPlayerComponent> WARLOCK = ComponentRegistry.getOrCreate(
+      ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "warlock"),
+      org.agmas.noellesroles.game.roles.killer.warlock.WarlockPlayerComponent.class);
+
+  public static final ComponentKey<org.agmas.noellesroles.game.roles.killer.embalmer.EmbalmerPlayerComponent> EMBALMER = ComponentRegistry.getOrCreate(
+      ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "embalmer"),
+      org.agmas.noellesroles.game.roles.killer.embalmer.EmbalmerPlayerComponent.class);
+
+  public static final ComponentKey<org.agmas.noellesroles.game.roles.killer.skincrawler.SkincrawlerPlayerComponent> SKINCRAWLER = ComponentRegistry.getOrCreate(
+      ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "skincrawler"),
+      org.agmas.noellesroles.game.roles.killer.skincrawler.SkincrawlerPlayerComponent.class);
 
   public static final ComponentKey<PsychologistPlayerComponent> PSYCHOLOGIST = ComponentRegistry.getOrCreate(
       ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "psychologist"),
@@ -540,6 +554,10 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
         .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(GhostPlayerComponent::new);
     registry.beginRegistration(Player.class, VulturePlayerComponent.KEY)
         .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(VulturePlayerComponent::new);
+    registry.beginRegistration(Player.class, PelicanPlayerComponent.KEY)
+        .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(PelicanPlayerComponent::new);
+    registry.beginRegistration(Player.class, GodfatherComponent.KEY)
+        .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(GodfatherComponent::new);
     registry.beginRegistration(Player.class, ThiefPlayerComponent.KEY)
         .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(ThiefPlayerComponent::new);
     registry.beginRegistration(Player.class, CandleBearerPlayerComponent.KEY)
@@ -750,6 +768,21 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
     registry.beginRegistration(Player.class, MORTICIAN_BODYMAKER)
         .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
         .end(org.agmas.noellesroles.game.roles.neutral.mortician.MorticianBodyMakerPlayerComponent::new);
+
+    // 注册咒法师组件
+    registry.beginRegistration(Player.class, WARLOCK)
+        .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
+        .end(org.agmas.noellesroles.game.roles.killer.warlock.WarlockPlayerComponent::new);
+
+    // 注册嬉命人组件
+    registry.beginRegistration(Player.class, EMBALMER)
+        .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
+        .end(org.agmas.noellesroles.game.roles.killer.embalmer.EmbalmerPlayerComponent::new);
+
+    // 注册窃皮者组件
+    registry.beginRegistration(Player.class, SKINCRAWLER)
+        .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
+        .end(org.agmas.noellesroles.game.roles.killer.skincrawler.SkincrawlerPlayerComponent::new);
 
     // ==================== 示例：注册更多组件 ====================
     //

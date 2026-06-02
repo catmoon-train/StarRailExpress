@@ -25,6 +25,7 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.Filterable;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -249,6 +250,20 @@ public class RoleShopHandler {
   public static ArrayList<ShopEntry> INFECTED_SHOP = new ArrayList<>();
   // ==================== 葬仪商店 ====================
   public static ArrayList<ShopEntry> MORTICIAN_BODYMAKER_SHOP = new ArrayList<>();
+  // ==================== 悍匪商店 ====================
+  public static ArrayList<ShopEntry> GANGSTERS_SHOP = new ArrayList<>();
+  // ==================== 钳工商店 ====================
+  public static ArrayList<ShopEntry> FITTER_SHOP = new ArrayList<>();
+  // ==================== 鹈鹕商店 ====================
+  public static ArrayList<ShopEntry> PELICAN_SHOP = new ArrayList<>();
+  // ==================== Mafia 商店 ====================
+  public static ArrayList<ShopEntry> GODFATHER_SHOP = new ArrayList<>();
+  public static ArrayList<ShopEntry> MAFIOSO_SHOP = new ArrayList<>();
+  public static ArrayList<ShopEntry> JANITOR_SHOP = new ArrayList<>();
+  // ==================== 咒法师商店 ====================
+  public static ArrayList<ShopEntry> WARLOCK_SHOP = new ArrayList<>();
+  // ==================== 嬉命人商店 ====================
+  public static ArrayList<ShopEntry> EMBALMER_SHOP = new ArrayList<>();
 
   /**
    * 初始化框架角色商店
@@ -1163,6 +1178,46 @@ public class RoleShopHandler {
     {
       ShopContent.customEntries.put(
           ModRoles.BANDIT_ID, BANDIT_SHOP);
+    }
+    // 悍匪商店
+    {
+      ShopContent.customEntries.put(
+          ModRoles.GANGSTERS_ID, GANGSTERS_SHOP);
+    }
+    // 钳工商店
+    {
+      ShopContent.customEntries.put(
+          ModRoles.FITTER_ID, FITTER_SHOP);
+    }
+    // 鹈鹕商店
+    {
+      ShopContent.customEntries.put(
+          ModRoles.PELICAN_ID, PELICAN_SHOP);
+    }
+    // 教父商店
+    {
+      ShopContent.customEntries.put(
+          ModRoles.GODFATHER_ID, GODFATHER_SHOP);
+    }
+    // 家族教徒商店
+    {
+      ShopContent.customEntries.put(
+          ModRoles.MAFIOSO_ID, MAFIOSO_SHOP);
+    }
+    // 家族侍卫商店
+    {
+      ShopContent.customEntries.put(
+          ModRoles.JANITOR_ID, JANITOR_SHOP);
+    }
+    // 咒法师商店
+    {
+      ShopContent.customEntries.put(
+          ModRoles.WARLOCK_ID, WARLOCK_SHOP);
+    }
+    // 嬉命人商店
+    {
+      ShopContent.customEntries.put(
+          ModRoles.EMBALMER_ID, EMBALMER_SHOP);
     }
     // 小偷商店
     {
@@ -2290,5 +2345,140 @@ public class RoleShopHandler {
         ModItems.BLOOD_BOTTLE.getDefaultInstance(),
         75,
         ShopEntry.Type.TOOL));
+
+    // ==================== 悍匪商店 ====================
+    // 短管霰弹枪 - 185金币
+    GANGSTERS_SHOP.add(new ShopEntry(
+        ModItems.SHORT_SHOTGUN.getDefaultInstance(),
+        185,
+        ShopEntry.Type.WEAPON));
+
+    // C4炸药 - 300金币
+    GANGSTERS_SHOP.add(new ShopEntry(
+        ModItems.C4.getDefaultInstance(),
+        300,
+        ShopEntry.Type.TOOL));
+
+    // 撬棍 - 25金币
+    GANGSTERS_SHOP.add(new ShopEntry(
+        TMMItems.CROWBAR.getDefaultInstance(),
+        25,
+        ShopEntry.Type.TOOL));
+
+    // 开锁器 - 80金币
+    GANGSTERS_SHOP.add(new ShopEntry(
+        TMMItems.LOCKPICK.getDefaultInstance(),
+        80,
+        ShopEntry.Type.TOOL));
+
+    // 关灯 - 100金币
+    GANGSTERS_SHOP.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), 100, ShopEntry.Type.TOOL) {
+      public boolean onBuy(@NotNull Player player) {
+        return SREPlayerShopComponent.useBlackout(player);
+      }
+    });
+
+    // ==================== 钳工商店 ====================
+    // 开灯 - 175金币（购买后立即结束关灯时间并清除全场黑暗与失明药水效果，未处于关灯时间无法购买）
+    FITTER_SHOP.add(new ShopEntry(ModItems.LIGHTUP.getDefaultInstance(), 175, ShopEntry.Type.TOOL) {
+      @Override
+      public boolean onBuy(@NotNull Player player) {
+        SREWorldBlackoutComponent blackCCA = SREWorldBlackoutComponent.KEY.get(player.level());
+        if (blackCCA.blackOutRemainingTicks <= 0) return false;
+        blackCCA.reset();
+        // 清除全场黑暗与失明药水效果
+        for (Player p : player.level().players()) {
+          p.removeEffect(MobEffects.BLINDNESS);
+          p.removeEffect(MobEffects.DARKNESS);
+        }
+        // 全场播放 block.smithing_table.use 音效
+        player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
+            SoundEvents.SMITHING_TABLE_USE, SoundSource.MASTER, 1.0F, 1.0F);
+        // 冷却与关灯一致
+        player.level().players().forEach(
+            p -> p.getCooldowns().addCooldown(ModItems.LIGHTUP, GameConstants.getBlackoutCooldownGlobal()));
+        player.getCooldowns().addCooldown(ModItems.LIGHTUP,
+            GameConstants.ITEM_COOLDOWNS.getOrDefault(TMMItems.BLACKOUT, 0));
+        return true;
+      }
+    });
+
+    // 监控恢复 - 75金币（购买后立即结束监控失灵时间，未处于监控失灵期间无法购买）
+    FITTER_SHOP.add(new ShopEntry(ModItems.MONITOR_RECOVERY.getDefaultInstance(), 75, ShopEntry.Type.TOOL) {
+      @Override
+      public boolean onBuy(@NotNull Player player) {
+        SREMonitorWorldComponent monitorCCA = SREMonitorWorldComponent.KEY.get(player.level());
+        if (monitorCCA.brokenTime <= 0) return false;
+        monitorCCA.reset();
+        // 全场播放 ui.loom.take_result 音效
+        player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
+            SoundEvents.UI_LOOM_TAKE_RESULT, SoundSource.MASTER, 1.0F, 1.0F);
+        // 冷却与监控失灵一致
+        player.level().players().forEach(
+            p -> p.getCooldowns().addCooldown(ModItems.MONITOR_RECOVERY, GameConstants.getMonitorBrokenCooldownGlobal()));
+        player.getCooldowns().addCooldown(ModItems.MONITOR_RECOVERY,
+            GameConstants.ITEM_COOLDOWNS.getOrDefault(TMMItems.MONITOR_BROKEN, 0));
+        return true;
+      }
+    });
+
+    // ==================== 鹈鹕商店 ====================
+    // 开锁器 - 150金币
+    PELICAN_SHOP.add(new ShopEntry(
+        TMMItems.LOCKPICK.getDefaultInstance(),
+        150,
+        ShopEntry.Type.TOOL));
+
+    // ==================== 教父商店 ====================
+    // 子弹 - 75金币（右键装填或购买时自动装填）
+    GODFATHER_SHOP.add(new ShopEntry(
+        ModItems.BULLET.getDefaultInstance(),
+        75,
+        ShopEntry.Type.WEAPON) {
+      @Override
+      public boolean onBuy(@NotNull Player player) {
+        return org.agmas.noellesroles.game.roles.neutral.mafia.MafiaManager.tryLoadBullet((ServerPlayer) player);
+      }
+    });
+
+    // ==================== 家族教徒商店 ====================
+    // 刀 - 130金币
+    MAFIOSO_SHOP.add(new ShopEntry(TMMItems.KNIFE.getDefaultInstance(), 130, ShopEntry.Type.WEAPON));
+    // 左轮手枪 - 225金币
+    MAFIOSO_SHOP.add(new ShopEntry(TMMItems.REVOLVER.getDefaultInstance(), 225, ShopEntry.Type.WEAPON));
+
+    // ==================== 家族侍卫商店 ====================
+    // 飞刀 - 130金币
+    JANITOR_SHOP.add(new ShopEntry(ModItems.THROWING_KNIFE.getDefaultInstance(), 130, ShopEntry.Type.WEAPON));
+    // 短管霰弹枪 - 250金币
+    JANITOR_SHOP.add(new ShopEntry(ModItems.SHORT_SHOTGUN.getDefaultInstance(), 250, ShopEntry.Type.WEAPON));
+
+    // ==================== 咒法师商店 ====================
+    // 刀 - 130金币
+    WARLOCK_SHOP.add(new ShopEntry(TMMItems.KNIFE.getDefaultInstance(), 130, ShopEntry.Type.WEAPON));
+    // 撬棍 - 35金币
+    WARLOCK_SHOP.add(new ShopEntry(TMMItems.CROWBAR.getDefaultInstance(), 35, ShopEntry.Type.TOOL));
+    // 开锁器 - 80金币
+    WARLOCK_SHOP.add(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), 80, ShopEntry.Type.TOOL));
+    // 疯狂模式 - 400金币
+    WARLOCK_SHOP.add(new ShopEntry(TMMItems.PSYCHO_MODE.getDefaultInstance(), 400, ShopEntry.Type.WEAPON) {
+      @Override
+      public boolean onBuy(@NotNull Player player) {
+        var psycc = io.wifi.starrailexpress.cca.SREPlayerPsychoComponent.KEY.get(player);
+        boolean success = psycc.startPsycho();
+        if (success) {
+          player.getCooldowns().addCooldown(TMMItems.PSYCHO_MODE, 20 * 60);
+        }
+        return success;
+      }
+    });
+    // 关灯 - 100金币
+    WARLOCK_SHOP.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), 100, ShopEntry.Type.TOOL));
+    // 监控失灵 - 60金币
+    WARLOCK_SHOP.add(new ShopEntry(TMMItems.MONITOR_BROKEN.getDefaultInstance(), 60, ShopEntry.Type.TOOL));
+
+    // ==================== 嬉命人商店 ====================
+    // 开锁器 - 100金币
+      EMBALMER_SHOP.add(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), 100, ShopEntry.Type.TOOL));
   }
 }

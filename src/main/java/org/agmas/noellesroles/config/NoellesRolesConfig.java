@@ -911,6 +911,35 @@ public class NoellesRolesConfig implements ConfigData {
     public int skillEchoRandomIntervalSeconds = 90;
 
     /**
+     * Pelican - minimum players required for Pelican to appear
+     */
+    public int minPlayerForPelican = 16;
+
+    /**
+     * Pelican - percentage chance (0-100) for Pelican to spawn
+     */
+    public int chanceOfPelican = 25;
+
+    /**
+     * Pelican - eat cooldown in seconds
+     */
+    public int pelicanEatCooldownSeconds = 20;
+
+    /**
+     * Pelican - percentage of starting players needed to swallow for victory
+     */
+    public double pelicanEatPercentage = 70.0D;
+
+    // ==================== Mafia 配置 ====================
+    public int mafiaMinimumPlayers = 18;
+    public int chanceOfGodfather = 20;
+    public int godfatherRecruitCooldownSeconds = 55;
+    public int godfatherBulletPrice = 75;
+    public int godfatherStartingBullets = 1;
+    public int godfatherMaxLoadedBullets = 3;
+    public int mafiaRecruitRange = 16;
+
+    /**
      * (Client Side) Welcome Voice - Play welcome voice
      */
 

@@ -126,7 +126,9 @@ public record GunShootPayload(int target) implements CustomPacketPayload {
                 }
 
                 if (!backfire) {
-                    mainHandStack.set(SREDataComponentTypes.USED, false);
+                    if (!isGodfather(player)) {
+                        mainHandStack.set(SREDataComponentTypes.USED, false);
+                    }
                     GameUtils.killPlayer(target, true, player, deathReason);
                 }
                 OnRevolverUsed.EVENT.invoker().onPlayerShoot(player, target);
@@ -151,5 +153,10 @@ public record GunShootPayload(int target) implements CustomPacketPayload {
                 }
             }
         }
+    }
+
+    private static boolean isGodfather(ServerPlayer player) {
+        var role = SREGameWorldComponent.KEY.get(player.level()).getRole(player);
+        return role != null && role.getIdentifier().toString().equals("noellesroles:godfather");
     }
 }

@@ -50,5 +50,10 @@ public class OtherRolesRegister {
         MeatballHud.register();
         MorticianHud.register();
         BuilderHud.register();
+        PelicanHud.register();
+        GodfatherHud.register();
+        WarlockHud.register();
+        EmbalmerHud.register();
+        SkincrawlerHud.register();
     }
 }

@@ -13,10 +13,13 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.component.ModComponents;
+import java.util.UUID;
 import org.agmas.noellesroles.component.PlayerVolumeComponent;
 import org.agmas.noellesroles.content.effects.TimeStopEffect;
 import org.agmas.noellesroles.content.item.RadioItem;
 import org.agmas.noellesroles.game.roles.neutral.commander.CommanderHandler;
+import org.agmas.noellesroles.game.roles.killer.embalmer.EmbalmerPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.pelican.PelicanManager;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
 
@@ -105,6 +108,12 @@ public class NoellesrolesVoiceChatPlugin implements VoicechatPlugin {
       return false;
     if (!(receiverConnection.getPlayer().getPlayer() instanceof Player receiverPlayer))
       return false;
+
+    // 鹈鹕语音隔离：被吞噬的玩家只能与鹈鹕和肚子里的其他玩家语音
+    if (PelicanManager.shouldCancelVoice(senderPlayer.getUUID(), receiverPlayer.getUUID())) {
+      return true;
+    }
+
     if (senderPlayer.getEffect(ModEffects.TIME_STOP) != null) {
       if (!TimeStopEffect.canMovePlayers.contains(senderPlayer.getUUID())) {
         return true;
@@ -249,6 +258,28 @@ public class NoellesrolesVoiceChatPlugin implements VoicechatPlugin {
     // if (players.interactionManager.getGameMode().equals(GameMode.SPECTATOR)) {
 
     // }
+  }
+
+  /**
+   * 获取嬉命人变装时的语音音调，1.0F为正常
+   */
+  public static float getEmbalmerVoicePitch(Player player) {
+    if (player == null) return 1.0F;
+    return EmbalmerPlayerComponent.getVoicePitch(player);
+  }
+
+  /**
+   * 鹈鹕吞噬时调用 - 更新语音分组
+   */
+  public static void onPelicanStash(UUID targetId, UUID pelicanId) {
+    // 语音隔离由 shouldBanVoice 处理
+  }
+
+  /**
+   * 鹈鹕释放时调用 - 恢复语音分组
+   */
+  public static void onPelicanRelease(UUID targetId) {
+    // 语音恢复由 shouldBanVoice 自动处理
   }
 
   @Override
