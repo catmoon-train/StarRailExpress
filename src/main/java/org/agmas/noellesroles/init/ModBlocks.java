@@ -26,7 +26,8 @@ import org.agmas.noellesroles.content.block_entity.*;
 import static io.wifi.starrailexpress.index.TMMBlocks.DARK_STEEL;
 
 public interface ModBlocks {
-    public static ResourceKey<CreativeModeTab> BLOCK_CREATIVE_GROUP = ResourceKey.create(Registries.CREATIVE_MODE_TAB,
+    public static ResourceKey<CreativeModeTab> BLOCK_CREATIVE_GROUP = ResourceKey.create(
+            Registries.CREATIVE_MODE_TAB,
             Noellesroles.id("block"));
     public static final BlockRegistrar blockRegistrar = new BlockRegistrar(Noellesroles.MOD_ID);
     public static final BlockEntityTypeRegistrar blockEntityRegistrar = new BlockEntityTypeRegistrar(
@@ -38,17 +39,22 @@ public interface ModBlocks {
     Block DEVIL_ROULETTE_TABLE = registerBlock("devil_roulette_table",
             new DevilRouletteTable());
     Block REPAIR_STATION = registerBlock("repair_station",
-            new RepairStationBlock(BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).lightLevel(state -> 3)));
+            new RepairStationBlock(
+                    BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).lightLevel(state -> 3)));
     Block HUNTER_CAGE = registerBlock("hunter_cage",
-            new HunterCageBlock(BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).noOcclusion().strength(4.0F)));
+            new HunterCageBlock(
+                    BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).noOcclusion().strength(4.0F)));
     Block REPAIR_EXIT_GATE = registerBlock("repair_exit_gate",
-            new RepairExitGateBlock(BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).noOcclusion().strength(5.0F)));
+            new RepairExitGateBlock(
+                    BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).noOcclusion().strength(5.0F)));
     Block REPAIR_SUPPLY_CRATE = registerBlock("repair_supply_crate",
             new RepairSupplyCrateBlock(BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).strength(2.5F)));
     Block REPAIR_PALLET = registerBlock("repair_pallet",
-            new RepairPalletBlock(BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).strength(1.2F).noOcclusion()));
+            new RepairPalletBlock(
+                    BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).strength(1.2F).noOcclusion()));
     Block HUNTER_SNARE = registerBlock("hunter_snare",
-            new HunterSnareBlock(BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).strength(0.6F).noOcclusion()));
+            new HunterSnareBlock(
+                    BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).strength(0.6F).noOcclusion()));
     Block FLARE_BLOCK = registerBlock("flare_block",
             new FlareBlock());
     Block HOTBAR_STORAGE = registerBlock("dnf_hotbar_storage",
@@ -78,7 +84,8 @@ public interface ModBlocks {
             new SREPlushBlock(Properties.ofFullCopy(Blocks.LIGHT_BLUE_WOOL).noOcclusion()));
     BlockEntityType<SREPlushBlockEntity> PLUSH_BLOCK_ENTITY = blockEntityRegistrar.create("plush",
             BlockEntityType.Builder.of(SREPlushBlockEntity::new, new Block[] { BAKA_PLUSH, FURANDORU_PLUSH,
-                    REMILIA_PLUSH, MISTIA_PLUSH, MARISA_PLUSH, REIMU_PLUSH }));
+                    REMILIA_PLUSH, MISTIA_PLUSH, MARISA_PLUSH, REIMU_PLUSH, BAMBOO_PLUSH,
+                    KAORUKO_PLUSH }));
     // 创建轮盘赌桌方块实体类型
     BlockEntityType<DevilRouletteTableEntity> DEVIL_ROULETTE_TABLE_ENTITY = blockEntityRegistrar.create(
             "devil_roulette_table",
@@ -94,7 +101,8 @@ public interface ModBlocks {
             .register(
                     BuiltInRegistries.BLOCK_ENTITY_TYPE,
                     SRE.id("dnf_hotbar_storage"),
-                    BlockEntityType.Builder.of(HotbarStorageBlockEntity::new, HOTBAR_STORAGE).build(null));
+                    BlockEntityType.Builder.of(HotbarStorageBlockEntity::new, HOTBAR_STORAGE)
+                            .build(null));
 
     static void initialize() {
         Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, BLOCK_CREATIVE_GROUP, FabricItemGroup.builder()
