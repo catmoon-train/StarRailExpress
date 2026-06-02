@@ -322,20 +322,6 @@ public class PlayerBodyEntity extends LivingEntity {
                 && !isLocked() && hasCorpseItems()
                 && (!GameUtils.isPlayerAliveAndSurvival(serverPlayer) || canSeeDeathBodyContent(serverPlayer))) {
 
-            // 殡仪员特殊检查 - canMorticianOpenCorpse 已经检查了冷却
-            // if (canMorticianOpenCorpse(serverPlayer)) {
-            // // 殡仪员可以打开
-            // } else if (isMorticianPlayer(serverPlayer)) {
-            // // 是殡仪员但无法打开（冷却中或已打开过）
-            // org.agmas.noellesroles.component.ModComponents.MORTICIAN.get(player);
-            // serverPlayer.displayClientMessage(
-            // Component.translatable("message.noellesroles.mortician.on_cooldown")
-            // .withStyle(net.minecraft.ChatFormatting.RED),
-            // true
-            // );
-            // return super.interactAt(player, vec3, hand);
-            // }
-
             serverPlayer.openMenu(new MenuProvider() {
                 @Override
                 public Component getDisplayName() {
@@ -360,7 +346,10 @@ public class PlayerBodyEntity extends LivingEntity {
         if (cca.gameMode == null) {
             return false;
         }
-        if (!cca.gameMode.canSeeBodyContent()) {
+        if (cca.gameMode.canSeeBodyContent()) {
+            return true;
+        }
+        if (cca.gameMode.cantSeeBodyContent()) {
             return false;
         }
         SRERole role = cca.getRole(serverPlayer);

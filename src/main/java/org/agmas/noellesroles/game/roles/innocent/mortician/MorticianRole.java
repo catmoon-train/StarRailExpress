@@ -40,19 +40,8 @@ public class MorticianRole extends NormalRole {
         if (!GameUtils.isPlayerAliveAndSurvival(serverPlayer)) {
             return false;
         }
-        SRERole role = cca.getRole(serverPlayer);
-        if (role == null) {
-            return false;
-        }
-        // 检查是否是殡仪员
-        if (!role.identifier().getPath().equals("mortician")) {
-            return false;
-        }
         // 检查冷却
         var morticianComponent = org.agmas.noellesroles.component.ModComponents.MORTICIAN.get(serverPlayer);
-        if (morticianComponent == null) {
-            return false;
-        }
         if (!morticianComponent.isCooldownReady()) {
             return false;
         }

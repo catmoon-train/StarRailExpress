@@ -77,6 +77,10 @@ public abstract class GameMode {
         return false;
     };
 
+    public boolean cantSeeBodyContent() {
+        return false;
+    };
+
     public boolean canSeeBodyContent() {
         return false;
     };
@@ -709,7 +713,8 @@ public abstract class GameMode {
             }
             if (killer != null) {
                 var killerRole = SREGameWorldComponent.KEY.get(killer.level()).getRole(killer);
-                boolean isGodfather = killerRole != null && killerRole.getIdentifier().toString().equals("noellesroles:godfather");
+                boolean isGodfather = killerRole != null
+                        && killerRole.getIdentifier().toString().equals("noellesroles:godfather");
                 if (!isGodfather) {
                     inventory_label: for (List<ItemStack> list : killer.getInventory().compartments) {
                         for (int i = 0; i < list.size(); i++) {
