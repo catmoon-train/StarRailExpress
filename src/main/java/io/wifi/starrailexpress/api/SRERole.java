@@ -882,4 +882,14 @@ public abstract class SRERole {
     public boolean canTakePlayerBodyItem(Player player, Container container, int slot, ItemStack stack) {
         return canGetBodyItems(player);
     }
+
+    /**
+     * 玩家在打开玩家尸体的时候quickMoveStack时触发。
+     * @param player
+     * @param index
+     * @return
+     */
+    public boolean playerBodyQuickMoveStack(Player player, int index) {
+        return true;
+    }
 }
