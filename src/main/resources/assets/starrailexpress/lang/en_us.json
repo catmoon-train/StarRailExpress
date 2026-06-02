@@ -2095,5 +2095,21 @@
   "hud.noellesroles.repair.skill_state.runner_vault": "Vault Sprint",
   "hud.noellesroles.repair.skill_state.archivist_notes": "Risk Record",
   "hud.noellesroles.repair.skill_state.saboteur_signal": "False Signal",
-  "hud.noellesroles.repair.skill_state.collector_supply": "Emergency Supply"
+  "hud.noellesroles.repair.skill_state.collector_supply": "Emergency Supply",
+  "announcement.star.role.wifi:warden": "Warden",
+  "announcement.star.goals.wifi:warden": "Judge the killer, uphold justice",
+  "message.warden.verdict_used": "§9You have cast Justice Discipline on %s!",
+  "message.warden.judgment_started": "§cJustice Trial begins! Find and defeat the sinner!",
+  "message.warden.judgment_kill_limit": "§cKill limit: %d players",
+  "message.warden.judgment_success": "§aJustice Trial succeeded! You defeated the sinner! Warden wins!",
+  "message.warden.judgment_backfire": "§cJustice Backfire! You failed to find the sinner!",
+  "message.warden.skill_cooldown": "§6Skill cooling down, %d seconds remaining",
+  "message.warden.no_target": "§6No valid target within 3 blocks",
+  "deathReason.warden_backfire": "Justice Backfire",
+  "message.warden.target_misbehaved": "§6Justice should not be like this... I need to reconsider",
+  "message.warden.skill_judgment": "§6Cannot use Justice Discipline during Judgment phase",
+  "message.warden.no_gun": "§6Justice is coming",
+  "message.warden.target_died": "§6Your verdict target has died, verdict voided.",
+  "hud.noellesroles.warden.no_gun": "§6Justice is coming",
+  "hud.noellesroles.warden.ready": "§aVerdict Ready"
 }

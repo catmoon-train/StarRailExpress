@@ -261,6 +261,8 @@ public class ModRoles {
     public static final ResourceLocation WARLOCK_ID = Noellesroles.id("warlock");
     public static final ResourceLocation EMBALMER_ID = Noellesroles.id("embalmer");
     public static final ResourceLocation SKINCRAWLER_ID = Noellesroles.id("skincrawler");
+    // 典狱长角色 ID - 独立胜利中立
+    public static final ResourceLocation WARDEN_ID = Noellesroles.id("warden");
     public static final ResourceLocation CANDLE_BEARER_ID = Noellesroles.id("candlebearer");
     public static final ResourceLocation FORTUNETELLER_ID = Noellesroles.id("fortuneteller");
     // 疫使 ID - 杀手方中立
@@ -2181,5 +2183,33 @@ public class ModRoles {
             .setComponentKey(org.agmas.noellesroles.game.roles.killer.skincrawler.SkincrawlerPlayerComponent.KEY))
             .setCanUseKiller(true).setCanSeeTeammateKiller(true)
             .setCanUseInstinct(true).setCanSeeCoin(true);
+
+    // ==================== 典狱长 ====================
+    /**
+     * 典狱长角色 - 独立胜利中立阵营
+     * - 中立阵营 (isInnocent = false, canUseKiller = false)
+     * - 有心情显示但不会掉san (MoodType.REAL + 持续恢复)
+     * - 无限冲刺时间
+     * - 被动：开局自带一层护盾且持续获得速度I，开局自带一把假左轮手枪
+     * - 主动技能：[正义戒律]，冷却60s，需要持有假左轮才能使用，对3格内目标施加正义戒律，按直觉键透视周围所有人（灰色，10格内），目标常驻透视（深蓝色，无限距离），冷却后可更改目标
+     * - 商店：100金币买假左轮，90秒购买冷却
+     * - 若目标被杀手或中立击杀，则进入正义审判阶段：假左轮替换为德林加手枪
+     * - 审判阶段需在击杀上限内击杀凶手则独立胜利
+     * - 若击杀数达到上限仍未击杀凶手则正义反噬死亡
+     * - 12人以上刷新
+     */
+    public static SRERole WARDEN = TMMRoles.registerRole(new io.wifi.starrailexpress.game.roles.WardenRole(
+            WARDEN_ID, new java.awt.Color(0x0044CC).getRGB(), false,
+            false, SRERole.MoodType.REAL, -1, true))
+            .setComponentKey(io.wifi.starrailexpress.cca.WardenPlayerComponent.KEY)
+            .setCanSeeCoin(true)
+            .setCanUseInstinct(true)
+            .setCanAutoAddMoney(true)
+            .setEnableNeededPlayerCount(12)
+            .setNeutrals(true)
+            .setNeutralForKiller(false)
+            .setCanSeeTeammateKiller(false)
+            .setCanBeRandomedByOtherRoles(true)
+            .setMax(1);
 
 }
