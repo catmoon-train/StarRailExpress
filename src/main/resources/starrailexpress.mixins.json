@@ -40,7 +40,8 @@
     "server.MaxPlayerAccessor",
     "server.PlayerDiscard",
     "util.EntitySelectorMixin",
-    "whitelist.ServerHandshakePacketListenerImplMixin"
+    "whitelist.ServerHandshakePacketListenerImplMixin",
+    "world.ChunkSerializerMixin"
   ],
   "injectors": {
     "defaultRequire": 1
