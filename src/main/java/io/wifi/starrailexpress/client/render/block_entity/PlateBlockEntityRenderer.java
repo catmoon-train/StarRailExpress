@@ -4,7 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 
 import io.wifi.starrailexpress.SREConfig;
-import io.wifi.starrailexpress.content.block_entity.BeveragePlateBlockEntity;
+import io.wifi.starrailexpress.content.block_entity.PlateTrayBlockEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
@@ -18,7 +18,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class PlateBlockEntityRenderer implements BlockEntityRenderer<BeveragePlateBlockEntity> {
+public class PlateBlockEntityRenderer implements BlockEntityRenderer<PlateTrayBlockEntity> {
     private final ItemRenderer itemRenderer;
     private static final double MAX_RENDER_DISTANCE_SQ = 16.0 * 16.0;
     private static final double RADIUS = 0.25;
@@ -31,7 +31,7 @@ public class PlateBlockEntityRenderer implements BlockEntityRenderer<BeveragePla
     }
 
     @Override
-    public void render(@NotNull BeveragePlateBlockEntity entity, float tickDelta, PoseStack matrices,
+    public void render(@NotNull PlateTrayBlockEntity entity, float tickDelta, PoseStack matrices,
             MultiBufferSource vertexConsumers, int light, int overlay) {
         Minecraft minecraft = Minecraft.getInstance();
         Player player = minecraft.player;
@@ -47,7 +47,7 @@ public class PlateBlockEntityRenderer implements BlockEntityRenderer<BeveragePla
         renderItems(entity, items, matrices, vertexConsumers, light, overlay);
     }
 
-    private void renderItems(@NotNull BeveragePlateBlockEntity entity, List<ItemStack> items,
+    private void renderItems(@NotNull PlateTrayBlockEntity entity, List<ItemStack> items,
             PoseStack matrices, MultiBufferSource vertexConsumers, int light, int overlay) {
         boolean isDrink = entity.isDrink();
         double centerY = (isDrink ? 0.225 : 0.0375);
