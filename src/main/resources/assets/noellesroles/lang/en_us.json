@@ -2766,7 +2766,7 @@
   "announcement.star.goals.godfather": "Recruit family members and take control!",
   "announcement.star.win.godfather": "Family Victory!",
   "game.win.star.godfather": "The Godfather and his family took control!",
-  "info.screen.roleid.godfather": "Neutral\nOccupies 3 neutral slots.\nSkill: Press ability key to recruit a player (55s cooldown).\nRecruit limit 4, cannot recruit special roles.\nOnly appears in 18+ player games, 20% chance.\nPrevents game from ending while alive.\nFamily members cannot harm each other.",
+  "info.screen.roleid.godfather": "Neutral\nOccupies 3 neutral slots.\nSkill: Press ability key to recruit a player (100s cooldown).\nRecruit limit 4, cannot recruit special roles.\nOnly appears in 18+ player games, 20% chance.\nPrevents game from ending while alive.\nFamily members cannot harm each other.",
   "announcement.star.role.mafioso": "Mafioso",
   "announcement.star.role.noellesroles.mafioso": "Mafioso",
   "announcement.star.goals.mafioso": "Assist the Godfather in taking control!",

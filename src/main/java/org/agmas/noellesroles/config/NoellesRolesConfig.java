@@ -945,7 +945,6 @@ public class NoellesRolesConfig implements ConfigData {
     // ==================== Mafia 配置 ====================
     public int mafiaMinimumPlayers = 18;
     public int chanceOfGodfather = 20;
-    public int godfatherRecruitCooldownSeconds = 55;
     public int godfatherStartingBullets = 1;
     public int godfatherMaxLoadedBullets = 3;
     public int mafiaRecruitRange = 16;
