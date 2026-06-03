@@ -41,6 +41,7 @@ import java.util.*;
  *  - 佛说：你说我做，当没有佛说则是反向你说我做
  *  - 盗窃违法事件：当在摄像头前方一定范围内一定时间触发
  *  - 保安返厂：死亡的部分玩家复活为保安（根据在场人数），当玩家在60s内进行过偷窃行为则可被击杀，否则会导致小脑
+ *  - 生成很值钱的宝石：拾取后出发追捕事件（复活几个保安追逐战），存活一定时间后给予资金，否则趋势；肘死那个人的保安会复活并继承他的资金
  * </p>
  * <p>
  * 特殊职业：
@@ -67,6 +68,15 @@ public class SREThiefWarGameMode extends SREBaseCustomizationGameMode {
         sharedItems.add(TMMItems.CROWBAR::getDefaultInstance);
     }
 
+    // 小偷模式可以摸尸体
+    @Override
+    public boolean canPickBodyContent() {
+        return true;
+    }
+    @Override
+    public boolean canSeeBodyContent() {
+        return true;
+    }
     @Override
     protected void initRoles(List<ServerPlayer> players, SREGameWorldComponent gameWorldComponent) {
         for (ServerPlayer player : players) {
