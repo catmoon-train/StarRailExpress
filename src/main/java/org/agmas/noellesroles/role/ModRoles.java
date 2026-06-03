@@ -2191,7 +2191,7 @@ public class ModRoles {
      * 审判机制：当杀手击杀玩家时触发审判，典狱长需找到罪人
      * 商店：100金币买假左轮，90秒购买冷却
      */
-    public static SRERole WARDEN = TMMRoles.registerRole(new io.wifi.starrailexpress.game.roles.WardenRole(
+    public static SRERole WARDEN = TMMRoles.registerRole(new NormalRole(
             WARDEN_ID, new java.awt.Color(0x0044CC).getRGB(), false,
             false, SRERole.MoodType.FAKE, -1, true))
             .setComponentKey(org.agmas.noellesroles.game.roles.neutral.warden.WardenPlayerComponent.KEY)
