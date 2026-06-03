@@ -218,6 +218,12 @@ public class NoellesRolesConfig implements ConfigData {
     public int chanceOfLostKiller = 20;
 
     /**
+     * 迷失杀手最小玩家数
+     */
+    @ConfigEntry.Category(value = "detail")
+    public int minPlayerForLostKiller = 12;
+
+    /**
      * 监察员刷新概率（%）
      */
     @ConfigEntry.Category(value = "detail")
@@ -925,6 +931,16 @@ public class NoellesRolesConfig implements ConfigData {
      * Pelican - percentage of starting players needed to swallow for victory
      */
     public double pelicanEatPercentage = 70.0D;
+
+    /**
+     * 悍匪最小玩家数
+     */
+    public int minPlayerForGangsters = 12;
+
+    /**
+     * 悍匪刷新概率（%）
+     */
+    public int chanceOfGangsters = 75;
 
     // ==================== Mafia 配置 ====================
     public int mafiaMinimumPlayers = 18;

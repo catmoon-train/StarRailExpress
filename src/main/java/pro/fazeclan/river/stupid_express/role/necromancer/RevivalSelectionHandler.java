@@ -200,6 +200,7 @@ public class RevivalSelectionHandler {
 
             // get random killer role
             var roles = new ArrayList<SRERole>();
+            // 邪恶战争模式可以复活随机杀手
             if (gameWorldComponent.gameMode instanceof SREEvilWarGameMode evilWarGameMode) {
                 RoleAssignmentPool evilWarKillerPool = evilWarGameMode.createEvilWarRolePool();
                 SRERole role = evilWarKillerPool.selectRole();
@@ -231,6 +232,11 @@ public class RevivalSelectionHandler {
             SRE.REPLAY_MANAGER.recordPlayerRevival(revived.getUUID(), selectedRole);
             SREPlayerShopComponent playerShopComponent = SREPlayerShopComponent.KEY.get(revived);
             playerShopComponent.setBalance(200);
+
+            // 邪恶战争模式时复活会给予专属物品
+            if (gameWorldComponent.gameMode instanceof SREEvilWarGameMode) {
+                SREEvilWarGameMode.addEvilWarItemsByRole(revived, selectedRole);
+            }
 
             StupidRoleUtils.sendWelcomeAnnouncement(revived);
 

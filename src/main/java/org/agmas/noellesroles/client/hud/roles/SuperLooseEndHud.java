@@ -37,10 +37,21 @@ public class SuperLooseEndHud {
             // 渲染技能切换提示
             text = Component.translatable("hud.super_loose_end.switch_tip").withStyle(ChatFormatting.GRAY);
             guiGraphics.drawString(font, text, x, y + yOffset, Color.WHITE.getRGB());
-            switch (superLooseEndPlayerComponent.curAbilityIdx) {
-                // 召回技能
-                case 0 -> {
-                    if (superLooseEndPlayerComponent.abilityCooldowns.get(0) <= 0) {
+
+            if (superLooseEndPlayerComponent.getCurAbility() == null)
+                return;
+            if (superLooseEndPlayerComponent.getCurAbility().first.cooldown <= 0) {
+                switch (superLooseEndPlayerComponent.curAbilityIdx) {
+                    // 爆炸技能
+                    case 0 -> {
+                        text = Component.translatable("hud.super_loose_end.explode",
+                                        superLooseEndPlayerComponent.getExplodeLvl(), superLooseEndPlayerComponent.getExplosionRange())
+                                .withStyle(ChatFormatting.RED);
+                        consumeText = Component.translatable("hud.super_loose_end.comsume.armor",
+                                Math.max(armorPlayerComponent.getArmor(), 2));
+                    }
+                    // 召回技能
+                    case 1 -> {
                         if (superLooseEndPlayerComponent.placed) {
                             text = Component.translatable("hud.super_loose_end.recall")
                                     .withStyle(ChatFormatting.AQUA);
@@ -48,33 +59,26 @@ public class SuperLooseEndHud {
                             text = Component.translatable("hud.super_loose_end.recall.place")
                                     .withStyle(ChatFormatting.AQUA);
                         }
+                        consumeText = Component.translatable("hud.super_loose_end.comsume.armor",
+                                SuperLooseEndPlayerComponent.RECALL_COST);
                     }
-                    else {
-                        text = Component.translatable("hud.super_loose_end.cool_down",
-                                        superLooseEndPlayerComponent.abilityCooldowns.get(0) / 20)
-                                .withStyle(ChatFormatting.GRAY);
-                    }
-                    yOffset += font.lineHeight + 1;
-                    guiGraphics.drawString(font, text, x, y + yOffset, Color.WHITE.getRGB());
-                    consumeText = Component.translatable("hud.super_loose_end.comsume.armor",
-                            SuperLooseEndPlayerComponent.RECALL_COST);
-                }
-                case 1 -> {
-                    if (superLooseEndPlayerComponent.abilityCooldowns.get(1) <= 0)
-                        text = Component.translatable("hud.super_loose_end.explode",
+                    // 交换技能
+                    case 2 -> {
+                        text = Component.translatable("hud.super_loose_end.swap",
                                         superLooseEndPlayerComponent.getExplodeLvl(), superLooseEndPlayerComponent.getExplosionRange())
                                 .withStyle(ChatFormatting.LIGHT_PURPLE);
-                    else
-                        text = Component.translatable("hud.super_loose_end.cool_down",
-                                        superLooseEndPlayerComponent.abilityCooldowns.get(1) / 20)
-                                .withStyle(ChatFormatting.GRAY);
-                    yOffset += font.lineHeight + 1;
-                    guiGraphics.drawString(font, text, x, y + yOffset, Color.WHITE.getRGB());
-                    consumeText = Component.translatable("hud.super_loose_end.comsume.armor",
-                            Math.max(armorPlayerComponent.getArmor(), 2));
-
+                        consumeText = Component.translatable("hud.super_loose_end.comsume.speed_swap");
+                    }
                 }
             }
+            else {
+                text = Component.translatable("hud.super_loose_end.cool_down",
+                                superLooseEndPlayerComponent.getCurAbility().first.cooldown / 20)
+                        .withStyle(ChatFormatting.GRAY);
+            }
+            yOffset += font.lineHeight + 1;
+            guiGraphics.drawString(font, text, x, y + yOffset, Color.WHITE.getRGB());
+
             // 渲染技能消耗
             text = Component.translatable("hud.super_loose_end.consume", consumeText.getString())
                     .withStyle(ChatFormatting.RED);

@@ -1,17 +1,13 @@
 package io.wifi.starrailexpress.game.modes.funny;
 
 import io.wifi.starrailexpress.SRE;
-import io.wifi.starrailexpress.api.GameMode;
 import io.wifi.starrailexpress.api.SREGameModes;
-import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
 import io.wifi.starrailexpress.cca.SREGameTimeComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
 import io.wifi.starrailexpress.index.TMMItems;
-import io.wifi.starrailexpress.network.original.AnnounceWelcomePayload;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -37,7 +33,7 @@ import java.util.function.Supplier;
  * - 局外死亡条件：死亡次数累计到一定值死亡旁观
  * </p>
  */
-public class SREDevilRouletteGameMode extends GameMode {
+public class SREDevilRouletteGameMode extends SREBaseCustomizationGameMode {
     // 轮盘赌模式允许聊天
     static {
         SRE.canSendReplay.add((p) -> {
@@ -59,11 +55,6 @@ public class SREDevilRouletteGameMode extends GameMode {
     }
 
     @Override
-    public boolean shouldRecordPlayerStats() {
-        return false;
-    }
-
-    @Override
     public void finalizeGame(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent) {
         super.finalizeGame(serverWorld, gameWorldComponent);
         rouletteTablePos.clear();
@@ -74,20 +65,18 @@ public class SREDevilRouletteGameMode extends GameMode {
      */
     public SREDevilRouletteGameMode(ResourceLocation identifier) {
         super(identifier, 99, 2);
-        initModeItems();
     }
 
-    protected void initModeItems() {
-        devilRouletteItems.add(() -> new ItemStack(TMMItems.DEFENSE_VIAL));
+    @Override
+    protected void ConstructItemList() {
+        sharedItems.add(() -> new ItemStack(TMMItems.DEFENSE_VIAL));
     }
 
     @Override
     public void initializeGame(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent,
             List<ServerPlayer> players) {
+        super.initializeGame(serverWorld, gameWorldComponent, players);
         reset();
-        initRoles(players, gameWorldComponent);
-        initPlayerItems(players, gameWorldComponent);
-        sendWelcomePackets(players, gameWorldComponent, SpecialGameModeRoles.DIRT);
 
         addAllPlayers(players);
 
@@ -99,11 +88,12 @@ public class SREDevilRouletteGameMode extends GameMode {
             gameWorldComponent.addRole(player, SpecialGameModeRoles.DIRT);
     }
 
+    @Override
     protected void initPlayerItems(List<ServerPlayer> players, SREGameWorldComponent gameWorldComponent) {
         for (ServerPlayer player : players) {
             player.getInventory().clearContent();
             // 添加模式专属物品
-            for (Supplier<ItemStack> itemSupplier : devilRouletteItems) {
+            for (Supplier<ItemStack> itemSupplier : sharedItems) {
                 ItemStack itemStack = itemSupplier.get();
                 if (itemStack != null && !itemStack.isEmpty()) {
                     player.addItem(itemStack);
@@ -117,16 +107,6 @@ public class SREDevilRouletteGameMode extends GameMode {
                             randomSource.nextInt(DevilRouletteGame.rouletteItems.size())).get());
                 }
             }
-        }
-    }
-
-    protected void sendWelcomePackets(List<ServerPlayer> players, SREGameWorldComponent gameWorldComponent,
-            SRERole role) {
-        if (role == null)
-            return;
-        for (ServerPlayer player : players) {
-            ServerPlayNetworking.send(player,
-                    new AnnounceWelcomePayload(role.identifier().toString(), -1, -1));
         }
     }
 
@@ -338,7 +318,6 @@ public class SREDevilRouletteGameMode extends GameMode {
      * 游戏对局结束每点生命值转化的金币数
      */
     public static final int WINNER_COIN = 100;
-    protected static final List<Supplier<ItemStack>> devilRouletteItems = new ArrayList<>();
     protected static final HashSet<BlockPos> rouletteTablePos = new HashSet<>();
     protected final List<UUID> winners = new ArrayList<>();
     /**

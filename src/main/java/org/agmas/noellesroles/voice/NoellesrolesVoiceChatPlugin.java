@@ -24,6 +24,8 @@ import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
 
 public class NoellesrolesVoiceChatPlugin implements VoicechatPlugin {
+  private static VoicechatServerApi SERVER_API;
+
   @Override
   public String getPluginId() {
     return Noellesroles.MOD_ID;
@@ -127,6 +129,10 @@ public class NoellesrolesVoiceChatPlugin implements VoicechatPlugin {
     if (receiverPlayer.hasEffect(ModEffects.PLAYER_ISOLATION) || senderPlayer.hasEffect(ModEffects.PLAYER_ISOLATION)) {
       return true;
     }
+    // 如果任一玩家被鹈鹕吞噬（肚内/stashed），不要因为死亡惩罚把他们直接拉到死亡语音频道
+    if (PelicanManager.isStashed(senderPlayer) || PelicanManager.isStashed(receiverPlayer)) {
+      return false;
+    }
     var deathPenalty = ModComponents.DEATH_PENALTY.get(receiverPlayer);
     if (deathPenalty.hasPenalty()) {
       if (deathPenalty.limitCameraUUID != null) {
@@ -189,6 +195,28 @@ public class NoellesrolesVoiceChatPlugin implements VoicechatPlugin {
                 || gameWorldComponent.getGameStatus().equals(GameStatus.STARTING)) {
               event.cancel();
               return;
+            }
+            // 如果发送者被鹈鹕吞噬，单独处理路由：只转发给鹈鹕和肚内玩家，避免默认逻辑忽略旁观者
+            if (PelicanManager.isStashed(player)) {
+              var bellyReceivers = PelicanManager.getBellyReceivers(player.getUUID());
+              if (!bellyReceivers.isEmpty()) {
+                // 取消默认广播，仅转发给肚内接收者（包括鹈鹕）
+                event.cancel();
+                for (UUID rUuid : bellyReceivers) {
+                  ServerPlayer rp = player.serverLevel().getServer().getPlayerList().getPlayer(rUuid);
+                  if (rp != null) {
+                    VoicechatConnection con = api.getConnectionOf(rp.getUUID());
+                    if (con != null && con.isInstalled() && con.isConnected()) {
+                      api.sendLocationalSoundPacketTo(con, event.getPacket()
+                          .locationalSoundPacketBuilder()
+                          .position(api.createPosition(rp.getX(), rp.getY(), rp.getZ()))
+                          .distance((float) api.getVoiceChatDistance())
+                          .build());
+                    }
+                  }
+                }
+                return;
+              }
             }
             if (GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)) {
               float voiceRangeMultiplier = ModEffects.getVoiceRangeMultiplier(player);
@@ -256,10 +284,10 @@ public class NoellesrolesVoiceChatPlugin implements VoicechatPlugin {
                   if (isStashed) {
                     event.cancel();
                   }
-                  // 鹈鹕或肚内玩家：转发语音给肚内接收者
+                  // 鹈鹕或肚内玩家：转发语音给肚内接收者（不排除旁观者，肚内玩家本身就是旁观者）
                   for (UUID rUuid : bellyReceivers) {
                     ServerPlayer rp = player.serverLevel().getServer().getPlayerList().getPlayer(rUuid);
-                    if (rp != null && !rp.isSpectator()) {
+                    if (rp != null) {
                       VoicechatConnection con = api.getConnectionOf(rp.getUUID());
                       if (con != null && con.isInstalled() && con.isConnected()) {
                         api.sendLocationalSoundPacketTo(con, event.getPacket()
@@ -300,21 +328,32 @@ public class NoellesrolesVoiceChatPlugin implements VoicechatPlugin {
   }
 
   /**
-   * 鹈鹕吞噬时调用 - 更新语音分组
+   * 鹈鹕吞噬时调用 - 将被吞玩家移出任何语音组，防止被自动拉入死者频道
    */
   public static void onPelicanStash(UUID targetId, UUID pelicanId) {
-    // 语音隔离由 shouldBanVoice 处理
+    if (SERVER_API == null) return;
+    VoicechatConnection con = SERVER_API.getConnectionOf(targetId);
+    if (con != null) {
+      con.setGroup(null);
+    }
   }
 
   /**
-   * 鹈鹕释放时调用 - 恢复语音分组
+   * 鹈鹕释放时调用 - 恢复语音分组到默认
    */
   public static void onPelicanRelease(UUID targetId) {
-    // 语音恢复由 shouldBanVoice 自动处理
+    if (SERVER_API == null) return;
+    VoicechatConnection con = SERVER_API.getConnectionOf(targetId);
+    if (con != null) {
+      con.setGroup(null);
+    }
   }
 
   @Override
   public void registerEvents(EventRegistration registration) {
+    registration.registerEvent(VoicechatServerStartedEvent.class, event -> {
+      SERVER_API = event.getVoicechat();
+    });
     registration.registerEvent(MicrophonePacketEvent.class, this::paranoidEvent);
 
     registration.registerEvent(LocationalSoundPacketEvent.class, this::timeStopper_Locational);

@@ -27,6 +27,7 @@ import net.minecraft.world.phys.EntityHitResult;
 
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.content.entity.PuppeteerBodyEntity;
+import org.agmas.noellesroles.game.roles.neutral.pelican.PelicanManager;
 import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
 
@@ -58,6 +59,8 @@ public class RoleNameRenderer {
     @SuppressWarnings("unused")
     public static void renderHud(Font renderer, @NotNull LocalPlayer player, FakeGuiGraphics context,
             DeltaTracker tickCounter) {
+        // 鹈鹕肚内玩家不能通过准星查看玩家身份
+        if (PelicanManager.isStashed(player)) return;
         Component nametag = Component.empty();
         final Component[] note = new Component[] { Component.empty(), Component.empty(), Component.empty(),
                 Component.empty() };

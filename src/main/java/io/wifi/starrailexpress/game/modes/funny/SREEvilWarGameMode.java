@@ -13,6 +13,8 @@ import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.ItemComponentUtils;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -28,6 +30,7 @@ import net.minecraft.world.level.Level;
 import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.harpymodloader.modded_murder.RoleAssignmentPool;
+import org.agmas.noellesroles.commands.BroadcastCommand;
 import org.agmas.noellesroles.content.item.TimeStopClock;
 import org.agmas.noellesroles.game.roles.killer.blood_feudist.BloodFeudistPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.imitator.ImitatorPlayerComponent;
@@ -55,13 +58,39 @@ import java.util.function.Supplier;
  * </p>
  */
 public class SREEvilWarGameMode extends WTLooseEndsGameMode {
-    public final List<SRERole> BANED_ROLES = new ArrayList<>();
-    protected static AttributeModifier tinyModifier = new AttributeModifier(
-            StupidExpress.id("tiny_modifier"), -0.15, AttributeModifier.Operation.ADD_VALUE);
+    /** 有特殊改动的职业 */
+    public static final Set<SRERole> EX_ABILITY_ROLE = new HashSet<>();
+    static {
+        EX_ABILITY_ROLE.add(SpecialGameModeRoles.SUPER_LOOSE_END);
+        EX_ABILITY_ROLE.add(RedHouseRoles.REMILIA);
+        EX_ABILITY_ROLE.add(ModRoles.IMITATOR);
+        EX_ABILITY_ROLE.add(ModRoles.TRAPPER);
+        EX_ABILITY_ROLE.add(ModRoles.BANDIT);
+        EX_ABILITY_ROLE.add(TraitorAndModifiers.TRAITOR);
+        EX_ABILITY_ROLE.add(ModRoles.CONSPIRATOR);
+        EX_ABILITY_ROLE.add(ModRoles.DIO);
+        EX_ABILITY_ROLE.add(ModRoles.CLEANER);
+        EX_ABILITY_ROLE.add(ModRoles.DELAYER);
+        EX_ABILITY_ROLE.add(ModRoles.EXECUTIONER);
+        EX_ABILITY_ROLE.add(ModRoles.BOMBER);
+        EX_ABILITY_ROLE.add(SERoles.NECROMANCER);
+        EX_ABILITY_ROLE.add(ModRoles.CAT_NECROMANCER);
+        EX_ABILITY_ROLE.add(ModRoles.BLOOD_FEUDIST);
+        EX_ABILITY_ROLE.add(SERoles.AVARICIOUS);
+        EX_ABILITY_ROLE.add(ModRoles.PARTY_KILLER);
+        EX_ABILITY_ROLE.add(ModRoles.NINJA);
+        EX_ABILITY_ROLE.add(ModRoles.POISONER);
+        EX_ABILITY_ROLE.add(ModRoles.CREEPER);
+        EX_ABILITY_ROLE.add(ModRoles.STALKER);
+        EX_ABILITY_ROLE.add(ModRoles.INSANE_KILLER);
+    }
     public static final int ADD_BALANCE_TIME = 600;
     public static final int REVIVE_TIME = 200;
     public static final int ONE_SECOND_TICK = 20;
     public static final int EXECUTIONER_GUN_NUMBER = 6;
+    protected static AttributeModifier tinyModifier = new AttributeModifier(
+            StupidExpress.id("tiny_modifier"), -0.15, AttributeModifier.Operation.ADD_VALUE);
+    public final List<SRERole> BANED_ROLES = new ArrayList<>();
     int curBalanceTick = 0;
     int curReviveTick = 0;
     int curOneSecondTick = 0;
@@ -144,14 +173,16 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
         }
     }
 
+    protected int getSuperLooseEndCount(List<ServerPlayer> players) {
+        return Math.max(players.size() / (SREConfig.instance().evilWarKillGroupNumber + 1), 1);
+    }
     @Override
     protected void initRoles(List<ServerPlayer> players, SREGameWorldComponent gameWorldComponent) {
         // 处理强制角色
         Map<UUID, SRERole> forcedRoles = new HashMap<>(Harpymodloader.FORCED_MODDED_ROLE_FLIP);
         List<ServerPlayer> playersWithoutForcedRoles = new ArrayList<>();
         // 每有一组狼人产生一个超级亡命徒：8人局对应 7 狼 1 亡命徒
-        int superLooseEndCount = players.size() / (SREConfig.instance().evilWarKillGroupNumber + 1);
-        superLooseEndCount = Math.max(superLooseEndCount, 1);
+        int superLooseEndCount = getSuperLooseEndCount(players);
         for (ServerPlayer player : players) {
             if (!forcedRoles.containsKey(player.getUUID())) {
                 playersWithoutForcedRoles.add(player);
@@ -203,9 +234,65 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
         Harpymodloader.FORCED_MODDED_ROLE_FLIP.clear();
     }
 
+    /** 为邪恶战争特定职业添加特有物品 */
+    public static void addEvilWarItemsByRole(Player player, SRERole role) {
+        if (player == null)
+            return;
+        // 刽子手自带6把手枪
+        if (role == ModRoles.EXECUTIONER) {
+            ItemStack gun = new ItemStack(TMMItems.DERRINGER);
+            gun.setCount(EXECUTIONER_GUN_NUMBER);
+            player.addItem(gun);
+        }
+        // 清道夫拥有各种枪和几把飞刀
+        else if (role == ModRoles.CLEANER) {
+            player.addItem(new ItemStack(TMMItems.DERRINGER));
+            player.addItem(new ItemStack(ModItems.PATROLLER_REVOLVER));
+            player.addItem(new ItemStack(ModItems.BANDIT_REVOLVER));
+            ItemStack throwingKnife = new ItemStack(ModItems.THROWING_KNIFE);
+            throwingKnife.setCount(4);
+            player.addItem(throwingKnife);
+        }
+        // 滞时鬼20s可以停1s
+        else if (role == ModRoles.DELAYER) {
+            ItemStack timeStopClock = new ItemStack(ModItems.TIME_STOP_CLOCK);
+            ItemComponentUtils.setCustomDataTagIntValue(timeStopClock, TimeStopClock.TAG_STOP_TIME, 20);
+            ItemComponentUtils.setCustomDataTagIntValue(timeStopClock, TimeStopClock.TAG_COOLDOWN, 400);
+            // timeStopClock.setDamageValue(TimeStopClock.MAX_DURABILITY);
+            player.addItem(timeStopClock);
+        }
+        // 强盗有狙
+        else if (role == ModRoles.BANDIT) {
+            player.addItem(new ItemStack(TMMItems.SNIPER_RIFLE));
+            player.addItem(new ItemStack(TMMItems.SCOPE));
+            ItemStack bullet = new ItemStack(TMMItems.MAGNUM_BULLET);
+            bullet.setCount(64);
+            player.addItem(bullet);
+        }
+//        // 叛徒有强盗手枪
+//        else if (role == TraitorAndModifiers.TRAITOR) {
+//            player.addItem(new ItemStack(ModItems.BANDIT_REVOLVER));
+//        }
+        // 炸弹客自带2次时停1s的机会
+        else if (role == ModRoles.BOMBER) {
+            ItemStack timeStopClock = new ItemStack(ModItems.TIME_STOP_CLOCK);
+            ItemComponentUtils.setCustomDataTagIntValue(timeStopClock, TimeStopClock.TAG_STOP_TIME, 20);
+            ItemComponentUtils.setCustomDataTagIntValue(timeStopClock, TimeStopClock.TAG_COOLDOWN, 400);
+            timeStopClock.setDamageValue(TimeStopClock.MAX_DURABILITY - 2);
+            player.addItem(timeStopClock);
+        }
+        // 死灵法师有轮椅
+        else if (role == SERoles.NECROMANCER || role == ModRoles.CAT_NECROMANCER) {
+            player.addItem(new ItemStack(ModItems.WHEELCHAIR));
+            player.addItem(new ItemStack(ModItems.WHEELCHAIR));
+        }
+    }
     /** 初始化物品 */
     @Override
     protected void initPlayerItems(List<ServerPlayer> players, SREGameWorldComponent gameWorldComponent) {
+        int superLooseEndCount = getSuperLooseEndCount(players);
+        int beyondKillerCount = players.size() - superLooseEndCount * (SREConfig.instance().evilWarKillGroupNumber + 1);
+
         for (ServerPlayer player : players) {
             player.getInventory().clearContent();
             SRERole role = gameWorldComponent.getRole(player);
@@ -218,50 +305,13 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
                         player.addItem(itemStack);
                     }
                 }
+                // 如果超出要面临敌人的 1 / 3 则额外获得一个护盾
+                if (beyondKillerCount > SREConfig.instance().evilWarKillGroupNumber / 3) {
+                    player.addItem(new ItemStack(TMMItems.DEFENSE_VIAL));
+                }
             }
-            // 刽子手自带6把手枪
-            else if (role == ModRoles.EXECUTIONER) {
-                ItemStack gun = new ItemStack(TMMItems.DERRINGER);
-                gun.setCount(EXECUTIONER_GUN_NUMBER);
-                player.addItem(gun);
-            }
-            // 清道夫拥有各种枪和几把飞刀
-            else if (role == ModRoles.CLEANER) {
-                player.addItem(new ItemStack(TMMItems.DERRINGER));
-                player.addItem(new ItemStack(ModItems.PATROLLER_REVOLVER));
-                player.addItem(new ItemStack(ModItems.BANDIT_REVOLVER));
-                ItemStack throwingKnife = new ItemStack(ModItems.THROWING_KNIFE);
-                throwingKnife.setCount(4);
-                player.addItem(throwingKnife);
-            }
-            // 滞时鬼20s可以停1s
-            else if (role == ModRoles.DELAYER) {
-                ItemStack timeStopClock = new ItemStack(ModItems.TIME_STOP_CLOCK);
-                ItemComponentUtils.setCustomDataTagIntValue(timeStopClock, TimeStopClock.TAG_STOP_TIME, 20);
-                ItemComponentUtils.setCustomDataTagIntValue(timeStopClock, TimeStopClock.TAG_COOLDOWN, 400);
-                // timeStopClock.setDamageValue(TimeStopClock.MAX_DURABILITY);
-                player.addItem(timeStopClock);
-            }
-            // 强盗有狙
-            else if (role == ModRoles.BANDIT) {
-                player.addItem(new ItemStack(TMMItems.SNIPER_RIFLE));
-                player.addItem(new ItemStack(TMMItems.SCOPE));
-                ItemStack bullet = new ItemStack(TMMItems.MAGNUM_BULLET);
-                bullet.setCount(64);
-                player.addItem(bullet);
-            }
-            // 叛徒有强盗手枪
-            else if (role == TraitorAndModifiers.TRAITOR) {
-                player.addItem(new ItemStack(ModItems.BANDIT_REVOLVER));
-            }
-            // 炸弹客自带2次时停1s的机会
-            else if (role == ModRoles.BOMBER) {
-                ItemStack timeStopClock = new ItemStack(ModItems.TIME_STOP_CLOCK);
-                ItemComponentUtils.setCustomDataTagIntValue(timeStopClock, TimeStopClock.TAG_STOP_TIME, 20);
-                ItemComponentUtils.setCustomDataTagIntValue(timeStopClock, TimeStopClock.TAG_COOLDOWN, 400);
-                timeStopClock.setDamageValue(TimeStopClock.MAX_DURABILITY - 2);
-                player.addItem(timeStopClock);
-            }
+            else
+                addEvilWarItemsByRole(player, role);
         }
     }
 
@@ -298,12 +348,26 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
         worldModifierComponent.sync();
     }
 
+    protected void broadcastRolesAbility(List<ServerPlayer> players, SREGameWorldComponent gameWorldComponent) {
+        for (ServerPlayer player : players) {
+            SRERole role = gameWorldComponent.getRole(player);
+            if (!EX_ABILITY_ROLE.contains(role))
+                continue;
+            BroadcastCommand.BroadcastMessage(player, Component.translatable(
+                    "message.gamemode.evil_war.tip.role." + role.identifier().getPath()
+            ).withStyle(ChatFormatting.GOLD));
+        }
+    }
     @Override
     public void initializeGame(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent,
             List<ServerPlayer> players) {
         super.initializeGame(serverWorld, gameWorldComponent, players);
         initModifier(players, gameWorldComponent, serverWorld);
         assignModdedRole(players, gameWorldComponent);
+        broadcastRolesAbility(players, gameWorldComponent);
+
+        int superLooseEndCount = getSuperLooseEndCount(players);
+        int beyondKillerCount = players.size() - superLooseEndCount * (SREConfig.instance().evilWarKillGroupNumber + 1);
 
         // 初始化后处理 component
         for (ServerPlayer player : players) {
@@ -319,9 +383,9 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
             else if (role == ModRoles.DIO) {
                 playerShopComponent.setBalance(0);
             }
-            // 超级亡命徒开局 0 块
+            // 超级亡命徒开局 0 块，根据溢出的杀手数，每个给予 50（不足也会扣钱）
             else if (role == SpecialGameModeRoles.SUPER_LOOSE_END) {
-                playerShopComponent.setBalance(0);
+                playerShopComponent.setBalance(beyondKillerCount * 50);
                 // 清道夫开局700块
             } else if (role == ModRoles.CLEANER) {
                 playerShopComponent.setBalance(700);
@@ -353,7 +417,7 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
                 }
                 imitatorPlayerComponent.sync();
             }
-            // 蕾米莉亚开局获得20分钟速度4
+            // 蕾米莉亚开局获得20分钟速度2
             else if (role == RedHouseRoles.REMILIA) {
                 if (player.hasEffect(MobEffects.MOVEMENT_SPEED))
                     player.removeEffect(MobEffects.MOVEMENT_SPEED);

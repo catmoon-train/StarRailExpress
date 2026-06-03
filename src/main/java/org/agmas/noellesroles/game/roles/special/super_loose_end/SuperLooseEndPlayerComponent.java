@@ -13,43 +13,175 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.component.ModComponents;
+import org.agmas.noellesroles.utils.Pair;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.function.BooleanSupplier;
 
 public class SuperLooseEndPlayerComponent implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
+    public static class Cooldown {
+        public int cooldown;
+        public Cooldown(int cooldown) {
+            this.cooldown = cooldown;
+        }
+    }
     public interface SuperLooseEndAbility {
-        void useAbility();
+        void useAbility(Cooldown cooldown);
     }
 
     public static final ComponentKey<SuperLooseEndPlayerComponent> KEY = ModComponents.SUPER_LOOSE_END;
-    /** 技能列表 */
-    public final List<SuperLooseEndAbility> superLooseEndAbilities = new ArrayList<>();
-    public List<Integer> abilityCooldowns = new ArrayList<>();
+    /** 技能列表:冷却-技能 */
+    public final List<Pair<Cooldown, SuperLooseEndAbility>> superLooseEndAbilities = new ArrayList<>();
     public Player player;
+
+    /** 技能默认cd */
+    public static final int DEFAULT_COOLDOWN = 20 * 10;
     /* =========传送技能========= */
-    public static final int RECALL_COOLDOWN = 20 * 30;
+    public static final int RECALL_COOLDOWN = 20 * 10;
     public static final int RECALL_COST = 1;
     public boolean placed = false;
     public double x = 0;
     public double y = 0;
     public double z = 0;
     /* =========爆炸技能========= */
-    public static final int EXPLODE_COOLDOWN = 20 * 30;
+    /* =========交换技能========= */
+    /** 使用技能后的速度持续时间 */
+    public static final int RESULT_SPEED_DURATION = 20 * 15;
+    /** 使用技能后的速度等级 */
+    public static final int RESULT_SPEED_LEVEL = 1;
 
     public int curAbilityIdx = -1;
 
     public SuperLooseEndPlayerComponent(Player player) {
         this.player = player;
-        // 这里不是初始化不要写这里。
+        // 添加技能，只需要添加一次（初始化清空cd即可）
+        // 添加爆炸技能，独立cd
+        superLooseEndAbilities.add(new Pair<>(new Cooldown(0), defaultUseWithCooldown(() -> {
+            int explodeLvl = getExplodeLvl();
+            if (explodeLvl > 0) {
+                Vec3 pos = player.position();
+                double radius = getExplosionRange();
+                // 伤害玩家
+                for (Player target : player.level().players()) {
+                    if (GameUtils.isPlayerEliminated(target))
+                        continue;
+                    if (target != player && target.distanceToSqr(pos) <= radius * radius) {
+                        // 杀死玩家 : 杀死次数为爆炸等级
+                        for (int i = 0; i < explodeLvl; ++i) {
+                            // 玩家已被淘汰则停止击杀
+                            if (GameUtils.isPlayerEliminated(target))
+                                break;
+                            GameUtils.killPlayer(target, true, player,
+                                    io.wifi.starrailexpress.game.GameConstants.DeathReasons.GRENADE);
+                        }
+                    }
+                }
+
+                // 播放苦力怕爆炸声音
+                player.level().playSound(null, pos.x, pos.y, pos.z,
+                        SoundEvents.GENERIC_EXPLODE, SoundSource.MASTER, 4.0F, 1.0F);
+
+                // 移除护盾，进入冷却
+                SREArmorPlayerComponent armorPlayerComponent = SREArmorPlayerComponent.KEY.get(player);
+                armorPlayerComponent.removeArmor(armorPlayerComponent.getArmor());
+                return true;
+            } else {
+                player.displayClientMessage(Component.translatable("message.super_loose_end.not_enough_armor")
+                        .withStyle(ChatFormatting.RED), true);
+            }
+            return false;
+        }, DEFAULT_COOLDOWN
+        )));
+        // 添加传送能力：消耗护盾进行传送
+        superLooseEndAbilities.add(new Pair<>(new Cooldown(0), cooldown -> {
+            if (cooldown.cooldown > 0)
+                return;
+
+            SREArmorPlayerComponent armorPlayerComponent = SREArmorPlayerComponent.KEY.get(player);
+            if (placed) {
+                if (armorPlayerComponent.getArmor() >= RECALL_COST) {
+                    armorPlayerComponent.removeArmor(RECALL_COST);
+                    teleport();
+                    cooldown.cooldown = RECALL_COOLDOWN;
+                } else {
+                    player.displayClientMessage(Component.translatable("message.super_loose_end.not_enough_armor")
+                            .withStyle(ChatFormatting.RED), true);
+                }
+            }
+            // 放置传送点后有1/10的cd
+            else {
+                setPosition();
+                cooldown.cooldown = RECALL_COOLDOWN / 10;
+            }
+        }));
+        // 添加随机互换技能：消耗速度buff等级和时间使所有玩家互换位置
+        superLooseEndAbilities.add(new Pair<>(new Cooldown(0), defaultUseWithCooldown( () -> {
+            // 消耗速度及等级和时间
+            if (player.hasEffect(MobEffects.MOVEMENT_SPEED))
+                player.removeEffect(MobEffects.MOVEMENT_SPEED);
+            player.addEffect(new MobEffectInstance(
+                    MobEffects.MOVEMENT_SPEED,  // 速度效果
+                    RESULT_SPEED_DURATION,      // 持续时间（tick）
+                    RESULT_SPEED_LEVEL,         // 等级
+                    false,                      // 是否显示粒子效果
+                    false                       // 是否显示图标
+            ));
+
+            // 互换位置
+            Level level = player.level();
+            var allPlayers = level.players();
+            List<Vec3> lastPlayerPositions = new ArrayList<>();
+            List<Player> players = new ArrayList<>();
+            // 记录所有未淘汰玩家
+            for (Player p : allPlayers)
+                if (!GameUtils.isPlayerEliminated(p))
+                    players.add(p);
+
+            for (Player p : players) {
+                lastPlayerPositions.add(p.position());
+            }
+            Collections.shuffle(lastPlayerPositions);
+            for (int i = 0; i < players.size(); ++i) {
+                if (i < lastPlayerPositions.size()) {
+                    players.get(i).teleportTo(
+                            lastPlayerPositions.get(i).x,
+                            lastPlayerPositions.get(i).y,
+                            lastPlayerPositions.get(i).z
+                    );
+                }
+            }
+            return true;
+        }, DEFAULT_COOLDOWN
+        )));
+
+    }
+
+    /**
+     * 使用默认冷却处理方式的经
+     * @param ability 实际生效的技能
+     * @param CD 技能冷却
+     */
+    protected static SuperLooseEndAbility defaultUseWithCooldown(BooleanSupplier ability, int CD) {
+        return cooldown -> {
+            if (cooldown.cooldown > 0)
+                return;
+            // 技能生效则将进入CD
+            if (ability.getAsBoolean())
+                cooldown.cooldown = CD;
+        };
     }
 
     @Override
@@ -66,79 +198,24 @@ public class SuperLooseEndPlayerComponent implements RoleComponent, ServerTickin
         z = 0;
         curAbilityIdx = 0;
 
-        abilityCooldowns.clear();
-        superLooseEndAbilities.clear();
-        {
-            // 添加传送能力：消耗2层护盾进行传送
-            abilityCooldowns.add(0);
-            superLooseEndAbilities.add(() -> {
-                if (abilityCooldowns.get(0) > 0)
-                    return;
-
-                SREArmorPlayerComponent armorPlayerComponent = SREArmorPlayerComponent.KEY.get(player);
-                if (placed) {
-                    if (armorPlayerComponent.getArmor() >= RECALL_COST) {
-                        armorPlayerComponent.removeArmor(RECALL_COST);
-                        teleport();
-                        abilityCooldowns.set(0, RECALL_COOLDOWN);
-                    } else {
-                        player.displayClientMessage(Component.translatable("message.super_loose_end.not_enough_armor")
-                                .withStyle(ChatFormatting.RED), true);
-                    }
-                }
-                // 放置传送点后有1/10的cd
-                else {
-                    setPosition();
-                    abilityCooldowns.set(0, RECALL_COOLDOWN / 10);
-                }
-            });
-            // 添加爆炸技能，独立cd
-            abilityCooldowns.add(0);
-            superLooseEndAbilities.add(() -> {
-                if (abilityCooldowns.get(1) > 0)
-                    return;
-                int explodeLvl = getExplodeLvl();
-                if (explodeLvl > 0) {
-                    Vec3 pos = player.position();
-                    double radius = getExplosionRange();
-                    // 伤害玩家
-                    for (Player target : player.level().players()) {
-                        if (GameUtils.isPlayerEliminated(target))
-                            continue;
-                        if (target != player && target.distanceToSqr(pos) <= radius * radius) {
-                            // 杀死玩家 : 杀死次数为爆炸等级
-                            for (int i = 0; i < explodeLvl; ++i) {
-                                // 玩家已被淘汰则停止击杀
-                                if (GameUtils.isPlayerEliminated(target))
-                                    break;
-                                GameUtils.killPlayer(target, true, player,
-                                        io.wifi.starrailexpress.game.GameConstants.DeathReasons.GRENADE);
-                            }
-                        }
-                    }
-
-                    // 播放苦力怕爆炸声音
-                    player.level().playSound(null, pos.x, pos.y, pos.z,
-                            SoundEvents.GENERIC_EXPLODE, SoundSource.MASTER, 4.0F, 1.0F);
-
-                    // 移除护盾，进入冷却
-                    SREArmorPlayerComponent armorPlayerComponent = SREArmorPlayerComponent.KEY.get(player);
-                    armorPlayerComponent.removeArmor(armorPlayerComponent.getArmor());
-                    abilityCooldowns.set(1, EXPLODE_COOLDOWN);
-                } else {
-                    player.displayClientMessage(Component.translatable("message.super_loose_end.not_enough_armor")
-                            .withStyle(ChatFormatting.RED), true);
-                }
-            });
+        // 重置技能cd
+        for (Pair<Cooldown, SuperLooseEndAbility> ability : superLooseEndAbilities) {
+            ability.first.cooldown = 0;
         }
+
         sync();
     }
 
     @Override
     public void clear() {
-        abilityCooldowns.replaceAll(ignored -> 0);
-        curAbilityIdx = -1;
+        init();
         sync();
+    }
+
+    public Pair<Cooldown, SuperLooseEndAbility> getCurAbility() {
+        if (curAbilityIdx < 0 || curAbilityIdx >= superLooseEndAbilities.size())
+            return null;
+        return superLooseEndAbilities.get(curAbilityIdx);
     }
 
     public void setPosition() {
@@ -191,11 +268,12 @@ public class SuperLooseEndPlayerComponent implements RoleComponent, ServerTickin
 
     public int getExplodeLvl() {
         SREArmorPlayerComponent armorPlayerComponent = SREArmorPlayerComponent.KEY.get(player);
-        return armorPlayerComponent.getArmor() / 2;
+        // 当护盾为3即可达到2级爆炸
+        return (armorPlayerComponent.getArmor() + 1) / 2;
     }
     public double getExplosionRange() {
         SREArmorPlayerComponent armorPlayerComponent = SREArmorPlayerComponent.KEY.get(player);
-        return (armorPlayerComponent.getArmor() > 4 ? (armorPlayerComponent.getArmor() - 4) * 0.5d : 0) + 2d;
+        return (armorPlayerComponent.getArmor() > 3 ? (armorPlayerComponent.getArmor() - 3) * 0.5d : 0) + 2.5d;
     }
 
     public void useAbility(boolean isShiftPressed) {
@@ -206,7 +284,9 @@ public class SuperLooseEndPlayerComponent implements RoleComponent, ServerTickin
             curAbilityIdx %= superLooseEndAbilities.size();
         }
         else {
-            superLooseEndAbilities.get(curAbilityIdx).useAbility();
+            if (curAbilityIdx >= 0 && curAbilityIdx < superLooseEndAbilities.size())
+                // 使用技能时传入冷却时间以作具体判断和修改
+                superLooseEndAbilities.get(curAbilityIdx).second.useAbility(superLooseEndAbilities.get(curAbilityIdx).first);
         }
         sync();
     }
@@ -219,9 +299,9 @@ public class SuperLooseEndPlayerComponent implements RoleComponent, ServerTickin
         if (!RoleUtils.isPlayerTheJob(player, SpecialGameModeRoles.SUPER_LOOSE_END))
             return;
         // 服务端每 tick 减少冷却时间
-        for (int i = 0; i < abilityCooldowns.size(); ++i) {
-            if (this.abilityCooldowns.get(i) > 0) {
-                this.abilityCooldowns.set(i, this.abilityCooldowns.get(i) - 1);
+        for (Pair<Cooldown, SuperLooseEndAbility> superLooseEndAbility : superLooseEndAbilities) {
+            if (superLooseEndAbility.first.cooldown > 0) {
+                --superLooseEndAbility.first.cooldown;
             }
         }
         // 10s -> sync
@@ -238,9 +318,9 @@ public class SuperLooseEndPlayerComponent implements RoleComponent, ServerTickin
         if (!RoleUtils.isPlayerTheJob(player, SpecialGameModeRoles.SUPER_LOOSE_END))
             return;
         // 客户端也进行冷却计算（用于预测显示）
-        for (int i = 0; i < abilityCooldowns.size(); ++i) {
-            if (this.abilityCooldowns.get(i) > 0) {
-                this.abilityCooldowns.set(i, this.abilityCooldowns.get(i) - 1);
+        for (Pair<Cooldown, SuperLooseEndAbility> superLooseEndAbility : superLooseEndAbilities) {
+            if (superLooseEndAbility.first.cooldown > 0) {
+                --superLooseEndAbility.first.cooldown;
             }
         }
     }
@@ -251,9 +331,9 @@ public class SuperLooseEndPlayerComponent implements RoleComponent, ServerTickin
 
     @Override
     public void writeToSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
-        tag.putInt("cooldown_num", abilityCooldowns.size());
-        for (int i = 0; i < abilityCooldowns.size(); ++i) {
-            tag.putInt("cooldown" + i, this.abilityCooldowns.get(i));
+        tag.putInt("ability_num", superLooseEndAbilities.size());
+        for (int i = 0; i < superLooseEndAbilities.size(); ++i) {
+            tag.putInt("cooldown" + i, this.superLooseEndAbilities.get(i).first.cooldown);
         }
         tag.putInt("cur_ability", this.curAbilityIdx);
         tag.putDouble("x", this.x);
@@ -264,10 +344,10 @@ public class SuperLooseEndPlayerComponent implements RoleComponent, ServerTickin
 
     @Override
     public void readFromSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
-        abilityCooldowns.clear();
-        int abilityCooldownsNum = tag.contains("cooldown_num") ? tag.getInt("cooldown_num") : 0;
-        for (int i = 0; i < abilityCooldownsNum; ++i) {
-            abilityCooldowns.add(tag.contains("cooldown" + i) ? tag.getInt("cooldown" + i) : 0);
+        int abilityNum = tag.contains("ability_num") ? tag.getInt("ability_num") : 0;
+        for (int i = 0; i < abilityNum; ++i) {
+            if (i < superLooseEndAbilities.size())
+                superLooseEndAbilities.get(i).first.cooldown = tag.contains("cooldown" + i) ? tag.getInt("cooldown" + i) : 0;
         }
         curAbilityIdx = tag.contains("cur_ability") ? tag.getInt("cur_ability") : -1;
         this.x = tag.contains("x") ? tag.getDouble("x") : 0;

@@ -2235,9 +2235,15 @@ public class RoleShopHandler {
     }
 
     // 超级亡命徒商店
+    // 飞刀
     SUPER_LOOSE_END_SHOP.add(new ShopEntry(
         ModItems.THROWING_KNIFE.getDefaultInstance(),
         100,
+        ShopEntry.Type.TOOL));
+    // 绳索（拉人）
+    SUPER_LOOSE_END_SHOP.add(new ShopEntry(
+        ModItems.ROPE.getDefaultInstance(),
+        150,
         ShopEntry.Type.TOOL));
 
     // 飞行员商店
