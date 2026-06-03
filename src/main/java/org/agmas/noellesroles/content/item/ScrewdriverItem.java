@@ -61,6 +61,10 @@ public class ScrewdriverItem extends Item implements AdventureUsable {
                     // 优先检查是否要解除卡住状态
                     if (doorEntity.isJammed()) {
                         // 解除卡住
+                        if (player.getCooldowns().isOnCooldown(this))
+                            return InteractionResult.FAIL;
+                        if (!player.isCreative())
+                            player.getCooldowns().addCooldown(context.getItemInHand().getItem(), 20 * 10);
                         doorEntity.setJammed(0);
                         ReinforcementItem.unJamNearBy(context);
                         if (!world.isClientSide) {
@@ -154,7 +158,7 @@ public class ScrewdriverItem extends Item implements AdventureUsable {
                 // 普通右键：修复maybe
                 if (doorEntity.isBlasted()) {
                     if (isLockSmith || isEngineer || player.isCreative()) {
-                        if (player.getCooldowns().isOnCooldown(context.getItemInHand().getItem()))
+                        if (player.getCooldowns().isOnCooldown(this))
                             return InteractionResult.FAIL;
                         if (!player.isCreative())
                             player.getCooldowns().addCooldown(context.getItemInHand().getItem(), 20 * 30);
