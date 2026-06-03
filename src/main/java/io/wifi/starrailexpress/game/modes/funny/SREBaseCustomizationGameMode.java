@@ -5,11 +5,14 @@ import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.*;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.util.TickTimer;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import org.agmas.harpymodloader.events.ModdedRoleAssigned;
+import org.agmas.noellesroles.commands.BroadcastCommand;
 import org.agmas.noellesroles.utils.RoleUtils;
 
 import java.util.ArrayList;
@@ -29,9 +32,9 @@ public class SREBaseCustomizationGameMode extends GameMode {
     }
     public SREBaseCustomizationGameMode(ResourceLocation identifier, int defaultStartTime, int minPlayerCount) {
         super(identifier, defaultStartTime, minPlayerCount);
-        ConstructItemList();
+        constructItemList();
     }
-    protected void ConstructItemList() {
+    protected void constructItemList() {
         // 初始化模式物品列表
 //        sharedItems.add(TMMItems.CROWBAR::getDefaultInstance);
     }
@@ -41,6 +44,9 @@ public class SREBaseCustomizationGameMode extends GameMode {
         return false;
     }
 
+    public static void broadcastMessageTo(ServerPlayer player, Component messageComponent) {
+        BroadcastCommand.BroadcastMessage(player, messageComponent);
+    }
     /** 触发角色初始化事件 */
     public static void triggerRoleAssignedEvent(List<ServerPlayer> players, SREGameWorldComponent gameWorldComponent) {
         for (ServerPlayer player : players) {

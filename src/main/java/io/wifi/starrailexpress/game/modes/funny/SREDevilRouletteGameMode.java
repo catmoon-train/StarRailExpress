@@ -68,7 +68,7 @@ public class SREDevilRouletteGameMode extends SREBaseCustomizationGameMode {
     }
 
     @Override
-    protected void ConstructItemList() {
+    protected void constructItemList() {
         sharedItems.add(() -> new ItemStack(TMMItems.DEFENSE_VIAL));
     }
 

@@ -1,28 +1,29 @@
 package io.wifi.starrailexpress.game.modes.funny;
 
 import io.wifi.starrailexpress.api.SRERole;
-import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
-import io.wifi.starrailexpress.cca.SREGameTimeComponent;
-import io.wifi.starrailexpress.cca.SREGameWorldComponent;
-import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
+import io.wifi.starrailexpress.cca.*;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.TickTimer;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.game.roles.neutral.thief.ThiefPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.utils.Pair;
 import org.agmas.noellesroles.utils.RoleUtils;
 
-import java.util.List;
-import java.util.OptionalInt;
+import java.util.*;
 
 /**
  * 小偷大战
@@ -47,6 +48,11 @@ import java.util.OptionalInt;
  * </p>
  */
 public class SREThiefWarGameMode extends SREBaseCustomizationGameMode {
+    /** 随机事件间隔范围 */
+    public static final Pair<Integer, Integer> RANDOM_EVENT_INTERVAL = new Pair<>(15 * 20, 30 * 20);
+    /** 随机画板数量比例范围: 根据此比例和人数计算数量 */
+    public static final Pair<Float, Float> RANDOM_DRAWING_BOARD_PERCENTAGE = new Pair<>(0.1f, 0.4f);
+
     public static final int GLOWING_DURATION = 20 * 5;
     public static final int GLOWING_INTERVAL = 20 * 20;
     /**
@@ -57,7 +63,7 @@ public class SREThiefWarGameMode extends SREBaseCustomizationGameMode {
     }
 
     @Override
-    protected void ConstructItemList() {
+    protected void constructItemList() {
         sharedItems.add(TMMItems.CROWBAR::getDefaultInstance);
     }
 
@@ -68,11 +74,54 @@ public class SREThiefWarGameMode extends SREBaseCustomizationGameMode {
         }
     }
 
+    /** 随机事件：随机在房间内生成几个画板 */
+    protected void spawnDrawingBoardInRoom(ServerLevel serverWorld) {
+        // 先确定存活玩家数再确定生成的画板数
+        var allPlayers = serverWorld.players();
+        List<ServerPlayer> players = new ArrayList<>();
+        for (var p : allPlayers)
+            if (!GameUtils.isPlayerEliminated(p))
+                players.add(p);
+        // 每次生成随机几个画板 : 限制其数量 > 0
+        int boardNum = Math.max(1, serverWorld.random.nextInt((int) (players.size() * RANDOM_DRAWING_BOARD_PERCENTAGE.first),
+                (int) (players.size() * RANDOM_DRAWING_BOARD_PERCENTAGE.second)));
+
+        // 记录所有房间位置 : id + pos
+        List<Pair<Integer, Vec3>> allRoomPos = new ArrayList<>();
+        AreasWorldComponent areas = AreasWorldComponent.KEY.get(serverWorld);
+        int roomCount = areas.getRoomCount();
+        for (int i = 1; i <= roomCount; ++i) {
+            Vec3 pos = GameUtils.getSpawnPos(areas, i);
+            if (pos != null){
+                allRoomPos.add(new Pair<>(i, pos));
+            }
+        }
+
+        Collections.shuffle(allRoomPos);
+        // 保证画板数量不超过房间数量;
+        boardNum = Math.min(boardNum, allRoomPos.size());
+        // 打乱之后取前几个进行生成
+        StringBuilder resultRoomIds = new StringBuilder();
+        for (int i = 0; i < boardNum; ++i) {
+            Vec3 pos = allRoomPos.get(i).second;
+            // 生成物品
+            serverWorld.addFreshEntity(
+                new ItemEntity(serverWorld,pos.x,pos.y,pos.z,TMMItems.DRAWING_BOARD.getDefaultInstance())
+            );
+            resultRoomIds.append(allRoomPos.get(i).first).append(" ");
+        }
+        // 进行广播：通知生成了画板在这些房间
+        for (ServerPlayer player : allPlayers){
+            broadcastMessageTo(player, Component.translatable("message.gamemode.thief_war.tip_spawn_item",
+                    resultRoomIds.toString()).withStyle(ChatFormatting.DARK_AQUA));
+        }
+
+    }
     @Override
     protected void initTickTimers(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent, List<ServerPlayer> players) {
         tickTimers.add(
                 // 所有人间隔获得发光效果
-                new TickTimer(GLOWING_INTERVAL, false, () -> {
+                new TickTimer(GLOWING_INTERVAL, false, tickTimer -> {
                     for (ServerPlayer player : serverWorld.players()) {
                         if (GameUtils.isPlayerEliminated(player))
                             return;
@@ -88,6 +137,15 @@ public class SREThiefWarGameMode extends SREBaseCustomizationGameMode {
                                         false                  // 是否显示图标
                                 ));
                     }
+                })
+        );
+        // 随机事件计时器
+        tickTimers.add(
+                new TickTimer(RANDOM_EVENT_INTERVAL.second, false, tickTimer -> {
+                    // 随机事件发生时生成画板
+                    spawnDrawingBoardInRoom(serverWorld);
+                    // 随机事件时间在范围内随机
+                    tickTimer.setEndTime(serverWorld.random.nextInt(RANDOM_EVENT_INTERVAL.first, RANDOM_EVENT_INTERVAL.second));
                 })
         );
     }
