@@ -1,6 +1,7 @@
 package org.agmas.noellesroles.content.entity;
 
 import io.wifi.starrailexpress.cca.SREPlayerPoisonComponent;
+import io.wifi.starrailexpress.content.entity.NoWaterInfluencedThrowableItemProjectile;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
@@ -9,7 +10,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.ThrowableItemProjectile;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
@@ -22,12 +22,12 @@ import java.util.List;
  * - 落地时播放FIRE_EXTINGUISH（火熄灭）声音
  * - 对半径3格内的玩家造成中毒效果
  */
-public class ChlorineBombEntity extends ThrowableItemProjectile {
+public class ChlorineBombEntity extends NoWaterInfluencedThrowableItemProjectile {
 
     // 氯气半径：3格
     private static final double CHLORINE_RADIUS = 3.0;
 
-    public ChlorineBombEntity(EntityType<? extends ThrowableItemProjectile> entityType, Level world) {
+    public ChlorineBombEntity(EntityType<? extends NoWaterInfluencedThrowableItemProjectile> entityType, Level world) {
         super(entityType, world);
     }
 

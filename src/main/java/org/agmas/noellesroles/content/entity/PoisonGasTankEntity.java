@@ -5,20 +5,21 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.projectile.ThrowableItemProjectile;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.HitResult;
 import org.agmas.noellesroles.init.ModEntities;
 import org.agmas.noellesroles.init.ModItems;
 
+import io.wifi.starrailexpress.content.entity.NoWaterInfluencedThrowableItemProjectile;
+
 /**
  * 毒气瓶投掷实体
  * - 落地后生成毒气云实体
  */
-public class PoisonGasTankEntity extends ThrowableItemProjectile {
+public class PoisonGasTankEntity extends NoWaterInfluencedThrowableItemProjectile {
 
-    public PoisonGasTankEntity(EntityType<? extends ThrowableItemProjectile> entityType, Level world) {
+    public PoisonGasTankEntity(EntityType<? extends NoWaterInfluencedThrowableItemProjectile> entityType, Level world) {
         super(entityType, world);
     }
 

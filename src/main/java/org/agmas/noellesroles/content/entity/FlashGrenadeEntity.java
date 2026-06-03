@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.content.entity;
 
+import io.wifi.starrailexpress.content.entity.NoWaterInfluencedThrowableItemProjectile;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
@@ -9,7 +10,6 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.projectile.ThrowableItemProjectile;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
@@ -25,14 +25,14 @@ import java.util.List;
  * - 视野判定参考巡警实现：距离检查 + 视野角度检查 + 射线检测
  * - 视野角度：70度扇形（半角35度）
  */
-public class FlashGrenadeEntity extends ThrowableItemProjectile {
+public class FlashGrenadeEntity extends NoWaterInfluencedThrowableItemProjectile {
 
     // 闪光半径：8格
     private static final double FLASH_RADIUS = 8.0;
     // 效果持续时间：3秒（60 ticks）
     private static final int EFFECT_DURATION = 60;
 
-    public FlashGrenadeEntity(EntityType<? extends ThrowableItemProjectile> entityType, Level world) {
+    public FlashGrenadeEntity(EntityType<? extends NoWaterInfluencedThrowableItemProjectile> entityType, Level world) {
         super(entityType, world);
     }
 

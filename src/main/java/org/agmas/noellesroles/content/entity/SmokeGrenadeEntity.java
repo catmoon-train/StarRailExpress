@@ -2,6 +2,7 @@ package org.agmas.noellesroles.content.entity;
 
 
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
+import io.wifi.starrailexpress.content.entity.NoWaterInfluencedThrowableItemProjectile;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
@@ -12,7 +13,6 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.ThrowableItemProjectile;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
@@ -29,7 +29,7 @@ import java.util.List;
  * - 进入烟雾的玩家获得失明效果
  * - 直接命中玩家时清空目标的san值
  */
-public class SmokeGrenadeEntity extends ThrowableItemProjectile {
+public class SmokeGrenadeEntity extends NoWaterInfluencedThrowableItemProjectile {
     
     // 烟雾持续时间：10秒 = 200 ticks
     private static final int SMOKE_DURATION_TICKS = 200;
@@ -41,7 +41,7 @@ public class SmokeGrenadeEntity extends ThrowableItemProjectile {
     private boolean directHit = false;
     private Player directHitTarget = null;
     
-    public SmokeGrenadeEntity(EntityType<? extends ThrowableItemProjectile> entityType, Level world) {
+    public SmokeGrenadeEntity(EntityType<? extends NoWaterInfluencedThrowableItemProjectile> entityType, Level world) {
         super(entityType, world);
     }
     
