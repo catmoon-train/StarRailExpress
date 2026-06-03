@@ -473,6 +473,8 @@
   "hud.super_loose_end.recall.place": "Press ability key to save location",
   "hud.super_loose_end.recall": "Press ability key to teleport",
   "hud.super_loose_end.explode": "Explosion level: %s Explosion radius: %s",
+  "hud.super_loose_end.swap": "Swap All Players",
+  "hud.super_loose_end.comsume.speed_swap": "Speed level is lowered to 1 and the time is reduced to 10 seconds.",
   "=============== Some Additional Translation Keys ===============": "",
   "announcement.star.win.coroner": "Passengers win!",
   "announcement.star.win.the_insane_damned_paranoid_killer": "Killers win!",

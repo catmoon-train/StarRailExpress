@@ -142,8 +142,14 @@ public class SuperLooseEndPlayerComponent implements RoleComponent, ServerTickin
 
             // 互换位置
             Level level = player.level();
+            var allPlayers = level.players();
             List<Vec3> lastPlayerPositions = new ArrayList<>();
-            var players = level.players();
+            List<Player> players = new ArrayList<>();
+            // 记录所有未淘汰玩家
+            for (Player p : allPlayers)
+                if (!GameUtils.isPlayerEliminated(p))
+                    players.add(p);
+
             for (Player p : players) {
                 lastPlayerPositions.add(p.position());
             }
@@ -262,11 +268,12 @@ public class SuperLooseEndPlayerComponent implements RoleComponent, ServerTickin
 
     public int getExplodeLvl() {
         SREArmorPlayerComponent armorPlayerComponent = SREArmorPlayerComponent.KEY.get(player);
-        return armorPlayerComponent.getArmor() / 2;
+        // 当护盾为3即可达到2级爆炸
+        return (armorPlayerComponent.getArmor() + 1) / 2;
     }
     public double getExplosionRange() {
         SREArmorPlayerComponent armorPlayerComponent = SREArmorPlayerComponent.KEY.get(player);
-        return (armorPlayerComponent.getArmor() > 4 ? (armorPlayerComponent.getArmor() - 4) * 0.5d : 0) + 2d;
+        return (armorPlayerComponent.getArmor() > 3 ? (armorPlayerComponent.getArmor() - 3) * 0.5d : 0) + 2.5d;
     }
 
     public void useAbility(boolean isShiftPressed) {

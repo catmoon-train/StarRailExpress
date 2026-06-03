@@ -473,6 +473,8 @@
   "hud.super_loose_end.recall.place": "按下技能键保存位置",
   "hud.super_loose_end.recall": "按下技能传送",
   "hud.super_loose_end.explode": "爆炸等级: %s 爆炸半径: %s",
+  "hud.super_loose_end.swap": "全场随机交换",
+  "hud.super_loose_end.comsume.speed_swap": "速度等级降为1，时间减为10s",
   "=============== 一些补充翻译键 ===============": "",
   "announcement.star.win.coroner": "乘客胜利！",
   "announcement.star.win.the_insane_damned_paranoid_killer": "杀手胜利！",

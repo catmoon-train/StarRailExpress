@@ -67,7 +67,7 @@ public class SuperLooseEndHud {
                         text = Component.translatable("hud.super_loose_end.swap",
                                         superLooseEndPlayerComponent.getExplodeLvl(), superLooseEndPlayerComponent.getExplosionRange())
                                 .withStyle(ChatFormatting.LIGHT_PURPLE);
-                        consumeText = Component.translatable("hud.super_loose_end.comsume.speed");
+                        consumeText = Component.translatable("hud.super_loose_end.comsume.speed_swap");
                     }
                 }
             }
