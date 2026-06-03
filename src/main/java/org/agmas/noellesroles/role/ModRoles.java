@@ -266,6 +266,9 @@ public class ModRoles {
     // 疫使 ID - 杀手方中立
     public static final ResourceLocation INFECTED_ID = Noellesroles.id("infected");
 
+    // 典狱长 ID - 中立
+    public static final ResourceLocation WARDEN_ID = Noellesroles.id("warden");
+
     // 葬仪 ID - 杀手方中立
     public static final ResourceLocation MORTICIAN_BODYMAKER_ID = Noellesroles.id("mortician_bodymaker");
 
@@ -2181,5 +2184,25 @@ public class ModRoles {
             .setComponentKey(org.agmas.noellesroles.game.roles.killer.skincrawler.SkincrawlerPlayerComponent.KEY))
             .setCanUseKiller(true).setCanSeeTeammateKiller(true)
             .setCanUseInstinct(true).setCanSeeCoin(true);
+
+    // ==================== 典狱长 ====================
+    /**
+     * 典狱长：中立角色，独立胜利条件
+     * 审判机制：当杀手击杀玩家时触发审判，典狱长需找到罪人
+     * 商店：100金币买假左轮，90秒购买冷却
+     */
+    public static SRERole WARDEN = TMMRoles.registerRole(new io.wifi.starrailexpress.game.roles.WardenRole(
+            WARDEN_ID, new java.awt.Color(0x0044CC).getRGB(), false,
+            false, SRERole.MoodType.FAKE, -1, true))
+            .setComponentKey(org.agmas.noellesroles.game.roles.neutral.warden.WardenPlayerComponent.KEY)
+            .setCanSeeCoin(true)
+            .setCanUseInstinct(true)
+            .setCanAutoAddMoney(true)
+            .setEnableNeededPlayerCount(12)
+            .setNeutrals(true)
+            .setNeutralForKiller(false)
+            .setCanSeeTeammateKiller(false)
+            .setCanBeRandomedByOtherRoles(false)
+            .setMax(1);
 
 }
