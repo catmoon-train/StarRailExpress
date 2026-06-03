@@ -103,6 +103,11 @@ public class CustomWinnerClass {
                 return WinStatus.CUSTOM;
             }
 
+            // 典狱长存活时检查独立胜利
+            if (org.agmas.noellesroles.game.roles.neutral.warden.WardenPlayerComponent.checkWardenVictory(serverLevel)) {
+                return WinStatus.CUSTOM;
+            }
+
             // 教父家族独立胜利
             if (org.agmas.noellesroles.game.roles.neutral.mafia.MafiaManager.checkMafiaVictory(serverLevel)) {
                 return WinStatus.CUSTOM;

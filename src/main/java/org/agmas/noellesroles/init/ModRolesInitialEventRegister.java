@@ -228,6 +228,18 @@ public class ModRolesInitialEventRegister {
                     pelicanComponent.sync();
                 }
             }
+            if (role.equals(ModRoles.WARDEN)) {
+                if (org.agmas.noellesroles.game.roles.neutral.warden.WardenPlayerComponent.KEY.isProvidedBy(player)) {
+                    var wardenComponent = org.agmas.noellesroles.game.roles.neutral.warden.WardenPlayerComponent.KEY.get(player);
+                    wardenComponent.init();
+                    // 开局自带一层护盾
+                    io.wifi.starrailexpress.cca.SREArmorPlayerComponent armorComp = io.wifi.starrailexpress.cca.SREArmorPlayerComponent.KEY.get(player);
+                    armorComp.giveArmor();
+                    // 初始化技能冷却（开局50秒冷却）
+                    wardenComponent.setSkillCooldownEnd(player.level().getGameTime() + 50 * 20);
+                    wardenComponent.sync();
+                }
+            }
             if (role.equals(ModRoles.INSANE_KILLER)) {
                 final var insaneKillerPlayerComponent = InsaneKillerPlayerComponent.KEY.get(player);
                 insaneKillerPlayerComponent.init();
@@ -444,6 +456,63 @@ public class ModRolesInitialEventRegister {
                 player.displayClientMessage(
                         Component.translatable("message.noellesroles.pelican.no_target")
                                 .withStyle(ChatFormatting.RED),
+                        true);
+            }
+        });
+
+        // 典狱长技能注册：正义戒律，对3格内目标使用
+        RoleSkill.register(ModRoles.WARDEN, context -> {
+            ServerPlayer player = context.player();
+            org.agmas.noellesroles.game.roles.neutral.warden.WardenPlayerComponent wardenComp =
+                    org.agmas.noellesroles.game.roles.neutral.warden.WardenPlayerComponent.KEY.get(player);
+            if (wardenComp == null) return;
+
+            // 审判阶段不能使用技能
+            if (wardenComp.isInJudgment()) {
+                player.displayClientMessage(
+                        Component.translatable("message.warden.skill_judgment")
+                                .withStyle(style -> style.withColor(0xFFAA00)),
+                        true);
+                return;
+            }
+
+            // 检查是否有假左轮
+            boolean hasFakeRevolver = player.getInventory().items.stream()
+                    .anyMatch(stack -> stack.is(ModItems.FAKE_REVOLVER));
+            if (!hasFakeRevolver) {
+                player.displayClientMessage(
+                        Component.translatable("message.warden.no_gun")
+                                .withStyle(style -> style.withColor(0xFFAA00)),
+                        true);
+                return;
+            }
+
+            if (!wardenComp.isSkillReady()) {
+                long remaining = (wardenComp.getSkillCooldownEnd() - player.level().getGameTime()) / 20;
+                player.displayClientMessage(
+                        Component.translatable("message.warden.skill_cooldown", remaining)
+                                .withStyle(style -> style.withColor(0xFFAA00)),
+                        true);
+                return;
+            }
+
+            // 获取鼠标准星目标
+            ServerPlayer target = null;
+            UUID targetUuid = context.target();
+            if (targetUuid != null) {
+                Player p = player.level().getPlayerByUUID(targetUuid);
+                if (p instanceof ServerPlayer sp && GameUtils.isPlayerAliveAndSurvival(sp)
+                        && player.distanceTo(sp) <= 3.0) {
+                    target = sp;
+                }
+            }
+
+            if (target != null) {
+                wardenComp.useJusticeVerdict(target);
+            } else {
+                player.displayClientMessage(
+                        Component.translatable("message.warden.no_target")
+                                .withStyle(style -> style.withColor(0xFFAA00)),
                         true);
             }
         });

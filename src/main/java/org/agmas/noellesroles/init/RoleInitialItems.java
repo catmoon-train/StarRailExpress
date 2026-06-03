@@ -282,6 +282,11 @@ public class RoleInitialItems {
             return pliers;
         });
         INITIAL_ITEMS_MAP.put(ModRoles.FITTER, fitterItems);
+
+        // 典狱长初始物品 - 假左轮手枪
+        List<Supplier<ItemStack>> wardenItems = new ArrayList<>();
+        wardenItems.add(() -> ModItems.FAKE_REVOLVER.getDefaultInstance());
+        INITIAL_ITEMS_MAP.put(ModRoles.WARDEN, wardenItems);
     }
 
 }
