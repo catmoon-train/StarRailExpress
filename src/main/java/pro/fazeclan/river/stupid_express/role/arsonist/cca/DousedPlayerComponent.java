@@ -74,11 +74,13 @@ public class DousedPlayerComponent implements ServerTickingComponent, ClientTick
     @Override
     public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.doused = tag.contains("doused") && tag.getBoolean("doused");
+        this.dousedCount = tag.contains("dousedCount") ? tag.getInt("dousedCount") : 0;
     }
 
     @Override
     public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
         tag.putBoolean("doused", this.doused);
+        tag.putInt("dousedCount", this.dousedCount);
     }
 
 }

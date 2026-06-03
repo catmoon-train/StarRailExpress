@@ -18,6 +18,8 @@
   "game.win.star.arsonist": "The Arsonist doused all players and ignited the train",
   "hud.stupid_express.arsonist.doused.true": "Doused",
   "hud.stupid_express.arsonist.doused.false": "Not doused",
+  "hud.stupid_express.arsonist.ignition_ready": "Ignition Ready",
+  "hud.stupid_express.arsonist.douse_progress": "Douse Target: %s/%s",
   "item.stupid_express.jerry_can": "Gas Can",
   "item.stupid_express.jerry_can.tooltip": "Interact with player to douse them in gasoline",
   "item.stupid_express.lighter": "Lighter",

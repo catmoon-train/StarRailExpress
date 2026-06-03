@@ -364,6 +364,7 @@ public class EntityInteractionBlockScreen extends Screen {
                     Component.translatable("comparison." + condition.comparison.name().toLowerCase())).getString();
             case IS_PSYCHO -> Component.translatable("condition.is_psycho").getString();
             case IS_POISONED -> Component.translatable("condition.is_poisoned").getString();
+            case IS_INFECTED -> Component.translatable("condition.is_infected").getString();
             case ARMOR_AMOUNT -> Component.translatable("condition.armor_amount", (int) condition.value,
                     Component.translatable("comparison." + condition.comparison.name().toLowerCase())).getString();
             case HAS_TASK -> Component.translatable("condition.has_task").getString();

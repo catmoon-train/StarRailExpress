@@ -25,12 +25,15 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
 import pro.fazeclan.river.stupid_express.StupidExpress;
 import pro.fazeclan.river.stupid_express.client.keybinds.SplitPersonalityKeybinds;
 import pro.fazeclan.river.stupid_express.constants.SEItems;
+import pro.fazeclan.river.stupid_express.constants.SERoles;
 import pro.fazeclan.river.stupid_express.modifier.refugee.cca.RefugeeComponent;
 import pro.fazeclan.river.stupid_express.modifier.split_personality.cca.SplitPersonalityComponent;
 import pro.fazeclan.river.stupid_express.network.SplitBackCamera;
+import pro.fazeclan.river.stupid_express.role.arsonist.cca.DousedPlayerComponent;
 
 import java.util.*;
 
@@ -176,6 +179,36 @@ public class StupidExpressClient implements ClientModInitializer {
                 }
             }
             return AllowOtherCameraType.ReturnCameraType.NO_CHANGE;
+        });
+
+        // 注册纵火犯HUD
+        RoleHudRenderCallback.EVENT.register(SERoles.ARSONIST.identifier(), (context, tickCounter) -> {
+            Minecraft client = Minecraft.getInstance();
+            if (client.player == null) return;
+            if (SREClient.gameComponent == null) return;
+            if (!SREClient.isRole(SERoles.ARSONIST)) return;
+            if (!SREClient.isPlayerAliveAndInSurvival()) return;
+
+            DousedPlayerComponent ownComp = DousedPlayerComponent.KEY.get(client.player);
+            int dousedCount = ownComp.dousedCount;
+
+            // 计算存活玩家数（排除观察者和创造模式）
+            long alivePlayers = client.player.level().players().stream()
+                    .filter(p -> !p.isSpectator() && !p.isCreative() && p.getHealth() > 0)
+                    .count();
+            int requiredCount = (int) Math.ceil(alivePlayers * 0.3);
+
+            var font = client.font;
+            int xBase = context.guiWidth() - 10;
+            int yBase = context.guiHeight() - font.lineHeight - 10;
+            if (dousedCount >= requiredCount) {
+                Component readyText = Component.translatable("hud.stupid_express.arsonist.ignition_ready");
+                context.drawString(font, readyText, xBase - font.width(readyText), yBase, 0xfc9526);
+            } else {
+                Component douseText = Component.translatable("hud.stupid_express.arsonist.douse_progress",
+                        dousedCount, requiredCount);
+                context.drawString(font, douseText, xBase - font.width(douseText), yBase, 0xfc9526);
+            }
         });
     }
 

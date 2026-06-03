@@ -70,6 +70,7 @@ public class OilDousingHandler {
             // 增加纵火犯泼油计数
             var dousedCountComponent = DousedPlayerComponent.KEY.get(player);
             dousedCountComponent.dousedCount++;
+            dousedCountComponent.sync();
 
             return InteractionResult.CONSUME;
         }));

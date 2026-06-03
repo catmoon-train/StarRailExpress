@@ -18,6 +18,8 @@
   "game.win.star.arsonist": "縱火犯已將所有玩家澆濕並點燃了列車",
   "hud.stupid_express.arsonist.doused.true": "已澆濕",
   "hud.stupid_express.arsonist.doused.false": "未澆濕",
+  "hud.stupid_express.arsonist.ignition_ready": "點燃已就緒",
+  "hud.stupid_express.arsonist.douse_progress": "澆油目標：%s/%s",
   "item.stupid_express.jerry_can": "汽油桶",
   "item.stupid_express.jerry_can.tooltip": "與玩家互動，將其澆上油",
   "item.stupid_express.lighter": "打火機",

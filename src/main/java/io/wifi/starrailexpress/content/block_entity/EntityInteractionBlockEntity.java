@@ -764,6 +764,11 @@ public class EntityInteractionBlockEntity extends BlockEntity {
                 SREPlayerPoisonComponent poison = SREPlayerPoisonComponent.KEY.get(player);
                 yield poison.getPoisonTicks() > 0;
             }
+            case IS_INFECTED -> {
+                // 是否感染
+                InfectedPlayerComponent infected = ModComponents.INFECTED.get(player);
+                yield infected != null && infected.infectedTicks > 0;
+            }
             case ARMOR_AMOUNT -> {
                 // 护盾值
                 SREArmorPlayerComponent armor = SREArmorPlayerComponent.KEY.get(player);
@@ -1570,6 +1575,7 @@ public class EntityInteractionBlockEntity extends BlockEntity {
         MOOD_VALUE, // 心情值
         IS_PSYCHO, // 是否处于疯狂模式
         IS_POISONED, // 是否中毒
+        IS_INFECTED, // 是否感染
         ARMOR_AMOUNT, // 护盾值
         HAS_TASK, // 是否有任务
         TASK_STREAK, // 连续完成任务数
