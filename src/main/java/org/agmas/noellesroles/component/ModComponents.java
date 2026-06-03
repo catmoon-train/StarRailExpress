@@ -389,9 +389,6 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
       ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "mortician_bodymaker"),
       org.agmas.noellesroles.game.roles.neutral.mortician.MorticianBodyMakerPlayerComponent.class);
 
-  // 典狱长组件 - 独立胜利中立角色，正义戒律/正义审判
-  public static final ComponentKey<org.agmas.noellesroles.game.roles.neutral.warden.WardenPlayerComponent> WARDEN = org.agmas.noellesroles.game.roles.neutral.warden.WardenPlayerComponent.KEY;
-
   public ModComponents() {
     // CCA 需要无参构造函数
   }
@@ -786,11 +783,6 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
     registry.beginRegistration(Player.class, SKINCRAWLER)
         .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
         .end(org.agmas.noellesroles.game.roles.killer.skincrawler.SkincrawlerPlayerComponent::new);
-
-    // 注册典狱长组件 - 独立胜利中立角色
-    registry.beginRegistration(Player.class, WARDEN)
-        .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
-        .end(org.agmas.noellesroles.game.roles.neutral.warden.WardenPlayerComponent::new);
 
     // ==================== 示例：注册更多组件 ====================
     //

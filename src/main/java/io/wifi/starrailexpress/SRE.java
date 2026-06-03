@@ -136,7 +136,6 @@ public class SRE extends StarRailExpressID implements ModInitializer {
         TMMRoles.addRoleComponents(SREPlayerPoisonComponent.KEY);
         TMMRoles.addRoleComponents(SREPlayerShopComponent.KEY);
         TMMRoles.addRoleComponents(ExtraSlotComponent.KEY);
-        TMMRoles.addRoleComponents(org.agmas.noellesroles.game.roles.neutral.warden.WardenPlayerComponent.KEY);
     }
 
     private void initConfig() {

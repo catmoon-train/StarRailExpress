@@ -2097,21 +2097,5 @@
   "hud.noellesroles.repair.skill_state.runner_vault": "翻越衝刺",
   "hud.noellesroles.repair.skill_state.archivist_notes": "風險記錄",
   "hud.noellesroles.repair.skill_state.saboteur_signal": "假信號",
-  "hud.noellesroles.repair.skill_state.collector_supply": "應急調配",
-  "announcement.star.role.wifi:warden": "典獄長",
-  "announcement.star.goals.wifi:warden": "審判凶手，維護正義",
-  "message.warden.verdict_used": "§9你對 %s 施加了正義戒律！",
-  "message.warden.judgment_started": "§c正義審判開始！找到並擊敗那個罪人！",
-  "message.warden.judgment_kill_limit": "§c擊殺上限：%d 人",
-  "message.warden.judgment_success": "§a正義審判成功！你擊殺了罪人！典獄長勝利！",
-  "message.warden.judgment_backfire": "§c正義反噬！你未能找到罪人，受到了懲罰！",
-  "message.warden.skill_cooldown": "§6技能冷卻中，還需 %d 秒",
-  "message.warden.no_target": "§6附近3格內沒有可用的目標",
-  "deathReason.warden_backfire": "正義反噬",
-  "message.warden.target_misbehaved": "§6正義不應如此.......我需要重新審視",
-  "message.warden.skill_judgment": "§6審判階段無法使用正義戒律",
-  "message.warden.no_gun": "§6正義即將到來",
-  "message.warden.target_died": "§6你的判決目標已死亡，判決失效。",
-  "hud.noellesroles.warden.no_gun": "§6正義即將到來",
-  "hud.noellesroles.warden.ready": "§a戒律已就緒"
+  "hud.noellesroles.repair.skill_state.collector_supply": "應急調配"
 }

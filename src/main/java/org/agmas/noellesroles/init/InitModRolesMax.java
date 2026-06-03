@@ -428,8 +428,8 @@ public class InitModRolesMax {
                 Harpymodloader.setRoleMaximum(ModRoles.MAGICIAN_ID, 0);
             }
 
-            // 迷失杀手 - 从配置读取概率
-            if (random.nextInt(0, 100) <= config.chanceOfLostKiller) {
+            // 迷失杀手 - 从配置读取概率和最小玩家数
+            if (players_count >= config.minPlayerForLostKiller && random.nextInt(0, 100) <= config.chanceOfLostKiller) {
                 Harpymodloader.setRoleMaximum(ModRoles.LOST_KILLER_ID, 1);
             } else {
                 Harpymodloader.setRoleMaximum(ModRoles.LOST_KILLER_ID, 0);
@@ -777,10 +777,12 @@ public class InitModRolesMax {
         SERoles.AMNESIAC.setEnableNeededPlayerCount(config.minPlayerForAmnesiac)
                 .setEnableChance(config.chanceOfAmnesiac);
 
-        // 悍匪 - 75%概率
-        ModRoles.GANGSTERS.setEnableChance(75);
+        // 悍匪 - 从配置读取概率和最小玩家数
+        ModRoles.GANGSTERS.setEnableChance(config.chanceOfGangsters)
+                .setEnableNeededPlayerCount(config.minPlayerForGangsters);
         // 钳工 - 与悍匪绑定，由悍匪概率控制
-        ModRoles.FITTER.setEnableChance(75);
+        ModRoles.FITTER.setEnableChance(config.chanceOfGangsters)
+                .setEnableNeededPlayerCount(config.minPlayerForGangsters);
 
         // 鹈鹕 - 从配置读取概率和最小玩家数
         ModRoles.PELICAN.setEnableChance(config.chanceOfPelican)

@@ -105,29 +105,6 @@ public class RoleShopHandler {
     tracker.add(new ShopEntry(ModItems.HUNTER_PLUGIN_TRACKING.getDefaultInstance(), 34, ShopEntry.Type.TOOL));
 
     ShopContent.customEntries.put(ModRoles.REPAIR_WARDEN_ID, warden);
-
-    // 典狱长商店：100金币买假左轮，90秒购买冷却
-    var wardenShop = new ArrayList<ShopEntry>();
-    wardenShop.add(new ShopEntry(ModItems.FAKE_REVOLVER.getDefaultInstance(), 100, ShopEntry.Type.WEAPON) {
-        @Override
-        public boolean canBuy(net.minecraft.world.entity.player.Player player) {
-            var wardenComp = org.agmas.noellesroles.game.roles.neutral.warden.WardenPlayerComponent.KEY.maybeGet(player).orElse(null);
-            if (wardenComp != null && !wardenComp.isShopReady()) {
-                return false;
-            }
-            return super.canBuy(player);
-        }
-        @Override
-        public boolean onBuy(net.minecraft.world.entity.player.Player player) {
-            var wardenComp = org.agmas.noellesroles.game.roles.neutral.warden.WardenPlayerComponent.KEY.maybeGet(player).orElse(null);
-            if (wardenComp != null) {
-                wardenComp.setShopCooldownEnd(player.level().getGameTime() + 90 * 20);
-            }
-            return super.onBuy(player);
-        }
-    });
-    ShopContent.customEntries.put(ModRoles.WARDEN_ID, wardenShop);
-
     ShopContent.customEntries.put(ModRoles.REPAIR_BRUTE_ID, brute);
     ShopContent.customEntries.put(ModRoles.REPAIR_TRACKER_ID, tracker);
 

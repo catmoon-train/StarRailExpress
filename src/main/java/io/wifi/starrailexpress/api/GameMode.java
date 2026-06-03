@@ -555,8 +555,6 @@ public abstract class GameMode {
             SRERole killerRole = gameWorldComponent.getRole(serverKiller);
             if (killerRole != null) {
                 killerRole.onKill(victim, spawnBody, killer, deathReason);
-
-// 典狱长目标违规检测：已迁移到WardenPlayerComponent.registerEvents()通过事件系统处理
                 if (shouldRecordPlayerStats()) {
                     killerStats.getOrCreateRoleStats(killerRole.identifier()).incrementKillsAsRole();
                     // 更新阵营击杀数
@@ -606,8 +604,6 @@ public abstract class GameMode {
             if (victim instanceof ServerPlayer serverVictim) {
                 SRERole victimRole = gameWorldComponent.getRole(serverVictim);
                 victimRole.onDeath(victim, spawnBody, killer, deathReason);
-
-// 典狱长目标死亡通知：已迁移到WardenPlayerComponent.registerEvents()通过事件系统处理
                 SREPlayerStatsComponent victimStats = SREPlayerStatsComponent.KEY.get(serverVictim);
                 if (shouldRecordPlayerStats()) {
                     victimStats.incrementTotalDeaths();

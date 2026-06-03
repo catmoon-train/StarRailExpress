@@ -742,25 +742,6 @@ public class InstinctRenderer {
                         }
                     }
                 }
-                // 典狱长：目标常驻深蓝色无限距离，其他人需要按直觉键灰色10格内
-                if (SREClient.gameComponent.isRole(self, org.agmas.noellesroles.role.ModRoles.WARDEN)) {
-                    if (GameUtils.isPlayerSpectatingOrCreative(self))
-                        return -1;
-                    var wardenComp = org.agmas.noellesroles.game.roles.neutral.warden.WardenPlayerComponent.KEY.get(self);
-                    if (wardenComp != null && target instanceof Player targetPlayer) {
-                        // 目标：深蓝色，无限距离，常驻（仅非审判阶段且目标存活时）
-                        if (!wardenComp.isInJudgment() && !wardenComp.isTargetDead()
-                                && wardenComp.getTargetUuid() != null && targetPlayer.getUUID().equals(wardenComp.getTargetUuid())) {
-                            return 0x0044CC; // 深蓝色
-                        }
-                        // 其他人：需要按直觉键，灰色，10格内
-                        if (!hasInstinct)
-                            return -1;
-                        if (targetPlayer.distanceToSqr(self) > 10 * 10)
-                            return -2;
-                        return java.awt.Color.GRAY.getRGB(); // 灰色
-                    }
-                }
                 // 鹈鹕：透视所有玩家，被吞噬过的显示橙色，其他显示鹈鹕颜色
                 if (SREClient.gameComponent.isRole(self, ModRoles.PELICAN)) {
                     if (!hasInstinct)
@@ -1029,7 +1010,6 @@ public class InstinctRenderer {
                     }
                 }
             }
-
             // 布谷鸟：只透视自己下的蛋（BlockDisplay）
             if (SREClient.gameComponent.isRole(self, ModRoles.CUCKOO)) {
                 if (target instanceof Display.BlockDisplay blockDisplay) {
