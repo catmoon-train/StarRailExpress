@@ -260,6 +260,7 @@ public class RoleShopHandler {
   public static ArrayList<ShopEntry> GODFATHER_SHOP = new ArrayList<>();
   public static ArrayList<ShopEntry> MAFIOSO_SHOP = new ArrayList<>();
   public static ArrayList<ShopEntry> JANITOR_SHOP = new ArrayList<>();
+  public static ArrayList<ShopEntry> NUTRITIONIST_SHOP = new ArrayList<>();
   // ==================== 咒法师商店 ====================
   public static ArrayList<ShopEntry> WARLOCK_SHOP = new ArrayList<>();
   // ==================== 嬉命人商店 ====================
@@ -1208,6 +1209,11 @@ public class RoleShopHandler {
     {
       ShopContent.customEntries.put(
           ModRoles.JANITOR_ID, JANITOR_SHOP);
+    }
+    // 家族调理师商店
+    {
+      ShopContent.customEntries.put(
+          ModRoles.NUTRITIONIST_ID, NUTRITIONIST_SHOP);
     }
     // 咒法师商店
     {
@@ -2458,6 +2464,58 @@ public class RoleShopHandler {
     JANITOR_SHOP.add(new ShopEntry(ModItems.THROWING_KNIFE.getDefaultInstance(), 130, ShopEntry.Type.WEAPON));
     // 短管霰弹枪 - 250金币
     JANITOR_SHOP.add(new ShopEntry(ModItems.SHORT_SHOTGUN.getDefaultInstance(), 250, ShopEntry.Type.WEAPON));
+
+    // ==================== 家族调理师商店 ====================
+    // 毒药试剂 - 100金币
+    NUTRITIONIST_SHOP.add(new ShopEntry(TMMItems.POISON_VIAL.getDefaultInstance(), 100, ShopEntry.Type.WEAPON));
+    // 喷溅型速度3 - 275金币
+    {
+      var SPEED_SPLASH = Items.SPLASH_POTION.getDefaultInstance();
+      var speedList = List.of(new MobEffectInstance(
+          MobEffects.MOVEMENT_SPEED,
+          60 * 20,
+          2,
+          false,
+          true,
+          true
+      ));
+      var speedContent = new PotionContents(Optional.empty(), Optional.of(53503),
+          speedList);
+      SPEED_SPLASH.set(DataComponents.POTION_CONTENTS, speedContent);
+      NUTRITIONIST_SHOP.add(new ShopEntry(SPEED_SPLASH, 275, ShopEntry.Type.WEAPON));
+    }
+    // 喷溅型禁止移动药水 - 275金币 (持续2.5秒)
+    {
+      var IMMOBILE_SPLASH = Items.SPLASH_POTION.getDefaultInstance();
+      var immobileList = List.of(new MobEffectInstance(
+          ModEffects.MOVE_BANED,
+          50, // 2.5秒 = 50 ticks
+          0,
+          false,
+          true,
+          true
+      ));
+      var immobileContent = new PotionContents(Optional.empty(), Optional.of(0x8B0000),
+          immobileList);
+      IMMOBILE_SPLASH.set(DataComponents.POTION_CONTENTS, immobileContent);
+      NUTRITIONIST_SHOP.add(new ShopEntry(IMMOBILE_SPLASH, 275, ShopEntry.Type.WEAPON));
+    }
+    // 喷溅型无限体力药水 - 200金币
+    {
+      var STAMINA_SPLASH = Items.SPLASH_POTION.getDefaultInstance();
+      var staminaList = List.of(new MobEffectInstance(
+          ModEffects.INFINITE_STAMINA,
+          15 * 20, // 15秒
+          0,
+          false,
+          true,
+          true
+      ));
+      var staminaContent = new PotionContents(Optional.empty(), Optional.of(0x00CED1),
+          staminaList);
+      STAMINA_SPLASH.set(DataComponents.POTION_CONTENTS, staminaContent);
+      NUTRITIONIST_SHOP.add(new ShopEntry(STAMINA_SPLASH, 200, ShopEntry.Type.WEAPON));
+    }
 
     // ==================== 咒法师商店 ====================
     // 刀 - 130金币

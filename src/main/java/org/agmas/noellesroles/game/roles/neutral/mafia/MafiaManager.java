@@ -86,7 +86,7 @@ public final class MafiaManager {
         var comp = GodfatherComponent.KEY.get(player);
         long now = player.level().getGameTime();
 
-        if (action == MafiaActionC2SPacket.RECRUIT_MAFIOSO || action == MafiaActionC2SPacket.RECRUIT_JANITOR) {
+        if (action == MafiaActionC2SPacket.RECRUIT_MAFIOSO || action == MafiaActionC2SPacket.RECRUIT_JANITOR || action == MafiaActionC2SPacket.RECRUIT_NUTRITIONIST) {
             if (now < comp.recruitCooldownUntil) return;
             if (comp.familyMembers.size() >= comp.recruitLimit) return;
             if (!isRecruitable(tgt)) {
@@ -94,7 +94,9 @@ public final class MafiaManager {
                 return;
             }
             SRERole prevRole = SREGameWorldComponent.KEY.get(tgt.level()).getRole(tgt);
-            SRERole newRole = action == MafiaActionC2SPacket.RECRUIT_MAFIOSO ? ModRoles.MAFIOSO : ModRoles.JANITOR;
+            SRERole newRole = action == MafiaActionC2SPacket.RECRUIT_MAFIOSO ? ModRoles.MAFIOSO
+                    : action == MafiaActionC2SPacket.RECRUIT_JANITOR ? ModRoles.JANITOR
+                    : ModRoles.NUTRITIONIST;
             previousRoleByMember.put(target, prevRole);
             godfatherByMember.put(target, player.getUUID());
             comp.familyMembers.add(target);

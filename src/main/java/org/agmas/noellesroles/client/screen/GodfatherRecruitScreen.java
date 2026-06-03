@@ -14,6 +14,7 @@ import java.util.UUID;
 public class GodfatherRecruitScreen extends Screen {
     private static final int COLOR_MAFIOSO = 0xFFDA70D6;
     private static final int COLOR_JANITOR = 0xFFFF69B4;
+    private static final int COLOR_NUTRITIONIST = 0xFF32CD32;
 
     public GodfatherRecruitScreen() {
         super(Component.translatable("screen.noellesroles.godfather.recruit"));
@@ -29,13 +30,19 @@ public class GodfatherRecruitScreen extends Screen {
         addRenderableWidget(Button.builder(
             Component.translatable("role.noellesroles.mafioso"),
             btn -> sendRecruit(MafiaActionC2SPacket.RECRUIT_MAFIOSO))
-            .pos(cx - 110, midY).size(100, 60).build());
+            .pos(cx - 160, midY).size(100, 60).build());
 
         // Janitor button
         addRenderableWidget(Button.builder(
             Component.translatable("role.noellesroles.janitor"),
             btn -> sendRecruit(MafiaActionC2SPacket.RECRUIT_JANITOR))
-            .pos(cx + 10, midY).size(100, 60).build());
+            .pos(cx - 50, midY).size(100, 60).build());
+
+        // Nutritionist button
+        addRenderableWidget(Button.builder(
+            Component.translatable("role.noellesroles.nutritionist"),
+            btn -> sendRecruit(MafiaActionC2SPacket.RECRUIT_NUTRITIONIST))
+            .pos(cx + 60, midY).size(100, 60).build());
 
         // Close button
         addRenderableWidget(Button.builder(
