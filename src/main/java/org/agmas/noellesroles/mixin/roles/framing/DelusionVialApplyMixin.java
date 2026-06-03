@@ -16,10 +16,10 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import io.wifi.starrailexpress.content.block.FoodPlatterBlock;
-import io.wifi.starrailexpress.content.block_entity.BeveragePlateBlockEntity;
+import io.wifi.starrailexpress.content.block.PlatterBlock;
+import io.wifi.starrailexpress.content.block_entity.PlateTrayBlockEntity;
 
-@Mixin(FoodPlatterBlock.class)
+@Mixin(PlatterBlock.class)
 public abstract class DelusionVialApplyMixin {
 
     @Inject(method = "useWithoutItem", at = @At("HEAD"), cancellable = true)
@@ -27,7 +27,7 @@ public abstract class DelusionVialApplyMixin {
         if (world.isClientSide) return;
         if (player.isCreative()) return;
         BlockEntity platter = world.getBlockEntity(pos);
-        if (platter instanceof BeveragePlateBlockEntity blockEntity) {
+        if (platter instanceof PlateTrayBlockEntity blockEntity) {
             if (player.getItemInHand(InteractionHand.MAIN_HAND).is(ModItems.DELUSION_VIAL) && blockEntity.getPoisoner() == null) {
                 blockEntity.setPoisoner(player.getStringUUID());
                 player.getItemInHand(InteractionHand.MAIN_HAND).shrink(1);
