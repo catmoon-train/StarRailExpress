@@ -111,7 +111,7 @@ public class RoleShopHandler {
     wardenShop.add(new ShopEntry(ModItems.FAKE_REVOLVER.getDefaultInstance(), 100, ShopEntry.Type.WEAPON) {
         @Override
         public boolean canBuy(net.minecraft.world.entity.player.Player player) {
-            var wardenComp = io.wifi.starrailexpress.cca.WardenPlayerComponent.KEY.maybeGet(player).orElse(null);
+            var wardenComp = org.agmas.noellesroles.game.roles.neutral.warden.WardenPlayerComponent.KEY.maybeGet(player).orElse(null);
             if (wardenComp != null && !wardenComp.isShopReady()) {
                 return false;
             }
@@ -119,7 +119,7 @@ public class RoleShopHandler {
         }
         @Override
         public boolean onBuy(net.minecraft.world.entity.player.Player player) {
-            var wardenComp = io.wifi.starrailexpress.cca.WardenPlayerComponent.KEY.maybeGet(player).orElse(null);
+            var wardenComp = org.agmas.noellesroles.game.roles.neutral.warden.WardenPlayerComponent.KEY.maybeGet(player).orElse(null);
             if (wardenComp != null) {
                 wardenComp.setShopCooldownEnd(player.level().getGameTime() + 90 * 20);
             }

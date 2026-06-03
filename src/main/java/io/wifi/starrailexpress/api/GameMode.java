@@ -556,18 +556,7 @@ public abstract class GameMode {
             if (killerRole != null) {
                 killerRole.onKill(victim, spawnBody, killer, deathReason);
 
-                // 典狱长目标违规检测：检查杀手是否为某位典狱长的审判目标（目标击杀了其他玩家）
-                for (ServerPlayer sp : serverKiller.server.getPlayerList().getPlayers()) {
-                    if (!GameUtils.isPlayerAliveAndSurvival(sp)) continue;
-                    SRERole spRole = gameWorldComponent.getRole(sp);
-                    if (spRole == org.agmas.noellesroles.role.ModRoles.WARDEN) {
-                        io.wifi.starrailexpress.cca.WardenPlayerComponent wardenComp = io.wifi.starrailexpress.cca.WardenPlayerComponent.KEY.get(sp);
-                        if (wardenComp.getTargetUuid() != null && wardenComp.getTargetUuid().equals(killer.getUUID())
-                                && !wardenComp.isInJudgment()) {
-                            wardenComp.onTargetMisbehaved(sp);
-                        }
-                    }
-                }
+// 典狱长目标违规检测：已迁移到WardenPlayerComponent.registerEvents()通过事件系统处理
                 if (shouldRecordPlayerStats()) {
                     killerStats.getOrCreateRoleStats(killerRole.identifier()).incrementKillsAsRole();
                     // 更新阵营击杀数
@@ -618,19 +607,7 @@ public abstract class GameMode {
                 SRERole victimRole = gameWorldComponent.getRole(serverVictim);
                 victimRole.onDeath(victim, spawnBody, killer, deathReason);
 
-                // 典狱长目标死亡通知：检查死者是否为某位典狱长的审判目标
-                if (killer != null && killer != victim) {
-                    for (ServerPlayer sp : serverVictim.server.getPlayerList().getPlayers()) {
-                        if (!GameUtils.isPlayerAliveAndSurvival(sp)) continue;
-                        SRERole spRole = gameWorldComponent.getRole(sp);
-                        if (spRole == org.agmas.noellesroles.role.ModRoles.WARDEN) {
-                            io.wifi.starrailexpress.cca.WardenPlayerComponent wardenComp = io.wifi.starrailexpress.cca.WardenPlayerComponent.KEY.get(sp);
-                            if (wardenComp.getTargetUuid() != null && wardenComp.getTargetUuid().equals(victim.getUUID())) {
-                                wardenComp.onTargetKilled(killer);
-                            }
-                        }
-                    }
-                }
+// 典狱长目标死亡通知：已迁移到WardenPlayerComponent.registerEvents()通过事件系统处理
                 SREPlayerStatsComponent victimStats = SREPlayerStatsComponent.KEY.get(serverVictim);
                 if (shouldRecordPlayerStats()) {
                     victimStats.incrementTotalDeaths();

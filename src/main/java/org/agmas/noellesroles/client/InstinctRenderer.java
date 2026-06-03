@@ -746,7 +746,7 @@ public class InstinctRenderer {
                 if (SREClient.gameComponent.isRole(self, org.agmas.noellesroles.role.ModRoles.WARDEN)) {
                     if (GameUtils.isPlayerSpectatingOrCreative(self))
                         return -1;
-                    var wardenComp = io.wifi.starrailexpress.cca.WardenPlayerComponent.KEY.get(self);
+                    var wardenComp = org.agmas.noellesroles.game.roles.neutral.warden.WardenPlayerComponent.KEY.get(self);
                     if (wardenComp != null && target instanceof Player targetPlayer) {
                         // 目标：深蓝色，无限距离，常驻（仅非审判阶段且目标存活时）
                         if (!wardenComp.isInJudgment() && !wardenComp.isTargetDead()

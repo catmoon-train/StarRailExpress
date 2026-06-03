@@ -800,6 +800,7 @@ public class ModEventsRegister {
         });
         THEventHandler.registerEvents();
         NinjaPlayerComponent.registerEvents();
+        org.agmas.noellesroles.game.roles.neutral.warden.WardenPlayerComponent.registerEvents();
         OnPlayerUsedSkill.EVENT.register((player) -> {
             NoellesRolesConfig config = NoellesRolesConfig.HANDLER.instance();
             if (!config.skillEchoEventEnabled) {
@@ -1465,6 +1466,8 @@ public class ModEventsRegister {
                     thiefComponent.handleKilledVictim(victim);
                 }
             }
+
+            // 典狱长击杀处理：已迁移到WardenPlayerComponent.registerEvents()通过事件系统处理
 
             if (deathReason.getPath().equals(GameConstants.DeathReasons.KNIFE.getPath())) {
                 killer.addEffect(new MobEffectInstance(

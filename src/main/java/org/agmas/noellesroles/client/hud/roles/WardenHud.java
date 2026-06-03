@@ -18,8 +18,8 @@ public class WardenHud {
             if (client.player == null || SREClient.isPlayerSpectator())
                 return;
 
-            io.wifi.starrailexpress.cca.WardenPlayerComponent comp =
-                    io.wifi.starrailexpress.cca.WardenPlayerComponent.KEY.maybeGet(client.player).orElse(null);
+            org.agmas.noellesroles.game.roles.neutral.warden.WardenPlayerComponent comp =
+                    org.agmas.noellesroles.game.roles.neutral.warden.WardenPlayerComponent.KEY.maybeGet(client.player).orElse(null);
             if (comp == null) return;
 
             int guiWidth = context.guiWidth();
