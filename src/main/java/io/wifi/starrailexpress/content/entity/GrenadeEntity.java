@@ -14,7 +14,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.ThrowableItemProjectile;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
@@ -27,7 +26,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-public class GrenadeEntity extends ThrowableItemProjectile {
+public class GrenadeEntity extends NoWaterInfluencedThrowableItemProjectile {
     private static final float EXPLOSION_RADIUS = 4f;
     private static final int MAX_KILL_PLAYER_COUNT = 8;
 
@@ -85,7 +84,8 @@ public class GrenadeEntity extends ThrowableItemProjectile {
                         if (gameWorld.isRole(player, org.agmas.noellesroles.role.ModRoles.MEATBALL)) {
                             if (player instanceof net.minecraft.server.level.ServerPlayer sp) {
                                 sp.displayClientMessage(
-                                        net.minecraft.network.chat.Component.translatable("message.noellesroles.meatball.protected")
+                                        net.minecraft.network.chat.Component
+                                                .translatable("message.noellesroles.meatball.protected")
                                                 .withStyle(net.minecraft.ChatFormatting.GREEN),
                                         true);
                             }
