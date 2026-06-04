@@ -1,6 +1,7 @@
 package org.agmas.noellesroles.game.roles.neutral.phantom_musician;
 
 import io.wifi.starrailexpress.api.RoleComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.core.HolderLookup;
@@ -14,6 +15,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.Noellesroles;
+import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
@@ -117,6 +119,17 @@ public class PhantomMusicianPlayerComponent implements RoleComponent, ServerTick
 
     @Override
     public void serverTick() {
+        // 检查玩家是否为幻音师（只有幻音师自己才能获得被动金币）
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
+        if (!gameWorld.isRole(player, ModRoles.PHANTOM_MUSICIAN)) {
+            return;
+        }
+
+        // 检查游戏是否进行中
+        if (!gameWorld.isRunning()) {
+            return;
+        }
+
         if (player.isSpectator()) return;
         if (!GameUtils.isPlayerAliveAndSurvival(player)) return;
 
