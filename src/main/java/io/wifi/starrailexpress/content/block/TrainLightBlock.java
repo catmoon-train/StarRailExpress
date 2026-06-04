@@ -66,7 +66,7 @@ public class TrainLightBlock extends LightBlock implements LightBlockInterface {
                 level.addParticle(DustParticleOptions.REDSTONE, d, e, f, (double) 0.0F, (double) 0.0F, (double) 0.0F);
             }
             BlockParticleOption particleEffect = new BlockParticleOption(ParticleTypes.BLOCK_MARKER, blockState);
-            level.addAlwaysVisibleParticle(particleEffect, blockPos.getX() + 0.5, blockPos.getY()+0.5,
+            level.addAlwaysVisibleParticle(particleEffect, blockPos.getX() + 0.5, blockPos.getY() + 0.5,
                     blockPos.getZ() + 0.5,
                     (double) 0.0F,
                     (double) 0.0F, (double) 0.0F);
