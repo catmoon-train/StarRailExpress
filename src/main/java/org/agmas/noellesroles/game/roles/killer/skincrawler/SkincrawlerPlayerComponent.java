@@ -21,14 +21,16 @@ public class SkincrawlerPlayerComponent implements RoleComponent, ServerTickingC
             SkincrawlerPlayerComponent.class);
 
     public static final int STEAL_COOLDOWN = 60 * 20;
+    public static final int MAX_BLOCK_CHARGES = 1;
 
     private final Player player;
     public int stealCooldown;
     public UUID stolenSkin;
+    public int blockCharges = MAX_BLOCK_CHARGES;
 
     public SkincrawlerPlayerComponent(Player player) { this.player = player; }
     @Override public Player getPlayer() { return player; }
-    @Override public void init() { stealCooldown = 0; stolenSkin = null; sync(); }
+    @Override public void init() { stealCooldown = 0; stolenSkin = null; blockCharges = MAX_BLOCK_CHARGES; sync(); }
     @Override public void clear() { init(); }
     public void sync() { KEY.sync(player); }
 
@@ -46,12 +48,14 @@ public class SkincrawlerPlayerComponent implements RoleComponent, ServerTickingC
     @Override
     public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider lookup) {
         tag.putInt("stealCooldown", stealCooldown);
+        tag.putInt("blockCharges", blockCharges);
         if (stolenSkin != null) tag.putString("stolenSkin", stolenSkin.toString());
     }
 
     @Override
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider lookup) {
         stealCooldown = tag.getInt("stealCooldown");
+        blockCharges = tag.contains("blockCharges") ? tag.getInt("blockCharges") : MAX_BLOCK_CHARGES;
         stolenSkin = tag.contains("stolenSkin") ? UUID.fromString(tag.getString("stolenSkin")) : null;
     }
 

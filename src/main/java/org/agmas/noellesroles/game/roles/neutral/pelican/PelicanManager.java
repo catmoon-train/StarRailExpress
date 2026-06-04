@@ -11,6 +11,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import org.agmas.noellesroles.component.DeathPenaltyComponent;
+import org.agmas.noellesroles.component.DefibrillatorComponent;
 import org.agmas.noellesroles.voice.NoellesrolesVoiceChatPlugin;
 
 import java.util.*;
@@ -85,8 +86,9 @@ public final class PelicanManager {
                 pelican.getYRot(), pelican.getXRot());
         target.connection.send(new ClientboundSetCameraPacket(pelican));
 
-        // 被吞噬玩家进入 DeathPenalty，视角锁定在鹈鹕身上
+        // 被吞噬玩家进入 DeathPenalty，视角锁定在鹈鹕身上；清除可能存在的起搏器保护
         DeathPenaltyComponent.KEY.get(target).setPenaltyWithCameraLimit(-1, pelican, true);
+        DefibrillatorComponent.KEY.get(target).init();
 
         NoellesrolesVoiceChatPlugin.onPelicanStash(targetId, pelicanId);
     }
@@ -106,8 +108,9 @@ public final class PelicanManager {
         GameType restoreMode = stashedPreviousGameMode.getOrDefault(targetId, GameType.ADVENTURE);
         stashedPreviousGameMode.remove(targetId);
 
-        // 恢复聊天并清除 DeathPenalty
+        // 恢复聊天并清除 DeathPenalty/起搏器
         DeathPenaltyComponent.KEY.get(target).init();
+        DefibrillatorComponent.KEY.get(target).init();
 
         target.setGameMode(restoreMode == GameType.SPECTATOR ? GameType.ADVENTURE : restoreMode);
         target.setInvisible(false);
@@ -131,8 +134,9 @@ public final class PelicanManager {
         }
         stashedPreviousGameMode.remove(targetId);
 
-        // 恢复聊天并清除 DeathPenalty
+        // 恢复聊天并清除 DeathPenalty/起搏器
         DeathPenaltyComponent.KEY.get(target).init();
+        DefibrillatorComponent.KEY.get(target).init();
 
         if (target.gameMode.getGameModeForPlayer() == GameType.SPECTATOR) {
             target.setGameMode(GameType.ADVENTURE);
@@ -234,8 +238,9 @@ public final class PelicanManager {
         }
         stashedPreviousGameMode.remove(targetId);
 
-        // 恢复聊天并清除 DeathPenalty
+        // 恢复聊天并清除 DeathPenalty/起搏器
         DeathPenaltyComponent.KEY.get(target).init();
+        DefibrillatorComponent.KEY.get(target).init();
 
         // 恢复游戏模式，确保玩家以正常状态进入死亡
         if (target.gameMode.getGameModeForPlayer() == GameType.SPECTATOR) {
@@ -254,12 +259,14 @@ public final class PelicanManager {
             return;
         for (UUID targetId : new ArrayList<>(belly)) {
             ServerPlayer target = pelican.getServer().getPlayerList().getPlayer(targetId);
+            // 无论玩家是否在线，都必须从追踪映射中移除，防止离线玩家重连后被意外复活
+            pelicanByStashed.remove(targetId);
+            stashedPreviousGameMode.remove(targetId);
             if (target != null) {
-                pelicanByStashed.remove(targetId);
-                stashedPreviousGameMode.remove(targetId);
 
-                // 恢复聊天并清除 DeathPenalty
+                // 恢复聊天并清除 DeathPenalty/起搏器
                 DeathPenaltyComponent.KEY.get(target).init();
+                DefibrillatorComponent.KEY.get(target).init();
 
                 target.setGameMode(GameType.ADVENTURE);
                 target.setInvisible(false);

@@ -27,6 +27,11 @@ public class SkincrawlerHud {
                 text = Component.translatable("hud.noellesroles.skincrawler.ready").withStyle(ChatFormatting.GREEN);
             }
             context.drawString(font, text, sw - font.width(text) - 8, sy - 24, 0xFFFFFF);
+
+            // 显示抵挡剩余次数
+            Component blockText = Component.translatable("hud.noellesroles.skincrawler.block_charges", comp.blockCharges)
+                    .withStyle(comp.blockCharges > 0 ? ChatFormatting.GREEN : ChatFormatting.RED);
+            context.drawString(font, blockText, sw - font.width(blockText) - 8, sy - 36, 0xFFFFFF);
         });
     }
 }

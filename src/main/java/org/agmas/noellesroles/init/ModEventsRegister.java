@@ -155,7 +155,9 @@ public class ModEventsRegister {
         if (!GameConstants.DeathReasons.REVOLVER.equals(deathReason)) return false;
         var comp = org.agmas.noellesroles.game.roles.killer.skincrawler.SkincrawlerPlayerComponent.KEY.get(sp);
         if (comp == null || comp.stolenSkin == null || comp.stolenSkin.equals(sp.getUUID())) return false;
-        // 取消偷皮并进入眩晕（5秒缓慢III），广播恢复原皮肤
+        if (comp.blockCharges <= 0) return false;
+        // 消耗一次抵挡次数，取消偷皮并进入眩晕（5秒禁止移动），广播恢复原皮肤
+        comp.blockCharges--;
         comp.stolenSkin = null;
         comp.sync();
         for (ServerPlayer p : sp.serverLevel().getPlayers(p2 -> true)) {

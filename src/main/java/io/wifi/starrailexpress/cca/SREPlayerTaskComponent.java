@@ -191,6 +191,10 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
                         this.taskStreak, false);
             }
             this.taskStreak++; // 完成奖励发放后增加连击计数（并列任务也增加连击）
+            // 大胃王：完成进食任务时额外恢复理智并给金币
+            if (task.getType() == Task.EAT && this.player instanceof ServerPlayer sp) {
+                ModifierEffects.onBigEaterTaskComplete(sp);
+            }
             // 检查5格范围内是否有狂躁症玩家，触发其附近任务完成效果
             if (this.player instanceof ServerPlayer sp) {
                 var worldModifiers = WorldModifierComponent.KEY.get(sp.level());
