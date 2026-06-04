@@ -331,11 +331,16 @@ public class TraitorAndModifiers {
                 player.getAttribute(Attributes.GRAVITY).addPermanentModifier(ANTI_NEWTON_GRAVITY_MODIFIER);
             }
             
-            // === 起义军 - 仅在平民阵营时生效 ===
+            // === 起义军 - 仅在平民阵营时生效，且不给巫毒师 ===
             if (modifier.equals(REBEL)) {
                 SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
-                if (gameWorld != null && gameWorld.isRunning() && !gameWorld.isInnocent(player)) {
-                    worldModifierComponent.removeModifier(player.getUUID(), REBEL);
+                if (gameWorld != null && gameWorld.isRunning()) {
+                    // 巫毒师不获得起义军修饰符
+                    if (gameWorld.getRole(player) == ModRoles.VOODOO) {
+                        worldModifierComponent.removeModifier(player.getUUID(), REBEL);
+                    } else if (!gameWorld.isInnocent(player)) {
+                        worldModifierComponent.removeModifier(player.getUUID(), REBEL);
+                    }
                 }
             }
             

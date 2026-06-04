@@ -92,8 +92,10 @@ public class DrawingBoardServerNetwork {
                         }
                         // 给予物品到快捷栏
                         player.getInventory().add(itemStack);
-                        // 消耗画板
-                        stack.shrink(1);
+                        // 消耗画板之前再次确认画板还在手中
+                        ItemStack boardToConsume = findDrawingBoardInHands(player);
+                        if (boardToConsume.isEmpty()) return;
+                        boardToConsume.shrink(1);
                     } else {
                         // 创造模式直接给予物品
                         player.getInventory().add(itemStack);
