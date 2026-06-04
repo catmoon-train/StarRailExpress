@@ -7,6 +7,7 @@ import com.mojang.serialization.MapCodec;
 import io.wifi.starrailexpress.content.block.api.LightBlockInterface;
 import io.wifi.starrailexpress.index.TMMBlocks;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -29,9 +30,12 @@ public class TrainLightBlock extends LightBlock implements LightBlockInterface {
         return CODEC;
     }
 
-   protected VoxelShape getShape(BlockState blockState, BlockGetter blockGetter, BlockPos blockPos, CollisionContext collisionContext) {
-      return collisionContext.isHoldingItem(TMMBlocks.TRAIN_LIGHT.asItem()) ? Shapes.block() : Shapes.empty();
-   }
+    protected VoxelShape getShape(BlockState blockState, BlockGetter blockGetter, BlockPos blockPos,
+            CollisionContext collisionContext) {
+        return collisionContext.isHoldingItem(TMMBlocks.TRAIN_LIGHT.asItem())
+                || collisionContext.isHoldingItem(Items.DEBUG_STICK) ? Shapes.block() : Shapes.empty();
+    }
+
     @Override
     public void neighborChanged(BlockState state, Level world, BlockPos pos, Block block, BlockPos fromPos,
             boolean notify) {
