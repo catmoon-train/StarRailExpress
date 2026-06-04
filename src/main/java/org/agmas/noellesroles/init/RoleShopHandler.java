@@ -392,6 +392,13 @@ public class RoleShopHandler {
           ShopEntry.Type.WEAPON));
       SHOP.add(new ShopEntry(ModItems.SPELLBREAKER_POTION.getDefaultInstance(), 75, ShopEntry.Type.TOOL));
       SHOP.add(new ShopEntry(ModItems.SILENCE_TOTEM.getDefaultInstance(), 130, ShopEntry.Type.TOOL));
+      // 关灯 - 100金币
+      SHOP.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), 100, ShopEntry.Type.TOOL) {
+        @Override
+        public boolean onBuy(@NotNull Player player) {
+          return SREPlayerShopComponent.useBlackout(player);
+        }
+      });
       ShopContent.customEntries.put(ModRoles.SPELLBREAKER.getIdentifier(), SHOP);
     }
     {
