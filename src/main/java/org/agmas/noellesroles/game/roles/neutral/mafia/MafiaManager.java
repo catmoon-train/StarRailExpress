@@ -50,6 +50,8 @@ public final class MafiaManager {
             if (killer instanceof ServerPlayer sp) {
                 if (isGodfather(sp)) {
                     SREPlayerShopComponent.KEY.get(sp).addToBalance(50);
+                } else if (isParasol(sp)) {
+                    SREPlayerShopComponent.KEY.get(sp).addToBalance(50);
                 } else if (isMafiaMember(sp)) {
                     SREPlayerShopComponent.KEY.get(sp).addToBalance(75);
                 }
@@ -86,7 +88,7 @@ public final class MafiaManager {
         var comp = GodfatherComponent.KEY.get(player);
         long now = player.level().getGameTime();
 
-        if (action == MafiaActionC2SPacket.RECRUIT_MAFIOSO || action == MafiaActionC2SPacket.RECRUIT_JANITOR || action == MafiaActionC2SPacket.RECRUIT_NUTRITIONIST) {
+        if (action == MafiaActionC2SPacket.RECRUIT_MAFIOSO || action == MafiaActionC2SPacket.RECRUIT_JANITOR || action == MafiaActionC2SPacket.RECRUIT_NUTRITIONIST || action == MafiaActionC2SPacket.RECRUIT_PARASOL) {
             if (now < comp.recruitCooldownUntil) return;
             if (comp.familyMembers.size() >= comp.recruitLimit) return;
             if (!isRecruitable(tgt)) {
@@ -96,7 +98,8 @@ public final class MafiaManager {
             SRERole prevRole = SREGameWorldComponent.KEY.get(tgt.level()).getRole(tgt);
             SRERole newRole = action == MafiaActionC2SPacket.RECRUIT_MAFIOSO ? ModRoles.MAFIOSO
                     : action == MafiaActionC2SPacket.RECRUIT_JANITOR ? ModRoles.JANITOR
-                    : ModRoles.NUTRITIONIST;
+                    : action == MafiaActionC2SPacket.RECRUIT_NUTRITIONIST ? ModRoles.NUTRITIONIST
+                    : ModRoles.PARASOL;
             previousRoleByMember.put(target, prevRole);
             godfatherByMember.put(target, player.getUUID());
             comp.familyMembers.add(target);
@@ -113,6 +116,9 @@ public final class MafiaManager {
     }
     public static boolean isGodfather(ServerPlayer p) {
         return SREGameWorldComponent.KEY.get(p.level()).isRole(p, ModRoles.GODFATHER);
+    }
+    public static boolean isParasol(ServerPlayer p) {
+        return SREGameWorldComponent.KEY.get(p.level()).isRole(p, ModRoles.PARASOL);
     }
     public static boolean isMafiaMember(ServerPlayer p) {
         var role = SREGameWorldComponent.KEY.get(p.level()).getRole(p);

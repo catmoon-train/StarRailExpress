@@ -261,6 +261,7 @@ public class RoleShopHandler {
   public static ArrayList<ShopEntry> MAFIOSO_SHOP = new ArrayList<>();
   public static ArrayList<ShopEntry> JANITOR_SHOP = new ArrayList<>();
   public static ArrayList<ShopEntry> NUTRITIONIST_SHOP = new ArrayList<>();
+  public static ArrayList<ShopEntry> PARASOL_SHOP = new ArrayList<>();
   // ==================== 咒法师商店 ====================
   public static ArrayList<ShopEntry> WARLOCK_SHOP = new ArrayList<>();
   // ==================== 嬉命人商店 ====================
@@ -1210,10 +1211,15 @@ public class RoleShopHandler {
       ShopContent.customEntries.put(
           ModRoles.JANITOR_ID, JANITOR_SHOP);
     }
-    // 家族调理师商店
+    // 家族保姆商店
     {
       ShopContent.customEntries.put(
           ModRoles.NUTRITIONIST_ID, NUTRITIONIST_SHOP);
+    }
+    // 家族保护伞商店
+    {
+      ShopContent.customEntries.put(
+          ModRoles.PARASOL_ID, PARASOL_SHOP);
     }
     // 咒法师商店
     {
@@ -2442,10 +2448,12 @@ public class RoleShopHandler {
         ShopEntry.Type.TOOL));
 
     // ==================== 教父商店 ====================
-    // 子弹 - 225金币（右键装填或购买时自动装填）
+    // 开锁器 - 150金币
+    GODFATHER_SHOP.add(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), 150, ShopEntry.Type.TOOL));
+    // 子弹 - 250金币（右键装填或购买时自动装填）
     GODFATHER_SHOP.add(new ShopEntry(
         ModItems.BULLET.getDefaultInstance(),
-        225,
+        250,
         ShopEntry.Type.WEAPON) {
       @Override
       public boolean onBuy(@NotNull Player player) {
@@ -2460,20 +2468,24 @@ public class RoleShopHandler {
     MAFIOSO_SHOP.add(new ShopEntry(TMMItems.REVOLVER.getDefaultInstance(), 225, ShopEntry.Type.WEAPON));
 
     // ==================== 家族侍卫商店 ====================
-    // 飞刀 - 130金币
-    JANITOR_SHOP.add(new ShopEntry(ModItems.THROWING_KNIFE.getDefaultInstance(), 130, ShopEntry.Type.WEAPON));
+    // 飞刀 - 180金币
+    JANITOR_SHOP.add(new ShopEntry(ModItems.THROWING_KNIFE.getDefaultInstance(), 180, ShopEntry.Type.WEAPON));
+    // 关灯 - 200金币
+    JANITOR_SHOP.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), 200, ShopEntry.Type.TOOL));
     // 短管霰弹枪 - 250金币
     JANITOR_SHOP.add(new ShopEntry(ModItems.SHORT_SHOTGUN.getDefaultInstance(), 250, ShopEntry.Type.WEAPON));
 
-    // ==================== 家族调理师商店 ====================
-    // 毒药试剂 - 100金币
-    NUTRITIONIST_SHOP.add(new ShopEntry(TMMItems.POISON_VIAL.getDefaultInstance(), 100, ShopEntry.Type.WEAPON));
-    // 喷溅型速度3 - 275金币
+    // ==================== 家族保姆商店 ====================
+    // 护盾试剂 - 325金币
+    NUTRITIONIST_SHOP.add(new ShopEntry(TMMItems.DEFENSE_VIAL.getDefaultInstance(), 325, ShopEntry.Type.WEAPON));
+    // 毒药试剂 - 150金币
+    NUTRITIONIST_SHOP.add(new ShopEntry(TMMItems.POISON_VIAL.getDefaultInstance(), 150, ShopEntry.Type.WEAPON));
+    // 喷溅型速度3 - 275金币 (持续5秒)
     {
       var SPEED_SPLASH = Items.SPLASH_POTION.getDefaultInstance();
       var speedList = List.of(new MobEffectInstance(
           MobEffects.MOVEMENT_SPEED,
-          60 * 20,
+          5 * 20,
           2,
           false,
           true,
@@ -2500,7 +2512,23 @@ public class RoleShopHandler {
       IMMOBILE_SPLASH.set(DataComponents.POTION_CONTENTS, immobileContent);
       NUTRITIONIST_SHOP.add(new ShopEntry(IMMOBILE_SPLASH, 275, ShopEntry.Type.WEAPON));
     }
-    // 喷溅型无限体力药水 - 200金币
+    // 喷溅型无碰撞药水 - 175金币 (持续20秒)
+    {
+      var NOCLIP_SPLASH = Items.SPLASH_POTION.getDefaultInstance();
+      var noclipList = List.of(new MobEffectInstance(
+          ModEffects.NO_COLLIDE,
+          20 * 20, // 20秒
+          0,
+          false,
+          true,
+          true
+      ));
+      var noclipContent = new PotionContents(Optional.empty(), Optional.of(0x00FF7F),
+          noclipList);
+      NOCLIP_SPLASH.set(DataComponents.POTION_CONTENTS, noclipContent);
+      NUTRITIONIST_SHOP.add(new ShopEntry(NOCLIP_SPLASH, 175, ShopEntry.Type.WEAPON));
+    }
+    // 喷溅型无限体力药水 - 200金币 (持续15秒)
     {
       var STAMINA_SPLASH = Items.SPLASH_POTION.getDefaultInstance();
       var staminaList = List.of(new MobEffectInstance(
@@ -2516,6 +2544,14 @@ public class RoleShopHandler {
       STAMINA_SPLASH.set(DataComponents.POTION_CONTENTS, staminaContent);
       NUTRITIONIST_SHOP.add(new ShopEntry(STAMINA_SPLASH, 200, ShopEntry.Type.WEAPON));
     }
+
+    // ==================== 家族保护伞商店 ====================
+    // 手榴弹 - 425金币
+    PARASOL_SHOP.add(new ShopEntry(TMMItems.GRENADE.getDefaultInstance(), 425, ShopEntry.Type.WEAPON));
+    // 烟雾弹 - 175金币
+    PARASOL_SHOP.add(new ShopEntry(ModItems.SMOKE_GRENADE.getDefaultInstance(), 175, ShopEntry.Type.WEAPON));
+    // 闪光弹 - 125金币
+    PARASOL_SHOP.add(new ShopEntry(ModItems.FLASH_GRENADE.getDefaultInstance(), 125, ShopEntry.Type.WEAPON));
 
     // ==================== 咒法师商店 ====================
     // 刀 - 130金币

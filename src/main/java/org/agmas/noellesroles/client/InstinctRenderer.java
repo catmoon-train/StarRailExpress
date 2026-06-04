@@ -869,19 +869,19 @@ public class InstinctRenderer {
                 // return (ModRoles.EXECUTIONER.color());
                 // }
 
-                // 家族本能透视（仅20格范围内）
+                // 家族本能透视
                 if (self_role != null && self_role.isMafiaTeam() && SREClient.isPlayerAliveAndInSurvival()) {
                     if (target_role != null && target_role.isMafiaTeam()) {
-                        // 距离检查：只透视20格范围内的家族成员
-                        if (self.distanceTo(target_player) > 20.0D) {
-                            return -2;
-                        }
-                        // 教父显示天蓝色
+                        // 家族成员透视家族成员 - 无距离限制
                         if (SREClient.gameComponent.isRole(target_player, ModRoles.GODFATHER)) {
                             return new Color(135, 206, 235).getRGB(); // 天蓝色
                         }
                         // 其他家族成员显示棕色
                         return new Color(139, 69, 19).getRGB(); // 棕色
+                    }
+                    // 家族成员透视非家族成员 - 20格距离限制
+                    if (self.distanceTo(target_player) > 20.0D) {
+                        return -2;
                     }
                 }
 

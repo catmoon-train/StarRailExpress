@@ -255,6 +255,7 @@ public class ModRoles {
     public static ResourceLocation MAFIOSO_ID = Noellesroles.id("mafioso");
     public static ResourceLocation JANITOR_ID = Noellesroles.id("janitor");
     public static ResourceLocation NUTRITIONIST_ID = Noellesroles.id("nutritionist");
+    public static ResourceLocation PARASOL_ID = Noellesroles.id("parasol");
     public static final ResourceLocation NIAN_SHOU_ID = Noellesroles.id("nianshou");
     public static final ResourceLocation OLDMAN_ID = Noellesroles.id("oldman");
     public static final ResourceLocation THIEF_ID = Noellesroles.id("thief");
@@ -1183,6 +1184,11 @@ public class ModRoles {
             .setCanSeeCoin(true).setMax(0).setCanBeRandomedByOtherRoles(false).setMafiaTeam(true);
     public static SRERole NUTRITIONIST = TMMRoles
             .registerRole(new NormalRole(NUTRITIONIST_ID, new Color(50, 205, 50).getRGB(), false,
+                    false, SRERole.MoodType.FAKE, TMMRoles.CIVILIAN.getMaxSprintTime() * 2, true))
+            .setNeutrals(true).setCanSeeTeammateKiller(false).setCanUseInstinct(true)
+            .setCanSeeCoin(true).setMax(0).setCanBeRandomedByOtherRoles(false).setMafiaTeam(true);
+    public static SRERole PARASOL = TMMRoles
+            .registerRole(new NormalRole(PARASOL_ID, new Color(0, 139, 139).getRGB(), false,
                     false, SRERole.MoodType.FAKE, TMMRoles.CIVILIAN.getMaxSprintTime() * 2, true))
             .setNeutrals(true).setCanSeeTeammateKiller(false).setCanUseInstinct(true)
             .setCanSeeCoin(true).setMax(0).setCanBeRandomedByOtherRoles(false).setMafiaTeam(true);
