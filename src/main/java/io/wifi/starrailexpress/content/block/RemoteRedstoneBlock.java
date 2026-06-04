@@ -1,7 +1,8 @@
 package io.wifi.starrailexpress.content.block;
 
-import com.mojang.serialization.MapCodec;
+import org.jetbrains.annotations.Nullable;
 
+import com.mojang.serialization.MapCodec;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.content.block.entity.RemoteRedstoneBlockEntity;
 import io.wifi.starrailexpress.index.DevItems;
@@ -13,6 +14,7 @@ import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
@@ -32,7 +34,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
@@ -42,128 +43,215 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class RemoteRedstoneBlock extends RedstoneTorchBlock implements EntityBlock, SimpleWaterloggedBlock {
     private static final MapCodec<RedstoneTorchBlock> CODEC = simpleCodec(RemoteRedstoneBlock::new);
+
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     public static final BooleanProperty TRIGGERED = BooleanProperty.create("triggered");
-
-    protected int getSignal(BlockState blockState, BlockGetter blockGetter, BlockPos blockPos, Direction direction) {
-        return !blockState.getValue(LIT) && blockState.getValue(TRIGGERED) ? 15 : 0;
-    }
-
-    @Override
-    protected BlockState updateShape(BlockState blockState, Direction direction, BlockState blockState2,
-            LevelAccessor levelAccessor, BlockPos blockPos, BlockPos blockPos2) {
-        if ((Boolean) blockState.getValue(WATERLOGGED)) {
-            levelAccessor.scheduleTick(blockPos, Fluids.WATER, Fluids.WATER.getTickDelay(levelAccessor));
-        }
-
-        return super.updateShape(blockState, direction, blockState2, levelAccessor, blockPos, blockPos2);
-    }
+    // 是否需要延迟更新邻居（红石信号输出更新）
+    public static final BooleanProperty PENDING_NEIGHBOR_UPDATE = BooleanProperty.create("pending_neighbor_update");
+    // 是否需要延迟向绑定方块同步状态
+    public static final BooleanProperty PENDING_REMOTE_SYNC = BooleanProperty.create("pending_remote_sync");
 
     public RemoteRedstoneBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(
-                (BlockState) this.defaultBlockState().setValue(LIT, false).setValue(WATERLOGGED, false)
-                        .setValue(TRIGGERED, false));
-    }
-
-    protected boolean canSurvive(BlockState blockState, LevelReader levelReader, BlockPos blockPos) {
-        return true;
-    }
-
-    @Override
-    protected void tick(BlockState blockState, ServerLevel serverLevel, BlockPos blockPos, RandomSource randomSource) {
+                this.defaultBlockState()
+                        .setValue(LIT, false)
+                        .setValue(WATERLOGGED, false)
+                        .setValue(TRIGGERED, false)
+                        .setValue(PENDING_NEIGHBOR_UPDATE, false)
+                        .setValue(PENDING_REMOTE_SYNC, false));
     }
 
     @Override
-    public void animateTick(BlockState blockState, Level level, BlockPos blockPos, RandomSource randomSource) {
-        if (level.isClientSide && SRE.canSeeBarrier()) {
-            if ((blockState.getValue(LIT) || blockState.getValue(TRIGGERED))) {
-                double d = (double) blockPos.getX() + (double) 0.5F + (randomSource.nextDouble() - (double) 0.5F) * 0.2;
-                double e = (double) blockPos.getY() + 0.7 + (randomSource.nextDouble() - (double) 0.5F) * 0.2;
-                double f = (double) blockPos.getZ() + (double) 0.5F + (randomSource.nextDouble() - (double) 0.5F) * 0.2;
-                level.addParticle(DustParticleOptions.REDSTONE, d, e, f, (double) 0.0F, (double) 0.0F, (double) 0.0F);
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        builder.add(WATERLOGGED, LIT, TRIGGERED, PENDING_NEIGHBOR_UPDATE, PENDING_REMOTE_SYNC);
+    }
+
+    @Override
+    public MapCodec<? extends RedstoneTorchBlock> codec() {
+        return CODEC;
+    }
+
+    // ======================= 红石信号输出 =======================
+    @Override
+    protected int getSignal(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
+        // 当本地没有红石输入（LIT=false）且被远程触发（TRIGGERED=true）时，输出强信号15
+        return !state.getValue(LIT) && state.getValue(TRIGGERED) ? 15 : 0;
+    }
+
+    @Override
+    protected boolean hasNeighborSignal(Level level, BlockPos pos, BlockState state) {
+        // 只检测下方红石信号（可选，根据需求调整）
+        return level.hasNeighborSignal(pos.below());
+    }
+
+    // ======================= 核心逻辑：邻居变化（本地红石输入） =======================
+    @Override
+    public void neighborChanged(BlockState state, Level world, BlockPos pos, Block neighborBlock,
+            BlockPos neighborPos, boolean movedByPiston) {
+        if (world.isClientSide)
+            return;
+        // 忽略自身更新
+        if (neighborPos.equals(pos))
+            return;
+
+        boolean currentlyTriggered = state.getValue(TRIGGERED);
+        // 有远程信号，放弃更新
+        if (currentlyTriggered)
+            return;
+        // 检测当前方块是否接收到红石信号
+        boolean isPowered = world.hasNeighborSignal(pos);
+        boolean currentlyLit = state.getValue(LIT);
+        if (isPowered != currentlyLit) {
+            // 本地红石状态变化：更新 LIT，并标记需要延迟处理远程同步和邻居更新
+            BlockState newState = state.setValue(LIT, isPowered)
+                    .setValue(PENDING_REMOTE_SYNC, true)
+                    .setValue(PENDING_NEIGHBOR_UPDATE, true);
+            world.setBlock(pos, newState, Block.UPDATE_CLIENTS);
+            // 调度一个 tick 来执行后续操作（防止链式更新）
+            if (!world.getBlockTicks().willTickThisTick(pos, this)) {
+                world.scheduleTick(pos, this, 1);
             }
-            BlockParticleOption particleEffect = new BlockParticleOption(ParticleTypes.BLOCK_MARKER, blockState);
-            level.addAlwaysVisibleParticle(particleEffect, blockPos.getX() + 0.5, blockPos.getY() + 0.5,
-                    blockPos.getZ() + 0.5,
-                    (double) 0.0F,
-                    (double) 0.0F, (double) 0.0F);
-
         }
     }
 
-    @Override
-    protected boolean hasNeighborSignal(Level level, BlockPos blockPos, BlockState blockState) {
-        return level.hasNeighborSignal(blockPos.below());
-    }
+    // ======================= 远程同步触发 =======================
+    /**
+     * 被远程配对方块调用，更新当前方块的远程触发状态。
+     */
+    public void onRemoteTrigger(BlockState state, Level world, BlockPos pos, boolean triggered) {
+        if (world.isClientSide)
+            return;
+        if (triggered && state.getValue(LIT)) {
+            return;
+        }
+        boolean currentTriggered = state.getValue(TRIGGERED);
+        if (triggered == currentTriggered)
+            return;
+        // 消失但是附近有红石信号
 
-    @Override
-    public void neighborChanged(BlockState state, Level world, BlockPos pos, Block block, BlockPos fromPos,
-            boolean notify) {
-        if (!world.isClientSide) {
+        BlockState newState = state.setValue(TRIGGERED, triggered)
+                .setValue(PENDING_NEIGHBOR_UPDATE, true);
+        if (!triggered) {
             boolean isPowered = world.hasNeighborSignal(pos);
-            if (isPowered != state.getValue(LIT) && !state.getValue(TRIGGERED)) {
-                state = state.setValue(LIT, isPowered);
-                world.setBlock(pos, state, 2);
-                tryTriggerRemote(state, world, pos, block, fromPos, isPowered);
-            }
+            newState = newState.setValue(LIT, true);
+        }
+        world.setBlock(pos, newState, Block.UPDATE_CLIENTS);
+        if (!world.getBlockTicks().willTickThisTick(pos, this)) {
+            world.scheduleTick(pos, this, 1);
         }
     }
 
-    public RemoteRedstoneBlockEntity getBlockEntity(Level world, BlockPos pos) {
-        if (world.getBlockEntity(pos) instanceof RemoteRedstoneBlockEntity r)
-            return r;
-        return null;
-    }
+    // ======================= 延迟处理 tick =======================
+    @Override
+    public void tick(BlockState state, ServerLevel world, BlockPos pos, RandomSource random) {
+        boolean needRemoteSync = state.getValue(PENDING_REMOTE_SYNC);
+        boolean needNeighborUpdate = state.getValue(PENDING_NEIGHBOR_UPDATE);
 
-    public void tryTriggerRemote(BlockState state, Level world, BlockPos pos, Block block, BlockPos fromPos,
-            boolean isPowered) {
-        RemoteRedstoneBlockEntity entity = getBlockEntity(world, pos);
-        if (entity != null) {
-            var targetPos = entity.getTargetBlockPos();
-            if (targetPos != null) {
-                BlockState targetState = world.getBlockState(targetPos);
-                if (targetState.getBlock() instanceof RemoteRedstoneBlock rrb) {
-                    rrb.onTriggered(targetState, world, targetPos, isPowered);
+        BlockState newState = state;
+
+        // 1. 向配对方块同步状态（如果本地 LIT 发生了变化）
+        if (needRemoteSync) {
+            newState = newState.setValue(PENDING_REMOTE_SYNC, false);
+            // 获取绑定目标并同步 TRIGGERED 状态
+            RemoteRedstoneBlockEntity be = getBlockEntity(world, pos);
+            if (be != null) {
+                BlockPos targetPos = be.getTargetBlockPos();
+                if (targetPos != null && world.getBlockEntity(targetPos) instanceof RemoteRedstoneBlockEntity) {
+                    BlockState targetState = world.getBlockState(targetPos);
+                    if (targetState.getBlock() instanceof RemoteRedstoneBlock targetBlock) {
+                        // 目标方块的 TRIGGERED 应该等于本地 LIT 值（非取反）
+                        boolean shouldTrigger = newState.getValue(LIT);
+                        targetBlock.onRemoteTrigger(targetState, world, targetPos, shouldTrigger);
+                    }
                 }
             }
         }
-    }
 
-    public void onTriggered(BlockState state, Level world, BlockPos pos, boolean isPowered) {
-        if (isPowered && state.getValue(LIT)) {
-            return;
+        // 2. 更新邻居（红石信号输出）
+        if (needNeighborUpdate) {
+            newState = newState.setValue(PENDING_NEIGHBOR_UPDATE, false);
+            world.updateNeighborsAt(pos, this);
+            world.updateNeighbourForOutputSignal(pos, this);
         }
-        world.setBlock(pos, state.setValue(TRIGGERED, isPowered), 2);
-        world.updateNeighborsAt(pos, this); // 更新周围方块（红石粉、机器等）
-        // 对于比较器侧面检测，可以额外更新比较器
-        world.updateNeighbourForOutputSignal(pos, this);
+
+        // 如果状态有变化，应用新的 BlockState（通常只有标志位清除，但必须 setBlock 才能持久化）
+        if (needRemoteSync || needNeighborUpdate) {
+            world.setBlock(pos, newState, Block.UPDATE_CLIENTS);
+        }
     }
 
-    @Override
-    protected FluidState getFluidState(BlockState blockState) {
-        return blockState.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(blockState);
+    // ======================= 辅助方法 =======================
+    @Nullable
+    private RemoteRedstoneBlockEntity getBlockEntity(Level world, BlockPos pos) {
+        BlockEntity be = world.getBlockEntity(pos);
+        return be instanceof RemoteRedstoneBlockEntity ? (RemoteRedstoneBlockEntity) be : null;
     }
 
+    // ======================= 方块实体相关 =======================
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new RemoteRedstoneBlockEntity(pos, state);
     }
 
+    // ======================= 水逻辑 =======================
     @Override
-    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(new Property[] { WATERLOGGED, LIT, TRIGGERED });
+    protected FluidState getFluidState(BlockState state) {
+        return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
     }
 
     @Override
-    protected VoxelShape getShape(BlockState blockState, BlockGetter blockGetter, BlockPos blockPos,
-            CollisionContext collisionContext) {
-        return collisionContext.isHoldingItem(TMMBlocks.REMOTE_REDSTONE.asItem())
-                || collisionContext.isHoldingItem(DevItems.BINDING_TOOL)
-                || collisionContext.isHoldingItem(Items.REDSTONE)
-                || collisionContext.isHoldingItem(Items.DEBUG_STICK) ? Shapes.block() : Shapes.empty();
+    protected BlockState updateShape(BlockState state, Direction direction, BlockState neighborState,
+            LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
+        if (state.getValue(WATERLOGGED)) {
+            level.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+        }
+        return super.updateShape(state, direction, neighborState, level, pos, neighborPos);
     }
 
+    // ======================= 放置与生存条件 =======================
+    @Override
+    protected boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
+        return true; // 可放置在任意位置（类似红石火把可悬空）
+    }
+
+    // ======================= 视觉效果 =======================
+    @Override
+    public void animateTick(BlockState state, Level level, BlockPos pos, RandomSource random) {
+        if (!level.isClientSide || !SRE.canSeeBarrier())
+            return;
+
+        if (state.getValue(LIT) || state.getValue(TRIGGERED)) {
+            double x = pos.getX() + 0.5 + (random.nextDouble() - 0.5) * 0.2;
+            double y = pos.getY() + 0.7 + (random.nextDouble() - 0.5) * 0.2;
+            double z = pos.getZ() + 0.5 + (random.nextDouble() - 0.5) * 0.2;
+            level.addParticle(DustParticleOptions.REDSTONE, x, y, z, 0, 0, 0);
+        }
+
+        BlockParticleOption marker = new BlockParticleOption(ParticleTypes.BLOCK_MARKER, state);
+        level.addAlwaysVisibleParticle(marker,
+                pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5,
+                0, 0, 0);
+    }
+
+    @Override
+    protected RenderShape getRenderShape(BlockState state) {
+        return RenderShape.INVISIBLE;
+    }
+
+    @Override
+    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        // 手持特定物品时才显示轮廓
+        if (context.isHoldingItem(TMMBlocks.REMOTE_REDSTONE.asItem()) ||
+                context.isHoldingItem(DevItems.BINDING_TOOL) ||
+                context.isHoldingItem(Items.REDSTONE) ||
+                context.isHoldingItem(Items.DEBUG_STICK)) {
+            return Shapes.block();
+        }
+        return Shapes.empty();
+    }
+
+    // ======================= 玩家交互 =======================
     @Override
     public InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player,
             BlockHitResult hit) {
@@ -180,33 +268,12 @@ public class RemoteRedstoneBlock extends RedstoneTorchBlock implements EntityBlo
     }
 
     public static void sendTip(Player player, Level world, BlockPos pos) {
-        if (world.getBlockEntity(pos) instanceof RemoteRedstoneBlockEntity cbe) {
-            if (cbe.getTargetBlockPos() == null) {
-                player.displayClientMessage(
-                        Component
-                                .translatable("message.block.starrailexpress.remote_redstone.info",
-                                        Component.translatable(
-                                                "message.block.starrailexpress.remote_redstone.info.none"))
-                                .withStyle(ChatFormatting.YELLOW),
-                        true);
-            } else {
-
-                player.displayClientMessage(
-                        Component
-                                .translatable("message.block.starrailexpress.remote_redstone.info",
-                                        cbe.getTargetBlockPos().toShortString())
-                                .withStyle(ChatFormatting.YELLOW),
-                        true);
-            }
+        if (world.getBlockEntity(pos) instanceof RemoteRedstoneBlockEntity be) {
+            BlockPos target = be.getTargetBlockPos();
+            MutableComponent msg = Component.translatable("message.block.starrailexpress.remote_redstone.info",
+                    target != null ? target.toShortString()
+                            : Component.translatable("message.block.starrailexpress.remote_redstone.info.none"));
+            player.displayClientMessage(msg.withStyle(ChatFormatting.YELLOW), true);
         }
-    }
-
-    protected RenderShape getRenderShape(BlockState blockState) {
-        return RenderShape.INVISIBLE;
-    }
-
-    @Override
-    public MapCodec<? extends RedstoneTorchBlock> codec() {
-        return CODEC;
     }
 }

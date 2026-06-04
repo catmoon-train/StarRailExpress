@@ -105,7 +105,7 @@ public record BanditRevolverShootPayload(int target) implements CustomPacketPayl
 
                 if (!player.isCreative()) {
                     if (ShootingFrenzyPlayerComponent.isInFrenzy(player)) {
-                        player.getCooldowns().addCooldown(ModItems.BANDIT_REVOLVER, 20 * 2);
+                        player.getCooldowns().addCooldown(ModItems.BANDIT_REVOLVER, 20 * 5);
                     }else{
                         player.getCooldowns().addCooldown(ModItems.BANDIT_REVOLVER, GameConstants.getRevolverDefaultTicks());
                     }
