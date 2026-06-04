@@ -2755,7 +2755,7 @@
   "announcement.star.goals.pelican": "Swallow 70% - 1 of starting players (each counted once) to achieve an independent victory!",
   "announcement.star.win.pelican": "Pelican Wins!",
   "game.win.star.pelican": "The Pelican swallowed enough players and achieved a solo victory!",
-  "info.screen.roleid.pelican": "Solo Neutral\nIndependent from both killers and civilians.\nSkill: Press ability key to swallow a living player within 3.15 blocks.\nCrouch+ability: Release the last swallowed player.\nWin condition: Swallow 70% - 1 of starting players (each player counted once).\nInstinct range: 25 blocks.\nSwallowed players can only voice chat with the Pelican and other swallowed players.\nOnly appears in games with 12+ players.",
+  "info.screen.roleid.pelican": "Solo Neutral\nIndependent from both killers and civilians.\nSkill: Press ability key to swallow a living player within 2.15 blocks.\nCrouch+ability: Release the last swallowed player.\nWin condition: Swallow 70% - 1 of starting players (each player counted once).\nInstinct range: 25 blocks.\nSwallowed players can only voice chat with the Pelican and other swallowed players.\nOnly appears in games with 12+ players.",
   "message.noellesroles.pelican.swallowed": "You swallowed %s! (%s/%s)",
   "message.noellesroles.pelican.cooldown": "Swallow on cooldown, %s seconds remaining",
   "message.noellesroles.pelican.belly_empty": "Your belly is empty",

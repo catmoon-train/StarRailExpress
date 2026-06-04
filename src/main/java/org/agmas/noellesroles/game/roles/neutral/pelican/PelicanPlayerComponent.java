@@ -35,7 +35,7 @@ public class PelicanPlayerComponent implements RoleComponent, ServerTickingCompo
             ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "pelican"),
             PelicanPlayerComponent.class);
 
-    private static final double EAT_RANGE = 3.15D;
+    private static final double EAT_RANGE = 2.15D;
     public static final int INSTINCT_RANGE = 25;
 
     private final Player player;

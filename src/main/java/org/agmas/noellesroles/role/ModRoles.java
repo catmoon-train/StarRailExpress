@@ -1155,7 +1155,7 @@ public class ModRoles {
      * 鹈鹕角色 (Pelican)
      * - 独立胜利中立阵营 (isInnocent = false, canUseKiller = false, setNeutrals(true))
      * - 不帮助杀手阵营 (setNeutralForKiller(false))
-     * - 技能：吞噬面前3.15格内的存活玩家进肚子里
+     * - 技能：吞噬面前2.15格内的存活玩家进肚子里
      * - 蹲下+技能：释放最后吞噬的玩家
      * - 胜利条件：吞噬开局玩家数80%的玩家
      * - 本能透视范围：25格

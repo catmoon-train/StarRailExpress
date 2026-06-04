@@ -921,9 +921,9 @@ public class ModPacketsReciever {
             if (player.isShiftKeyDown()) {
                 comp.releaseLast();
             } else {
-                // 寻找3.15格内有视线的最近存活玩家
+                // 寻找2.15格内有视线的最近存活玩家
                 ServerPlayer target = null;
-                double closest = 3.15D * 3.15D;
+                double closest = 2.15D * 2.15D;
                 for (ServerPlayer p : player.serverLevel().getPlayers(p -> p != player && GameUtils.isPlayerAliveAndSurvival(p))) {
                     double dist = player.distanceToSqr(p);
                     if (dist < closest && player.hasLineOfSight(p)) {
