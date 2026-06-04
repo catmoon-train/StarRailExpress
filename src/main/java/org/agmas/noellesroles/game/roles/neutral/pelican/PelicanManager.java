@@ -21,6 +21,8 @@ public final class PelicanManager {
     private static final Map<UUID, UUID> pelicanByStashed = new ConcurrentHashMap<>();
     private static final Map<UUID, Deque<UUID>> stashedByPelican = new ConcurrentHashMap<>();
     private static final Map<UUID, GameType> stashedPreviousGameMode = new ConcurrentHashMap<>();
+    // 标记在鹈鹕肚内死亡的玩家，防止后续释放逻辑把他们复活
+    private static final Set<UUID> stashedDead = ConcurrentHashMap.newKeySet();
     private static int stashedStateSyncTicker = 0;
     private static final int STASHED_STATE_SYNC_INTERVAL_TICKS = 10;
 
@@ -104,13 +106,22 @@ public final class PelicanManager {
                     stashedByPelican.remove(pelicanId);
             }
         }
-
         GameType restoreMode = stashedPreviousGameMode.getOrDefault(targetId, GameType.ADVENTURE);
         stashedPreviousGameMode.remove(targetId);
 
         // 恢复聊天并清除 DeathPenalty/起搏器
         DeathPenaltyComponent.KEY.get(target).init();
         DefibrillatorComponent.KEY.get(target).init();
+
+        // 如果该玩家在被释放前已经在肚内死亡，则不尝试复活/改变其游戏模式或传送，
+        // 以免后续释放（例如鹈鹕死亡）将其复活。仅清理跟踪状态并触发语音释放。
+        if (stashedDead.contains(targetId)) {
+            stashedDead.remove(targetId);
+            target.setInvisible(false);
+            target.connection.send(new ClientboundSetCameraPacket(target));
+            NoellesrolesVoiceChatPlugin.onPelicanRelease(targetId);
+            return;
+        }
 
         target.setGameMode(restoreMode == GameType.SPECTATOR ? GameType.ADVENTURE : restoreMode);
         target.setInvisible(false);
@@ -217,6 +228,9 @@ public final class PelicanManager {
         }
         stashedPreviousGameMode.remove(targetId);
 
+        // 标记该玩家在肚内已死亡，后续任何释放流程都不应尝试复活或改变其死亡状态
+        stashedDead.add(targetId);
+
         // 恢复聊天并清除 DeathPenalty/起搏器
         DeathPenaltyComponent.KEY.get(target).init();
         DefibrillatorComponent.KEY.get(target).init();
@@ -243,16 +257,26 @@ public final class PelicanManager {
                 // 恢复聊天并清除 DeathPenalty/起搏器
                 DeathPenaltyComponent.KEY.get(target).init();
                 DefibrillatorComponent.KEY.get(target).init();
-
-                target.setGameMode(GameType.ADVENTURE);
+            // 如果该玩家在肚内已死亡，跳过复活/改模式/传送。
+            if (stashedDead.contains(targetId)) {
+                stashedDead.remove(targetId);
                 target.setInvisible(false);
-                target.teleportTo(pelican.serverLevel(), pelican.getX(), pelican.getY(), pelican.getZ(),
-                        pelican.getYRot(), pelican.getXRot());
                 target.connection.send(new ClientboundSetCameraPacket(target));
                 NoellesrolesVoiceChatPlugin.onPelicanRelease(targetId);
                 target.displayClientMessage(
-                        Component.translatable("message.noellesroles.pelican.spat_out_dead"),
-                        true);
+                    Component.translatable("message.noellesroles.pelican.spat_out_dead"),
+                    true);
+            } else {
+                target.setGameMode(GameType.ADVENTURE);
+                target.setInvisible(false);
+                target.teleportTo(pelican.serverLevel(), pelican.getX(), pelican.getY(), pelican.getZ(),
+                    pelican.getYRot(), pelican.getXRot());
+                target.connection.send(new ClientboundSetCameraPacket(target));
+                NoellesrolesVoiceChatPlugin.onPelicanRelease(targetId);
+                target.displayClientMessage(
+                    Component.translatable("message.noellesroles.pelican.spat_out_dead"),
+                    true);
+            }
             }
             belly.remove(targetId);
         }

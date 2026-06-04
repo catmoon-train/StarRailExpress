@@ -19,6 +19,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Items;
 import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.Noellesroles;
+import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
@@ -201,35 +202,38 @@ public class WaterGhostPlayerComponent implements RoleComponent, ServerTickingCo
                 // shouldSync = true;
             }
         } else {
-            // 不在水中，增加计时器
-            outOfWaterTimer++;
+            // 不在水中，检查是否处于安全时间（安全时间内不进行干涸倒计时）
+            if (!serverPlayer.hasEffect(ModEffects.SAFE_TIME)) {
+                // 不在水中且不在安全时间，增加计时器
+                outOfWaterTimer++;
 
-            // 检查是否需要警告（30秒、60秒）
-            if (outOfWaterTimer == 30 * 20) {
-                serverPlayer.displayClientMessage(
-                        Component.translatable("message.noellesroles.water_ghost.warning_30s")
-                                .withStyle(ChatFormatting.YELLOW),
-                        true);
-                shouldSync = true;
-            } else if (outOfWaterTimer == 60 * 20) {
-                serverPlayer.displayClientMessage(
-                        Component.translatable("message.noellesroles.water_ghost.warning_60s")
-                                .withStyle(ChatFormatting.RED),
-                        true);
-                shouldSync = true;
-            }
+                // 检查是否需要警告（30秒、60秒）
+                if (outOfWaterTimer == 30 * 20) {
+                    serverPlayer.displayClientMessage(
+                            Component.translatable("message.noellesroles.water_ghost.warning_30s")
+                                    .withStyle(ChatFormatting.YELLOW),
+                            true);
+                    shouldSync = true;
+                } else if (outOfWaterTimer == 60 * 20) {
+                    serverPlayer.displayClientMessage(
+                            Component.translatable("message.noellesroles.water_ghost.warning_60s")
+                                    .withStyle(ChatFormatting.RED),
+                            true);
+                    shouldSync = true;
+                }
 
-            // 检查是否干涸死亡
-            if (outOfWaterTimer >= DRY_DEATH_TIME) {
-                // 死亡
-                GameUtils.killPlayer(serverPlayer, true, null,
-                        Noellesroles.id("dry_death"));
-                return;
-            }
+                // 检查是否干涸死亡
+                if (outOfWaterTimer >= DRY_DEATH_TIME) {
+                    // 死亡
+                    GameUtils.killPlayer(serverPlayer, true, null,
+                            Noellesroles.id("dry_death"));
+                    return;
+                }
 
-            // 每10秒同步一次
-            if (outOfWaterTimer % 200 == 0) {
-                shouldSync = true;
+                // 每10秒同步一次
+                if (outOfWaterTimer % 200 == 0) {
+                    shouldSync = true;
+                }
             }
         }
 
