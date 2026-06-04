@@ -156,22 +156,22 @@ public class RemoteRedstoneBlock extends RedstoneTorchBlock implements EntityBlo
 
     public static void sendTip(Player player, Level world, BlockPos pos) {
         if (world.getBlockEntity(pos) instanceof RemoteRedstoneBlockEntity cbe) {
-            if(cbe.getTargetBlockPos()==null){
+            if (cbe.getTargetBlockPos() == null) {
+                player.displayClientMessage(
+                        Component
+                                .translatable("message.block.starrailexpress.remote_redstone.info",
+                                        Component.translatable(
+                                                "message.block.starrailexpress.remote_redstone.info.none"))
+                                .withStyle(ChatFormatting.YELLOW),
+                        true);
+            } else {
 
-            player.displayClientMessage(
-                    Component
-                            .translatable("message.block.starrailexpress.remote_redstone.info",
-                                    Component.translatable("message.block.starrailexpress.remote_redstone.info.none"))
-                            .withStyle(ChatFormatting.YELLOW),
-                    true);
-            }else{
-
-            player.displayClientMessage(
-                    Component
-                            .translatable("message.block.starrailexpress.remote_redstone.info",
-                                    cbe.getTargetBlockPos().toShortString())
-                            .withStyle(ChatFormatting.YELLOW),
-                    true);
+                player.displayClientMessage(
+                        Component
+                                .translatable("message.block.starrailexpress.remote_redstone.info",
+                                        cbe.getTargetBlockPos().toShortString())
+                                .withStyle(ChatFormatting.YELLOW),
+                        true);
             }
         }
     }
