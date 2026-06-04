@@ -36,72 +36,6 @@ public class NoellesrolesVoiceChatPlugin implements VoicechatPlugin {
     VoicechatPlugin.super.initialize(api);
   }
 
-  public void vtMode_Static(StaticSoundPacketEvent event) {
-    // VoicechatServerApi api = event.getVoicechat();
-    VoicechatConnection senderConnection = event.getSenderConnection();
-    VoicechatConnection receiverConnection = event.getReceiverConnection();
-    if (senderConnection == null || receiverConnection == null)
-      return;
-
-    if (!(senderConnection.getPlayer().getPlayer() instanceof Player senderPlayer))
-      return;
-    if (!(receiverConnection.getPlayer().getPlayer() instanceof Player receiverPlayer))
-      return;
-
-    var pvc = PlayerVolumeComponent.KEY.get(receiverPlayer);
-    if (receiverPlayer.isSpectator() && pvc.vtMode) {
-      if (senderPlayer.isSpectator()
-          && SREGameWorldComponent.KEY.get(senderPlayer.level()).isRunning()) {
-        event.cancel();
-        return;
-      }
-    }
-  }
-
-  public void vtMode_Entity(EntitySoundPacketEvent event) {
-    // VoicechatServerApi api = event.getVoicechat();
-    VoicechatConnection senderConnection = event.getSenderConnection();
-    VoicechatConnection receiverConnection = event.getReceiverConnection();
-    if (senderConnection == null || receiverConnection == null)
-      return;
-
-    if (!(senderConnection.getPlayer().getPlayer() instanceof Player senderPlayer))
-      return;
-    if (!(receiverConnection.getPlayer().getPlayer() instanceof Player receiverPlayer))
-      return;
-
-    var pvc = PlayerVolumeComponent.KEY.get(receiverPlayer);
-    if (receiverPlayer.isSpectator() && pvc.vtMode) {
-      if (senderPlayer.isSpectator()
-          && SREGameWorldComponent.KEY.get(senderPlayer.level()).isRunning()) {
-        event.cancel();
-        return;
-      }
-    }
-  }
-
-  public void vtMode_Locational(LocationalSoundPacketEvent event) {
-    // VoicechatServerApi api = event.getVoicechat();
-    VoicechatConnection senderConnection = event.getSenderConnection();
-    VoicechatConnection receiverConnection = event.getReceiverConnection();
-    if (senderConnection == null || receiverConnection == null)
-      return;
-
-    if (!(senderConnection.getPlayer().getPlayer() instanceof Player senderPlayer))
-      return;
-    if (!(receiverConnection.getPlayer().getPlayer() instanceof Player receiverPlayer))
-      return;
-
-    var pvc = PlayerVolumeComponent.KEY.get(receiverPlayer);
-    if (receiverPlayer.isSpectator() && pvc.vtMode) {
-      if (senderPlayer.isSpectator()
-          && SREGameWorldComponent.KEY.get(senderPlayer.level()).isRunning()) {
-        event.cancel();
-        return;
-      }
-    }
-  }
-
   public static boolean shouldBanVoice(VoicechatConnection senderConnection, VoicechatConnection receiverConnection) {
     if (senderConnection == null || receiverConnection == null)
       return false;
@@ -129,12 +63,12 @@ public class NoellesrolesVoiceChatPlugin implements VoicechatPlugin {
     if (receiverPlayer.hasEffect(ModEffects.PLAYER_ISOLATION) || senderPlayer.hasEffect(ModEffects.PLAYER_ISOLATION)) {
       return true;
     }
-    // 如果任一玩家被鹈鹕吞噬（肚内/stashed），不要因为死亡惩罚把他们直接拉到死亡语音频道
-    if (PelicanManager.isStashed(senderPlayer) && PelicanManager.isStashed(receiverPlayer)) {
-      return false;
-    }
     var deathPenalty = ModComponents.DEATH_PENALTY.get(receiverPlayer);
     if (deathPenalty.hasPenalty()) {
+      // 如果任一玩家被鹈鹕吞噬（肚内/stashed），不要因为死亡惩罚把他们直接拉到死亡语音频道
+      if (PelicanManager.isStashed(senderPlayer) || PelicanManager.isStashed(receiverPlayer)) {
+        return false;
+      }
       if (deathPenalty.limitCameraUUID != null) {
         return true;
       }
@@ -142,10 +76,18 @@ public class NoellesrolesVoiceChatPlugin implements VoicechatPlugin {
         return true;
       }
     }
+
+    var pvc = PlayerVolumeComponent.KEY.get(receiverPlayer);
+    if (receiverPlayer.isSpectator() && pvc.vtMode) {
+      if (senderPlayer.isSpectator()
+          && SREGameWorldComponent.KEY.get(senderPlayer.level()).isRunning()) {
+        return true;
+      }
+    }
     return false;
   }
 
-  public void timeStopper_Static(StaticSoundPacketEvent event) {
+  public void soundEvent_Static(StaticSoundPacketEvent event) {
     // VoicechatServerApi api = event.getVoicechat();
     VoicechatConnection senderConnection = event.getSenderConnection();
     VoicechatConnection receiverConnection = event.getReceiverConnection();
@@ -155,7 +97,7 @@ public class NoellesrolesVoiceChatPlugin implements VoicechatPlugin {
     }
   }
 
-  public void timeStopper_Entity(EntitySoundPacketEvent event) {
+  public void soundEvent_Entity(EntitySoundPacketEvent event) {
     // VoicechatServerApi api = event.getVoicechat();
     VoicechatConnection senderConnection = event.getSenderConnection();
     VoicechatConnection receiverConnection = event.getReceiverConnection();
@@ -165,7 +107,7 @@ public class NoellesrolesVoiceChatPlugin implements VoicechatPlugin {
     }
   }
 
-  public void timeStopper_Locational(LocationalSoundPacketEvent event) {
+  public void soundEvent_Locational(LocationalSoundPacketEvent event) {
     // VoicechatServerApi api = event.getVoicechat();
     VoicechatConnection senderConnection = event.getSenderConnection();
     VoicechatConnection receiverConnection = event.getReceiverConnection();
@@ -308,9 +250,7 @@ public class NoellesrolesVoiceChatPlugin implements VoicechatPlugin {
         }
       }
     }
-    
 
-    
     // ServerPlayer players = ((ServerPlayer)
     // event.getSenderConnection().getPlayer().getPlayer());
 
@@ -323,7 +263,8 @@ public class NoellesrolesVoiceChatPlugin implements VoicechatPlugin {
    * 获取嬉命人变装时的语音音调，1.0F为正常
    */
   public static float getEmbalmerVoicePitch(Player player) {
-    if (player == null) return 1.0F;
+    if (player == null)
+      return 1.0F;
     return EmbalmerPlayerComponent.getVoicePitch(player);
   }
 
@@ -331,7 +272,8 @@ public class NoellesrolesVoiceChatPlugin implements VoicechatPlugin {
    * 鹈鹕吞噬时调用 - 将被吞玩家移出任何语音组，防止被自动拉入死者频道
    */
   public static void onPelicanStash(UUID targetId, UUID pelicanId) {
-    if (SERVER_API == null) return;
+    if (SERVER_API == null)
+      return;
     VoicechatConnection con = SERVER_API.getConnectionOf(targetId);
     if (con != null) {
       con.setGroup(null);
@@ -342,7 +284,8 @@ public class NoellesrolesVoiceChatPlugin implements VoicechatPlugin {
    * 鹈鹕释放时调用 - 恢复语音分组到默认
    */
   public static void onPelicanRelease(UUID targetId) {
-    if (SERVER_API == null) return;
+    if (SERVER_API == null)
+      return;
     VoicechatConnection con = SERVER_API.getConnectionOf(targetId);
     if (con != null) {
       con.setGroup(null);
@@ -356,13 +299,9 @@ public class NoellesrolesVoiceChatPlugin implements VoicechatPlugin {
     });
     registration.registerEvent(MicrophonePacketEvent.class, this::paranoidEvent);
 
-    registration.registerEvent(LocationalSoundPacketEvent.class, this::timeStopper_Locational);
-    registration.registerEvent(StaticSoundPacketEvent.class, this::timeStopper_Static);
-    registration.registerEvent(EntitySoundPacketEvent.class, this::timeStopper_Entity);
-
-    registration.registerEvent(LocationalSoundPacketEvent.class, this::vtMode_Locational);
-    registration.registerEvent(StaticSoundPacketEvent.class, this::vtMode_Static);
-    registration.registerEvent(EntitySoundPacketEvent.class, this::vtMode_Entity);
+    registration.registerEvent(LocationalSoundPacketEvent.class, this::soundEvent_Locational);
+    registration.registerEvent(StaticSoundPacketEvent.class, this::soundEvent_Static);
+    registration.registerEvent(EntitySoundPacketEvent.class, this::soundEvent_Entity);
     VoicechatPlugin.super.registerEvents(registration);
   }
 }
