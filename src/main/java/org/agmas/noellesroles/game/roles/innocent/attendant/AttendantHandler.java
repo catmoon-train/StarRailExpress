@@ -1,8 +1,6 @@
 package org.agmas.noellesroles.game.roles.innocent.attendant;
 
-import io.wifi.starrailexpress.content.block.NeonPillarBlock;
-import io.wifi.starrailexpress.content.block.NeonTubeBlock;
-import io.wifi.starrailexpress.content.block.ToggleableFacingLightBlock;
+import io.wifi.starrailexpress.content.block.api.LightBlockInterface;
 import io.wifi.starrailexpress.index.TMMSounds;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -44,23 +42,15 @@ public class AttendantHandler {
                     BlockPos pos = new BlockPos(x, y, z);
                     var blockState = level.getBlockState(pos);
                     boolean isDirty = false;
-                    if (blockState.getBlock() instanceof NeonPillarBlock) {
-                        blockState = (BlockState) blockState.setValue(NeonPillarBlock.ACTIVE, true);
-                        blockState = (BlockState) blockState.setValue(NeonPillarBlock.LIT, true);
+                    if (blockState.getBlock() instanceof LightBlockInterface) {
+                        if (!blockState.getOptionalValue(LightBlockInterface.ACTIVE).isEmpty()) {
+                            blockState = (BlockState) blockState.setValue(LightBlockInterface.ACTIVE, true);
+                        }
+                        if (!blockState.getOptionalValue(LightBlockInterface.LIT).isEmpty()) {
+                            blockState = (BlockState) blockState.setValue(LightBlockInterface.LIT, true);
+                        }
                         isDirty = true;
-                    } else if (blockState.getBlock() instanceof NeonTubeBlock) {
-                        blockState = (BlockState) blockState.setValue(NeonTubeBlock.ACTIVE, true);
-                        blockState = (BlockState) blockState.setValue(NeonTubeBlock.LIT, true);
-                        isDirty = true;
-                    } else if (blockState.getBlock() instanceof NeonTubeBlock) {
-                        blockState = (BlockState) blockState.setValue(NeonTubeBlock.ACTIVE, true);
-                        blockState = (BlockState) blockState.setValue(NeonTubeBlock.LIT, true);
-                        isDirty = true;
-                    } else if (blockState.getBlock() instanceof ToggleableFacingLightBlock) {
-                        blockState = (BlockState) blockState.setValue(ToggleableFacingLightBlock.ACTIVE, true);
-                        blockState = (BlockState) blockState.setValue(ToggleableFacingLightBlock.LIT, true);
-                        isDirty = true;
-                    }
+                    } 
                     if (isDirty) {
                         level.setBlockAndUpdate(pos, blockState);
                         lightCount++;

@@ -34,7 +34,6 @@ public class ExecutionerConfirmMixin {
             if (executionerPlayerComponent.target != null
                     && executionerPlayerComponent.target.equals(victim.getUUID())) {
                 executionerPlayerComponent.assignRandomTarget();
-
                 executionerPlayerComponent.sync();
             }
         }

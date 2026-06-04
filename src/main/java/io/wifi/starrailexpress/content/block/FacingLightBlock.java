@@ -1,18 +1,15 @@
 package io.wifi.starrailexpress.content.block;
 
-import io.wifi.starrailexpress.index.TMMProperties;
+import io.wifi.starrailexpress.content.block.api.LightBlockInterface;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import org.jetbrains.annotations.Nullable;
 
-public abstract class FacingLightBlock extends DirectionalBlock {
-
-    public static final BooleanProperty ACTIVE = TMMProperties.ACTIVE;
+public abstract class FacingLightBlock extends DirectionalBlock implements LightBlockInterface {
 
     public FacingLightBlock(Properties settings) {
         super(settings);

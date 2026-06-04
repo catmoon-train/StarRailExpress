@@ -8,6 +8,7 @@ import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.SREWorldBlackoutComponent;
 import io.wifi.starrailexpress.content.block.*;
 import io.wifi.starrailexpress.content.block.api.AutoResetBlockInterface;
+import io.wifi.starrailexpress.content.block.api.LightBlockInterface;
 import io.wifi.starrailexpress.content.block_entity.*;
 import io.wifi.starrailexpress.game.GameUtils.BlockEntityInfo;
 import net.minecraft.ChatFormatting;
@@ -169,13 +170,7 @@ public class ServerTaskInfoClasses {
                                 }
                             } else if (blockState.getBlock() instanceof SprinklerBlock) {
                                 GameUtils.resetPoints.add(blockPos7);
-                            } else if (blockState.getBlock() instanceof NeonPillarBlock) {
-                                GameUtils.resetPoints.add(blockPos7);
-                            } else if (blockState.getBlock() instanceof NeonTubeBlock) {
-                                GameUtils.resetPoints.add(blockPos7);
-                            } else if (blockState.getBlock() instanceof NeonTubeBlock) {
-                                GameUtils.resetPoints.add(blockPos7);
-                            } else if (blockState.getBlock() instanceof ToggleableFacingLightBlock) {
+                            } else if (blockState.getBlock() instanceof LightBlockInterface) {
                                 GameUtils.resetPoints.add(blockPos7);
                             } else if (blockState.getBlock() instanceof VentHatchBlock) {
                                 GameUtils.resetPoints.add(blockPos7);
@@ -375,21 +370,13 @@ public class ServerTaskInfoClasses {
                         blockState = blockState.setValue(SprinklerBlock.POWERED, false);
                         list3.add(new GameUtils.BlockInfo(blockPos7, blockState, blockEntityInfo));
                     }
-                } else if (blockState.getBlock() instanceof NeonPillarBlock) {
-                    blockState = blockState.setValue(NeonPillarBlock.ACTIVE, true);
-                    blockState = blockState.setValue(NeonPillarBlock.LIT, true);
-                    list2.add(new GameUtils.BlockInfo(blockPos7, blockState, null));
-                } else if (blockState.getBlock() instanceof NeonTubeBlock) {
-                    blockState = blockState.setValue(NeonTubeBlock.ACTIVE, true);
-                    blockState = blockState.setValue(NeonTubeBlock.LIT, true);
-                    list2.add(new GameUtils.BlockInfo(blockPos7, blockState, null));
-                } else if (blockState.getBlock() instanceof NeonTubeBlock) {
-                    blockState = blockState.setValue(NeonTubeBlock.ACTIVE, true);
-                    blockState = blockState.setValue(NeonTubeBlock.LIT, true);
-                    list2.add(new GameUtils.BlockInfo(blockPos7, blockState, null));
-                } else if (blockState.getBlock() instanceof ToggleableFacingLightBlock) {
-                    blockState = blockState.setValue(ToggleableFacingLightBlock.ACTIVE, true);
-                    blockState = blockState.setValue(ToggleableFacingLightBlock.LIT, true);
+                } else if (blockState.getBlock() instanceof LightBlockInterface) {
+                    if (!blockState.getOptionalValue(LightBlockInterface.ACTIVE).isEmpty()) {
+                        blockState = (BlockState) blockState.setValue(LightBlockInterface.ACTIVE, true);
+                    }
+                    if (!blockState.getOptionalValue(LightBlockInterface.LIT).isEmpty()) {
+                        blockState = (BlockState) blockState.setValue(LightBlockInterface.LIT, true);
+                    }
                     list2.add(new GameUtils.BlockInfo(blockPos7, blockState, null));
                 } else if (blockState.getBlock() instanceof VentHatchBlock) {
                     blockState = blockState.setValue(VentHatchBlock.OPEN, false);
@@ -435,7 +422,6 @@ public class ServerTaskInfoClasses {
                 serverWorld.getLightEngine().checkBlock(blockInfo.pos());
             }
 
-            @SuppressWarnings("unused")
             int mx = 1;
 
             // Place the doors back

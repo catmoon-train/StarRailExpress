@@ -1,6 +1,6 @@
 package io.wifi.starrailexpress.content.block;
 
-import io.wifi.starrailexpress.index.TMMProperties;
+import io.wifi.starrailexpress.content.block.api.LightBlockInterface;
 import io.wifi.starrailexpress.index.TMMSounds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -16,16 +16,11 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-public class NeonTubeBlock extends BarBlock {
-    public static final BooleanProperty LIT = BlockStateProperties.LIT;
-    public static final BooleanProperty ACTIVE = TMMProperties.ACTIVE;
-
+public class NeonTubeBlock extends BarBlock implements LightBlockInterface {
     protected static final VoxelShape X_SHAPE = Block.box(0, 4, 4, 16, 12, 12);
     protected static final VoxelShape Y_SHAPE = Block.box(4, 0, 4, 12, 16, 12);
     protected static final VoxelShape Z_SHAPE = Block.box(4, 4, 0, 12, 12, 16);
@@ -45,7 +40,8 @@ public class NeonTubeBlock extends BarBlock {
     }
 
     @Override
-    public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor world, BlockPos pos, BlockPos neighborPos) {
+    public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor world,
+            BlockPos pos, BlockPos neighborPos) {
         BlockState updatedState = super.updateShape(state, direction, neighborState, world, pos, neighborPos);
         if (updatedState == null) {
             return null;
@@ -58,7 +54,8 @@ public class NeonTubeBlock extends BarBlock {
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level world, BlockPos pos,
+            Player player, InteractionHand hand, BlockHitResult hit) {
         if (!stack.isEmpty()) {
             return ItemInteractionResult.SKIP_DEFAULT_BLOCK_INTERACTION;
         }
@@ -66,7 +63,8 @@ public class NeonTubeBlock extends BarBlock {
     }
 
     @Override
-    protected InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult hit) {
+    protected InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player,
+            BlockHitResult hit) {
         if (player.isSecondaryUseActive()) {
             return InteractionResult.PASS;
         }
