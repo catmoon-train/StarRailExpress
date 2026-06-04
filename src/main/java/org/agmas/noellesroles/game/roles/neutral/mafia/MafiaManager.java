@@ -13,9 +13,14 @@ import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.index.TMMItems;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
+import org.agmas.noellesroles.events.OnShopPurchase;
 import org.agmas.noellesroles.init.NRSounds;
 import org.agmas.noellesroles.packet.MafiaActionC2SPacket;
 import org.agmas.noellesroles.role.ModRoles;
@@ -26,6 +31,7 @@ import java.util.*;
 public final class MafiaManager {
     private static final Map<UUID, UUID> godfatherByMember = new HashMap<>();
     private static final Map<UUID, SRERole> previousRoleByMember = new HashMap<>();
+    private static final String MAFIA_SHOP_TAG = "sre_mafia_shop_item";
 
     public static void register() {
         PayloadTypeRegistry.playC2S().register(MafiaActionC2SPacket.ID, MafiaActionC2SPacket.CODEC);
@@ -61,6 +67,22 @@ public final class MafiaManager {
                     return false;
             }
             return true;
+        });
+
+        // 家族成员（非教父）从商店购买物品时打上标记，恢复原始身份时清除
+        OnShopPurchase.EVENT.register((player, entry, price) -> {
+            if (!(player instanceof ServerPlayer sp)) return;
+            if (!isMafiaMember(sp) || isGodfather(sp)) return;
+
+            var targetItem = entry.stack().getItem();
+            for (var list : sp.getInventory().compartments) {
+                for (var stack : list) {
+                    if (!stack.isEmpty() && stack.getItem() == targetItem && !isMafiaShopItem(stack)) {
+                        markAsMafiaShopItem(stack);
+                        return;
+                    }
+                }
+            }
         });
     }
 
@@ -115,6 +137,8 @@ public final class MafiaManager {
                 ServerPlayer member = godfather.server.getPlayerList().getPlayer(memberId);
                 if (member != null && previousRoleByMember.containsKey(memberId)) {
                     RoleUtils.changeRole(member, previousRoleByMember.get(memberId));
+                    // 清除从家族商店购买的标记物品
+                    clearMafiaShopItems(member);
                 }
                 godfatherByMember.remove(memberId);
                 previousRoleByMember.remove(memberId);
@@ -184,5 +208,36 @@ public final class MafiaManager {
     public static void clearAll() {
         godfatherByMember.clear();
         previousRoleByMember.clear();
+    }
+
+    // ==================== 家族商店物品标记 ====================
+
+    /** 给物品打上家族商店标记 */
+    public static void markAsMafiaShopItem(ItemStack stack) {
+        CustomData customData = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
+        CompoundTag tag = customData.copyTag();
+        tag.putBoolean(MAFIA_SHOP_TAG, true);
+        stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
+    }
+
+    /** 检查物品是否带有家族商店标记 */
+    public static boolean isMafiaShopItem(ItemStack stack) {
+        if (stack.isEmpty()) return false;
+        CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
+        if (customData != null) {
+            return customData.copyTag().getBoolean(MAFIA_SHOP_TAG);
+        }
+        return false;
+    }
+
+    /** 清除玩家背包中所有带家族商店标记的物品 */
+    public static void clearMafiaShopItems(ServerPlayer player) {
+        for (var list : player.getInventory().compartments) {
+            for (int i = 0; i < list.size(); i++) {
+                if (isMafiaShopItem(list.get(i))) {
+                    list.set(i, ItemStack.EMPTY);
+                }
+            }
+        }
     }
 }
