@@ -39,6 +39,8 @@ public class SRENBTUtils {
 
     public static CompoundTag blockPosToTag(BlockPos blockPos) {
         CompoundTag tag = new CompoundTag();
+        if (blockPos == null)
+            return tag;
         tag.putInt("x", blockPos.getX());
         tag.putInt("y", blockPos.getY());
         tag.putInt("z", blockPos.getZ());

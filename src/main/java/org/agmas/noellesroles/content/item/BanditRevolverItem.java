@@ -18,7 +18,6 @@ import net.minecraft.world.phys.HitResult;
 
 import static io.wifi.starrailexpress.content.item.RevolverItem.spawnHandParticle;
 
-import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.packet.BanditRevolverShootPayload;
 import org.jetbrains.annotations.NotNull;
 
@@ -29,9 +28,6 @@ public class BanditRevolverItem extends SkinableItem {
     }
 
     public InteractionResultHolder<ItemStack> use(@NotNull Level world, @NotNull Player user, InteractionHand hand) {
-        if (!user.isCreative()) {
-            user.getCooldowns().addCooldown(ModItems.BANDIT_REVOLVER, 20 * 12);
-        }
         if (world.isClientSide) {
             final var gameComponent = SREClient.gameComponent;
             if (gameComponent != null) {
@@ -81,7 +77,7 @@ public class BanditRevolverItem extends SkinableItem {
             return var10000;
         }, (double) 20.0F);
     }
-    
+
     @Override
     public String getItemSkinType() {
         return "revolver";

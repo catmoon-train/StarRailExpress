@@ -938,10 +938,6 @@ public class ModEventsRegister {
                 if (deathPenalty.chatEnabled == false)
                     return true;
             }
-            // 被鹈鹕吞噬的玩家无法看到聊天栏
-            if (deathPenalty.pelicanStashed) {
-                return true;
-            }
             return false;
         });
         // 观者掉枪

@@ -2,6 +2,6 @@
   "parent": "minecraft:block/cube_all",
   "textures": {
     "0": "#all",
-    "all": "starrailexpress:item/entity_interaction_block"
+    "all": "starrailexpress:item/entity_interaction_panel"
   }
 }

@@ -22,6 +22,8 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.Noellesroles;
+import org.agmas.noellesroles.game.roles.killer.executioner.ShootingFrenzyPlayerComponent;
+import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
 
@@ -69,7 +71,11 @@ public record BanditRevolverShootPayload(int target) implements CustomPacketPayl
                             if (game.isRole(player, ModRoles.BANDIT)) {
                                 shouldDrop = player.getRandom().nextInt(0, 100) <= 80;
                             } else {
-                                shouldDrop = player.getRandom().nextFloat() <= 0.2F;
+                                if (ShootingFrenzyPlayerComponent.isInFrenzy(player)) {
+                                    shouldDrop = false;
+                                } else {
+                                    shouldDrop = player.getRandom().nextFloat() <= 0.2F;
+                                }
                             }
                             if (shouldDrop) {
                                 {
@@ -97,11 +103,19 @@ public record BanditRevolverShootPayload(int target) implements CustomPacketPayl
                         TMMSounds.ITEM_REVOLVER_SHOOT, SoundSource.PLAYERS, 5.0F,
                         1.0F + player.getRandom().nextFloat() * 0.1F - 0.05F);
 
+                if (!player.isCreative()) {
+                    if (ShootingFrenzyPlayerComponent.isInFrenzy(player)) {
+                        player.getCooldowns().addCooldown(ModItems.BANDIT_REVOLVER, 20 * 2);
+                    }else{
+                        player.getCooldowns().addCooldown(ModItems.BANDIT_REVOLVER, GameConstants.getRevolverDefaultTicks());
+                    }
+                }
                 for (ServerPlayer tracking : PlayerLookup.tracking(player)) {
                     ServerPlayNetworking.send(tracking, new ShootMuzzleS2CPayload(player.getId()));
                 }
 
                 ServerPlayNetworking.send(player, new ShootMuzzleS2CPayload(player.getId()));
+
             }
         }
     }

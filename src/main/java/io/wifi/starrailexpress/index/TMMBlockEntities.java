@@ -5,7 +5,6 @@ import io.wifi.starrailexpress.SRE;
 
 import io.wifi.starrailexpress.content.block.entity.HornBlockEntity;
 import io.wifi.starrailexpress.content.block_entity.*;
-import io.wifi.starrailexpress.content.block_entity.EntityInteractionBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 
 public interface TMMBlockEntities {
@@ -38,6 +37,10 @@ public interface TMMBlockEntities {
 
     BlockEntityType<EntityInteractionBlockEntity> ENTITY_INTERACTION_BLOCK = registrar.create("entity_interaction_block",
             BlockEntityType.Builder.of(EntityInteractionBlockEntity::new, TMMBlocks.ENTITY_INTERACTION_BLOCK, TMMBlocks.ENTITY_INTERACTION_PANEL));
+            
+    BlockEntityType<EntityInteractionBlockEntity> REMOTE_REDSTONE = registrar.create("remote_redstone",
+            BlockEntityType.Builder.of(EntityInteractionBlockEntity::new, TMMBlocks.REMOTE_REDSTONE, TMMBlocks.ENTITY_INTERACTION_PANEL));
+
 
     static void initialize() {
         registrar.registerEntries();

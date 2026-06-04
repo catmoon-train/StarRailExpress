@@ -240,6 +240,9 @@ public class ExecutionerPlayerComponent implements RoleComponent, ServerTickingC
 
     public static void registerBackfireEvent() {
         AllowShootRevolverDrop.EVENT.register((player, target) -> {
+            if (ShootingFrenzyPlayerComponent.isInFrenzy(player)) {
+                return AllowShootRevolverDrop.ShouldDropResult.FALSE;
+            }
             SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY
                     .get(player.level());
             if (gameWorldComponent.isRole(player, ModRoles.EXECUTIONER)) {

@@ -1,6 +1,5 @@
 package org.agmas.noellesroles.game.roles.neutral.pelican;
 
-import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.network.chat.Component;
@@ -12,8 +11,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import org.agmas.noellesroles.component.DeathPenaltyComponent;
-import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.voice.NoellesrolesVoiceChatPlugin;
 
 import java.util.*;
@@ -86,9 +83,6 @@ public final class PelicanManager {
 
         // 被吞噬玩家进入 DeathPenalty，视角锁定在鹈鹕身上
         DeathPenaltyComponent.KEY.get(target).setPenaltyWithCameraLimit(-1, pelican, true);
-        DeathPenaltyComponent dpc = ModComponents.DEATH_PENALTY.get(target);
-        dpc.pelicanStashed = true;
-        dpc.sync();
 
         NoellesrolesVoiceChatPlugin.onPelicanStash(targetId, pelicanId);
     }

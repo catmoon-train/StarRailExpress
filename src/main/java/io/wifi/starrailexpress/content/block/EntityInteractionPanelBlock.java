@@ -49,14 +49,15 @@ public class EntityInteractionPanelBlock extends BaseEntityBlock {
     private static final VoxelShape WEST_SHAPE = box(15.9, 0.0, 0.0, 16.0, 16.0, 16.0);
     private static final VoxelShape SOUTH_SHAPE = box(0.0, 0.0, 0.0, 16.0, 16.0, 0.1);
     private static final VoxelShape NORTH_SHAPE = box(0.0, 0.0, 15.9, 16.0, 16.0, 16.0);
-    private static final Map<Direction, VoxelShape> SHAPES_FOR_DIRECTIONS = Util.make(Maps.newEnumMap(Direction.class), shapes -> {
-        shapes.put(Direction.NORTH, SOUTH_SHAPE);
-        shapes.put(Direction.EAST, WEST_SHAPE);
-        shapes.put(Direction.SOUTH, NORTH_SHAPE);
-        shapes.put(Direction.WEST, EAST_SHAPE);
-        shapes.put(Direction.UP, UP_SHAPE);
-        shapes.put(Direction.DOWN, DOWN_SHAPE);
-    });
+    private static final Map<Direction, VoxelShape> SHAPES_FOR_DIRECTIONS = Util.make(Maps.newEnumMap(Direction.class),
+            shapes -> {
+                shapes.put(Direction.NORTH, NORTH_SHAPE);
+                shapes.put(Direction.EAST, EAST_SHAPE);
+                shapes.put(Direction.SOUTH, SOUTH_SHAPE);
+                shapes.put(Direction.WEST, WEST_SHAPE);
+                shapes.put(Direction.UP, UP_SHAPE);
+                shapes.put(Direction.DOWN, DOWN_SHAPE);
+            });
 
     public EntityInteractionPanelBlock(Properties settings) {
         super(settings.noOcclusion().noCollission());
@@ -93,7 +94,8 @@ public class EntityInteractionPanelBlock extends BaseEntityBlock {
 
     @Override
     public RenderShape getRenderShape(BlockState state) {
-        if (BarrierViewer.isBarrierVisible()) return RenderShape.MODEL;
+        if (BarrierViewer.isBarrierVisible())
+            return RenderShape.MODEL;
         return RenderShape.INVISIBLE;
     }
 
@@ -108,13 +110,18 @@ public class EntityInteractionPanelBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult hit) {
+    protected InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player,
+            BlockHitResult hit) {
         if (world.isClientSide) {
             return InteractionResult.SUCCESS;
         }
 
         BlockEntity blockEntity = world.getBlockEntity(pos);
         if (blockEntity instanceof EntityInteractionBlockEntity interactionBlockEntity) {
+            // 记录右键点击
+            if (player instanceof ServerPlayer serverPlayer) {
+                interactionBlockEntity.recordPlayerClick(serverPlayer, false); // false = 右键
+            }
             // 只有创造模式玩家可以打开UI
             if (player instanceof ServerPlayer serverPlayer && serverPlayer.isCreative()) {
                 interactionBlockEntity.openUI(serverPlayer);
@@ -132,7 +139,8 @@ public class EntityInteractionPanelBlock extends BaseEntityBlock {
 
     @Nullable
     @Override
-    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level world, BlockState state, BlockEntityType<T> type) {
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level world, BlockState state,
+            BlockEntityType<T> type) {
         return createTickerHelper(type, TMMBlockEntities.ENTITY_INTERACTION_BLOCK, EntityInteractionBlockEntity::tick);
     }
 
@@ -144,7 +152,8 @@ public class EntityInteractionPanelBlock extends BaseEntityBlock {
     }
 
     @Override
-    public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor world, BlockPos pos, BlockPos neighborPos) {
+    public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor world,
+            BlockPos pos, BlockPos neighborPos) {
         Direction facing = state.getValue(FACING);
         if (direction == facing.getOpposite() && !state.canSurvive(world, pos)) {
             return Blocks.AIR.defaultBlockState();

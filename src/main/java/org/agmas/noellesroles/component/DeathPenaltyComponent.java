@@ -39,9 +39,6 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
     // 客户端
     public boolean chatEnabled = false;
 
-    // 鹈鹕吞噬状态 - 禁用聊天
-    public boolean pelicanStashed = false;
-
     public static ComponentKey<DeathPenaltyComponent> KEY = ModComponents.DEATH_PENALTY;
 
     public void clearAll() {
@@ -221,7 +218,6 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
         }
         this.limitPos = null;
         this.limitCameraUUID = null;
-        this.pelicanStashed = false;
         if (this.player.hasEffect(ModEffects.MOVE_BANED)) {
             this.player.removeEffect(ModEffects.MOVE_BANED);
         }
@@ -245,7 +241,6 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
         } else {
             this.chatEnabled = true;
         }
-        this.pelicanStashed = tag.getBoolean("pelicanStashed");
         if (tag.contains("pos", CompoundTag.TAG_COMPOUND)) {
             this.limitPos = SRENBTUtils.tagToVec3(tag.getCompound("pos"));
         } else {
@@ -259,7 +254,6 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
         if (this.limitCameraUUID != null || this.limitPos != null) {
             tag.putBoolean("chatEnabled", false);
         }
-        tag.putBoolean("pelicanStashed", this.pelicanStashed);
         if (limitPos != null) {
             tag.put("pos", SRENBTUtils.vec3ToTag(limitPos));
         }

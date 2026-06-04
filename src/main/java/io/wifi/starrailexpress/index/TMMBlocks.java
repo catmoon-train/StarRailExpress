@@ -667,6 +667,11 @@ public interface TMMBlocks {
                     .mapColor(waterloggedMapColor(MapColor.NONE)).noLootTable().noOcclusion()
                     .lightLevel(TrainLightBlock.LIGHT_EMISSION))),
             new Item.Properties().rarity(Rarity.EPIC), CreativeModeTabs.OP_BLOCKS);
+    Block REMOTE_REDSTONE = sreBlockRegistrar.createWithItem("remote_redstone", new RemoteRedstoneBlock(
+            (Block.Properties.of().replaceable().strength(-1.0F, 3600000.8F)
+                    .mapColor(waterloggedMapColor(MapColor.NONE)).noLootTable().noOcclusion())),
+            new Item.Properties().rarity(Rarity.EPIC), CreativeModeTabs.OP_BLOCKS);
+
     Block LIGHT_BARRIER = registrar.createWithItem("light_barrier", new LightBarrierBlock(
             ((BlockSettingsAdditions) BlockBehaviour.Properties.ofFullCopy(Blocks.BARRIER)).SRE$setCol(false)),
             new Item.Properties().rarity(Rarity.EPIC), CreativeModeTabs.OP_BLOCKS);
