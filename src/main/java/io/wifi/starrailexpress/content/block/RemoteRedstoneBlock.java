@@ -124,7 +124,7 @@ public class RemoteRedstoneBlock extends RedstoneTorchBlock implements EntityBlo
             if (targetPos != null) {
                 BlockState targetState = world.getBlockState(targetPos);
                 if (targetState.getBlock() instanceof RemoteRedstoneBlock rrb) {
-                    rrb.onTriggered(state, world, pos, isPowered);
+                    rrb.onTriggered(targetState, world, pos, isPowered);
                 }
             }
         }
@@ -134,7 +134,7 @@ public class RemoteRedstoneBlock extends RedstoneTorchBlock implements EntityBlo
         if (isPowered && state.getValue(LIT)) {
             return;
         }
-        world.setBlock(pos, state.setValue(TRIGGERED, isPowered), Block.UPDATE_ALL);
+        world.setBlock(pos, state.setValue(TRIGGERED, isPowered), 2);
         world.updateNeighborsAt(pos, this); // 更新周围方块（红石粉、机器等）
         // 对于比较器侧面检测，可以额外更新比较器
         world.updateNeighbourForOutputSignal(pos, this);
