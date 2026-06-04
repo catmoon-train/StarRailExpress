@@ -130,6 +130,7 @@ public class SniperProjectileUtil {
     private static boolean isBarrierBlock(Level level, BlockPos pos) {
         return level.getBlockState(pos).is(Blocks.BARRIER) ||
                level.getBlockState(pos).is(Blocks.LIGHT) ||
+               level.getBlockState(pos).is(TMMBlocks.TRAIN_LIGHT) ||
                level.getBlockState(pos).is(TMMBlocks.BARRIER_PANEL) ||
                level.getBlockState(pos).is(TMMBlocks.LIGHT_BARRIER);
     }

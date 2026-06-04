@@ -169,7 +169,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements PlayerSt
             // 在攻击实体之前调用角色的左键点击实体方法
             if (this.getMainHandItem().getItem() instanceof SREItemProperties.LeftClickHurtable itt) {
                 var result = itt.onTryHurt(self, target, this.getMainHandItem());
-                if (result == InteractionResult.CONSUME){
+                if (result == InteractionResult.CONSUME) {
                     return;
                 }
             }
@@ -192,7 +192,9 @@ public abstract class PlayerEntityMixin extends LivingEntity implements PlayerSt
         if (poisoner != null) {
             int poisonTicks = SREPlayerPoisonComponent.KEY.get(this).poisonTicks;
             if (SRE.REPLAY_MANAGER != null) {
-                SRE.REPLAY_MANAGER.recordItemEatFlaggedItem(player, stack.getItem(), "poison");
+                if (armorer == null) {
+                    SRE.REPLAY_MANAGER.recordItemEatFlaggedItem(player, stack.getItem(), "poison");
+                }
             }
             if (poisonTicks == -1) {
                 SREPlayerPoisonComponent.KEY.get(this).setPoisonTicks(
@@ -208,11 +210,16 @@ public abstract class PlayerEntityMixin extends LivingEntity implements PlayerSt
         }
         if (armorer != null) {
             if (SRE.REPLAY_MANAGER != null) {
-                SRE.REPLAY_MANAGER.recordItemEatFlaggedItem(player, stack.getItem(), "armor");
+                if (poisoner == null) {
+                    SRE.REPLAY_MANAGER.recordItemEatFlaggedItem(player, stack.getItem(), "armor");
+                }
             }
             SREArmorPlayerComponent bartenderPlayerComponent = SREArmorPlayerComponent.KEY.get(this);
             // this.playSound(SoundEvents.SHIELD_BLOCK, 1f, 1f);
             bartenderPlayerComponent.giveArmor();
+        }
+        if (poisoner != null && armorer != null) {
+            SRE.REPLAY_MANAGER.recordItemEatFlaggedItem(player, stack.getItem(), "poison_and_armor");
         }
 
     }
@@ -265,7 +272,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements PlayerSt
             SREPlayerMoodComponent.KEY.get(this).eatFood();
             // 大胃王奖励（仅在服务端执行）
             if (world instanceof net.minecraft.server.level.ServerLevel) {
-                org.agmas.noellesroles.role.ModifierEffects.onBigEaterTaskComplete((ServerPlayer)(Object)this);
+                org.agmas.noellesroles.role.ModifierEffects.onBigEaterTaskComplete((ServerPlayer) (Object) this);
             }
             return;
         }
