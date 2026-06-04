@@ -604,7 +604,7 @@
   "item.starrailexpress.remote_redstone.tooltip": "使用绑定工具绑定两个无线红石来使用，传递并且增强红石信号",
   "block.starrailexpress.remote_redstone.tooltip": "使用绑定工具绑定两个无线红石来使用，传递并且增强红石信号",
   "message.block.starrailexpress.remote_redstone.info.none": "无目标",
-  "message.block.starrailexpress.remote_redstone.info": "此处获得的红石信号将会传递到->[]",
+  "message.block.starrailexpress.remote_redstone.info": "此处获得的红石信号将会传递到->[%s]",
   "block.starrailexpress.train_light.tooltip": "加强版的原版【灯】\n会受到红石以及列车关灯影响的隐形灯光",
   "item.starrailexpress.binding_tool.tooltip": "用于连接摄像头，或者无线红石。\n右键点击摄像头/无线红石保存位置，再右键点击监控器/无线红石进行绑定\n潜行右键取消无线红石中的绑定信息",
   "message.item.starrailexpress.binding_tool.invalid": "不支持的方块",

@@ -4,9 +4,14 @@ import java.util.function.ToIntFunction;
 
 import com.mojang.serialization.MapCodec;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.content.block.api.LightBlockInterface;
 import io.wifi.starrailexpress.index.TMMBlocks;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.BlockParticleOption;
+import net.minecraft.core.particles.DustParticleOptions;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -47,6 +52,23 @@ public class TrainLightBlock extends LightBlock implements LightBlockInterface {
                     state = state.setValue(LIT, isPowered);
                 }
                 world.setBlock(pos, state, 2);
+            }
+        }
+    }
+
+    @Override
+    public void animateTick(BlockState blockState, Level level, BlockPos blockPos, RandomSource randomSource) {
+        if (level.isClientSide && SRE.canSeeBarrier()) {
+            if ((blockState.getValue(LIT))) {
+                double d = (double) blockPos.getX() + (double) 0.5F + (randomSource.nextDouble() - (double) 0.5F) * 0.2;
+                double e = (double) blockPos.getY() + 0.7 + (randomSource.nextDouble() - (double) 0.5F) * 0.2;
+                double f = (double) blockPos.getZ() + (double) 0.5F + (randomSource.nextDouble() - (double) 0.5F) * 0.2;
+                level.addParticle(DustParticleOptions.REDSTONE, d, e, f, (double) 0.0F, (double) 0.0F, (double) 0.0F);
+            } else {
+                BlockParticleOption particleEffect = new BlockParticleOption(ParticleTypes.BLOCK, blockState);
+                level.addAlwaysVisibleParticle(particleEffect, blockPos.getX(), blockPos.getY(), blockPos.getZ(),
+                        (double) 0.0F,
+                        (double) 0.0F, (double) 0.0F);
             }
         }
     }
