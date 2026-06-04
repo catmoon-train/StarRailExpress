@@ -50,7 +50,7 @@ import java.util.*;
  */
 public class SREThiefWarGameMode extends SREBaseCustomizationGameMode {
     /** 随机事件间隔范围 */
-    public static final Pair<Integer, Integer> RANDOM_EVENT_INTERVAL = new Pair<>(15 * 20, 30 * 20);
+    public static final Pair<Integer, Integer> RANDOM_EVENT_INTERVAL = new Pair<>(15 * 20, 30 * 20 + 1);
     /** 随机画板数量比例范围: 根据此比例和人数计算数量 */
     public static final Pair<Float, Float> RANDOM_DRAWING_BOARD_PERCENTAGE = new Pair<>(0.1f, 0.4f);
 
@@ -94,7 +94,7 @@ public class SREThiefWarGameMode extends SREBaseCustomizationGameMode {
                 players.add(p);
         // 每次生成随机几个画板 : 限制其数量 > 0
         int boardNum = Math.max(1, serverWorld.random.nextInt((int) (players.size() * RANDOM_DRAWING_BOARD_PERCENTAGE.first),
-                (int) (players.size() * RANDOM_DRAWING_BOARD_PERCENTAGE.second)));
+                (int) (players.size() * RANDOM_DRAWING_BOARD_PERCENTAGE.second) + 1));
 
         // 记录所有房间位置 : id + pos
         List<Pair<Integer, Vec3>> allRoomPos = new ArrayList<>();
