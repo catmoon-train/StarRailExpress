@@ -95,6 +95,21 @@ public class DrawingBoardScreen extends Screen {
     }
 
     @Override
+    public void tick() {
+        super.tick();
+        // 如果玩家手中不再持有画板，立即关闭绘画页面
+        var player = Minecraft.getInstance().player;
+        if (player != null) {
+            ItemStack mainHand = player.getMainHandItem();
+            ItemStack offHand = player.getOffhandItem();
+            if (!(mainHand.getItem() instanceof DrawingBoardItem) &&
+                !(offHand.getItem() instanceof DrawingBoardItem)) {
+                this.onClose();
+            }
+        }
+    }
+
+    @Override
     protected void init() {
         super.init();
 
