@@ -130,7 +130,7 @@ public class NoellesrolesVoiceChatPlugin implements VoicechatPlugin {
       return true;
     }
     // 如果任一玩家被鹈鹕吞噬（肚内/stashed），不要因为死亡惩罚把他们直接拉到死亡语音频道
-    if (PelicanManager.isStashed(senderPlayer) || PelicanManager.isStashed(receiverPlayer)) {
+    if (PelicanManager.isStashed(senderPlayer) && PelicanManager.isStashed(receiverPlayer)) {
       return false;
     }
     var deathPenalty = ModComponents.DEATH_PENALTY.get(receiverPlayer);
