@@ -6,8 +6,6 @@ import dev.doctor4t.ratatouille.util.registrar.BlockRegistrar;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.content.block.*;
-import io.wifi.starrailexpress.content.block.EntityInteractionBlock;
-import io.wifi.starrailexpress.content.block.EntityInteractionPanelBlock;
 import io.wifi.starrailexpress.index.wathe_bridge.WatheBridgerBlocks;
 import io.wifi.starrailexpress.util.BlockSettingsAdditions;
 import net.fabricmc.fabric.api.object.builder.v1.block.type.BlockSetTypeBuilder;
@@ -119,7 +117,8 @@ public interface TMMBlocks {
       TMMItems.DECORATION_GROUP);
   Block GOLD_LEDGE = registrar.createWithItem("gold_ledge",
       new LedgeBlock(
-          BlockBehaviour.Properties.ofFullCopy(TARNISHED_GOLD).forceSolidOn().noOcclusion().strength(0.5f).dynamicShape()),
+          BlockBehaviour.Properties.ofFullCopy(TARNISHED_GOLD).forceSolidOn().noOcclusion().strength(0.5f)
+              .dynamicShape()),
       TMMItems.DECORATION_GROUP);
   Block METAL_SHEET = registrar.createWithItem("metal_sheet",
       new Block(BlockBehaviour.Properties.of().strength(2f).sound(SoundType.COPPER)), TMMItems.BUILDING_GROUP);
@@ -333,7 +332,8 @@ public interface TMMBlocks {
       TMMItems.BUILDING_GROUP);
   Block GOLDEN_GLASS_PANEL = registrar.createWithItem("golden_glass_panel",
       new GlassPanelBlock(
-          BlockBehaviour.Properties.of().forceSolidOn().strength(0.3f).sound(SoundType.GLASS).isValidSpawn(Blocks::never)),
+          BlockBehaviour.Properties.of().forceSolidOn().strength(0.3f).sound(SoundType.GLASS)
+              .isValidSpawn(Blocks::never)),
       TMMItems.DECORATION_GROUP);
   Block PRIVACY_GLASS_PANEL = registrar
       .createWithItem(
@@ -546,16 +546,20 @@ public interface TMMBlocks {
 
   Block WHITE_LOUNGE_COUCH = registrar.createWithItem("white_lounge_couch",
       new LoungeCouch(
-          BlockBehaviour.Properties.of().noOcclusion().forceSolidOn().strength(0.5f).sound(SoundType.CHISELED_BOOKSHELF)),
+          BlockBehaviour.Properties.of().noOcclusion().forceSolidOn().strength(0.5f)
+              .sound(SoundType.CHISELED_BOOKSHELF)),
       TMMItems.DECORATION_GROUP);
   Block LIGHT_TOILET = registrar.createWithItem("light_toilet",
-      new ToiletBlock(BlockBehaviour.Properties.of().forceSolidOn().noOcclusion().strength(0.5f).sound(SoundType.METAL)),
+      new ToiletBlock(
+          BlockBehaviour.Properties.of().forceSolidOn().noOcclusion().strength(0.5f).sound(SoundType.METAL)),
       TMMItems.DECORATION_GROUP);
   Block DARK_TOILET = registrar.createWithItem("dark_toilet",
-      new ToiletBlock(BlockBehaviour.Properties.of().forceSolidOn().noOcclusion().strength(0.5f).sound(SoundType.METAL)),
+      new ToiletBlock(
+          BlockBehaviour.Properties.of().forceSolidOn().noOcclusion().strength(0.5f).sound(SoundType.METAL)),
       TMMItems.DECORATION_GROUP);
   Block TOILET_CHAIR = registrar.createWithItem("toilet_chair",
-      new ToiletBlock(BlockBehaviour.Properties.of().forceSolidOn().noOcclusion().strength(0.5f).sound(SoundType.METAL)),
+      new ToiletBlock(
+          BlockBehaviour.Properties.of().forceSolidOn().noOcclusion().strength(0.5f).sound(SoundType.METAL)),
       TMMItems.DECORATION_GROUP);
   Block WHITE_OTTOMAN = registrar.createWithItem("white_ottoman",
       new OttomanBlock(BlockBehaviour.Properties.ofFullCopy(WHITE_LOUNGE_COUCH)), TMMItems.DECORATION_GROUP);
@@ -607,13 +611,15 @@ public interface TMMBlocks {
   Block ELEVATOR_BUTTON = registrar.createWithItem("elevator_button",
       new ElevatorButtonBlock(BlockBehaviour.Properties.ofFullCopy(SMALL_BUTTON)), TMMItems.DECORATION_GROUP);
   Block STAINLESS_STEEL_SPRINKLER = registrar.createWithItem("stainless_steel_sprinkler",
-      new SprinklerBlock(BlockBehaviour.Properties.of().forceSolidOn().strength(0.5f).noOcclusion().sound(SoundType.LANTERN)),
+      new SprinklerBlock(
+          BlockBehaviour.Properties.of().forceSolidOn().strength(0.5f).noOcclusion().sound(SoundType.LANTERN)),
       TMMItems.DECORATION_GROUP);
   Block GOLD_SPRINKLER = registrar.createWithItem("gold_sprinkler",
       new SprinklerBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL_SPRINKLER)),
       TMMItems.DECORATION_GROUP);
   Block GOLD_ORNAMENT = registrar.createWithItem("gold_ornament", new OrnamentBlock(
-      BlockBehaviour.Properties.of().noOcclusion().forceSolidOn().noCollission().strength(0.25f).sound(SoundType.COPPER)),
+      BlockBehaviour.Properties.of().noOcclusion().forceSolidOn().noCollission().strength(0.25f)
+          .sound(SoundType.COPPER)),
       TMMItems.DECORATION_GROUP);
 
   // Wheels
@@ -647,6 +653,9 @@ public interface TMMBlocks {
       new BarrierPanelBlock(BlockBehaviour.Properties.ofFullCopy(ANTHRACITE_STEEL_PANEL)
           .strength(-1.0F, 3600000.8F).noOcclusion().sound(SoundType.STONE)),
       new Item.Properties().rarity(Rarity.EPIC), CreativeModeTabs.OP_BLOCKS);
+  Block TRAIN_LIGHT = sreBlockRegistrar.createWithItem("train_light", new TrainLightBlock(
+      (BlockBehaviour.Properties.ofFullCopy(Blocks.BARRIER).noCollission().lightLevel(TrainLightBlock.LIGHT_EMISSION))),
+      new Item.Properties().rarity(Rarity.EPIC), CreativeModeTabs.OP_BLOCKS);
   Block LIGHT_BARRIER = registrar.createWithItem("light_barrier", new LightBarrierBlock(
       ((BlockSettingsAdditions) BlockBehaviour.Properties.ofFullCopy(Blocks.BARRIER)).SRE$setCol(false)),
       new Item.Properties().rarity(Rarity.EPIC), CreativeModeTabs.OP_BLOCKS);
@@ -669,8 +678,6 @@ public interface TMMBlocks {
   Block FOURTH_ROOM_TABLE = registrar.createWithItem("fourth_room_table",
       new org.agmas.noellesroles.game.modes.fourthroom.block.FourthRoomTableBlock(),
       TMMItems.EQUIPMENT_GROUP);
-
-
 
   // 实体交互方块 - 普通版本
   Block ENTITY_INTERACTION_BLOCK = sreBlockRegistrar.create("entity_interaction_block",
