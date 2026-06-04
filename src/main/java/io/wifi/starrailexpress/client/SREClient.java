@@ -165,6 +165,16 @@ public class SREClient implements ClientModInitializer {
     public static float prevInstinctLightLevel = -.04f;
     public static float instinctLightLevel = -.04f;
 
+    public static boolean canSeeBarrier() {
+        Minecraft client = Minecraft.getInstance();
+        if (client.player != null) {
+            if (client.player.isCreative() && NoellesrolesClient.isTaskInstinctEnabled) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static boolean shouldDisableHudAndDebug() {
         Minecraft client = Minecraft.getInstance();
         return (client == null

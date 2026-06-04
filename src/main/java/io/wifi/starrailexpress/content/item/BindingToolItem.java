@@ -92,6 +92,7 @@ public class BindingToolItem extends Item {
                         Component.translatable("message.item.starrailexpress.binding_tool.clear")
                                 .withStyle(ChatFormatting.GREEN),
                         true);
+                return InteractionResult.SUCCESS;
             }
             if (lastCameraPos == null) {
                 lastCameraPos = pos;

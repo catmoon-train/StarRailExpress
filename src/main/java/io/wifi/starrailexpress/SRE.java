@@ -13,6 +13,7 @@ import io.wifi.starrailexpress.api.replay.ReplayApiInitializer;
 import io.wifi.starrailexpress.api.replay.ReplayPayload;
 import io.wifi.starrailexpress.api.replay.screen.ReplayScreenService;
 import io.wifi.starrailexpress.cca.*;
+import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.compat.TrainVoicePlugin;
 import io.wifi.starrailexpress.content.block.DoorPartBlock;
 import io.wifi.starrailexpress.content.command.*;
@@ -42,6 +43,7 @@ import io.wifi.starrailexpress.network.packet.SyncRoomToPlayerPayload;
 import io.wifi.starrailexpress.util.PoisonComponentUtils;
 import io.wifi.starrailexpress.util.Scheduler;
 import net.exmo.sre.sync.MysqlPlayerDataStore;
+import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
@@ -52,6 +54,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.commands.synchronization.SingletonArgumentInfo;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -62,6 +65,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.levelgen.Heightmap;
+
 import org.agmas.noellesroles.game.modes.fourthroom.network.*;
 import org.agmas.noellesroles.game.roles.neutral.panda.PandaComponent;
 import org.jetbrains.annotations.NotNull;
@@ -102,6 +106,13 @@ public class SRE extends StarRailExpressID implements ModInitializer {
         ServerPlayNetworking.send(player, new SyncRoomToPlayerPayload(GameUtils.roomToPlayer));
     }
 
+    
+    public static boolean canSeeBarrier() {
+        if (FabricLoader.getInstance().getEnvironmentType().equals(EnvType.CLIENT)) {
+            return SREClient.canSeeBarrier();
+        }
+        return false;
+    }
     @Override
     public void onInitialize() {
         initConfig();
