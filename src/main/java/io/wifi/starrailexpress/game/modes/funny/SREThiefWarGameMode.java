@@ -211,7 +211,8 @@ public class SREThiefWarGameMode extends SREBaseCustomizationGameMode {
             }
             if (winner != null) {
                 for (Player player : serverWorld.players()) {
-                    if (player != winner)
+                    // 心脏麻痹其他活着的玩家
+                    if (player != winner && !GameUtils.isPlayerEliminated(player))
                         GameUtils.killPlayer(player, true, winner,  Noellesroles.id("heart_attack"), true);
                 }
             }
