@@ -1,6 +1,7 @@
 package io.wifi.starrailexpress.client.util;
 
 import dev.doctor4t.ratatouille.util.TextUtils;
+import io.wifi.starrailexpress.index.TMMBlocks;
 import io.wifi.starrailexpress.index.TMMItems;
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.minecraft.client.Minecraft;
@@ -30,6 +31,7 @@ public class TMMItemTooltips {
             addCooldownText(TMMItems.PSYCHO_MODE, tooltipList, itemStack);
             addCooldownText(TMMItems.BLACKOUT, tooltipList, itemStack);
 
+            addTooltipForItem(TMMBlocks.TRAIN_LIGHT.asItem(), itemStack, tooltipList);
             addTooltipForItem(TMMItems.KNIFE, itemStack, tooltipList);
             addTooltipForItem(TMMItems.REVOLVER, itemStack, tooltipList);
             addTooltipForItem(TMMItems.DERRINGER, itemStack, tooltipList);

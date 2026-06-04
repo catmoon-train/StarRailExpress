@@ -14,6 +14,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
@@ -71,6 +72,17 @@ public class SREPlushBlock extends PlushBlock {
    }
 
    @Override
+   public void stepOn(Level level, BlockPos pos, BlockState state, Entity entity) {
+      super.stepOn(level, pos, state, entity);
+      if (!level.isClientSide && entity instanceof Player player) {
+         // 落地时 fallDistance > 0，并且玩家已经着地
+         if (player.fallDistance > 0.1F) {
+            triggerPlush(state, level, pos, player);
+         }
+      }
+   }
+
+   @Override
    public void attack(BlockState state, Level world, BlockPos pos, Player player) {
       if (!world.isClientSide) {
          Vec3 mid = Vec3.atCenterOf(pos);
@@ -104,23 +116,27 @@ public class SREPlushBlock extends PlushBlock {
    protected InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player,
          BlockHitResult hit) {
       if (!world.isClientSide) {
-         Vec3 mid = Vec3.atCenterOf(pos);
-         float pitch = 0.8F + world.random.nextFloat() * 0.4F;
-         BlockState note = world.getBlockState(pos.below());
-         if (note.hasProperty(BlockStateProperties.NOTE)) {
-            pitch = (float) Math.pow((double) 2.0F,
-                  (double) ((Integer) note.getValue(BlockStateProperties.NOTE) - 12) / (double) 12.0F);
-         }
-
-         world.playSound((Player) null, mid.x(), mid.y(), mid.z(), getSound(state), SoundSource.BLOCKS, 1.0F, 1.0F);
-         BlockEntity var10 = world.getBlockEntity(pos);
-         if (var10 instanceof SREPlushBlockEntity) {
-            SREPlushBlockEntity plushie = (SREPlushBlockEntity) var10;
-            plushie.squish(1);
-         }
+         triggerPlush(state, world, pos, player);
       }
 
       return InteractionResult.SUCCESS;
+   }
+
+   public void triggerPlush(BlockState state, Level world, BlockPos pos, Player player) {
+      Vec3 mid = Vec3.atCenterOf(pos);
+      float pitch = 0.8F + world.random.nextFloat() * 0.4F;
+      BlockState note = world.getBlockState(pos.below());
+      if (note.hasProperty(BlockStateProperties.NOTE)) {
+         pitch = (float) Math.pow((double) 2.0F,
+               (double) ((Integer) note.getValue(BlockStateProperties.NOTE) - 12) / (double) 12.0F);
+      }
+
+      world.playSound((Player) null, mid.x(), mid.y(), mid.z(), getSound(state), SoundSource.BLOCKS, 1.0F, 1.0F);
+      BlockEntity var10 = world.getBlockEntity(pos);
+      if (var10 instanceof SREPlushBlockEntity) {
+         SREPlushBlockEntity plushie = (SREPlushBlockEntity) var10;
+         plushie.squish(1);
+      }
    }
 
    @Override
