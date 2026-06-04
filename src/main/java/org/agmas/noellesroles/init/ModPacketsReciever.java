@@ -910,6 +910,7 @@ public class ModPacketsReciever {
     ServerPlayNetworking.registerGlobalReceiver(PelicanEatC2SPacket.ID,
         (payload, context) -> {
             ServerPlayer player = context.player();
+            if (player.isSpectator()) return;
             SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
             if (!gameWorldComponent.isSkillAvailable) {
                 player.displayClientMessage(
@@ -917,7 +918,6 @@ public class ModPacketsReciever {
                 return;
             }
             if (!gameWorldComponent.isRole(player, ModRoles.PELICAN)) return;
-            if (player.isSpectator()) return;
             org.agmas.noellesroles.game.roles.neutral.pelican.PelicanPlayerComponent comp =
                 org.agmas.noellesroles.game.roles.neutral.pelican.PelicanPlayerComponent.KEY.get(player);
             // 蹲下释放，否则对鼠标准星目标吞噬
