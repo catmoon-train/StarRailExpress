@@ -127,7 +127,9 @@ public class AvengerPlayerComponent implements RoleComponent, ServerTickingCompo
             Player targetPlayer = player.level().getPlayerByUUID(uuid);
             if (targetPlayer == null)
                 return;
-            if ((role.isInnocent() || (role.isNeutrals() && !role.isNeutralForKiller())) && GameUtils.isPlayerAliveAndSurvival(targetPlayer)) {
+            if ((role.isInnocent() || (role.isNeutrals() && !role.isNeutralForKiller()))
+                && !role.isKillerTeam()
+                && GameUtils.isPlayerAliveAndSurvival(targetPlayer)) {
                 innocentPlayers.add(uuid);
             }
         });
