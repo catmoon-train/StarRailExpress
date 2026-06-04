@@ -3,8 +3,12 @@ package io.wifi.starrailexpress.content.block;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -29,6 +33,44 @@ public abstract class HorizontalFacingMountableBlock extends MountableBlock {
                 .setValue(PART, PartType.CENTER);
     }
 
+    public void setPlacedByMirrored(Level level, BlockPos blockPos, BlockState blockState,
+            @Nullable LivingEntity livingEntity,
+            ItemStack itemStack) {
+        super.setPlacedBy(level, blockPos, blockState, livingEntity, itemStack);
+    }
+
+    @Override
+    public void setPlacedBy(Level level, BlockPos blockPos, BlockState blockState,
+            @Nullable LivingEntity livingEntity,
+            ItemStack itemStack) {
+        this.setPlacedByMirrored(level, blockPos, blockState, livingEntity, itemStack);
+    }
+     @Override
+    public void neighborChanged(BlockState state, Level world, BlockPos pos, Block block, BlockPos fromPos,
+            boolean notify) {
+                
+            }
+
+    public BlockState playerWillDestroyMirrored(Level level, BlockPos blockPos, BlockState blockState, Player player) {
+        return super.playerWillDestroy(level, blockPos, blockState, player);
+    }
+
+    @Override
+    public BlockState playerWillDestroy(Level level, BlockPos blockPos, BlockState blockState, Player player) {
+        return this.playerWillDestroyMirrored(level, blockPos, blockState, player);
+    }
+
+    @Override
+    protected BlockState updateShape(BlockState blockState, Direction direction, BlockState blockState2,
+            LevelAccessor levelAccessor, BlockPos blockPos, BlockPos blockPos2) {
+        return this.updateShapeMirrored(blockState, direction, blockState2, levelAccessor, blockPos, blockPos2);
+    }
+
+    protected BlockState updateShapeMirrored(BlockState blockState, Direction direction, BlockState blockState2,
+            LevelAccessor levelAccessor, BlockPos blockPos, BlockPos blockPos2) {
+        return super.updateShape(blockState, direction, blockState2, levelAccessor, blockPos, blockPos2);
+    }
+
     @Override
     public Vec3 getSitPos(Level world, BlockState state, BlockPos pos) {
         Vec3 sitPos = this.getNorthFacingSitPos(world, state, pos);
@@ -45,7 +87,6 @@ public abstract class HorizontalFacingMountableBlock extends MountableBlock {
         builder.add(FACING, PART);
     }
 
-    
     public final void registerDefaultStateMirrored(BlockState blockState) {
         this.registerDefaultState(blockState);
     }
@@ -72,6 +113,10 @@ public abstract class HorizontalFacingMountableBlock extends MountableBlock {
     @Nullable
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext ctx) {
+        return this.getStateForPlacementMirrored(ctx);
+    }
+
+    public BlockState getStateForPlacementMirrored(BlockPlaceContext ctx) {
         return this.defaultBlockState().setValue(FACING, ctx.getHorizontalDirection().getOpposite());
     }
 
