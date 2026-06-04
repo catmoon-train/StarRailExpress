@@ -36,6 +36,7 @@ public class CustomWinnerClass {
             boolean hasFurandoru = false;
             boolean hasThiefAlive = false;
             boolean hasPelicanAlive = false;
+            boolean hasMonokumaAlive = false;
             // int thiefCount = 0;
             int alivePlayerCount = 0;
             for (var player : serverLevel.players()) {
@@ -61,6 +62,9 @@ public class CustomWinnerClass {
                     }
                     if (gameComponent.isRole(player, ModRoles.PELICAN)) {
                         hasPelicanAlive = true;
+                    }
+                    if (gameComponent.isRole(player, ModRoles.MONOKUMA)) {
+                        hasMonokumaAlive = true;
                     }
                 }
             }
@@ -112,8 +116,8 @@ public class CustomWinnerClass {
                     && (winStatus == WinStatus.KILLERS || winStatus == WinStatus.PASSENGERS)) {
                 return WinStatus.NONE;
             }
-            // 鹈鹕是唯一存活玩家时独立胜利（参考纵火犯）
-            if (hasPelicanAlive && alivePlayerCount == 1) {
+            // 鹈鹕是唯一存活玩家时独立胜利（仅鹈鹕存活，或仅鹈鹕+黑白存活）
+            if (hasPelicanAlive && (alivePlayerCount == 1 || (alivePlayerCount == 2 && hasMonokumaAlive))) {
                 RoleUtils.customWinnerWin(serverLevel,
                         ModRoles.PELICAN_ID.getPath(),
                         ModRoles.PELICAN.color());

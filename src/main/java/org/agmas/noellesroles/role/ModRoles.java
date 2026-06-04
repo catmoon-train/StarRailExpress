@@ -2164,9 +2164,18 @@ public class ModRoles {
         ModRoles.PELICAN.addTwoWayOpposingJobs(SERoles.ARSONIST);
         // 设置鹈鹕与秉烛人互斥
         ModRoles.PELICAN.addTwoWayOpposingJobs(ModRoles.CANDLE_BEARER);
+        ModRoles.PELICAN.addTwoWayOpposingJobs(SERoles.INITIATE);
         
         // 设置教父与初学者互斥
         ModRoles.GODFATHER.addTwoWayOpposingJobs(SERoles.INITIATE);
+        // 设置鹈鹕与教父互斥
+        ModRoles.PELICAN.addTwoWayOpposingJobs(ModRoles.GODFATHER);
+        // 设置鹈鹕与刽子手互斥
+        ModRoles.PELICAN.addTwoWayOpposingJobs(ModRoles.EXECUTIONER);
+        // 设置鹈鹕与傀儡师互斥
+        ModRoles.PELICAN.addTwoWayOpposingJobs(ModRoles.PUPPETEER);
+        // 设置鹈鹕与愚者互斥
+        ModRoles.PELICAN.addTwoWayOpposingJobs(ModRoles.THE_FOOL);
         
         // 初始化叛徒职业和新修饰符
         TraitorAndModifiers.init();

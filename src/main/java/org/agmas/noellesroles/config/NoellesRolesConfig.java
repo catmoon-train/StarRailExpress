@@ -925,7 +925,7 @@ public class NoellesRolesConfig implements ConfigData {
     /**
      * Pelican - percentage chance (0-100) for Pelican to spawn
      */
-    public int chanceOfPelican = 25;
+    public int chanceOfPelican = 40;
 
     /**
      * Pelican - percentage of starting players needed to swallow for victory
