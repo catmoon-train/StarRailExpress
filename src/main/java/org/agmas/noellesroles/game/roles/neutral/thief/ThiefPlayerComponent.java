@@ -19,6 +19,7 @@ import net.minecraft.world.item.Items;
 import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.init.ModEffects;
+import org.agmas.noellesroles.init.FunnyItems;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
@@ -460,6 +461,8 @@ public class ThiefPlayerComponent implements RoleComponent, ServerTickingCompone
             return true; // 鞭炮
         if (stack.is(ModItems.BOMB))
             return true; // 炸弹
+        if (stack.is(ModItems.C4))
+            return true; // C4炸药
 
         // 道具类
         if (stack.is(TMMItems.SCORPION))
@@ -522,6 +525,8 @@ public class ThiefPlayerComponent implements RoleComponent, ServerTickingCompone
             return true; // 闪光弹
         if (stack.is(ModItems.DECOY_GRENADE))
             return true; // 诱饵弹
+        if (stack.is(ModItems.POISON_GAS_TANK))
+            return true; // 毒气瓶
 
         // 护盾试剂（来自TMM）
         if (stack.is(TMMItems.DEFENSE_VIAL))
@@ -624,6 +629,61 @@ public class ThiefPlayerComponent implements RoleComponent, ServerTickingCompone
         if (stack.is(ModItems.SPIRIT_CLOAK))
             return true;
 
+        // 拆弹钳
+        if (stack.is(ModItems.PLIERS))
+            return true;
+        // 铁门钥匙
+        if (stack.is(TMMItems.IRON_DOOR_KEY))
+            return true;
+        // 巧匠钥匙
+        if (stack.is(ModItems.NOELL_ARTISAN_KEY))
+            return true;
+        // 回形针
+        if (stack.is(ModItems.NOELL_PAPERCLIP))
+            return true;
+        // 习题集
+        if (stack.is(FunnyItems.PROBLEM_SET))
+            return true;
+        // 十四夜
+        if (stack.is(FunnyItems.SHISIYE))
+            return true;
+        // 照明弹
+        if (stack.is(ModItems.FLARE))
+            return true;
+        // 催化剂
+        if (stack.is(ModItems.CATALYST))
+            return true;
+        // 假刀
+        if (stack.is(ModItems.FAKE_KNIFE))
+            return true;
+        // 假左轮手枪
+        if (stack.is(ModItems.FAKE_REVOLVER))
+            return true;
+        // 假球棒
+        if (stack.is(ModItems.FAKE_BAT))
+            return true;
+        // 假手雷
+        if (stack.is(ModItems.FAKE_GRENADE))
+            return true;
+        // 假开锁器
+        if (stack.is(ModItems.FAKE_LOCKPICK))
+            return true;
+        // 假撬棍
+        if (stack.is(ModItems.FAKE_CROWBAR))
+            return true;
+        // 假裹尸袋
+        if (stack.is(ModItems.FAKE_BODY_BAG))
+            return true;
+        // 沉默图腾
+        if (stack.is(ModItems.SILENCE_TOTEM))
+            return true;
+        // 破法药剂
+        if (stack.is(ModItems.SPELLBREAKER_POTION))
+            return true;
+        // 时停钟
+        if (stack.is(ModItems.TIME_STOP_CLOCK))
+            return true;
+
         // 其他物品不可偷取
         return false;
     }
@@ -712,6 +772,8 @@ public class ThiefPlayerComponent implements RoleComponent, ServerTickingCompone
             return true; // 鞭炮
         if (stack.is(ModItems.BOMB))
             return true; // 炸弹
+        if (stack.is(ModItems.C4))
+            return true; // C4炸药
 
         // 道具类
         if (stack.is(TMMItems.SCORPION))
@@ -772,6 +834,8 @@ public class ThiefPlayerComponent implements RoleComponent, ServerTickingCompone
             return true; // 闪光弹
         if (stack.is(ModItems.DECOY_GRENADE))
             return true; // 诱饵弹
+        if (stack.is(ModItems.POISON_GAS_TANK))
+            return true; // 毒气瓶
 
         // 护盾试剂（来自TMM）
         if (stack.is(TMMItems.DEFENSE_VIAL))
@@ -788,6 +852,57 @@ public class ThiefPlayerComponent implements RoleComponent, ServerTickingCompone
 
         // 铁门钥匙
         if (stack.is(io.wifi.starrailexpress.index.TMMItems.IRON_DOOR_KEY))
+            return true;
+        // 巧匠钥匙
+        if (stack.is(ModItems.NOELL_ARTISAN_KEY))
+            return true;
+        // 回形针
+        if (stack.is(ModItems.NOELL_PAPERCLIP))
+            return true;
+        // 拆弹钳
+        if (stack.is(ModItems.PLIERS))
+            return true;
+        // 习题集
+        if (stack.is(FunnyItems.PROBLEM_SET))
+            return true;
+        // 十四夜
+        if (stack.is(FunnyItems.SHISIYE))
+            return true;
+        // 照明弹
+        if (stack.is(ModItems.FLARE))
+            return true;
+        // 催化剂
+        if (stack.is(ModItems.CATALYST))
+            return true;
+        // 假刀
+        if (stack.is(ModItems.FAKE_KNIFE))
+            return true;
+        // 假左轮手枪
+        if (stack.is(ModItems.FAKE_REVOLVER))
+            return true;
+        // 假球棒
+        if (stack.is(ModItems.FAKE_BAT))
+            return true;
+        // 假手雷
+        if (stack.is(ModItems.FAKE_GRENADE))
+            return true;
+        // 假开锁器
+        if (stack.is(ModItems.FAKE_LOCKPICK))
+            return true;
+        // 假撬棍
+        if (stack.is(ModItems.FAKE_CROWBAR))
+            return true;
+        // 假裹尸袋
+        if (stack.is(ModItems.FAKE_BODY_BAG))
+            return true;
+        // 沉默图腾
+        if (stack.is(ModItems.SILENCE_TOTEM))
+            return true;
+        // 破法药剂
+        if (stack.is(ModItems.SPELLBREAKER_POTION))
+            return true;
+        // 时停钟
+        if (stack.is(ModItems.TIME_STOP_CLOCK))
             return true;
 
         // 其他物品不可出售
