@@ -101,9 +101,10 @@ public final class PelicanManager {
         DeathPenaltyComponent.KEY.get(target).setPenaltyWithCameraLimit(-1, pelican, true);
         DefibrillatorComponent.KEY.get(target).init();
 
-        // 添加很长时间的禁用技能和禁用聊天栏药水效果
+        // 添加很长时间的禁用技能、禁用聊天栏和禁用使用物品药水效果
         target.addEffect(new MobEffectInstance(ModEffects.SKILL_BANED, Integer.MAX_VALUE, 0, false, false, false));
         target.addEffect(new MobEffectInstance(ModEffects.CHAT_BAN, Integer.MAX_VALUE, 0, false, false, false));
+        target.addEffect(new MobEffectInstance(ModEffects.USED_BANED, Integer.MAX_VALUE, 0, false, false, false));
 
         // 如果目标处于疯狂模式（psycho），立刻结束
         SREPlayerPsychoComponent psychoComp = SREPlayerPsychoComponent.KEY.get(target);
@@ -155,9 +156,10 @@ public final class PelicanManager {
         DeathPenaltyComponent.KEY.get(target).init();
         DefibrillatorComponent.KEY.get(target).init();
 
-        // 清除被吞噬时添加的禁用技能和禁用聊天栏效果
+        // 清除被吞噬时添加的禁用技能、禁用聊天栏和禁用使用物品效果
         target.removeEffect(ModEffects.SKILL_BANED);
         target.removeEffect(ModEffects.CHAT_BAN);
+        target.removeEffect(ModEffects.USED_BANED);
 
         // 如果该玩家在被释放前已经在肚内死亡，则不尝试复活/改变其游戏模式或传送，
         // 以免后续释放（例如鹈鹕死亡）将其复活。仅清理跟踪状态并触发语音释放。
@@ -293,9 +295,10 @@ public final class PelicanManager {
         DeathPenaltyComponent.KEY.get(target).init();
         DefibrillatorComponent.KEY.get(target).init();
 
-        // 清除被吞噬时添加的禁用技能和禁用聊天栏效果
+        // 清除被吞噬时添加的禁用技能、禁用聊天栏和禁用使用物品效果
         target.removeEffect(ModEffects.SKILL_BANED);
         target.removeEffect(ModEffects.CHAT_BAN);
+        target.removeEffect(ModEffects.USED_BANED);
 
         // 不要在死亡处理期间强制改变玩家为冒险模式，允许死亡流程将玩家置为旁观者
         target.setInvisible(false);
@@ -319,9 +322,10 @@ public final class PelicanManager {
                 // 恢复聊天并清除 DeathPenalty/起搏器
                 DeathPenaltyComponent.KEY.get(target).init();
                 DefibrillatorComponent.KEY.get(target).init();
-                // 清除被吞噬时添加的禁用技能和禁用聊天栏效果
+                // 清除被吞噬时添加的禁用技能、禁用聊天栏和禁用使用物品效果
                 target.removeEffect(ModEffects.SKILL_BANED);
                 target.removeEffect(ModEffects.CHAT_BAN);
+                target.removeEffect(ModEffects.USED_BANED);
             // 如果该玩家在肚内已死亡，跳过复活/改模式/传送。
             if (stashedDead.contains(targetId)) {
                 stashedDead.remove(targetId);
