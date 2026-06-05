@@ -91,6 +91,7 @@ public interface TMMItems {
     Item EMOJI_HELMET = registrar.create("emoji_helmet", new EmojiHelmetItem(new Item.Properties().stacksTo(1)),
             EQUIPMENT_GROUP);
     Item DRAWING_BOARD = sreRegistrar.create("drawing_board", new io.wifi.starrailexpress.content.item.DrawingBoardItem(), EQUIPMENT_GROUP);
+    Item ADMIN_DRAWING_BOARD = sreRegistrar.create("admin_drawing_board", new io.wifi.starrailexpress.content.item.AdminDrawingBoardItem(), new net.minecraft.resources.ResourceKey[]{net.minecraft.world.item.CreativeModeTabs.OP_BLOCKS});
 
     public static void initialize() {
         INVISIBLE_ITEMS.add(TMMItems.NOTE);

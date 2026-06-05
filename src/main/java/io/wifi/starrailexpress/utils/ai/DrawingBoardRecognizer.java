@@ -8656,6 +8656,34 @@ public class DrawingBoardRecognizer {
     }
 
     /**
+     * 获取指定类别的代表图案（16x16字节数组）
+     * 返回深拷贝，未设置的像素默认为背景白色(16)
+     * @param category 类别ID
+     * @return 图案字节数组，若不存在则返回null
+     */
+    public byte[][] getPatternForCategory(int category) {
+        byte[][] original = categoryPatterns.get(category);
+        if (original == null) return null;
+        // 返回深拷贝，并将未设置像素(0)填充为背景白色(16)
+        byte[][] copy = new byte[16][16];
+        for (int y = 0; y < 16; y++) {
+            for (int x = 0; x < 16; x++) {
+                int color = original[y][x] & 0xFF;
+                copy[y][x] = (color == 0) ? (byte) COLOR_BACKGROUND_WHITE : original[y][x];
+            }
+        }
+        return copy;
+    }
+
+    /**
+     * 获取所有已定义pattern的类别ID列表
+     * @return 类别ID数组
+     */
+    public int[] getAvailableCategories() {
+        return categoryPatterns.keySet().stream().mapToInt(Integer::intValue).toArray();
+    }
+
+    /**
      * 检查两个颜色是否兼容（属于同一颜色组）
      * 颜色组互通规则：
      * - 灰色(8) <-> 淡灰色(7)
