@@ -209,9 +209,10 @@ public final class PelicanManager {
             stashedByPelican.remove(pelicanId);
 
         // 如果被释放的玩家中有疫使，重新检查疫使时刻触发条件
-        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(pelican.level());
+        ServerLevel overworld = server.overworld();
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(overworld);
         if (gameWorld != null) {
-            InfectedWinChecker.onInfectedReleasedFromPelican((ServerLevel) pelican.level());
+            InfectedWinChecker.onInfectedReleasedFromPelican(overworld);
         }
     }
 
@@ -352,9 +353,10 @@ public final class PelicanManager {
         stashedByPelican.remove(pelicanId);
 
         // 如果被释放的玩家中有疫使，重新检查疫使时刻触发条件
-        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(pelican.level());
+        ServerLevel overworld = server.overworld();
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(overworld);
         if (gameWorld != null) {
-            InfectedWinChecker.onInfectedReleasedFromPelican((ServerLevel) pelican.level());
+            InfectedWinChecker.onInfectedReleasedFromPelican(overworld);
         }
     }
 
