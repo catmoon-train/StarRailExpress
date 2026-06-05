@@ -1,6 +1,7 @@
 package org.agmas.noellesroles.game.roles.neutral.pelican;
 
 import io.wifi.starrailexpress.api.RoleComponent;
+import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -129,10 +130,11 @@ public class PelicanPlayerComponent implements RoleComponent, ServerTickingCompo
         if (bellyPlayerIds.contains(target.getUUID())) return false;
         if (PelicanManager.isStashed(target)) return false;
 
-        // 不能吞噬鹈鹕和黑白角色
+        // 不能吞噬鹈鹕、亡命徒和黑白角色
         SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
         if (gameWorld.isRole(target, ModRoles.PELICAN)) return false;
         if (gameWorld.isRole(target, ModRoles.MONOKUMA)) return false;
+        if (gameWorld.isRole(target, TMMRoles.LOOSE_END)) return false;
 
         // 吞噬玩家
         PelicanManager.stashPlayer(sp, target);
