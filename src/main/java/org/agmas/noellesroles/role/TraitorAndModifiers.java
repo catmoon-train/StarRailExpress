@@ -11,7 +11,6 @@ import io.wifi.starrailexpress.event.OnPlayerDeathWithKiller;
 import io.wifi.starrailexpress.event.OnPlayerKilledPlayer;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
-import io.wifi.starrailexpress.index.TMMItems;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -332,11 +331,16 @@ public class TraitorAndModifiers {
                 player.getAttribute(Attributes.GRAVITY).addPermanentModifier(ANTI_NEWTON_GRAVITY_MODIFIER);
             }
             
-            // === 起义军 - 仅在平民阵营时生效 ===
+            // === 起义军 - 仅在平民阵营时生效，且不给巫毒师 ===
             if (modifier.equals(REBEL)) {
                 SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
-                if (gameWorld != null && gameWorld.isRunning() && !gameWorld.isInnocent(player)) {
-                    worldModifierComponent.removeModifier(player.getUUID(), REBEL);
+                if (gameWorld != null && gameWorld.isRunning()) {
+                    // 巫毒师不获得起义军修饰符
+                    if (gameWorld.getRole(player) == ModRoles.VOODOO) {
+                        worldModifierComponent.removeModifier(player.getUUID(), REBEL);
+                    } else if (!gameWorld.isInnocent(player)) {
+                        worldModifierComponent.removeModifier(player.getUUID(), REBEL);
+                    }
                 }
             }
             
@@ -445,6 +449,8 @@ public class TraitorAndModifiers {
             
             WorldModifierComponent modifiers = WorldModifierComponent.KEY.get(player.level());
             if (modifiers.isModifier(player.getUUID(), REBEL)) {
+                // 起义军修饰符仅在平民阵营生效
+                if (!gameWorld.isInnocent(player)) return true;
                 // 如果是殉情（恋人修饰符），不触发起义军
                 if (LoversComponent.KEY.get(player).isLover()) return true;
 
@@ -546,6 +552,8 @@ public class TraitorAndModifiers {
             // 检查被击杀者是否是起义军玩家
             WorldModifierComponent modifiers = WorldModifierComponent.KEY.get(victim.level());
             if (modifiers != null && modifiers.isModifier(victim.getUUID(), REBEL)) {
+                // 起义军修饰符仅在平民阵营生效
+                if (!gameWorld.isInnocent(victim)) return;
                 // 如果是殉情（恋人修饰符），不起义军惩罚
                 if (LoversComponent.KEY.get(victim).isLover()) return;
 

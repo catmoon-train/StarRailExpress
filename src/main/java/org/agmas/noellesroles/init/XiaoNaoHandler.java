@@ -9,7 +9,7 @@ import net.minecraft.server.level.ServerPlayer;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
-import org.agmas.noellesroles.game.roles.Innocent.avenger.AvengerPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.avenger.AvengerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.blood_feudist.BloodFeudistPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 
@@ -25,6 +25,10 @@ public class XiaoNaoHandler {
                     SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(victim.level());
                     if (gameWorldComponent.isRole(victim, TMMRoles.DISCOVERY_CIVILIAN)) {
                         // 跳过游客惩罚
+                        return;
+                    }
+                    // 跳过家族成员（教父、教徒、侍卫）的惩罚——好人不应该因为打家族成员而受小脑惩罚
+                    if (gameWorldComponent.getRole(victim) != null && gameWorldComponent.getRole(victim).isMafiaTeam()) {
                         return;
                     }
                     // 检查是否是疯狂模式下的魔术师，如果是则不算误杀

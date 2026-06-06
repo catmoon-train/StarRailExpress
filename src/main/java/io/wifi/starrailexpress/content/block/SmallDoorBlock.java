@@ -41,7 +41,6 @@ import org.agmas.noellesroles.Noellesroles;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
-
 import java.util.function.Supplier;
 
 public class SmallDoorBlock extends DoorPartBlock {
@@ -54,7 +53,8 @@ public class SmallDoorBlock extends DoorPartBlock {
 
     public SmallDoorBlock(Supplier<BlockEntityType<SmallDoorBlockEntity>> typeSupplier, Properties settings) {
         super(settings);
-        this.registerDefaultState(super.defaultBlockState().setValue(HALF, DoubleBlockHalf.LOWER));
+        this.registerDefaultState(
+                super.defaultBlockState().setValue(HALF, DoubleBlockHalf.LOWER));
         this.typeSupplier = typeSupplier;
     }
 
@@ -96,14 +96,70 @@ public class SmallDoorBlock extends DoorPartBlock {
         return state;
     }
 
+    public BlockPos getLowerHalfPos(BlockState state, BlockPos pos) {
+        if (state.getValue(HALF).equals(DoubleBlockHalf.UPPER)) {
+            return pos.below();
+        } else {
+            return pos;
+        }
+    }
+
+    public BlockPos getOtherHalfPos(BlockState state, BlockPos pos) {
+        if (state.getValue(HALF).equals(DoubleBlockHalf.UPPER)) {
+            return pos.below();
+        } else {
+            return pos.above();
+        }
+    }
+
+    @Override
+    public void neighborChanged(BlockState state, Level world, BlockPos pos, Block block, BlockPos fromPos,
+            boolean notify) {
+        var blockPos2 = getOtherHalfPos(state, pos);
+        if (!world.isClientSide) {
+            BlockPos lowerPos = getLowerHalfPos(state, pos);
+            BlockState lowerState = world.getBlockState(lowerPos);
+            boolean isPowered = world.hasNeighborSignal(pos) || world.hasNeighborSignal(blockPos2);
+            if (!(lowerState.getBlock() instanceof SmallDoorBlock)) {
+                return;
+            }
+            if (isPowered != lowerState.getValue(POWERED)) {
+                world.setBlock(lowerPos, lowerState.setValue(POWERED, isPowered), 2);
+                if (isPowered) {
+                    tryOpenDoors(world, lowerPos, -2);
+                }
+            }
+        }
+    }
+
+    private boolean tryOpenDoors(Level world, BlockPos pos, int ticks) {
+        if (world.getBlockEntity(pos) instanceof SmallDoorBlockEntity entity) {
+            if (entity.isJammed()) {
+                if (!world.isClientSide)
+                    world.playSound(null, entity.getBlockPos().getX() + .5f, entity.getBlockPos().getY() + 1,
+                            entity.getBlockPos().getZ() + .5f, TMMSounds.BLOCK_DOOR_LOCKED, SoundSource.BLOCKS, 1f, 1f);
+                return false;
+            }
+            if (entity.isBlasted())
+                return false;
+            toggleDoor(world.getBlockState(pos), world, entity, pos, ticks);
+            return true;
+        }
+        return false;
+    }
+
     @Override
     public @Nullable BlockState getStateForPlacement(BlockPlaceContext ctx) {
         BlockState placementState = super.getStateForPlacement(ctx);
         if (placementState == null) {
             return null;
         }
+        Level level = ctx.getLevel();
+
         BlockPos pos = ctx.getClickedPos();
         Level world = ctx.getLevel();
+        boolean bl = level.hasNeighborSignal(pos) || level.hasNeighborSignal(pos.above());
+
         return pos.getY() < world.getMaxBuildHeight() - 1 && world.getBlockState(pos.above()).canBeReplaced(ctx)
                 ? placementState
                 : null;
@@ -159,7 +215,7 @@ public class SmallDoorBlock extends DoorPartBlock {
                 return InteractionResult.FAIL;
             }
 
-            if (!player.isCreative() && DisallowPlayerOpenDoor.EVENT.invoker().cantOpen(player)){
+            if (!player.isCreative() && DisallowPlayerOpenDoor.EVENT.invoker().cantOpen(player)) {
                 return InteractionResult.FAIL;
             }
             if (player.isCreative() || AllowPlayerOpenLockedDoor.EVENT.invoker().allowOpen(player)) {
@@ -230,14 +286,19 @@ public class SmallDoorBlock extends DoorPartBlock {
     }
 
     public static void toggleDoor(BlockState state, Level world, SmallDoorBlockEntity entity, BlockPos lowerPos) {
-        entity.toggle(false);
+        toggleDoor(state, world, entity, lowerPos, -2);
+    }
+
+    public static void toggleDoor(BlockState state, Level world, SmallDoorBlockEntity entity, BlockPos lowerPos,
+            int ticks) {
+        entity.toggle(false, ticks);
         Direction facing = state.getValue(FACING);
         BlockPos neighborPos = lowerPos.relative(facing.getCounterClockWise());
         BlockState neighborState = world.getBlockState(neighborPos);
         if (neighborState.is(state.getBlock())
                 && neighborState.getValue(FACING).getOpposite() == facing
                 && world.getBlockEntity(neighborPos) instanceof SmallDoorBlockEntity neighborEntity) {
-            neighborEntity.toggle(true);
+            neighborEntity.toggle(true, ticks);
         }
     }
 

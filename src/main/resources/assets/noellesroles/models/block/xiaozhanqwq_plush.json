@@ -1,0 +1,7 @@
+{
+	"parent":"noellesroles:block/baka_plush",
+	"textures": {
+		"0": "starrailexpress:block/plush/xiaozhanqwq",
+		"particle": "starrailexpress:block/plush/xiaozhanqwq"
+	}
+}

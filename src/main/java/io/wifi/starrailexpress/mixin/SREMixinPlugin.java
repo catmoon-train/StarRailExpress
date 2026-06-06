@@ -4,6 +4,8 @@ import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 
+import net.fabricmc.loader.api.FabricLoader;
+
 import java.util.List;
 import java.util.Set;
 
@@ -20,7 +22,11 @@ public class SREMixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-        return !mixinClassName.equals("io.wifi.starrailexpress.mixin.client.scenery.SceneryWorldRendererMixin");
+        if (!FabricLoader.getInstance().isModLoaded("sodium-extra")) {
+            if (mixinClassName.contains("io.wifi.starrailexpress.mixin.compat.sodium_extra"))
+                return false;
+        }
+        return true;
     }
 
     @Override

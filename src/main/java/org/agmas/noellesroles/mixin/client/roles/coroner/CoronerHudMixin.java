@@ -34,6 +34,7 @@ import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.game.roles.killer.insane_killer.InsaneKillerPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.utils.RoleUtils;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -77,7 +78,7 @@ public abstract class CoronerHudMixin {
         if (NoellesrolesClient.targetFakeBody != null) {
             SRERole selfrole = SREClient.getCachedPlayerRole();
             boolean canSeeBody = false;
-            if (selfrole != null && selfrole.canSeeBodyDeathReason())
+            if (selfrole != null && selfrole.canSeeBodyDeathReason(SREClient.cached_player))
                 canSeeBody = true;
             if (canSeeBody
                     || SREClient.isPlayerSpectatingOrCreative()) {
@@ -111,8 +112,7 @@ public abstract class CoronerHudMixin {
                 if (role == null)
                     role = TMMRoles.CIVILIAN;
                 Component roleInfo = Component.translatable("hud.coroner.role_info").withColor(CommonColors.RED)
-                        .append(Component.translatable("announcement.star.role." + role.identifier().getPath())
-                                .withColor(role.color()));
+                        .append(RoleUtils.getRoleName(role.identifier()).copy().withColor(role.color()));
                 if (hasPenalty) {
                     roleInfo = Component.translatable("message.noellesroles.penalty.limit")
                             .withStyle(ChatFormatting.LIGHT_PURPLE, ChatFormatting.ITALIC);
@@ -127,7 +127,7 @@ public abstract class CoronerHudMixin {
         if (NoellesrolesClient.targetBody != null) {
             SRERole selfrole = SREClient.getCachedPlayerRole();
             boolean canSeeBody = false;
-            if (selfrole != null && selfrole.canSeeBodyDeathReason())
+            if (selfrole != null && selfrole.canSeeBodyDeathReason(SREClient.cached_player))
                 canSeeBody = true;
             if (canSeeBody
                     || SREClient.isPlayerSpectatingOrCreative()) {
@@ -214,13 +214,10 @@ public abstract class CoronerHudMixin {
                         foundRole = role;
                 }
                 if ((SREClient.isPlayerSpectatingOrCreative()
-                        || selfrole.canSeeBodyRoleInfo())
+                        || selfrole.canSeeBodyRoleInfo(SREClient.cached_player))
                         && !bodyDeathReasonComponent.vultured) {
                     Component roleInfo = Component.translatable("hud.coroner.role_info").withColor(CommonColors.RED)
-                            .append(Component
-                                    .translatable(
-                                            "announcement.star.role." + bodyDeathReasonComponent.playerRole.getPath())
-                                    .withColor(foundRole.color()));
+                            .append(RoleUtils.getRoleName(bodyDeathReasonComponent.playerRole).copy().withColor(foundRole.color()));
                     if (hasPenalty) {
                         roleInfo = Component.translatable("message.noellesroles.penalty.limit.role");
                     }

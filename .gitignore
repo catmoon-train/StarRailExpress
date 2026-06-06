@@ -8,7 +8,8 @@ bin/*
 .apt_generated/*
 tools/other/*
 /tools/other/
-
+runtime_mods/*
+/runtime_mods/
 /.kilocode/
 /run/
 /.idea/
@@ -19,3 +20,4 @@ commitCache
 /.vscode/
 /bin/
 /tools/dist/
+src/main/java/org/agmas/noellesroles/role/StarRailExpress.code-workspace

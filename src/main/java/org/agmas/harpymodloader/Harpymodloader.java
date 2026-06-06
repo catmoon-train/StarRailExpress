@@ -166,6 +166,11 @@ public class Harpymodloader implements ModInitializer {
     }
 
     public static MutableComponent getRoleName(SRERole role) {
+        // 检查自定义职业
+        if ("customrole".equals(role.identifier().getNamespace())) {
+            var cd = io.wifi.starrailexpress.customrole.CustomRoleLoader.getCustomRoleData(role.identifier().getPath());
+            if (cd != null && !cd.displayName.isEmpty()) return Component.literal(cd.displayName);
+        }
         if (role.identifier().getNamespace().equalsIgnoreCase("starrailexpress")) {
             return Component.translatable("announcement.star.role." + role.identifier().getPath());
         }

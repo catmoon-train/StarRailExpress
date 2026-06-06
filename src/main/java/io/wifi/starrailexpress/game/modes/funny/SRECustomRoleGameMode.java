@@ -54,8 +54,6 @@ public class SRECustomRoleGameMode extends SREMurderGameMode {
     @Override
     public void initializeGame(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent,
             List<ServerPlayer> players) {
-        (SRETrainWorldComponent.KEY.get(serverWorld))
-                .setTimeOfDay(SRETrainWorldComponent.TimeOfDay.MIDNIGHT);
         gameWorldComponent.clearRoleMap();
         selectionTick = SREConfig.instance().customRoleModeForceSelectTime * 20;
         roleSelectTimeout = serverWorld.getGameTime() + selectionTick;

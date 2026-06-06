@@ -17,7 +17,8 @@ import java.util.*;
  * 管理建筑师建造的客户端墙
  * 墙不是真正的方块，而是渲染用的客户端方块+碰撞体积
  * 
- * 防止左右键刷新：每tick重新检查并恢复被破坏的砖块方块
+ * 防止左右键刷新：每tick重新检查并恢复被破坏的方块
+ * 第三行（顶部）为蜘蛛网，其余为砖块
  */
 @Environment(EnvType.CLIENT)
 public class ClientWallManager {
@@ -27,29 +28,42 @@ public class ClientWallManager {
     
     // 砖块方块状态
     private static final BlockState BRICK_STATE = Blocks.BRICKS.defaultBlockState();
+    // 蜘蛛网方块状态
+    private static final BlockState COBWEB_STATE = Blocks.COBWEB.defaultBlockState();
 
     /**
      * 创建一堵客户端墙
      */
-    public static void createWall(UUID wallId, List<BlockPos> positions, int durationTicks) {
+    public static void createWall(UUID wallId, List<BlockPos> brickPositions, List<BlockPos> cobwebPositions, int durationTicks) {
         ClientLevel level = Minecraft.getInstance().level;
         if (level == null) return;
         
         // 记录被替换的方块（只替换空气）
         Map<BlockPos, BlockState> replacedBlocks = new HashMap<>();
         List<BlockPos> actualWallPositions = new ArrayList<>();
+        Set<BlockPos> cobwebSet = new HashSet<>(cobwebPositions);
         
-        for (BlockPos pos : positions) {
+        // 放置砖块
+        for (BlockPos pos : brickPositions) {
             BlockState existingState = level.getBlockState(pos);
             if (existingState.isAir()) {
                 actualWallPositions.add(pos);
                 replacedBlocks.put(pos, existingState);
-                // 在客户端设置砖块方块（使用flag减少同步通知）
                 level.setBlock(pos, BRICK_STATE, 3);
             }
         }
         
-        activeWalls.put(wallId, new ClientWall(wallId, actualWallPositions, durationTicks, replacedBlocks));
+        // 放置蜘蛛网
+        for (BlockPos pos : cobwebPositions) {
+            BlockState existingState = level.getBlockState(pos);
+            if (existingState.isAir()) {
+                actualWallPositions.add(pos);
+                replacedBlocks.put(pos, existingState);
+                level.setBlock(pos, COBWEB_STATE, 3);
+            }
+        }
+        
+        activeWalls.put(wallId, new ClientWall(wallId, actualWallPositions, cobwebSet, durationTicks, replacedBlocks));
     }
 
     /**
@@ -124,12 +138,14 @@ public class ClientWallManager {
     private static class ClientWall {
         final UUID wallId;
         final List<BlockPos> positions;
+        final Set<BlockPos> cobwebPositions;
         int remainingTicks;
         final Map<BlockPos, BlockState> replacedBlocks;
 
-        ClientWall(UUID wallId, List<BlockPos> positions, int durationTicks, Map<BlockPos, BlockState> replacedBlocks) {
+        ClientWall(UUID wallId, List<BlockPos> positions, Set<BlockPos> cobwebPositions, int durationTicks, Map<BlockPos, BlockState> replacedBlocks) {
             this.wallId = wallId;
             this.positions = positions;
+            this.cobwebPositions = cobwebPositions;
             this.remainingTicks = durationTicks;
             this.replacedBlocks = replacedBlocks;
         }
@@ -170,11 +186,10 @@ public class ClientWallManager {
         public void restoreIfNeeded(ClientLevel level) {
             for (BlockPos pos : positions) {
                 BlockState currentState = level.getBlockState(pos);
-                // 如果这个位置不再是砖块（被玩家破坏或服务端同步覆盖），重新设置
-                if (!currentState.is(Blocks.BRICKS)) {
-                    // 只在原来是空气的位置恢复（不覆盖真实的方块变化）
+                BlockState expectedState = cobwebPositions.contains(pos) ? COBWEB_STATE : BRICK_STATE;
+                if (!currentState.is(expectedState.getBlock())) {
                     if (replacedBlocks.containsKey(pos)) {
-                        level.setBlock(pos, BRICK_STATE, 3);
+                        level.setBlock(pos, expectedState, 3);
                     }
                 }
             }
@@ -187,8 +202,8 @@ public class ClientWallManager {
             if (level == null) return;
             for (Map.Entry<BlockPos, BlockState> entry : replacedBlocks.entrySet()) {
                 BlockPos pos = entry.getKey();
-                // 只恢复那些仍然是砖块的位置（避免覆盖其他变化）
-                if (level.getBlockState(pos).is(Blocks.BRICKS)) {
+                BlockState currentState = level.getBlockState(pos);
+                if (currentState.is(Blocks.BRICKS) || currentState.is(Blocks.COBWEB)) {
                     level.setBlock(pos, entry.getValue(), 3);
                 }
             }

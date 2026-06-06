@@ -1,6 +1,7 @@
 package org.agmas.noellesroles.client.commands;
 
 import io.wifi.ConfigCompact.ui.SettingMenuScreen;
+import io.wifi.starrailexpress.SREClientConfig;
 import io.wifi.starrailexpress.client.util.ClientScheduler;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
@@ -13,6 +14,29 @@ public class SREClientCommand {
     ClientCommandRegistrationCallback.EVENT.register(
         (dispatcher, registryAccess) -> {
           dispatcher.register(ClientCommandManager.literal("sre:client")
+              .then(ClientCommandManager.literal("settings")
+                  .then(ClientCommandManager.literal("random_skin")
+                      .then(ClientCommandManager.literal("enable").executes((ctx) -> {
+                        SREClientConfig.instance().enableRandomSkinForStreaming = true;
+                        ctx.getSource()
+                            .sendFeedback(Component
+                                .translatable("Success enabled %s! Rejoin the world/server to make it work!",
+                                    Component.translatable(
+                                        "text.autoconfig.starrailexpress-client.option.enableRandomSkinForStreaming"))
+                                .withStyle(ChatFormatting.GREEN));
+                        return 1;
+                      }))
+                      .then(ClientCommandManager.literal("disable")
+                          .executes((ctx) -> {
+                            ctx.getSource()
+                                .sendFeedback(Component
+                                    .translatable("Success disabled %s! Rejoin the world/server to make it work!",
+                                        Component.translatable(
+                                            "text.autoconfig.starrailexpress-client.option.enableRandomSkinForStreaming"))
+                                    .withStyle(ChatFormatting.RED));
+                            SREClientConfig.instance().enableRandomSkinForStreaming = false;
+                            return 1;
+                          }))))
               .then(ClientCommandManager.literal("screen")
                   .then(ClientCommandManager.literal("GameManagePanel")
                       .executes(context -> {

@@ -17,6 +17,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import org.agmas.noellesroles.component.InfectedPlayerComponent;
 import org.agmas.noellesroles.component.ModComponents;
+import org.agmas.noellesroles.game.roles.neutral.pelican.PelicanManager;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.packet.BroadcastMessageS2CPacket;
 import org.agmas.noellesroles.role.ModRoles;
@@ -247,6 +248,18 @@ public class InfectedWinChecker {
             }
 
             if (!hasInfected) {
+                // 检查疫使是否在鹈鹕肚子里——如果在肚子里，则不取消加速状态，等待释放后重新判断
+                boolean infectedInPelicanBelly = false;
+                for (ServerPlayer player : level.getPlayers(p -> true)) {
+                    if (PelicanManager.isStashed(player) && gameWorldComponent.isRole(player, ModRoles.INFECTED)) {
+                        infectedInPelicanBelly = true;
+                        break;
+                    }
+                }
+                if (infectedInPelicanBelly) {
+                    return; // 疫使在鹈鹕肚子里，保持当前状态不变
+                }
+
                 // 没有疫使，取消加速
                 if (wasAccelerated) {
                     InfectedPlayerComponent.setSpreadAcceleratedForAll(level, false);
@@ -300,6 +313,82 @@ public class InfectedWinChecker {
      */
     public static boolean isAccelerated() {
         return wasAccelerated;
+    }
+
+    /**
+     * 当疫使从鹈鹕肚子里被释放时调用，重新检查并触发疫使时刻条件
+     */
+    public static void onInfectedReleasedFromPelican(ServerLevel level) {
+        var gameWorldComponent = SREGameWorldComponent.KEY.maybeGet(level).orElse(null);
+        if (gameWorldComponent == null || !gameWorldComponent.isRunning()) {
+            return;
+        }
+
+        boolean hasInfected = false;
+        boolean hasKiller = false;
+        boolean hasDoctor = false;
+        boolean hasLooseEnd = false;
+        boolean hasSafeTime = false;
+
+        for (ServerPlayer player : level.getPlayers(GameUtils::isPlayerAliveAndSurvival)) {
+            if (gameWorldComponent.isRole(player, ModRoles.INFECTED)) {
+                hasInfected = true;
+            }
+            var role = gameWorldComponent.getRole(player);
+            if (role != null && role.isKiller() && !hasKiller) {
+                hasKiller = true;
+            }
+            if (!hasDoctor && (gameWorldComponent.isRole(player, ModRoles.DOCTOR)
+                    || gameWorldComponent.isRole(player, ModRoles.GLITCH_ROBOT))) {
+                hasDoctor = true;
+            }
+            if (!hasLooseEnd && gameWorldComponent.isRole(player, TMMRoles.LOOSE_END)) {
+                hasLooseEnd = true;
+            }
+            if (!hasSafeTime && player.hasEffect(ModEffects.SAFE_TIME)) {
+                hasSafeTime = true;
+            }
+        }
+
+        if (!hasInfected) {
+            if (wasAccelerated) {
+                InfectedPlayerComponent.setSpreadAcceleratedForAll(level, false);
+                wasAccelerated = false;
+            }
+            return;
+        }
+
+        boolean killersAllDead = !hasKiller;
+        boolean shouldAccelerate = killersAllDead && !hasDoctor && !hasLooseEnd && !hasSafeTime;
+
+        if (shouldAccelerate) {
+            if (!wasAccelerated) {
+                InfectedPlayerComponent.setSpreadAcceleratedForAll(level, true);
+                wasAccelerated = true;
+                for (ServerPlayer p : level.players()) {
+                    level.playSound(null, p.getX(), p.getY(), p.getZ(),
+                        SoundEvents.WITCH_CELEBRATE, SoundSource.MASTER, 1.0F, 1.0F);
+                }
+                Component broadcast = Component.translatable("message.noellesroles.infected.time.triggered")
+                        .withStyle(ChatFormatting.DARK_GREEN, ChatFormatting.BOLD);
+                for (ServerPlayer p : level.getServer().getPlayerList().getPlayers()) {
+                    ServerPlayNetworking.send(p, new BroadcastMessageS2CPacket(broadcast));
+                }
+                for (ServerPlayer p : level.getPlayers(GameUtils::isPlayerAliveAndSurvival)) {
+                    if (gameWorldComponent.isRole(p, ModRoles.INFECTED)) {
+                        SREAbilityPlayerComponent abilityComponent = SREAbilityPlayerComponent.KEY.get(p);
+                        abilityComponent.cooldown = 0;
+                        abilityComponent.sync();
+                    }
+                }
+            }
+            InfectedAbilityHandler.checkAndTriggerLastInfected(level);
+        } else {
+            if (wasAccelerated) {
+                InfectedPlayerComponent.setSpreadAcceleratedForAll(level, false);
+                wasAccelerated = false;
+            }
+        }
     }
 
     /**

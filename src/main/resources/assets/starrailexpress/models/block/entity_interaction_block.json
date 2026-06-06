@@ -1,6 +1,7 @@
 {
   "parent": "minecraft:block/cube_all",
   "textures": {
-    "all": "starrailexpress:block/transparent"
+    "0": "#all",
+    "all": "starrailexpress:item/entity_interaction_block"
   }
 }

@@ -1,9 +1,9 @@
 package org.agmas.noellesroles.content.entity;
 
+import io.wifi.starrailexpress.content.entity.no_water_influenced.NoHeavyWaterInfluencedThrowableItemProjectile;
 import io.wifi.starrailexpress.index.TMMSounds;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.projectile.ThrowableItemProjectile;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 import org.agmas.noellesroles.init.ModItems;
@@ -13,7 +13,7 @@ import org.agmas.noellesroles.init.ModItems;
  * - 落地时不会产生粒子效果
  * - 在落地处发生5声左轮手枪射击的声音（时间间隔不一）
  */
-public class DecoyGrenadeEntity extends ThrowableItemProjectile {
+public class DecoyGrenadeEntity extends NoHeavyWaterInfluencedThrowableItemProjectile {
 
     // 射击次数：5次
     private static final int SHOOT_COUNT = 5;
@@ -26,7 +26,7 @@ public class DecoyGrenadeEntity extends ThrowableItemProjectile {
     private int shotsFired = 0;
     private int nextShootDelay = 0;
 
-    public DecoyGrenadeEntity(EntityType<? extends ThrowableItemProjectile> entityType, Level world) {
+    public DecoyGrenadeEntity(EntityType<? extends NoHeavyWaterInfluencedThrowableItemProjectile> entityType, Level world) {
         super(entityType, world);
     }
 

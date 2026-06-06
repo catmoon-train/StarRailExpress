@@ -9,6 +9,7 @@ import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.util.ClientSkinCache;
+import org.agmas.noellesroles.utils.RoleUtils;
 import io.wifi.starrailexpress.client.util.SREClientUtils;
 import io.wifi.starrailexpress.event.OnRoundStartWelcomeTimmer;
 import io.wifi.starrailexpress.game.GameConstants;
@@ -330,7 +331,7 @@ public class RoundTextRenderer {
                         context.pose().pushPose();
                         context.pose().scale(0.32f, 0.32f, 1f);
                         context.pose().translate(38, 36, 200);
-                        var text = Component.translatable("announcement.star.role." + role1.getIdentifier().getPath());
+                        var text = RoleUtils.getRoleName(role1.getIdentifier());
                         int textWidth = getOrCacheWidth(renderer, text);
                         context.drawString(renderer, text, -textWidth / 2, 0, role1.getColor());
                         context.pose().popPose();

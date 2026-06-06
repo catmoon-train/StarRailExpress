@@ -24,7 +24,6 @@ public class ExecutionerConfirmMixin {
 
         if (killer == null)
             return;
-
         SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(world);
         if (gameWorldComponent == null)
             return;
@@ -35,10 +34,11 @@ public class ExecutionerConfirmMixin {
             if (executionerPlayerComponent.target != null
                     && executionerPlayerComponent.target.equals(victim.getUUID())) {
                 executionerPlayerComponent.assignRandomTarget();
-
                 executionerPlayerComponent.sync();
             }
         }
+        if (force)
+            return;
         final var role = gameWorldComponent.getRole(killer);
         if (role == null)
             return;

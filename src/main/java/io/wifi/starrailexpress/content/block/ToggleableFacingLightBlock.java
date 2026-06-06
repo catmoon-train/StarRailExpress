@@ -9,12 +9,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.BlockHitResult;
 
 public abstract class ToggleableFacingLightBlock extends FacingLightBlock {
-    public static final BooleanProperty LIT = BlockStateProperties.LIT;
 
     public ToggleableFacingLightBlock(Properties settings) {
         super(settings);
@@ -23,7 +20,8 @@ public abstract class ToggleableFacingLightBlock extends FacingLightBlock {
     }
 
     @Override
-    public InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult hit) {
+    public InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player,
+            BlockHitResult hit) {
         if (!player.isSecondaryUseActive()) {
             boolean lit = state.getValue(LIT);
             world.setBlock(pos, state.setValue(LIT, !lit), Block.UPDATE_ALL);

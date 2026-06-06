@@ -26,7 +26,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -526,7 +525,7 @@ public class GameReplayManager implements IGameReplayRecorder {
       }
     }
     if (trole != null)
-      rolen = trole.identifier().getPath();
+      rolen = trole.identifier().toString();
     addEvent(GameReplayData.EventType.PLAYER_REVIVAL, player, null, "", rolen, hidden);
   }
 
@@ -538,9 +537,9 @@ public class GameReplayManager implements IGameReplayRecorder {
     String old_role_str = "unknown";
     String new_role_str = "unknown";
     if (oldRole != null)
-      old_role_str = oldRole.identifier().getPath();
+      old_role_str = oldRole.identifier().toString();
     if (newRole != null)
-      new_role_str = newRole.identifier().getPath();
+      new_role_str = newRole.identifier().toString();
     addEvent(GameReplayData.EventType.CHANGE_ROLE, player, null, "", old_role_str + "===" + new_role_str, hidden);
   }
 

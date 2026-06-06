@@ -692,7 +692,7 @@ public class ModItems {
      * - 初始子弹数1，只能通过塔罗会补充
      */
     public static final Item EXECUTIONER_GUN = register(
-            new org.agmas.noellesroles.game.roles.Innocent.fool.ExecutionerGunItem(
+            new org.agmas.noellesroles.game.roles.innocent.fool.ExecutionerGunItem(
                     new Item.Properties().stacksTo(1)),
             "executioner_gun");
 
@@ -717,7 +717,7 @@ public class ModItems {
      * - 玩家对着纸条按V键祷告，获得"塔罗会成员"标签
      */
     public static final Item HONORED_NOTE = register(
-            new org.agmas.noellesroles.game.roles.Innocent.fool.HonoredNoteItem(
+            new org.agmas.noellesroles.game.roles.innocent.fool.HonoredNoteItem(
                     new Item.Properties().stacksTo(16)),
             "honored_note");
 
@@ -728,7 +728,7 @@ public class ModItems {
      * - 冷却90秒
      */
     public static final Item SPIRIT_CLOAK = register(
-            new org.agmas.noellesroles.game.roles.Innocent.fool.SpiritCloakItem(
+            new org.agmas.noellesroles.game.roles.innocent.fool.SpiritCloakItem(
                     new Item.Properties().stacksTo(1)),
             "spirit_cloak");
 
@@ -849,6 +849,58 @@ public class ModItems {
             },
             "telephone");
 
+    /**
+     * C4炸药
+     * - 右键玩家：在目标玩家身上放置C4
+     * - 右键空气：投掷C4实体
+     */
+    public static final Item C4 = register(
+            new org.agmas.noellesroles.content.item.C4Item(new Item.Properties().stacksTo(16)),
+            "c4");
+
+    /**
+     * C4引爆器
+     * - 右键使用：引爆所有已放置的C4
+     */
+    public static final Item C4_DETONATOR = register(
+            new org.agmas.noellesroles.content.item.C4DetonatorItem(new Item.Properties().stacksTo(1)),
+            "c4_detonator");
+
+    /**
+     * 钳子
+     * - 右键玩家：拆除玩家身上的C4
+     * - 右键空气：拆除地面的C4实体
+     */
+    public static final Item PLIERS = register(
+            new org.agmas.noellesroles.content.item.PliersItem(new Item.Properties().stacksTo(1).durability(3)),
+            "pliers");
+
+    /**
+     * 开灯
+     * - 立即结束关灯时间并清除全场黑暗与失明药水效果
+     * - 未处于关灯时间无法购买
+     */
+    public static final Item LIGHTUP = register(
+            new Item(new Item.Properties().stacksTo(1)),
+            "lightup");
+
+    /**
+     * 监控恢复
+     * - 立即结束监控失灵时间
+     * - 未处于监控失灵期间无法购买
+     */
+    public static final Item MONITOR_RECOVERY = register(
+            new Item(new Item.Properties().stacksTo(1)),
+            "monitor_recovery");
+
+    /**
+     * 子弹
+     * - 右键使用：装填子弹
+     */
+    public static final Item BULLET = register(
+            new org.agmas.noellesroles.content.item.BulletItem(new Item.Properties().stacksTo(64)),
+            "bullet");
+
     public static final ItemStack ExamplerPsychoItemStack = TMMItems.PSYCHO_MODE.getDefaultInstance();
     public static Map<Item, Integer> ITEM_COOLDOWNS = new HashMap<>();
     public static List<ShopEntry> POISONER_SHOP_ENTRIES = new ArrayList<>();
@@ -954,7 +1006,7 @@ public class ModItems {
             });
         };
         ITEM_COOLDOWNS.put(ModItems.ANTIDOTE, getInTicks(1, 0)); // 60秒冷却
-        ITEM_COOLDOWNS.put(ModItems.TOXIN, getInTicks(0, 50));
+        ITEM_COOLDOWNS.put(ModItems.TOXIN, getInTicks(0, 10));
         ITEM_COOLDOWNS.put(ModItems.BANDIT_REVOLVER, getInTicks(0, 40));
         ITEM_COOLDOWNS.put(ModItems.SHORT_SHOTGUN, getInTicks(30, 0));
         ITEM_COOLDOWNS.put(TMMItems.SCORPION, getInTicks(0, 35));

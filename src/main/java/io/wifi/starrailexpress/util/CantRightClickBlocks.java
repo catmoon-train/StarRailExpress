@@ -1,16 +1,16 @@
 package io.wifi.starrailexpress.util;
 
 import io.wifi.starrailexpress.SRE;
-import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DecoratedPotBlock;
 import net.minecraft.world.level.block.FlowerPotBlock;
 
-import javax.print.DocFlavor;
 import java.util.*;
 
 public class CantRightClickBlocks {
@@ -70,22 +70,25 @@ public class CantRightClickBlocks {
 
     /**
      * 判断是否应该阻止与方块的交互
+     * 
+     * @param player
      */
-    public static boolean shouldPreventInteraction(Block block,Level level) {
+    public static boolean shouldPreventInteraction(Player player, Block block, Level level) {
         if (SRE.isLobby)
             return false;
         String string = BuiltInRegistries.BLOCK.getKey(block).toString();
         SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(level);
 
-
-        return !isAllowedBlock(block,level) || cantClickItems.contains(string)
+        return !isAllowedBlock(player, block, level) || cantClickItems.contains(string)
                 || CANNOT_INTERACT_IDS.contains(string);
     }
 
     /**
      * 检查方块是否在允许的列表中
+     * 
+     * @param player
      */
-    public static boolean isAllowedBlock(Block block, Level level) {
+    public static boolean isAllowedBlock(Player player, Block block, Level level) {
         // 如果在允许列表中，直接返回true
 
         if (ALLOWED_BLOCKS.contains(block)) {
@@ -102,8 +105,38 @@ public class CantRightClickBlocks {
         if (CANNOT_INTERACT_IDS.contains(BuiltInRegistries.BLOCK.getKey(block).toString())) {
             return false;
         }
-        if (BuiltInRegistries.BLOCK.getKey(block).getPath().contains("shulker_box")) {
+        ResourceLocation keys = BuiltInRegistries.BLOCK.getKey(block);
+        if (keys.getPath().contains("shulker_box")) {
             return false;
+        }
+        if (keys.getNamespace().equals("handcrafted")) {
+            if (player.isShiftKeyDown()) {
+                return false;
+            }
+            if (keys.getPath().contains("counter")) {
+                return false;
+            }
+            if (keys.getPath().contains("cupboard")) {
+                return false;
+            }
+            if (keys.getPath().contains("drawer")) {
+                return false;
+            }
+            if (keys.getPath().contains("table")) {
+                return false;
+            }
+            if (keys.getPath().contains("nightstand")) {
+                return false;
+            }
+            if (keys.getPath().contains("desk")) {
+                return false;
+            }
+            if (keys.getPath().contains("shelf")) {
+                return false;
+            }
+            if (keys.getPath().contains("fancy_bed")) {
+                return false;
+            }
         }
         // 检查是否为TMM模组的方块
         // ResourceLocation blockId = level().registryAccess()

@@ -5,17 +5,22 @@ import io.wifi.starrailexpress.content.block.api.TaskInstinctShowableInterface;
 import io.wifi.starrailexpress.content.block_entity.EntityInteractionBlockEntity;
 import io.wifi.starrailexpress.index.TMMBlockEntities;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -29,9 +34,11 @@ import java.awt.Color;
  * 全透明，无碰撞箱，创造模式玩家右键可打开UI
  */
 public class EntityInteractionBlock extends BaseEntityBlock implements TaskInstinctShowableInterface {
+    public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
 
     public EntityInteractionBlock(Properties settings) {
         super(settings.noOcclusion().noCollission());
+        this.registerDefaultState(this.stateDefinition.any().setValue(POWERED, false));
     }
 
     @Override
@@ -110,6 +117,45 @@ public class EntityInteractionBlock extends BaseEntityBlock implements TaskInsti
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level world, BlockState state,
             BlockEntityType<T> type) {
         return createTickerHelper(type, TMMBlockEntities.ENTITY_INTERACTION_BLOCK, EntityInteractionBlockEntity::tick);
+    }
+
+    @Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        builder.add(POWERED);
+    }
+
+    // ===== 红石信号输入（类似 TrainLightBlock） =====
+    @Override
+    public void neighborChanged(BlockState state, Level world, BlockPos pos, Block block, BlockPos fromPos,
+            boolean notify) {
+        if (!world.isClientSide) {
+            boolean isPowered = world.hasNeighborSignal(pos);
+            if (isPowered != state.getValue(POWERED)) {
+                world.setBlock(pos, state.setValue(POWERED, isPowered), 2);
+                // 同步到 BlockEntity
+                BlockEntity blockEntity = world.getBlockEntity(pos);
+                if (blockEntity instanceof EntityInteractionBlockEntity entity) {
+                    entity.setReceivedRedstoneSignal(isPowered);
+                }
+            }
+        }
+    }
+
+    // ===== 红石信号输出（类似 RemoteRedstoneBlock 的 getSignal） =====
+    @Override
+    public boolean isSignalSource(BlockState state) {
+        return true;
+    }
+
+    @Override
+    public int getSignal(BlockState state, BlockGetter world, BlockPos pos, Direction direction) {
+        BlockEntity blockEntity = world.getBlockEntity(pos);
+        if (blockEntity instanceof EntityInteractionBlockEntity entity) {
+            if (entity.isOutputtingRedstone()) {
+                return entity.getRedstoneOutputStrength();
+            }
+        }
+        return 0;
     }
 
     // 任务路标ID - 不用于MapScanner扫描识别（没什么用）

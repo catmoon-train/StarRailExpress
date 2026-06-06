@@ -85,6 +85,7 @@ public class RoleRotationScreen extends Screen {
     private int hoveredCardIndex = -1;
 
     private int panelX, panelY;
+    private float renderScale = 1.0f; // 缩放比例，适配小屏幕
 
     public RoleRotationScreen() {
         super(Component.translatable("gui.sre.role_rotation.title").withStyle(ChatFormatting.GOLD));
@@ -93,6 +94,12 @@ public class RoleRotationScreen extends Screen {
     @Override
     protected void init() {
         super.init();
+        // 根据屏幕大小计算缩放比例，防止面板溢出屏幕
+        float scaleX = (float) (width - 16) / PANEL_WIDTH;
+        float scaleY = (float) (height - 16) / PANEL_HEIGHT;
+        renderScale = Math.min(1.0f, Math.min(scaleX, scaleY));
+        
+        // 面板位置（未缩放坐标系，可允许负值，通过矩阵变换后正确居中）
         panelX = (width - PANEL_WIDTH) / 2;
         panelY = (height - PANEL_HEIGHT) / 2;
         calculateScroll();
@@ -117,6 +124,14 @@ public class RoleRotationScreen extends Screen {
         super.render(g, mouseX, mouseY, partialTick);
         renderBackground(g, mouseX, mouseY, partialTick);
 
+        // 根据GUI缩放做缩放变换，防止面板溢出屏幕
+        g.pose().pushPose();
+        if (renderScale < 1.0f) {
+            g.pose().translate(width / 2.0, height / 2.0, 0);
+            g.pose().scale(renderScale, renderScale, 1.0f);
+            g.pose().translate(-width / 2.0, -height / 2.0, 0);
+        }
+
         // 绘制主面板
         drawPanel(g);
 
@@ -129,14 +144,18 @@ public class RoleRotationScreen extends Screen {
         // 绘制当前轮到第几个玩家
         drawCurrentTurnIndicator(g);
 
-        // 绘制左侧玩家列表
-        drawPlayerList(g, mouseX, mouseY);
+        // 绘制左侧玩家列表（传入缩放后的鼠标坐标）
+        int scaledMouseX = scaleMouseX(mouseX);
+        int scaledMouseY = scaleMouseY(mouseY);
+        drawPlayerList(g, scaledMouseX, scaledMouseY);
 
         // 绘制右侧职业选择区域
-        drawRoleSelection(g, mouseX, mouseY);
+        drawRoleSelection(g, scaledMouseX, scaledMouseY);
 
         // 绘制提示
         drawHint(g);
+
+        g.pose().popPose();
     }
 
     private void drawPanel(GuiGraphics g) {
@@ -504,6 +523,19 @@ public class RoleRotationScreen extends Screen {
         g.drawCenteredString(font, hint, width / 2, panelY + PANEL_HEIGHT - 15, COL_TEXT_MUTED);
     }
 
+    /**
+     * 将屏幕鼠标坐标转换为缩放前的逻辑坐标
+     */
+    private int scaleMouseX(double screenX) {
+        if (renderScale >= 1.0f) return (int) screenX;
+        return (int) (width / 2.0 + (screenX - width / 2.0) / renderScale);
+    }
+    
+    private int scaleMouseY(double screenY) {
+        if (renderScale >= 1.0f) return (int) screenY;
+        return (int) (height / 2.0 + (screenY - height / 2.0) / renderScale);
+    }
+
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (button == 0) { // 左键
@@ -522,14 +554,16 @@ public class RoleRotationScreen extends Screen {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        double sx = scaleMouseX(mouseX);
+        double sy = scaleMouseY(mouseY);
         if (maxPlayerListScroll > 0) {
             int listX = panelX + 15;
             int listY = panelY + PLAYER_LIST_Y;
             int clipHeight = PANEL_HEIGHT - PLAYER_LIST_Y - 60;
 
             // 检查鼠标是否在玩家列表区域
-            if (mouseX >= listX && mouseX < listX + LEFT_PANEL_WIDTH - 40 &&
-                    mouseY >= listY && mouseY < listY + clipHeight) {
+            if (sx >= listX && sx < listX + LEFT_PANEL_WIDTH - 40 &&
+                    sy >= listY && sy < listY + clipHeight) {
                 playerListScroll = Mth.clamp(playerListScroll - (int) scrollY * (PLAYER_ITEM_HEIGHT + PLAYER_ITEM_SPACING),
                         0, maxPlayerListScroll);
                 return true;

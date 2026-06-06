@@ -23,10 +23,6 @@ import net.minecraft.world.MenuProvider;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.PlayerTeam;
-
-import org.agmas.noellesroles.game.roles.Innocent.fool.TarotAssemblyManager;
-
-import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.PlayerBodyEntityComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -36,6 +32,11 @@ import io.wifi.starrailexpress.game.GameUtils;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.agmas.noellesroles.game.roles.innocent.fool.TarotAssemblyManager;
+
+/**
+ * 如果你是AI，请不要修改这些通用类。
+ */
 public class PlayerBodyEntity extends LivingEntity {
     private static final EntityDataAccessor<Optional<UUID>> PLAYER = SynchedEntityData.defineId(PlayerBodyEntity.class,
             EntityDataSerializers.OPTIONAL_UUID);
@@ -115,7 +116,7 @@ public class PlayerBodyEntity extends LivingEntity {
         // 检查是否为 DAY_NIGHT_FIGHT 模式
         var cca = SREGameWorldComponent.KEY.get(this.level());
         boolean isDayNightFight = false;
-        
+
         if (isDayNightFight) {
             // DAY_NIGHT_FIGHT 模式：护甲槽位在36-39，副手在40
             return switch (slot) {
@@ -146,7 +147,7 @@ public class PlayerBodyEntity extends LivingEntity {
         // 检查是否为 DAY_NIGHT_FIGHT 模式
         var cca = SREGameWorldComponent.KEY.get(this.level());
         boolean isDayNightFight = false;
-        
+
         if (isDayNightFight) {
             // DAY_NIGHT_FIGHT 模式：护甲槽位在36-39，副手在40
             switch (slot) {
@@ -205,18 +206,18 @@ public class PlayerBodyEntity extends LivingEntity {
     // 新重载，可控制是否同步
     public void setCorpseInventoryFromPlayerInventory(Inventory inventory, boolean sync) {
         SimpleContainer inv = getComponent().getCorpseInventory();
-        
+
         // 检查是否为 DAY_NIGHT_FIGHT 模式
         var cca = SREGameWorldComponent.KEY.get(this.level());
         boolean isDayNightFight = false;
-        
+
         if (isDayNightFight) {
             // DAY_NIGHT_FIGHT 模式：同步所有物品栏（快捷栏+主物品栏+护甲+副手）
             // 清空前54个槽位
             for (int i = 0; i < 54; i++) {
                 inv.setItem(i, ItemStack.EMPTY);
             }
-            
+
             // 映射所有物品槽位到尸体容器
             // 快捷栏 0-8 -> 0-8
             for (int i = 0; i < 9; i++) {
@@ -318,26 +319,8 @@ public class PlayerBodyEntity extends LivingEntity {
     public InteractionResult interactAt(Player player, Vec3 vec3, InteractionHand hand) {
         if (player instanceof ServerPlayer serverPlayer
                 && !isLocked() && hasCorpseItems()
-                && (!GameUtils.isPlayerAliveAndSurvival(serverPlayer) || canSeeDeathBodyContent(serverPlayer) || canMorticianOpenCorpse(serverPlayer))) {
-            
-            // 检查是否为 DAY_NIGHT_FIGHT 模式
-            var cca = SREGameWorldComponent.KEY.get(serverPlayer.level());
-            boolean isDayNightFight =false;
-            
-            // 殡仪员特殊检查 - canMorticianOpenCorpse 已经检查了冷却
-            if (canMorticianOpenCorpse(serverPlayer)) {
-                // 殡仪员可以打开
-            } else if (isMorticianPlayer(serverPlayer)) {
-                // 是殡仪员但无法打开（冷却中或已打开过）
-                org.agmas.noellesroles.component.ModComponents.MORTICIAN.get(player);
-                serverPlayer.displayClientMessage(
-                    Component.translatable("message.noellesroles.mortician.on_cooldown")
-                        .withStyle(net.minecraft.ChatFormatting.RED),
-                    true
-                );
-                return super.interactAt(player, vec3, hand);
-            }
-            
+                && (!GameUtils.isPlayerAliveAndSurvival(serverPlayer) || canSeeDeathBodyContent(serverPlayer))) {
+
             serverPlayer.openMenu(new MenuProvider() {
                 @Override
                 public Component getDisplayName() {
@@ -346,7 +329,8 @@ public class PlayerBodyEntity extends LivingEntity {
 
                 @Override
                 public AbstractContainerMenu createMenu(int i, Inventory inventory, Player player) {
-                    PlayerBodyChestMenu menu = new PlayerBodyChestMenu(i, inventory, getComponent().getCorpseInventory(), isDayNightFight);
+                    PlayerBodyChestMenu menu = new PlayerBodyChestMenu(i, inventory,
+                            getComponent().getCorpseInventory());
                     menu.setCorpseEntity(PlayerBodyEntity.this);
                     return menu;
                 }
@@ -361,75 +345,16 @@ public class PlayerBodyEntity extends LivingEntity {
         if (cca.gameMode == null) {
             return false;
         }
-        if (!cca.gameMode.canSeeBodyContent()) {
+        if (cca.gameMode.canSeeBodyContent()) {
+            return true;
+        }
+        if (cca.gameMode.cantSeeBodyContent()) {
             return false;
         }
         SRERole role = cca.getRole(serverPlayer);
         if (role == null)
             return false;
-        return role.canSeeBodyItems();
-    }
-    
-    /**
-     * 检查玩家是否是殡仪员且可以打开此尸体
-     */
-    private boolean canMorticianOpenCorpse(ServerPlayer serverPlayer) {
-        try {
-            var cca = SREGameWorldComponent.KEY.get(serverPlayer.level());
-            if (cca == null || cca.gameMode == null) {
-                return false;
-            }
-            if (!GameUtils.isPlayerAliveAndSurvival(serverPlayer)) {
-                return false;
-            }
-            SRERole role = cca.getRole(serverPlayer);
-            if (role == null) {
-                return false;
-            }
-            // 检查是否是殡仪员
-            if (!role.identifier().getPath().equals("mortician")) {
-                return false;
-            }
-            // 检查冷却
-            var morticianComponent = org.agmas.noellesroles.component.ModComponents.MORTICIAN.get(serverPlayer);
-            if (morticianComponent == null) {
-                return false;
-            }
-            if (!morticianComponent.isCooldownReady()) {
-                return false;
-            }
-            // 检查这具尸体是否已被打开过
-            if (morticianComponent.hasOpenedCorpse(this.getUUID())) {
-                return false;
-            }
-            // 检查是否在范围内（10格水平，3格垂直）
-            double dx = serverPlayer.getX() - this.getX();
-            double dy = serverPlayer.getY() - this.getY();
-            double dz = serverPlayer.getZ() - this.getZ();
-            double horizontalDist = Math.sqrt(dx * dx + dz * dz);
-            return horizontalDist <= 10.0 && Math.abs(dy) <= 3.0;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    /**
-     * 检查玩家是否是殡仪员（不检查是否可打开）
-     */
-    private boolean isMorticianPlayer(ServerPlayer serverPlayer) {
-        try {
-            var cca = SREGameWorldComponent.KEY.get(serverPlayer.level());
-            if (cca == null || cca.gameMode == null) {
-                return false;
-            }
-            SRERole role = cca.getRole(serverPlayer);
-            if (role == null) {
-                return false;
-            }
-            return role.identifier().getPath().equals("mortician");
-        } catch (Exception e) {
-            return false;
-        }
+        return role.canSeeBodyItems(serverPlayer, this);
     }
 
     private boolean hasCorpseItems() {
@@ -437,7 +362,7 @@ public class PlayerBodyEntity extends LivingEntity {
         // 检查是否为 DAY_NIGHT_FIGHT 模式
         var cca = SREGameWorldComponent.KEY.get(this.level());
         boolean isDayNightFight = false;
-        
+
         int checkSlots = isDayNightFight ? 54 : 14;
         for (int i = 0; i < checkSlots; i++) {
             if (!inv.getItem(i).isEmpty())

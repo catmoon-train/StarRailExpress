@@ -18,9 +18,7 @@ public class TimerWidget {
         if (delayTime >= endTime) {
             if(onCompleteCallback != null)
                 onCompleteCallback.accept(this);
-            if (isOneShoot) {
-                isShoot = true;
-            }
+            isShoot = true;
             delayTime -= endTime;
         }
     }

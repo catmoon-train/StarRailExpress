@@ -5,6 +5,7 @@ import dev.doctor4t.ratatouille.util.registrar.ItemRegistrar;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.content.item.BindingToolItem;
 import io.wifi.starrailexpress.content.item.map_dev.MapBuildHelperItem;
+import io.wifi.starrailexpress.customrole.CustomRoleToolItem;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
@@ -16,6 +17,8 @@ public class DevItems {
             "binding_tool");
     public static Item MAP_TOOL = register(new MapBuildHelperItem(new Item.Properties().stacksTo(1)),
             "map_tool");
+    public static Item CUSTOM_ROLE_TOOL = register(new CustomRoleToolItem(new Item.Properties().stacksTo(1)),
+            "custom_role_tool");
     @SuppressWarnings("unchecked")
     public static Item register(Item item, String id) {
         // Create the identifier for the item.

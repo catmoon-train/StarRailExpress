@@ -47,4 +47,8 @@ public class StupidExpressConfig implements ConfigData {
             public boolean loversKnowImmediately = true;
         }
     }
+    
+    public static StupidExpressConfig instance() {
+        return HANDLER.instance();
+    }
 }

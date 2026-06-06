@@ -6,17 +6,22 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
+import io.wifi.starrailexpress.content.gui.PlayerBodyEntityContainer;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.ShopEntry;
+import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -48,6 +53,7 @@ public abstract class SRERole {
     private boolean canSeeBodyRoleInfo = false;
     private boolean canUseInstinct = false;
     private boolean canIgnoreBlackout = false;
+    private boolean mafiaTeam = false;
     public int maxCount = -1;
     public int enableChance = -1;
     public int enableRareChance = -1;
@@ -98,7 +104,16 @@ public abstract class SRERole {
         return !this.isInnocent && !this.isNeutrals && !this.isNeutralForKiller && this.canUseKiller;
     }
 
-    public boolean canIgnoreBlackout() {
+    public boolean isMafiaTeam() {
+        return mafiaTeam;
+    }
+
+    public SRERole setMafiaTeam(boolean flag) {
+        this.mafiaTeam = flag;
+        return this;
+    }
+
+    public boolean canIgnoreBlackout(Player player) {
         return canIgnoreBlackout;
     }
 
@@ -118,15 +133,15 @@ public abstract class SRERole {
         return this;
     }
 
-    public boolean canGetBodyItems() {
+    public boolean canGetBodyItems(Player player) {
         return canGetBodyItems;
     }
 
-    public boolean canSeeBodyItems() {
+    public boolean canSeeBodyItems(Player player, PlayerBodyEntity body) {
         return canSeeBodyItems;
     }
 
-    public boolean canSeeBodyRoleInfo() {
+    public boolean canSeeBodyRoleInfo(Player player) {
         return canSeeBodyRoleInfo;
     }
 
@@ -135,7 +150,7 @@ public abstract class SRERole {
         return this;
     }
 
-    public boolean canSeeBodyDeathReason() {
+    public boolean canSeeBodyDeathReason(Player player) {
         return canSeeBodyDeathReason;
     }
 
@@ -817,5 +832,64 @@ public abstract class SRERole {
     public SRERole setOtherModeRole(boolean isOtherModeRole) {
         this.isOtherModeRole = isOtherModeRole;
         return this;
+    }
+
+    /**
+     * 玩家关闭尸体获取容器时触发
+     * @param player 玩家
+     * @param corpseEntity 尸体实体
+     * @param container 尸体物品容器
+     */
+    public void onClosedPlayerBodyChest(Player player, PlayerBodyEntity corpseEntity, PlayerBodyEntityContainer container) {
+    }
+
+    /**
+     * 玩家在容器左键时触发
+     * @param slotId
+     * @param button
+     * @param clickType
+     * @param player
+     * @param slots 
+     * @param rows 
+     * @param container 
+     * @return 返回 true 默认逻辑，返回 false 阻止。
+     */
+    public boolean canGetBodyContent(int slotId, int button, ClickType clickType, Player player, PlayerBodyEntityContainer container, int rows, NonNullList<Slot> slots) {
+        return canGetBodyItems(player);
+    }
+
+    /**
+     * 玩家打开玩家尸体容器时触发
+     * @param player
+     */
+    public void startOpenPlayerBody(Player player) {
+    }
+
+    /**
+     * 玩家关闭玩家尸体容器时触发
+     * @param player
+     */
+    public void stopOpenPlayerBody(Player player) {
+    }
+
+    /**
+     * 打开玩家尸体时可否带走物品
+     * @param player
+     * @param container
+     * @param slot
+     * @param stack
+     */
+    public boolean canTakePlayerBodyItem(Player player, Container container, int slot, ItemStack stack) {
+        return canGetBodyItems(player);
+    }
+
+    /**
+     * 玩家在打开玩家尸体的时候quickMoveStack时触发。
+     * @param player
+     * @param index
+     * @return
+     */
+    public boolean playerBodyQuickMoveStack(Player player, int index) {
+        return true;
     }
 }

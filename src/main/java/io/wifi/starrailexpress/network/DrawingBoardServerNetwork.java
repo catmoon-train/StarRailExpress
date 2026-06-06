@@ -59,8 +59,8 @@ public class DrawingBoardServerNetwork {
             int category = payload.category();
             boolean recognized = category != DrawingBoardRecognizer.UNKNOWN;
 
-            // 检查该类别是否已被画出（本局游戏中每个物品只能被画出一次）
-            boolean alreadyDrawn = recognized && gameWorld != null && gameWorld.isCategoryDrawn(category);
+            // 检查该类别是否已被画出（仅游戏进行中时限制本局唯一性）
+            boolean alreadyDrawn = recognized && gameWorld != null && gameWorld.isRunning() && gameWorld.isCategoryDrawn(category);
 
             // 如果识别成功，消耗画板并给予对应物品
             if (recognized && !alreadyDrawn) {
@@ -92,8 +92,10 @@ public class DrawingBoardServerNetwork {
                         }
                         // 给予物品到快捷栏
                         player.getInventory().add(itemStack);
-                        // 消耗画板
-                        stack.shrink(1);
+                        // 消耗画板之前再次确认画板还在手中
+                        ItemStack boardToConsume = findDrawingBoardInHands(player);
+                        if (boardToConsume.isEmpty()) return;
+                        boardToConsume.shrink(1);
                     } else {
                         // 创造模式直接给予物品
                         player.getInventory().add(itemStack);

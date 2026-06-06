@@ -364,6 +364,7 @@ public class EntityInteractionBlockScreen extends Screen {
                     Component.translatable("comparison." + condition.comparison.name().toLowerCase())).getString();
             case IS_PSYCHO -> Component.translatable("condition.is_psycho").getString();
             case IS_POISONED -> Component.translatable("condition.is_poisoned").getString();
+            case IS_INFECTED -> Component.translatable("condition.is_infected").getString();
             case ARMOR_AMOUNT -> Component.translatable("condition.armor_amount", (int) condition.value,
                     Component.translatable("comparison." + condition.comparison.name().toLowerCase())).getString();
             case HAS_TASK -> Component.translatable("condition.has_task").getString();
@@ -382,6 +383,7 @@ public class EntityInteractionBlockScreen extends Screen {
                     (int) condition.value).getString();
             case PLAYER_DAMAGED_BY_NON_PLAYER -> Component.translatable("condition.player_damaged_by_non_player",
                     (int) condition.value).getString();
+            case REDSTONE_SIGNAL -> Component.translatable("condition.redstone_signal").getString();
         };
 
         return logicPrefix + conditionText;
@@ -480,6 +482,7 @@ public class EntityInteractionBlockScreen extends Screen {
                             "gui.entity_interaction_block.narrator_interrupt" :
                             "gui.entity_interaction_block.narrator_queue")).getString();
             case INFECT -> Component.translatable("action.infect", (int) action.value).getString();
+            case OUTPUT_REDSTONE -> Component.translatable("action.output_redstone", (int) action.value).getString();
         };
 
         return baseText + teleportSuffix + teamSuffix;
@@ -889,7 +892,7 @@ public class EntityInteractionBlockScreen extends Screen {
                                     Component.translatable("gui.entity_interaction_block.comparison"),
                                     (b, comp) -> selectedComparison = comp));
                 }
-                case IS_SNEAKING, IS_SPRINTING, HAS_KILLED -> {
+                case IS_SNEAKING, IS_SPRINTING, HAS_KILLED, REDSTONE_SIGNAL -> {
                     // 不需要输入
                 }
                 case HAS_EFFECT -> {
@@ -1714,6 +1717,26 @@ public class EntityInteractionBlockScreen extends Screen {
                             Component.translatable("gui.entity_interaction_block.infect_desc"), b -> {})
                             .bounds(centerX - 100, y, 200, 15).build());
                 }
+                case OUTPUT_REDSTONE -> {
+                    // 输出红石信号强度 (0-15)
+                    addRenderableWidget(Button.builder(
+                            Component.translatable("gui.entity_interaction_block.redstone_signal_hint"), b -> {})
+                            .bounds(centerX - 100, y, 200, 20).build());
+                    y += 25;
+                    addRenderableWidget(new EditBox(this.font, centerX - 50, y, 100, 20,
+                            Component.translatable("gui.entity_interaction_block.redstone_signal_strength")));
+                    valueInput = findAndAttachInput(Component.translatable("gui.entity_interaction_block.redstone_signal_strength"));
+                    if (valueInput != null) {
+                        valueInput.setFilter(s -> s.matches("[0-9]*"));
+                        valueInput.setValue("15");
+                    }
+                    addRenderableWidget(Button.builder(Component.literal("(0~15)"), b -> {})
+                            .bounds(centerX + 55, y, 45, 20).build());
+                    y += 22;
+                    addRenderableWidget(Button.builder(
+                            Component.translatable("gui.entity_interaction_block.redstone_signal_desc"), b -> {})
+                            .bounds(centerX - 100, y, 200, 15).build());
+                }
                 // 其他类型不需要输入
             }
 
@@ -1729,7 +1752,8 @@ public class EntityInteractionBlockScreen extends Screen {
                     EntityInteractionBlockEntity.ActionType.GAME_WIN,
                     EntityInteractionBlockEntity.ActionType.BLOCK_COOLDOWN,
                     EntityInteractionBlockEntity.ActionType.END_BLACKOUT,
-                    EntityInteractionBlockEntity.ActionType.FIX_MONITOR
+                    EntityInteractionBlockEntity.ActionType.FIX_MONITOR,
+                    EntityInteractionBlockEntity.ActionType.OUTPUT_REDSTONE
             );
 
             if (!noTeamTypes.contains(selectedType)) {
@@ -1872,6 +1896,11 @@ public class EntityInteractionBlockScreen extends Screen {
 
             // 保存传送目标参数
             action.teleportTarget = teleportTarget;
+
+            // 限制红石信号强度 0-15
+            if (selectedType == EntityInteractionBlockEntity.ActionType.OUTPUT_REDSTONE) {
+                action.value = Math.max(0, Math.min(15, (int) action.value));
+            }
 
             parent.addAction(action);
             this.minecraft.setScreen(parent);

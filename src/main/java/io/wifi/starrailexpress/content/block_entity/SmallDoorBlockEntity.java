@@ -29,13 +29,15 @@ public class SmallDoorBlockEntity extends DoorBlockEntity {
         if (this.level == null) {
             return;
         }
-        this.level.setBlock(this.worldPosition, this.getBlockState().setValue(SmallDoorBlock.OPEN, this.open), Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
-        this.level.setBlock(this.worldPosition.above(), this.getBlockState().setValue(SmallDoorBlock.OPEN, this.open).setValue(SmallDoorBlock.HALF, DoubleBlockHalf.UPPER), Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
+        this.level.setBlock(this.worldPosition, this.getBlockState().setValue(SmallDoorBlock.OPEN, this.open),
+                Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
+        this.level.setBlock(this.worldPosition.above(), this.getBlockState().setValue(SmallDoorBlock.OPEN, this.open)
+                .setValue(SmallDoorBlock.HALF, DoubleBlockHalf.UPPER), Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
     }
 
     @Override
-    protected void toggleOpen() {
-        super.toggleOpen();
+    protected void toggleOpen(int ticks) {
+        super.toggleOpen(ticks);
         if (this.level == null) {
             return;
         }
@@ -45,7 +47,7 @@ public class SmallDoorBlockEntity extends DoorBlockEntity {
         if (neighborState.is(this.getBlockState().getBlock())
                 && neighborState.getValue(DoorPartBlock.FACING).getOpposite() == facing
                 && this.level.getBlockEntity(neighborPos) instanceof SmallDoorBlockEntity neighborEntity) {
-            neighborEntity.toggle(true);
+            neighborEntity.toggle(true, ticks);
         }
     }
 }

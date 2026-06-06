@@ -3,6 +3,7 @@ package io.wifi.starrailexpress.api.replay;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import org.agmas.noellesroles.utils.RoleUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -38,13 +39,21 @@ public class GameReplayUtils {
     }
 
     public static Component getRoleNameWithRoleColor(String path) {
-        String translationKey = "announcement.star.role." + path;
-        return Component.translatable(translationKey).withColor(getRoleColor(path));
+        var id = ResourceLocation.tryParse(path);
+        if (id != null) {
+            var name = RoleUtils.getRoleName(id);
+            if (name != null) return name.copy().withColor(getRoleColor(path));
+        }
+        return Component.translatable("announcement.star.role." + path).withColor(getRoleColor(path));
     }
 
     public static Component getRoleNameWithSourceTMMColor(String path) {
-        String translationKey = "announcement.star.role." + path;
-        return Component.translatable(translationKey).withStyle(getTMMRoleColor(path));
+        var id = ResourceLocation.tryParse(path);
+        if (id != null) {
+            var name = RoleUtils.getRoleName(id);
+            if (name != null) return name.copy().withStyle(getTMMRoleColor(path));
+        }
+        return Component.translatable("announcement.star.role." + path).withStyle(getTMMRoleColor(path));
     }
 
     public static Component getReplayPlayerDisplayText(Player player, boolean notNull) {
@@ -116,13 +125,11 @@ public class GameReplayUtils {
                         .withStyle(ChatFormatting.GRAY);
         String sourceRoleId = playerUid != null ? replayData.getPlayerRoles().get(playerUid)
                 : TMMRoles.CIVILIAN.identifier().toString();
-        sourceRoleId = ReplayDisplayUtils.getRolePath(sourceRoleId);
         String sourceRoleIdNow = playerUid != null
                 ? SREGameWorldComponent.KEY.get(SRE.SERVER.getLevel(Level.OVERWORLD)).getRole(playerUid) == null ? null
                         : SREGameWorldComponent.KEY.get(SRE.SERVER.getLevel(Level.OVERWORLD)).getRole(playerUid)
-                                .identifier().getPath()
+                                .identifier().toString()
                 : null;
-        sourceRoleIdNow = ReplayDisplayUtils.getRolePath(sourceRoleIdNow);
 
         MutableComponent sourceRoleName = ReplayDisplayUtils.getRoleDisplayName(sourceRoleId);
         int sourceRoleColor = getRoleColor(sourceRoleId);

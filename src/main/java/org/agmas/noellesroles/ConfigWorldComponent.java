@@ -4,6 +4,7 @@ import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.event.OnPlayerUsedSkill;
 import io.wifi.starrailexpress.game.GameUtils;
+import org.agmas.noellesroles.utils.RoleUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -158,8 +159,7 @@ public class ConfigWorldComponent implements AutoSyncedComponent, ServerTickingC
         skillEchoAnnouncedRoles.add(roleKey);
 
         String rolePath = role.getIdentifier() != null ? role.getIdentifier().getPath() : "unknown";
-        Component roleName = Component.translatable(
-                "announcement.star.role." + rolePath);
+        Component roleName = RoleUtils.getRoleName(role.getIdentifier() != null ? role.getIdentifier() : ResourceLocation.fromNamespaceAndPath("starrailexpress", "unknown"));
         Component message = Component.translatable("message.noellesroles.skill_echo.heard", roleName)
                 .withStyle(ChatFormatting.GOLD);
 

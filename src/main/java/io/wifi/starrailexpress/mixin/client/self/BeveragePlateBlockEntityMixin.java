@@ -1,7 +1,7 @@
 package io.wifi.starrailexpress.mixin.client.self;
 
 import io.wifi.starrailexpress.client.SREClient;
-import io.wifi.starrailexpress.content.block_entity.BeveragePlateBlockEntity;
+import io.wifi.starrailexpress.content.block_entity.PlateTrayBlockEntity;
 import io.wifi.starrailexpress.event.CanSeePoison;
 import io.wifi.starrailexpress.index.TMMParticles;
 import net.fabricmc.api.EnvType;
@@ -21,14 +21,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  * @author SkyNotTheLimit
  */
 @Environment(EnvType.CLIENT)
-@Mixin(BeveragePlateBlockEntity.class)
+@Mixin(PlateTrayBlockEntity.class)
 public class BeveragePlateBlockEntityMixin {
 
     // haha I love writing extremely cursed mixins
     @Inject(method = "clientTick", at = @At("HEAD"))
     private static void tickWithoutFearOfCrashing(Level world, BlockPos pos, BlockState state, BlockEntity blockEntity,
             CallbackInfo ci) {
-        if (!(blockEntity instanceof BeveragePlateBlockEntity tray)) {
+        if (!(blockEntity instanceof PlateTrayBlockEntity tray)) {
             return;
         }
         if ((!SREClient.isKiller() && !CanSeePoison.EVENT.invoker().visible(Minecraft.getInstance().player))

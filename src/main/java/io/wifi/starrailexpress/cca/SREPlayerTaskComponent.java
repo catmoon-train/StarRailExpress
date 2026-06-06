@@ -16,6 +16,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.LecternMenu;
 import net.minecraft.world.level.block.Blocks;
@@ -190,6 +191,10 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
                         this.taskStreak, false);
             }
             this.taskStreak++; // 完成奖励发放后增加连击计数（并列任务也增加连击）
+            // 大胃王：完成进食任务时额外恢复理智并给金币
+            if (task.getType() == Task.EAT && this.player instanceof ServerPlayer sp) {
+                ModifierEffects.onBigEaterTaskComplete(sp);
+            }
             // 检查5格范围内是否有狂躁症玩家，触发其附近任务完成效果
             if (this.player instanceof ServerPlayer sp) {
                 var worldModifiers = WorldModifierComponent.KEY.get(sp.level());
@@ -239,13 +244,13 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
     public @Nullable TrainTask generateTask() {
         if (!this.tasks.isEmpty())
             return null;
-        
+
         // 检查玩家是否拥有狂躁症修饰符
         if (isManicPlayer()) {
             // 狂躁症玩家直接获得乱码任务
             return new ManicTask();
         }
-        
+
         return generateTaskInternal();
     }
 
@@ -779,11 +784,25 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
             if (this.timer > 0) {
                 var vehicleE = player.getVehicle();
                 if (vehicleE != null) {
-                    if (vehicleE instanceof SeatEntity) {
+                    if (isSeat(vehicleE)) {
                         this.timer--;
                     }
                 }
             }
+        }
+
+        private static boolean isSeat(Entity vehicleE) {
+            if (vehicleE instanceof SeatEntity)
+                return true;
+            // 兼容 Handcrafted 的座椅
+            try {
+                Class<?> seatClass = Class.forName("earth.terrarium.handcrafted.common.entities.Seat");
+                if (seatClass.isInstance(vehicleE))
+                    return true;
+            } catch (ClassNotFoundException ignored) {
+                // Handcrafted 未安装，忽略
+            }
+            return false;
         }
 
         @Override

@@ -1,6 +1,8 @@
 package io.wifi.starrailexpress.client.util;
 
 import dev.doctor4t.ratatouille.util.TextUtils;
+import io.wifi.starrailexpress.index.DevItems;
+import io.wifi.starrailexpress.index.TMMBlocks;
 import io.wifi.starrailexpress.index.TMMItems;
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.minecraft.client.Minecraft;
@@ -47,6 +49,10 @@ public class TMMItemTooltips {
             addTooltipForItem(TMMItems.SNIPER_RIFLE, itemStack, tooltipList);
             addTooltipForItem(TMMItems.MAGNUM_BULLET, itemStack, tooltipList);
             addTooltipForItem(TMMItems.SCOPE, itemStack, tooltipList);
+
+            addTooltipForItem(TMMBlocks.TRAIN_LIGHT.asItem(), itemStack, tooltipList);
+            addTooltipForItem(TMMBlocks.REMOTE_REDSTONE.asItem(), itemStack, tooltipList);
+            addTooltipForItem(DevItems.BINDING_TOOL, itemStack, tooltipList);
         });
     }
 

@@ -115,8 +115,12 @@ public class RoleUnlockHudRenderer {
         if (id == null) {
             return "unknown";
         }
-
-        return  I18n.get("announcement.star.role."+id.getPath());
+        // 检查自定义职业
+        if ("customrole".equals(id.getNamespace())) {
+            var cd = io.wifi.starrailexpress.customrole.CustomRoleLoader.getCustomRoleData(id.getPath());
+            if (cd != null && !cd.displayName.isEmpty()) return cd.displayName;
+        }
+        return I18n.get("announcement.star.role." + id.getPath());
     }
 
     private static int getMainColor(List<String> roleIds) {

@@ -1,0 +1,195 @@
+package io.wifi.starrailexpress.customrole;
+
+import com.google.gson.annotations.SerializedName;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * 单个自定义职业的完整配置数据模型
+ */
+public class CustomRoleData {
+    // ============ 职业基础定义 ============
+    @SerializedName("englishId")
+    public String englishId = "";
+
+    @SerializedName("displayName")
+    public String displayName = "";
+
+    @SerializedName("goals")
+    public String goals = "";
+
+    @SerializedName("description")
+    public String description = "";
+
+    @SerializedName("initialEffects")
+    public List<EffectEntry> initialEffects = new ArrayList<>();
+
+    @SerializedName("colorR")
+    public int colorR = 255;
+    @SerializedName("colorG")
+    public int colorG = 255;
+    @SerializedName("colorB")
+    public int colorB = 255;
+
+    @SerializedName("isInnocent")
+    public boolean isInnocent = true;
+
+    @SerializedName("canUseKiller")
+    public boolean canUseKiller = false;
+
+    @SerializedName("moodType")
+    public String moodType = "REAL";
+
+    @SerializedName("sprintMultiplier")
+    public double sprintMultiplier = 1.0;
+
+    @SerializedName("infiniteSprint")
+    public boolean infiniteSprint = false;
+
+    @SerializedName("canSeeTime")
+    public boolean canSeeTime = false;
+
+    // ============ 职业高级定义 ============
+    @SerializedName("canSeeCoin")
+    public boolean canSeeCoin = true;
+
+    @SerializedName("canUseInstinct")
+    public boolean canUseInstinct = false;
+
+    @SerializedName("ableToPickUpRevolver")
+    public Boolean ableToPickUpRevolver = null;
+
+    @SerializedName("setNeutrals")
+    public Boolean setNeutrals = null;
+
+    @SerializedName("setNeutralForKiller")
+    public Boolean setNeutralForKiller = null;
+
+    @SerializedName("setVigilanteTeam")
+    public Boolean setVigilanteTeam = null;
+
+    @SerializedName("canSeeTeammateKiller")
+    public Boolean canSeeTeammateKiller = null;
+
+    @SerializedName("occupiedRoleCount")
+    public int occupiedRoleCount = 1;
+
+    @SerializedName("maxCount")
+    public int maxCount = 1;
+
+    @SerializedName("canAutoAddMoney")
+    public Boolean canAutoAddMoney = null;
+
+    @SerializedName("canBeRandomedByOtherRoles")
+    public boolean canBeRandomedByOtherRoles = true;
+
+    @SerializedName("canIgnoreBlackout")
+    public Boolean canIgnoreBlackout = null;
+
+    @SerializedName("canSeeBodyItems")
+    public Boolean canSeeBodyItems = null;
+
+    @SerializedName("canSeeBodyRoleInfo")
+    public Boolean canSeeBodyRoleInfo = null;
+
+    @SerializedName("canSeeBodyDeathReason")
+    public Boolean canSeeBodyDeathReason = null;
+
+    @SerializedName("canSeeBodyKiller")
+    public Boolean canSeeBodyKiller = null;
+
+    // ============ 职业能力选项 ============
+    @SerializedName("initialItems")
+    public List<InitialItemEntry> initialItems = new ArrayList<>();
+
+    @SerializedName("instinctSameColorFrame")
+    public boolean instinctSameColorFrame = false;
+
+    @SerializedName("instinctMaxRange")
+    public String instinctMaxRange = "*";
+
+    @SerializedName("enableAbility")
+    public boolean enableAbility = false;
+
+    @SerializedName("abilitySkillCommands")
+    public List<String> abilitySkillCommands = new ArrayList<>();
+
+    @SerializedName("abilityCooldownSeconds")
+    public int abilityCooldownSeconds = 30;
+
+    // ============ 生成选项 ============
+    @SerializedName("twoWayOpposingJobs")
+    public List<String> twoWayOpposingJobs = new ArrayList<>();
+
+    @SerializedName("opposingJobs")
+    public List<String> opposingJobs = new ArrayList<>();
+
+    @SerializedName("bindWithRoles")
+    public List<String> bindWithRoles = new ArrayList<>();
+
+    @SerializedName("mapRestrictedTo")
+    public List<String> mapRestrictedTo = new ArrayList<>();
+
+    @SerializedName("enableChance")
+    public int enableChance = 100;
+
+    @SerializedName("useRareChance")
+    public boolean useRareChance = false;
+
+    @SerializedName("enableRareChance")
+    public int enableRareChance = 100;
+
+    @SerializedName("enableNeededPlayerCount")
+    public int enableNeededPlayerCount = -1;
+
+    // ============ 商店选项 ============
+    @SerializedName("shopEntries")
+    public List<ShopEntryData> shopEntries = new ArrayList<>();
+
+    // ============ 内部类 ============
+
+    public static class EffectEntry {
+        @SerializedName("effectId")
+        public String effectId = "";
+        @SerializedName("amplifier")
+        public int amplifier = 0; // 0=等级I, 1=等级II...
+
+        public EffectEntry() {}
+        public EffectEntry(String id, int amp) { effectId = id; amplifier = amp; }
+    }
+
+    public static class InitialItemEntry {
+        @SerializedName("itemId")
+        public String itemId = "";
+        @SerializedName("count")
+        public int count = 1;
+    }
+
+    public static class ShopEntryData {
+        @SerializedName("type")
+        public String type = "item";
+
+        @SerializedName("itemId")
+        public String itemId = "";
+
+        @SerializedName("price")
+        public int price = 0;
+
+        @SerializedName("cooldownSeconds")
+        public int cooldownSeconds = 0;
+
+        @SerializedName("allowDuplicate")
+        public boolean allowDuplicate = true; // item类型专用：是否允许快捷栏已有该物品时继续购买
+
+        // 自定义类型专用
+        @SerializedName("displayName")
+        public String displayName = "";
+
+        @SerializedName("commands")
+        public List<String> commands = new ArrayList<>();
+    }
+
+    public String getFullIdentifier() {
+        return "customrole:" + englishId;
+    }
+}

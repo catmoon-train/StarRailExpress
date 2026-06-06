@@ -107,6 +107,7 @@ public class InitModRolesMax {
         Harpymodloader.setOccupationRole(ModRoles.ENGINEER, ModRoles.LOCKSMITH);
         Harpymodloader.setOccupationRole(RedHouseRoles.FURANDORU, RedHouseRoles.PACHURI);
         Harpymodloader.setOccupationRole(ModRoles.MA_CHEN_XU, ModRoles.GUEST_GHOST);
+        Harpymodloader.setOccupationRole(ModRoles.GANGSTERS, ModRoles.FITTER);
 
         // 拳击手每局只能有 1 个
         Harpymodloader.setRoleMaximum(ModRoles.BOXER_ID, 1);
@@ -116,6 +117,9 @@ public class InitModRolesMax {
 
         // 秉烛人每局最多 1 个（具体是否出现由动态规则控制）
         Harpymodloader.setRoleMaximum(ModRoles.CANDLE_BEARER_ID, 1);
+
+        // 鹈鹕每局最多 1 个（具体是否出现由动态概率控制）
+        Harpymodloader.setRoleMaximum(ModRoles.PELICAN_ID, 1);
 
         // 邮差每局只能有 1 个
         Harpymodloader.setRoleMaximum(ModRoles.POSTMAN_ID, 1);
@@ -137,6 +141,15 @@ public class InitModRolesMax {
 
         // 心理学家每局只能有 1 个
         Harpymodloader.setRoleMaximum(ModRoles.PSYCHOLOGIST_ID, 1);
+
+        // 咒法师每局只能有 1 个
+        Harpymodloader.setRoleMaximum(ModRoles.WARLOCK_ID, 1);
+
+        // 嬉命人每局只能有 1 个
+        Harpymodloader.setRoleMaximum(ModRoles.EMBALMER_ID, 1);
+
+        // 窃皮者每局只能有 1 个
+        Harpymodloader.setRoleMaximum(ModRoles.SKINCRAWLER_ID, 1);
 
         // 摄影师每局只能有 1 个
         Harpymodloader.setRoleMaximum(ModRoles.PHOTOGRAPHER_ID, 1);
@@ -196,6 +209,10 @@ public class InitModRolesMax {
 
         // 强盗
         Harpymodloader.setRoleMaximum(ModRoles.BANDIT_ID, 1);
+        // 悍匪
+        Harpymodloader.setRoleMaximum(ModRoles.GANGSTERS_ID, 1);
+        // 钳工
+        Harpymodloader.setRoleMaximum(ModRoles.FITTER_ID, 1);
         Harpymodloader.setRoleMaximum(ModRoles.DIO_ID, 0);
 
         // 仇杀客 - 仅在12人及以上对局生成
@@ -411,8 +428,8 @@ public class InitModRolesMax {
                 Harpymodloader.setRoleMaximum(ModRoles.MAGICIAN_ID, 0);
             }
 
-            // 迷失杀手 - 从配置读取概率
-            if (random.nextInt(0, 100) <= config.chanceOfLostKiller) {
+            // 迷失杀手 - 从配置读取概率和最小玩家数
+            if (players_count >= config.minPlayerForLostKiller && random.nextInt(0, 100) <= config.chanceOfLostKiller) {
                 Harpymodloader.setRoleMaximum(ModRoles.LOST_KILLER_ID, 1);
             } else {
                 Harpymodloader.setRoleMaximum(ModRoles.LOST_KILLER_ID, 0);
@@ -661,6 +678,15 @@ public class InitModRolesMax {
                     }
                 }
             }
+            // 小透明地图限制 - 默认在所有地图刷新，只有ghostMaps中配置了地图时才仅在特定地图刷新
+            {
+                var ghostMaps = new ArrayList<>(NoellesRolesConfig.HANDLER.instance().ghostMaps);
+                if (ghostMaps != null && ghostMaps.size() > 0) {
+                    if (!ghostMaps.contains(currentMap)) {
+                        Harpymodloader.setRoleMaximum(ModRoles.GHOST_ID, 0);
+                    }
+                }
+            }
             // WRITER (作家) - 从配置读取概率
             if (random.nextInt(0, 100) <= config.chanceOfWriter) {
                 Harpymodloader.setRoleMaximum(ModRoles.WRITER_ID, 1);
@@ -715,6 +741,10 @@ public class InitModRolesMax {
         // 建筑师 - 从配置读取概率和最小玩家数
         ModRoles.BUILDER.setEnableChance(config.chanceOfBuilder).setEnableNeededPlayerCount(config.minPlayerForBuilder);
 
+        // 肉汁 - 25%概率
+        ModRoles.MEATBALL.setEnableChance(config.chanceOfMeatball)
+                .setEnableNeededPlayerCount(config.minPlayerForMeatball);
+
         // 杜鹃 - 45%概率
         ModRoles.CUCKOO.setEnableChance(config.chanceOfCuckoo);
 
@@ -746,6 +776,21 @@ public class InitModRolesMax {
         // 失忆者
         SERoles.AMNESIAC.setEnableNeededPlayerCount(config.minPlayerForAmnesiac)
                 .setEnableChance(config.chanceOfAmnesiac);
+
+        // 悍匪 - 从配置读取概率和最小玩家数
+        ModRoles.GANGSTERS.setEnableChance(config.chanceOfGangsters)
+                .setEnableNeededPlayerCount(config.minPlayerForGangsters);
+        // 钳工 - 与悍匪绑定，由悍匪概率控制
+        ModRoles.FITTER.setEnableChance(config.chanceOfGangsters)
+                .setEnableNeededPlayerCount(config.minPlayerForGangsters);
+
+        // 鹈鹕 - 从配置读取概率和最小玩家数
+        ModRoles.PELICAN.setEnableChance(config.chanceOfPelican)
+                .setEnableNeededPlayerCount(config.minPlayerForPelican);
+
+        // 教父 - 从配置读取概率和最小玩家数
+        ModRoles.GODFATHER.setEnableChance(config.chanceOfGodfather)
+                .setEnableNeededPlayerCount(config.mafiaMinimumPlayers);
 
         // 对没有 enableChance 的杀手方中立职业，默认 max=1、概率 75%
         for (var entry : TMMRoles.ROLES.entrySet()) {

@@ -97,6 +97,8 @@
     "compat.sodium.ShaderLoaderMixin",
     "compat.sodium.SodiumShaderMixin",
     "compat.sodium.SodiumTransformerMixin",
+    "compat.sodium_extra.SodiumExtraDisableOptionMixin",
+    "compat.sodium_extra.SodiumExtraLoadedMixin",
     "entity.player.LocalPlayerMixin",
     "gui.ScreenDrawableGetMixin",
     "input.KeyboardHandlerMixin",

@@ -6,6 +6,7 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.game.roles.killer.manipulator.ManipulatorPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.pelican.PelicanManager;
 import org.agmas.noellesroles.game.roles.special.better_vigilante.BetterVigilantePlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 import org.spongepowered.asm.mixin.Mixin;
@@ -26,6 +27,13 @@ public abstract class InstinctMixin {
         Player player = Minecraft.getInstance().player;
         if (player == null)
             return;
+
+        // 鹈鹕肚内玩家不能开启本能
+        if (PelicanManager.isStashed(player)) {
+            cir.setReturnValue(false);
+            cir.cancel();
+            return;
+        }
 
         // 检查玩家是否正在被操纵师控制 - 如果是，禁止使用杀手本能
         if (noellesroles$isPlayerBeingControlled(player)) {

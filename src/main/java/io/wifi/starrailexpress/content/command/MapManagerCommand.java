@@ -131,9 +131,16 @@ public class MapManagerCommand {
                   areas.mustCopy = false;
                   areas.noReset = false;
                   areas.sceneOffsetEnabled = false;
+                  areas.snowEnabled = false;
                   areas.sceneOffsetX = 0;
                   areas.sceneOffsetY = 0;
                   areas.sceneOffsetZ = 0;
+                  areas.weather = "clear";
+                  areas.gravity = 0.08;
+                  areas.effect = new java.util.ArrayList<>();
+                  areas.time = 18000;
+                  areas.daylightCycle = false;
+                  areas.weatherCycle = false;
                   areas.sync();
                   ctx.getSource().sendSuccess(
                       () -> Component.literal("Created new area configuration")
@@ -157,12 +164,19 @@ public class MapManagerCommand {
                 .then(setNoReset())
                 .then(setHaveOutsideSound())
                 .then(setSceneOffsetEnabled())
+                .then(setSnowEnabled())
                 .then(setSceneOffsetX())
                 .then(setSceneOffsetY())
                 .then(setSceneOffsetZ())
                 .then(setMustCopy())
                 .then(setMapName())
-                .then(setDisabledTasks()))
+                .then(setDisabledTasks())
+                .then(setWeather())
+                .then(setGravity())
+                .then(setEffect())
+                .then(setTime())
+                .then(setDaylightCycle())
+                .then(setWeatherCycle()))
             .then(Commands.literal("get")
                 .requires(source -> source.hasPermission(2))
                 .then(getSpawnPos())
@@ -180,11 +194,18 @@ public class MapManagerCommand {
                 .then(buildGetSimple("noReset", a -> String.valueOf(a.noReset)))
                 .then(buildGetSimple("haveOutsideSound", a -> String.valueOf(a.haveOutsideSound)))
                 .then(buildGetSimple("sceneOffsetEnabled", a -> String.valueOf(a.sceneOffsetEnabled)))
+                .then(buildGetSimple("snowEnabled", a -> String.valueOf(a.snowEnabled)))
                 .then(buildGetSimple("sceneOffsetX", a -> String.valueOf(a.sceneOffsetX)))
                 .then(buildGetSimple("sceneOffsetY", a -> String.valueOf(a.sceneOffsetY)))
                 .then(buildGetSimple("sceneOffsetZ", a -> String.valueOf(a.sceneOffsetZ)))
                 .then(buildGetSimple("mustCopy", a -> String.valueOf(a.mustCopy)))
                 .then(buildGetSimple("mapName", a -> "\"" + a.mapName + "\""))
+                .then(buildGetSimple("weather", a -> a.weather))
+                .then(buildGetSimple("gravity", a -> String.valueOf(a.gravity)))
+                .then(buildGetSimple("effect", a -> a.effect.isEmpty() ? "(none)" : String.join(", ", a.effect)))
+                .then(buildGetSimple("time", a -> String.valueOf(a.time)))
+                .then(buildGetSimple("daylightCycle", a -> String.valueOf(a.daylightCycle)))
+                .then(buildGetSimple("weatherCycle", a -> String.valueOf(a.weatherCycle)))
                 .then(getDisabledTasks()))
             .then(Commands.literal("remove")
                 .requires(source -> source.hasPermission(3))
@@ -400,6 +421,13 @@ public class MapManagerCommand {
     sendSetFeedback(source, "sceneOffsetEnabled", String.valueOf(value));
   }
 
+  private static void setSnowEnabled(CommandSourceStack source, boolean value) {
+    AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
+    areas.snowEnabled = value;
+    areas.sync();
+    sendSetFeedback(source, "snowEnabled", String.valueOf(value));
+  }
+
   private static void setMustCopy(CommandSourceStack source, boolean value) {
     AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
     areas.mustCopy = value;
@@ -457,6 +485,59 @@ public class MapManagerCommand {
     }
   }
 
+  // 10. weather
+  private static void setWeather(CommandSourceStack source, String value) {
+    AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
+    areas.weather = value;
+    areas.sync();
+    sendSetFeedback(source, "weather", "\"" + value + "\"");
+  }
+
+  // 11. gravity
+  private static void setGravity(CommandSourceStack source, double value) {
+    AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
+    areas.gravity = value;
+    areas.sync();
+    sendSetFeedback(source, "gravity", String.valueOf(value));
+  }
+
+  // 12. effect
+  private static void setEffect(CommandSourceStack source, String value) {
+    AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
+    areas.effect = new java.util.ArrayList<>();
+    if (!value.isEmpty()) {
+        // 支持逗号分隔的多个效果，如 "minecraft:speed,2,minecraft:jump_boost,1"
+        // 这里简单地把整个 value 当作单个效果
+        areas.effect.add(value);
+    }
+    areas.sync();
+    sendSetFeedback(source, "effect", "\"" + value + "\"");
+  }
+
+  // 13. time
+  private static void setTime(CommandSourceStack source, long value) {
+    AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
+    areas.time = value;
+    areas.sync();
+    sendSetFeedback(source, "time", String.valueOf(value));
+  }
+
+  // 14. daylightCycle
+  private static void setDaylightCycle(CommandSourceStack source, boolean value) {
+    AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
+    areas.daylightCycle = value;
+    areas.sync();
+    sendSetFeedback(source, "daylightCycle", String.valueOf(value));
+  }
+
+  // 15. weatherCycle
+  private static void setWeatherCycle(CommandSourceStack source, boolean value) {
+    AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
+    areas.weatherCycle = value;
+    areas.sync();
+    sendSetFeedback(source, "weatherCycle", String.valueOf(value));
+  }
+
   // ======================== list 子命令实现 ========================
 
   private static int executeList(CommandSourceStack source) {
@@ -478,11 +559,18 @@ public class MapManagerCommand {
     sb.append("noReset: ").append(areas.noReset).append("\n");
     sb.append("haveOutsideSound: ").append(areas.haveOutsideSound).append("\n");
     sb.append("sceneOffsetEnabled: ").append(areas.sceneOffsetEnabled).append("\n");
+    sb.append("snowEnabled: ").append(areas.snowEnabled).append("\n");
     sb.append("sceneOffsetX: ").append(areas.sceneOffsetX).append("\n");
     sb.append("sceneOffsetY: ").append(areas.sceneOffsetY).append("\n");
     sb.append("sceneOffsetZ: ").append(areas.sceneOffsetZ).append("\n");
     sb.append("mustCopy: ").append(areas.mustCopy).append("\n");
     sb.append("mapName: \"").append(areas.mapName).append("\"\n");
+    sb.append("weather: ").append(areas.weather).append("\n");
+    sb.append("gravity: ").append(areas.gravity).append("\n");
+    sb.append("effect: ").append(areas.effect.isEmpty() ? "(none)" : String.join(", ", areas.effect)).append("\n");
+    sb.append("time: ").append(areas.time).append("\n");
+    sb.append("daylightCycle: ").append(areas.daylightCycle).append("\n");
+    sb.append("weatherCycle: ").append(areas.weatherCycle).append("\n");
     sb.append("disabledTasks: ").append(formatDisabledTasks(areas.disabledTasks));
     source.sendSuccess(
         () -> Component.literal(sb.toString()).withStyle(style -> style.withColor(ChatFormatting.AQUA)),
@@ -610,6 +698,60 @@ public class MapManagerCommand {
                 })));
   }
 
+  private static LiteralArgumentBuilder<CommandSourceStack> setWeather() {
+    return Commands.literal("weather")
+        .then(Commands.argument("value", StringArgumentType.string())
+            .executes(ctx -> {
+              setWeather(ctx.getSource(), StringArgumentType.getString(ctx, "value"));
+              return 1;
+            }));
+  }
+
+  private static LiteralArgumentBuilder<CommandSourceStack> setGravity() {
+    return Commands.literal("gravity")
+        .then(Commands.argument("value", DoubleArgumentType.doubleArg())
+            .executes(ctx -> {
+              setGravity(ctx.getSource(), DoubleArgumentType.getDouble(ctx, "value"));
+              return 1;
+            }));
+  }
+
+  private static LiteralArgumentBuilder<CommandSourceStack> setEffect() {
+    return Commands.literal("effect")
+        .then(Commands.argument("value", StringArgumentType.string())
+            .executes(ctx -> {
+              setEffect(ctx.getSource(), StringArgumentType.getString(ctx, "value"));
+              return 1;
+            }));
+  }
+
+  private static LiteralArgumentBuilder<CommandSourceStack> setTime() {
+    return Commands.literal("time")
+        .then(Commands.argument("value", LongArgumentType.longArg())
+            .executes(ctx -> {
+              setTime(ctx.getSource(), LongArgumentType.getLong(ctx, "value"));
+              return 1;
+            }));
+  }
+
+  private static LiteralArgumentBuilder<CommandSourceStack> setDaylightCycle() {
+    return Commands.literal("daylightCycle")
+        .then(Commands.argument("value", BoolArgumentType.bool())
+            .executes(ctx -> {
+              setDaylightCycle(ctx.getSource(), BoolArgumentType.getBool(ctx, "value"));
+              return 1;
+            }));
+  }
+
+  private static LiteralArgumentBuilder<CommandSourceStack> setWeatherCycle() {
+    return Commands.literal("weatherCycle")
+        .then(Commands.argument("value", BoolArgumentType.bool())
+            .executes(ctx -> {
+              setWeatherCycle(ctx.getSource(), BoolArgumentType.getBool(ctx, "value"));
+              return 1;
+            }));
+  }
+
   private static LiteralArgumentBuilder<CommandSourceStack> setReadyArea() {
     return buildSetAABB("readyArea",
         AreasWorldComponent::getReadyArea,
@@ -719,6 +861,15 @@ public class MapManagerCommand {
         .then(Commands.argument("value", BoolArgumentType.bool())
             .executes(ctx -> {
               setSceneOffsetEnabled(ctx.getSource(), BoolArgumentType.getBool(ctx, "value"));
+              return 1;
+            }));
+  }
+
+  private static LiteralArgumentBuilder<CommandSourceStack> setSnowEnabled() {
+    return Commands.literal("snowEnabled")
+        .then(Commands.argument("value", BoolArgumentType.bool())
+            .executes(ctx -> {
+              setSnowEnabled(ctx.getSource(), BoolArgumentType.getBool(ctx, "value"));
               return 1;
             }));
   }

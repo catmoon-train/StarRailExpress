@@ -35,7 +35,6 @@ public class ExecutionerPlayerComponent implements RoleComponent, ServerTickingC
             ExecutionerPlayerComponent.class);
     private final Player player;
     public UUID target;
-    public boolean won = false;
     public boolean targetSelected = false;
     public boolean shopUnlocked = false;
 
@@ -51,7 +50,6 @@ public class ExecutionerPlayerComponent implements RoleComponent, ServerTickingC
     public void init() {
         this.target = null;
         this.targetSelected = false;
-        this.won = false;
         this.shopUnlocked = false;
         this.sync();
     }
@@ -85,7 +83,7 @@ public class ExecutionerPlayerComponent implements RoleComponent, ServerTickingC
             assignRandomTarget(); // 分配新目标
 
         }
-        if (target != null && !won) {
+        if (target != null) {
             if (!gameWorldComponent.isRunning())
                 return;
             if (!gameWorldComponent.isRole(player, ModRoles.EXECUTIONER))
@@ -135,19 +133,23 @@ public class ExecutionerPlayerComponent implements RoleComponent, ServerTickingC
      * 自动分配随机目标（仅限平民阵营，优先排除肉汁）
      */
     public void assignRandomTarget() {
+        assignRandomTarget(false);
+    }
+
+    public boolean assignRandomTarget(boolean bindNewOne) {
         // 如果配置允许手动选择目标，则不自动分配
         if (NoellesRolesConfig.HANDLER.instance().executionerCanSelectTarget) {
-            return;
+            return false;
         }
 
         // 如果已经有目标或者已经获胜，则不需要分配新目标
-        if (target != null || won) {
-            return;
+        if (!bindNewOne && (target != null)) {
+            return false;
         }
         SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY
                 .get(player.level());
         if (gameWorldComponent == null)
-            return;
+            return false;
         List<Player> eligibleTargets = new ArrayList<>();
         List<Player> nonMeatballTargets = new ArrayList<>();
         var lovercca = LoversComponent.KEY.get(player);
@@ -163,6 +165,8 @@ public class ExecutionerPlayerComponent implements RoleComponent, ServerTickingC
             if (mylover != null && p.getUUID() == mylover.getUUID()) {
                 continue; // 跳过恋人
             }
+            if (bindNewOne && target == p.getUUID())
+                continue;// 跳过当前
             if (!GameUtils.isPlayerAliveAndSurvival(p)) {
                 continue; // 只考虑存活玩家
             }
@@ -176,7 +180,9 @@ public class ExecutionerPlayerComponent implements RoleComponent, ServerTickingC
                 }
             }
         }
-
+        if (bindNewOne && target != null && nonMeatballTargets.isEmpty()) {
+            return false;
+        }
         // 优先从非肉汁玩家中随机选择；如果没有非肉汁目标，才从全体（只剩肉汁）中选
         List<Player> selectionPool = nonMeatballTargets.isEmpty() ? eligibleTargets : nonMeatballTargets;
         if (!selectionPool.isEmpty()) {
@@ -184,7 +190,9 @@ public class ExecutionerPlayerComponent implements RoleComponent, ServerTickingC
             this.target = selectionPool.getFirst().getUUID();
             this.targetSelected = true;
             this.sync();
+            return true;
         }
+        return false;
     }
 
     /**
@@ -215,14 +223,12 @@ public class ExecutionerPlayerComponent implements RoleComponent, ServerTickingC
         if (this.target != null) {
             tag.putUUID("target", this.target);
         }
-        tag.putBoolean("won", this.won);
         tag.putBoolean("targetSelected", this.targetSelected);
         tag.putBoolean("shopUnlocked", this.shopUnlocked);
     }
 
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.target = tag.contains("target") ? tag.getUUID("target") : null;
-        this.won = tag.getBoolean("won");
         this.targetSelected = tag.getBoolean("targetSelected");
         this.shopUnlocked = tag.getBoolean("shopUnlocked");
     }
@@ -234,6 +240,9 @@ public class ExecutionerPlayerComponent implements RoleComponent, ServerTickingC
 
     public static void registerBackfireEvent() {
         AllowShootRevolverDrop.EVENT.register((player, target) -> {
+            if (ShootingFrenzyPlayerComponent.isInFrenzy(player)) {
+                return AllowShootRevolverDrop.ShouldDropResult.FALSE;
+            }
             SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY
                     .get(player.level());
             if (gameWorldComponent.isRole(player, ModRoles.EXECUTIONER)) {

@@ -30,13 +30,18 @@ public abstract class DoorPartBlock extends BaseEntityBlock {
     public static final BooleanProperty OPEN = BlockStateProperties.OPEN;
     protected static final VoxelShape X_SHAPE = Block.box(6, 0, 0, 10, 16, 16);
     protected static final VoxelShape Z_SHAPE = Block.box(0, 0, 6, 16, 16, 10);
+    public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
 
     public DoorPartBlock(Properties settings) {
         super(settings);
         this.registerDefaultState(super.defaultBlockState()
                 .setValue(FACING, Direction.NORTH)
-                .setValue(OPEN, false)
-        );
+                .setValue(POWERED, false)
+                .setValue(OPEN, false));
+    }
+
+    protected boolean isSignalSource(BlockState blockState) {
+        return false;
     }
 
     @Override
@@ -74,12 +79,14 @@ public abstract class DoorPartBlock extends BaseEntityBlock {
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING, OPEN);
+        builder.add(FACING, OPEN, POWERED);
     }
 
     @Override
-    public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level world, BlockState state, BlockEntityType<T> type) {
-        return world.isClientSide ? createTickerHelper(type, this.getBlockEntityType(), DoorBlockEntity::clientTick) : createTickerHelper(type, this.getBlockEntityType(), DoorBlockEntity::serverTick);
+    public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level world, BlockState state,
+            BlockEntityType<T> type) {
+        return world.isClientSide ? createTickerHelper(type, this.getBlockEntityType(), DoorBlockEntity::clientTick)
+                : createTickerHelper(type, this.getBlockEntityType(), DoorBlockEntity::serverTick);
     }
 
     protected abstract BlockEntityType<? extends DoorBlockEntity> getBlockEntityType();

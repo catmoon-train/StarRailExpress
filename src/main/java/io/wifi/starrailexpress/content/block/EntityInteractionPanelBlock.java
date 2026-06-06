@@ -1,11 +1,9 @@
 package io.wifi.starrailexpress.content.block;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.mojang.serialization.MapCodec;
 import io.wifi.starrailexpress.content.block_entity.EntityInteractionBlockEntity;
 import io.wifi.starrailexpress.index.TMMBlockEntities;
-import io.wifi.starrailexpress.util.BarrierViewer;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -27,6 +25,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -50,23 +49,26 @@ public class EntityInteractionPanelBlock extends BaseEntityBlock {
     private static final VoxelShape WEST_SHAPE = box(15.9, 0.0, 0.0, 16.0, 16.0, 16.0);
     private static final VoxelShape SOUTH_SHAPE = box(0.0, 0.0, 0.0, 16.0, 16.0, 0.1);
     private static final VoxelShape NORTH_SHAPE = box(0.0, 0.0, 15.9, 16.0, 16.0, 16.0);
-    private static final Map<Direction, VoxelShape> SHAPES_FOR_DIRECTIONS = Util.make(Maps.newEnumMap(Direction.class), shapes -> {
-        shapes.put(Direction.NORTH, SOUTH_SHAPE);
-        shapes.put(Direction.EAST, WEST_SHAPE);
-        shapes.put(Direction.SOUTH, NORTH_SHAPE);
-        shapes.put(Direction.WEST, EAST_SHAPE);
-        shapes.put(Direction.UP, UP_SHAPE);
-        shapes.put(Direction.DOWN, DOWN_SHAPE);
-    });
+    private static final Map<Direction, VoxelShape> SHAPES_FOR_DIRECTIONS = Util.make(Maps.newEnumMap(Direction.class),
+            shapes -> {
+                shapes.put(Direction.NORTH, NORTH_SHAPE);
+                shapes.put(Direction.EAST, EAST_SHAPE);
+                shapes.put(Direction.SOUTH, SOUTH_SHAPE);
+                shapes.put(Direction.WEST, WEST_SHAPE);
+                shapes.put(Direction.UP, DOWN_SHAPE);
+                shapes.put(Direction.DOWN, UP_SHAPE);
+            });
+
+    public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
 
     public EntityInteractionPanelBlock(Properties settings) {
         super(settings.noOcclusion().noCollission());
-        this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH));
+        this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(POWERED, false));
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING);
+        builder.add(FACING, POWERED);
     }
 
     @Nullable
@@ -94,7 +96,6 @@ public class EntityInteractionPanelBlock extends BaseEntityBlock {
 
     @Override
     public RenderShape getRenderShape(BlockState state) {
-        if (BarrierViewer.isBarrierVisible()) return RenderShape.MODEL;
         return RenderShape.INVISIBLE;
     }
 
@@ -109,13 +110,18 @@ public class EntityInteractionPanelBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult hit) {
+    protected InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player,
+            BlockHitResult hit) {
         if (world.isClientSide) {
             return InteractionResult.SUCCESS;
         }
 
         BlockEntity blockEntity = world.getBlockEntity(pos);
         if (blockEntity instanceof EntityInteractionBlockEntity interactionBlockEntity) {
+            // 记录右键点击
+            if (player instanceof ServerPlayer serverPlayer) {
+                interactionBlockEntity.recordPlayerClick(serverPlayer, false); // false = 右键
+            }
             // 只有创造模式玩家可以打开UI
             if (player instanceof ServerPlayer serverPlayer && serverPlayer.isCreative()) {
                 interactionBlockEntity.openUI(serverPlayer);
@@ -133,7 +139,8 @@ public class EntityInteractionPanelBlock extends BaseEntityBlock {
 
     @Nullable
     @Override
-    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level world, BlockState state, BlockEntityType<T> type) {
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level world, BlockState state,
+            BlockEntityType<T> type) {
         return createTickerHelper(type, TMMBlockEntities.ENTITY_INTERACTION_BLOCK, EntityInteractionBlockEntity::tick);
     }
 
@@ -145,11 +152,46 @@ public class EntityInteractionPanelBlock extends BaseEntityBlock {
     }
 
     @Override
-    public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor world, BlockPos pos, BlockPos neighborPos) {
+    public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor world,
+            BlockPos pos, BlockPos neighborPos) {
         Direction facing = state.getValue(FACING);
         if (direction == facing.getOpposite() && !state.canSurvive(world, pos)) {
             return Blocks.AIR.defaultBlockState();
         }
         return state;
+    }
+
+    // ===== 红石信号输入（类似 TrainLightBlock） =====
+    @Override
+    public void neighborChanged(BlockState state, Level world, BlockPos pos, Block block, BlockPos fromPos,
+            boolean notify) {
+        if (!world.isClientSide) {
+            boolean isPowered = world.hasNeighborSignal(pos);
+            if (isPowered != state.getValue(POWERED)) {
+                world.setBlock(pos, state.setValue(POWERED, isPowered), 2);
+                // 同步到 BlockEntity
+                BlockEntity blockEntity = world.getBlockEntity(pos);
+                if (blockEntity instanceof EntityInteractionBlockEntity entity) {
+                    entity.setReceivedRedstoneSignal(isPowered);
+                }
+            }
+        }
+    }
+
+    // ===== 红石信号输出（类似 RemoteRedstoneBlock 的 getSignal） =====
+    @Override
+    public boolean isSignalSource(BlockState state) {
+        return true;
+    }
+
+    @Override
+    public int getSignal(BlockState state, BlockGetter world, BlockPos pos, Direction direction) {
+        BlockEntity blockEntity = world.getBlockEntity(pos);
+        if (blockEntity instanceof EntityInteractionBlockEntity entity) {
+            if (entity.isOutputtingRedstone()) {
+                return entity.getRedstoneOutputStrength();
+            }
+        }
+        return 0;
     }
 }

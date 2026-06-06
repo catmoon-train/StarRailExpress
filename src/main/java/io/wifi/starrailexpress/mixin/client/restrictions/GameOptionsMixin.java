@@ -8,6 +8,8 @@ import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
+import net.minecraft.client.player.LocalPlayer;
+
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
@@ -35,7 +37,10 @@ public class GameOptionsMixin {
                 default:
             }
         }
-        if (GameUtils.isPlayerAliveAndSurvival(Minecraft.getInstance().player)) {
+        LocalPlayer localPlayer = Minecraft.getInstance().player;
+        if (!GameUtils.isGameRunning(localPlayer))
+            return original;
+        if (GameUtils.isPlayerAliveAndSurvival(localPlayer)) {
             if (SREClient.gameComponent != null) {
                 final var role = SREClient.gameComponent.getRole(Minecraft.getInstance().player);
 

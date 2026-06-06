@@ -45,7 +45,7 @@ public class InfectedPlayerComponent implements RoleComponent, ServerTickingComp
     public static final net.minecraft.resources.ResourceLocation INFECTION_DEATH_REASON = Noellesroles.id("infection");
 
     // 配置值
-    private static final int INFECTED_KILL_TIME = GameConstants.getInTicks(3, 0); // 180秒致死
+    private static final int INFECTED_KILL_TIME = 240 * 20; // 240秒致死，硬编码
     private static final int SPREAD_INTERVAL_NORMAL = 1000; // 正常情况50秒传播一次（20fps）
     private static final int SPREAD_INTERVAL_ACCELERATED = 200; // 加速情况10秒传播一次
     private static final int SPREAD_RADIUS = 3; // 传播范围3格

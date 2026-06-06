@@ -123,8 +123,6 @@ public class WTLooseEndsGameMode extends GameMode {
     @Override
     public void initializeGame(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent,
             List<ServerPlayer> players) {
-        SRETrainWorldComponent.KEY.get(serverWorld).setTimeOfDay(SRETrainWorldComponent.TimeOfDay.SUNDOWN);
-
         // 先分配职业再发物品：可以根据职业来分配
         initRoles(players, gameWorldComponent);
         initCoolDownItems(players, gameWorldComponent);

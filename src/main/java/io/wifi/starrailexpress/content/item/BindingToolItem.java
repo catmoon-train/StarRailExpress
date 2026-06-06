@@ -1,8 +1,7 @@
 package io.wifi.starrailexpress.content.item;
 
-import java.util.List;
-
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.content.block.entity.RemoteRedstoneBlockEntity;
 import io.wifi.starrailexpress.content.block_entity.CameraBlockEntity;
 import io.wifi.starrailexpress.content.block_entity.SecurityMonitorBlockEntity;
 import net.minecraft.ChatFormatting;
@@ -12,8 +11,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -35,11 +32,12 @@ public class BindingToolItem extends Item {
         return new BlockPos(x2 - x1, y2 - y1, z2 - z1);
     }
 
-    @Override
-    public void appendHoverText(ItemStack itemStack, TooltipContext tooltipContext, List<Component> list,
-            TooltipFlag tooltipFlag) {
-        list.add(Component.translatable(getDescriptionId() + ".tooltip"));
-    }
+    // @Override
+    // public void appendHoverText(ItemStack itemStack, TooltipContext
+    // tooltipContext, List<Component> list,
+    // TooltipFlag tooltipFlag) {
+    // list.add(Component.translatable(getDescriptionId() + ".tooltip"));
+    // }
 
     // public item.starrailexpress.binding_tool.tooltip
     @Override
@@ -49,8 +47,10 @@ public class BindingToolItem extends Item {
             return InteractionResult.PASS;
         BlockPos pos = context.getClickedPos();
         Player player = context.getPlayer();
-
         if (player == null) {
+            return InteractionResult.PASS;
+        }
+        if (!player.isCreative()) {
             return InteractionResult.PASS;
         }
 
@@ -86,9 +86,42 @@ public class BindingToolItem extends Item {
                 player.displayClientMessage(Component.literal("请先右键点击一个摄像头").withStyle(ChatFormatting.RED), true);
             }
             return InteractionResult.SUCCESS;
-        } else {
-            player.displayClientMessage(Component.literal("此工具只能用于摄像头和监控器").withStyle(ChatFormatting.GRAY), true);
-            return InteractionResult.PASS;
+        } else if (blockEntity instanceof RemoteRedstoneBlockEntity re) {
+            if (player.isShiftKeyDown()) {
+                lastCameraPos = null;
+                re.setTargetBlockPos(null);
+                player.displayClientMessage(
+                        Component.translatable("message.item.starrailexpress.binding_tool.cleared")
+                                .withStyle(ChatFormatting.GREEN),
+                        true);
+                return InteractionResult.SUCCESS;
+            }
+            if (lastCameraPos == null) {
+                lastCameraPos = pos;
+                player.displayClientMessage(
+                        Component.translatable("message.item.starrailexpress.binding_tool.bind_pos_remote_redstone")
+                                .withStyle(ChatFormatting.AQUA),
+                        true);
+            } else {
+                var blockEntity2 = world.getBlockEntity(lastCameraPos);
+                if (blockEntity2 instanceof RemoteRedstoneBlockEntity re2) {
+                    re2.setTargetBlockPos(CalcRelativePosition(lastCameraPos,pos));
+                    player.displayClientMessage(
+                            Component
+                                    .translatable("message.item.starrailexpress.binding_tool.bind_remote_redstone",
+                                            lastCameraPos.toShortString(), pos.toShortString())
+                                    .withStyle(ChatFormatting.GREEN),
+                            true);
+                }
+
+                lastCameraPos = null;
+            }
+            return InteractionResult.SUCCESS;
         }
+        player.displayClientMessage(
+                Component.translatable("message.item.starrailexpress.binding_tool.invalid")
+                        .withStyle(ChatFormatting.RED),
+                true);
+        return InteractionResult.PASS;
     }
 }

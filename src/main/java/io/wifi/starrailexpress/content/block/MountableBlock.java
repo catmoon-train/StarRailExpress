@@ -21,8 +21,14 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
+
+import com.mojang.serialization.MapCodec;
 
 public abstract class MountableBlock extends Block {
+    public static <B extends Block> MapCodec<B> createSimpleCodec(Function<Properties, B> function) {
+        return simpleCodec(function);
+    }
 
     public MountableBlock(Properties settings) {
         super(settings);
@@ -91,4 +97,5 @@ public abstract class MountableBlock extends Block {
     }
 
     public abstract Vec3 getSitPos(Level world, BlockState state, BlockPos pos);
+
 }

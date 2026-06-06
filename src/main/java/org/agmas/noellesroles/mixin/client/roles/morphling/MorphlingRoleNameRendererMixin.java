@@ -15,6 +15,7 @@ import net.minecraft.world.scores.PlayerTeam;
 
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.ConfigWorldComponent;
+import org.agmas.noellesroles.client.ClientEmbalmerState;
 import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.agmas.noellesroles.game.roles.killer.morphling.MorphlingPlayerComponent;
 import org.spongepowered.asm.mixin.Mixin;
@@ -59,6 +60,14 @@ public abstract class MorphlingRoleNameRendererMixin {
         }
         if (instance.isInvisible()) {
             return Component.literal("");
+        }
+        // 嬉命人变装 - 鼠标朝向的玩家名字显示皮肤对应的名称
+        UUID embalmerTarget = ClientEmbalmerState.replacement(instance.getUUID());
+        if (embalmerTarget != null && ClientEmbalmerState.isActive()) {
+            PlayerInfo targetInfo = ClientSkinCache.getCachedPlayerInfo(embalmerTarget);
+            if (targetInfo != null && targetInfo.getProfile() != null && targetInfo.getProfile().getId() != null) {
+                return getDisplayName$PlayerInfo(targetInfo);
+            }
         }
         var mocca = MorphlingPlayerComponent.KEY.get(instance);
         if ((mocca).getMorphTicks() > 0) {

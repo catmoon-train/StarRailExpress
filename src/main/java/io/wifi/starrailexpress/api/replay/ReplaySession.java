@@ -64,10 +64,9 @@ public final class ReplaySession {
         }
 
         String roleId = data.getPlayerRoles() == null ? null : data.getPlayerRoles().get(uuid);
-        String rolePath = ReplayDisplayUtils.getRolePath(roleId);
-        Component roleName = rolePath == null
+        Component roleName = roleId == null
                 ? Component.translatable("announcement.star.role." + TMMRoles.CIVILIAN.identifier().getPath())
-                : ReplayDisplayUtils.getRoleDisplayName(rolePath);
+                : ReplayDisplayUtils.getRoleDisplayName(roleId);
         return new ReplayPlayerProfile(uuid, name, roleId, roleName, isAlive(uuid));
     }
 

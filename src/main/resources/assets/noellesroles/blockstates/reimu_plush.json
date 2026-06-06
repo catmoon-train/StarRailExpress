@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "noellesroles:block/reimu_plush",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "noellesroles:block/reimu_plush"
+    },
+    "facing=south": {
+      "model": "noellesroles:block/reimu_plush",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "noellesroles:block/reimu_plush",
+      "y": 270
+    }
+  }
+}

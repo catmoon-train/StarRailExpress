@@ -8,7 +8,8 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
-import org.agmas.noellesroles.game.roles.Innocent.postman.PostmanPlayerComponent;
+
+import org.agmas.noellesroles.game.roles.innocent.postman.PostmanPlayerComponent;
 import org.agmas.noellesroles.packet.PostmanC2SPacket;
 
 /**

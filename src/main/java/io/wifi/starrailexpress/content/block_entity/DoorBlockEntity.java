@@ -41,9 +41,11 @@ public abstract class DoorBlockEntity extends SyncingBlockEntity {
 
     public static <T extends DoorBlockEntity> void serverTick(Level world, BlockPos pos, BlockState state, T entity) {
         if (state.getValue(DoorPartBlock.OPEN) && !entity.isBlasted()) {
-            entity.setCloseCountdown(entity.getCloseCountdown() - 1);
-            if (entity.getCloseCountdown() <= 0) {
-                SmallDoorBlock.toggleDoor(state, world, (SmallDoorBlockEntity) entity, pos);
+            if (entity.getCloseCountdown() >= 0) {
+                entity.setCloseCountdown(entity.getCloseCountdown() - 1);
+                if (entity.getCloseCountdown() <= 0) {
+                    SmallDoorBlock.toggleDoor(state, world, (SmallDoorBlockEntity) entity, pos);
+                }
             }
         } else {
             entity.setCloseCountdown(0);
@@ -54,24 +56,36 @@ public abstract class DoorBlockEntity extends SyncingBlockEntity {
         }
     }
 
-    public void toggle(boolean silent) {
+    public void toggle(boolean silent, int ticks) {
         if (this.level == null || this.level.getGameTime() == this.lastUpdate || this.isBlasted()) {
             return;
         }
-        this.toggleOpen();
+        if (ticks != -2) {
+            this.toggleOpen(ticks);
+        } else {
+            this.toggleOpen();
+        }
         if (!silent) {
             this.playToggleSound();
         }
         this.toggleBlocks();
     }
 
-    protected void toggleOpen() {
+    public void toggle(boolean silent) {
+        toggle(silent, -2);
+    }
+
+    protected void toggleOpen(int ticks) {
         if (this.level != null) {
             this.lastUpdate = this.level.getGameTime();
             this.open = !this.open;
             this.level.blockEvent(this.worldPosition, this.getBlockState().getBlock(), 1, this.open ? 1 : 0);
-            this.closeCountdown = this.open ? GameConstants.DOOR_AUTOCLOSE_TIME : 0;
+            this.closeCountdown = this.open ? ticks : 0;
         }
+    }
+
+    protected void toggleOpen() {
+        toggleOpen(GameConstants.DOOR_AUTOCLOSE_TIME);
     }
 
     protected void playToggleSound() {

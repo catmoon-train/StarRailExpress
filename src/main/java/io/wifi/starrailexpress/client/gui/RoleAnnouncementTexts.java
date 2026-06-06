@@ -64,6 +64,20 @@ public class RoleAnnouncementTexts {
         public RoleAnnouncementText(ResourceLocation id, int colour) {
             this.id = id;
             this.colour = colour;
+            // 检查自定义职业
+            if (id.getNamespace().equals("customrole")) {
+                var cd = io.wifi.starrailexpress.customrole.CustomRoleLoader.getCustomRoleData(id.getPath());
+                if (cd != null && !cd.displayName.isEmpty()) {
+                    this.roleText = Component.literal(cd.displayName).withColor(this.colour);
+                    String goals = cd.goals.isEmpty() ? cd.description : cd.goals;
+                    this.goalText = (count) -> Component.literal(goals).withColor(this.colour);
+                    this.welcomeText = Component.translatable("announcement.star.welcome", this.roleText).withColor(0xF0F0F0);
+                    this.titleText = Component.translatable("announcement.star.title." + this.id.getPath().toLowerCase()).withColor(this.colour);
+                    this.premiseText = (count) -> Component.translatable(count == 1 ? "announcement.star.premise" : "announcement.star.premises", count);
+                    this.winText = Component.translatable("announcement.star.win." + this.id.getPath().toLowerCase()).withColor(this.colour);
+                    return;
+                }
+            }
             this.roleText = Component.translatable("announcement.star.role." + this.id.getPath().toLowerCase())
                     .withColor(this.colour);
             this.titleText = Component.translatable("announcement.star.title." + this.id.getPath().toLowerCase())

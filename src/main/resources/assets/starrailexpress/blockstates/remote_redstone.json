@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "lit=false,triggered=false": {
+      "model": "minecraft:block/redstone_torch_off"
+    },
+    "lit=true,triggered=false": {
+      "model": "minecraft:block/redstone_torch"
+    },
+    "lit=false,triggered=true": {
+      "model": "minecraft:block/redstone_lamp_on"
+    },
+    "lit=true,triggered=true": {
+      "model": "minecraft:block/redstone_block"
+    }
+  }
+}

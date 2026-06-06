@@ -37,6 +37,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -61,7 +62,7 @@ import org.agmas.noellesroles.component.DeathPenaltyComponent;
 import org.agmas.noellesroles.component.DefibrillatorComponent;
 import org.agmas.noellesroles.content.item.LetterItem;
 import org.agmas.noellesroles.content.item.RadioItem;
-import org.agmas.noellesroles.game.roles.Innocent.hoan_meirin.HoanMeirinFistPunchHandler;
+import org.agmas.noellesroles.game.roles.innocent.hoan_meirin.HoanMeirinFistPunchHandler;
 import org.agmas.noellesroles.game.roles.neutral.mercenary.MercenaryPlayerComponent;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
@@ -213,6 +214,9 @@ public class GameUtils {
         AreasWorldComponent areas = AreasWorldComponent.KEY.get(world);
         if (areas.mapName == null) {
             MapManager.loadRandomMap(world);
+        } else {
+            // 重新加载当前地图配置，确保获取最新配置
+            MapManager.loadMap(world, areas.mapName);
         }
         MapResetManager.loadArea(world);
         if (areas.noReset) {
@@ -528,13 +532,28 @@ public class GameUtils {
         SREWorldBlackoutComponent.KEY.get(serverWorld).reset();
         // 重置画板已画出物品状态
         gameComponent.resetDrawnCategories();
-        serverWorld.setDayTime(SRETrainWorldComponent.TimeOfDay.SUNDOWN.time);
+        serverWorld.setDayTime(areas.time);
         serverWorld.getGameRules().getRule(GameRules.RULE_KEEPINVENTORY).set(true, serverWorld.getServer());
-        serverWorld.getGameRules().getRule(GameRules.RULE_WEATHER_CYCLE).set(false, serverWorld.getServer());
-        serverWorld.setWeatherParameters(6000, 0, false, false);
+        // 天气循环配置 - 默认关闭
+        serverWorld.getGameRules().getRule(GameRules.RULE_WEATHER_CYCLE).set(areas.weatherCycle,
+                serverWorld.getServer());
 
-        // serverWorld.getGameRules().getRule(GameRules.RULE_DAYLIGHT).set(false,
-        // serverWorld.getServer());
+        // 应用地图天气配置
+        switch (areas.weather) {
+            case "rain":
+                serverWorld.setWeatherParameters(0, 120000, true, false);
+                break;
+            case "thunder":
+                serverWorld.setWeatherParameters(0, 120000, true, true);
+                break;
+            default: // clear
+                serverWorld.setWeatherParameters(120000, 0, false, false);
+                break;
+        }
+
+        // 昼夜循环配置 - 默认关闭，开启后使用正常昼夜循环
+        serverWorld.getGameRules().getRule(GameRules.RULE_DAYLIGHT).set(areas.daylightCycle,
+                serverWorld.getServer());
 
         serverWorld.getGameRules().getRule(GameRules.RULE_MOBGRIEFING).set(false, serverWorld.getServer());
         serverWorld.getGameRules().getRule(GameRules.RULE_DOMOBSPAWNING).set(false, serverWorld.getServer());
@@ -675,6 +694,38 @@ public class GameUtils {
 
         gameComponent.setJumpAvailable(areas.canJump);
         gameComponent.setOutsideSoundsAvailable(areas.haveOutsideSound);
+
+        // 应用地图重力配置
+        for (ServerPlayer player : players) {
+            var gravityAttr = player.getAttribute(Attributes.GRAVITY);
+            if (gravityAttr != null) {
+                gravityAttr.setBaseValue(areas.gravity);
+            }
+        }
+
+        // 应用全局药水效果
+        for (String effectStr : areas.effect) {
+            if (effectStr.isEmpty()) continue;
+            try {
+                String[] parts = effectStr.split(",");
+                if (parts.length >= 1) {
+                    ResourceLocation effectId = ResourceLocation.parse(parts[0]);
+                    int level = parts.length >= 2 ? Integer.parseInt(parts[1]) : 0;
+                    var effectHolder = BuiltInRegistries.MOB_EFFECT.getHolder(effectId).orElse(null);
+                    if (effectHolder != null) {
+                        for (ServerPlayer player : players) {
+                            player.addEffect(new MobEffectInstance(
+                                    effectHolder, Integer.MAX_VALUE, level, true, false, false));
+                        }
+                        SRE.LOGGER.info("Applied global effect: " + effectStr);
+                    } else {
+                        SRE.LOGGER.warn("Unknown effect: " + effectId);
+                    }
+                }
+            } catch (Exception e) {
+                SRE.LOGGER.error("Failed to apply effect: " + effectStr, e);
+            }
+        }
     }
 
     public static void setForcedReadyPlayers(Collection<UUID> playerIds) {
@@ -735,6 +786,7 @@ public class GameUtils {
 
         world.setDayTime(Level.TICKS_PER_DAY / 2);
         world.getGameRules().getRule(GameRules.RULE_DAYLIGHT).set(false, world.getServer());
+        world.getGameRules().getRule(GameRules.RULE_WEATHER_CYCLE).set(false, world.getServer());
         gameComponent.getGameMode().finalizeGame(world, gameComponent);
 
         OnGameEnd.EVENT.invoker().onGameEnd(world, gameComponent);
@@ -762,6 +814,27 @@ public class GameUtils {
 
         // reset all players
         for (ServerPlayer player : world.getServer().getPlayerList().getPlayers()) {
+            // 重置重力为默认值
+            var gravityAttr = player.getAttribute(Attributes.GRAVITY);
+            if (gravityAttr != null && gravityAttr.getBaseValue() != 0.08) {
+                gravityAttr.setBaseValue(0.08);
+            }
+            // 清除全局药水效果
+            AreasWorldComponent areas = AreasWorldComponent.KEY.get(world);
+            for (String effectStr : areas.effect) {
+                if (effectStr.isEmpty()) continue;
+                try {
+                    String[] parts = effectStr.split(",");
+                    if (parts.length >= 1) {
+                        ResourceLocation effectId = ResourceLocation.parse(parts[0]);
+                        var effectHolder = BuiltInRegistries.MOB_EFFECT.getHolder(effectId).orElse(null);
+                        if (effectHolder != null) {
+                            player.removeEffect(effectHolder);
+                        }
+                    }
+                } catch (Exception ignored) {
+                }
+            }
             resetPlayerAfterGame(player);
         }
         HoanMeirinFistPunchHandler.PUNCH_RECORDS.clear();

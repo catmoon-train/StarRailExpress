@@ -1,6 +1,6 @@
 package io.wifi.starrailexpress.content.block;
 
-import io.wifi.starrailexpress.index.TMMProperties;
+import io.wifi.starrailexpress.content.block.api.LightBlockInterface;
 import io.wifi.starrailexpress.index.TMMSounds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -16,13 +16,9 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.BlockHitResult;
 
-public class NeonPillarBlock extends RotatedPillarBlock {
-    public static final BooleanProperty LIT = BlockStateProperties.LIT;
-    public static final BooleanProperty ACTIVE = TMMProperties.ACTIVE;
+public class NeonPillarBlock extends RotatedPillarBlock implements LightBlockInterface {
 
     public NeonPillarBlock(Properties settings) {
         super(settings);
@@ -30,7 +26,8 @@ public class NeonPillarBlock extends RotatedPillarBlock {
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level world, BlockPos pos,
+            Player player, InteractionHand hand, BlockHitResult hit) {
         if (!stack.isEmpty()) {
             return ItemInteractionResult.SKIP_DEFAULT_BLOCK_INTERACTION;
         }
@@ -38,7 +35,8 @@ public class NeonPillarBlock extends RotatedPillarBlock {
     }
 
     @Override
-    protected InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult hit) {
+    protected InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player,
+            BlockHitResult hit) {
         if (player.isSecondaryUseActive()) {
             return InteractionResult.PASS;
         }
@@ -65,7 +63,8 @@ public class NeonPillarBlock extends RotatedPillarBlock {
     }
 
     @Override
-    protected BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor world, BlockPos pos, BlockPos neighborPos) {
+    protected BlockState updateShape(BlockState state, Direction direction, BlockState neighborState,
+            LevelAccessor world, BlockPos pos, BlockPos neighborPos) {
         Direction.Axis axis = state.getValue(AXIS);
         if (direction.getAxis() == axis && neighborState.is(this) && neighborState.getValue(AXIS) == axis) {
             return state.setValue(ACTIVE, neighborState.getValue(ACTIVE));

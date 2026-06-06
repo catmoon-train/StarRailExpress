@@ -33,6 +33,7 @@ import net.minecraft.world.level.Level;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaPlayerComponent;
 import org.agmas.noellesroles.init.ModEffects;
+import org.agmas.noellesroles.role.ModRoles;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
 import org.ladysnake.cca.api.v3.component.sync.AutoSyncedComponent;
@@ -196,6 +197,9 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         SRE.REPLAY_MANAGER.recordPlayerRevival(player.getUUID(), TMMRoles.LOOSE_END);
         StupidRoleUtils.sendWelcomeAnnouncement(player);
 
+        // 亡命徒复活倒计时归零时，释放鹈鹕肚子里的所有玩家
+        org.agmas.noellesroles.game.roles.neutral.pelican.PelicanManager.onLastStand(serverLevel);
+
         TrainVoicePlugin.resetPlayer(player.getUUID());
         SREGameTimeComponent gameTimeComponent = SREGameTimeComponent.KEY.get(serverLevel);
         lastTime = gameTimeComponent.getTime();
@@ -227,6 +231,12 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         }
         isAnyRevivals = true;
         var gameWorldComponent = SREGameWorldComponent.KEY.get(this.level);
+        // 给所有鹈鹕玩家施加技能禁用效果，持续时间与亡命徒时刻一致（3000 ticks = 150秒）
+        for (var p : serverLevel.players()) {
+            if (GameUtils.isPlayerAliveAndSurvival(p) && gameWorldComponent.isRole(p, ModRoles.PELICAN)) {
+                p.addEffect(new MobEffectInstance(ModEffects.SKILL_BANED, 3000, 0, false, false, true));
+            }
+        }
         gameWorldComponent.disableSkillsAndSync();
         this.sync();
     }

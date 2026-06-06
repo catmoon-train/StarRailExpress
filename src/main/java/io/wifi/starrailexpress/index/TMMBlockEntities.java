@@ -4,8 +4,8 @@ import dev.doctor4t.ratatouille.util.registrar.BlockEntityTypeRegistrar;
 import io.wifi.starrailexpress.SRE;
 
 import io.wifi.starrailexpress.content.block.entity.HornBlockEntity;
+import io.wifi.starrailexpress.content.block.entity.RemoteRedstoneBlockEntity;
 import io.wifi.starrailexpress.content.block_entity.*;
-import io.wifi.starrailexpress.content.block_entity.EntityInteractionBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 
 public interface TMMBlockEntities {
@@ -38,6 +38,10 @@ public interface TMMBlockEntities {
 
     BlockEntityType<EntityInteractionBlockEntity> ENTITY_INTERACTION_BLOCK = registrar.create("entity_interaction_block",
             BlockEntityType.Builder.of(EntityInteractionBlockEntity::new, TMMBlocks.ENTITY_INTERACTION_BLOCK, TMMBlocks.ENTITY_INTERACTION_PANEL));
+            
+    BlockEntityType<RemoteRedstoneBlockEntity> REMOTE_REDSTONE = registrar.create("remote_redstone",
+            BlockEntityType.Builder.of(RemoteRedstoneBlockEntity::new, TMMBlocks.REMOTE_REDSTONE));
+
 
     static void initialize() {
         registrar.registerEntries();

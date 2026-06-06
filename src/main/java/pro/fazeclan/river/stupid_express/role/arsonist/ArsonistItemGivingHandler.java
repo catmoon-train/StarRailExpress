@@ -14,6 +14,7 @@ public class ArsonistItemGivingHandler {
                 player.addItem(SEItems.LIGHTER.getDefaultInstance());
                 var dousedComponent = DousedPlayerComponent.KEY.get(player);
                 dousedComponent.dousedCount = 0;
+                dousedComponent.sync();
             }
         }));
     }

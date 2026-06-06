@@ -4,6 +4,8 @@ import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.gui.screen.map_dev.MapBuildHelperScreen;
 import io.wifi.starrailexpress.content.item.map_dev.MapBuildHelperItem;
+import io.wifi.starrailexpress.customrole.CustomRoleScreen;
+import io.wifi.starrailexpress.customrole.CustomRoleToolItem;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -27,11 +29,11 @@ import org.agmas.noellesroles.client.renderer.*;
 import org.agmas.noellesroles.client.screen.*;
 import org.agmas.noellesroles.content.item.ConspiracyPageItem;
 import org.agmas.noellesroles.content.item.WrittenNoteItem;
-import org.agmas.noellesroles.game.roles.Innocent.athlete.AthletePlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.boxer.BoxerPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.monitor.MonitorPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.psychologist.PsychologistPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.super_star.SuperStarPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.athlete.AthletePlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.boxer.BoxerPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.monitor.MonitorPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.psychologist.PsychologistPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.super_star.SuperStarPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.insane_killer.InsaneKillerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.ninja.NinjaPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.stalker.StalkerPlayerComponent;
@@ -154,6 +156,13 @@ public class RicesRoleRhapsodyClient implements ClientModInitializer {
             if (client.player == null)
                 return;
             client.setScreen(new RecorderScreen(client.player));
+        };
+        CustomRoleToolItem.openScreenCallback = (p) -> {
+            Minecraft client = Minecraft.getInstance();
+            if (client.player == null)
+                return false;
+            client.setScreen(new CustomRoleScreen());
+            return true;
         };
     }
 

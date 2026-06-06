@@ -32,6 +32,7 @@ public class SREGameModes {
     public static final ResourceLocation DAY_NIGHT_FIGHT_ID = SRE.shortId("day_night_fight");
 
     // Author: canyuesama (catmoon233)
+    public static final ResourceLocation REPAIR_ESCAPE_ID = SRE.canyueId("repair_escape");
     public static final ResourceLocation FOURTH_ROOM_ID = SRE.canyueId("fourth_room");
 
     // Author: xiao_hei_hand
@@ -39,11 +40,16 @@ public class SREGameModes {
     public static final ResourceLocation SNIPER_RIFLE_ID = SRE.xiaoheihandId("sniper_war");
     public static final ResourceLocation EVIL_WAR_MODE_ID = SRE.xiaoheihandId("evil_war");
     public static final ResourceLocation DEVIL_ROULETTE_ID = SRE.xiaoheihandId("devil_roulette");
-    public static final ResourceLocation REPAIR_ESCAPE_ID = SRE.shortId("repair_escape");
     public static final ResourceLocation THIEF_MODE_ID = SRE.xiaoheihandId("thief_mode");
 
     // Role Rotation Mode (haiman)
     public static final ResourceLocation ROLE_ROTATION_MODE_ID = SRE.haimanId("role_rotation");
+
+    // Tradition Mode (sre)
+    public static final ResourceLocation TRADITION_MODE_ID = SRE.shortId("tradition");
+
+    // Discovery Mode (sre)
+    public static final ResourceLocation DISCOVERY_MODE_ID = SRE.shortId("discovery");
 
     // Modified from Harpymodloader
     public static final GameMode MURDER = registerGameMode(new SREMurderGameMode(MURDER_ID));
@@ -78,6 +84,12 @@ public class SREGameModes {
 
     // Role Rotation Mode
     public static final GameMode ROLE_ROTATION_MODE = registerGameMode(new SRERoleRotationGameMode(ROLE_ROTATION_MODE_ID));
+
+    // Tradition Mode (sre)
+    public static final GameMode TRADITION_MODE = registerGameMode(new SRETraditionGameMode(TRADITION_MODE_ID));
+
+    // Discovery Mode (sre)
+    public static final GameMode DISCOVERY_MODE = registerGameMode(new SREDiscoveryGameMode(DISCOVERY_MODE_ID));
 
     // register
     public static GameMode registerGameMode(GameMode gameMode) {

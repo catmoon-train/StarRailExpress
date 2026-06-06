@@ -41,7 +41,7 @@ public class StupidEventRegister {
                     GameUtils.forceKillPlayer(
                             lover,
                             true,
-                            killer,
+                            victim,
                             StupidExpress.id("broken_heart"));
                 }
             }

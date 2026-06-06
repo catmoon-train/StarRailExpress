@@ -3,7 +3,7 @@ package org.agmas.noellesroles.mixin.client.roles.bartender;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
-import io.wifi.starrailexpress.content.block_entity.BeveragePlateBlockEntity;
+import io.wifi.starrailexpress.content.block_entity.PlateTrayBlockEntity;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMParticles;
 import net.minecraft.client.Minecraft;
@@ -18,11 +18,11 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(BeveragePlateBlockEntity.class)
+@Mixin(PlateTrayBlockEntity.class)
 public class DefenseVialViewMixin {
     @Inject(method = "clientTick", at = @At("HEAD"), cancellable = true)
     private static void view(Level world, BlockPos pos, BlockState state, BlockEntity blockEntity, CallbackInfo ci) {
-        if (blockEntity instanceof BeveragePlateBlockEntity tray) {
+        if (blockEntity instanceof PlateTrayBlockEntity tray) {
             if (tray.getPoisoner() != null) {
                 SRERole role = SREClient.gameComponent.getRole(Minecraft.getInstance().player);
                 if (role == null)

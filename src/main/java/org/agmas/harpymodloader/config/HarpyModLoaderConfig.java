@@ -57,4 +57,8 @@ public class HarpyModLoaderConfig implements ConfigData {
             return new ArrayList<>(disabledModifiers);
         return new ArrayList<>();
     }
+    
+    public static HarpyModLoaderConfig instance() {
+        return HANDLER.instance();
+    }
 }

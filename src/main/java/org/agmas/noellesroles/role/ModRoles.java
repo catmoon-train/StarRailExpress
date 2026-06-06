@@ -30,25 +30,26 @@ import org.agmas.noellesroles.component.FoodDrinkGlowComponent;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.content.item.StalkerKnifeItem;
-import org.agmas.noellesroles.game.roles.Innocent.accountant.AccountantPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.alchemist.AlchemistPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.avenger.AvengerPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.boxer.BoxerPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.broadcaster.BroadcasterPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.clock_maker.ClockmakerPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.detective.DetectivePlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.driver.DiverPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.glitch_robot.GlitchRobotPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.locksmith_inspiration.LocksmithInspirationComponent;
-import org.agmas.noellesroles.game.roles.Innocent.monitor.MonitorPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.postman.PostmanPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.psychologist.PsychologistPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.recaller.RecallerPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.painter.PainterPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.singer.SingerPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.super_star.SuperStarPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.telegrapher.TelegrapherPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.voodoo.VoodooPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.accountant.AccountantPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.alchemist.AlchemistPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.avenger.AvengerPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.boxer.BoxerPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.broadcaster.BroadcasterPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.clock_maker.ClockmakerPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.detective.DetectivePlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.driver.DiverPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.glitch_robot.GlitchRobotPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.locksmith_inspiration.LocksmithInspirationComponent;
+import org.agmas.noellesroles.game.roles.innocent.monitor.MonitorPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.mortician.MorticianRole;
+import org.agmas.noellesroles.game.roles.innocent.painter.PainterPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.postman.PostmanPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.psychologist.PsychologistPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.recaller.RecallerPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.singer.SingerPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.super_star.SuperStarPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.telegrapher.TelegrapherPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.voodoo.VoodooPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.bomber.BomberPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.conspirator.ConspiratorPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.creeper.RainbowCreeperRole;
@@ -79,6 +80,7 @@ import org.agmas.noellesroles.game.roles.special.better_vigilante.BetterVigilant
 import org.agmas.noellesroles.game.roles.vigilante.patroller.PatrollerPlayerComponent;
 import org.agmas.noellesroles.utils.RandomColorUtil;
 import org.jetbrains.annotations.Nullable;
+import pro.fazeclan.river.stupid_express.constants.SERoles;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -121,7 +123,6 @@ import java.util.List;
  * | 邪恶乘客 | true | true | 乘客阵营但有杀手能力（特殊） |
  */
 public class ModRoles {
-
 
     @SuppressWarnings("deprecation")
     public static final AttachmentType<String> ENTITY_NOTE_MAKER = AttachmentRegistry.<String>builder()
@@ -180,7 +181,7 @@ public class ModRoles {
     public static final ResourceLocation MARTIAL_ARTS_INSTRUCTOR_ID = Noellesroles.id("martial_arts_instructor");
     public static final ResourceLocation SEA_KING_ID = Noellesroles.id("sea_king");
     public static final ResourceLocation WATER_GHOST_ID = Noellesroles.id("water_ghost");
-    
+
     // 飞行员角色 ID
     public static final ResourceLocation PILOT_ID = Noellesroles.id("pilot");
     // 影隼角色 ID
@@ -204,6 +205,11 @@ public class ModRoles {
     public static final ResourceLocation REPAIR_SABOTEUR_ID = Noellesroles.id("repair_saboteur");
     public static final ResourceLocation REPAIR_COLLECTOR_ID = Noellesroles.id("repair_collector");
 
+    // 悍匪角色 ID
+    public static final ResourceLocation GANGSTERS_ID = Noellesroles.id("gangsters");
+    // 钳工角色 ID
+    public static final ResourceLocation FITTER_ID = Noellesroles.id("fitter");
+
     // 杀手阵营角色 ID
     public static ResourceLocation MORPHLING_ID = Noellesroles.id("morphling");
     public static ResourceLocation PARTY_KILLER_ID = Noellesroles.id("party_killer");
@@ -221,8 +227,8 @@ public class ModRoles {
 
     public static ResourceLocation INSANE_KILLER_ID = Noellesroles
             .id("the_insane_damned_paranoid_killer");
-        public static ResourceLocation DELAYER_ID = Noellesroles.id("delayer");
-    
+    public static ResourceLocation DELAYER_ID = Noellesroles.id("delayer");
+
     public static final ResourceLocation CONSPIRATOR_ID = Noellesroles.id("conspirator");
     public static final ResourceLocation CLEANER_ID = Noellesroles.id("cleaner");
     public static final ResourceLocation TRAPPER_ID = Noellesroles.id("trapper");
@@ -236,8 +242,6 @@ public class ModRoles {
     public static final ResourceLocation WATCHER_ID = Noellesroles.id("watcher");
     public static final ResourceLocation IMITATOR_ID = Noellesroles.id("imitator");
 
-
-
     // 中立阵营
     public static final ResourceLocation STALKER_ID = Noellesroles.id("stalker");
     public static final ResourceLocation ADMIRER_ID = Noellesroles.id("admirer");
@@ -246,10 +250,19 @@ public class ModRoles {
     public static final ResourceLocation COMMANDER_ID = Noellesroles.id("commander");
     public static final ResourceLocation RECORDER_ID = Noellesroles.id("recorder");
     public static ResourceLocation VULTURE_ID = Noellesroles.id("vulture");
+    public static ResourceLocation PELICAN_ID = Noellesroles.id("pelican");
+    public static ResourceLocation GODFATHER_ID = Noellesroles.id("godfather");
+    public static ResourceLocation MAFIOSO_ID = Noellesroles.id("mafioso");
+    public static ResourceLocation JANITOR_ID = Noellesroles.id("janitor");
+    public static ResourceLocation NUTRITIONIST_ID = Noellesroles.id("nutritionist");
+    public static ResourceLocation PARASOL_ID = Noellesroles.id("parasol");
     public static final ResourceLocation NIAN_SHOU_ID = Noellesroles.id("nianshou");
     public static final ResourceLocation OLDMAN_ID = Noellesroles.id("oldman");
     public static final ResourceLocation THIEF_ID = Noellesroles.id("thief");
     public static final ResourceLocation MERCENARY_ID = Noellesroles.id("mercenary");
+    public static final ResourceLocation WARLOCK_ID = Noellesroles.id("warlock");
+    public static final ResourceLocation EMBALMER_ID = Noellesroles.id("embalmer");
+    public static final ResourceLocation SKINCRAWLER_ID = Noellesroles.id("skincrawler");
     public static final ResourceLocation CANDLE_BEARER_ID = Noellesroles.id("candlebearer");
     public static final ResourceLocation FORTUNETELLER_ID = Noellesroles.id("fortuneteller");
     // 疫使 ID - 杀手方中立
@@ -257,6 +270,9 @@ public class ModRoles {
 
     // 葬仪 ID - 杀手方中立
     public static final ResourceLocation MORTICIAN_BODYMAKER_ID = Noellesroles.id("mortician_bodymaker");
+
+    // 幻音师 ID - 杀手方中立
+    public static final ResourceLocation PHANTOM_MUSICIAN_ID = Noellesroles.id("phantom_musician");
 
     public static final ResourceLocation WAYFARER_ID = Noellesroles.id("wayfarer");
     public static final ResourceLocation DIO_ID = Noellesroles.id("dio");
@@ -287,7 +303,8 @@ public class ModRoles {
             SRERole.MoodType.REAL, // 真实心情
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
             false // 显示计分板
-    )).setCanSeeCoin(true).setCanBeRandomedByOtherRoles(false).setComponentKey(org.agmas.noellesroles.component.ModComponents.PILOT);
+    )).setCanSeeCoin(true).setCanBeRandomedByOtherRoles(false)
+            .setComponentKey(org.agmas.noellesroles.component.ModComponents.PILOT);
 
     /**
      * 影隼角色 - 杀手阵营
@@ -299,10 +316,10 @@ public class ModRoles {
      * - 仅在空港(areas_konggang)生成
      * - 商店：刀(130g)、飞刀(200g)、跳跃提升2(180g, 30秒)、手榴弹(350g)、撬棍(35g)、撬锁器(100g)
      * - 技能：掠食
-     *   - 开局60秒冷却
-     *   - 使用后获得20秒创造模式飞行
-     *   - 浮空时获得1层临时护盾（被打掉就没了）
-     *   - 技能持续20秒，冷却240秒
+     * - 开局60秒冷却
+     * - 使用后获得20秒创造模式飞行
+     * - 浮空时获得1层临时护盾（被打掉就没了）
+     * - 技能持续20秒，冷却240秒
      * - 死亡后为所有存活杀手提供喷气背包
      */
     public static SRERole SHADOW_FALCON = TMMRoles.registerRole(new NormalRole(
@@ -313,7 +330,8 @@ public class ModRoles {
             SRERole.MoodType.FAKE, // 假心情
             Integer.MAX_VALUE, // 无限体力
             true // 隐藏计分板
-    )).setCanSeeCoin(true).setCanBeRandomedByOtherRoles(false).setComponentKey(org.agmas.noellesroles.component.ModComponents.SHADOW_FALCON);
+    )).setCanSeeCoin(true).setCanBeRandomedByOtherRoles(false)
+            .setComponentKey(org.agmas.noellesroles.component.ModComponents.SHADOW_FALCON);
 
     /**
      * 肉汁角色 - 乘客阵营
@@ -323,46 +341,47 @@ public class ModRoles {
      * - 标准冲刺时间
      * - 在计分板上显示
      * - 被动技能：san值消耗较慢
-     *   - 自带 mood_drain_reduction 效果等级2（减少60% san消耗）
+     * - 自带 mood_drain_reduction 效果等级2（减少60% san消耗）
      * - 被动技能：无碰撞
-     *   - 自带 no_collide 效果，无需担心被玩家碰撞卡位
+     * - 自带 no_collide 效果，无需担心被玩家碰撞卡位
      * - 被动技能：独处保护
-     *   - 杀手/中立只能在与你单独相处时击杀你
-     *   - 条件：4格半径范围内（y轴为3格）没有其他好人
-     *   - 必须判断造成伤害的来源是否来自非乘客阵营
+     * - 杀手/中立只能在与你单独相处时击杀你
+     * - 条件：4格半径范围内（y轴为3格）没有其他好人
+     * - 必须判断造成伤害的来源是否来自非乘客阵营
      * - 被动技能：悬赏
-     *   - 每完成一个任务会增加自己40金币的悬赏
-     *   - HUD显示当前悬赏金额
-     *   - 杀手击杀你会获得所有悬赏
-     *   - 提示：请尽量通过非任务的方式回复san值
+     * - 每完成一个任务会增加自己40金币的悬赏
+     * - HUD显示当前悬赏金额
+     * - 杀手击杀你会获得所有悬赏
+     * - 提示：请尽量通过非任务的方式回复san值
      */
-    public static SRERole MEATBALL = TMMRoles.registerRole(new org.agmas.noellesroles.game.roles.Innocent.meatball.MeatballRole(
-            MEATBALL_ID, // 角色 ID
-            new Color(205, 133, 63).getRGB(), // 棕色 - 代表肉汁
-            true, // isInnocent = 乘客阵营
-            false, // canUseKiller = 无杀手能力
-            SRERole.MoodType.REAL, // 真实心情
-            TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
-            false // 不隐藏计分板
-    ).addEffect(
-            new MobEffectInstance(
-                    ModEffects.MOOD_DRAIN_REDUCTION,
-                    30 * 20, // 持续时间 30s（tick），ambient=true时自动续期
-                    0, 
-                    true, // ambient（环境效果，如信标）
-                    false, // showParticles（显示粒子）
-                    false // showIcon（显示图标）
-            ))
-            .addEffect(
-            new MobEffectInstance(
-                    ModEffects.NO_COLLIDE,
-                    30 * 20, // 持续时间 30s（tick），ambient=true时自动续期
-                    0,
-                    true, // ambient（环境效果，如信标）
-                    false, // showParticles（显示粒子）
-                    false // showIcon（显示图标）
-            )))
-            .setCanSeeCoin(true).setComponentKey(ModComponents.MEATBALL).setMax(1);
+    public static SRERole MEATBALL = TMMRoles
+            .registerRole(new org.agmas.noellesroles.game.roles.innocent.meatball.MeatballRole(
+                    MEATBALL_ID, // 角色 ID
+                    new Color(205, 133, 63).getRGB(), // 棕色 - 代表肉汁
+                    true, // isInnocent = 乘客阵营
+                    false, // canUseKiller = 无杀手能力
+                    SRERole.MoodType.REAL, // 真实心情
+                    TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
+                    false // 不隐藏计分板
+            ).addEffect(
+                    new MobEffectInstance(
+                            ModEffects.MOOD_DRAIN_REDUCTION,
+                            30 * 20, // 持续时间 30s（tick），ambient=true时自动续期
+                            0,
+                            true, // ambient（环境效果，如信标）
+                            false, // showParticles（显示粒子）
+                            false // showIcon（显示图标）
+                    ))
+                    .addEffect(
+                            new MobEffectInstance(
+                                    ModEffects.NO_COLLIDE,
+                                    30 * 20, // 持续时间 30s（tick），ambient=true时自动续期
+                                    0,
+                                    true, // ambient（环境效果，如信标）
+                                    false, // showParticles（显示粒子）
+                                    false // showIcon（显示图标）
+                            )))
+            .setCanSeeCoin(true).setComponentKey(ModComponents.MEATBALL).setMax(1).setCanBeRandomedByOtherRoles(false);
 
     /**
      * 殡仪员角色 - 平民阵营
@@ -372,16 +391,16 @@ public class ModRoles {
      * - 标准冲刺时间
      * - 在计分板上显示
      * - 被动技能：透视物品掉落物
-     *   - 10格范围内（y轴3格）的物品掉落物发光
+     * - 10格范围内（y轴3格）的物品掉落物发光
      * - 技能：搜刮尸体
-     *   - 打开尸体的物品栏
-     *   - 最多拿取2个物品
-     *   - 无法拿取命令方块（普通、循环、连锁）
-     *   - 拿取后物品放到物品栏，关闭页面
-     *   - 无法再次打开已打开过的尸体
-     *   - CD 240秒
+     * - 打开尸体的物品栏
+     * - 最多拿取2个物品
+     * - 无法拿取命令方块（普通、循环、连锁）
+     * - 拿取后物品放到物品栏，关闭页面
+     * - 无法再次打开已打开过的尸体
+     * - CD 240秒
      */
-    public static SRERole MORTICIAN = TMMRoles.registerRole(new NormalRole(
+    public static SRERole MORTICIAN = TMMRoles.registerRole(new MorticianRole(
             MORTICIAN_ID, // 角色 ID
             new Color(105, 105, 105).getRGB(), // 深灰色 - 代表殡仪员
             true, // isInnocent = 平民阵营
@@ -399,10 +418,10 @@ public class ModRoles {
      * - 标准冲刺时间
      * - 在计分板上显示
      * - 技能：建造模式（默认）- 按技能键在自身位置建造一堵客户端墙
-     *   - 墙长4格高3格厚1格，沿视角朝向垂直建造
-     *   - 只替换空气方块
-     *   - 墙会在60秒后消失
-     *   - 技能冷却100秒，开局120秒冷却
+     * - 墙长4格高3格厚1格，沿视角朝向垂直建造
+     * - 只替换空气方块
+     * - 墙会在60秒后消失
+     * - 技能冷却100秒，开局120秒冷却
      * - 技能：拆除模式 - 按技能键拆除墙体，无冷却
      * - 蹲下按技能键切换模式（不受冷却影响）
      * - 游戏结束时清除所有客户端墙
@@ -458,7 +477,7 @@ public class ModRoles {
             TMMRoles.CIVILIAN.getMaxSprintTime(),
             false // 不隐藏计分板
     )).setCanSeeCoin(true).setVigilanteTeam(true).setCanBeRandomedByOtherRoles(false);
-    
+
     // ==================== 已注册角色定义 ====================
     // 乘客阵营角色
     // 中立偏狼：小镇做题家
@@ -509,42 +528,47 @@ public class ModRoles {
                     .setCanSeeCoin(true)
                     .setMax(1));
 
-            public static SRERole DELAYER = TMMRoles.registerRole(new NormalRole(
-                    DELAYER_ID,
-                    new Color(100, 100, 200).getRGB(), // 淡蓝紫色
-                    false, // 非乘客阵营
-                    true, // 有杀手能力
-                    SRERole.MoodType.FAKE,
-                    Integer.MAX_VALUE, // 无限冲刺 / 疲劳
-                    true // 隐藏计分板
-            )).setComponentKey(ModComponents.DELAYER).setCanSeeCoin(true).setMax(1).setEnableChance(20);
+    public static SRERole DELAYER = TMMRoles.registerRole(new NormalRole(
+            DELAYER_ID,
+            new Color(100, 100, 200).getRGB(), // 淡蓝紫色
+            false, // 非乘客阵营
+            true, // 有杀手能力
+            SRERole.MoodType.FAKE,
+            Integer.MAX_VALUE, // 无限冲刺 / 疲劳
+            true // 隐藏计分板
+    )).setComponentKey(ModComponents.DELAYER).setCanSeeCoin(true).setMax(1).setEnableChance(20);
     public static SRERole ELF = TMMRoles.registerRole(
             new NormalRole(ELF_ID, new Color(106, 255, 179).getRGB(),
                     true, false, SRERole.MoodType.REAL,
                     TMMRoles.CIVILIAN.getMaxSprintTime(), false))
             .setVigilanteTeam(true).setCanSeeCoin(true).setCanPickUpRevolver(false).setCanAutoAddMoney(true);
-        public static final ResourceLocation GUARD_ID = Noellesroles.id("guard");
-        public static SRERole GUARD = TMMRoles.registerRole(
-                        new NormalRole(GUARD_ID, new Color(170, 170, 170).getRGB(), true, false, SRERole.MoodType.REAL,
-                                        TMMRoles.CIVILIAN.getMaxSprintTime(), false) {
-                                @Override
-                                public java.util.function.Predicate<net.minecraft.world.item.Item> cantPickupItem(net.minecraft.world.entity.player.Player player) {
-                                        return item -> {
-                                                // 检查是否是左轮手枪或巡警手枪
-                                                if (item == io.wifi.starrailexpress.index.TMMItems.REVOLVER
-                                                        || item == org.agmas.noellesroles.init.ModItems.PATROLLER_REVOLVER) {
-                                                        // 检查主手、副手和背包是否有警棍
-                                                        if (player.getMainHandItem().is(org.agmas.noellesroles.init.ModItems.BATON)) return true;
-                                                        if (player.getOffhandItem().is(org.agmas.noellesroles.init.ModItems.BATON)) return true;
-                                                        for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
-                                                                if (player.getInventory().getItem(i).is(org.agmas.noellesroles.init.ModItems.BATON)) return true;
-                                                        }
-                                                        return false;
-                                                }
-                                                return false;
-                                        };
-                                }
-                        }).setCanSeeCoin(true).setCanPickUpRevolver(true).setCanAutoAddMoney(false).setVigilanteTeam(true).setMax(1);
+    public static final ResourceLocation GUARD_ID = Noellesroles.id("guard");
+    public static SRERole GUARD = TMMRoles.registerRole(
+            new NormalRole(GUARD_ID, new Color(170, 170, 170).getRGB(), true, false, SRERole.MoodType.REAL,
+                    TMMRoles.CIVILIAN.getMaxSprintTime(), false) {
+                @Override
+                public java.util.function.Predicate<net.minecraft.world.item.Item> cantPickupItem(
+                        net.minecraft.world.entity.player.Player player) {
+                    return item -> {
+                        // 检查是否是左轮手枪或巡警手枪
+                        if (item == io.wifi.starrailexpress.index.TMMItems.REVOLVER
+                                || item == org.agmas.noellesroles.init.ModItems.PATROLLER_REVOLVER) {
+                            // 检查主手、副手和背包是否有警棍
+                            if (player.getMainHandItem().is(org.agmas.noellesroles.init.ModItems.BATON))
+                                return true;
+                            if (player.getOffhandItem().is(org.agmas.noellesroles.init.ModItems.BATON))
+                                return true;
+                            for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
+                                if (player.getInventory().getItem(i).is(org.agmas.noellesroles.init.ModItems.BATON))
+                                    return true;
+                            }
+                            return false;
+                        }
+                        return false;
+                    };
+                }
+            }).setCanSeeCoin(true).setCanPickUpRevolver(true).setCanAutoAddMoney(false).setVigilanteTeam(true)
+            .setMax(1);
     public static SRERole WIND_YAOSE = TMMRoles.registerRole(
             new ExtraEffectRole(WIND_YAOSE_ID, new Color(127, 231, 255).getRGB(),
                     false, false, SRERole.MoodType.FAKE,
@@ -578,7 +602,8 @@ public class ModRoles {
             new NormalRole(CUCKOO_ID, new Color(200, 170, 60).getRGB(),
                     false, false, SRERole.MoodType.FAKE,
                     Integer.MAX_VALUE, true))
-            .setCanSeeCoin(true).setComponentKey(ModComponents.CUCKOO).setCanBeRandomedByOtherRoles(false).setCanUseInstinct(true).setNeutrals(true).setMax(1);
+            .setCanSeeCoin(true).setComponentKey(ModComponents.CUCKOO).setCanBeRandomedByOtherRoles(false)
+            .setCanUseInstinct(true).setNeutrals(true).setMax(1);
     public static SRERole JESTER = TMMRoles
             .registerRole(new NormalRole(JESTER_ID, new Color(186, 85, 211).getRGB(), false,
                     false, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true) {
@@ -719,7 +744,7 @@ public class ModRoles {
             SRERole.MoodType.FAKE, // 假心情
             -1, // 无限冲刺时间
             false // 显示计分板
-    ){
+    ) {
         @Override
         public int getMoodColor() {
             return PUPPETEER_COLOR.getOrRandomColor();
@@ -1015,9 +1040,9 @@ public class ModRoles {
      * - 无限体力 (Integer.MAX_VALUE)
      * - 计分板隐藏
      * - 技能：打开技能页面点击玩家头像，使目标进入静语阶段
-     *   - 第一阶段（禁言）：45秒 voice_silence + chat_ban
-     *   - 第二阶段（求助）：30秒 chat_ban，其它玩家可右键解救
-     *   - 第三阶段（惩罚）：清空心情+体力，全体静语者+120金币
+     * - 第一阶段（禁言）：45秒 voice_silence + chat_ban
+     * - 第二阶段（求助）：30秒 chat_ban，其它玩家可右键解救
+     * - 第三阶段（惩罚）：清空心情+体力，全体静语者+120金币
      */
     public static SRERole SILENCER = TMMRoles
             .registerRole(new NormalRole(SILENCER_ID, new Color(160, 40, 100).getRGB(), false,
@@ -1074,7 +1099,8 @@ public class ModRoles {
 
     /**
      * 葬仪角色 - 杀手方中立阵营
-     * - 杀手方中立阵营 (isInnocent = false, canUseKiller = false, setNeutralForKiller = true)
+     * - 杀手方中立阵营 (isInnocent = false, canUseKiller = false, setNeutralForKiller =
+     * true)
      * - 假心情系统
      * - 无限冲刺时间
      * - 在计分板上隐藏
@@ -1124,6 +1150,52 @@ public class ModRoles {
                     false, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true)
                     .setComponentKey(VulturePlayerComponent.KEY))
             .setNeutralForKiller(true).setCanSeeTeammateKiller(false).setCanSeeBodyDeathReason(true);
+
+    /**
+     * 鹈鹕角色 (Pelican)
+     * - 独立胜利中立阵营 (isInnocent = false, canUseKiller = false, setNeutrals(true))
+     * - 不帮助杀手阵营 (setNeutralForKiller(false))
+     * - 技能：吞噬面前2.15格内的存活玩家进肚子里
+     * - 蹲下+技能：释放最后吞噬的玩家
+     * - 胜利条件：吞噬开局玩家数80%的玩家
+     * - 本能透视范围：25格
+     * - 只在12人及以上对局中出现（可配置）
+     * - 刷新几率25%（可配置）
+     */
+    public static SRERole PELICAN = TMMRoles
+            .registerRole(new NormalRole(PELICAN_ID, new Color(111, 138, 36).getRGB(), false,
+                    false, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true)
+                    .setComponentKey(org.agmas.noellesroles.game.roles.neutral.pelican.PelicanPlayerComponent.KEY))
+            .setNeutrals(true).setNeutralForKiller(false).setCanSeeTeammateKiller(false)
+            .setCanUseInstinct(true).setCanSeeCoin(true).setCanPickUpRevolver(false).setCanBeRandomedByOtherRoles(false);
+
+    // ==================== Mafia 家族角色 ====================
+    public static SRERole GODFATHER = TMMRoles
+            .registerRole(new NormalRole(GODFATHER_ID, new Color(199, 21, 133).getRGB(), false,
+                    false, SRERole.MoodType.FAKE, TMMRoles.CIVILIAN.getMaxSprintTime() * 2, true))
+            .setNeutrals(true).setCanSeeTeammateKiller(false).setCanUseInstinct(true)
+            .setCanSeeCoin(true).setOccupiedRoleCount(3).setMax(1).setCanBeRandomedByOtherRoles(false).setMafiaTeam(true);
+    public static SRERole MAFIOSO = TMMRoles
+            .registerRole(new NormalRole(MAFIOSO_ID, new Color(218, 112, 214).getRGB(), false,
+                    false, SRERole.MoodType.FAKE, TMMRoles.CIVILIAN.getMaxSprintTime() * 2, true))
+            .setNeutrals(true).setCanSeeTeammateKiller(false).setCanUseInstinct(true)
+            .setCanSeeCoin(true).setMax(0).setCanBeRandomedByOtherRoles(false).setMafiaTeam(true);
+    public static SRERole JANITOR = TMMRoles
+            .registerRole(new NormalRole(JANITOR_ID, new Color(255, 105, 180).getRGB(), false,
+                    false, SRERole.MoodType.FAKE, TMMRoles.CIVILIAN.getMaxSprintTime() * 2, true))
+            .setNeutrals(true).setCanSeeTeammateKiller(false).setCanUseInstinct(true)
+            .setCanSeeCoin(true).setMax(0).setCanBeRandomedByOtherRoles(false).setMafiaTeam(true);
+    public static SRERole NUTRITIONIST = TMMRoles
+            .registerRole(new NormalRole(NUTRITIONIST_ID, new Color(50, 205, 50).getRGB(), false,
+                    false, SRERole.MoodType.FAKE, TMMRoles.CIVILIAN.getMaxSprintTime() * 2, true))
+            .setNeutrals(true).setCanSeeTeammateKiller(false).setCanUseInstinct(true)
+            .setCanSeeCoin(true).setMax(0).setCanBeRandomedByOtherRoles(false).setMafiaTeam(true);
+    public static SRERole PARASOL = TMMRoles
+            .registerRole(new NormalRole(PARASOL_ID, new Color(0, 139, 139).getRGB(), false,
+                    false, SRERole.MoodType.FAKE, TMMRoles.CIVILIAN.getMaxSprintTime() * 2, true))
+            .setNeutrals(true).setCanSeeTeammateKiller(false).setCanUseInstinct(true)
+            .setCanSeeCoin(true).setMax(0).setCanBeRandomedByOtherRoles(false).setMafiaTeam(true);
+
     public static SRERole CORONER = TMMRoles
             .registerRole(new NormalRole(CORONER_ID, new Color(122, 122, 122).getRGB(), true,
                     false, SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false))
@@ -1237,10 +1309,10 @@ public class ModRoles {
             SRERole.MoodType.REAL, // 真实心情
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
             false // 不显示计分板
-    ){
+    ) {
 
-            @Override
-            public List<ItemStack> getDefaultItems() {
+        @Override
+        public List<ItemStack> getDefaultItems() {
             ArrayList<ItemStack> itemStacks = new ArrayList<>();
             return itemStacks;
         }
@@ -1409,9 +1481,9 @@ public class ModRoles {
      * - 标准冲刺时间
      * - 在计分板上显示
      * - 技能一：绘画灵感 - 触发以下场景时获得画板，每种场景只会给予一次
-     *   1. 捡起摄影师丢在地上的照片（exposure:stacked_photographs 或 exposure:photograph）
-     *   2. 从地上捡起左轮手枪/巡警手枪
-     *   3. 坐着的时间达到40秒
+     * 1. 捡起摄影师丢在地上的照片（exposure:stacked_photographs 或 exposure:photograph）
+     * 2. 从地上捡起左轮手枪/巡警手枪
+     * 3. 坐着的时间达到40秒
      * - 技能二：求索 - 游戏时间每过4分钟获得一个画板
      * - 技能三：挚友 - 当场上同时存在画家和作家时，同时给予作家和画家一个画板
      */
@@ -1423,7 +1495,7 @@ public class ModRoles {
             SRERole.MoodType.REAL, // 真实心情
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
             false // 不隐藏计分板
-    )).setComponentKey(PainterPlayerComponent.KEY).setCanSeeCoin(true).setMax(1);
+    )).setComponentKey(PainterPlayerComponent.KEY).setCanSeeCoin(true).setMax(1).setEnableNeededPlayerCount(12);
 
     // 杀手阵营角色
     /**
@@ -1503,8 +1575,8 @@ public class ModRoles {
             SRERole.MoodType.FAKE, // 假心情
             Integer.MAX_VALUE, // 无限冲刺时间
             false // 隐藏计分板
-    )).setOccupiedRoleCount(0)         // 不占用杀手位
-            .setCanUseInstinct(false)         // 没有杀手透视
+    )).setOccupiedRoleCount(0) // 不占用杀手位
+            .setCanUseInstinct(false) // 没有杀手透视
             .setCanSeeTeammateKiller(false) // 杀手本能看不到队友，对杀手的框显示如平民
             .setMax(1);
 
@@ -1513,7 +1585,8 @@ public class ModRoles {
      * 迷失杀手虽然属于杀手阵营，但被设计为不暴露身份，因此排除。
      */
     public static boolean isVisibleKillerTeammate(io.wifi.starrailexpress.api.SRERole role) {
-        if (role == null) return false;
+        if (role == null)
+            return false;
         if (role.isKillerTeam() || role.isKiller() || role.isNeutralForKiller()) {
             return !LOST_KILLER_ID.equals(role.identifier());
         }
@@ -1605,7 +1678,7 @@ public class ModRoles {
      * - 操控限时1分钟，技能冷却3分钟
      * - 本体状态无法购买商店
      */
-    public static RandomColorUtil PUPPETEER_COLOR = new RandomColorUtil(50,true);
+    public static RandomColorUtil PUPPETEER_COLOR = new RandomColorUtil(50, true);
     public static SRERole PUPPETEER = TMMRoles.registerRole(new NormalRole(
             PUPPETEER_ID, // 角色 ID
             new Color(138, 43, 226).getRGB(), // 深紫罗兰色 - 代表操控与神秘
@@ -1614,12 +1687,12 @@ public class ModRoles {
             SRERole.MoodType.FAKE, // 假心情
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
             true // 隐藏计分板
-    ){
-                @Override
-                public int getMoodColor() {
-                    return PUPPETEER_COLOR.getOrRandomColor();
-                }
-            }).setComponentKey(PuppeteerPlayerComponent.KEY).setAutoReset(false).setNeutralForKiller(true)
+    ) {
+        @Override
+        public int getMoodColor() {
+            return PUPPETEER_COLOR.getOrRandomColor();
+        }
+    }).setComponentKey(PuppeteerPlayerComponent.KEY).setAutoReset(false).setNeutralForKiller(true)
             .setCanUseInstinct(true);
 
     /**
@@ -1720,14 +1793,14 @@ public class ModRoles {
             SRERole.MoodType.FAKE, // 假心情
             Integer.MAX_VALUE, // 无限冲刺时间
             true // 隐藏计分板
-    ){
-                @Override
-                public List<ItemStack> getDefaultItems() {
-                    ArrayList<ItemStack> itemStacks = new ArrayList<>();
-                    itemStacks.add(new ItemStack(Items.BUNDLE));
-                    return itemStacks;
-                }
-            }).setComponentKey(ThiefPlayerComponent.KEY).setCanSeeCoin(true).setNeutrals(true)
+    ) {
+        @Override
+        public List<ItemStack> getDefaultItems() {
+            ArrayList<ItemStack> itemStacks = new ArrayList<>();
+            itemStacks.add(new ItemStack(Items.BUNDLE));
+            return itemStacks;
+        }
+    }).setComponentKey(ThiefPlayerComponent.KEY).setCanSeeCoin(true).setNeutrals(true)
             .setCanSeeTeammateKiller(false);;
 
     /**
@@ -1832,6 +1905,49 @@ public class ModRoles {
             Integer.MAX_VALUE, // 无限冲刺时间
             true // 隐藏计分板
     )).setComponentKey(ModComponents.BANDIT);
+    
+    /**
+     * 悍匪角色
+     * - 属于杀手阵营 (isInnocent = false)
+     * - 可以使用杀手能力 (canUseKiller = true)
+     * - 假心情系统
+     * - 无限体力 (Integer.MAX_VALUE)
+     * - 隐藏计分板
+     * - 与钳工绑定生成
+     * - 初始物品：1个C4炸药 + 1个C4引爆器
+     * - 专属商店：短管霰弹枪(185金币)、C4炸药(300金币)、撬棍(25金币)、开锁器(80金币)、关灯(100金币)
+     */
+    public static SRERole GANGSTERS = TMMRoles.registerRole(new NormalRole(
+            GANGSTERS_ID,
+            new Color(60, 60, 60).getRGB(),
+            false,
+            true,
+            SRERole.MoodType.FAKE,
+            Integer.MAX_VALUE,
+            true
+    )).setCanSeeCoin(true).setMax(1);
+
+    /**
+     * 钳工角色
+     * - 属于平民阵营 (isInnocent = true)
+     * - 不能使用杀手能力 (canUseKiller = false)
+     * - 真实心情系统
+     * - 标准冲刺时间
+     * - 在计分板上显示
+     * - 初始物品：拆弹钳（无限次使用，拆C4必定成功）
+     * - 专属商店：开灯(175金币)、监控恢复(75金币)
+     * - 死亡后拆弹钳传递给附近平民
+     */
+    public static SRERole FITTER = TMMRoles.registerRole(new NormalRole(
+            FITTER_ID,
+            new Color(70, 130, 180).getRGB(),
+            true,
+            false,
+            SRERole.MoodType.REAL,
+            TMMRoles.CIVILIAN.getMaxSprintTime(),
+            false
+    )).setCanSeeCoin(true).setMax(0);
+
     public static SRERole BLOOD_FEUDIST = TMMRoles.registerRole(new NormalRole(
             BLOOD_FEUDIST_ID, // 角色 ID
             new Color(178, 34, 34).getRGB(), // 暗红色 - 代表复仇与愤怒
@@ -1877,10 +1993,7 @@ public class ModRoles {
         }
     }).setComponentKey(ModComponents.IMITATOR).setCanSeeCoin(true);
 
-    
-
-
-/**
+    /**
      * 愚者角色 - 好人阵营
      * - 属于乘客阵营 (isInnocent = true)
      * - 不能使用杀手能力 (canUseKiller = false)
@@ -1890,7 +2003,7 @@ public class ModRoles {
      * - 核心机制：尊名纸条、塔罗会、处刑者手枪
      * - 商店：尊名纸条(50金币)、灵性斗篷(200金币)
      */
-    public static SRERole THE_FOOL = TMMRoles.registerRole(new org.agmas.noellesroles.game.roles.Innocent.fool.FoolRole(
+    public static SRERole THE_FOOL = TMMRoles.registerRole(new org.agmas.noellesroles.game.roles.innocent.fool.FoolRole(
             THE_FOOL_ID, // 角色 ID
             new Color(180, 160, 220).getRGB(), // 淡紫色 - 代表神秘与命运
             true, // isInnocent = 好人阵营
@@ -1898,7 +2011,7 @@ public class ModRoles {
             SRERole.MoodType.REAL, // 真实心情
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
             false // 不隐藏计分板
-    )).setComponentKey(org.agmas.noellesroles.game.roles.Innocent.fool.FoolPlayerComponent.KEY).setCanSeeCoin(true)
+    )).setComponentKey(org.agmas.noellesroles.game.roles.innocent.fool.FoolPlayerComponent.KEY).setCanSeeCoin(true)
             .setCanPickUpRevolver(true)
             .setMax(1)
             .setCanBeRandomedByOtherRoles(false);
@@ -1997,7 +2110,6 @@ public class ModRoles {
             }
         }
 
-
         @Override
         public ResourceLocation getPsychoSkin(Player player, boolean isSlim) {
             return SRE.id("textures/entity/custom_psycho/cat_killer.png");
@@ -2008,7 +2120,7 @@ public class ModRoles {
         AllowPlayerDeathWithKiller.EVENT.register((player, killer, deathReason) -> {
             SREGameWorldComponent sreGameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
             if (sreGameWorldComponent.isRole(killer, ModRoles.CAT_KILLER)) {
-                if (sreGameWorldComponent.isRole(player,ModRoles.CAT_NECROMANCER)){
+                if (sreGameWorldComponent.isRole(player, ModRoles.CAT_NECROMANCER)) {
                     return false;
                 }
             }
@@ -2041,16 +2153,84 @@ public class ModRoles {
         SREArmorPlayerComponent.canSyncedRolePaths.add(ModRoles.BARTENDER_ID.getPath());
         SREPlayerMoodComponent.canSyncedRolePaths.add(ModRoles.MA_CHEN_XU_ID.getPath());
         SREPlayerPoisonComponent.canSyncedRolePaths.add(ModRoles.INFECTED_ID.getPath());
-        
+
         // 设置疫使与毒师互斥
         ModRoles.INFECTED.addTwoWayOpposingJobs(ModRoles.POISONER);
-        
+
         // 设置迷失杀手与魔术师互斥
         ModRoles.LOST_KILLER.addTwoWayOpposingJobs(ModRoles.MAGICIAN);
         
+        // 设置鹈鹕与纵火犯互斥
+        ModRoles.PELICAN.addTwoWayOpposingJobs(SERoles.ARSONIST);
+        // 设置鹈鹕与秉烛人互斥
+        ModRoles.PELICAN.addTwoWayOpposingJobs(ModRoles.CANDLE_BEARER);
+        ModRoles.PELICAN.addTwoWayOpposingJobs(SERoles.INITIATE);
+        
+        // 设置教父与初学者互斥
+        ModRoles.GODFATHER.addTwoWayOpposingJobs(SERoles.INITIATE);
+        // 设置鹈鹕与教父互斥
+        ModRoles.PELICAN.addTwoWayOpposingJobs(ModRoles.GODFATHER);
+        // 设置鹈鹕与刽子手互斥
+        ModRoles.PELICAN.addTwoWayOpposingJobs(ModRoles.EXECUTIONER);
+        // 设置鹈鹕与傀儡师互斥
+        ModRoles.PELICAN.addTwoWayOpposingJobs(ModRoles.PUPPETEER);
+
         // 初始化叛徒职业和新修饰符
         TraitorAndModifiers.init();
         ModifierEffects.init();
     }
+
+    // ==================== 咒法师 ====================
+    public static SRERole WARLOCK = TMMRoles.registerRole(new NormalRole(
+            WARLOCK_ID, new java.awt.Color(139, 0, 139).getRGB(), false,
+            true, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true)
+            .setComponentKey(org.agmas.noellesroles.game.roles.killer.warlock.WarlockPlayerComponent.KEY))
+            .setCanUseKiller(true).setCanSeeTeammateKiller(true).setCanBeRandomedByOtherRoles(false).setMax(0)
+            .setCanUseInstinct(true).setCanSeeCoin(true);
+
+    // ==================== 嬉命人（Embalmer）====================
+    public static SRERole EMBALMER = TMMRoles.registerRole(new NormalRole(
+            EMBALMER_ID, new java.awt.Color(255, 140, 140).getRGB(), false,
+            false, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true)
+            .setComponentKey(org.agmas.noellesroles.game.roles.killer.embalmer.EmbalmerPlayerComponent.KEY))
+            .setNeutralForKiller(true).setCanSeeTeammateKiller(false).setNeutrals(true)
+            .setCanUseInstinct(true).setCanSeeCoin(true);
+
+    // ==================== 窃皮者 ====================
+    public static SRERole SKINCRAWLER = TMMRoles.registerRole(new NormalRole(
+            SKINCRAWLER_ID, new java.awt.Color(204, 68, 68).getRGB(), false,
+            true, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true)
+            .setComponentKey(org.agmas.noellesroles.game.roles.killer.skincrawler.SkincrawlerPlayerComponent.KEY))
+            .setCanUseKiller(true).setCanSeeTeammateKiller(true)
+            .setCanUseInstinct(true).setCanSeeCoin(true);
+
+    /**
+     * 幻音师角色 (Phantom Musician)
+     * - 杀手方中立阵营 (isInnocent = false, canUseKiller = false)
+     * - 假心情系统
+     * - 无限冲刺时间
+     * - 在计分板上隐藏
+     *
+     * 被动：每30秒获得50金币
+     *
+     * 商店音效（图标为音符盒，购买时播放音效）：
+     * - 出刀的声音 (50金币, 冷却30秒)
+     * - 左轮手枪开火的声音 (75金币, 冷却30秒)
+     * - 潜行者觉醒的声音 (100金币, 冷却120秒, MASTER类型全场播放)
+     * - 疯狂模式的声音 (450金币, 冷却5分钟)
+     * - 撬棍撬门的声音 (75金币, 冷却1分钟)
+     * - 随机播放音效 (100金币, 冷却40秒, 图标为音乐唱片)
+     *
+     * 技能：花费100金币传送到30格外随机一人的身边，冷却120秒
+     */
+    public static SRERole PHANTOM_MUSICIAN = TMMRoles
+            .registerRole(new NormalRole(PHANTOM_MUSICIAN_ID, new java.awt.Color(180, 120, 220).getRGB(), false,
+                    false, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true)
+                    .setComponentKey(org.agmas.noellesroles.game.roles.neutral.phantom_musician.PhantomMusicianPlayerComponent.KEY))
+            .setNeutralForKiller(true)
+            .setNeutrals(true)
+            .setCanUseInstinct(true)
+            .setCanSeeCoin(true)
+            .setMax(1);
 
 }

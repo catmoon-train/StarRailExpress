@@ -1,0 +1,10 @@
+{
+	"format_version": "1.9.0",
+	"credit": "Made with Blockbench",
+	"parent": "noellesroles:block/baka_plush",
+	"texture_size": [64, 64],
+	"textures": {
+		"0": "starrailexpress:block/plush/haiman233",
+		"particle": "starrailexpress:block/plush/haiman233"
+	}
+}

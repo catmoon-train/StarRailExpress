@@ -1,6 +1,8 @@
 package io.wifi.starrailexpress.mixin.client.self;
 
+import io.wifi.starrailexpress.client.gui.screen.AdminDrawingBoardScreen;
 import io.wifi.starrailexpress.client.gui.screen.DrawingBoardScreen;
+import io.wifi.starrailexpress.content.item.AdminDrawingBoardItem;
 import io.wifi.starrailexpress.content.item.DrawingBoardItem;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -24,7 +26,11 @@ public class DrawingBoardItemMixin {
         if (world.isClientSide) {
             ItemStack stack = player.getItemInHand(hand);
             Minecraft.getInstance().execute(() -> {
-                Minecraft.getInstance().setScreen(new DrawingBoardScreen(stack));
+                if (stack.getItem() instanceof AdminDrawingBoardItem) {
+                    Minecraft.getInstance().setScreen(new AdminDrawingBoardScreen(stack));
+                } else {
+                    Minecraft.getInstance().setScreen(new DrawingBoardScreen(stack));
+                }
             });
         }
     }

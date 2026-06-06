@@ -2,6 +2,7 @@ package org.agmas.noellesroles.mixin.client.general;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.wifi.starrailexpress.api.SRERole;
+import net.minecraft.resources.ResourceLocation;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
@@ -54,13 +55,25 @@ public class InventoryIntroductionRenderer {
             final int MAX_WIDTH = (int) (context.guiWidth() / scale / 3);
 
             if (role != null) {
-               String roleName = role.getIdentifier().getPath();
+               ResourceLocation rid = role.getIdentifier();
+               String roleName = rid.getPath();
                if (roleName != null) {
                   int x = 10;
                   int y = 10;
-                  Component roleNameComponent = Component.translatable("announcement.star.role." + roleName)
-                        .withStyle(ChatFormatting.BOLD);
-                  Component roleInfoComponent = Component.translatable("info.screen.roleid." + roleName);
+                  Component roleNameComponent;
+                  Component roleInfoComponent;
+                  if ("customrole".equals(rid.getNamespace())) {
+                     var cd = io.wifi.starrailexpress.customrole.CustomRoleLoader.getCustomRoleData(roleName);
+                     roleNameComponent = (cd != null && !cd.displayName.isEmpty())
+                         ? Component.literal(cd.displayName).withStyle(ChatFormatting.BOLD)
+                         : Component.translatable("announcement.star.role." + roleName).withStyle(ChatFormatting.BOLD);
+                     roleInfoComponent = (cd != null && !cd.description.isEmpty())
+                         ? Component.literal(cd.description.replace("\\n", "\n"))
+                         : Component.translatable("info.screen.roleid." + roleName);
+                  } else {
+                     roleNameComponent = Component.translatable("announcement.star.role." + roleName).withStyle(ChatFormatting.BOLD);
+                     roleInfoComponent = Component.translatable("info.screen.roleid." + roleName);
+                  }
                   PoseStack poseStack = context.pose();
                   poseStack.pushPose();
                   poseStack.scale(scale, scale, 1.0F);

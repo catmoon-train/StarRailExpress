@@ -535,10 +535,19 @@ public class RoleIntroduceScreen extends Screen {
                 .withStyle(ChatFormatting.DARK_GRAY), textW));
         detailLines.add(FormattedCharSequence.EMPTY);
         if (selectedRole instanceof SRERole role) {
-            detailLines.addAll(font.split(
-                    Component.translatable(
-                            "announcement.star.goals." + role.identifier().getPath()),
-                    textW));
+            var rid = role.identifier();
+            if ("customrole".equals(rid.getNamespace())) {
+                var cd = io.wifi.starrailexpress.customrole.CustomRoleLoader.getCustomRoleData(rid.getPath());
+                if (cd != null && !cd.goals.isEmpty()) {
+                    detailLines.addAll(font.split(Component.literal(cd.goals), textW));
+                } else {
+                    detailLines.addAll(font.split(Component.translatable("announcement.star.goals." + rid.getPath()), textW));
+                }
+            } else {
+                detailLines.addAll(font.split(
+                        Component.translatable("announcement.star.goals." + rid.getPath()),
+                        textW));
+            }
             detailLines.add(FormattedCharSequence.EMPTY);
         } else if (selectedRole instanceof Item it) {
             try {

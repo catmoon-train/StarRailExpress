@@ -62,8 +62,7 @@ public class ListRolesCommand {
                 .withStyle(ChatFormatting.GRAY);
 
         message.append("\n").append(Component.translatable("commands.listroles.detail.goal",
-                Component.translatable(
-                        "announcement.star.goals." + role.identifier().getPath()).withStyle(ChatFormatting.WHITE))
+                getRoleGoal(role).withStyle(ChatFormatting.WHITE))
                 .withStyle(ChatFormatting.YELLOW));
         ctx.getSource().sendSystemMessage(message);
         message.append("\n").append(Component.translatable("commands.listroles.detail.introduction",
@@ -92,6 +91,15 @@ public class ListRolesCommand {
         ctx.getSource().sendSystemMessage(message);
 
         return 1;
+    }
+
+    private static MutableComponent getRoleGoal(SRERole role) {
+        var rid = role.identifier();
+        if ("customrole".equals(rid.getNamespace())) {
+            var cd = io.wifi.starrailexpress.customrole.CustomRoleLoader.getCustomRoleData(rid.getPath());
+            if (cd != null && !cd.goals.isEmpty()) return Component.literal(cd.goals);
+        }
+        return Component.translatable("announcement.star.goals." + role.identifier().getPath());
     }
 
     public static RoleEnableInfoPacket getRoleAndModifierEnableInfoPacket(boolean openUI) {

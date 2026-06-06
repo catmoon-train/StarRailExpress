@@ -1,0 +1,8 @@
+{
+	"parent":"noellesroles:block/baka_plush",
+	"texture_size": [64, 64],
+	"textures": {
+		"0": "starrailexpress:block/plush/marisa",
+		"particle": "starrailexpress:block/plush/marisa"
+	}
+}
