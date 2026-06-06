@@ -168,11 +168,21 @@ public class PelicanPlayerComponent implements RoleComponent, ServerTickingCompo
 
     public boolean releaseLast() {
         if (!(player instanceof ServerPlayer sp)) return false;
+        // 清理肚内列表中已被强制释放的玩家（如亡命徒时刻自动释放）
+        bellyPlayerIds.removeIf(id -> !PelicanManager.isStashed(id));
+        bellyNames.clear();
+        for (UUID id : bellyPlayerIds) {
+            ServerPlayer p = player.getServer().getPlayerList().getPlayer(id);
+            if (p != null) {
+                bellyNames.add(p.getName().getString());
+            }
+        }
         if (bellyPlayerIds.isEmpty()) {
             sp.displayClientMessage(
                     Component.translatable("message.noellesroles.pelican.belly_empty")
                             .withStyle(ChatFormatting.RED),
                     true);
+            sync();
             return false;
         }
 

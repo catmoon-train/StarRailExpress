@@ -208,6 +208,15 @@ public final class PelicanManager {
         if (belly.isEmpty())
             stashedByPelican.remove(pelicanId);
 
+        // 同步清理鹈鹕组件中的肚内玩家列表，防止再次按技能键时重复显示"吐出玩家"
+        ServerPlayer pelican = server.getPlayerList().getPlayer(pelicanId);
+        if (pelican != null) {
+            PelicanPlayerComponent comp = PelicanPlayerComponent.KEY.get(pelican);
+            comp.bellyPlayerIds.clear();
+            comp.bellyNames.clear();
+            comp.sync();
+        }
+
         // 如果被释放的玩家中有疫使，重新检查疫使时刻触发条件
         ServerLevel overworld = server.overworld();
         SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(overworld);
