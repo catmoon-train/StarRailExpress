@@ -105,7 +105,7 @@ public class BindingToolItem extends Item {
             } else {
                 var blockEntity2 = world.getBlockEntity(lastCameraPos);
                 if (blockEntity2 instanceof RemoteRedstoneBlockEntity re2) {
-                    re2.setTargetBlockPos(pos);
+                    re2.setTargetBlockPos(CalcRelativePosition(lastCameraPos,pos));
                     player.displayClientMessage(
                             Component
                                     .translatable("message.item.starrailexpress.binding_tool.bind_remote_redstone",

@@ -156,7 +156,7 @@ public class RemoteRedstoneBlock extends RedstoneTorchBlock implements EntityBlo
             // 获取绑定目标并同步 TRIGGERED 状态
             RemoteRedstoneBlockEntity be = getBlockEntity(world, pos);
             if (be != null) {
-                BlockPos targetPos = be.getTargetBlockPos();
+                BlockPos targetPos = pos.offset(be.getTargetBlockPos());
                 if (targetPos != null && world.getBlockEntity(targetPos) instanceof RemoteRedstoneBlockEntity) {
                     BlockState targetState = world.getBlockState(targetPos);
                     if (targetState.getBlock() instanceof RemoteRedstoneBlock targetBlock) {
@@ -269,7 +269,7 @@ public class RemoteRedstoneBlock extends RedstoneTorchBlock implements EntityBlo
 
     public static void sendTip(Player player, Level world, BlockPos pos) {
         if (world.getBlockEntity(pos) instanceof RemoteRedstoneBlockEntity be) {
-            BlockPos target = be.getTargetBlockPos();
+            BlockPos target = pos.offset(be.getTargetBlockPos());
             MutableComponent msg = Component.translatable("message.block.starrailexpress.remote_redstone.info",
                     target != null ? target.toShortString()
                             : Component.translatable("message.block.starrailexpress.remote_redstone.info.none"));
