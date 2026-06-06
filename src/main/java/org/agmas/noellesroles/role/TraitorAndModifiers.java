@@ -449,6 +449,8 @@ public class TraitorAndModifiers {
             
             WorldModifierComponent modifiers = WorldModifierComponent.KEY.get(player.level());
             if (modifiers.isModifier(player.getUUID(), REBEL)) {
+                // 起义军修饰符仅在平民阵营生效
+                if (!gameWorld.isInnocent(player)) return true;
                 // 如果是殉情（恋人修饰符），不触发起义军
                 if (LoversComponent.KEY.get(player).isLover()) return true;
 
@@ -550,6 +552,8 @@ public class TraitorAndModifiers {
             // 检查被击杀者是否是起义军玩家
             WorldModifierComponent modifiers = WorldModifierComponent.KEY.get(victim.level());
             if (modifiers != null && modifiers.isModifier(victim.getUUID(), REBEL)) {
+                // 起义军修饰符仅在平民阵营生效
+                if (!gameWorld.isInnocent(victim)) return;
                 // 如果是殉情（恋人修饰符），不起义军惩罚
                 if (LoversComponent.KEY.get(victim).isLover()) return;
 
