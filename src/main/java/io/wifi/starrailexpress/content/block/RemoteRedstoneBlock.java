@@ -156,13 +156,16 @@ public class RemoteRedstoneBlock extends RedstoneTorchBlock implements EntityBlo
             // 获取绑定目标并同步 TRIGGERED 状态
             RemoteRedstoneBlockEntity be = getBlockEntity(world, pos);
             if (be != null) {
-                BlockPos targetPos = pos.offset(be.getTargetBlockPos());
-                if (targetPos != null && world.getBlockEntity(targetPos) instanceof RemoteRedstoneBlockEntity) {
-                    BlockState targetState = world.getBlockState(targetPos);
-                    if (targetState.getBlock() instanceof RemoteRedstoneBlock targetBlock) {
-                        // 目标方块的 TRIGGERED 应该等于本地 LIT 值（非取反）
-                        boolean shouldTrigger = newState.getValue(LIT);
-                        targetBlock.onRemoteTrigger(targetState, world, targetPos, shouldTrigger);
+                BlockPos relaPos = be.getTargetBlockPos();
+                if (relaPos != null) {
+                    BlockPos targetPos = pos.offset(relaPos);
+                    if (targetPos != null && world.getBlockEntity(targetPos) instanceof RemoteRedstoneBlockEntity) {
+                        BlockState targetState = world.getBlockState(targetPos);
+                        if (targetState.getBlock() instanceof RemoteRedstoneBlock targetBlock) {
+                            // 目标方块的 TRIGGERED 应该等于本地 LIT 值（非取反）
+                            boolean shouldTrigger = newState.getValue(LIT);
+                            targetBlock.onRemoteTrigger(targetState, world, targetPos, shouldTrigger);
+                        }
                     }
                 }
             }
@@ -269,7 +272,11 @@ public class RemoteRedstoneBlock extends RedstoneTorchBlock implements EntityBlo
 
     public static void sendTip(Player player, Level world, BlockPos pos) {
         if (world.getBlockEntity(pos) instanceof RemoteRedstoneBlockEntity be) {
-            BlockPos target = pos.offset(be.getTargetBlockPos());
+            BlockPos retarget = (be.getTargetBlockPos());
+            BlockPos target = null;
+            if (retarget != null) {
+                target = pos.offset(retarget);
+            }
             MutableComponent msg = Component.translatable("message.block.starrailexpress.remote_redstone.info",
                     target != null ? target.toShortString()
                             : Component.translatable("message.block.starrailexpress.remote_redstone.info.none"));
