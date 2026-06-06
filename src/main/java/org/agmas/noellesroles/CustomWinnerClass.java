@@ -22,8 +22,6 @@ public class CustomWinnerClass {
     public static void registerCustomWinners() {
         AllowGameEnd.EVENT.register((serverLevel, winStatus, isLooseEnd) -> {
             if (isLooseEnd) {
-                // 亡命时刻：释放鹈鹕肚子里的所有玩家
-                org.agmas.noellesroles.game.roles.neutral.pelican.PelicanManager.onLastStand(serverLevel);
                 return WinStatus.NOT_MODIFY;
             }
             var refugeeCCA = RefugeeComponent.KEY.get(serverLevel);

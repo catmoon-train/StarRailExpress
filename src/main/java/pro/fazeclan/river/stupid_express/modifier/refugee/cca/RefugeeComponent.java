@@ -196,6 +196,9 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         SRE.REPLAY_MANAGER.recordPlayerRevival(player.getUUID(), TMMRoles.LOOSE_END);
         StupidRoleUtils.sendWelcomeAnnouncement(player);
 
+        // 亡命徒复活倒计时归零时，释放鹈鹕肚子里的所有玩家
+        org.agmas.noellesroles.game.roles.neutral.pelican.PelicanManager.onLastStand(serverLevel);
+
         TrainVoicePlugin.resetPlayer(player.getUUID());
         SREGameTimeComponent gameTimeComponent = SREGameTimeComponent.KEY.get(serverLevel);
         lastTime = gameTimeComponent.getTime();
