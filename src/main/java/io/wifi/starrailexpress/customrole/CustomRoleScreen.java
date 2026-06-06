@@ -104,7 +104,7 @@ public class CustomRoleScreen extends Screen {
             efSb.append(e.effectId).append(",").append(e.amplifier);
         }
         addLabel(tabLabels0, "sre.custom_role.label.effects", r);
-        EditBox effectsBox = makeBox(fieldX(), rowY(r), FIELD_W, 18, efSb.toString(), v -> {
+        EditBox effectsBox = makeBox(fieldX(), rowY(r), FIELD_W + 40, 18, efSb.toString(), v -> {
             data.initialEffects.clear();
             if (v == null || v.isBlank()) return;
             java.util.regex.Pattern p = java.util.regex.Pattern.compile("([a-z0-9_\\-.:]+)[,:](\\d+)", java.util.regex.Pattern.CASE_INSENSITIVE);

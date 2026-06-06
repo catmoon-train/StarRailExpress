@@ -34,6 +34,9 @@ public class CustomRoleLoader {
 
     private static final Map<String, CustomRoleData> loadedRoles = new HashMap<>();
     private static final Map<String, SRERole> registeredRoles = new HashMap<>();
+    // 自定义职业的本能透视配置
+    private static final Map<String, Integer> instinctMaxRanges = new HashMap<>(); // englishId -> maxBlocksSquared
+    private static final Map<String, Boolean> instinctSameColor = new HashMap<>(); // englishId -> sameColorFrame
 
     /**
      * 重新加载所有自定义职业
@@ -51,6 +54,8 @@ public class CustomRoleLoader {
         }
         registeredRoles.clear();
         loadedRoles.clear();
+        instinctMaxRanges.clear();
+        instinctSameColor.clear();
 
         // 从服务器世界目录加载配置
         var level = server.overworld();
@@ -73,11 +78,26 @@ public class CustomRoleLoader {
                 TMMRoles.registerRole(role);
                 registeredRoles.put(data.englishId, role);
                 loadedRoles.put(data.englishId, data);
+
+                // 存储本能透视配置
+                if (data.canUseInstinct) {
+                    if (!"*".equals(data.instinctMaxRange)) {
+                        try {
+                            int maxBlocks = Integer.parseInt(data.instinctMaxRange.trim());
+                            instinctMaxRanges.put(data.englishId, maxBlocks * maxBlocks); // 存储平方值便于比较
+                        } catch (NumberFormatException ignored) {}
+                    }
+                    instinctSameColor.put(data.englishId, data.instinctSameColorFrame);
+                }
+
                 SRE.LOGGER.info("[CustomRole] Registered custom role: {}", data.englishId);
             } catch (Exception e) {
                 SRE.LOGGER.error("[CustomRole] Failed to register custom role: {}", data.englishId, e);
             }
         }
+
+        // 注册本能透视事件处理器
+        registerInstinctHandler();
 
         SRE.LOGGER.info("[CustomRole] Loaded {} custom roles", config.roles.size());
     }
@@ -257,6 +277,47 @@ public class CustomRoleLoader {
             id = SRE.id(roleId);
         }
         return TMMRoles.ROLES.get(id);
+    }
+
+    /**
+     * 注册本能透视的事件处理器，实现自定义最大范围和同色框
+     */
+    private static void registerInstinctHandler() {
+        io.wifi.starrailexpress.event.OnGetInstinctHighlight.EVENT.register((target, isInstinctEnabled) -> {
+            if (!(target instanceof net.minecraft.world.entity.player.Player)) return -1;
+            net.minecraft.world.entity.player.Player targetPlayer = (net.minecraft.world.entity.player.Player) target;
+            net.minecraft.client.Minecraft client = net.minecraft.client.Minecraft.getInstance();
+            if (client.player == null) return -1;
+            if (!isInstinctEnabled) return -1;
+
+            // 检查本地玩家的当前角色
+            io.wifi.starrailexpress.cca.SREGameWorldComponent gameWorld = io.wifi.starrailexpress.cca.SREGameWorldComponent.KEY.get(client.player.level());
+            if (gameWorld == null) return -1;
+            SRERole role = gameWorld.getRole(client.player);
+            if (role == null) return -1;
+            if (!"customrole".equals(role.identifier().getNamespace())) return -1;
+
+            String englishId = role.identifier().getPath();
+
+            // 检查最大透视范围
+            Integer maxRangeSq = instinctMaxRanges.get(englishId);
+            if (maxRangeSq != null) {
+                double distSq = client.player.distanceToSqr(targetPlayer);
+                if (distSq > maxRangeSq) return -2; // -2 = 禁用本能高亮
+            }
+
+            // 同色框
+            Boolean sameColor = instinctSameColor.get(englishId);
+            if (sameColor != null && sameColor) {
+                if (io.wifi.starrailexpress.client.SREClient.gameComponent != null
+                    && io.wifi.starrailexpress.client.SREClient.gameComponent.isKillerTeamRole(role)) {
+                    return java.awt.Color.RED.getRGB();
+                }
+                return java.awt.Color.GREEN.getRGB();
+            }
+
+            return -1;
+        });
     }
 
     /**
