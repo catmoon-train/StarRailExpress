@@ -125,13 +125,11 @@ public class GameReplayUtils {
                         .withStyle(ChatFormatting.GRAY);
         String sourceRoleId = playerUid != null ? replayData.getPlayerRoles().get(playerUid)
                 : TMMRoles.CIVILIAN.identifier().toString();
-        sourceRoleId = ReplayDisplayUtils.getRolePath(sourceRoleId);
         String sourceRoleIdNow = playerUid != null
                 ? SREGameWorldComponent.KEY.get(SRE.SERVER.getLevel(Level.OVERWORLD)).getRole(playerUid) == null ? null
                         : SREGameWorldComponent.KEY.get(SRE.SERVER.getLevel(Level.OVERWORLD)).getRole(playerUid)
-                                .identifier().getPath()
+                                .identifier().toString()
                 : null;
-        sourceRoleIdNow = ReplayDisplayUtils.getRolePath(sourceRoleIdNow);
 
         MutableComponent sourceRoleName = ReplayDisplayUtils.getRoleDisplayName(sourceRoleId);
         int sourceRoleColor = getRoleColor(sourceRoleId);

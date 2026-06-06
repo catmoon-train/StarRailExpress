@@ -42,7 +42,21 @@ public class ReplayDisplayUtils {
             return Component.literal("");
         ResourceLocation id = ResourceLocation.tryParse(roleId);
         if (id == null) {
+            // 尝试作为自定义职业路径查找（纯路径不含冒号的情况）
+            if (!roleId.contains(":")) {
+                var customData = io.wifi.starrailexpress.customrole.CustomRoleLoader.getCustomRoleData(roleId);
+                if (customData != null && !customData.displayName.isEmpty()) {
+                    return Component.literal(customData.displayName);
+                }
+            }
             return Component.literal(roleId);
+        }
+        // 如果解析出的命名空间不是 customrole，但可能是剥离了命名空间的自定义职业路径
+        if (!"customrole".equals(id.getNamespace())) {
+            var customData = io.wifi.starrailexpress.customrole.CustomRoleLoader.getCustomRoleData(id.getPath());
+            if (customData != null && !customData.displayName.isEmpty()) {
+                return Component.literal(customData.displayName);
+            }
         }
         var roleName = RoleUtils.getRoleName(id);
         if (roleName != null) return roleName;

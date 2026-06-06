@@ -195,7 +195,7 @@ public class GameReplayData {
                 if (trole == null) {
                     trole = TMMRoles.CIVILIAN;
                 }
-                Role_1 = GameReplayUtils.getRoleNameWithSourceTMMColor(trole.identifier().getPath());
+                Role_1 = GameReplayUtils.getRoleNameWithSourceTMMColor(trole.identifier().toString());
             }
 
             // message = ;

@@ -156,7 +156,7 @@ public class CustomRoleLoader {
                     var effectHolder = BuiltInRegistries.MOB_EFFECT.getHolder(effectRL);
                     if (effectHolder.isPresent()) {
                         effects.add(new MobEffectInstance(effectHolder.get(),
-                            -1, effEntry.amplifier, false, false, true));
+                            -1, effEntry.amplifier, false, false, false));
                     }
                 } catch (Exception ignored) {}
             }
