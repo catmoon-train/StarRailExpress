@@ -2899,5 +2899,9 @@
   "item.noellesroles.phantom_musician.stalker_sound": "潜行者觉醒的声音",
   "item.noellesroles.phantom_musician.psycho_sound": "疯狂模式的声音",
   "item.noellesroles.phantom_musician.crowbar_sound": "撬棍撬门的声音",
-  "item.noellesroles.phantom_musician.random_sound": "随机播放音效"
+  "item.noellesroles.phantom_musician.random_sound": "随机播放音效",
+  "block.noellesroles.kill_block": "击杀方块",
+  "block.noellesroles.kill_block_panel": "击杀镶板",
+  "tooltip.noellesroles.kill_block": "杀死站在方块上的玩家",
+  "tooltip.noellesroles.kill_block_panel": "杀死接触到镶板所在方块的玩家"
 }

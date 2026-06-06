@@ -10,6 +10,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
@@ -144,6 +145,12 @@ public interface ModBlocks {
                     BlockEntityType.Builder.of(HotbarStorageBlockEntity::new, HOTBAR_STORAGE)
                             .build(null));
 
+    // Kill blocks (OP utilities)
+    Block KILL_BLOCK = registerOpBlock("kill_block",
+            new KillBlock(BlockBehaviour.Properties.of().strength(-1.0f, 3600000.0f).noOcclusion()));
+    Block KILL_BLOCK_PANEL = registerOpBlock("kill_block_panel",
+            new KillBlockPanel(BlockBehaviour.Properties.of().strength(-1.0f, 3600000.0f).noOcclusion()));
+
     static void initialize() {
         Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, BLOCK_CREATIVE_GROUP, FabricItemGroup.builder()
                 .title(Component.translatable("item_group.noellesroles.block")).icon(() -> {
@@ -162,5 +169,10 @@ public interface ModBlocks {
     @SuppressWarnings("unchecked")
     public static <T extends Block> T registerBlock(String id, T block, Item.Properties settings) {
         return blockRegistrar.createWithItem(id, block, settings, BLOCK_CREATIVE_GROUP);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T extends Block> T registerOpBlock(String id, T block) {
+        return blockRegistrar.createWithItem(id, block, CreativeModeTabs.OP_BLOCKS);
     }
 }

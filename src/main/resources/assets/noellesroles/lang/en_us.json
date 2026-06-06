@@ -2873,5 +2873,9 @@
   "item.noellesroles.phantom_musician.stalker_sound": "Stalker Awakening Sound",
   "item.noellesroles.phantom_musician.psycho_sound": "Psycho Mode Sound",
   "item.noellesroles.phantom_musician.crowbar_sound": "Crowbar Pry Sound",
-  "item.noellesroles.phantom_musician.random_sound": "Random Sound"
+  "item.noellesroles.phantom_musician.random_sound": "Random Sound",
+  "block.noellesroles.kill_block": "Kill Block",
+  "block.noellesroles.kill_block_panel": "Kill Panel",
+  "tooltip.noellesroles.kill_block": "Kills players that stand on top of the block",
+  "tooltip.noellesroles.kill_block_panel": "Kills players that touch the block the panel is in"
 }

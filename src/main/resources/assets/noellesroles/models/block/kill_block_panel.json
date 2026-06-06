@@ -1,0 +1,21 @@
+{
+  "ambientocclusion": false,
+  "textures": {
+    "all": "noellesroles:item/kill_block_panel",
+    "particle": "#all"
+  },
+  "elements": [
+    {
+      "from": [0, 0, 7.5],
+      "to": [16, 16, 8.5],
+      "faces": {
+        "north": { "uv": [0, 0, 16, 16], "texture": "#all" },
+        "south": { "uv": [0, 0, 16, 16], "texture": "#all" },
+        "east": { "uv": [0, 0, 1, 16], "texture": "#all" },
+        "west": { "uv": [0, 0, 1, 16], "texture": "#all" },
+        "up": { "uv": [0, 0, 16, 1], "texture": "#all" },
+        "down": { "uv": [0, 0, 16, 1], "texture": "#all" }
+      }
+    }
+  ]
+}
