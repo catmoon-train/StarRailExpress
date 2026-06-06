@@ -120,6 +120,9 @@ public class SmallDoorBlock extends DoorPartBlock {
             BlockPos lowerPos = getLowerHalfPos(state, pos);
             BlockState lowerState = world.getBlockState(lowerPos);
             boolean isPowered = world.hasNeighborSignal(pos) || world.hasNeighborSignal(blockPos2);
+            if (!(lowerState.getBlock() instanceof SmallDoorBlock)) {
+                return;
+            }
             if (isPowered != lowerState.getValue(POWERED)) {
                 world.setBlock(lowerPos, lowerState.setValue(POWERED, isPowered), 2);
                 if (isPowered) {

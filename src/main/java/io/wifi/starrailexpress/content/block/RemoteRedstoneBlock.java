@@ -18,6 +18,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
@@ -156,13 +157,16 @@ public class RemoteRedstoneBlock extends RedstoneTorchBlock implements EntityBlo
             // 获取绑定目标并同步 TRIGGERED 状态
             RemoteRedstoneBlockEntity be = getBlockEntity(world, pos);
             if (be != null) {
-                BlockPos targetPos = be.getTargetBlockPos();
-                if (targetPos != null && world.getBlockEntity(targetPos) instanceof RemoteRedstoneBlockEntity) {
-                    BlockState targetState = world.getBlockState(targetPos);
-                    if (targetState.getBlock() instanceof RemoteRedstoneBlock targetBlock) {
-                        // 目标方块的 TRIGGERED 应该等于本地 LIT 值（非取反）
-                        boolean shouldTrigger = newState.getValue(LIT);
-                        targetBlock.onRemoteTrigger(targetState, world, targetPos, shouldTrigger);
+                BlockPos relaPos = be.getTargetBlockPos();
+                if (relaPos != null) {
+                    BlockPos targetPos = pos.offset(relaPos);
+                    if (targetPos != null && world.getBlockEntity(targetPos) instanceof RemoteRedstoneBlockEntity) {
+                        BlockState targetState = world.getBlockState(targetPos);
+                        if (targetState.getBlock() instanceof RemoteRedstoneBlock targetBlock) {
+                            // 目标方块的 TRIGGERED 应该等于本地 LIT 值（非取反）
+                            boolean shouldTrigger = newState.getValue(LIT);
+                            targetBlock.onRemoteTrigger(targetState, world, targetPos, shouldTrigger);
+                        }
                     }
                 }
             }
@@ -198,6 +202,30 @@ public class RemoteRedstoneBlock extends RedstoneTorchBlock implements EntityBlo
     @Override
     protected FluidState getFluidState(BlockState state) {
         return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
+    }
+
+    @Override
+    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+        // 只有当方块类型改变时（即被破坏或替换），才需要清理实体
+        if (!state.is(newState.getBlock())) {
+            BlockEntity blockEntity = level.getBlockEntity(pos);
+            if (blockEntity instanceof RemoteRedstoneBlockEntity) {
+                // 可选：在移除前执行一些清理逻辑（比如通知配对方块解除绑定）
+                // ((RemoteRedstoneBlockEntity) blockEntity).onRemove();
+
+                // 移除方块实体
+                level.removeBlockEntity(pos);
+            }
+            // 调用父类方法，以确保正常执行其他清理（比如更新红石信号等）
+            super.onRemove(state, level, pos, newState, movedByPiston);
+        }
+    }
+
+    @Nullable
+    @Override
+    public MenuProvider getMenuProvider(BlockState blockState, Level level, BlockPos blockPos) {
+        BlockEntity blockEntity = level.getBlockEntity(blockPos);
+        return blockEntity instanceof MenuProvider ? (MenuProvider) blockEntity : null;
     }
 
     @Override
@@ -269,7 +297,11 @@ public class RemoteRedstoneBlock extends RedstoneTorchBlock implements EntityBlo
 
     public static void sendTip(Player player, Level world, BlockPos pos) {
         if (world.getBlockEntity(pos) instanceof RemoteRedstoneBlockEntity be) {
-            BlockPos target = be.getTargetBlockPos();
+            BlockPos retarget = (be.getTargetBlockPos());
+            BlockPos target = null;
+            if (retarget != null) {
+                target = pos.offset(retarget);
+            }
             MutableComponent msg = Component.translatable("message.block.starrailexpress.remote_redstone.info",
                     target != null ? target.toShortString()
                             : Component.translatable("message.block.starrailexpress.remote_redstone.info.none"));
