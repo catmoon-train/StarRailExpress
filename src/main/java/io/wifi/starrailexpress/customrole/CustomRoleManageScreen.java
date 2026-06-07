@@ -1,5 +1,7 @@
 package io.wifi.starrailexpress.customrole;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -10,6 +12,7 @@ import org.agmas.noellesroles.client.widget.custom_button.ModernButton.AccentSid
 import java.util.ArrayList;
 import java.util.List;
 
+@Environment(EnvType.CLIENT)
 public class CustomRoleManageScreen extends Screen {
 
     private static final int PANEL_WIDTH = 420;

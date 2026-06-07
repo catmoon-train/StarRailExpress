@@ -38,6 +38,7 @@ public class CustomRoleLoader {
     // 自定义职业的本能透视配置
     private static final Map<String, Integer> instinctMaxRanges = new HashMap<>(); // englishId -> maxBlocksSquared
     private static final Map<String, Boolean> instinctSameColor = new HashMap<>(); // englishId -> sameColorFrame
+    private static boolean mapRestrictionHandlerRegistered = false;
 
     /**
      * 重新加载所有自定义职业
@@ -97,10 +98,13 @@ public class CustomRoleLoader {
             }
         }
 
-        // 注册本能透视事件处理器（仅客户端）
+        // 注册本能透视事件处理器（仅客户端，通过内部类避免服务端加载客户端类）
         if (FabricLoader.getInstance().getEnvironmentType() == net.fabricmc.api.EnvType.CLIENT) {
-            registerInstinctHandler();
+            ClientInstinctHandler.register();
         }
+
+        // 处理互斥、绑定生成、地图限制等（postInit 需要所有角色已注册）
+        postInit();
 
         SRE.LOGGER.info("[CustomRole] Loaded {} custom roles", config.roles.size());
     }
@@ -285,8 +289,11 @@ public class CustomRoleLoader {
             }
         }
 
-        // 注册地图限制事件处理
-        registerMapRestrictionHandler();
+        // 注册地图限制事件处理（仅首次，避免重复注册）
+        if (!mapRestrictionHandlerRegistered) {
+            registerMapRestrictionHandler();
+            mapRestrictionHandlerRegistered = true;
+        }
     }
 
     /**
@@ -345,44 +352,60 @@ public class CustomRoleLoader {
     }
 
     /**
-     * 注册本能透视的事件处理器，实现自定义最大范围和同色框
+     * 获取自定义职业的本能透视最大范围（平方值），用于客户端事件处理
      */
-    private static void registerInstinctHandler() {
-        io.wifi.starrailexpress.event.OnGetInstinctHighlight.EVENT.register((target, isInstinctEnabled) -> {
-            if (!(target instanceof net.minecraft.world.entity.player.Player)) return -1;
-            net.minecraft.world.entity.player.Player targetPlayer = (net.minecraft.world.entity.player.Player) target;
-            net.minecraft.client.Minecraft client = net.minecraft.client.Minecraft.getInstance();
-            if (client.player == null) return -1;
-            if (!isInstinctEnabled) return -1;
+    public static Integer getInstinctMaxRange(String englishId) {
+        return instinctMaxRanges.get(englishId);
+    }
 
-            // 检查本地玩家的当前角色
-            io.wifi.starrailexpress.cca.SREGameWorldComponent gameWorld = io.wifi.starrailexpress.cca.SREGameWorldComponent.KEY.get(client.player.level());
-            if (gameWorld == null) return -1;
-            SRERole role = gameWorld.getRole(client.player);
-            if (role == null) return -1;
-            if (!"customrole".equals(role.identifier().getNamespace())) return -1;
+    /**
+     * 获取自定义职业的本能透视同色框设置，用于客户端事件处理
+     */
+    public static Boolean getInstinctSameColor(String englishId) {
+        return instinctSameColor.get(englishId);
+    }
 
-            String englishId = role.identifier().getPath();
+    /**
+     * 客户端本能透视事件处理器
+     * 这是内部类，编译为独立 .class 文件（CustomRoleLoader$ClientInstinctHandler.class），
+     * 不会被 JVM 在加载外层类时解析，避免服务端因引用客户端类而崩溃
+     */
+    private static class ClientInstinctHandler {
+        static void register() {
+            io.wifi.starrailexpress.event.OnGetInstinctHighlight.EVENT.register((target, isInstinctEnabled) -> {
+                if (!(target instanceof net.minecraft.world.entity.player.Player)) return -1;
+                net.minecraft.world.entity.player.Player targetPlayer = (net.minecraft.world.entity.player.Player) target;
+                net.minecraft.client.Minecraft client = net.minecraft.client.Minecraft.getInstance();
+                if (client.player == null) return -1;
+                if (!isInstinctEnabled) return -1;
 
-            // 检查最大透视范围
-            Integer maxRangeSq = instinctMaxRanges.get(englishId);
-            if (maxRangeSq != null) {
-                double distSq = client.player.distanceToSqr(targetPlayer);
-                if (distSq > maxRangeSq) return -2; // -2 = 禁用本能高亮
-            }
+                io.wifi.starrailexpress.cca.SREGameWorldComponent gameWorld =
+                    io.wifi.starrailexpress.cca.SREGameWorldComponent.KEY.get(client.player.level());
+                if (gameWorld == null) return -1;
+                SRERole role = gameWorld.getRole(client.player);
+                if (role == null) return -1;
+                if (!"customrole".equals(role.identifier().getNamespace())) return -1;
 
-            // 同色框
-            Boolean sameColor = instinctSameColor.get(englishId);
-            if (sameColor != null && sameColor) {
-                if (io.wifi.starrailexpress.client.SREClient.gameComponent != null
-                    && io.wifi.starrailexpress.client.SREClient.gameComponent.isKillerTeamRole(role)) {
-                    return java.awt.Color.RED.getRGB();
+                String englishId = role.identifier().getPath();
+
+                Integer maxRangeSq = instinctMaxRanges.get(englishId);
+                if (maxRangeSq != null) {
+                    double distSq = client.player.distanceToSqr(targetPlayer);
+                    if (distSq > maxRangeSq) return -2;
                 }
-                return java.awt.Color.GREEN.getRGB();
-            }
 
-            return -1;
-        });
+                Boolean sameColor = instinctSameColor.get(englishId);
+                if (sameColor != null && sameColor) {
+                    if (io.wifi.starrailexpress.client.SREClient.gameComponent != null
+                        && io.wifi.starrailexpress.client.SREClient.gameComponent.isKillerTeamRole(role)) {
+                        return java.awt.Color.RED.getRGB();
+                    }
+                    return java.awt.Color.GREEN.getRGB();
+                }
+
+                return -1;
+            });
+        }
     }
 
     /**

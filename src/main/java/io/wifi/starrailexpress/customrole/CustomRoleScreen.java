@@ -1,6 +1,8 @@
 package io.wifi.starrailexpress.customrole;
 
 import io.wifi.starrailexpress.customrole.CustomRoleData.*;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.EditBox;
@@ -13,6 +15,7 @@ import java.util.List;
 import net.minecraft.world.level.storage.LevelResource;
 import java.nio.file.Path;
 
+@Environment(EnvType.CLIENT)
 public class CustomRoleScreen extends Screen {
     private static final int PANEL_WIDTH = 380, PANEL_HEIGHT = 460;
     private int panelLeftX, panelTopY, activeTab = 0;

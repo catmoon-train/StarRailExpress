@@ -3,6 +3,8 @@ package io.wifi.starrailexpress.customrole;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
@@ -10,6 +12,7 @@ import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
 /**
  * 通用自定义职业 HUD
  */
+@Environment(EnvType.CLIENT)
 public class CustomRoleHud {
 
     public static void registerForRole(CustomRoleData data, net.minecraft.resources.ResourceLocation roleId) {
