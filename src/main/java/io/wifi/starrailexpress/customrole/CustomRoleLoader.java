@@ -19,6 +19,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.fabricmc.loader.api.FabricLoader;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -96,8 +97,10 @@ public class CustomRoleLoader {
             }
         }
 
-        // 注册本能透视事件处理器
-        registerInstinctHandler();
+        // 注册本能透视事件处理器（仅客户端）
+        if (FabricLoader.getInstance().getEnvironmentType() == net.fabricmc.api.EnvType.CLIENT) {
+            registerInstinctHandler();
+        }
 
         SRE.LOGGER.info("[CustomRole] Loaded {} custom roles", config.roles.size());
     }

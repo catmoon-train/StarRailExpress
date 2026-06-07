@@ -196,7 +196,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
             // 加载自定义职业
             try {
                 io.wifi.starrailexpress.customrole.CustomRoleLoader.reload(server);
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 LOGGER.error("[CustomRole] Failed to load custom roles on server start", e);
             }
         });
