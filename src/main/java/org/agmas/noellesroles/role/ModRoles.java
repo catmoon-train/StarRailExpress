@@ -1166,7 +1166,7 @@ public class ModRoles {
             .registerRole(new NormalRole(PELICAN_ID, new Color(111, 138, 36).getRGB(), false,
                     false, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true)
                     .setComponentKey(org.agmas.noellesroles.game.roles.neutral.pelican.PelicanPlayerComponent.KEY))
-            .setNeutrals(true).setNeutralForKiller(false).setCanSeeTeammateKiller(false)
+            .setNeutrals(true).setNeutralForKiller(false).setCanSeeTeammateKiller(false).setMax(1)
             .setCanUseInstinct(true).setCanSeeCoin(true).setCanPickUpRevolver(false).setCanBeRandomedByOtherRoles(false);
 
     // ==================== Mafia 家族角色 ====================
