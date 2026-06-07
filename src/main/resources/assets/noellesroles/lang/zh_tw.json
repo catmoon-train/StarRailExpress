@@ -2894,7 +2894,7 @@
   "hud.noellesroles.phantom_musician.teleport_no_coin": "金幣不足，需要100金幣",
   "hud.noellesroles.phantom_musician.passive_income": "聲波共振：50金幣/30秒",
 
-  "item.noellesroles.phantom_musician.knife_sound": "出刀的聲音",
+  "item.noellesroles.phantom_musician.knife_sound": "刀命中玩家的聲音",
   "item.noellesroles.phantom_musician.revolver_sound": "左輪手槍開火的聲音",
   "item.noellesroles.phantom_musician.stalker_sound": "潛行者覺醒的聲音",
   "item.noellesroles.phantom_musician.psycho_sound": "瘋狂模式的聲音",
