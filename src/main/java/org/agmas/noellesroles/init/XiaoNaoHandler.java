@@ -68,6 +68,7 @@ public class XiaoNaoHandler {
                                 || deathReason.getPath().equals("fell_out_of_train")
                                 || deathReason.getPath().equals("poison")
                                 || deathReason.getPath().equals("throwing_knife_hit")
+                                || deathReason.getPath().equals("throwing_knife")
                                 || deathReason.getPath().equals("bowen")
                                 || deathReason.getPath().equals("baton_kill")
                                 || deathReason.getPath().equals("fire_axe")
