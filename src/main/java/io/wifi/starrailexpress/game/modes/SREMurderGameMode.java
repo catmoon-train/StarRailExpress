@@ -104,7 +104,10 @@ public class SREMurderGameMode extends GameMode {
             final var value = entry.getValue();
             if (value != null) {
                 gameWorldComponent.addRole(key, value, false);
-                value.getDefaultItems().forEach(item -> key.getInventory().placeItemBackInInventory(item));
+                // 自定义职业的初始物品已通过 INITIAL_ITEMS_MAP 在 assignModdedRole 事件中发放，此处跳过避免重复
+                if (!"customrole".equals(value.identifier().getNamespace())) {
+                    value.getDefaultItems().forEach(item -> key.getInventory().placeItemBackInInventory(item));
+                }
                 Harpymodloader.LOGGER.debug("Assigned role " + value.getIdentifier() + " to " + key.getName());
                 if (value.canUseKiller()) {
                     SREPlayerShopComponent playerShopComponent = SREPlayerShopComponent.KEY.get(key);
