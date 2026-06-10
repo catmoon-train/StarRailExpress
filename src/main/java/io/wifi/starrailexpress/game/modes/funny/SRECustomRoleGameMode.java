@@ -268,6 +268,8 @@ public class SRECustomRoleGameMode extends SREMurderGameMode {
                         playerShopComponent.setBalance(GameConstants.getMoneyStart());
                 }
                 ModdedRoleAssigned.EVENT.invoker().assignModdedRole(p, role);
+                // 分发初始物品（自定义职业的 defaultItems 不在 RoleInitialItems 静态 Map 中）
+                role.getDefaultItems().forEach(item -> p.getInventory().placeItemBackInInventory(item));
             }
             ServerPlayNetworking.send(p, new CloseUiPayload());
         }

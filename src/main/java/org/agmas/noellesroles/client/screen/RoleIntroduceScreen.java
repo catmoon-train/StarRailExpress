@@ -538,6 +538,10 @@ public class RoleIntroduceScreen extends Screen {
             var rid = role.identifier();
             if ("customrole".equals(rid.getNamespace())) {
                 var cd = io.wifi.starrailexpress.customrole.CustomRoleLoader.getCustomRoleData(rid.getPath());
+                // 客户端回退到网络同步的数据
+                if (cd == null) {
+                    cd = io.wifi.starrailexpress.client.network.CustomRoleClientNetwork.getSyncedRole(rid.getPath());
+                }
                 if (cd != null && !cd.goals.isEmpty()) {
                     detailLines.addAll(font.split(Component.literal(cd.goals), textW));
                 } else {

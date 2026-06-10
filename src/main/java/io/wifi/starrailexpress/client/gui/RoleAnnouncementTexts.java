@@ -67,6 +67,10 @@ public class RoleAnnouncementTexts {
             // 检查自定义职业
             if (id.getNamespace().equals("customrole")) {
                 var cd = io.wifi.starrailexpress.customrole.CustomRoleLoader.getCustomRoleData(id.getPath());
+                // 服务端不可用时，回退到客户端网络同步的数据
+                if (cd == null) {
+                    cd = io.wifi.starrailexpress.client.network.CustomRoleClientNetwork.getSyncedRole(id.getPath());
+                }
                 if (cd != null && !cd.displayName.isEmpty()) {
                     this.roleText = Component.literal(cd.displayName).withColor(this.colour);
                     String goals = cd.goals.isEmpty() ? cd.description : cd.goals;

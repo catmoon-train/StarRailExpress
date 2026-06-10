@@ -286,6 +286,11 @@ public class RoleUtils extends MCItemsUtils {
             if (customData != null && !customData.displayName.isEmpty()) {
                 return Component.literal(customData.displayName);
             }
+            // 服务端不可用时，回退到客户端网络同步的数据
+            customData = io.wifi.starrailexpress.client.network.CustomRoleClientNetwork.getSyncedRole(roleIdentifier.getPath());
+            if (customData != null && !customData.displayName.isEmpty()) {
+                return Component.literal(customData.displayName);
+            }
         }
         String translationKey = "announcement.star.role." + roleIdentifier.getPath();
         return Component.translatable(translationKey);
@@ -346,11 +351,15 @@ public class RoleUtils extends MCItemsUtils {
             if (roleName.startsWith("customrole:")) {
                 var cd = io.wifi.starrailexpress.customrole.CustomRoleLoader.getCustomRoleData(roleName.substring("customrole:".length()));
                 if (cd != null && !cd.description.isEmpty()) return Component.literal(fixNewlines(cd.description));
+                cd = io.wifi.starrailexpress.client.network.CustomRoleClientNetwork.getSyncedRole(roleName.substring("customrole:".length()));
+                if (cd != null && !cd.description.isEmpty()) return Component.literal(fixNewlines(cd.description));
             }
             return Component.translatable("info.screen.roleid." + roleName);
         }
         if ("customrole".equals(res.getNamespace())) {
             var cd = io.wifi.starrailexpress.customrole.CustomRoleLoader.getCustomRoleData(res.getPath());
+            if (cd != null && !cd.description.isEmpty()) return Component.literal(fixNewlines(cd.description));
+            cd = io.wifi.starrailexpress.client.network.CustomRoleClientNetwork.getSyncedRole(res.getPath());
             if (cd != null && !cd.description.isEmpty()) return Component.literal(fixNewlines(cd.description));
         }
         return Component.translatable("info.screen.roleid." + res.getPath());
@@ -362,6 +371,10 @@ public class RoleUtils extends MCItemsUtils {
         var id = selectedRole.getIdentifier();
         if ("customrole".equals(id.getNamespace())) {
             var cd = io.wifi.starrailexpress.customrole.CustomRoleLoader.getCustomRoleData(id.getPath());
+            if (cd != null && !cd.description.isEmpty()) {
+                return Component.literal(fixNewlines(cd.description));
+            }
+            cd = io.wifi.starrailexpress.client.network.CustomRoleClientNetwork.getSyncedRole(id.getPath());
             if (cd != null && !cd.description.isEmpty()) {
                 return Component.literal(fixNewlines(cd.description));
             }
