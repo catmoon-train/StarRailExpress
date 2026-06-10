@@ -150,6 +150,13 @@ public class CustomRoleLoader {
                 TMMRoles.registerRole(role);
                 loadedRoles.put(data.englishId, data);
                 registeredRoles.put(data.englishId, role);
+                // 注册报幕文本（客户端），确保欢迎报到能显示自定义职业
+                try {
+                    io.wifi.starrailexpress.client.gui.RoleAnnouncementTexts.registerRoleAnnouncementText(
+                        role.identifier(),
+                        new io.wifi.starrailexpress.client.gui.RoleAnnouncementTexts.RoleAnnouncementText(
+                            role.identifier(), role.getColor()));
+                } catch (Throwable ignored) {}
             } catch (Exception e) {
                 SRE.LOGGER.error("[CustomRole-Client] Failed to register: {}", data.englishId, e);
             }
