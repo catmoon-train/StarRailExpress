@@ -155,6 +155,10 @@ public class ModPackets {
         PayloadTypeRegistry.playS2C().register(LootPoolsInfoCheckS2CPacket.ID, LootPoolsInfoCheckS2CPacket.CODEC);
         PayloadTypeRegistry.playS2C().register(LootPoolsInfoS2CPacket.ID, LootPoolsInfoS2CPacket.CODEC);
 
+        // 自定义职业同步
+        PayloadTypeRegistry.playS2C().register(io.wifi.starrailexpress.network.CustomRoleSyncPayload.TYPE,
+                io.wifi.starrailexpress.network.CustomRoleSyncPayload.CODEC);
+
         // 注册抽奖数据刷新网络包
         PayloadTypeRegistry.playS2C().register(LootDataRefreshS2CPacket.ID, LootDataRefreshS2CPacket.CODEC);
 
