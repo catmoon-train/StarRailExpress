@@ -87,17 +87,6 @@ public class CustomRoleLoader {
                 registeredRoles.put(data.englishId, role);
                 loadedRoles.put(data.englishId, data);
 
-                // 存储本能透视配置
-                if (data.canUseInstinct) {
-                    if (!"*".equals(data.instinctMaxRange)) {
-                        try {
-                            int maxBlocks = Integer.parseInt(data.instinctMaxRange.trim());
-                            instinctMaxRanges.put(data.englishId, maxBlocks * maxBlocks); // 存储平方值便于比较
-                        } catch (NumberFormatException ignored) {}
-                    }
-                    instinctSameColor.put(data.englishId, data.instinctSameColorFrame);
-                }
-
                 SRE.LOGGER.info("[CustomRole] Registered custom role: {}", data.englishId);
             } catch (Exception e) {
                 SRE.LOGGER.error("[CustomRole] Failed to register custom role: {}", data.englishId, e);
@@ -251,7 +240,17 @@ public class CustomRoleLoader {
 
         // === 高级定义 ===
         role.setCanSeeCoin(data.canSeeCoin);
-        if (data.canUseInstinct) role.setCanUseInstinct(true);
+        if (data.canUseInstinct) {
+            role.setCanUseInstinct(true);
+            // 存储本能透视范围配置（供 ClientInstinctHandler 查询）
+            if (!"*".equals(data.instinctMaxRange)) {
+                try {
+                    int maxBlocks = Integer.parseInt(data.instinctMaxRange.trim());
+                    instinctMaxRanges.put(data.englishId, maxBlocks * maxBlocks); // 存储平方值
+                } catch (NumberFormatException ignored) {}
+            }
+            instinctSameColor.put(data.englishId, data.instinctSameColorFrame);
+        }
         if (data.ableToPickUpRevolver != null) role.setAbleToPickUpRevolver(data.ableToPickUpRevolver);
         if (data.setNeutrals != null && data.setNeutrals) role.setNeutrals(true);
         if (data.setNeutralForKiller != null && data.setNeutralForKiller) role.setNeutralForKiller(true);
