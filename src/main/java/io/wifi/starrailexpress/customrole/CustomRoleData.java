@@ -117,6 +117,9 @@ public class CustomRoleData {
     @SerializedName("abilityCooldownSeconds")
     public int abilityCooldownSeconds = 30;
 
+    @SerializedName("abilityInitialCooldownSeconds")
+    public int abilityInitialCooldownSeconds = 0;
+
     // ============ 生成选项 ============
     @SerializedName("twoWayOpposingJobs")
     public List<String> twoWayOpposingJobs = new ArrayList<>();

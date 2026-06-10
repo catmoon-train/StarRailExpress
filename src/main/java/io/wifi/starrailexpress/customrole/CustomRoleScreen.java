@@ -360,6 +360,8 @@ public class CustomRoleScreen extends Screen {
             }
             makeLabeledHintBox(tabWidgets2, tabLabels2, r++, 80, "sre.custom_role.label.ability_cooldown", String.valueOf(data.abilityCooldownSeconds), "冷却秒数",
                 v -> { try { data.abilityCooldownSeconds = Integer.parseInt(v); } catch(Exception ignored){} });
+            makeLabeledHintBox(tabWidgets2, tabLabels2, r++, 80, "sre.custom_role.label.ability_initial_cooldown", String.valueOf(data.abilityInitialCooldownSeconds), "初始冷却秒数",
+                v -> { try { data.abilityInitialCooldownSeconds = Integer.parseInt(v); } catch(Exception ignored){} });
         }
     }
 

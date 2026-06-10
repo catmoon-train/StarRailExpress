@@ -87,6 +87,7 @@
   "sre.custom_role.label.instinct_range": "最大透视范围",
   "sre.custom_role.label.ability_commands": "技能执行指令",
   "sre.custom_role.label.ability_cooldown": "技能冷却(秒)",
+  "sre.custom_role.label.ability_initial_cooldown": "技能初始冷却(秒)",
   "sre.custom_role.label.two_way_opposing": "双向互斥职业",
   "sre.custom_role.label.opposing": "单向互斥职业",
   "sre.custom_role.label.bind_with": "绑定生成职业",

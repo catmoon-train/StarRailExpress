@@ -87,6 +87,7 @@
   "sre.custom_role.label.instinct_range": "Instinct Max Range",
   "sre.custom_role.label.ability_commands": "Ability Commands",
   "sre.custom_role.label.ability_cooldown": "Ability Cooldown(s)",
+  "sre.custom_role.label.ability_initial_cooldown": "Ability Initial Cooldown(s)",
   "sre.custom_role.label.two_way_opposing": "Two-way Opposing",
   "sre.custom_role.label.opposing": "One-way Opposing",
   "sre.custom_role.label.bind_with": "Bind With Roles",

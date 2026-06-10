@@ -38,12 +38,17 @@ public class CustomRoleLoader {
     // 自定义职业的本能透视配置
     private static final Map<String, Integer> instinctMaxRanges = new HashMap<>(); // englishId -> maxBlocksSquared
     private static final Map<String, Boolean> instinctSameColor = new HashMap<>(); // englishId -> sameColorFrame
+    // 技能初始冷却配置：roleIdentifier -> initialCooldownTicks
+    private static final Map<ResourceLocation, Integer> initialCooldownMap = new HashMap<>();
     private static boolean mapRestrictionHandlerRegistered = false;
+    private static boolean initialCooldownHandlerRegistered = false;
 
     /**
      * 重新加载所有自定义职业
      */
     public static void reload(MinecraftServer server) {
+        // 清除旧数据
+        initialCooldownMap.clear();
         // 先清除旧的自定义职业
         List<String> toRemove = new ArrayList<>();
         for (var entry : TMMRoles.ROLES.entrySet()) {
@@ -243,6 +248,11 @@ public class CustomRoleLoader {
                 ability.setCooldown(cooldownSeconds * 20);
                 ability.sync();
             });
+
+            // 存储技能初始冷却（游戏开始后首次分配角色时应用）
+            if (data.abilityInitialCooldownSeconds > 0) {
+                initialCooldownMap.put(role.identifier(), data.abilityInitialCooldownSeconds * 20);
+            }
         }
 
         return role;
@@ -288,6 +298,12 @@ public class CustomRoleLoader {
             registerMapRestrictionHandler();
             mapRestrictionHandlerRegistered = true;
         }
+
+        // 注册技能初始冷却事件处理（仅首次）
+        if (!initialCooldownHandlerRegistered) {
+            registerInitialCooldownHandler();
+            initialCooldownHandlerRegistered = true;
+        }
     }
 
     /**
@@ -320,6 +336,22 @@ public class CustomRoleLoader {
                     SRE.LOGGER.info("[CustomRole] Map restriction: disabled '{}' (map: {})",
                             data.englishId, mapName);
                 }
+            }
+        });
+    }
+
+    /**
+     * 注册技能初始冷却事件处理器
+     * 在角色分配给玩家后，检查是否需要设置初始冷却
+     */
+    private static void registerInitialCooldownHandler() {
+        org.agmas.harpymodloader.events.ModdedRoleAssigned.EVENT.register((player, role) -> {
+            if (!(player instanceof ServerPlayer serverPlayer)) return;
+            Integer cooldownTicks = initialCooldownMap.get(role.identifier());
+            if (cooldownTicks != null && cooldownTicks > 0) {
+                SREAbilityPlayerComponent ability = SREAbilityPlayerComponent.KEY.get(serverPlayer);
+                ability.setCooldown(cooldownTicks);
+                ability.sync();
             }
         });
     }
