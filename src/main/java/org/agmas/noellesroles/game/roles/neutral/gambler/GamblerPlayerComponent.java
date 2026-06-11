@@ -111,7 +111,7 @@ public class GamblerPlayerComponent implements RoleComponent, ServerTickingCompo
         // }
     }
 
-    private void drawNewRole() {
+    public void drawNewRole() {
         List<SRERole> allRoles = new ArrayList<>(StupidExpress.getEnableRoles(false));
 
         // 过滤掉禁用的角色、赌徒自己、彩蛋/特殊角色，以及已经在列表中的角色

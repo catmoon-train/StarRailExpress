@@ -48,9 +48,11 @@ import org.agmas.harpymodloader.events.ModdedRoleAssigned;
 import org.agmas.harpymodloader.events.ModdedRoleRemoved;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.content.effects.TimeStopEffect;
+import org.agmas.noellesroles.game.roles.neutral.gambler.GamblerPlayerComponent;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.packet.ProblemScreenOpenC2SPacket;
 import org.agmas.noellesroles.packet.ScanAllTaskPointsPayload;
+import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.MapScannerManager;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.Nullable;
@@ -216,6 +218,18 @@ public class GameUtilsCommand {
                         org.agmas.noellesroles.game.roles.innocent.fool.PrayerHandler
                             .startPrayer(ctx.getSource().getPlayerOrException());
                         ctx.getSource().sendSuccess(() -> Component.literal("Successfully prayer."), false);
+                        return 1;
+                      }))
+                      .then(Commands.literal("gambler_draw").executes((ctx) -> {
+                        var player = ctx.getSource().getPlayerOrException();
+                        if (!RoleUtils.isPlayerTheJob(player, ModRoles.GAMBLER)) {
+
+                          ctx.getSource().sendFailure(Component.literal("Not a gambler."));
+                          return 0;
+                        }
+                        GamblerPlayerComponent.KEY.get(player).drawNewRole();
+                        ctx.getSource()
+                            .sendSuccess(() -> Component.literal("Successfully draw a new role to gambler."), false);
                         return 1;
                       }))
                       .then(Commands.literal("math").executes((context) -> {
