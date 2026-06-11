@@ -492,6 +492,7 @@ public class EntityInteractionBlockScreen extends Screen {
             case ROLE_CUSTOM_WIN -> Component.translatable("action.role_custom_win",
                     action.roleWinId != null && !action.roleWinId.isEmpty() ? action.roleWinId : "?",
                     action.roleWinDescription != null && !action.roleWinDescription.isEmpty() ? action.roleWinDescription : "?").getString();
+            case SEND_WELCOME -> Component.translatable("action.send_welcome").getString();
         };
 
         return baseText + teleportSuffix + teamSuffix;

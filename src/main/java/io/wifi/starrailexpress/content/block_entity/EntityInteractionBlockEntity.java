@@ -34,6 +34,7 @@ import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.harpymodloader.events.ModifierAssigned;
 import org.agmas.harpymodloader.events.ModifierRemoved;
 import org.agmas.harpymodloader.modifiers.SREModifier;
+import org.agmas.noellesroles.utils.RoleUtils;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -960,7 +961,8 @@ public class EntityInteractionBlockEntity extends BlockEntity {
                 ActionType.CURE_PSYCHO,
                 ActionType.CLEAR_TASKS, ActionType.COMPLETE_TASK, ActionType.ADD_CUSTOM_TASK, ActionType.ADD_EXTRA_TASK,
                 ActionType.COMPLETE_CUSTOM_TASK, ActionType.NARRATOR, ActionType.INFECT,
-                ActionType.ADD_MODIFIER, ActionType.REMOVE_MODIFIER);
+                ActionType.ADD_MODIFIER, ActionType.REMOVE_MODIFIER,
+                ActionType.SEND_WELCOME);
 
         // 特殊处理的动作类型（已有自己的玩家过滤逻辑）
         Set<ActionType> specialActions = Set.of(
@@ -1265,6 +1267,9 @@ public class EntityInteractionBlockEntity extends BlockEntity {
                     ModifierRemoved.EVENT.invoker().removeModifier(player, targetModifier);
                     modifierComponent.removeModifier(player.getUUID(), targetModifier);
                 }
+            }
+            case SEND_WELCOME -> {
+                RoleUtils.sendWelcomeAnnouncement(player);
             }
         }
     }
@@ -1831,7 +1836,8 @@ public class EntityInteractionBlockEntity extends BlockEntity {
         OUTPUT_REDSTONE, // 输出红石信号
         ADD_MODIFIER, // 为玩家添加修饰符
         REMOVE_MODIFIER, // 为玩家移除修饰符
-        ROLE_CUSTOM_WIN // 带绑定职业的自定义获胜
+        ROLE_CUSTOM_WIN, // 带绑定职业的自定义获胜
+        SEND_WELCOME // 发送欢迎报幕
     }
 
     // 条件数据类
