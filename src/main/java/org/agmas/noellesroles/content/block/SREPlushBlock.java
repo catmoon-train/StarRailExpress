@@ -1,7 +1,6 @@
 package org.agmas.noellesroles.content.block;
 
 import org.agmas.noellesroles.content.block_entity.SREPlushBlockEntity;
-import org.agmas.noellesroles.init.ModBlocks;
 import org.agmas.noellesroles.init.NRSounds;
 import org.agmas.noellesroles.init.SREFumoBlocks;
 import org.jetbrains.annotations.NotNull;
@@ -63,7 +62,10 @@ public class SREPlushBlock extends PlushBlock {
       if (state.getBlock() == SREFumoBlocks.BAKA_PLUSH) {
          ret = NRSounds.BAKA_BAKA;
       }
-
+      
+      if (state.getBlock() == SREFumoBlocks.MILK_DRAGON_PLUSH) {
+         ret = NRSounds.WO_SHI_NAI_LONG;
+      }
       return ret;
    }
 
