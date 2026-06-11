@@ -6,7 +6,6 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import io.wifi.starrailexpress.SRE;
-import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
@@ -43,13 +42,15 @@ public class MinecraftClientMixin {
 
     @WrapWithCondition(method = "startUseItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/ItemInHandRenderer;itemUsed(Lnet/minecraft/world/InteractionHand;)V"))
     private boolean tmm$cancelRevolverUpdateAnimation(ItemInHandRenderer instance, InteractionHand hand) {
-        return !Minecraft.getInstance().player.getItemInHand(hand).is(TMMItemTags.GUNS);
+        if (SRE.isLobby)
+            return true;
+        return !Minecraft.getInstance().player.getItemInHand(hand).is(TMMItemTags.HELD_LIKE_GUNS_ITEMS);
     }
 
     @WrapOperation(method = "handleKeybinds", at = @At(value = "FIELD", target = "Lnet/minecraft/world/entity/player/Inventory;selected:I"))
     private void tmm$invalid(@NotNull Inventory instance, int value, Operation<Void> original) {
         SREGameWorldComponent gameComponent = SREGameWorldComponent.KEY.get(instance.player.level());
-        if (gameComponent.gameStatus == SREGameWorldComponent.GameStatus.ACTIVE){
+        if (gameComponent.gameStatus == SREGameWorldComponent.GameStatus.ACTIVE) {
             original.call(instance, value);
             return;
         }

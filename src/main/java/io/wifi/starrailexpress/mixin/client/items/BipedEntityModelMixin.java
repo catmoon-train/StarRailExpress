@@ -1,6 +1,7 @@
 package io.wifi.starrailexpress.mixin.client.items;
 
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
+import io.wifi.starrailexpress.content.item.api.SREItemProperties.HeldLikeRevolver;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
@@ -46,10 +47,21 @@ public class BipedEntityModelMixin<T extends LivingEntity> {
 
     @Unique
     private boolean isHoldingGun(T entity) {
-        ItemStack psychosisItemStack = SREPlayerMoodComponent.KEY.get(Minecraft.getInstance().player).getPsychosisItems().get(entity.getUUID());
+        ItemStack psychosisItemStack = SREPlayerMoodComponent.KEY.get(Minecraft.getInstance().player)
+                .getPsychosisItems().get(entity.getUUID());
         if (psychosisItemStack != null) {
-            return psychosisItemStack.is(TMMItemTags.GUNS);
-        } else return entity.getMainHandItem().is(TMMItemTags.GUNS);
+            return isGunLikeItem(psychosisItemStack);
+        } else
+            return isGunLikeItem(entity.getMainHandItem());
+    }
+
+    @Unique
+    private boolean isGunLikeItem(ItemStack stack) {
+        if (stack.is(TMMItemTags.HELD_LIKE_GUNS_ITEMS))
+            return true;
+        if (stack.getItem() instanceof HeldLikeRevolver)
+            return true;
+        return false;
     }
 
     @Unique

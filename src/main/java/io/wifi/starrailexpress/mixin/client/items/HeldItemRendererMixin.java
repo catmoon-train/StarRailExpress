@@ -5,7 +5,6 @@ import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.client.SREClient;
-import io.wifi.starrailexpress.content.item.RevolverItem;
 import io.wifi.starrailexpress.content.item.api.SREItemProperties.HeldLikeRevolver;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import io.wifi.starrailexpress.util.MatrixParticleManager;
@@ -49,7 +48,8 @@ public class HeldItemRendererMixin {
         }
 
         if (entity instanceof Player playerEntity
-                && (stack.is(TMMItemTags.HELD_LIKE_GUNS_ITEMS) || (this.mainHandItem.getItem() instanceof HeldLikeRevolver))) {
+                && (stack.is(TMMItemTags.HELD_LIKE_GUNS_ITEMS)
+                        || (this.mainHandItem.getItem() instanceof HeldLikeRevolver))) {
             if (playerEntity.getUUID() != Minecraft.getInstance().player.getUUID()) {
                 MatrixParticleManager.muzzlePosForPlayer$set(playerEntity, MatrixUtils.matrixToVec(matrices));
             } else if (!renderMode.firstPerson()) {
@@ -63,8 +63,8 @@ public class HeldItemRendererMixin {
         if (SRE.isLobby)
             return original;
         if (!original) {
-            if (this.mainHandItem.is(TMMItemTags.GUNS) && newItemStack.is(TMMItemTags.GUNS)
-                    || (this.mainHandItem.getItem() instanceof RevolverItem)) {
+            if (this.mainHandItem.is(TMMItemTags.HELD_LIKE_GUNS_ITEMS) && newItemStack.is(TMMItemTags.HELD_LIKE_GUNS_ITEMS)
+                    || (this.mainHandItem.getItem() instanceof HeldLikeRevolver)) {
                 return true;
             }
         }

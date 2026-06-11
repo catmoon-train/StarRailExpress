@@ -275,7 +275,7 @@ public class ListRolesCommand {
                             .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
                                     Component.translatable("commands.listroles.button.hover", maxTotalPages)))));
             if (source.hasPermission(2)) {
-                buttons.append(Component.literal("[")
+                buttons.append(Component.literal(" [")
                         .append(Component.translatable("commands.listroles.button.manage_all")
                                 .withStyle(ChatFormatting.AQUA))
                         .append(Component.literal("]"))
