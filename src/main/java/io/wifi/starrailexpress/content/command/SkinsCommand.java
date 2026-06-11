@@ -16,7 +16,7 @@ public class SkinsCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(
                 Commands.literal("tmm:skins")
-                        .requires((t) -> Harpymodloader.isMojangVerify)
+                        .requires((t) -> Harpymodloader.officialVerify)
                         .executes(context -> execute(context.getSource(), null)) // 不指定玩家，默认自己
                         .then(Commands.argument("player", EntityArgument.player())
                                 .requires(source -> source.hasPermission(2)) // 需要权限等级2来查看其他玩家

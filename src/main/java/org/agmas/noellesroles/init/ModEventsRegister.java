@@ -1225,9 +1225,9 @@ public class ModEventsRegister {
 
         ServerLifecycleEvents.SERVER_STARTED.register((server) -> {
             if (isMJVerifyEnabled) {
-                Harpymodloader.isMojangVerify = Noellesroles.checkMJVerify();
+                Harpymodloader.officialVerify = Noellesroles.checkMJVerify();
             } else {
-                Harpymodloader.isMojangVerify = true;
+                Harpymodloader.officialVerify = true;
             }
         });
         CommanderHandler.registerChatEvent();

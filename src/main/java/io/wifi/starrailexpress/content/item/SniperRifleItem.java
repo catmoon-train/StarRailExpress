@@ -7,6 +7,7 @@ import io.wifi.starrailexpress.client.gui.ScopeOverlayRenderer;
 import io.wifi.starrailexpress.client.particle.HandParticle;
 import io.wifi.starrailexpress.client.render.TMMRenderLayers;
 import io.wifi.starrailexpress.compat.CrosshairaddonsCompat;
+import io.wifi.starrailexpress.content.item.api.SREItemProperties.HeldLikeRevolver;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.network.original.SniperShootPayload;
@@ -27,7 +28,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class SniperRifleItem extends Item {
+public class SniperRifleItem extends Item implements HeldLikeRevolver {
     public static final String SCOPE_ATTACHED_KEY = "ScopeAttached";
     public static final String AMMO_COUNT_KEY = "AmmoCount";
     public static final int MAX_AMMO = 2;

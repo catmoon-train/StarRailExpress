@@ -11,6 +11,7 @@ import net.minecraft.world.item.component.Unbreakable;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.RedHouseRoles;
 import org.agmas.noellesroles.role.TraitorAndModifiers;
+import org.agmas.noellesroles.utils.MCItemsUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -55,7 +56,7 @@ public class RoleInitialItems {
             for (Supplier<ItemStack> itemSupplier : itemSuppliers) {
                 ItemStack itemStack = itemSupplier.get();
                 if (itemStack != null && !itemStack.isEmpty()) {
-                    player.addItem(itemStack.copy());
+                    MCItemsUtils.insertStackInFreeSlot(player, itemStack.copy());
                 }
             }
         } else {
@@ -64,7 +65,7 @@ public class RoleInitialItems {
             if (defaultItems != null) {
                 for (ItemStack stack : defaultItems) {
                     if (stack != null && !stack.isEmpty()) {
-                        player.addItem(stack.copy());
+                        MCItemsUtils.insertStackInFreeSlot(player, stack.copy());
                     }
                 }
             }
@@ -119,10 +120,10 @@ public class RoleInitialItems {
         });
         INITIAL_ITEMS_MAP.put(ModRoles.ELF, elfItems);
 
-//        //黑白
-//        List<Supplier<ItemStack>> monokuma_items = new ArrayList<>();
-//        elfItems.add(TMMItems.REVOLVER::getDefaultInstance);
-//        INITIAL_ITEMS_MAP.put(ModRoles.MONOKUMA, monokuma_items);
+        // //黑白
+        // List<Supplier<ItemStack>> monokuma_items = new ArrayList<>();
+        // elfItems.add(TMMItems.REVOLVER::getDefaultInstance);
+        // INITIAL_ITEMS_MAP.put(ModRoles.MONOKUMA, monokuma_items);
 
         List<Supplier<ItemStack>> ninjaItems = new ArrayList<>();
         ninjaItems.add(() -> {
@@ -244,7 +245,7 @@ public class RoleInitialItems {
         guardItems.add(() -> ModItems.RIOT_SHIELD.getDefaultInstance());
         guardItems.add(() -> ModItems.BATON.getDefaultInstance());
         INITIAL_ITEMS_MAP.put(ModRoles.GUARD, guardItems);
-        
+
         // 广播员初始物品 - 对讲机
         List<Supplier<ItemStack>> broadcasterItems = new ArrayList<>();
         broadcasterItems.add(() -> ModItems.RADIO.getDefaultInstance());

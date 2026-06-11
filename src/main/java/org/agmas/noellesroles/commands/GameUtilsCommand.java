@@ -69,7 +69,7 @@ public class GameUtilsCommand {
     CommandRegistrationCallback.EVENT.register(
         (dispatcher, registryAccess, environment) -> {
           dispatcher.register(Commands.literal("cooldown")
-              .requires(source -> Harpymodloader.isMojangVerify && source.hasPermission(2))
+              .requires(source -> Harpymodloader.officialVerify && source.hasPermission(2))
               .then(Commands.argument("player", EntityArgument.player())
                   .then(Commands.argument("item", ItemArgument.item(registryAccess))
                       .then(Commands.argument("time", IntegerArgumentType.integer(0))
@@ -87,7 +87,7 @@ public class GameUtilsCommand {
                             return 1;
                           })))));
           dispatcher.register(
-              Commands.literal("tmm:game").requires(source -> Harpymodloader.isMojangVerify && source.hasPermission(2))
+              Commands.literal("tmm:game").requires(source -> Harpymodloader.officialVerify && source.hasPermission(2))
                   .then(Commands.literal("role")
                       .then(Commands.literal("silent_change")
                           .then(Commands.argument("role", RoleArgumentType.create(false)).executes((ctx) -> {

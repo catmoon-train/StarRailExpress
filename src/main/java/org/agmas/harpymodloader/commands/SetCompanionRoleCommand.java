@@ -24,7 +24,7 @@ public class SetCompanionRoleCommand {
     }
 
     private static int execute(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
-        if (!Harpymodloader.isMojangVerify) {
+        if (!Harpymodloader.officialVerify) {
             return 1;
         }
         SRERole primaryRole = RoleArgumentType.getRole(context, "primaryRole");

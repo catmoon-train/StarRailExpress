@@ -26,7 +26,7 @@ public class SetRoleWeightCommand {
     }
 
     private static int execute(CommandSourceStack source, SRERole role, float weight) throws CommandSyntaxException {
-        if(!Harpymodloader.isMojangVerify) {
+        if(!Harpymodloader.officialVerify) {
             return 1;
         }
         // 更新配置中的角色权重

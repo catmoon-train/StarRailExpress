@@ -29,6 +29,8 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.init.ModItems;
+import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
 
 public record GunShootPayload(int target) implements CustomPacketPayload {
@@ -157,6 +159,6 @@ public record GunShootPayload(int target) implements CustomPacketPayload {
 
     private static boolean isGodfather(ServerPlayer player) {
         var role = SREGameWorldComponent.KEY.get(player.level()).getRole(player);
-        return role != null && role.getIdentifier().toString().equals("noellesroles:godfather");
+        return role != null && RoleUtils.compareRole(role, ModRoles.GODFATHER);
     }
 }

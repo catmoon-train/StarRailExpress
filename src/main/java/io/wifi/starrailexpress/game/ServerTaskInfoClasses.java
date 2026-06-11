@@ -422,13 +422,10 @@ public class ServerTaskInfoClasses {
                 serverWorld.getLightEngine().checkBlock(blockInfo.pos());
             }
 
-            int mx = 1;
-
             // Place the doors back
             for (GameUtils.BlockInfo blockInfo2 : list4) {
                 if (serverWorld.setBlock(blockInfo2.pos(), blockInfo2.state(),
                         Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE)) {
-                    mx++;
                     serverWorld.getLightEngine().checkBlock(blockInfo2.pos());
                 }
             }

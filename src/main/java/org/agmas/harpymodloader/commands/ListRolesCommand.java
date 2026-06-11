@@ -141,7 +141,7 @@ public class ListRolesCommand {
     private static final int PAGE_SIZE = 10;
 
     private static int showRole(CommandContext<CommandSourceStack> context, int page) {
-        if (!Harpymodloader.isMojangVerify) {
+        if (!Harpymodloader.officialVerify) {
             return 1;
         }
 

@@ -28,7 +28,7 @@ public class SetOccupationRoleCommand {
     }
 
     private static int setOccupationRole(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
-        if(!Harpymodloader.isMojangVerify) {
+        if(!Harpymodloader.officialVerify) {
             return 1;
         }
         SRERole mainRole = RoleArgumentType.getRole(context, "mainRole");

@@ -33,8 +33,10 @@ public class Harpymodloader implements ModInitializer {
 
     /**
      * 支持正版，从你我做起
+     * 此选项用于皮肤模组，避免私人的皮肤模组（枪、球棒等）被拿去盈利。
+     * 如果您遇到相关问题，去掉皮肤模组（枪、球棒等）即可。
      */
-    public static boolean isMojangVerify = true;
+    public static boolean officialVerify = true;
     /**
      * 职业对应关系映射
      * 支持同时分配两个关联职业（例如医生+毒师）

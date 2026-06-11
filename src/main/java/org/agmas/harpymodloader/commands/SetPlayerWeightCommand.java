@@ -48,7 +48,7 @@ public class SetPlayerWeightCommand {
 
   private static int executeGet(CommandSourceStack source, ServerPlayer player, int roleType)
       throws CommandSyntaxException {
-    if (!Harpymodloader.isMojangVerify) {
+    if (!Harpymodloader.officialVerify) {
       return 1;
     }
     if (player == null)
@@ -95,7 +95,7 @@ public class SetPlayerWeightCommand {
 
   private static int executeSet(CommandSourceStack source, ServerPlayer player, int roleType, int weight)
       throws CommandSyntaxException {
-    if (!Harpymodloader.isMojangVerify) {
+    if (!Harpymodloader.officialVerify) {
       return 1;
     }
     // 更新玩家角色权重

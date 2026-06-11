@@ -56,7 +56,7 @@ public class StartCommand {
     }
     final int resolvedStartMinutes = startMinutes;
     if (gameMode != SREGameModes.MURDER) {
-      if (!Harpymodloader.isMojangVerify) {
+      if (!Harpymodloader.officialVerify) {
         source.sendFailure(Component.translatable("game.start_error.game_running"));
         return 0;
       }

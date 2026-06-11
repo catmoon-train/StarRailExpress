@@ -20,7 +20,7 @@ public class ToggleCustomRoleWeightsCommand {
     }
 
     private static int execute(CommandSourceStack source, boolean enabled) throws CommandSyntaxException {
-        if(!Harpymodloader.isMojangVerify) {
+        if(!Harpymodloader.officialVerify) {
             return 1;
         }
         // 更新配置中的自定义权重开关

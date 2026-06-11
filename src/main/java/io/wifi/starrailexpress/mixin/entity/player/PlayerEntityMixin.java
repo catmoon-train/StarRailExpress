@@ -11,7 +11,7 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPoisonComponent;
 import io.wifi.starrailexpress.content.item.CocktailItem;
-import io.wifi.starrailexpress.content.item.SREItemProperties;
+import io.wifi.starrailexpress.content.item.api.SREItemProperties;
 import io.wifi.starrailexpress.event.AllowPlayerPunching;
 import io.wifi.starrailexpress.event.IsPlayerPunchable;
 import io.wifi.starrailexpress.game.GameUtils;

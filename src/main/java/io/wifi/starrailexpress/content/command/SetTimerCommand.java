@@ -15,7 +15,7 @@ public class SetTimerCommand {
   public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
     dispatcher.register(
         Commands.literal("tmm:game")
-            .requires(source -> Harpymodloader.isMojangVerify && source.hasPermission(2))
+            .requires(source -> Harpymodloader.officialVerify && source.hasPermission(2))
             .then(Commands.literal("time")
                 .executes((context) -> {
                   return executeGetTime(context);

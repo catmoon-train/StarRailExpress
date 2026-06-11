@@ -5,6 +5,7 @@ import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.util.Scheduler;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -58,30 +59,39 @@ public class GamblerRole extends SRERole {
                 if (role == null) {
                     return false;
                 }
+
+                // 记录
                 SRE.REPLAY_MANAGER.recordPlayerKill(null, player.getUUID(),
                         Noellesroles.id("gamble_self_kill"));
-                RoleUtils.changeRole(player, role);
 
-                if (role.canUseKiller()) {
-                    SREPlayerShopComponent playerShopComponent = SREPlayerShopComponent.KEY.get(player);
-                    if (playerShopComponent.balance < 100)
-                        playerShopComponent.setBalance(100);
-                } else {
-                }
+                // 先传送走
+                teleport(player);
+                // 等待一个tick再改职业
 
-                if (player instanceof ServerPlayer serverPlayer) {
-                    RoleUtils.sendWelcomeAnnouncement(serverPlayer);
-                    teleport(player);
-                }
+                Scheduler.schedule(() -> {
 
+                    RoleUtils.changeRole(player, role);
+
+                    if (role.canUseKiller()) {
+                        SREPlayerShopComponent playerShopComponent = SREPlayerShopComponent.KEY.get(player);
+                        if (playerShopComponent.balance < 100)
+                            playerShopComponent.setBalance(100);
+                    } else {
+                    }
+
+                    if (player instanceof ServerPlayer serverPlayer) {
+                        RoleUtils.sendWelcomeAnnouncement(serverPlayer);
+                    }
+                }, 1);
                 player.level().players().forEach(
                         p -> {
                             p.playNotifySound(NRSounds.GAMBER_DEATH, SoundSource.PLAYERS, 0.5F, 1.3F);
                             p.playNotifySound(SoundEvents.BAT_HURT, SoundSource.PLAYERS, 0.5F, 1.3F);
                         });
             } else {
-                GameUtils.killPlayer(player, true, null, Noellesroles.id("gamble_self_kill"));
+                GameUtils.killPlayer(player, true, null, Noellesroles.id("gamble_self_kill"), true);
             }
+
             return false;
         }
         return false;

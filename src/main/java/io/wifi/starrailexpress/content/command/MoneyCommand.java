@@ -44,7 +44,7 @@ public class MoneyCommand {
   }
 
   private static int executeSet(CommandSourceStack source, Collection<? extends Entity> targets, int amount) {
-    if (!Harpymodloader.isMojangVerify)
+    if (!Harpymodloader.officialVerify)
       return 0;
     int total = 0;
 
@@ -70,7 +70,7 @@ public class MoneyCommand {
   }
 
   private static int executeAdd(CommandSourceStack source, Collection<? extends Entity> targets, int amount) {
-    if (!Harpymodloader.isMojangVerify)
+    if (!Harpymodloader.officialVerify)
       return 0;
     int total = 0;
     for (Entity target : targets) {

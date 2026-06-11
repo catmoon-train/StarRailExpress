@@ -24,7 +24,7 @@ public class ForceModifierCommand {
     }
 
     private static int execute(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
-        if(!Harpymodloader.isMojangVerify) {
+        if(!Harpymodloader.officialVerify) {
             return 1;
         }
         ServerPlayer targetPlayer = EntityArgument.getPlayer(context, "player");

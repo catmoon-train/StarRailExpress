@@ -33,7 +33,7 @@ public class ChangeModifierCommand {
   }
 
   private static int execute(CommandContext<CommandSourceStack> context, int type) throws CommandSyntaxException {
-    if (!Harpymodloader.isMojangVerify) {
+    if (!Harpymodloader.officialVerify) {
       return 1;
     }
     ServerPlayer targetPlayer = EntityArgument.getPlayer(context, "player");

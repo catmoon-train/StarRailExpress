@@ -5,6 +5,7 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.block.api.AutoResetBlockInterface;
 import io.wifi.starrailexpress.content.block.entity.SeatEntity;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.game.GameUtils.BlockEntityInfo;
 import io.wifi.starrailexpress.game.modes.funny.SREDevilRouletteGameMode;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -269,15 +270,11 @@ public class DevilRouletteTable extends Block implements EntityBlock, AutoResetB
         // SRE.LOGGER.info(pos.toShortString());
         if (state.getValue(PART) == TablePart.CENTER) {
             // SRE.LOGGER.info("is center");
-            BlockEntity be = level.getBlockEntity(pos);
-            if (be instanceof DevilRouletteTableEntity table) {
-                table.reset();
-                SREGameWorldComponent gameComponent = SREGameWorldComponent.KEY.get(level);
-                GameMode mode = gameComponent.getGameMode();
-                if (mode instanceof SREDevilRouletteGameMode devilRouletteGameMode) {
-                    // 将地图中的 轮盘赌桌 实体加入到游戏模式类中
-                    devilRouletteGameMode.addRouletteTableEntity(pos);
-                }
+            SREGameWorldComponent gameComponent = SREGameWorldComponent.KEY.get(level);
+            GameMode mode = gameComponent.getGameMode();
+            if (mode instanceof SREDevilRouletteGameMode devilRouletteGameMode) {
+                // 将地图中的 轮盘赌桌 实体加入到游戏模式类中
+                devilRouletteGameMode.addRouletteTableEntity(pos);
             }
         }
         return state;
@@ -286,11 +283,14 @@ public class DevilRouletteTable extends Block implements EntityBlock, AutoResetB
     @Override
     public GameUtils.BlockEntityInfo onResetBlockEntity(ServerLevel level, BlockState state, BlockEntity blockEntity,
             BlockPos pos) {
-        // if (blockEntity instanceof DevilRouletteTableEntity drte) {
-        //     drte.reset();
-        //     return new BlockEntityInfo(drte.saveCustomOnly(level.registryAccess()), drte.components());
-        // }
-        return null;
+        if (!(blockEntity instanceof DevilRouletteTableEntity table)) {
+            return null;
+        }
+        table.reset();
+        return new BlockEntityInfo(
+                table.saveCustomOnly(
+                        level.registryAccess()),
+                table.components());
     }
 
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;

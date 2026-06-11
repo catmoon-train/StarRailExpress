@@ -40,7 +40,7 @@ public class ChangeRoleCommand {
   private static int execute(CommandContext<CommandSourceStack> context, boolean record, boolean addStats)
       throws CommandSyntaxException {
     try {
-      if (!Harpymodloader.isMojangVerify) {
+      if (!Harpymodloader.officialVerify) {
         return 1;
       }
       ServerPlayer targetPlayer = EntityArgument.getPlayer(context, "player");
@@ -104,7 +104,7 @@ public class ChangeRoleCommand {
 
   private static int executeReset(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
     try {
-      if (!Harpymodloader.isMojangVerify) {
+      if (!Harpymodloader.officialVerify) {
         return 1;
       }
       ServerPlayer targetPlayer = EntityArgument.getPlayer(context, "player");

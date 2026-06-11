@@ -6,6 +6,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.content.item.RevolverItem;
+import io.wifi.starrailexpress.content.item.api.SREItemProperties.HeldLikeRevolver;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import io.wifi.starrailexpress.util.MatrixParticleManager;
 import io.wifi.starrailexpress.util.MatrixUtils;
@@ -48,7 +49,7 @@ public class HeldItemRendererMixin {
         }
 
         if (entity instanceof Player playerEntity
-                && (stack.is(TMMItemTags.GUNS) || (this.mainHandItem.getItem() instanceof RevolverItem))) {
+                && (stack.is(TMMItemTags.HELD_LIKE_GUNS_ITEMS) || (this.mainHandItem.getItem() instanceof HeldLikeRevolver))) {
             if (playerEntity.getUUID() != Minecraft.getInstance().player.getUUID()) {
                 MatrixParticleManager.muzzlePosForPlayer$set(playerEntity, MatrixUtils.matrixToVec(matrices));
             } else if (!renderMode.firstPerson()) {

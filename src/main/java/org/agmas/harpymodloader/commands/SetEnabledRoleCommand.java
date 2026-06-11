@@ -30,7 +30,7 @@ public class SetEnabledRoleCommand {
     }
 
     private static int enableAll(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
-        if (!Harpymodloader.isMojangVerify) {
+        if (!Harpymodloader.officialVerify) {
             return 1;
         }
         HarpyModLoaderConfig.HANDLER.instance().disabled.clear();
@@ -42,7 +42,7 @@ public class SetEnabledRoleCommand {
     }
 
     private static int disableAll(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
-        if (!Harpymodloader.isMojangVerify) {
+        if (!Harpymodloader.officialVerify) {
             return 1;
         }
         HarpyModLoaderConfig.HANDLER.instance().disabled.clear();
@@ -57,7 +57,7 @@ public class SetEnabledRoleCommand {
     }
 
     private static int execute(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
-        if (!Harpymodloader.isMojangVerify) {
+        if (!Harpymodloader.officialVerify) {
             return 1;
         }
         SRERole role = RoleArgumentType.getRole(context, "role");

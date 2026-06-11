@@ -31,7 +31,7 @@ public class SetEnabledModifierCommand {
     }
 
     private static int disableAll(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
-        if (!Harpymodloader.isMojangVerify) {
+        if (!Harpymodloader.officialVerify) {
             return 1;
         }
         HarpyModLoaderConfig.HANDLER.instance().disabledModifiers.clear();
@@ -46,7 +46,7 @@ public class SetEnabledModifierCommand {
     }
 
     private static int enableAll(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
-        if (!Harpymodloader.isMojangVerify) {
+        if (!Harpymodloader.officialVerify) {
             return 1;
         }
 
@@ -59,7 +59,7 @@ public class SetEnabledModifierCommand {
     }
 
     private static int execute(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
-        if (!Harpymodloader.isMojangVerify) {
+        if (!Harpymodloader.officialVerify) {
             return 1;
         }
         boolean enabled = BoolArgumentType.getBool(context, "enabled");

@@ -1,6 +1,6 @@
 package org.agmas.noellesroles.content.item;
 
-import io.wifi.starrailexpress.content.item.SREItemProperties.LeftClickHurtable;
+import io.wifi.starrailexpress.content.item.api.SREItemProperties.LeftClickHurtable;
 import io.wifi.starrailexpress.game.modes.funny.SRETNTTagGameMode;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;

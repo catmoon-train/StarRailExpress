@@ -7,7 +7,7 @@ import pro.fazeclan.river.stupid_express.StupidExpress;
 
 public class StarRailExpressID {
     // 验证版本号系统，强制客户端更新。
-    public static final String modPacketVersion = "0.1.8";
+    public static final String modPacketVersion = "0.1.9";
 
     // ID
     public final static String MOD_ID = "starrailexpress";
