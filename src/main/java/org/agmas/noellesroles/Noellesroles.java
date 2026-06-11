@@ -255,6 +255,7 @@ public class Noellesroles implements ModInitializer {
 
         // 注册方块
         ModBlocks.initialize();
+        SREFumoBlocks.initialize();
 
         // 注册血液粒子工厂
         Registry.register(BuiltInRegistries.PARTICLE_TYPE, Noellesroles.id("deathblood"),
