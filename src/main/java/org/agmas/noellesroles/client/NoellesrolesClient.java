@@ -217,7 +217,7 @@ public class NoellesrolesClient implements ClientModInitializer {
                 ModBlocks.HUNTER_CAGE_BLOCK_ENTITY,
                 HunterCageBlockEntityRenderer::new);
                 
-        BlockEntityRenderers.register(ModBlocks.PLUSH_BLOCK_ENTITY, SREPlushBlockEntityRenderer::new);
+        BlockEntityRenderers.register(SREFumoBlocks.PLUSH_BLOCK_ENTITY, SREPlushBlockEntityRenderer::new);
 
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.VENDING_MACHINES_BLOCK, RenderType.translucent());
 

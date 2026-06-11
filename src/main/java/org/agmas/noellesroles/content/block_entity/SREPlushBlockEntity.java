@@ -1,6 +1,7 @@
 package org.agmas.noellesroles.content.block_entity;
 
 import org.agmas.noellesroles.init.ModBlocks;
+import org.agmas.noellesroles.init.SREFumoBlocks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,7 +19,7 @@ public class SREPlushBlockEntity extends BlockEntity {
     public double squash;
 
     public SREPlushBlockEntity(BlockPos pos, BlockState state) {
-        super(ModBlocks.PLUSH_BLOCK_ENTITY, pos, state);
+        super(SREFumoBlocks.PLUSH_BLOCK_ENTITY, pos, state);
     }
 
     public static void tick(Level world, BlockPos pos, BlockState state, @NotNull SREPlushBlockEntity spark) {

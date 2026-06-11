@@ -10,7 +10,12 @@ import net.minecraft.world.item.ItemStack;
 
 public class SREItemProperties {
     /**
-     * 像左轮手枪一样会举起来
+     * 像弩和球棒一样举起来
+     */
+    public interface HeldLikeBat {
+    }
+    /**
+     * 像左轮手枪一样举起来
      */
     public interface HeldLikeRevolver {
     }

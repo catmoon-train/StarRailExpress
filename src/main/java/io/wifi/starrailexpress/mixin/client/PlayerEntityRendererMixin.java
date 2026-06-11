@@ -2,14 +2,15 @@ package io.wifi.starrailexpress.mixin.client;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import io.wifi.starrailexpress.client.SREClient;
+import io.wifi.starrailexpress.content.item.api.SREItemProperties.HeldLikeBat;
 import io.wifi.starrailexpress.event.AllowItemShowInHand;
 import io.wifi.starrailexpress.index.TMMItems;
+import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
-import org.agmas.noellesroles.init.ModItems;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -25,11 +26,7 @@ public class PlayerEntityRendererMixin {
     private static void tmm$customArmPose(@NotNull AbstractClientPlayer player,
             @NotNull InteractionHand hand, CallbackInfoReturnable<HumanoidModel.ArmPose> cir) {
         ItemStack heldStack = player.getItemInHand(hand);
-        if (heldStack.is(ModItems.SHORT_SHOTGUN)) {
-            cir.setReturnValue(HumanoidModel.ArmPose.CROSSBOW_CHARGE);
-            return;
-        } else if (heldStack.is(TMMItems.BAT)
-                || heldStack.is(ModItems.FAKE_BAT)) {
+        if (heldStack.is(TMMItemTags.HELD_LIKE_BAT_ITEMS) || heldStack.getItem() instanceof HeldLikeBat) {
             cir.setReturnValue(HumanoidModel.ArmPose.CROSSBOW_CHARGE);
         }
     }

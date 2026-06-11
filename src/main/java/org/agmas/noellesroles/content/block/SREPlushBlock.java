@@ -3,6 +3,7 @@ package org.agmas.noellesroles.content.block;
 import org.agmas.noellesroles.content.block_entity.SREPlushBlockEntity;
 import org.agmas.noellesroles.init.ModBlocks;
 import org.agmas.noellesroles.init.NRSounds;
+import org.agmas.noellesroles.init.SREFumoBlocks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -59,7 +60,7 @@ public class SREPlushBlock extends PlushBlock {
 
    public static SoundEvent getSound(BlockState state) {
       SoundEvent ret = NRSounds.BAKA_BAKA;
-      if (state.getBlock() == ModBlocks.BAKA_PLUSH) {
+      if (state.getBlock() == SREFumoBlocks.BAKA_PLUSH) {
          ret = NRSounds.BAKA_BAKA;
       }
 
@@ -153,7 +154,7 @@ public class SREPlushBlock extends PlushBlock {
    @Override
    public <T extends BlockEntity> @Nullable BlockEntityTicker<T> getTicker(Level world, BlockState state,
          BlockEntityType<T> type) {
-      return createTickerHelper(type, ModBlocks.PLUSH_BLOCK_ENTITY, SREPlushBlockEntity::tick);
+      return createTickerHelper(type, SREFumoBlocks.PLUSH_BLOCK_ENTITY, SREPlushBlockEntity::tick);
    }
 
    @Override

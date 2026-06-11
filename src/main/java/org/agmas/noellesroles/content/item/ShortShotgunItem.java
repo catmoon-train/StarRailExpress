@@ -19,11 +19,13 @@ import net.minecraft.world.phys.AABB;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.init.NRSounds;
+
+import io.wifi.starrailexpress.content.item.api.SREItemProperties.HeldLikeBat;
 import io.wifi.starrailexpress.game.GameUtils;
 
 import java.util.List;
 
-public class ShortShotgunItem extends Item {
+public class ShortShotgunItem extends Item implements HeldLikeBat {
     /** 最小蓄力时间：0.2秒 = 4刻 */
     private static final int MIN_CHARGE_TICKS = 4;
 
