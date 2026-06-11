@@ -129,7 +129,12 @@ public class GameUtilsCommand {
                           throw ConfigCommand
                               .createSimpleSyntaxException(new Exception("Player doesn't have any roles!"));
                         }
-                        RoleUtils.sendWelcomeAnnouncement(player, role.identifier(), killerCount);
+                        // -1 时根据游戏中实际的杀手数量报幕
+                        if (killerCount == -1) {
+                          RoleUtils.sendWelcomeAnnouncement(player);
+                        } else {
+                          RoleUtils.sendWelcomeAnnouncement(player, role.identifier(), killerCount);
+                        }
 
                         ctx.getSource().sendSuccess(
                             () -> Component.translatable("Successfully send welcome payload to %s",
@@ -140,7 +145,12 @@ public class GameUtilsCommand {
                         int killerCount = IntegerArgumentType.getInteger(ctx, "killer_count");
                         ServerPlayer player = ctx.getSource().getPlayerOrException();
                         SRERole role = RoleArgumentType.getRole(ctx, "role");
-                        RoleUtils.sendWelcomeAnnouncement(player, role.identifier(), killerCount);
+                        // -1 时根据游戏中实际的杀手数量报幕
+                        if (killerCount == -1) {
+                          RoleUtils.sendWelcomeAnnouncement(player, role);
+                        } else {
+                          RoleUtils.sendWelcomeAnnouncement(player, role.identifier(), killerCount);
+                        }
                         ctx.getSource().sendSuccess(
                             () -> Component.translatable("Successfully send [%s] welcome payload to %s",
                                 RoleUtils.getRoleOrModifierNameWithColor(role), player.getName()),
