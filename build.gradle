@@ -51,7 +51,6 @@ repositories {
         url "https://maven.uuid.gg/releases"
         name "Datasync"
     }
-    maven { url = 'https://maven.maxhenkel.de/releases' }
     maven {
         name = "Modrinth"
         url = "https://api.modrinth.com/maven"
