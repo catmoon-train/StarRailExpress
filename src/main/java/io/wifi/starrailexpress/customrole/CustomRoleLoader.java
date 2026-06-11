@@ -31,7 +31,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Random;
 import java.util.UUID;
 
 /**
@@ -714,22 +713,16 @@ public class CustomRoleLoader {
     }
 
     /**
-     * 处理指令中的自定义选择器
-     * @s → 当前玩家名
+     * 处理指令中的 @p 选择器（其余 @s @a @r 由 Minecraft 原生解析）
      * @p → 距离当前玩家最近的存活玩家（排除自己）
-     * @a → 所有存活玩家名（空格分隔）
-     * @r → 随机一名存活玩家名
      */
     private static String processCommandSelectors(String cmd, net.minecraft.world.entity.player.Player player) {
         if (!(player instanceof ServerPlayer sp)) return cmd;
-        var level = sp.serverLevel();
-        var alivePlayers = level.getPlayers(p -> GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(p));
 
-        // @s → 当前玩家
-        cmd = cmd.replace("@s", sp.getGameProfile().getName());
-
-        // @p → 最近的其他存活玩家
+        // @p → 最近的其他存活玩家（排除自己）
         if (cmd.contains("@p")) {
+            var level = sp.serverLevel();
+            var alivePlayers = level.getPlayers(p -> GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(p));
             ServerPlayer nearest = null;
             double minDist = Double.MAX_VALUE;
             for (ServerPlayer p : alivePlayers) {
@@ -738,25 +731,6 @@ public class CustomRoleLoader {
                 if (dist < minDist) { minDist = dist; nearest = p; }
             }
             cmd = cmd.replace("@p", nearest != null ? nearest.getGameProfile().getName() : sp.getGameProfile().getName());
-        }
-
-        // @a → 所有存活玩家
-        if (cmd.contains("@a")) {
-            StringBuilder sb = new StringBuilder();
-            for (ServerPlayer p : alivePlayers) {
-                if (!sb.isEmpty()) sb.append(" ");
-                sb.append(p.getGameProfile().getName());
-            }
-            cmd = cmd.replace("@a", sb.toString());
-        }
-
-        // @r → 随机一名存活玩家
-        if (cmd.contains("@r")) {
-            if (!alivePlayers.isEmpty()) {
-                Random rng = new Random(level.getGameTime() + alivePlayers.size());
-                ServerPlayer rand = alivePlayers.get(rng.nextInt(alivePlayers.size()));
-                cmd = cmd.replace("@r", rand.getGameProfile().getName());
-            }
         }
 
         return cmd;
