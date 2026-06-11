@@ -362,6 +362,52 @@ public class CustomRoleScreen extends Screen {
                 v -> { try { data.abilityCooldownSeconds = Integer.parseInt(v); } catch(Exception ignored){} });
             makeLabeledHintBox(tabWidgets2, tabLabels2, r++, 80, "sre.custom_role.label.ability_initial_cooldown", String.valueOf(data.abilityInitialCooldownSeconds), "初始冷却秒数",
                 v -> { try { data.abilityInitialCooldownSeconds = Integer.parseInt(v); } catch(Exception ignored){} });
+
+            // 延迟执行指令
+            makeLabeledHintBox(tabWidgets2, tabLabels2, r++, 80, "sre.custom_role.label.ability_delay_seconds", String.valueOf(data.abilityDelaySeconds), "延迟秒数",
+                v -> { try { data.abilityDelaySeconds = Integer.parseInt(v); } catch(Exception ignored){} });
+            if (data.abilityDelayedCommands.isEmpty()) data.abilityDelayedCommands.add("");
+            for (int i = 0; i < data.abilityDelayedCommands.size(); i++) {
+                final int idx = i; int y = rowY(r);
+                addLabel(tabLabels2, "sre.custom_role.label.ability_delayed_commands", r);
+                EditBox dcBox = makeBox(fieldX(), y, 250, 18, data.abilityDelayedCommands.get(i), v -> data.abilityDelayedCommands.set(idx, v));
+                dcBox.setHint(Component.literal("不需要 /"));
+                recordWidgetBase(dcBox, baseRowY(r));
+                tabWidgets2.add(dcBox);
+                var dplus = makeModernButton(fieldX()+258, baseRowY(r), 20, 18, Component.literal("+"),
+                        () -> { data.abilityDelayedCommands.add(""); init(minecraft, width, height); },
+                        AccentSide.TOP);
+                tabWidgets2.add(dplus);
+                if (data.abilityDelayedCommands.size() > 1) {
+                    var dminus = makeModernButton(fieldX()+282, baseRowY(r), 20, 18, Component.literal("-"),
+                            () -> { data.abilityDelayedCommands.remove(idx); init(minecraft, width, height); },
+                            AccentSide.TOP);
+                    tabWidgets2.add(dminus);
+                }
+                r++;
+            }
+
+            // 游戏结束执行指令
+            if (data.gameEndCommands.isEmpty()) data.gameEndCommands.add("");
+            for (int i = 0; i < data.gameEndCommands.size(); i++) {
+                final int idx = i; int y = rowY(r);
+                addLabel(tabLabels2, "sre.custom_role.label.game_end_commands", r);
+                EditBox geBox = makeBox(fieldX(), y, 250, 18, data.gameEndCommands.get(i), v -> data.gameEndCommands.set(idx, v));
+                geBox.setHint(Component.literal("不需要 /"));
+                recordWidgetBase(geBox, baseRowY(r));
+                tabWidgets2.add(geBox);
+                var gePlus = makeModernButton(fieldX()+258, baseRowY(r), 20, 18, Component.literal("+"),
+                        () -> { data.gameEndCommands.add(""); init(minecraft, width, height); },
+                        AccentSide.TOP);
+                tabWidgets2.add(gePlus);
+                if (data.gameEndCommands.size() > 1) {
+                    var geMinus = makeModernButton(fieldX()+282, baseRowY(r), 20, 18, Component.literal("-"),
+                            () -> { data.gameEndCommands.remove(idx); init(minecraft, width, height); },
+                            AccentSide.TOP);
+                    tabWidgets2.add(geMinus);
+                }
+                r++;
+            }
         }
     }
 

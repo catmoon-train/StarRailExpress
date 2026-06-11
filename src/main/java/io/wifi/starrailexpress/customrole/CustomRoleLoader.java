@@ -10,11 +10,16 @@ import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.cca.SREWorldBlackoutComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.game.ServerTaskInfoClasses;
 import io.wifi.starrailexpress.util.ShopEntry;
 import io.wifi.starrailexpress.customrole.CustomRoleData.EffectEntry;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.item.Item;
@@ -26,6 +31,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
+import java.util.UUID;
 
 /**
  * 自定义职业加载器
@@ -43,6 +50,12 @@ public class CustomRoleLoader {
     private static boolean mapRestrictionHandlerRegistered = false;
     private static boolean initialCooldownHandlerRegistered = false;
     private static boolean instinctHandlerRegistered = false;
+    private static boolean gameEndHandlerRegistered = false;
+
+    // 游戏结束时自动执行的指令：englishRoleId -> 指令列表
+    private static final Map<String, List<String>> gameEndCommandsByRoleId = new HashMap<>();
+    // 跟踪每世界游戏状态，检测 ACTIVE → STOPPING 转换
+    private static final Map<ResourceLocation, Boolean> worldWasActive = new HashMap<>();
 
     /**
      * 重新加载所有自定义职业
@@ -50,6 +63,7 @@ public class CustomRoleLoader {
     public static void reload(MinecraftServer server) {
         // 清除旧数据
         initialCooldownMap.clear();
+        gameEndCommandsByRoleId.clear();
         // 先清除旧的自定义职业
         List<String> toRemove = new ArrayList<>();
         for (var entry : TMMRoles.ROLES.entrySet()) {
@@ -302,9 +316,11 @@ public class CustomRoleLoader {
         }
 
         // 技能
-        if (data.enableAbility && !data.abilitySkillCommands.isEmpty()) {
+        if (data.enableAbility && (!data.abilitySkillCommands.isEmpty() || !data.abilityDelayedCommands.isEmpty())) {
             final List<String> commands = new ArrayList<>(data.abilitySkillCommands);
+            final List<String> delayedCommands = new ArrayList<>(data.abilityDelayedCommands);
             final int cooldownSeconds = data.abilityCooldownSeconds;
+            final int delaySeconds = data.abilityDelaySeconds;
 
             RoleSkill.register(role, context -> {
                 ServerPlayer player = context.player();
@@ -314,14 +330,32 @@ public class CustomRoleLoader {
                     return;
                 }
 
-                // Execute all commands
+                // 执行即时指令（支持 @a @p @r @s 选择器）
                 for (String cmd : commands) {
-                    String processed = cmd
+                    String processed = processCommandSelectors(cmd
                         .replace("<player>", player.getGameProfile().getName())
                         .replace("~ ~ ~", String.format("%.1f %.1f %.1f",
-                            player.getX(), player.getY(), player.getZ()));
+                            player.getX(), player.getY(), player.getZ())), player);
                     player.getServer().getCommands().performPrefixedCommand(
-                        player.getServer().createCommandSourceStack(), processed);
+                        player.createCommandSourceStack(), processed);
+                }
+
+                // 延迟执行指令
+                if (!delayedCommands.isEmpty() && delaySeconds > 0) {
+                    final UUID playerUuid = player.getUUID();
+                    final ServerLevel level = player.serverLevel();
+                    GameUtils.serverTaskQueue.add(new ServerTaskInfoClasses.SchedulerTask(delaySeconds * 20, () -> {
+                        ServerPlayer target = level.getServer().getPlayerList().getPlayer(playerUuid);
+                        if (target == null || !GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(target)) return;
+                        for (String cmd : delayedCommands) {
+                            String processed = processCommandSelectors(cmd
+                                .replace("<player>", target.getGameProfile().getName())
+                                .replace("~ ~ ~", String.format("%.1f %.1f %.1f",
+                                    target.getX(), target.getY(), target.getZ())), target);
+                            target.getServer().getCommands().performPrefixedCommand(
+                                target.createCommandSourceStack(), processed);
+                        }
+                    }));
                 }
 
                 ability.setCooldown(cooldownSeconds * 20);
@@ -334,7 +368,58 @@ public class CustomRoleLoader {
             }
         }
 
+        // 存储游戏结束时执行指令
+        if (!data.gameEndCommands.isEmpty()) {
+            gameEndCommandsByRoleId.put(data.englishId, new ArrayList<>(data.gameEndCommands));
+            registerGameEndHandlerIfNeeded();
+        }
+
         return role;
+    }
+
+    // ==================== 游戏结束自动执行指令 ====================
+
+    private static void registerGameEndHandlerIfNeeded() {
+        if (gameEndHandlerRegistered || gameEndCommandsByRoleId.isEmpty()) return;
+        gameEndHandlerRegistered = true;
+
+        ServerTickEvents.END_SERVER_TICK.register(server -> {
+            for (ServerLevel level : server.getAllLevels()) {
+                var comp = SREGameWorldComponent.KEY.get(level);
+                var status = comp.getGameStatus();
+                var dim = level.dimension().location();
+                Boolean wasActive = worldWasActive.getOrDefault(dim, false);
+
+                // 检测 ACTIVE → STOPPING 转换
+                if (wasActive && status == SREGameWorldComponent.GameStatus.STOPPING) {
+                    executeGameEndCommands(level, comp);
+                }
+                worldWasActive.put(dim, status == SREGameWorldComponent.GameStatus.ACTIVE);
+            }
+        });
+    }
+
+    private static void executeGameEndCommands(ServerLevel level, SREGameWorldComponent comp) {
+        for (ServerPlayer player : level.players()) {
+            if (!GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)) continue;
+            var role = comp.getRole(player);
+            if (role == null) continue;
+            String key = role.identifier().getPath();
+            if ("customrole".equals(role.identifier().getNamespace())) {
+                // 自定义职业用 englishId 匹配
+                key = key.substring(key.lastIndexOf('/') + 1); // 去掉路径前缀
+            }
+            List<String> cmds = gameEndCommandsByRoleId.get(key);
+            if (cmds == null) continue;
+            for (String cmd : cmds) {
+                String processed = processCommandSelectors(cmd
+                    .replace("<player>", player.getGameProfile().getName())
+                    .replace("~ ~ ~", String.format("%.1f %.1f %.1f",
+                        player.getX(), player.getY(), player.getZ())), player);
+                player.getServer().getCommands().performPrefixedCommand(
+                    player.createCommandSourceStack(), processed);
+            }
+        }
     }
 
     /**
@@ -603,12 +688,12 @@ public class CustomRoleLoader {
                                 public boolean onBuy(net.minecraft.world.entity.player.Player player) {
                                     if (player.getServer() != null) {
                                         for (String cmd : cmds) {
-                                            String processed = cmd
+                                            String processed = processCommandSelectors(cmd
                                                 .replace("<player>", player.getGameProfile().getName())
                                                 .replace("~ ~ ~", String.format("%.1f %.1f %.1f",
-                                                    player.getX(), player.getY(), player.getZ()));
+                                                    player.getX(), player.getY(), player.getZ())), player);
                                             player.getServer().getCommands().performPrefixedCommand(
-                                                player.getServer().createCommandSourceStack(), processed);
+                                                player.createCommandSourceStack(), processed);
                                         }
                                     }
                                     // 冷却
@@ -626,5 +711,54 @@ public class CustomRoleLoader {
             }
         }
         return entries;
+    }
+
+    /**
+     * 处理指令中的自定义选择器
+     * @s → 当前玩家名
+     * @p → 距离当前玩家最近的存活玩家（排除自己）
+     * @a → 所有存活玩家名（空格分隔）
+     * @r → 随机一名存活玩家名
+     */
+    private static String processCommandSelectors(String cmd, net.minecraft.world.entity.player.Player player) {
+        if (!(player instanceof ServerPlayer sp)) return cmd;
+        var level = sp.serverLevel();
+        var alivePlayers = level.getPlayers(p -> GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(p));
+
+        // @s → 当前玩家
+        cmd = cmd.replace("@s", sp.getGameProfile().getName());
+
+        // @p → 最近的其他存活玩家
+        if (cmd.contains("@p")) {
+            ServerPlayer nearest = null;
+            double minDist = Double.MAX_VALUE;
+            for (ServerPlayer p : alivePlayers) {
+                if (p == sp) continue;
+                double dist = sp.distanceToSqr(p);
+                if (dist < minDist) { minDist = dist; nearest = p; }
+            }
+            cmd = cmd.replace("@p", nearest != null ? nearest.getGameProfile().getName() : sp.getGameProfile().getName());
+        }
+
+        // @a → 所有存活玩家
+        if (cmd.contains("@a")) {
+            StringBuilder sb = new StringBuilder();
+            for (ServerPlayer p : alivePlayers) {
+                if (!sb.isEmpty()) sb.append(" ");
+                sb.append(p.getGameProfile().getName());
+            }
+            cmd = cmd.replace("@a", sb.toString());
+        }
+
+        // @r → 随机一名存活玩家
+        if (cmd.contains("@r")) {
+            if (!alivePlayers.isEmpty()) {
+                Random rng = new Random(level.getGameTime() + alivePlayers.size());
+                ServerPlayer rand = alivePlayers.get(rng.nextInt(alivePlayers.size()));
+                cmd = cmd.replace("@r", rand.getGameProfile().getName());
+            }
+        }
+
+        return cmd;
     }
 }

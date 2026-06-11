@@ -120,6 +120,16 @@ public class CustomRoleData {
     @SerializedName("abilityInitialCooldownSeconds")
     public int abilityInitialCooldownSeconds = 0;
 
+    @SerializedName("abilityDelayedCommands")
+    public List<String> abilityDelayedCommands = new ArrayList<>();
+
+    @SerializedName("abilityDelaySeconds")
+    public int abilityDelaySeconds = 0;
+
+    // ============ 游戏结束自动执行指令 ============
+    @SerializedName("gameEndCommands")
+    public List<String> gameEndCommands = new ArrayList<>();
+
     // ============ 生成选项 ============
     @SerializedName("twoWayOpposingJobs")
     public List<String> twoWayOpposingJobs = new ArrayList<>();
