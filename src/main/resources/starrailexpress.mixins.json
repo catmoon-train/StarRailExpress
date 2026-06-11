@@ -103,6 +103,8 @@
     "gui.ScreenDrawableGetMixin",
     "input.KeyboardHandlerMixin",
     "input.MouseHandlerMixin",
-    "whitelist.ClientLoginPacketMixin"
+    "whitelist.ClientLoginPacketMixin",
+    "client.vc.BetterVoiceChatVolumeManageMixin",
+    "client.vc.DoubleConfigEntryMixin"
   ]
 }

@@ -19,8 +19,6 @@
     "client.GuiRenderMixin",
     "client.IHateWatheModelLayers",
     "client.PanoramaMixin",
-    "client.SignRendererMixin",
-    "client.vc.BetterVoiceChatVolumeManageMixin",
-    "client.vc.DoubleConfigEntryMixin"
+    "client.SignRendererMixin"
   ]
 }
