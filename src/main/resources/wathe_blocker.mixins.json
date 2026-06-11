@@ -20,6 +20,7 @@
     "client.IHateWatheModelLayers",
     "client.PanoramaMixin",
     "client.SignRendererMixin",
-    "client.vc.BetterVoiceChatVolumeManageMixin"
+    "client.vc.BetterVoiceChatVolumeManageMixin",
+    "client.vc.DoubleConfigEntryMixin"
   ]
 }

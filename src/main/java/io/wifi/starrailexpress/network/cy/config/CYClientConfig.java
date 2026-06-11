@@ -16,8 +16,8 @@ import java.util.Properties;
  * 客户端配置管理类
  * 支持从配置文件加载和保存配置
  */
-public class ClientConfig {
-    private static final Logger logger = LoggerFactory.getLogger(ClientConfig.class);
+public class CYClientConfig {
+    private static final Logger logger = LoggerFactory.getLogger(CYClientConfig.class);
     private static final Gson GSON = new GsonBuilder().serializeNulls().create();
     
     // 配置文件路径
@@ -33,30 +33,30 @@ public class ClientConfig {
     private boolean debugMode = false;
     private String logLevel = "INFO";
     
-    public ClientConfig() {
+    public CYClientConfig() {
         // 默认构造函数
     }
     
     /**
      * 从配置文件加载配置
      */
-    public static ClientConfig load() {
+    public static CYClientConfig load() {
         Path configPath = Paths.get(CONFIG_FILE);
         
         if (!Files.exists(configPath)) {
             logger.info("配置文件不存在，使用默认配置");
-            ClientConfig defaultConfig = new ClientConfig();
+            CYClientConfig defaultConfig = new CYClientConfig();
             defaultConfig.save(); // 保存默认配置
             return defaultConfig;
         }
         
         try (Reader reader = Files.newBufferedReader(configPath)) {
-            ClientConfig config = GSON.fromJson(reader, ClientConfig.class);
+            CYClientConfig config = GSON.fromJson(reader, CYClientConfig.class);
             logger.info("配置文件加载成功: {}", CONFIG_FILE);
             return config;
         } catch (Exception e) {
             logger.error("加载配置文件失败，使用默认配置", e);
-            return new ClientConfig();
+            return new CYClientConfig();
         }
     }
     
@@ -75,8 +75,8 @@ public class ClientConfig {
     /**
      * 从Properties对象加载配置（向后兼容）
      */
-    public static ClientConfig fromProperties(Properties props) {
-        ClientConfig config = new ClientConfig();
+    public static CYClientConfig fromProperties(Properties props) {
+        CYClientConfig config = new CYClientConfig();
         
         config.host = props.getProperty("host", config.host);
         config.port = Integer.parseInt(props.getProperty("port", String.valueOf(config.port)));

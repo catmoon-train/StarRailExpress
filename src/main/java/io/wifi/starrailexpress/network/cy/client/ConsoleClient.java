@@ -1,7 +1,7 @@
 package io.wifi.starrailexpress.network.cy.client;
 
 
-import io.wifi.starrailexpress.network.cy.config.ClientConfig;
+import io.wifi.starrailexpress.network.cy.config.CYClientConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,12 +16,12 @@ public class ConsoleClient {
     private static final Logger logger = LoggerFactory.getLogger(ConsoleClient.class);
     
     private DataAccessClient client;
-    private ClientConfig config;
+    private CYClientConfig config;
     private AtomicBoolean isConnected = new AtomicBoolean(false);
     private AtomicBoolean isRunning = new AtomicBoolean(true);
     private Scanner scanner;
     
-    public ConsoleClient(ClientConfig config) {
+    public ConsoleClient(CYClientConfig config) {
         this.config = config;
         this.scanner = new Scanner(System.in);
         this.client = new DataAccessClient(config.getHost(), config.getPort());
@@ -393,7 +393,7 @@ public class ConsoleClient {
                     System.out.println("配置已保存");
                     break;
                 case "4":
-                    ClientConfig loadedConfig = ClientConfig.load();
+                    CYClientConfig loadedConfig = CYClientConfig.load();
                     this.config = loadedConfig;
                     // 更新客户端配置
                     this.client = new DataAccessClient(config.getHost(), config.getPort());
@@ -402,7 +402,7 @@ public class ConsoleClient {
                     config.displayConfig();
                     break;
                 case "5":
-                    this.config = new ClientConfig();
+                    this.config = new CYClientConfig();
                     // 更新客户端配置
                     this.client = new DataAccessClient(config.getHost(), config.getPort());
                     this.client.setTimeout(config.getConnectionTimeout());
@@ -502,7 +502,7 @@ public class ConsoleClient {
         System.out.println("正在加载配置...");
         
         // 加载配置
-        ClientConfig config = ClientConfig.load();
+        CYClientConfig config = CYClientConfig.load();
         
         // 如果提供了命令行参数，覆盖配置
         if (args.length >= 2) {
