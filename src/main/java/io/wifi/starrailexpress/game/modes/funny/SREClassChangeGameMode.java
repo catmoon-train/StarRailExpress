@@ -14,6 +14,8 @@ import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.SREItemUtils;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
@@ -25,6 +27,7 @@ import org.agmas.harpymodloader.modded_murder.RoleAssignmentPool;
 import org.agmas.harpymodloader.modifiers.SREModifier;
 import org.agmas.noellesroles.content.item.LetterItem;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role.TraitorAndModifiers;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.Nullable;
 import pro.fazeclan.river.stupid_express.StupidExpress;
@@ -95,15 +98,30 @@ public class SREClassChangeGameMode extends SREMurderGameMode {
      * 执行职业变换
      */
     private void performRoleTransformation(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent) {
-        // 获取所有存活且非旁观者/非创造模式的玩家
+        // 全场播放变换音效
+        for (ServerPlayer p : serverWorld.players()) {
+            serverWorld.playSound(null, p.getX(), p.getY(), p.getZ(),
+                    SoundEvents.EVOKER_PREPARE_SUMMON, SoundSource.MASTER, 1.0f, 1.0f);
+        }
+
+        // 获取所有存活且非旁观者/非创造模式的玩家（排除亡命徒、红海军、叛徒）
         List<ServerPlayer> transformablePlayers = new ArrayList<>();
         for (ServerPlayer player : serverWorld.players()) {
-            if (GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)
-                    && !GameUtils.isPlayerEliminated(player)
-                    && !player.isSpectator()
-                    && !player.isCreative()) {
-                transformablePlayers.add(player);
+            if (!GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)
+                    || GameUtils.isPlayerEliminated(player)
+                    || player.isSpectator()
+                    || player.isCreative()) {
+                continue;
             }
+            SRERole role = SRERoleWorldComponent.KEY.get(serverWorld).getRole(player);
+            if (role == TMMRoles.LOOSE_END
+                    || role == ModRoles.BETTER_VIGILANTE
+                    || role == TraitorAndModifiers.TRAITOR
+                    || role == TMMRoles.KILLER
+                    || role == ModRoles.CAT_KILLER) {
+                continue;
+            }
+            transformablePlayers.add(player);
         }
 
         if (transformablePlayers.isEmpty()) {
@@ -149,13 +167,15 @@ public class SREClassChangeGameMode extends SREMurderGameMode {
 
         // ===== 第二步：构建各阵营角色池 =====
         // 过滤条件：排除非谋杀模式职业、修机模式职业、亡命徒/超级亡命徒、
-        //          普通杀手、猫娘杀手、除教父以外的家族成员、setOtherModeRole(true)的职业
+        //          红海军、叛徒、普通杀手、猫娘杀手、除教父以外的家族成员、setOtherModeRole(true)的职业
         List<SRERole> availableRoles = new ArrayList<>(StupidExpress.getEnableRoles(true));
         availableRoles.removeIf(role -> role == null
                 || role.isOtherModeRole()
                 || (role instanceof RepairRole)
                 || role == TMMRoles.LOOSE_END
                 || role == SpecialGameModeRoles.SUPER_LOOSE_END
+                || role == ModRoles.BETTER_VIGILANTE
+                || role == TraitorAndModifiers.TRAITOR
                 || isBannedKillerRole(role) // 普通杀手、猫娘杀手
                 || isFamilyRoleExceptGodfather(role) // 除教父以外的家族成员
                 || Harpymodloader.VANNILA_ROLES.contains(role));
@@ -186,8 +206,11 @@ public class SREClassChangeGameMode extends SREMurderGameMode {
         int remainingVigilantes = aliveVigilanteCount;
         int remainingNeutrals = aliveNeutralCount;
 
-        // 随机打乱玩家顺序
-        Collections.shuffle(transformablePlayers, new Random(serverWorld.getGameTime()));
+        // 多重打乱玩家顺序
+        Random random = new Random(serverWorld.getGameTime());
+        Collections.shuffle(transformablePlayers, random);
+        Collections.shuffle(transformablePlayers, random);
+        Collections.shuffle(transformablePlayers, random);
 
         // 存储新旧角色映射和新旧金币映射
         Map<UUID, SRERole> oldRoleMap = new HashMap<>();
@@ -233,8 +256,10 @@ public class SREClassChangeGameMode extends SREMurderGameMode {
             allNewRoles.add(TMMRoles.CIVILIAN);
         }
 
-        // 打乱新角色列表
-        Collections.shuffle(allNewRoles, new Random(serverWorld.getGameTime()));
+        // 多重打乱新角色列表
+        Collections.shuffle(allNewRoles, random);
+        Collections.shuffle(allNewRoles, random);
+        Collections.shuffle(allNewRoles, random);
 
         // 给每个玩家分配新角色
         for (int i = 0; i < transformablePlayers.size(); i++) {
