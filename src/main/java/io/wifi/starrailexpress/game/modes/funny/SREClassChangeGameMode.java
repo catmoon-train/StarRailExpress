@@ -11,9 +11,9 @@ import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.modes.SREMurderGameMode;
 import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
 import io.wifi.starrailexpress.index.TMMItems;
+import io.wifi.starrailexpress.util.SREItemUtils;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.item.ItemStack;
 import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
@@ -324,19 +324,10 @@ public class SREClassChangeGameMode extends SREMurderGameMode {
      * 清除背包中除了key和信件以外的所有物品
      */
     private void clearInventoryExceptKeysAndLetters(ServerPlayer player) {
-        for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
-            ItemStack stack = player.getInventory().getItem(i);
-            if (stack.isEmpty()) continue;
-
-            // 保留 key 物品
-            if (stack.is(TMMItems.KEY)) continue;
-            // 保留 letter 物品（信件）
-            if (stack.is(TMMItems.LETTER)) continue;
-            // 保留 LetterItem 类型的物品
-            if (stack.getItem() instanceof LetterItem) continue;
-
-            player.getInventory().setItem(i, ItemStack.EMPTY);
-        }
+        SREItemUtils.clearItem(player, (stack) ->
+                !stack.is(TMMItems.KEY)
+                        && !stack.is(TMMItems.LETTER)
+                        && !(stack.getItem() instanceof LetterItem));
     }
 
     /**
