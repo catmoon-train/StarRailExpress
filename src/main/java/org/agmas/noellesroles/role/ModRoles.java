@@ -956,7 +956,7 @@ public class ModRoles {
             true, // isInnocent = 乘客阵营
             false, // canUseKiller = 无杀手能力
             SRERole.MoodType.REAL, // 真实心情
-            TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
+            (int)(TMMRoles.CIVILIAN.getMaxSprintTime() * 2.5), // 2.5倍平民体力
             false // 不隐藏计分板
     )).setCanSeeCoin(true).setVigilanteTeam(true).setCanPickUpRevolver(false);
 
