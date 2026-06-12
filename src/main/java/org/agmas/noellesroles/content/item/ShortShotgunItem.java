@@ -59,6 +59,13 @@ public class ShortShotgunItem extends Item implements HeldLikeBat {
         if (world.isClientSide) {
             return;
         }
+
+        // 检查玩家状态：旁观者或已死亡时不发射，防止蓄力期间死亡仍能开枪
+        Player player = (Player) user;
+        if (player.isSpectator() || !player.isAlive()) {
+            return;
+        }
+
         // 使用 remainingUseTicks 判断蓄力是否完成
         // remainingUseTicks < getUseDuration - MIN_CHARGE_TICKS 表示已蓄力足够时间
         if (remainingUseTicks > this.getUseDuration(stack, user) - MIN_CHARGE_TICKS) {
@@ -66,7 +73,6 @@ public class ShortShotgunItem extends Item implements HeldLikeBat {
             return;
         }
 
-        Player player = (Player) user;
         ServerLevel serverLevel = (ServerLevel) world;
 
         // 播放射击音效
