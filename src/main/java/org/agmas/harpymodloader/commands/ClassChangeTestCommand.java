@@ -5,7 +5,6 @@ import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
-import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerTaskComponent;
@@ -50,9 +49,6 @@ public class ClassChangeTestCommand {
 
       // 获取游戏世界组件
       SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(targetPlayer.level());
-      if (!gameWorldComponent.getGameMode().identifier.equals(SREGameModes.CLASS_CHANGE_MODE.identifier)) {
-        throw new Exception("This command can only be executed in 'Class Change Mode'!");
-      }
       SREPlayerTaskComponent srePlayerTaskComponent = SREPlayerTaskComponent.KEY.get(targetPlayer);
       srePlayerTaskComponent.clear();
       srePlayerTaskComponent.sync();
