@@ -124,7 +124,7 @@
     "roles.insanekiller.CrossHairFixer",
     "roles.photographer.BlindnessEffectMixin",
     "client.C4ItemEntityRendererMixin",
-    "client.SkincrawlerSkinMixin",
+    "client.AbstractClientPlayerSkinMixin",
     "client.SkincrawlerRoleNameRendererMixin",
     "game.PelicanAliveCheckMixin"
   ],

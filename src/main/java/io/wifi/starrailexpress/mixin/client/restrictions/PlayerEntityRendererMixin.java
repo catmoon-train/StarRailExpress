@@ -39,8 +39,11 @@ public class PlayerEntityRendererMixin {
         if (result == OnGettingPlayerSkin.PlayerSkinResult.DEFAULT) {
             return;
         } else if (result != null && result != OnGettingPlayerSkin.PlayerSkinResult.SKIP) {
-            cir.setReturnValue(result.texture);
-            cir.cancel();
+            if (result.type == 2 && result.playerSkin != null) {
+                cir.setReturnValue(result.playerSkin.texture());
+            } else if (result.texture != null) {
+                cir.setReturnValue(result.texture);
+            }
             return;
         }
         // 获取普通状态下职业皮肤

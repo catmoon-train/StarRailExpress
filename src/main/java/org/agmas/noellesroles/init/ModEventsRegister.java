@@ -142,29 +142,35 @@ public class ModEventsRegister {
     // AttributeModifier(
     // Noellesroles.id("wind_yaose"), -0.2f, AttributeModifier.Operation.ADD_VALUE);
 
-
-
     /**
      * 处理窃皮者死亡免疫 - 有偷来皮肤时被枪击中进入眩晕
      */
     private static boolean handleSkincrawlerDeath(Player victim, ResourceLocation deathReason) {
-        if (victim == null || victim.level().isClientSide()) return false;
-        if (!(victim instanceof ServerPlayer sp)) return false;
+        if (victim == null || victim.level().isClientSide())
+            return false;
+        if (!(victim instanceof ServerPlayer sp))
+            return false;
         SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(victim.level());
-        if (!gameWorld.isRole(victim, ModRoles.SKINCRAWLER)) return false;
-        if (!GameConstants.DeathReasons.REVOLVER.equals(deathReason)) return false;
+        if (!gameWorld.isRole(victim, ModRoles.SKINCRAWLER))
+            return false;
+        if (!GameConstants.DeathReasons.REVOLVER.equals(deathReason))
+            return false;
         var comp = org.agmas.noellesroles.game.roles.killer.skincrawler.SkincrawlerPlayerComponent.KEY.get(sp);
-        if (comp == null || comp.stolenSkin == null || comp.stolenSkin.equals(sp.getUUID())) return false;
-        if (comp.blockCharges <= 0) return false;
+        if (comp == null || comp.stolenSkin == null || comp.stolenSkin.equals(sp.getUUID()))
+            return false;
+        if (comp.blockCharges <= 0)
+            return false;
         // 消耗一次抵挡次数，取消偷皮并进入眩晕（5秒禁止移动），广播恢复原皮肤
         comp.blockCharges--;
         comp.stolenSkin = null;
         comp.sync();
         for (ServerPlayer p : sp.serverLevel().getPlayers(p2 -> true)) {
-            ServerPlayNetworking.send(p, new org.agmas.noellesroles.packet.SkincrawlerSkinS2CPacket(sp.getUUID(), null));
+            ServerPlayNetworking.send(p,
+                    new org.agmas.noellesroles.packet.SkincrawlerSkinS2CPacket(sp.getUUID(), null));
         }
         sp.addEffect(new MobEffectInstance(ModEffects.MOVE_BANED, 100, 0, false, false, false));
-        sp.displayClientMessage(Component.translatable("message.noellesroles.skincrawler.stunned").withStyle(ChatFormatting.RED), true);
+        sp.displayClientMessage(
+                Component.translatable("message.noellesroles.skincrawler.stunned").withStyle(ChatFormatting.RED), true);
         return true;
     }
 
@@ -609,14 +615,16 @@ public class ModEventsRegister {
         }
     }
 
-
     /**
      * 处理被鹈鹕吞噬的玩家死亡 - 从鹈鹕肚子中释放并恢复正常死亡状态
      */
     private static void handleStashedPlayerDeath(Player victim) {
-        if (victim == null || victim.level().isClientSide()) return;
-        if (!(victim instanceof ServerPlayer sp)) return;
-        if (!org.agmas.noellesroles.game.roles.neutral.pelican.PelicanManager.isStashed(sp)) return;
+        if (victim == null || victim.level().isClientSide())
+            return;
+        if (!(victim instanceof ServerPlayer sp))
+            return;
+        if (!org.agmas.noellesroles.game.roles.neutral.pelican.PelicanManager.isStashed(sp))
+            return;
         org.agmas.noellesroles.game.roles.neutral.pelican.PelicanManager.onStashedPlayerDeath(sp);
     }
 
@@ -624,10 +632,13 @@ public class ModEventsRegister {
      * 处理教父死亡 - 家族成员恢复原身份
      */
     private static void handleGodfatherDeath(Player victim) {
-        if (victim == null || victim.level().isClientSide()) return;
-        if (!(victim instanceof ServerPlayer sp)) return;
+        if (victim == null || victim.level().isClientSide())
+            return;
+        if (!(victim instanceof ServerPlayer sp))
+            return;
         SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(victim.level());
-        if (!gameWorld.isRole(victim, ModRoles.GODFATHER)) return;
+        if (!gameWorld.isRole(victim, ModRoles.GODFATHER))
+            return;
         org.agmas.noellesroles.game.roles.neutral.mafia.MafiaManager.onGodfatherDeath(sp);
     }
 
@@ -635,10 +646,13 @@ public class ModEventsRegister {
      * 处理鹈鹕死亡 - 将肚子里的所有玩家释放出来
      */
     private static void handlePelicanDeath(Player victim) {
-        if (victim == null || victim.level().isClientSide()) return;
-        if (!(victim instanceof ServerPlayer sp)) return;
+        if (victim == null || victim.level().isClientSide())
+            return;
+        if (!(victim instanceof ServerPlayer sp))
+            return;
         SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(victim.level());
-        if (!gameWorld.isRole(victim, ModRoles.PELICAN)) return;
+        if (!gameWorld.isRole(victim, ModRoles.PELICAN))
+            return;
         org.agmas.noellesroles.game.roles.neutral.pelican.PelicanManager.onPelicanDeath(sp);
     }
 
@@ -752,7 +766,8 @@ public class ModEventsRegister {
             }
 
             // 亡命徒职业：肉汁不免疫来自亡命徒角色的伤害
-            if (gameWorld.isRole(killer, TMMRoles.LOOSE_END) || gameWorld.isRole(killer, SpecialGameModeRoles.SUPER_LOOSE_END)) {
+            if (gameWorld.isRole(killer, TMMRoles.LOOSE_END)
+                    || gameWorld.isRole(killer, SpecialGameModeRoles.SUPER_LOOSE_END)) {
                 return true;
             }
 
@@ -763,7 +778,7 @@ public class ModEventsRegister {
 
             // 肉汁独处判定：
             // 规则：规定范围内只存在杀手或中立时，肉汁被判定为「独处」，允许击杀
-            //       范围内只要存在至少一个好人，无论是否有杀手/中立同时存在，肉汁就不算独处，阻止击杀
+            // 范围内只要存在至少一个好人，无论是否有杀手/中立同时存在，肉汁就不算独处，阻止击杀
             double safeDistanceSq = 4.0 * 4.0; // 水平4格距离平方
             double safeHeightSq = 3.0 * 3.0; // y轴3格距离平方
 
@@ -1081,16 +1096,7 @@ public class ModEventsRegister {
             // 清除鹈鹕状态 - 释放所有被吞噬的玩家
             org.agmas.noellesroles.game.roles.neutral.pelican.PelicanManager.releaseAllInWorld(world);
             org.agmas.noellesroles.game.roles.neutral.pelican.PelicanManager.clearAll();
-            // 清除窃皮者皮肤 - 遍历所有在线玩家，检查组件中是否有偷来的皮肤，向全服广播清除
-            for (ServerPlayer p : world.getServer().getPlayerList().getPlayers()) {
-                org.agmas.noellesroles.game.roles.killer.skincrawler.SkincrawlerPlayerComponent comp =
-                        org.agmas.noellesroles.component.ModComponents.SKINCRAWLER.get(p);
-                if (comp != null && comp.stolenSkin != null) {
-                    for (ServerPlayer receiver : world.getServer().getPlayerList().getPlayers()) {
-                        ServerPlayNetworking.send(receiver, new org.agmas.noellesroles.packet.SkincrawlerSkinS2CPacket(p.getUUID(), null));
-                    }
-                }
-            }
+            // 已经发包清空了
             // 清除嬉命人变装 - 恢复所有玩家皮肤和语音
             for (ServerPlayer p : world.players()) {
                 ServerPlayNetworking.send(p, EmbalmerSkinSwapS2CPacket.clear());
@@ -1545,7 +1551,8 @@ public class ModEventsRegister {
             RoleUtils.RemoveAllEffects(playerEntity);
             // 葬仪死亡时清除拖动状态
             if (gameWorldComponent.isRole(playerEntity, ModRoles.MORTICIAN_BODYMAKER)) {
-                var morticianComponent = org.agmas.noellesroles.component.ModComponents.MORTICIAN_BODYMAKER.get(playerEntity);
+                var morticianComponent = org.agmas.noellesroles.component.ModComponents.MORTICIAN_BODYMAKER
+                        .get(playerEntity);
                 if (morticianComponent != null && morticianComponent.draggedBodyUuid != null) {
                     morticianComponent.draggedBodyUuid = null;
                     morticianComponent.sync();
@@ -1977,7 +1984,8 @@ public class ModEventsRegister {
         // 监听玩家死亡事件 - 用于激活复仇者能力、拳击手反制、跟踪者免疫和操纵师死亡判定
         AllowPlayerDeath.EVENT.register((victim, deathReason) -> {
             // 检查窃皮者皮肤死亡免疫
-            if (handleSkincrawlerDeath(victim, deathReason)) return false;
+            if (handleSkincrawlerDeath(victim, deathReason))
+                return false;
             // 检查拳击手无敌反制
             if (handleBoxerInvulnerability(victim, deathReason)) {
                 return false; // 阻止死亡

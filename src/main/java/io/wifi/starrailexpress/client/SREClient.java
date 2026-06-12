@@ -103,6 +103,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.Vec3;
 
 import org.agmas.harpymodloader.component.WorldModifierComponent;
+import org.agmas.noellesroles.client.ClientSkincrawlerState;
 import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.agmas.noellesroles.component.DeathPenaltyComponent;
 import org.agmas.noellesroles.content.entity.PuppeteerBodyEntity;
@@ -570,6 +571,7 @@ public class SREClient implements ClientModInitializer {
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
             FourthRoomClientState.clear();
             FourthRoomCameraDirector.clear();
+            ClientSkincrawlerState.clearAll();
             // 清理自定义职业客户端缓存
             io.wifi.starrailexpress.client.network.CustomRoleClientNetwork.clearCache();
             // 清理 OpenAL 语音特效资源
