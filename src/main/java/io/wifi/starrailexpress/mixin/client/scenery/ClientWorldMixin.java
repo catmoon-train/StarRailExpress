@@ -1,6 +1,7 @@
 package io.wifi.starrailexpress.mixin.client.scenery;
 
 import io.wifi.starrailexpress.client.SREClient;
+import io.wifi.starrailexpress.index.SREBlocks;
 import io.wifi.starrailexpress.index.TMMBlocks;
 import io.wifi.starrailexpress.index.TMMParticles;
 import net.minecraft.client.Minecraft;
@@ -60,8 +61,8 @@ public abstract class ClientWorldMixin extends Level {
     public void tmm$addCustomBlockMarkers(ClientPacketListener networkHandler, ClientLevel.ClientLevelData properties, ResourceKey registryRef, Holder dimensionTypeEntry, int loadDistance, int simulationDistance, Supplier profiler, LevelRenderer worldRenderer, boolean debugWorld, long seed, CallbackInfo ci) {
         MARKER_PARTICLE_ITEMS = new HashSet<>(MARKER_PARTICLE_ITEMS);
         MARKER_PARTICLE_ITEMS.add(TMMBlocks.BARRIER_PANEL.asItem());
-        MARKER_PARTICLE_ITEMS.add(TMMBlocks.TRAIN_LIGHT.asItem());
-        MARKER_PARTICLE_ITEMS.add(TMMBlocks.REMOTE_REDSTONE.asItem());
+        MARKER_PARTICLE_ITEMS.add(SREBlocks.TRAIN_LIGHT.asItem());
+        MARKER_PARTICLE_ITEMS.add(SREBlocks.REMOTE_REDSTONE.asItem());
         MARKER_PARTICLE_ITEMS.add(TMMBlocks.LIGHT_BARRIER.asItem());
         // 手持实体交互方块/镶板时显示屏障粒子
         MARKER_PARTICLE_ITEMS.add(TMMBlocks.ENTITY_INTERACTION_BLOCK.asItem());

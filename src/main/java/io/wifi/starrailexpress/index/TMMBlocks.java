@@ -1,6 +1,5 @@
 package io.wifi.starrailexpress.index;
 
-import java.util.function.Function;
 import java.util.function.ToIntFunction;
 
 import dev.doctor4t.ratatouille.util.registrar.BlockRegistrar;
@@ -662,15 +661,6 @@ public interface TMMBlocks {
             new BarrierPanelBlock(BlockBehaviour.Properties.ofFullCopy(ANTHRACITE_STEEL_PANEL)
                     .strength(-1.0F, 3600000.8F).noOcclusion().sound(SoundType.STONE)),
             new Item.Properties().rarity(Rarity.EPIC), CreativeModeTabs.OP_BLOCKS);
-    Block TRAIN_LIGHT = sreBlockRegistrar.createWithItem("train_light", new TrainLightBlock(
-            (Block.Properties.of().replaceable().strength(-1.0F, 3600000.8F)
-                    .mapColor(waterloggedMapColor(MapColor.NONE)).noLootTable().noOcclusion()
-                    .lightLevel(TrainLightBlock.LIGHT_EMISSION))),
-            new Item.Properties().rarity(Rarity.EPIC), CreativeModeTabs.OP_BLOCKS);
-    Block REMOTE_REDSTONE = sreBlockRegistrar.createWithItem("remote_redstone", new RemoteRedstoneBlock(
-            (Block.Properties.of().replaceable().strength(-1.0F, 3600000.8F)
-                    .mapColor(waterloggedMapColor(MapColor.NONE)).noLootTable().noOcclusion())),
-            new Item.Properties().rarity(Rarity.EPIC), CreativeModeTabs.OP_BLOCKS);
 
     Block LIGHT_BARRIER = registrar.createWithItem("light_barrier", new LightBarrierBlock(
             ((BlockSettingsAdditions) BlockBehaviour.Properties.ofFullCopy(Blocks.BARRIER)).SRE$setCol(false)),
@@ -886,6 +876,7 @@ public interface TMMBlocks {
     }
 
     static void initialize() {
+        SREBlocks.initialize();
         BranchBlock.STRIPPED_BRANCHES.put(STAINLESS_STEEL_BRANCH, STAINLESS_STEEL);
         BranchBlock.STRIPPED_BRANCHES.put(OAK_BRANCH, STRIPPED_OAK_BRANCH);
         BranchBlock.STRIPPED_BRANCHES.put(SPRUCE_BRANCH, STRIPPED_SPRUCE_BRANCH);
@@ -929,8 +920,4 @@ public interface TMMBlocks {
         WatheBridgerBlocks.initialize();
     }
 
-    private static Function<BlockState, MapColor> waterloggedMapColor(MapColor mapColor) {
-        return (blockState) -> (Boolean) blockState.getValue(BlockStateProperties.WATERLOGGED) ? MapColor.WATER
-                : mapColor;
-    }
 }

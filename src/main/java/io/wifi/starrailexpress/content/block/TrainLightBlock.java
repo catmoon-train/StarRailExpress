@@ -6,7 +6,7 @@ import com.mojang.serialization.MapCodec;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.content.block.api.LightBlockInterface;
-import io.wifi.starrailexpress.index.TMMBlocks;
+import io.wifi.starrailexpress.index.SREBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.DustParticleOptions;
@@ -37,7 +37,7 @@ public class TrainLightBlock extends LightBlock implements LightBlockInterface {
 
     protected VoxelShape getShape(BlockState blockState, BlockGetter blockGetter, BlockPos blockPos,
             CollisionContext collisionContext) {
-        return collisionContext.isHoldingItem(TMMBlocks.TRAIN_LIGHT.asItem())
+        return collisionContext.isHoldingItem(SREBlocks.TRAIN_LIGHT.asItem())
                 || collisionContext.isHoldingItem(Items.DEBUG_STICK) ? Shapes.block() : Shapes.empty();
     }
 

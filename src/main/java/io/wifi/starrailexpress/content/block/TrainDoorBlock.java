@@ -19,13 +19,22 @@ import net.minecraft.world.phys.BlockHitResult;
 
 import java.util.function.Supplier;
 
+import org.agmas.noellesroles.init.FunnyItems;
+import org.agmas.noellesroles.init.ModItems;
+
 public class TrainDoorBlock extends SmallDoorBlock {
     public TrainDoorBlock(Supplier<BlockEntityType<SmallDoorBlockEntity>> typeSupplier, Properties settings) {
         super(typeSupplier, settings);
     }
 
-    @Override
-    protected InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player,
+    @FunctionalInterface
+    public interface DoorUseSuperFunction {
+        InteractionResult apply(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult hit);
+    }
+
+    public static InteractionResult useWithoutItemGeneric(
+            DoorUseSuperFunction superFunction, // 父类方法的回调
+            BlockState state, Level world, BlockPos pos, Player player,
             BlockHitResult hit) {
 
         BlockPos lowerPos = state.getValue(HALF) == DoubleBlockHalf.LOWER ? pos : pos.below();
@@ -34,21 +43,22 @@ public class TrainDoorBlock extends SmallDoorBlock {
                 return InteractionResult.PASS;
             }
             boolean requiresKey = !entity.getKeyName().isEmpty();
-            if (requiresKey){
-                return super.useWithoutItem(state, world, pos, player, hit);
+            if (requiresKey) {
+                // 需要钥匙时，调用传入的父类逻辑，并把当前方法的参数传递进去
+                return superFunction.apply(state, world, pos, player, hit);
             }
             if (player.isCreative()
                     || AllowPlayerOpenLockedDoor.EVENT.invoker().allowOpen(player)) {
                 return open(state, world, entity, lowerPos);
             } else {
                 ItemStack mainHandItem = player.getMainHandItem();
-                boolean hasLockpick = mainHandItem.is(TMMItems.LOCKPICK);
+                boolean hasLockpick = mainHandItem.is(TMMItems.LOCKPICK) || mainHandItem.is(ModItems.MASTER_KEY) || mainHandItem.is(FunnyItems.BOWEN_BADGE);
                 boolean hasIronDoorKey = mainHandItem.getItem() instanceof IronDoorKeyItem;
 
                 if (entity.isOpen()) {
                     return open(state, world, entity, lowerPos);
                 } else {
-                    if(entity.isJammed()){
+                    if (entity.isJammed()) {
                         if (!world.isClientSide) {
                             world.playSound(null, lowerPos.getX() + .5f, lowerPos.getY() + 1, lowerPos.getZ() + .5f,
                                     TMMSounds.BLOCK_DOOR_LOCKED, SoundSource.BLOCKS, 1f, 1f);
@@ -61,11 +71,9 @@ public class TrainDoorBlock extends SmallDoorBlock {
                                 TMMSounds.ITEM_LOCKPICK_DOOR, SoundSource.BLOCKS, 1f, 1f);
                         return open(state, world, entity, lowerPos);
                     } else if (hasIronDoorKey) {
-                        // 扣除铁门钥匙的耐久
                         if (!player.isCreative()) {
                             mainHandItem.hurtAndBreak(1, player, player.getEquipmentSlotForItem(mainHandItem));
                         }
-                        // 播放声音并开门
                         world.playSound(null, lowerPos.getX() + .5f, lowerPos.getY() + 1, lowerPos.getZ() + .5f,
                                 TMMSounds.ITEM_KEY_DOOR, SoundSource.BLOCKS, 1f, 1f);
                         return open(state, world, entity, lowerPos);
@@ -80,7 +88,14 @@ public class TrainDoorBlock extends SmallDoorBlock {
                 }
             }
         }
-
         return InteractionResult.PASS;
+    }
+
+    @Override
+    protected InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player,
+            BlockHitResult hit) {
+        return useWithoutItemGeneric(
+                (s, w, p, pl, h) -> super.useWithoutItem(s, w, p, pl, h), // lambda 调用父类并传递参数
+                state, world, pos, player, hit);
     }
 }

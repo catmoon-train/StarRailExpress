@@ -12,12 +12,31 @@ public class SmallDoorAnimations {
                             new Keyframe(0.1f, KeyframeAnimations.posVec(0f, 0f, 0f),
                                     Interpolations.EASE_OUT_EXPO),
                             new Keyframe(0.7f, KeyframeAnimations.posVec(14f, 0f, 0f),
-                                    Interpolations.EASE_OUT_EXPO))).build();
+                                    Interpolations.EASE_OUT_EXPO)))
+            .build();
     public static final AnimationDefinition CLOSE = AnimationDefinition.Builder.withLength(1f)
             .addAnimation("Door",
                     new AnimationChannel(AnimationChannel.Targets.POSITION,
                             new Keyframe(0.1f, KeyframeAnimations.posVec(14f, 0f, 0f),
                                     Interpolations.EASE_OUT_EXPO),
                             new Keyframe(0.7f, KeyframeAnimations.posVec(0f, 0f, 0f),
-                                    Interpolations.EASE_OUT_EXPO))).build();
+                                    Interpolations.EASE_OUT_EXPO)))
+            .build();
+
+    public static final AnimationDefinition UP_OPEN = AnimationDefinition.Builder.withLength(1f)
+            .addAnimation("UpDoor",
+                    new AnimationChannel(AnimationChannel.Targets.POSITION,
+                            new Keyframe(0.1f, KeyframeAnimations.posVec(0f, 0f, 0f),
+                                    Interpolations.EASE_OUT_EXPO),
+                            new Keyframe(0.7f, KeyframeAnimations.posVec(0f, 30f, 0f),
+                                    Interpolations.EASE_OUT_EXPO)))
+            .build();
+    public static final AnimationDefinition UP_CLOSE = AnimationDefinition.Builder.withLength(1f)
+            .addAnimation("UpDoor",
+                    new AnimationChannel(AnimationChannel.Targets.POSITION,
+                            new Keyframe(0.1f, KeyframeAnimations.posVec(0f, 30f, 0f),
+                                    Interpolations.EASE_OUT_EXPO),
+                            new Keyframe(0.7f, KeyframeAnimations.posVec(0f, 0f, 0f),
+                                    Interpolations.EASE_OUT_EXPO)))
+            .build();
 }

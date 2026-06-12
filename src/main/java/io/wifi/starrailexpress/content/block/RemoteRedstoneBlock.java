@@ -6,7 +6,7 @@ import com.mojang.serialization.MapCodec;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.content.block.entity.RemoteRedstoneBlockEntity;
 import io.wifi.starrailexpress.index.DevItems;
-import io.wifi.starrailexpress.index.TMMBlocks;
+import io.wifi.starrailexpress.index.SREBlocks;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -134,7 +134,6 @@ public class RemoteRedstoneBlock extends RedstoneTorchBlock implements EntityBlo
         BlockState newState = state.setValue(TRIGGERED, triggered)
                 .setValue(PENDING_NEIGHBOR_UPDATE, true);
         if (!triggered) {
-            boolean isPowered = world.hasNeighborSignal(pos);
             newState = newState.setValue(LIT, true);
         }
         world.setBlock(pos, newState, Block.UPDATE_CLIENTS);
@@ -270,7 +269,7 @@ public class RemoteRedstoneBlock extends RedstoneTorchBlock implements EntityBlo
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         // 手持特定物品时才显示轮廓
-        if (context.isHoldingItem(TMMBlocks.REMOTE_REDSTONE.asItem()) ||
+        if (context.isHoldingItem(SREBlocks.REMOTE_REDSTONE.asItem()) ||
                 context.isHoldingItem(DevItems.BINDING_TOOL) ||
                 context.isHoldingItem(Items.REDSTONE) ||
                 context.isHoldingItem(Items.DEBUG_STICK)) {

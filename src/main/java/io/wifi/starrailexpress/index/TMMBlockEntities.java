@@ -40,8 +40,12 @@ public interface TMMBlockEntities {
             BlockEntityType.Builder.of(EntityInteractionBlockEntity::new, TMMBlocks.ENTITY_INTERACTION_BLOCK, TMMBlocks.ENTITY_INTERACTION_PANEL));
             
     BlockEntityType<RemoteRedstoneBlockEntity> REMOTE_REDSTONE = registrar.create("remote_redstone",
-            BlockEntityType.Builder.of(RemoteRedstoneBlockEntity::new, TMMBlocks.REMOTE_REDSTONE));
+            BlockEntityType.Builder.of(RemoteRedstoneBlockEntity::new, SREBlocks.REMOTE_REDSTONE));
 
+
+    BlockEntityType<UpSmallDoorBlockEntity> UP_GLASS_DOOR = registrar.create("up_glass_door", BlockEntityType.Builder.of((pos, state) -> new UpSmallDoorBlockEntity(TMMBlockEntities.UP_GLASS_DOOR, pos, state), SREBlocks.UP_GLASS_DOOR));
+    BlockEntityType<UpSmallDoorBlockEntity> UP_WOOD_DOOR = registrar.create("up_wood_door", BlockEntityType.Builder.of((pos, state) -> new UpSmallDoorBlockEntity(TMMBlockEntities.UP_WOOD_DOOR, pos, state), SREBlocks.UP_WOOD_DOOR));
+    BlockEntityType<UpSmallDoorBlockEntity> UP_STEEL_DOOR = registrar.create("up_steel_door", BlockEntityType.Builder.of((pos, state) -> new UpSmallDoorBlockEntity(TMMBlockEntities.UP_STEEL_DOOR, pos, state), SREBlocks.UP_STEEL_DOOR));
 
     static void initialize() {
         registrar.registerEntries();

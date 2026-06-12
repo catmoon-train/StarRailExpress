@@ -39,6 +39,8 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.agmas.noellesroles.Noellesroles;
+import org.agmas.noellesroles.init.FunnyItems;
+import org.agmas.noellesroles.init.ModItems;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
@@ -51,6 +53,13 @@ public class SmallDoorBlock extends DoorPartBlock {
     protected static final VoxelShape Z_SHAPE = Block.box(0, 0, 7, 16, 16, 9);
     private static final VoxelShape[] SHAPES = createShapes();
     private final Supplier<BlockEntityType<SmallDoorBlockEntity>> typeSupplier;
+
+    public SmallDoorBlock(Properties settings) {
+        super(settings);
+        this.registerDefaultState(
+                super.defaultBlockState().setValue(HALF, DoubleBlockHalf.LOWER));
+        this.typeSupplier = null;
+    }
 
     public SmallDoorBlock(Supplier<BlockEntityType<SmallDoorBlockEntity>> typeSupplier, Properties settings) {
         super(settings);
@@ -313,7 +322,15 @@ public class SmallDoorBlock extends DoorPartBlock {
                 return open(state, world, entity, lowerPos);
             } else {
                 boolean requiresKey = !entity.getKeyName().isEmpty();
-                boolean hasLockpick = player.getMainHandItem().is(TMMItems.LOCKPICK);
+                ItemStack mainhandItem = player.getMainHandItem();
+                boolean hasLockpick = mainhandItem.is(TMMItems.LOCKPICK) || mainhandItem.is(ModItems.MASTER_KEY)
+                        || mainhandItem.is(FunnyItems.BOWEN_BADGE);
+                if (mainhandItem.is(ModItems.MASTER_KEY_P)) {
+                    if (!player.isCreative()) {
+                        mainhandItem.hurtAndBreak(1, player, player.getEquipmentSlotForItem(mainhandItem));
+                    }
+                    hasLockpick = true;
+                }
                 boolean jammed = entity.isJammed();
 
                 if (entity.isOpen()) {
