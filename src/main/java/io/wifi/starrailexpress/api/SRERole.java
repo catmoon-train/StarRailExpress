@@ -9,7 +9,6 @@ import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.content.gui.PlayerBodyEntityContainer;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.ShopEntry;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -938,7 +937,7 @@ public abstract class SRERole {
      * @param item   准备丢弃的物品堆
      * @return 控制丢弃行为的交互结果，默认可返回 {@link InteractionResult#PASS}
      */
-    public InteractionResult onDropItem(LocalPlayer player, ItemStack item) {
+    public InteractionResult onDropItem(Player player, ItemStack item) {
         return InteractionResult.PASS;
     }
 }

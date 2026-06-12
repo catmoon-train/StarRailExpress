@@ -4,7 +4,6 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerProgressionComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.game.GameConstants;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -133,7 +132,7 @@ public class RoleMethodDispatcher {
         }
         return InteractionResult.PASS;
     }
-    public static InteractionResult callOnDropItem(LocalPlayer player, ItemStack item) {
+    public static InteractionResult callOnDropItem(Player player, ItemStack item) {
         SRERole role = getCurrentRole(player);
         if (role != null) {
             return role.onDropItem(player, item);

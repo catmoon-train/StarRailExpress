@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "wathe:block/navy_steel_door"
+      "model": "starrailexpress:block/up_steel_door"
     }
   }
 }
