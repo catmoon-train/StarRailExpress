@@ -296,11 +296,6 @@
   - `<player> <role> <record_replay> <add_stats>` (bool) — 是否计入统计
 - **用途**: 改变玩家的职业，支持回放记录和数据统计控制
 
-### `changeRoleWelcome` — 改变玩家职业并发送欢迎报幕
-- **权限**: `3`
-- **结构**: 同 `changeRole`
-- **用途**: 改变职业并广播 Welcome Announcement
-
 ### `changeModifier` — 改变玩家修饰符
 - **权限**: `3`
 - **结构**: `<player> <modifier> [add/remove/toggle]`
