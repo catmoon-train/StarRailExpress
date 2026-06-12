@@ -49,7 +49,8 @@ public abstract class WorldRendererMixin {
             return;
         }
         if (SREClient.trainComponent != null && SREClient.trainComponent.isFoggy()
-                && SREClient.areaComponent != null && SREClient.areaComponent.fogEnabled) {
+                && SREClient.areaComponent != null && SREClient.areaComponent.fogEnabled
+                && SREClient.isTrainMoving()) {
             LocalPlayer player = Minecraft.getInstance().player;
             if (player.hasEffect(ModEffects.OTHERWORLD_AURA)){
                 if (SREClient.gameComponent== null|| !SREClient.gameComponent.canUseKillerFeatures(player)){
@@ -65,14 +66,9 @@ public abstract class WorldRendererMixin {
                 tmm$doFog(0, 7);
                 return;
             }
-            if (SREClient.isTrainMoving()) {
-                // 如果地图未自定义 fogEnd（仍是默认200），则列车移动时使用100
-                tmm$doFog(0, SREClient.areaComponent.fogEnd != 200.0f ? SREClient.areaComponent.fogEnd : 100,
-                        SREClient.areaComponent.fogShape);
-            } else {
-                tmm$doFog(0, SREClient.areaComponent.fogEnd,
-                        SREClient.areaComponent.fogShape);
-            }
+            // 如果地图未自定义 fogEnd（仍是默认200），则使用原默认值100
+            tmm$doFog(0, SREClient.areaComponent.fogEnd != 200.0f ? SREClient.areaComponent.fogEnd : 100,
+                    SREClient.areaComponent.fogShape);
         } else {
             original.call(camera, fogType, viewDistance, thickFog, tickDelta);
         }
