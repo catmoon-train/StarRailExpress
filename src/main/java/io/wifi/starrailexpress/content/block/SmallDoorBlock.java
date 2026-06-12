@@ -35,6 +35,7 @@ import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.agmas.noellesroles.Noellesroles;
@@ -154,15 +155,105 @@ public class SmallDoorBlock extends DoorPartBlock {
         if (placementState == null) {
             return null;
         }
-        Level level = ctx.getLevel();
-
+        Player player = ctx.getPlayer();
         BlockPos pos = ctx.getClickedPos();
         Level world = ctx.getLevel();
-        boolean bl = level.hasNeighborSignal(pos) || level.hasNeighborSignal(pos.above());
-
+        placementState = placementState.setValue(FACING, getFacingForDoorPlacement(ctx, player.isShiftKeyDown()));
         return pos.getY() < world.getMaxBuildHeight() - 1 && world.getBlockState(pos.above()).canBeReplaced(ctx)
                 ? placementState
                 : null;
+    }
+
+    /**
+     * 根据玩家面对的方向，计算指定侧（左侧或右侧）的门应有的朝向（FACING）。
+     * <p>
+     * 规则：
+     * </p>
+     * <ul>
+     * <li>若为左侧门（isLeftDoor = true），返回玩家朝向的反方向</li>
+     * <li>若为右侧门（isLeftDoor = false），返回玩家朝向本身</li>
+     * </ul>
+     * <p>
+     * 示例：玩家朝东，左侧门朝西，右侧门朝东。
+     * </p>
+     *
+     * @param playerFacing 玩家面对的方向（水平方向）
+     * @param isLeftDoor   是否为左侧门（true: 左侧门, false: 右侧门）
+     * @return 该侧门应有的朝向
+     */
+    public static Direction getDoorFacing(Direction playerFacing, boolean isLeftDoor) {
+        return isLeftDoor ? playerFacing.getOpposite() : playerFacing;
+    }
+
+    /**
+     * 根据原版门的铰链判定逻辑（遮挡权重 + 相邻门 + 点击位置）计算适合的门的朝向（FACING）。
+     * <p>
+     * 此方法模拟
+     * {@link net.minecraft.world.level.block.DoorBlock#getHinge(BlockPlaceContext)}
+     * 的决策过程，
+     * 但最终返回的是门的朝向（即 {@code FACING} 属性值），而非铰链侧。
+     * </p>
+     *
+     * @param ctx 方块放置上下文
+     * @return 推荐的门朝向（FACING），可直接用于 {@link BlockState#setValue}
+     */
+    public static Direction getFacingForDoorPlacement(BlockPlaceContext ctx, boolean ignoreDoorConnected) {
+        Level level = ctx.getLevel();
+        BlockPos pos = ctx.getClickedPos();
+        Direction playerFacing = ctx.getHorizontalDirection(); // 玩家放置时的朝向（原版默认 FACING）
+
+        // 左右两侧（逆时针为左，顺时针为右）
+        Direction leftDir = playerFacing.getCounterClockWise();
+        Direction rightDir = playerFacing.getClockWise();
+
+        BlockPos leftLower = pos.relative(leftDir);
+        BlockPos rightLower = pos.relative(rightDir);
+
+        // // 计算遮挡权重：左侧方块每个减1，右侧每个加1
+        // int weight = (level.getBlockState(leftLower).isCollisionShapeFullBlock(level,
+        // leftLower) ? 1 : 0)
+        // + (level.getBlockState(leftUpper).isCollisionShapeFullBlock(level, leftUpper)
+        // ? 1 : 0)
+        // + (level.getBlockState(rightLower).isCollisionShapeFullBlock(level,
+        // rightLower) ? -1 : 0)
+        // + (level.getBlockState(rightUpper).isCollisionShapeFullBlock(level,
+        // rightUpper) ? -1 : 0);
+        int weight = 0;
+
+        // 检查左右两侧是否存在同类型门的下半部分（用于双开门联动）
+        boolean hasLeftDoor = !ignoreDoorConnected
+                && level.getBlockState(leftLower).getBlock() instanceof SmallDoorBlock
+                && level.getBlockState(leftLower).getValue(HALF) == DoubleBlockHalf.LOWER
+                && level.getBlockState(leftLower).getValue(FACING) == getDoorFacing(playerFacing, true);
+        boolean hasRightDoor = !ignoreDoorConnected
+                && level.getBlockState(rightLower).getBlock() instanceof SmallDoorBlock
+                && level.getBlockState(rightLower).getValue(HALF) == DoubleBlockHalf.LOWER
+                && level.getBlockState(rightLower).getValue(FACING) == getDoorFacing(playerFacing, false);
+
+        // 决定是否翻转朝向（原版逻辑：权重偏向右侧或不翻转，偏向左侧则翻转）
+        boolean flip;
+        if ((!hasRightDoor || hasLeftDoor) && weight <= 0) {
+            if ((!hasLeftDoor || hasRightDoor) && weight >= 0) {
+                // 权重平衡时，根据玩家点击位置精确判断
+                int stepX = playerFacing.getStepX();
+                int stepZ = playerFacing.getStepZ();
+                Vec3 click = ctx.getClickLocation();
+                double dx = click.x - (double) pos.getX();
+                double dz = click.z - (double) pos.getZ();
+                // 点击在右侧时 rightSide=true，对应原版 HINGE=LEFT，我们这里翻转朝向的条件与之相反
+                boolean rightSide = (stepX >= 0 || !(dz < 0.5F))
+                        && (stepX <= 0 || !(dz > 0.5F))
+                        && (stepZ >= 0 || !(dx > 0.5F))
+                        && (stepZ <= 0 || !(dx < 0.5F));
+                flip = !rightSide;
+            } else {
+                flip = true; // 权重偏左
+            }
+        } else {
+            flip = false; // 权重偏右或存在右侧门
+        }
+
+        return flip ? playerFacing : playerFacing.getOpposite();
     }
 
     @Override
