@@ -24,4 +24,9 @@ public class ClientSkincrawlerState {
     public static UUID stolenSkinFor(UUID playerId) {
         return playerId == null ? null : skins.get(playerId);
     }
+
+    /** 清除所有窃皮者皮肤映射，在游戏重置时调用以确保客户端干净 */
+    public static void clearAll() {
+        skins.clear();
+    }
 }

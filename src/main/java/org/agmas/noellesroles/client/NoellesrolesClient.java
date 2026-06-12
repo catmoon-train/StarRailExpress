@@ -463,6 +463,8 @@ public class NoellesrolesClient implements ClientModInitializer {
                     // .withColor(Color.ORANGE.getRGB()));
                     GuessRoleScreen.clearData();
                     client.player.containerMenu.setCarried(ItemStack.EMPTY);
+                    // 清除窃皮者皮肤映射，确保游戏结束时皮肤能正确还原
+                    ClientSkincrawlerState.clearAll();
                 }
             });
         });

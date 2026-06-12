@@ -1081,10 +1081,12 @@ public class ModEventsRegister {
             // 清除鹈鹕状态 - 释放所有被吞噬的玩家
             org.agmas.noellesroles.game.roles.neutral.pelican.PelicanManager.releaseAllInWorld(world);
             org.agmas.noellesroles.game.roles.neutral.pelican.PelicanManager.clearAll();
-            // 清除窃皮者皮肤 - 向所有玩家广播清除窃皮者皮肤
-            for (ServerPlayer p : world.players()) {
-                if (gameWorldComponent.isRole(p, ModRoles.SKINCRAWLER)) {
-                    for (ServerPlayer receiver : world.players()) {
+            // 清除窃皮者皮肤 - 遍历所有在线玩家，检查组件中是否有偷来的皮肤，向全服广播清除
+            for (ServerPlayer p : world.getServer().getPlayerList().getPlayers()) {
+                org.agmas.noellesroles.game.roles.killer.skincrawler.SkincrawlerPlayerComponent comp =
+                        org.agmas.noellesroles.component.ModComponents.SKINCRAWLER.get(p);
+                if (comp != null && comp.stolenSkin != null) {
+                    for (ServerPlayer receiver : world.getServer().getPlayerList().getPlayers()) {
                         ServerPlayNetworking.send(receiver, new org.agmas.noellesroles.packet.SkincrawlerSkinS2CPacket(p.getUUID(), null));
                     }
                 }
