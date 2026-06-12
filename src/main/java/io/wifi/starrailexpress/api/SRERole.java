@@ -438,6 +438,25 @@ public abstract class SRERole {
 
     }
 
+    /**
+     * 当玩家尝试获取物品时触发。该回调先于以下检查执行：{@code cantPickupItem}、捡起枪支逻辑以及物品栏已满的检测。
+     * <p>
+     * 根据返回值决定后续行为：
+     * <ul>
+     * <li><b>{@link InteractionResult#PASS}</b> — 使用默认逻辑，继续正常的物品拾取流程。</li>
+     * <li><b>{@link InteractionResult#CONSUME}</b> — 取消当前拾取逻辑，方法直接返回，不执行后续操作。</li>
+     * <li><b>{@link InteractionResult#SUCCESS}</b> — 禁止捡起物品，效果等同于取消逻辑。</li>
+     * <li><b>{@link InteractionResult#FAIL}</b> — 禁止捡起物品，效果等同于取消逻辑。</li>
+     * </ul>
+     *
+     * @param player 尝试获取物品的玩家，不可为 {@code null}
+     * @param item   被尝试获取的物品对象
+     * @return 行为控制结果，推荐在不需要特殊处理时返回 {@link InteractionResult#PASS}
+     */
+    public InteractionResult onPickUpItem(Player player, ItemStack item) {
+        return InteractionResult.PASS;
+    }
+
     public Predicate<Item> cantPickupItem(Player player) {
         return a -> false;
     }
@@ -802,7 +821,9 @@ public abstract class SRERole {
     }
 
     /**
-     * -1: Unknown - 1: Innocent - 2: Neturals but not for killer - 3: Neturals for killer - 4: Killer - 5: Vigilante
+     * -1: Unknown - 1: Innocent - 2: Neturals but not for killer - 3: Neturals for
+     * killer - 4: Killer - 5: Vigilante
+     * 
      * @return
      */
     public int getRoleType() {
@@ -836,30 +857,35 @@ public abstract class SRERole {
 
     /**
      * 玩家关闭尸体获取容器时触发
-     * @param player 玩家
+     * 
+     * @param player       玩家
      * @param corpseEntity 尸体实体
-     * @param container 尸体物品容器
+     * @param container    尸体物品容器
      */
-    public void onClosedPlayerBodyChest(Player player, PlayerBodyEntity corpseEntity, PlayerBodyEntityContainer container) {
+    public void onClosedPlayerBodyChest(Player player, PlayerBodyEntity corpseEntity,
+            PlayerBodyEntityContainer container) {
     }
 
     /**
      * 玩家在容器左键时触发
+     * 
      * @param slotId
      * @param button
      * @param clickType
      * @param player
-     * @param slots 
-     * @param rows 
-     * @param container 
+     * @param slots
+     * @param rows
+     * @param container
      * @return 返回 true 默认逻辑，返回 false 阻止。
      */
-    public boolean canGetBodyContent(int slotId, int button, ClickType clickType, Player player, PlayerBodyEntityContainer container, int rows, NonNullList<Slot> slots) {
+    public boolean canGetBodyContent(int slotId, int button, ClickType clickType, Player player,
+            PlayerBodyEntityContainer container, int rows, NonNullList<Slot> slots) {
         return canGetBodyItems(player);
     }
 
     /**
      * 玩家打开玩家尸体容器时触发
+     * 
      * @param player
      */
     public void startOpenPlayerBody(Player player) {
@@ -867,6 +893,7 @@ public abstract class SRERole {
 
     /**
      * 玩家关闭玩家尸体容器时触发
+     * 
      * @param player
      */
     public void stopOpenPlayerBody(Player player) {
@@ -874,6 +901,7 @@ public abstract class SRERole {
 
     /**
      * 打开玩家尸体时可否带走物品
+     * 
      * @param player
      * @param container
      * @param slot
@@ -885,6 +913,7 @@ public abstract class SRERole {
 
     /**
      * 玩家在打开玩家尸体的时候quickMoveStack时触发。
+     * 
      * @param player
      * @param index
      * @return

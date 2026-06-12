@@ -13,7 +13,6 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
@@ -123,12 +122,15 @@ public class RoleMethodDispatcher {
     /**
      * 调用玩家角色的 onPickupItem 方法
      */
-    public static boolean callOnPickupItem(Player player, Item item) {
+    public static InteractionResult callOnPickupItem(Player player, ItemStack item) {
         SRERole role = getCurrentRole(player);
         if (role != null) {
-            return !role.cantPickupItem(player).test(item);
+            if (role.cantPickupItem(player).test(item.getItem())) {
+                return InteractionResult.FAIL;
+            }
+            return role.onPickUpItem(player, item);
         }
-        return true;
+        return InteractionResult.PASS;
     }
 
     /**

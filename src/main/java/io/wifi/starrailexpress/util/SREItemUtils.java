@@ -10,6 +10,8 @@ import net.minecraft.world.item.component.BundleContents;
 
 import java.util.function.Predicate;
 
+import org.jetbrains.annotations.NotNull;
+
 // Author: wifi_left
 public class SREItemUtils {
     public static int clearItem(Player player, Item item) {
@@ -90,9 +92,9 @@ public class SREItemUtils {
 
     public static boolean hasItem(Player player, Item item) {
         Predicate<ItemStack> predicate = (itemStack) -> {
-            if (itemStack.getItem() == Items.BUNDLE){
+            if (itemStack.getItem() == Items.BUNDLE) {
                 BundleContents bundleContents = itemStack.get(DataComponents.BUNDLE_CONTENTS);
-                if (bundleContents !=null){
+                if (bundleContents != null) {
                     return bundleContents.itemCopyStream().anyMatch(itemStack1 -> itemStack1.is(item));
                 }
             }
@@ -107,9 +109,9 @@ public class SREItemUtils {
 
     public static boolean hasItem(Player player, TagKey<Item> item) {
         Predicate<ItemStack> predicate = (itemStack) -> {
-            if (itemStack.getItem() == Items.BUNDLE){
+            if (itemStack.getItem() == Items.BUNDLE) {
                 BundleContents bundleContents = itemStack.get(DataComponents.BUNDLE_CONTENTS);
-                if (bundleContents !=null){
+                if (bundleContents != null) {
                     return bundleContents.itemCopyStream().anyMatch(itemStack1 -> itemStack1.is(item));
                 }
             }
@@ -150,5 +152,27 @@ public class SREItemUtils {
         // player.containerMenu.broadcastChanges();
         // player.inventoryMenu.slotsChanged(player.getInventory());
         return result;
+    }
+
+    public static boolean insertStackInFreeSlot(@NotNull Player player, ItemStack stackToInsert) {
+        for (int i = 0; i < 9; ++i) {
+            ItemStack stack = player.getInventory().getItem(i);
+            if (stack.isEmpty()) {
+                player.getInventory().setItem(i, stackToInsert);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static boolean hasHotbarFreeSlot(@NotNull Player player) {
+        for (int i = 0; i < 9; ++i) {
+            ItemStack stack = player.getInventory().getItem(i);
+            if (stack.isEmpty()) {
+                return true;
+            }
+        }
+        return false;
     }
 }

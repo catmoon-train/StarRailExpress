@@ -3,13 +3,18 @@ package io.wifi.starrailexpress.mixin.entity.item;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.RoleMethodDispatcher;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import io.wifi.starrailexpress.util.SREItemUtils;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+
+import org.agmas.noellesroles.utils.MCItemsUtils;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -33,11 +38,28 @@ public abstract class ItemEntityMixin {
             original.call(player);
             return;
         }
+        if (!GameUtils.isGameRunning(player)) {
+            original.call(player);
+            return;
+        }
+
+        InteractionResult result = RoleMethodDispatcher.callOnPickupItem(player,
+                this.getItem());
+        if (result == InteractionResult.CONSUME || result == InteractionResult.FAIL
+                || result == InteractionResult.CONSUME_PARTIAL) {
+            return;
+        } else if (result == InteractionResult.SUCCESS || result == InteractionResult.SUCCESS_NO_ITEM_USED) {
+            original.call(player);
+            return;
+        }
+        // InteractionResult.PASS (默认)时走此逻辑
+        if (!MCItemsUtils.hasHotbarFreeSlot(player)) {
+            // 装不下了，不准继续~
+            return;
+        }
+
         if (!this.getItem().is(TMMItemTags.GUNS)) {
-            if (io.wifi.starrailexpress.api.RoleMethodDispatcher.callOnPickupItem(player,
-                    this.getItem().getItem())) {
-                original.call(player);
-            }
+            original.call(player);
             return;
         }
         if ((SREGameWorldComponent.KEY.get(player.level()).canPickUpRevolver(player)
@@ -46,10 +68,7 @@ public abstract class ItemEntityMixin {
             if (SREItemUtils.countItem(player, TMMItemTags.GUNS) > 0) {
                 return;
             }
-            if (io.wifi.starrailexpress.api.RoleMethodDispatcher.callOnPickupItem(player,
-                    this.getItem().getItem())) {
-                original.call(player);
-            }
+            original.call(player);
         }
     }
 }

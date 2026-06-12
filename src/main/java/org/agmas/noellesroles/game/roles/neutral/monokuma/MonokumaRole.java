@@ -9,8 +9,11 @@ import io.wifi.starrailexpress.game.GameUtils.WinStatus;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.role.ModRoles;
 
@@ -50,18 +53,17 @@ public class MonokumaRole extends CustomWinnerRole {
   }
 
   @Override
-  public java.util.function.Predicate<Item> cantPickupItem(Player player) {
+  public InteractionResult onPickUpItem(Player player, ItemStack item) {
     // 黑白熊形态无法捡起任何物品
     var comp = org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaPlayerComponent.KEY.maybeGet(player)
         .orElse(null);
     if (comp != null && comp.phase == 3) {
-      return item -> true; // 禁止捡起所有物品
+      return InteractionResult.FAIL; // 禁止捡起所有物品
     }
-    return super.cantPickupItem(player);
+    return super.onPickUpItem(player, item);
   }
 
   @Override
-
   /**
    * 玩家是否获胜。在获胜统计时被调用。
    * 
