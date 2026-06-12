@@ -20,10 +20,7 @@ public abstract class AbstractClientPlayerSkinMixin {
         if (client == null || client.level == null)
             return;
         PlayerSkinResult result = OnGettingPlayerSkin.EVENT.invoker().onGetSkin(self);
-        if (result.type == 0) {
-            return;
-        }
-        if (result.type == -1) {
+        if (result == null || result.type == 0 || result.type == -1) {
             return;
         }
         if (result.type == 2 && result.playerSkin != null) {
