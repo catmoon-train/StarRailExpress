@@ -46,9 +46,13 @@ public class SREClassChangeGameMode extends SREMurderGameMode {
 
     // 职业变换间隔（tick）：2分钟
     private static final long TRANSFORMATION_INTERVAL = 2 * 60 * 20;
+    // 傀儡师防御性扫描间隔（tick）：5秒
+    private static final int PUPPETEER_CHECK_INTERVAL = 5 * 20;
 
     // 下次变换的gameTime
     private long nextTransformationTime = -1;
+    // 傀儡师扫描倒计时
+    private int puppeteerCheckTimer = 0;
 
     public SREClassChangeGameMode(net.minecraft.resources.ResourceLocation identifier) {
         super(identifier, 10, 6);
@@ -65,6 +69,58 @@ public class SREClassChangeGameMode extends SREMurderGameMode {
         // 复用谋杀模式的初始化和角色分配
         super.initializeGame(serverWorld, gameWorldComponent, players);
 
+        // 傀儡师在职业变换模式全局禁用，替换为场上没有的杀手方中立职业，否则替换为平民
+        SRERoleWorldComponent roleWorld = SRERoleWorldComponent.KEY.get(serverWorld);
+        List<SRERole> availableRoles = buildAvailableRoles();
+
+        // 收集场上已有角色（傀儡师除外）
+        Set<SRERole> fieldRoles = new HashSet<>();
+        for (ServerPlayer p : players) {
+            SRERole r = roleWorld.getRole(p);
+            if (r != null && r != ModRoles.PUPPETEER) {
+                fieldRoles.add(r);
+            }
+        }
+
+        for (ServerPlayer player : players) {
+            SRERole role = roleWorld.getRole(player);
+            if (role != ModRoles.PUPPETEER) {
+                continue;
+            }
+
+            // 优先：场上没有的杀手方中立职业
+            List<SRERole> neutralCandidates = new ArrayList<>();
+            for (SRERole r : availableRoles) {
+                if (r.isNeutralForKiller() && !fieldRoles.contains(r)) {
+                    neutralCandidates.add(r);
+                }
+            }
+
+            SRERole replacement;
+            if (!neutralCandidates.isEmpty()) {
+                replacement = neutralCandidates.get(
+                        new Random(serverWorld.getGameTime() + player.getId()).nextInt(neutralCandidates.size()));
+            } else {
+                // 备选：场上没有的平民阵营职业
+                List<SRERole> civilianCandidates = new ArrayList<>();
+                for (SRERole r : availableRoles) {
+                    if (r.isInnocent() && !fieldRoles.contains(r)) {
+                        civilianCandidates.add(r);
+                    }
+                }
+                if (!civilianCandidates.isEmpty()) {
+                    replacement = civilianCandidates.get(
+                            new Random(serverWorld.getGameTime() + player.getId()).nextInt(civilianCandidates.size()));
+                } else {
+                    replacement = TMMRoles.CIVILIAN;
+                }
+            }
+
+            gameWorldComponent.addRole(player, replacement, false);
+            fieldRoles.add(replacement);
+        }
+        roleWorld.sync();
+
         // 设置第一次变换的时间
         nextTransformationTime = serverWorld.getGameTime() + TRANSFORMATION_INTERVAL;
     }
@@ -76,6 +132,22 @@ public class SREClassChangeGameMode extends SREMurderGameMode {
         // 只在游戏活跃时执行变换逻辑
         if (gameWorldComponent.getGameStatus() != SREGameWorldComponent.GameStatus.ACTIVE) {
             return;
+        }
+
+        // 防御性处理：每5秒扫描一次，如果场上出现了傀儡师，按变换逻辑更换为同阵营其它职业
+        if (puppeteerCheckTimer <= 0) {
+            puppeteerCheckTimer = PUPPETEER_CHECK_INTERVAL;
+            SRERoleWorldComponent roleWorld = SRERoleWorldComponent.KEY.get(serverWorld);
+            for (ServerPlayer player : serverWorld.players()) {
+                if (!GameUtils.isPlayerAliveAndSurvival(player) || player.isSpectator()) {
+                    continue;
+                }
+                if (roleWorld.getRole(player) == ModRoles.PUPPETEER) {
+                    replacePuppeteerPlayer(player, serverWorld, gameWorldComponent);
+                }
+            }
+        } else {
+            puppeteerCheckTimer--;
         }
 
         // 检查是否到了变换时间
@@ -166,19 +238,7 @@ public class SREClassChangeGameMode extends SREMurderGameMode {
         }
 
         // ===== 第二步：构建各阵营角色池 =====
-        // 过滤条件：排除非谋杀模式职业、修机模式职业、亡命徒/超级亡命徒、
-        //          红海军、叛徒、普通杀手、猫娘杀手、除教父以外的家族成员、setOtherModeRole(true)的职业
-        List<SRERole> availableRoles = new ArrayList<>(StupidExpress.getEnableRoles(true));
-        availableRoles.removeIf(role -> role == null
-                || role.isOtherModeRole()
-                || (role instanceof RepairRole)
-                || role == TMMRoles.LOOSE_END
-                || role == SpecialGameModeRoles.SUPER_LOOSE_END
-                || role == ModRoles.BETTER_VIGILANTE
-                || role == TraitorAndModifiers.TRAITOR
-                || isBannedKillerRole(role) // 普通杀手、猫娘杀手
-                || isFamilyRoleExceptGodfather(role) // 除教父以外的家族成员
-                || Harpymodloader.VANNILA_ROLES.contains(role));
+        List<SRERole> availableRoles = buildAvailableRoles();
 
         // 杀手池
         RoleAssignmentPool killerPool = RoleAssignmentPool.create("ClassChangeKiller",
@@ -437,5 +497,99 @@ public class SREClassChangeGameMode extends SREMurderGameMode {
         if (role == ModRoles.GODFATHER) return false;
         // 其他家族成员不计入
         return role.isMafiaTeam();
+    }
+
+    /**
+     * 构建可用角色列表（与 performRoleTransformation 使用相同过滤条件）
+     */
+    private List<SRERole> buildAvailableRoles() {
+        List<SRERole> availableRoles = new ArrayList<>(StupidExpress.getEnableRoles(true));
+        availableRoles.removeIf(role -> role == null
+                || role.isOtherModeRole()
+                || (role instanceof RepairRole)
+                || role == TMMRoles.LOOSE_END
+                || role == SpecialGameModeRoles.SUPER_LOOSE_END
+                || role == ModRoles.BETTER_VIGILANTE
+                || role == TraitorAndModifiers.TRAITOR
+                || role == ModRoles.PUPPETEER // 傀儡师在职业变换模式全局禁用
+                || isBannedKillerRole(role)
+                || isFamilyRoleExceptGodfather(role)
+                || Harpymodloader.VANNILA_ROLES.contains(role));
+        return availableRoles;
+    }
+
+    /**
+     * 防御性替换单个傀儡师玩家，使用与每2分钟变换相同的逻辑
+     */
+    private void replacePuppeteerPlayer(ServerPlayer player, ServerLevel serverWorld,
+            SREGameWorldComponent gameWorldComponent) {
+        List<SRERole> availableRoles = buildAvailableRoles();
+        SRERoleWorldComponent roleWorld = SRERoleWorldComponent.KEY.get(serverWorld);
+        SRERole oldRole = roleWorld.getRole(player);
+        int oldRoleType = oldRole != null ? getFactionType(oldRole) : 2; // 傀儡师是中立方
+
+        // 根据旧阵营类型选择对应的角色池
+        List<SRERole> poolRoles = new ArrayList<>();
+        for (SRERole role : availableRoles) {
+            if (oldRoleType == getFactionType(role)
+                    && !role.identifier().equals(ModRoles.PUPPETEER_ID)) {
+                poolRoles.add(role);
+            }
+        }
+
+        // 从同阵营池子中随机选一个，没有则用平民
+        SRERole newRole;
+        if (!poolRoles.isEmpty()) {
+            newRole = poolRoles.get(new Random(serverWorld.getGameTime() + player.getId()).nextInt(poolRoles.size()));
+        } else {
+            newRole = TMMRoles.CIVILIAN;
+        }
+
+        // --- 执行变换（与 performRoleTransformation 中单玩家逻辑一致） ---
+        UUID uuid = player.getUUID();
+        int oldGold = SREPlayerShopComponent.KEY.get(player).balance;
+
+        // 清除背包（保留key和信件）
+        clearInventoryExceptKeysAndLetters(player);
+
+        // 移除旧修饰符
+        WorldModifierComponent worldModifierComponent = WorldModifierComponent.KEY.get(serverWorld);
+        HashSet<SREModifier> oldModifiers = new HashSet<>(worldModifierComponent.getModifiers(player));
+        for (SREModifier modifier : oldModifiers) {
+            worldModifierComponent.removeModifier(uuid, modifier, false);
+            ModifierRemoved.EVENT.invoker().removeModifier(player, modifier);
+        }
+
+        // 移除旧角色，分配新角色
+        if (oldRole != null) {
+            ModdedRoleRemoved.EVENT.invoker().removeModdedRole(player, oldRole);
+        }
+        gameWorldComponent.addRole(player, newRole, false);
+
+        // 计算新金币
+        int newGold;
+        int newRoleType = getFactionType(newRole);
+        int killerBaseGold = isAvariciousRole(newRole) ? 0 : GameConstants.getMoneyStart();
+
+        if (isCivilianOrVigilanteFaction(oldRoleType) && isKillerFaction(newRoleType)) {
+            newGold = killerBaseGold + (int) (oldGold * 0.2);
+        } else if (isKillerFaction(oldRoleType) && isCivilianOrVigilanteFaction(newRoleType)) {
+            newGold = 50 + (int) (oldGold * 0.5);
+        } else if (isNeutralFaction(newRoleType) || oldRoleType == newRoleType) {
+            newGold = oldGold;
+        } else {
+            newGold = oldGold;
+        }
+
+        SREPlayerShopComponent shop = SREPlayerShopComponent.KEY.get(player);
+        shop.setBalance(Math.max(0, newGold));
+
+        // 触发新角色事件
+        ModdedRoleAssigned.EVENT.invoker().assignModdedRole(player, newRole);
+
+        // 同步并发送欢迎播报
+        roleWorld.sync();
+        worldModifierComponent.sync();
+        RoleUtils.sendWelcomeAnnouncement(player);
     }
 }
