@@ -430,7 +430,6 @@ public class WheelchairEntity extends Mob {
 
     @Override
     public boolean hurt(DamageSource source, float amount) {
-
         if (source.isCreativePlayer() || source.is(DamageTypes.GENERIC_KILL)) {
             this.discard();
             return true;
@@ -438,6 +437,11 @@ public class WheelchairEntity extends Mob {
             Entity passenger = this.getFirstPassenger();
             if (passenger instanceof Player player && player.isAlive()) {
                 // 伤害转移给乘客玩家
+                if (source.getEntity() != null) {
+                    if (player.getUUID().equals(source.getEntity().getUUID())) {
+                        return false;
+                    }
+                }
                 return player.hurt(source, amount);
             }
         }
