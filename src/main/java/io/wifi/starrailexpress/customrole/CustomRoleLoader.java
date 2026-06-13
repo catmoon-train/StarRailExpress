@@ -321,16 +321,21 @@ public class CustomRoleLoader {
             final int cooldownSeconds = data.abilityCooldownSeconds;
             final int delaySeconds = data.abilityDelaySeconds;
 
-            RoleSkill.register(role, context -> {
+            ResourceLocation customSkillId = ResourceLocation.fromNamespaceAndPath(
+                    role.identifier().getNamespace(), role.identifier().getPath() + "_ability");
+            RoleSkill.register(role, RoleSkill.skill(
+                    customSkillId,
+                    "skill.sre.custom_role.ability",
+                    context -> {
                 ServerPlayer player = context.player();
                 // 死亡/旁观者不能使用技能
                 if (player.isSpectator()) {
-                    return;
+                    return false;
                 }
                 SREAbilityPlayerComponent ability = SREAbilityPlayerComponent.KEY.get(player);
 
                 if (ability.cooldown > 0) {
-                    return;
+                    return false;
                 }
 
                 // 执行即时指令（支持 @a @p @r @s 选择器）
@@ -361,9 +366,8 @@ public class CustomRoleLoader {
                     }));
                 }
 
-                ability.setCooldown(cooldownSeconds * 20);
-                ability.sync();
-            });
+                return true;
+            }).cooldownSeconds(cooldownSeconds).build());
 
             // 存储技能初始冷却（游戏开始后首次分配角色时应用）
             if (data.abilityInitialCooldownSeconds > 0) {
@@ -517,8 +521,13 @@ public class CustomRoleLoader {
             Integer cooldownTicks = initialCooldownMap.get(role.identifier());
             if (cooldownTicks != null && cooldownTicks > 0) {
                 SREAbilityPlayerComponent ability = SREAbilityPlayerComponent.KEY.get(serverPlayer);
-                ability.setCooldown(cooldownTicks);
-                ability.sync();
+                var definitions = RoleSkill.getDefinitions(role);
+                if (definitions.isEmpty()) {
+                    ability.setCooldown(cooldownTicks);
+                } else {
+                    ability.ensureSkills(definitions);
+                    ability.setSkillCooldown(definitions.getFirst().id(), cooldownTicks);
+                }
             }
         });
     }

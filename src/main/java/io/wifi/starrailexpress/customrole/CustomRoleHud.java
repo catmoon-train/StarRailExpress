@@ -27,6 +27,7 @@ public class CustomRoleHud {
             var role = SREClient.getCachedPlayerRole();
             if (role == null || !"customrole".equals(role.identifier().getNamespace())) return;
             if (!RoleSkill.isRegistered(role)) return; // enableAbility=false 的角色不会注册技能
+            if (RoleSkill.hasUnifiedSkills(role)) return; // 统一技能 HUD 已负责显示
 
             SREAbilityPlayerComponent ability = SREAbilityPlayerComponent.KEY.get(client.player);
             int cooldownTicks = ability.cooldown;

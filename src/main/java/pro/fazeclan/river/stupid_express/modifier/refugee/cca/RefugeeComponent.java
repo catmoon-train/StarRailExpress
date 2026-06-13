@@ -285,7 +285,7 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
             }
             var r = gameWorldComponent.getRole(player);
             if (r != null) {
-                if (r.identifier().getPath().equals(TMMRoles.LOOSE_END.identifier().getPath())) {
+                if (r.identifier().getPath().equals(TMMRoles.LOOSE_END.identifier().getPath())||r.identifier().getPath().equals(ModRoles.MONOKUMA.identifier().getPath())) {
                     continue;
                 }
             }

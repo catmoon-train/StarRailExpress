@@ -15,6 +15,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -121,6 +122,12 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
                 this.moodWhenTaskAssigned = (playerMoodComponent != null) ? playerMoodComponent.getMood() : 1f;
                 this.currentTaskAge = 0;
                 this.parallelTaskGenerated = false;
+                // 任务出现时通过字幕报幕通知玩家（TOP 模式，兼容 broadcast）
+                if (this.player instanceof ServerPlayer sp) {
+                    Component taskTitle = Component.translatable("task." + task.getName());
+                    Component taskSub = Component.translatable("subtitle.task.new");
+                    net.exmo.sre.subtitle.SubtitleCommand.sendToPlayerTop(sp, taskTitle, taskSub, 60);
+                }
             }
             // 使用动态任务冷却：根据游戏已过时间调整
             SREGameTimeComponent gameTimeComponent = SREGameTimeComponent.KEY.get(this.player.level());
@@ -149,6 +156,12 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
                         this.timesGotten.put(parallelTask.getType(),
                                 this.timesGotten.get(parallelTask.getType()) + 1);
                         this.parallelTaskGenerated = true;
+                        // 并列任务也通过字幕报幕通知（TOP 模式）
+                        if (this.player instanceof ServerPlayer sp) {
+                            Component taskTitle = Component.translatable("task." + parallelTask.getName());
+                            Component taskSub = Component.translatable("subtitle.task.parallel");
+                            net.exmo.sre.subtitle.SubtitleCommand.sendToPlayerTop(sp, taskTitle, taskSub, 60);
+                        }
                         shouldSync = true;
                     }
                 }

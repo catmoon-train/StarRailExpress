@@ -31,6 +31,7 @@ import io.wifi.starrailexpress.event.EntityInteractionHandler;
 import io.wifi.starrailexpress.event.PlayerInteractionHandler;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.game.TeamKillViolationHandler;
 import io.wifi.starrailexpress.game.data.ServerMapConfig;
 import io.wifi.starrailexpress.game.modes.SREMurderGameMode;
 import io.wifi.starrailexpress.game.roles.SpecialGameModeModifiers;
@@ -41,6 +42,8 @@ import io.wifi.starrailexpress.network.original.*;
 import io.wifi.starrailexpress.network.packet.CustomNarratorPacket;
 import io.wifi.starrailexpress.network.packet.ModVersionPacket;
 import io.wifi.starrailexpress.network.packet.SyncRoomToPlayerPayload;
+import io.wifi.starrailexpress.scenery.network.SceneAssetNetwork;
+import io.wifi.starrailexpress.scenery.server.SceneAssetServer;
 import io.wifi.starrailexpress.util.PoisonComponentUtils;
 import io.wifi.starrailexpress.util.Scheduler;
 import net.exmo.sre.sync.MysqlPlayerDataStore;
@@ -178,6 +181,9 @@ public class SRE extends StarRailExpressID implements ModInitializer {
             }
             return AllowShootRevolverDrop.ShouldDropResult.PASS;
         });
+
+        // 队友击杀违规检测：短期内多次击杀队友则执行 mcfunction
+        TeamKillViolationHandler.registerEvent();
     }
 
     private void registerServerLifecycleEvents() {
@@ -218,6 +224,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
         ServerTickEvents.END_SERVER_TICK.register(serv -> {
             VoteManager.onServerTick();
             ReplayScreenService.tick(serv);
+            SceneAssetServer.tick(serv);
         });
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
             SRE.isLobby = SREConfig.instance().isLobby;
@@ -302,10 +309,12 @@ public class SRE extends StarRailExpressID implements ModInitializer {
             PlayerInventoryCommand.register(dispatcher);
             ShieldCommand.register(dispatcher);
             StaminaCommand.register(dispatcher);
+            SceneCommand.register(dispatcher);
             io.wifi.starrailexpress.cca.network.SkinsNetworkSyncCommand.register(dispatcher);
             io.wifi.starrailexpress.customrole.CustomRoleReloadCommand.register(dispatcher);
             // CoinModifier.register(dispatcher, registryAccess);
             net.exmo.sre.nametag.NameTagCommand.register(dispatcher, registryAccess);
+            net.exmo.sre.subtitle.SubtitleCommand.register(dispatcher, registryAccess);
             // io.wifi.starrailexpress.contents.command.UnlockAllRolesCommand.register(dispatcher);
         }));
     }
@@ -322,6 +331,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
             }
             // 同步自定义职业配置给新加入的玩家
             CustomRoleServerNetwork.syncToPlayer(server, handler.player);
+            SceneAssetServer.sendCurrentManifest(handler.player);
         });
         ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
             SREPlayerStatsComponent.KEY.get(handler.player).flushDatabaseAsync();
@@ -343,6 +353,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
     }
 
     private void registerPayloadTypes() {
+        SceneAssetNetwork.registerPayloadTypes();
         // Mod Whitelist Payload
         PayloadTypeRegistry.playS2C().register(VoteSyncS2CPacket.TYPE, VoteSyncS2CPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(VoteCastC2SPacket.TYPE, VoteCastC2SPacket.CODEC);
@@ -442,6 +453,10 @@ public class SRE extends StarRailExpressID implements ModInitializer {
         PayloadTypeRegistry.playC2S().register(net.exmo.sre.client.chat.ChatDialogueAdvancePayload.ID,
                 net.exmo.sre.client.chat.ChatDialogueAdvancePayload.CODEC);
 
+        // Subtitle 字幕报幕
+        PayloadTypeRegistry.playS2C().register(net.exmo.sre.subtitle.SubtitleS2CPayload.ID,
+                net.exmo.sre.subtitle.SubtitleS2CPayload.CODEC);
+
         // Mailbox
         PayloadTypeRegistry.playS2C().register(io.wifi.starrailexpress.content.mail.OpenMailboxScreenPayload.ID,
                 io.wifi.starrailexpress.content.mail.OpenMailboxScreenPayload.CODEC);
@@ -467,6 +482,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
     }
 
     private void registerGlobalReceivers() {
+        SceneAssetNetwork.registerServerReceivers();
 
         UpdateSkinSelectedPayload.registerReceiver();
         UpdateNameTagSelectedPayload.registerReceiver();

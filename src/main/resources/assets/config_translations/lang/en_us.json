@@ -17,6 +17,8 @@
   "text.autoconfig.starrailexpress-client.option.enableSecurityCameraHUD": "Enable Security Monitor HUD",
   "text.autoconfig.starrailexpress-client.option.disableStaminaBarSmoothing": "Disable Stamina Bar Smoothing",
   "text.autoconfig.starrailexpress-client.option.disableScreenShake": "Disable Screen Shake",
+  "text.autoconfig.starrailexpress-client.option.enableMovingScenes": "Enable Moving Map Scenes",
+  "text.autoconfig.starrailexpress-client.option.enableMovingScenes.@Tooltip": "Disables moving scenery during matches while keeping the cache and administrator projection tools available.",
   "text.autoconfig.starrailexpress-client.option.title": "Client",
   "text.autoconfig.starrailexpress-client.option.ultraPerfMode": "Ultra Performance Mode",
   "text.autoconfig.starrailexpress-client.option.ultraPerfMode.@Tooltip": "Disable scenes for poor visual experience but best performance. Render distance reduced to 2. Also, it is recommended to turn off Vignette in the Sodium menu for higher FPS.",

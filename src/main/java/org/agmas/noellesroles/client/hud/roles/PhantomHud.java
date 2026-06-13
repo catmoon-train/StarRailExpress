@@ -4,13 +4,20 @@ import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.CommonColors;
 import net.minecraft.world.effect.MobEffects;
 import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
 
+/**
+ * Phantom-specific HUD overlay.
+ *
+ * Since the unified skill HUD ({@link io.wifi.starrailexpress.api.RoleSkill}) already
+ * renders the skill card (name + cooldown/ready state), this overlay only adds the
+ * Phantom-specific detail: the remaining invisibility duration when the effect is active,
+ * plus a hint about the toggle key.
+ */
 public class PhantomHud {
 
     public static void register() {
@@ -20,29 +27,20 @@ public class PhantomHud {
                 return;
             if (client.player.hasEffect(ModEffects.SKILL_BANED))
                 return;
-            SREAbilityPlayerComponent abilityPlayerComponent = (SREAbilityPlayerComponent) SREAbilityPlayerComponent.KEY
-                    .get(client.player);
 
-            int drawY = context.guiHeight();
-
-            Component line = Component.translatable("tip.phantom",
-                    NoellesrolesClient.abilityBind.getTranslatedKeyMessage());
-
-            if (abilityPlayerComponent.cooldown > 0) {
-                line = Component.translatable("tip.noellesroles.cooldown", abilityPlayerComponent.cooldown / 20);
-            }
-            var inve = client.player.getEffect(MobEffects.INVISIBILITY);
-            if (inve != null) {
-                int time = inve.getDuration();
-                if (time > 0) {
-                    line = Component.translatable("tip.phantom.activing", time / 20,
-                            Component.keybind("key.noellesroles.ability"));
-                }
+            // Only render the extra invisibility status line — the unified HUD
+            // already shows the skill name + cooldown / ready state.
+            var invisibility = client.player.getEffect(MobEffects.INVISIBILITY);
+            if (invisibility == null || invisibility.getDuration() <= 0) {
+                return;
             }
 
-            drawY -= client.font.lineHeight;
+            Component line = Component.translatable("tip.phantom.activing", invisibility.getDuration() / 20,
+                    Component.keybind("key.noellesroles.ability"));
+
+            int drawY = context.guiHeight() - client.font.lineHeight - 12;
             context.drawString(client.font, line, context.guiWidth() - client.font.width(line) - 12,
-                    drawY - 12, CommonColors.RED);
+                    drawY, 0xFFAA4444);
         });
     }
 }

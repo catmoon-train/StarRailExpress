@@ -221,6 +221,7 @@ public class CommonClientHudRenderer {
 
   public static void registerRenderersEvent() {
     registerFather();
+    UnifiedSkillHud.register();
     RepairEscapeHud.register();
     registerSons();
     OtherRolesRegister.registerSons();
@@ -342,22 +343,19 @@ public class CommonClientHudRenderer {
       }
     });
     RoleHudRenderCallback.EVENT.register(ModRoles.MA_CHEN_XU_ID, (context, tickCounter) -> {
-      // 获取马晨絮组件
       var client = Minecraft.getInstance();
       MaChenXuPlayerComponent component = MaChenXuPlayerComponent.KEY.get(client.player);
-
-      // 检查玩家是否存活
       if (!GameUtils.isPlayerAliveAndSurvival(client.player))
         return;
-
-      // 渲染位置 - 左下角
-      int screenHeight = client.getWindow().getGuiScaledHeight();
-      int x = 10;
-      int y = screenHeight - 120;
+      if (component.stage <= 0)
+        return;
 
       Font textRenderer = client.font;
+      int screenHeight = client.getWindow().getGuiScaledHeight();
+      int x = 10;
+      int y = screenHeight - 132;
 
-      // 阶段显示
+      // 阶段标题
       Component phaseText = Component
           .translatable("hud.noellesroles.ma_chen_xu.phase",
               Component.translatable("hud.noellesroles.ma_chen_xu.phase" + component.stage))
@@ -365,90 +363,162 @@ public class CommonClientHudRenderer {
       context.drawString(textRenderer, phaseText, x, y, 0xFFFFFFFF);
       y += 12;
 
-      // 累计SAN掉落
-      Component sanText = Component.translatable("hud.noellesroles.ma_chen_xu.total_san_loss",
-          component.totalSanLoss).withStyle(ChatFormatting.RED);
-      context.drawString(textRenderer, sanText, x, y, 0xFFFFFFFF);
-      y += 12;
-
-      // 进化进度
+      // 恐惧值 / 进化进度 条
       int nextThreshold = switch (component.stage) {
         case 1 -> component.STAGE_2_THRESHOLD;
         case 2 -> component.STAGE_3_THRESHOLD;
         case 3 -> component.STAGE_4_THRESHOLD;
         default -> -1;
       };
-
       if (nextThreshold > 0) {
         Component progressText = Component.translatable("hud.noellesroles.ma_chen_xu.evolution_progress",
             component.totalSanLoss, nextThreshold).withStyle(ChatFormatting.YELLOW);
         context.drawString(textRenderer, progressText, x, y, 0xFFFFFFFF);
-        y += 12;
-      }
-      if (client.player.hasEffect(ModEffects.SKILL_BANED)) {
-        Component text = Component.translatable("message.tip.cant_use_skill")
-            .withStyle(ChatFormatting.RED);
-        context.drawString(textRenderer, text, x, y, 0xFFFFFFFF);
+        y += 11;
+        float pct = Math.max(0f, Math.min(1f, (float) component.totalSanLoss / nextThreshold));
+        int barW = 92, barH = 6;
+        int fillColor = pct >= 0.85f ? 0xFFFF3333 : pct >= 0.5f ? 0xFFC04BD0 : 0xFF8A2BE2;
+        context.fill(x - 1, y - 1, x + barW + 1, y + barH + 1, 0xAA000000);
+        context.fill(x, y, x + (int) (barW * pct), y + barH, fillColor);
+        y += barH + 5;
+      } else {
+        Component sanText = Component.translatable("hud.noellesroles.ma_chen_xu.total_san_loss",
+            component.totalSanLoss).withStyle(ChatFormatting.RED);
+        context.drawString(textRenderer, sanText, x, y, 0xFFFFFFFF);
         y += 12;
       }
 
-      // 里世界状态
+      // 鬼术槽位行（V 切换、G 释放）
+      String selectedArt = component.getSelectedArtId();
+      int slotSize = 18, slotGap = 3, iconOff = 1;
+      for (int i = 0; i < MaChenXuPlayerComponent.ART_ORDER.length; i++) {
+        String art = MaChenXuPlayerComponent.ART_ORDER[i];
+        int sx = x + i * (slotSize + slotGap);
+        int sy = y;
+        boolean unlocked = component.ghostSkills.contains(art);
+        boolean selected = art.equals(selectedArt);
+        int cd = component.getArtCooldown(art);
+
+        // 槽底
+        context.fill(sx, sy, sx + slotSize, sy + slotSize, 0xC0101018);
+        // 选中高亮边框
+        if (selected) {
+          int hc = 0xFFFFD24B;
+          context.fill(sx - 1, sy - 1, sx + slotSize + 1, sy, hc);
+          context.fill(sx - 1, sy + slotSize, sx + slotSize + 1, sy + slotSize + 1, hc);
+          context.fill(sx - 1, sy, sx, sy + slotSize, hc);
+          context.fill(sx + slotSize, sy, sx + slotSize + 1, sy + slotSize, hc);
+        }
+
+        net.minecraft.world.item.ItemStack icon = switch (art) {
+          case "veil" -> net.minecraft.world.item.Items.INK_SAC.getDefaultInstance();
+          case "effigy" -> net.minecraft.world.item.Items.ARMOR_STAND.getDefaultInstance();
+          case "wail" -> net.minecraft.world.item.Items.GOAT_HORN.getDefaultInstance();
+          case "seize" -> net.minecraft.world.item.Items.FISHING_ROD.getDefaultInstance();
+          default -> net.minecraft.world.item.Items.SOUL_SAND.getDefaultInstance();
+        };
+
+        if (!unlocked) {
+          context.setColor(0.3f, 0.3f, 0.3f, 1f);
+          context.renderFakeItem(icon, sx + iconOff, sy + iconOff);
+          context.setColor(1f, 1f, 1f, 1f);
+          context.fill(sx, sy, sx + slotSize, sy + slotSize, 0xB0000000);
+          context.drawString(textRenderer, Component.literal("✖").withStyle(ChatFormatting.DARK_GRAY),
+              sx + 5, sy + 5, 0xFF888888);
+        } else if (cd > 0) {
+          context.setColor(0.35f, 0.35f, 0.35f, 1f);
+          context.renderFakeItem(icon, sx + iconOff, sy + iconOff);
+          context.setColor(1f, 1f, 1f, 1f);
+          context.fill(sx, sy, sx + slotSize, sy + slotSize, 0x80000000);
+          context.drawString(textRenderer, String.valueOf(cd / 20), sx + 4, sy + 5, 0xFFFF5555, true);
+        } else {
+          context.renderFakeItem(icon, sx + iconOff, sy + iconOff);
+        }
+      }
+      y += slotSize + 4;
+
+      // 小诡术指示行（冷却就绪时绿色圆点，冷却中用数字）
+      if (!component.minorTricks.isEmpty()) {
+        int miniSize = 12, miniGap = 2;
+        for (int i = 0; i < component.minorTricks.size(); i++) {
+          String mt = component.minorTricks.get(i);
+          int msx = x + i * (miniSize + miniGap);
+          int msy = y;
+          int mcd = component.getArtCooldown(mt);
+          context.fill(msx, msy, msx + miniSize, msy + miniSize, 0xA0101018);
+
+          net.minecraft.world.item.ItemStack mIcon = switch (mt) {
+            case "parasite" -> net.minecraft.world.item.Items.SCULK_VEIN.getDefaultInstance();
+            case "push" -> net.minecraft.world.item.Items.WIND_CHARGE.getDefaultInstance();
+            case "echo" -> net.minecraft.world.item.Items.ECHO_SHARD.getDefaultInstance();
+            default -> net.minecraft.world.item.Items.SOUL_SAND.getDefaultInstance();
+          };
+          if (mcd > 0) {
+            context.setColor(0.4f, 0.4f, 0.4f, 1f);
+            context.renderFakeItem(mIcon, msx - 1, msy - 1);
+            context.setColor(1f, 1f, 1f, 1f);
+            context.fill(msx, msy, msx + miniSize, msy + miniSize, 0x70000000);
+          } else {
+            context.renderFakeItem(mIcon, msx - 1, msy - 1);
+            context.fill(msx + miniSize - 3, msy + 1, msx + miniSize - 1, msy + 3, 0xFF00FF00);
+          }
+        }
+        y += miniSize + 4;
+      }
+
+      // 当前选中诡术名（就绪/冷却都显示）
+      Component selNameText = Component.translatable("message.noellesroles.ma_chen_xu.now_sel_skill",
+          component.getSelectedArtName().copy().withStyle(ChatFormatting.AQUA)).withStyle(ChatFormatting.GOLD);
+      context.drawString(textRenderer, selNameText, x, y, 0xFFFFFFFF);
+      y += 11;
+
+      // 当前选中诡术状态
+      Component cdText = component.getNowCooldownText();
+      if (cdText != null) {
+        context.drawString(textRenderer, cdText, x, y, 0xFFFFFFFF);
+        y += 11;
+      }
+
+      // 操作提示：V 切换 / G 释放 / Sneak+G 大招
+      Component inputTip = Component.translatable("message.noellesroles.ma_chen_xu.input_tip",
+          NoellesrolesClient.nextAbilityBind.getTranslatedKeyMessage(),
+          NoellesrolesClient.abilityBind.getTranslatedKeyMessage()).withStyle(ChatFormatting.GRAY);
+      context.drawString(textRenderer, inputTip, x, y, 0xFFFFFFFF);
+      y += 11;
+
+      if (client.player.hasEffect(ModEffects.SKILL_BANED)) {
+        context.drawString(textRenderer, Component.translatable("message.tip.cant_use_skill")
+            .withStyle(ChatFormatting.RED), x, y, 0xFFFFFFFF);
+        y += 11;
+      }
+
+      // 里世界倒计时
       if (component.otherworldActive) {
         Component liShiJieText = Component.translatable("hud.noellesroles.ma_chen_xu.li_shi_jie_active",
             component.otherworldDuration / 20).withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD);
         context.drawString(textRenderer, liShiJieText, x, y, 0xFFFFFFFF);
-        y += 12;
+        y += 11;
+        int dur = component.stage >= 4 ? MaChenXuPlayerComponent.ULTIMATE_DURATION_STAGE_4
+            : MaChenXuPlayerComponent.ULTIMATE_DURATION_STAGE_3;
+        float opct = Math.max(0f, Math.min(1f, (float) component.otherworldDuration / dur));
+        int barW = 92, barH = 5;
+        context.fill(x - 1, y - 1, x + barW + 1, y + barH + 1, 0xAA000000);
+        context.fill(x, y, x + (int) (barW * opct), y + barH, 0xFF8B0000);
+        y += barH + 3;
+      } else if (component.turbidRainActive) {
+        context.drawString(textRenderer,
+            Component.translatable("message.noellesroles.ma_chen_xu.turbid_rain_activated")
+                .withStyle(ChatFormatting.DARK_AQUA),
+            x, y, 0xFFFFFFFF);
+        y += 11;
       }
 
-      // 浊雨状态
-      if (component.turbidRainActive) {
-        Component turbidRainText = Component.translatable("message.noellesroles.ma_chen_xu.turbid_rain_activated")
-            .withStyle(ChatFormatting.DARK_AQUA);
-        context.drawString(textRenderer, turbidRainText, x, y, 0xFFFFFFFF);
-        y += 12;
-      }
-
-      // 掠风状态（阶段4里世界专属）
-      if (component.swiftWindActive) {
-        Component swiftWindText = Component.translatable("hud.noellesroles.ma_chen_xu.skill.swift_wind")
-            .append(Component.literal(": " + component.swiftWindDuration / 20 + "s"))
-            .withStyle(ChatFormatting.AQUA);
-        context.drawString(textRenderer, swiftWindText, x, y, 0xFFFFFFFF);
-        y += 12;
-      }
-
-      if (component.ghostSkills.size() > 0) {
-        if (component.nowSelectedSkill >= 0 && component.nowSelectedSkill < component.ghostSkills.size()) {
-          Component mimicryText = Component
-              .translatable("message.noellesroles.ma_chen_xu.now_sel_skill",
-                  Component.translatable(
-                      "hud.noellesroles.ma_chen_xu.skill." + component.ghostSkills.get(component.nowSelectedSkill))
-                      .withStyle(ChatFormatting.AQUA))
-              .withStyle(ChatFormatting.GOLD);
-          context.drawString(textRenderer, mimicryText, x, y, 0xFFFFFFFF);
-          y += 12;
-        }
-        {
-          Component mimicryText = Component
-              .translatable("message.noellesroles.ma_chen_xu.tip_for_skill",
-                  NoellesrolesClient.abilityBind.getTranslatedKeyMessage())
-              .withStyle(ChatFormatting.GRAY);
-          context.drawString(textRenderer, mimicryText, x, y, 0xFFFFFFFF);
-          y += 12;
-        }
-
-        {
-          Component mimicryText = component.getNowCooldownText();
-          context.drawString(textRenderer, mimicryText, x, y, 0xFFFFFFFF);
-          y += 12;
-        }
-        // 永久护盾状态
-        if (component.permanentShield) {
-          Component shieldText = Component.translatable("message.noellesroles.ma_chen_xu.shield")
-              .withStyle(ChatFormatting.GOLD);
-          context.drawString(textRenderer, shieldText, context.guiWidth() - textRenderer.width(shieldText) - 10,
-              context.guiHeight() - 20, 0xFFFFFFFF);
-        }
+      // 永久护盾（右下角）
+      if (component.permanentShield) {
+        Component shieldText = Component.translatable("message.noellesroles.ma_chen_xu.shield")
+            .withStyle(ChatFormatting.GOLD);
+        context.drawString(textRenderer, shieldText, context.guiWidth() - textRenderer.width(shieldText) - 10,
+            context.guiHeight() - 20, 0xFFFFFFFF);
       }
     });
     RoleHudRenderCallback.EVENT.register(ModRoles.GLITCH_ROBOT_ID, (context, tickCounter) -> {

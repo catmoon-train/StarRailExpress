@@ -358,10 +358,10 @@ public class StarRailExpressTitleScreen extends Screen {
         renderModernOverlay(g);
 
         // 版本号（左下角）
-        String version = "StarRailExpress 3.4.0.1";
+        String version = "StarRailExpress 4.3.0 / "+SRE.modPacketVersion;
         if (Minecraft.checkModStatus().shouldReportAsModified())
             version += I18n.get("menu.modded");
-        g.drawString(this.font, version, 8, this.height - 14, 0xB8C0CC, false);
+        g.drawString(this.font, version, 8, this.height - 14, 0xC8B898, false);
 
         if (waitingForContinue.get())
             renderContinuePrompt(g, mouseX, mouseY, delta);
@@ -387,7 +387,7 @@ public class StarRailExpressTitleScreen extends Screen {
 
     private void renderModernOverlay(GuiGraphics g) {
         g.fillGradient(0, 0, this.width, this.height, 0x33000000, 0x88000010);
-        g.fillGradient(0, this.height / 4 * 1, this.width, this.height, 0x00000000, 0x220062FF);
+        g.fillGradient(0, this.height / 4 * 1, this.width, this.height, 0x00000000, 0x228B6914);
     }
 
     private void renderContinuePrompt(GuiGraphics g, int mouseX, int mouseY, float delta) {
@@ -398,20 +398,20 @@ public class StarRailExpressTitleScreen extends Screen {
         int alpha = (int) (this.continueAlpha * pulse * 255.0F);
         int cx = this.width / 2, cy = this.height / 2 + 40;
         g.drawString(this.font, title, cx - this.font.width(title) / 2, cy,
-                (alpha << 24) | 0xF3F6FB, false);
+                (alpha << 24) | 0xF5E8C8, false);
         g.drawString(this.font, sub, cx - this.font.width(sub) / 2, cy + 16,
-                ((int) (alpha * 0.6F) << 24) | 0xAAB3C2, false);
+                ((int) (alpha * 0.6F) << 24) | 0xB8A080, false);
     }
 
     private void renderMainMenu(GuiGraphics g, int mouseX, int mouseY, float delta) {
         // ── 左侧面板（动态高度，不超出屏幕） ─────────────────────────
-        drawPanel(g, lPanelX, lPanelY, lPanelW, lPanelH, 0x5A0E1117, 0xAA1A1F2A);
+        drawPanel(g, lPanelX, lPanelY, lPanelW, lPanelH, 0x5A1A1008, 0xAA8B6914);
 
         // 标题 / 副标题（在视口上方，不裁剪）
         g.drawString(this.font, I18n.get("changelog.main_menu.title"),
-                lPanelX + 18, lPanelY + 14, 0xDDE6F5, false);
+                lPanelX + 18, lPanelY + 14, 0xE8D8B0, false);
         g.drawString(this.font, I18n.get("changelog.main_menu.subtitle"),
-                lPanelX + 18, lPanelY + 28, 0x7F8A9E, false);
+                lPanelX + 18, lPanelY + 28, 0x9E8B6E, false);
 
         // ── 菜单项（scissor 裁剪到视口，叠加滚动偏移） ────────────────
         enableScissor(lPanelX + 1, menuViewportTop, lPanelX + lPanelW - 1, menuViewportBottom);
@@ -435,11 +435,11 @@ public class StarRailExpressTitleScreen extends Screen {
             int thumbY = sbTop + (int) (prog * (sbTrackH - thumbH));
 
             // 轨道
-            g.fill(sbX, sbTop, sbX + MENU_SB_W, sbBottom, 0x30FFFFFF);
+            g.fill(sbX, sbTop, sbX + MENU_SB_W, sbBottom, 0x30FFE8C0);
             // 滑块
             int alpha = this.menuDragging ? 0xAA : 0x66;
             g.fill(sbX, thumbY, sbX + MENU_SB_W, thumbY + thumbH,
-                    (alpha << 24) | 0x88AACC);
+                    (alpha << 24) | 0x88C9A84C);
         }
 
         // ── 右侧更新日志面板 ─────────────────────────────────────────
@@ -448,7 +448,7 @@ public class StarRailExpressTitleScreen extends Screen {
 
         // 版权（左下角，贴近版本号上方）
         g.drawString(this.font, I18n.get("changelog.copyright"),
-                8, this.height - 28, 0x7F8A9E, false);
+                8, this.height - 28, 0x9E8B6E, false);
     }
 
     /**
@@ -474,8 +474,8 @@ public class StarRailExpressTitleScreen extends Screen {
 
         entry.hoverAnim += ((hovered ? 1.0F : 0.0F) - entry.hoverAnim) * 0.22F;
 
-        int baseColor = lerpColor(entry.hoverAnim, 0xC6CFDB, 0xFFFFFF);
-        int accentColor = lerpColor(entry.hoverAnim, 0x3AA6FF, 0x7FDBFF);
+        int baseColor = lerpColor(entry.hoverAnim, 0xE8D5A8, 0xFFF4DC);
+        int accentColor = lerpColor(entry.hoverAnim, 0xC9A84C, 0xD4AF37);
 
         // 左侧装饰竖线
         int lineAlpha = (int) (120 + entry.hoverAnim * 100);
@@ -490,7 +490,7 @@ public class StarRailExpressTitleScreen extends Screen {
         int underlineW = (int) ((textWidth + 4) * entry.hoverAnim);
         if (underlineW > 0)
             g.fill(drawX + textOffset, drawY + 12,
-                    drawX + textOffset + underlineW, drawY + 13, 0xCC7FDBFF);
+                    drawX + textOffset + underlineW, drawY + 13, 0xCCD4AF37);
 
         // 存储渲染坐标（含动画偏移 + 滚动）用于点击检测
         entry.renderX = drawX;
@@ -513,17 +513,17 @@ public class StarRailExpressTitleScreen extends Screen {
         int currentBodyH = (int) (maxBodyH * this.changelogExpandAnim);
 
         // 标题栏
-        drawPanel(g, x, y, cPanelW, HEADER_H, 0x7A10141B, 0xCC1B2230);
+        drawPanel(g, x, y, cPanelW, HEADER_H, 0x7A1A1008, 0xCC8B6914);
         String foldLabel = this.changelogExpanded
                 ? I18n.get("changelog.title") + "  [-]"
                 : I18n.get("changelog.title") + "  [+]";
-        g.drawString(this.font, foldLabel, x + 12, y + 8, 0xE8EEF8, false);
+        g.drawString(this.font, foldLabel, x + 12, y + 8, 0xF0E8D0, false);
 
         if (currentBodyH <= 4)
             return;
 
         // 内容区面板
-        drawPanel(g, x, y + HEADER_H + 2, cPanelW, currentBodyH, 0x520C1016, 0xA0181E28);
+        drawPanel(g, x, y + HEADER_H + 2, cPanelW, currentBodyH, 0x52120A04, 0xA020140A);
 
         // 滚动参数
         int totalContentH = this.parsedChangelogLines.stream()
@@ -567,9 +567,9 @@ public class StarRailExpressTitleScreen extends Screen {
             float prog = this.changelogScrollOffset / this.changelogMaxScroll;
             int thumbY = sbTop + (int) (prog * (sbTrackH - thumbH));
 
-            g.fill(sbX, sbTop, sbX + sbW, sbBottom, 0x40FFFFFF);
+            g.fill(sbX, sbTop, sbX + sbW, sbBottom, 0x40FFE8C0);
             int alpha = this.changelogDragging ? 0xAA : 0x66;
-            g.fill(sbX, thumbY, sbX + sbW, thumbY + thumbH, (alpha << 24) | 0x88AACC);
+            g.fill(sbX, thumbY, sbX + sbW, thumbY + thumbH, (alpha << 24) | 0x88C9A84C);
         }
     }
 
@@ -585,28 +585,28 @@ public class StarRailExpressTitleScreen extends Screen {
         for (String line : rawLines) {
             if (line.isEmpty()) {
                 // 空行：仅占 8px
-                entries.add(new ChangelogEntry(Component.literal(""), baseX, 8, 8, 0xB8C0CC, false));
+                entries.add(new ChangelogEntry(Component.literal(""), baseX, 8, 8, 0xC8B898, false));
                 continue;
             }
             if (line.startsWith("###")) {
                 Component cmp = Component.literal(line.substring(3).trim())
                         .withStyle(s -> s.withBold(true));
                 int rows = this.font.split(cmp, maxW).size();
-                entries.add(new ChangelogEntry(cmp, baseX, 14, rows * 14, 0xDDE6F5, false));
+                entries.add(new ChangelogEntry(cmp, baseX, 14, rows * 14, 0xE8D8B0, false));
             } else if (line.startsWith("##")) {
                 Component cmp = Component.literal(line.substring(2).trim())
                         .withStyle(s -> s.withBold(true));
                 int rows = this.font.split(cmp, maxW).size();
-                entries.add(new ChangelogEntry(cmp, baseX, 13, rows * 13, 0xF0F4FF, false));
+                entries.add(new ChangelogEntry(cmp, baseX, 13, rows * 13, 0xF5E8C8, false));
             } else if (line.startsWith("#")) {
                 Component cmp = Component.literal(line.substring(1).trim())
                         .withStyle(s -> s.withBold(true));
                 int rows = this.font.split(cmp, maxW).size();
-                entries.add(new ChangelogEntry(cmp, baseX, 16, rows * 16, 0xFFFFFF, false));
+                entries.add(new ChangelogEntry(cmp, baseX, 16, rows * 16, 0xFFF4DC, false));
             } else {
                 Component cmp = Component.literal(line);
                 int rows = this.font.split(cmp, maxW).size();
-                entries.add(new ChangelogEntry(cmp, baseX, 12, rows * 12, 0xB8C0CC, false));
+                entries.add(new ChangelogEntry(cmp, baseX, 12, rows * 12, 0xC8B898, false));
             }
         }
         return entries;

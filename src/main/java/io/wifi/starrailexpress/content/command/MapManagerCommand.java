@@ -26,6 +26,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
@@ -138,6 +139,7 @@ public class MapManagerCommand {
                   areas.sceneOffsetX = 0;
                   areas.sceneOffsetY = 0;
                   areas.sceneOffsetZ = 0;
+                  io.wifi.starrailexpress.scenery.server.SceneLibrary.clearScene(areas);
                   areas.weather = "clear";
                   areas.gravity = 0.08;
                   areas.effect = new java.util.ArrayList<>();
@@ -232,8 +234,9 @@ public class MapManagerCommand {
                         .requires(source -> source.hasPermission(3))
                         .executes(context -> executeSave(
                             context.getSource(),
-                            StringArgumentType.getString(context, "mapName"),
-                            true)))))
+                             StringArgumentType.getString(context, "mapName"),
+                             true)))))
+            .then(buildMapTools())
             .then(Commands.literal("info")
                 .requires(source -> source.hasPermission(2))
                 .executes(ctx -> executeList(ctx.getSource()))));
@@ -325,6 +328,13 @@ public class MapManagerCommand {
       BiConsumer<AreasWorldComponent, AABB> setter,
       AABB newBox, CommandSourceStack source, String fieldName) {
     setter.accept(areas, newBox);
+    if (fieldName.startsWith("sceneArea")) {
+      areas.setSceneAreaConfigured(true);
+      if (areas.getSceneScroll() == AreasWorldComponent.ScrollAxis.NONE) {
+        areas.setSceneScroll(AreasWorldComponent.ScrollAxis.X);
+      }
+      io.wifi.starrailexpress.scenery.server.SceneAssetServer.invalidate(source.getLevel(), "场景源区域已修改");
+    }
     areas.sync();
     sendSetFeedback(source, fieldName, formatAABB(newBox));
   }
@@ -636,6 +646,107 @@ public class MapManagerCommand {
 
     return 1;
   }
+
+  private static LiteralArgumentBuilder<CommandSourceStack> buildMapTools() {
+    return Commands.literal("map")
+        .requires(source -> source.hasPermission(3))
+        .then(Commands.literal("name")
+            .then(Commands.argument("name", MapLoadArgumentType.string())
+                .executes(context -> executeMapName(
+                    context.getSource(),
+                    StringArgumentType.getString(context, "name")))))
+        .then(Commands.literal("save")
+            .then(Commands.argument("mapName", MapLoadArgumentType.string())
+                .executes(context -> executeSave(
+                    context.getSource(),
+                    StringArgumentType.getString(context, "mapName"),
+                    false))
+                .then(Commands.literal("force")
+                    .executes(context -> executeSave(
+                        context.getSource(),
+                        StringArgumentType.getString(context, "mapName"),
+                        true)))))
+        .then(Commands.literal("load")
+            .then(Commands.argument("mapName", MapLoadArgumentType.string())
+                .executes(context -> executeMapLoad(
+                    context.getSource(),
+                    StringArgumentType.getString(context, "mapName")))))
+        .then(Commands.literal("import")
+            .then(Commands.argument("filename", StringArgumentType.string())
+                .then(Commands.literal("as")
+                    .then(Commands.argument("mapName", MapLoadArgumentType.string())
+                        .executes(context -> executeMapImport(
+                            context.getSource(),
+                            StringArgumentType.getString(context, "filename"),
+                            StringArgumentType.getString(context, "mapName"),
+                            false))
+                        .then(Commands.literal("force")
+                            .executes(context -> executeMapImport(
+                                context.getSource(),
+                                StringArgumentType.getString(context, "filename"),
+                                StringArgumentType.getString(context, "mapName"),
+                                true)))))))
+        .then(Commands.literal("list")
+            .executes(context -> executeMapList(context.getSource())));
+  }
+
+  private static int executeMapName(CommandSourceStack source, String mapName) {
+    if (!MapManager.isValidMapName(mapName)) {
+      source.sendFailure(Component.literal("地图名称无效：禁止绝对路径、..、冒号，长度上限为 128"));
+      return 0;
+    }
+    setMapName(source, mapName.endsWith(".json")
+        ? mapName.substring(0, mapName.length() - 5)
+        : mapName);
+    return 1;
+  }
+
+  private static int executeMapLoad(CommandSourceStack source, String mapName) {
+    if (SREGameWorldComponent.KEY.get(source.getLevel()).isRunning()) {
+      source.sendFailure(Component.translatable("commands.sre.switchmap.error.game_running"));
+      return 0;
+    }
+    if (!MapManager.isValidMapName(mapName)) {
+      source.sendFailure(Component.literal("地图名称无效"));
+      return 0;
+    }
+    if (!MapManager.loadMap(source.getLevel(), mapName)) {
+      source.sendFailure(Component.literal("无法载入地图配置: " + mapName));
+      return 0;
+    }
+    source.sendSuccess(() -> Component.literal("已载入地图配置: " + mapName)
+        .withStyle(style -> style.withColor(0x00FF00)), true);
+    return 1;
+  }
+
+  private static int executeMapImport(CommandSourceStack source, String filename, String mapName,
+      boolean overwrite) {
+    if (SREGameWorldComponent.KEY.get(source.getLevel()).isRunning()) {
+      source.sendFailure(Component.translatable("commands.sre.switchmap.error.game_running"));
+      return 0;
+    }
+    MapManager.ImportResult result = MapManager.importMapConfig(
+        source.getLevel(), filename, mapName, overwrite);
+    if (!result.imported() || !result.loaded()) {
+      source.sendFailure(Component.literal(result.message()));
+      return 0;
+    }
+    source.sendSuccess(() -> Component.literal(result.message())
+        .withStyle(style -> style.withColor(0x00FF00)), true);
+    return 1;
+  }
+
+  private static int executeMapList(CommandSourceStack source) {
+    List<String> maps = MapManager.getAvailableMaps(source.getLevel(), true);
+    if (maps.isEmpty()) {
+      source.sendSuccess(() -> Component.literal("train_maps 中没有地图配置"), false);
+      return 1;
+    }
+    source.sendSuccess(() -> Component.literal("可用地图配置 (" + maps.size() + "):"), false);
+    maps.forEach(map -> source.sendSuccess(() -> Component.literal(" - " + map), false));
+    source.sendSuccess(() -> Component.literal("导入目录: <world>/map_imports"), false);
+    return maps.size();
+  }
   // ======================== 删除命令 ========================
 
   private static int executeRemove(CommandSourceStack source, String mapName)
@@ -800,7 +911,7 @@ public class MapManagerCommand {
   private static LiteralArgumentBuilder<CommandSourceStack> setSceneArea() {
     return buildSetAABB("sceneArea",
         AreasWorldComponent::getSceneArea,
-        (a, box) -> a.setSceneArea(box));
+        AreasWorldComponent::setSceneArea);
   }
 
   private static LiteralArgumentBuilder<CommandSourceStack> setResetTemplateArea() {

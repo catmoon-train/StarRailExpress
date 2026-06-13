@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "description": "StarRailExpress progression task presets. Edit this file after first launch at config/starrailexpress/progression_tasks.json.",
   "daily": [
     {"id":"daily_play_1","title":"值乘签到","description":"完成 1 局游戏","objectiveType":"PLAY_MATCH","target":1,"rewardExperience":60,"rewardCoins":35,"rewardLoot":0,"rewardCard":"NONE","priority":1},
@@ -8,10 +8,10 @@
     {"id":"daily_win_1","title":"头号乘客","description":"赢下 1 局游戏","objectiveType":"WIN_MATCH","target":1,"rewardExperience":125,"rewardCoins":70,"rewardLoot":1,"rewardCard":"NONE","priority":1},
     {"id":"daily_win_2","title":"胜负手","description":"赢下 2 局游戏","objectiveType":"WIN_MATCH","target":2,"rewardExperience":235,"rewardCoins":120,"rewardLoot":1,"rewardCard":"NONE","priority":1},
     {"id":"daily_win_3","title":"连胜步伐","description":"赢下 3 局游戏","objectiveType":"WIN_MATCH","target":3,"rewardExperience":350,"rewardCoins":170,"rewardLoot":1,"rewardCard":"NONE","priority":1},
-    {"id":"daily_kill_1","title":"致命时刻","description":"击杀 1 名不同玩家","objectiveType":"KILL_PLAYER_DIFFERENT_TEAM","target":1,"rewardExperience":90,"rewardCoins":50,"rewardLoot":0,"rewardCard":"NONE","priority":1},
-    {"id":"daily_kill_2","title":"双重打击","description":"击杀 2 名不同玩家","objectiveType":"KILL_PLAYER_DIFFERENT_TEAM","target":2,"rewardExperience":165,"rewardCoins":90,"rewardLoot":0,"rewardCard":"NONE","priority":1},
-    {"id":"daily_kill_3","title":"三连猎手","description":"击杀 3 名不同玩家","objectiveType":"KILL_PLAYER_DIFFERENT_TEAM","target":3,"rewardExperience":245,"rewardCoins":130,"rewardLoot":1,"rewardCard":"NONE","priority":1},
-    {"id":"daily_kill_4","title":"高压追猎","description":"击杀 4 名不同玩家","objectiveType":"KILL_PLAYER_DIFFERENT_TEAM","target":4,"rewardExperience":320,"rewardCoins":165,"rewardLoot":1,"rewardCard":"NONE","priority":1,"unlockLevel":6},
+    {"id":"daily_kill_1","title":"致命时刻","description":"击杀 1 名不同阵营玩家","objectiveType":"KILL_PLAYER_DIFFERENT_TEAM","target":1,"rewardExperience":90,"rewardCoins":50,"rewardLoot":0,"rewardCard":"NONE","priority":1},
+    {"id":"daily_kill_2","title":"双重打击","description":"击杀 2 名不同阵营玩家","objectiveType":"KILL_PLAYER_DIFFERENT_TEAM","target":2,"rewardExperience":165,"rewardCoins":90,"rewardLoot":0,"rewardCard":"NONE","priority":1},
+    {"id":"daily_kill_3","title":"三连猎手","description":"击杀 3 名不同阵营玩家","objectiveType":"KILL_PLAYER_DIFFERENT_TEAM","target":3,"rewardExperience":245,"rewardCoins":130,"rewardLoot":1,"rewardCard":"NONE","priority":1},
+    {"id":"daily_kill_4","title":"高压追猎","description":"击杀 4 名不同阵营玩家","objectiveType":"KILL_PLAYER_DIFFERENT_TEAM","target":4,"rewardExperience":320,"rewardCoins":165,"rewardLoot":1,"rewardCard":"NONE","priority":1,"unlockLevel":6},
     {"id":"daily_round_2","title":"任务处理员","description":"完成 2 个局内任务","objectiveType":"COMPLETE_ROUND_QUEST","target":2,"rewardExperience":90,"rewardCoins":45,"rewardLoot":0,"rewardCard":"NONE","priority":1},
     {"id":"daily_round_3","title":"多线程执行","description":"完成 3 个局内任务","objectiveType":"COMPLETE_ROUND_QUEST","target":3,"rewardExperience":140,"rewardCoins":70,"rewardLoot":0,"rewardCard":"NONE","priority":1},
     {"id":"daily_round_4","title":"高效率小队","description":"完成 4 个局内任务","objectiveType":"COMPLETE_ROUND_QUEST","target":4,"rewardExperience":200,"rewardCoins":95,"rewardLoot":0,"rewardCard":"NONE","priority":1},
@@ -50,7 +50,13 @@
     {"id":"daily_kill_6","title":"清道夫","description":"击杀 6 名不同阵营玩家","objectiveType":"KILL_PLAYER_DIFFERENT_TEAM","target":6,"rewardExperience":460,"rewardCoins":230,"rewardLoot":1,"rewardCard":"NONE","priority":1,"unlockLevel":10},
     {"id":"daily_round_6","title":"多面手","description":"完成 6 个局内任务","objectiveType":"COMPLETE_ROUND_QUEST","target":6,"rewardExperience":300,"rewardCoins":145,"rewardLoot":1,"rewardCard":"NONE","priority":1},
     {"id":"daily_win_5","title":"传奇列车长","description":"赢下 5 局游戏","objectiveType":"WIN_MATCH","target":5,"rewardExperience":590,"rewardCoins":280,"rewardLoot":2,"rewardCard":"NONE","priority":1,"unlockLevel":12},
-    {"id":"daily_survive_5","title":"生存大师","description":"存活至游戏结束 5 局","objectiveType":"SURVIVE_MATCH","target":5,"rewardExperience":420,"rewardCoins":200,"rewardLoot":1,"rewardCard":"NONE","priority":1}
+    {"id":"daily_survive_5","title":"生存大师","description":"存活至游戏结束 5 局","objectiveType":"SURVIVE_MATCH","target":5,"rewardExperience":420,"rewardCoins":200,"rewardLoot":1,"rewardCard":"NONE","priority":1},
+    {"id":"daily_pickup_5","title":"拾荒者","description":"拾取 5 个物品","objectiveType":"PICKUP_ITEM","target":5,"rewardExperience":70,"rewardCoins":35,"rewardLoot":0,"rewardCard":"NONE","priority":1},
+    {"id":"daily_pickup_10","title":"物资收集员","description":"拾取 10 个物品","objectiveType":"PICKUP_ITEM","target":10,"rewardExperience":120,"rewardCoins":60,"rewardLoot":0,"rewardCard":"NONE","priority":1},
+    {"id":"daily_pickup_20","title":"列车仓管","description":"拾取 20 个物品","objectiveType":"PICKUP_ITEM","target":20,"rewardExperience":200,"rewardCoins":100,"rewardLoot":1,"rewardCard":"NONE","priority":1},
+    {"id":"daily_be_guardian","title":"守卫义务","description":"成为平民或中立阵营 2 次","objectiveType":"BECOME_FACTION","objectiveKey":"civilian,neutral","target":2,"rewardExperience":140,"rewardCoins":55,"rewardLoot":0,"rewardCard":"CIVILIAN","priority":1},
+    {"id":"daily_survive_kill_1","title":"冷静猎手","description":"击杀 1 名不同阵营玩家并存活至结束","objectiveType":"SURVIVE_MATCH","target":1,"rewardExperience":155,"rewardCoins":80,"rewardLoot":0,"rewardCard":"NONE","priority":1},
+    {"id":"daily_use_any_item_3","title":"道具达人","description":"使用任意物品 3 次","objectiveType":"USE_ITEM","target":3,"rewardExperience":70,"rewardCoins":35,"rewardLoot":0,"rewardCard":"NONE","priority":1}
   ],
   "weekly": [
     {"id":"weekly_play_5","title":"周度列车员","description":"完成 5 局游戏","objectiveType":"PLAY_MATCH","target":5,"rewardExperience":500,"rewardCoins":220,"rewardLoot":1,"rewardCard":"NONE","priority":1},
@@ -106,10 +112,19 @@
     {"id":"weekly_win_neutral_5","title":"幕后主宰","description":"以中立阵营赢得 5 局","objectiveType":"WIN_AS_FACTION","objectiveKey":"neutral","target":8,"rewardExperience":2550,"rewardCoins":1050,"rewardLoot":4,"rewardCard":"NEUTRAL","priority":1,"unlockLevel":16},
     {"id":"weekly_be_killer_5","title":"危险专业户","description":"成为杀手阵营 5 次","objectiveType":"BECOME_FACTION","objectiveKey":"killer","target":5,"rewardExperience":1280,"rewardCoins":540,"rewardLoot":2,"rewardCard":"KILLER","priority":1},
     {"id":"weekly_be_civilian_5","title":"秩序代言人","description":"成为平民阵营 5 次","objectiveType":"BECOME_FACTION","objectiveKey":"civilian","target":5,"rewardExperience":1280,"rewardCoins":540,"rewardLoot":2,"rewardCard":"CIVILIAN","priority":1},
-    {"id":"weekly_be_neutral_5","title":"灰域行者","description":"成为中立阵营 5 次","objectiveType":"BECOME_FACTION","objectiveKey":"neutral","target":5,"rewardExperience":1350,"rewardCoins":570,"rewardLoot":2,"rewardCard":"NEUTRAL","priority":1}
+    {"id":"weekly_be_neutral_5","title":"灰域行者","description":"成为中立阵营 5 次","objectiveType":"BECOME_FACTION","objectiveKey":"neutral","target":5,"rewardExperience":1350,"rewardCoins":570,"rewardLoot":2,"rewardCard":"NEUTRAL","priority":1},
+    {"id":"weekly_pickup_30","title":"物资囤积","description":"拾取 30 个物品","objectiveType":"PICKUP_ITEM","target":30,"rewardExperience":620,"rewardCoins":260,"rewardLoot":1,"rewardCard":"NONE","priority":1},
+    {"id":"weekly_pickup_60","title":"仓库管理员","description":"拾取 60 个物品","objectiveType":"PICKUP_ITEM","target":60,"rewardExperience":980,"rewardCoins":410,"rewardLoot":2,"rewardCard":"NONE","priority":1},
+    {"id":"weekly_be_any_faction_5","title":"列车万象","description":"成为任意阵营 5 次","objectiveType":"BECOME_FACTION","objectiveKey":"killer,civilian,neutral","target":5,"rewardExperience":1050,"rewardCoins":440,"rewardLoot":2,"rewardCard":"NONE","priority":1},
+    {"id":"weekly_use_item_10","title":"道具大师","description":"使用任意物品 10 次","objectiveType":"USE_ITEM","target":10,"rewardExperience":520,"rewardCoins":220,"rewardLoot":1,"rewardCard":"NONE","priority":1}
   ],
   "permanent": [
     {"id":"permanent_be_any_faction","title":"熟悉阵营","description":"累计成为杀手/平民/中立阵营 12 次","objectiveType":"BECOME_FACTION","objectiveKey":"killer,civilian,neutral","target":12,"rewardExperience":800,"rewardCoins":300,"rewardLoot":2,"rewardCard":"NONE","priority":1,"category":"PERMANENT","unlockLevel":1},
-    {"id":"permanent_use_medical_items","title":"应急补给","description":"累计使用牛奶桶或金苹果 6 次","objectiveType":"USE_ITEM","objectiveKey":"minecraft:milk_bucket,minecraft:golden_apple","target":6,"rewardExperience":600,"rewardCoins":240,"rewardLoot":1,"rewardCard":"CIVILIAN","priority":2,"category":"PERMANENT","unlockLevel":1}
+    {"id":"permanent_use_medical_items","title":"应急补给","description":"累计使用牛奶桶或金苹果 6 次","objectiveType":"USE_ITEM","objectiveKey":"minecraft:milk_bucket,minecraft:golden_apple","target":6,"rewardExperience":600,"rewardCoins":240,"rewardLoot":1,"rewardCard":"CIVILIAN","priority":2,"category":"PERMANENT","unlockLevel":1},
+    {"id":"permanent_kill_diff_team_20","title":"不同路","description":"累计击杀 20 名不同阵营玩家","objectiveType":"KILL_PLAYER_DIFFERENT_TEAM","target":20,"rewardExperience":1200,"rewardCoins":500,"rewardLoot":3,"rewardCard":"KILLER","priority":3,"category":"PERMANENT","unlockLevel":3},
+    {"id":"permanent_survive_20","title":"生存哲学","description":"累计存活至游戏结束 20 局","objectiveType":"SURVIVE_MATCH","target":20,"rewardExperience":1000,"rewardCoins":400,"rewardLoot":2,"rewardCard":"CIVILIAN","priority":4,"category":"PERMANENT","unlockLevel":2},
+    {"id":"permanent_pickup_50","title":"收集癖","description":"累计拾取 50 个物品","objectiveType":"PICKUP_ITEM","target":50,"rewardExperience":650,"rewardCoins":260,"rewardLoot":1,"rewardCard":"NONE","priority":5,"category":"PERMANENT","unlockLevel":1},
+    {"id":"permanent_play_match_30","title":"列车老手","description":"累计完成 30 局游戏","objectiveType":"PLAY_MATCH","target":30,"rewardExperience":1500,"rewardCoins":600,"rewardLoot":3,"rewardCard":"NONE","priority":6,"category":"PERMANENT","unlockLevel":5},
+    {"id":"permanent_win_match_20","title":"常胜将军","description":"累计赢得 20 局游戏","objectiveType":"WIN_MATCH","target":20,"rewardExperience":1800,"rewardCoins":750,"rewardLoot":4,"rewardCard":"NONE","priority":7,"category":"PERMANENT","unlockLevel":8}
   ]
 }

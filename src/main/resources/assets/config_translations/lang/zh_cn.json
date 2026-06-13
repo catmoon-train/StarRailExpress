@@ -20,6 +20,8 @@
   "text.autoconfig.starrailexpress-client.option.enableSecurityCameraHUD": "启用安全监视器的HUD",
   "text.autoconfig.starrailexpress-client.option.disableStaminaBarSmoothing": "禁用耐力条平滑动画",
   "text.autoconfig.starrailexpress-client.option.disableScreenShake": "禁用屏幕抖动",
+  "text.autoconfig.starrailexpress-client.option.enableMovingScenes": "启用地图移动场景",
+  "text.autoconfig.starrailexpress-client.option.enableMovingScenes.@Tooltip": "关闭后不渲染正式游戏中的移动窗外场景；场景缓存和管理员投影工具仍可使用。",
   "text.autoconfig.starrailexpress-client.option.enableRandomSkinForStreaming": "启用直播模式，以禁用玩家的自定义皮肤，使用系统给予的随机皮肤（本地）",
   "text.autoconfig.starrailexpress-client.option.title": "客户端",
   "text.autoconfig.starrailexpress-client.option.ultraPerfMode": "极限性能模式",

@@ -23,93 +23,72 @@ public class GameMenuEntries {
     public static final int menuButtonHeight = 20;
     public static final int menuButtonWidth = 100;
 
+    /** 一条便捷菜单项：标题 + 点击动作。用于在不同布局（右侧竖列 / 等待面板格子）中复用同一组动作。 */
+    public record MenuEntry(Component label, Button.OnPress action) {
+    }
+
+    /**
+     * 按权限构建便捷菜单的逻辑条目（不含位置）。右侧竖列与等待面板都基于这份列表生成按钮。
+     */
+    public static ArrayList<MenuEntry> entries(Minecraft minecraft, Screen parent, Consumer<Boolean> toggleViewMenu) {
+        ArrayList<MenuEntry> entries = new ArrayList<>();
+        // 职业介绍
+        entries.add(new MenuEntry(Component.translatable("screen.limited_inventory.menu.introduction"), (btn) -> {
+            var role = SREGameWorldComponent.KEY.get(minecraft.level).getRole(minecraft.player);
+            minecraft.setScreen(new RoleIntroduceScreen(parent, role));
+            toggleViewMenu.accept(false);
+        }));
+        // 抽卡页面
+        entries.add(new MenuEntry(Component.translatable("screen.limited_inventory.menu.loot_screen"), (btn) -> {
+            if (LotteryManager.getInstance().getLotteryPools().isEmpty())
+                ClientPlayNetworking.send(new LootPoolsInfoCheckC2SPacket());
+            minecraft.setScreen(new LootInfoScreen(0, 0, 0, parent));
+            toggleViewMenu.accept(false);
+        }));
+        // 职业猜测
+        entries.add(new MenuEntry(Component.translatable("screen.limited_inventory.menu.role_guess"), (btn) -> {
+            minecraft.setScreen(new GuessRoleScreen(parent));
+            toggleViewMenu.accept(false);
+        }));
+        if (minecraft.player.hasPermissions(2)) {
+            // mod_settings
+            entries.add(new MenuEntry(
+                    Component.translatable("screen.limited_inventory.menu.mod_settings").withStyle(ChatFormatting.RED),
+                    (btn) -> {
+                        minecraft.setScreen(new SettingMenuScreen(parent));
+                        toggleViewMenu.accept(false);
+                    }));
+        } else {
+            // mod client settings
+            entries.add(new MenuEntry(
+                    Component.translatable("screen.limited_inventory.menu.mod_settings_client")
+                            .withStyle(ChatFormatting.WHITE),
+                    (btn) -> {
+                        minecraft.setScreen(SREClientConfig.HANDLER.generateGui().generateScreen(parent));
+                        toggleViewMenu.accept(false);
+                    }));
+        }
+        if (minecraft.player.hasPermissions(2)) {
+            // game_menu
+            entries.add(new MenuEntry(
+                    Component.translatable("screen.limited_inventory.menu.game_menu").withStyle(ChatFormatting.RED),
+                    (btn) -> {
+                        minecraft.setScreen(new GameManagementScreen(parent));
+                        toggleViewMenu.accept(false);
+                    }));
+        }
+        return entries;
+    }
+
     public static ArrayList<Button> register(int width, int height, Minecraft minecraft, Screen parent,
             Consumer<Boolean> toggleViewMenu) {
         ArrayList<Button> menuSelections = new ArrayList<>();
-        menuSelections.clear();
-        {
-            int startY = height - menuButtonHeight;
-            // 添加菜单按钮
-            {
-                // 职业介绍
-                var btn1 =Button
-                        .builder(Component.translatable("screen.limited_inventory.menu.introduction"), (btn) -> {
-                            var role = SREGameWorldComponent.KEY.get(minecraft.level)
-                                    .getRole(minecraft.player);
-                            var screen = new RoleIntroduceScreen(parent, role);
-                            minecraft.setScreen(screen);
-                            toggleViewMenu.accept(false);
-                        }).bounds(width - menuButtonWidth, startY - menuButtonHeight, menuButtonWidth, menuButtonHeight)
-                        .build();
-                menuSelections.add(btn1);
-                startY -= menuButtonHeight;
-            }
-            {
-                // 抽卡页面
-                var btn1 = Button
-                        .builder(Component.translatable("screen.limited_inventory.menu.loot_screen"), (btn) -> {
-                            if (LotteryManager.getInstance().getLotteryPools().isEmpty())
-                                ClientPlayNetworking.send(new LootPoolsInfoCheckC2SPacket());
-                            minecraft.setScreen(new LootInfoScreen(0, 0, 0, parent));
-                            toggleViewMenu.accept(false);
-                        }).bounds(width - menuButtonWidth, startY - menuButtonHeight, menuButtonWidth, menuButtonHeight)
-                        .build();
-                menuSelections.add(btn1);
-                startY -= menuButtonHeight;
-            }
-            {
-                // 职业猜测
-                var btn1 = Button
-                        .builder(Component.translatable("screen.limited_inventory.menu.role_guess"), (btn) -> {
-                            var screen = new GuessRoleScreen(parent);
-                            minecraft.setScreen(screen);
-                            toggleViewMenu.accept(false);
-                        }).bounds(width - menuButtonWidth, startY - menuButtonHeight, menuButtonWidth, menuButtonHeight)
-                        .build();
-                menuSelections.add(btn1);
-                startY -= menuButtonHeight;
-            }
-            if (minecraft.player.hasPermissions(2)) {
-                // mod_settings
-                var btn1 = Button
-                        .builder(Component.translatable("screen.limited_inventory.menu.mod_settings")
-                                .withStyle(ChatFormatting.RED), (btn) -> {
-                                    var screen = new SettingMenuScreen(parent);
-                                    minecraft.setScreen(screen);
-                                    toggleViewMenu.accept(false);
-                                })
-                        .bounds(width - menuButtonWidth, startY - menuButtonHeight, menuButtonWidth, menuButtonHeight)
-                        .build();
-                menuSelections.add(btn1);
-                startY -= menuButtonHeight;
-            } else {
-                // mod client settings
-                var btn1 = Button
-                        .builder(Component.translatable("screen.limited_inventory.menu.mod_settings_client")
-                                .withStyle(ChatFormatting.WHITE), (btn) -> {
-                                    var screen = SREClientConfig.HANDLER.generateGui().generateScreen(parent);
-                                    minecraft.setScreen(screen);
-                                    toggleViewMenu.accept(false);
-                                })
-                        .bounds(width - menuButtonWidth, startY - menuButtonHeight, menuButtonWidth, menuButtonHeight)
-                        .build();
-                menuSelections.add(btn1);
-                startY -= menuButtonHeight;
-            }
-            if (minecraft.player.hasPermissions(2)) {
-                // game_menu
-                var btn1 = Button
-                        .builder(Component.translatable("screen.limited_inventory.menu.game_menu")
-                                .withStyle(ChatFormatting.RED), (btn) -> {
-                                    var screen = new GameManagementScreen(parent);
-                                    minecraft.setScreen(screen);
-                                    toggleViewMenu.accept(false);
-                                })
-                        .bounds(width - menuButtonWidth, startY - menuButtonHeight, menuButtonWidth, menuButtonHeight)
-                        .build();
-                menuSelections.add(btn1);
-                startY -= menuButtonHeight;
-            }
+        int startY = height - menuButtonHeight;
+        for (MenuEntry entry : entries(minecraft, parent, toggleViewMenu)) {
+            startY -= menuButtonHeight;
+            menuSelections.add(Button.builder(entry.label(), entry.action())
+                    .bounds(width - menuButtonWidth, startY, menuButtonWidth, menuButtonHeight)
+                    .build());
         }
         return menuSelections;
     }

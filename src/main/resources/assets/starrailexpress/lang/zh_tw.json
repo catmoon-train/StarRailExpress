@@ -1117,6 +1117,7 @@
   "screen.limited_inventory.menu.mod_settings": "列車模組設置",
   "screen.limited_inventory.menu.mod_settings_client": "列車客戶端選項",
   "screen.limited_inventory.menu.game_menu": "遊戲管理",
+  "screen.limited_inventory.waiting.status": "等待遊戲開始…",
   "=== 遊戲管理UI ===": "",
   "tip.game_manage.send_command": "已發送命令：%s",
   "screen.game_manage.click_to_send": "點擊執行命令：%s",
@@ -2240,5 +2241,11 @@
   "hud.noellesroles.repair.skill_state.runner_vault": "翻越衝刺",
   "hud.noellesroles.repair.skill_state.archivist_notes": "風險記錄",
   "hud.noellesroles.repair.skill_state.saboteur_signal": "假信號",
-  "hud.noellesroles.repair.skill_state.collector_supply": "應急調配"
+  "hud.noellesroles.repair.skill_state.collector_supply": "應急調配",
+  "subtitle.task.new": "新任務已分配",
+  "subtitle.task.parallel": "並列任務已出現",
+  "subtitle.sre.teamkill_warning": "⚠ 隊友擊殺警告",
+  "subtitle.sre.teamkill_remaining": "已擊殺 %d/%d 次隊友 · 再犯 %d 次將觸發懲罰",
+  "subtitle.sre.teamkill_violation": "❌ 違規：頻繁擊殺隊友",
+  "subtitle.sre.teamkill_punished": "已觸發懲罰 (%d/%d)"
 }

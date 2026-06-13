@@ -334,6 +334,13 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
         maybeGrantQuestRewards();
     }
 
+    public void onPickupItem(String itemId) {
+        String key = normalizeNullableString(itemId);
+        incrementQuest(ObjectiveType.PICKUP_ITEM, key, 1);
+        incrementQuest(ObjectiveType.PICKUP_ITEM, null, 1);
+        maybeGrantQuestRewards();
+    }
+
     /** 管理员或自动刷新每日任务 */
     public void forceRefreshTasks() {
         generateLocalDailyTasks(true);
@@ -1487,7 +1494,9 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
         /** 以特定阵营赢得一局（objectiveKey=阵营questKey） */
         WIN_AS_FACTION,
         /** 在游戏结束时存活（不被杀死） */
-        SURVIVE_MATCH;
+        SURVIVE_MATCH,
+        /** 拾取物品（objectiveKey=物品ID，可用逗号分隔多个） */
+        PICKUP_ITEM;
 
         public static ObjectiveType fromString(String raw) {
             for (ObjectiveType value : values()) {
@@ -1648,49 +1657,53 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
                         ObjectiveType.WIN_MATCH, null, 2, 220, 100, 1, FactionCardType.NONE, 4, QuestCategory.DAILY),
                 new QuestTemplate("kill_player", "致命时刻", "击杀 1 名玩家",
                         ObjectiveType.KILL_PLAYER, null, 1, 90, 45, 0, FactionCardType.NONE, 5, QuestCategory.DAILY),
-                new QuestTemplate("kill_player_2", "双重打击", "击杀 2 名玩家",
-                        ObjectiveType.KILL_PLAYER, null, 2, 160, 80, 0, FactionCardType.NONE, 6, QuestCategory.DAILY),
-                new QuestTemplate("kill_player_3", "三连猎手", "击杀 3 名玩家",
-                        ObjectiveType.KILL_PLAYER, null, 3, 230, 110, 1, FactionCardType.NONE, 7, QuestCategory.DAILY),
+                new QuestTemplate("kill_player_diff_1", "精准猎杀", "击杀 1 名不同阵营玩家",
+                        ObjectiveType.KILL_PLAYER_DIFFERENT_TEAM, null, 1, 95, 50, 0, FactionCardType.NONE, 6, QuestCategory.DAILY),
+                new QuestTemplate("kill_player_diff_2", "双重打击", "击杀 2 名不同阵营玩家",
+                        ObjectiveType.KILL_PLAYER_DIFFERENT_TEAM, null, 2, 165, 90, 0, FactionCardType.NONE, 7, QuestCategory.DAILY),
+                new QuestTemplate("kill_player_diff_3", "三连猎手", "击杀 3 名不同阵营玩家",
+                        ObjectiveType.KILL_PLAYER_DIFFERENT_TEAM, null, 3, 245, 130, 1, FactionCardType.NONE, 8, QuestCategory.DAILY),
                 new QuestTemplate("finish_round_quest_2", "情绪管理专家", "完成 2 个局内任务",
-                        ObjectiveType.COMPLETE_ROUND_QUEST, null, 2, 80, 40, 0, FactionCardType.NONE, 8,
+                        ObjectiveType.COMPLETE_ROUND_QUEST, null, 2, 80, 40, 0, FactionCardType.NONE, 9,
                         QuestCategory.DAILY),
                 new QuestTemplate("finish_round_quest_3", "全力以赴", "完成 3 个局内任务",
-                        ObjectiveType.COMPLETE_ROUND_QUEST, null, 3, 130, 65, 0, FactionCardType.NONE, 9,
+                        ObjectiveType.COMPLETE_ROUND_QUEST, null, 3, 130, 65, 0, FactionCardType.NONE, 10,
                         QuestCategory.DAILY),
                 new QuestTemplate("survive_match", "沉默求生", "存活至游戏结束（1 局）",
-                        ObjectiveType.SURVIVE_MATCH, null, 1, 100, 50, 0, FactionCardType.NONE, 10,
+                        ObjectiveType.SURVIVE_MATCH, null, 1, 100, 50, 0, FactionCardType.NONE, 11,
                         QuestCategory.DAILY),
                 new QuestTemplate("survive_match_2", "双倍谨慎", "存活至游戏结束（2 局）",
-                        ObjectiveType.SURVIVE_MATCH, null, 2, 175, 85, 0, FactionCardType.NONE, 11,
+                        ObjectiveType.SURVIVE_MATCH, null, 2, 175, 85, 0, FactionCardType.NONE, 12,
                         QuestCategory.DAILY),
                 new QuestTemplate("be_killer", "危险倾向", "下一局成为杀手阵营",
                         ObjectiveType.BECOME_FACTION, FactionCardType.KILLER.questKey,
-                        1, 110, 30, 0, FactionCardType.KILLER, 12, QuestCategory.DAILY),
+                        1, 110, 30, 0, FactionCardType.KILLER, 13, QuestCategory.DAILY),
                 new QuestTemplate("be_civilian", "守序之心", "下一局成为平民阵营",
                         ObjectiveType.BECOME_FACTION, FactionCardType.CIVILIAN.questKey,
-                        1, 110, 30, 0, FactionCardType.CIVILIAN, 13, QuestCategory.DAILY),
+                        1, 110, 30, 0, FactionCardType.CIVILIAN, 14, QuestCategory.DAILY),
                 new QuestTemplate("be_neutral", "灰色地带", "下一局成为中立阵营",
                         ObjectiveType.BECOME_FACTION, FactionCardType.NEUTRAL.questKey,
-                        1, 120, 35, 0, FactionCardType.NEUTRAL, 14, QuestCategory.DAILY),
+                        1, 120, 35, 0, FactionCardType.NEUTRAL, 15, QuestCategory.DAILY),
                 new QuestTemplate("play_killer", "刀锋试炼", "完成 1 局杀手阵营对局",
                         ObjectiveType.PLAY_AS_FACTION, FactionCardType.KILLER.questKey,
-                        1, 75, 50, 0, FactionCardType.NONE, 15, QuestCategory.DAILY),
+                        1, 75, 50, 0, FactionCardType.NONE, 16, QuestCategory.DAILY),
                 new QuestTemplate("play_civilian", "乘客本能", "完成 1 局平民阵营对局",
                         ObjectiveType.PLAY_AS_FACTION, FactionCardType.CIVILIAN.questKey,
-                        1, 75, 50, 0, FactionCardType.NONE, 16, QuestCategory.DAILY),
+                        1, 75, 50, 0, FactionCardType.NONE, 17, QuestCategory.DAILY),
                 new QuestTemplate("play_neutral", "局外观察者", "完成 1 局中立阵营对局",
                         ObjectiveType.PLAY_AS_FACTION, FactionCardType.NEUTRAL.questKey,
-                        1, 90, 55, 0, FactionCardType.NONE, 17, QuestCategory.DAILY),
+                        1, 90, 55, 0, FactionCardType.NONE, 18, QuestCategory.DAILY),
                 new QuestTemplate("win_as_killer", "悄无声息", "以杀手阵营赢得 1 局",
                         ObjectiveType.WIN_AS_FACTION, FactionCardType.KILLER.questKey,
-                        1, 150, 70, 0, FactionCardType.NONE, 18, QuestCategory.DAILY),
+                        1, 150, 70, 0, FactionCardType.NONE, 19, QuestCategory.DAILY),
                 new QuestTemplate("win_as_civilian", "正义时刻", "以平民阵营赢得 1 局",
                         ObjectiveType.WIN_AS_FACTION, FactionCardType.CIVILIAN.questKey,
-                        1, 140, 65, 0, FactionCardType.NONE, 19, QuestCategory.DAILY),
+                        1, 140, 65, 0, FactionCardType.NONE, 20, QuestCategory.DAILY),
                 new QuestTemplate("win_as_neutral", "独立意志", "以中立阵营赢得 1 局",
                         ObjectiveType.WIN_AS_FACTION, FactionCardType.NEUTRAL.questKey,
-                        1, 155, 70, 0, FactionCardType.NONE, 20, QuestCategory.DAILY));
+                        1, 155, 70, 0, FactionCardType.NONE, 21, QuestCategory.DAILY),
+                new QuestTemplate("pickup_item_5", "拾荒者", "拾取 5 个物品",
+                        ObjectiveType.PICKUP_ITEM, null, 5, 70, 35, 0, FactionCardType.NONE, 22, QuestCategory.DAILY));
 
         // ========== 内置周常回退模板（当本地 JSON 不可用时使用）==========
         private static final List<QuestTemplate> DEFAULT_WEEKLY_POOL = List.of(
@@ -1700,10 +1713,10 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
                         ObjectiveType.PLAY_MATCH, null, 10, 900, 350, 2, FactionCardType.NONE, 2, QuestCategory.WEEKLY),
                 new QuestTemplate("weekly_win_3", "列车周冠军", "赢下 3 局游戏",
                         ObjectiveType.WIN_MATCH, null, 3, 600, 250, 2, FactionCardType.NONE, 3, QuestCategory.WEEKLY),
-                new QuestTemplate("weekly_kill_5", "周猎人", "累计击杀 5 名玩家",
-                        ObjectiveType.KILL_PLAYER, null, 5, 550, 220, 1, FactionCardType.NONE, 4, QuestCategory.WEEKLY),
-                new QuestTemplate("weekly_kill_10", "血腥收割", "累计击杀 10 名玩家",
-                        ObjectiveType.KILL_PLAYER, null, 10, 950, 380, 2, FactionCardType.NONE, 5,
+                new QuestTemplate("weekly_kill_diff_5", "周猎人", "累计击杀 5 名不同阵营玩家",
+                        ObjectiveType.KILL_PLAYER_DIFFERENT_TEAM, null, 5, 550, 220, 1, FactionCardType.NONE, 4, QuestCategory.WEEKLY),
+                new QuestTemplate("weekly_kill_diff_10", "血腥收割", "累计击杀 10 名不同阵营玩家",
+                        ObjectiveType.KILL_PLAYER_DIFFERENT_TEAM, null, 10, 950, 380, 2, FactionCardType.NONE, 5,
                         QuestCategory.WEEKLY),
                 new QuestTemplate("weekly_quest_8", "专注使命", "完成 8 个局内任务",
                         ObjectiveType.COMPLETE_ROUND_QUEST, null, 8, 700, 280, 2, FactionCardType.NONE, 6,
@@ -1719,7 +1732,9 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
                         2, 620, 250, 1, FactionCardType.CIVILIAN, 9, QuestCategory.WEEKLY),
                 new QuestTemplate("weekly_win_neutral", "影中幕后", "以中立阵营赢得 2 局",
                         ObjectiveType.WIN_AS_FACTION, FactionCardType.NEUTRAL.questKey,
-                        2, 660, 260, 1, FactionCardType.NEUTRAL, 10, QuestCategory.WEEKLY));
+                        2, 660, 260, 1, FactionCardType.NEUTRAL, 10, QuestCategory.WEEKLY),
+                new QuestTemplate("weekly_pickup_30", "物资囤积", "拾取 30 个物品",
+                        ObjectiveType.PICKUP_ITEM, null, 30, 620, 260, 1, FactionCardType.NONE, 11, QuestCategory.WEEKLY));
 
         // ========== 内置永久任务模板（不会刷新，固定存在）==========
         private static final List<QuestTemplate> DEFAULT_PERMANENT_POOL = List.of(
@@ -1728,7 +1743,19 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
                         12, 800, 300, 2, FactionCardType.NONE, 1, QuestCategory.PERMANENT),
                 new QuestTemplate("permanent_use_medical_items", "应急补给", "累计使用牛奶桶或金苹果 6 次",
                         ObjectiveType.USE_ITEM, "minecraft:milk_bucket,minecraft:golden_apple",
-                        6, 600, 240, 1, FactionCardType.CIVILIAN, 2, QuestCategory.PERMANENT));
+                        6, 600, 240, 1, FactionCardType.CIVILIAN, 2, QuestCategory.PERMANENT),
+                new QuestTemplate("permanent_kill_diff_20", "不同路", "累计击杀 20 名不同阵营玩家",
+                        ObjectiveType.KILL_PLAYER_DIFFERENT_TEAM, null,
+                        20, 1200, 500, 3, FactionCardType.KILLER, 3, QuestCategory.PERMANENT),
+                new QuestTemplate("permanent_survive_20", "生存哲学", "累计存活至游戏结束 20 局",
+                        ObjectiveType.SURVIVE_MATCH, null,
+                        20, 1000, 400, 2, FactionCardType.CIVILIAN, 4, QuestCategory.PERMANENT),
+                new QuestTemplate("permanent_pickup_item_50", "收集癖", "累计拾取 50 个物品",
+                        ObjectiveType.PICKUP_ITEM, null,
+                        50, 650, 260, 1, FactionCardType.NONE, 5, QuestCategory.PERMANENT),
+                new QuestTemplate("permanent_play_match_30", "列车老手", "累计完成 30 局游戏",
+                        ObjectiveType.PLAY_MATCH, null,
+                        30, 1500, 600, 3, FactionCardType.NONE, 6, QuestCategory.PERMANENT));
 
         private PassQuest instantiate() {
             return new PassQuest(this.id, this.title, this.description, this.objectiveType, this.objectiveKey, 0,

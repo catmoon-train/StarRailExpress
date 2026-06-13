@@ -591,6 +591,9 @@ public abstract class GameMode {
                                 killerStats.incrementTotalTeamKills();
                                 killerStats.getOrCreateRoleStats(killerRole.identifier()).incrementTeamKillsAsRole();
                             }
+                        } else {
+                            // 非友军击杀 → 触发"击杀不同阵营玩家"进度任务
+                            SREPlayerProgressionComponent.KEY.get(serverKiller).onPlayerKillDifferentTeam();
                         }
                     }
                 }

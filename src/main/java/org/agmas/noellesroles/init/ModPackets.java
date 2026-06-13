@@ -68,6 +68,8 @@ public class ModPackets {
 
         PayloadTypeRegistry.playC2S().register(OpenIntroPayload.ID, OpenIntroPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(AbilityC2SPacket.ID, AbilityC2SPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(UnifiedSkillInputC2SPacket.ID, UnifiedSkillInputC2SPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(UnifiedSkillSelectC2SPacket.ID, UnifiedSkillSelectC2SPacket.CODEC);
         PayloadTypeRegistry.playS2C().register(ToggleInsaneSkillC2SPacket.ID, ToggleInsaneSkillC2SPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(SwapperC2SPacket.ID, SwapperC2SPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(VultureEatC2SPacket.ID, VultureEatC2SPacket.CODEC);

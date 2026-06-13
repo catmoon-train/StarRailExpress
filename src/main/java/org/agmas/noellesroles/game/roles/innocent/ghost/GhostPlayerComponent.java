@@ -131,24 +131,19 @@ public class GhostPlayerComponent implements RoleComponent, ServerTickingCompone
         if (invisibilityTicks > 0) {
             invisibilityTicks--;
         }
-        if (cooldown % 400 == 0) {
+        if (player.level().getGameTime() % 20 == 0) {
             sync();
         }
     }
 
-    public void useAbility() {
+    public boolean useAbility() {
+        // 冷却由 RoleSkill 统一管理
         if (!abilityUnlocked) {
             player.displayClientMessage(
                     Component.translatable("message.noellesroles.ghost.not_unlocked")
                             .withStyle(ChatFormatting.RED),
                     true);
-            return;
-        }
-
-        if (cooldown > 0) {
-            player.displayClientMessage(
-                    Component.translatable("message.noellesroles.ability_cooldown", (cooldown + 19) / 20), true);
-            return;
+            return false;
         }
 
         SREPlayerShopComponent shopComponent = SREPlayerShopComponent.KEY.get(player);
@@ -158,13 +153,12 @@ public class GhostPlayerComponent implements RoleComponent, ServerTickingCompone
                 serverPlayer.level().playSound(null, serverPlayer.blockPosition(), TMMSounds.UI_SHOP_BUY_FAIL,
                         SoundSource.PLAYERS, 1.0F, 1.0F);
             }
-            return;
+            return false;
         }
 
         shopComponent.balance -= 150;
         shopComponent.sync();
 
-        cooldown = 400;
         invisibilityTicks = 160;
         player.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, 160, 0, false, false, true));
 
@@ -174,6 +168,7 @@ public class GhostPlayerComponent implements RoleComponent, ServerTickingCompone
         }
 
         sync();
+        return true;
     }
 
     public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {

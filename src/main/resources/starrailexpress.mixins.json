@@ -29,6 +29,7 @@
     "item.BundleContentsMixin",
     "item.BundleItemMixin",
     "item.FoodItemMixin",
+    "item.ItemPickupProgressionMixin",
     "item.ItemStackMixin",
     "item.UseItemProgressionMixin",
     "network.NetworkReceiveStatisticsMixin",
@@ -41,7 +42,8 @@
     "server.PlayerDiscard",
     "util.EntitySelectorMixin",
     "whitelist.ServerHandshakePacketListenerImplMixin",
-    "world.ChunkSerializerMixin"
+    "world.ChunkSerializerMixin",
+    "world.SceneAssetDirtyMixin"
   ],
   "injectors": {
     "defaultRequire": 1
@@ -90,13 +92,6 @@
     "client.ui.RenderEffectMixin",
     "client.ui.SpectatorQuickGameMenu",
     "client.ui.TooltipBackgroundRendererMixin",
-    "compat.sodium.DefaultChunkRendererMixin",
-    "compat.sodium.DefaultShaderInterfaceMixin",
-    "compat.sodium.OcclusionCullerMixin",
-    "compat.sodium.RenderSectionManagerMixin",
-    "compat.sodium.ShaderLoaderMixin",
-    "compat.sodium.SodiumShaderMixin",
-    "compat.sodium.SodiumTransformerMixin",
     "compat.sodium_extra.SodiumExtraDisableOptionMixin",
     "compat.sodium_extra.SodiumExtraLoadedMixin",
     "entity.player.LocalPlayerMixin",

@@ -734,10 +734,10 @@ public class RoleIntroduceScreen extends Screen {
         renderCategoryBar(g, mouseX, mouseY, catBarX, topBarY, catBarW, TOP_BAR_H);
         // 顶部遮罩 + 标题
         g.fillGradient(0, 0, width, topBarY - 4, 0xBB000000, 0x00000000);
-        g.drawCenteredString(font, this.title, width / 2, 8, 0xEEEEFF);
+        g.drawCenteredString(font, this.title, width / 2, 8, 0xF5E8C8);
         // 底部提示上移，为模式按钮留空间
         g.drawCenteredString(font, Component.translatable("screen.roleintroduce.hint").withStyle(ChatFormatting.GRAY),
-                width / 2, height - 24, 0xEEEEFF);
+                width / 2, height - 24, 0x9E8B6E);
 
         // ── 左下角模式切换按钮 ──────────────────────────────────
         renderModeButtons(g, mouseX, mouseY, leftW - PANEL_PAD * 4);
@@ -810,24 +810,24 @@ public class RoleIntroduceScreen extends Screen {
             // 绘制背景与边框（颜色逻辑保持不变）
             if (isActive) {
                 g.fillGradient(curX, curY, curX + btnW, curY + btnH,
-                        blendColors(0xFF0D1020, modes[i].color, 0.55f),
-                        blendColors(0xFF0A0C18, modes[i].color, 0.30f));
+                        blendColors(0xFF1A1008, modes[i].color, 0.55f),
+                        blendColors(0xFF120A04, modes[i].color, 0.30f));
                 g.fill(curX, curY + btnH - 2, curX + btnW, curY + btnH, modes[i].color);
                 g.fill(curX, curY, curX + 1, curY + btnH, (modes[i].color & 0x00FFFFFF) | 0xAA000000);
                 g.fill(curX + btnW - 1, curY, curX + btnW, curY + btnH, (modes[i].color & 0x00FFFFFF) | 0xAA000000);
             } else if (isHovered) {
                 g.fillGradient(curX, curY, curX + btnW, curY + btnH,
-                        blendColors(0xFF0D1020, modes[i].color, 0.25f),
-                        blendColors(0xFF0A0C18, modes[i].color, 0.12f));
+                        blendColors(0xFF1A1008, modes[i].color, 0.25f),
+                        blendColors(0xFF120A04, modes[i].color, 0.12f));
                 g.renderOutline(curX, curY, btnW, btnH, (modes[i].color & 0x00FFFFFF) | 0x44000000);
             } else {
-                g.fill(curX, curY, curX + btnW, curY + btnH, 0x55111828);
-                g.renderOutline(curX, curY, btnW, btnH, 0x55334466);
+                g.fill(curX, curY, curX + btnW, curY + btnH, 0x551A1008);
+                g.renderOutline(curX, curY, btnW, btnH, 0x558B6914);
             }
 
             // 绘制文本
             int textColor = isActive ? (modes[i].color | 0xFF000000)
-                    : isHovered ? 0xFFCCDDFF : 0xFF7788AA;
+                    : isHovered ? 0xFFFFF4DC : 0xFF9E8B6E;
             g.drawCenteredString(font, truncated,
                     curX + btnW / 2,
                     curY + (btnH - font.lineHeight) / 2,
@@ -920,8 +920,8 @@ public class RoleIntroduceScreen extends Screen {
             if (active) {
                 // 激活：彩色渐变背景 + 底部指示条
                 g.fillGradient(curX, barY, curX + tw, barY + barH,
-                        blendColors(0xFF0D1020, baseColor, 0.50f),
-                        blendColors(0xFF0A0C18, baseColor, 0.28f));
+                        blendColors(0xFF1A1008, baseColor, 0.50f),
+                        blendColors(0xFF120A04, baseColor, 0.28f));
                 g.fill(curX, barY + barH - 2, curX + tw, barY + barH, baseColor);
                 g.fill(curX, barY, curX + 1, barY + barH,
                         (baseColor & 0x00FFFFFF) | 0xAA000000);
@@ -931,22 +931,22 @@ public class RoleIntroduceScreen extends Screen {
                         (baseColor & 0x00FFFFFF) | 0x55000000);
             } else if (hovered) {
                 g.fillGradient(curX, barY, curX + tw, barY + barH,
-                        blendColors(0xFF0D1020, baseColor, 0.22f),
-                        blendColors(0xFF0A0C18, baseColor, 0.10f));
+                        blendColors(0xFF1A1008, baseColor, 0.22f),
+                        blendColors(0xFF120A04, baseColor, 0.10f));
                 g.fill(curX, barY + barH - 1, curX + tw, barY + barH,
                         (baseColor & 0x00FFFFFF) | 0x66000000);
                 g.renderOutline(curX, barY, tw, barH,
                         (baseColor & 0x00FFFFFF) | 0x44000000);
             } else {
-                g.fill(curX, barY, curX + tw, barY + barH, 0x33111828);
-                g.renderOutline(curX, barY, tw, barH, 0x33334466);
+                g.fill(curX, barY, curX + tw, barY + barH, 0x331A1008);
+                g.renderOutline(curX, barY, tw, barH, 0x338B6914);
             }
 
             String label = Component.translatable(CATEGORIES.get(i).labelKey).getString();
             String truncated = font.plainSubstrByWidth(label, tw - 4);
             int textColor = active ? (baseColor | 0xFF000000)
-                    : hovered ? 0xFFCCDDFF
-                            : 0xFF7788AA;
+                    : hovered ? 0xFFFFF4DC
+                            : 0xFF9E8B6E;
             g.drawCenteredString(font, truncated,
                     curX + tw / 2,
                     barY + (barH - font.lineHeight) / 2,
@@ -966,25 +966,25 @@ public class RoleIntroduceScreen extends Screen {
         int rawColor = RoleUtils.getRoleOrModifierColor(role);
         int roleColor = rawColor | 0xFF000000;
 
-        int outerBorder = selected ? 0xFF6688EE
-                : (hover > 0.05f ? blendColors(0xFF2A3060, 0xFF5566BB, hover) : 0xFF2A3060);
+        int outerBorder = selected ? 0xFFD4AF37
+                : (hover > 0.05f ? blendColors(0xFF5A4530, 0xFFC9A84C, hover) : 0xFF5A4530);
         g.fill(x, y, x + w, y + h, outerBorder);
 
         int bgL, bgR;
         if (selected) {
-            bgL = 0xFF223380;
-            bgR = 0xFF162060;
+            bgL = 0xFF5A4520;
+            bgR = 0xFF3A2A10;
         } else if (hover > 0.05f) {
-            bgL = blendColors(0xFF141828, 0xFF1E2E68, hover);
-            bgR = blendColors(0xFF0E1020, 0xFF162050, hover);
+            bgL = blendColors(0xFF1A1008, 0xFF5A4520, hover);
+            bgR = blendColors(0xFF120A04, 0xFF3A2A10, hover);
         } else {
-            bgL = 0xFF141828;
-            bgR = 0xFF0E1020;
+            bgL = 0xFF1A1008;
+            bgR = 0xFF120A04;
         }
         g.fillGradient(x + 1, y + 1, x + w - 1, y + h - 1, bgL, bgR);
 
         g.fill(x + 1, y + 1, x + w - 1, y + 2,
-                selected ? 0x44AABBFF : (hover > 0.05f ? 0x25FFFFFF : 0x10FFFFFF));
+                selected ? 0x44FFE8C0 : (hover > 0.05f ? 0x25FFFFFF : 0x10FFFFFF));
 
         int barW = 3;
         g.fill(x + 1, y + 1, x + 1 + barW, y + h - 1, roleColor);
@@ -994,7 +994,7 @@ public class RoleIntroduceScreen extends Screen {
         int iconX = x + 1 + barW + 5;
         int iconY = y + (h - ICON_SIZE) / 2;
         g.fill(iconX, iconY, iconX + ICON_SIZE, iconY + ICON_SIZE,
-                blendColors(0xFF0A0C18, roleColor, 0.25f));
+                blendColors(0xFF120A04, roleColor, 0.25f));
         boolean iconOk = false;
         if (role instanceof Item it) {
             iconOk = true;
@@ -1010,7 +1010,7 @@ public class RoleIntroduceScreen extends Screen {
 
         if (!iconOk) {
             g.fill(iconX, iconY, iconX + ICON_SIZE, iconY + ICON_SIZE,
-                    blendColors(0xFF111320, roleColor, 0.55f));
+                    blendColors(0xFF1A1008, roleColor, 0.55f));
             String initial = RoleUtils.getRoleOrModifierOrItemName(role).getString();
             if (!initial.isEmpty())
                 g.drawCenteredString(font,
@@ -1029,14 +1029,14 @@ public class RoleIntroduceScreen extends Screen {
                 font.plainSubstrByWidth(
                         RoleUtils.getRoleOrModifierOrItemTypeName(role).getString(), textMaxW),
                 textX, y + 5,
-                selected ? 0xFF88CCEE : blendColors(0xFF5577AA, 0xFF88BBDD, hover), false);
+                selected ? 0xFFD4AF37 : blendColors(0xFF9E8B6E, 0xFFC9A84C, hover), false);
 
         int nameY = y + 5 + font.lineHeight + 1;
         List<FormattedCharSequence> nameLines = font.split(
                 RoleUtils.getRoleOrModifierOrItemNameWithColor(role), textMaxW);
         if (!nameLines.isEmpty())
             g.drawString(font, nameLines.get(0), textX, nameY,
-                    selected ? 0xFFFFDD88 : (hover > 0.3f ? 0xFFEEEEFF : 0xFFCCCCDD), selected);
+                    selected ? 0xFFF5E8C8 : (hover > 0.3f ? 0xFFFFF4DC : 0xFFE8D8B0), selected);
 
         Component subText = getCardSubText(role);
         if (subText != null) {
@@ -1133,7 +1133,7 @@ public class RoleIntroduceScreen extends Screen {
             g.drawCenteredString(font,
                     Component.translatable("screen.roleintroduce.select_hint")
                             .withStyle(ChatFormatting.GRAY),
-                    rightX + rightW / 2, panelY + panelH / 2, 0x888899);
+                    rightX + rightW / 2, panelY + panelH / 2, 0x9E8B6E);
             return;
         }
 
@@ -1148,7 +1148,7 @@ public class RoleIntroduceScreen extends Screen {
         int bIconX = rightX + PANEL_PAD;
         int bIconY = panelY + 3;
         g.fill(bIconX, bIconY, bIconX + bIconSize, bIconY + bIconSize,
-                blendColors(0xFF0A0C18, rawColor | 0xFF000000, 0.3f));
+                blendColors(0xFF120A04, rawColor | 0xFF000000, 0.3f));
         if (selectedRole instanceof Item it) {
             g.renderItem(it.getDefaultInstance(), bIconX + (bIconSize - 16) / 2, bIconY + (bIconSize - 16) / 2);
         } else {
@@ -1226,16 +1226,16 @@ public class RoleIntroduceScreen extends Screen {
     // ══════════════════════════════════════════════════════════════════
 
     private void drawPanelBg(GuiGraphics g, int x, int y, int w, int h) {
-        g.fillGradient(x, y, x + w, y + h, 0xD80C1020, 0xD8101828);
-        g.renderOutline(x, y, w, h, 0xFF1E3060);
-        g.fill(x + 1, y + 1, x + w - 1, y + 2, 0x22FFFFFF);
+        g.fillGradient(x, y, x + w, y + h, 0xD81A1008, 0xD820140A);
+        g.renderOutline(x, y, w, h, 0xFF8B6914);
+        g.fill(x + 1, y + 1, x + w - 1, y + 2, 0x22FFE8C0);
     }
 
     private void renderVScrollbar(GuiGraphics g, int x, int y, int h,
             int scrollOffset, int maxScroll, int totalContentH,
             int mouseX, int mouseY, boolean dragging) {
-        g.fill(x, y, x + SCROLL_W, y + h, 0xFF111828);
-        g.fill(x + 1, y + 1, x + SCROLL_W - 1, y + h - 1, 0x55334466);
+        g.fill(x, y, x + SCROLL_W, y + h, 0xFF1A1008);
+        g.fill(x + 1, y + 1, x + SCROLL_W - 1, y + h - 1, 0x558B6914);
         if (maxScroll <= 0)
             return;
 
@@ -1245,9 +1245,9 @@ public class RoleIntroduceScreen extends Screen {
         boolean hl = dragging || isInRect(mouseX, mouseY, x, thumbY, SCROLL_W, thumbH);
 
         g.fill(x, thumbY, x + SCROLL_W, thumbY + thumbH,
-                hl ? 0xFF8899CC : 0xFF556699);
+                hl ? 0xFFC9A84C : 0xFF8B6914);
         g.fill(x + 1, thumbY + 1, x + SCROLL_W - 1, thumbY + thumbH - 1,
-                hl ? 0xFFAABBEE : 0xFF7788BB);
+                hl ? 0xFFD4AF37 : 0xFFB8960C);
         g.fill(x + 1, thumbY + 1, x + SCROLL_W - 1, thumbY + 3, 0x44FFFFFF);
     }
 

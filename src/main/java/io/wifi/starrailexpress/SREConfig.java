@@ -72,6 +72,12 @@ public class SREConfig implements ConfigData {
     public int grenadePrice = 330;
     @ConfigSync(shouldSync = true)
     @ConfigEntry.Category(value = "shop")
+    public int stickyGrenadePrice = 300;
+    @ConfigSync(shouldSync = true)
+    @ConfigEntry.Category(value = "shop")
+    public int timedGrenadePrice = 350;
+    @ConfigSync(shouldSync = true)
+    @ConfigEntry.Category(value = "shop")
     public int psychoModePrice = 400;
     @ConfigSync(shouldSync = true)
     @ConfigEntry.Category(value = "shop")
@@ -152,6 +158,10 @@ public class SREConfig implements ConfigData {
     public int passiveMoneyAmount = 5;
     public int passiveMoneyInterval = 10;
     public int moneyPerKill = 100;
+    @Tooltip
+    public int grenadeMoneyPerKill = 75;
+    @Tooltip
+    public int grenadeMaxMoneyReward = 375;
     public int psychoModeArmor = 1;
     public int psychoModeDuration = 30;
     public int firecrackerDuration = 15;
@@ -260,6 +270,20 @@ public class SREConfig implements ConfigData {
     public int afkWarningSeconds = 4 * 60; // 4分钟时开始警告
     @ConfigEntry.Category(value = "afk") // 1秒到30秒
     public int afkSleepySeconds = 3 * 60; // 3分钟时开始困倦效果
+
+    // 队友击杀违规检测配置
+    @ConfigEntry.Category(value = "teamkill")
+    @Tooltip(count = 4)
+    public boolean teamKillViolationEnabled = true;
+    @ConfigEntry.Category(value = "teamkill")
+    @Tooltip(count = 5)
+    public int teamKillViolationThreshold = 2; // 窗口内队友击杀次数阈值
+    @ConfigEntry.Category(value = "teamkill")
+    @Tooltip(count = 3)
+    public int teamKillViolationWindowSeconds = 60; // 检测时间窗口（秒）
+    @ConfigEntry.Category(value = "teamkill")
+    @Tooltip(count = 3)
+    public String teamKillViolationMcFunction = "starrailexpress:teamkill_violation"; // 触发后执行的 mcfunction
 
     public static boolean isUltraPerfMode() {
         return SREClientConfig.instance().ultraPerfMode;

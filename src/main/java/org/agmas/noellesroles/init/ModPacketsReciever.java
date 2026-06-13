@@ -641,11 +641,19 @@ public class ModPacketsReciever {
     ServerPlayNetworking.registerGlobalReceiver(ModPackets.ABILITY_PACKET, (payload, context) -> {
       if (context.player().hasEffect(ModEffects.SAFE_TIME))// 安全时间
         return;
-      RoleSkill.beginUse(context.player());
+      RoleSkill.beginUseShifted(context.player());
     });
+    ServerPlayNetworking.registerGlobalReceiver(UnifiedSkillInputC2SPacket.ID, (payload, context) -> {
+      if (context.player().hasEffect(ModEffects.SAFE_TIME)) {
+        return;
+      }
+      RoleSkill.beginUse(context.player(), payload.target(), payload.slot(), payload.phase());
+    });
+    ServerPlayNetworking.registerGlobalReceiver(UnifiedSkillSelectC2SPacket.ID, (payload, context) ->
+      RoleSkill.selectSkill(context.player(), payload.slot()));
     ServerPlayNetworking.registerGlobalReceiver(AbilityWithTargetC2SPacket.ID, (payload, context) -> {
       
-      RoleSkill.beginUseWithTarget(context.player(), payload.target());
+      RoleSkill.beginUseShiftedWithTarget(context.player(), payload.target());
     });
     ServerPlayNetworking.registerGlobalReceiver(ModPackets.INSANE_KILLER_ABILITY_PACKET, (payload, context) -> {
       if (context.player().hasEffect(ModEffects.SAFE_TIME))// 安全时间

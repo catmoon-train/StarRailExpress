@@ -77,24 +77,19 @@ public class NoiseMakerPlayerComponent implements RoleComponent, ServerTickingCo
         if (cooldown > 0) {
             cooldown--;
         }
-        if (cooldown % 20 == 0) {
+        if (player.level().getGameTime() % 20 == 0) {
             sync();
         }
     }
 
     public void useAbility() {
-        if (cooldown > 0) {
-            player.displayClientMessage(
-                    Component.translatable("message.noellesroles.ability_cooldown", (cooldown) / 20), true);
-            return;
-        }
+        // 冷却由 RoleSkill 统一管理
 
         // player.displayClientMessage(Component.translatable("message.noellesroles.insufficient_funds"),
         // true);
         player.addEffect(
                 new MobEffectInstance(MobEffects.LUCK, 120, 0, false, false, false));
 
-        cooldown = 1200;
         Component msg = Component.translatable("gui.noellesroles.noisemaker.ability").withStyle(ChatFormatting.AQUA,
                 ChatFormatting.BOLD);
 

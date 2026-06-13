@@ -1449,10 +1449,10 @@ public class RoleShopHandler {
                   if (gameWorldComponent.isRole(p, ModRoles.MA_CHEN_XU)) {
                     var mapc = MaChenXuPlayerComponent.KEY.get(p);
                     // 增加所有鬼术冷却30秒
-                    mapc.ghostWallCooldown += 20 * 30;
-                    mapc.echoCooldown += 20 * 30;
-                    mapc.trapCooldown += 20 * 30;
-                    mapc.parasiteCooldown += 20 * 30;
+                    mapc.veilCooldown += 20 * 30;
+                    mapc.effigyCooldown += 20 * 30;
+                    mapc.wailCooldown += 20 * 30;
+                    mapc.seizeCooldown += 20 * 30;
                     mapc.ultimateCooldown += 20 * 30;
                     // 移除护盾
                     mapc.permanentShield = false;

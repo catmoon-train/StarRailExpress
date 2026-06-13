@@ -102,14 +102,7 @@ public class SpellbreakerPlayerComponent implements RoleComponent, ServerTicking
             return;
         }
 
-        SREAbilityPlayerComponent ability = SREAbilityPlayerComponent.KEY.get(player);
-        if (ability.cooldown > 0) {
-            serverPlayer.displayClientMessage(
-                    Component.translatable("tip.noellesroles.cooldown", ability.cooldown / 20)
-                            .withStyle(ChatFormatting.RED),
-                    true);
-            return;
-        }
+        // 冷却由 RoleSkill 统一管理
 
         int affected = 0;
         AABB area = player.getBoundingBox().inflate(ABILITY_RADIUS);
@@ -128,8 +121,6 @@ public class SpellbreakerPlayerComponent implements RoleComponent, ServerTicking
                     true);
             affected++;
         }
-
-        ability.setCooldown(ABILITY_COOLDOWN);
         serverLevel.playSound(null, player.blockPosition(), SoundEvents.ENCHANTMENT_TABLE_USE, SoundSource.PLAYERS,
                 1.0F, 0.7F);
         serverPlayer.displayClientMessage(

@@ -272,6 +272,7 @@ public class CandleBearerPlayerComponent implements RoleComponent, ServerTicking
     }
 
     public boolean useAbility() {
+        // 冷却/次数由 RoleSkill 统一管理
         if (!(player instanceof ServerPlayer serverPlayer)) {
             return false;
         }
@@ -284,7 +285,6 @@ public class CandleBearerPlayerComponent implements RoleComponent, ServerTicking
             return false;
         }
 
-        invisibilityCharges--;
         invisibilityTicks = INVISIBILITY_DURATION_TICKS;
         player.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, INVISIBILITY_DURATION_TICKS, 0,
                 false, false, true));

@@ -7,6 +7,8 @@ import io.wifi.starrailexpress.content.entity.FirecrackerEntity;
 import io.wifi.starrailexpress.content.entity.GrenadeEntity;
 import io.wifi.starrailexpress.content.entity.NoteEntity;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
+import io.wifi.starrailexpress.content.entity.StickyGrenadeEntity;
+import io.wifi.starrailexpress.content.entity.TimedGrenadeEntity;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
@@ -35,6 +37,16 @@ public interface TMMEntities {
     EntityType<NoteEntity> NOTE = registrar.create("note", EntityType.Builder.of(NoteEntity::new, MobCategory.MISC)
             .sized(.45f, .45f)
             .clientTrackingRange(128)
+    );
+    EntityType<StickyGrenadeEntity> STICKY_GRENADE = registrar.create("sticky_grenade",
+            EntityType.Builder.of(StickyGrenadeEntity::new, MobCategory.MISC)
+                    .sized(.2f, .2f)
+                    .clientTrackingRange(128)
+    );
+    EntityType<TimedGrenadeEntity> TIMED_GRENADE = registrar.create("timed_grenade",
+            EntityType.Builder.of(TimedGrenadeEntity::new, MobCategory.MISC)
+                    .sized(.2f, .2f)
+                    .clientTrackingRange(128)
     );
 
     static void initialize() {

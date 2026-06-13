@@ -26,6 +26,10 @@ public class SREMixinPlugin implements IMixinConfigPlugin {
             if (mixinClassName.contains("io.wifi.starrailexpress.mixin.compat.sodium_extra"))
                 return false;
         }
+        if (!FabricLoader.getInstance().isModLoaded("sodium")
+                && mixinClassName.contains("net.exmo.mixin.client.side")) {
+            return false;
+        }
         return true;
     }
 

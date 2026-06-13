@@ -27,6 +27,7 @@ public class ShopContent {
                     SREConfig.instance().revolverPrice, ShopEntry.Type.WEAPON));
                 defaultKnifeEntries.add(new ShopEntry(TMMItems.GRENADE.getDefaultInstance(),
                     SREConfig.instance().grenadePrice, ShopEntry.Type.WEAPON));
+
                 defaultKnifeEntries.add(new ShopEntry(ModItems.SHORT_SHOTGUN.getDefaultInstance(), SREConfig.instance().shortShotgunPrice, ShopEntry.Type.WEAPON));
             defaultKnifeEntries.add(new ShopEntry(TMMItems.PSYCHO_MODE.getDefaultInstance(),
                     SREConfig.instance().psychoModePrice, ShopEntry.Type.WEAPON) {
@@ -48,14 +49,14 @@ public class ShopContent {
             defaultKnifeEntries.add(new ShopEntry(TMMItems.BODY_BAG.getDefaultInstance(),
                     SREConfig.instance().bodyBagPrice, ShopEntry.Type.TOOL));
 
-            defaultKnifeEntries.add(new ShopEntry(TMMItems.MONITOR_BROKEN.getDefaultInstance(),
-                    SREConfig.instance().monitorBrokenPrice, ShopEntry.Type.TOOL) {
-                @Override
-                public boolean onBuy(@NotNull Player player) {
-                    return SREPlayerShopComponent.useMonitorBroken(player,
-                            SREConfig.instance().monitorBrokenDuration * 20);
-                }
-            });
+//            defaultKnifeEntries.add(new ShopEntry(TMMItems.MONITOR_BROKEN.getDefaultInstance(),
+//                    SREConfig.instance().monitorBrokenPrice, ShopEntry.Type.TOOL) {
+//                @Override
+//                public boolean onBuy(@NotNull Player player) {
+//                    return SREPlayerShopComponent.useMonitorBroken(player,
+//                            SREConfig.instance().monitorBrokenDuration * 20);
+//                }
+//            });
             defaultKnifeEntries.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(),
                     SREConfig.instance().blackoutPrice, ShopEntry.Type.TOOL) {
                 @Override

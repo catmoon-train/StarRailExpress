@@ -54,6 +54,10 @@ public interface TMMItems {
             new DefenseItem(new Item.Properties().stacksTo(1)),
             EQUIPMENT_GROUP);
     Item GRENADE = registrar.create("grenade", new GrenadeItem(new Item.Properties().stacksTo(1)), EQUIPMENT_GROUP);
+    Item STICKY_GRENADE = registrar.create("sticky_grenade", new StickyGrenadeItem(new Item.Properties().stacksTo(1)),
+            EQUIPMENT_GROUP);
+    Item TIMED_GRENADE = registrar.create("timed_grenade", new TimedGrenadeItem(new Item.Properties().stacksTo(1)),
+            EQUIPMENT_GROUP);
     Item FIRECRACKER = registrar.create("firecracker", new FirecrackerItem(new Item.Properties().stacksTo(1)),
             EQUIPMENT_GROUP);
     Item REVOLVER = registrar.create("revolver", new RevolverItem(new Item.Properties().stacksTo(1)),
@@ -125,11 +129,14 @@ public interface TMMItems {
         SkinableItem.add(TMMItems.REVOLVER);
         // SkinnableItem.add(TMMItems.LOCKPICK);
         SkinableItem.add(TMMItems.GRENADE);
+        SkinableItem.add(TMMItems.STICKY_GRENADE);
+        SkinableItem.add(TMMItems.TIMED_GRENADE);
         SkinableItem.add(TMMItems.BAT);
 
         // 注册蓄力物品
         ChargeableItemRegistry.register(TMMItems.KNIFE, new KnifeChargeableItem());
         ChargeableItemRegistry.register(TMMItems.GRENADE, new GrenadeChargeableItem());
+        ChargeableItemRegistry.register(TMMItems.STICKY_GRENADE, new GrenadeChargeableItem());
         WatheBridgerItems.initialize();
         sreRegistrar.registerEntries();
     }

@@ -1,133 +1,182 @@
 package net.exmo.sre.loading;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.Util;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.ReceivingLevelScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.BooleanSupplier;
 
-import static io.wifi.starrailexpress.client.gui.MoodRenderer.random;
-import static net.exmo.sre.loading.TrainLoadingScreen.STAR_COUNT;
-
+/**
+ * 星穹铁道风格 —— 加入世界加载界面
+ * <p>
+ * 背景使用帧序列动画播放，告别臃肿的粒子系统。
+ * 仅保留：帧动画背景 + 暗色遮罩 + 状态文字 + 淡入淡出。
+ */
 @Environment(EnvType.CLIENT)
 public class SREReceivingLevelScreen extends ReceivingLevelScreen {
-    public SREReceivingLevelScreen(BooleanSupplier booleanSupplier, Reason reason) {
-        super(booleanSupplier, reason);
-        initStars();
-        tips = buildTips();
-        this.currentTipIndex = random.nextInt(tips.size());
 
+    // ============================================================
+    // 动画常量
+    // ============================================================
+    private static final long FADE_IN_MS = 800;
+    private static final long FADE_OUT_MS = 600;
+    private static final float VIDEO_FPS = 20.0F;
+    private static final float BG_ALPHA = 0.55F; // 背景透明度，保证文字可读
+
+    // ============================================================
+    // 帧动画
+    // ============================================================
+    private static final FrameAnimationRenderer animRenderer = new FrameAnimationRenderer(VIDEO_FPS);
+
+    // ============================================================
+    // 状态
+    // ============================================================
+    private final BooleanSupplier levelReceived;
+    private final long createdAt;
+
+    private boolean fadingOut;
+    private long fadeOutStart;
+    private float fadeInProgress;
+    private float fadeOutProgress;
+
+    private int ellipsisState;
+    private long lastEllipsisUpdate;
+
+    // ============================================================
+    // 构造
+    // ============================================================
+
+    public SREReceivingLevelScreen(BooleanSupplier levelReceived, Reason reason) {
+        super(levelReceived, reason);
+        this.levelReceived = levelReceived;
+        this.createdAt = Util.getMillis();
     }
-    private int currentTipIndex;
-    private final List<Component> tips;
-    private List<Component> buildTips() {
-        return List.of(
-                Component.translatable("loading.tip.starrailexpress.1"),
-                Component.translatable("loading.tip.starrailexpress.2"),
-                Component.translatable("loading.tip.starrailexpress.3"),
-                Component.translatable("loading.tip.starrailexpress.4"),
-                Component.translatable("loading.tip.starrailexpress.5")
-        );
-    }
-    private void initStars() {
-        stars.clear();
-        for (int i = 0; i < STAR_COUNT; i++) {
-            double x = random.nextDouble() * 10000; // 使用大范围，在渲染时取模适应屏幕
-            double y = random.nextDouble() * 10000;
-            double vx = (random.nextDouble() - 0.5) * 2;  // 缓慢漂移
-            double vy = (random.nextDouble() - 0.5) * 2;
-            float size = 0.5f + random.nextFloat() * 2.5f;
-            float brightness = 0.3f + random.nextFloat() * 0.7f;
-            float phase = random.nextFloat() * (float)Math.PI * 2;
-            stars.add(new TrainLoadingScreen.StarParticle(x, y, vx, vy, size, brightness, phase));
-        }
-    }
+
+    // ============================================================
+    // 生命周期
+    // ============================================================
+
     @Override
-    public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-//        PANORAMA.render(graphics, mouseY, mouseX, mouseY, partialTick);
-        // 不绘制默认背景，我们已自己绘制渐变
-    }
-    private final List<TrainLoadingScreen.StarParticle> stars = new ArrayList<>();
-    private void renderStars(GuiGraphics graphics, float partialTick) {
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        long time = System.currentTimeMillis();
-
-        for (TrainLoadingScreen.StarParticle star : stars) {
-            // 将粒子坐标映射到当前屏幕（通过取模）
-            int screenX = (int) (star.x % width);
-            int screenY = (int) (star.y % height);
-
-            // 亮度闪烁（利用正弦波）
-            float brightness = star.brightness * (0.6f + 0.4f * Mth.sin((time / 300f) + star.phase));
-
-            // 颜色：白色带淡蓝/淡黄
-            int alpha = (int) (brightness * 255) << 24;
-            int color = alpha | 0xFFFFFF;
-
-            // 绘制像素点（大小可变）
-            int sizeInt = Math.max(1, (int) star.size);
-            graphics.fill(screenX, screenY, screenX + sizeInt, screenY + sizeInt, color);
+    protected void init() {
+        FrameAnimationRenderer.setInWorld(false);
+        if (!animRenderer.hasFrames()) {
+            animRenderer.loadFrames();
         }
-        RenderSystem.disableBlend();
     }
-    private int ellipsisState = 0;
+
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        // 1. 绘制深邃的太空背景
-        renderBackground(graphics, mouseX, mouseY, partialTick);
-        graphics.fillGradient(0, 0, width, height, 0x420A0A1A, 0x48101020);
-
-        // 2. 绘制星空粒子
-        renderStars(graphics, partialTick);
-
-//        // 3. 绘制列车（中间偏上）
-//        renderTrain(graphics);
-
-        // 4. 绘制进度区域（底部）
-
-            renderIndeterminateProgress(graphics);
-
-
-        // 5. 绘制随机提示
-        renderTip(graphics);
-
-        super.render(graphics, mouseX, mouseY, partialTick);
+    public boolean shouldCloseOnEsc() {
+        return false;
     }
-    private void renderIndeterminateProgress(GuiGraphics graphics) {
-        int centerX = width / 2;
-        int baseY = height - 70;
 
-        // 主文本
-        String baseText = Component.translatable("loading.world.generating").getString();
-        String ellipsis = ".".repeat(ellipsisState);
-        String fullText = baseText + ellipsis;
-        int textWidth = font.width(fullText);
-        graphics.drawString(font, fullText, centerX - textWidth / 2, baseY, 0xFFAAAAAA);
+    @Override
+    protected boolean shouldNarrateNavigation() {
+        return false;
+    }
 
-        // 下方绘制动态光点（模拟加载指示器）
-        int dotCount = 5;
-        int dotSpacing = 20;
-        int dotY = baseY + font.lineHeight + 10;
-        long time = System.currentTimeMillis();
-        for (int i = 0; i < dotCount; i++) {
-            int alpha = (int) (128 + 127 * Mth.sin((float) ((time / 200.0) + i * 2.0)));
-            int color = (alpha << 24) | 0x88AAFF;
-            int dotX = centerX + (i - dotCount/2) * dotSpacing;
-            graphics.fill(dotX - 3, dotY - 3, dotX + 3, dotY + 3, color);
+    @Override
+    public void tick() {
+        long now = Util.getMillis();
+
+        // ── 渐出 ──────────────────────────────────────────────
+        if (!fadingOut && levelReceived.getAsBoolean()) {
+            fadingOut = true;
+            fadeOutStart = now;
+        }
+        if (fadingOut) {
+            fadeOutProgress = (now - fadeOutStart) / (float) FADE_OUT_MS;
+            if (fadeOutProgress >= 1.0F) {
+                onClose();
+                return;
+            }
+        }
+
+        // ── 渐入 ──────────────────────────────────────────────
+        fadeInProgress = Mth.clamp((now - createdAt) / (float) FADE_IN_MS, 0.0F, 1.0F);
+
+        // ── 省略号 ────────────────────────────────────────────
+        if (now - lastEllipsisUpdate > 400) {
+            ellipsisState = (ellipsisState + 1) % 4;
+            lastEllipsisUpdate = now;
         }
     }
-    private void renderTip(GuiGraphics graphics) {
-        Component tip = tips.get(currentTipIndex);
-        int tipWidth = font.width(tip);
-        int tipX = (width - tipWidth) / 2;
-        int tipY = height - 110; // 进度条上方
-        graphics.drawString(font, tip, tipX, tipY, 0xFFAAAAAA);
+
+    // ============================================================
+    // 渲染
+    // ============================================================
+
+    @Override
+    public void render(GuiGraphics g, int mouseX, int mouseY, float delta) {
+        float alpha = fadeInProgress;
+        if (fadingOut) {
+            alpha = 1.0F - Mth.clamp(fadeOutProgress, 0.0F, 1.0F);
+        }
+
+        // ── 纯黑底色 ──────────────────────────────────────────
+        g.fill(0, 0, width, height, 0xFF000000);
+
+        // ── 帧动画背景 ────────────────────────────────────────
+        if (animRenderer.hasFrames()) {
+            animRenderer.render(g, width, height, delta, alpha * BG_ALPHA);
+        }
+
+        // ── 暗色渐变遮罩（保证文字清晰） ──────────────────────
+        int topAlpha = (int) (alpha * 100);
+        int midAlpha = (int) (alpha * 160);
+        g.fillGradient(0, 0, width, height / 2, topAlpha << 24, midAlpha << 24);
+        g.fillGradient(0, height / 2, width, height, midAlpha << 24, ((int) (alpha * 60)) << 24);
+
+        // ── 状态文字 ──────────────────────────────────────────
+        renderStatus(g, alpha);
+
+        // ── 黑幕遮罩（渐入/渐出） ────────────────────────────
+        if (fadeInProgress < 1.0F) {
+            g.fill(0, 0, width, height, (int) ((1.0F - fadeInProgress) * 255) << 24);
+        }
+        if (fadingOut) {
+            g.fill(0, 0, width, height, (int) (Mth.clamp(fadeOutProgress, 0.0F, 1.0F) * 255) << 24);
+        }
+
+        super.render(g, mouseX, mouseY, delta);
+    }
+
+    @Override
+    public void renderBackground(GuiGraphics g, int mouseX, int mouseY, float delta) {
+        // 由 render() 统一绘制，跳过父类默认背景
+        g.fill(0, 0, width, height, 0xFF000000);
+    }
+
+    // ============================================================
+    // 子渲染方法
+    // ============================================================
+
+    /** 渲染状态文字和三连脉冲指示器 */
+    private void renderStatus(GuiGraphics g, float alpha) {
+        int cx = width / 2;
+        int baseY = height / 2 + 30;
+
+        // 状态文本 (含省略号)
+        String text = Component.translatable("connect.joining").getString()
+                + ".".repeat(ellipsisState);
+        int textAlpha = (int) (alpha * 220);
+        g.drawString(font, text,
+                cx - font.width(text) / 2, baseY,
+                (textAlpha << 24) | 0xDDE6F5);
+
+        // 三连脉冲指示器
+        int dotY = baseY + font.lineHeight + 14;
+        long t = System.currentTimeMillis();
+        for (int i = 0; i < 3; i++) {
+            float pulse = (Mth.sin(t / 400.0F + i * 1.2F) + 1.0F) / 2.0F;
+            int da = (int) (alpha * (60 + pulse * 120));
+            int size = 2 + (int) (pulse * 2);
+            g.fill(cx - 14 + i * 14 - size, dotY - size,
+                    cx - 14 + i * 14 + size, dotY + size,
+                    (da << 24) | 0x88CCFF);
+        }
     }
 }

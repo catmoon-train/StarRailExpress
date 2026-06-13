@@ -36,6 +36,10 @@ public class ShortShotgunItem extends Item implements HeldLikeBat {
     @Override
     public InteractionResultHolder<ItemStack> use(Level world, Player user, InteractionHand hand) {
         ItemStack stack = user.getItemInHand(hand);
+        // 检查玩家状态：旁观者或已死亡时不能使用
+        if (user.isSpectator() || !user.isAlive()) {
+            return InteractionResultHolder.fail(stack);
+        }
         // 右键时播放上膛音效（服务端播放，附近所有玩家都能听到）
         if (!world.isClientSide) {
             world.playSound(null, user.blockPosition(), NRSounds.SHOTGUNU_COCK, SoundSource.PLAYERS, 1.0F, 1.0F);

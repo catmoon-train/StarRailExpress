@@ -426,6 +426,7 @@ public class SmallDoorBlock extends DoorPartBlock {
                 && neighborState.getValue(OPEN) == open
                 && world.getBlockEntity(neighborPos) instanceof SmallDoorBlockEntity neighborEntity) {
             neighborEntity.toggle(true, ticks);
+
         }
     }
 

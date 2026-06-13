@@ -6,6 +6,7 @@ import io.wifi.starrailexpress.cca.MapVotingComponent;
 import io.wifi.starrailexpress.cca.ParticipationComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.InputHandler;
+import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.content.command.MapVoteCommand;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.utils.client.betterrender.FakeGuiGraphics;
@@ -20,6 +21,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class LobbyPlayersRenderer {
     public static void renderHud(Font font, @NotNull LocalPlayer player, @NotNull FakeGuiGraphics guiGraphics) {
+        if (SREClient.isInLobby())return;
         SREGameWorldComponent game = SREGameWorldComponent.KEY.get(player.level());
         if (!game.isRunning()) {
             Level world = player.level();
@@ -40,8 +42,10 @@ public class LobbyPlayersRenderer {
             // 绘制投票信息（如果投票活跃）
             drawVotingInfo(guiGraphics, font, world);
 
-            // 绘制感谢文本
-            drawCreditsText(guiGraphics, font);
+            if (!SREClient.isInLobby()) {
+                // 绘制感谢文本
+                drawCreditsText(guiGraphics, font);
+            }
         }
     }
 
@@ -199,12 +203,12 @@ public class LobbyPlayersRenderer {
         // 从上往下
         Component infoLine4 = Component.translatable("hud.lobby.hint.line4").withStyle(ChatFormatting.WHITE);
         Component infoLine3 = Component.translatable("hud.lobby.hint.line3").withStyle(ChatFormatting.GRAY);
-        Component infoLine1 = Component.translatable("hud.lobby.hint.line1",
-                Component.keybind("key." + Noellesroles.MOD_ID + ".role_intro").withStyle(ChatFormatting.GOLD))
-                .withStyle(ChatFormatting.GREEN);
-        Component infoLine2 = Component.translatable("hud.lobby.hint.line2",
-                Component.keybind("key." + Noellesroles.MOD_ID + ".guess_role_note").withStyle(ChatFormatting.GOLD))
-                .withStyle(ChatFormatting.AQUA);
+//        Component infoLine1 = Component.translatable("hud.lobby.hint.line1",
+//                Component.keybind("key." + Noellesroles.MOD_ID + ".role_intro").withStyle(ChatFormatting.GOLD))
+//                .withStyle(ChatFormatting.GREEN);
+//        Component infoLine2 = Component.translatable("hud.lobby.hint.line2",
+//                Component.keybind("key." + Noellesroles.MOD_ID + ".guess_role_note").withStyle(ChatFormatting.GOLD))
+//                .withStyle(ChatFormatting.AQUA);
 
         // context.pose().pushPose();
         // context.pose().scale(0.8f, 0.8f, 1f);
@@ -221,26 +225,26 @@ public class LobbyPlayersRenderer {
         int bottomPadding = 30;
         int lineHeight = (font.lineHeight + 4);
         // 显示提示信息
-        int infoWidth1 = font.width(infoLine1);
-        context.drawString(font, infoLine1,
-                screenWidth - infoWidth1 - rightPadding,
-                screenHeight - bottomPadding - lineHeight * 1,
-                color);
-        int infoWidth2 = font.width(infoLine2);
-        context.drawString(font, infoLine2,
-                screenWidth - infoWidth2 - rightPadding,
-                screenHeight - bottomPadding,
-                color);
+//        int infoWidth1 = font.width(infoLine1);
+//        context.drawString(font, infoLine1,
+//                screenWidth - infoWidth1 - rightPadding,
+//                screenHeight - bottomPadding - lineHeight * 1,
+//                color);
+//        int infoWidth2 = font.width(infoLine2);
+//        context.drawString(font, infoLine2,
+//                screenWidth - infoWidth2 - rightPadding,
+//                screenHeight - bottomPadding,
+//                color);
 
         int infoWidth3 = font.width(infoLine3);
         context.drawString(font, infoLine3,
                 screenWidth - infoWidth3 - rightPadding,
-                screenHeight - bottomPadding - lineHeight * 3,
+                screenHeight - bottomPadding - lineHeight * 1,
                 color);
         int infoWidth4 = font.width(infoLine4);
         context.drawString(font, infoLine4,
                 screenWidth - infoWidth4 - rightPadding,
-                screenHeight - bottomPadding - lineHeight * 4,
+                screenHeight - bottomPadding - lineHeight * 2,
                 color);
 
         float scale = 0.75f;

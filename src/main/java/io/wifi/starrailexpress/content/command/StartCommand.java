@@ -5,6 +5,7 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import io.wifi.starrailexpress.api.GameMode;
 import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
+import io.wifi.starrailexpress.cca.ParticipationComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.command.argument.GameModeArgumentType;
 import io.wifi.starrailexpress.game.GameConstants;
@@ -12,8 +13,12 @@ import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.noellesroles.game.modes.fourthroom.game.FourthRoomGameManager;
+
+import java.util.List;
+import java.util.UUID;
 
 public class StartCommand {
   public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
@@ -21,17 +26,30 @@ public class StartCommand {
         Commands.literal("tmm:start")
             .requires(source -> source.hasPermission(2))
             .then(Commands.argument("gameMode", GameModeArgumentType.gameMode())
+                // tmm:start <gameMode> [startTimeInMinutes] — 常规模式，仅准备区域内的玩家加入
                 .then(Commands.argument("startTimeInMinutes", IntegerArgumentType.integer(1))
                     .executes(context -> execute(context.getSource(),
                         GameModeArgumentType.getGameModeArgument(context, "gameMode"),
-                        IntegerArgumentType.getInteger(context, "startTimeInMinutes"))))
+                        IntegerArgumentType.getInteger(context, "startTimeInMinutes"),
+                        false)))
+                // tmm:start <gameMode> forceAll [startTimeInMinutes] — 强制所有参与玩家加入
+                .then(Commands.literal("forceAll")
+                    .then(Commands.argument("startTimeInMinutes", IntegerArgumentType.integer(1))
+                        .executes(context -> execute(context.getSource(),
+                            GameModeArgumentType.getGameModeArgument(context, "gameMode"),
+                            IntegerArgumentType.getInteger(context, "startTimeInMinutes"),
+                            true)))
+                    .executes(context -> {
+                      GameMode gameMode = GameModeArgumentType.getGameModeArgument(context, "gameMode");
+                      return execute(context.getSource(), gameMode, -1, true);
+                    }))
                 .executes(context -> {
                   GameMode gameMode = GameModeArgumentType.getGameModeArgument(context, "gameMode");
-                  return execute(context.getSource(), gameMode, -1);
+                  return execute(context.getSource(), gameMode, -1, false);
                 })));
   }
 
-  private static int execute(CommandSourceStack source, GameMode gameMode, int minutes) {
+  private static int execute(CommandSourceStack source, GameMode gameMode, int minutes, boolean forceAll) {
     if (SREGameWorldComponent.KEY.get(source.getLevel()).isRunning()) {
       source.sendFailure(Component.translatable("game.start_error.game_running"));
       return -1;
@@ -54,6 +72,19 @@ public class StartCommand {
       FourthRoomGameManager.setRequestedPlayerCount(source.getLevel(), requestedPlayers);
       startMinutes = gameMode.defaultStartTime;
     }
+
+    // forceAll: 将所有参与中的玩家（未准备/opt-out 的除外）强制纳入就绪列表，
+    // 使其无论身处何地都能加入游戏
+    if (forceAll) {
+      ParticipationComponent participation = ParticipationComponent.KEY.get(source.getLevel());
+      List<ServerPlayer> allPlayers = source.getLevel().getServer().getPlayerList().getPlayers();
+      List<UUID> forcedReady = allPlayers.stream()
+          .filter(participation::isParticipating)
+          .map(ServerPlayer::getUUID)
+          .toList();
+      GameUtils.setForcedReadyPlayers(forcedReady);
+    }
+
     final int resolvedStartMinutes = startMinutes;
     if (gameMode != SREGameModes.MURDER) {
       if (!Harpymodloader.officialVerify) {

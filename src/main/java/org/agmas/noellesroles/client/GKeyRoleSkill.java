@@ -77,7 +77,17 @@ public final class GKeyRoleSkill {
             return true;
         });
         register(ModRoles.NIAN_SHOU, true, (client, gameWorld) -> {
-            ClientPlayNetworking.send(new AbilityC2SPacket());
+            var hitResult = client.hitResult;
+            if (hitResult != null && hitResult.getType() == net.minecraft.world.phys.HitResult.Type.ENTITY) {
+                net.minecraft.world.phys.EntityHitResult entityHit = (net.minecraft.world.phys.EntityHitResult) hitResult;
+                if (entityHit.getEntity() instanceof Player targetPlayer) {
+                    ClientPlayNetworking.send(new AbilityWithTargetC2SPacket(targetPlayer));
+                }
+            } else {
+                client.player.displayClientMessage(
+                        Component.translatable("message.noellesroles.nianshou.no_target")
+                                .withStyle(ChatFormatting.RED), true);
+            }
             return true;
         });
         register(ModRoles.GLITCH_ROBOT, true, (client, gameWorld) -> {
@@ -96,10 +106,6 @@ public final class GKeyRoleSkill {
                         true);
                 return true;
             }
-            ClientPlayNetworking.send(new AbilityC2SPacket());
-            return true;
-        });
-        register(ModRoles.NOISEMAKER, true, (client, gameWorld) -> {
             ClientPlayNetworking.send(new AbilityC2SPacket());
             return true;
         });

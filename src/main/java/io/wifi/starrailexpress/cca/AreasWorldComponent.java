@@ -40,6 +40,14 @@ public class AreasWorldComponent implements AutoSyncedComponent {
     public static enum ScrollAxis {
         X, Y, Z, NONE
     }
+
+    private ScrollAxis sceneScroll = ScrollAxis.NONE;
+    private boolean sceneAreaConfigured = false;
+    private String sceneId = "";
+    private String sceneAssetHash = "";
+    private String sceneAssetRemoteUrl = "";
+    private boolean sceneAssetTrusted = false;
+    private Vec3 sceneDisplayOffset = Vec3.ZERO;
     public HashSet<String> disabledTasks = new HashSet<>();
 
     public HashSet<String> getDisabledTasks() {
@@ -220,6 +228,62 @@ public class AreasWorldComponent implements AutoSyncedComponent {
         this.sceneArea = area;
     }
 
+    public ScrollAxis getSceneScroll() {
+        return sceneScroll;
+    }
+
+    public void setSceneScroll(ScrollAxis sceneScroll) {
+        this.sceneScroll = sceneScroll == null ? ScrollAxis.NONE : sceneScroll;
+    }
+
+    public boolean isSceneAreaConfigured() {
+        return sceneAreaConfigured;
+    }
+
+    public void setSceneAreaConfigured(boolean sceneAreaConfigured) {
+        this.sceneAreaConfigured = sceneAreaConfigured;
+    }
+
+    public String getSceneId() {
+        return sceneId;
+    }
+
+    public void setSceneId(String sceneId) {
+        this.sceneId = sceneId == null ? "" : sceneId.trim();
+    }
+
+    public String getSceneAssetHash() {
+        return sceneAssetHash;
+    }
+
+    public void setSceneAssetHash(String sceneAssetHash) {
+        this.sceneAssetHash = sceneAssetHash == null ? "" : sceneAssetHash;
+    }
+
+    public String getSceneAssetRemoteUrl() {
+        return sceneAssetRemoteUrl;
+    }
+
+    public void setSceneAssetRemoteUrl(String sceneAssetRemoteUrl) {
+        this.sceneAssetRemoteUrl = sceneAssetRemoteUrl == null ? "" : sceneAssetRemoteUrl.trim();
+    }
+
+    public boolean isSceneAssetTrusted() {
+        return sceneAssetTrusted;
+    }
+
+    public void setSceneAssetTrusted(boolean sceneAssetTrusted) {
+        this.sceneAssetTrusted = sceneAssetTrusted;
+    }
+
+    public Vec3 getSceneDisplayOffset() {
+        return sceneDisplayOffset;
+    }
+
+    public void setSceneDisplayOffset(Vec3 sceneDisplayOffset) {
+        this.sceneDisplayOffset = sceneDisplayOffset == null ? Vec3.ZERO : sceneDisplayOffset;
+    }
+
     public void setReadyArea(AABB readyArea) {
         this.readyArea = readyArea;
     }
@@ -387,6 +451,17 @@ public class AreasWorldComponent implements AutoSyncedComponent {
         if (tag.contains("sceneArea")) {
             this.sceneArea = getBoxFromNbt(tag, "sceneArea");
         }
+        this.sceneAreaConfigured = tag.contains("sceneAreaConfigured") && tag.getBoolean("sceneAreaConfigured");
+        this.sceneId = tag.contains("sceneId") ? tag.getString("sceneId") : "";
+        this.sceneScroll = parseScrollAxis(tag.getString("sceneScroll"),
+                this.sceneAreaConfigured ? ScrollAxis.X : ScrollAxis.NONE);
+        this.sceneAssetHash = tag.contains("sceneAssetHash") ? tag.getString("sceneAssetHash") : "";
+        this.sceneAssetRemoteUrl = tag.contains("sceneAssetRemoteUrl") ? tag.getString("sceneAssetRemoteUrl") : "";
+        this.sceneAssetTrusted = tag.contains("sceneAssetTrusted") && tag.getBoolean("sceneAssetTrusted");
+        this.sceneDisplayOffset = getVec3dFromNbt(tag, "sceneDisplayOffset");
+        this.mapName = tag.contains("mapName") && !tag.getString("mapName").isBlank()
+                ? tag.getString("mapName")
+                : null;
         this.canJump = tag.contains("canJump") ? tag.getBoolean("canJump") : false;
         this.canSwim = tag.contains("canSwim") ? tag.getBoolean("canSwim") : false;
         this.haveOutsideSound = tag.contains("haveOutsideSound") ? tag.getBoolean("haveOutsideSound") : false;
@@ -453,6 +528,16 @@ public class AreasWorldComponent implements AutoSyncedComponent {
         if (this.sceneArea != null) {
             writeBoxToNbt(tag, this.sceneArea, "sceneArea");
         }
+        tag.putString("sceneScroll", this.sceneScroll.name());
+        tag.putBoolean("sceneAreaConfigured", this.sceneAreaConfigured);
+        tag.putString("sceneId", this.sceneId);
+        tag.putString("sceneAssetHash", this.sceneAssetHash);
+        tag.putString("sceneAssetRemoteUrl", this.sceneAssetRemoteUrl);
+        tag.putBoolean("sceneAssetTrusted", this.sceneAssetTrusted);
+        writeVec3dToNbt(tag, this.sceneDisplayOffset, "sceneDisplayOffset");
+        if (this.mapName != null) {
+            tag.putString("mapName", this.mapName);
+        }
         // writeVec3dToNbt(tag, this.playAreaOffset, "playAreaOffset");
         // writeBoxToNbt(tag, this.playArea, "playArea");
         //
@@ -498,6 +583,17 @@ public class AreasWorldComponent implements AutoSyncedComponent {
     public void writeToNbt(CompoundTag tag, Provider registryLookup) {
         if (this.readyArea != null) {
             writeBoxToNbt(tag, this.readyArea, "readyArea");
+        }
+    }
+
+    public static ScrollAxis parseScrollAxis(String value, ScrollAxis fallback) {
+        if (value == null || value.isBlank()) {
+            return fallback;
+        }
+        try {
+            return ScrollAxis.valueOf(value.trim().toUpperCase(java.util.Locale.ROOT));
+        } catch (IllegalArgumentException ignored) {
+            return fallback;
         }
     }
 }

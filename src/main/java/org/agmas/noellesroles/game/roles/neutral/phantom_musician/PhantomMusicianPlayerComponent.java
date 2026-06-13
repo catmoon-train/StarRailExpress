@@ -133,14 +133,6 @@ public class PhantomMusicianPlayerComponent implements RoleComponent, ServerTick
         if (player.isSpectator()) return;
         if (!GameUtils.isPlayerAliveAndSurvival(player)) return;
 
-        // 被动收入：每30秒获得50金币
-        passiveIncomeTimer++;
-        if (passiveIncomeTimer >= PASSIVE_INCOME_INTERVAL) {
-            passiveIncomeTimer = 0;
-            SREPlayerShopComponent shop = SREPlayerShopComponent.KEY.get(player);
-            shop.addToBalance(50);
-        }
-
         // 传送冷却递减
         if (teleportCooldown > 0) {
             teleportCooldown--;

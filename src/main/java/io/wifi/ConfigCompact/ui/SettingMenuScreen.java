@@ -5,12 +5,12 @@ import io.wifi.starrailexpress.SREConfig;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
 import org.agmas.noellesroles.client.screen.RoleIntroduceScreen;
-import org.agmas.noellesroles.client.widget.custom_button.ModernButton;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import pro.fazeclan.river.stupid_express.StupidExpressConfig;
 
@@ -45,9 +45,6 @@ public class SettingMenuScreen extends Screen {
 
     @Override
     public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
-        // if (this.parent != null) {
-        // this.parent.render(context, mouseX, mouseY, delta);
-        // }
         super.render(context, mouseX, mouseY, delta);
         context.drawCenteredString(font, title, width / 2, 30, 0xFFFFFF);
     }
@@ -66,120 +63,115 @@ public class SettingMenuScreen extends Screen {
         int buttonCount = 8;
 
         int buttonY = maxHeight / 2 - buttonCount * (BUTTON_HEIGHT + MARGIN) / 2;
-        //
+
+        // 客户端设置
+        this.addRenderableWidget(Button.builder(
+                Component.translatable("screen.starrailexpress.settings.client"),
+                (btn) -> this.minecraft.setScreen(SREClientConfig.HANDLER.generateGui().generateScreen(this))
+        ).bounds(buttonX, buttonY, BUTTON_WIDTH, BUTTON_HEIGHT).build());
+        buttonY += (BUTTON_HEIGHT + MARGIN);
+
+        // 列车设置
         {
-            var btn1 = ModernButton
-                    .builder(Component.translatable("screen.starrailexpress.settings.client"), (bbtn) -> {
-                        var screen = SREClientConfig.HANDLER.generateGui().generateScreen(this);
-                        this.minecraft.setScreen(screen);
-                    }).bounds(buttonX, buttonY, BUTTON_WIDTH, BUTTON_HEIGHT)
-                    .accentColor(java.awt.Color.RED.getRGB())
-                    .build();
-            this.addRenderableWidget(btn1);
-            buttonY += (BUTTON_HEIGHT + MARGIN);
-        }
-        {
-            var btn1 = ModernButton
-                    .builder(Component.translatable("screen.starrailexpress.settings.tmm"), (bbtn) -> {
-                        if (!showSettings) {
-                            return;
-                        }
-                        var screen = SREConfig.HANDLER.generateGui().generateScreen(this);
-                        this.minecraft.setScreen(screen);
-                    }).bounds(buttonX, buttonY, BUTTON_WIDTH, BUTTON_HEIGHT).build();
+            Button btn = Button.builder(
+                    Component.translatable("screen.starrailexpress.settings.tmm"),
+                    (b) -> {
+                        if (showSettings)
+                            this.minecraft.setScreen(SREConfig.HANDLER.generateGui().generateScreen(this));
+                    }
+            ).bounds(buttonX, buttonY, BUTTON_WIDTH, BUTTON_HEIGHT).build();
             if (!showSettings) {
-                btn1.active = false;
-                btn1.setTooltip(Tooltip.create(Component.translatable("screen.starrailexpress.settings.unable")
+                btn.active = false;
+                btn.setTooltip(Tooltip.create(Component.translatable("screen.starrailexpress.settings.unable")
                         .withStyle(ChatFormatting.RED)));
             }
-            this.addRenderableWidget(btn1);
+            this.addRenderableWidget(btn);
             buttonY += (BUTTON_HEIGHT + MARGIN);
         }
+
+        // Noelle's Roles
         {
-            var btn1 = ModernButton
-                    .builder(Component.translatable("screen.starrailexpress.settings.noellesroles"), (bbtn) -> {
-                        if (!showSettings) {
-                            return;
-                        }
-                        var screen = NoellesRolesConfig.HANDLER.generateGui().generateScreen(this);
-                        this.minecraft.setScreen(screen);
-                    }).bounds(buttonX, buttonY, BUTTON_WIDTH, BUTTON_HEIGHT).build();
+            Button btn = Button.builder(
+                    Component.translatable("screen.starrailexpress.settings.noellesroles"),
+                    (b) -> {
+                        if (showSettings)
+                            this.minecraft.setScreen(NoellesRolesConfig.HANDLER.generateGui().generateScreen(this));
+                    }
+            ).bounds(buttonX, buttonY, BUTTON_WIDTH, BUTTON_HEIGHT).build();
             if (!showSettings) {
-                btn1.active = false;
-                btn1.setTooltip(Tooltip.create(Component.translatable("screen.starrailexpress.settings.unable")
+                btn.active = false;
+                btn.setTooltip(Tooltip.create(Component.translatable("screen.starrailexpress.settings.unable")
                         .withStyle(ChatFormatting.RED)));
             }
-            this.addRenderableWidget(btn1);
+            this.addRenderableWidget(btn);
             buttonY += (BUTTON_HEIGHT + MARGIN);
         }
+
+        // HarpyModLoader
         {
-            var btn1 = ModernButton
-                    .builder(Component.translatable("screen.starrailexpress.settings.harpymodloader"), (bbtn) -> {
-                        if (!showSettings) {
-                            return;
-                        }
-                        var screen = HarpyModLoaderConfig.HANDLER.generateGui().generateScreen(this);
-                        this.minecraft.setScreen(screen);
-                    }).bounds(buttonX, buttonY, BUTTON_WIDTH, BUTTON_HEIGHT).build();
+            Button btn = Button.builder(
+                    Component.translatable("screen.starrailexpress.settings.harpymodloader"),
+                    (b) -> {
+                        if (showSettings)
+                            this.minecraft.setScreen(HarpyModLoaderConfig.HANDLER.generateGui().generateScreen(this));
+                    }
+            ).bounds(buttonX, buttonY, BUTTON_WIDTH, BUTTON_HEIGHT).build();
             if (!showSettings) {
-                btn1.active = false;
-                btn1.setTooltip(Tooltip.create(Component.translatable("screen.starrailexpress.settings.unable")
+                btn.active = false;
+                btn.setTooltip(Tooltip.create(Component.translatable("screen.starrailexpress.settings.unable")
                         .withStyle(ChatFormatting.RED)));
             }
-            this.addRenderableWidget(btn1);
+            this.addRenderableWidget(btn);
             buttonY += (BUTTON_HEIGHT + MARGIN);
         }
+
+        // StupidExpress
         {
-            var btn1 = ModernButton
-                    .builder(Component.translatable("screen.starrailexpress.settings.stupid_express"), (bbtn) -> {
-                        if (!showSettings) {
-                            return;
-                        }
-                        var screen = StupidExpressConfig.HANDLER.generateGui().generateScreen(this);
-                        this.minecraft.setScreen(screen);
-                    }).bounds(buttonX, buttonY, BUTTON_WIDTH, BUTTON_HEIGHT).build();
+            Button btn = Button.builder(
+                    Component.translatable("screen.starrailexpress.settings.stupid_express"),
+                    (b) -> {
+                        if (showSettings)
+                            this.minecraft.setScreen(StupidExpressConfig.HANDLER.generateGui().generateScreen(this));
+                    }
+            ).bounds(buttonX, buttonY, BUTTON_WIDTH, BUTTON_HEIGHT).build();
             if (!showSettings) {
-                btn1.active = false;
-                btn1.setTooltip(Tooltip.create(Component.translatable("screen.starrailexpress.settings.unable")
+                btn.active = false;
+                btn.setTooltip(Tooltip.create(Component.translatable("screen.starrailexpress.settings.unable")
                         .withStyle(ChatFormatting.RED)));
             }
-            this.addRenderableWidget(btn1);
+            this.addRenderableWidget(btn);
             buttonY += (BUTTON_HEIGHT + MARGIN);
         }
+
+        // 角色设置
         {
-            var btn1 = ModernButton
-                    .builder(Component.translatable("screen.starrailexpress.settings.role_modifier"), (bbtn) -> {
-                        if (!showSettings) {
-                            return;
-                        }
-                        var screen = RoleManageConfigUI.getScreen(this);
-                        this.minecraft.setScreen(screen);
-                    }).bounds(buttonX, buttonY, BUTTON_WIDTH, BUTTON_HEIGHT).build();
+            Button btn = Button.builder(
+                    Component.translatable("screen.starrailexpress.settings.role_modifier"),
+                    (b) -> {
+                        if (showSettings)
+                            this.minecraft.setScreen(RoleManageConfigUI.getScreen(this));
+                    }
+            ).bounds(buttonX, buttonY, BUTTON_WIDTH, BUTTON_HEIGHT).build();
             if (!showSettings) {
-                btn1.active = false;
-                btn1.setTooltip(Tooltip.create(Component.translatable("screen.starrailexpress.settings.unable")
+                btn.active = false;
+                btn.setTooltip(Tooltip.create(Component.translatable("screen.starrailexpress.settings.unable")
                         .withStyle(ChatFormatting.RED)));
             }
-            this.addRenderableWidget(btn1);
+            this.addRenderableWidget(btn);
             buttonY += (BUTTON_HEIGHT + MARGIN);
         }
-        {
-            var btn1 = ModernButton
-                    .builder(Component.translatable("screen.starrailexpress.settings.introduction"), (bbtn) -> {
-                        var screen = new RoleIntroduceScreen(this);
-                        this.minecraft.setScreen(screen);
-                    }).bounds(buttonX, buttonY, BUTTON_WIDTH, BUTTON_HEIGHT).build();
-            this.addRenderableWidget(btn1);
-            buttonY += (BUTTON_HEIGHT + MARGIN);
-        }
-        {
-            var btn1 = ModernButton
-                    .builder(Component.translatable("gui.back"), (bbtn) -> {
-                        this.minecraft.setScreen(parent);
-                    }).accentColor(new java.awt.Color(34, 177, 76).getRGB())
-                    .bounds(buttonX, buttonY, BUTTON_WIDTH, BUTTON_HEIGHT).build();
-            this.addRenderableWidget(btn1);
-            buttonY += (BUTTON_HEIGHT + MARGIN);
-        }
+
+        // 角色介绍
+        this.addRenderableWidget(Button.builder(
+                Component.translatable("screen.starrailexpress.settings.introduction"),
+                (btn) -> this.minecraft.setScreen(new RoleIntroduceScreen(this))
+        ).bounds(buttonX, buttonY, BUTTON_WIDTH, BUTTON_HEIGHT).build());
+        buttonY += (BUTTON_HEIGHT + MARGIN);
+
+        // 返回
+        this.addRenderableWidget(Button.builder(
+                Component.translatable("gui.back"),
+                (btn) -> this.minecraft.setScreen(parent)
+        ).bounds(buttonX, buttonY, BUTTON_WIDTH, BUTTON_HEIGHT).build());
     }
 }

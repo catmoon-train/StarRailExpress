@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class VannilaStartMixin {
 
     @Inject(method = "execute", at = @At("HEAD"))
-    private static void a(CommandSourceStack source, GameMode gameMode, int minutes, CallbackInfoReturnable<Integer> cir) {
+    private static void a(CommandSourceStack source, GameMode gameMode, int minutes, boolean forceAll, CallbackInfoReturnable<Integer> cir) {
         if (gameMode.equals(SREGameModes.MURDER)) Harpymodloader.wantsToStartVannila = true;
      }
 }

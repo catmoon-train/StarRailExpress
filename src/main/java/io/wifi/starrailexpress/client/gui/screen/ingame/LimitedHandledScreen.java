@@ -89,18 +89,28 @@ public abstract class LimitedHandledScreen<T extends AbstractContainerMenu> exte
         context.pose().translate((float) i, (float) j, 0.0F);
         this.focusedSlot = null;
 
-        for (int k = 0; k < this.handler.slots.size(); k++) {
-            Slot slot = this.handler.slots.get(k);
+        if (this.shouldRenderHotbarSlots()) {
+            for (int k = 0; k < this.handler.slots.size(); k++) {
+                Slot slot = this.handler.slots.get(k);
 
-            if (isHotbarSlot(slot)) {
-                this.drawSlot(context, slot);
+                if (isHotbarSlot(slot)) {
+                    int slotX = this.getSlotRenderX(slot);
+                    int slotY = this.getSlotRenderY(slot);
+                    float slotScale = this.getSlotRenderScale(slot);
+                    context.pose().pushPose();
+                    context.pose().translate(slotX, slotY, 0.0F);
+                    context.pose().scale(slotScale, slotScale, 1.0F);
+                    context.pose().translate(-slot.x, -slot.y, 0.0F);
+                    this.drawSlot(context, slot);
+                    context.pose().popPose();
 
-                if (this.isPointOverSlot(slot, mouseX, mouseY)) {
-                    this.focusedSlot = slot;
-                    int l = slot.x;
-                    int m = slot.y;
-                    if (this.focusedSlot.isHighlightable()) {
-                        drawSlotHighlight(context, l, m, 0);
+                    if (this.isPointOverSlot(slot, mouseX, mouseY)) {
+                        this.focusedSlot = slot;
+                        if (this.focusedSlot.isHighlightable()) {
+                            int slotSize = Math.round(16 * slotScale);
+                            context.fillGradient(RenderType.guiOverlay(), slotX, slotY, slotX + slotSize,
+                                    slotY + slotSize, -2130706433, -2130706433, 0);
+                        }
                     }
                 }
             }
@@ -129,8 +139,8 @@ public abstract class LimitedHandledScreen<T extends AbstractContainerMenu> exte
                 this.touchDropReturningStack = ItemStack.EMPTY;
             }
 
-            int l = this.touchDropOriginSlot.x - this.touchDropX;
-            int m = this.touchDropOriginSlot.y - this.touchDropY;
+            int l = this.getSlotRenderX(this.touchDropOriginSlot) - this.touchDropX;
+            int m = this.getSlotRenderY(this.touchDropOriginSlot) - this.touchDropY;
             int o = this.touchDropX + (int) ((float) l * f);
             int p = this.touchDropY + (int) ((float) m * f);
             this.drawItem(context, this.touchDropReturningStack, o, p, null);
@@ -142,6 +152,25 @@ public abstract class LimitedHandledScreen<T extends AbstractContainerMenu> exte
 
     private static boolean isHotbarSlot(Slot slot) {
         return slot.index >= 36 && slot.index <= 44;
+    }
+
+    /**
+     * 是否绘制默认快捷栏槽位。子类可在等待面板等状态下关闭，改由自身重新排布快捷栏。
+     */
+    protected boolean shouldRenderHotbarSlots() {
+        return true;
+    }
+
+    protected int getSlotRenderX(Slot slot) {
+        return slot.x;
+    }
+
+    protected int getSlotRenderY(Slot slot) {
+        return slot.y;
+    }
+
+    protected float getSlotRenderScale(Slot slot) {
+        return 1.0F;
     }
 
     @Override
@@ -523,7 +552,9 @@ public abstract class LimitedHandledScreen<T extends AbstractContainerMenu> exte
     }
 
     private boolean isPointOverSlot(Slot slot, double pointX, double pointY) {
-        return this.isPointWithinBounds(slot.x, slot.y, 16, 16, pointX, pointY + getYOffset());
+        int slotSize = Math.round(16 * this.getSlotRenderScale(slot));
+        return this.isPointWithinBounds(this.getSlotRenderX(slot), this.getSlotRenderY(slot), slotSize, slotSize,
+                pointX, pointY + getYOffset());
     }
 
     protected boolean isPointWithinBounds(int x, int y, int width, int height, double pointX, double pointY) {

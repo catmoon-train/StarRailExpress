@@ -8,6 +8,8 @@ import com.google.gson.JsonParser;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.game.data.MapConfig;
+import io.wifi.starrailexpress.scenery.SceneAsset;
+import io.wifi.starrailexpress.scenery.server.SceneLibrary;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.storage.LevelResource;
 import net.minecraft.world.phys.AABB;
@@ -21,17 +23,73 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MapManager {
+    private static final long MAX_IMPORTED_MAP_BYTES = 8L * 1024L * 1024L;
     private static final Gson gson = new Gson();
     private static final Gson prettyGson = new GsonBuilder()
             .setPrettyPrinting() // 关键步骤：启用格式化
             .create();
     private static final Random random = new Random();
+
+    public static void updateSceneAssetMetadata(ServerLevel serverWorld, String mapName, String hash,
+            AreasWorldComponent.ScrollAxis axis) throws IOException {
+        Path mapsDir = serverWorld.getServer().getWorldPath(LevelResource.ROOT)
+                .resolve("train_maps")
+                .toAbsolutePath()
+                .normalize();
+        Path mapConfigPath = mapsDir.resolve(mapName + ".json").normalize();
+        if (!mapConfigPath.startsWith(mapsDir) || !Files.isRegularFile(mapConfigPath)) {
+            throw new IOException("Invalid map name or missing map config: " + mapName);
+        }
+        JsonObject root;
+        try (FileReader reader = new FileReader(mapConfigPath.toFile(), StandardCharsets.UTF_8)) {
+            root = JsonParser.parseReader(reader).getAsJsonObject();
+        }
+        AreasWorldComponent areas = AreasWorldComponent.KEY.get(serverWorld);
+        if (!areas.getSceneId().isBlank()) {
+            SceneLibrary.Result result = SceneLibrary.updateCurrent(serverWorld);
+            if (!result.success()) {
+                throw new IOException(result.message());
+            }
+            setSceneReference(root, areas.getSceneId());
+        } else {
+            root.addProperty("sceneScroll", axis.name());
+            root.add("sceneDisplayOffset", vec3Json(areas.getSceneDisplayOffset()));
+            root.add("sceneAsset", sceneAssetJson(areas, hash));
+        }
+
+        Path temp = mapConfigPath.resolveSibling(mapConfigPath.getFileName() + ".tmp");
+        Files.writeString(temp, prettyGson.toJson(root), StandardCharsets.UTF_8);
+        try {
+            Files.move(temp, mapConfigPath, java.nio.file.StandardCopyOption.ATOMIC_MOVE,
+                    java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+        } catch (java.nio.file.AtomicMoveNotSupportedException ignored) {
+            Files.move(temp, mapConfigPath, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+        }
+    }
+
+    public static void updateMapSceneReference(ServerLevel serverWorld, String mapName, String sceneId)
+            throws IOException {
+        Path mapConfigPath = resolveMapConfigPath(serverWorld, mapName);
+        if (!Files.isRegularFile(mapConfigPath)) {
+            throw new IOException("地图配置不存在: " + mapName);
+        }
+        JsonObject root;
+        try (FileReader reader = new FileReader(mapConfigPath.toFile(), StandardCharsets.UTF_8)) {
+            root = JsonParser.parseReader(reader).getAsJsonObject();
+        }
+        setSceneReference(root, sceneId);
+        Path temp = mapConfigPath.resolveSibling(mapConfigPath.getFileName() + ".scene.tmp");
+        Files.writeString(temp, prettyGson.toJson(root), StandardCharsets.UTF_8);
+        atomicMove(temp, mapConfigPath);
+    }
 
     /**
      * 删除指定地图文件
@@ -42,21 +100,11 @@ public class MapManager {
      */
     public static boolean removeMapWithoutTry(ServerLevel serverWorld, String mapName)
             throws Exception {
-        // 创建地图目录
-        Path mapsDirPath = Paths.get(serverWorld.getServer().getWorldPath(LevelResource.ROOT).toString(),
-                "train_maps");
-        File mapsDir = mapsDirPath.toFile();
-        if (!mapsDir.exists()) {
-            mapsDir.mkdirs();
-        }
-
-        // 构建地图配置文件路径
-        Path mapConfigPath = Paths.get(mapsDirPath.toString(), mapName + ".json");
-        File mapConfigFile = mapConfigPath.toFile();
-        if (!mapConfigFile.exists()) {
+        Path mapConfigPath = resolveMapConfigPath(serverWorld, mapName);
+        if (!Files.isRegularFile(mapConfigPath)) {
             return false;
         }
-        return mapConfigFile.delete();
+        return Files.deleteIfExists(mapConfigPath);
     }
 
     /**
@@ -72,16 +120,7 @@ public class MapManager {
         // 获取AreasWorldComponent中的当前配置
         AreasWorldComponent areas = AreasWorldComponent.KEY.get(serverWorld);
 
-        // 创建地图目录
-        Path mapsDirPath = Paths.get(serverWorld.getServer().getWorldPath(LevelResource.ROOT).toString(),
-                "train_maps");
-        File mapsDir = mapsDirPath.toFile();
-        if (!mapsDir.exists()) {
-            mapsDir.mkdirs();
-        }
-
-        // 构建地图配置文件路径
-        Path mapConfigPath = Paths.get(mapsDirPath.toString(), mapName + ".json");
+        Path mapConfigPath = resolveMapConfigPath(serverWorld, mapName);
         File mapConfigFile = mapConfigPath.toFile();
         if (mapConfigFile.exists() && !overwriteFile) {
             return false;
@@ -137,15 +176,34 @@ public class MapManager {
         playAreaObj.addProperty("maxZ", areas.getPlayArea().maxZ);
         jsonObject.add("playArea", playAreaObj);
 
-        // 保存场景区域 - 使用嵌套对象（定义场景建筑的实际位置）
-        JsonObject sceneAreaObj = new JsonObject();
-        sceneAreaObj.addProperty("minX", areas.getSceneArea().minX);
-        sceneAreaObj.addProperty("minY", areas.getSceneArea().minY);
-        sceneAreaObj.addProperty("minZ", areas.getSceneArea().minZ);
-        sceneAreaObj.addProperty("maxX", areas.getSceneArea().maxX);
-        sceneAreaObj.addProperty("maxY", areas.getSceneArea().maxY);
-        sceneAreaObj.addProperty("maxZ", areas.getSceneArea().maxZ);
-        jsonObject.add("sceneArea", sceneAreaObj);
+        if (!areas.getSceneId().isBlank()) {
+            jsonObject.addProperty("scene", areas.getSceneId());
+        } else if (areas.isSceneAreaConfigured()) {
+            JsonObject sceneAreaObj = new JsonObject();
+            sceneAreaObj.addProperty("minX", areas.getSceneArea().minX);
+            sceneAreaObj.addProperty("minY", areas.getSceneArea().minY);
+            sceneAreaObj.addProperty("minZ", areas.getSceneArea().minZ);
+            sceneAreaObj.addProperty("maxX", areas.getSceneArea().maxX);
+            sceneAreaObj.addProperty("maxY", areas.getSceneArea().maxY);
+            sceneAreaObj.addProperty("maxZ", areas.getSceneArea().maxZ);
+            jsonObject.add("sceneArea", sceneAreaObj);
+            jsonObject.addProperty("sceneScroll", areas.getSceneScroll().name());
+            jsonObject.add("sceneDisplayOffset", vec3Json(areas.getSceneDisplayOffset()));
+            if (!areas.getSceneAssetHash().isBlank()
+                    || !areas.getSceneAssetRemoteUrl().isBlank()
+                    || areas.isSceneAssetTrusted()) {
+                JsonObject sceneAssetObj = new JsonObject();
+                sceneAssetObj.addProperty("schema", SceneAsset.CURRENT_SCHEMA);
+                if (!areas.getSceneAssetHash().isBlank()) {
+                    sceneAssetObj.addProperty("sha256", areas.getSceneAssetHash());
+                }
+                if (!areas.getSceneAssetRemoteUrl().isBlank()) {
+                    sceneAssetObj.addProperty("url", areas.getSceneAssetRemoteUrl());
+                }
+                sceneAssetObj.addProperty("trusted", areas.isSceneAssetTrusted());
+                jsonObject.add("sceneAsset", sceneAssetObj);
+            }
+        }
 
         // 保存重置粘贴区域 - 使用嵌套对象
         JsonObject resetPasteAreaObj = new JsonObject();
@@ -226,10 +284,12 @@ public class MapManager {
         jsonObject.addProperty("weatherCycle", areas.weatherCycle);
 
         // 写入文件
-        FileWriter writer = new FileWriter(mapConfigFile);
-        prettyGson.toJson(jsonObject, writer);
-        writer.close();
+        Path temp = mapConfigPath.resolveSibling(mapConfigPath.getFileName() + ".save.tmp");
+        Files.writeString(temp, prettyGson.toJson(jsonObject), StandardCharsets.UTF_8);
+        atomicMove(temp, mapConfigPath);
 
+        areas.mapName = normalizedMapName(mapName);
+        areas.sync();
         SRE.LOGGER.info("Successfully saved map: " + mapName);
         return true;
     }
@@ -254,9 +314,7 @@ public class MapManager {
      */
     public static boolean loadMap(ServerLevel serverWorld, String mapName) {
         try {
-            // 构建地图配置文件路径
-            Path mapConfigPath = Paths.get(serverWorld.getServer().getWorldPath(LevelResource.ROOT).toString(),
-                    "train_maps", mapName + ".json");
+            Path mapConfigPath = resolveMapConfigPath(serverWorld, mapName);
             File mapConfigFile = mapConfigPath.toFile();
 
             // 检查地图配置文件是否存在
@@ -272,7 +330,7 @@ public class MapManager {
             FileReader reader = new FileReader(mapConfigFile);
             JsonObject jsonObject = JsonParser.parseReader(reader).getAsJsonObject();
             reader.close();
-            areas.mapName = mapName;
+            areas.mapName = normalizedMapName(mapName);
             if (jsonObject.has("noReset")) {
                 areas.noReset = jsonObject.get("noReset").getAsBoolean();
             } else {
@@ -483,9 +541,18 @@ public class MapManager {
                 SRE.LOGGER.warn("Missing play area data in map config: " + mapName);
             }
 
-            // 只在启用了场景偏移或列车移动时才需要 sceneArea
-            if (jsonObject.has("sceneArea")) {
+            if (jsonObject.has("scene") && jsonObject.get("scene").isJsonPrimitive()) {
+                String sceneId = jsonObject.get("scene").getAsString().trim();
+                SceneLibrary.Result result = SceneLibrary.loadInto(serverWorld, sceneId);
+                if (!result.success()) {
+                    SceneLibrary.clearScene(areas);
+                    areas.setSceneId(sceneId);
+                    SRE.LOGGER.warn("Map {} references unavailable scene {}: {}",
+                            mapName, sceneId, result.message());
+                }
+            } else if (jsonObject.has("sceneArea")) {
                 JsonObject sceneAreaObj = jsonObject.getAsJsonObject("sceneArea");
+                areas.setSceneId("");
                 areas.setSceneArea(new AABB(
                         sceneAreaObj.get("minX").getAsDouble(),
                         sceneAreaObj.get("minY").getAsDouble(),
@@ -493,16 +560,54 @@ public class MapManager {
                         sceneAreaObj.get("maxX").getAsDouble(),
                         sceneAreaObj.get("maxY").getAsDouble(),
                         sceneAreaObj.get("maxZ").getAsDouble()));
+                if (!io.wifi.starrailexpress.scenery.SceneGeometry.isSectionAligned(areas.getSceneArea())) {
+                    SRE.LOGGER.warn("sceneArea in map {} is not section-aligned; scene assets use expanded bounds {}",
+                            mapName,
+                            io.wifi.starrailexpress.scenery.SceneGeometry.expandedArea(areas.getSceneArea()));
+                }
+                areas.setSceneAreaConfigured(true);
+                AreasWorldComponent.ScrollAxis fallbackAxis = AreasWorldComponent.ScrollAxis.X;
+                if (jsonObject.has("sceneScroll")) {
+                    String configuredAxis = jsonObject.get("sceneScroll").getAsString();
+                    AreasWorldComponent.ScrollAxis axis = AreasWorldComponent.parseScrollAxis(configuredAxis, null);
+                    if (axis == null) {
+                        SRE.LOGGER.warn("Invalid sceneScroll '{}' in map {}, using X", configuredAxis, mapName);
+                        axis = fallbackAxis;
+                    }
+                    areas.setSceneScroll(axis);
+                } else {
+                    areas.setSceneScroll(fallbackAxis);
+                }
+                areas.setSceneDisplayOffset(jsonObject.has("sceneDisplayOffset")
+                        && jsonObject.get("sceneDisplayOffset").isJsonObject()
+                                ? readVec3(jsonObject.getAsJsonObject("sceneDisplayOffset"))
+                                : Vec3.ZERO);
+                String assetHash = "";
+                String remoteUrl = "";
+                boolean trusted = false;
+                if (jsonObject.has("sceneAsset") && jsonObject.get("sceneAsset").isJsonObject()) {
+                    JsonObject sceneAsset = jsonObject.getAsJsonObject("sceneAsset");
+                    if (sceneAsset.has("sha256")) {
+                        assetHash = sceneAsset.get("sha256").getAsString().trim().toLowerCase(java.util.Locale.ROOT);
+                        if (!io.wifi.starrailexpress.scenery.SceneAssetCodec.isValidHash(assetHash)) {
+                            SRE.LOGGER.warn("Invalid scene asset hash in map {}", mapName);
+                            assetHash = "";
+                        }
+                    }
+                    if (sceneAsset.has("url")) {
+                        remoteUrl = sceneAsset.get("url").getAsString().trim();
+                    }
+                    trusted = sceneAsset.has("trusted") && sceneAsset.get("trusted").getAsBoolean();
+                }
+                areas.setSceneAssetHash(assetHash);
+                areas.setSceneAssetRemoteUrl(remoteUrl);
+                areas.setSceneAssetTrusted(trusted);
                 SRE.LOGGER.info("Loaded 'sceneArea': " + sceneAreaObj.get("minX").getAsDouble() + "," +
                         sceneAreaObj.get("minY").getAsDouble() + "," + sceneAreaObj.get("minZ").getAsDouble() + " to " +
                         sceneAreaObj.get("maxX").getAsDouble() + "," + sceneAreaObj.get("maxY").getAsDouble() + "," +
                         sceneAreaObj.get("maxZ").getAsDouble());
             } else {
-                // 如果配置中没有 sceneArea，使用 playArea 作为默认值
-                // 注意：只有在启用场景偏移或列车移动时，sceneArea 才有意义
-                areas.setSceneArea(areas.getPlayArea());
-                // 不输出警告，因为 sceneArea 是可选配置
-                // SRE.LOGGER.debug("Using playArea as default sceneArea for map: " + mapName);
+                SceneLibrary.clearScene(areas);
             }
             if (jsonObject.has("resetTemplateArea")) {
                 JsonObject resetTemplateAreaObj = jsonObject.getAsJsonObject("resetTemplateArea");
@@ -596,6 +701,8 @@ public class MapManager {
 
             // 同步到客户端
             areas.sync();
+            io.wifi.starrailexpress.scenery.server.SceneAssetServer.activate(serverWorld);
+            io.wifi.starrailexpress.scenery.network.SceneAssetNetwork.sendManifestToAll(serverWorld);
             last_start_map = mapName;
 
             SRE.LOGGER.info("Successfully loaded map: " + mapName);
@@ -603,6 +710,194 @@ public class MapManager {
         } catch (Exception e) {
             SRE.LOGGER.error("Failed to load map: " + mapName, e);
             return false;
+        }
+    }
+
+    private static JsonObject sceneAssetJson(AreasWorldComponent areas, String hash) {
+        JsonObject sceneAsset = new JsonObject();
+        sceneAsset.addProperty("schema", SceneAsset.CURRENT_SCHEMA);
+        if (hash != null && !hash.isBlank()) {
+            sceneAsset.addProperty("sha256", hash);
+        }
+        if (!areas.getSceneAssetRemoteUrl().isBlank()) {
+            sceneAsset.addProperty("url", areas.getSceneAssetRemoteUrl());
+        }
+        sceneAsset.addProperty("trusted", areas.isSceneAssetTrusted());
+        return sceneAsset;
+    }
+
+    private static void setSceneReference(JsonObject root, String sceneId) {
+        root.remove("sceneArea");
+        root.remove("sceneScroll");
+        root.remove("sceneDisplayOffset");
+        root.remove("sceneAsset");
+        if (sceneId == null || sceneId.isBlank()) {
+            root.remove("scene");
+        } else {
+            root.addProperty("scene", sceneId.trim());
+        }
+    }
+
+    private static JsonObject vec3Json(Vec3 value) {
+        JsonObject result = new JsonObject();
+        result.addProperty("x", value.x);
+        result.addProperty("y", value.y);
+        result.addProperty("z", value.z);
+        return result;
+    }
+
+    private static Vec3 readVec3(JsonObject value) {
+        return new Vec3(
+                value.has("x") ? value.get("x").getAsDouble() : 0.0D,
+                value.has("y") ? value.get("y").getAsDouble() : 0.0D,
+                value.has("z") ? value.get("z").getAsDouble() : 0.0D);
+    }
+
+    public static ImportResult importMapConfig(ServerLevel serverWorld, String filename, String mapName,
+            boolean overwrite) {
+        try {
+            String safeFilename = safeImportFilename(filename);
+            Path importsDir = serverWorld.getServer().getWorldPath(LevelResource.ROOT)
+                    .resolve("map_imports")
+                    .toAbsolutePath()
+                    .normalize();
+            Files.createDirectories(importsDir);
+            Path source = importsDir.resolve(safeFilename).normalize();
+            if (!source.startsWith(importsDir) || !Files.isRegularFile(source)) {
+                return ImportResult.failure("导入文件不存在: map_imports/" + safeFilename);
+            }
+            long size = Files.size(source);
+            if (size <= 0L || size > MAX_IMPORTED_MAP_BYTES) {
+                return ImportResult.failure("地图配置必须小于 8 MiB 且不能为空");
+            }
+
+            JsonElement parsed;
+            try (FileReader reader = new FileReader(source.toFile(), StandardCharsets.UTF_8)) {
+                parsed = JsonParser.parseReader(reader);
+            }
+            if (!parsed.isJsonObject()) {
+                return ImportResult.failure("地图配置根节点必须是 JSON 对象");
+            }
+            String validationError = validateImportedMapObject(parsed.getAsJsonObject());
+            if (validationError != null) {
+                return ImportResult.failure(validationError);
+            }
+
+            Path target = resolveMapConfigPath(serverWorld, mapName);
+            if (Files.exists(target) && !overwrite) {
+                return ImportResult.failure("目标地图已存在，请使用覆盖导入");
+            }
+            Files.createDirectories(target.getParent());
+            Path temp = target.resolveSibling(target.getFileName() + ".import.tmp");
+            Files.writeString(temp, prettyGson.toJson(parsed), StandardCharsets.UTF_8);
+            atomicMove(temp, target);
+
+            String normalizedName = normalizedMapName(mapName);
+            boolean loaded = loadMap(serverWorld, normalizedName);
+            return new ImportResult(true, loaded, loaded
+                    ? "已导入并载入地图 " + normalizedName
+                    : "配置已导入，但载入失败，请检查必需字段");
+        } catch (Exception e) {
+            SRE.LOGGER.error("Failed to import map config {} as {}", filename, mapName, e);
+            return ImportResult.failure("导入失败: " + e.getMessage());
+        }
+    }
+
+    public static boolean isValidMapName(String mapName) {
+        try {
+            normalizedMapName(mapName);
+            return true;
+        } catch (IllegalArgumentException ignored) {
+            return false;
+        }
+    }
+
+    private static Path resolveMapConfigPath(ServerLevel serverWorld, String mapName) throws IOException {
+        Path mapsDir = serverWorld.getServer().getWorldPath(LevelResource.ROOT)
+                .resolve("train_maps")
+                .toAbsolutePath()
+                .normalize();
+        Files.createDirectories(mapsDir);
+        Path target = mapsDir.resolve(normalizedMapName(mapName) + ".json").normalize();
+        if (!target.startsWith(mapsDir)) {
+            throw new IOException("地图名称超出 train_maps 目录");
+        }
+        return target;
+    }
+
+    private static String normalizedMapName(String mapName) {
+        if (mapName == null) {
+            throw new IllegalArgumentException("地图名称不能为空");
+        }
+        String value = mapName.trim().replace('\\', '/');
+        if (value.endsWith(".json")) {
+            value = value.substring(0, value.length() - 5);
+        }
+        if (value.isBlank() || value.length() > 128 || value.startsWith("/") || value.endsWith("/")) {
+            throw new IllegalArgumentException("地图名称为空、过长或格式无效");
+        }
+        for (String segment : value.split("/", -1)) {
+            if (segment.isBlank() || ".".equals(segment) || "..".equals(segment) || segment.contains(":")) {
+                throw new IllegalArgumentException("地图名称包含不安全的路径片段");
+            }
+        }
+        Path relative;
+        try {
+            relative = Path.of(value).normalize();
+        } catch (Exception e) {
+            throw new IllegalArgumentException("地图名称包含无效字符", e);
+        }
+        if (relative.isAbsolute() || relative.getNameCount() == 0) {
+            throw new IllegalArgumentException("地图名称必须是相对路径");
+        }
+        for (Path part : relative) {
+            String segment = part.toString();
+            if (segment.isBlank() || ".".equals(segment) || "..".equals(segment) || segment.contains(":")) {
+                throw new IllegalArgumentException("地图名称包含不安全的路径片段");
+            }
+        }
+        return relative.toString().replace(File.separatorChar, '/');
+    }
+
+    private static String safeImportFilename(String filename) {
+        if (filename == null || filename.isBlank()) {
+            throw new IllegalArgumentException("导入文件名不能为空");
+        }
+        String value = filename.trim();
+        if (!value.endsWith(".json")) {
+            value += ".json";
+        }
+        Path name = Path.of(value).getFileName();
+        if (!name.toString().equals(value) || value.contains("..")) {
+            throw new IllegalArgumentException("导入文件名不安全");
+        }
+        return value;
+    }
+
+    private static String validateImportedMapObject(JsonObject root) {
+        String[] requiredObjects = {
+                "spawnPos", "spectatorSpawnPos", "readyArea", "playAreaOffset",
+                "playArea", "resetTemplateArea", "resetPasteArea"
+        };
+        for (String key : requiredObjects) {
+            if (!root.has(key) || !root.get(key).isJsonObject()) {
+                return "地图配置缺少必需对象: " + key;
+            }
+        }
+        return null;
+    }
+
+    private static void atomicMove(Path source, Path target) throws IOException {
+        try {
+            Files.move(source, target, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
+        } catch (java.nio.file.AtomicMoveNotSupportedException ignored) {
+            Files.move(source, target, StandardCopyOption.REPLACE_EXISTING);
+        }
+    }
+
+    public record ImportResult(boolean imported, boolean loaded, String message) {
+        private static ImportResult failure(String message) {
+            return new ImportResult(false, false, message);
         }
     }
 

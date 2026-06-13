@@ -2,6 +2,7 @@ package org.agmas.noellesroles.init;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleSkill;
+import io.wifi.starrailexpress.api.RolePassive;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -9,24 +10,37 @@ import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
 import io.wifi.starrailexpress.index.TMMItems;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.Items;
+import org.agmas.noellesroles.ConfigWorldComponent;
 
 import java.util.UUID;
 
 import org.agmas.harpymodloader.events.ModdedRoleAssigned;
+import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.RicesRoleRhapsody;
 import org.agmas.noellesroles.component.FoodDrinkGlowComponent;
 import org.agmas.noellesroles.component.InfectedPlayerComponent;
 import org.agmas.noellesroles.component.ModComponents;
+import org.agmas.noellesroles.component.PlayerVolumeComponent;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
+import org.agmas.noellesroles.content.effects.TimeStopEffect;
 import org.agmas.noellesroles.game.roles.innocent.accountant.AccountantPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocent.alchemist.AlchemistPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.attendant.AttendantHandler;
+import org.agmas.noellesroles.game.roles.innocent.fortuneteller.FortunetellerPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocent.ghost.GhostPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocent.hoan_meirin.HoanMeirinPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocent.monitor.MonitorPlayerComponent;
@@ -35,8 +49,24 @@ import org.agmas.noellesroles.game.roles.killer.blood_feudist.BloodFeudistPlayer
 import org.agmas.noellesroles.game.roles.killer.dio.DIOPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.executioner.ExecutionerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.insane_killer.InsaneKillerPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.ma_chen_xu.MaChenXuPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.manipulator.ManipulatorPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.spellbreaker.SpellbreakerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.stalker.StalkerPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.candlebearer.CandleBearerPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.commander.CommanderHandler;
+import org.agmas.noellesroles.game.roles.neutral.mercenary.MercenaryPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.nian_shou.NianShouPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.pelican.PelicanPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.recorder.RecorderPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.thief.ThiefPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.vulture.VulturePlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.mortician.MorticianBodyMakerPlayerComponent;
+import org.agmas.noellesroles.game.roles.special.super_loose_end.SuperLooseEndPlayerComponent;
+import org.agmas.noellesroles.init.ModEffects;
+import org.agmas.noellesroles.packet.ProblemScreenOpenC2SPacket;
+import org.agmas.noellesroles.game.roles.killer.watcher.WatcherPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.watcher.WatcherPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.candlebearer.CandleBearerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.mercenary.MercenaryPlayerComponent;
@@ -375,85 +405,73 @@ public class ModRolesInitialEventRegister {
     }
 
     static {
+        RolePassive.register(ModRoles.PHANTOM_MUSICIAN,
+                RolePassive.passive(SRE.id("phantom_musician_income"),
+                        "passive.noellesroles.phantom_musician.income", 30 * 20, player -> {
+                            var gameWorld = SREGameWorldComponent.KEY.get(player.level());
+                            if (gameWorld.isRunning() && GameUtils.isPlayerAliveAndSurvival(player)) {
+                                SREPlayerShopComponent.KEY.get(player).addToBalance(50);
+                            }
+                        }));
+
         // 疫使技能注册：按技能键感染目标玩家
-        RoleSkill.register(ModRoles.INFECTED, context -> {
+        RoleSkill.register(ModRoles.INFECTED, RoleSkill.skill(
+                SRE.id("infected_infect"),
+                "skill.noellesroles.infected.infect",
+                context -> {
             ServerPlayer player = context.player();
             UUID targetUuid = context.target();
 
             if (targetUuid == null) {
-                // 无目标时不执行任何操作
-                return;
+                return false;
             }
 
             Player target = player.level().getPlayerByUUID(targetUuid);
             if (target == null) {
-                return;
+                return false;
             }
 
-            // 检查游戏状态
             if (!GameUtils.isPlayerAliveAndSurvival(target)) {
-                return;
+                return false;
             }
 
-            // 检查目标是否已被感染
             InfectedPlayerComponent targetComponent = ModComponents.INFECTED.get(target);
             if (targetComponent.infectedTicks > 0) {
-                return; // 已被感染
+                return false;
             }
 
-            // 检查疫使技能冷却
-            SREAbilityPlayerComponent abilityComponent = SREAbilityPlayerComponent.KEY.get(player);
-            if (abilityComponent.cooldown > 0) {
-                return;
-            }
-
-            // 感染目标
             targetComponent.infect(player);
 
-            // 设置疫使技能冷却为80秒
-            abilityComponent.cooldown = GameConstants.getInTicks(1, 20); // 80秒冷却
-            abilityComponent.sync();
-
-            // 播放感染音效
             if (NRSounds.INFECTED_INFECT != null) {
                 player.serverLevel().playSound(null, player.getX(), player.getY(), player.getZ(),
                     NRSounds.SYRINGE_STAB, SoundSource.MASTER, 0.5f, 0.5f);
             }
-        });
+            return true;
+        }).cooldownSeconds(80).charges(3).build());
 
         // 鹈鹕技能注册：按技能键吞噬鼠标准星对准的玩家，蹲下按技能键释放最后吞噬的玩家
-        RoleSkill.register(ModRoles.PELICAN, context -> {
-            ServerPlayer player = context.player();
-            if (player.isSpectator()) return;
-            PelicanPlayerComponent comp = PelicanPlayerComponent.KEY.get(player);
-            if (comp == null) return;
-
-            if (player.isShiftKeyDown()) {
-                comp.releaseLast();
-                return;
-            }
-
-            // 获取鼠标准星目标
-            ServerPlayer target = null;
-            UUID targetUuid = context.target();
-            if (targetUuid != null) {
-                Player p = player.level().getPlayerByUUID(targetUuid);
-                if (p instanceof ServerPlayer sp && GameUtils.isPlayerAliveAndSurvival(sp)
-                        && player.distanceToSqr(sp) <= 2.15D * 2.15D
-                        && player.hasLineOfSight(sp)) {
-                    target = sp;
-                }
-            }
-
-            if (target != null) {
-                comp.tryEat(target);
-            } else {
-                player.displayClientMessage(
-                        Component.translatable("message.noellesroles.pelican.no_target")
-                                .withStyle(ChatFormatting.RED),
-                        true);
-            }
-        });
+        RoleSkill.register(ModRoles.PELICAN,
+                RoleSkill.skill(SRE.id("pelican_eat"), "skill.noellesroles.pelican.eat", context -> {
+                    ServerPlayer player = context.player();
+                    if (player.isSpectator()) return false;
+                    PelicanPlayerComponent comp = PelicanPlayerComponent.KEY.get(player);
+                    if (comp == null || context.target() == null) return false;
+                    Player candidate = player.level().getPlayerByUUID(context.target());
+                    if (!(candidate instanceof ServerPlayer target)
+                            || !GameUtils.isPlayerAliveAndSurvival(target)
+                            || player.distanceToSqr(target) > 2.15D * 2.15D
+                            || !player.hasLineOfSight(target)) {
+                        player.displayClientMessage(
+                                Component.translatable("message.noellesroles.pelican.no_target")
+                                        .withStyle(ChatFormatting.RED), true);
+                        return false;
+                    }
+                    return comp.tryEat(target);
+                }).cooldownSeconds(35).announceToSelf(false).build(),
+                RoleSkill.skill(SRE.id("pelican_release"), "skill.noellesroles.pelican.release", context -> {
+                    PelicanPlayerComponent comp = PelicanPlayerComponent.KEY.get(context.player());
+                    return comp != null && comp.releaseLast();
+                }).announceToSelf(false).build());
 
         // 葬仪技能注册：使用当前模式的技能
         RoleSkill.register(ModRoles.MORTICIAN_BODYMAKER, context -> {
@@ -491,6 +509,457 @@ public class ModRolesInitialEventRegister {
             if (comp == null) return;
             comp.useTeleport();
         });
+
+        // 海王技能注册：20格外水下玩家施加禁锢效果5秒，冷却60秒
+        RoleSkill.register(ModRoles.SEA_KING, RoleSkill.skill(
+                SRE.id("sea_king_aoe"),
+                "skill.noellesroles.sea_king.aoe",
+                context -> {
+                    ServerPlayer player = context.player();
+                    final double radius = 20.0D;
+                    final int duration = 5 * 20;
+                    int affected = 0;
+
+                    for (var target : player.serverLevel().getEntitiesOfClass(
+                            ServerPlayer.class,
+                            player.getBoundingBox().inflate(radius),
+                            p -> !p.getUUID().equals(player.getUUID()) && GameUtils.isPlayerAliveAndSurvival(p))) {
+                        if (player.distanceToSqr(target) > radius * radius) {
+                            continue;
+                        }
+                        if (!(target.isInWater() || target.isUnderWater())) {
+                            continue;
+                        }
+
+                        target.addEffect(new MobEffectInstance(ModEffects.MOVE_BANED, duration, 0, false, true, false));
+                        target.addEffect(new MobEffectInstance(MobEffects.GLOWING, duration, 0, false, true, false));
+                        target.addEffect(new MobEffectInstance(ModEffects.USED_BANED, duration, 0, false, true, false));
+                        target.addEffect(new MobEffectInstance(ModEffects.TURN_BANED, duration, 0, false, true, false));
+                        affected++;
+                    }
+
+                    player.level().playSound(null, player.blockPosition(),
+                            SoundEvents.TRIDENT_RETURN, SoundSource.MASTER, 5.0F, 1.0F);
+
+                    if (affected > 0) {
+                        player.displayClientMessage(
+                                Component.translatable("message.noellesroles.sea_king.skill_used", affected)
+                                        .withStyle(ChatFormatting.AQUA),
+                                true);
+                    } else {
+                        player.displayClientMessage(
+                                Component.translatable("message.noellesroles.sea_king.skill_no_target")
+                                        .withStyle(ChatFormatting.RED),
+                                true);
+                    }
+
+                    return true; // 始终进入冷却
+                }).cooldownSeconds(60).build());
+
+        // 清洁工技能注册：清除附近5格外掉落物，冷却90秒
+        RoleSkill.register(ModRoles.CLEANER, RoleSkill.skill(
+                SRE.id("cleaner_cleanup"),
+                "skill.noellesroles.cleaner.cleanup",
+                context -> {
+                    ServerPlayer player = context.player();
+                    var items = player.level().getEntitiesOfClass(ItemEntity.class,
+                            player.getBoundingBox().inflate(5.0), (p) -> true);
+                    int count = 0;
+                    for (var it : items) {
+                        it.discard();
+                        count++;
+                    }
+                    player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
+                            SoundEvents.FIRE_EXTINGUISH, SoundSource.PLAYERS, 0.5F,
+                            1.0F + player.level().random.nextFloat() * 0.1F - 0.05F);
+                    player.displayClientMessage(Component.translatable(
+                            "message.noellesroles.cleaner.cleanned", count)
+                            .withStyle(ChatFormatting.GOLD), true);
+                    return true;
+                }).cooldownSeconds(90).build());
+
+        // 布谷鸟技能注册：在脚下放置蛋，冷却20秒
+        RoleSkill.register(ModRoles.CUCKOO, RoleSkill.skill(
+                SRE.id("cuckoo_place_egg"),
+                "skill.noellesroles.cuckoo.place_egg",
+                context -> {
+                    ServerPlayer player = context.player();
+                    if (!(player instanceof ServerPlayer sp)) return false;
+                    var comp = org.agmas.noellesroles.game.roles.neutral.cuckoo.CuckooPlayerComponent.KEY.get(player);
+                    if (comp == null) return false;
+                    return comp.placeEgg(sp);
+                }).cooldownSeconds(20).build());
+
+        // 风妖精技能注册：30格外玩家降低音量10秒，冷却120秒
+        RoleSkill.register(ModRoles.WIND_YAOSE, RoleSkill.skill(
+                SRE.id("wind_yaose_volume"),
+                "skill.noellesroles.wind_yaose.volume",
+                context -> {
+                    ServerPlayer player = context.player();
+                    for (var p : player.level().players()) {
+                        if (p.distanceTo(player) <= 30.0) {
+                            PlayerVolumeComponent.KEY.get(p).setVolume(600, 0.05f);
+                        }
+                    }
+                    return true;
+                }).cooldownSeconds(120).build());
+
+        // 噪音制造者技能注册：制造噪音，冷却60秒
+        RoleSkill.register(ModRoles.NOISEMAKER, RoleSkill.skill(
+                SRE.id("noisemaker_ability"),
+                "skill.noellesroles.noisemaker.ability",
+                context -> {
+                    ServerPlayer player = context.player();
+                    var comp = ModComponents.NOISEMAKER.get(player);
+                    if (comp == null) return false;
+                    comp.useAbility(); // 组件内部已管理效果逻辑
+                    return true;
+                }).cooldownSeconds(60).build());
+
+        // 小透明技能注册：隐身，冷却20秒，消耗150金币
+        RoleSkill.register(ModRoles.GHOST, RoleSkill.skill(
+                SRE.id("ghost_invisibility"),
+                "skill.noellesroles.ghost.invisibility",
+                context -> {
+                    ServerPlayer player = context.player();
+                    var comp = org.agmas.noellesroles.game.roles.innocent.ghost.GhostPlayerComponent.KEY.get(player);
+                    if (comp == null) return false;
+                    if (!comp.abilityUnlocked) {
+                        player.displayClientMessage(
+                                Component.translatable("message.noellesroles.ghost.not_unlocked")
+                                        .withStyle(ChatFormatting.RED), true);
+                        return false;
+                    }
+                    return comp.useAbility();
+                }).cooldownSeconds(20).build());
+
+        // 点灯人技能注册：隐身，消耗1次效果，最多5次
+        RoleSkill.register(ModRoles.CANDLE_BEARER, RoleSkill.skill(
+                SRE.id("candlebearer_invisibility"),
+                "skill.noellesroles.candlebearer.invisibility",
+                context -> {
+                    ServerPlayer player = context.player();
+                    var comp = CandleBearerPlayerComponent.KEY.get(player);
+                    if (comp == null) return false;
+                    return comp.useAbility();
+                }).charges(5).build());
+
+        // 破魔师技能注册：沉默50格外非杀手玩家，冷却130秒
+        RoleSkill.register(ModRoles.SPELLBREAKER, RoleSkill.skill(
+                SRE.id("spellbreaker_silence"),
+                "skill.noellesroles.spellbreaker.silence",
+                context -> {
+                    ServerPlayer player = context.player();
+                    SpellbreakerPlayerComponent.KEY.get(player).useAbility();
+                    return true;
+                }).cooldownSeconds(130).build());
+
+        // 侍者技能注册：开启灯光，冷却60秒
+        RoleSkill.register(ModRoles.ATTENDANT, RoleSkill.skill(
+                SRE.id("attendant_light"),
+                "skill.noellesroles.attendant.light",
+                context -> {
+                    ServerPlayer player = context.player();
+                    AttendantHandler.openLight(player);
+                    return true;
+                }).cooldownSeconds(60).build());
+
+        // 守望者技能注册：切换姿态
+        RoleSkill.register(ModRoles.WATCHER, RoleSkill.skill(
+                SRE.id("watcher_stance"),
+                "skill.noellesroles.watcher.stance",
+                context -> {
+                    ServerPlayer player = context.player();
+                    WatcherPlayerComponent.KEY.get(player).toggleStance();
+                    return true;
+                }).cooldownSeconds(30).build());
+
+        // 方名美铃技能注册：可切换飘浮效果，冷却60秒
+        RoleSkill.register(RedHouseRoles.HOAN_MEIRIN, RoleSkill.skill(
+                SRE.id("hoan_meirin_levitation"),
+                "skill.hoan_meirin.levitation",
+                context -> {
+                    ServerPlayer player = context.player();
+                    if (player.hasEffect(MobEffects.LEVITATION)) {
+                        player.removeEffect(MobEffects.LEVITATION);
+                        player.displayClientMessage(
+                                Component.translatable("hud.hoan_meirin.ability_stop").withStyle(ChatFormatting.AQUA), true);
+                        return true;
+                    }
+                    if (!context.skillReady()) return false;
+                    player.addEffect(new MobEffectInstance(MobEffects.LEVITATION,
+                            10 * 20, 1, true, false, true));
+                    player.displayClientMessage(
+                            Component.translatable("hud.hoan_meirin.ability_activated").withStyle(ChatFormatting.GREEN), true);
+                    return true;
+                }).cooldownSeconds(60).toggleable(true).build());
+
+        // 窃贼技能注册：普通按 G 使用技能，蹲下+ G 切换模式
+        RoleSkill.register(ModRoles.THIEF,
+                RoleSkill.skill(SRE.id("thief_ability"),
+                        "skill.noellesroles.thief.ability",
+                        context -> {
+                            ThiefPlayerComponent.KEY.get(context.player()).useAbility();
+                            return true;
+                        }).build(),
+                RoleSkill.skill(SRE.id("thief_toggle_mode"),
+                        "skill.noellesroles.thief.toggle_mode",
+                        context -> {
+                            ThiefPlayerComponent.KEY.get(context.player()).toggleMode();
+                            return true;
+                        }).shifted(true).build());
+
+        // 会计技能注册：普通按 G 使用技能，蹲下+ G 切换模式
+        RoleSkill.register(ModRoles.ACCOUNTANT,
+                RoleSkill.skill(SRE.id("accountant_ability"),
+                        "skill.noellesroles.accountant.ability",
+                        context -> {
+                            AccountantPlayerComponent.KEY.get(context.player()).useAbility();
+                            return true;
+                        }).build(),
+                RoleSkill.skill(SRE.id("accountant_toggle_mode"),
+                        "skill.noellesroles.accountant.toggle_mode",
+                        context -> {
+                            AccountantPlayerComponent.KEY.get(context.player()).toggleMode();
+                            return true;
+                        }).shifted(true).build());
+
+        // 炼金术师技能注册：普通按 G 调制药剂，蹲下+ G 切换药剂
+        RoleSkill.register(ModRoles.ALCHEMIST,
+                RoleSkill.skill(SRE.id("alchemist_craft"),
+                        "skill.noellesroles.alchemist.craft",
+                        context -> {
+                            AlchemistPlayerComponent.KEY.get(context.player()).craftPotion();
+                            return true;
+                        }).build(),
+                RoleSkill.skill(SRE.id("alchemist_switch_potion"),
+                        "skill.noellesroles.alchemist.switch_potion",
+                        context -> {
+                            AlchemistPlayerComponent.KEY.get(context.player()).switchPotion();
+                            return true;
+                        }).shifted(true).build());
+
+        // 幽灵技能注册：可切换隐身效果
+        RoleSkill.register(ModRoles.PHANTOM, RoleSkill.skill(
+                SRE.id("phantom_invisibility"),
+                "skill.noellesroles.phantom.invisibility",
+                context -> {
+                    ServerPlayer player = context.player();
+                    if (context.skillReady()) {
+                        player.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY,
+                                NoellesRolesConfig.HANDLER.instance().phantomInvisibilityDuration * 20,
+                                0, true, false, true));
+                        return true;
+                    } else {
+                        var effect = player.getEffect(MobEffects.INVISIBILITY);
+                        if (effect != null && effect.getDuration() > 0) {
+                            player.removeEffect(MobEffects.INVISIBILITY);
+                            player.displayClientMessage(
+                                    Component.translatable("tip.phantom.exited").withStyle(ChatFormatting.YELLOW), true);
+                            return true;
+                        }
+                        return false;
+                    }
+                }).cooldownSeconds(NoellesRolesConfig.instance().phantomInvisibilityCooldown).toggleable(true).build());
+
+        // 指挥官技能注册：切换杀手/普通广播频道
+        RoleSkill.register(ModRoles.COMMANDER, RoleSkill.skill(
+                SRE.id("commander_switch_channel"),
+                "skill.noellesroles.commander.switch_channel",
+                context -> {
+                    CommanderHandler.tryActiveAbility(context.player());
+                    return true;
+                }).build());
+
+        // 炸弹人技能注册：购买炸弹
+        RoleSkill.register(ModRoles.BOMBER, RoleSkill.skill(
+                SRE.id("bomber_buy_bomb"),
+                "skill.noellesroles.bomber.buy_bomb",
+                context -> {
+                    ModComponents.BOMBER.get(context.player()).buyBomb();
+                    return true;
+                }).build());
+
+        // 仇杀客技能注册：切换效果开关
+        RoleSkill.register(ModRoles.BLOOD_FEUDIST, RoleSkill.skill(
+                SRE.id("blood_feudist_toggle"),
+                "skill.noellesroles.blood_feudist.toggle",
+                context -> {
+                    ModComponents.BLOOD_FEUDIST.get(context.player()).toggleEffects();
+                    return true;
+                }).toggleable(true).build());
+
+        // 钟表匠技能注册：削减他人回合时间
+        RoleSkill.register(ModRoles.CLOCKMAKER, RoleSkill.skill(
+                SRE.id("clockmaker_use_skill"),
+                "skill.noellesroles.clockmaker.use_skill",
+                context -> {
+                    ModComponents.CLOCKMAKER.get(context.player()).useSkill();
+                    return true;
+                }).build());
+
+        // 超级亡命徒技能注册：使用技能，蹲下+ G 为特殊模式
+        RoleSkill.register(SpecialGameModeRoles.SUPER_LOOSE_END,
+                RoleSkill.skill(SRE.id("super_loose_end_ability"),
+                        "skill.noellesroles.super_loose_end.ability",
+                        context -> {
+                            SuperLooseEndPlayerComponent.KEY.get(context.player()).useAbility(false);
+                            return true;
+                        }).build(),
+                RoleSkill.skill(SRE.id("super_loose_end_shift"),
+                        "skill.noellesroles.super_loose_end.shift",
+                        context -> {
+                            SuperLooseEndPlayerComponent.KEY.get(context.player()).useAbility(true);
+                            return true;
+                        }).shifted(true).build());
+
+        // 布袋鬼鬼术注册：4 个鬼术作为可选槽位（V 切换、G 释放、Sneak+G 开里世界大招）。
+        // 冷却/门控由 MaChenXuPlayerComponent 自有逻辑负责（cooldownTicks=0 让引擎不拦截），
+        // announceToSelf(false) 由组件自定义提示。槽位顺序须与 MaChenXuPlayerComponent.ART_ORDER 一致。
+        RoleSkill.register(ModRoles.MA_CHEN_XU,
+                RoleSkill.skill(SRE.id("ma_chen_xu_veil"), "hud.noellesroles.ma_chen_xu.skill.veil",
+                        context -> MaChenXuPlayerComponent.KEY.get(context.player()).onGhostArt("veil"))
+                        .announceToSelf(false).build(),
+                RoleSkill.skill(SRE.id("ma_chen_xu_effigy"), "hud.noellesroles.ma_chen_xu.skill.effigy",
+                        context -> MaChenXuPlayerComponent.KEY.get(context.player()).onGhostArt("effigy"))
+                        .announceToSelf(false).build(),
+                RoleSkill.skill(SRE.id("ma_chen_xu_wail"), "hud.noellesroles.ma_chen_xu.skill.wail",
+                        context -> MaChenXuPlayerComponent.KEY.get(context.player()).onGhostArt("wail"))
+                        .announceToSelf(false).build(),
+                RoleSkill.skill(SRE.id("ma_chen_xu_seize"), "hud.noellesroles.ma_chen_xu.skill.seize",
+                        context -> MaChenXuPlayerComponent.KEY.get(context.player()).onGhostArt("seize"))
+                        .announceToSelf(false).build());
+
+        // 出题人技能注册（无目标）：给所有人出题，冷却240秒，消耗300金币
+        RoleSkill.register(ModRoles.EXAMPLER, RoleSkill.skill(
+                SRE.id("exampler_problem_all"),
+                "skill.noellesroles.exampler.problem_all",
+                context -> {
+                    ServerPlayer player = context.player();
+                    SREPlayerShopComponent shop = SREPlayerShopComponent.KEY.get(player);
+                    if (shop.balance < 300) {
+                        player.displayClientMessage(
+                                Component.translatable("message.noellesroles.insufficient_funds_money", 300)
+                                        .withStyle(ChatFormatting.RED), true);
+                        return false;
+                    }
+                    shop.addToBalance(-300);
+                    player.serverLevel().players().forEach(sp -> {
+                        if (GameUtils.isPlayerAliveAndSurvival(sp)) {
+                            ServerPlayNetworking.send(sp, new ProblemScreenOpenC2SPacket(true, 3));
+                        }
+                    });
+                    return true;
+                }).cooldownSeconds(240).build());
+
+        // 年兽技能注册：发送红包给目标玩家（客户端选目标）
+        RoleSkill.register(ModRoles.NIAN_SHOU, RoleSkill.skill(
+                SRE.id("nian_shou_red_packet"),
+                "skill.noellesroles.nian_shou.red_packet",
+                context -> {
+                    ServerPlayer player = context.player();
+                    UUID targetUuid = context.target();
+                    if (targetUuid == null) {
+                        player.displayClientMessage(
+                                Component.translatable("message.noellesroles.nianshou.no_target")
+                                        .withStyle(ChatFormatting.RED), true);
+                        return false;
+                    }
+                    Player target = player.level().getPlayerByUUID(targetUuid);
+                    if (!(target instanceof ServerPlayer targetPlayer)) return false;
+                    NianShouPlayerComponent comp = NianShouPlayerComponent.KEY.get(player);
+                    if (comp.getRedPacketCount() <= 0) {
+                        player.displayClientMessage(
+                                Component.translatable("message.noellesroles.nianshou.no_red_packet")
+                                        .withStyle(ChatFormatting.RED), true);
+                        return false;
+                    }
+                    comp.useRedPacket();
+                    ConfigWorldComponent configWorld = ConfigWorldComponent.KEY.get(targetPlayer.level());
+                    configWorld.addRedPacketTimer(targetPlayer.getUUID());
+                    player.displayClientMessage(
+                            Component.translatable("message.noellesroles.nianshou.red_packet_sent", target.getName())
+                                    .withStyle(ChatFormatting.GOLD), true);
+                    return true;
+                }).build());
+
+        // 出题人技能注册（有目标）：给目标和自己出题，冷却90秒，消耗100金币
+        RoleSkill.register(ModRoles.EXAMPLER, RoleSkill.skill(
+                SRE.id("exampler_problem_target"),
+                "skill.noellesroles.exampler.problem_target",
+                context -> {
+                    ServerPlayer player = context.player();
+                    UUID targetUuid = context.target();
+                    if (targetUuid == null) return false;
+                    Player target = player.level().getPlayerByUUID(targetUuid);
+                    if (!(target instanceof ServerPlayer sp)) return false;
+                    SREPlayerShopComponent shop = SREPlayerShopComponent.KEY.get(player);
+                    if (shop.balance < 100) {
+                        player.displayClientMessage(
+                                Component.translatable("message.noellesroles.insufficient_funds")
+                                        .withStyle(ChatFormatting.RED), true);
+                        return false;
+                    }
+                    shop.addToBalance(-100);
+                    ServerPlayNetworking.send(player, new ProblemScreenOpenC2SPacket(true, 2));
+                    ServerPlayNetworking.send(sp, new ProblemScreenOpenC2SPacket(true, 2));
+                    return true;
+                }).cooldownSeconds(90).build());
+
+        // 幸运使者技能注册：保护目标玩家，冷却120秒，消耗200金币
+        RoleSkill.register(ModRoles.FORTUNETELLER, RoleSkill.skill(
+                SRE.id("fortuneteller_protect"),
+                "skill.noellesroles.fortuneteller.protect",
+                context -> {
+                    ServerPlayer player = context.player();
+                    UUID targetUuid = context.target();
+                    if (targetUuid == null) return false;
+                    Player target = player.level().getPlayerByUUID(targetUuid);
+                    if (target == null) return false;
+                    SREPlayerShopComponent shop = SREPlayerShopComponent.KEY.get(player);
+                    if (shop.balance < 200) {
+                        player.displayClientMessage(
+                                Component.translatable("message.noellesroles.insufficient_funds")
+                                        .withStyle(ChatFormatting.RED), true);
+                        return false;
+                    }
+                    shop.addToBalance(-200);
+                    FortunetellerPlayerComponent.KEY.get(player).protectPlayer(target);
+                    return true;
+                }).cooldownSeconds(120).build());
+
+        // 十六夜咲夜技能注册：时间停止5秒，冷却240秒
+        RoleSkill.register(RedHouseRoles.MAID_SAKUYA, RoleSkill.skill(
+                SRE.id("maid_sakuya_timestop"),
+                "skill.maid_sakuya.timestop",
+                context -> {
+                    ServerPlayer player = context.player();
+                    if (player.getCooldowns().isOnCooldown(Items.CLOCK)) return false;
+                    return TimeStopEffect.tryTriggerStart(player, 20 * 5,
+                            Component.translatable("title.maid_sakuya.timestopper")
+                                    .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
+                }).cooldownSeconds(240).build());
+
+        // JOJO技能注册：时间停止3秒，冷却240秒
+        RoleSkill.register(ModRoles.JOJO, RoleSkill.skill(
+                SRE.id("jojo_timestop"),
+                "skill.noellesroles.jojo.timestop",
+                context -> {
+                    ServerPlayer player = context.player();
+                    if (player.getCooldowns().isOnCooldown(Items.CLOCK)) return false;
+                    return TimeStopEffect.tryTriggerStart(player, 20 * 3,
+                            Component.translatable("hud.noellesroles.jojo.the_world")
+                                    .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
+                }).cooldownSeconds(240).build());
+
+        // DIO技能注册：时间停止，委托组件
+        RoleSkill.register(ModRoles.DIO, RoleSkill.skill(
+                SRE.id("dio_timestop"),
+                "skill.noellesroles.dio.timestop",
+                context -> {
+                    DIOPlayerComponent.KEY.get(context.player()).tryActivateTimeStop();
+                    return true;
+                }).build());
     }
 
 }

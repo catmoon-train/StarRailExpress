@@ -4,46 +4,21 @@ import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.game.GameConstants;
-import io.wifi.starrailexpress.game.GameUtils;
-import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.phys.AABB;
 import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.component.PlayerVolumeComponent;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.content.effects.TimeStopEffect;
 import org.agmas.noellesroles.content.entity.WheelchairEntity;
-import org.agmas.noellesroles.game.roles.innocent.accountant.AccountantPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocent.alchemist.AlchemistPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocent.attendant.AttendantHandler;
-import org.agmas.noellesroles.game.roles.innocent.clock_maker.ClockmakerPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocent.fortuneteller.FortunetellerPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocent.hoan_meirin.HoanMeirinPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocent.noise_maker.NoiseMakerPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocent.recaller.RecallerPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.blood_feudist.BloodFeudistPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.bomber.BomberPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.dio.DIOPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.imitator.ImitatorPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.ma_chen_xu.MaChenXuPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.spellbreaker.SpellbreakerPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.watcher.WatcherPlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.candlebearer.CandleBearerPlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.commander.CommanderHandler;
-import org.agmas.noellesroles.game.roles.neutral.nian_shou.NianShouPlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.thief.ThiefPlayerComponent;
-import org.agmas.noellesroles.game.roles.special.super_loose_end.SuperLooseEndPlayerComponent;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.packet.ProblemScreenOpenC2SPacket;
@@ -70,101 +45,6 @@ public class AbilityHandler {
             return;
         }
         if (player.hasEffect(ModEffects.SKILL_BANED)) {
-            return;
-        }
-        if (gameWorldComponent.isRole(player, RedHouseRoles.HOAN_MEIRIN)) {
-            var hmpc = HoanMeirinPlayerComponent.KEY.get(player);
-            if (player.hasEffect(MobEffects.LEVITATION)) {
-                player.removeEffect(MobEffects.LEVITATION);
-                player.displayClientMessage(
-                        Component.translatable("hud.hoan_meirin.ability_stop").withStyle(ChatFormatting.AQUA),
-                        true);
-                return;
-            } else if (hmpc.cooldown > 0) {
-                player.displayClientMessage(
-                        Component.translatable("message.noellesroles.ability_cooldown").withStyle(ChatFormatting.RED),
-                        true);
-                return;
-            } else {
-                hmpc.setCooldown(60 * 20);
-                player.displayClientMessage(
-                        Component.translatable("hud.hoan_meirin.ability_activated").withStyle(ChatFormatting.GREEN),
-                        true);
-                player.addEffect(new MobEffectInstance(MobEffects.LEVITATION,
-                        10 * 20, 1, true, false,
-                        true));
-                return;
-            }
-        }
-        if (gameWorldComponent.isRole(player, RedHouseRoles.MAID_SAKUYA)) {
-            if (abilityPlayerComponent.cooldown > 0 || player.getCooldowns().isOnCooldown(Items.CLOCK)) {
-                player.displayClientMessage(Component.translatable(
-                        "tip.noellesroles.cooldown", abilityPlayerComponent.cooldown / 20)
-                        .withStyle(ChatFormatting.RED), true);
-            } else {
-                if (TimeStopEffect.tryTriggerStart(player, 20 * 5,
-                        Component.translatable("title.maid_sakuya.timestopper")
-                                .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD))) {
-                    abilityPlayerComponent.setCooldown(20 * 240);
-                }
-            }
-            return;
-        }
-        if (gameWorldComponent.isRole(player, ModRoles.JOJO)) {
-            if (abilityPlayerComponent.cooldown > 0 || player.getCooldowns().isOnCooldown(Items.CLOCK)) {
-                player.displayClientMessage(Component.translatable(
-                        "tip.noellesroles.cooldown", abilityPlayerComponent.cooldown / 20)
-                        .withStyle(ChatFormatting.RED), true);
-            } else {
-                if (TimeStopEffect.tryTriggerStart(player, 20 * 3,
-                        Component.translatable("hud.noellesroles.jojo.the_world")
-                                .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD))) {
-                    abilityPlayerComponent.setCooldown(20 * 240);
-                }
-            }
-            return;
-        }
-        if (gameWorldComponent.isRole(player, ModRoles.DIO)) {
-
-            DIOPlayerComponent.KEY.get(player).tryActivateTimeStop();
-            return;
-        }
-        if (gameWorldComponent.isRole(player, ModRoles.WIND_YAOSE)) {
-            if (abilityPlayerComponent.cooldown > 0) {
-                player.displayClientMessage(Component.translatable(
-                        "tip.noellesroles.cooldown", abilityPlayerComponent.cooldown / 20)
-                        .withStyle(ChatFormatting.RED), true);
-            } else {
-                for (var p : player.level().players()) {
-                    if (p.distanceTo(player) <= 30.) {
-                        // 30s
-                        PlayerVolumeComponent.KEY.get(p).setVolume(600, 0.05f);
-                    }
-                }
-                abilityPlayerComponent.setCooldown(20 * 120);
-            }
-            return;
-        }
-
-        if (gameWorldComponent.isRole(player, ModRoles.CLEANER)) {
-            if (abilityPlayerComponent.cooldown > 0) {
-                player.displayClientMessage(Component.translatable(
-                        "message.noellesroles.cleaner.cooldown", abilityPlayerComponent.cooldown / 20)
-                        .withStyle(ChatFormatting.RED), true);
-            } else {
-                var items = player.level().getEntitiesOfClass(ItemEntity.class,
-                        player.getBoundingBox().inflate(5.), (p) -> true);
-                for (var it : items) {
-                    it.discard();
-                }
-                player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
-                        SoundEvents.FIRE_EXTINGUISH, SoundSource.PLAYERS, 0.5F,
-                        1.0F + player.level().random.nextFloat() * 0.1F - 0.05F);
-                player.displayClientMessage(Component.translatable(
-                        "message.noellesroles.cleaner.cleanned", items.size())
-                        .withStyle(ChatFormatting.GOLD), true);
-                abilityPlayerComponent.setCooldown(20 * 90);
-            }
             return;
         }
         if (gameWorldComponent.isRole(player, ModRoles.GLITCH_ROBOT)) {
@@ -229,108 +109,6 @@ public class AbilityHandler {
             }
             return;
         }
-        if (gameWorldComponent.isRole(player, ModRoles.MA_CHEN_XU)) {
-            MaChenXuPlayerComponent.KEY.get(player).tryActiveAbility();
-            return;
-        }
-        if (gameWorldComponent.isRole(player, ModRoles.WATCHER)) {
-            var watcher = WatcherPlayerComponent.KEY.get(player);
-            if (watcher.getCooldown() > 0) {
-                player.displayClientMessage(Component.translatable(
-                        "tip.noellesroles.cooldown", watcher.getCooldown() / 20).withStyle(ChatFormatting.RED), true);
-                return;
-            }
-            watcher.toggleStance();
-            return;
-        }
-        if (gameWorldComponent.isRole(player, ModRoles.SPELLBREAKER)) {
-            SpellbreakerPlayerComponent.KEY.get(player).useAbility();
-            return;
-        }
-        if (gameWorldComponent.isRole(player, ModRoles.COMMANDER)) {
-            CommanderHandler.tryActiveAbility(player);
-            return;
-        }
-        if (gameWorldComponent.isRole(player, ModRoles.ATTENDANT)) {
-            if (abilityPlayerComponent.cooldown > 0) {
-                player.displayClientMessage(Component.translatable(
-                        "message.noellesroles.attendant.cooldown", abilityPlayerComponent.cooldown / 20)
-                        .withStyle(ChatFormatting.RED), true);
-                return;
-            }
-            if (!player.isCreative())
-                abilityPlayerComponent.setCooldown(60 * 20);
-            AttendantHandler.openLight(player);
-            return;
-        }
-        if (gameWorldComponent.isRole(player, ModRoles.EXAMPLER)) {
-            if (abilityPlayerComponent.cooldown > 0) {
-                player.displayClientMessage(
-                        Component.translatable("message.noellesroles.ability_cooldown").withStyle(ChatFormatting.RED),
-                        true);
-                return;
-            } else {
-                SREPlayerShopComponent playerShopComponent = SREPlayerShopComponent.KEY.get(player);
-                if (playerShopComponent.balance < 300) {
-                    player.displayClientMessage(
-                            Component.translatable("message.noellesroles.insufficient_funds_money", 300)
-                                    .withStyle(ChatFormatting.RED),
-                            true);
-                    return;
-                }
-                playerShopComponent.addToBalance(-300);
-                abilityPlayerComponent.setCooldown(240 * 20);
-                player.serverLevel().players().forEach(sp -> {
-                    if (GameUtils.isPlayerAliveAndSurvival(sp)) {
-                        ServerPlayNetworking.send(sp, new ProblemScreenOpenC2SPacket(true, 3));
-                    }
-                });
-            }
-        }
-        if (gameWorldComponent.isRole(player, ModRoles.BOMBER)) {
-            BomberPlayerComponent bomberPlayerComponent = ModComponents.BOMBER.get(player);
-            bomberPlayerComponent.buyBomb();
-            return;
-        }
-        if (gameWorldComponent.isRole(player, ModRoles.NOISEMAKER)) {
-            NoiseMakerPlayerComponent noiseMakerPlayerComponent = ModComponents.NOISEMAKER.get(player);
-            noiseMakerPlayerComponent.useAbility();
-            return;
-        }
-        if (gameWorldComponent.isRole(player, ModRoles.GHOST)) {
-            org.agmas.noellesroles.game.roles.innocent.ghost.GhostPlayerComponent ghostPlayerComponent = org.agmas.noellesroles.game.roles.innocent.ghost.GhostPlayerComponent.KEY
-                    .get(player);
-            ghostPlayerComponent.useAbility();
-            return;
-        }
-        if (gameWorldComponent.isRole(player, ModRoles.CANDLE_BEARER)) {
-            CandleBearerPlayerComponent candleBearerPlayerComponent = CandleBearerPlayerComponent.KEY
-                    .get(player);
-            candleBearerPlayerComponent.useAbility();
-            return;
-        }
-        if (gameWorldComponent.isRole(player, ModRoles.BLOOD_FEUDIST)) {
-            BloodFeudistPlayerComponent bfComponent = ModComponents.BLOOD_FEUDIST.get(player);
-            bfComponent.toggleEffects();
-            return;
-        }
-
-        if (gameWorldComponent.isRole(player, ModRoles.CUCKOO)) {
-            // 布谷鸟按技能键下蛋逻辑
-            if (abilityPlayerComponent.cooldown > 0) {
-                player.displayClientMessage(Component.translatable("tip.noellesroles.cooldown", abilityPlayerComponent.cooldown / 20)
-                        .withStyle(net.minecraft.ChatFormatting.RED), true);
-                return;
-            }
-            var cuckooComp = org.agmas.noellesroles.game.roles.neutral.cuckoo.CuckooPlayerComponent.KEY.get(player);
-            if (cuckooComp == null) return;
-            if (!(player instanceof ServerPlayer sp)) return;
-            boolean success = cuckooComp.placeEgg(sp);
-            if (success) {
-                abilityPlayerComponent.setCooldown(20 * 20);
-            }
-            return;
-        }
 
         if (gameWorldComponent.isRole(player, ModRoles.RECALLER)
                 && abilityPlayerComponent.cooldown <= 0) {
@@ -366,135 +144,6 @@ public class AbilityHandler {
             }
             return;
         }
-        if (gameWorldComponent.isRole(player, ModRoles.PHANTOM)) {
-            if (abilityPlayerComponent.cooldown <= 0) {
-                player.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY,
-                        NoellesRolesConfig.HANDLER.instance().phantomInvisibilityDuration * 20, 0, true, false,
-                        true));
-                abilityPlayerComponent.cooldown = GameConstants.getInTicks(0,
-                        NoellesRolesConfig.HANDLER.instance().phantomInvisibilityCooldown);
-            } else {
-                var effectINVISIBILITY = player.getEffect(MobEffects.INVISIBILITY);
-                if (effectINVISIBILITY != null) {
-                    if (effectINVISIBILITY.getDuration() > 0) {
-                        player.removeEffect(MobEffects.INVISIBILITY);
-                        player.displayClientMessage(
-                                Component.translatable("tip.phantom.exited").withStyle(ChatFormatting.YELLOW),
-                                true);
-                    }
-                }
-            }
-
-        }
-        if (gameWorldComponent.isRole(player, ModRoles.NIAN_SHOU)) {
-            var sender = player;
-
-            NianShouPlayerComponent nianShouComponent = NianShouPlayerComponent.KEY.get(sender);
-
-            // 简单实现：检查准星对准的玩家
-            Player target = null;
-            // 由于raycastPlayer方法不存在，使用简化逻辑
-            // 获取准星对准的玩家
-            double minDistance = 5.0;
-            for (Player otherPlayer : sender.level().players()) {
-                if (otherPlayer.isSpectator())
-                    continue;
-                if (otherPlayer.getUUID().equals(sender.getUUID())) {
-                    continue; // 不能给自己发红包
-                }
-                double distance = sender.distanceTo(otherPlayer);
-                if (distance <= minDistance) {
-                    // 检查是否在准星方向
-                    net.minecraft.world.phys.Vec3 eyePos = sender.getEyePosition();
-                    net.minecraft.world.phys.Vec3 lookVec = sender.getLookAngle().normalize();
-                    net.minecraft.world.phys.Vec3 toTarget = otherPlayer.position().subtract(eyePos).normalize();
-                    double dotProduct = lookVec.dot(toTarget);
-                    if (dotProduct > 0.8) { // 准星方向大致对准目标
-                        if (target == null || distance < sender.distanceTo(target)) {
-                            target = otherPlayer;
-                        }
-                    }
-                }
-            }
-
-            if (target == null) {
-                sender.displayClientMessage(
-                        Component.translatable("message.noellesroles.nianshou.no_target")
-                                .withStyle(ChatFormatting.RED),
-                        true);
-                return;
-            }
-
-            if (nianShouComponent.getRedPacketCount() <= 0) {
-                sender.displayClientMessage(
-                        Component.translatable("message.noellesroles.nianshou.no_red_packet")
-                                .withStyle(ChatFormatting.RED),
-                        true);
-                return;
-            }
-
-            // 发放红包
-            nianShouComponent.useRedPacket();
-
-            // 添加延迟发放计时器
-            if (target instanceof ServerPlayer) {
-                ConfigWorldComponent configWorld = ConfigWorldComponent.KEY.get(target.level());
-                configWorld.addRedPacketTimer(target.getUUID());
-
-                // 提示年兽
-                sender.displayClientMessage(
-                        Component.translatable("message.noellesroles.nianshou.red_packet_sent", target.getName())
-                                .withStyle(ChatFormatting.GOLD),
-                        true);
-            }
-        }
-        if (gameWorldComponent.isRole(player, ModRoles.THIEF)) {
-            ThiefPlayerComponent thiefComponent = ThiefPlayerComponent.KEY.get(player);
-
-            // 检查玩家是否在蹲下
-            if (player.isShiftKeyDown()) {
-                // 蹲下按技能键：切换模式
-                thiefComponent.toggleMode();
-            } else {
-                // 普通按技能键：使用技能
-                thiefComponent.useAbility();
-            }
-            return;
-        }
-        if (gameWorldComponent.isRole(player, ModRoles.CLOCKMAKER)) {
-            ClockmakerPlayerComponent clockmakerComponent = ModComponents.CLOCKMAKER.get(player);
-            clockmakerComponent.useSkill();
-            return;
-        }
-        if (gameWorldComponent.isRole(player, ModRoles.ACCOUNTANT)) {
-            AccountantPlayerComponent accountantComponent = AccountantPlayerComponent.KEY
-                    .get(player);
-
-            // 检查玩家是否在蹲下
-            if (player.isShiftKeyDown()) {
-                // 蹲下按技能键：切换模式
-                accountantComponent.toggleMode();
-            } else {
-                // 普通按技能键：使用技能
-                accountantComponent.useAbility();
-            }
-            return;
-        }
-        if (gameWorldComponent.isRole(player, ModRoles.ALCHEMIST)) {
-            AlchemistPlayerComponent alchemistComponent = AlchemistPlayerComponent.KEY
-                    .get(player);
-
-            // 检查玩家是否在蹲下
-            if (player.isShiftKeyDown()) {
-                // 蹲下按技能键：切换药剂
-                alchemistComponent.switchPotion();
-            } else {
-                // 普通按技能键：调制药剂
-                alchemistComponent.craftPotion();
-            }
-            return;
-        }
-
         if (gameWorldComponent.isRole(player, ModRoles.IMITATOR)) {
             ImitatorPlayerComponent comp = ModComponents.IMITATOR.get(player);
             if (player.isShiftKeyDown()) {
@@ -504,61 +153,7 @@ public class AbilityHandler {
             }
             return;
         }
-        if (gameWorldComponent.isRole(player, ModRoles.SEA_KING)) {
-            if (abilityPlayerComponent.cooldown > 0) {
-                player.displayClientMessage(
-                        Component.translatable("message.noellesroles.sea_king.cooldown",
-                                (abilityPlayerComponent.cooldown + 19) / 20)
-                                .withStyle(ChatFormatting.RED),
-                        true);
-                return;
-            }
-
-            final double radius = 20.0D;
-            final int duration = 5 * 20;
-            int affected = 0;
-
-            AABB range = player.getBoundingBox().inflate(radius);
-            for (ServerPlayer target : player.serverLevel().getEntitiesOfClass(
-                    ServerPlayer.class,
-                    range,
-                    p -> !p.getUUID().equals(player.getUUID()) && GameUtils.isPlayerAliveAndSurvival(p))) {
-                if (player.distanceToSqr(target) > radius * radius) {
-                    continue;
-                }
-                if (!(target.isInWater() || target.isUnderWater())) {
-                    continue;
-                }
-
-                target.addEffect(new MobEffectInstance(ModEffects.MOVE_BANED, duration, 0, false, true, false));
-                target.addEffect(new MobEffectInstance(MobEffects.GLOWING, duration, 0, false, true, false));
-                target.addEffect(new MobEffectInstance(ModEffects.USED_BANED, duration, 0, false, true, false));
-                target.addEffect(new MobEffectInstance(ModEffects.TURN_BANED, duration, 0, false, true, false));
-                affected++;
-            }
-
-            abilityPlayerComponent.setCooldown(60 * 20);
-            player.level().playSound(null, player.blockPosition(),
-                    SoundEvents.TRIDENT_RETURN, SoundSource.MASTER, 5.0F, 1.0F);
-
-            if (affected > 0) {
-                player.displayClientMessage(
-                        Component.translatable("message.noellesroles.sea_king.skill_used", affected)
-                                .withStyle(ChatFormatting.AQUA),
-                        true);
-            } else {
-                player.displayClientMessage(
-                        Component.translatable("message.noellesroles.sea_king.skill_no_target")
-                                .withStyle(ChatFormatting.RED),
-                        true);
-            }
-            return;
-        }
         // 处理超级亡命徒技能
-        if (gameWorldComponent.isRole(player, SpecialGameModeRoles.SUPER_LOOSE_END)) {
-            SuperLooseEndPlayerComponent comp = SuperLooseEndPlayerComponent.KEY.get(player);
-            comp.useAbility(player.isShiftKeyDown());
-        }
     }
 
     public static void handlerWithTarget(ServerPlayer player, UUID targetUUID) {
@@ -590,46 +185,5 @@ public class AbilityHandler {
             return;
         }
         var targetPlayer = player.level().getPlayerByUUID(targetUUID);
-
-        if (gameWorldComponent.isRole(player, ModRoles.EXAMPLER)) {
-            if (abilityPlayerComponent.cooldown > 0) {
-                player.displayClientMessage(
-                        Component.translatable("message.noellesroles.ability_cooldown").withStyle(ChatFormatting.RED),
-                        true);
-                return;
-            }
-            if (playerShopComponent.balance < 100) {
-                player.displayClientMessage(
-                        Component.translatable("message.noellesroles.insufficient_funds").withStyle(ChatFormatting.RED),
-                        true);
-                return;
-            }
-            playerShopComponent.addToBalance(-100);
-            if (targetPlayer != null && targetPlayer instanceof ServerPlayer sp) {
-                abilityPlayerComponent.setCooldown(90 * 20);
-                ServerPlayNetworking.send(player, new ProblemScreenOpenC2SPacket(true, 2));
-                ServerPlayNetworking.send(sp, new ProblemScreenOpenC2SPacket(true, 2));
-            }
-            return;
-        }
-        if (gameWorldComponent.isRole(player, ModRoles.FORTUNETELLER)) {
-            if (abilityPlayerComponent.cooldown > 0) {
-                player.displayClientMessage(Component.translatable("message.noellesroles.ability_cooldown"), true);
-                return;
-            }
-            if (targetPlayer != null) {
-                if (playerShopComponent.balance >= 200) {
-                    playerShopComponent.addToBalance(-200);
-                    FortunetellerPlayerComponent.KEY.get(player).protectPlayer(targetPlayer);
-                    abilityPlayerComponent.setCooldown(120 * 20);
-                } else {
-                    player.displayClientMessage(Component.translatable("message.noellesroles.insufficient_funds"),
-                            true);
-                    return;
-                }
-            }
-            return;
-        }
-
     }
 }

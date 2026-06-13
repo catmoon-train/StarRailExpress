@@ -22,6 +22,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
+import io.wifi.starrailexpress.content.entity.GrenadeEntity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
@@ -455,6 +456,7 @@ public final class C4Detonation {
         level.sendParticles(ParticleTypes.EXPLOSION_EMITTER, x, y, z, 100, 0.0, 0.0, 0.0, 0.2);
         level.sendParticles(ParticleTypes.FLAME, x, y, z, 50, 0.3D, 0.3D, 0.3D, 0.1D);
 
+        // 使用空间视线模拟（与手榴弹共享的精确判定逻辑）
         List<ServerPlayer> victims = level.players().stream()
             .filter(p -> p.isAlive()
                 && !p.isSpectator()
@@ -469,18 +471,15 @@ public final class C4Detonation {
         }
     }
 
+    /**
+     * C4 爆炸视线检测 — 使用与手榴弹相同的空间视线模拟引擎。
+     * <p>
+     * 从爆炸中心到目标的眼睛和身体中心两个位置做双射线检测，
+     * 任一畅通即判定可见。如需更精确的空间遮挡率，可改用
+     * {@link GrenadeEntity#computeSpatialVisibility}。
+     */
     private static boolean hasExplosionLineOfSight(ServerLevel level, Vec3 blastCenter, ServerPlayer victim) {
-        Vec3 center = blastCenter.add(0.0D, 0.35D, 0.0D);
-        Vec3 eye = victim.getEyePosition();
-        Vec3 body = victim.position().add(0.0D, victim.getBbHeight() * 0.5D, 0.0D);
-        return unobstructed(level, center, eye, victim) || unobstructed(level, center, body, victim);
-    }
-
-    private static boolean unobstructed(ServerLevel level, Vec3 from, Vec3 to, ServerPlayer victim) {
-        BlockHitResult hit = level.clip(new ClipContext(from, to,
-            ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, victim));
-        if (hit.getType() == HitResult.Type.MISS) return true;
-        return hit.getLocation().distanceToSqr(from) + 0.05D >= to.distanceToSqr(from);
+        return GrenadeEntity.hasExplosionLineOfSight(level, blastCenter, victim);
     }
 
     private static void afterDeath(LivingEntity entity, DamageSource source) {

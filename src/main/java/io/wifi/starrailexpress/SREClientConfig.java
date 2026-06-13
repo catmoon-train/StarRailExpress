@@ -24,6 +24,8 @@ public class SREClientConfig implements ConfigData {
     public boolean disableTitleScreenVideoBackground = false;
 
     public boolean disableScreenShake = false;
+    @ConfigEntry.Gui.Tooltip
+    public boolean enableMovingScenes = true;
     // VT主播随机内置皮肤（可资源包自定义，player_skins.json）
     public boolean enableRandomSkinForStreaming = false;
 
