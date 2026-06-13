@@ -115,6 +115,7 @@ public class UpSmallDoorBlock extends SmallDoorBlock {
         return this.typeSupplier.get();
     }
 
+    @Override
     public void toggleDoor(BlockState state, Level world, SmallDoorBlockEntity entity, BlockPos lowerPos, int ticks) {
         // 先触发当前门（作为主控门）
         entity.toggle(false, ticks);

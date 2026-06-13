@@ -311,6 +311,17 @@ public class SREClient implements ClientModInitializer {
                 TMMBlockEntities.BEVERAGE_PLATE,
                 PlateBlockEntityRenderer::new);
 
+        // PLANE DOORS
+        // Block Entity Renderers
+        BlockEntityRenderers.register(
+                TMMBlockEntities.PLANE_GLASS_DOOR,
+                ctx -> new PlaneSmallDoorBlockEntityRenderer(SRE.watheId("textures/entity/small_glass_door.png"), ctx));
+        BlockEntityRenderers.register(
+                TMMBlockEntities.PLANE_WOOD_DOOR,
+                ctx -> new PlaneSmallDoorBlockEntityRenderer(SRE.watheId("textures/entity/small_wood_door.png"), ctx));
+        BlockEntityRenderers.register(
+                TMMBlockEntities.PLANE_STEEL_DOOR,
+                ctx -> new PlaneSmallDoorBlockEntityRenderer(SRE.id("textures/item/doors/up_steel_door.png"), ctx));
         // UP DOORS
         // Block Entity Renderers
         BlockEntityRenderers.register(

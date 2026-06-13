@@ -6,6 +6,8 @@ import org.agmas.noellesroles.init.SREFumoBlocks;
 
 import dev.doctor4t.ratatouille.util.registrar.BlockRegistrar;
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.content.block.PlaneSmallDoorBlock;
+import io.wifi.starrailexpress.content.block.PlaneTrainDoorBlock;
 import io.wifi.starrailexpress.content.block.RemoteRedstoneBlock;
 import io.wifi.starrailexpress.content.block.TrainLightBlock;
 import io.wifi.starrailexpress.content.block.UpSmallDoorBlock;
@@ -55,6 +57,20 @@ public interface SREBlocks {
     Block UP_STEEL_DOOR = registerBlock("up_steel_door",
             new UpTrainDoorBlock(() -> TMMBlockEntities.UP_STEEL_DOOR,
                     BlockBehaviour.Properties.ofFullCopy(UP_GLASS_DOOR).sound(SoundType.COPPER)),
+            new Item.Properties().rarity(Rarity.EPIC));
+
+    // 飞机门
+    Block PLANE_GLASS_DOOR = registerBlock("plane_glass_door",
+            new PlaneSmallDoorBlock(() -> TMMBlockEntities.PLANE_GLASS_DOOR,
+                    BlockBehaviour.Properties.ofFullCopy(TMMBlocks.SMALL_GLASS_DOOR).sound(SoundType.COPPER)),
+            new Item.Properties().rarity(Rarity.EPIC));
+    Block PLANE_WOOD_DOOR = registerBlock("plane_wood_door",
+            new PlaneSmallDoorBlock(() -> TMMBlockEntities.PLANE_WOOD_DOOR,
+                    BlockBehaviour.Properties.ofFullCopy(PLANE_GLASS_DOOR).sound(SoundType.COPPER)),
+            new Item.Properties().rarity(Rarity.EPIC));
+    Block PLANE_STEEL_DOOR = registerBlock("plane_steel_door",
+            new PlaneTrainDoorBlock(() -> TMMBlockEntities.PLANE_STEEL_DOOR,
+                    BlockBehaviour.Properties.ofFullCopy(PLANE_GLASS_DOOR).sound(SoundType.COPPER)),
             new Item.Properties().rarity(Rarity.EPIC));
 
     @SuppressWarnings("unchecked")
