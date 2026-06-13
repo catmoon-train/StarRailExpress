@@ -323,6 +323,10 @@ public class CustomRoleLoader {
 
             RoleSkill.register(role, context -> {
                 ServerPlayer player = context.player();
+                // 死亡/旁观者不能使用技能
+                if (player.isSpectator()) {
+                    return;
+                }
                 SREAbilityPlayerComponent ability = SREAbilityPlayerComponent.KEY.get(player);
 
                 if (ability.cooldown > 0) {
