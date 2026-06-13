@@ -9,7 +9,7 @@ import net.minecraft.resources.ResourceLocation;
 
 /**
  * 自定义职业同步 Payload（服务端 → 客户端）
- * 编码模式参考 LootPoolsInfoS2CPacket
+ * 支持分块传输：当 JSON 超过 Minecraft writeUtf 的 32767 字节限制时自动分块
  */
 public class CustomRoleSyncPayload implements CustomPacketPayload {
     public static final ResourceLocation PAYLOAD_ID =
@@ -17,21 +17,25 @@ public class CustomRoleSyncPayload implements CustomPacketPayload {
     public static final Type<CustomRoleSyncPayload> TYPE = new Type<>(PAYLOAD_ID);
     public static final StreamCodec<RegistryFriendlyByteBuf, CustomRoleSyncPayload> CODEC;
 
+    /** 每块最大字符数（留安全余量，远小于 32767） */
+    public static final int MAX_CHUNK_CHARS = 30000;
+
     private final int hash;
-    private final String jsonContent;
+    private final int totalChunks;
+    private final int chunkIndex;
+    private final String chunkData;
 
-    public CustomRoleSyncPayload(int hash, String jsonContent) {
+    public CustomRoleSyncPayload(int hash, int totalChunks, int chunkIndex, String chunkData) {
         this.hash = hash;
-        this.jsonContent = jsonContent;
+        this.totalChunks = totalChunks;
+        this.chunkIndex = chunkIndex;
+        this.chunkData = chunkData;
     }
 
-    public int hash() {
-        return hash;
-    }
-
-    public String jsonContent() {
-        return jsonContent;
-    }
+    public int hash() { return hash; }
+    public int totalChunks() { return totalChunks; }
+    public int chunkIndex() { return chunkIndex; }
+    public String chunkData() { return chunkData; }
 
     @Override
     public Type<? extends CustomPacketPayload> type() {
@@ -40,13 +44,17 @@ public class CustomRoleSyncPayload implements CustomPacketPayload {
 
     public void write(FriendlyByteBuf buf) {
         buf.writeInt(hash);
-        buf.writeUtf(jsonContent);
+        buf.writeInt(totalChunks);
+        buf.writeInt(chunkIndex);
+        buf.writeUtf(chunkData);
     }
 
     public static CustomRoleSyncPayload read(FriendlyByteBuf buf) {
         int hash = buf.readInt();
-        String json = buf.readUtf();
-        return new CustomRoleSyncPayload(hash, json);
+        int totalChunks = buf.readInt();
+        int chunkIndex = buf.readInt();
+        String chunkData = buf.readUtf();
+        return new CustomRoleSyncPayload(hash, totalChunks, chunkIndex, chunkData);
     }
 
     static {

@@ -16,6 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * 自定义职业服务端网络处理
  * 服务端发送自定义职业 JSON 给客户端，按玩家跟踪 hash 避免重复发送
+ * 大 JSON 自动分块传输，避免超过 Minecraft writeUtf 的 32767 字节限制
  */
 public class CustomRoleServerNetwork {
 
@@ -34,7 +35,7 @@ public class CustomRoleServerNetwork {
 
         int currentHash = cachedHash;
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-            syncToPlayerWithHash(player, currentHash);
+            sendChunked(player, currentHash, cachedJsonContent);
         }
     }
 
@@ -45,19 +46,31 @@ public class CustomRoleServerNetwork {
         loadConfigContent(server);
         if (!hasCustomRoles) return;
 
-        syncToPlayerWithHash(player, cachedHash);
+        sendChunked(player, cachedHash, cachedJsonContent);
     }
 
     /**
-     * 带 hash 对比的发送：如果玩家已有相同的 hash 则跳过
+     * 分块发送 JSON 内容，当内容超过单包限制时自动拆分
      */
-    private static void syncToPlayerWithHash(ServerPlayer player, int currentHash) {
+    private static void sendChunked(ServerPlayer player, int hash, String fullContent) {
+        // hash 相同则跳过
         Integer lastHash = playerHashCache.get(player.getUUID());
-        if (lastHash != null && lastHash == currentHash) {
-            return; // hash 相同，无需重发
+        if (lastHash != null && lastHash == hash) {
+            return;
         }
-        ServerPlayNetworking.send(player, new CustomRoleSyncPayload(currentHash, cachedJsonContent));
-        playerHashCache.put(player.getUUID(), currentHash);
+
+        int totalLength = fullContent.length();
+        int maxChunkChars = CustomRoleSyncPayload.MAX_CHUNK_CHARS;
+        int totalChunks = (totalLength + maxChunkChars - 1) / maxChunkChars;
+
+        for (int i = 0; i < totalChunks; i++) {
+            int start = i * maxChunkChars;
+            int end = Math.min(start + maxChunkChars, totalLength);
+            String chunk = fullContent.substring(start, end);
+            ServerPlayNetworking.send(player, new CustomRoleSyncPayload(hash, totalChunks, i, chunk));
+        }
+
+        playerHashCache.put(player.getUUID(), hash);
     }
 
     /**

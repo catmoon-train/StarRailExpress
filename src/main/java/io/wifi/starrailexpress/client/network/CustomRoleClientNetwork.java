@@ -11,18 +11,17 @@ import java.io.BufferedWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * 自定义职业客户端网络处理
- * 接收服务端发来的自定义职业 JSON 配置，解析后存入内存，同时写入本地 config 目录
+ * 接收服务端发来的自定义职业 JSON 配置（支持分块传输），解析后存入内存，同时写入本地 config 目录
  */
 public class CustomRoleClientNetwork {
 
     private static final Gson GSON = new GsonBuilder().create();
 
-    /** 客户端上次收到的 hash，用于跳过重复解析 */
+    /** 客户端上次完成的 hash，用于跳过重复解析 */
     private static int lastReceivedHash = 0;
 
     /** 客户端内存中缓存的原始 JSON 字符串 */
@@ -34,47 +33,88 @@ public class CustomRoleClientNetwork {
     /** 是否已收到过有效的自定义职业数据 */
     private static boolean hasSyncedData = false;
 
+    // ---- 分块接收状态 ----
+    /** 当前正在组装的 hash */
+    private static int assemblingHash = 0;
+    /** 当前正在组装的期望总块数 */
+    private static int assemblingTotalChunks = 0;
+    /** 已收到的分块数据，key = chunkIndex */
+    private static final Map<Integer, String> assemblingChunks = new HashMap<>();
+
     /**
      * 注册客户端接收器
      */
     public static void register() {
         ClientPlayNetworking.registerGlobalReceiver(CustomRoleSyncPayload.TYPE, (payload, context) -> {
-            int hash = payload.hash();
-            // hash 相同则跳过解析（内容未变化）
-            if (hasSyncedData && hash == lastReceivedHash) {
-                return;
-            }
-            lastReceivedHash = hash;
             context.client().execute(() -> {
-                String json = payload.jsonContent();
-                if (json != null && !json.isEmpty()) {
-                    syncedJson = json;
-                    syncedRoles.clear();
-                    try {
-                        com.google.gson.JsonObject root = GSON.fromJson(json, com.google.gson.JsonObject.class);
-                        if (root.has("roles")) {
-                            for (var element : root.getAsJsonArray("roles")) {
-                                CustomRoleData data = GSON.fromJson(element, CustomRoleData.class);
-                                if (data != null && data.englishId != null) {
-                                    syncedRoles.add(data);
-                                }
-                            }
-                        }
-                        // 写入客户端本地 config 目录，并触发客户端重载角色到 TMMRoles.ROLES
-                        writeToLocalConfig(json);
-                        io.wifi.starrailexpress.customrole.CustomRoleLoader.reloadClient();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    hasSyncedData = true;
-                }
+                handleChunk(payload.hash(), payload.totalChunks(), payload.chunkIndex(), payload.chunkData());
             });
         });
     }
 
     /**
+     * 处理收到的分块
+     */
+    private static void handleChunk(int hash, int totalChunks, int chunkIndex, String chunkData) {
+        // 如果已完成且 hash 相同，直接跳过
+        if (hasSyncedData && hash == lastReceivedHash && totalChunks == 1) {
+            return;
+        }
+
+        // 新 hash 或新传输开始，重置组装状态
+        if (hash != assemblingHash) {
+            assemblingHash = hash;
+            assemblingTotalChunks = totalChunks;
+            assemblingChunks.clear();
+        }
+
+        assemblingChunks.put(chunkIndex, chunkData);
+
+        // 检查是否收集完所有分块
+        if (assemblingChunks.size() >= assemblingTotalChunks) {
+            // 按 chunkIndex 排序拼接
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < assemblingTotalChunks; i++) {
+                String part = assemblingChunks.get(i);
+                if (part == null) {
+                    // 缺少某块，等待重发（简单处理：清空并丢弃）
+                    assemblingChunks.clear();
+                    return;
+                }
+                sb.append(part);
+            }
+            String fullJson = sb.toString();
+
+            // 清理组装状态
+            assemblingChunks.clear();
+
+            if (fullJson.isEmpty()) return;
+
+            lastReceivedHash = hash;
+            syncedJson = fullJson;
+            syncedRoles.clear();
+            try {
+                com.google.gson.JsonObject root = GSON.fromJson(fullJson, com.google.gson.JsonObject.class);
+                if (root.has("roles")) {
+                    for (var element : root.getAsJsonArray("roles")) {
+                        CustomRoleData data = GSON.fromJson(element, CustomRoleData.class);
+                        if (data != null && data.englishId != null) {
+                            syncedRoles.add(data);
+                        }
+                    }
+                }
+                // 写入客户端本地 config 目录，并触发客户端重载角色到 TMMRoles.ROLES
+                writeToLocalConfig(fullJson);
+                io.wifi.starrailexpress.customrole.CustomRoleLoader.reloadClient();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            hasSyncedData = true;
+        }
+    }
+
+    /**
      * 将同步的 JSON 写入客户端本地 config 目录
-     * 这样 CustomRoleLoader.getCustomRoleData() 在客户端也能通过文件读取到数据
      */
     private static void writeToLocalConfig(String json) {
         try {
@@ -121,7 +161,12 @@ public class CustomRoleClientNetwork {
         syncedRoles.clear();
         hasSyncedData = false;
 
-        // 从 TMMRoles.ROLES 中移除所有旧的自定义角色（防止换服后残留）
+        // 清理分块组装状态
+        assemblingHash = 0;
+        assemblingTotalChunks = 0;
+        assemblingChunks.clear();
+
+        // 从 TMMRoles.ROLES 中移除所有旧的自定义角色
         var roles = io.wifi.starrailexpress.api.TMMRoles.ROLES;
         var toRemove = new ArrayList<net.minecraft.resources.ResourceLocation>();
         for (var entry : roles.entrySet()) {
@@ -141,7 +186,6 @@ public class CustomRoleClientNetwork {
         }
         toRemoveItems.forEach(itemsMap::remove);
 
-        // 删除本地缓存文件，确保换服后不会读到旧数据
         deleteLocalConfig();
     }
 
@@ -151,7 +195,7 @@ public class CustomRoleClientNetwork {
             Path configPath = FabricLoader.getInstance().getConfigDir().resolve("sre_custom_roles.json");
             Files.deleteIfExists(configPath);
         } catch (Exception e) {
-            // 删除失败也不影响功能，下次收到包会覆盖写入
+            // 删除失败也不影响功能
         }
     }
 }
