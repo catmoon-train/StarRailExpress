@@ -5,6 +5,8 @@ import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerProgressionComponent;
+import io.wifi.starrailexpress.cca.SREPlayerProgressionComponent.FactionCardType;
 import io.wifi.starrailexpress.cca.SRERoleWorldComponent;
 import io.wifi.starrailexpress.content.vote.client.RoleRotationCache;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -98,6 +100,87 @@ public class RoleRotationWorldComponent implements AutoSyncedComponent {
         this.world = world;
     }
 
+    // ==================== 卡片追踪（基于 ForcePlayerTeam） ====================
+    /** 各类型卡片已使用数量 */
+    private final Map<Integer, Integer> cardUsedCount = new HashMap<>();
+    /** 各类型卡片上限 */
+    private final Map<Integer, Integer> cardMaxPerType = new HashMap<>();
+    /** 本轮轮抽中被退回卡片的玩家（他们参与正常排序） */
+    private final Set<UUID> cardReturnedPlayers = new HashSet<>();
+
+    /** 初始化卡片使用追踪（在 initializeRolePool 时调用，从 ForcePlayerTeam 读取并强限制） */
+    private void initializeCardTracking(List<ServerPlayer> players) {
+        cardUsedCount.clear();
+        cardMaxPerType.clear();
+        cardReturnedPlayers.clear();
+
+        // 计算上限：杀手(4), 中立(2/3), 平民(1/5) 各 floor(n/7)
+        int limit = Math.max(1, totalPlayerCount / 7);
+        cardMaxPerType.put(4, limit); // 杀手
+        cardMaxPerType.put(2, limit); // 中立
+        cardMaxPerType.put(1, limit); // 平民
+
+        // 读取 ForcePlayerTeam，统计每个类型已激活的玩家
+        Map<Integer, List<UUID>> byType = new HashMap<>();
+        for (ServerPlayer p : players) {
+            Integer forcedType = PlayerRoleWeightManager.ForcePlayerTeam.get(p.getUUID());
+            if (forcedType != null) {
+                // 标准化类型: 5→1(警长归平民), 3→2(杀手方中立归中立)
+                int normalizedType = normalizeCardType(forcedType);
+                byType.computeIfAbsent(normalizedType, k -> new ArrayList<>()).add(p.getUUID());
+            }
+        }
+
+        // 限制：超出上限的玩家退回卡片
+        for (Map.Entry<Integer, List<UUID>> entry : byType.entrySet()) {
+            int type = entry.getKey();
+            List<UUID> uuids = entry.getValue();
+            int max = cardMaxPerType.getOrDefault(type, 0);
+            cardUsedCount.put(type, Math.min(uuids.size(), max));
+
+            // 超出上限的移除 ForcePlayerTeam
+            for (int i = max; i < uuids.size(); i++) {
+                UUID uid = uuids.get(i);
+                PlayerRoleWeightManager.ForcePlayerTeam.remove(uid);
+                cardReturnedPlayers.add(uid);
+                // 退还卡片
+                ServerPlayer sp = players.stream().filter(p -> p.getUUID().equals(uid)).findFirst().orElse(null);
+                if (sp != null) {
+                    SREPlayerProgressionComponent progComp = SREPlayerProgressionComponent.KEY.get(sp);
+                    FactionCardType cardType = FactionCardType.fromInt(type);
+                    if (cardType != FactionCardType.NONE) {
+                        progComp.addFactionCard(cardType, 1);
+                        sp.displayClientMessage(Component.translatable("message.sre.role_rotation.card_limit")
+                                .withStyle(ChatFormatting.RED), true);
+                    }
+                }
+            }
+        }
+    }
+
+    /** 标准化卡片类型：5→1, 3→2 */
+    private static int normalizeCardType(int rawType) {
+        return switch (rawType) {
+            case 5 -> 1; // 警长 → 平民
+            case 3 -> 2; // 杀手方中立 → 中立
+            default -> rawType;
+        };
+    }
+
+    public int getCardUsedCount(int cardType) {
+        return cardUsedCount.getOrDefault(cardType, 0);
+    }
+
+    public int getCardMax(int cardType) {
+        return cardMaxPerType.getOrDefault(cardType, 0);
+    }
+
+    /** 获取玩家使用的卡片类型（从 ForcePlayerTeam），-1=未使用 */
+    private int getPlayerCardType(UUID uuid) {
+        Integer forcedType = PlayerRoleWeightManager.ForcePlayerTeam.get(uuid);
+        return forcedType != null ? normalizeCardType(forcedType) : -1;
+    }
+
     public void clear() {
         this.rolePool.clear();
         this.playerRotationOrder.clear();
@@ -108,6 +191,9 @@ public class RoleRotationWorldComponent implements AutoSyncedComponent {
         this.isSelecting = false;
         this.currentCandidates.clear();
         this.confirmCountdown = -1;
+        this.cardUsedCount.clear();
+        this.cardMaxPerType.clear();
+        this.cardReturnedPlayers.clear();
     }
 
     public void sync() {
@@ -178,7 +264,10 @@ public class RoleRotationWorldComponent implements AutoSyncedComponent {
             }
         }
 
-        // 随机分配轮选序号
+        // 初始化卡片追踪
+        initializeCardTracking(players);
+
+        // 随机分配轮选序号（按卡片类型分段）
         assignRotationOrder(players);
     }
 
@@ -259,11 +348,108 @@ public class RoleRotationWorldComponent implements AutoSyncedComponent {
     }
 
     private void assignRotationOrder(List<ServerPlayer> players) {
-        List<ServerPlayer> shuffledPlayers = new ArrayList<>(players);
-        Collections.shuffle(shuffledPlayers, new Random(world.getGameTime()));
+        int n = players.size();
+        Random random = new Random(world.getGameTime());
 
-        for (int i = 0; i < shuffledPlayers.size(); i++) {
-            playerRotationOrder.put(shuffledPlayers.get(i).getUUID(), i + 1);
+        // 按卡片类型分组
+        List<ServerPlayer> killerCardUsers = new ArrayList<>();
+        List<ServerPlayer> neutralCardUsers = new ArrayList<>();
+        List<ServerPlayer> civilianCardUsers = new ArrayList<>();
+        List<ServerPlayer> noCardUsers = new ArrayList<>();
+
+        for (ServerPlayer p : players) {
+            int card = getPlayerCardType(p.getUUID());
+            switch (card) {
+                case 0: killerCardUsers.add(p); break;
+                case 1: neutralCardUsers.add(p); break;
+                case 2: civilianCardUsers.add(p); break;
+                default: noCardUsers.add(p); break;
+            }
+        }
+
+        // 各组内随机打乱
+        Collections.shuffle(killerCardUsers, random);
+        Collections.shuffle(neutralCardUsers, random);
+        Collections.shuffle(civilianCardUsers, random);
+        Collections.shuffle(noCardUsers, random);
+
+        // 计算各区间: 基于总人数 n
+        // 杀手卡: 前 [0.4*n, 0.5*n)   (取整)
+        // 中立卡: 前 [0, 0.2*n)
+        // 平民卡: 后 [0.7*n, n)
+        // 无卡: 填充剩余空缺
+        int killerStart = (int) Math.floor(n * 0.4);
+        int killerEnd   = Math.min((int) Math.ceil(n * 0.5), n);
+        int neutralStart = 0;
+        int neutralEnd   = Math.min((int) Math.ceil(n * 0.2), n);
+        int civilianStart = (int) Math.floor(n * 0.7);
+        int civilianEnd   = n;
+
+        // 构建序号槽位数组（1-based），null 表示空缺
+        Integer[] slots = new Integer[n];
+        int nextSlot = 0;
+
+        // 放置中立卡用户
+        nextSlot = neutralStart;
+        for (ServerPlayer p : neutralCardUsers) {
+            while (nextSlot < neutralEnd && slots[nextSlot] != null) nextSlot++;
+            if (nextSlot < neutralEnd) {
+                slots[nextSlot] = p.getUUID().hashCode(); // 占位
+                playerRotationOrder.put(p.getUUID(), nextSlot + 1);
+                nextSlot++;
+            }
+        }
+        // 中立卡放不下的放到相邻空缺
+        for (ServerPlayer p : neutralCardUsers) {
+            if (playerRotationOrder.containsKey(p.getUUID())) continue;
+            fillNearestSlot(slots, p, n);
+        }
+
+        // 放置杀手卡用户
+        nextSlot = killerStart;
+        for (ServerPlayer p : killerCardUsers) {
+            while (nextSlot < killerEnd && slots[nextSlot] != null) nextSlot++;
+            if (nextSlot < killerEnd) {
+                slots[nextSlot] = p.getUUID().hashCode();
+                playerRotationOrder.put(p.getUUID(), nextSlot + 1);
+                nextSlot++;
+            }
+        }
+        for (ServerPlayer p : killerCardUsers) {
+            if (playerRotationOrder.containsKey(p.getUUID())) continue;
+            fillNearestSlot(slots, p, n);
+        }
+
+        // 放置平民卡用户
+        nextSlot = civilianStart;
+        for (ServerPlayer p : civilianCardUsers) {
+            while (nextSlot < civilianEnd && slots[nextSlot] != null) nextSlot++;
+            if (nextSlot < civilianEnd) {
+                slots[nextSlot] = p.getUUID().hashCode();
+                playerRotationOrder.put(p.getUUID(), nextSlot + 1);
+                nextSlot++;
+            }
+        }
+        for (ServerPlayer p : civilianCardUsers) {
+            if (playerRotationOrder.containsKey(p.getUUID())) continue;
+            fillNearestSlot(slots, p, n);
+        }
+
+        // 放置无卡用户到剩余空缺
+        for (ServerPlayer p : noCardUsers) {
+            fillNearestSlot(slots, p, n);
+        }
+    }
+
+    /** 在 slots 数组中找最近空缺放置玩家 */
+    private void fillNearestSlot(Integer[] slots, ServerPlayer p, int n) {
+        // 找一个未占用的序号
+        for (int i = 0; i < n; i++) {
+            if (slots[i] == null) {
+                slots[i] = p.getUUID().hashCode();
+                playerRotationOrder.put(p.getUUID(), i + 1);
+                return;
+            }
         }
     }
 
@@ -399,35 +585,83 @@ public class RoleRotationWorldComponent implements AutoSyncedComponent {
         ArrayList<SRERole> poolCopy = new ArrayList<>(rolePool);
         Random random = new Random(world.getGameTime());
 
-        if (isFinalPhase) {
-            // 最后阶段：优先从杀手/警长/中立阵营和特殊平民职业抽取
+        // 获取玩家卡片类型（从 ForcePlayerTeam）
+        int cardType = getPlayerCardType(playerUuid);
+
+        // 卡片用户优先候选处理
+        boolean cardPriorityHandled = false;
+        if (cardType == 0 || cardType == 1) {
             ArrayList<SRERole> priorityRoles = new ArrayList<>();
+            ArrayList<SRERole> otherRoles = new ArrayList<>();
+
             for (SRERole role : poolCopy) {
                 int type = PlayerRoleWeightManager.getRoleType(role);
-                if (type == 4 || type == 5 || type == 2 || type == 3) { // 杀手、警长、中立阵营
-                    priorityRoles.add(role);
-                } else if (isSpecialCivilianRole(role)) { // 特殊平民职业也要优先
-                    priorityRoles.add(role);
+                if (cardType == 0) {
+                    // 杀手卡：优先杀手阵营 (type 4)
+                    if (type == 4) priorityRoles.add(role);
+                    else otherRoles.add(role);
+                } else {
+                    // 中立卡：优先非杀手方中立 (type 2)，其次杀手方中立 (type 3)
+                    if (type == 2) priorityRoles.add(role);
+                    else if (type == 3) otherRoles.add(role);
+                    else otherRoles.add(role);
                 }
             }
 
-            if (priorityRoles.size() >= 3) {
+            if (!priorityRoles.isEmpty() && priorityRoles.size() + otherRoles.size() >= 3) {
+                // 从优先池中抽最多2个
                 Collections.shuffle(priorityRoles, random);
-                for (int i = 0; i < 3; i++) {
+                int priorityCount = Math.min(2, priorityRoles.size());
+                for (int i = 0; i < priorityCount; i++) {
                     currentCandidates.add(priorityRoles.get(i));
+                    priorityRoles.get(i); // already added
+                    poolCopy.remove(priorityRoles.get(i)); // consumed
+                }
+                // 剩余从普通池补
+                Collections.shuffle(poolCopy, random);
+                for (int i = 0; currentCandidates.size() < 3 && i < poolCopy.size(); i++) {
+                    currentCandidates.add(poolCopy.get(i));
+                }
+                cardPriorityHandled = true;
+            } else if (!otherRoles.isEmpty() && otherRoles.size() >= 3) {
+                // 优先级不够但备用池够
+                Collections.shuffle(otherRoles, random);
+                for (int i = 0; i < 3; i++) {
+                    currentCandidates.add(otherRoles.get(i));
+                }
+                cardPriorityHandled = true;
+            }
+        }
+
+        if (!cardPriorityHandled) {
+            if (isFinalPhase) {
+                // 最后阶段：优先从杀手/警长/中立阵营和特殊平民职业抽取
+                ArrayList<SRERole> priorityRoles = new ArrayList<>();
+                for (SRERole role : poolCopy) {
+                    int type = PlayerRoleWeightManager.getRoleType(role);
+                    if (type == 4 || type == 5 || type == 2 || type == 3) {
+                        priorityRoles.add(role);
+                    } else if (isSpecialCivilianRole(role)) {
+                        priorityRoles.add(role);
+                    }
+                }
+
+                if (priorityRoles.size() >= 3) {
+                    Collections.shuffle(priorityRoles, random);
+                    for (int i = 0; i < 3; i++) {
+                        currentCandidates.add(priorityRoles.get(i));
+                    }
+                } else {
+                    Collections.shuffle(poolCopy, random);
+                    for (int i = 0; i < 3 && i < poolCopy.size(); i++) {
+                        currentCandidates.add(poolCopy.get(i));
+                    }
                 }
             } else {
-                // 优先级职业不够3个，补充普通职业
                 Collections.shuffle(poolCopy, random);
                 for (int i = 0; i < 3 && i < poolCopy.size(); i++) {
                     currentCandidates.add(poolCopy.get(i));
                 }
-            }
-        } else {
-            // 普通阶段：从池中随机抽取3个
-            Collections.shuffle(poolCopy, random);
-            for (int i = 0; i < 3 && i < poolCopy.size(); i++) {
-                currentCandidates.add(poolCopy.get(i));
             }
         }
 
@@ -853,6 +1087,14 @@ public class RoleRotationWorldComponent implements AutoSyncedComponent {
         tag.putInt("confirmCountdown", confirmCountdown);
         tag.putInt("finalPhaseThreshold", finalPhaseThreshold);
 
+        // 卡片使用统计
+        tag.putInt("killerCardCount", cardUsedCount.getOrDefault(4, 0));
+        tag.putInt("neutralCardCount", cardUsedCount.getOrDefault(2, 0));
+        tag.putInt("civilianCardCount", cardUsedCount.getOrDefault(1, 0));
+        tag.putInt("killerCardMax", cardMaxPerType.getOrDefault(4, 0));
+        tag.putInt("neutralCardMax", cardMaxPerType.getOrDefault(2, 0));
+        tag.putInt("civilianCardMax", cardMaxPerType.getOrDefault(1, 0));
+
         // 序列化玩家序号
         ListTag orderList = new ListTag();
         for (Map.Entry<UUID, Integer> entry : playerRotationOrder.entrySet()) {
@@ -894,6 +1136,13 @@ public class RoleRotationWorldComponent implements AutoSyncedComponent {
         totalPlayerCount = tag.getInt("totalPlayers");
         confirmCountdown = tag.getInt("confirmCountdown");
         finalPhaseThreshold = tag.getInt("finalPhaseThreshold");
+
+        cardUsedCount.put(4, tag.getInt("killerCardCount"));
+        cardUsedCount.put(2, tag.getInt("neutralCardCount"));
+        cardUsedCount.put(1, tag.getInt("civilianCardCount"));
+        cardMaxPerType.put(4, tag.getInt("killerCardMax"));
+        cardMaxPerType.put(2, tag.getInt("neutralCardMax"));
+        cardMaxPerType.put(1, tag.getInt("civilianCardMax"));
 
         playerRotationOrder.clear();
         if (tag.contains("rotationOrder", CompoundTag.TAG_LIST)) {
