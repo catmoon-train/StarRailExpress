@@ -2640,11 +2640,11 @@ public class RoleShopHandler {
         }
       });
     }
-    // 疯狂模式的声音 - 450金币, 冷却5分钟
+    // 疯狂模式的声音 - 350金币, 冷却5分钟
     {
       ItemStack s = new ItemStack(Items.NOTE_BLOCK);
       s.set(DataComponents.ITEM_NAME, Component.translatable("item.noellesroles.phantom_musician.psycho_sound"));
-      PHANTOM_MUSICIAN_SHOP.add(new ShopEntry(s, 450, ShopEntry.Type.TOOL) {
+      PHANTOM_MUSICIAN_SHOP.add(new ShopEntry(s, 350, ShopEntry.Type.TOOL) {
         @Override public boolean onBuy(@NotNull Player p) {
           var c = org.agmas.noellesroles.game.roles.neutral.phantom_musician.PhantomMusicianPlayerComponent.KEY.get(p);
           if (c.psychoSoundCooldown > 0) return false;
@@ -2654,11 +2654,11 @@ public class RoleShopHandler {
         }
       });
     }
-    // 撬棍撬门的声音 - 75金币, 冷却1分钟
+    // 撬棍撬门的声音 - 25金币, 冷却1分钟
     {
       ItemStack s = new ItemStack(Items.NOTE_BLOCK);
       s.set(DataComponents.ITEM_NAME, Component.translatable("item.noellesroles.phantom_musician.crowbar_sound"));
-      PHANTOM_MUSICIAN_SHOP.add(new ShopEntry(s, 75, ShopEntry.Type.TOOL) {
+      PHANTOM_MUSICIAN_SHOP.add(new ShopEntry(s, 25, ShopEntry.Type.TOOL) {
         @Override public boolean onBuy(@NotNull Player p) {
           var c = org.agmas.noellesroles.game.roles.neutral.phantom_musician.PhantomMusicianPlayerComponent.KEY.get(p);
           if (c.crowbarSoundCooldown > 0) return false;
@@ -2668,11 +2668,11 @@ public class RoleShopHandler {
         }
       });
     }
-    // 随机播放音效 - 100金币, 冷却40秒, 图标为音乐唱片
+    // 随机播放音效 - 50金币, 冷却40秒, 图标为音乐唱片
     {
       ItemStack s = new ItemStack(Items.MUSIC_DISC_RELIC);
       s.set(DataComponents.ITEM_NAME, Component.translatable("item.noellesroles.phantom_musician.random_sound"));
-      PHANTOM_MUSICIAN_SHOP.add(new ShopEntry(s, 100, ShopEntry.Type.TOOL) {
+      PHANTOM_MUSICIAN_SHOP.add(new ShopEntry(s, 50, ShopEntry.Type.TOOL) {
         private final java.util.List<Object> allSounds = java.util.List.of(
             // === TMMSounds (starrailexpress) ===
             TMMSounds.ITEM_KNIFE_STAB, TMMSounds.ITEM_KNIFE_PREPARE,
