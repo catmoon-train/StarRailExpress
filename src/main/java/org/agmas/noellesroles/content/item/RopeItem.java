@@ -238,32 +238,30 @@ public class RopeItem extends Item implements AdventureUsable {
 
     /**
      * 将目标玩家拉到玩家身前，并避免卡入方块。
+     * 从玩家位置开始逐步向外尝试，找到首个无效位置后回退到上一个有效位置。
      *
      * @param player 执行拉取操作的玩家
      * @param target 被拉取的目标玩家
      */
     private void pullPlayer(Player player, Player target) {
-        // 计算原始拉取方向（玩家视线水平方向）
         var viewVector = player.getViewVector(1.0f);
-        double pullDistance = 1.5;
-        double step = 0.2; // 每次回退的步长（格）
-        int maxAttempts = (int) Math.ceil(pullDistance / step) + 1; // 最多尝试次数
+        double maxDistance = 1.5; // 最远距离（玩家前方）
+        double step = 0.2; // 步长
+        int steps = (int) Math.ceil(maxDistance / step) + 1;
 
-        Level level = player.level(); // 获取世界
+        Level level = player.level();
+        AABB lastValidBox = null;
+        var lastValidPos = player.position(); // 默认回退位置（玩家自身）
 
-        // 从原始距离开始，逐步减小距离（向玩家方向回退）
-        for (int i = 0; i <= maxAttempts; i++) {
-            double currentDistance = pullDistance - i * step;
-            if (currentDistance < 0)
-                currentDistance = 0;
-
-            // 计算当前尝试的目标位置（Y 坐标使用玩家的 Y）
+        // 从距离 0 开始，逐步增加距离
+        for (int i = 0; i <= steps; i++) {
+            double currentDistance = Math.min(i * step, maxDistance);
             var targetPos = player.position().add(
                     viewVector.x * currentDistance,
                     0,
                     viewVector.z * currentDistance);
 
-            // 获取目标玩家在当前姿态下的碰撞箱，并移动到候选位置
+            // 获取目标玩家碰撞箱
             var pose = target.getPose();
             var dimensions = target.getDimensions(pose);
             double width = dimensions.width();
@@ -274,21 +272,31 @@ public class RopeItem extends Item implements AdventureUsable {
                     targetPos.x + width / 2, targetPos.y + height,
                     targetPos.z + width / 2);
 
-            // 检测该碰撞箱是否与世界中除 target 外的任何方块或实体碰撞
+            // 检查该位置是否有效（无方块碰撞、无其他实体碰撞，排除 target 自身）
             if (level.noCollision(target, candidateBox)) {
-                // 找到有效位置，执行传送
-                teleportPlayer(target, targetPos.x, targetPos.y, targetPos.z);
+                // 有效：记录为最后一个有效位置
+                lastValidBox = candidateBox;
+                lastValidPos = targetPos;
+            } else {
+                // 遇到第一个无效位置 -> 使用上一个有效位置（如果存在）
+                if (lastValidBox != null) {
+                    teleportPlayer(target, lastValidPos.x, lastValidPos.y, lastValidPos.z);
+                } else {
+                    // 连距离 0 都无效（极罕见，例如目标与玩家完全重叠且玩家实体无法忽略？）
+                    // 回退到玩家位置
+                    var fallbackPos = player.position();
+                    teleportPlayer(target, fallbackPos.x, fallbackPos.y, fallbackPos.z);
+                }
                 return;
             }
         }
 
-        // 若所有尝试均失败，回退到玩家所在位置
-        var fallbackPos = player.position();
-        teleportPlayer(target, fallbackPos.x, fallbackPos.y, fallbackPos.z);
+        // 所有尝试距离均有效 -> 使用最远距离（maxDistance）
+        teleportPlayer(target, lastValidPos.x, lastValidPos.y, lastValidPos.z);
     }
 
     /**
-     * 通用的玩家传送方法，兼容服务端与客户端。
+     * 通用的玩家传送方法。
      */
     private void teleportPlayer(Player target, double x, double y, double z) {
         if (target instanceof ServerPlayer serverTarget) {
