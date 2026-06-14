@@ -378,6 +378,11 @@ public final class RoleSkill {
         }
     }
 
+    /**
+     * 访问此应当在初始化中访问而非在static中直接调用，这很可能会因为role为null导致崩溃。
+     * @param role
+     * @param handler
+     */
     public static void register(SRERole role, Consumer<RoleSkillContext> handler) {
         register(role.identifier(), handler);
     }

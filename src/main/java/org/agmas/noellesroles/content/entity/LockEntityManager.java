@@ -73,6 +73,8 @@ public class LockEntityManager {
 
     /** 获取对应位置的锁实体 */
     public LockEntity getLockEntity(Vec3i pos) {
+        if (pos == null)
+            return null;
         cleanStackDeadEntities(pos);
         if (lockEntities.containsKey(pos))
             return lockEntities.get(pos).peek();
@@ -217,7 +219,7 @@ public class LockEntityManager {
     /**
      * 门是否已经上锁
      * 
-     * @param door    当前门实体
+     * @param door 当前门实体
      */
     public static boolean isDoorLocked(DoorBlockEntity door) {
         // 锁门：包括临近的门

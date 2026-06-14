@@ -1,18 +1,20 @@
 package io.wifi.starrailexpress.content.block;
 
-import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.content.block_entity.DoorBlockEntity;
 import io.wifi.starrailexpress.content.block_entity.SmallDoorBlockEntity;
+import io.wifi.starrailexpress.content.item.api.SREItemProperties.DoorCustomOpenItem;
 import io.wifi.starrailexpress.event.AllowPlayerOpenLockedDoor;
 import io.wifi.starrailexpress.event.DisallowPlayerOpenDoor;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.TMMSounds;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
@@ -38,9 +40,11 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.agmas.noellesroles.Noellesroles;
+
+import org.agmas.noellesroles.content.entity.LockEntityManager;
 import org.agmas.noellesroles.init.FunnyItems;
 import org.agmas.noellesroles.init.ModItems;
+import org.agmas.noellesroles.packet.OpenLockGuiS2CPacket;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
@@ -302,12 +306,11 @@ public class SmallDoorBlock extends DoorPartBlock {
         return this.typeSupplier.get();
     }
 
-    @Override
-    protected InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player,
+    public static InteractionResult canOpenDoor(DoorOpenSuperFunction openFunction, BlockState state, Level world,
+            BlockPos lowerPos, Player player,
             BlockHitResult hit) {
-        BlockPos lowerPos = state.getValue(HALF) == DoubleBlockHalf.LOWER ? pos : pos.below();
-        ResourceLocation itid = BuiltInRegistries.ITEM.getKey(player.getMainHandItem().getItem());
-        if (itid.equals(Noellesroles.id("noell_artisan_key")) || itid.equals(SRE.TMMId("crowbar"))) {
+        ItemStack itemStack = player.getMainHandItem();
+        if (itemStack.getItem() instanceof DoorCustomOpenItem) {
             return InteractionResult.PASS;
         }
         if (world.getBlockEntity(lowerPos) instanceof SmallDoorBlockEntity entity) {
@@ -319,10 +322,84 @@ public class SmallDoorBlock extends DoorPartBlock {
                 return InteractionResult.FAIL;
             }
             if (player.isCreative() || AllowPlayerOpenLockedDoor.EVENT.invoker().allowOpen(player)) {
-                return open(state, world, entity, lowerPos);
+                return openFunction.apply(state, world, entity, lowerPos);
             } else {
                 boolean requiresKey = !entity.getKeyName().isEmpty();
                 ItemStack mainhandItem = player.getMainHandItem();
+                boolean canBeAffectedByLock = false;
+                // 如果该物品会被锁影响，就在LockEntityManager构造函数的列表添加即可，然后在下面的if语句里具体操作
+                // NOTE: 如果只在这里添加不在底下if处理，会导致锁把该物品屏蔽，该物品将对带锁的门毫无效果
+                for (var iiiit : LockEntityManager.getInstance().getCanBeAffectedItems()) {
+                    if (player.getMainHandItem().is(iiiit)) {
+                        canBeAffectedByLock = true;
+                        break;
+                    }
+                }
+                if (canBeAffectedByLock) {
+                    // 当当前门上无锁时，检查附近门的情况：实现锁对附近门的影响
+                    var half = state.getOptionalValue(HALF).orElse(null);
+                    BlockPos lockPos = null;
+                    if (half != null) {
+                        lockPos = lowerPos.above();
+                    }
+
+                    if (lockPos != null && LockEntityManager.getInstance().getLockEntity(lockPos) == null) {
+                        if (world.getBlockEntity(lockPos.below()) instanceof SmallDoorBlockEntity sde) {
+                            switch (sde.getFacing()) {
+                                case NORTH:
+                                case SOUTH:
+                                    if (LockEntityManager.getInstance().getLockEntity(lockPos.east()) != null)
+                                        lockPos = lockPos.east();
+                                    else if (LockEntityManager.getInstance().getLockEntity(lockPos.west()) != null) {
+                                        lockPos = lockPos.west();
+                                    }
+                                    break;
+                                case EAST:
+                                case WEST:
+                                    if (LockEntityManager.getInstance().getLockEntity(lockPos.north()) != null)
+                                        lockPos = lockPos.north();
+                                    else if (LockEntityManager.getInstance().getLockEntity(lockPos.south()) != null) {
+                                        lockPos = lockPos.south();
+                                    }
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                    }
+
+                    if (lockPos != null && LockEntityManager.getInstance().getLockEntity(lockPos) != null) {
+                        // 根据手中物品决定锁的影响
+                        boolean canUnLock = false;
+                        for (var item : LockEntityManager.getInstance().getCanBeUsedToUnLock()) {
+                            if (player.getMainHandItem().is(item)) {
+                                canUnLock = true;
+                                break;
+                            }
+                        }
+                        if (canUnLock) {
+                            // 当手持撬锁器且该门上锁时：进入撬锁小游戏
+                            player.displayClientMessage(
+                                    Component.translatable("message.lock.game.start").withStyle(ChatFormatting.AQUA),
+                                    true);
+                            player.playNotifySound(SoundEvents.CHEST_LOCKED, SoundSource.BLOCKS, 0.5f, 1.5f);
+                            // 客户端：打开GUI
+                            var lockEntity = LockEntityManager.getInstance().getLockEntity(lockPos);
+                            if (lockEntity != null) {
+                                if (player instanceof ServerPlayer serverPlayer) {
+                                    ServerPlayNetworking.send(serverPlayer, new OpenLockGuiS2CPacket(lockPos,
+                                            lockEntity.getUUID(), lockEntity.getLength()));
+                                }
+                            }
+                            // 返回 false 阻止原始方法执行
+                            return (InteractionResult.FAIL);
+                        } else {
+                            // 默认行为：阻止原操作
+                            return (InteractionResult.FAIL);
+                        }
+
+                    }
+                }
                 boolean hasLockpick = mainhandItem.is(TMMItems.LOCKPICK) || mainhandItem.is(ModItems.MASTER_KEY)
                         || mainhandItem.is(FunnyItems.BOWEN_BADGE);
                 if (mainhandItem.is(ModItems.MASTER_KEY_P)) {
@@ -334,7 +411,7 @@ public class SmallDoorBlock extends DoorPartBlock {
                 boolean jammed = entity.isJammed();
 
                 if (entity.isOpen()) {
-                    return open(state, world, entity, lowerPos);
+                    return openFunction.apply(state, world, entity, lowerPos);
                 } else if (requiresKey && !jammed) {
                     if (player.getMainHandItem().is(TMMItems.CROWBAR))
                         return InteractionResult.FAIL;
@@ -349,7 +426,7 @@ public class SmallDoorBlock extends DoorPartBlock {
                             if (hasLockpick)
                                 world.playSound(null, lowerPos.getX() + .5f, lowerPos.getY() + 1, lowerPos.getZ() + .5f,
                                         TMMSounds.ITEM_LOCKPICK_DOOR, SoundSource.BLOCKS, 1f, 1f);
-                            return open(state, world, entity, lowerPos);
+                            return openFunction.apply(state, world, entity, lowerPos);
                         } else {
                             if (!world.isClientSide) {
                                 world.playSound(null, lowerPos.getX() + .5f, lowerPos.getY() + 1, lowerPos.getZ() + .5f,
@@ -376,13 +453,25 @@ public class SmallDoorBlock extends DoorPartBlock {
                         }
                     } else {
                         // open the door freely
-                        return open(state, world, entity, lowerPos);
+                        return openFunction.apply(state, world, entity, lowerPos);
                     }
                 }
             }
         }
-
         return InteractionResult.SUCCESS;
+    }
+
+    public static InteractionResult useWithoutItemStatic(
+            DoorOpenSuperFunction openFunction, BlockState state, Level world, BlockPos pos, Player player,
+            BlockHitResult hit) {
+        BlockPos lowerPos = state.getValue(HALF) == DoubleBlockHalf.LOWER ? pos : pos.below();
+        return canOpenDoor(openFunction, state, world, lowerPos, player, hit);
+    }
+
+    @Override
+    protected InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player,
+            BlockHitResult hit) {
+        return useWithoutItemStatic((a, b, c, d) -> this.open(a, b, c, d), state, world, pos, player, hit);
     }
 
     public @NotNull InteractionResult open(BlockState state, Level world, SmallDoorBlockEntity entity,
@@ -430,4 +519,9 @@ public class SmallDoorBlock extends DoorPartBlock {
         }
     }
 
+    @FunctionalInterface
+    public interface DoorOpenSuperFunction {
+        InteractionResult apply(BlockState state, Level world, SmallDoorBlockEntity entity,
+                BlockPos lowerPos);
+    }
 }

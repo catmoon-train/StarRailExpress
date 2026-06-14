@@ -153,10 +153,12 @@ public class ServerTaskInfoClasses {
                             BlockPos blockPos7 = blockPos6.offset(offsetBlockPos);
                             BlockInWorld cachedBlockPosition = new BlockInWorld(serverWorld, blockPos6, true);
                             BlockState blockState = cachedBlockPosition.getState();
-                            if (blockState.getBlock() instanceof SmallDoorBlock) {
+
+                            if (blockState.getBlock() instanceof LockableButtonBlock) {
                                 GameUtils.resetPoints.add(blockPos7);
-                            }
-                            if (blockState.getBlock() instanceof ToiletBlock) {
+                            } else if (blockState.getBlock() instanceof SmallDoorBlock) {
+                                GameUtils.resetPoints.add(blockPos7);
+                            } else if (blockState.getBlock() instanceof ToiletBlock) {
                                 GameUtils.resetPoints.add(blockPos7);
                             } else if (blockState.getBlock() instanceof TrimmedBedBlock) {
                                 if (blockState.getValue(TrimmedBedBlock.PART).equals(BedPart.HEAD)) {
@@ -294,9 +296,33 @@ public class ServerTaskInfoClasses {
                 BlockPos blockPos7 = blockPos6;
                 BlockInWorld cachedBlockPosition = new BlockInWorld(serverWorld, blockPos6, true);
                 BlockState blockState = cachedBlockPosition.getState();
-
+                if (blockState.getBlock() instanceof LockableButtonBlock) {
+                    if (serverWorld.getBlockEntity(blockPos6) instanceof LockableButtonBlockEntity entity) {
+                        entity.setBlasted(false);
+                        entity.setJammed(0);
+                        entity.setOpen(false);
+                        String keyName = entity.getKeyName();
+                        if (keyName == null)
+                            keyName = "";
+                        else if (keyName.endsWith(":")) {
+                            keyName = "";
+                        } else if (keyName.contains(":")) {
+                            var arr = keyName.split(":");
+                            if (arr.length > 0) {
+                                keyName = arr[arr.length - 1];
+                            }
+                        }
+                        entity.setKeyName(keyName);
+                        blockState = blockState.setValue(LockableButtonBlock.POWERED, false);
+                        blockState = blockState.setValue(LockableButtonBlock.ACTIVE, true);
+                        BlockEntityInfo blockEntityInfo = new BlockEntityInfo(
+                                entity.saveCustomOnly(serverWorld.registryAccess()),
+                                entity.components());
+                        list2.add(new GameUtils.BlockInfo(blockPos7, blockState, blockEntityInfo));
+                    }
+                }
                 // Check if the block is one of our door blocks
-                if (blockState.getBlock() instanceof SmallDoorBlock) {
+                else if (blockState.getBlock() instanceof SmallDoorBlock) {
                     if (blockState.getValue(SmallDoorBlock.HALF).equals(DoubleBlockHalf.LOWER)) {
                         if (serverWorld.getBlockEntity(blockPos6) instanceof SmallDoorBlockEntity entity) {
                             entity.setBlasted(false);
