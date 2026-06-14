@@ -695,6 +695,8 @@
   "block.starrailexpress.up_glass_door": "玻璃卷帘门",
   "block.starrailexpress.up_steel_door": "铁卷帘门",
   "block.starrailexpress.up_wood_door": "木卷帘门",
+  "block.starrailexpress.lockable_small_button": "可上锁列车小按钮",
+  "block.starrailexpress.lockable_elevator_button": "可上锁列车电梯按钮",
   "block.starrailexpress.remote_redstone": "无线红石",
   "item.starrailexpress.remote_redstone": "无线红石",
   "item.starrailexpress.remote_redstone.tooltip": "使用绑定工具绑定两个无线红石来使用，传递并且增强红石信号",

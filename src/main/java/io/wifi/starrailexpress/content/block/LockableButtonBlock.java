@@ -2,7 +2,7 @@ package io.wifi.starrailexpress.content.block;
 
 import io.wifi.starrailexpress.content.block.api.LightBlockInterface;
 import io.wifi.starrailexpress.content.block_entity.LockableButtonBlockEntity;
-import io.wifi.starrailexpress.content.block_entity.SmallDoorBlockEntity;
+import io.wifi.starrailexpress.index.TMMBlockEntities;
 import io.wifi.starrailexpress.index.TMMSounds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -37,16 +37,16 @@ import java.util.function.Supplier;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class LockableButtonBlock extends ButtonBlock
-        implements EntityBlock, SimpleWaterloggedBlock, LightBlockInterface {
+        implements EntityBlock, SimpleWaterloggedBlock {
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     public static final BooleanProperty ACTIVE = LightBlockInterface.ACTIVE;
-    private final Supplier<BlockEntityType<SmallDoorBlockEntity>> typeSupplier;
+    private final Supplier<BlockEntityType<LockableButtonBlockEntity>> typeSupplier;
 
     public LockableButtonBlock(Properties settings) {
-        this(null, settings);
+        this(() -> TMMBlockEntities.LOCKABLE_BUTTON, settings);
     }
 
-    public LockableButtonBlock(Supplier<BlockEntityType<SmallDoorBlockEntity>> typeSupplier, Properties settings) {
+    public LockableButtonBlock(Supplier<BlockEntityType<LockableButtonBlockEntity>> typeSupplier, Properties settings) {
 
         super(BlockSetType.IRON, 20, settings);
         this.registerDefaultState(super.defaultBlockState().setValue(ACTIVE, true));
@@ -111,7 +111,7 @@ public abstract class LockableButtonBlock extends ButtonBlock
         if (result.equals(InteractionResult.SUCCESS) || result.equals(InteractionResult.CONSUME)
                 || result.equals(InteractionResult.CONSUME_PARTIAL) || result.equals(InteractionResult.PASS)) {
             // 成功打开
-        }else{
+        } else {
             // 失败
             return;
         }
@@ -168,23 +168,6 @@ public abstract class LockableButtonBlock extends ButtonBlock
     @Override
     protected boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
         return true; // 可放置在任意位置（类似红石火把可悬空）
-    }
-
-    protected boolean tryOpenDoors(Level world, BlockPos pos) {
-        if (world.getBlockEntity(pos) instanceof SmallDoorBlockEntity entity) {
-            if (entity.isJammed()) {
-                if (!world.isClientSide)
-                    world.playSound(null, entity.getBlockPos().getX() + .5f, entity.getBlockPos().getY() + 1,
-                            entity.getBlockPos().getZ() + .5f, TMMSounds.BLOCK_DOOR_LOCKED, SoundSource.BLOCKS, 1f, 1f);
-                return false;
-            }
-            var state = world.getBlockState(pos);
-            if (state.getBlock() instanceof SmallDoorBlock sb) {
-                sb.toggleDoor(state, world, entity, pos);
-            }
-            return true;
-        }
-        return false;
     }
 
     @Override
