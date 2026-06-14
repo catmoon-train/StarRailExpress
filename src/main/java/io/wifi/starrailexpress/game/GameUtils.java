@@ -8,6 +8,7 @@ import io.wifi.starrailexpress.cca.*;
 import io.wifi.starrailexpress.compat.TrainVoicePlugin;
 import io.wifi.starrailexpress.content.command.AutoShutdownWhenNotRunningCommand;
 import io.wifi.starrailexpress.content.command.ListRoleInRoundCommand;
+import io.wifi.starrailexpress.content.command.StaminaCommand;
 import io.wifi.starrailexpress.content.entity.FirecrackerEntity;
 import io.wifi.starrailexpress.content.entity.NoteEntity;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
@@ -1044,6 +1045,8 @@ public class GameUtils {
         player.removeVehicle();
         ExtraSlotComponent.KEY.get(player).clear();
         player.setInvulnerable(false);
+        // 体力重置
+        StaminaCommand.setStamina(player, 0);
     }
 
     public static void resetPlayerAfterGame(ServerPlayer player) {

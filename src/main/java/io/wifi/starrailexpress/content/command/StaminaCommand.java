@@ -42,13 +42,21 @@ public class StaminaCommand {
                                                 EntityArgument.getPlayers(context, "targets"))))));
     }
 
+    public static boolean setStamina(Entity target, float amount) {
+        if (target instanceof PlayerStaminaGetter stam) {
+            stam.starrailexpress$setStamina((float) amount);
+            return true;
+        }
+        return false;
+    }
+
     private static int executeSet(CommandSourceStack source, Collection<? extends Entity> targets, int amount) {
         int finalAmount = Math.max(amount, 0);
         int total = 0;
 
         for (Entity target : targets) {
-            if (target instanceof PlayerStaminaGetter stam) {
-                stam.starrailexpress$setStamina((float) finalAmount);
+            if (target instanceof PlayerStaminaGetter) {
+                setStamina(target, (float) finalAmount);
                 total += finalAmount;
             }
         }
@@ -85,7 +93,8 @@ public class StaminaCommand {
             float stamina = ((PlayerStaminaGetter) target).starrailexpress$getStamina();
             source.sendSuccess(
                     () -> Component
-                            .translatable("commands.sre.addstamina", target.getName().getString(), amount, (int) stamina)
+                            .translatable("commands.sre.addstamina", target.getName().getString(), amount,
+                                    (int) stamina)
                             .withStyle(style -> style.withColor(0x00FF00)),
                     true);
         } else {
