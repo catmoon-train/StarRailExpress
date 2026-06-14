@@ -70,7 +70,7 @@ public class RopeItem extends Item implements AdventureUsable {
             return InteractionResultHolder.fail(stack);
         }
 
-        if (!world.isClientSide) {
+        if (!world.isClientSide && !player.isCreative()) {
             player.getCooldowns().addCooldown(this, COOLDOWN);
         }
 
