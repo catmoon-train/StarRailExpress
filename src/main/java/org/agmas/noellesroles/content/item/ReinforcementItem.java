@@ -211,7 +211,8 @@ public class ReinforcementItem extends Item implements AdventureUsable {
                 }
 
                 // 检查门是否支持
-                if (!(state.getBlock() instanceof TrainDoorBlock)) {
+                if (!(state.getBlock() instanceof TrainDoorBlock)
+                        && !(state.getBlock() instanceof LockableButtonBlock)) {
                     if (doorEntity.getKeyName().isEmpty()) {
                         player.displayClientMessage(
                                 Component.translatable("message.noellesroles.engineer.not_support_door")

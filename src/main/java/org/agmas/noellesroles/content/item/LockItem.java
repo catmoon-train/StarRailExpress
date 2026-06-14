@@ -1,6 +1,7 @@
 package org.agmas.noellesroles.content.item;
 
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.content.block.LockableButtonBlock;
 import io.wifi.starrailexpress.content.block.TrainDoorBlock;
 import io.wifi.starrailexpress.content.block_entity.DoorBlockEntity;
 import io.wifi.starrailexpress.index.TMMSounds;
@@ -79,7 +80,7 @@ public class LockItem extends Item implements AdventureUsable {
             // 检查门是否已被破坏
             // 检查门是否支持
             var state = entity.getBlockState();
-            if (!(state.getBlock() instanceof TrainDoorBlock)) {
+            if (!(state.getBlock() instanceof TrainDoorBlock) && !(state.getBlock() instanceof LockableButtonBlock)) {
                 if (doorEntity.getKeyName().isEmpty()) {
                     player.displayClientMessage(
                             Component.translatable("message.noellesroles.engineer.not_support_door")
