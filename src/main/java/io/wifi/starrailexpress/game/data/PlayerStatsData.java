@@ -9,6 +9,7 @@ import java.util.Map;
  */
 public class PlayerStatsData {
     private String uuid;
+    private long updatedAt;
     private long totalPlayTime;
     private int totalGamesPlayed;
     private int totalKills;
@@ -112,6 +113,14 @@ public class PlayerStatsData {
 
     public void setUuid(String uuid) {
         this.uuid = uuid;
+    }
+
+    public long getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(long updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     public long getTotalPlayTime() {
@@ -312,6 +321,6 @@ public class PlayerStatsData {
     }
 
     public void setRoleStats(Map<String, RoleStatsData> roleStats) {
-        this.roleStats = roleStats;
+        this.roleStats = roleStats == null ? new HashMap<>() : roleStats;
     }
 }

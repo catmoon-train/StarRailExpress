@@ -5,7 +5,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.replay.ReplayDisplayUtils;
-import io.wifi.starrailexpress.cca.SREPlayerStatsComponent;
+import io.wifi.starrailexpress.stats.PlayerStats;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -24,7 +24,7 @@ import java.util.function.BiConsumer;
 
 public class RoleStatsPanel extends AbstractWidget {
 
-    private final SREPlayerStatsComponent stats;
+    private final PlayerStats stats;
     private ScrollableRoleListComponent roleListComponent;
     private RoleDetailsComponent roleDetailsComponent;
     private F___M_J___EditBox searchBox;
@@ -34,7 +34,7 @@ public class RoleStatsPanel extends AbstractWidget {
     private final List<GuiEventListener> children = new ArrayList<>();
     private final List<Renderable> renderables = new ArrayList<>();
 
-    public RoleStatsPanel(int x, int y, int width, int height, SREPlayerStatsComponent stats) {
+    public RoleStatsPanel(int x, int y, int width, int height, PlayerStats stats) {
         super(x, y, width, height, Component.empty());
         this.stats = stats;
         setupComponents();
@@ -70,7 +70,7 @@ public class RoleStatsPanel extends AbstractWidget {
         addChild(roleDetailsComponent);
 
         List<SRERole> roles = new ArrayList<>();
-        Map<ResourceLocation, SREPlayerStatsComponent.RoleStats> roleStatsMap = stats.getRoleStats();
+        Map<ResourceLocation, PlayerStats.RoleStats> roleStatsMap = stats.getRoleStats();
         for (SRERole role : Noellesroles.getAllRolesSorted()) {
             if (roleStatsMap.containsKey(role.identifier()))
                 roles.add(role);
@@ -92,7 +92,7 @@ public class RoleStatsPanel extends AbstractWidget {
         roleListComponent.filterRoles(s);
     }
 
-    private void onRoleSelected(SRERole r, SREPlayerStatsComponent.RoleStats rs) {
+    private void onRoleSelected(SRERole r, PlayerStats.RoleStats rs) {
         roleDetailsComponent.setRole(r, rs);
     }
 
@@ -218,9 +218,9 @@ public class RoleStatsPanel extends AbstractWidget {
     // =========================================================================
     private static class ScrollableRoleListComponent extends AbstractWidget {
 
-        private final BiConsumer<SRERole, SREPlayerStatsComponent.RoleStats> onSelect;
+        private final BiConsumer<SRERole, PlayerStats.RoleStats> onSelect;
         private List<SRERole> allRoles = new ArrayList<>();
-        private Map<ResourceLocation, SREPlayerStatsComponent.RoleStats> roleStatsMap = new HashMap<>();
+        private Map<ResourceLocation, PlayerStats.RoleStats> roleStatsMap = new HashMap<>();
         private List<SRERole> filteredRoles = new ArrayList<>();
         /** 使用 double 保留亚像素精度，绘制时取整 */
         private double scrollAmount = 0.0;
@@ -234,13 +234,13 @@ public class RoleStatsPanel extends AbstractWidget {
         private double dragStartScroll = 0;
 
         public ScrollableRoleListComponent(int x, int y, int w, int h,
-                BiConsumer<SRERole, SREPlayerStatsComponent.RoleStats> cb) {
+                BiConsumer<SRERole, PlayerStats.RoleStats> cb) {
             super(x, y, w, h, Component.empty());
             this.onSelect = cb;
         }
 
         public void setRoles(List<SRERole> roles,
-                Map<ResourceLocation, SREPlayerStatsComponent.RoleStats> map) {
+                Map<ResourceLocation, PlayerStats.RoleStats> map) {
             allRoles = roles;
             roleStatsMap = map;
             filteredRoles = new ArrayList<>(roles);
@@ -278,7 +278,7 @@ public class RoleStatsPanel extends AbstractWidget {
 
             for (int i = startIdx; i < endIdx; i++) {
                 SRERole role = filteredRoles.get(i);
-                SREPlayerStatsComponent.RoleStats rs = roleStatsMap.get(role.identifier());
+                PlayerStats.RoleStats rs = roleStatsMap.get(role.identifier());
                 int itemY = getY() + i * ITEM_H - scroll;
 
                 boolean selected = role.equals(selectedRole);
@@ -323,7 +323,7 @@ public class RoleStatsPanel extends AbstractWidget {
                     highlighted ? 0xFFAABBEE : 0xFF7788BB);
         }
 
-        private void drawRoleCard(GuiGraphics g, SRERole role, SREPlayerStatsComponent.RoleStats rs,
+        private void drawRoleCard(GuiGraphics g, SRERole role, PlayerStats.RoleStats rs,
                 int x, int y, int w, int h, boolean hover, boolean selected) {
             int color = role.getColor() | 0xFF000000;
             int bg = selected ? 0xFF2A3A5A
@@ -448,7 +448,7 @@ public class RoleStatsPanel extends AbstractWidget {
     private static class RoleDetailsComponent extends AbstractWidget {
 
         private SRERole role;
-        private SREPlayerStatsComponent.RoleStats roleStats;
+        private PlayerStats.RoleStats roleStats;
         private int scrollY = 0;
         private int maxScroll = 0;
         private boolean draggingScroll = false;
@@ -460,7 +460,7 @@ public class RoleStatsPanel extends AbstractWidget {
             super(x, y, w, h, Component.empty());
         }
 
-        public void setRole(SRERole r, SREPlayerStatsComponent.RoleStats rs) {
+        public void setRole(SRERole r, PlayerStats.RoleStats rs) {
             role = r;
             roleStats = rs;
             scrollY = 0;

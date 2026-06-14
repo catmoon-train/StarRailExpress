@@ -630,7 +630,7 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
                 // Update total play time for active players
                 for (ServerPlayer player : serverWorld.players()) {
                     if (GameUtils.isPlayerAliveAndSurvival(player)) {
-                        SREPlayerStatsComponent.KEY.get(player).addPlayTime(1);
+                        io.wifi.starrailexpress.stats.PlayerStatsManager.get(player).addPlayTime(1);
                     }
                 }
                 if (gameMode == null) {

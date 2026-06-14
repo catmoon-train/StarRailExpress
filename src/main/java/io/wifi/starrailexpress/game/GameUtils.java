@@ -17,6 +17,8 @@ import io.wifi.starrailexpress.index.*;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import io.wifi.starrailexpress.network.CloseUiPayload;
 import io.wifi.starrailexpress.network.original.AnnounceEndingPayload;
+import io.wifi.starrailexpress.stats.PlayerStats;
+import io.wifi.starrailexpress.stats.PlayerStatsManager;
 import io.wifi.starrailexpress.util.SREItemUtils;
 import net.exmo.sre.nametag.NameTagInventoryComponent;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerChunkEvents;
@@ -116,7 +118,7 @@ public class GameUtils {
     public static void recordPlayerStats(ServerLevel serverWorld, SREGameWorldComponent gameComponent,
             ArrayList<ServerPlayer> readyPlayerList) {
         for (ServerPlayer player : readyPlayerList) {
-            SREPlayerStatsComponent stats = SREPlayerStatsComponent.KEY.get(player);
+            PlayerStats stats = PlayerStatsManager.get(player);
             stats.incrementTotalGamesPlayed();
             SRERole playerRole = gameComponent.getRole(player);
             if (playerRole != null) {
@@ -883,7 +885,7 @@ public class GameUtils {
                 looseEndWinner = gameComponent.getLooseEndWinner();
             }
             for (ServerPlayer player : world.players()) {
-                SREPlayerStatsComponent stats = SREPlayerStatsComponent.KEY.get(player);
+                PlayerStats stats = PlayerStatsManager.get(player);
                 SRERole playerRole = gameComponent.getRole(player);
                 if (playerRole == null)
                     continue;

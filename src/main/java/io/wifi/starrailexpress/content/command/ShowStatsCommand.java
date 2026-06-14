@@ -3,8 +3,8 @@ package io.wifi.starrailexpress.content.command;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import io.wifi.starrailexpress.cca.SREPlayerStatsComponent;
 import io.wifi.starrailexpress.network.ShowStatsPayload;
+import io.wifi.starrailexpress.stats.PlayerStatsManager;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -42,7 +42,7 @@ public class ShowStatsCommand {
                 UUID targetUuid = profile.getId();
                 ServerPlayer targetPlayer = source.getServer().getPlayerList().getPlayer(targetUuid);
                 if (targetPlayer != null) {
-                    openStatsScreen(targetPlayer, targetUuid);
+                    openStatsScreen(sender, targetUuid);
                     source.sendSuccess(() -> Component.translatable("commands.sre.showstats.other", profile.getName()), false);
                 } else {
                     source.sendFailure(Component.translatable("commands.sre.showstats.player_not_found", profile.getName()));
@@ -53,7 +53,7 @@ public class ShowStatsCommand {
     }
 
     private static void openStatsScreen(ServerPlayer player, UUID targetPlayerUuid) {
-        SREPlayerStatsComponent.KEY.get( player).syncNow();
+        PlayerStatsManager.syncTo(player, targetPlayerUuid);
         ServerPlayNetworking.send(player, new ShowStatsPayload(targetPlayerUuid));
     }
 }
