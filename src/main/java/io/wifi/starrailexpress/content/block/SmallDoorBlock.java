@@ -451,6 +451,7 @@ public class SmallDoorBlock extends DoorPartBlock {
                                     TMMSounds.BLOCK_DOOR_LOCKED, SoundSource.BLOCKS, 1f, 1f);
                             player.displayClientMessage(Component.translatable("tip.door.jammed"), true);
                         }
+                        return InteractionResult.FAIL;
                     } else {
                         // open the door freely
                         return openFunction.apply(state, world, entity, lowerPos);

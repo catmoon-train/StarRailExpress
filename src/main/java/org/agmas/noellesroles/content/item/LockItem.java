@@ -80,8 +80,8 @@ public class LockItem extends Item implements AdventureUsable {
             // 检查门是否已被破坏
             // 检查门是否支持
             var state = entity.getBlockState();
-            if (!(state.getBlock() instanceof TrainDoorBlock) && !(state.getBlock() instanceof LockableButtonBlock)) {
-                if (doorEntity.getKeyName().isEmpty()) {
+            if (!(state.getBlock() instanceof TrainDoorBlock)) {
+                if ((state.getBlock() instanceof LockableButtonBlock) || doorEntity.getKeyName().isEmpty()) {
                     player.displayClientMessage(
                             Component.translatable("message.noellesroles.engineer.not_support_door")
                                     .withStyle(ChatFormatting.RED),

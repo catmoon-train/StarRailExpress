@@ -6,10 +6,8 @@ import io.wifi.starrailexpress.index.TMMBlockEntities;
 import io.wifi.starrailexpress.index.TMMSounds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Player;
@@ -23,6 +21,7 @@ import net.minecraft.world.level.block.ButtonBlock;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.SimpleWaterloggedBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -53,17 +52,6 @@ public abstract class LockableButtonBlock extends ButtonBlock
         this.registerDefaultState(super.defaultBlockState().setValue(ACTIVE, true).setValue(WATERLOGGED, false));
         this.typeSupplier = typeSupplier;
 
-    }
-
-    protected void tick(BlockState blockState, ServerLevel serverLevel, BlockPos blockPos, RandomSource randomSource) {
-        super.tick(blockState, serverLevel, blockPos, randomSource);
-        if (serverLevel.isClientSide) {
-            LockableButtonBlockEntity.clientTick(serverLevel, blockPos, blockState,
-                    getBlockEntity(serverLevel, blockPos));
-        } else {
-            LockableButtonBlockEntity.serverTick(serverLevel, blockPos, blockState,
-                    getBlockEntity(serverLevel, blockPos));
-        }
     }
 
     public boolean canOpen(Level world, BlockPos blockPos) {
@@ -186,5 +174,30 @@ public abstract class LockableButtonBlock extends ButtonBlock
     @Override
     protected SoundEvent getSound(boolean powered) {
         return TMMSounds.BLOCK_SPACE_BUTTON_TOGGLE;
+    }
+
+    @Nullable
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState blockState,
+            BlockEntityType<T> blockEntityType) {
+        return level.isClientSide
+                ? createTickerHelper(blockEntityType, TMMBlockEntities.LOCKABLE_BUTTON, (l, b, s, t) -> {
+                    if (t instanceof LockableButtonBlockEntity d) {
+                        LockableButtonBlockEntity.clientTick(l, b, s, d);
+                    }
+                })
+                : createTickerHelper(blockEntityType, TMMBlockEntities.LOCKABLE_BUTTON,
+                        (l, b, s, t) -> {
+                            if (t instanceof LockableButtonBlockEntity d) {
+                                LockableButtonBlockEntity.serverTick(l, b, s, d);
+                            }
+                        });
+    }
+
+    @Nullable
+    protected static <E extends BlockEntity, A extends BlockEntity> BlockEntityTicker<A> createTickerHelper(
+            BlockEntityType<A> blockEntityType, BlockEntityType<E> blockEntityType2,
+            BlockEntityTicker<A> blockEntityTicker) {
+        return blockEntityType2 == blockEntityType ? blockEntityTicker : null;
     }
 }
