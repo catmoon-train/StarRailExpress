@@ -1,23 +1,16 @@
 package net.exmo.mixin.client;
 
 import io.wifi.starrailexpress.SRE;
-import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.client.server.IntegratedServer;
-import net.minecraft.data.Main;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
 import static net.minecraft.client.Minecraft.checkModStatus;
 
 @Mixin(Minecraft.class)
@@ -39,12 +32,13 @@ public abstract class WindowsTitleMixin {
      */
     @Overwrite
     private String createTitle() {
-        StringBuilder stringBuilder = new StringBuilder("Minecraft - StarRailExpress");
+        StringBuilder stringBuilder = new StringBuilder("Minecraft");
         if (checkModStatus().shouldReportAsModified()) {
             stringBuilder.append("*");
         }
-
         stringBuilder.append(" ");
+        stringBuilder.append(SharedConstants.getCurrentVersion().getName());
+        stringBuilder.append(" - StarRailExpress ");
         stringBuilder.append(SRE.modPacketVersion);
         ClientPacketListener clientPacketListener = this.getConnection();
         if (clientPacketListener != null && clientPacketListener.getConnection().isConnected()) {

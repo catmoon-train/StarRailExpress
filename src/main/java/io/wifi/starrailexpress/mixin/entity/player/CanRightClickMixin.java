@@ -10,6 +10,8 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LecternBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -35,6 +37,12 @@ public abstract class CanRightClickMixin extends LivingEntity implements DataSyn
         }
 
         BlockState state = level().getBlockState(pos);
+        if (state.is(Blocks.LECTERN)) {
+            if (!state.getValue(LecternBlock.HAS_BOOK)) {
+                cir.setReturnValue(false);
+                return;
+            }
+        }
         Block block = state.getBlock();
 
         if (CantRightClickBlocks.shouldPreventInteraction(player, block, player.level())) {

@@ -1,6 +1,7 @@
 package org.agmas.noellesroles.content.item;
 
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.content.block.LockableButtonBlock;
 import io.wifi.starrailexpress.content.block.TrainDoorBlock;
 import io.wifi.starrailexpress.content.block_entity.DoorBlockEntity;
 import io.wifi.starrailexpress.index.TMMSounds;
@@ -33,7 +34,6 @@ import java.util.List;
  * - 可以被钥匙和万能钥匙打开，对撬棍无效
  * - 锁的强度由长度决定
  * </p>
- * TODO: 一扇门是否可以放置多个锁（暂时允许多个锁）
  */
 public class LockItem extends Item implements AdventureUsable {
     public LockItem(int length, float strength, Properties properties) {
@@ -81,7 +81,7 @@ public class LockItem extends Item implements AdventureUsable {
             // 检查门是否支持
             var state = entity.getBlockState();
             if (!(state.getBlock() instanceof TrainDoorBlock)) {
-                if (doorEntity.getKeyName().isEmpty()) {
+                if ((state.getBlock() instanceof LockableButtonBlock) || doorEntity.getKeyName().isEmpty()) {
                     player.displayClientMessage(
                             Component.translatable("message.noellesroles.engineer.not_support_door")
                                     .withStyle(ChatFormatting.RED),

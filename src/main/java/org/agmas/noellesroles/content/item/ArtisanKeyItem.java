@@ -3,6 +3,7 @@ package org.agmas.noellesroles.content.item;
 import io.wifi.starrailexpress.content.block.SmallDoorBlock;
 import io.wifi.starrailexpress.content.block_entity.DoorBlockEntity;
 import io.wifi.starrailexpress.content.block_entity.SmallDoorBlockEntity;
+import io.wifi.starrailexpress.content.item.api.SREItemProperties.DoorCustomOpenItem;
 import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.util.AdventureUsable;
 import net.minecraft.core.BlockPos;
@@ -15,7 +16,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 
-public class ArtisanKeyItem extends Item implements AdventureUsable {
+public class ArtisanKeyItem extends Item implements AdventureUsable,DoorCustomOpenItem {
     public ArtisanKeyItem(Properties properties) {
         super(properties);
     }

@@ -6,6 +6,8 @@ import org.agmas.noellesroles.init.SREFumoBlocks;
 
 import dev.doctor4t.ratatouille.util.registrar.BlockRegistrar;
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.content.block.LockableElevatorButtonBlock;
+import io.wifi.starrailexpress.content.block.LockableSmallButtonBlock;
 import io.wifi.starrailexpress.content.block.PlaneSmallDoorBlock;
 import io.wifi.starrailexpress.content.block.PlaneTrainDoorBlock;
 import io.wifi.starrailexpress.content.block.RemoteRedstoneBlock;
@@ -72,6 +74,11 @@ public interface SREBlocks {
             new PlaneTrainDoorBlock(() -> TMMBlockEntities.PLANE_STEEL_DOOR,
                     BlockBehaviour.Properties.ofFullCopy(PLANE_GLASS_DOOR).sound(SoundType.COPPER)),
             new Item.Properties().rarity(Rarity.EPIC));
+
+    Block LOCKABLE_SMALL_BUTTON = registerBlock("lockable_small_button", new LockableSmallButtonBlock(BlockBehaviour.Properties.of()
+            .sound(SoundType.CHERRY_WOOD).noOcclusion().forceSolidOn().noCollission().strength(-1.0f, 3600000.0f)));
+    Block LOCKABLE_ELEVATOR_BUTTON = registerBlock("lockable_elevator_button",
+            new LockableElevatorButtonBlock(BlockBehaviour.Properties.ofFullCopy(LOCKABLE_SMALL_BUTTON)));
 
     @SuppressWarnings("unchecked")
     public static <T extends Block> T registerBlock(String id, T block) {

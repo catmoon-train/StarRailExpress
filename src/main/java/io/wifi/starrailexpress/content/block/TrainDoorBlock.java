@@ -32,12 +32,6 @@ public class TrainDoorBlock extends SmallDoorBlock {
         InteractionResult apply(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult hit);
     }
 
-    @FunctionalInterface
-    public interface DoorOpenSuperFunction {
-        InteractionResult apply(BlockState state, Level world, SmallDoorBlockEntity entity,
-                BlockPos lowerPos);
-    }
-
     public static InteractionResult useWithoutItemGeneric(
             DoorUseSuperFunction superUseFunction, // 父类方法的回调
             DoorOpenSuperFunction superOpenFunction,

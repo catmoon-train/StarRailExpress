@@ -1,7 +1,9 @@
 package io.wifi.starrailexpress.content.item;
 
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.content.block.LockableButtonBlock;
 import io.wifi.starrailexpress.content.block.SmallDoorBlock;
+import io.wifi.starrailexpress.content.block_entity.LockableButtonBlockEntity;
 import io.wifi.starrailexpress.content.block_entity.SmallDoorBlockEntity;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.index.TMMSounds;
@@ -36,6 +38,27 @@ public class LockpickItem extends Item implements AdventureUsable {
                 if (player.isShiftKeyDown()) {
                     entity.jam();
                     jamNearBy(context);
+
+                    if (!player.isCreative()) {
+                        if (SRE.REPLAY_MANAGER != null) {
+                            SRE.REPLAY_MANAGER.recordItemUse(player.getUUID(), BuiltInRegistries.ITEM.getKey(this));
+                        }
+                        player.getCooldowns().addCooldown(this, GameConstants.ITEM_COOLDOWNS.get(this));
+                    }
+
+                    if (!world.isClientSide)
+                        world.playSound(null, lowerPos.getX() + .5f, lowerPos.getY() + 1, lowerPos.getZ() + .5f,
+                                TMMSounds.ITEM_LOCKPICK_DOOR, SoundSource.BLOCKS, 1f, 1f);
+                    return InteractionResult.SUCCESS;
+                }
+            }
+
+            return InteractionResult.PASS;
+        } else if (state.getBlock() instanceof LockableButtonBlock) {
+            BlockPos lowerPos = pos;
+            if (world.getBlockEntity(lowerPos) instanceof LockableButtonBlockEntity entity) {
+                if (player.isShiftKeyDown()) {
+                    entity.jam();
 
                     if (!player.isCreative()) {
                         if (SRE.REPLAY_MANAGER != null) {

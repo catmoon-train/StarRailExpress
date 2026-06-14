@@ -14,6 +14,13 @@ public class SREItemProperties {
      */
     public interface HeldLikeBat {
     }
+
+    /**
+     * 使用此物品将独立处理开门逻辑，不传递到门上
+     */
+    public interface DoorCustomOpenItem {
+    }
+
     /**
      * 像左轮手枪一样举起来
      */

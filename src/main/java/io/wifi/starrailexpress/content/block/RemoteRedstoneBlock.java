@@ -80,12 +80,6 @@ public class RemoteRedstoneBlock extends RedstoneTorchBlock implements EntityBlo
         return !state.getValue(LIT) && state.getValue(TRIGGERED) ? 15 : 0;
     }
 
-    @Override
-    protected boolean hasNeighborSignal(Level level, BlockPos pos, BlockState state) {
-        // 只检测下方红石信号（可选，根据需求调整）
-        return level.hasNeighborSignal(pos.below());
-    }
-
     // ======================= 核心逻辑：邻居变化（本地红石输入） =======================
     @Override
     public void neighborChanged(BlockState state, Level world, BlockPos pos, Block neighborBlock,

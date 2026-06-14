@@ -1652,8 +1652,8 @@ public class ModEventsRegister {
                             player.displayClientMessage(Component.translatable(
                                     "hud.noellesroles.star.dead.life_and_death_shape.victim", p.getName())
                                     .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD), true);
-                            GameUtils.killPlayer(p, true, killer, deathReason);
                             MCItemsUtils.clearItem(player, ModItems.LIFE_AND_DEATH_SHAPE, 1);
+                            GameUtils.killPlayer(p, true, killer, deathReason);
                             return false;
                         }
                     }

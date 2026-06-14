@@ -1,7 +1,6 @@
 package io.wifi.starrailexpress.util;
 
 import io.wifi.starrailexpress.SRE;
-import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
@@ -77,7 +76,6 @@ public class CantRightClickBlocks {
         if (SRE.isLobby)
             return false;
         String string = BuiltInRegistries.BLOCK.getKey(block).toString();
-        SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(level);
 
         return !isAllowedBlock(player, block, level) || cantClickItems.contains(string)
                 || CANNOT_INTERACT_IDS.contains(string);

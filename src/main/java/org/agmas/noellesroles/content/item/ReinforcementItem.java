@@ -2,6 +2,7 @@ package org.agmas.noellesroles.content.item;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.content.block.LockableButtonBlock;
 import io.wifi.starrailexpress.content.block.SmallDoorBlock;
 import io.wifi.starrailexpress.content.block.TrainDoorBlock;
 import io.wifi.starrailexpress.content.block_entity.DoorBlockEntity;
@@ -57,10 +58,17 @@ public class ReinforcementItem extends Item implements AdventureUsable {
         boolean isEngineer = gameWorld.isRole(player, ModRoles.ENGINEER);
         boolean isLockSmith = gameWorld.isRole(player, ModRoles.LOCKSMITH);
         // 检查是否为门方块
+
+        boolean isLockable = false;
+        BlockPos lowerPos = pos;
+        // 检查是否为门方块
         if (state.getBlock() instanceof SmallDoorBlock) {
-
-            BlockPos lowerPos = state.getValue(SmallDoorBlock.HALF) == DoubleBlockHalf.LOWER ? pos : pos.below();
-
+            lowerPos = state.getValue(SmallDoorBlock.HALF) == DoubleBlockHalf.LOWER ? pos : pos.below();
+            isLockable = true;
+        } else if (state.getBlock() instanceof LockableButtonBlock) {
+            isLockable = true;
+        }
+        if (isLockable) {
             if (world.getBlockEntity(lowerPos) instanceof SmallDoorBlockEntity doorEntity) {
 
                 // 蹲下右键：工程师专属功能 - 解除卡住状态或取下道具
@@ -204,7 +212,7 @@ public class ReinforcementItem extends Item implements AdventureUsable {
 
                 // 检查门是否支持
                 if (!(state.getBlock() instanceof TrainDoorBlock)) {
-                    if (doorEntity.getKeyName().isEmpty()) {
+                    if ((state.getBlock() instanceof LockableButtonBlock) || doorEntity.getKeyName().isEmpty()) {
                         player.displayClientMessage(
                                 Component.translatable("message.noellesroles.engineer.not_support_door")
                                         .withStyle(ChatFormatting.RED),

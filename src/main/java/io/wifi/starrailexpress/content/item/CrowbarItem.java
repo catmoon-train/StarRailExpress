@@ -1,10 +1,10 @@
 package io.wifi.starrailexpress.content.item;
 
 import io.wifi.starrailexpress.SRE;
-import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.block_entity.DoorBlockEntity;
+import io.wifi.starrailexpress.content.item.api.SREItemProperties.DoorCustomOpenItem;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.TMMSounds;
@@ -20,7 +20,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.agmas.noellesroles.role.RedHouseRoles;
 
-public class CrowbarItem extends Item implements AdventureUsable {
+public class CrowbarItem extends Item implements AdventureUsable, DoorCustomOpenItem {
     public CrowbarItem(Properties settings) {
         super(settings);
     }

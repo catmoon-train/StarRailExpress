@@ -152,7 +152,6 @@ public class FoolPlayerComponent implements RoleComponent {
             }
             return false;
         });
-        RoleSkill.register(ModRoles.THE_FOOL, FoolPlayerComponent::useSkill);
         AllowPlayerDeathWithKiller.EVENT.register((player, killer, deathReason) -> {
             SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
             if (killer == null)
