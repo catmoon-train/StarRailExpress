@@ -37,11 +37,11 @@ public class InputHandler {
             "category.starrailexpress.general"));
     public static KeyMapping openCommandMacroScreenKeybind = KeyBindingHelper.registerKeyBinding(new KeyMapping(
             "key.starrailexpress.open_command_macro_screen",
-            GLFW.GLFW_KEY_K,
+            GLFW.GLFW_KEY_UNKNOWN,
             "category.starrailexpress.general"));
     public static KeyMapping openClueArchiveKeybind = KeyBindingHelper.registerKeyBinding(new KeyMapping(
             "key.starrailexpress.open_clue_archive",
-            GLFW.GLFW_KEY_Z,
+            GLFW.GLFW_KEY_UNKNOWN,
             "category.starrailexpress.general"));
 
     public static void initialize() {
