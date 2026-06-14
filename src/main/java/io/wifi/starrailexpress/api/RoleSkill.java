@@ -332,15 +332,18 @@ public final class RoleSkill {
 
         boolean used = definition.handler().use(
                 new RoleSkillContext(player, target, definition.id(), phase, skillReady));
-        if (!used) {
-            return false;
-        }
 
+        // 计数始终 +1（不依赖 handler 返回值），新职业不用特地判断
+        // announceToSelf 默认 false，不会显示播报
         if (skillReady) {
             ability.markSkillUsed(definition);
         } else {
             // Toggleable deactivation: just stop casting if applicable
             ability.stopCasting(definition.id());
+        }
+
+        if (!used) {
+            return false;
         }
         if (definition.announceToSelf()) {
             MutableComponent stateLabel;

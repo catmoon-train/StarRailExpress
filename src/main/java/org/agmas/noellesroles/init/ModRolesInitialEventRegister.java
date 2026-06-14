@@ -744,11 +744,10 @@ public class ModRolesInitialEventRegister {
                         context -> {
                             var comp = org.agmas.noellesroles.component.ModComponents.BUILDER.get(context.player());
                             if (comp.isBuildMode()) {
-                                comp.useBuildAbility();
+                                return comp.useBuildAbility();
                             } else {
-                                comp.useDemolishAbility();
+                                return comp.useDemolishAbility();
                             }
-                            return true;
                         }).build(),
                 RoleSkill.skill(SRE.id("builder_toggle_mode"),
                         "skill.noellesroles.builder.toggle_mode",
@@ -762,8 +761,7 @@ public class ModRolesInitialEventRegister {
                 RoleSkill.skill(SRE.id("mortician_bodymaker_ability"),
                         "skill.noellesroles.mortician_bodymaker.ability",
                         context -> {
-                            MorticianBodyMakerPlayerComponent.KEY.get(context.player()).useAbility();
-                            return true;
+                            return MorticianBodyMakerPlayerComponent.KEY.get(context.player()).useAbility();
                         }).build(),
                 RoleSkill.skill(SRE.id("mortician_bodymaker_toggle_mode"),
                         "skill.noellesroles.mortician_bodymaker.toggle_mode",
@@ -777,8 +775,7 @@ public class ModRolesInitialEventRegister {
                 RoleSkill.skill(SRE.id("trapper_ability"),
                         "skill.noellesroles.trapper.ability",
                         context -> {
-                            TrapperPlayerComponent.KEY.get(context.player()).tryPlaceTrap();
-                            return true;
+                            return TrapperPlayerComponent.KEY.get(context.player()).tryPlaceTrap();
                         }).build(),
                 RoleSkill.skill(SRE.id("trapper_toggle_mode"),
                         "skill.noellesroles.trapper.toggle_mode",
