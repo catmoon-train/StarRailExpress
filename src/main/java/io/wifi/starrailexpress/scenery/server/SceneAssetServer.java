@@ -50,6 +50,7 @@ public final class SceneAssetServer {
         }
 
         State state = state(level);
+        SceneGeometry.SectionBounds bounds = SceneGeometry.sectionBounds(areas.getSceneArea());
         synchronized (state) {
             if (state.captureJob != null && force && !state.publishing) {
                 state.captureJob.future.completeExceptionally(
@@ -60,9 +61,23 @@ public final class SceneAssetServer {
                 return CompletableFuture.completedFuture(PublishResult.failure("场景资产正在发布"));
             }
             state.publishing = true;
+            state.publishStartedAt = System.currentTimeMillis();
+            state.lastLoggedProgress = -1;
         }
 
-        return captureOverTicks(level, areas.getSceneArea()).thenApplyAsync(captured -> {
+        SRE.LOGGER.info("[ScenePublish] start map={} scene={} sections={} force={}",
+                mapName, areas.getSceneId(), bounds.sectionCount(), force);
+        CompletableFuture<PublishResult> resultFuture = new CompletableFuture<>();
+        CompletableFuture<SceneAsset> captureFuture;
+        try {
+            captureFuture = captureOverTicks(level, areas.getSceneArea());
+        } catch (Throwable error) {
+            finishPublishFailure(state, mapName, error, resultFuture);
+            return resultFuture;
+        }
+        captureFuture.thenApplyAsync(captured -> {
+            SRE.LOGGER.info("[ScenePublish] capture-complete map={} sections={}, encoding asset",
+                    mapName, captured.sections().size());
             try {
                 byte[] bytes = SceneAssetCodec.encode(captured);
                 String hash = SceneAssetCodec.sha256(bytes);
@@ -75,17 +90,12 @@ public final class SceneAssetServer {
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-        }).handle((encoded, error) -> {
-            if (error != null) {
-                level.getServer().execute(() -> {
-                    state.publishing = false;
-                    state.dirty = true;
-                    state.dirtyReason = "发布失败";
-                });
-                return PublishResult.failure("写入场景资产失败: " + rootMessage(error));
-            }
-
+        }).whenComplete((encoded, error) -> {
             level.getServer().execute(() -> {
+                if (error != null) {
+                    finishPublishFailure(state, mapName, error, resultFuture);
+                    return;
+                }
                 try {
                     areas.setSceneAssetHash(encoded.hash);
                     areas.sync();
@@ -100,15 +110,16 @@ public final class SceneAssetServer {
                     state.transientBytes = null;
                     state.transientGeneration++;
                     SceneAssetNetwork.sendManifestToAll(level);
+                    long elapsed = System.currentTimeMillis() - state.publishStartedAt;
+                    SRE.LOGGER.info("[ScenePublish] complete map={} scene={} hash={} bytes={} elapsedMs={}",
+                            mapName, areas.getSceneId(), encoded.hash, encoded.size, elapsed);
+                    resultFuture.complete(PublishResult.success(encoded.hash, encoded.size));
                 } catch (Exception e) {
-                    state.publishing = false;
-                    state.dirty = true;
-                    state.dirtyReason = "地图配置更新失败";
-                    SRE.LOGGER.error("Failed to update scene asset metadata", e);
+                    finishPublishFailure(state, mapName, e, resultFuture);
                 }
             });
-            return PublishResult.success(encoded.hash, encoded.size);
         });
+        return resultFuture;
     }
 
     public static SceneAsset capture(ServerLevel level, AABB sourceArea) throws IOException {
@@ -201,6 +212,15 @@ public final class SceneAssetServer {
                         job.sections.add(section);
                     }
                 }
+                if (entry.getValue().publishing && !job.positions.isEmpty()) {
+                    int progress = job.cursor * 100 / job.positions.size();
+                    int progressBucket = Math.min(100, progress / 10 * 10);
+                    if (progressBucket > entry.getValue().lastLoggedProgress) {
+                        entry.getValue().lastLoggedProgress = progressBucket;
+                        SRE.LOGGER.info("[ScenePublish] capture-progress dimension={} progress={} captured={}/{}",
+                                entry.getKey().location(), progressBucket, job.cursor, job.positions.size());
+                    }
+                }
                 if (job.cursor >= job.positions.size()) {
                     entry.getValue().captureJob = null;
                     job.future.complete(new SceneAsset(
@@ -212,6 +232,8 @@ public final class SceneAssetServer {
                 }
             } catch (Throwable error) {
                 entry.getValue().captureJob = null;
+                SRE.LOGGER.error("[ScenePublish] capture-failed dimension={} captured={}/{}",
+                        entry.getKey().location(), job.cursor, job.positions.size(), error);
                 job.future.completeExceptionally(error);
             }
         }
@@ -416,6 +438,16 @@ public final class SceneAssetServer {
         return current.getMessage() == null ? current.getClass().getSimpleName() : current.getMessage();
     }
 
+    private static void finishPublishFailure(State state, String mapName, Throwable error,
+            CompletableFuture<PublishResult> resultFuture) {
+        state.publishing = false;
+        state.dirty = true;
+        state.dirtyReason = "发布失败";
+        String message = rootMessage(error);
+        SRE.LOGGER.error("[ScenePublish] failed map={} reason={}", mapName, message, error);
+        resultFuture.complete(PublishResult.failure("发布场景资产失败: " + message));
+    }
+
     private record EncodedAsset(String hash, long size, Path path) {
     }
 
@@ -426,6 +458,8 @@ public final class SceneAssetServer {
         private volatile String dirtyReason = "";
         private volatile boolean publishing;
         private volatile long publishedAt;
+        private volatile long publishStartedAt;
+        private volatile int lastLoggedProgress = -1;
         private volatile CaptureJob captureJob;
         private volatile String transientHash = "";
         private volatile byte[] transientBytes;

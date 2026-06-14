@@ -127,6 +127,16 @@ public final class SceneCommand {
                                 .then(Commands.literal("force")
                                         .executes(context -> publish(context.getSource(),
                                                 StringArgumentType.getString(context, "map"), true)))))
+                .then(Commands.literal("publish-save")
+                        .requires(source -> source.hasPermission(3))
+                        .then(Commands.argument("id", StringArgumentType.string())
+                                .executes(context -> publishAndSave(
+                                        context.getSource(),
+                                        StringArgumentType.getString(context, "id"), false))
+                                .then(Commands.literal("force")
+                                        .executes(context -> publishAndSave(
+                                                context.getSource(),
+                                                StringArgumentType.getString(context, "id"), true)))))
                 .then(Commands.literal("invalidate")
                         .requires(source -> source.hasPermission(3))
                         .executes(context -> invalidate(context.getSource()))
@@ -465,18 +475,52 @@ public final class SceneCommand {
             source.sendFailure(Component.literal("当前地图没有 mapName"));
             return 0;
         }
-        source.sendSuccess(() -> Component.literal("正在捕获并发布场景资产..."), false);
-        SceneAssetServer.publish(source.getLevel(), mapName, force).thenAccept(result ->
+        source.sendSuccess(() -> Component.translatable("sre.scene.publish.start"), false);
+        SceneAssetServer.publish(source.getLevel(), mapName, force).whenComplete((result, error) ->
                 source.getServer().execute(() -> {
+                    if (error != null) {
+                        source.sendFailure(Component.translatable(
+                                "sre.scene.publish.failed", rootMessage(error)));
+                        return;
+                    }
                     if (result.success()) {
-                        source.sendSuccess(() -> Component.literal(String.format(
-                                "场景发布完成: %s (%.1f MiB)", shortHash(result.hash()),
-                                result.size() / 1048576.0D)), true);
+                        source.sendSuccess(() -> Component.translatable(
+                                "sre.scene.publish.complete", shortHash(result.hash()),
+                                String.format(java.util.Locale.ROOT, "%.1f", result.size() / 1048576.0D)), true);
+                    } else if ("场景资产正在发布".equals(result.message())) {
+                        source.sendFailure(Component.translatable("sre.scene.publish.busy"));
                     } else {
                         source.sendFailure(Component.literal(result.message()));
                     }
                 }));
         return 1;
+    }
+
+    private static int publishAndSave(CommandSourceStack source, String sceneId, boolean force) {
+        ServerLevel level = source.getLevel();
+        AreasWorldComponent areas = AreasWorldComponent.KEY.get(level);
+        String mapName = currentMap(source);
+        if (mapName == null || mapName.isBlank()) {
+            source.sendFailure(Component.literal("请先载入或保存一张地图"));
+            return 0;
+        }
+
+        SceneLibrary.Result saved = SceneLibrary.saveCurrent(level, sceneId, true);
+        if (!saved.success()) {
+            source.sendFailure(Component.literal(saved.message()));
+            return 0;
+        }
+        try {
+            MapManager.updateMapSceneReference(level, mapName, saved.id());
+        } catch (Exception e) {
+            source.sendFailure(Component.literal("场景已保存，但写入地图引用失败: " + e.getMessage()));
+            return 0;
+        }
+
+        areas.sync();
+        source.sendSuccess(() -> Component.translatable(
+                "sre.scene.publish.saved", saved.id(), mapName), false);
+        return publish(source, mapName, force);
     }
 
     private static int invalidate(CommandSourceStack source) {
@@ -492,5 +536,13 @@ public final class SceneCommand {
 
     private static String shortHash(String hash) {
         return hash == null || hash.isBlank() ? "-" : hash.substring(0, Math.min(12, hash.length()));
+    }
+
+    private static String rootMessage(Throwable error) {
+        Throwable current = error;
+        while (current.getCause() != null) {
+            current = current.getCause();
+        }
+        return current.getMessage() == null ? current.getClass().getSimpleName() : current.getMessage();
     }
 }

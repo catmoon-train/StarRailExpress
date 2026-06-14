@@ -407,7 +407,15 @@ public class MapBuildHelperScreen extends Screen {
                 b -> sendOnly("sre:scene preview refresh"))
                 .bounds(left, row8, bw, bh).accentBar(AccentSide.LEFT).build());
         addTabWidget(tabWidgets5, ModernButton.builder(Component.literal("6. 一键发布并保存"),
-                b -> sendOnly("sre:scene publish"))
+                b -> {
+                    String id = sceneIdBox.getValue().trim();
+                    if (!id.isEmpty()) {
+                        sendOnly("sre:scene publish-save " + quoteCommandArgument(id) + " force");
+                    } else if (minecraft != null && minecraft.player != null) {
+                        minecraft.player.displayClientMessage(
+                                Component.translatable("sre.scene.publish.missing_id"), false);
+                    }
+                })
                 .bounds(right, row8, bw, bh).accentBar(AccentSide.RIGHT).build());
     }
 
