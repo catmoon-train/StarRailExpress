@@ -49,7 +49,7 @@ public abstract class LockableButtonBlock extends ButtonBlock
     public LockableButtonBlock(Supplier<BlockEntityType<LockableButtonBlockEntity>> typeSupplier, Properties settings) {
 
         super(BlockSetType.IRON, 20, settings);
-        this.registerDefaultState(super.defaultBlockState().setValue(ACTIVE, true));
+        this.registerDefaultState(super.defaultBlockState().setValue(ACTIVE, true).setValue(WATERLOGGED, false));
         this.typeSupplier = typeSupplier;
 
     }
