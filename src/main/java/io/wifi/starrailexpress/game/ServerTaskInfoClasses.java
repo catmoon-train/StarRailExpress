@@ -314,7 +314,6 @@ public class ServerTaskInfoClasses {
                         }
                         entity.setKeyName(keyName);
                         blockState = blockState.setValue(LockableButtonBlock.POWERED, false);
-                        blockState = blockState.setValue(LockableButtonBlock.ACTIVE, true);
                         BlockEntityInfo blockEntityInfo = new BlockEntityInfo(
                                 entity.saveCustomOnly(serverWorld.registryAccess()),
                                 entity.components());
