@@ -32,8 +32,7 @@ public class StartCommand {
                         GameModeArgumentType.getGameModeArgument(context, "gameMode"),
                         IntegerArgumentType.getInteger(context, "startTimeInMinutes"),
                         false)))
-                // tmm:start <gameMode> forceAll [startTimeInMinutes] — 强制所有参与玩家加入
-                .then(Commands.literal("forceAll")
+                .then(Commands.literal("force_all_players")
                     .then(Commands.argument("startTimeInMinutes", IntegerArgumentType.integer(1))
                         .executes(context -> execute(context.getSource(),
                             GameModeArgumentType.getGameModeArgument(context, "gameMode"),
