@@ -43,7 +43,12 @@ public final class ScenePreviewRenderer {
     }
 
     public static void rebuild(List<SceneAssetClient.PreviewBlock> blocks, AABB sourceArea) {
-        release();
+        if (!RenderSystem.isOnRenderThread()) {
+            List<SceneAssetClient.PreviewBlock> snapshot = List.copyOf(blocks);
+            RenderSystem.recordRenderCall(() -> rebuild(snapshot, sourceArea));
+            return;
+        }
+        releaseOnRenderThread();
         if (blocks.isEmpty()) {
             return;
         }
@@ -89,6 +94,15 @@ public final class ScenePreviewRenderer {
     }
 
     public static void release() {
+        if (!RenderSystem.isOnRenderThread()) {
+            RenderSystem.recordRenderCall(ScenePreviewRenderer::releaseOnRenderThread);
+            return;
+        }
+        releaseOnRenderThread();
+    }
+
+    private static void releaseOnRenderThread() {
+        RenderSystem.assertOnRenderThread();
         for (PreviewMesh mesh : projectionMeshes) {
             mesh.vbo().close();
         }

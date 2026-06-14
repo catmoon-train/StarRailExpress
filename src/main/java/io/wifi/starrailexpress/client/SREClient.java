@@ -586,17 +586,18 @@ public class SREClient implements ClientModInitializer {
                 }));
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> FourthRoomClientState.clear());
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> FourthRoomCameraDirector.clear());
-        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
-            FourthRoomClientState.clear();
-            FourthRoomCameraDirector.clear();
-            ClientSkincrawlerState.clearAll();
-            net.exmo.sre.subtitle.client.SubtitleHUD.INSTANCE.clear();
-            SceneAssetClient.clearRuntime();
-            // 清理自定义职业客户端缓存
-            io.wifi.starrailexpress.client.network.CustomRoleClientNetwork.clearCache();
-            // 清理 OpenAL 语音特效资源
-            org.agmas.noellesroles.voice.VoiceEffectsOpenALPlugin.cleanupAll();
-        });
+        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) ->
+                client.execute(() -> {
+                    FourthRoomClientState.clear();
+                    FourthRoomCameraDirector.clear();
+                    ClientSkincrawlerState.clearAll();
+                    net.exmo.sre.subtitle.client.SubtitleHUD.INSTANCE.clear();
+                    SceneAssetClient.clearRuntime();
+                    // 清理自定义职业客户端缓存
+                    io.wifi.starrailexpress.client.network.CustomRoleClientNetwork.clearCache();
+                    // 清理 OpenAL 语音特效资源
+                    org.agmas.noellesroles.voice.VoiceEffectsOpenALPlugin.cleanupAll();
+                }));
         TriggerScreenEdgeEffectPayload.registerReceiver();
         RemoveStatusBarPayload.registerReceiver();
         TriggerStatusBarPayload.registerReceiver();

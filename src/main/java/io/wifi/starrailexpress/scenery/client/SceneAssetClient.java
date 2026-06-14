@@ -263,6 +263,11 @@ public final class SceneAssetClient {
     }
 
     public static void clearRuntime() {
+        Minecraft client = Minecraft.getInstance();
+        if (!client.isSameThread()) {
+            client.execute(SceneAssetClient::clearRuntime);
+            return;
+        }
         downloadGeneration++;
         downloadingHash = "";
         downloadSize = 0L;
