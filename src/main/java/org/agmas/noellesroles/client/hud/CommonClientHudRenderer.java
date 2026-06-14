@@ -1566,6 +1566,13 @@ public class CommonClientHudRenderer {
         var countdownText = Component.translatable("hud.creeper.countdown", secondsLeft)
             .withStyle(ChatFormatting.RED);
         guiGraphics.drawString(font, countdownText, xOffset - font.width(countdownText), yOffset, Color.WHITE.getRGB());
+
+        // 显示立即引爆提示
+        var abilityKey = NoellesrolesClient.abilityBind.getTranslatedKeyMessage();
+        var instantText = Component.translatable("hud.creeper.instant_detonate", abilityKey)
+            .withStyle(ChatFormatting.GOLD);
+        int line2Y = yOffset + font.lineHeight + 2;
+        guiGraphics.drawString(font, instantText, xOffset - font.width(instantText), line2Y, Color.WHITE.getRGB());
       } else {
         // 显示技能提示
         var abilityKey = NoellesrolesClient.abilityBind.getTranslatedKeyMessage();

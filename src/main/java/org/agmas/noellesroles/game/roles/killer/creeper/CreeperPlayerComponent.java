@@ -23,7 +23,8 @@ import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 /**
  * 苦力怕组件
  *
- * 技能：按下技能键花费300金币引燃自身，10s后爆炸
+ * 技能：按下技能键花费300金币引燃自身，6s后爆炸，将自己和范围5格内的玩家炸死。
+ * 引燃后再次按下技能键可花费75金币立即引爆，且爆炸范围扩大1格（半径6格）。
  */
 public class CreeperPlayerComponent implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
 
@@ -31,11 +32,6 @@ public class CreeperPlayerComponent implements RoleComponent, ServerTickingCompo
     public static final ComponentKey<CreeperPlayerComponent> KEY = ModComponents.CREEPER;
 
     // ==================== 状态变量 ====================
-
-    // @Override
-    // public boolean shouldSyncWith(ServerPlayer nosync) {
-    // return false;
-    // }
 
     private final Player player;
 
@@ -45,8 +41,20 @@ public class CreeperPlayerComponent implements RoleComponent, ServerTickingCompo
     /** 引燃剩余时间（tick） */
     public int igniteTimeLeft = 0;
 
+    /** 是否为立即引爆（扩大范围） */
+    private boolean instantDetonate = false;
+
     /** 爆炸倒计时（秒） */
     private static final int EXPLODE_TIME = 6 * 20; // 6秒
+
+    /** 普通爆炸半径 */
+    private static final float NORMAL_RADIUS = 5.0F;
+    /** 立即引爆半径（+1格） */
+    private static final float INSTANT_RADIUS = 6.0F;
+    /** 立即引爆花费 */
+    private static final int INSTANT_DETONATE_COST = 75;
+    /** 引燃花费 */
+    private static final int IGNITE_COST = 300;
 
     @Override
     public Player getPlayer() {
@@ -67,6 +75,7 @@ public class CreeperPlayerComponent implements RoleComponent, ServerTickingCompo
     public void init() {
         this.ignited = false;
         this.igniteTimeLeft = 0;
+        this.instantDetonate = false;
         this.sync();
     }
 
@@ -81,6 +90,7 @@ public class CreeperPlayerComponent implements RoleComponent, ServerTickingCompo
     public void clearAll() {
         this.ignited = false;
         this.igniteTimeLeft = 0;
+        this.instantDetonate = false;
         this.sync();
     }
 
@@ -93,33 +103,57 @@ public class CreeperPlayerComponent implements RoleComponent, ServerTickingCompo
     }
 
     /**
-     * 引燃自身
+     * 引燃自身 / 立即引爆
+     * - 未引燃时：花费300金币引燃，6s后爆炸
+     * - 已引燃时：花费75金币立即引爆，范围+1格
      */
     public boolean ignite() {
-        if (ignited || !(player instanceof ServerPlayer))
+        if (!(player instanceof ServerPlayer))
             return false;
 
-        // 死亡或旁观者状态下不允许引燃
+        // 死亡或旁观者状态下不允许
         if (!GameUtils.isPlayerAliveAndSurvival(player))
             return false;
 
+        // 已引燃 → 尝试立即引爆
+        if (ignited) {
+            return tryInstantDetonate();
+        }
+
         // 检查金币
         var shopComponent = io.wifi.starrailexpress.cca.SREPlayerShopComponent.KEY.get(player);
-        if (shopComponent.balance < 300)
+        if (shopComponent.balance < IGNITE_COST)
             return false;
 
         // 扣金币
-        shopComponent.addToBalance(-300);
+        shopComponent.addToBalance(-IGNITE_COST);
 
         // 引燃
         ignited = true;
         igniteTimeLeft = EXPLODE_TIME;
+        instantDetonate = false;
 
         // 播放苦力怕引燃声音
         player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
                 SoundEvents.CREEPER_PRIMED, SoundSource.MASTER, 2.0F, 1.0F);
 
-        // this.sync();
+        return true;
+    }
+
+    /**
+     * 立即引爆（需已引燃状态）
+     */
+    private boolean tryInstantDetonate() {
+        var shopComponent = io.wifi.starrailexpress.cca.SREPlayerShopComponent.KEY.get(player);
+        if (shopComponent.balance < INSTANT_DETONATE_COST)
+            return false;
+
+        // 扣金币
+        shopComponent.addToBalance(-INSTANT_DETONATE_COST);
+
+        // 标记为立即引爆
+        instantDetonate = true;
+        explode();
         return true;
     }
 
@@ -135,7 +169,7 @@ public class CreeperPlayerComponent implements RoleComponent, ServerTickingCompo
         }
 
         Vec3 pos = player.position();
-        float radius = 5.0F;
+        float radius = instantDetonate ? INSTANT_RADIUS : NORMAL_RADIUS;
 
         // 伤害玩家（跳过旁观者）
         for (Player target : player.level().players()) {
@@ -197,6 +231,7 @@ public class CreeperPlayerComponent implements RoleComponent, ServerTickingCompo
             // 如果玩家在引燃期间死亡，则取消即将发生的爆炸
             if (!GameUtils.isPlayerAliveAndSurvival(player)) {
                 ignited = false;
+                instantDetonate = false;
                 this.sync();
                 return;
             }
@@ -205,6 +240,7 @@ public class CreeperPlayerComponent implements RoleComponent, ServerTickingCompo
             if (igniteTimeLeft <= 0) {
                 explode();
                 ignited = false;
+                instantDetonate = false;
                 this.sync();
             }
         }
