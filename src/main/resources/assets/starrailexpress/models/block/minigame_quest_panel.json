@@ -1,0 +1,6 @@
+{
+  "parent": "block/cube_all",
+  "textures": {
+    "all": "starrailexpress:item/minigame_quest_panel"
+  }
+}

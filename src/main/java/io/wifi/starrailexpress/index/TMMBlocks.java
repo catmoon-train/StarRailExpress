@@ -707,6 +707,28 @@ public interface TMMBlocks {
             new BlockItem(ENTITY_INTERACTION_PANEL, new Item.Properties().rarity(Rarity.EPIC)),
             new net.minecraft.resources.ResourceKey[] { CreativeModeTabs.OP_BLOCKS });
 
+    // 小游戏任务点方块
+    Block MINIGAME_QUEST_BLOCK = sreBlockRegistrar.create("minigame_quest_block",
+            new MinigameQuestBlock(BlockBehaviour.Properties.of()
+                    .strength(-1.0F, 3600000.8F)
+                    .noOcclusion()
+                    .noCollission()
+                    .sound(SoundType.STONE)));
+    Item MINIGAME_QUEST_BLOCK_ITEM = sreItemRegistrar.create("minigame_quest_block",
+            new BlockItem(MINIGAME_QUEST_BLOCK, new Item.Properties().rarity(Rarity.EPIC)),
+            new net.minecraft.resources.ResourceKey[] { CreativeModeTabs.OP_BLOCKS });
+
+    // 小游戏任务点镶板
+    Block MINIGAME_QUEST_PANEL = sreBlockRegistrar.create("minigame_quest_panel",
+            new MinigameQuestPanelBlock(BlockBehaviour.Properties.of()
+                    .strength(-1.0F, 3600000.8F)
+                    .noOcclusion()
+                    .noCollission()
+                    .sound(SoundType.STONE)));
+    Item MINIGAME_QUEST_PANEL_ITEM = sreItemRegistrar.create("minigame_quest_panel",
+            new BlockItem(MINIGAME_QUEST_PANEL, new Item.Properties().rarity(Rarity.EPIC)),
+            new net.minecraft.resources.ResourceKey[] { CreativeModeTabs.OP_BLOCKS });
+
     private static Block createBranch(String name, Block wood, BlockRegistrar registrar) {
         return registrar.createWithItem(name,
                 new BranchBlock(
