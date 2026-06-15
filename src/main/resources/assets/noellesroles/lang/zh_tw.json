@@ -1018,6 +1018,7 @@
   "message.noellesroles.admirer.transform": "你的愛意逐漸扭曲！！！",
   "==================== 按鍵綁定 ====================": "",
   "key.noellesroles.ability": "使用技能",
+  "key.noellesroles.next_ability": "切換技能",
   "key.noellesroles.guess_role_note": "身份猜測筆記",
   "key.noellesroles.role_intro": "職業介紹",
   "key.noellesroles.taskinstinct": "任務點直覺",

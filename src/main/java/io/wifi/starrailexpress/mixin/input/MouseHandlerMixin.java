@@ -92,27 +92,6 @@ public class MouseHandlerMixin {
                         ci.cancel(); // 取消默认的攻击行为
                     }
                 }
-            } else {
-                // 左键：装填子弹
-                // 检查子弹数量
-                int currentAmmo = SniperRifleItem.getAmmoCount(mainHandStack);
-                if (currentAmmo < SniperRifleItem.MAX_AMMO) {
-                    // 检查是否有子弹
-                    boolean hasBullet = false;
-                    for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
-                        ItemStack invStack = player.getInventory().getItem(i);
-                        if (invStack.is(TMMItems.MAGNUM_BULLET)) {
-                            hasBullet = true;
-                            break;
-                        }
-                    }
-                    if (hasBullet) {
-                        // 发送装填请求
-                        ClientPlayNetworking.send(new SniperShootPayload(SniperShootPayload.Action.RELOAD, player.getId()));
-                        player.getCooldowns().addCooldown(TMMItems.SNIPER_RIFLE, 100); // 5秒冷却
-                        ci.cancel(); // 取消默认的攻击行为
-                    }
-                }
             }
         }
     }

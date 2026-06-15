@@ -2177,10 +2177,10 @@ public class RoleShopHandler {
         125,
         ShopEntry.Type.WEAPON));
 
-    // 瞄准镜 - 100金币
+    // 瞄准镜 - 25金币
     SWAST_SHOP.add(new ShopEntry(
         TMMItems.SCOPE.getDefaultInstance(),
-        100,
+        25,
         ShopEntry.Type.WEAPON));
 
     // 铁门钥匙 - 75金币
