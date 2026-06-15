@@ -283,6 +283,9 @@ public class MapManager {
         // 保存天气循环配置
         jsonObject.addProperty("weatherCycle", areas.weatherCycle);
 
+        // 保存地图初始物品
+        jsonObject.add("initialItems", gson.toJsonTree(areas.initialItems));
+
         // 写入文件
         Path temp = mapConfigPath.resolveSibling(mapConfigPath.getFileName() + ".save.tmp");
         Files.writeString(temp, prettyGson.toJson(jsonObject), StandardCharsets.UTF_8);
@@ -454,6 +457,18 @@ public class MapManager {
                 SRE.LOGGER.info("Loaded weatherCycle: " + areas.weatherCycle);
             } else {
                 areas.weatherCycle = false;
+            }
+
+            // 加载地图初始物品配置
+            areas.initialItems = new java.util.ArrayList<>();
+            if (jsonObject.has("initialItems")) {
+                var iiElement = jsonObject.get("initialItems");
+                if (iiElement.isJsonArray()) {
+                    for (var e : iiElement.getAsJsonArray()) {
+                        areas.initialItems.add(e.getAsString());
+                    }
+                }
+                SRE.LOGGER.info("Loaded initialItems: " + areas.initialItems);
             }
 
             // 应用配置到AreasWorldComponent，使用新的嵌套结构

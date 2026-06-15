@@ -387,10 +387,46 @@ public class GameUtils {
 
         gameComponent.getGameMode().gameStarted(serverWorld, gameComponent, readyPlayerList);
 
+        // 发放地图初始物品
+        distributeMapInitialItems(serverWorld, readyPlayerList);
+
         OnGameStarted.EVENT.invoker().onGameStarted(serverWorld);
         // --- 结束新增统计数据更新逻辑 ---
         OnTrainAreaHaveReseted.EVENT.invoker().onWorldHaveInited(serverWorld);
         isGameStarted = true;
+    }
+
+    /**
+     * 分发地图初始物品给所有玩家
+     * 格式：initialItems 列表中每个元素为 "itemId;count"
+     */
+    private static void distributeMapInitialItems(ServerLevel serverWorld, List<ServerPlayer> players) {
+        AreasWorldComponent areas = AreasWorldComponent.KEY.get(serverWorld);
+        if (areas.initialItems.isEmpty()) {
+            return;
+        }
+        for (String entry : areas.initialItems) {
+            String[] parts = entry.split(";");
+            if (parts.length < 2) continue;
+            String itemId = parts[0];
+            int count;
+            try {
+                count = Integer.parseInt(parts[1]);
+            } catch (NumberFormatException e) {
+                continue;
+            }
+            if (count <= 0) continue;
+
+            ResourceLocation itemLocation = ResourceLocation.tryParse(itemId);
+            if (itemLocation == null) continue;
+            Item item = BuiltInRegistries.ITEM.get(itemLocation);
+            if (item == Items.AIR) continue;
+
+            for (ServerPlayer player : players) {
+                player.addItem(new ItemStack(item, count));
+            }
+            SRE.LOGGER.info("Distributed map initial item: " + itemId + " x" + count + " to " + players.size() + " players");
+        }
     }
 
     public static List<Item> cooldownItems = new ArrayList<>();
