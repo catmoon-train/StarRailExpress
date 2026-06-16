@@ -28,6 +28,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 
 import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
+import org.agmas.noellesroles.config.NoellesRolesConfig.SpawnInfo;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.Nullable;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
@@ -45,6 +46,7 @@ import java.util.function.ToIntFunction;
 public abstract class SRERole extends SREAbstractInfoClass {
     protected final Random random = new Random();
     private ResourceLocation identifier;
+    private boolean canAutoSetMax = true;
     private boolean canSeeCoin = true;
     private boolean canSeeBodyItems = false;
     private boolean canGetBodyItems = false;
@@ -54,11 +56,16 @@ public abstract class SRERole extends SREAbstractInfoClass {
     private boolean canUseInstinct = false;
     private boolean canIgnoreBlackout = false;
     private boolean mafiaTeam = false;
-    public int maxCount = -1;
-    public int enableChance = -1;
-    public int enableRareChance = -1;
-    public int enableNeedPlayerCount = -1;
-    public int defaultEnableRareChance = 10000;
+    /**
+     * -1
+     * 表示不设置。将不会调整普通刷新最大数量。与canAutoSetMax设置为false不同的是，此不会覆盖SpawnInfo。而canAutoSetMax将会覆盖SpawnInfo来达到配置项起作用。
+     */
+    public int maxCount = 1;
+    public SpawnInfo spawnInfo = new SpawnInfo(-1, -1, -1);
+    /**
+     * 1 / 10000
+     */
+    public int defaultEnableChance = -1;
     public int defaultEnableNeedPlayerCount = -1;
     public int defaultEnableMaxPlayerCount = -1;
     private int occupiedRoleCount = 1;
@@ -83,6 +90,18 @@ public abstract class SRERole extends SREAbstractInfoClass {
             return Color.green.getRGB();
         } else
             return Color.PINK.getRGB();
+    }
+
+    /**
+     * canAutoSetMax为true将会覆盖SpawnInfo来达到配置项起作用。
+     */
+    public SRERole setAutoSetMax(boolean flag) {
+        this.canAutoSetMax = flag;
+        return this;
+    }
+
+    public boolean canAutoSetMax() {
+        return this.canAutoSetMax;
     }
 
     public boolean canBeRandomed() {
@@ -724,28 +743,39 @@ public abstract class SRERole extends SREAbstractInfoClass {
      * @return
      */
     public int getRoundMaxCount(ServerLevel serverLevel, SREGameWorldComponent gameWorldComponent,
-            List<ServerPlayer> players) {
-        if (this.enableNeedPlayerCount >= 0) {
+            List<ServerPlayer> players, String mapName) {
+        if (maxCount == -1)
+            return -1;
+        if (this.spawnInfo.minEnabledPlayer >= 0) {
             int playerCount = players.size();
-            if (playerCount < this.enableNeedPlayerCount) {
+            if (playerCount < this.spawnInfo.minEnabledPlayer) {
                 return 0;
             }
         }
-        if (this.enableChance >= 0) {
-            int nchance = random.nextInt(0, 100);
-            if (nchance > enableChance) {
+        if (this.spawnInfo.maxEnabledPlayer >= 0) {
+            int playerCount = players.size();
+            if (playerCount > this.spawnInfo.maxEnabledPlayer) {
                 return 0;
             }
         }
-        if (this.enableRareChance >= 0) {
+        if (this.spawnInfo.enableChance >= 0) {
             int nchance = random.nextInt(0, 10000);
-            if (nchance > enableRareChance) {
+            if (nchance > this.spawnInfo.enableChance) {
+                return 0;
+            }
+        }
+        if (!this.spawnInfo.map.isEmpty()) {
+            if (!this.spawnInfo.map.contains(mapName)) {
                 return 0;
             }
         }
         return this.maxCount;
     }
 
+    /**
+     * -1
+     * 表示不设置。将不会调整普通刷新最大数量。与canAutoSetMax设置为false不同的是，此不会覆盖SpawnInfo。而canAutoSetMax将会覆盖SpawnInfo来达到配置项起作用。
+     */
     public SRERole setMax(int count) {
         maxCount = count;
         return this;
@@ -772,6 +802,11 @@ public abstract class SRERole extends SREAbstractInfoClass {
         return this;
     };
 
+    public SRERole setSpawnInfo(SpawnInfo spinfo) {
+        this.spawnInfo = spinfo;
+        return this;
+    }
+
     /**
      * 1 = 1/10000
      * 
@@ -779,45 +814,9 @@ public abstract class SRERole extends SREAbstractInfoClass {
      * @return
      */
     public SRERole setDefaultEnableChance(int count) {
-        defaultEnableRareChance = count;
+        defaultEnableChance = count;
         return this;
     };
-
-    public SRERole setEnableNeededPlayerCount(int count) {
-        enableNeedPlayerCount = count;
-        return this;
-    };
-
-    /**
-     * 启用概率（%）
-     * 
-     * @param chance
-     * @return
-     */
-    public SRERole setEnableChance(int chance) {
-        enableChance = chance;
-        return this;
-    }
-
-    /**
-     * 小概率启用（基于10000的概率）
-     * 
-     * @param chance 概率值（0-10000），例如10表示0.1%
-     * @return
-     */
-    public SRERole setEnableRareChance(int chance) {
-        enableRareChance = chance;
-        return this;
-    }
-
-    /**
-     * 获取小概率启用值
-     * 
-     * @return
-     */
-    public int getEnableRareChance() {
-        return enableRareChance;
-    }
 
     /**
      * 给予疯魔物品

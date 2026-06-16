@@ -191,10 +191,6 @@ public class SEModifiers {
         SPLIT_PERSONALITY.civilianOnly = true;
         VIGOROUS.civilianOnly = true;
 
-        // 黑白修饰符配置（从 NoellesRolesConfig 读取）
-        org.agmas.noellesroles.config.NoellesRolesConfig config = org.agmas.noellesroles.config.NoellesRolesConfig.HANDLER.instance();
-        BLACK_WHITE.setEnableChance(config.chanceOfBlackWhite).setEnableNeededPlayerCount(config.minPlayerForBlackWhite);
-
         assignModifierComponents();
         pro.fazeclan.river.stupid_express.modifier.magnate.MagnatePassiveIncomeHandler.init();
         pro.fazeclan.river.stupid_express.modifier.cursed.CursedHandler.init();

@@ -237,7 +237,7 @@
   "text.autoconfig.noellesroles.option.maChenXuMaps": "会刷新布袋鬼的地图",
   "text.autoconfig.noellesroles.option.swastMaps": "会刷新特警的地图",
   "text.autoconfig.noellesroles.option.underwaterRolesMaps": "会刷新水下角色的地图（如海王、潜水员、水鬼）",
-  "text.autoconfig.noellesroles.option.konggangMaps": "会刷新飞行角色的地图（如飞行员、影隼）",
+  "text.autoconfig.noellesroles.option.airRolesMaps": "会刷新飞行角色的地图（如飞行员、影隼）",
   "text.autoconfig.noellesroles.option.cuckooMaps": "布谷鸟专属地图（空则不限制，填了则仅在指定地图刷新）",
   "text.autoconfig.noellesroles.option.ghostMaps": "小透明专属地图（空则不限制，填了则仅在指定地图刷新）",
   "text.autoconfig.noellesroles.option.chanceOfTouhouRoles": "东方职业（彩蛋）刷新概率",

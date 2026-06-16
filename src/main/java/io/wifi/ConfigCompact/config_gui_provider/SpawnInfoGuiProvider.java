@@ -65,6 +65,9 @@ public class SpawnInfoGuiProvider {
 
         if (currentObj == null) {
             currentObj = new RoleSpawnInfoEntries();
+            if (defaultObj != null) {
+                currentObj = defaultObj;
+            }
             setFieldValue(field, config, currentObj);
         }
         if (defaultObj == null) {

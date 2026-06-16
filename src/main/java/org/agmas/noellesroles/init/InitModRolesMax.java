@@ -5,6 +5,7 @@ import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.SREConfig.AutoPresetInfo;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
 import net.minecraft.resources.ResourceLocation;
@@ -17,6 +18,7 @@ import org.agmas.harpymodloader.modifiers.HMLModifiers;
 import org.agmas.harpymodloader.modifiers.SREModifier;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
+import org.agmas.noellesroles.config.NoellesRolesConfig.SpawnInfo;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.RedHouseRoles;
 import org.agmas.noellesroles.role.TraitorAndModifiers;
@@ -103,12 +105,6 @@ public class InitModRolesMax {
         Harpymodloader.setRoleMaximum(ModRoles.LOCKSMITH_ID, 0);
         Harpymodloader.setRoleMaximum(ModRoles.MA_CHEN_XU, 0);
         Harpymodloader.setRoleMaximum(ModRoles.GUEST_GHOST, 0);
-
-        Harpymodloader.setOccupationRole(ModRoles.ENGINEER, ModRoles.LOCKSMITH);
-        Harpymodloader.setOccupationRole(RedHouseRoles.FURANDORU, RedHouseRoles.PACHURI);
-        Harpymodloader.setOccupationRole(ModRoles.MA_CHEN_XU, ModRoles.GUEST_GHOST);
-        Harpymodloader.setOccupationRole(ModRoles.GANGSTERS, ModRoles.FITTER);
-
         // 拳击手每局只能有 1 个
         Harpymodloader.setRoleMaximum(ModRoles.BOXER_ID, 1);
 
@@ -241,6 +237,11 @@ public class InitModRolesMax {
         Harpymodloader.setRoleMaximum(ModRoles.CORONER_ID, 1);
 
         // 同时出现
+        Harpymodloader.setOccupationRole(ModRoles.ENGINEER, ModRoles.LOCKSMITH);
+        Harpymodloader.setOccupationRole(RedHouseRoles.FURANDORU, RedHouseRoles.PACHURI);
+        Harpymodloader.setOccupationRole(ModRoles.MA_CHEN_XU, ModRoles.GUEST_GHOST);
+        Harpymodloader.setOccupationRole(ModRoles.GANGSTERS, ModRoles.FITTER);
+
         RoleAssignmentManager.addOccupationRole(ModRoles.POISONER, ModRoles.DOCTOR);
         RoleAssignmentManager.addOccupationRole(ModRoles.INFECTED, ModRoles.DOCTOR);
         RoleAssignmentManager.addOccupationRole(RedHouseRoles.BAKA, ModRoles.EXAMPLER);
@@ -354,7 +355,7 @@ public class InitModRolesMax {
                 // 杀手中立（只处理没有配置的职业：无概率 且 无显式 setMax）
                 var neutralRoles = new ArrayList<SRERole>(TMMRoles.ROLES.values());
                 neutralRoles.removeIf((r) -> {
-                    if (r.isNeutrals() && r.isNeutralForKiller() && r.enableChance < 0 && r.maxCount <= 0)
+                    if (r.isNeutrals() && r.isNeutralForKiller() && (r.spawnInfo.enableChance < 0) && r.maxCount <= 0)
                         return false;
                     return true;
                 });
@@ -367,7 +368,7 @@ public class InitModRolesMax {
                 // 减去已有配置的职业数，避免超额分配
                 neutralForKillers -= (int) TMMRoles.ROLES.values().stream()
                         .filter(r -> r.isNeutrals() && r.isNeutralForKiller()
-                                && (r.enableChance >= 0 || r.maxCount > 0))
+                                && (r.spawnInfo.enableChance >= 0 || r.maxCount > 0))
                         .count();
                 neutralForKillers = Math.max(0, neutralForKillers);
                 for (int i = 0; i < neutralForKillers && i < neutralRoles.size(); i++) {
@@ -657,7 +658,7 @@ public class InitModRolesMax {
             // 飞行员和影隼（空港角色）- 仅在空港地图必定生成
             {
                 boolean isKonggangMap = false;
-                var konggangMaps = new ArrayList<>(NoellesRolesConfig.HANDLER.instance().konggangMaps);
+                var konggangMaps = new ArrayList<>(NoellesRolesConfig.HANDLER.instance().airRolesMaps);
                 if (konggangMaps != null && konggangMaps.size() > 0) {
                     isKonggangMap = konggangMaps.contains(currentMap);
                 }
@@ -669,24 +670,7 @@ public class InitModRolesMax {
                     Harpymodloader.setRoleMaximum(ModRoles.SHADOW_FALCON_ID, 0);
                 }
             }
-            // 布谷鸟地图限制 - 默认在所有地图刷新，只有cuckooMaps中配置了地图时才仅在特定地图刷新
-            {
-                var cuckooMaps = new ArrayList<>(NoellesRolesConfig.HANDLER.instance().cuckooMaps);
-                if (cuckooMaps != null && cuckooMaps.size() > 0) {
-                    if (!cuckooMaps.contains(currentMap)) {
-                        Harpymodloader.setRoleMaximum(ModRoles.CUCKOO_ID, 0);
-                    }
-                }
-            }
-            // 小透明地图限制 - 默认在所有地图刷新，只有ghostMaps中配置了地图时才仅在特定地图刷新
-            {
-                var ghostMaps = new ArrayList<>(NoellesRolesConfig.HANDLER.instance().ghostMaps);
-                if (ghostMaps != null && ghostMaps.size() > 0) {
-                    if (!ghostMaps.contains(currentMap)) {
-                        Harpymodloader.setRoleMaximum(ModRoles.GHOST_ID, 0);
-                    }
-                }
-            }
+
             // WRITER (作家) - 从配置读取概率
             if (random.nextInt(0, 100) <= config.chanceOfWriter) {
                 Harpymodloader.setRoleMaximum(ModRoles.WRITER_ID, 1);
@@ -712,10 +696,12 @@ public class InitModRolesMax {
 
     private static void autoRoleMaxCount(ServerLevel serverLevel, SREGameWorldComponent gameWorldComponent,
             List<ServerPlayer> players) {
+        var areacca = AreasWorldComponent.KEY.get(serverLevel);
+        var mapName = areacca.mapName;
         for (var roleInfo : TMMRoles.ROLES.entrySet()) {
             ResourceLocation name = roleInfo.getKey();
             SRERole role = roleInfo.getValue();
-            int count = role.getRoundMaxCount(serverLevel, gameWorldComponent, players);
+            int count = role.getRoundMaxCount(serverLevel, gameWorldComponent, players, mapName);
             if (count >= 0) {
                 Harpymodloader.setRoleMaximum(name, count);
             }
@@ -724,8 +710,11 @@ public class InitModRolesMax {
 
     private static void autoModifierMaxCount(ServerLevel serverLevel, SREGameWorldComponent gameWorldComponent,
             List<ServerPlayer> players) {
+
+        var areacca = AreasWorldComponent.KEY.get(serverLevel);
+        var mapName = areacca.mapName;
         for (SREModifier modifier : HMLModifiers.MODIFIERS) {
-            int count = modifier.getRoundMaxCount(serverLevel, gameWorldComponent, players);
+            int count = modifier.getRoundMaxCount(serverLevel, gameWorldComponent, players, mapName);
             if (count >= 0) {
                 Harpymodloader.MODIFIER_MAX.put(modifier.identifier(), count);
             }
@@ -738,66 +727,74 @@ public class InitModRolesMax {
     private static void applyRoleChanceFromConfig() {
         NoellesRolesConfig config = NoellesRolesConfig.HANDLER.instance();
 
-        // 建筑师 - 从配置读取概率和最小玩家数
-        ModRoles.BUILDER.setEnableChance(config.chanceOfBuilder).setEnableNeededPlayerCount(config.minPlayerForBuilder);
+        for (var entry : TMMRoles.ROLES.entrySet()) {
+            SpawnInfo spinfo = config.roleDetails.getSpawnInfo(entry.getValue());
+            if (entry.getValue().canAutoSetMax())
+                entry.getValue().setSpawnInfo(spinfo);
+        }
+        // 以下内容均已统一成新API。（上方）可分别对任何角色进行控制。也可以设置角色不受到控制影响。
+        {
+            // // 建筑师 - 从配置读取概率和最小玩家数
+            // ModRoles.BUILDER.setEnableChance(config.chanceOfBuilder).setEnableNeededPlayerCount(config.minPlayerForBuilder);
 
-        // 肉汁 - 25%概率
-        ModRoles.MEATBALL.setEnableChance(config.chanceOfMeatball)
-                .setEnableNeededPlayerCount(config.minPlayerForMeatball);
+            // // 肉汁 - 25%概率
+            // ModRoles.MEATBALL.setEnableChance(config.chanceOfMeatball)
+            // .setEnableNeededPlayerCount(config.minPlayerForMeatball);
 
-        // 杜鹃 - 45%概率
-        ModRoles.CUCKOO.setEnableChance(config.chanceOfCuckoo);
+            // // 杜鹃 - 45%概率
+            // ModRoles.CUCKOO.setEnableChance(config.chanceOfCuckoo);
 
-        // 苦力怕 - 20%概率
-        ModRoles.CREEPER.setEnableChance(config.chanceOfCreeper);
+            // // 苦力怕 - 20%概率
+            // ModRoles.CREEPER.setEnableChance(config.chanceOfCreeper);
 
-        // 画家 - 50%概率
-        ModRoles.PAINTER.setEnableChance(config.chanceOfPainter);
+            // // 画家 - 50%概率
+            // ModRoles.PAINTER.setEnableChance(config.chanceOfPainter);
 
-        // 雇佣兵 - 从配置读取概率和最小玩家数
-        ModRoles.MERCENARY.setEnableChance(config.chanceOfMercenary)
-                .setEnableNeededPlayerCount(config.minPlayerForMercenary);
+            // // 雇佣兵 - 从配置读取概率和最小玩家数
+            // ModRoles.MERCENARY.setEnableChance(config.chanceOfMercenary)
+            // .setEnableNeededPlayerCount(config.minPlayerForMercenary);
 
-        // 愚者 - 从配置读取概率和最小玩家数
-        ModRoles.THE_FOOL.setEnableChance(config.chanceOfTheFool)
-                .setEnableNeededPlayerCount(config.minPlayerForTheFool);
+            // // 愚者 - 从配置读取概率和最小玩家数
+            // ModRoles.THE_FOOL.setEnableChance(config.chanceOfTheFool)
+            // .setEnableNeededPlayerCount(config.minPlayerForTheFool);
 
-        // 猫死灵法师 - 从配置读取概率和最小玩家数
-        ModRoles.CAT_NECROMANCER.setEnableChance(config.chanceOfCatNecromancer)
-                .setEnableNeededPlayerCount(config.minPlayerForCatNecromancer);
+            // // 猫死灵法师 - 从配置读取概率和最小玩家数
+            // ModRoles.CAT_NECROMANCER.setEnableChance(config.chanceOfCatNecromancer)
+            // .setEnableNeededPlayerCount(config.minPlayerForCatNecromancer);
 
-        // 更好的义警 - 小概率（基于10000）
-        ModRoles.BEST_VIGILANTE.setEnableRareChance(config.chanceOfBestVigilante);
+            // // 更好的义警 - 小概率（基于10000）
+            // ModRoles.BEST_VIGILANTE.setEnableRareChance(config.chanceOfBestVigilante);
 
-        // 静语者 - 从配置读取概率和最大数量
-        ModRoles.SILENCER.setEnableChance(config.chanceOfSilencer).setMax(config.silencerMax);
+            // // 静语者 - 从配置读取概率和最大数量
+            // ModRoles.SILENCER.setEnableChance(config.chanceOfSilencer).setMax(config.silencerMax);
 
-        // StupidExpress 角色配置
-        // 失忆者
-        SERoles.AMNESIAC.setEnableNeededPlayerCount(config.minPlayerForAmnesiac)
-                .setEnableChance(config.chanceOfAmnesiac);
+            // // StupidExpress 角色配置
+            // // 失忆者
+            // SERoles.AMNESIAC.setEnableNeededPlayerCount(config.minPlayerForAmnesiac)
+            // .setEnableChance(config.chanceOfAmnesiac);
 
-        // 悍匪 - 从配置读取概率和最小玩家数
-        ModRoles.GANGSTERS.setEnableChance(config.chanceOfGangsters)
-                .setEnableNeededPlayerCount(config.minPlayerForGangsters);
-        // 钳工 - 与悍匪绑定，由悍匪概率控制
-        ModRoles.FITTER.setEnableChance(config.chanceOfGangsters)
-                .setEnableNeededPlayerCount(config.minPlayerForGangsters);
+            // // 悍匪 - 从配置读取概率和最小玩家数
+            // ModRoles.GANGSTERS.setEnableChance(config.chanceOfGangsters)
+            // .setEnableNeededPlayerCount(config.minPlayerForGangsters);
+            // // 钳工 - 与悍匪绑定，由悍匪概率控制
+            // ModRoles.FITTER.setEnableChance(config.chanceOfGangsters)
+            // .setEnableNeededPlayerCount(config.minPlayerForGangsters);
 
-        // 鹈鹕 - 从配置读取概率和最小玩家数
-        ModRoles.PELICAN.setEnableChance(config.chanceOfPelican)
-                .setEnableNeededPlayerCount(config.minPlayerForPelican);
+            // // 鹈鹕 - 从配置读取概率和最小玩家数
+            // ModRoles.PELICAN.setEnableChance(config.chanceOfPelican)
+            // .setEnableNeededPlayerCount(config.minPlayerForPelican);
 
-        // 教父 - 从配置读取概率和最小玩家数
-        ModRoles.GODFATHER.setEnableChance(config.chanceOfGodfather)
-                .setEnableNeededPlayerCount(config.mafiaMinimumPlayers);
+            // // 教父 - 从配置读取概率和最小玩家数
+            // ModRoles.GODFATHER.setEnableChance(config.chanceOfGodfather)
+            // .setEnableNeededPlayerCount(config.mafiaMinimumPlayers);
+        }
 
         // 对没有 enableChance 的杀手方中立职业，默认 max=1、概率 75%
         for (var entry : TMMRoles.ROLES.entrySet()) {
             var role = entry.getValue();
-            if (role.enableChance < 0 && role.isNeutralForKiller()) {
+            if (role.spawnInfo.enableChance < 0 && role.isNeutralForKiller()) {
                 role.setMax(1);
-                role.setEnableChance(75);
+                role.spawnInfo.enableChance = 7500;
             }
         }
     }

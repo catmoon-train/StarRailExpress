@@ -22,13 +22,13 @@ import com.google.gson.annotations.JsonAdapter;
 public class NoellesRolesConfig implements ConfigData {
     public static class SpawnInfo {
         /**
-         * 最小启用玩家数。
+         * 最小启用玩家数。-1禁用
          */
-        public int minEnabledPlayer = 12;
+        public int minEnabledPlayer = -1;
         /**
-         * 启用概率，1 = 1/10000
+         * 启用概率，1 = 1/10000。-1禁用
          */
-        public int enableChance = 10000;
+        public int enableChance = -1;
         /**
          * 最大启用玩家数。-1禁用
          */
@@ -37,6 +37,9 @@ public class NoellesRolesConfig implements ConfigData {
          * 在什么地图刷新。为空全部
          */
         public ArrayList<String> map = new ArrayList<>();
+
+        public SpawnInfo() {
+        }
 
         public SpawnInfo(int defaultMinPlayer, int defaultMaxPlayer, int defaultEnableChance) {
             this.minEnabledPlayer = defaultMinPlayer;
@@ -63,6 +66,10 @@ public class NoellesRolesConfig implements ConfigData {
             this.type = 0; // 默认未知
         }
 
+        public SpawnInfo getSpawnInfo(SRERole role) {
+            return maps.getOrDefault(role.identifier(), new SpawnInfo());
+        }
+
         // 内部构造，用于工厂方法
         private RoleSpawnInfoEntries(int type) {
             this.type = type;
@@ -86,7 +93,7 @@ public class NoellesRolesConfig implements ConfigData {
                 obj.maps.put(entry.getKey(), new SpawnInfo(
                         role.defaultEnableNeedPlayerCount,
                         role.defaultEnableMaxPlayerCount,
-                        role.defaultEnableRareChance,
+                        role.defaultEnableChance,
                         role.defaultSpawnMaps));
             }
             return obj;
@@ -137,27 +144,15 @@ public class NoellesRolesConfig implements ConfigData {
     /**
      * Areas that will spawn Konggang roles (Pilot, Shadow Falcon)
      */
-    public ArrayList<String> konggangMaps = new ArrayList<>(List.of("areas_konggang"));
-
-    /**
-     * Areas that will spawn Cuckoo. If empty, Cuckoo spawns on all maps.
-     * Adding maps here restricts Cuckoo to only spawn on those maps.
-     */
-    public ArrayList<String> cuckooMaps = new ArrayList<>();
-
-    /**
-     * Areas that will spawn Ghost (小透明). If empty, Ghost spawns on all maps.
-     * Adding maps here restricts Ghost to only spawn on those maps.
-     */
-    public ArrayList<String> ghostMaps = new ArrayList<>();
+    public ArrayList<String> airRolesMaps = new ArrayList<>(List.of("areas_konggang"));
 
     /**
      * Role - The chance of egg roles
      */
     @ConfigEntry.Category(value = "detail")
-    RoleSpawnInfoEntries roleDetails = RoleSpawnInfoEntries.createDefaultRoleInfo();
+    public RoleSpawnInfoEntries roleDetails = RoleSpawnInfoEntries.createDefaultRoleInfo();
     @ConfigEntry.Category(value = "detail")
-    RoleSpawnInfoEntries modifierDetails = RoleSpawnInfoEntries.createDefaultModifierInfo();
+    public RoleSpawnInfoEntries modifierDetails = RoleSpawnInfoEntries.createDefaultModifierInfo();
 
     @ConfigEntry.Category(value = "detail")
     public int chanceOfTouhouRoles = 40;

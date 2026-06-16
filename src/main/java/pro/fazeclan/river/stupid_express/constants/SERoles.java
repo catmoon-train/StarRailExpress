@@ -70,7 +70,7 @@ public class SERoles {
             false,
             SRERole.MoodType.REAL,
             TMMRoles.CIVILIAN.getMaxSprintTime(),
-            true)).setCanBeRandomedByOtherRoles(false).setMax(1).setEnableChance(50).setEnableNeededPlayerCount(10);
+            true)).setCanBeRandomedByOtherRoles(false).setMax(1).setDefaultEnableChance(50).setDefaultEnableNeededPlayerCount(10);
 
     public static List<ShopEntry> INITIATE_SHOP = Util.make(new ArrayList<>(), entries -> {
         entries.add(new ShopEntry(TMMItems.KNIFE.getDefaultInstance(), 200, ShopEntry.Type.WEAPON));

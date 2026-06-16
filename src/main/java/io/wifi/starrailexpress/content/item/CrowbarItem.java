@@ -3,7 +3,8 @@ package io.wifi.starrailexpress.content.item;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
-import io.wifi.starrailexpress.content.block_entity.DoorBlockEntity;
+import io.wifi.starrailexpress.content.block.SmallDoorBlock;
+import io.wifi.starrailexpress.content.block_entity.SmallDoorBlockEntity;
 import io.wifi.starrailexpress.content.item.api.SREItemProperties.DoorCustomOpenItem;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.index.TMMItems;
@@ -18,6 +19,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+
 import org.agmas.noellesroles.role.RedHouseRoles;
 
 public class CrowbarItem extends Item implements AdventureUsable, DoorCustomOpenItem {
@@ -28,12 +31,13 @@ public class CrowbarItem extends Item implements AdventureUsable, DoorCustomOpen
     @Override
     public InteractionResult useOn(UseOnContext context) {
         Level world = context.getLevel();
+        BlockState state = world.getBlockState(context.getClickedPos());
         BlockEntity entity = world.getBlockEntity(context.getClickedPos());
-        if (!(entity instanceof DoorBlockEntity))
+        if (!(entity instanceof SmallDoorBlockEntity))
             entity = world.getBlockEntity(context.getClickedPos().below());
         Player player = context.getPlayer();
         var gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
-        if (entity instanceof DoorBlockEntity door && !door.isBlasted() && player != null) {
+        if (entity instanceof SmallDoorBlockEntity door && !door.isBlasted() && player != null) {
             world.playSound(null, context.getClickedPos(), TMMSounds.ITEM_CROWBAR_PRY, SoundSource.BLOCKS, 2.5f, 1f);
             player.swing(InteractionHand.MAIN_HAND, true);
 
@@ -54,7 +58,9 @@ public class CrowbarItem extends Item implements AdventureUsable, DoorCustomOpen
                             GameConstants.ITEM_COOLDOWNS.getOrDefault(TMMItems.CROWBAR, 45 * 20));
                 }
             }
-
+            if(state.getBlock() instanceof SmallDoorBlock sb){
+                sb.open(state, world, door, null);
+            }
             door.blast();
         }
         return super.useOn(context);

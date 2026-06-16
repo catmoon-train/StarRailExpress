@@ -537,7 +537,7 @@ public class ModRoles {
             SRERole.MoodType.FAKE,
             Integer.MAX_VALUE, // 无限冲刺 / 疲劳
             true // 隐藏计分板
-    )).setComponentKey(ModComponents.DELAYER).setCanSeeCoin(true).setMax(1).setEnableChance(20);
+    )).setComponentKey(ModComponents.DELAYER).setCanSeeCoin(true).setMax(1).setDefaultEnableChance(20);
     public static SRERole ELF = TMMRoles.registerRole(
             new NormalRole(ELF_ID, new Color(106, 255, 179).getRGB(),
                     true, false, SRERole.MoodType.REAL,
@@ -1496,7 +1496,7 @@ public class ModRoles {
             SRERole.MoodType.REAL, // 真实心情
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
             false // 不隐藏计分板
-    )).setComponentKey(PainterPlayerComponent.KEY).setCanSeeCoin(true).setMax(1).setEnableNeededPlayerCount(12);
+    )).setComponentKey(PainterPlayerComponent.KEY).setCanSeeCoin(true).setMax(1).setDefaultEnableNeededPlayerCount(12);
 
     // 杀手阵营角色
     /**

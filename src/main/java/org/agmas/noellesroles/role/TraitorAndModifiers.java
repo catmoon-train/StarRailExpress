@@ -242,26 +242,26 @@ public class TraitorAndModifiers {
         NoellesRolesConfig config = NoellesRolesConfig.HANDLER.instance();
         
         // 设置修饰符概率和最大生成数（从配置文件读取）
-        SNEAKY.setEnableChance(config.chanceOfSneaky).setMax(1);
-        BUTTER_FINGERS.setEnableChance(config.chanceOfButterFingers).setMax(1);
-        STRONG.setEnableChance(config.chanceOfStrong).setMax(1);
-        NIGHT_OWL.setEnableChance(config.chanceOfNightOwl).setMax(1);
-        GENEROUS.setEnableChance(config.chanceOfGenerous).setMax(1);
-        BRAVE.setEnableChance(config.chanceOfBrave).setMax(1);
-        WORKAHOLIC.setEnableChance(config.chanceOfWorkaholic).setMax(1);
-        BIG_EATER.setEnableChance(config.chanceOfBigEater).setMax(1);
-        MANIC.setEnableChance(config.chanceOfManic).setMax(1);
-        LAST_GASP.setEnableChance(config.chanceOfLastGasp).setMax(1);
-        REBEL.setEnableChance(config.chanceOfRebel).setMax(1);
-        HEMOPHOBIA.setEnableChance(config.chanceOfHemophobia).setMax(1);
-        MONEY_GRUBBER.setEnableChance(config.chanceOfMoneyGrubber).setMax(1);
-        VEGETARIAN.setEnableChance(config.chanceOfVegetarian).setMax(1);
-        DWARF.setEnableChance(config.chanceOfDwarf).setMax(1);
-        DESPERATE_FAITH.setEnableChance(config.chanceOfDesperateFaith).setMax(1);
-        STINGY.setEnableChance(config.chanceOfStingy).setMax(1);
-        CORRUPTED.setEnableChance(config.chanceOfCorrupted).setMax(1);
-        FLEXIBLE.setEnableChance(config.chanceOfFlexible).setMax(1);
-        ANTI_NEWTON.setEnableChance(config.chanceOfAntiNewton).setMax(1);
+        SNEAKY.setDefaultEnableChance(config.chanceOfSneaky).setMax(1);
+        BUTTER_FINGERS.setDefaultEnableChance(config.chanceOfButterFingers).setMax(1);
+        STRONG.setDefaultEnableChance(config.chanceOfStrong).setMax(1);
+        NIGHT_OWL.setDefaultEnableChance(config.chanceOfNightOwl).setMax(1);
+        GENEROUS.setDefaultEnableChance(config.chanceOfGenerous).setMax(1);
+        BRAVE.setDefaultEnableChance(config.chanceOfBrave).setMax(1);
+        WORKAHOLIC.setDefaultEnableChance(config.chanceOfWorkaholic).setMax(1);
+        BIG_EATER.setDefaultEnableChance(config.chanceOfBigEater).setMax(1);
+        MANIC.setDefaultEnableChance(config.chanceOfManic).setMax(1);
+        LAST_GASP.setDefaultEnableChance(config.chanceOfLastGasp).setMax(1);
+        REBEL.setDefaultEnableChance(config.chanceOfRebel).setMax(1);
+        HEMOPHOBIA.setDefaultEnableChance(config.chanceOfHemophobia).setMax(1);
+        MONEY_GRUBBER.setDefaultEnableChance(config.chanceOfMoneyGrubber).setMax(1);
+        VEGETARIAN.setDefaultEnableChance(config.chanceOfVegetarian).setMax(1);
+        DWARF.setDefaultEnableChance(config.chanceOfDwarf).setMax(1);
+        DESPERATE_FAITH.setDefaultEnableChance(config.chanceOfDesperateFaith).setMax(1);
+        STINGY.setDefaultEnableChance(config.chanceOfStingy).setMax(1);
+        CORRUPTED.setDefaultEnableChance(config.chanceOfCorrupted).setMax(1);
+        FLEXIBLE.setDefaultEnableChance(config.chanceOfFlexible).setMax(1);
+        ANTI_NEWTON.setDefaultEnableChance(config.chanceOfAntiNewton).setMax(1);
         
         registerModifierEvents();
         registerDeathEvents();
@@ -272,7 +272,7 @@ public class TraitorAndModifiers {
     private static void registerModifierEvents() {
         // 修饰符分配事件
         ModifierAssigned.EVENT.register((player, modifier) -> {
-            if (!(player instanceof ServerPlayer sp)) return;
+            if (!(player instanceof ServerPlayer)) return;
             
             WorldModifierComponent worldModifierComponent = WorldModifierComponent.KEY.get(player.level());
             

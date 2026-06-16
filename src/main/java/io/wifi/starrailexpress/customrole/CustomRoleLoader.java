@@ -1,15 +1,10 @@
 package io.wifi.starrailexpress.customrole;
 
 import io.wifi.starrailexpress.SRE;
-import io.wifi.starrailexpress.api.ExtraEffectRole;
-import io.wifi.starrailexpress.api.NormalRole;
 import io.wifi.starrailexpress.api.RoleSkill;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
-import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
-import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
-import io.wifi.starrailexpress.cca.SREWorldBlackoutComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.ServerTaskInfoClasses;
@@ -280,9 +275,9 @@ public class CustomRoleLoader {
         if (data.canSeeBodyKiller != null) role.setCanSeeBodyKiller(data.canSeeBodyKiller);
 
         // === 生成选项 ===
-        if (data.enableChance >= 0 && !data.useRareChance) role.setEnableChance(data.enableChance);
-        if (data.useRareChance && data.enableRareChance >= 0) role.setEnableRareChance(data.enableRareChance);
-        if (data.enableNeededPlayerCount >= 0) role.setEnableNeededPlayerCount(data.enableNeededPlayerCount);
+        if (data.enableChance >= 0 && !data.useRareChance) role.setDefaultEnableChance(data.enableChance * 100);
+        if (data.useRareChance && data.enableRareChance >= 0) role.setDefaultEnableChance(data.enableRareChance);
+        if (data.enableNeededPlayerCount >= 0) role.setDefaultEnableNeededPlayerCount(data.enableNeededPlayerCount);
 
         // 互斥和绑定生成（需要在所有角色注册完成后处理，这里只存储引用）
         // 这些将在 postInit 中处理

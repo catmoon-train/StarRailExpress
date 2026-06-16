@@ -17,9 +17,12 @@ import java.util.List;
 import java.util.Random;
 import java.util.function.Consumer;
 
+import org.agmas.noellesroles.config.NoellesRolesConfig.SpawnInfo;
+
 public class SREModifier extends SREAbstractInfoClass {
     private final Random random = new Random();
     public ResourceLocation identifier;
+    public boolean canAutoSetMax = true;
     public int color;
     public HashSet<SRERole> cannotBeAppliedTo;
     public HashSet<SRERole> canOnlyBeAppliedTo;
@@ -29,13 +32,21 @@ public class SREModifier extends SREAbstractInfoClass {
     public Consumer<ServerPlayer> serverTickEvent = null;
     public Consumer<Player> clientTickEvent = null;
     public int maxCount = -1;
-    public int enableChance = 100;
-    public int enableNeedPlayerCount = 6;
+    public SpawnInfo spawnInfo = new SpawnInfo();
     public int defaultEnableChance = 10000;
     public int defaultNeedPlayerCount = 6;
     public int defaultMaxPlayerCount = -1;
     public boolean isOtherModeRole = false;
     public ArrayList<String> defaultSpawnMaps = new ArrayList<>();
+
+    public SREModifier setAutoSetMax(boolean flag) {
+        this.canAutoSetMax = flag;
+        return this;
+    }
+
+    public boolean canAutoSetMax() {
+        return this.canAutoSetMax;
+    }
 
     public SREModifier setClientGameTickEvent(Consumer<Player> event) {
         this.clientTickEvent = event;
@@ -76,7 +87,6 @@ public class SREModifier extends SREAbstractInfoClass {
         return this;
     };
 
-
     public SREModifier addDefaultSpawnMaps(String... maps) {
         return this.setDefaultSpawnMaps(maps);
     };
@@ -85,16 +95,6 @@ public class SREModifier extends SREAbstractInfoClass {
         for (String s : maps) {
             this.defaultSpawnMaps.add(s);
         }
-        return this;
-    };
-    /**
-     * 启用需要的玩家数量。
-     * 
-     * @param count 玩家数量
-     * @return
-     */
-    public SREModifier setEnableNeededPlayerCount(int count) {
-        enableNeedPlayerCount = count;
         return this;
     };
 
@@ -132,13 +132,13 @@ public class SREModifier extends SREAbstractInfoClass {
     };
 
     /**
-     * 启用概率（%）
+     * 生成设置
      * 
      * @param chance
      * @return
      */
-    public SREModifier setEnableChance(int chance) {
-        enableChance = chance;
+    public SREModifier setSpawnInfo(SpawnInfo spinfo) {
+        this.spawnInfo = spinfo;
         return this;
     };
 
@@ -209,18 +209,30 @@ public class SREModifier extends SREAbstractInfoClass {
      * @return
      */
     public int getRoundMaxCount(ServerLevel serverLevel, SREGameWorldComponent gameWorldComponent,
-            List<ServerPlayer> players) {
-        if (this.enableChance >= 0) {
-            int nchance = random.nextInt(0, 100);
-            if (nchance > enableChance) {
+            List<ServerPlayer> players, String mapName) {
+        if (!this.canAutoSetMax)
+            return -1;
+        if (this.spawnInfo.enableChance >= 0) {
+            int nchance = random.nextInt(0, 10000);
+            if (nchance > this.spawnInfo.enableChance) {
                 return 0;
             }
         }
-        if (this.enableNeedPlayerCount >= 0) {
+        if (this.spawnInfo.minEnabledPlayer >= 0) {
             int playerCount = players.size();
-            if (playerCount < this.enableNeedPlayerCount) {
+            if (playerCount < this.spawnInfo.minEnabledPlayer) {
                 return 0;
             }
+        }
+        if (this.spawnInfo.maxEnabledPlayer >= 0) {
+            int playerCount = players.size();
+            if (playerCount > this.spawnInfo.maxEnabledPlayer) {
+                return 0;
+            }
+        }
+        if (!this.spawnInfo.map.isEmpty()) {
+            if (!this.spawnInfo.map.contains(mapName))
+                return 0;
         }
         return maxCount;
     }
