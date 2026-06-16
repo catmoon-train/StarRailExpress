@@ -1,6 +1,5 @@
 package io.wifi.ConfigCompact;
 
-import io.wifi.WatheBlocker;
 import io.wifi.ConfigCompact.network.RoleEnableInfoPacket;
 import io.wifi.ConfigCompact.network.SyncConfigPayload;
 import io.wifi.ConfigCompact.ui.RoleManageConfigUI;

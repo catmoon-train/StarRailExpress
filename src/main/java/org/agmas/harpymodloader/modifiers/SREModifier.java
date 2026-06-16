@@ -1,5 +1,6 @@
 package org.agmas.harpymodloader.modifiers;
 
+import io.wifi.starrailexpress.api.SREAbstacrtInfoClass;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import net.minecraft.locale.Language;
@@ -15,7 +16,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.function.Consumer;
 
-public class SREModifier {
+public class SREModifier extends SREAbstacrtInfoClass {
     private final Random random = new Random();
     public ResourceLocation identifier;
     public int color;
@@ -29,6 +30,9 @@ public class SREModifier {
     public int maxCount = -1;
     public int enableChance = 100;
     public int enableNeedPlayerCount = 6;
+    public int defaultEnableChance = 10000;
+    public int defaultNeedPlayerCount = 6;
+    public int defaultMaxPlayerCount = -1;
     public boolean isOtherModeRole = false;
 
     public SREModifier setClientGameTickEvent(Consumer<Player> event) {
@@ -82,6 +86,39 @@ public class SREModifier {
     };
 
     /**
+     * 默认启用最大玩家数 -1禁用
+     * 
+     * @param count
+     * @return
+     */
+    public SREModifier setDefaultMaxPlayerCount(int count) {
+        defaultMaxPlayerCount = count;
+        return this;
+    };
+
+    /**
+     * 默认需要玩家数
+     * 
+     * @param count
+     * @return
+     */
+    public SREModifier setDefaultNeedPlayerCount(int count) {
+        defaultNeedPlayerCount = count;
+        return this;
+    };
+
+    /**
+     * 默认启用概率（1/10000）
+     * 
+     * @param chance
+     * @return
+     */
+    public SREModifier setDefaultEnableChance(int chance) {
+        defaultEnableChance = chance;
+        return this;
+    };
+
+    /**
      * 启用概率（%）
      * 
      * @param chance
@@ -100,6 +137,10 @@ public class SREModifier {
         this.canOnlyBeAppliedTo = canOnlyBeAppliedTo;
         this.killerOnly = killerOnly;
         this.civilianOnly = civilianOnly;
+    }
+
+    public ResourceLocation getIdentifier() {
+        return this.identifier;
     }
 
     public ResourceLocation identifier() {
@@ -178,6 +219,7 @@ public class SREModifier {
 
     /**
      * 是否是"其它模式"的修饰符（用于U键职业介绍页面的模式筛选）
+     * 
      * @return 是否为其他模式修饰符
      */
     public boolean isOtherModeRole() {
@@ -186,6 +228,7 @@ public class SREModifier {
 
     /**
      * 设置是否为"其它模式"的修饰符
+     * 
      * @param isOtherModeRole 是否为其他模式修饰符
      * @return this
      */

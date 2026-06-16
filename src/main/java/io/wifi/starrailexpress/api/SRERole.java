@@ -42,7 +42,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.ToIntFunction;
 
-public abstract class SRERole {
+public abstract class SRERole extends SREAbstacrtInfoClass {
     protected final Random random = new Random();
     private ResourceLocation identifier;
     private boolean canSeeCoin = true;
@@ -58,6 +58,9 @@ public abstract class SRERole {
     public int enableChance = -1;
     public int enableRareChance = -1;
     public int enableNeedPlayerCount = -1;
+    public int defaultEnableRareChance = 10000;
+    public int defaultEnableNeedPlayerCount = -1;
+    public int defaultEnableMaxPlayerCount = -1;
     private int occupiedRoleCount = 1;
     public BiConsumer<ServerPlayer, SREGameWorldComponent> serverTickEvent = null;
     public BiConsumer<Player, SREGameWorldComponent> clientTickEvent = null;
@@ -377,6 +380,7 @@ public abstract class SRERole {
 
     private boolean isVigilanteTeam;
 
+    @Override
     public ResourceLocation getIdentifier() {
         return identifier;
     }
@@ -590,6 +594,7 @@ public abstract class SRERole {
     private Consumer<LimitedInventoryScreen> addChild;
     private boolean canAutoAddMoney = false;
     private boolean bodyKillerVisibility = false;
+    public ArrayList<String> defaultSpawnMaps = new ArrayList<>();
 
     /**
      * 设置是否允许看到尸体的杀手
@@ -743,6 +748,34 @@ public abstract class SRERole {
 
     public SRERole setMax(int count) {
         maxCount = count;
+        return this;
+    };
+
+    public SRERole addDefaultSpawnMaps(String... maps) {
+        for (String s : maps) {
+            this.defaultSpawnMaps.add(s);
+        }
+        return this;
+    };
+
+    public SRERole setDefaultEnableMaxPlayerCount(int count) {
+        defaultEnableMaxPlayerCount = count;
+        return this;
+    };
+
+    public SRERole setDefaultEnableNeededPlayerCount(int count) {
+        defaultEnableNeedPlayerCount = count;
+        return this;
+    };
+
+    /**
+     * 1 = 1/10000
+     * 
+     * @param count
+     * @return
+     */
+    public SRERole setDefaultEnableChance(int count) {
+        defaultEnableRareChance = count;
         return this;
     };
 

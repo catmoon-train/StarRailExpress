@@ -39,7 +39,7 @@ public class GenericMapGuiProvider {
                 (i18n, field, config, defaults, access) -> {
                     return provide(i18n, field, config, defaults, access);
                 },
-                field -> Map.class.isAssignableFrom(field.getType()));
+                field -> HashMap.class.isAssignableFrom(field.getType()));
     }
 
     @SuppressWarnings({ "rawtypes" })

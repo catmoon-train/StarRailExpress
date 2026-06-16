@@ -2,16 +2,84 @@ package org.agmas.noellesroles.config;
 
 import io.wifi.ConfigCompact.ConfigClassHandler;
 import io.wifi.ConfigCompact.annotation.ConfigSync;
+import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.game.GameConstants;
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry.Category;
+import net.minecraft.resources.ResourceLocation;
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+
+import org.agmas.harpymodloader.modifiers.HMLModifiers;
+import org.agmas.harpymodloader.modifiers.SREModifier;
+import com.google.gson.annotations.JsonAdapter;
 
 @Config(name = "noellesroles")
 public class NoellesRolesConfig implements ConfigData {
+    public static class SpawnInfo {
+        /**
+         * 最小启用玩家数。
+         */
+        public int minEnabledPlayer = 12;
+        /**
+         * 启用概率，1 = 1/10000
+         */
+        public int enableChance = 10000;
+        /**
+         * 最大启用玩家数。-1禁用
+         */
+        public int maxEnabledPlayer = -1;
+        /**
+         * 在什么地图刷新。为空全部
+         */
+        public ArrayList<String> map = new ArrayList<>();
+
+        public SpawnInfo(int defaultMinPlayer, int defaultMaxPlayer, int defaultEnableChance) {
+            this.minEnabledPlayer = defaultMinPlayer;
+            this.maxEnabledPlayer = defaultMaxPlayer;
+            this.enableChance = defaultEnableChance;
+        }
+
+        public SpawnInfo(int defaultMinPlayer, int defaultMaxPlayer, int defaultEnableChance,
+                ArrayList<String> defaultMaps) {
+            this.minEnabledPlayer = defaultMinPlayer;
+            this.maxEnabledPlayer = defaultMaxPlayer;
+            this.enableChance = defaultEnableChance;
+            this.map = new ArrayList<>(defaultMaps);
+        }
+    }
+
+    @JsonAdapter(RoleSpawnInfoEntriesAdapter.class)
+    public static class RoleSpawnInfoEntries {
+        public HashMap<ResourceLocation, SpawnInfo> maps = new HashMap<>();
+        public int type = 0;
+
+        public static RoleSpawnInfoEntries createDefaultRoleInfo() {
+            RoleSpawnInfoEntries obj = new RoleSpawnInfoEntries();
+            for (var entry : TMMRoles.ROLES.entrySet()) {
+                SRERole role = entry.getValue();
+                obj.maps.put(entry.getKey(), new SpawnInfo(role.defaultEnableNeedPlayerCount,
+                        role.defaultEnableMaxPlayerCount, role.defaultEnableRareChance,role.defaultSpawnMaps));
+            }
+            obj.type = 1;
+            return obj;
+        }
+
+        public static RoleSpawnInfoEntries createDefaultModifierInfo() {
+            RoleSpawnInfoEntries obj = new RoleSpawnInfoEntries();
+            for (SREModifier entry : HMLModifiers.MODIFIERS) {
+                obj.maps.put(entry.identifier(), new SpawnInfo(entry.defaultNeedPlayerCount,
+                        entry.defaultMaxPlayerCount, entry.defaultEnableChance));
+            }
+            obj.type = 2;
+            return obj;
+        }
+    }
+
     public static ConfigClassHandler<NoellesRolesConfig> HANDLER = new ConfigClassHandler<>(
             NoellesRolesConfig.class);
 
@@ -60,6 +128,10 @@ public class NoellesRolesConfig implements ConfigData {
     /**
      * Role - The chance of egg roles
      */
+    @ConfigEntry.Category(value = "detail")
+    RoleSpawnInfoEntries roleDetails = RoleSpawnInfoEntries.createDefaultRoleInfo();
+    @ConfigEntry.Category(value = "detail")
+    RoleSpawnInfoEntries modifierDetails = RoleSpawnInfoEntries.createDefaultModifierInfo();
 
     @ConfigEntry.Category(value = "detail")
     public int chanceOfTouhouRoles = 40;
@@ -179,8 +251,6 @@ public class NoellesRolesConfig implements ConfigData {
      * 疫使感染致死时间（秒）
      * 玩家被感染后多久会死亡
      */
-
-
 
     /**
      * 疫使病毒传播间隔（秒）
@@ -956,7 +1026,6 @@ public class NoellesRolesConfig implements ConfigData {
     @Category("magic")
     public String credit = "";
 
-    
     public static NoellesRolesConfig instance() {
         return HANDLER.instance();
     }
