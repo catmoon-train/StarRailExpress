@@ -16,10 +16,13 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Items;
+
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.commands.BroadcastCommand;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.utils.MCItemsUtils;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
@@ -310,10 +313,11 @@ public class GhostPlayerComponent implements RoleComponent, ServerTickingCompone
 
             // 发送全局广播
             var broadcastMessage = Component
-                    .translatable("message.noellesroles.ghost.last_stand")
+                    .translatable("message.noellesroles.furandoru.last_stand")
                     .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD);
             serverPlayer.server.getPlayerList().getPlayers().forEach((p) -> {
                 BroadcastCommand.BroadcastMessage(p, broadcastMessage);
+                MCItemsUtils.insertStackInFreeSlot(p, Items.WIND_CHARGE.getDefaultInstance());
             });
 
             lastStandNotified = true;

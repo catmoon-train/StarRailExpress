@@ -1321,6 +1321,7 @@
   "gui.noellesroles.ghost.waiting": "等待游戏开始...",
   "message.noellesroles.ghost.ability_unlocked": "你的技能已解锁！现在可以隐身了！",
   "message.noellesroles.ghost.last_stand": "有一股无形的力量拨动了时针！",
+  "message.noellesroles.furandoru.last_stand":"有一股来自命运的力量和来自情绪的力量拨动了时针！",
   "gui.noellesroles.spellbreaker.locked": "技能未解锁",
   "gui.noellesroles.spellbreaker.cooldown": "破法冷却中，剩余 %ss",
   "gui.noellesroles.spellbreaker.unlocked": "破法就绪：按G键",
