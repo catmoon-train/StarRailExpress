@@ -33,7 +33,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(value = DefaultChunkRenderer.class)
 public abstract class DefaultChunkRendererMixin {
     @Unique
-    private static final int sre$offsetCount =
+    private static final int sre$minimumOffsetCount =
             RenderRegion.REGION_SIZE * ModelQuadFacing.COUNT + 1;
     @Unique
     private static ByteBuffer sre$offsetBuffer;
@@ -53,7 +53,7 @@ public abstract class DefaultChunkRendererMixin {
         if (sre$offsetBuffer != null) {
             MemoryUtil.memFree(sre$offsetBuffer);
         }
-        sre$offsetBuffer = MemoryUtil.memCalloc(sre$offsetCount * 16);
+        sre$offsetBuffer = MemoryUtil.memCalloc(sre$minimumOffsetCount * 16);
     }
 
     @Inject(
@@ -111,8 +111,8 @@ public abstract class DefaultChunkRendererMixin {
         Vec3 offset = SceneAssetClient.renderOffset(partialTick);
         int commandCount = Integer.bitCount(visibleFaces);
         int firstCommand = batch.size();
-        int lastCommand = Math.min(firstCommand + commandCount, sre$offsetCount);
-        for (int command = firstCommand; command < lastCommand; command++) {
+        sre$ensureOffsetCapacity(firstCommand + commandCount);
+        for (int command = firstCommand; command < firstCommand + commandCount; command++) {
             int base = command * 16;
             sre$offsetBuffer.putFloat(base, (float) offset.x);
             sre$offsetBuffer.putFloat(base + 4, (float) offset.y);
@@ -134,6 +134,23 @@ public abstract class DefaultChunkRendererMixin {
         return SceneAssetClient.isActiveSection(sectionX, sectionY, sectionZ)
                 ? ModelQuadFacing.ALL
                 : original;
+    }
+
+    @Unique
+    private static void sre$ensureOffsetCapacity(int commandCount) {
+        int requiredBytes = Math.max(sre$minimumOffsetCount, commandCount) * 16;
+        if (sre$offsetBuffer != null && sre$offsetBuffer.capacity() >= requiredBytes) {
+            return;
+        }
+        ByteBuffer next = MemoryUtil.memCalloc(requiredBytes);
+        if (sre$offsetBuffer != null) {
+            ByteBuffer source = sre$offsetBuffer.duplicate();
+            source.clear();
+            source.limit(sre$offsetBuffer.capacity());
+            next.put(0, source, 0, source.limit());
+            MemoryUtil.memFree(sre$offsetBuffer);
+        }
+        sre$offsetBuffer = next;
     }
 
     @Inject(
