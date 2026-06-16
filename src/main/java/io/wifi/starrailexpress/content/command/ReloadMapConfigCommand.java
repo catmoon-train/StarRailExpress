@@ -11,9 +11,9 @@ import net.minecraft.network.chat.Component;
 
 public class ReloadMapConfigCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
-        dispatcher.register(Commands.literal("tmm:reloadMapConfig")
+        dispatcher.register(Commands.literal("tmm:reload")
                 .requires(source -> source.hasPermission(2))
-                .executes(ReloadMapConfigCommand::reloadMapConfig));
+                .then(Commands.literal("vote_map_config").executes(ReloadMapConfigCommand::reloadMapConfig)));
     }
 
     private static int reloadMapConfig(CommandContext<CommandSourceStack> context) {

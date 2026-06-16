@@ -60,7 +60,9 @@ public class StartCommand {
       // 节约写入玩家NBT带来的网络消耗，所以需要手动启用才会进行同步。
       // 否则禁止游戏。
       if (!SREConfig.instance().enableRepairMode) {
-        source.sendFailure(Component.translatable("game.start_error.game_running"));
+        source.sendFailure(Component.translatable("game.start_error.disabled_gamemode", gameMode.getName(),
+            Component.translatable("text.autoconfig.starrailexpress.option.enableRepairMode"), "enableRepairMode",
+            "true"));
         return -1;
       }
     }

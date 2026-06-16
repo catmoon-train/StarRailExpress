@@ -9,9 +9,10 @@ import net.minecraft.network.chat.Component;
 public class ReloadReadyAreaCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(
-                Commands.literal("tmm:reloadReadyArea")
+                Commands.literal("tmm:reload")
                         .requires(source -> source.hasPermission(2))
-                        .executes(context -> reloadReadyArea(context.getSource())));
+                        .then(Commands.literal("default_ready_area")
+                                .executes(context -> reloadReadyArea(context.getSource()))));
     }
 
     private static int reloadReadyArea(CommandSourceStack source) {
