@@ -78,7 +78,7 @@ public class RedHouseRoles {
       SRERole.MoodType.REAL, // 真实心情
       TMMRoles.CIVILIAN.getMaxSprintTime() * 2, // 2 倍冲刺时间
       false // 不隐藏计分板
-  )).setCanSeeCoin(true).setCanSeeTime(true);
+  )).setCanSeeCoin(true).setCanSeeTime(true).setDefaultMax(0);
   // 好人：大妖精baka
   public static SRERole BAKA = TMMRoles.registerRole(
       new NormalRole(BAKA_ID, new Color(185, 240, 243).getRGB(),

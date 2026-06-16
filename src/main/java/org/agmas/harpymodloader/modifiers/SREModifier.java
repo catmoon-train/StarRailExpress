@@ -22,7 +22,7 @@ import org.agmas.noellesroles.config.NoellesRolesConfig.SpawnInfo;
 public class SREModifier extends SREAbstractInfoClass {
     private final Random random = new Random();
     public ResourceLocation identifier;
-    public boolean canAutoSetMax = true;
+    public boolean canSetSpawnInfoInConfig = true;
     public int color;
     public HashSet<SRERole> cannotBeAppliedTo;
     public HashSet<SRERole> canOnlyBeAppliedTo;
@@ -31,7 +31,7 @@ public class SREModifier extends SREAbstractInfoClass {
     public boolean notVigilante;
     public Consumer<ServerPlayer> serverTickEvent = null;
     public Consumer<Player> clientTickEvent = null;
-    public int maxCount = -1;
+    public int defaultMaxCount = -1;
     public SpawnInfo spawnInfo = new SpawnInfo();
     public int defaultEnableChance = 10000;
     public int defaultNeedPlayerCount = 6;
@@ -39,13 +39,13 @@ public class SREModifier extends SREAbstractInfoClass {
     public boolean isOtherModeRole = false;
     public ArrayList<String> defaultSpawnMaps = new ArrayList<>();
 
-    public SREModifier setAutoSetMax(boolean flag) {
-        this.canAutoSetMax = flag;
+    public SREModifier setCanSetSpawnInfoInConfig(boolean flag) {
+        this.canSetSpawnInfoInConfig = flag;
         return this;
     }
 
-    public boolean canAutoSetMax() {
-        return this.canAutoSetMax;
+    public boolean canSetSpawnInfoInConfig() {
+        return this.canSetSpawnInfoInConfig;
     }
 
     public SREModifier setClientGameTickEvent(Consumer<Player> event) {
@@ -77,13 +77,13 @@ public class SREModifier extends SREAbstractInfoClass {
     }
 
     /**
-     * 在启用的状态下，最大分配数量。
+     * 在启用的状态下，默认的最大分配数量。
      * 
      * @param count 最大数量
      * @return
      */
-    public SREModifier setMax(int count) {
-        maxCount = count;
+    public SREModifier setDefaultMax(int count) {
+        defaultMaxCount = count;
         return this;
     };
 
@@ -115,7 +115,7 @@ public class SREModifier extends SREAbstractInfoClass {
      * @param count
      * @return
      */
-    public SREModifier setDefaultNeedPlayerCount(int count) {
+    public SREModifier setDefaultEnableNeededPlayerCount(int count) {
         defaultNeedPlayerCount = count;
         return this;
     };
@@ -210,7 +210,7 @@ public class SREModifier extends SREAbstractInfoClass {
      */
     public int getRoundMaxCount(ServerLevel serverLevel, SREGameWorldComponent gameWorldComponent,
             List<ServerPlayer> players, String mapName) {
-        if (!this.canAutoSetMax)
+        if (defaultMaxCount == -1)
             return -1;
         if (this.spawnInfo.enableChance >= 0) {
             int nchance = random.nextInt(0, 10000);
@@ -234,7 +234,7 @@ public class SREModifier extends SREAbstractInfoClass {
             if (!this.spawnInfo.map.contains(mapName))
                 return 0;
         }
-        return maxCount;
+        return spawnInfo.maxSpawn;
     }
 
     public SREModifier setCannotAppliedToVigilante(boolean flag) {
@@ -259,6 +259,8 @@ public class SREModifier extends SREAbstractInfoClass {
      */
     public SREModifier setOtherModeRole(boolean isOtherModeRole) {
         this.isOtherModeRole = isOtherModeRole;
+        if (isOtherModeRole)
+            this.canSetSpawnInfoInConfig = false;
         return this;
     }
 }

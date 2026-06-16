@@ -32,7 +32,7 @@ public class SERoles {
             false,
             SRERole.MoodType.REAL,
             TMMRoles.CIVILIAN.getMaxSprintTime(),
-            false)).setPassiveIncome(false);
+            false)).setPassiveIncome(false).setDefaultEnableChance(5000).setDefaultEnableNeededPlayerCount(12);
 
     public static SRERole ARSONIST = registerRole(new NormalRole(
             StupidExpress.id("arsonist"),
@@ -41,7 +41,7 @@ public class SERoles {
             false,
             SRERole.MoodType.FAKE,
             -1,
-            true)).setCanUseInstinct(true);
+            true)).setCanUseInstinct(true).setDefaultEnableNeededPlayerCount(12);
 
     public static SRERole AVARICIOUS = registerRole(new NormalRole(
             StupidExpress.id("avaricious"),
@@ -52,7 +52,7 @@ public class SERoles {
             -1,
             true)).setServerGameTickEvent((player, gameWorldComponent) -> {
                 AvariciousGoldHandler.playerServerTick(player, gameWorldComponent);
-            }).setPassiveIncome(false);
+            }).setPassiveIncome(false).setDefaultEnableNeededPlayerCount(12);
 
     public static SRERole NECROMANCER = registerRole(new NormalRole(
             StupidExpress.id("necromancer"),
@@ -61,7 +61,7 @@ public class SERoles {
             true,
             SRERole.MoodType.FAKE,
             -1,
-            true));
+            true)).setDefaultEnableChance(5000).setDefaultEnableNeededPlayerCount(12);
 
     public static SRERole INITIATE = registerRole(new InitiateRole(
             StupidExpress.id("initiate"),
@@ -70,7 +70,7 @@ public class SERoles {
             false,
             SRERole.MoodType.REAL,
             TMMRoles.CIVILIAN.getMaxSprintTime(),
-            true)).setCanBeRandomedByOtherRoles(false).setMax(1).setDefaultEnableChance(50).setDefaultEnableNeededPlayerCount(10);
+            true)).setCanBeRandomedByOtherRoles(false).setDefaultMax(1).setDefaultEnableChance(50).setDefaultEnableNeededPlayerCount(12);
 
     public static List<ShopEntry> INITIATE_SHOP = Util.make(new ArrayList<>(), entries -> {
         entries.add(new ShopEntry(TMMItems.KNIFE.getDefaultInstance(), 200, ShopEntry.Type.WEAPON));

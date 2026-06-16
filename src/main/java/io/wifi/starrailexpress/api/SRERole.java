@@ -40,13 +40,14 @@ import java.util.List;
 import java.util.Random;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.ToIntFunction;
 
 public abstract class SRERole extends SREAbstractInfoClass {
     protected final Random random = new Random();
     private ResourceLocation identifier;
-    private boolean canAutoSetMax = true;
+    private boolean canSetSpawnInfoInConfig = true;
     private boolean canSeeCoin = true;
     private boolean canSeeBodyItems = false;
     private boolean canGetBodyItems = false;
@@ -58,10 +59,10 @@ public abstract class SRERole extends SREAbstractInfoClass {
     private boolean mafiaTeam = false;
     /**
      * -1
-     * 表示不设置。将不会调整普通刷新最大数量。与canAutoSetMax设置为false不同的是，此不会覆盖SpawnInfo。而canAutoSetMax将会覆盖SpawnInfo来达到配置项起作用。
+     * 表示不设置。将不会调整普通刷新最大数量。与canSetSpawnInfoInConfig设置为false不同的是，此不会覆盖SpawnInfo。而canSetSpawnInfoInConfig将会覆盖SpawnInfo来达到配置项起作用。
      */
-    public int maxCount = 1;
-    public SpawnInfo spawnInfo = new SpawnInfo(-1, -1, -1);
+    public int defaultMaxCount = 1;
+    public SpawnInfo spawnInfo = new SpawnInfo();
     /**
      * 1 / 10000
      */
@@ -93,15 +94,15 @@ public abstract class SRERole extends SREAbstractInfoClass {
     }
 
     /**
-     * canAutoSetMax为true将会覆盖SpawnInfo来达到配置项起作用。
+     * canSetSpawnInfoInConfig为true将会覆盖SpawnInfo来达到配置项起作用。
      */
-    public SRERole setAutoSetMax(boolean flag) {
-        this.canAutoSetMax = flag;
+    public SRERole setCanSetSpawnInfoInConfig(boolean flag) {
+        this.canSetSpawnInfoInConfig = flag;
         return this;
     }
 
-    public boolean canAutoSetMax() {
-        return this.canAutoSetMax;
+    public boolean canSetSpawnInfoInConfig() {
+        return this.canSetSpawnInfoInConfig;
     }
 
     public boolean canBeRandomed() {
@@ -744,7 +745,7 @@ public abstract class SRERole extends SREAbstractInfoClass {
      */
     public int getRoundMaxCount(ServerLevel serverLevel, SREGameWorldComponent gameWorldComponent,
             List<ServerPlayer> players, String mapName) {
-        if (maxCount == -1)
+        if (defaultMaxCount == -1)
             return -1;
         if (this.spawnInfo.minEnabledPlayer >= 0) {
             int playerCount = players.size();
@@ -769,15 +770,15 @@ public abstract class SRERole extends SREAbstractInfoClass {
                 return 0;
             }
         }
-        return this.maxCount;
+        return this.spawnInfo.maxSpawn;
     }
 
     /**
      * -1
-     * 表示不设置。将不会调整普通刷新最大数量。与canAutoSetMax设置为false不同的是，此不会覆盖SpawnInfo。而canAutoSetMax将会覆盖SpawnInfo来达到配置项起作用。
+     * 表示不设置。将不会调整普通刷新最大数量。与canSetSpawnInfoInConfig设置为false不同的是，此不会覆盖SpawnInfo。而canSetSpawnInfoInConfig将会覆盖SpawnInfo来达到配置项起作用。
      */
-    public SRERole setMax(int count) {
-        maxCount = count;
+    public SRERole setDefaultMax(int count) {
+        defaultMaxCount = count;
         return this;
     };
 
@@ -801,6 +802,11 @@ public abstract class SRERole extends SREAbstractInfoClass {
         defaultEnableNeedPlayerCount = count;
         return this;
     };
+
+    public SRERole setSpawnInfo(Function<SpawnInfo, SpawnInfo> func) {
+        this.spawnInfo = func.apply(this.spawnInfo);
+        return this;
+    }
 
     public SRERole setSpawnInfo(SpawnInfo spinfo) {
         this.spawnInfo = spinfo;

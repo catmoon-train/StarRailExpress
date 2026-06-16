@@ -265,7 +265,7 @@ public class CustomRoleLoader {
         if (data.setVigilanteTeam != null && data.setVigilanteTeam) role.setVigilanteTeam(true);
         if (data.canSeeTeammateKiller != null) role.setCanSeeTeammateKiller(data.canSeeTeammateKiller);
         role.setOccupiedRoleCount(data.occupiedRoleCount);
-        role.setMax(data.maxCount);
+        role.setDefaultMax(data.maxCount);
         if (data.canAutoAddMoney != null) role.setCanAutoAddMoney(data.canAutoAddMoney);
         role.setCanBeRandomedByOtherRoles(data.canBeRandomedByOtherRoles);
         if (data.canIgnoreBlackout != null) role.setCanIgnoreBlackout(data.canIgnoreBlackout);

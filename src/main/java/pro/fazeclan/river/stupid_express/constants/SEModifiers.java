@@ -49,7 +49,7 @@ public class SEModifiers {
             null,
             null,
             false,
-            false));
+            false)).setCanSetSpawnInfoInConfig(false);
 
     public static SREModifier REFUGEE = HMLModifiers.registerModifier(new SREModifier(
             StupidExpress.id("refugee"),
@@ -57,7 +57,9 @@ public class SEModifiers {
             null,
             null,
             false,
-            false));
+            false))
+            .setDefaultEnableChance(1000)
+            .setDefaultEnableNeededPlayerCount(12);
 
     public static SREModifier TINY = HMLModifiers.registerModifier(new SREModifier(
             StupidExpress.id("tiny"),
@@ -89,7 +91,8 @@ public class SEModifiers {
             null,
             null,
             false,
-            false));
+            false))
+            .setDefaultEnableChance(5000).setDefaultMax(2);
 
     public static SREModifier TASKMASTER = HMLModifiers.registerModifier(new SREModifier(
             StupidExpress.id("taskmaster"),
@@ -97,7 +100,7 @@ public class SEModifiers {
             null,
             null,
             false,
-            false));
+            false)).setCanSetSpawnInfoInConfig(false);
 
     public static SREModifier JEB_ = HMLModifiers.registerModifier(new SREModifier(
             StupidExpress.id("jeb_"),
@@ -105,7 +108,9 @@ public class SEModifiers {
             null,
             null,
             false,
-            false)).setMax(1);
+            false))
+            .setDefaultMax(1)
+            .setDefaultEnableChance(3000);
 
     public static SREModifier ALLERGIST = HMLModifiers.registerModifier(new SREModifier(
             StupidExpress.id("allergist"),
@@ -113,7 +118,8 @@ public class SEModifiers {
             null,
             null,
             false,
-            false));
+            false))
+            .setDefaultEnableChance(2000).setDefaultMax(1);
 
     public static SREModifier CURSED = HMLModifiers.registerModifier(new SREModifier(
             StupidExpress.id("cursed"),
@@ -121,7 +127,9 @@ public class SEModifiers {
             null,
             null,
             false,
-            false));
+            false))
+            .setDefaultEnableChance(3000)
+            .setDefaultEnableNeededPlayerCount(12).setDefaultMax(1);
 
     public static SREModifier SECRETIVE = HMLModifiers.registerModifier(new SREModifier(
             StupidExpress.id("secretive"),
@@ -129,7 +137,8 @@ public class SEModifiers {
             null,
             null,
             false,
-            false));
+            false))
+            .setCanSetSpawnInfoInConfig(false);
 
     public static SREModifier KNIGHT = HMLModifiers.registerModifier(new SREModifier(
             StupidExpress.id("knight"),
@@ -137,7 +146,9 @@ public class SEModifiers {
             null,
             null,
             false,
-            false));
+            false))
+            .setDefaultEnableChance(1000)
+            .setDefaultEnableNeededPlayerCount(12).setDefaultMax(1);
 
     public static SREModifier SPLIT_PERSONALITY = HMLModifiers.registerModifier(new SREModifier(
             StupidExpress.id("split_personality"),
@@ -145,7 +156,9 @@ public class SEModifiers {
             null,
             null,
             false,
-            true));
+            true))
+            .setDefaultEnableChance(0)
+            .setDefaultEnableNeededPlayerCount(12);
 
     // 新增修饰符：矫健（体力上限更多、恢复更快）
     public static SREModifier VIGOROUS = HMLModifiers.registerModifier(new SREModifier(
@@ -154,7 +167,8 @@ public class SEModifiers {
             null,
             null,
             false,
-            false));
+            false))
+            .setDefaultEnableChance(8000).setDefaultMax(2);
 
     // 新增修饰符：不屈（一次性免疫被平民误杀；对杀手阵营攻击免疫）
     public static SREModifier UNYIELDING = HMLModifiers.registerModifier(new SREModifier(
@@ -163,7 +177,8 @@ public class SEModifiers {
             new HashSet<>(List.of(ModRoles.PUPPETEER)),
             null,
             false,
-            false));
+            false))
+            .setDefaultEnableChance(8000).setDefaultMax(2);
 
     public static SREModifier BLACK_WHITE = HMLModifiers.registerModifier(new SREModifier(
             StupidExpress.id("black_white"),
@@ -171,7 +186,10 @@ public class SEModifiers {
             null,
             new HashSet<>(List.of(TMMRoles.VIGILANTE)),
             false,
-            true)).setMax(1);
+            true))
+            .setDefaultMax(1)
+            .setDefaultEnableChance(1000)
+            .setDefaultEnableNeededPlayerCount(10);
 
     // 标记不屈的一次性免疫是否已被消耗（基于 UUID 的运行时集合）
     public static Set<UUID> UNYIELDING_IMMUNITY_USED = ConcurrentHashMap.newKeySet();
@@ -183,11 +201,12 @@ public class SEModifiers {
             null,
             null,
             false,
-            false));
+            false))
+            .setDefaultEnableChance(1000).setDefaultMax(1);
 
     public static void init() {
         // 设置双重人格的最大分配数量（从配置读取）
-        SPLIT_PERSONALITY.setMax(SREConfig.instance().splitPersonalityMax);
+        SPLIT_PERSONALITY.setDefaultMax(SREConfig.instance().splitPersonalityMax);
         SPLIT_PERSONALITY.civilianOnly = true;
         VIGOROUS.civilianOnly = true;
 

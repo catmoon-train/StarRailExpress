@@ -16,7 +16,6 @@ import org.agmas.harpymodloader.events.GameInitializeEvent;
 import org.agmas.harpymodloader.modded_murder.RoleAssignmentManager;
 import org.agmas.harpymodloader.modifiers.HMLModifiers;
 import org.agmas.harpymodloader.modifiers.SREModifier;
-import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.config.NoellesRolesConfig.SpawnInfo;
 import org.agmas.noellesroles.role.ModRoles;
@@ -24,7 +23,6 @@ import org.agmas.noellesroles.role.RedHouseRoles;
 import org.agmas.noellesroles.role.TraitorAndModifiers;
 import pro.fazeclan.river.stupid_express.StupidExpress;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
-import pro.fazeclan.river.stupid_express.constants.SERoles;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -101,7 +99,7 @@ public class InitModRolesMax {
 
         // 工程师每局只能有 1 个
         Harpymodloader.setRoleMaximum(ModRoles.ENGINEER_ID, 1);
-        Harpymodloader.setRoleMaximum(ModRoles.BASEBALL_PLAYER_ID, 0);
+        Harpymodloader.setRoleMaximum(ModRoles.BASEBALL_PLAYER_ID, 1);
         Harpymodloader.setRoleMaximum(ModRoles.LOCKSMITH_ID, 0);
         Harpymodloader.setRoleMaximum(ModRoles.MA_CHEN_XU, 0);
         Harpymodloader.setRoleMaximum(ModRoles.GUEST_GHOST, 0);
@@ -248,7 +246,7 @@ public class InitModRolesMax {
         RoleAssignmentManager.addOccupationRole(ModRoles.DIO, ModRoles.JOJO);
         RoleAssignmentManager.addOccupationRole(ModRoles.WATER_GHOST, ModRoles.DIVER);
 
-        Harpymodloader.setRoleMaximum(ModRoles.CONDUCTOR_ID, NoellesRolesConfig.HANDLER.instance().conductorMax);
+        Harpymodloader.setRoleMaximum(ModRoles.CONDUCTOR_ID, 0);
         Harpymodloader.setRoleMaximum(RedHouseRoles.MAID_SAKUYA, 0);
         Harpymodloader.setRoleMaximum(ModRoles.DIO, 0);
         Harpymodloader.setRoleMaximum(ModRoles.BETTER_VIGILANTE, 0);
@@ -259,24 +257,23 @@ public class InitModRolesMax {
         Harpymodloader.setRoleMaximum(RedHouseRoles.REMILIA, 0);
         Harpymodloader.setRoleMaximum(ModRoles.EXAMPLER, 0);
         Harpymodloader.setRoleMaximum(ModRoles.MANIPULATOR, 0);
-        Harpymodloader.setRoleMaximum(ModRoles.EXECUTIONER_ID, NoellesRolesConfig.HANDLER.instance().executionerMax);
-        Harpymodloader.setRoleMaximum(ModRoles.VULTURE_ID, NoellesRolesConfig.HANDLER.instance().vultureMax);
-        Harpymodloader.setRoleMaximum(ModRoles.JESTER_ID, NoellesRolesConfig.HANDLER.instance().jesterMax);
-        Harpymodloader.setRoleMaximum(ModRoles.MORPHLING_ID, NoellesRolesConfig.HANDLER.instance().morphlingMax);
-        Harpymodloader.setRoleMaximum(ModRoles.SILENCER_ID, NoellesRolesConfig.HANDLER.instance().silencerMax);
-        Harpymodloader.setRoleMaximum(ModRoles.BARTENDER_ID, NoellesRolesConfig.HANDLER.instance().bartenderMax);
-        Harpymodloader.setRoleMaximum(ModRoles.NOISEMAKER_ID, NoellesRolesConfig.HANDLER.instance().noisemakerMax);
-        Harpymodloader.setRoleMaximum(ModRoles.PHANTOM_ID, NoellesRolesConfig.HANDLER.instance().phantomMax);
-        Harpymodloader.setRoleMaximum(ModRoles.AWESOME_BINGLUS_ID,
-                NoellesRolesConfig.HANDLER.instance().awesomeBinglusMax);
-        Harpymodloader.setRoleMaximum(ModRoles.SWAPPER_ID, NoellesRolesConfig.HANDLER.instance().swapperMax);
-        Harpymodloader.setRoleMaximum(ModRoles.VOODOO_ID, NoellesRolesConfig.HANDLER.instance().voodooMax);
-        Harpymodloader.setRoleMaximum(ModRoles.CORONER_ID, NoellesRolesConfig.HANDLER.instance().coronerMax);
-        Harpymodloader.setRoleMaximum(ModRoles.RECALLER_ID, NoellesRolesConfig.HANDLER.instance().recallerMax);
-        Harpymodloader.setRoleMaximum(ModRoles.BROADCASTER_ID, NoellesRolesConfig.HANDLER.instance().broadcasterMax);
-        Harpymodloader.setRoleMaximum(ModRoles.GAMBLER_ID, NoellesRolesConfig.HANDLER.instance().gamblerMax);
-        Harpymodloader.setRoleMaximum(ModRoles.GLITCH_ROBOT_ID, NoellesRolesConfig.HANDLER.instance().glitchRobotMax);
-        Harpymodloader.setRoleMaximum(ModRoles.GHOST_ID, NoellesRolesConfig.HANDLER.instance().ghostMax);
+        Harpymodloader.setRoleMaximum(ModRoles.EXECUTIONER_ID, 1);
+        Harpymodloader.setRoleMaximum(ModRoles.VULTURE_ID, 1);
+        Harpymodloader.setRoleMaximum(ModRoles.JESTER_ID, 1);
+        Harpymodloader.setRoleMaximum(ModRoles.MORPHLING_ID, 1);
+        Harpymodloader.setRoleMaximum(ModRoles.SILENCER_ID, 1);
+        Harpymodloader.setRoleMaximum(ModRoles.BARTENDER_ID, 1);
+        Harpymodloader.setRoleMaximum(ModRoles.NOISEMAKER_ID, 1);
+        Harpymodloader.setRoleMaximum(ModRoles.PHANTOM_ID, 1);
+        Harpymodloader.setRoleMaximum(ModRoles.AWESOME_BINGLUS_ID, 1);
+        Harpymodloader.setRoleMaximum(ModRoles.SWAPPER_ID, 1);
+        Harpymodloader.setRoleMaximum(ModRoles.VOODOO_ID, 1);
+        Harpymodloader.setRoleMaximum(ModRoles.CORONER_ID, 1);
+        Harpymodloader.setRoleMaximum(ModRoles.RECALLER_ID, 1);
+        Harpymodloader.setRoleMaximum(ModRoles.BROADCASTER_ID, 1);
+        Harpymodloader.setRoleMaximum(ModRoles.GAMBLER_ID, 1);
+        Harpymodloader.setRoleMaximum(ModRoles.GLITCH_ROBOT_ID, 1);
+        Harpymodloader.setRoleMaximum(ModRoles.GHOST_ID, 1);
         Harpymodloader.setRoleMaximum(ModRoles.THIEF_ID, 1);
         Harpymodloader.setRoleMaximum(ModRoles.MERCENARY_ID, 0);
         Harpymodloader.setRoleMaximum(ModRoles.BANDIT_ID, 1);
@@ -333,29 +330,12 @@ public class InitModRolesMax {
             if (areas != null) {
                 canJumpMap = areas.canJump;
             }
-
-            {
-                NoellesRolesConfig config = NoellesRolesConfig.HANDLER.instance();
-                var killerRoleCount = (int) Math.floor((float) players_count / (float) 6);
-
-                if (killerRoleCount > 1) {
-                    Harpymodloader.setRoleMaximum(SERoles.NECROMANCER.getIdentifier(),
-                            players_count >= config.minPlayerForNecromancer ? 1 : 0);
-                    Harpymodloader.setRoleMaximum(SERoles.AVARICIOUS.getIdentifier(),
-                            players_count >= config.minPlayerForAvaricious ? 1 : 0);
-                    Harpymodloader.setRoleMaximum(SERoles.INITIATE.getIdentifier(),
-                            players_count >= config.minPlayerForInitiate ? 1 : 0);
-                } else {
-                    Harpymodloader.setRoleMaximum(SERoles.NECROMANCER.getIdentifier(), 0);
-                    Harpymodloader.setRoleMaximum(SERoles.AVARICIOUS.getIdentifier(), 0);
-                    Harpymodloader.setRoleMaximum(SERoles.INITIATE.getIdentifier(), 0);
-                }
-            }
             {
                 // 杀手中立（只处理没有配置的职业：无概率 且 无显式 setMax）
                 var neutralRoles = new ArrayList<SRERole>(TMMRoles.ROLES.values());
                 neutralRoles.removeIf((r) -> {
-                    if (r.isNeutrals() && r.isNeutralForKiller() && (r.spawnInfo.enableChance < 0) && r.maxCount <= 0)
+                    if (r.isNeutrals() && r.isNeutralForKiller() && (r.spawnInfo.enableChance < 0)
+                            && r.defaultMaxCount <= 0)
                         return false;
                     return true;
                 });
@@ -368,7 +348,7 @@ public class InitModRolesMax {
                 // 减去已有配置的职业数，避免超额分配
                 neutralForKillers -= (int) TMMRoles.ROLES.values().stream()
                         .filter(r -> r.isNeutrals() && r.isNeutralForKiller()
-                                && (r.spawnInfo.enableChance >= 0 || r.maxCount > 0))
+                                && (r.spawnInfo.enableChance >= 0 || r.defaultMaxCount > 0))
                         .count();
                 neutralForKillers = Math.max(0, neutralForKillers);
                 for (int i = 0; i < neutralForKillers && i < neutralRoles.size(); i++) {
@@ -399,102 +379,6 @@ public class InitModRolesMax {
                 Harpymodloader.setRoleMaximum(RedHouseRoles.FURANDORU, 0);
             }
 
-            // 红尘客 - 从配置读取概率 (100 - 配置值 = 不刷新的概率)
-            if (players_count >= config.minPlayerForWayfarer
-                    && random.nextInt(0, 100) >= (100 - config.chanceOfWayfarer)) {
-                Harpymodloader.setRoleMaximum(ModRoles.WAYFARER_ID, 1);
-            } else {
-                Harpymodloader.setRoleMaximum(ModRoles.WAYFARER_ID, 0);
-            }
-
-            // 毒师 - 从配置读取概率
-            if (players_count >= config.minPlayerForPoisoner && random.nextInt(0, 100) < config.chanceOfPoisoner) {
-                Harpymodloader.setRoleMaximum(ModRoles.POISONER_ID, 1);
-            } else {
-                Harpymodloader.setRoleMaximum(ModRoles.POISONER_ID, 0);
-            }
-
-            if (players_count >= config.minPlayerForEggRoles && random.nextInt(0, 100) <= EGGS_CHANCE) {
-                Harpymodloader.setRoleMaximum(ModRoles.DIO, 1);
-                Harpymodloader.setRoleMaximum(RedHouseRoles.MAID_SAKUYA, 1);
-            } else {
-                Harpymodloader.setRoleMaximum(ModRoles.DIO, 0);
-                Harpymodloader.setRoleMaximum(RedHouseRoles.MAID_SAKUYA, 0);
-            }
-
-            // 魔术师 - 从配置读取概率
-            if (players_count >= config.minPlayerForMagician && random.nextInt(0, 100) <= config.chanceOfMagician) {
-                Harpymodloader.setRoleMaximum(ModRoles.MAGICIAN_ID, 1);
-            } else {
-                Harpymodloader.setRoleMaximum(ModRoles.MAGICIAN_ID, 0);
-            }
-
-            // 迷失杀手 - 从配置读取概率和最小玩家数
-            if (players_count >= config.minPlayerForLostKiller && random.nextInt(0, 100) <= config.chanceOfLostKiller) {
-                Harpymodloader.setRoleMaximum(ModRoles.LOST_KILLER_ID, 1);
-            } else {
-                Harpymodloader.setRoleMaximum(ModRoles.LOST_KILLER_ID, 0);
-            }
-
-            // 死灵法师数量 - 从配置读取最小玩家数和概率
-            if (players_count >= config.minPlayerForNecromancer
-                    && random.nextInt(0, 100) <= config.chanceOfNecromancer) {
-                Harpymodloader.setRoleMaximum(SERoles.NECROMANCER, 1);
-            } else {
-                Harpymodloader.setRoleMaximum(SERoles.NECROMANCER, 0);
-            }
-
-            // 监察员 - 从配置读取概率
-            if (random.nextInt(0, 100) <= config.chanceOfMonitor) {
-                Harpymodloader.setRoleMaximum(ModRoles.MONITOR_ID, 1);
-            } else {
-                Harpymodloader.setRoleMaximum(ModRoles.MONITOR_ID, 0);
-            }
-
-            // 年兽 - 从配置读取概率
-            if (random.nextInt(0, 100) < config.chanceOfNianShou) {
-                Harpymodloader.setRoleMaximum(ModRoles.NIAN_SHOU_ID, 1);
-            } else {
-                Harpymodloader.setRoleMaximum(ModRoles.NIAN_SHOU_ID, 0);
-            }
-            if (players_count >= config.minPlayerForRecorder) {
-                Harpymodloader.setRoleMaximum(ModRoles.RECORDER, 1);
-            } else {
-                Harpymodloader.setRoleMaximum(ModRoles.RECORDER, 0);
-            }
-            // 秃鹫数量
-            if (players_count >= config.minPlayerForVulture) {
-                Harpymodloader.setRoleMaximum(ModRoles.VULTURE, 1);
-            } else {
-                Harpymodloader.setRoleMaximum(ModRoles.VULTURE, 0);
-            }
-            // 纵火犯数量 - 从配置读取最小玩家数
-            if (players_count >= config.minPlayerForArsonist) {
-                Harpymodloader.setRoleMaximum(SERoles.ARSONIST, 1);
-            } else {
-                Harpymodloader.setRoleMaximum(SERoles.ARSONIST, 0);
-            }
-
-            // 秉烛人数量 - 从配置读取最小玩家数
-            if (players_count >= config.minPlayerForCandleBearer) {
-                Harpymodloader.setRoleMaximum(ModRoles.CANDLE_BEARER_ID, 1);
-            } else {
-                Harpymodloader.setRoleMaximum(ModRoles.CANDLE_BEARER_ID, 0);
-            }
-
-            // 钟表匠数量 - 从配置读取最小玩家数
-            if (players_count >= config.minPlayerForClockmaker) {
-                Harpymodloader.setRoleMaximum(ModRoles.CLOCKMAKER_ID, 1);
-            } else {
-                Harpymodloader.setRoleMaximum(ModRoles.CLOCKMAKER_ID, 0);
-            }
-
-            // 仇杀客数量 - 从配置读取最小玩家数
-            if (players_count >= config.minPlayerForBloodFeudist) {
-                Harpymodloader.setRoleMaximum(ModRoles.BLOOD_FEUDIST_ID, 1);
-            } else {
-                Harpymodloader.setRoleMaximum(ModRoles.BLOOD_FEUDIST_ID, 0);
-            }
             // machenxu
             {
                 boolean isMachenxuMap = false;
@@ -670,27 +554,6 @@ public class InitModRolesMax {
                     Harpymodloader.setRoleMaximum(ModRoles.SHADOW_FALCON_ID, 0);
                 }
             }
-
-            // WRITER (作家) - 从配置读取概率
-            if (random.nextInt(0, 100) <= config.chanceOfWriter) {
-                Harpymodloader.setRoleMaximum(ModRoles.WRITER_ID, 1);
-            } else {
-                Harpymodloader.setRoleMaximum(ModRoles.WRITER_ID, 0);
-            }
-
-            // 棒球员 - 从配置读取概率
-            if (random.nextInt(0, 100) <= config.chanceOfBaseballPlayer) {
-                Harpymodloader.setRoleMaximum(ModRoles.BASEBALL_PLAYER_ID, 1);
-            } else {
-                Harpymodloader.setRoleMaximum(ModRoles.BASEBALL_PLAYER_ID, 0);
-            }
-
-            // TELEGRAPHER (电报员) - 从配置读取概率
-            if (random.nextInt(0, 100) <= config.chanceOfTelegrapher) {
-                Harpymodloader.setRoleMaximum(ModRoles.TELEGRAPHER_ID, 1);
-            } else {
-                Harpymodloader.setRoleMaximum(ModRoles.TELEGRAPHER_ID, 0);
-            }
         });
     }
 
@@ -727,9 +590,14 @@ public class InitModRolesMax {
     private static void applyRoleChanceFromConfig() {
         NoellesRolesConfig config = NoellesRolesConfig.HANDLER.instance();
 
+        for (var entry : HMLModifiers.MODIFIERS) {
+            SpawnInfo spinfo = config.modifierDetails.getSpawnInfo(entry);
+            if (spinfo != null && entry.canSetSpawnInfoInConfig())
+                entry.setSpawnInfo(spinfo);
+        }
         for (var entry : TMMRoles.ROLES.entrySet()) {
             SpawnInfo spinfo = config.roleDetails.getSpawnInfo(entry.getValue());
-            if (entry.getValue().canAutoSetMax())
+            if (spinfo != null && entry.getValue().canSetSpawnInfoInConfig())
                 entry.getValue().setSpawnInfo(spinfo);
         }
         // 以下内容均已统一成新API。（上方）可分别对任何角色进行控制。也可以设置角色不受到控制影响。
@@ -793,7 +661,7 @@ public class InitModRolesMax {
         for (var entry : TMMRoles.ROLES.entrySet()) {
             var role = entry.getValue();
             if (role.spawnInfo.enableChance < 0 && role.isNeutralForKiller()) {
-                role.setMax(1);
+                role.setDefaultMax(1);
                 role.spawnInfo.enableChance = 7500;
             }
         }
@@ -803,157 +671,45 @@ public class InitModRolesMax {
         Random random = new Random();
         NoellesRolesConfig config = NoellesRolesConfig.HANDLER.instance();
         // LOVERS
-        REFUGEE_CHANCE = config.chanceOfModifierRefugee;
-        if (REFUGEE_CHANCE < 0) {
-            REFUGEE_CHANCE = 0;
-        }
         EGGS_CHANCE = config.chanceOfEggRoles;
         if (EGGS_CHANCE < 0) {
             EGGS_CHANCE = 0;
         }
         TOUHOU_CHANCE = config.chanceOfTouhouRoles;
-        /// REFUGEE
-        if (players >= config.minPlayerForRefugee && random.nextInt(0, 100) <= REFUGEE_CHANCE) {
-            StupidExpress.LOGGER.info("Modifier [Refugee] enabled in this round!");
-            Harpymodloader.MODIFIER_MAX.put(SEModifiers.REFUGEE.identifier(), 1);
-        } else {
-            Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("refugee"), 0);
-        }
 
         /// TINY
-        StupidExpress.LOGGER.info("Modifier [Tiny] enabled in this round!");
         Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("tiny"), players / random.nextInt(4, 18));
 
         /// TALL
-        StupidExpress.LOGGER.info("Modifier [Tall] enabled in this round!");
         Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("tall"), players / random.nextInt(4, 18));
 
         /// FEATHER
-        StupidExpress.LOGGER.info("Modifier [Feather] enabled in this round!");
         Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("feather"), players / random.nextInt(8, 32));
-
-        /// MAGNATE
-        if (random.nextInt(0, 100) < config.chanceOfMagnate) {
-            StupidExpress.LOGGER.info("Modifier [Magnate] enabled in this round!");
-            Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("magnate"), 2);
-        } else {
-            Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("magnate"), 0);
-        }
 
         /// TASKMASTER
         if (random.nextInt(0, 100) < config.chanceOfTaskmaster) {
-            StupidExpress.LOGGER.info("Modifier [Taskmaster] enabled in this round!");
             Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("taskmaster"), players / random.nextInt(8, 24));
         } else {
             Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("taskmaster"), 0);
         }
 
-        /// ALLERGIST
-        if (random.nextInt(0, 100) < config.chanceOfAllergist) {
-            StupidExpress.LOGGER.info("Modifier [Allergist] enabled in this round!");
-            Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("allergist"), 1);
-        } else {
-            Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("allergist"), 0);
-        }
-
-        /// CURSED
-        if (players >= config.minPlayerForCursed && random.nextInt(0, 100) < config.chanceOfCursed) {
-            StupidExpress.LOGGER.info("Modifier [Cursed] enabled in this round!");
-            Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("cursed"), 1);
-        } else {
-            Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("cursed"), 0);
-        }
-
         /// SECRETIVE
         if (players >= config.minPlayerForSecretive && random.nextInt(0, 100) < config.chanceOfSecretive) {
-            StupidExpress.LOGGER.info("Modifier [Secretive] enabled in this round! (2)");
             Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("secretive"), players / random.nextInt(8, 24));
         } else {
-            StupidExpress.LOGGER.info("Modifier [Secretive] enabled in this round! (1)");
-            Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("secretive"), 1);
+            Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("secretive"), 0);
         }
 
-        /// KNIGHT
-        if (players >= config.minPlayerForKnight && random.nextInt(0, 100) < config.chanceOfKnight) {
-            StupidExpress.LOGGER.info("Modifier [Knight] enabled in this round!");
-            Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("knight"), 1);
-        } else {
-            Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("knight"), 0);
-        }
-
-        /// JEB_
-        if (random.nextInt(0, 100) < config.chanceOfJeb) {
-            StupidExpress.LOGGER.info("Modifier [Jeb_] enabled in this round!");
-            Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("jeb_"), 1);
-        } else {
-            Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("jeb_"), 0);
-        }
-
-        /// VIGOROUS (矫健)
-        if (random.nextInt(0, 100) < config.chanceOfVigorous) {
-            StupidExpress.LOGGER.info("Modifier [Vigorous] enabled in this round!");
-            Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("vigorous"), 2);
-        } else {
-            Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("vigorous"), 0);
-        }
-
-        /// UNYIELDING (不屈)
-        if (random.nextInt(0, 100) < config.chanceOfUnyielding) {
-            StupidExpress.LOGGER.info("Modifier [Unyielding] enabled in this round!");
-            Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("unyielding"), 2);
-        } else {
-            Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("unyielding"), 0);
-        }
-
-        /// PARANOID (偏执)
-        if (random.nextInt(0, 100) < config.chanceOfParanoid) {
-            StupidExpress.LOGGER.info("Modifier [Paranoid] enabled in this round!");
-            Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("paranoid"), 1);
-        } else {
-            Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("paranoid"), 0);
-        }
-
-        SPLIT_PERSONALITY_CHANCE = NoellesRolesConfig.HANDLER.instance().chanceOfModifierSplitPersonality;
-        if (SPLIT_PERSONALITY_CHANCE < 0) {
-            SPLIT_PERSONALITY_CHANCE = 0;
-        }
         /// SPLIT_PERSONALITY
-        if (players >= config.minPlayerForSplitPersonality && random.nextInt(0, 100) < SPLIT_PERSONALITY_CHANCE) {
-            StupidExpress.LOGGER.info("Modifier [Split Personality] enabled in this round!");
-            Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("split_personality"), 1);
+        if (Harpymodloader.MODIFIER_MAX.get(SEModifiers.SPLIT_PERSONALITY.identifier) > 0) {
         } else {
-            Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("split_personality"), 0);
-            if (players >= config.minPlayerForSplitPersonality
+            if (players >= config.minPlayerForLovers
                     && random.nextInt(0, 100) <= config.chanceOfModifierLovers) {
                 StupidExpress.LOGGER.info("Modifier [Lovers] enabled in this round!");
                 Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("lovers"), 1);
             } else {
                 Harpymodloader.MODIFIER_MAX.put(StupidExpress.id("lovers"), 0);
             }
-        }
-
-        /// EXPEDITION (远征队)
-        if (random.nextInt(0, 100) < config.chanceOfExpedition) {
-            StupidExpress.LOGGER.info("Modifier [Expedition] enabled in this round!");
-            Harpymodloader.MODIFIER_MAX.put(Noellesroles.id("expedition"), 1);
-        } else {
-            Harpymodloader.MODIFIER_MAX.put(Noellesroles.id("expedition"), 0);
-        }
-
-        /// TAXED (纳税)
-        if (random.nextInt(0, 100) < config.chanceOfTaxed) {
-            StupidExpress.LOGGER.info("Modifier [Taxed] enabled in this round!");
-            Harpymodloader.MODIFIER_MAX.put(Noellesroles.id("taxed"), 1);
-        } else {
-            Harpymodloader.MODIFIER_MAX.put(Noellesroles.id("taxed"), 0);
-        }
-
-        /// INTROVERTED (内向)
-        if (random.nextInt(0, 100) < config.chanceOfIntroverted) {
-            StupidExpress.LOGGER.info("Modifier [Introverted] enabled in this round!");
-            Harpymodloader.MODIFIER_MAX.put(Noellesroles.id("introverted"), 1);
-        } else {
-            Harpymodloader.MODIFIER_MAX.put(Noellesroles.id("introverted"), 0);
         }
     }
 }

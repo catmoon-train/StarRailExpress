@@ -16,11 +16,12 @@ public class RoleSpawnInfoEntriesAdapter
         implements JsonSerializer<RoleSpawnInfoEntries>,
         JsonDeserializer<RoleSpawnInfoEntries> {
 
-    private static final Type SPAWN_INFO_TYPE = new TypeToken<SpawnInfo>() {}.getType();
+    private static final Type SPAWN_INFO_TYPE = new TypeToken<SpawnInfo>() {
+    }.getType();
 
     @Override
     public JsonElement serialize(RoleSpawnInfoEntries src, Type typeOfSrc,
-                                 JsonSerializationContext context) {
+            JsonSerializationContext context) {
         JsonObject result = new JsonObject();
         result.addProperty("type", src.type);
         JsonArray array = new JsonArray();
@@ -36,7 +37,7 @@ public class RoleSpawnInfoEntriesAdapter
 
     @Override
     public RoleSpawnInfoEntries deserialize(JsonElement json, Type typeOfT,
-                                            JsonDeserializationContext context)
+            JsonDeserializationContext context)
             throws JsonParseException {
         if (!json.isJsonObject()) {
             return new RoleSpawnInfoEntries();
@@ -77,20 +78,24 @@ public class RoleSpawnInfoEntriesAdapter
 
         JsonArray array = entriesElement.getAsJsonArray();
         for (JsonElement element : array) {
-            if (!element.isJsonObject()) continue;
+            if (!element.isJsonObject())
+                continue;
             JsonObject obj = element.getAsJsonObject();
 
             // 读取 key
             JsonElement keyElement = obj.get("key");
-            if (keyElement == null || !keyElement.isJsonPrimitive()) continue;
+            if (keyElement == null || !keyElement.isJsonPrimitive())
+                continue;
             String keyStr = keyElement.getAsString();
             ResourceLocation rl = ResourceLocation.tryParse(keyStr);
-            if (rl == null) continue;
+            if (rl == null)
+                continue;
 
             // 只在默认映射中存在该 key 时才覆盖
             if (resultMap.containsKey(rl)) {
                 JsonElement valueElement = obj.get("value");
-                if (valueElement == null) continue;
+                if (valueElement == null)
+                    continue;
                 SpawnInfo spawnInfo = context.deserialize(valueElement, SPAWN_INFO_TYPE);
                 resultMap.put(rl, spawnInfo); // 覆盖默认值
             }

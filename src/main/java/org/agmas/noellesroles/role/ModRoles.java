@@ -382,7 +382,9 @@ public class ModRoles {
                                     false, // showParticles（显示粒子）
                                     false // showIcon（显示图标）
                             )))
-            .setCanSeeCoin(true).setComponentKey(ModComponents.MEATBALL).setMax(1).setCanBeRandomedByOtherRoles(false);
+            .setCanSeeCoin(true).setComponentKey(ModComponents.MEATBALL).setDefaultMax(1)
+            .setCanBeRandomedByOtherRoles(false)
+            .setDefaultEnableChance(2500).setDefaultEnableNeededPlayerCount(12);
 
     /**
      * 殡仪员角色 - 平民阵营
@@ -409,7 +411,7 @@ public class ModRoles {
             SRERole.MoodType.REAL, // 真实心情
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
             false // 不隐藏计分板
-    )).setCanSeeCoin(true).setComponentKey(ModComponents.MORTICIAN).setMax(1);
+    )).setCanSeeCoin(true).setComponentKey(ModComponents.MORTICIAN).setDefaultMax(1);
 
     /**
      * 建筑师角色 - 平民阵营
@@ -435,7 +437,8 @@ public class ModRoles {
             SRERole.MoodType.REAL, // 真实心情
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
             false // 不隐藏计分板
-    )).setCanSeeCoin(true).setComponentKey(ModComponents.BUILDER).setMax(1);
+    )).setCanSeeCoin(true).setComponentKey(ModComponents.BUILDER).setDefaultMax(1)
+            .setDefaultEnableChance(7000).setDefaultEnableNeededPlayerCount(12);
 
     public static SRERole GUEST_GHOST = TMMRoles.registerRole(new NormalRole(
             GUEST_GHOST_ID, // 角色 ID
@@ -445,7 +448,7 @@ public class ModRoles {
             SRERole.MoodType.REAL, // 假心情
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 无限冲刺时间
             true // 隐藏计分板
-    )).setCanSeeCoin(true).setOccupiedRoleCount(2).setVigilanteTeam(true);
+    )).setCanSeeCoin(true).setOccupiedRoleCount(2).setVigilanteTeam(true).setDefaultMax(0);
     public static SRERole MA_CHEN_XU = TMMRoles.registerRole(new NormalRole(
             MA_CHEN_XU_ID, // 角色 ID
             new Color(75, 0, 130).getRGB(), // 深紫色 - 代表恐惧与神秘
@@ -477,7 +480,7 @@ public class ModRoles {
             SRERole.MoodType.REAL, // 真实心情
             TMMRoles.CIVILIAN.getMaxSprintTime(),
             false // 不隐藏计分板
-    )).setCanSeeCoin(true).setVigilanteTeam(true).setCanBeRandomedByOtherRoles(false);
+    )).setCanSeeCoin(true).setVigilanteTeam(true).setCanBeRandomedByOtherRoles(false).setDefaultMax(0);
 
     // ==================== 已注册角色定义 ====================
     // 乘客阵营角色
@@ -487,14 +490,15 @@ public class ModRoles {
                     false, true, SRERole.MoodType.FAKE,
                     Integer.MAX_VALUE, true))
             .setCanSeeCoin(true).setCanSeeTeammateKiller(true)
-            .setCanUseInstinct(true);
+            .setCanUseInstinct(true).setDefaultMax(0);
 
     // 好人：锁匠
     public static SRERole LOCKSMITH = TMMRoles.registerRole(
             new NormalRole(LOCKSMITH_ID, new Color(100, 200, 200).getRGB(),
                     true, false, SRERole.MoodType.REAL,
                     TMMRoles.CIVILIAN.getMaxSprintTime(), false))
-            .setCanSeeCoin(true).setComponentKey(LocksmithInspirationComponent.KEY);
+            .setCanSeeCoin(true).setComponentKey(LocksmithInspirationComponent.KEY).setCanSetSpawnInfoInConfig(true)
+            .setDefaultMax(0);
 
     public static SRERole OLDMAN = TMMRoles.registerRole(
             new ExtraEffectRole(OLDMAN_ID, new Color(112, 146, 190).getRGB(),
@@ -527,7 +531,7 @@ public class ModRoles {
                     true)
                     .setComponentKey(ModComponents.NINJA)
                     .setCanSeeCoin(true)
-                    .setMax(1));
+                    .setDefaultMax(1));
 
     public static SRERole DELAYER = TMMRoles.registerRole(new NormalRole(
             DELAYER_ID,
@@ -537,12 +541,13 @@ public class ModRoles {
             SRERole.MoodType.FAKE,
             Integer.MAX_VALUE, // 无限冲刺 / 疲劳
             true // 隐藏计分板
-    )).setComponentKey(ModComponents.DELAYER).setCanSeeCoin(true).setMax(1).setDefaultEnableChance(20);
+    )).setComponentKey(ModComponents.DELAYER).setCanSeeCoin(true).setDefaultMax(1).setDefaultEnableChance(20);
     public static SRERole ELF = TMMRoles.registerRole(
             new NormalRole(ELF_ID, new Color(106, 255, 179).getRGB(),
                     true, false, SRERole.MoodType.REAL,
                     TMMRoles.CIVILIAN.getMaxSprintTime(), false))
-            .setVigilanteTeam(true).setCanSeeCoin(true).setCanPickUpRevolver(false).setCanAutoAddMoney(true);
+            .setVigilanteTeam(true).setCanSeeCoin(true).setCanPickUpRevolver(false).setCanAutoAddMoney(true)
+            .setCanSetSpawnInfoInConfig(false);
     public static final ResourceLocation GUARD_ID = Noellesroles.id("guard");
     public static SRERole GUARD = TMMRoles.registerRole(
             new NormalRole(GUARD_ID, new Color(170, 170, 170).getRGB(), true, false, SRERole.MoodType.REAL,
@@ -555,12 +560,16 @@ public class ModRoles {
                         if (item == io.wifi.starrailexpress.index.TMMItems.REVOLVER
                                 || item == org.agmas.noellesroles.init.ModItems.PATROLLER_REVOLVER) {
                             // 检查主手、副手和背包是否有警棍
-                            if (player.getMainHandItem().is(org.agmas.noellesroles.init.ModItems.BATON))
+                            if (player.getMainHandItem()
+                                    .is(org.agmas.noellesroles.init.ModItems.BATON))
                                 return true;
-                            if (player.getOffhandItem().is(org.agmas.noellesroles.init.ModItems.BATON))
+                            if (player.getOffhandItem()
+                                    .is(org.agmas.noellesroles.init.ModItems.BATON))
                                 return true;
-                            for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
-                                if (player.getInventory().getItem(i).is(org.agmas.noellesroles.init.ModItems.BATON))
+                            for (int i = 0; i < player.getInventory()
+                                    .getContainerSize(); i++) {
+                                if (player.getInventory().getItem(i).is(
+                                        org.agmas.noellesroles.init.ModItems.BATON))
                                     return true;
                             }
                             return false;
@@ -568,8 +577,9 @@ public class ModRoles {
                         return false;
                     };
                 }
-            }).setCanSeeCoin(true).setCanPickUpRevolver(true).setCanAutoAddMoney(false).setVigilanteTeam(true)
-            .setMax(1);
+            }).setCanSeeCoin(true).setCanPickUpRevolver(true).setCanAutoAddMoney(false)
+            .setVigilanteTeam(true)
+            .setDefaultMax(1).setCanSetSpawnInfoInConfig(false);
     public static SRERole WIND_YAOSE = TMMRoles.registerRole(
             new ExtraEffectRole(WIND_YAOSE_ID, new Color(127, 231, 255).getRGB(),
                     false, false, SRERole.MoodType.FAKE,
@@ -596,7 +606,8 @@ public class ModRoles {
                     false, false, SRERole.MoodType.FAKE,
                     Integer.MAX_VALUE, false))
             .setCanSeeCoin(true).setNeutrals(true).setCanPickUpRevolver(false)
-            .setComponentKey(ModComponents.WAYFARER).setCanUseInstinct(false).setCanSeeBodyDeathReason(true);
+            .setComponentKey(ModComponents.WAYFARER).setCanUseInstinct(false).setCanSeeBodyDeathReason(true)
+            .setDefaultEnableChance(2500).setDefaultEnableNeededPlayerCount(10);
     public static final ResourceLocation CUCKOO_ID = Noellesroles.id("cuckoo");
 
     public static SRERole CUCKOO = TMMRoles.registerRole(
@@ -604,7 +615,7 @@ public class ModRoles {
                     false, false, SRERole.MoodType.FAKE,
                     Integer.MAX_VALUE, true))
             .setCanSeeCoin(true).setComponentKey(ModComponents.CUCKOO).setCanBeRandomedByOtherRoles(false)
-            .setCanUseInstinct(true).setNeutrals(true).setMax(1);
+            .setCanUseInstinct(true).setNeutrals(true).setDefaultMax(1).setDefaultEnableChance(4500);
     public static SRERole JESTER = TMMRoles
             .registerRole(new NormalRole(JESTER_ID, new Color(186, 85, 211).getRGB(), false,
                     false, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true) {
@@ -613,14 +624,17 @@ public class ModRoles {
                     return SRE.id("textures/entity/custom_psycho/jester.png");
                 };
             })
-            .setNeutralForKiller(true).setCanSeeTeammateKiller(false).setCanUseInstinct(true).setPassiveIncome(true);
+            .setNeutralForKiller(true).setCanSeeTeammateKiller(false).setCanUseInstinct(true)
+            .setPassiveIncome(true)
+            .setDefaultMax(1);
     public static SRERole CONDUCTOR = TMMRoles
             .registerRole(new NormalRole(CONDUCTOR_ID, new Color(184, 134, 11).getRGB(), true,
-                    false, SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false));
+                    false, SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false))
+            .setDefaultMax(1);
     public static SRERole BARTENDER = TMMRoles
             .registerRole(new NormalRole(BARTENDER_ID, new Color(217, 241, 240).getRGB(), true,
                     false, SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false))
-            .setComponentKey(FoodDrinkGlowComponent.KEY);
+            .setComponentKey(FoodDrinkGlowComponent.KEY).setDefaultMax(1);
     public static SRERole NOISEMAKER = TMMRoles
             .registerRole(new NormalRole(NOISEMAKER_ID, new Color(200, 255, 0).getRGB(), true,
                     false, SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false) {
@@ -631,7 +645,8 @@ public class ModRoles {
                     SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY
                             .get(victim.level());
                     if (gameWorldComponent.isRole(victim, ModRoles.NOISEMAKER)) {
-                        playerBodyEntity.addEffect(new MobEffectInstance(MobEffects.GLOWING, 20 * 60, 0));
+                        playerBodyEntity.addEffect(
+                                new MobEffectInstance(MobEffects.GLOWING, 20 * 60, 0));
                         var serverLevel = victim.level();
                         for (Player p : serverLevel.players()) {
                             if (p.isSpectator()) {
@@ -652,41 +667,48 @@ public class ModRoles {
                         }
                     }
                 }
-            });
+            }).setDefaultMax(1);
     public static SRERole AWESOME_BINGLUS = TMMRoles
             .registerRole(new NormalRole(AWESOME_BINGLUS_ID, new Color(155, 255, 168).getRGB(), true, false,
-                    SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false));
+                    SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false))
+            .setDefaultMax(1);
     public static SRERole VOODOO = TMMRoles
             .registerRole(new NormalRole(VOODOO_ID, new Color(128, 114, 253).getRGB(), true,
                     false, SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false)
-                    .setComponentKey(VoodooPlayerComponent.KEY));
+                    .setComponentKey(VoodooPlayerComponent.KEY))
+            .setDefaultMax(1);
     public static SRERole RECALLER = TMMRoles
             .registerRole(new NormalRole(RECALLER_ID, new Color(135, 206, 235).getRGB(), true,
                     false, SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false)
-                    .setComponentKey(RecallerPlayerComponent.KEY));
+                    .setComponentKey(RecallerPlayerComponent.KEY))
+            .setDefaultMax(1);
     public static SRERole BETTER_VIGILANTE = TMMRoles
             .registerRole(new NormalRole(BETTER_VIGILANTE_ID, new Color(0, 255, 255).getRGB(), true, false,
                     SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false)
                     .setComponentKey(BetterVigilantePlayerComponent.KEY))
-            .setCanBeRandomedByOtherRoles(false);
+            .setCanBeRandomedByOtherRoles(false).setDefaultMax(0);
     public static SRERole BROADCASTER = TMMRoles
             .registerRole(new NormalRole(BROADCASTER_ID, new Color(0, 255, 0).getRGB(), true,
                     false, SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), true)
-                    .setComponentKey(BroadcasterPlayerComponent.KEY));
+                    .setComponentKey(BroadcasterPlayerComponent.KEY))
+            .setDefaultMax(1);
     public static SRERole GHOST = TMMRoles
             .registerRole(new NormalRole(GHOST_ID, new Color(200, 200, 200).getRGB(), true, false,
-                    SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), true));
+                    SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), true))
+            .setDefaultMax(1);
     public static SRERole DOCTOR = TMMRoles
             .registerRole(new NormalRole(DOCTOR_ID, new Color(30, 144, 255).getRGB(), true,
-                    false, SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false));
+                    false, SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false))
+            .setCanSetSpawnInfoInConfig(true).setDefaultMax(0);
     public static SRERole ATTENDANT = TMMRoles
             .registerRole(new NormalRole(ATTENDANT_ID, (new Color(198, 185, 36)).getRGB(),
-                    true, false, SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false));
+                    true, false, SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(),
+                    false));
     public static SRERole PATROLLER = TMMRoles
             .registerRole(new NormalRole(PATROLLER_ID, 0x2F6BFF, true, false, SRERole.MoodType.REAL,
                     io.wifi.starrailexpress.game.GameConstants.getInTicks(0, 10), false)
                     .setVigilanteTeam(true).setComponentKey(PatrollerPlayerComponent.KEY))
-            .setCanPickUpRevolver(true);
+            .setCanPickUpRevolver(true).setCanSetSpawnInfoInConfig(false);
 
     /**
      * 更好的义警角色
@@ -705,7 +727,8 @@ public class ModRoles {
             SRERole.MoodType.REAL, // 真实心情
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
             false // 显示计分板
-    )).setVigilanteTeam(true).setCanPickUpRevolver(true).setCanBeRandomedByOtherRoles(false);
+    )).setVigilanteTeam(true).setCanPickUpRevolver(true).setCanBeRandomedByOtherRoles(false)
+            .setCanSetSpawnInfoInConfig(false);
 
     /**
      * 棒球员角色
@@ -725,7 +748,8 @@ public class ModRoles {
             SRERole.MoodType.REAL, // 真实心情
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
             false // 显示计分板
-    )).setVigilanteTeam(true).setCanPickUpRevolver(true).setCanBeRandomedByOtherRoles(false);
+    )).setVigilanteTeam(true).setCanPickUpRevolver(true).setCanBeRandomedByOtherRoles(false)
+            .setDefaultEnableChance(200).setCanSetSpawnInfoInConfig(true);
 
     /**
      * 苦力怕角色
@@ -750,7 +774,8 @@ public class ModRoles {
         public int getMoodColor() {
             return PUPPETEER_COLOR.getOrRandomColor();
         }
-    }).setComponentKey(ModComponents.CREEPER).setCanBeRandomedByOtherRoles(false).setMax(1);
+    }).setComponentKey(ModComponents.CREEPER).setCanBeRandomedByOtherRoles(false).setDefaultMax(1)
+            .setDefaultEnableChance(2500);
 
     /**
      * 作家角色
@@ -771,7 +796,7 @@ public class ModRoles {
             SRERole.MoodType.REAL, // 真实心情
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
             false // 不隐藏计分板
-    )).setCanSeeCoin(true);
+    )).setCanSeeCoin(true).setDefaultEnableChance(200);
 
     /**
      * 电报员角色
@@ -793,7 +818,8 @@ public class ModRoles {
             SRERole.MoodType.REAL, // 真实心情
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
             false // 不隐藏计分板
-    )).setCanSeeCoin(true).setComponentKey(TelegrapherPlayerComponent.KEY);
+    )).setCanSeeCoin(true).setComponentKey(TelegrapherPlayerComponent.KEY)
+            .setDefaultEnableChance(200);
 
     /**
      * 搜救员角色
@@ -912,7 +938,7 @@ public class ModRoles {
                     false, // showParticles（显示粒子）
                     true // showIcon（显示图标）
             )))
-            .setCanSeeCoin(true).setComponentKey(DiverPlayerComponent.KEY);
+            .setCanSeeCoin(true).setComponentKey(DiverPlayerComponent.KEY).setDefaultMax(0);
 
     /**
      * 特警角色
@@ -937,8 +963,9 @@ public class ModRoles {
             false // 不隐藏计分板
     )).setCanSeeCoin(true).setVigilanteTeam(true).setCanPickUpRevolver(false)
             .setServerGameTickEvent((player, gameComponent) -> {
-                org.agmas.noellesroles.game.roles.vigilante.swast.SwastTickHandler.serverTick(player, gameComponent);
-            });
+                org.agmas.noellesroles.game.roles.vigilante.swast.SwastTickHandler.serverTick(player,
+                        gameComponent);
+            }).setCanSetSpawnInfoInConfig(false);
 
     /**
      * 武术教官角色
@@ -957,9 +984,9 @@ public class ModRoles {
             true, // isInnocent = 乘客阵营
             false, // canUseKiller = 无杀手能力
             SRERole.MoodType.REAL, // 真实心情
-            (int)(TMMRoles.CIVILIAN.getMaxSprintTime() * 2.5), // 2.5倍平民体力
+            (int) (TMMRoles.CIVILIAN.getMaxSprintTime() * 2.5), // 2.5倍平民体力
             false // 不隐藏计分板
-    )).setCanSeeCoin(true).setVigilanteTeam(true).setCanPickUpRevolver(false);
+    )).setCanSeeCoin(true).setVigilanteTeam(true).setCanPickUpRevolver(false).setCanSetSpawnInfoInConfig(false);
 
     /**
      * 海王角色
@@ -991,7 +1018,8 @@ public class ModRoles {
                     false, // showParticles（显示粒子）
                     true // showIcon（显示图标）
             )))
-            .setCanSeeCoin(true).setVigilanteTeam(true).setCanPickUpRevolver(false);
+            .setCanSeeCoin(true).setVigilanteTeam(true).setCanPickUpRevolver(false)
+            .setCanSetSpawnInfoInConfig(false);
 
     /**
      * 水鬼角色
@@ -1023,16 +1051,19 @@ public class ModRoles {
                     false, // showParticles（显示粒子）
                     true // showIcon（显示图标）
             )))
-            .setComponentKey(ModComponents.WATER_GHOST).setCanSeeCoin(true).setCanBeRandomedByOtherRoles(false);
+            .setComponentKey(ModComponents.WATER_GHOST).setCanSeeCoin(true)
+            .setCanBeRandomedByOtherRoles(false);
 
     // 杀手阵营角色
     public static SRERole CLEANER = TMMRoles
             .registerRole(new NormalRole(CLEANER_ID, new Color(255, 1, 124).getRGB(), false,
-                    true, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true).setCanPickUpRevolver(true));
+                    true, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true)
+                    .setCanPickUpRevolver(true));
     public static SRERole MORPHLING = TMMRoles
             .registerRole(new NormalRole(MORPHLING_ID, new Color(220, 20, 60).getRGB(), false,
                     true, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true)
-                    .setComponentKey(MorphlingPlayerComponent.KEY));
+                    .setComponentKey(MorphlingPlayerComponent.KEY))
+            .setDefaultMax(1);
 
     /**
      * 静语者角色 - 杀手阵营
@@ -1048,7 +1079,9 @@ public class ModRoles {
     public static SRERole SILENCER = TMMRoles
             .registerRole(new NormalRole(SILENCER_ID, new Color(160, 40, 100).getRGB(), false,
                     true, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true)
-                    .setComponentKey(org.agmas.noellesroles.game.roles.killer.silencer.SilencerPlayerComponent.KEY));
+                    .setComponentKey(
+                            org.agmas.noellesroles.game.roles.killer.silencer.SilencerPlayerComponent.KEY))
+            .setDefaultEnableChance(6000).setDefaultMax(1);
 
     public static SRERole PARTY_KILLER = TMMRoles.registerRole(new NormalRole(PARTY_KILLER_ID,
             new Color(255, 105, 180).getRGB(), // 派对色
@@ -1056,20 +1089,20 @@ public class ModRoles {
             true, // 有杀手功能
             SRERole.MoodType.FAKE,
             Integer.MAX_VALUE,
-            true)).setComponentKey(ModComponents.PARTY).setCanSeeCoin(true).setMax(1);
+            true)).setComponentKey(ModComponents.PARTY).setCanSeeCoin(true).setDefaultMax(1);
     public static SRERole MANIPULATOR = TMMRoles
             .registerRole(new ManipulatorRole(MANIPULATOR_ID, new Color(90, 20, 61).getRGB(), false,
                     true, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true)
                     .setComponentKey(ManipulatorPlayerComponent.KEY))
-            .setComponentKey(ModComponents.MANIPULATOR);
+            .setComponentKey(ModComponents.MANIPULATOR).setDefaultMax(0);
     public static SRERole PHANTOM = TMMRoles
             .registerRole(new NormalRole(PHANTOM_ID, new Color(80, 5, 5, 192).getRGB(), false,
                     true, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true))
-            .setComponentKey(ModComponents.ABILITY);
+            .setComponentKey(ModComponents.ABILITY).setDefaultMax(1);
     public static SRERole SWAPPER = TMMRoles
             .registerRole(new NormalRole(SWAPPER_ID, new Color(255, 0, 255).getRGB(), false,
                     true, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true))
-            .setComponentKey(ModComponents.SWAPPER);
+            .setComponentKey(ModComponents.SWAPPER).setDefaultMax(1);
     public static SRERole EXECUTIONER = TMMRoles
             .registerRole(new NormalRole(EXECUTIONER_ID, new Color(74, 27, 5).getRGB(),
                     false, true, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true) {
@@ -1079,14 +1112,17 @@ public class ModRoles {
                     return TMMItems.REVOLVER;
                 };
             }
-                    .setComponentKey(ExecutionerPlayerComponent.KEY));
+                    .setComponentKey(ExecutionerPlayerComponent.KEY))
+            .setDefaultMax(1);
     public static SRERole GAMBLER = TMMRoles
             .registerRole(new GamblerRole(GAMBLER_ID, new Color(72, 61, 139).getRGB(), false,
                     false, SRERole.MoodType.FAKE, TMMRoles.CIVILIAN.getMaxSprintTime(), true))
-            .setCanPickUpRevolver(true).setComponentKey(GamblerPlayerComponent.KEY).setNeutrals(true);
+            .setCanPickUpRevolver(true).setComponentKey(GamblerPlayerComponent.KEY).setNeutrals(true)
+            .setDefaultMax(1);
     public static SRERole POISONER = TMMRoles
             .registerRole(new NormalRole(POISONER_ID, (new Color(115, 0, 57)).getRGB(), false,
-                    true, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true));
+                    true, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true))
+            .setDefaultEnableChance(5500).setDefaultEnableNeededPlayerCount(12);
 
     // 疫使与毒师互斥生成
     public static SRERole INFECTED = TMMRoles
@@ -1094,9 +1130,10 @@ public class ModRoles {
                     false, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true))
             .setNeutralForKiller(true)
             .setCanUseInstinct(true)
-            .setMax(1)
+            .setDefaultMax(1)
             .setCanSeeCoin(true)
-            .setCanBeRandomedByOtherRoles(false);
+            .setCanBeRandomedByOtherRoles(false)
+            .setDefaultEnableChance(5000).setDefaultEnableNeededPlayerCount(12);
 
     /**
      * 葬仪角色 - 杀手方中立阵营
@@ -1125,13 +1162,13 @@ public class ModRoles {
             .setNeutralForKiller(true)
             .setCanUseInstinct(true)
             .setCanSeeCoin(true)
-            .setMax(1);
+            .setDefaultMax(1);
 
     public static SRERole SPELLBREAKER = TMMRoles
             .registerRole(new NormalRole(SPELLBREAKER_ID, (new Color(132, 46, 170)).getRGB(), false,
                     true, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true)
                     .setComponentKey(SpellbreakerPlayerComponent.KEY))
-            .setCanSeeCoin(true).setMax(1);
+            .setCanSeeCoin(true).setDefaultMax(1);
 
     public static SRERole INSANE_KILLER = TMMRoles
             .registerRole(new NormalRole(
@@ -1150,7 +1187,8 @@ public class ModRoles {
             .registerRole(new NormalRole(VULTURE_ID, new Color(210, 105, 30).getRGB(), false,
                     false, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true)
                     .setComponentKey(VulturePlayerComponent.KEY))
-            .setNeutralForKiller(true).setCanSeeTeammateKiller(false).setCanSeeBodyDeathReason(true);
+            .setNeutralForKiller(true).setCanSeeTeammateKiller(false).setCanSeeBodyDeathReason(true)
+            .setDefaultEnableNeededPlayerCount(8).setDefaultMax(1);
 
     /**
      * 鹈鹕角色 (Pelican)
@@ -1166,41 +1204,46 @@ public class ModRoles {
     public static SRERole PELICAN = TMMRoles
             .registerRole(new NormalRole(PELICAN_ID, new Color(111, 138, 36).getRGB(), false,
                     false, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true)
-                    .setComponentKey(org.agmas.noellesroles.game.roles.neutral.pelican.PelicanPlayerComponent.KEY))
-            .setNeutrals(true).setNeutralForKiller(false).setCanSeeTeammateKiller(false).setMax(1)
-            .setCanUseInstinct(true).setCanSeeCoin(true).setCanPickUpRevolver(false).setCanBeRandomedByOtherRoles(false);
+                    .setComponentKey(
+                            org.agmas.noellesroles.game.roles.neutral.pelican.PelicanPlayerComponent.KEY))
+            .setNeutrals(true).setNeutralForKiller(false).setCanSeeTeammateKiller(false).setDefaultMax(1)
+            .setCanUseInstinct(true).setCanSeeCoin(true).setCanPickUpRevolver(false)
+            .setCanBeRandomedByOtherRoles(false).setDefaultEnableNeededPlayerCount(16).setDefaultEnableChance(4000);
 
     // ==================== Mafia 家族角色 ====================
     public static SRERole GODFATHER = TMMRoles
             .registerRole(new NormalRole(GODFATHER_ID, new Color(199, 21, 133).getRGB(), false,
                     false, SRERole.MoodType.FAKE, TMMRoles.CIVILIAN.getMaxSprintTime() * 2, true))
             .setNeutrals(true).setCanSeeTeammateKiller(false).setCanUseInstinct(true)
-            .setCanSeeCoin(true).setOccupiedRoleCount(3).setMax(1).setCanBeRandomedByOtherRoles(false).setMafiaTeam(true);
+            .setCanSeeCoin(true).setOccupiedRoleCount(3).setDefaultMax(1)
+            .setCanBeRandomedByOtherRoles(false)
+            .setMafiaTeam(true).setDefaultEnableNeededPlayerCount(18).setDefaultEnableChance(1800);
     public static SRERole MAFIOSO = TMMRoles
             .registerRole(new NormalRole(MAFIOSO_ID, new Color(218, 112, 214).getRGB(), false,
                     false, SRERole.MoodType.FAKE, TMMRoles.CIVILIAN.getMaxSprintTime() * 2, true))
             .setNeutrals(true).setCanSeeTeammateKiller(false).setCanUseInstinct(true)
-            .setCanSeeCoin(true).setMax(0).setCanBeRandomedByOtherRoles(false).setMafiaTeam(true);
+            .setCanSeeCoin(true).setDefaultMax(0).setCanBeRandomedByOtherRoles(false).setMafiaTeam(true);
     public static SRERole JANITOR = TMMRoles
             .registerRole(new NormalRole(JANITOR_ID, new Color(255, 105, 180).getRGB(), false,
                     false, SRERole.MoodType.FAKE, TMMRoles.CIVILIAN.getMaxSprintTime() * 2, true))
             .setNeutrals(true).setCanSeeTeammateKiller(false).setCanUseInstinct(true)
-            .setCanSeeCoin(true).setMax(0).setCanBeRandomedByOtherRoles(false).setMafiaTeam(true);
+            .setCanSeeCoin(true).setDefaultMax(0).setCanBeRandomedByOtherRoles(false).setMafiaTeam(true);
     public static SRERole NUTRITIONIST = TMMRoles
             .registerRole(new NormalRole(NUTRITIONIST_ID, new Color(50, 205, 50).getRGB(), false,
                     false, SRERole.MoodType.FAKE, TMMRoles.CIVILIAN.getMaxSprintTime() * 2, true))
             .setNeutrals(true).setCanSeeTeammateKiller(false).setCanUseInstinct(true)
-            .setCanSeeCoin(true).setMax(0).setCanBeRandomedByOtherRoles(false).setMafiaTeam(true);
+            .setCanSeeCoin(true).setDefaultMax(0).setCanBeRandomedByOtherRoles(false).setMafiaTeam(true);
     public static SRERole PARASOL = TMMRoles
             .registerRole(new NormalRole(PARASOL_ID, new Color(0, 139, 139).getRGB(), false,
                     false, SRERole.MoodType.FAKE, TMMRoles.CIVILIAN.getMaxSprintTime() * 2, true))
             .setNeutrals(true).setCanSeeTeammateKiller(false).setCanUseInstinct(true)
-            .setCanSeeCoin(true).setMax(0).setCanBeRandomedByOtherRoles(false).setMafiaTeam(true);
+            .setCanSeeCoin(true).setDefaultMax(0).setCanBeRandomedByOtherRoles(false).setMafiaTeam(true);
 
     public static SRERole CORONER = TMMRoles
             .registerRole(new NormalRole(CORONER_ID, new Color(122, 122, 122).getRGB(), true,
                     false, SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false))
-            .setCanSeeBodyDeathReason(true).setCanSeeBodyRoleInfo(true).setCanSeeBodyItems(true);
+            .setCanSeeBodyDeathReason(true).setCanSeeBodyRoleInfo(true).setCanSeeBodyItems(true)
+            .setDefaultMax(1);
 
     // ==================== 自定义角色对象定义 ====================
     // 乘客阵营角色
@@ -1496,7 +1539,9 @@ public class ModRoles {
             SRERole.MoodType.REAL, // 真实心情
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
             false // 不隐藏计分板
-    )).setComponentKey(PainterPlayerComponent.KEY).setCanSeeCoin(true).setMax(1).setDefaultEnableNeededPlayerCount(12);
+    )).setComponentKey(PainterPlayerComponent.KEY).setCanSeeCoin(true).setDefaultMax(1)
+            .setDefaultEnableNeededPlayerCount(12)
+            .setDefaultEnableChance(5000);
 
     // 杀手阵营角色
     /**
@@ -1579,7 +1624,7 @@ public class ModRoles {
     )).setOccupiedRoleCount(0) // 不占用杀手位
             .setCanUseInstinct(false) // 没有杀手透视
             .setCanSeeTeammateKiller(false) // 杀手本能看不到队友，对杀手的框显示如平民
-            .setMax(1);
+            .setDefaultMax(1).setDefaultEnableChance(2000).setDefaultEnableNeededPlayerCount(12);
 
     /**
      * 判断角色是否应该在技能页面（Widget）中显示为可见的杀手同伙。
@@ -1620,7 +1665,8 @@ public class ModRoles {
             if (player.getOffhandItem().getItem() instanceof StalkerKnifeItem) {
                 if (player.getMainHandItem().getItem() instanceof StalkerKnifeItem) {
                     if (player.getCooldowns().isOnCooldown(player.getMainHandItem().getItem())
-                            && !player.getCooldowns().isOnCooldown(player.getOffhandItem().getItem())) {
+                            && !player.getCooldowns().isOnCooldown(
+                                    player.getOffhandItem().getItem())) {
                         // 交换位置
                         var temp = player.getMainHandItem();
                         var temp2 = player.getOffhandItem();
@@ -1629,7 +1675,8 @@ public class ModRoles {
 
                     }
                     if (player.getCooldowns().isOnCooldown(player.getMainHandItem().getItem())
-                            && !player.getCooldowns().isOnCooldown(player.getOffhandItem().getItem())) {
+                            && !player.getCooldowns().isOnCooldown(
+                                    player.getOffhandItem().getItem())) {
                         // 交换位置
                         var temp = player.getMainHandItem();
                         var temp2 = player.getOffhandItem();
@@ -1658,7 +1705,8 @@ public class ModRoles {
     public static SRERole ADMIRER = TMMRoles.registerRole(new NormalRole(
             ADMIRER_ID, // 角色 ID
             new Color(255, 192, 203).getRGB(), false, false, SRERole.MoodType.FAKE, Integer.MAX_VALUE,
-            true)).setComponentKey(AdmirerPlayerComponent.KEY).setNeutralForKiller(true).setCanUseInstinct(true)
+            true)).setComponentKey(AdmirerPlayerComponent.KEY).setNeutralForKiller(true)
+            .setCanUseInstinct(true)
             .setCanSeeTeammateKiller(false);;
 
     /**
@@ -1709,7 +1757,8 @@ public class ModRoles {
             SRERole.MoodType.REAL, // 真实心情
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
             false // 不显示计分板
-    ).setComponentKey(MonitorPlayerComponent.KEY).setCanSeeCoin(true));
+    ).setComponentKey(MonitorPlayerComponent.KEY).setCanSeeCoin(true))
+            .setDefaultEnableChance(7500);
 
     /**
      * 记录员角色
@@ -1727,7 +1776,8 @@ public class ModRoles {
             SRERole.MoodType.FAKE, // 假心情
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
             true // 隐藏计分板
-    )).setComponentKey(RecorderPlayerComponent.KEY).setCanUseInstinct(true).setNeutrals(true);
+    )).setComponentKey(RecorderPlayerComponent.KEY).setCanUseInstinct(true).setNeutrals(true)
+            .setDefaultEnableNeededPlayerCount(10);
 
     /**
      * 故障机器人角色
@@ -1748,7 +1798,8 @@ public class ModRoles {
             SRERole.MoodType.FAKE, // 小丑心情（假心情）
             TMMRoles.CIVILIAN.getMaxSprintTime() * 2, // 双倍体力上限
             false // 不隐藏计分板
-    )).setComponentKey(GlitchRobotPlayerComponent.KEY).setCanSeeCoin(true);;
+    )).setComponentKey(GlitchRobotPlayerComponent.KEY).setCanSeeCoin(true)
+            .setDefaultMax(1);
 
     /**
      * 年兽角色 - 中立阵营
@@ -1772,7 +1823,8 @@ public class ModRoles {
             SRERole.MoodType.REAL, // 真实心情
             (int) (TMMRoles.CIVILIAN.getMaxSprintTime() * 1.5), // 1.5倍体力
             true // 隐藏计分板
-    ).setComponentKey(NianShouPlayerComponent.KEY).setCanSeeCoin(true).setNeutrals(true));;
+    ).setComponentKey(NianShouPlayerComponent.KEY).setCanSeeCoin(true).setNeutrals(true))
+            .setDefaultEnableChance(2000);
 
     /**
      * 小偷角色 - 中立阵营
@@ -1802,7 +1854,7 @@ public class ModRoles {
             return itemStacks;
         }
     }).setComponentKey(ThiefPlayerComponent.KEY).setCanSeeCoin(true).setNeutrals(true)
-            .setCanSeeTeammateKiller(false);;
+            .setCanSeeTeammateKiller(false);
 
     /**
      * 雇佣兵角色 - 中立阵营（非独立胜利）
@@ -1818,7 +1870,8 @@ public class ModRoles {
             SRERole.MoodType.FAKE,
             Integer.MAX_VALUE,
             true)).setComponentKey(MercenaryPlayerComponent.KEY).setCanSeeCoin(true).setNeutrals(true)
-            .setCanSeeTeammateKiller(false).setCanUseInstinct(false).setMax(1);
+            .setCanSeeTeammateKiller(false).setCanUseInstinct(false).setDefaultMax(1)
+            .setDefaultEnableChance(2500).setDefaultEnableNeededPlayerCount(12);
 
     /**
      * 秉烛人角色 - 中立阵营
@@ -1834,7 +1887,8 @@ public class ModRoles {
             SRERole.MoodType.FAKE,
             Integer.MAX_VALUE,
             true)).setComponentKey(CandleBearerPlayerComponent.KEY).setCanSeeCoin(true).setNeutrals(true)
-            .setCanSeeTeammateKiller(false).setCanUseInstinct(true);;
+            .setCanSeeTeammateKiller(false).setCanUseInstinct(true)
+            .setDefaultEnableNeededPlayerCount(12);
 
     /**
      * 魔术师角色 - 好人阵营（从模仿者移植）
@@ -1855,7 +1909,8 @@ public class ModRoles {
             false // 不显示计分板
     )).setCanPickUpRevolver(true).setCanSeeCoin(true)
             .setNeutralForKiller(true).setCanSeeTeammateKiller(false).setNeutrals(false)
-            .setCanBeRandomedByOtherRoles(false);
+            .setCanBeRandomedByOtherRoles(false)
+            .setDefaultEnableChance(2500).setDefaultEnableNeededPlayerCount(16);
 
     /**
      * 钟表匠角色 - 好人阵营
@@ -1878,7 +1933,8 @@ public class ModRoles {
             SRERole.MoodType.REAL, // 真实心情
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
             true // 不显示计分板
-    )).setComponentKey(ClockmakerPlayerComponent.KEY).setCanSeeTime(true).setCanSeeCoin(true);
+    )).setComponentKey(ClockmakerPlayerComponent.KEY).setCanSeeTime(true).setCanSeeCoin(true)
+            .setDefaultEnableNeededPlayerCount(12);
 
     /**
      * 强盗角色 - 杀手阵营
@@ -1906,7 +1962,7 @@ public class ModRoles {
             Integer.MAX_VALUE, // 无限冲刺时间
             true // 隐藏计分板
     )).setComponentKey(ModComponents.BANDIT);
-    
+
     /**
      * 悍匪角色
      * - 属于杀手阵营 (isInnocent = false)
@@ -1925,8 +1981,7 @@ public class ModRoles {
             true,
             SRERole.MoodType.FAKE,
             Integer.MAX_VALUE,
-            true
-    )).setCanSeeCoin(true).setMax(1);
+            true)).setCanSeeCoin(true).setDefaultMax(1).setDefaultEnableNeededPlayerCount(12).setDefaultEnableChance(7500);
 
     /**
      * 钳工角色
@@ -1946,8 +2001,7 @@ public class ModRoles {
             false,
             SRERole.MoodType.REAL,
             TMMRoles.CIVILIAN.getMaxSprintTime(),
-            false
-    )).setCanSeeCoin(true).setMax(0);
+            false)).setCanSeeCoin(true).setDefaultMax(0);
 
     public static SRERole BLOOD_FEUDIST = TMMRoles.registerRole(new NormalRole(
             BLOOD_FEUDIST_ID, // 角色 ID
@@ -1957,7 +2011,8 @@ public class ModRoles {
             SRERole.MoodType.FAKE, // 假心情
             Integer.MAX_VALUE, // 无限冲刺时间
             true // 隐藏计分板
-    )).setComponentKey(ModComponents.BLOOD_FEUDIST).setCanSeeCoin(true);;
+    )).setComponentKey(ModComponents.BLOOD_FEUDIST).setCanSeeCoin(true)
+            .setDefaultEnableNeededPlayerCount(12);
     public static SRERole WATCHER = TMMRoles.registerRole(new WatcherRole(
             WATCHER_ID,
             new Color(52, 73, 94).getRGB(),
@@ -2004,18 +2059,21 @@ public class ModRoles {
      * - 核心机制：尊名纸条、塔罗会、处刑者手枪
      * - 商店：尊名纸条(50金币)、灵性斗篷(200金币)
      */
-    public static SRERole THE_FOOL = TMMRoles.registerRole(new org.agmas.noellesroles.game.roles.innocent.fool.FoolRole(
-            THE_FOOL_ID, // 角色 ID
-            new Color(180, 160, 220).getRGB(), // 淡紫色 - 代表神秘与命运
-            true, // isInnocent = 好人阵营
-            false, // canUseKiller = 无杀手能力
-            SRERole.MoodType.REAL, // 真实心情
-            TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
-            false // 不隐藏计分板
-    )).setComponentKey(org.agmas.noellesroles.game.roles.innocent.fool.FoolPlayerComponent.KEY).setCanSeeCoin(true)
+    public static SRERole THE_FOOL = TMMRoles
+            .registerRole(new org.agmas.noellesroles.game.roles.innocent.fool.FoolRole(
+                    THE_FOOL_ID, // 角色 ID
+                    new Color(180, 160, 220).getRGB(), // 淡紫色 - 代表神秘与命运
+                    true, // isInnocent = 好人阵营
+                    false, // canUseKiller = 无杀手能力
+                    SRERole.MoodType.REAL, // 真实心情
+                    TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
+                    false // 不隐藏计分板
+            )).setComponentKey(org.agmas.noellesroles.game.roles.innocent.fool.FoolPlayerComponent.KEY)
+            .setCanSeeCoin(true)
             .setCanPickUpRevolver(true)
-            .setMax(1)
-            .setCanBeRandomedByOtherRoles(false);
+            .setDefaultMax(1)
+            .setCanBeRandomedByOtherRoles(false)
+            .setDefaultEnableChance(3000).setDefaultEnableNeededPlayerCount(12);
 
     /**
      * 黑白角色 - 中立阵营（伪装义警）
@@ -2088,7 +2146,7 @@ public class ModRoles {
             .setNeutrals(true)
             .setCanUseInstinct(false) // 不能使用杀手直觉
             .setCanSeeCoin(true)
-            .setMax(0)
+            .setDefaultMax(0)
             .setCanBeRandomedByOtherRoles(false);
 
     public static SRERole CAT_KILLER = TMMRoles.registerRole(new NormalRole(
@@ -2115,7 +2173,7 @@ public class ModRoles {
         public ResourceLocation getPsychoSkin(Player player, boolean isSlim) {
             return SRE.id("textures/entity/custom_psycho/cat_killer.png");
         }
-    }).setCanSeeTime(true).setCanSeeCoin(true).setMax(0).setCanBeRandomedByOtherRoles(false);
+    }).setCanSeeTime(true).setCanSeeCoin(true).setDefaultMax(0).setCanBeRandomedByOtherRoles(false);
 
     static {
         AllowPlayerDeathWithKiller.EVENT.register((player, killer, deathReason) -> {
@@ -2137,7 +2195,7 @@ public class ModRoles {
             Integer.MAX_VALUE, // 标准冲刺时间
             true // 不显示计分板
     )).setCanSeeTime(true).setCanSeeCoin(true)
-            .setMax(1);
+            .setDefaultMax(1).setDefaultEnableChance(1000).setDefaultEnableNeededPlayerCount(12);
 
     // ==================== 其他变量定义 ====================
     public static ArrayList<SRERole> SHOW_MONEY_ROLES = new ArrayList<>();
@@ -2160,13 +2218,13 @@ public class ModRoles {
 
         // 设置迷失杀手与魔术师互斥
         ModRoles.LOST_KILLER.addTwoWayOpposingJobs(ModRoles.MAGICIAN);
-        
+
         // 设置鹈鹕与纵火犯互斥
         ModRoles.PELICAN.addTwoWayOpposingJobs(SERoles.ARSONIST);
         // 设置鹈鹕与秉烛人互斥
         ModRoles.PELICAN.addTwoWayOpposingJobs(ModRoles.CANDLE_BEARER);
         ModRoles.PELICAN.addTwoWayOpposingJobs(SERoles.INITIATE);
-        
+
         // 设置教父与初学者互斥
         ModRoles.GODFATHER.addTwoWayOpposingJobs(SERoles.INITIATE);
         // 设置鹈鹕与教父互斥
@@ -2188,7 +2246,8 @@ public class ModRoles {
             WARLOCK_ID, new java.awt.Color(139, 0, 139).getRGB(), false,
             true, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true)
             .setComponentKey(org.agmas.noellesroles.game.roles.killer.warlock.WarlockPlayerComponent.KEY))
-            .setCanUseKiller(true).setCanSeeTeammateKiller(true).setCanBeRandomedByOtherRoles(false).setMax(0)
+            .setCanUseKiller(true).setCanSeeTeammateKiller(true).setCanBeRandomedByOtherRoles(false)
+            .setDefaultMax(0)
             .setCanUseInstinct(true).setCanSeeCoin(true);
 
     // ==================== 嬉命人（Embalmer）====================
@@ -2203,7 +2262,8 @@ public class ModRoles {
     public static SRERole SKINCRAWLER = TMMRoles.registerRole(new NormalRole(
             SKINCRAWLER_ID, new java.awt.Color(204, 68, 68).getRGB(), false,
             true, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true)
-            .setComponentKey(org.agmas.noellesroles.game.roles.killer.skincrawler.SkincrawlerPlayerComponent.KEY))
+            .setComponentKey(
+                    org.agmas.noellesroles.game.roles.killer.skincrawler.SkincrawlerPlayerComponent.KEY))
             .setCanUseKiller(true).setCanSeeTeammateKiller(true)
             .setCanUseInstinct(true).setCanSeeCoin(true);
 
@@ -2227,13 +2287,15 @@ public class ModRoles {
      * 技能：花费100金币传送到30格外随机一人的身边，冷却120秒
      */
     public static SRERole PHANTOM_MUSICIAN = TMMRoles
-            .registerRole(new NormalRole(PHANTOM_MUSICIAN_ID, new java.awt.Color(180, 120, 220).getRGB(), false,
+            .registerRole(new NormalRole(PHANTOM_MUSICIAN_ID, new java.awt.Color(180, 120, 220).getRGB(),
+                    false,
                     false, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true)
-                    .setComponentKey(org.agmas.noellesroles.game.roles.neutral.phantom_musician.PhantomMusicianPlayerComponent.KEY))
+                    .setComponentKey(
+                            org.agmas.noellesroles.game.roles.neutral.phantom_musician.PhantomMusicianPlayerComponent.KEY))
             .setNeutralForKiller(true)
             .setNeutrals(true)
             .setCanUseInstinct(true)
             .setCanSeeCoin(true)
-            .setMax(1);
+            .setDefaultMax(1);
 
 }

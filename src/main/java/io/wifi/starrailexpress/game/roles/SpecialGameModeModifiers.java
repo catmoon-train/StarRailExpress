@@ -16,7 +16,7 @@ public class SpecialGameModeModifiers {
             null,
             new HashSet<>(),
             false,
-            false)).setMax(0).setOtherModeRole(true);
+            false)).setDefaultMax(0).setOtherModeRole(true);
 
     public static void init() {
 

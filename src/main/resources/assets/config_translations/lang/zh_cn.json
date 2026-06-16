@@ -229,6 +229,7 @@
   "text.autoconfig.noellesroles.option.roleDetails.minEnabledPlayer":"最小启用人数",
   "text.autoconfig.noellesroles.option.roleDetails.enableChance":"启用概率（1/10000）",
   "text.autoconfig.noellesroles.option.roleDetails.maxEnabledPlayer":"最大启用人数",
+  "text.autoconfig.noellesroles.option.roleDetails.max":"最大刷新数量",
   "text.autoconfig.noellesroles.option.roleDetails.map":"可启用地图",
   "text.autoconfig.noellesroles.option.modifierDetails.minEnabledPlayer":"最小启用人数",
   "text.autoconfig.noellesroles.option.modifierDetails.enableChance":"启用概率（1/10000）",

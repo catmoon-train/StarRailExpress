@@ -100,7 +100,7 @@ public class SpawnInfoGuiProvider {
                     Component.translatable("text.cloth-config.reset_value"),
                     false,
                     false,
-                    (entry, self) -> buildRow(new EditableEntry("", new SpawnInfo(0, 0, 0)), i18n));
+                    (entry, self) -> buildRow(new EditableEntry("", new SpawnInfo()), i18n));
             pageEntries.add(emptyPage);
         } else {
             for (int i = 0; i < entries.size(); i += pageSize) {
@@ -123,7 +123,7 @@ public class SpawnInfoGuiProvider {
                         Component.translatable("text.cloth-config.reset_value"),
                         false,
                         false,
-                        (entry, self) -> buildRow(entry != null ? entry : new EditableEntry("", new SpawnInfo(0, 0, 0)),
+                        (entry, self) -> buildRow(entry != null ? entry : new EditableEntry("", new SpawnInfo()),
                                 i18n));
                 pageEntries.add(pageList);
             }
@@ -365,10 +365,11 @@ public class SpawnInfoGuiProvider {
 
     private static SpawnInfo cloneSpawnInfo(SpawnInfo original) {
         if (original == null)
-            return new SpawnInfo(0, 0, 0);
+            return new SpawnInfo();
         SpawnInfo copy = new SpawnInfo(
                 original.minEnabledPlayer,
                 original.maxEnabledPlayer,
+                original.maxSpawn,
                 original.enableChance);
         if (original.map != null) {
             copy.map = new ArrayList<>(original.map);
