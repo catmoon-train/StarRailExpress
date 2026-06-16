@@ -269,7 +269,6 @@ public class GhostPlayerComponent implements RoleComponent, ServerTickingCompone
             return;
         if (player.isCreative())
             return;
-
         if (player.hasEffect(ModEffects.SAFE_TIME))
             return;
         if (player.hasEffect(ModEffects.SKILL_BANED))
