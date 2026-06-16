@@ -33,7 +33,6 @@ import java.util.List;
 
 public class GrenadeEntity extends NoHeavyWaterInfluencedThrowableItemProjectile {
     private static final float EXPLOSION_RADIUS = 4f;
-    private static final int MAX_KILL_PLAYER_COUNT = 8;
 
     /**
      * 空间视线模拟的最小可见性阈值
@@ -78,6 +77,7 @@ public class GrenadeEntity extends NoHeavyWaterInfluencedThrowableItemProjectile
             boolean meatballInRange = false;
             boolean hasInnocentInRange = false;
             for (var entity : hitted_players) {
+                
                 if (entity instanceof Player player) {
                     var gameWorld = io.wifi.starrailexpress.cca.SREGameWorldComponent.KEY.get(player.level());
                     if (gameWorld.isRole(player, org.agmas.noellesroles.role.ModRoles.MEATBALL)) {
@@ -93,7 +93,7 @@ public class GrenadeEntity extends NoHeavyWaterInfluencedThrowableItemProjectile
             SREPlayerShopComponent killerShop = attacker != null
                     ? SREPlayerShopComponent.KEY.get(attacker) : null;
             int balanceBefore = killerShop != null ? killerShop.balance : 0;
-
+            int MAX_KILL_PLAYER_COUNT = SREConfig.instance().grenadeMaxHurtPlayers;
             int count = 0;
             for (var entity : hitted_players) {
                 if (entity instanceof Player player) {

@@ -2,6 +2,8 @@ package io.wifi.starrailexpress.content.command;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
+
+import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.GameMode;
 import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
@@ -54,13 +56,21 @@ public class StartCommand {
       return -1;
     }
 
+    if (gameMode == SREGameModes.REPAIR_ESCAPE_MODE) {
+      // 节约写入玩家NBT带来的网络消耗，所以需要手动启用才会进行同步。
+      // 否则禁止游戏。
+      if (!SREConfig.instance().enableRepairMode) {
+        source.sendFailure(Component.translatable("game.start_error.game_running"));
+        return -1;
+      }
+    }
     // 检查当前地图是否支持该游戏模式
     AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
     if (gameMode != SREGameModes.REPAIR_ESCAPE_MODE && areas.gameModes != null && !areas.gameModes.isEmpty()) {
       String modeId = gameMode.identifier.getPath();
       boolean isSupported = areas.gameModes.contains(modeId);
       if (!isSupported) {
-        source.sendFailure(Component.translatable("commands.sre.start.error.map_not_supported", 
+        source.sendFailure(Component.translatable("commands.sre.start.error.map_not_supported",
             gameMode.getName(), areas.mapName != null ? areas.mapName : "unknown"));
         return -1;
       }

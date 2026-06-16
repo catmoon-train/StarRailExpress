@@ -338,7 +338,7 @@ public class StarRailExpressTitleScreen extends Screen {
 
         this.menuEntries.add(new MenuEntry(
                 Component.translatable("menu.sre.original"),
-                () -> setScreenIgnoreMixins(new TitleScreen(true))));
+                () -> setScreenIgnoreMixins(new TitleScreen(false))));
         this.menuEntries.add(new MenuEntry(
                 Component.translatable("menu.sre.quit"),
                 () -> this.minecraft.stop()));

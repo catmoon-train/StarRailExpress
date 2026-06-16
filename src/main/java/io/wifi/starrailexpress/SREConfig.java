@@ -9,6 +9,11 @@ import me.shedaniel.autoconfig.annotation.ConfigEntry.Gui.Tooltip;
 
 import java.util.ArrayList;
 
+/**
+ * 写翻译键 at config_translations/lang/zh_cn.json
+ * key为text.autoconfig.(Config.name).option.项
+ * 如text.autoconfig.starrailexpress.option.enableNoLimitLoversInLoverMode
+ */
 @Config(name = "starrailexpress")
 public class SREConfig implements ConfigData {
     // 存储默认配置值 - 在静态初始化块中设置
@@ -17,6 +22,8 @@ public class SREConfig implements ConfigData {
 
 
     // 游戏模式设置
+    @ConfigEntry.Category(value = "gamemodes")
+    public boolean enableRepairMode = false;
     @ConfigEntry.Category(value = "gamemodes")
     public boolean enableNoLimitLoversInLoverMode = false;
     @ConfigEntry.Category(value = "gamemodes")
@@ -158,10 +165,9 @@ public class SREConfig implements ConfigData {
     public int passiveMoneyAmount = 5;
     public int passiveMoneyInterval = 10;
     public int moneyPerKill = 100;
-    @Tooltip
     public int grenadeMoneyPerKill = 75;
-    @Tooltip
     public int grenadeMaxMoneyReward = 375;
+    public int grenadeMaxHurtPlayers = 8;
     public int psychoModeArmor = 1;
     public int psychoModeDuration = 30;
     public int firecrackerDuration = 15;
@@ -272,17 +278,13 @@ public class SREConfig implements ConfigData {
     public int afkSleepySeconds = 3 * 60; // 3分钟时开始困倦效果
 
     // 队友击杀违规检测配置
-    @ConfigEntry.Category(value = "teamkill")
-    @Tooltip(count = 4)
-    public boolean teamKillViolationEnabled = true;
-    @ConfigEntry.Category(value = "teamkill")
-    @Tooltip(count = 5)
+    @ConfigEntry.Category(value = "friendly_teammate_kill")
+    public boolean teamKillViolationEnabled = false;
+    @ConfigEntry.Category(value = "friendly_teammate_kill")
     public int teamKillViolationThreshold = 2; // 窗口内队友击杀次数阈值
-    @ConfigEntry.Category(value = "teamkill")
-    @Tooltip(count = 3)
+    @ConfigEntry.Category(value = "friendly_teammate_kill")
     public int teamKillViolationWindowSeconds = 60; // 检测时间窗口（秒）
-    @ConfigEntry.Category(value = "teamkill")
-    @Tooltip(count = 3)
+    @ConfigEntry.Category(value = "friendly_teammate_kill")
     public String teamKillViolationMcFunction = "starrailexpress:teamkill_violation"; // 触发后执行的 mcfunction
 
     public static boolean isUltraPerfMode() {

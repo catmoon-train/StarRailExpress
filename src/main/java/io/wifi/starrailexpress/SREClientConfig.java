@@ -5,6 +5,12 @@ import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
 
+
+/**
+ * 写翻译键 at config_translations/lang/zh_cn.json
+ * key为text.autoconfig.(Config.name).option.项
+ * 如text.autoconfig.starrailexpress-client.option.ultraPerfMode
+ */
 @Config(name = "starrailexpress-client")
 public class SREClientConfig implements ConfigData {
     // 存储默认配置值 - 在静态初始化块中设置

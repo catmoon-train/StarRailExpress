@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.component;
 
+import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.RoleComponent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -20,7 +21,8 @@ import java.util.UUID;
 
 public class RepairRolePlayerComponent implements RoleComponent {
     public final Set<String> ownedRoles = new LinkedHashSet<>();
-    public final EnumMap<RepairRoleDefinition.Faction, String> selectedRoles = new EnumMap<>(RepairRoleDefinition.Faction.class);
+    public final EnumMap<RepairRoleDefinition.Faction, String> selectedRoles = new EnumMap<>(
+            RepairRoleDefinition.Faction.class);
     public String activeRole = "";
     public int neutralTaskProgress = 0;
     public boolean neutralTaskCompleted = false;
@@ -136,8 +138,9 @@ public class RepairRolePlayerComponent implements RoleComponent {
         ensureStarterRoles();
         String id = selectedRoles.get(faction);
         return RepairRoleDefinition.byId(id).filter(role -> role.faction == faction && owns(role))
-                .orElseGet(() -> RepairRoleDefinition.byFaction(faction).stream().filter(role -> role.starter).findFirst()
-                        .orElse(RepairRoleDefinition.byFaction(faction).getFirst()));
+                .orElseGet(
+                        () -> RepairRoleDefinition.byFaction(faction).stream().filter(role -> role.starter).findFirst()
+                                .orElse(RepairRoleDefinition.byFaction(faction).getFirst()));
     }
 
     public void setSelectedRole(RepairRoleDefinition role) {
@@ -172,16 +175,18 @@ public class RepairRolePlayerComponent implements RoleComponent {
 
     @Override
     public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
-        writeData(tag, false);
     }
 
     @Override
     public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
-        readData(tag, false);
+        if (!SREConfig.instance().enableRepairMode)
+            return;
         ensureStarterRoles();
     }
 
     private void writeData(CompoundTag tag, boolean includeRoundOnly) {
+        if (!SREConfig.instance().enableRepairMode)
+            return;
         ListTag owned = new ListTag();
         ownedRoles.forEach(role -> owned.add(StringTag.valueOf(role)));
         tag.put("Owned", owned);
@@ -193,8 +198,10 @@ public class RepairRolePlayerComponent implements RoleComponent {
         tag.putBoolean("NeutralTaskCompleted", neutralTaskCompleted);
         tag.putLong("SelectionEndTick", selectionEndTick);
         tag.putBoolean("Downed", downed);
-        if (carriedBy != null) tag.putUUID("CarriedBy", carriedBy);
-        if (carrying != null) tag.putUUID("Carrying", carrying);
+        if (carriedBy != null)
+            tag.putUUID("CarriedBy", carriedBy);
+        if (carrying != null)
+            tag.putUUID("Carrying", carrying);
         tag.putInt("CarryBlockedTicks", carryBlockedTicks);
         trialStand.write(tag, "TrialStand");
         tag.putInt("CompletedStations", completedStations);
