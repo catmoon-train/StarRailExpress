@@ -369,8 +369,7 @@ public class SpawnInfoGuiProvider {
         SpawnInfo copy = new SpawnInfo(
                 original.minEnabledPlayer,
                 original.maxEnabledPlayer,
-                original.maxSpawn,
-                original.enableChance);
+                original.enableChance, original.maxSpawn);
         if (original.map != null) {
             copy.map = new ArrayList<>(original.map);
         }

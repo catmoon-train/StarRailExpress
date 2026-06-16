@@ -34,13 +34,13 @@ public class NoellesRolesConfig implements ConfigData {
          */
         public int maxEnabledPlayer = -1;
         /**
+         * 最大刷新数量
+         */
+        public int maxSpawn = 1;
+        /**
          * 在什么地图刷新。为空全部
          */
         public ArrayList<String> map = new ArrayList<>();
-        /**
-         * 最大刷新数量
-         */
-        public int maxSpawn = -1;
 
         public SpawnInfo addMaps(String... maps) {
             for (var t : maps) {
