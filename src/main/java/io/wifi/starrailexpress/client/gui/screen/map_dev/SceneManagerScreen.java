@@ -9,6 +9,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.core.BlockPos;
 
 public final class SceneManagerScreen extends Screen {
     private static final int PAGE_SIZE = 5;
@@ -32,7 +33,7 @@ public final class SceneManagerScreen extends Screen {
         clearWidgets();
         int panelWidth = 360;
         int left = (width - panelWidth) / 2;
-        int top = Math.max(24, (height - 330) / 2);
+        int top = Math.max(24, (height - 382) / 2);
 
         sceneIdBox = new EditBox(font, left + 10, top + 35, 220, 20, Component.literal("场景 ID"));
         sceneIdBox.setMaxLength(128);
@@ -88,7 +89,29 @@ public final class SceneManagerScreen extends Screen {
                 button -> runAndRefresh("sre:scene library delete " + quotedId()))
                 .bounds(left + 234, actionY, 116, 20).build());
 
-        int remoteY = top + 250;
+        int editY = top + 250;
+        addRenderableWidget(Button.builder(Component.literal("源区域最小角"),
+                button -> setSourceCorner("min"))
+                .bounds(left + 10, editY, 105, 20).build());
+        addRenderableWidget(Button.builder(Component.literal("源区域最大角"),
+                button -> setSourceCorner("max"))
+                .bounds(left + 122, editY, 105, 20).build());
+        addRenderableWidget(Button.builder(Component.literal("发布并保存"),
+                button -> runAndRefresh("sre:scene publish-save " + quotedId() + " force"))
+                .bounds(left + 234, editY, 116, 20).build());
+
+        int axisY = top + 276;
+        addRenderableWidget(Button.builder(Component.literal("复制 playArea"),
+                button -> sendCommand("sre:scene select source from-play-area"))
+                .bounds(left + 10, axisY, 105, 20).build());
+        addRenderableWidget(Button.builder(Component.literal("自动滚动轴"),
+                button -> sendCommand("sre:scene axis auto"))
+                .bounds(left + 122, axisY, 105, 20).build());
+        addRenderableWidget(Button.builder(Component.literal("滚动轴 X/Y/Z/N"),
+                button -> cycleAxis())
+                .bounds(left + 234, axisY, 116, 20).build());
+
+        int remoteY = top + 302;
         remoteUrlBox = new EditBox(font, left + 10, remoteY, 238, 20, Component.literal("远程资产 URL"));
         remoteUrlBox.setMaxLength(4096);
         remoteUrlBox.setValue(SREClient.areaComponent == null
@@ -106,22 +129,43 @@ public final class SceneManagerScreen extends Screen {
                 button -> {
                     sendCommand("sre:scene trust " + (trusted ? "off" : "on"));
                     sendCommand("sre:scene manager");
-                }).bounds(left + 10, top + 276, 165, 20).build());
+                }).bounds(left + 10, top + 328, 165, 20).build());
         addRenderableWidget(Button.builder(Component.literal("取消地图场景指定"), button -> {
             sendCommand("sre:scene library detach");
             sendCommand("sre:scene manager");
         })
-                .bounds(left + 185, top + 276, 165, 20).build());
+                .bounds(left + 185, top + 328, 165, 20).build());
 
         addRenderableWidget(Button.builder(Component.literal("返回地图助手"), button -> {
             if (minecraft.player != null) {
                 minecraft.setScreen(new MapBuildHelperScreen(
                         minecraft.player.blockPosition().below(), 5));
             }
-        }).bounds(left + 10, top + 304, 165, 20).build());
+        }).bounds(left + 10, top + 356, 165, 20).build());
         addRenderableWidget(Button.builder(Component.literal("刷新列表"),
                 button -> sendCommand("sre:scene manager"))
-                .bounds(left + 185, top + 304, 165, 20).build());
+                .bounds(left + 185, top + 356, 165, 20).build());
+    }
+
+    private void setSourceCorner(String corner) {
+        if (Minecraft.getInstance().player == null) {
+            return;
+        }
+        BlockPos pos = Minecraft.getInstance().player.blockPosition().below();
+        sendCommand(String.format("sre:scene select source %s %d %d %d", corner, pos.getX(), pos.getY(), pos.getZ()));
+    }
+
+    private void cycleAxis() {
+        if (SREClient.areaComponent == null) {
+            sendCommand("sre:scene axis x");
+            return;
+        }
+        switch (SREClient.areaComponent.getSceneScroll()) {
+            case X -> sendCommand("sre:scene axis y");
+            case Y -> sendCommand("sre:scene axis z");
+            case Z -> sendCommand("sre:scene axis none");
+            case NONE -> sendCommand("sre:scene axis x");
+        }
     }
 
     private void runAndRefresh(String command) {
@@ -147,8 +191,8 @@ public final class SceneManagerScreen extends Screen {
     public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         int panelWidth = 360;
         int left = (width - panelWidth) / 2;
-        int top = Math.max(24, (height - 330) / 2);
-        graphics.fill(left, top, left + panelWidth, top + 328, 0xE0101524);
+        int top = Math.max(24, (height - 382) / 2);
+        graphics.fill(left, top, left + panelWidth, top + 380, 0xE0101524);
         graphics.fill(left, top, left + panelWidth, top + 1, 0xFF55AADD);
     }
 
@@ -157,7 +201,7 @@ public final class SceneManagerScreen extends Screen {
         super.render(graphics, mouseX, mouseY, partialTick);
         int panelWidth = 360;
         int left = (width - panelWidth) / 2;
-        int top = Math.max(24, (height - 330) / 2);
+        int top = Math.max(24, (height - 382) / 2);
         graphics.drawCenteredString(font, title, width / 2, top + 10, 0xFFFFFF);
         graphics.drawString(font,
                 Component.literal("当前地图场景: " + (currentSceneId.isBlank() ? "未指定" : currentSceneId)),
