@@ -69,6 +69,13 @@ public class ListRolesCommand {
                 RoleUtils.getRoleOrModifierOrItemDescription(role)
                         .copy().withStyle(ChatFormatting.WHITE))
                 .withStyle(ChatFormatting.GREEN));
+        message.append("\n").append(Component.translatable("commands.listroles.detail.spawn_info")
+                .withStyle(ChatFormatting.GOLD).withStyle(st -> {
+                    st = st.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,
+                            "/tmm:config spawn_info role " + role.identifier().toString()));
+                    return st;
+                }));
+        message.append("\n");
         ctx.getSource().sendSystemMessage(message);
         return 1;
     }
@@ -87,6 +94,12 @@ public class ListRolesCommand {
                 RoleUtils.getRoleOrModifierOrItemDescription(modifier)
                         .copy().withStyle(ChatFormatting.WHITE))
                 .withStyle(ChatFormatting.GREEN));
+        message.append("\n").append(Component.translatable("commands.listroles.detail.spawn_info")
+                .withStyle(ChatFormatting.GOLD).withStyle(st -> {
+                    st = st.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,
+                            "/tmm:config spawn_info modifier " + modifier.identifier.toString()));
+                    return st;
+                }));
         message.append("\n");
         ctx.getSource().sendSystemMessage(message);
 
@@ -97,7 +110,8 @@ public class ListRolesCommand {
         var rid = role.identifier();
         if ("customrole".equals(rid.getNamespace())) {
             var cd = io.wifi.starrailexpress.customrole.CustomRoleLoader.getCustomRoleData(rid.getPath());
-            if (cd != null && !cd.goals.isEmpty()) return Component.literal(cd.goals);
+            if (cd != null && !cd.goals.isEmpty())
+                return Component.literal(cd.goals);
         }
         return Component.translatable("announcement.star.goals." + role.identifier().getPath());
     }

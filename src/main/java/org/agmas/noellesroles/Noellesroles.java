@@ -215,7 +215,7 @@ public class Noellesroles implements ModInitializer {
         BroadcastCommand.register();
         AdminFreeCamCommand.register();
         SetRoleMaxCommand.register();
-        ConfigCommand.register();
+        NoellesrolesConfigCommand.register();
         VTCommand.register();
         org.agmas.noellesroles.commands.HeliumCommand.register();
         ExtraItemsManagerCommand.register();

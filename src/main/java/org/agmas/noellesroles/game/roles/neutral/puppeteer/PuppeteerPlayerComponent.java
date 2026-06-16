@@ -498,6 +498,7 @@ public class PuppeteerPlayerComponent implements RoleComponent, ServerTickingCom
             return;
         if (!(player instanceof ServerPlayer serverPlayer))
             return;
+        SREPlayerPsychoComponent.KEY.get(player).clear();
 
         SREItemUtils.clearItem(serverPlayer, TMMItems.BAT);
         // 保存假人物品栏

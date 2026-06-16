@@ -9,14 +9,15 @@ import me.shedaniel.clothconfig2.gui.entries.MultiElementListEntry;
 import me.shedaniel.clothconfig2.gui.entries.SubCategoryListEntry;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.text.Collator;
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -46,12 +47,11 @@ public class SpawnInfoGuiProvider {
         }
     }
 
-    // ---------- 可保存的分页（SubCategoryListEntry） ----------
     private static class SavableSubCategoryEntry extends SubCategoryListEntry {
         private final Runnable saveCallback;
 
         public SavableSubCategoryEntry(Component fieldName, List<AbstractConfigListEntry> children,
-                                       boolean expanded, Runnable saveCallback) {
+                boolean expanded, Runnable saveCallback) {
             super(fieldName, children, expanded);
             this.saveCallback = saveCallback;
         }
@@ -65,13 +65,12 @@ public class SpawnInfoGuiProvider {
         }
     }
 
-    // ---------- 行容器：MultiElementListEntry，重写 isExpanded 以在搜索时自动展开 ----------
     private static class SearchableRowEntry extends MultiElementListEntry<EditableEntry> {
         private final EditableEntry entry;
 
         public SearchableRowEntry(Component title, EditableEntry entry,
-                                  List<AbstractConfigListEntry<?>> children,
-                                  boolean defaultExpanded) {
+                List<AbstractConfigListEntry<?>> children,
+                boolean defaultExpanded) {
             super(title, entry, children, defaultExpanded);
             this.entry = entry;
         }
@@ -90,25 +89,10 @@ public class SpawnInfoGuiProvider {
             String nameTag = entry.name != null ? entry.name.getString() : "";
             return Iterators.concat(
                     base,
-                    Stream.of(keyTag, nameTag).filter(s -> !s.isEmpty()).iterator()
-            );
+                    Stream.of(keyTag, nameTag).filter(s -> !s.isEmpty()).iterator());
         }
-
-        // 当行匹配搜索时强制展开，确保字段可见
-        @Override
-        public boolean isExpanded() {
-            var screen = getConfigScreen();
-            if (screen != null && screen.matchesSearch(getSearchTags())) {
-                return true;
-            }
-            return super.isExpanded();
-        }
-
-        // 不重写 children 或 updateSelected，保留 MultiElementListEntry 的默认行为，
-        // 默认行为不会过滤子控件，因此焦点和编辑完全正常。
     }
 
-    // ---------- 注册 ----------
     public static void register(GuiRegistry registry) {
         registry.registerPredicateProvider(
                 SpawnInfoGuiProvider::provide,
@@ -208,7 +192,7 @@ public class SpawnInfoGuiProvider {
     }
 
     private static void saveAllRows(Field field, Object config,
-                                    List<SearchableRowEntry> allRowContainers) {
+            List<SearchableRowEntry> allRowContainers) {
         List<EditableEntry> allEntries = new ArrayList<>();
         for (SearchableRowEntry row : allRowContainers) {
             EditableEntry entry = row.getEntry();
@@ -428,7 +412,22 @@ public class SpawnInfoGuiProvider {
     private static List<EditableEntry> toEditableList(HashMap<ResourceLocation, SpawnInfo> map, int type) {
         if (map == null)
             return new ArrayList<>();
-        return map.entrySet().stream()
+        ArrayList<Entry<ResourceLocation, SpawnInfo>> resu = new ArrayList<>(map.entrySet());
+        Collator collator = Collator.getInstance();
+        resu.sort((a1, b1) -> {
+            var a = a1.getKey();
+            var b = b1.getKey();
+            if (a.getNamespace().equals(b.getNamespace())) {
+                String r_a = RoleUtils.getRoleName(a).getString();
+                String r_b = RoleUtils.getRoleName(b).getString();
+                return collator.compare(r_a, r_b);
+            } else {
+                String nameSpaceA = a.getNamespace();
+                String nameSpaceB = b.getNamespace();
+                return collator.compare(nameSpaceA, nameSpaceB);
+            }
+        });
+        return resu.stream()
                 .map(e -> new EditableEntry(e.getKey().toString(), cloneSpawnInfo(e.getValue()),
                         getKeyName(e.getKey(), type)))
                 .collect(Collectors.toCollection(ArrayList::new));

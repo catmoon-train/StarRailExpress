@@ -67,7 +67,7 @@ public class SEModifiers {
             null,
             null,
             false,
-            false));
+            false)).setCanSetSpawnInfoInConfig(false);
 
     public static SREModifier TALL = HMLModifiers.registerModifier(new SREModifier(
             StupidExpress.id("tall"),
@@ -75,7 +75,7 @@ public class SEModifiers {
             null,
             null,
             false,
-            false));
+            false)).setCanSetSpawnInfoInConfig(false);
 
     public static SREModifier FEATHER = HMLModifiers.registerModifier(new SREModifier(
             StupidExpress.id("feather"),
@@ -83,7 +83,7 @@ public class SEModifiers {
             null,
             null,
             false,
-            false));
+            false)).setCanSetSpawnInfoInConfig(false);
 
     public static SREModifier MAGNATE = HMLModifiers.registerModifier(new SREModifier(
             StupidExpress.id("magnate"),

@@ -49,6 +49,17 @@ public class NoellesRolesConfig implements ConfigData {
             return this;
         }
 
+        public SpawnInfo addMaps(ArrayList<String> maps) {
+            map.addAll(maps);
+            return this;
+        }
+
+        public SpawnInfo setMaps(ArrayList<String> maps) {
+            map.clear();
+            map.addAll(maps);
+            return this;
+        }
+
         public SpawnInfo setMaps(String... maps) {
             this.map.clear();
             for (var t : maps) {
