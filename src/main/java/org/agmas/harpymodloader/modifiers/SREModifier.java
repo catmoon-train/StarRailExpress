@@ -11,6 +11,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -34,6 +35,7 @@ public class SREModifier extends SREAbstacrtInfoClass {
     public int defaultNeedPlayerCount = 6;
     public int defaultMaxPlayerCount = -1;
     public boolean isOtherModeRole = false;
+    public ArrayList<String> defaultSpawnMaps = new ArrayList<>();
 
     public SREModifier setClientGameTickEvent(Consumer<Player> event) {
         this.clientTickEvent = event;
@@ -74,6 +76,17 @@ public class SREModifier extends SREAbstacrtInfoClass {
         return this;
     };
 
+
+    public SREModifier addDefaultSpawnMaps(String... maps) {
+        return this.setDefaultSpawnMaps(maps);
+    };
+
+    public SREModifier setDefaultSpawnMaps(String... maps) {
+        for (String s : maps) {
+            this.defaultSpawnMaps.add(s);
+        }
+        return this;
+    };
     /**
      * 启用需要的玩家数量。
      * 

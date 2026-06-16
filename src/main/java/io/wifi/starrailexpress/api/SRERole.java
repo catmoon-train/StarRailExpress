@@ -752,6 +752,10 @@ public abstract class SRERole extends SREAbstacrtInfoClass {
     };
 
     public SRERole addDefaultSpawnMaps(String... maps) {
+        return this.setDefaultSpawnMaps(maps);
+    };
+
+    public SRERole setDefaultSpawnMaps(String... maps) {
         for (String s : maps) {
             this.defaultSpawnMaps.add(s);
         }

@@ -63,7 +63,7 @@ public class NoellesRolesConfig implements ConfigData {
             for (var entry : TMMRoles.ROLES.entrySet()) {
                 SRERole role = entry.getValue();
                 obj.maps.put(entry.getKey(), new SpawnInfo(role.defaultEnableNeedPlayerCount,
-                        role.defaultEnableMaxPlayerCount, role.defaultEnableRareChance,role.defaultSpawnMaps));
+                        role.defaultEnableMaxPlayerCount, role.defaultEnableRareChance, role.defaultSpawnMaps));
             }
             obj.type = 1;
             return obj;
@@ -73,7 +73,7 @@ public class NoellesRolesConfig implements ConfigData {
             RoleSpawnInfoEntries obj = new RoleSpawnInfoEntries();
             for (SREModifier entry : HMLModifiers.MODIFIERS) {
                 obj.maps.put(entry.identifier(), new SpawnInfo(entry.defaultNeedPlayerCount,
-                        entry.defaultMaxPlayerCount, entry.defaultEnableChance));
+                        entry.defaultMaxPlayerCount, entry.defaultEnableChance, entry.defaultSpawnMaps));
             }
             obj.type = 2;
             return obj;
